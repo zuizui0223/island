@@ -1,18 +1,79 @@
-	1.	list.R
-	2.	islandinfo.R
-	3.	distance.R
-	4.	islandenv.R
-	5.	islandgbif.R
-	6.	pdi.R
-	7.	reclassify_isolated.R
-	8.	animal_trop_temp.R
-	9.	NorthernTemperate_IslandFloraSyndrome_BayesianPathModelAnalysis.R
+# Plant Island Syndrome — Floral Trait Simplification in Global Island Floras
 
-	
-本研究ではまず、外部でキュレーションされた植物種と島嶼分布情報を基盤として、植物種ごとの花色、花形、送粉様式、繁殖様式に関する形質データを島単位で統合した。これにより、各島に分布する植物群集とその形質構成を比較可能な形で整理した。
-次に、各島の面積および大陸からの距離を算出した。特に島と大陸との最短距離は、送粉者や植物の移入頻度、分散制限、rescue effect の欠如を総合的に反映する指標とみなし、本研究における島嶼隔離度の代理変数として用いた。
-送粉者環境の定量化には、マルハナバチ属（Bombus）を北半球温帯における主要な送粉者群の一つとして用いた。GBIFに登録されたマルハナバチ属の分布データを取得・精査し、空間的なサンプリング偏りを軽減したうえで、実際の観測分布に基づく気候ニッチを推定した。環境変数については共線性を考慮して選択し、マルハナバチ属が利用してきた気候条件の5–95パーセンタイル範囲を各変数について算出した。
-さらに、各島の環境条件がこのマルハナバチ属の気候ニッチからどの程度乖離しているかを算出し、島ごとの「マルハナバチと環境のミスマッチ」として定量化した。この指標は、島にマルハナバチが実際に存在するかどうかを直接示すものではなく、各島の環境が既知のマルハナバチ属の実現ニッチからどれほど外れているかを表す連続的な代理指標である。したがって本研究では、これを送粉者利用可能性の制約、すなわちマルハナバチ型送粉環境からの乖離の強さとして扱った。
-その後、このマルハナバチと環境のミスマッチ指標を植物分布・形質データに結合し、解析対象を動物媒植物に限定した。花色および花形については、島嶼における花形質の単純化を評価するため、単純化・非単純化の二値形質として再分類した。また、繁殖様式については自家和合性の有無に基づいて整理し、非島嶼や大陸と接続した島など、島嶼進化の比較に適さない記録を除外した。
-最終的に、北半球温帯の島嶼を対象に、島の隔離度、マルハナバチと環境のミスマッチ、自家和合性、花色の単純化、花形の単純化を結ぶ複数のベイズ階層的な経路モデルを構築した。具体的には、①地理的隔離や島面積が花形質を直接説明する地理フィルターモデル、②自家和合性を介して花形質単純化が生じる自殖シンドロームモデル、③島嶼隔離がマルハナバチと環境のミスマッチを高め、それが自家和合性を介して花形質単純化につながる完全媒介モデル、④マルハナバチと環境のミスマッチが自家和合性を介した間接効果に加えて、花形質へ直接効果も持つ部分媒介モデルを比較した。
-これらの候補シナリオは、各応答変数に対するベイズモデルの予測性能をLOO-ELPDにより評価し、シナリオ全体としてどの経路構造が島嶼植物相の花形質構成と最も整合するかを比較した。さらに、選択された北半球温帯モデルを熱帯島嶼および南半球の非熱帯島嶼に外挿し、予測精度の低下を検証した。これにより、島嶼における花形質単純化が普遍的な現象なのか、それとも北半球温帯の送粉者環境や自殖性の進化に依存した条件付きの現象なのかを評価した。
+This repository contains all R scripts for the analysis of floral trait simplification across global island floras, testing ecological conditions and pathways underlying plant island syndrome.
+
+---
+
+## Analysis Pipeline
+
+Scripts should be run in the following order:
+
+| Step | Filename | Description |
+|------|----------|-------------|
+| 1 | `01_compile_island_metadata.R` | Compile island area, geographic coordinates, and climate zone classification |
+| 2 | `02_calc_continent_distance.R` | Calculate minimum distance from each island to the nearest continent |
+| 3 | `03_extract_island_climate.R` | Extract climate variables for each island |
+| 4 | `04_download_plant_traits_gbif.R` | Download and clean GBIF-based plant occurrence and trait data |
+| 5 | `05_get_bombus_occurrence.R` | Download and clean *Bombus* spp. occurrence data from GBIF |
+| 6 | `06_calc_bombus_unsuitability.R` | Calculate *Bombus* climatic unsuitability (PDI) for each island |
+| 7 | `07_filter_oceanic_islands.R` | Filter and reclassify islands to retain truly isolated oceanic islands |
+| 8 | `08_filter_by_pollination_climate.R` | Restrict dataset to animal-pollinated species; classify islands by climate zone (north-temperate, tropical, southern non-tropical) |
+| 9 | `09_recode_floral_traits.R` | Recode floral color (inconspicuous/conspicuous) and floral form (open/specialized) as binary traits |
+| 10 | `10_summarize_island_traits.R` | Aggregate trait proportions at the island level; z-score standardization |
+| 11 | `11_assign_pollinator_preference.R` | Assign pollinator preference categories to species |
+| 12 | `12_fit_bayesian_path_models.R` | Fit four Bayesian piecewise path-model scenarios using brms; compare with LOO-ELPD |
+| 13 | `13_check_sem_lavaan.R` | Confirmatory SEM using lavaan (cross-check) |
+| 14 | `14_full_analysis_pipeline.R` | Full integrated analysis: north-temperate model fitting and projection to tropical and southern non-tropical islands |
+
+---
+
+## Data Files
+
+| File | Description |
+|------|-------------|
+| `islandinfo.csv` | Island metadata (area, coordinates, climate zone) |
+| `list.csv` | Island-level plant species list |
+| `traits.csv` | Species-level floral and reproductive traits |
+| `島嶼花形質.xlsx` | Raw floral trait data sheet |
+| `bombus_niche_5_95.rds` | *Bombus* spp. climate niche (5–95th percentile range per variable) |
+| `island_PDI_bombus_CONTINUOUS.rds` | Island-level *Bombus* climatic unsuitability (PDI, continuous) |
+| `island_flowering_species_facet_progress.rds` | Intermediate output: island × species trait matrix |
+| `data_global_islands/` | Supplementary global island data |
+
+---
+
+## Key Variables
+
+| Variable | Description |
+|----------|-------------|
+| `dist_continent` | Minimum distance to nearest continent (km); proxy for island isolation |
+| `bombus_unsuitability` | *Bombus* climatic unsuitability index (PDI); measures how far island climate deviates from the *Bombus* realized niche |
+| `prop_inconspicuous` | Proportion of inconspicuously colored flowers (white, green, or brown) per island |
+| `prop_open_form` | Proportion of open or brush-type flowers (actinomorphic, brush-type, or composite) per island |
+| `prop_selfcompat` | Proportion of self-compatible species per island |
+
+---
+
+## Path Model Scenarios
+
+Four Bayesian piecewise path-model scenarios were compared using LOO-ELPD:
+
+1. **Geographic Filtering** — Island isolation and area directly predict floral traits
+2. **Selfing Syndrome** — Isolation promotes self-compatibility, which in turn shapes floral traits
+3. **Full Mediation** — *Bombus* climatic unsuitability drives self-compatibility, which then leads to floral simplification
+4. **Partial Mediation** *(best-fit model)* — As above, with *Bombus* climatic unsuitability additionally exerting direct selection on floral color independently of self-compatibility
+
+---
+
+## Dependencies
+
+```r
+# Core packages
+library(brms)       # Bayesian path models
+library(lavaan)     # Confirmatory SEM
+library(rgbif)      # GBIF data access
+library(sf)         # Spatial operations
+library(tidyverse)  # Data wrangling
+```
+
+---
