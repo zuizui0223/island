@@ -39,19 +39,19 @@ Run the scripts in this order for the final analysis:
 
 | Step | Script | Role in the analysis |
 |------|--------|----------------------|
-| 1 | `01_compile_island_metadata.R` | Compile global island polygons and retain islands ≥ 20 km². |
-| 2 | `02_calc_continent_distance.R` | Join plant trait/island metadata and calculate distance from each island to the nearest continent. |
-| 3 | `03_extract_island_climate.R` | Build the VIF-filtered environmental raster stack used for *Bombus* niche mismatch. |
-| 4 | `04_download_plant_traits_gbif.R` | Download GBIF-based island plant species lists. |
-| 5 | `05_get_bombus_occurrence.R` | Download, clean, and thin *Bombus* occurrence data from GBIF. |
-| 6 | `06_calc_bombus_unsuitability.R` | Calculate island-level *Bombus* environmental mismatch / PDI and join it to the plant table. |
-| 7 | `07_filter_oceanic_islands.R` | Standardize floral/reproductive traits and remove invalid or non-isolated island records. |
-| 8 | `08_filter_by_pollination_climate.R` | Restrict the dataset to animal-pollinated species and assign tropical / temperate climate-zone labels. |
-| 9 | `14_full_analysis_pipeline.R` | Run the final integrated analysis: island-level aggregation, Bayesian path-model comparison, path-effect estimation, figures, and external projection. |
+| 1 | `01_compile_global_island_polygons.R` | Compile global island polygons and retain islands ≥ 20 km². |
+| 2 | `02_join_traits_and_calculate_continent_distance.R` | Join plant trait/island metadata and calculate distance from each island to the nearest continent. |
+| 3 | `03_build_vif_filtered_environment_stack.R` | Build the VIF-filtered environmental raster stack used for *Bombus* niche mismatch. |
+| 4 | `04_download_gbif_island_plant_species.R` | Download GBIF-based island plant species lists. |
+| 5 | `05_download_and_thin_bombus_occurrences.R` | Download, clean, and thin *Bombus* occurrence data from GBIF. |
+| 6 | `06_calculate_bombus_environmental_mismatch_pdi.R` | Calculate island-level *Bombus* environmental mismatch / PDI and join it to the plant table. |
+| 7 | `07_reclassify_traits_and_filter_isolated_islands.R` | Standardize floral/reproductive traits and remove invalid or non-isolated island records. |
+| 8 | `08_filter_animal_pollinated_and_assign_climate_zones.R` | Restrict the dataset to animal-pollinated species and assign tropical / temperate climate-zone labels. |
+| 9 | `14_run_final_bayesian_path_model_analysis.R` | Run the final integrated analysis: island-level aggregation, Bayesian path-model comparison, path-effect estimation, figures, and external projection. |
 
 In short: **01–08 build the analysis-ready dataset; 14 performs the final manuscript analysis.**
 
-The final input expected by `14_full_analysis_pipeline.R` is:
+The final input expected by `14_run_final_bayesian_path_model_analysis.R` is:
 
 ```text
 list_with_traits_island_distance_bom_with_PDI_reclassified_isolated_animal_trop_temp.csv
@@ -61,7 +61,7 @@ list_with_traits_island_distance_bom_with_PDI_reclassified_isolated_animal_trop_
 
 ## Final Bayesian path-model analysis
 
-`14_full_analysis_pipeline.R` compares four Bayesian piecewise path-model scenarios for northern-temperate islands using summed LOO-ELPD:
+`14_run_final_bayesian_path_model_analysis.R` compares four Bayesian piecewise path-model scenarios for northern-temperate islands using summed LOO-ELPD:
 
 1. **M0: Geographic filtering**  
    Island isolation and island area directly predict floral trait composition.
@@ -117,7 +117,7 @@ self-incompatible:
 
 ---
 
-## Main outputs from `14_full_analysis_pipeline.R`
+## Main outputs from `14_run_final_bayesian_path_model_analysis.R`
 
 The final script creates a manuscript-style output folder containing:
 
@@ -158,10 +158,10 @@ The previous repository included older exploratory or confirmatory scripts numbe
 
 | Removed script | Reason |
 |----------------|--------|
-| `09_recode_floral_traits.R` | Superseded by trait recoding inside `14_full_analysis_pipeline.R`. |
+| `09_recode_floral_traits.R` | Superseded by trait recoding inside `14_run_final_bayesian_path_model_analysis.R`. |
 | `10_summarize_island_traits.R` | Utility RDS-to-long-table conversion; not used by the final workflow. |
 | `11_assign_pollinator_preference.R` | Independent pollinator-preference heatmap; not part of the abstract's main analysis. |
-| `12_fit_bayesian_path_models.R` | Older species-level / SEM-ready brms path model; superseded by the island-level Bayesian model comparison in `14_full_analysis_pipeline.R`. |
+| `12_fit_bayesian_path_models.R` | Older species-level / SEM-ready brms path model; superseded by the island-level Bayesian model comparison in `14_run_final_bayesian_path_model_analysis.R`. |
 | `13_check_sem_lavaan.R` | Optional lavaan cross-check; not part of the final Bayesian workflow. |
 
 ---
