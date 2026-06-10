@@ -49,9 +49,9 @@ Run the scripts in this order for the final analysis:
 | 8 | `08_filter_animal_pollinated_and_assign_climate_zones.R` | Restrict the dataset to animal-pollinated species and assign tropical / temperate climate-zone labels. |
 | 9 | `09_run_final_bayesian_path_model_analysis.R` | Run the final integrated analysis: island-level aggregation, Bayesian path-model comparison, path-effect estimation, figures, and external projection. |
 
-In short: **01–08 build the analysis-ready dataset; 14 performs the final manuscript analysis.**
+In short: **01–08 build the analysis-ready dataset; 09 performs the final manuscript analysis.**
 
-The final input expected by `14_run_final_bayesian_path_model_analysis.R` is:
+The final input expected by `09_run_final_bayesian_path_model_analysis.R` is:
 
 ```text
 list_with_traits_island_distance_bom_with_PDI_reclassified_isolated_animal_trop_temp.csv
@@ -61,7 +61,7 @@ list_with_traits_island_distance_bom_with_PDI_reclassified_isolated_animal_trop_
 
 ## Final Bayesian path-model analysis
 
-`14_run_final_bayesian_path_model_analysis.R` compares four Bayesian piecewise path-model scenarios for northern-temperate islands using summed LOO-ELPD:
+`09_run_final_bayesian_path_model_analysis.R` compares four Bayesian piecewise path-model scenarios for northern-temperate islands using summed LOO-ELPD:
 
 1. **M0: Geographic filtering**  
    Island isolation and island area directly predict floral trait composition.
