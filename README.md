@@ -47,7 +47,7 @@ Run the scripts in this order for the final analysis:
 | 6 | `06_calculate_bombus_environmental_mismatch_pdi.R` | Calculate island-level *Bombus* environmental mismatch / PDI and join it to the plant table. |
 | 7 | `07_reclassify_traits_and_filter_isolated_islands.R` | Standardize floral/reproductive traits and remove invalid or non-isolated island records. |
 | 8 | `08_filter_animal_pollinated_and_assign_climate_zones.R` | Restrict the dataset to animal-pollinated species and assign tropical / temperate climate-zone labels. |
-| 9 | `14_run_final_bayesian_path_model_analysis.R` | Run the final integrated analysis: island-level aggregation, Bayesian path-model comparison, path-effect estimation, figures, and external projection. |
+| 9 | `09_run_final_bayesian_path_model_analysis.R` | Run the final integrated analysis: island-level aggregation, Bayesian path-model comparison, path-effect estimation, figures, and external projection. |
 
 In short: **01–08 build the analysis-ready dataset; 14 performs the final manuscript analysis.**
 
