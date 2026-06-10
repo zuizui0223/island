@@ -117,7 +117,7 @@ self-incompatible:
 
 ---
 
-## Main outputs from `14_run_final_bayesian_path_model_analysis.R`
+## Main outputs from `09_run_final_bayesian_path_model_analysis.R`
 
 The final script creates a manuscript-style output folder containing:
 
