@@ -1,5 +1,6 @@
 version: "1.0"
 pilot_id: "island-floral-v2-three-block-20260703"
+launched_at_utc: "2026-07-03T11:30:00Z"
 
 # Explicit, bounded launch record: submit exactly three regional GBIF requests.
 query_scope:
