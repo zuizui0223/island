@@ -1,0 +1,41 @@
+name: drive_gbif_full_acquisition
+
+# Fast heartbeat for the self-driving GBIF campaign.  The poll workflow owns
+# state reconciliation; when it detects a completed download it commits the
+# status update, which immediately triggers the capacity-aware submit workflow.
+# This keeps completion-to-next-submission latency near five minutes without
+# launching duplicate request writers.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/drive-gbif-full-acquisition.yml"
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: gbif-full-acquisition-driver
+  cancel-in-progress: true
+
+jobs:
+  dispatch-poll:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start one full-acquisition status poll
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            --request POST \
+            --header "Accept: application/vnd.github+json" \
+            --header "Authorization: Bearer ${GH_TOKEN}" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/poll-gbif-full-acquisition.yml/dispatches" \
+            --data '{"ref":"main"}'
+          echo "Dispatched poll_gbif_full_acquisition."
