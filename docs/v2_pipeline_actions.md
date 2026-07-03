@@ -12,6 +12,7 @@ set (all others were retired pilots and have been removed):
 | (recovery) | `reconcile-gbif-full-acquisition.yml` | manual | One-off ledger reconciliation helper. |
 | CI | `validate-v2.yml` | PR / push | `ruff` + ontology validation + `pytest`. |
 | 3. Collect | `collect-gbif-full-acquisition.yml` | `41 */6` schedule / manual | Download succeeded SIMPLE_CSV archives, assign occurrences to the original exact island polygons, and write `island_species_occurrences.csv`, `island_observation_effort.csv`, and `island_taxa.csv`. |
+| 3.5 Diagnostics | `island-v2-diagnostics run` | — | Consume `island_observation_effort.csv` → per-island observation-process flags + realised-coverage `analysis_included` gate (`config/observation_diagnostics.yml`). Inclusion follows data coverage, not island area. |
 | 4. Traits | `island-v2-traits run` (manual) | — | Consume `island_taxa.csv` (`accepted_species, genus, family`) → LLM web-search trait candidates for review. |
 
 Stages 1–2 share the `gbif-full-acquisition` concurrency group and rebase before
