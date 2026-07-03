@@ -705,13 +705,13 @@
       "geometry_wkt_sha256": "4923d5df198556eb75d7e9b1218069cd2d84f625be7ca65b0fbd2c6dd066792d",
       "query_geometry_sha256": "d475adab8f244249d9b7936f0c3304eab902d5475fd6506b4fb09d89e93bab05",
       "query_wkt_chars": 55493,
-      "request_status": "running",
+      "request_status": "succeeded",
       "download_key": "0015903-260623161305970",
       "submitted_at_utc": "2026-07-03T22:44:09.266080+00:00",
       "error": "",
       "source": "frozen_full_campaign_batch",
-      "doi": "",
-      "last_polled_at_utc": "2026-07-03T22:47:37.212630+00:00",
+      "doi": "10.15468/dl.vsvur2",
+      "last_polled_at_utc": "2026-07-03T23:17:30.252036+00:00",
       "last_poll_error": ""
     },
     {
@@ -721,13 +721,13 @@
       "geometry_wkt_sha256": "ecc8b0955b97c1c90a412c38bad0a40c3d664b5e91cbad3634c29e59c83abdd2",
       "query_geometry_sha256": "4854bc031f56a9dcf87a8a5e1b24f5723d019937bbad473119b15d552c03ca71",
       "query_wkt_chars": 23856,
-      "request_status": "running",
+      "request_status": "succeeded",
       "download_key": "0015904-260623161305970",
       "submitted_at_utc": "2026-07-03T22:44:09.266080+00:00",
       "error": "",
       "source": "frozen_full_campaign_batch",
-      "doi": "",
-      "last_polled_at_utc": "2026-07-03T22:47:37.212630+00:00",
+      "doi": "10.15468/dl.v9uu5y",
+      "last_polled_at_utc": "2026-07-03T23:17:30.252036+00:00",
       "last_poll_error": ""
     },
     {
@@ -782,10 +782,9 @@
     ]
   },
   "last_poll": {
-    "polled_at_utc": "2026-07-03T22:47:37.212630+00:00",
+    "polled_at_utc": "2026-07-03T23:17:30.252036+00:00",
     "ledger_status_counts": {
-      "succeeded": 42,
-      "running": 2
+      "succeeded": 44
     }
   }
 }
