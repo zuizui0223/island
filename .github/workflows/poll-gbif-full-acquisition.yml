@@ -106,6 +106,10 @@ jobs:
           diff = subprocess.run(['git', 'diff', '--cached', '--quiet'])
           if diff.returncode:
               subprocess.run(['git', 'commit', '-m', 'chore: update GBIF download statuses'], check=True)
+              # The ledger is written by several concurrently-scheduled workflows;
+              # rebase onto whatever else has landed on main since checkout instead
+              # of failing the whole poll on a non-fast-forward push.
+              subprocess.run(['git', 'pull', '--rebase', 'origin', 'main'], check=True)
               subprocess.run(['git', 'push'], check=True)
           PY
       - name: Summarize GBIF download state

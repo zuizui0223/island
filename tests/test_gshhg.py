@@ -1,5 +1,6 @@
 import geopandas as gpd
 from shapely.geometry import MultiPolygon, Polygon
+from typer.main import get_command
 from typer.testing import CliRunner
 
 from island_v2.gshhg_source import app, make_island_units, natural_earth_parts
@@ -40,7 +41,17 @@ def test_natural_earth_fallback_splits_multipolygon_components():
 
 
 def test_build_is_a_cli_subcommand_with_fallback_control():
-    result = CliRunner().invoke(app, ["build", "--help"])
+    # Rich's --help rendering wraps/highlights option cells differently
+    # depending on the runner's terminal width and colour support, which
+    # made asserting against the rendered text flaky across environments
+    # (it passed locally but failed in CI at both the default and a forced
+    # COLUMNS=200). Inspect the registered Click command instead: it is
+    # rendering-independent and is what actually defines the CLI's options.
+    command = get_command(app)
+    build_command = command.commands["build"]
+    option_names = {opt for param in build_command.params for opt in param.opts}
 
+    assert "--allow-natural-earth-fallback" in option_names
+
+    result = CliRunner().invoke(app, ["build", "--help"])
     assert result.exit_code == 0
-    assert "--allow-natural-earth-fallback" in result.output

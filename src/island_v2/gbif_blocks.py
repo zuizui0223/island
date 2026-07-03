@@ -24,8 +24,8 @@ import httpx
 import pandas as pd
 import typer
 from shapely import make_valid, orient_polygons, to_wkt
-from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
-from shapely.ops import unary_union
+from shapely.geometry import GeometryCollection, MultiPolygon, Polygon, box
+from shapely.ops import transform, unary_union
 
 from island_v2.gbif_flora import GBIF_API, gbif_payload, require_columns, resolve_taxon
 
@@ -76,6 +76,81 @@ def stable_wkt(geometry: Any) -> str:
         trim=True,
         output_dimension=2,
     )
+
+
+def _wrap_east(x: float, y: float, z: float | None = None) -> tuple[float, ...]:
+    shifted = x + 360.0 if x < 0 else x
+    return (shifted, y) if z is None else (shifted, y, z)
+
+
+def _wrap_west(x: float, y: float, z: float | None = None) -> tuple[float, ...]:
+    # >= (not >) so the seam vertex itself (exactly 180 after _wrap_east) moves
+    # back to -180 along with the rest of this part; otherwise it is left
+    # stranded at +180 and the "west-shifted" part still spans ~360 degrees.
+    shifted = x - 360.0 if x >= 180.0 else x
+    return (shifted, y) if z is None else (shifted, y, z)
+
+
+def split_at_antimeridian(geometry: Polygon | MultiPolygon) -> list[Polygon | MultiPolygon]:
+    """Split a query geometry that spans more than 180 degrees of longitude.
+
+    GBIF's `within` WKT predicate has no antimeridian support: a ring with
+    vertices on both sides of +-180 degrees is rejected outright, even when
+    the underlying island is small and simply happens to straddle the seam
+    (a known GSHHG artifact for some Pacific/Arctic landmasses, and also
+    possible after buffering/unioning nearby islands into one query
+    catchment). This recentres the geometry on the seam, cuts it there, and
+    returns each ordinary-range remainder separately so it can be queried on
+    its own. Non-crossing geometries are returned unchanged.
+    """
+    minx, _, maxx, _ = geometry.bounds
+    if maxx - minx <= 180.0:
+        return [geometry]
+
+    shifted = transform(_wrap_east, geometry)
+    sminx, _, smaxx, _ = shifted.bounds
+    if smaxx - sminx > 180.0:
+        raise ValueError(
+            f"Query geometry spans {maxx - minx:.1f} degrees of longitude even after "
+            "antimeridian recentring; refusing to build an invalid GBIF WKT from it."
+        )
+
+    huge = 1_000.0
+    parts: list[Polygon | MultiPolygon] = []
+    west_of_seam = shifted.intersection(box(-huge, -huge, 180.0, huge))
+    if not west_of_seam.is_empty:
+        parts.append(polygonal_only(make_valid(west_of_seam)))
+    east_of_seam = shifted.intersection(box(180.0, -huge, huge, huge))
+    if not east_of_seam.is_empty:
+        parts.append(polygonal_only(make_valid(transform(_wrap_west, east_of_seam))))
+    if not parts:
+        raise ValueError("Antimeridian split of a query geometry produced no polygonal remainder.")
+    return parts
+
+
+def explode_antimeridian_catchments(query: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Replace any seam-crossing catchment with its per-side, GBIF-safe parts.
+
+    `island_id` stays unique (required by `block_query_geometries`) by
+    suffixing split parts; `analysis_island_id` keeps the link back to the
+    single original island so coverage/QA can still be verified per island.
+    """
+    rows: list[dict[str, Any]] = []
+    for record in query.to_dict("records"):
+        parts = split_at_antimeridian(record["geometry"])
+        if len(parts) == 1:
+            row = dict(record)
+            row["geometry"] = parts[0]
+            row["analysis_island_id"] = record["island_id"]
+            rows.append(row)
+            continue
+        for part_index, part in enumerate(parts, start=1):
+            row = dict(record)
+            row["geometry"] = canonical_gbif_polygon(part)
+            row["analysis_island_id"] = record["island_id"]
+            row["island_id"] = f"{record['island_id']}__antimeridian_part{part_index}"
+            rows.append(row)
+    return gpd.GeoDataFrame(rows, geometry="geometry", crs=query.crs)
 
 
 def grid_index(longitude: float, latitude: float, grid_degrees: float) -> tuple[int, int]:
@@ -158,6 +233,7 @@ def build_query_catchments(
         crs=4326,
     )
     query["geometry"] = query.geometry.map(canonical_gbif_polygon)
+    query = explode_antimeridian_catchments(query)
     query["query_geometry_wkt"] = query.geometry.map(stable_wkt)
     query["query_geometry_sha256"] = query.geometry.map(geometry_hash)
     query["query_wkt_chars"] = query["query_geometry_wkt"].str.len()
@@ -204,7 +280,14 @@ def block_query_geometries(
         global_sequence += 1
         geometry = union_query_geometries([record["geometry"] for record in pending])
         query_wkt = stable_wkt(geometry)
-        block_id = f"gbif_block_{global_sequence:04d}_{regional_cell}_{local_sequence:03d}"
+        # block_id is derived only from (regional_cell, local_sequence), not the
+        # shared global_sequence counter, so it stays stable across manifest
+        # regeneration: a fix that adds/removes rows in one regional cell (e.g.
+        # the antimeridian split above) must not renumber -- and thereby
+        # invalidate the recorded provenance hash of -- every other cell's
+        # already-submitted blocks. global_sequence/block_sequence is kept only
+        # as a display-order hint.
+        block_id = f"gbif_block_{regional_cell}_{local_sequence:03d}"
         blocks.append(
             {
                 "island_id": block_id,
@@ -228,6 +311,7 @@ def block_query_geometries(
                 {
                     "block_id": block_id,
                     "island_id": record["island_id"],
+                    "analysis_island_id": record.get("analysis_island_id", record["island_id"]),
                     "area_km2": record["area_km2"],
                     "analysis_geometry_sha256": record["geometry_sha256"],
                     "query_geometry_sha256": record["query_geometry_sha256"],
