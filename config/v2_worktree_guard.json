@@ -1,4 +1,0 @@
-{
-  "active_branch_policy": "All new pipeline changes target v2 only. The v1-freeze branch is immutable unless explicitly reopened for a historical reproduction task.",
-  "created_at_utc": "2026-07-03T16:00:00Z"
-}
