@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "campaign_id": "island-floral-v2-global-islands-5km2-20260703",
+  "campaign_status": "active",
+  "created_at_utc": "2026-07-03T12:30:00Z",
+  "island_universe": {
+    "minimum_area_km2": 5.0,
+    "n_islands": 8265,
+    "n_gbif_blocks": 103,
+    "grid_degrees": 30.0,
+    "query_buffer_m": 2000.0,
+    "query_simplify_m": 500.0,
+    "max_wkt_chars": 120000,
+    "max_islands_per_block": 125,
+    "acquisition_taxon_name": "Tracheophyta",
+    "acquisition_taxon_rank": "PHYLUM",
+    "acquisition_taxon_key": "7707728",
+    "analytical_target_scope": "angiosperms",
+    "format": "SIMPLE_CSV"
+  },
+  "campaign_policy": {
+    "batch_size": 10,
+    "scheduled_interval_hours": 6,
+    "submission_rule": "Submit only blocks absent from the ledger; never resubmit a recorded GBIF download key.",
+    "failure_rule": "Keep submit_failed blocks in the ledger and stop automatic resubmission pending diagnosis.",
+    "download_rule": "Do not bulk-download archives until coordinate and schema ingestion has been validated on completed pilot files.",
+    "assignment_rule": "Assign downloaded points only to original exact island polygons, never to buffered query catchments."
+  },
+  "ledger": [
+    {
+      "block_id": "gbif_block_0001_cell_w+000.0_s+00.0_001",
+      "regional_cell": "cell_w+000.0_s+00.0",
+      "n_islands": 23,
+      "geometry_wkt_sha256": "350ff49fe6dda5d7be41df94865b15ef35e7eca1f2eb702c92c28737039ae306",
+      "query_geometry_sha256": "4090e7680667cf6c736a97055e2edb6661ec9ebdae74e23c8b5bbd29ba92a652",
+      "query_wkt_chars": 5112,
+      "request_status": "submitted",
+      "download_key": "0013845-260623161305970",
+      "submitted_at_utc": "2026-07-03T12:08:48Z",
+      "error": "",
+      "source": "three_block_operational_pilot"
+    },
+    {
+      "block_id": "gbif_block_0002_cell_w+000.0_s+30.0_001",
+      "regional_cell": "cell_w+000.0_s+30.0",
+      "n_islands": 125,
+      "geometry_wkt_sha256": "20960c3bed378b4dabdc790d5f1ecdca840c0d45e191df6a08233fb7b5965a0b",
+      "query_geometry_sha256": "5f6bfd97966556dbc39de88d88c63870cc4d3c962c657e1c60e44ee2f5110109",
+      "query_wkt_chars": 78380,
+      "request_status": "submitted",
+      "download_key": "0013846-260623161305970",
+      "submitted_at_utc": "2026-07-03T12:08:48Z",
+      "error": "",
+      "source": "three_block_operational_pilot"
+    },
+    {
+      "block_id": "gbif_block_0003_cell_w+000.0_s+30.0_002",
+      "regional_cell": "cell_w+000.0_s+30.0",
+      "n_islands": 125,
+      "geometry_wkt_sha256": "8b145521df4438c5eb8c32d75102d733a4c3185f21eaa60c49d14ce3c357a457",
+      "query_geometry_sha256": "ca54c31fe5afac871558716c31f55d4dde3ea8476e9a6206bc01c5c81cc8a247",
+      "query_wkt_chars": 24950,
+      "request_status": "submitted",
+      "download_key": "0013847-260623161305970",
+      "submitted_at_utc": "2026-07-03T12:08:48Z",
+      "error": "",
+      "source": "three_block_operational_pilot"
+    }
+  ]
+}
