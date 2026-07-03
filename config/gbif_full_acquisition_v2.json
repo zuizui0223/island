@@ -93,6 +93,45 @@
       "migrated_from_block_id": "gbif_block_0004_cell_w+000.0_s+30.0_003"
     },
     {
+      "block_id": "gbif_block_cell_w+000.0_s+30.0_004",
+      "regional_cell": "cell_w+000.0_s+30.0",
+      "n_islands": 53,
+      "geometry_wkt_sha256": "6bb8671606ba4d0d881827f68901e0bc30d3bfd096de0088ef403fb50614cc4f",
+      "query_geometry_sha256": "dff3c335ca5d0e4fc02df681fd3f9df8aa64b89cb0f7a349a0f69795c3c30709",
+      "query_wkt_chars": 8185,
+      "request_status": "submitted",
+      "download_key": "0014134-260623161305970",
+      "submitted_at_utc": "2026-07-03T13:43:10.860488+00:00",
+      "error": "",
+      "source": "frozen_full_campaign_batch"
+    },
+    {
+      "block_id": "gbif_block_cell_w+000.0_s+60.0_001",
+      "regional_cell": "cell_w+000.0_s+60.0",
+      "n_islands": 125,
+      "geometry_wkt_sha256": "6b4a72d968c4b27de9fca5bdcf6917815a4e251e2442fef64ef372d4ccad9a91",
+      "query_geometry_sha256": "49d538e27da7c1c16df98457e6b63355dfb17baf535761e05e69cf5a5f44d0a9",
+      "query_wkt_chars": 46856,
+      "request_status": "submitted",
+      "download_key": "0014135-260623161305970",
+      "submitted_at_utc": "2026-07-03T13:43:10.860488+00:00",
+      "error": "",
+      "source": "frozen_full_campaign_batch"
+    },
+    {
+      "block_id": "gbif_block_cell_w+000.0_s-30.0_001",
+      "regional_cell": "cell_w+000.0_s-30.0",
+      "n_islands": 2,
+      "geometry_wkt_sha256": "82bc84e00fbcc57d780af251b61cfb28ef2c5e809d9b99ee3f9b5a1fd7e70fd9",
+      "query_geometry_sha256": "a4ba241cf532ce18326a68c449052ab9d81bd72533577b53037165c071dfe920",
+      "query_wkt_chars": 510,
+      "request_status": "submitted",
+      "download_key": "0014136-260623161305970",
+      "submitted_at_utc": "2026-07-03T13:43:10.860488+00:00",
+      "error": "",
+      "source": "frozen_full_campaign_batch"
+    },
+    {
       "block_id": "gbif_block_cell_w+000.0_s-60.0_001",
       "regional_cell": "cell_w+000.0_s-60.0",
       "n_islands": 2,
@@ -120,12 +159,10 @@
     "rule": "Do not resubmit recovered download keys."
   },
   "last_batch": {
-    "updated_at_utc": "2026-07-03T13:27:54.167697+00:00",
+    "updated_at_utc": "2026-07-03T13:43:10.860488+00:00",
     "submit_exit_code": 0,
     "ledger_status_counts": {
-      "submitted": 5,
-      "geometry_repair_pending": 2,
-      "deferred_capacity": 6
+      "submitted": 8
     }
   },
   "ledger_id_migration": {
