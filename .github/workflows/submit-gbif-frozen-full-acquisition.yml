@@ -1,10 +1,16 @@
 name: submit_gbif_frozen_full_acquisition
 
-# Manual-dispatch only. This used to also fire on push/schedule, which is
-# exactly what raced against poll/reconcile pushing to the same ledger file
-# and produced the non-fast-forward push failure recorded for run
-# 28660644067. Resuming real GBIF submissions spends the account's live
-# quota, so each batch is now a deliberate, explicit action.
+# Self-driving acquisition. Each run attempts up to batch_size new blocks and
+# stops the moment GBIF reports its concurrent-download limit (the submitter is
+# capacity-aware); deferred blocks are transient and re-selected next tick, so
+# successive scheduled ticks drain all 103 blocks as GBIF completes earlier
+# downloads and frees slots. The push/schedule race that made this manual-only
+# (run 28660644067) is fixed: this and poll/reconcile now share the
+# gbif-full-acquisition concurrency group (so they serialise) and rebase onto
+# main before pushing the shared ledger.
+#
+# To pause the campaign, disable this workflow in the Actions tab (or remove the
+# schedule); in-flight downloads keep completing and can be polled/collected.
 on:
   workflow_dispatch:
     inputs:
@@ -13,6 +19,11 @@ on:
         required: false
         default: "3"
         type: string
+  schedule:
+    # Every 15 minutes. GBIF caps a user at 3 simultaneous downloads, so each
+    # tick fills whatever slots freed since the last one; this is the campaign's
+    # throughput ceiling, not the cron interval.
+    - cron: "*/15 * * * *"
 
 permissions:
   actions: read
