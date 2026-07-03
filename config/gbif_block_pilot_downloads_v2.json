@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "pilot_id": "island-floral-v2-three-block-20260703",
+  "submitted_workflow_run": 28659417688,
+  "submitted_at_utc": "2026-07-03T12:08:48Z",
+  "scope": {
+    "acquisition_taxon_name": "Tracheophyta",
+    "acquisition_taxon_key": "7707728",
+    "analytical_target_scope": "angiosperms",
+    "island_min_area_km2": 5.0,
+    "format": "SIMPLE_CSV"
+  },
+  "requests": [
+    {
+      "block_id": "gbif_block_0001_cell_w+000.0_s+00.0_001",
+      "regional_cell": "cell_w+000.0_s+00.0",
+      "n_islands": 23,
+      "download_key": "0013845-260623161305970"
+    },
+    {
+      "block_id": "gbif_block_0002_cell_w+000.0_s+30.0_001",
+      "regional_cell": "cell_w+000.0_s+30.0",
+      "n_islands": 125,
+      "download_key": "0013846-260623161305970"
+    },
+    {
+      "block_id": "gbif_block_0003_cell_w+000.0_s+30.0_002",
+      "regional_cell": "cell_w+000.0_s+30.0",
+      "n_islands": 125,
+      "download_key": "0013847-260623161305970"
+    }
+  ],
+  "next_step": "Poll status until succeeded; do not collect archives until schema inspection workflow is in place."
+}
