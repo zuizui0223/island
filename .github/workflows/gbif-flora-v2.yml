@@ -1,0 +1,95 @@
+name: GBIF flora v2
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: "prepare, requests, submit, poll, or collect"
+        required: true
+        default: "prepare"
+        type: choice
+        options:
+          - prepare
+          - requests
+          - submit
+          - poll
+          - collect
+      max_requests:
+        description: "Maximum prepared GBIF requests to submit"
+        required: false
+        default: "20"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    environment: gbif-downloads
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Validate v2 package
+        run: |
+          island-v2-validate ontology --ontology-path config/trait_ontology.yml
+          pytest -q
+      - name: Check protected input and manifest paths
+        run: |
+          test -e data/v2/external/islands/GlbIslands.gdb || {
+            echo "Missing island geometry input. Add the documented vector source before running this stage." >&2
+            exit 2
+          }
+      - name: Run selected stage
+        env:
+          GBIF_USERNAME: ${{ secrets.GBIF_USERNAME }}
+          GBIF_PASSWORD: ${{ secrets.GBIF_PASSWORD }}
+          GBIF_EMAIL: ${{ secrets.GBIF_EMAIL }}
+        run: |
+          case "${{ inputs.stage }}" in
+            prepare)
+              island-v2-gbif-flora prepare-islands \
+                --input-path data/v2/external/islands/GlbIslands.gdb \
+                --layer BigIslands \
+                --output-dir data/v2/external/islands/prepared \
+                --source-label global_islands_source \
+                --min-area-km2 20
+              ;;
+            requests)
+              island-v2-gbif-flora make-requests \
+                --islands-gpkg data/v2/external/islands/prepared/islands_v2.gpkg \
+                --output-csv data/v2/external/gbif/request_manifest.csv \
+                --checklist-key 7ddf754f-d193-4cc9-b351-99906754a03b \
+                --email "$GBIF_EMAIL"
+              ;;
+            submit)
+              island-v2-gbif-flora submit \
+                --request-manifest data/v2/external/gbif/request_manifest.csv \
+                --max-requests "${{ inputs.max_requests }}"
+              ;;
+            poll)
+              island-v2-gbif-flora poll \
+                --request-manifest data/v2/external/gbif/request_manifest.csv
+              ;;
+            collect)
+              island-v2-gbif-flora collect \
+                --request-manifest data/v2/external/gbif/request_manifest.csv \
+                --download-dir data/v2/external/gbif/downloads \
+                --output-species-csv data/v2/staging/gbif/island_species_raw.csv
+              ;;
+          esac
+      - name: Upload run artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gbif-flora-v2-${{ inputs.stage }}-${{ github.run_id }}
+          path: |
+            data/v2/external/islands/prepared/**
+            data/v2/external/gbif/**
+            data/v2/staging/gbif/**
+          if-no-files-found: warn
+          retention-days: 30
