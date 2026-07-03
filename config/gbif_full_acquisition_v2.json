@@ -42,12 +42,15 @@
       "geometry_wkt_sha256": "350ff49fe6dda5d7be41df94865b15ef35e7eca1f2eb702c92c28737039ae306",
       "query_geometry_sha256": "4090e7680667cf6c736a97055e2edb6661ec9ebdae74e23c8b5bbd29ba92a652",
       "query_wkt_chars": 5112,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0013845-260623161305970",
       "submitted_at_utc": "2026-07-03T12:08:48Z",
       "error": "",
       "source": "three_block_operational_pilot",
-      "migrated_from_block_id": "gbif_block_0001_cell_w+000.0_s+00.0_001"
+      "migrated_from_block_id": "gbif_block_0001_cell_w+000.0_s+00.0_001",
+      "doi": "10.15468/dl.wu349f",
+      "last_polled_at_utc": "2026-07-03T14:07:56.189619+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w+000.0_s+30.0_001",
@@ -56,12 +59,15 @@
       "geometry_wkt_sha256": "20960c3bed378b4dabdc790d5f1ecdca840c0d45e191df6a08233fb7b5965a0b",
       "query_geometry_sha256": "5f6bfd97966556dbc39de88d88c63870cc4d3c962c657e1c60e44ee2f5110109",
       "query_wkt_chars": 78380,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0013846-260623161305970",
       "submitted_at_utc": "2026-07-03T12:08:48Z",
       "error": "",
       "source": "three_block_operational_pilot",
-      "migrated_from_block_id": "gbif_block_0002_cell_w+000.0_s+30.0_001"
+      "migrated_from_block_id": "gbif_block_0002_cell_w+000.0_s+30.0_001",
+      "doi": "10.15468/dl.dm3sh6",
+      "last_polled_at_utc": "2026-07-03T14:07:56.189619+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w+000.0_s+30.0_002",
@@ -70,12 +76,15 @@
       "geometry_wkt_sha256": "8b145521df4438c5eb8c32d75102d733a4c3185f21eaa60c49d14ce3c357a457",
       "query_geometry_sha256": "ca54c31fe5afac871558716c31f55d4dde3ea8476e9a6206bc01c5c81cc8a247",
       "query_wkt_chars": 24950,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0013847-260623161305970",
       "submitted_at_utc": "2026-07-03T12:08:48Z",
       "error": "",
       "source": "three_block_operational_pilot",
-      "migrated_from_block_id": "gbif_block_0003_cell_w+000.0_s+30.0_002"
+      "migrated_from_block_id": "gbif_block_0003_cell_w+000.0_s+30.0_002",
+      "doi": "10.15468/dl.7pqk22",
+      "last_polled_at_utc": "2026-07-03T14:07:56.189619+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w+000.0_s+30.0_003",
@@ -84,13 +93,16 @@
       "geometry_wkt_sha256": "5b89ea4faad4518395d03ac65d8daa30b5af1378430755755b497f38afbc9e74",
       "query_geometry_sha256": "b14467ec1e939d92a97d894de265cffff834423ee92e3161c881d8761b3917ca",
       "query_wkt_chars": 21163,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0013894-260623161305970",
       "submitted_at_utc": "2026-07-03T12:31:34.430486+00:00",
       "error": "accepted",
       "error_class": "",
       "source": "recovered_from_run_28660644067",
-      "migrated_from_block_id": "gbif_block_0004_cell_w+000.0_s+30.0_003"
+      "migrated_from_block_id": "gbif_block_0004_cell_w+000.0_s+30.0_003",
+      "doi": "10.15468/dl.fnrsm5",
+      "last_polled_at_utc": "2026-07-03T14:07:56.189619+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w+000.0_s+30.0_004",
@@ -99,11 +111,14 @@
       "geometry_wkt_sha256": "6bb8671606ba4d0d881827f68901e0bc30d3bfd096de0088ef403fb50614cc4f",
       "query_geometry_sha256": "dff3c335ca5d0e4fc02df681fd3f9df8aa64b89cb0f7a349a0f69795c3c30709",
       "query_wkt_chars": 8185,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0014134-260623161305970",
       "submitted_at_utc": "2026-07-03T13:43:10.860488+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.mjyrav",
+      "last_polled_at_utc": "2026-07-03T14:07:56.189619+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w+000.0_s+60.0_001",
@@ -112,11 +127,14 @@
       "geometry_wkt_sha256": "6b4a72d968c4b27de9fca5bdcf6917815a4e251e2442fef64ef372d4ccad9a91",
       "query_geometry_sha256": "49d538e27da7c1c16df98457e6b63355dfb17baf535761e05e69cf5a5f44d0a9",
       "query_wkt_chars": 46856,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0014135-260623161305970",
       "submitted_at_utc": "2026-07-03T13:43:10.860488+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.xyn3ks",
+      "last_polled_at_utc": "2026-07-03T14:07:56.189619+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w+000.0_s-30.0_001",
@@ -125,11 +143,14 @@
       "geometry_wkt_sha256": "82bc84e00fbcc57d780af251b61cfb28ef2c5e809d9b99ee3f9b5a1fd7e70fd9",
       "query_geometry_sha256": "a4ba241cf532ce18326a68c449052ab9d81bd72533577b53037165c071dfe920",
       "query_wkt_chars": 510,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0014136-260623161305970",
       "submitted_at_utc": "2026-07-03T13:43:10.860488+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.wuxb5n",
+      "last_polled_at_utc": "2026-07-03T14:07:56.189619+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w+000.0_s-60.0_001",
@@ -138,13 +159,16 @@
       "geometry_wkt_sha256": "b4e3ba6b6be133af5561221ae3c8e9e1b59341a3c1203f9a0c973a79e4541682",
       "query_geometry_sha256": "5f980f42c06dab643613676e3b345e9f6707e08bc5f4826b3e3fede7de95391a",
       "query_wkt_chars": 425,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0013896-260623161305970",
       "submitted_at_utc": "2026-07-03T12:31:34.430486+00:00",
       "error": "accepted",
       "error_class": "",
       "source": "recovered_from_run_28660644067",
-      "migrated_from_block_id": "gbif_block_0011_cell_w+000.0_s-60.0_001"
+      "migrated_from_block_id": "gbif_block_0011_cell_w+000.0_s-60.0_001",
+      "doi": "10.15468/dl.us5ezv",
+      "last_polled_at_utc": "2026-07-03T14:07:56.189619+00:00",
+      "last_poll_error": ""
     }
   ],
   "recovery": {
@@ -179,5 +203,11 @@
       "gbif_block_0017_cell_w+030.0_s-60.0_001 (deferred_capacity)",
       "gbif_block_0018_cell_w+060.0_s+00.0_001 (deferred_capacity)"
     ]
+  },
+  "last_poll": {
+    "polled_at_utc": "2026-07-03T14:07:56.189619+00:00",
+    "ledger_status_counts": {
+      "succeeded": 8
+    }
   }
 }
