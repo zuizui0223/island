@@ -1,0 +1,28 @@
+version: "2.0"
+
+# Coordinate-preserving occurrence downloads are acquired by regional island
+# blocks, then joined back to the original exact island polygons.
+taxonomy:
+  checklist_key: "7ddf754f-d193-4cc9-b351-99906754a03b"
+  taxon_name: "Angiosperms"
+  taxon_rank: null
+
+acquisition:
+  format: "SIMPLE_CSV"
+  grid_degrees: 30.0
+  max_wkt_chars: 120000
+  max_islands_per_block: 125
+  # Query only: outward catchment to avoid coastal coordinate-rounding misses.
+  # Returned points are later assigned to the original island polygons.
+  query_buffer_m: 2000.0
+  query_simplify_m: 500.0
+  require_coordinates: true
+  exclude_geospatial_issues: true
+  minimum_year: null
+  basis_of_record_filter: null
+
+outputs:
+  island_gpkg: "data/v2/external/islands/gshhg/prepared/islands_v2.gpkg"
+  output_dir: "data/v2/external/gbif/blocks"
+  request_manifest: "data/v2/external/gbif/blocks/gbif_block_request_manifest.csv"
+  block_members: "data/v2/external/gbif/blocks/gbif_block_members.csv"
