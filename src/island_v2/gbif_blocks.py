@@ -107,7 +107,12 @@ def split_at_antimeridian(geometry: Polygon | MultiPolygon) -> list[Polygon | Mu
     if maxx - minx <= 180.0:
         return [geometry]
 
-    shifted = transform(_wrap_east, geometry)
+    # Recentre on the seam, then repair: translating a ring across +-180 can
+    # leave the polygon self-touching exactly on the old seam line, and GEOS
+    # then raises "TopologyException: side location conflict" when that
+    # invalid geometry is intersected (seen on real GSHHG dateline landmasses
+    # near 65N). make_valid before the cut avoids that.
+    shifted = make_valid(transform(_wrap_east, geometry))
     sminx, _, smaxx, _ = shifted.bounds
     if smaxx - sminx > 180.0:
         raise ValueError(

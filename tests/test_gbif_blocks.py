@@ -95,6 +95,24 @@ def test_split_at_antimeridian_recovers_true_small_extent():
     assert abs(sum(part.area for part in parts) - 2.0) < 1e-9
 
 
+def test_split_at_antimeridian_repairs_invalid_shifted_geometry():
+    # Recentring a self-intersecting seam-crossing ring on the seam leaves an
+    # invalid polygon; intersecting that directly makes GEOS raise
+    # "TopologyException: side location conflict" (this is the real crash that
+    # took down the frozen GSHHG submission run on a dateline landmass near
+    # 65N). split_at_antimeridian must repair before cutting.
+    bowtie = Polygon([(179, 64), (-179, 66), (179, 66), (-179, 64), (179, 64)])
+    assert not bowtie.is_valid
+
+    parts = split_at_antimeridian(bowtie)
+
+    assert len(parts) == 2
+    for part in parts:
+        assert part.is_valid
+        pminx, _, pmaxx, _ = part.bounds
+        assert pmaxx - pminx <= 180.0
+
+
 def test_regional_blocks_split_seam_crossing_island_into_two_valid_blocks():
     islands = gpd.GeoDataFrame(
         {
