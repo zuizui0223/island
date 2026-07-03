@@ -1,0 +1,102 @@
+name: prepare_gbif_block_requests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/island_source_gshhg.yml"
+      - "config/gbif_block_acquisition_v2.yml"
+      - "src/island_v2/gshhg_source.py"
+      - "src/island_v2/gbif_blocks.py"
+      - "src/island_v2/gbif_flora.py"
+      - "pyproject.toml"
+      - ".github/workflows/prepare-gbif-block-requests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Build current v2 island universe
+        run: island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
+      - name: Make bounded coordinate-preserving GBIF request blocks
+        run: |
+          python - <<'PY'
+          import subprocess
+          from pathlib import Path
+          import yaml
+
+          cfg = yaml.safe_load(Path('config/gbif_block_acquisition_v2.yml').read_text())
+          tax = cfg['taxonomy']
+          acq = cfg['acquisition']
+          out = cfg['outputs']
+          command = [
+              'island-v2-gbif-blocks', 'prepare',
+              '--islands-gpkg', out['island_gpkg'],
+              '--output-dir', out['output_dir'],
+              '--taxon-name', str(tax['taxon_name']),
+              '--checklist-key', str(tax['checklist_key']),
+              '--grid-degrees', str(acq['grid_degrees']),
+              '--max-wkt-chars', str(acq['max_wkt_chars']),
+              '--max-islands-per-block', str(acq['max_islands_per_block']),
+              '--query-buffer-m', str(acq['query_buffer_m']),
+              '--query-simplify-m', str(acq['query_simplify_m']),
+          ]
+          if tax.get('taxon_rank'):
+              command.extend(['--taxon-rank', str(tax['taxon_rank'])])
+          subprocess.run(command, check=True)
+          PY
+      - name: Report GBIF block diagnostics
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('data/v2/external/gbif/blocks')
+          policy = json.loads((root / 'gbif_block_policy.json').read_text())
+          manifest = pd.read_csv(root / 'gbif_block_request_manifest.csv')
+          print('## GBIF regional block requests')
+          print('```json')
+          print(json.dumps(policy, indent=2))
+          print('```')
+          print('### Request geometry diagnostics')
+          print(f"- blocks: {len(manifest)}")
+          print(f"- islands: {int(manifest['n_islands'].sum())}")
+          print(f"- maximum WKT characters: {int(manifest['query_wkt_chars'].max())}")
+          print(f"- median WKT characters: {float(manifest['query_wkt_chars'].median()):.0f}")
+          print(f"- maximum islands/block: {int(manifest['n_islands'].max())}")
+          print(f"- median islands/block: {float(manifest['n_islands'].median()):.0f}")
+          print('')
+          print('### First ten requests')
+          print('```csv')
+          print(manifest[[
+              'block_id', 'regional_cell', 'n_islands', 'query_wkt_chars',
+              'analysis_area_km2_sum'
+          ]].head(10).to_csv(index=False), end='')
+          print('```')
+          PY
+      - name: Upload island geometry and GBIF request manifests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gbif-block-requests-${{ github.run_id }}
+          path: |
+            data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
+            data/v2/external/islands/gshhg/prepared/island_manifest.csv
+            data/v2/external/islands/gshhg/prepared/source_policy.json
+            data/v2/external/gbif/blocks/gbif_block_request_manifest.csv
+            data/v2/external/gbif/blocks/gbif_block_members.csv
+            data/v2/external/gbif/blocks/gbif_block_taxon_resolution.json
+            data/v2/external/gbif/blocks/gbif_block_policy.json
+          if-no-files-found: warn
+          retention-days: 90
