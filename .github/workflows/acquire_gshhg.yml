@@ -2,6 +2,13 @@ name: acquire_gshhg
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/island_source_gshhg.yml"
+      - "src/island_v2/gshhg_source.py"
+      - "pyproject.toml"
+      - ".github/workflows/acquire_gshhg.yml"
 
 permissions:
   contents: read
