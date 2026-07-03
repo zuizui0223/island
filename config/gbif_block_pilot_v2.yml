@@ -1,6 +1,7 @@
 version: "1.0"
 pilot_id: "island-floral-v2-three-block-20260703"
-launched_at_utc: "2026-07-03T11:30:00Z"
+launched_at_utc: "2026-07-03T11:50:00Z"
+attempt: 2
 
 # Explicit, bounded launch record: submit exactly three regional GBIF requests.
 query_scope:
@@ -18,6 +19,6 @@ geometry:
   query_simplify_m: 500.0
 
 post_submit:
-  next_step: "poll submitted download keys in a separate run"
+  next_step: "read GBIF error bodies; only poll after accepted download keys exist"
   spatial_assignment: "join returned coordinates to original exact island polygons"
   taxonomy_filter: "retain angiosperm records only with provenance retained"
