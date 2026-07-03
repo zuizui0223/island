@@ -130,7 +130,14 @@ jobs:
                       raise SystemExit(f'Frozen provenance mismatch for {block_id}: {key}')
               if int(current['n_islands']) != int(entry['n_islands']):
                   raise SystemExit(f'Frozen island-count mismatch for {block_id}')
-              if str(entry.get('download_key', '')).strip() and status == 'submitted':
+              # Any block that already holds a real GBIF download key is
+              # recorded and must never be resubmitted, regardless of where it
+              # is in GBIF's asynchronous lifecycle. poll advances a submitted
+              # block through preparing -> running -> succeeded, so anchoring
+              # only on 'submitted' made batch selection crash
+              # ("Invalid recorded state: succeeded") the moment the first
+              # download completed, freezing the whole campaign.
+              if str(entry.get('download_key', '')).strip():
                   recorded[block_id] = entry
               elif status == 'submit_failed':
                   recorded[block_id] = entry
@@ -197,56 +204,81 @@ jobs:
           from pathlib import Path
           import pandas as pd
 
+          import time
+
           campaign_path = Path('config/gbif_full_acquisition_v2.json')
           batch_path = Path('data/v2/external/gbif/full/gbif_submit_batch.csv')
-          campaign = json.loads(campaign_path.read_text(encoding='utf-8'))
-          ledger = {str(row['block_id']): row for row in campaign.get('ledger', [])}
-          now = datetime.now(UTC).isoformat()
+          # A block is "recorded" (never resubmitted) once GBIF has accepted it,
+          # through its whole async lifecycle, plus terminal submit_failed.
+          recorded_statuses = {'submitted', 'preparing', 'running', 'succeeded', 'submit_failed'}
+          # Only these are written from a fresh submit batch.
           recognized_statuses = {'submitted', 'submit_failed', 'deferred_capacity', 'geometry_repair_pending'}
-          if batch_path.exists() and batch_path.stat().st_size:
-              batch = pd.read_csv(batch_path, dtype=str).fillna('')
-              for row in batch.to_dict('records'):
-                  status = str(row.get('request_status', ''))
-                  if status not in recognized_statuses:
-                      continue
-                  block_id = str(row['block_id'])
-                  prior = ledger.get(block_id)
-                  if prior and str(prior.get('download_key', '')).strip():
-                      raise SystemExit(f'Refusing to overwrite accepted GBIF key for {block_id}')
-                  ledger[block_id] = {
-                      'block_id': block_id,
-                      'regional_cell': str(row['regional_cell']),
-                      'n_islands': int(row['n_islands']),
-                      'geometry_wkt_sha256': str(row['geometry_wkt_sha256']),
-                      'query_geometry_sha256': str(row['query_geometry_sha256']),
-                      'query_wkt_chars': int(row['query_wkt_chars']),
-                      'request_status': status,
-                      'download_key': str(row.get('download_key', '')),
-                      'submitted_at_utc': now if status == 'submitted' else '',
-                      'error': str(row.get('error', '')),
-                      'source': 'frozen_full_campaign_batch',
-                  }
-          campaign['ledger'] = [ledger[key] for key in sorted(ledger)]
-          counts = {}
-          for entry in campaign['ledger']:
-              counts[entry['request_status']] = counts.get(entry['request_status'], 0) + 1
-          campaign['last_batch'] = {'updated_at_utc': now, 'submit_exit_code': int(os.environ['SUBMIT_EXIT_CODE']), 'ledger_status_counts': counts}
-          n_settled = counts.get('submitted', 0) + counts.get('submit_failed', 0)
-          if n_settled == int(campaign['island_universe']['n_gbif_blocks']):
-              campaign['campaign_status'] = 'submission_complete_pending_downloads'
-          else:
-              campaign['campaign_status'] = 'submitting_in_bounded_batches'
-          campaign_path.write_text(json.dumps(campaign, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          n_blocks = None
           subprocess.run(['git', 'config', 'user.name', 'github-actions[bot]'], check=True)
           subprocess.run(['git', 'config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com'], check=True)
-          subprocess.run(['git', 'add', str(campaign_path)], check=True)
-          if subprocess.run(['git', 'diff', '--cached', '--quiet']).returncode:
+
+          def apply_batch_and_push() -> bool:
+              """Rebuild the ledger from the freshest main, merge this batch, push.
+
+              The batch CSV is untracked, so it survives the hard reset and can be
+              re-applied onto whatever poll/reconcile have committed since checkout.
+              This makes the ledger write conflict-proof instead of dying on a
+              JSON merge conflict during a rebase (runs 28665746146 / 28666266953).
+              """
+              nonlocal n_blocks
+              campaign = json.loads(campaign_path.read_text(encoding='utf-8'))
+              n_blocks = int(campaign['island_universe']['n_gbif_blocks'])
+              ledger = {str(row['block_id']): row for row in campaign.get('ledger', [])}
+              now = datetime.now(UTC).isoformat()
+              if batch_path.exists() and batch_path.stat().st_size:
+                  batch = pd.read_csv(batch_path, dtype=str).fillna('')
+                  for row in batch.to_dict('records'):
+                      status = str(row.get('request_status', ''))
+                      if status not in recognized_statuses:
+                          continue
+                      block_id = str(row['block_id'])
+                      prior = ledger.get(block_id)
+                      if prior and str(prior.get('download_key', '')).strip():
+                          # already accepted (e.g. poll advanced it) -> never clobber
+                          continue
+                      ledger[block_id] = {
+                          'block_id': block_id,
+                          'regional_cell': str(row['regional_cell']),
+                          'n_islands': int(row['n_islands']),
+                          'geometry_wkt_sha256': str(row['geometry_wkt_sha256']),
+                          'query_geometry_sha256': str(row['query_geometry_sha256']),
+                          'query_wkt_chars': int(row['query_wkt_chars']),
+                          'request_status': status,
+                          'download_key': str(row.get('download_key', '')),
+                          'submitted_at_utc': now if status == 'submitted' else '',
+                          'error': str(row.get('error', '')),
+                          'source': 'frozen_full_campaign_batch',
+                      }
+              campaign['ledger'] = [ledger[key] for key in sorted(ledger)]
+              counts = {}
+              for entry in campaign['ledger']:
+                  counts[entry['request_status']] = counts.get(entry['request_status'], 0) + 1
+              campaign['last_batch'] = {'updated_at_utc': now, 'submit_exit_code': int(os.environ['SUBMIT_EXIT_CODE']), 'ledger_status_counts': counts}
+              n_recorded = sum(counts.get(status, 0) for status in recorded_statuses)
+              campaign['campaign_status'] = (
+                  'submission_complete_pending_downloads' if n_recorded == n_blocks
+                  else 'submitting_in_bounded_batches'
+              )
+              campaign_path.write_text(json.dumps(campaign, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+              subprocess.run(['git', 'add', str(campaign_path)], check=True)
+              if subprocess.run(['git', 'diff', '--cached', '--quiet']).returncode == 0:
+                  return True  # nothing to record
               subprocess.run(['git', 'commit', '-m', 'chore: record GBIF frozen acquisition batch'], check=True)
-              # The ledger is also written by poll/reconcile; rebase onto
-              # whatever else has landed on main since checkout instead of
-              # failing this run on a non-fast-forward push (see run 28660644067).
-              subprocess.run(['git', 'pull', '--rebase', 'origin', 'main'], check=True)
-              subprocess.run(['git', 'push'], check=True)
+              return subprocess.run(['git', 'push']).returncode == 0
+
+          for attempt in range(6):
+              subprocess.run(['git', 'fetch', 'origin', 'main'], check=True)
+              subprocess.run(['git', 'reset', '--hard', 'origin/main'], check=True)
+              if apply_batch_and_push():
+                  break
+              time.sleep(2 ** attempt)
+          else:
+              raise SystemExit('Could not push the campaign ledger after repeated retries')
           PY
       - name: Summarize batch results
         if: always()
