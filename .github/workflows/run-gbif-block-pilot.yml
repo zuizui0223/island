@@ -15,7 +15,6 @@ jobs:
     # A push starts the pilot only when the dedicated launch commit is used.
     if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'launch GBIF pilot'
     runs-on: ubuntu-latest
-    environment: gbif-downloads
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -45,8 +44,8 @@ jobs:
           GBIF_USERNAME: ${{ secrets.GBIF_USERNAME }}
           GBIF_PASSWORD: ${{ secrets.GBIF_PASSWORD }}
         run: |
-          test -n "$GBIF_USERNAME" || { echo 'GBIF_USERNAME secret is missing.' >&2; exit 2; }
-          test -n "$GBIF_PASSWORD" || { echo 'GBIF_PASSWORD secret is missing.' >&2; exit 2; }
+          test -n "$GBIF_USERNAME" || { echo 'Repository secret GBIF_USERNAME is missing.' >&2; exit 2; }
+          test -n "$GBIF_PASSWORD" || { echo 'Repository secret GBIF_PASSWORD is missing.' >&2; exit 2; }
           island-v2-gbif-flora submit \
             --request-manifest data/v2/external/gbif/pilot/gbif_block_request_manifest.csv \
             --max-requests 3 \
