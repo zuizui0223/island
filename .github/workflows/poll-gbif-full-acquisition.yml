@@ -3,7 +3,10 @@ name: poll_gbif_full_acquisition
 on:
   workflow_dispatch:
   schedule:
-    - cron: "47 */3 * * *"
+    # Every 15 minutes, offset from the submit workflow's */15 so download
+    # statuses (submitted -> running -> succeeded/failed) advance between
+    # submission ticks while the campaign is draining.
+    - cron: "7,22,37,52 * * * *"
   push:
     branches: [main]
     paths:
