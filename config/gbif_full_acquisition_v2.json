@@ -36,7 +36,7 @@
   },
   "ledger": [
     {
-      "block_id": "gbif_block_0001_cell_w+000.0_s+00.0_001",
+      "block_id": "gbif_block_cell_w+000.0_s+00.0_001",
       "regional_cell": "cell_w+000.0_s+00.0",
       "n_islands": 23,
       "geometry_wkt_sha256": "350ff49fe6dda5d7be41df94865b15ef35e7eca1f2eb702c92c28737039ae306",
@@ -46,10 +46,11 @@
       "download_key": "0013845-260623161305970",
       "submitted_at_utc": "2026-07-03T12:08:48Z",
       "error": "",
-      "source": "three_block_operational_pilot"
+      "source": "three_block_operational_pilot",
+      "migrated_from_block_id": "gbif_block_0001_cell_w+000.0_s+00.0_001"
     },
     {
-      "block_id": "gbif_block_0002_cell_w+000.0_s+30.0_001",
+      "block_id": "gbif_block_cell_w+000.0_s+30.0_001",
       "regional_cell": "cell_w+000.0_s+30.0",
       "n_islands": 125,
       "geometry_wkt_sha256": "20960c3bed378b4dabdc790d5f1ecdca840c0d45e191df6a08233fb7b5965a0b",
@@ -59,10 +60,11 @@
       "download_key": "0013846-260623161305970",
       "submitted_at_utc": "2026-07-03T12:08:48Z",
       "error": "",
-      "source": "three_block_operational_pilot"
+      "source": "three_block_operational_pilot",
+      "migrated_from_block_id": "gbif_block_0002_cell_w+000.0_s+30.0_001"
     },
     {
-      "block_id": "gbif_block_0003_cell_w+000.0_s+30.0_002",
+      "block_id": "gbif_block_cell_w+000.0_s+30.0_002",
       "regional_cell": "cell_w+000.0_s+30.0",
       "n_islands": 125,
       "geometry_wkt_sha256": "8b145521df4438c5eb8c32d75102d733a4c3185f21eaa60c49d14ce3c357a457",
@@ -72,10 +74,11 @@
       "download_key": "0013847-260623161305970",
       "submitted_at_utc": "2026-07-03T12:08:48Z",
       "error": "",
-      "source": "three_block_operational_pilot"
+      "source": "three_block_operational_pilot",
+      "migrated_from_block_id": "gbif_block_0003_cell_w+000.0_s+30.0_002"
     },
     {
-      "block_id": "gbif_block_0004_cell_w+000.0_s+30.0_003",
+      "block_id": "gbif_block_cell_w+000.0_s+30.0_003",
       "regional_cell": "cell_w+000.0_s+30.0",
       "n_islands": 125,
       "geometry_wkt_sha256": "5b89ea4faad4518395d03ac65d8daa30b5af1378430755755b497f38afbc9e74",
@@ -86,38 +89,11 @@
       "submitted_at_utc": "2026-07-03T12:31:34.430486+00:00",
       "error": "accepted",
       "error_class": "",
-      "source": "recovered_from_run_28660644067"
+      "source": "recovered_from_run_28660644067",
+      "migrated_from_block_id": "gbif_block_0004_cell_w+000.0_s+30.0_003"
     },
     {
-      "block_id": "gbif_block_0006_cell_w+000.0_s+60.0_001",
-      "regional_cell": "cell_w+000.0_s+60.0",
-      "n_islands": 125,
-      "geometry_wkt_sha256": "52cd9aaa8c0b7d9ce1e8010c30860f3e6f34860a1a56c15d5736f1ecaed2a027",
-      "query_geometry_sha256": "d3ea106abd5aaa8b6d78830179b1bb9faa5c6d1baf91f22bc2c5bcc3b843ebf2",
-      "query_wkt_chars": 46199,
-      "request_status": "geometry_repair_pending",
-      "download_key": "",
-      "submitted_at_utc": "",
-      "error": "GBIF rejected an antimeridian-spanning polygon component",
-      "error_class": "antimeridian_wkt",
-      "source": "recovered_from_run_28660644067"
-    },
-    {
-      "block_id": "gbif_block_0010_cell_w+000.0_s-30.0_001",
-      "regional_cell": "cell_w+000.0_s-30.0",
-      "n_islands": 5,
-      "geometry_wkt_sha256": "97ffceb88f75923f14d1f26842969035a61e8caf48344a3ecb5e67b2436311ff",
-      "query_geometry_sha256": "04579eae777563928401c086385e29ca3084fdd419404b75ded56e6ef967513b",
-      "query_wkt_chars": 4084,
-      "request_status": "geometry_repair_pending",
-      "download_key": "",
-      "submitted_at_utc": "",
-      "error": "GBIF rejected an antimeridian-spanning polygon component",
-      "error_class": "antimeridian_wkt",
-      "source": "recovered_from_run_28660644067"
-    },
-    {
-      "block_id": "gbif_block_0011_cell_w+000.0_s-60.0_001",
+      "block_id": "gbif_block_cell_w+000.0_s-60.0_001",
       "regional_cell": "cell_w+000.0_s-60.0",
       "n_islands": 2,
       "geometry_wkt_sha256": "b4e3ba6b6be133af5561221ae3c8e9e1b59341a3c1203f9a0c973a79e4541682",
@@ -128,91 +104,8 @@
       "submitted_at_utc": "2026-07-03T12:31:34.430486+00:00",
       "error": "accepted",
       "error_class": "",
-      "source": "recovered_from_run_28660644067"
-    },
-    {
-      "block_id": "gbif_block_0012_cell_w+030.0_s+00.0_001",
-      "regional_cell": "cell_w+030.0_s+00.0",
-      "n_islands": 125,
-      "geometry_wkt_sha256": "1081053a266899b49a2b04cb5985a1d6f74f1467930638ab66ee5583f81638bc",
-      "query_geometry_sha256": "73558a8216ae4dbacefb85cc89acb535e39e6d0e4ab25b2c29983ff5b75b92ed",
-      "query_wkt_chars": 31499,
-      "request_status": "deferred_capacity",
-      "download_key": "",
-      "submitted_at_utc": "",
-      "error": "GBIF simultaneous download limit reached",
-      "error_class": "gbif_concurrent_download_limit",
-      "source": "recovered_from_run_28660644067"
-    },
-    {
-      "block_id": "gbif_block_0014_cell_w+030.0_s+30.0_001",
-      "regional_cell": "cell_w+030.0_s+30.0",
-      "n_islands": 26,
-      "geometry_wkt_sha256": "b00be9be3662667187426a2a17eb6ec38c16cbc780b31c486dc743284b3f9760",
-      "query_geometry_sha256": "5fe0a003baa3df2fa6984d93ed3292180747fd4656b77346ae9c743572acd630",
-      "query_wkt_chars": 6991,
-      "request_status": "deferred_capacity",
-      "download_key": "",
-      "submitted_at_utc": "",
-      "error": "GBIF simultaneous download limit reached",
-      "error_class": "gbif_concurrent_download_limit",
-      "source": "recovered_from_run_28660644067"
-    },
-    {
-      "block_id": "gbif_block_0015_cell_w+030.0_s+60.0_001",
-      "regional_cell": "cell_w+030.0_s+60.0",
-      "n_islands": 118,
-      "geometry_wkt_sha256": "25fd557634ee93040eabf6652d17bf369ed682c82e0a17948a249d6679fdaa05",
-      "query_geometry_sha256": "9ee598fe03b6834f80346cef41957acfe1f8f81a0c120dc5301fd8305aac3d2c",
-      "query_wkt_chars": 27004,
-      "request_status": "deferred_capacity",
-      "download_key": "",
-      "submitted_at_utc": "",
-      "error": "GBIF simultaneous download limit reached",
-      "error_class": "gbif_concurrent_download_limit",
-      "source": "recovered_from_run_28660644067"
-    },
-    {
-      "block_id": "gbif_block_0016_cell_w+030.0_s-30.0_001",
-      "regional_cell": "cell_w+030.0_s-30.0",
-      "n_islands": 90,
-      "geometry_wkt_sha256": "56e3edf28dd430e38095cee28bc25a66fe07947dab3da18171f80ba944f2a5cf",
-      "query_geometry_sha256": "da7cbe888274c1bebe47b024ca62ec15c7344e9b06af2889660b639ed6f91f3b",
-      "query_wkt_chars": 41390,
-      "request_status": "deferred_capacity",
-      "download_key": "",
-      "submitted_at_utc": "",
-      "error": "GBIF simultaneous download limit reached",
-      "error_class": "gbif_concurrent_download_limit",
-      "source": "recovered_from_run_28660644067"
-    },
-    {
-      "block_id": "gbif_block_0017_cell_w+030.0_s-60.0_001",
-      "regional_cell": "cell_w+030.0_s-60.0",
-      "n_islands": 6,
-      "geometry_wkt_sha256": "249d297becad87d80e214caaa067c298cbe6753d25ab5738c2b7b9917618eb11",
-      "query_geometry_sha256": "ab5f446d5d09fe1b768440bf6566b2e78972da862a81940727e9b8fb23f06598",
-      "query_wkt_chars": 1842,
-      "request_status": "deferred_capacity",
-      "download_key": "",
-      "submitted_at_utc": "",
-      "error": "GBIF simultaneous download limit reached",
-      "error_class": "gbif_concurrent_download_limit",
-      "source": "recovered_from_run_28660644067"
-    },
-    {
-      "block_id": "gbif_block_0018_cell_w+060.0_s+00.0_001",
-      "regional_cell": "cell_w+060.0_s+00.0",
-      "n_islands": 67,
-      "geometry_wkt_sha256": "7b42a779343434a7e3457ed84dfff3237c96b895a568f9f789a45e4a6ab12b11",
-      "query_geometry_sha256": "8753c0d99321e0ddf1b9710d9613beddcf399c97171f55c8bcf1352644ee4459",
-      "query_wkt_chars": 16361,
-      "request_status": "deferred_capacity",
-      "download_key": "",
-      "submitted_at_utc": "",
-      "error": "GBIF simultaneous download limit reached",
-      "error_class": "gbif_concurrent_download_limit",
-      "source": "recovered_from_run_28660644067"
+      "source": "recovered_from_run_28660644067",
+      "migrated_from_block_id": "gbif_block_0011_cell_w+000.0_s-60.0_001"
     }
   ],
   "recovery": {
@@ -234,5 +127,20 @@
       "geometry_repair_pending": 2,
       "deferred_capacity": 6
     }
+  },
+  "ledger_id_migration": {
+    "note": "block_id format changed to gbif_block_{cell}_{local} for regeneration stability (PR #4 follow-up); the global-sequence prefix is stripped while cell/local and all geometry hashes are unchanged. Non-terminal deferred_capacity/geometry_repair_pending entries (no download key) were dropped so the fixed manifest re-selects them as fresh pending blocks.",
+    "n_kept_submitted": 5,
+    "n_dropped_transient": 8,
+    "dropped": [
+      "gbif_block_0006_cell_w+000.0_s+60.0_001 (geometry_repair_pending)",
+      "gbif_block_0010_cell_w+000.0_s-30.0_001 (geometry_repair_pending)",
+      "gbif_block_0012_cell_w+030.0_s+00.0_001 (deferred_capacity)",
+      "gbif_block_0014_cell_w+030.0_s+30.0_001 (deferred_capacity)",
+      "gbif_block_0015_cell_w+030.0_s+60.0_001 (deferred_capacity)",
+      "gbif_block_0016_cell_w+030.0_s-30.0_001 (deferred_capacity)",
+      "gbif_block_0017_cell_w+030.0_s-60.0_001 (deferred_capacity)",
+      "gbif_block_0018_cell_w+060.0_s+00.0_001 (deferred_capacity)"
+    ]
   }
 }
