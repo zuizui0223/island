@@ -5,6 +5,10 @@ from shapely.geometry import Polygon
 from island_v2.gbif_blocks import block_query_geometries, build_query_catchments
 
 
+def polygon_parts(geometry):
+    return [geometry] if geometry.geom_type == "Polygon" else list(geometry.geoms)
+
+
 def test_query_catchments_preserve_island_representative_points():
     islands = gpd.GeoDataFrame(
         {
@@ -23,9 +27,12 @@ def test_query_catchments_preserve_island_representative_points():
 
     for original, catchment in zip(islands.geometry, catchments.geometry, strict=True):
         assert catchment.covers(original.representative_point())
+        for polygon in polygon_parts(catchment):
+            assert polygon.exterior.is_ccw
+            assert all(not ring.is_ccw for ring in polygon.interiors)
 
 
-def test_regional_blocks_cover_each_island_once_and_store_valid_wkt():
+def test_regional_blocks_cover_each_island_once_store_valid_ccw_wkt():
     islands = gpd.GeoDataFrame(
         {
             "island_id": ["a", "b", "c"],
@@ -51,4 +58,9 @@ def test_regional_blocks_cover_each_island_once_and_store_valid_wkt():
     assert set(members["island_id"]) == {"a", "b", "c"}
     assert not members["island_id"].duplicated().any()
     assert (blocks["query_wkt_chars"] <= 20_000).all()
-    assert all(from_wkt(value).is_valid for value in blocks["query_geometry_wkt"])
+    for value in blocks["query_geometry_wkt"]:
+        geometry = from_wkt(value)
+        assert geometry.is_valid
+        for polygon in polygon_parts(geometry):
+            assert polygon.exterior.is_ccw
+            assert all(not ring.is_ccw for ring in polygon.interiors)
