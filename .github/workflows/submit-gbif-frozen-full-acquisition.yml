@@ -225,7 +225,7 @@ jobs:
               This makes the ledger write conflict-proof instead of dying on a
               JSON merge conflict during a rebase (runs 28665746146 / 28666266953).
               """
-              nonlocal n_blocks
+              global n_blocks
               campaign = json.loads(campaign_path.read_text(encoding='utf-8'))
               n_blocks = int(campaign['island_universe']['n_gbif_blocks'])
               ledger = {str(row['block_id']): row for row in campaign.get('ledger', [])}
