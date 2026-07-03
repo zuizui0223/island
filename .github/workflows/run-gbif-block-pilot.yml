@@ -48,7 +48,7 @@ jobs:
         run: |
           test -n "$GBIF_USERNAME" || { echo 'Environment secret GBIF_USERNAME is missing.' >&2; exit 2; }
           test -n "$GBIF_PASSWORD" || { echo 'Environment secret GBIF_PASSWORD is missing.' >&2; exit 2; }
-          python -m island_v2.gbif_submit_strict submit \
+          python -m island_v2.gbif_submit_strict \
             --request-manifest data/v2/external/gbif/pilot/gbif_block_request_manifest.csv \
             --max-requests 3 \
             --sleep-seconds 2
