@@ -6,6 +6,28 @@ The v1 flora step used an island bounding box, a `scientificName` facet capped a
 
 For each standardized island polygon, v2 makes a GBIF Occurrence Download request with an exact `within` WKT geometry. GBIF's download service is asynchronous and returns a download key, status, link, and DOI. These identifiers are retained for each island-specific query.
 
+## Public island source
+
+v2 no longer depends on the locally stored legacy `GlbIslands.gdb`. It starts from **GSHHG 2.3.7**, the public global shoreline polygon dataset distributed by NOAA and the University of Hawai'i. GSHHG distributes ESRI shapefiles and encodes land-ocean boundaries as hierarchical closed polygons. The version, download URL, archive checksum, spatial resolution, area thresholds, and exact prepared geometries are written to the v2 manifest.
+
+The first public-source command is:
+
+```bash
+island-v2-gshhg build \
+  --config-path config/island_source_gshhg.yml \
+  --output-dir data/v2/external/islands/gshhg
+```
+
+It downloads the pinned archive, extracts the high-resolution (`h`) L1 land-ocean layer, recombines split components that share a GSHHG polygon ID, calculates equal-area polygon size, and writes:
+
+```text
+data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
+data/v2/external/islands/gshhg/prepared/island_manifest.csv
+data/v2/external/islands/gshhg/prepared/source_policy.json
+```
+
+The initial island universe retains L1 landmasses of at least 20 km² and excludes continental-scale L1 landmasses above 7,000,000 km². This threshold is explicitly versioned and will be assessed as a source-definition sensitivity analysis; it is not a hidden legacy classification.
+
 ## Why species names are acquired before trait coding
 
 The first output is deliberately an **island-by-raw-name candidate table**, not a final flora and not yet the analysis matrix. This keeps three later decisions separate:
@@ -28,28 +50,11 @@ no first-pass basis-of-record restriction
 
 The absence of a year cut-off is intentional. A 2010–2025-only flora can turn uneven recent survey effort into false species absences. Record dates, data-source composition, basis of record, coordinate uncertainty, and cultivated/native evidence are retained for a later observation-process audit.
 
-## Required input
-
-The original `GlbIslands.gdb` / `BigIslands` source is not present in this repository. Place that source, or an explicitly documented replacement island polygon layer, at the path declared in `config/gbif_flora_v2.yml`.
-
-The first command will produce a v2-normalized GeoPackage and manifest:
-
-```bash
-island-v2-gbif-flora prepare-islands \
-  --input-path data/v2/external/islands/GlbIslands.gdb \
-  --layer BigIslands \
-  --output-dir data/v2/external/islands/prepared \
-  --source-label global_islands_source \
-  --min-area-km2 20
-```
-
-It repairs invalid geometry, splits multipart features into explicit polygon units, calculates equal-area km2, retains parent-feature identifiers, and assigns stable geometry-derived IDs.
-
 ## GBIF request lifecycle
 
 ```text
-prepare-islands
-    -> islands_v2.gpkg + island_manifest.csv
+public GSHHG build
+    -> islands_v2.gpkg + island_manifest.csv + source policy
 make-requests
     -> exact-WKT request_manifest.csv + taxon-resolution JSON
 submit (bounded batches)
@@ -66,12 +71,10 @@ GBIF credentials are required only at `submit` time and belong in `GBIF_USERNAME
 
 ```bash
 island-v2-gbif-flora make-requests \
-  --islands-gpkg data/v2/external/islands/prepared/islands_v2.gpkg \
+  --islands-gpkg data/v2/external/islands/gshhg/prepared/islands_v2.gpkg \
   --output-csv data/v2/external/gbif/request_manifest.csv \
   --checklist-key 7ddf754f-d193-4cc9-b351-99906754a03b
 
-export GBIF_USERNAME='your-gbif-username'
-export GBIF_PASSWORD='your-gbif-password'
 island-v2-gbif-flora submit \
   --request-manifest data/v2/external/gbif/request_manifest.csv \
   --max-requests 20
