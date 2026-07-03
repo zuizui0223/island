@@ -9,10 +9,14 @@ description = "Evidence-tracked data pipeline for global island floral-syndrome 
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+  "geopandas>=1.0.0",
+  "httpx>=0.27.0",
   "openai>=1.109.0",
   "pandas>=2.2.0",
   "pydantic>=2.7.0",
+  "pyogrio>=0.9.0",
   "PyYAML>=6.0.1",
+  "shapely>=2.0.0",
   "typer>=0.12.0",
 ]
 
@@ -23,6 +27,7 @@ dev = [
 ]
 
 [project.scripts]
+island-v2-gbif-flora = "island_v2.gbif_flora:app"
 island-v2-traits = "island_v2.trait_extraction:app"
 island-v2-hierarchical = "island_v2.hierarchical:app"
 island-v2-validate = "island_v2.validation:app"
