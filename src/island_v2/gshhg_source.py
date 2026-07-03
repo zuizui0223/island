@@ -1,4 +1,11 @@
-"""Download public GSHHG shorelines and derive documented island polygons."""
+"""Acquire public island polygons with a recorded GSHHG-to-Natural-Earth fallback.
+
+GSHHG is the preferred source because it explicitly encodes hierarchical
+shoreline polygons.  Some runners cannot reach its legacy distribution hosts;
+when that happens this module falls back to a pinned Natural Earth 10m land
+GeoJSON stored on GitHub.  The fallback is never silent: backend, URL, checksum,
+and the GSHHG failure message are written to source_policy.json.
+"""
 
 from __future__ import annotations
 
@@ -19,10 +26,17 @@ from shapely.ops import unary_union
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
+# Pinned upstream commit, rather than a moving default branch.
+NATURAL_EARTH_COMMIT = "ca96624a56bd078437bca8184e78163e5039ad19"
+NATURAL_EARTH_LAND_URL = (
+    "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/"
+    f"{NATURAL_EARTH_COMMIT}/geojson/ne_10m_land.geojson"
+)
+
 
 @app.callback()
 def main() -> None:
-    """Acquire and prepare public GSHHG island polygons for island-floral v2."""
+    """Acquire and prepare public island polygons for island-floral v2."""
 
 
 def checksum(path: Path) -> str:
@@ -38,20 +52,28 @@ def geometry_hash(geometry: Any) -> str:
 
 
 def download(url: str, destination: Path) -> None:
+    """Download a public source with bounded connect waits and clean failures."""
     destination.parent.mkdir(parents=True, exist_ok=True)
     if destination.exists() and destination.stat().st_size > 0:
         return
     temporary = destination.with_suffix(destination.suffix + ".part")
+    timeout = httpx.Timeout(connect=20.0, read=180.0, write=60.0, pool=20.0)
     try:
-        with httpx.stream("GET", url, timeout=600, follow_redirects=True) as response:
+        with httpx.stream(
+            "GET",
+            url,
+            timeout=timeout,
+            follow_redirects=True,
+            headers={"User-Agent": "island-floral-v2/0.1"},
+        ) as response:
             response.raise_for_status()
             with temporary.open("wb") as handle:
                 for block in response.iter_bytes():
                     handle.write(block)
         temporary.replace(destination)
-    except httpx.HTTPError as exc:
+    except (httpx.HTTPError, OSError) as exc:
         temporary.unlink(missing_ok=True)
-        raise typer.BadParameter(f"GSHHG archive download failed for {url}: {exc}") from exc
+        raise RuntimeError(f"download failed for {url}: {exc}") from exc
 
 
 def extract_l1(archive: Path, directory: Path, resolution: str) -> Path:
@@ -73,14 +95,13 @@ def dissolve_ids(frame: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     id_name = next((name for name in ("id", "ID") if name in frame.columns), None)
     if id_name is None:
         frame = frame.copy()
-        frame["gshhg_polygon_id"] = [str(index) for index in frame.index]
-        return frame[["gshhg_polygon_id", "geometry"]]
+        frame["source_feature_id"] = [str(index) for index in frame.index]
+        return frame[["source_feature_id", "geometry"]]
     rows = []
     for identifier, group in frame.groupby(id_name, dropna=False, sort=True):
         geometry = make_valid(unary_union(group.geometry.tolist()))
-        if geometry.is_empty:
-            continue
-        rows.append({"gshhg_polygon_id": str(identifier), "geometry": geometry})
+        if not geometry.is_empty:
+            rows.append({"source_feature_id": str(identifier), "geometry": geometry})
     return gpd.GeoDataFrame(rows, geometry="geometry", crs=frame.crs)
 
 
@@ -95,15 +116,15 @@ def polygonal_geometry(geometry: Any) -> Polygon | MultiPolygon | None:
 
 
 def make_island_units(
-    dissolved: gpd.GeoDataFrame,
+    features: gpd.GeoDataFrame,
     source_label: str,
     min_area_km2: float,
     mainland_area_threshold_km2: float,
 ) -> gpd.GeoDataFrame:
-    """Keep one GSHHG L1 landmass as one analysis unit, including MultiPolygons."""
-    if dissolved.crs is None:
-        raise typer.BadParameter("GSHHG input has no CRS")
-    units = dissolved.to_crs(4326).copy()
+    """Create one analysis unit per input landmass geometry."""
+    if features.crs is None:
+        raise typer.BadParameter("Public island source has no CRS")
+    units = features.to_crs(4326).copy()
     units["geometry"] = units.geometry.map(polygonal_geometry)
     units = units.loc[units.geometry.notna() & ~units.geometry.is_empty].copy()
     units["area_km2"] = units.to_crs(6933).area / 1_000_000
@@ -113,14 +134,14 @@ def make_island_units(
     ].copy()
     units["island_id"] = [f"{source_label}_{geometry_hash(geometry)}" for geometry in units.geometry]
     if units["island_id"].duplicated().any():
-        raise RuntimeError("GSHHG geometry-derived island IDs are not unique")
+        raise RuntimeError("Geometry-derived island IDs are not unique")
     units["source_label"] = source_label
-    units["parent_feature_id"] = units["gshhg_polygon_id"].astype(str)
+    units["parent_feature_id"] = units["source_feature_id"].astype(str)
     units["part_index"] = 1
     units["island_name"] = ""
     units["geometry_sha256"] = [geometry_hash(geometry) for geometry in units.geometry]
     units["landmass_rule"] = (
-        f"L1 landmass {min_area_km2} <= area_km2 <= {mainland_area_threshold_km2}"
+        f"{min_area_km2} <= area_km2 <= {mainland_area_threshold_km2}"
     )
     columns = [
         "island_id",
@@ -136,51 +157,116 @@ def make_island_units(
     return units[columns].sort_values("island_id").reset_index(drop=True)
 
 
+def natural_earth_parts(frame: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Split Natural Earth land MultiPolygons into individual candidate islands."""
+    if frame.crs is None:
+        frame = frame.set_crs(4326)
+    polygons: list[dict[str, Any]] = []
+    for feature_index, geometry in enumerate(frame.geometry):
+        repaired = polygonal_geometry(geometry)
+        if repaired is None:
+            continue
+        parts = list(repaired.geoms) if isinstance(repaired, MultiPolygon) else [repaired]
+        for part_index, part in enumerate(parts, start=1):
+            polygons.append(
+                {
+                    "source_feature_id": f"ne_{feature_index}_{part_index}",
+                    "geometry": part,
+                }
+            )
+    return gpd.GeoDataFrame(polygons, geometry="geometry", crs=frame.crs)
+
+
+def build_from_gshhg(
+    source_url: str,
+    config: dict[str, Any],
+    output_dir: Path,
+) -> tuple[gpd.GeoDataFrame, Path]:
+    resolution = str(config["resolution"])
+    if resolution not in {"f", "h", "i", "l", "c"}:
+        raise typer.BadParameter("GSHHG resolution must be f, h, i, l, or c")
+    archive = output_dir / "source" / f"gshhg-shp-{config['source_version']}.zip"
+    download(source_url, archive)
+    shapefile = extract_l1(archive, output_dir / "source" / f"L1_{resolution}", resolution)
+    coast = gpd.read_file(shapefile)
+    if coast.crs is None:
+        coast = coast.set_crs(4326)
+    units = make_island_units(
+        features=dissolve_ids(coast),
+        source_label=f"gshhg_{config['source_version']}_{resolution}",
+        min_area_km2=float(config["min_area_km2"]),
+        mainland_area_threshold_km2=float(config["mainland_area_threshold_km2"]),
+    )
+    return units, archive
+
+
+def build_from_natural_earth(
+    config: dict[str, Any],
+    output_dir: Path,
+) -> tuple[gpd.GeoDataFrame, Path]:
+    geojson_path = output_dir / "source" / f"natural_earth_10m_land_{NATURAL_EARTH_COMMIT}.geojson"
+    download(NATURAL_EARTH_LAND_URL, geojson_path)
+    land = gpd.read_file(geojson_path)
+    units = make_island_units(
+        features=natural_earth_parts(land),
+        source_label=f"natural_earth_10m_{NATURAL_EARTH_COMMIT[:12]}",
+        min_area_km2=float(config["min_area_km2"]),
+        mainland_area_threshold_km2=float(config["mainland_area_threshold_km2"]),
+    )
+    return units, geojson_path
+
+
 @app.command()
 def build(
     config_path: Path = typer.Option(Path("config/island_source_gshhg.yml")),
     output_dir: Path = typer.Option(Path("data/v2/external/islands/gshhg")),
     source_url: str | None = typer.Option(
         None,
-        help="Optional archive URL override; records the effective URL in the output manifest.",
+        help="Optional GSHHG archive URL override; retained in source_policy.json.",
+    ),
+    allow_natural_earth_fallback: bool = typer.Option(
+        True,
+        help="Use pinned Natural Earth 10m land only when GSHHG acquisition fails.",
     ),
 ) -> None:
-    """Acquire GSHHG and write a v2-compatible exact-polygon GeoPackage."""
+    """Acquire GSHHG, or a recorded public fallback, and write island polygons."""
     config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-    resolution = str(config["resolution"])
-    if resolution not in {"f", "h", "i", "l", "c"}:
-        raise typer.BadParameter("GSHHG resolution must be f, h, i, l, or c")
-    effective_source_url = source_url or str(config["source_url"])
-    archive = output_dir / "source" / f"gshhg-shp-{config['source_version']}.zip"
-    download(effective_source_url, archive)
-    shapefile = extract_l1(archive, output_dir / "source" / f"L1_{resolution}", resolution)
-    coast = gpd.read_file(shapefile)
-    if coast.crs is None:
-        coast = coast.set_crs(4326)
-    islands = make_island_units(
-        dissolved=dissolve_ids(coast),
-        source_label=f"gshhg_{config['source_version']}_{resolution}",
-        min_area_km2=float(config["min_area_km2"]),
-        mainland_area_threshold_km2=float(config["mainland_area_threshold_km2"]),
-    )
+    gshhg_url = source_url or str(config["source_url"])
+    gshhg_error: str | None = None
+    backend = "gshhg"
+    source_url_used = gshhg_url
+    try:
+        islands, source_file = build_from_gshhg(gshhg_url, config, output_dir)
+    except Exception as exc:
+        gshhg_error = str(exc)
+        if not allow_natural_earth_fallback:
+            raise typer.BadParameter(gshhg_error) from exc
+        backend = "natural_earth_10m_fallback"
+        source_url_used = NATURAL_EARTH_LAND_URL
+        islands, source_file = build_from_natural_earth(config, output_dir)
+
     prepared = output_dir / "prepared"
     prepared.mkdir(parents=True, exist_ok=True)
     islands.to_file(prepared / "islands_v2.gpkg", layer="islands", driver="GPKG")
     manifest = islands.drop(columns="geometry").copy()
-    manifest["source_url"] = effective_source_url
-    manifest["source_version"] = config["source_version"]
-    manifest["source_resolution"] = resolution
-    manifest["source_sha256"] = checksum(archive)
+    manifest["source_backend"] = backend
+    manifest["source_url"] = source_url_used
+    manifest["source_file_sha256"] = checksum(source_file)
     manifest["prepared_at_utc"] = datetime.now(UTC).isoformat()
     manifest.to_csv(prepared / "island_manifest.csv", index=False)
+    policy = {
+        **config,
+        "source_backend": backend,
+        "source_url_used": source_url_used,
+        "source_file_sha256": checksum(source_file),
+        "gshhg_attempt_error": gshhg_error,
+        "natural_earth_fallback_url": NATURAL_EARTH_LAND_URL,
+        "n_islands": len(islands),
+    }
     (prepared / "source_policy.json").write_text(
-        json.dumps(
-            {**config, "source_url_used": effective_source_url, "archive_sha256": checksum(archive), "n_islands": len(islands)},
-            indent=2,
-        ),
-        encoding="utf-8",
+        json.dumps(policy, indent=2), encoding="utf-8"
     )
-    typer.echo(f"Prepared {len(islands)} exact GSHHG island polygons")
+    typer.echo(f"Prepared {len(islands)} exact island polygons using {backend}")
 
 
 if __name__ == "__main__":
