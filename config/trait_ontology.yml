@@ -1,0 +1,182 @@
+version: "2.0"
+
+# This ontology is deliberately richer than v1. It separates biological states,
+# missing evidence, and taxonomic inference rather than converting all traits to
+# binary values at collection time.
+traits:
+  flower_primary_color:
+    domain: floral_signal
+    allowed_values:
+      - white
+      - green_brown_inconspicuous
+      - yellow_orange
+      - red_pink
+      - blue_purple
+      - multicolored_variable
+      - other_described
+      - unresolved
+
+  floral_symmetry:
+    domain: floral_architecture
+    allowed_values:
+      - actinomorphic
+      - zygomorphic
+      - asymmetric
+      - unresolved
+
+  floral_form:
+    domain: floral_architecture
+    allowed_values:
+      - open_radial
+      - bell_campanulate
+      - tubular
+      - salverform
+      - funnel_trumpet
+      - urn_urceolate
+      - brush_puff
+      - composite_head
+      - reduced_wind
+      - other_described
+      - unresolved
+
+  tube_depth_class:
+    domain: floral_architecture
+    allowed_values:
+      - absent_or_open
+      - shallow
+      - intermediate
+      - deep
+      - unresolved
+
+  flower_size_class:
+    domain: floral_architecture
+    allowed_values:
+      - very_small
+      - small
+      - medium
+      - large
+      - very_large
+      - unresolved
+
+  inflorescence_display:
+    domain: floral_architecture
+    allowed_values:
+      - solitary
+      - few_flowered
+      - raceme_spike_panicle
+      - umbel_corymb
+      - composite_display
+      - brush_puff_display
+      - unresolved
+
+  reward_type:
+    domain: floral_architecture
+    allowed_values:
+      - nectar
+      - pollen
+      - oil
+      - resin
+      - fragrance
+      - rewardless
+      - mixed_or_multiple
+      - unresolved
+
+  pollination_functional_guild:
+    domain: pollination
+    allowed_values:
+      - bumblebees
+      - other_bees
+      - flies
+      - butterflies
+      - moths
+      - birds
+      - bats
+      - beetles_wasps_ants
+      - wind_water
+      - self_only
+      - mixed_or_generalist
+      - unresolved
+
+  self_incompatibility:
+    domain: reproductive_assurance
+    allowed_values:
+      - SI
+      - SC
+      - mixed_or_variable
+      - unresolved
+
+  autonomous_selfing_capacity:
+    domain: reproductive_assurance
+    allowed_values:
+      - absent
+      - delayed
+      - facilitated
+      - autonomous
+      - mixed_or_variable
+      - unresolved
+
+  mating_system:
+    domain: reproductive_assurance
+    allowed_values:
+      - predominantly_outcrossing
+      - mixed_mating
+      - predominantly_selfing
+      - obligate_selfing
+      - unresolved
+
+  herkogamy:
+    domain: reproductive_assurance
+    allowed_values:
+      - pronounced
+      - reduced
+      - absent
+      - unresolved
+
+  dichogamy:
+    domain: reproductive_assurance
+    allowed_values:
+      - protandry
+      - protogyny
+      - absent
+      - variable
+      - unresolved
+
+  cleistogamy:
+    domain: reproductive_assurance
+    allowed_values:
+      - absent
+      - facultative
+      - obligate
+      - unresolved
+
+  sex_system:
+    domain: reproductive_assurance
+    allowed_values:
+      - hermaphroditic
+      - monoecious
+      - dioecious
+      - gynodioecious
+      - androdioecious
+      - polygamous_or_other
+      - unresolved
+
+secondary_v1_summaries:
+  plain_vs_conspicuous:
+    plain:
+      - white
+      - green_brown_inconspicuous
+    conspicuous:
+      - yellow_orange
+      - red_pink
+      - blue_purple
+  generalized_vs_specialized:
+    generalized:
+      - open_radial
+      - brush_puff
+      - composite_head
+    specialized:
+      - tubular
+      - salverform
+      - funnel_trumpet
+      - urn_urceolate
+      - zygomorphic

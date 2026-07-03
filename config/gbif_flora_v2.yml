@@ -1,0 +1,37 @@
+version: "2.0"
+
+# The existing GlbIslands.gdb is an input-only source, not an analysis result.
+# The v2 preparation command records a normalized polygon layer and source hash.
+island_source:
+  input_path: "data/v2/external/islands/GlbIslands.gdb"
+  layer: "BigIslands"
+  source_label: "global_islands_source"
+  name_field: null
+  parent_id_field: null
+  min_area_km2: 20.0
+
+# GBIF API Downloads support polygon-within predicates and a declared taxonomy.
+# This Catalogue of Life checklist key is the documented GBIF example taxonomy;
+# the actual resolved taxon key is queried and saved at request creation time.
+taxonomy:
+  checklist_key: "7ddf754f-d193-4cc9-b351-99906754a03b"
+  taxon_name: "Angiosperms"
+  taxon_rank: null
+
+acquisition:
+  format: "SPECIES_LIST"
+  minimum_year: null
+  require_coordinates: true
+  exclude_geospatial_issues: true
+  # The first pass deliberately keeps all basis-of-record types. Species-list
+  # inclusion, record type, cultivated status, and spatial coverage are audited
+  # separately rather than using a narrow initial filter that creates absences.
+  basis_of_record_filter: null
+  batch_size: 20
+
+outputs:
+  island_gpkg: "data/v2/external/islands/prepared/islands_v2.gpkg"
+  island_manifest: "data/v2/external/islands/prepared/island_manifest.csv"
+  request_manifest: "data/v2/external/gbif/request_manifest.csv"
+  raw_download_dir: "data/v2/external/gbif/downloads"
+  raw_species_candidates: "data/v2/staging/gbif/island_species_raw.csv"
