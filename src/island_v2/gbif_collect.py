@@ -20,8 +20,9 @@ import hashlib
 import io
 import json
 import zipfile
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 import geopandas as gpd
 import httpx
