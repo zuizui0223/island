@@ -280,7 +280,14 @@ def block_query_geometries(
         global_sequence += 1
         geometry = union_query_geometries([record["geometry"] for record in pending])
         query_wkt = stable_wkt(geometry)
-        block_id = f"gbif_block_{global_sequence:04d}_{regional_cell}_{local_sequence:03d}"
+        # block_id is derived only from (regional_cell, local_sequence), not the
+        # shared global_sequence counter, so it stays stable across manifest
+        # regeneration: a fix that adds/removes rows in one regional cell (e.g.
+        # the antimeridian split above) must not renumber -- and thereby
+        # invalidate the recorded provenance hash of -- every other cell's
+        # already-submitted blocks. global_sequence/block_sequence is kept only
+        # as a display-order hint.
+        block_id = f"gbif_block_{regional_cell}_{local_sequence:03d}"
         blocks.append(
             {
                 "island_id": block_id,
