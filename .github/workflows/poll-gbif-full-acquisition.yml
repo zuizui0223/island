@@ -21,7 +21,16 @@ concurrency:
 
 jobs:
   poll-downloads:
-    if: github.event_name != 'push' || github.event.head_commit.message == 'poll GBIF full acquisition'
+    # On push: run when manually committed as "poll GBIF full acquisition",
+    # or when the submit workflow committed a new batch for polling.
+    # This forms the submit→poll→submit push-chain that self-drives the campaign.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'push' && (
+        github.event.head_commit.message == 'poll GBIF full acquisition' ||
+        github.event.head_commit.message == 'chore: record GBIF frozen acquisition batch'
+      ))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -9,6 +9,13 @@ name: submit_gbif_frozen_full_acquisition
 # gbif-full-acquisition concurrency group (so they serialise) and rebase onto
 # main before pushing the shared ledger.
 #
+# Push-chain design (submit→poll→submit→…): whenever the poll workflow commits
+# "chore: update GBIF download statuses" the push trigger here fires the next
+# submit cycle, filling the freed GBIF capacity slots immediately. The chain
+# terminates naturally when there are no more pending blocks (submit makes no
+# commit, so no push event fires). The cron schedule is kept as a fallback and
+# to restart the chain if it ever stalls.
+#
 # To pause the campaign, disable this workflow in the Actions tab (or remove the
 # schedule); in-flight downloads keep completing and can be polled/collected.
 on:
@@ -20,10 +27,12 @@ on:
         default: "3"
         type: string
   schedule:
-    # Every 15 minutes. GBIF caps a user at 3 simultaneous downloads, so each
-    # tick fills whatever slots freed since the last one; this is the campaign's
-    # throughput ceiling, not the cron interval.
+    # Every 15 minutes as a fallback / restart trigger.
     - cron: "*/15 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - "config/gbif_full_acquisition_v2.json"
 
 permissions:
   actions: read
@@ -35,6 +44,14 @@ concurrency:
 
 jobs:
   submit-next-batch:
+    # On push: only run when the poll workflow committed a status update.
+    # This prevents submit's own "chore: record GBIF frozen acquisition batch"
+    # commit from triggering another immediate submit cycle.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'push' &&
+       github.event.head_commit.message == 'chore: update GBIF download statuses')
     runs-on: ubuntu-latest
     environment: gbif-downloads
     env:
