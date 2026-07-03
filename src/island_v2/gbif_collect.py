@@ -35,6 +35,8 @@ app = typer.Typer(add_completion=False, no_args_is_help=True)
 _SOURCE_COLUMNS = {
     "gbifID": "gbif_id",
     "datasetKey": "dataset_key",
+    "family": "family",
+    "genus": "genus",
     "species": "species",
     "scientificName": "scientific_name",
     "taxonRank": "taxon_rank",
@@ -183,6 +185,34 @@ def island_species_table(assigned: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def island_taxa_table(assigned: pd.DataFrame) -> pd.DataFrame:
+    """Unique accepted-species taxa list that feeds `island-v2-traits run`.
+
+    trait_extraction requires exactly `accepted_species, genus, family`, so this
+    is the direct hand-off from occurrence collection to trait acquisition. Only
+    records assigned to a real island and resolved to species rank are used, and
+    genus/family are taken from GBIF's backbone-normalised columns.
+    """
+    on_island = assigned.loc[assigned["island_id"].notna()].copy()
+    named = on_island.loc[on_island["species"].fillna("").str.strip().astype(bool)].copy()
+    if named.empty:
+        return pd.DataFrame(columns=["accepted_species", "genus", "family", "n_islands", "n_records"])
+    rows = []
+    for species, group in named.groupby("species", sort=True):
+        genus = next((g for g in group["genus"].dropna() if str(g).strip()), "")
+        family = next((f for f in group["family"].dropna() if str(f).strip()), "")
+        rows.append(
+            {
+                "accepted_species": species,
+                "genus": genus,
+                "family": family,
+                "n_islands": int(group["island_id"].nunique()),
+                "n_records": int(len(group)),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 def _succeeded_blocks(campaign: dict[str, Any]) -> list[dict[str, Any]]:
     ready = []
     for entry in campaign.get("ledger", []):
@@ -253,10 +283,12 @@ def collect(
     assigned = pd.concat(all_assigned, ignore_index=True)
     species_table = island_species_table(assigned)
     effort = summarize_observation_effort(assigned)
+    taxa = island_taxa_table(assigned)
     n_unassigned = int(assigned["island_id"].isna().sum())
 
     species_table.to_csv(output_dir / "island_species_occurrences.csv", index=False)
     effort.to_csv(output_dir / "island_observation_effort.csv", index=False)
+    taxa.to_csv(output_dir / "island_taxa.csv", index=False)
     (output_dir / "collection_status.json").write_text(
         json.dumps(
             {
@@ -266,14 +298,16 @@ def collect(
                 "n_occurrences_in_buffer_only": n_unassigned,
                 "n_island_species_pairs": int(len(species_table)),
                 "n_islands_with_records": int(effort["island_id"].nunique()) if not effort.empty else 0,
+                "n_accepted_species": int(len(taxa)),
             },
             indent=2,
         ),
         encoding="utf-8",
     )
     typer.echo(
-        f"Collected {len(all_assigned)} blocks: {len(species_table)} island-species pairs "
-        f"across {effort['island_id'].nunique() if not effort.empty else 0} islands "
+        f"Collected {len(all_assigned)} blocks: {len(species_table)} island-species pairs, "
+        f"{len(taxa)} accepted species across "
+        f"{effort['island_id'].nunique() if not effort.empty else 0} islands "
         f"({n_unassigned} occurrences fell in buffer only)."
     )
 

@@ -8,9 +8,11 @@ from shapely.geometry import Polygon
 from island_v2.gbif_collect import (
     assign_occurrences_to_islands,
     island_species_table,
+    island_taxa_table,
     read_block_occurrences,
     summarize_observation_effort,
 )
+from island_v2.trait_extraction import REQUIRED_TAXON_COLUMNS
 
 
 def _islands():
@@ -31,6 +33,8 @@ def _occurrences():
         {
             "gbif_id": ["1", "2", "3", "4"],
             "dataset_key": ["d1", "d1", "d2", "d3"],
+            "family": ["Fabaceae", "Fabaceae", "Rosaceae", "Poaceae"],
+            "genus": ["Aaa", "Aaa", "Bbb", "Ccc"],
             "species": ["Aaa aaa", "Aaa aaa", "Bbb bbb", "Ccc ccc"],
             "scientific_name": ["Aaa aaa L.", "Aaa aaa L.", "Bbb bbb L.", "Ccc ccc L."],
             "decimal_longitude": [0.5, 0.6, 10.5, 5.0],
@@ -70,6 +74,21 @@ def test_island_species_table_is_deduplicated_with_provenance():
     assert "Ccc ccc" not in set(table["species"])
 
 
+def test_island_taxa_table_feeds_trait_extraction_directly():
+    assigned = assign_occurrences_to_islands(_occurrences(), _islands())
+    taxa = island_taxa_table(assigned)
+
+    # The taxa table must satisfy trait_extraction's input contract exactly.
+    assert REQUIRED_TAXON_COLUMNS.issubset(set(taxa.columns))
+
+    by_species = taxa.set_index("accepted_species")
+    assert by_species.loc["Aaa aaa", "genus"] == "Aaa"
+    assert by_species.loc["Aaa aaa", "family"] == "Fabaceae"
+    assert by_species.loc["Aaa aaa", "n_records"] == 2
+    # buffer-only species is excluded from the taxa list too
+    assert "Ccc ccc" not in by_species.index
+
+
 def test_observation_effort_counts_specimens_and_years():
     assigned = assign_occurrences_to_islands(_occurrences(), _islands())
     effort = summarize_observation_effort(assigned).set_index("island_id")
@@ -84,12 +103,12 @@ def test_observation_effort_counts_specimens_and_years():
 
 def test_read_block_occurrences_parses_simple_csv_and_drops_bad_coords(tmp_path):
     header = (
-        "gbifID\tdatasetKey\tspecies\tscientificName\ttaxonRank\ttaxonKey\tspeciesKey\t"
+        "gbifID\tdatasetKey\tfamily\tgenus\tspecies\tscientificName\ttaxonRank\ttaxonKey\tspeciesKey\t"
         "decimalLatitude\tdecimalLongitude\tcoordinateUncertaintyInMeters\tyear\t"
         "basisOfRecord\toccurrenceStatus\testablishmentMeans"
     )
-    good = "1\td1\tAaa aaa\tAaa aaa L.\tSPECIES\t100\t100\t0.5\t0.5\t10\t2001\tPRESERVED_SPECIMEN\tPRESENT\t"
-    no_coord = "2\td1\tBbb bbb\tBbb bbb L.\tSPECIES\t200\t200\t\t\t\t2002\tHUMAN_OBSERVATION\tPRESENT\t"
+    good = "1\td1\tFabaceae\tAaa\tAaa aaa\tAaa aaa L.\tSPECIES\t100\t100\t0.5\t0.5\t10\t2001\tPRESERVED_SPECIMEN\tPRESENT\t"
+    no_coord = "2\td1\tRosaceae\tBbb\tBbb bbb\tBbb bbb L.\tSPECIES\t200\t200\t\t\t\t2002\tHUMAN_OBSERVATION\tPRESENT\t"
     tsv = "\n".join([header, good, no_coord]) + "\n"
 
     archive_path = tmp_path / "0000-key.zip"
@@ -102,4 +121,6 @@ def test_read_block_occurrences_parses_simple_csv_and_drops_bad_coords(tmp_path)
 
     assert list(frame["gbif_id"]) == ["1"]  # row without coordinates dropped
     assert frame.iloc[0]["species"] == "Aaa aaa"
+    assert frame.iloc[0]["genus"] == "Aaa"
+    assert frame.iloc[0]["family"] == "Fabaceae"
     assert frame.iloc[0]["decimal_longitude"] == 0.5

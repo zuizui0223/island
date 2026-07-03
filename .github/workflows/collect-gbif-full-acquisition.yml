@@ -87,6 +87,7 @@ jobs:
           outputs = [
               'data/v2/staging/gbif/collected/island_species_occurrences.csv',
               'data/v2/staging/gbif/collected/island_observation_effort.csv',
+              'data/v2/staging/gbif/collected/island_taxa.csv',
               'data/v2/staging/gbif/collected/collection_status.json',
           ]
           present = [p for p in outputs if Path(p).exists()]
