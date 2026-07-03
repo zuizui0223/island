@@ -169,6 +169,19 @@
       "last_poll_error": ""
     },
     {
+      "block_id": "gbif_block_cell_w+000.0_s+60.0_004",
+      "regional_cell": "cell_w+000.0_s+60.0",
+      "n_islands": 47,
+      "geometry_wkt_sha256": "aec160d43e0e1e93493bee8a8bdd5be1738494a78e06aec0a27c2ada08e6a596",
+      "query_geometry_sha256": "6753952d1c687ddbe3cc7a4b5f82dc54fb07cce1ce00dba18cbb562d487918d9",
+      "query_wkt_chars": 7492,
+      "request_status": "submitted",
+      "download_key": "0014746-260623161305970",
+      "submitted_at_utc": "2026-07-03T16:50:57.862747+00:00",
+      "error": "",
+      "source": "frozen_full_campaign_batch"
+    },
+    {
       "block_id": "gbif_block_cell_w+000.0_s-30.0_001",
       "regional_cell": "cell_w+000.0_s-30.0",
       "n_islands": 2,
@@ -265,6 +278,32 @@
       "doi": "10.15468/dl.gr4b53",
       "last_polled_at_utc": "2026-07-03T15:59:19.928400+00:00",
       "last_poll_error": ""
+    },
+    {
+      "block_id": "gbif_block_cell_w+030.0_s-30.0_001",
+      "regional_cell": "cell_w+030.0_s-30.0",
+      "n_islands": 90,
+      "geometry_wkt_sha256": "56e3edf28dd430e38095cee28bc25a66fe07947dab3da18171f80ba944f2a5cf",
+      "query_geometry_sha256": "da7cbe888274c1bebe47b024ca62ec15c7344e9b06af2889660b639ed6f91f3b",
+      "query_wkt_chars": 41390,
+      "request_status": "submitted",
+      "download_key": "0014747-260623161305970",
+      "submitted_at_utc": "2026-07-03T16:50:57.862747+00:00",
+      "error": "",
+      "source": "frozen_full_campaign_batch"
+    },
+    {
+      "block_id": "gbif_block_cell_w+030.0_s-60.0_001",
+      "regional_cell": "cell_w+030.0_s-60.0",
+      "n_islands": 6,
+      "geometry_wkt_sha256": "249d297becad87d80e214caaa067c298cbe6753d25ab5738c2b7b9917618eb11",
+      "query_geometry_sha256": "ab5f446d5d09fe1b768440bf6566b2e78972da862a81940727e9b8fb23f06598",
+      "query_wkt_chars": 1842,
+      "request_status": "submitted",
+      "download_key": "0014748-260623161305970",
+      "submitted_at_utc": "2026-07-03T16:50:57.862747+00:00",
+      "error": "",
+      "source": "frozen_full_campaign_batch"
     }
   ],
   "recovery": {
@@ -279,10 +318,10 @@
     "rule": "Do not resubmit recovered download keys."
   },
   "last_batch": {
-    "updated_at_utc": "2026-07-03T15:54:03.902895+00:00",
+    "updated_at_utc": "2026-07-03T16:50:57.862747+00:00",
     "submit_exit_code": 0,
     "ledger_status_counts": {
-      "succeeded": 11,
+      "succeeded": 14,
       "submitted": 3
     }
   },
