@@ -18,7 +18,19 @@ jobs:
         run: pip install -e .
       - name: Build public island polygons
         run: island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
+      - name: Upload island geometry and provenance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: island-universe-v2-${{ github.run_id }}
+          path: |
+            data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
+            data/v2/external/islands/gshhg/prepared/island_manifest.csv
+            data/v2/external/islands/gshhg/prepared/source_policy.json
+          if-no-files-found: warn
+          retention-days: 90
       - name: Report source and island-universe diagnostics
+        if: success()
         run: |
           echo '## Island source build' >> "$GITHUB_STEP_SUMMARY"
           echo '```json' >> "$GITHUB_STEP_SUMMARY"
@@ -26,6 +38,7 @@ jobs:
           echo '```' >> "$GITHUB_STEP_SUMMARY"
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import geopandas as gpd
+
           frame = gpd.read_file(
               'data/v2/external/islands/gshhg/prepared/islands_v2.gpkg',
               layer='islands',
@@ -39,18 +52,13 @@ jobs:
           print(f'- max_area_km2: {areas.max():,.3f}')
           print('')
           print('### Largest retained polygon units')
-          print(frame[['island_id', 'parent_feature_id', 'area_km2']]
+          print('```csv')
+          print(
+              frame[['island_id', 'parent_feature_id', 'area_km2']]
               .sort_values('area_km2', ascending=False)
               .head(15)
-              .to_markdown(index=False))
+              .to_csv(index=False),
+              end='',
+          )
+          print('```')
           PY
-      - name: Upload island geometry and provenance
-        uses: actions/upload-artifact@v4
-        with:
-          name: island-universe-v2-${{ github.run_id }}
-          path: |
-            data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
-            data/v2/external/islands/gshhg/prepared/island_manifest.csv
-            data/v2/external/islands/gshhg/prepared/source_policy.json
-          if-no-files-found: error
-          retention-days: 90
