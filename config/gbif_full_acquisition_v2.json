@@ -721,11 +721,14 @@
       "geometry_wkt_sha256": "b42b3aefc7ed33deede395e482a68ccd4029f9bfb7de7e8efe9c642d2572fe9b",
       "query_geometry_sha256": "f59ee9aa0e8aec135c2661f05c0c488b62c948d875cb47978251bca17130cf9c",
       "query_wkt_chars": 30213,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0016002-260623161305970",
       "submitted_at_utc": "2026-07-03T23:19:16.703047+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.zxkary",
+      "last_polled_at_utc": "2026-07-03T23:51:35.867352+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w+120.0_s-30.0_004",
@@ -734,11 +737,14 @@
       "geometry_wkt_sha256": "dfd0e2c5a1c18ad59aa1816c2d7ce8e01863b71b9689273e83f86f060276ae7b",
       "query_geometry_sha256": "9a7d6439c9bab74aba2628e2bdcc526655a0b8b4ac219b5ca891e56f0cfa0095",
       "query_wkt_chars": 25478,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0016078-260623161305970",
       "submitted_at_utc": "2026-07-03T23:48:01.596635+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.d78gfm",
+      "last_polled_at_utc": "2026-07-03T23:51:35.867352+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w+120.0_s-60.0_001",
@@ -779,11 +785,14 @@
       "geometry_wkt_sha256": "881bca976e216124a1130294cc88b399a1a854193fb5c3e2c58655da97e93a34",
       "query_geometry_sha256": "cc56d7d40588ff6962915da27091bfc6f4d35e1529b1a02f4ecaf1f709d1ef13",
       "query_wkt_chars": 14774,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0016003-260623161305970",
       "submitted_at_utc": "2026-07-03T23:19:16.703047+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.tgvbpr",
+      "last_polled_at_utc": "2026-07-03T23:51:35.867352+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w+150.0_s+60.0_001",
@@ -792,11 +801,14 @@
       "geometry_wkt_sha256": "c6d6a6cabc203bff78a0d6dd9ad3eb2ff4cd6442646a8169034e6312cfef0088",
       "query_geometry_sha256": "988604ac14c720e9dd73994dd1e25481c38860a31bdc0778411107bc89514fc0",
       "query_wkt_chars": 7113,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0016006-260623161305970",
       "submitted_at_utc": "2026-07-03T23:19:16.703047+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.g6jqtr",
+      "last_polled_at_utc": "2026-07-03T23:51:35.867352+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w+150.0_s-30.0_001",
@@ -805,11 +817,14 @@
       "geometry_wkt_sha256": "3dc2b00d8733299a8755dead166d64ff4b5f6a25d4ba4499be6205201a0d7315",
       "query_geometry_sha256": "aedd72e6658e90df6ac5334c7b1393ecc80971240ad2e450e7f0002b5fe7290c",
       "query_wkt_chars": 89973,
-      "request_status": "submitted",
+      "request_status": "running",
       "download_key": "0016079-260623161305970",
       "submitted_at_utc": "2026-07-03T23:48:01.596635+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "",
+      "last_polled_at_utc": "2026-07-03T23:51:35.867352+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w+150.0_s-60.0_001",
@@ -818,11 +833,14 @@
       "geometry_wkt_sha256": "538960bd68735e959ff9e38e4855550d8bca113a5ff969ab96dbf613ff0b2675",
       "query_geometry_sha256": "ce16d1c5ebbe229e77eaad85a2267410a14d818de109a03d4e9bac95a47269dd",
       "query_wkt_chars": 36707,
-      "request_status": "submitted",
+      "request_status": "running",
       "download_key": "0016080-260623161305970",
       "submitted_at_utc": "2026-07-03T23:48:01.596635+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "",
+      "last_polled_at_utc": "2026-07-03T23:51:35.867352+00:00",
+      "last_poll_error": ""
     }
   ],
   "recovery": {
@@ -860,9 +878,10 @@
     ]
   },
   "last_poll": {
-    "polled_at_utc": "2026-07-03T23:17:30.252036+00:00",
+    "polled_at_utc": "2026-07-03T23:51:35.867352+00:00",
     "ledger_status_counts": {
-      "succeeded": 44
+      "succeeded": 48,
+      "running": 2
     }
   }
 }
