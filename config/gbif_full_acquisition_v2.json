@@ -3,6 +3,8 @@
   "campaign_id": "island-floral-v2-global-islands-5km2-20260703",
   "campaign_status": "active",
   "created_at_utc": "2026-07-03T12:30:00Z",
+  "launch_requested_at_utc": "2026-07-03T12:35:00Z",
+  "launch_batch_size": 10,
   "island_universe": {
     "minimum_area_km2": 5.0,
     "n_islands": 8265,
