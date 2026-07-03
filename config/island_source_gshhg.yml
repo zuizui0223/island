@@ -1,9 +1,7 @@
 source_name: GSHHG
 source_version: "2.3.7"
-source_url: "https://www.ngdc.noaa.gov/mgg/shorelines/data/gshhg/latest/gshhg-shp-2.3.7.zip"
+source_url: "https://www.soest.hawaii.edu/pwessel/gshhg/gshhg-shp-2.3.7.zip"
 resolution: h
 shoreline_level: L1
 min_area_km2: 20.0
-# L1 land masses above this threshold are treated as continental mainlands.
-# Greenland and all smaller landmasses remain in the candidate-island universe.
 mainland_area_threshold_km2: 7000000.0
