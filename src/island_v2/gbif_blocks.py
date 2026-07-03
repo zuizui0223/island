@@ -23,7 +23,7 @@ import geopandas as gpd
 import httpx
 import pandas as pd
 import typer
-from shapely import make_valid, to_wkt
+from shapely import make_valid, orient_polygons, to_wkt
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
 from shapely.ops import unary_union
 
@@ -57,9 +57,25 @@ def polygonal_only(geometry: Any) -> Polygon | MultiPolygon:
     raise ValueError(f"Expected a polygonal island geometry, got {repaired.geom_type}")
 
 
+def canonical_gbif_polygon(geometry: Any) -> Polygon | MultiPolygon:
+    """Return valid GBIF-compatible polygon rings.
+
+    GBIF rejects WKT polygons whose exterior rings are clockwise.  All query
+    geometries are therefore canonicalized to counter-clockwise exteriors and
+    clockwise interior rings before their WKT, hash, or payload is generated.
+    This does not alter the spatial footprint.
+    """
+    return orient_polygons(polygonal_only(geometry), exterior_cw=False)
+
+
 def stable_wkt(geometry: Any) -> str:
-    """Use a fixed precision WKT representation for request provenance and hashing."""
-    return to_wkt(geometry, rounding_precision=5, trim=True, output_dimension=2)
+    """Use fixed precision and GBIF-compatible ring order for request provenance."""
+    return to_wkt(
+        canonical_gbif_polygon(geometry),
+        rounding_precision=5,
+        trim=True,
+        output_dimension=2,
+    )
 
 
 def grid_index(longitude: float, latitude: float, grid_degrees: float) -> tuple[int, int]:
@@ -141,7 +157,7 @@ def build_query_catchments(
         geometry=gpd.GeoSeries(query_geometry, crs=6933).to_crs(4326),
         crs=4326,
     )
-    query["geometry"] = query.geometry.map(polygonal_only)
+    query["geometry"] = query.geometry.map(canonical_gbif_polygon)
     query["query_geometry_wkt"] = query.geometry.map(stable_wkt)
     query["query_geometry_sha256"] = query.geometry.map(geometry_hash)
     query["query_wkt_chars"] = query["query_geometry_wkt"].str.len()
@@ -149,7 +165,7 @@ def build_query_catchments(
 
 
 def union_query_geometries(geometries: list[Any]) -> Polygon | MultiPolygon:
-    return polygonal_only(unary_union(geometries))
+    return canonical_gbif_polygon(unary_union(geometries))
 
 
 def block_query_geometries(
@@ -331,6 +347,7 @@ def prepare(
         "max_islands_per_block": max_islands_per_block,
         "query_buffer_m": query_buffer_m,
         "query_simplify_m": query_simplify_m,
+        "ring_orientation_rule": "All GBIF WKT exterior rings are counter-clockwise; holes are clockwise.",
         "assignment_rule": "Downloaded coordinates must be joined to original island geometry, not catchments.",
         "post_download_taxonomy_rule": "Retain angiosperms only after download; the broader query taxon is an acquisition proxy.",
         "email_in_payload": bool(email),
