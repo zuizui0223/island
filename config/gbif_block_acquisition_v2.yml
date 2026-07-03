@@ -4,13 +4,15 @@ version: "2.1"
 # blocks, then joined back to the original exact island polygons.
 taxonomy:
   # Analytical target remains flowering plants. GBIF acquisition begins with a
-  # stable, explicit vascular-plant backbone key because the common label
+  # stable vascular-plant backbone concept because the common label
   # "Angiosperms" is not a resolvable GBIF checklist name.
   target_scope: "angiosperms"
   taxon_name: "Tracheophyta"
   taxon_key: "7707728"
-  taxon_rank: null
-  checklist_key: null
+  taxon_rank: "PHYLUM"
+  # The current workflow always forwards this option. An empty string makes
+  # gbif_flora.resolve_taxon use the GBIF Backbone rather than a checklist.
+  checklist_key: ""
   post_download_taxonomy_rule: >-
     Retain angiosperm records only after download using GBIF higher taxonomy and
     occurrence-level scientific-name reconciliation; retain excluded records in
