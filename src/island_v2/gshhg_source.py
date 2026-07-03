@@ -20,6 +20,11 @@ from shapely.ops import unary_union
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 
+@app.callback()
+def main() -> None:
+    """Acquire and prepare public GSHHG island polygons for island-floral v2."""
+
+
 def checksum(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
