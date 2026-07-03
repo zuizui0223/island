@@ -1,0 +1,146 @@
+name: reconcile_gbif_full_acquisition
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/gbif_full_acquisition_recovery_trigger.json"
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: gbif-full-acquisition
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'reconcile GBIF full acquisition'
+    runs-on: ubuntu-latest
+    env:
+      FROZEN_ARTIFACT_ID: "8066083419"
+      FROZEN_ARTIFACT_SHA256: "bee33e14672ec7ff4ed1f7acaea36b32cc6170a45c3d14b2caeb5f43bfaa623b"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Fetch and verify frozen island universe
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/frozen data/v2/external/islands/frozen_pilot
+          curl --fail --location --retry 3 --retry-delay 2 \
+            --header "Authorization: Bearer ${GITHUB_TOKEN}" \
+            --header "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${FROZEN_ARTIFACT_ID}/zip" \
+            --output /tmp/frozen.zip
+          actual="$(sha256sum /tmp/frozen.zip | awk '{print $1}')"
+          test "$actual" = "$FROZEN_ARTIFACT_SHA256" || { echo "Frozen artifact digest mismatch" >&2; exit 2; }
+          unzip -q /tmp/frozen.zip -d /tmp/frozen
+          cp /tmp/frozen/islands/gshhg/prepared/islands_v2.gpkg data/v2/external/islands/frozen_pilot/islands_v2.gpkg
+      - name: Recreate the frozen full block manifest
+        run: |
+          island-v2-gbif-blocks prepare \
+            --islands-gpkg data/v2/external/islands/frozen_pilot/islands_v2.gpkg \
+            --output-dir data/v2/external/gbif/full \
+            --taxon-name Tracheophyta \
+            --taxon-rank PHYLUM \
+            --target-scope angiosperms \
+            --grid-degrees 30 \
+            --max-wkt-chars 120000 \
+            --max-islands-per-block 125 \
+            --query-buffer-m 2000 \
+            --query-simplify-m 500
+      - name: Reconcile recovery records into the campaign ledger
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+          from datetime import UTC, datetime
+          from pathlib import Path
+          import pandas as pd
+
+          campaign_path = Path('config/gbif_full_acquisition_v2.json')
+          recovery_path = Path('config/gbif_full_acquisition_recovery_28660644067.csv')
+          manifest_path = Path('data/v2/external/gbif/full/gbif_block_request_manifest.csv')
+          campaign = json.loads(campaign_path.read_text(encoding='utf-8'))
+          recovery = pd.read_csv(recovery_path, dtype=str).fillna('')
+          manifest = pd.read_csv(manifest_path, dtype=str).fillna('').set_index('block_id', drop=False)
+          required_statuses = {'submitted', 'geometry_repair_pending', 'deferred_capacity'}
+          if set(recovery['request_status']).difference(required_statuses):
+              raise SystemExit('Recovery file contains an unsupported status')
+          ledger = {str(row['block_id']): row for row in campaign.get('ledger', [])}
+          for row in recovery.to_dict('records'):
+              block_id = row['block_id']
+              if block_id not in manifest.index:
+                  raise SystemExit(f'Recovery block absent from frozen manifest: {block_id}')
+              current = manifest.loc[block_id]
+              prior = ledger.get(block_id)
+              if prior and str(prior.get('download_key', '')).strip() and prior['download_key'] != row['download_key']:
+                  raise SystemExit(f'Refusing to replace an existing GBIF key for {block_id}')
+              ledger[block_id] = {
+                  'block_id': block_id,
+                  'regional_cell': str(current['regional_cell']),
+                  'n_islands': int(current['n_islands']),
+                  'geometry_wkt_sha256': str(current['geometry_wkt_sha256']),
+                  'query_geometry_sha256': str(current['query_geometry_sha256']),
+                  'query_wkt_chars': int(current['query_wkt_chars']),
+                  'request_status': row['request_status'],
+                  'download_key': row['download_key'],
+                  'submitted_at_utc': '2026-07-03T12:31:34.430486+00:00' if row['request_status'] == 'submitted' else '',
+                  'error': row['error_summary'],
+                  'error_class': row['error_class'],
+                  'source': 'recovered_from_run_28660644067',
+              }
+          campaign['ledger'] = [ledger[key] for key in sorted(ledger)]
+          counts = {}
+          for entry in campaign['ledger']:
+              counts[entry['request_status']] = counts.get(entry['request_status'], 0) + 1
+          campaign['campaign_status'] = 'paused_pending_capacity_poll_and_antimeridian_repair'
+          campaign['recovery'] = {
+              'workflow_run_id': 28660644067,
+              'artifact_id': 8066533945,
+              'reconciled_at_utc': datetime.now(UTC).isoformat(),
+              'status_counts': counts,
+              'rule': 'Do not resubmit recovered download keys.'
+          }
+          campaign_path.write_text(json.dumps(campaign, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          subprocess.run(['git', 'config', 'user.name', 'github-actions[bot]'], check=True)
+          subprocess.run(['git', 'config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com'], check=True)
+          subprocess.run(['git', 'add', str(campaign_path)], check=True)
+          if subprocess.run(['git', 'diff', '--cached', '--quiet']).returncode:
+              subprocess.run(['git', 'commit', '-m', 'chore: reconcile GBIF full acquisition ledger'], check=True)
+              subprocess.run(['git', 'pull', '--rebase', 'origin', 'main'], check=True)
+              subprocess.run(['git', 'push'], check=True)
+          PY
+      - name: Summarize reconciliation
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          import pandas as pd
+          campaign = json.loads(Path('config/gbif_full_acquisition_v2.json').read_text(encoding='utf-8'))
+          table = pd.DataFrame(campaign['ledger'])
+          print('## Reconciled GBIF acquisition ledger')
+          print(table['request_status'].value_counts().rename_axis('status').to_frame('n').to_csv())
+          print('```csv')
+          print(table[['block_id','request_status','download_key','error_class','error']].tail(15).to_csv(index=False), end='')
+          print('```')
+          PY
+      - name: Upload reconciliation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: gbif-full-acquisition-reconciliation-${{ github.run_id }}
+          path: |
+            config/gbif_full_acquisition_v2.json
+            config/gbif_full_acquisition_recovery_28660644067.csv
+            data/v2/external/gbif/full/gbif_block_request_manifest.csv
+          retention-days: 90
