@@ -93,6 +93,7 @@ jobs:
         run: |
           python - <<'PY'
           import subprocess
+          import time
           from pathlib import Path
           outputs = [
               'data/v2/staging/gbif/collected/island_species_occurrences.csv',
@@ -101,16 +102,38 @@ jobs:
               'data/v2/staging/gbif/collected/collection_manifest.csv',
               'data/v2/staging/gbif/collected/collection_status.json',
           ]
-          present = [path for path in outputs if Path(path).exists()]
-          if not present:
+          if not any(Path(path).exists() for path in outputs):
               raise SystemExit(0)
           subprocess.run(['git', 'config', 'user.name', 'github-actions[bot]'], check=True)
           subprocess.run(['git', 'config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com'], check=True)
-          subprocess.run(['git', 'add', *present], check=True)
-          if subprocess.run(['git', 'diff', '--cached', '--quiet']).returncode:
+
+          def commit_and_push() -> bool:
+              """Commit the collection outputs onto the freshest main, then push.
+
+              submit/poll push to main every few minutes while the campaign
+              drains, so a plain `git pull --rebase` here loses the race and
+              aborts the whole collect run (leaving no committed output). The
+              outputs are untracked, so `git reset --hard origin/main` preserves
+              them and lets us re-commit cleanly on top of whatever just landed --
+              the same conflict-proof pattern used by submit and poll.
+              """
+              present = [path for path in outputs if Path(path).exists()]
+              if not present:
+                  return True
+              subprocess.run(['git', 'add', *present], check=True)
+              if subprocess.run(['git', 'diff', '--cached', '--quiet']).returncode == 0:
+                  return True
               subprocess.run(['git', 'commit', '-m', 'chore: update GBIF island-level collection outputs'], check=True)
-              subprocess.run(['git', 'pull', '--rebase', 'origin', 'main'], check=True)
-              subprocess.run(['git', 'push'], check=True)
+              return subprocess.run(['git', 'push']).returncode == 0
+
+          for attempt in range(6):
+              subprocess.run(['git', 'fetch', 'origin', 'main'], check=True)
+              subprocess.run(['git', 'reset', '--hard', 'origin/main'], check=True)
+              if commit_and_push():
+                  break
+              time.sleep(2 ** attempt)
+          else:
+              raise SystemExit('Could not push collection outputs after repeated retries')
           PY
       - name: Summarize collection
         if: always()
