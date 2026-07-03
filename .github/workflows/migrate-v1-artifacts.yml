@@ -1,0 +1,125 @@
+name: migrate_v1_artifacts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "config/run_v1_artifact_migration.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gbif-full-acquisition
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'run v1 artifact migration'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Archive tracked v1 artifacts and write a manifest
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import re
+          import subprocess
+          from pathlib import Path
+
+          root = Path('.')
+          legacy = root / 'legacy' / 'v1'
+          artifact_root = legacy / 'artifacts'
+          artifact_root.mkdir(parents=True, exist_ok=True)
+
+          # Parse the frozen scripts rather than relying on hand-maintained names.
+          referenced = set()
+          for script in sorted((legacy / 'r').glob('*.R')):
+              text = script.read_text(encoding='utf-8', errors='replace')
+              for match in re.finditer(r'''[\"']([^\"']+\.(?:csv|rds|gpkg|tif|tiff|zip|json|txt))[\"']''', text, flags=re.I):
+                  referenced.add(Path(match.group(1)).name)
+
+          tracked = subprocess.check_output(['git', 'ls-files'], text=True).splitlines()
+          protected_prefixes = (
+              'legacy/v1/', 'data/v2/', 'src/', 'tests/', 'config/', 'docs/',
+              '.github/', 'prompts/', 'legacy/v2/'
+          )
+          explicit_dirs = (
+              'data_global_islands/',
+              'NorthernTemperate_IslandFloralSyndrome_BayesianPathModelAnalysis/',
+              'islandbee/',
+          )
+
+          candidates = []
+          for raw in tracked:
+              path = Path(raw)
+              posix = path.as_posix()
+              if posix.startswith(protected_prefixes):
+                  continue
+              if any(posix.startswith(prefix) for prefix in explicit_dirs):
+                  candidates.append(path)
+              elif path.name in referenced:
+                  candidates.append(path)
+
+          # Move files only; original relative paths are retained beneath artifacts.
+          moved = []
+          for src in sorted(set(candidates)):
+              if not src.is_file():
+                  continue
+              dst = artifact_root / src
+              dst.parent.mkdir(parents=True, exist_ok=True)
+              subprocess.run(['git', 'mv', str(src), str(dst)], check=True)
+              moved.append((src.as_posix(), dst.relative_to(legacy).as_posix()))
+
+          missing = sorted(referenced.difference({Path(path).name for path in tracked}))
+          manifest = legacy / 'MIGRATION_MANIFEST.md'
+          lines = [
+              '# v1 artifact migration manifest',
+              '',
+              'This manifest was generated from file references in `legacy/v1/r/*.R`.',
+              'Only files already tracked in this repository were moved. Local Desktop,',
+              'external-drive, or previously unversioned inputs cannot be recovered by Git.',
+              '',
+              '## Moved tracked artifacts',
+              '',
+          ]
+          if moved:
+              lines.extend(f'- `{src}` → `{dst}`' for src, dst in moved)
+          else:
+              lines.append('- None found in the repository outside the protected v2 paths.')
+          lines.extend(['', '## Referenced by v1 but not tracked in this repository', ''])
+          if missing:
+              lines.extend(f'- `{name}`' for name in missing)
+          else:
+              lines.append('- None detected.')
+          lines.extend([
+              '', '## Protection rule', '',
+              'The migration never moves `data/v2/`, `src/`, `tests/`, `config/`, `docs/`,',
+              'or active GitHub Actions workflows. Those remain part of v2.', ''
+          ])
+          manifest.write_text('\n'.join(lines), encoding='utf-8')
+          PY
+      - name: Commit migration
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm config/run_v1_artifact_migration.json || true
+          git rm .github/workflows/migrate-v1-artifacts.yml
+          git add -A
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "chore: archive tracked v1 artifacts"
+          for delay in 1 2 4 8 16 32; do
+            if git push; then
+              exit 0
+            fi
+            git fetch origin main
+            git rebase origin/main
+            sleep "$delay"
+          done
+          exit 1
