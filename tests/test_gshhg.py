@@ -40,7 +40,10 @@ def test_natural_earth_fallback_splits_multipolygon_components():
 
 
 def test_build_is_a_cli_subcommand_with_fallback_control():
-    result = CliRunner().invoke(app, ["build", "--help"])
+    # Force a wide terminal: typer/rich wrap --help onto multiple lines (and
+    # can truncate long option names) once COLUMNS drops below its default,
+    # which made this assertion flaky under narrow CI/sandbox terminals.
+    result = CliRunner().invoke(app, ["build", "--help"], env={"COLUMNS": "200"})
 
     assert result.exit_code == 0
     assert "--allow-natural-earth-fallback" in result.output
