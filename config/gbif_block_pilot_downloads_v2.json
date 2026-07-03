@@ -3,6 +3,8 @@
   "pilot_id": "island-floral-v2-three-block-20260703",
   "submitted_workflow_run": 28659417688,
   "submitted_at_utc": "2026-07-03T12:08:48Z",
+  "poll_requested_at_utc": "2026-07-03T12:20:00Z",
+  "poll_attempt": 1,
   "scope": {
     "acquisition_taxon_name": "Tracheophyta",
     "acquisition_taxon_key": "7707728",
@@ -30,5 +32,5 @@
       "download_key": "0013847-260623161305970"
     }
   ],
-  "next_step": "Poll status until succeeded; do not collect archives until schema inspection workflow is in place."
+  "next_step": "Inspect SIMPLE_CSV schema only after one or more download requests have succeeded."
 }
