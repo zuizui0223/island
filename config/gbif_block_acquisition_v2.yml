@@ -1,11 +1,20 @@
-version: "2.0"
+version: "2.1"
 
 # Coordinate-preserving occurrence downloads are acquired by regional island
 # blocks, then joined back to the original exact island polygons.
 taxonomy:
-  checklist_key: "7ddf754f-d193-4cc9-b351-99906754a03b"
-  taxon_name: "Angiosperms"
+  # Analytical target remains flowering plants. GBIF acquisition begins with a
+  # stable, explicit vascular-plant backbone key because the common label
+  # "Angiosperms" is not a resolvable GBIF checklist name.
+  target_scope: "angiosperms"
+  taxon_name: "Tracheophyta"
+  taxon_key: "7707728"
   taxon_rank: null
+  checklist_key: null
+  post_download_taxonomy_rule: >-
+    Retain angiosperm records only after download using GBIF higher taxonomy and
+    occurrence-level scientific-name reconciliation; retain excluded records in
+    the provenance table rather than deleting them silently.
 
 acquisition:
   format: "SIMPLE_CSV"
