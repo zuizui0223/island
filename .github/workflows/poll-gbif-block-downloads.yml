@@ -1,0 +1,62 @@
+name: poll_gbif_block_downloads
+
+on:
+  workflow_dispatch:
+    inputs:
+      state_run_id:
+        description: "Run ID from submit_gbif_block_pilot or a previous poll"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install v2 package
+        run: pip install -e .
+      - name: Restore GBIF download state
+        uses: actions/download-artifact@v4
+        with:
+          name: gbif-block-download-state-${{ inputs.state_run_id }}
+          run-id: ${{ inputs.state_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: input
+      - name: Poll GBIF download keys
+        run: island-v2-gbif-flora poll --request-manifest input/gbif_block_request_manifest.csv
+      - name: Report GBIF status and DOI fields
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import pandas as pd
+          table = pd.read_csv('input/gbif_block_request_manifest.csv', dtype=str).fillna('')
+          print('## GBIF regional download status')
+          print(table['request_status'].value_counts().rename_axis('status').to_frame('n').to_csv())
+          fields = ['block_id', 'regional_cell', 'n_islands', 'request_status', 'download_key', 'doi']
+          completed = table.loc[table['request_status'].isin(['succeeded', 'failed']), fields]
+          if not completed.empty:
+              print('### Completed or failed blocks')
+              print('```csv')
+              print(completed.to_csv(index=False), end='')
+              print('```')
+          PY
+      - name: Upload updated GBIF download state
+        uses: actions/upload-artifact@v4
+        with:
+          name: gbif-block-download-state-${{ github.run_id }}
+          path: |
+            input/gbif_block_request_manifest.csv
+            input/gbif_block_members.csv
+            input/gbif_block_policy.json
+            input/gbif_block_taxon_resolution.json
+            input/islands_v2.gpkg
+            input/island_manifest.csv
+            input/source_policy.json
+          if-no-files-found: error
+          retention-days: 90
