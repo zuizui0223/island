@@ -1,7 +1,7 @@
 {
   "schema_version": "1.1",
   "campaign_id": "island-floral-v2-global-islands-5km2-20260703",
-  "campaign_status": "paused_pending_capacity_poll_and_antimeridian_repair",
+  "campaign_status": "submitting_in_bounded_batches",
   "created_at_utc": "2026-07-03T12:30:00Z",
   "launch_requested_at_utc": "2026-07-03T12:45:00Z",
   "launch_batch_size": 10,
@@ -225,5 +225,14 @@
       "deferred_capacity": 6
     },
     "rule": "Do not resubmit recovered download keys."
+  },
+  "last_batch": {
+    "updated_at_utc": "2026-07-03T13:17:55.530900+00:00",
+    "submit_exit_code": 0,
+    "ledger_status_counts": {
+      "submitted": 5,
+      "geometry_repair_pending": 2,
+      "deferred_capacity": 6
+    }
   }
 }
