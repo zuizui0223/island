@@ -1,0 +1,6 @@
+{
+  "workflow_run_id": 28660644067,
+  "artifact_id": 8066533945,
+  "requested_at_utc": "2026-07-03T12:45:00Z",
+  "purpose": "Reconcile accepted GBIF keys and non-terminal submission outcomes into the persistent ledger before any further submission."
+}
