@@ -1,7 +1,8 @@
 import geopandas as gpd
 from shapely.geometry import MultiPolygon, Polygon
+from typer.testing import CliRunner
 
-from island_v2.gshhg_source import make_island_units
+from island_v2.gshhg_source import app, make_island_units
 
 
 def test_multipolygon_landmass_is_not_split():
@@ -22,3 +23,10 @@ def test_multipolygon_landmass_is_not_split():
 
     assert len(result) == 1
     assert result.iloc[0].geometry.geom_type == "MultiPolygon"
+
+
+def test_build_is_a_cli_subcommand():
+    result = CliRunner().invoke(app, ["build", "--help"])
+
+    assert result.exit_code == 0
+    assert "Acquire GSHHG" in result.output
