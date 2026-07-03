@@ -1,0 +1,136 @@
+name: migrate_legacy_v1_layout
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "config/run_legacy_v1_layout_migration.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Use the same lock as the GBIF campaign so the migration cannot race a ledger
+# commit from poll/submit/collect.
+concurrency:
+  group: gbif-full-acquisition
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'run legacy v1 layout migration'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Move frozen v1 and retire superseded workflows
+        run: |
+          set -euo pipefail
+
+          mkdir -p legacy/v1/r legacy/v1/docs
+
+          # The old R chain is frozen exactly as it was used for the original
+          # manuscript-oriented analysis. Move, do not rewrite.
+          for script in \
+            01_compile_global_island_polygons.R \
+            02_join_traits_and_calculate_continent_distance.R \
+            03_build_vif_filtered_environment_stack.R \
+            04_download_gbif_island_plant_species.R \
+            05_download_and_thin_bombus_occurrences.R \
+            06_calculate_bombus_environmental_mismatch_pdi.R \
+            07_reclassify_traits_and_filter_isolated_islands.R \
+            08_filter_animal_pollinated_and_assign_climate_zones.R \
+            09_run_final_bayesian_path_model_analysis.R
+          do
+            if test -f "$script"; then
+              git mv "$script" "legacy/v1/r/$script"
+            fi
+          done
+
+          if test -f README.md; then
+            git mv README.md legacy/v1/README_v1_analysis.md
+          fi
+
+          cat > README.md <<'EOF'
+          # Island floral syndrome — v2
+
+          This repository is now organized around the reproducible v2 pipeline:
+
+          ```text
+          frozen exact island universe
+          → GBIF download blocks and campaign ledger
+          → archive collection and exact point-in-polygon assignment
+          → taxonomic / floral-trait evidence tables
+          → island-level inference
+          ```
+
+          ## Active code
+
+          - `src/island_v2/` — v2 Python package
+          - `config/` — current data-acquisition and inference configuration
+          - `data/v2/` — external, staging, curated, and template data layers
+          - `docs/` — v2 architecture, data policy, and operational notes
+          - `.github/workflows/` — validation, GBIF submission/polling/collection
+
+          ## Frozen v1
+
+          The original standalone R analysis is preserved without edits under
+          [`legacy/v1/`](legacy/v1/). It is retained for provenance and is not
+          part of the active v2 workflow.
+
+          ## Current campaign rule
+
+          GBIF request catchments are used only to retrieve candidate records.
+          Final assignment is always against the original, exact island polygons.
+          EOF
+
+          cat > legacy/v1/README.md <<'EOF'
+          # Frozen v1 analysis
+
+          This directory preserves the original R-based island floral-syndrome
+          analysis exactly for provenance. It is not maintained as active code.
+
+          `r/01`–`r/09` are the original end-to-end scripts, including the
+          original 20 km² island threshold, local desktop paths, GBIF queries,
+          Bombus/PDI construction, trait recoding, and final Bayesian path model.
+
+          The active implementation is the repository root v2 pipeline.
+          EOF
+
+          # Superseded by the frozen-universe and self-driving campaign paths.
+          for workflow in \
+            .github/workflows/acquire_gshhg.yml \
+            .github/workflows/gbif-flora-v2.yml \
+            .github/workflows/reconcile-gbif-full-acquisition.yml
+          do
+            if test -f "$workflow"; then
+              git rm "$workflow"
+            fi
+          done
+
+          # Remove this one-shot trigger and its workflow after the migration.
+          git rm config/run_legacy_v1_layout_migration.json || true
+          git rm .github/workflows/migrate-legacy-v1-layout.yml
+
+      - name: Commit migration without racing campaign state
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to migrate."
+            exit 0
+          fi
+          git commit -m "chore: freeze v1 analysis under legacy"
+          for delay in 1 2 4 8 16 32; do
+            if git push; then
+              exit 0
+            fi
+            git fetch origin main
+            git rebase origin/main
+            sleep "$delay"
+          done
+          echo "Could not push legacy migration after retries." >&2
+          exit 1
