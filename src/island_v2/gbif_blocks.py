@@ -1,8 +1,8 @@
 """Prepare bounded regional GBIF occurrence downloads for the v2 island universe.
 
-The island analysis geometry is never replaced.  For GBIF acquisition only, a
+The island analysis geometry is never replaced. For GBIF acquisition only, a
 small outward query catchment is built around each island to avoid missing
-coastal records because of coordinate rounding or shoreline mismatch.  Returned
+coastal records because of coordinate rounding or shoreline mismatch. Returned
 records must subsequently be assigned back to the original island polygons.
 
 This avoids both unsuitable extremes:
@@ -23,7 +23,6 @@ import geopandas as gpd
 import httpx
 import pandas as pd
 import typer
-import yaml
 from shapely import make_valid, to_wkt
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
 from shapely.ops import unary_union
@@ -76,6 +75,48 @@ def grid_label(lon_index: int, lat_index: int, grid_degrees: float) -> str:
     return f"cell_w{west:+06.1f}_s{south:+05.1f}"
 
 
+def resolve_explicit_taxon_key(
+    client: httpx.Client,
+    taxon_key: str,
+    declared_name: str,
+) -> dict[str, Any]:
+    """Validate and record a caller-specified GBIF backbone taxon key.
+
+    Explicit keys are used for broad, stable acquisition scopes when a common
+    English group label does not resolve in a selected checklist. The response
+    is saved verbatim enough to audit the exact GBIF concept used.
+    """
+    response = client.get(f"{GBIF_API}/species/{taxon_key}")
+    response.raise_for_status()
+    matched = response.json()
+    usage_key = matched.get("key") or matched.get("nubKey") or taxon_key
+    return {
+        "query_name": declared_name,
+        "query_rank": matched.get("rank"),
+        "checklist_key": None,
+        "usage_key": str(usage_key),
+        "matched_name": matched.get("scientificName") or matched.get("canonicalName"),
+        "matched_rank": matched.get("rank"),
+        "match_type": "EXPLICIT_USAGE_KEY",
+        "confidence": None,
+        "resolution_method": "explicit_gbif_taxon_key",
+    }
+
+
+def resolve_query_taxon(
+    client: httpx.Client,
+    taxon_name: str,
+    taxon_rank: str | None,
+    checklist_key: str | None,
+    taxon_key: str | None,
+) -> dict[str, Any]:
+    if taxon_key:
+        return resolve_explicit_taxon_key(client, taxon_key, taxon_name)
+    resolved = resolve_taxon(client, taxon_name, taxon_rank, checklist_key)
+    resolved["resolution_method"] = "species_match"
+    return resolved
+
+
 def build_query_catchments(
     islands: gpd.GeoDataFrame,
     buffer_m: float,
@@ -108,8 +149,7 @@ def build_query_catchments(
 
 
 def union_query_geometries(geometries: list[Any]) -> Polygon | MultiPolygon:
-    merged = polygonal_only(unary_union(geometries))
-    return merged
+    return polygonal_only(unary_union(geometries))
 
 
 def block_query_geometries(
@@ -131,23 +171,17 @@ def block_query_geometries(
         raise typer.BadParameter("max_islands_per_block must be positive")
 
     table = catchments.copy()
-    centroids = table.geometry.centroid
+    centroids = gpd.GeoSeries(table.to_crs(6933).geometry.centroid, crs=6933).to_crs(4326)
     indices = [grid_index(point.x, point.y, grid_degrees) for point in centroids]
     table["grid_lon_index"] = [value[0] for value in indices]
     table["grid_lat_index"] = [value[1] for value in indices]
-    table["regional_cell"] = [
-        grid_label(lon, lat, grid_degrees) for lon, lat in indices
-    ]
+    table["regional_cell"] = [grid_label(lon, lat, grid_degrees) for lon, lat in indices]
 
     blocks: list[dict[str, Any]] = []
     members: list[dict[str, Any]] = []
     global_sequence = 0
 
-    def flush(
-        pending: list[dict[str, Any]],
-        regional_cell: str,
-        local_sequence: int,
-    ) -> None:
+    def flush(pending: list[dict[str, Any]], regional_cell: str, local_sequence: int) -> None:
         nonlocal global_sequence
         if not pending:
             return
@@ -195,9 +229,7 @@ def block_query_geometries(
         local_sequence = 0
         for record in group.to_dict("records"):
             proposed = estimated_chars + int(record["query_wkt_chars"]) + 2
-            if pending and (
-                proposed > max_wkt_chars or len(pending) >= max_islands_per_block
-            ):
+            if pending and (proposed > max_wkt_chars or len(pending) >= max_islands_per_block):
                 local_sequence += 1
                 flush(pending, str(regional_cell), local_sequence)
                 pending = []
@@ -251,9 +283,11 @@ def add_gbif_payloads(
 def prepare(
     islands_gpkg: Path = typer.Option(..., exists=True, help="Prepared v2 island GeoPackage."),
     output_dir: Path = typer.Option(..., help="Directory for block manifest and members."),
-    taxon_name: str = typer.Option("Angiosperms"),
+    taxon_name: str = typer.Option("Tracheophyta"),
     taxon_rank: str | None = typer.Option(None),
-    checklist_key: str | None = typer.Option("7ddf754f-d193-4cc9-b351-99906754a03b"),
+    taxon_key: str | None = typer.Option(None, help="Explicit GBIF backbone usage key."),
+    checklist_key: str | None = typer.Option(None),
+    target_scope: str = typer.Option("angiosperms"),
     email: str | None = typer.Option(None, help="Optional GBIF notification email; not stored unless supplied."),
     grid_degrees: float = typer.Option(30.0, min=1.0, max=90.0),
     max_wkt_chars: int = typer.Option(120_000, min=10_000),
@@ -263,16 +297,8 @@ def prepare(
 ) -> None:
     """Build bounded, coordinate-preserving GBIF regional request manifests."""
     islands = gpd.read_file(islands_gpkg, layer="islands")
-    require_columns(
-        islands,
-        {"island_id", "area_km2", "geometry_sha256"},
-        "island GeoPackage",
-    )
-    catchments = build_query_catchments(
-        islands,
-        buffer_m=query_buffer_m,
-        simplify_m=query_simplify_m,
-    )
+    require_columns(islands, {"island_id", "area_km2", "geometry_sha256"}, "island GeoPackage")
+    catchments = build_query_catchments(islands, buffer_m=query_buffer_m, simplify_m=query_simplify_m)
     blocks, members = block_query_geometries(
         catchments,
         grid_degrees=grid_degrees,
@@ -280,7 +306,7 @@ def prepare(
         max_islands_per_block=max_islands_per_block,
     )
     with httpx.Client(timeout=60.0, headers={"User-Agent": "island-floral-v2/0.2"}) as client:
-        taxon = resolve_taxon(client, taxon_name, taxon_rank, checklist_key)
+        taxon = resolve_query_taxon(client, taxon_name, taxon_rank, checklist_key, taxon_key)
     manifest = add_gbif_payloads(blocks, taxon, checklist_key, email)
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -292,8 +318,11 @@ def prepare(
     policy = {
         "created_at_utc": datetime.now(UTC).isoformat(),
         "format": "SIMPLE_CSV",
-        "taxon_name": taxon_name,
-        "taxon_rank": taxon_rank,
+        "target_scope": target_scope,
+        "query_taxon_name": taxon_name,
+        "query_taxon_key": taxon.get("usage_key"),
+        "query_taxon_rank": taxon.get("matched_rank"),
+        "taxon_resolution_method": taxon.get("resolution_method"),
         "checklist_key": checklist_key,
         "n_islands": int(len(islands)),
         "n_blocks": int(len(manifest)),
@@ -303,11 +332,10 @@ def prepare(
         "query_buffer_m": query_buffer_m,
         "query_simplify_m": query_simplify_m,
         "assignment_rule": "Downloaded coordinates must be joined to original island geometry, not catchments.",
+        "post_download_taxonomy_rule": "Retain angiosperms only after download; the broader query taxon is an acquisition proxy.",
         "email_in_payload": bool(email),
     }
-    (output_dir / "gbif_block_policy.json").write_text(
-        json.dumps(policy, indent=2), encoding="utf-8"
-    )
+    (output_dir / "gbif_block_policy.json").write_text(json.dumps(policy, indent=2), encoding="utf-8")
     typer.echo(
         f"Prepared {len(manifest)} regional GBIF occurrence-download blocks "
         f"for {len(islands)} islands at {output_dir}"
