@@ -3,5 +3,20 @@ source_version: "2.3.7"
 source_url: "https://www.soest.hawaii.edu/pwessel/gshhg/gshhg-shp-2.3.7.zip"
 resolution: h
 shoreline_level: L1
-min_area_km2: 20.0
+
+# Operational lower bound for the v2 primary island universe. It is not a
+# biological definition of an island: area remains an analytical covariate.
+min_area_km2: 5.0
+
+# Re-run these as explicitly labelled source/coverage sensitivity analyses.
+area_threshold_sensitivity_km2:
+  - 1.0
+  - 5.0
+  - 20.0
+primary_operational_threshold_km2: 5.0
+conservative_sensitivity_threshold_km2: 20.0
+small_island_sensitivity_threshold_km2: 1.0
+
+# L1 land masses above this threshold are treated as continental mainlands.
+# Greenland and all smaller landmasses remain in the candidate-island universe.
 mainland_area_threshold_km2: 7000000.0
