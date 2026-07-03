@@ -4,12 +4,12 @@ name: collect_gbif_full_acquisition
 # `succeeded`, download their SIMPLE_CSV archives, and assign every occurrence
 # coordinate back to the original exact island polygon (never the buffered query
 # catchment). Runs read-only against GBIF's public download archives, so it needs
-# no credentials. Idempotent: re-running only re-assigns; archives are cached.
+# no credentials. Re-running preserves a block-level archive/assignment audit.
 on:
   workflow_dispatch:
   schedule:
-    # Every 6 hours, offset from submit(*/15)/poll(7,22,37,52). Collection only
-    # advances as blocks reach `succeeded`, so it does not need a fast cadence.
+    # Collection is intentionally less frequent than status polling; it can be
+    # manually dispatched after a large batch of GBIF archives completes.
     - cron: "41 */6 * * *"
 
 permissions:
@@ -78,8 +78,10 @@ jobs:
             --block-members-csv data/v2/external/gbif/full/gbif_block_members.csv \
             --islands-gpkg data/v2/external/islands/frozen_pilot/islands_v2.gpkg \
             --download-dir data/v2/staging/gbif/archives \
-            --output-dir data/v2/staging/gbif/collected
-      - name: Commit island-level collection outputs
+            --output-dir data/v2/staging/gbif/collected \
+            --chunksize 250000
+      - name: Commit island-level collection outputs and block audit
+        if: always()
         run: |
           python - <<'PY'
           import subprocess
@@ -88,9 +90,10 @@ jobs:
               'data/v2/staging/gbif/collected/island_species_occurrences.csv',
               'data/v2/staging/gbif/collected/island_observation_effort.csv',
               'data/v2/staging/gbif/collected/island_taxa.csv',
+              'data/v2/staging/gbif/collected/collection_manifest.csv',
               'data/v2/staging/gbif/collected/collection_status.json',
           ]
-          present = [p for p in outputs if Path(p).exists()]
+          present = [path for path in outputs if Path(path).exists()]
           if not present:
               raise SystemExit(0)
           subprocess.run(['git', 'config', 'user.name', 'github-actions[bot]'], check=True)
