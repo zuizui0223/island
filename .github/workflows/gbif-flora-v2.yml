@@ -39,12 +39,6 @@ jobs:
         run: |
           island-v2-validate ontology --ontology-path config/trait_ontology.yml
           pytest -q
-      - name: Check protected input and manifest paths
-        run: |
-          test -e data/v2/external/islands/GlbIslands.gdb || {
-            echo "Missing island geometry input. Add the documented vector source before running this stage." >&2
-            exit 2
-          }
       - name: Run selected stage
         env:
           GBIF_USERNAME: ${{ secrets.GBIF_USERNAME }}
@@ -53,6 +47,8 @@ jobs:
         run: |
           case "${{ inputs.stage }}" in
             prepare)
+              test -e data/v2/external/islands/GlbIslands.gdb || {
+                echo "Missing island geometry input." >&2; exit 2; }
               island-v2-gbif-flora prepare-islands \
                 --input-path data/v2/external/islands/GlbIslands.gdb \
                 --layer BigIslands \
@@ -61,6 +57,8 @@ jobs:
                 --min-area-km2 20
               ;;
             requests)
+              test -f data/v2/external/islands/prepared/islands_v2.gpkg || {
+                echo "Missing prepared island GPKG." >&2; exit 2; }
               island-v2-gbif-flora make-requests \
                 --islands-gpkg data/v2/external/islands/prepared/islands_v2.gpkg \
                 --output-csv data/v2/external/gbif/request_manifest.csv \
@@ -68,15 +66,21 @@ jobs:
                 --email "$GBIF_EMAIL"
               ;;
             submit)
+              test -f data/v2/external/gbif/request_manifest.csv || {
+                echo "Missing request manifest." >&2; exit 2; }
               island-v2-gbif-flora submit \
                 --request-manifest data/v2/external/gbif/request_manifest.csv \
                 --max-requests "${{ inputs.max_requests }}"
               ;;
             poll)
+              test -f data/v2/external/gbif/request_manifest.csv || {
+                echo "Missing request manifest." >&2; exit 2; }
               island-v2-gbif-flora poll \
                 --request-manifest data/v2/external/gbif/request_manifest.csv
               ;;
             collect)
+              test -f data/v2/external/gbif/request_manifest.csv || {
+                echo "Missing request manifest." >&2; exit 2; }
               island-v2-gbif-flora collect \
                 --request-manifest data/v2/external/gbif/request_manifest.csv \
                 --download-dir data/v2/external/gbif/downloads \
