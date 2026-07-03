@@ -2,14 +2,14 @@ import geopandas as gpd
 from shapely.geometry import MultiPolygon, Polygon
 from typer.testing import CliRunner
 
-from island_v2.gshhg_source import app, make_island_units
+from island_v2.gshhg_source import app, make_island_units, natural_earth_parts
 
 
-def test_multipolygon_landmass_is_not_split():
+def test_gshhg_multipolygon_landmass_is_not_split():
     first = Polygon([(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)])
     second = Polygon([(2, 0), (2, 1), (3, 1), (3, 0), (2, 0)])
     source = gpd.GeoDataFrame(
-        {"gshhg_polygon_id": ["x"]},
+        {"source_feature_id": ["x"]},
         geometry=[MultiPolygon([first, second])],
         crs=4326,
     )
@@ -25,8 +25,22 @@ def test_multipolygon_landmass_is_not_split():
     assert result.iloc[0].geometry.geom_type == "MultiPolygon"
 
 
-def test_build_is_a_cli_subcommand_with_url_override():
+def test_natural_earth_fallback_splits_multipolygon_components():
+    first = Polygon([(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)])
+    second = Polygon([(2, 0), (2, 1), (3, 1), (3, 0), (2, 0)])
+    source = gpd.GeoDataFrame(
+        geometry=[MultiPolygon([first, second])],
+        crs=4326,
+    )
+
+    result = natural_earth_parts(source)
+
+    assert len(result) == 2
+    assert result["source_feature_id"].is_unique
+
+
+def test_build_is_a_cli_subcommand_with_fallback_control():
     result = CliRunner().invoke(app, ["build", "--help"])
 
     assert result.exit_code == 0
-    assert "--source-url" in result.output
+    assert "--allow-natural-earth-fallback" in result.output
