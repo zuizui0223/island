@@ -10,6 +10,7 @@ on:
       - "src/island_v2/gshhg_source.py"
       - "src/island_v2/gbif_blocks.py"
       - "src/island_v2/gbif_flora.py"
+      - "tests/test_gbif_blocks.py"
       - "pyproject.toml"
       - ".github/workflows/prepare-gbif-block-requests.yml"
 
@@ -26,6 +27,8 @@ jobs:
           python-version: "3.11"
       - name: Install v2 package
         run: pip install -e ".[dev]"
+      - name: Test query-catchment and block assignment logic
+        run: pytest -q tests/test_gbif_blocks.py
       - name: Build current v2 island universe
         run: island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
       - name: Make bounded coordinate-preserving GBIF request blocks
