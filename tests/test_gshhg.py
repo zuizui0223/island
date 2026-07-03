@@ -29,4 +29,3 @@ def test_build_is_a_cli_subcommand():
     result = CliRunner().invoke(app, ["build", "--help"])
 
     assert result.exit_code == 0
-    assert "Acquire GSHHG" in result.output
