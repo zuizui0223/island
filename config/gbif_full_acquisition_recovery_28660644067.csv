@@ -1,0 +1,11 @@
+workflow_run_id,block_id,regional_cell,n_islands,request_status,download_key,error_class,error_summary
+28660644067,gbif_block_0004_cell_w+000.0_s+30.0_003,cell_w+000.0_s+30.0,125,submitted,0013894-260623161305970,,accepted
+28660644067,gbif_block_0006_cell_w+000.0_s+60.0_001,cell_w+000.0_s+60.0,118,geometry_repair_pending,,antimeridian_wkt,GBIF rejected an antimeridian-spanning polygon component
+28660644067,gbif_block_0010_cell_w+000.0_s-30.0_001,cell_w+000.0_s-30.0,89,geometry_repair_pending,,antimeridian_wkt,GBIF rejected an antimeridian-spanning polygon component
+28660644067,gbif_block_0011_cell_w+000.0_s-60.0_001,cell_w+000.0_s-60.0,50,submitted,0013896-260623161305970,,accepted
+28660644067,gbif_block_0012_cell_w+030.0_s+00.0_001,cell_w+030.0_s+00.0,122,deferred_capacity,,gbif_concurrent_download_limit,GBIF simultaneous download limit reached
+28660644067,gbif_block_0014_cell_w+030.0_s+30.0_001,cell_w+030.0_s+30.0,125,deferred_capacity,,gbif_concurrent_download_limit,GBIF simultaneous download limit reached
+28660644067,gbif_block_0015_cell_w+030.0_s+60.0_001,cell_w+030.0_s+60.0,118,deferred_capacity,,gbif_concurrent_download_limit,GBIF simultaneous download limit reached
+28660644067,gbif_block_0016_cell_w+030.0_s-30.0_001,cell_w+030.0_s-30.0,90,deferred_capacity,,gbif_concurrent_download_limit,GBIF simultaneous download limit reached
+28660644067,gbif_block_0017_cell_w+030.0_s-60.0_001,cell_w+030.0_s-60.0,6,deferred_capacity,,gbif_concurrent_download_limit,GBIF simultaneous download limit reached
+28660644067,gbif_block_0018_cell_w+060.0_s+00.0_001,cell_w+060.0_s+00.0,67,deferred_capacity,,gbif_concurrent_download_limit,GBIF simultaneous download limit reached
