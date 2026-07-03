@@ -183,10 +183,10 @@
     "rule": "Do not resubmit recovered download keys."
   },
   "last_batch": {
-    "updated_at_utc": "2026-07-03T13:43:10.860488+00:00",
+    "updated_at_utc": "2026-07-03T14:18:13.576036+00:00",
     "submit_exit_code": 0,
     "ledger_status_counts": {
-      "submitted": 8
+      "succeeded": 8
     }
   },
   "ledger_id_migration": {
