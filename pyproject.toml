@@ -30,6 +30,7 @@ dev = [
 island-v2-gshhg = "island_v2.gshhg_source:app"
 island-v2-gbif-blocks = "island_v2.gbif_blocks:app"
 island-v2-gbif-flora = "island_v2.gbif_flora:app"
+island-v2-gbif-collect = "island_v2.gbif_collect:app"
 island-v2-traits = "island_v2.trait_extraction:app"
 island-v2-hierarchical = "island_v2.hierarchical:app"
 island-v2-validate = "island_v2.validation:app"

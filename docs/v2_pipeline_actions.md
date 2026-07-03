@@ -11,11 +11,23 @@ set (all others were retired pilots and have been removed):
 | 2. Poll | `poll-gbif-full-acquisition.yml` | `7,22,37,52` schedule / manual | Advance each active download `submitted → running → succeeded/failed`, record DOI. |
 | (recovery) | `reconcile-gbif-full-acquisition.yml` | manual | One-off ledger reconciliation helper. |
 | CI | `validate-v2.yml` | PR / push | `ruff` + ontology validation + `pytest`. |
-| 3. Collect | _(next)_ | — | Download succeeded SIMPLE_CSV archives and assign occurrence coordinates to the original exact island polygons + build the observation-effort table. |
+| 3. Collect | `collect-gbif-full-acquisition.yml` | `41 */6` schedule / manual | Download succeeded SIMPLE_CSV archives, assign occurrences to the original exact island polygons, and write `island_species_occurrences.csv`, `island_observation_effort.csv`, and `island_taxa.csv`. |
+| 4. Traits | `island-v2-traits run` (manual) | — | Consume `island_taxa.csv` (`accepted_species, genus, family`) → LLM web-search trait candidates for review. |
 
 Stages 1–2 share the `gbif-full-acquisition` concurrency group and rebase before
 pushing the shared ledger (`config/gbif_full_acquisition_v2.json`), so scheduled
 runs never race.
+
+## Resuming as data arrives
+
+The campaign fills in over ~a day, but the downstream flow does not wait for all
+103 blocks. `collect` is **idempotent and cumulative**: every run reprocesses
+whichever blocks are currently `succeeded` and regenerates the full island-level
+outputs, so the `island_taxa.csv` species list simply grows as more blocks
+complete. The handoff to trait acquisition is therefore stable — point
+`island-v2-traits run --taxa-csv .../island_taxa.csv` at the latest collect
+output and re-run it on the enlarged list whenever more blocks land. No stage
+needs the campaign to be finished before it can start on the data in hand.
 
 ## Reproducibility note
 
