@@ -13,7 +13,7 @@ permissions:
 jobs:
   submit:
     # A push starts the pilot only when the dedicated launch commit is used.
-    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'run: submit GBIF pilot'
+    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'launch GBIF pilot'
     runs-on: ubuntu-latest
     environment: gbif-downloads
     steps:
