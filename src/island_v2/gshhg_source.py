@@ -42,12 +42,16 @@ def download(url: str, destination: Path) -> None:
     if destination.exists() and destination.stat().st_size > 0:
         return
     temporary = destination.with_suffix(destination.suffix + ".part")
-    with httpx.stream("GET", url, timeout=600, follow_redirects=True) as response:
-        response.raise_for_status()
-        with temporary.open("wb") as handle:
-            for block in response.iter_bytes():
-                handle.write(block)
-    temporary.replace(destination)
+    try:
+        with httpx.stream("GET", url, timeout=600, follow_redirects=True) as response:
+            response.raise_for_status()
+            with temporary.open("wb") as handle:
+                for block in response.iter_bytes():
+                    handle.write(block)
+        temporary.replace(destination)
+    except httpx.HTTPError as exc:
+        temporary.unlink(missing_ok=True)
+        raise typer.BadParameter(f"GSHHG archive download failed for {url}: {exc}") from exc
 
 
 def extract_l1(archive: Path, directory: Path, resolution: str) -> Path:
@@ -136,14 +140,19 @@ def make_island_units(
 def build(
     config_path: Path = typer.Option(Path("config/island_source_gshhg.yml")),
     output_dir: Path = typer.Option(Path("data/v2/external/islands/gshhg")),
+    source_url: str | None = typer.Option(
+        None,
+        help="Optional archive URL override; records the effective URL in the output manifest.",
+    ),
 ) -> None:
     """Acquire GSHHG and write a v2-compatible exact-polygon GeoPackage."""
     config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
     resolution = str(config["resolution"])
     if resolution not in {"f", "h", "i", "l", "c"}:
         raise typer.BadParameter("GSHHG resolution must be f, h, i, l, or c")
+    effective_source_url = source_url or str(config["source_url"])
     archive = output_dir / "source" / f"gshhg-shp-{config['source_version']}.zip"
-    download(str(config["source_url"]), archive)
+    download(effective_source_url, archive)
     shapefile = extract_l1(archive, output_dir / "source" / f"L1_{resolution}", resolution)
     coast = gpd.read_file(shapefile)
     if coast.crs is None:
@@ -158,14 +167,17 @@ def build(
     prepared.mkdir(parents=True, exist_ok=True)
     islands.to_file(prepared / "islands_v2.gpkg", layer="islands", driver="GPKG")
     manifest = islands.drop(columns="geometry").copy()
-    manifest["source_url"] = config["source_url"]
+    manifest["source_url"] = effective_source_url
     manifest["source_version"] = config["source_version"]
     manifest["source_resolution"] = resolution
     manifest["source_sha256"] = checksum(archive)
     manifest["prepared_at_utc"] = datetime.now(UTC).isoformat()
     manifest.to_csv(prepared / "island_manifest.csv", index=False)
     (prepared / "source_policy.json").write_text(
-        json.dumps({**config, "archive_sha256": checksum(archive), "n_islands": len(islands)}, indent=2),
+        json.dumps(
+            {**config, "source_url_used": effective_source_url, "archive_sha256": checksum(archive), "n_islands": len(islands)},
+            indent=2,
+        ),
         encoding="utf-8",
     )
     typer.echo(f"Prepared {len(islands)} exact GSHHG island polygons")
