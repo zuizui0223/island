@@ -79,41 +79,54 @@ jobs:
           from pathlib import Path
           import pandas as pd
 
+          import time
+
           ledger_path = Path('config/gbif_full_acquisition_v2.json')
           status_path = Path('data/v2/external/gbif/full_status/gbif_active_download_manifest.csv')
-          campaign = json.loads(ledger_path.read_text(encoding='utf-8'))
-          now = datetime.now(UTC).isoformat()
-          if status_path.exists() and status_path.stat().st_size:
-              statuses = pd.read_csv(status_path, dtype=str).fillna('').set_index('block_id', drop=False)
-              for entry in campaign.get('ledger', []):
-                  block_id = str(entry['block_id'])
-                  if block_id not in statuses.index:
-                      continue
-                  row = statuses.loc[block_id]
-                  entry['request_status'] = str(row.get('request_status', entry['request_status']))
-                  entry['doi'] = str(row.get('doi', entry.get('doi', '')))
-                  entry['last_polled_at_utc'] = now
-                  entry['last_poll_error'] = str(row.get('error', ''))
-                  # downloadLink is retained in the workflow artifact, not committed.
-          counts = {}
-          for entry in campaign.get('ledger', []):
-              counts[entry['request_status']] = counts.get(entry['request_status'], 0) + 1
-          campaign['last_poll'] = {
-              'polled_at_utc': now,
-              'ledger_status_counts': counts,
-          }
-          ledger_path.write_text(json.dumps(campaign, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           subprocess.run(['git', 'config', 'user.name', 'github-actions[bot]'], check=True)
           subprocess.run(['git', 'config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com'], check=True)
-          subprocess.run(['git', 'add', str(ledger_path)], check=True)
-          diff = subprocess.run(['git', 'diff', '--cached', '--quiet'])
-          if diff.returncode:
+
+          def apply_statuses_and_push() -> bool:
+              """Re-apply polled statuses onto the freshest ledger, then push.
+
+              The polled-status CSV is untracked, so it survives the hard reset;
+              re-applying it onto whatever submit/reconcile committed since
+              checkout makes the poll write conflict-proof instead of dying on a
+              JSON merge conflict during a rebase (see run 28665746146).
+              """
+              campaign = json.loads(ledger_path.read_text(encoding='utf-8'))
+              now = datetime.now(UTC).isoformat()
+              if status_path.exists() and status_path.stat().st_size:
+                  statuses = pd.read_csv(status_path, dtype=str).fillna('').set_index('block_id', drop=False)
+                  for entry in campaign.get('ledger', []):
+                      block_id = str(entry['block_id'])
+                      if block_id not in statuses.index:
+                          continue
+                      row = statuses.loc[block_id]
+                      entry['request_status'] = str(row.get('request_status', entry['request_status']))
+                      entry['doi'] = str(row.get('doi', entry.get('doi', '')))
+                      entry['last_polled_at_utc'] = now
+                      entry['last_poll_error'] = str(row.get('error', ''))
+                      # downloadLink is retained in the workflow artifact, not committed.
+              counts = {}
+              for entry in campaign.get('ledger', []):
+                  counts[entry['request_status']] = counts.get(entry['request_status'], 0) + 1
+              campaign['last_poll'] = {'polled_at_utc': now, 'ledger_status_counts': counts}
+              ledger_path.write_text(json.dumps(campaign, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+              subprocess.run(['git', 'add', str(ledger_path)], check=True)
+              if subprocess.run(['git', 'diff', '--cached', '--quiet']).returncode == 0:
+                  return True
               subprocess.run(['git', 'commit', '-m', 'chore: update GBIF download statuses'], check=True)
-              # The ledger is written by several concurrently-scheduled workflows;
-              # rebase onto whatever else has landed on main since checkout instead
-              # of failing the whole poll on a non-fast-forward push.
-              subprocess.run(['git', 'pull', '--rebase', 'origin', 'main'], check=True)
-              subprocess.run(['git', 'push'], check=True)
+              return subprocess.run(['git', 'push']).returncode == 0
+
+          for attempt in range(6):
+              subprocess.run(['git', 'fetch', 'origin', 'main'], check=True)
+              subprocess.run(['git', 'reset', '--hard', 'origin/main'], check=True)
+              if apply_statuses_and_push():
+                  break
+              time.sleep(2 ** attempt)
+          else:
+              raise SystemExit('Could not push polled statuses after repeated retries')
           PY
       - name: Summarize GBIF download state
         if: always()
