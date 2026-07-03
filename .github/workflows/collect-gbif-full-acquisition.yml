@@ -11,6 +11,10 @@ on:
     # Collection is intentionally less frequent than status polling; it can be
     # manually dispatched after a large batch of GBIF archives completes.
     - cron: "41 */6 * * *"
+  push:
+    branches: [main]
+    paths:
+      - "config/gbif_collection_trigger.json"
 
 permissions:
   contents: write
@@ -21,6 +25,10 @@ concurrency:
 
 jobs:
   collect:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'push' && github.event.head_commit.message == 'run GBIF collection')
     runs-on: ubuntu-latest
     env:
       FROZEN_ARTIFACT_ID: "8066083419"
