@@ -1,5 +1,11 @@
 name: acquire_gshhg
-on: workflow_dispatch
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -8,5 +14,43 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install -e .
-      - run: island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
+      - name: Install v2 package
+        run: pip install -e .
+      - name: Build public island polygons
+        run: island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
+      - name: Report source and island-universe diagnostics
+        run: |
+          echo '## Island source build' >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat data/v2/external/islands/gshhg/prepared/source_policy.json >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import geopandas as gpd
+          frame = gpd.read_file(
+              'data/v2/external/islands/gshhg/prepared/islands_v2.gpkg',
+              layer='islands',
+          )
+          areas = frame['area_km2']
+          print('## Island-universe diagnostics')
+          print(f'- n_islands: {len(frame)}')
+          print(f'- total_area_km2: {areas.sum():,.1f}')
+          print(f'- min_area_km2: {areas.min():,.3f}')
+          print(f'- median_area_km2: {areas.median():,.3f}')
+          print(f'- max_area_km2: {areas.max():,.3f}')
+          print('')
+          print('### Largest retained polygon units')
+          print(frame[['island_id', 'parent_feature_id', 'area_km2']]
+              .sort_values('area_km2', ascending=False)
+              .head(15)
+              .to_markdown(index=False))
+          PY
+      - name: Upload island geometry and provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: island-universe-v2-${{ github.run_id }}
+          path: |
+            data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
+            data/v2/external/islands/gshhg/prepared/island_manifest.csv
+            data/v2/external/islands/gshhg/prepared/source_policy.json
+          if-no-files-found: error
+          retention-days: 90
