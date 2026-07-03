@@ -1,0 +1,142 @@
+version: "1.0"
+
+# Hierarchical inference expands taxonomic coverage without pretending that a
+# genus-level value is observed in the focal species.  The output is a category
+# probability distribution, never an automatic hard-coded biological trait.
+accepted_direct_scopes:
+  - species_direct
+  - species_indirect
+accepted_source_reliability:
+  - A_primary_or_monograph
+  - B_curated_database_or_institution
+  - C_curated_specialist_web
+
+# Defaults apply unless a trait-specific rule overrides them.
+default:
+  genus:
+    minimum_supporting_species: 3
+    minimum_modal_probability: 0.55
+  family:
+    minimum_supporting_species: 15
+    minimum_modal_probability: 0.65
+
+trait_rules:
+  flower_primary_color:
+    genus:
+      minimum_supporting_species: 3
+      minimum_modal_probability: 0.50
+    family:
+      minimum_supporting_species: 20
+      minimum_modal_probability: 0.60
+
+  floral_symmetry:
+    genus:
+      minimum_supporting_species: 3
+      minimum_modal_probability: 0.60
+    family:
+      minimum_supporting_species: 20
+      minimum_modal_probability: 0.70
+
+  floral_form:
+    genus:
+      minimum_supporting_species: 3
+      minimum_modal_probability: 0.55
+    family:
+      minimum_supporting_species: 20
+      minimum_modal_probability: 0.65
+
+  tube_depth_class:
+    genus:
+      minimum_supporting_species: 4
+      minimum_modal_probability: 0.60
+    family:
+      minimum_supporting_species: 25
+      minimum_modal_probability: 0.70
+
+  flower_size_class:
+    genus:
+      minimum_supporting_species: 4
+      minimum_modal_probability: 0.60
+    family:
+      minimum_supporting_species: 25
+      minimum_modal_probability: 0.70
+
+  inflorescence_display:
+    genus:
+      minimum_supporting_species: 3
+      minimum_modal_probability: 0.55
+    family:
+      minimum_supporting_species: 20
+      minimum_modal_probability: 0.65
+
+  reward_type:
+    genus:
+      minimum_supporting_species: 4
+      minimum_modal_probability: 0.60
+    family:
+      minimum_supporting_species: 25
+      minimum_modal_probability: 0.70
+
+  pollination_functional_guild:
+    genus:
+      minimum_supporting_species: 5
+      minimum_modal_probability: 0.65
+    family:
+      minimum_supporting_species: 30
+      minimum_modal_probability: 0.75
+
+  self_incompatibility:
+    genus:
+      minimum_supporting_species: 5
+      minimum_modal_probability: 0.70
+    family:
+      minimum_supporting_species: 30
+      minimum_modal_probability: 0.80
+
+  autonomous_selfing_capacity:
+    genus:
+      minimum_supporting_species: 5
+      minimum_modal_probability: 0.70
+    family:
+      minimum_supporting_species: 30
+      minimum_modal_probability: 0.80
+
+  mating_system:
+    genus:
+      minimum_supporting_species: 5
+      minimum_modal_probability: 0.70
+    family:
+      minimum_supporting_species: 30
+      minimum_modal_probability: 0.80
+
+  herkogamy:
+    genus:
+      minimum_supporting_species: 5
+      minimum_modal_probability: 0.65
+    family:
+      minimum_supporting_species: 30
+      minimum_modal_probability: 0.75
+
+  dichogamy:
+    genus:
+      minimum_supporting_species: 5
+      minimum_modal_probability: 0.65
+    family:
+      minimum_supporting_species: 30
+      minimum_modal_probability: 0.75
+
+  cleistogamy:
+    genus:
+      minimum_supporting_species: 5
+      minimum_modal_probability: 0.70
+    family:
+      minimum_supporting_species: 30
+      minimum_modal_probability: 0.80
+
+  sex_system:
+    genus:
+      minimum_supporting_species: 5
+      minimum_modal_probability: 0.70
+    family:
+      minimum_supporting_species: 30
+      minimum_modal_probability: 0.80
