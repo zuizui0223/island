@@ -25,7 +25,8 @@ def test_multipolygon_landmass_is_not_split():
     assert result.iloc[0].geometry.geom_type == "MultiPolygon"
 
 
-def test_build_is_a_cli_subcommand():
+def test_build_is_a_cli_subcommand_with_url_override():
     result = CliRunner().invoke(app, ["build", "--help"])
 
     assert result.exit_code == 0
+    assert "--source-url" in result.output
