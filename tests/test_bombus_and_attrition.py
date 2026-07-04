@@ -9,7 +9,10 @@ from island_v2.attrition_audit import (
     continuation_summary,
     load_config as load_attrition_config,
 )
-from island_v2.bombus_diagnostics import compute_bombus_diagnostics, load_config as load_bombus_config
+from island_v2.bombus_diagnostics import (
+    compute_bombus_diagnostics,
+    load_config as load_bombus_config,
+)
 
 
 BOMBUS_CONFIG = {
