@@ -16,8 +16,8 @@ from typing import Any
 import pandas as pd
 import typer
 
-from island_v2.gbif_collect import _succeeded_blocks
 from island_v2 import gbif_collect_incremental as incremental
+from island_v2.gbif_collect import _succeeded_blocks
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
@@ -54,7 +54,7 @@ def select_succeeded_block(
 
 
 def _status_after_selected_collection(
-    campaign: dict[str, Any], output_dir: Path, block_id: str
+    campaign: dict[str, Any], output_dir: Path, block_id: str, selection_rationale: str
 ) -> None:
     """Restore global campaign counts after the delegated one-block run."""
     status_path = output_dir / "collection_status.json"
@@ -69,6 +69,7 @@ def _status_after_selected_collection(
             "collection_mode": "resumable_exact_island_block_batches",
             "selection_mode": "explicit_succeeded_uncollected_block",
             "requested_block_id": block_id,
+            "selection_rationale": selection_rationale,
             "selected_block_ids": [block_id],
             "max_blocks_per_run": 1,
             "n_succeeded_blocks_in_campaign": len(succeeded_ids),
@@ -90,9 +91,15 @@ def collect(
     download_dir: Path = typer.Option(...),
     output_dir: Path = typer.Option(...),
     block_id: str = typer.Option(..., help="Exact already-succeeded, uncollected campaign block ID."),
+    selection_rationale: str = typer.Option(
+        ..., help="Predeclared geographic/source-region coverage rationale; never trait/outcome based."
+    ),
     chunksize: int = typer.Option(250_000, min=1),
 ) -> None:
     """Collect one explicit succeeded block using the normal exact-island path."""
+    rationale = str(selection_rationale or "").strip()
+    if not rationale:
+        raise typer.BadParameter("selection_rationale is required")
     campaign = json.loads(campaign_json.read_text(encoding="utf-8"))
     output_dir.mkdir(parents=True, exist_ok=True)
     selected = select_succeeded_block(
@@ -112,7 +119,7 @@ def collect(
             max_blocks=1,
             chunksize=chunksize,
         )
-    _status_after_selected_collection(campaign, output_dir, str(block_id))
+    _status_after_selected_collection(campaign, output_dir, str(block_id), rationale)
     typer.echo(f"Collected explicit succeeded block {block_id} through the exact-island pipeline.")
 
 
