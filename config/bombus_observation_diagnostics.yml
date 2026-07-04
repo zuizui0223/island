@@ -1,0 +1,97 @@
+# Pre-registered observation-process policy for the Bombus channel.
+# This policy concerns evidence quality, not the biological applicability of
+# the Bombus hypothesis. It is applied only after applicability is assigned.
+version: "1.0"
+
+purpose: >-
+  Distinguish observed Bombus presence, interpretable non-detection, and
+  insufficient observation effort without treating a missing GBIF record as
+  biological absence.
+
+primary_target_group:
+  name: Apidae
+  rationale: >-
+    Apidae records provide a tractable first-pass background of bee-targeted
+    collection and observation activity. Results must report the target group
+    explicitly and be repeated under the sensitivity definitions below.
+
+record_filters:
+  required:
+    - accepted_taxonomy
+    - spatially_assigned_to_exact_island_polygon_or_predeclared_near_island_buffer
+    - usable_event_date_or_year
+    - nonzero_coordinate_precision_when_available
+  exclude_or_flag:
+    - known_captive_or_cultivated_records
+    - records_with_unresolved_genus
+    - duplicate_records_from_the_same_event
+
+primary_thresholds:
+  min_background_records: 50
+  min_background_spatial_units: 3
+  min_background_temporal_units: 2
+  min_distinct_datasets: 2
+  required_bombus_records_for_detection: 1
+
+categories:
+  detected:
+    definition: >-
+      At least one quality-filtered Bombus record is assigned to the island
+      system under the predeclared spatial rule. Record quantity and source
+      structure remain available as continuous diagnostics.
+  adequate_non_detection:
+    definition: >-
+      Zero quality-filtered Bombus records, with at least 50 target-group
+      background records and the required spatial, temporal, and dataset
+      dispersion. This category is evidence compatible with non-detection; it
+      is not proof of biological absence.
+  insufficient_effort:
+    definition: >-
+      Zero quality-filtered Bombus records but the background, spatial,
+      temporal, or data-source requirements are not met.
+  unresolved:
+    definition: >-
+      Taxonomic, spatial-assignment, or source-data problems prevent a usable
+      classification.
+
+continuous_diagnostics:
+  report:
+    - bombus_record_count
+    - target_group_record_count
+    - target_group_spatial_units
+    - target_group_temporal_units
+    - distinct_dataset_count
+    - proportion_preserved_specimens
+    - latest_record_year
+  not_used_as_primary_rule: >-
+    Do not use 1 - Bombus_records / target_group_records as a standalone
+    non-detection score. That ratio mixes biological abundance, collector
+    preference, taxonomy, and source structure.
+
+sensitivity_target_groups:
+  - name: Apidae_excluding_Apis_mellifera
+    use: sensitivity
+  - name: all_bees_when_taxonomically_resolved
+    use: sensitivity
+
+occupancy_model_sensitivity:
+  role: optional_sensitivity_analysis
+  eligible_when: >-
+    Repeated observation units can be constructed from independent combinations
+    of spatial cell, month or season, year, and dataset, with enough replication
+    to estimate detection separately from occurrence.
+  noneligible_rule: >-
+    Do not fit an occupancy model merely by treating non-independent GBIF points
+    as repeated surveys.
+
+required_output_columns:
+  - island_id
+  - target_group_definition
+  - bombus_occurrence_evidence
+  - bombus_record_count
+  - target_group_record_count
+  - target_group_spatial_units
+  - target_group_temporal_units
+  - distinct_dataset_count
+  - observation_diagnostic_flags
+  - occupancy_sensitivity_eligible
