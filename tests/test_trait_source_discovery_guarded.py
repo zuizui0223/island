@@ -39,3 +39,11 @@ def test_guard_requires_curation_gate_columns_and_rejects_finalized_values():
     finalized = _staged().assign(trait_value="white")
     with pytest.raises(typer.BadParameter, match="prohibited"):
         guarded.validate_staged_taxa_context(finalized, "island_core")
+
+
+def test_release_gate_is_attached_to_every_unreviewed_source_lead():
+    leads = pd.DataFrame({"query_taxon": ["Example species", "Unmatched species"]})
+    result = guarded.attach_release_gate(leads, _staged())
+
+    assert result.loc[0, "release_gate"] == "accepted taxon scope + establishment review"
+    assert result.loc[1, "release_gate"] == ""
