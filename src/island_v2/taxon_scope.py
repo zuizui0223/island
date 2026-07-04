@@ -52,6 +52,15 @@ OUTPUT_COLUMNS = [
     "taxon_scope_decision_date",
     "angiosperm_analysis_eligible",
 ]
+COVERAGE_COLUMNS = [
+    "island_id",
+    "n_raw_species",
+    "n_raw_records",
+    "n_accepted_angiosperm_species",
+    "n_accepted_angiosperm_records",
+    "accepted_angiosperm_species_fraction",
+    "accepted_angiosperm_record_fraction",
+]
 
 
 @app.callback()
@@ -78,6 +87,14 @@ def _unique_nonblank(table: pd.DataFrame, column: str, label: str) -> None:
         raise typer.BadParameter(f"{label} has duplicate {column} values: {duplicated[:5]}")
 
 
+def _record_count(table: pd.DataFrame) -> pd.Series:
+    """Use species-level record counts when available, otherwise one row = one record."""
+    if "n_records" not in table.columns:
+        return pd.Series(1, index=table.index, dtype="int64")
+    values = pd.to_numeric(table["n_records"], errors="coerce").fillna(0)
+    return values.clip(lower=0).astype(int)
+
+
 def build_taxon_scope(
     island_species: pd.DataFrame,
     scope_decisions: pd.DataFrame,
@@ -96,9 +113,9 @@ def build_taxon_scope(
     raw = island_species.copy()
     raw["island_id"] = _text(raw["island_id"])
     raw["species"] = _text(raw["species"])
-    raw = raw.loc[raw["island_id"].ne("") & raw["species"].ne("")].drop_duplicates(
-        ["island_id", "species"]
-    )
+    raw["_n_records"] = _record_count(raw)
+    raw = raw.loc[raw["island_id"].ne("") & raw["species"].ne("")].copy()
+    raw = raw.sort_values(["island_id", "species"]).drop_duplicates(["island_id", "species"], keep="first")
 
     decisions = scope_decisions.copy()
     for column in REQUIRED_SCOPE_COLUMNS:
@@ -150,26 +167,48 @@ def build_taxon_scope(
         scoped["taxonomic_group"].eq("angiosperm")
         & scoped["taxon_scope_review_status"].str.lower().eq("accepted")
     )
-    scoped = scoped[OUTPUT_COLUMNS].sort_values(["island_id", "species"]).reset_index(drop=True)
-    return scoped, scoped.loc[scoped["angiosperm_analysis_eligible"]].copy()
+    scoped = scoped.sort_values(["island_id", "species"]).reset_index(drop=True)
+    return scoped[OUTPUT_COLUMNS], scoped.loc[scoped["angiosperm_analysis_eligible"], OUTPUT_COLUMNS].copy()
 
 
-def taxon_scope_summary(scoped: pd.DataFrame) -> dict[str, Any]:
-    """Summarise how much of each island's raw species universe is review-eligible."""
+def island_angiosperm_coverage(scoped: pd.DataFrame, island_species: pd.DataFrame) -> pd.DataFrame:
+    """Summarise the reviewed angiosperm denominator for each island."""
+    records = island_species.copy()
+    records["island_id"] = _text(records["island_id"])
+    records["species"] = _text(records["species"])
+    records["_n_records"] = _record_count(records)
+    records = records.loc[records["island_id"].ne("") & records["species"].ne("")].copy()
+    records = records.sort_values(["island_id", "species"]).drop_duplicates(["island_id", "species"], keep="first")
+    eligibility = scoped[["island_id", "species", "angiosperm_analysis_eligible"]].copy()
+    joined = records.merge(eligibility, on=["island_id", "species"], how="left", validate="one_to_one")
+    joined["angiosperm_analysis_eligible"] = joined["angiosperm_analysis_eligible"].fillna(False)
+
+    rows: list[dict[str, Any]] = []
+    for island_id, group in joined.groupby("island_id", sort=True):
+        raw_species = int(group["species"].nunique())
+        raw_records = int(group["_n_records"].sum())
+        accepted = group.loc[group["angiosperm_analysis_eligible"]]
+        accepted_species = int(accepted["species"].nunique())
+        accepted_records = int(accepted["_n_records"].sum())
+        rows.append(
+            {
+                "island_id": island_id,
+                "n_raw_species": raw_species,
+                "n_raw_records": raw_records,
+                "n_accepted_angiosperm_species": accepted_species,
+                "n_accepted_angiosperm_records": accepted_records,
+                "accepted_angiosperm_species_fraction": accepted_species / raw_species if raw_species else 0.0,
+                "accepted_angiosperm_record_fraction": accepted_records / raw_records if raw_records else 0.0,
+            }
+        )
+    return pd.DataFrame(rows, columns=COVERAGE_COLUMNS)
+
+
+def taxon_scope_summary(scoped: pd.DataFrame, coverage: pd.DataFrame) -> dict[str, Any]:
+    """Summarise review status and angiosperm coverage without treating unknown taxa as absence."""
     by_group = scoped["taxonomic_group"].value_counts().sort_index().to_dict()
     reviewed = scoped["taxon_scope_review_status"].str.lower().eq("accepted")
     eligible = scoped["angiosperm_analysis_eligible"]
-    by_island = (
-        scoped.groupby("island_id", sort=True)
-        .agg(
-            n_raw_species=("species", "nunique"),
-            n_accepted_angiosperms=("angiosperm_analysis_eligible", "sum"),
-        )
-        .reset_index()
-    )
-    by_island["accepted_angiosperm_coverage_fraction"] = (
-        by_island["n_accepted_angiosperms"] / by_island["n_raw_species"].where(by_island["n_raw_species"] > 0)
-    ).fillna(0.0)
     return {
         "n_island_species_pairs": int(len(scoped)),
         "n_unique_raw_species": int(scoped["species"].nunique()),
@@ -177,7 +216,7 @@ def taxon_scope_summary(scoped: pd.DataFrame) -> dict[str, Any]:
         "n_accepted_angiosperm_pairs": int(eligible.sum()),
         "n_islands_with_accepted_angiosperms": int(scoped.loc[eligible, "island_id"].nunique()),
         "taxonomic_group_counts": {str(key): int(value) for key, value in by_group.items()},
-        "per_island": by_island.to_dict("records"),
+        "n_islands_in_coverage_table": int(len(coverage)),
     }
 
 
@@ -189,15 +228,17 @@ def build(
     ),
     output_dir: Path = typer.Option(..., help="Directory for scoped species products."),
 ) -> None:
-    """Write full taxonomic-scope audit and accepted angiosperm species table."""
+    """Write taxonomic-scope audit, angiosperm table, and coverage-gate input."""
     island_species = pd.read_csv(island_species_csv, dtype=str).fillna("")
     decisions = pd.read_csv(taxon_scope_decisions_csv, dtype=str).fillna("")
     scoped, angiosperms = build_taxon_scope(island_species, decisions)
-    summary = taxon_scope_summary(scoped)
+    coverage = island_angiosperm_coverage(scoped, island_species)
+    summary = taxon_scope_summary(scoped, coverage)
 
     output_dir.mkdir(parents=True, exist_ok=True)
     scoped.to_csv(output_dir / "island_species_taxonomic_scope.csv", index=False)
     angiosperms.to_csv(output_dir / "island_angiosperm_species.csv", index=False)
+    coverage.to_csv(output_dir / "island_angiosperm_coverage.csv", index=False)
     candidate_taxa = scoped[
         ["species", "taxonomic_group", "taxon_scope_review_status"]
     ].drop_duplicates("species").sort_values("species")
