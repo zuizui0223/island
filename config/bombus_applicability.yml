@@ -1,0 +1,77 @@
+# Pre-registered domain rule for the Bombus-channel hypothesis.
+#
+# This file decides whether a Bombus functional-deficit hypothesis is
+# biologically applicable to an island. It must be completed and frozen before
+# any floral or reproductive-trait outcome is inspected.
+version: "1.0"
+
+purpose: >-
+  Separate structural non-applicability of a Bombus hypothesis from island-level
+  environmental compatibility, occurrence evidence, and floral outcomes.
+
+unit_of_classification: island
+
+source_region_assignment:
+  required_inputs:
+    - biogeographic_region
+    - floristic_source_pool
+    - plausible_dispersal_connection_or_gateway
+    - documented_native_Bombus_status_in_source_region
+  permitted_basis:
+    - predeclared biogeographic and floristic region maps
+    - documented historical or contemporary source-pool connections
+    - regional Bombus checklists, revisions, and range syntheses
+  prohibited_basis:
+    - island_climate
+    - island_environmental_compatibility_score
+    - island_Bombus_occurrence_or_non_detection
+    - floral_traits
+    - reproductive_traits
+    - model_results
+
+categories:
+  applicable:
+    definition: >-
+      The island is assigned to a source region with native Bombus, and the
+      regional biogeographic context makes a Bombus-mediated pollination channel
+      a biologically meaningful candidate mechanism. This label does not assert
+      current island occurrence or environmental suitability.
+  structurally_not_applicable:
+    definition: >-
+      The predeclared source region lacks native Bombus, or the regional
+      biogeographic context makes a Bombus channel non-native and not a
+      meaningful historical candidate mechanism. This is not coded as Bombus
+      absence or Bombus deficit.
+  unresolved:
+    definition: >-
+      Source-region assignment, native Bombus status, or regional applicability
+      cannot be resolved from the predeclared evidence. These islands are not
+      used in confirmatory Bombus-channel analyses.
+
+required_output_columns:
+  - island_id
+  - source_region_id
+  - biogeographic_region
+  - applicability
+  - applicability_rationale
+  - source_region_evidence_id
+  - reviewer
+  - decision_date
+
+analysis_rules:
+  core_confirmatory_set: applicability == "applicable"
+  regional_contingency_set: applicability == "applicable" and regional_analysis_only == true
+  out_of_domain_set: applicability == "structurally_not_applicable"
+  unresolved_set: applicability == "unresolved"
+
+separation_from_predictors:
+  environmental_compatibility: >-
+    A downstream predictor component. It must not be used to determine
+    applicability because doing so would make the Bombus predictor partly
+    self-referential.
+  occurrence_evidence: >-
+    A downstream measurement component. Non-detection cannot change an
+    island from applicable to structurally_not_applicable.
+  functional_service_proxy: >-
+    A downstream measurement component. It refines the strength of evidence
+    only within applicable islands.
