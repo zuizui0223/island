@@ -1,7 +1,7 @@
 {
   "schema_version": "1.1",
   "campaign_id": "island-floral-v2-global-islands-5km2-20260703",
-  "campaign_status": "submitting_in_bounded_batches",
+  "campaign_status": "submission_complete_pending_downloads",
   "created_at_utc": "2026-07-03T12:30:00Z",
   "launch_requested_at_utc": "2026-07-03T12:45:00Z",
   "launch_batch_size": 10,
@@ -1648,6 +1648,32 @@
       "submitted_at_utc": "2026-07-04T18:48:40.229800+00:00",
       "error": "",
       "source": "frozen_full_campaign_batch"
+    },
+    {
+      "block_id": "gbif_block_cell_w-180.0_s-30.0_001",
+      "regional_cell": "cell_w-180.0_s-30.0",
+      "n_islands": 74,
+      "geometry_wkt_sha256": "a5a9c30e94c4c44c259028106a9fec47631c905c59cedb176f0c317fac9f48f7",
+      "query_geometry_sha256": "d593f53abdd330748ff5e98bb2b4fa1302a56bbf4c851db67ef257cbabef75bd",
+      "query_wkt_chars": 19959,
+      "request_status": "submitted",
+      "download_key": "0018098-260623161305970",
+      "submitted_at_utc": "2026-07-04T19:18:50.366836+00:00",
+      "error": "",
+      "source": "frozen_full_campaign_batch"
+    },
+    {
+      "block_id": "gbif_block_cell_w-180.0_s-60.0_001",
+      "regional_cell": "cell_w-180.0_s-60.0",
+      "n_islands": 2,
+      "geometry_wkt_sha256": "40f27368cf20dfbdf7c9b89a17931b285afaf4788183d2f47bcea8fc7aaa34df",
+      "query_geometry_sha256": "6daa9237dd9b5836fe5e8e0fc3382889d5172bc0ad6c8335fe8519c3b1d75094",
+      "query_wkt_chars": 1777,
+      "request_status": "submitted",
+      "download_key": "0018099-260623161305970",
+      "submitted_at_utc": "2026-07-04T19:18:50.366836+00:00",
+      "error": "",
+      "source": "frozen_full_campaign_batch"
     }
   ],
   "recovery": {
@@ -1662,11 +1688,11 @@
     "rule": "Do not resubmit recovered download keys."
   },
   "last_batch": {
-    "updated_at_utc": "2026-07-04T18:48:40.229800+00:00",
+    "updated_at_utc": "2026-07-04T19:18:50.366836+00:00",
     "submit_exit_code": 0,
     "ledger_status_counts": {
       "succeeded": 98,
-      "submitted": 3
+      "submitted": 5
     }
   },
   "ledger_id_migration": {
