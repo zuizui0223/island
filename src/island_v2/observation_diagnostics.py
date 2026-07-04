@@ -93,8 +93,8 @@ def compute_island_diagnostics(
     """Return data-process flags and a taxonomically explicit inclusion gate.
 
     With ``angiosperm_coverage``, inclusion uses accepted angiosperm species and
-    record counts. Without it, the legacy/raw coverage diagnostic remains
-    available but is labelled clearly as a non-primary Tracheophyta screen.
+    record counts. Without it, the raw coverage diagnostic remains available but
+    is labelled clearly as a non-primary Tracheophyta screen.
     """
     missing = REQUIRED_EFFORT_COLUMNS.difference(effort.columns)
     if missing:
@@ -240,4 +240,5 @@ def run(
     )
 
 
-if __name__ == "__main__":n    app()
+if __name__ == "__main__":
+    app()
