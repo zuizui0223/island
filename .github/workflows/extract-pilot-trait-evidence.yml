@@ -1,33 +1,25 @@
-name: extract_pilot_trait_evidence
+name: build_pilot_trait_review_packet
 
-# This is a manual evidence-acquisition workflow. It regenerates the current
-# exact-island pilot list, searches the web for trait *candidates*, and uploads
-# review artifacts. It never commits trait values or changes analysis inclusion.
+# This workflow performs no model call and uses no paid API. It regenerates the
+# current exact-island pilot staging and writes a blank, evidence-first review
+# packet for literature and web research performed outside GitHub Actions.
 on:
   workflow_dispatch:
     inputs:
       max_taxa:
-        description: "Maximum staged pilot taxa to search."
+        description: "Maximum staged pilot taxa to include."
         required: false
         default: "25"
-      batch_size:
-        description: "Taxa per web-search request."
-        required: false
-        default: "5"
-      model:
-        description: "Responses API model for structured trait candidates."
-        required: false
-        default: "gpt-5.5"
 
 permissions:
   contents: read
 
 concurrency:
-  group: pilot-trait-evidence
+  group: pilot-trait-review-packet
   cancel-in-progress: false
 
 jobs:
-  extract:
+  build:
     runs-on: ubuntu-latest
     env:
       FROZEN_ARTIFACT_ID: "8066083419"
@@ -39,8 +31,8 @@ jobs:
           python-version: "3.11"
       - name: Install v2 package
         run: pip install -e ".[dev]"
-      - name: Test pilot routing and trait provenance
-        run: pytest -q tests/test_pilot_curation.py tests/test_trait_extraction_provenance.py
+      - name: Test review-packet logic
+        run: pytest -q tests/test_pilot_curation.py tests/test_trait_review_packet.py
       - name: Fetch and verify frozen island manifest
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -71,47 +63,30 @@ jobs:
             --pilot-registry-csv data/v2/curation/pilot_island_registry.csv \
             --output-dir /tmp/pilot_curation \
             --max-trait-candidates-per-island "${{ inputs.max_taxa }}"
-      - name: Validate OpenAI API key
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - name: Build API-free trait evidence review packet
         run: |
-          test -n "${OPENAI_API_KEY:-}" || {
-            echo "Repository secret OPENAI_API_KEY is required for web-search trait extraction." >&2
-            exit 2
-          }
-      - name: Extract reviewable trait evidence candidates
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: |
-          island-v2-traits run \
+          island-v2-trait-review-packet build \
             --taxa-csv /tmp/pilot_curation/trait_candidate_pilot.csv \
-            --output-dir data/v2/staging/pilot_trait_evidence \
-            --model "${{ inputs.model }}" \
-            --batch-size "${{ inputs.batch_size }}" \
-            --limit "${{ inputs.max_taxa }}"
-      - name: Summarize trait evidence staging
+            --output-dir data/v2/staging/pilot_trait_review_packet
+      - name: Summarize review packet
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json
           from pathlib import Path
-          manifests = sorted(Path('data/v2/staging/pilot_trait_evidence').glob('manifest_*.json'))
-          print('## Pilot trait evidence status')
-          if not manifests:
-              print('- No trait manifest produced.')
+          path = Path('data/v2/staging/pilot_trait_review_packet/trait_evidence_review_packet_summary.json')
+          print('## API-free pilot trait review packet')
+          if path.exists():
+              for key, value in json.loads(path.read_text(encoding='utf-8')).items():
+                  print(f'- {key}: {value}')
           else:
-              manifest = json.loads(manifests[-1].read_text(encoding='utf-8'))
-              print(f"- taxa_count: {manifest['taxa_count']}")
-              print(f"- batch_size: {manifest['batch_size']}")
-              print(f"- candidate_csv: {manifest['candidate_csv']}")
-              print(f"- curation_rule: {manifest['curation_rule']}")
-              print(f"- input_context_columns: {manifest['input_context_columns']}")
+              print('- No review packet produced.')
           PY
-      - name: Upload pilot curation and trait-evidence artifacts
+      - name: Upload pilot staging and review packet
         uses: actions/upload-artifact@v4
         with:
-          name: pilot-trait-evidence-${{ github.run_id }}
+          name: pilot-trait-review-packet-${{ github.run_id }}
           path: |
             /tmp/pilot_curation/
-            data/v2/staging/pilot_trait_evidence/
+            data/v2/staging/pilot_trait_review_packet/
           if-no-files-found: error
           retention-days: 90
