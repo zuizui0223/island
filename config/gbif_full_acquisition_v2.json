@@ -1089,11 +1089,14 @@
       "geometry_wkt_sha256": "13b59a557bc6023c98bb4c3aeb69f9e50d44de0d1ed2fcf774edf6e2aa1c3118",
       "query_geometry_sha256": "10089eaf82459084403ce53b719352d4cc9cbb205d5c746804d8b4525bf14b07",
       "query_wkt_chars": 18101,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0017618-260623161305970",
       "submitted_at_utc": "2026-07-04T09:53:34.702039+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.9sjbzm",
+      "last_polled_at_utc": "2026-07-04T10:46:46.380844+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w-060.0_s-30.0_001",
@@ -1134,11 +1137,14 @@
       "geometry_wkt_sha256": "643fbaa4d0df4e29e1bfa9fb083e6f3edabfca94c56cb8865a5af1e2f9f7a5fc",
       "query_geometry_sha256": "bc31f420a26224f75085a81d3503c518006ce365c6fa5fa3342a267653831aff",
       "query_wkt_chars": 12483,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0017619-260623161305970",
       "submitted_at_utc": "2026-07-04T09:53:34.702039+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.sqrwkv",
+      "last_polled_at_utc": "2026-07-04T10:46:46.380844+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w-090.0_s+00.0_001",
@@ -1147,11 +1153,14 @@
       "geometry_wkt_sha256": "11841d4b7e5f61b232dbf48fdb964360ffbecd7b2d9f895a6b4334dab392ea59",
       "query_geometry_sha256": "269b41de9d9fecf69af9e0ae379a1f6a4d64527c07f59c2578903e58f2544088",
       "query_wkt_chars": 89301,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0017620-260623161305970",
       "submitted_at_utc": "2026-07-04T09:53:34.702039+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.4cgkch",
+      "last_polled_at_utc": "2026-07-04T10:46:46.380844+00:00",
+      "last_poll_error": ""
     }
   ],
   "recovery": {
@@ -1189,9 +1198,9 @@
     ]
   },
   "last_poll": {
-    "polled_at_utc": "2026-07-04T09:51:46.915992+00:00",
+    "polled_at_utc": "2026-07-04T10:46:46.380844+00:00",
     "ledger_status_counts": {
-      "succeeded": 67
+      "succeeded": 70
     }
   }
 }
