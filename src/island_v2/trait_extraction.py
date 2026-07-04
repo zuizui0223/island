@@ -25,6 +25,11 @@ app = typer.Typer(add_completion=False, no_args_is_help=True)
 REQUIRED_TAXON_COLUMNS = {"accepted_species", "genus", "family"}
 
 
+@app.callback()
+def main() -> None:
+    """Search the web and write reviewable trait-evidence candidates."""
+
+
 def read_text(path: Path) -> str:
     if not path.exists():
         raise typer.BadParameter(f"File does not exist: {path}")
@@ -37,7 +42,6 @@ def sha256_text(text: str) -> str:
 
 def strict_json_schema(model: type[TraitExtractionResponse]) -> dict[str, Any]:
     """Convert a Pydantic schema to the strict object form required by the API."""
-
     schema = model.model_json_schema()
 
     def visit(node: Any) -> None:
@@ -59,13 +63,15 @@ def strict_json_schema(model: type[TraitExtractionResponse]) -> dict[str, Any]:
 
 
 def load_taxa(path: Path, limit: int | None = None) -> list[dict[str, str]]:
+    """Load selected taxa while preserving any review-gate metadata columns."""
     taxa = pd.read_csv(path, dtype=str).fillna("")
     missing = REQUIRED_TAXON_COLUMNS.difference(taxa.columns)
     if missing:
         raise typer.BadParameter(
             f"Taxon input is missing required columns: {', '.join(sorted(missing))}"
         )
-    taxa = taxa.drop_duplicates(subset=["accepted_species"])
+    taxa["accepted_species"] = taxa["accepted_species"].astype(str).str.strip()
+    taxa = taxa.loc[taxa["accepted_species"].ne("")].drop_duplicates(subset=["accepted_species"])
     if limit is not None:
         taxa = taxa.head(limit)
     if taxa.empty:
@@ -73,9 +79,29 @@ def load_taxa(path: Path, limit: int | None = None) -> list[dict[str, str]]:
     return taxa.to_dict(orient="records")
 
 
+def taxon_context_by_species(taxa: list[dict[str, str]]) -> dict[str, dict[str, str]]:
+    """Retain input provenance beside each extracted candidate, without changing traits.
+
+    The trait extractor can receive a general taxon list or a gated pilot list.
+    Additional input columns such as ``trait_candidate_status`` and ``release_gate``
+    are copied into candidate rows as provenance. They are never used in the web
+    search prompt and never influence extracted trait values.
+    """
+    contexts: dict[str, dict[str, str]] = {}
+    for taxon in taxa:
+        species = str(taxon.get("accepted_species", "")).strip()
+        if not species:
+            continue
+        contexts[species] = {
+            str(key): str(value)
+            for key, value in taxon.items()
+            if key not in {"accepted_species", "genus", "family"} and str(value).strip()
+        }
+    return contexts
+
+
 def build_user_request(taxa: list[dict[str, str]], ontology: dict[str, Any]) -> str:
     """Build one transparent task request for a manually selected taxon batch."""
-
     trait_names = list(ontology["traits"])
     taxon_lines = "\n".join(
         f"- accepted_species: {row['accepted_species']}; genus: {row['genus']}; family: {row['family']}"
@@ -94,7 +120,6 @@ Do not return a complete matrix by force. Return unresolved candidates only afte
 
 def response_to_jsonable(response: Any) -> dict[str, Any]:
     """Serialize SDK response objects without depending on one SDK object layout."""
-
     if hasattr(response, "model_dump"):
         return response.model_dump(mode="json")
     if hasattr(response, "to_dict"):
@@ -104,7 +129,6 @@ def response_to_jsonable(response: Any) -> dict[str, Any]:
 
 def extract_url_citations(node: Any) -> list[dict[str, str]]:
     """Extract URL citations and search-source links from an API response payload."""
-
     found: dict[str, dict[str, str]] = {}
 
     def add(url: Any, title: Any = "") -> None:
@@ -131,9 +155,13 @@ def flatten_candidates(
     parsed: TraitExtractionResponse,
     run_id: str,
     response_sources: list[dict[str, str]],
+    taxon_contexts: dict[str, dict[str, str]] | None = None,
 ) -> list[dict[str, Any]]:
+    """Flatten trait candidates while retaining taxon-selection provenance."""
+    contexts = taxon_contexts or {}
     rows: list[dict[str, Any]] = []
     for species in parsed.species:
+        context = contexts.get(species.accepted_species, {})
         for candidate in species.trait_candidates:
             row = {
                 "run_id": run_id,
@@ -143,6 +171,9 @@ def flatten_candidates(
                 "no_evidence_found": species.no_evidence_found,
                 **candidate.model_dump(mode="json"),
                 "retrieved_source_urls_json": json.dumps(response_sources, ensure_ascii=False),
+                "input_taxon_context_json": json.dumps(context, ensure_ascii=False, sort_keys=True),
+                "input_trait_candidate_status": context.get("trait_candidate_status", ""),
+                "input_release_gate": context.get("release_gate", ""),
                 "review_status": "pending",
             }
             row["supporting_taxa"] = json.dumps(row["supporting_taxa"], ensure_ascii=False)
@@ -165,11 +196,11 @@ def run(
     limit: int | None = typer.Option(None, min=1, help="Optional cap for a pilot run."),
 ) -> None:
     """Search the web and write LLM trait candidates as reviewable artifacts."""
-
     prompt = read_text(prompt_path)
     ontology_text = read_text(ontology_path)
     ontology = yaml.safe_load(ontology_text)
     taxa = load_taxa(taxa_csv, limit=limit)
+    contexts = taxon_context_by_species(taxa)
 
     output_dir.mkdir(parents=True, exist_ok=True)
     raw_dir = output_dir / "raw_responses"
@@ -212,7 +243,7 @@ def run(
 
         parsed = TraitExtractionResponse.model_validate_json(response.output_text)
         sources = extract_url_citations(raw_payload)
-        all_rows.extend(flatten_candidates(parsed, run_id, sources))
+        all_rows.extend(flatten_candidates(parsed, run_id, sources, contexts))
         manifests.append(
             {
                 "batch_index": batch_index,
@@ -236,6 +267,7 @@ def run(
         "taxa_count": len(taxa),
         "batch_size": batch_size,
         "candidate_csv": str(candidate_path),
+        "input_context_columns": sorted({key for context in contexts.values() for key in context}),
         "batches": manifests,
         "curation_rule": "All rows are candidates; review_status=pending is required before curation.",
     }
