@@ -1179,6 +1179,19 @@
       "last_poll_error": ""
     },
     {
+      "block_id": "gbif_block_cell_w-090.0_s+00.0_003",
+      "regional_cell": "cell_w-090.0_s+00.0",
+      "n_islands": 125,
+      "geometry_wkt_sha256": "039fd8aa204e12007bc1c54c932154ab903ff684d4dafe7ddd10028c076d41bd",
+      "query_geometry_sha256": "aa0067a437296420e7eca5d33d4d4abf84ae1f1118fd7d789a1d97324e9977b7",
+      "query_wkt_chars": 21882,
+      "request_status": "submitted",
+      "download_key": "0017646-260623161305970",
+      "submitted_at_utc": "2026-07-04T11:25:26.605192+00:00",
+      "error": "",
+      "source": "frozen_full_campaign_batch"
+    },
+    {
       "block_id": "gbif_block_cell_w-090.0_s+30.0_001",
       "regional_cell": "cell_w-090.0_s+30.0",
       "n_islands": 125,
@@ -1195,6 +1208,19 @@
       "last_poll_error": ""
     },
     {
+      "block_id": "gbif_block_cell_w-090.0_s+30.0_002",
+      "regional_cell": "cell_w-090.0_s+30.0",
+      "n_islands": 125,
+      "geometry_wkt_sha256": "6946ad3d39391a07408578f262776e193213b0e13002f0febbe0dbcd32a68946",
+      "query_geometry_sha256": "199043ae128183723cac5fc4ed4a6c0d158bd67b4a035af5df61df4513549749",
+      "query_wkt_chars": 23881,
+      "request_status": "submitted",
+      "download_key": "0017647-260623161305970",
+      "submitted_at_utc": "2026-07-04T11:25:26.605192+00:00",
+      "error": "",
+      "source": "frozen_full_campaign_batch"
+    },
+    {
       "block_id": "gbif_block_cell_w-090.0_s+60.0_001",
       "regional_cell": "cell_w-090.0_s+60.0",
       "n_islands": 119,
@@ -1209,6 +1235,19 @@
       "doi": "10.15468/dl.yspk34",
       "last_polled_at_utc": "2026-07-04T11:23:46.829591+00:00",
       "last_poll_error": ""
+    },
+    {
+      "block_id": "gbif_block_cell_w-090.0_s+60.0_002",
+      "regional_cell": "cell_w-090.0_s+60.0",
+      "n_islands": 125,
+      "geometry_wkt_sha256": "53b638eabc3d824f63307534fbe996deee5a9458848dd8f3855c1b48912f3223",
+      "query_geometry_sha256": "3d84877acdbe9cd46a062e03550d4c9d7816cdb31f8e2a2997740d47c20f27de",
+      "query_wkt_chars": 25804,
+      "request_status": "deferred_capacity",
+      "download_key": "",
+      "submitted_at_utc": "",
+      "error": "HTTP 420 Unknown HTTP Status: A download limitation is exceeded:\nUser zuizui has too many simultaneous downloads; the limit is 3.\nPlease wait for some to complete, or cancel any unwanted downloads.  See your user page.",
+      "source": "frozen_full_campaign_batch"
     }
   ],
   "recovery": {
@@ -1223,11 +1262,13 @@
     "rule": "Do not resubmit recovered download keys."
   },
   "last_batch": {
-    "updated_at_utc": "2026-07-04T11:02:11.545607+00:00",
+    "updated_at_utc": "2026-07-04T11:25:26.605192+00:00",
     "submit_exit_code": 0,
     "ledger_status_counts": {
-      "succeeded": 70,
-      "submitted": 3
+      "succeeded": 72,
+      "submitted": 2,
+      "running": 1,
+      "deferred_capacity": 1
     }
   },
   "ledger_id_migration": {
