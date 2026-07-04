@@ -10,7 +10,7 @@ on:
         required: false
         default: "1"
   schedule:
-    - cron: "17,47 * * * *"
+    - cron: "17,47 * * *"
   push:
     branches: [main]
     paths:
