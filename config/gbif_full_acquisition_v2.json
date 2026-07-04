@@ -955,6 +955,19 @@
       "last_poll_error": ""
     },
     {
+      "block_id": "gbif_block_cell_w-030.0_s+60.0_002",
+      "regional_cell": "cell_w-030.0_s+60.0",
+      "n_islands": 5,
+      "geometry_wkt_sha256": "fa9656be1ca13f86784822dfd1e5417206dade6261ad0b91d6baddb489adbd21",
+      "query_geometry_sha256": "912512be84a4c600a0f6fe0522ff971a1ba3911766fe0e68c3d42db4649f6dfd",
+      "query_wkt_chars": 872,
+      "request_status": "submitted",
+      "download_key": "0017205-260623161305970",
+      "submitted_at_utc": "2026-07-04T06:35:58.916755+00:00",
+      "error": "",
+      "source": "frozen_full_campaign_batch"
+    },
+    {
       "block_id": "gbif_block_cell_w-030.0_s-30.0_001",
       "regional_cell": "cell_w-030.0_s-30.0",
       "n_islands": 3,
@@ -977,10 +990,23 @@
       "geometry_wkt_sha256": "5b1ca2cbd657bed7be640e10456d74411090fa6d004c23a252b50bd76c350fd0",
       "query_geometry_sha256": "c48250574f289a2352bd11252b1870506e924013f10ce341653bb97a2e3e5c6f",
       "query_wkt_chars": 2684,
-      "request_status": "deferred_capacity",
-      "download_key": "",
-      "submitted_at_utc": "",
-      "error": "HTTP 420 Unknown HTTP Status: A download limitation is exceeded:\nUser zuizui has too many simultaneous downloads; the limit is 3.\nPlease wait for some to complete, or cancel any unwanted downloads.  See your user page.",
+      "request_status": "submitted",
+      "download_key": "0017206-260623161305970",
+      "submitted_at_utc": "2026-07-04T06:35:58.916755+00:00",
+      "error": "",
+      "source": "frozen_full_campaign_batch"
+    },
+    {
+      "block_id": "gbif_block_cell_w-060.0_s+00.0_001",
+      "regional_cell": "cell_w-060.0_s+00.0",
+      "n_islands": 25,
+      "geometry_wkt_sha256": "2a286032fa4ae4cc18ca5e327676460e1e141d48f46c57d120d84b7d7a035dd2",
+      "query_geometry_sha256": "3da48c73d283f943f98eb926515acc202ba5b6cba49bded02b3bb5caade2f056",
+      "query_wkt_chars": 5295,
+      "request_status": "submitted",
+      "download_key": "0017207-260623161305970",
+      "submitted_at_utc": "2026-07-04T06:35:58.916755+00:00",
+      "error": "",
       "source": "frozen_full_campaign_batch"
     }
   ],
@@ -996,13 +1022,11 @@
     "rule": "Do not resubmit recovered download keys."
   },
   "last_batch": {
-    "updated_at_utc": "2026-07-04T04:50:44.971900+00:00",
+    "updated_at_utc": "2026-07-04T06:35:58.916755+00:00",
     "submit_exit_code": 0,
     "ledger_status_counts": {
-      "succeeded": 55,
-      "running": 1,
-      "submitted": 2,
-      "deferred_capacity": 1
+      "succeeded": 58,
+      "submitted": 3
     }
   },
   "ledger_id_migration": {
