@@ -1,10 +1,10 @@
 """Island observation-process diagnostics and realised-coverage inclusion.
 
-Stage 3.5 of the v2 pipeline audits *how* each island flora was observed and
-then decides which islands have enough reviewed **angiosperm** data to support a
-stable island-level floral-trait proportion. Raw Tracheophyta effort remains
-valuable for observation-process flags, but ferns, lycophytes, gymnosperms, and
-unreviewed taxa cannot inflate the floral-analysis denominator.
+Stage 3.5 audits *how* each island flora was observed and decides which islands
+have enough reviewed **angiosperm** data to support a stable island-level floral
+trait proportion. Raw Tracheophyta effort remains useful for observation-process
+flags, but non-angiosperms and unreviewed taxa cannot inflate primary floral
+analysis denominators.
 """
 
 from __future__ import annotations
@@ -36,6 +36,8 @@ REQUIRED_ANGIOSPERM_COVERAGE_COLUMNS = {
     "accepted_angiosperm_species_fraction",
     "accepted_angiosperm_record_fraction",
 }
+RAW_SCREENING_SCOPE = "raw_tracheophyta_screening_only"
+PRIMARY_SCOPE = "accepted_angiosperms"
 
 
 @app.callback()
@@ -75,7 +77,8 @@ def _prepare_angiosperm_coverage(coverage: pd.DataFrame) -> pd.DataFrame:
             "angiosperm coverage table missing columns: " + ", ".join(sorted(missing))
         )
     _validate_unique_islands(coverage, "angiosperm coverage table")
-    result = coverage[list(REQUIRED_ANGIOSPERM_COVERAGE_COLUMNS)].copy()
+    ordered = ["island_id", *sorted(REQUIRED_ANGIOSPERM_COVERAGE_COLUMNS - {"island_id"})]
+    result = coverage[ordered].copy()
     result["island_id"] = _text(result["island_id"])
     for column in REQUIRED_ANGIOSPERM_COVERAGE_COLUMNS - {"island_id"}:
         result[column] = pd.to_numeric(result[column], errors="coerce").fillna(0)
@@ -87,11 +90,11 @@ def compute_island_diagnostics(
     config: dict[str, Any],
     angiosperm_coverage: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
-    """Return data-process flags and an explicit taxonomic inclusion gate.
+    """Return data-process flags and a taxonomically explicit inclusion gate.
 
-    With ``angiosperm_coverage``, the primary gate is based on accepted
-    angiosperm species and records. Without it, this function preserves a raw
-    Tracheophyta screening diagnostic and labels it clearly as non-primary.
+    With ``angiosperm_coverage``, inclusion uses accepted angiosperm species and
+    record counts. Without it, the legacy/raw coverage diagnostic remains
+    available but is labelled clearly as a non-primary Tracheophyta screen.
     """
     missing = REQUIRED_EFFORT_COLUMNS.difference(effort.columns)
     if missing:
@@ -125,21 +128,13 @@ def compute_island_diagnostics(
     ):
         out[column] = pd.to_numeric(out[column], errors="coerce")
     uncertainty = pd.to_numeric(out["median_coordinate_uncertainty_m"], errors="coerce")
-
     out["specimen_fraction"] = _safe_fraction(out["n_preserved_specimen"], out["n_records"])
     out["cultivated_fraction"] = _safe_fraction(out["n_establishment_cultivated"], out["n_records"])
-
-    single_dataset = out["n_datasets"] <= int(flags_config["single_dataset_max"])
-    low_specimen = out["specimen_fraction"] < float(flags_config["low_specimen_support_fraction"])
-    high_cultivation = out["cultivated_fraction"] > float(flags_config["high_cultivation_fraction"])
-    coarse_coords = uncertainty > float(flags_config["coarse_coordinate_uncertainty_m"])
-    stale = out["year_max"] < int(flags_config["stale_last_record_year"])
 
     if angiosperm_coverage is None:
         gate_species = out["n_species"]
         gate_records = out["n_records"]
-        scope_name = "raw_tracheophyta_screening_only"
-        sparse = gate_species < min_species
+        scope_name = RAW_SCREENING_SCOPE
     else:
         coverage = _prepare_angiosperm_coverage(angiosperm_coverage)
         out = out.merge(coverage, on="island_id", how="left", validate="one_to_one")
@@ -147,20 +142,19 @@ def compute_island_diagnostics(
             out[column] = pd.to_numeric(out[column], errors="coerce").fillna(0)
         gate_species = out["n_accepted_angiosperm_species"]
         gate_records = out["n_accepted_angiosperm_records"]
-        scope_name = "accepted_angiosperms"
-        sparse = gate_species < min_species
+        scope_name = PRIMARY_SCOPE
 
     flag_columns = {
-        "single_dataset": single_dataset,
-        "low_specimen_support": low_specimen,
-        "high_cultivation": high_cultivation,
-        "coarse_coordinates": coarse_coords,
-        "stale_records": stale,
-        "sparse_flora": sparse,
+        "single_dataset": out["n_datasets"] <= int(flags_config["single_dataset_max"]),
+        "low_specimen_support": out["specimen_fraction"] < float(flags_config["low_specimen_support_fraction"]),
+        "high_cultivation": out["cultivated_fraction"] > float(flags_config["high_cultivation_fraction"]),
+        "coarse_coordinates": uncertainty > float(flags_config["coarse_coordinate_uncertainty_m"]),
+        "stale_records": out["year_max"] < int(flags_config["stale_last_record_year"]),
+        "sparse_flora": gate_species < min_species,
     }
     out["data_process_flags"] = [
-        "|".join(name for name, series in flag_columns.items() if bool(series.iloc[i]))
-        for i in range(len(out))
+        "|".join(name for name, series in flag_columns.items() if bool(series.iloc[index]))
+        for index in range(len(out))
     ]
     out["taxonomic_scope_for_inclusion"] = scope_name
     out["analysis_included"] = (gate_species >= min_species) & (gate_records >= min_records)
@@ -170,11 +164,11 @@ def compute_island_diagnostics(
 def coverage_sensitivity(
     diagnostics: pd.DataFrame,
     config: dict[str, Any],
-    taxonomic_scope: str,
+    taxonomic_scope: str = RAW_SCREENING_SCOPE,
 ) -> pd.DataFrame:
-    """Count islands retained at predeclared species thresholds in one scope."""
+    """Count islands retained at predeclared thresholds in one declared scope."""
     min_records = int(config["min_records"])
-    if taxonomic_scope == "accepted_angiosperms":
+    if taxonomic_scope == PRIMARY_SCOPE:
         species = pd.to_numeric(
             diagnostics.get("n_accepted_angiosperm_species", pd.Series(dtype=float)), errors="coerce"
         )
@@ -216,7 +210,7 @@ def run(
         else None
     )
     diagnostics = compute_island_diagnostics(effort, config, coverage)
-    scope = "accepted_angiosperms" if coverage is not None else "raw_tracheophyta_screening_only"
+    scope = PRIMARY_SCOPE if coverage is not None else RAW_SCREENING_SCOPE
     sensitivity = coverage_sensitivity(diagnostics, config, scope)
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -246,5 +240,4 @@ def run(
     )
 
 
-if __name__ == "__main__":
-    app()
+if __name__ == "__main__":n    app()
