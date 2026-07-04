@@ -1566,7 +1566,7 @@
     "rule": "Do not resubmit recovered download keys."
   },
   "last_batch": {
-    "updated_at_utc": "2026-07-04T16:44:02.228135+00:00",
+    "updated_at_utc": "2026-07-04T16:45:01.451910+00:00",
     "submit_exit_code": 0,
     "ledger_status_counts": {
       "succeeded": 92,
