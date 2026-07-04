@@ -1,0 +1,72 @@
+# Outcome-blind coverage and attrition rules for the v2 Phase 1 audit.
+# These are operational thresholds for deciding whether an island can contribute
+# to a domain-specific composition model. They are reported with sensitivity
+# tracks and do not turn unresolved trait evidence into biological absence.
+version: "1.0"
+
+primary_evidence_track: direct_conservative
+
+trait_evidence_tracks:
+  direct_conservative:
+    accepted_scopes:
+      - species_direct
+      - species_indirect
+    accepted_reliability:
+      - A_primary_or_monograph
+      - B_curated_database_or_institution
+  direct_broad_web:
+    accepted_scopes:
+      - species_direct
+      - species_indirect
+    accepted_reliability:
+      - A_primary_or_monograph
+      - B_curated_database_or_institution
+      - C_curated_specialist_web
+
+# A species contributes to a domain when it has at least one accepted evidence
+# record for one of the domain's listed trait names. The values below are
+# deliberately explicit and can be rerun as labelled sensitivity analyses.
+domain_rules:
+  pollen_vector:
+    trait_names:
+      - pollen_vector_mode
+    min_covered_species: 5
+    min_coverage_fraction: 0.5
+  floral_signal:
+    trait_names:
+      - flower_primary_color
+    min_covered_species: 5
+    min_coverage_fraction: 0.5
+  floral_architecture:
+    trait_names:
+      - floral_symmetry
+      - floral_form
+      - tube_depth_class
+      - flower_size_class
+      - inflorescence_display
+      - reward_type
+    min_covered_species: 5
+    min_coverage_fraction: 0.5
+  reproductive_assurance:
+    trait_names:
+      - self_incompatibility
+      - autonomous_selfing_capacity
+      - mating_system
+      - herkogamy
+      - dichogamy
+      - cleistogamy
+      - sex_system
+    min_covered_species: 5
+    min_coverage_fraction: 0.5
+
+attrition_rules:
+  confirmatory_applicability: applicable
+  evaluable_bombus_evidence:
+    - detected
+    - adequate_non_detection
+
+continuation_thresholds:
+  m1_pilot_min_islands: 30
+  m1_confirmatory_target_islands: 50
+  m2_m3_exploratory_min_islands: 30
+  m2_m3_confirmatory_target_islands: 50

@@ -1,4 +1,4 @@
-version: "1.0"
+version: "1.1"
 
 # Hierarchical inference expands taxonomic coverage without pretending that a
 # genus-level value is observed in the focal species.  The output is a category
@@ -76,6 +76,14 @@ trait_rules:
     family:
       minimum_supporting_species: 25
       minimum_modal_probability: 0.70
+
+  pollen_vector_mode:
+    genus:
+      minimum_supporting_species: 5
+      minimum_modal_probability: 0.70
+    family:
+      minimum_supporting_species: 30
+      minimum_modal_probability: 0.80
 
   pollination_functional_guild:
     genus:
