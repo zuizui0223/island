@@ -753,11 +753,14 @@
       "geometry_wkt_sha256": "b9ab8b551db0680c73b99b167cf613c93bddbe3e6f3294d1f05277fe1eac152f",
       "query_geometry_sha256": "58c78d95d276228a76bb265ed68e355e25c50bdd42505be7a497e87169f31311",
       "query_wkt_chars": 22715,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0016300-260623161305970",
       "submitted_at_utc": "2026-07-04T01:06:06.966170+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.5c5cuc",
+      "last_polled_at_utc": "2026-07-04T02:13:51.484565+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w+120.0_s-60.0_001",
@@ -846,11 +849,14 @@
       "geometry_wkt_sha256": "44b54266dc6829b822ebd962fbfbb18a98466ecbb232b889d13e1fda1559a8e8",
       "query_geometry_sha256": "12943518b7944e97c136e1b30984718168ff308b4afdc72b9dd13ac4219f76da",
       "query_wkt_chars": 24393,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0016301-260623161305970",
       "submitted_at_utc": "2026-07-04T01:06:06.966170+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.3z6kz2",
+      "last_polled_at_utc": "2026-07-04T02:13:51.484565+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w+150.0_s-60.0_001",
@@ -875,11 +881,14 @@
       "geometry_wkt_sha256": "94aa744035b21a6f9b924644b0d54d36f80199cb0d792b032d474a8bb1259968",
       "query_geometry_sha256": "5d0802f37ad7f76852f978fec01d67694bade4cfd8842260d2a7b91265165f0b",
       "query_wkt_chars": 21191,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0016302-260623161305970",
       "submitted_at_utc": "2026-07-04T01:06:06.966170+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.9zyfm4",
+      "last_polled_at_utc": "2026-07-04T02:13:51.484565+00:00",
+      "last_poll_error": ""
     }
   ],
   "recovery": {
@@ -917,9 +926,9 @@
     ]
   },
   "last_poll": {
-    "polled_at_utc": "2026-07-04T01:04:23.642053+00:00",
+    "polled_at_utc": "2026-07-04T02:13:51.484565+00:00",
     "ledger_status_counts": {
-      "succeeded": 50
+      "succeeded": 53
     }
   }
 }
