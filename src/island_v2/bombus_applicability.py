@@ -55,6 +55,23 @@ REQUIRED_EVIDENCE_COLUMNS = {
     "evidence_type",
     "source_citation",
     "source_url",
+    "source_locator",
+    "evidence_excerpt",
+    "review_status",
+    "reviewer",
+    "decision_date",
+}
+# Island-to-source-region assignment evidence is a DISTINCT claim from
+# source-region native Bombus status: it supports the island's geographic
+# position, floristic source pool, and dispersal connection. It is reviewed on
+# its own track and never reuses a Bombus-status evidence record.
+REQUIRED_ASSIGNMENT_EVIDENCE_COLUMNS = {
+    "assignment_evidence_id",
+    "island_id",
+    "evidence_type",
+    "source_citation",
+    "source_url",
+    "source_locator",
     "evidence_excerpt",
     "review_status",
     "reviewer",
@@ -217,11 +234,64 @@ def validate_region_registry(regions: pd.DataFrame, evidence: pd.DataFrame) -> p
                 "source-region evidence must reference the same source_region_id: "
                 f"{evidence_id!r}"
             )
-        if str(evidence_row["review_status"]).lower() != "accepted":
+        # A region may only be *accepted* into the freeze once its evidence is
+        # accepted. Agent-drafted, pending regions are allowed to reference
+        # pending evidence: they simply stay `unresolved` until a human reviews
+        # both, rather than crashing the build.
+        if (
+            str(row.review_status).lower() == "accepted"
+            and str(evidence_row["review_status"]).lower() != "accepted"
+        ):
             raise typer.BadParameter(
-                f"source-region registry references non-accepted evidence: {evidence_id!r}"
+                f"accepted source region references non-accepted evidence: {evidence_id!r}"
             )
     return result
+
+
+def validate_assignment_evidence(
+    assignments: pd.DataFrame, assignment_evidence: pd.DataFrame
+) -> None:
+    """Independently review-gate the island-to-source assignment evidence.
+
+    This is separate from source-region Bombus evidence. It checks that every
+    assignment points at an existing assignment-evidence record for the same
+    island, and that an *accepted* assignment only references *accepted*
+    assignment evidence. Pending assignments may reference pending evidence and
+    remain `unresolved`.
+    """
+    _require_columns(
+        assignment_evidence, REQUIRED_ASSIGNMENT_EVIDENCE_COLUMNS, "island-assignment evidence"
+    )
+    _require_unique(assignment_evidence, "assignment_evidence_id", "island-assignment evidence")
+
+    evidence_table = assignment_evidence.copy()
+    for column in REQUIRED_ASSIGNMENT_EVIDENCE_COLUMNS:
+        evidence_table[column] = _text(evidence_table[column])
+    evidence_lookup = evidence_table.set_index("assignment_evidence_id", drop=False)
+
+    assignment_table = assignments.copy()
+    for column in ("island_id", "assignment_evidence_id", "review_status"):
+        assignment_table[column] = _text(assignment_table[column])
+    for row in assignment_table.itertuples(index=False):
+        evidence_id = str(row.assignment_evidence_id)
+        if evidence_id not in evidence_lookup.index:
+            raise typer.BadParameter(
+                f"island assignment references missing assignment_evidence_id={evidence_id!r}"
+            )
+        evidence_row = evidence_lookup.loc[evidence_id]
+        if str(evidence_row["island_id"]) != str(row.island_id):
+            raise typer.BadParameter(
+                "island-assignment evidence must reference the same island_id: "
+                f"{evidence_id!r}"
+            )
+        if (
+            str(row.review_status).lower() == "accepted"
+            and str(evidence_row["review_status"]).lower() != "accepted"
+        ):
+            raise typer.BadParameter(
+                "accepted island assignment references non-accepted assignment evidence: "
+                f"{evidence_id!r}"
+            )
 
 
 def build_applicability_table(
@@ -229,6 +299,7 @@ def build_applicability_table(
     assignments: pd.DataFrame,
     regions: pd.DataFrame,
     evidence: pd.DataFrame,
+    assignment_evidence: pd.DataFrame,
 ) -> pd.DataFrame:
     """Build one classification row for every island in the frozen universe.
 
@@ -243,6 +314,7 @@ def build_applicability_table(
     _require_unique(island_manifest, "island_id", "island manifest")
     _require_unique(assignments, "island_id", "island source-region assignments")
     validated_regions = validate_region_registry(regions, evidence)
+    validate_assignment_evidence(assignments, assignment_evidence)
 
     islands = island_manifest[["island_id"]].copy()
     islands["island_id"] = _text(islands["island_id"])
@@ -343,7 +415,8 @@ def build(
     island_manifest_csv: Path = typer.Option(..., exists=True, help="Frozen island manifest with island_id."),
     island_source_assignment_csv: Path = typer.Option(..., exists=True, help="Reviewed island-to-source-region table."),
     source_region_registry_csv: Path = typer.Option(..., exists=True, help="Reviewed source-region Bombus registry."),
-    source_region_evidence_csv: Path = typer.Option(..., exists=True, help="Source-region evidence table."),
+    source_region_evidence_csv: Path = typer.Option(..., exists=True, help="Source-region Bombus-status evidence table."),
+    island_assignment_evidence_csv: Path = typer.Option(..., exists=True, help="Island-to-source assignment evidence table (geography/source-pool/dispersal)."),
     output_dir: Path = typer.Option(..., help="Directory for applicability outputs."),
     config_path: Path = typer.Option(Path("config/bombus_applicability.yml")),
 ) -> None:
@@ -353,8 +426,9 @@ def build(
     assignments = pd.read_csv(island_source_assignment_csv, dtype=str).fillna("")
     regions = pd.read_csv(source_region_registry_csv, dtype=str).fillna("")
     evidence = pd.read_csv(source_region_evidence_csv, dtype=str).fillna("")
+    assignment_evidence = pd.read_csv(island_assignment_evidence_csv, dtype=str).fillna("")
 
-    table = build_applicability_table(island_manifest, assignments, regions, evidence)
+    table = build_applicability_table(island_manifest, assignments, regions, evidence, assignment_evidence)
     summary = applicability_summary(table)
     output_dir.mkdir(parents=True, exist_ok=True)
     table.to_csv(output_dir / "bombus_applicability_by_island.csv", index=False)
