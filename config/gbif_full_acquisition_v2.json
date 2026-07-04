@@ -1560,6 +1560,19 @@
       "source": "frozen_full_campaign_batch"
     },
     {
+      "block_id": "gbif_block_cell_w-150.0_s+30.0_003",
+      "regional_cell": "cell_w-150.0_s+30.0",
+      "n_islands": 48,
+      "geometry_wkt_sha256": "0d67ed2234ae56ff7926ed089d4fb5fe0326b80f616ecb310c1a3aa18c9e654e",
+      "query_geometry_sha256": "02db78658fd1cfc732313c5b93cd406c3abc45f9d37f748a7b79579a16298da3",
+      "query_wkt_chars": 8750,
+      "request_status": "deferred_capacity",
+      "download_key": "",
+      "submitted_at_utc": "",
+      "error": "HTTP 420 Unknown HTTP Status: A download limitation is exceeded:\nUser zuizui has too many simultaneous downloads; the limit is 3.\nPlease wait for some to complete, or cancel any unwanted downloads.  See your user page.",
+      "source": "frozen_full_campaign_batch"
+    },
+    {
       "block_id": "gbif_block_cell_w-150.0_s+60.0_001",
       "regional_cell": "cell_w-150.0_s+60.0",
       "n_islands": 78,
@@ -1614,11 +1627,12 @@
     "rule": "Do not resubmit recovered download keys."
   },
   "last_batch": {
-    "updated_at_utc": "2026-07-04T17:48:28.665156+00:00",
+    "updated_at_utc": "2026-07-04T17:49:37.201623+00:00",
     "submit_exit_code": 0,
     "ledger_status_counts": {
       "succeeded": 95,
-      "submitted": 3
+      "submitted": 3,
+      "deferred_capacity": 1
     }
   },
   "ledger_id_migration": {
