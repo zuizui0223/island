@@ -1,0 +1,3 @@
+island_id,n_records,n_unique_gbif_ids,n_species,n_datasets,n_preserved_specimen,n_human_observation,n_other_basis_of_record,n_uncertainty_reported,median_coordinate_uncertainty_m,p90_coordinate_uncertainty_m,n_coordinate_uncertainty_gt_1000m,n_establishment_native,n_establishment_introduced,n_establishment_cultivated,year_min,year_max
+gshhg_2.3.7_h_2226c203f167370a8e96,1,1,0,1,1,0,0,0,,,0,0,0,0,1859,1859
+gshhg_2.3.7_h_abdf97ccd87beceb55f6,280,280,128,11,269,0,11,0,,,0,1,0,0,1911,2011
