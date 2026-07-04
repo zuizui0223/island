@@ -1,8 +1,10 @@
+import importlib
 from pathlib import Path
 
 import pandas as pd
 
-from island_v2 import attrition_audit, bombus_diagnostics
+attrition_audit = importlib.import_module("island_v2.attrition_audit")
+bombus_diagnostics = importlib.import_module("island_v2.bombus_diagnostics")
 
 
 BOMBUS_CONFIG = {
