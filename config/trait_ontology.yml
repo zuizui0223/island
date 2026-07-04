@@ -1,4 +1,4 @@
-version: "2.0"
+version: "2.1"
 
 # This ontology is deliberately richer than v1. It separates biological states,
 # missing evidence, and taxonomic inference rather than converting all traits to
@@ -81,6 +81,21 @@ traits:
       - mixed_or_multiple
       - unresolved
 
+  # Pollen vector is separate from reproductive assurance and from the identity
+  # of a biotic pollinator guild. Wind pollination is not synonymous with
+  # selfing, and self-compatibility is not synonymous with pollinator
+  # independence.
+  pollen_vector_mode:
+    domain: pollen_vector
+    allowed_values:
+      - biotic
+      - abiotic_wind
+      - mixed
+      - unresolved
+
+  # This retains the v2 biotic functional-guild descriptor. The legacy
+  # wind_water and self_only values are preserved as evidence labels for older
+  # source material, but are not used to define pollen-vector composition.
   pollination_functional_guild:
     domain: pollination
     allowed_values:
