@@ -1,0 +1,40 @@
+# Taxonomic denominator policy for the conditional pollination-regime v2 analysis.
+#
+# The active GBIF campaign retrieves Tracheophyta as a broad, auditable raw
+# occurrence universe. It is not the denominator for floral or pollen-vector
+# composition: non-seed vascular plants lack flowers, and gymnosperms are not
+# comparable floral-pollination units.
+version: "1.0"
+
+raw_acquisition_universe:
+  gbif_taxon_name: Tracheophyta
+  role:
+    - occurrence_candidate_recovery
+    - island_observation_process_audit
+    - source_pool_and_lineage_context
+  not_valid_for:
+    - floral_trait_denominators
+    - pollen_vector_mode_denominators
+    - reproductive_assurance_denominators
+
+primary_analysis_universe:
+  name: accepted_angiosperms
+  inclusion_rule: >-
+    A species enters a confirmatory compositional denominator only when its
+    taxonomic_group is angiosperm and its taxon-scope review_status is accepted.
+  exclude_from_primary_denominator:
+    - gymnosperm
+    - non_seed_vascular
+    - unresolved
+    - unreviewed
+
+parallel_descriptive_outputs:
+  - raw_vascular_plant_richness
+  - raw_vascular_record_effort
+  - accepted_angiosperm_richness
+  - accepted_angiosperm_record_effort
+  - raw_vascular_taxonomic_composition
+
+analysis_language:
+  use: whole_angiosperm_flora
+  avoid: whole_flora
