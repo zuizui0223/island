@@ -1201,11 +1201,14 @@
       "geometry_wkt_sha256": "2af9659d0593e737cc437eb1607ffae9505b8d4477b9487460b04e267ae25053",
       "query_geometry_sha256": "0e57b7febb2e13070200a2663d514669760f608eb751dcde06e9cc964301cc2e",
       "query_wkt_chars": 8031,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0017778-260623161305970",
       "submitted_at_utc": "2026-07-04T12:19:35.528841+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.6ydb6y",
+      "last_polled_at_utc": "2026-07-04T12:45:23.671353+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w-090.0_s+30.0_001",
@@ -1246,11 +1249,14 @@
       "geometry_wkt_sha256": "8414fad1077d913ad130f80134bb71a19505ed390cb857fe3bc9e4dd43e939f2",
       "query_geometry_sha256": "79222e1d6116be4de9ece7594c5372a293213af892c7457fdc42643edad07f63",
       "query_wkt_chars": 20126,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0017783-260623161305970",
       "submitted_at_utc": "2026-07-04T12:19:35.528841+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.yaepyc",
+      "last_polled_at_utc": "2026-07-04T12:45:23.671353+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w-090.0_s+60.0_001",
@@ -1275,11 +1281,14 @@
       "geometry_wkt_sha256": "53b638eabc3d824f63307534fbe996deee5a9458848dd8f3855c1b48912f3223",
       "query_geometry_sha256": "3d84877acdbe9cd46a062e03550d4c9d7816cdb31f8e2a2997740d47c20f27de",
       "query_wkt_chars": 25804,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0017784-260623161305970",
       "submitted_at_utc": "2026-07-04T12:19:35.528841+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.4dgujf",
+      "last_polled_at_utc": "2026-07-04T12:45:23.671353+00:00",
+      "last_poll_error": ""
     }
   ],
   "recovery": {
@@ -1317,10 +1326,9 @@
     ]
   },
   "last_poll": {
-    "polled_at_utc": "2026-07-04T11:58:46.135978+00:00",
+    "polled_at_utc": "2026-07-04T12:45:23.671353+00:00",
     "ledger_status_counts": {
-      "succeeded": 75,
-      "deferred_capacity": 1
+      "succeeded": 78
     }
   }
 }
