@@ -65,7 +65,7 @@ def test_locator_records_pages_but_never_pdf_text_or_trait_value():
     assert row["locator_status"] == "candidate_pages_located"
     assert row["candidate_pages_json"] == '[{"page": 4, "matched_terms": ["flower", "pollination"], "score": 2}]'
     assert "trait_value" not in result.columns
-    assert "does not verify a trait value" in row["do_not_infer"]
+    assert "does not verify a trait value" in row["do_not_infer"].lower()
 
 
 def test_locator_keeps_one_failed_source_as_a_receipt():
