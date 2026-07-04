@@ -25,7 +25,7 @@ def test_eligible_requires_applicable_core_plus_collected_flora():
             "n_species": [40, 2, 200, 50],
         }
     )
-    table, report = nominate_core_pilots(appl, effort, min_flora_species=5)
+    table, report = nominate_core_pilots(appl, effort, min_raw_exact_island_species_labels=5)
     by = table.set_index("island_id")
 
     assert bool(by.loc["isl_jp", "core_pilot_eligible"]) is True
@@ -39,7 +39,7 @@ def test_eligible_requires_applicable_core_plus_collected_flora():
 
     assert report["n_core_pilot_eligible"] == 1
     assert report["eligible_island_ids"] == ["isl_jp"]
-    assert [g["island_id"] for g in report["applicable_but_no_collected_flora"]] == ["isl_jp_sparse"]
+    assert [g["island_id"] for g in report["applicable_but_no_raw_species_labels"]] == ["isl_jp_sparse"]
 
 
 def test_no_eligible_island_reports_gap_without_inventing_one():
@@ -51,7 +51,7 @@ def test_no_eligible_island_reports_gap_without_inventing_one():
         ]
     )
     effort = pd.DataFrame({"island_id": ["isl_cape", "isl_annobon"], "n_species": [153, 128]})
-    _table, report = nominate_core_pilots(appl, effort, min_flora_species=5)
+    _table, report = nominate_core_pilots(appl, effort, min_raw_exact_island_species_labels=5)
     assert report["n_core_pilot_eligible"] == 0
     assert report["n_core_applicable_islands"] == 0
     assert report["eligible_island_ids"] == []
@@ -62,4 +62,4 @@ def test_prohibited_outcome_columns_are_rejected():
     appl["flower_primary_color"] = "white"  # outcome trait must not influence nomination
     effort = pd.DataFrame({"island_id": ["isl"], "n_species": [10]})
     with pytest.raises(typer.BadParameter):
-        nominate_core_pilots(appl, effort, min_flora_species=5)
+        nominate_core_pilots(appl, effort, min_raw_exact_island_species_labels=5)

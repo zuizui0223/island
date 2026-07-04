@@ -1,3 +1,3 @@
 island_id,source_region_id,assignment_rationale,assignment_evidence_id,review_status,reviewer,decision_date
-gshhg_2.3.7_h_47ed71f2f0bd7c7544b3,western_cape_coastal,Robben Island lies ~7 km off the SW Cape mainland and is sourced from the Cape coastal flora pool.,EV_cape_bombus_absent_01,accepted,Claude,2026-07-04
-gshhg_2.3.7_h_abdf97ccd87beceb55f6,annobon_gulf_of_guinea,Annobon is an oceanic island in the Gulf of Guinea sourced from the Lower Guinea lowland flora pool.,EV_gog_bombus_absent_01,accepted,Claude,2026-07-04
+gshhg_2.3.7_h_47ed71f2f0bd7c7544b3,western_cape_coastal,Robben Island lies ~7 km off the SW Cape mainland and is sourced from the Cape coastal flora pool.,EV_robben_assignment_01,agent_drafted_pending_review,,2026-07-04
+gshhg_2.3.7_h_abdf97ccd87beceb55f6,annobon_gulf_of_guinea,Annobon is an oceanic island in the Gulf of Guinea sourced from the Lower Guinea lowland flora pool.,EV_annobon_assignment_01,agent_drafted_pending_review,,2026-07-04
