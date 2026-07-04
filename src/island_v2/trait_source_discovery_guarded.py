@@ -57,6 +57,19 @@ def validate_staged_taxa_context(staged_taxa: pd.DataFrame, island_id: str) -> p
     return table
 
 
+def attach_release_gate(frame: pd.DataFrame, staged: pd.DataFrame) -> pd.DataFrame:
+    """Attach the pre-existing curation gate without interpreting it."""
+    lookup = (
+        staged[["accepted_species", "release_gate"]]
+        .drop_duplicates("accepted_species")
+        .set_index("accepted_species")["release_gate"]
+        .to_dict()
+    )
+    result = frame.copy()
+    result["release_gate"] = result["query_taxon"].map(lookup).fillna("")
+    return result
+
+
 @app.command("discover")
 def discover(
     staged_taxa_csv: Path = typer.Option(..., exists=True, help="One nominated island's staged taxa CSV."),
@@ -78,6 +91,7 @@ def discover(
         max_taxa,
         max_seeds_per_taxon,
     )
+    frame = attach_release_gate(frame, staged)
     report.update(
         {
             "island_id": island_id,
