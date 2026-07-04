@@ -42,6 +42,7 @@ island-v2-core-pilot-nomination = "island_v2.core_pilot_nomination:app"
 island-v2-bombus-diagnostics = "island_v2.bombus_diagnostics:app"
 island-v2-attrition = "island_v2.attrition_audit:app"
 island-v2-traits = "island_v2.trait_extraction:app"
+island-v2-trait-source-discovery = "island_v2.trait_source_discovery:app"
 island-v2-hierarchical = "island_v2.hierarchical:app"
 island-v2-validate = "island_v2.validation:app"
 
