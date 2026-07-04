@@ -1,0 +1,117 @@
+name: extract_pilot_trait_evidence
+
+# This is a manual evidence-acquisition workflow. It regenerates the current
+# exact-island pilot list, searches the web for trait *candidates*, and uploads
+# review artifacts. It never commits trait values or changes analysis inclusion.
+on:
+  workflow_dispatch:
+    inputs:
+      max_taxa:
+        description: "Maximum staged pilot taxa to search."
+        required: false
+        default: "25"
+      batch_size:
+        description: "Taxa per web-search request."
+        required: false
+        default: "5"
+      model:
+        description: "Responses API model for structured trait candidates."
+        required: false
+        default: "gpt-5.5"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pilot-trait-evidence
+  cancel-in-progress: false
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    env:
+      FROZEN_ARTIFACT_ID: "8066083419"
+      FROZEN_ARTIFACT_SHA256: "bee33e14672ec7ff4ed1f7acaea36b32cc6170a45c3d14b2caeb5f43bfaa623b"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Test pilot routing and trait provenance
+        run: pytest -q tests/test_pilot_curation.py tests/test_trait_extraction_provenance.py
+      - name: Fetch and verify frozen island manifest
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/frozen
+          curl --fail --location --retry 3 --retry-delay 2 \
+            --header "Authorization: Bearer ${GITHUB_TOKEN}" \
+            --header "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${FROZEN_ARTIFACT_ID}/zip" \
+            --output /tmp/frozen.zip
+          actual="$(sha256sum /tmp/frozen.zip | awk '{print $1}')"
+          test "$actual" = "$FROZEN_ARTIFACT_SHA256" || { echo "Frozen artifact digest mismatch: $actual" >&2; exit 2; }
+          unzip -q /tmp/frozen.zip -d /tmp/frozen
+      - name: Rebuild taxonomy and establishment review queues
+        run: |
+          island-v2-taxon-intake build \
+            --taxa-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --island-species-csv data/v2/staging/gbif/collected/island_species_occurrences.csv \
+            --output-dir /tmp/taxon_intake \
+            --pause-seconds 0.05
+      - name: Rebuild exact-island pilot staging
+        run: |
+          island-v2-pilot-curation build \
+            --island-manifest-csv /tmp/frozen/islands/gshhg/prepared/island_manifest.csv \
+            --taxon-intake-csv /tmp/taxon_intake/taxon_intake_review_queue.csv \
+            --establishment-queue-csv /tmp/taxon_intake/island_establishment_review_queue.csv \
+            --pilot-registry-csv data/v2/curation/pilot_island_registry.csv \
+            --output-dir /tmp/pilot_curation \
+            --max-trait-candidates-per-island "${{ inputs.max_taxa }}"
+      - name: Validate OpenAI API key
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          test -n "${OPENAI_API_KEY:-}" || {
+            echo "Repository secret OPENAI_API_KEY is required for web-search trait extraction." >&2
+            exit 2
+          }
+      - name: Extract reviewable trait evidence candidates
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          island-v2-traits run \
+            --taxa-csv /tmp/pilot_curation/trait_candidate_pilot.csv \
+            --output-dir data/v2/staging/pilot_trait_evidence \
+            --model "${{ inputs.model }}" \
+            --batch-size "${{ inputs.batch_size }}" \
+            --limit "${{ inputs.max_taxa }}"
+      - name: Summarize trait evidence staging
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          manifests = sorted(Path('data/v2/staging/pilot_trait_evidence').glob('manifest_*.json'))
+          print('## Pilot trait evidence status')
+          if not manifests:
+              print('- No trait manifest produced.')
+          else:
+              manifest = json.loads(manifests[-1].read_text(encoding='utf-8'))
+              print(f"- taxa_count: {manifest['taxa_count']}")
+              print(f"- batch_size: {manifest['batch_size']}")
+              print(f"- candidate_csv: {manifest['candidate_csv']}")
+              print(f"- curation_rule: {manifest['curation_rule']}")
+              print(f"- input_context_columns: {manifest['input_context_columns']}")
+          PY
+      - name: Upload pilot curation and trait-evidence artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pilot-trait-evidence-${{ github.run_id }}
+          path: |
+            /tmp/pilot_curation/
+            data/v2/staging/pilot_trait_evidence/
+          if-no-files-found: error
+          retention-days: 90
