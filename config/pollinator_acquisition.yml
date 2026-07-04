@@ -1,0 +1,54 @@
+# Acquisition policy for the Bombus observation-process input.
+# This does not assert that Apidae measures pollinator service. It defines the
+# primary, auditable target-group background used by the predeclared effort
+# diagnostic.
+version: "1.0"
+
+primary_target_group:
+  taxon_name: Apidae
+  taxon_rank: FAMILY
+  expected_family: Apidae
+  intended_use: >-
+    Observation-effort background for classifying detected Bombus, adequate
+    non-detection, insufficient effort, and unresolved evidence.
+
+initial_scope:
+  mode: core_confirmatory_first
+  prerequisite: >-
+    Build and review bombus_applicability_by_island.csv before preparing a
+    pollinator request manifest. Start with Core confirmatory islands; expand
+    only through a documented new campaign decision.
+  prohibited_selection_basis:
+    - observed_floral_traits
+    - reproductive_traits
+    - observed_Bombus_detection_or_non_detection
+    - model_results
+
+spatial_contract:
+  frozen_island_geometry_required: true
+  acquisition_geometry: buffered_and_simplified_query_catchment
+  final_assignment_geometry: original_exact_island_polygon
+  buffer_only_records: retain_in_block_audit_but_exclude_from_island_records
+
+record_retention:
+  retain_fields:
+    - gbif_id
+    - dataset_key
+    - family
+    - genus
+    - species
+    - scientific_name
+    - decimal_longitude
+    - decimal_latitude
+    - coordinate_uncertainty_m
+    - year
+    - basis_of_record
+    - occurrence_status
+    - establishment_means
+  raw_exact_island_output: island_pollinator_occurrences.csv
+  diagnostics_input: island_pollinator_occurrences.csv
+
+interpretation_guardrails:
+  - Missing_GBIF_Bombus_record_is_not_biological_absence
+  - Do_not_use_Bombus_to_target_group_record_ratio_as_primary_non_detection_score
+  - Non_detection_requires_predeclared_background_spatial_temporal_and_dataset_thresholds
