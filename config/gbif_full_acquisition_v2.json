@@ -1377,11 +1377,14 @@
       "geometry_wkt_sha256": "48ab68a09df836e7887e78048a3bb364e0a7ef1ce4da67aa8d5c56c069237924",
       "query_geometry_sha256": "bf41e07a79863eb298c5791f10937d67fc4b4ea6888575932bdf66302fc0beea",
       "query_wkt_chars": 25562,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0017933-260623161305970",
       "submitted_at_utc": "2026-07-04T14:21:16.823605+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.pv9y8s",
+      "last_polled_at_utc": "2026-07-04T15:18:46.671045+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w-120.0_s+00.0_001",
@@ -1390,13 +1393,13 @@
       "geometry_wkt_sha256": "489646ed229a698aca886424b284aa4252f0d05051093ac2396265ebd1f925c1",
       "query_geometry_sha256": "17324604beb56f06f75ccc77cd87551bed35e2cc6b14ac07a62f7e037a3bcca1",
       "query_wkt_chars": 25202,
-      "request_status": "running",
+      "request_status": "succeeded",
       "download_key": "0017924-260623161305970",
       "submitted_at_utc": "2026-07-04T14:10:46.716323+00:00",
       "error": "",
       "source": "frozen_full_campaign_batch",
-      "doi": "",
-      "last_polled_at_utc": "2026-07-04T14:19:38.376943+00:00",
+      "doi": "10.15468/dl.qdsjbk",
+      "last_polled_at_utc": "2026-07-04T15:18:46.671045+00:00",
       "last_poll_error": ""
     },
     {
@@ -1406,11 +1409,14 @@
       "geometry_wkt_sha256": "1f04b497cb7ebd4b8058f4a91a4a32a552499c470ef18ede005f6ea3b59b5d9b",
       "query_geometry_sha256": "a2b542aec2004c3306a9b2dbbdb73cf09fd6ab36be7ac0fec3c40ad3f0f5712f",
       "query_wkt_chars": 2114,
-      "request_status": "submitted",
+      "request_status": "succeeded",
       "download_key": "0017934-260623161305970",
       "submitted_at_utc": "2026-07-04T14:21:16.823605+00:00",
       "error": "",
-      "source": "frozen_full_campaign_batch"
+      "source": "frozen_full_campaign_batch",
+      "doi": "10.15468/dl.uj4559",
+      "last_polled_at_utc": "2026-07-04T15:18:46.671045+00:00",
+      "last_poll_error": ""
     },
     {
       "block_id": "gbif_block_cell_w-120.0_s+60.0_001",
@@ -1463,10 +1469,10 @@
     ]
   },
   "last_poll": {
-    "polled_at_utc": "2026-07-04T14:19:38.376943+00:00",
+    "polled_at_utc": "2026-07-04T15:18:46.671045+00:00",
     "ledger_status_counts": {
-      "succeeded": 83,
-      "running": 1
+      "succeeded": 86,
+      "deferred_capacity": 1
     }
   }
 }
