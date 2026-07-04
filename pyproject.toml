@@ -14,6 +14,7 @@ dependencies = [
   "openai>=1.109.0",
   "pandas>=2.2.0",
   "pydantic>=2.7.0",
+  "pypdf>=5.0.0",
   "pyogrio>=0.9.0",
   "PyYAML>=6.0.1",
   "shapely>=2.0.0",
@@ -43,6 +44,7 @@ island-v2-bombus-diagnostics = "island_v2.bombus_diagnostics:app"
 island-v2-attrition = "island_v2.attrition_audit:app"
 island-v2-traits = "island_v2.trait_extraction:app"
 island-v2-trait-source-discovery = "island_v2.trait_source_discovery:app"
+island-v2-trait-pdf-locator = "island_v2.trait_pdf_locator:app"
 island-v2-hierarchical = "island_v2.hierarchical:app"
 island-v2-validate = "island_v2.validation:app"
 
