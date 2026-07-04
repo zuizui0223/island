@@ -1289,6 +1289,45 @@
       "doi": "10.15468/dl.4dgujf",
       "last_polled_at_utc": "2026-07-04T12:45:23.671353+00:00",
       "last_poll_error": ""
+    },
+    {
+      "block_id": "gbif_block_cell_w-090.0_s+60.0_003",
+      "regional_cell": "cell_w-090.0_s+60.0",
+      "n_islands": 125,
+      "geometry_wkt_sha256": "03ec0b80c925c566cbe02d34f97fbbc8a56224ddf92f7959cc748599534f1e25",
+      "query_geometry_sha256": "0dc5dec42548695b83596fee79039d1102354a3aa57dd5644e6c628504e86a48",
+      "query_wkt_chars": 22879,
+      "request_status": "submitted",
+      "download_key": "0017862-260623161305970",
+      "submitted_at_utc": "2026-07-04T12:47:07.196335+00:00",
+      "error": "",
+      "source": "frozen_full_campaign_batch"
+    },
+    {
+      "block_id": "gbif_block_cell_w-090.0_s-30.0_001",
+      "regional_cell": "cell_w-090.0_s-30.0",
+      "n_islands": 32,
+      "geometry_wkt_sha256": "7584809254f85fe37cb15afe499fccc928cb4e8f88fb9117cf73e63ecf7161e0",
+      "query_geometry_sha256": "0045b7d81e87b2419db9cf03a28a6aa33e15fc534e3123c0335ebda5f6a8d99e",
+      "query_wkt_chars": 5533,
+      "request_status": "submitted",
+      "download_key": "0017863-260623161305970",
+      "submitted_at_utc": "2026-07-04T12:47:07.196335+00:00",
+      "error": "",
+      "source": "frozen_full_campaign_batch"
+    },
+    {
+      "block_id": "gbif_block_cell_w-090.0_s-60.0_001",
+      "regional_cell": "cell_w-090.0_s-60.0",
+      "n_islands": 125,
+      "geometry_wkt_sha256": "4c55fb295dcd58571900d197ba9a41c4b27e220d21a6d648af5fb7882e40c5bd",
+      "query_geometry_sha256": "bc88472e7fa021fb9f6c700fc4354068bffb4f3d69752db17f00ef559d8ac35f",
+      "query_wkt_chars": 74732,
+      "request_status": "submitted",
+      "download_key": "0017864-260623161305970",
+      "submitted_at_utc": "2026-07-04T12:47:07.196335+00:00",
+      "error": "",
+      "source": "frozen_full_campaign_batch"
     }
   ],
   "recovery": {
@@ -1303,10 +1342,10 @@
     "rule": "Do not resubmit recovered download keys."
   },
   "last_batch": {
-    "updated_at_utc": "2026-07-04T12:19:35.528841+00:00",
+    "updated_at_utc": "2026-07-04T12:47:07.196335+00:00",
     "submit_exit_code": 0,
     "ledger_status_counts": {
-      "succeeded": 75,
+      "succeeded": 78,
       "submitted": 3
     }
   },
