@@ -1,19 +1,22 @@
 # Versioned thresholds for the v2 observation-process / data-coverage audit.
 #
-# These decide island *analysis inclusion by realised data coverage* -- not by
-# area (area stays an analytical covariate). Every threshold is an explicit,
-# re-runnable sensitivity knob, never a hidden filter. Flags are advisory audit
-# signals; only `min_species_for_proportions` + `min_records` gate inclusion.
-version: "1.0"
+# Area remains an analytical covariate, never an inclusion rule. Raw
+# Tracheophyta records are retained for observation-process flags, while primary
+# floral/pollen-vector/reproductive-assurance analyses use these thresholds on
+# reviewed accepted-angiosperm coverage supplied to island-v2-diagnostics.
+version: "1.1"
 
-# Realised-coverage inclusion gate: an island needs at least this many usable
-# species and records before an island-level trait *proportion* is stable enough
-# to model. Islands below the gate are retained in the table but marked
-# analysis_included = false.
+primary_taxonomic_scope: accepted_angiosperms
+raw_tracheophyta_without_scope_review: screening_only
+
+# An island needs at least this many accepted angiosperm species and associated
+# GBIF records before an island-level trait proportion is treated as stable
+# enough to model. With no angiosperm coverage input the same threshold can be
+# computed only as a clearly labelled raw-vacular screening diagnostic.
 min_species_for_proportions: 5
 min_records: 10
 
-# Advisory data-process concern flags (do not gate inclusion on their own).
+# Advisory data-process concern flags. They do not independently gate inclusion.
 flags:
   # Flora dominated by a single GBIF dataset -> source-structure concern.
   single_dataset_max: 1
@@ -26,8 +29,8 @@ flags:
   # Latest record older than this -> only historical evidence.
   stale_last_record_year: 1980
 
-# Re-run the inclusion gate at these species thresholds as a labelled coverage
-# sensitivity analysis.
+# Re-run the inclusion gate at these species thresholds as labelled sensitivity
+# analyses, always retaining the taxonomic-scope label in the output.
 species_threshold_sensitivity:
   - 3
   - 5
