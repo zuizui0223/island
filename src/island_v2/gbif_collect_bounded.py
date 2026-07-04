@@ -1,16 +1,10 @@
 """Memory-bounded collection of succeeded GBIF blocks into island flora products.
 
-GBIF requests deliberately use a small buffered catchment to protect against
-shoreline and coordinate mismatch. Most rows in a coastal catchment can still
-be mainland or buffer-only records. They are useful for block-level audit counts
-but must never be retained in the in-memory global concatenation: they cannot
-contribute to an island flora and can make collection fail before exact-island
-outputs are written.
-
-This collector therefore keeps only exact-island rows after each spatial join,
-while retaining buffer-only counts in the manifest and status outputs. It uses
-the existing GBIF parsing, original-polygon assignment, and cross-block
-GBIF-ID deduplication rules.
+GBIF requests use buffered catchments to protect against shoreline mismatch.
+Buffer-only rows are useful for audit counts but cannot contribute to an island
+flora; retaining all of them globally can exhaust memory before outputs exist.
+This collector keeps exact-island rows after each join and retains buffer-only
+counts in the block audit.
 """
 
 from __future__ import annotations
@@ -80,13 +74,7 @@ def collect_succeeded_blocks(
     download_dir: Path,
     chunksize: int,
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, int], list[str]]:
-    """Download and exact-assign all succeeded blocks.
-
-    Only rows that intersect an original island polygon are appended to the
-    global frame. Buffer-only rows are counted per block, then discarded before
-    cross-block deduplication. This is both scientifically correct and avoids
-    retaining irrelevant mainland/coastal records in memory.
-    """
+    """Download, exact-assign, and globally deduplicate succeeded blocks."""
     if "analysis_island_id" not in members.columns:
         members = members.copy()
         members["analysis_island_id"] = members["island_id"]
@@ -174,16 +162,14 @@ def collect_succeeded_blocks(
                 failures.append(block_id)
             manifest_rows.append(metrics)
 
-    assigned_before_dedup = (
-        pd.concat(exact_chunks, ignore_index=True) if exact_chunks else _empty_assigned_frame()
-    )
-    assigned, duplicate_audit = deduplicate_occurrences(assigned_before_dedup)
+    exact_before_dedup = pd.concat(exact_chunks, ignore_index=True) if exact_chunks else _empty_assigned_frame()
+    assigned, duplicate_audit = deduplicate_occurrences(exact_before_dedup)
     manifest = pd.DataFrame(manifest_rows) if manifest_rows else _empty_manifest()
     if not manifest.empty and not assigned.empty:
         retained_by_block = assigned.groupby("block_id").size().to_dict()
-        manifest["n_rows_retained_after_global_dedup"] = manifest["block_id"].map(
-            retained_by_block
-        ).fillna(0).astype(int)
+        manifest["n_rows_retained_after_global_dedup"] = (
+            manifest["block_id"].map(retained_by_block).fillna(0).astype(int)
+        )
     return assigned, manifest, duplicate_audit, failures
 
 
@@ -218,7 +204,7 @@ def collect(
         "n_succeeded_blocks": int(len(_succeeded_blocks(campaign))),
         "n_collected_blocks": int(manifest["collection_status"].eq("collected").sum()) if not manifest.empty else 0,
         "n_failed_blocks": int(manifest["collection_status"].eq("collection_failed").sum()) if not manifest.empty else 0,
-        "n_occurrences_before_global_dedup": int(len(assigned_before_dedup := assigned)),
+        "n_exact_island_rows_before_global_dedup": int(duplicate_audit["n_input_rows"]),
         "n_occurrences_after_global_dedup": int(len(assigned)),
         "n_occurrences_on_island": int(len(assigned)),
         "n_occurrences_in_buffer_only": int(manifest["n_buffer_only_rows"].sum()) if not manifest.empty else 0,
