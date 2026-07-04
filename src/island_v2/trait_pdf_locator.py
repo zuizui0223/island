@@ -12,6 +12,7 @@ from __future__ import annotations
 import io
 import json
 from collections.abc import Callable, Iterable
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -160,23 +161,16 @@ def locate_candidates(
 
 @app.command("locate-pages")
 def locate_pages(
-    leads_csv: str = typer.Option(..., help="trait_source_leads.csv from source discovery."),
-    output_csv: str = typer.Option(..., help="Destination trait_pdf_page_locators.csv."),
+    leads_csv: Path = typer.Option(..., exists=True, help="trait_source_leads.csv from source discovery."),
+    output_csv: Path = typer.Option(..., help="Destination trait_pdf_page_locators.csv."),
     max_pdfs: int = typer.Option(20, min=1, max=200, help="Bounded number of public PDF candidates."),
 ) -> None:
     """Write candidate-page locators from public PDFs without storing articles."""
     leads = pd.read_csv(leads_csv, dtype=str).fillna("")
     candidates = public_pdf_candidates(leads)
     result = locate_candidates((row for _, row in candidates.iterrows()), max_pdfs=max_pdfs)
-    destination = pd.io.common.stringify_path(output_csv)
-    parent = pd.io.common.get_handle(destination, "w", encoding="utf-8", is_text=True)
-    parent.close()
-    # Re-open through pathlib only after parent directories exist.
-    from pathlib import Path
-
-    path = Path(destination)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    result.to_csv(path, index=False)
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    result.to_csv(output_csv, index=False)
     typer.echo(f"Wrote {len(result)} public-PDF candidate-page locator rows.")
 
 
