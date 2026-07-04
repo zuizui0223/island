@@ -112,9 +112,27 @@ def _text(series: pd.Series) -> pd.Series:
     return series.fillna("").astype(str).str.strip()
 
 
+def _cell(row: dict[str, Any], column: str) -> str:
+    """Return a blank-safe string from a merged pandas row."""
+    value = row.get(column, "")
+    if value is None or pd.isna(value):
+        return ""
+    return str(value).strip()
+
+
+def _row_bool(row: dict[str, Any], column: str) -> bool:
+    value = row.get(column, False)
+    if value is None or pd.isna(value):
+        return False
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {"true", "1", "yes", "y"}
+
+
 def _as_bool(series: pd.Series) -> pd.Series:
     values = _text(series).str.lower()
-    invalid = values.loc[~values.isin({"true", "false", "1", "0", "yes", "no", "y", "n", ""})]
+    allowed = {"true", "false", "1", "0", "yes", "no", "y", "n", ""}
+    invalid = values.loc[~values.isin(allowed)]
     if not invalid.empty:
         raise typer.BadParameter(
             "regional_analysis_only must contain only true/false values; found "
@@ -143,12 +161,8 @@ def _require_unique(table: pd.DataFrame, column: str, label: str) -> None:
         raise typer.BadParameter(f"{label} has duplicate {column} values: {duplicates[:5]}")
 
 
-def _reviewed(table: pd.DataFrame, column: str = "review_status") -> pd.Series:
-    return _text(table[column]).str.lower().eq("accepted")
-
-
 def validate_region_registry(regions: pd.DataFrame, evidence: pd.DataFrame) -> pd.DataFrame:
-    """Validate reviewed source-region entries and their declared evidence links."""
+    """Validate source-region entries and their accepted evidence links."""
     _require_columns(regions, REQUIRED_REGION_COLUMNS, "source-region registry")
     _require_columns(evidence, REQUIRED_EVIDENCE_COLUMNS, "source-region evidence")
     _require_unique(regions, "source_region_id", "source-region registry")
@@ -203,6 +217,10 @@ def validate_region_registry(regions: pd.DataFrame, evidence: pd.DataFrame) -> p
                 "source-region evidence must reference the same source_region_id: "
                 f"{evidence_id!r}"
             )
+        if str(evidence_row["review_status"]).lower() != "accepted":
+            raise typer.BadParameter(
+                f"source-region registry references non-accepted evidence: {evidence_id!r}"
+            )
     return result
 
 
@@ -254,11 +272,12 @@ def build_applicability_table(
 
     rows: list[dict[str, Any]] = []
     for row in merged.to_dict("records"):
-        island_id = str(row["island_id"])
-        missing_assignment = not str(row.get("source_region_id", "")).strip()
-        assignment_accepted = str(row.get("review_status_assignment", "")).strip().lower() == "accepted"
-        region_accepted = str(row.get("review_status", "")).strip().lower() == "accepted"
-        source_region_exists = bool(str(row.get("biogeographic_region", "")).strip())
+        island_id = _cell(row, "island_id")
+        source_region_id = _cell(row, "source_region_id")
+        missing_assignment = not source_region_id
+        assignment_accepted = _cell(row, "review_status_assignment").lower() == "accepted"
+        region_accepted = _cell(row, "review_status").lower() == "accepted"
+        source_region_exists = bool(_cell(row, "biogeographic_region"))
 
         if missing_assignment:
             applicability = "unresolved"
@@ -273,30 +292,30 @@ def build_applicability_table(
             applicability = "unresolved"
             rationale = "The assigned source-region registry entry is not yet accepted for analysis."
         else:
-            applicability = str(row["applicability"])
-            rationale = str(row["applicability_rationale"])
-            assignment_rationale = str(row.get("assignment_rationale", "")).strip()
+            applicability = _cell(row, "applicability")
+            rationale = _cell(row, "applicability_rationale")
+            assignment_rationale = _cell(row, "assignment_rationale")
             if assignment_rationale:
                 rationale = f"{rationale} Island assignment: {assignment_rationale}"
 
         rows.append(
             {
                 "island_id": island_id,
-                "source_region_id": str(row.get("source_region_id", "")),
-                "biogeographic_region": str(row.get("biogeographic_region", "")),
-                "floristic_source_pool": str(row.get("floristic_source_pool", "")),
-                "plausible_dispersal_connection_or_gateway": str(
-                    row.get("plausible_dispersal_connection_or_gateway", "")
+                "source_region_id": source_region_id,
+                "biogeographic_region": _cell(row, "biogeographic_region"),
+                "floristic_source_pool": _cell(row, "floristic_source_pool"),
+                "plausible_dispersal_connection_or_gateway": _cell(
+                    row, "plausible_dispersal_connection_or_gateway"
                 ),
-                "native_bombus_status": str(row.get("native_bombus_status", "")),
+                "native_bombus_status": _cell(row, "native_bombus_status"),
                 "applicability": applicability,
                 "applicability_rationale": rationale,
-                "source_region_evidence_id": str(row.get("source_region_evidence_id", "")),
-                "regional_analysis_only": bool(row.get("regional_analysis_only", False)),
-                "reviewer": str(row.get("reviewer_assignment", "")) or str(row.get("reviewer", "")),
-                "decision_date": str(row.get("decision_date_assignment", "")) or str(row.get("decision_date", "")),
-                "source_region_review_status": str(row.get("review_status", "")),
-                "assignment_review_status": str(row.get("review_status_assignment", "")),
+                "source_region_evidence_id": _cell(row, "source_region_evidence_id"),
+                "regional_analysis_only": _row_bool(row, "regional_analysis_only"),
+                "reviewer": _cell(row, "reviewer_assignment") or _cell(row, "reviewer"),
+                "decision_date": _cell(row, "decision_date_assignment") or _cell(row, "decision_date"),
+                "source_region_review_status": _cell(row, "review_status"),
+                "assignment_review_status": _cell(row, "review_status_assignment"),
                 "source_region_assignment_missing": missing_assignment,
             }
         )
