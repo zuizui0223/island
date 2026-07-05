@@ -153,3 +153,16 @@ def test_missing_island_context_fails_closed():
         assert "does not cover island IDs" in str(exc)
     else:
         raise AssertionError("Expected a missing pilot-island context error")
+
+
+def test_restrict_to_registry_scopes_to_pilot_islands_without_raising():
+    # Registry covers only 'source_ready'; the establishment queue also has
+    # 'source_gap'. With restrict_to_registry the uncovered island is scoped out
+    # instead of failing closed, so a globally growing collection can be
+    # pilot-curated for just the declared pilot islands.
+    registry = _registry().iloc[[0]]
+    worklist = pilot.build_worklist(
+        _manifest(), _taxon_intake(), _establishment(), registry, restrict_to_registry=True
+    )
+    assert set(worklist["island_id"]) == {"source_ready"}
+    assert "source_gap" not in set(worklist["island_id"])

@@ -186,8 +186,16 @@ def build_worklist(
     taxon_intake: pd.DataFrame,
     establishment_queue: pd.DataFrame,
     registry: pd.DataFrame,
+    restrict_to_registry: bool = False,
 ) -> pd.DataFrame:
-    """Merge review artifacts with pilot-island context and route each row."""
+    """Merge review artifacts with pilot-island context and route each row.
+
+    By default the pilot registry must cover every island in the establishment
+    queue (fail-closed: never silently drop an island you meant to curate). When
+    ``restrict_to_registry`` is set, the establishment queue is first scoped to
+    the registry's islands, so a globally growing collection can be pilot-curated
+    for just the declared pilot islands without tripping that guard.
+    """
     _require(island_manifest, {"island_id", "area_km2"}, "island manifest")
     _require(taxon_intake, REQUIRED_TAXON_COLUMNS, "taxon intake")
     _require(establishment_queue, REQUIRED_ESTABLISHMENT_COLUMNS, "establishment queue")
@@ -207,6 +215,9 @@ def build_worklist(
     establishment = establishment_queue.copy()
     for column in establishment.columns:
         establishment[column] = _text(establishment[column])
+    if restrict_to_registry:
+        registry_islands = set(registry["island_id"])
+        establishment = establishment.loc[establishment["island_id"].isin(registry_islands)].copy()
     establishment = establishment.rename(columns={"species": "reported_species"})
 
     work = establishment.merge(
@@ -331,6 +342,11 @@ def build(
     pilot_registry_csv: Path = typer.Option(..., exists=True),
     output_dir: Path = typer.Option(...),
     max_trait_candidates_per_island: int = typer.Option(25, min=1),
+    restrict_to_pilot_registry: bool = typer.Option(
+        False,
+        help="Scope the establishment queue to the pilot-registry islands instead of "
+        "requiring the registry to cover every collected island.",
+    ),
 ) -> None:
     """Write island-specific curation worklists and blocked trait staging rows."""
     worklist = build_worklist(
@@ -338,6 +354,7 @@ def build(
         pd.read_csv(taxon_intake_csv, dtype=str).fillna(""),
         pd.read_csv(establishment_queue_csv, dtype=str).fillna(""),
         pd.read_csv(pilot_registry_csv, dtype=str).fillna(""),
+        restrict_to_registry=restrict_to_pilot_registry,
     )
     trait_staging = build_trait_staging(worklist, max_trait_candidates_per_island)
     result = summary(worklist, trait_staging)

@@ -79,7 +79,8 @@ jobs:
             --establishment-queue-csv /tmp/taxon_intake/island_establishment_review_queue.csv \
             --pilot-registry-csv data/v2/curation/pilot_island_registry.csv \
             --output-dir /tmp/pilot_curation \
-            --max-trait-candidates-per-island "${{ inputs.max_taxa }}"
+            --max-trait-candidates-per-island "${{ inputs.max_taxa }}" \
+            --restrict-to-pilot-registry
       - name: Build API-free trait evidence review packet
         run: |
           island-v2-trait-review-packet build \

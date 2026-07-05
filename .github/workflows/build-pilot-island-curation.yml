@@ -62,7 +62,8 @@ jobs:
             --establishment-queue-csv /tmp/taxon_intake/island_establishment_review_queue.csv \
             --pilot-registry-csv data/v2/curation/pilot_island_registry.csv \
             --output-dir data/v2/staging/pilot_curation \
-            --max-trait-candidates-per-island "${{ inputs.max_trait_candidates_per_island }}"
+            --max-trait-candidates-per-island "${{ inputs.max_trait_candidates_per_island }}" \
+            --restrict-to-pilot-registry
       - name: Summarize pilot curation
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
