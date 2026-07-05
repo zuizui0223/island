@@ -1,25 +1,23 @@
 {
   "collection_mode": "resumable_exact_island_block_batches",
   "selected_block_ids": [
-    "gbif_block_cell_w-120.0_s-90.0_001",
-    "gbif_block_cell_w+060.0_s+60.0_002",
-    "gbif_block_cell_w-180.0_s-60.0_001",
-    "gbif_block_cell_w+090.0_s-60.0_001",
-    "gbif_block_cell_w-030.0_s-30.0_001",
-    "gbif_block_cell_w-060.0_s+30.0_002",
-    "gbif_block_cell_w+060.0_s-30.0_001",
-    "gbif_block_cell_w+090.0_s+30.0_001",
-    "gbif_block_cell_w-030.0_s+60.0_002",
-    "gbif_block_cell_w+030.0_s-60.0_001",
-    "gbif_block_cell_w-120.0_s+30.0_001",
-    "gbif_block_cell_w-120.0_s-30.0_001"
+    "gbif_block_cell_w-030.0_s-60.0_001",
+    "gbif_block_cell_w-180.0_s+00.0_001",
+    "gbif_block_cell_w+060.0_s-60.0_001",
+    "gbif_block_cell_w+000.0_s+00.0_001",
+    "gbif_block_cell_w+150.0_s-30.0_003",
+    "gbif_block_cell_w-060.0_s+00.0_001",
+    "gbif_block_cell_w+030.0_s+30.0_001",
+    "gbif_block_cell_w+120.0_s-30.0_001",
+    "gbif_block_cell_w+150.0_s+00.0_001",
+    "gbif_block_cell_w-060.0_s-60.0_001"
   ],
-  "max_blocks_per_run": 12,
+  "max_blocks_per_run": 10,
   "n_succeeded_blocks_in_campaign": 103,
-  "n_collected_succeeded_blocks": 14,
-  "n_succeeded_blocks_remaining": 89,
+  "n_collected_succeeded_blocks": 24,
+  "n_succeeded_blocks_remaining": 79,
   "n_failed_blocks": 0,
-  "n_island_species_pairs": 9934,
-  "n_islands_with_records": 43,
-  "n_accepted_species": 4506
+  "n_island_species_pairs": 61709,
+  "n_islands_with_records": 180,
+  "n_accepted_species": 27613
 }
