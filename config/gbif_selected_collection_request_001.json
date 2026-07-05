@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "request_id": "core_pilot_selected_block_request_001",
+  "requested_at_utc": "2026-07-05T03:45:00Z",
+  "block_id": "gbif_block_cell_w+120.0_s+30.0_003",
+  "rationale_category": "geographic_source_region_coverage",
+  "selection_rationale": "Predeclared northern-temperate East Asian coverage to obtain raw exact-island flora availability for Phase 0.5 applicable-region Core-pilot nomination; no biological trait, pollinator, reproduction, or model information used.",
+  "safety_exclusions": [
+    "taxonomy_review_decision",
+    "island_establishment_review_decision",
+    "source_region_applicability_review_decision",
+    "trait_review_decision",
+    "pollinator_review_decision",
+    "reproduction_review_decision",
+    "model_based_priority_decision",
+    "analysis_inclusion_decision"
+  ],
+  "expected_workflow": "collect_gbif_selected_block"
+}

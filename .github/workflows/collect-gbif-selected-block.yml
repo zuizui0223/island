@@ -1,8 +1,8 @@
 name: collect_gbif_selected_block
 
-# Manual operational override for one already-succeeded GBIF block. The supplied
+# Operational override for one already-succeeded GBIF block. The supplied
 # rationale must be geographic/source-region coverage only; this workflow does
-# not accept or inspect traits, Bombus records, or model results.
+# not accept or inspect traits, pollinator records, reproduction, or model results.
 on:
   workflow_dispatch:
     inputs:
@@ -14,6 +14,10 @@ on:
         description: "Predeclared geographic/source-region coverage rationale; not trait/outcome based."
         required: true
         type: string
+  push:
+    branches: [main]
+    paths:
+      - "config/gbif_selected_collection_request_001.json"
 
 permissions:
   contents: write
@@ -39,6 +43,24 @@ jobs:
         run: pip install -e ".[dev]"
       - name: Test selected-block collection guard
         run: pytest -q tests/test_gbif_collect.py tests/test_gbif_collect_incremental.py tests/test_gbif_collect_selected.py
+      - name: Resolve selected block request
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            {
+              echo "SELECTED_BLOCK_ID=${{ inputs.block_id }}"
+              echo "SELECTED_RATIONALE=${{ inputs.selection_rationale }}"
+            } >> "$GITHUB_ENV"
+          else
+            python - <<'PY' >> "$GITHUB_ENV"
+            import json
+            from pathlib import Path
+            request = json.loads(Path('config/gbif_selected_collection_request_001.json').read_text(encoding='utf-8'))
+            assert request['rationale_category'] == 'geographic_source_region_coverage'
+            print(f"SELECTED_BLOCK_ID={request['block_id']}")
+            print(f"SELECTED_RATIONALE={request['selection_rationale']}")
+            PY
+          fi
       - name: Fetch and verify frozen island universe
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -82,8 +104,8 @@ jobs:
             --islands-gpkg data/v2/external/islands/frozen_pilot/islands_v2.gpkg \
             --download-dir data/v2/staging/gbif/archives \
             --output-dir data/v2/staging/gbif/collected \
-            --block-id "${{ inputs.block_id }}" \
-            --selection-rationale "${{ inputs.selection_rationale }}" \
+            --block-id "$SELECTED_BLOCK_ID" \
+            --selection-rationale "$SELECTED_RATIONALE" \
             --chunksize 250000
       - name: Commit cumulative collection outputs
         if: always()
