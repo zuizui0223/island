@@ -1,0 +1,9 @@
+{
+  "gate": "core_pilot_eligibility",
+  "meaning": "Detect-and-notify only. Eligibility does NOT finalize any trait value, native/establishment status, Bombus applicability, or analysis inclusion. A human still triggers the free source-discovery run.",
+  "n_core_pilot_eligible": 0,
+  "eligible_island_ids": [],
+  "n_core_applicable_islands": 0,
+  "n_islands_considered": 43,
+  "next_action_when_eligible": "Human-run discover-core-pilot-trait-sources.yml for each eligible island after accepting its flora anchor and taxon/establishment review."
+}
