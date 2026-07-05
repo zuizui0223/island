@@ -1,0 +1,135 @@
+name: watch_core_pilot_eligibility
+
+# Self-driving "detect and notify only" trait-stage gate.
+#
+# On a schedule it rebuilds the outcome-blind Bombus applicability registry from
+# the reviewed curation tables and runs Core-pilot nomination against the latest
+# committed exact-island collection effort. When an island becomes Core-pilot
+# ELIGIBLE it records that transition in a committed status file (a visible,
+# durable signal) and the run summary. It NEVER dispatches source discovery,
+# calls an external API, or writes any trait value, native/establishment status,
+# Bombus applicability finalization, or analysis-inclusion decision. A human
+# still triggers the actual (free) discovery run.
+#
+# Because the curation tables are agent_drafted_pending_review, every island
+# classifies as `unresolved` and nomination reports 0 eligible until a human
+# accepts the curation AND a Bombus-applicable block has been collected. This
+# watcher therefore stays a quiet no-op until that gate genuinely opens.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "33 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: core-pilot-eligibility-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    if: >-
+      github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Guard the gate logic
+        run: pytest -q tests/test_bombus_applicability_and_pollinator_collect.py tests/test_core_pilot_nomination.py
+      - name: Derive the collected-island manifest
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          effort = pd.read_csv(
+              "data/v2/staging/gbif/collected/island_observation_effort.csv", dtype=str
+          )
+          effort[["island_id"]].drop_duplicates().to_csv("/tmp/island_manifest.csv", index=False)
+          PY
+      - name: Rebuild outcome-blind applicability from reviewed curation
+        run: |
+          island-v2-bombus-applicability build \
+            --island-manifest-csv /tmp/island_manifest.csv \
+            --island-source-assignment-csv data/v2/curation/island_source_region_assignments.csv \
+            --source-region-registry-csv data/v2/curation/source_region_bombus_registry.csv \
+            --source-region-evidence-csv data/v2/curation/source_region_evidence.csv \
+            --island-assignment-evidence-csv data/v2/curation/island_assignment_evidence.csv \
+            --output-dir /tmp/applicability
+      - name: Run Core-pilot nomination against collected effort
+        run: |
+          island-v2-core-pilot-nomination nominate \
+            --applicability-csv /tmp/applicability/bombus_applicability_by_island.csv \
+            --collected-effort-csv data/v2/staging/gbif/collected/island_observation_effort.csv \
+            --output-dir /tmp/nomination \
+            --min-raw-exact-island-species-labels 5
+      - name: Compose the eligibility status signal
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(
+              Path("/tmp/nomination/core_pilot_nomination_report.json").read_text(encoding="utf-8")
+          )
+          eligible = list(report.get("eligible_island_ids") or [])
+          # Committed status carries only substantive fields (no run timestamp) so a
+          # no-op run produces no diff and only a real transition creates a commit.
+          status = {
+              "gate": "core_pilot_eligibility",
+              "meaning": (
+                  "Detect-and-notify only. Eligibility does NOT finalize any trait value, "
+                  "native/establishment status, Bombus applicability, or analysis inclusion. "
+                  "A human still triggers the free source-discovery run."
+              ),
+              "n_core_pilot_eligible": int(report.get("n_core_pilot_eligible", 0)),
+              "eligible_island_ids": eligible,
+              "n_core_applicable_islands": int(report.get("n_core_applicable_islands", 0)),
+              "n_islands_considered": int(report.get("n_islands_considered", 0)),
+              "next_action_when_eligible": (
+                  "Human-run discover-core-pilot-trait-sources.yml for each eligible island "
+                  "after accepting its flora anchor and taxon/establishment review."
+              ),
+          }
+          out = Path("data/v2/staging/core_pilot_eligibility_status.json")
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_text(json.dumps(status, indent=2) + "\n", encoding="utf-8")
+
+          lines = ["## Core-pilot eligibility watch", ""]
+          if eligible:
+              lines.append(f"**{len(eligible)} island(s) now ELIGIBLE:** {', '.join(eligible)}")
+              lines.append("")
+              lines.append("Human next step: run `discover-core-pilot-trait-sources.yml` for each "
+                           "after flora-anchor + taxon/establishment review. Nothing is auto-finalized.")
+          else:
+              lines.append(f"0 eligible. {status['n_core_applicable_islands']} Core-applicable of "
+                           f"{status['n_islands_considered']} collected islands "
+                           "(curation pending human acceptance keeps islands unresolved).")
+          Path("gh_summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+          PY
+          cat gh_summary.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Commit the eligibility status only when it changes
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add data/v2/staging/core_pilot_eligibility_status.json
+          git diff --cached --quiet && { echo "No eligibility change."; exit 0; }
+          git commit -m "chore: update Core-pilot eligibility status"
+          git pull --rebase origin main
+          git push origin HEAD:main
+      - name: Upload applicability and nomination detail
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-pilot-eligibility-${{ github.run_id }}
+          path: |
+            /tmp/applicability/
+            /tmp/nomination/
+          if-no-files-found: warn
+          retention-days: 90
