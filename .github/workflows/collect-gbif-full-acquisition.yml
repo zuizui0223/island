@@ -1,16 +1,20 @@
 name: collect_gbif_full_acquisition
 
-# Stage 3: collect one succeeded GBIF block per run and commit cumulative
-# exact-island products. Later runs resume from collection_manifest.csv.
+# Stage 3: collect succeeded GBIF blocks per run and commit cumulative
+# exact-island products. Later runs resume from collection_manifest.csv, so the
+# scheduled runs self-drain the remaining succeeded blocks over time.
 on:
   workflow_dispatch:
     inputs:
       max_blocks:
         description: "Succeeded GBIF blocks to process in this run."
         required: false
-        default: "1"
+        default: "5"
   schedule:
-    - cron: "17,47 * * *"
+    # Twice per hour (minute 17 and 47). Must be a full 5-field cron
+    # (minute hour day-of-month month day-of-week); a 4-field value makes the
+    # whole workflow fail to parse and every trigger startup-fails.
+    - cron: "17,47 * * * *"
   push:
     branches: [main]
     paths:
@@ -33,7 +37,7 @@ jobs:
     env:
       FROZEN_ARTIFACT_ID: "8066083419"
       FROZEN_ARTIFACT_SHA256: "bee33e14672ec7ff4ed1f7acaea36b32cc6170a45c3d14b2caeb5f43bfaa623b"
-      MAX_BLOCKS: ${{ inputs.max_blocks || '1' }}
+      MAX_BLOCKS: ${{ inputs.max_blocks || '5' }}
     steps:
       - uses: actions/checkout@v4
         with:
