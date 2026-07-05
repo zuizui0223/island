@@ -4,6 +4,6 @@
   "n_core_pilot_eligible": 0,
   "eligible_island_ids": [],
   "n_core_applicable_islands": 0,
-  "n_islands_considered": 43,
+  "n_islands_considered": 1222,
   "next_action_when_eligible": "Human-run discover-core-pilot-trait-sources.yml for each eligible island after accepting its flora anchor and taxon/establishment review."
 }
