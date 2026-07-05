@@ -5,10 +5,15 @@ import pytest
 import typer
 
 from island_v2.trait_source_discovery import (
+    GRADE_A,
+    GRADE_B,
+    GRADE_C,
+    GRADE_D,
     OUTPUT_COLUMNS,
     PROHIBITED_OUTPUT_COLUMNS,
     _require_nominated_island,
     discover_sources,
+    grade_source_hint,
     parse_crossref_works,
     parse_openalex_works,
 )
@@ -147,6 +152,55 @@ def test_source_failure_does_not_abort_run():
     )
     assert report["n_lookup_errors"] >= 1
     assert report["n_literature_seeds"] >= 1  # crossref still produced a lead
+
+
+def test_source_grade_hint_maps_to_study_vocabulary():
+    # Scholarly work with venue + DOI -> A.
+    assert grade_source_hint("openalex", "Phytotaxa", "10.1/x", "https://oa.example/x")[0] == GRADE_A
+    # Curated/institutional host -> B (even if scholarly signal is weak).
+    assert grade_source_hint("crossref", "", "10.2/y", "https://powo.science.kew.org/taxon/1")[0] == GRADE_B
+    # Unvetted web (Wikipedia) -> D, regardless of a DOI.
+    assert grade_source_hint("openalex", "Journal", "10.3/z", "https://es.wikipedia.org/wiki/X")[0] == GRADE_D
+    # Scholarly DOI but no venue -> C.
+    assert grade_source_hint("crossref", "", "10.4/w", "")[0] == GRADE_C
+    # Nothing usable -> below C, sorted last.
+    assert grade_source_hint("", "", "", "")[1] == 5
+
+
+def test_discovery_ranks_abc_above_unvetted_web():
+    # Two seeds for one taxon: an A-grade journal work and a D-grade wiki page.
+    payload = {
+        "results": [
+            {
+                "display_name": "A flora treatment",
+                "doi": "https://doi.org/10.1/aaa",
+                "publication_year": 2018,
+                "open_access": {"is_oa": True, "oa_status": "green", "oa_url": "https://oa.example/a"},
+                "primary_location": {"source": {"display_name": "Kew Bulletin"}, "pdf_url": ""},
+                "authorships": [],
+            },
+            {
+                "display_name": "Wikipedia summary",
+                "doi": "",
+                "publication_year": 2020,
+                "open_access": {"is_oa": True, "oa_status": "bronze", "oa_url": "https://en.wikipedia.org/wiki/X"},
+                "primary_location": {"source": {"display_name": ""}, "pdf_url": ""},
+                "authorships": [],
+            },
+        ]
+    }
+    getter = _fake_getter({"openalex": payload, "crossref": {}, "unpaywall": {}})
+    taxa = pd.DataFrame({"accepted_species": ["Genus species"]})
+    frame, report = discover_sources(taxa, getter, "t@example.org", max_taxa=5, max_seeds_per_taxon=5)
+
+    # A-grade lead is ranked first; D-grade wiki lead is last.
+    assert frame.iloc[0]["provisional_source_reliability_hint"] == GRADE_A
+    assert frame.iloc[-1]["provisional_source_reliability_hint"] == GRADE_D
+    assert list(frame["priority_rank"]) == sorted(frame["priority_rank"])
+    assert report["n_hint_track_eligible_A_B_C"] >= 1
+    assert report["n_hint_D_unvetted_web"] == 1
+    # Grade hint is about the source, never a finalized biological value.
+    assert PROHIBITED_OUTPUT_COLUMNS.isdisjoint(frame.columns)
 
 
 def test_nomination_gate_blocks_unnominated_island(tmp_path):
