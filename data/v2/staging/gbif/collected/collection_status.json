@@ -1,21 +1,21 @@
 {
   "collection_mode": "resumable_exact_island_block_batches",
   "selected_block_ids": [
-    "gbif_block_cell_w-090.0_s-30.0_001",
-    "gbif_block_cell_w+090.0_s+00.0_006",
-    "gbif_block_cell_w+150.0_s+60.0_001",
-    "gbif_block_cell_w+150.0_s+30.0_001",
-    "gbif_block_cell_w-090.0_s+60.0_004",
-    "gbif_block_cell_w+090.0_s-30.0_002",
-    "gbif_block_cell_w+120.0_s-60.0_001",
-    "gbif_block_cell_w+150.0_s-60.0_001"
+    "gbif_block_cell_w+120.0_s+30.0_003",
+    "gbif_block_cell_w+000.0_s+60.0_004",
+    "gbif_block_cell_w-150.0_s+30.0_003",
+    "gbif_block_cell_w-150.0_s-30.0_001",
+    "gbif_block_cell_w-090.0_s+00.0_004",
+    "gbif_block_cell_w+000.0_s+30.0_004",
+    "gbif_block_cell_w+030.0_s+00.0_002",
+    "gbif_block_cell_w-090.0_s-60.0_005"
   ],
   "max_blocks_per_run": 8,
   "n_succeeded_blocks_in_campaign": 103,
-  "n_collected_succeeded_blocks": 32,
-  "n_succeeded_blocks_remaining": 71,
+  "n_collected_succeeded_blocks": 40,
+  "n_succeeded_blocks_remaining": 63,
   "n_failed_blocks": 0,
-  "n_island_species_pairs": 113617,
-  "n_islands_with_records": 354,
-  "n_accepted_species": 37743
+  "n_island_species_pairs": 151102,
+  "n_islands_with_records": 576,
+  "n_accepted_species": 41977
 }
