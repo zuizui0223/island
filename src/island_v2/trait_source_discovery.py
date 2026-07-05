@@ -49,6 +49,51 @@ PASSTHROUGH_TAXA_COLUMNS = ["island_id", "genus", "family", "trait_candidate_sta
 LEAD_STATUS = "unreviewed_literature_seed"
 PAGE_LOCATOR_PLACEHOLDER = "HUMAN_REVIEW_REQUIRED: open source and locate the trait passage"
 
+# Provisional source-tier HINT, using the study's own reliability vocabulary
+# (see prompts/trait_evidence_extraction_v2.md and config/attrition_audit.yml).
+# It grades the likely reliability of the SOURCE, never a trait value, and a
+# human confirms the real grade on review. The analysis evidence tracks accept
+# A/B (direct-conservative) or A/B/C (direct-broad-web); D is below every track,
+# so leads are ranked to surface A/B/C first and push unvetted web last.
+GRADE_A = "A_primary_or_monograph"
+GRADE_B = "B_curated_database_or_institution"
+GRADE_C = "C_curated_specialist_web"
+GRADE_D = "D_unvetted_web"
+GRADE_NONE = "none"
+_GRADE_PRIORITY = {GRADE_A: 1, GRADE_B: 2, GRADE_C: 3, GRADE_D: 4, GRADE_NONE: 5}
+# Curated / institutional hosts → likely B. Community / unvetted hosts → D.
+_B_HOST_HINTS = (
+    "powo.science.kew", "kew.org", "tropicos.org", "gbif.org", "ipni.org",
+    "worldfloraonline.org", "catalogueoflife", "efloras.org", "biodiversitylibrary.org",
+    "plants.usda.gov", "jstor.org/stable/community.", "globalplants", "ala.org.au",
+    "herbari", "botanicgarden", "naturalis", ".gov/", "floraofaustralia",
+)
+_D_HOST_HINTS = (
+    "wikipedia.org", "wikimedia.org", "wikispecies", "blogspot", "wordpress",
+    "pinterest", "researchgate.net", "facebook.com", "reddit.com",
+)
+
+
+def grade_source_hint(source_api: str, venue: str, doi: str, *urls: str) -> tuple[str, int]:
+    """Return a provisional (source_reliability_hint, priority_rank) for a lead.
+
+    This is a navigation aid for reviewers, not a decision: it never inspects or
+    emits a trait value, and the human reviewer sets the authoritative grade.
+    """
+    haystack = " ".join(u for u in (venue, *urls) if u).lower()
+    if any(hint in haystack for hint in _D_HOST_HINTS):
+        return GRADE_D, _GRADE_PRIORITY[GRADE_D]
+    if any(hint in haystack for hint in _B_HOST_HINTS):
+        return GRADE_B, _GRADE_PRIORITY[GRADE_B]
+    scholarly = str(source_api).lower() in {"openalex", "crossref"}
+    if scholarly and doi and venue.strip():
+        return GRADE_A, _GRADE_PRIORITY[GRADE_A]
+    if scholarly and doi:
+        return GRADE_C, _GRADE_PRIORITY[GRADE_C]
+    if haystack:
+        return GRADE_C, _GRADE_PRIORITY[GRADE_C]
+    return GRADE_NONE, _GRADE_PRIORITY[GRADE_NONE]
+
 OUTPUT_COLUMNS = [
     "query_taxon",
     "source_api",
@@ -63,6 +108,8 @@ OUTPUT_COLUMNS = [
     "open_access_url",
     "candidate_pdf_url",
     "candidate_page_locator",
+    "provisional_source_reliability_hint",
+    "priority_rank",
     "lead_status",
     "provenance_note",
 ]
@@ -107,9 +154,17 @@ class LiteratureSeed:
     open_access_url: str = ""
     candidate_pdf_url: str = ""
     candidate_page_locator: str = PAGE_LOCATOR_PLACEHOLDER
+    provisional_source_reliability_hint: str = GRADE_NONE
+    priority_rank: int = _GRADE_PRIORITY[GRADE_NONE]
     lead_status: str = LEAD_STATUS
     provenance_note: str = ""
     passthrough: dict[str, str] = field(default_factory=dict)
+
+    def apply_source_grade_hint(self) -> None:
+        """Set the provisional source-tier hint and priority from resolved fields."""
+        self.provisional_source_reliability_hint, self.priority_rank = grade_source_hint(
+            self.source_api, self.venue, self.doi, self.open_access_url, self.candidate_pdf_url
+        )
 
     def to_row(self) -> dict[str, str]:
         row = {k: v for k, v in asdict(self).items() if k != "passthrough"}
@@ -234,13 +289,15 @@ def discover_for_taxon(
         seed.passthrough = dict(passthrough)
         if not seed.doi:
             seed.provenance_note = "No DOI resolved; open-access status not checked."
-            continue
-        try:
-            up_payload = getter(f"{UNPAYWALL_URL}/{seed.doi}", {"email": contact_email})
-            apply_unpaywall(seed, up_payload)
-        except Exception as exc:  # noqa: BLE001
-            errors.append(f"unpaywall:{seed.doi}:{exc}")
-            seed.provenance_note = "Unpaywall lookup failed; open-access status unknown."
+        else:
+            try:
+                up_payload = getter(f"{UNPAYWALL_URL}/{seed.doi}", {"email": contact_email})
+                apply_unpaywall(seed, up_payload)
+            except Exception as exc:  # noqa: BLE001
+                errors.append(f"unpaywall:{seed.doi}:{exc}")
+                seed.provenance_note = "Unpaywall lookup failed; open-access status unknown."
+        # Grade the source tier only after any Unpaywall URLs are resolved.
+        seed.apply_source_grade_hint()
 
     return seeds, errors
 
@@ -288,16 +345,31 @@ def discover_sources(
     ordered = OUTPUT_COLUMNS + passthrough_cols
     frame = pd.DataFrame(rows, columns=ordered) if rows else pd.DataFrame(columns=ordered)
     _guard_output(frame)
+    if len(frame):
+        # Surface A/B/C sources before D (unvetted web) within each taxon.
+        frame["priority_rank"] = pd.to_numeric(frame["priority_rank"], errors="coerce").fillna(5).astype(int)
+        frame = frame.sort_values(["query_taxon", "priority_rank"]).reset_index(drop=True)
+
+    def _n_hint(grade: str) -> int:
+        return int((frame["provisional_source_reliability_hint"] == grade).sum()) if len(frame) else 0
 
     report = {
         "note": (
             "Unreviewed literature leads only. No trait value, native/establishment "
-            "status, Bombus applicability, or analysis inclusion is decided here."
+            "status, Bombus applicability, or analysis inclusion is decided here. The "
+            "provisional_source_reliability_hint is a navigation aid; a human sets the "
+            "authoritative grade. Analysis tracks accept A/B (direct-conservative) or "
+            "A/B/C (direct-broad-web); D_unvetted_web is below every track."
         ),
         "n_taxa_queried": int(len(taxa)),
         "n_literature_seeds": int(len(frame)),
         "n_seeds_with_doi": int((frame["doi"] != "").sum()) if len(frame) else 0,
         "n_open_access_seeds": int((frame["is_open_access"] == "true").sum()) if len(frame) else 0,
+        "n_hint_A_primary_or_monograph": _n_hint(GRADE_A),
+        "n_hint_B_curated_or_institution": _n_hint(GRADE_B),
+        "n_hint_C_specialist_web": _n_hint(GRADE_C),
+        "n_hint_D_unvetted_web": _n_hint(GRADE_D),
+        "n_hint_track_eligible_A_B_C": _n_hint(GRADE_A) + _n_hint(GRADE_B) + _n_hint(GRADE_C),
         "n_lookup_errors": len(all_errors),
         "lookup_errors": all_errors[:20],
     }
