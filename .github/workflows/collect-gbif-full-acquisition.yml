@@ -22,6 +22,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: gbif-collect
@@ -45,6 +46,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Record collected count before this run
+        id: prior
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          p = "data/v2/staging/gbif/collected/collection_status.json"
+          n = json.load(open(p)).get("n_collected_succeeded_blocks", 0) if os.path.exists(p) else 0
+          print(f"collected={n}")
+          PY
       - name: Install v2 package
         run: pip install -e ".[dev]"
       - name: Test collection logic
@@ -117,6 +127,33 @@ jobs:
           git commit -m "chore: update GBIF island-level collection outputs"
           git pull --rebase origin main
           git push origin HEAD:main
+      - name: Self-chain to drain remaining succeeded blocks
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRIOR_COLLECTED: ${{ steps.prior.outputs.collected }}
+        run: |
+          set -euo pipefail
+          read -r remaining collected < <(python - <<'PY'
+          import json
+          s = json.load(open("data/v2/staging/gbif/collected/collection_status.json"))
+          print(s.get("n_succeeded_blocks_remaining", 0), s.get("n_collected_succeeded_blocks", 0))
+          PY
+          )
+          echo "remaining=$remaining collected=$collected prior=$PRIOR_COLLECTED"
+          # Only re-dispatch when blocks remain AND this run actually made progress,
+          # so a stalled run can never trigger an infinite dispatch loop.
+          if [ "$remaining" -gt 0 ] && [ "$collected" -gt "$PRIOR_COLLECTED" ]; then
+            echo "Draining continues: dispatching the next collect batch."
+            curl --fail --silent --show-error \
+              --request POST \
+              --header "Accept: application/vnd.github+json" \
+              --header "Authorization: Bearer ${GH_TOKEN}" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/collect-gbif-full-acquisition.yml/dispatches" \
+              --data '{"ref":"main","inputs":{"max_blocks":"'"${MAX_BLOCKS}"'"}}'
+          else
+            echo "No self-chain: remaining=$remaining, progress=$((collected - PRIOR_COLLECTED))."
+          fi
       - name: Summarize collection
         if: always()
         run: |
