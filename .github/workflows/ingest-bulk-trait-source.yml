@@ -1,0 +1,131 @@
+name: ingest_bulk_trait_source
+
+# The global-scale trait path: download one declared long-format public source,
+# join it to the current island species master, and upload pending evidence plus
+# coverage audits. No LLM, OpenAI key, or repository mutation is involved.
+on:
+  workflow_dispatch:
+    inputs:
+      dataset_url:
+        description: "Direct CSV/TSV (optionally .gz or one-file .zip) download URL."
+        required: true
+        type: string
+      source_name:
+        description: "Stable short source/version name, e.g. source_2026_01."
+        required: true
+        type: string
+      source_profile:
+        description: "Declared profile in config/bulk_trait_sources.yml."
+        required: true
+        default: "v2_canonical_long_csv"
+        type: string
+      dataset_citation:
+        description: "Dataset-level citation or release name used when records lack one."
+        required: true
+        type: string
+      dataset_page_url:
+        description: "Stable dataset landing page or release URL."
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bulk-trait-ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    env:
+      DATASET_URL: ${{ inputs.dataset_url }}
+      SOURCE_NAME: ${{ inputs.source_name }}
+      SOURCE_PROFILE: ${{ inputs.source_profile }}
+      DATASET_CITATION: ${{ inputs.dataset_citation }}
+      DATASET_PAGE_URL: ${{ inputs.dataset_page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Validate source input
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          url = os.environ["DATASET_URL"].strip()
+          if not re.match(r"^https?://", url):
+              raise SystemExit("dataset_url must be an http(s) URL.")
+          if not os.environ["SOURCE_NAME"].strip():
+              raise SystemExit("source_name is required.")
+          if not os.environ["DATASET_CITATION"].strip():
+              raise SystemExit("dataset_citation is required.")
+          filename = Path(urlparse(url).path).name or "bulk_trait_source.csv"
+          print(f"SOURCE_FILE=/tmp/{filename}")
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as handle:
+              handle.write(f"SOURCE_FILE=/tmp/{filename}\n")
+          PY
+          island-v2-bulk-traits profiles --profiles-path config/bulk_trait_sources.yml | grep -F "${SOURCE_PROFILE}" >/dev/null
+      - name: Download declared bulk trait source
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/bulk_trait_ingest
+          curl --fail --location --retry 3 --retry-delay 2 --max-time 1800 \
+            --output "$SOURCE_FILE" "$DATASET_URL"
+          test -s "$SOURCE_FILE"
+          sha256sum "$SOURCE_FILE" | tee /tmp/bulk_trait_ingest/download_sha256.txt
+      - name: Match source records and calculate coverage
+        run: |
+          island-v2-bulk-traits ingest \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --source-csv "$SOURCE_FILE" \
+            --output-dir /tmp/bulk_trait_ingest/output \
+            --profiles-path config/bulk_trait_sources.yml \
+            --profile-name "$SOURCE_PROFILE" \
+            --source-name "$SOURCE_NAME" \
+            --source-citation "$DATASET_CITATION" \
+            --source-url "$DATASET_PAGE_URL" | tee /tmp/bulk_trait_ingest/ingest_report.json
+      - name: Summarize source coverage
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          report = json.loads(Path("/tmp/bulk_trait_ingest/ingest_report.json").read_text(encoding="utf-8"))
+          print("## Bulk trait source ingest")
+          for key in (
+              "source_name",
+              "profile_name",
+              "n_source_rows",
+              "n_name_matched_rows",
+              "n_unmatched_taxon_rows",
+              "n_unmapped_value_rows",
+              "n_candidate_rows",
+              "n_species_with_any_direct_evidence",
+              "n_master_species",
+          ):
+              print(f"- {key}: {report[key]}")
+          coverage = pd.read_csv(report["coverage_by_trait_csv"])
+          covered = coverage.loc[coverage["n_species_with_direct_evidence"].gt(0)].copy()
+          print("\n### Covered traits")
+          if covered.empty:
+              print("No source labels/values mapped to the v2 ontology. Inspect unmapped-values audit before adding a profile.")
+          else:
+              print(covered[["trait_name", "analysis_role", "n_species_with_direct_evidence", "pct_master_species_covered"]].to_markdown(index=False))
+          PY
+      - name: Upload bulk-source candidates and coverage audits
+        uses: actions/upload-artifact@v4
+        with:
+          name: bulk-trait-ingest-${{ github.run_id }}
+          path: /tmp/bulk_trait_ingest/
+          if-no-files-found: error
+          retention-days: 90
