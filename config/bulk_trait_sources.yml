@@ -1,0 +1,78 @@
+version: "1.0"
+
+# Bulk acquisition is the global-scale trait path. Each profile declares exactly
+# how a downloaded long-format source maps into the v2 evidence table. Profiles
+# must be source-specific: unsupported source labels or values are reported as
+# unmapped rather than guessed.
+#
+# The first included profile is intentionally conservative and accepts a source
+# that already uses v2 canonical trait/value labels. Add a new named profile only
+# after inspecting the source's codebook and recording its citation/licence.
+source_profiles:
+  v2_canonical_long_csv:
+    description: >-
+      Long CSV already standardized to the v2 ontology. Intended for a curated
+      export prepared from a public bulk trait source; no trait-value inference
+      is performed by the importer.
+    read:
+      delimiter: ","
+      encoding: "utf-8"
+    columns:
+      scientific_name: "scientific_name"
+      trait_name: "trait_name"
+      trait_value: "trait_value"
+      source_record_id: "source_record_id"
+      source_citation: "source_citation"
+      source_url: "source_url"
+      evidence_excerpt: "evidence_excerpt"
+    source_defaults:
+      source_type: "curated_trait_database"
+      source_reliability: "B_curated_database_or_institution"
+      confidence: "medium"
+    # The source must supply v2 canonical names and values. This profile is the
+    # safe default until a specific external source codebook is reviewed.
+    trait_name_map: {}
+    trait_value_map: {}
+
+  v2_canonical_long_tsv:
+    description: "Same data contract as v2_canonical_long_csv, read as TSV."
+    read:
+      delimiter: "\t"
+      encoding: "utf-8"
+    columns:
+      scientific_name: "scientific_name"
+      trait_name: "trait_name"
+      trait_value: "trait_value"
+      source_record_id: "source_record_id"
+      source_citation: "source_citation"
+      source_url: "source_url"
+      evidence_excerpt: "evidence_excerpt"
+    source_defaults:
+      source_type: "curated_trait_database"
+      source_reliability: "B_curated_database_or_institution"
+      confidence: "medium"
+    trait_name_map: {}
+    trait_value_map: {}
+
+# Trait roles intentionally separate what can be used as a high-coverage global
+# layer from traits that remain evidence-rich sensitivity analyses. A source may
+# still import any ontology trait; this controls reporting, not data deletion.
+analysis_roles:
+  global_bulk_priority:
+    - flower_primary_color
+    - floral_symmetry
+    - floral_form
+    - tube_depth_class
+    - flower_size_class
+    - inflorescence_display
+    - reward_type
+    - pollen_vector_mode
+    - sex_system
+  evidence_rich_subset:
+    - pollination_functional_guild
+    - self_incompatibility
+    - autonomous_selfing_capacity
+    - mating_system
+    - herkogamy
+    - dichogamy
+    - cleistogamy
