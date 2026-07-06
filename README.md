@@ -33,7 +33,27 @@ The governing design documents are:
 - `config/` — current data-acquisition and inference configuration
 - `data/v2/` — external, staging, curated, and template data layers
 - `docs/` — v2 architecture, data policy, and operational notes
-- `.github/workflows/` — validation, GBIF submission/polling/collection
+- `.github/workflows/` — validation, GBIF submission/polling/collection and manual trait batches
+
+## Broad trait acquisition
+
+Trait acquisition is deliberately coverage-first: web, flora, institutional, and
+specialist sources, plus declared hierarchical inference, can enter the pending
+candidate table. Source reliability and taxonomic scope remain explicit rather
+than being silently pooled.
+
+A low-confidence candidate is not automatically wrong. It remains available for
+broad or coverage-sensitive analyses. A separate logic audit quarantines only
+invalid shortcuts—such as coding autonomous selfing from self-compatibility
+alone, inferring a pollination guild from flower colour or shape, or labelling a
+genus inference as species-direct—while preserving every raw candidate row for
+audit.
+
+`extract_global_trait_batch` runs manually in reproducible windows of up to 100
+species (`offset=0`, then `100`, `200`, and so on). It produces an artifact with
+the exact worklist, raw Responses API payloads, all pending candidates, a
+logic-pass table, a quarantine table, and a coverage report. It never directly
+modifies curated evidence or analysis tables.
 
 ## Frozen v1
 
