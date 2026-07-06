@@ -119,7 +119,7 @@ jobs:
           set -euo pipefail
           candidate_csv="$(find /tmp/global_trait_batch/extraction -name 'trait_candidates_*.csv' -print | sort | tail -n 1)"
           test -n "$candidate_csv" || { echo "No candidate CSV was produced." >&2; exit 2; }
-          python -m island_v2.trait_candidate_logic audit \
+          island-v2-trait-candidate-logic audit \
             --candidates-csv "$candidate_csv" \
             --ontology-path config/trait_ontology.yml \
             --output-dir /tmp/global_trait_batch/logic_audit
