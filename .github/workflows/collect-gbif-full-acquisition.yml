@@ -9,7 +9,7 @@ on:
       max_blocks:
         description: "Succeeded GBIF blocks to process in this run."
         required: false
-        default: "5"
+        default: "3"
   schedule:
     # Twice per hour (minute 17 and 47). Must be a full 5-field cron
     # (minute hour day-of-month month day-of-week); a 4-field value makes the
@@ -38,7 +38,7 @@ jobs:
     env:
       FROZEN_ARTIFACT_ID: "8066083419"
       FROZEN_ARTIFACT_SHA256: "bee33e14672ec7ff4ed1f7acaea36b32cc6170a45c3d14b2caeb5f43bfaa623b"
-      MAX_BLOCKS: ${{ inputs.max_blocks || '5' }}
+      MAX_BLOCKS: ${{ inputs.max_blocks || '3' }}
     steps:
       - uses: actions/checkout@v4
         with:
