@@ -114,6 +114,15 @@ jobs:
             --batch-size "${{ inputs.batch_size }}" \
             --limit "${{ inputs.max_taxa }}" \
             --model "${{ inputs.model }}"
+      - name: Quarantine logical errors without filtering weak candidates
+        run: |
+          set -euo pipefail
+          candidate_csv="$(find /tmp/global_trait_batch/extraction -name 'trait_candidates_*.csv' -print | sort | tail -n 1)"
+          test -n "$candidate_csv" || { echo "No candidate CSV was produced." >&2; exit 2; }
+          python -m island_v2.trait_candidate_logic audit \
+            --candidates-csv "$candidate_csv" \
+            --ontology-path config/trait_ontology.yml \
+            --output-dir /tmp/global_trait_batch/logic_audit
       - name: Summarize candidate output
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
@@ -132,7 +141,12 @@ jobs:
           print(f"- candidate_rows: {len(table)}")
           print(f"- taxa_with_candidates: {table['accepted_species'].nunique() if not table.empty else 0}")
           print(f"- retrieved_candidate_urls: {sum(table['retrieved_source_urls_json'].ne('[]')) if 'retrieved_source_urls_json' in table else 0}")
-          print("- status: every row is unreviewed; no curated trait table was modified")
+          audit = json.loads(Path("/tmp/global_trait_batch/logic_audit/candidate_logic_report.json").read_text(encoding="utf-8"))
+          print(f"- logic_pass_rows: {audit['n_logic_pass']}")
+          print(f"- logical_error_quarantine_rows: {audit['n_quarantined']}")
+          print(f"- low_confidence_rows_retained: {audit['n_low_confidence_pass']}")
+          print(f"- D_tier_rows_retained: {audit['n_source_reliability_D_pass']}")
+          print("- status: all rows remain unreviewed; no curated trait table was modified")
           manifests = sorted(Path("/tmp/global_trait_batch/extraction").glob("manifest_*.json"))
           if manifests:
               report = json.loads(manifests[-1].read_text(encoding="utf-8"))
