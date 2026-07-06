@@ -42,7 +42,17 @@ jobs:
       - name: Install v2 package
         run: pip install -e ".[dev]"
       - name: Guard the gate logic
-        run: pytest -q tests/test_bombus_applicability_and_pollinator_collect.py tests/test_core_pilot_nomination.py
+        run: pytest -q tests/test_bombus_applicability_and_pollinator_collect.py tests/test_core_pilot_nomination.py tests/test_applicability_auto_accept.py
+      - name: Auto-accept applicability drafts under the pre-registered rules
+        run: |
+          island-v2-applicability-auto-accept apply \
+            --rules-path config/applicability_auto_accept_rules.yml \
+            --registry-csv data/v2/curation/source_region_bombus_registry.csv \
+            --region-evidence-csv data/v2/curation/source_region_evidence.csv \
+            --assignments-csv data/v2/curation/island_source_region_assignments.csv \
+            --assignment-evidence-csv data/v2/curation/island_assignment_evidence.csv \
+            --report-path /tmp/applicability/auto_accept_report.json \
+            --write
       - name: Derive the collected-island manifest
         run: |
           python - <<'PY'
@@ -113,14 +123,21 @@ jobs:
           Path("gh_summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
           PY
           cat gh_summary.md >> "$GITHUB_STEP_SUMMARY"
-      - name: Commit the eligibility status only when it changes
+      - name: Commit the applicability freeze and eligibility status when changed
         run: |
           set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add data/v2/staging/core_pilot_eligibility_status.json
-          git diff --cached --quiet && { echo "No eligibility change."; exit 0; }
-          git commit -m "chore: update Core-pilot eligibility status"
+          # Persist both the rule-based applicability freeze (auto-accepted
+          # curation, stamped reviewer=auto_rule) and the derived eligibility.
+          git add \
+            data/v2/curation/source_region_bombus_registry.csv \
+            data/v2/curation/source_region_evidence.csv \
+            data/v2/curation/island_source_region_assignments.csv \
+            data/v2/curation/island_assignment_evidence.csv \
+            data/v2/staging/core_pilot_eligibility_status.json
+          git diff --cached --quiet && { echo "No applicability or eligibility change."; exit 0; }
+          git commit -m "chore: auto-accept applicability freeze + update eligibility status"
           git pull --rebase origin main
           git push origin HEAD:main
       - name: Upload applicability and nomination detail
