@@ -2,22 +2,24 @@ name: Validate v2 data architecture
 
 on:
   push:
-    branches: [v2-channel-architecture]
+    branches: [main, v2-channel-architecture]
     paths:
       - "src/island_v2/**"
       - "tests/**"
       - "config/**"
       - "prompts/**"
+      - "scripts/validate_workflows.py"
       - "pyproject.toml"
-      - ".github/workflows/validate-v2.yml"
+      - ".github/workflows/**"
   pull_request:
     paths:
       - "src/island_v2/**"
       - "tests/**"
       - "config/**"
       - "prompts/**"
+      - "scripts/validate_workflows.py"
       - "pyproject.toml"
-      - ".github/workflows/validate-v2.yml"
+      - ".github/workflows/**"
   workflow_dispatch:
 
 permissions:
@@ -34,8 +36,10 @@ jobs:
           cache: pip
       - name: Install package and test tools
         run: pip install -e ".[dev]"
+      - name: Validate GitHub Actions workflow contracts
+        run: python scripts/validate_workflows.py
       - name: Lint v2 package
-        run: ruff check src/island_v2 tests
+        run: ruff check src/island_v2 tests scripts/validate_workflows.py
       - name: Validate ontology
         run: island-v2-validate ontology --ontology-path config/trait_ontology.yml
       - name: Test controlled inference and GBIF request construction
