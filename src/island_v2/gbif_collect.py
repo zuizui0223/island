@@ -168,22 +168,34 @@ def assign_occurrences_to_islands(
     if result.empty:
         result["island_id"] = pd.Series(dtype="object")
         return result
-    points = gpd.GeoDataFrame(
-        result.copy(),
-        geometry=gpd.points_from_xy(result["decimal_longitude"], result["decimal_latitude"]),
-        crs=4326,
-    )
-    points["_source_row"] = range(len(points))
     islands_4326 = islands.to_crs(4326)[["island_id", "geometry"]]
-    joined = gpd.sjoin(points, islands_4326, how="left", predicate="intersects")
-    joined["_matched"] = joined["island_id"].notna().astype(int)
-    joined = joined.sort_values(
-        ["_source_row", "_matched", "island_id"],
-        ascending=[True, False, True],
-        na_position="last",
-    )
-    winners = joined.drop_duplicates("_source_row", keep="first").set_index("_source_row")["island_id"]
-    result["island_id"] = [winners.get(index, pd.NA) for index in range(len(result))]
+    result["island_id"] = pd.NA
+    # A point outside the combined bounding box of this block's islands cannot
+    # intersect any of them, so it is buffer-only by definition. Skipping the
+    # spatial join for those points is exact (not an approximation) and avoids
+    # joining the millions of mainland points in a dense northern catchment.
+    lon = pd.to_numeric(result["decimal_longitude"], errors="coerce")
+    lat = pd.to_numeric(result["decimal_latitude"], errors="coerce")
+    minx, miny, maxx, maxy = islands_4326.total_bounds
+    in_bounds = lon.between(minx, maxx) & lat.between(miny, maxy)
+    candidate_positions = result.index[in_bounds.to_numpy()]
+    if len(candidate_positions):
+        points = gpd.GeoDataFrame(
+            {"_source_row": candidate_positions},
+            geometry=gpd.points_from_xy(lon.loc[candidate_positions], lat.loc[candidate_positions]),
+            crs=4326,
+        )
+        joined = gpd.sjoin(points, islands_4326, how="left", predicate="intersects")
+        joined["_matched"] = joined["island_id"].notna().astype(int)
+        joined = joined.sort_values(
+            ["_source_row", "_matched", "island_id"],
+            ascending=[True, False, True],
+            na_position="last",
+        )
+        winners = joined.drop_duplicates("_source_row", keep="first").set_index("_source_row")["island_id"]
+        matched = winners.dropna()
+        if not matched.empty:
+            result.loc[matched.index, "island_id"] = matched
     return result
 
 
@@ -464,9 +476,16 @@ def collect(
                     assigned = assign_occurrences_to_islands(occurrences, island_subset)
                     assigned["block_id"] = block_id
                     assigned["gbif_download_key"] = key
-                    metrics["n_exact_island_rows_before_dedup"] += int(assigned["island_id"].notna().sum())
-                    metrics["n_buffer_only_rows_before_dedup"] += int(assigned["island_id"].isna().sum())
-                    all_assigned.append(assigned)
+                    on_island_mask = assigned["island_id"].notna()
+                    metrics["n_exact_island_rows_before_dedup"] += int(on_island_mask.sum())
+                    metrics["n_buffer_only_rows_before_dedup"] += int((~on_island_mask).sum())
+                    # Only on-island rows contribute to any island output; buffer-only
+                    # rows are counted for provenance but never retained, so a dense
+                    # mainland-heavy northern block no longer accumulates millions of
+                    # rows in memory.
+                    on_island = assigned.loc[on_island_mask]
+                    if not on_island.empty:
+                        all_assigned.append(on_island)
                 metrics["collection_status"] = "collected"
             except Exception as exc:  # retain a block-level audit rather than silently losing it
                 metrics["collection_status"] = "collection_failed"
@@ -519,7 +538,11 @@ def collect(
         "n_occurrences_before_global_dedup": int(len(assigned_before_dedup)),
         "n_occurrences_after_global_dedup": int(len(assigned)),
         "n_occurrences_on_island": int(assigned["island_id"].notna().sum()) if "island_id" in assigned else 0,
-        "n_occurrences_in_buffer_only": int(assigned["island_id"].isna().sum()) if "island_id" in assigned else 0,
+        # Buffer-only rows are dropped before accumulation, so sum their per-block
+        # provenance counts rather than counting retained NA-island rows.
+        "n_occurrences_in_buffer_only": int(
+            sum(int(row.get("n_buffer_only_rows_before_dedup", 0)) for row in manifest_rows)
+        ),
         "n_island_species_pairs": int(len(species_table)),
         "n_islands_with_records": int(effort["island_id"].nunique()) if not effort.empty else 0,
         "n_accepted_species": int(len(taxa)),
