@@ -105,11 +105,12 @@ jobs:
               encoding="utf-8",
           )
           PY
-      - name: Run broad web extraction for the 100-taxon batch
+      - name: Run evidence-first web extraction for the 100-taxon batch
         run: |
           island-v2-traits run \
             --taxa-csv /tmp/global_trait_batch/taxa.csv \
             --output-dir /tmp/global_trait_batch/extraction \
+            --prompt-path prompts/global_trait_batch_evidence_first.md \
             --batch-size "${{ inputs.batch_size }}" \
             --limit "${{ inputs.max_taxa }}" \
             --model "${{ inputs.model }}"
