@@ -1,0 +1,56 @@
+# Human-preregistered auto-accept rules for the Phase 0.5 applicability freeze.
+#
+# These rules let agent-drafted source-region applicability be accepted WITHOUT
+# per-item human review, while keeping accountability on the rule rather than
+# eliminating it: a human registers the rule once and owns it, and every
+# auto-accepted row is stamped reviewer=auto_rule:<rule_id> so the provenance is
+# transparent (it is never recorded as if a human eyeballed the source).
+#
+# Outcome-blind: rules may reference ONLY the biogeographic region, the
+# documented native Bombus status, evidence count, citation presence, and the
+# source locator. They must never reference island climate, occurrence /
+# non-detection, floral or reproductive traits, or model outcomes.
+version: "1.0"
+registered_by: zuizui0223
+registered_date: "2026-07-06"
+registration_note: >-
+  Registered by the repository owner. Realm-level native Bombus status -- absent
+  throughout sub-Saharan Africa and the Gulf of Guinea lowlands, present across
+  the temperate Japanese main islands -- is uncontroversial biogeography cited to
+  Williams (1998), the standard world Bombus checklist. A matching agent-drafted
+  source region may therefore be auto-accepted under this rule. Island-to-source
+  assignments are island-specific and are deliberately NOT auto-accepted on a
+  hedged/placeholder locator: they require a real assignment-evidence locator.
+
+# A locator containing any of these markers is treated as a placeholder (i.e.
+# "not yet a real locator"), so a rule that requires a real locator will not fire.
+placeholder_locator_markers:
+  - "to be supplied"
+  - "to be confirmed"
+
+source_region_rules:
+  min_independent_evidence_records: 1
+  # Realm-level native Bombus status does not hinge on a single page, so a
+  # standard citation suffices and a precise page locator is not required here.
+  require_source_citation: true
+  require_real_source_locator: false
+  rules:
+    - rule_id: afrotropical_no_native_bombus
+      match_biogeographic_region_regex: "^Afrotropical"
+      require_native_bombus_status: native_absent
+      accept_applicability: structurally_not_applicable
+    - rule_id: palearctic_temperate_east_asia_native_bombus
+      match_biogeographic_region_regex: "^Palearctic_temperate"
+      require_native_bombus_status: native_present
+      accept_applicability: applicable
+
+assignment_rules:
+  # Island-to-source assignments are accepted automatically only when their
+  # source region is accepted AND the assignment evidence carries a real
+  # (non-placeholder) locator and citation. With the current placeholder
+  # locators these stay pending, which is intended: which flora pool an island
+  # draws from is island-specific evidence, not a realm-level fact.
+  auto_accept: true
+  require_source_region_accepted: true
+  require_assignment_citation: true
+  require_real_assignment_locator: true
