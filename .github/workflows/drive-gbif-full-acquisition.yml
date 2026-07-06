@@ -82,5 +82,5 @@ jobs:
             --header "Accept: application/vnd.github+json" \
             --header "Authorization: Bearer ${GH_TOKEN}" \
             "${api}/actions/workflows/${collect}/dispatches" \
-            --data '{"ref":"main","inputs":{"max_blocks":"3"}}'
+            --data '{"ref":"main","inputs":{"max_blocks":"1"}}'
           echo "Resumed collect_gbif_full_acquisition."
