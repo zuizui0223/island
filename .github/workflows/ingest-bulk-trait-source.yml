@@ -120,7 +120,12 @@ jobs:
           if covered.empty:
               print("No source labels/values mapped to the v2 ontology. Inspect unmapped-values audit before adding a profile.")
           else:
-              print(covered[["trait_name", "analysis_role", "n_species_with_direct_evidence", "pct_master_species_covered"]].to_markdown(index=False))
+              for _, row in covered.iterrows():
+                  print(
+                      f"- {row['trait_name']} ({row['analysis_role']}): "
+                      f"{int(row['n_species_with_direct_evidence'])} species, "
+                      f"{float(row['pct_master_species_covered']):.3f}% of master"
+                  )
           PY
       - name: Upload bulk-source candidates and coverage audits
         uses: actions/upload-artifact@v4
