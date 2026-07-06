@@ -42,9 +42,11 @@ jobs:
       - name: Install v2 package
         run: pip install -e ".[dev]"
       - name: Materialize active GBIF requests from persistent ledger
+        id: materialize
         run: |
           python - <<'PY'
           import json
+          import os
           from pathlib import Path
           import pandas as pd
 
@@ -53,6 +55,10 @@ jobs:
           output.mkdir(parents=True, exist_ok=True)
           campaign = json.loads(ledger_path.read_text(encoding='utf-8'))
           active = {'submitted', 'preparing', 'running'}
+          columns = [
+              'island_id', 'block_id', 'regional_cell', 'n_islands',
+              'payload_json', 'request_status', 'download_key', 'error',
+          ]
           rows = []
           for entry in campaign.get('ledger', []):
               if entry.get('request_status') not in active:
@@ -72,14 +78,23 @@ jobs:
                   'download_key': key,
                   'error': '',
               })
-          pd.DataFrame(rows).to_csv(output / 'gbif_active_download_manifest.csv', index=False)
+          # Always write a header, so a fully-drained campaign (0 active downloads)
+          # produces a parseable, empty manifest instead of a column-less file that
+          # crashes the poll CLI and the merge read_csv.
+          pd.DataFrame(rows, columns=columns).to_csv(
+              output / 'gbif_active_download_manifest.csv', index=False
+          )
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
+              fh.write(f"has_active={'true' if rows else 'false'}\n")
+          print(f"Active GBIF downloads to poll: {len(rows)}")
           PY
       - name: Poll all active GBIF download keys
+        if: steps.materialize.outputs.has_active == 'true'
         run: |
           island-v2-gbif-flora poll \
             --request-manifest data/v2/external/gbif/full_status/gbif_active_download_manifest.csv
       - name: Merge GBIF states into persistent ledger
-        if: always()
+        if: always() && steps.materialize.outputs.has_active == 'true'
         run: |
           python - <<'PY'
           import json
