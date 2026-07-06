@@ -1,0 +1,161 @@
+name: extract_global_trait_batch
+
+# Manual, artifact-only evidence acquisition. Each run selects 100 species from
+# the current global species master and writes unreviewed source-cited candidates.
+# It does not change curated traits or any Bombus/island-analysis decisions.
+on:
+  workflow_dispatch:
+    inputs:
+      offset:
+        description: "Zero-based offset in the current ranked species master; use 0, then 100, 200, ..."
+        required: true
+        default: "0"
+      max_taxa:
+        description: "Species per run (1-100)."
+        required: true
+        default: "100"
+      batch_size:
+        description: "Species per web-search request (1-25)."
+        required: true
+        default: "10"
+      model:
+        description: "Responses API model used by the existing structured extractor."
+        required: true
+        default: "gpt-5.5"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: global-trait-extraction
+  cancel-in-progress: false
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Validate batch inputs and API access
+        run: |
+          set -euo pipefail
+          test -n "$OPENAI_API_KEY" || {
+            echo "Repository secret OPENAI_API_KEY is required for web extraction." >&2
+            exit 2
+          }
+          python - <<'PY'
+          offset = int("${{ inputs.offset }}")
+          max_taxa = int("${{ inputs.max_taxa }}")
+          batch_size = int("${{ inputs.batch_size }}")
+          if offset < 0:
+              raise SystemExit("offset must be >= 0")
+          if not 1 <= max_taxa <= 100:
+              raise SystemExit("max_taxa must be between 1 and 100")
+          if not 1 <= batch_size <= 25:
+              raise SystemExit("batch_size must be between 1 and 25")
+          PY
+      - name: Build ranked 100-taxon worklist from current global master
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/global_trait_batch
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+
+          source = Path("data/v2/staging/gbif/collected/island_taxa.csv")
+          target = Path("/tmp/global_trait_batch/taxa.csv")
+          summary = Path("/tmp/global_trait_batch/worklist_summary.txt")
+          offset = int("${{ inputs.offset }}")
+          limit = int("${{ inputs.max_taxa }}")
+
+          table = pd.read_csv(source, dtype=str).fillna("")
+          required = {"accepted_species", "genus", "family", "n_islands", "n_records"}
+          missing = required.difference(table.columns)
+          if missing:
+              raise SystemExit(f"Species master missing required columns: {sorted(missing)}")
+          table["accepted_species"] = table["accepted_species"].astype(str).str.strip()
+          table = table.loc[table["accepted_species"].ne("")].copy()
+          table["n_islands"] = pd.to_numeric(table["n_islands"], errors="coerce").fillna(0).astype(int)
+          table["n_records"] = pd.to_numeric(table["n_records"], errors="coerce").fillna(0).astype(int)
+          ranked = (
+              table.drop_duplicates(subset=["accepted_species"])
+              .sort_values(["n_islands", "n_records", "accepted_species"], ascending=[False, False, True])
+              .reset_index(drop=True)
+          )
+          worklist = ranked.iloc[offset : offset + limit].copy()
+          if worklist.empty:
+              raise SystemExit(f"No taxa at offset={offset}; ranked master has {len(ranked)} species.")
+          worklist["global_rank"] = range(offset + 1, offset + 1 + len(worklist))
+          worklist["selection_rule"] = "ranked_by_n_islands_then_n_records; no outcome, region, Bombus, or island-distance filter"
+          worklist.to_csv(target, index=False)
+          summary.write_text(
+              "\n".join([
+                  f"n_species_master={len(ranked)}",
+                  f"offset={offset}",
+                  f"n_selected={len(worklist)}",
+                  f"rank_start={int(worklist['global_rank'].min())}",
+                  f"rank_end={int(worklist['global_rank'].max())}",
+              ]) + "\n",
+              encoding="utf-8",
+          )
+          PY
+      - name: Run evidence-first web extraction for the 100-taxon batch
+        run: |
+          island-v2-traits run \
+            --taxa-csv /tmp/global_trait_batch/taxa.csv \
+            --output-dir /tmp/global_trait_batch/extraction \
+            --prompt-path prompts/global_trait_batch_evidence_first.md \
+            --batch-size "${{ inputs.batch_size }}" \
+            --limit "${{ inputs.max_taxa }}" \
+            --model "${{ inputs.model }}"
+      - name: Quarantine logical errors without filtering weak candidates
+        run: |
+          set -euo pipefail
+          candidate_csv="$(find /tmp/global_trait_batch/extraction -name 'trait_candidates_*.csv' -print | sort | tail -n 1)"
+          test -n "$candidate_csv" || { echo "No candidate CSV was produced." >&2; exit 2; }
+          island-v2-trait-candidate-logic audit \
+            --candidates-csv "$candidate_csv" \
+            --ontology-path config/trait_ontology.yml \
+            --output-dir /tmp/global_trait_batch/logic_audit
+      - name: Summarize candidate output
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          print("## Global trait extraction batch")
+          print("```")
+          print(Path("/tmp/global_trait_batch/worklist_summary.txt").read_text(encoding="utf-8").strip())
+          print("```")
+          candidates = sorted(Path("/tmp/global_trait_batch/extraction").glob("trait_candidates_*.csv"))
+          if not candidates:
+              raise SystemExit("No candidate CSV was produced.")
+          table = pd.read_csv(candidates[-1], dtype=str).fillna("")
+          print(f"- candidate_rows: {len(table)}")
+          print(f"- taxa_with_candidates: {table['accepted_species'].nunique() if not table.empty else 0}")
+          print(f"- retrieved_candidate_urls: {sum(table['retrieved_source_urls_json'].ne('[]')) if 'retrieved_source_urls_json' in table else 0}")
+          audit = json.loads(Path("/tmp/global_trait_batch/logic_audit/candidate_logic_report.json").read_text(encoding="utf-8"))
+          print(f"- logic_pass_rows: {audit['n_logic_pass']}")
+          print(f"- logical_error_quarantine_rows: {audit['n_quarantined']}")
+          print(f"- low_confidence_rows_retained: {audit['n_low_confidence_pass']}")
+          print(f"- D_tier_rows_retained: {audit['n_source_reliability_D_pass']}")
+          print("- status: all rows remain unreviewed; no curated trait table was modified")
+          manifests = sorted(Path("/tmp/global_trait_batch/extraction").glob("manifest_*.json"))
+          if manifests:
+              report = json.loads(manifests[-1].read_text(encoding="utf-8"))
+              print(f"- response_batches: {len(report.get('batches', []))}")
+          PY
+      - name: Upload worklist and unreviewed trait candidates
+        uses: actions/upload-artifact@v4
+        with:
+          name: global-trait-batch-${{ github.run_id }}
+          path: /tmp/global_trait_batch/
+          if-no-files-found: error
+          retention-days: 90

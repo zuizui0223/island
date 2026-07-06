@@ -6,6 +6,13 @@ Global plant trait coverage is too uneven for a literature-only approach. Specie
 
 v2 therefore uses **broad retrieval with provenance**, rather than restricting the database to journal sources or pretending that missing traits are biologically absent.
 
+The first-pass acquisition objective is coverage, not a prematurely narrow
+high-confidence table. A low-reliability source or declared taxonomic inference
+is therefore retained as a labelled candidate. This is distinct from a logical
+error: candidates that conflate traits, misuse taxonomic scope, or violate the
+ontology are quarantined separately while the raw acquisition record remains
+available for audit.
+
 ## Four evidence layers
 
 ```text
@@ -24,6 +31,25 @@ Layer 4  declared hierarchical inference
 ```
 
 All layers are useful. They are never silently pooled as if equally certain.
+
+## Low confidence versus logical error
+
+```text
+Low-confidence candidate
+  - D-tier or weak source, but a visible source statement exists; or
+  - declared genus/family inference with supporting taxa and transfer rule.
+  -> retain for broad/expanded coverage track.
+
+Logical error
+  - self-compatibility coded as autonomous selfing without autonomy evidence;
+  - pollinator guild inferred from colour or corolla shape alone;
+  - genus/family inference labelled as species-direct;
+  - invalid ontology value or contradictory missing-evidence metadata.
+  -> retain raw output but quarantine from coverage-ready candidate rows.
+```
+
+The logic audit never discards candidates merely because a source is weak. It
+writes pass and quarantine tables plus a report of retained low-confidence rows.
 
 ## Why genus inference remains necessary
 
@@ -55,7 +81,14 @@ The analysis samples or integrates over that distribution in expanded-coverage s
 - prompt and ontology hashes; and
 - a run manifest.
 
-It **does not** update curated evidence or analysis data. Review is a separate explicit step.
+`src/island_v2/trait_candidate_logic.py` then performs an artifact-only logic
+audit, writing pass/quarantine CSVs and a count report. It does not change the
+raw candidate file, curated evidence, or analysis data.
+
+The corresponding GitHub workflow runs manually in windows of up to 100 taxa:
+`offset=0`, then `100`, `200`, and so on. It ranks the current master by island
+reuse and record count only; it does not select taxa using distance, climate,
+Bombus state, trait outcome, or geographic hypothesis.
 
 ## Review and analysis tracks
 
