@@ -15,7 +15,7 @@ on:
         required: true
         default: "100"
       batch_size:
-        description: "Species per web-search request (1-25)."
+        description: "Species per web-search request after a one-taxon preflight (1-25)."
         required: true
         default: "10"
       model:
@@ -106,6 +106,8 @@ jobs:
           )
           PY
       - name: Run evidence-first web extraction for the 100-taxon batch
+        id: extraction
+        continue-on-error: true
         run: |
           island-v2-traits run \
             --taxa-csv /tmp/global_trait_batch/taxa.csv \
@@ -113,8 +115,11 @@ jobs:
             --prompt-path prompts/global_trait_batch_evidence_first.md \
             --batch-size "${{ inputs.batch_size }}" \
             --limit "${{ inputs.max_taxa }}" \
+            --preflight-taxa 1 \
+            --max-retries 2 \
             --model "${{ inputs.model }}"
       - name: Quarantine logical errors without filtering weak candidates
+        if: always()
         run: |
           set -euo pipefail
           candidate_csv="$(find /tmp/global_trait_batch/extraction -name 'trait_candidates_*.csv' -print | sort | tail -n 1)"
@@ -124,6 +129,7 @@ jobs:
             --ontology-path config/trait_ontology.yml \
             --output-dir /tmp/global_trait_batch/logic_audit
       - name: Summarize candidate output
+        if: always()
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json
@@ -141,21 +147,39 @@ jobs:
           print(f"- candidate_rows: {len(table)}")
           print(f"- taxa_with_candidates: {table['accepted_species'].nunique() if not table.empty else 0}")
           print(f"- retrieved_candidate_urls: {sum(table['retrieved_source_urls_json'].ne('[]')) if 'retrieved_source_urls_json' in table else 0}")
+          manifest = json.loads(sorted(Path("/tmp/global_trait_batch/extraction").glob("manifest_*.json"))[-1].read_text(encoding="utf-8"))
+          print(f"- extraction_status: {manifest['status']}")
+          print(f"- completed_response_batches: {manifest['n_completed_batches']}")
+          print(f"- failed_response_batches: {manifest['n_failed_batches']}")
           audit = json.loads(Path("/tmp/global_trait_batch/logic_audit/candidate_logic_report.json").read_text(encoding="utf-8"))
           print(f"- logic_pass_rows: {audit['n_logic_pass']}")
           print(f"- logical_error_quarantine_rows: {audit['n_quarantined']}")
           print(f"- low_confidence_rows_retained: {audit['n_low_confidence_pass']}")
           print(f"- D_tier_rows_retained: {audit['n_source_reliability_D_pass']}")
           print("- status: all rows remain unreviewed; no curated trait table was modified")
-          manifests = sorted(Path("/tmp/global_trait_batch/extraction").glob("manifest_*.json"))
-          if manifests:
-              report = json.loads(manifests[-1].read_text(encoding="utf-8"))
-              print(f"- response_batches: {len(report.get('batches', []))}")
           PY
       - name: Upload worklist and unreviewed trait candidates
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: global-trait-batch-${{ github.run_id }}
           path: /tmp/global_trait_batch/
           if-no-files-found: error
           retention-days: 90
+      - name: Mark partial extraction as failed after artifact upload
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifests = sorted(Path("/tmp/global_trait_batch/extraction").glob("manifest_*.json"))
+          if not manifests:
+              raise SystemExit("No extraction manifest was produced.")
+          report = json.loads(manifests[-1].read_text(encoding="utf-8"))
+          if report["status"] != "complete":
+              raise SystemExit(
+                  f"Trait extraction incomplete: {report['n_failed_batches']} failed response batch(es). "
+                  "Artifact contains diagnostic manifest and any completed candidates."
+              )
+          PY

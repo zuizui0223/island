@@ -3,12 +3,17 @@
 This module writes only reviewable staging artifacts. It never edits the curated
 trait table and it never commits data back to GitHub. The corresponding Actions
 workflow uploads the output as an artifact for review.
+
+A large global batch must be resilient to one failed API request: raw responses,
+completed candidate rows, and a machine-readable failure record are written after
+every completed sub-batch and again before a failing run exits.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -18,11 +23,24 @@ import typer
 import yaml
 from openai import OpenAI
 
-from island_v2.schemas import TraitExtractionResponse
+from island_v2.schemas import TraitEvidenceCandidate, TraitExtractionResponse
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 REQUIRED_TAXON_COLUMNS = {"accepted_species", "genus", "family"}
+RETRIABLE_STATUS_CODES = {408, 409, 429, 500, 502, 503, 504}
+SUPPORTED_FORMATS = {
+    "date-time",
+    "time",
+    "date",
+    "duration",
+    "email",
+    "hostname",
+    "ipv4",
+    "ipv6",
+    "uuid",
+}
+UNSUPPORTED_SCHEMA_KEYS = {"default", "examples", "title", "$schema"}
 
 
 @app.callback()
@@ -41,17 +59,25 @@ def sha256_text(text: str) -> str:
 
 
 def strict_json_schema(model: type[TraitExtractionResponse]) -> dict[str, Any]:
-    """Convert a Pydantic schema to the strict object form required by the API."""
+    """Normalize a Pydantic schema to the supported strict-outputs subset.
+
+    The Responses API requires every object property to be required and every
+    object to set ``additionalProperties: false``. Pydantic also emits metadata
+    such as ``default`` and ``title``; those are not biological content and are
+    removed so API compatibility does not depend on SDK-specific schema details.
+    """
     schema = model.model_json_schema()
 
     def visit(node: Any) -> None:
         if isinstance(node, dict):
+            for key in UNSUPPORTED_SCHEMA_KEYS:
+                node.pop(key, None)
+            if node.get("format") not in SUPPORTED_FORMATS:
+                node.pop("format", None)
             properties = node.get("properties")
             if isinstance(properties, dict):
                 node["additionalProperties"] = False
                 node["required"] = list(properties)
-                for child in properties.values():
-                    visit(child)
             for value in node.values():
                 visit(value)
         elif isinstance(node, list):
@@ -60,6 +86,23 @@ def strict_json_schema(model: type[TraitExtractionResponse]) -> dict[str, Any]:
 
     visit(schema)
     return schema
+
+
+def candidate_columns() -> list[str]:
+    """Return stable CSV columns even when a request fails before any row exists."""
+    return [
+        "run_id",
+        "accepted_species",
+        "taxon_id",
+        "batch_notes",
+        "no_evidence_found",
+        *TraitEvidenceCandidate.model_fields.keys(),
+        "retrieved_source_urls_json",
+        "input_taxon_context_json",
+        "input_trait_candidate_status",
+        "input_release_gate",
+        "review_status",
+    ]
 
 
 def load_taxa(path: Path, limit: int | None = None) -> list[dict[str, str]]:
@@ -181,6 +224,98 @@ def flatten_candidates(
     return rows
 
 
+def safe_error_payload(error: Exception) -> dict[str, Any]:
+    """Keep useful API diagnostics without recording environment secrets."""
+    message = str(error).replace("\n", " ").strip()
+    if len(message) > 1200:
+        message = f"{message[:1200]}…"
+    return {
+        "exception_type": type(error).__name__,
+        "message": message,
+        "status_code": getattr(error, "status_code", None),
+        "request_id": getattr(error, "request_id", None),
+    }
+
+
+def is_retriable_error(error: Exception) -> bool:
+    """Return whether an API/network error can reasonably succeed on retry."""
+    status_code = getattr(error, "status_code", None)
+    if status_code in RETRIABLE_STATUS_CODES:
+        return True
+    return type(error).__name__ in {"APIConnectionError", "APITimeoutError", "RateLimitError"}
+
+
+def create_response_with_retry(
+    client: OpenAI,
+    request: dict[str, Any],
+    max_retries: int,
+) -> tuple[Any, list[dict[str, Any]]]:
+    """Call Responses API with bounded retries and an auditable attempt history."""
+    attempt_history: list[dict[str, Any]] = []
+    for attempt in range(1, max_retries + 2):
+        try:
+            response = client.responses.create(**request)
+            return response, attempt_history
+        except Exception as error:  # API and transport errors differ across SDK releases.
+            detail = safe_error_payload(error)
+            detail["attempt"] = attempt
+            detail["retriable"] = is_retriable_error(error)
+            attempt_history.append(detail)
+            if not detail["retriable"] or attempt > max_retries:
+                raise RuntimeError(json.dumps(detail, ensure_ascii=False)) from error
+            time.sleep(min(2 ** (attempt - 1), 8))
+    raise RuntimeError("Unreachable retry state")
+
+
+def response_request(
+    *,
+    model: str,
+    prompt: str,
+    user_request: str,
+    schema: dict[str, Any],
+) -> dict[str, Any]:
+    """Build one supported, bounded Responses API request.
+
+    The default web-search returned-token budget is intentionally used. Unlimited
+    tool output is reserved for deep-research tasks and can inflate latency and
+    failure exposure in high-throughput trait batches.
+    """
+    return {
+        "model": model,
+        "reasoning": {"effort": "medium"},
+        "tools": [{"type": "web_search", "external_web_access": True}],
+        "tool_choice": "required",
+        "include": ["web_search_call.action.sources"],
+        "text": {
+            "format": {
+                "type": "json_schema",
+                "name": "island_v2_trait_candidates",
+                "strict": True,
+                "schema": schema,
+            }
+        },
+        "input": [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": user_request},
+        ],
+    }
+
+
+def write_run_artifacts(
+    *,
+    output_dir: Path,
+    run_id: str,
+    rows: list[dict[str, Any]],
+    manifest: dict[str, Any],
+) -> tuple[Path, Path]:
+    """Write repeatable snapshots so completed batches survive a later failure."""
+    candidate_path = output_dir / f"trait_candidates_{run_id}.csv"
+    pd.DataFrame(rows, columns=candidate_columns()).to_csv(candidate_path, index=False)
+    manifest_path = output_dir / f"manifest_{run_id}.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+    return candidate_path, manifest_path
+
+
 @app.command()
 def run(
     taxa_csv: Path = typer.Option(..., exists=True, help="CSV with accepted_species, genus, family."),
@@ -194,6 +329,13 @@ def run(
     model: str = typer.Option("gpt-5.5", help="Responses API model."),
     batch_size: int = typer.Option(10, min=1, max=25, help="Species per web-search request."),
     limit: int | None = typer.Option(None, min=1, help="Optional cap for a pilot run."),
+    preflight_taxa: int = typer.Option(
+        1,
+        min=0,
+        max=1,
+        help="Run the first actual taxon as a one-taxon compatibility preflight before full chunks.",
+    ),
+    max_retries: int = typer.Option(2, min=0, max=5, help="Retries for transient API failures."),
 ) -> None:
     """Search the web and write LLM trait candidates as reviewable artifacts."""
     prompt = read_text(prompt_path)
@@ -201,6 +343,7 @@ def run(
     ontology = yaml.safe_load(ontology_text)
     taxa = load_taxa(taxa_csv, limit=limit)
     contexts = taxon_context_by_species(taxa)
+    schema = strict_json_schema(TraitExtractionResponse)
 
     output_dir.mkdir(parents=True, exist_ok=True)
     raw_dir = output_dir / "raw_responses"
@@ -209,53 +352,18 @@ def run(
     client = OpenAI()
     all_rows: list[dict[str, Any]] = []
     manifests: list[dict[str, Any]] = []
+    failures: list[dict[str, Any]] = []
 
-    for batch_index, start in enumerate(range(0, len(taxa), batch_size), start=1):
-        batch = taxa[start : start + batch_size]
-        response = client.responses.create(
-            model=model,
-            reasoning={"effort": "medium"},
-            tools=[
-                {
-                    "type": "web_search",
-                    "external_web_access": True,
-                    "return_token_budget": "unlimited",
-                }
-            ],
-            tool_choice="required",
-            include=["web_search_call.action.sources"],
-            text={
-                "format": {
-                    "type": "json_schema",
-                    "name": "island_v2_trait_candidates",
-                    "strict": True,
-                    "schema": strict_json_schema(TraitExtractionResponse),
-                }
-            },
-            input=[
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": build_user_request(batch, ontology)},
-            ],
-        )
-        raw_payload = response_to_jsonable(response)
-        raw_path = raw_dir / f"{run_id}_batch_{batch_index:03d}.json"
-        raw_path.write_text(json.dumps(raw_payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    batches: list[tuple[str, list[dict[str, str]]]] = []
+    if preflight_taxa and taxa:
+        batches.append(("preflight", taxa[:preflight_taxa]))
+        remaining_taxa = taxa[preflight_taxa:]
+    else:
+        remaining_taxa = taxa
+    for start in range(0, len(remaining_taxa), batch_size):
+        batches.append(("extraction", remaining_taxa[start : start + batch_size]))
 
-        parsed = TraitExtractionResponse.model_validate_json(response.output_text)
-        sources = extract_url_citations(raw_payload)
-        all_rows.extend(flatten_candidates(parsed, run_id, sources, contexts))
-        manifests.append(
-            {
-                "batch_index": batch_index,
-                "species": [item["accepted_species"] for item in batch],
-                "raw_response": str(raw_path),
-                "retrieved_source_count": len(sources),
-            }
-        )
-
-    candidate_path = output_dir / f"trait_candidates_{run_id}.csv"
-    pd.DataFrame(all_rows).to_csv(candidate_path, index=False)
-    manifest = {
+    base_manifest: dict[str, Any] = {
         "run_id": run_id,
         "timestamp_utc": datetime.now(UTC).isoformat(),
         "model": model,
@@ -263,16 +371,84 @@ def run(
         "prompt_sha256": sha256_text(prompt),
         "ontology_path": str(ontology_path),
         "ontology_sha256": sha256_text(ontology_text),
+        "structured_output_schema_sha256": sha256_text(json.dumps(schema, sort_keys=True)),
         "taxa_csv": str(taxa_csv),
         "taxa_count": len(taxa),
         "batch_size": batch_size,
-        "candidate_csv": str(candidate_path),
+        "preflight_taxa": preflight_taxa,
+        "max_retries": max_retries,
         "input_context_columns": sorted({key for context in contexts.values() for key in context}),
-        "batches": manifests,
         "curation_rule": "All rows are candidates; review_status=pending is required before curation.",
     }
-    manifest_path = output_dir / f"manifest_{run_id}.json"
-    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    for batch_index, (batch_kind, batch) in enumerate(batches, start=1):
+        request = response_request(
+            model=model,
+            prompt=prompt,
+            user_request=build_user_request(batch, ontology),
+            schema=schema,
+        )
+        entry: dict[str, Any] = {
+            "batch_index": batch_index,
+            "batch_kind": batch_kind,
+            "species": [item["accepted_species"] for item in batch],
+        }
+        try:
+            response, retry_history = create_response_with_retry(client, request, max_retries)
+            raw_payload = response_to_jsonable(response)
+            raw_path = raw_dir / f"{run_id}_batch_{batch_index:03d}.json"
+            raw_path.write_text(json.dumps(raw_payload, indent=2, ensure_ascii=False), encoding="utf-8")
+            parsed = TraitExtractionResponse.model_validate_json(response.output_text)
+            sources = extract_url_citations(raw_payload)
+            batch_rows = flatten_candidates(parsed, run_id, sources, contexts)
+            all_rows.extend(batch_rows)
+            entry.update(
+                {
+                    "status": "completed",
+                    "raw_response": str(raw_path),
+                    "retrieved_source_count": len(sources),
+                    "candidate_rows": len(batch_rows),
+                    "retry_history": retry_history,
+                }
+            )
+            manifests.append(entry)
+        except Exception as error:
+            failure = safe_error_payload(error)
+            failure.update(
+                {
+                    "batch_index": batch_index,
+                    "batch_kind": batch_kind,
+                    "species": entry["species"],
+                }
+            )
+            failures.append(failure)
+            entry.update({"status": "failed", "failure": failure})
+            manifests.append(entry)
+
+        status = "complete" if not failures else "partial_failure"
+        snapshot = {
+            **base_manifest,
+            "status": status,
+            "n_completed_batches": sum(item["status"] == "completed" for item in manifests),
+            "n_failed_batches": len(failures),
+            "candidate_row_count": len(all_rows),
+            "batches": manifests,
+            "failures": failures,
+        }
+        candidate_path, manifest_path = write_run_artifacts(
+            output_dir=output_dir,
+            run_id=run_id,
+            rows=all_rows,
+            manifest=snapshot,
+        )
+        if failures:
+            typer.echo(
+                f"Partial trait extraction failure after batch {batch_index}; "
+                f"wrote {len(all_rows)} candidates and diagnostics to {manifest_path}",
+                err=True,
+            )
+            raise typer.Exit(code=1)
+
     typer.echo(f"Wrote {len(all_rows)} candidates to {candidate_path}")
     typer.echo(f"Wrote manifest to {manifest_path}")
 
