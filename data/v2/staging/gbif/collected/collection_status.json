@@ -1,21 +1,14 @@
 {
   "collection_mode": "resumable_exact_island_block_batches",
   "selected_block_ids": [
-    "gbif_block_cell_w+030.0_s-30.0_001",
-    "gbif_block_cell_w+090.0_s+60.0_001",
-    "gbif_block_cell_w-120.0_s+00.0_001",
-    "gbif_block_cell_w-060.0_s-30.0_002",
-    "gbif_block_cell_w-060.0_s+60.0_003",
-    "gbif_block_cell_w-090.0_s+30.0_003",
-    "gbif_block_cell_w-180.0_s+30.0_001",
-    "gbif_block_cell_w+030.0_s+60.0_001"
+    "gbif_block_cell_w+120.0_s+00.0_003"
   ],
-  "max_blocks_per_run": 8,
+  "max_blocks_per_run": 1,
   "n_succeeded_blocks_in_campaign": 103,
-  "n_collected_succeeded_blocks": 56,
-  "n_succeeded_blocks_remaining": 47,
+  "n_collected_succeeded_blocks": 57,
+  "n_succeeded_blocks_remaining": 46,
   "n_failed_blocks": 0,
-  "n_island_species_pairs": 233201,
-  "n_islands_with_records": 1222,
-  "n_accepted_species": 61039
+  "n_island_species_pairs": 235768,
+  "n_islands_with_records": 1266,
+  "n_accepted_species": 61218
 }
