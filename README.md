@@ -48,10 +48,6 @@ and family-coverage audits as an artifact. It never commits downloaded data or
 curates trait values automatically. Details are in
 [`docs/bulk_trait_acquisition.md`](docs/bulk_trait_acquisition.md).
 
-The former `extract_global_trait_batch` workflow remains available only for
-small, targeted validation panels and evidence-rich sensitivity subsets. It is
-not the mechanism for filling the global 100,000+ species matrix.
-
 Low-confidence is not the same as wrong. Declared weak-source and taxonomic
 inference candidates remain auditable in the broad track, while logical errors
 such as inferring autonomous selfing from self-compatibility alone are quarantined.
