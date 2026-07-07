@@ -47,11 +47,34 @@ jobs:
           actual="$(sha256sum /tmp/frozen.zip | awk '{print $1}')"
           test "$actual" = "$FROZEN_ARTIFACT_SHA256" || { echo "Frozen artifact digest mismatch: $actual" >&2; exit 2; }
           unzip -q /tmp/frozen.zip -d /tmp/frozen
+      - name: Scope taxa to the pilot-registry islands
+        run: |
+          python - <<'PY'
+          import os
+          import pandas as pd
+
+          registry = pd.read_csv("data/v2/curation/pilot_island_registry.csv", dtype=str).fillna("")
+          island_ids = set(registry["island_id"].astype(str).str.strip())
+          occ = pd.read_csv(
+              "data/v2/staging/gbif/collected/island_species_occurrences.csv", dtype=str
+          ).fillna("")
+          occ = occ.loc[occ["island_id"].astype(str).str.strip().isin(island_ids)]
+          species = set(occ["species"].astype(str).str.strip())
+          taxa = pd.read_csv("data/v2/staging/gbif/collected/island_taxa.csv", dtype=str).fillna("")
+          taxa = taxa.loc[taxa["accepted_species"].astype(str).str.strip().isin(species)]
+          os.makedirs("/tmp/scoped", exist_ok=True)
+          occ.to_csv("/tmp/scoped/island_species_occurrences.csv", index=False)
+          taxa.to_csv("/tmp/scoped/island_taxa.csv", index=False)
+          # One GBIF backbone call per name: scope to the declared pilot islands so
+          # this stays bounded instead of matching the whole global flora.
+          print(f"Scoped taxon intake to {len(island_ids)} pilot island(s): "
+                f"{len(taxa)} taxa, {len(occ)} occurrence rows.")
+          PY
       - name: Rebuild non-curated taxonomy and establishment queues
         run: |
           island-v2-taxon-intake build \
-            --taxa-csv data/v2/staging/gbif/collected/island_taxa.csv \
-            --island-species-csv data/v2/staging/gbif/collected/island_species_occurrences.csv \
+            --taxa-csv /tmp/scoped/island_taxa.csv \
+            --island-species-csv /tmp/scoped/island_species_occurrences.csv \
             --output-dir /tmp/taxon_intake \
             --pause-seconds 0.05
       - name: Build pilot island curation worklist
