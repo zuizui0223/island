@@ -15,7 +15,7 @@ frozen exact island universe
 → GBIF download blocks and campaign ledger
 → archive collection and exact point-in-polygon assignment
 → flora and Bombus observation-process diagnostics
-→ taxonomic / trait evidence tables
+→ bulk taxonomic / trait evidence tables
 → coverage and attrition audit
 → conditional island-level inference
 ```
@@ -33,27 +33,28 @@ The governing design documents are:
 - `config/` — current data-acquisition and inference configuration
 - `data/v2/` — external, staging, curated, and template data layers
 - `docs/` — v2 architecture, data policy, and operational notes
-- `.github/workflows/` — validation, GBIF submission/polling/collection and manual trait batches
+- `.github/workflows/` — validation, GBIF submission/polling/collection, and manual trait acquisition
 
-## Broad trait acquisition
+## Global trait acquisition
 
-Trait acquisition is deliberately coverage-first: web, flora, institutional, and
-specialist sources, plus declared hierarchical inference, can enter the pending
-candidate table. Source reliability and taxonomic scope remain explicit rather
-than being silently pooled.
+The expected species master is too large for one-by-one web or LLM retrieval to
+be the global coverage path. The primary route is a downloaded, public bulk trait
+source joined to `island_taxa.csv` with a source-specific codebook profile.
 
-A low-confidence candidate is not automatically wrong. It remains available for
-broad or coverage-sensitive analyses. A separate logic audit quarantines only
-invalid shortcuts—such as coding autonomous selfing from self-compatibility
-alone, inferring a pollination guild from flower colour or shape, or labelling a
-genus inference as species-direct—while preserving every raw candidate row for
-audit.
+`ingest_bulk_trait_source` is the manual GitHub Actions workflow for this route.
+It needs a direct source-download URL and **no OpenAI key**. Each run creates
+pending source-backed candidates plus taxon-match, unmapped-code, trait-coverage,
+and family-coverage audits as an artifact. It never commits downloaded data or
+curates trait values automatically. Details are in
+[`docs/bulk_trait_acquisition.md`](docs/bulk_trait_acquisition.md).
 
-`extract_global_trait_batch` runs manually in reproducible windows of up to 100
-species (`offset=0`, then `100`, `200`, and so on). It produces an artifact with
-the exact worklist, raw Responses API payloads, all pending candidates, a
-logic-pass table, a quarantine table, and a coverage report. It never directly
-modifies curated evidence or analysis tables.
+The former `extract_global_trait_batch` workflow remains available only for
+small, targeted validation panels and evidence-rich sensitivity subsets. It is
+not the mechanism for filling the global 100,000+ species matrix.
+
+Low-confidence is not the same as wrong. Declared weak-source and taxonomic
+inference candidates remain auditable in the broad track, while logical errors
+such as inferring autonomous selfing from self-compatibility alone are quarantined.
 
 ## Frozen v1
 
