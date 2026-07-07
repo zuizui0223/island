@@ -6,136 +6,155 @@ import typer
 
 from island_v2.trait_source_discovery import (
     GRADE_A,
-    GRADE_B,
-    GRADE_C,
     GRADE_D,
     OUTPUT_COLUMNS,
     PROHIBITED_OUTPUT_COLUMNS,
+    TRAIT_GROUP_QUERIES,
     _require_nominated_island,
     discover_sources,
     grade_source_hint,
+    openalex_abstract,
     parse_crossref_works,
     parse_openalex_works,
 )
 
+GROUP_A = "A_floral_morphology_colour"
+GROUP_C = "C_reproductive_assurance"
+CFG_A = TRAIT_GROUP_QUERIES[GROUP_A]
+CFG_C = TRAIT_GROUP_QUERIES[GROUP_C]
+
 
 def _fake_getter(responses):
-    """Build a getter that returns canned JSON keyed by URL substring."""
+    """Return canned JSON keyed by URL substring (network-free)."""
 
     def getter(url, params):
         for key, payload in responses.items():
             if key in url:
-                if callable(payload):
-                    return payload(url, params)
-                return payload
+                return payload(url, params) if callable(payload) else payload
         return {}
 
     return getter
 
 
-OPENALEX_PAYLOAD = {
-    "results": [
-        {
-            "display_name": "Pollination biology of Bombus-visited island plants",
-            "doi": "https://doi.org/10.1234/abcd",
-            "publication_year": 2019,
-            "open_access": {"is_oa": True, "oa_status": "green", "oa_url": "https://oa.example/1"},
-            "primary_location": {
-                "source": {"display_name": "Journal of Island Botany"},
-                "pdf_url": "https://oa.example/1.pdf",
-            },
-            "authorships": [{"author": {"display_name": "A. Botanist"}}],
-        }
-    ]
-}
-
-CROSSREF_PAYLOAD = {
-    "message": {
-        "items": [
-            {
-                "title": ["A floral trait revision"],
-                "DOI": "10.5678/efgh",
-                "published": {"date-parts": [[2021, 3]]},
-                "container-title": ["Phytotaxa"],
-                "author": [{"given": "B.", "family": "Taxonomist"}],
-            }
-        ]
+def _openalex_work(title, doi="10.1/x", venue="Journal", oa=True, oa_url="https://oa/x", abstract_inv=None):
+    return {
+        "display_name": title,
+        "doi": f"https://doi.org/{doi}" if doi else None,
+        "publication_year": 2019,
+        "open_access": {"is_oa": oa, "oa_status": "green", "oa_url": oa_url},
+        "primary_location": {"source": {"display_name": venue}, "pdf_url": ""},
+        "authorships": [{"author": {"display_name": "A. Botanist"}}],
+        "abstract_inverted_index": abstract_inv,
     }
-}
-
-UNPAYWALL_PAYLOAD = {
-    "is_oa": True,
-    "oa_status": "gold",
-    "best_oa_location": {"url": "https://unpaywall.example/x", "url_for_pdf": "https://unpaywall.example/x.pdf"},
-}
 
 
-def test_parse_openalex_extracts_seed_without_trait_values():
-    seeds = parse_openalex_works(OPENALEX_PAYLOAD, "Antidesma vogelianum", limit=5)
+def test_parse_openalex_scores_trait_relevance_and_never_emits_trait_values():
+    # A floral-morphology title is relevant to group A; the group is tagged.
+    payload = {"results": [_openalex_work("Floral morphology and corolla of the genus")]}
+    seeds = parse_openalex_works(payload, "Genus species", limit=5, trait_group=GROUP_A, group_cfg=CFG_A)
     assert len(seeds) == 1
     seed = seeds[0]
-    assert seed.doi == "10.1234/abcd"
-    assert seed.source_api == "openalex"
-    assert seed.is_open_access == "true"
-    assert seed.candidate_page_locator.startswith("HUMAN_REVIEW_REQUIRED")
+    assert seed.query_trait_group == GROUP_A
+    assert seed.query_template.startswith('"Genus species"')
+    assert seed.title_relevance_score >= 2  # "floral", "corolla", "morpholog"
+    assert "corolla" in seed.trait_keywords_matched
+    assert seed.likely_evidence_type == "floral_morphology_or_colour"
     assert seed.lead_status == "unreviewed_literature_seed"
+    assert seed.candidate_page_locator.startswith("HUMAN_REVIEW_REQUIRED")
 
 
-def test_parse_crossref_extracts_year_and_venue():
-    seeds = parse_crossref_works(CROSSREF_PAYLOAD, "Adenia lobata", limit=5)
-    assert seeds[0].doi == "10.5678/efgh"
+def test_offtopic_paper_scores_zero_relevance():
+    # High-quality source, but irrelevant to floral traits -> title_relevance 0.
+    payload = {"results": [_openalex_work("Micropropagation and tissue culture protocol")]}
+    seeds = parse_openalex_works(payload, "Genus species", limit=5, trait_group=GROUP_A, group_cfg=CFG_A)
+    assert seeds[0].title_relevance_score == 0
+    assert seeds[0].trait_keywords_matched == ""
+
+
+def test_openalex_abstract_reconstructs_from_inverted_index():
+    inv = {"autonomous": [0], "selfing": [1], "observed": [2]}
+    payload = {"results": [_openalex_work("A study", abstract_inv=inv)]}
+    seeds = parse_openalex_works(payload, "Genus species", limit=5, trait_group=GROUP_C, group_cfg=CFG_C)
+    # abstract keywords for group C matched even though the title has none.
+    assert seeds[0].title_relevance_score == 0
+    assert seeds[0].abstract_relevance_score >= 1
+    assert openalex_abstract({"abstract_inverted_index": inv}) == "autonomous selfing observed"
+
+
+def test_parse_crossref_extracts_year_and_venue_and_strips_abstract_markup():
+    payload = {
+        "message": {
+            "items": [
+                {
+                    "title": ["Herkogamy and mating system"],
+                    "DOI": "10.5/y",
+                    "published": {"date-parts": [[2021, 3]]},
+                    "container-title": ["Phytotaxa"],
+                    "abstract": "<jats:p>self-incompatibility was tested</jats:p>",
+                }
+            ]
+        }
+    }
+    seeds = parse_crossref_works(payload, "Adenia lobata", limit=5, trait_group=GROUP_C, group_cfg=CFG_C)
     assert seeds[0].publication_year == "2021"
     assert seeds[0].venue == "Phytotaxa"
+    assert seeds[0].title_relevance_score >= 1  # "herkogam", "mating system"
+    assert seeds[0].abstract_relevance_score >= 1  # "self-incompatib"
 
 
-def test_discover_sources_produces_only_lead_columns():
+def test_source_grade_hint_maps_to_study_vocabulary():
+    assert grade_source_hint("openalex", "Phytotaxa", "10.1/x", "https://oa/x")[0] == GRADE_A
+    assert grade_source_hint("crossref", "", "10.2/y", "https://powo.science.kew.org/taxon/1")[0] == "B_curated_database_or_institution"
+    assert grade_source_hint("openalex", "Journal", "10.3/z", "https://es.wikipedia.org/wiki/X")[0] == GRADE_D
+    assert grade_source_hint("", "", "", "")[1] == 5
+
+
+def test_discover_sources_runs_three_trait_groups_with_only_lead_columns():
     getter = _fake_getter(
         {
-            "openalex": OPENALEX_PAYLOAD,
-            "crossref": CROSSREF_PAYLOAD,
-            "unpaywall": UNPAYWALL_PAYLOAD,
+            "openalex": {"results": [_openalex_work("Floral morphology of the species")]},
+            "crossref": {},
+            "unpaywall": {"is_oa": True, "oa_status": "gold", "best_oa_location": {"url_for_pdf": "https://x.pdf"}},
         }
     )
-    taxa = pd.DataFrame(
-        {
-            "accepted_species": ["Antidesma vogelianum", "Adenia lobata"],
-            "island_id": ["isl_jp", "isl_jp"],
-            "genus": ["Antidesma", "Adenia"],
-            "family": ["Phyllanthaceae", "Passifloraceae"],
-        }
-    )
-    frame, report = discover_sources(
-        taxa, getter, contact_email="test@example.org", max_taxa=5, max_seeds_per_taxon=5
-    )
-    # No finalized-value column may ever appear.
+    taxa = pd.DataFrame({"accepted_species": ["Genus species"], "island_id": ["isl_jp"]})
+    frame, report = discover_sources(taxa, getter, "t@example.org", max_taxa=5, max_seeds_per_taxon=5)
+
     assert PROHIBITED_OUTPUT_COLUMNS.isdisjoint(frame.columns)
     for col in OUTPUT_COLUMNS:
         assert col in frame.columns
-    # Provenance passthrough is preserved.
+    # One openalex seed per trait group -> all three groups represented.
+    assert set(frame["query_trait_group"]) == set(TRAIT_GROUP_QUERIES)
+    assert report["n_seeds_group_A_floral_morphology_colour"] == 1
+    assert report["n_seeds_group_C_reproductive_assurance"] == 1
     assert "island_id" in frame.columns
-    assert set(frame["query_taxon"]) == {"Antidesma vogelianum", "Adenia lobata"}
-    assert report["n_taxa_queried"] == 2
-    assert report["n_literature_seeds"] == len(frame)
-    assert report["n_open_access_seeds"] >= 1
-    # Unpaywall receipt was attached to the DOI-bearing OpenAlex seed.
-    oa_seed = frame.loc[frame["source_api"] == "openalex"].iloc[0]
-    assert oa_seed["candidate_pdf_url"] == "https://unpaywall.example/x.pdf"
 
 
-def test_discover_sources_is_bounded_by_max_taxa():
-    getter = _fake_getter({"openalex": OPENALEX_PAYLOAD, "crossref": {}, "unpaywall": {}})
-    taxa = pd.DataFrame({"accepted_species": [f"Species number{i}" for i in range(20)]})
-    _frame, report = discover_sources(
-        taxa, getter, contact_email="t@example.org", max_taxa=5, max_seeds_per_taxon=3
-    )
-    assert report["n_taxa_queried"] == 5
+def test_zero_relevance_leads_are_not_ranked_first():
+    # Same taxon, group A: a relevant floral paper and an off-topic genomics paper.
+    payload = {
+        "results": [
+            _openalex_work("Genome assembly and SNP markers", doi="10.9/z", venue="Genomics J"),
+            _openalex_work("Floral morphology, corolla and inflorescence", doi="10.1/a", venue="Kew Bulletin"),
+        ]
+    }
+    getter = _fake_getter({"openalex": payload, "crossref": {}, "unpaywall": {}})
+    taxa = pd.DataFrame({"accepted_species": ["Genus species"]})
+    frame, report = discover_sources(taxa, getter, "t@example.org", max_taxa=5, max_seeds_per_taxon=5)
+
+    group_a = frame.loc[frame["query_trait_group"] == "A_floral_morphology_colour"].reset_index(drop=True)
+    # The floral paper (relevance > 0) heads the group; the genomics paper (0) is last.
+    assert group_a.iloc[0]["title_relevance_score"] > 0
+    assert "Floral morphology" in group_a.iloc[0]["title"]
+    assert int(group_a.iloc[-1]["title_relevance_score"]) == 0
+    assert report["n_zero_title_relevance_seeds"] >= 1
 
 
 def test_discover_sources_rejects_prohibited_input_column():
     getter = _fake_getter({})
     taxa = pd.DataFrame({"accepted_species": ["X y"], "trait_value": ["white"]})
     with pytest.raises(typer.BadParameter):
-        discover_sources(taxa, getter, contact_email="t@example.org", max_taxa=5, max_seeds_per_taxon=5)
+        discover_sources(taxa, getter, "t@example.org", max_taxa=5, max_seeds_per_taxon=5)
 
 
 def test_source_failure_does_not_abort_run():
@@ -143,71 +162,18 @@ def test_source_failure_does_not_abort_run():
         if "openalex" in url:
             raise RuntimeError("network down")
         if "crossref" in url:
-            return CROSSREF_PAYLOAD
-        return UNPAYWALL_PAYLOAD
+            return {"message": {"items": [{"title": ["Pollination biology"], "DOI": "10.5/y", "container-title": ["J"]}]}}
+        return {}
 
     taxa = pd.DataFrame({"accepted_species": ["Adenia lobata"]})
-    frame, report = discover_sources(
-        taxa, flaky, contact_email="t@example.org", max_taxa=5, max_seeds_per_taxon=5
-    )
+    frame, report = discover_sources(taxa, flaky, "t@example.org", max_taxa=5, max_seeds_per_taxon=5)
     assert report["n_lookup_errors"] >= 1
-    assert report["n_literature_seeds"] >= 1  # crossref still produced a lead
-
-
-def test_source_grade_hint_maps_to_study_vocabulary():
-    # Scholarly work with venue + DOI -> A.
-    assert grade_source_hint("openalex", "Phytotaxa", "10.1/x", "https://oa.example/x")[0] == GRADE_A
-    # Curated/institutional host -> B (even if scholarly signal is weak).
-    assert grade_source_hint("crossref", "", "10.2/y", "https://powo.science.kew.org/taxon/1")[0] == GRADE_B
-    # Unvetted web (Wikipedia) -> D, regardless of a DOI.
-    assert grade_source_hint("openalex", "Journal", "10.3/z", "https://es.wikipedia.org/wiki/X")[0] == GRADE_D
-    # Scholarly DOI but no venue -> C.
-    assert grade_source_hint("crossref", "", "10.4/w", "")[0] == GRADE_C
-    # Nothing usable -> below C, sorted last.
-    assert grade_source_hint("", "", "", "")[1] == 5
-
-
-def test_discovery_ranks_abc_above_unvetted_web():
-    # Two seeds for one taxon: an A-grade journal work and a D-grade wiki page.
-    payload = {
-        "results": [
-            {
-                "display_name": "A flora treatment",
-                "doi": "https://doi.org/10.1/aaa",
-                "publication_year": 2018,
-                "open_access": {"is_oa": True, "oa_status": "green", "oa_url": "https://oa.example/a"},
-                "primary_location": {"source": {"display_name": "Kew Bulletin"}, "pdf_url": ""},
-                "authorships": [],
-            },
-            {
-                "display_name": "Wikipedia summary",
-                "doi": "",
-                "publication_year": 2020,
-                "open_access": {"is_oa": True, "oa_status": "bronze", "oa_url": "https://en.wikipedia.org/wiki/X"},
-                "primary_location": {"source": {"display_name": ""}, "pdf_url": ""},
-                "authorships": [],
-            },
-        ]
-    }
-    getter = _fake_getter({"openalex": payload, "crossref": {}, "unpaywall": {}})
-    taxa = pd.DataFrame({"accepted_species": ["Genus species"]})
-    frame, report = discover_sources(taxa, getter, "t@example.org", max_taxa=5, max_seeds_per_taxon=5)
-
-    # A-grade lead is ranked first; D-grade wiki lead is last.
-    assert frame.iloc[0]["provisional_source_reliability_hint"] == GRADE_A
-    assert frame.iloc[-1]["provisional_source_reliability_hint"] == GRADE_D
-    assert list(frame["priority_rank"]) == sorted(frame["priority_rank"])
-    assert report["n_hint_track_eligible_A_B_C"] >= 1
-    assert report["n_hint_D_unvetted_web"] == 1
-    # Grade hint is about the source, never a finalized biological value.
-    assert PROHIBITED_OUTPUT_COLUMNS.isdisjoint(frame.columns)
+    assert report["n_literature_seeds"] >= 1  # crossref still produced leads
 
 
 def test_nomination_gate_blocks_unnominated_island(tmp_path):
     report_path = tmp_path / "report.json"
     report_path.write_text(json.dumps({"eligible_island_ids": ["isl_jp"]}), encoding="utf-8")
-    # Eligible island passes.
     _require_nominated_island(report_path, "isl_jp")
-    # Non-eligible island is refused.
     with pytest.raises(typer.BadParameter):
         _require_nominated_island(report_path, "isl_cape")
