@@ -11,9 +11,6 @@ on:
         required: false
         default: "1"
   schedule:
-    # Twice per hour (minute 17 and 47). Must be a full 5-field cron
-    # (minute hour day-of-month month day-of-week); a 4-field value makes the
-    # whole workflow fail to parse and every trigger startup-fails.
     - cron: "17,47 * * * *"
   push:
     branches: [main]
@@ -128,8 +125,16 @@ jobs:
           git add "${existing[@]}"
           git diff --cached --quiet && exit 0
           git commit -m "chore: update GBIF island-level collection outputs"
-          git pull --rebase origin main
-          git push origin HEAD:main
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((attempt * 2))"
+          done
+          echo "Could not push GBIF outputs after five retries." >&2
+          exit 1
       - name: Self-chain to drain remaining succeeded blocks
         if: success()
         env:
@@ -144,10 +149,7 @@ jobs:
           PY
           )
           echo "remaining=$remaining collected=$collected prior=$PRIOR_COLLECTED"
-          # Only re-dispatch when blocks remain AND this run actually made progress,
-          # so a stalled run can never trigger an infinite dispatch loop.
           if [ "$remaining" -gt 0 ] && [ "$collected" -gt "$PRIOR_COLLECTED" ]; then
-            echo "Draining continues: dispatching the next collect batch."
             curl --fail --silent --show-error \
               --request POST \
               --header "Accept: application/vnd.github+json" \
