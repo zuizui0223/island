@@ -14,7 +14,11 @@ from island_v2.gbif_collect import (
     read_block_occurrences,
     summarize_observation_effort,
 )
-from island_v2.trait_extraction import REQUIRED_TAXON_COLUMNS
+
+# This is the stable interface produced by island_taxa_table. It must not depend
+# on a retired extraction implementation merely because a downstream workflow
+# once consumed the same columns.
+REQUIRED_TAXON_COLUMNS = {"accepted_species", "genus", "family", "n_islands", "n_records"}
 
 
 def _islands():
@@ -115,11 +119,10 @@ def test_island_species_table_is_deduplicated_with_provenance():
     assert "Ccc ccc" not in set(table["species"])
 
 
-def test_island_taxa_table_feeds_trait_extraction_directly():
+def test_island_taxa_table_has_stable_downstream_contract():
     assigned = assign_occurrences_to_islands(_occurrences(), _islands())
     taxa = island_taxa_table(assigned)
 
-    # The taxa table must satisfy trait_extraction's input contract exactly.
     assert REQUIRED_TAXON_COLUMNS.issubset(set(taxa.columns))
 
     by_species = taxa.set_index("accepted_species")
