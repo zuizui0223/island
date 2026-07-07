@@ -1,9 +1,0 @@
-{
-  "old_path": "data/v2/staging/gbif/collected/island_species_occurrences.csv",
-  "new_path": "data/v2/staging/gbif/collected/island_species_occurrences.csv.gz",
-  "targets": [
-    ".github/workflows/build-pilot-island-curation.yml",
-    ".github/workflows/extract-pilot-trait-evidence.yml"
-  ],
-  "trigger_nonce": "2026-07-08T07:15:00+09:00"
-}
