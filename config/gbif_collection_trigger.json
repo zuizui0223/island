@@ -1,6 +1,6 @@
 {
-  "run_reason": "Initial exact-polygon collection of all GBIF blocks currently marked succeeded in the v2 ledger.",
-  "requested_at_utc": "2026-07-03T16:10:00Z",
+  "run_reason": "Resume exact-polygon GBIF collection with disk-backed exact-row aggregation after runner-memory fix.",
+  "requested_at_utc": "2026-07-07T14:05:00Z",
   "expected_outputs": [
     "island_species_occurrences.csv",
     "island_observation_effort.csv",
