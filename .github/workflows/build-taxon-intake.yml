@@ -34,7 +34,7 @@ jobs:
         run: |
           island-v2-taxon-intake build \
             --taxa-csv data/v2/staging/gbif/collected/island_taxa.csv \
-            --island-species-csv data/v2/staging/gbif/collected/island_species_occurrences.csv \
+            --island-species-csv data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
             --output-dir data/v2/staging/taxon_intake \
             --pause-seconds "${{ inputs.pause_seconds }}"
       - name: Summarize taxonomy intake
