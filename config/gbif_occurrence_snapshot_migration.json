@@ -1,6 +1,0 @@
-{
-  "purpose": "one_time_repository_storage_migration",
-  "source": "data/v2/staging/gbif/collected/island_species_occurrences.csv",
-  "target": "data/v2/staging/gbif/collected/island_species_occurrences.csv.gz",
-  "verification": "gzip_test_and_byte_for_byte_decompression_comparison"
-}
