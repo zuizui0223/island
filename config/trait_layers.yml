@@ -1,0 +1,66 @@
+# M0 / M1 / M2 trait layers and their analysis-eligibility rules.
+#
+# This governs ANALYSIS ELIGIBILITY only. It never decides a trait value. It
+# maps each trait to a layer and declares which evidence a candidate needs to
+# enter the MAIN analysis versus the EXPANDED SENSITIVITY track. Hierarchical
+# (genus/family) inference is retained but isolated to the sensitivity track and
+# is never a primary result.
+version: "1.0"
+
+layers:
+  M0_floral_phenotype:
+    traits:
+      - flower_primary_color
+      - floral_symmetry
+      - floral_form
+      - tube_depth_class
+      - flower_size_class
+      - inflorescence_display
+    # M0 may be candidated broadly (floras, descriptions, herbarium/botanic-garden
+    # pages), so species-level indirect evidence is admissible to the main analysis.
+    main_analysis_accepted_scopes:
+      - species_direct
+      - species_indirect
+
+  M1_reproductive_assurance_pollen_vector:
+    traits:
+      - pollen_vector_mode
+      - self_incompatibility
+      - autonomous_selfing_capacity
+      - mating_system
+      - herkogamy
+      - dichogamy
+      - cleistogamy
+    # M1 main-analysis values are restricted to species-direct evidence.
+    main_analysis_accepted_scopes:
+      - species_direct
+
+  M2_pollinator_functional_evidence:
+    traits:
+      - pollination_functional_guild
+    evidence_fields:
+      - pollinator_guild
+      - evidence_type
+      - effectiveness_evidence
+    main_analysis_accepted_scopes:
+      - species_direct
+
+# Traits whose genus/family inference must NEVER enter the main analysis and is
+# only ever an explicitly labelled expanded-sensitivity result.
+hierarchical_inference_sensitivity_only_traits:
+  - self_incompatibility
+  - autonomous_selfing_capacity
+  - mating_system
+  - herkogamy
+  - dichogamy
+  - pollination_functional_guild
+
+analysis_tracks:
+  main_direct: >-
+    Species-direct evidence (plus species-indirect for M0) at accepted source
+    grade. Eligible for the primary analysis.
+  expanded_sensitivity: >-
+    Hierarchical (genus/family) inference, or species-level evidence below a
+    layer's main bar. Reported only as a labelled sensitivity track.
+  excluded: >-
+    Unresolved or below-track evidence; contributes to no analysis value.

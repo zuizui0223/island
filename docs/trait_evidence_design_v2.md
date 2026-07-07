@@ -30,10 +30,16 @@ relevance then source grade; a `title_relevance_score == 0` lead can never head 
 taxon's trait review. Source grade (A/B/C/D) is a **source-quality** hint;
 relevance is a separate **trait-relevance** axis — both are reported.
 
-## Stage 2 — M0 / M1 / M2 trait layers  ⏳ next
+## Stage 2 — M0 / M1 / M2 trait layers  ✅ implemented
 
-Separate the trait ontology into three explicit layers so acquisition and
-analysis-eligibility rules differ per layer:
+`config/trait_layers.yml` + `src/island_v2/trait_layers.py`
+(`island-v2-trait-layers annotate`). Annotates a reviewed trait-candidate table
+with `trait_layer` (M0/M1/M2) and `analysis_track` (`main_direct` /
+`expanded_sensitivity` / `excluded`). It governs analysis eligibility only and
+never decides a trait value. M1 (and M2 guild) main-analysis values are
+restricted to species-direct evidence; any hierarchical (genus/family) inference
+is always routed to `expanded_sensitivity`, never a primary result. The layer
+membership is exactly:
 
 - **M0 floral phenotype**: `flower_primary_color`, `floral_symmetry`,
   `floral_form`, `tube_depth_class`, `flower_size_class`, `inflorescence_display`.
