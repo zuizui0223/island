@@ -1,0 +1,4 @@
+{
+  "snapshot": "data/v2/staging/gbif/collected/island_species_occurrences.csv.gz",
+  "checks": ["pandas_read", "required_columns", "collector_gzip_test"]
+}
