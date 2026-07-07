@@ -1,0 +1,38 @@
+name: verify_gbif_gzip_snapshot
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/verify_gbif_gzip_snapshot.json"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install package and test tools
+        run: pip install -e ".[dev]"
+      - name: Read compressed cumulative snapshot
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          path = "data/v2/staging/gbif/collected/island_species_occurrences.csv.gz"
+          table = pd.read_csv(path, dtype=str)
+          required = {"island_id", "species", "n_records", "n_unique_gbif_ids", "basis_of_record_set", "review_status"}
+          missing = required.difference(table.columns)
+          if missing:
+              raise SystemExit(f"Compressed snapshot missing columns: {sorted(missing)}")
+          if table.empty:
+              raise SystemExit("Compressed snapshot is empty")
+          print(f"rows={len(table)} islands={table['island_id'].nunique()} species={table['species'].nunique()}")
+          PY
+      - name: Test gzip snapshot collector support
+        run: pytest -q tests/test_gbif_collect_incremental.py
