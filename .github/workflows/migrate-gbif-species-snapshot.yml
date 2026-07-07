@@ -1,0 +1,78 @@
+name: migrate_gbif_species_snapshot
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/gbif_occurrence_snapshot_migration.json"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gbif-collect
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.event.head_commit.message == 'run GBIF occurrence snapshot migration')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create and verify compressed occurrence snapshot
+        run: |
+          set -euo pipefail
+          directory="data/v2/staging/gbif/collected"
+          plain="$directory/island_species_occurrences.csv"
+          compressed="$directory/island_species_occurrences.csv.gz"
+
+          if [ -f "$compressed" ] && [ ! -f "$plain" ]; then
+            gzip -t "$compressed"
+            echo "Compressed snapshot already present and valid."
+            exit 0
+          fi
+          test -f "$plain" || { echo "Missing legacy occurrence snapshot: $plain" >&2; exit 2; }
+
+          temporary="$compressed.tmp"
+          gzip -9 -c "$plain" > "$temporary"
+          gzip -t "$temporary"
+          gzip -dc "$temporary" | cmp - "$plain"
+          mv "$temporary" "$compressed"
+          rm "$plain"
+      - name: Commit compressed snapshot
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A -- data/v2/staging/gbif/collected
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: compress GBIF island-species snapshot"
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            if ! git rebase origin/main; then
+              echo "Could not rebase snapshot migration onto current main." >&2
+              git rebase --abort || true
+              exit 1
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((attempt * 2))"
+          done
+          echo "Could not push snapshot migration after five retries." >&2
+          exit 1
+      - name: Upload compressed snapshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gbif-species-snapshot-migration-${{ github.run_id }}
+          path: |
+            data/v2/staging/gbif/collected/island_species_occurrences.csv.gz
+            data/v2/staging/gbif/collected/collection_status.json
+          if-no-files-found: warn
+          retention-days: 90
