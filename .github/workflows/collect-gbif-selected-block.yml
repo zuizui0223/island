@@ -128,8 +128,26 @@ jobs:
           git add "${existing[@]}"
           git diff --cached --quiet && exit 0
           git commit -m "chore: update GBIF island-level collection outputs"
-          git pull --rebase origin main
-          git push origin HEAD:main
+
+          # A long-running collection can finish while an unrelated commit lands on
+          # main. Rebase and retry the push so an ordinary non-fast-forward race does
+          # not discard a completed collection. Stop on a genuine data conflict.
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            if ! git rebase origin/main; then
+              echo "Could not rebase GBIF outputs onto current main; preserving the run artifact for manual conflict resolution." >&2
+              git rebase --abort || true
+              exit 1
+            fi
+            if git push origin HEAD:main; then
+              echo "Pushed GBIF outputs on attempt ${attempt}."
+              exit 0
+            fi
+            echo "main changed during push attempt ${attempt}; retrying." >&2
+            sleep "$((attempt * 2))"
+          done
+          echo "Could not push GBIF outputs after five concurrent-main retries." >&2
+          exit 1
       - name: Summarize selected collection
         if: always()
         run: |
