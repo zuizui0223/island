@@ -7,6 +7,8 @@ batch, then merges the compact products into committed cumulative outputs.
 
 Raw request geometry remains buffered only for acquisition. Every retained row
 was assigned by the underlying collector to an original exact island polygon.
+The potentially large island-by-species snapshot is stored as a gzip-compressed
+CSV in the repository; pandas reads it directly without altering its schema.
 """
 
 from __future__ import annotations
@@ -42,6 +44,8 @@ MANIFEST_COLUMNS = [
     "error",
 ]
 DONE_STATUSES = {"collected", "skipped_no_matching_islands"}
+CUMULATIVE_SPECIES_SNAPSHOT = "island_species_occurrences.csv.gz"
+LEGACY_SPECIES_SNAPSHOT = "island_species_occurrences.csv"
 
 
 @app.callback()
@@ -54,9 +58,20 @@ def _read_csv(path: Path) -> pd.DataFrame:
 
 
 def _write_csv(table: pd.DataFrame, path: Path) -> None:
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    table.to_csv(temporary, index=False)
+    """Atomically write CSV, explicitly compressing gzip snapshot paths."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.tmp")
+    compression = "gzip" if path.name.endswith(".gz") else None
+    table.to_csv(temporary, index=False, compression=compression)
     temporary.replace(path)
+
+
+def _read_cumulative_species(output_dir: Path) -> pd.DataFrame:
+    """Prefer the compressed snapshot, with a one-time fallback for legacy runs."""
+    compressed = output_dir / CUMULATIVE_SPECIES_SNAPSHOT
+    if compressed.exists():
+        return _read_csv(compressed)
+    return _read_csv(output_dir / LEGACY_SPECIES_SNAPSHOT)
 
 
 def _normalise_manifest(table: pd.DataFrame) -> pd.DataFrame:
@@ -207,8 +222,8 @@ def collect(
         new_manifest = _read_csv(batch_output / "collection_manifest.csv")
         merged_manifest = _merge_manifest(old_manifest, new_manifest)
         species = _merge_species(
-            _read_csv(output_dir / "island_species_occurrences.csv"),
-            _read_csv(batch_output / "island_species_occurrences.csv"),
+            _read_cumulative_species(output_dir),
+            _read_csv(batch_output / LEGACY_SPECIES_SNAPSHOT),
         )
         effort = _merge_effort(
             _read_csv(output_dir / "island_observation_effort.csv"),
@@ -220,7 +235,10 @@ def collect(
         )
 
     _write_csv(merged_manifest, output_dir / "collection_manifest.csv")
-    _write_csv(species, output_dir / "island_species_occurrences.csv")
+    _write_csv(species, output_dir / CUMULATIVE_SPECIES_SNAPSHOT)
+    legacy_snapshot = output_dir / LEGACY_SPECIES_SNAPSHOT
+    if legacy_snapshot.exists():
+        legacy_snapshot.unlink()
     _write_csv(effort, output_dir / "island_observation_effort.csv")
     _write_csv(taxa, output_dir / "island_taxa.csv")
     succeeded = _succeeded_blocks(campaign)
@@ -229,6 +247,7 @@ def collect(
     )
     status = {
         "collection_mode": "resumable_exact_island_block_batches",
+        "island_species_snapshot": CUMULATIVE_SPECIES_SNAPSHOT,
         "selected_block_ids": [str(entry["block_id"]) for entry in batch],
         "max_blocks_per_run": int(max_blocks),
         "n_succeeded_blocks_in_campaign": int(len(succeeded)),
