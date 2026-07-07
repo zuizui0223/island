@@ -41,6 +41,7 @@ jobs:
     env:
       FROZEN_ARTIFACT_ID: "8066083419"
       FROZEN_ARTIFACT_SHA256: "bee33e14672ec7ff4ed1f7acaea36b32cc6170a45c3d14b2caeb5f43bfaa623b"
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -51,16 +52,10 @@ jobs:
       - name: Test review-packet and source-harvest boundaries
         run: pytest -q tests/test_pilot_curation.py tests/test_trait_review_packet.py tests/test_trait_source_discovery.py tests/test_trait_source_discovery_guarded.py tests/test_trait_pdf_locator.py
       - name: Fetch and verify frozen island manifest
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir -p /tmp/frozen
-          curl --fail --location --retry 3 --retry-delay 2 \
-            --header "Authorization: Bearer ${GITHUB_TOKEN}" \
-            --header "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${FROZEN_ARTIFACT_ID}/zip" \
-            --output /tmp/frozen.zip
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${FROZEN_ARTIFACT_ID}/zip" > /tmp/frozen.zip
           actual="$(sha256sum /tmp/frozen.zip | awk '{print $1}')"
           test "$actual" = "$FROZEN_ARTIFACT_SHA256" || { echo "Frozen artifact digest mismatch: $actual" >&2; exit 2; }
           unzip -q /tmp/frozen.zip -d /tmp/frozen
@@ -73,7 +68,7 @@ jobs:
           registry = pd.read_csv("data/v2/curation/pilot_island_registry.csv", dtype=str).fillna("")
           island_ids = set(registry["island_id"].astype(str).str.strip())
           occ = pd.read_csv(
-              "data/v2/staging/gbif/collected/island_species_occurrences.csv", dtype=str
+              "data/v2/staging/gbif/collected/island_species_occurrences.csv.gz", dtype=str
           ).fillna("")
           occ = occ.loc[occ["island_id"].astype(str).str.strip().isin(island_ids)]
           species = set(occ["species"].astype(str).str.strip())
@@ -82,9 +77,6 @@ jobs:
           os.makedirs("/tmp/scoped", exist_ok=True)
           occ.to_csv("/tmp/scoped/island_species_occurrences.csv", index=False)
           taxa.to_csv("/tmp/scoped/island_taxa.csv", index=False)
-          # The pilot workflow only stages the declared pilot islands, so the GBIF
-          # backbone match (one call per name) must not run over the whole global
-          # flora -- that is thousands of calls and hours of runtime.
           print(f"Scoped taxon intake to {len(island_ids)} pilot island(s): "
                 f"{len(taxa)} taxa, {len(occ)} occurrence rows.")
           PY
@@ -132,8 +124,6 @@ jobs:
           if staged.empty:
               raise SystemExit(f"No staged taxa found for source_harvest_island_id={island_id!r}")
 
-          # This out-of-domain machinery-validation harvest starts only from staged pilot taxa
-          # and deliberately writes only unreviewed source-navigation rows.
           leads, report = discovery.discover_sources(
               staged_taxa=staged,
               getter=discovery._httpx_getter(),
