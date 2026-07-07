@@ -86,3 +86,23 @@ def test_merge_effort_rejects_overlapping_islands():
         assert "overlap" in str(exc)
     else:
         raise AssertionError("Expected overlapping island block products to be rejected")
+
+
+def test_gzip_species_snapshot_round_trip_and_precedence(tmp_path):
+    compressed = tmp_path / collector.CUMULATIVE_SPECIES_SNAPSHOT
+    legacy = tmp_path / collector.LEGACY_SPECIES_SNAPSHOT
+    expected = pd.DataFrame(
+        {
+            "island_id": ["island-a"],
+            "species": ["Plant one"],
+            "n_records": [2],
+        }
+    )
+    collector._write_csv(expected, compressed)
+    legacy.write_text("island_id,species,n_records\nlegacy,Legacy plant,1\n", encoding="utf-8")
+
+    restored = collector._read_cumulative_species(tmp_path)
+
+    assert restored.to_dict("records") == [
+        {"island_id": "island-a", "species": "Plant one", "n_records": "2"}
+    ]
