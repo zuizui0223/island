@@ -1,28 +1,37 @@
-"""Free literature source discovery for staged Core-pilot taxa.
+"""Free, trait-group-targeted literature source discovery for staged taxa.
 
 Given a staged-taxa CSV for an island that has **passed Core-pilot nomination**,
-this collects only open bibliographic *leads* for each taxon so a human curator
-has somewhere to start reading:
+this collects open bibliographic *leads* — never trait values — so a human
+curator has somewhere to start reading. It is a source-lead / literature-scout
+stage, explicitly upstream of trait evidence review.
 
-- literature seeds  — OpenAlex / Crossref works (title, DOI, year, venue, authors);
-- open-access receipts — Unpaywall / OpenAlex OA status and a best open URL;
-- candidate page locators — a best-guess open PDF URL plus an explicit
-  "a human must open this and find the passage" note.
+The retrieval is **species × trait-group**, not species-only, so a paper that is
+high-quality but irrelevant to floral / pollination / reproductive traits
+(micropropagation, tissue culture, nutrient content, nanoparticles, genomics,
+pathology, …) is demoted rather than surfaced. Three query groups are run:
+
+- ``A_floral_morphology_colour``   — floral phenotype (M0);
+- ``B_pollination_pollen_vector``  — pollination / pollen vector (M1);
+- ``C_reproductive_assurance``     — self-incompatibility / selfing / mating.
+
+Each lead carries the trait group it was retrieved for, the query template, a
+title/abstract relevance score (keyword match against the group), the matched
+keywords, a likely evidence type, and a provisional source-reliability hint.
+Leads with ``title_relevance_score == 0`` are ranked below any relevant lead so
+they never head a taxon's trait review.
 
 It NEVER emits a trait value, a native / establishment status, a Bombus
-applicability decision, or an analysis-inclusion flag. Every row it writes is an
-unreviewed M0 lead. It uses only free public APIs (OpenAlex, Crossref,
-Unpaywall) — there are no paid LLM calls.
-
-Operationally it refuses to run unless the target island appears in a Core-pilot
-nomination report's ``eligible_island_ids``, and it is bounded to a small number
-of staged taxa (default 5). This keeps it a post-nomination, human-in-the-loop
-tool rather than an unbounded scraper.
+applicability decision, or an analysis-inclusion flag. Every row is an
+unreviewed lead. It uses only free public APIs (OpenAlex, Crossref, Unpaywall);
+there are no paid LLM calls. It refuses to run unless the target island is in a
+Core-pilot nomination report's ``eligible_island_ids`` and is bounded to a small
+number of staged taxa.
 """
 
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -49,19 +58,91 @@ PASSTHROUGH_TAXA_COLUMNS = ["island_id", "genus", "family", "trait_candidate_sta
 LEAD_STATUS = "unreviewed_literature_seed"
 PAGE_LOCATOR_PLACEHOLDER = "HUMAN_REVIEW_REQUIRED: open source and locate the trait passage"
 
+# --------------------------------------------------------------------------- #
+# Trait-group retrieval. Each group targets one trait layer; a lead's relevance
+# is scored by matching the group's keywords against the returned title/abstract.
+# The `api_terms` bias the free-text query; the scoring is what actually demotes
+# off-topic results, so it is robust to the APIs' loose boolean handling.
+# --------------------------------------------------------------------------- #
+TRAIT_GROUP_QUERIES: dict[str, dict[str, Any]] = {
+    "A_floral_morphology_colour": {
+        "query_template": (
+            '"{species}" (flower OR floral OR corolla OR inflorescence OR morphology) '
+            "(flora OR revision OR taxonomic treatment OR description)"
+        ),
+        "api_terms": "flower floral corolla inflorescence morphology flora revision description",
+        "likely_evidence_type": "floral_morphology_or_colour",
+        "keywords": (
+            "flower", "floral", "corolla", "inflorescence", "perianth", "petal", "tepal",
+            "morpholog", "colour", "color", "symmetr", "flora", "revision",
+            "taxonomic treatment", "description", "monograph",
+        ),
+    },
+    "B_pollination_pollen_vector": {
+        "query_template": (
+            '"{species}" (pollination OR pollinator OR floral visitor OR pollen vector '
+            "OR breeding biology)"
+        ),
+        "api_terms": "pollination pollinator floral visitor pollen vector breeding biology",
+        "likely_evidence_type": "pollination_or_pollen_vector",
+        "keywords": (
+            "pollinat", "pollen vector", "floral visitor", "flower visitor", "breeding biology",
+            "pollen deposition", "pollen contact", "visitation", "anemophil", "entomophil",
+            "melittophil", "ornithophil", "chiropterophil",
+        ),
+    },
+    "C_reproductive_assurance": {
+        "query_template": (
+            '"{species}" ("self-incompatibility" OR "self-compatible" OR "autonomous selfing" '
+            "OR bagging OR hand-pollination OR mating system OR herkogamy OR dichogamy "
+            "OR cleistogamy)"
+        ),
+        "api_terms": (
+            "self-incompatibility self-compatible autonomous selfing bagging hand-pollination "
+            "mating system herkogamy dichogamy cleistogamy"
+        ),
+        "likely_evidence_type": "reproductive_assurance",
+        "keywords": (
+            "self-incompatib", "self incompatib", "self-compatib", "self compatib",
+            "autonomous selfing", "autogam", "bagging experiment", "bagging", "hand-pollinat",
+            "hand pollinat", "mating system", "herkogam", "dichogam", "cleistogam",
+            "geitonogam", "xenogam", "apomix",
+        ),
+    },
+}
+
+
+def _match_keywords(text: str, keywords: tuple[str, ...]) -> list[str]:
+    lowered = (text or "").lower()
+    return [keyword for keyword in keywords if keyword in lowered]
+
+
+def openalex_abstract(work: dict[str, Any]) -> str:
+    """Reconstruct an OpenAlex abstract from its inverted index (for scoring)."""
+    inverted = work.get("abstract_inverted_index")
+    if not isinstance(inverted, dict) or not inverted:
+        return ""
+    positions: dict[int, str] = {}
+    for word, indices in inverted.items():
+        for index in indices or []:
+            positions[int(index)] = word
+    return " ".join(positions[i] for i in sorted(positions))
+
+
+def _strip_markup(text: str) -> str:
+    return re.sub(r"<[^>]+>", " ", str(text or ""))
+
+
 # Provisional source-tier HINT, using the study's own reliability vocabulary
 # (see prompts/trait_evidence_extraction_v2.md and config/attrition_audit.yml).
 # It grades the likely reliability of the SOURCE, never a trait value, and a
-# human confirms the real grade on review. The analysis evidence tracks accept
-# A/B (direct-conservative) or A/B/C (direct-broad-web); D is below every track,
-# so leads are ranked to surface A/B/C first and push unvetted web last.
+# human confirms the real grade on review.
 GRADE_A = "A_primary_or_monograph"
 GRADE_B = "B_curated_database_or_institution"
 GRADE_C = "C_curated_specialist_web"
 GRADE_D = "D_unvetted_web"
 GRADE_NONE = "none"
 _GRADE_PRIORITY = {GRADE_A: 1, GRADE_B: 2, GRADE_C: 3, GRADE_D: 4, GRADE_NONE: 5}
-# Curated / institutional hosts → likely B. Community / unvetted hosts → D.
 _B_HOST_HINTS = (
     "powo.science.kew", "kew.org", "tropicos.org", "gbif.org", "ipni.org",
     "worldfloraonline.org", "catalogueoflife", "efloras.org", "biodiversitylibrary.org",
@@ -94,8 +175,11 @@ def grade_source_hint(source_api: str, venue: str, doi: str, *urls: str) -> tupl
         return GRADE_C, _GRADE_PRIORITY[GRADE_C]
     return GRADE_NONE, _GRADE_PRIORITY[GRADE_NONE]
 
+
 OUTPUT_COLUMNS = [
     "query_taxon",
+    "query_trait_group",
+    "query_template",
     "source_api",
     "seed_type",
     "title",
@@ -108,6 +192,10 @@ OUTPUT_COLUMNS = [
     "open_access_url",
     "candidate_pdf_url",
     "candidate_page_locator",
+    "title_relevance_score",
+    "abstract_relevance_score",
+    "trait_keywords_matched",
+    "likely_evidence_type",
     "provisional_source_reliability_hint",
     "priority_rank",
     "lead_status",
@@ -134,15 +222,17 @@ PROHIBITED_OUTPUT_COLUMNS = {
 
 @app.callback()
 def main() -> None:
-    """Discover free literature leads for staged Core-pilot taxa (no trait values)."""
+    """Discover free, trait-group-targeted literature leads (no trait values)."""
 
 
 @dataclass
 class LiteratureSeed:
-    """One unreviewed bibliographic lead for a taxon."""
+    """One unreviewed, trait-group-targeted bibliographic lead for a taxon."""
 
     query_taxon: str
     source_api: str
+    query_trait_group: str = ""
+    query_template: str = ""
     seed_type: str = "literature_seed"
     title: str = ""
     doi: str = ""
@@ -154,6 +244,10 @@ class LiteratureSeed:
     open_access_url: str = ""
     candidate_pdf_url: str = ""
     candidate_page_locator: str = PAGE_LOCATOR_PLACEHOLDER
+    title_relevance_score: int = 0
+    abstract_relevance_score: int = 0
+    trait_keywords_matched: str = ""
+    likely_evidence_type: str = ""
     provisional_source_reliability_hint: str = GRADE_NONE
     priority_rank: int = _GRADE_PRIORITY[GRADE_NONE]
     lead_status: str = LEAD_STATUS
@@ -165,6 +259,16 @@ class LiteratureSeed:
         self.provisional_source_reliability_hint, self.priority_rank = grade_source_hint(
             self.source_api, self.venue, self.doi, self.open_access_url, self.candidate_pdf_url
         )
+
+    def score_trait_relevance(self, title_text: str, abstract_text: str, group_cfg: dict[str, Any]) -> None:
+        """Score how relevant this lead is to its trait group (never a trait value)."""
+        keywords = tuple(group_cfg.get("keywords", ()))
+        title_hits = _match_keywords(title_text, keywords)
+        abstract_hits = _match_keywords(abstract_text, keywords)
+        self.title_relevance_score = len(title_hits)
+        self.abstract_relevance_score = len(abstract_hits)
+        self.trait_keywords_matched = "|".join(sorted(set(title_hits) | set(abstract_hits)))
+        self.likely_evidence_type = str(group_cfg.get("likely_evidence_type", ""))
 
     def to_row(self) -> dict[str, str]:
         row = {k: v for k, v in asdict(self).items() if k != "passthrough"}
@@ -182,8 +286,16 @@ def _clean_doi(raw: Any) -> str:
     return doi.strip().lower()
 
 
-def parse_openalex_works(payload: dict[str, Any], query_taxon: str, limit: int) -> list[LiteratureSeed]:
-    """Parse an OpenAlex /works response into unreviewed literature seeds."""
+def parse_openalex_works(
+    payload: dict[str, Any],
+    query_taxon: str,
+    limit: int,
+    trait_group: str = "",
+    group_cfg: dict[str, Any] | None = None,
+) -> list[LiteratureSeed]:
+    """Parse an OpenAlex /works response into trait-scored literature seeds."""
+    group_cfg = group_cfg or {}
+    template = str(group_cfg.get("query_template", "")).replace("{species}", query_taxon)
     seeds: list[LiteratureSeed] = []
     for work in (payload.get("results") or [])[:limit]:
         oa = work.get("open_access") or {}
@@ -194,26 +306,37 @@ def parse_openalex_works(payload: dict[str, Any], query_taxon: str, limit: int) 
             (a.get("author") or {}).get("display_name", "") for a in authorships if a.get("author")
         )
         is_oa = oa.get("is_oa")
-        seeds.append(
-            LiteratureSeed(
-                query_taxon=query_taxon,
-                source_api="openalex",
-                title=str(work.get("display_name") or work.get("title") or "").strip(),
-                doi=_clean_doi(work.get("doi")),
-                publication_year=str(work.get("publication_year") or "").strip(),
-                venue=str(source.get("display_name") or "").strip(),
-                authors=authors,
-                is_open_access="" if is_oa is None else str(bool(is_oa)).lower(),
-                oa_status=str(oa.get("oa_status") or "").strip(),
-                open_access_url=str(oa.get("oa_url") or "").strip(),
-                candidate_pdf_url=str(location.get("pdf_url") or "").strip(),
-            )
+        title = str(work.get("display_name") or work.get("title") or "").strip()
+        seed = LiteratureSeed(
+            query_taxon=query_taxon,
+            source_api="openalex",
+            query_trait_group=trait_group,
+            query_template=template,
+            title=title,
+            doi=_clean_doi(work.get("doi")),
+            publication_year=str(work.get("publication_year") or "").strip(),
+            venue=str(source.get("display_name") or "").strip(),
+            authors=authors,
+            is_open_access="" if is_oa is None else str(bool(is_oa)).lower(),
+            oa_status=str(oa.get("oa_status") or "").strip(),
+            open_access_url=str(oa.get("oa_url") or "").strip(),
+            candidate_pdf_url=str(location.get("pdf_url") or "").strip(),
         )
+        seed.score_trait_relevance(title, openalex_abstract(work), group_cfg)
+        seeds.append(seed)
     return seeds
 
 
-def parse_crossref_works(payload: dict[str, Any], query_taxon: str, limit: int) -> list[LiteratureSeed]:
-    """Parse a Crossref /works response into unreviewed literature seeds."""
+def parse_crossref_works(
+    payload: dict[str, Any],
+    query_taxon: str,
+    limit: int,
+    trait_group: str = "",
+    group_cfg: dict[str, Any] | None = None,
+) -> list[LiteratureSeed]:
+    """Parse a Crossref /works response into trait-scored literature seeds."""
+    group_cfg = group_cfg or {}
+    template = str(group_cfg.get("query_template", "")).replace("{species}", query_taxon)
     items = ((payload.get("message") or {}).get("items")) or []
     seeds: list[LiteratureSeed] = []
     for item in items[:limit]:
@@ -226,17 +349,20 @@ def parse_crossref_works(payload: dict[str, Any], query_taxon: str, limit: int) 
         authors = "; ".join(
             f"{a.get('given', '')} {a.get('family', '')}".strip() for a in (item.get("author") or [])
         )
-        seeds.append(
-            LiteratureSeed(
-                query_taxon=query_taxon,
-                source_api="crossref",
-                title=str(title_list[0]).strip() if title_list else "",
-                doi=_clean_doi(item.get("DOI")),
-                publication_year=year,
-                venue=str(container[0]).strip() if container else "",
-                authors=authors,
-            )
+        title = str(title_list[0]).strip() if title_list else ""
+        seed = LiteratureSeed(
+            query_taxon=query_taxon,
+            source_api="crossref",
+            query_trait_group=trait_group,
+            query_template=template,
+            title=title,
+            doi=_clean_doi(item.get("DOI")),
+            publication_year=year,
+            venue=str(container[0]).strip() if container else "",
+            authors=authors,
         )
+        seed.score_trait_relevance(title, _strip_markup(item.get("abstract", "")), group_cfg)
+        seeds.append(seed)
     return seeds
 
 
@@ -258,32 +384,34 @@ def discover_for_taxon(
     taxon: str,
     getter: JsonGetter,
     contact_email: str,
-    max_seeds: int,
+    max_seeds_per_group: int,
     passthrough: dict[str, str] | None = None,
+    trait_groups: dict[str, dict[str, Any]] | None = None,
 ) -> tuple[list[LiteratureSeed], list[str]]:
-    """Collect open literature leads for one taxon. Returns (seeds, errors)."""
+    """Collect trait-group-targeted leads for one taxon. Returns (seeds, errors)."""
     passthrough = passthrough or {}
+    groups = trait_groups or TRAIT_GROUP_QUERIES
     seeds: list[LiteratureSeed] = []
     errors: list[str] = []
 
-    try:
-        oa_payload = getter(
-            OPENALEX_WORKS_URL,
-            {"search": taxon, "per_page": max_seeds, "mailto": contact_email},
-        )
-        seeds.extend(parse_openalex_works(oa_payload, taxon, max_seeds))
-    except Exception as exc:  # noqa: BLE001 - one source failing must not abort the taxon
-        errors.append(f"openalex:{taxon}:{exc}")
-
-    if len(seeds) < max_seeds:
+    for group_key, cfg in groups.items():
+        query = f'{taxon} {cfg.get("api_terms", "")}'.strip()
+        try:
+            oa_payload = getter(
+                OPENALEX_WORKS_URL,
+                {"search": query, "per_page": max_seeds_per_group, "mailto": contact_email},
+            )
+            seeds.extend(parse_openalex_works(oa_payload, taxon, max_seeds_per_group, group_key, cfg))
+        except Exception as exc:  # noqa: BLE001 - one source failing must not abort the taxon
+            errors.append(f"openalex:{group_key}:{taxon}:{exc}")
         try:
             cr_payload = getter(
                 CROSSREF_WORKS_URL,
-                {"query.bibliographic": taxon, "rows": max_seeds, "mailto": contact_email},
+                {"query.bibliographic": query, "rows": max_seeds_per_group, "mailto": contact_email},
             )
-            seeds.extend(parse_crossref_works(cr_payload, taxon, max_seeds - len(seeds)))
+            seeds.extend(parse_crossref_works(cr_payload, taxon, max_seeds_per_group, group_key, cfg))
         except Exception as exc:  # noqa: BLE001
-            errors.append(f"crossref:{taxon}:{exc}")
+            errors.append(f"crossref:{group_key}:{taxon}:{exc}")
 
     for seed in seeds:
         seed.passthrough = dict(passthrough)
@@ -296,7 +424,6 @@ def discover_for_taxon(
             except Exception as exc:  # noqa: BLE001
                 errors.append(f"unpaywall:{seed.doi}:{exc}")
                 seed.provenance_note = "Unpaywall lookup failed; open-access status unknown."
-        # Grade the source tier only after any Unpaywall URLs are resolved.
         seed.apply_source_grade_hint()
 
     return seeds, errors
@@ -318,7 +445,10 @@ def discover_sources(
     max_taxa: int,
     max_seeds_per_taxon: int,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
-    """Build the literature-lead table and a run report for staged taxa."""
+    """Build the trait-group-targeted lead table and a run report for staged taxa.
+
+    ``max_seeds_per_taxon`` bounds the seeds requested per trait group per API.
+    """
     missing = REQUIRED_TAXA_COLUMNS.difference(staged_taxa.columns)
     if missing:
         raise typer.BadParameter(f"staged taxa table missing columns: {', '.join(sorted(missing))}")
@@ -346,23 +476,39 @@ def discover_sources(
     frame = pd.DataFrame(rows, columns=ordered) if rows else pd.DataFrame(columns=ordered)
     _guard_output(frame)
     if len(frame):
-        # Surface A/B/C sources before D (unvetted web) within each taxon.
-        frame["priority_rank"] = pd.to_numeric(frame["priority_rank"], errors="coerce").fillna(5).astype(int)
-        frame = frame.sort_values(["query_taxon", "priority_rank"]).reset_index(drop=True)
+        for column in ("title_relevance_score", "abstract_relevance_score", "priority_rank"):
+            frame[column] = pd.to_numeric(frame[column], errors="coerce").fillna(0).astype(int)
+        # Within a taxon and trait group, surface the most trait-relevant leads
+        # first; a title_relevance_score of 0 can never head the review, and a
+        # higher source grade only breaks ties among equally relevant leads.
+        frame = frame.sort_values(
+            ["query_taxon", "query_trait_group", "title_relevance_score",
+             "abstract_relevance_score", "priority_rank"],
+            ascending=[True, True, False, False, True],
+        ).reset_index(drop=True)
 
     def _n_hint(grade: str) -> int:
         return int((frame["provisional_source_reliability_hint"] == grade).sum()) if len(frame) else 0
 
+    def _n_group(group: str) -> int:
+        return int((frame["query_trait_group"] == group).sum()) if len(frame) else 0
+
+    n_title_relevant = int((frame["title_relevance_score"] > 0).sum()) if len(frame) else 0
     report = {
         "note": (
-            "Unreviewed literature leads only. No trait value, native/establishment "
-            "status, Bombus applicability, or analysis inclusion is decided here. The "
-            "provisional_source_reliability_hint is a navigation aid; a human sets the "
-            "authoritative grade. Analysis tracks accept A/B (direct-conservative) or "
-            "A/B/C (direct-broad-web); D_unvetted_web is below every track."
+            "Unreviewed, trait-group-targeted literature leads only. A source lead is "
+            "NOT trait evidence; no trait value, native/establishment status, Bombus "
+            "applicability, or analysis inclusion is decided here. Retrieval is "
+            "species x trait-group; title_relevance_score==0 leads are ranked last and "
+            "must not head a taxon's trait review."
         ),
         "n_taxa_queried": int(len(taxa)),
         "n_literature_seeds": int(len(frame)),
+        "n_seeds_group_A_floral_morphology_colour": _n_group("A_floral_morphology_colour"),
+        "n_seeds_group_B_pollination_pollen_vector": _n_group("B_pollination_pollen_vector"),
+        "n_seeds_group_C_reproductive_assurance": _n_group("C_reproductive_assurance"),
+        "n_title_relevant_seeds": n_title_relevant,
+        "n_zero_title_relevance_seeds": int(len(frame)) - n_title_relevant,
         "n_seeds_with_doi": int((frame["doi"] != "").sum()) if len(frame) else 0,
         "n_open_access_seeds": int((frame["is_open_access"] == "true").sum()) if len(frame) else 0,
         "n_hint_A_primary_or_monograph": _n_hint(GRADE_A),
@@ -412,9 +558,9 @@ def discover(
     contact_email: str = typer.Option(..., help="Contact email for the OpenAlex/Unpaywall polite pool."),
     output_dir: Path = typer.Option(...),
     max_taxa: int = typer.Option(5, min=1, help="Bounded number of staged taxa to query."),
-    max_seeds_per_taxon: int = typer.Option(5, min=1, help="Max literature seeds per taxon."),
+    max_seeds_per_taxon: int = typer.Option(5, min=1, help="Max leads per trait group per API."),
 ) -> None:
-    """Write unreviewed literature leads for a nominated island's staged taxa."""
+    """Write unreviewed, trait-group-targeted literature leads for a nominated island."""
     _require_nominated_island(nomination_report, island_id)
     staged_taxa = pd.read_csv(staged_taxa_csv, dtype=str).fillna("")
     frame, report = discover_sources(
@@ -427,9 +573,9 @@ def discover(
         json.dumps(report, indent=2), encoding="utf-8"
     )
     typer.echo(
-        f"{report['n_literature_seeds']} unreviewed literature lead(s) for "
-        f"{report['n_taxa_queried']} taxon(s) on {island_id}. "
-        "No trait/native/applicability value was decided."
+        f"{report['n_literature_seeds']} unreviewed lead(s) ({report['n_title_relevant_seeds']} "
+        f"title-relevant) across 3 trait groups for {report['n_taxa_queried']} taxon(s) on "
+        f"{island_id}. No trait/native/applicability value was decided."
     )
 
 
