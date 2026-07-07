@@ -109,7 +109,7 @@ jobs:
         run: |
           set -euo pipefail
           outputs=(
-            data/v2/staging/gbif/collected/island_species_occurrences.csv
+            data/v2/staging/gbif/collected/island_species_occurrences.csv.gz
             data/v2/staging/gbif/collected/island_observation_effort.csv
             data/v2/staging/gbif/collected/island_taxa.csv
             data/v2/staging/gbif/collected/collection_manifest.csv
@@ -122,7 +122,8 @@ jobs:
           [ "${#existing[@]}" -gt 0 ] || exit 0
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add "${existing[@]}"
+          # Include removal of the legacy uncompressed snapshot in the same commit.
+          git add -A -- data/v2/staging/gbif/collected
           git diff --cached --quiet && exit 0
           git commit -m "chore: update GBIF island-level collection outputs"
           for attempt in 1 2 3 4 5; do
