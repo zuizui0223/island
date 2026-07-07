@@ -39,6 +39,7 @@ jobs:
       FROZEN_ARTIFACT_ID: "8066083419"
       FROZEN_ARTIFACT_SHA256: "bee33e14672ec7ff4ed1f7acaea36b32cc6170a45c3d14b2caeb5f43bfaa623b"
       MAX_BLOCKS: ${{ inputs.max_blocks || '1' }}
+      PYTHONUNBUFFERED: "1"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -96,6 +97,7 @@ jobs:
             gbif-archives-
       - name: Collect resumable exact-island batch
         run: |
+          echo "Before collection:"; date -u; free -h
           island-v2-gbif-collect collect \
             --campaign-json config/gbif_full_acquisition_v2.json \
             --block-members-csv data/v2/external/gbif/full/gbif_block_members.csv \
@@ -103,7 +105,8 @@ jobs:
             --download-dir data/v2/staging/gbif/archives \
             --output-dir data/v2/staging/gbif/collected \
             --max-blocks "$MAX_BLOCKS" \
-            --chunksize 250000
+            --chunksize 50000
+          echo "After collection:"; date -u; free -h
       - name: Commit cumulative collection outputs
         if: always()
         run: |
