@@ -527,7 +527,11 @@ def collect_succeeded_blocks(
                 metrics["archive_sha256"] = sha256_file(archive)
                 metrics["archive_bytes"] = int(archive.stat().st_size)
 
-                def exact_chunks() -> Iterable[pd.DataFrame]:
+                def exact_chunks(
+                    archive=archive,
+                    metrics=metrics,
+                    island_subset=island_subset,
+                ) -> Iterable[pd.DataFrame]:
                     for occurrences in iter_block_occurrences(archive, chunksize=chunksize):
                         metrics["n_source_rows"] += int(
                             occurrences.attrs.get("n_source_rows", len(occurrences))
