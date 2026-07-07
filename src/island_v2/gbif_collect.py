@@ -19,6 +19,8 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import sys
+import time
 import zipfile
 from collections.abc import Iterator
 from pathlib import Path
@@ -28,6 +30,11 @@ import geopandas as gpd
 import httpx
 import pandas as pd
 import typer
+
+
+def _progress(message: str) -> None:
+    """Emit a flushed, timestamped progress line to stderr for CI visibility."""
+    print(f"[collect {time.strftime('%H:%M:%S')}] {message}", file=sys.stderr, flush=True)
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
@@ -494,11 +501,16 @@ def collect(
             try:
                 island_subset = islands_by_id.loc[present].reset_index()
                 island_subset = gpd.GeoDataFrame(island_subset, geometry="geometry", crs=islands.crs)
+                block_started = time.monotonic()
+                _progress(f"block {block_id}: {len(present)} islands, downloading {key}")
                 archive = _download_archive(client, key, download_dir, entry.get("last_download_link") or entry.get("download_link"))
                 metrics["archive_path"] = str(archive)
                 metrics["archive_sha256"] = sha256_file(archive)
                 metrics["archive_bytes"] = int(archive.stat().st_size)
+                _progress(f"block {block_id}: archive {metrics['archive_bytes'] / 1e6:.0f} MB; assigning chunks")
+                chunk_index = 0
                 for occurrences in iter_block_occurrences(archive, chunksize=chunksize):
+                    chunk_index += 1
                     metrics["n_source_rows"] += int(occurrences.attrs.get("n_source_rows", len(occurrences)))
                     metrics["n_valid_coordinate_rows"] += int(len(occurrences))
                     if occurrences.empty:
@@ -516,7 +528,18 @@ def collect(
                     on_island = assigned.loc[on_island_mask]
                     if not on_island.empty:
                         all_assigned.append(on_island)
+                    if chunk_index % 10 == 0:
+                        _progress(
+                            f"block {block_id}: chunk {chunk_index}, "
+                            f"source_rows={metrics['n_source_rows']}, "
+                            f"on_island={metrics['n_exact_island_rows_before_dedup']}, "
+                            f"{time.monotonic() - block_started:.0f}s"
+                        )
                 metrics["collection_status"] = "collected"
+                _progress(
+                    f"block {block_id}: assigned {metrics['n_source_rows']} source rows in "
+                    f"{chunk_index} chunks, {time.monotonic() - block_started:.0f}s"
+                )
             except Exception as exc:  # retain a block-level audit rather than silently losing it
                 metrics["collection_status"] = "collection_failed"
                 metrics["error"] = f"{type(exc).__name__}: {exc}"
@@ -524,8 +547,11 @@ def collect(
             manifest_rows.append(metrics)
 
     if all_assigned:
+        _progress(f"concatenating {sum(len(part) for part in all_assigned)} on-island rows")
+        phase_started = time.monotonic()
         assigned_before_dedup = pd.concat(all_assigned, ignore_index=True)
         assigned, duplicate_audit = deduplicate_occurrences(assigned_before_dedup)
+        _progress(f"dedup -> {len(assigned)} rows, {time.monotonic() - phase_started:.0f}s")
     else:
         assigned_before_dedup = pd.DataFrame(columns=list(_SOURCE_COLUMNS.values()) + ["island_id", "block_id", "gbif_download_key"])
         assigned = assigned_before_dedup.copy()
@@ -543,9 +569,11 @@ def collect(
         for metrics in manifest_rows:
             metrics["n_rows_retained_after_global_dedup"] = int(retained_by_block.get(metrics["block_id"], 0))
 
+    tables_started = time.monotonic()
     species_table = island_species_table(assigned)
     effort = summarize_observation_effort(assigned)
     taxa = island_taxa_table(assigned)
+    _progress(f"built island tables, {time.monotonic() - tables_started:.0f}s")
     manifest = pd.DataFrame(manifest_rows)
     if manifest.empty:
         manifest = pd.DataFrame(
