@@ -247,10 +247,9 @@ def deduplicate_occurrences(assigned: pd.DataFrame) -> tuple[pd.DataFrame, dict[
     cross_block_ids = set(
         with_id.groupby("_gbif_id_norm")["block_id"].nunique().loc[lambda values: values.gt(1)].index
     )
-    conflicting_islands = 0
-    for _, group in with_id.loc[with_id["_gbif_id_norm"].isin(duplicate_ids)].groupby("_gbif_id_norm"):
-        if group["island_id"].dropna().nunique() > 1:
-            conflicting_islands += 1
+    duplicate_rows = with_id.loc[with_id["_gbif_id_norm"].isin(duplicate_ids)]
+    island_nunique = duplicate_rows.groupby("_gbif_id_norm")["island_id"].nunique()
+    conflicting_islands = int((island_nunique > 1).sum())
 
     with_id["_has_island"] = with_id["island_id"].notna().astype(int)
     uncertainty = pd.to_numeric(with_id["coordinate_uncertainty_m"], errors="coerce")
@@ -293,92 +292,123 @@ def summarize_observation_effort(assigned: pd.DataFrame) -> pd.DataFrame:
     if on_island.empty:
         return pd.DataFrame(columns=EFFORT_COLUMNS)
 
-    on_island["_year"] = pd.to_numeric(on_island["year"], errors="coerce")
-    on_island["_uncertainty"] = pd.to_numeric(on_island["coordinate_uncertainty_m"], errors="coerce")
-    on_island["_basis"] = on_island["basis_of_record"].fillna("").astype(str).str.strip().str.upper()
-    on_island["_establishment"] = on_island["establishment_means"].fillna("").astype(str).str.strip().str.upper()
-    rows = []
-    for island_id, group in on_island.groupby("island_id", sort=True):
-        species = group["species"].dropna().astype(str).str.strip()
-        species = species.loc[species.ne("")]
-        gbif_ids = group["gbif_id"].dropna().astype(str).str.strip()
-        gbif_ids = gbif_ids.loc[gbif_ids.ne("")]
-        datasets = group["dataset_key"].dropna().astype(str).str.strip()
-        datasets = datasets.loc[datasets.ne("")]
-        years = group["_year"].dropna()
-        uncertainty = group["_uncertainty"].dropna()
-        basis = group["_basis"]
-        establishment = group["_establishment"]
-        rows.append(
-            {
-                "island_id": island_id,
-                "n_records": int(len(group)),
-                "n_unique_gbif_ids": int(gbif_ids.nunique()),
-                "n_species": int(species.nunique()),
-                "n_datasets": int(datasets.nunique()),
-                "n_preserved_specimen": int(basis.eq("PRESERVED_SPECIMEN").sum()),
-                "n_human_observation": int(basis.eq("HUMAN_OBSERVATION").sum()),
-                "n_other_basis_of_record": int((basis.ne("") & ~basis.isin(["PRESERVED_SPECIMEN", "HUMAN_OBSERVATION"])).sum()),
-                "n_uncertainty_reported": int(uncertainty.notna().sum()),
-                "median_coordinate_uncertainty_m": float(uncertainty.median()) if not uncertainty.empty else pd.NA,
-                "p90_coordinate_uncertainty_m": float(uncertainty.quantile(0.9)) if not uncertainty.empty else pd.NA,
-                "n_coordinate_uncertainty_gt_1000m": int(uncertainty.gt(1000).sum()),
-                "n_establishment_native": int(establishment.str.contains("NATIVE", regex=False).sum()),
-                "n_establishment_introduced": int(establishment.str.contains("INTRODUCED", regex=False).sum()),
-                "n_establishment_cultivated": int(establishment.str.contains("CULTIVATED", regex=False).sum()),
-                "year_min": int(years.min()) if not years.empty else pd.NA,
-                "year_max": int(years.max()) if not years.empty else pd.NA,
-            }
-        )
-    return pd.DataFrame(rows, columns=EFFORT_COLUMNS)
+    basis = on_island["basis_of_record"].fillna("").astype(str).str.strip().str.upper()
+    establishment = on_island["establishment_means"].fillna("").astype(str).str.strip().str.upper()
+    unc = pd.to_numeric(on_island["coordinate_uncertainty_m"], errors="coerce")
+
+    def _nonblank(column: str) -> pd.Series:
+        text = on_island[column].fillna("").astype(str).str.strip()
+        return text.where(text.ne(""), other=pd.NA)
+
+    work = pd.DataFrame(
+        {
+            "island_id": on_island["island_id"].to_numpy(),
+            "_year": pd.to_numeric(on_island["year"], errors="coerce").to_numpy(),
+            "_uncertainty": unc.to_numpy(),
+            "_species": _nonblank("species").to_numpy(),
+            "_gbif": _nonblank("gbif_id").to_numpy(),
+            "_dataset": _nonblank("dataset_key").to_numpy(),
+            "_preserved": basis.eq("PRESERVED_SPECIMEN").to_numpy(),
+            "_human": basis.eq("HUMAN_OBSERVATION").to_numpy(),
+            "_other_basis": (basis.ne("") & ~basis.isin(["PRESERVED_SPECIMEN", "HUMAN_OBSERVATION"])).to_numpy(),
+            "_unc_reported": unc.notna().to_numpy(),
+            "_unc_gt1000": unc.gt(1000).to_numpy(),
+            "_native": establishment.str.contains("NATIVE", regex=False).to_numpy(),
+            "_introduced": establishment.str.contains("INTRODUCED", regex=False).to_numpy(),
+            "_cultivated": establishment.str.contains("CULTIVATED", regex=False).to_numpy(),
+        }
+    )
+    grouped = work.groupby("island_id", sort=True)
+    out = grouped.agg(
+        n_records=("_year", "size"),
+        n_unique_gbif_ids=("_gbif", "nunique"),
+        n_species=("_species", "nunique"),
+        n_datasets=("_dataset", "nunique"),
+        n_preserved_specimen=("_preserved", "sum"),
+        n_human_observation=("_human", "sum"),
+        n_other_basis_of_record=("_other_basis", "sum"),
+        n_uncertainty_reported=("_unc_reported", "sum"),
+        median_coordinate_uncertainty_m=("_uncertainty", "median"),
+        p90_coordinate_uncertainty_m=("_uncertainty", lambda values: values.quantile(0.9)),
+        n_coordinate_uncertainty_gt_1000m=("_unc_gt1000", "sum"),
+        n_establishment_native=("_native", "sum"),
+        n_establishment_introduced=("_introduced", "sum"),
+        n_establishment_cultivated=("_cultivated", "sum"),
+        year_min=("_year", "min"),
+        year_max=("_year", "max"),
+    ).reset_index()
+    int_columns = [
+        "n_records", "n_unique_gbif_ids", "n_species", "n_datasets", "n_preserved_specimen",
+        "n_human_observation", "n_other_basis_of_record", "n_uncertainty_reported",
+        "n_coordinate_uncertainty_gt_1000m", "n_establishment_native",
+        "n_establishment_introduced", "n_establishment_cultivated",
+    ]
+    for column in int_columns:
+        out[column] = out[column].astype(int)
+    for column in ("year_min", "year_max"):
+        out[column] = out[column].map(lambda value: int(value) if pd.notna(value) else pd.NA)
+    for column in ("median_coordinate_uncertainty_m", "p90_coordinate_uncertainty_m"):
+        out[column] = out[column].map(lambda value: float(value) if pd.notna(value) else pd.NA)
+    return out[EFFORT_COLUMNS]
 
 
 def island_species_table(assigned: pd.DataFrame) -> pd.DataFrame:
     """Deduplicated island x species candidate table with retained provenance."""
-    on_island = assigned.loc[assigned["island_id"].notna()].copy()
-    named = on_island.loc[on_island["species"].fillna("").astype(str).str.strip().astype(bool)].copy()
+    on_island = assigned.loc[assigned["island_id"].notna()]
+    species = on_island["species"].fillna("").astype(str).str.strip()
+    named = on_island.loc[species.ne("")]
     if named.empty:
         return pd.DataFrame(
             columns=["island_id", "species", "n_records", "n_unique_gbif_ids", "basis_of_record_set", "review_status"]
         )
-    rows = []
-    for (island_id, species), group in named.groupby(["island_id", "species"], sort=True):
-        bases = sorted(set(group["basis_of_record"].dropna().astype(str).str.strip()) - {""})
-        gbif_ids = group["gbif_id"].dropna().astype(str).str.strip()
-        gbif_ids = gbif_ids.loc[gbif_ids.ne("")]
-        rows.append(
-            {
-                "island_id": island_id,
-                "species": species,
-                "n_records": int(len(group)),
-                "n_unique_gbif_ids": int(gbif_ids.nunique()),
-                "basis_of_record_set": "|".join(bases),
-                "review_status": "unresolved_taxonomy",
-            }
-        )
-    return pd.DataFrame(rows)
+    gbif = named["gbif_id"].fillna("").astype(str).str.strip()
+    work = pd.DataFrame(
+        {
+            "island_id": named["island_id"].to_numpy(),
+            "species": species.loc[named.index].to_numpy(),
+            "_gbif": gbif.where(gbif.ne(""), other=pd.NA).to_numpy(),
+            "_basis": named["basis_of_record"].fillna("").astype(str).str.strip().to_numpy(),
+        }
+    )
+    out = work.groupby(["island_id", "species"], sort=True).agg(
+        n_records=("species", "size"),
+        n_unique_gbif_ids=("_gbif", "nunique"),
+        basis_of_record_set=("_basis", lambda values: "|".join(sorted(set(values) - {""}))),
+    ).reset_index()
+    out["n_records"] = out["n_records"].astype(int)
+    out["n_unique_gbif_ids"] = out["n_unique_gbif_ids"].astype(int)
+    out["review_status"] = "unresolved_taxonomy"
+    return out[["island_id", "species", "n_records", "n_unique_gbif_ids", "basis_of_record_set", "review_status"]]
 
 
 def island_taxa_table(assigned: pd.DataFrame) -> pd.DataFrame:
     """Unique accepted-species taxa list that feeds ``island-v2-traits run``."""
-    on_island = assigned.loc[assigned["island_id"].notna()].copy()
-    named = on_island.loc[on_island["species"].fillna("").astype(str).str.strip().astype(bool)].copy()
+    on_island = assigned.loc[assigned["island_id"].notna()]
+    species = on_island["species"].fillna("").astype(str).str.strip()
+    named = on_island.loc[species.ne("")]
     if named.empty:
         return pd.DataFrame(columns=["accepted_species", "genus", "family", "n_islands", "n_records"])
-    rows = []
-    for species, group in named.groupby("species", sort=True):
-        genus = next((value for value in group["genus"].dropna() if str(value).strip()), "")
-        family = next((value for value in group["family"].dropna() if str(value).strip()), "")
-        rows.append(
-            {
-                "accepted_species": species,
-                "genus": genus,
-                "family": family,
-                "n_islands": int(group["island_id"].nunique()),
-                "n_records": int(len(group)),
-            }
-        )
-    return pd.DataFrame(rows)
+
+    def _first_nonblank(values: pd.Series) -> str:
+        return next((value for value in values.dropna() if str(value).strip()), "")
+
+    work = pd.DataFrame(
+        {
+            "species": species.loc[named.index].to_numpy(),
+            "genus": named["genus"].to_numpy(),
+            "family": named["family"].to_numpy(),
+            "island_id": named["island_id"].to_numpy(),
+        }
+    )
+    out = work.groupby("species", sort=True).agg(
+        genus=("genus", _first_nonblank),
+        family=("family", _first_nonblank),
+        n_islands=("island_id", "nunique"),
+        n_records=("species", "size"),
+    ).reset_index().rename(columns={"species": "accepted_species"})
+    out["n_islands"] = out["n_islands"].astype(int)
+    out["n_records"] = out["n_records"].astype(int)
+    return out[["accepted_species", "genus", "family", "n_islands", "n_records"]]
 
 
 def _succeeded_blocks(campaign: dict[str, Any]) -> list[dict[str, Any]]:
