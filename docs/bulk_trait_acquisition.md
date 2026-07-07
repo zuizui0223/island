@@ -4,7 +4,7 @@
 
 The global species master is expected to grow beyond 100,000 accepted species.
 It is therefore neither affordable nor scientifically sensible to make
-species-by-species web/LLM retrieval the primary acquisition path.
+species-by-species web retrieval the primary acquisition path.
 
 The primary path is:
 
@@ -16,9 +16,6 @@ public bulk trait export
 → trait and family coverage audit
 → conservative / expanded sensitivity analyses
 ```
-
-The manual web-search extractor remains available only for targeted validation
-panels and evidence-rich subsets. It is not the global coverage engine.
 
 ## What bulk import does and does not do
 
