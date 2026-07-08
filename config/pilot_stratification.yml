@@ -1,0 +1,48 @@
+# Stratified gold-standard validation pilot.
+#
+# The first validation pilot must NOT be selected by GBIF record count: that
+# biases toward human-associated / cultivated / easily observed species and hides
+# exactly the off-target-literature and wrong-transfer failure modes we need to
+# measure. Instead stratify a small pilot across biologically meaningful axes and
+# sample evenly across the strata.
+version: "1.0"
+
+# Target pilot size (inclusive range). The builder selects up to target_max,
+# spreading selections evenly across occupied strata.
+target_min: 30
+target_max: 50
+
+# Stratification axes. Each names a column in the candidate species table plus the
+# expected vocabulary (for reporting coverage; unexpected values are still kept as
+# their own stratum, never dropped).
+stratification_dimensions:
+  native_status:
+    column: native_status
+    expected: [native, introduced, unknown]
+  growth_form:
+    column: growth_form
+    expected: [woody, herb, vine, epiphyte, unknown]
+  family:
+    column: family
+    expected: []          # open vocabulary; major angiosperm families
+  flower_conspicuousness:
+    column: flower_conspicuousness
+    expected: [conspicuous, inconspicuous, wind_pollination_candidate, unknown]
+
+# Evaluation vocabulary. Blanks are never counted (blank != a judgement); a rate
+# whose denominator is zero is reported as null (undefined), never fabricated.
+evaluation:
+  # per source-lead rows
+  literature_relevant: [relevant, irrelevant, unknown]
+  source_to_trait_relevant: [yes, no]
+  # per trait / species-trait rows
+  evidence_scope: [species_direct, species_indirect, genus_inference, family_inference]
+  trait_resolved: [resolved, unresolved]
+  # per hierarchical-inference rows
+  hierarchical_transfer_correct: [correct, wrong]
+
+# irrelevant_literature_rate is a PRIMARY metric (how much off-target literature
+# the retrieval pulls in), not merely a secondary agreement statistic.
+primary_metrics:
+  - irrelevant_literature_rate
+  - species_direct_evidence_proportion

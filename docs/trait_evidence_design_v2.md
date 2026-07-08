@@ -103,16 +103,20 @@ into a species-level colour.
 within_species_variation, geographic_scope, wild_or_cultivated,
 colour_evidence_type`.
 
-## Stage 6 — stratified gold-standard validation pilot  ⏳ next
+## Stage 6 — stratified gold-standard validation pilot  ✅ implemented
 
-Do **not** select the first pilot by GBIF record count (biases toward
-human-associated / cultivated / easily observed species). Stratify a 30–50
-species pilot by at least: native vs introduced candidate; woody / herb / vine /
-epiphyte; major angiosperm families; conspicuous / inconspicuous /
-wind-pollination-candidate flowers.
+`config/pilot_stratification.yml` + `src/island_v2/trait_pilot_eval.py`
+(`island-v2-trait-pilot-eval build|evaluate`). `build` selects a 30–50 species
+pilot by spreading selections **evenly across strata** (round-robin, largest
+strata first, deterministic) — never by GBIF record count, which biases toward
+human-associated / cultivated / easily observed species. Strata combine: native
+vs introduced; woody / herb / vine / epiphyte; major angiosperm families;
+conspicuous / inconspicuous / wind-pollination-candidate flowers.
 
-Compare human review vs automatic candidates and evaluate:
+`evaluate` compares human review vs automatic candidates and computes:
 `species_direct_evidence_proportion`, `irrelevant_literature_rate`,
 `source_to_trait_relevance_rate`, `trait_specific_unresolved_rate`,
 `wrong_hierarchical_transfer_rate`. **`irrelevant_literature_rate` (how much
 off-target literature is pulled in) is a primary metric — not just agreement.**
+Each rate counts only explicit judgements; a blank is never a judgement and a
+zero-denominator rate is reported as `null` (undefined), never fabricated.
