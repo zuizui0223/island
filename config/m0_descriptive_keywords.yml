@@ -1,0 +1,37 @@
+# Stage-1B: M0 floral-phenotype keyword vocabulary for the descriptive scout.
+#
+# The descriptive scout retrieves free-text species descriptions (GBIF species
+# descriptions first) and proposes M0 candidate values ONLY where a controlled
+# vocabulary term appears verbatim. Each hit is an unreviewed candidate with a
+# source excerpt -- never a decided trait value. Multiple colours in one
+# description yield multiple candidates; nothing is collapsed to a single primary.
+version: "1.0"
+
+# GBIF description `type` values worth scanning for morphology text.
+description_types:
+  - morphology
+  - description
+  - general
+  - diagnostic
+  - foliage
+  - reproduction
+
+# canonical M0 value -> surface terms that map to it (matched as whole words,
+# case-insensitive). Keep synonyms conservative to limit false candidates.
+traits:
+  flower_primary_color:
+    white: [white, whitish]
+    cream: [cream, creamy, ivory]
+    yellow: [yellow, yellowish, golden, gold]
+    orange: [orange]
+    red: [red, reddish, crimson, scarlet]
+    pink: [pink, pinkish, rose, rosy]
+    purple: [purple, purplish, violet, mauve, lilac, lavender]
+    blue: [blue, bluish]
+    green: [green, greenish]
+    brown: [brown, brownish]
+    black: [black, blackish]
+
+  floral_symmetry:
+    actinomorphic: [actinomorphic, "radially symmetric", "radial symmetry", regular]
+    zygomorphic: [zygomorphic, "bilaterally symmetric", "bilateral symmetry", irregular, bilabiate, "two-lipped", "two lipped"]
