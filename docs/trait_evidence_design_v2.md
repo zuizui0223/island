@@ -14,6 +14,58 @@ records the target design and its staged status.
 - Bombus applicability is **never** decided on the trait-extraction side.
 - Model / retrieval output stays a **candidate database**; human review required.
 
+## Evidence policy — reported vs proxy (cross-layer, M0–M4)
+
+Trait evidence is captured in **two strictly separated classes**, kept in
+**separate columns**, never merged. A `candidate_class` field records which:
+
+### 1. `reported` — an explicit statement exists
+
+For any trait — including reproductive system, self-incompatibility /
+self-compatibility (SI/SC), and pollination syndrome — sources are **not limited to
+the primary literature**. Any source with an **explicit statement** is used and kept:
+peer-reviewed literature, Floras, taxonomic/biodiversity databases, Wikipedia,
+Wikidata, botanic-garden pages, horticulture sites, and other web descriptions. A
+web-derived explicit statement is **not discarded**; it is recorded with its source
+type so it can be weighted at review time.
+
+Every `reported` candidate retains, at minimum:
+`candidate_class=reported`, `source_type`, `source_url`, `raw_description` (the
+verbatim excerpt), `evidence_scope` (species_direct / species_indirect / genus / …),
+`wild_or_cultivated`, `review_status`. These are recorded as a
+**`reported_trait_candidate`**.
+
+### 2. `proxy` — no explicit statement; inferred to fill a gap
+
+When no explicit statement exists, a value **may** be suggested from floral
+phenotype, taxonomic tendency, life history, distribution, or insularity — but only
+as a **proxy**, never a decided value. Proxy traits carry a distinct name
+(`*_proxy`), e.g. `floral_syndrome_proxy`, `reproductive_assurance_proxy`,
+`compatibility_system_proxy`. A proxy is a phenotype/life-history-based candidate for
+gap-filling; it is **not real data**.
+
+### Distinctions that must never be conflated
+
+| reported (explicit) | proxy (inferred) |
+| --- | --- |
+| `self_compatible` reported | `likely_self_compatible_proxy` |
+| `Bombus` visitor reported | `large_bee_or_Bombus_like_floral_phenotype_proxy` |
+| `autonomous_selfing` reported | `reproductive_assurance_like_proxy` |
+
+### Design stance
+
+Keep the reliability model **simple and coverage-first** — do not over-engineer
+confidence scoring. The one non-negotiable is provenance: always retain the
+**raw text** and **source type** so a reviewer can later assess each candidate.
+Across the layer model (M0–M4), `reported` evidence and `proxy` are **separate
+columns**; proxies never substitute for reported values and never enter a main
+analysis in place of species-direct reported evidence.
+
+> Layer note: M0 (floral phenotype), M1 (reproductive assurance / pollen vector),
+> and M2 (pollinator functional evidence) are defined below. M3–M4 extend the model;
+> their exact membership is to be confirmed. The reported-vs-proxy policy applies to
+> every layer regardless.
+
 ## Stage 1 — three-lane scouting  (by source type, feeding different trait layers)
 
 Retrieval is split into three lanes because a single source type cannot serve every

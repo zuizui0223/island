@@ -1,0 +1,54 @@
+# Cross-layer evidence policy: reported vs proxy (see docs/trait_evidence_design_v2.md).
+#
+# Two strictly separated candidate classes, kept in separate columns, never merged.
+# Coverage-first: keep any explicit statement regardless of source type; retain raw
+# text + source type so a reviewer can weight it later. Proxies fill gaps only and
+# are never real data.
+version: "1.0"
+
+candidate_class:
+  - reported   # an explicit statement exists in a source
+  - proxy      # no explicit statement; inferred from phenotype / taxonomy / life history / distribution / insularity
+
+# Sources admissible for a `reported` candidate are NOT limited to the literature.
+# A web-derived explicit statement is kept (and weighted at review), not discarded.
+reported_source_types:
+  - peer_reviewed_literature
+  - flora_or_monograph
+  - taxonomic_or_biodiversity_database
+  - wikipedia
+  - wikidata
+  - botanic_garden
+  - horticulture_site
+  - other_web_description
+
+# Every `reported` candidate must retain these fields.
+reported_required_columns:
+  - candidate_class          # = reported
+  - trait_name
+  - provisional_candidate_value
+  - source_type
+  - source_url
+  - raw_description
+  - evidence_scope           # species_direct / species_indirect / genus / family / ...
+  - wild_or_cultivated
+  - review_status
+
+# Proxies carry a distinct *_proxy trait name and are never decided values.
+proxy_trait_names:
+  - floral_syndrome_proxy
+  - reproductive_assurance_proxy
+  - compatibility_system_proxy
+
+# Pairs that must never be conflated (reported explicit  vs  inferred proxy).
+never_conflate:
+  - reported: self_compatible
+    proxy: likely_self_compatible_proxy
+  - reported: bombus_visitor
+    proxy: large_bee_or_Bombus_like_floral_phenotype_proxy
+  - reported: autonomous_selfing
+    proxy: reproductive_assurance_like_proxy
+
+# Design stance: keep reliability simple and coverage-first; the non-negotiable is
+# provenance (raw_description + source_type). Proxies never substitute for reported
+# values and never enter a main analysis in place of species-direct reported evidence.
