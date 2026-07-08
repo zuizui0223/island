@@ -23,12 +23,30 @@ general genomics/pathology) are demoted rather than surfaced.
 
 Three query groups: A floral morphology/colour, B pollination/pollen vector,
 C reproductive assurance. Each lead now carries `query_trait_group`,
-`query_template`, `title_relevance_score`, `abstract_relevance_score`,
-`trait_keywords_matched`, `likely_evidence_type`, plus the existing
-`provisional_source_reliability_hint`. Leads are ranked within (taxon, group) by
-relevance then source grade; a `title_relevance_score == 0` lead can never head a
-taxon's trait review. Source grade (A/B/C/D) is a **source-quality** hint;
-relevance is a separate **trait-relevance** axis — both are reported.
+`query_template`, `taxon_relevance_score`, `taxon_match_kind`,
+`title_relevance_score`, `abstract_relevance_score`, `trait_keywords_matched`,
+`likely_evidence_type`, plus the existing `provisional_source_reliability_hint`.
+
+### Taxon relevance gate (the axis that actually bounds the packet)
+
+The first validation run surfaced the real problem: trait relevance is high, but
+trait relevance only says a paper is about flowers/pollination — **not that it is
+about the target species**. So leads are ranked by **taxon relevance first**:
+`score_taxon_relevance` checks whether the queried binomial (or its genus and
+epithet) appears in the title/abstract. A `taxon_relevance_score == 0` lead (the
+genus never appears) does not credibly concern the target species, is ranked last,
+and is **gated out of the review packet**; a `title_relevance_score == 0` lead also
+never heads review. Source grade (A/B/C/D) is a separate **source-quality** hint —
+all three axes are reported.
+
+### Review-packet compression (`trait_lead_packet.py`, `island-v2-trait-lead-packet compress`)
+
+Discovery returns many leads per species; most are off-species. Compression applies
+the taxon gate, then keeps the strongest few leads per (species, trait-group),
+round-robin so no species/group monopolises, landing in a human-reviewable band
+(`config/lead_review_packet.yml`, default 150–300). **Only then** is
+`irrelevant_literature_rate` (Stage 6) worth a human evaluating — on the compressed
+packet, not the full unfiltered dump.
 
 ## Stage 2 — M0 / M1 / M2 trait layers  ✅ implemented
 
