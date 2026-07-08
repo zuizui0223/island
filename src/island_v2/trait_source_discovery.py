@@ -130,6 +130,25 @@ def _word_present(word: str, lowered_text: str) -> bool:
     return bool(word) and re.search(rf"\b{re.escape(word)}\b", lowered_text) is not None
 
 
+# Taxon-relevance tiers (v2.1). S = the species is named with confidence (review
+# target); A = only the genus is named / flora-monograph rescue (quarantined, not the
+# main packet); B = the species is not named at all (background literature, retained
+# but never reviewed).
+TIER_SPECIES = "S"
+TIER_GENUS_FLORA = "A"
+TIER_BACKGROUND = "B"
+
+
+def taxon_relevance_tier(taxon_relevance_score: int) -> str:
+    """Map a taxon_relevance_score to a review tier (S/A/B)."""
+    score = int(taxon_relevance_score or 0)
+    if score >= 3:
+        return TIER_SPECIES
+    if score >= 1:
+        return TIER_GENUS_FLORA
+    return TIER_BACKGROUND
+
+
 def score_taxon_relevance(query_taxon: str, title_text: str, abstract_text: str) -> tuple[int, str]:
     """Score whether a lead actually concerns the TARGET species (not the trait).
 
@@ -244,6 +263,7 @@ OUTPUT_COLUMNS = [
     "candidate_page_locator",
     "taxon_relevance_score",
     "taxon_match_kind",
+    "taxon_relevance_tier",
     "title_relevance_score",
     "abstract_relevance_score",
     "trait_keywords_matched",
@@ -298,6 +318,7 @@ class LiteratureSeed:
     candidate_page_locator: str = PAGE_LOCATOR_PLACEHOLDER
     taxon_relevance_score: int = 0
     taxon_match_kind: str = "none"
+    taxon_relevance_tier: str = TIER_BACKGROUND
     title_relevance_score: int = 0
     abstract_relevance_score: int = 0
     trait_keywords_matched: str = ""
@@ -329,6 +350,7 @@ class LiteratureSeed:
         self.taxon_relevance_score, self.taxon_match_kind = score_taxon_relevance(
             self.query_taxon, title_text, abstract_text
         )
+        self.taxon_relevance_tier = taxon_relevance_tier(self.taxon_relevance_score)
 
     def to_row(self) -> dict[str, str]:
         row = {k: v for k, v in asdict(self).items() if k != "passthrough"}
@@ -459,7 +481,10 @@ def discover_for_taxon(
     errors: list[str] = []
 
     for group_key, cfg in groups.items():
-        query = f'{taxon} {cfg.get("api_terms", "")}'.strip()
+        # v2.1: quote the binomial so the API treats the scientific name as an exact
+        # phrase, biasing retrieval toward on-species literature rather than any work
+        # that merely shares the genus or the trait keywords.
+        query = f'"{taxon}" {cfg.get("api_terms", "")}'.strip()
         try:
             oa_payload = getter(
                 OPENALEX_WORKS_URL,
@@ -562,6 +587,14 @@ def discover_sources(
 
     n_title_relevant = int((frame["title_relevance_score"] > 0).sum()) if len(frame) else 0
     n_taxon_relevant = int((frame["taxon_relevance_score"] > 0).sum()) if len(frame) else 0
+    if len(frame):
+        matched_species = set(
+            frame.loc[frame["taxon_relevance_score"] > 0, "query_taxon"].astype(str)
+        )
+    else:
+        matched_species = set()
+    n_taxon_matched_species = len(matched_species)
+    n_zero_taxon_species = int(len(taxa)) - n_taxon_matched_species
     report = {
         "note": (
             "Unreviewed, trait-group-targeted literature leads only. A source lead is "
@@ -576,6 +609,11 @@ def discover_sources(
         "n_literature_seeds": int(len(frame)),
         "n_taxon_relevant_seeds": n_taxon_relevant,
         "n_zero_taxon_relevance_seeds": int(len(frame)) - n_taxon_relevant,
+        "n_taxon_matched_species": n_taxon_matched_species,
+        "n_zero_taxon_species": n_zero_taxon_species,
+        "n_seeds_tier_S_species_confident": int((frame["taxon_relevance_tier"] == TIER_SPECIES).sum()) if len(frame) else 0,
+        "n_seeds_tier_A_genus_flora": int((frame["taxon_relevance_tier"] == TIER_GENUS_FLORA).sum()) if len(frame) else 0,
+        "n_seeds_tier_B_background": int((frame["taxon_relevance_tier"] == TIER_BACKGROUND).sum()) if len(frame) else 0,
         "n_seeds_group_A_floral_morphology_colour": _n_group("A_floral_morphology_colour"),
         "n_seeds_group_B_pollination_pollen_vector": _n_group("B_pollination_pollen_vector"),
         "n_seeds_group_C_reproductive_assurance": _n_group("C_reproductive_assurance"),

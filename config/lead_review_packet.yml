@@ -9,10 +9,12 @@
 # tractable set rather than on the full unfiltered dump.
 version: "1.0"
 
-# Bounded packet size for human review.
+# Bounded Tier-S packet size for human review.
 target_min: 150
 target_max: 300
 
-# A lead must score at least this on taxon relevance to enter the packet.
-# 1 = genus present somewhere; raise to 2+ to require genus+epithet co-occurrence.
-min_taxon_relevance_score: 1
+# Leads are routed by taxon-relevance tier (set in Stage-1A discovery):
+#   Tier S (score >= 3) -> review packet
+#   Tier A (score 1-2)  -> genus/flora rescue CSV (quarantined, optional follow-up)
+#   Tier B (score 0)    -> background-literature CSV (retained, not reviewed)
+# The packet is compressed round-robin so no species/trait-group monopolises it.
