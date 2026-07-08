@@ -539,7 +539,7 @@ Acaena,Acaena,Rosaceae,3,5
 Acaena agnipila,Acaena,Rosaceae,4,460
 Acaena anserinifolia,Acaena,Rosaceae,30,3895
 Acaena anserovina,Acaena,Rosaceae,4,28
-Acaena antarctica,Acaena,Rosaceae,4,10
+Acaena antarctica,Acaena,Rosaceae,5,11
 Acaena argentea,Acaena,Rosaceae,2,7
 Acaena buchananii,Acaena,Rosaceae,1,256
 Acaena caesiiglauca,Acaena,Rosaceae,6,983
@@ -554,13 +554,13 @@ Acaena glabra,Acaena,Rosaceae,1,145
 Acaena inermis,Acaena,Rosaceae,7,825
 Acaena insularis,Acaena,Rosaceae,1,11
 Acaena juvenca,Acaena,Rosaceae,2,248
-Acaena lucida,Acaena,Rosaceae,6,16
-Acaena magellanica,Acaena,Rosaceae,31,880
+Acaena lucida,Acaena,Rosaceae,8,18
+Acaena magellanica,Acaena,Rosaceae,34,883
 Acaena microphylla,Acaena,Rosaceae,4,242
 Acaena minor,Acaena,Rosaceae,9,285
 Acaena montana,Acaena,Rosaceae,1,374
 Acaena novae-zelandiae,Acaena,Rosaceae,46,8925
-Acaena ovalifolia,Acaena,Rosaceae,17,997
+Acaena ovalifolia,Acaena,Rosaceae,18,999
 Acaena ovina,Acaena,Rosaceae,11,405
 Acaena pallida,Acaena,Rosaceae,12,267
 Acaena patagonica,Acaena,Rosaceae,1,1
@@ -861,7 +861,7 @@ Acer pentaphyllum,Acer,Sapindaceae,2,9
 Acer peronae,Acer,Sapindaceae,1,2
 Acer pictum,Acer,Sapindaceae,72,24145
 Acer platanoides,Acer,Sapindaceae,321,283084
-Acer pseudoplatanus,Acer,Sapindaceae,365,442786
+Acer pseudoplatanus,Acer,Sapindaceae,366,442787
 Acer pseudosieboldianum,Acer,Sapindaceae,30,363
 Acer pycnanthum,Acer,Sapindaceae,1,59
 Acer rubrum,Acer,Sapindaceae,70,50285
@@ -1806,7 +1806,7 @@ Adiantum capillus-junonis,Adiantum,Pteridaceae,3,45
 Adiantum capillus-veneris,Adiantum,Pteridaceae,213,8205
 Adiantum caudatum,Adiantum,Pteridaceae,34,707
 Adiantum celebicum,Adiantum,Pteridaceae,4,8
-Adiantum chilense,Adiantum,Pteridaceae,15,136
+Adiantum chilense,Adiantum,Pteridaceae,17,139
 Adiantum ciliatum,Adiantum,Pteridaceae,23,349
 Adiantum cinnamomeum,Adiantum,Pteridaceae,6,10
 Adiantum comorense,Adiantum,Pteridaceae,2,45
@@ -2924,6 +2924,7 @@ Agrostis idahoensis,Agrostis,Poaceae,2,2
 Agrostis imbecilla,Agrostis,Poaceae,2,24
 Agrostis inconspicua,Agrostis,Poaceae,1,1
 Agrostis infirma,Agrostis,Poaceae,10,869
+Agrostis insularis,Agrostis,Poaceae,1,1
 Agrostis joyceae,Agrostis,Poaceae,1,7
 Agrostis leptotricha,Agrostis,Poaceae,1,3
 Agrostis magellanica,Polypogon,Poaceae,3,15
@@ -2956,7 +2957,7 @@ Agrostis sandwicensis,Agrostis,Poaceae,2,43
 Agrostis sanionis,Agrostis,Poaceae,4,58
 Agrostis scabra,Agrostis,Poaceae,79,949
 Agrostis serranoi,Agrostis,Poaceae,1,1
-Agrostis stolonifera,Agrostis,Poaceae,696,367889
+Agrostis stolonifera,Agrostis,Poaceae,697,367890
 Agrostis stolonifera × vinealis,Agrostis,Poaceae,2,12
 Agrostis stricta,Agrostis,Poaceae,1,4
 Agrostis subulata,Agrostis,Poaceae,7,196
@@ -3163,7 +3164,7 @@ Aiphanes truncata,Aiphanes,Arecaceae,1,1
 Aira caryophyllea,Aira,Poaceae,210,43389
 Aira cupaniana,Aira,Poaceae,48,668
 Aira elegans,Aira,Poaceae,68,698
-Aira praecox,Aira,Poaceae,311,72963
+Aira praecox,Aira,Poaceae,312,72964
 Aira provincialis,Aira,Poaceae,1,15
 Aira tenorei,Aira,Poaceae,12,192
 Aira uniaristata,Aira,Poaceae,3,4
@@ -4193,7 +4194,7 @@ Alopecurus geniculatus × pratensis,Alopecurus,Poaceae,11,21
 Alopecurus gerardii,Alopecurus,Poaceae,2,2
 Alopecurus japonicus,Alopecurus,Poaceae,16,343
 Alopecurus longearistatus,Alopecurus,Poaceae,1,9
-Alopecurus magellanicus,Alopecurus,Poaceae,133,2586
+Alopecurus magellanicus,Alopecurus,Poaceae,134,2587
 Alopecurus myosuroides,Alopecurus,Poaceae,84,44768
 Alopecurus ovatus,Alopecurus,Poaceae,1,1
 Alopecurus pratensis,Alopecurus,Poaceae,484,196949
@@ -5219,7 +5220,7 @@ Amomum stenosiphon,Amomum,Zingiberaceae,1,1
 Amomum tephrodelphys,Amomum,Zingiberaceae,1,6
 Amomum uliginosum,Amomum,Zingiberaceae,1,1
 Amomum xanthioides,Amomum,Zingiberaceae,1,1
-Amomyrtus luma,Amomyrtus,Myrtaceae,5,42
+Amomyrtus luma,Amomyrtus,Myrtaceae,6,43
 Amomyrtus meli,Amomyrtus,Myrtaceae,3,19
 Amorimia maritima,Amorimia,Malpighiaceae,2,4
 Amorpha californica,Amorpha,Fabaceae,1,1
@@ -6580,7 +6581,7 @@ Anthemis pasiphaes,Anthemis,Asteraceae,1,1
 Anthemis pedunculata,Anthemis,Asteraceae,1,2
 Anthemis plutonia,Anthemis,Asteraceae,1,23
 Anthemis pseudocotula,Anthemis,Asteraceae,2,13
-Anthemis punctata,Anthemis,Asteraceae,5,385
+Anthemis punctata,Anthemis,Asteraceae,6,386
 Anthemis rhodensis,Anthemis,Asteraceae,1,20
 Anthemis rigida,Anthemis,Asteraceae,40,424
 Anthemis rosea,Anthemis,Asteraceae,1,4
@@ -6700,7 +6701,7 @@ Anthoxanthum ovatum,Anthoxanthum,Poaceae,21,266
 Anthoxanthum pluriflorum,Anthoxanthum,Poaceae,2,20
 Anthoxanthum rariflorum,Anthoxanthum,Poaceae,1,201
 Anthoxanthum recurvatum,Anthoxanthum,Poaceae,4,334
-Anthoxanthum redolens,Anthoxanthum,Poaceae,28,1583
+Anthoxanthum redolens,Anthoxanthum,Poaceae,29,1587
 Anthoxanthum repens,Anthoxanthum,Poaceae,1,1
 Anthoxanthum spicatum,Anthoxanthum,Poaceae,1,1
 Anthoxanthum submuticum,Anthoxanthum,Poaceae,2,3
@@ -7054,7 +7055,7 @@ Apium australe,Apium,Apiaceae,1,2
 Apium fernandezianum,Apium,Apiaceae,1,1
 Apium graveolens,Apium,Apiaceae,136,9243
 Apium insulare,Apium,Apiaceae,9,37
-Apium prostratum,Apium,Apiaceae,89,2405
+Apium prostratum,Apium,Apiaceae,90,2419
 Apium sellowianum,Apium,Apiaceae,2,2
 Apluda mutica,Apluda,Poaceae,49,554
 Apoballis acuminatissima,Apoballis,Araceae,1,10
@@ -7547,7 +7548,7 @@ Araucaria scopulorum,Araucaria,Araucariaceae,2,77
 Araucaria subulata,Araucaria,Araucariaceae,2,84
 Araucaria taeriensis,Araucaria,Araucariaceae,1,2
 Araucaria uncinatus,Araucaria,Araucariaceae,1,1
-Araucariacites australis,Araucariacites,Araucariaceae,3,15
+Araucariacites australis,Araucariacites,Araucariaceae,4,17
 Araucariacites fissus,Araucariacites,Araucariaceae,1,1
 Araucarioides linearis,Araucarioides,Araucariaceae,1,2
 Araucarioides sinuosa,Araucarioides,Araucariaceae,1,1
@@ -8760,7 +8761,7 @@ Aristolochia vitiensis,Aristolochia,Aristolochiaceae,1,1
 Aristolochia watsonii,Aristolochia,Aristolochiaceae,2,5
 Aristolochia zenkeri,Aristolochia,Aristolochiaceae,1,1
 Aristolochia zollingeriana,Aristolochia,Aristolochiaceae,9,34
-Aristotelia chilensis,Aristotelia,Elaeocarpaceae,11,91
+Aristotelia chilensis,Aristotelia,Elaeocarpaceae,12,92
 Aristotelia colensoi,Aristotelia,Elaeocarpaceae,4,165
 Aristotelia fruticosa,Aristotelia,Elaeocarpaceae,5,2331
 Aristotelia peduncularis,Aristotelia,Elaeocarpaceae,4,2012
@@ -9696,7 +9697,7 @@ Asplenium curtisorum,Asplenium,Aspleniaceae,4,8
 Asplenium cuspidatum,Asplenium,Aspleniaceae,11,77
 Asplenium cymbifolium,Asplenium,Aspleniaceae,13,73
 Asplenium darainaense,Asplenium,Aspleniaceae,1,2
-Asplenium dareoides,Asplenium,Aspleniaceae,19,127
+Asplenium dareoides,Asplenium,Aspleniaceae,20,128
 Asplenium daucifolium,Asplenium,Aspleniaceae,5,1138
 Asplenium decaryanum,Asplenium,Aspleniaceae,1,2
 Asplenium decrescens,Asplenium,Aspleniaceae,2,14
@@ -11029,7 +11030,7 @@ Austroblechnum membranaceum,Austroblechnum,Blechnaceae,11,1376
 Austroblechnum microphyllum,Austroblechnum,Blechnaceae,2,2
 Austroblechnum norfolkianum,Austroblechnum,Blechnaceae,13,115
 Austroblechnum patersonii,Austroblechnum,Blechnaceae,21,729
-Austroblechnum penna-marina,Austroblechnum,Blechnaceae,51,9869
+Austroblechnum penna-marina,Austroblechnum,Blechnaceae,52,9876
 Austroblechnum raiateense,Austroblechnum,Blechnaceae,6,18
 Austroblechnum vieillardii,Austroblechnum,Blechnaceae,1,51
 Austrobuxus alticola,Austrobuxus,Picrodendraceae,1,43
@@ -11053,7 +11054,7 @@ Austrobuxus rubiginosus,Austrobuxus,Picrodendraceae,1,42
 Austrobuxus vieillardii,Austrobuxus,Picrodendraceae,1,38
 Austrocallerya australis,Austrocallerya,Fabaceae,4,44
 Austrocallerya megasperma,Austrocallerya,Fabaceae,1,11
-Austrocedrus chilensis,Austrocedrus,Cupressaceae,3,9
+Austrocedrus chilensis,Austrocedrus,Cupressaceae,4,70
 Austrocedrus tasmanica,Austrocedrus,Cupressaceae,1,1
 Austrocylindropuntia cylindrica,Austrocylindropuntia,Cactaceae,15,51
 Austrocylindropuntia shaferi,Austrocylindropuntia,Cactaceae,1,1
@@ -11136,7 +11137,7 @@ Avena sativa,Avena,Poaceae,239,15706
 Avena sterilis,Avena,Poaceae,89,4256
 Avena strigosa,Avena,Poaceae,58,1370
 Avena ventricosa,Avena,Poaceae,1,2
-Avenella flexuosa,Avenella,Poaceae,671,123430
+Avenella flexuosa,Avenella,Poaceae,673,123433
 Avenella foliosa,Avenella,Poaceae,8,1989
 Avenula pubescens,Avenula,Poaceae,409,48271
 Averrhoa bilimbi,Averrhoa,Oxalidaceae,87,612
@@ -11214,14 +11215,14 @@ Azorella cockaynei,Azorella,Apiaceae,2,35
 Azorella colensoi,Azorella,Apiaceae,2,59
 Azorella crassipes,Azorella,Apiaceae,1,12
 Azorella exigua,Azorella,Apiaceae,1,43
-Azorella filamentosa,Azorella,Apiaceae,9,68
+Azorella filamentosa,Azorella,Apiaceae,10,69
 Azorella fuegiana,Azorella,Apiaceae,2,22
 Azorella haastii,Azorella,Apiaceae,3,783
 Azorella hookeri,Azorella,Apiaceae,3,557
 Azorella hydrocotyloides,Azorella,Apiaceae,3,319
 Azorella lyallii,Azorella,Apiaceae,7,59
-Azorella lycopodioides,Azorella,Apiaceae,8,71
-Azorella monantha,Azorella,Apiaceae,5,103
+Azorella lycopodioides,Azorella,Apiaceae,9,72
+Azorella monantha,Azorella,Apiaceae,6,104
 Azorella nitens,Azorella,Apiaceae,2,124
 Azorella pallida,Azorella,Apiaceae,2,83
 Azorella polaris,Azorella,Apiaceae,8,386
@@ -11230,7 +11231,7 @@ Azorella ranunculus,Azorella,Apiaceae,6,22
 Azorella roughii,Azorella,Apiaceae,2,176
 Azorella schizeilema,Azorella,Apiaceae,6,46
 Azorella selago,Azorella,Apiaceae,14,393
-Azorella trifurcata,Azorella,Apiaceae,7,178
+Azorella trifurcata,Azorella,Apiaceae,8,180
 Babiana angustifolia,Babiana,Iridaceae,3,17
 Babiana fragrans,Babiana,Iridaceae,1,1
 Babiana nana,Babiana,Iridaceae,1,2
@@ -11305,7 +11306,7 @@ Baccharis halimifolia,Baccharis,Asteraceae,109,2811
 Baccharis junciformis,Baccharis,Asteraceae,1,1
 Baccharis linearifolia,Baccharis,Asteraceae,1,2
 Baccharis longiattenuata,Baccharis,Asteraceae,3,26
-Baccharis magellanica,Baccharis,Asteraceae,11,138
+Baccharis magellanica,Baccharis,Asteraceae,12,139
 Baccharis mesoneura,Baccharis,Asteraceae,1,1
 Baccharis microdonta,Baccharis,Asteraceae,1,11
 Baccharis milleflora,Baccharis,Asteraceae,3,7
@@ -11329,7 +11330,7 @@ Baccharis platypoda,Baccharis,Asteraceae,1,1
 Baccharis plummerae,Baccharis,Asteraceae,1,64
 Baccharis pseudomyriocephala,Baccharis,Asteraceae,1,1
 Baccharis punctulata,Baccharis,Asteraceae,1,1
-Baccharis racemosa,Baccharis,Asteraceae,3,22
+Baccharis racemosa,Baccharis,Asteraceae,4,23
 Baccharis reticularia,Baccharis,Asteraceae,1,2
 Baccharis sagittalis,Baccharis,Asteraceae,6,27
 Baccharis salicifolia,Baccharis,Asteraceae,7,234
@@ -11400,7 +11401,7 @@ Bactris setosa,Bactris,Arecaceae,8,27
 Bactris setulosa,Bactris,Arecaceae,2,3
 Bactris simplicifrons,Bactris,Arecaceae,2,6
 Bactris vulgaris,Bactris,Arecaceae,2,2
-Baculatisporites comaumensis,Baculatisporites,,4,5
+Baculatisporites comaumensis,Baculatisporites,,5,7
 Baculatisporites turbioensis,Baculatisporites,,1,2
 Badiera cubensis,Badiera,Polygalaceae,2,9
 Badiera fuertesii,Badiera,Polygalaceae,1,46
@@ -12776,7 +12777,7 @@ Beilschmiedia zeylanica,Beilschmiedia,Lauraceae,1,7
 Bejaria cubensis,Bejaria,Ericaceae,1,28
 Bejaria racemosa,Bejaria,Ericaceae,1,19
 Bellardia trixago,Bellardia,Orobanchaceae,104,3160
-Bellardia viscosa,Bellardia,Orobanchaceae,119,11650
+Bellardia viscosa,Bellardia,Orobanchaceae,120,11651
 Bellardiochloa variegata,Bellardiochloa,Poaceae,3,140
 Bellendena montana,Bellendena,Proteaceae,1,1960
 Bellevalia brevipedicellata,Bellevalia,Asparagaceae,1,2
@@ -12797,7 +12798,7 @@ Bellis caerulescens,Bellis,Asteraceae,1,1
 Bellis longifolia,Bellis,Asteraceae,2,15
 Bellis margaritifolia,Bellis,Asteraceae,2,10
 Bellis microcephala,Bellis,Asteraceae,2,2
-Bellis perennis,Bellis,Asteraceae,437,414554
+Bellis perennis,Bellis,Asteraceae,438,414562
 Bellis sylvestris,Bellis,Asteraceae,49,1060
 Bellium artrutxense,Bellium,Asteraceae,2,31
 Bellium bellidioides,Bellium,Asteraceae,9,2135
@@ -12955,7 +12956,7 @@ Berberis concinna,Berberis,Berberidaceae,1,1
 Berberis congestiflora,Berberis,Berberidaceae,1,2
 Berberis corymbosa,Berberis,Berberidaceae,1,3
 Berberis cretica,Berberis,Berberidaceae,5,149
-Berberis darwinii,Berberis,Berberidaceae,33,7492
+Berberis darwinii,Berberis,Berberidaceae,35,7494
 Berberis dasystachya,Berberis,Berberidaceae,1,1
 Berberis dictyophylla,Berberis,Berberidaceae,2,2
 Berberis emarginata,Berberis,Berberidaceae,1,1
@@ -13441,7 +13442,7 @@ Blechnum dissectum,Doodia,Blechnaceae,1,2
 Blechnum durum,Austroblechnum,Blechnaceae,1,2
 Blechnum falciculatum,Blechnum,Blechnaceae,3,22
 Blechnum gracile,Blechnum,Blechnaceae,5,32
-Blechnum hastatum,Blechnum,Blechnaceae,9,57
+Blechnum hastatum,Blechnum,Blechnaceae,10,58
 Blechnum irregulare,Blechnum,Blechnaceae,2,3
 Blechnum lanceola,Blechnum,Blechnaceae,7,15
 Blechnum longepetiolatum x madagascariense,Blechnum,Blechnaceae,1,1
@@ -13739,7 +13740,7 @@ Bogoria robertsii,Bogoria,Orchidaceae,8,14
 Boholia nematostylis,Boholia,Rubiaceae,5,8
 Bolanthus confertifolius,Bolanthus,Caryophyllaceae,1,3
 Bolax bovei,Bolax,Apiaceae,3,5
-Bolax gummifera,Bolax,Apiaceae,10,263
+Bolax gummifera,Bolax,Apiaceae,12,277
 Bolbitis acrostichoides,Bolbitis,Dryopteridaceae,1,2
 Bolbitis aliena,Bolbitis,Dryopteridaceae,7,55
 Bolbitis angustipinna,Bolbitis,Dryopteridaceae,2,158
@@ -13866,7 +13867,7 @@ Bonnetia cubensis,Bonnetia,Bonnetiaceae,1,29
 Bonnetia stricta,Bonnetia,Bonnetiaceae,1,3
 Bontia daphnoides,Bontia,Scrophulariaceae,38,163
 Bopopia parviflora,Bopopia,Gesneriaceae,1,14
-Boquila trifoliolata,Boquila,Lardizabalaceae,3,22
+Boquila trifoliolata,Boquila,Lardizabalaceae,4,23
 Borago morisiana,Borago,Boraginaceae,2,6
 Borago officinalis,Borago,Boraginaceae,236,27207
 Borago pygmaea,Borago,Boraginaceae,9,388
@@ -14855,7 +14856,7 @@ Buddleja fallowiana,Buddleja,Scrophulariaceae,3,5
 Buddleja forrestii,Buddleja,Scrophulariaceae,2,3
 Buddleja fragifera,Buddleja,Scrophulariaceae,1,13
 Buddleja fusca,Buddleja,Scrophulariaceae,1,44
-Buddleja globosa,Buddleja,Scrophulariaceae,27,3227
+Buddleja globosa,Buddleja,Scrophulariaceae,28,3228
 Buddleja indica,Buddleja,Scrophulariaceae,9,398
 Buddleja japonica,Buddleja,Scrophulariaceae,4,880
 Buddleja lewisiana,Buddleja,Scrophulariaceae,2,4
@@ -16465,7 +16466,7 @@ Calamagrostis adpressiramea,Calamagrostis,Poaceae,3,81
 Calamagrostis ajanensis,Calamagrostis,Poaceae,1,2
 Calamagrostis angustifolia,Calamagrostis,Poaceae,10,30
 Calamagrostis archboldii,Calamagrostis,Poaceae,1,2
-Calamagrostis arenaria,Calamagrostis,Poaceae,233,30283
+Calamagrostis arenaria,Calamagrostis,Poaceae,234,30284
 Calamagrostis arundinacea,Calamagrostis,Poaceae,192,5009
 Calamagrostis arundinacea x epigejos,Calamagrostis,Poaceae,3,6
 Calamagrostis arundinacea × epigejos,Calamagrostis,Poaceae,1,1
@@ -16827,7 +16828,7 @@ Calandrinia arenicola,Rumicastrum,Montiaceae,1,3
 Calandrinia brevipedata,Rumicastrum,Montiaceae,3,5
 Calandrinia breweri,Calandrinia,Montiaceae,2,7
 Calandrinia caespitosa,Calandrinia,Montiaceae,1,1
-Calandrinia ciliata,Calandrinia,Montiaceae,14,305
+Calandrinia ciliata,Calandrinia,Montiaceae,15,306
 Calandrinia gracilis,Rumicastrum,Montiaceae,4,6
 Calandrinia menziesii,Calandrinia,Montiaceae,8,133
 Calandrinia nitida,Calandrinia,Montiaceae,2,2
@@ -17011,7 +17012,7 @@ Calceolaria crenata,Calceolaria,Calceolariaceae,1,1
 Calceolaria crenatiflora,Calceolaria,Calceolariaceae,3,16
 Calceolaria dentata,Calceolaria,Calceolariaceae,1,1
 Calceolaria dichotoma,Calceolaria,Calceolariaceae,2,8
-Calceolaria fothergillii,Calceolaria,Calceolariaceae,9,32
+Calceolaria fothergillii,Calceolaria,Calceolariaceae,11,34
 Calceolaria heterophylla,Calceolaria,Calceolariaceae,1,3
 Calceolaria integrifolia,Calceolaria,Calceolariaceae,5,6
 Calceolaria mexicana,Calceolaria,Calceolariaceae,2,2
@@ -17274,7 +17275,7 @@ Callistopteris baldwinii,Callistopteris,Hymenophyllaceae,5,93
 Callistopteris baueriana,Callistopteris,Hymenophyllaceae,16,124
 Callistopteris polyantha,Callistopteris,Hymenophyllaceae,7,13
 Callistopteris superba,Callistopteris,Hymenophyllaceae,2,8
-Callitriche antarctica,Callitriche,Plantaginaceae,24,279
+Callitriche antarctica,Callitriche,Plantaginaceae,25,280
 Callitriche aucklandica,Callitriche,Plantaginaceae,4,19
 Callitriche brachycarpa,Callitriche,Plantaginaceae,1,26
 Callitriche brutia,Callitriche,Plantaginaceae,88,13595
@@ -19697,7 +19698,7 @@ Carex triangula,Carex,Cyperaceae,3,19
 Carex triangularis,Carex,Cyperaceae,2,3
 Carex tribuloides,Carex,Cyperaceae,8,54
 Carex triceps,Carex,Cyperaceae,1,2
-Carex trifida,Carex,Cyperaceae,20,284
+Carex trifida,Carex,Cyperaceae,22,287
 Carex trinervis,Carex,Cyperaceae,15,3962
 Carex tripartita,Carex,Cyperaceae,10,38
 Carex triquetra,Carex,Cyperaceae,2,29
@@ -21004,7 +21005,7 @@ Centaurea verutum,Centaurea,Asteraceae,1,2
 Centaurea virgata,Centaurea,Asteraceae,1,1
 Centaurea wettsteinii,Centaurea,Asteraceae,1,3
 Centaurea xylobasis,Centaurea,Asteraceae,1,9
-Centaurium cachanlahuen,Centaurium,Gentianaceae,3,4
+Centaurium cachanlahuen,Centaurium,Gentianaceae,4,5
 Centaurium capense,Centaurium,Gentianaceae,1,4
 Centaurium chloodes,Centaurium,Gentianaceae,1,2
 Centaurium discolor,Centaurium,Gentianaceae,2,133
@@ -21199,7 +21200,7 @@ Cerastium alpinum,Cerastium,Caryophyllaceae,197,8508
 Cerastium alpinum × nigrescens,Cerastium,Caryophyllaceae,1,13
 Cerastium arcticum,Cerastium,Caryophyllaceae,95,1780
 Cerastium arcticum × regelii,Cerastium,Caryophyllaceae,2,3
-Cerastium arvense,Cerastium,Caryophyllaceae,240,19244
+Cerastium arvense,Cerastium,Caryophyllaceae,241,19245
 Cerastium arvense × tomentosum,Cerastium,Caryophyllaceae,21,470
 Cerastium azoricum,Cerastium,Caryophyllaceae,5,172
 Cerastium balearicum,Cerastium,Caryophyllaceae,1,2
@@ -21265,7 +21266,7 @@ Cerastium symei,Cerastium,Caryophyllaceae,1,3
 Cerastium takasagomontanum,Cerastium,Caryophyllaceae,1,35
 Cerastium tenoreanum,Cerastium,Caryophyllaceae,9,24
 Cerastium terrae-novae,Cerastium,Caryophyllaceae,1,3
-Cerastium tomentosum,Cerastium,Caryophyllaceae,206,26159
+Cerastium tomentosum,Cerastium,Caryophyllaceae,207,26160
 Cerastium trianae,Cerastium,Caryophyllaceae,1,1
 Cerastium uniflorum,Cerastium,Caryophyllaceae,1,1
 Cerastium vagans,Cerastium,Caryophyllaceae,1,1
@@ -22117,7 +22118,7 @@ Chileranthemum lottiae,Chileranthemum,Acanthaceae,1,1
 Chiliadenus bocconei,Chiliadenus,Asteraceae,2,39
 Chiliadenus glutinosus,Chiliadenus,Asteraceae,3,32
 Chiliadenus lopadusanus,Chiliadenus,Asteraceae,1,2
-Chiliotrichum diffusum,Chiliotrichum,Asteraceae,21,753
+Chiliotrichum diffusum,Chiliotrichum,Asteraceae,22,754
 Chiliotrichum fuegianum,Chiliotrichum,Asteraceae,1,14
 Chilocarpus beccarianus,Chilocarpus,Apocynaceae,1,29
 Chilocarpus conspicuus,Chilocarpus,Apocynaceae,1,16
@@ -22774,7 +22775,7 @@ Chusquea oligophylla,Chusquea,Poaceae,1,2
 Chusquea oxylepis,Chusquea,Poaceae,3,8
 Chusquea perligulata,Chusquea,Poaceae,2,11
 Chusquea pulchella,Chusquea,Poaceae,1,1
-Chusquea quila,Chusquea,Poaceae,2,16
+Chusquea quila,Chusquea,Poaceae,3,17
 Chusquea simpliciflora,Chusquea,Poaceae,1,6
 Chusquea tenella,Chusquea,Poaceae,1,5
 Chusquea uliginosa,Chusquea,Poaceae,2,2
@@ -25363,7 +25364,7 @@ Colobanthus muscoides,Colobanthus,Caryophyllaceae,7,193
 Colobanthus quitensis,Colobanthus,Caryophyllaceae,25,240
 Colobanthus squarrosus,Colobanthus,Caryophyllaceae,1,44
 Colobanthus strictus,Colobanthus,Caryophyllaceae,2,439
-Colobanthus subulatus,Colobanthus,Caryophyllaceae,34,254
+Colobanthus subulatus,Colobanthus,Caryophyllaceae,35,259
 Colobanthus wallii,Colobanthus,Caryophyllaceae,1,91
 Colobogynium variegatum,Colobogynium,Costaceae,2,33
 Colocasia esculenta,Colocasia,Araceae,185,8751
@@ -25788,7 +25789,7 @@ Conioselinum officinale,Conioselinum,Apiaceae,4,6
 Conioselinum tataricum,Conioselinum,Apiaceae,19,37
 Conioselinum tenuissimum,Conioselinum,Apiaceae,4,12
 Conium divaricatum,Conium,Apiaceae,1,2
-Conium maculatum,Conium,Apiaceae,199,102184
+Conium maculatum,Conium,Apiaceae,200,102185
 Connarus africanus,Connarus,Connaraceae,4,10
 Connarus agamae,Connarus,Connaraceae,1,4
 Connarus championii,Connarus,Connaraceae,1,1
@@ -26488,7 +26489,7 @@ Corsia torricellensis,Corsia,Corsiaceae,1,1
 Corsia unguiculata,Corsia,Corsiaceae,1,3
 Corsia wiakabui,Corsia,Corsiaceae,1,1
 Corsia wubungu,Corsia,Corsiaceae,1,1
-Cortaderia egmontiana,Cortaderia,Poaceae,7,76
+Cortaderia egmontiana,Cortaderia,Poaceae,9,80
 Cortaderia hieronymi,Cortaderia,Poaceae,1,4
 Cortaderia jubata,Cortaderia,Poaceae,17,9382
 Cortaderia rudiuscula,Cortaderia,Poaceae,1,2
@@ -27150,7 +27151,7 @@ Crassula manaia,Crassula,Crassulaceae,1,12
 Crassula mataikona,Crassula,Crassulaceae,2,65
 Crassula micans,Crassula,Crassulaceae,1,39
 Crassula montana,Crassula,Crassulaceae,1,2
-Crassula moschata,Crassula,Crassulaceae,35,542
+Crassula moschata,Crassula,Crassulaceae,37,546
 Crassula multicaulis,Crassula,Crassulaceae,1,41
 Crassula multicava,Crassula,Crassulaceae,39,2215
 Crassula muscosa,Crassula,Crassulaceae,15,121
@@ -27575,7 +27576,7 @@ Cressa truxillensis,Cressa,Convolvulaceae,13,168
 Cretacaeiporites muellerii,Cretacaeiporites,Trimeniaceae,1,1
 Cretacaeiporites polygonalis,Cretacaeiporites,Trimeniaceae,1,1
 Cretacaeiporites scabratus,Cretacaeiporites,Trimeniaceae,1,1
-Crinodendron hookerianum,Crinodendron,Elaeocarpaceae,11,126
+Crinodendron hookerianum,Crinodendron,Elaeocarpaceae,13,128
 Crinodendron patagua,Crinodendron,Elaeocarpaceae,3,9
 Crinum,Crinum,Amaryllidaceae,1,1
 Crinum amabile,Crinum,Amaryllidaceae,32,63
@@ -27659,7 +27660,7 @@ Crocodilium pumilio,Crocodilium,Asteraceae,4,38
 Crocosmia ambongensis,Crocosmia,Iridaceae,1,3
 Crocosmia aurea,Crocosmia,Iridaceae,13,1227
 Crocosmia aurea x pottsii,Crocosmia,Iridaceae,1,2
-Crocosmia crocosmiiflora,Crocosmia,Iridaceae,139,7238
+Crocosmia crocosmiiflora,Crocosmia,Iridaceae,140,7239
 Crocosmia masoniorum,Crocosmia,Iridaceae,12,364
 Crocosmia paniculata,Crocosmia,Iridaceae,7,221
 Crocosmia pottsii,Crocosmia,Iridaceae,13,590
@@ -29109,7 +29110,7 @@ Cupressus guadalupensis,Cupressus,Cupressaceae,3,1564
 Cupressus leylandii,Cupressus,Cupressaceae,1,1
 Cupressus lusitanica,Cupressus,Cupressaceae,28,275
 Cupressus macnabiana,Cupressus,Cupressaceae,3,10
-Cupressus macrocarpa,Cupressus,Cupressaceae,68,5262
+Cupressus macrocarpa,Cupressus,Cupressaceae,69,5265
 Cupressus pendula,Cupressus,Cupressaceae,2,3
 Cupressus pisifera,Cupressus,Cupressaceae,1,1
 Cupressus sargentii,Cupressus,Cupressaceae,3,6
@@ -29435,7 +29436,7 @@ Cyathea weatherbyana,Cyathea,Cyatheaceae,4,55
 Cyathea whitmeei,Cyathea,Cyatheaceae,4,15
 Cyathea wilsonii,Cyathea,Cyatheaceae,3,27
 Cyatheacidites annulatus,Cyatheacidites,,2,4
-Cyathidites australis,Cyathidites,,4,17
+Cyathidites australis,Cyathidites,,5,18
 Cyathidites minor,Cyathidites,,5,28
 Cyathidites paleospora,Cyathidites,,1,3
 Cyathocalyx harmandii,Cyathocalyx,Annonaceae,2,4
@@ -30207,7 +30208,7 @@ Cynorkis volombato,Cynorkis,Orchidaceae,1,1
 Cynorkis windsorensis,Cynorkis,Orchidaceae,1,13
 Cynorkis zaratananae,Cynorkis,Orchidaceae,1,2
 Cynosurus coloratus,Cynosurus,Poaceae,1,2
-Cynosurus cristatus,Cynosurus,Poaceae,298,269748
+Cynosurus cristatus,Cynosurus,Poaceae,299,269749
 Cynosurus echinatus,Cynosurus,Poaceae,123,4492
 Cynosurus effusus,Cynosurus,Poaceae,25,725
 Cynosurus elegans,Cynosurus,Poaceae,8,33
@@ -31494,7 +31495,7 @@ Dactylanthus taylorii,Dactylanthus,Mystropetalaceae,2,92
 Dactylicapnos scandens,Dactylicapnos,Papaveraceae,2,7
 Dactyliophora novae-guineae,Dactyliophora,Loranthaceae,3,35
 Dactyliophora verticillata,Dactyliophora,Loranthaceae,7,31
-Dactylis glomerata,Dactylis,Poaceae,822,523047
+Dactylis glomerata,Dactylis,Poaceae,823,523048
 Dactylis glomerata × polygama,Dactylis,Poaceae,5,20
 Dactylis smithii,Dactylis,Poaceae,8,155
 Dactylocamptis drudei,Dactylocamptis,Orchidaceae,1,1
@@ -34296,7 +34297,7 @@ Dictyocline mingchengensis,Thelypteris,Thelypteridaceae,2,3
 Dictyoloma vandellianum,Dictyoloma,Rutaceae,1,1
 Dictyoneura acuminata,Dictyoneura,Sapindaceae,12,78
 Dictyoneura obtusa,Dictyoneura,Sapindaceae,4,130
-Dictyophyllidites arcuatus,Dictyophyllidites,Matoniaceae,2,5
+Dictyophyllidites arcuatus,Dictyophyllidites,Matoniaceae,3,6
 Dictyophyllidites equiexinus,Dictyophyllidites,Matoniaceae,1,1
 Dictyophyllidites mortonii,Dictyophyllidites,Matoniaceae,1,1
 Dictyophyllum rugosum,Dictyophyllum,Dipteridaceae,1,28
@@ -37153,7 +37154,7 @@ Drosera spatulata,Drosera,Droseraceae,73,3706
 Drosera stenopetala,Drosera,Droseraceae,7,618
 Drosera subtilis,Drosera,Droseraceae,1,1
 Drosera ultramafica,Drosera,Droseraceae,5,21
-Drosera uniflora,Drosera,Droseraceae,17,138
+Drosera uniflora,Drosera,Droseraceae,18,139
 Drosera whittakeri,Drosera,Droseraceae,1,202
 Drusa glandulosa,Drusa,Apiaceae,7,525
 Dryadella gnoma,Dryadella,Orchidaceae,1,2
@@ -37991,7 +37992,7 @@ Dyschoriste vestita,Dyschoriste,Acanthaceae,1,1
 Dysolobium dolichoides,Dysolobium,Fabaceae,1,4
 Dysolobium grande,Dysolobium,Fabaceae,1,5
 Dysolobium pilosum,Dysolobium,Fabaceae,1,46
-Dysopsis glechomoides,Dysopsis,Euphorbiaceae,5,27
+Dysopsis glechomoides,Dysopsis,Euphorbiaceae,6,28
 Dysopsis hirsuta,Dysopsis,Euphorbiaceae,1,11
 Dysosma pleiantha,Dysosma,Berberidaceae,1,543
 Dysosma versipellis,Dysosma,Berberidaceae,1,3
@@ -39433,7 +39434,7 @@ Elymus humidorum,Elymus,Poaceae,2,102
 Elymus hystrix,Elymus,Poaceae,5,79
 Elymus jacutensis,Elymus,Poaceae,1,11
 Elymus macrourus,Elymus,Poaceae,16,110
-Elymus magellanicus,Elymus,Poaceae,9,61
+Elymus magellanicus,Elymus,Poaceae,11,64
 Elymus mayebaranus,Elymus,Poaceae,2,29
 Elymus multisetus,Elymus,Poaceae,1,3
 Elymus mutabilis,Elymus,Poaceae,2,6
@@ -39601,7 +39602,7 @@ Empetrum atropurpureum,Empetrum,Ericaceae,11,64
 Empetrum eamesii,Empetrum,Ericaceae,8,113
 Empetrum hermaphroditum,Empetrum,Ericaceae,319,7823
 Empetrum nigrum,Empetrum,Ericaceae,704,82398
-Empetrum rubrum,Empetrum,Ericaceae,25,620
+Empetrum rubrum,Empetrum,Ericaceae,26,637
 Empodisma minus,Empodisma,Restionaceae,24,3785
 Empodisma robustum,Empodisma,Restionaceae,1,108
 Empogona cacondensis,Empogona,Rubiaceae,1,1
@@ -40458,6 +40459,7 @@ Equilabium glandulosum,Equilabium,Lamiaceae,1,7
 Equilabium laxiflorum,Equilabium,Lamiaceae,1,1
 Equilabium orbiculare,Equilabium,Lamiaceae,1,1
 Equisetites burchardti,Equisetum,Equisetaceae,1,1
+Equisetosporites claricristatus,Equisetosporites,,1,1
 Equisetosporites notensis,Equisetosporites,,1,2
 Equisetum arcticum,Equisetum,Equisetaceae,2,50
 Equisetum arvense,Equisetum,Equisetaceae,870,271512
@@ -41319,7 +41321,7 @@ Erodium brachycarpum,Erodium,Geraniaceae,6,167
 Erodium carolinianum,Erodium,Geraniaceae,1,3
 Erodium chium,Erodium,Geraniaceae,57,892
 Erodium ciconium,Erodium,Geraniaceae,30,158
-Erodium cicutarium,Erodium,Geraniaceae,387,37619
+Erodium cicutarium,Erodium,Geraniaceae,388,37620
 Erodium corsicum,Erodium,Geraniaceae,6,960
 Erodium crassifolium,Erodium,Geraniaceae,2,14
 Erodium crinitum,Erodium,Geraniaceae,3,111
@@ -41791,7 +41793,7 @@ Escallonia revoluta,Escallonia,Escalloniaceae,1,1
 Escallonia rigida,Escallonia,Escalloniaceae,2,6
 Escallonia rockii,Escallonia,Escalloniaceae,1,1
 Escallonia rosea,Escallonia,Escalloniaceae,2,2
-Escallonia rubra,Escallonia,Escalloniaceae,77,7377
+Escallonia rubra,Escallonia,Escalloniaceae,78,7378
 Escallonia serrata,Escallonia,Escalloniaceae,9,56
 Escallonia virgata,Escallonia,Escalloniaceae,1,1
 Eschenbachia aegyptiaca,Nidorella,Asteraceae,1,1
@@ -43321,7 +43323,7 @@ Euphorbia hedyotoides,Euphorbia,Euphorbiaceae,1,46
 Euphorbia heldreichii,Euphorbia,Euphorbiaceae,1,3
 Euphorbia helenae,Euphorbia,Euphorbiaceae,1,71
 Euphorbia heleniana,Euphorbia,Euphorbiaceae,1,10
-Euphorbia helioscopia,Euphorbia,Euphorbiaceae,399,88951
+Euphorbia helioscopia,Euphorbia,Euphorbiaceae,400,88952
 Euphorbia helwigii,Euphorbia,Euphorbiaceae,1,2
 Euphorbia herbstii,Euphorbia,Euphorbiaceae,2,4
 Euphorbia herman-schwartzii,Euphorbia,Euphorbiaceae,1,4
@@ -44466,7 +44468,7 @@ Festuca alpina,Festuca,Poaceae,1,1
 Festuca altaica,Festuca,Poaceae,24,156
 Festuca altissima,Festuca,Poaceae,47,3965
 Festuca ambigua,Festuca,Poaceae,62,2836
-Festuca amethystina,Festuca,Poaceae,6,11
+Festuca amethystina,Festuca,Poaceae,7,12
 Festuca arvernensis,Festuca,Poaceae,3,4
 Festuca asperula,Festuca,Poaceae,1,4
 Festuca auriculata,Festuca,Poaceae,8,53
@@ -44476,7 +44478,7 @@ Festuca borbonica,Festuca,Poaceae,1,861
 Festuca brachyphylla,Festuca,Poaceae,99,898
 Festuca brevis,Festuca,Poaceae,1,1
 Festuca brevissima,Festuca,Poaceae,13,97
-Festuca bromoides,Festuca,Poaceae,181,42235
+Festuca bromoides,Festuca,Poaceae,182,42237
 Festuca caerulescens,Festuca,Poaceae,1,1
 Festuca californica,Festuca,Poaceae,1,1
 Festuca callieri,Festuca,Poaceae,1,2
@@ -44532,7 +44534,7 @@ Festuca ligustica,Festuca,Poaceae,19,408
 Festuca longifolia,Festuca,Poaceae,4,921
 Festuca luciarum,Festuca,Poaceae,2,12
 Festuca madida,Festuca,Poaceae,3,22
-Festuca magellanica,Festuca,Poaceae,7,38
+Festuca magellanica,Festuca,Poaceae,9,41
 Festuca marcopetrii,Festuca,Poaceae,1,6
 Festuca marginata,Festuca,Poaceae,1,32
 Festuca maritima,Festuca,Poaceae,8,399
@@ -45679,9 +45681,9 @@ Fouquieria splendens,Fouquieria,Fouquieriaceae,4,16
 Fourraea alpina,Fourraea,Brassicaceae,1,19
 Foveogleicheniidites confossus,Foveogleicheniidites,,1,7
 Foveotriletes lacunosus,Foveotriletes,,1,1
-Foveotriletes palaequetrus,Foveotriletes,,1,2
+Foveotriletes palaequetrus,Foveotriletes,,2,4
 Fragaria ananassa,Fragaria,Rosaceae,91,7287
-Fragaria chiloensis,Fragaria,Rosaceae,31,151
+Fragaria chiloensis,Fragaria,Rosaceae,32,152
 Fragaria chiloënsis x virginiana,Fragaria,Rosaceae,4,34
 Fragaria chiloënsis × viridis,Fragaria,Rosaceae,1,2
 Fragaria iinumae,Fragaria,Rosaceae,6,312
@@ -46116,7 +46118,7 @@ Fuchsia fulgens,Fuchsia,Onagraceae,1,4
 Fuchsia glazioviana,Fuchsia,Onagraceae,1,1
 Fuchsia hatschbachii,Fuchsia,Onagraceae,1,1
 Fuchsia hybrida,Fuchsia,Onagraceae,15,48
-Fuchsia magellanica,Fuchsia,Onagraceae,126,15265
+Fuchsia magellanica,Fuchsia,Onagraceae,128,15269
 Fuchsia microphylla,Fuchsia,Onagraceae,2,4
 Fuchsia paniculata,Fuchsia,Onagraceae,7,73
 Fuchsia perscandens,Fuchsia,Onagraceae,3,441
@@ -46181,7 +46183,7 @@ Fumaria macrosepala,Fumaria,Papaveraceae,1,1
 Fumaria media,Fumaria,Papaveraceae,1,1
 Fumaria montana,Fumaria,Papaveraceae,8,206
 Fumaria munbyi,Fumaria,Papaveraceae,1,2
-Fumaria muralis,Fumaria,Papaveraceae,139,31539
+Fumaria muralis,Fumaria,Papaveraceae,140,31543
 Fumaria occidentalis,Fumaria,Papaveraceae,3,3406
 Fumaria officinalis,Fumaria,Papaveraceae,363,60964
 Fumaria parviflora,Fumaria,Papaveraceae,61,1748
@@ -46654,7 +46656,7 @@ Galium rubioides,Galium,Rubiaceae,6,9
 Galium rubrum,Galium,Rubiaceae,1,4
 Galium samium,Galium,Rubiaceae,2,21
 Galium samothracicum,Galium,Rubiaceae,2,13
-Galium saxatile,Galium,Rubiaceae,220,172642
+Galium saxatile,Galium,Rubiaceae,221,172643
 Galium scabrum,Galium,Rubiaceae,14,1009
 Galium schmidii,Galium,Rubiaceae,1,23
 Galium schmidtii,Galium,Rubiaceae,1,1
@@ -46725,7 +46727,7 @@ Gamochaeta coarctata,Gamochaeta,Asteraceae,2,4
 Gamochaeta depilata,Gamochaeta,Asteraceae,1,1
 Gamochaeta falcata,Gamochaeta,Asteraceae,4,5
 Gamochaeta impatiens,Gamochaeta,Asteraceae,2,2
-Gamochaeta malvinensis,Gamochaeta,Asteraceae,4,16
+Gamochaeta malvinensis,Gamochaeta,Asteraceae,6,18
 Gamochaeta nivalis,Gamochaeta,Asteraceae,3,7
 Gamochaeta oligantha,Gamochaeta,Asteraceae,1,1
 Gamochaeta pensylvanica,Gamochaeta,Asteraceae,95,2665
@@ -47266,7 +47268,7 @@ Gaultheria heterophylla,Gaultheria,Ericaceae,12,158
 Gaultheria hispida,Gaultheria,Ericaceae,3,1706
 Gaultheria hispidula,Gaultheria,Ericaceae,39,866
 Gaultheria howellii,Gaultheria,Ericaceae,2,35
-Gaultheria insana,Gaultheria,Ericaceae,6,52
+Gaultheria insana,Gaultheria,Ericaceae,7,53
 Gaultheria intermedia,Gaultheria,Ericaceae,2,2
 Gaultheria japonica,Gaultheria,Ericaceae,1,127
 Gaultheria kalmiifolia,Gaultheria,Ericaceae,1,5
@@ -47321,7 +47323,7 @@ Gaultheria paulsmithii,Gaultheria,Ericaceae,1,5
 Gaultheria pendens,Gaultheria,Ericaceae,2,13
 Gaultheria penduliflora,Gaultheria,Ericaceae,1,9
 Gaultheria pernettyoides,Gaultheria,Ericaceae,1,2
-Gaultheria phillyreifolia,Gaultheria,Ericaceae,8,17
+Gaultheria phillyreifolia,Gaultheria,Ericaceae,9,18
 Gaultheria piceifolia,Gaultheria,Ericaceae,1,3
 Gaultheria pilosa,Gaultheria,Ericaceae,1,11
 Gaultheria pinifolia,Gaultheria,Ericaceae,1,31
@@ -47331,7 +47333,7 @@ Gaultheria procumbens,Gaultheria,Ericaceae,41,1502
 Gaultheria pseudorufescens,Gaultheria,Ericaceae,1,7
 Gaultheria pubivertex,Gaultheria,Ericaceae,1,3
 Gaultheria pullei,Gaultheria,Ericaceae,1,146
-Gaultheria pumila,Gaultheria,Ericaceae,18,289
+Gaultheria pumila,Gaultheria,Ericaceae,20,292
 Gaultheria punctulata,Gaultheria,Ericaceae,2,35
 Gaultheria pyrolifolia,Gaultheria,Ericaceae,1,1
 Gaultheria pyroloides,Gaultheria,Ericaceae,9,275
@@ -47378,7 +47380,7 @@ Gaussia spirituana,Gaussia,Arecaceae,1,5
 Gavilea araucana,Gavilea,Orchidaceae,6,39
 Gavilea australis,Gavilea,Orchidaceae,4,39
 Gavilea chica,Gavilea,Orchidaceae,1,4
-Gavilea litoralis,Gavilea,Orchidaceae,7,25
+Gavilea litoralis,Gavilea,Orchidaceae,9,27
 Gavilea lutea,Gavilea,Orchidaceae,3,178
 Gavilea odoratissima,Gavilea,Orchidaceae,2,2
 Gavilea supralabellata,Gavilea,Orchidaceae,1,1
@@ -47767,7 +47769,7 @@ Geranium argenteum,Geranium,Geraniaceae,1,1
 Geranium aristatum,Geranium,Geraniaceae,1,1
 Geranium asphodeloides,Geranium,Geraniaceae,4,25
 Geranium balgooyi,Geranium,Geraniaceae,1,15
-Geranium berteroanum,Geranium,Geraniaceae,6,21
+Geranium berteroanum,Geranium,Geraniaceae,7,22
 Geranium bicknellii,Geranium,Geraniaceae,4,10
 Geranium biuncinatum,Geranium,Geraniaceae,1,4
 Geranium bohemicum,Geranium,Geraniaceae,27,108
@@ -47858,7 +47860,7 @@ Geranium robustum,Geranium,Geraniaceae,1,1
 Geranium rotundifolium,Geranium,Geraniaceae,128,19026
 Geranium rubricum,Geranium,Geraniaceae,1,9
 Geranium sanguineum,Geranium,Geraniaceae,239,23653
-Geranium sessiliflorum,Geranium,Geraniaceae,6,783
+Geranium sessiliflorum,Geranium,Geraniaceae,7,784
 Geranium shikokianum,Geranium,Geraniaceae,5,147
 Geranium sibiricum,Geranium,Geraniaceae,51,279
 Geranium simense,Geranium,Geraniaceae,3,7
@@ -49452,7 +49454,7 @@ Gossypium robinsonii,Gossypium,Malvaceae,2,32
 Gossypium stephensii,Gossypium,Malvaceae,1,2
 Gossypium tomentosum,Gossypium,Malvaceae,7,212
 Gossypium uliginosum,Gossypium,Malvaceae,1,1
-Gothanipollis bassensis,Gothanipollis,Loranthaceae,1,3
+Gothanipollis bassensis,Gothanipollis,Loranthaceae,2,5
 Gouania ambrensis,Gouania,Rhamnaceae,1,46
 Gouania aphrodes,Gouania,Rhamnaceae,3,23
 Gouania blanchetiana,Gouania,Rhamnaceae,1,4
@@ -50006,7 +50008,7 @@ Grisebachianthus plucheoides,Grisebachianthus,Asteraceae,1,4
 Griselinia jodinifolia,Griselinia,Griseliniaceae,1,1
 Griselinia littoralis,Griselinia,Griseliniaceae,30,39647
 Griselinia lucida,Griselinia,Griseliniaceae,11,3469
-Griselinia racemosa,Griselinia,Griseliniaceae,7,44
+Griselinia racemosa,Griselinia,Griseliniaceae,8,45
 Griselinia ruscifolia,Griselinia,Griseliniaceae,3,4
 Griselinia scandens,Griselinia,Griseliniaceae,2,2
 Grisollea crassifolia,Grisollea,Stemonuraceae,2,58
@@ -50366,7 +50368,7 @@ Gunnera hamiltonii,Gunnera,Gunneraceae,2,24
 Gunnera kauaiensis,Gunnera,Gunneraceae,1,25
 Gunnera lobata,Gunnera,Gunneraceae,7,17
 Gunnera macrophylla,Gunnera,Gunneraceae,14,233
-Gunnera magellanica,Gunnera,Gunneraceae,24,488
+Gunnera magellanica,Gunnera,Gunneraceae,26,504
 Gunnera manicata,Gunnera,Gunneraceae,24,667
 Gunnera masafuerae,Gunnera,Gunneraceae,1,24
 Gunnera monoica,Gunnera,Gunneraceae,8,1323
@@ -50374,7 +50376,7 @@ Gunnera peltata,Gunnera,Gunneraceae,2,31
 Gunnera perpensa,Gunnera,Gunneraceae,2,23
 Gunnera petaloidea,Gunnera,Gunneraceae,5,64
 Gunnera prorepens,Gunnera,Gunneraceae,5,289
-Gunnera tinctoria,Gunnera,Gunneraceae,74,9529
+Gunnera tinctoria,Gunnera,Gunneraceae,75,9530
 Gunnessia pepo,Sarcolobus,Apocynaceae,1,1
 Gunniopsis septifraga,Gunniopsis,Aizoaceae,1,1
 Gurania bignoniacea,Gurania,Cucurbitaceae,3,10
@@ -54178,7 +54180,7 @@ Holcolemma canaliculatum,Holcolemma,Poaceae,1,1
 Holcus annuus,Holcus,Poaceae,20,42
 Holcus azoricus,Holcus,Poaceae,6,334
 Holcus hierrensis,Holcus,Poaceae,2,27
-Holcus lanatus,Holcus,Poaceae,486,527562
+Holcus lanatus,Holcus,Poaceae,488,527566
 Holcus lanatus × mollis,Holcus,Poaceae,2,2
 Holcus mollis,Holcus,Poaceae,269,171871
 Holcus pintodasilvae,Holcus,Poaceae,1,9
@@ -55562,12 +55564,12 @@ Hymenophyllum braithwaitei,Hymenophyllum,Hymenophyllaceae,4,4
 Hymenophyllum brassii,Hymenophyllum,Hymenophyllaceae,3,87
 Hymenophyllum brevifrons,Hymenophyllum,Hymenophyllaceae,2,41
 Hymenophyllum bryophilum,Hymenophyllum,Hymenophyllaceae,1,21
-Hymenophyllum caespitosum,Hymenophyllum,Hymenophyllaceae,14,62
+Hymenophyllum caespitosum,Hymenophyllum,Hymenophyllaceae,15,64
 Hymenophyllum capense,Hymenophyllum,Hymenophyllaceae,3,50
 Hymenophyllum capillaceum,Hymenophyllum,Hymenophyllaceae,2,21
 Hymenophyllum capillare,Hymenophyllum,Hymenophyllaceae,6,363
 Hymenophyllum cardunculus,Hymenophyllum,Hymenophyllaceae,3,29
-Hymenophyllum caudiculatum,Hymenophyllum,Hymenophyllaceae,14,99
+Hymenophyllum caudiculatum,Hymenophyllum,Hymenophyllaceae,15,100
 Hymenophyllum chamaecyparicola,Hymenophyllum,Hymenophyllaceae,1,2
 Hymenophyllum cocosense,Hymenophyllum,Hymenophyllaceae,1,23
 Hymenophyllum compactum,Hymenophyllum,Hymenophyllaceae,1,3
@@ -55581,12 +55583,12 @@ Hymenophyllum cupressiforme,Hymenophyllum,Hymenophyllaceae,19,1535
 Hymenophyllum darwinii,Hymenophyllum,Hymenophyllaceae,7,9
 Hymenophyllum deltoideum,Hymenophyllum,Hymenophyllaceae,1,24
 Hymenophyllum demissum,Hymenophyllum,Hymenophyllaceae,25,12223
-Hymenophyllum dentatum,Hymenophyllum,Hymenophyllaceae,6,60
+Hymenophyllum dentatum,Hymenophyllum,Hymenophyllaceae,8,62
 Hymenophyllum denticulatum,Hymenophyllum,Hymenophyllaceae,40,419
 Hymenophyllum dependens,Hymenophyllum,Hymenophyllaceae,1,4
 Hymenophyllum deplanchei,Hymenophyllum,Hymenophyllaceae,1,143
 Hymenophyllum devolii,Hymenophyllum,Hymenophyllaceae,2,45
-Hymenophyllum dicranotrichum,Hymenophyllum,Hymenophyllaceae,8,34
+Hymenophyllum dicranotrichum,Hymenophyllum,Hymenophyllaceae,9,38
 Hymenophyllum digitatum,Hymenophyllum,Hymenophyllaceae,39,428
 Hymenophyllum dilatatum,Hymenophyllum,Hymenophyllaceae,31,4860
 Hymenophyllum dimidiatum,Hymenophyllum,Hymenophyllaceae,2,38
@@ -55601,7 +55603,7 @@ Hymenophyllum exsertum,Hymenophyllum,Hymenophyllaceae,3,10
 Hymenophyllum falklandicum,Hymenophyllum,Hymenophyllaceae,11,107
 Hymenophyllum feejeense,Hymenophyllum,Hymenophyllaceae,6,18
 Hymenophyllum fendlerianum,Hymenophyllum,Hymenophyllaceae,1,1
-Hymenophyllum ferrugineum,Hymenophyllum,Hymenophyllaceae,12,67
+Hymenophyllum ferrugineum,Hymenophyllum,Hymenophyllaceae,13,69
 Hymenophyllum fimbriatum,Hymenophyllum,Hymenophyllaceae,8,49
 Hymenophyllum firmum,Hymenophyllum,Hymenophyllaceae,2,17
 Hymenophyllum flabellatum,Hymenophyllum,Hymenophyllaceae,37,7508
@@ -55611,10 +55613,10 @@ Hymenophyllum foxworthyi,Hymenophyllum,Hymenophyllaceae,1,1
 Hymenophyllum fragile,Hymenophyllum,Hymenophyllaceae,3,24
 Hymenophyllum francii,Hymenophyllum,Hymenophyllaceae,2,23
 Hymenophyllum frankliniae,Hymenophyllum,Hymenophyllaceae,9,3299
-Hymenophyllum fuciforme,Hymenophyllum,Hymenophyllaceae,7,27
+Hymenophyllum fuciforme,Hymenophyllum,Hymenophyllaceae,8,28
 Hymenophyllum fucoides,Hymenophyllum,Hymenophyllaceae,10,118
 Hymenophyllum fujisanense,Hymenophyllum,Hymenophyllaceae,2,208
-Hymenophyllum fumarioides,Hymenophyllum,Hymenophyllaceae,28,641
+Hymenophyllum fumarioides,Hymenophyllum,Hymenophyllaceae,29,643
 Hymenophyllum fuscum,Hymenophyllum,Hymenophyllaceae,4,25
 Hymenophyllum gardneri,Hymenophyllum,Hymenophyllaceae,1,6
 Hymenophyllum geluense,Hymenophyllum,Hymenophyllaceae,1,64
@@ -55634,7 +55636,7 @@ Hymenophyllum javanicum,Hymenophyllum,Hymenophyllaceae,34,246
 Hymenophyllum johorense,Hymenophyllum,Hymenophyllaceae,2,4
 Hymenophyllum junghuhnii,Hymenophyllum,Hymenophyllaceae,13,124
 Hymenophyllum klabatense,Hymenophyllum,Hymenophyllaceae,2,33
-Hymenophyllum krauseanum,Hymenophyllum,Hymenophyllaceae,5,25
+Hymenophyllum krauseanum,Hymenophyllum,Hymenophyllaceae,6,28
 Hymenophyllum kuhnii,Hymenophyllum,Hymenophyllaceae,6,22
 Hymenophyllum laminatum,Hymenophyllum,Hymenophyllaceae,1,4
 Hymenophyllum lanatum,Hymenophyllum,Hymenophyllaceae,4,67
@@ -55687,7 +55689,7 @@ Hymenophyllum penangianum,Hymenophyllum,Hymenophyllaceae,4,25
 Hymenophyllum perparvulum,Hymenophyllum,Hymenophyllaceae,1,2
 Hymenophyllum perrieri,Hymenophyllum,Hymenophyllaceae,1,24
 Hymenophyllum pilosissimum,Hymenophyllum,Hymenophyllaceae,10,107
-Hymenophyllum plicatum,Hymenophyllum,Hymenophyllaceae,10,74
+Hymenophyllum plicatum,Hymenophyllum,Hymenophyllaceae,11,76
 Hymenophyllum plumieri,Hymenophyllum,Hymenophyllaceae,2,5
 Hymenophyllum pluviatile,Hymenophyllum,Hymenophyllaceae,5,85
 Hymenophyllum polyanthos,Hymenophyllum,Hymenophyllaceae,89,3233
@@ -55716,7 +55718,7 @@ Hymenophyllum salakense,Hymenophyllum,Hymenophyllaceae,5,13
 Hymenophyllum sanguinolentum,Hymenophyllum,Hymenophyllaceae,23,4948
 Hymenophyllum scabrum,Hymenophyllum,Hymenophyllaceae,15,3009
 Hymenophyllum scopulorum,Hymenophyllum,Hymenophyllaceae,1,3
-Hymenophyllum secundum,Hymenophyllum,Hymenophyllaceae,24,84
+Hymenophyllum secundum,Hymenophyllum,Hymenophyllaceae,25,85
 Hymenophyllum semialatum,Hymenophyllum,Hymenophyllaceae,1,11
 Hymenophyllum sericeum,Hymenophyllum,Hymenophyllaceae,5,111
 Hymenophyllum serrulatum,Hymenophyllum,Hymenophyllaceae,30,231
@@ -55742,7 +55744,7 @@ Hymenophyllum tucuchense,Hymenophyllum,Hymenophyllaceae,1,3
 Hymenophyllum tunbridgense,Hymenophyllum,Hymenophyllaceae,16,61
 Hymenophyllum tunbrigense,Hymenophyllum,Hymenophyllaceae,36,4551
 Hymenophyllum turquinense,Hymenophyllum,Hymenophyllaceae,1,1
-Hymenophyllum umbratile,Hymenophyllum,Hymenophyllaceae,4,10
+Hymenophyllum umbratile,Hymenophyllum,Hymenophyllaceae,5,11
 Hymenophyllum undulatum,Hymenophyllum,Hymenophyllaceae,7,82
 Hymenophyllum urbani,Hymenophyllum,Hymenophyllaceae,3,21
 Hymenophyllum valvatum,Hymenophyllum,Hymenophyllaceae,1,3
@@ -56078,7 +56080,7 @@ Hypochaeris arenaria,Hypochaeris,Asteraceae,6,18
 Hypochaeris chillensis,Hypochaeris,Asteraceae,5,13
 Hypochaeris crepioides,Hypochaeris,Asteraceae,1,1
 Hypochaeris cretensis,Hypochaeris,Asteraceae,19,708
-Hypochaeris glabra,Hypochaeris,Asteraceae,168,7772
+Hypochaeris glabra,Hypochaeris,Asteraceae,169,7773
 Hypochaeris incana,Hypochaeris,Asteraceae,3,113
 Hypochaeris megapotamica,Hypochaeris,Asteraceae,1,4
 Hypochaeris microcephala,Hypochaeris,Asteraceae,1,1
@@ -57603,6 +57605,7 @@ Ischnosiphon martianus,Ischnosiphon,Marantaceae,1,1
 Ischnosiphon obliquus,Ischnosiphon,Marantaceae,7,32
 Ischnosiphon petiolatus,Ischnosiphon,Marantaceae,1,4
 Ischnosiphon puberulus,Ischnosiphon,Marantaceae,2,7
+Ischyosporites areapunctatis,Ischyosporites,,1,2
 Ischyosporites gremius,Ischyosporites,,1,1
 Ischyosporites variegatus,Ischyosporites,,1,5
 Iseilema dolichotrichum,Iseilema,Poaceae,1,10
@@ -58828,7 +58831,7 @@ Juncus rigidus,Juncus,Juncaceae,8,53
 Juncus roemerianus,Juncus,Juncaceae,29,108
 Juncus sandwithii,Juncus,Juncaceae,3,205
 Juncus sarophorus,Juncus,Juncaceae,14,971
-Juncus scheuchzerioides,Juncus,Juncaceae,21,300
+Juncus scheuchzerioides,Juncus,Juncaceae,22,304
 Juncus scirpoides,Juncus,Juncaceae,23,86
 Juncus secundus,Juncus,Juncaceae,4,18
 Juncus semisolidus,Juncus,Juncaceae,1,9
@@ -59675,7 +59678,7 @@ Koeleria novozelandica,Koeleria,Poaceae,2,252
 Koeleria pyramidata,Koeleria,Poaceae,36,382
 Koeleria riguorum,Koeleria,Poaceae,1,2
 Koeleria serpentina,Koeleria,Poaceae,2,15
-Koeleria spicata,Koeleria,Poaceae,215,4527
+Koeleria spicata,Koeleria,Poaceae,216,4528
 Koeleria splendens,Koeleria,Poaceae,5,29
 Koeleria subalpestris,Koeleria,Poaceae,1,1
 Koeleria tenella,Koeleria,Poaceae,2,111
@@ -60023,7 +60026,7 @@ Laelia marginata,Laelia,Orchidaceae,1,1
 Laelia undulata,Laelia,Orchidaceae,1,2
 Laennecia confusa,Laennecia,Asteraceae,1,5
 Laennecia coulteri,Laennecia,Asteraceae,4,25
-Laevigatosporites ovatus,Laevigatosporites,,4,30
+Laevigatosporites ovatus,Laevigatosporites,,5,32
 Lafoensia acuminata,Lafoensia,Lythraceae,1,3
 Lafoensia punicifolia,Lafoensia,Lythraceae,1,18
 Lafoensia vandelliana,Lafoensia,Lythraceae,3,5
@@ -60134,7 +60137,7 @@ Lamium maculatum,Lamium,Lamiaceae,61,14384
 Lamium moschatum,Lamium,Lamiaceae,14,131
 Lamium orientale,Lamium,Lamiaceae,1,3
 Lamium orvala,Lamium,Lamiaceae,2,33
-Lamium purpureum,Lamium,Lamiaceae,419,185660
+Lamium purpureum,Lamium,Lamiaceae,420,185663
 Lampas elmeri,Lampas,Loranthaceae,2,14
 Lampranthus amoenus,Lampranthus,Aizoaceae,1,2
 Lampranthus aureus,Lampranthus,Aizoaceae,3,3
@@ -61533,7 +61536,7 @@ Leptinella pyrethrifolia,Leptinella,Asteraceae,2,767
 Leptinella reptans,Leptinella,Asteraceae,14,418
 Leptinella rotundata,Leptinella,Asteraceae,2,14
 Leptinella sarawaketensis,Leptinella,Asteraceae,1,7
-Leptinella scariosa,Leptinella,Asteraceae,18,176
+Leptinella scariosa,Leptinella,Asteraceae,20,178
 Leptinella serrulata,Leptinella,Asteraceae,2,81
 Leptinella squalida,Leptinella,Asteraceae,17,1961
 Leptinella tenella,Leptinella,Asteraceae,4,78
@@ -61879,7 +61882,7 @@ Leucanthemum lacustre,Leucanthemum,Asteraceae,1,4
 Leucanthemum maximum,Leucanthemum,Asteraceae,23,202
 Leucanthemum platylepis,Leucanthemum,Asteraceae,1,5
 Leucanthemum superbum,Leucanthemum,Asteraceae,43,427
-Leucanthemum vulgare,Leucanthemum,Asteraceae,616,223736
+Leucanthemum vulgare,Leucanthemum,Asteraceae,617,223737
 Leucas aspera,Leucas,Lamiaceae,17,100
 Leucas biflora,Leucas,Lamiaceae,1,5
 Leucas cephalotes,Leucas,Lamiaceae,1,2
@@ -61909,7 +61912,7 @@ Leucheria eriocephala,Leucheria,Asteraceae,1,1
 Leucheria hahnii,Leucheria,Asteraceae,2,95
 Leucheria leontopodioides,Leucheria,Asteraceae,1,4
 Leucheria purpurea,Leucheria,Asteraceae,2,27
-Leucheria suaveolens,Leucheria,Asteraceae,6,54
+Leucheria suaveolens,Leucheria,Asteraceae,8,57
 Leucocasia gigantea,Leucocasia,Araceae,13,38
 Leucochrysum albicans,Leucochrysum,Asteraceae,2,336
 Leucocodon reticulatum,Leucocodon,Rubiaceae,1,1
@@ -62045,7 +62048,7 @@ Levisticum officinale,Levisticum,Apiaceae,84,1202
 Leycesteria formosa,Leycesteria,Caprifoliaceae,47,28458
 Leycesteria glaucophylla,Leycesteria,Caprifoliaceae,2,3
 Leymus ajanensis,Leymus,Poaceae,8,75
-Leymus arenarius,Leymus,Poaceae,505,17131
+Leymus arenarius,Leymus,Poaceae,506,17132
 Leymus arenarius × Secale cereale,,Poaceae,1,1
 Leymus chinensis,Leymus,Poaceae,1,5
 Leymus condensatus,Leymus,Poaceae,3,90
@@ -62320,13 +62323,13 @@ Lilaeopsis macloviana,Lilaeopsis,Apiaceae,8,21
 Lilaeopsis mauritiana,Lilaeopsis,Apiaceae,3,13
 Lilaeopsis minor,Lilaeopsis,Apiaceae,2,9
 Lilaeopsis novae-zelandiae,Lilaeopsis,Apiaceae,12,1028
-Lilaeopsis occidentalis,Lilaeopsis,Apiaceae,4,5
+Lilaeopsis occidentalis,Lilaeopsis,Apiaceae,5,6
 Lilaeopsis polyantha,Lilaeopsis,Apiaceae,22,539
 Lilaeopsis ruthiana,Lilaeopsis,Apiaceae,2,685
 Liliacidites contortus,Liliacidites,,1,1
 Liliacidites intermedius,Liliacidites,,1,1
 Liliacidites kaitangataensis,Liliacidites,,1,16
-Liliacidites lanceolatus,Liliacidites,,1,2
+Liliacidites lanceolatus,Liliacidites,,2,4
 Liliacidites peroreticulatus,Liliacidites,,1,12
 Liliacidites variegatus,Liliacidites,,1,1
 Lilium amabile,Lilium,Liliaceae,14,36
@@ -63848,7 +63851,7 @@ Lobelia niihauensis,Lobelia,Campanulaceae,3,28
 Lobelia nummularia,Lobelia,Campanulaceae,7,1454
 Lobelia nuttallii,Lobelia,Campanulaceae,4,18
 Lobelia oahuensis,Lobelia,Campanulaceae,1,8
-Lobelia oligophylla,Lobelia,Campanulaceae,10,48
+Lobelia oligophylla,Lobelia,Campanulaceae,11,49
 Lobelia origenes,Lobelia,Campanulaceae,1,1
 Lobelia oxyphylla,Lobelia,Campanulaceae,1,15
 Lobelia paludosa,Lobelia,Campanulaceae,2,2
@@ -63972,7 +63975,7 @@ Lolium multiflorum,Lolium,Poaceae,261,51362
 Lolium multiflorum x perenne,Lolium,Poaceae,1,1
 Lolium multiflorum × Schedonorus pratensis,,Poaceae,1,7
 Lolium multiflorum × perenne,Lolium,Poaceae,12,47
-Lolium perenne,Lolium,Poaceae,577,377873
+Lolium perenne,Lolium,Poaceae,578,377874
 Lolium perenne x Schedonorus pratensis,Lolium x Schedonorus,Poaceae,3,16
 Lolium perenne × Schedonorus arundinaceus,,Poaceae,2,6
 Lolium perenne × Schedonorus arundinaceus subsp. uechtritzianus,,Poaceae,1,1
@@ -64051,7 +64054,7 @@ Lomariocycas insularis,Lomariocycas,Blechnaceae,3,12
 Lomariocycas longepetiolata,Lomariocycas,Blechnaceae,1,15
 Lomariocycas longipinna,Lomariocycas,Blechnaceae,1,31
 Lomariocycas madagascariensis,Lomariocycas,Blechnaceae,1,9
-Lomariocycas magellanica,Lomariocycas,Blechnaceae,28,193
+Lomariocycas magellanica,Lomariocycas,Blechnaceae,30,196
 Lomariocycas palmiformis,Lomariocycas,Blechnaceae,2,42
 Lomariocycas rufa,Lomariocycas,Blechnaceae,2,5
 Lomariocycas schomburgkii,Lomariocycas,Blechnaceae,3,4
@@ -64620,7 +64623,7 @@ Lupinus albifrons,Lupinus,Fabaceae,3,382
 Lupinus albus,Lupinus,Fabaceae,41,377
 Lupinus angustiflorus,Lupinus,Fabaceae,1,3
 Lupinus angustifolius,Lupinus,Fabaceae,84,2362
-Lupinus arboreus,Lupinus,Fabaceae,37,7526
+Lupinus arboreus,Lupinus,Fabaceae,38,7528
 Lupinus arcticus,Lupinus,Fabaceae,9,53
 Lupinus argenteus,Lupinus,Fabaceae,2,3
 Lupinus arizonicus,Lupinus,Fabaceae,10,35
@@ -64656,7 +64659,7 @@ Lupinus perennis,Lupinus,Fabaceae,17,71
 Lupinus pilosus,Lupinus,Fabaceae,31,267
 Lupinus plattensis,Lupinus,Fabaceae,1,2
 Lupinus polycarpus,Lupinus,Fabaceae,2,2
-Lupinus polyphyllus,Lupinus,Fabaceae,369,10774
+Lupinus polyphyllus,Lupinus,Fabaceae,370,10775
 Lupinus pubescens,Lupinus,Fabaceae,1,1
 Lupinus regalis,Lupinus,Fabaceae,12,249
 Lupinus ruber,Lupinus,Fabaceae,1,1
@@ -64685,7 +64688,7 @@ Luziola peruviana,Luziola,Poaceae,1,5
 Luziola subintegra,Luziola,Poaceae,4,12
 Luzula acuminata,Luzula,Juncaceae,12,55
 Luzula acutifolia,Luzula,Juncaceae,1,65
-Luzula alopecurus,Luzula,Juncaceae,10,90
+Luzula alopecurus,Luzula,Juncaceae,12,93
 Luzula angustifolia,Luzula,Juncaceae,1,1
 Luzula arctica,Luzula,Juncaceae,7,19
 Luzula arcuata,Luzula,Juncaceae,97,3107
@@ -64765,7 +64768,7 @@ Luzula wahlenbergii,Luzula,Juncaceae,74,402
 Luzula wettsteinii,Luzula,Juncaceae,1,1
 Luzuriaga aspericaulis,Luzuriaga,Alstroemeriaceae,1,1
 Luzuriaga laxifolia,Luzuriaga,Alstroemeriaceae,2,4
-Luzuriaga marginata,Luzuriaga,Alstroemeriaceae,14,117
+Luzuriaga marginata,Luzuriaga,Alstroemeriaceae,15,118
 Luzuriaga parviflora,Luzuriaga,Alstroemeriaceae,6,6159
 Luzuriaga peterbannisteri,Luzuriaga,Alstroemeriaceae,1,1
 Luzuriaga polyphylla,Luzuriaga,Alstroemeriaceae,6,64
@@ -64907,7 +64910,7 @@ Lydenburgia cassinoides,Lydenburgia,Celastraceae,1,1
 Lygeum spartum,Lygeum,Poaceae,10,137
 Lygisma angustifolium,Lygisma,Apocynaceae,1,1
 Lygisma inflexum,Lygisma,Apocynaceae,1,23
-Lygistepollenites florinii,Lygistepollenites,Podocarpaceae,2,5
+Lygistepollenites florinii,Lygistepollenites,Podocarpaceae,3,7
 Lygodesmia aphylla,Lygodesmia,Asteraceae,5,10
 Lygodesmia exigua,Lygodesmia,Asteraceae,1,1
 Lygodioisporites perverrucatus,Lygodioisporites,,1,1
@@ -64994,7 +64997,7 @@ Lysiloma latisiliquum,Lysiloma,Fabaceae,40,204
 Lysiloma sabicu,Lysiloma,Fabaceae,12,84
 Lysimachia acroadenia,Lysimachia,Primulaceae,8,551
 Lysimachia alpestris,Lysimachia,Primulaceae,2,43
-Lysimachia amoena,Lysimachia,Primulaceae,9,30
+Lysimachia amoena,Lysimachia,Primulaceae,10,31
 Lysimachia ardisioides,Lysimachia,Primulaceae,5,711
 Lysimachia arvensis,Lysimachia,Primulaceae,469,95324
 Lysimachia atropurpurea,Lysimachia,Primulaceae,3,61
@@ -66841,7 +66844,7 @@ Marsilea vestita,Marsilea,Marsileaceae,9,25
 Marsilea villifolia,Marsilea,Marsileaceae,1,2
 Marsilea villosa,Marsilea,Marsileaceae,2,47
 Marsippospermum gracile,Marsippospermum,Juncaceae,4,506
-Marsippospermum grandiflorum,Marsippospermum,Juncaceae,11,88
+Marsippospermum grandiflorum,Marsippospermum,Juncaceae,13,90
 Marsippospermum reichei,Marsippospermum,Juncaceae,1,2
 Marsypianthes chamaedrys,Marsypianthes,Lamiaceae,24,132
 Marsypianthes hassleri,Marsypianthes,Lamiaceae,1,1
@@ -66938,7 +66941,7 @@ Matisia lasiocalyx,Matisia,Malvaceae,1,2
 Matonia foxworthyi,Matonia,Matoniaceae,6,54
 Matonia pectinata,Matonia,Matoniaceae,5,11
 Matonidium goepperti,Matonidium,Matoniaceae,1,3
-Matonisporites ornamentalis,Matonisporites,,1,4
+Matonisporites ornamentalis,Matonisporites,,2,6
 Matourea azurea,Matourea,Plantaginaceae,11,40
 Matourea erecta,Matourea,Plantaginaceae,1,1
 Matourea ocymoides,Matourea,Plantaginaceae,5,18
@@ -66946,8 +66949,8 @@ Matourea platychila,Matourea,Plantaginaceae,1,2
 Matourea pratensis,Matourea,Plantaginaceae,2,2
 Matourea scutellarioides,Matourea,Plantaginaceae,3,31
 Matricaria aurea,Matricaria,Asteraceae,4,10
-Matricaria chamomilla,Matricaria,Asteraceae,273,72333
-Matricaria discoidea,Matricaria,Asteraceae,596,226355
+Matricaria chamomilla,Matricaria,Asteraceae,274,72337
+Matricaria discoidea,Matricaria,Asteraceae,597,226356
 Matricaria maritima,Matricaria,Asteraceae,5,15
 Matricaria occidentalis,Matricaria,Asteraceae,2,4
 Matsumurella chinensis,Matsumurella,Lamiaceae,5,14
@@ -67045,7 +67048,7 @@ Maytenus boaria,Maytenus,Celastraceae,5,674
 Maytenus disticha,Maytenus,Celastraceae,3,53
 Maytenus distichophylla,Maytenus,Celastraceae,1,2
 Maytenus longipes,Maytenus,Celastraceae,2,3
-Maytenus magellanica,Maytenus,Celastraceae,9,88
+Maytenus magellanica,Maytenus,Celastraceae,10,89
 Maytenus reynosioides,Maytenus,Celastraceae,1,7
 Maytenus ubatubensis,Maytenus,Celastraceae,1,4
 Mazaea phialanthoides,Mazaea,Rubiaceae,1,15
@@ -67480,7 +67483,7 @@ Megalastrum martinicense,Megalastrum,Dryopteridaceae,10,59
 Megalastrum oppositum,Megalastrum,Dryopteridaceae,2,24
 Megalastrum pleiosoros,Megalastrum,Dryopteridaceae,6,31
 Megalastrum pulverulentum,Megalastrum,Dryopteridaceae,3,42
-Megalastrum spectabile,Megalastrum,Dryopteridaceae,8,32
+Megalastrum spectabile,Megalastrum,Dryopteridaceae,9,33
 Megalastrum subincisum,Megalastrum,Dryopteridaceae,13,89
 Megalastrum taafense,Megalastrum,Dryopteridaceae,2,38
 Megalastrum villosum,Megalastrum,Dryopteridaceae,4,60
@@ -67814,6 +67817,7 @@ Melica ciliata,Melica,Poaceae,80,2629
 Melica cupani,Melica,Poaceae,1,13
 Melica frutescens,Melica,Poaceae,2,18
 Melica imperfecta,Melica,Poaceae,6,232
+Melica macra,Melica,Poaceae,1,1
 Melica minuta,Melica,Poaceae,71,1176
 Melica mutica,Melica,Poaceae,7,8
 Melica nutans,Melica,Poaceae,410,13465
@@ -70459,6 +70463,7 @@ Monodora grandidieri,Monodora,Annonaceae,1,1
 Monodora myristica,Monodora,Annonaceae,10,24
 Monodora tenuifolia,Monodora,Annonaceae,2,4
 Monodora undulata,Monodora,Annonaceae,2,9
+Monolites alveolatus,Monolites,,1,1
 Monoon australe,Polyalthia,Annonaceae,4,4
 Monoon bemban,Monoon,Annonaceae,1,2
 Monoon chloraxanthum,Monoon,Annonaceae,1,3
@@ -71252,7 +71257,7 @@ Myosotis concinna,Myosotis,Boraginaceae,2,47
 Myosotis congesta,Myosotis,Boraginaceae,4,30
 Myosotis corsicana,Myosotis,Boraginaceae,1,218
 Myosotis decumbens,Myosotis,Boraginaceae,45,183
-Myosotis discolor,Myosotis,Boraginaceae,210,53055
+Myosotis discolor,Myosotis,Boraginaceae,211,53056
 Myosotis dissitiflora,Myosotis,Boraginaceae,2,15
 Myosotis dubia,Myosotis,Boraginaceae,21,391
 Myosotis exarrhena,Myosotis,Boraginaceae,1,46
@@ -72088,12 +72093,12 @@ Myrsine yateensis,Myrsine,Primulaceae,1,10
 Myrsinites gaudini,Myrsine,Primulaceae,2,2
 Myrtaceidites eugeniioides,Myrtaceidites,,1,1
 Myrtaceidites mesonesus,Myrtaceidites,,2,3
-Myrtaceidites verrucosus,Myrtaceidites,,1,1
+Myrtaceidites verrucosus,Myrtaceidites,,2,3
 Myrtaciphyllum pleistocenicum,Myrtaciphyllum,Myrtaceae,1,1
 Myrtastrum rufopunctatum,Myrtastrum,Myrtaceae,1,311
 Myrtella beccarii,Myrtella,Myrtaceae,4,48
 Myrtella bennigseniana,Myrtella,Myrtaceae,3,33
-Myrteola nummularia,Myrteola,Myrtaceae,18,99
+Myrteola nummularia,Myrteola,Myrtaceae,19,100
 Myrtillocactus cochal,Myrtillocactus,Cactaceae,1,1
 Myrtophyllum geinitzi,Eucalyptus,Myrtaceae,3,15
 Myrtophyllum sapindoides,Myrtophyllum,Myrtaceae,1,1
@@ -72237,7 +72242,7 @@ Nassauvia darwinii,Nassauvia,Asteraceae,1,11
 Nassauvia dentata,Nassauvia,Asteraceae,1,1
 Nassauvia falklandica,Nassauvia,Asteraceae,1,9
 Nassauvia fuegiana,Nassauvia,Asteraceae,1,1
-Nassauvia gaudichaudii,Nassauvia,Asteraceae,7,39
+Nassauvia gaudichaudii,Nassauvia,Asteraceae,8,55
 Nassauvia lagascae,Nassauvia,Asteraceae,1,1
 Nassauvia latissima,Nassauvia,Asteraceae,2,23
 Nassauvia magellanica,Nassauvia,Asteraceae,5,176
@@ -72963,7 +72968,7 @@ Nertera balfouriana,Nertera,Rubiaceae,3,133
 Nertera ciliata,Nertera,Rubiaceae,3,766
 Nertera cunninghamii,Nertera,Rubiaceae,2,66
 Nertera dichondrifolia,Nertera,Rubiaceae,11,13297
-Nertera granadensis,Nertera,Rubiaceae,63,8571
+Nertera granadensis,Nertera,Rubiaceae,64,8572
 Nertera holmboei,Nertera,Rubiaceae,2,6
 Nertera nigricarpa,Nertera,Rubiaceae,2,400
 Nertera scapanioides,Nertera,Rubiaceae,3,199
@@ -73092,7 +73097,7 @@ Nichallea soyauxii,Nichallea,Rubiaceae,1,1
 Nicobariodendron sleumeri,Nicobariodendron,Celastraceae,2,2
 Nicoraepoa chonotica,Nicoraepoa,Poaceae,2,2
 Nicoraepoa pugionifolia,Nicoraepoa,Poaceae,1,5
-Nicoraepoa robusta,Nicoraepoa,Poaceae,7,21
+Nicoraepoa robusta,Nicoraepoa,Poaceae,8,22
 Nicoteba betonica,Nicoteba,Acanthaceae,21,58
 Nicotiana acuminata,Nicotiana,Solanaceae,2,2
 Nicotiana africana,Nicotiana,Solanaceae,1,1
@@ -73352,7 +73357,7 @@ Norrisia maior,Norrisia,Loganiaceae,3,53
 Norrisia malaccensis,Norrisia,Loganiaceae,4,10
 Northia seychellana,Northia,Sapotaceae,3,1653
 Nostolachma densiflora,Nostolachma,Rubiaceae,3,6
-Notanthera heterophylla,Notanthera,Loranthaceae,2,9
+Notanthera heterophylla,Notanthera,Loranthaceae,3,10
 Notelaea Elcho-Island,Notelaea,Oleaceae,2,3
 Notelaea johnsonii,Notelaea,Oleaceae,1,1
 Notelaea ligustrina,Notelaea,Oleaceae,8,1829
@@ -73405,16 +73410,17 @@ Nothocnide melastomatifolia,Nothocnide,Urticaceae,1,31
 Nothocnide mollissima,Nothocnide,Urticaceae,4,27
 Nothocnide repanda,Nothocnide,Urticaceae,41,245
 Nothodissotis barteri,Nothodissotis,Melastomataceae,1,13
-Nothofagidites americanus,Nothofagidites,,1,1
+Nothofagidites acromegacanthus,Nothofagidites,,1,2
+Nothofagidites americanus,Nothofagidites,,2,3
 Nothofagidites aspera,Nothofagidites,,1,5
-Nothofagidites brachyspinulosus,Nothofagidites,,1,4
+Nothofagidites brachyspinulosus,Nothofagidites,,2,6
 Nothofagidites dorotensis,Nothofagidites,,1,1
 Nothofagidites falcatus,Nothofagidites,,2,4
-Nothofagidites flemingii,Nothofagidites,,2,5
+Nothofagidites flemingii,Nothofagidites,,3,6
 Nothofagidites fortispinulosus,Nothofagidites,,1,1
 Nothofagidites fuegiensis,Nothofagidites,,1,1
 Nothofagidites kaitangatus,Nothofagidites,,1,4
-Nothofagidites saraensis,Nothofagidites,,1,1
+Nothofagidites saraensis,Nothofagidites,,2,3
 Nothofagidites suggatei,Nothofagidites,,1,2
 Nothofagidites tehuelchesii,Nothofagidites,,1,1
 Nothofagidites waipawaensis,Nothofagidites,,2,2
@@ -73454,7 +73460,7 @@ Nothofagus menziesii,Nothofagus,Nothofagaceae,8,20458
 Nothofagus microphylla,Nothofagus,Nothofagaceae,1,1
 Nothofagus moorei,Nothofagus,Nothofagaceae,3,16
 Nothofagus mucronata,Nothofagus,Nothofagaceae,1,1
-Nothofagus nitida,Nothofagus,Nothofagaceae,11,91
+Nothofagus nitida,Nothofagus,Nothofagaceae,12,92
 Nothofagus nuda,Nothofagus,Nothofagaceae,1,5
 Nothofagus obliqua,Nothofagus,Nothofagaceae,9,1160
 Nothofagus palustris,Nothofagus,Nothofagaceae,1,1
@@ -73504,7 +73510,7 @@ Noticastrum malmei,Noticastrum,Asteraceae,2,10
 Noticastrum psammophilum,Noticastrum,Asteraceae,2,3
 Notobasis syriaca,Notobasis,Asteraceae,58,649
 Notoceras bicorne,Notoceras,Brassicaceae,11,229
-Notogrammitis angustifolia,Notogrammitis,Polypodiaceae,29,1579
+Notogrammitis angustifolia,Notogrammitis,Polypodiaceae,30,1580
 Notogrammitis billardierei,Notogrammitis,Polypodiaceae,29,25630
 Notogrammitis ciliata,Notogrammitis,Polypodiaceae,12,684
 Notogrammitis crassior,Notogrammitis,Polypodiaceae,22,746
@@ -74517,7 +74523,7 @@ Olneya tesota,Olneya,Fabaceae,9,58
 Oloptum miliaceum,Oloptum,Poaceae,65,3136
 Oloptum thomasii,Oloptum,Poaceae,39,355
 Olsynium biflorum,Olsynium,Iridaceae,2,111
-Olsynium filifolium,Olsynium,Iridaceae,4,38
+Olsynium filifolium,Olsynium,Iridaceae,6,40
 Olsynium lyckholmii,Olsynium,Iridaceae,1,2
 Olsynium obscurum,Olsynium,Iridaceae,2,5
 Olsynium scirpoideum,Olsynium,Iridaceae,1,1
@@ -76062,7 +76068,7 @@ Oxalis dimidiata,Oxalis,Oxalidaceae,1,1
 Oxalis dombeyi,Oxalis,Oxalidaceae,13,65
 Oxalis drummondii,Oxalis,Oxalidaceae,2,12
 Oxalis elsae,Oxalis,Oxalidaceae,1,13
-Oxalis enneaphylla,Oxalis,Oxalidaceae,10,163
+Oxalis enneaphylla,Oxalis,Oxalidaceae,12,169
 Oxalis exilis,Oxalis,Oxalidaceae,49,9868
 Oxalis filiformis,Oxalis,Oxalidaceae,2,7
 Oxalis flava,Oxalis,Oxalidaceae,1,1
@@ -77467,7 +77473,7 @@ Parablechnum acanthopodum,Parablechnum,Blechnaceae,1,2
 Parablechnum camfieldii,Parablechnum,Blechnaceae,2,10
 Parablechnum capense,Parablechnum,Blechnaceae,17,52
 Parablechnum chauliodontum,Parablechnum,Blechnaceae,1,37
-Parablechnum chilense,Parablechnum,Blechnaceae,14,143
+Parablechnum chilense,Parablechnum,Blechnaceae,15,144
 Parablechnum confusum,Parablechnum,Blechnaceae,3,60
 Parablechnum corbassonii,Parablechnum,Blechnaceae,1,27
 Parablechnum cordatum,Parablechnum,Blechnaceae,17,298
@@ -79380,7 +79386,7 @@ Perezia lactucoides,Perezia,Asteraceae,8,22
 Perezia magellanica,Perezia,Asteraceae,9,87
 Perezia pedicularidifolia,Perezia,Asteraceae,1,1
 Perezia pilifera,Perezia,Asteraceae,2,58
-Perezia recurvata,Perezia,Asteraceae,7,188
+Perezia recurvata,Perezia,Asteraceae,8,189
 Pergularia daemia,Pergularia,Apocynaceae,11,44
 Pergularia tomentosa,Pergularia,Apocynaceae,5,52
 Periandra coccinea,Periandra,Fabaceae,1,2
@@ -79486,7 +79492,7 @@ Perityle cuneata,Perityle,Asteraceae,1,2
 Perityle greenei,Perityle,Asteraceae,3,3
 Perityle socorrensis,Perityle,Asteraceae,2,4
 Perityle socorrosensis,Perityle,Asteraceae,3,59
-Peromonolites vellosus,Peromonolites,,1,2
+Peromonolites vellosus,Peromonolites,,2,3
 Peronema canescens,Peronema,Lamiaceae,5,43
 Perotis arenacea,Perotis,Poaceae,1,14
 Perotis hildebrandtii,Perotis,Poaceae,1,1
@@ -79691,7 +79697,7 @@ Petasites frigidus,Petasites,Asteraceae,123,1604
 Petasites hybridus,Petasites,Asteraceae,127,65700
 Petasites japonicus,Petasites,Asteraceae,126,6149
 Petasites paradoxus,Petasites,Asteraceae,2,6
-Petasites pyrenaicus,Petasites,Asteraceae,54,46954
+Petasites pyrenaicus,Petasites,Asteraceae,55,46956
 Petasites radiatus,Petasites,Asteraceae,4,14
 Petasites spurius,Petasites,Asteraceae,23,831
 Petasites tatewakianus,Petasites,Asteraceae,3,37
@@ -80381,7 +80387,7 @@ Phleum paniculatum,Phleum,Poaceae,13,67
 Phleum parviceps,Phleum,Poaceae,1,454
 Phleum phalaroides,Phleum,Poaceae,1,2
 Phleum phleoides,Phleum,Poaceae,44,4771
-Phleum pratense,Phleum,Poaceae,558,267757
+Phleum pratense,Phleum,Poaceae,559,267758
 Phleum subulatum,Phleum,Poaceae,30,97
 Phloeophila nummularia,Phloeophila,Orchidaceae,1,2
 Phlogacanthus celebicus,Phlogacanthus,Acanthaceae,1,1
@@ -80510,7 +80516,7 @@ Phoradendron undulatum,Phoradendron,Viscaceae,3,6
 Phoradendron wattii,Phoradendron,Viscaceae,2,20
 Phoradendron woodsonii,Phoradendron,Viscaceae,1,2
 Phormium colensoi,Phormium,Asphodelaceae,20,5630
-Phormium tenax,Phormium,Asphodelaceae,74,8897
+Phormium tenax,Phormium,Asphodelaceae,75,8898
 Photinia fraseri,Photinia,Rosaceae,4,71
 Photinia glabra,Photinia,Rosaceae,19,587
 Photinia integrifolia,Photinia,Rosaceae,5,102
@@ -81126,7 +81132,7 @@ Phyllarthron vokoaninensis,Phyllarthron,Bignoniaceae,1,3
 Phyllis nobla,Phyllis,Rubiaceae,8,1463
 Phyllis viscosa,Phyllis,Rubiaceae,3,84
 Phyllocephalum frutescens,Phyllocephalum,Asteraceae,1,2
-Phyllocladidites mawsonii,Phyllocladidites,Podocarpaceae,3,34
+Phyllocladidites mawsonii,Phyllocladidites,Podocarpaceae,4,36
 Phyllocladidites verrucosus,Phyllocladidites,Podocarpaceae,1,1
 Phyllocladus aberensis,Phyllocladus,Phyllocladaceae,1,1
 Phyllocladus annulatus,Phyllocladus,Phyllocladaceae,1,1
@@ -81734,7 +81740,7 @@ Pilogyne emirensis,Zehneria,Cucurbitaceae,1,1
 Pilophyllum villosum,Pilophyllum,Orchidaceae,4,11
 Pilosella acutifolia,Pilosella,Asteraceae,3,6
 Pilosella arida,Pilosella,Asteraceae,1,1
-Pilosella aurantiaca,Pilosella,Asteraceae,250,48686
+Pilosella aurantiaca,Pilosella,Asteraceae,251,48687
 Pilosella aurantiaca subsp. aurantiaca × officinarum subsp. officinarum,Pilosella,Asteraceae,1,6
 Pilosella aurantiaca subsp. dimorpha × officinarum subsp. peleteriana,Pilosella,Asteraceae,1,5
 Pilosella auriculoides,Pilosella,Asteraceae,1,1
@@ -81775,7 +81781,7 @@ Pilosella longiscapa,Pilosella,Asteraceae,1,1
 Pilosella macranthela,Pilosella,Asteraceae,12,41
 Pilosella macrotricha,Pilosella,Asteraceae,1,1
 Pilosella melinomelas,Pilosella,Asteraceae,2,2
-Pilosella officinarum,Pilosella,Asteraceae,474,183278
+Pilosella officinarum,Pilosella,Asteraceae,475,183279
 Pilosella peleteriana,Pilosella,Asteraceae,50,1854
 Pilosella piloselliflora,Pilosella,Asteraceae,2,5
 Pilosella pilosellina,Pilosella,Asteraceae,1,2
@@ -83060,7 +83066,7 @@ Plagianthus divaricatus,Plagianthus,Malvaceae,13,1604
 Plagianthus regius,Plagianthus,Malvaceae,9,2009
 Plagiobothrys acanthocarpus,Plagiobothrys,Boraginaceae,4,17
 Plagiobothrys australasicus,Plagiobothrys,Boraginaceae,1,1
-Plagiobothrys calandrinioides,Plagiobothrys,Boraginaceae,1,9
+Plagiobothrys calandrinioides,Plagiobothrys,Boraginaceae,2,10
 Plagiobothrys canescens,Plagiobothrys,Boraginaceae,4,129
 Plagiobothrys collinus,Plagiobothrys,Boraginaceae,5,183
 Plagiobothrys corymbosus,Plagiobothrys,Boraginaceae,1,1
@@ -83245,7 +83251,7 @@ Plantago asphodeloides,Plantago,Plantaginaceae,2,29
 Plantago aucklandica,Plantago,Plantaginaceae,2,26
 Plantago aundensis,Plantago,Plantaginaceae,1,86
 Plantago australis,Plantago,Plantaginaceae,22,558
-Plantago barbata,Plantago,Plantaginaceae,15,58
+Plantago barbata,Plantago,Plantaginaceae,17,61
 Plantago bellardii,Plantago,Plantaginaceae,73,1746
 Plantago bellidioides,Plantago,Plantaginaceae,6,69
 Plantago boissieri,Plantago,Plantaginaceae,3,16
@@ -83292,7 +83298,7 @@ Plantago japonica,Plantago,Plantaginaceae,23,207
 Plantago jurtzevii,Plantago,Plantaginaceae,1,1
 Plantago kamtschatica,Plantago,Plantaginaceae,2,2
 Plantago lagopus,Plantago,Plantaginaceae,87,3112
-Plantago lanceolata,Plantago,Plantaginaceae,764,557608
+Plantago lanceolata,Plantago,Plantaginaceae,765,557609
 Plantago lanigera,Plantago,Plantaginaceae,3,308
 Plantago loeflingii,Plantago,Plantaginaceae,4,11
 Plantago macrocarpa,Plantago,Plantaginaceae,18,51
@@ -84073,7 +84079,7 @@ Poa acicularifolia,Poa,Poaceae,1,111
 Poa acroleuca,Poa,Poaceae,46,2257
 Poa affinis,Poa,Poaceae,1,1
 Poa almasovii,Poa,Poaceae,4,6
-Poa alopecurus,Poa,Poaceae,13,147
+Poa alopecurus,Poa,Poaceae,16,157
 Poa alpigena,Poa,Poaceae,184,1275
 Poa alpina,Poa,Poaceae,243,9623
 Poa alpina × arctica,Poa,Poaceae,1,1
@@ -84083,7 +84089,7 @@ Poa alta,Poa,Poaceae,4,275
 Poa anceps,Poa,Poaceae,15,827
 Poa angustifolia,Poa,Poaceae,255,14272
 Poa ankaratrensis,Poa,Poaceae,1,14
-Poa annua,Poa,Poaceae,845,342234
+Poa annua,Poa,Poaceae,846,342235
 Poa annua × supina,Poa,Poaceae,4,4
 Poa antipoda,Poa,Poaceae,4,24
 Poa arctica,Poa,Poaceae,187,2127
@@ -84144,7 +84150,7 @@ Poa fawcettiae,Poa,Poaceae,1,27
 Poa fax,Poa,Poaceae,2,9
 Poa fendleriana,Poa,Poaceae,1,1
 Poa finitima,Poa,Poaceae,4,67
-Poa flabellata,Poa,Poaceae,17,239
+Poa flabellata,Poa,Poaceae,19,253
 Poa flaccidula,Poa,Poaceae,3,17
 Poa flexuosa,Poa,Poaceae,17,861
 Poa foliosa,Poa,Poaceae,8,234
@@ -84235,7 +84241,7 @@ Poa platyantha,Poa,Poaceae,8,18
 Poa poiformis,Poa,Poaceae,41,1570
 Poa polyphylla,Poa,Poaceae,1,1
 Poa porphyroclados,Poa,Poaceae,2,5
-Poa pratensis,Poa,Poaceae,783,260291
+Poa pratensis,Poa,Poaceae,784,260293
 Poa pseudoabbreviata,Poa,Poaceae,10,83
 Poa pseudoattenuata,Poa,Poaceae,2,45
 Poa pseudopalustris,Poa,Poaceae,1,1
@@ -84330,7 +84336,7 @@ Podocarpidites ellipticus,Podocarpidites,Podocarpaceae,1,10
 Podocarpidites marwickii,Podocarpidites,Podocarpaceae,1,1
 Podocarpidites microreticuloidata,Podocarpidites,Podocarpaceae,1,1
 Podocarpidites otagoensis,Podocarpidites,Podocarpaceae,1,3
-Podocarpidites rugulosus,Podocarpidites,Podocarpaceae,1,1
+Podocarpidites rugulosus,Podocarpidites,Podocarpaceae,2,3
 Podocarpoxylon woburnense,Podocarpoxylon,Podocarpaceae,1,3
 Podocarpus acutifolius,Podocarpus,Podocarpaceae,2,390
 Podocarpus affinis,Podocarpus,Podocarpaceae,1,3
@@ -84391,7 +84397,7 @@ Podocarpus neoprumnopitys,Podocarpus,Podocarpaceae,1,5
 Podocarpus neriifolius,Podocarpus,Podocarpaceae,54,637
 Podocarpus nivalis,Podocarpus,Podocarpaceae,4,3310
 Podocarpus novae-caledoniae,Podocarpus,Podocarpaceae,3,113
-Podocarpus nubigenus,Podocarpus,Podocarpaceae,8,93
+Podocarpus nubigenus,Podocarpus,Podocarpaceae,9,109
 Podocarpus oblongus,Podocarpus,Podocarpaceae,1,2
 Podocarpus orarius,Podocarpus,Podocarpaceae,2,16
 Podocarpus palawanensis,Podocarpus,Podocarpaceae,1,2
@@ -84494,7 +84500,7 @@ Podorungia humblotii,Podorungia,Acanthaceae,1,27
 Podorungia lantzei,Podorungia,Acanthaceae,1,15
 Podorungia serotina,Podorungia,Acanthaceae,1,32
 Podosorus angustatus,Podosorus,Polypodiaceae,1,8
-Podosporites microsaccatus,Podosporites,Podocarpaceae,1,4
+Podosporites microsaccatus,Podosporites,Podocarpaceae,2,6
 Podosporites parvus,Podosporites,Podocarpaceae,1,1
 Podostemum ceratophyllum,Podostemum,Podostemaceae,1,1
 Podotheca angustifolia,Podotheca,Asteraceae,9,95
@@ -84790,7 +84796,7 @@ Polycarpon tetraphyllum,Polycarpon,Caryophyllaceae,210,7136
 Polyclathra cucumerina,Polyclathra,Cucurbitaceae,1,2
 Polycnemum arvense,Polycnemum,Amaranthaceae,4,69
 Polycnemum majus,Polycnemum,Amaranthaceae,1,3
-Polycolporopollenites esobalteus,Polycolporopollenites,Polygonaceae,1,2
+Polycolporopollenites esobalteus,Polycolporopollenites,Polygonaceae,2,4
 Polycycliska cylindrica,Lerchea,Rubiaceae,1,1
 Polydictyum menyanthidis,Polydictyum,Tectariaceae,24,116
 Polydictyum ternatum,Polydictyum,Tectariaceae,3,104
@@ -85108,7 +85114,8 @@ Polyphlebium vieillardii,Polyphlebium,Hymenophyllaceae,1,21
 Polyphlebium werneri,Polyphlebium,Hymenophyllaceae,4,5
 Polypleurum elongatum,Polypleurum,Podostemaceae,1,3
 Polypleurum wallichii,Polypleurum,Podostemaceae,1,2
-Polypodiisporites radiatus,Polypodiisporites,,1,1
+Polypodiisporites inangahuensis,Polypodiisporites,,1,2
+Polypodiisporites radiatus,Polypodiisporites,,2,3
 Polypodium,Polypodium,Polypodiaceae,5,9
 Polypodium appalachianum,Polypodium,Polypodiaceae,6,25
 Polypodium arboreum,Polypodium,Polypodiaceae,1,1
@@ -85535,7 +85542,7 @@ Polystichum maevaranense,Polystichum,Dryopteridaceae,1,6
 Polystichum magnificum,Polystichum,Dryopteridaceae,1,1
 Polystichum makinoi,Polystichum,Dryopteridaceae,6,1310
 Polystichum manmeiense,Polystichum,Dryopteridaceae,1,91
-Polystichum marionense,Polystichum,Dryopteridaceae,4,38
+Polystichum marionense,Polystichum,Dryopteridaceae,5,39
 Polystichum marquesense,Polystichum,Dryopteridaceae,5,20
 Polystichum mashikoi,Polystichum,Dryopteridaceae,4,133
 Polystichum mayebarae,Polystichum,Dryopteridaceae,10,679
@@ -85547,7 +85554,7 @@ Polystichum microlepis,Polystichum,Dryopteridaceae,2,34
 Polystichum midoriense,Polystichum,Dryopteridaceae,1,1
 Polystichum minamitanii,Polystichum,Dryopteridaceae,1,1
 Polystichum miuranum,Polystichum,Dryopteridaceae,4,725
-Polystichum mohrioides,Polystichum,Dryopteridaceae,6,73
+Polystichum mohrioides,Polystichum,Dryopteridaceae,7,74
 Polystichum moluccense,Polystichum,Dryopteridaceae,22,179
 Polystichum moorei,Polystichum,Dryopteridaceae,1,17
 Polystichum mucronifolium,Polystichum,Dryopteridaceae,8,183
@@ -86030,7 +86037,7 @@ Potamogeton kamogawaensis,Potamogeton,Potamogetonaceae,4,59
 Potamogeton kyushuensis,Potamogeton,Potamogetonaceae,2,36
 Potamogeton lanceolatus,Potamogeton,Potamogetonaceae,3,13
 Potamogeton leptocephalus,Potamogeton,Potamogetonaceae,2,46
-Potamogeton linguatus,Potamogeton,Potamogetonaceae,5,13
+Potamogeton linguatus,Potamogeton,Potamogetonaceae,6,14
 Potamogeton lintonii,Potamogeton,Potamogetonaceae,1,3
 Potamogeton lucens,Potamogeton,Potamogetonaceae,42,10088
 Potamogeton lucens x natans,Potamogeton,Potamogetonaceae,1,1
@@ -86599,7 +86606,7 @@ Primula kewensis,Primula,Primulaceae,1,1
 Primula kisoana,Primula,Primulaceae,3,35
 Primula laurentiana,Primula,Primulaceae,19,183
 Primula macrocarpa,Primula,Primulaceae,1,27
-Primula magellanica,Primula,Primulaceae,7,160
+Primula magellanica,Primula,Primulaceae,8,161
 Primula malacoides,Primula,Primulaceae,7,145
 Primula matthioli,Primula,Primulaceae,7,105
 Primula mazurenkoae,Primula,Primulaceae,1,3
@@ -87450,7 +87457,7 @@ Pseudowintera axillaris,Pseudowintera,Winteraceae,8,5176
 Pseudowintera colorata,Pseudowintera,Winteraceae,10,25544
 Pseudowintera insperata,Pseudowintera,Winteraceae,1,31
 Pseudowintera traversii,Pseudowintera,Winteraceae,2,108
-Pseudowinterapollis couperi,Pseudowinterapollis,,1,1
+Pseudowinterapollis couperi,Pseudowinterapollis,,2,3
 Pseudoxytenanthera monadelpha,Pseudoxytenanthera,Poaceae,1,4
 Pseudoziziphus parryi,Pseudoziziphus,Rhamnaceae,2,20
 Pseuduvaria acerosa,Pseuduvaria,Annonaceae,1,8
@@ -90241,7 +90248,7 @@ Rangaeris trilobata,Rangaeris,Orchidaceae,1,1
 Ranopisoa rakotosonii,Ranopisoa,Scrophulariaceae,1,6
 Ranunculus,Ranunculus,Ranunculaceae,18,58
 Ranunculus abortivus,Ranunculus,Ranunculaceae,18,192
-Ranunculus acaulis,Ranunculus,Ranunculaceae,24,657
+Ranunculus acaulis,Ranunculus,Ranunculaceae,25,658
 Ranunculus accedens,Ranunculus,Ranunculaceae,2,6
 Ranunculus acidotus,Ranunculus,Ranunculaceae,1,2
 Ranunculus aconitifolius,Ranunculus,Ranunculaceae,17,173
@@ -90292,7 +90299,7 @@ Ranunculus baughanii,Ranunculus,Ranunculaceae,1,3
 Ranunculus bellus,Ranunculus,Ranunculaceae,1,8
 Ranunculus bidens,Ranunculus,Ranunculaceae,1,1
 Ranunculus binatus,Ranunculus,Ranunculaceae,1,11
-Ranunculus biternatus,Ranunculus,Ranunculaceae,16,246
+Ranunculus biternatus,Ranunculus,Ranunculaceae,17,247
 Ranunculus blumei,Ranunculus,Ranunculaceae,3,6
 Ranunculus boreoapenninus,Ranunculus,Ranunculaceae,1,75
 Ranunculus bottnicus,Ranunculus,Ranunculaceae,1,3
@@ -90588,7 +90595,7 @@ Ranunculus prorsidens,Ranunculus,Ranunculaceae,2,7
 Ranunculus pseudacutiusculus,Ranunculus,Ranunculaceae,1,1
 Ranunculus pseudofluitans,Ranunculus,Ranunculaceae,2,21
 Ranunculus pseudolowii,Ranunculus,Ranunculaceae,2,108
-Ranunculus pseudotrullifolius,Ranunculus,Ranunculaceae,6,14
+Ranunculus pseudotrullifolius,Ranunculus,Ranunculaceae,7,15
 Ranunculus psilophyllus,Ranunculus,Ranunculaceae,1,3
 Ranunculus psilostachys,Ranunculus,Ranunculaceae,7,491
 Ranunculus pubitorus,Ranunculus,Ranunculaceae,1,1
@@ -91161,7 +91168,7 @@ Rhaphiolepis wuzhishanensis,Rhaphiolepis,Rosaceae,1,33
 Rhaphiostylis beninensis,Rhaphiostylis,Metteniusaceae,1,12
 Rhaphiostylis madagascariensis,Rhaphiostylis,Metteniusaceae,1,10
 Rhaphispermum gerardioides,Rhaphispermum,Orobanchaceae,1,42
-Rhaphithamnus spinosus,Rhaphithamnus,Verbenaceae,12,140
+Rhaphithamnus spinosus,Rhaphithamnus,Verbenaceae,13,143
 Rhaphithamnus venustus,Rhaphithamnus,Verbenaceae,2,11
 Rhapis excelsa,Rhapis,Arecaceae,35,158
 Rhapis gracilis,Rhapis,Arecaceae,1,5
@@ -93407,7 +93414,7 @@ Rubus gallofuscus,Rubus,Rosaceae,1,24
 Rubus gariannensis,Rubus,Rosaceae,1,4
 Rubus gelertii,Rubus,Rosaceae,4,15
 Rubus geniculatus,Rubus,Rosaceae,1,17
-Rubus geoides,Rubus,Rosaceae,12,221
+Rubus geoides,Rubus,Rosaceae,13,222
 Rubus glaber,Rubus,Rosaceae,1,2
 Rubus glanduliger,Rubus,Rosaceae,1,3
 Rubus glareosus,Rubus,Rosaceae,2,122
@@ -94080,7 +94087,7 @@ Ruizterania retusa,Ruizterania,Vochysiaceae,2,4
 Rumex abortivus,Rumex,Polygonaceae,2,10
 Rumex abyssinicus,Rumex,Polygonaceae,2,551
 Rumex acetosa,Rumex,Polygonaceae,695,399168
-Rumex acetosella,Rumex,Polygonaceae,834,199163
+Rumex acetosella,Rumex,Polygonaceae,837,199169
 Rumex acutus,Rumex,Polygonaceae,2,15
 Rumex aetnensis,Rumex,Polygonaceae,1,28
 Rumex albescens,Rumex,Polygonaceae,2,47
@@ -94756,7 +94763,7 @@ Salicornia fruticosa,Salicornia,Amaranthaceae,37,578
 Salicornia herbacea,Salicornia,Amaranthaceae,1,1
 Salicornia magellanica,Salicornia,Amaranthaceae,1,10
 Salicornia maritima,Salicornia,Amaranthaceae,13,30
-Salicornia neei,Salicornia,Amaranthaceae,6,21
+Salicornia neei,Salicornia,Amaranthaceae,7,22
 Salicornia nitens,Salicornia,Amaranthaceae,2,15
 Salicornia obclavata,Salicornia,Amaranthaceae,1,2
 Salicornia obscura,Salicornia,Amaranthaceae,7,94
@@ -96040,7 +96047,7 @@ Sauvagesia tenella,Sauvagesia,Ochnaceae,1,5
 Sauvallia blainii,Sauvallia,Commelinaceae,1,5
 Savia sessiliflora,Savia,Phyllanthaceae,9,143
 Savignya parviflora,Savignya,Brassicaceae,4,17
-Saxegothaea conspicua,Saxegothaea,Podocarpaceae,4,59
+Saxegothaea conspicua,Saxegothaea,Podocarpaceae,5,60
 Saxegothopsis fuegianus,Saxegothopsis,Podocarpaceae,1,1
 Saxifraga acerifolia,Saxifraga,Saxifragaceae,2,28
 Saxifraga adscendens,Saxifraga,Saxifragaceae,14,233
@@ -98314,7 +98321,7 @@ Senecio campylocarpus,Senecio,Asteraceae,1,19
 Senecio canabyi,Senecio,Asteraceae,1,1
 Senecio canaliculatus,Senecio,Asteraceae,1,70
 Senecio candicans,Senecio,Asteraceae,3,10
-Senecio candidans,Senecio,Asteraceae,18,199
+Senecio candidans,Senecio,Asteraceae,19,200
 Senecio capuronii,Senecio,Asteraceae,1,1
 Senecio carnerensis,Senecio,Asteraceae,1,1
 Senecio carnosulus,Senecio,Asteraceae,2,71
@@ -98352,7 +98359,7 @@ Senecio eubaeus,Senecio,Asteraceae,1,7
 Senecio evansianus,Senecio,Asteraceae,1,3
 Senecio extensus,Senecio,Asteraceae,1,6
 Senecio exul,Senecio,Asteraceae,1,1
-Senecio falklandicus,Senecio,Asteraceae,8,55
+Senecio falklandicus,Senecio,Asteraceae,10,57
 Senecio filaginoides,Senecio,Asteraceae,2,3
 Senecio flaccidus,Senecio,Asteraceae,1,52
 Senecio flavus,Senecio,Asteraceae,5,59
@@ -98423,7 +98430,7 @@ Senecio lyratus,Senecio,Asteraceae,1,1
 Senecio macrocarpus,Senecio,Asteraceae,1,4
 Senecio macroglossus,Senecio,Asteraceae,6,17
 Senecio macrophyllus,Senecio,Asteraceae,1,1
-Senecio madagascariensis,Senecio,Asteraceae,25,885
+Senecio madagascariensis,Senecio,Asteraceae,26,886
 Senecio malacitanus,Senecio,Asteraceae,2,16
 Senecio mandrarensis,Senecio,Asteraceae,1,1
 Senecio marinae,Senecio,Asteraceae,1,32
@@ -98528,7 +98535,7 @@ Senecio triodontiphyllus,Senecio,Asteraceae,1,1
 Senecio tsaratananensis,Senecio,Asteraceae,1,8
 Senecio tunicatus,Senecio,Asteraceae,2,39
 Senecio tweediei,Senecio,Asteraceae,1,1
-Senecio vaginatus,Senecio,Asteraceae,5,13
+Senecio vaginatus,Senecio,Asteraceae,6,14
 Senecio vagus,Senecio,Asteraceae,2,10
 Senecio vaingaindrani,Senecio,Asteraceae,1,106
 Senecio varicosus,Senecio,Asteraceae,2,280
@@ -98537,7 +98544,7 @@ Senecio vernalis x vulgaris,Senecio,Asteraceae,1,2
 Senecio viscosus,Senecio,Asteraceae,295,38579
 Senecio viscosus × vulgaris,Senecio,Asteraceae,1,2
 Senecio vittarifolius,Senecio,Asteraceae,1,7
-Senecio vulgaris,Senecio,Asteraceae,704,261947
+Senecio vulgaris,Senecio,Asteraceae,706,261949
 Senecio wairauensis,Senecio,Asteraceae,3,865
 Senecio websteri,Senecio,Asteraceae,1,6
 Senecio zeylanicus,Senecio,Asteraceae,1,1
@@ -99500,7 +99507,7 @@ Silene csereii,Silene,Caryophyllaceae,4,11
 Silene cythnia,Silene,Caryophyllaceae,13,87
 Silene densiflora,Silene,Caryophyllaceae,1,1
 Silene dichotoma,Silene,Caryophyllaceae,54,518
-Silene dioica,Silene,Caryophyllaceae,565,302226
+Silene dioica,Silene,Caryophyllaceae,566,302235
 Silene dioica x latifolia subsp. alba,Silene,Caryophyllaceae,1,1
 Silene dioica × latifolia,Silene,Caryophyllaceae,9,24
 Silene dirphya,Silene,Caryophyllaceae,1,2
@@ -100510,7 +100517,7 @@ Solanum triquetrum,Solanum,Solanaceae,4,23
 Solanum trisectum,Solanum,Solanaceae,1,3
 Solanum triste,Solanum,Solanaceae,4,23
 Solanum troyanum,Solanum,Solanaceae,1,34
-Solanum tuberosum,Solanum,Solanaceae,205,12237
+Solanum tuberosum,Solanum,Solanaceae,206,12238
 Solanum turneroides,Solanum,Solanaceae,1,1
 Solanum turraeaefolium,Solanum,Solanaceae,2,2
 Solanum uleanum,Solanum,Solanaceae,1,1
@@ -101133,7 +101140,7 @@ Spergularia macrorrhiza,Spergularia,Caryophyllaceae,3,502
 Spergularia macrotheca,Spergularia,Caryophyllaceae,5,337
 Spergularia marina,Spergularia,Caryophyllaceae,536,38121
 Spergularia masafuerana,Spergularia,Caryophyllaceae,1,2
-Spergularia media,Spergularia,Caryophyllaceae,230,19564
+Spergularia media,Spergularia,Caryophyllaceae,231,19565
 Spergularia nicaeensis,Spergularia,Caryophyllaceae,6,54
 Spergularia purpurea,Spergularia,Caryophyllaceae,4,5
 Spergularia rubra,Spergularia,Caryophyllaceae,371,23764
@@ -102656,7 +102663,7 @@ Sticherus bolanicus,Sticherus,Gleicheniaceae,1,172
 Sticherus brackenridgei,Sticherus,Gleicheniaceae,4,85
 Sticherus brassii,Sticherus,Gleicheniaceae,3,69
 Sticherus compactus,Sticherus,Gleicheniaceae,1,1
-Sticherus cryptocarpus,Sticherus,Gleicheniaceae,6,93
+Sticherus cryptocarpus,Sticherus,Gleicheniaceae,7,94
 Sticherus cubensis,Sticherus,Gleicheniaceae,1,4
 Sticherus cunninghamii,Sticherus,Gleicheniaceae,6,5097
 Sticherus erectus,Sticherus,Gleicheniaceae,1,85
@@ -102690,12 +102697,12 @@ Sticherus pruinosus,Sticherus,Gleicheniaceae,1,4
 Sticherus pseudobifidus,Sticherus,Gleicheniaceae,1,23
 Sticherus pseudoscandens,Sticherus,Gleicheniaceae,1,9
 Sticherus pulcher,Sticherus,Gleicheniaceae,1,6
-Sticherus quadripartitus,Sticherus,Gleicheniaceae,10,46
+Sticherus quadripartitus,Sticherus,Gleicheniaceae,11,47
 Sticherus reflexipinnulus,Sticherus,Gleicheniaceae,1,11
 Sticherus remotus,Sticherus,Gleicheniaceae,6,46
 Sticherus revolutus,Sticherus,Gleicheniaceae,2,17
 Sticherus rubiginosus,Sticherus,Gleicheniaceae,3,34
-Sticherus squamulosus,Sticherus,Gleicheniaceae,8,71
+Sticherus squamulosus,Sticherus,Gleicheniaceae,9,72
 Sticherus subremotus,Sticherus,Gleicheniaceae,1,2
 Sticherus tahitensis,Sticherus,Gleicheniaceae,3,9
 Sticherus tener,Sticherus,Gleicheniaceae,6,649
@@ -103776,7 +103783,7 @@ Symphyotrichum tenuifolium,Symphyotrichum,Asteraceae,55,199
 Symphyotrichum tradescantii,Symphyotrichum,Asteraceae,7,44
 Symphyotrichum undulatum,Symphyotrichum,Asteraceae,8,116
 Symphyotrichum urophyllum,Symphyotrichum,Asteraceae,1,1
-Symphyotrichum vahlii,Symphyotrichum,Asteraceae,13,39
+Symphyotrichum vahlii,Symphyotrichum,Asteraceae,14,40
 Symphyotrichum versicolor,Symphyotrichum,Asteraceae,12,104
 Symphyotrichum walteri,Symphyotrichum,Asteraceae,2,7
 Symphysia alainii,Symphysia,Ericaceae,1,59
@@ -103962,7 +103969,7 @@ Symplocos viridissima,Symplocos,Symplocaceae,1,45
 Symplocos whitfordii,Symplocos,Symplocaceae,2,26
 Symplocos wikstroemiifolia,Symplocos,Symplocaceae,3,224
 Symplocos zizyphoides,Symplocos,Symplocaceae,2,33
-Synammia feuillei,Synammia,Polypodiaceae,7,59
+Synammia feuillei,Synammia,Polypodiaceae,8,60
 Synammia intermedia,Synammia,Polypodiaceae,3,9
 Synapsis ilicifolia,Synapsis,Schlegeliaceae,1,14
 Synaptantha scleranthoides,Scleromitrion,Rubiaceae,1,1
@@ -109210,7 +109217,7 @@ Triclisia sacleuxii,Triclisia,Menispermaceae,1,1
 Tricolpites cooksonae,Tricolpites,Gunneraceae,1,1
 Tricolpites minutus,Tricolpites,Gunneraceae,1,1
 Tricolpites reticulata,Tricolpites,Gunneraceae,1,1
-Tricolpites reticulatus,Tricolpites,Gunneraceae,2,8
+Tricolpites reticulatus,Tricolpites,Gunneraceae,3,10
 Tricolpites variabilis,Tricolpites,Gunneraceae,1,7
 Tricolporites distinctus,Tricolporites,,1,8
 Tricoryne anceps,Tricoryne,Asphodelaceae,10,38
@@ -110121,13 +110128,13 @@ Uapaca staudtii,Uapaca,Phyllanthaceae,1,1
 Uapaca thouarsii,Uapaca,Phyllanthaceae,3,530
 Uapaca vanhouttei,Uapaca,Phyllanthaceae,2,58
 Ugni candollei,Ugni,Myrtaceae,1,3
-Ugni molinae,Ugni,Myrtaceae,14,204
+Ugni molinae,Ugni,Myrtaceae,15,205
 Ugni myricoides,Ugni,Myrtaceae,1,1
 Ugni selkirkii,Ugni,Myrtaceae,1,3
 Uittienia modesta,Uittienia,Fabaceae,2,53
 Ulex breoganii,Ulex,Fabaceae,1,1
 Ulex densus,Ulex,Fabaceae,1,1
-Ulex europaeus,Ulex,Fabaceae,179,266173
+Ulex europaeus,Ulex,Fabaceae,181,266195
 Ulex gallii,Ulex,Fabaceae,31,47417
 Ulex minor,Ulex,Fabaceae,20,6412
 Ulex nanus,Ulex,Fabaceae,2,8
@@ -111858,7 +111865,7 @@ Veronica diosmifolia,Veronica,Plantaginaceae,2,272
 Veronica diosmoides,Veronica,Plantaginaceae,1,9
 Veronica distans,Veronica,Plantaginaceae,1,1
 Veronica divergens,Veronica,Plantaginaceae,1,14
-Veronica elliptica,Veronica,Plantaginaceae,34,1112
+Veronica elliptica,Veronica,Plantaginaceae,36,1118
 Veronica epacridea,Veronica,Plantaginaceae,1,711
 Veronica erecta,Veronica,Plantaginaceae,2,23
 Veronica euphrasiifolia,Veronica,Plantaginaceae,1,1
@@ -111867,7 +111874,7 @@ Veronica fairfieldii,Veronica,Plantaginaceae,1,6
 Veronica filiformis,Veronica,Plantaginaceae,110,65325
 Veronica flavida,Veronica,Plantaginaceae,1,104
 Veronica formosa,Veronica,Plantaginaceae,2,642
-Veronica franciscana,Veronica,Plantaginaceae,51,2001
+Veronica franciscana,Veronica,Plantaginaceae,52,2002
 Veronica fruticans,Veronica,Plantaginaceae,67,2671
 Veronica gentianoides,Veronica,Plantaginaceae,8,49
 Veronica gibbsii,Veronica,Plantaginaceae,2,50
@@ -112599,7 +112606,7 @@ Viola lutea,Viola,Violaceae,6,12895
 Viola luxuriosa,Viola,Violaceae,1,2
 Viola lyallii,Viola,Violaceae,4,259
 Viola macloskeyi,Viola,Violaceae,10,22
-Viola maculata,Viola,Violaceae,9,38
+Viola maculata,Viola,Violaceae,10,39
 Viola magellanica,Viola,Violaceae,4,29
 Viola mandshurica,Viola,Violaceae,89,2480
 Viola martinii,Viola,Violaceae,1,1
@@ -113369,7 +113376,7 @@ Weinmannia rhoifolia,Weinmannia,Cunoniaceae,1,1
 Weinmannia silvicola,Weinmannia,Cunoniaceae,1,3
 Weinmannia subsessiliflora,Weinmannia,Cunoniaceae,1,1
 Weinmannia tinctoria,Weinmannia,Cunoniaceae,1,1749
-Weinmannia trichosperma,Weinmannia,Cunoniaceae,8,89
+Weinmannia trichosperma,Weinmannia,Cunoniaceae,9,91
 Weinmanniaphyllum bernardii,Weinmanniaphyllum,Cunoniaceae,1,1
 Welchiodendron longivalve,Welchiodendron,Myrtaceae,12,252
 Wellstedia socotrana,Wellstedia,Wellstediaceae,1,4
@@ -114534,7 +114541,7 @@ Zephyranthes rosea,Zephyranthes,Amaryllidaceae,39,72
 Zephyranthes simpsonii,Zephyranthes,Amaryllidaceae,2,4
 Zephyranthes sylvatica,Zephyranthes,Amaryllidaceae,1,1
 Zephyranthes traubii,Zephyranthes,Amaryllidaceae,2,10
-Zephyranthes tubispatha,Zephyranthes,Amaryllidaceae,6,9
+Zephyranthes tubispatha,Zephyranthes,Amaryllidaceae,7,10
 Zephyranthes wrightii,Zephyranthes,Amaryllidaceae,1,1
 Zeugites americanus,Zeugites,Poaceae,4,73
 Zeuxine affinis,Zeuxine,Orchidaceae,6,23
