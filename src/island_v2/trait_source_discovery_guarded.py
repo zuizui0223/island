@@ -123,5 +123,77 @@ def discover(
     )
 
 
+def prepare_pilot_taxa(pilot: pd.DataFrame) -> pd.DataFrame:
+    """Reduce a validation-pilot species table to the identity columns discovery needs.
+
+    The stratified validation pilot carries seeded ``unknown`` trait axes
+    (``native_status``, ``growth_form``, ``flower_conspicuousness``) that are review
+    targets, not values. They are dropped here so no prohibited finalized-value column
+    reaches discovery, and because discovery only needs the accepted species plus an
+    optional genus/family passthrough.
+    """
+    if "accepted_species" not in pilot.columns:
+        raise typer.BadParameter("pilot CSV must have an 'accepted_species' column")
+    keep = ["accepted_species"] + [c for c in ("genus", "family") if c in pilot.columns]
+    table = pilot.loc[:, keep].copy().fillna("")
+    table["accepted_species"] = table["accepted_species"].astype(str).str.strip()
+    table = table.loc[table["accepted_species"].ne("")].drop_duplicates("accepted_species")
+    prohibited = discovery.PROHIBITED_OUTPUT_COLUMNS.intersection(table.columns)
+    if prohibited:
+        raise typer.BadParameter(
+            f"pilot taxa still carry prohibited finalized-value columns: {sorted(prohibited)}"
+        )
+    return table.reset_index(drop=True)
+
+
+@app.command("discover-pilot")
+def discover_pilot(
+    pilot_csv: Path = typer.Option(..., exists=True, help="Stratified validation-pilot species CSV (needs accepted_species)."),
+    contact_email: str = typer.Option(..., help="Contact email for OpenAlex and Unpaywall polite pools."),
+    output_dir: Path = typer.Option(..., help="Directory for unreviewed validation-pilot leads."),
+    max_taxa: int = typer.Option(50, min=1, max=50, help="Bounded pilot taxa to query."),
+    max_seeds_per_taxon: int = typer.Option(5, min=1, max=20, help="Bounded seeds per trait group per API."),
+) -> None:
+    """Cross-family validation-pilot source discovery (NOT island-scoped); leads only.
+
+    Unlike ``discover``, this is a pipeline-evaluation run over the stratified pilot,
+    which spans many islands, so it is not gated on a single-island nomination. It still
+    writes only unreviewed literature/access leads: no trait value, native/establishment
+    status, Bombus applicability, or analysis inclusion is decided.
+    """
+    pilot = pd.read_csv(pilot_csv, dtype=str).fillna("")
+    taxa = prepare_pilot_taxa(pilot)
+    frame, report = discovery.discover_sources(
+        taxa,
+        discovery._httpx_getter(),
+        contact_email,
+        max_taxa,
+        max_seeds_per_taxon,
+    )
+    report.update(
+        {
+            "run_kind": "stratified_validation_pilot",
+            "release_boundary": (
+                "Cross-family validation-pilot leads for pipeline evaluation only. Rows are "
+                "unreviewed M0/M1/M2 literature/access leads; neither discovery nor PDF page "
+                "location can accept a trait value, native/establishment status, Bombus "
+                "applicability, or analysis inclusion. This is not a per-island production run."
+            ),
+        }
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+    frame.to_csv(output_dir / "validation_pilot_source_leads.csv", index=False)
+    # Backward-compatible name for shared downstream inspection (e.g. PDF locator).
+    frame.to_csv(output_dir / "trait_source_leads.csv", index=False)
+    (output_dir / "validation_pilot_source_discovery_report.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    typer.echo(
+        f"Wrote {report['n_literature_seeds']} unreviewed lead(s) "
+        f"({report['n_title_relevant_seeds']} title-relevant) for {report['n_taxa_queried']} "
+        "validation-pilot taxon(s). No trait/native/applicability value was decided."
+    )
+
+
 if __name__ == "__main__":
     app()
