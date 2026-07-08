@@ -1,0 +1,72 @@
+# Analysis model ladder M0-M4 (Stage 7). See docs/trait_evidence_design_v2.md.
+#
+# NOTE ON NAMESPACES: these M0-M4 are ANALYSIS MODELS (a hypothesis ladder), NOT the
+# trait evidence layers in config/trait_layers.yml (floral phenotype / reproductive
+# assurance / pollinator function). Do not conflate the two.
+#
+# Gated: no model is fitted or released until accepted taxon scope AND island
+# establishment AND the region-scoped Bombus applicability freeze hold. The outcome is
+# always a floral-phenotype-type proxy, never an assertion of the actual pollinator.
+# reported evidence and proxy stay in separate columns in every model.
+version: "1.0"
+
+baseline_covariates:
+  - geography
+  - source_pool
+  - lineage_composition
+  - island_area
+  - isolation
+  - climate
+  - establishment
+  - observation_process
+
+# Phenotype-type outcome (a proxy, never a decided pollinator).
+primary_outcome_proxy: large_bee_or_Bombus_like_floral_phenotype_proxy
+
+# Alternative pollination-channel phenotype proxies for the M4 compensation model.
+alternative_functional_replacement_proxies:
+  - open_or_generalist_insect_like
+  - small_bee_or_fly_like
+  - butterfly_or_moth_like
+  - bird_or_bat_like
+  - wind_like
+
+models:
+  M0:
+    name: baseline
+    covariates: baseline_covariates
+    outcome: composition of floral-phenotype / reproductive-assurance / pollination-channel proxies
+    question: Can the baseline alone explain the proxy composition?
+
+  M1:
+    name: bombus_channel_association
+    covariates: baseline_covariates + bombus_channel_state
+    outcome: large_bee_or_Bombus_like_floral_phenotype_proxy
+    note: Comparison of Bombus-associated floral phenotype; NOT confirmation of the real pollinator.
+
+  M2:
+    name: reproductive_assurance_mediated_route
+    path: bombus_channel_state -> reproductive_assurance/compatibility/selfing (reported OR proxy) -> floral phenotype proxy
+    note: Mediation via reproductive assurance, using reported evidence or proxy for the mediator.
+
+  M3:
+    name: joint_direct_plus_mediated_route
+    paths:
+      - bombus_channel_state -> floral_phenotype_proxy                                   # direct
+      - bombus_channel_state -> reproductive_assurance (reported/proxy) -> floral_phenotype_proxy  # mediated
+    note: Both paths carried simultaneously in one model.
+
+  M4:
+    name: alternative_functional_replacement_compensation
+    main_term: bombus_channel_state x alternative_functional_replacement_proxy   # interaction
+    scope: islands where the Bombus channel is weak, absent, or not applicable
+    question: >
+      Does the Bombus-like phenotype reduction on Bombus-absent islands weaken,
+      disappear, or reverse because another channel type is present (compensation)?
+
+guardrails:
+  - reported evidence and proxy are separate columns in every model (M0-M4).
+  - a proxy is a candidate phenotype-type outcome from web/DB/literature statements or
+    trait information; it is not real data.
+  - never label a taxon "Bombus-pollinated" -- use large_bee_or_Bombus_like_floral_phenotype_proxy.
+  - gated behind accepted taxon scope, island establishment, and the Bombus applicability freeze.
