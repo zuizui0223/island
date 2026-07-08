@@ -117,6 +117,56 @@ def _match_keywords(text: str, keywords: tuple[str, ...]) -> list[str]:
     return [keyword for keyword in keywords if keyword in lowered]
 
 
+def _taxon_tokens(query_taxon: str) -> tuple[str, str]:
+    """Return the lowercased (genus, species_epithet) of a binomial, else ('','')."""
+    tokens = [t for t in re.split(r"\s+", str(query_taxon or "").strip()) if t.isalpha()]
+    if len(tokens) < 2:
+        return "", ""
+    return tokens[0].lower(), tokens[1].lower()
+
+
+def _word_present(word: str, lowered_text: str) -> bool:
+    """Whole-word presence test (avoids 'acer' matching 'aceraceae')."""
+    return bool(word) and re.search(rf"\b{re.escape(word)}\b", lowered_text) is not None
+
+
+def score_taxon_relevance(query_taxon: str, title_text: str, abstract_text: str) -> tuple[int, str]:
+    """Score whether a lead actually concerns the TARGET species (not the trait).
+
+    Trait-keyword relevance says a paper is about flowers/pollination; it does not
+    say the paper is about *this* taxon. A lead whose title/abstract never names the
+    genus is almost never about the target species, so it scores 0 and is gated out
+    of the review packet. Returns ``(score, match_kind)``; higher is stronger:
+
+    - 4 binomial_title      full "Genus epithet" in the title
+    - 3 genus_epithet_title genus and epithet both in the title (not adjacent)
+    - 3 binomial_abstract   full binomial in the abstract
+    - 2 genus_epithet_abstract  genus and epithet both in the abstract
+    - 1 genus_title / genus_abstract  genus present, epithet absent
+    - 0 none                genus absent (epithet alone is too ambiguous to count)
+    """
+    genus, epithet = _taxon_tokens(query_taxon)
+    if not genus:
+        return 0, "none"
+    title = (title_text or "").lower()
+    abstract = (abstract_text or "").lower()
+    binomial = f"{genus} {epithet}"
+
+    if epithet and binomial in title:
+        return 4, "binomial_title"
+    if epithet and _word_present(genus, title) and _word_present(epithet, title):
+        return 3, "genus_epithet_title"
+    if epithet and binomial in abstract:
+        return 3, "binomial_abstract"
+    if epithet and _word_present(genus, abstract) and _word_present(epithet, abstract):
+        return 2, "genus_epithet_abstract"
+    if _word_present(genus, title):
+        return 1, "genus_title"
+    if _word_present(genus, abstract):
+        return 1, "genus_abstract"
+    return 0, "none"
+
+
 def openalex_abstract(work: dict[str, Any]) -> str:
     """Reconstruct an OpenAlex abstract from its inverted index (for scoring)."""
     inverted = work.get("abstract_inverted_index")
@@ -192,6 +242,8 @@ OUTPUT_COLUMNS = [
     "open_access_url",
     "candidate_pdf_url",
     "candidate_page_locator",
+    "taxon_relevance_score",
+    "taxon_match_kind",
     "title_relevance_score",
     "abstract_relevance_score",
     "trait_keywords_matched",
@@ -244,6 +296,8 @@ class LiteratureSeed:
     open_access_url: str = ""
     candidate_pdf_url: str = ""
     candidate_page_locator: str = PAGE_LOCATOR_PLACEHOLDER
+    taxon_relevance_score: int = 0
+    taxon_match_kind: str = "none"
     title_relevance_score: int = 0
     abstract_relevance_score: int = 0
     trait_keywords_matched: str = ""
@@ -269,6 +323,12 @@ class LiteratureSeed:
         self.abstract_relevance_score = len(abstract_hits)
         self.trait_keywords_matched = "|".join(sorted(set(title_hits) | set(abstract_hits)))
         self.likely_evidence_type = str(group_cfg.get("likely_evidence_type", ""))
+
+    def score_taxon_relevance(self, title_text: str, abstract_text: str) -> None:
+        """Score whether this lead concerns the target species (never a trait value)."""
+        self.taxon_relevance_score, self.taxon_match_kind = score_taxon_relevance(
+            self.query_taxon, title_text, abstract_text
+        )
 
     def to_row(self) -> dict[str, str]:
         row = {k: v for k, v in asdict(self).items() if k != "passthrough"}
@@ -322,7 +382,9 @@ def parse_openalex_works(
             open_access_url=str(oa.get("oa_url") or "").strip(),
             candidate_pdf_url=str(location.get("pdf_url") or "").strip(),
         )
-        seed.score_trait_relevance(title, openalex_abstract(work), group_cfg)
+        abstract_text = openalex_abstract(work)
+        seed.score_trait_relevance(title, abstract_text, group_cfg)
+        seed.score_taxon_relevance(title, abstract_text)
         seeds.append(seed)
     return seeds
 
@@ -361,7 +423,9 @@ def parse_crossref_works(
             venue=str(container[0]).strip() if container else "",
             authors=authors,
         )
-        seed.score_trait_relevance(title, _strip_markup(item.get("abstract", "")), group_cfg)
+        abstract_text = _strip_markup(item.get("abstract", ""))
+        seed.score_trait_relevance(title, abstract_text, group_cfg)
+        seed.score_taxon_relevance(title, abstract_text)
         seeds.append(seed)
     return seeds
 
@@ -476,15 +540,18 @@ def discover_sources(
     frame = pd.DataFrame(rows, columns=ordered) if rows else pd.DataFrame(columns=ordered)
     _guard_output(frame)
     if len(frame):
-        for column in ("title_relevance_score", "abstract_relevance_score", "priority_rank"):
+        for column in (
+            "taxon_relevance_score", "title_relevance_score", "abstract_relevance_score", "priority_rank"
+        ):
             frame[column] = pd.to_numeric(frame[column], errors="coerce").fillna(0).astype(int)
-        # Within a taxon and trait group, surface the most trait-relevant leads
-        # first; a title_relevance_score of 0 can never head the review, and a
-        # higher source grade only breaks ties among equally relevant leads.
+        # Within a taxon and trait group, rank by TAXON relevance first (is the lead
+        # actually about this species?), then trait relevance. A taxon_relevance_score
+        # of 0 (the genus never appears) can never head the review, and a higher source
+        # grade only breaks ties among otherwise-equal leads.
         frame = frame.sort_values(
-            ["query_taxon", "query_trait_group", "title_relevance_score",
-             "abstract_relevance_score", "priority_rank"],
-            ascending=[True, True, False, False, True],
+            ["query_taxon", "query_trait_group", "taxon_relevance_score",
+             "title_relevance_score", "abstract_relevance_score", "priority_rank"],
+            ascending=[True, True, False, False, False, True],
         ).reset_index(drop=True)
 
     def _n_hint(grade: str) -> int:
@@ -494,16 +561,21 @@ def discover_sources(
         return int((frame["query_trait_group"] == group).sum()) if len(frame) else 0
 
     n_title_relevant = int((frame["title_relevance_score"] > 0).sum()) if len(frame) else 0
+    n_taxon_relevant = int((frame["taxon_relevance_score"] > 0).sum()) if len(frame) else 0
     report = {
         "note": (
             "Unreviewed, trait-group-targeted literature leads only. A source lead is "
             "NOT trait evidence; no trait value, native/establishment status, Bombus "
             "applicability, or analysis inclusion is decided here. Retrieval is "
-            "species x trait-group; title_relevance_score==0 leads are ranked last and "
-            "must not head a taxon's trait review."
+            "species x trait-group. Leads are ranked by taxon relevance first: a "
+            "taxon_relevance_score==0 lead (the genus never appears in title/abstract) "
+            "does not credibly concern the target species, is ranked last, and is gated "
+            "out of the review packet. title_relevance_score==0 leads also never head review."
         ),
         "n_taxa_queried": int(len(taxa)),
         "n_literature_seeds": int(len(frame)),
+        "n_taxon_relevant_seeds": n_taxon_relevant,
+        "n_zero_taxon_relevance_seeds": int(len(frame)) - n_taxon_relevant,
         "n_seeds_group_A_floral_morphology_colour": _n_group("A_floral_morphology_colour"),
         "n_seeds_group_B_pollination_pollen_vector": _n_group("B_pollination_pollen_vector"),
         "n_seeds_group_C_reproductive_assurance": _n_group("C_reproductive_assurance"),

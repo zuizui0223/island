@@ -63,10 +63,15 @@ jobs:
             --output-dir /tmp/validation_pilot_discovery \
             --max-taxa "${{ inputs.max_taxa }}" \
             --max-seeds-per-taxon "${{ inputs.max_seeds_per_taxon }}"
+      - name: Compress leads into a bounded, taxon-gated review packet
+        run: |
+          python -m island_v2.trait_lead_packet compress \
+            --leads-csv /tmp/validation_pilot_discovery/validation_pilot_source_leads.csv \
+            --output-dir /tmp/validation_pilot_discovery
       - name: Locate public-PDF candidate pages without retaining PDFs
         run: |
           python -m island_v2.trait_pdf_locator locate-pages \
-            --leads-csv /tmp/validation_pilot_discovery/trait_source_leads.csv \
+            --leads-csv /tmp/validation_pilot_discovery/lead_review_packet.csv \
             --output-csv /tmp/validation_pilot_discovery/trait_pdf_page_locators.csv \
             --max-pdfs "${{ inputs.max_pdfs }}"
       - name: Summarize non-curated validation-pilot discovery
@@ -79,6 +84,10 @@ jobs:
           for key, value in report.items():
               if key != 'lookup_errors':
                   print(f'- {key}: {value}')
+          packet = json.loads(Path('/tmp/validation_pilot_discovery/lead_review_packet_summary.json').read_text())
+          print('### Taxon-gated review packet')
+          for key in ('n_input_leads', 'n_after_taxon_gate', 'n_gated_out_zero_taxon', 'n_selected', 'n_species_in_packet', 'n_by_trait_group'):
+              print(f'- {key}: {packet.get(key)}')
           print('- trait status: unreviewed M0/M1/M2 literature/access leads only')
           print('- PDFs retained: none; artifact contains only source rows and page-locator metadata')
           PY

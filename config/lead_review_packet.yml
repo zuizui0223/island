@@ -1,0 +1,18 @@
+# Review-packet compression for discovered literature leads.
+#
+# Stage-1 discovery returns many leads per species (species x trait-group x API).
+# Trait relevance alone does not make a lead about the TARGET species, so most of
+# that volume is not worth human time. This config drives compression into a
+# bounded review packet: gate out leads that do not credibly concern the target
+# species (taxon_relevance_score == 0), then keep the strongest few per
+# (species, trait-group) so a human can evaluate irrelevant_literature_rate on a
+# tractable set rather than on the full unfiltered dump.
+version: "1.0"
+
+# Bounded packet size for human review.
+target_min: 150
+target_max: 300
+
+# A lead must score at least this on taxon relevance to enter the packet.
+# 1 = genus present somewhere; raise to 2+ to require genus+epithet co-occurrence.
+min_taxon_relevance_score: 1

@@ -177,3 +177,42 @@ def test_nomination_gate_blocks_unnominated_island(tmp_path):
     _require_nominated_island(report_path, "isl_jp")
     with pytest.raises(typer.BadParameter):
         _require_nominated_island(report_path, "isl_cape")
+
+
+def test_parse_scores_taxon_relevance_from_title():
+    # Title naming the queried binomial -> strong taxon relevance.
+    payload = {"results": [_openalex_work("Floral morphology of Genus species in situ")]}
+    seeds = parse_openalex_works(payload, "Genus species", limit=5, trait_group=GROUP_A, group_cfg=CFG_A)
+    assert seeds[0].taxon_relevance_score == 4
+    assert seeds[0].taxon_match_kind == "binomial_title"
+
+
+def test_trait_relevant_but_off_species_lead_scores_zero_taxon():
+    # Matches floral trait keywords but is about a DIFFERENT taxon -> taxon gate = 0.
+    payload = {"results": [_openalex_work("Floral morphology and corolla of Dendrobium nobile")]}
+    seeds = parse_openalex_works(payload, "Genus species", limit=5, trait_group=GROUP_A, group_cfg=CFG_A)
+    assert seeds[0].title_relevance_score > 0          # trait-relevant
+    assert seeds[0].taxon_relevance_score == 0         # but not about the target species
+    assert seeds[0].taxon_match_kind == "none"
+
+
+def test_taxon_relevant_lead_outranks_trait_relevant_off_species():
+    payload = {
+        "results": [
+            # trait-relevant but off-species (wrong taxon)
+            _openalex_work("Floral morphology and corolla of Dendrobium nobile", doi="10.9/off"),
+            # names the target species
+            _openalex_work("Pollination and corolla of Genus species", doi="10.1/on"),
+        ]
+    }
+    getter = _fake_getter({"openalex": payload, "crossref": {}, "unpaywall": {}})
+    taxa = pd.DataFrame({"accepted_species": ["Genus species"]})
+    frame, report = discover_sources(taxa, getter, "t@example.org", max_taxa=5, max_seeds_per_taxon=5)
+
+    group_a = frame.loc[frame["query_trait_group"] == "A_floral_morphology_colour"].reset_index(drop=True)
+    # The on-species lead heads the group even though both are trait-relevant.
+    assert "Genus species" in group_a.iloc[0]["title"]
+    assert int(group_a.iloc[0]["taxon_relevance_score"]) > 0
+    assert int(group_a.iloc[-1]["taxon_relevance_score"]) == 0
+    assert report["n_taxon_relevant_seeds"] >= 1
+    assert report["n_zero_taxon_relevance_seeds"] >= 1
