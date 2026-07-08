@@ -22,9 +22,16 @@ descriptive coverage:
 
 - **Stage 1A — literature scout** (`trait_source_discovery.py`; OpenAlex / Crossref /
   Unpaywall) → **M1/M2 species-direct evidence**.  ✅ implemented (v2.1)
-- **Stage 1B — descriptive / flora scout** (GBIF species → POWO/WCVP → flora &
-  horticulture DBs → Wikidata/Wikipedia) → **M0 floral-phenotype candidate
-  extraction** (retrieve + verbatim controlled-vocabulary keyword candidates).  ⏳ next
+- **Stage 1B — descriptive / flora scout** (`trait_descriptive_scout.py`,
+  `island-v2-trait-descriptive-scout scout`; GBIF species descriptions first, then
+  POWO/WCVP → flora & horticulture DBs → Wikidata/Wikipedia) → **M0 floral-phenotype
+  candidate extraction**.  ✅ implemented (GBIF lane); further sources incremental.
+  It retrieves free-text descriptions and emits an M0 candidate **only where a
+  controlled-vocabulary term appears verbatim** (`config/m0_descriptive_keywords.yml`),
+  each with a source excerpt. Output is long-format
+  (`trait_name` / `provisional_candidate_value`, `review_status=unreviewed`), never a
+  finalized wide column; multiple colours yield multiple candidates (nothing collapsed
+  to a single primary); a blank is never biological absence.
 - **Stage 1C — interaction evidence** (`interaction_evidence.py`; GloBI) → **M2
   subset** (explicit flower-visit / pollination claims).  ✅ implemented
 

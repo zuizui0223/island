@@ -1,0 +1,73 @@
+name: scout_validation_pilot_m0_descriptive
+
+# Stage-1B descriptive scout for the validation pilot. Retrieves free-text species
+# descriptions (GBIF species descriptions API) and proposes M0 floral-phenotype
+# candidates ONLY where a controlled-vocabulary term appears verbatim. It never calls
+# an LLM and writes unreviewed candidates only -- no trait value, native/establishment
+# status, Bombus applicability, or analysis flag is decided.
+on:
+  workflow_dispatch:
+    inputs:
+      species_csv:
+        description: "Repository path to the pilot species CSV."
+        required: false
+        default: "data/v2/staging/traits/validation_pilot/validation_pilot_species.csv"
+        type: string
+      max_taxa:
+        description: "Bounded number of species to query (<= 500)."
+        required: false
+        default: "50"
+        type: string
+      max_descriptions:
+        description: "Bounded descriptions per species."
+        required: false
+        default: "20"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validation-pilot-m0-descriptive-scout
+  cancel-in-progress: false
+
+jobs:
+  scout:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Test descriptive-scout boundaries
+        run: pytest -q tests/test_trait_descriptive_scout.py
+      - name: Verify pilot input exists
+        run: test -f "${{ inputs.species_csv }}"
+      - name: Scout descriptive sources for unreviewed M0 candidates
+        run: |
+          python -m island_v2.trait_descriptive_scout scout \
+            --species-csv "${{ inputs.species_csv }}" \
+            --output-dir /tmp/m0_descriptive_scout \
+            --max-taxa "${{ inputs.max_taxa }}" \
+            --max-descriptions "${{ inputs.max_descriptions }}"
+      - name: Summarize M0 descriptive scout
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          report = json.loads(Path('/tmp/m0_descriptive_scout/m0_descriptive_scout_report.json').read_text())
+          print('## Stage-1B M0 descriptive scout')
+          for key, value in report.items():
+              if key != 'lookup_errors':
+                  print(f'- {key}: {value}')
+          print('- trait status: unreviewed M0 keyword-match candidates only; no value decided')
+          PY
+      - name: Upload M0 descriptive candidates
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-pilot-m0-descriptive-${{ github.run_id }}
+          path: /tmp/m0_descriptive_scout/
+          if-no-files-found: error
+          retention-days: 90
