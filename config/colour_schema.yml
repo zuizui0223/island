@@ -1,0 +1,66 @@
+# Structured flower-colour schema.
+#
+# A single flower_primary_color value is insufficient. Capture the raw
+# description and structured fields, and keep cultivar, geographic variation, and
+# anthesis colour change OUT of the species-level primary colour (record them in
+# within_species_variation / wild_or_cultivated / geographic_scope instead).
+version: "1.0"
+
+required_columns:
+  - accepted_species
+  - raw_colour_description
+  - primary_colour
+  - secondary_colour
+  - within_species_variation
+  - geographic_scope
+  - wild_or_cultivated
+  - colour_evidence_type
+
+primary_colour_terms:
+  - white
+  - cream
+  - yellow
+  - orange
+  - red
+  - pink
+  - purple
+  - blue
+  - green
+  - brown
+  - black
+  - multicoloured
+  - other
+  - unknown
+
+within_species_variation:
+  - none
+  - colour_morphs
+  - anthesis_colour_change
+  - geographic_variation
+  - unknown
+
+geographic_scope:
+  - island_population
+  - regional
+  - species_range
+  - unknown
+
+wild_or_cultivated:
+  - wild
+  - cultivated
+  - unknown
+
+colour_evidence_type:
+  - flora_or_description
+  - herbarium_label
+  - field_observation
+  - image
+  - unvetted_web
+
+# A row's primary_colour may stand as the SPECIES-LEVEL colour only when it is
+# not from a cultivated plant and is not itself a variation artefact (anthesis
+# colour change or geographic variation). Such rows are retained but flagged
+# non-admissible rather than merged into a species-level colour.
+species_level_primary_colour_excludes:
+  wild_or_cultivated: [cultivated]
+  within_species_variation: [anthesis_colour_change, geographic_variation]

@@ -1,0 +1,39 @@
+# Measurement-first classification for size / tube-depth traits.
+#
+# Store the raw measurement first; derive the class by this versioned rule so the
+# class is reproducible and reviewer-independent. Changing a threshold means
+# bumping classification_rule_version, not silently re-labelling.
+version: "1.0"
+classification_rule_version: "size_tube_v1"
+
+traits:
+  flower_size_class:
+    measurement_structure_default: flower_diameter_or_length_mm
+    canonical_unit: mm
+    # class = first band whose max_mm >= value (mm); the open top band has max_mm null.
+    bands:
+      - {derived_class: minute, max_mm: 2}
+      - {derived_class: small, max_mm: 10}
+      - {derived_class: medium, max_mm: 30}
+      - {derived_class: large, max_mm: 100}
+      - {derived_class: very_large, max_mm: null}
+
+  tube_depth_class:
+    measurement_structure_default: corolla_tube_depth_mm
+    canonical_unit: mm
+    bands:
+      - {derived_class: no_tube, max_mm: 1}
+      - {derived_class: shallow, max_mm: 5}
+      - {derived_class: medium, max_mm: 15}
+      - {derived_class: deep, max_mm: 40}
+      - {derived_class: very_deep, max_mm: null}
+
+# Recognised length units -> millimetre factor.
+unit_to_mm:
+  mm: 1.0
+  millimetre: 1.0
+  millimeter: 1.0
+  cm: 10.0
+  centimetre: 10.0
+  centimeter: 10.0
+  m: 1000.0
