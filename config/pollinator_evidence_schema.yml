@@ -1,0 +1,50 @@
+# Long-format pollinator functional-evidence schema (M2).
+#
+# One row per (species, pollinator_guild, observation). The raw stage must NOT
+# collapse to a single `mixed_or_generalist` category -- that is too coarse to
+# test alternative pollination-channel hypotheses. A functional-replacement
+# index may be DERIVED later from this table, but the raw long-format is kept.
+version: "1.0"
+
+required_columns:
+  - accepted_species
+  - pollinator_guild
+  - evidence_type
+  - effectiveness_class
+  - source_citation
+  - source_url
+  - study_location
+  - season
+  - wild_or_cultivated
+  - review_status
+
+# Evidence strength, ordered weakest -> strongest. The index uses the strongest
+# accepted evidence per (species, guild).
+evidence_type:
+  - floral_visitor
+  - pollen_contact
+  - pollen_deposition
+  - fruit_or_seed_set_contribution
+  - exclusion_experiment
+
+effectiveness_class:
+  - unknown
+  - visitor_only
+  - probable_pollinator
+  - confirmed_effective_pollinator
+
+wild_or_cultivated:
+  - wild
+  - cultivated
+  - unknown
+
+review_status:
+  - unreviewed
+  - accepted
+  - rejected
+
+# A column literally collapsing the guild to a single generalist bucket is
+# rejected: the raw table must preserve per-guild evidence.
+forbidden_columns:
+  - mixed_or_generalist
+  - pollination_functional_guild_collapsed
