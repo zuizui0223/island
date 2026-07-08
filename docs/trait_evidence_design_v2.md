@@ -14,39 +14,47 @@ records the target design and its staged status.
 - Bombus applicability is **never** decided on the trait-extraction side.
 - Model / retrieval output stays a **candidate database**; human review required.
 
-## Stage 1 — trait-group-targeted retrieval  ✅ implemented
+## Stage 1 — three-lane scouting  (by source type, feeding different trait layers)
 
-`src/island_v2/trait_source_discovery.py`. Retrieval is **species × trait-group**
-(not species-only), so high-quality but trait-irrelevant papers
-(micropropagation, tissue culture, nutrient/bromelain content, nanoparticles,
-general genomics/pathology) are demoted rather than surfaced.
+Retrieval is split into three lanes because a single source type cannot serve every
+trait layer, and obscure island endemics with little primary literature still have
+descriptive coverage:
 
-Three query groups: A floral morphology/colour, B pollination/pollen vector,
-C reproductive assurance. Each lead now carries `query_trait_group`,
-`query_template`, `taxon_relevance_score`, `taxon_match_kind`,
+- **Stage 1A — literature scout** (`trait_source_discovery.py`; OpenAlex / Crossref /
+  Unpaywall) → **M1/M2 species-direct evidence**.  ✅ implemented (v2.1)
+- **Stage 1B — descriptive / flora scout** (GBIF species → POWO/WCVP → flora &
+  horticulture DBs → Wikidata/Wikipedia) → **M0 floral-phenotype candidate
+  extraction** (retrieve + verbatim controlled-vocabulary keyword candidates).  ⏳ next
+- **Stage 1C — interaction evidence** (`interaction_evidence.py`; GloBI) → **M2
+  subset** (explicit flower-visit / pollination claims).  ✅ implemented
+
+### Stage 1A v2.1 — trait-group retrieval + taxon relevance tiers
+
+Retrieval is **species × trait-group** (A floral morphology/colour, B pollination/
+pollen vector, C reproductive assurance) with the binomial quoted as an **exact
+phrase**, so retrieval biases toward on-species work rather than anything sharing the
+genus or the trait keywords. Each lead carries `query_trait_group`, `query_template`,
+`taxon_relevance_score`, `taxon_match_kind`, `taxon_relevance_tier`,
 `title_relevance_score`, `abstract_relevance_score`, `trait_keywords_matched`,
-`likely_evidence_type`, plus the existing `provisional_source_reliability_hint`.
+`likely_evidence_type`, and `provisional_source_reliability_hint`.
 
-### Taxon relevance gate (the axis that actually bounds the packet)
+**Taxon relevance tiers.** The first validation run showed trait relevance is high
+but does not mean a lead is about the *target species* (767 leads, 642 trait-relevant,
+but only ~24 named the species). `score_taxon_relevance` checks whether the queried
+binomial (or its genus/epithet) appears in the title/abstract, and the score maps to a
+tier: **S** (species named with confidence, score ≥ 3), **A** (genus-only / flora
+rescue, score 1–2), **B** (species never named, background). Leads rank by taxon
+relevance first, then trait relevance, then source grade. The report includes
+`n_taxon_matched_species` / `n_zero_taxon_species` (how many pilot species got any
+on-species lead at all).
 
-The first validation run surfaced the real problem: trait relevance is high, but
-trait relevance only says a paper is about flowers/pollination — **not that it is
-about the target species**. So leads are ranked by **taxon relevance first**:
-`score_taxon_relevance` checks whether the queried binomial (or its genus and
-epithet) appears in the title/abstract. A `taxon_relevance_score == 0` lead (the
-genus never appears) does not credibly concern the target species, is ranked last,
-and is **gated out of the review packet**; a `title_relevance_score == 0` lead also
-never heads review. Source grade (A/B/C/D) is a separate **source-quality** hint —
-all three axes are reported.
+### Tier-routed compression (`trait_lead_packet.py`, `island-v2-trait-lead-packet compress`)
 
-### Review-packet compression (`trait_lead_packet.py`, `island-v2-trait-lead-packet compress`)
-
-Discovery returns many leads per species; most are off-species. Compression applies
-the taxon gate, then keeps the strongest few leads per (species, trait-group),
-round-robin so no species/group monopolises, landing in a human-reviewable band
-(`config/lead_review_packet.yml`, default 150–300). **Only then** is
-`irrelevant_literature_rate` (Stage 6) worth a human evaluating — on the compressed
-packet, not the full unfiltered dump.
+Leads are routed by tier, not merged: **Tier S** → the bounded review packet
+(round-robin per species/trait-group, `config/lead_review_packet.yml`, default
+150–300); **Tier A** → a quarantined genus/flora rescue CSV; **Tier B** → a retained
+background-literature CSV that is never reviewed. **Only the Tier-S packet** feeds a
+human `irrelevant_literature_rate` evaluation (Stage 6).
 
 ## Stage 2 — M0 / M1 / M2 trait layers  ✅ implemented
 

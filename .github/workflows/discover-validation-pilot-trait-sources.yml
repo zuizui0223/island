@@ -85,9 +85,10 @@ jobs:
               if key != 'lookup_errors':
                   print(f'- {key}: {value}')
           packet = json.loads(Path('/tmp/validation_pilot_discovery/lead_review_packet_summary.json').read_text())
-          print('### Taxon-gated review packet')
-          for key in ('n_input_leads', 'n_after_taxon_gate', 'n_gated_out_zero_taxon', 'n_selected', 'n_species_in_packet', 'n_by_trait_group'):
+          print('### Tier-routed review packet (v2.1)')
+          for key in ('n_input_leads', 'n_tier_S_species_confident', 'n_tier_A_genus_flora', 'n_tier_B_background', 'n_selected_packet', 'n_species_in_packet', 'packet_by_trait_group'):
               print(f'- {key}: {packet.get(key)}')
+          print('- Tier S = review packet; Tier A = genus/flora rescue CSV; Tier B = background literature CSV')
           print('- trait status: unreviewed M0/M1/M2 literature/access leads only')
           print('- PDFs retained: none; artifact contains only source rows and page-locator metadata')
           PY
