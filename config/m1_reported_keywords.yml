@@ -1,0 +1,28 @@
+# M1 reported-statement vocabulary for the web/DB reported scout (Stage-1B).
+#
+# These match EXPLICIT statements about reproductive system, self-(in)compatibility,
+# selfing, and pollination vector in descriptive text (Wikipedia/Wikidata, DBs). A hit
+# is a `reported` candidate (candidate_class=reported) with a source excerpt -- never a
+# proxy and never a decided value. Inference with no explicit statement is handled
+# separately as a *_proxy (see config/evidence_policy.yml).
+version: "1.0"
+
+traits:
+  self_incompatibility_reported:
+    self_incompatible: ["self-incompatible", "self incompatible", "self-incompatibility", "self incompatibility"]
+  self_compatibility_reported:
+    self_compatible: ["self-compatible", "self compatible", "self-compatibility", "self compatibility"]
+  autonomous_selfing_reported:
+    autonomous_selfing: ["autonomous selfing", "spontaneous selfing", "autogamous", "autogamy", "automatic self-pollination", "self-pollinating"]
+  mating_system_reported:
+    outcrossing: ["outcrossing", "obligate outcrosser", "allogamous", "xenogamy"]
+    mixed_mating: ["mixed mating", "facultative selfing"]
+  pollination_vector_reported:
+    bee: ["bee-pollinated", "pollinated by bees", "melittophilous", "melittophily"]
+    bird: ["bird-pollinated", "pollinated by birds", "ornithophilous", "ornithophily", "hummingbird-pollinated"]
+    butterfly_moth: ["butterfly-pollinated", "moth-pollinated", "psychophilous", "phalaenophilous", "lepidopteran"]
+    fly: ["fly-pollinated", "myophilous", "myiophily"]
+    wind: ["wind-pollinated", "anemophilous", "anemophily", "wind pollination"]
+    water: ["water-pollinated", "hydrophilous", "hydrophily"]
+    bat: ["bat-pollinated", "chiropterophilous", "chiropterophily"]
+    insect_general: ["insect-pollinated", "entomophilous", "entomophily"]
