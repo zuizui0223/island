@@ -1,0 +1,30 @@
+# Coverage-first proxy rules for reported-vs-proxy evidence.
+#
+# These rules do NOT decide true pollinators, compatibility systems, or breeding
+# systems. They only generate unreviewed *_proxy candidates when explicit reported
+# evidence is absent. Keep defaults conservative and editable.
+version: "1.0"
+
+floral_syndrome_proxy:
+  wind_like_families:
+    - Poaceae
+    - Cyperaceae
+    - Juncaceae
+  large_bee_or_Bombus_like:
+    colours: [blue, purple, white, yellow]
+    symmetries: [zygomorphic]
+  butterfly_or_moth_like:
+    colours: [red, orange, pink]
+  open_or_generalist_insect_like:
+    colours: [white, cream, yellow, green, brown]
+    symmetries: [actinomorphic]
+
+# Empty by default: fill only with explicit, predeclared priors after review.
+# The generator supports these lists but will not invent SI/SC proxies unless
+# the project intentionally declares the family prior here.
+compatibility_system_proxy:
+  likely_self_compatible_families: []
+  likely_self_incompatible_families: []
+
+reproductive_assurance_proxy:
+  reproductive_assurance_like_families: []
