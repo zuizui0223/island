@@ -56,7 +56,7 @@ jobs:
             --max-taxa "${{ inputs.max_taxa }}"
       - name: Generate reported-gap proxy candidates
         run: |
-          python -m island_v2.trait_proxy_generator generate \
+          python -m island_v2.trait_proxy_generator \
             --species-csv "${{ inputs.species_csv }}" \
             --reported-csv /tmp/web_reported_scout/web_reported_candidates.csv \
             --reported-csv /tmp/m0_descriptive_scout/m0_descriptive_candidates.csv \
