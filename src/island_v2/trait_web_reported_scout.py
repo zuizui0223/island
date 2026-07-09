@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -266,7 +267,7 @@ def scout_web_reported(
     return frame, report
 
 
-def _httpx_getter() -> JsonGetter:
+def _httpx_getter(pause_seconds: float = 1.0, max_retries: int = 4) -> JsonGetter:
     import httpx
 
     # Wikimedia's User-Agent policy requires a descriptive agent with a contact URL;
@@ -284,9 +285,21 @@ def _httpx_getter() -> JsonGetter:
     )
 
     def getter(url: str, params: dict[str, Any]) -> dict[str, Any]:
-        response = client.get(url, params=params)
-        response.raise_for_status()
-        return response.json()
+        for attempt in range(max_retries + 1):
+            if pause_seconds > 0:
+                time.sleep(pause_seconds)
+            response = client.get(url, params=params)
+            if response.status_code in {429, 500, 502, 503, 504} and attempt < max_retries:
+                retry_after = response.headers.get("Retry-After", "")
+                try:
+                    delay = float(retry_after)
+                except ValueError:
+                    delay = min(60.0, pause_seconds + 2.0 * (attempt + 1))
+                time.sleep(max(delay, pause_seconds))
+                continue
+            response.raise_for_status()
+            return response.json()
+        raise RuntimeError("unreachable retry loop")
 
     return getter
 
@@ -298,11 +311,19 @@ def scout(
     m0_config: Path = typer.Option(Path("config/m0_descriptive_keywords.yml")),
     m1_config: Path = typer.Option(Path("config/m1_reported_keywords.yml")),
     max_taxa: int = typer.Option(50, min=1, max=500, help="Bounded species to query."),
+    pause_seconds: float = typer.Option(1.0, min=0.0, help="Pause before each Wikimedia API call."),
+    max_retries: int = typer.Option(4, min=0, max=8, help="Retries for transient Wikimedia API responses."),
 ) -> None:
     """Write unreviewed `reported` M0/M1 candidates from Wikipedia/Wikidata."""
     config, trait_layer = load_keyword_layers({"M0": m0_config, "M1": m1_config})
     species_df = pd.read_csv(species_csv, dtype=str).fillna("")
-    frame, report = scout_web_reported(species_df, _httpx_getter(), config, trait_layer, max_taxa)
+    frame, report = scout_web_reported(
+        species_df,
+        _httpx_getter(pause_seconds=pause_seconds, max_retries=max_retries),
+        config,
+        trait_layer,
+        max_taxa,
+    )
     output_dir.mkdir(parents=True, exist_ok=True)
     frame.to_csv(output_dir / "web_reported_candidates.csv", index=False)
     (output_dir / "web_reported_scout_report.json").write_text(
