@@ -269,10 +269,18 @@ def scout_web_reported(
 def _httpx_getter() -> JsonGetter:
     import httpx
 
+    # Wikimedia's User-Agent policy requires a descriptive agent with a contact URL;
+    # a generic agent is 403-ed. https://meta.wikimedia.org/wiki/User-Agent_policy
     client = httpx.Client(
         timeout=45.0,
         follow_redirects=True,
-        headers={"User-Agent": "island-floral-v2/0.1 (web-reported-scout; contact via repo)"},
+        headers={
+            "User-Agent": (
+                "island-floral-v2/0.1 (https://github.com/zuizui0223/island) "
+                "web-reported-scout httpx"
+            ),
+            "Accept": "application/json",
+        },
     )
 
     def getter(url: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -305,6 +313,11 @@ def scout(
         f"{report['n_species_with_reported']}/{report['n_taxa_queried']} species "
         "(Wikipedia/Wikidata). No value decided."
     )
+    # Surface lookup failures to stdout (the full report only reaches the step summary),
+    # so a run that returns nothing can be diagnosed from the job log.
+    if report["n_lookup_errors"]:
+        sample = report["lookup_errors"][0] if report["lookup_errors"] else ""
+        typer.echo(f"lookup_errors: {report['n_lookup_errors']} (e.g. {sample})")
 
 
 if __name__ == "__main__":
