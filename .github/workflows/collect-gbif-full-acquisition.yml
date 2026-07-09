@@ -1,8 +1,7 @@
 name: collect_gbif_full_acquisition
 
-# Stage 3: collect succeeded GBIF blocks per run and commit cumulative
-# exact-island products. Later runs resume from collection_manifest.csv, so the
-# scheduled runs self-drain the remaining succeeded blocks over time.
+# Stage 3: manual GBIF exact-island collection. Automatic cron and self-chain
+# dispatch are disabled so the workflow only runs when explicitly dispatched.
 on:
   workflow_dispatch:
     inputs:
@@ -10,8 +9,6 @@ on:
         description: "Succeeded GBIF blocks to process in this run."
         required: false
         default: "1"
-  schedule:
-    - cron: "17,47 * * * *"
   push:
     branches: [main]
     paths:
@@ -29,7 +26,6 @@ jobs:
   collect:
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'schedule' ||
       (github.event_name == 'push' && github.event.head_commit.message == 'run GBIF collection')
     runs-on: ubuntu-latest
     env:
@@ -136,30 +132,10 @@ jobs:
           done
           echo "Could not push GBIF outputs after five retries." >&2
           exit 1
-      - name: Self-chain to drain remaining succeeded blocks
+      - name: Self-chain disabled
         if: success()
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PRIOR_COLLECTED: ${{ steps.prior.outputs.collected }}
         run: |
-          set -euo pipefail
-          read -r remaining collected < <(python - <<'PY'
-          import json
-          s = json.load(open("data/v2/staging/gbif/collected/collection_status.json"))
-          print(s.get("n_succeeded_blocks_remaining", 0), s.get("n_collected_succeeded_blocks", 0))
-          PY
-          )
-          echo "remaining=$remaining collected=$collected prior=$PRIOR_COLLECTED"
-          if [ "$remaining" -gt 0 ] && [ "$collected" -gt "$PRIOR_COLLECTED" ]; then
-            curl --fail --silent --show-error \
-              --request POST \
-              --header "Accept: application/vnd.github+json" \
-              --header "Authorization: Bearer ${GH_TOKEN}" \
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/collect-gbif-full-acquisition.yml/dispatches" \
-              --data '{"ref":"main","inputs":{"max_blocks":"'"${MAX_BLOCKS}"'"}}'
-          else
-            echo "No self-chain: remaining=$remaining, progress=$((collected - PRIOR_COLLECTED))."
-          fi
+          echo "GBIF self-chain dispatch is disabled. Use workflow_dispatch manually if more blocks are needed."
       - name: Summarize collection
         if: always()
         run: |
