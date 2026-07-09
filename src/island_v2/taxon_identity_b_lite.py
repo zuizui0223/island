@@ -17,6 +17,12 @@ import typer
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
+
+@app.callback()
+def main() -> None:
+    """Audit taxon identity against a downloaded POWO/WCVP-style authority table."""
+
+
 OUTPUT_COLUMNS = [
     "submitted_name",
     "authority_matched_name",
