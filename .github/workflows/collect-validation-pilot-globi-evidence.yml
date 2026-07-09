@@ -45,7 +45,7 @@ jobs:
         run: test -f "${{ inputs.taxa_csv }}"
       - name: Collect explicit GloBI interaction evidence
         run: |
-          python -m island_v2.interaction_evidence collect \
+          python -m island_v2.interaction_evidence \
             --taxa-csv "${{ inputs.taxa_csv }}" \
             --output-dir /tmp/globi_interaction_evidence \
             --max-taxa "${{ inputs.max_taxa }}" \
