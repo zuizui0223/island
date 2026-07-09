@@ -32,8 +32,17 @@ descriptive coverage:
   (`trait_name` / `provisional_candidate_value`, `review_status=unreviewed`), never a
   finalized wide column; multiple colours yield multiple candidates (nothing collapsed
   to a single primary); a blank is never biological absence.
+  - **1B web-reported sub-lane** (`trait_web_reported_scout.py`,
+    `island-v2-trait-web-reported-scout scout`; Wikipedia + Wikidata): the first pilot
+    showed GBIF descriptions are nearly empty for obscure endemics (1 M0 candidate /
+    50 species), so this sub-lane resolves each species to its Wikidata item and English
+    Wikipedia article and emits **`reported`** M0/M1 candidates wherever a controlled
+    term appears verbatim (`config/m0_descriptive_keywords.yml` +
+    `config/m1_reported_keywords.yml`). Web/DB explicit statements are kept with full
+    provenance (`candidate_class=reported`, `source_type`, `source_url`,
+    `raw_description`, `evidence_scope`, `wild_or_cultivated`, `review_status`).  ✅
 - **Stage 1C — interaction evidence** (`interaction_evidence.py`; GloBI) → **M2
-  subset** (explicit flower-visit / pollination claims).  ✅ implemented
+  subset** (explicit flower-visit / pollination claims).  ✅ implemented (workflow pending)
 
 ### Stage 1A v2.1 — trait-group retrieval + taxon relevance tiers
 
