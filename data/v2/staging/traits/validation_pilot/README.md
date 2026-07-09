@@ -12,6 +12,12 @@ applicability, or analysis inclusion is decided here.
   (`island-v2-trait-pilot-eval build`).
 - `validation_pilot_summary.json` — selection provenance (pool size, strata,
   per-stratum counts).
+- `reported_proxy_candidates/` — unreviewed reported-source and rule-based
+  proxy candidates from GitHub Actions run `29018919565` on commit
+  `5005eeea0b02599cafa56d4090bfb115858154c0`.
+- `globi_interaction_evidence/` — unreviewed explicit GloBI interaction records
+  from GitHub Actions run `29017098053` on commit
+  `8f586d420178cec07c049641a7f2f1168a0f5699`.
 
 Rebuild with:
 
@@ -48,6 +54,22 @@ they are never auto-decided. Two ways to enrich them before review:
 
 Once these axes carry values, rerunning the builder stratifies across all four
 axes (native/introduced × woody/herb/vine/epiphyte × family × conspicuousness).
+
+## Generated unreviewed candidate artifacts
+
+The checked-in candidate artifacts are staging products for review only. They do
+not decide trait values, pollinator effectiveness, native status, Bombus
+applicability, or analysis inclusion.
+
+- `reported_proxy_candidates/web_reported_scout/web_reported_candidates.csv`:
+  63 Wikipedia/Wikidata reported candidates across 17 species; lookup errors: 0.
+- `reported_proxy_candidates/m0_descriptive_scout/m0_descriptive_candidates.csv`:
+  1 GBIF species-description candidate; lookup errors: 0.
+- `reported_proxy_candidates/trait_proxies/trait_proxy_candidates.csv`:
+  19 rule-based `floral_syndrome_proxy` candidates across 19 species.
+- `globi_interaction_evidence/globi_interaction_evidence.csv`:
+  21 explicit GloBI pollination interaction claims across 5 queried taxa; query
+  errors: 0.
 
 ## Next step: source discovery
 

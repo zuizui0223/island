@@ -1,0 +1,25 @@
+{
+  "note": "Unreviewed `reported` candidates from Wikipedia/Wikidata (explicit statements only). Web/DB-derived explicit statements are kept with full provenance; candidate_class=reported. Inference without an explicit statement is out of scope here (handled as *_proxy). No value is decided.",
+  "source_lane": "stage_1b_web_reported_scout",
+  "sources": [
+    "wikipedia",
+    "wikidata"
+  ],
+  "n_taxa_queried": 50,
+  "n_species_with_reported": 17,
+  "n_species_zero_reported": 33,
+  "n_reported_candidates": 63,
+  "n_by_source": {
+    "wikidata": 2,
+    "wikipedia": 61
+  },
+  "n_by_trait_layer": {
+    "M0": 63
+  },
+  "n_by_trait_name": {
+    "floral_symmetry": 2,
+    "flower_primary_color": 61
+  },
+  "n_lookup_errors": 0,
+  "lookup_errors": []
+}

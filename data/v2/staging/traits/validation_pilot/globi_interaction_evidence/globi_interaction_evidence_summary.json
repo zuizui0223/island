@@ -1,0 +1,10 @@
+{
+  "source": "Global Biotic Interactions (GloBI)",
+  "retrieved_at_utc": "2026-07-09T12:09:08.767378+00:00",
+  "n_input_taxa": 50,
+  "n_query_attempts": 100,
+  "n_query_errors": 0,
+  "n_explicit_records": 21,
+  "evidence_status": "unreviewed_source_backed",
+  "non_inference_rule": "Missing records are not absence; visitor records are not effectiveness; no guild is inferred automatically."
+}

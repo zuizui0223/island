@@ -1,0 +1,15 @@
+{
+  "note": "Unreviewed *_proxy candidates only. Reported evidence is not modified, and proxies are not decided values.",
+  "n_species_input": 50,
+  "n_proxy_candidates": 19,
+  "n_species_with_proxy": 19,
+  "n_by_trait_name": {
+    "floral_syndrome_proxy": 19
+  },
+  "n_by_proxy_value": {
+    "butterfly_or_moth_like": 8,
+    "large_bee_or_Bombus_like_floral_phenotype_proxy": 2,
+    "open_or_generalist_insect_like": 7,
+    "wind_like": 2
+  }
+}
