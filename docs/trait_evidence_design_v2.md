@@ -14,6 +14,64 @@ records the target design and its staged status.
 - Bombus applicability is **never** decided on the trait-extraction side.
 - Model / retrieval output stays a **candidate database**; human review required.
 
+## Evidence policy — reported vs proxy (cross-layer, M0–M4)
+
+Trait evidence is captured in **two strictly separated classes**, kept in
+**separate columns**, never merged. A `candidate_class` field records which:
+
+### 1. `reported` — an explicit statement exists
+
+For any trait — including reproductive system, self-incompatibility /
+self-compatibility (SI/SC), and pollination syndrome — sources are **not limited to
+the primary literature**. Any source with an **explicit statement** is used and kept:
+peer-reviewed literature, Floras, taxonomic/biodiversity databases, Wikipedia,
+Wikidata, botanic-garden pages, horticulture sites, and other web descriptions. A
+web-derived explicit statement is **not discarded**; it is recorded with its source
+type so it can be weighted at review time.
+
+Every `reported` candidate retains, at minimum:
+`candidate_class=reported`, `source_type`, `source_url`, `raw_description` (the
+verbatim excerpt), `evidence_scope` (species_direct / species_indirect / genus / …),
+`wild_or_cultivated`, `review_status`. These are recorded as a
+**`reported_trait_candidate`**.
+
+### 2. `proxy` — no explicit statement; inferred to fill a gap
+
+When no explicit statement exists, a value **may** be suggested from floral
+phenotype, taxonomic tendency, life history, distribution, or insularity — but only
+as a **proxy**, never a decided value. Proxy traits carry a distinct name
+(`*_proxy`), e.g. `floral_syndrome_proxy`, `reproductive_assurance_proxy`,
+`compatibility_system_proxy`. A proxy is a phenotype/life-history-based candidate for
+gap-filling; it is **not real data**.
+
+### Distinctions that must never be conflated
+
+| reported (explicit) | proxy (inferred) |
+| --- | --- |
+| `self_compatible` reported | `likely_self_compatible_proxy` |
+| `Bombus` visitor reported | `large_bee_or_Bombus_like_floral_phenotype_proxy` |
+| `autonomous_selfing` reported | `reproductive_assurance_like_proxy` |
+
+### Design stance
+
+Keep the reliability model **simple and coverage-first** — do not over-engineer
+confidence scoring. The one non-negotiable is provenance: always retain the
+**raw text** and **source type** so a reviewer can later assess each candidate.
+In **every trait evidence layer and every analysis model (M0–M4)**, `reported`
+evidence and `proxy` are **separate columns**; proxies never substitute for reported
+values and never enter a main analysis in place of species-direct reported evidence.
+
+> **Two different "M" namespaces — do not conflate:**
+> - **Trait evidence layers** (data organization, Stage 2): *floral phenotype*,
+>   *reproductive assurance / pollen vector*, *pollinator functional evidence*.
+>   (`config/trait_layers.yml` currently keys these M0/M1/M2; treat them as evidence
+>   *layers*, not the models below.)
+> - **Analysis model ladder M0–M4** (the hypothesis sequence, Stage 7): baseline →
+>   Bombus association → mediation → joint → compensation. Defined in
+>   "Analysis model ladder" below and `config/analysis_models.yml`.
+>
+> The reported-vs-proxy policy applies to both namespaces.
+
 ## Stage 1 — three-lane scouting  (by source type, feeding different trait layers)
 
 Retrieval is split into three lanes because a single source type cannot serve every
@@ -153,3 +211,47 @@ conspicuous / inconspicuous / wind-pollination-candidate flowers.
 off-target literature is pulled in) is a primary metric — not just agreement.**
 Each rate counts only explicit judgements; a blank is never a judgement and a
 zero-denominator rate is reported as `null` (undefined), never fabricated.
+
+## Analysis model ladder (M0–M4)  (Stage 7 — analysis stage, gated)
+
+The confirmatory/exploratory **model ladder**. These are analysis models, distinct
+from the trait evidence layers above. They are **gated**: no model is fitted or
+released until accepted taxon scope AND island establishment AND the region-scoped
+Bombus applicability freeze hold (see fail-closed principles). The outcome throughout
+is a **floral-phenotype-type proxy** (e.g. `large_bee_or_Bombus_like_floral_phenotype_proxy`),
+never an assertion of the actual pollinator. `reported` evidence and `proxy` stay in
+separate columns in every model.
+
+- **M0 — baseline model.** Covariates only: geography, source pool, lineage
+  composition, island area, isolation, climate, establishment, observation process.
+  Question: can the baseline alone explain the composition of floral-phenotype,
+  reproductive-assurance, and pollination-channel **proxies**?
+
+- **M1 — Bombus-channel association.** Add **Bombus channel state** to the M0
+  covariates and test whether it explains the large-bee/Bombus-like floral phenotype
+  proxy outcome. This is a comparison of *Bombus-associated floral phenotype*, **not**
+  confirmation of the real pollinator.
+
+- **M2 — reproductive-assurance-mediated route.** Test whether Bombus channel state
+  relates to the floral-phenotype outcome **via** reproductive assurance /
+  compatibility / selfing — using either `reported` evidence or `proxy` for the
+  mediator. (Mediation path: Bombus channel → reproductive assurance → phenotype.)
+
+- **M3 — joint direct-plus-mediated route.** A single model carrying **both** paths
+  simultaneously:
+  - Bombus channel → floral phenotype proxy (direct), and
+  - Bombus channel → reproductive assurance (reported/proxy) → floral phenotype proxy
+    (mediated).
+
+- **M4 — alternative functional replacement / compensation route.** On islands where
+  the Bombus channel is weak, absent, or not applicable, test whether **other channel
+  types compensate**: `open_or_generalist_insect_like`, `small_bee_or_fly_like`,
+  `butterfly_or_moth_like`, `bird_or_bat_like`, `wind_like`. The main term is the
+  **Bombus channel state × alternative_functional_replacement_proxy interaction** —
+  i.e. whether the Bombus-like phenotype reduction on Bombus-absent islands **weakens,
+  disappears, or reverses** because another channel is present.
+
+Guardrails (all models): keep `reported` and `proxy` in separate columns; a proxy is a
+candidate phenotype-type outcome built from web/DB/literature statements or trait
+information, **not real data**; never label a taxon "Bombus-pollinated" — use
+`large_bee_or_Bombus_like_floral_phenotype_proxy`.
