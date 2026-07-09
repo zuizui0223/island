@@ -19,6 +19,13 @@ import pandas as pd
 import typer
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
+
+
+@app.callback()
+def main() -> None:
+    """Collect bounded explicit flower-visit and pollination interaction claims."""
+
+
 API_URL = "https://api.globalbioticinteractions.org/interaction.csv"
 MAX_TAXA = 100
 RELATIONS = {
