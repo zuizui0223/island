@@ -20,6 +20,12 @@ import yaml
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
+
+@app.callback()
+def main() -> None:
+    """Generate unreviewed reported-gap proxy candidates."""
+
+
 PROXY_COLUMNS = [
     "accepted_species",
     "trait_name",
