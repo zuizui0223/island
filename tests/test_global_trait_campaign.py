@@ -193,3 +193,39 @@ def test_campaign_summary_is_json_serializable():
     encoded = json.dumps(summary)
 
     assert "reproductive_wikimedia" in encoded
+
+
+def test_per_species_streaming_dependencies_allow_early_downstream():
+    config = _config()
+    ledger = campaign.reconcile_ledger(_master(), None, config)
+    first = ledger["accepted_species"].eq("Alpha one")
+    second = ledger["accepted_species"].eq("Alpha two")
+    ledger.loc[first, "reproductive_wikimedia_status"] = "processed"
+    ledger.loc[first, "reproductive_openalex_status"] = "processed"
+    ledger.loc[first, "machine_biotic_candidate"] = True
+    ledger.loc[second, "reproductive_wikimedia_status"] = "processed"
+    ledger.loc[second, "machine_biotic_candidate"] = True
+
+    prepared = campaign.prepare_dependent_statuses(ledger, config)
+    eligible = campaign.task_eligible_mask(prepared, "floral_access_wikimedia", config)
+    batch = campaign.family_balanced_batch(prepared, "floral_access_wikimedia", 10, config)
+
+    assert prepared.loc[first, "floral_access_wikimedia_status"].iloc[0] == "pending"
+    assert prepared.loc[second, "floral_access_wikimedia_status"].iloc[0] == "pending"
+    assert prepared.loc[eligible, "accepted_species"].tolist() == ["Alpha one"]
+    assert batch["accepted_species"].tolist() == ["Alpha one"]
+
+
+def test_nonbiotic_gate_closes_only_after_species_dependencies_finish():
+    config = _config()
+    ledger = campaign.reconcile_ledger(_master(), None, config)
+    first = ledger["accepted_species"].eq("Alpha one")
+    second = ledger["accepted_species"].eq("Alpha two")
+    for task in ("reproductive_wikimedia", "reproductive_openalex"):
+        ledger.loc[first, f"{task}_status"] = "processed"
+    ledger.loc[second, "reproductive_wikimedia_status"] = "processed"
+
+    prepared = campaign.prepare_dependent_statuses(ledger, config)
+
+    assert prepared.loc[first, "floral_access_wikimedia_status"].iloc[0] == "not_applicable"
+    assert prepared.loc[second, "floral_access_wikimedia_status"].iloc[0] == "pending"

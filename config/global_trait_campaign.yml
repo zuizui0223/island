@@ -1,5 +1,5 @@
 version: "1.0"
-default_batch_size: 250
+default_batch_size: 1000
 max_attempts: 3
 
 task_order:

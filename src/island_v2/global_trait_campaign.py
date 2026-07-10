@@ -186,39 +186,73 @@ def task_is_terminal(ledger: pd.DataFrame, task: str) -> bool:
     return bool(ledger[f"{task}_status"].isin(TERMINAL_STATUSES).all())
 
 
-def prepare_dependent_statuses(ledger: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
+def task_eligible_mask(
+    ledger: pd.DataFrame,
+    task: str,
+    config: dict[str, Any],
+) -> pd.Series:
+    """Return rows eligible to advance now under per-species dependencies."""
+    if task not in config["tasks"]:
+        raise typer.BadParameter(f"unknown global campaign task: {task}")
+    mask = ledger[f"{task}_status"].isin({"pending", "retry"})
+    dependencies = [str(value) for value in config["tasks"][task].get("depends_on") or []]
+    for dependency in dependencies:
+        mask &= ledger[f"{dependency}_status"].isin(TERMINAL_STATUSES)
+    rule = str(config["tasks"][task].get("eligibility", "all"))
+    if rule == "machine_biotic_candidate":
+        mask &= ledger["machine_biotic_candidate"].astype(bool)
+    elif rule != "all":
+        raise typer.BadParameter(f"unsupported eligibility rule for {task}: {rule}")
+    return mask.astype(bool)
+
+
+def prepare_dependent_statuses(
+    ledger: pd.DataFrame,
+    config: dict[str, Any],
+) -> pd.DataFrame:
+    """Close gated rows only when that species' dependencies are terminal."""
     result = ledger.copy()
-    task_order = [str(value) for value in config["task_order"]]
-    for task in task_order:
+    for task_value in config["task_order"]:
+        task = str(task_value)
         rule = str(config["tasks"][task].get("eligibility", "all"))
-        dependencies = [str(value) for value in config["tasks"][task].get("depends_on") or []]
-        if dependencies and not all(
-            task_is_terminal(result, dependency) for dependency in dependencies
-        ):
+        if rule != "machine_biotic_candidate":
             continue
-        if rule == "machine_biotic_candidate":
-            status_column = f"{task}_status"
-            mask = ~result["machine_biotic_candidate"] & result[status_column].eq("pending")
-            result.loc[mask, status_column] = "not_applicable"
+        dependencies_ready = pd.Series(True, index=result.index, dtype=bool)
+        dependencies = [str(value) for value in config["tasks"][task].get("depends_on") or []]
+        for dependency in dependencies:
+            dependencies_ready &= result[f"{dependency}_status"].isin(TERMINAL_STATUSES)
+        status_column = f"{task}_status"
+        mask = (
+            dependencies_ready
+            & ~result["machine_biotic_candidate"].astype(bool)
+            & result[status_column].isin({"pending", "retry"})
+        )
+        result.loc[mask, status_column] = "not_applicable"
     return result
 
 
 def choose_active_task(ledger: pd.DataFrame, config: dict[str, Any]) -> str:
+    """Choose the first task with at least one currently eligible species."""
     for task_value in config["task_order"]:
         task = str(task_value)
-        dependencies = [str(value) for value in config["tasks"][task].get("depends_on") or []]
-        if not all(task_is_terminal(ledger, dependency) for dependency in dependencies):
-            continue
-        pending = ledger[f"{task}_status"].isin({"pending", "retry"})
-        if pending.any():
+        if task_eligible_mask(ledger, task, config).any():
             return task
     return "complete"
 
 
-def family_balanced_batch(ledger: pd.DataFrame, task: str, batch_size: int) -> pd.DataFrame:
+def family_balanced_batch(
+    ledger: pd.DataFrame,
+    task: str,
+    batch_size: int,
+    config: dict[str, Any] | None = None,
+) -> pd.DataFrame:
     if batch_size < 1:
         raise typer.BadParameter("batch_size must be at least 1")
-    pending = ledger.loc[ledger[f"{task}_status"].isin({"pending", "retry"})].copy()
+    if config is None:
+        eligible = ledger[f"{task}_status"].isin({"pending", "retry"})
+    else:
+        eligible = task_eligible_mask(ledger, task, config)
+    pending = ledger.loc[eligible].copy()
     if pending.empty:
         return pending
     pending = pending.sort_values(
@@ -541,6 +575,7 @@ def campaign_summary(ledger: pd.DataFrame, config: dict[str, Any]) -> dict[str, 
             "phase": str(config["tasks"][task].get("phase") or task),
             "status_counts": {str(key): int(value) for key, value in counts.items()},
             "n_candidates": int(ledger[f"{task}_candidate_count"].sum()),
+            "n_eligible_pending": int(task_eligible_mask(ledger, task, config).sum()),
             "terminal": task_is_terminal(ledger, task),
         }
     return {
@@ -566,7 +601,12 @@ def run(
     master_csv: Path = typer.Option(..., exists=True),
     campaign_dir: Path = typer.Option(...),
     config_path: Path = typer.Option(Path("config/global_trait_campaign.yml"), exists=True),
-    batch_size: int | None = typer.Option(None, min=1, max=500),
+    batch_size: int | None = typer.Option(None, min=1, max=2000),
+    task: str | None = typer.Option(
+        None,
+        "--task",
+        help="Advance one named task using per-species dependency eligibility.",
+    ),
 ) -> None:
     """Advance exactly one bounded global campaign wave and persist its audit state."""
     config = load_config(config_path)
@@ -575,8 +615,26 @@ def run(
     existing = pd.read_csv(ledger_path, dtype=str).fillna("") if ledger_path.exists() else None
     ledger = reconcile_ledger(master, existing, config)
     ledger = prepare_dependent_statuses(ledger, config)
-    task = choose_active_task(ledger, config)
+    requested_task = _text(task)
+    if requested_task and requested_task not in config["tasks"]:
+        raise typer.BadParameter(f"unknown global campaign task: {requested_task}")
+    task = requested_task or choose_active_task(ledger, config)
     campaign_dir.mkdir(parents=True, exist_ok=True)
+
+    if requested_task and not task_eligible_mask(ledger, task, config).any():
+        _write_frame_gzip(ledger, ledger_path)
+        summary = campaign_summary(ledger, config)
+        status_path = campaign_dir / "campaign_status.json"
+        if status_path.exists():
+            previous = json.loads(status_path.read_text(encoding="utf-8"))
+            if "last_wave" in previous:
+                summary["last_wave"] = previous["last_wave"]
+        status_path.write_text(
+            json.dumps(summary, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        typer.echo(f"No currently eligible species for requested task {task}.")
+        return
 
     if task == "complete":
         _write_frame_gzip(ledger, ledger_path)
@@ -589,7 +647,7 @@ def run(
         return
 
     size = int(batch_size or config.get("default_batch_size", 250))
-    batch = family_balanced_batch(ledger, task, size)
+    batch = family_balanced_batch(ledger, task, size, config)
     if batch.empty:
         raise RuntimeError(f"Task {task} is active but produced no pending batch")
     wave_id = _next_wave_id(campaign_dir, task)
