@@ -40,6 +40,7 @@ jobs:
     env:
       BATCH_SIZE: ${{ inputs.batch_size || '250' }}
       CAMPAIGN_DIR: data/v2/staging/traits/global_campaign
+      CAMPAIGN_RUN_LOG: /tmp/global_trait_campaign_run.log
     steps:
       - uses: actions/checkout@v4
         with:
@@ -65,11 +66,13 @@ jobs:
         id: advance
         continue-on-error: true
         run: |
+          set -o pipefail
           island-v2-global-trait-campaign run \
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
             --campaign-dir "${CAMPAIGN_DIR}" \
             --config-path config/global_trait_campaign.yml \
-            --batch-size "${BATCH_SIZE}"
+            --batch-size "${BATCH_SIZE}" \
+            2>&1 | tee "${CAMPAIGN_RUN_LOG}"
       - name: Record failed wave for retry
         if: steps.advance.outcome == 'failure'
         env:
@@ -78,28 +81,33 @@ jobs:
           SOURCE_SHA: ${{ github.sha }}
         run: |
           mkdir -p "${CAMPAIGN_DIR}"
+          tail -n 200 "${CAMPAIGN_RUN_LOG}" > "${CAMPAIGN_DIR}/campaign_failure.log" || true
           python - <<'PY'
           import json
           import os
           from pathlib import Path
 
-          path = Path(os.environ["CAMPAIGN_DIR"]) / "campaign_failure.json"
+          directory = Path(os.environ["CAMPAIGN_DIR"])
+          log_path = directory / "campaign_failure.log"
           payload = {
               "status": "wave_failed_before_commit",
               "run_id": os.environ["RUN_ID"],
               "run_attempt": os.environ["RUN_ATTEMPT"],
               "source_sha": os.environ["SOURCE_SHA"],
               "batch_size": int(os.environ["BATCH_SIZE"]),
+              "failure_log": str(log_path),
               "retry_policy": (
                   "The campaign ledger is unchanged. The next scheduled run retries the same "
                   "pending family-balanced wave; no failure is interpreted as a trait absence."
               ),
           }
-          path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+          (directory / "campaign_failure.json").write_text(
+              json.dumps(payload, indent=2) + "\n", encoding="utf-8"
+          )
           PY
       - name: Clear stale failure marker
         if: steps.advance.outcome == 'success'
-        run: rm -f "${CAMPAIGN_DIR}/campaign_failure.json"
+        run: rm -f "${CAMPAIGN_DIR}/campaign_failure.json" "${CAMPAIGN_DIR}/campaign_failure.log"
       - name: Publish campaign status
         if: steps.advance.outcome == 'success'
         run: |
@@ -129,6 +137,9 @@ jobs:
           echo "## Global trait campaign wave failed" >> "$GITHUB_STEP_SUMMARY"
           echo "The unchanged ledger will retry the same pending wave on the next run." >> "$GITHUB_STEP_SUMMARY"
           cat "${CAMPAIGN_DIR}/campaign_failure.json" >> "$GITHUB_STEP_SUMMARY"
+          echo '```text' >> "$GITHUB_STEP_SUMMARY"
+          cat "${CAMPAIGN_DIR}/campaign_failure.log" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
       - name: Commit campaign status
         if: always()
         run: |
