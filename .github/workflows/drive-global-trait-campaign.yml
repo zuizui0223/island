@@ -1,18 +1,18 @@
 name: drive_global_trait_campaign
 
-# Global-first, resumable trait acquisition. Each run advances exactly one
-# family-balanced wave from the current unique-species master. Machine outputs
-# remain unreviewed and never define flora membership or biological absence.
+# Global-first, resumable trait acquisition. Each run advances a bounded
+# family-balanced bundle across the four evidence stages. Machine outputs remain
+# unreviewed and never define flora membership or biological absence.
 on:
   workflow_dispatch:
     inputs:
       batch_size:
-        description: "Species attempted in this bounded wave (1-500)."
+        description: "Wikimedia species attempted per streaming bundle (1-2000)."
         required: false
-        default: "250"
+        default: "1000"
         type: string
   schedule:
-    - cron: "17 * * * *"
+    - cron: "17,47 * * * *"
   push:
     branches: [main]
     paths:
@@ -30,15 +30,18 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  advance-one-wave:
+  advance-streaming-bundle:
     if: >-
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'schedule' ||
       github.event_name == 'push'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 55
     env:
-      BATCH_SIZE: ${{ inputs.batch_size || '250' }}
+      BATCH_SIZE: ${{ inputs.batch_size || '1000' }}
+      OPENALEX_BATCH_SIZE: "250"
+      FLORAL_BATCH_SIZE: "150"
+      GUILD_BATCH_SIZE: "100"
       CAMPAIGN_DIR: data/v2/staging/traits/global_campaign
       CAMPAIGN_RUN_LOG: /tmp/global_trait_campaign_run.log
     steps:
@@ -55,27 +58,38 @@ jobs:
         run: |
           pytest -q tests/test_global_trait_campaign.py tests/test_reported_ecology_machine.py
           island-v2-global-trait-campaign --help >/dev/null
-      - name: Validate bounded batch size
+      - name: Validate bounded Wikimedia batch size
         run: |
           python - <<'PY'
           import os
 
           value = int(os.environ["BATCH_SIZE"])
-          if not 1 <= value <= 500:
-              raise SystemExit("batch_size must be between 1 and 500")
+          if not 1 <= value <= 2000:
+              raise SystemExit("batch_size must be between 1 and 2000")
           PY
-      - name: Advance one global machine-evidence wave
+      - name: Advance one global streaming bundle
         id: advance
         continue-on-error: true
         run: |
-          set -o pipefail
-          island-v2-global-trait-campaign \
-            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
-            --campaign-dir "${CAMPAIGN_DIR}" \
-            --config-path config/global_trait_campaign.yml \
-            --batch-size "${BATCH_SIZE}" \
-            2>&1 | tee "${CAMPAIGN_RUN_LOG}"
-      - name: Record failed wave for retry
+          set -eo pipefail
+          : > "${CAMPAIGN_RUN_LOG}"
+          run_task() {
+            local task="$1"
+            local size="$2"
+            echo "===== ${task}: batch ${size} =====" | tee -a "${CAMPAIGN_RUN_LOG}"
+            island-v2-global-trait-campaign \
+              --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+              --campaign-dir "${CAMPAIGN_DIR}" \
+              --config-path config/global_trait_campaign.yml \
+              --task "${task}" \
+              --batch-size "${size}" \
+              2>&1 | tee -a "${CAMPAIGN_RUN_LOG}"
+          }
+          run_task reproductive_wikimedia "${BATCH_SIZE}"
+          run_task reproductive_openalex "${OPENALEX_BATCH_SIZE}"
+          run_task floral_access_wikimedia "${FLORAL_BATCH_SIZE}"
+          run_task alternative_guild_openalex "${GUILD_BATCH_SIZE}"
+      - name: Record failed bundle for retry
         if: steps.advance.outcome == 'failure'
         env:
           RUN_ID: ${{ github.run_id }}
@@ -92,15 +106,21 @@ jobs:
           directory = Path(os.environ["CAMPAIGN_DIR"])
           log_path = directory / "campaign_failure.log"
           payload = {
-              "status": "wave_failed_before_commit",
+              "status": "streaming_bundle_failed",
               "run_id": os.environ["RUN_ID"],
               "run_attempt": os.environ["RUN_ATTEMPT"],
               "source_sha": os.environ["SOURCE_SHA"],
-              "batch_size": int(os.environ["BATCH_SIZE"]),
+              "batch_plan": {
+                  "reproductive_wikimedia": int(os.environ["BATCH_SIZE"]),
+                  "reproductive_openalex": int(os.environ["OPENALEX_BATCH_SIZE"]),
+                  "floral_access_wikimedia": int(os.environ["FLORAL_BATCH_SIZE"]),
+                  "alternative_guild_openalex": int(os.environ["GUILD_BATCH_SIZE"]),
+              },
               "failure_log": str(log_path),
               "retry_policy": (
-                  "The campaign ledger is unchanged. The next scheduled run retries the same "
-                  "pending family-balanced wave; no failure is interpreted as a trait absence."
+                  "Any preceding task waves completed in this bundle remain in the ledger. "
+                  "The next scheduled bundle retries only rows still pending or marked retry; "
+                  "no execution failure is interpreted as a trait absence."
               ),
           }
           (directory / "campaign_failure.json").write_text(
@@ -123,7 +143,14 @@ jobs:
           print(f"- global species master: {status['n_global_species']}")
           print(f"- families: {status['n_families']}")
           print(f"- machine biotic-vector candidates: {status['n_machine_biotic_candidates']}")
-          print(f"- next task: {status['active_task']}")
+          print(f"- default next task: {status['active_task']}")
+          for task, details in status["tasks"].items():
+              counts = details["status_counts"]
+              print(
+                  f"- {task}: processed={counts.get('processed', 0)}, "
+                  f"eligible_pending={details.get('n_eligible_pending', 0)}, "
+                  f"candidates={details['n_candidates']}"
+              )
           if "last_wave" in status:
               wave = status["last_wave"]
               print(f"- last wave: {wave['wave_id']}")
@@ -136,8 +163,8 @@ jobs:
       - name: Publish failure status
         if: steps.advance.outcome == 'failure'
         run: |
-          echo "## Global trait campaign wave failed" >> "$GITHUB_STEP_SUMMARY"
-          echo "The unchanged ledger will retry the same pending wave on the next run." >> "$GITHUB_STEP_SUMMARY"
+          echo "## Global trait campaign bundle failed" >> "$GITHUB_STEP_SUMMARY"
+          echo "Successful preceding stages are retained; pending rows will retry." >> "$GITHUB_STEP_SUMMARY"
           cat "${CAMPAIGN_DIR}/campaign_failure.json" >> "$GITHUB_STEP_SUMMARY"
           echo '```text' >> "$GITHUB_STEP_SUMMARY"
           cat "${CAMPAIGN_DIR}/campaign_failure.log" >> "$GITHUB_STEP_SUMMARY"

@@ -59,3 +59,15 @@ The workflow `.github/workflows/drive-global-trait-campaign.yml` runs hourly and
 advances one bounded wave. A manual dispatch can override the default batch size
 between 1 and 500. The campaign automatically moves between tasks when all
 eligible rows in the preceding task are terminal.
+
+
+## Per-species streaming scheduler
+
+The scheduled workflow advances a bounded bundle every 30 minutes: a broad
+family-balanced Wikimedia wave followed by smaller OpenAlex, floral-access,
+and alternative-guild waves. Dependencies are evaluated per species, not as
+a global phase barrier. A species can therefore reach floral-access and
+alternative-pollinator extraction as soon as its own upstream rows are
+terminal, while the remaining global master continues through the first
+source. The forced task option selects only a measurement stage, never a
+region, island, trait outcome, or Bombus result.
