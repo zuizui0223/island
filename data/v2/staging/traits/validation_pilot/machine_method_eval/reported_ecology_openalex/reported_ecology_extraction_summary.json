@@ -1,0 +1,13 @@
+{
+  "n_reported_ecology_candidates": 3,
+  "n_species": 1,
+  "n_holdouts": 0,
+  "trait_counts": {
+    "pollen_vector_mode": 1,
+    "self_incompatibility": 2
+  },
+  "human_review_required": false,
+  "policy": "Machine-only source-excerpt candidates; preserve source excerpt and keep method tier downstream.",
+  "n_source_rows": 4,
+  "source": "OpenAlex title/abstract"
+}

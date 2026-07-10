@@ -115,8 +115,10 @@ def _method_for(source_lane: str, evidence_scope: str, candidate_class: str) -> 
         return ("gbif_descriptive_scout", "sensitivity_text_reported", "low")
     if source_lane == "trait_proxy_generator" or candidate_class == "proxy":
         return ("rule_based_trait_proxy", "proxy_sensitivity_only", "low")
-    if source_lane == "llm_reported_ecology":
+    if source_lane == "llm_reported_ecology" and evidence_scope == "species_direct":
         return ("llm_reported_ecology_excerpt", "main_text_reported", "high")
+    if source_lane == "llm_reported_ecology":
+        return ("llm_reported_ecology_excerpt", "sensitivity_text_reported", "medium")
     if source_lane == "visual_trait_candidate":
         return ("visual_image_candidate", "visual_sensitivity_only", "medium")
     return (source_lane or "unknown", "sensitivity_only", "low")
@@ -293,6 +295,16 @@ def method_comparison(
         "proxy_sensitivity_only",
         "Expands coverage but is phenotype/family inference, not source-stated trait evidence.",
     )
+    add_candidate_method(
+        "llm_reported_ecology_excerpt",
+        "next_main_text_lane_for_reproduction_and_visitors",
+        "Source-excerpted reproductive, selfing, pollen-vector, or visitor statements; usable as main no-review text evidence when species-direct.",
+    )
+    add_candidate_method(
+        "visual_image_candidate",
+        "later_auxiliary_visible_traits",
+        "Useful for visible M0 traits only; heavier than text and not suitable for reproductive or visitor states.",
+    )
     rows.append(
         {
             "method": "globi_interaction_claims",
@@ -307,30 +319,6 @@ def method_comparison(
             "n_conflict_species_trait_groups": 0,
             "recommended_role": "best_current_no_review_interaction_lane",
             "reason": "Source-backed pollination/flower-visit claims; sparse and not effectiveness or guild by itself.",
-        }
-    )
-    rows.append(
-        {
-            "method": "visual_image_candidate",
-            "n_rows": visual_rows,
-            "n_species": 0,
-            "species_coverage_rate": 0.0,
-            "n_valid_machine_values": visual_rows,
-            "n_conflict_species_trait_groups": 0,
-            "recommended_role": "later_auxiliary_visible_traits",
-            "reason": "Potentially useful for visible M0 traits, but heavier and no local image manifest was available in this run.",
-        }
-    )
-    rows.append(
-        {
-            "method": "llm_reported_ecology_excerpt",
-            "n_rows": llm_rows,
-            "n_species": 0,
-            "species_coverage_rate": 0.0,
-            "n_valid_machine_values": llm_rows,
-            "n_conflict_species_trait_groups": 0,
-            "recommended_role": "next_method_to_build_for_reproduction_and_visitors",
-            "reason": "Best fit for selfing/reproductive-mode/visitor statements if the output preserves source excerpts.",
         }
     )
     return pd.DataFrame(rows)

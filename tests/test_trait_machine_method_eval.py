@@ -122,3 +122,22 @@ def test_method_comparison_includes_globi_and_future_methods():
     assert "web_reported_species_direct" in set(comparison["method"])
     assert "globi_interaction_claims" in set(comparison["method"])
     assert "llm_reported_ecology_excerpt" in set(comparison["method"])
+
+
+def test_method_comparison_counts_llm_reported_ecology_rows():
+    species = pd.DataFrame({"accepted_species": ["A a"]})
+    candidates = pd.DataFrame(
+        {
+            "machine_method": ["llm_reported_ecology_excerpt"],
+            "accepted_species": ["A a"],
+            "trait_name": ["self_incompatibility"],
+            "machine_final_value": ["SC"],
+        }
+    )
+
+    comparison = evaluator.method_comparison(species, candidates, pd.DataFrame())
+    llm = comparison.loc[comparison["method"].eq("llm_reported_ecology_excerpt")].iloc[0]
+
+    assert llm["n_rows"] == 1
+    assert llm["n_species"] == 1
+    assert llm["n_valid_machine_values"] == 1

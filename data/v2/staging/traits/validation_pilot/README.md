@@ -201,6 +201,36 @@ This writes `machine_pollinator_guild_candidates.csv`,
 `review_status=unreviewed` for compatibility with the strict evidence schema;
 the no-review signal is in the separate machine index.
 
+To extract reproductive/selfing/pollen-vector statements from source text, use
+the reported-ecology machine lane. It supports both external LLM JSONL imports
+and a rule-based OpenAlex title/abstract baseline:
+
+```
+python -m island_v2.reported_ecology_machine extract-openalex \
+    --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+    --output-dir data/v2/staging/traits/validation_pilot/machine_method_eval/reported_ecology_openalex \
+    --max-taxa 50 \
+    --per-page 5
+```
+
+Then convert the reported-ecology candidates into the standard queue/machine
+layer:
+
+```
+python -m island_v2.trait_multimodal_candidates build \
+    --reported-ecology-candidates-csv data/v2/staging/traits/validation_pilot/machine_method_eval/reported_ecology_openalex/reported_ecology_candidates.csv \
+    --output-dir data/v2/staging/traits/validation_pilot/machine_method_eval/reported_ecology_openalex/candidate_review_queue
+
+python -m island_v2.trait_machine_method_eval evaluate \
+    --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+    --review-queue-csv data/v2/staging/traits/validation_pilot/machine_method_eval/reported_ecology_openalex/candidate_review_queue/trait_candidate_review_queue.csv \
+    --output-dir data/v2/staging/traits/validation_pilot/machine_method_eval/reported_ecology_openalex/machine_outputs
+```
+
+The current OpenAlex baseline found 3 reported-ecology candidates for 1 species,
+all `species_indirect`; they are therefore retained as
+`sensitivity_text_reported`, not main no-review selected traits.
+
 ## Source discovery
 
 Literature source discovery (Stage 1, `island-v2-trait-source-discovery`) runs

@@ -130,6 +130,16 @@ descriptive coverage:
   `review_status=unreviewed`; a separate machine index records multi-guild
   functional-replacement signals for no-review sensitivity analyses.
 
+- **Stage 1G  -  reported ecology machine extraction**
+  (`reported_ecology_machine.py`,
+  `island-v2-reported-ecology-machine import-jsonl|extract-text|extract-openalex`)
+  normalizes source-excerpted reproductive, selfing, pollen-vector, and visitor
+  statements into the reported-ecology candidate CSV used by the multimodal queue.
+  External LLM JSONL can be imported and validated without accepting unsupported
+  values; the built-in OpenAlex title/abstract baseline provides a no-key
+  comparison lane. Species-indirect hits remain sensitivity-only in the machine
+  evaluator.
+
 ### Stage 1A v2.1  -  trait-group retrieval + taxon relevance tiers
 
 Retrieval is **species x trait-group** (A floral morphology/colour, B pollination/
