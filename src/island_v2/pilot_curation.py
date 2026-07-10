@@ -172,7 +172,7 @@ def classify_review_stage(row: dict[str, Any]) -> tuple[str, str, str]:
         return (
             "resolve_island_flora_source_gap",
             "No island-level flora anchor is registered, so native/introduced/cultivated status cannot be accepted yet.",
-            "Locate and cite a Robben Island flora, vegetation survey, herbarium checklist, or other island-specific authoritative source.",
+            "Locate and cite an island-specific flora, vegetation survey, herbarium checklist, or other authoritative source that supports island membership and establishment review.",
         )
     return (
         "review_island_establishment",
@@ -217,7 +217,9 @@ def build_worklist(
         establishment[column] = _text(establishment[column])
     if restrict_to_registry:
         registry_islands = set(registry["island_id"])
-        establishment = establishment.loc[establishment["island_id"].isin(registry_islands)].copy()
+        establishment = establishment.loc[
+            establishment["island_id"].isin(registry_islands)
+        ].copy()
     establishment = establishment.rename(columns={"species": "reported_species"})
 
     work = establishment.merge(
@@ -233,7 +235,12 @@ def build_worklist(
         raise typer.BadParameter(
             "pilot registry does not cover island IDs in establishment queue: " f"{ids[:5]}"
         )
-    work = work.merge(manifest[["island_id", "area_km2"]], on="island_id", how="left", validate="many_to_one")
+    work = work.merge(
+        manifest[["island_id", "area_km2"]],
+        on="island_id",
+        how="left",
+        validate="many_to_one",
+    )
     work = work.merge(
         taxon,
         left_on="reported_species",
@@ -245,10 +252,14 @@ def build_worklist(
     missing_taxon = _text(work["reported_name"]).eq("")
     if missing_taxon.any():
         names = work.loc[missing_taxon, "reported_species"].drop_duplicates().tolist()
-        raise typer.BadParameter("Taxon intake does not cover establishment species: " f"{names[:5]}")
+        raise typer.BadParameter(
+            "Taxon intake does not cover establishment species: " f"{names[:5]}"
+        )
 
     work["n_records"] = pd.to_numeric(work["n_records"], errors="coerce").fillna(0).astype(int)
-    work["n_unique_gbif_ids"] = pd.to_numeric(work["n_unique_gbif_ids"], errors="coerce").fillna(0).astype(int)
+    work["n_unique_gbif_ids"] = (
+        pd.to_numeric(work["n_unique_gbif_ids"], errors="coerce").fillna(0).astype(int)
+    )
     stages = work.apply(lambda row: classify_review_stage(row.to_dict()), axis=1)
     work[["review_stage", "selection_rationale", "required_evidence"]] = pd.DataFrame(
         stages.tolist(), index=work.index
@@ -279,7 +290,10 @@ def build_trait_staging(worklist: pd.DataFrame, max_per_island: int) -> pd.DataF
     ].copy()
     if eligible.empty:
         return pd.DataFrame(columns=TRAIT_STAGING_COLUMNS)
-    eligible = eligible.sort_values(["canonical_island_name", "n_records", "reported_species"], ascending=[True, False, True])
+    eligible = eligible.sort_values(
+        ["canonical_island_name", "n_records", "reported_species"],
+        ascending=[True, False, True],
+    )
     selected = eligible.groupby("island_id", group_keys=False).head(max_per_island).copy()
     selected = selected.rename(
         columns={
@@ -297,7 +311,11 @@ def build_trait_staging(worklist: pd.DataFrame, max_per_island: int) -> pd.DataF
         "Pilot selection uses only exact taxonomic candidate status, island context, and GBIF record count; "
         "it does not use floral traits, pollinator state, or model outcome."
     )
-    return selected[TRAIT_STAGING_COLUMNS].drop_duplicates("accepted_species").reset_index(drop=True)
+    return (
+        selected[TRAIT_STAGING_COLUMNS]
+        .drop_duplicates("accepted_species")
+        .reset_index(drop=True)
+    )
 
 
 def summary(worklist: pd.DataFrame, trait_staging: pd.DataFrame) -> dict[str, Any]:
@@ -305,8 +323,12 @@ def summary(worklist: pd.DataFrame, trait_staging: pd.DataFrame) -> dict[str, An
     return {
         "n_island_species_worklist_rows": int(len(worklist)),
         "n_pilot_islands": int(worklist["island_id"].nunique()),
-        "n_candidate_angiosperm_rows": int(worklist["provisional_taxonomic_group"].eq("angiosperm").sum()),
-        "n_rows_requiring_name_resolution": int(worklist["review_stage"].eq("resolve_taxon_name").sum()),
+        "n_candidate_angiosperm_rows": int(
+            worklist["provisional_taxonomic_group"].eq("angiosperm").sum()
+        ),
+        "n_rows_requiring_name_resolution": int(
+            worklist["review_stage"].eq("resolve_taxon_name").sum()
+        ),
         "n_rows_requiring_non_angiosperm_scope_review": int(
             worklist["review_stage"].eq("confirm_non_angiosperm_scope").sum()
         ),
