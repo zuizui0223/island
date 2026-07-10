@@ -3,6 +3,7 @@ import yaml
 
 from island_v2.trait_review_app import (
     apply_decision,
+    evidence_image_url,
     final_value_options,
     next_pending_index,
 )
@@ -64,3 +65,15 @@ def test_apply_decision_blanks_final_value_for_non_acceptance():
     assert result.loc[0, "adjudication_decision"] == "rejected"
     assert result.loc[0, "final_value"] == ""
     assert result.loc[0, "decision_reason"] == "Fruit colour, not flower colour."
+
+
+def test_evidence_image_url_uses_visual_candidate_source_url():
+    row = pd.Series(
+        {
+            "source_lane": "visual_trait_candidate",
+            "source_type": "image",
+            "source_url": "https://example.test/flower.jpg",
+        }
+    )
+
+    assert evidence_image_url(row) == "https://example.test/flower.jpg"

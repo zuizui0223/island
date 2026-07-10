@@ -124,6 +124,40 @@ and link, suggests controlled `final_value` choices, writes the decision back to
 It still records only human review decisions; it does not curate or infer trait
 values by itself.
 
+### Optional multimodal candidate queue
+
+Image-derived visible traits and LLM-extracted ecology statements should stay in
+separate lanes before review:
+
+- image rows are only for visible M0 floral traits such as colour, form,
+  symmetry, tube depth, size class, or inflorescence display;
+- reproductive system, selfing capacity, pollen vector, and visitor evidence
+  must come from source text excerpts, not from image inference;
+- image files are not downloaded by the queue builder. Store an `image_url` and
+  optional model metadata, then let the review app display one image at a time.
+
+Create input templates:
+
+```
+python -m island_v2.trait_multimodal_candidates templates \
+    --output-dir data/v2/staging/traits/validation_pilot/multimodal_candidate_inputs
+```
+
+After an image model, manual image pass, or LLM text-extraction pass fills those
+templates, build a review queue:
+
+```
+python -m island_v2.trait_multimodal_candidates build \
+    --visual-candidates-csv data/v2/staging/traits/validation_pilot/multimodal_candidate_inputs/visual_trait_candidates_template.csv \
+    --reported-ecology-candidates-csv data/v2/staging/traits/validation_pilot/multimodal_candidate_inputs/reported_ecology_candidates_template.csv \
+    --output-dir data/v2/staging/traits/validation_pilot/multimodal_candidate_review_queue
+```
+
+The resulting queue uses the same `accepted` / `rejected` /
+`needs_source_check` decisions and the same Streamlit review app. Visual rows
+are grouped as `P1_visual_trait_candidate`; LLM text rows are grouped as
+`P1_reported_ecology_llm_source_check`.
+
 ## Source discovery
 
 Literature source discovery (Stage 1, `island-v2-trait-source-discovery`) runs

@@ -23,6 +23,8 @@ DEFAULT_QUEUE_CSV = Path(
 DEFAULT_ONTOLOGY = Path("config/trait_ontology.yml")
 DEFAULT_GROUPS = [
     "P1_species_direct_reported",
+    "P1_reported_ecology_llm_source_check",
+    "P1_visual_trait_candidate",
     "P2_species_indirect_source_check",
     "P3_proxy_candidate",
     "P4_descriptive_scout_source_check",
@@ -100,10 +102,25 @@ def final_value_options(row: pd.Series, ontology: dict[str, Any]) -> list[str]:
 
 def default_reason(row: pd.Series, decision: str) -> str:
     if decision == "accepted":
+        if str(row.get("source_lane", "")) == "visual_trait_candidate":
+            return "Image visibly supports the floral trait candidate; no reproductive or pollinator inference made."
+        if str(row.get("source_lane", "")) == "llm_reported_ecology":
+            return "Source excerpt explicitly supports the reported reproductive, selfing, pollen-vector, or visitor evidence."
         return "Source explicitly describes the floral trait for the accepted species."
     if decision == "rejected":
         return "Source excerpt does not explicitly support this trait value for the accepted species."
     return "Needs source-page inspection before accepting or rejecting."
+
+
+def evidence_image_url(row: pd.Series) -> str:
+    source_lane = str(row.get("source_lane", "")).strip()
+    source_type = str(row.get("source_type", "")).strip().lower()
+    source_url = str(row.get("source_url", "")).strip()
+    if source_lane == "visual_trait_candidate" and source_url:
+        return source_url
+    if source_type in {"image", "specimen_image", "gbif_media"} and source_url:
+        return source_url
+    return ""
 
 
 def apply_decision(
@@ -143,7 +160,11 @@ def _render_app() -> None:
         st.sidebar.text_input("Trait ontology", value=str(DEFAULT_ONTOLOGY).replace("\\", "/"))
     )
     reviewer = st.sidebar.text_input("Reviewer", value="")
-    selected_groups = st.sidebar.multiselect("Review groups", DEFAULT_GROUPS, default=[DEFAULT_GROUPS[0]])
+    selected_groups = st.sidebar.multiselect(
+        "Review groups",
+        DEFAULT_GROUPS,
+        default=[group for group in DEFAULT_GROUPS if group.startswith("P1")],
+    )
 
     if not queue_path.exists():
         st.error(f"Queue CSV not found: {queue_path}")
@@ -183,6 +204,9 @@ def _render_app() -> None:
         st.write(f"Evidence scope: `{row['evidence_scope']}`")
         if str(row.get("source_url", "")).strip():
             st.markdown(f"[Open source]({row['source_url']})")
+        image_url = evidence_image_url(row)
+        if image_url:
+            st.image(image_url, caption="Image evidence", use_container_width=True)
         st.text_area("Source excerpt", value=str(row.get("raw_description", "")), height=180)
         st.text_area("Review boundary", value=str(row.get("review_action", "")), height=90)
 

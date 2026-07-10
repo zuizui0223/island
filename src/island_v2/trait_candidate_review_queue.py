@@ -107,6 +107,18 @@ def _priority_for(source_lane: str, evidence_scope: str, candidate_class: str) -
             "P1_species_direct_reported",
             "Review first; accept only if the cited source explicitly supports the floral trait value.",
         )
+    if source_lane == "llm_reported_ecology" and evidence_scope == "species_direct":
+        return (
+            12,
+            "P1_reported_ecology_llm_source_check",
+            "Review the quoted source excerpt; accept only source-stated reproductive, selfing, pollen-vector, or visitor evidence.",
+        )
+    if source_lane == "visual_trait_candidate":
+        return (
+            15,
+            "P1_visual_trait_candidate",
+            "Review visible floral traits only; do not infer reproductive mode, selfing, or pollinator identity from the image.",
+        )
     if source_lane == "web_reported_scout" and evidence_scope == "species_indirect":
         return (
             20,

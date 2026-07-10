@@ -102,6 +102,17 @@ descriptive coverage:
 - **Stage 1C  -  interaction evidence** (`interaction_evidence.py`; GloBI) -> **M2
   subset** (explicit flower-visit / pollination claims).  implemented (workflow pending)
 
+- **Stage 1D  -  optional multimodal staging**
+  (`trait_multimodal_candidates.py`,
+  `island-v2-trait-multimodal-candidates templates|build`) -> **review queue only**.
+  This lane keeps image and LLM evidence separate. Image inputs may propose only
+  visible M0 floral traits (`flower_primary_color`, `floral_form`,
+  `floral_symmetry`, `tube_depth_class`, `flower_size_class`,
+  `inflorescence_display`) and store `image_url` rather than downloading image files.
+  LLM/text inputs may propose M1/M2 ecology traits only when a source excerpt is
+  preserved. Neither lane curates a value; both are converted into the same
+  human-adjudicated queue as the text scouts.
+
 ### Stage 1A v2.1  -  trait-group retrieval + taxon relevance tiers
 
 Retrieval is **species x trait-group** (A floral morphology/colour, B pollination/
