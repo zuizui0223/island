@@ -1,0 +1,12 @@
+{
+  "wave_id": "wave_00008_reproductive_openalex",
+  "task": "reproductive_openalex",
+  "phase": "reproductive_and_pollen_vector",
+  "source_kind": "openalex_reported_ecology",
+  "n_species_attempted": 10,
+  "n_species_with_source_text": 0,
+  "n_candidates_total": 0,
+  "n_target_candidates": 0,
+  "n_lookup_errors": 10,
+  "policy": "Machine-only; no candidate is curated or used as a biological absence."
+}

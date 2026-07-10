@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "n_waves_indexed": 9,
+  "latest_wave_id": "wave_00009_alternative_guild_openalex",
+  "n_unique_candidate_rows": 601,
+  "n_species_with_candidates": 401,
+  "n_machine_biotic_screening_species": 85,
+  "n_by_campaign_task": {
+    "floral_access_wikimedia": 21,
+    "reproductive_openalex": 8,
+    "reproductive_wikimedia": 572
+  },
+  "n_by_campaign_phase": {
+    "alternative_pollinator_function": 59,
+    "auxiliary": 5,
+    "floral_access": 16,
+    "reproductive_and_pollen_vector": 521
+  },
+  "n_by_trait_name": {
+    "autonomous_selfing_capacity": 40,
+    "dichogamy": 15,
+    "floral_form": 2,
+    "flower_primary_color": 14,
+    "mating_system": 8,
+    "pollen_vector_mode": 128,
+    "pollination_functional_guild": 59,
+    "pollination_vector_reported": 5,
+    "self_incompatibility": 15,
+    "sex_system": 315
+  },
+  "n_by_source_type": {
+    "openalex_title_abstract": 8,
+    "wikipedia": 21,
+    "wikipedia_extract": 572
+  },
+  "n_by_confidence": {
+    "explicit_term_match": 21,
+    "rule_match": 580
+  },
+  "screening_label_counts": {
+    "alternative_or_generalist_candidate": 23,
+    "biotic_vector_candidate_without_guild_yet": 58,
+    "bumblebee_candidate_without_alternative_yet": 4
+  },
+  "interpretation": "Cumulative machine-only source-backed candidates and screening labels. They are not accepted trait values, biological absences, or confirmatory-model inputs."
+}
