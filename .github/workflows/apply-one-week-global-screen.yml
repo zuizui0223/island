@@ -24,7 +24,9 @@ jobs:
         with:
           python-version: "3.11"
       - name: Apply patch
-        run: python scripts/patch_one_week_global_screen.py
+        run: |
+          python scripts/patch_one_week_global_screen.py
+          python scripts/fix_one_week_fixture.py
       - name: Validate patch
         id: validate
         continue-on-error: true
@@ -56,7 +58,7 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           if test "${{ steps.validate.outcome }}" = "success"; then
-            rm -f one_week_validation.log
+            git rm -f one_week_validation.log 2>/dev/null || rm -f one_week_validation.log
             git restore .github/workflows/drive-global-trait-campaign.yml
             git add \
               src/island_v2/global_trait_campaign.py \
