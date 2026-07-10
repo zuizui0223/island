@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -182,3 +183,13 @@ def test_load_species_master_excludes_obvious_non_angiosperms(tmp_path: Path):
     loaded = campaign.load_species_master(path, _config())
 
     assert "Pinus example" not in set(loaded["accepted_species"])
+
+
+def test_campaign_summary_is_json_serializable():
+    config = _config()
+    ledger = campaign.reconcile_ledger(_master(), None, config)
+    summary = campaign.campaign_summary(ledger, config)
+
+    encoded = json.dumps(summary)
+
+    assert "reproductive_wikimedia" in encoded
