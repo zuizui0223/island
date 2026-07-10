@@ -36,6 +36,7 @@ jobs:
       github.event_name == 'schedule' ||
       github.event_name == 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
       BATCH_SIZE: ${{ inputs.batch_size || '250' }}
       CAMPAIGN_DIR: data/v2/staging/traits/global_campaign
@@ -61,13 +62,46 @@ jobs:
               raise SystemExit("batch_size must be between 1 and 500")
           PY
       - name: Advance one global machine-evidence wave
+        id: advance
+        continue-on-error: true
         run: |
           island-v2-global-trait-campaign run \
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
             --campaign-dir "${CAMPAIGN_DIR}" \
             --config-path config/global_trait_campaign.yml \
             --batch-size "${BATCH_SIZE}"
+      - name: Record failed wave for retry
+        if: steps.advance.outcome == 'failure'
+        env:
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          mkdir -p "${CAMPAIGN_DIR}"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path(os.environ["CAMPAIGN_DIR"]) / "campaign_failure.json"
+          payload = {
+              "status": "wave_failed_before_commit",
+              "run_id": os.environ["RUN_ID"],
+              "run_attempt": os.environ["RUN_ATTEMPT"],
+              "source_sha": os.environ["SOURCE_SHA"],
+              "batch_size": int(os.environ["BATCH_SIZE"]),
+              "retry_policy": (
+                  "The campaign ledger is unchanged. The next scheduled run retries the same "
+                  "pending family-balanced wave; no failure is interpreted as a trait absence."
+              ),
+          }
+          path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+          PY
+      - name: Clear stale failure marker
+        if: steps.advance.outcome == 'success'
+        run: rm -f "${CAMPAIGN_DIR}/campaign_failure.json"
       - name: Publish campaign status
+        if: steps.advance.outcome == 'success'
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json
@@ -89,18 +123,36 @@ jobs:
           print("")
           print(status["interpretation"])
           PY
-      - name: Commit campaign progress
+      - name: Publish failure status
+        if: steps.advance.outcome == 'failure'
+        run: |
+          echo "## Global trait campaign wave failed" >> "$GITHUB_STEP_SUMMARY"
+          echo "The unchanged ledger will retry the same pending wave on the next run." >> "$GITHUB_STEP_SUMMARY"
+          cat "${CAMPAIGN_DIR}/campaign_failure.json" >> "$GITHUB_STEP_SUMMARY"
+      - name: Commit campaign status
+        if: always()
         run: |
           set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           # pandas/gzip may rewrite an identical completed ledger with a new gzip
           # timestamp. Ignore that binary-only change once no task remains active.
-          if jq -e '.active_task == "complete"' "${CAMPAIGN_DIR}/campaign_status.json" >/dev/null; then
+          if test -f "${CAMPAIGN_DIR}/campaign_status.json" && \
+             jq -e '.active_task == "complete"' "${CAMPAIGN_DIR}/campaign_status.json" >/dev/null; then
             git restore --worktree "${CAMPAIGN_DIR}/campaign_ledger.csv.gz" 2>/dev/null || true
           fi
           git add "${CAMPAIGN_DIR}"
-          git diff --cached --quiet && { echo "No campaign change."; exit 0; }
-          git commit -m "chore: advance global trait campaign"
-          git pull --rebase origin main
-          git push origin HEAD:main
+          if git diff --cached --quiet; then
+            echo "No campaign status change."
+          else
+            if test -f "${CAMPAIGN_DIR}/campaign_failure.json"; then
+              git commit -m "chore: record global trait campaign failure"
+            else
+              git commit -m "chore: advance global trait campaign"
+            fi
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Fail job after status is persisted
+        if: steps.advance.outcome == 'failure'
+        run: exit 1
