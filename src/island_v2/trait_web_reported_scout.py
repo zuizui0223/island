@@ -66,10 +66,14 @@ FLORAL_CONTEXT_TERMS = re.compile(
 )
 NON_FLORAL_CONTEXT_TERMS = re.compile(
     r"\b("
-    r"leaf|leaves|leaflet|leaflets|foliage|fruit|fruits|seed|seeds|"
+    r"leaf|leaves|leaflet|leaflets|foliage|fruit|fruits|berry|berries|seed|seeds|"
     r"bark|stem|stems|branch|branches|shoot|shoots|petiole|petioles|"
     r"latex|wood|trunk|trunks"
     r")\b",
+    re.IGNORECASE,
+)
+NAME_CONTEXT_TERMS = re.compile(
+    r"\b(called|known as|commonly known|named|name|traditional|medicine|medicinal|unani)\b",
     re.IGNORECASE,
 )
 
@@ -115,6 +119,9 @@ def _has_floral_context(text: str, start: int, end: int, window: int = 80) -> bo
     center = start - lo + max(0, end - start) // 2
     floral_distance = _nearest_context_distance(FLORAL_CONTEXT_TERMS, local, center)
     if floral_distance is None or floral_distance > window:
+        return False
+    name_distance = _nearest_context_distance(NAME_CONTEXT_TERMS, local, center)
+    if name_distance is not None and name_distance <= 30:
         return False
     non_floral_distance = _nearest_context_distance(NON_FLORAL_CONTEXT_TERMS, local, center)
     return non_floral_distance is None or floral_distance <= non_floral_distance

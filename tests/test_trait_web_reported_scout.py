@@ -69,6 +69,28 @@ def test_m0_colour_requires_floral_context():
     assert "red" not in colours
 
 
+def test_m0_colour_rejects_berry_and_name_context():
+    rows = extract_reported(
+        "Genus species",
+        "The flowers are white. The berries are purple when ripe. "
+        "The dried fruit is called the golden flower in traditional medicine.",
+        "wikipedia",
+        "wikipedia",
+        "u",
+        "species_direct",
+        CONFIG,
+        TRAIT_LAYER,
+    )
+    colours = {
+        r["provisional_candidate_value"]
+        for r in rows
+        if r["trait_name"] == "flower_primary_color"
+    }
+    assert "white" in colours
+    assert "purple" not in colours
+    assert "yellow" not in colours
+
+
 def test_m0_symmetry_requires_floral_context():
     rows = extract_reported(
         "Genus species",
