@@ -28,8 +28,7 @@ import pandas as pd
 import typer
 import yaml
 
-from island_v2 import reported_ecology_machine as ecology
-from island_v2 import trait_web_reported_scout as web_reported
+from island_v2 import reported_ecology_machine as ecology, trait_web_reported_scout as web_reported
 from island_v2.trait_source_discovery import openalex_abstract
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
@@ -193,7 +192,9 @@ def prepare_dependent_statuses(ledger: pd.DataFrame, config: dict[str, Any]) -> 
     for task in task_order:
         rule = str(config["tasks"][task].get("eligibility", "all"))
         dependencies = [str(value) for value in config["tasks"][task].get("depends_on") or []]
-        if dependencies and not all(task_is_terminal(result, dependency) for dependency in dependencies):
+        if dependencies and not all(
+            task_is_terminal(result, dependency) for dependency in dependencies
+        ):
             continue
         if rule == "machine_biotic_candidate":
             status_column = f"{task}_status"
@@ -420,25 +421,39 @@ def run_source_task(
             ),
             max_taxa=len(batch),
         )
-        source_species = set(sources["accepted_species"].astype(str)) if not sources.empty else set()
+        source_species = (
+            set(sources["accepted_species"].astype(str)) if not sources.empty else set()
+        )
         candidates, holdouts = ecology.extract_candidates_from_text_sources(
             sources,
             ontology,
             extraction_model="rule_based_wikimedia_global_campaign_v1",
             prompt_id=f"{task}_rules_v1",
         )
-        return normalize_ecology_candidates(candidates, task, config), holdouts, errors, source_species
+        return (
+            normalize_ecology_candidates(candidates, task, config),
+            holdouts,
+            errors,
+            source_species,
+        )
 
     if source_kind == "openalex_reported_ecology":
         sources, errors = fetch_openalex_sources(batch, task, config)
-        source_species = set(sources["accepted_species"].astype(str)) if not sources.empty else set()
+        source_species = (
+            set(sources["accepted_species"].astype(str)) if not sources.empty else set()
+        )
         candidates, holdouts = ecology.extract_candidates_from_text_sources(
             sources,
             ontology,
             extraction_model="rule_based_openalex_global_campaign_v1",
             prompt_id=f"{task}_rules_v1",
         )
-        return normalize_ecology_candidates(candidates, task, config), holdouts, errors, source_species
+        return (
+            normalize_ecology_candidates(candidates, task, config),
+            holdouts,
+            errors,
+            source_species,
+        )
 
     if source_kind == "wikimedia_web_reported":
         paths = {

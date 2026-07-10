@@ -113,9 +113,7 @@ def test_phase_barrier_and_biotic_gate_are_fail_closed():
 def test_apply_result_marks_zero_hit_as_processed_and_records_direct_biotic():
     config = _config()
     ledger = campaign.reconcile_ledger(_master(), None, config)
-    batch = ledger.head(2)[
-        ["accepted_species", "genus", "family", "n_islands", "n_records"]
-    ]
+    batch = ledger.head(2)[["accepted_species", "genus", "family", "n_islands", "n_records"]]
     candidates = pd.DataFrame(
         [
             {
