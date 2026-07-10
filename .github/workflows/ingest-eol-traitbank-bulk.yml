@@ -1,9 +1,9 @@
 name: ingest_eol_traitbank_bulk
 
-# Free high-throughput EOL path: download the public all-traits archive, convert
-# only explicitly mapped TraitBank terms to the v2 long format, join to the
-# island species master, and upload review artifacts. No paid API or repository
-# mutation is involved.
+# Free high-throughput EOL path: PRs run a real-data smoke test; merging a
+# workflow change to main runs the complete archive and records a compact,
+# reviewable evidence bundle in the repository. Manual dispatch remains
+# available for targeted reruns.
 on:
   workflow_dispatch:
     inputs:
@@ -27,24 +27,41 @@ on:
         required: true
         default: 0
         type: number
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/ingest-eol-traitbank-bulk.yml"
+      - "config/eol_traitbank_terms.yml"
+      - "config/bulk_trait_sources.yml"
+      - "config/trait_ontology.yml"
+      - "src/island_v2/eol_traitbank.py"
+      - "src/island_v2/bulk_trait_ingest.py"
+      - "tests/test_eol_traitbank.py"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/ingest-eol-traitbank-bulk.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
-  group: eol-traitbank-bulk-ingest
+  group: eol-traitbank-bulk-ingest-${{ github.event_name }}
   cancel-in-progress: false
 
 jobs:
   ingest:
     runs-on: ubuntu-latest
+    timeout-minutes: 330
     env:
-      EOL_ZIP_URL: ${{ inputs.eol_zip_url }}
-      SOURCE_NAME: ${{ inputs.source_name }}
-      CHUNKSIZE: ${{ inputs.chunksize }}
-      MAX_TRAIT_ROWS: ${{ inputs.max_trait_rows }}
+      EOL_ZIP_URL: ${{ github.event.inputs.eol_zip_url || 'https://zenodo.org/records/13305577/files/traits_all.zip?download=1' }}
+      SOURCE_NAME: ${{ github.event.inputs.source_name || 'eol_traitbank_all_zenodo_13305577' }}
+      CHUNKSIZE: ${{ github.event.inputs.chunksize || '200000' }}
+      MAX_TRAIT_ROWS: ${{ github.event_name == 'pull_request' && '500000' || github.event_name == 'push' && '0' || github.event.inputs.max_trait_rows || '0' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -67,15 +84,29 @@ jobs:
           if int(os.environ["MAX_TRAIT_ROWS"]) < 0:
               raise SystemExit("max_trait_rows must be zero or positive.")
           PY
+      - name: Run focused EOL tests
+        run: pytest -q tests/test_eol_traitbank.py tests/test_bulk_trait_ingest.py
+      - name: Restore EOL archive cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/traits_all.zip
+          key: eol-traits-all-${{ env.SOURCE_NAME }}
       - name: Download EOL all-traits archive
         run: |
           set -euo pipefail
           mkdir -p /tmp/eol_traitbank_bulk/download_sha
-          curl --fail --location --retry 3 --retry-delay 5 --max-time 3600 \
-            --output /tmp/traits_all.zip "$EOL_ZIP_URL"
+          df -h
+          if [[ ! -s /tmp/traits_all.zip ]]; then
+            curl --fail --location --retry 3 --retry-delay 5 --max-time 3600 \
+              --output /tmp/traits_all.zip "$EOL_ZIP_URL"
+          else
+            echo "Using cached EOL archive."
+          fi
           test -s /tmp/traits_all.zip
           sha256sum /tmp/traits_all.zip \
             | tee /tmp/eol_traitbank_bulk/download_sha/download_sha256.txt
+          du -h /tmp/traits_all.zip
+          df -h
       - name: Convert EOL TraitBank terms to v2 long CSV
         run: |
           set -euo pipefail
@@ -93,6 +124,7 @@ jobs:
             "${MAX_ARGS[@]}" | tee /tmp/eol_traitbank_bulk/prepare_report.json
       - name: Join EOL long rows to island master and calculate coverage
         run: |
+          set -euo pipefail
           island-v2-bulk-traits ingest \
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
             --source-csv /tmp/eol_traitbank_bulk/prepared/eol_traitbank_v2_long.csv \
@@ -113,6 +145,8 @@ jobs:
           prepare = json.loads(Path("/tmp/eol_traitbank_bulk/prepare_report.json").read_text(encoding="utf-8"))
           ingest = json.loads(Path("/tmp/eol_traitbank_bulk/ingest_report.json").read_text(encoding="utf-8"))
           print("## EOL TraitBank bulk ingest")
+          print(f"- event: {__import__('os').environ.get('GITHUB_EVENT_NAME', '')}")
+          print(f"- max_trait_rows: {__import__('os').environ.get('MAX_TRAIT_ROWS', '')}")
           for key in (
               "n_trait_rows_scanned",
               "n_rows_with_mapped_predicate",
@@ -134,15 +168,109 @@ jobs:
           covered = coverage.loc[coverage["n_species_with_direct_evidence"].gt(0)].copy()
           print("\n### Covered mapped traits")
           if covered.empty:
-              print("No mapped EOL rows matched the island master. Inspect prepared/eol_traitbank_unmapped_terms.csv and ingested name-match audits.")
+              print("No mapped EOL rows matched the island master. Inspect the unmapped-term and name-match audits.")
           else:
-              for _, row in covered.iterrows():
+              for _, row in covered.sort_values("n_species_with_direct_evidence", ascending=False).iterrows():
                   print(
                       f"- {row['trait_name']} ({row['analysis_role']}): "
                       f"{int(row['n_species_with_direct_evidence'])} species, "
                       f"{float(row['pct_master_species_covered']):.3f}% of master"
                   )
           PY
+      - name: Build compact repository evidence bundle
+        if: github.event_name == 'push' && env.MAX_TRAIT_ROWS == '0'
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout -B main origin/main
+          python - <<'PY'
+          import gzip
+          import json
+          import os
+          import shutil
+          from pathlib import Path
+
+          root = Path("/tmp/eol_traitbank_bulk")
+          target = Path("data/v2/staging/traits/eol_traitbank")
+          if target.exists():
+              shutil.rmtree(target)
+          target.mkdir(parents=True, exist_ok=True)
+
+          prepare = json.loads((root / "prepare_report.json").read_text(encoding="utf-8"))
+          ingest = json.loads((root / "ingest_report.json").read_text(encoding="utf-8"))
+
+          shutil.copy2(ingest["coverage_by_trait_csv"], target / "coverage_by_trait.csv")
+          shutil.copy2(root / "download_sha" / "download_sha256.txt", target / "download_sha256.txt")
+
+          bundle = {}
+          max_bytes = 90 * 1024 * 1024
+          files = {
+              "trait_candidates.csv.gz": ingest["candidate_csv"],
+              "coverage_by_family.csv.gz": ingest["coverage_by_family_csv"],
+              "unmatched_taxa.csv.gz": ingest["unmatched_taxa_csv"],
+              "unmapped_values.csv.gz": ingest["unmapped_values_csv"],
+              "unmapped_eol_terms.csv.gz": prepare["unmapped_terms_csv"],
+          }
+          for output_name, source_name in files.items():
+              source = Path(source_name)
+              output = target / output_name
+              with source.open("rb") as src, gzip.open(output, "wb", compresslevel=9) as dst:
+                  shutil.copyfileobj(src, dst)
+              size = output.stat().st_size
+              if size > max_bytes:
+                  output.unlink()
+                  bundle[output_name] = {"persisted": False, "reason": "compressed file exceeded 90 MiB", "bytes": size}
+              else:
+                  bundle[output_name] = {"persisted": True, "bytes": size}
+
+          summary = {
+              "version": "1.0",
+              "source_name": ingest["source_name"],
+              "dataset_url": prepare["dataset_url"],
+              "archive_sha256": prepare["eol_archive_sha256"],
+              "github_run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "github_sha": os.environ.get("GITHUB_SHA", ""),
+              "n_trait_rows_scanned": prepare["n_trait_rows_scanned"],
+              "n_rows_with_mapped_predicate": prepare["n_rows_with_mapped_predicate"],
+              "n_unmapped_predicate_rows": prepare["n_unmapped_predicate_rows"],
+              "n_unmapped_value_rows_prepare": prepare["n_unmapped_value_rows"],
+              "n_long_rows": prepare["n_long_rows"],
+              "n_name_matched_rows": ingest["n_name_matched_rows"],
+              "n_unmatched_taxon_rows": ingest["n_unmatched_taxon_rows"],
+              "n_unmapped_value_rows_ingest": ingest["n_unmapped_value_rows"],
+              "n_candidate_rows": ingest["n_candidate_rows"],
+              "n_species_with_any_direct_evidence": ingest["n_species_with_any_direct_evidence"],
+              "n_master_species": ingest["n_master_species"],
+              "bundle_files": bundle,
+              "curation_rule": ingest["curation_rule"],
+              "non_inference_rule": ingest["non_inference_rule"],
+          }
+          (target / "coverage_summary.json").write_text(
+              json.dumps(summary, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+      - name: Commit full-run coverage bundle
+        if: github.event_name == 'push' && env.MAX_TRAIT_ROWS == '0'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/v2/staging/traits/eol_traitbank
+          if git diff --cached --quiet; then
+            echo "No EOL evidence-bundle changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: record EOL TraitBank coverage [skip ci]"
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Push raced with another main update; rebasing attempt ${attempt}."
+            git pull --rebase origin main
+          done
+          echo "Could not push EOL coverage bundle after three attempts." >&2
+          exit 1
       - name: Upload EOL candidates and audits
         uses: actions/upload-artifact@v4
         with:
