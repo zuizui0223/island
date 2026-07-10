@@ -6,19 +6,17 @@
     "wikidata"
   ],
   "n_taxa_queried": 50,
-  "n_species_with_reported": 17,
-  "n_species_zero_reported": 33,
-  "n_reported_candidates": 63,
+  "n_species_with_reported": 15,
+  "n_species_zero_reported": 35,
+  "n_reported_candidates": 27,
   "n_by_source": {
-    "wikidata": 2,
-    "wikipedia": 61
+    "wikipedia": 27
   },
   "n_by_trait_layer": {
-    "M0": 63
+    "M0": 27
   },
   "n_by_trait_name": {
-    "floral_symmetry": 2,
-    "flower_primary_color": 61
+    "flower_primary_color": 27
   },
   "n_lookup_errors": 0,
   "lookup_errors": []
