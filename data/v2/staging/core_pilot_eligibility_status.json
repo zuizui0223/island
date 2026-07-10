@@ -12,5 +12,5 @@
   ],
   "n_core_applicable_islands": 6,
   "n_islands_considered": 4549,
-  "next_action_when_eligible": "Run the bounded Core-pilot flora-anchor, taxon/establishment, trait-evidence, and predeclared Apidae/Bombus diagnostic workflows for these islands. Eligibility alone is not analysis inclusion."
+  "next_action_when_eligible": "Human-run discover-core-pilot-trait-sources.yml for each eligible island after accepting its flora anchor and taxon/establishment review."
 }
