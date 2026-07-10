@@ -1,0 +1,41 @@
+version: "1.0"
+
+# Explicit morphology terms only. The campaign retains source excerpts and keeps
+# every row unreviewed; these are candidates, not accepted trait values.
+traits:
+  flower_primary_color:
+    white: [white, whitish, cream, creamy, ivory]
+    green_brown_inconspicuous: [greenish, brownish, inconspicuous]
+    yellow_orange: [yellow, yellowish, orange, orange-red, golden]
+    red_pink: [red, reddish, crimson, scarlet, pink, pinkish, rose, rosy]
+    blue_purple: [blue, bluish, purple, purplish, violet, mauve, lilac, lavender]
+    multicolored_variable: [bicolored, multicolored, variable in color, variable in colour]
+
+  floral_symmetry:
+    actinomorphic: [actinomorphic, radially symmetric, radial symmetry]
+    zygomorphic: [zygomorphic, bilaterally symmetric, bilateral symmetry, bilabiate, two-lipped, two lipped]
+    asymmetric: [asymmetric, asymmetrical]
+
+  floral_form:
+    open_radial: [rotate, stellate, star-shaped, star shaped, open flower]
+    bell_campanulate: [campanulate, bell-shaped, bell shaped]
+    tubular: [tubular, tube-shaped, tube shaped]
+    salverform: [salverform, salver-shaped, hypocrateriform]
+    funnel_trumpet: [funnelform, funnel-shaped, trumpet-shaped, trumpet shaped, infundibuliform]
+    urn_urceolate: [urceolate, urn-shaped, urn shaped]
+    brush_puff: [brush-like, brushlike, puffball, powder-puff, powder puff]
+    composite_head: [capitulum, composite head, flower head]
+    reduced_wind: [reduced flowers, minute wind-pollinated flowers]
+
+  tube_depth_class:
+    absent_or_open: [without a floral tube, no corolla tube, open corolla]
+    shallow: [shallow floral tube, short corolla tube, short floral tube]
+    intermediate: [moderate corolla tube, medium-length corolla tube]
+    deep: [deep floral tube, long corolla tube, long floral tube, elongated corolla tube]
+
+  flower_size_class:
+    very_small: [minute flowers, very small flowers, tiny flowers]
+    small: [small flowers]
+    medium: [medium-sized flowers, medium sized flowers]
+    large: [large flowers]
+    very_large: [very large flowers, giant flowers, exceptionally large flowers]

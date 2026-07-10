@@ -1,5 +1,7 @@
 name: build_pilot_island_curation
 
+# Regional island curation is retained as a manual diagnostic workflow. The
+# active automated acquisition path is the global unique-species campaign.
 on:
   workflow_dispatch:
     inputs:
@@ -7,10 +9,6 @@ on:
         description: "Maximum blocked trait candidates staged per island."
         required: false
         default: "25"
-  push:
-    branches: [main]
-    paths:
-      - "data/v2/curation/pilot_island_registry.csv"
 
 permissions:
   contents: read

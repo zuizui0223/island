@@ -1,0 +1,158 @@
+version: "1.0"
+default_batch_size: 250
+max_attempts: 3
+
+task_order:
+  - reproductive_wikimedia
+  - reproductive_openalex
+  - floral_access_wikimedia
+  - alternative_guild_openalex
+
+tasks:
+  reproductive_wikimedia:
+    phase: reproductive_and_pollen_vector
+    source_kind: wikimedia_reported_ecology
+    eligibility: all
+    depends_on: []
+    pause_seconds: 0.05
+    max_retries: 4
+    target_traits:
+      - pollen_vector_mode
+      - self_incompatibility
+      - autonomous_selfing_capacity
+      - mating_system
+      - cleistogamy
+      - dichogamy
+      - sex_system
+
+  reproductive_openalex:
+    phase: reproductive_and_pollen_vector
+    source_kind: openalex_reported_ecology
+    eligibility: all
+    depends_on:
+      - reproductive_wikimedia
+    pause_seconds: 0.05
+    per_page: 5
+    query_terms:
+      - self-incompatibility
+      - self-compatible
+      - autonomous selfing
+      - mating system
+      - cleistogamy
+      - pollen vector
+      - pollination
+    target_traits:
+      - pollen_vector_mode
+      - self_incompatibility
+      - autonomous_selfing_capacity
+      - mating_system
+      - cleistogamy
+      - dichogamy
+      - sex_system
+
+  floral_access_wikimedia:
+    phase: floral_access
+    source_kind: wikimedia_web_reported
+    eligibility: machine_biotic_candidate
+    depends_on:
+      - reproductive_wikimedia
+      - reproductive_openalex
+    pause_seconds: 0.05
+    max_retries: 4
+    keyword_config: config/global_floral_access_keywords.yml
+    target_traits:
+      - floral_symmetry
+      - floral_form
+      - tube_depth_class
+      - flower_size_class
+      - flower_primary_color
+
+  alternative_guild_openalex:
+    phase: alternative_pollinator_function
+    source_kind: openalex_reported_ecology
+    eligibility: machine_biotic_candidate
+    depends_on:
+      - floral_access_wikimedia
+    pause_seconds: 0.05
+    per_page: 8
+    query_terms:
+      - pollinated by bees
+      - bumblebee
+      - bird pollination
+      - butterfly pollination
+      - moth pollination
+      - fly pollination
+      - bat pollination
+      - floral visitor
+      - generalist pollinator
+    target_traits:
+      - pollination_functional_guild
+
+# Coarse fail-closed exclusion copied from the validation-pilot scope. Taxonomic
+# review remains authoritative; this only prevents obvious fern/lycophyte/
+# gymnosperm families from entering a floral-syndrome machine campaign.
+excluded_families:
+  - Dryopteridaceae
+  - Thelypteridaceae
+  - Pteridaceae
+  - Polypodiaceae
+  - Aspleniaceae
+  - Athyriaceae
+  - Blechnaceae
+  - Cyatheaceae
+  - Dennstaedtiaceae
+  - Hymenophyllaceae
+  - Lomariopsidaceae
+  - Nephrolepidaceae
+  - Marattiaceae
+  - Ophioglossaceae
+  - Osmundaceae
+  - Schizaeaceae
+  - Selaginellaceae
+  - Lycopodiaceae
+  - Equisetaceae
+  - Gleicheniaceae
+  - Cystopteridaceae
+  - Woodsiaceae
+  - Tectariaceae
+  - Davalliaceae
+  - Oleandraceae
+  - Marsileaceae
+  - Salviniaceae
+  - Azollaceae
+  - Psilotaceae
+  - Isoetaceae
+  - Cibotiaceae
+  - Dicksoniaceae
+  - Dipteridaceae
+  - Metaxyaceae
+  - Saccolomataceae
+  - Lindsaeaceae
+  - Plagiogyriaceae
+  - Culcitaceae
+  - Loxsomataceae
+  - Matoniaceae
+  - Anemiaceae
+  - Lygodiaceae
+  - Onocleaceae
+  - Diplaziopsidaceae
+  - Rhachidosoraceae
+  - Didymochlaenaceae
+  - Hypodematiaceae
+  - Pteridiaceae
+  - Grammitidaceae
+  - Vittariaceae
+  - Pinaceae
+  - Cupressaceae
+  - Podocarpaceae
+  - Araucariaceae
+  - Cycadaceae
+  - Zamiaceae
+  - Ginkgoaceae
+  - Ephedraceae
+  - Gnetaceae
+  - Taxaceae
+  - Cephalotaxaceae
+  - Sciadopityaceae
+  - Welwitschiaceae
+  - Phyllocladaceae
