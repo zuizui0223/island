@@ -451,5 +451,30 @@ def profiles(
         typer.echo(f"{name}\t{description}")
 
 
+@app.command("prepare-eol")
+def prepare_eol(
+    eol_archive: Path = typer.Option(..., exists=True, help="EOL traits_all.zip or extracted archive directory."),
+    output_dir: Path = typer.Option(..., help="Directory for EOL long CSV and unmapped-term audit."),
+    config_path: Path = typer.Option(Path("config/eol_traitbank_terms.yml"), exists=True),
+    ontology_path: Path = typer.Option(Path("config/trait_ontology.yml"), exists=True),
+    source_name: str = typer.Option("eol_traitbank_all", help="Stable source/release name for manifests."),
+    chunksize: int = typer.Option(200_000, min=1, help="traits.csv rows streamed per pandas chunk."),
+    max_trait_rows: int | None = typer.Option(None, min=1, help="Optional smoke-test cap; omit for full archive."),
+) -> None:
+    """Convert EOL TraitBank all-traits export to canonical v2 long rows."""
+    from island_v2.eol_traitbank import prepare_eol_traitbank_long
+
+    report = prepare_eol_traitbank_long(
+        eol_archive=eol_archive,
+        output_dir=output_dir,
+        config_path=config_path,
+        ontology_path=ontology_path,
+        source_name=source_name,
+        chunksize=chunksize,
+        max_trait_rows=max_trait_rows,
+    )
+    typer.echo(json.dumps(report, ensure_ascii=False))
+
+
 if __name__ == "__main__":
     app()

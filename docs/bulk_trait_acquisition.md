@@ -80,3 +80,29 @@ into the repository.
 Before running a large source, inspect a small sample and add a source-specific
 profile to `config/bulk_trait_sources.yml`. A source profile is evidence
 provenance, not mere plumbing: it is where trait-code semantics are recorded.
+
+## EOL TraitBank all-traits lane
+
+EOL's public "All trait data" Zenodo record provides `traits_all.zip`, an export
+with `pages.csv`, `traits.csv`, `metadata.csv`, `inferred.csv`, and `terms.csv`.
+That archive is not the canonical long CSV accepted by the generic importer, so
+it has a dedicated preparation step:
+
+```text
+traits_all.zip
+-> island-v2-bulk-traits prepare-eol
+-> eol_traitbank_v2_long.csv
+-> island-v2-bulk-traits ingest
+```
+
+`prepare-eol` streams `traits.csv` in chunks, resolves `page_id` through
+`pages.csv`, resolves term labels through `terms.csv`, and exports only
+predicate/value pairs declared in `config/eol_traitbank_terms.yml`. Unmapped EOL
+terms are retained as counts in `eol_traitbank_unmapped_terms.csv`; they are the
+review queue for expanding the mapping.
+
+Use the manual workflow `ingest_eol_traitbank_bulk` for this lane. Start with a
+small `max_trait_rows` smoke test, inspect the unmapped-term and name-match
+audits, then rerun with `max_trait_rows = 0` for the full archive. `inferred.csv`
+is deliberately not used for direct evidence candidates; only rows attached to
+the EOL trait record itself enter the v2 pending-evidence path.

@@ -1,0 +1,192 @@
+version: "1.0"
+
+dataset:
+  landing_page_url: "https://zenodo.org/records/13305577"
+  direct_download_url: "https://zenodo.org/records/13305577/files/traits_all.zip?download=1"
+  source_citation: "Encyclopedia of Life. All trait data. Zenodo record 13305577."
+
+# EOL TraitBank contains hundreds of predicate terms. These rules are intentionally
+# explicit and conservative: only predicate/value terms listed here are exported
+# to the v2 canonical long format. Run prepare-eol and inspect
+# eol_traitbank_unmapped_terms.csv before expanding this mapping.
+rules:
+  - id: flower_primary_color
+    target_trait: flower_primary_color
+    predicate_terms:
+      - flower color
+      - flower colour
+      - floral color
+      - floral colour
+      - corolla color
+      - corolla colour
+      - petal color
+      - petal colour
+      - http://eol.org/schema/terms/FlowerColor
+    value_map:
+      white: white
+      green: green_brown_inconspicuous
+      brown: green_brown_inconspicuous
+      inconspicuous: green_brown_inconspicuous
+      yellow: yellow_orange
+      orange: yellow_orange
+      red: red_pink
+      pink: red_pink
+      rose: red_pink
+      purple: blue_purple
+      violet: blue_purple
+      blue: blue_purple
+      multicolored: multicolored_variable
+      multicoloured: multicolored_variable
+      variable: multicolored_variable
+
+  - id: pollination_syndrome_to_pollen_vector
+    target_trait: pollen_vector_mode
+    predicate_terms:
+      - pollination syndrome
+      - pollination system
+      - pollen vector
+      - pollen vector mode
+      - pollination vector
+      - http://eol.org/schema/terms/pollinationSyndrome
+      - http://eol.org/schema/terms/PollinationSyndrome
+    value_map:
+      anemophily: abiotic_wind
+      anemophilous: abiotic_wind
+      wind pollination: abiotic_wind
+      wind-pollination: abiotic_wind
+      wind-pollinated: abiotic_wind
+      zoophily: biotic
+      zoophilous: biotic
+      entomophily: biotic
+      entomophilous: biotic
+      insect pollination: biotic
+      insect-pollinated: biotic
+      biotic: biotic
+      mixed: mixed
+
+  - id: pollination_syndrome_to_functional_guild
+    target_trait: pollination_functional_guild
+    predicate_terms:
+      - pollination syndrome
+      - pollination system
+      - pollinator
+      - pollinator type
+      - primary pollinator
+      - http://eol.org/schema/terms/pollinationSyndrome
+      - http://eol.org/schema/terms/PollinationSyndrome
+    value_map:
+      melittophily: other_bees
+      melittophilous: other_bees
+      bee pollination: other_bees
+      bee-pollinated: other_bees
+      bees: other_bees
+      myophily: flies
+      myophilous: flies
+      fly pollination: flies
+      fly-pollinated: flies
+      flies: flies
+      psychophily: butterflies
+      psychophilous: butterflies
+      butterfly pollination: butterflies
+      butterfly-pollinated: butterflies
+      phalaenophily: moths
+      phalaenophilous: moths
+      moth pollination: moths
+      moth-pollinated: moths
+      ornithophily: birds
+      ornithophilous: birds
+      bird pollination: birds
+      bird-pollinated: birds
+      chiropterophily: bats
+      chiropterophilous: bats
+      bat pollination: bats
+      bat-pollinated: bats
+      cantharophily: beetles_wasps_ants
+      wasp pollination: beetles_wasps_ants
+      ant pollination: beetles_wasps_ants
+      mixed: mixed_or_generalist
+      generalist: mixed_or_generalist
+
+  - id: sex_system
+    target_trait: sex_system
+    predicate_terms:
+      - sex system
+      - sexual system
+      - plant sex
+      - reproductive system
+      - http://eol.org/schema/terms/SexualSystem
+      - http://purl.obolibrary.org/obo/FLOPO_0900036
+    value_map:
+      hermaphroditic: hermaphroditic
+      hermaphrodite: hermaphroditic
+      bisexual: hermaphroditic
+      monoclinous: hermaphroditic
+      monoecious: monoecious
+      dioecious: dioecious
+      gynodioecious: gynodioecious
+      androdioecious: androdioecious
+      polygamous: polygamous_or_other
+      polygamodioecious: polygamous_or_other
+      polygamomonoecious: polygamous_or_other
+
+  - id: mating_system
+    target_trait: mating_system
+    predicate_terms:
+      - mating system
+      - breeding system
+      - reproductive mode
+      - http://eol.org/schema/terms/MatingSystem
+    value_map:
+      outcrossing: predominantly_outcrossing
+      xenogamy: predominantly_outcrossing
+      allogamy: predominantly_outcrossing
+      mixed mating: mixed_mating
+      mixed: mixed_mating
+      selfing: predominantly_selfing
+      autogamy: predominantly_selfing
+      obligate selfing: obligate_selfing
+
+  - id: self_incompatibility
+    target_trait: self_incompatibility
+    predicate_terms:
+      - self incompatibility
+      - self-incompatibility
+      - self compatibility
+      - self-compatibility
+      - http://eol.org/schema/terms/SelfIncompatibility
+    value_map:
+      self-incompatible: SI
+      self incompatible: SI
+      self incompatibility: SI
+      SI: SI
+      self-compatible: SC
+      self compatible: SC
+      self compatibility: SC
+      SC: SC
+      mixed: mixed_or_variable
+      variable: mixed_or_variable
+
+  - id: autonomous_selfing_capacity
+    target_trait: autonomous_selfing_capacity
+    predicate_terms:
+      - autonomous selfing
+      - spontaneous selfing
+      - autogamy
+      - automatic self-pollination
+      - self pollination
+      - self-pollination
+      - http://eol.org/schema/terms/AutonomousSelfing
+    value_map:
+      absent: absent
+      "no": absent
+      delayed: delayed
+      delayed selfing: delayed
+      facilitated: facilitated
+      autonomous: autonomous
+      autonomous selfing: autonomous
+      spontaneous selfing: autonomous
+      autogamy: autonomous
+      autogamous: autonomous
+      present: autonomous
+      mixed: mixed_or_variable
+      variable: mixed_or_variable

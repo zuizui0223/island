@@ -1,0 +1,152 @@
+name: ingest_eol_traitbank_bulk
+
+# Free high-throughput EOL path: download the public all-traits archive, convert
+# only explicitly mapped TraitBank terms to the v2 long format, join to the
+# island species master, and upload review artifacts. No paid API or repository
+# mutation is involved.
+on:
+  workflow_dispatch:
+    inputs:
+      eol_zip_url:
+        description: "Direct EOL traits_all.zip URL."
+        required: true
+        default: "https://zenodo.org/records/13305577/files/traits_all.zip?download=1"
+        type: string
+      source_name:
+        description: "Stable source/release name."
+        required: true
+        default: "eol_traitbank_all_zenodo_13305577"
+        type: string
+      chunksize:
+        description: "traits.csv rows streamed per chunk."
+        required: true
+        default: 200000
+        type: number
+      max_trait_rows:
+        description: "Smoke-test cap; 0 means full archive."
+        required: true
+        default: 0
+        type: number
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eol-traitbank-bulk-ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    env:
+      EOL_ZIP_URL: ${{ inputs.eol_zip_url }}
+      SOURCE_NAME: ${{ inputs.source_name }}
+      CHUNKSIZE: ${{ inputs.chunksize }}
+      MAX_TRAIT_ROWS: ${{ inputs.max_trait_rows }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Validate EOL inputs
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          import re
+
+          url = os.environ["EOL_ZIP_URL"].strip()
+          if not re.match(r"^https?://", url):
+              raise SystemExit("eol_zip_url must be an http(s) URL.")
+          if not os.environ["SOURCE_NAME"].strip():
+              raise SystemExit("source_name is required.")
+          if int(os.environ["CHUNKSIZE"]) < 1:
+              raise SystemExit("chunksize must be positive.")
+          if int(os.environ["MAX_TRAIT_ROWS"]) < 0:
+              raise SystemExit("max_trait_rows must be zero or positive.")
+          PY
+      - name: Download EOL all-traits archive
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/eol_traitbank_bulk/download_sha
+          curl --fail --location --retry 3 --retry-delay 5 --max-time 3600 \
+            --output /tmp/traits_all.zip "$EOL_ZIP_URL"
+          test -s /tmp/traits_all.zip
+          sha256sum /tmp/traits_all.zip \
+            | tee /tmp/eol_traitbank_bulk/download_sha/download_sha256.txt
+      - name: Convert EOL TraitBank terms to v2 long CSV
+        run: |
+          set -euo pipefail
+          MAX_ARGS=()
+          if [[ "$MAX_TRAIT_ROWS" != "0" ]]; then
+            MAX_ARGS=(--max-trait-rows "$MAX_TRAIT_ROWS")
+          fi
+          island-v2-bulk-traits prepare-eol \
+            --eol-archive /tmp/traits_all.zip \
+            --output-dir /tmp/eol_traitbank_bulk/prepared \
+            --config-path config/eol_traitbank_terms.yml \
+            --ontology-path config/trait_ontology.yml \
+            --source-name "$SOURCE_NAME" \
+            --chunksize "$CHUNKSIZE" \
+            "${MAX_ARGS[@]}" | tee /tmp/eol_traitbank_bulk/prepare_report.json
+      - name: Join EOL long rows to island master and calculate coverage
+        run: |
+          island-v2-bulk-traits ingest \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --source-csv /tmp/eol_traitbank_bulk/prepared/eol_traitbank_v2_long.csv \
+            --output-dir /tmp/eol_traitbank_bulk/ingested \
+            --profiles-path config/bulk_trait_sources.yml \
+            --profile-name v2_canonical_long_csv \
+            --source-name "$SOURCE_NAME" \
+            --source-citation "Encyclopedia of Life. All trait data. Zenodo record 13305577." \
+            --source-url "https://zenodo.org/records/13305577" \
+            | tee /tmp/eol_traitbank_bulk/ingest_report.json
+      - name: Summarize EOL coverage
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          prepare = json.loads(Path("/tmp/eol_traitbank_bulk/prepare_report.json").read_text(encoding="utf-8"))
+          ingest = json.loads(Path("/tmp/eol_traitbank_bulk/ingest_report.json").read_text(encoding="utf-8"))
+          print("## EOL TraitBank bulk ingest")
+          for key in (
+              "n_trait_rows_scanned",
+              "n_rows_with_mapped_predicate",
+              "n_unmapped_predicate_rows",
+              "n_unmapped_value_rows",
+              "n_long_rows",
+          ):
+              print(f"- prepare.{key}: {prepare[key]}")
+          for key in (
+              "n_name_matched_rows",
+              "n_unmatched_taxon_rows",
+              "n_unmapped_value_rows",
+              "n_candidate_rows",
+              "n_species_with_any_direct_evidence",
+              "n_master_species",
+          ):
+              print(f"- ingest.{key}: {ingest[key]}")
+          coverage = pd.read_csv(ingest["coverage_by_trait_csv"])
+          covered = coverage.loc[coverage["n_species_with_direct_evidence"].gt(0)].copy()
+          print("\n### Covered mapped traits")
+          if covered.empty:
+              print("No mapped EOL rows matched the island master. Inspect prepared/eol_traitbank_unmapped_terms.csv and ingested name-match audits.")
+          else:
+              for _, row in covered.iterrows():
+                  print(
+                      f"- {row['trait_name']} ({row['analysis_role']}): "
+                      f"{int(row['n_species_with_direct_evidence'])} species, "
+                      f"{float(row['pct_master_species_covered']):.3f}% of master"
+                  )
+          PY
+      - name: Upload EOL candidates and audits
+        uses: actions/upload-artifact@v4
+        with:
+          name: eol-traitbank-bulk-${{ github.run_id }}
+          path: /tmp/eol_traitbank_bulk/
+          if-no-files-found: error
+          retention-days: 90
