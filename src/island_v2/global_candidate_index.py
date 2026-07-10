@@ -21,9 +21,11 @@ REQUIRED_CANDIDATE_COLUMNS = {
     "trait_name",
     "candidate_value",
     "source_url",
+    "source_citation",
     "source_excerpt",
     "source_type",
     "evidence_scope",
+    "confidence",
     "campaign_task",
     "campaign_phase",
     "target_for_task",
@@ -34,10 +36,12 @@ INDEX_KEY = [
     "trait_name",
     "candidate_value",
     "source_url",
+    "source_citation",
     "source_excerpt",
     "source_type",
     "evidence_scope",
     "matched_term",
+    "confidence",
     "campaign_task",
     "campaign_phase",
 ]
@@ -96,7 +100,7 @@ def load_wave_candidates(campaign_dir: Path) -> tuple[pd.DataFrame, list[str]]:
     columns = sorted(REQUIRED_CANDIDATE_COLUMNS | {"matched_term", "wave_id"})
     if not frames:
         return pd.DataFrame(columns=columns), wave_ids
-    return pd.concat(frames, ignore_index=True, sort=False).fillna(""), wave_ids
+    return pd.concat(frames, ignore_index=True, sort=False).fillna("") , wave_ids
 
 
 def build_candidate_index(raw: pd.DataFrame) -> pd.DataFrame:
@@ -276,6 +280,8 @@ def build_status(
         "n_by_campaign_task": counts("campaign_task"),
         "n_by_campaign_phase": counts("campaign_phase"),
         "n_by_trait_name": counts("trait_name"),
+        "n_by_source_type": counts("source_type"),
+        "n_by_confidence": counts("confidence"),
         "screening_label_counts": {str(key): int(value) for key, value in labels.items()},
         "interpretation": (
             "Cumulative machine-only source-backed candidates and screening labels. "

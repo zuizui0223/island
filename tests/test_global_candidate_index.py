@@ -13,18 +13,20 @@ def _candidate(
     task: str = "alternative_guild_openalex",
     phase: str = "alternative_pollinator_function",
     url: str = "https://example.test/source",
+    citation: str = "Example",
+    confidence: str = "machine_extracted",
 ) -> dict:
     return {
         "accepted_species": species,
         "trait_name": trait,
         "candidate_value": value,
         "source_url": url,
-        "source_citation": "Example",
+        "source_citation": citation,
         "source_excerpt": f"{species} is associated with {value}.",
         "source_type": "paper_abstract",
         "evidence_scope": "species_direct",
         "matched_term": value,
-        "confidence": "machine_extracted",
+        "confidence": confidence,
         "campaign_task": task,
         "campaign_phase": phase,
         "target_for_task": True,
@@ -105,7 +107,39 @@ def test_candidate_index_deduplicates_source_rows_and_retains_wave_history(tmp_p
     assert other["n_wave_observations"] == 2
     assert other["first_wave_id"] == "wave_00001_alternative"
     assert other["last_wave_id"] == "wave_00002_alternative"
+    assert other["source_citation"] == "Example"
+    assert other["confidence"] == "machine_extracted"
     assert bool(other["target_for_task"])
+
+
+def test_index_does_not_collapse_distinct_citations_or_confidence():
+    raw = pd.DataFrame(
+        [
+            {
+                **_candidate("Alpha one", "flies", citation="Paper A"),
+                "wave_id": "wave_1",
+            },
+            {
+                **_candidate("Alpha one", "flies", citation="Paper B"),
+                "wave_id": "wave_2",
+            },
+            {
+                **_candidate(
+                    "Alpha one",
+                    "flies",
+                    citation="Paper A",
+                    confidence="explicit_term_match",
+                ),
+                "wave_id": "wave_3",
+            },
+        ]
+    )
+
+    index = indexer.build_candidate_index(raw)
+
+    assert len(index) == 3
+    assert set(index["source_citation"]) == {"Paper A", "Paper B"}
+    assert set(index["confidence"]) == {"machine_extracted", "explicit_term_match"}
 
 
 def test_counterfactual_screening_is_machine_only_and_keeps_unknown_guilds(tmp_path):
@@ -171,5 +205,7 @@ def test_build_command_writes_reproducible_outputs_and_status(tmp_path):
     assert status["n_waves_indexed"] == 1
     assert status["n_unique_candidate_rows"] == 1
     assert status["n_machine_biotic_screening_species"] == 2
+    assert status["n_by_source_type"] == {"paper_abstract": 1}
+    assert status["n_by_confidence"] == {"machine_extracted": 1}
     assert "not accepted trait values" in status["interpretation"]
     assert first_bytes == second_bytes
