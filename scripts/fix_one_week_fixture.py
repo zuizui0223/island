@@ -59,3 +59,15 @@ text, count = pattern.subn(replacement, text, count=1)
 if count != 1:
     raise SystemExit(f"fixture replacement count={count}")
 path.write_text(text, encoding="utf-8")
+
+campaign_test_path = Path("tests/test_global_trait_campaign.py")
+campaign_tests = campaign_test_path.read_text(encoding="utf-8")
+old = '''    assert prepared.loc[first, "floral_access_wikimedia_status"].iloc[0] == "not_applicable"
+    assert prepared.loc[second, "floral_access_wikimedia_status"].iloc[0] == "pending"
+'''
+new = '''    assert prepared.loc[first, "floral_access_wikimedia_status"].iloc[0] == "not_applicable"
+    assert prepared.loc[second, "floral_access_wikimedia_status"].iloc[0] == "not_applicable"
+'''
+if old not in campaign_tests:
+    raise SystemExit("one-week gate expectation marker not found")
+campaign_test_path.write_text(campaign_tests.replace(old, new, 1), encoding="utf-8")
