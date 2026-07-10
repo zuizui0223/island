@@ -122,6 +122,14 @@ descriptive coverage:
   sensitivity layers, and preserves GloBI records as interaction claims rather
   than effectiveness or guild decisions.
 
+- **Stage 1F  -  no-human-review interaction-guild machine layer**
+  (`interaction_guild_machine.py`,
+  `island-v2-interaction-guild-machine build`) maps source-backed GloBI partner
+  taxon names to configured pollinator guild candidates. Unmapped partners are
+  written to holdouts. The schema-compatible long-format output remains
+  `review_status=unreviewed`; a separate machine index records multi-guild
+  functional-replacement signals for no-review sensitivity analyses.
+
 ### Stage 1A v2.1  -  trait-group retrieval + taxon relevance tiers
 
 Retrieval is **species x trait-group** (A floral morphology/colour, B pollination/

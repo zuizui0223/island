@@ -186,6 +186,21 @@ main no-review trait lane, `globi_interaction_claims` as the interaction-claim
 lane, proxy rows as sensitivity only, and LLM excerpt extraction as the next lane
 to build for reproductive mode, selfing capacity, and visitor statements.
 
+To derive no-review pollinator-guild candidates from GloBI interaction claims:
+
+```
+python -m island_v2.interaction_guild_machine build \
+    --globi-csv data/v2/staging/traits/validation_pilot/machine_method_eval/source_refresh/globi_interaction_evidence/globi_interaction_evidence.csv \
+    --output-dir data/v2/staging/traits/validation_pilot/machine_method_eval/machine_pollinator_guilds
+```
+
+This writes `machine_pollinator_guild_candidates.csv`,
+`machine_pollinator_guild_holdouts.csv`,
+`machine_pollinator_evidence_long.csv`, and
+`machine_pollinator_guild_index.csv`. The long-format evidence file keeps
+`review_status=unreviewed` for compatibility with the strict evidence schema;
+the no-review signal is in the separate machine index.
+
 ## Source discovery
 
 Literature source discovery (Stage 1, `island-v2-trait-source-discovery`) runs

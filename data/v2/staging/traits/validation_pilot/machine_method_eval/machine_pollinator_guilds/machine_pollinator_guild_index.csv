@@ -1,0 +1,5 @@
+accepted_species,n_machine_pollinator_guilds,machine_pollinator_guilds,n_interaction_rows,has_bumblebee_claim,has_non_bombus_bee_claim,has_fly_claim,machine_functional_replacement_signal
+Adenophora capillaris,4,beetles_wasps_ants|bumblebees|flies|other_bees,15,True,True,True,True
+Adolphia infesta,2,flies|other_bees,3,False,True,True,True
+Afromorus mesozygia,1,other_bees,1,False,True,False,False
+Alkekengi officinarum,1,bumblebees,1,True,False,False,False

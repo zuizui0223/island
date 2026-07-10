@@ -1,0 +1,14 @@
+{
+  "n_input_interaction_claims": 21,
+  "n_machine_guild_candidates": 20,
+  "n_holdouts": 1,
+  "n_species_with_machine_guilds": 4,
+  "n_species_with_multi_guild_signal": 2,
+  "guild_counts": {
+    "beetles_wasps_ants": 2,
+    "bumblebees": 3,
+    "flies": 7,
+    "other_bees": 8
+  },
+  "policy": "No human review required. These are machine pollinator-guild candidates from source-backed interaction claims, not effectiveness decisions."
+}

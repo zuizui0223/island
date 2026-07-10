@@ -1,0 +1,2 @@
+source_evidence_id,accepted_species,partner_taxon_name,interaction_type,interaction_claim_class,holdout_reason
+globi:4c28a445b642f52fadf9,Acanthomintha obovata,,pollinates,pollination_claim,partner taxon name could not be mapped to a configured guild
