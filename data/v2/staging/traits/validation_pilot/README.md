@@ -158,6 +158,34 @@ The resulting queue uses the same `accepted` / `rejected` /
 are grouped as `P1_visual_trait_candidate`; LLM text rows are grouped as
 `P1_reported_ecology_llm_source_check`.
 
+### No-human-review machine evaluation
+
+When manual adjudication is not part of the workflow, keep the outputs as
+machine layers instead of writing them to curated accepted traits:
+
+```
+python -m island_v2.trait_machine_method_eval evaluate \
+    --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+    --review-queue-csv data/v2/staging/traits/validation_pilot/machine_method_eval/source_refresh/candidate_review_queue/trait_candidate_review_queue.csv \
+    --globi-csv data/v2/staging/traits/validation_pilot/machine_method_eval/source_refresh/globi_interaction_evidence/globi_interaction_evidence.csv \
+    --output-dir data/v2/staging/traits/validation_pilot/machine_method_eval/machine_outputs
+```
+
+This writes:
+
+- `machine_trait_selected.csv`: main no-review trait rows selected from
+  species-direct explicit text;
+- `machine_trait_sensitivity.csv`: indirect, descriptive, visual, or proxy rows
+  kept out of the main no-review layer;
+- `machine_interaction_claims.csv`: source-backed interaction claims, not
+  effectiveness or guild decisions;
+- `method_comparison.md/json/csv`: method counts and recommended roles.
+
+The current validation-pilot run recommends `web_reported_species_direct` as the
+main no-review trait lane, `globi_interaction_claims` as the interaction-claim
+lane, proxy rows as sensitivity only, and LLM excerpt extraction as the next lane
+to build for reproductive mode, selfing capacity, and visitor statements.
+
 ## Source discovery
 
 Literature source discovery (Stage 1, `island-v2-trait-source-discovery`) runs

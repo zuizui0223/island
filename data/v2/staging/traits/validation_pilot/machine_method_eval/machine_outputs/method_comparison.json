@@ -1,0 +1,85 @@
+{
+  "n_species": 50,
+  "n_machine_candidates": 45,
+  "n_machine_trait_selected": 12,
+  "n_machine_trait_sensitivity": 22,
+  "n_machine_interaction_claims": 21,
+  "recommended_main_trait_method": "web_reported_species_direct",
+  "recommended_main_interaction_method": "globi_interaction_claims",
+  "next_build": "llm_reported_ecology_excerpt for reproductive mode, selfing capacity, and visitor statements.",
+  "image_policy": "Use later for visible M0 traits only; do not infer reproductive or visitor states from images.",
+  "human_review_required": false,
+  "machine_layer_warning": "No human review was required, so outputs remain machine layers with provenance and method tiers.",
+  "methods": [
+    {
+      "method": "web_reported_species_direct",
+      "n_rows": 23,
+      "n_species": 12,
+      "species_coverage_rate": 0.24,
+      "n_valid_machine_values": 23,
+      "n_conflict_species_trait_groups": 6,
+      "recommended_role": "best_current_no_review_trait_lane",
+      "reason": "Explicit species-page text with source URLs/excerpts; highest precision among current trait methods."
+    },
+    {
+      "method": "web_reported_species_indirect",
+      "n_rows": 4,
+      "n_species": 3,
+      "species_coverage_rate": 0.06,
+      "n_valid_machine_values": 4,
+      "n_conflict_species_trait_groups": 1,
+      "recommended_role": "sensitivity_only",
+      "reason": "Useful lead, but genus/indirect pages are weaker without manual checking."
+    },
+    {
+      "method": "gbif_descriptive_scout",
+      "n_rows": 1,
+      "n_species": 1,
+      "species_coverage_rate": 0.02,
+      "n_valid_machine_values": 1,
+      "n_conflict_species_trait_groups": 0,
+      "recommended_role": "not_recommended_as_main",
+      "reason": "Very sparse in the validation pilot and prone to description-context noise."
+    },
+    {
+      "method": "rule_based_trait_proxy",
+      "n_rows": 17,
+      "n_species": 17,
+      "species_coverage_rate": 0.34,
+      "n_valid_machine_values": 17,
+      "n_conflict_species_trait_groups": 0,
+      "recommended_role": "proxy_sensitivity_only",
+      "reason": "Expands coverage but is phenotype/family inference, not source-stated trait evidence."
+    },
+    {
+      "method": "globi_interaction_claims",
+      "n_rows": 21,
+      "n_species": 5,
+      "species_coverage_rate": 0.1,
+      "n_valid_machine_values": 21,
+      "n_conflict_species_trait_groups": 0,
+      "recommended_role": "best_current_no_review_interaction_lane",
+      "reason": "Source-backed pollination/flower-visit claims; sparse and not effectiveness or guild by itself."
+    },
+    {
+      "method": "visual_image_candidate",
+      "n_rows": 0,
+      "n_species": 0,
+      "species_coverage_rate": 0.0,
+      "n_valid_machine_values": 0,
+      "n_conflict_species_trait_groups": 0,
+      "recommended_role": "later_auxiliary_visible_traits",
+      "reason": "Potentially useful for visible M0 traits, but heavier and no local image manifest was available in this run."
+    },
+    {
+      "method": "llm_reported_ecology_excerpt",
+      "n_rows": 0,
+      "n_species": 0,
+      "species_coverage_rate": 0.0,
+      "n_valid_machine_values": 0,
+      "n_conflict_species_trait_groups": 0,
+      "recommended_role": "next_method_to_build_for_reproduction_and_visitors",
+      "reason": "Best fit for selfing/reproductive-mode/visitor statements if the output preserves source excerpts."
+    }
+  ]
+}

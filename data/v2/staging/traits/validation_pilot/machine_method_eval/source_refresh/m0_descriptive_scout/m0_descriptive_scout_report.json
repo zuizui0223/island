@@ -1,0 +1,17 @@
+{
+  "note": "Unreviewed M0 descriptive candidates only. A candidate is a verbatim controlled-vocabulary match in a species description, with a source excerpt; it is not a decided trait value. Multiple colours yield multiple candidates (nothing collapsed); a blank is never biological absence.",
+  "source_lane": "stage_1b_descriptive_scout",
+  "primary_source": "gbif_species_descriptions",
+  "n_taxa_queried": 50,
+  "n_species_with_candidates": 1,
+  "n_species_zero_candidates": 49,
+  "n_candidates": 1,
+  "n_by_trait_name": {
+    "flower_primary_color": 1
+  },
+  "n_by_candidate_value": {
+    "green": 1
+  },
+  "n_lookup_errors": 0,
+  "lookup_errors": []
+}

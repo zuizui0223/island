@@ -113,6 +113,15 @@ descriptive coverage:
   preserved. Neither lane curates a value; both are converted into the same
   human-adjudicated queue as the text scouts.
 
+- **Stage 1E  -  no-human-review machine method evaluation**
+  (`trait_machine_method_eval.py`,
+  `island-v2-trait-machine-method-eval evaluate`) -> **machine layer outputs**.
+  This path is for runs where manual review is intentionally skipped. It maps
+  controlled-vocabulary values, selects only species-direct explicit-text rows
+  for the main no-review trait layer, keeps indirect/descriptive/proxy rows in
+  sensitivity layers, and preserves GloBI records as interaction claims rather
+  than effectiveness or guild decisions.
+
 ### Stage 1A v2.1  -  trait-group retrieval + taxon relevance tiers
 
 Retrieval is **species x trait-group** (A floral morphology/colour, B pollination/
