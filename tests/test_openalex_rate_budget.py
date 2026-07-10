@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import httpx
@@ -47,7 +47,7 @@ def _ledger(config):
 
 
 def test_retry_after_parses_seconds_and_http_date():
-    now = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
+    now = datetime(2026, 7, 10, 12, 0, tzinfo=UTC)
 
     assert campaign._retry_after_seconds("12", now=now) == 12
     assert campaign._retry_after_seconds("Fri, 10 Jul 2026 12:00:30 GMT", now=now) == 30
