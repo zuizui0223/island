@@ -26,20 +26,38 @@ jobs:
       - name: Apply patch
         run: python scripts/patch_global_streaming_bundle.py
       - name: Validate patch
+        id: validate
+        continue-on-error: true
         run: |
-          pip install -e ".[dev]"
-          ruff check --fix src/island_v2/global_trait_campaign.py tests/test_global_trait_campaign.py
-          ruff format src/island_v2/global_trait_campaign.py tests/test_global_trait_campaign.py
-          pytest -q tests/test_global_trait_campaign.py tests/test_reported_ecology_machine.py
-          python scripts/validate_workflow_contracts.py
-      - name: Commit patch
+          set -o pipefail
+          {
+            pip install -e ".[dev]"
+            ruff check --fix src/island_v2/global_trait_campaign.py tests/test_global_trait_campaign.py
+            ruff format src/island_v2/global_trait_campaign.py tests/test_global_trait_campaign.py
+            pytest -q tests/test_global_trait_campaign.py tests/test_reported_ecology_machine.py
+            python scripts/validate_workflow_contracts.py
+          } 2>&1 | tee streaming_patch_validation.log
+      - name: Commit patch or diagnostics
+        if: always()
         run: |
           set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add src/island_v2/global_trait_campaign.py tests/test_global_trait_campaign.py \
-            config/global_trait_campaign.yml .github/workflows/drive-global-trait-campaign.yml \
-            docs/global_trait_campaign.md
-          git diff --cached --quiet && { echo "No patch changes."; exit 0; }
-          git commit -m "feat: stream global trait stages per species"
+          if test "${{ steps.validate.outcome }}" = "success"; then
+            rm -f streaming_patch_validation.log
+            git add src/island_v2/global_trait_campaign.py tests/test_global_trait_campaign.py \
+              config/global_trait_campaign.yml .github/workflows/drive-global-trait-campaign.yml \
+              docs/global_trait_campaign.md
+            git diff --cached --quiet && { echo "No patch changes."; exit 0; }
+            git commit -m "feat: stream global trait stages per species"
+          else
+            git restore src/island_v2/global_trait_campaign.py tests/test_global_trait_campaign.py \
+              config/global_trait_campaign.yml .github/workflows/drive-global-trait-campaign.yml \
+              docs/global_trait_campaign.md
+            git add streaming_patch_validation.log
+            git commit -m "chore: record streaming patch validation failure"
+          fi
           git push origin HEAD:feat/global-streaming-bundle
+      - name: Fail after diagnostics are persisted
+        if: steps.validate.outcome == 'failure'
+        run: exit 1
