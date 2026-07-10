@@ -141,6 +141,66 @@ def _fake_getter(qid="Q1", enwiki="Genus species", wd_desc="", extract="", missi
     return getter
 
 
+def test_scout_can_fallback_to_non_english_wikipedia_sitelink():
+    config = {
+        "traits": {
+            "flower_primary_color": {
+                "red_pink": ["rouges"],
+            }
+        }
+    }
+    trait_layer = {"flower_primary_color": "M0"}
+
+    def getter(url, params):
+        if "wikidata.org" in url and params.get("action") == "wbsearchentities":
+            return {"search": [{"id": "Q1", "description": ""}]}
+        if "wikidata.org" in url and params.get("action") == "wbgetentities":
+            return {
+                "entities": {
+                    "Q1": {
+                        "sitelinks": {
+                            "enwiki": {"title": "Genus species"},
+                            "frwiki": {"title": "Genus species"},
+                        }
+                    }
+                }
+            }
+        if "en.wikipedia.org" in url:
+            return {
+                "query": {
+                    "pages": {
+                        "1": {"title": "Genus species", "extract": "Genus species is a shrub."}
+                    }
+                }
+            }
+        if "fr.wikipedia.org" in url:
+            return {
+                "query": {
+                    "pages": {
+                        "2": {
+                            "title": "Genus species",
+                            "extract": "Genus species porte des fleurs rouges.",
+                        }
+                    }
+                }
+            }
+        return {}
+
+    df = pd.DataFrame({"accepted_species": ["Genus species"]})
+    frame, report = scout_web_reported(
+        df,
+        getter,
+        config,
+        trait_layer,
+        max_taxa=50,
+        wikipedia_languages=["en", "fr"],
+    )
+
+    assert report["wikipedia_languages"] == ["en", "fr"]
+    assert list(frame["provisional_candidate_value"]) == ["red_pink"]
+    assert frame.loc[0, "source_url"].startswith("https://fr.wikipedia.org/")
+
+
 def test_scout_builds_reported_from_wikipedia_and_reports_coverage():
     getter = _fake_getter(
         enwiki="Genus species",

@@ -4,22 +4,22 @@ version: "1.0"
 # every row unreviewed; these are candidates, not accepted trait values.
 traits:
   flower_primary_color:
-    white: [white, whitish, cream, creamy, ivory]
+    white: [white, whitish, cream, creamy, ivory, blanco, blanca, blancos, blancas, blanc, blanche, blanches, weiss, weiße, weisse, branco, branca, bianchi, bianco, bianche, bianca]
     green_brown_inconspicuous: [greenish, brownish, inconspicuous]
-    yellow_orange: [yellow, yellowish, orange, orange-red, golden]
-    red_pink: [red, reddish, crimson, scarlet, pink, pinkish, rose, rosy]
-    blue_purple: [blue, bluish, purple, purplish, violet, mauve, lilac, lavender]
+    yellow_orange: [yellow, yellowish, orange, orange-red, golden, amarillo, amarilla, jaunes, jaune, gelb, amarelo, amarela, giallo, gialla, naranja, laranja, arancione]
+    red_pink: [red, reddish, crimson, scarlet, pink, pinkish, rose, rosy, rojo, roja, rouges, rouge, rot, rote, vermelho, vermelha, rosso, rossa, rosa]
+    blue_purple: [blue, bluish, purple, purplish, violet, mauve, lilac, lavender, azul, azules, bleu, bleue, blau, violeta, violet, violette, purpura, púrpura, pourpre, roxo, roxa, viola]
     multicolored_variable: [bicolored, multicolored, variable in color, variable in colour]
 
   floral_symmetry:
-    actinomorphic: [actinomorphic, radially symmetric, radial symmetry]
-    zygomorphic: [zygomorphic, bilaterally symmetric, bilateral symmetry, bilabiate, two-lipped, two lipped]
-    asymmetric: [asymmetric, asymmetrical]
+    actinomorphic: [actinomorphic, radially symmetric, radial symmetry, actinomorfa, actinomorfo, actinomorphe, actinomorph, actinomorfe]
+    zygomorphic: [zygomorphic, bilaterally symmetric, bilateral symmetry, bilabiate, two-lipped, two lipped, zigomorfa, zigomorfo, zygomorphe, zygomorph]
+    asymmetric: [asymmetric, asymmetrical, asimétrica, asimétrico, asymétrique, asymmetrisch]
 
   floral_form:
     open_radial: [rotate, stellate, star-shaped, star shaped, open flower]
-    bell_campanulate: [campanulate, bell-shaped, bell shaped]
-    tubular: [tubular, tube-shaped, tube shaped]
+    bell_campanulate: [campanulate, bell-shaped, bell shaped, campanulada, campanulado, campanulée, campanulées, glockenförmig]
+    tubular: [tubular, tube-shaped, tube shaped, tubulaire, tubulaires, tubuloso, tubulosa]
     salverform: [salverform, salver-shaped, hypocrateriform]
     funnel_trumpet: [funnelform, funnel-shaped, trumpet-shaped, trumpet shaped, infundibuliform]
     urn_urceolate: [urceolate, urn-shaped, urn shaped]

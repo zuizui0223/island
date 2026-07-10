@@ -3,9 +3,10 @@
 Primary literature is thin for obscure island endemics, but many have a Wikipedia
 article or a Wikidata item. Per the evidence policy, an **explicit statement in any
 source** - including web/DB - is kept as a ``reported`` candidate (not a proxy). This
-scout resolves each species to its Wikidata item and English Wikipedia article, then
+scout resolves each species to its Wikidata item and Wikipedia sitelinks, then
 emits reported M0/M1 candidates wherever a controlled-vocabulary term appears verbatim,
-retaining full provenance.
+retaining full provenance. English is queried first; configured non-English
+Wikipedia editions are fallback sources only.
 
 Fail-closed: every row is `candidate_class=reported`, unreviewed, with
 `source_type`, `source_url`, `raw_description`, `evidence_scope`,
@@ -30,6 +31,8 @@ app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 WIKIDATA_API = "https://www.wikidata.org/w/api.php"
 WIKIPEDIA_API = "https://en.wikipedia.org/w/api.php"
+DEFAULT_WIKIPEDIA_LANGUAGES = ("en",)
+WIKIPEDIA_LANGUAGE_RE = re.compile(r"^[a-z][a-z0-9]{1,14}$")
 JsonGetter = Callable[[str, dict[str, Any]], dict[str, Any]]
 
 REPORTED_COLUMNS = [
@@ -60,7 +63,11 @@ FLORAL_CONTEXT_TERMS = re.compile(
     r"flower|flowers|flowering|floral|floret|florets|"
     r"corolla|corollas|petal|petals|sepal|sepals|tepal|tepals|perianth|"
     r"inflorescence|inflorescences|raceme|racemes|panicle|panicles|"
-    r"stamen|stamens|anther|anthers|spathe|spathes|spadix|spadices"
+    r"stamen|stamens|anther|anthers|spathe|spathes|spadix|spadices|"
+    r"flor|flores|florais|florales|fleur|fleurs|blume|blumen|blüte|blüten|"
+    r"fiore|fiori|pétale|pétales|petalo|petalos|pétalos|pétala|pétalas|"
+    r"petali|sépale|sépalos|sepalos|tépalos|tepalos|corolle|corola|"
+    r"inflorescencia|inflorescências|inflorescence|infiorescenza"
     r")\b",
     re.IGNORECASE,
 )
@@ -68,7 +75,11 @@ NON_FLORAL_CONTEXT_TERMS = re.compile(
     r"\b("
     r"leaf|leaves|leaflet|leaflets|foliage|fruit|fruits|berry|berries|seed|seeds|"
     r"bark|stem|stems|branch|branches|shoot|shoots|petiole|petioles|"
-    r"latex|wood|trunk|trunks"
+    r"latex|wood|trunk|trunks|"
+    r"hoja|hojas|feuille|feuilles|blatt|blätter|folha|folhas|foglia|foglie|"
+    r"fruto|frutos|fruit|fruits|frucht|früchte|frutti|semilla|semillas|"
+    r"graine|graines|samen|semente|sementes|corteza|écorce|rinde|casca|"
+    r"tallo|tallos|tige|tiges|stängel|caule|caules|ramas|branches|zweig|zweige"
     r")\b",
     re.IGNORECASE,
 )
@@ -127,6 +138,31 @@ def _has_floral_context(text: str, start: int, end: int, window: int = 80) -> bo
     return non_floral_distance is None or floral_distance <= non_floral_distance
 
 
+def normalize_wikipedia_languages(languages: list[str] | tuple[str, ...] | None) -> list[str]:
+    """Return safe, deduplicated Wikipedia language subdomains in lookup order."""
+    raw = languages or DEFAULT_WIKIPEDIA_LANGUAGES
+    result: list[str] = []
+    for value in raw:
+        language = str(value or "").strip().lower()
+        if not language:
+            continue
+        if not WIKIPEDIA_LANGUAGE_RE.match(language):
+            raise typer.BadParameter(f"unsupported Wikipedia language code: {language!r}")
+        if language not in result:
+            result.append(language)
+    return result or list(DEFAULT_WIKIPEDIA_LANGUAGES)
+
+
+def wikipedia_api_for_language(language: str) -> str:
+    """Return the Action API endpoint for one Wikipedia language edition."""
+    language = normalize_wikipedia_languages([language])[0]
+    return WIKIPEDIA_API if language == "en" else f"https://{language}.wikipedia.org/w/api.php"
+
+
+def _sitefilter_for_languages(languages: list[str]) -> str:
+    return "|".join(f"{language}wiki" for language in languages)
+
+
 def extract_reported(
     species: str,
     text: str,
@@ -177,8 +213,13 @@ def extract_reported(
     return rows
 
 
-def fetch_wikidata(getter: JsonGetter, name: str) -> dict[str, str]:
-    """Resolve a species name to a Wikidata QID, English description, enwiki title."""
+def fetch_wikidata(
+    getter: JsonGetter,
+    name: str,
+    wikipedia_languages: list[str] | tuple[str, ...] | None = None,
+) -> dict[str, Any]:
+    """Resolve a species name to a Wikidata QID, description, and Wikipedia sitelinks."""
+    languages = normalize_wikipedia_languages(wikipedia_languages)
     search = getter(
         WIKIDATA_API,
         {"action": "wbsearchentities", "search": name, "language": "en",
@@ -189,22 +230,35 @@ def fetch_wikidata(getter: JsonGetter, name: str) -> dict[str, str]:
         return {}
     qid = str(hits[0].get("id") or "")
     description = str(hits[0].get("description") or "")
-    enwiki_title = ""
+    wikipedia_sitelinks: dict[str, str] = {}
     if qid:
         ent = getter(
             WIKIDATA_API,
             {"action": "wbgetentities", "ids": qid, "props": "sitelinks",
-             "sitefilter": "enwiki", "format": "json"},
+             "sitefilter": _sitefilter_for_languages(languages), "format": "json"},
         )
         sitelinks = (((ent.get("entities") or {}).get(qid) or {}).get("sitelinks") or {})
-        enwiki_title = str((sitelinks.get("enwiki") or {}).get("title") or "")
-    return {"qid": qid, "description": description, "enwiki_title": enwiki_title}
+        for language in languages:
+            title = str((sitelinks.get(f"{language}wiki") or {}).get("title") or "")
+            if title:
+                wikipedia_sitelinks[language] = title
+    return {
+        "qid": qid,
+        "description": description,
+        "enwiki_title": wikipedia_sitelinks.get("en", ""),
+        "wikipedia_sitelinks": wikipedia_sitelinks,
+    }
 
 
-def fetch_wikipedia_extract(getter: JsonGetter, title: str) -> tuple[str, str, str]:
+def fetch_wikipedia_extract(
+    getter: JsonGetter,
+    title: str,
+    language: str = "en",
+) -> tuple[str, str, str]:
     """Return (plain-text extract, article URL, resolved title) for a Wikipedia page."""
+    language = normalize_wikipedia_languages([language])[0]
     payload = getter(
-        WIKIPEDIA_API,
+        wikipedia_api_for_language(language),
         {"action": "query", "prop": "extracts", "explaintext": 1, "redirects": 1,
          "titles": title, "format": "json", "exlimit": 1},
     )
@@ -214,7 +268,7 @@ def fetch_wikipedia_extract(getter: JsonGetter, title: str) -> tuple[str, str, s
             continue
         resolved = str(page.get("title") or title)
         extract = str(page.get("extract") or "")
-        url = "https://en.wikipedia.org/wiki/" + resolved.replace(" ", "_")
+        url = f"https://{language}.wikipedia.org/wiki/" + resolved.replace(" ", "_")
         return extract, url, resolved
     return "", "", ""
 
@@ -229,19 +283,47 @@ def _scope_for(species: str, resolved_title: str) -> str:
     return "species_indirect"
 
 
+def wikipedia_title_candidates(
+    wikidata: dict[str, Any],
+    species: str,
+    wikipedia_languages: list[str] | tuple[str, ...] | None = None,
+) -> list[tuple[str, str]]:
+    """Return language/title pairs, using non-English sitelinks as fallback candidates."""
+    languages = normalize_wikipedia_languages(wikipedia_languages)
+    sitelinks = wikidata.get("wikipedia_sitelinks") if isinstance(wikidata, dict) else {}
+    if not isinstance(sitelinks, dict):
+        sitelinks = {}
+    candidates: list[tuple[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for language in languages:
+        title = str(sitelinks.get(language) or "")
+        if not title and language == "en":
+            title = str(wikidata.get("enwiki_title") or species) if wikidata else species
+        if not title:
+            continue
+        key = (language, title)
+        if key not in seen:
+            seen.add(key)
+            candidates.append(key)
+    return candidates
+
+
 def scout_species(
-    getter: JsonGetter, species: str, config: dict[str, Any], trait_layer: dict[str, str]
+    getter: JsonGetter,
+    species: str,
+    config: dict[str, Any],
+    trait_layer: dict[str, str],
+    wikipedia_languages: list[str] | tuple[str, ...] | None = None,
 ) -> tuple[list[dict[str, str]], list[str]]:
     rows: list[dict[str, str]] = []
     errors: list[str] = []
-    enwiki_title = ""
+    languages = normalize_wikipedia_languages(wikipedia_languages)
     try:
-        wd = fetch_wikidata(getter, species)
+        wd = fetch_wikidata(getter, species, languages)
     except Exception as exc:  # noqa: BLE001 - one source failing must not abort the taxon
         wd = {}
         errors.append(f"wikidata:{species}:{exc}")
     if wd:
-        enwiki_title = wd.get("enwiki_title", "")
         # The Wikidata item description itself can carry an explicit term.
         if wd.get("description"):
             rows.extend(
@@ -251,18 +333,24 @@ def scout_species(
                     "species_direct", config, trait_layer,
                 )
             )
-    title = enwiki_title or species
-    try:
-        extract, url, resolved = fetch_wikipedia_extract(getter, title)
-    except Exception as exc:  # noqa: BLE001
-        return rows, errors + [f"wikipedia:{species}:{exc}"]
-    if extract:
-        rows.extend(
-            extract_reported(
-                species, extract, "wikipedia", "wikipedia", url,
-                _scope_for(species, resolved), config, trait_layer,
-            )
+    title_candidates = wikipedia_title_candidates(wd, species, languages)
+    for language, title in title_candidates:
+        try:
+            extract, url, resolved = fetch_wikipedia_extract(getter, title, language)
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"wikipedia-{language}:{species}:{exc}")
+            continue
+        if not extract:
+            continue
+        language_rows = extract_reported(
+            species, extract, "wikipedia", "wikipedia", url,
+            _scope_for(species, resolved), config, trait_layer,
         )
+        rows.extend(language_rows)
+        if language_rows:
+            break
+    if not title_candidates:
+        errors.append(f"wikipedia:{species}:no_sitelink")
     return rows, errors
 
 
@@ -272,6 +360,7 @@ def scout_web_reported(
     config: dict[str, Any],
     trait_layer: dict[str, str],
     max_taxa: int,
+    wikipedia_languages: list[str] | tuple[str, ...] | None = None,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
     if "accepted_species" not in species_df.columns:
         raise typer.BadParameter("species table must have an 'accepted_species' column")
@@ -280,8 +369,9 @@ def scout_web_reported(
     rows: list[dict[str, str]] = []
     errors: list[str] = []
     species_with: set[str] = set()
+    languages = normalize_wikipedia_languages(wikipedia_languages)
     for name in names:
-        species_rows, species_errors = scout_species(getter, name, config, trait_layer)
+        species_rows, species_errors = scout_species(getter, name, config, trait_layer, languages)
         rows.extend(species_rows)
         errors.extend(species_errors)
         if species_rows:
@@ -304,6 +394,7 @@ def scout_web_reported(
         ),
         "source_lane": "stage_1b_web_reported_scout",
         "sources": ["wikipedia", "wikidata"],
+        "wikipedia_languages": languages,
         "n_taxa_queried": len(names),
         "n_species_with_reported": len(species_with),
         "n_species_zero_reported": len(names) - len(species_with),
@@ -363,6 +454,11 @@ def scout(
     max_taxa: int = typer.Option(50, min=1, max=500, help="Bounded species to query."),
     pause_seconds: float = typer.Option(1.0, min=0.0, help="Pause before each Wikimedia API call."),
     max_retries: int = typer.Option(4, min=0, max=8, help="Retries for transient Wikimedia API responses."),
+    wikipedia_language: list[str] | None = typer.Option(
+        None,
+        "--wikipedia-language",
+        help="Wikipedia language subdomain to try, repeatable; defaults to en.",
+    ),
 ) -> None:
     """Write unreviewed `reported` M0/M1 candidates from Wikipedia/Wikidata."""
     config, trait_layer = load_keyword_layers({"M0": m0_config, "M1": m1_config})
@@ -373,6 +469,7 @@ def scout(
         config,
         trait_layer,
         max_taxa,
+        wikipedia_languages=wikipedia_language,
     )
     output_dir.mkdir(parents=True, exist_ok=True)
     frame.to_csv(output_dir / "web_reported_candidates.csv", index=False)

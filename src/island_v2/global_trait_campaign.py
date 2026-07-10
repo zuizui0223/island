@@ -531,6 +531,92 @@ def fetch_openalex_sources(
     return pd.DataFrame(rows, columns=ecology.TEXT_SOURCE_COLUMNS), errors
 
 
+def _task_wikipedia_languages(config: dict[str, Any], task: str) -> list[str]:
+    languages = config["tasks"][task].get("wikipedia_languages") or config.get(
+        "wikipedia_languages"
+    )
+    return web_reported.normalize_wikipedia_languages(languages)
+
+
+def _target_candidate_species(
+    candidates: pd.DataFrame,
+    task: str,
+    config: dict[str, Any],
+) -> set[str]:
+    if candidates.empty:
+        return set()
+    target_traits = {str(value) for value in config["tasks"][task].get("target_traits") or []}
+    target = candidates.loc[candidates["trait_name"].astype(str).isin(target_traits)]
+    return set(target["accepted_species"].astype(str))
+
+
+def fetch_wikimedia_ecology_candidates(
+    batch: pd.DataFrame,
+    task: str,
+    config: dict[str, Any],
+    ontology: dict[str, Any],
+) -> tuple[pd.DataFrame, pd.DataFrame, list[str], set[str]]:
+    """Fetch English first, then fallback languages only for zero-target species."""
+    languages = _task_wikipedia_languages(config, task)
+    getter = web_reported._httpx_getter(  # noqa: SLF001
+        pause_seconds=float(config["tasks"][task].get("pause_seconds", 0.05)),
+        max_retries=int(config["tasks"][task].get("max_retries", 4)),
+    )
+    primary_languages = languages[:1]
+    primary_sources, primary_errors = ecology.wikimedia_text_sources(
+        batch,
+        getter,
+        max_taxa=len(batch),
+        wikipedia_languages=primary_languages,
+    )
+    primary_candidates, primary_holdouts = ecology.extract_candidates_from_text_sources(
+        primary_sources,
+        ontology,
+        extraction_model="rule_based_wikimedia_global_campaign_v1",
+        prompt_id=f"{task}_rules_v1",
+    )
+
+    source_tables = [primary_sources]
+    candidate_tables = [primary_candidates]
+    holdout_tables = [primary_holdouts]
+    errors = list(primary_errors)
+
+    if len(languages) > 1:
+        found_target = _target_candidate_species(primary_candidates, task, config)
+        fallback_batch = batch.loc[
+            ~batch["accepted_species"].astype(str).isin(found_target)
+        ].copy()
+        if not fallback_batch.empty:
+            fallback_sources, fallback_errors = ecology.wikimedia_text_sources(
+                fallback_batch,
+                getter,
+                max_taxa=len(fallback_batch),
+                wikipedia_languages=languages[1:],
+            )
+            fallback_candidates, fallback_holdouts = ecology.extract_candidates_from_text_sources(
+                fallback_sources,
+                ontology,
+                extraction_model="rule_based_multilingual_wikimedia_global_campaign_v1",
+                prompt_id=f"{task}_multilingual_rules_v1",
+            )
+            source_tables.append(fallback_sources)
+            candidate_tables.append(fallback_candidates)
+            holdout_tables.append(fallback_holdouts)
+            errors.extend(fallback_errors)
+
+    sources = pd.concat(source_tables, ignore_index=True, sort=False).fillna("")
+    candidates = pd.concat(candidate_tables, ignore_index=True, sort=False).fillna("")
+    holdouts = pd.concat(holdout_tables, ignore_index=True, sort=False).fillna("")
+    if not sources.empty:
+        sources = sources.drop_duplicates()
+    if not candidates.empty:
+        candidates = candidates.drop_duplicates()
+    if not holdouts.empty:
+        holdouts = holdouts.drop_duplicates()
+    source_species = set(sources["accepted_species"].astype(str)) if not sources.empty else set()
+    return candidates, holdouts, errors, source_species
+
+
 def _error_species(errors: list[str]) -> set[str]:
     species: set[str] = set()
     for error in errors:
@@ -550,22 +636,11 @@ def run_source_task(
     source_species: set[str] = set()
 
     if source_kind == "wikimedia_reported_ecology":
-        sources, errors = ecology.wikimedia_text_sources(
+        candidates, holdouts, errors, source_species = fetch_wikimedia_ecology_candidates(
             batch,
-            web_reported._httpx_getter(  # noqa: SLF001
-                pause_seconds=float(config["tasks"][task].get("pause_seconds", 0.05)),
-                max_retries=int(config["tasks"][task].get("max_retries", 4)),
-            ),
-            max_taxa=len(batch),
-        )
-        source_species = (
-            set(sources["accepted_species"].astype(str)) if not sources.empty else set()
-        )
-        candidates, holdouts = ecology.extract_candidates_from_text_sources(
-            sources,
+            task,
+            config,
             ontology,
-            extraction_model="rule_based_wikimedia_global_campaign_v1",
-            prompt_id=f"{task}_rules_v1",
         )
         return (
             normalize_ecology_candidates(candidates, task, config),
@@ -607,6 +682,7 @@ def run_source_task(
             keywords,
             trait_layers,
             max_taxa=len(batch),
+            wikipedia_languages=_task_wikipedia_languages(config, task),
         )
         errors = [str(value) for value in report.get("lookup_errors") or []]
         failed = _error_species(errors)

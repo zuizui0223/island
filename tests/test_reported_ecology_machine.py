@@ -123,6 +123,61 @@ def test_wikimedia_text_sources_species_direct_when_extract_names_species():
     assert wiki["evidence_scope"] == "species_direct"
 
 
+def test_wikimedia_text_sources_can_use_non_english_sitelinks():
+    species = pd.DataFrame({"accepted_species": ["Ecologia example"]})
+
+    def getter(url, params):
+        if "wikidata.org" in url and params.get("action") == "wbsearchentities":
+            return {"search": [{"id": "Q1", "description": ""}]}
+        if "wikidata.org" in url and params.get("action") == "wbgetentities":
+            return {
+                "entities": {
+                    "Q1": {
+                        "sitelinks": {
+                            "enwiki": {"title": "Ecologia example"},
+                            "frwiki": {"title": "Ecologia example"},
+                        }
+                    }
+                }
+            }
+        if "en.wikipedia.org" in url:
+            return {
+                "query": {
+                    "pages": {
+                        "1": {
+                            "title": "Ecologia example",
+                            "extract": "Ecologia example is a shrub.",
+                        }
+                    }
+                }
+            }
+        if "fr.wikipedia.org" in url:
+            return {
+                "query": {
+                    "pages": {
+                        "2": {
+                            "title": "Ecologia example",
+                            "extract": "Ecologia example est une espèce dioïque.",
+                        }
+                    }
+                }
+            }
+        return {}
+
+    sources, errors = ecology.wikimedia_text_sources(
+        species,
+        getter,
+        max_taxa=50,
+        wikipedia_languages=["en", "fr"],
+    )
+    candidates, _ = ecology.extract_candidates_from_text_sources(sources, _ontology())
+
+    assert errors == []
+    assert sources["source_url"].str.startswith("https://fr.wikipedia.org/").any()
+    values = set(candidates[["trait_name", "candidate_value"]].itertuples(index=False, name=None))
+    assert ("sex_system", "dioecious") in values
+
+
 def test_jsonl_import_validates_and_normalizes_candidates(tmp_path):
     path = tmp_path / "llm.jsonl"
     path.write_text(

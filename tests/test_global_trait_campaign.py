@@ -247,3 +247,79 @@ def test_optional_openalex_does_not_block_primary_completion():
 
     assert set(ledger["reproductive_openalex_status"]) == {"pending"}
     assert campaign.choose_active_task(ledger, config) == "complete"
+
+
+def test_wikimedia_ecology_fallback_runs_only_for_zero_target_species(monkeypatch):
+    config = _config()
+    config["wikipedia_languages"] = ["en", "fr"]
+    ledger = campaign.reconcile_ledger(_master(), None, config)
+    batch = ledger.head(2)[["accepted_species", "genus", "family", "n_islands", "n_records"]]
+    calls: list[tuple[tuple[str, ...], tuple[str, ...]]] = []
+
+    def fake_getter(**_kwargs):
+        return object()
+
+    def fake_wikimedia_text_sources(species_df, _getter, max_taxa, wikipedia_languages=None):
+        languages = tuple(wikipedia_languages or ["en"])
+        species = tuple(species_df["accepted_species"].astype(str).head(max_taxa))
+        calls.append((languages, species))
+        if languages == ("en",):
+            return (
+                pd.DataFrame(
+                    [
+                        {
+                            "accepted_species": species[0],
+                            "source_text": f"{species[0]} is pollinated by bees.",
+                            "source_url": "https://en.wikipedia.org/wiki/Alpha_one",
+                            "source_citation": "English source",
+                            "source_type": "wikipedia_extract",
+                            "evidence_scope": "species_direct",
+                        },
+                        {
+                            "accepted_species": species[1],
+                            "source_text": f"{species[1]} is a shrub.",
+                            "source_url": "https://en.wikipedia.org/wiki/Alpha_two",
+                            "source_citation": "English source",
+                            "source_type": "wikipedia_extract",
+                            "evidence_scope": "species_direct",
+                        },
+                    ]
+                ),
+                [],
+            )
+        return (
+            pd.DataFrame(
+                [
+                    {
+                        "accepted_species": species[0],
+                        "source_text": f"{species[0]} est autocompatible.",
+                        "source_url": "https://fr.wikipedia.org/wiki/Alpha_two",
+                        "source_citation": "French source",
+                        "source_type": "wikipedia_extract",
+                        "evidence_scope": "species_direct",
+                    }
+                ]
+            ),
+            [],
+        )
+
+    monkeypatch.setattr(campaign.web_reported, "_httpx_getter", fake_getter)
+    monkeypatch.setattr(campaign.ecology, "wikimedia_text_sources", fake_wikimedia_text_sources)
+
+    candidates, holdouts, errors, source_species = campaign.fetch_wikimedia_ecology_candidates(
+        batch,
+        "reproductive_wikimedia",
+        config,
+        campaign.ecology.load_ontology(Path("config/trait_ontology.yml")),
+    )
+
+    assert calls == [
+        (("en",), ("Alpha one", "Alpha two")),
+        (("fr",), ("Alpha two",)),
+    ]
+    assert errors == []
+    assert holdouts.empty
+    assert source_species == {"Alpha one", "Alpha two"}
+    values = set(candidates[["trait_name", "candidate_value"]].itertuples(index=False, name=None))
+    assert ("pollen_vector_mode", "biotic") in values
+    assert ("self_incompatibility", "SC") in values

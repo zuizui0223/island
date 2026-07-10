@@ -154,9 +154,13 @@ TRAIT_ALIASES = {
 PATTERNS: list[tuple[str, str, str]] = [
     ("self_incompatibility", "SI", r"\bself[- ]incompatib(?:le|ility)\b"),
     ("self_incompatibility", "SC", r"\bself[- ]compatib(?:le|ility)\b"),
+    ("self_incompatibility", "SI", r"\bauto[- ]?incompatib(?:le|ility|ilidad|ilité|ilità)?\b"),
+    ("self_incompatibility", "SC", r"\bauto[- ]?compatib(?:le|ility|ilidad|ilité|ilità)?\b"),
     ("autonomous_selfing_capacity", "delayed", r"\bdelayed selfing\b"),
     ("autonomous_selfing_capacity", "autonomous", r"\b(?:autonomous|spontaneous) selfing\b"),
     ("autonomous_selfing_capacity", "autonomous", r"\bautogam(?:y|ous)\b"),
+    ("autonomous_selfing_capacity", "autonomous", r"\bautogam(?:ia|ie|ie|isch|ica|ico|ique)\b"),
+    ("autonomous_selfing_capacity", "autonomous", r"\bselbstbestäub(?:ung|end)\b"),
     ("autonomous_selfing_capacity", "autonomous", r"\bself[- ]pollinat(?:ing|ed|ion)\b"),
     ("autonomous_selfing_capacity", "absent", r"\bno autonomous selfing\b"),
     ("mating_system", "mixed_mating", r"\bmixed mating\b"),
@@ -165,27 +169,41 @@ PATTERNS: list[tuple[str, str, str]] = [
     ("mating_system", "obligate_selfing", r"\bobligate selfing\b"),
     ("pollen_vector_mode", "abiotic_wind", r"\bpollinated by wind\b"),
     ("pollen_vector_mode", "abiotic_wind", r"\bwind[- ]pollinat(?:ed|ion)\b"),
+    ("pollen_vector_mode", "abiotic_wind", r"\ban[ée]m[oó]fil(?:a|as|o|os|e|es|ie|ia|ous|ie)\b"),
+    ("pollen_vector_mode", "abiotic_wind", r"\bwindbestäub(?:ung|t)\b"),
     ("pollen_vector_mode", "biotic", r"\bpollinated by (?:bees?|insects?|birds?|bats?|flies|moths?|butterflies)\b"),
     ("pollen_vector_mode", "biotic", r"\binsect[- ]pollinat(?:ed|ion)\b"),
     ("pollen_vector_mode", "biotic", r"\bentomophil(?:y|ous)\b"),
+    ("pollen_vector_mode", "biotic", r"\bentom[oó]fil(?:a|as|o|os|e|es|ia|ie|ous)\b"),
+    ("pollen_vector_mode", "biotic", r"\bbestäub(?:ung|t) durch insekten\b"),
     ("pollination_functional_guild", "bumblebees", r"\b(?:Bombus|bumblebee|bumblebees)\b"),
     ("pollination_functional_guild", "other_bees", r"\bbee[- ]pollinated\b"),
     ("pollination_functional_guild", "other_bees", r"\bpollinated by bees\b"),
+    ("pollination_functional_guild", "other_bees", r"\b(?:abejas|abeilles|bienen|abelhas|api)\b"),
     ("pollination_functional_guild", "flies", r"\bfly[- ]pollinated\b"),
     ("pollination_functional_guild", "flies", r"\bmyophil(?:y|ous)\b"),
+    ("pollination_functional_guild", "flies", r"\b(?:moscas|mouches|fliegen|mosche)\b"),
     ("pollination_functional_guild", "birds", r"\bbird[- ]pollinated\b"),
     ("pollination_functional_guild", "birds", r"\bornithophil(?:y|ous)\b"),
+    ("pollination_functional_guild", "birds", r"\bornit[oó]fil(?:a|as|o|os|e|es|ia|ie|ous)\b"),
     ("pollination_functional_guild", "bats", r"\bbat[- ]pollinated\b"),
     ("pollination_functional_guild", "bats", r"\bchiropterophil(?:y|ous)\b"),
+    ("pollination_functional_guild", "bats", r"\bquir[oó]pter[oó]fil(?:a|as|o|os|ia)?\b"),
     ("dichogamy", "protandry", r"\bprotandr(?:y|ous)\b"),
+    ("dichogamy", "protandry", r"\bprotandr(?:ia|ie|isch|ique|ica|ico)\b"),
     ("dichogamy", "protogyny", r"\bprotogyn(?:y|ous)\b"),
+    ("dichogamy", "protogyny", r"\bprotogin(?:ia|ie|isch|ique|ica|ico)|protogyn(?:ie|isch)\b"),
     ("cleistogamy", "facultative", r"\bfacultative cleistogam(?:y|ous)\b"),
     ("cleistogamy", "obligate", r"\bobligate cleistogam(?:y|ous)\b"),
+    ("cleistogamy", "facultative", r"\bcleistogam(?:ia|ie|ie|isch|ica|ico|ique)\b"),
     ("sex_system", "hermaphroditic", r"\bhermaphrodit(?:e|ic|ism)\b"),
+    ("sex_system", "hermaphroditic", r"\bhermafrodit(?:a|as|o|os|e|es|isch|ique|ica|ico)\b"),
     ("sex_system", "hermaphroditic", r"\bbisexual\b"),
     ("sex_system", "hermaphroditic", r"\bflowers? (?:have|with) both male and female parts\b"),
     ("sex_system", "dioecious", r"\bdioec(?:ious|uous)\b"),
+    ("sex_system", "dioecious", r"\bdi[oö]ic(?:a|as|o|os|e|es)|dioïque|zweih[äa]usig\b"),
     ("sex_system", "monoecious", r"\bmonoecious\b"),
+    ("sex_system", "monoecious", r"\bmonoic(?:a|as|o|os|e|es)|monoïque|einh[äa]usig\b"),
     ("sex_system", "gynodioecious", r"\bgynodioecious\b"),
 ]
 
@@ -416,6 +434,7 @@ def wikimedia_text_sources(
     species_df: pd.DataFrame,
     getter: web_reported_scout.JsonGetter,
     max_taxa: int,
+    wikipedia_languages: list[str] | tuple[str, ...] | None = None,
 ) -> tuple[pd.DataFrame, list[str]]:
     """Fetch Wikidata descriptions and Wikipedia extracts as reported-ecology text sources."""
     if "accepted_species" not in species_df.columns:
@@ -427,9 +446,10 @@ def wikimedia_text_sources(
     ][:max_taxa]
     rows: list[dict[str, str]] = []
     errors: list[str] = []
+    languages = web_reported_scout.normalize_wikipedia_languages(wikipedia_languages)
     for species in selected:
         try:
-            wikidata = web_reported_scout.fetch_wikidata(getter, species)
+            wikidata = web_reported_scout.fetch_wikidata(getter, species, languages)
         except Exception as exc:  # noqa: BLE001 - one source failing must not abort the batch
             wikidata = {}
             errors.append(f"wikidata:{species}:{exc}")
@@ -446,16 +466,22 @@ def wikimedia_text_sources(
                     "evidence_scope": "species_direct",
                 }
             )
-        title = _text(wikidata.get("enwiki_title")) if wikidata else ""
-        try:
-            extract, url, resolved = web_reported_scout.fetch_wikipedia_extract(
-                getter,
-                title or species,
-            )
-        except Exception as exc:  # noqa: BLE001
-            errors.append(f"wikipedia:{species}:{exc}")
+        candidates = web_reported_scout.wikipedia_title_candidates(wikidata, species, languages)
+        if not candidates:
+            errors.append(f"wikipedia:{species}:no_sitelink")
             continue
-        if extract:
+        for language, title in candidates:
+            try:
+                extract, url, resolved = web_reported_scout.fetch_wikipedia_extract(
+                    getter,
+                    title,
+                    language,
+                )
+            except Exception as exc:  # noqa: BLE001
+                errors.append(f"wikipedia-{language}:{species}:{exc}")
+                continue
+            if not extract:
+                continue
             scope = (
                 "species_direct"
                 if species.casefold() in extract.casefold()
@@ -466,7 +492,7 @@ def wikimedia_text_sources(
                     "accepted_species": species,
                     "source_text": _text(extract),
                     "source_url": url,
-                    "source_citation": f"{resolved or title or species} Wikipedia extract",
+                    "source_citation": f"{resolved or title or species} Wikipedia extract ({language})",
                     "source_type": "wikipedia_extract",
                     "evidence_scope": scope,
                 }
@@ -581,6 +607,11 @@ def extract_wikimedia(
     pause_seconds: float = typer.Option(0.1, min=0.0),
     max_retries: int = typer.Option(4, min=0, max=8),
     ontology_path: Path = typer.Option(Path("config/trait_ontology.yml"), exists=True),
+    wikipedia_language: list[str] | None = typer.Option(
+        None,
+        "--wikipedia-language",
+        help="Wikipedia language subdomain to try, repeatable; defaults to en.",
+    ),
 ) -> None:
     """Fetch Wikimedia species text and run the rule-based ecology baseline."""
     species = pd.read_csv(species_csv, dtype=str).fillna("")
@@ -591,6 +622,7 @@ def extract_wikimedia(
             max_retries=max_retries,
         ),
         max_taxa,
+        wikipedia_languages=wikipedia_language,
     )
     ontology = load_ontology(ontology_path)
     candidates, holdouts = extract_candidates_from_text_sources(
@@ -608,6 +640,9 @@ def extract_wikimedia(
         {
             "n_source_rows": int(len(sources)),
             "source": "Wikidata description and Wikipedia extract",
+            "wikipedia_languages": web_reported_scout.normalize_wikipedia_languages(
+                wikipedia_language
+            ),
             "n_lookup_errors": int(len(errors)),
             "lookup_errors": errors[:20],
         },

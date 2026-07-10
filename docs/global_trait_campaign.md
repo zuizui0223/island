@@ -82,3 +82,13 @@ guild Wikimedia extraction run only for direct machine biotic-vector candidates.
 OpenAlex remains an optional scholarly-enrichment lane and is not required for
 primary completion. The one-week target refers to complete machine first-pass
 coverage, not manual acceptance of every candidate trait.
+
+## Free recovery-rate improvement
+
+The primary Wikimedia lane uses multilingual fallback without paid APIs. English
+Wikipedia is queried first. If that pass yields no target candidate for a
+species, the campaign tries the configured non-English sitelinks from Wikidata
+(`es`, `fr`, `de`, `pt`, `it` by default). This keeps the high-throughput
+English path cheap while recovering explicit statements that exist only in other
+Wikipedia editions. These rows remain machine-only candidates with source URL,
+excerpt, language-specific citation, and no curated trait decision.
