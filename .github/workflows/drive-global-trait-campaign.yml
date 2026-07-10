@@ -18,6 +18,7 @@ on:
     paths:
       - ".github/workflows/drive-global-trait-campaign.yml"
       - "src/island_v2/global_trait_campaign.py"
+      - "src/island_v2/global_candidate_index.py"
       - "config/global_trait_campaign.yml"
       - "config/global_floral_access_keywords.yml"
       - "pyproject.toml"
@@ -54,10 +55,14 @@ jobs:
           cache: pip
       - name: Install v2 package
         run: pip install -e ".[dev]"
-      - name: Guard global campaign logic and CLI contract
+      - name: Guard global campaign logic and CLI contracts
         run: |
-          pytest -q tests/test_global_trait_campaign.py tests/test_reported_ecology_machine.py
+          pytest -q \
+            tests/test_global_trait_campaign.py \
+            tests/test_global_candidate_index.py \
+            tests/test_reported_ecology_machine.py
           island-v2-global-trait-campaign --help >/dev/null
+          island-v2-global-candidate-index --help >/dev/null
       - name: Validate bounded Wikimedia batch size
         run: |
           python - <<'PY'
@@ -130,6 +135,14 @@ jobs:
       - name: Clear stale failure marker
         if: steps.advance.outcome == 'success'
         run: rm -f "${CAMPAIGN_DIR}/campaign_failure.json" "${CAMPAIGN_DIR}/campaign_failure.log"
+      - name: Rebuild cumulative machine-candidate indexes
+        if: always()
+        run: |
+          if test -f "${CAMPAIGN_DIR}/campaign_ledger.csv.gz"; then
+            island-v2-global-candidate-index --campaign-dir "${CAMPAIGN_DIR}"
+          else
+            echo "No campaign ledger yet; candidate index skipped."
+          fi
       - name: Publish campaign status
         if: steps.advance.outcome == 'success'
         run: |
@@ -139,10 +152,17 @@ jobs:
 
           path = Path("data/v2/staging/traits/global_campaign/campaign_status.json")
           status = json.loads(path.read_text(encoding="utf-8"))
+          index_path = Path("data/v2/staging/traits/global_campaign/candidate_index_status.json")
+          index_status = json.loads(index_path.read_text(encoding="utf-8")) if index_path.exists() else {}
           print("## Global trait campaign")
           print(f"- global species master: {status['n_global_species']}")
           print(f"- families: {status['n_families']}")
           print(f"- machine biotic-vector candidates: {status['n_machine_biotic_candidates']}")
+          print(f"- cumulative candidate rows: {index_status.get('n_unique_candidate_rows', 0)}")
+          print(
+              "- counterfactual screening species: "
+              f"{index_status.get('n_machine_biotic_screening_species', 0)}"
+          )
           print(f"- default next task: {status['active_task']}")
           for task, details in status["tasks"].items():
               counts = details["status_counts"]
@@ -159,6 +179,8 @@ jobs:
               print(f"- lookup errors: {wave['n_lookup_errors']}")
           print("")
           print(status["interpretation"])
+          if index_status:
+              print(index_status["interpretation"])
           PY
       - name: Publish failure status
         if: steps.advance.outcome == 'failure'
