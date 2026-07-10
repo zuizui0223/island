@@ -2,54 +2,64 @@
   "version": "1.0",
   "n_global_species": 105612,
   "n_families": 478,
-  "n_machine_biotic_candidates": 23,
+  "n_machine_biotic_candidates": 63,
   "active_task": "reproductive_wikimedia",
   "tasks": {
     "reproductive_wikimedia": {
       "phase": "reproductive_and_pollen_vector",
       "status_counts": {
-        "pending": 105112,
-        "processed": 500
+        "pending": 104112,
+        "processed": 1500
       },
-      "n_candidates": 147,
+      "n_candidates": 364,
+      "n_eligible_pending": 104112,
       "terminal": false
     },
     "reproductive_openalex": {
       "phase": "reproductive_and_pollen_vector",
       "status_counts": {
-        "pending": 105612
+        "pending": 105362,
+        "processed": 100,
+        "retry": 150
       },
-      "n_candidates": 0,
+      "n_candidates": 7,
+      "n_eligible_pending": 1400,
       "terminal": false
     },
     "floral_access_wikimedia": {
       "phase": "floral_access",
       "status_counts": {
-        "pending": 105612
+        "not_applicable": 93,
+        "pending": 105512,
+        "processed": 7
       },
-      "n_candidates": 0,
+      "n_candidates": 16,
+      "n_eligible_pending": 0,
       "terminal": false
     },
     "alternative_guild_openalex": {
       "phase": "alternative_pollinator_function",
       "status_counts": {
-        "pending": 105612
+        "not_applicable": 93,
+        "pending": 105512,
+        "retry": 7
       },
       "n_candidates": 0,
+      "n_eligible_pending": 7,
       "terminal": false
     }
   },
   "interpretation": "Machine-only source-backed candidates. Zero hits are lookup outcomes, not biological absence; accepted trait values still require the evidence-review contract.",
   "last_wave": {
-    "wave_id": "wave_00002_reproductive_wikimedia",
-    "task": "reproductive_wikimedia",
-    "phase": "reproductive_and_pollen_vector",
-    "source_kind": "wikimedia_reported_ecology",
-    "n_species_attempted": 250,
-    "n_species_with_source_text": 249,
-    "n_candidates_total": 67,
-    "n_target_candidates": 60,
-    "n_lookup_errors": 0,
+    "wave_id": "wave_00006_alternative_guild_openalex",
+    "task": "alternative_guild_openalex",
+    "phase": "alternative_pollinator_function",
+    "source_kind": "openalex_reported_ecology",
+    "n_species_attempted": 7,
+    "n_species_with_source_text": 0,
+    "n_candidates_total": 0,
+    "n_target_candidates": 0,
+    "n_lookup_errors": 7,
     "policy": "Machine-only; no candidate is curated or used as a biological absence."
   }
 }
