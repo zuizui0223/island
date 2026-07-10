@@ -31,8 +31,12 @@ tasks:
     eligibility: all
     depends_on:
       - reproductive_wikimedia
-    pause_seconds: 0.05
+    pause_seconds: 0.25
     per_page: 5
+    require_api_key: true
+    max_retries: 3
+    backoff_seconds: 5.0
+    max_backoff_seconds: 60.0
     query_terms:
       - self-incompatibility
       - self-compatible
@@ -73,8 +77,12 @@ tasks:
     eligibility: machine_biotic_candidate
     depends_on:
       - floral_access_wikimedia
-    pause_seconds: 0.05
+    pause_seconds: 0.25
     per_page: 8
+    require_api_key: true
+    max_retries: 3
+    backoff_seconds: 5.0
+    max_backoff_seconds: 60.0
     query_terms:
       - pollinated by bees
       - bumblebee

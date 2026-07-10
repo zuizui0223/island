@@ -40,9 +40,12 @@ jobs:
     timeout-minutes: 55
     env:
       BATCH_SIZE: ${{ inputs.batch_size || '1000' }}
-      OPENALEX_BATCH_SIZE: "250"
+      # Two scheduled runs per hour yield at most 720 OpenAlex searches/day:
+      # (10 + 5) * 48. This leaves headroom below the free-key 1,000-search budget.
+      OPENALEX_BATCH_SIZE: "10"
       FLORAL_BATCH_SIZE: "150"
-      GUILD_BATCH_SIZE: "100"
+      GUILD_BATCH_SIZE: "5"
+      OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
       CAMPAIGN_DIR: data/v2/staging/traits/global_campaign
       CAMPAIGN_RUN_LOG: /tmp/global_trait_campaign_run.log
     steps:
@@ -58,11 +61,19 @@ jobs:
       - name: Guard global campaign logic and CLI contracts
         run: |
           pytest -q \
+            tests/test_openalex_rate_budget.py \
             tests/test_global_trait_campaign.py \
             tests/test_global_candidate_index.py \
             tests/test_reported_ecology_machine.py
           island-v2-global-trait-campaign --help >/dev/null
           island-v2-global-candidate-index --help >/dev/null
+      - name: Report OpenAlex credential state
+        run: |
+          if test -n "${OPENALEX_API_KEY}"; then
+            echo "OpenAlex free-key lane enabled." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "OpenAlex tasks will remain retryable without consuming attempts because OPENALEX_API_KEY is not configured." >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Validate bounded Wikimedia batch size
         run: |
           python - <<'PY'
@@ -125,7 +136,8 @@ jobs:
               "retry_policy": (
                   "Any preceding task waves completed in this bundle remain in the ledger. "
                   "The next scheduled bundle retries only rows still pending or marked retry; "
-                  "no execution failure is interpreted as a trait absence."
+                  "OpenAlex credential, quota, 429, 5xx, and transport failures do not consume "
+                  "the biological lookup-attempt budget or imply trait absence."
               ),
           }
           (directory / "campaign_failure.json").write_text(

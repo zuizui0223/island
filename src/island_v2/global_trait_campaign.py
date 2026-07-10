@@ -19,8 +19,11 @@ entire global campaign forever.
 from __future__ import annotations
 
 import json
+import os
 import re
 import time
+from datetime import UTC, datetime
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
 
@@ -373,6 +376,80 @@ def _openalex_terms(config: dict[str, Any], task: str) -> str:
     return " ".join(str(value) for value in terms)
 
 
+class OpenAlexTransientError(RuntimeError):
+    """A retryable OpenAlex infrastructure, quota, or transport failure."""
+
+
+def _retry_after_seconds(value: str, now: datetime | None = None) -> float | None:
+    """Parse Retry-After seconds or an HTTP date into a non-negative delay."""
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        return max(0.0, float(text))
+    except ValueError:
+        pass
+    try:
+        parsed = parsedate_to_datetime(text)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=UTC)
+    reference = now or datetime.now(UTC)
+    return max(0.0, (parsed - reference).total_seconds())
+
+
+def _openalex_request(
+    client: Any,
+    params: dict[str, Any],
+    *,
+    max_retries: int,
+    backoff_seconds: float,
+    max_backoff_seconds: float,
+    sleeper: Any = time.sleep,
+) -> Any:
+    """Issue one OpenAlex request with bounded transient retry handling."""
+    import httpx
+
+    retryable_statuses = {429, 500, 502, 503, 504}
+    attempt = 0
+    while True:
+        try:
+            response = client.get(ecology.OPENALEX_WORKS_URL, params=params)
+        except httpx.TransportError as exc:
+            if attempt >= max_retries:
+                raise OpenAlexTransientError(f"transport:{exc}") from exc
+            delay = min(max_backoff_seconds, backoff_seconds * (2**attempt))
+            sleeper(delay)
+            attempt += 1
+            continue
+
+        if response.status_code not in retryable_statuses:
+            response.raise_for_status()
+            return response
+
+        retry_after = _retry_after_seconds(response.headers.get("Retry-After", ""))
+        # A large Retry-After generally means the daily budget is exhausted. Do not
+        # sleep through the workflow timeout or spend more search calls immediately.
+        if response.status_code == 429 and (
+            retry_after is None or retry_after > max_backoff_seconds
+        ):
+            raise OpenAlexTransientError(
+                f"status=429 retry_after={retry_after if retry_after is not None else 'missing'}"
+            )
+        if attempt >= max_retries:
+            raise OpenAlexTransientError(
+                f"status={response.status_code} retries_exhausted={max_retries}"
+            )
+        delay = (
+            retry_after
+            if retry_after is not None
+            else min(max_backoff_seconds, backoff_seconds * (2**attempt))
+        )
+        sleeper(delay)
+        attempt += 1
+
+
 def fetch_openalex_sources(
     batch: pd.DataFrame,
     task: str,
@@ -381,22 +458,42 @@ def fetch_openalex_sources(
     import httpx
 
     terms = _openalex_terms(config, task)
-    per_page = int(config["tasks"][task].get("per_page", 5))
-    pause_seconds = float(config["tasks"][task].get("pause_seconds", 0.05))
+    task_config = config["tasks"][task]
+    per_page = int(task_config.get("per_page", 5))
+    pause_seconds = float(task_config.get("pause_seconds", 0.25))
+    max_retries = int(task_config.get("max_retries", 3))
+    backoff_seconds = float(task_config.get("backoff_seconds", 5.0))
+    max_backoff_seconds = float(task_config.get("max_backoff_seconds", 60.0))
+    require_api_key = bool(task_config.get("require_api_key", True))
+    api_key = os.environ.get("OPENALEX_API_KEY", "").strip()
     rows: list[dict[str, str]] = []
     errors: list[str] = []
-    with httpx.Client(
-        timeout=45.0,
-        follow_redirects=True,
-        headers={"User-Agent": "island-floral-v2 global-trait-campaign"},
-    ) as client:
-        for species in batch["accepted_species"].astype(str):
+
+    species_names = [str(value) for value in batch["accepted_species"].astype(str)]
+    if require_api_key and not api_key:
+        return (
+            pd.DataFrame(rows, columns=ecology.TEXT_SOURCE_COLUMNS),
+            [f"openalex:{species}:transient:missing_OPENALEX_API_KEY" for species in species_names],
+        )
+
+    headers = {"User-Agent": "island-floral-v2 global-trait-campaign"}
+    with httpx.Client(timeout=45.0, follow_redirects=True, headers=headers) as client:
+        for species in species_names:
+            params: dict[str, Any] = {
+                "search": f'"{species}" {terms}',
+                "per_page": per_page,
+                "select": "id,doi,display_name,publication_year,abstract_inverted_index",
+            }
+            if api_key:
+                params["api_key"] = api_key
             try:
-                response = client.get(
-                    ecology.OPENALEX_WORKS_URL,
-                    params={"search": f'"{species}" {terms}', "per_page": per_page},
+                response = _openalex_request(
+                    client,
+                    params,
+                    max_retries=max_retries,
+                    backoff_seconds=backoff_seconds,
+                    max_backoff_seconds=max_backoff_seconds,
                 )
-                response.raise_for_status()
                 works = response.json().get("results") or []
                 for work in works:
                     title = _text(re.sub(r"<[^>]+>", " ", work.get("display_name") or ""))
@@ -421,8 +518,12 @@ def fetch_openalex_sources(
                             "evidence_scope": scope,
                         }
                     )
+            except OpenAlexTransientError as exc:
+                errors.append(f"openalex:{species}:transient:{exc}")
+            except httpx.HTTPStatusError as exc:
+                errors.append(f"openalex:{species}:permanent:{exc}")
             except Exception as exc:  # noqa: BLE001
-                errors.append(f"openalex:{species}:{exc}")
+                errors.append(f"openalex:{species}:transient:unexpected:{exc}")
             if pause_seconds > 0:
                 time.sleep(pause_seconds)
     return pd.DataFrame(rows, columns=ecology.TEXT_SOURCE_COLUMNS), errors
@@ -518,6 +619,10 @@ def run_source_task(
     raise typer.BadParameter(f"unsupported global campaign source_kind: {source_kind}")
 
 
+def _is_transient_source_error(error: str) -> bool:
+    return ":transient:" in str(error)
+
+
 def apply_task_result(
     ledger: pd.DataFrame,
     batch: pd.DataFrame,
@@ -550,17 +655,31 @@ def apply_task_result(
     for species in batch["accepted_species"].astype(str):
         mask = result["accepted_species"].eq(species)
         attempts_column = f"{task}_attempts"
-        attempts = int(result.loc[mask, attempts_column].iloc[0]) + 1
-        result.loc[mask, attempts_column] = attempts
+        previous_attempts = int(result.loc[mask, attempts_column].iloc[0])
+        species_errors = error_by_species.get(species, [])
+        transient_failure = bool(species_errors) and all(
+            _is_transient_source_error(error) for error in species_errors
+        )
         result.loc[mask, f"{task}_wave_id"] = wave_id
         result.loc[mask, f"{task}_candidate_count"] = int(target_counts.get(species, 0))
-        if species in source_species or species not in error_by_species:
+
+        if species in source_species or not species_errors:
+            result.loc[mask, attempts_column] = previous_attempts + 1
             result.loc[mask, f"{task}_status"] = "processed"
             result.loc[mask, f"{task}_last_error"] = ""
+        elif transient_failure:
+            # API quota, missing credentials, 429, 5xx, and transport failures are
+            # infrastructure states. They must not consume the biological lookup
+            # attempt budget or become a terminal evidence absence.
+            result.loc[mask, attempts_column] = previous_attempts
+            result.loc[mask, f"{task}_status"] = "retry"
+            result.loc[mask, f"{task}_last_error"] = " | ".join(species_errors)[:1000]
         else:
+            attempts = previous_attempts + 1
+            result.loc[mask, attempts_column] = attempts
             status = "exhausted" if attempts >= max_attempts else "retry"
             result.loc[mask, f"{task}_status"] = status
-            result.loc[mask, f"{task}_last_error"] = " | ".join(error_by_species[species])[:1000]
+            result.loc[mask, f"{task}_last_error"] = " | ".join(species_errors)[:1000]
         if species in direct_biotic:
             result.loc[mask, "machine_biotic_candidate"] = True
     return prepare_dependent_statuses(result, config)
