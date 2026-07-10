@@ -54,6 +54,25 @@ PROHIBITED_OUTPUT_COLUMNS = {
     "bombus_applicability", "applicability", "analysis_included", "review_status_accepted",
 }
 
+M0_FLORAL_CONTEXT_TRAITS = {"flower_primary_color", "floral_symmetry", "floral_form"}
+FLORAL_CONTEXT_TERMS = re.compile(
+    r"\b("
+    r"flower|flowers|flowering|floral|floret|florets|"
+    r"corolla|corollas|petal|petals|sepal|sepals|tepal|tepals|perianth|"
+    r"inflorescence|inflorescences|raceme|racemes|panicle|panicles|"
+    r"stamen|stamens|anther|anthers|spathe|spathes|spadix|spadices"
+    r")\b",
+    re.IGNORECASE,
+)
+NON_FLORAL_CONTEXT_TERMS = re.compile(
+    r"\b("
+    r"leaf|leaves|leaflet|leaflets|foliage|fruit|fruits|seed|seeds|"
+    r"bark|stem|stems|branch|branches|shoot|shoots|petiole|petioles|"
+    r"latex|wood|trunk|trunks"
+    r")\b",
+    re.IGNORECASE,
+)
+
 
 @app.callback()
 def main() -> None:
@@ -80,6 +99,27 @@ def _excerpt(text: str, start: int, end: int, pad: int = 60) -> str:
     return re.sub(r"\s+", " ", text[lo:hi]).strip()
 
 
+def _nearest_context_distance(pattern: re.Pattern[str], text: str, center: int) -> int | None:
+    distances = [
+        min(abs(center - m.start()), abs(center - m.end()))
+        for m in pattern.finditer(text)
+    ]
+    return min(distances) if distances else None
+
+
+def _has_floral_context(text: str, start: int, end: int, window: int = 80) -> bool:
+    """Accept M0 floral hits only when local context points to floral organs."""
+    lo = max(0, start - window)
+    hi = min(len(text), end + window)
+    local = text[lo:hi]
+    center = start - lo + max(0, end - start) // 2
+    floral_distance = _nearest_context_distance(FLORAL_CONTEXT_TERMS, local, center)
+    if floral_distance is None or floral_distance > window:
+        return False
+    non_floral_distance = _nearest_context_distance(NON_FLORAL_CONTEXT_TERMS, local, center)
+    return non_floral_distance is None or floral_distance <= non_floral_distance
+
+
 def extract_reported(
     species: str,
     text: str,
@@ -100,30 +140,33 @@ def extract_reported(
                 term_l = str(term).lower().strip()
                 if not term_l:
                     continue
-                m = re.search(rf"(?<!\w){re.escape(term_l)}(?!\w)", lowered)
-                if not m:
-                    continue
-                key = (trait_name, canonical, term_l)
-                if key in seen:
-                    continue
-                seen.add(key)
-                rows.append(
-                    {
-                        "accepted_species": species,
-                        "trait_layer": trait_layer.get(trait_name, ""),
-                        "trait_name": str(trait_name),
-                        "provisional_candidate_value": str(canonical),
-                        "matched_term": term_l,
-                        "candidate_class": "reported",
-                        "source": source,
-                        "source_type": source_type,
-                        "source_url": source_url,
-                        "raw_description": _excerpt(text, m.start(), m.end()),
-                        "evidence_scope": evidence_scope,
-                        "wild_or_cultivated": "unknown",
-                        "review_status": "unreviewed",
-                    }
-                )
+                for m in re.finditer(rf"(?<!\w){re.escape(term_l)}(?!\w)", lowered):
+                    if trait_name in M0_FLORAL_CONTEXT_TRAITS and not _has_floral_context(
+                        text, m.start(), m.end()
+                    ):
+                        continue
+                    key = (trait_name, canonical, term_l)
+                    if key in seen:
+                        break
+                    seen.add(key)
+                    rows.append(
+                        {
+                            "accepted_species": species,
+                            "trait_layer": trait_layer.get(trait_name, ""),
+                            "trait_name": str(trait_name),
+                            "provisional_candidate_value": str(canonical),
+                            "matched_term": term_l,
+                            "candidate_class": "reported",
+                            "source": source,
+                            "source_type": source_type,
+                            "source_url": source_url,
+                            "raw_description": _excerpt(text, m.start(), m.end()),
+                            "evidence_scope": evidence_scope,
+                            "wild_or_cultivated": "unknown",
+                            "review_status": "unreviewed",
+                        }
+                    )
+                    break
     return rows
 
 

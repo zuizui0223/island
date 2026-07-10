@@ -48,6 +48,62 @@ def test_no_explicit_statement_yields_no_reported_candidate():
     assert rows == []
 
 
+def test_m0_colour_requires_floral_context():
+    rows = extract_reported(
+        "Genus species",
+        "Leaves green, fruit red, bark white. Flowers yellow with white petals.",
+        "wikipedia",
+        "wikipedia",
+        "u",
+        "species_direct",
+        CONFIG,
+        TRAIT_LAYER,
+    )
+    colours = {
+        r["provisional_candidate_value"]
+        for r in rows
+        if r["trait_name"] == "flower_primary_color"
+    }
+    assert {"yellow", "white"} <= colours
+    assert "green" not in colours
+    assert "red" not in colours
+
+
+def test_m0_symmetry_requires_floral_context():
+    rows = extract_reported(
+        "Genus species",
+        "The bark has irregular white patches. Flowers are regular and white.",
+        "wikipedia",
+        "wikipedia",
+        "u",
+        "species_direct",
+        CONFIG,
+        TRAIT_LAYER,
+    )
+    values = {
+        (r["trait_name"], r["provisional_candidate_value"])
+        for r in rows
+    }
+    assert ("floral_symmetry", "actinomorphic") in values
+    assert ("floral_symmetry", "zygomorphic") not in values
+
+
+def test_m1_reported_terms_do_not_require_floral_colour_context():
+    rows = extract_reported(
+        "Genus species",
+        "The plant is self-incompatible and wind-pollinated.",
+        "wikipedia",
+        "wikipedia",
+        "u",
+        "species_direct",
+        CONFIG,
+        TRAIT_LAYER,
+    )
+    values = {(r["trait_name"], r["provisional_candidate_value"]) for r in rows}
+    assert ("self_incompatibility_reported", "self_incompatible") in values
+    assert ("pollination_vector_reported", "wind") in values
+
+
 def _fake_getter(qid="Q1", enwiki="Genus species", wd_desc="", extract="", missing=False):
     def getter(url, params):
         if "wikidata.org" in url and params.get("action") == "wbsearchentities":
