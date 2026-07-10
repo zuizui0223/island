@@ -1,4 +1,4 @@
-# v2: conditional island floral syndrome — pollination-regime framework
+# v2: conditional island floral syndrome  -  pollination-regime framework
 
 ## Status and purpose
 
@@ -167,12 +167,12 @@ are excluded from confirmatory Bombus-channel inference.
 Within applicable islands, the biological state is represented through three
 separate components:
 
-1. `environmental_compatibility` — overlap between island conditions and the
+1. `environmental_compatibility`  -  overlap between island conditions and the
    environmental envelope of Bombus taxa that are candidates from the assigned
    source region;
-2. `occurrence_evidence` — detected, adequate non-detection, insufficient
+2. `occurrence_evidence`  -  detected, adequate non-detection, insufficient
    effort, or unresolved evidence after target-group effort diagnostics;
-3. `functional_service_proxy` — evidence about activity season, richness,
+3. `functional_service_proxy`  -  evidence about activity season, richness,
    abundance, visitation, or documented functional use where available.
 
 `proxy_quality` is not a fourth biological component. It is a measurement layer
@@ -296,7 +296,7 @@ available.
 A principal interaction for relevant analyses is:
 
 ```text
-Bombus-channel state × alternative-functional-replacement
+Bombus-channel state x alternative-functional-replacement
 ```
 
 ## Phased implementation

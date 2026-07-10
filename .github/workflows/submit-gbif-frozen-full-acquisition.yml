@@ -9,7 +9,7 @@ name: submit_gbif_frozen_full_acquisition
 # gbif-full-acquisition concurrency group (so they serialise) and rebase onto
 # main before pushing the shared ledger.
 #
-# Push-chain design (submit→poll→submit→…): whenever the poll workflow commits
+# Push-chain design (submit->poll->submit->...): whenever the poll workflow commits
 # "chore: update GBIF download statuses" the push trigger here fires the next
 # submit cycle, filling the freed GBIF capacity slots immediately. The chain
 # terminates naturally when there are no more pending blocks (submit makes no

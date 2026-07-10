@@ -15,10 +15,27 @@ from typing import Any
 
 import pandas as pd
 import typer
+import yaml
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 DECISION_ALLOWED_VALUES = "accepted|rejected|needs_source_check"
+ALLOWED_DECISIONS = set(DECISION_ALLOWED_VALUES.split("|"))
+PROXY_FINAL_VALUES = {
+    "floral_syndrome_proxy": {
+        "wind_like",
+        "large_bee_or_Bombus_like_floral_phenotype_proxy",
+        "butterfly_or_moth_like",
+        "open_or_generalist_insect_like",
+    },
+    "compatibility_system_proxy": {
+        "likely_self_compatible_proxy",
+        "likely_self_incompatible_proxy",
+    },
+    "reproductive_assurance_proxy": {
+        "reproductive_assurance_like_proxy",
+    },
+}
 
 OUTPUT_COLUMNS = [
     "review_candidate_id",
@@ -322,17 +339,84 @@ def review_queue_summary(queue: pd.DataFrame) -> dict[str, Any]:
     }
 
 
+def _allowed_final_values(trait_name: str, ontology: dict[str, Any] | None) -> set[str] | None:
+    """Return the accepted final-value vocabulary for a trait, when known."""
+    if trait_name in PROXY_FINAL_VALUES:
+        return PROXY_FINAL_VALUES[trait_name]
+    if ontology is None:
+        return None
+    traits = ontology.get("traits") or {}
+    if trait_name not in traits:
+        return None
+    return {str(value) for value in traits[trait_name].get("allowed_values") or []}
+
+
+def validate_review_queue(
+    queue: pd.DataFrame,
+    ontology: dict[str, Any] | None = None,
+) -> list[str]:
+    """Return validation errors for a human-adjudicated review queue."""
+    errors: list[str] = []
+    missing = [column for column in OUTPUT_COLUMNS if column not in queue.columns]
+    if missing:
+        return [f"missing required column(s): {', '.join(missing)}"]
+    if queue.empty:
+        return errors
+
+    ids = queue["review_candidate_id"].astype(str).str.strip()
+    duplicate_ids = sorted(i for i in ids[ids.duplicated(keep=False)].unique() if i)
+    if duplicate_ids:
+        errors.append(f"duplicate review_candidate_id value(s): {', '.join(duplicate_ids[:10])}")
+
+    decisions = queue["adjudication_decision"].astype(str).str.strip()
+    final_values = queue["final_value"].astype(str).str.strip()
+    for idx, decision in decisions.items():
+        row_id = ids.loc[idx] or f"row {idx + 2}"
+        final_value = final_values.loc[idx]
+        if decision and decision not in ALLOWED_DECISIONS:
+            errors.append(
+                f"{row_id}: adjudication_decision must be one of "
+                f"{DECISION_ALLOWED_VALUES}, got {decision!r}"
+            )
+            continue
+        if decision == "accepted":
+            for column in ("final_value", "decision_reason", "reviewer", "review_date"):
+                if not _text(queue.loc[idx, column]):
+                    errors.append(f"{row_id}: accepted rows require nonblank {column}")
+            allowed = _allowed_final_values(_text(queue.loc[idx, "trait_name"]), ontology)
+            if allowed is not None and final_value and final_value not in allowed:
+                preview = ", ".join(sorted(allowed)[:12])
+                errors.append(
+                    f"{row_id}: final_value {final_value!r} is outside the allowed "
+                    f"vocabulary for trait_name={_text(queue.loc[idx, 'trait_name'])!r} "
+                    f"({preview})"
+                )
+        elif decision in {"rejected", "needs_source_check"} and final_value:
+            errors.append(f"{row_id}: {decision} rows must not carry final_value")
+    return errors
+
+
 def accepted_for_curation(queue: pd.DataFrame) -> pd.DataFrame:
     """Extract accepted rows only, after human review decisions have been filled."""
     columns = [
         "review_candidate_id",
         "accepted_species",
+        "trait_layer",
         "trait_name",
+        "candidate_value",
         "final_value",
         "candidate_class",
+        "candidate_kind",
+        "evidence_scope",
         "source_lane",
+        "source",
+        "source_type",
         "source_url",
         "source_citation",
+        "matched_term",
+        "basis_traits",
+        "basis_family",
+        "raw_description",
         "decision_reason",
         "reviewer",
         "review_date",
@@ -344,6 +428,31 @@ def accepted_for_curation(queue: pd.DataFrame) -> pd.DataFrame:
         & queue["final_value"].astype(str).str.strip().ne("")
     ].copy()
     return accepted[columns].reset_index(drop=True)
+
+
+def write_review_outputs(
+    queue: pd.DataFrame,
+    output_dir: Path,
+    ontology: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Write validation summary and accepted-for-curation export."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    summary = review_queue_summary(queue)
+    errors = validate_review_queue(queue, ontology=ontology)
+    summary["n_validation_errors"] = len(errors)
+    summary["validation_errors"] = errors
+    summary["final_value_policy"] = (
+        "Accepted rows require final_value/reviewer provenance. When trait_name is "
+        "in the ontology or is a declared proxy trait, final_value must match that "
+        "controlled vocabulary."
+    )
+    (output_dir / "trait_candidate_review_queue_summary.json").write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    accepted_for_curation(queue).to_csv(
+        output_dir / "accepted_trait_candidates_for_curation.csv", index=False
+    )
+    return summary
 
 
 @app.command("build")
@@ -370,6 +479,44 @@ def build(
     typer.echo(
         f"Built {summary['n_review_candidates']} review candidate(s) "
         f"across {summary['n_species']} species."
+    )
+
+
+@app.command("validate")
+def validate(
+    review_queue_csv: Path = typer.Option(..., exists=True, help="Human-adjudicated review queue CSV."),
+    output_dir: Path | None = typer.Option(
+        None, help="Optional directory for summary JSON and accepted-for-curation CSV."
+    ),
+    ontology_path: Path = typer.Option(
+        Path("config/trait_ontology.yml"),
+        exists=True,
+        help="Trait ontology for accepted final_value checks.",
+    ),
+) -> None:
+    """Validate a reviewed queue and export accepted rows with full provenance."""
+    queue = _read_csv(review_queue_csv)
+    ontology = yaml.safe_load(ontology_path.read_text(encoding="utf-8"))
+    summary = (
+        write_review_outputs(queue, output_dir, ontology=ontology)
+        if output_dir
+        else review_queue_summary(queue)
+    )
+    errors = validate_review_queue(queue, ontology=ontology)
+    if errors:
+        if output_dir is None:
+            summary["n_validation_errors"] = len(errors)
+            summary["validation_errors"] = errors
+            summary["final_value_policy"] = (
+                "Accepted rows require final_value/reviewer provenance. When trait_name is "
+                "in the ontology or is a declared proxy trait, final_value must match that "
+                "controlled vocabulary."
+            )
+        typer.echo(json.dumps(summary, ensure_ascii=False, indent=2))
+        raise typer.Exit(code=1)
+    typer.echo(
+        f"Validated {summary['n_review_candidates']} review candidate(s); "
+        f"{summary['n_accepted_ready_for_curation']} accepted row(s) ready for curation."
     )
 
 

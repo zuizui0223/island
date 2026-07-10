@@ -1,18 +1,18 @@
 """Free, trait-group-targeted literature source discovery for staged taxa.
 
 Given a staged-taxa CSV for an island that has **passed Core-pilot nomination**,
-this collects open bibliographic *leads* — never trait values — so a human
+this collects open bibliographic *leads* - never trait values - so a human
 curator has somewhere to start reading. It is a source-lead / literature-scout
 stage, explicitly upstream of trait evidence review.
 
-The retrieval is **species × trait-group**, not species-only, so a paper that is
+The retrieval is **species x trait-group**, not species-only, so a paper that is
 high-quality but irrelevant to floral / pollination / reproductive traits
 (micropropagation, tissue culture, nutrient content, nanoparticles, genomics,
-pathology, …) is demoted rather than surfaced. Three query groups are run:
+pathology, ...) is demoted rather than surfaced. Three query groups are run:
 
-- ``A_floral_morphology_colour``   — floral phenotype (M0);
-- ``B_pollination_pollen_vector``  — pollination / pollen vector (M1);
-- ``C_reproductive_assurance``     — self-incompatibility / selfing / mating.
+- ``A_floral_morphology_colour``   - floral phenotype (M0);
+- ``B_pollination_pollen_vector``  - pollination / pollen vector (M1);
+- ``C_reproductive_assurance``     - self-incompatibility / selfing / mating.
 
 Each lead carries the trait group it was retrieved for, the query template, a
 title/abstract relevance score (keyword match against the group), the matched

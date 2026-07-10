@@ -4,12 +4,12 @@ This governs analysis eligibility only. It never decides, alters, or emits a
 trait value; it reads a reviewed trait-candidate table and annotates each row
 with its trait layer (M0/M1/M2) and analysis track:
 
-- ``main_direct``          — species-direct evidence (plus species-indirect for
+- ``main_direct``          - species-direct evidence (plus species-indirect for
   M0) eligible for the primary analysis;
-- ``expanded_sensitivity`` — hierarchical (genus/family) inference, or
+- ``expanded_sensitivity`` - hierarchical (genus/family) inference, or
   species-level evidence below a layer's main bar, reported only as a labelled
   sensitivity track;
-- ``excluded``             — unresolved / below-track evidence.
+- ``excluded``             - unresolved / below-track evidence.
 
 Reproductive-assurance and pollinator-guild traits are restricted to
 species-direct evidence in the main analysis; their genus/family inference is

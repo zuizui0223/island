@@ -26,7 +26,7 @@ data/v2/external/islands/gshhg/prepared/island_manifest.csv
 data/v2/external/islands/gshhg/prepared/source_policy.json
 ```
 
-The initial island universe retains L1 landmasses of at least 5 km² (the primary operational threshold in `config/island_source_gshhg.yml`) and excludes continental-scale L1 landmasses above 7,000,000 km². 1 km² and 20 km² are re-run as explicitly labelled sensitivity analyses. This threshold is explicitly versioned and will be assessed as a source-definition sensitivity analysis; it is not a hidden legacy classification.
+The initial island universe retains L1 landmasses of at least 5 km2 (the primary operational threshold in `config/island_source_gshhg.yml`) and excludes continental-scale L1 landmasses above 7,000,000 km2. 1 km2 and 20 km2 are re-run as explicitly labelled sensitivity analyses. This threshold is explicitly versioned and will be assessed as a source-definition sensitivity analysis; it is not a hidden legacy classification.
 
 ## Why species names are acquired before trait coding
 
@@ -48,7 +48,7 @@ no first-pass year cut-off
 no first-pass basis-of-record restriction
 ```
 
-The absence of a year cut-off is intentional. A 2010–2025-only flora can turn uneven recent survey effort into false species absences. Record dates, data-source composition, basis of record, coordinate uncertainty, and cultivated/native evidence are retained for a later observation-process audit.
+The absence of a year cut-off is intentional. A 2010-2025-only flora can turn uneven recent survey effort into false species absences. Record dates, data-source composition, basis of record, coordinate uncertainty, and cultivated/native evidence are retained for a later observation-process audit.
 
 ## GBIF request lifecycle
 

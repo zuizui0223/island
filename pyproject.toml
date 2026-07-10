@@ -25,6 +25,9 @@ dev = [
   "pytest>=8.0.0",
   "ruff>=0.6.0",
 ]
+review-app = [
+  "streamlit>=1.36.0",
+]
 
 [project.scripts]
 island-v2-gshhg = "island_v2.gshhg_source:app"

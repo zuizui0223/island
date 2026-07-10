@@ -1,4 +1,4 @@
-# Island floral syndrome — v2
+# Island floral syndrome  -  v2
 
 This repository is organized around a reproducible v2 pipeline for a
 **conditional** island floral-syndrome analysis. It does not assume that islands
@@ -12,28 +12,28 @@ source-region context.
 
 ```text
 frozen exact island universe
-→ GBIF download blocks and campaign ledger
-→ archive collection and exact point-in-polygon assignment
-→ flora and Bombus observation-process diagnostics
-→ bulk taxonomic / trait evidence tables
-→ coverage and attrition audit
-→ conditional island-level inference
+-> GBIF download blocks and campaign ledger
+-> archive collection and exact point-in-polygon assignment
+-> flora and Bombus observation-process diagnostics
+-> bulk taxonomic / trait evidence tables
+-> coverage and attrition audit
+-> conditional island-level inference
 ```
 
 The governing design documents are:
 
-- [`docs/v2_pollination_regime_framework.md`](docs/v2_pollination_regime_framework.md) — scientific scope, island strata, preregistration, models, and continuation rules;
-- [`docs/v2_channel_architecture.md`](docs/v2_channel_architecture.md) — compact channel-audit architecture;
-- [`config/bombus_applicability.yml`](config/bombus_applicability.yml) — outcome-blind rule for the biological applicability of the Bombus hypothesis;
-- [`config/bombus_observation_diagnostics.yml`](config/bombus_observation_diagnostics.yml) — effort-aware Bombus detection and non-detection policy.
+- [`docs/v2_pollination_regime_framework.md`](docs/v2_pollination_regime_framework.md)  -  scientific scope, island strata, preregistration, models, and continuation rules;
+- [`docs/v2_channel_architecture.md`](docs/v2_channel_architecture.md)  -  compact channel-audit architecture;
+- [`config/bombus_applicability.yml`](config/bombus_applicability.yml)  -  outcome-blind rule for the biological applicability of the Bombus hypothesis;
+- [`config/bombus_observation_diagnostics.yml`](config/bombus_observation_diagnostics.yml)  -  effort-aware Bombus detection and non-detection policy.
 
 ## Active code
 
-- `src/island_v2/` — v2 Python package
-- `config/` — current data-acquisition and inference configuration
-- `data/v2/` — external, staging, curated, and template data layers
-- `docs/` — v2 architecture, data policy, and operational notes
-- `.github/workflows/` — validation, GBIF submission/polling/collection, and manual trait acquisition
+- `src/island_v2/`  -  v2 Python package
+- `config/`  -  current data-acquisition and inference configuration
+- `data/v2/`  -  external, staging, curated, and template data layers
+- `docs/`  -  v2 architecture, data policy, and operational notes
+- `.github/workflows/`  -  validation, GBIF submission/polling/collection, and manual trait acquisition
 
 ## Global trait acquisition
 

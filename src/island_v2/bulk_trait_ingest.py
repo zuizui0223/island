@@ -46,7 +46,7 @@ def _binomial_key(value: Any) -> str | None:
     deliberately refuses ``Poa annua subsp. annua``. The latter is a different
     assertion of taxonomic scope and must be reconciled explicitly upstream.
     """
-    text = _normalise_text(value).replace("×", "x")
+    text = _normalise_text(value).replace("\u00d7", "x")
     tokens = [token.strip(".,;:()[]") for token in text.split()]
     lowered = [token.casefold() for token in tokens]
     if any(token in RANK_MARKERS for token in lowered):

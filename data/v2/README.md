@@ -9,7 +9,7 @@ templates/
   review_decisions_template.csv                  explicit accept/reject/adjudication decisions
   source_region_bombus_registry_template.csv    source-region applicability proposal/review table
   source_region_evidence_template.csv           Bombus-status evidence for a source region
-  island_source_region_assignment_template.csv  frozen-island → source-region assignment
+  island_source_region_assignment_template.csv  frozen-island -> source-region assignment
   island_assignment_evidence_template.csv       geography/source-pool/dispersal evidence for that assignment
 
 external/

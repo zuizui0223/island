@@ -56,7 +56,7 @@ def build_candidate_pool(taxa: pd.DataFrame) -> pd.DataFrame:
     df["n_records"] = pd.to_numeric(df.get("n_records"), errors="coerce").fillna(0).astype(int)
     ang = df[~df["family"].isin(NON_ANGIOSPERM_FAMILIES)].copy()
     ang["accepted_species"] = ang["accepted_species"].str.strip('"').str.strip()
-    ang = ang[~ang["accepted_species"].str.contains("×", na=False)]
+    ang = ang[~ang["accepted_species"].str.contains("\u00d7", na=False)]
     ang = ang[ang["accepted_species"].str.split().str.len() >= 2]
     return pd.DataFrame(
         {

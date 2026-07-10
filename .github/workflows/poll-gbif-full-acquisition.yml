@@ -23,7 +23,7 @@ jobs:
   poll-downloads:
     # On push: run when manually committed as "poll GBIF full acquisition",
     # or when the submit workflow committed a new batch for polling.
-    # This forms the submit→poll→submit push-chain that self-drives the campaign.
+    # This forms the submit->poll->submit push-chain that self-drives the campaign.
     if: >-
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'schedule' ||

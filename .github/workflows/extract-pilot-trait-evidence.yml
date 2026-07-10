@@ -13,7 +13,7 @@ on:
         required: false
         default: "25"
       source_harvest_island_id:
-        description: "Staged pilot island_id for bounded source harvest; Annobón by default."
+        description: "Staged pilot island_id for bounded source harvest; Annobon by default."
         required: false
         default: "gshhg_2.3.7_h_abdf97ccd87beceb55f6"
       source_harvest_max_taxa:
@@ -102,7 +102,7 @@ jobs:
           island-v2-trait-review-packet build \
             --taxa-csv /tmp/pilot_curation/trait_candidate_pilot.csv \
             --output-dir data/v2/staging/pilot_trait_review_packet
-      - name: Harvest unreviewed literature/access leads for staged Annobón taxa
+      - name: Harvest unreviewed literature/access leads for staged Annobon taxa
         run: |
           python - <<'PY'
           import json
@@ -181,7 +181,7 @@ jobs:
           else:
               print('- No review packet produced.')
 
-          print('\n## Annobón source-harvest artifact')
+          print('\n## Annobon source-harvest artifact')
           report_path = Path('/tmp/trait_source_discovery/trait_source_discovery_report.json')
           if report_path.exists():
               report = json.loads(report_path.read_text(encoding='utf-8'))

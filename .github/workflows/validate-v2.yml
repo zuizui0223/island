@@ -7,6 +7,7 @@ on:
       - "src/island_v2/**"
       - "tests/**"
       - "config/**"
+      - "data/v2/staging/traits/validation_pilot/candidate_review_queue/**"
       - "prompts/**"
       - "scripts/validate_workflows.py"
       - "pyproject.toml"
@@ -16,6 +17,7 @@ on:
       - "src/island_v2/**"
       - "tests/**"
       - "config/**"
+      - "data/v2/staging/traits/validation_pilot/candidate_review_queue/**"
       - "prompts/**"
       - "scripts/validate_workflows.py"
       - "pyproject.toml"
@@ -42,5 +44,10 @@ jobs:
         run: ruff check src/island_v2 tests scripts/validate_workflows.py
       - name: Validate ontology
         run: island-v2-validate ontology --ontology-path config/trait_ontology.yml
+      - name: Validate checked-in trait review queue
+        run: |
+          python -m island_v2.trait_candidate_review_queue validate \
+            --review-queue-csv data/v2/staging/traits/validation_pilot/candidate_review_queue/trait_candidate_review_queue.csv \
+            --output-dir /tmp/trait_candidate_review_queue_validation
       - name: Test controlled inference and GBIF request construction
         run: pytest -q

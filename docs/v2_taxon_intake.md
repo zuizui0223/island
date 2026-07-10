@@ -39,7 +39,7 @@ gbif_backbone_raw/*.json
 Backbone fields are candidates only. `taxon_scope_review_status` remains
 `pending` in every row.
 
-`island_establishment_review_queue.csv` has a row per island × raw taxon. GBIF
+`island_establishment_review_queue.csv` has a row per island x raw taxon. GBIF
 occurrence records are not evidence of native establishment, so every row starts
 as `island_establishment_status=unresolved` and `review_status=pending`.
 
@@ -58,8 +58,8 @@ reviewed before use.
 6. Send only reviewed eligible taxa to trait evidence extraction.
 ```
 
-The GBIF Backbone endpoint helps with steps 1–2. It does **not** substitute for
-steps 3–4, and its response cannot establish island nativeness.
+The GBIF Backbone endpoint helps with steps 1-2. It does **not** substitute for
+steps 3-4, and its response cannot establish island nativeness.
 
 ## Running the intake
 

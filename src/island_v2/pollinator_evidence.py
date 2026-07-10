@@ -1,7 +1,7 @@
 """Validate the long-format pollinator functional-evidence table and derive an index.
 
-The raw evidence is kept **long** — one row per (species, pollinator_guild,
-observation) — and is never collapsed to a single ``mixed_or_generalist`` bucket
+The raw evidence is kept **long** - one row per (species, pollinator_guild,
+observation) - and is never collapsed to a single ``mixed_or_generalist`` bucket
 at the raw stage. A functional-replacement index may be DERIVED from accepted
 rows, but the derivation is separate from and does not mutate the raw table.
 
@@ -67,7 +67,7 @@ def functional_replacement_index(table: pd.DataFrame, schema: dict[str, Any]) ->
 
     Never collapses the raw evidence: this is a separate derived table recording,
     per species, how many distinct guilds have accepted evidence and how many are
-    confirmed effective pollinators — the signal for functional replacement.
+    confirmed effective pollinators - the signal for functional replacement.
     """
     columns = [
         "accepted_species",

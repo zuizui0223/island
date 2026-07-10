@@ -94,7 +94,7 @@ def classify_name_rank(name: str) -> str:
         return "blank"
     if any(marker in lower for marker in (" sp.", " spp.", " cf.", " aff.", " indet", " unknown")):
         return "indeterminate_or_placeholder"
-    tokens = value.replace("×", " x ").split()
+    tokens = value.replace("\u00d7", " x ").split()
     if len(tokens) == 1:
         return "genus_or_higher_rank"
     if len(tokens) >= 2 and tokens[0][:1].isupper() and tokens[1][:1].islower():

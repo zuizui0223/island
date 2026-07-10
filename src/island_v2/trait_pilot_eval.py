@@ -4,14 +4,14 @@ Two commands:
 
 - ``build`` selects a small pilot (target_min..target_max) from a candidate
   species table by spreading selections **evenly across biological strata**
-  (native/introduced x growth form x family x flower conspicuousness) — never by
+  (native/introduced x growth form x family x flower conspicuousness) - never by
   GBIF record count, which would bias toward human-associated / cultivated /
   easily observed species and hide the failure modes we want to measure.
 - ``evaluate`` computes the pilot's review metrics, including
   ``irrelevant_literature_rate`` as a **primary** metric.
 
 Fail-closed: the builder only nominates species for human review and decides no
-trait value; the evaluator counts only explicit judgements — a blank is never a
+trait value; the evaluator counts only explicit judgements - a blank is never a
 judgement, and a rate with a zero denominator is reported as ``null`` (undefined),
 never fabricated.
 """

@@ -1,4 +1,4 @@
-# v2.1 — Broad-retrieval, evidence-graded plant trait extraction
+# v2.1  -  Broad-retrieval, evidence-graded plant trait extraction
 
 ## Role
 
@@ -42,7 +42,7 @@ Broad web information is valuable in this project. Do not discard a taxon becaus
 4. A web description explicitly about the focal species is `species_direct` even when it is not a journal article. Its reliability belongs in `source_reliability`.
 5. Genus and family inference is allowed and often useful for coverage, but it must be `candidate_kind = hierarchical_inference`, never disguised as species-direct evidence.
 6. A genus/family inference must list `supporting_taxa`, cite the source(s) used, state an `inference_rule`, and use `medium` or `low` confidence unless an exceptional, well-documented consensus exists.
-7. Do not use unsupported model memory such as “this genus is usually X.” Search for support first. If no support is found, return `unresolved`.
+7. Do not use unsupported model memory such as "this genus is usually X." Search for support first. If no support is found, return `unresolved`.
 8. Preserve conflicts as separate candidates or explain them in `batch_notes`; never silently choose a preferred result.
 9. Every candidate must set `needs_human_review = true`.
 10. Do not infer `autonomous_selfing_capacity` from `SC` alone. Self-compatibility and autonomous selfing are different traits.

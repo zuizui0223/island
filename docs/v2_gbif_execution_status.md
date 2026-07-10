@@ -1,6 +1,6 @@
 # v2 GBIF acquisition status
 
-The frozen island universe (GSHHG-derived, 8,265 islands ≥ 5 km²) is packed
+The frozen island universe (GSHHG-derived, 8,265 islands >= 5 km2) is packed
 into **103 regional GBIF request blocks**, tracked in
 `config/gbif_full_acquisition_v2.json`. GBIF credentials are configured as the
 `gbif-downloads` environment secrets `GBIF_USERNAME` / `GBIF_PASSWORD`.
@@ -9,14 +9,14 @@ into **103 regional GBIF request blocks**, tracked in
 
 Two scheduled workflows drain the 103 blocks unattended:
 
-- **`submit_gbif_frozen_full_acquisition`** — every 15 min. Regenerates the
+- **`submit_gbif_frozen_full_acquisition`**  -  every 15 min. Regenerates the
   frozen block manifest, selects pending blocks not yet recorded with a real
   download key, and submits up to `batch_size` (default 3). The submitter is
   capacity-aware: it stops the moment GBIF reports its 3-simultaneous-download
   limit, records the overflow as transient `deferred_capacity`, and those
   blocks are re-selected on the next tick.
-- **`poll_gbif_full_acquisition`** — every 15 min (offset). Advances each active
-  download's status (`submitted` → `running` → `succeeded` / `failed`) and
+- **`poll_gbif_full_acquisition`**  -  every 15 min (offset). Advances each active
+  download's status (`submitted` -> `running` -> `succeeded` / `failed`) and
   records the DOI.
 
 Both share the `gbif-full-acquisition` concurrency group (so they never run
@@ -32,7 +32,7 @@ Actions tab (in-flight downloads keep completing and can still be polled).
 
 ## Remaining manual / not-yet-automated step
 
-`collect` — once blocks reach `succeeded`, download the SIMPLE_CSV archives and
+`collect`  -  once blocks reach `succeeded`, download the SIMPLE_CSV archives and
 assign returned coordinates back to the **original exact island polygons** (not
 the buffered query catchments). This is the next module to build; it is not part
 of the submit/poll loop.

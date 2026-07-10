@@ -2,7 +2,7 @@
 
 Primary literature is thin for obscure island endemics, but many have a Wikipedia
 article or a Wikidata item. Per the evidence policy, an **explicit statement in any
-source** — including web/DB — is kept as a ``reported`` candidate (not a proxy). This
+source** - including web/DB - is kept as a ``reported`` candidate (not a proxy). This
 scout resolves each species to its Wikidata item and English Wikipedia article, then
 emits reported M0/M1 candidates wherever a controlled-vocabulary term appears verbatim,
 retaining full provenance.

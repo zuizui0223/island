@@ -46,7 +46,7 @@ def response_detail(response: httpx.Response, limit: int = 4_000) -> str:
     except Exception:  # defensive: an HTTP error should still be recorded
         body = ""
     if len(body) > limit:
-        body = body[:limit] + " …[truncated]"
+        body = body[:limit] + " ...[truncated]"
     return f"HTTP {response.status_code} {response.reason_phrase}: {body or '<empty response body>'}"
 
 

@@ -7,18 +7,18 @@ applicability, or analysis inclusion is decided here.
 
 ## What this is
 
-- `validation_pilot_species.csv` — 50 species, one from each of 50 major
+- `validation_pilot_species.csv`  -  50 species, one from each of 50 major
   angiosperm families, selected by the Stage-6 stratified selector
   (`island-v2-trait-pilot-eval build`).
-- `validation_pilot_summary.json` — selection provenance (pool size, strata,
+- `validation_pilot_summary.json`  -  selection provenance (pool size, strata,
   per-stratum counts).
-- `reported_proxy_candidates/` — unreviewed reported-source and rule-based
+- `reported_proxy_candidates/`  -  unreviewed reported-source and rule-based
   proxy candidates from GitHub Actions run `29060068568` on commit
   `841354972a2bae80b407d593228715c2a56b1702`.
-- `candidate_review_queue/` — prioritized adjudication queue generated from the
+- `candidate_review_queue/`  -  prioritized adjudication queue generated from the
   checked-in reported/proxy/descriptive candidates. Decision columns are blank;
   no candidate is curated by queue generation.
-- `globi_interaction_evidence/` — unreviewed explicit GloBI interaction records
+- `globi_interaction_evidence/`  -  unreviewed explicit GloBI interaction records
   from GitHub Actions run `29017098053` on commit
   `8f586d420178cec07c049641a7f2f1168a0f5699`.
 
@@ -33,7 +33,7 @@ python scripts/build_validation_pilot.py \
 ## How it was selected (and what it deliberately avoids)
 
 - Pool: the collected `island_taxa.csv` (115,328 species) restricted to
-  angiosperms — ferns, lycophytes, and gymnosperms are excluded because the study
+  angiosperms  -  ferns, lycophytes, and gymnosperms are excluded because the study
   is about floral syndromes (105,795 species / 479 families).
 - Selection spreads **evenly across families** (round-robin, largest families
   first, deterministic). It is **not** driven by GBIF record count, which would
@@ -44,8 +44,8 @@ python scripts/build_validation_pilot.py \
 
 ## Fail-closed status of the stratification axes
 
-Only `family` is populated from data. The trait-derived axes —
-`native_status`, `growth_form`, `flower_conspicuousness` — are seeded `unknown`
+Only `family` is populated from data. The trait-derived axes -
+`native_status`, `growth_form`, `flower_conspicuousness` - are seeded `unknown`
 on purpose: those labels are exactly what this pilot's human review supplies, so
 they are never auto-decided. Two ways to enrich them before review:
 
@@ -56,7 +56,7 @@ they are never auto-decided. Two ways to enrich them before review:
    review.
 
 Once these axes carry values, rerunning the builder stratifies across all four
-axes (native/introduced × woody/herb/vine/epiphyte × family × conspicuousness).
+axes (native/introduced x woody/herb/vine/epiphyte x family x conspicuousness).
 
 ## Generated unreviewed candidate artifacts
 
@@ -93,6 +93,36 @@ Work through `candidate_review_queue/trait_candidate_review_queue.csv` in
    reported values.
 5. Promote only rows with `adjudication_decision=accepted` and nonblank
    `final_value` into curated outputs.
+
+After editing the queue, validate the adjudication sheet before curation:
+
+```
+python -m island_v2.trait_candidate_review_queue validate \
+    --review-queue-csv data/v2/staging/traits/validation_pilot/candidate_review_queue/trait_candidate_review_queue.csv \
+    --output-dir data/v2/staging/traits/validation_pilot/candidate_review_queue
+```
+
+The validator fails on unknown decision values, accepted rows missing
+`final_value` / reviewer provenance, accepted ontology/proxy rows whose
+`final_value` is outside the controlled vocabulary, or rejected / source-check
+rows that still carry a `final_value`. It also writes
+`accepted_trait_candidates_for_curation.csv`, preserving source type, evidence
+scope, raw excerpt, and proxy basis fields for accepted rows.
+
+### Optional one-row review app
+
+For a less error-prone review loop, use the Streamlit app:
+
+```
+pip install -e ".[review-app]"
+streamlit run src/island_v2/trait_review_app.py
+```
+
+The app opens the next undecided row in priority order, shows the source excerpt
+and link, suggests controlled `final_value` choices, writes the decision back to
+`trait_candidate_review_queue.csv`, and runs the same validator before saving.
+It still records only human review decisions; it does not curate or infer trait
+values by itself.
 
 ## Source discovery
 

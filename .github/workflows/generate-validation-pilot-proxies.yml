@@ -69,6 +69,11 @@ jobs:
             --trait-proxy-csv /tmp/trait_proxies/trait_proxy_candidates.csv \
             --descriptive-csv /tmp/m0_descriptive_scout/m0_descriptive_candidates.csv \
             --output-dir /tmp/candidate_review_queue
+      - name: Validate candidate review queue
+        run: |
+          python -m island_v2.trait_candidate_review_queue validate \
+            --review-queue-csv /tmp/candidate_review_queue/trait_candidate_review_queue.csv \
+            --output-dir /tmp/candidate_review_queue
       - name: Summarize proxy generation
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"

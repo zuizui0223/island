@@ -1,4 +1,4 @@
-# v2: conditional island floral syndrome — channel-audit architecture
+# v2: conditional island floral syndrome  -  channel-audit architecture
 
 ## Status and boundary
 
@@ -72,7 +72,7 @@ proof of a particular mechanism.
 For a species trait state `z` in an island regime, the Campanula project writes:
 
 ```text
-W(z) = F(z) × E(z)
+W(z) = F(z) x E(z)
 ```
 
 For the global analysis this is **not a new fitted model**. It is an

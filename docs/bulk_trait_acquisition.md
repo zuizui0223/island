@@ -10,11 +10,11 @@ The primary path is:
 
 ```text
 public bulk trait export
-→ source-specific codebook/profile
-→ exact species-name matching to island_taxa.csv
-→ pending source-backed evidence table
-→ trait and family coverage audit
-→ conservative / expanded sensitivity analyses
+-> source-specific codebook/profile
+-> exact species-name matching to island_taxa.csv
+-> pending source-backed evidence table
+-> trait and family coverage audit
+-> conservative / expanded sensitivity analyses
 ```
 
 ## What bulk import does and does not do
@@ -46,15 +46,15 @@ not collapsed to a species-level master row. They remain in the name-match audit
 
 One run writes these separate products:
 
-- `bulk_trait_candidates_*.csv` — pending, source-backed, species-direct rows;
-- `bulk_trait_name_matches_*.csv` — every source-row taxonomic match decision;
-- `bulk_trait_unmatched_taxa_*.csv` — records that require explicit taxonomic
+- `bulk_trait_candidates_*.csv`  -  pending, source-backed, species-direct rows;
+- `bulk_trait_name_matches_*.csv`  -  every source-row taxonomic match decision;
+- `bulk_trait_unmatched_taxa_*.csv`  -  records that require explicit taxonomic
   reconciliation rather than guessing;
-- `bulk_trait_unmapped_values_*.csv` — source codes that require a reviewed
+- `bulk_trait_unmapped_values_*.csv`  -  source codes that require a reviewed
   profile mapping;
-- `bulk_trait_coverage_by_trait_*.csv` — both species coverage and weighted
+- `bulk_trait_coverage_by_trait_*.csv`  -  both species coverage and weighted
   island-species-pair coverage; and
-- `bulk_trait_coverage_by_family_*.csv` — taxonomic bias diagnostics.
+- `bulk_trait_coverage_by_family_*.csv`  -  taxonomic bias diagnostics.
 
 The manifest records the downloaded source checksum and all paths.
 
