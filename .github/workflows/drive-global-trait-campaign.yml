@@ -1,0 +1,90 @@
+name: drive_global_trait_campaign
+
+# Global-first, resumable trait acquisition. Each run advances exactly one
+# family-balanced wave from the current unique-species master. Machine outputs
+# remain unreviewed and never define flora membership or biological absence.
+on:
+  workflow_dispatch:
+    inputs:
+      batch_size:
+        description: "Species attempted in this bounded wave (1-500)."
+        required: false
+        default: "250"
+        type: string
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: global-trait-campaign
+  cancel-in-progress: false
+
+jobs:
+  advance-one-wave:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    env:
+      BATCH_SIZE: ${{ inputs.batch_size || '250' }}
+      CAMPAIGN_DIR: data/v2/staging/traits/global_campaign
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Guard global campaign logic
+        run: pytest -q tests/test_global_trait_campaign.py tests/test_reported_ecology_machine.py
+      - name: Validate bounded batch size
+        run: |
+          python - <<'PY'
+          import os
+
+          value = int(os.environ["BATCH_SIZE"])
+          if not 1 <= value <= 500:
+              raise SystemExit("batch_size must be between 1 and 500")
+          PY
+      - name: Advance one global machine-evidence wave
+        run: |
+          island-v2-global-trait-campaign run \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --campaign-dir "${CAMPAIGN_DIR}" \
+            --config-path config/global_trait_campaign.yml \
+            --batch-size "${BATCH_SIZE}"
+      - name: Publish campaign status
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+
+          path = Path("data/v2/staging/traits/global_campaign/campaign_status.json")
+          status = json.loads(path.read_text(encoding="utf-8"))
+          print("## Global trait campaign")
+          print(f"- global species master: {status['n_global_species']}")
+          print(f"- families: {status['n_families']}")
+          print(f"- machine biotic-vector candidates: {status['n_machine_biotic_candidates']}")
+          print(f"- next task: {status['active_task']}")
+          if "last_wave" in status:
+              wave = status["last_wave"]
+              print(f"- last wave: {wave['wave_id']}")
+              print(f"- species attempted: {wave['n_species_attempted']}")
+              print(f"- target candidates: {wave['n_target_candidates']}")
+              print(f"- lookup errors: {wave['n_lookup_errors']}")
+          print("")
+          print(status["interpretation"])
+          PY
+      - name: Commit campaign progress
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add "${CAMPAIGN_DIR}"
+          git diff --cached --quiet && { echo "No campaign change."; exit 0; }
+          git commit -m "chore: advance global trait campaign"
+          git pull --rebase origin main
+          git push origin HEAD:main
