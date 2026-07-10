@@ -35,7 +35,7 @@ jobs:
             ruff check --fix src/island_v2/global_trait_campaign.py tests/test_global_trait_campaign.py
             ruff format src/island_v2/global_trait_campaign.py tests/test_global_trait_campaign.py
             pytest -q tests/test_global_trait_campaign.py tests/test_reported_ecology_machine.py
-            python scripts/validate_workflow_contracts.py
+            python scripts/validate_workflows.py
           } 2>&1 | tee streaming_patch_validation.log
       - name: Commit patch or diagnostics
         if: always()
