@@ -203,7 +203,8 @@ the no-review signal is in the separate machine index.
 
 To extract reproductive/selfing/pollen-vector statements from source text, use
 the reported-ecology machine lane. It supports both external LLM JSONL imports
-and a rule-based OpenAlex title/abstract baseline:
+and rule-based baselines over OpenAlex title/abstract text or Wikimedia species
+text:
 
 ```
 python -m island_v2.reported_ecology_machine extract-openalex \
@@ -231,6 +232,29 @@ The current OpenAlex baseline found 3 reported-ecology candidates for 1 species,
 all `species_indirect`; they are therefore retained as
 `sensitivity_text_reported`, not main no-review selected traits.
 
+Run the Wikimedia baseline:
+
+```
+python -m island_v2.reported_ecology_machine extract-wikimedia \
+    --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+    --output-dir data/v2/staging/traits/validation_pilot/machine_method_eval/reported_ecology_wikimedia \
+    --max-taxa 50 \
+    --pause-seconds 0.05
+
+python -m island_v2.trait_multimodal_candidates build \
+    --reported-ecology-candidates-csv data/v2/staging/traits/validation_pilot/machine_method_eval/reported_ecology_wikimedia/reported_ecology_candidates.csv \
+    --output-dir data/v2/staging/traits/validation_pilot/machine_method_eval/reported_ecology_wikimedia/candidate_review_queue
+
+python -m island_v2.trait_machine_method_eval evaluate \
+    --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+    --review-queue-csv data/v2/staging/traits/validation_pilot/machine_method_eval/reported_ecology_wikimedia/candidate_review_queue/trait_candidate_review_queue.csv \
+    --output-dir data/v2/staging/traits/validation_pilot/machine_method_eval/reported_ecology_wikimedia/machine_outputs
+```
+
+The current Wikimedia baseline read 68 source rows and found 3 sex-system
+candidates across 3 species. Two are `species_direct` and therefore enter the
+main no-review machine trait layer; one remains sensitivity-only.
+
 To write a single machine-output bundle that combines the source-refresh trait
 queue, the reported-ecology queue, GloBI interaction claims, and the derived
 pollinator-guild index:
@@ -240,13 +264,14 @@ python -m island_v2.trait_machine_method_eval evaluate-combined \
     --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
     --review-queue-csv data/v2/staging/traits/validation_pilot/machine_method_eval/source_refresh/candidate_review_queue/trait_candidate_review_queue.csv \
     --review-queue-csv data/v2/staging/traits/validation_pilot/machine_method_eval/reported_ecology_openalex/candidate_review_queue/trait_candidate_review_queue.csv \
+    --review-queue-csv data/v2/staging/traits/validation_pilot/machine_method_eval/reported_ecology_wikimedia/candidate_review_queue/trait_candidate_review_queue.csv \
     --globi-csv data/v2/staging/traits/validation_pilot/machine_method_eval/source_refresh/globi_interaction_evidence/globi_interaction_evidence.csv \
     --pollinator-guild-index-csv data/v2/staging/traits/validation_pilot/machine_method_eval/machine_pollinator_guilds/machine_pollinator_guild_index.csv \
     --output-dir data/v2/staging/traits/validation_pilot/machine_method_eval/combined_machine_outputs
 ```
 
-The current combined validation-pilot run writes 48 machine trait candidates, 12
-main no-review selected trait rows, 25 sensitivity/proxy trait rows, 21
+The current combined validation-pilot run writes 51 machine trait candidates, 14
+main no-review selected trait rows, 26 sensitivity/proxy trait rows, 21
 interaction-claim rows, and 4 pollinator-guild index rows. It also records 2
 machine functional-replacement signals. `machine_trait_candidates.csv` keeps the
 `machine_queue_source_path` column so each row can be traced back to its input

@@ -1,0 +1,26 @@
+{
+  "n_review_candidates": 3,
+  "n_species": 3,
+  "n_review_decisions_recorded": 0,
+  "n_accepted_ready_for_curation": 0,
+  "review_group_counts": {
+    "P1_reported_ecology_llm_source_check": 2,
+    "P4_descriptive_scout_source_check": 1
+  },
+  "source_lane_counts": {
+    "llm_reported_ecology": 3
+  },
+  "decision_allowed_values": [
+    "accepted",
+    "rejected",
+    "needs_source_check"
+  ],
+  "curation_rule": "Queue generation records no biological decisions. Promote only rows with adjudication_decision=accepted and nonblank final_value.",
+  "n_validation_errors": 0,
+  "validation_errors": [],
+  "final_value_policy": "Accepted rows require final_value/reviewer provenance. When trait_name is in the ontology or is a declared proxy trait, final_value must match that controlled vocabulary.",
+  "input_policy": {
+    "visual": "Image rows are visible-trait candidates only; no reproductive or pollinator state is inferred from images.",
+    "reported_ecology": "LLM rows must preserve source excerpts and remain review candidates until accepted by a reviewer."
+  }
+}

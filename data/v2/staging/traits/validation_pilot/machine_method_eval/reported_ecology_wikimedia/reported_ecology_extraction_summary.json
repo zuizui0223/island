@@ -1,0 +1,14 @@
+{
+  "n_reported_ecology_candidates": 3,
+  "n_species": 3,
+  "n_holdouts": 0,
+  "trait_counts": {
+    "sex_system": 3
+  },
+  "human_review_required": false,
+  "policy": "Machine-only source-excerpt candidates; preserve source excerpt and keep method tier downstream.",
+  "n_source_rows": 68,
+  "source": "Wikidata description and Wikipedia extract",
+  "n_lookup_errors": 0,
+  "lookup_errors": []
+}

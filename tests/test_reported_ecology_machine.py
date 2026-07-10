@@ -14,6 +14,21 @@ def _ontology() -> dict:
     return yaml.safe_load(open("config/trait_ontology.yml", encoding="utf-8"))
 
 
+def _fake_wikimedia_getter(qid="Q1", enwiki="Ecologia example", wd_desc="", extract="", missing=False):
+    def getter(url, params):
+        if "wikidata.org" in url and params.get("action") == "wbsearchentities":
+            return {"search": [{"id": qid, "description": wd_desc}]} if qid else {"search": []}
+        if "wikidata.org" in url and params.get("action") == "wbgetentities":
+            return {"entities": {qid: {"sitelinks": {"enwiki": {"title": enwiki}} if enwiki else {}}}}
+        if "wikipedia.org" in url:
+            if missing:
+                return {"query": {"pages": {"-1": {"missing": ""}}}}
+            return {"query": {"pages": {"1": {"title": enwiki or "Ecologia example", "extract": extract}}}}
+        return {}
+
+    return getter
+
+
 def test_normalize_value_maps_reported_ecology_aliases():
     ontology = _ontology()
 
@@ -50,11 +65,62 @@ def test_extract_candidates_from_text_sources_preserves_excerpt_and_scope():
     assert set(candidates["trait_name"]) == {
         "self_incompatibility",
         "autonomous_selfing_capacity",
+        "pollen_vector_mode",
         "pollination_functional_guild",
     }
-    assert set(candidates["candidate_value"]) == {"SC", "autonomous", "other_bees"}
+    assert set(candidates["candidate_value"]) == {"SC", "autonomous", "biotic", "other_bees"}
     assert candidates["source_excerpt"].str.contains("self-compatible").any()
     assert set(candidates["evidence_scope"]) == {"species_direct"}
+
+
+def test_extract_candidates_from_text_sources_catches_web_common_terms():
+    sources = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Webbia example",
+                "source_text": "Webbia example has hermaphroditic flowers and is self-pollinating.",
+                "source_url": "https://example.test/wiki",
+                "source_citation": "Wiki source",
+                "source_type": "wikipedia_extract",
+                "evidence_scope": "species_direct",
+            }
+        ]
+    )
+
+    candidates, _ = ecology.extract_candidates_from_text_sources(sources, _ontology())
+
+    assert {
+        ("sex_system", "hermaphroditic"),
+        ("autonomous_selfing_capacity", "autonomous"),
+    } <= set(zip(candidates["trait_name"], candidates["candidate_value"], strict=True))
+
+
+def test_wikimedia_text_sources_preserve_extract_scope_and_description():
+    species = pd.DataFrame({"accepted_species": ["Ecologia example"]})
+    getter = _fake_wikimedia_getter(
+        wd_desc="species of plant with hermaphroditic flowers",
+        extract="Ecologia example is self-compatible and pollinated by bees.",
+    )
+
+    sources, errors = ecology.wikimedia_text_sources(species, getter, max_taxa=50)
+
+    assert errors == []
+    assert set(sources["source_type"]) == {"wikidata_description", "wikipedia_extract"}
+    assert set(sources["evidence_scope"]) == {"species_direct"}
+    assert sources["source_text"].str.contains("self-compatible|hermaphroditic").any()
+
+
+def test_wikimedia_text_sources_species_direct_when_extract_names_species():
+    species = pd.DataFrame({"accepted_species": ["Monotypia example"]})
+    getter = _fake_wikimedia_getter(
+        enwiki="Monotypia",
+        extract="Monotypia example is the only species in the genus and is dioecious.",
+    )
+
+    sources, _ = ecology.wikimedia_text_sources(species, getter, max_taxa=50)
+
+    wiki = sources.loc[sources["source_type"].eq("wikipedia_extract")].iloc[0]
+    assert wiki["evidence_scope"] == "species_direct"
 
 
 def test_jsonl_import_validates_and_normalizes_candidates(tmp_path):

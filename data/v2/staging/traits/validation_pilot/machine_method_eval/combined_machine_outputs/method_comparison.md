@@ -13,8 +13,8 @@ Human review was not required for this run. Outputs are machine layers, not huma
 
 ## Output Counts
 
-- `machine_trait_selected.csv`: 12 selected species-trait rows
-- `machine_trait_sensitivity.csv`: 25 sensitivity/proxy rows
+- `machine_trait_selected.csv`: 14 selected species-trait rows
+- `machine_trait_sensitivity.csv`: 26 sensitivity/proxy rows
 - `machine_interaction_claims.csv`: 21 interaction-claim rows
 - `machine_pollinator_guild_index.csv`: 4 pollinator-guild species rows
 
@@ -26,7 +26,7 @@ Human review was not required for this run. Outputs are machine layers, not huma
 | web_reported_species_indirect | 4 | 3 | 0.06 | 4 | 1 | sensitivity_only | Useful lead, but genus/indirect pages are weaker without manual checking. |
 | gbif_descriptive_scout | 1 | 1 | 0.02 | 1 | 0 | not_recommended_as_main | Very sparse in the validation pilot and prone to description-context noise. |
 | rule_based_trait_proxy | 17 | 17 | 0.34 | 17 | 0 | proxy_sensitivity_only | Expands coverage but is phenotype/family inference, not source-stated trait evidence. |
-| llm_reported_ecology_excerpt | 3 | 1 | 0.02 | 3 | 0 | next_main_text_lane_for_reproduction_and_visitors | Source-excerpted reproductive, selfing, pollen-vector, or visitor statements; usable as main no-review text evidence when species-direct. |
+| llm_reported_ecology_excerpt | 6 | 4 | 0.08 | 6 | 0 | next_main_text_lane_for_reproduction_and_visitors | Source-excerpted reproductive, selfing, pollen-vector, or visitor statements; usable as main no-review text evidence when species-direct. |
 | visual_image_candidate | 0 | 0 | 0.0 | 0 | 0 | later_auxiliary_visible_traits | Useful for visible M0 traits only; heavier than text and not suitable for reproductive or visitor states. |
 | globi_interaction_claims | 21 | 5 | 0.1 | 21 | 0 | best_current_no_review_interaction_lane | Source-backed pollination/flower-visit claims; sparse and not effectiveness or guild by itself. |
 | machine_pollinator_guild_index | 4 | 4 | 0.08 | 4 | 0 | derived_no_review_pollinator_guild_layer | Derived from source-backed GloBI partner taxa; use as a machine guild index, not human-verified ecology. |

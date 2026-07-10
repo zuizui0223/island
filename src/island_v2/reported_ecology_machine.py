@@ -18,6 +18,7 @@ import pandas as pd
 import typer
 import yaml
 
+from island_v2 import trait_web_reported_scout as web_reported_scout
 from island_v2.trait_source_discovery import openalex_abstract
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
@@ -156,12 +157,15 @@ PATTERNS: list[tuple[str, str, str]] = [
     ("autonomous_selfing_capacity", "delayed", r"\bdelayed selfing\b"),
     ("autonomous_selfing_capacity", "autonomous", r"\b(?:autonomous|spontaneous) selfing\b"),
     ("autonomous_selfing_capacity", "autonomous", r"\bautogam(?:y|ous)\b"),
+    ("autonomous_selfing_capacity", "autonomous", r"\bself[- ]pollinat(?:ing|ed|ion)\b"),
     ("autonomous_selfing_capacity", "absent", r"\bno autonomous selfing\b"),
     ("mating_system", "mixed_mating", r"\bmixed mating\b"),
     ("mating_system", "mixed_mating", r"\bfacultative selfing\b"),
     ("mating_system", "predominantly_outcrossing", r"\boutcrossing\b"),
     ("mating_system", "obligate_selfing", r"\bobligate selfing\b"),
+    ("pollen_vector_mode", "abiotic_wind", r"\bpollinated by wind\b"),
     ("pollen_vector_mode", "abiotic_wind", r"\bwind[- ]pollinat(?:ed|ion)\b"),
+    ("pollen_vector_mode", "biotic", r"\bpollinated by (?:bees?|insects?|birds?|bats?|flies|moths?|butterflies)\b"),
     ("pollen_vector_mode", "biotic", r"\binsect[- ]pollinat(?:ed|ion)\b"),
     ("pollen_vector_mode", "biotic", r"\bentomophil(?:y|ous)\b"),
     ("pollination_functional_guild", "bumblebees", r"\b(?:Bombus|bumblebee|bumblebees)\b"),
@@ -177,7 +181,10 @@ PATTERNS: list[tuple[str, str, str]] = [
     ("dichogamy", "protogyny", r"\bprotogyn(?:y|ous)\b"),
     ("cleistogamy", "facultative", r"\bfacultative cleistogam(?:y|ous)\b"),
     ("cleistogamy", "obligate", r"\bobligate cleistogam(?:y|ous)\b"),
-    ("sex_system", "dioecious", r"\bdioecious\b"),
+    ("sex_system", "hermaphroditic", r"\bhermaphrodit(?:e|ic|ism)\b"),
+    ("sex_system", "hermaphroditic", r"\bbisexual\b"),
+    ("sex_system", "hermaphroditic", r"\bflowers? (?:have|with) both male and female parts\b"),
+    ("sex_system", "dioecious", r"\bdioec(?:ious|uous)\b"),
     ("sex_system", "monoecious", r"\bmonoecious\b"),
     ("sex_system", "gynodioecious", r"\bgynodioecious\b"),
 ]
@@ -405,6 +412,68 @@ def openalex_text_sources(
     return pd.DataFrame(rows, columns=TEXT_SOURCE_COLUMNS)
 
 
+def wikimedia_text_sources(
+    species_df: pd.DataFrame,
+    getter: web_reported_scout.JsonGetter,
+    max_taxa: int,
+) -> tuple[pd.DataFrame, list[str]]:
+    """Fetch Wikidata descriptions and Wikipedia extracts as reported-ecology text sources."""
+    if "accepted_species" not in species_df.columns:
+        raise typer.BadParameter("species CSV must contain accepted_species")
+    selected = [
+        name
+        for name in dict.fromkeys(species_df["accepted_species"].fillna("").astype(str).str.strip())
+        if name
+    ][:max_taxa]
+    rows: list[dict[str, str]] = []
+    errors: list[str] = []
+    for species in selected:
+        try:
+            wikidata = web_reported_scout.fetch_wikidata(getter, species)
+        except Exception as exc:  # noqa: BLE001 - one source failing must not abort the batch
+            wikidata = {}
+            errors.append(f"wikidata:{species}:{exc}")
+        qid = _text(wikidata.get("qid")) if wikidata else ""
+        description = _text(wikidata.get("description")) if wikidata else ""
+        if qid and description:
+            rows.append(
+                {
+                    "accepted_species": species,
+                    "source_text": description,
+                    "source_url": f"https://www.wikidata.org/wiki/{qid}",
+                    "source_citation": f"{species} Wikidata description",
+                    "source_type": "wikidata_description",
+                    "evidence_scope": "species_direct",
+                }
+            )
+        title = _text(wikidata.get("enwiki_title")) if wikidata else ""
+        try:
+            extract, url, resolved = web_reported_scout.fetch_wikipedia_extract(
+                getter,
+                title or species,
+            )
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"wikipedia:{species}:{exc}")
+            continue
+        if extract:
+            scope = (
+                "species_direct"
+                if species.casefold() in extract.casefold()
+                else web_reported_scout._scope_for(species, resolved)  # noqa: SLF001
+            )
+            rows.append(
+                {
+                    "accepted_species": species,
+                    "source_text": _text(extract),
+                    "source_url": url,
+                    "source_citation": f"{resolved or title or species} Wikipedia extract",
+                    "source_type": "wikipedia_extract",
+                    "evidence_scope": scope,
+                }
+            )
+    return pd.DataFrame(rows, columns=TEXT_SOURCE_COLUMNS), errors
+
+
 def write_outputs(
     output_dir: Path,
     candidates: pd.DataFrame,
@@ -501,6 +570,52 @@ def extract_openalex(
     typer.echo(
         f"Extracted {summary['n_reported_ecology_candidates']} reported ecology candidate(s) "
         f"from {summary['n_source_rows']} OpenAlex source row(s)."
+    )
+
+
+@app.command("extract-wikimedia")
+def extract_wikimedia(
+    species_csv: Path = typer.Option(..., exists=True, help="Species CSV with accepted_species."),
+    output_dir: Path = typer.Option(...),
+    max_taxa: int = typer.Option(50, min=1, max=500),
+    pause_seconds: float = typer.Option(0.1, min=0.0),
+    max_retries: int = typer.Option(4, min=0, max=8),
+    ontology_path: Path = typer.Option(Path("config/trait_ontology.yml"), exists=True),
+) -> None:
+    """Fetch Wikimedia species text and run the rule-based ecology baseline."""
+    species = pd.read_csv(species_csv, dtype=str).fillna("")
+    sources, errors = wikimedia_text_sources(
+        species,
+        web_reported_scout._httpx_getter(  # noqa: SLF001
+            pause_seconds=pause_seconds,
+            max_retries=max_retries,
+        ),
+        max_taxa,
+    )
+    ontology = load_ontology(ontology_path)
+    candidates, holdouts = extract_candidates_from_text_sources(
+        sources,
+        ontology,
+        extraction_model="rule_based_wikimedia_reported_ecology_v1",
+        prompt_id="wikimedia_reported_ecology_rules_v1",
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+    sources.to_csv(output_dir / "wikimedia_text_sources.csv", index=False)
+    summary = write_outputs(
+        output_dir,
+        candidates,
+        holdouts,
+        {
+            "n_source_rows": int(len(sources)),
+            "source": "Wikidata description and Wikipedia extract",
+            "n_lookup_errors": int(len(errors)),
+            "lookup_errors": errors[:20],
+        },
+    )
+    typer.echo(
+        f"Extracted {summary['n_reported_ecology_candidates']} reported ecology candidate(s) "
+        f"from {summary['n_source_rows']} Wikimedia source row(s); "
+        f"{summary['n_lookup_errors']} lookup error(s)."
     )
 
 
