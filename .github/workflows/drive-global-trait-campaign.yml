@@ -13,6 +13,14 @@ on:
         type: string
   schedule:
     - cron: "17 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/drive-global-trait-campaign.yml"
+      - "src/island_v2/global_trait_campaign.py"
+      - "config/global_trait_campaign.yml"
+      - "config/global_floral_access_keywords.yml"
+      - "pyproject.toml"
 
 permissions:
   contents: write
@@ -23,7 +31,10 @@ concurrency:
 
 jobs:
   advance-one-wave:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      github.event_name == 'push'
     runs-on: ubuntu-latest
     env:
       BATCH_SIZE: ${{ inputs.batch_size || '250' }}
