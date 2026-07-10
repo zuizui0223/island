@@ -15,6 +15,9 @@ applicability, or analysis inclusion is decided here.
 - `reported_proxy_candidates/` — unreviewed reported-source and rule-based
   proxy candidates from GitHub Actions run `29060068568` on commit
   `841354972a2bae80b407d593228715c2a56b1702`.
+- `candidate_review_queue/` — prioritized adjudication queue generated from the
+  checked-in reported/proxy/descriptive candidates. Decision columns are blank;
+  no candidate is curated by queue generation.
 - `globi_interaction_evidence/` — unreviewed explicit GloBI interaction records
   from GitHub Actions run `29017098053` on commit
   `8f586d420178cec07c049641a7f2f1168a0f5699`.
@@ -67,11 +70,31 @@ applicability, or analysis inclusion.
   1 GBIF species-description candidate; lookup errors: 0.
 - `reported_proxy_candidates/trait_proxies/trait_proxy_candidates.csv`:
   17 rule-based `floral_syndrome_proxy` candidates across 17 species.
+- `candidate_review_queue/trait_candidate_review_queue.csv`:
+  45 review rows across 17 species; 23 direct reported rows first, 4 indirect
+  source-check rows second, 17 proxy rows third, and 1 descriptive source-check
+  row last. Allowed adjudication values are `accepted`, `rejected`, and
+  `needs_source_check`.
 - `globi_interaction_evidence/globi_interaction_evidence.csv`:
   21 explicit GloBI pollination interaction claims across 5 queried taxa; query
   errors: 0.
 
-## Next step: source discovery
+## Next step: adjudicate candidates
+
+Work through `candidate_review_queue/trait_candidate_review_queue.csv` in
+`review_priority` order:
+
+1. Fill `adjudication_decision` for `P1_species_direct_reported` rows first.
+2. Use `needs_source_check` for rows that require source-page inspection before
+   acceptance or rejection.
+3. Keep `P2_species_indirect_source_check` strict: accept only when the source
+   truly applies to the accepted species, not just a genus or related taxon.
+4. Treat `P3_proxy_candidate` rows as proxies only. They are not explicit
+   reported values.
+5. Promote only rows with `adjudication_decision=accepted` and nonblank
+   `final_value` into curated outputs.
+
+## Source discovery
 
 Literature source discovery (Stage 1, `island-v2-trait-source-discovery`) runs
 against the public OpenAlex/Crossref/Unpaywall APIs. Those hosts are **blocked by

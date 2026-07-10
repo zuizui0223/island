@@ -1,0 +1,23 @@
+{
+  "n_review_candidates": 45,
+  "n_species": 17,
+  "n_review_decisions_recorded": 0,
+  "n_accepted_ready_for_curation": 0,
+  "review_group_counts": {
+    "P1_species_direct_reported": 23,
+    "P2_species_indirect_source_check": 4,
+    "P3_proxy_candidate": 17,
+    "P4_descriptive_scout_source_check": 1
+  },
+  "source_lane_counts": {
+    "m0_descriptive_scout": 1,
+    "trait_proxy_generator": 17,
+    "web_reported_scout": 27
+  },
+  "decision_allowed_values": [
+    "accepted",
+    "rejected",
+    "needs_source_check"
+  ],
+  "curation_rule": "Queue generation records no biological decisions. Promote only rows with adjudication_decision=accepted and nonblank final_value."
+}
