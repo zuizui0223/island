@@ -235,9 +235,11 @@ def prepare_dependent_statuses(
 
 
 def choose_active_task(ledger: pd.DataFrame, config: dict[str, Any]) -> str:
-    """Choose the first task with at least one currently eligible species."""
+    """Choose the first required primary-screen task with eligible species."""
     for task_value in config["task_order"]:
         task = str(task_value)
+        if not bool(config["tasks"][task].get("required_for_primary_completion", True)):
+            continue
         if task_eligible_mask(ledger, task, config).any():
             return task
     return "complete"
@@ -695,6 +697,9 @@ def campaign_summary(ledger: pd.DataFrame, config: dict[str, Any]) -> dict[str, 
             "status_counts": {str(key): int(value) for key, value in counts.items()},
             "n_candidates": int(ledger[f"{task}_candidate_count"].sum()),
             "n_eligible_pending": int(task_eligible_mask(ledger, task, config).sum()),
+            "required_for_primary_completion": bool(
+                config["tasks"][task].get("required_for_primary_completion", True)
+            ),
             "terminal": task_is_terminal(ledger, task),
         }
     return {

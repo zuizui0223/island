@@ -1,8 +1,9 @@
 name: drive_global_trait_campaign
 
-# Global-first, resumable trait acquisition. Each run advances a bounded
-# family-balanced bundle across the four evidence stages. Machine outputs remain
-# unreviewed and never define flora membership or biological absence.
+# Global-first, resumable primary screening. Every run advances the global
+# family-balanced Wikimedia pass and then follows only direct machine biotic-
+# vector candidates into floral-access and alternative-guild extraction.
+# Scholarly-database enrichment is optional and cannot block primary completion.
 on:
   workflow_dispatch:
     inputs:
@@ -40,12 +41,11 @@ jobs:
     timeout-minutes: 55
     env:
       BATCH_SIZE: ${{ inputs.batch_size || '1000' }}
-      # Two scheduled runs per hour yield at most 720 OpenAlex searches/day:
-      # (10 + 5) * 48. This leaves headroom below the free-key 1,000-search budget.
-      OPENALEX_BATCH_SIZE: "10"
+      # 1,000 species every 30 minutes gives a theoretical 48,000-species/day
+      # first-pass capacity. The 105,612-species master therefore fits inside
+      # one week even with substantial scheduling and network slack.
       FLORAL_BATCH_SIZE: "150"
-      GUILD_BATCH_SIZE: "5"
-      OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+      GUILD_BATCH_SIZE: "150"
       CAMPAIGN_DIR: data/v2/staging/traits/global_campaign
       CAMPAIGN_RUN_LOG: /tmp/global_trait_campaign_run.log
     steps:
@@ -67,13 +67,6 @@ jobs:
             tests/test_reported_ecology_machine.py
           island-v2-global-trait-campaign --help >/dev/null
           island-v2-global-candidate-index --help >/dev/null
-      - name: Report OpenAlex credential state
-        run: |
-          if test -n "${OPENALEX_API_KEY}"; then
-            echo "OpenAlex free-key lane enabled." >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "OpenAlex tasks will remain retryable without consuming attempts because OPENALEX_API_KEY is not configured." >> "$GITHUB_STEP_SUMMARY"
-          fi
       - name: Validate bounded Wikimedia batch size
         run: |
           python - <<'PY'
@@ -83,7 +76,7 @@ jobs:
           if not 1 <= value <= 2000:
               raise SystemExit("batch_size must be between 1 and 2000")
           PY
-      - name: Advance one global streaming bundle
+      - name: Advance one global primary-screen bundle
         id: advance
         continue-on-error: true
         run: |
@@ -102,9 +95,8 @@ jobs:
               2>&1 | tee -a "${CAMPAIGN_RUN_LOG}"
           }
           run_task reproductive_wikimedia "${BATCH_SIZE}"
-          run_task reproductive_openalex "${OPENALEX_BATCH_SIZE}"
           run_task floral_access_wikimedia "${FLORAL_BATCH_SIZE}"
-          run_task alternative_guild_openalex "${GUILD_BATCH_SIZE}"
+          run_task alternative_guild_wikimedia "${GUILD_BATCH_SIZE}"
       - name: Record failed bundle for retry
         if: steps.advance.outcome == 'failure'
         env:
@@ -122,22 +114,21 @@ jobs:
           directory = Path(os.environ["CAMPAIGN_DIR"])
           log_path = directory / "campaign_failure.log"
           payload = {
-              "status": "streaming_bundle_failed",
+              "status": "primary_screen_bundle_failed",
               "run_id": os.environ["RUN_ID"],
               "run_attempt": os.environ["RUN_ATTEMPT"],
               "source_sha": os.environ["SOURCE_SHA"],
               "batch_plan": {
                   "reproductive_wikimedia": int(os.environ["BATCH_SIZE"]),
-                  "reproductive_openalex": int(os.environ["OPENALEX_BATCH_SIZE"]),
                   "floral_access_wikimedia": int(os.environ["FLORAL_BATCH_SIZE"]),
-                  "alternative_guild_openalex": int(os.environ["GUILD_BATCH_SIZE"]),
+                  "alternative_guild_wikimedia": int(os.environ["GUILD_BATCH_SIZE"]),
               },
               "failure_log": str(log_path),
               "retry_policy": (
                   "Any preceding task waves completed in this bundle remain in the ledger. "
-                  "The next scheduled bundle retries only rows still pending or marked retry; "
-                  "OpenAlex credential, quota, 429, 5xx, and transport failures do not consume "
-                  "the biological lookup-attempt budget or imply trait absence."
+                  "The next scheduled bundle retries only rows still pending or marked retry. "
+                  "Wikimedia lookup failures do not imply trait absence; optional scholarly "
+                  "enrichment is outside the primary one-week completion path."
               ),
           }
           (directory / "campaign_failure.json").write_text(
@@ -166,7 +157,7 @@ jobs:
           status = json.loads(path.read_text(encoding="utf-8"))
           index_path = Path("data/v2/staging/traits/global_campaign/candidate_index_status.json")
           index_status = json.loads(index_path.read_text(encoding="utf-8")) if index_path.exists() else {}
-          print("## Global trait campaign")
+          print("## Global primary trait screen")
           print(f"- global species master: {status['n_global_species']}")
           print(f"- families: {status['n_families']}")
           print(f"- machine biotic-vector candidates: {status['n_machine_biotic_candidates']}")
@@ -175,11 +166,12 @@ jobs:
               "- counterfactual screening species: "
               f"{index_status.get('n_machine_biotic_screening_species', 0)}"
           )
-          print(f"- default next task: {status['active_task']}")
+          print(f"- next required primary task: {status['active_task']}")
           for task, details in status["tasks"].items():
               counts = details["status_counts"]
+              required = details.get("required_for_primary_completion", True)
               print(
-                  f"- {task}: processed={counts.get('processed', 0)}, "
+                  f"- {task}: required={required}, processed={counts.get('processed', 0)}, "
                   f"eligible_pending={details.get('n_eligible_pending', 0)}, "
                   f"candidates={details['n_candidates']}"
               )
@@ -197,7 +189,7 @@ jobs:
       - name: Publish failure status
         if: steps.advance.outcome == 'failure'
         run: |
-          echo "## Global trait campaign bundle failed" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Global primary screen bundle failed" >> "$GITHUB_STEP_SUMMARY"
           echo "Successful preceding stages are retained; pending rows will retry." >> "$GITHUB_STEP_SUMMARY"
           cat "${CAMPAIGN_DIR}/campaign_failure.json" >> "$GITHUB_STEP_SUMMARY"
           echo '```text' >> "$GITHUB_STEP_SUMMARY"
@@ -210,7 +202,7 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           # pandas/gzip may rewrite an identical completed ledger with a new gzip
-          # timestamp. Ignore that binary-only change once no task remains active.
+          # timestamp. Ignore that binary-only change once no required task remains.
           if test -f "${CAMPAIGN_DIR}/campaign_status.json" && \
              jq -e '.active_task == "complete"' "${CAMPAIGN_DIR}/campaign_status.json" >/dev/null; then
             git restore --worktree "${CAMPAIGN_DIR}/campaign_ledger.csv.gz" 2>/dev/null || true
@@ -220,9 +212,9 @@ jobs:
             echo "No campaign status change."
           else
             if test -f "${CAMPAIGN_DIR}/campaign_failure.json"; then
-              git commit -m "chore: record global trait campaign failure"
+              git commit -m "chore: record global primary screen failure"
             else
-              git commit -m "chore: advance global trait campaign"
+              git commit -m "chore: advance global primary screen"
             fi
             git pull --rebase origin main
             git push origin HEAD:main

@@ -6,6 +6,7 @@ task_order:
   - reproductive_wikimedia
   - reproductive_openalex
   - floral_access_wikimedia
+  - alternative_guild_wikimedia
   - alternative_guild_openalex
 
 tasks:
@@ -27,6 +28,7 @@ tasks:
 
   reproductive_openalex:
     phase: reproductive_and_pollen_vector
+    required_for_primary_completion: false
     source_kind: openalex_reported_ecology
     eligibility: all
     depends_on:
@@ -60,7 +62,6 @@ tasks:
     eligibility: machine_biotic_candidate
     depends_on:
       - reproductive_wikimedia
-      - reproductive_openalex
     pause_seconds: 0.05
     max_retries: 4
     keyword_config: config/global_floral_access_keywords.yml
@@ -71,12 +72,24 @@ tasks:
       - flower_size_class
       - flower_primary_color
 
-  alternative_guild_openalex:
+  alternative_guild_wikimedia:
     phase: alternative_pollinator_function
-    source_kind: openalex_reported_ecology
+    source_kind: wikimedia_reported_ecology
     eligibility: machine_biotic_candidate
     depends_on:
       - floral_access_wikimedia
+    pause_seconds: 0.05
+    max_retries: 4
+    target_traits:
+      - pollination_functional_guild
+
+  alternative_guild_openalex:
+    phase: alternative_pollinator_function
+    required_for_primary_completion: false
+    source_kind: openalex_reported_ecology
+    eligibility: machine_biotic_candidate
+    depends_on:
+      - alternative_guild_wikimedia
     pause_seconds: 0.25
     per_page: 8
     require_api_key: true
