@@ -17,6 +17,7 @@ dependencies = [
   "pyogrio>=0.9.0",
   "PyYAML>=6.0.1",
   "shapely>=2.0.0",
+  "streamlit>=1.36.0",
   "typer>=0.12.0",
 ]
 
@@ -24,9 +25,6 @@ dependencies = [
 dev = [
   "pytest>=8.0.0",
   "ruff>=0.6.0",
-]
-review-app = [
-  "streamlit>=1.36.0",
 ]
 
 [project.scripts]
@@ -63,6 +61,9 @@ island-v2-bulk-traits = "island_v2.bulk_trait_ingest:app"
 island-v2-interaction-evidence = "island_v2.interaction_evidence:app"
 island-v2-hierarchical = "island_v2.hierarchical:app"
 island-v2-validate = "island_v2.validation:app"
+
+[tool.poetry]
+packages = [{ include = "island_v2", from = "src" }]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/island_v2"]

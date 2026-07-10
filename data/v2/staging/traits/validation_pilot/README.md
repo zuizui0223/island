@@ -114,7 +114,7 @@ scope, raw excerpt, and proxy basis fields for accepted rows.
 For a less error-prone review loop, use the Streamlit app:
 
 ```
-pip install -e ".[review-app]"
+pip install -e .
 streamlit run src/island_v2/trait_review_app.py
 ```
 

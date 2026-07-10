@@ -130,7 +130,7 @@ def _render_app() -> None:
         import streamlit as st
     except ModuleNotFoundError as exc:
         raise SystemExit(
-            "Streamlit is not installed. Install it with: pip install -e .[review-app]"
+            "Streamlit is not installed. Install it with: pip install -e ."
         ) from exc
 
     st.set_page_config(page_title="Trait Candidate Review", layout="wide")
