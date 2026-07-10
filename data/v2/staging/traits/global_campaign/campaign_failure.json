@@ -1,8 +1,8 @@
 {
   "status": "wave_failed_before_commit",
-  "run_id": "29088511324",
+  "run_id": "29088720868",
   "run_attempt": "1",
-  "source_sha": "058777f5c15f5eb4087fdb79ae130e1f4715fa9c",
+  "source_sha": "d885c14c7ee516cf5c3ab4c9e3d4284e45411d5d",
   "batch_size": 250,
   "failure_log": "data/v2/staging/traits/global_campaign/campaign_failure.log",
   "retry_policy": "The campaign ledger is unchanged. The next scheduled run retries the same pending family-balanced wave; no failure is interpreted as a trait absence."
