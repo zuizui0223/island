@@ -1,9 +1,16 @@
 {
   "gate": "core_pilot_eligibility",
   "meaning": "Detect-and-notify only. Eligibility does NOT finalize any trait value, native/establishment status, Bombus applicability, or analysis inclusion. A human still triggers the free source-discovery run.",
-  "n_core_pilot_eligible": 0,
-  "eligible_island_ids": [],
-  "n_core_applicable_islands": 0,
+  "n_core_pilot_eligible": 6,
+  "eligible_island_ids": [
+    "gshhg_2.3.7_h_3f48d601bf60ade348ae",
+    "gshhg_2.3.7_h_78b9099b78b447bab1fd",
+    "gshhg_2.3.7_h_79143661e5762bf8fa25",
+    "gshhg_2.3.7_h_80bd057071c9043cebcc",
+    "gshhg_2.3.7_h_ab48ddfcdcd4ccc62870",
+    "gshhg_2.3.7_h_cc2a3ac665156bf28969"
+  ],
+  "n_core_applicable_islands": 6,
   "n_islands_considered": 4549,
-  "next_action_when_eligible": "Human-run discover-core-pilot-trait-sources.yml for each eligible island after accepting its flora anchor and taxon/establishment review."
+  "next_action_when_eligible": "Run the bounded Core-pilot flora-anchor, taxon/establishment, trait-evidence, and predeclared Apidae/Bombus diagnostic workflows for these islands. Eligibility alone is not analysis inclusion."
 }
