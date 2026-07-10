@@ -45,9 +45,11 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           if test "${{ steps.validate.outcome }}" = "success"; then
             rm -f streaming_patch_validation.log
+            # GITHUB_TOKEN cannot push workflow-file modifications. The validated
+            # workflow replacement is applied separately through the GitHub connector.
+            git restore .github/workflows/drive-global-trait-campaign.yml
             git add src/island_v2/global_trait_campaign.py tests/test_global_trait_campaign.py \
-              config/global_trait_campaign.yml .github/workflows/drive-global-trait-campaign.yml \
-              docs/global_trait_campaign.md
+              config/global_trait_campaign.yml docs/global_trait_campaign.md
             git diff --cached --quiet && { echo "No patch changes."; exit 0; }
             git commit -m "feat: stream global trait stages per species"
           else
