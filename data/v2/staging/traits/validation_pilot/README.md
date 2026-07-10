@@ -231,6 +231,27 @@ The current OpenAlex baseline found 3 reported-ecology candidates for 1 species,
 all `species_indirect`; they are therefore retained as
 `sensitivity_text_reported`, not main no-review selected traits.
 
+To write a single machine-output bundle that combines the source-refresh trait
+queue, the reported-ecology queue, GloBI interaction claims, and the derived
+pollinator-guild index:
+
+```
+python -m island_v2.trait_machine_method_eval evaluate-combined \
+    --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+    --review-queue-csv data/v2/staging/traits/validation_pilot/machine_method_eval/source_refresh/candidate_review_queue/trait_candidate_review_queue.csv \
+    --review-queue-csv data/v2/staging/traits/validation_pilot/machine_method_eval/reported_ecology_openalex/candidate_review_queue/trait_candidate_review_queue.csv \
+    --globi-csv data/v2/staging/traits/validation_pilot/machine_method_eval/source_refresh/globi_interaction_evidence/globi_interaction_evidence.csv \
+    --pollinator-guild-index-csv data/v2/staging/traits/validation_pilot/machine_method_eval/machine_pollinator_guilds/machine_pollinator_guild_index.csv \
+    --output-dir data/v2/staging/traits/validation_pilot/machine_method_eval/combined_machine_outputs
+```
+
+The current combined validation-pilot run writes 48 machine trait candidates, 12
+main no-review selected trait rows, 25 sensitivity/proxy trait rows, 21
+interaction-claim rows, and 4 pollinator-guild index rows. It also records 2
+machine functional-replacement signals. `machine_trait_candidates.csv` keeps the
+`machine_queue_source_path` column so each row can be traced back to its input
+queue.
+
 ## Source discovery
 
 Literature source discovery (Stage 1, `island-v2-trait-source-discovery`) runs

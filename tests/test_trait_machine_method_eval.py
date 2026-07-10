@@ -8,6 +8,27 @@ def _ontology() -> dict:
     return yaml.safe_load(open("config/trait_ontology.yml", encoding="utf-8"))
 
 
+def _queue_row(**overrides):
+    row = {
+        "source_lane": "web_reported_scout",
+        "evidence_scope": "species_direct",
+        "candidate_class": "reported",
+        "accepted_species": "Directa example",
+        "trait_layer": "M0",
+        "trait_name": "flower_primary_color",
+        "candidate_value": "red",
+        "source": "wikipedia",
+        "source_type": "wikipedia",
+        "source_url": "https://example.test/direct",
+        "source_citation": "",
+        "basis_traits": "",
+        "basis_family": "",
+        "raw_description": "Red flowers.",
+    }
+    row.update(overrides)
+    return row
+
+
 def test_machine_final_value_maps_raw_colour_to_ontology():
     ontology = _ontology()
 
@@ -54,38 +75,22 @@ def test_machine_selection_collapses_multiple_colour_bins():
 def test_machine_candidates_from_queue_assigns_method_tiers():
     queue = pd.DataFrame(
         [
-            {
-                "source_lane": "web_reported_scout",
-                "evidence_scope": "species_direct",
-                "candidate_class": "reported",
-                "accepted_species": "Directa example",
-                "trait_layer": "M0",
-                "trait_name": "flower_primary_color",
-                "candidate_value": "red",
-                "source": "wikipedia",
-                "source_type": "wikipedia",
-                "source_url": "https://example.test/direct",
-                "source_citation": "",
-                "basis_traits": "",
-                "basis_family": "",
-                "raw_description": "Red flowers.",
-            },
-            {
-                "source_lane": "trait_proxy_generator",
-                "evidence_scope": "proxy_not_reported",
-                "candidate_class": "proxy",
-                "accepted_species": "Proxya example",
-                "trait_layer": "proxy",
-                "trait_name": "floral_syndrome_proxy",
-                "candidate_value": "open_or_generalist_insect_like",
-                "source": "",
-                "source_type": "rule_based_proxy",
-                "source_url": "",
-                "source_citation": "",
-                "basis_traits": "flower_primary_color=white",
-                "basis_family": "Exampleaceae",
-                "raw_description": "Proxy only.",
-            },
+            _queue_row(),
+            _queue_row(
+                source_lane="trait_proxy_generator",
+                evidence_scope="proxy_not_reported",
+                candidate_class="proxy",
+                accepted_species="Proxya example",
+                trait_layer="proxy",
+                trait_name="floral_syndrome_proxy",
+                candidate_value="open_or_generalist_insect_like",
+                source="",
+                source_type="rule_based_proxy",
+                source_url="",
+                basis_traits="flower_primary_color=white",
+                basis_family="Exampleaceae",
+                raw_description="Proxy only.",
+            ),
         ]
     )
 
@@ -103,6 +108,18 @@ def test_machine_candidates_from_queue_assigns_method_tiers():
         "red_pink",
         "open_or_generalist_insect_like",
     ]
+
+
+def test_read_review_queues_records_source_paths(tmp_path):
+    first = tmp_path / "first.csv"
+    second = tmp_path / "second.csv"
+    pd.DataFrame([_queue_row(accepted_species="A a")]).to_csv(first, index=False)
+    pd.DataFrame([_queue_row(accepted_species="B b")]).to_csv(second, index=False)
+
+    combined = evaluator.read_review_queues([first, second])
+
+    assert list(combined["accepted_species"]) == ["A a", "B b"]
+    assert set(combined["machine_queue_source_path"]) == {str(first), str(second)}
 
 
 def test_method_comparison_includes_globi_and_future_methods():
@@ -124,6 +141,28 @@ def test_method_comparison_includes_globi_and_future_methods():
     assert "llm_reported_ecology_excerpt" in set(comparison["method"])
 
 
+def test_method_comparison_counts_pollinator_guild_index():
+    species = pd.DataFrame({"accepted_species": ["A a", "B b", "C c"]})
+    guild_index = pd.DataFrame(
+        {
+            "accepted_species": ["A a", "B b"],
+            "machine_pollinator_guilds": ["bumblebees|flies", "other_bees"],
+        }
+    )
+
+    comparison = evaluator.method_comparison(
+        species,
+        pd.DataFrame(),
+        pd.DataFrame(),
+        pollinator_guild_index=guild_index,
+    )
+    row = comparison.loc[comparison["method"].eq("machine_pollinator_guild_index")].iloc[0]
+
+    assert row["n_rows"] == 2
+    assert row["n_species"] == 2
+    assert row["n_valid_machine_values"] == 2
+
+
 def test_method_comparison_counts_llm_reported_ecology_rows():
     species = pd.DataFrame({"accepted_species": ["A a"]})
     candidates = pd.DataFrame(
@@ -141,3 +180,40 @@ def test_method_comparison_counts_llm_reported_ecology_rows():
     assert llm["n_rows"] == 1
     assert llm["n_species"] == 1
     assert llm["n_valid_machine_values"] == 1
+
+
+def test_write_machine_outputs_includes_pollinator_guild_bundle(tmp_path):
+    species = pd.DataFrame({"accepted_species": ["Directa example"]})
+    queue = pd.DataFrame([_queue_row(machine_queue_source_path="first.csv")])
+    globi = pd.DataFrame(
+        {
+            "evidence_id": ["g1"],
+            "query_taxon": ["Directa example"],
+            "interaction_type": ["visits"],
+            "interaction_claim_class": ["flower_visit"],
+            "partner_taxon_name": ["Bombus example"],
+        }
+    )
+    guild_index = pd.DataFrame(
+        {
+            "accepted_species": ["Directa example"],
+            "machine_pollinator_guilds": ["bumblebees"],
+            "machine_functional_replacement_signal": ["True"],
+        }
+    )
+
+    summary = evaluator.write_machine_outputs(
+        tmp_path,
+        species,
+        queue,
+        globi,
+        _ontology(),
+        pollinator_guild_index=guild_index,
+    )
+
+    candidates = pd.read_csv(tmp_path / "machine_trait_candidates.csv")
+    assert summary["n_machine_candidates"] == 1
+    assert summary["n_machine_pollinator_guild_species"] == 1
+    assert summary["n_machine_functional_replacement_signals"] == 1
+    assert (tmp_path / "machine_pollinator_guild_index.csv").exists()
+    assert candidates.loc[0, "machine_queue_source_path"] == "first.csv"

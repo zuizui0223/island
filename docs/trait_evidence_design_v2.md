@@ -115,12 +115,15 @@ descriptive coverage:
 
 - **Stage 1E  -  no-human-review machine method evaluation**
   (`trait_machine_method_eval.py`,
-  `island-v2-trait-machine-method-eval evaluate`) -> **machine layer outputs**.
-  This path is for runs where manual review is intentionally skipped. It maps
-  controlled-vocabulary values, selects only species-direct explicit-text rows
-  for the main no-review trait layer, keeps indirect/descriptive/proxy rows in
-  sensitivity layers, and preserves GloBI records as interaction claims rather
-  than effectiveness or guild decisions.
+  `island-v2-trait-machine-method-eval evaluate|evaluate-combined`) -> **machine
+  layer outputs**. This path is for runs where manual review is intentionally
+  skipped. It maps controlled-vocabulary values, selects only species-direct
+  explicit-text rows for the main no-review trait layer, keeps
+  indirect/descriptive/proxy rows in sensitivity layers, and preserves GloBI
+  records as interaction claims rather than effectiveness or guild decisions.
+  The combined command merges multiple machine queues with the interaction-claim
+  and pollinator-guild machine layers, while retaining the input queue path for
+  row-level provenance.
 
 - **Stage 1F  -  no-human-review interaction-guild machine layer**
   (`interaction_guild_machine.py`,

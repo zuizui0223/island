@@ -51,6 +51,7 @@ MACHINE_COLUMNS = [
     "machine_use_tier",
     "evidence_level",
     "source_lane",
+    "machine_queue_source_path",
     "evidence_scope",
     "source",
     "source_type",
@@ -78,6 +79,20 @@ def _read_csv(path: Path | None) -> pd.DataFrame:
     if path is None or not path.exists():
         return pd.DataFrame()
     return pd.read_csv(path, dtype=str).fillna("")
+
+
+def read_review_queues(paths: list[Path]) -> pd.DataFrame:
+    """Read one or more machine candidate queues while retaining input provenance."""
+    tables: list[pd.DataFrame] = []
+    for path in paths:
+        table = _read_csv(path)
+        if table.empty:
+            continue
+        table["machine_queue_source_path"] = str(path)
+        tables.append(table)
+    if not tables:
+        return pd.DataFrame()
+    return pd.concat(tables, ignore_index=True, sort=False).fillna("")
 
 
 def _candidate_id(parts: list[str]) -> str:
@@ -152,6 +167,7 @@ def _row_from_queue(row: pd.Series, ontology: dict[str, Any]) -> dict[str, str]:
         "machine_use_tier": tier if final_value else "unmapped_value_holdout",
         "evidence_level": evidence_level if final_value else "unmapped",
         "source_lane": source_lane,
+        "machine_queue_source_path": _text(row.get("machine_queue_source_path")),
         "evidence_scope": evidence_scope,
         "source": _text(row.get("source")),
         "source_type": _text(row.get("source_type")),
@@ -241,6 +257,7 @@ def method_comparison(
     species: pd.DataFrame,
     candidates: pd.DataFrame,
     globi: pd.DataFrame,
+    pollinator_guild_index: pd.DataFrame | None = None,
     visual_rows: int = 0,
     llm_rows: int = 0,
 ) -> pd.DataFrame:
@@ -321,6 +338,29 @@ def method_comparison(
             "reason": "Source-backed pollination/flower-visit claims; sparse and not effectiveness or guild by itself.",
         }
     )
+    guild_index = pollinator_guild_index if pollinator_guild_index is not None else pd.DataFrame()
+    if not guild_index.empty and {"accepted_species", "machine_pollinator_guilds"}.issubset(guild_index.columns):
+        guild_species = guild_index["accepted_species"].astype(str).str.strip()
+        valid_guilds = guild_index["machine_pollinator_guilds"].astype(str).str.strip()
+    else:
+        guild_species = pd.Series(dtype=str)
+        valid_guilds = pd.Series(dtype=str)
+    rows.append(
+        {
+            "method": "machine_pollinator_guild_index",
+            "n_rows": int(len(guild_index)),
+            "n_species": int(guild_species.loc[guild_species.ne("")].nunique()),
+            "species_coverage_rate": (
+                round(float(guild_species.loc[guild_species.ne("")].nunique()) / total_species, 4)
+                if total_species and not guild_index.empty
+                else 0.0
+            ),
+            "n_valid_machine_values": int(valid_guilds.ne("").sum()),
+            "n_conflict_species_trait_groups": 0,
+            "recommended_role": "derived_no_review_pollinator_guild_layer",
+            "reason": "Derived from source-backed GloBI partner taxa; use as a machine guild index, not human-verified ecology.",
+        }
+    )
     return pd.DataFrame(rows)
 
 
@@ -372,6 +412,7 @@ def write_markdown(
     selected: pd.DataFrame,
     sensitivity: pd.DataFrame,
     interactions: pd.DataFrame,
+    pollinator_guild_index: pd.DataFrame | None = None,
 ) -> None:
     best_traits = comparison.loc[
         comparison["method"].eq("web_reported_species_direct")
@@ -379,6 +420,10 @@ def write_markdown(
     best_interactions = comparison.loc[
         comparison["method"].eq("globi_interaction_claims")
     ].to_dict("records")[0]
+    guild_rows = comparison.loc[
+        comparison["method"].eq("machine_pollinator_guild_index")
+    ].to_dict("records")
+    guild_index = pollinator_guild_index if pollinator_guild_index is not None else pd.DataFrame()
     lines = [
         "# Machine Method Evaluation",
         "",
@@ -394,22 +439,123 @@ def write_markdown(
             "- Use `globi_interaction_claims` as the current no-review interaction lane: "
             f"{best_interactions['n_rows']} records across {best_interactions['n_species']} taxa."
         ),
-        "- Keep `rule_based_trait_proxy` and indirect/descriptive text as sensitivity layers.",
-        "- Build the next LLM extractor for reproductive mode, selfing, and visitor statements; do not use images for those.",
-        "- Use images later only for visible floral traits, because image acquisition/inference is heavier.",
-        "",
-        "## Output Counts",
-        "",
-        f"- `machine_trait_selected.csv`: {len(selected)} selected species-trait rows",
-        f"- `machine_trait_sensitivity.csv`: {len(sensitivity)} sensitivity/proxy rows",
-        f"- `machine_interaction_claims.csv`: {len(interactions)} interaction-claim rows",
-        "",
-        "## Method Table",
-        "",
-        _markdown_table(comparison),
-        "",
     ]
+    if guild_rows:
+        guild_record = guild_rows[0]
+        lines.append(
+            "- Use `machine_pollinator_guild_index` as a derived no-review visitor guild layer: "
+            f"{guild_record['n_rows']} species rows."
+        )
+    lines.extend(
+        [
+            "- Keep `rule_based_trait_proxy` and indirect/descriptive text as sensitivity layers.",
+            "- Build the next LLM extractor for reproductive mode, selfing, and visitor statements; do not use images for those.",
+            "- Use images later only for visible floral traits, because image acquisition/inference is heavier.",
+            "",
+            "## Output Counts",
+            "",
+            f"- `machine_trait_selected.csv`: {len(selected)} selected species-trait rows",
+            f"- `machine_trait_sensitivity.csv`: {len(sensitivity)} sensitivity/proxy rows",
+            f"- `machine_interaction_claims.csv`: {len(interactions)} interaction-claim rows",
+        ]
+    )
+    if pollinator_guild_index is not None:
+        lines.append(f"- `machine_pollinator_guild_index.csv`: {len(guild_index)} pollinator-guild species rows")
+    lines.extend(
+        [
+            "",
+            "## Method Table",
+            "",
+            _markdown_table(comparison),
+            "",
+        ]
+    )
     path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def machine_summary(
+    species: pd.DataFrame,
+    candidates: pd.DataFrame,
+    selected: pd.DataFrame,
+    sensitivity: pd.DataFrame,
+    interactions: pd.DataFrame,
+    comparison: pd.DataFrame,
+    pollinator_guild_index: pd.DataFrame | None = None,
+) -> dict[str, Any]:
+    guild_index = pollinator_guild_index if pollinator_guild_index is not None else pd.DataFrame()
+    if guild_index.empty or "accepted_species" not in guild_index.columns:
+        guild_species_count = 0
+    else:
+        guild_species_count = int(guild_index["accepted_species"].astype(str).str.strip().loc[lambda x: x.ne("")].nunique())
+    if guild_index.empty or "machine_functional_replacement_signal" not in guild_index.columns:
+        replacement_signal_count = 0
+    else:
+        replacement_signal_count = int(
+            guild_index["machine_functional_replacement_signal"].astype(str).str.casefold().eq("true").sum()
+        )
+    return {
+        "n_species": int(species["accepted_species"].nunique()) if not species.empty else 0,
+        "n_machine_candidates": int(len(candidates)),
+        "n_machine_trait_selected": int(len(selected)),
+        "n_machine_trait_sensitivity": int(len(sensitivity)),
+        "n_machine_interaction_claims": int(len(interactions)),
+        "n_machine_pollinator_guild_species": guild_species_count,
+        "n_machine_functional_replacement_signals": replacement_signal_count,
+        "recommended_main_trait_method": "web_reported_species_direct",
+        "recommended_main_interaction_method": "globi_interaction_claims",
+        "recommended_pollinator_guild_method": "machine_pollinator_guild_index",
+        "next_build": "llm_reported_ecology_excerpt for reproductive mode, selfing capacity, and visitor statements.",
+        "image_policy": "Use later for visible M0 traits only; do not infer reproductive or visitor states from images.",
+        "human_review_required": False,
+        "machine_layer_warning": "No human review was required, so outputs remain machine layers with provenance and method tiers.",
+        "methods": comparison.to_dict("records"),
+    }
+
+
+def write_machine_outputs(
+    output_dir: Path,
+    species: pd.DataFrame,
+    queue: pd.DataFrame,
+    globi: pd.DataFrame,
+    ontology: dict[str, Any],
+    pollinator_guild_index: pd.DataFrame | None = None,
+) -> dict[str, Any]:
+    candidates = machine_candidates_from_queue(queue, ontology)
+    selected = select_machine_traits(candidates)
+    sensitivity = sensitivity_candidates(candidates)
+    interactions = interaction_claims(globi)
+    comparison = method_comparison(species, candidates, globi, pollinator_guild_index)
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    candidates.to_csv(output_dir / "machine_trait_candidates.csv", index=False)
+    selected.to_csv(output_dir / "machine_trait_selected.csv", index=False)
+    sensitivity.to_csv(output_dir / "machine_trait_sensitivity.csv", index=False)
+    interactions.to_csv(output_dir / "machine_interaction_claims.csv", index=False)
+    if pollinator_guild_index is not None:
+        pollinator_guild_index.to_csv(output_dir / "machine_pollinator_guild_index.csv", index=False)
+    comparison.to_csv(output_dir / "method_comparison.csv", index=False)
+
+    summary = machine_summary(
+        species,
+        candidates,
+        selected,
+        sensitivity,
+        interactions,
+        comparison,
+        pollinator_guild_index,
+    )
+    (output_dir / "method_comparison.json").write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    write_markdown(
+        output_dir / "method_comparison.md",
+        comparison,
+        selected,
+        sensitivity,
+        interactions,
+        pollinator_guild_index,
+    )
+    return summary
 
 
 @app.command("evaluate")
@@ -430,45 +576,56 @@ def evaluate(
     globi = _read_csv(globi_csv)
     ontology = load_ontology(ontology_path)
 
-    candidates = machine_candidates_from_queue(queue, ontology)
-    selected = select_machine_traits(candidates)
-    sensitivity = sensitivity_candidates(candidates)
-    interactions = interaction_claims(globi)
-    comparison = method_comparison(species, candidates, globi)
-
-    output_dir.mkdir(parents=True, exist_ok=True)
-    candidates.to_csv(output_dir / "machine_trait_candidates.csv", index=False)
-    selected.to_csv(output_dir / "machine_trait_selected.csv", index=False)
-    sensitivity.to_csv(output_dir / "machine_trait_sensitivity.csv", index=False)
-    interactions.to_csv(output_dir / "machine_interaction_claims.csv", index=False)
-    comparison.to_csv(output_dir / "method_comparison.csv", index=False)
-    summary = {
-        "n_species": int(species["accepted_species"].nunique()) if not species.empty else 0,
-        "n_machine_candidates": int(len(candidates)),
-        "n_machine_trait_selected": int(len(selected)),
-        "n_machine_trait_sensitivity": int(len(sensitivity)),
-        "n_machine_interaction_claims": int(len(interactions)),
-        "recommended_main_trait_method": "web_reported_species_direct",
-        "recommended_main_interaction_method": "globi_interaction_claims",
-        "next_build": "llm_reported_ecology_excerpt for reproductive mode, selfing capacity, and visitor statements.",
-        "image_policy": "Use later for visible M0 traits only; do not infer reproductive or visitor states from images.",
-        "human_review_required": False,
-        "machine_layer_warning": "No human review was required, so outputs remain machine layers with provenance and method tiers.",
-        "methods": comparison.to_dict("records"),
-    }
-    (output_dir / "method_comparison.json").write_text(
-        json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
+    summary = write_machine_outputs(output_dir, species, queue, globi, ontology)
+    typer.echo(
+        f"Wrote machine evaluation: {summary['n_machine_trait_selected']} selected trait row(s), "
+        f"{summary['n_machine_trait_sensitivity']} sensitivity row(s), "
+        f"{summary['n_machine_interaction_claims']} interaction claim(s)."
     )
-    write_markdown(
-        output_dir / "method_comparison.md",
-        comparison,
-        selected,
-        sensitivity,
-        interactions,
+
+
+@app.command("evaluate-combined")
+def evaluate_combined(
+    species_csv: Path = typer.Option(..., exists=True, help="Validation species CSV."),
+    review_queue_csv: list[Path] = typer.Option(
+        ...,
+        "--review-queue-csv",
+        exists=True,
+        help="Candidate review queue CSV. Repeat this option to merge multiple machine queues.",
+    ),
+    globi_csv: Path | None = typer.Option(None, exists=True, help="Optional GloBI interaction evidence CSV."),
+    pollinator_guild_index_csv: Path | None = typer.Option(
+        None,
+        exists=True,
+        help="Optional machine pollinator guild index CSV derived from interaction evidence.",
+    ),
+    output_dir: Path = typer.Option(..., help="Directory for combined machine evaluation outputs."),
+    ontology_path: Path = typer.Option(
+        Path("config/trait_ontology.yml"),
+        exists=True,
+        help="Trait ontology for machine value mapping.",
+    ),
+) -> None:
+    """Merge machine trait, interaction, and pollinator-guild layers into one output bundle."""
+    species = _read_csv(species_csv)
+    queue = read_review_queues(review_queue_csv)
+    globi = _read_csv(globi_csv)
+    pollinator_guild_index = _read_csv(pollinator_guild_index_csv) if pollinator_guild_index_csv else None
+    ontology = load_ontology(ontology_path)
+
+    summary = write_machine_outputs(
+        output_dir,
+        species,
+        queue,
+        globi,
+        ontology,
+        pollinator_guild_index,
     )
     typer.echo(
-        f"Wrote machine evaluation: {len(selected)} selected trait row(s), "
-        f"{len(sensitivity)} sensitivity row(s), {len(interactions)} interaction claim(s)."
+        f"Wrote combined machine outputs: {summary['n_machine_candidates']} trait candidate(s), "
+        f"{summary['n_machine_trait_selected']} selected trait row(s), "
+        f"{summary['n_machine_interaction_claims']} interaction claim(s), "
+        f"{summary['n_machine_pollinator_guild_species']} pollinator-guild species row(s)."
     )
 
 
