@@ -1,0 +1,8 @@
+{
+  "status": "wave_failed_before_commit",
+  "run_id": "29088316284",
+  "run_attempt": "1",
+  "source_sha": "8380b3b77881753b997596d021cc6e9607a69650",
+  "batch_size": 250,
+  "retry_policy": "The campaign ledger is unchanged. The next scheduled run retries the same pending family-balanced wave; no failure is interpreted as a trait absence."
+}
