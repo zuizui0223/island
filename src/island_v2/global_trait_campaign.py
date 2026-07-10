@@ -183,7 +183,7 @@ def reconcile_ledger(
 
 
 def task_is_terminal(ledger: pd.DataFrame, task: str) -> bool:
-    return ledger[f"{task}_status"].isin(TERMINAL_STATUSES).all()
+    return bool(ledger[f"{task}_status"].isin(TERMINAL_STATUSES).all())
 
 
 def prepare_dependent_statuses(ledger: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
