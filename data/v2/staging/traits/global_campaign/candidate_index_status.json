@@ -1,54 +1,54 @@
 {
   "version": "1.0",
-  "n_waves_indexed": 15,
-  "latest_wave_id": "wave_00015_alternative_guild_wikimedia",
-  "n_unique_candidate_rows": 1529,
-  "n_species_with_candidates": 602,
-  "n_machine_biotic_screening_species": 134,
+  "n_waves_indexed": 18,
+  "latest_wave_id": "wave_00018_alternative_guild_wikimedia",
+  "n_unique_candidate_rows": 1707,
+  "n_species_with_candidates": 685,
+  "n_machine_biotic_screening_species": 153,
   "n_by_campaign_task": {
-    "alternative_guild_wikimedia": 264,
-    "floral_access_wikimedia": 398,
+    "alternative_guild_wikimedia": 292,
+    "floral_access_wikimedia": 440,
     "reproductive_openalex": 8,
-    "reproductive_wikimedia": 859
+    "reproductive_wikimedia": 967
   },
   "n_by_campaign_phase": {
-    "alternative_pollinator_function": 120,
-    "auxiliary": 99,
-    "floral_access": 299,
-    "reproductive_and_pollen_vector": 1011
+    "alternative_pollinator_function": 132,
+    "auxiliary": 107,
+    "floral_access": 333,
+    "reproductive_and_pollen_vector": 1135
   },
   "n_by_trait_name": {
-    "autonomous_selfing_capacity": 73,
-    "autonomous_selfing_reported": 6,
-    "dichogamy": 30,
-    "floral_form": 24,
+    "autonomous_selfing_capacity": 85,
+    "autonomous_selfing_reported": 7,
+    "dichogamy": 33,
+    "floral_form": 27,
     "floral_symmetry": 10,
-    "flower_primary_color": 254,
-    "flower_size_class": 10,
+    "flower_primary_color": 284,
+    "flower_size_class": 11,
     "mating_system": 12,
     "mating_system_reported": 3,
-    "pollen_vector_mode": 342,
-    "pollination_functional_guild": 120,
-    "pollination_vector_reported": 83,
+    "pollen_vector_mode": 388,
+    "pollination_functional_guild": 132,
+    "pollination_vector_reported": 90,
     "self_compatibility_reported": 4,
-    "self_incompatibility": 36,
+    "self_incompatibility": 40,
     "self_incompatibility_reported": 3,
-    "sex_system": 518,
+    "sex_system": 577,
     "tube_depth_class": 1
   },
   "n_by_source_type": {
     "openalex_title_abstract": 8,
-    "wikipedia": 398,
-    "wikipedia_extract": 1123
+    "wikipedia": 440,
+    "wikipedia_extract": 1259
   },
   "n_by_confidence": {
-    "explicit_term_match": 398,
-    "rule_match": 1131
+    "explicit_term_match": 440,
+    "rule_match": 1267
   },
   "screening_label_counts": {
-    "alternative_or_generalist_candidate": 29,
-    "biotic_vector_candidate_without_guild_yet": 98,
-    "bumblebee_candidate_without_alternative_yet": 7
+    "alternative_or_generalist_candidate": 30,
+    "biotic_vector_candidate_without_guild_yet": 114,
+    "bumblebee_candidate_without_alternative_yet": 9
   },
   "interpretation": "Cumulative machine-only source-backed candidates and screening labels. They are not accepted trait values, biological absences, or confirmatory-model inputs."
 }
