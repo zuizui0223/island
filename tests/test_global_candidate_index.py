@@ -55,7 +55,8 @@ def _write_ledger(campaign_dir) -> None:
                 "reproductive_wikimedia_status": "processed",
                 "reproductive_openalex_status": "processed",
                 "floral_access_wikimedia_status": "processed",
-                "alternative_guild_openalex_status": "processed",
+                "alternative_guild_wikimedia_status": "processed",
+                "alternative_guild_openalex_status": "pending",
             },
             {
                 "accepted_species": "Beta two",
@@ -66,6 +67,7 @@ def _write_ledger(campaign_dir) -> None:
                 "reproductive_wikimedia_status": "processed",
                 "reproductive_openalex_status": "processed",
                 "floral_access_wikimedia_status": "pending",
+                "alternative_guild_wikimedia_status": "pending",
                 "alternative_guild_openalex_status": "pending",
             },
             {
@@ -77,6 +79,7 @@ def _write_ledger(campaign_dir) -> None:
                 "reproductive_wikimedia_status": "processed",
                 "reproductive_openalex_status": "pending",
                 "floral_access_wikimedia_status": "pending",
+                "alternative_guild_wikimedia_status": "pending",
                 "alternative_guild_openalex_status": "pending",
             },
         ]
@@ -177,7 +180,7 @@ def test_counterfactual_screening_is_machine_only_and_keeps_unknown_guilds(tmp_p
     assert alpha["n_floral_access_candidates"] == 1
     beta = screening.loc[screening["accepted_species"].eq("Beta two")].iloc[0]
     assert beta["machine_screening_label"] == "biotic_vector_candidate_without_guild_yet"
-    assert beta["alternative_guild_openalex_status"] == "pending"
+    assert beta["alternative_guild_wikimedia_status"] == "pending"
     assert set(screening["evidence_use_tier"]) == {"machine_unreviewed_screening_only"}
 
 

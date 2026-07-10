@@ -100,7 +100,7 @@ def load_wave_candidates(campaign_dir: Path) -> tuple[pd.DataFrame, list[str]]:
     columns = sorted(REQUIRED_CANDIDATE_COLUMNS | {"matched_term", "wave_id"})
     if not frames:
         return pd.DataFrame(columns=columns), wave_ids
-    return pd.concat(frames, ignore_index=True, sort=False).fillna("") , wave_ids
+    return pd.concat(frames, ignore_index=True, sort=False).fillna(""), wave_ids
 
 
 def build_candidate_index(raw: pd.DataFrame) -> pd.DataFrame:
@@ -138,9 +138,13 @@ def build_candidate_index(raw: pd.DataFrame) -> pd.DataFrame:
             }
         )
         rows.append(record)
-    return pd.DataFrame(rows).sort_values(
-        ["accepted_species", "campaign_phase", "trait_name", "candidate_value", "source_url"]
-    ).reset_index(drop=True)
+    return (
+        pd.DataFrame(rows)
+        .sort_values(
+            ["accepted_species", "campaign_phase", "trait_name", "candidate_value", "source_url"]
+        )
+        .reset_index(drop=True)
+    )
 
 
 def load_campaign_ledger(campaign_dir: Path) -> pd.DataFrame:
@@ -157,7 +161,7 @@ def load_campaign_ledger(campaign_dir: Path) -> pd.DataFrame:
         "reproductive_wikimedia_status",
         "reproductive_openalex_status",
         "floral_access_wikimedia_status",
-        "alternative_guild_openalex_status",
+        "alternative_guild_wikimedia_status",
     }
     missing = required.difference(ledger.columns)
     if missing:
@@ -175,18 +179,19 @@ def _phase_count(index: pd.DataFrame, phase: str) -> pd.Series:
 def build_counterfactual_screening(index: pd.DataFrame, ledger: pd.DataFrame) -> pd.DataFrame:
     """Build a machine-only queue for alternative-pollinator evidence review."""
     base = ledger.loc[ledger["machine_biotic_candidate"].astype(bool)].copy()
-    base = base[
-        [
-            "accepted_species",
-            "family",
-            "n_islands",
-            "n_records",
-            "reproductive_wikimedia_status",
-            "reproductive_openalex_status",
-            "floral_access_wikimedia_status",
-            "alternative_guild_openalex_status",
-        ]
-    ].drop_duplicates("accepted_species")
+    status_columns = [
+        "accepted_species",
+        "family",
+        "n_islands",
+        "n_records",
+        "reproductive_wikimedia_status",
+        "floral_access_wikimedia_status",
+        "alternative_guild_wikimedia_status",
+    ]
+    for optional in ("reproductive_openalex_status", "alternative_guild_openalex_status"):
+        if optional in base.columns:
+            status_columns.append(optional)
+    base = base[status_columns].drop_duplicates("accepted_species")
 
     output_columns = [
         *base.columns,
@@ -249,9 +254,11 @@ def build_counterfactual_screening(index: pd.DataFrame, ledger: pd.DataFrame) ->
                 "evidence_use_tier": "machine_unreviewed_screening_only",
             }
         )
-    return pd.DataFrame(rows, columns=output_columns).sort_values(
-        ["machine_screening_label", "accepted_species"]
-    ).reset_index(drop=True)
+    return (
+        pd.DataFrame(rows, columns=output_columns)
+        .sort_values(["machine_screening_label", "accepted_species"])
+        .reset_index(drop=True)
+    )
 
 
 def build_status(
@@ -275,7 +282,9 @@ def build_status(
         "n_waves_indexed": int(len(set(wave_ids))),
         "latest_wave_id": sorted(set(wave_ids))[-1] if wave_ids else "",
         "n_unique_candidate_rows": int(len(index)),
-        "n_species_with_candidates": int(index["accepted_species"].nunique()) if not index.empty else 0,
+        "n_species_with_candidates": int(index["accepted_species"].nunique())
+        if not index.empty
+        else 0,
         "n_machine_biotic_screening_species": int(len(screening)),
         "n_by_campaign_task": counts("campaign_task"),
         "n_by_campaign_phase": counts("campaign_phase"),

@@ -15,6 +15,7 @@ def _config() -> dict:
             "reproductive_wikimedia",
             "reproductive_openalex",
             "floral_access_wikimedia",
+            "alternative_guild_wikimedia",
             "alternative_guild_openalex",
         ],
         "tasks": {
@@ -28,6 +29,7 @@ def _config() -> dict:
             "reproductive_openalex": {
                 "phase": "reproductive",
                 "source_kind": "openalex_reported_ecology",
+                "required_for_primary_completion": False,
                 "depends_on": ["reproductive_wikimedia"],
                 "eligibility": "all",
                 "target_traits": ["pollen_vector_mode", "self_incompatibility"],
@@ -35,14 +37,22 @@ def _config() -> dict:
             "floral_access_wikimedia": {
                 "phase": "floral_access",
                 "source_kind": "wikimedia_web_reported",
-                "depends_on": ["reproductive_wikimedia", "reproductive_openalex"],
+                "depends_on": ["reproductive_wikimedia"],
                 "eligibility": "machine_biotic_candidate",
                 "target_traits": ["floral_symmetry", "floral_form"],
+            },
+            "alternative_guild_wikimedia": {
+                "phase": "alternative_guild",
+                "source_kind": "wikimedia_reported_ecology",
+                "depends_on": ["floral_access_wikimedia"],
+                "eligibility": "machine_biotic_candidate",
+                "target_traits": ["pollination_functional_guild"],
             },
             "alternative_guild_openalex": {
                 "phase": "alternative_guild",
                 "source_kind": "openalex_reported_ecology",
-                "depends_on": ["floral_access_wikimedia"],
+                "required_for_primary_completion": False,
+                "depends_on": ["alternative_guild_wikimedia"],
                 "eligibility": "machine_biotic_candidate",
                 "target_traits": ["pollination_functional_guild"],
             },
@@ -98,8 +108,7 @@ def test_family_balanced_batch_spreads_first_wave_across_families():
 def test_phase_barrier_and_biotic_gate_are_fail_closed():
     config = _config()
     ledger = campaign.reconcile_ledger(_master(), None, config)
-    for task in ("reproductive_wikimedia", "reproductive_openalex"):
-        ledger[f"{task}_status"] = "processed"
+    ledger["reproductive_wikimedia_status"] = "processed"
     ledger.loc[ledger["accepted_species"].eq("Alpha one"), "machine_biotic_candidate"] = True
 
     prepared = campaign.prepare_dependent_statuses(ledger, config)
@@ -201,7 +210,6 @@ def test_per_species_streaming_dependencies_allow_early_downstream():
     first = ledger["accepted_species"].eq("Alpha one")
     second = ledger["accepted_species"].eq("Alpha two")
     ledger.loc[first, "reproductive_wikimedia_status"] = "processed"
-    ledger.loc[first, "reproductive_openalex_status"] = "processed"
     ledger.loc[first, "machine_biotic_candidate"] = True
     ledger.loc[second, "reproductive_wikimedia_status"] = "processed"
     ledger.loc[second, "machine_biotic_candidate"] = True
@@ -212,8 +220,8 @@ def test_per_species_streaming_dependencies_allow_early_downstream():
 
     assert prepared.loc[first, "floral_access_wikimedia_status"].iloc[0] == "pending"
     assert prepared.loc[second, "floral_access_wikimedia_status"].iloc[0] == "pending"
-    assert prepared.loc[eligible, "accepted_species"].tolist() == ["Alpha one"]
-    assert batch["accepted_species"].tolist() == ["Alpha one"]
+    assert prepared.loc[eligible, "accepted_species"].tolist() == ["Alpha one", "Alpha two"]
+    assert batch["accepted_species"].tolist() == ["Alpha one", "Alpha two"]
 
 
 def test_nonbiotic_gate_closes_only_after_species_dependencies_finish():
@@ -221,11 +229,21 @@ def test_nonbiotic_gate_closes_only_after_species_dependencies_finish():
     ledger = campaign.reconcile_ledger(_master(), None, config)
     first = ledger["accepted_species"].eq("Alpha one")
     second = ledger["accepted_species"].eq("Alpha two")
-    for task in ("reproductive_wikimedia", "reproductive_openalex"):
-        ledger.loc[first, f"{task}_status"] = "processed"
+    ledger.loc[first, "reproductive_wikimedia_status"] = "processed"
     ledger.loc[second, "reproductive_wikimedia_status"] = "processed"
 
     prepared = campaign.prepare_dependent_statuses(ledger, config)
 
     assert prepared.loc[first, "floral_access_wikimedia_status"].iloc[0] == "not_applicable"
-    assert prepared.loc[second, "floral_access_wikimedia_status"].iloc[0] == "pending"
+    assert prepared.loc[second, "floral_access_wikimedia_status"].iloc[0] == "not_applicable"
+
+
+def test_optional_openalex_does_not_block_primary_completion():
+    config = _config()
+    ledger = campaign.reconcile_ledger(_master(), None, config)
+    ledger["reproductive_wikimedia_status"] = "processed"
+    ledger["floral_access_wikimedia_status"] = "not_applicable"
+    ledger["alternative_guild_wikimedia_status"] = "not_applicable"
+
+    assert set(ledger["reproductive_openalex_status"]) == {"pending"}
+    assert campaign.choose_active_task(ledger, config) == "complete"

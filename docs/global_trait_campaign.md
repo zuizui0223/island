@@ -71,3 +71,14 @@ alternative-pollinator extraction as soon as its own upstream rows are
 terminal, while the remaining global master continues through the first
 source. The forced task option selects only a measurement stage, never a
 region, island, trait outcome, or Bombus result.
+
+
+## One-week global primary screen
+
+The scheduled primary path is intentionally database-light: 1,000 globally
+family-balanced species are screened through Wikimedia every 30 minutes, for a
+theoretical capacity of 48,000 species per day. Floral-access and alternative
+guild Wikimedia extraction run only for direct machine biotic-vector candidates.
+OpenAlex remains an optional scholarly-enrichment lane and is not required for
+primary completion. The one-week target refers to complete machine first-pass
+coverage, not manual acceptance of every candidate trait.
