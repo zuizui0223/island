@@ -83,6 +83,11 @@ jobs:
           set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          # pandas/gzip may rewrite an identical completed ledger with a new gzip
+          # timestamp. Ignore that binary-only change once no task remains active.
+          if jq -e '.active_task == "complete"' "${CAMPAIGN_DIR}/campaign_status.json" >/dev/null; then
+            git restore --worktree "${CAMPAIGN_DIR}/campaign_ledger.csv.gz" 2>/dev/null || true
+          fi
           git add "${CAMPAIGN_DIR}"
           git diff --cached --quiet && { echo "No campaign change."; exit 0; }
           git commit -m "chore: advance global trait campaign"
