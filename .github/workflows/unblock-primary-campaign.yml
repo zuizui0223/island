@@ -1,0 +1,121 @@
+name: unblock_primary_campaign
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/unblock-primary-campaign.yml"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/unblock-primary-campaign.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: unblock-primary-campaign
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate workflow migration contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          expected = {
+              ".github/workflows/drive-global-trait-campaign.yml": "group: global-trait-campaign",
+              ".github/workflows/recover-verified-multilingual-lead-full.yml": "group: global-trait-campaign",
+              ".github/workflows/recover-multilingual-wikimedia.yml": "workflow_run:",
+              ".github/workflows/recover-verified-multilingual-wikimedia.yml": "workflow_run:",
+          }
+          for filename, marker in expected.items():
+              text = Path(filename).read_text(encoding="utf-8")
+              if marker not in text:
+                  raise SystemExit(f"migration precondition missing: {filename}: {marker}")
+          PY
+
+  migrate:
+    if: github.event_name == 'push'
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Prioritize the one-week primary screen
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          primary = Path(".github/workflows/drive-global-trait-campaign.yml")
+          primary_text = primary.read_text(encoding="utf-8")
+          old = "  group: global-trait-campaign\n  cancel-in-progress: false"
+          new = "  group: global-trait-campaign-primary\n  cancel-in-progress: false"
+          if primary_text.count(old) != 1:
+              raise SystemExit("primary concurrency marker was not unique")
+          primary.write_text(primary_text.replace(old, new), encoding="utf-8")
+
+          latest = Path(
+              ".github/workflows/recover-verified-multilingual-lead-full.yml"
+          )
+          latest_text = latest.read_text(encoding="utf-8")
+          push_block = '''  push:
+              branches: [main]
+              paths:
+                - ".github/workflows/recover-verified-multilingual-lead-full.yml"
+                - "src/island_v2/verified_multilingual_wikimedia_recovery_v2.py"
+                - "tests/test_verified_multilingual_wikimedia_recovery_v2.py"
+          '''
+          # Normalize indentation in the literal above before exact removal.
+          push_block = "\n".join(
+              line[10:] if line.startswith("          ") else line
+              for line in push_block.splitlines()
+          ) + "\n"
+          if latest_text.count(push_block) != 1:
+              raise SystemExit("latest recovery push block was not unique")
+          latest_text = latest_text.replace(push_block, "")
+          recovery_old = "  group: global-trait-campaign\n  cancel-in-progress: false"
+          recovery_new = "  group: multilingual-recovery-v2\n  cancel-in-progress: true"
+          if latest_text.count(recovery_old) != 1:
+              raise SystemExit("latest recovery concurrency marker was not unique")
+          latest.write_text(
+              latest_text.replace(recovery_old, recovery_new),
+              encoding="utf-8",
+          )
+
+          for obsolete in (
+              ".github/workflows/recover-multilingual-wikimedia.yml",
+              ".github/workflows/recover-verified-multilingual-wikimedia.yml",
+          ):
+              Path(obsolete).unlink()
+
+          Path(".github/workflows/unblock-primary-campaign.yml").unlink()
+          PY
+      - name: Validate resulting workflow set
+        run: |
+          python scripts/validate_workflows.py
+          grep -q "group: global-trait-campaign-primary" \
+            .github/workflows/drive-global-trait-campaign.yml
+          grep -q "group: multilingual-recovery-v2" \
+            .github/workflows/recover-verified-multilingual-lead-full.yml
+          test ! -e .github/workflows/recover-multilingual-wikimedia.yml
+          test ! -e .github/workflows/recover-verified-multilingual-wikimedia.yml
+          test ! -e .github/workflows/unblock-primary-campaign.yml
+      - name: Publish migration and trigger primary bundle
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A .github/workflows
+          git commit -m "ci: prioritize the global primary campaign"
+          git pull --rebase origin main
+          git push origin HEAD:main
