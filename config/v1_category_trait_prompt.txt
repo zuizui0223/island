@@ -1,0 +1,24 @@
+You are an expert in plant reproductive biology and pollination ecology.
+
+For each plant species in the list below, extract the following traits:
+
+- typical flower color(s)
+- flower shape / symmetry
+- main pollination guild (choose from: bees, bumblebees, flies, butterflies, moths, birds, wind, self, mixed, unknown)
+- mating system (choose from: obligate_outcrossing, mixed_mating, mainly_selfing, obligate_selfing, unknown)
+- self-incompatibility (choose from: SI, SC, likely_SI, likely_SC, unknown)
+- short free-text notes on pollination biology
+- evidence type (choose any from: field_study, review, flora, horticulture, inference)
+- confidence (high, medium, low)
+
+Return a table with header using the following columns IN ORDER:
+
+species,flower_color,flower_shape,pollination_guild,pollination_notes,mating_system,self_incompatibility,evidence_type,confidence
+
+Rules:
+- Each row = one species.
+- Fields containing commas must be enclosed in double quotes.
+- If information is insufficient → use "unknown" and confidence = "low".
+
+Now process the following species list according to the rules:
+{{SPECIES_LIST}}
