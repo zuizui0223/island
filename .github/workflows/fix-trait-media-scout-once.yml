@@ -1,0 +1,40 @@
+name: fix_trait_media_scout_once
+
+on:
+  push:
+    branches: [codex/optimize-trait-recovery]
+    paths:
+      - ".github/workflows/fix-trait-media-scout-once.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/optimize-trait-recovery
+          fetch-depth: 0
+      - name: Make GBIF metadata normalization robust
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("src/island_v2/trait_media_scout.py")
+          text = path.read_text(encoding="utf-8")
+          old = '''def _text(value: object) -> str:\n    if value is None or pd.isna(value):\n        return ""\n    return " ".join(str(value).strip().split())\n'''
+          new = '''def _text(value: object) -> str:\n    if value is None:\n        return ""\n    if isinstance(value, dict):\n        return json.dumps(value, ensure_ascii=False, sort_keys=True)\n    if isinstance(value, (list, tuple, set)):\n        return " | ".join(_text(item) for item in value if _text(item))\n    try:\n        if pd.isna(value):\n            return ""\n    except (TypeError, ValueError):\n        pass\n    return " ".join(str(value).strip().split())\n'''
+          if text.count(old) != 1:
+              raise SystemExit("expected _text implementation was not unique")
+          path.write_text(text.replace(old, new), encoding="utf-8")
+          PY
+          rm .github/workflows/fix-trait-media-scout-once.yml
+      - name: Commit fix
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/island_v2/trait_media_scout.py .github/workflows/fix-trait-media-scout-once.yml
+          git commit -m "fix: normalize structured GBIF media metadata"
+          git push origin HEAD:codex/optimize-trait-recovery
