@@ -1,0 +1,61 @@
+name: benchmark_relevant_snippet_search
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/island_v2/trait_relevant_search.py"
+      - ".github/workflows/benchmark-relevant-snippet-search.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Lint relevant search
+        continue-on-error: true
+        run: ruff check src/island_v2/trait_relevant_search.py
+      - name: Run exact-name relevant search
+        run: |
+          start=$(date +%s)
+          python -m island_v2.trait_relevant_search \
+            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+            --output-dir /tmp/relevant_search \
+            --max-taxa 25 \
+            --max-synonyms 1 \
+            --max-results-per-query 8 \
+            --max-sources-per-species 8 \
+            --workers 8
+          end=$(date +%s)
+          echo $((end-start)) > /tmp/relevant_search/elapsed_seconds.txt
+      - name: Build evidence packets from relevant snippets and fetched pages
+        run: |
+          if [[ -s /tmp/relevant_search/source_texts.csv ]] && [[ $(wc -l < /tmp/relevant_search/source_texts.csv) -gt 1 ]]; then
+            island-v2-llm-evidence prepare \
+              --source-csv /tmp/relevant_search/source_texts.csv \
+              --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+              --output-dir /tmp/relevant_llm_packets \
+              --batch-size 10
+          else
+            mkdir -p /tmp/relevant_llm_packets
+            printf '{"n_packets":0,"reason":"no_relevant_evidence"}\n' > /tmp/relevant_llm_packets/llm_packet_manifest.json
+          fi
+      - name: Upload relevant search benchmark
+        uses: actions/upload-artifact@v4
+        with:
+          name: relevant-snippet-search-benchmark-${{ github.run_id }}
+          path: |
+            /tmp/relevant_search/
+            /tmp/relevant_llm_packets/
+          if-no-files-found: error
+          retention-days: 90
