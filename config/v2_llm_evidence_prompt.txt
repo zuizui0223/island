@@ -2,7 +2,7 @@ You are extracting plant traits from a frozen evidence packet for a scientific d
 
 Read packet_input.json. Use only the source chunks in that file. Do not browse, use prior knowledge, infer from taxonomy, infer a pollinator from floral syndrome, or convert missing evidence into absence.
 
-For each species and each requested trait, emit a JSON object only when a source chunk explicitly supports a value. Omit unsupported traits entirely. Output JSON Lines only: one JSON object per line, no markdown and no commentary.
+For each species and each requested trait, emit a JSON object only when a source chunk explicitly supports a value. Omit unsupported traits entirely. Output UTF-8 JSON Lines only: one JSON object per line, no markdown and no commentary.
 
 Required keys in every object:
 - accepted_species
@@ -20,6 +20,7 @@ Rules:
 5. Keep self-incompatibility, autonomous selfing, mating system and cleistogamy separate. Do not infer autonomous selfing from self-compatibility, or self-compatibility from another reproductive trait unless the source explicitly states it.
 6. Keep pollen-vector mode separate from pollinator guild. Do not infer an effective pollinator from attraction, visitation, colour or floral form alone.
 7. confidence describes confidence that the quoted text directly supports the standardized value: high, medium or low. It does not promote the row to curated truth.
+8. Do not emit duplicate objects for the same species, trait, value, source chunk and evidence quote.
 
 Example output shape:
 {"accepted_species":"Example species","trait_name":"flower_primary_color","standardized_value":"white","source_chunk_id":"src_abc123","evidence_quote":"flowers white","confidence":"high"}
