@@ -58,7 +58,6 @@ ZH_POLLINATION = r"(?:授粉|传粉|傳粉|花粉媒介)"
 RU_POLLINATION = r"(?:опыля\w*|опылен\w*|опылён\w*)"
 
 _BASE_PATTERNS = [
-    # Japanese.
     RecoveryPattern("self_incompatibility", "SI", "ja", r"自家不和合(?:性)?"),
     RecoveryPattern("self_incompatibility", "SC", "ja", r"自家和合(?:性)?"),
     RecoveryPattern("autonomous_selfing_capacity", "autonomous", "ja", r"(?:自動)?自家(?:受粉|授粉)"),
@@ -67,7 +66,6 @@ _BASE_PATTERNS = [
     RecoveryPattern("sex_system", "dioecious", "ja", r"雌雄異株"),
     RecoveryPattern("sex_system", "monoecious", "ja", r"雌雄同株"),
     RecoveryPattern("sex_system", "hermaphroditic", "ja", r"両性花"),
-    # Simplified and traditional Chinese.
     RecoveryPattern("self_incompatibility", "SI", "zh", r"自交不(?:亲|親)和(?:性)?"),
     RecoveryPattern("self_incompatibility", "SC", "zh", r"自交(?:亲|親)和(?:性)?"),
     RecoveryPattern("autonomous_selfing_capacity", "autonomous", "zh", r"(?:自动|自動)?自花(?:授粉|传粉|傳粉)"),
@@ -76,7 +74,6 @@ _BASE_PATTERNS = [
     RecoveryPattern("sex_system", "dioecious", "zh", r"雌雄(?:异|異)株"),
     RecoveryPattern("sex_system", "monoecious", "zh", r"雌雄同株"),
     RecoveryPattern("sex_system", "hermaphroditic", "zh", r"(?:两|兩)性花"),
-    # Russian stems cover ordinary grammatical inflection.
     RecoveryPattern("self_incompatibility", "SI", "ru", r"самонесовместим\w*"),
     RecoveryPattern("self_incompatibility", "SC", "ru", r"самосовместим\w*"),
     RecoveryPattern("autonomous_selfing_capacity", "autonomous", "ru", r"самоопыл\w*"),
@@ -214,7 +211,7 @@ def fetch_language_extracts(
                     "exlimit": "max",
                 },
             )
-        except Exception as exc:  # noqa: BLE001 - preserve per-name retry state
+        except Exception as exc:  # noqa: BLE001
             errors.extend(f"wikipedia-{language}:{name}:transient:{exc}" for name in names)
             continue
 
@@ -289,7 +286,6 @@ def _candidate_record(
 
 
 def extract_recovery_candidates(sources: pd.DataFrame) -> pd.DataFrame:
-    """Extract conservative explicit multilingual terms into campaign rows."""
     ontology = ecology.load_ontology(Path("config/trait_ontology.yml"))
     rows: list[dict[str, Any]] = []
     for record in sources.fillna("").to_dict("records"):
@@ -421,7 +417,7 @@ def _apply_results(
         )
         if species not in biotic_species:
             continue
-        result.loc[mask, "machine_biotic_candidate"] = True
+        result.loc[mask, "machine_biotic_candidate"] = "True"
         for dependent in (
             "floral_access_wikimedia_status",
             "alternative_guild_wikimedia_status",
@@ -440,7 +436,6 @@ def run_recovery_wave(
     languages: tuple[str, ...] = DEFAULT_LANGUAGES,
     getter: JsonGetter | None = None,
 ) -> dict[str, Any]:
-    """Advance one multilingual recovery wave and return its audit summary."""
     ledger_path = campaign_dir / "campaign_ledger.csv.gz"
     if not ledger_path.exists():
         raise typer.BadParameter(f"campaign ledger not found: {ledger_path}")
