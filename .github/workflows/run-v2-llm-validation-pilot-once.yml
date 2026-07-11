@@ -5,10 +5,12 @@ on:
     branches: [run/v2-llm-validation-pilot-20260712]
     paths:
       - ".github/workflows/run-v2-llm-validation-pilot-once.yml"
+      - "tmp/v2_llm_validation_pilot_20260712/**"
   pull_request:
     branches: [main]
     paths:
       - ".github/workflows/run-v2-llm-validation-pilot-once.yml"
+      - "tmp/v2_llm_validation_pilot_20260712/**"
 
 permissions:
   contents: read
@@ -40,16 +42,78 @@ jobs:
             --candidate-csv /tmp/public_flora_scout/v2_reported_candidates.csv \
             --output-dir /tmp/v2_llm_evidence_packets \
             --batch-size 10
-      - name: Summarize real pilot baseline
+      - name: Validate real LLM extraction batch 1
         run: |
-          cat /tmp/public_flora_scout/v1_category_search_manifest.json
-          cat /tmp/v2_llm_evidence_packets/llm_packet_manifest.json
-      - name: Upload real pilot corpus and packets
+          island-v2-llm-evidence ingest \
+            --packet-dir /tmp/v2_llm_evidence_packets/batch_00001 \
+            --result-jsonl tmp/v2_llm_validation_pilot_20260712/batch_00001/result.jsonl \
+            --output-dir /tmp/v2_llm_ingest/batch_00001 \
+            --model-provider openai_chatgpt \
+            --model-id "GPT-5.5 Thinking"
+      - name: Validate real LLM extraction batch 2
+        run: |
+          island-v2-llm-evidence ingest \
+            --packet-dir /tmp/v2_llm_evidence_packets/batch_00002 \
+            --result-jsonl tmp/v2_llm_validation_pilot_20260712/batch_00002/result.jsonl \
+            --output-dir /tmp/v2_llm_ingest/batch_00002 \
+            --model-provider openai_chatgpt \
+            --model-id "GPT-5.5 Thinking"
+      - name: Build baseline versus LLM coverage comparison
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          baseline = pd.read_csv('/tmp/public_flora_scout/v2_reported_candidates.csv', dtype=str).fillna('')
+          llm_frames = [
+              pd.read_csv('/tmp/v2_llm_ingest/batch_00001/v2_llm_reported_candidates.csv', dtype=str).fillna(''),
+              pd.read_csv('/tmp/v2_llm_ingest/batch_00002/v2_llm_reported_candidates.csv', dtype=str).fillna(''),
+          ]
+          llm = pd.concat(llm_frames, ignore_index=True)
+          combined = pd.concat([baseline, llm], ignore_index=True, sort=False).fillna('')
+          core = {
+              'flower_color': {'flower_primary_color'},
+              'flower_shape': {'floral_form', 'floral_symmetry'},
+              'reproductive_assurance': {
+                  'autonomous_selfing_capacity', 'mating_system', 'self_incompatibility', 'cleistogamy'
+              },
+              'pollen_vector': {'pollen_vector_mode'},
+              'pollinator_guild': {'pollination_functional_guild'},
+          }
+          def coverage(frame, traits):
+              sub = frame[frame['trait_name'].isin(traits)]
+              return sorted(set(sub['accepted_species']))
+          report = {
+              'n_baseline_rows': int(len(baseline)),
+              'n_llm_validated_rows': int(len(llm)),
+              'n_combined_rows': int(len(combined)),
+              'baseline_species_any_trait': int(baseline['accepted_species'].nunique()),
+              'llm_incremental_species': int(llm['accepted_species'].nunique()),
+              'combined_species_any_trait': int(combined['accepted_species'].nunique()),
+              'coverage_n_species': {},
+          }
+          for label, traits in core.items():
+              b = set(coverage(baseline, traits))
+              c = set(coverage(combined, traits))
+              report['coverage_n_species'][label] = {
+                  'baseline': len(b),
+                  'combined': len(c),
+                  'increment': len(c - b),
+                  'increment_species': sorted(c - b),
+              }
+          out = Path('/tmp/v2_llm_ingest')
+          combined.to_csv(out / 'v2_reported_candidates_baseline_plus_llm.csv', index=False)
+          (out / 'coverage_comparison.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps(report, indent=2))
+          PY
+      - name: Upload real pilot corpus, validated claims, and comparison
         uses: actions/upload-artifact@v4
         with:
-          name: v2-llm-validation-pilot-real-${{ github.run_id }}
+          name: v2-llm-validation-pilot-validated-${{ github.run_id }}
           path: |
             /tmp/public_flora_scout/
             /tmp/v2_llm_evidence_packets/
+            /tmp/v2_llm_ingest/
           if-no-files-found: error
           retention-days: 90
