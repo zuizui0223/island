@@ -42,7 +42,7 @@ jobs:
         run: |
           set +e
           mkdir -p /tmp/dynamic_discovery
-          island-v2-trait-dynamic-discovery discover \
+          island-v2-trait-dynamic-discovery \
             --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
             --output-dir /tmp/dynamic_discovery \
             --max-taxa 25 \
