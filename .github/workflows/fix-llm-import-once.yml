@@ -1,0 +1,41 @@
+name: fix_llm_import_once
+
+on:
+  push:
+    branches: [codex/reproducible-llm-evidence-lane]
+    paths:
+      - ".github/workflows/fix-llm-import-once.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/reproducible-llm-evidence-lane
+          fetch-depth: 0
+      - name: Apply exact Python 3.11 import fix
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("src/island_v2/llm_evidence_extraction.py")
+          text = path.read_text(encoding="utf-8")
+          old = "from pathlib import Path\nfrom typing import Any, Iterable\n"
+          new = "from collections.abc import Iterable\nfrom pathlib import Path\nfrom typing import Any\n"
+          if text.count(old) != 1:
+              raise SystemExit("expected import block was not unique")
+          path.write_text(text.replace(old, new), encoding="utf-8")
+          PY
+          rm .github/workflows/fix-llm-import-once.yml
+      - name: Commit exact fix and remove one-shot workflow
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/island_v2/llm_evidence_extraction.py .github/workflows/fix-llm-import-once.yml
+          git commit -m "fix: satisfy Python 3.11 import lint"
+          git push origin HEAD:codex/reproducible-llm-evidence-lane
