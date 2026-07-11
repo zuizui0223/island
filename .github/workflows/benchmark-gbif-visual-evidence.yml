@@ -32,9 +32,72 @@ jobs:
             --output-dir /tmp/gbif_visual_evidence \
             --max-taxa 25 \
             --max-images-per-species 10
+      - name: Freeze up to three images per species for visual-readability audit
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          import httpx
+          import pandas as pd
+
+          manifest = pd.read_csv('/tmp/gbif_visual_evidence/gbif_visual_evidence_manifest.csv', dtype=str).fillna('')
+          root = Path('/tmp/gbif_visual_evidence/images')
+          root.mkdir(parents=True, exist_ok=True)
+          rows = []
+          headers = {'User-Agent': 'island-floral-v2/0.1 visual readability audit'}
+          with httpx.Client(headers=headers, follow_redirects=True, timeout=30) as client:
+              for species, group in manifest.groupby('accepted_species', sort=True):
+                  safe_species = re.sub(r'[^A-Za-z0-9._-]+', '_', species)
+                  saved = 0
+                  for _, row in group.iterrows():
+                      if saved >= 3:
+                          break
+                      url = row['media_identifier']
+                      try:
+                          with client.stream('GET', url) as response:
+                              response.raise_for_status()
+                              content_type = response.headers.get('content-type', '').lower()
+                              if 'image' not in content_type:
+                                  continue
+                              data = bytearray()
+                              for chunk in response.iter_bytes():
+                                  data.extend(chunk)
+                                  if len(data) > 8_000_000:
+                                      break
+                              if not data or len(data) > 8_000_000:
+                                  continue
+                          ext = '.jpg'
+                          if 'png' in content_type:
+                              ext = '.png'
+                          elif 'webp' in content_type:
+                              ext = '.webp'
+                          path = root / f'{safe_species}__{saved+1}{ext}'
+                          path.write_bytes(data)
+                          rows.append({
+                              'accepted_species': species,
+                              'image_rank': saved + 1,
+                              'local_filename': path.name,
+                              'source_url': url,
+                              'gbif_occurrence_key': row['gbif_occurrence_key'],
+                              'media_license': row['media_license'],
+                              'bytes': len(data),
+                          })
+                          saved += 1
+                      except Exception:
+                          continue
+          pd.DataFrame(rows).to_csv('/tmp/gbif_visual_evidence/frozen_image_index.csv', index=False)
+          print(f'frozen_images={len(rows)} species={len(set(r["accepted_species"] for r in rows))}')
+          PY
       - name: Show availability summary
-        run: cat /tmp/gbif_visual_evidence/gbif_visual_evidence_summary.json
-      - name: Upload image manifest
+        run: |
+          cat /tmp/gbif_visual_evidence/gbif_visual_evidence_summary.json
+          python - <<'PY'
+          import pandas as pd
+          p='/tmp/gbif_visual_evidence/frozen_image_index.csv'
+          df=pd.read_csv(p) if __import__('pathlib').Path(p).exists() else pd.DataFrame()
+          print({'frozen_images':len(df), 'species_with_frozen_images': int(df['accepted_species'].nunique()) if len(df) else 0})
+          PY
+      - name: Upload image manifest and frozen audit images
         uses: actions/upload-artifact@v4
         with:
           name: gbif-visual-evidence-benchmark-${{ github.run_id }}
