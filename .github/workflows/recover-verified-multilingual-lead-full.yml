@@ -1,0 +1,176 @@
+name: recover_verified_multilingual_lead_full
+
+on:
+  workflow_dispatch:
+    inputs:
+      batch_size:
+        description: "Primary-screened species to recover (1-2000)."
+        required: false
+        default: "1000"
+        type: string
+      languages:
+        description: "Comma-separated Wikipedia language codes."
+        required: false
+        default: "ja,zh,ru"
+        type: string
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/recover-verified-multilingual-lead-full.yml"
+      - "src/island_v2/verified_multilingual_wikimedia_recovery_v2.py"
+      - "tests/test_verified_multilingual_wikimedia_recovery_v2.py"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/recover-verified-multilingual-lead-full.yml"
+      - "src/island_v2/verified_multilingual_wikimedia_recovery_v2.py"
+      - "tests/test_verified_multilingual_wikimedia_recovery_v2.py"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: global-trait-campaign
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Test lead and full fallback contracts
+        run: |
+          pytest -q \
+            tests/test_verified_multilingual_wikimedia_recovery_v2.py \
+            tests/test_verified_multilingual_wikimedia_recovery.py
+          python -m island_v2.verified_multilingual_wikimedia_recovery_v2 \
+            --help >/dev/null
+          python scripts/validate_workflows.py
+          ruff check \
+            src/island_v2/verified_multilingual_wikimedia_recovery_v2.py \
+            tests/test_verified_multilingual_wikimedia_recovery_v2.py
+
+  recover:
+    if: github.event_name != 'pull_request'
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      CAMPAIGN_DIR: data/v2/staging/traits/global_campaign
+      BATCH_SIZE: ${{ inputs.batch_size || '1000' }}
+      LANGUAGES: ${{ inputs.languages || 'ja,zh,ru' }}
+      RECOVERY_LOG: /tmp/verified_lead_full_recovery.log
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Run verified lead then full fallback recovery
+        id: recovery
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          : > "$RECOVERY_LOG"
+          python -m island_v2.verified_multilingual_wikimedia_recovery_v2 \
+            --campaign-dir "$CAMPAIGN_DIR" \
+            --batch-size "$BATCH_SIZE" \
+            --languages "$LANGUAGES" \
+            2>&1 | tee "$RECOVERY_LOG" | tee /tmp/verified_lead_full_summary.json
+      - name: Record lead-full recovery failure
+        if: steps.recovery.outcome == 'failure'
+        env:
+          RUN_ID: ${{ github.run_id }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          tail -n 250 "$RECOVERY_LOG" \
+            > "$CAMPAIGN_DIR/verified_lead_full_recovery_failure.log" || true
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          directory = Path(os.environ["CAMPAIGN_DIR"])
+          payload = {
+              "status": "verified_lead_full_recovery_failed",
+              "run_id": os.environ["RUN_ID"],
+              "source_sha": os.environ["SOURCE_SHA"],
+              "batch_size": int(os.environ["BATCH_SIZE"]),
+              "languages": os.environ["LANGUAGES"].split(","),
+              "failure_log": str(
+                  directory / "verified_lead_full_recovery_failure.log"
+              ),
+              "interpretation": (
+                  "Pipeline failure is not evidence of page or trait absence."
+              ),
+          }
+          (directory / "verified_lead_full_recovery_failure.json").write_text(
+              json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+      - name: Clear stale lead-full failure marker
+        if: steps.recovery.outcome == 'success'
+        run: |
+          rm -f \
+            "$CAMPAIGN_DIR/verified_lead_full_recovery_failure.json" \
+            "$CAMPAIGN_DIR/verified_lead_full_recovery_failure.log"
+      - name: Rebuild candidate indexes
+        if: always()
+        run: island-v2-global-candidate-index --campaign-dir "$CAMPAIGN_DIR"
+      - name: Publish lead-full recovery summary
+        if: steps.recovery.outcome == 'success'
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+
+          report = json.loads(
+              Path("/tmp/verified_lead_full_summary.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+          print("## Verified multilingual lead + full fallback")
+          for key, value in report.items():
+              if key != "policy":
+                  print(f"- {key}: {value}")
+          print("")
+          print(report["policy"])
+          PY
+      - name: Commit recovery state
+        if: always()
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add "$CAMPAIGN_DIR"
+          if git diff --cached --quiet; then
+            echo "No lead-full recovery state change."
+            exit 0
+          fi
+          if test -f "$CAMPAIGN_DIR/verified_lead_full_recovery_failure.json"; then
+            git commit -m "chore: record verified lead-full recovery failure"
+          else
+            git commit -m "chore: recover verified multilingual lead-full candidates"
+          fi
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            git pull --rebase origin main
+          done
+          exit 1
+      - name: Fail after diagnostic state is persisted
+        if: steps.recovery.outcome == 'failure'
+        run: exit 1
