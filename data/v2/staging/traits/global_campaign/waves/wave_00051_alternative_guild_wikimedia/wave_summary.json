@@ -1,0 +1,12 @@
+{
+  "wave_id": "wave_00051_alternative_guild_wikimedia",
+  "task": "alternative_guild_wikimedia",
+  "phase": "alternative_pollinator_function",
+  "source_kind": "wikimedia_reported_ecology",
+  "n_species_attempted": 13,
+  "n_species_with_source_text": 13,
+  "n_candidates_total": 29,
+  "n_target_candidates": 5,
+  "n_lookup_errors": 1,
+  "policy": "Machine-only; no candidate is curated or used as a biological absence."
+}
