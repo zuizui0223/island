@@ -1,0 +1,51 @@
+name: run_v2_llm_validation_pilot_once
+
+on:
+  push:
+    branches: [run/v2-llm-validation-pilot-20260712]
+    paths:
+      - ".github/workflows/run-v2-llm-validation-pilot-once.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-real-pilot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Run real public-source validation pilot
+        run: |
+          set -euo pipefail
+          island-v2-v1-category-search search \
+            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+            --output-dir /tmp/public_flora_scout \
+            --max-taxa 25
+      - name: Build real gap-only LLM evidence packets
+        run: |
+          set -euo pipefail
+          island-v2-llm-evidence prepare \
+            --source-csv /tmp/public_flora_scout/source_texts.csv \
+            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+            --candidate-csv /tmp/public_flora_scout/v2_reported_candidates.csv \
+            --output-dir /tmp/v2_llm_evidence_packets \
+            --batch-size 10
+      - name: Summarize real pilot baseline
+        run: |
+          cat /tmp/public_flora_scout/v1_category_search_manifest.json
+          cat /tmp/v2_llm_evidence_packets/llm_packet_manifest.json
+      - name: Upload real pilot corpus and packets
+        uses: actions/upload-artifact@v4
+        with:
+          name: v2-llm-validation-pilot-real-${{ github.run_id }}
+          path: |
+            /tmp/public_flora_scout/
+            /tmp/v2_llm_evidence_packets/
+          if-no-files-found: error
+          retention-days: 90
