@@ -13,6 +13,14 @@ on:
         required: false
         default: "ja,zh,ru"
         type: string
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/recover-multilingual-wikimedia.yml"
+      - "src/island_v2/multilingual_wikimedia_recovery.py"
+      - "tests/test_multilingual_wikimedia_recovery.py"
+      - "src/island_v2/global_candidate_index.py"
+      - "config/trait_ontology.yml"
   schedule:
     # Share the primary campaign's concurrency group and run between its :17/:47 slots.
     - cron: "10,40 * * * *"
@@ -32,7 +40,31 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Validate recovery implementation
+        run: |
+          pytest -q \
+            tests/test_multilingual_wikimedia_recovery.py \
+            tests/test_global_candidate_index.py
+      - name: Validate workflow and lint contracts
+        run: |
+          python scripts/validate_workflows.py
+          ruff check \
+            src/island_v2/multilingual_wikimedia_recovery.py \
+            tests/test_multilingual_wikimedia_recovery.py
+
   recover:
+    if: github.event_name != 'pull_request'
+    needs: tests
     runs-on: ubuntu-latest
     timeout-minutes: 50
     env:
@@ -49,11 +81,6 @@ jobs:
           cache: pip
       - name: Install v2 package
         run: pip install -e ".[dev]"
-      - name: Validate recovery implementation
-        run: |
-          pytest -q \
-            tests/test_multilingual_wikimedia_recovery.py \
-            tests/test_global_candidate_index.py
       - name: Validate bounded inputs
         run: |
           python - <<'PY'
@@ -68,7 +95,6 @@ jobs:
               raise SystemExit("languages must be comma-separated Wikipedia language codes")
           PY
       - name: Recover explicit multilingual statements
-        id: recovery
         run: |
           set -euo pipefail
           python -m island_v2.multilingual_wikimedia_recovery run \
