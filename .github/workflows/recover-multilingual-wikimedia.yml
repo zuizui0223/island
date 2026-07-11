@@ -18,7 +18,9 @@ on:
     paths:
       - ".github/workflows/recover-multilingual-wikimedia.yml"
       - "src/island_v2/multilingual_wikimedia_recovery.py"
+      - "src/island_v2/multilingual_wikimedia_sitelink_recovery.py"
       - "tests/test_multilingual_wikimedia_recovery.py"
+      - "tests/test_multilingual_wikimedia_sitelink_recovery.py"
       - "src/island_v2/global_candidate_index.py"
       - "config/trait_ontology.yml"
   push:
@@ -26,7 +28,9 @@ on:
     paths:
       - ".github/workflows/recover-multilingual-wikimedia.yml"
       - "src/island_v2/multilingual_wikimedia_recovery.py"
+      - "src/island_v2/multilingual_wikimedia_sitelink_recovery.py"
       - "tests/test_multilingual_wikimedia_recovery.py"
+      - "tests/test_multilingual_wikimedia_sitelink_recovery.py"
       - "config/trait_ontology.yml"
   workflow_run:
     workflows: ["drive_global_trait_campaign"]
@@ -53,18 +57,22 @@ jobs:
           cache: pip
       - name: Install v2 package
         run: pip install -e ".[dev]"
-      - name: Validate recovery implementation and CLI
+      - name: Validate direct-title and sitelink recovery
         run: |
           pytest -q \
             tests/test_multilingual_wikimedia_recovery.py \
+            tests/test_multilingual_wikimedia_sitelink_recovery.py \
             tests/test_global_candidate_index.py
-          python -m island_v2.multilingual_wikimedia_recovery --help >/dev/null
+          python -m island_v2.multilingual_wikimedia_sitelink_recovery \
+            --help >/dev/null
       - name: Validate workflow and lint contracts
         run: |
           python scripts/validate_workflows.py
           ruff check \
             src/island_v2/multilingual_wikimedia_recovery.py \
-            tests/test_multilingual_wikimedia_recovery.py
+            src/island_v2/multilingual_wikimedia_sitelink_recovery.py \
+            tests/test_multilingual_wikimedia_recovery.py \
+            tests/test_multilingual_wikimedia_sitelink_recovery.py
 
   recover:
     if: >-
@@ -110,13 +118,13 @@ jobs:
                   "languages must be comma-separated Wikipedia language codes"
               )
           PY
-      - name: Recover explicit multilingual statements
+      - name: Recover local-language articles through Wikidata sitelinks
         id: recovery
         continue-on-error: true
         run: |
           set -o pipefail
           : > "$RECOVERY_LOG"
-          python -m island_v2.multilingual_wikimedia_recovery \
+          python -m island_v2.multilingual_wikimedia_sitelink_recovery \
             --campaign-dir "$CAMPAIGN_DIR" \
             --batch-size "$BATCH_SIZE" \
             --languages "$LANGUAGES" \
@@ -139,7 +147,7 @@ jobs:
 
           directory = Path(os.environ["CAMPAIGN_DIR"])
           payload = {
-              "status": "multilingual_recovery_failed",
+              "status": "multilingual_sitelink_recovery_failed",
               "run_id": os.environ["RUN_ID"],
               "run_attempt": os.environ["RUN_ATTEMPT"],
               "source_sha": os.environ["SOURCE_SHA"],
@@ -154,9 +162,9 @@ jobs:
                   directory / "multilingual_recovery_failure.log"
               ),
               "retry_policy": (
-                  "No zero hit or infrastructure failure is treated as biological "
-                  "absence. The next chained or manual recovery reruns species still "
-                  "pending or marked retry."
+                  "No missing QID, missing sitelink, zero hit, or infrastructure "
+                  "failure is treated as biological absence. The next chained or "
+                  "manual recovery reruns species still pending or marked retry."
               ),
           }
           (directory / "multilingual_recovery_failure.json").write_text(
@@ -190,13 +198,18 @@ jobs:
                   encoding="utf-8"
               )
           )
-          print("## Multilingual Wikimedia recovery")
+          print("## Wikidata-sitelink multilingual recovery")
           for key in (
               "status",
               "wave_id",
               "languages",
               "n_species_attempted",
+              "n_species_with_english_qid",
+              "n_species_with_any_target_sitelink",
               "n_species_with_source_text",
+              "n_species_with_sitelink_source_text",
+              "n_species_with_direct_fallback_text",
+              "source_species_by_language",
               "n_candidates_total",
               "n_species_with_candidates",
               "n_new_biotic_species",
@@ -206,14 +219,14 @@ jobs:
                   print(f"- {key}: {summary[key]}")
           print("")
           print(
-              "All rows remain machine-only source-backed candidates; "
-              "zero hits are not biological absences."
+              "All rows remain machine-only source-backed candidates; missing "
+              "QIDs, missing sitelinks, and zero hits are not biological absences."
           )
           PY
       - name: Publish recovery failure summary
         if: steps.recovery.outcome == 'failure'
         run: |
-          echo "## Multilingual Wikimedia recovery failed" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Wikidata-sitelink multilingual recovery failed" >> "$GITHUB_STEP_SUMMARY"
           cat "$CAMPAIGN_DIR/multilingual_recovery_failure.json" >> "$GITHUB_STEP_SUMMARY"
           echo '```text' >> "$GITHUB_STEP_SUMMARY"
           cat "$CAMPAIGN_DIR/multilingual_recovery_failure.log" >> "$GITHUB_STEP_SUMMARY"
