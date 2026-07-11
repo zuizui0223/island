@@ -87,5 +87,11 @@ def test_family_prior_is_likely_proxy_only() -> None:
 
     assert set(frame["candidate_class"]) == {"proxy"}
     assert set(frame["inference_status"]) == {"likely"}
-    got = dict(zip(frame["accepted_species"], frame["provisional_candidate_value"]))
+    got = dict(
+        zip(
+            frame["accepted_species"],
+            frame["provisional_candidate_value"],
+            strict=True,
+        )
+    )
     assert got == {"Gramina ventosa": "abiotic_wind", "Orchis ficta": "biotic"}
