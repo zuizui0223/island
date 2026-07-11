@@ -7,6 +7,7 @@ on:
       - "src/island_v2/search_result_trait_candidates.py"
       - "src/island_v2/trait_dynamic_discovery.py"
       - "src/island_v2/trait_dynamic_discovery_fast.py"
+      - "src/island_v2/trait_relevant_search.py"
       - "tests/test_search_result_trait_candidates.py"
       - ".github/workflows/benchmark-search-result-trait-candidates.yml"
       - "pyproject.toml"
@@ -47,10 +48,55 @@ jobs:
             --max-results-per-query 8 \
             --max-pages-per-species 4 \
             --workers 8
+      - name: Run exact-name relevant snippet search
+        run: |
+          python -m island_v2.trait_relevant_search \
+            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+            --output-dir /tmp/relevant_search \
+            --max-taxa 25 \
+            --max-synonyms 3 \
+            --max-results-per-query 8 \
+            --max-sources-per-species 8 \
+            --workers 8
+      - name: Union broad and exact-name search-result evidence
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+
+          broad = pd.read_csv('/tmp/broad_search/search_results.csv', dtype=str).fillna('')
+          relevant = pd.read_csv('/tmp/relevant_search/relevant_search_results.csv', dtype=str).fillna('')
+          relevant = relevant.rename(columns={
+              'search_result_title': 'result_title',
+              'search_result_snippet': 'result_snippet',
+              'source_url': 'result_url',
+          })
+          wanted = [
+              'accepted_species', 'searched_name', 'query_family', 'search_query',
+              'search_engine', 'search_rank', 'result_title', 'result_url', 'result_snippet',
+          ]
+          for frame in (broad, relevant):
+              for column in wanted:
+                  if column not in frame.columns:
+                      frame[column] = ''
+          combined = pd.concat([broad[wanted], relevant[wanted]], ignore_index=True)
+          combined = combined.drop_duplicates(
+              ['accepted_species', 'searched_name', 'result_url', 'result_title', 'result_snippet']
+          )
+          out = Path('/tmp/combined_search')
+          out.mkdir(parents=True, exist_ok=True)
+          combined.to_csv(out / 'search_results.csv', index=False)
+          print({
+              'broad_rows': len(broad),
+              'relevant_rows': len(relevant),
+              'combined_rows': len(combined),
+              'combined_species': int(combined['accepted_species'].nunique()) if len(combined) else 0,
+          })
+          PY
       - name: Extract reported and likely candidates from frozen search results
         run: |
           island-v2-search-result-trait-candidates \
-            --search-results-csv /tmp/broad_search/search_results.csv \
+            --search-results-csv /tmp/combined_search/search_results.csv \
             --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
             --output-dir /tmp/search_result_candidates
           cat /tmp/search_result_candidates/search_result_trait_candidates_report.json >> "$GITHUB_STEP_SUMMARY"
@@ -134,6 +180,8 @@ jobs:
           path: |
             /tmp/fixed_baseline/
             /tmp/broad_search/
+            /tmp/relevant_search/
+            /tmp/combined_search/
             /tmp/search_result_candidates/
           if-no-files-found: error
           retention-days: 90
