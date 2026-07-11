@@ -48,17 +48,24 @@ jobs:
         run: pip install -e ".[dev]"
       - name: Test bounded-memory predicate inventory
         run: pytest -q tests/test_eol_traitbank_inventory.py tests/test_eol_traitbank.py
+      - name: Validate workflow and lint contracts
+        run: |
+          python scripts/validate_workflows.py
+          ruff check \
+            src/island_v2/eol_traitbank_inventory.py \
+            tests/test_eol_traitbank_inventory.py
 
   full-inventory:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: tests
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 240
     env:
       EOL_ZIP_URL: ${{ github.event.inputs.eol_zip_url || 'https://zenodo.org/records/13305577/files/traits_all.zip?download=1' }}
       MAX_TRAIT_ROWS: ${{ github.event.inputs.max_trait_rows || '0' }}
       INVENTORY_DIR: /tmp/eol_traitbank_inventory
       REPO_OUTPUT_DIR: data/v2/staging/traits/eol_traitbank_inventory
+      INVENTORY_LOG: /tmp/eol_traitbank_inventory.log
     steps:
       - uses: actions/checkout@v4
         with:
@@ -86,22 +93,29 @@ jobs:
           test -s /tmp/traits_all.zip
           sha256sum /tmp/traits_all.zip
           du -h /tmp/traits_all.zip
+          df -h
       - name: Scan EOL predicates and relevant values
+        id: scan
+        continue-on-error: true
         run: |
-          set -euo pipefail
+          set -o pipefail
+          : > "$INVENTORY_LOG"
           MAX_ARGS=()
           if [[ "$MAX_TRAIT_ROWS" != "0" ]]; then
             MAX_ARGS=(--max-trait-rows "$MAX_TRAIT_ROWS")
           fi
+          # The EOL table expands to roughly 1.9 GB. A 500k-row all-column
+          # pandas chunk can exceed hosted-runner memory, so use 100k chunks.
           python -m island_v2.eol_traitbank_inventory scan \
             --eol-archive /tmp/traits_all.zip \
             --output-dir "$INVENTORY_DIR" \
             --config-path config/eol_traitbank_terms.yml \
-            --chunksize 500000 \
+            --chunksize 100000 \
             --max-values-per-predicate 250 \
             "${MAX_ARGS[@]}" \
-            | tee /tmp/eol_inventory_report.json
+            2>&1 | tee "$INVENTORY_LOG" | tee /tmp/eol_inventory_report.json
       - name: Publish EOL inventory summary
+        if: steps.scan.outcome == 'success'
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json
@@ -132,15 +146,20 @@ jobs:
           ].sort_values("n_rows", ascending=False)
           print("\n### Relevant observed predicates")
           if relevant.empty:
-              print("No relevant predicate was observed; inspect the complete inventory before changing mappings.")
+              print(
+                  "No relevant predicate was observed; inspect the complete "
+                  "inventory before changing mappings."
+              )
           else:
               for _, row in relevant.head(100).iterrows():
                   print(
                       f"- {row['predicate_label']} — {row['predicate']}: "
-                      f"{int(row['n_rows'])} rows; mapped={bool(row['currently_mapped'])}"
+                      f"{int(row['n_rows'])} rows; "
+                      f"mapped={bool(row['currently_mapped'])}"
                   )
           PY
-      - name: Record inventory in the repository
+      - name: Build successful repository inventory
+        if: steps.scan.outcome == 'success'
         run: |
           set -euo pipefail
           rm -rf "$REPO_OUTPUT_DIR"
@@ -150,15 +169,77 @@ jobs:
           cp "$INVENTORY_DIR"/eol_relevant_terms.csv "$REPO_OUTPUT_DIR"/
           cp "$INVENTORY_DIR"/eol_inventory_manifest.json "$REPO_OUTPUT_DIR"/
           sha256sum /tmp/traits_all.zip > "$REPO_OUTPUT_DIR"/download_sha256.txt
+          rm -f \
+            data/v2/staging/traits/eol_traitbank_inventory_failure.json \
+            data/v2/staging/traits/eol_traitbank_inventory_failure.log
+      - name: Record failed inventory for diagnosis
+        if: steps.scan.outcome == 'failure'
+        env:
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p data/v2/staging/traits
+          tail -n 300 "$INVENTORY_LOG" \
+            > data/v2/staging/traits/eol_traitbank_inventory_failure.log || true
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
 
+          target = Path("data/v2/staging/traits/eol_traitbank_inventory_failure.json")
+          payload = {
+              "status": "eol_traitbank_inventory_failed",
+              "run_id": os.environ["RUN_ID"],
+              "run_attempt": os.environ["RUN_ATTEMPT"],
+              "source_sha": os.environ["SOURCE_SHA"],
+              "max_trait_rows": int(os.environ["MAX_TRAIT_ROWS"]),
+              "chunksize": 100000,
+              "failure_log": (
+                  "data/v2/staging/traits/"
+                  "eol_traitbank_inventory_failure.log"
+              ),
+              "interpretation": (
+                  "This is an acquisition-pipeline failure, not evidence that "
+                  "EOL lacks reproductive, floral, or pollination traits."
+              ),
+          }
+          target.write_text(
+              json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+      - name: Publish failed inventory summary
+        if: steps.scan.outcome == 'failure'
+        run: |
+          echo "## EOL TraitBank inventory failed" >> "$GITHUB_STEP_SUMMARY"
+          cat data/v2/staging/traits/eol_traitbank_inventory_failure.json \
+            >> "$GITHUB_STEP_SUMMARY"
+          echo '```text' >> "$GITHUB_STEP_SUMMARY"
+          cat data/v2/staging/traits/eol_traitbank_inventory_failure.log \
+            >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+      - name: Commit inventory state
+        if: always()
+        run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$REPO_OUTPUT_DIR"
+          git add \
+            data/v2/staging/traits/eol_traitbank_inventory \
+            data/v2/staging/traits/eol_traitbank_inventory_failure.json \
+            data/v2/staging/traits/eol_traitbank_inventory_failure.log \
+            2>/dev/null || true
           if git diff --cached --quiet; then
-            echo "No EOL predicate inventory changes to commit."
+            echo "No EOL predicate inventory state change."
             exit 0
           fi
-          git commit -m "chore: record EOL predicate inventory [skip ci]"
+          if test -f data/v2/staging/traits/eol_traitbank_inventory_failure.json; then
+            git commit -m "chore: record EOL predicate inventory failure"
+          else
+            git commit -m "chore: record EOL predicate inventory [skip ci]"
+          fi
           for attempt in 1 2 3; do
             if git push origin HEAD:main; then
               exit 0
@@ -172,6 +253,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: eol-traitbank-inventory-${{ github.run_id }}
-          path: /tmp/eol_traitbank_inventory/
-          if-no-files-found: error
+          path: |
+            /tmp/eol_traitbank_inventory/
+            /tmp/eol_traitbank_inventory.log
+          if-no-files-found: warn
           retention-days: 90
+      - name: Fail after inventory state is persisted
+        if: steps.scan.outcome == 'failure'
+        run: exit 1
