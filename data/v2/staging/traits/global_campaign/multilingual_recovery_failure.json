@@ -1,0 +1,15 @@
+{
+  "status": "multilingual_recovery_failed",
+  "run_id": "29136505283",
+  "run_attempt": "1",
+  "source_sha": "c5b775daf40b8975aa4d31f2a64eefa7a818236e",
+  "event_name": "push",
+  "batch_size": 1000,
+  "languages": [
+    "ja",
+    "zh",
+    "ru"
+  ],
+  "failure_log": "data/v2/staging/traits/global_campaign/multilingual_recovery_failure.log",
+  "retry_policy": "No zero hit or infrastructure failure is treated as biological absence. The next chained or manual recovery reruns species still pending or marked retry."
+}

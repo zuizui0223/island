@@ -1,0 +1,6 @@
+[33mUsage: [0mpython [1;32m-m[0m island_v2.multilingual_wikimedia_recovery 
+           [OPTIONS]
+[2mTry [0m[2;34m'python [0m[1;2;34m-m[0m[2;34m island_v2.multilingual_wikimedia_recovery [0m[1;2;34m-[0m[1;2;34m-help[0m[2;34m'[0m[2m for help.[0m
+[31m╭─[0m[31m Error [0m[31m─────────────────────────────────────────────────────────────────────[0m[31m─╮[0m
+[31m│[0m Got unexpected extra argument(s) (run)                                       [31m│[0m
+[31m╰──────────────────────────────────────────────────────────────────────────────╯[0m
