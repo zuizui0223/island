@@ -58,6 +58,7 @@ island-v2-trait-candidate-review-queue = "island_v2.trait_candidate_review_queue
 island-v2-trait-multimodal-candidates = "island_v2.trait_multimodal_candidates:app"
 island-v2-trait-machine-method-eval = "island_v2.trait_machine_method_eval:app"
 island-v2-trait-recovery-benchmark = "island_v2.trait_recovery_benchmark:app"
+island-v2-trait-media-scout = "island_v2.trait_media_scout:app"
 island-v2-reported-ecology-machine = "island_v2.reported_ecology_machine:app"
 island-v2-global-trait-campaign = "island_v2.global_trait_campaign:app"
 island-v2-global-candidate-index = "island_v2.global_candidate_index_audited:app"
