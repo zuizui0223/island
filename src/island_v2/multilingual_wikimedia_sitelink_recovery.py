@@ -1,13 +1,10 @@
 """Recover multilingual plant traits through English-page Wikidata sitelinks.
 
 Scientific names rarely remain the page title in Japanese, Chinese, or Russian
-Wikipedia. This lane first resolves an English Wikipedia page to its Wikidata
-item, retrieves local-language sitelinks in batches, and only then downloads the
-local article extract. A direct scientific-title lookup remains as a fallback.
-
-All outputs are source-backed machine candidates. Missing pages, missing
-sitelinks, and zero pattern matches are acquisition outcomes, not biological
-absences.
+Wikipedia. This lane resolves an English page to a Wikidata item, retrieves
+local-language sitelinks, then downloads the local extract. Direct scientific-
+title lookup remains a fallback. All outputs are unreviewed source-backed
+machine candidates; missing pages, sitelinks, and matches are not absences.
 """
 
 from __future__ import annotations
@@ -80,12 +77,11 @@ def fetch_english_wikidata_ids(
     *,
     api_batch_size: int = 50,
 ) -> tuple[dict[str, str], set[str], list[str]]:
-    """Resolve scientific-name English pages to Wikidata item IDs in batches."""
+    """Resolve scientific-name English pages to Wikidata item IDs."""
     endpoint = web_reported.wikipedia_api_for_language("en")
     qids: dict[str, str] = {}
     completed: set[str] = set()
     errors: list[str] = []
-
     for start in range(0, len(species), api_batch_size):
         names = species[start : start + api_batch_size]
         try:
@@ -100,10 +96,9 @@ def fetch_english_wikidata_ids(
                     "format": "json",
                 },
             )
-        except Exception as exc:  # noqa: BLE001 - preserve retry audit
+        except Exception as exc:  # noqa: BLE001
             errors.extend(f"enwiki-qid:{name}:transient:{exc}" for name in names)
             continue
-
         completed.update(names)
         query = payload.get("query") or {}
         aliases = _query_aliases(query)
@@ -129,16 +124,14 @@ def fetch_wikidata_sitelinks(
     *,
     api_batch_size: int = 50,
 ) -> tuple[dict[str, dict[str, str]], list[str]]:
-    """Return ``species -> language -> local title`` from Wikidata sitelinks."""
+    """Return ``species -> language -> local title`` from Wikidata."""
     qid_to_species: dict[str, list[str]] = {}
     for species, qid in species_to_qid.items():
         qid_to_species.setdefault(qid, []).append(species)
-
-    resolved: dict[str, dict[str, str]] = {species: {} for species in species_to_qid}
+    resolved = {species: {} for species in species_to_qid}
     errors: list[str] = []
     qids = sorted(qid_to_species)
     sitefilter = "|".join(f"{language}wiki" for language in languages)
-
     for start in range(0, len(qids), api_batch_size):
         batch = qids[start : start + api_batch_size]
         try:
@@ -152,14 +145,14 @@ def fetch_wikidata_sitelinks(
                     "format": "json",
                 },
             )
-        except Exception as exc:  # noqa: BLE001 - preserve retry audit
-            errors.extend(f"wikidata-sitelinks:{qid}:transient:{exc}" for qid in batch)
+        except Exception as exc:  # noqa: BLE001
+            for qid in batch:
+                for species in qid_to_species.get(qid, []):
+                    errors.append(f"wikidata-sitelinks:{species}:transient:{exc}")
             continue
-
         entities = payload.get("entities") or {}
         for qid in batch:
-            entity = entities.get(qid) or {}
-            sitelinks = entity.get("sitelinks") or {}
+            sitelinks = (entities.get(qid) or {}).get("sitelinks") or {}
             for species in qid_to_species.get(qid, []):
                 for language in languages:
                     title = _text((sitelinks.get(f"{language}wiki") or {}).get("title"))
@@ -175,13 +168,12 @@ def fetch_resolved_language_extracts(
     *,
     api_batch_size: int = 50,
 ) -> tuple[pd.DataFrame, set[str], list[str]]:
-    """Fetch local extracts while retaining the accepted scientific-name key."""
+    """Fetch local extracts while retaining accepted scientific names."""
     rows: list[dict[str, str]] = []
     completed: set[str] = set()
     errors: list[str] = []
     endpoint = web_reported.wikipedia_api_for_language(language)
     items = list(species_to_title.items())
-
     for start in range(0, len(items), api_batch_size):
         batch = items[start : start + api_batch_size]
         titles = [title for _, title in batch]
@@ -198,13 +190,12 @@ def fetch_resolved_language_extracts(
                     "exlimit": "max",
                 },
             )
-        except Exception as exc:  # noqa: BLE001 - preserve retry audit
+        except Exception as exc:  # noqa: BLE001
             errors.extend(
                 f"wikipedia-sitelink-{language}:{species}:transient:{exc}"
                 for species, _ in batch
             )
             continue
-
         completed.update(species for species, _ in batch)
         query = payload.get("query") or {}
         aliases = _query_aliases(query)
@@ -236,7 +227,6 @@ def fetch_resolved_language_extracts(
                     "evidence_scope": "species_direct",
                 }
             )
-
     columns = [
         "accepted_species",
         "language",
@@ -247,6 +237,24 @@ def fetch_resolved_language_extracts(
         "evidence_scope",
     ]
     return pd.DataFrame(rows, columns=columns), completed, errors
+
+
+def _drop_nested_guild_matches(candidates: pd.DataFrame) -> pd.DataFrame:
+    """Prefer bumblebee over the nested Japanese broad-bee substring match."""
+    if candidates.empty:
+        return candidates
+    guild = candidates["trait_name"].eq("pollination_functional_guild")
+    bumblebee = guild & candidates["candidate_value"].eq("bumblebees")
+    other_bee = guild & candidates["candidate_value"].eq("other_bees")
+    if not bumblebee.any() or not other_bee.any():
+        return candidates
+    context_columns = ["accepted_species", "source_url", "source_excerpt"]
+    specific_contexts = set(
+        candidates.loc[bumblebee, context_columns].itertuples(index=False, name=None)
+    )
+    broad_context = candidates.loc[other_bee, context_columns].apply(tuple, axis=1)
+    nested_indexes = broad_context.index[broad_context.isin(specific_contexts)]
+    return candidates.drop(index=nested_indexes).reset_index(drop=True)
 
 
 def _ensure_status_columns(ledger: pd.DataFrame) -> pd.DataFrame:
@@ -261,9 +269,7 @@ def _ensure_status_columns(ledger: pd.DataFrame) -> pd.DataFrame:
     for column, default in defaults.items():
         if column not in result.columns:
             result[column] = default
-    result[STATUS_COLUMNS[0]] = (
-        result[STATUS_COLUMNS[0]].fillna("").replace("", "pending")
-    )
+    result[STATUS_COLUMNS[0]] = result[STATUS_COLUMNS[0]].fillna("").replace("", "pending")
     for column in (STATUS_COLUMNS[1], STATUS_COLUMNS[3]):
         result[column] = pd.to_numeric(result[column], errors="coerce").fillna(0).astype(int)
     for column in (STATUS_COLUMNS[2], STATUS_COLUMNS[4]):
@@ -332,7 +338,6 @@ def _apply_results(
         if len(parts) >= 2:
             errors_by_species.setdefault(parts[1], []).append(error)
     biotic = _biotic_species(candidates)
-
     for species in names:
         mask = result["accepted_species"].eq(species)
         attempts = int(result.loc[mask, STATUS_COLUMNS[1]].iloc[0]) + 1
@@ -397,26 +402,21 @@ def run_sitelink_recovery_wave(
     sitelink_source_species: set[str] = set()
     direct_source_species: set[str] = set()
     source_counts_by_language: dict[str, int] = {}
-
     for language in languages:
         resolved_titles = {
-            species: language_titles[language]
-            for species, language_titles in sitelinks.items()
-            if language in language_titles
+            species: local_titles[language]
+            for species, local_titles in sitelinks.items()
+            if language in local_titles
         }
-        resolved_sources, resolved_completed, resolved_errors = (
-            fetch_resolved_language_extracts(
-                getter,
-                resolved_titles,
-                language,
-            )
+        resolved_sources, resolved_completed, resolved_errors = fetch_resolved_language_extracts(
+            getter,
+            resolved_titles,
+            language,
         )
         errors.extend(resolved_errors)
         completed_species.update(resolved_completed)
         if not resolved_sources.empty:
-            sitelink_source_species.update(
-                resolved_sources["accepted_species"].astype(str)
-            )
+            sitelink_source_species.update(resolved_sources["accepted_species"].astype(str))
         source_tables.append(resolved_sources)
 
         resolved_with_text = (
@@ -435,19 +435,19 @@ def run_sitelink_recovery_wave(
         if not direct_sources.empty:
             direct_source_species.update(direct_sources["accepted_species"].astype(str))
         source_tables.append(direct_sources)
+        combined_language = pd.concat(
+            [resolved_sources, direct_sources],
+            ignore_index=True,
+        )
         source_counts_by_language[language] = int(
-            pd.concat([resolved_sources, direct_sources], ignore_index=True)[
-                "accepted_species"
-            ].nunique()
+            combined_language["accepted_species"].nunique()
         )
 
     sources = pd.concat(source_tables, ignore_index=True, sort=False).fillna("")
     if not sources.empty:
         sources = sources.drop_duplicates()
-    candidates = extract_recovery_candidates(sources)
+    candidates = _drop_nested_guild_matches(extract_recovery_candidates(sources))
     if not candidates.empty:
-        # Keep the original candidate task label so exact duplicate evidence from
-        # the direct-title v1 wave deduplicates in the cumulative index.
         candidates["campaign_task"] = RECOVERY_TASK
         candidates["campaign_phase"] = RECOVERY_PHASE
 
@@ -460,7 +460,6 @@ def run_sitelink_recovery_wave(
         errors,
         wave_id,
     )
-
     wave_dir = campaign_dir / "waves" / wave_id
     wave_dir.mkdir(parents=True, exist_ok=False)
     batch.to_csv(wave_dir / "species_batch.csv", index=False)
@@ -472,7 +471,6 @@ def run_sitelink_recovery_wave(
     )
     pd.DataFrame({"error": errors}).to_csv(wave_dir / "lookup_errors.csv", index=False)
 
-    n_any_sitelink = sum(bool(values) for values in sitelinks.values())
     summary = {
         "wave_id": wave_id,
         "task": WAVE_TASK,
@@ -482,7 +480,7 @@ def run_sitelink_recovery_wave(
         "languages": list(languages),
         "n_species_attempted": len(names),
         "n_species_with_english_qid": len(species_to_qid),
-        "n_species_with_any_target_sitelink": n_any_sitelink,
+        "n_species_with_any_target_sitelink": sum(bool(values) for values in sitelinks.values()),
         "n_species_with_source_text": int(sources["accepted_species"].nunique())
         if not sources.empty
         else 0,
