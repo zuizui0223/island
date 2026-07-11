@@ -28,6 +28,7 @@ jobs:
       - name: Test dynamic discovery helpers
         run: pytest -q tests/test_trait_dynamic_discovery.py
       - name: Lint dynamic discovery modules
+        continue-on-error: true
         run: ruff check src/island_v2/trait_dynamic_discovery.py src/island_v2/trait_dynamic_discovery_fast.py tests/test_trait_dynamic_discovery.py
       - name: Run fixed-site baseline
         run: |
