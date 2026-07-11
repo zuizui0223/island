@@ -21,9 +21,6 @@ on:
       - "tests/test_multilingual_wikimedia_recovery.py"
       - "src/island_v2/global_candidate_index.py"
       - "config/trait_ontology.yml"
-  schedule:
-    # Share the primary campaign's concurrency group and run between its :17/:47 slots.
-    - cron: "10,40 * * * *"
   push:
     branches: [main]
     paths:
@@ -31,16 +28,25 @@ on:
       - "src/island_v2/multilingual_wikimedia_recovery.py"
       - "tests/test_multilingual_wikimedia_recovery.py"
       - "config/trait_ontology.yml"
+  workflow_run:
+    workflows: ["drive_global_trait_campaign"]
+    types: [completed]
 
 permissions:
   contents: write
 
+# The primary campaign and recovery both mutate the same ledger. Chaining on
+# workflow_run makes recovery follow a completed primary bundle, while the shared
+# concurrency group protects manual/push runs and the next scheduled bundle.
 concurrency:
   group: global-trait-campaign
   cancel-in-progress: false
 
 jobs:
   tests:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -63,7 +69,9 @@ jobs:
             tests/test_multilingual_wikimedia_recovery.py
 
   recover:
-    if: github.event_name != 'pull_request'
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
     needs: tests
     runs-on: ubuntu-latest
     timeout-minutes: 50
@@ -71,6 +79,7 @@ jobs:
       CAMPAIGN_DIR: data/v2/staging/traits/global_campaign
       BATCH_SIZE: ${{ inputs.batch_size || '1000' }}
       LANGUAGES: ${{ inputs.languages || 'ja,zh,ru' }}
+      RECOVERY_LOG: /tmp/multilingual_recovery.log
     steps:
       - uses: actions/checkout@v4
         with:
@@ -90,28 +99,98 @@ jobs:
           size = int(os.environ["BATCH_SIZE"])
           if not 1 <= size <= 2000:
               raise SystemExit("batch_size must be between 1 and 2000")
-          languages = [value.strip() for value in os.environ["LANGUAGES"].split(",") if value.strip()]
-          if not languages or any(not re.fullmatch(r"[a-z][a-z0-9]{1,14}", value) for value in languages):
-              raise SystemExit("languages must be comma-separated Wikipedia language codes")
+          languages = [
+              value.strip()
+              for value in os.environ["LANGUAGES"].split(",")
+              if value.strip()
+          ]
+          if not languages or any(
+              not re.fullmatch(r"[a-z][a-z0-9]{1,14}", value)
+              for value in languages
+          ):
+              raise SystemExit(
+                  "languages must be comma-separated Wikipedia language codes"
+              )
           PY
       - name: Recover explicit multilingual statements
+        id: recovery
+        continue-on-error: true
         run: |
-          set -euo pipefail
+          set -o pipefail
+          : > "$RECOVERY_LOG"
           python -m island_v2.multilingual_wikimedia_recovery run \
             --campaign-dir "$CAMPAIGN_DIR" \
             --batch-size "$BATCH_SIZE" \
             --languages "$LANGUAGES" \
-            | tee /tmp/multilingual_recovery_summary.json
+            2>&1 | tee "$RECOVERY_LOG" | tee /tmp/multilingual_recovery_summary.json
+      - name: Record recovery failure for diagnosis and retry
+        if: steps.recovery.outcome == 'failure'
+        env:
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          SOURCE_SHA: ${{ github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$CAMPAIGN_DIR"
+          tail -n 250 "$RECOVERY_LOG" > "$CAMPAIGN_DIR/multilingual_recovery_failure.log" || true
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          directory = Path(os.environ["CAMPAIGN_DIR"])
+          payload = {
+              "status": "multilingual_recovery_failed",
+              "run_id": os.environ["RUN_ID"],
+              "run_attempt": os.environ["RUN_ATTEMPT"],
+              "source_sha": os.environ["SOURCE_SHA"],
+              "event_name": os.environ["EVENT_NAME"],
+              "batch_size": int(os.environ["BATCH_SIZE"]),
+              "languages": [
+                  value.strip()
+                  for value in os.environ["LANGUAGES"].split(",")
+                  if value.strip()
+              ],
+              "failure_log": str(
+                  directory / "multilingual_recovery_failure.log"
+              ),
+              "retry_policy": (
+                  "No zero hit or infrastructure failure is treated as biological "
+                  "absence. The next chained or manual recovery reruns species still "
+                  "pending or marked retry."
+              ),
+          }
+          (directory / "multilingual_recovery_failure.json").write_text(
+              json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+      - name: Clear stale recovery failure marker
+        if: steps.recovery.outcome == 'success'
+        run: |
+          rm -f \
+            "$CAMPAIGN_DIR/multilingual_recovery_failure.json" \
+            "$CAMPAIGN_DIR/multilingual_recovery_failure.log"
       - name: Rebuild cumulative candidate indexes
-        run: island-v2-global-candidate-index --campaign-dir "$CAMPAIGN_DIR"
+        if: always()
+        run: |
+          if test -f "$CAMPAIGN_DIR/campaign_ledger.csv.gz"; then
+            island-v2-global-candidate-index --campaign-dir "$CAMPAIGN_DIR"
+          else
+            echo "No campaign ledger; candidate index rebuild skipped."
+          fi
       - name: Publish recovery summary
+        if: steps.recovery.outcome == 'success'
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json
           from pathlib import Path
 
           summary = json.loads(
-              Path("/tmp/multilingual_recovery_summary.json").read_text(encoding="utf-8")
+              Path("/tmp/multilingual_recovery_summary.json").read_text(
+                  encoding="utf-8"
+              )
           )
           print("## Multilingual Wikimedia recovery")
           for key in (
@@ -128,19 +207,35 @@ jobs:
               if key in summary:
                   print(f"- {key}: {summary[key]}")
           print("")
-          print("All rows remain machine-only source-backed candidates; zero hits are not biological absences.")
+          print(
+              "All rows remain machine-only source-backed candidates; "
+              "zero hits are not biological absences."
+          )
           PY
-      - name: Commit recovery wave and ledger
+      - name: Publish recovery failure summary
+        if: steps.recovery.outcome == 'failure'
+        run: |
+          echo "## Multilingual Wikimedia recovery failed" >> "$GITHUB_STEP_SUMMARY"
+          cat "$CAMPAIGN_DIR/multilingual_recovery_failure.json" >> "$GITHUB_STEP_SUMMARY"
+          echo '```text' >> "$GITHUB_STEP_SUMMARY"
+          cat "$CAMPAIGN_DIR/multilingual_recovery_failure.log" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+      - name: Commit recovery state
+        if: always()
         run: |
           set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add "$CAMPAIGN_DIR"
           if git diff --cached --quiet; then
-            echo "No multilingual recovery change."
+            echo "No multilingual recovery state change."
             exit 0
           fi
-          git commit -m "chore: recover multilingual trait candidates"
+          if test -f "$CAMPAIGN_DIR/multilingual_recovery_failure.json"; then
+            git commit -m "chore: record multilingual recovery failure"
+          else
+            git commit -m "chore: recover multilingual trait candidates"
+          fi
           for attempt in 1 2 3; do
             if git push origin HEAD:main; then
               exit 0
@@ -150,3 +245,6 @@ jobs:
           done
           echo "Could not publish multilingual recovery after three attempts." >&2
           exit 1
+      - name: Fail after recovery state is persisted
+        if: steps.recovery.outcome == 'failure'
+        run: exit 1
