@@ -77,7 +77,7 @@ jobs:
         run: |
           set +e
           mkdir -p /tmp/trait_visual_packet
-          island-v2-trait-visual-packet build \
+          island-v2-trait-visual-packet \
             --media-csv /tmp/trait_media_pilot/gbif_trait_media_manifest.csv \
             --output-dir /tmp/trait_visual_packet \
             --images-per-species 5 \
