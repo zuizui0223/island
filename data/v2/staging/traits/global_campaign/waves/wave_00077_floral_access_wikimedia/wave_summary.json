@@ -1,0 +1,12 @@
+{
+  "wave_id": "wave_00077_floral_access_wikimedia",
+  "task": "floral_access_wikimedia",
+  "phase": "floral_access",
+  "source_kind": "wikimedia_web_reported",
+  "n_species_attempted": 4,
+  "n_species_with_source_text": 4,
+  "n_candidates_total": 7,
+  "n_target_candidates": 5,
+  "n_lookup_errors": 0,
+  "policy": "Machine-only; no candidate is curated or used as a biological absence."
+}

@@ -1,0 +1,12 @@
+{
+  "wave_id": "wave_00076_reproductive_wikimedia",
+  "task": "reproductive_wikimedia",
+  "phase": "reproductive_and_pollen_vector",
+  "source_kind": "wikimedia_reported_ecology",
+  "n_species_attempted": 1000,
+  "n_species_with_source_text": 895,
+  "n_candidates_total": 69,
+  "n_target_candidates": 49,
+  "n_lookup_errors": 757,
+  "policy": "Machine-only; no candidate is curated or used as a biological absence."
+}
