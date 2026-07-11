@@ -1,0 +1,46 @@
+{
+  "n_baseline_rows": 13,
+  "n_llm_validated_rows": 3,
+  "n_combined_rows": 16,
+  "baseline_species_any_trait": 7,
+  "llm_incremental_species": 2,
+  "combined_species_any_trait": 9,
+  "coverage_n_species": {
+    "flower_color": {
+      "baseline": 7,
+      "combined": 7,
+      "increment": 0,
+      "increment_species": []
+    },
+    "flower_shape": {
+      "baseline": 1,
+      "combined": 2,
+      "increment": 1,
+      "increment_species": [
+        "Abrotanella caespitosa"
+      ]
+    },
+    "reproductive_assurance": {
+      "baseline": 0,
+      "combined": 0,
+      "increment": 0,
+      "increment_species": []
+    },
+    "pollen_vector": {
+      "baseline": 0,
+      "combined": 1,
+      "increment": 1,
+      "increment_species": [
+        "Abelmoschus angulosus"
+      ]
+    },
+    "pollinator_guild": {
+      "baseline": 0,
+      "combined": 1,
+      "increment": 1,
+      "increment_species": [
+        "Abelmoschus angulosus"
+      ]
+    }
+  }
+}
