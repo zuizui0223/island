@@ -1,0 +1,43 @@
+name: benchmark_gbif_visual_evidence
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/island_v2/gbif_visual_evidence.py"
+      - ".github/workflows/benchmark-gbif-visual-evidence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Lint collector
+        continue-on-error: true
+        run: ruff check src/island_v2/gbif_visual_evidence.py
+      - name: Collect GBIF visual evidence availability
+        run: |
+          python -m island_v2.gbif_visual_evidence \
+            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+            --output-dir /tmp/gbif_visual_evidence \
+            --max-taxa 25 \
+            --max-images-per-species 10
+      - name: Show availability summary
+        run: cat /tmp/gbif_visual_evidence/gbif_visual_evidence_summary.json
+      - name: Upload image manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: gbif-visual-evidence-benchmark-${{ github.run_id }}
+          path: /tmp/gbif_visual_evidence/
+          if-no-files-found: error
+          retention-days: 90
