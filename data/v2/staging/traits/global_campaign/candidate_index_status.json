@@ -1,14 +1,14 @@
 {
   "version": "1.0",
-  "n_waves_indexed": 38,
-  "latest_wave_id": "wave_00038_reproductive_multilingual_sitelink_recovery",
-  "n_unique_candidate_rows": 2886,
+  "n_waves_indexed": 39,
+  "latest_wave_id": "wave_00039_reproductive_multilingual_verified_sitelink_recovery",
+  "n_unique_candidate_rows": 2887,
   "n_species_with_candidates": 1229,
   "n_machine_biotic_screening_species": 239,
   "n_by_campaign_task": {
     "alternative_guild_wikimedia": 473,
     "floral_access_wikimedia": 670,
-    "reproductive_multilingual_recovery": 11,
+    "reproductive_multilingual_recovery": 12,
     "reproductive_openalex": 8,
     "reproductive_wikimedia": 1724
   },
@@ -16,7 +16,7 @@
     "alternative_pollinator_function": 302,
     "auxiliary": 149,
     "floral_access": 521,
-    "reproductive_and_pollen_vector": 1914
+    "reproductive_and_pollen_vector": 1915
   },
   "n_by_trait_name": {
     "autonomous_selfing_capacity": 153,
@@ -33,7 +33,7 @@
     "pollination_functional_guild": 302,
     "pollination_vector_reported": 129,
     "self_compatibility_reported": 4,
-    "self_incompatibility": 64,
+    "self_incompatibility": 65,
     "self_incompatibility_reported": 3,
     "sex_system": 1021,
     "tube_depth_class": 1
@@ -44,12 +44,12 @@
     "wikipedia_extract": 2197,
     "wikipedia_extract_ru": 5,
     "wikipedia_extract_zh": 1,
-    "wikipedia_sitelink_extract_ja": 2,
-    "wikipedia_sitelink_extract_ru": 2,
+    "wikipedia_sitelink_extract_ja": 4,
+    "wikipedia_sitelink_extract_ru": 1,
     "wikipedia_sitelink_extract_zh": 1
   },
   "n_by_confidence": {
-    "explicit_multilingual_rule_match": 11,
+    "explicit_multilingual_rule_match": 12,
     "explicit_term_match": 670,
     "rule_match": 2205
   },
@@ -58,5 +58,9 @@
     "biotic_vector_candidate_without_guild_yet": 168,
     "bumblebee_candidate_without_alternative_yet": 13
   },
-  "interpretation": "Cumulative machine-only source-backed candidates and screening labels. They are not accepted trait values, biological absences, or confirmatory-model inputs."
+  "interpretation": "Cumulative machine-only source-backed candidates and screening labels. They are not accepted trait values, biological absences, or confirmatory-model inputs.",
+  "n_candidate_exclusion_rules": 2,
+  "n_raw_candidate_rows_excluded": 2,
+  "n_species_with_excluded_candidates": 1,
+  "candidate_exclusion_policy": "Raw wave evidence remains immutable. Exact-key audit rules remove known scope/uncertainty/parser artefacts only from cumulative machine indexes; exclusions are not biological absences."
 }

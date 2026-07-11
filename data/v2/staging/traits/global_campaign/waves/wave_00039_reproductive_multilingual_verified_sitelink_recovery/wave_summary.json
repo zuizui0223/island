@@ -1,0 +1,31 @@
+{
+  "wave_id": "wave_00039_reproductive_multilingual_verified_sitelink_recovery",
+  "task": "reproductive_multilingual_verified_sitelink_recovery",
+  "candidate_task": "reproductive_multilingual_recovery",
+  "phase": "reproductive_and_pollen_vector",
+  "source_kind": "p225_verified_wikidata_sitelink_wikipedia",
+  "languages": [
+    "ja",
+    "zh",
+    "ru"
+  ],
+  "n_species_attempted": 1000,
+  "n_species_with_english_qid": 641,
+  "wikidata_identity_status_counts": {
+    "p225_mismatch": 79,
+    "p225_verified": 562
+  },
+  "n_species_with_verified_target_sitelink": 301,
+  "n_species_with_source_text": 25,
+  "source_species_by_language": {
+    "ja": 7,
+    "zh": 11,
+    "ru": 10
+  },
+  "n_candidates_total": 5,
+  "n_species_with_candidates": 3,
+  "n_uncertain_candidates_rejected": 3,
+  "n_new_biotic_species": 0,
+  "n_lookup_errors": 0,
+  "policy": "Only P225-matched Wikidata taxon items are followed. Missing/mismatched identity and explicit uncertainty are audit outcomes, not absences."
+}
