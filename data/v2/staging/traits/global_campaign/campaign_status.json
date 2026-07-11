@@ -78,5 +78,23 @@
     "n_target_candidates": 8,
     "n_lookup_errors": 5,
     "policy": "Machine-only; no candidate is curated or used as a biological absence."
+  },
+  "last_multilingual_recovery_wave": {
+    "wave_id": "wave_00037_reproductive_multilingual_recovery",
+    "task": "reproductive_multilingual_recovery",
+    "phase": "reproductive_and_pollen_vector",
+    "source_kind": "batched_direct_title_multilingual_wikipedia",
+    "languages": [
+      "ja",
+      "zh",
+      "ru"
+    ],
+    "n_species_attempted": 1000,
+    "n_species_with_source_text": 39,
+    "n_candidates_total": 5,
+    "n_species_with_candidates": 5,
+    "n_new_biotic_species": 0,
+    "n_lookup_errors": 0,
+    "policy": "Machine-only source-backed recovery; zero hits are not biological absences."
   }
 }

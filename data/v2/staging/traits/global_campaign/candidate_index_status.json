@@ -1,13 +1,14 @@
 {
   "version": "1.0",
-  "n_waves_indexed": 36,
-  "latest_wave_id": "wave_00036_alternative_guild_wikimedia",
-  "n_unique_candidate_rows": 2875,
-  "n_species_with_candidates": 1224,
+  "n_waves_indexed": 37,
+  "latest_wave_id": "wave_00037_reproductive_multilingual_recovery",
+  "n_unique_candidate_rows": 2880,
+  "n_species_with_candidates": 1228,
   "n_machine_biotic_screening_species": 239,
   "n_by_campaign_task": {
     "alternative_guild_wikimedia": 473,
     "floral_access_wikimedia": 670,
+    "reproductive_multilingual_recovery": 5,
     "reproductive_openalex": 8,
     "reproductive_wikimedia": 1724
   },
@@ -15,7 +16,7 @@
     "alternative_pollinator_function": 302,
     "auxiliary": 149,
     "floral_access": 521,
-    "reproductive_and_pollen_vector": 1903
+    "reproductive_and_pollen_vector": 1908
   },
   "n_by_trait_name": {
     "autonomous_selfing_capacity": 153,
@@ -34,15 +35,18 @@
     "self_compatibility_reported": 4,
     "self_incompatibility": 64,
     "self_incompatibility_reported": 3,
-    "sex_system": 1010,
+    "sex_system": 1015,
     "tube_depth_class": 1
   },
   "n_by_source_type": {
     "openalex_title_abstract": 8,
     "wikipedia": 670,
-    "wikipedia_extract": 2197
+    "wikipedia_extract": 2197,
+    "wikipedia_extract_ru": 4,
+    "wikipedia_extract_zh": 1
   },
   "n_by_confidence": {
+    "explicit_multilingual_rule_match": 5,
     "explicit_term_match": 670,
     "rule_match": 2205
   },
