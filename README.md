@@ -24,6 +24,7 @@ The governing design documents are:
 
 - [`docs/v2_pollination_regime_framework.md`](docs/v2_pollination_regime_framework.md)  -  scientific scope, island strata, preregistration, models, and continuation rules;
 - [`docs/v2_channel_architecture.md`](docs/v2_channel_architecture.md)  -  compact channel-audit architecture;
+- [`docs/v2_trait_acquisition_quantitative_plan.md`](docs/v2_trait_acquisition_quantitative_plan.md)  -  category-first trait acquisition with optional quantitative enrichment;
 - [`config/bombus_applicability.yml`](config/bombus_applicability.yml)  -  outcome-blind rule for the biological applicability of the Bombus hypothesis;
 - [`config/bombus_observation_diagnostics.yml`](config/bombus_observation_diagnostics.yml)  -  effort-aware Bombus detection and non-detection policy.
 

@@ -100,14 +100,7 @@ def test_descriptive_scout_rows_are_kept_after_primary_queue():
 
 
 def test_summary_and_accepted_extraction_are_fail_closed():
-    result = pd.DataFrame(
-        [
-            {
-                column: ""
-                for column in queue.OUTPUT_COLUMNS
-            }
-        ]
-    )
+    result = pd.DataFrame([{column: "" for column in queue.OUTPUT_COLUMNS}])
     result.loc[0, "review_candidate_id"] = "vpilot_trait:test"
     result.loc[0, "accepted_species"] = "Accepta example"
     result.loc[0, "trait_name"] = "flower_primary_color"
@@ -199,7 +192,9 @@ def test_review_queue_validation_checks_accepted_final_value_vocabulary():
 
     errors = queue.validate_review_queue(result, ontology=_ontology())
 
-    assert any("bad_value" in error and "outside the allowed vocabulary" in error for error in errors)
+    assert any(
+        "bad_value" in error and "outside the allowed vocabulary" in error for error in errors
+    )
 
 
 def test_review_queue_validation_checks_declared_proxy_values():

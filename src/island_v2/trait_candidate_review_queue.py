@@ -26,6 +26,7 @@ PROXY_FINAL_VALUES = {
         "wind_like",
         "large_bee_or_Bombus_like_floral_phenotype_proxy",
         "butterfly_or_moth_like",
+        "bird_or_butterfly_like_floral_phenotype_proxy",
         "open_or_generalist_insect_like",
     },
     "compatibility_system_proxy": {
@@ -100,7 +101,9 @@ def _candidate_id(row: dict[str, str]) -> str:
     return f"vpilot_trait:{digest}"
 
 
-def _priority_for(source_lane: str, evidence_scope: str, candidate_class: str) -> tuple[int, str, str]:
+def _priority_for(
+    source_lane: str, evidence_scope: str, candidate_class: str
+) -> tuple[int, str, str]:
     if source_lane == "web_reported_scout" and evidence_scope == "species_direct":
         return (
             10,
@@ -300,7 +303,9 @@ def build_review_queue(
     """Return a prioritized adjudication queue for candidate rows."""
     rows = []
     rows.extend(_rows_from_web(web_reported.fillna("") if not web_reported.empty else web_reported))
-    rows.extend(_rows_from_proxy(trait_proxies.fillna("") if not trait_proxies.empty else trait_proxies))
+    rows.extend(
+        _rows_from_proxy(trait_proxies.fillna("") if not trait_proxies.empty else trait_proxies)
+    )
     if descriptive is not None and not descriptive.empty:
         rows.extend(_rows_from_descriptive(descriptive.fillna("")))
     queue = pd.DataFrame(rows, columns=OUTPUT_COLUMNS)
@@ -309,7 +314,13 @@ def build_review_queue(
     queue = queue.drop_duplicates("review_candidate_id", keep="first")
     queue["_priority_sort"] = queue["review_priority"].astype(int)
     queue = queue.sort_values(
-        ["_priority_sort", "accepted_species", "trait_name", "candidate_value", "review_candidate_id"],
+        [
+            "_priority_sort",
+            "accepted_species",
+            "trait_name",
+            "candidate_value",
+            "review_candidate_id",
+        ],
         kind="stable",
     )
     return queue.drop(columns=["_priority_sort"]).reset_index(drop=True)
@@ -469,7 +480,12 @@ def write_review_outputs(
 
 @app.command("build")
 def build(
-    web_reported_csv: Path = typer.Option(..., exists=True, help="web_reported_candidates.csv"),
+    web_reported_csv: list[Path] = typer.Option(
+        ...,
+        "--web-reported-csv",
+        exists=True,
+        help="Reported candidate CSV; may be repeated.",
+    ),
     trait_proxy_csv: Path = typer.Option(..., exists=True, help="trait_proxy_candidates.csv"),
     output_dir: Path = typer.Option(..., help="Directory for review queue artifacts."),
     descriptive_csv: Path | None = typer.Option(
@@ -477,8 +493,13 @@ def build(
     ),
 ) -> None:
     """Write a validation-pilot trait candidate review queue and summary."""
+    web_reported = pd.concat(
+        [_read_csv(path) for path in web_reported_csv],
+        ignore_index=True,
+        sort=False,
+    ).fillna("")
     queue = build_review_queue(
-        _read_csv(web_reported_csv),
+        web_reported,
         _read_csv(trait_proxy_csv),
         _read_csv(descriptive_csv),
     )
@@ -496,7 +517,9 @@ def build(
 
 @app.command("validate")
 def validate(
-    review_queue_csv: Path = typer.Option(..., exists=True, help="Human-adjudicated review queue CSV."),
+    review_queue_csv: Path = typer.Option(
+        ..., exists=True, help="Human-adjudicated review queue CSV."
+    ),
     output_dir: Path | None = typer.Option(
         None, help="Optional directory for summary JSON and accepted-for-curation CSV."
     ),

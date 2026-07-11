@@ -10,8 +10,8 @@ RULES = load_rules(Path("config/measurement_classification.yml"))
 def test_flower_size_bands():
     assert derive_class("flower_size_class", "1.5", "mm", RULES) == "minute"
     assert derive_class("flower_size_class", "8", "mm", RULES) == "small"
-    assert derive_class("flower_size_class", "2", "cm", RULES) == "medium"      # 20 mm
-    assert derive_class("flower_size_class", "5", "cm", RULES) == "large"       # 50 mm
+    assert derive_class("flower_size_class", "2", "cm", RULES) == "medium"  # 20 mm
+    assert derive_class("flower_size_class", "5", "cm", RULES) == "large"  # 50 mm
     assert derive_class("flower_size_class", "0.2", "m", RULES) == "very_large"  # 200 mm, open top
 
 
@@ -41,8 +41,28 @@ def test_annotate_appends_class_and_version_without_touching_raw():
     )
     before_raw = table[["raw_measurement", "raw_unit"]].copy()
     result, summary = annotate_measurements(table, RULES)
-    assert result.loc[0, "derived_class"] == "medium"     # 25 mm
+    assert result.loc[0, "derived_value_mm"] == 25.0
+    assert result.loc[1, "derived_value_mm"] == 60.0
+    assert result.loc[0, "derived_class"] == "medium"  # 25 mm
     assert result.loc[1, "derived_class"] == "very_deep"  # 60 mm, open top
     assert result.loc[0, "classification_rule_version"] == "size_tube_v1"
     assert summary["n_class_derived"] == 2
+    assert summary["n_values_normalized_to_mm"] == 2
     pd.testing.assert_frame_equal(result[["raw_measurement", "raw_unit"]], before_raw)
+
+
+def test_unknown_trait_keeps_normalized_continuous_value_without_forced_class():
+    table = pd.DataFrame(
+        {
+            "accepted_species": ["A a"],
+            "trait_name": ["corolla_aperture_width"],
+            "raw_measurement": ["0.4"],
+            "raw_unit": ["cm"],
+        }
+    )
+
+    result, summary = annotate_measurements(table, RULES)
+
+    assert result.loc[0, "derived_value_mm"] == 4.0
+    assert result.loc[0, "derived_class"] == ""
+    assert summary["n_values_normalized_to_mm"] == 1

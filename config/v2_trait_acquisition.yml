@@ -1,0 +1,88 @@
+version: "1.0"
+
+# Acquisition keeps source observations richer than the eventual analysis.
+# No field in this file is a decided pollinator identity.
+coverage_priorities:
+  core_required:
+    - flower_primary_color
+    - floral_form
+  core_shape_fallback:
+    - floral_symmetry
+  optional_quantitative_enrichment:
+    - flower_diameter
+    - corolla_length
+    - corolla_tube_depth
+    - corolla_aperture_width
+    - inflorescence_display_diameter
+  reproductive_next:
+    - autonomous_selfing_capacity
+    - mating_system
+    - self_incompatibility
+    - cleistogamy
+  direct_ecology_best_effort:
+    - pollen_vector_mode
+    - pollination_functional_guild
+
+measurement_structures:
+  flower_diameter: {canonical_unit: mm, analysis_transform: log1p}
+  corolla_length: {canonical_unit: mm, analysis_transform: log1p}
+  corolla_tube_depth: {canonical_unit: mm, analysis_transform: log1p}
+  corolla_aperture_width: {canonical_unit: mm, analysis_transform: log1p}
+  inflorescence_display_diameter: {canonical_unit: mm, analysis_transform: log1p}
+
+derived_feature_contracts:
+  visual_signal_label:
+    inputs: [flower_primary_color]
+    output_type: categorical_composition
+    role: primary_broad_coverage
+    limitation: Human colour labels cannot produce bee, fly, or bird receptor contrast.
+  visual_signal_spectral:
+    inputs:
+      - wavelength_nm
+      - reflectance
+      - illuminant_id
+      - background_reflectance_id
+      - receptor_model_id
+    output_type: receptor_contrast_continuous
+    role: optional_spectral_subset_only
+  floral_access:
+    inputs:
+      - floral_symmetry
+      - floral_form
+      - corolla_tube_depth
+      - corolla_aperture_width
+      - flower_diameter
+    output_type: categorical_composition_primary_continuous_optional
+    optional_ratio: corolla_tube_depth_mm / corolla_aperture_width_mm
+    limitation: Do not assign arbitrary generalist/specialist weights before validation.
+  floral_display_size:
+    inputs: [flower_diameter, inflorescence_display_diameter]
+    output_type: continuous_log_mm
+  reproductive_assurance:
+    inputs:
+      - autonomous_selfing_capacity
+      - mating_system
+      - self_incompatibility
+      - cleistogamy
+    output_type: multivariate_or_latent
+    limitation: Self-compatibility alone never implies autonomous selfing.
+
+proxy_policy:
+  inference_status: likely
+  analysis_track: expanded_sensitivity
+  forbid_inputs:
+    - island_bombus_presence
+    - island_bombus_absence
+  forbid_conclusions:
+    - confirmed_pollinator_identity
+    - confirmed_pollination_effectiveness
+    - autonomous_selfing_from_self_compatibility_only
+
+scaling_policy:
+  target_species: 100000
+  order:
+    - bulk_download_and_scientific_name_join
+    - cached_flora_and_encyclopedia_text_extraction
+    - gap_only_public_web_lookup_for_color_and_form
+    - local_likely_proxy_generation
+  no_paid_api_required: true

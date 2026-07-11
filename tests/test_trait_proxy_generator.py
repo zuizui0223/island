@@ -10,11 +10,16 @@ def _rules():
             "large_bee_or_Bombus_like": {
                 "colours": ["blue", "purple", "white", "yellow"],
                 "symmetries": ["zygomorphic"],
+                "forms": ["tubular"],
             },
-            "butterfly_or_moth_like": {"colours": ["red", "orange", "pink"]},
+            "bird_or_butterfly_like": {
+                "colours": ["red", "orange", "pink", "red_pink"],
+                "forms": ["tubular", "salverform", "funnel_trumpet"],
+            },
             "open_or_generalist_insect_like": {
                 "colours": ["white", "cream", "yellow", "green", "brown"],
                 "symmetries": ["actinomorphic"],
+                "forms": ["open_radial"],
             },
         },
         "compatibility_system_proxy": {
@@ -28,9 +33,7 @@ def _rules():
 
 
 def test_large_bee_proxy_from_reported_phenotype_but_not_pollinator_identity():
-    species = pd.DataFrame(
-        {"accepted_species": ["Aaa aaa"], "family": ["Fabaceae"]}
-    )
+    species = pd.DataFrame({"accepted_species": ["Aaa aaa"], "family": ["Fabaceae"]})
     reported = pd.DataFrame(
         [
             {
@@ -53,6 +56,8 @@ def test_large_bee_proxy_from_reported_phenotype_but_not_pollinator_identity():
     assert row["trait_name"] == "floral_syndrome_proxy"
     assert row["proxy_value"] == "large_bee_or_Bombus_like_floral_phenotype_proxy"
     assert row["candidate_class"] == "proxy"
+    assert row["inference_status"] == "likely"
+    assert row["confidence"] == "low"
     assert "flower_primary_color=purple" in row["basis_traits"]
     assert row["evidence_scope"] == "proxy_not_reported"
 
@@ -125,3 +130,52 @@ def test_gbif_descriptive_table_is_normalised_as_reported(tmp_path):
 
     assert loaded.loc[0, "candidate_class"] == "reported"
     assert loaded.loc[0, "raw_description"] == "Flowers yellow."
+
+
+def test_red_tubular_category_generates_likely_bird_or_butterfly_proxy():
+    species = pd.DataFrame({"accepted_species": ["Ruba tuba"], "family": ["Campanulaceae"]})
+    reported = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Ruba tuba",
+                "trait_name": "flower_primary_color",
+                "provisional_candidate_value": "red",
+                "source_url": "https://example.org/red",
+            },
+            {
+                "accepted_species": "Ruba tuba",
+                "trait_name": "floral_form",
+                "provisional_candidate_value": "tubular",
+                "source_url": "https://example.org/tube",
+            },
+        ]
+    )
+
+    frame, _ = proxy.generate_proxies(species, reported, _rules())
+
+    assert len(frame) == 1
+    row = frame.iloc[0]
+    assert row["proxy_value"] == "bird_or_butterfly_like_floral_phenotype_proxy"
+    assert row["inference_status"] == "likely"
+    assert row["inference_rule"] == "likely_warm_colour_plus_restrictive_tube"
+    assert set(row["basis_source_urls"].split("|")) == {
+        "https://example.org/red",
+        "https://example.org/tube",
+    }
+
+
+def test_red_colour_without_shape_does_not_generate_pollinator_proxy():
+    species = pd.DataFrame({"accepted_species": ["Ruba plana"], "family": [""]})
+    reported = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Ruba plana",
+                "trait_name": "flower_primary_color",
+                "provisional_candidate_value": "red",
+            }
+        ]
+    )
+
+    frame, _ = proxy.generate_proxies(species, reported, _rules())
+
+    assert frame.empty

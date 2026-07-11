@@ -35,3 +35,14 @@ traits:
   floral_symmetry:
     actinomorphic: [actinomorphic, "radially symmetric", "radial symmetry", regular]
     zygomorphic: [zygomorphic, "bilaterally symmetric", "bilateral symmetry", irregular, bilabiate, "two-lipped", "two lipped"]
+
+  floral_form:
+    open_radial: [rotate, stellate, "star-shaped", "star shaped", "open flower"]
+    bell_campanulate: [campanulate, "bell-shaped", "bell shaped"]
+    tubular: [tubular, "tube-shaped", "tube shaped"]
+    salverform: [salverform, "salver-shaped", hypocrateriform]
+    funnel_trumpet: [funnelform, "funnel-shaped", "trumpet-shaped", infundibuliform]
+    urn_urceolate: [urceolate, "urn-shaped", "urn shaped"]
+    brush_puff: ["brush-like", brushlike, puffball, "powder-puff", "powder puff"]
+    composite_head: [capitulum, "composite head", "flower head"]
+    reduced_wind: ["reduced flowers", "minute wind-pollinated flowers"]

@@ -90,6 +90,85 @@ Each packet contains:
 The manual GitHub Actions workflow `build_v1_category_prompt_packets` creates the
 same packet structure as a downloadable artifact.
 
+## Free automatic search baseline
+
+This is a legacy-comparison bridge, not the active v2 analysis contract. The
+same run also writes `v2_reported_candidates.csv`; active acquisition consumes
+that long-format table and treats the nine-column v1 files as diagnostics.
+
+The legacy nine-column table can also be populated without an LLM or paid API.
+Use bulk candidates first, then query public text only for the remaining gaps:
+
+```bash
+island-v2-v1-category-search search \
+  --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+  --candidate-csv data/v2/staging/traits/eol_traitbank/trait_candidates_campaign.csv.gz \
+  --output-dir /tmp/v1_category_search \
+  --max-taxa 25
+```
+
+This bounded command searches GBIF species descriptions, Wikimedia text,
+World Flora Online, OpenAlex title/abstract metadata, NCSU Plant Toolbox, New
+Zealand Plant Conservation Network, PFAF and Useful Tropical Plants. It writes the exact v1 table alongside
+`source_texts.csv` and `v1_category_evidence.csv`, which retain every accepted
+match, source URL and excerpt. Only species-direct explicit statements are
+collapsed. Missing evidence remains `unknown`; the command does not call an LLM
+and does not treat a failed search as biological absence.
+
+Retrieval is a gap-filling cascade. Bulk candidates and flora/monograph sources
+are screened first, followed by literature, biodiversity databases and
+encyclopedias, then horticulture pages. A lower tier is queried only for traits
+that remain missing, and it cannot replace a value already found at a higher
+tier. The long evidence table keeps all candidates with `source_tier` values
+`A_flora`, `A_literature`, `B_database`, `B_encyclopedia`, `C_horticulture` or
+`D_inference`, so downstream analyses can choose strict or coverage-first data.
+
+Cached text can be re-extracted after rule improvements without repeating any
+network requests:
+
+```bash
+island-v2-v1-category-search extract-text \
+  --source-csv /tmp/v1_category_search/source_texts.csv \
+  --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+  --output-dir /tmp/v1_category_search_reextract
+```
+
+## Direct evidence and likely proxies
+
+The legacy nine-column file remains the direct-evidence contract. Descriptions
+such as `pollinated by birds` can populate `pollination_guild`, but weaker
+statements such as `attracts hummingbirds` cannot. All proxy results are written
+separately and every inferred value starts with `likely`:
+
+- `v1_likely_traits.csv`: one inference per row with basis fields, values, URLs,
+  rule ID and confidence;
+- `v1_likely_traits_wide.csv`: one species per row with the likely values;
+- `v1_priority_traits.csv`: direct-first analysis table with a `direct`, `likely`
+  or `unknown` mode for pollination, selfing and self-incompatibility.
+
+The bounded proxy rules are intentionally conservative:
+
+- red, pink or orange plus a tubular/funnel/trumpet flower gives
+  `likely_birds_or_butterflies`;
+- blue, purple or yellow plus a restrictive bee-associated form gives
+  `likely_bees_or_bumblebees`;
+- an explicit visitor/attraction statement gives `likely_<visitor>` when no
+  direct pollination statement exists;
+- autonomous selfing, autogamy, autofertility or cleistogamy gives
+  `likely_selfing_capable` and, only when compatibility is otherwise unknown,
+  `likely_SC`.
+
+Self-compatibility alone is not converted to mainly selfing, and a floral
+syndrome is not treated as proof of an effective pollinator. Island-level
+Bombus presence or absence is never an input to these rules. It remains an
+independent downstream explanatory variable, avoiding circular support for a
+bird/butterfly replacement hypothesis.
+
+For roughly 100,000 species, run bulk sources and scientific-name joins first,
+then extract cached flora/encyclopedia text, and only query websites for the
+remaining flower-colour and flower-shape gaps. The deterministic likely pass is
+local and is run after direct extraction; it does not add network requests.
+
 ## Validate and recode a returned CSV
 
 ```bash

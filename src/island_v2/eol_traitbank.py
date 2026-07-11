@@ -57,8 +57,21 @@ TRAIT_PAGE_ID_COLUMNS = ("page_id", "pageid", "eol_page_id", "eolid")
 TRAIT_NAME_COLUMNS = ("scientific_name", "scientificname", "canonical")
 PREDICATE_COLUMNS = ("predicate", "predicate_uri", "predicateuri", "measurementtype")
 PREDICATE_LABEL_COLUMNS = ("predicate_label", "predicate_name", "measurementtypelabel")
-OBJECT_TERM_COLUMNS = ("object_term", "object_term_uri", "objectterm", "objecttermuri", "measurementvalueid")
-OBJECT_LABEL_COLUMNS = ("object_term_label", "object_term_name", "object_name", "measurementvaluelabel")
+OBJECT_TERM_COLUMNS = (
+    "object_term",
+    "object_term_uri",
+    "objectterm",
+    "objecttermuri",
+    "measurementvalueid",
+    "value_uri",
+    "valueuri",
+)
+OBJECT_LABEL_COLUMNS = (
+    "object_term_label",
+    "object_term_name",
+    "object_name",
+    "measurementvaluelabel",
+)
 LITERAL_COLUMNS = ("literal", "measurementvalue", "value")
 MEASUREMENT_COLUMNS = ("normal_measurement", "normalmeasurement", "measurement")
 UNITS_COLUMNS = ("normal_units", "normalunits", "units", "measurementunit")
@@ -128,7 +141,9 @@ def _load_ontology(path: Path) -> dict[str, Any]:
 def _validate_rules(config: dict[str, Any], ontology: dict[str, Any]) -> list[EolMappingRule]:
     raw_rules = config.get("rules") or []
     if not isinstance(raw_rules, list) or not raw_rules:
-        raise typer.BadParameter("EOL TraitBank mapping config must contain a non-empty rules list.")
+        raise typer.BadParameter(
+            "EOL TraitBank mapping config must contain a non-empty rules list."
+        )
     traits = ontology.get("traits") or {}
     rules: list[EolMappingRule] = []
     for index, raw in enumerate(raw_rules, start=1):
@@ -136,8 +151,14 @@ def _validate_rules(config: dict[str, Any], ontology: dict[str, Any]) -> list[Eo
             raise typer.BadParameter(f"EOL rule #{index} must be a mapping.")
         target_trait = _normalise_text(raw.get("target_trait") or raw.get("trait_name"))
         if target_trait not in traits:
-            raise typer.BadParameter(f"EOL rule #{index} targets unknown v2 trait: {target_trait!r}")
-        predicates = tuple(_normalise_text(item) for item in (raw.get("predicate_terms") or []) if _normalise_text(item))
+            raise typer.BadParameter(
+                f"EOL rule #{index} targets unknown v2 trait: {target_trait!r}"
+            )
+        predicates = tuple(
+            _normalise_text(item)
+            for item in (raw.get("predicate_terms") or [])
+            if _normalise_text(item)
+        )
         if not predicates:
             raise typer.BadParameter(f"EOL rule #{index} lacks predicate_terms.")
         value_map = {
@@ -188,9 +209,7 @@ def _find_archive_member(path: Path, basename: str) -> str | Path:
     wanted = basename.casefold()
     if path.is_dir():
         matches = [
-            item
-            for item in path.rglob("*")
-            if item.is_file() and item.name.casefold() == wanted
+            item for item in path.rglob("*") if item.is_file() and item.name.casefold() == wanted
         ]
         if not matches:
             raise typer.BadParameter(f"EOL archive directory lacks {basename}: {path}")
@@ -244,7 +263,9 @@ def _read_terms(path: Path) -> dict[str, EolTerm]:
     if not uri_col or not name_col:
         raise typer.BadParameter("EOL terms.csv must contain uri and name/label columns.")
     output: dict[str, EolTerm] = {}
-    for row in terms[[uri_col, name_col] + ([type_col] if type_col else [])].itertuples(index=False):
+    for row in terms[[uri_col, name_col] + ([type_col] if type_col else [])].itertuples(
+        index=False
+    ):
         uri = _normalise_text(row[0])
         name = _normalise_text(row[1])
         term_type = _normalise_text(row[2]) if type_col and len(row) > 2 else ""
@@ -334,8 +355,12 @@ def prepare_eol_traitbank_long(
     long_path = output_dir / "eol_traitbank_v2_long.csv"
     unmapped_path = output_dir / "eol_traitbank_unmapped_terms.csv"
     manifest_path = output_dir / "eol_traitbank_extract_manifest.json"
-    source_citation = _normalise_text((config.get("dataset") or {}).get("source_citation")) or source_name
-    dataset_url = _normalise_text((config.get("dataset") or {}).get("landing_page_url")) or EOL_DATASET_URL
+    source_citation = (
+        _normalise_text((config.get("dataset") or {}).get("source_citation")) or source_name
+    )
+    dataset_url = (
+        _normalise_text((config.get("dataset") or {}).get("landing_page_url")) or EOL_DATASET_URL
+    )
 
     unmapped: Counter[tuple[str, str, str, str, str]] = Counter()
     n_scanned = 0
