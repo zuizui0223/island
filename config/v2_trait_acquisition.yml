@@ -1,4 +1,4 @@
-version: "1.0"
+version: "1.1"
 
 # Acquisition keeps source observations richer than the eventual analysis.
 # No field in this file is a decided pollinator identity.
@@ -67,6 +67,24 @@ derived_feature_contracts:
     output_type: multivariate_or_latent
     limitation: Self-compatibility alone never implies autonomous selfing.
 
+llm_evidence_recovery:
+  role: optional_gap_recovery_from_frozen_source_text
+  provider_neutral: true
+  source_scope_required: species_direct
+  evidence_quote_required: true
+  allowed_value_source: config/trait_ontology.yml
+  missing_claim_policy: unresolved_not_absent
+  output_review_status: unreviewed_llm_extraction
+  provenance_required:
+    - source_text_sha256
+    - prompt_version
+    - prompt_sha256
+    - packet_input_sha256
+    - ontology_sha256
+    - model_provider
+    - model_id
+    - extraction_run_id
+
 proxy_policy:
   inference_status: likely
   analysis_track: expanded_sensitivity
@@ -84,5 +102,6 @@ scaling_policy:
     - bulk_download_and_scientific_name_join
     - cached_flora_and_encyclopedia_text_extraction
     - gap_only_public_web_lookup_for_color_and_form
+    - llm_evidence_extraction_from_frozen_source_text_for_remaining_gaps
     - local_likely_proxy_generation
   no_paid_api_required: true
