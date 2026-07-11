@@ -50,7 +50,7 @@ jobs:
         run: |
           set +e
           mkdir -p /tmp/trait_media_pilot
-          island-v2-trait-media-scout collect \
+          island-v2-trait-media-scout \
             --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
             --output-dir /tmp/trait_media_pilot \
             --max-taxa 25 \
@@ -67,13 +67,26 @@ jobs:
           fi
           exit "$status"
       - name: Expand accepted names to synonym search names
+        id: synonyms
+        continue-on-error: true
         run: |
-          island-v2-taxon-name-expansion expand \
+          set +e
+          mkdir -p /tmp/taxon_name_pilot
+          island-v2-taxon-name-expansion \
             --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
             --output-dir /tmp/taxon_name_pilot \
             --max-taxa 25 \
-            --max-synonyms-per-species 50
-          cat /tmp/taxon_name_pilot/taxon_name_expansion_report.json >> "$GITHUB_STEP_SUMMARY"
+            --max-synonyms-per-species 50 \
+            > /tmp/taxon_name_pilot/stdout.log \
+            2> /tmp/taxon_name_pilot/stderr.log
+          status=$?
+          echo "$status" > /tmp/taxon_name_pilot/exit_code.txt
+          if [ -f /tmp/taxon_name_pilot/taxon_name_expansion_report.json ]; then
+            cat /tmp/taxon_name_pilot/taxon_name_expansion_report.json >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Synonym expansion failed; diagnostics preserved in artifact." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$status"
       - name: Upload acquisition experiment manifests and diagnostics
         if: always()
         uses: actions/upload-artifact@v4
