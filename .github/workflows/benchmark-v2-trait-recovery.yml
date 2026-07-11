@@ -45,14 +45,27 @@ jobs:
           island-v2-trait-media-scout --help >/dev/null
           island-v2-taxon-name-expansion --help >/dev/null
       - name: Collect real GBIF visual evidence for validation pilot
+        id: media
+        continue-on-error: true
         run: |
+          set +e
+          mkdir -p /tmp/trait_media_pilot
           island-v2-trait-media-scout collect \
             --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
             --output-dir /tmp/trait_media_pilot \
             --max-taxa 25 \
             --max-occurrences 100 \
-            --max-images-per-species 5
-          cat /tmp/trait_media_pilot/gbif_trait_media_report.json >> "$GITHUB_STEP_SUMMARY"
+            --max-images-per-species 5 \
+            > /tmp/trait_media_pilot/stdout.log \
+            2> /tmp/trait_media_pilot/stderr.log
+          status=$?
+          echo "$status" > /tmp/trait_media_pilot/exit_code.txt
+          if [ -f /tmp/trait_media_pilot/gbif_trait_media_report.json ]; then
+            cat /tmp/trait_media_pilot/gbif_trait_media_report.json >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "GBIF media scout failed; diagnostics preserved in artifact." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$status"
       - name: Expand accepted names to synonym search names
         run: |
           island-v2-taxon-name-expansion expand \
@@ -61,12 +74,13 @@ jobs:
             --max-taxa 25 \
             --max-synonyms-per-species 50
           cat /tmp/taxon_name_pilot/taxon_name_expansion_report.json >> "$GITHUB_STEP_SUMMARY"
-      - name: Upload acquisition experiment manifests
+      - name: Upload acquisition experiment manifests and diagnostics
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: v2-trait-recovery-pilot-${{ github.run_id }}
           path: |
             /tmp/trait_media_pilot/
             /tmp/taxon_name_pilot/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 90
