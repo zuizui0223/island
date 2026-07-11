@@ -1,5 +1,7 @@
 name: unblock_primary_campaign
 
+# One-shot repository migration. The push job removes this workflow after it
+# gives the global primary screen an independent concurrency lane.
 on:
   pull_request:
     branches: [main]
@@ -17,7 +19,7 @@ permissions:
 
 concurrency:
   group: unblock-primary-campaign
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   validate:
