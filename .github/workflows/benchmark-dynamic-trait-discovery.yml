@@ -36,16 +36,26 @@ jobs:
             --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
             --output-dir /tmp/fixed_baseline \
             --max-taxa 25
-      - name: Run query-driven discovery
+      - name: Run query-driven discovery with captured diagnostics
+        id: dynamic
+        continue-on-error: true
         run: |
+          set +e
+          mkdir -p /tmp/dynamic_discovery
           island-v2-trait-dynamic-discovery discover \
             --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
             --output-dir /tmp/dynamic_discovery \
             --max-taxa 25 \
             --max-synonyms 5 \
             --max-results-per-query 6 \
-            --max-pages-per-species 12
-      - name: Compare source coverage
+            --max-pages-per-species 12 \
+            > /tmp/dynamic_discovery/command_stdout.log \
+            2> /tmp/dynamic_discovery/command_stderr.log
+          status=$?
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Compare source coverage when dynamic output exists
+        if: always()
         run: |
           python - <<'PY'
           import json
@@ -53,23 +63,27 @@ jobs:
           import pandas as pd
 
           fixed = pd.read_csv('/tmp/fixed_baseline/source_texts.csv', dtype=str).fillna('')
-          dynamic = pd.read_csv('/tmp/dynamic_discovery/source_texts.csv', dtype=str).fillna('')
-          search = pd.read_csv('/tmp/dynamic_discovery/search_results.csv', dtype=str).fillna('')
+          dynamic_path = Path('/tmp/dynamic_discovery/source_texts.csv')
+          search_path = Path('/tmp/dynamic_discovery/search_results.csv')
+          dynamic = pd.read_csv(dynamic_path, dtype=str).fillna('') if dynamic_path.exists() else pd.DataFrame()
+          search = pd.read_csv(search_path, dtype=str).fillna('') if search_path.exists() else pd.DataFrame()
           fixed_species = set(fixed['accepted_species'])
-          dynamic_species = set(dynamic['accepted_species'])
+          dynamic_species = set(dynamic['accepted_species']) if 'accepted_species' in dynamic else set()
           comparison = {
+              'dynamic_command_exit_code': '${{ steps.dynamic.outputs.exit_code }}',
               'fixed_source_rows': len(fixed),
               'dynamic_source_rows': len(dynamic),
               'fixed_species_with_source_text': len(fixed_species),
               'dynamic_species_with_source_text': len(dynamic_species),
               'dynamic_incremental_species': sorted(dynamic_species - fixed_species),
-              'dynamic_search_result_species': int(search['accepted_species'].nunique()) if len(search) else 0,
-              'dynamic_source_type_counts': dynamic['source_type'].value_counts().to_dict() if len(dynamic) else {},
+              'dynamic_search_result_species': int(search['accepted_species'].nunique()) if len(search) and 'accepted_species' in search else 0,
+              'dynamic_source_type_counts': dynamic['source_type'].value_counts().to_dict() if len(dynamic) and 'source_type' in dynamic else {},
           }
           Path('/tmp/dynamic_discovery/source_coverage_comparison.json').write_text(json.dumps(comparison, indent=2), encoding='utf-8')
           print(json.dumps(comparison, indent=2))
           PY
       - name: Build dynamic LLM evidence packets
+        if: hashFiles('/tmp/dynamic_discovery/source_texts.csv') != ''
         run: |
           island-v2-llm-evidence prepare \
             --source-csv /tmp/dynamic_discovery/source_texts.csv \
@@ -77,7 +91,8 @@ jobs:
             --candidate-csv /tmp/fixed_baseline/v2_reported_candidates.csv \
             --output-dir /tmp/dynamic_llm_packets \
             --batch-size 10
-      - name: Upload benchmark corpus
+      - name: Upload benchmark corpus and diagnostics
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: dynamic-trait-discovery-benchmark-${{ github.run_id }}
