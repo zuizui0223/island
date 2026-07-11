@@ -3,9 +3,9 @@
 The raw measurement is stored first; the class is derived here so it is
 reproducible and reviewer-independent. The raw fields
 (``raw_measurement, raw_unit, measurement_structure, measurement_source_text``)
-are never overwritten; this only appends ``derived_class`` and
-``classification_rule_version``. A measurement that cannot be parsed or has an
-unknown unit yields a blank class (unresolved), never a guessed one.
+are never overwritten. This appends the continuous ``derived_value_mm`` before
+the optional ``derived_class`` and ``classification_rule_version``. A measurement
+that cannot be parsed or has an unknown unit yields blanks, never a guessed value.
 """
 
 from __future__ import annotations
@@ -69,8 +69,10 @@ def derive_class(
     return ""
 
 
-def annotate_measurements(table: pd.DataFrame, rules: dict[str, Any]) -> tuple[pd.DataFrame, dict[str, Any]]:
-    """Append derived_class + classification_rule_version; never overwrite raw."""
+def annotate_measurements(
+    table: pd.DataFrame, rules: dict[str, Any]
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Append normalized millimetres and optional classes; never overwrite raw."""
     trait_col = next((c for c in ("trait_name", "trait") if c in table.columns), None)
     if trait_col is None:
         raise typer.BadParameter("measurement table must have a 'trait_name' or 'trait' column")
@@ -80,10 +82,17 @@ def annotate_measurements(table: pd.DataFrame, rules: dict[str, Any]) -> tuple[p
 
     result = table.copy()
     version = str(rules.get("classification_rule_version", ""))
+    normalized_mm = [
+        _to_mm(str(m), str(u), rules.get("unit_to_mm", {}))
+        for m, u in zip(result["raw_measurement"], result["raw_unit"], strict=False)
+    ]
     derived = [
         derive_class(str(t), str(m), str(u), rules)
-        for t, m, u in zip(result[trait_col], result["raw_measurement"], result["raw_unit"], strict=False)
+        for t, m, u in zip(
+            result[trait_col], result["raw_measurement"], result["raw_unit"], strict=False
+        )
     ]
+    result["derived_value_mm"] = normalized_mm
     result["derived_class"] = derived
     result["classification_rule_version"] = version
     n_resolved = int(sum(1 for d in derived if d))
@@ -91,6 +100,7 @@ def annotate_measurements(table: pd.DataFrame, rules: dict[str, Any]) -> tuple[p
         "note": "Class derived from raw measurement by a versioned rule; raw fields are unchanged.",
         "classification_rule_version": version,
         "n_rows": int(len(result)),
+        "n_values_normalized_to_mm": int(sum(value is not None for value in normalized_mm)),
         "n_class_derived": n_resolved,
         "n_unresolved": int(len(result)) - n_resolved,
     }
@@ -99,7 +109,9 @@ def annotate_measurements(table: pd.DataFrame, rules: dict[str, Any]) -> tuple[p
 
 @app.command("annotate")
 def annotate(
-    measurements_csv: Path = typer.Option(..., exists=True, help="Raw measurement CSV (raw_measurement, raw_unit, trait)."),
+    measurements_csv: Path = typer.Option(
+        ..., exists=True, help="Raw measurement CSV (raw_measurement, raw_unit, trait)."
+    ),
     output_dir: Path = typer.Option(...),
     config_path: Path = typer.Option(Path("config/measurement_classification.yml")),
 ) -> None:

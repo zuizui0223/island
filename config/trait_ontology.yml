@@ -35,6 +35,8 @@ traits:
       - urn_urceolate
       - brush_puff
       - composite_head
+      - papilionaceous
+      - spurred
       - reduced_wind
       - other_described
       - unresolved
@@ -195,3 +197,5 @@ secondary_v1_summaries:
       - funnel_trumpet
       - urn_urceolate
       - zygomorphic
+      - papilionaceous
+      - spurred

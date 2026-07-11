@@ -45,7 +45,7 @@ def _write_eol_archive(path: Path) -> None:
                 "page_id": "10",
                 "scientific_name": "Poa annua L.",
                 "predicate": "http://eol.org/schema/terms/PollinationSyndrome",
-                "object_term": "eol:value:wind",
+                "value_uri": "eol:value:wind",
                 "citation": "EOL test fixture",
             },
             {
@@ -54,7 +54,8 @@ def _write_eol_archive(path: Path) -> None:
                 "page_id": "20",
                 "scientific_name": "",
                 "predicate": "http://eol.org/schema/terms/FlowerColor",
-                "object_term": "eol:value:white",
+                # The real 2024 EOL export calls this column value_uri.
+                "value_uri": "eol:value:white",
                 "citation": "EOL test fixture",
             },
             {
@@ -63,7 +64,7 @@ def _write_eol_archive(path: Path) -> None:
                 "page_id": "20",
                 "scientific_name": "Campanula microdonta",
                 "predicate": "http://eol.org/schema/terms/PollinationSyndrome",
-                "object_term": "eol:value:bee",
+                "value_uri": "eol:value:bee",
                 "citation": "EOL test fixture",
             },
             {
@@ -72,7 +73,7 @@ def _write_eol_archive(path: Path) -> None:
                 "page_id": "20",
                 "scientific_name": "Campanula microdonta",
                 "predicate": "http://eol.org/schema/terms/FlowerColor",
-                "object_term": "eol:value:unsupported",
+                "value_uri": "eol:value:unsupported",
                 "citation": "EOL test fixture",
             },
             {
@@ -81,7 +82,7 @@ def _write_eol_archive(path: Path) -> None:
                 "page_id": "30",
                 "scientific_name": "Unmatched plant",
                 "predicate": "eol:trait:unsupported",
-                "object_term": "eol:value:white",
+                "value_uri": "eol:value:white",
                 "citation": "EOL test fixture",
             },
         ]
@@ -137,7 +138,10 @@ def test_prepare_eol_traitbank_and_join_scientific_names(tmp_path: Path) -> None
         ("flower_primary_color", "white"),
         ("pollination_functional_guild", "other_bees"),
     }
-    assert long.loc[long["source_record_id"].eq("t2"), "scientific_name"].item() == "Campanula microdonta"
+    assert (
+        long.loc[long["source_record_id"].eq("t2"), "scientific_name"].item()
+        == "Campanula microdonta"
+    )
 
     unmapped = pd.read_csv(prepare_report["unmapped_terms_csv"], dtype=str).fillna("")
     assert set(unmapped["reason"]) == {"unmapped_value", "unmapped_predicate"}

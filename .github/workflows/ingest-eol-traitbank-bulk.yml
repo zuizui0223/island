@@ -1,9 +1,9 @@
 name: ingest_eol_traitbank_bulk
 
-# Free high-throughput EOL path: PRs run a real-data smoke test; merging a
-# workflow change to main runs the complete archive and records a compact,
-# reviewable evidence bundle in the repository. Manual dispatch remains
-# available for targeted reruns.
+# Free high-throughput EOL path: PRs run focused fixture tests without downloading
+# the full archive. Merging a workflow change to main runs the complete archive
+# and records a compact, reviewable evidence bundle in the repository. Manual
+# dispatch remains available for targeted reruns.
 on:
   workflow_dispatch:
     inputs:
@@ -16,6 +16,11 @@ on:
         description: "Stable source/release name."
         required: true
         default: "eol_traitbank_all_zenodo_13305577"
+        type: string
+      expected_md5:
+        description: "Expected MD5 from the Zenodo file record."
+        required: true
+        default: "17c8e3a9de5d3299d6151c16bb17600f"
         type: string
       chunksize:
         description: "traits.csv rows streamed per chunk."
@@ -56,6 +61,7 @@ jobs:
     env:
       EOL_ZIP_URL: ${{ github.event.inputs.eol_zip_url || 'https://zenodo.org/records/13305577/files/traits_all.zip?download=1' }}
       SOURCE_NAME: ${{ github.event.inputs.source_name || 'eol_traitbank_all_zenodo_13305577' }}
+      EXPECTED_MD5: ${{ github.event.inputs.expected_md5 || '17c8e3a9de5d3299d6151c16bb17600f' }}
       CHUNKSIZE: ${{ github.event.inputs.chunksize || '200000' }}
       MAX_TRAIT_ROWS: ${{ github.event_name == 'pull_request' && '500000' || github.event_name == 'push' && '0' || github.event.inputs.max_trait_rows || '0' }}
     steps:
@@ -79,6 +85,8 @@ jobs:
               raise SystemExit("eol_zip_url must be an http(s) URL.")
           if not os.environ["SOURCE_NAME"].strip():
               raise SystemExit("source_name is required.")
+          if not re.fullmatch(r"[0-9a-fA-F]{32}", os.environ["EXPECTED_MD5"].strip()):
+              raise SystemExit("expected_md5 must be 32 hexadecimal characters.")
           if int(os.environ["CHUNKSIZE"]) < 1:
               raise SystemExit("chunksize must be positive.")
           if int(os.environ["MAX_TRAIT_ROWS"]) < 0:
@@ -87,27 +95,48 @@ jobs:
       - name: Run focused EOL tests
         run: pytest -q tests/test_eol_traitbank.py tests/test_bulk_trait_ingest.py
       - name: Restore EOL archive cache
+        if: github.event_name != 'pull_request'
         uses: actions/cache@v4
         with:
           path: /tmp/traits_all.zip
-          key: eol-traits-all-${{ env.SOURCE_NAME }}
+          key: eol-traits-all-${{ env.SOURCE_NAME }}-${{ env.EXPECTED_MD5 }}-verified-v1
       - name: Download EOL all-traits archive
+        if: github.event_name != 'pull_request'
         run: |
           set -euo pipefail
           mkdir -p /tmp/eol_traitbank_bulk/download_sha
           df -h
-          if [[ ! -s /tmp/traits_all.zip ]]; then
-            curl --fail --location --retry 3 --retry-delay 5 --max-time 3600 \
-              --output /tmp/traits_all.zip "$EOL_ZIP_URL"
+          validate_archive() {
+            local archive="$1"
+            [[ -s "$archive" ]] || return 1
+            printf '%s  %s\n' "$EXPECTED_MD5" "$archive" | md5sum --check --status || return 1
+            unzip -tq "$archive" >/dev/null
+          }
+          if validate_archive /tmp/traits_all.zip; then
+            echo "Using checksum- and CRC-verified cached EOL archive."
           else
-            echo "Using cached EOL archive."
+            echo "Cached archive is absent or corrupt; downloading a clean temporary file."
+            rm -f /tmp/traits_all.zip /tmp/traits_all.zip.part
+            for attempt in 1 2 3; do
+              rm -f /tmp/traits_all.zip.part
+              if curl --fail --location --retry 3 --retry-delay 5 --max-time 3600 \
+                --output /tmp/traits_all.zip.part "$EOL_ZIP_URL" \
+                && validate_archive /tmp/traits_all.zip.part; then
+                mv /tmp/traits_all.zip.part /tmp/traits_all.zip
+                break
+              fi
+              echo "EOL archive download or integrity check failed (attempt ${attempt}/3)." >&2
+            done
           fi
-          test -s /tmp/traits_all.zip
+          validate_archive /tmp/traits_all.zip
+          md5sum /tmp/traits_all.zip \
+            | tee /tmp/eol_traitbank_bulk/download_sha/download_md5.txt
           sha256sum /tmp/traits_all.zip \
             | tee /tmp/eol_traitbank_bulk/download_sha/download_sha256.txt
           du -h /tmp/traits_all.zip
           df -h
       - name: Convert EOL TraitBank terms to v2 long CSV
+        if: github.event_name != 'pull_request'
         run: |
           set -euo pipefail
           MAX_ARGS=()
@@ -123,6 +152,7 @@ jobs:
             --chunksize "$CHUNKSIZE" \
             "${MAX_ARGS[@]}" | tee /tmp/eol_traitbank_bulk/prepare_report.json
       - name: Join EOL long rows to island master and calculate coverage
+        if: github.event_name != 'pull_request'
         run: |
           set -euo pipefail
           island-v2-bulk-traits ingest \
@@ -136,6 +166,7 @@ jobs:
             --source-url "https://zenodo.org/records/13305577" \
             | tee /tmp/eol_traitbank_bulk/ingest_report.json
       - name: Summarize EOL coverage
+        if: github.event_name != 'pull_request'
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json
@@ -272,6 +303,7 @@ jobs:
           echo "Could not push EOL coverage bundle after three attempts." >&2
           exit 1
       - name: Upload EOL candidates and audits
+        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: eol-traitbank-bulk-${{ github.run_id }}
