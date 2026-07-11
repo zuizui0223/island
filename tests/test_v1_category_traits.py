@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+
 from island_v2.v1_category_traits import (
     OUTPUT_COLUMNS,
     CategoryTraitValidationError,
