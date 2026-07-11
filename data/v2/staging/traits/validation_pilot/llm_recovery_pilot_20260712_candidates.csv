@@ -1,0 +1,4 @@
+accepted_species,trait_name,provisional_candidate_value,evidence_quote,source_url,source_type,review_status
+Abrotanella caespitosa,floral_form,composite_head,Capitula,https://www.nzpcn.org.nz/flora/species/abrotanella-caespitosa/,flora_or_monograph,unreviewed_llm_extraction
+Abelmoschus angulosus,pollen_vector_mode,biotic,Pollinators. Insects.,https://en.wikipedia.org/wiki/Abelmoschus_angulosus,wikipedia_extract,unreviewed_llm_extraction
+Abelmoschus angulosus,pollination_functional_guild,mixed_or_generalist,Pollinators. Insects.,https://en.wikipedia.org/wiki/Abelmoschus_angulosus,wikipedia_extract,unreviewed_llm_extraction
