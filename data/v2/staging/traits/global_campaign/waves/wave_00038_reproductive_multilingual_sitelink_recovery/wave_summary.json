@@ -1,0 +1,28 @@
+{
+  "wave_id": "wave_00038_reproductive_multilingual_sitelink_recovery",
+  "task": "reproductive_multilingual_sitelink_recovery",
+  "candidate_task": "reproductive_multilingual_recovery",
+  "phase": "reproductive_and_pollen_vector",
+  "source_kind": "wikidata_sitelink_multilingual_wikipedia",
+  "languages": [
+    "ja",
+    "zh",
+    "ru"
+  ],
+  "n_species_attempted": 1000,
+  "n_species_with_english_qid": 641,
+  "n_species_with_any_target_sitelink": 346,
+  "n_species_with_source_text": 53,
+  "n_species_with_sitelink_source_text": 12,
+  "n_species_with_direct_fallback_text": 42,
+  "source_species_by_language": {
+    "ja": 6,
+    "zh": 25,
+    "ru": 25
+  },
+  "n_candidates_total": 9,
+  "n_species_with_candidates": 8,
+  "n_new_biotic_species": 0,
+  "n_lookup_errors": 0,
+  "policy": "Machine-only source-backed recovery; missing QIDs, missing sitelinks, and zero hits are not biological absences."
+}
