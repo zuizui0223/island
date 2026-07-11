@@ -1,0 +1,140 @@
+name: filter_eol_traitbank_to_campaign
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/filter-eol-traitbank-to-campaign.yml"
+      - "src/island_v2/eol_campaign_filter.py"
+      - "tests/test_eol_campaign_filter.py"
+  push:
+    branches: [main]
+    paths:
+      - "data/v2/staging/traits/eol_traitbank/trait_candidates.csv.gz"
+      - "data/v2/staging/traits/eol_traitbank/coverage_summary.json"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: filter-eol-traitbank-to-campaign
+  cancel-in-progress: false
+
+jobs:
+  filter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Test exact campaign-master filtering
+        run: pytest -q tests/test_eol_campaign_filter.py
+      - name: Filter EOL candidates to the frozen campaign ledger
+        if: github.event_name == 'push'
+        id: filter
+        run: |
+          set -euo pipefail
+          CANDIDATES=data/v2/staging/traits/eol_traitbank/trait_candidates.csv.gz
+          if [[ ! -f "$CANDIDATES" ]]; then
+            echo "candidate_file_present=false" >> "$GITHUB_OUTPUT"
+            echo "The full candidate file was not persisted, so campaign filtering cannot run." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "candidate_file_present=true" >> "$GITHUB_OUTPUT"
+          python -m island_v2.eol_campaign_filter filter \
+            --campaign-ledger data/v2/staging/traits/global_campaign/campaign_ledger.csv.gz \
+            --candidate-csv "$CANDIDATES" \
+            --output-dir data/v2/staging/traits/eol_traitbank \
+            --ontology-path config/trait_ontology.yml \
+            --source-summary data/v2/staging/traits/eol_traitbank/coverage_summary.json \
+            | tee /tmp/eol_campaign_filter_report.json
+      - name: Verify the exact campaign denominator
+        if: github.event_name == 'push' && steps.filter.outputs.candidate_file_present == 'true'
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          campaign = json.loads(
+              Path("data/v2/staging/traits/global_campaign/campaign_status.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+          filtered = json.loads(
+              Path("data/v2/staging/traits/eol_traitbank/coverage_summary_campaign.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+          expected = int(campaign["n_global_species"])
+          observed = int(filtered["n_campaign_species"])
+          if observed != expected:
+              raise SystemExit(
+                  f"EOL campaign denominator mismatch: observed={observed}, expected={expected}"
+              )
+          print(f"Verified exact global campaign denominator: {observed}")
+          PY
+      - name: Publish campaign-filtered EOL coverage
+        if: github.event_name == 'push' && steps.filter.outputs.candidate_file_present == 'true'
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          summary = json.loads(
+              Path("data/v2/staging/traits/eol_traitbank/coverage_summary_campaign.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+          coverage = pd.read_csv(
+              "data/v2/staging/traits/eol_traitbank/coverage_by_trait_campaign.csv"
+          )
+          print("## EOL TraitBank coverage on the exact campaign master")
+          for key in (
+              "n_campaign_species",
+              "n_input_candidate_rows",
+              "n_retained_candidate_rows",
+              "n_retained_species",
+              "n_excluded_candidate_rows",
+              "n_excluded_species",
+          ):
+              print(f"- {key}: {summary[key]}")
+          covered = coverage.loc[coverage["n_species_with_direct_evidence"].gt(0)]
+          print("\n### Trait coverage")
+          for _, row in covered.sort_values(
+              "n_species_with_direct_evidence", ascending=False
+          ).iterrows():
+              print(
+                  f"- {row['trait_name']}: {int(row['n_species_with_direct_evidence'])} species "
+                  f"({float(row['pct_campaign_species_covered']):.3f}%)"
+              )
+          PY
+      - name: Commit campaign-filtered evidence
+        if: github.event_name == 'push' && steps.filter.outputs.candidate_file_present == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            data/v2/staging/traits/eol_traitbank/trait_candidates_campaign.csv.gz \
+            data/v2/staging/traits/eol_traitbank/excluded_noncampaign_candidates.csv.gz \
+            data/v2/staging/traits/eol_traitbank/coverage_by_trait_campaign.csv \
+            data/v2/staging/traits/eol_traitbank/coverage_summary_campaign.json
+          if git diff --cached --quiet; then
+            echo "No campaign-filtered EOL changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: filter EOL coverage to global campaign [skip ci]"
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            git pull --rebase origin main
+          done
+          exit 1
