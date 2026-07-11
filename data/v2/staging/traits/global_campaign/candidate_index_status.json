@@ -1,47 +1,47 @@
 {
   "version": "1.0",
-  "n_waves_indexed": 72,
-  "latest_wave_id": "wave_00072_alternative_guild_wikimedia",
-  "n_unique_candidate_rows": 4655,
-  "n_species_with_candidates": 2082,
-  "n_machine_biotic_screening_species": 355,
+  "n_waves_indexed": 75,
+  "latest_wave_id": "wave_00075_alternative_guild_wikimedia",
+  "n_unique_candidate_rows": 4721,
+  "n_species_with_candidates": 2123,
+  "n_machine_biotic_screening_species": 356,
   "n_by_campaign_task": {
-    "alternative_guild_wikimedia": 704,
-    "floral_access_wikimedia": 985,
+    "alternative_guild_wikimedia": 709,
+    "floral_access_wikimedia": 988,
     "reproductive_multilingual_recovery": 12,
     "reproductive_openalex": 8,
-    "reproductive_wikimedia": 2946
+    "reproductive_wikimedia": 3004
   },
   "n_by_campaign_phase": {
-    "alternative_pollinator_function": 656,
+    "alternative_pollinator_function": 673,
     "auxiliary": 203,
-    "floral_access": 782,
-    "reproductive_and_pollen_vector": 3014
+    "floral_access": 785,
+    "reproductive_and_pollen_vector": 3060
   },
   "n_by_trait_name": {
-    "autonomous_selfing_capacity": 274,
+    "autonomous_selfing_capacity": 282,
     "autonomous_selfing_reported": 10,
     "cleistogamy": 2,
-    "dichogamy": 70,
+    "dichogamy": 72,
     "floral_form": 58,
     "floral_symmetry": 19,
-    "flower_primary_color": 680,
-    "flower_size_class": 24,
+    "flower_primary_color": 682,
+    "flower_size_class": 25,
     "mating_system": 35,
     "mating_system_reported": 7,
-    "pollen_vector_mode": 865,
-    "pollination_functional_guild": 656,
+    "pollen_vector_mode": 871,
+    "pollination_functional_guild": 673,
     "pollination_vector_reported": 172,
     "self_compatibility_reported": 10,
-    "self_incompatibility": 103,
+    "self_incompatibility": 104,
     "self_incompatibility_reported": 4,
-    "sex_system": 1665,
+    "sex_system": 1694,
     "tube_depth_class": 1
   },
   "n_by_source_type": {
     "openalex_title_abstract": 8,
-    "wikipedia": 985,
-    "wikipedia_extract": 3650,
+    "wikipedia": 988,
+    "wikipedia_extract": 3713,
     "wikipedia_extract_ru": 5,
     "wikipedia_extract_zh": 1,
     "wikipedia_sitelink_extract_ja": 4,
@@ -50,11 +50,11 @@
   },
   "n_by_confidence": {
     "explicit_multilingual_rule_match": 12,
-    "explicit_term_match": 985,
-    "rule_match": 3658
+    "explicit_term_match": 988,
+    "rule_match": 3721
   },
   "screening_label_counts": {
-    "alternative_or_generalist_candidate": 88,
+    "alternative_or_generalist_candidate": 89,
     "biotic_vector_candidate_without_guild_yet": 247,
     "bumblebee_candidate_without_alternative_yet": 20
   },
