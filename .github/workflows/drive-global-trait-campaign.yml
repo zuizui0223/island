@@ -28,7 +28,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: global-trait-campaign
+  group: global-trait-campaign-primary
   cancel-in-progress: false
 
 jobs:
