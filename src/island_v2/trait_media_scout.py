@@ -40,8 +40,17 @@ MEDIA_COLUMNS = [
 
 
 def _text(value: object) -> str:
-    if value is None or pd.isna(value):
+    if value is None:
         return ""
+    if isinstance(value, dict):
+        return json.dumps(value, ensure_ascii=False, sort_keys=True)
+    if isinstance(value, (list, tuple, set)):
+        return " | ".join(_text(item) for item in value if _text(item))
+    try:
+        if pd.isna(value):
+            return ""
+    except (TypeError, ValueError):
+        pass
     return " ".join(str(value).strip().split())
 
 
