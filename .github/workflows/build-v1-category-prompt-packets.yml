@@ -1,0 +1,112 @@
+name: build_v1_category_prompt_packets
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_index:
+        description: "Zero-based species offset in the global island plant master."
+        required: false
+        default: "0"
+        type: string
+      max_species:
+        description: "Number of species to include in this packet artifact."
+        required: false
+        default: "1000"
+        type: string
+      batch_size:
+        description: "Species per prompt packet (1-100)."
+        required: false
+        default: "25"
+        type: string
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-v1-category-prompt-packets.yml"
+      - "config/v1_category_trait_prompt.txt"
+      - "src/island_v2/v1_category_traits.py"
+      - "tests/test_v1_category_traits.py"
+      - "pyproject.toml"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-v1-category-prompt-packets.yml"
+      - "config/v1_category_trait_prompt.txt"
+      - "src/island_v2/v1_category_traits.py"
+      - "tests/test_v1_category_traits.py"
+      - "pyproject.toml"
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Validate category prompt and v1 recoding
+        run: |
+          pytest -q tests/test_v1_category_traits.py
+          island-v2-v1-category-traits --help >/dev/null
+          python scripts/validate_workflows.py
+          ruff check \
+            src/island_v2/v1_category_traits.py \
+            tests/test_v1_category_traits.py
+
+  build-packets:
+    if: github.event_name == 'workflow_dispatch'
+    needs: tests
+    runs-on: ubuntu-latest
+    env:
+      START_INDEX: ${{ inputs.start_index || '0' }}
+      MAX_SPECIES: ${{ inputs.max_species || '1000' }}
+      BATCH_SIZE: ${{ inputs.batch_size || '25' }}
+      OUTPUT_DIR: /tmp/v1_category_prompt_packets
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Validate bounded packet inputs
+        run: |
+          python - <<'PY'
+          import os
+
+          start = int(os.environ["START_INDEX"])
+          count = int(os.environ["MAX_SPECIES"])
+          batch = int(os.environ["BATCH_SIZE"])
+          if start < 0:
+              raise SystemExit("start_index cannot be negative")
+          if not 1 <= count <= 10000:
+              raise SystemExit("max_species must be between 1 and 10000")
+          if not 1 <= batch <= 100:
+              raise SystemExit("batch_size must be between 1 and 100")
+          PY
+      - name: Build prompt packets
+        run: |
+          island-v2-v1-category-traits prepare \
+            --species-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --output-dir "$OUTPUT_DIR" \
+            --prompt-path config/v1_category_trait_prompt.txt \
+            --species-column accepted_species \
+            --batch-size "$BATCH_SIZE" \
+            --start-index "$START_INDEX" \
+            --max-species "$MAX_SPECIES"
+      - name: Publish packet summary
+        run: |
+          cat "$OUTPUT_DIR/prompt_packet_manifest.json" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload prompt packet artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-category-prompt-packets-${{ github.run_id }}
+          path: /tmp/v1_category_prompt_packets/
+          if-no-files-found: error
+          retention-days: 90
