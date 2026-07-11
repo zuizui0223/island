@@ -129,6 +129,9 @@ def test_validate_and_derive_v1_categories() -> None:
     assert campanula["v1_mating_binary"] == "mixed"
     assert campanula["evidence_type"] == "field_study|review"
     assert campanula["evidence_tier"] == "primary"
+    assert bool(campanula["primary_color_eligible"])
+    assert bool(campanula["primary_form_eligible"])
+    assert bool(campanula["primary_self_eligible"])
     assert bool(campanula["primary_analysis_eligible"])
 
     assert salvia["v1_color_binary"] == "conspicuous"
@@ -139,6 +142,9 @@ def test_validate_and_derive_v1_categories() -> None:
     assert unknown["v1_color_binary"] == "unknown"
     assert unknown["v1_form_binary"] == "unknown"
     assert unknown["evidence_tier"] == "inference_or_low"
+    assert not bool(unknown["primary_color_eligible"])
+    assert not bool(unknown["primary_form_eligible"])
+    assert not bool(unknown["primary_self_eligible"])
     assert not bool(unknown["primary_analysis_eligible"])
 
 
@@ -165,6 +171,9 @@ def test_ingest_reports_nonunknown_coverage(tmp_path: Path) -> None:
         "pollination_guild_nonunknown": 2,
         "mating_system_nonunknown": 2,
         "self_incompatibility_nonunknown": 2,
+        "primary_color_eligible": 2,
+        "primary_form_eligible": 2,
+        "primary_self_eligible": 2,
         "primary_analysis_eligible": 2,
     }
 
