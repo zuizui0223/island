@@ -2,18 +2,19 @@
   "version": "1.0",
   "n_global_species": 105612,
   "n_families": 478,
-  "n_machine_biotic_candidates": 239,
+  "n_machine_biotic_candidates": 254,
   "active_task": "reproductive_wikimedia",
   "tasks": {
     "reproductive_wikimedia": {
       "phase": "reproductive_and_pollen_vector",
       "status_counts": {
-        "pending": 94139,
-        "processed": 11416,
-        "retry": 57
+        "exhausted": 27,
+        "pending": 93196,
+        "processed": 12337,
+        "retry": 52
       },
-      "n_candidates": 1504,
-      "n_eligible_pending": 94196,
+      "n_candidates": 1618,
+      "n_eligible_pending": 93248,
       "required_for_primary_completion": true,
       "terminal": false
     },
@@ -25,18 +26,18 @@
         "retry": 150
       },
       "n_candidates": 7,
-      "n_eligible_pending": 11316,
+      "n_eligible_pending": 12264,
       "required_for_primary_completion": false,
       "terminal": false
     },
     "floral_access_wikimedia": {
       "phase": "floral_access",
       "status_counts": {
-        "not_applicable": 11177,
-        "pending": 94196,
-        "processed": 239
+        "not_applicable": 12110,
+        "pending": 93248,
+        "processed": 254
       },
-      "n_candidates": 521,
+      "n_candidates": 560,
       "n_eligible_pending": 0,
       "required_for_primary_completion": true,
       "terminal": false
@@ -44,11 +45,11 @@
     "alternative_guild_wikimedia": {
       "phase": "alternative_pollinator_function",
       "status_counts": {
-        "not_applicable": 11177,
-        "pending": 94196,
-        "processed": 239
+        "not_applicable": 12110,
+        "pending": 93248,
+        "processed": 254
       },
-      "n_candidates": 81,
+      "n_candidates": 87,
       "n_eligible_pending": 0,
       "required_for_primary_completion": true,
       "terminal": false
@@ -56,104 +57,27 @@
     "alternative_guild_openalex": {
       "phase": "alternative_pollinator_function",
       "status_counts": {
-        "not_applicable": 11177,
-        "pending": 94428,
+        "not_applicable": 12110,
+        "pending": 93495,
         "retry": 7
       },
       "n_candidates": 0,
-      "n_eligible_pending": 239,
+      "n_eligible_pending": 254,
       "required_for_primary_completion": false,
       "terminal": false
     }
   },
   "interpretation": "Machine-only source-backed candidates. Zero hits are lookup outcomes, not biological absence; accepted trait values still require the evidence-review contract.",
   "last_wave": {
-    "wave_id": "wave_00036_alternative_guild_wikimedia",
+    "wave_id": "wave_00042_alternative_guild_wikimedia",
     "task": "alternative_guild_wikimedia",
     "phase": "alternative_pollinator_function",
     "source_kind": "wikimedia_reported_ecology",
-    "n_species_attempted": 16,
-    "n_species_with_source_text": 16,
-    "n_candidates_total": 31,
-    "n_target_candidates": 8,
-    "n_lookup_errors": 5,
+    "n_species_attempted": 15,
+    "n_species_with_source_text": 15,
+    "n_candidates_total": 33,
+    "n_target_candidates": 6,
+    "n_lookup_errors": 1,
     "policy": "Machine-only; no candidate is curated or used as a biological absence."
-  },
-  "last_multilingual_recovery_wave": {
-    "wave_id": "wave_00037_reproductive_multilingual_recovery",
-    "task": "reproductive_multilingual_recovery",
-    "phase": "reproductive_and_pollen_vector",
-    "source_kind": "batched_direct_title_multilingual_wikipedia",
-    "languages": [
-      "ja",
-      "zh",
-      "ru"
-    ],
-    "n_species_attempted": 1000,
-    "n_species_with_source_text": 39,
-    "n_candidates_total": 5,
-    "n_species_with_candidates": 5,
-    "n_new_biotic_species": 0,
-    "n_lookup_errors": 0,
-    "policy": "Machine-only source-backed recovery; zero hits are not biological absences."
-  },
-  "last_multilingual_sitelink_recovery_wave": {
-    "wave_id": "wave_00038_reproductive_multilingual_sitelink_recovery",
-    "task": "reproductive_multilingual_sitelink_recovery",
-    "candidate_task": "reproductive_multilingual_recovery",
-    "phase": "reproductive_and_pollen_vector",
-    "source_kind": "wikidata_sitelink_multilingual_wikipedia",
-    "languages": [
-      "ja",
-      "zh",
-      "ru"
-    ],
-    "n_species_attempted": 1000,
-    "n_species_with_english_qid": 641,
-    "n_species_with_any_target_sitelink": 346,
-    "n_species_with_source_text": 53,
-    "n_species_with_sitelink_source_text": 12,
-    "n_species_with_direct_fallback_text": 42,
-    "source_species_by_language": {
-      "ja": 6,
-      "zh": 25,
-      "ru": 25
-    },
-    "n_candidates_total": 9,
-    "n_species_with_candidates": 8,
-    "n_new_biotic_species": 0,
-    "n_lookup_errors": 0,
-    "policy": "Machine-only source-backed recovery; missing QIDs, missing sitelinks, and zero hits are not biological absences."
-  },
-  "last_verified_multilingual_recovery_wave": {
-    "wave_id": "wave_00039_reproductive_multilingual_verified_sitelink_recovery",
-    "task": "reproductive_multilingual_verified_sitelink_recovery",
-    "candidate_task": "reproductive_multilingual_recovery",
-    "phase": "reproductive_and_pollen_vector",
-    "source_kind": "p225_verified_wikidata_sitelink_wikipedia",
-    "languages": [
-      "ja",
-      "zh",
-      "ru"
-    ],
-    "n_species_attempted": 1000,
-    "n_species_with_english_qid": 641,
-    "wikidata_identity_status_counts": {
-      "p225_mismatch": 79,
-      "p225_verified": 562
-    },
-    "n_species_with_verified_target_sitelink": 301,
-    "n_species_with_source_text": 25,
-    "source_species_by_language": {
-      "ja": 7,
-      "zh": 11,
-      "ru": 10
-    },
-    "n_candidates_total": 5,
-    "n_species_with_candidates": 3,
-    "n_uncertain_candidates_rejected": 3,
-    "n_new_biotic_species": 0,
-    "n_lookup_errors": 0,
-    "policy": "Only P225-matched Wikidata taxon items are followed. Missing/mismatched identity and explicit uncertainty are audit outcomes, not absences."
   }
 }
