@@ -2,19 +2,19 @@
   "version": "1.0",
   "n_global_species": 105612,
   "n_families": 478,
-  "n_machine_biotic_candidates": 341,
+  "n_machine_biotic_candidates": 351,
   "active_task": "reproductive_wikimedia",
   "tasks": {
     "reproductive_wikimedia": {
       "phase": "reproductive_and_pollen_vector",
       "status_counts": {
-        "exhausted": 244,
-        "pending": 85624,
-        "processed": 19695,
-        "retry": 49
+        "exhausted": 268,
+        "pending": 84673,
+        "processed": 20614,
+        "retry": 57
       },
-      "n_candidates": 2285,
-      "n_eligible_pending": 85673,
+      "n_candidates": 2352,
+      "n_eligible_pending": 84730,
       "required_for_primary_completion": true,
       "terminal": false
     },
@@ -26,18 +26,18 @@
         "retry": 150
       },
       "n_candidates": 7,
-      "n_eligible_pending": 19839,
+      "n_eligible_pending": 20782,
       "required_for_primary_completion": false,
       "terminal": false
     },
     "floral_access_wikimedia": {
       "phase": "floral_access",
       "status_counts": {
-        "not_applicable": 19598,
-        "pending": 85673,
-        "processed": 341
+        "not_applicable": 20531,
+        "pending": 84730,
+        "processed": 351
       },
-      "n_candidates": 750,
+      "n_candidates": 778,
       "n_eligible_pending": 0,
       "required_for_primary_completion": true,
       "terminal": false
@@ -45,11 +45,11 @@
     "alternative_guild_wikimedia": {
       "phase": "alternative_pollinator_function",
       "status_counts": {
-        "not_applicable": 19598,
-        "pending": 85673,
-        "processed": 341
+        "not_applicable": 20531,
+        "pending": 84730,
+        "processed": 351
       },
-      "n_candidates": 120,
+      "n_candidates": 122,
       "n_eligible_pending": 0,
       "required_for_primary_completion": true,
       "terminal": false
@@ -57,27 +57,27 @@
     "alternative_guild_openalex": {
       "phase": "alternative_pollinator_function",
       "status_counts": {
-        "not_applicable": 19598,
-        "pending": 86007,
+        "not_applicable": 20531,
+        "pending": 85074,
         "retry": 7
       },
       "n_candidates": 0,
-      "n_eligible_pending": 341,
+      "n_eligible_pending": 351,
       "required_for_primary_completion": false,
       "terminal": false
     }
   },
   "interpretation": "Machine-only source-backed candidates. Zero hits are lookup outcomes, not biological absence; accepted trait values still require the evidence-review contract.",
   "last_wave": {
-    "wave_id": "wave_00066_alternative_guild_wikimedia",
+    "wave_id": "wave_00069_alternative_guild_wikimedia",
     "task": "alternative_guild_wikimedia",
     "phase": "alternative_pollinator_function",
     "source_kind": "wikimedia_reported_ecology",
-    "n_species_attempted": 11,
-    "n_species_with_source_text": 11,
-    "n_candidates_total": 23,
-    "n_target_candidates": 6,
-    "n_lookup_errors": 4,
+    "n_species_attempted": 10,
+    "n_species_with_source_text": 10,
+    "n_candidates_total": 15,
+    "n_target_candidates": 2,
+    "n_lookup_errors": 2,
     "policy": "Machine-only; no candidate is curated or used as a biological absence."
   }
 }
