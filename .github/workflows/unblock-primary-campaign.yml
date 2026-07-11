@@ -1,0 +1,68 @@
+name: unblock_primary_campaign
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/unblock-primary-campaign.yml"
+      - "scripts/unblock_primary_campaign.py"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/unblock-primary-campaign.yml"
+      - "scripts/unblock_primary_campaign.py"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: unblock-primary-campaign
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate deterministic migration
+        run: |
+          python scripts/unblock_primary_campaign.py
+          python -m py_compile scripts/unblock_primary_campaign.py
+
+  migrate:
+    if: github.event_name == 'push'
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Prioritize the one-week primary screen
+        run: |
+          set -euo pipefail
+          python scripts/unblock_primary_campaign.py --apply
+          rm .github/workflows/unblock-primary-campaign.yml
+      - name: Validate resulting workflow set
+        run: |
+          python scripts/validate_workflows.py
+          grep -q "group: global-trait-campaign-primary" \
+            .github/workflows/drive-global-trait-campaign.yml
+          grep -q "group: multilingual-recovery-v2" \
+            .github/workflows/recover-verified-multilingual-lead-full.yml
+          ! grep -q '^  push:' \
+            .github/workflows/recover-verified-multilingual-lead-full.yml
+          test ! -e .github/workflows/recover-multilingual-wikimedia.yml
+          test ! -e .github/workflows/recover-verified-multilingual-wikimedia.yml
+          test ! -e .github/workflows/unblock-primary-campaign.yml
+      - name: Publish migration and trigger primary bundle
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A .github/workflows scripts/unblock_primary_campaign.py
+          git commit -m "ci: prioritize the global primary campaign"
+          git pull --rebase origin main
+          git push origin HEAD:main
