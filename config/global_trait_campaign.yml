@@ -2,6 +2,9 @@ version: "1.0"
 default_batch_size: 1000
 max_attempts: 3
 
+# Primary completion has scheduling priority. Optional recovery and scholarly
+# enrichment must not consume the serialized 30-minute Wikimedia campaign lane.
+
 # Free Wikimedia fallback languages for species pages. English is queried first;
 # later languages are tried only for species with no target candidate in the
 # primary pass. Keep this list short enough for the 30-minute scheduled bundle.
