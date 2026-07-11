@@ -1,0 +1,18 @@
+{
+  "pilot_species": 25,
+  "fixed_site_baseline_rows": 13,
+  "fixed_site_baseline_species_any_trait": 7,
+  "validated_llm_incremental_rows": 3,
+  "validated_llm_incremental_species": 2,
+  "combined_species_any_trait": 9,
+  "coverage_n_species": {
+    "flower_primary_color": 7,
+    "floral_form": 2,
+    "reproductive_assurance": 0,
+    "pollen_vector_mode": 1,
+    "pollination_functional_guild": 1
+  },
+  "interpretation": "The evidence-locked LLM validator worked, but source discovery remained the dominant bottleneck. This pilot is retained as the fixed benchmark for subsequent discovery methods.",
+  "workflow_run_id": 29166796994,
+  "artifact_id": 8252380690
+}
