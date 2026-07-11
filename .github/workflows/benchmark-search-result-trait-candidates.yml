@@ -1,0 +1,139 @@
+name: benchmark_search_result_trait_candidates
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/island_v2/search_result_trait_candidates.py"
+      - "src/island_v2/trait_dynamic_discovery.py"
+      - "src/island_v2/trait_dynamic_discovery_fast.py"
+      - "tests/test_search_result_trait_candidates.py"
+      - ".github/workflows/benchmark-search-result-trait-candidates.yml"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Validate search-result extraction
+        run: |
+          pytest -q tests/test_search_result_trait_candidates.py
+          ruff check src/island_v2/search_result_trait_candidates.py tests/test_search_result_trait_candidates.py
+          island-v2-search-result-trait-candidates --help >/dev/null
+      - name: Run fixed-site baseline
+        run: |
+          island-v2-v1-category-search search \
+            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+            --output-dir /tmp/fixed_baseline \
+            --max-taxa 25
+      - name: Search broadly without source whitelist
+        run: |
+          island-v2-trait-dynamic-discovery-fast \
+            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+            --output-dir /tmp/broad_search \
+            --max-taxa 25 \
+            --max-synonyms 3 \
+            --max-results-per-query 8 \
+            --max-pages-per-species 4 \
+            --workers 8
+      - name: Extract reported and likely candidates from frozen search results
+        run: |
+          island-v2-search-result-trait-candidates \
+            --search-results-csv /tmp/broad_search/search_results.csv \
+            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+            --output-dir /tmp/search_result_candidates
+          cat /tmp/search_result_candidates/search_result_trait_candidates_report.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Compare reported-only and reported-plus-likely coverage
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          species = pd.read_csv(
+              'data/v2/staging/traits/validation_pilot/validation_pilot_species.csv',
+              dtype=str,
+          ).fillna('').head(25)
+          denominator = set(species['accepted_species'])
+          baseline = pd.read_csv('/tmp/fixed_baseline/v2_reported_candidates.csv', dtype=str).fillna('')
+          search = pd.read_csv(
+              '/tmp/search_result_candidates/search_result_trait_candidates.csv',
+              dtype=str,
+          ).fillna('')
+
+          def pairs(frame, value_col='provisional_candidate_value'):
+              if frame.empty:
+                  return set()
+              return {
+                  (r.accepted_species, r.trait_name)
+                  for r in frame.itertuples(index=False)
+                  if r.accepted_species in denominator
+                  and str(getattr(r, value_col, '')).strip()
+                  and str(getattr(r, value_col, '')).strip() != 'unresolved'
+              }
+
+          b = pairs(baseline)
+          reported = search[search['candidate_class'].eq('reported')]
+          likely = search[search['inference_status'].eq('likely')]
+          r = pairs(reported)
+          l = pairs(likely)
+          br = b | r
+          brl = br | l
+
+          def species_count(ps):
+              return len({sp for sp, _ in ps})
+
+          traits = sorted({trait for _, trait in brl})
+          by_trait = {}
+          for trait in traits:
+              def n(ps):
+                  return len({sp for sp, tr in ps if tr == trait})
+              by_trait[trait] = {
+                  'baseline': n(b),
+                  'baseline_plus_search_reported': n(br),
+                  'baseline_plus_reported_plus_likely': n(brl),
+              }
+
+          report = {
+              'n_species_denominator': len(denominator),
+              'baseline_species_any_trait': species_count(b),
+              'search_reported_species': species_count(r),
+              'search_likely_species': species_count(l),
+              'baseline_plus_search_reported_species_any_trait': species_count(br),
+              'baseline_plus_reported_plus_likely_species_any_trait': species_count(brl),
+              'increment_reported_over_baseline_species': species_count(br) - species_count(b),
+              'increment_likely_over_reported_species': species_count(brl) - species_count(br),
+              'coverage_by_trait': by_trait,
+              'policy': (
+                  'reported and likely are benchmarked separately; likely/proxy rows are never '
+                  'silently promoted into the reported-only analysis.'
+              ),
+          }
+          out = Path('/tmp/search_result_candidates')
+          (out / 'coverage_comparison.json').write_text(
+              json.dumps(report, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps(report, ensure_ascii=False, indent=2))
+          PY
+      - name: Upload benchmark corpus and candidates
+        uses: actions/upload-artifact@v4
+        with:
+          name: search-result-trait-candidates-${{ github.run_id }}
+          path: |
+            /tmp/fixed_baseline/
+            /tmp/broad_search/
+            /tmp/search_result_candidates/
+          if-no-files-found: error
+          retention-days: 90
