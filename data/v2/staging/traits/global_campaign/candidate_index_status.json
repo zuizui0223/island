@@ -1,47 +1,47 @@
 {
   "version": "1.0",
-  "n_waves_indexed": 45,
-  "latest_wave_id": "wave_00045_alternative_guild_wikimedia",
-  "n_unique_candidate_rows": 3305,
-  "n_species_with_candidates": 1417,
-  "n_machine_biotic_screening_species": 265,
+  "n_waves_indexed": 48,
+  "latest_wave_id": "wave_00048_alternative_guild_wikimedia",
+  "n_unique_candidate_rows": 3490,
+  "n_species_with_candidates": 1511,
+  "n_machine_biotic_screening_species": 274,
   "n_by_campaign_task": {
-    "alternative_guild_wikimedia": 530,
-    "floral_access_wikimedia": 747,
+    "alternative_guild_wikimedia": 551,
+    "floral_access_wikimedia": 775,
     "reproductive_multilingual_recovery": 12,
     "reproductive_openalex": 8,
-    "reproductive_wikimedia": 2008
+    "reproductive_wikimedia": 2144
   },
   "n_by_campaign_phase": {
-    "alternative_pollinator_function": 373,
-    "auxiliary": 168,
-    "floral_access": 579,
-    "reproductive_and_pollen_vector": 2185
+    "alternative_pollinator_function": 426,
+    "auxiliary": 176,
+    "floral_access": 599,
+    "reproductive_and_pollen_vector": 2289
   },
   "n_by_trait_name": {
-    "autonomous_selfing_capacity": 172,
+    "autonomous_selfing_capacity": 186,
     "autonomous_selfing_reported": 9,
     "cleistogamy": 1,
-    "dichogamy": 58,
-    "floral_form": 42,
+    "dichogamy": 60,
+    "floral_form": 45,
     "floral_symmetry": 14,
-    "flower_primary_color": 503,
+    "flower_primary_color": 520,
     "flower_size_class": 19,
-    "mating_system": 30,
+    "mating_system": 31,
     "mating_system_reported": 6,
-    "pollen_vector_mode": 666,
-    "pollination_functional_guild": 373,
-    "pollination_vector_reported": 143,
-    "self_compatibility_reported": 7,
-    "self_incompatibility": 74,
+    "pollen_vector_mode": 683,
+    "pollination_functional_guild": 426,
+    "pollination_vector_reported": 149,
+    "self_compatibility_reported": 9,
+    "self_incompatibility": 80,
     "self_incompatibility_reported": 3,
-    "sex_system": 1184,
+    "sex_system": 1248,
     "tube_depth_class": 1
   },
   "n_by_source_type": {
     "openalex_title_abstract": 8,
-    "wikipedia": 747,
-    "wikipedia_extract": 2538,
+    "wikipedia": 775,
+    "wikipedia_extract": 2695,
     "wikipedia_extract_ru": 5,
     "wikipedia_extract_zh": 1,
     "wikipedia_sitelink_extract_ja": 4,
@@ -50,13 +50,13 @@
   },
   "n_by_confidence": {
     "explicit_multilingual_rule_match": 12,
-    "explicit_term_match": 747,
-    "rule_match": 2546
+    "explicit_term_match": 775,
+    "rule_match": 2703
   },
   "screening_label_counts": {
-    "alternative_or_generalist_candidate": 63,
-    "biotic_vector_candidate_without_guild_yet": 186,
-    "bumblebee_candidate_without_alternative_yet": 16
+    "alternative_or_generalist_candidate": 67,
+    "biotic_vector_candidate_without_guild_yet": 188,
+    "bumblebee_candidate_without_alternative_yet": 19
   },
   "interpretation": "Cumulative machine-only source-backed candidates and screening labels. They are not accepted trait values, biological absences, or confirmatory-model inputs.",
   "n_candidate_exclusion_rules": 2,
