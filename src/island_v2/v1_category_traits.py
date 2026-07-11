@@ -1,13 +1,9 @@
-"""Category-first trait extraction for the v1 island-floral analysis.
+"""Category-first trait extraction and downstream v1 binary recoding.
 
-Collection keeps the richer nine-column LLM output requested by the user. The
-analysis table is derived afterwards using the binary categories from v1:
-plain/conspicuous colour, generalized/specialized floral form, and
-self-compatible/self-incompatible reproductive state.
-
-The module deliberately separates raw extraction from recoding. Low-confidence
-or inference-only rows remain available for sensitivity analyses rather than
-being silently promoted into the primary evidence layer.
+The raw nine-column LLM response is preserved. Binary variables used by the v1
+island-level analysis are derived afterwards, with separate eligibility flags
+for colour, floral form, and self-compatibility because each response has its
+own denominator.
 """
 
 from __future__ import annotations
@@ -67,6 +63,9 @@ DERIVED_COLUMNS = [
     "v1_animal_pollinated",
     "v1_mating_binary",
     "evidence_tier",
+    "primary_color_eligible",
+    "primary_form_eligible",
+    "primary_self_eligible",
     "primary_analysis_eligible",
 ]
 
@@ -80,7 +79,6 @@ COLOUR_PLAIN = re.compile(
     r"inconspicuous|colourless|colorless)\b",
     flags=re.IGNORECASE,
 )
-
 FORM_SPECIALIZED = re.compile(
     r"\b(?:zygomorphic|bilateral|bilabiate|two[- ]lipped|papilionaceous|"
     r"tubular|tube[- ]shaped|salverform|funnel|trumpet|urceolate|urn[- ]shaped|"
@@ -95,7 +93,7 @@ FORM_GENERALIZED = re.compile(
 
 
 class CategoryTraitValidationError(ValueError):
-    """Raised when an LLM result violates the category-first output contract."""
+    """Raised when a result violates the category-first output contract."""
 
 
 def _text(value: object) -> str:
@@ -115,8 +113,8 @@ def _species_column(columns: list[str], requested: str | None = None) -> str:
         if candidate in columns:
             return candidate
     raise typer.BadParameter(
-        "could not find a species column; expected one of accepted_species, species, "
-        "scientificName, canonicalName"
+        "could not find a species column; expected accepted_species, species, "
+        "scientificName, or canonicalName"
     )
 
 
@@ -126,7 +124,7 @@ def load_prompt_template(path: Path = DEFAULT_PROMPT_PATH) -> str:
     text = path.read_text(encoding="utf-8")
     if text.count(PROMPT_PLACEHOLDER) != 1:
         raise typer.BadParameter(
-            f"prompt template must contain exactly one {PROMPT_PLACEHOLDER!r} placeholder"
+            f"prompt must contain exactly one {PROMPT_PLACEHOLDER!r} placeholder"
         )
     return text
 
@@ -135,8 +133,8 @@ def render_prompt(species: list[str], template: str) -> str:
     cleaned = [_text(value) for value in species if _text(value)]
     if not cleaned:
         raise typer.BadParameter("cannot render an empty species batch")
-    species_block = "\n".join(f"- {name}" for name in cleaned)
-    return template.replace(PROMPT_PLACEHOLDER, species_block)
+    block = "\n".join(f"- {name}" for name in cleaned)
+    return template.replace(PROMPT_PLACEHOLDER, block)
 
 
 def prepare_prompt_batches(
@@ -149,7 +147,7 @@ def prepare_prompt_batches(
     start_index: int = 0,
     max_species: int | None = None,
 ) -> dict[str, Any]:
-    """Create deterministic prompt packets without calling an external LLM API."""
+    """Create deterministic prompt packets without calling an external API."""
     if not species_csv.exists():
         raise typer.BadParameter(f"species CSV does not exist: {species_csv}")
     if batch_size < 1:
@@ -206,8 +204,10 @@ def prepare_prompt_batches(
             }
         )
 
-    packet_index = pd.DataFrame(packet_rows)
-    packet_index.to_csv(output_dir / "prompt_packet_index.csv", index=False)
+    pd.DataFrame(packet_rows).to_csv(
+        output_dir / "prompt_packet_index.csv",
+        index=False,
+    )
     manifest = {
         "version": "1.0",
         "species_csv": str(species_csv),
@@ -220,8 +220,8 @@ def prepare_prompt_batches(
         "n_batches": len(packet_rows),
         "output_columns": OUTPUT_COLUMNS,
         "policy": (
-            "Prompt packets preserve category-rich collection output. Binary v1 "
-            "analysis variables are derived only after result validation."
+            "Collect category-rich rows first. Derive binary v1 variables only "
+            "after exact-schema and enum validation."
         ),
     }
     (output_dir / "prompt_packet_manifest.json").write_text(
@@ -233,27 +233,17 @@ def prepare_prompt_batches(
 
 def _normalise_evidence_types(value: object) -> str:
     raw = _text(value)
-    if not raw:
-        return ""
-    parts = [
-        _text(part)
-        for part in re.split(r"[,;|/]", raw)
-        if _text(part)
-    ]
-    unknown = sorted(set(parts).difference(EVIDENCE_TYPES))
-    if unknown:
+    parts = [_text(part) for part in re.split(r"[,;|/]", raw) if _text(part)]
+    invalid = sorted(set(parts).difference(EVIDENCE_TYPES))
+    if invalid:
         raise CategoryTraitValidationError(
-            f"invalid evidence_type value(s): {unknown}; allowed={sorted(EVIDENCE_TYPES)}"
+            f"invalid evidence_type value(s): {invalid}; "
+            f"allowed={sorted(EVIDENCE_TYPES)}"
         )
-    ordered = [value for value in sorted(EVIDENCE_TYPES) if value in set(parts)]
-    return "|".join(ordered)
+    return "|".join(value for value in sorted(EVIDENCE_TYPES) if value in set(parts))
 
 
-def _validate_enum(
-    table: pd.DataFrame,
-    column: str,
-    allowed: set[str],
-) -> None:
+def _validate_enum(table: pd.DataFrame, column: str, allowed: set[str]) -> None:
     invalid = sorted(set(table[column]).difference(allowed))
     if invalid:
         raise CategoryTraitValidationError(
@@ -266,12 +256,11 @@ def validate_result_table(
     *,
     expected_species: list[str] | None = None,
 ) -> pd.DataFrame:
-    """Validate and normalize one category-first LLM result table."""
-    actual_columns = list(table.columns)
-    if actual_columns != OUTPUT_COLUMNS:
+    """Validate and normalize one LLM result table."""
+    if list(table.columns) != OUTPUT_COLUMNS:
         raise CategoryTraitValidationError(
             "result columns must match the prompt exactly and in order; "
-            f"expected={OUTPUT_COLUMNS}, actual={actual_columns}"
+            f"expected={OUTPUT_COLUMNS}, actual={list(table.columns)}"
         )
     result = table.copy().fillna("")
     for column in OUTPUT_COLUMNS:
@@ -290,10 +279,8 @@ def validate_result_table(
     _validate_enum(result, "mating_system", MATING_SYSTEMS)
     _validate_enum(result, "self_incompatibility", SELF_INCOMPATIBILITY)
     _validate_enum(result, "confidence", CONFIDENCE_VALUES)
-
-    blank_evidence = result["evidence_type"].eq("")
-    if blank_evidence.any():
-        species = result.loc[blank_evidence, "species"].tolist()
+    if result["evidence_type"].eq("").any():
+        species = result.loc[result["evidence_type"].eq(""), "species"].tolist()
         raise CategoryTraitValidationError(
             f"evidence_type cannot be blank: {species[:10]}"
         )
@@ -315,10 +302,8 @@ def validate_result_table(
 
     if expected_species is not None:
         expected = [_text(value) for value in expected_species if _text(value)]
-        expected_set = set(expected)
-        observed_set = set(result["species"])
-        missing = sorted(expected_set.difference(observed_set))
-        extra = sorted(observed_set.difference(expected_set))
+        missing = sorted(set(expected).difference(result["species"]))
+        extra = sorted(set(result["species"]).difference(expected))
         if missing or extra:
             raise CategoryTraitValidationError(
                 f"species mismatch; missing={missing[:10]}, extra={extra[:10]}"
@@ -337,11 +322,9 @@ def _color_binary(value: object) -> str:
     text = _text(value)
     if not text or text.casefold() == "unknown":
         return "unknown"
-    conspicuous = bool(COLOUR_CONSPICUOUS.search(text))
-    plain = bool(COLOUR_PLAIN.search(text))
-    if conspicuous:
+    if COLOUR_CONSPICUOUS.search(text):
         return "conspicuous"
-    if plain:
+    if COLOUR_PLAIN.search(text):
         return "plain"
     return "unknown"
 
@@ -352,25 +335,20 @@ def _form_binary(value: object) -> str:
         return "unknown"
     specialized = bool(FORM_SPECIALIZED.search(text))
     generalized = bool(FORM_GENERALIZED.search(text))
-    if specialized and not generalized:
+    if specialized:
         return "specialized"
-    if generalized and not specialized:
+    if generalized:
         return "generalized"
-    if specialized and generalized:
-        # A tubular or zygomorphic restriction takes precedence in the v1 split.
-        return "specialized"
     return "unknown"
 
 
 def _self_binary(value: object) -> str:
-    mapping = {
+    return {
         "SC": "self_compatible",
         "likely_SC": "self_compatible",
         "SI": "self_incompatible",
         "likely_SI": "self_incompatible",
-        "unknown": "unknown",
-    }
-    return mapping.get(_text(value), "unknown")
+    }.get(_text(value), "unknown")
 
 
 def _animal_pollinated(value: object) -> str:
@@ -385,21 +363,21 @@ def _animal_pollinated(value: object) -> str:
 
 
 def _mating_binary(value: object) -> str:
-    mapping = {
+    return {
         "obligate_outcrossing": "outcrossing",
         "mixed_mating": "mixed",
         "mainly_selfing": "selfing",
         "obligate_selfing": "selfing",
-        "unknown": "unknown",
-    }
-    return mapping.get(_text(value), "unknown")
+    }.get(_text(value), "unknown")
 
 
 def _evidence_tier(row: pd.Series) -> str:
     evidence = set(_text(row["evidence_type"]).split("|"))
     confidence = _text(row["confidence"])
-    direct = evidence.intersection({"field_study", "review", "flora"})
-    if direct and confidence in {"high", "medium"}:
+    if evidence.intersection({"field_study", "review", "flora"}) and confidence in {
+        "high",
+        "medium",
+    }:
         return "primary"
     if "horticulture" in evidence and confidence in {"high", "medium"}:
         return "secondary"
@@ -407,7 +385,7 @@ def _evidence_tier(row: pd.Series) -> str:
 
 
 def derive_v1_categories(validated: pd.DataFrame) -> pd.DataFrame:
-    """Append v1 binary analysis variables without altering raw trait fields."""
+    """Append v1 binary variables without altering raw collected fields."""
     result = validated.copy()
     result["v1_color_binary"] = result["flower_color"].map(_color_binary)
     result["v1_form_binary"] = result["flower_shape"].map(_form_binary)
@@ -419,13 +397,28 @@ def derive_v1_categories(validated: pd.DataFrame) -> pd.DataFrame:
     )
     result["v1_mating_binary"] = result["mating_system"].map(_mating_binary)
     result["evidence_tier"] = result.apply(_evidence_tier, axis=1)
-    result["primary_analysis_eligible"] = (
-        result["evidence_tier"].eq("primary")
-        & ~result["v1_color_binary"].eq("unknown")
-        & ~result["v1_form_binary"].eq("unknown")
-        & ~result["v1_self_compatibility_binary"].eq("unknown")
+    primary = result["evidence_tier"].eq("primary")
+    result["primary_color_eligible"] = primary & ~result["v1_color_binary"].eq(
+        "unknown"
     )
+    result["primary_form_eligible"] = primary & ~result["v1_form_binary"].eq(
+        "unknown"
+    )
+    result["primary_self_eligible"] = primary & ~result[
+        "v1_self_compatibility_binary"
+    ].eq("unknown")
+    result["primary_analysis_eligible"] = result[
+        [
+            "primary_color_eligible",
+            "primary_form_eligible",
+            "primary_self_eligible",
+        ]
+    ].any(axis=1)
     return result[[*OUTPUT_COLUMNS, *DERIVED_COLUMNS]]
+
+
+def _coverage_count(table: pd.DataFrame, column: str, unknown: str = "unknown") -> int:
+    return int((~table[column].eq(unknown)).sum())
 
 
 def ingest_result_csv(
@@ -460,28 +453,41 @@ def ingest_result_csv(
         "output_csv": str(output_csv),
         "n_species": len(derived),
         "coverage": {
-            "flower_color_nonunknown": int(
-                ~derived["v1_color_binary"].eq("unknown").sum()
+            "flower_color_nonunknown": _coverage_count(
+                derived,
+                "v1_color_binary",
             ),
-            "flower_shape_nonunknown": int(
-                ~derived["v1_form_binary"].eq("unknown").sum()
+            "flower_shape_nonunknown": _coverage_count(
+                derived,
+                "v1_form_binary",
             ),
-            "pollination_guild_nonunknown": int(
-                ~derived["pollination_guild"].eq("unknown").sum()
+            "pollination_guild_nonunknown": _coverage_count(
+                derived,
+                "pollination_guild",
             ),
-            "mating_system_nonunknown": int(
-                ~derived["mating_system"].eq("unknown").sum()
+            "mating_system_nonunknown": _coverage_count(
+                derived,
+                "mating_system",
             ),
-            "self_incompatibility_nonunknown": int(
-                ~derived["self_incompatibility"].eq("unknown").sum()
+            "self_incompatibility_nonunknown": _coverage_count(
+                derived,
+                "self_incompatibility",
+            ),
+            "primary_color_eligible": int(
+                derived["primary_color_eligible"].astype(bool).sum()
+            ),
+            "primary_form_eligible": int(
+                derived["primary_form_eligible"].astype(bool).sum()
+            ),
+            "primary_self_eligible": int(
+                derived["primary_self_eligible"].astype(bool).sum()
             ),
             "primary_analysis_eligible": int(
                 derived["primary_analysis_eligible"].astype(bool).sum()
             ),
         },
     }
-    report_path = output_csv.with_suffix(".manifest.json")
-    report_path.write_text(
+    output_csv.with_suffix(".manifest.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
