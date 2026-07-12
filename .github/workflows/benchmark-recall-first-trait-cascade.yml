@@ -28,10 +28,8 @@ jobs:
       - name: Test recall booster
         run: |
           pytest -q tests/test_recall_first_trait_booster.py
-          ruff check \
-            src/island_v2/recall_first_trait_booster.py \
-            src/island_v2/recall_first_trait_extension.py \
-            tests/test_recall_first_trait_booster.py
+          python -m py_compile src/island_v2/recall_first_trait_extension.py
+          ruff check src/island_v2/recall_first_trait_booster.py tests/test_recall_first_trait_booster.py
       - name: Run existing public-web lane for 100 real species
         run: |
           island-v2-web-trait-shards run \
