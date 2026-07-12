@@ -4,8 +4,9 @@ import json
 from pathlib import Path
 
 import pandas as pd
+from typer.testing import CliRunner
 
-from island_v2.search_enabled_llm_campaign import _stable_shard
+from island_v2.search_enabled_llm_campaign import _stable_shard, app
 
 
 def test_stable_shard_is_deterministic() -> None:
@@ -15,9 +16,6 @@ def test_stable_shard_is_deterministic() -> None:
 
 
 def test_prepare_and_ingest_roundtrip(tmp_path: Path) -> None:
-    from typer.testing import CliRunner
-    from island_v2.search_enabled_llm_campaign import app
-
     master = tmp_path / "master.csv"
     pd.DataFrame(
         [
@@ -108,4 +106,4 @@ def test_prepare_and_ingest_roundtrip(tmp_path: Path) -> None:
     assert result.exit_code == 0, result.output
     jobs2 = [json.loads(line) for line in (campaign / "jobs_shard_0000.jsonl").read_text().splitlines()]
     assert len(jobs2) == 1
-    assert jobs2[0]["species"] == "Plantus rubra" or jobs2[0]["species"] == "Floribunda testii"
+    assert jobs2[0]["species"] == "Plantus rubra"
