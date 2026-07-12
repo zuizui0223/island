@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "src/island_v2/reproductive_literature_recovery_pilot.py"
+      - "src/island_v2/reproductive_web_recovery_pilot.py"
       - ".github/workflows/benchmark-reproductive-literature-pilot.yml"
 
 permissions:
@@ -22,7 +23,10 @@ jobs:
       - name: Install package
         run: pip install -e ".[dev]"
       - name: Validate syntax
-        run: python -m py_compile src/island_v2/reproductive_literature_recovery_pilot.py
+        run: |
+          python -m py_compile \
+            src/island_v2/reproductive_literature_recovery_pilot.py \
+            src/island_v2/reproductive_web_recovery_pilot.py
       - name: Run 25-species OpenAlex recovery
         run: |
           python -m island_v2.reproductive_literature_recovery_pilot \
@@ -31,11 +35,24 @@ jobs:
             --max-taxa 25 \
             --per-page 8 \
             --workers 12
+          echo '## OpenAlex' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/reproductive_literature/reproductive_literature_recovery_report.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Run 25-species web exact-phrase recovery
+        run: |
+          python -m island_v2.reproductive_web_recovery_pilot \
+            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+            --output-dir /tmp/reproductive_web \
+            --max-taxa 25 \
+            --results-per-query 6 \
+            --workers 16
+          echo '## Web search' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/reproductive_web/reproductive_web_recovery_report.json >> "$GITHUB_STEP_SUMMARY"
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
-          name: reproductive-literature-pilot-${{ github.run_id }}
-          path: /tmp/reproductive_literature/
+          name: reproductive-recovery-pilot-${{ github.run_id }}
+          path: |
+            /tmp/reproductive_literature/
+            /tmp/reproductive_web/
           if-no-files-found: error
           retention-days: 90
