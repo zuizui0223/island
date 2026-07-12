@@ -1,10 +1,4 @@
-"""Second-stage recall extension for unresolved nine-column traits.
-
-This layer is intentionally inferential. It never overwrites a known value from the
-species-level or first recall pass. Its purpose is to increase usable coverage in the
-user's likely-enabled analysis layer while keeping every addition auditable and low
-confidence.
-"""
+"""Small final fallback pass for unresolved nine-column traits."""
 
 from __future__ import annotations
 
@@ -14,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 import typer
 
-from island_v2.recall_first_trait_booster import FIELDS, coverage
+from island_v2.recall_first_trait_booster import coverage
 from island_v2.v1_category_traits import OUTPUT_COLUMNS, validate_result_table
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
@@ -30,11 +24,10 @@ EXTRA_FAMILY_PRIORS: dict[str, dict[str, str]] = {
     "Euphorbiaceae": {"pollination_guild": "mixed"},
     "Gentianaceae": {"pollination_guild": "bees"},
     "Melastomataceae": {"pollination_guild": "bees"},
-    "Lamiaceae": {"self_incompatibility": "likely_SC"},
-    "Fabaceae": {"self_incompatibility": "likely_SC"},
-    "Gesneriaceae": {"self_incompatibility": "likely_SC"},
-    "Orchidaceae": {"self_incompatibility": "likely_SC"},
 }
+PROVENANCE_COLUMNS = [
+    "species", "field", "value", "mode", "source", "evidence_scope", "confidence", "basis"
+]
 
 
 def _text(value: object) -> str:
@@ -52,59 +45,51 @@ def extend_table(
     table: pd.DataFrame,
     provenance: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    meta = master[["accepted_species", "family"]].drop_duplicates("accepted_species").set_index(
-        "accepted_species"
-    )
+    meta = master.copy().drop_duplicates("accepted_species").set_index("accepted_species")
     out = table.copy().fillna("")
     prov_rows = provenance.fillna("").to_dict("records")
 
     for index, row in out.iterrows():
         species = _text(row["species"])
         family = _text(meta.loc[species, "family"]) if species in meta.index else ""
-
-        if _unknown(row["mating_system"]) and _text(row["self_incompatibility"]) in {
-            "SI",
-            "likely_SI",
-        }:
+        if _unknown(row["mating_system"]) and _text(row["self_incompatibility"]) in {"SI", "likely_SI"}:
             out.loc[index, "mating_system"] = "obligate_outcrossing"
-            prov_rows.append(
-                {
-                    "species": species,
-                    "field": "mating_system",
-                    "value": "obligate_outcrossing",
-                    "mode": "likely",
-                    "basis": f"self_incompatibility={_text(row['self_incompatibility'])}",
-                }
-            )
-
+            prov_rows.append({
+                "species": species,
+                "field": "mating_system",
+                "value": "obligate_outcrossing",
+                "mode": "likely",
+                "source": "self_incompatibility",
+                "evidence_scope": "cross_field_fallback",
+                "confidence": "low",
+                "basis": f"self_incompatibility={_text(row['self_incompatibility'])}",
+            })
         for field, value in EXTRA_FAMILY_PRIORS.get(family, {}).items():
             if _unknown(out.loc[index, field]):
                 out.loc[index, field] = value
-                prov_rows.append(
-                    {
-                        "species": species,
-                        "field": field,
-                        "value": value,
-                        "mode": "likely",
-                        "basis": f"extended_family_prior:{family}",
-                    }
-                )
-
-        has_likely = any(
-            record["species"] == species and record["mode"] == "likely" for record in prov_rows
-        )
-        if has_likely:
+                prov_rows.append({
+                    "species": species,
+                    "field": field,
+                    "value": value,
+                    "mode": "likely",
+                    "source": family,
+                    "evidence_scope": "family_prior",
+                    "confidence": "low",
+                    "basis": f"extended_family_prior:{family}",
+                })
+        if any(record.get("species") == species and record.get("mode") == "likely" for record in prov_rows):
             evidence_type = _text(out.loc[index, "evidence_type"])
             if "inference" not in evidence_type.split("|"):
-                out.loc[index, "evidence_type"] = (
-                    f"{evidence_type}|inference" if evidence_type else "inference"
-                )
+                out.loc[index, "evidence_type"] = f"{evidence_type}|inference" if evidence_type else "inference"
             if _text(out.loc[index, "confidence"]) not in {"high", "medium"}:
                 out.loc[index, "confidence"] = "low"
 
     validated = validate_result_table(out[OUTPUT_COLUMNS], expected_species=out["species"].tolist())
-    prov = pd.DataFrame(prov_rows, columns=["species", "field", "value", "mode", "basis"])
-    return validated, prov
+    prov = pd.DataFrame(prov_rows)
+    for column in PROVENANCE_COLUMNS:
+        if column not in prov.columns:
+            prov[column] = ""
+    return validated, prov[PROVENANCE_COLUMNS]
 
 
 @app.command()
@@ -125,7 +110,8 @@ def run(
         "n_species": int(len(extended)),
         "coverage": coverage(extended),
         "n_likely_provenance_rows": int(prov["mode"].eq("likely").sum()),
-        "policy": "fill unresolved only; SI/likely_SI may imply low-confidence obligate outcrossing; extended family priors remain inference",
+        "scope_counts": prov["evidence_scope"].value_counts().to_dict(),
+        "policy": "fill unresolved only; keep source/evidence_scope/confidence for every fallback",
     }
     (output_dir / "recall_first_extended_report.json").write_text(
         json.dumps(report, indent=2) + "\n", encoding="utf-8"
