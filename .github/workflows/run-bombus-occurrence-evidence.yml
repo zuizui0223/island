@@ -19,6 +19,10 @@ on:
         description: "Repo-relative frozen exact-island polygons GeoPackage, required when occurrences_csv is blank."
         required: false
         default: ""
+      environmental_scores_csv:
+        description: "Optional repo-relative island x source-pool Bombus environmental compatibility CSV."
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -76,6 +80,21 @@ jobs:
             --diagnostics-csv data/v2/staging/bombus/occurrence_evidence/base/island_bombus_observation_diagnostics.csv \
             --output-dir data/v2/staging/bombus/occurrence_evidence/final
 
+      - name: Build continuous Bombus channel scores
+        env:
+          INPUT_ENVIRONMENTAL: ${{ inputs.environmental_scores_csv }}
+        run: |
+          set -euo pipefail
+          args=(
+            --diagnostics-csv data/v2/staging/bombus/occurrence_evidence/final/island_bombus_occurrence_evidence.csv
+            --output-dir data/v2/staging/bombus/occurrence_evidence/continuous
+          )
+          if [[ -n "$INPUT_ENVIRONMENTAL" ]]; then
+            test -f "$INPUT_ENVIRONMENTAL"
+            args+=(--environmental-scores-csv "$INPUT_ENVIRONMENTAL")
+          fi
+          island-v2-bombus-channel-score run "${args[@]}"
+
       - name: Summarize result
         run: |
           set -euo pipefail
@@ -85,12 +104,16 @@ jobs:
           import pandas as pd
 
           root = Path("data/v2/staging/bombus/occurrence_evidence")
-          table = pd.read_csv(root / "final" / "island_bombus_absence_evidence.csv")
+          table = pd.read_csv(root / "final" / "island_bombus_occurrence_evidence.csv")
+          scores = pd.read_csv(root / "continuous" / "bombus_channel_continuous_scores.csv")
           counts = table["bombus_occurrence_evidence"].value_counts(dropna=False).to_dict()
           summary = {
               "n_islands": int(len(table)),
               "n_evaluable": int(table["bombus_channel_evaluable"].astype(bool).sum()),
               "occurrence_evidence_counts": {str(k): int(v) for k, v in counts.items()},
+              "mean_observation_availability": float(scores["observation_availability"].mean()),
+              "mean_observation_deficit": float(scores["observation_deficit"].mean()),
+              "n_environmental_scores": int(scores["environmental_compatibility"].notna().sum()),
           }
           (root / "bombus_occurrence_evidence_run_summary.json").write_text(
               json.dumps(summary, indent=2) + "\n", encoding="utf-8"
