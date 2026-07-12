@@ -19,10 +19,6 @@ on:
         description: "Geographic grid-cell width used to thin occurrence records"
         required: false
         default: "0.25"
-      applicability_csv_path:
-        description: "Optional repo-relative frozen Bombus applicability registry"
-        required: false
-        default: "data/v2/curated/bombus_applicability_registry.csv"
   push:
     branches:
       - feat/bombus-hypervolume-real-data
@@ -59,6 +55,29 @@ jobs:
           set -euo pipefail
           island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
           test -f data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
+
+      - name: Build outcome-blind Bombus applicability registry
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import geopandas as gpd
+          from pathlib import Path
+
+          gpkg = Path("data/v2/external/islands/gshhg/prepared/islands_v2.gpkg")
+          out = Path("data/v2/staging/bombus/applicability")
+          out.mkdir(parents=True, exist_ok=True)
+          islands = gpd.read_file(gpkg)
+          islands[["island_id"]].drop_duplicates().sort_values("island_id").to_csv(
+              out / "global_island_manifest.csv", index=False
+          )
+          PY
+          island-v2-bombus-applicability build \
+            --island-manifest-csv data/v2/staging/bombus/applicability/global_island_manifest.csv \
+            --island-source-assignment-csv data/v2/curation/island_source_region_assignments.csv \
+            --source-region-registry-csv data/v2/curation/source_region_bombus_registry.csv \
+            --source-region-evidence-csv data/v2/curation/source_region_evidence.csv \
+            --island-assignment-evidence-csv data/v2/curation/island_assignment_evidence.csv \
+            --output-dir data/v2/staging/bombus/applicability
 
       - name: Acquire global Bombus occurrence environments and island climates
         env:
@@ -109,43 +128,12 @@ jobs:
             --output-dir data/v2/staging/bombus/niche_global/scored
 
       - name: Attach predeclared Bombus applicability regime
-        env:
-          APPLICABILITY_PATH: ${{ inputs.applicability_csv_path || 'data/v2/curated/bombus_applicability_registry.csv' }}
         run: |
           set -euo pipefail
-          SCORE="data/v2/staging/bombus/niche_global/scored/bombus_species_environmental_compatibility.csv"
-          OUT="data/v2/staging/bombus/niche_global/regime"
-          if [[ -f "$APPLICABILITY_PATH" ]]; then
-            island-v2-bombus-regime \
-              --compatibility-csv "$SCORE" \
-              --applicability-csv "$APPLICABILITY_PATH" \
-              --output-dir "$OUT"
-          else
-            python - <<'PY'
-          import json
-          from pathlib import Path
-          import pandas as pd
-
-          score_path = Path("data/v2/staging/bombus/niche_global/scored/bombus_species_environmental_compatibility.csv")
-          out = Path("data/v2/staging/bombus/niche_global/regime")
-          out.mkdir(parents=True, exist_ok=True)
-          scores = pd.read_csv(score_path)
-          scores["applicability"] = "unresolved"
-          scores["native_bombus_status"] = "uncertain"
-          scores["bombus_regime"] = "applicability_unresolved"
-          scores["primary_bombus_channel_analysis"] = False
-          scores["global_comparison_only"] = True
-          scores.to_csv(out / "bombus_environmental_compatibility_with_regime.csv.gz", index=False, compression="gzip")
-          summary = {
-              "contract": "bombus_regime_join_v1",
-              "n_rows": int(len(scores)),
-              "n_islands": int(scores["island_id"].nunique()),
-              "regime_counts": {"applicability_unresolved": int(len(scores))},
-              "applicability_registry_found": False,
-          }
-          (out / "bombus_regime_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
-          PY
-          fi
+          island-v2-bombus-regime \
+            --compatibility-csv data/v2/staging/bombus/niche_global/scored/bombus_species_environmental_compatibility.csv \
+            --applicability-csv data/v2/staging/bombus/applicability/bombus_applicability_by_island.csv \
+            --output-dir data/v2/staging/bombus/niche_global/regime
 
       - name: Build island-level Bombus analysis input
         run: |
@@ -166,6 +154,11 @@ jobs:
           thinning = json.loads((root / "bombus_spatial_thinning_manifest.json").read_text())
           regime = json.loads((root / "regime" / "bombus_regime_summary.json").read_text())
           island_analysis = json.loads((root / "island_analysis" / "bombus_island_analysis_summary.json").read_text())
+          applicability = json.loads(
+              Path("data/v2/staging/bombus/applicability/bombus_applicability_summary.json").read_text()
+          )
+          scored = scores.loc[scores["model_status"].eq("scored")].copy()
+          graded = pd.to_numeric(scored["univariate_extrapolation_fraction"], errors="coerce")
           summary = {
               "scope": "global_environmental_screen_not_source_pool",
               "n_rows": int(len(scores)),
@@ -174,8 +167,11 @@ jobs:
               "status_counts": scores["model_status"].value_counts(dropna=False).to_dict(),
               "inside_hypervolume": int(scores["inside_hypervolume"].fillna(False).astype(bool).sum()),
               "environmental_extrapolation": int(scores["environmental_extrapolation"].fillna(False).astype(bool).sum()),
+              "mean_univariate_extrapolation_fraction": float(graded.mean()),
+              "median_univariate_extrapolation_fraction": float(graded.median()),
               "environment_columns": ["bio1", "bio4", "bio5", "bio6", "bio12", "bio15", "bio18", "bio19", "elevation"],
               "spatial_thinning": thinning,
+              "applicability": applicability,
               "regime": regime,
               "island_analysis": island_analysis,
           }
@@ -189,7 +185,9 @@ jobs:
         with:
           name: bombus-niche-global-real-data-${{ github.run_id }}
           path: |
+            config/bombus_hypervolume_artifact_lock.json
             data/v2/external/islands/gshhg/prepared/source_policy.json
+            data/v2/staging/bombus/applicability/
             data/v2/staging/bombus/niche_global/
           if-no-files-found: warn
           retention-days: 90
