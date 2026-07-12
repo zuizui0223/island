@@ -1,0 +1,32 @@
+{
+  "contract": "trait_fill_cascade_artifact_lock_v1",
+  "repository": "zuizui0223/island",
+  "source_pr": 102,
+  "workflow_run_id": 29185066114,
+  "workflow_name": "materialize_trait_fill_cascade",
+  "workflow_run_number": 4,
+  "head_branch": "claude/trait-data-acquisition-2935gv",
+  "head_sha": "7c1465d944498cc60b85c1d922ed361831c10a61",
+  "artifact_id": 8257730860,
+  "artifact_name": "trait-fill-cascade-full-e131e25b9f6638307857ea071053105513970283",
+  "artifact_size_bytes": 10357543,
+  "artifact_zip_digest": "sha256:bb18e5644e781ba5a006ee03aa6ade753da8def6718d6cfb0328d8a8937a52eb",
+  "archive_filename": "trait-fill-cascade-full.tgz",
+  "archive_sha256": "f7f08dc9f6a4bdb184ff2d461b016090744a9f315800157b5ae21a3e52bbd955",
+  "model_fingerprint": "94b7fbdb446306e3a337b4b9cd79064f75d9de63583b9d27292194caafe079a5",
+  "n_master_species_all": 115328,
+  "n_angiosperm_eligible": 106295,
+  "n_traits": 9,
+  "n_rows": 956655,
+  "n_shards": 128,
+  "shards_complete": true,
+  "duplicate_species_trait_rows": 0,
+  "fill_tier_counts": {
+    "species_direct": 3767,
+    "genus_inference": 116247,
+    "family_inference": 300649,
+    "global_fallback": 535992
+  },
+  "verified_at": "2026-07-12T11:24:00+09:00",
+  "verification_note": "Downloaded GitHub Actions artifact, verified outer archive SHA-256, verified all internal SHA256SUMS, loaded all 128 shards, and confirmed a rectangular 106295 species x 9 trait matrix."
+}
