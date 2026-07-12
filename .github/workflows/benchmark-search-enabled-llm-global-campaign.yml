@@ -1,0 +1,73 @@
+name: benchmark_search_enabled_llm_global_campaign
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/island_v2/search_enabled_llm_campaign.py"
+      - "tests/test_search_enabled_llm_campaign.py"
+      - ".github/workflows/benchmark-search-enabled-llm-global-campaign.yml"
+  workflow_dispatch:
+    inputs:
+      shard_index:
+        description: "Deterministic shard index"
+        required: true
+        default: "0"
+        type: string
+      shard_count:
+        description: "Total shard count"
+        required: true
+        default: "128"
+        type: string
+      batch_size:
+        description: "Jobs to prepare from this shard"
+        required: true
+        default: "1000"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Test deterministic sharding and resume semantics
+        run: |
+          pytest -q tests/test_search_enabled_llm_campaign.py
+          python -m py_compile src/island_v2/search_enabled_llm_campaign.py
+          ruff check src/island_v2/search_enabled_llm_campaign.py tests/test_search_enabled_llm_campaign.py
+      - name: Build 100-job production dry run from the real 105k species master
+        run: |
+          python -m island_v2.search_enabled_llm_campaign prepare \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --campaign-dir /tmp/search_enabled_llm_campaign \
+            --shard-index 0 \
+            --shard-count 128 \
+            --batch-size 100
+          cat /tmp/search_enabled_llm_campaign/campaign_status.json >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('/tmp/search_enabled_llm_campaign/jobs_shard_0000.jsonl')
+          jobs = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+          assert len(jobs) == 100, len(jobs)
+          assert len({job['job_id'] for job in jobs}) == 100
+          assert all(job['prompt_sha256'] for job in jobs)
+          print(f"validated {len(jobs)} unique production jobs")
+          PY
+      - name: Upload production dry-run manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: search-enabled-llm-global-campaign-${{ github.run_id }}
+          path: /tmp/search_enabled_llm_campaign/
+          if-no-files-found: error
+          retention-days: 90
