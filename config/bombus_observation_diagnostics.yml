@@ -1,7 +1,7 @@
 # Pre-registered observation-process policy for the Bombus channel.
 # This policy concerns evidence quality, not the biological applicability of
 # the Bombus hypothesis. It is applied only after applicability is assigned.
-version: "1.0"
+version: "1.1"
 
 purpose: >-
   Distinguish observed Bombus presence, interpretable non-detection, and
@@ -33,6 +33,14 @@ primary_thresholds:
   min_distinct_datasets: 2
   required_bombus_records_for_detection: 1
 
+# An old museum-rich record set is not enough to claim interpretable current
+# non-detection. Detection remains valid regardless of record age, but
+# adequate_non_detection additionally requires target-group effort extending
+# into this fixed, outcome-blind recency window.
+observation_recency:
+  reference_year: 2026
+  max_years_since_latest_background: 20
+
 categories:
   detected:
     definition: >-
@@ -42,13 +50,14 @@ categories:
   adequate_non_detection:
     definition: >-
       Zero quality-filtered Bombus records, with at least 50 target-group
-      background records and the required spatial, temporal, and dataset
-      dispersion. This category is evidence compatible with non-detection; it
-      is not proof of biological absence.
+      background records, the required spatial, temporal, and dataset
+      dispersion, and target-group observation effort extending into the
+      predeclared recency window. This category is evidence compatible with
+      non-detection; it is not proof of biological absence.
   insufficient_effort:
     definition: >-
       Zero quality-filtered Bombus records but the background, spatial,
-      temporal, or data-source requirements are not met.
+      temporal, data-source, or recency requirements are not met.
   unresolved:
     definition: >-
       Taxonomic, spatial-assignment, or source-data problems prevent a usable
@@ -63,6 +72,8 @@ continuous_diagnostics:
     - distinct_dataset_count
     - proportion_preserved_specimens
     - latest_record_year
+    - latest_record_age_years
+    - background_recent_enough
   not_used_as_primary_rule: >-
     Do not use 1 - Bombus_records / target_group_records as a standalone
     non-detection score. That ratio mixes biological abundance, collector
@@ -93,5 +104,8 @@ required_output_columns:
   - target_group_spatial_units
   - target_group_temporal_units
   - distinct_dataset_count
+  - latest_record_year
+  - latest_record_age_years
+  - background_recent_enough
   - observation_diagnostic_flags
   - occupancy_sensitivity_eligible
