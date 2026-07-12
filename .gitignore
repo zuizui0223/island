@@ -5,3 +5,4 @@ __pycache__/
 # Regenerable full cascade outputs (rebuild: island-v2-trait-fill-cascade run)
 data/v2/staging/traits/fill_cascade/trait_fills.csv.gz
 data/v2/staging/traits/fill_cascade/angiosperm_scope_by_species.csv
+data/v2/staging/traits/fill_cascade/shards/

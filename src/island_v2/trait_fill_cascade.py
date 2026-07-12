@@ -19,7 +19,10 @@ distribution so a modal fill can be checked against a distribution-aware draw.
 from __future__ import annotations
 
 import glob as globlib
+import hashlib
 import json
+import os
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -225,13 +228,13 @@ def _modal(frame: pd.DataFrame, group_cols: list[str]) -> pd.DataFrame:
     return winners.merge(dist, on=group_cols).merge(support, on=group_cols)
 
 
-def build_fills(master: pd.DataFrame, evidence: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
-    """Fill every master species-trait by descending the taxonomic cascade."""
-    traits = list(config["target_traits"])
-    labels = config["tier_labels"]
-    min_genus = int(config.get("min_genus_support", 1))
-    min_family = int(config.get("min_family_support", 3))
+def build_model(master: pd.DataFrame, evidence: pd.DataFrame, config: dict[str, Any]) -> dict[str, Any]:
+    """Build the shared cascade model once from all evidence, for per-shard reuse.
 
+    Genus/family/global distributions are computed over the full eligible master
+    and evidence, so applying the model to any species subset yields identical
+    fills to a single whole-universe pass.
+    """
     # Species-level modal direct value (species_direct tier source).
     species_direct = _modal(evidence, ["accepted_species", "trait_name"])
     species_value = {
@@ -243,8 +246,7 @@ def build_fills(master: pd.DataFrame, evidence: pd.DataFrame, config: dict[str, 
     direct_taxo = species_direct.merge(taxo, on="accepted_species", how="left")
 
     genus_modal = _modal(
-        direct_taxo.rename(columns={"value": "value"})[["genus", "trait_name", "value", "weight"]],
-        ["genus", "trait_name"],
+        direct_taxo[["genus", "trait_name", "value", "weight"]], ["genus", "trait_name"]
     )
     genus_lookup = {(r.genus, r.trait_name): r for r in genus_modal.itertuples(index=False)}
     family_modal = _modal(
@@ -253,9 +255,29 @@ def build_fills(master: pd.DataFrame, evidence: pd.DataFrame, config: dict[str, 
     family_lookup = {(r.family, r.trait_name): r for r in family_modal.itertuples(index=False)}
     global_modal = _modal(evidence, ["trait_name"])
     global_lookup = {r.trait_name: r for r in global_modal.itertuples(index=False)}
+    return {
+        "species_value": species_value,
+        "genus_lookup": genus_lookup,
+        "family_lookup": family_lookup,
+        "global_lookup": global_lookup,
+    }
+
+
+def fill_species_frame(
+    species_frame: pd.DataFrame, model: dict[str, Any], config: dict[str, Any]
+) -> pd.DataFrame:
+    """Fill one species subset by descending the cascade with a prebuilt model."""
+    traits = list(config["target_traits"])
+    labels = config["tier_labels"]
+    min_genus = int(config.get("min_genus_support", 1))
+    min_family = int(config.get("min_family_support", 3))
+    species_value = model["species_value"]
+    genus_lookup = model["genus_lookup"]
+    family_lookup = model["family_lookup"]
+    global_lookup = model["global_lookup"]
 
     rows: list[dict[str, Any]] = []
-    for sp in master.itertuples(index=False):
+    for sp in species_frame.itertuples(index=False):
         species = _text(sp.accepted_species)
         genus = _text(sp.genus)
         family = _text(sp.family)
@@ -291,6 +313,12 @@ def build_fills(master: pd.DataFrame, evidence: pd.DataFrame, config: dict[str, 
                 }
             )
     return pd.DataFrame(rows, columns=OUTPUT_COLUMNS)
+
+
+def build_fills(master: pd.DataFrame, evidence: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
+    """Fill every master species-trait by descending the taxonomic cascade."""
+    model = build_model(master, evidence, config)
+    return fill_species_frame(master, model, config)
 
 
 def build_coverage_summary(fills: pd.DataFrame, config: dict[str, Any], n_master: int) -> dict[str, Any]:
@@ -337,13 +365,133 @@ def build_benchmark(fills: pd.DataFrame, master: pd.DataFrame, config: dict[str,
     return wide.reset_index()
 
 
-@app.command("run")
-def run(
-    config_path: Path = typer.Option(Path("config/trait_fill_cascade.yml"), exists=True),
-    output_dir: Path = typer.Option(..., help="Directory for cascade fill outputs."),
-) -> None:
-    """Write the full fill table, per-trait coverage summary, and benchmark sample."""
-    config = load_config(config_path)
+# --- sharding, checkpoint, resume ------------------------------------------
+
+CONTRACT_VERSION = "trait_fill_cascade_shards_v1"
+
+
+def _sha_text(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def stable_shard(species: str, shard_count: int) -> int:
+    """Return a stable shard for a species, independent of input row order."""
+    if shard_count < 1:
+        raise ValueError("shard_count must be positive")
+    return int(_sha_text(_text(species))[:16], 16) % shard_count
+
+
+def _now() -> str:
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _atomic_json(payload: dict[str, Any], path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    os.replace(tmp, path)
+
+
+def _atomic_write_gzip(frame: pd.DataFrame, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    _write_gzip(frame, tmp)
+    os.replace(tmp, path)
+
+
+def model_fingerprint(evidence: pd.DataFrame, config: dict[str, Any]) -> str:
+    """Fingerprint the shared model: any evidence or cascade-parameter change flips it."""
+    ordered = (
+        evidence[["accepted_species", "trait_name", "value", "weight"]]
+        .astype(str)
+        .sort_values(["accepted_species", "trait_name", "value", "weight"])
+        if not evidence.empty
+        else evidence
+    )
+    payload = "\n".join(
+        "\t".join(row) for row in ordered.itertuples(index=False, name=None)
+    ) if not evidence.empty else ""
+    params = json.dumps(
+        {
+            "traits": list(config["target_traits"]),
+            "min_genus_support": int(config.get("min_genus_support", 1)),
+            "min_family_support": int(config.get("min_family_support", 3)),
+            "tier_labels": config["tier_labels"],
+            "contract": CONTRACT_VERSION,
+        },
+        sort_keys=True,
+    )
+    return _sha_text(params + "\n" + payload)
+
+
+def shard_species_fingerprint(species: list[str]) -> str:
+    """Fingerprint the exact species membership of a shard."""
+    return _sha_text("\n".join(sorted(species)))
+
+
+def shard_summary_from_fills(shard_fills: pd.DataFrame, config: dict[str, Any]) -> dict[str, Any]:
+    """Compact per-shard trait counts, disjoint across shards so global sums are exact."""
+    traits = list(config["target_traits"])
+    by_trait: dict[str, Any] = {}
+    for trait in traits:
+        sub = shard_fills.loc[shard_fills["trait_name"].eq(trait)]
+        by_trait[trait] = {
+            "n_filled": int(sub["accepted_species"].nunique()),
+            "n_species_direct": int(
+                sub.loc[sub["fill_tier"].eq("species_direct"), "accepted_species"].nunique()
+            ),
+            "by_tier": {str(k): int(v) for k, v in sub["fill_tier"].value_counts().items()},
+        }
+    return {
+        "n_species": int(shard_fills["accepted_species"].nunique()) if not shard_fills.empty else 0,
+        "by_trait": by_trait,
+        "fills_by_tier": {str(k): int(v) for k, v in shard_fills["fill_tier"].value_counts().items()},
+    }
+
+
+def aggregate_shard_summaries(
+    summaries: list[dict[str, Any]], config: dict[str, Any], n_eligible: int
+) -> dict[str, Any]:
+    """Sum disjoint per-shard summaries into the global coverage summary."""
+    traits = list(config["target_traits"])
+    by_trait: dict[str, Any] = {}
+    fills_by_tier: dict[str, int] = {}
+    for trait in traits:
+        n_filled = sum(s["by_trait"].get(trait, {}).get("n_filled", 0) for s in summaries)
+        direct = sum(s["by_trait"].get(trait, {}).get("n_species_direct", 0) for s in summaries)
+        tiers: dict[str, int] = {}
+        for s in summaries:
+            for tier, count in s["by_trait"].get(trait, {}).get("by_tier", {}).items():
+                tiers[tier] = tiers.get(tier, 0) + count
+        by_trait[trait] = {
+            "n_filled": n_filled,
+            "fill_rate": n_filled / n_eligible if n_eligible else 0.0,
+            "n_species_direct": direct,
+            "species_direct_rate": direct / n_eligible if n_eligible else 0.0,
+            "n_unknown_remaining": n_eligible - n_filled,
+            "by_tier": tiers,
+        }
+    for s in summaries:
+        for tier, count in s.get("fills_by_tier", {}).items():
+            fills_by_tier[tier] = fills_by_tier.get(tier, 0) + count
+    return {
+        "version": "1.0",
+        "n_master_species": n_eligible,
+        "n_target_traits": len(traits),
+        "by_trait": by_trait,
+        "fills_by_tier": fills_by_tier,
+        "interpretation": (
+            "Fill-first cascade coverage. filled_value at genus/family/global tiers is "
+            "low-resolution inference tagged by fill_tier and confidence, separable for "
+            "sensitivity analysis, never accepted evidence or biological absence."
+        ),
+    }
+
+
+def load_scoped_master_and_evidence(
+    config: dict[str, Any],
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, dict[str, Any]]:
+    """Load master, apply the angiosperm gate, and load eligible-only evidence."""
     master = pd.read_csv(config["master_taxa_csv"], dtype=str).fillna("").rename(
         columns={
             config["species_column"]: "accepted_species",
@@ -352,45 +500,212 @@ def run(
         }
     )
     master = master.loc[master["accepted_species"].map(_is_present)].drop_duplicates("accepted_species")
-    n_master = int(len(master))
 
-    # Angiosperm eligibility gate BEFORE the cascade: non-angiosperms are marked
-    # out-of-scope and never receive floral/pollination priors.
     scope_config = load_scope_config(Path(config["angiosperm_scope_config"]))
     scope = classify_scope(master, scope_config)
     eligible_species = set(scope.loc[scope["angiosperm_analysis_eligible"], "accepted_species"])
-    eligible_master = master.loc[master["accepted_species"].isin(eligible_species)].reset_index(drop=True)
-    n_eligible = int(len(eligible_master))
+    eligible_master = (
+        master.loc[master["accepted_species"].isin(eligible_species)]
+        .sort_values("accepted_species")
+        .reset_index(drop=True)
+    )
 
     traits = set(config["target_traits"])
     evidence = load_direct_evidence(config, traits)
-    evidence = evidence.loc[evidence["accepted_species"].isin(eligible_species)]
-    fills = build_fills(eligible_master, evidence, config)
-    summary = build_coverage_summary(fills, config, n_eligible)
-    summary["n_master_species_all"] = n_master
-    summary["n_angiosperm_eligible"] = n_eligible
-    summary["n_out_of_scope"] = n_master - n_eligible
-    summary["out_of_scope_by_group"] = {
+    evidence = evidence.loc[evidence["accepted_species"].isin(eligible_species)].reset_index(drop=True)
+    return master, eligible_master, evidence, {"scope": scope}
+
+
+@app.command("run")
+def run(
+    config_path: Path = typer.Option(Path("config/trait_fill_cascade.yml"), exists=True),
+    output_dir: Path = typer.Option(..., help="Directory for cascade fill outputs."),
+    shard_count: int = typer.Option(128, min=1, help="Number of deterministic species shards."),
+    max_shards: int = typer.Option(
+        0, min=0, help="Max stale shards to process this run (0 = all remaining)."
+    ),
+    no_resume: bool = typer.Option(False, help="Recompute every shard, ignoring checkpoints."),
+) -> None:
+    """Fill eligible species over resumable shards, then finalize when all are current.
+
+    Each shard is checkpointed with the model and species fingerprints. A shard is
+    recomputed only when its inputs changed or it is missing, so repeat runs do not
+    recompute the whole universe. --max-shards bounds work per invocation for
+    scheduled lanes; rerun to resume and finalize.
+    """
+    config = load_config(config_path)
+    master, eligible_master, evidence, extra = load_scoped_master_and_evidence(config)
+    scope = extra["scope"]
+    n_master = int(len(master))
+    n_eligible = int(len(eligible_master))
+
+    model = build_model(eligible_master, evidence, config)
+    fingerprint = model_fingerprint(evidence, config)
+
+    assignments = eligible_master["accepted_species"].map(lambda s: stable_shard(s, shard_count))
+    shards_dir = output_dir / "shards"
+    shards_dir.mkdir(parents=True, exist_ok=True)
+
+    processed, skipped, stale = 0, 0, 0
+    for shard_index in range(shard_count):
+        shard_species = eligible_master.loc[assignments.eq(shard_index)].reset_index(drop=True)
+        species_fp = shard_species_fingerprint(list(shard_species["accepted_species"]))
+        shard_dir = shards_dir / f"shard_{shard_index:05d}"
+        checkpoint_path = shard_dir / "shard_checkpoint.json"
+
+        current = None
+        if not no_resume and checkpoint_path.exists():
+            try:
+                current = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                current = None
+        up_to_date = (
+            current is not None
+            and current.get("model_fingerprint") == fingerprint
+            and current.get("species_fingerprint") == species_fp
+            and (shard_dir / "fills.csv.gz").exists()
+        )
+        if up_to_date:
+            skipped += 1
+            continue
+
+        stale += 1
+        if max_shards and processed >= max_shards:
+            continue
+
+        shard_fills = fill_species_frame(shard_species, model, config)
+        summary = shard_summary_from_fills(shard_fills, config)
+        _atomic_write_gzip(shard_fills, shard_dir / "fills.csv.gz")
+        _atomic_json(
+            {
+                "contract_version": CONTRACT_VERSION,
+                "shard_index": shard_index,
+                "shard_count": shard_count,
+                "model_fingerprint": fingerprint,
+                "species_fingerprint": species_fp,
+                "summary": summary,
+                "updated_at": _now(),
+            },
+            checkpoint_path,
+        )
+        processed += 1
+
+    remaining = stale - processed
+    complete = remaining == 0
+    _finalize(output_dir, shards_dir, shard_count, config, master, eligible_master, scope, fingerprint,
+              n_master, n_eligible, complete)
+
+    typer.echo(
+        f"Shards {shard_count}: processed {processed}, skipped up-to-date {skipped}, "
+        f"remaining stale {remaining}. Eligible {n_eligible}/{n_master}. "
+        f"{'Finalized (all shards current).' if complete else 'Partial; rerun to resume.'}"
+    )
+
+
+def _finalize(
+    output_dir: Path,
+    shards_dir: Path,
+    shard_count: int,
+    config: dict[str, Any],
+    master: pd.DataFrame,
+    eligible_master: pd.DataFrame,
+    scope: pd.DataFrame,
+    fingerprint: str,
+    n_master: int,
+    n_eligible: int,
+    complete: bool,
+) -> None:
+    """Aggregate current shard summaries into the coverage summary and benchmark."""
+    summaries: list[dict[str, Any]] = []
+    shards_done = 0
+    for shard_index in range(shard_count):
+        checkpoint_path = shards_dir / f"shard_{shard_index:05d}" / "shard_checkpoint.json"
+        if not checkpoint_path.exists():
+            continue
+        payload = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+        if payload.get("model_fingerprint") != fingerprint:
+            continue
+        summaries.append(payload["summary"])
+        shards_done += 1
+
+    coverage = aggregate_shard_summaries(summaries, config, n_eligible)
+    coverage["n_master_species_all"] = n_master
+    coverage["n_angiosperm_eligible"] = n_eligible
+    coverage["n_out_of_scope"] = n_master - n_eligible
+    coverage["out_of_scope_by_group"] = {
         str(k): int(v)
         for k, v in scope.loc[~scope["angiosperm_analysis_eligible"], "taxonomic_group"].value_counts().items()
     }
-    summary["denominator"] = "angiosperm_eligible"
-    benchmark = build_benchmark(fills, eligible_master, config)
+    coverage["denominator"] = "angiosperm_eligible"
+    coverage["shards_complete"] = complete
+    coverage["n_shards_current"] = shards_done
+    coverage["shard_count"] = shard_count
 
     output_dir.mkdir(parents=True, exist_ok=True)
     scope.to_csv(output_dir / "angiosperm_scope_by_species.csv", index=False)
-    _write_gzip(fills, output_dir / "trait_fills.csv.gz")
-    benchmark.to_csv(output_dir / "benchmark_sample.csv", index=False)
     (output_dir / "fill_coverage_summary.json").write_text(
-        json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        json.dumps(coverage, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    _atomic_json(
+        {
+            "contract_version": CONTRACT_VERSION,
+            "shard_count": shard_count,
+            "model_fingerprint": fingerprint,
+            "n_master_species_all": n_master,
+            "n_angiosperm_eligible": n_eligible,
+            "n_shards_current": shards_done,
+            "shards_complete": complete,
+            "updated_at": _now(),
+        },
+        output_dir / "cascade_manifest.json",
     )
 
-    colour = summary["by_trait"].get("flower_primary_color", {})
+    # Benchmark reads only the shards holding the deterministic sample species.
+    size = int(config.get("benchmark_sample_size", 100))
+    sample = sorted(eligible_master["accepted_species"].map(_text).loc[lambda s: s.ne("")].unique())[:size]
+    sample_shards = {stable_shard(s, shard_count) for s in sample}
+    frames = []
+    for shard_index in sorted(sample_shards):
+        path = shards_dir / f"shard_{shard_index:05d}" / "fills.csv.gz"
+        if path.exists():
+            frames.append(pd.read_csv(path, dtype=str).fillna(""))
+    if frames:
+        benchmark = build_benchmark(pd.concat(frames, ignore_index=True), eligible_master, config)
+    else:
+        benchmark = pd.DataFrame(columns=["accepted_species"])
+    benchmark.to_csv(output_dir / "benchmark_sample.csv", index=False)
+
+
+@app.command("status")
+def status(
+    output_dir: Path = typer.Option(..., help="Cascade output directory to inspect."),
+    config_path: Path = typer.Option(Path("config/trait_fill_cascade.yml"), exists=True),
+    shard_count: int = typer.Option(128, min=1, help="Shard count used for the run."),
+) -> None:
+    """Report how many shards are current for the present inputs, without filling."""
+    config = load_config(config_path)
+    _, eligible_master, evidence, _ = load_scoped_master_and_evidence(config)
+    fingerprint = model_fingerprint(evidence, config)
+    assignments = eligible_master["accepted_species"].map(lambda s: stable_shard(s, shard_count))
+    shards_dir = output_dir / "shards"
+
+    current, stale, missing = 0, 0, 0
+    for shard_index in range(shard_count):
+        shard_species = list(eligible_master.loc[assignments.eq(shard_index), "accepted_species"])
+        species_fp = shard_species_fingerprint(shard_species)
+        checkpoint_path = shards_dir / f"shard_{shard_index:05d}" / "shard_checkpoint.json"
+        fills_path = shards_dir / f"shard_{shard_index:05d}" / "fills.csv.gz"
+        if not checkpoint_path.exists() or not fills_path.exists():
+            missing += 1
+            continue
+        payload = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+        if payload.get("model_fingerprint") == fingerprint and payload.get("species_fingerprint") == species_fp:
+            current += 1
+        else:
+            stale += 1
     typer.echo(
-        f"Angiosperm-eligible {n_eligible}/{n_master}; out-of-scope not filled. "
-        f"Filled {len(fills)} cells x {summary['n_target_traits']} traits. Colour direct "
-        f"{colour.get('n_species_direct', 0)} -> filled {colour.get('n_filled', 0)} "
-        f"({colour.get('fill_rate', 0):.1%}); tiers {summary['fills_by_tier']}."
+        f"Shards {shard_count}: current {current}, stale {stale}, missing {missing}. "
+        f"{'All current.' if current == shard_count else 'Rerun run to resume.'}"
     )
 
 

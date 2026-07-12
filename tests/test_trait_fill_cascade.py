@@ -97,3 +97,49 @@ def test_coverage_summary_zero_unknown(tmp_path):
     assert trait["n_filled"] == len(master)
     assert trait["n_unknown_remaining"] == 0
     assert trait["n_species_direct"] == 4  # Aaa one + Fff a/b/c have direct evidence
+
+
+def test_stable_shard_is_deterministic_and_bounded():
+    for name in ("Aaa one", "Zzz gap", "Rosa canina"):
+        assert cascade.stable_shard(name, 16) == cascade.stable_shard(name, 16)
+        assert 0 <= cascade.stable_shard(name, 16) < 16
+
+
+def test_model_fingerprint_changes_with_evidence(tmp_path):
+    config = _config(tmp_path / "m.csv")
+    base = cascade.model_fingerprint(_evidence(), config)
+    assert base == cascade.model_fingerprint(_evidence(), config)  # stable
+    more = pd.concat(
+        [_evidence(), pd.DataFrame([("New sp", "flower_primary_color", "green", 1.0)],
+                                   columns=["accepted_species", "trait_name", "value", "weight"])],
+        ignore_index=True,
+    )
+    assert cascade.model_fingerprint(more, config) != base
+
+
+def test_sharded_fills_partition_matches_whole_universe(tmp_path):
+    master = _master()
+    config = _config(tmp_path / "m.csv")
+    evidence = _evidence()
+
+    whole = cascade.build_fills(master, evidence, config)
+    whole_summary = cascade.build_coverage_summary(whole, config, len(master))
+
+    # Apply the same model per shard and aggregate the compact summaries.
+    model = cascade.build_model(master, evidence, config)
+    shard_count = 8
+    assignments = master["accepted_species"].map(lambda s: cascade.stable_shard(s, shard_count))
+    shard_summaries = []
+    all_species = set()
+    for shard_index in range(shard_count):
+        shard_master = master.loc[assignments.eq(shard_index)].reset_index(drop=True)
+        shard_fills = cascade.fill_species_frame(shard_master, model, config)
+        all_species.update(shard_fills["accepted_species"].tolist())
+        shard_summaries.append(cascade.shard_summary_from_fills(shard_fills, config))
+
+    agg = cascade.aggregate_shard_summaries(shard_summaries, config, len(master))
+    # Every eligible species landed in exactly one shard, and the aggregate equals
+    # the single-pass coverage.
+    assert all_species == set(master["accepted_species"])
+    assert agg["fills_by_tier"] == whole_summary["fills_by_tier"]
+    assert agg["by_trait"]["flower_primary_color"] == whole_summary["by_trait"]["flower_primary_color"]

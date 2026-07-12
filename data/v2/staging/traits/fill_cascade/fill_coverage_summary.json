@@ -89,8 +89,8 @@
       "by_tier": {
         "global_fallback": 89495,
         "family_inference": 13647,
-        "genus_inference": 3098,
-        "species_direct": 55
+        "species_direct": 55,
+        "genus_inference": 3098
       }
     },
     "self_incompatibility": {
@@ -136,5 +136,8 @@
     "family_unresolved": 183,
     "fossil_non_angiosperm": 25
   },
-  "denominator": "angiosperm_eligible"
+  "denominator": "angiosperm_eligible",
+  "shards_complete": true,
+  "n_shards_current": 128,
+  "shard_count": 128
 }

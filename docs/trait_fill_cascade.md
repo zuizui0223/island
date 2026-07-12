@@ -43,24 +43,52 @@ is candidate coverage, never a biological absence.
 - **Direct evidence wins.** A species with its own value always keeps it. Curated
   evidence outweighs machine candidates in the modal vote.
 
-## Run it
+## Sharded, checkpointed, resumable
+
+The cascade does not recompute all ~115k species every run. Eligible species are
+partitioned into deterministic shards by a stable hash of the accepted name, and
+each shard is checkpointed independently. The shared model (species/genus/family/
+global distributions) is built once from all evidence and applied per shard, so a
+sharded run is bit-for-bit identical to a single whole-universe pass.
+
+A shard is recomputed only when its inputs change:
+
+- **model fingerprint** — any evidence row or cascade parameter change flips it
+  and correctly invalidates every shard (global distributions moved);
+- **species fingerprint** — the shard's exact species membership, so master
+  growth only touches the shards whose membership changed.
+
+Repeat runs with unchanged inputs process **zero** shards and just re-aggregate
+the cached per-shard summaries. `--max-shards` bounds work per invocation for a
+scheduled 30-minute lane; rerun to resume and finalize.
 
 ```bash
+# full build (128 shards), resuming any already-current shards
 island-v2-trait-fill-cascade run --output-dir data/v2/staging/traits/fill_cascade
+
+# bounded lane: advance at most 32 stale shards, then rerun to continue
+island-v2-trait-fill-cascade run --output-dir DIR --max-shards 32
+
+# how many shards are current for the present inputs, without filling
+island-v2-trait-fill-cascade status --output-dir DIR
 ```
 
 Outputs:
 
 - `fill_coverage_summary.json` — eligible denominator, out-of-scope counts by
-  group, and per-trait fill rate, species-direct count, unknown remaining, and
-  tier composition.
+  group, per-trait fill rate/species-direct/unknown/tier composition, and shard
+  completion (`shards_complete`, `n_shards_current`). Aggregated from the compact
+  per-shard summaries, which are disjoint so the sums are exact.
+- `cascade_manifest.json` — contract version, shard count, model fingerprint, and
+  completion state.
 - `benchmark_sample.csv` — the deterministic 100-species benchmark (eligible
-  species), one column per trait, each cell `value [fill_tier]`.
+  species), one column per trait, each cell `value [fill_tier]`. Reads only the
+  shards holding the sample species.
+- `shards/shard_XXXXX/` — per-shard `fills.csv.gz` + `shard_checkpoint.json`
+  (regenerable, git-ignored).
 - `angiosperm_scope_by_species.csv` — every master species with its
   `taxonomic_group` and `angiosperm_analysis_eligible` flag (regenerable,
   git-ignored).
-- `trait_fills.csv.gz` — the full long fill table over eligible species
-  (regenerable, git-ignored).
 
 ## Sources
 
