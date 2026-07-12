@@ -5,14 +5,17 @@ on:
     branches:
       - run/search-enabled-shard-0000-20260712
     paths:
+      - "src/island_v2/search_engine_shard_packet.py"
       - ".github/workflows/run-search-enabled-shard-0000.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  prepare-shard-0000:
+  collect-shard-0000-search-packets:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -25,29 +28,42 @@ jobs:
         run: |
           python -m island_v2.search_enabled_llm_campaign prepare \
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
-            --campaign-dir /tmp/search_enabled_llm_shard_0000 \
+            --campaign-dir /tmp/shard_0000 \
             --shard-index 0 \
             --shard-count 128 \
             --batch-size 10000
-          cat /tmp/search_enabled_llm_shard_0000/campaign_status.json >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/shard_0000/campaign_status.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Collect raw web search packets for the full shard
+        run: |
+          python -m island_v2.search_engine_shard_packet collect \
+            --jobs-jsonl /tmp/shard_0000/jobs_shard_0000.jsonl \
+            --output-dir /tmp/shard_0000/search_packets \
+            --results-per-query 5 \
+            --workers 8
+          cat /tmp/shard_0000/search_packets/search_packet_status.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Validate shard-scale packet output
+        run: |
           python - <<'PY'
           import json
           from pathlib import Path
 
-          campaign = Path('/tmp/search_enabled_llm_shard_0000')
-          status = json.loads((campaign / 'campaign_status.json').read_text())
-          manifest = campaign / 'jobs_shard_0000.jsonl'
-          jobs = [json.loads(line) for line in manifest.read_text().splitlines() if line.strip()]
-          assert len(jobs) == status['n_species_in_shard']
-          assert len({job['job_id'] for job in jobs}) == len(jobs)
-          assert len({job['species'] for job in jobs}) == len(jobs)
-          print(json.dumps(status, indent=2))
-          print(f"validated complete shard 0 with {len(jobs)} unique species jobs")
+          campaign = json.loads(Path('/tmp/shard_0000/campaign_status.json').read_text())
+          status = json.loads(Path('/tmp/shard_0000/search_packets/search_packet_status.json').read_text())
+          packets = [
+              json.loads(line)
+              for line in Path('/tmp/shard_0000/search_packets/search_packets.jsonl').read_text().splitlines()
+              if line.strip()
+          ]
+          assert campaign['n_jobs_prepared'] == campaign['n_species_in_shard'], campaign
+          assert status['n_jobs'] == campaign['n_species_in_shard'], (status, campaign)
+          assert status['n_packets'] + status['n_errors'] == status['n_jobs'], status
+          assert len({row['species'] for row in packets}) == len(packets)
+          print(json.dumps({'campaign': campaign, 'search': status}, indent=2))
           PY
-      - name: Upload complete shard 0 campaign state
+      - name: Upload complete shard 0 search evidence packet
         uses: actions/upload-artifact@v4
         with:
-          name: search-enabled-llm-shard-0000-${{ github.run_id }}
-          path: /tmp/search_enabled_llm_shard_0000/
+          name: search-enabled-shard-0000-${{ github.run_id }}
+          path: /tmp/shard_0000/
           if-no-files-found: error
           retention-days: 90
