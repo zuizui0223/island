@@ -13,6 +13,7 @@ transformations.
 | 3.5 Flora diagnostics | `island-v2-diagnostics run` | rerunnable | Audit the plant observation process. Missing or sparse records are never converted directly into biological absence. |
 | 3.6 Pollinator collect | `island-v2-gbif-pollinator-collect collect` | after a separately declared Apidae campaign | Preserve exact-island pollinator records for effort-aware Bombus diagnostics. |
 | 3.7 Bombus diagnostics | `island-v2-bombus-diagnostics run` | after pollinator collection | Classify `detected`, `adequate_non_detection`, `insufficient_effort`, or `unresolved`. |
+| 3.8 Bombus environmental compatibility | `island-v2-bombus-niche-hypervolume run` | after outcome-blind source-pool and environmental tables are frozen | Fit species-specific standardized ellipsoidal niches and score each island x candidate Bombus species; retain unresolved species explicitly. |
 | 4. Global trait campaign | `drive-global-trait-campaign.yml` / `island-v2-global-trait-campaign run` | hourly / manual | Advance one family-balanced wave across the global unique-species master. The ordered tasks are reproductive and pollen-vector evidence, floral-access traits for direct biotic-vector candidates, then alternative-pollinator guild evidence. |
 | 4a. Regional source discovery | `discover-core-pilot-trait-sources.yml` | manual only | Optional deep reading for a named island or regional mechanism case. It no longer drives global acquisition. |
 | 4b. Public PDF locator | `island-v2-trait-pdf-locator locate-pages` | manual / after source discovery | Save matched public-PDF page locators without treating page hits as biological confirmation. |
@@ -69,6 +70,15 @@ island-v2-gbif-blocks prepare
 claim that bees exhaustively represent pollinator service. Alternative target
 groups may be used only as labelled sensitivity tracks with equally auditable
 record tables.
+
+The production Bombus workflow accepts either a precomputed island x source-pool
+species compatibility table or both raw environmental tables. When raw tables
+are supplied, `environment_columns` is mandatory; the workflow will not infer
+predictors from every shared numeric column. This keeps coordinates, years, area,
+and other numeric metadata from silently entering the niche model. The maximum
+candidate-species compatibility is the primary island summary; mean and
+noisy-OR remain named sensitivity summaries, and the combined channel score is
+secondary to its environmental and observation components.
 
 ## Reproducibility note
 

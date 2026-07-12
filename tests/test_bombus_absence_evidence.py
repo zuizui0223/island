@@ -1,6 +1,8 @@
 # ruff: noqa: I001
 from __future__ import annotations
 
+from pathlib import Path
+
 import pandas as pd
 
 from island_v2.bombus_absence_evidence import apply_recency_gate
@@ -63,3 +65,32 @@ def test_recency_gate_only_downgrades_non_detection() -> None:
     assert "stale_background_effort" in result.loc[
         "old_detection", "observation_diagnostic_flags"
     ]
+
+
+def test_production_workflow_passes_occurrences_to_recency_command() -> None:
+    workflow = Path(".github/workflows/run-bombus-occurrence-evidence.yml").read_text(
+        encoding="utf-8"
+    )
+    recency_command = workflow.split("island-v2-bombus-absence-evidence run \\", 1)[1]
+    recency_command = recency_command.split("\n\n", 1)[0]
+
+    assert (
+        "--occurrences-csv "
+        "data/v2/staging/bombus/occurrence_evidence/island_pollinator_occurrences.csv"
+        in recency_command
+    )
+    assert "--diagnostics-csv" not in recency_command
+
+
+def test_production_workflow_can_fit_environmental_scores_before_channel_score() -> None:
+    workflow = Path(".github/workflows/run-bombus-occurrence-evidence.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "occurrence_environment_csv:" in workflow
+    assert "island_source_pool_environment_csv:" in workflow
+    assert "environment_columns:" in workflow
+    assert "island-v2-bombus-niche-hypervolume run" in workflow
+    assert (
+        "niche_hypervolume/bombus_species_environmental_compatibility.csv" in workflow
+    )

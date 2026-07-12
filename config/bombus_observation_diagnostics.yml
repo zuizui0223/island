@@ -1,7 +1,7 @@
 # Pre-registered observation-process policy for the Bombus channel.
 # This policy concerns evidence quality, not the biological applicability of
 # the Bombus hypothesis. It is applied only after applicability is assigned.
-version: "1.2"
+version: "1.3"
 
 purpose: >-
   Distinguish observed Bombus presence, interpretable non-detection, and
@@ -41,11 +41,18 @@ observation_recency:
   reference_year: 2026
   max_years_since_latest_background: 20
 
-# Secondary continuous summary for v1-style analyses. A low-effort zero is
-# shrunk toward 0.5 (uninformative), not toward biological absence. The raw
-# components remain primary analysis variables.
+# Secondary continuous summary for v1-style analyses. A low-effort zero stays
+# near 0.5 (uninformative), while any quality-filtered detection stays above
+# 0.5 regardless of background effort. The raw components remain primary
+# analysis variables.
 continuous_score:
   bombus_record_scale: 3.0
+  detected_formula: 0.5 + 0.5 * occurrence_support
+  zero_detection_formula: 0.5 * (1 - effort_quality)
+  environmental_primary_aggregation: max
+  environmental_sensitivity_aggregations:
+    - mean
+    - noisy_or
   component_policy: separate_first_combined_secondary
 
 categories:
@@ -86,6 +93,7 @@ continuous_diagnostics:
     - recency_support
     - observation_availability
     - observation_deficit
+    - observation_score_confidence
   not_used_as_primary_rule: >-
     Do not use 1 - Bombus_records / target_group_records as a standalone
     non-detection score. That ratio mixes biological abundance, collector

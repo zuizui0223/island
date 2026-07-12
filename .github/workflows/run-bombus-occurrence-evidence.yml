@@ -20,7 +20,19 @@ on:
         required: false
         default: ""
       environmental_scores_csv:
-        description: "Optional repo-relative island x source-pool Bombus environmental compatibility CSV."
+        description: "Optional precomputed repo-relative island x source-pool Bombus environmental compatibility CSV."
+        required: false
+        default: ""
+      occurrence_environment_csv:
+        description: "Optional repo-relative Bombus occurrence-site environmental CSV for fitting species niches."
+        required: false
+        default: ""
+      island_source_pool_environment_csv:
+        description: "Optional repo-relative island x source-pool Bombus environmental CSV to score."
+        required: false
+        default: ""
+      environment_columns:
+        description: "Comma-separated, predeclared environmental columns; required with the two raw environmental tables."
         required: false
         default: ""
 
@@ -77,21 +89,58 @@ jobs:
             --occurrences-csv data/v2/staging/bombus/occurrence_evidence/island_pollinator_occurrences.csv \
             --output-dir data/v2/staging/bombus/occurrence_evidence/base
           island-v2-bombus-absence-evidence run \
-            --diagnostics-csv data/v2/staging/bombus/occurrence_evidence/base/island_bombus_observation_diagnostics.csv \
+            --occurrences-csv data/v2/staging/bombus/occurrence_evidence/island_pollinator_occurrences.csv \
             --output-dir data/v2/staging/bombus/occurrence_evidence/final
 
-      - name: Build continuous Bombus channel scores
+      - name: Resolve Bombus environmental compatibility scores
         env:
-          INPUT_ENVIRONMENTAL: ${{ inputs.environmental_scores_csv }}
+          INPUT_PRECOMPUTED: ${{ inputs.environmental_scores_csv }}
+          INPUT_OCCURRENCE_ENV: ${{ inputs.occurrence_environment_csv }}
+          INPUT_ISLAND_ENV: ${{ inputs.island_source_pool_environment_csv }}
+          INPUT_ENV_COLUMNS: ${{ inputs.environment_columns }}
+        run: |
+          set -euo pipefail
+          resolved=""
+          if [[ -n "$INPUT_PRECOMPUTED" ]]; then
+            if [[ -n "$INPUT_OCCURRENCE_ENV" || -n "$INPUT_ISLAND_ENV" ]]; then
+              echo "Provide either environmental_scores_csv or the two raw environmental tables, not both." >&2
+              exit 2
+            fi
+            test -f "$INPUT_PRECOMPUTED"
+            resolved="$INPUT_PRECOMPUTED"
+          elif [[ -n "$INPUT_OCCURRENCE_ENV" || -n "$INPUT_ISLAND_ENV" ]]; then
+            if [[ -z "$INPUT_OCCURRENCE_ENV" || -z "$INPUT_ISLAND_ENV" ]]; then
+              echo "Both occurrence_environment_csv and island_source_pool_environment_csv are required." >&2
+              exit 2
+            fi
+            if [[ -z "$INPUT_ENV_COLUMNS" ]]; then
+              echo "environment_columns is required when fitting the niche estimator in production." >&2
+              exit 2
+            fi
+            test -f "$INPUT_OCCURRENCE_ENV"
+            test -f "$INPUT_ISLAND_ENV"
+            island-v2-bombus-niche-hypervolume run \
+              --occurrence-environment-csv "$INPUT_OCCURRENCE_ENV" \
+              --island-source-pool-environment-csv "$INPUT_ISLAND_ENV" \
+              --environment-columns "$INPUT_ENV_COLUMNS" \
+              --output-dir data/v2/staging/bombus/niche_hypervolume
+            resolved="data/v2/staging/bombus/niche_hypervolume/bombus_species_environmental_compatibility.csv"
+          elif [[ -n "$INPUT_ENV_COLUMNS" ]]; then
+            echo "environment_columns has no effect without the two raw environmental tables." >&2
+            exit 2
+          fi
+          echo "BOMBUS_ENVIRONMENTAL_SCORES=$resolved" >> "$GITHUB_ENV"
+
+      - name: Build continuous Bombus channel scores
         run: |
           set -euo pipefail
           args=(
             --diagnostics-csv data/v2/staging/bombus/occurrence_evidence/final/island_bombus_occurrence_evidence.csv
             --output-dir data/v2/staging/bombus/occurrence_evidence/continuous
           )
-          if [[ -n "$INPUT_ENVIRONMENTAL" ]]; then
-            test -f "$INPUT_ENVIRONMENTAL"
-            args+=(--environmental-scores-csv "$INPUT_ENVIRONMENTAL")
+          if [[ -n "${BOMBUS_ENVIRONMENTAL_SCORES:-}" ]]; then
+            test -f "$BOMBUS_ENVIRONMENTAL_SCORES"
+            args+=(--environmental-scores-csv "$BOMBUS_ENVIRONMENTAL_SCORES")
           fi
           island-v2-bombus-channel-score run "${args[@]}"
 

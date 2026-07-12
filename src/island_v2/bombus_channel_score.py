@@ -19,6 +19,11 @@ import yaml
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 
+@app.callback()
+def main() -> None:
+    """Build continuous, component-first Bombus channel metrics."""
+
+
 def _clip01(value: float) -> float:
     return max(0.0, min(1.0, float(value)))
 
@@ -34,8 +39,10 @@ def aggregate_environmental_compatibility(species_scores: pd.DataFrame) -> pd.Da
     """Aggregate island x source-pool Bombus compatibility without hiding species scores.
 
     Input columns: island_id, bombus_species, environmental_compatibility (0..1).
-    The noisy-OR summary means 'at least one source-pool Bombus could fit' and is
-    retained alongside max and mean summaries for sensitivity analyses.
+    Maximum compatibility is the primary summary because species-level niche
+    similarities are not calibrated independent probabilities. Mean and noisy-OR
+    are retained as explicitly named sensitivity summaries. Missing species models
+    remain visible in coverage counts instead of silently removing the island.
     """
     required = {"island_id", "bombus_species", "environmental_compatibility"}
     missing = required.difference(species_scores.columns)
@@ -45,27 +52,56 @@ def aggregate_environmental_compatibility(species_scores: pd.DataFrame) -> pd.Da
         )
 
     work = species_scores.copy()
-    work["environmental_compatibility"] = pd.to_numeric(
-        work["environmental_compatibility"], errors="coerce"
-    )
-    work = work.dropna(
-        subset=["island_id", "bombus_species", "environmental_compatibility"]
-    )
-    work["environmental_compatibility"] = work["environmental_compatibility"].clip(0, 1)
+    for column in ("island_id", "bombus_species"):
+        work[column] = work[column].fillna("").astype(str).str.strip()
+    if work[["island_id", "bombus_species"]].eq("").any(axis=None):
+        raise typer.BadParameter(
+            "environmental score table contains blank island_id or bombus_species"
+        )
+    if work.duplicated(["island_id", "bombus_species"]).any():
+        raise typer.BadParameter(
+            "environmental score table must have one row per island_id x bombus_species"
+        )
+
+    raw_scores = work["environmental_compatibility"].fillna("").astype(str).str.strip()
+    numeric_scores = pd.to_numeric(raw_scores, errors="coerce")
+    invalid_numeric = raw_scores.ne("") & numeric_scores.isna()
+    if invalid_numeric.any():
+        raise typer.BadParameter(
+            "environmental_compatibility contains non-numeric non-missing values"
+        )
+    outside_unit_interval = numeric_scores.notna() & ~numeric_scores.between(0, 1)
+    if outside_unit_interval.any():
+        raise typer.BadParameter("environmental_compatibility must be between 0 and 1")
+    work["environmental_compatibility"] = numeric_scores
 
     rows: list[dict[str, Any]] = []
     for island_id, group in work.groupby("island_id", sort=True):
-        values = group["environmental_compatibility"].astype(float).tolist()
-        noisy_or = 1.0 - math.prod(1.0 - value for value in values)
+        scored = group["environmental_compatibility"].dropna().astype(float)
+        values = scored.tolist()
+        n_total = int(group["bombus_species"].nunique())
+        n_scored = int(scored.size)
+        if values:
+            maximum = max(values)
+            mean = sum(values) / len(values)
+            noisy_or = 1.0 - math.prod(1.0 - value for value in values)
+            status = "scored_all" if n_scored == n_total else "scored_partial"
+        else:
+            maximum = pd.NA
+            mean = pd.NA
+            noisy_or = pd.NA
+            status = "no_scored_species"
         rows.append(
             {
                 "island_id": island_id,
-                "n_source_pool_bombus_species": int(
-                    group["bombus_species"].nunique()
-                ),
-                "environmental_compatibility": _clip01(noisy_or),
-                "environmental_compatibility_max": max(values),
-                "environmental_compatibility_mean": sum(values) / len(values),
+                "n_source_pool_bombus_species": n_total,
+                "n_scored_source_pool_bombus_species": n_scored,
+                "n_unscored_source_pool_bombus_species": n_total - n_scored,
+                "environmental_compatibility": maximum,
+                "environmental_compatibility_max": maximum,
+                "environmental_compatibility_mean": mean,
+                "environmental_compatibility_noisy_or": noisy_or,
+                "environmental_compatibility_status": status,
             }
         )
     return pd.DataFrame(rows)
@@ -77,9 +113,9 @@ def score_observation_evidence(
 ) -> pd.DataFrame:
     """Convert Bombus records plus effort/recency into a neutral-at-low-effort score.
 
-    Low observation effort shrinks the observation-evidence score toward 0.5 rather
-    than toward absence. With strong effort, zero Bombus records approach 0 and
-    repeated detections approach 1.
+    Low observation effort keeps a zero-detection score near 0.5 rather than
+    treating it as absence. Any quality-filtered detection remains above 0.5
+    regardless of background effort, and repeated detections approach 1.
     """
     thresholds = config["primary_thresholds"]
     recency = config["observation_recency"]
@@ -94,7 +130,7 @@ def score_observation_evidence(
             pd.Series([row.get("bombus_record_count", 0)]),
             errors="coerce",
         ).fillna(0)
-        bombus_count = float(bombus_value.iloc[0])
+        bombus_count = max(0.0, float(bombus_value.iloc[0]))
         occurrence_support = 1.0 - math.exp(
             -bombus_count / max(count_scale, 1e-9)
         )
@@ -129,9 +165,16 @@ def score_observation_evidence(
             recency_support = _clip01(1.0 - float(age) / max(max_age, 1.0))
 
         effort_quality = math.sqrt(structural_effort * recency_support)
-        observation_availability = 0.5 + effort_quality * (
-            occurrence_support - 0.5
-        )
+        if bombus_count > 0:
+            # A valid detection is positive occurrence evidence even when the
+            # target-group background is sparse or old. Effort/recency governs
+            # how strongly a zero can support non-detection, not whether an
+            # observed Bombus record counts as a detection.
+            observation_availability = 0.5 + 0.5 * occurrence_support
+            score_confidence = observation_availability
+        else:
+            observation_availability = 0.5 * (1.0 - effort_quality)
+            score_confidence = effort_quality
 
         rows.append(
             {
@@ -142,6 +185,7 @@ def score_observation_evidence(
                 "recency_support": _clip01(recency_support),
                 "observation_availability": _clip01(observation_availability),
                 "observation_deficit": 1.0 - _clip01(observation_availability),
+                "observation_score_confidence": _clip01(score_confidence),
                 "bombus_occurrence_evidence": row.get(
                     "bombus_occurrence_evidence", ""
                 ),
@@ -213,12 +257,15 @@ def run(
             "keep environmental compatibility and observation evidence separate; "
             "combined score is secondary"
         ),
+        "environmental_primary_aggregation": "maximum species compatibility",
+        "environmental_sensitivity_aggregations": ["mean", "noisy_or"],
         "combined_formula": (
             "sqrt(environmental_compatibility * observation_availability)"
         ),
-        "observation_formula": (
-            "0.5 + effort_quality * (occurrence_support - 0.5)"
-        ),
+        "observation_formula": {
+            "detected": "0.5 + 0.5 * occurrence_support",
+            "zero_detection": "0.5 * (1 - effort_quality)",
+        },
     }
     (output_dir / "bombus_channel_score_summary.json").write_text(
         json.dumps(summary, indent=2) + "\n",

@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import pandas as pd
+import pytest
+import typer
 
 from island_v2 import bombus_channel_score as channel_score
 
@@ -62,7 +64,42 @@ def test_strong_effort_zero_moves_toward_deficit() -> None:
     assert result["observation_deficit"] == 1
 
 
-def test_detected_bombus_increases_availability() -> None:
+def test_single_detection_is_positive_evidence_regardless_of_background_effort() -> None:
+    diagnostics = pd.DataFrame(
+        [
+            {
+                "island_id": "strong_background",
+                "bombus_record_count": 1,
+                "target_group_record_count": 100,
+                "target_group_spatial_units": 5,
+                "target_group_temporal_units": 5,
+                "distinct_dataset_count": 3,
+                "latest_record_age_years": 0,
+                "bombus_occurrence_evidence": "detected",
+            },
+            {
+                "island_id": "sparse_background",
+                "bombus_record_count": 1,
+                "target_group_record_count": 1,
+                "target_group_spatial_units": 1,
+                "target_group_temporal_units": 1,
+                "distinct_dataset_count": 1,
+                "latest_record_age_years": 20,
+                "bombus_occurrence_evidence": "detected",
+            },
+        ]
+    )
+    result = channel_score.score_observation_evidence(diagnostics, CONFIG).set_index(
+        "island_id"
+    )
+    assert result.loc["strong_background", "observation_availability"] > 0.5
+    assert result.loc["strong_background", "observation_availability"] == result.loc[
+        "sparse_background", "observation_availability"
+    ]
+    assert result.loc["strong_background", "observation_deficit"] < 0.5
+
+
+def test_repeated_detections_increase_availability() -> None:
     diagnostics = pd.DataFrame(
         [
             {
@@ -78,7 +115,7 @@ def test_detected_bombus_increases_availability() -> None:
         ]
     )
     result = channel_score.score_observation_evidence(diagnostics, CONFIG).iloc[0]
-    assert result["observation_availability"] > 0.8
+    assert result["observation_availability"] > 0.9
 
 
 def test_source_pool_environmental_scores_keep_multiple_summaries() -> None:
@@ -90,9 +127,43 @@ def test_source_pool_environmental_scores_keep_multiple_summaries() -> None:
         }
     )
     result = channel_score.aggregate_environmental_compatibility(scores).iloc[0]
-    assert round(result["environmental_compatibility"], 3) == 0.6
+    assert result["environmental_compatibility"] == 0.5
     assert result["environmental_compatibility_max"] == 0.5
     assert result["environmental_compatibility_mean"] == 0.35
+    assert round(result["environmental_compatibility_noisy_or"], 3) == 0.6
+
+
+def test_unscored_source_pool_species_remain_in_environmental_audit() -> None:
+    scores = pd.DataFrame(
+        {
+            "island_id": ["partial", "partial", "unresolved"],
+            "bombus_species": ["Bombus a", "Bombus b", "Bombus c"],
+            "environmental_compatibility": [0.4, "", ""],
+        }
+    )
+    result = channel_score.aggregate_environmental_compatibility(scores).set_index(
+        "island_id"
+    )
+
+    assert result.loc["partial", "n_source_pool_bombus_species"] == 2
+    assert result.loc["partial", "n_scored_source_pool_bombus_species"] == 1
+    assert result.loc["partial", "environmental_compatibility_status"] == "scored_partial"
+    assert result.loc["unresolved", "environmental_compatibility_status"] == (
+        "no_scored_species"
+    )
+    assert pd.isna(result.loc["unresolved", "environmental_compatibility"])
+
+
+def test_duplicate_island_species_environmental_scores_are_rejected() -> None:
+    scores = pd.DataFrame(
+        {
+            "island_id": ["i1", "i1"],
+            "bombus_species": ["Bombus a", "Bombus a"],
+            "environmental_compatibility": [0.2, 0.5],
+        }
+    )
+    with pytest.raises(typer.BadParameter, match="one row per"):
+        channel_score.aggregate_environmental_compatibility(scores)
 
 
 def test_combined_score_is_secondary_geometric_mean() -> None:

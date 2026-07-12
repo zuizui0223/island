@@ -26,6 +26,11 @@ app = typer.Typer(add_completion=False, no_args_is_help=True)
 RECENCY_COLUMNS = ["latest_record_age_years", "background_recent_enough"]
 
 
+@app.callback()
+def main() -> None:
+    """Build recency-aware final Bombus occurrence evidence."""
+
+
 def apply_recency_gate(diagnostics: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
     """Require recent target-group effort before calling adequate non-detection.
 

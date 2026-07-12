@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pandas as pd
+import pytest
+import typer
 
 from island_v2.bombus_niche_hypervolume import score_niche_hypervolumes
 
@@ -94,3 +96,89 @@ def test_missing_island_environment_is_not_forced_to_zero() -> None:
 
     assert result["model_status"] == "missing_island_environment"
     assert pd.isna(result["environmental_compatibility"])
+
+
+def test_scores_are_invariant_to_environment_variable_units() -> None:
+    occurrences = _training()
+    islands = pd.DataFrame(
+        [
+            {
+                "island_id": "i1",
+                "bombus_species": "Bombus alpha",
+                "bio1": 11.4,
+                "bio12": 970.0,
+            }
+        ]
+    )
+    baseline = score_niche_hypervolumes(
+        occurrences,
+        islands,
+        environment_columns=["bio1", "bio12"],
+    ).iloc[0]
+
+    rescaled_occurrences = occurrences.copy()
+    rescaled_islands = islands.copy()
+    rescaled_occurrences["bio1"] *= 1_000_000
+    rescaled_islands["bio1"] *= 1_000_000
+    rescaled = score_niche_hypervolumes(
+        rescaled_occurrences,
+        rescaled_islands,
+        environment_columns=["bio1", "bio12"],
+    ).iloc[0]
+
+    assert rescaled["environmental_compatibility"] == pytest.approx(
+        baseline["environmental_compatibility"]
+    )
+    assert rescaled["mahalanobis_d2"] == pytest.approx(baseline["mahalanobis_d2"])
+
+
+def test_constant_environment_dimension_is_reported_and_dropped() -> None:
+    occurrences = _training()
+    occurrences["constant"] = 1.0
+    islands = pd.DataFrame(
+        [
+            {
+                "island_id": "i1",
+                "bombus_species": "Bombus alpha",
+                "bio1": 11.0,
+                "bio12": 950.0,
+                "constant": "",
+            }
+        ]
+    )
+    result = score_niche_hypervolumes(
+        occurrences,
+        islands,
+        environment_columns=["bio1", "bio12", "constant"],
+    ).iloc[0]
+
+    assert result["model_status"] == "scored"
+    assert result["n_environmental_dimensions"] == 2
+    assert result["n_environmental_dimensions_requested"] == 3
+    assert result["dropped_environmental_dimensions"] == "constant"
+
+
+def test_duplicate_island_species_targets_are_rejected() -> None:
+    islands = pd.DataFrame(
+        [
+            {
+                "island_id": "i1",
+                "bombus_species": "Bombus alpha",
+                "bio1": 11.0,
+                "bio12": 950.0,
+            },
+            {
+                "island_id": "i1",
+                "bombus_species": "Bombus alpha",
+                "bio1": 11.2,
+                "bio12": 960.0,
+            },
+        ]
+    )
+
+    with pytest.raises(typer.BadParameter, match="one row per"):
+        score_niche_hypervolumes(
+            _training(),
+            islands,
+            environment_columns=["bio1", "bio12"],
+        )
