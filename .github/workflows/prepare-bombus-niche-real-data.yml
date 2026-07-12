@@ -23,6 +23,11 @@ on:
         description: "Optional repo-relative frozen Bombus applicability registry"
         required: false
         default: "data/v2/curated/bombus_applicability_registry.csv"
+  push:
+    branches:
+      - feat/bombus-hypervolume-real-data
+    paths:
+      - ".github/workflows/prepare-bombus-niche-real-data.yml"
 
 permissions:
   contents: read
