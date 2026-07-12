@@ -1,0 +1,104 @@
+name: audit_connect_trait_cascade
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/audit-connect-trait-cascade.yml"
+      - "config/trait_cascade_artifact_lock.json"
+      - "config/trait_cascade_analysis_tiers.yml"
+      - "src/island_v2/trait_cascade_analysis.py"
+      - "tests/test_trait_cascade_analysis.py"
+      - "pyproject.toml"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  audit-and-connect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Test analysis contract
+        run: |
+          pytest -q tests/test_trait_cascade_analysis.py
+          ruff check src/island_v2/trait_cascade_analysis.py tests/test_trait_cascade_analysis.py
+
+      - name: Download locked PR 102 artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID=$(jq -r '.artifact_id' config/trait_cascade_artifact_lock.json)
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            > /tmp/trait-cascade-artifact.zip
+          mkdir -p /tmp/trait-cascade-download
+          unzip -q /tmp/trait-cascade-artifact.zip -d /tmp/trait-cascade-download
+
+      - name: Verify archive and internal shard checksums
+        run: |
+          set -euo pipefail
+          cd /tmp/trait-cascade-download
+          EXPECTED=$(jq -r '.archive_sha256' "$GITHUB_WORKSPACE/config/trait_cascade_artifact_lock.json")
+          ACTUAL=$(sha256sum trait-fill-cascade-full.tgz | awk '{print $1}')
+          test "$ACTUAL" = "$EXPECTED"
+          sha256sum -c trait-fill-cascade-full.tgz.sha256
+          mkdir -p /tmp/trait-cascade-extracted
+          tar -xzf trait-fill-cascade-full.tgz -C /tmp/trait-cascade-extracted
+          cd /tmp/trait-cascade-extracted/fill_cascade
+          sha256sum -c SHA256SUMS
+
+      - name: Audit completed matrix
+        run: |
+          island-v2-trait-cascade-analysis audit \
+            --cascade-root /tmp/trait-cascade-extracted/fill_cascade \
+            --output-dir data/v2/staging/traits/cascade_analysis
+
+      - name: Join traits to exact island occurrence master
+        run: |
+          test -f data/v2/staging/gbif/collected/island_species_occurrences.csv.gz
+          island-v2-trait-cascade-analysis join-islands \
+            --cascade-root /tmp/trait-cascade-extracted/fill_cascade \
+            --island-species-csv data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
+            --species-column species \
+            --tiers-config config/trait_cascade_analysis_tiers.yml \
+            --output-dir data/v2/staging/traits/cascade_analysis/island_join
+
+      - name: Verify locked dimensions
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          lock = json.loads(Path('config/trait_cascade_artifact_lock.json').read_text())
+          audit = json.loads(Path('data/v2/staging/traits/cascade_analysis/trait_cascade_audit.json').read_text())
+          assert audit['n_shards'] == lock['n_shards'] == 128
+          assert audit['n_species'] == lock['n_angiosperm_eligible'] == 106295
+          assert audit['n_traits'] == lock['n_traits'] == 9
+          assert audit['n_rows'] == lock['n_rows'] == 956655
+          assert audit['duplicate_species_trait_rows'] == 0
+          assert audit['fill_tier_counts'] == lock['fill_tier_counts']
+          print(json.dumps({'artifact_lock_verified': True, **audit}, indent=2))
+          PY
+
+      - name: Upload audited analysis inputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: audited-island-trait-cascade-${{ github.run_id }}
+          path: data/v2/staging/traits/cascade_analysis/
+          if-no-files-found: error
+          retention-days: 90
