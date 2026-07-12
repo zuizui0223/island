@@ -1,0 +1,85 @@
+name: run_search_enabled_llm_campaign
+
+on:
+  workflow_dispatch:
+    inputs:
+      shard_index:
+        description: Deterministic shard index
+        required: true
+        default: "0"
+      shard_count:
+        description: Total deterministic shards
+        required: true
+        default: "128"
+      manifest_size:
+        description: Number of jobs to prepare from this shard
+        required: true
+        default: "100"
+      max_new_jobs:
+        description: Maximum new API jobs in this run
+        required: true
+        default: "20"
+      model:
+        description: OpenAI model ID
+        required: true
+        default: "gpt-5.5"
+
+permissions:
+  contents: read
+
+jobs:
+  run-campaign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Require API key
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          test -n "$OPENAI_API_KEY" || { echo "Repository secret OPENAI_API_KEY is required"; exit 2; }
+      - name: Prepare deterministic manifest
+        run: |
+          python -m island_v2.search_enabled_llm_campaign prepare \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --campaign-dir /tmp/search_enabled_llm_campaign \
+            --shard-index "${{ inputs.shard_index }}" \
+            --shard-count "${{ inputs.shard_count }}" \
+            --batch-size "${{ inputs.manifest_size }}"
+      - name: Seed previously committed results when available
+        run: |
+          mkdir -p /tmp/search_enabled_llm_campaign
+          if [ "${{ inputs.shard_index }}" = "0" ] && [ -f data/v2/staging/traits/search_enabled_llm_campaign/batch_0000_results.jsonl ]; then
+            cp data/v2/staging/traits/search_enabled_llm_campaign/batch_0000_results.jsonl \
+              /tmp/search_enabled_llm_campaign/provider_results.jsonl
+          else
+            : > /tmp/search_enabled_llm_campaign/provider_results.jsonl
+          fi
+      - name: Run search-enabled LLM jobs
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python -m island_v2.search_enabled_llm_runner run \
+            --jobs-jsonl "/tmp/search_enabled_llm_campaign/jobs_shard_$(printf '%04d' '${{ inputs.shard_index }}').jsonl" \
+            --results-jsonl /tmp/search_enabled_llm_campaign/provider_results.jsonl \
+            --model "${{ inputs.model }}" \
+            --max-jobs "${{ inputs.max_new_jobs }}"
+      - name: Ingest and validate all accumulated results
+        run: |
+          python -m island_v2.search_enabled_llm_campaign ingest \
+            --campaign-dir /tmp/search_enabled_llm_campaign \
+            --results-jsonl /tmp/search_enabled_llm_campaign/provider_results.jsonl \
+            --model-provider openai-responses-web-search \
+            --model-id "${{ inputs.model }}"
+      - name: Upload resumable campaign state
+        uses: actions/upload-artifact@v4
+        with:
+          name: search-enabled-llm-results-shard-${{ inputs.shard_index }}-${{ github.run_id }}
+          path: /tmp/search_enabled_llm_campaign/
+          if-no-files-found: error
+          retention-days: 90
