@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "src/island_v2/search_engine_trait_recovery.py"
+      - "src/island_v2/search_engine_llm_packets.py"
       - ".github/workflows/benchmark-reproductive-literature-pilot.yml"
 
 permissions:
@@ -22,8 +23,11 @@ jobs:
       - name: Install package
         run: pip install -e ".[dev]"
       - name: Validate syntax
-        run: python -m py_compile src/island_v2/search_engine_trait_recovery.py
-      - name: Run 25-species search-engine-only recovery
+        run: |
+          python -m py_compile \
+            src/island_v2/search_engine_trait_recovery.py \
+            src/island_v2/search_engine_llm_packets.py
+      - name: Run 25-species regex baseline
         run: |
           python -m island_v2.search_engine_trait_recovery \
             --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
@@ -32,11 +36,24 @@ jobs:
             --results-per-query 8 \
             --workers 24 \
             --genus-fallback
+          echo '## Regex baseline' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/search_engine_trait_recovery/search_engine_trait_report.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Build frozen LLM search-context packets
+        run: |
+          python -m island_v2.search_engine_llm_packets \
+            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+            --output-dir /tmp/search_engine_llm_packets \
+            --max-taxa 25 \
+            --results-per-query 6 \
+            --workers 24
+          echo '## LLM context packets' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/search_engine_llm_packets/search_context_packet_report.json >> "$GITHUB_STEP_SUMMARY"
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
           name: search-engine-trait-recovery-${{ github.run_id }}
-          path: /tmp/search_engine_trait_recovery/
+          path: |
+            /tmp/search_engine_trait_recovery/
+            /tmp/search_engine_llm_packets/
           if-no-files-found: error
           retention-days: 90
