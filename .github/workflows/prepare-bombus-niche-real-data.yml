@@ -15,15 +15,6 @@ on:
         description: "Maximum GBIF occurrence records retained per species"
         required: false
         default: "5000"
-  push:
-    branches: [feat/bombus-hypervolume-real-data]
-    paths:
-      - ".github/workflows/prepare-bombus-niche-real-data.yml"
-      - "src/island_v2/bombus_niche_inputs.py"
-      - "src/island_v2/bombus_niche_hypervolume.py"
-      - "src/island_v2/gshhg_source.py"
-      - "config/island_source_gshhg.yml"
-      - "pyproject.toml"
 
 permissions:
   contents: read
