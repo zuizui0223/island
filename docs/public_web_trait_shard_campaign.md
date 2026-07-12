@@ -69,8 +69,8 @@ backoff and a per-species pause. This avoids extra Wikidata calls. World Flora
 Online is disabled in the production workflow while its TLS chain fails on the
 GitHub-hosted runner. When explicitly enabled, that deterministic source failure
 is retained in packet diagnostics but is not treated as a retryable species failure.
-The production cache uses contract v2; pre-tuning pilot caches are intentionally
-ignored so completed rows are regenerated with the corrected context rules.
+The production cache uses contract v3; pre-tuning pilot caches are intentionally
+ignored so completed rows are regenerated with the corrected context and syndrome rules.
 
 Actions cache stores only resume state and cumulative outputs:
 

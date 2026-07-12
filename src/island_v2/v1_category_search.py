@@ -353,7 +353,7 @@ SHAPE_RULES: list[Rule] = [
     (
         "flower_shape",
         "composite head / capitulum",
-        r"\b(?:capitulum|composite flower head|flower head)\b",
+        r"\b(?:capitulum|capitula|composite flower head|flower head)\b",
         "shape_head",
     ),
     (
@@ -610,8 +610,8 @@ FLORAL_CONTEXT = re.compile(
     re.IGNORECASE,
 )
 NON_FLORAL_CONTEXT = re.compile(
-    r"\b(?:leaf|leaves|foliage|phyllode|phyllodes|fruit|fruits|berry|berries|seed|seeds|"
-    r"bark|stem|wood|spine|spines|ripe|ripening|powdery bloom)\b",
+    r"\b(?:leaf|leaves|foliage|phyllode|phyllodes|fruit|fruits|berry|berries|capsule|"
+    r"capsules|seed|seeds|bark|stem|wood|spine|spines|ripe|ripening|powdery bloom)\b",
     re.IGNORECASE,
 )
 NAME_CONTEXT = re.compile(
@@ -1000,13 +1000,17 @@ def infer_likely_traits(raw: pd.DataFrame, evidence: pd.DataFrame) -> pd.DataFra
                 species_evidence["field"].isin({"flower_color", "flower_shape"}),
                 "source_url",
             ]
-            tube = any(term in shape for term in ("tubular", "funnel", "trumpet"))
+            composite = any(term in shape for term in ("composite head", "capitulum"))
+            tube = not composite and any(
+                term in shape for term in ("tubular", "funnel", "trumpet")
+            )
             warm = any(term in color for term in ("red", "pink", "orange"))
             bee_color = any(term in color for term in ("blue", "purple", "violet", "yellow"))
             bee_form = any(
                 term in shape
-                for term in ("zygomorphic", "bilateral", "papilionaceous", "spurred", "tubular")
+                for term in ("zygomorphic", "bilateral", "papilionaceous", "spurred")
             )
+            bee_form = bee_form or (not composite and "tubular" in shape)
             if warm and tube:
                 add(
                     species,
