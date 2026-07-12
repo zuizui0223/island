@@ -6,6 +6,7 @@ on:
     paths:
       - "src/island_v2/reproductive_literature_recovery_pilot.py"
       - "src/island_v2/reproductive_web_recovery_pilot.py"
+      - "src/island_v2/reproductive_page_recovery_pilot.py"
       - ".github/workflows/benchmark-reproductive-literature-pilot.yml"
 
 permissions:
@@ -26,7 +27,8 @@ jobs:
         run: |
           python -m py_compile \
             src/island_v2/reproductive_literature_recovery_pilot.py \
-            src/island_v2/reproductive_web_recovery_pilot.py
+            src/island_v2/reproductive_web_recovery_pilot.py \
+            src/island_v2/reproductive_page_recovery_pilot.py
       - name: Run 25-species OpenAlex recovery
         run: |
           python -m island_v2.reproductive_literature_recovery_pilot \
@@ -45,8 +47,19 @@ jobs:
             --max-taxa 25 \
             --results-per-query 6 \
             --workers 16
-          echo '## Web search' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Web snippets' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/reproductive_web/reproductive_web_recovery_report.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Run full-page SC-SI and mating recovery
+        run: |
+          python -m island_v2.reproductive_page_recovery_pilot \
+            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+            --output-dir /tmp/reproductive_pages \
+            --max-taxa 25 \
+            --results-per-query 5 \
+            --max-pages-per-scope-group 8 \
+            --workers 12
+          echo '## Full pages / PDFs' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/reproductive_pages/reproductive_page_recovery_report.json >> "$GITHUB_STEP_SUMMARY"
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
@@ -54,5 +67,6 @@ jobs:
           path: |
             /tmp/reproductive_literature/
             /tmp/reproductive_web/
+            /tmp/reproductive_pages/
           if-no-files-found: error
           retention-days: 90
