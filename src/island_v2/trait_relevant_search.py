@@ -34,7 +34,14 @@ QUERY_TEMPLATES = (
     '"{name}" flower colour color corolla',
     '"{name}" floral morphology',
     '"{name}" pollination breeding system',
-    '"{name}" self compatibility mating system',
+    '"{name}" "self-compatible"',
+    '"{name}" "self-incompatible"',
+    '"{name}" "self-fertile"',
+    '"{name}" "self-sterile"',
+    '"{name}" autogamy selfing',
+    '"{name}" outcrossing',
+    '"{name}" "breeding system"',
+    '"{name}" "mating system"',
 )
 
 OUTPUT_COLUMNS = [
@@ -70,7 +77,22 @@ def _relevant(text: str, name: str) -> bool:
 
 
 def _query_family(template: str) -> str:
-    if "pollination" in template or "compatibility" in template:
+    low = template.lower()
+    if any(
+        token in low
+        for token in (
+            "pollination",
+            "self-compatible",
+            "self-incompatible",
+            "self-fertile",
+            "self-sterile",
+            "autogamy",
+            "selfing",
+            "outcrossing",
+            "breeding system",
+            "mating system",
+        )
+    ):
         return "reproductive_ecology"
     return "floral_morphology"
 
