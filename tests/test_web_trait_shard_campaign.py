@@ -218,12 +218,17 @@ def test_wikimedia_error_strings_retry_transient_failures_not_missing_pages() ->
                 "source": "wikimedia",
                 "error": "wikipedia:Plantus absentia:no_sitelink",
             },
+            {
+                "species": "Plantus certificateii",
+                "source": "world_flora_online",
+                "error": "[SSL: CERTIFICATE_VERIFY_FAILED] unable to get local issuer certificate",
+            },
         ]
     )
 
     observed = _retryable_errors_by_species(
         errors,
-        ["Plantus retryii", "Plantus absentia"],
+        ["Plantus retryii", "Plantus absentia", "Plantus certificateii"],
     )
 
     assert observed == {"Plantus retryii": ["wikidata:Plantus retryii:HTTP 503"]}

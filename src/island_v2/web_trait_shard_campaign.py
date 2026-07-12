@@ -323,6 +323,14 @@ def _retryable_errors_by_species(
     for record in errors.fillna("").to_dict("records"):
         species = _text(record.get("species"))
         error = _text(record.get("error"))
+        terminal_markers = (
+            "no_sitelink",
+            "certificate_verify_failed",
+            "404 not found",
+            "response exceeded",
+        )
+        if any(marker in error.casefold() for marker in terminal_markers):
+            continue
         if not species and error and not error.endswith(":no_sitelink"):
             parts = error.split(":", 2)
             if len(parts) == 3 and parts[1] in wanted:

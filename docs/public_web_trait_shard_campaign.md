@@ -59,10 +59,16 @@ Neither `unknown` nor `exhausted` is interpreted as biological absence.
 
 ## GitHub Actions persistence
 
-The workflow runs at most four shards concurrently to bound traffic per public
+The workflow runs at most two shards concurrently to bound traffic per public
 site. It advances 50 species per shard by default and is scheduled every six
 hours. At that rate a first pass takes at most 18 scheduled advances for the
 largest shard, plus retry passes.
+
+Wikipedia is queried directly by exact scientific-name title, with bounded
+backoff and a per-species pause. This avoids extra Wikidata calls. World Flora
+Online is disabled in the production workflow while its TLS chain fails on the
+GitHub-hosted runner. When explicitly enabled, that deterministic source failure
+is retained in packet diagnostics but is not treated as a retryable species failure.
 
 Actions cache stores only resume state and cumulative outputs:
 
