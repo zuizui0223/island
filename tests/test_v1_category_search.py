@@ -250,6 +250,22 @@ def test_rejects_nonfloral_powdery_bloom_color_near_flowering_time() -> None:
             "source_type": "wikipedia_extract",
             "evidence_scope": "species_direct",
         },
+        {
+            "accepted_species": "Plantus medicinalis",
+            "source_text": "An infusion of the open flower is drunk as a headache remedy.",
+            "source_url": "https://example.org/plantus-medicinalis",
+            "source_citation": "Example horticulture account",
+            "source_type": "horticulture_site",
+            "evidence_scope": "species_direct",
+        },
+        {
+            "accepted_species": "Plantus spinosa",
+            "source_text": "The flowers are white. The mature capitula have yellow spines.",
+            "source_url": "https://example.org/plantus-spinosa",
+            "source_citation": "Example flora",
+            "source_type": "flora_or_monograph",
+            "evidence_scope": "species_direct",
+        },
     )
 
     evidence = extract_evidence_from_sources(sources)
@@ -257,9 +273,13 @@ def test_rejects_nonfloral_powdery_bloom_color_near_flowering_time() -> None:
     powder = evidence.loc[evidence["species"].eq("Plantus powderii")]
     ripening = evidence.loc[evidence["species"].eq("Plantus ripeningii")]
     common_name = evidence.loc[evidence["species"].eq("Plantus commonnameii")]
+    medicinal = evidence.loc[evidence["species"].eq("Plantus medicinalis")]
+    spiny = evidence.loc[evidence["species"].eq("Plantus spinosa")]
     assert "flower_color" not in set(powder["field"])
     assert set(ripening.loc[ripening["field"].eq("flower_color"), "value"]) == {"white"}
     assert "flower_color" not in set(common_name["field"])
+    assert "flower_shape" not in set(medicinal["field"])
+    assert set(spiny.loc[spiny["field"].eq("flower_color"), "value"]) == {"white"}
 
 
 def test_ignores_indirect_and_negated_claims() -> None:
