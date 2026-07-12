@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "src/island_v2/recall_first_trait_booster.py"
+      - "src/island_v2/recall_first_trait_extension.py"
       - "tests/test_recall_first_trait_booster.py"
       - ".github/workflows/benchmark-recall-first-trait-cascade.yml"
   workflow_dispatch:
@@ -27,7 +28,10 @@ jobs:
       - name: Test recall booster
         run: |
           pytest -q tests/test_recall_first_trait_booster.py
-          ruff check src/island_v2/recall_first_trait_booster.py tests/test_recall_first_trait_booster.py
+          ruff check \
+            src/island_v2/recall_first_trait_booster.py \
+            src/island_v2/recall_first_trait_extension.py \
+            tests/test_recall_first_trait_booster.py
       - name: Run existing public-web lane for 100 real species
         run: |
           island-v2-web-trait-shards run \
@@ -43,7 +47,7 @@ jobs:
             --pause-seconds 0.25 \
             --no-openalex \
             --no-world-flora
-      - name: Build metadata subset and apply recall-first layer
+      - name: Build metadata subset and apply recall-first layers
         run: |
           python - <<'PY'
           import pandas as pd
@@ -65,16 +69,24 @@ jobs:
             --direct-csv /tmp/recall100/packets/batch_000001/v1_category_traits.csv \
             --priority-csv /tmp/recall100/packets/batch_000001/v1_priority_traits.csv \
             --output-dir /tmp/recall100/recall_first
+          python -m island_v2.recall_first_trait_extension \
+            --master-csv /tmp/recall100/master100.csv \
+            --traits-csv /tmp/recall100/recall_first/recall_first_traits.csv \
+            --provenance-csv /tmp/recall100/recall_first/recall_first_provenance.csv \
+            --output-dir /tmp/recall100/recall_first_extended
           cat /tmp/recall100/recall_first/recall_first_report.json >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/recall100/recall_first_extended/recall_first_extended_report.json >> "$GITHUB_STEP_SUMMARY"
       - name: Validate recall never decreases
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          report = json.loads(Path('/tmp/recall100/recall_first/recall_first_report.json').read_text())
-          for field, direct in report['direct_coverage'].items():
-              assert report['recall_first_coverage'][field] >= direct, (field, report)
-          print(json.dumps(report, indent=2))
+          first = json.loads(Path('/tmp/recall100/recall_first/recall_first_report.json').read_text())
+          extended = json.loads(Path('/tmp/recall100/recall_first_extended/recall_first_extended_report.json').read_text())
+          for field, direct in first['direct_coverage'].items():
+              assert first['recall_first_coverage'][field] >= direct, (field, first)
+              assert extended['coverage'][field] >= first['recall_first_coverage'][field], (field, first, extended)
+          print(json.dumps({'first': first, 'extended': extended}, indent=2))
           PY
       - name: Upload 100-species benchmark
         uses: actions/upload-artifact@v4
