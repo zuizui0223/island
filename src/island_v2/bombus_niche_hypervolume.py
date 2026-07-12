@@ -1,9 +1,9 @@
 """Species-level Bombus environmental niche hypervolumes for island compatibility.
 
-The estimator is deliberately dependency-light and auditable. For each Bombus species,
-it fits a regularized multivariate ellipsoidal niche from occurrence-site environmental
-variables, then scores island environments against that species-specific hypervolume.
-Species scores remain explicit and can later be aggregated within a predeclared source pool.
+For each candidate Bombus species, the estimator fits a winsorized, standardized,
+ridge-regularized ellipsoidal niche. Island environments are scored against the
+species-specific envelope. The output keeps the binary envelope decision, a smooth
+membership score, empirical tail support, and explicit extrapolation diagnostics.
 """
 
 from __future__ import annotations
@@ -17,7 +17,6 @@ import pandas as pd
 import typer
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
-
 ID_COLUMNS = {"island_id", "bombus_species"}
 
 
@@ -62,14 +61,15 @@ def _environment_columns(
 def _regularized_inverse_covariance(
     matrix: np.ndarray,
     ridge_fraction: float,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, float]:
     covariance = np.cov(matrix, rowvar=False)
     covariance = np.atleast_2d(covariance).astype(float)
     dimensions = covariance.shape[0]
     average_variance = float(np.trace(covariance) / max(dimensions, 1))
     ridge = max(average_variance * ridge_fraction, 1e-9)
     regularized = covariance + np.eye(dimensions) * ridge
-    return regularized, np.linalg.pinv(regularized)
+    condition_number = float(np.linalg.cond(regularized))
+    return regularized, np.linalg.pinv(regularized), condition_number
 
 
 def _mahalanobis_d2(
@@ -84,17 +84,18 @@ def _mahalanobis_d2(
 def _standardize_training_environment(
     training: pd.DataFrame,
     environment_columns: list[str],
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, list[str], list[str]]:
-    """Winsorize and standardize a species' niche variables before ridge fitting.
-
-    Ridge regularization on raw variables is unit-dependent: a precipitation
-    column measured in millimetres can dominate a temperature column measured in
-    degrees. Species-specific standardization makes the fitted distance invariant
-    to harmless unit rescaling. Constant variables carry no fitted niche
-    information and are reported as dropped rather than regularized arbitrarily.
-    """
-    lower = training.quantile(0.01)
-    upper = training.quantile(0.99)
+) -> tuple[
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    list[str],
+    list[str],
+]:
+    """Winsorize and standardize a species' niche variables before ridge fitting."""
+    lower = training.quantile(0.01).to_numpy(dtype=float)
+    upper = training.quantile(0.99).to_numpy(dtype=float)
     clipped = training.clip(lower=lower, upper=upper, axis="columns")
     matrix = clipped.to_numpy(dtype=float)
     center = np.nanmedian(matrix, axis=0)
@@ -107,17 +108,59 @@ def _standardize_training_environment(
         column for column, keep in zip(environment_columns, usable, strict=True) if not keep
     ]
     if not active_columns:
+        empty = np.empty(0, dtype=float)
         return (
             np.empty((len(training), 0), dtype=float),
-            np.empty(0, dtype=float),
-            np.empty(0, dtype=float),
+            empty,
+            empty,
+            empty,
+            empty,
             active_columns,
             dropped_columns,
         )
     active_center = center[usable]
     active_scale = scale[usable]
     standardized = (matrix[:, usable] - active_center) / active_scale
-    return standardized, active_center, active_scale, active_columns, dropped_columns
+    return (
+        standardized,
+        active_center,
+        active_scale,
+        lower[usable],
+        upper[usable],
+        active_columns,
+        dropped_columns,
+    )
+
+
+def _unresolved_row(
+    target: pd.Series,
+    species: str,
+    n_records: int,
+    n_dimensions: int,
+    n_requested_dimensions: int,
+    dropped_text: str,
+    status: str,
+    threshold: float | object = pd.NA,
+) -> dict[str, object]:
+    return {
+        "island_id": target["island_id"],
+        "bombus_species": species,
+        "environmental_compatibility": pd.NA,
+        "inside_hypervolume": pd.NA,
+        "mahalanobis_d2": pd.NA,
+        "hypervolume_d2_threshold": threshold,
+        "hypervolume_distance_ratio": pd.NA,
+        "empirical_training_tail_support": pd.NA,
+        "univariate_extrapolation_count": pd.NA,
+        "univariate_extrapolation_fraction": pd.NA,
+        "environmental_extrapolation": pd.NA,
+        "covariance_condition_number": pd.NA,
+        "n_occurrence_records": n_records,
+        "n_environmental_dimensions": n_dimensions,
+        "n_environmental_dimensions_requested": n_requested_dimensions,
+        "dropped_environmental_dimensions": dropped_text,
+        "model_status": status,
+    }
 
 
 def score_niche_hypervolumes(
@@ -170,125 +213,111 @@ def score_niche_hypervolumes(
         ].dropna()
         n_records = int(len(training))
         n_requested_dimensions = len(env)
-
         if n_records < min_occurrences:
-            for _, target in targets.iterrows():
-                rows.append(
-                    {
-                        "island_id": target["island_id"],
-                        "bombus_species": species,
-                        "environmental_compatibility": pd.NA,
-                        "inside_hypervolume": pd.NA,
-                        "mahalanobis_d2": pd.NA,
-                        "hypervolume_d2_threshold": pd.NA,
-                        "n_occurrence_records": n_records,
-                        "n_environmental_dimensions": n_requested_dimensions,
-                        "n_environmental_dimensions_requested": n_requested_dimensions,
-                        "dropped_environmental_dimensions": "",
-                        "model_status": "insufficient_occurrences",
-                    }
+            rows.extend(
+                _unresolved_row(
+                    target,
+                    species,
+                    n_records,
+                    n_requested_dimensions,
+                    n_requested_dimensions,
+                    "",
+                    "insufficient_occurrences",
                 )
+                for _, target in targets.iterrows()
+            )
             continue
 
-        matrix, center, scale, active_env, dropped_env = _standardize_training_environment(
-            training,
-            env,
-        )
+        (
+            matrix,
+            center,
+            scale,
+            lower,
+            upper,
+            active_env,
+            dropped_env,
+        ) = _standardize_training_environment(training, env)
         n_dimensions = len(active_env)
         dropped_text = "|".join(dropped_env)
         if n_dimensions == 0:
-            for _, target in targets.iterrows():
-                rows.append(
-                    {
-                        "island_id": target["island_id"],
-                        "bombus_species": species,
-                        "environmental_compatibility": pd.NA,
-                        "inside_hypervolume": pd.NA,
-                        "mahalanobis_d2": pd.NA,
-                        "hypervolume_d2_threshold": pd.NA,
-                        "n_occurrence_records": n_records,
-                        "n_environmental_dimensions": 0,
-                        "n_environmental_dimensions_requested": n_requested_dimensions,
-                        "dropped_environmental_dimensions": dropped_text,
-                        "model_status": "insufficient_environmental_variation",
-                    }
+            rows.extend(
+                _unresolved_row(
+                    target,
+                    species,
+                    n_records,
+                    0,
+                    n_requested_dimensions,
+                    dropped_text,
+                    "insufficient_environmental_variation",
                 )
+                for _, target in targets.iterrows()
+            )
             continue
         if n_records < n_dimensions + 2:
-            for _, target in targets.iterrows():
-                rows.append(
-                    {
-                        "island_id": target["island_id"],
-                        "bombus_species": species,
-                        "environmental_compatibility": pd.NA,
-                        "inside_hypervolume": pd.NA,
-                        "mahalanobis_d2": pd.NA,
-                        "hypervolume_d2_threshold": pd.NA,
-                        "n_occurrence_records": n_records,
-                        "n_environmental_dimensions": n_dimensions,
-                        "n_environmental_dimensions_requested": n_requested_dimensions,
-                        "dropped_environmental_dimensions": dropped_text,
-                        "model_status": "insufficient_occurrences",
-                    }
+            rows.extend(
+                _unresolved_row(
+                    target,
+                    species,
+                    n_records,
+                    n_dimensions,
+                    n_requested_dimensions,
+                    dropped_text,
+                    "insufficient_occurrences",
                 )
+                for _, target in targets.iterrows()
+            )
             continue
 
-        _, inverse_covariance = _regularized_inverse_covariance(
-            matrix,
-            ridge_fraction=ridge_fraction,
+        _, inverse_covariance, condition_number = _regularized_inverse_covariance(
+            matrix, ridge_fraction=ridge_fraction
         )
         standardized_center = np.zeros(n_dimensions, dtype=float)
-        training_d2 = _mahalanobis_d2(
-            matrix,
-            standardized_center,
-            inverse_covariance,
-        )
-        threshold = float(np.quantile(training_d2, hypervolume_quantile))
-        threshold = max(threshold, 1e-9)
+        training_d2 = _mahalanobis_d2(matrix, standardized_center, inverse_covariance)
+        threshold = max(float(np.quantile(training_d2, hypervolume_quantile)), 1e-9)
 
         for _, target in targets.iterrows():
             target_values = target[active_env]
             if target_values.isna().any():
                 rows.append(
-                    {
-                        "island_id": target["island_id"],
-                        "bombus_species": species,
-                        "environmental_compatibility": pd.NA,
-                        "inside_hypervolume": pd.NA,
-                        "mahalanobis_d2": pd.NA,
-                        "hypervolume_d2_threshold": threshold,
-                        "n_occurrence_records": n_records,
-                        "n_environmental_dimensions": n_dimensions,
-                        "n_environmental_dimensions_requested": n_requested_dimensions,
-                        "dropped_environmental_dimensions": dropped_text,
-                        "model_status": "missing_island_environment",
-                    }
+                    _unresolved_row(
+                        target,
+                        species,
+                        n_records,
+                        n_dimensions,
+                        n_requested_dimensions,
+                        dropped_text,
+                        "missing_island_environment",
+                        threshold,
+                    )
                 )
                 continue
 
-            vector = (
-                (target_values.to_numpy(dtype=float) - center) / scale
-            ).reshape(1, -1)
+            raw_vector = target_values.to_numpy(dtype=float)
+            vector = ((raw_vector - center) / scale).reshape(1, -1)
             d2 = float(
-                _mahalanobis_d2(
-                    vector,
-                    standardized_center,
-                    inverse_covariance,
-                )[0]
+                _mahalanobis_d2(vector, standardized_center, inverse_covariance)[0]
             )
-            scaled_distance = d2 / threshold
-            compatibility = math.exp(-0.5 * scaled_distance)
+            distance_ratio = d2 / threshold
+            compatibility = math.exp(-math.log(2.0) * distance_ratio)
+            empirical_tail = (float(np.count_nonzero(training_d2 >= d2)) + 0.5) / (
+                len(training_d2) + 1.0
+            )
+            outside_axes = (raw_vector < lower) | (raw_vector > upper)
+            extrapolation_count = int(np.count_nonzero(outside_axes))
             rows.append(
                 {
                     "island_id": target["island_id"],
                     "bombus_species": species,
-                    "environmental_compatibility": max(
-                        0.0,
-                        min(1.0, compatibility),
-                    ),
+                    "environmental_compatibility": max(0.0, min(1.0, compatibility)),
                     "inside_hypervolume": bool(d2 <= threshold),
                     "mahalanobis_d2": d2,
                     "hypervolume_d2_threshold": threshold,
+                    "hypervolume_distance_ratio": distance_ratio,
+                    "empirical_training_tail_support": empirical_tail,
+                    "univariate_extrapolation_count": extrapolation_count,
+                    "univariate_extrapolation_fraction": extrapolation_count / n_dimensions,
+                    "environmental_extrapolation": bool(extrapolation_count > 0),
+                    "covariance_condition_number": condition_number,
                     "n_occurrence_records": n_records,
                     "n_environmental_dimensions": n_dimensions,
                     "n_environmental_dimensions_requested": n_requested_dimensions,
@@ -318,13 +347,10 @@ def run(
 ) -> None:
     occurrences = pd.read_csv(occurrence_environment_csv, dtype=str).fillna("")
     island_species = pd.read_csv(
-        island_source_pool_environment_csv,
-        dtype=str,
+        island_source_pool_environment_csv, dtype=str
     ).fillna("")
     requested = [
-        value.strip()
-        for value in environment_columns.split(",")
-        if value.strip()
+        value.strip() for value in environment_columns.split(",") if value.strip()
     ]
     result = score_niche_hypervolumes(
         occurrences,
@@ -339,6 +365,7 @@ def run(
     output_path = output_dir / "bombus_species_environmental_compatibility.csv"
     result.to_csv(output_path, index=False)
     status_counts = result["model_status"].value_counts(dropna=False).to_dict()
+    scored = result.loc[result["model_status"].eq("scored")]
     summary = {
         "n_rows": int(len(result)),
         "n_islands": int(result["island_id"].nunique()),
@@ -348,14 +375,17 @@ def run(
         "hypervolume_quantile": hypervolume_quantile,
         "ridge_fraction": ridge_fraction,
         "model_status_counts": {str(key): int(value) for key, value in status_counts.items()},
+        "n_scored_extrapolated": int(
+            scored["environmental_extrapolation"].fillna(False).astype(bool).sum()
+        ),
+        "compatibility_calibration": "0.5 at the fitted hypervolume boundary",
         "method": (
             "species-specific winsorized and standardized regularized Mahalanobis "
-            "ellipsoidal hypervolume"
+            "ellipsoidal hypervolume with empirical-tail and extrapolation diagnostics"
         ),
     }
     (output_dir / "bombus_niche_hypervolume_summary.json").write_text(
-        json.dumps(summary, indent=2) + "\n",
-        encoding="utf-8",
+        json.dumps(summary, indent=2) + "\n", encoding="utf-8"
     )
     typer.echo(json.dumps(summary))
 
