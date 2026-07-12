@@ -43,7 +43,7 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: Verify Bombus production contract
-        run: pytest -q tests/test_bombus_global_production_contract.py
+        run: pytest -q tests/test_bombus_global_production_contract.py tests/test_bombus_island_analysis.py
 
       - name: Rebuild the declared global island universe
         run: |
@@ -127,6 +127,13 @@ jobs:
           PY
           fi
 
+      - name: Build island-level Bombus analysis input
+        run: |
+          set -euo pipefail
+          island-v2-bombus-island-analysis run \
+            --regime-scores-csv data/v2/staging/bombus/niche_global/regime/bombus_environmental_compatibility_with_regime.csv.gz \
+            --output-dir data/v2/staging/bombus/niche_global/island_analysis
+
       - name: Summarize global result
         run: |
           python - <<'PY'
@@ -138,6 +145,7 @@ jobs:
           scores = pd.read_csv(root / "scored" / "bombus_species_environmental_compatibility.csv")
           thinning = json.loads((root / "bombus_spatial_thinning_manifest.json").read_text())
           regime = json.loads((root / "regime" / "bombus_regime_summary.json").read_text())
+          island_analysis = json.loads((root / "island_analysis" / "bombus_island_analysis_summary.json").read_text())
           summary = {
               "scope": "global_environmental_screen_not_source_pool",
               "n_rows": int(len(scores)),
@@ -149,6 +157,7 @@ jobs:
               "environment_columns": ["bio1", "bio4", "bio5", "bio6", "bio12", "bio15", "bio18", "bio19", "elevation"],
               "spatial_thinning": thinning,
               "regime": regime,
+              "island_analysis": island_analysis,
           }
           (root / "global_real_data_summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
           print(json.dumps(summary, indent=2))
