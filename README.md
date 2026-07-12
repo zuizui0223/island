@@ -63,6 +63,14 @@ the confirm-instrument for the rate-first workflow: land a source, rerun, read
 the delta. Details are in
 [`docs/acquisition_rate_report.md`](docs/acquisition_rate_report.md).
 
+For yield-first coverage, `island-v2-trait-fill-cascade` fills every master
+species-trait by a source-blind taxonomic ladder
+(`species_direct -> synonym -> genus -> family -> global_fallback`), driving the
+9-column `unknown` toward zero while tagging each fill with `fill_tier`,
+`evidence_scope`, and `confidence` so resolution stays a downstream sensitivity
+axis rather than an acquisition gate. Details are in
+[`docs/trait_fill_cascade.md`](docs/trait_fill_cascade.md).
+
 ## Frozen v1
 
 The original standalone R analysis is preserved without edits under
