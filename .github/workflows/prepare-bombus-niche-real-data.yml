@@ -19,6 +19,10 @@ on:
         description: "Geographic grid-cell width used to thin occurrence records"
         required: false
         default: "0.25"
+      applicability_csv_path:
+        description: "Optional repo-relative frozen Bombus applicability registry"
+        required: false
+        default: "data/v2/curated/bombus_applicability_registry.csv"
 
 permissions:
   contents: read
@@ -37,6 +41,9 @@ jobs:
 
       - name: Install package
         run: pip install -e ".[dev]"
+
+      - name: Verify Bombus production contract
+        run: pytest -q tests/test_bombus_global_production_contract.py
 
       - name: Rebuild the declared global island universe
         run: |
@@ -81,6 +88,45 @@ jobs:
             --min-occurrences 50 \
             --output-dir data/v2/staging/bombus/niche_global/scored
 
+      - name: Attach predeclared Bombus applicability regime
+        env:
+          APPLICABILITY_PATH: ${{ inputs.applicability_csv_path || 'data/v2/curated/bombus_applicability_registry.csv' }}
+        run: |
+          set -euo pipefail
+          SCORE="data/v2/staging/bombus/niche_global/scored/bombus_species_environmental_compatibility.csv"
+          OUT="data/v2/staging/bombus/niche_global/regime"
+          if [[ -f "$APPLICABILITY_PATH" ]]; then
+            island-v2-bombus-regime run \
+              --compatibility-csv "$SCORE" \
+              --applicability-csv "$APPLICABILITY_PATH" \
+              --output-dir "$OUT"
+          else
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          score_path = Path("data/v2/staging/bombus/niche_global/scored/bombus_species_environmental_compatibility.csv")
+          out = Path("data/v2/staging/bombus/niche_global/regime")
+          out.mkdir(parents=True, exist_ok=True)
+          scores = pd.read_csv(score_path)
+          scores["applicability"] = "unresolved"
+          scores["native_bombus_status"] = "uncertain"
+          scores["bombus_regime"] = "applicability_unresolved"
+          scores["primary_bombus_channel_analysis"] = False
+          scores["global_comparison_only"] = True
+          scores.to_csv(out / "bombus_environmental_compatibility_with_regime.csv.gz", index=False, compression="gzip")
+          summary = {
+              "contract": "bombus_regime_join_v1",
+              "n_rows": int(len(scores)),
+              "n_islands": int(scores["island_id"].nunique()),
+              "regime_counts": {"applicability_unresolved": int(len(scores))},
+              "applicability_registry_found": False,
+          }
+          (out / "bombus_regime_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+          PY
+          fi
+
       - name: Summarize global result
         run: |
           python - <<'PY'
@@ -91,6 +137,7 @@ jobs:
           root = Path("data/v2/staging/bombus/niche_global")
           scores = pd.read_csv(root / "scored" / "bombus_species_environmental_compatibility.csv")
           thinning = json.loads((root / "bombus_spatial_thinning_manifest.json").read_text())
+          regime = json.loads((root / "regime" / "bombus_regime_summary.json").read_text())
           summary = {
               "scope": "global_environmental_screen_not_source_pool",
               "n_rows": int(len(scores)),
@@ -101,6 +148,7 @@ jobs:
               "environmental_extrapolation": int(scores["environmental_extrapolation"].fillna(False).astype(bool).sum()),
               "environment_columns": ["bio1", "bio4", "bio5", "bio6", "bio12", "bio15", "bio18", "bio19", "elevation"],
               "spatial_thinning": thinning,
+              "regime": regime,
           }
           (root / "global_real_data_summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
           print(json.dumps(summary, indent=2))
