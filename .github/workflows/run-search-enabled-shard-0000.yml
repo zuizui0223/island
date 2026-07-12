@@ -7,6 +7,11 @@ on:
     paths:
       - "src/island_v2/search_engine_shard_packet.py"
       - ".github/workflows/run-search-enabled-shard-0000.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/island_v2/search_engine_shard_packet.py"
+      - ".github/workflows/run-search-enabled-shard-0000.yml"
   workflow_dispatch:
 
 permissions:
