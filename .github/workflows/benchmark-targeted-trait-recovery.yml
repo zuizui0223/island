@@ -1,0 +1,45 @@
+name: benchmark_targeted_trait_recovery
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/island_v2/targeted_trait_recovery.py"
+      - ".github/workflows/benchmark-targeted-trait-recovery.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Validate module
+        run: |
+          python -m py_compile src/island_v2/targeted_trait_recovery.py
+          ruff check src/island_v2/targeted_trait_recovery.py
+      - name: Run targeted recovery on 25-species pilot
+        run: |
+          python -m island_v2.targeted_trait_recovery \
+            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+            --output-dir /tmp/targeted_recovery \
+            --max-taxa 25 \
+            --max-synonyms 2 \
+            --max-results-per-query 6 \
+            --workers 8
+          cat /tmp/targeted_recovery/targeted_trait_recovery_report.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload benchmark output
+        uses: actions/upload-artifact@v4
+        with:
+          name: targeted-trait-recovery-${{ github.run_id }}
+          path: /tmp/targeted_recovery/
+          if-no-files-found: error
+          retention-days: 90
