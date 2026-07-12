@@ -27,6 +27,7 @@ import pandas as pd
 import typer
 import yaml
 
+from island_v2.angiosperm_scope import classify_scope, load_config as load_scope_config
 from island_v2.search_enabled_llm_campaign import _parse_csv_row as parse_llm_result
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
@@ -78,11 +79,11 @@ def load_config(path: Path) -> dict[str, Any]:
     """Load and minimally validate the versioned cascade configuration."""
     config = yaml.safe_load(path.read_text(encoding="utf-8"))
     required = {"master_taxa_csv", "species_column", "genus_column", "family_column",
-                "target_traits", "evidence_sources", "tier_labels"}
+                "target_traits", "evidence_sources", "tier_labels", "angiosperm_scope_config"}
     if not isinstance(config, dict) or not required.issubset(config):
         raise typer.BadParameter(
             "cascade config must contain master_taxa_csv, species/genus/family columns, "
-            "target_traits, evidence_sources, and tier_labels"
+            "target_traits, evidence_sources, tier_labels, and angiosperm_scope_config"
         )
     return config
 
@@ -353,13 +354,31 @@ def run(
     master = master.loc[master["accepted_species"].map(_is_present)].drop_duplicates("accepted_species")
     n_master = int(len(master))
 
+    # Angiosperm eligibility gate BEFORE the cascade: non-angiosperms are marked
+    # out-of-scope and never receive floral/pollination priors.
+    scope_config = load_scope_config(Path(config["angiosperm_scope_config"]))
+    scope = classify_scope(master, scope_config)
+    eligible_species = set(scope.loc[scope["angiosperm_analysis_eligible"], "accepted_species"])
+    eligible_master = master.loc[master["accepted_species"].isin(eligible_species)].reset_index(drop=True)
+    n_eligible = int(len(eligible_master))
+
     traits = set(config["target_traits"])
     evidence = load_direct_evidence(config, traits)
-    fills = build_fills(master, evidence, config)
-    summary = build_coverage_summary(fills, config, n_master)
-    benchmark = build_benchmark(fills, master, config)
+    evidence = evidence.loc[evidence["accepted_species"].isin(eligible_species)]
+    fills = build_fills(eligible_master, evidence, config)
+    summary = build_coverage_summary(fills, config, n_eligible)
+    summary["n_master_species_all"] = n_master
+    summary["n_angiosperm_eligible"] = n_eligible
+    summary["n_out_of_scope"] = n_master - n_eligible
+    summary["out_of_scope_by_group"] = {
+        str(k): int(v)
+        for k, v in scope.loc[~scope["angiosperm_analysis_eligible"], "taxonomic_group"].value_counts().items()
+    }
+    summary["denominator"] = "angiosperm_eligible"
+    benchmark = build_benchmark(fills, eligible_master, config)
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    scope.to_csv(output_dir / "angiosperm_scope_by_species.csv", index=False)
     _write_gzip(fills, output_dir / "trait_fills.csv.gz")
     benchmark.to_csv(output_dir / "benchmark_sample.csv", index=False)
     (output_dir / "fill_coverage_summary.json").write_text(
@@ -368,8 +387,8 @@ def run(
 
     colour = summary["by_trait"].get("flower_primary_color", {})
     typer.echo(
-        f"Filled {len(fills)} species-trait cells over {n_master} species x "
-        f"{summary['n_target_traits']} traits. Colour direct "
+        f"Angiosperm-eligible {n_eligible}/{n_master}; out-of-scope not filled. "
+        f"Filled {len(fills)} cells x {summary['n_target_traits']} traits. Colour direct "
         f"{colour.get('n_species_direct', 0)} -> filled {colour.get('n_filled', 0)} "
         f"({colour.get('fill_rate', 0):.1%}); tiers {summary['fills_by_tier']}."
     )

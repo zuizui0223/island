@@ -1,0 +1,90 @@
+version: "1.0"
+
+# Family-based angiosperm eligibility applied BEFORE any floral/pollination fill.
+# The GBIF acquisition universe is Tracheophyta, but non-seed vascular plants and
+# gymnosperms have no flowers or comparable pollen-vector states, so they must be
+# marked out-of-scope rather than assigned global floral priors. A species is
+# angiosperm-eligible when its family is present and not on any non-angiosperm
+# list. An empty/unknown family cannot be confirmed as angiosperm and is
+# out-of-scope (family_unresolved). Two fern-sounding families are angiosperms
+# and are deliberately NOT excluded: Cardiopteridaceae, Pteridophyllaceae.
+family_column: family
+eligible_group: angiosperm
+unresolved_group: family_unresolved
+
+non_angiosperm_families:
+  gymnosperm:
+    - Araucariaceae
+    - Cephalotaxaceae
+    - Cupressaceae
+    - Cycadaceae
+    - Ephedraceae
+    - Ginkgoaceae
+    - Gnetaceae
+    - Phyllocladaceae
+    - Pinaceae
+    - Podocarpaceae
+    - Sciadopityaceae
+    - Taxaceae
+    - Taxodiaceae
+    - Welwitschiaceae
+    - Zamiaceae
+
+  non_seed_vascular:
+    - Anemiaceae
+    - Aspleniaceae
+    - Athyriaceae
+    - Blechnaceae
+    - Cibotiaceae
+    - Cryptogrammaceae
+    - Culcitaceae
+    - Cyatheaceae
+    - Cystopteridaceae
+    - Davalliaceae
+    - Dennstaedtiaceae
+    - Dicksoniaceae
+    - Didymochlaenaceae
+    - Diplaziopsidaceae
+    - Dipteridaceae
+    - Dryopteridaceae
+    - Equisetaceae
+    - Gleicheniaceae
+    - Hymenophyllaceae
+    - Isoetaceae
+    - Lindsaeaceae
+    - Lomariopsidaceae
+    - Loxsomataceae
+    - Lycopodiaceae
+    - Lygodiaceae
+    - Marattiaceae
+    - Marsileaceae
+    - Matoniaceae
+    - Metaxyaceae
+    - Nephrolepidaceae
+    - Oleandraceae
+    - Onocleaceae
+    - Ophioglossaceae
+    - Osmundaceae
+    - Plagiogyriaceae
+    - Polypodiaceae
+    - Psilotaceae
+    - Pteridaceae
+    - Rhachidosoraceae
+    - Saccolomataceae
+    - Salviniaceae
+    - Schizaeaceae
+    - Selaginellaceae
+    - Tectariaceae
+    - Thelypteridaceae
+    - Thyrsopteridaceae
+    - Woodsiaceae
+
+  fossil_non_angiosperm:
+    - Acrostichopteridaceae
+    - Archaeopteridaceae
+    - Botryopteridiaceae
+    - Cycadeoideaceae
+    - Gigantopteridaceae
+    - Lyginopteridaceae
+    - Stauropteridaceae
+    - Zygopteridaceae

@@ -4,12 +4,26 @@
 
 The operational priority is **trait yield**, not measurement. Direct
 source-backed evidence covers well under 1% of the master for most fields, so
-`island-v2-trait-fill-cascade` fills every master species-trait by descending a
+`island-v2-trait-fill-cascade` fills every eligible species-trait by descending a
 source-blind fallback ladder until the 9-column `unknown` is driven toward zero:
 
 ```text
 species_direct -> synonym_direct -> genus_inference -> family_inference -> global_fallback
 ```
+
+## Angiosperm eligibility gate (before the cascade)
+
+The target is 100% fill **within the eligible flowering-plant universe**, not
+the raw Tracheophyta acquisition universe. Non-seed vascular plants (ferns,
+lycophytes), gymnosperms, and fossil lineages have no flowers or comparable
+pollen-vector states, so a family-based angiosperm gate runs *before* the
+cascade (`config/angiosperm_scope.yml`, `island-v2-angiosperm-scope`). Out-of-scope
+species are marked in `angiosperm_scope_by_species.csv` and are **never** filled
+with floral or pollination priors. The fill denominator is the angiosperm-
+eligible set. On the current master that is 106,295 of 115,328 species; the
+9,033 out-of-scope split into non_seed_vascular, gymnosperm, fossil, and
+family_unresolved (missing family). Two fern-sounding families that are actually
+angiosperms — Cardiopteridaceae, Pteridophyllaceae — stay eligible.
 
 Low-resolution fills are never discarded and never hidden. Every fill carries
 `fill_tier`, `evidence_scope`, and `confidence`, so a genus/family/global fill is
@@ -37,11 +51,16 @@ island-v2-trait-fill-cascade run --output-dir data/v2/staging/traits/fill_cascad
 
 Outputs:
 
-- `fill_coverage_summary.json` — per-trait fill rate, species-direct count,
-  unknown remaining, and tier composition.
-- `benchmark_sample.csv` — the deterministic 100-species benchmark, one column
-  per trait, each cell `value [fill_tier]`.
-- `trait_fills.csv.gz` — the full long fill table (regenerable, git-ignored).
+- `fill_coverage_summary.json` — eligible denominator, out-of-scope counts by
+  group, and per-trait fill rate, species-direct count, unknown remaining, and
+  tier composition.
+- `benchmark_sample.csv` — the deterministic 100-species benchmark (eligible
+  species), one column per trait, each cell `value [fill_tier]`.
+- `angiosperm_scope_by_species.csv` — every master species with its
+  `taxonomic_group` and `angiosperm_analysis_eligible` flag (regenerable,
+  git-ignored).
+- `trait_fills.csv.gz` — the full long fill table over eligible species
+  (regenerable, git-ignored).
 
 ## Sources
 
@@ -53,15 +72,11 @@ species-direct coverage and sharpens every inference tier with no code change.
 ## Reading the current baseline
 
 With direct evidence alone at 0.02–1.45% per field, the cascade takes every
-field to 100% fill (zero unknown) — dominated by genus/family/global inference,
-with only ~3,700 species-direct cells. That is the intended yield-first state:
-maximal coverage now, resolution made explicit so quality is a downstream
-sensitivity axis, not an acquisition gate. The lever that upgrades resolution is
-landing more direct evidence (bulk sources, un-gated colour extraction); rerun
-the cascade after each landing and watch species-direct climb and the
-global-fallback share fall.
-
-> Scope note: the master includes non-angiosperms (e.g. ferns), which the
-> cascade will still fill with floral values. Restricting the denominator to
-> flowering plants is the job of the existing angiosperm scope gate, applied as
-> a downstream filter, not the cascade.
+field to 100% fill (zero unknown) across the 106,295 angiosperm-eligible
+species — dominated by genus/family/global inference, with only ~3,700
+species-direct cells. That is the intended yield-first state: maximal coverage
+within the flowering-plant universe now, resolution made explicit so quality is
+a downstream sensitivity axis, not an acquisition gate. The lever that upgrades
+resolution is landing more direct evidence (bulk sources, un-gated colour
+extraction); rerun the cascade after each landing and watch species-direct climb
+and the global-fallback share fall.

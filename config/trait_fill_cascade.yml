@@ -11,6 +11,12 @@ species_column: accepted_species
 genus_column: genus
 family_column: family
 
+# Angiosperm eligibility gate applied BEFORE the cascade. Non-angiosperms
+# (gymnosperms, ferns/lycophytes, fossil lineages) and family-unresolved species
+# are marked out-of-scope and never receive floral/pollination priors. The fill
+# denominator is the angiosperm-eligible flowering-plant universe.
+angiosperm_scope_config: config/angiosperm_scope.yml
+
 # Target 9-column-style trait fields. Traits are filled independently; one trait
 # is never derived from another (self-compatibility never fills autonomous
 # selfing).

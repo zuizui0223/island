@@ -1,119 +1,119 @@
 {
   "version": "1.0",
-  "n_master_species": 115328,
+  "n_master_species": 106295,
   "n_target_traits": 9,
   "by_trait": {
     "flower_primary_color": {
-      "n_filled": 115328,
+      "n_filled": 106295,
       "fill_rate": 1.0,
       "n_species_direct": 361,
-      "species_direct_rate": 0.003130202552719201,
+      "species_direct_rate": 0.0033962086645655956,
       "n_unknown_remaining": 0,
       "by_tier": {
-        "global_fallback": 52920,
         "family_inference": 46521,
+        "global_fallback": 43887,
         "genus_inference": 15526,
         "species_direct": 361
       }
     },
     "floral_form": {
-      "n_filled": 115328,
+      "n_filled": 106295,
       "fill_rate": 1.0,
       "n_species_direct": 80,
-      "species_direct_rate": 0.0006936736958934517,
+      "species_direct_rate": 0.0007526224187402982,
       "n_unknown_remaining": 0,
       "by_tier": {
-        "global_fallback": 93189,
+        "global_fallback": 84156,
         "family_inference": 18165,
         "genus_inference": 3894,
         "species_direct": 80
       }
     },
     "floral_symmetry": {
-      "n_filled": 115328,
+      "n_filled": 106295,
       "fill_rate": 1.0,
       "n_species_direct": 16,
-      "species_direct_rate": 0.00013873473917869035,
+      "species_direct_rate": 0.00015052448374805965,
       "n_unknown_remaining": 0,
       "by_tier": {
-        "global_fallback": 114209,
+        "global_fallback": 105176,
         "genus_inference": 1103,
         "species_direct": 16
       }
     },
     "pollination_functional_guild": {
-      "n_filled": 115328,
+      "n_filled": 106295,
       "fill_rate": 1.0,
       "n_species_direct": 582,
-      "species_direct_rate": 0.005046476137624861,
+      "species_direct_rate": 0.005475328096335669,
       "n_unknown_remaining": 0,
       "by_tier": {
-        "global_fallback": 50689,
         "family_inference": 46296,
+        "global_fallback": 41656,
         "genus_inference": 17761,
         "species_direct": 582
       }
     },
     "pollen_vector_mode": {
-      "n_filled": 115328,
+      "n_filled": 106295,
       "fill_rate": 1.0,
       "n_species_direct": 551,
-      "species_direct_rate": 0.004777677580466148,
+      "species_direct_rate": 0.005183686909073804,
       "n_unknown_remaining": 0,
       "by_tier": {
         "family_inference": 57175,
-        "global_fallback": 37726,
+        "global_fallback": 28693,
         "genus_inference": 19876,
         "species_direct": 551
       }
     },
     "sex_system": {
-      "n_filled": 115328,
+      "n_filled": 106295,
       "fill_rate": 1.0,
       "n_species_direct": 1670,
-      "species_direct_rate": 0.014480438401775805,
+      "species_direct_rate": 0.015710992991203727,
       "n_unknown_remaining": 0,
       "by_tier": {
         "family_inference": 57897,
         "genus_inference": 33476,
-        "global_fallback": 22285,
+        "global_fallback": 13252,
         "species_direct": 1670
       }
     },
     "mating_system": {
-      "n_filled": 115328,
+      "n_filled": 106295,
       "fill_rate": 1.0,
       "n_species_direct": 55,
-      "species_direct_rate": 0.00047690066592674803,
+      "species_direct_rate": 0.000517427912883955,
       "n_unknown_remaining": 0,
       "by_tier": {
-        "global_fallback": 98528,
+        "global_fallback": 89495,
         "family_inference": 13647,
         "genus_inference": 3098,
         "species_direct": 55
       }
     },
     "self_incompatibility": {
-      "n_filled": 115328,
+      "n_filled": 106295,
       "fill_rate": 1.0,
       "n_species_direct": 115,
-      "species_direct_rate": 0.0009971559378468369,
+      "species_direct_rate": 0.0010818947269391787,
       "n_unknown_remaining": 0,
       "by_tier": {
-        "global_fallback": 84543,
+        "global_fallback": 75510,
         "family_inference": 23213,
         "genus_inference": 7457,
         "species_direct": 115
       }
     },
     "autonomous_selfing_capacity": {
-      "n_filled": 115328,
+      "n_filled": 106295,
       "fill_rate": 1.0,
       "n_species_direct": 300,
-      "species_direct_rate": 0.002601276359600444,
+      "species_direct_rate": 0.0028223340702761184,
       "n_unknown_remaining": 0,
       "by_tier": {
-        "global_fallback": 64045,
+        "global_fallback": 55012,
         "family_inference": 37336,
         "genus_inference": 13647,
         "species_direct": 300
@@ -121,10 +121,20 @@
     }
   },
   "fills_by_tier": {
-    "global_fallback": 618134,
+    "global_fallback": 536837,
     "family_inference": 300250,
     "genus_inference": 115838,
     "species_direct": 3730
   },
-  "interpretation": "Fill-first cascade coverage. filled_value at genus/family/global tiers is low-resolution inference tagged by fill_tier and confidence, separable for sensitivity analysis, never accepted evidence or biological absence."
+  "interpretation": "Fill-first cascade coverage. filled_value at genus/family/global tiers is low-resolution inference tagged by fill_tier and confidence, separable for sensitivity analysis, never accepted evidence or biological absence.",
+  "n_master_species_all": 115328,
+  "n_angiosperm_eligible": 106295,
+  "n_out_of_scope": 9033,
+  "out_of_scope_by_group": {
+    "non_seed_vascular": 7971,
+    "gymnosperm": 854,
+    "family_unresolved": 183,
+    "fossil_non_angiosperm": 25
+  },
+  "denominator": "angiosperm_eligible"
 }
