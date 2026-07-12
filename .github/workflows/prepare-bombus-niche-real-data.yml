@@ -1,0 +1,88 @@
+name: prepare_bombus_niche_real_data
+
+on:
+  workflow_dispatch:
+    inputs:
+      islands_gpkg:
+        description: "Repo-relative frozen islands GeoPackage"
+        required: true
+      island_species_csv:
+        description: "Repo-relative island x candidate Bombus species CSV"
+        required: false
+        default: "data/v2/curation/izu_bombus_hypervolume_candidates.csv"
+      max_occurrences_per_species:
+        description: "Maximum GBIF occurrence records retained per species"
+        required: false
+        default: "5000"
+
+permissions:
+  contents: read
+
+jobs:
+  acquire-and-score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Acquire GBIF occurrence environments and island climates
+        env:
+          ISLANDS_GPKG: ${{ inputs.islands_gpkg }}
+          ISLAND_SPECIES: ${{ inputs.island_species_csv }}
+          MAX_OCCURRENCES: ${{ inputs.max_occurrences_per_species }}
+        run: |
+          set -euo pipefail
+          test -f "$ISLANDS_GPKG"
+          test -f "$ISLAND_SPECIES"
+          island-v2-bombus-niche-inputs acquire \
+            --islands-gpkg "$ISLANDS_GPKG" \
+            --island-species-csv "$ISLAND_SPECIES" \
+            --max-occurrences-per-species "$MAX_OCCURRENCES" \
+            --output-dir data/v2/staging/bombus/niche_real_data
+
+      - name: Fit species hypervolumes on acquired real data
+        run: |
+          set -euo pipefail
+          island-v2-bombus-niche-hypervolume run \
+            --occurrence-environment-csv data/v2/staging/bombus/niche_real_data/bombus_occurrence_environment.csv \
+            --island-source-pool-environment-csv data/v2/staging/bombus/niche_real_data/island_source_pool_environment.csv \
+            --environment-columns bio1,bio12 \
+            --min-occurrences 20 \
+            --output-dir data/v2/staging/bombus/niche_real_data/scored
+
+      - name: Summarize pilot result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path("data/v2/staging/bombus/niche_real_data")
+          scores = pd.read_csv(root / "scored" / "bombus_species_environmental_compatibility.csv")
+          summary = {
+              "n_rows": int(len(scores)),
+              "n_islands": int(scores["island_id"].nunique()),
+              "n_species": int(scores["bombus_species"].nunique()),
+              "status_counts": scores["model_status"].value_counts(dropna=False).to_dict(),
+              "inside_hypervolume": int(scores["inside_hypervolume"].fillna(False).astype(bool).sum()),
+              "environmental_extrapolation": int(scores["environmental_extrapolation"].fillna(False).astype(bool).sum()),
+          }
+          (root / "real_data_pilot_summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+          print(json.dumps(summary, indent=2))
+          PY
+
+      - name: Upload real-data niche products
+        uses: actions/upload-artifact@v4
+        with:
+          name: bombus-niche-real-data-${{ github.run_id }}
+          path: data/v2/staging/bombus/niche_real_data/
+          if-no-files-found: error
+          retention-days: 90
