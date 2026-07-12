@@ -1,0 +1,95 @@
+name: materialize_trait_fill_cascade
+
+on:
+  push:
+    branches:
+      - claude/trait-data-acquisition-2935gv
+    paths:
+      - ".github/workflows/materialize-trait-fill-cascade.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: materialize-trait-fill-cascade-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Materialize all current shards
+        run: |
+          set -euo pipefail
+          OUT="data/v2/staging/traits/fill_cascade"
+          island-v2-trait-fill-cascade run --output-dir "$OUT"
+          island-v2-trait-fill-cascade status --output-dir "$OUT"
+
+      - name: Verify complete 100% fill
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          out = Path("data/v2/staging/traits/fill_cascade")
+          summary = json.loads((out / "fill_coverage_summary.json").read_text())
+          manifest = json.loads((out / "cascade_manifest.json").read_text())
+
+          assert manifest["shards_complete"] is True, manifest
+          assert manifest["n_shards_current"] == manifest["shard_count"] == 128, manifest
+          assert summary["n_angiosperm_eligible"] == 106295, summary
+          for trait, stats in summary["by_trait"].items():
+              assert stats["fill_rate"] == 1.0, (trait, stats)
+              assert stats["n_unknown_remaining"] == 0, (trait, stats)
+
+          shard_files = sorted(out.glob("shards/shard_*/fills.csv.gz"))
+          checkpoint_files = sorted(out.glob("shards/shard_*/shard_checkpoint.json"))
+          assert len(shard_files) == 128, len(shard_files)
+          assert len(checkpoint_files) == 128, len(checkpoint_files)
+          print(json.dumps({
+              "eligible_species": summary["n_angiosperm_eligible"],
+              "traits": len(summary["by_trait"]),
+              "shards": len(shard_files),
+              "complete": True,
+          }, indent=2))
+          PY
+
+      - name: Build checksums and archive
+        run: |
+          set -euo pipefail
+          OUT="data/v2/staging/traits/fill_cascade"
+          (
+            cd "$OUT"
+            find shards -type f \( -name 'fills.csv.gz' -o -name 'shard_checkpoint.json' \) -print0 \
+              | sort -z \
+              | xargs -0 sha256sum > SHA256SUMS
+            sha256sum fill_coverage_summary.json cascade_manifest.json benchmark_sample.csv angiosperm_scope_by_species.csv >> SHA256SUMS
+          )
+          tar -C data/v2/staging/traits -czf trait-fill-cascade-full.tgz fill_cascade
+          sha256sum trait-fill-cascade-full.tgz > trait-fill-cascade-full.tgz.sha256
+
+      - name: Upload full materialized dataset
+        uses: actions/upload-artifact@v4
+        with:
+          name: trait-fill-cascade-full-${{ github.sha }}
+          path: |
+            trait-fill-cascade-full.tgz
+            trait-fill-cascade-full.tgz.sha256
+            data/v2/staging/traits/fill_cascade/SHA256SUMS
+            data/v2/staging/traits/fill_cascade/cascade_manifest.json
+            data/v2/staging/traits/fill_cascade/fill_coverage_summary.json
+          if-no-files-found: error
+          retention-days: 90
