@@ -266,6 +266,14 @@ def test_rejects_nonfloral_powdery_bloom_color_near_flowering_time() -> None:
             "source_type": "flora_or_monograph",
             "evidence_scope": "species_direct",
         },
+        {
+            "accepted_species": "Plantus capsularis",
+            "source_text": "The plant has white flowers and broadly cup-shaped capsules.",
+            "source_url": "https://example.org/plantus-capsularis",
+            "source_citation": "Example flora",
+            "source_type": "flora_or_monograph",
+            "evidence_scope": "species_direct",
+        },
     )
 
     evidence = extract_evidence_from_sources(sources)
@@ -275,11 +283,14 @@ def test_rejects_nonfloral_powdery_bloom_color_near_flowering_time() -> None:
     common_name = evidence.loc[evidence["species"].eq("Plantus commonnameii")]
     medicinal = evidence.loc[evidence["species"].eq("Plantus medicinalis")]
     spiny = evidence.loc[evidence["species"].eq("Plantus spinosa")]
+    capsular = evidence.loc[evidence["species"].eq("Plantus capsularis")]
     assert "flower_color" not in set(powder["field"])
     assert set(ripening.loc[ripening["field"].eq("flower_color"), "value"]) == {"white"}
     assert "flower_color" not in set(common_name["field"])
     assert "flower_shape" not in set(medicinal["field"])
     assert set(spiny.loc[spiny["field"].eq("flower_color"), "value"]) == {"white"}
+    assert set(capsular.loc[capsular["field"].eq("flower_color"), "value"]) == {"white"}
+    assert "flower_shape" not in set(capsular["field"])
 
 
 def test_ignores_indirect_and_negated_claims() -> None:
@@ -441,6 +452,27 @@ def test_warm_tubular_flower_is_only_emitted_as_likely_guild() -> None:
     assert row["basis_fields"] == "flower_color|flower_shape"
     assert row["confidence"] == "low"
     assert row["basis_source_urls"] == "https://example.org/flora/rubritubus"
+
+
+def test_composite_tubular_florets_do_not_emit_warm_tube_likely_guild() -> None:
+    sources = _sources(
+        {
+            "accepted_species": "Plantus compositus",
+            "source_text": "Capitula have pink tubular florets and white ray florets.",
+            "source_url": "https://example.org/flora/compositus",
+            "source_citation": "Example flora",
+            "source_type": "flora_or_monograph",
+            "evidence_scope": "species_direct",
+        }
+    )
+
+    evidence = extract_evidence_from_sources(sources)
+    raw = collapse_v1_rows(["Plantus compositus"], evidence)
+    likely = infer_likely_traits(raw, evidence)
+
+    assert "tubular" in raw.loc[0, "flower_shape"]
+    assert "composite head" in raw.loc[0, "flower_shape"]
+    assert "likely_guild_warm_tubular" not in set(likely["rule_id"])
 
 
 def test_autogamy_yields_likely_selfing_and_likely_sc_only() -> None:
