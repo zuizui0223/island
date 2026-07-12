@@ -39,11 +39,12 @@ jobs:
           cache: pip
       - name: Install package
         run: pip install -e ".[dev]"
-      - name: Test deterministic sharding and resume semantics
-        run: |
-          pytest -q tests/test_search_enabled_llm_campaign.py
-          python -m py_compile src/island_v2/search_enabled_llm_campaign.py
-          ruff check src/island_v2/search_enabled_llm_campaign.py tests/test_search_enabled_llm_campaign.py
+      - name: Run campaign tests
+        run: pytest -q tests/test_search_enabled_llm_campaign.py
+      - name: Validate campaign syntax
+        run: python -m py_compile src/island_v2/search_enabled_llm_campaign.py
+      - name: Lint campaign implementation
+        run: ruff check src/island_v2/search_enabled_llm_campaign.py tests/test_search_enabled_llm_campaign.py
       - name: Build 100-job production dry run from the real 105k species master
         run: |
           python -m island_v2.search_enabled_llm_campaign prepare \
