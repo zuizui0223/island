@@ -5,10 +5,12 @@ on:
     branches: [main]
     paths:
       - "src/island_v2/search_result_trait_candidates.py"
+      - "src/island_v2/family_trait_priors.py"
       - "src/island_v2/trait_dynamic_discovery.py"
       - "src/island_v2/trait_dynamic_discovery_fast.py"
       - "src/island_v2/trait_relevant_search.py"
       - "tests/test_search_result_trait_candidates.py"
+      - "tests/test_family_trait_priors.py"
       - ".github/workflows/benchmark-search-result-trait-candidates.yml"
       - "pyproject.toml"
   workflow_dispatch:
@@ -27,10 +29,14 @@ jobs:
           cache: pip
       - name: Install package
         run: pip install -e ".[dev]"
-      - name: Validate search-result extraction
+      - name: Validate search-result extraction and likely priors
         run: |
-          pytest -q tests/test_search_result_trait_candidates.py
-          ruff check src/island_v2/search_result_trait_candidates.py tests/test_search_result_trait_candidates.py
+          pytest -q tests/test_search_result_trait_candidates.py tests/test_family_trait_priors.py
+          ruff check \
+            src/island_v2/search_result_trait_candidates.py \
+            src/island_v2/family_trait_priors.py \
+            tests/test_search_result_trait_candidates.py \
+            tests/test_family_trait_priors.py
           island-v2-search-result-trait-candidates --help >/dev/null
       - name: Run fixed-site baseline
         run: |
@@ -100,6 +106,13 @@ jobs:
             --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
             --output-dir /tmp/search_result_candidates
           cat /tmp/search_result_candidates/search_result_trait_candidates_report.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Add low-confidence family floral priors for remaining reported gaps
+        run: |
+          python -m island_v2.family_trait_priors \
+            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+            --existing-candidates-csv /tmp/search_result_candidates/search_result_trait_candidates.csv \
+            --output-dir /tmp/family_trait_priors
+          cat /tmp/family_trait_priors/family_trait_likely_report.json >> "$GITHUB_STEP_SUMMARY"
       - name: Compare reported-only and reported-plus-likely coverage
         run: |
           python - <<'PY'
@@ -117,6 +130,10 @@ jobs:
               '/tmp/search_result_candidates/search_result_trait_candidates.csv',
               dtype=str,
           ).fillna('')
+          family = pd.read_csv(
+              '/tmp/family_trait_priors/family_trait_likely_candidates.csv',
+              dtype=str,
+          ).fillna('')
 
           def pairs(frame, value_col='provisional_candidate_value'):
               if frame.empty:
@@ -131,16 +148,18 @@ jobs:
 
           b = pairs(baseline)
           reported = search[search['candidate_class'].eq('reported')]
-          likely = search[search['inference_status'].eq('likely')]
+          likely_search = search[search['inference_status'].eq('likely')]
           r = pairs(reported)
-          l = pairs(likely)
+          ls = pairs(likely_search)
+          lf = pairs(family)
           br = b | r
-          brl = br | l
+          brls = br | ls
+          brlf = brls | lf
 
           def species_count(ps):
               return len({sp for sp, _ in ps})
 
-          traits = sorted({trait for _, trait in brl})
+          traits = sorted({trait for _, trait in brlf})
           by_trait = {}
           for trait in traits:
               def n(ps):
@@ -148,22 +167,26 @@ jobs:
               by_trait[trait] = {
                   'baseline': n(b),
                   'baseline_plus_search_reported': n(br),
-                  'baseline_plus_reported_plus_likely': n(brl),
+                  'plus_search_likely': n(brls),
+                  'plus_family_trait_likely': n(brlf),
               }
 
           report = {
               'n_species_denominator': len(denominator),
               'baseline_species_any_trait': species_count(b),
               'search_reported_species': species_count(r),
-              'search_likely_species': species_count(l),
+              'search_likely_species': species_count(ls),
+              'family_trait_likely_species': species_count(lf),
               'baseline_plus_search_reported_species_any_trait': species_count(br),
-              'baseline_plus_reported_plus_likely_species_any_trait': species_count(brl),
+              'plus_search_likely_species_any_trait': species_count(brls),
+              'plus_family_trait_likely_species_any_trait': species_count(brlf),
               'increment_reported_over_baseline_species': species_count(br) - species_count(b),
-              'increment_likely_over_reported_species': species_count(brl) - species_count(br),
+              'increment_search_likely_over_reported_species': species_count(brls) - species_count(br),
+              'increment_family_likely_over_previous_species': species_count(brlf) - species_count(brls),
               'coverage_by_trait': by_trait,
               'policy': (
-                  'reported and likely are benchmarked separately; likely/proxy rows are never '
-                  'silently promoted into the reported-only analysis.'
+                  'reported, search-derived likely, and family-prior likely are benchmarked separately. '
+                  'No likely/proxy row is silently promoted into the reported-only analysis.'
               ),
           }
           out = Path('/tmp/search_result_candidates')
@@ -183,5 +206,6 @@ jobs:
             /tmp/relevant_search/
             /tmp/combined_search/
             /tmp/search_result_candidates/
+            /tmp/family_trait_priors/
           if-no-files-found: error
           retention-days: 90
