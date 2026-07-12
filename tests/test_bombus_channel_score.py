@@ -8,7 +8,6 @@ from island_v2.bombus_channel_score import (
     score_observation_evidence,
 )
 
-
 CONFIG = {
     "primary_thresholds": {
         "min_background_records": 50,
