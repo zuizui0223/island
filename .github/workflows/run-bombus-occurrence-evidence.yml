@@ -66,7 +66,7 @@ jobs:
               --expected-family Apidae
           fi
 
-      - name: Run effort-aware Bombus occurrence evidence
+      - name: Run categorical and continuous Bombus occurrence evidence
         run: |
           set -euo pipefail
           island-v2-bombus-diagnostics run \
@@ -75,6 +75,9 @@ jobs:
           island-v2-bombus-absence-evidence run \
             --diagnostics-csv data/v2/staging/bombus/occurrence_evidence/base/island_bombus_observation_diagnostics.csv \
             --output-dir data/v2/staging/bombus/occurrence_evidence/final
+          island-v2-bombus-occurrence-score run \
+            --diagnostics-csv data/v2/staging/bombus/occurrence_evidence/final/island_bombus_absence_evidence.csv \
+            --output-dir data/v2/staging/bombus/occurrence_evidence/scores
 
       - name: Summarize result
         run: |
@@ -86,11 +89,15 @@ jobs:
 
           root = Path("data/v2/staging/bombus/occurrence_evidence")
           table = pd.read_csv(root / "final" / "island_bombus_absence_evidence.csv")
+          scores = pd.read_csv(root / "scores" / "island_bombus_occurrence_scores.csv")
           counts = table["bombus_occurrence_evidence"].value_counts(dropna=False).to_dict()
           summary = {
               "n_islands": int(len(table)),
               "n_evaluable": int(table["bombus_channel_evaluable"].astype(bool).sum()),
               "occurrence_evidence_counts": {str(k): int(v) for k, v in counts.items()},
+              "mean_occurrence_availability": float(scores["bombus_occurrence_availability_score"].mean()),
+              "mean_occurrence_deficit": float(scores["bombus_occurrence_deficit_score"].mean()),
+              "mean_measurement_certainty": float(scores["measurement_certainty"].mean()),
           }
           (root / "bombus_occurrence_evidence_run_summary.json").write_text(
               json.dumps(summary, indent=2) + "\n", encoding="utf-8"
