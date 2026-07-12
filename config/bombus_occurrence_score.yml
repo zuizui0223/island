@@ -1,0 +1,30 @@
+version: "1.0"
+
+purpose: >-
+  Quantify island-level Bombus occurrence availability and deficit from detection,
+  observation effort, and recency while keeping the underlying components separate.
+
+reference_year: 2026
+
+thresholds:
+  bombus_records_saturation: 3
+  target_group_records: 50
+  spatial_units: 3
+  temporal_units: 2
+  distinct_datasets: 2
+  max_years_since_latest_background: 20
+
+formula:
+  detection_strength: "1 - exp(-bombus_record_count / bombus_records_saturation)"
+  effort_strength: "geometric mean of capped target-group record, spatial, temporal, and dataset ratios"
+  recency_strength: "max(0, 1 - latest_record_age_years / max_years_since_latest_background)"
+  measurement_certainty: "max(detection_strength, effort_strength * recency_strength)"
+  occurrence_availability: "detection_strength + (1 - detection_strength) * (1 - effort_strength * recency_strength) * 0.5"
+  occurrence_deficit: "1 - occurrence_availability"
+
+interpretation:
+  - "0 means strong evidence for low Bombus occurrence availability"
+  - "1 means strong evidence for high Bombus occurrence availability"
+  - "0.5 is the neutral value when no detection exists and observation evidence is uninformative"
+  - "measurement_certainty is reported separately and must accompany the score"
+  - "this is an occurrence-evidence component, not the full Bombus functional-channel score"
