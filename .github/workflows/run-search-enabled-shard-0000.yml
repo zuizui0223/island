@@ -6,11 +6,13 @@ on:
       - run/search-enabled-shard-0000-20260712
     paths:
       - "src/island_v2/search_engine_shard_packet.py"
+      - "src/island_v2/search_packet_trait_extractor.py"
       - ".github/workflows/run-search-enabled-shard-0000.yml"
   pull_request:
     branches: [main]
     paths:
       - "src/island_v2/search_engine_shard_packet.py"
+      - "src/island_v2/search_packet_trait_extractor.py"
       - ".github/workflows/run-search-enabled-shard-0000.yml"
   workflow_dispatch:
 
@@ -46,26 +48,38 @@ jobs:
             --results-per-query 5 \
             --workers 8
           cat /tmp/shard_0000/search_packets/search_packet_status.json >> "$GITHUB_STEP_SUMMARY"
-      - name: Validate shard-scale packet output
+      - name: Extract conservative 9-column trait table
+        run: |
+          python -m island_v2.search_packet_trait_extractor \
+            --packets-jsonl /tmp/shard_0000/search_packets/search_packets.jsonl \
+            --output-dir /tmp/shard_0000/trait_extraction
+          cat /tmp/shard_0000/trait_extraction/trait_extraction_status.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Validate shard-scale packet and trait output
         run: |
           python - <<'PY'
           import json
+          import pandas as pd
           from pathlib import Path
 
           campaign = json.loads(Path('/tmp/shard_0000/campaign_status.json').read_text())
           status = json.loads(Path('/tmp/shard_0000/search_packets/search_packet_status.json').read_text())
+          extraction = json.loads(Path('/tmp/shard_0000/trait_extraction/trait_extraction_status.json').read_text())
           packets = [
               json.loads(line)
               for line in Path('/tmp/shard_0000/search_packets/search_packets.jsonl').read_text().splitlines()
               if line.strip()
           ]
+          traits = pd.read_csv('/tmp/shard_0000/trait_extraction/trait_table.csv')
           assert campaign['n_jobs_prepared'] == campaign['n_species_in_shard'], campaign
           assert status['n_jobs'] == campaign['n_species_in_shard'], (status, campaign)
           assert status['n_packets'] + status['n_errors'] == status['n_jobs'], status
           assert len({row['species'] for row in packets}) == len(packets)
-          print(json.dumps({'campaign': campaign, 'search': status}, indent=2))
+          assert extraction['n_species'] == campaign['n_species_in_shard'], extraction
+          assert len(traits) == campaign['n_species_in_shard'], len(traits)
+          assert traits['species'].nunique() == len(traits)
+          print(json.dumps({'campaign': campaign, 'search': status, 'extraction': extraction}, indent=2))
           PY
-      - name: Upload complete shard 0 search evidence packet
+      - name: Upload complete shard 0 search evidence and trait table
         uses: actions/upload-artifact@v4
         with:
           name: search-enabled-shard-0000-${{ github.run_id }}
