@@ -13,6 +13,8 @@ import pandas as pd
 import rasterio
 import typer
 
+from island_v2.island_environment_summary import sample_island_environment
+
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 GBIF = "https://api.gbif.org/v1"
 WORLDCLIM_BIO = "https://geodata.ucdavis.edu/climate/worldclim/2_1/base/wc2.1_10m_bio.zip"
@@ -163,6 +165,8 @@ def acquire_global(
     min_occurrence_records: int = typer.Option(50, min=20),
     max_species: int = typer.Option(300, min=1),
     max_occurrences_per_species: int = typer.Option(5000, min=20),
+    max_environment_samples_per_island: int = typer.Option(64, min=1, max=256),
+    environment_grid_size: int = typer.Option(12, min=2, max=50),
 ) -> None:
     """Create global Bombus hypervolume inputs from public occurrence and climate data."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -182,19 +186,31 @@ def acquire_global(
     occurrences.to_csv(output_dir / "bombus_occurrence_environment.csv", index=False)
 
     islands = gpd.read_file(islands_gpkg).to_crs(4326)
-    points = islands.geometry.representative_point()
-    island_env = pd.DataFrame(
-        {
-            "island_id": islands[island_id_column].astype(str),
-            "decimal_longitude": points.x,
-            "decimal_latitude": points.y,
-        }
-    ).drop_duplicates("island_id")
-    island_env = _sample(rasters, island_env, "decimal_longitude", "decimal_latitude")
+    island_env, island_samples = sample_island_environment(
+        islands,
+        rasters,
+        island_id_column=island_id_column,
+        max_points_per_island=max_environment_samples_per_island,
+        grid_size=environment_grid_size,
+    )
     island_env.to_csv(output_dir / "global_island_environment.csv", index=False)
+    island_samples.to_csv(output_dir / "global_island_environment_samples.csv.gz", index=False, compression="gzip")
 
     targets = build_global_targets(islands, species, island_id_column)
-    scored_targets = targets.merge(island_env[["island_id", *ENVIRONMENT_COLUMNS]], on="island_id", how="left", validate="many_to_one")
+    environment_output_columns = [
+        "island_id",
+        "n_environment_samples",
+        *ENVIRONMENT_COLUMNS,
+        *[f"{column}_p10" for column in ENVIRONMENT_COLUMNS],
+        *[f"{column}_p90" for column in ENVIRONMENT_COLUMNS],
+    ]
+    scored_targets = targets.merge(
+        island_env[environment_output_columns],
+        on="island_id",
+        how="left",
+        validate="many_to_one",
+    )
+    scored_targets["environment_point_estimate"] = "polygon_sample_median"
     scored_targets.to_csv(output_dir / "island_source_pool_environment.csv", index=False)
 
     manifest = {
@@ -208,6 +224,9 @@ def acquire_global(
         "n_islands": int(island_env["island_id"].nunique()),
         "n_island_species_rows": int(len(scored_targets)),
         "environment_columns": ENVIRONMENT_COLUMNS,
+        "island_environment_summary": "deterministic polygon samples; median used for projection with p10/p90 retained",
+        "max_environment_samples_per_island": max_environment_samples_per_island,
+        "environment_grid_size": environment_grid_size,
         "min_occurrence_records": min_occurrence_records,
         "max_species": max_species,
         "max_occurrences_per_species": max_occurrences_per_species,
