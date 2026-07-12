@@ -88,16 +88,31 @@ jobs:
             --output-dir /tmp/search_candidates
       - name: Add family-level likely floral candidates
         run: |
-          python -m island_v2.family_trait_likely \
-            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
-            --existing-candidates-csv /tmp/search_candidates/search_result_trait_candidates.csv \
-            --output-dir /tmp/family_likely
           python - <<'PY'
+          import json
           from pathlib import Path
           import pandas as pd
 
-          search = pd.read_csv('/tmp/search_candidates/search_result_trait_candidates.csv', dtype=str).fillna('')
-          family = pd.read_csv('/tmp/family_likely/family_trait_likely_candidates.csv', dtype=str).fillna('')
+          from island_v2.family_trait_likely import generate_family_trait_priors
+
+          species = pd.read_csv(
+              'data/v2/staging/traits/validation_pilot/validation_pilot_species.csv',
+              dtype=str,
+          ).fillna('').head(25)
+          search = pd.read_csv(
+              '/tmp/search_candidates/search_result_trait_candidates.csv',
+              dtype=str,
+          ).fillna('')
+          family, report = generate_family_trait_priors(species, search)
+
+          family_out = Path('/tmp/family_likely')
+          family_out.mkdir(parents=True, exist_ok=True)
+          family.to_csv(family_out / 'family_trait_likely_candidates.csv', index=False)
+          (family_out / 'family_trait_likely_report.json').write_text(
+              json.dumps(report, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+
           combined = pd.concat([search, family], ignore_index=True, sort=False).fillna('')
           out = Path('/tmp/all_candidates')
           out.mkdir(parents=True, exist_ok=True)
@@ -105,11 +120,30 @@ jobs:
           PY
       - name: Build requested nine-column table
         run: |
-          python -m island_v2.v1_style_trait_table \
-            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
-            --candidates-csv /tmp/all_candidates/all_candidates.csv \
-            --search-results-csv /tmp/combined_search/search_results.csv \
-            --output-dir /tmp/v1_style_table
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          from island_v2.v1_style_trait_table import build_v1_style_table
+
+          species = pd.read_csv(
+              'data/v2/staging/traits/validation_pilot/validation_pilot_species.csv',
+              dtype=str,
+          ).fillna('').head(25)
+          candidates = pd.read_csv('/tmp/all_candidates/all_candidates.csv', dtype=str).fillna('')
+          search = pd.read_csv('/tmp/combined_search/search_results.csv', dtype=str).fillna('')
+          frame, report = build_v1_style_table(species, candidates, search)
+
+          out = Path('/tmp/v1_style_table')
+          out.mkdir(parents=True, exist_ok=True)
+          frame.to_csv(out / 'v1_style_trait_table.csv', index=False)
+          (out / 'v1_style_trait_table_report.json').write_text(
+              json.dumps(report, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps(report, ensure_ascii=False, indent=2))
+          PY
           cat /tmp/v1_style_table/v1_style_trait_table_report.json >> "$GITHUB_STEP_SUMMARY"
           echo >> "$GITHUB_STEP_SUMMARY"
           echo '### Preview' >> "$GITHUB_STEP_SUMMARY"
