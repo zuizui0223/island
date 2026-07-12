@@ -1,0 +1,46 @@
+name: benchmark_targeted_color_recovery
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/island_v2/targeted_trait_recovery.py"
+      - "src/island_v2/targeted_color_recovery.py"
+      - ".github/workflows/benchmark-targeted-color-recovery.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Validate modules
+        run: |
+          python -m py_compile src/island_v2/targeted_trait_recovery.py src/island_v2/targeted_color_recovery.py
+          ruff check src/island_v2/targeted_trait_recovery.py src/island_v2/targeted_color_recovery.py
+      - name: Run focused color recovery
+        run: |
+          python -m island_v2.targeted_color_recovery \
+            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+            --output-dir /tmp/targeted_color \
+            --max-taxa 25 \
+            --max-synonyms 1 \
+            --max-results-per-query 8 \
+            --workers 16
+          cat /tmp/targeted_color/targeted_color_recovery_report.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload benchmark output
+        uses: actions/upload-artifact@v4
+        with:
+          name: targeted-color-recovery-${{ github.run_id }}
+          path: /tmp/targeted_color/
+          if-no-files-found: error
+          retention-days: 90
