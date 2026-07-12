@@ -11,6 +11,7 @@ requires-python = ">=3.11"
 dependencies = [
   "geopandas>=1.0.0",
   "httpx>=0.27.0",
+  "numpy>=1.26.0",
   "pandas>=2.2.0",
   "Pillow>=10.0.0",
   "pydantic>=2.7.0",
@@ -46,6 +47,7 @@ island-v2-core-pilot-nomination = "island_v2.core_pilot_nomination:app"
 island-v2-bombus-diagnostics = "island_v2.bombus_diagnostics:app"
 island-v2-bombus-absence-evidence = "island_v2.bombus_absence_evidence:app"
 island-v2-bombus-channel-score = "island_v2.bombus_channel_score:app"
+island-v2-bombus-niche-hypervolume = "island_v2.bombus_niche_hypervolume:app"
 island-v2-attrition = "island_v2.attrition_audit:app"
 island-v2-acquisition-rate = "island_v2.acquisition_rate_report:app"
 island-v2-angiosperm-scope = "island_v2.angiosperm_scope:app"
