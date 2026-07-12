@@ -66,15 +66,18 @@ jobs:
               --expected-family Apidae
           fi
 
-      - name: Run effort-aware Bombus occurrence evidence
+      - name: Run categorical and continuous Bombus occurrence evidence
         run: |
           set -euo pipefail
           island-v2-bombus-diagnostics run \
             --occurrences-csv data/v2/staging/bombus/occurrence_evidence/island_pollinator_occurrences.csv \
             --output-dir data/v2/staging/bombus/occurrence_evidence/base
           island-v2-bombus-absence-evidence run \
-            --diagnostics-csv data/v2/staging/bombus/occurrence_evidence/base/island_bombus_observation_diagnostics.csv \
+            --occurrences-csv data/v2/staging/bombus/occurrence_evidence/island_pollinator_occurrences.csv \
             --output-dir data/v2/staging/bombus/occurrence_evidence/final
+          island-v2-bombus-availability-score run \
+            --diagnostics-csv data/v2/staging/bombus/occurrence_evidence/final/island_bombus_occurrence_evidence.csv \
+            --output-dir data/v2/staging/bombus/occurrence_evidence/scored
 
       - name: Summarize result
         run: |
@@ -85,12 +88,15 @@ jobs:
           import pandas as pd
 
           root = Path("data/v2/staging/bombus/occurrence_evidence")
-          table = pd.read_csv(root / "final" / "island_bombus_absence_evidence.csv")
+          table = pd.read_csv(root / "scored" / "island_bombus_occurrence_scores.csv")
           counts = table["bombus_occurrence_evidence"].value_counts(dropna=False).to_dict()
           summary = {
               "n_islands": int(len(table)),
               "n_evaluable": int(table["bombus_channel_evaluable"].astype(bool).sum()),
               "occurrence_evidence_counts": {str(k): int(v) for k, v in counts.items()},
+              "availability_mean": float(table["bombus_occurrence_availability_score"].mean()),
+              "deficit_mean": float(table["bombus_occurrence_deficit_score"].mean()),
+              "score_confidence_mean": float(table["bombus_occurrence_score_confidence"].mean()),
           }
           (root / "bombus_occurrence_evidence_run_summary.json").write_text(
               json.dumps(summary, indent=2) + "\n", encoding="utf-8"
