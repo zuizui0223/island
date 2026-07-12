@@ -58,7 +58,7 @@ jobs:
           MAX_OCCURRENCES: ${{ inputs.max_occurrences_per_species || '5000' }}
         run: |
           set -euo pipefail
-          island-v2-bombus-niche-inputs acquire-global \
+          island-v2-bombus-niche-inputs \
             --islands-gpkg data/v2/external/islands/gshhg/prepared/islands_v2.gpkg \
             --min-occurrence-records "$MIN_RECORDS" \
             --max-species "$MAX_SPECIES" \
@@ -72,7 +72,7 @@ jobs:
           set -euo pipefail
           mv data/v2/staging/bombus/niche_global/bombus_occurrence_environment.csv \
              data/v2/staging/bombus/niche_global/bombus_occurrence_environment_unthinned.csv
-          island-v2-bombus-spatial-thin run \
+          island-v2-bombus-spatial-thin \
             --input-csv data/v2/staging/bombus/niche_global/bombus_occurrence_environment_unthinned.csv \
             --output-csv data/v2/staging/bombus/niche_global/bombus_occurrence_environment.csv \
             --manifest-json data/v2/staging/bombus/niche_global/bombus_spatial_thinning_manifest.json \
@@ -96,7 +96,7 @@ jobs:
           SCORE="data/v2/staging/bombus/niche_global/scored/bombus_species_environmental_compatibility.csv"
           OUT="data/v2/staging/bombus/niche_global/regime"
           if [[ -f "$APPLICABILITY_PATH" ]]; then
-            island-v2-bombus-regime run \
+            island-v2-bombus-regime \
               --compatibility-csv "$SCORE" \
               --applicability-csv "$APPLICABILITY_PATH" \
               --output-dir "$OUT"
@@ -130,7 +130,7 @@ jobs:
       - name: Build island-level Bombus analysis input
         run: |
           set -euo pipefail
-          island-v2-bombus-island-analysis run \
+          island-v2-bombus-island-analysis \
             --regime-scores-csv data/v2/staging/bombus/niche_global/regime/bombus_environmental_compatibility_with_regime.csv.gz \
             --output-dir data/v2/staging/bombus/niche_global/island_analysis
 
