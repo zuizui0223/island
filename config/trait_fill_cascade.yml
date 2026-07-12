@@ -1,0 +1,80 @@
+version: "1.0"
+
+# Fill-first cascade. Every master species gets a value for every target trait
+# by descending a source-blind fallback ladder, so 9-column unknown is driven
+# toward zero. Resolution is never hidden: each fill records fill_tier,
+# evidence_scope, and confidence, so low-resolution fills can be separated for
+# sensitivity analysis and never masquerade as accepted direct evidence. Fills
+# live in staging, never in curated. A cascade fill is not a biological absence.
+master_taxa_csv: data/v2/staging/gbif/collected/island_taxa.csv
+species_column: accepted_species
+genus_column: genus
+family_column: family
+
+# Angiosperm eligibility gate applied BEFORE the cascade. Non-angiosperms
+# (gymnosperms, ferns/lycophytes, fossil lineages) and family-unresolved species
+# are marked out-of-scope and never receive floral/pollination priors. The fill
+# denominator is the angiosperm-eligible flowering-plant universe.
+angiosperm_scope_config: config/angiosperm_scope.yml
+
+# Target 9-column-style trait fields. Traits are filled independently; one trait
+# is never derived from another (self-compatibility never fills autonomous
+# selfing).
+target_traits:
+  - flower_primary_color
+  - floral_form
+  - floral_symmetry
+  - pollination_functional_guild
+  - pollen_vector_mode
+  - sex_system
+  - mating_system
+  - self_incompatibility
+  - autonomous_selfing_capacity
+
+# Minimum number of direct-evidence congeners/confamilials before an inference
+# tier may fill. Below the genus threshold the family tier is tried; below the
+# family threshold the global fallback fills.
+min_genus_support: 1
+min_family_support: 3
+
+# Direct-evidence sources unioned before the cascade runs. Order matters only
+# for provenance display; modal value wins regardless of source.
+evidence_sources:
+  machine_wave:
+    adapter: candidate_index
+    path: data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz
+  search_enabled_llm:
+    adapter: search_enabled_llm
+    glob: "data/v2/staging/traits/search_enabled_llm_campaign/batch_*_results.jsonl"
+  bulk_trait:
+    adapter: candidate_long
+    glob: "data/v2/staging/traits/bulk/**/trait_candidates.csv*"
+  curated_accepted:
+    adapter: curated_evidence
+    glob: "data/v2/curated/*trait*.csv"
+
+# Optional synonym -> accepted-name map. When present, a species with no direct
+# evidence inherits a synonym's direct evidence before genus inference. Columns:
+# synonym, accepted_species. Absent by default; the tier is simply skipped.
+synonym_map_csv: data/v2/curation/synonym_accepted_map.csv
+
+# Confidence and evidence_scope labels stamped on each fill tier.
+tier_labels:
+  species_direct:
+    evidence_scope: species_direct
+    confidence: direct_reported
+  synonym_direct:
+    evidence_scope: synonym_direct
+    confidence: synonym_reported
+  genus_inference:
+    evidence_scope: genus_inference
+    confidence: genus_inference_low
+  family_inference:
+    evidence_scope: family_inference
+    confidence: family_inference_very_low
+  global_fallback:
+    evidence_scope: global_fallback
+    confidence: global_fallback_negligible
+
+# Deterministic benchmark sample size for the per-field coverage report.
+benchmark_sample_size: 100

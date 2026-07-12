@@ -1,0 +1,10 @@
+{
+  "contract_version": "trait_fill_cascade_shards_v1",
+  "shard_count": 128,
+  "model_fingerprint": "e46b484cb993f57a90d281b77baf8f602c8a9e859fb1bda1fbb1d727c32254a1",
+  "n_master_species_all": 115328,
+  "n_angiosperm_eligible": 106295,
+  "n_shards_current": 128,
+  "shards_complete": true,
+  "updated_at": "2026-07-12T07:42:41Z"
+}

@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "n_master_species": 115328,
+  "n_colour_broad": 342,
+  "colour_broad_rate": 0.002965455049944506,
+  "n_form_broad": 71,
+  "form_broad_rate": 0.0006156354051054384,
+  "n_core_minimum_broad": 65,
+  "core_minimum_broad_rate": 0.0005636098779134295,
+  "n_any_trait_broad": 2569,
+  "any_trait_broad_rate": 0.02227559655937847,
+  "n_any_trait_any_channel": 2588,
+  "any_trait_any_channel_rate": 0.022440344062153162,
+  "interpretation": "Broad, source-backed coverage over the master species universe. Rates are candidate presence, not accepted trait values or biological absences. Non-source-backed channels are reported by track but excluded from broad rates.",
+  "off_master_rows_dropped_by_source": {
+    "global_campaign_machine": 0,
+    "search_enabled_llm": 0
+  }
+}
