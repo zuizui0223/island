@@ -93,3 +93,5 @@ jobs:
             data/v2/staging/traits/fill_cascade/fill_coverage_summary.json
           if-no-files-found: error
           retention-days: 90
+
+# push trigger refresh: 2026-07-12
