@@ -2,11 +2,8 @@ from __future__ import annotations
 
 import pandas as pd
 
-from island_v2.bombus_channel_score import (
-    aggregate_environmental_compatibility,
-    combine_channel_components,
-    score_observation_evidence,
-)
+from island_v2 import bombus_channel_score as channel_score
+
 
 CONFIG = {
     "primary_thresholds": {
@@ -38,7 +35,7 @@ def test_low_effort_zero_shrinks_to_neutral() -> None:
             }
         ]
     )
-    result = score_observation_evidence(diagnostics, CONFIG).iloc[0]
+    result = channel_score.score_observation_evidence(diagnostics, CONFIG).iloc[0]
     assert result["observation_effort_quality"] == 0
     assert result["observation_availability"] == 0.5
 
@@ -58,7 +55,7 @@ def test_strong_effort_zero_moves_toward_deficit() -> None:
             }
         ]
     )
-    result = score_observation_evidence(diagnostics, CONFIG).iloc[0]
+    result = channel_score.score_observation_evidence(diagnostics, CONFIG).iloc[0]
     assert result["observation_effort_quality"] == 1
     assert result["observation_availability"] == 0
     assert result["observation_deficit"] == 1
@@ -79,7 +76,7 @@ def test_detected_bombus_increases_availability() -> None:
             }
         ]
     )
-    result = score_observation_evidence(diagnostics, CONFIG).iloc[0]
+    result = channel_score.score_observation_evidence(diagnostics, CONFIG).iloc[0]
     assert result["observation_availability"] > 0.8
 
 
@@ -91,7 +88,7 @@ def test_source_pool_environmental_scores_keep_multiple_summaries() -> None:
             "environmental_compatibility": [0.2, 0.5],
         }
     )
-    result = aggregate_environmental_compatibility(scores).iloc[0]
+    result = channel_score.aggregate_environmental_compatibility(scores).iloc[0]
     assert round(result["environmental_compatibility"], 3) == 0.6
     assert result["environmental_compatibility_max"] == 0.5
     assert result["environmental_compatibility_mean"] == 0.35
@@ -114,6 +111,6 @@ def test_combined_score_is_secondary_geometric_mean() -> None:
             "environmental_compatibility_mean": [1.0],
         }
     )
-    result = combine_channel_components(observation, environmental).iloc[0]
+    result = channel_score.combine_channel_components(observation, environmental).iloc[0]
     assert result["bombus_channel_availability"] == 0.5
     assert result["bombus_channel_deficit"] == 0.5
