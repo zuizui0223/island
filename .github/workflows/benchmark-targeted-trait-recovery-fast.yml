@@ -33,9 +33,9 @@ jobs:
             --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
             --output-dir /tmp/targeted_recovery_fast \
             --max-taxa 25 \
-            --max-synonyms 1 \
+            --max-synonyms 0 \
             --max-results-per-query 8 \
-            --workers 8
+            --workers 16
           cat /tmp/targeted_recovery_fast/targeted_trait_recovery_report.json >> "$GITHUB_STEP_SUMMARY"
       - name: Upload benchmark output
         uses: actions/upload-artifact@v4
