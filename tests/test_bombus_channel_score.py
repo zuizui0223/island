@@ -1,0 +1,120 @@
+from __future__ import annotations
+
+import pandas as pd
+
+from island_v2.bombus_channel_score import (
+    aggregate_environmental_compatibility,
+    combine_channel_components,
+    score_observation_evidence,
+)
+
+
+CONFIG = {
+    "primary_thresholds": {
+        "min_background_records": 50,
+        "min_background_spatial_units": 3,
+        "min_background_temporal_units": 2,
+        "min_distinct_datasets": 2,
+    },
+    "observation_recency": {
+        "reference_year": 2026,
+        "max_years_since_latest_background": 20,
+    },
+    "continuous_score": {"bombus_record_scale": 3.0},
+}
+
+
+def test_low_effort_zero_shrinks_to_neutral() -> None:
+    diagnostics = pd.DataFrame(
+        [
+            {
+                "island_id": "low_effort",
+                "bombus_record_count": 0,
+                "target_group_record_count": 0,
+                "target_group_spatial_units": 0,
+                "target_group_temporal_units": 0,
+                "distinct_dataset_count": 0,
+                "latest_record_age_years": "",
+                "bombus_occurrence_evidence": "insufficient_effort",
+            }
+        ]
+    )
+    result = score_observation_evidence(diagnostics, CONFIG).iloc[0]
+    assert result["observation_effort_quality"] == 0
+    assert result["observation_availability"] == 0.5
+
+
+def test_strong_effort_zero_moves_toward_deficit() -> None:
+    diagnostics = pd.DataFrame(
+        [
+            {
+                "island_id": "searched_zero",
+                "bombus_record_count": 0,
+                "target_group_record_count": 100,
+                "target_group_spatial_units": 5,
+                "target_group_temporal_units": 5,
+                "distinct_dataset_count": 3,
+                "latest_record_age_years": 0,
+                "bombus_occurrence_evidence": "adequate_non_detection",
+            }
+        ]
+    )
+    result = score_observation_evidence(diagnostics, CONFIG).iloc[0]
+    assert result["observation_effort_quality"] == 1
+    assert result["observation_availability"] == 0
+    assert result["observation_deficit"] == 1
+
+
+def test_detected_bombus_increases_availability() -> None:
+    diagnostics = pd.DataFrame(
+        [
+            {
+                "island_id": "detected",
+                "bombus_record_count": 6,
+                "target_group_record_count": 100,
+                "target_group_spatial_units": 5,
+                "target_group_temporal_units": 5,
+                "distinct_dataset_count": 3,
+                "latest_record_age_years": 0,
+                "bombus_occurrence_evidence": "detected",
+            }
+        ]
+    )
+    result = score_observation_evidence(diagnostics, CONFIG).iloc[0]
+    assert result["observation_availability"] > 0.8
+
+
+def test_source_pool_environmental_scores_keep_multiple_summaries() -> None:
+    scores = pd.DataFrame(
+        {
+            "island_id": ["i1", "i1"],
+            "bombus_species": ["Bombus a", "Bombus b"],
+            "environmental_compatibility": [0.2, 0.5],
+        }
+    )
+    result = aggregate_environmental_compatibility(scores).iloc[0]
+    assert round(result["environmental_compatibility"], 3) == 0.6
+    assert result["environmental_compatibility_max"] == 0.5
+    assert result["environmental_compatibility_mean"] == 0.35
+
+
+def test_combined_score_is_secondary_geometric_mean() -> None:
+    observation = pd.DataFrame(
+        {
+            "island_id": ["i1"],
+            "observation_availability": [0.25],
+            "observation_deficit": [0.75],
+        }
+    )
+    environmental = pd.DataFrame(
+        {
+            "island_id": ["i1"],
+            "environmental_compatibility": [1.0],
+            "n_source_pool_bombus_species": [1],
+            "environmental_compatibility_max": [1.0],
+            "environmental_compatibility_mean": [1.0],
+        }
+    )
+    result = combine_channel_components(observation, environmental).iloc[0]
+    assert result["bombus_channel_availability"] == 0.5
+    assert result["bombus_channel_deficit"] == 0.5
