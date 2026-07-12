@@ -1,25 +1,8 @@
 name: Validate v2 data architecture
 
+# Emergency Actions-budget mode: run validation only when explicitly requested.
+# Restore scoped push / pull_request triggers after the monthly billing cycle resets.
 on:
-  push:
-    branches: [main, v2-channel-architecture]
-    paths:
-      - "src/island_v2/**"
-      - "tests/**"
-      - "config/**"
-      - "prompts/**"
-      - "scripts/validate_workflows.py"
-      - "pyproject.toml"
-      - ".github/workflows/**"
-  pull_request:
-    paths:
-      - "src/island_v2/**"
-      - "tests/**"
-      - "config/**"
-      - "prompts/**"
-      - "scripts/validate_workflows.py"
-      - "pyproject.toml"
-      - ".github/workflows/**"
   workflow_dispatch:
 
 permissions:
@@ -28,6 +11,7 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
