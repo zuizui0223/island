@@ -45,7 +45,7 @@ jobs:
           from pathlib import Path
 
           campaign = Path('/tmp/search_enabled_llm_campaign')
-          report = json.loads((campaign / 'ingest_report.json').read_text())
+          report = json.loads((campaign / 'ingest_status.json').read_text())
           assert report['n_accepted'] == 20, report
           assert report['n_rejected'] == 0, report
           assert report['n_completed_total'] == 20, report
