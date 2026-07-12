@@ -1,0 +1,107 @@
+name: run_bombus_occurrence_evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      occurrences_csv:
+        description: "Repo-relative exact-island pollinator occurrence CSV. Leave blank to collect from a GBIF pollinator campaign first."
+        required: false
+        default: ""
+      campaign_json:
+        description: "Repo-relative GBIF pollinator campaign ledger JSON, required when occurrences_csv is blank."
+        required: false
+        default: ""
+      block_members_csv:
+        description: "Repo-relative pollinator block-members CSV, required when occurrences_csv is blank."
+        required: false
+        default: ""
+      islands_gpkg:
+        description: "Repo-relative frozen exact-island polygons GeoPackage, required when occurrences_csv is blank."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Resolve or collect exact-island Apidae occurrences
+        env:
+          INPUT_OCCURRENCES: ${{ inputs.occurrences_csv }}
+          INPUT_CAMPAIGN: ${{ inputs.campaign_json }}
+          INPUT_MEMBERS: ${{ inputs.block_members_csv }}
+          INPUT_ISLANDS: ${{ inputs.islands_gpkg }}
+        run: |
+          set -euo pipefail
+          mkdir -p data/v2/staging/bombus/occurrence_evidence
+          if [[ -n "$INPUT_OCCURRENCES" ]]; then
+            test -f "$INPUT_OCCURRENCES"
+            cp "$INPUT_OCCURRENCES" data/v2/staging/bombus/occurrence_evidence/island_pollinator_occurrences.csv
+          else
+            for p in "$INPUT_CAMPAIGN" "$INPUT_MEMBERS" "$INPUT_ISLANDS"; do
+              if [[ -z "$p" || ! -f "$p" ]]; then
+                echo "Provide an existing occurrences_csv, or all of campaign_json, block_members_csv, and islands_gpkg." >&2
+                exit 2
+              fi
+            done
+            island-v2-gbif-pollinator-collect collect \
+              --campaign-json "$INPUT_CAMPAIGN" \
+              --block-members-csv "$INPUT_MEMBERS" \
+              --islands-gpkg "$INPUT_ISLANDS" \
+              --download-dir data/v2/staging/bombus/gbif_downloads \
+              --output-dir data/v2/staging/bombus/occurrence_evidence \
+              --expected-family Apidae
+          fi
+
+      - name: Run effort-aware Bombus occurrence evidence
+        run: |
+          set -euo pipefail
+          island-v2-bombus-diagnostics run \
+            --occurrences-csv data/v2/staging/bombus/occurrence_evidence/island_pollinator_occurrences.csv \
+            --output-dir data/v2/staging/bombus/occurrence_evidence/base
+          island-v2-bombus-absence-evidence run \
+            --diagnostics-csv data/v2/staging/bombus/occurrence_evidence/base/island_bombus_observation_diagnostics.csv \
+            --output-dir data/v2/staging/bombus/occurrence_evidence/final
+
+      - name: Summarize result
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path("data/v2/staging/bombus/occurrence_evidence")
+          table = pd.read_csv(root / "final" / "island_bombus_absence_evidence.csv")
+          counts = table["bombus_occurrence_evidence"].value_counts(dropna=False).to_dict()
+          summary = {
+              "n_islands": int(len(table)),
+              "n_evaluable": int(table["bombus_channel_evaluable"].astype(bool).sum()),
+              "occurrence_evidence_counts": {str(k): int(v) for k, v in counts.items()},
+          }
+          (root / "bombus_occurrence_evidence_run_summary.json").write_text(
+              json.dumps(summary, indent=2) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(summary, indent=2))
+          PY
+
+      - name: Upload Bombus occurrence-evidence products
+        uses: actions/upload-artifact@v4
+        with:
+          name: bombus-occurrence-evidence-${{ github.run_id }}
+          path: data/v2/staging/bombus/occurrence_evidence/
+          if-no-files-found: error
+          retention-days: 90
