@@ -1,0 +1,41 @@
+name: benchmark_reproductive_literature_pilot
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/island_v2/reproductive_literature_recovery_pilot.py"
+      - ".github/workflows/benchmark-reproductive-literature-pilot.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Validate syntax
+        run: python -m py_compile src/island_v2/reproductive_literature_recovery_pilot.py
+      - name: Run 25-species OpenAlex recovery
+        run: |
+          python -m island_v2.reproductive_literature_recovery_pilot \
+            --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
+            --output-dir /tmp/reproductive_literature \
+            --max-taxa 25 \
+            --per-page 8 \
+            --workers 12
+          cat /tmp/reproductive_literature/reproductive_literature_recovery_report.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: reproductive-literature-pilot-${{ github.run_id }}
+          path: /tmp/reproductive_literature/
+          if-no-files-found: error
+          retention-days: 90
