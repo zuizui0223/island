@@ -11,6 +11,16 @@ import typer
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 
+def _extrapolation_quality(mean_fraction: float | None) -> str:
+    if mean_fraction is None or pd.isna(mean_fraction):
+        return "unresolved"
+    if float(mean_fraction) <= 0.25:
+        return "low"
+    if float(mean_fraction) <= 0.50:
+        return "moderate"
+    return "high"
+
+
 def aggregate_islands(scores: pd.DataFrame) -> pd.DataFrame:
     required = {
         "island_id",
@@ -36,10 +46,23 @@ def aggregate_islands(scores: pd.DataFrame) -> pd.DataFrame:
         .str.lower()
         .isin({"true", "1", "yes"})
     )
+    if "univariate_extrapolation_fraction" in work.columns:
+        work["univariate_extrapolation_fraction"] = pd.to_numeric(
+            work["univariate_extrapolation_fraction"], errors="coerce"
+        )
+    else:
+        work["univariate_extrapolation_fraction"] = pd.NA
 
     rows: list[dict[str, object]] = []
     for island_id, group in work.groupby("island_id", sort=True):
         scored = group["environmental_compatibility"].dropna().astype(float)
+        extrapolation_fraction = group.loc[
+            group["environmental_compatibility"].notna(),
+            "univariate_extrapolation_fraction",
+        ].dropna().astype(float)
+        mean_extrapolation_fraction = (
+            float(extrapolation_fraction.mean()) if not extrapolation_fraction.empty else pd.NA
+        )
         regimes = sorted(set(group["bombus_regime"].dropna().astype(str)))
         rows.append(
             {
@@ -54,6 +77,8 @@ def aggregate_islands(scores: pd.DataFrame) -> pd.DataFrame:
                 "environmental_compatibility_max": float(scored.max()) if not scored.empty else pd.NA,
                 "environmental_compatibility_mean": float(scored.mean()) if not scored.empty else pd.NA,
                 "environmental_extrapolation_share": float(group["environmental_extrapolation"].mean()),
+                "mean_univariate_extrapolation_fraction": mean_extrapolation_fraction,
+                "extrapolation_quality": _extrapolation_quality(mean_extrapolation_fraction),
                 "bombus_regime_set": "|".join(regimes),
                 "primary_bombus_channel_analysis": bool(
                     group["primary_bombus_channel_analysis"].fillna(False).astype(bool).any()
@@ -76,13 +101,18 @@ def run(
     output_dir.mkdir(parents=True, exist_ok=True)
     result.to_csv(output_dir / "bombus_island_analysis_input.csv", index=False)
     summary = {
-        "contract": "bombus_island_analysis_input_v1",
+        "contract": "bombus_island_analysis_input_v2",
         "n_islands": int(result["island_id"].nunique()),
         "n_primary_analysis_islands": int(result["primary_bombus_channel_analysis"].sum()),
         "n_global_comparison_only_islands": int(result["global_comparison_only"].sum()),
+        "extrapolation_quality_counts": {
+            str(key): int(value)
+            for key, value in result["extrapolation_quality"].value_counts(dropna=False).items()
+        },
         "interpretation": (
-            "Island-level summaries preserve the distinction between environmental compatibility, "
-            "regional applicability, and extrapolation."
+            "Island-level summaries preserve environmental compatibility, regional applicability, "
+            "and graded extrapolation separately. Binary any-axis extrapolation is retained only as "
+            "a diagnostic; mean per-axis extrapolation fraction is the primary quality measure."
         ),
     }
     (output_dir / "bombus_island_analysis_summary.json").write_text(
