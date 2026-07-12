@@ -6,7 +6,6 @@ on:
     paths:
       - "src/island_v2/v1_style_trait_table.py"
       - "src/island_v2/search_result_trait_candidates.py"
-      - "src/island_v2/family_trait_likely.py"
       - "src/island_v2/trait_dynamic_discovery_fast.py"
       - "src/island_v2/trait_relevant_search.py"
       - "tests/test_v1_style_trait_table.py"
@@ -86,14 +85,11 @@ jobs:
             --search-results-csv /tmp/combined_search/search_results.csv \
             --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
             --output-dir /tmp/search_candidates
-      - name: Add family-level likely floral candidates
+      - name: Add pilot family-level likely floral candidates
         run: |
           python - <<'PY'
-          import json
           from pathlib import Path
           import pandas as pd
-
-          from island_v2.family_trait_likely import generate_family_trait_priors
 
           species = pd.read_csv(
               'data/v2/staging/traits/validation_pilot/validation_pilot_species.csv',
@@ -103,20 +99,68 @@ jobs:
               '/tmp/search_candidates/search_result_trait_candidates.csv',
               dtype=str,
           ).fillna('')
-          family, report = generate_family_trait_priors(species, search)
 
-          family_out = Path('/tmp/family_likely')
-          family_out.mkdir(parents=True, exist_ok=True)
-          family.to_csv(family_out / 'family_trait_likely_candidates.csv', index=False)
-          (family_out / 'family_trait_likely_report.json').write_text(
-              json.dumps(report, ensure_ascii=False, indent=2) + '\n',
-              encoding='utf-8',
-          )
+          priors = {
+              'Asteraceae': [('floral_form', 'composite_head')],
+              'Poaceae': [('floral_form', 'reduced_wind')],
+              'Cyperaceae': [('floral_form', 'reduced_wind')],
+              'Orchidaceae': [('floral_symmetry', 'zygomorphic')],
+              'Lamiaceae': [('floral_symmetry', 'zygomorphic'), ('floral_form', 'tubular')],
+              'Acanthaceae': [('floral_symmetry', 'zygomorphic'), ('floral_form', 'tubular')],
+              'Gesneriaceae': [('floral_symmetry', 'zygomorphic'), ('floral_form', 'tubular')],
+              'Campanulaceae': [('floral_form', 'bell_campanulate')],
+              'Brassicaceae': [('floral_symmetry', 'actinomorphic'), ('floral_form', 'open_radial')],
+              'Rosaceae': [('floral_symmetry', 'actinomorphic')],
+              'Apocynaceae': [('floral_symmetry', 'actinomorphic'), ('floral_form', 'tubular')],
+              'Rubiaceae': [('floral_symmetry', 'actinomorphic'), ('floral_form', 'tubular')],
+              'Melastomataceae': [('floral_symmetry', 'actinomorphic')],
+              'Lauraceae': [('floral_symmetry', 'actinomorphic')],
+              'Primulaceae': [('floral_symmetry', 'actinomorphic')],
+              'Annonaceae': [('floral_symmetry', 'actinomorphic')],
+              'Araceae': [('floral_form', 'other_described')],
+              'Arecaceae': [('floral_symmetry', 'actinomorphic')],
+              'Phyllanthaceae': [('floral_symmetry', 'actinomorphic')],
+              'Ranunculaceae': [('floral_symmetry', 'zygomorphic')],
+          }
 
+          reported_pairs = {
+              (row.accepted_species, row.trait_name)
+              for row in search.itertuples(index=False)
+              if getattr(row, 'candidate_class', '') == 'reported'
+          }
+          rows = []
+          for rec in species.to_dict('records'):
+              sp = rec['accepted_species']
+              family = rec.get('family', '')
+              for trait, value in priors.get(family, []):
+                  if (sp, trait) in reported_pairs:
+                      continue
+                  rows.append({
+                      'accepted_species': sp,
+                      'trait_name': trait,
+                      'provisional_candidate_value': value,
+                      'candidate_class': 'proxy',
+                      'inference_status': 'likely',
+                      'confidence': 'low',
+                      'evidence_quote': f'family={family}',
+                      'inference_rule': f'likely_family_typical_{trait}',
+                      'searched_name': sp,
+                      'search_query': '',
+                      'search_engine': '',
+                      'search_rank': '',
+                      'source_url': '',
+                      'source_title': '',
+                      'source_type': 'declared_family_trait_prior',
+                      'evidence_scope': 'proxy_not_reported',
+                      'review_status': 'unreviewed_proxy',
+                  })
+          family = pd.DataFrame(rows)
           combined = pd.concat([search, family], ignore_index=True, sort=False).fillna('')
           out = Path('/tmp/all_candidates')
           out.mkdir(parents=True, exist_ok=True)
+          family.to_csv(out / 'family_trait_likely_candidates.csv', index=False)
           combined.to_csv(out / 'all_candidates.csv', index=False)
+          print({'family_likely_rows': len(family), 'family_likely_species': family['accepted_species'].nunique() if len(family) else 0})
           PY
       - name: Build requested nine-column table
         run: |
@@ -157,7 +201,6 @@ jobs:
             /tmp/relevant_search/
             /tmp/combined_search/
             /tmp/search_candidates/
-            /tmp/family_likely/
             /tmp/all_candidates/
             /tmp/v1_style_table/
           if-no-files-found: error
