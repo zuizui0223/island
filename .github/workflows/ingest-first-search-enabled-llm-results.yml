@@ -1,0 +1,63 @@
+name: ingest_first_search_enabled_llm_results
+
+on:
+  pull_request:
+    branches: [codex/land-global-campaign-on-main, main]
+    paths:
+      - "data/v2/staging/traits/search_enabled_llm_campaign/batch_0000_results.jsonl"
+      - ".github/workflows/ingest-first-search-enabled-llm-results.yml"
+      - "src/island_v2/search_enabled_llm_campaign.py"
+
+permissions:
+  contents: read
+
+jobs:
+  ingest-first-20:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Prepare matching 20-job manifest
+        run: |
+          python -m island_v2.search_enabled_llm_campaign prepare \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --campaign-dir /tmp/search_enabled_llm_campaign \
+            --shard-index 0 \
+            --shard-count 128 \
+            --batch-size 20
+      - name: Ingest first real search-enabled results
+        run: |
+          python -m island_v2.search_enabled_llm_campaign ingest \
+            --campaign-dir /tmp/search_enabled_llm_campaign \
+            --results-jsonl data/v2/staging/traits/search_enabled_llm_campaign/batch_0000_results.jsonl \
+            --model-provider openai-chatgpt-search \
+            --model-id gpt-5.5-thinking
+      - name: Validate accepted results and coverage
+        run: |
+          python - <<'PY'
+          import json
+          import pandas as pd
+          from pathlib import Path
+
+          campaign = Path('/tmp/search_enabled_llm_campaign')
+          report = json.loads((campaign / 'ingest_status.json').read_text())
+          assert report['n_accepted'] == 20, report
+          assert report['n_rejected'] == 0, report
+          assert report['n_completed_total'] == 20, report
+          results = pd.read_csv(campaign / 'trait_results.csv')
+          assert len(results) == 20
+          assert results['species'].nunique() == 20
+          print(json.dumps(report, indent=2))
+          PY
+      - name: Upload ingested campaign state
+        uses: actions/upload-artifact@v4
+        with:
+          name: first-search-enabled-llm-results-${{ github.run_id }}
+          path: /tmp/search_enabled_llm_campaign/
+          if-no-files-found: error
+          retention-days: 90
