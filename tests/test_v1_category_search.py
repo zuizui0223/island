@@ -293,6 +293,45 @@ def test_rejects_nonfloral_powdery_bloom_color_near_flowering_time() -> None:
     assert "flower_shape" not in set(capsular["field"])
 
 
+def test_rejects_internal_organ_and_cultivar_colors() -> None:
+    sources = _sources(
+        {
+            "accepted_species": "Plantus antheralis",
+            "source_text": (
+                "The flowers are red with purple anthers and a black stigma."
+            ),
+            "source_url": "https://example.org/plantus-antheralis",
+            "source_citation": "Example flora",
+            "source_type": "flora_or_monograph",
+            "evidence_scope": "species_direct",
+        },
+        {
+            "accepted_species": "Plantus cultivarensis",
+            "source_text": (
+                "The flowers are pink to red. Cultivars / Varieties: 'Alba'. "
+                "White flowers."
+            ),
+            "source_url": "https://example.org/plantus-cultivarensis",
+            "source_citation": "Example horticulture account",
+            "source_type": "horticulture_site",
+            "evidence_scope": "species_direct",
+        },
+    )
+
+    evidence = extract_evidence_from_sources(sources)
+
+    antheralis = evidence.loc[
+        evidence["species"].eq("Plantus antheralis")
+        & evidence["field"].eq("flower_color")
+    ]
+    cultivarensis = evidence.loc[
+        evidence["species"].eq("Plantus cultivarensis")
+        & evidence["field"].eq("flower_color")
+    ]
+    assert set(antheralis["value"]) == {"red"}
+    assert set(cultivarensis["value"]) == {"pink", "red"}
+
+
 def test_ignores_indirect_and_negated_claims() -> None:
     sources = _sources(
         {

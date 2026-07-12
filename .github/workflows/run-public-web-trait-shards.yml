@@ -124,8 +124,8 @@ jobs:
     timeout-minutes: 90
     env:
       SHARD_DIR: /tmp/public-web-trait-shards/shard-${{ matrix.shard }}
-      CACHE_KEY: public-web-9col-v3-shard-${{ matrix.shard }}-${{ github.run_id }}-${{ github.run_attempt }}
-      CACHE_PREFIX: public-web-9col-v3-shard-${{ matrix.shard }}-
+      CACHE_KEY: public-web-9col-v4-shard-${{ matrix.shard }}-${{ github.run_id }}-${{ github.run_attempt }}
+      CACHE_PREFIX: public-web-9col-v4-shard-${{ matrix.shard }}-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

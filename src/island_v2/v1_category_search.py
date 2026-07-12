@@ -611,7 +611,12 @@ FLORAL_CONTEXT = re.compile(
 )
 NON_FLORAL_CONTEXT = re.compile(
     r"\b(?:leaf|leaves|foliage|phyllode|phyllodes|fruit|fruits|berry|berries|capsule|"
-    r"capsules|seed|seeds|bark|stem|wood|spine|spines|ripe|ripening|powdery bloom)\b",
+    r"capsules|seed|seeds|bark|stem|wood|spine|spines|anther|anthers|pollen|style|"
+    r"styles|stigma|stigmas|ovary|ovaries|ripe|ripening|powdery bloom)\b",
+    re.IGNORECASE,
+)
+CULTIVAR_CONTEXT = re.compile(
+    r"\b(?:cultivar|cultivars|variety|varieties|cv\.)\b",
     re.IGNORECASE,
 )
 NAME_CONTEXT = re.compile(
@@ -677,6 +682,10 @@ def _has_local_negation(text: str, start: int) -> bool:
     return bool(NEGATION.search(text[max(0, start - 45) : start]))
 
 
+def _has_cultivar_context(text: str, start: int) -> bool:
+    return bool(CULTIVAR_CONTEXT.search(text[max(0, start - 100) : start]))
+
+
 def _source_evidence(source_type: str, citation: str) -> tuple[str, str, str]:
     source = source_type.casefold()
     citation_l = citation.casefold()
@@ -722,6 +731,8 @@ def extract_evidence_from_sources(sources: pd.DataFrame) -> pd.DataFrame:
                 if field in {"flower_color", "flower_shape"} and not _has_floral_context(
                     text, match.start(), match.end()
                 ):
+                    continue
+                if field == "flower_color" and _has_cultivar_context(text, match.start()):
                     continue
                 if _has_local_negation(text, match.start()):
                     continue
