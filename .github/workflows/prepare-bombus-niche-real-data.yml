@@ -48,7 +48,11 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: Verify Bombus production contract
-        run: pytest -q tests/test_bombus_global_production_contract.py tests/test_bombus_island_analysis.py
+        run: |
+          pytest -q \
+            tests/test_bombus_global_production_contract.py \
+            tests/test_bombus_island_analysis.py \
+            tests/test_bombus_species_discovery_production.py
 
       - name: Rebuild the declared global island universe
         run: |
@@ -69,6 +73,17 @@ jobs:
             --max-species "$MAX_SPECIES" \
             --max-occurrences-per-species "$MAX_OCCURRENCES" \
             --output-dir data/v2/staging/bombus/niche_global
+
+      - name: Reject truncated global species registry
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          path = "data/v2/staging/bombus/niche_global/bombus_global_species_registry.csv"
+          species = pd.read_csv(path)
+          if len(species) <= 10:
+              raise SystemExit(f"Truncated Bombus registry: only {len(species)} species")
+          print({"n_bombus_species": int(len(species))})
+          PY
 
       - name: Spatially thin Bombus occurrence environments
         env:
