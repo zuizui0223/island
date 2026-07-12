@@ -1,0 +1,85 @@
+name: benchmark_recall_first_trait_cascade
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/island_v2/recall_first_trait_booster.py"
+      - "tests/test_recall_first_trait_booster.py"
+      - ".github/workflows/benchmark-recall-first-trait-cascade.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark-100-species:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Test recall booster
+        run: |
+          pytest -q tests/test_recall_first_trait_booster.py
+          ruff check src/island_v2/recall_first_trait_booster.py tests/test_recall_first_trait_booster.py
+      - name: Run existing public-web lane for 100 real species
+        run: |
+          island-v2-web-trait-shards run \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --config-path config/global_trait_campaign.yml \
+            --campaign-dir /tmp/recall100 \
+            --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz \
+            --shard-index 0 \
+            --shard-count 128 \
+            --batch-size 100 \
+            --max-attempts 1 \
+            --expected-species 105612 \
+            --pause-seconds 0.25 \
+            --no-openalex \
+            --no-world-flora
+      - name: Build metadata subset and apply recall-first layer
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from pathlib import Path
+          from island_v2.web_trait_shard_campaign import load_campaign_master
+
+          packet = Path('/tmp/recall100/packets/batch_000001')
+          names = pd.read_csv(packet / 'species.csv', dtype=str)['species'].tolist()
+          master = load_campaign_master(
+              Path('data/v2/staging/gbif/collected/island_taxa.csv'),
+              Path('config/global_trait_campaign.yml'),
+          )
+          master.loc[master['accepted_species'].isin(names), ['accepted_species', 'family']].to_csv(
+              '/tmp/recall100/master100.csv', index=False
+          )
+          PY
+          python -m island_v2.recall_first_trait_booster \
+            --master-csv /tmp/recall100/master100.csv \
+            --direct-csv /tmp/recall100/packets/batch_000001/v1_category_traits.csv \
+            --priority-csv /tmp/recall100/packets/batch_000001/v1_priority_traits.csv \
+            --output-dir /tmp/recall100/recall_first
+          cat /tmp/recall100/recall_first/recall_first_report.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Validate recall never decreases
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('/tmp/recall100/recall_first/recall_first_report.json').read_text())
+          for field, direct in report['direct_coverage'].items():
+              assert report['recall_first_coverage'][field] >= direct, (field, report)
+          print(json.dumps(report, indent=2))
+          PY
+      - name: Upload 100-species benchmark
+        uses: actions/upload-artifact@v4
+        with:
+          name: recall-first-100-species-${{ github.run_id }}
+          path: /tmp/recall100/
+          if-no-files-found: error
+          retention-days: 90
