@@ -15,6 +15,10 @@ on:
         description: "Maximum GBIF occurrence records retained per species"
         required: false
         default: "5000"
+      spatial_thin_degrees:
+        description: "Geographic grid-cell width used to thin occurrence records"
+        required: false
+        default: "0.25"
 
 permissions:
   contents: read
@@ -54,6 +58,19 @@ jobs:
             --max-occurrences-per-species "$MAX_OCCURRENCES" \
             --output-dir data/v2/staging/bombus/niche_global
 
+      - name: Spatially thin Bombus occurrence environments
+        env:
+          THIN_DEGREES: ${{ inputs.spatial_thin_degrees || '0.25' }}
+        run: |
+          set -euo pipefail
+          mv data/v2/staging/bombus/niche_global/bombus_occurrence_environment.csv \
+             data/v2/staging/bombus/niche_global/bombus_occurrence_environment_unthinned.csv
+          island-v2-bombus-spatial-thin run \
+            --input-csv data/v2/staging/bombus/niche_global/bombus_occurrence_environment_unthinned.csv \
+            --output-csv data/v2/staging/bombus/niche_global/bombus_occurrence_environment.csv \
+            --manifest-json data/v2/staging/bombus/niche_global/bombus_spatial_thinning_manifest.json \
+            --cell-size-degrees "$THIN_DEGREES"
+
       - name: Fit global species hypervolumes
         run: |
           set -euo pipefail
@@ -73,6 +90,7 @@ jobs:
 
           root = Path("data/v2/staging/bombus/niche_global")
           scores = pd.read_csv(root / "scored" / "bombus_species_environmental_compatibility.csv")
+          thinning = json.loads((root / "bombus_spatial_thinning_manifest.json").read_text())
           summary = {
               "scope": "global_environmental_screen_not_source_pool",
               "n_rows": int(len(scores)),
@@ -82,6 +100,7 @@ jobs:
               "inside_hypervolume": int(scores["inside_hypervolume"].fillna(False).astype(bool).sum()),
               "environmental_extrapolation": int(scores["environmental_extrapolation"].fillna(False).astype(bool).sum()),
               "environment_columns": ["bio1", "bio4", "bio5", "bio6", "bio12", "bio15", "bio18", "bio19", "elevation"],
+              "spatial_thinning": thinning,
           }
           (root / "global_real_data_summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
           print(json.dumps(summary, indent=2))
