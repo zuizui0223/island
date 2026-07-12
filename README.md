@@ -25,7 +25,6 @@ The governing design documents are:
 - [`docs/v2_pollination_regime_framework.md`](docs/v2_pollination_regime_framework.md)  -  scientific scope, island strata, preregistration, models, and continuation rules;
 - [`docs/v2_channel_architecture.md`](docs/v2_channel_architecture.md)  -  compact channel-audit architecture;
 - [`docs/v2_trait_acquisition_quantitative_plan.md`](docs/v2_trait_acquisition_quantitative_plan.md)  -  category-first trait acquisition with optional quantitative enrichment;
-- [`docs/public_web_trait_shard_campaign.md`](docs/public_web_trait_shard_campaign.md)  -  128-shard public-web extraction, evidence packets, checkpoints, and resume;
 - [`config/bombus_applicability.yml`](config/bombus_applicability.yml)  -  outcome-blind rule for the biological applicability of the Bombus hypothesis;
 - [`config/bombus_observation_diagnostics.yml`](config/bombus_observation_diagnostics.yml)  -  effort-aware Bombus detection and non-detection policy.
 
@@ -42,8 +41,6 @@ The governing design documents are:
 The expected species master is too large for one-by-one web or LLM retrieval to
 be the global coverage path. The primary route is a downloaded, public bulk trait
 source joined to `island_taxa.csv` with a source-specific codebook profile.
-The 128-shard public-web campaign is a resumable gap-recovery layer after those
-bulk and machine candidates are applied; it is not a replacement for bulk joins.
 
 `ingest_bulk_trait_source` is the manual GitHub Actions workflow for this route.
 It needs a direct source-download URL and **no OpenAI key**. Each run creates
