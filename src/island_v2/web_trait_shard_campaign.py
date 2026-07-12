@@ -31,7 +31,7 @@ from island_v2.v1_category_traits import OUTPUT_COLUMNS, validate_result_table
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
-CONTRACT_VERSION = "public_web_9col_shards_v1"
+CONTRACT_VERSION = "public_web_9col_shards_v2"
 CHECKPOINT_COLUMNS = [
     "species",
     "genus",

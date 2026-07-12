@@ -341,7 +341,7 @@ SHAPE_RULES: list[Rule] = [
     (
         "flower_shape",
         "open / bowl / cup-shaped",
-        r"\b(?:bowl[- ]shaped|cup[- ]shaped|rotate flower|open flower)\b",
+        r"\b(?:bowl[- ]shaped|cup[- ]shaped|rotate flower|open[- ]faced flower)\b",
         "shape_open",
     ),
     (
@@ -611,7 +611,7 @@ FLORAL_CONTEXT = re.compile(
 )
 NON_FLORAL_CONTEXT = re.compile(
     r"\b(?:leaf|leaves|foliage|phyllode|phyllodes|fruit|fruits|berry|berries|seed|seeds|"
-    r"bark|stem|wood|ripe|ripening|powdery bloom)\b",
+    r"bark|stem|wood|spine|spines|ripe|ripening|powdery bloom)\b",
     re.IGNORECASE,
 )
 NAME_CONTEXT = re.compile(
