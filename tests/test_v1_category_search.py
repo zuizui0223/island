@@ -4,7 +4,9 @@ import pandas as pd
 
 from island_v2.v1_category_search import (
     SOURCE_COLUMNS,
+    _json_getter,
     _web_description_sources,
+    _wikipedia_exact_sources,
     _world_flora_sources,
     build_priority_traits,
     collapse_likely_traits,
@@ -78,8 +80,86 @@ class _WorldFloraClient:
         )
 
 
+class _JsonResponse:
+    def __init__(
+        self,
+        status_code: int,
+        payload: dict[str, object],
+        headers: dict[str, str] | None = None,
+    ) -> None:
+        self.status_code = status_code
+        self.payload = payload
+        self.headers = headers or {}
+
+    def raise_for_status(self) -> None:
+        if self.status_code >= 400:
+            raise RuntimeError(f"HTTP {self.status_code}")
+
+    def json(self) -> dict[str, object]:
+        return self.payload
+
+
+class _JsonClient:
+    def __init__(self, responses: list[_JsonResponse]) -> None:
+        self.responses = responses
+        self.calls = 0
+
+    def get(self, url: str, params: object = None) -> _JsonResponse:
+        del url, params
+        response = self.responses[self.calls]
+        self.calls += 1
+        return response
+
+
 def _sources(*rows: dict[str, str]) -> pd.DataFrame:
     return pd.DataFrame(rows, columns=SOURCE_COLUMNS).fillna("")
+
+
+def test_json_getter_retries_rate_limit_with_retry_after(monkeypatch) -> None:
+    client = _JsonClient(
+        [
+            _JsonResponse(429, {}, {"Retry-After": "0"}),
+            _JsonResponse(200, {"ok": True}),
+        ]
+    )
+    delays: list[float] = []
+    monkeypatch.setattr("island_v2.v1_category_search.time.sleep", delays.append)
+
+    payload = _json_getter(client)("https://example.org/api", {"q": "Plantus"})
+
+    assert payload == {"ok": True}
+    assert client.calls == 2
+    assert delays == [0.0]
+
+
+def test_wikipedia_exact_source_uses_scientific_name_without_wikidata() -> None:
+    calls: list[tuple[str, dict[str, object]]] = []
+
+    def getter(url: str, params: dict[str, object]) -> dict[str, object]:
+        calls.append((url, params))
+        return {
+            "query": {
+                "pages": {
+                    "1": {
+                        "title": "Plantus exactus",
+                        "extract": "Plantus exactus has red tubular flowers.",
+                    }
+                }
+            }
+        }
+
+    rows, errors = _wikipedia_exact_sources(
+        ["Plantus exactus"],
+        getter,
+        pause_seconds=0,
+    )
+
+    assert not errors
+    assert len(calls) == 1
+    assert calls[0][1]["titles"] == "Plantus exactus"
+    assert "wikidata.org" not in calls[0][0]
+    assert rows[0]["evidence_scope"] == "species_direct"
+    assert rows[0]["source_type"] == "wikipedia_extract"
 
 
 def test_extracts_explicit_traits_with_floral_context() -> None:
@@ -108,6 +188,33 @@ def test_extracts_explicit_traits_with_floral_context() -> None:
     assert set(evidence["evidence_type"]) == {"flora"}
 
 
+def test_extracts_globose_heads_and_spiciform_inflorescences() -> None:
+    sources = _sources(
+        {
+            "accepted_species": "Plantus capitatus",
+            "source_text": "The flowers are borne in spherical heads on short peduncles.",
+            "source_url": "https://example.org/capitatus",
+            "source_citation": "Example flora",
+            "source_type": "flora_or_monograph",
+            "evidence_scope": "species_direct",
+        },
+        {
+            "accepted_species": "Plantus spicatus",
+            "source_text": "The female inflorescences are spiciform and densely flowered.",
+            "source_url": "https://example.org/spicatus",
+            "source_citation": "Example flora",
+            "source_type": "flora_or_monograph",
+            "evidence_scope": "species_direct",
+        },
+    )
+
+    evidence = extract_evidence_from_sources(sources)
+    observed = set(zip(evidence["species"], evidence["value"], strict=True))
+
+    assert ("Plantus capitatus", "globose / spherical flower head") in observed
+    assert ("Plantus spicatus", "spike / elongated inflorescence") in observed
+
+
 def test_rejects_nonfloral_powdery_bloom_color_near_flowering_time() -> None:
     sources = _sources(
         {
@@ -120,12 +227,39 @@ def test_rejects_nonfloral_powdery_bloom_color_near_flowering_time() -> None:
             "source_citation": "Example flora",
             "source_type": "flora_or_monograph",
             "evidence_scope": "species_direct",
-        }
+        },
+        {
+            "accepted_species": "Plantus ripeningii",
+            "source_text": (
+                "The flower balls are white, then form hooked spikes which when ripe "
+                "brown off."
+            ),
+            "source_url": "https://example.org/plantus-ripeningii",
+            "source_citation": "Example flora",
+            "source_type": "flora_or_monograph",
+            "evidence_scope": "species_direct",
+        },
+        {
+            "accepted_species": "Plantus commonnameii",
+            "source_text": (
+                "Plantus commonnameii, the Japanese red maple, has a local name meaning "
+                "flower maple and is a rare shrub."
+            ),
+            "source_url": "https://example.org/plantus-commonnameii",
+            "source_citation": "Example encyclopedia",
+            "source_type": "wikipedia_extract",
+            "evidence_scope": "species_direct",
+        },
     )
 
     evidence = extract_evidence_from_sources(sources)
 
-    assert "flower_color" not in set(evidence["field"])
+    powder = evidence.loc[evidence["species"].eq("Plantus powderii")]
+    ripening = evidence.loc[evidence["species"].eq("Plantus ripeningii")]
+    common_name = evidence.loc[evidence["species"].eq("Plantus commonnameii")]
+    assert "flower_color" not in set(powder["field"])
+    assert set(ripening.loc[ripening["field"].eq("flower_color"), "value"]) == {"white"}
+    assert "flower_color" not in set(common_name["field"])
 
 
 def test_ignores_indirect_and_negated_claims() -> None:

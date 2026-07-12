@@ -22,7 +22,7 @@ from xml.etree import ElementTree
 import pandas as pd
 import typer
 
-from island_v2 import reported_ecology_machine, trait_descriptive_scout
+from island_v2 import reported_ecology_machine, trait_descriptive_scout, trait_web_reported_scout
 from island_v2.v1_category_traits import (
     OUTPUT_COLUMNS,
     derive_v1_categories,
@@ -190,6 +190,16 @@ V2_FIELD_VALUE_MAP: dict[tuple[str, str], tuple[str, str, str]] = {
     ("flower_shape", "papilionaceous"): ("M0_floral_phenotype", "floral_form", "papilionaceous"),
     ("flower_shape", "spurred"): ("M0_floral_phenotype", "floral_form", "spurred"),
     ("flower_shape", "urn-shaped"): ("M0_floral_phenotype", "floral_form", "urn_urceolate"),
+    ("flower_shape", "globose / spherical flower head"): (
+        "M0_floral_phenotype",
+        "floral_form",
+        "composite_head",
+    ),
+    ("flower_shape", "spike / elongated inflorescence"): (
+        "M0_floral_phenotype",
+        "inflorescence_display",
+        "raceme_spike_panicle",
+    ),
     ("pollination_guild", "bumblebees"): (
         "M2_pollinator_functional_evidence",
         "pollination_functional_guild",
@@ -351,6 +361,21 @@ SHAPE_RULES: list[Rule] = [
         "spurred",
         r"\b(?:spurred flower|floral spur|nectar spur)\b",
         "shape_spurred",
+    ),
+    (
+        "flower_shape",
+        "globose / spherical flower head",
+        r"\b(?:(?:spherical|globose|globbose|globe[- ]shaped) "
+        r"(?:flower )?(?:heads?|balls?)|(?:flower )?(?:heads?|balls?) "
+        r"(?:are )?(?:spherical|globose|globbose|globe[- ]shaped))\b",
+        "shape_globose_head",
+    ),
+    (
+        "flower_shape",
+        "spike / elongated inflorescence",
+        r"\b(?:inflorescences? (?:are )?spiciform|spiciform inflorescences?|"
+        r"spicate inflorescences?|floral spikes?|flower spikes?)\b",
+        "shape_spike_inflorescence",
     ),
 ]
 
@@ -580,12 +605,17 @@ BULK_VALUE_MAP: dict[str, dict[str, tuple[str, str]]] = {
 }
 
 FLORAL_CONTEXT = re.compile(
-    r"\b(?:flower|flowers|floral|floret|corolla|petal|sepal|tepal|perianth|inflorescence|capitulum)\b",
+    r"\b(?:flower|flowers|floral|floret|florets|corolla|corollas|petal|petals|sepal|"
+    r"sepals|tepal|tepals|perianth|inflorescence|inflorescences|capitulum|capitula)\b",
     re.IGNORECASE,
 )
 NON_FLORAL_CONTEXT = re.compile(
     r"\b(?:leaf|leaves|foliage|phyllode|phyllodes|fruit|fruits|berry|berries|seed|seeds|"
-    r"bark|stem|wood|powdery bloom)\b",
+    r"bark|stem|wood|ripe|ripening|powdery bloom)\b",
+    re.IGNORECASE,
+)
+NAME_CONTEXT = re.compile(
+    r"\b(?:called|known as|commonly known|named|name|meaning)\b",
     re.IGNORECASE,
 )
 NEGATION = re.compile(r"\b(?:not|no|without|lack(?:s|ed|ing)?)\b", re.IGNORECASE)
@@ -634,6 +664,9 @@ def _has_floral_context(text: str, start: int, end: int) -> bool:
         return False
     center = start - sentence_start - 1
     floral_distance = min(abs(center - match.start()) for match in floral)
+    names = list(NAME_CONTEXT.finditer(local))
+    if names and min(abs(center - match.start()) for match in names) <= floral_distance:
+        return False
     non_floral = list(NON_FLORAL_CONTEXT.finditer(local))
     if not non_floral:
         return True
@@ -1121,13 +1154,76 @@ def build_priority_traits(raw: pd.DataFrame, likely_wide: pd.DataFrame) -> pd.Da
     return pd.DataFrame(output, columns=PRIORITY_COLUMNS)
 
 
-def _json_getter(client: Any) -> Callable[[str, dict[str, Any]], dict[str, Any]]:
+def _json_getter(
+    client: Any,
+    *,
+    max_attempts: int = 3,
+) -> Callable[[str, dict[str, Any]], dict[str, Any]]:
     def getter(url: str, params: dict[str, Any]) -> dict[str, Any]:
-        response = client.get(url, params=params)
-        response.raise_for_status()
-        return response.json()
+        for attempt in range(max_attempts):
+            response = client.get(url, params=params)
+            status = int(getattr(response, "status_code", 0))
+            retryable = status in {408, 425, 429, 500, 502, 503, 504}
+            if not retryable or attempt + 1 >= max_attempts:
+                response.raise_for_status()
+                return response.json()
+            retry_after = _text(getattr(response, "headers", {}).get("Retry-After"))
+            delay = float(retry_after) if retry_after.replace(".", "", 1).isdigit() else 2**attempt
+            time.sleep(min(delay, 10.0))
+        raise RuntimeError("unreachable JSON retry state")
 
     return getter
+
+
+def _wikipedia_exact_sources(
+    species: list[str],
+    getter: Callable[[str, dict[str, Any]], dict[str, Any]],
+    pause_seconds: float,
+    wikipedia_languages: list[str] | None = None,
+) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    """Fetch exact scientific-name pages without the extra Wikidata round trips."""
+    rows: list[dict[str, str]] = []
+    errors: list[dict[str, str]] = []
+    languages = trait_web_reported_scout.normalize_wikipedia_languages(wikipedia_languages)
+    for name in species:
+        for language in languages:
+            try:
+                extract, url, resolved = trait_web_reported_scout.fetch_wikipedia_extract(
+                    getter,
+                    name,
+                    language,
+                )
+            except Exception as exc:  # noqa: BLE001
+                errors.append(
+                    {
+                        "species": name,
+                        "source": f"wikipedia_{language}",
+                        "error": str(exc),
+                    }
+                )
+                continue
+            if not extract:
+                continue
+            scope = (
+                "species_direct"
+                if name.casefold() in extract.casefold()
+                or trait_web_reported_scout._scope_for(name, resolved) == "species_direct"  # noqa: SLF001
+                else "species_indirect"
+            )
+            rows.append(
+                {
+                    "accepted_species": name,
+                    "source_text": _text(extract),
+                    "source_url": url,
+                    "source_citation": f"{resolved or name} Wikipedia extract ({language})",
+                    "source_type": "wikipedia_extract",
+                    "evidence_scope": scope,
+                }
+            )
+            break
+        if pause_seconds > 0:
+            time.sleep(pause_seconds)
+    return rows, errors
 
 
 class _VisibleTextParser(HTMLParser):
@@ -1477,17 +1573,14 @@ def collect_free_sources(
             error_rows.extend(errors)
         if include_wikimedia:
             missing = _missing_species_for_fields(species, source_rows, seed, all_fields)
-            species_frame = pd.DataFrame({"accepted_species": missing})
-            rows, errors = reported_ecology_machine.wikimedia_text_sources(
-                species_frame,
+            rows, errors = _wikipedia_exact_sources(
+                missing,
                 getter,
-                len(missing),
+                pause_seconds,
                 wikipedia_languages=wikipedia_languages,
             )
-            source_rows.extend(rows.to_dict("records"))
-            error_rows.extend(
-                {"species": "", "source": "wikimedia", "error": error} for error in errors
-            )
+            source_rows.extend(rows)
+            error_rows.extend(errors)
         if include_openalex:
             missing = _missing_species_for_fields(
                 species,
