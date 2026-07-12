@@ -56,6 +56,13 @@ Low-confidence is not the same as wrong. Declared weak-source and taxonomic
 inference candidates remain auditable in the broad track, while logical errors
 such as inferring autonomous selfing from self-compatibility alone are quarantined.
 
+The single scoreboard for how far acquisition has actually got is
+`island-v2-acquisition-rate`, which unions every channel against the master
+species set and reports the broad, source-backed coverage rate per trait. It is
+the confirm-instrument for the rate-first workflow: land a source, rerun, read
+the delta. Details are in
+[`docs/acquisition_rate_report.md`](docs/acquisition_rate_report.md).
+
 ## Frozen v1
 
 The original standalone R analysis is preserved without edits under

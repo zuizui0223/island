@@ -1,0 +1,64 @@
+version: "1.0"
+
+# Denominator for the global broad acquisition rate: the frozen master species
+# universe assembled from the exact island polygons.
+master_taxa_csv: data/v2/staging/gbif/collected/island_taxa.csv
+master_species_column: accepted_species
+
+# Broad-coverage minimum. flower_primary_color is the single most important
+# acquisition target; floral_form/floral_symmetry are the shape axis, with
+# symmetry as the fallback when form is absent. core_minimum_broad_rate is the
+# fraction of the master with both a colour and a form/symmetry candidate.
+core_traits:
+  colour:
+    - flower_primary_color
+  form:
+    - floral_form
+    - floral_symmetry
+
+# Traits reported in the per-trait coverage table, in display order.
+reported_traits:
+  - flower_primary_color
+  - floral_form
+  - floral_symmetry
+  - flower_size_class
+  - tube_depth_class
+  - pollen_vector_mode
+  - pollination_functional_guild
+  - sex_system
+  - mating_system
+  - self_incompatibility
+  - autonomous_selfing_capacity
+  - cleistogamy
+  - dichogamy
+
+# Acquisition channels unioned into the report. counts_as_broad selects whether
+# a channel's source-backed candidates fold into the broad rate. Inference and
+# proxy channels stay visible by track but out of the broad rate. Channels whose
+# files do not exist yet contribute nothing and are safe to leave declared, so
+# newly landed bulk sources (EOL TraitBank, Wikidata, others) appear in the rate
+# as soon as they write to their staging path.
+sources:
+  curated_accepted:
+    adapter: curated_evidence
+    glob: "data/v2/curated/*trait*.csv"
+    counts_as_broad: true
+    track: curated_accepted
+
+  global_campaign_machine:
+    adapter: candidate_index
+    path: data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz
+    counts_as_broad: true
+    track: machine_wave_source_backed
+
+  bulk_trait:
+    adapter: candidate_long
+    glob: "data/v2/staging/traits/bulk/**/trait_candidates.csv*"
+    counts_as_broad: true
+    track: bulk_source_backed
+
+  search_enabled_llm:
+    adapter: search_enabled_llm
+    glob: "data/v2/staging/traits/search_enabled_llm_campaign/batch_*_results.jsonl"
+    counts_as_broad: false
+    track: llm_search_inference
