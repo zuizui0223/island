@@ -49,26 +49,48 @@ jobs:
         run: |
           python -m island_v2.search_enabled_llm_campaign prepare \
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
-            --campaign-dir /tmp/search_enabled_llm_campaign \
+            --campaign-dir /tmp/search_enabled_llm_campaign_100 \
             --shard-index 0 \
             --shard-count 128 \
             --batch-size 100
-          cat /tmp/search_enabled_llm_campaign/campaign_status.json >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/search_enabled_llm_campaign_100/campaign_status.json >> "$GITHUB_STEP_SUMMARY"
           python - <<'PY'
           import json
           from pathlib import Path
 
-          path = Path('/tmp/search_enabled_llm_campaign/jobs_shard_0000.jsonl')
+          path = Path('/tmp/search_enabled_llm_campaign_100/jobs_shard_0000.jsonl')
           jobs = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
           assert len(jobs) == 100, len(jobs)
           assert len({job['job_id'] for job in jobs}) == 100
           assert all(job['prompt_sha256'] for job in jobs)
           print(f"validated {len(jobs)} unique production jobs")
           PY
-      - name: Upload production dry-run manifest
+      - name: Build 1,000-job scale dry run from the real master
+        run: |
+          python -m island_v2.search_enabled_llm_campaign prepare \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --campaign-dir /tmp/search_enabled_llm_campaign_1000 \
+            --shard-index 0 \
+            --shard-count 64 \
+            --batch-size 1000
+          cat /tmp/search_enabled_llm_campaign_1000/campaign_status.json >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('/tmp/search_enabled_llm_campaign_1000/jobs_shard_0000.jsonl')
+          jobs = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+          assert len(jobs) == 1000, len(jobs)
+          assert len({job['job_id'] for job in jobs}) == 1000
+          assert len({job['species'] for job in jobs}) == 1000
+          print(f"validated {len(jobs)} unique scale-test jobs")
+          PY
+      - name: Upload production dry-run manifests
         uses: actions/upload-artifact@v4
         with:
           name: search-enabled-llm-global-campaign-${{ github.run_id }}
-          path: /tmp/search_enabled_llm_campaign/
+          path: |
+            /tmp/search_enabled_llm_campaign_100/
+            /tmp/search_enabled_llm_campaign_1000/
           if-no-files-found: error
           retention-days: 90
