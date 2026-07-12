@@ -40,7 +40,7 @@ jobs:
           cat /tmp/shard_0000/campaign_status.json >> "$GITHUB_STEP_SUMMARY"
       - name: Collect raw web search packets for the full shard
         run: |
-          python -m island_v2.search_engine_shard_packet collect \
+          python -m island_v2.search_engine_shard_packet \
             --jobs-jsonl /tmp/shard_0000/jobs_shard_0000.jsonl \
             --output-dir /tmp/shard_0000/search_packets \
             --results-per-query 5 \
