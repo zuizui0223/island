@@ -2,7 +2,7 @@ name: benchmark_search_enabled_llm_global_campaign
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, codex/literature-recovery-pilot]
     paths:
       - "src/island_v2/search_enabled_llm_campaign.py"
       - "tests/test_search_enabled_llm_campaign.py"
