@@ -16,6 +16,7 @@ transformations.
 | 4. Global trait campaign | `drive-global-trait-campaign.yml` / `island-v2-global-trait-campaign run` | hourly / manual | Advance one family-balanced wave across the global unique-species master. The ordered tasks are reproductive and pollen-vector evidence, floral-access traits for direct biotic-vector candidates, then alternative-pollinator guild evidence. |
 | 4a. Regional source discovery | `discover-core-pilot-trait-sources.yml` | manual only | Optional deep reading for a named island or regional mechanism case. It no longer drives global acquisition. |
 | 4b. Public PDF locator | `island-v2-trait-pdf-locator locate-pages` | manual / after source discovery | Save matched public-PDF page locators without treating page hits as biological confirmation. |
+| 4c. Public-web gap recovery | `run-public-web-trait-shards.yml` / `island-v2-web-trait-shards run` | scheduled / manual | Seed from bulk and machine candidates, then advance 128 resumable shards through public-web evidence packets and exact nine-column validation. |
 | 4.5 Attrition audit | `island-v2-attrition run` | after reviewed evidence exists | Quantify trait coverage and island attrition before any outcome model. |
 | CI | `validate-v2.yml` | PR / relevant push | Validate workflows, lint, ontology contracts, and run the full test suite. |
 

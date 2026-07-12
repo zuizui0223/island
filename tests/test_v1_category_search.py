@@ -108,6 +108,26 @@ def test_extracts_explicit_traits_with_floral_context() -> None:
     assert set(evidence["evidence_type"]) == {"flora"}
 
 
+def test_rejects_nonfloral_powdery_bloom_color_near_flowering_time() -> None:
+    sources = _sources(
+        {
+            "accepted_species": "Plantus powderii",
+            "source_text": (
+                "The phyllodes are distinctly covered with a white powdery bloom, "
+                "and flowers from August to September."
+            ),
+            "source_url": "https://example.org/plantus-powderii",
+            "source_citation": "Example flora",
+            "source_type": "flora_or_monograph",
+            "evidence_scope": "species_direct",
+        }
+    )
+
+    evidence = extract_evidence_from_sources(sources)
+
+    assert "flower_color" not in set(evidence["field"])
+
+
 def test_ignores_indirect_and_negated_claims() -> None:
     sources = _sources(
         {
