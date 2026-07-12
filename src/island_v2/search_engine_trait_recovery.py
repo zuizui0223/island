@@ -24,24 +24,41 @@ app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 USER_AGENT = "island-floral-v2/0.1 search-engine-trait-recovery"
 
-# Two broad first-pass queries keep the request budget bounded for 100k taxa.
+# Short first-pass queries work better than keyword-stuffed queries in search snippets.
 PRIMARY_QUERIES = {
-    "phenotype": '"{name}" flowers flower color colour corolla petals shape symmetry',
-    "reproduction": (
-        '"{name}" pollination pollinator pollinated self-compatible self-incompatible '
-        'selfing outcrossing autogamy mating system breeding system'
-    ),
+    "phenotype": '"{name}" flower',
+    "reproduction": '"{name}" pollination',
 }
 
-# Only unresolved fields trigger these narrower fallback queries.
-FALLBACK_QUERIES = {
-    "flower_color": '"{name}" flower color colour flowers corolla petals',
-    "flower_shape": '"{name}" flower shape floral morphology corolla symmetry',
-    "pollination_guild": '"{name}" pollinated by pollinator bees flies butterflies moths birds wind',
-    "mating_system": '"{name}" mating system breeding system selfing outcrossing autogamy',
+# Only unresolved fields trigger these short exact-phrase variants. The expensive
+# variants are gap-only, so well-described taxa still finish after two searches.
+FALLBACK_QUERY_VARIANTS = {
+    "flower_color": (
+        '"{name}" flower color',
+        '"{name}" flower colour',
+        '"{name}" flowers are',
+    ),
+    "flower_shape": (
+        '"{name}" flower shape',
+        '"{name}" floral morphology',
+        '"{name}" corolla',
+    ),
+    "pollination_guild": (
+        '"{name}" pollinated by',
+        '"{name}" pollinator',
+        '"{name}" pollination biology',
+    ),
+    "mating_system": (
+        '"{name}" mating system',
+        '"{name}" breeding system',
+        '"{name}" selfing outcrossing',
+        '"{name}" autogamy',
+    ),
     "self_incompatibility": (
-        '"{name}" self-compatible self-incompatible self-fertile self-sterile '
-        'self compatibility self incompatibility'
+        '"{name}" self-compatible',
+        '"{name}" self-incompatible',
+        '"{name}" self-fertile',
+        '"{name}" self-sterile',
     ),
 }
 
@@ -332,18 +349,31 @@ def collect_query(
         snippet = clean(result.get("snippet"))
         url = clean(result.get("url"))
         combined = f"{title}. {snippet}".strip()
-        if not url or not taxon_present(combined, query_taxon, scope):
+        if not url:
             continue
+        explicit_taxon = taxon_present(combined, query_taxon, scope)
+        # Search engines often omit the queried scientific name from the rendered
+        # snippet. Exact-name query provenance is therefore retained as low-confidence
+        # likely evidence instead of being discarded outright.
+        status = "reported" if scope == "species" and explicit_taxon else "likely"
+        confidence = "medium" if status == "reported" else "low"
+        target_trait = ""
+        if query_family.startswith("gap_"):
+            target_trait = query_family.removeprefix("gap_")
+        elif query_family.startswith("genus_"):
+            target_trait = query_family.removeprefix("genus_")
         for trait, value in extract_traits(combined).items():
-            if scope == "genus" and trait == "self_incompatibility":
+            if target_trait and trait != target_trait:
+                continue
+            if status == "likely" and trait == "self_incompatibility":
                 value = "likely_SI" if value == "SI" else "likely_SC"
             rows.append(
                 {
                     "accepted_species": species,
                     "trait": trait,
                     "value": value,
-                    "inference_status": "reported" if scope == "species" else "likely",
-                    "confidence": "medium" if scope == "species" else "low",
+                    "inference_status": status,
+                    "confidence": confidence,
                     "query_taxon": query_taxon,
                     "search_scope": scope,
                     "query_family": query_family,
@@ -395,22 +425,26 @@ def one_species(species: str, result_limit: int, use_genus_fallback: bool) -> tu
         frame = pd.DataFrame(evidence, columns=EVIDENCE_COLUMNS)
         resolved = set(frame["trait"]) if not frame.empty else set()
 
-        # Narrow species-level search only for unresolved fields.
+        # Short exact species-level variants only for unresolved fields. Stop as soon
+        # as a variant resolves the target trait.
         for trait in TRAITS:
             if trait in resolved:
                 continue
-            query = FALLBACK_QUERIES[trait].format(name=species)
-            evidence.extend(
-                collect_query(
-                    client,
-                    species=species,
-                    query_taxon=species,
-                    scope="species",
-                    query_family=f"gap_{trait}",
-                    query=query,
-                    limit=result_limit,
+            for template in FALLBACK_QUERY_VARIANTS[trait]:
+                query = template.format(name=species)
+                evidence.extend(
+                    collect_query(
+                        client,
+                        species=species,
+                        query_taxon=species,
+                        scope="species",
+                        query_family=f"gap_{trait}",
+                        query=query,
+                        limit=result_limit,
+                    )
                 )
-            )
+                if any(row["trait"] == trait for row in evidence):
+                    break
 
         frame = pd.DataFrame(evidence, columns=EVIDENCE_COLUMNS)
         resolved = set(frame["trait"]) if not frame.empty else set()
@@ -420,18 +454,21 @@ def one_species(species: str, result_limit: int, use_genus_fallback: bool) -> tu
             for trait in TRAITS:
                 if trait in resolved or not genus_name:
                     continue
-                query = FALLBACK_QUERIES[trait].format(name=genus_name)
-                evidence.extend(
-                    collect_query(
-                        client,
-                        species=species,
-                        query_taxon=genus_name,
-                        scope="genus",
-                        query_family=f"genus_{trait}",
-                        query=query,
-                        limit=result_limit,
+                for template in FALLBACK_QUERY_VARIANTS[trait]:
+                    query = template.format(name=genus_name)
+                    evidence.extend(
+                        collect_query(
+                            client,
+                            species=species,
+                            query_taxon=genus_name,
+                            scope="genus",
+                            query_family=f"genus_{trait}",
+                            query=query,
+                            limit=result_limit,
+                        )
                     )
-                )
+                    if any(row["trait"] == trait for row in evidence):
+                        break
 
     frame = pd.DataFrame(evidence, columns=EVIDENCE_COLUMNS)
     if not frame.empty:
@@ -520,7 +557,8 @@ def collect(
         "n_evidence_rows": len(evidence),
         "n_errors": len(errors),
         "query_policy": (
-            "2 broad exact-name queries per species; unresolved fields only trigger narrow species queries; "
+            "2 short exact-name queries per species; unresolved fields trigger short exact-phrase variants; "
+            "query-bound snippets without repeated taxon names are retained as low-confidence likely evidence; "
             "remaining gaps optionally trigger genus-level likely fallback; Bing RSS primary, DuckDuckGo fallback"
         ),
         "page_fetching": False,
