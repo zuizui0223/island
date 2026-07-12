@@ -584,7 +584,8 @@ FLORAL_CONTEXT = re.compile(
     re.IGNORECASE,
 )
 NON_FLORAL_CONTEXT = re.compile(
-    r"\b(?:leaf|leaves|foliage|fruit|fruits|berry|berries|seed|seeds|bark|stem|wood)\b",
+    r"\b(?:leaf|leaves|foliage|phyllode|phyllodes|fruit|fruits|berry|berries|seed|seeds|"
+    r"bark|stem|wood|powdery bloom)\b",
     re.IGNORECASE,
 )
 NEGATION = re.compile(r"\b(?:not|no|without|lack(?:s|ed|ing)?)\b", re.IGNORECASE)
