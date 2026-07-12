@@ -60,11 +60,71 @@ def test_direct_values_win_and_family_priors_fill_only_gaps() -> None:
     assert first["mating_system"] == "mainly_selfing"
     assert "field_study" in first["evidence_type"]
     assert "inference" in first["evidence_type"]
-
     assert second["pollination_guild"] == "bees"
     assert second["self_incompatibility"] == "likely_SI"
     assert second["confidence"] == "low"
     assert set(provenance["mode"]) == {"direct", "likely"}
+    assert {"source", "evidence_scope", "confidence"}.issubset(provenance.columns)
+
+
+def test_simple_synonym_genus_family_cascade() -> None:
+    master = pd.DataFrame(
+        {
+            "accepted_species": ["Alpha one", "Alpha two", "Beta three"],
+            "genus": ["Alpha", "Alpha", "Beta"],
+            "family": ["Testaceae", "Testaceae", "Testaceae"],
+            "synonyms": ["Oldalpha one", "", ""],
+        }
+    )
+    direct = pd.DataFrame(
+        [
+            {
+                "species": "Oldalpha one",
+                "flower_color": "red",
+                "flower_shape": "tubular",
+                "pollination_guild": "unknown",
+                "pollination_notes": "synonym account",
+                "mating_system": "unknown",
+                "self_incompatibility": "unknown",
+                "evidence_type": "flora",
+                "confidence": "medium",
+            },
+            {
+                "species": "Beta three",
+                "flower_color": "white",
+                "flower_shape": "open",
+                "pollination_guild": "flies",
+                "pollination_notes": "direct account",
+                "mating_system": "mixed_mating",
+                "self_incompatibility": "SC",
+                "evidence_type": "flora",
+                "confidence": "medium",
+            },
+        ]
+    )
+    priority = pd.DataFrame(
+        {
+            "species": ["Alpha one", "Alpha two", "Beta three"],
+            "flower_color": ["unknown", "unknown", "unknown"],
+            "flower_shape": ["unknown", "unknown", "unknown"],
+            "pollination_guild": ["unknown", "unknown", "unknown"],
+            "mating_system": ["unknown", "unknown", "unknown"],
+            "selfing_status": ["unknown", "unknown", "unknown"],
+            "self_incompatibility": ["unknown", "unknown", "unknown"],
+        }
+    )
+
+    table, provenance = boost_table(master, direct, priority)
+    one = table.loc[table["species"].eq("Alpha one")].iloc[0]
+    two = table.loc[table["species"].eq("Alpha two")].iloc[0]
+
+    assert one["flower_color"] == "red"
+    assert two["flower_color"] == "red"
+    assert two["pollination_guild"] == "flies"
+    scopes = set(provenance["evidence_scope"])
+    assert "synonym_direct" in scopes
+    assert "genus_fallback" in scopes
+    assert "family_fallback" in scopes
 
 
 def test_coverage_counts_non_unknown_values() -> None:
