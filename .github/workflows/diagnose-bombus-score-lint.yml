@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - agent/bombus-channel-continuous-score
+  pull_request:
 
 permissions:
   contents: read
