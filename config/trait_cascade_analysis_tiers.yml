@@ -1,0 +1,44 @@
+version: "1.0"
+
+# The completed fill cascade is exhaustive but mixes direct evidence and increasingly
+# coarse inference. These tiers keep that resolution explicit in modelling.
+analysis_tiers:
+  primary:
+    allowed_fill_tiers:
+      - species_direct
+    interpretation: "Direct source-backed species values only."
+
+  broad:
+    allowed_fill_tiers:
+      - species_direct
+      - genus_inference
+      - family_inference
+    interpretation: "Taxonomically informed values; excludes global fallback."
+
+  sensitivity_all:
+    allowed_fill_tiers:
+      - species_direct
+      - genus_inference
+      - family_inference
+      - global_fallback
+    interpretation: "Complete 106,295-species table; global fallback retained only for sensitivity analysis."
+
+required_traits:
+  floral:
+    - flower_primary_color
+    - floral_form
+    - floral_symmetry
+  pollination:
+    - pollen_vector_mode
+    - pollination_functional_guild
+  reproductive:
+    - sex_system
+    - mating_system
+    - self_incompatibility
+    - autonomous_selfing_capacity
+
+identity:
+  species_column: accepted_species
+  trait_column: trait_name
+  value_column: filled_value
+  tier_column: fill_tier
