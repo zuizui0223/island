@@ -3,9 +3,6 @@ name: prepare_bombus_niche_real_data
 on:
   workflow_dispatch:
     inputs:
-      islands_gpkg:
-        description: "Repo-relative frozen global islands GeoPackage"
-        required: true
       min_occurrence_records:
         description: "Minimum coordinate-bearing GBIF records required for a Bombus species"
         required: false
@@ -18,6 +15,15 @@ on:
         description: "Maximum GBIF occurrence records retained per species"
         required: false
         default: "5000"
+  push:
+    branches: [feat/bombus-hypervolume-real-data]
+    paths:
+      - ".github/workflows/prepare-bombus-niche-real-data.yml"
+      - "src/island_v2/bombus_niche_inputs.py"
+      - "src/island_v2/bombus_niche_hypervolume.py"
+      - "src/island_v2/gshhg_source.py"
+      - "config/island_source_gshhg.yml"
+      - "pyproject.toml"
 
 permissions:
   contents: read
@@ -37,17 +43,21 @@ jobs:
       - name: Install package
         run: pip install -e ".[dev]"
 
-      - name: Acquire global Bombus occurrence environments and island climates
-        env:
-          ISLANDS_GPKG: ${{ inputs.islands_gpkg }}
-          MIN_RECORDS: ${{ inputs.min_occurrence_records }}
-          MAX_SPECIES: ${{ inputs.max_species }}
-          MAX_OCCURRENCES: ${{ inputs.max_occurrences_per_species }}
+      - name: Rebuild the declared global island universe
         run: |
           set -euo pipefail
-          test -f "$ISLANDS_GPKG"
+          island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
+          test -f data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
+
+      - name: Acquire global Bombus occurrence environments and island climates
+        env:
+          MIN_RECORDS: ${{ inputs.min_occurrence_records || '50' }}
+          MAX_SPECIES: ${{ inputs.max_species || '300' }}
+          MAX_OCCURRENCES: ${{ inputs.max_occurrences_per_species || '5000' }}
+        run: |
+          set -euo pipefail
           island-v2-bombus-niche-inputs acquire-global \
-            --islands-gpkg "$ISLANDS_GPKG" \
+            --islands-gpkg data/v2/external/islands/gshhg/prepared/islands_v2.gpkg \
             --min-occurrence-records "$MIN_RECORDS" \
             --max-species "$MAX_SPECIES" \
             --max-occurrences-per-species "$MAX_OCCURRENCES" \
@@ -87,9 +97,12 @@ jobs:
           PY
 
       - name: Upload global real-data niche products
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bombus-niche-global-real-data-${{ github.run_id }}
-          path: data/v2/staging/bombus/niche_global/
-          if-no-files-found: error
+          path: |
+            data/v2/external/islands/gshhg/prepared/source_policy.json
+            data/v2/staging/bombus/niche_global/
+          if-no-files-found: warn
           retention-days: 90
