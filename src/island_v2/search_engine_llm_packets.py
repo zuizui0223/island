@@ -15,17 +15,19 @@ import httpx
 import pandas as pd
 import typer
 
-from island_v2.search_engine_trait_recovery import clean, search_with_fallback
+from island_v2.search_engine_trait_recovery import clean, search_bing, search_duck
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
+# Start with the exact scientific name alone. Trait words are added only in short queries.
 QUERY_TEMPLATES = (
-    '"{name}" flower color shape pollination',
-    '"{name}" pollinator self-compatible self-incompatible selfing outcrossing',
-    '"{name}" floral morphology breeding system mating system',
+    '"{name}"',
+    '"{name}" flower color shape',
+    '"{name}" pollination pollinator',
+    '"{name}" self-compatible self-incompatible selfing outcrossing mating system',
 )
 
-PROMPT_VERSION = "v1_style_search_context_v1"
+PROMPT_VERSION = "v1_style_search_context_v2"
 
 PROMPT = """You are an expert in plant reproductive biology and pollination ecology.
 
@@ -55,9 +57,32 @@ def sha256_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def search_union(client: httpx.Client, query: str, limit: int) -> list[tuple[str, dict[str, str]]]:
+    """Prefer DuckDuckGo relevance, then add non-duplicate Bing RSS results."""
+    rows: list[tuple[str, dict[str, str]]] = []
+    seen: set[str] = set()
+    try:
+        for engine, result in search_duck(client, query, limit):
+            url = clean(result.get("url"))
+            if url and url not in seen:
+                seen.add(url)
+                rows.append((engine, result))
+    except Exception:
+        pass
+    try:
+        for engine, result in search_bing(client, query, limit):
+            url = clean(result.get("url"))
+            if url and url not in seen:
+                seen.add(url)
+                rows.append((engine, result))
+    except Exception:
+        pass
+    return rows[: max(limit, 1) * 2]
+
+
 def collect_species_context(species: str, results_per_query: int) -> dict[str, object]:
     headers = {
-        "User-Agent": "island-floral-v2/0.1 search-engine-llm-packets",
+        "User-Agent": "Mozilla/5.0 (compatible; island-floral-v2/0.1; research)",
         "Accept-Language": "en;q=0.9,*;q=0.5",
     }
     rows: list[dict[str, str]] = []
@@ -66,7 +91,7 @@ def collect_species_context(species: str, results_per_query: int) -> dict[str, o
         for template in QUERY_TEMPLATES:
             query = template.format(name=species)
             for rank, (engine, result) in enumerate(
-                search_with_fallback(client, query, results_per_query), start=1
+                search_union(client, query, results_per_query), start=1
             ):
                 url = clean(result.get("url"))
                 if not url or url in seen:
@@ -173,7 +198,7 @@ def build(
         "n_errors": len(errors),
         "queries_per_species": len(QUERY_TEMPLATES),
         "prompt_version": PROMPT_VERSION,
-        "policy": "freeze broad search-result context first; assign the 9-column trait row semantically afterward",
+        "policy": "exact-name-first search; DuckDuckGo preferred and Bing added only as supplementary context; freeze result context before semantic 9-column extraction",
     }
     (output_dir / "search_context_packet_report.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
