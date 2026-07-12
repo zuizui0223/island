@@ -54,7 +54,7 @@ jobs:
             --species-csv data/v2/staging/traits/validation_pilot/validation_pilot_species.csv \
             --output-dir /tmp/relevant_search \
             --max-taxa 25 \
-            --max-synonyms 3 \
+            --max-synonyms 1 \
             --max-results-per-query 8 \
             --max-sources-per-species 8 \
             --workers 8
