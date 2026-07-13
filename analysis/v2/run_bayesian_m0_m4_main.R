@@ -248,13 +248,17 @@ m4 <- d[
 ]
 m4[, analysis_regime := factor(analysis_regime)]
 
+# For multinomial responses, brms creates category-specific distributional
+# parameters. A generic class='b' prior does not map to those parameters in all
+# brms versions, so M4 deliberately uses brms defaults here. The category model
+# itself is unchanged; explicit category-specific priors can be added later using
+# get_prior() once the final category contract is frozen.
 m4_color <- brm(
   cbind(color_plain, color_yellow_orange, color_red_pink, color_blue_purple) ~
     z_log_distance_to_continent_km * z_log_island_area_km2 * analysis_regime +
     z_showy_alt_guild_share + z_other_bee_guild_share + z_generalist_insect_guild_share,
   data = m4[color_trials > 0],
   family = multinomial(),
-  prior = prior(normal(0, 1), class = "b"),
   chains = 2, cores = 2, iter = 1200, warmup = 600, seed = 20260713,
   control = list(adapt_delta = 0.95), save_pars = save_pars(all = TRUE),
   file = file.path(outdir, "m4_color"), refresh = 100
@@ -266,7 +270,6 @@ m4_form <- brm(
     z_showy_alt_guild_share + z_other_bee_guild_share + z_generalist_insect_guild_share,
   data = m4[form_trials > 0],
   family = multinomial(),
-  prior = prior(normal(0, 1), class = "b"),
   chains = 2, cores = 2, iter = 1200, warmup = 600, seed = 20260713,
   control = list(adapt_delta = 0.95), save_pars = save_pars(all = TRUE),
   file = file.path(outdir, "m4_form"), refresh = 100
