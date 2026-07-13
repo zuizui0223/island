@@ -1,4 +1,4 @@
-name: run_v2_bayesian_global_isolation_counterfactual
+name: run_v2_bayesian_scalar_falsification_replication
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 jobs:
-  global-isolation-counterfactual:
+  scalar-falsification-replication:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     steps:
@@ -58,7 +58,7 @@ jobs:
           mkdir -p /tmp/covariates
           unzip -q /tmp/covariates.zip -d /tmp/covariates
 
-      - name: Prepare global island-level Bayesian input
+      - name: Prepare global scalar replication input
         run: |
           set -euo pipefail
           MASTER=$(find /tmp/integrated -type f -path '*/bombus_join/sensitivity_all/island_species_trait_bombus_master.csv.gz' -print -quit)
@@ -69,19 +69,21 @@ jobs:
           python src/island_v2/prepare_v2_bayesian_main_input.py \
             --master-csv-gz "$MASTER" \
             --island-covariates-csv "$COV" \
+            --analysis-tier sensitivity_all \
             --output-csv data/v2/staging/analysis/bayesian_global_isolation/input.csv
           python - <<'PY'
           import pandas as pd
-          p='data/v2/staging/analysis/bayesian_global_isolation/input.csv'
-          d=pd.read_csv(p)
+
+          p = 'data/v2/staging/analysis/bayesian_global_isolation/input.csv'
+          d = pd.read_csv(p)
           assert d['island_id'].is_unique
-          assert len(d)==8265
-          assert (d['color_trials'].fillna(0)>=d['color_plain'].fillna(0)).all()
-          assert (d['form_trials'].fillna(0)>=d['form_open_generalized'].fillna(0)).all()
-          positive=(d['distance_to_continent_km']>0).sum()
-          zero=(d['distance_to_continent_km']<=0).sum()
+          assert len(d) == 8265
+          assert (d['color_trials'].fillna(0) >= d['color_plain'].fillna(0)).all()
+          assert (d['form_trials'].fillna(0) >= d['form_open_generalized'].fillna(0)).all()
+          positive = int((d['distance_to_continent_km'] > 0).sum())
+          zero = int((d['distance_to_continent_km'] <= 0).sum())
           assert positive > 0
-          print({'n_input':len(d),'n_positive_distance':int(positive),'n_zero_or_negative_distance':int(zero)})
+          print({'n_input': len(d), 'n_positive_distance': positive, 'n_zero_or_negative_distance': zero})
           PY
 
       - name: Install R and Bayesian packages
@@ -93,7 +95,7 @@ jobs:
           sudo Rscript -e "install.packages('brms', repos='https://cloud.r-project.org', quiet=TRUE)"
           Rscript -e "parse(file='analysis/v2/run_bayesian_global_isolation_counterfactual.R'); library(BH); stopifnot(nchar(system.file('include', package='BH')) > 0); packageVersion('brms')"
 
-      - name: Run global Bayesian isolation and counterfactual analysis
+      - name: Run scalar falsification and northern path replication
         run: |
           set -o pipefail
           mkdir -p data/v2/staging/analysis/bayesian_global_isolation/results
@@ -105,20 +107,20 @@ jobs:
       - name: Summarize results
         if: success()
         run: |
-          echo '## Global Bayesian isolation + pollination-channel counterfactual' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Noncanonical Bayesian scalar replication' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/analysis_metadata.json >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Equation-specific maximum support' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/equation_support.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### M3 indirect effects by regime' >> "$GITHUB_STEP_SUMMARY"
-          cat data/v2/staging/analysis/bayesian_global_isolation/results/m3_indirect_effects_by_regime.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '### Northern direct, indirect, and total effects' >> "$GITHUB_STEP_SUMMARY"
+          cat data/v2/staging/analysis/bayesian_global_isolation/results/northern_direct_indirect_total_effects.csv >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload global Bayesian counterfactual artifact
+      - name: Upload scalar replication artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: v2-bayesian-global-isolation-counterfactual-${{ github.run_id }}
+          name: v2-bayesian-scalar-falsification-replication-${{ github.run_id }}
           path: data/v2/staging/analysis/bayesian_global_isolation/
           if-no-files-found: error
           retention-days: 90
