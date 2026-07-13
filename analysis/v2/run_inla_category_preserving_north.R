@@ -24,12 +24,11 @@ required <- c(
 missing <- setdiff(required, names(d))
 if (length(missing)) stop("missing required columns: ", paste(missing, collapse = ", "))
 
-# Primary causal story, deliberately kept simple:
+# Primary causal story:
 # northern isolation -> Bombus deficit -> two routes to dull/generalized flowers
 #   direct:   Bombus deficit -> floral composition
 #   indirect: Bombus deficit -> self-compatibility -> floral composition
-# Tropical and southern-extratropical islands are falsification domains: the
-# northern isolation syndrome should weaken, disappear, or reverse there.
+# Tropical and southern-extratropical islands are falsification domains.
 
 scale_vars <- c(
   "log_distance_to_continent_km", "log_island_area_km2",
@@ -91,19 +90,16 @@ complete <- d[complete.cases(d[, ..core_z]) & !is.na(regime)]
 north <- complete[regime == "northern_midlatitude"]
 if (nrow(north) < 30) stop("Too few complete northern-midlatitude islands")
 
-# Use a common northern support for the mediation system so direct and indirect
-# paths refer to the same island set.
+# Common northern support makes the direct and indirect paths comparable.
 mediation_support <- north[sc_trials > 0 & color_trials > 0 & form_trials > 0]
 if (nrow(mediation_support) < 30) stop("Too few islands on common mediation support")
 fwrite(mediation_support[, .(island_id, analysis_regime, sc_trials, color_trials, form_trials)],
   file.path(outdir, "northern_mediation_support.csv"))
 
-# A path: Bombus deficit -> self-compatibility.
 sc_models <- list(
   N0_geo = geo_fit,
   N1_bombus = paste("z_bombus_deficit +", geo_fit)
 )
-# Trait paths: direct Bombus effect and SC-mediated path are estimated together.
 trait_models <- list(
   N0_geo = geo_fit,
   N1_bombus = paste("z_bombus_deficit +", geo_fit),
@@ -145,11 +141,11 @@ fixed[, excludes_zero := (`0.025quant` > 0 & `0.975quant` > 0) |
   (`0.025quant` < 0 & `0.975quant` < 0)]
 fwrite(fixed, file.path(outdir, "northern_fixed_effects.csv"))
 
-# Direct, indirect, and total effects. The two component models are separate;
-# posterior marginal draws are therefore combined as an explicit product-of-
-# marginals approximation. This is reported in the output metadata.
+# Direct, indirect, and total effects. Component models are separate, so draws
+# from their INLA posterior marginals are combined as an explicit product-of-
+# marginals approximation; this limitation is recorded in metadata.
 sample_fixed <- function(fit, parameter, n = 50000L) {
-  if (!parameter %in% rownames(fit$summary.fixed)) stop("missing parameter: ", parameter)
+  if (!parameter %in% names(fit$marginals.fixed)) stop("missing parameter: ", parameter)
   inla.rmarginal(n, fit$marginals.fixed[[parameter]])
 }
 summarize_draws <- function(x, outcome, effect) {
@@ -186,9 +182,10 @@ key_effects <- fixed[
 ]
 fwrite(key_effects, file.path(outdir, "northern_bombus_syndrome_effects.csv"))
 
-# Falsification: estimate whether the northern isolation slopes for SC and dull/
-# generalized flowers weaken, disappear, or reverse in tropical and southern
-# extratropical regimes. Conspicuous categories are descriptive counter-patterns.
+# Global falsification. We do not fit an alternative-pollinator mechanism here:
+# tropical and southern regimes are used to test whether the northern isolation
+# syndrome is geographically restricted. Conspicuous categories are descriptive
+# counter-patterns, not an additional causal path.
 falsification_outcomes <- list(
   self_compatibility = c("sc_successes", "sc_trials"),
   plain_flower = c("color_plain", "color_trials"),
