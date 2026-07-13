@@ -69,7 +69,6 @@ jobs:
           python src/island_v2/prepare_v2_bayesian_main_input.py \
             --master-csv-gz "$MASTER" \
             --island-covariates-csv "$COV" \
-            --analysis-tier sensitivity_all \
             --output-csv data/v2/staging/analysis/bayesian_global_isolation/input.csv
           python - <<'PY'
           import pandas as pd
