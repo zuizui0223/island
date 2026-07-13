@@ -22,11 +22,17 @@ def _synthetic_cv_data(n: int = 120) -> tuple[pd.DataFrame, list[str]]:
     ]
     rows = []
     for i in range(n):
-        bombus = i / (n - 1)
+        # Generate Bombus independently of the baseline so the contract test asks
+        # whether spatial CV can recover genuinely incremental held-out signal.
+        bombus = float(rng.uniform(0.0, 1.0))
         mixed = np.clip(0.35 - 0.05 * bombus + rng.normal(0, 0.03), 0.05, 0.9)
         sc = np.clip(0.45 - 0.04 * bombus + rng.normal(0, 0.03), 0.05, 0.9)
         alt = np.clip(0.25 + rng.normal(0, 0.04), 0.03, 0.8)
-        floral = np.clip(0.10 + 0.22 * bombus - 0.03 * mixed + rng.normal(0, 0.02), 0.01, 0.95)
+        floral = np.clip(
+            0.08 + 0.35 * bombus - 0.03 * mixed + rng.normal(0, 0.01),
+            0.01,
+            0.95,
+        )
         trials = 100 + i % 20
         rows.append(
             {
