@@ -89,11 +89,15 @@ jobs:
 
       - name: Run Bayesian M0-M4 main analysis
         run: |
+          set -o pipefail
+          mkdir -p data/v2/staging/analysis/bayesian_main/results
           Rscript analysis/v2/run_bayesian_m0_m4_main.R \
             data/v2/staging/analysis/bayesian_main/v2_bayesian_main_input.csv \
-            data/v2/staging/analysis/bayesian_main/results
+            data/v2/staging/analysis/bayesian_main/results \
+            2>&1 | tee data/v2/staging/analysis/bayesian_main/results/run.log
 
       - name: Summarize main results
+        if: success()
         run: |
           echo '## Bayesian v2 M0-M4 main analysis' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_main/results/analysis_metadata.json >> "$GITHUB_STEP_SUMMARY"
@@ -105,6 +109,7 @@ jobs:
           cat data/v2/staging/analysis/bayesian_main/results/m2_m3_indirect_effects.csv >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload Bayesian main-analysis artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: v2-bayesian-m0-m4-main-${{ github.run_id }}
