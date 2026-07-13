@@ -14,11 +14,14 @@ on:
       - "src/island_v2/trait_bombus_analysis.py"
       - "src/island_v2/m0_m4_sem.py"
       - "src/island_v2/m0_m4_sem_scoped.py"
+      - "src/island_v2/m0_global_baseline.py"
+      - "src/island_v2/m1_m3_bombus_channel_input.py"
       - "src/island_v2/sem_readiness.py"
       - "tests/test_trait_cascade_analysis.py"
       - "tests/test_trait_bombus_analysis.py"
       - "tests/test_m0_m4_sem.py"
       - "tests/test_m0_m4_sem_scoped.py"
+      - "tests/test_m1_m3_bombus_channel_input.py"
       - "pyproject.toml"
 
 permissions:
@@ -46,17 +49,21 @@ jobs:
             tests/test_trait_cascade_analysis.py \
             tests/test_trait_bombus_analysis.py \
             tests/test_m0_m4_sem.py \
-            tests/test_m0_m4_sem_scoped.py
+            tests/test_m0_m4_sem_scoped.py \
+            tests/test_m1_m3_bombus_channel_input.py
           ruff check \
             src/island_v2/trait_cascade_analysis.py \
             src/island_v2/trait_bombus_analysis.py \
             src/island_v2/m0_m4_sem.py \
             src/island_v2/m0_m4_sem_scoped.py \
+            src/island_v2/m0_global_baseline.py \
+            src/island_v2/m1_m3_bombus_channel_input.py \
             src/island_v2/sem_readiness.py \
             tests/test_trait_cascade_analysis.py \
             tests/test_trait_bombus_analysis.py \
             tests/test_m0_m4_sem.py \
-            tests/test_m0_m4_sem_scoped.py
+            tests/test_m0_m4_sem_scoped.py \
+            tests/test_m1_m3_bombus_channel_input.py
 
       - name: Download locked PR 102 trait artifact
         env:
@@ -125,33 +132,6 @@ jobs:
           }, indent=2))
           PY
 
-      - name: Build current outcome-blind applicability freeze
-        run: |
-          set -euo pipefail
-          mkdir -p data/v2/staging/sem_readiness/applicability
-          python - <<'PY'
-          import pandas as pd
-          table = pd.read_csv('/tmp/bombus_island_analysis_input.csv')
-          table[['island_id']].drop_duplicates().sort_values('island_id').to_csv(
-              'data/v2/staging/sem_readiness/applicability/global_island_manifest.csv', index=False
-          )
-          PY
-          island-v2-bombus-applicability build \
-            --island-manifest-csv data/v2/staging/sem_readiness/applicability/global_island_manifest.csv \
-            --island-source-assignment-csv data/v2/curation/island_source_region_assignments.csv \
-            --source-region-registry-csv data/v2/curation/source_region_bombus_registry.csv \
-            --source-region-evidence-csv data/v2/curation/source_region_evidence.csv \
-            --island-assignment-evidence-csv data/v2/curation/island_assignment_evidence.csv \
-            --output-dir data/v2/staging/sem_readiness/applicability
-
-      - name: Audit M0-M4 SEM readiness
-        run: |
-          python -m island_v2.sem_readiness \
-            --island-metrics-csv /tmp/bombus_island_analysis_input.csv \
-            --applicability-csv data/v2/staging/sem_readiness/applicability/bombus_applicability_by_island.csv \
-            --output-dir data/v2/staging/sem_readiness \
-            --sem-config config/m0_m4_sem.yml
-
       - name: Audit completed trait matrix
         run: |
           island-v2-trait-cascade-analysis audit \
@@ -216,7 +196,6 @@ jobs:
             config/trait_cascade_artifact_lock.json
             config/bombus_hypervolume_artifact_lock.json
             config/m0_m4_sem.yml
-            data/v2/staging/sem_readiness/
             data/v2/staging/traits/cascade_analysis/
           if-no-files-found: error
           retention-days: 90
