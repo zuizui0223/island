@@ -14,6 +14,8 @@ REQUIRED_COLUMNS = {
     "analysis_regime",
     "area_km2",
     "distance_to_continent_km",
+    "distance_zero_flag",
+    "primary_distance_support",
     "bombus_deficit",
     "color_trials",
     "color_plain",
@@ -64,6 +66,21 @@ def validate_analysis_inputs(
         # Backward-compatible fallback for older workflows. New canonical workflows
         # should validate against the frozen/reference island table instead.
         raise ValueError(f"expected {expected_islands} islands, found {len(data)}")
+
+    if data["distance_to_continent_km"].isna().any():
+        raise ValueError("distance_to_continent_km contains missing values")
+    if (data["distance_to_continent_km"] < 0).any():
+        raise ValueError("distance_to_continent_km must be non-negative")
+
+    expected_zero = data["distance_to_continent_km"].eq(0)
+    observed_zero = data["distance_zero_flag"].astype(bool)
+    if not expected_zero.equals(observed_zero):
+        raise ValueError("distance_zero_flag is inconsistent with distance_to_continent_km")
+
+    expected_primary = data["distance_to_continent_km"].gt(0)
+    observed_primary = data["primary_distance_support"].astype(bool)
+    if not expected_primary.equals(observed_primary):
+        raise ValueError("primary_distance_support is inconsistent with distance_to_continent_km")
 
     checks = [
         ("color_plain", "color_trials"),
