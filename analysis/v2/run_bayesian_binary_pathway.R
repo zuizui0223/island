@@ -29,7 +29,11 @@ z <- function(x) {
   (x - mean(x, na.rm = TRUE)) / s
 }
 
-d[, z_log_distance := z(log(distance_to_continent_km))]
+# Use raw geographic distance on a standardized scale and retain a quadratic term.
+# A positive quadratic coefficient means that the isolation effect accelerates at
+# long distances; a negative coefficient means that it saturates.
+d[, z_distance := z(distance_to_continent_km)]
+d[, z_distance_sq := z_distance^2]
 d[, z_log_area := z(log(area_km2))]
 for (nm in c("climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4")) {
   d[[paste0("z_", nm)]] <- z(d[[nm]])
@@ -38,7 +42,12 @@ d[, z_bombus_deficit := z(bombus_deficit)]
 d[, z_sc_share := z(sc_share)]
 d[, analysis_regime := factor(
   analysis_regime,
-  levels = c("northern_midlatitude", "tropical", "southern_extratropical")
+  levels = c(
+    "northern_midlatitude",
+    "northern_high_latitude",
+    "tropical",
+    "southern_extratropical"
+  )
 )]
 
 fit_bb <- function(formula, data, file) {
@@ -65,7 +74,7 @@ fit_bb <- function(formula, data, file) {
 }
 
 base_complete <- complete.cases(d[, .(
-  z_log_distance, z_log_area, z_climate_pc1, z_climate_pc2,
+  z_distance, z_distance_sq, z_log_area, z_climate_pc1, z_climate_pc2,
   z_climate_pc3, z_climate_pc4, analysis_regime
 )])
 sc_global <- d[base_complete & sc_trials > 0]
@@ -74,21 +83,21 @@ form_global <- d[base_complete & form_trials > 0]
 
 f_sc <- fit_bb(
   sc_successes | trials(sc_trials) ~
-    z_log_distance * analysis_regime + z_log_area +
+    (z_distance + z_distance_sq) * analysis_regime + z_log_area +
     z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
   sc_global,
   file.path(outdir, "falsification_sc")
 )
 f_plain <- fit_bb(
   color_plain | trials(color_trials) ~
-    z_log_distance * analysis_regime + z_log_area +
+    (z_distance + z_distance_sq) * analysis_regime + z_log_area +
     z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
   color_global,
   file.path(outdir, "falsification_plain")
 )
 f_generalized <- fit_bb(
   form_open_generalized | trials(form_trials) ~
-    z_log_distance * analysis_regime + z_log_area +
+    (z_distance + z_distance_sq) * analysis_regime + z_log_area +
     z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
   form_global,
   file.path(outdir, "falsification_generalized")
@@ -96,7 +105,7 @@ f_generalized <- fit_bb(
 
 north <- d[analysis_regime == "northern_midlatitude"]
 north_base <- complete.cases(north[, .(
-  z_log_distance, z_log_area, z_climate_pc1, z_climate_pc2,
+  z_distance, z_distance_sq, z_log_area, z_climate_pc1, z_climate_pc2,
   z_climate_pc3, z_climate_pc4, z_bombus_deficit
 )])
 sc_north <- north[north_base & sc_trials > 0]
@@ -105,21 +114,21 @@ generalized_north <- north[north_base & form_trials > 0 & is.finite(z_sc_share)]
 
 n_sc <- fit_bb(
   sc_successes | trials(sc_trials) ~
-    z_bombus_deficit + z_log_distance + z_log_area +
+    z_bombus_deficit + z_distance + z_distance_sq + z_log_area +
     z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
   sc_north,
   file.path(outdir, "north_bombus_sc")
 )
 n_plain <- fit_bb(
   color_plain | trials(color_trials) ~
-    z_bombus_deficit + z_sc_share + z_log_distance + z_log_area +
+    z_bombus_deficit + z_sc_share + z_distance + z_distance_sq + z_log_area +
     z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
   plain_north,
   file.path(outdir, "north_bombus_sc_plain")
 )
 n_generalized <- fit_bb(
   form_open_generalized | trials(form_trials) ~
-    z_bombus_deficit + z_sc_share + z_log_distance + z_log_area +
+    z_bombus_deficit + z_sc_share + z_distance + z_distance_sq + z_log_area +
     z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
   generalized_north,
   file.path(outdir, "north_bombus_sc_generalized")
@@ -168,25 +177,50 @@ summarize_draw <- function(path, x) {
   )
 }
 
-regime_slope_table <- function(fit, outcome) {
-  draws <- as_draws_df(fit)
-  north_slope <- coef_draw(draws, "b_z_log_distance")
-  tropical_slope <- north_slope + coef_draw(draws, "b_z_log_distance:analysis_regimetropical")
-  southern_slope <- north_slope + coef_draw(draws, "b_z_log_distance:analysis_regimesouthern_extratropical")
-  rbindlist(list(
-    cbind(outcome = outcome, regime = "northern_midlatitude", summarize_draw("isolation_slope", north_slope)),
-    cbind(outcome = outcome, regime = "tropical", summarize_draw("isolation_slope", tropical_slope)),
-    cbind(outcome = outcome, regime = "southern_extratropical", summarize_draw("isolation_slope", southern_slope)),
-    cbind(outcome = outcome, regime = "tropical_minus_northern", summarize_draw("slope_difference", tropical_slope - north_slope)),
-    cbind(outcome = outcome, regime = "southern_minus_northern", summarize_draw("slope_difference", southern_slope - north_slope))
-  ), fill = TRUE)
+regime_component <- function(draws, component, regime) {
+  base_name <- paste0("b_", component)
+  out <- coef_draw(draws, base_name)
+  if (regime != "northern_midlatitude") {
+    interaction_name <- paste0("b_", component, ":analysis_regime", regime)
+    out <- out + coef_draw(draws, interaction_name)
+  }
+  out
 }
-regime_slopes <- rbindlist(list(
-  regime_slope_table(f_sc, "self_compatibility"),
-  regime_slope_table(f_plain, "plain_flower"),
-  regime_slope_table(f_generalized, "generalized_flower")
+
+regime_distance_table <- function(fit, outcome) {
+  draws <- as_draws_df(fit)
+  regimes <- c(
+    "northern_midlatitude",
+    "northern_high_latitude",
+    "tropical",
+    "southern_extratropical"
+  )
+  rbindlist(lapply(regimes, function(regime) {
+    linear <- regime_component(draws, "z_distance", regime)
+    quadratic <- regime_component(draws, "z_distance_sq", regime)
+    rbindlist(list(
+      cbind(
+        outcome = outcome,
+        regime = regime,
+        component = "linear_distance",
+        summarize_draw("distance_linear", linear)
+      ),
+      cbind(
+        outcome = outcome,
+        regime = regime,
+        component = "quadratic_acceleration",
+        summarize_draw("distance_quadratic", quadratic)
+      )
+    ), fill = TRUE)
+  }), fill = TRUE)
+}
+
+regime_distance_effects <- rbindlist(list(
+  regime_distance_table(f_sc, "self_compatibility"),
+  regime_distance_table(f_plain, "plain_flower"),
+  regime_distance_table(f_generalized, "generalized_flower")
 ), fill = TRUE)
-fwrite(regime_slopes, file.path(outdir, "cross_regime_isolation_slopes.csv"))
+fwrite(regime_distance_effects, file.path(outdir, "cross_regime_isolation_slopes.csv"))
 
 sc_draws <- as_draws_df(n_sc)
 plain_draws <- as_draws_df(n_plain)
@@ -238,12 +272,19 @@ fwrite(sampler_diagnostics, file.path(outdir, "sampler_diagnostics.csv"))
 
 capture.output(lapply(fits, summary), file = file.path(outdir, "model_summaries.txt"))
 write_json(list(
-  contract = "v2_engine_specific_bayesian_binary_pathway_v1",
+  contract = "v2_engine_specific_bayesian_binary_pathway_v2",
   role = "binary pathway inference; INLA owns category decomposition",
   analysis_tier = "sensitivity_all",
   binary_outcomes = c("SC_vs_SI", "plain_vs_non_plain", "generalized_vs_other"),
   northern_pathway = "Bombus deficit -> SC and direct/SC-mediated paths",
-  falsification = "regime-specific isolation slopes without global Bombus causal imposition",
+  falsification = "four-regime distance effects without global Bombus causal imposition",
+  distance_function = "standardized raw distance plus quadratic term; positive quadratic means accelerating isolation effect",
+  global_regimes = c(
+    "northern_midlatitude",
+    "northern_high_latitude",
+    "tropical",
+    "southern_extratropical"
+  ),
   category_models = FALSE,
   alternative_pollinator_primary_covariates = FALSE,
   n_input_islands = n_input,
