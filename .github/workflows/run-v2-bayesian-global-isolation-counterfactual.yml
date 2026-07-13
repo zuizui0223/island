@@ -77,15 +77,20 @@ jobs:
           d = pd.read_csv(p)
           assert d['island_id'].is_unique
           assert len(d) == 8265
+          assert (d['pollen_vector_trials'].fillna(0) >= d['n_wind_species'].fillna(0)).all()
           assert (d['color_trials'].fillna(0) >= d['color_plain'].fillna(0)).all()
           assert (d['form_trials'].fillna(0) >= d['form_open_generalized'].fillna(0)).all()
 
-          # Fail before the expensive brms stage if floral recoding collapses
-          # either response to a constant or silently loses canonical classes.
+          # Fail before the expensive brms stage if pollen-vector or floral recoding
+          # collapses an outcome to a constant or silently loses canonical classes.
+          wind = d.loc[d['pollen_vector_trials'].fillna(0) > 0, 'wind_share'].dropna()
           plain = d.loc[d['color_trials'].fillna(0) > 0, 'plain_share'].dropna()
           generalized = d.loc[d['form_trials'].fillna(0) > 0, 'generalized_share'].dropna()
+          assert wind.nunique() > 1, 'wind_share is degenerate after pollen-vector recoding'
           assert plain.nunique() > 1, 'plain_share is degenerate after trait recoding'
           assert generalized.nunique() > 1, 'generalized_share is degenerate after trait recoding'
+          assert (d['n_wind_species'].fillna(0) > 0).any()
+          assert (d['n_animal_species'].fillna(0) > 0).any()
           assert (d['color_yellow_orange'].fillna(0) > 0).any()
           assert (d['color_red_pink'].fillna(0) > 0).any()
           assert (d['color_blue_purple'].fillna(0) > 0).any()
@@ -99,8 +104,10 @@ jobs:
               'n_input': len(d),
               'n_positive_distance': positive,
               'n_zero_or_negative_distance': zero,
+              'n_wind_share_values': int(wind.nunique()),
               'n_plain_share_values': int(plain.nunique()),
               'n_generalized_share_values': int(generalized.nunique()),
+              'wind_share_range': [float(wind.min()), float(wind.max())],
               'plain_share_range': [float(plain.min()), float(plain.max())],
               'generalized_share_range': [float(generalized.min()), float(generalized.max())],
           })
