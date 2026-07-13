@@ -1,6 +1,6 @@
-version: "1.0"
+version: "1.1"
 analysis_unit: island
-analysis_contract: existing_locked_artifacts_full_path_v1
+analysis_contract: existing_locked_artifacts_full_path_v2
 
 # All inputs are already locked in PR #112/#113. No new occurrence acquisition is
 # required for this analysis. Bombus is interpreted as environmental compatibility,
@@ -31,9 +31,9 @@ proxies:
   floral_phenotype:
     trait_name: pollination_functional_guild
     positive_values: [bumblebees]
-  autonomous_selfing:
-    trait_name: autonomous_selfing_capacity
-    positive_values: [autonomous]
+  mixed_mating:
+    trait_name: mating_system
+    positive_values: [mixed_mating]
   self_compatibility:
     trait_name: self_incompatibility
     positive_values: [SC, likely_SC]
@@ -41,7 +41,12 @@ proxies:
     # Independent of the pollination_functional_guild outcome partition, avoiding
     # the previous algebraic bumblebees-vs-other-guilds complement artifact.
     trait_name: pollen_vector_mode
-    positive_values: [wind, mixed]
+    positive_values: [abiotic_wind]
+
+non_informative_traits:
+  autonomous_selfing_capacity:
+    observed_values: [autonomous]
+    action: excluded_from_M2_M3_because_no_between_island_contrast
 
 models:
   M0:
@@ -52,14 +57,14 @@ models:
       - floral_phenotype ~ baseline + bombus_channel_state
   M2:
     equations:
-      - autonomous_selfing ~ baseline + bombus_channel_state
+      - mixed_mating ~ baseline + bombus_channel_state
       - self_compatibility ~ baseline + bombus_channel_state
-      - floral_phenotype ~ baseline + autonomous_selfing + self_compatibility
+      - floral_phenotype ~ baseline + mixed_mating + self_compatibility
   M3:
     equations:
-      - autonomous_selfing ~ baseline + bombus_channel_state
+      - mixed_mating ~ baseline + bombus_channel_state
       - self_compatibility ~ baseline + bombus_channel_state
-      - floral_phenotype ~ baseline + bombus_channel_state + autonomous_selfing + self_compatibility
+      - floral_phenotype ~ baseline + bombus_channel_state + mixed_mating + self_compatibility
   M4:
     equations:
       - floral_phenotype ~ baseline + bombus_channel_state + alternative_pollen_vector + bombus_x_alternative
