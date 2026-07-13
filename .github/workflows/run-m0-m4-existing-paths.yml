@@ -1,0 +1,93 @@
+name: run_m0_m4_existing_paths
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/recover-global-trait-artifacts
+    paths:
+      - ".github/workflows/run-m0-m4-existing-paths.yml"
+      - "src/island_v2/m0_m4_existing_paths.py"
+      - "config/m0_m4_sem.yml"
+      - "pyproject.toml"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  existing-paths:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Download existing integrated trait-Bombus artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID=8260957919
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            > /tmp/integrated.zip
+          mkdir -p /tmp/integrated
+          unzip -q /tmp/integrated.zip -d /tmp/integrated
+          find /tmp/integrated -maxdepth 6 -type f | sort | head -200
+
+      - name: Run M0-M4 paths for all existing analysis tiers
+        run: |
+          set -euo pipefail
+          for TIER in primary broad sensitivity_all; do
+            ROOT=$(find /tmp/integrated -type d -path "*/bombus_join/${TIER}" -print -quit)
+            test -n "$ROOT"
+            COMP="$ROOT/island_trait_composition_with_bombus.csv.gz"
+            METRICS="$ROOT/island_bombus_trait_analysis_input.csv"
+            test -f "$COMP"
+            test -f "$METRICS"
+            island-v2-m0-m4-existing-paths run \
+              --trait-composition-csv "$COMP" \
+              --island-metrics-csv "$METRICS" \
+              --analysis-tier "$TIER" \
+              --output-dir "data/v2/staging/analysis/m0_m4_existing_paths/${TIER}"
+          done
+
+      - name: Summarize path results
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('data/v2/staging/analysis/m0_m4_existing_paths')
+          summary = {'contract': 'm0_m4_existing_data_paths_v1', 'tiers': {}}
+          for tier in ('primary', 'broad', 'sensitivity_all'):
+              d = root / tier
+              manifest = json.loads((d / 'path_manifest.json').read_text())
+              paths = pd.read_csv(d / 'path_coefficients.csv')
+              indirect = pd.read_csv(d / 'path_indirect_effects.csv')
+              summary['tiers'][tier] = {
+                  'n_islands': manifest['n_islands'],
+                  'baseline_covariates_used': manifest['baseline_covariates_used'],
+                  'n_path_coefficients': int(len(paths)),
+                  'indirect_effects': indirect.to_dict('records'),
+              }
+          (root / 'm0_m4_existing_paths_summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+          print(json.dumps(summary, indent=2))
+          PY
+
+      - name: Upload path-analysis outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: m0-m4-existing-paths-${{ github.run_id }}
+          path: data/v2/staging/analysis/m0_m4_existing_paths/
+          if-no-files-found: error
+          retention-days: 90
