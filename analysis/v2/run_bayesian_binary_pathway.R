@@ -29,9 +29,9 @@ z <- function(x) {
   (x - mean(x, na.rm = TRUE)) / s
 }
 
-# Use raw geographic distance on a standardized scale and retain a quadratic term.
-# A positive quadratic coefficient means that the isolation effect accelerates at
-# long distances; a negative coefficient means that it saturates.
+# Raw geographic distance on a standardized scale with a quadratic term.
+# Positive quadratic = accelerating isolation effect at long distance;
+# negative quadratic = saturation/turnover.
 d[, z_distance := z(distance_to_continent_km)]
 d[, z_distance_sq := z_distance^2]
 d[, z_log_area := z(log(area_km2))]
@@ -40,6 +40,14 @@ for (nm in c("climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4")) {
 }
 d[, z_bombus_deficit := z(bombus_deficit)]
 d[, z_sc_share := z(sc_share)]
+
+# Functional flower-form regrouping for the binary Bayes layer.
+# INLA retains and decomposes all four original form categories.
+d[, form_generalist_like := form_open_generalized + form_composite_brush]
+if (any(d$form_generalist_like > d$form_trials, na.rm = TRUE)) {
+  stop("generalist-like form successes exceed form trials")
+}
+
 d[, analysis_regime := factor(
   analysis_regime,
   levels = c(
@@ -95,12 +103,33 @@ f_plain <- fit_bb(
   color_global,
   file.path(outdir, "falsification_plain")
 )
-f_generalized <- fit_bb(
-  form_open_generalized | trials(form_trials) ~
+f_generalist_like <- fit_bb(
+  form_generalist_like | trials(form_trials) ~
     (z_distance + z_distance_sq) * analysis_regime + z_log_area +
     z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
   form_global,
-  file.path(outdir, "falsification_generalized")
+  file.path(outdir, "falsification_generalist_like")
+)
+f_red_pink <- fit_bb(
+  color_red_pink | trials(color_trials) ~
+    (z_distance + z_distance_sq) * analysis_regime + z_log_area +
+    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  color_global,
+  file.path(outdir, "falsification_red_pink")
+)
+f_yellow_orange <- fit_bb(
+  color_yellow_orange | trials(color_trials) ~
+    (z_distance + z_distance_sq) * analysis_regime + z_log_area +
+    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  color_global,
+  file.path(outdir, "falsification_yellow_orange")
+)
+f_tubular <- fit_bb(
+  form_tubular_trumpet | trials(form_trials) ~
+    (z_distance + z_distance_sq) * analysis_regime + z_log_area +
+    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  form_global,
+  file.path(outdir, "falsification_tubular_trumpet")
 )
 
 north <- d[analysis_regime == "northern_midlatitude"]
@@ -110,7 +139,7 @@ north_base <- complete.cases(north[, .(
 )])
 sc_north <- north[north_base & sc_trials > 0]
 plain_north <- north[north_base & color_trials > 0 & is.finite(z_sc_share)]
-generalized_north <- north[north_base & form_trials > 0 & is.finite(z_sc_share)]
+generalist_like_north <- north[north_base & form_trials > 0 & is.finite(z_sc_share)]
 
 n_sc <- fit_bb(
   sc_successes | trials(sc_trials) ~
@@ -126,21 +155,24 @@ n_plain <- fit_bb(
   plain_north,
   file.path(outdir, "north_bombus_sc_plain")
 )
-n_generalized <- fit_bb(
-  form_open_generalized | trials(form_trials) ~
+n_generalist_like <- fit_bb(
+  form_generalist_like | trials(form_trials) ~
     z_bombus_deficit + z_sc_share + z_distance + z_distance_sq + z_log_area +
     z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
-  generalized_north,
-  file.path(outdir, "north_bombus_sc_generalized")
+  generalist_like_north,
+  file.path(outdir, "north_bombus_sc_generalist_like")
 )
 
 fits <- list(
   F_SC = f_sc,
   F_plain = f_plain,
-  F_generalized = f_generalized,
+  F_generalist_like = f_generalist_like,
+  F_red_pink = f_red_pink,
+  F_yellow_orange = f_yellow_orange,
+  F_tubular = f_tubular,
   N_SC = n_sc,
   N_plain = n_plain,
-  N_generalized = n_generalized
+  N_generalist_like = n_generalist_like
 )
 
 posterior_rows <- rbindlist(lapply(names(fits), function(nm) {
@@ -153,12 +185,14 @@ fwrite(posterior_rows, file.path(outdir, "posterior_fixed_effects.csv"))
 
 support <- data.table(
   equation = c(
-    "global_SC", "global_plain", "global_generalized",
-    "northern_SC", "northern_plain", "northern_generalized"
+    "global_SC", "global_plain", "global_generalist_like",
+    "global_red_pink", "global_yellow_orange", "global_tubular_trumpet",
+    "northern_SC", "northern_plain", "northern_generalist_like"
   ),
   n_islands = c(
     nrow(sc_global), nrow(color_global), nrow(form_global),
-    nrow(sc_north), nrow(plain_north), nrow(generalized_north)
+    nrow(color_global), nrow(color_global), nrow(form_global),
+    nrow(sc_north), nrow(plain_north), nrow(generalist_like_north)
   )
 )
 fwrite(support, file.path(outdir, "equation_support.csv"))
@@ -218,31 +252,34 @@ regime_distance_table <- function(fit, outcome) {
 regime_distance_effects <- rbindlist(list(
   regime_distance_table(f_sc, "self_compatibility"),
   regime_distance_table(f_plain, "plain_flower"),
-  regime_distance_table(f_generalized, "generalized_flower")
+  regime_distance_table(f_generalist_like, "generalist_like_form"),
+  regime_distance_table(f_red_pink, "red_pink_flower"),
+  regime_distance_table(f_yellow_orange, "yellow_orange_flower"),
+  regime_distance_table(f_tubular, "tubular_trumpet_form")
 ), fill = TRUE)
 fwrite(regime_distance_effects, file.path(outdir, "cross_regime_isolation_slopes.csv"))
 
 sc_draws <- as_draws_df(n_sc)
 plain_draws <- as_draws_df(n_plain)
-generalized_draws <- as_draws_df(n_generalized)
-n_draws <- min(nrow(sc_draws), nrow(plain_draws), nrow(generalized_draws))
+generalist_draws <- as_draws_df(n_generalist_like)
+n_draws <- min(nrow(sc_draws), nrow(plain_draws), nrow(generalist_draws))
 sc_draws <- sc_draws[seq_len(n_draws), ]
 plain_draws <- plain_draws[seq_len(n_draws), ]
-generalized_draws <- generalized_draws[seq_len(n_draws), ]
+generalist_draws <- generalist_draws[seq_len(n_draws), ]
 
 b_bombus_sc <- coef_draw(sc_draws, "b_z_bombus_deficit")
 b_sc_plain <- coef_draw(plain_draws, "b_z_sc_share")
-b_sc_generalized <- coef_draw(generalized_draws, "b_z_sc_share")
+b_sc_generalist <- coef_draw(generalist_draws, "b_z_sc_share")
 b_bombus_plain <- coef_draw(plain_draws, "b_z_bombus_deficit")
-b_bombus_generalized <- coef_draw(generalized_draws, "b_z_bombus_deficit")
+b_bombus_generalist <- coef_draw(generalist_draws, "b_z_bombus_deficit")
 
 paths <- rbindlist(list(
   summarize_draw("Bombus_deficit_to_SC_to_plain", b_bombus_sc * b_sc_plain),
-  summarize_draw("Bombus_deficit_to_SC_to_generalized", b_bombus_sc * b_sc_generalized),
+  summarize_draw("Bombus_deficit_to_SC_to_generalist_like", b_bombus_sc * b_sc_generalist),
   summarize_draw("Bombus_deficit_to_plain_direct", b_bombus_plain),
-  summarize_draw("Bombus_deficit_to_generalized_direct", b_bombus_generalized),
+  summarize_draw("Bombus_deficit_to_generalist_like_direct", b_bombus_generalist),
   summarize_draw("Bombus_deficit_to_plain_total", b_bombus_plain + b_bombus_sc * b_sc_plain),
-  summarize_draw("Bombus_deficit_to_generalized_total", b_bombus_generalized + b_bombus_sc * b_sc_generalized)
+  summarize_draw("Bombus_deficit_to_generalist_like_total", b_bombus_generalist + b_bombus_sc * b_sc_generalist)
 ))
 fwrite(paths, file.path(outdir, "northern_direct_indirect_total_effects.csv"))
 
@@ -272,12 +309,17 @@ fwrite(sampler_diagnostics, file.path(outdir, "sampler_diagnostics.csv"))
 
 capture.output(lapply(fits, summary), file = file.path(outdir, "model_summaries.txt"))
 write_json(list(
-  contract = "v2_engine_specific_bayesian_binary_pathway_v2",
-  role = "binary pathway inference; INLA owns category decomposition",
+  contract = "v2_engine_specific_bayesian_binary_pathway_v3",
+  role = "binary syndrome inference plus targeted channel-associated trait contrasts; INLA owns full category decomposition",
   analysis_tier = "sensitivity_all",
-  binary_outcomes = c("SC_vs_SI", "plain_vs_non_plain", "generalized_vs_other"),
-  northern_pathway = "Bombus deficit -> SC and direct/SC-mediated paths",
-  falsification = "four-regime distance effects without global Bombus causal imposition",
+  binary_outcomes = c(
+    "SC_vs_SI",
+    "plain_vs_non_plain",
+    "generalist_like_open_plus_composite_vs_tubular_plus_zygomorphic"
+  ),
+  targeted_global_traits = c("red_pink", "yellow_orange", "tubular_trumpet"),
+  northern_pathway = "Bombus deficit predicts parallel SC, plain-colour and generalist-like form responses; SC-mediated quantities are descriptive rather than assumed causal",
+  falsification = "four-regime raw-distance linear and quadratic effects without global Bombus causal imposition",
   distance_function = "standardized raw distance plus quadratic term; positive quadratic means accelerating isolation effect",
   global_regimes = c(
     "northern_midlatitude",
@@ -287,6 +329,7 @@ write_json(list(
   ),
   category_models = FALSE,
   alternative_pollinator_primary_covariates = FALSE,
+  channel_trait_interpretation = "red/pink, yellow/orange and tubular/trumpet are trait syndromes only; they do not directly measure bird, butterfly or moth abundance",
   n_input_islands = n_input,
   n_zero_or_negative_distance_excluded = n_zero_distance,
   support_strategy = "maximum available support per equation"
