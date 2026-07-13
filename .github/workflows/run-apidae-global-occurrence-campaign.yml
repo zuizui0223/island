@@ -1,0 +1,223 @@
+name: run_apidae_global_occurrence_campaign
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/recover-global-trait-artifacts
+    paths:
+      - ".github/workflows/run-apidae-global-occurrence-campaign.yml"
+      - "src/island_v2/m1_m3_bombus_channel_input.py"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  apidae-global:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GBIF_USERNAME: ${{ secrets.GBIF_USERNAME }}
+      GBIF_PASSWORD: ${{ secrets.GBIF_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Verify GBIF credentials are configured
+        run: |
+          set -euo pipefail
+          test -n "${GBIF_USERNAME:-}"
+          test -n "${GBIF_PASSWORD:-}"
+
+      - name: Rebuild frozen global island universe
+        run: |
+          set -euo pipefail
+          island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
+          test -f data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
+
+      - name: Prepare global Apidae acquisition blocks
+        run: |
+          set -euo pipefail
+          island-v2-gbif-blocks prepare \
+            --islands-gpkg data/v2/external/islands/gshhg/prepared/islands_v2.gpkg \
+            --output-dir data/v2/staging/bombus/apidae_campaign \
+            --taxon-name Apidae \
+            --taxon-rank FAMILY \
+            --target-scope apidae \
+            --grid-degrees 30 \
+            --max-wkt-chars 120000 \
+            --max-islands-per-block 125 \
+            --query-buffer-m 2000 \
+            --query-simplify-m 500
+
+      - name: Submit all prepared Apidae blocks
+        run: |
+          set -euo pipefail
+          MANIFEST=data/v2/staging/bombus/apidae_campaign/gbif_block_request_manifest.csv
+          island-v2-gbif-flora submit --request-manifest "$MANIFEST" --max-requests 100 --sleep-seconds 0.25
+          island-v2-gbif-flora submit --request-manifest "$MANIFEST" --max-requests 100 --sleep-seconds 0.25
+          python - <<'PY'
+          import pandas as pd
+          p='data/v2/staging/bombus/apidae_campaign/gbif_block_request_manifest.csv'
+          t=pd.read_csv(p,dtype=str).fillna('')
+          bad=t.loc[~t.request_status.isin(['submitted','running','succeeded'])]
+          if len(bad):
+              raise SystemExit(f"Apidae submission incomplete: {bad[['block_id','request_status','error']].head(20).to_dict('records')}")
+          print({'n_blocks':len(t),'status_counts':t.request_status.value_counts().to_dict()})
+          PY
+
+      - name: Poll Apidae downloads until complete or timeout
+        run: |
+          set -euo pipefail
+          MANIFEST=data/v2/staging/bombus/apidae_campaign/gbif_block_request_manifest.csv
+          for i in $(seq 1 90); do
+            island-v2-gbif-flora poll --request-manifest "$MANIFEST"
+            python - <<'PY'
+          import pandas as pd
+          p='data/v2/staging/bombus/apidae_campaign/gbif_block_request_manifest.csv'
+          t=pd.read_csv(p,dtype=str).fillna('')
+          counts=t.request_status.value_counts().to_dict()
+          print(counts)
+          if t.request_status.eq('killed').any() or t.request_status.eq('cancelled').any() or t.request_status.eq('failed').any():
+              raise SystemExit(2)
+          if t.request_status.eq('succeeded').all():
+              raise SystemExit(0)
+          raise SystemExit(10)
+          PY
+            code=$?
+            if [[ "$code" -eq 0 ]]; then
+              break
+            elif [[ "$code" -eq 2 ]]; then
+              exit 2
+            fi
+            sleep 120
+          done
+          python - <<'PY'
+          import pandas as pd
+          p='data/v2/staging/bombus/apidae_campaign/gbif_block_request_manifest.csv'
+          t=pd.read_csv(p,dtype=str).fillna('')
+          if not t.request_status.eq('succeeded').all():
+              raise SystemExit(f"Apidae downloads incomplete after polling: {t.request_status.value_counts().to_dict()}")
+          PY
+
+      - name: Convert completed block ledger to collector campaign JSON
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          root=Path('data/v2/staging/bombus/apidae_campaign')
+          t=pd.read_csv(root/'gbif_block_request_manifest.csv',dtype=str).fillna('')
+          ledger=[]
+          for row in t.to_dict('records'):
+              ledger.append({
+                  'block_id': row['block_id'],
+                  'request_status': row['request_status'],
+                  'download_key': row['download_key'],
+                  'doi': row.get('doi',''),
+                  'download_link': row.get('download_link',''),
+                  'last_download_link': row.get('download_link',''),
+              })
+          payload={'schema_version':'1.0','campaign_id':'island-v2-global-apidae','ledger':ledger}
+          (root/'apidae_campaign.json').write_text(json.dumps(payload,indent=2)+'\n')
+          PY
+
+      - name: Collect exact-island Apidae occurrences
+        run: |
+          set -euo pipefail
+          island-v2-gbif-pollinator-collect collect \
+            --campaign-json data/v2/staging/bombus/apidae_campaign/apidae_campaign.json \
+            --block-members-csv data/v2/staging/bombus/apidae_campaign/gbif_block_members.csv \
+            --islands-gpkg data/v2/external/islands/gshhg/prepared/islands_v2.gpkg \
+            --download-dir data/v2/staging/bombus/apidae_campaign/downloads \
+            --output-dir data/v2/staging/bombus/apidae_occurrences \
+            --expected-family Apidae
+
+      - name: Build effort-aware Bombus observation diagnostics
+        run: |
+          set -euo pipefail
+          island-v2-bombus-diagnostics run \
+            --occurrences-csv data/v2/staging/bombus/apidae_occurrences/island_pollinator_occurrences.csv \
+            --output-dir data/v2/staging/bombus/apidae_diagnostics
+          island-v2-bombus-absence-evidence run \
+            --occurrences-csv data/v2/staging/bombus/apidae_occurrences/island_pollinator_occurrences.csv \
+            --output-dir data/v2/staging/bombus/apidae_absence
+
+      - name: Download locked global Bombus hypervolume artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID=$(jq -r '.artifact_id' config/bombus_hypervolume_artifact_lock.json)
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            > /tmp/bombus-hypervolume-artifact.zip
+          EXPECTED=$(jq -r '.artifact_digest' config/bombus_hypervolume_artifact_lock.json | sed 's/^sha256://')
+          ACTUAL=$(sha256sum /tmp/bombus-hypervolume-artifact.zip | awk '{print $1}')
+          test "$ACTUAL" = "$EXPECTED"
+          mkdir -p /tmp/bombus-hypervolume
+          unzip -q /tmp/bombus-hypervolume-artifact.zip -d /tmp/bombus-hypervolume
+          SCORE=$(find /tmp/bombus-hypervolume -name bombus_species_environmental_compatibility.csv -print -quit)
+          test -n "$SCORE"
+          cp "$SCORE" /tmp/bombus_species_environmental_compatibility.csv
+
+      - name: Build component-first Bombus channel scores
+        run: |
+          set -euo pipefail
+          island-v2-bombus-channel-score run \
+            --diagnostics-csv data/v2/staging/bombus/apidae_absence/island_bombus_occurrence_evidence.csv \
+            --environmental-scores-csv /tmp/bombus_species_environmental_compatibility.csv \
+            --output-dir data/v2/staging/bombus/channel_scores
+
+      - name: Build M1-M3 production channel input
+        run: |
+          set -euo pipefail
+          island-v2-m1-m3-bombus-channel-input \
+            --channel-scores-csv data/v2/staging/bombus/channel_scores/bombus_channel_continuous_scores.csv \
+            --output-dir data/v2/staging/bombus/m1_m3_input
+
+      - name: Summarize M1-M3 acquisition result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          occ=json.loads(Path('data/v2/staging/bombus/apidae_occurrences/pollinator_collection_status.json').read_text())
+          diag=pd.read_csv('data/v2/staging/bombus/apidae_absence/island_bombus_occurrence_evidence.csv')
+          ch=pd.read_csv('data/v2/staging/bombus/m1_m3_input/m1_m3_bombus_channel_input.csv')
+          summary={
+            'n_exact_island_apidae_records': int(occ['n_exact_island_pollinator_records']),
+            'n_islands_with_apidae_records': int(occ['n_islands_with_exact_pollinator_records']),
+            'n_bombus_records': int(occ['n_bombus_records']),
+            'occurrence_evidence_counts': {str(k):int(v) for k,v in diag['bombus_occurrence_evidence'].value_counts(dropna=False).items()},
+            'n_m1_m3_islands': int(ch['island_id'].nunique()),
+            'n_evaluable_observation': int(ch['bombus_channel_evaluable'].fillna(False).astype(bool).sum()) if 'bombus_channel_evaluable' in ch.columns else None,
+            'component_policy': 'observation and environment retained separately; combined availability is secondary',
+          }
+          Path('data/v2/staging/bombus/m1_m3_input/m1_m3_global_summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+          print(json.dumps(summary,indent=2))
+          PY
+
+      - name: Upload global Apidae and M1-M3 products
+        uses: actions/upload-artifact@v4
+        with:
+          name: global-apidae-m1-m3-${{ github.run_id }}
+          path: |
+            data/v2/staging/bombus/apidae_campaign/gbif_block_request_manifest.csv
+            data/v2/staging/bombus/apidae_campaign/gbif_block_members.csv
+            data/v2/staging/bombus/apidae_campaign/gbif_block_taxon_resolution.json
+            data/v2/staging/bombus/apidae_occurrences/
+            data/v2/staging/bombus/apidae_diagnostics/
+            data/v2/staging/bombus/apidae_absence/
+            data/v2/staging/bombus/channel_scores/
+            data/v2/staging/bombus/m1_m3_input/
+          if-no-files-found: error
+          retention-days: 90
