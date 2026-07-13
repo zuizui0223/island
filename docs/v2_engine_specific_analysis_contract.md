@@ -9,9 +9,9 @@ Island isolation does not necessarily generate a universal floral syndrome. Its 
 
 Tropical and southern-extratropical regimes are falsification domains for the universality of this northern pathway. Birds, butterflies, moths, and other bees remain discussion-level functional-replacement explanations until comparable island-level channel measurements are available.
 
-## Engine-specific questions
+## The engines answer different questions
 
-The Bayesian and INLA analyses are not duplicate implementations and are not combined into a single model-selection contest.
+The Bayesian and INLA analyses are not duplicate implementations and are not combined into one model-selection contest.
 
 ### Bayesian pathway inference
 
@@ -19,9 +19,17 @@ The brms workflow is restricted to broad binary outcomes:
 
 - self-compatible versus self-incompatible;
 - plain versus non-plain colour composition;
-- open/generalized versus other floral forms.
+- open/generalized versus all other floral forms.
 
-It estimates Bombus deficit to self-compatibility, direct Bombus effects, SC-mediated indirect effects, total effects, and regime-specific isolation slopes. Bayesian output is interpreted at the syndrome/pathway level only.
+Its purpose is to estimate:
+
+1. Bombus deficit to self-compatibility;
+2. direct Bombus-deficit effects on binary floral responses;
+3. indirect Bombus-deficit effects through self-compatibility;
+4. total direct plus indirect effects;
+5. regime-specific isolation slopes used to falsify a universal island syndrome.
+
+Bayesian output is interpreted at the syndrome/pathway level only. It is not used to identify which individual category changed.
 
 ### INLA category decomposition
 
@@ -35,6 +43,13 @@ INLA determines which categories increase, decrease, oppose one another, or canc
 ## Falsification design
 
 The northern Bombus pathway is fitted only in the northern-midlatitude focal regime. Tropical and southern-extratropical analyses estimate isolation slopes without imposing Bombus as their causal mechanism. Weakening, disappearance, or reversal outside the north falsifies a universal island syndrome.
+
+## Support and filtering
+
+- Islands with `distance_to_continent_km <= 0` are audited and excluded before log transformation.
+- Each equation uses its maximum available island support.
+- Missing form evidence does not remove an otherwise usable island from SC or colour equations.
+- The current exploratory implementation uses `sensitivity_all`; evidence-tier robustness remains separate.
 
 ## Interpretation rules
 
