@@ -14,6 +14,7 @@ on:
       - "config/m0_m4_full_analysis_artifact_lock.json"
       - "config/m0_m4_full_analysis.yml"
       - "src/island_v2/m0_m4_full_sensitivity.py"
+      - "src/island_v2/m0_m4_full_sensitivity_refit.py"
       - "tests/test_m0_m4_full_sensitivity.py"
       - "pyproject.toml"
 
@@ -42,6 +43,7 @@ jobs:
           pytest -q tests/test_m0_m4_full_sensitivity.py
           ruff check \
             src/island_v2/m0_m4_full_sensitivity.py \
+            src/island_v2/m0_m4_full_sensitivity_refit.py \
             tests/test_m0_m4_full_sensitivity.py
 
       - name: Download locked full-analysis artifact
@@ -68,7 +70,7 @@ jobs:
           for TIER in primary broad sensitivity_all; do
             INPUT=$(find /tmp/full-analysis -path "*/${TIER}/full_analysis_island_data.csv" -print -quit)
             test -n "$INPUT"
-            island-v2-m0-m4-full-sensitivity \
+            python -m island_v2.m0_m4_full_sensitivity_refit \
               --island-data-csv "$INPUT" \
               --analysis-tier "$TIER" \
               --bootstrap-replicates "$BOOTSTRAP_REPLICATES" \
@@ -86,7 +88,7 @@ jobs:
           root = Path('data/v2/staging/analysis/full_sensitivity')
           tiers = ('primary', 'broad', 'sensitivity_all')
           summary = {
-              'contract': 'm0_m4_full_sensitivity_cross_tier_v1',
+              'contract': 'm0_m4_full_sensitivity_cross_tier_v2_refit_residualization',
               'input_full_analysis_artifact': json.loads(
                   Path('config/m0_m4_full_analysis_artifact_lock.json').read_text()
               ),
@@ -97,6 +99,8 @@ jobs:
           for tier in tiers:
               d = root / tier
               manifest = json.loads((d / 'full_sensitivity_manifest.json').read_text())
+              if not manifest['bootstrap']['residualization_refit_within_each_replicate']:
+                  raise SystemExit(f'{tier}: residualization was not refit within bootstrap')
               coefficients = pd.read_csv(d / 'sensitivity_path_coefficients.csv')
               bootstrap = pd.read_csv(d / 'spatial_block_bootstrap_summary.csv')
               vif = pd.read_csv(d / 'predictor_vif.csv')
@@ -113,6 +117,11 @@ jobs:
                   'n_islands': manifest['n_islands_input'],
                   'n_spatial_blocks': manifest['n_spatial_blocks_input'],
                   'bombus_baseline_r2': manifest['residualization']['baseline_r2_for_bombus'],
+                  'bootstrap_bombus_baseline_r2_median': manifest['bootstrap']['bombus_baseline_r2_bootstrap_median'],
+                  'bootstrap_bombus_baseline_r2_95ci': [
+                      manifest['bootstrap']['bombus_baseline_r2_bootstrap_2_5'],
+                      manifest['bootstrap']['bombus_baseline_r2_bootstrap_97_5'],
+                  ],
                   'condition_number': manifest['collinearity']['condition_number_standardized_design'],
                   'max_vif': float(vif['vif'].max()),
                   'M1_raw': target('M1_raw_bombus'),
@@ -161,7 +170,7 @@ jobs:
       - name: Upload full sensitivity outputs
         uses: actions/upload-artifact@v4
         with:
-          name: m0-m4-full-sensitivity-${{ github.run_id }}
+          name: m0-m4-full-sensitivity-v2-${{ github.run_id }}
           path: |
             config/m0_m4_full_analysis_artifact_lock.json
             config/m0_m4_full_analysis.yml
