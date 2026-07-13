@@ -244,8 +244,8 @@ write_json(list(
   binary_outcomes = c("SC_vs_SI", "plain_vs_non_plain", "generalized_vs_other"),
   northern_pathway = "Bombus deficit -> SC and direct/SC-mediated paths",
   falsification = "regime-specific isolation slopes without global Bombus causal imposition",
-  category_models = false,
-  alternative_pollinator_primary_covariates = false,
+  category_models = FALSE,
+  alternative_pollinator_primary_covariates = FALSE,
   n_input_islands = n_input,
   n_zero_or_negative_distance_excluded = n_zero_distance,
   support_strategy = "maximum available support per equation"
