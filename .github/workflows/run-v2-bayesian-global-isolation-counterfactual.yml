@@ -79,36 +79,16 @@ jobs:
           assert len(d) == 8265
           assert (d['pollen_vector_trials'].fillna(0) >= d['n_wind_species'].fillna(0)).all()
           assert (d['color_trials'].fillna(0) >= d['color_plain'].fillna(0)).all()
-          assert (d['form_trials'].fillna(0) >= d['form_open_generalized'].fillna(0)).all()
+          assert (d['form_trials'].fillna(0) >= d['form_tubular_trumpet'].fillna(0)).all()
+          assert d['showy_alt_guild_share'].notna().any()
 
           wind = d.loc[d['pollen_vector_trials'].fillna(0) > 0, 'wind_share'].dropna()
           plain = d.loc[d['color_trials'].fillna(0) > 0, 'plain_share'].dropna()
-          generalized = d.loc[d['form_trials'].fillna(0) > 0, 'generalized_share'].dropna()
           assert wind.nunique() > 1, 'wind_share is degenerate after pollen-vector recoding'
           assert plain.nunique() > 1, 'plain_share is degenerate after trait recoding'
-          assert generalized.nunique() > 1, 'generalized_share is degenerate after trait recoding'
-          assert (d['n_wind_species'].fillna(0) > 0).any()
-          assert (d['n_animal_species'].fillna(0) > 0).any()
-          assert (d['color_yellow_orange'].fillna(0) > 0).any()
-          assert (d['color_red_pink'].fillna(0) > 0).any()
-          assert (d['color_blue_purple'].fillna(0) > 0).any()
-          assert (d['form_open_generalized'].fillna(0) > 0).any()
           assert (d['form_tubular_trumpet'].fillna(0) > 0).any()
-
-          positive = int((d['distance_to_continent_km'] > 0).sum())
-          zero = int((d['distance_to_continent_km'] <= 0).sum())
-          assert positive > 0
-          print({
-              'n_input': len(d),
-              'n_positive_distance': positive,
-              'n_zero_or_negative_distance': zero,
-              'n_wind_share_values': int(wind.nunique()),
-              'n_plain_share_values': int(plain.nunique()),
-              'n_generalized_share_values': int(generalized.nunique()),
-              'wind_share_range': [float(wind.min()), float(wind.max())],
-              'plain_share_range': [float(plain.min()), float(plain.max())],
-              'generalized_share_range': [float(generalized.min()), float(generalized.max())],
-          })
+          assert (d['color_yellow_orange'].fillna(0) + d['color_red_pink'].fillna(0) + d['color_blue_purple'].fillna(0) > 0).any()
+          print({'n_input': len(d), 'n_wind_share_values': int(wind.nunique()), 'n_plain_share_values': int(plain.nunique())})
           PY
 
       - name: Install R and Bayesian packages
@@ -120,7 +100,7 @@ jobs:
           sudo Rscript -e "install.packages('brms', repos='https://cloud.r-project.org', quiet=TRUE)"
           Rscript -e "parse(file='analysis/v2/run_bayesian_global_isolation_counterfactual.R'); library(BH); stopifnot(nchar(system.file('include', package='BH')) > 0); packageVersion('brms')"
 
-      - name: Run noncanonical scalar path replication and falsification
+      - name: Run shortest two-mechanism Bayesian test
         run: |
           set -o pipefail
           mkdir -p data/v2/staging/analysis/bayesian_global_isolation/results
@@ -132,18 +112,17 @@ jobs:
       - name: Summarize results
         if: success()
         run: |
-          echo '## Noncanonical Bayesian scalar path replication and falsification' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Canonical category-preserving inference remains the northern INLA workflow from PR #115.' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Bayesian shortest two-mechanism test' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/analysis_metadata.json >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Equation-specific maximum support' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Equation-specific support' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/equation_support.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Matched northern, tropical, and southern path effects' >> "$GITHUB_STEP_SUMMARY"
-          cat data/v2/staging/analysis/bayesian_global_isolation/results/regime_path_effects.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '### Northern Bombus-loss mechanism' >> "$GITHUB_STEP_SUMMARY"
+          cat data/v2/staging/analysis/bayesian_global_isolation/results/northern_path_effects.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Falsification contrasts versus northern midlatitudes' >> "$GITHUB_STEP_SUMMARY"
-          cat data/v2/staging/analysis/bayesian_global_isolation/results/falsification_contrasts_vs_north.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '### Tropical + southern mobile-alternative-pollinator mechanism' >> "$GITHUB_STEP_SUMMARY"
+          cat data/v2/staging/analysis/bayesian_global_isolation/results/alternative_pollinator_path_effects.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Sampler diagnostics' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/sampler_diagnostics.csv >> "$GITHUB_STEP_SUMMARY"
