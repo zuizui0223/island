@@ -85,7 +85,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             r-base r-cran-brms r-cran-bh r-cran-data.table r-cran-posterior r-cran-loo r-cran-jsonlite
-          Rscript -e "parse(file='analysis/v2/run_bayesian_m0_m4_main.R'); library(BH); packageVersion('brms')"
+          Rscript -e "install.packages(c('BH', 'StanHeaders'), repos='https://cloud.r-project.org', quiet=TRUE)"
+          Rscript -e "parse(file='analysis/v2/run_bayesian_m0_m4_main.R'); library(BH); stopifnot(nchar(system.file('include', package='BH')) > 0); packageVersion('brms')"
 
       - name: Run Bayesian M0-M4 main analysis
         run: |
