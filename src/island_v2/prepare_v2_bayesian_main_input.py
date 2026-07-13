@@ -49,9 +49,9 @@ def main() -> None:
         """
         CREATE TEMP TABLE classified AS
         SELECT *,
-          CASE
-            WHEN pollen_vector_mode='biotic' THEN 1 ELSE 0
-          END AS is_animal,
+          CASE WHEN pollen_vector_mode='biotic' THEN 1 ELSE 0 END AS is_animal,
+          CASE WHEN pollen_vector_mode='abiotic_wind' THEN 1 ELSE 0 END AS is_wind,
+          CASE WHEN pollen_vector_mode IN ('biotic','abiotic_wind') THEN 1 ELSE 0 END AS has_binary_vector_mode,
           CASE
             -- Prefer the canonical cascade categories. These values contain
             -- underscores, so DuckDB's full-string `~` operator must not be
@@ -118,7 +118,8 @@ def main() -> None:
           island_id,
           count(*) AS n_species_total,
           sum(is_animal) AS n_animal_species,
-          sum(CASE WHEN pollen_vector_mode='abiotic_wind' THEN 1 ELSE 0 END) AS n_wind_species,
+          sum(is_wind) AS n_wind_species,
+          sum(has_binary_vector_mode) AS pollen_vector_trials,
           sum(CASE WHEN is_animal=1 AND color_cat IS NOT NULL THEN 1 ELSE 0 END) AS color_trials,
           sum(CASE WHEN is_animal=1 AND color_cat='plain' THEN 1 ELSE 0 END) AS color_plain,
           sum(CASE WHEN is_animal=1 AND color_cat='yellow_orange' THEN 1 ELSE 0 END) AS color_yellow_orange,
@@ -146,6 +147,7 @@ def main() -> None:
             c.*,
             t.* EXCLUDE (island_id),
             1.0 - c.bombus_channel_state AS bombus_deficit,
+            CASE WHEN t.pollen_vector_trials > 0 THEN 1.0*t.n_wind_species/t.pollen_vector_trials END AS wind_share,
             CASE WHEN t.color_trials > 0 THEN 1.0*t.color_plain/t.color_trials END AS plain_share,
             CASE WHEN t.form_trials > 0 THEN 1.0*t.form_open_generalized/t.form_trials END AS generalized_share,
             CASE WHEN t.sc_trials > 0 THEN 1.0*t.sc_successes/t.sc_trials END AS sc_share
