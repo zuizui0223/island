@@ -16,7 +16,10 @@ d <- fread(infile)
 
 n_input <- nrow(d)
 n_zero_distance <- sum(is.finite(d$distance_to_continent_km) & d$distance_to_continent_km <= 0, na.rm = TRUE)
-d <- d[is.finite(distance_to_continent_km) & distance_to_continent_km > 0 & is.finite(area_km2) & area_km2 > 0]
+d <- d[
+  is.finite(distance_to_continent_km) & distance_to_continent_km > 0 &
+    is.finite(area_km2) & area_km2 > 0
+]
 if (nrow(d) < 30) stop("Too few positive-distance islands")
 
 z <- function(x) {
@@ -28,87 +31,158 @@ z <- function(x) {
 
 d[, z_log_distance := z(log(distance_to_continent_km))]
 d[, z_log_area := z(log(area_km2))]
-for (nm in c("climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4")) d[[paste0("z_", nm)]] <- z(d[[nm]])
+for (nm in c("climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4")) {
+  d[[paste0("z_", nm)]] <- z(d[[nm]])
+}
+
+# Whole-flora pollen-vector outcome.
 d[, wind_share := fifelse(pollen_vector_trials > 0, n_wind_species / pollen_vector_trials, NA_real_)]
-d[, vivid_successes := color_trials - color_plain]
-d[, vivid_share := fifelse(color_trials > 0, vivid_successes / color_trials, NA_real_)]
-d[, tubular_successes := form_tubular_trumpet]
+
+# Flower-colour contrast: plain = white/green/brown/inconspicuous;
+# showy = all resolved non-plain colours.
+d[, showy_successes := color_trials - color_plain]
+d[, showy_share := fifelse(color_trials > 0, showy_successes / color_trials, NA_real_)]
+
+# Flower-form contrast over the four exhaustive resolved form categories:
+# complex = tubular/trumpet + zygomorphic/specialized;
+# simple = open/generalized + composite/brush.
+d[, complex_successes := form_tubular_trumpet + form_zygomorphic_specialized]
+d[, simple_successes := form_open_generalized + form_composite_brush]
+stopifnot(all(d$complex_successes + d$simple_successes == d$form_trials, na.rm = TRUE))
+d[, complex_share := fifelse(form_trials > 0, complex_successes / form_trials, NA_real_)]
+
 d[, z_bombus_deficit := z(bombus_deficit)]
 d[, z_wind_share := z(wind_share)]
-d[, z_sc_share := z(sc_share)]
-d[, z_mobile_alt := z(showy_alt_guild_share)]
-d[, z_vivid_share := z(vivid_share)]
 
 fit_bb <- function(formula, data, file) {
   if (nrow(data) < 30) stop(paste("Too few rows for", deparse(formula)))
   brm(
-    formula = formula, data = data, family = beta_binomial(link = "logit"),
-    prior = c(prior(normal(0, 1), class = "b"), prior(normal(0, 1.5), class = "Intercept"), prior(exponential(1), class = "phi")),
-    chains = 2, cores = 2, iter = 2000, warmup = 1000, seed = 20260713,
-    control = list(adapt_delta = 0.99, max_treedepth = 15), save_pars = save_pars(all = TRUE), file = file, refresh = 100
+    formula = formula,
+    data = data,
+    family = beta_binomial(link = "logit"),
+    prior = c(
+      prior(normal(0, 1), class = "b"),
+      prior(normal(0, 1.5), class = "Intercept"),
+      prior(exponential(1), class = "phi")
+    ),
+    chains = 2,
+    cores = 2,
+    iter = 2000,
+    warmup = 1000,
+    seed = 20260713,
+    control = list(adapt_delta = 0.99, max_treedepth = 15),
+    save_pars = save_pars(all = TRUE),
+    file = file,
+    refresh = 100
   )
 }
 
 fit_gaussian <- function(formula, data, file) {
   if (nrow(data) < 30) stop(paste("Too few rows for", deparse(formula)))
   brm(
-    formula = formula, data = data, family = gaussian(),
-    prior = c(prior(normal(0, 1), class = "b"), prior(normal(0, 1.5), class = "Intercept"), prior(exponential(1), class = "sigma")),
-    chains = 2, cores = 2, iter = 2000, warmup = 1000, seed = 20260713,
-    control = list(adapt_delta = 0.99, max_treedepth = 15), save_pars = save_pars(all = TRUE), file = file, refresh = 100
+    formula = formula,
+    data = data,
+    family = gaussian(),
+    prior = c(
+      prior(normal(0, 1), class = "b"),
+      prior(normal(0, 1.5), class = "Intercept"),
+      prior(exponential(1), class = "sigma")
+    ),
+    chains = 2,
+    cores = 2,
+    iter = 2000,
+    warmup = 1000,
+    seed = 20260713,
+    control = list(adapt_delta = 0.99, max_treedepth = 15),
+    save_pars = save_pars(all = TRUE),
+    file = file,
+    refresh = 100
   )
 }
 
-covars <- c("z_log_distance", "z_log_area", "z_climate_pc1", "z_climate_pc2", "z_climate_pc3", "z_climate_pc4")
+covars <- c(
+  "z_log_distance", "z_log_area", "z_climate_pc1", "z_climate_pc2",
+  "z_climate_pc3", "z_climate_pc4"
+)
 
-# Northern focal mechanism: isolation -> Bombus deficit -> wind -> SC -> plain flowers.
+# Northern focal mechanism. SC and floral traits are parallel downstream outcomes;
+# SC is deliberately NOT used to explain flower colour or form, avoiding a strong
+# causal claim between island-level summaries of traits from the same species pool.
 north <- d[analysis_regime == "northern_midlatitude"]
 n_base <- complete.cases(north[, ..covars]) & is.finite(north$z_bombus_deficit)
 n_bombus_dat <- north[n_base]
 n_wind_dat <- north[n_base & pollen_vector_trials > 0]
 n_sc_dat <- north[n_base & sc_trials > 0 & is.finite(z_wind_share)]
-n_plain_dat <- north[n_base & color_trials > 0 & is.finite(z_wind_share) & is.finite(z_sc_share)]
+n_showy_dat <- north[n_base & color_trials > 0 & is.finite(z_wind_share)]
+n_complex_dat <- north[n_base & form_trials > 0 & is.finite(z_wind_share)]
 
 n_bombus <- fit_gaussian(
-  z_bombus_deficit ~ z_log_distance + z_log_area + z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
-  n_bombus_dat, file.path(outdir, "north_isolation_bombus")
+  z_bombus_deficit ~ z_log_distance + z_log_area +
+    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  n_bombus_dat,
+  file.path(outdir, "north_isolation_bombus")
 )
 n_wind <- fit_bb(
-  n_wind_species | trials(pollen_vector_trials) ~ z_bombus_deficit + z_log_distance + z_log_area + z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
-  n_wind_dat, file.path(outdir, "north_bombus_wind")
+  n_wind_species | trials(pollen_vector_trials) ~
+    z_bombus_deficit + z_log_distance + z_log_area +
+    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  n_wind_dat,
+  file.path(outdir, "north_bombus_wind")
 )
 n_sc <- fit_bb(
-  sc_successes | trials(sc_trials) ~ z_bombus_deficit + z_wind_share + z_log_distance + z_log_area + z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
-  n_sc_dat, file.path(outdir, "north_bombus_wind_sc")
+  sc_successes | trials(sc_trials) ~
+    z_bombus_deficit + z_wind_share + z_log_distance + z_log_area +
+    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  n_sc_dat,
+  file.path(outdir, "north_bombus_wind_sc")
 )
-n_plain <- fit_bb(
-  color_plain | trials(color_trials) ~ z_bombus_deficit + z_wind_share + z_sc_share + z_log_distance + z_log_area + z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
-  n_plain_dat, file.path(outdir, "north_bombus_wind_sc_plain")
+n_showy <- fit_bb(
+  showy_successes | trials(color_trials) ~
+    z_bombus_deficit + z_wind_share + z_log_distance + z_log_area +
+    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  n_showy_dat,
+  file.path(outdir, "north_bombus_wind_showy")
+)
+n_complex <- fit_bb(
+  complex_successes | trials(form_trials) ~
+    z_bombus_deficit + z_wind_share + z_log_distance + z_log_area +
+    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  n_complex_dat,
+  file.path(outdir, "north_bombus_wind_complex")
 )
 
-# Tropical + southern mechanism:
-# isolation -> mobile alternative pollinators -> vivid flowers -> tubular flowers,
-# with direct isolation and mobile-pollinator effects retained.
+# Tropical + southern counter-domain. No plant-derived pollinator-guild predictor is
+# used. The falsification question is simply whether isolation shifts flower colour
+# and form in the same direction as in the northern Bombus-loss domain.
 south <- d[analysis_regime %in% c("tropical", "southern_extratropical")]
-s_base <- complete.cases(south[, ..covars]) & is.finite(south$z_mobile_alt)
-s_mobile_dat <- south[s_base]
-s_vivid_dat <- south[s_base & color_trials > 0]
-s_tubular_dat <- south[s_base & form_trials > 0 & is.finite(z_vivid_share)]
+s_base <- complete.cases(south[, ..covars])
+s_showy_dat <- south[s_base & color_trials > 0]
+s_complex_dat <- south[s_base & form_trials > 0]
 
-s_mobile <- fit_gaussian(
-  z_mobile_alt ~ z_log_distance + z_log_area + z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
-  s_mobile_dat, file.path(outdir, "south_isolation_mobile_alt")
+s_showy <- fit_bb(
+  showy_successes | trials(color_trials) ~
+    z_log_distance + z_log_area +
+    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  s_showy_dat,
+  file.path(outdir, "south_isolation_showy")
 )
-s_vivid <- fit_bb(
-  vivid_successes | trials(color_trials) ~ z_mobile_alt + z_log_distance + z_log_area + z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
-  s_vivid_dat, file.path(outdir, "south_mobile_alt_vivid")
-)
-s_tubular <- fit_bb(
-  tubular_successes | trials(form_trials) ~ z_mobile_alt + z_vivid_share + z_log_distance + z_log_area + z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
-  s_tubular_dat, file.path(outdir, "south_mobile_alt_vivid_tubular")
+s_complex <- fit_bb(
+  complex_successes | trials(form_trials) ~
+    z_log_distance + z_log_area +
+    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  s_complex_dat,
+  file.path(outdir, "south_isolation_complex")
 )
 
-fits <- list(N_Bombus=n_bombus, N_wind=n_wind, N_SC=n_sc, N_plain=n_plain, S_mobile_alt=s_mobile, S_vivid=s_vivid, S_tubular=s_tubular)
+fits <- list(
+  N_Bombus = n_bombus,
+  N_wind = n_wind,
+  N_SC = n_sc,
+  N_showy = n_showy,
+  N_complex = n_complex,
+  S_showy = s_showy,
+  S_complex = s_complex
+)
 
 posterior_rows <- rbindlist(lapply(names(fits), function(nm) {
   x <- as.data.table(posterior_summary(fits[[nm]], pars = "^b_"), keep.rownames = "parameter")
@@ -119,8 +193,14 @@ posterior_rows <- rbindlist(lapply(names(fits), function(nm) {
 fwrite(posterior_rows, file.path(outdir, "posterior_fixed_effects.csv"))
 
 support <- data.table(
-  equation = c("north_Bombus", "north_wind", "north_SC", "north_plain", "south_mobile_alt", "south_vivid", "south_tubular"),
-  n_islands = c(nrow(n_bombus_dat), nrow(n_wind_dat), nrow(n_sc_dat), nrow(n_plain_dat), nrow(s_mobile_dat), nrow(s_vivid_dat), nrow(s_tubular_dat))
+  equation = c(
+    "north_Bombus", "north_wind", "north_SC", "north_showy", "north_complex",
+    "tropical_southern_showy", "tropical_southern_complex"
+  ),
+  n_islands = c(
+    nrow(n_bombus_dat), nrow(n_wind_dat), nrow(n_sc_dat), nrow(n_showy_dat), nrow(n_complex_dat),
+    nrow(s_showy_dat), nrow(s_complex_dat)
+  )
 )
 fwrite(support, file.path(outdir, "equation_support.csv"))
 
@@ -128,81 +208,142 @@ coef_draw <- function(draws, name) {
   if (!name %in% names(draws)) stop(paste("Missing posterior coefficient", name))
   draws[[name]]
 }
-summarize_draw <- function(domain, path, x) data.table(domain=domain, path=path, mean=mean(x), q025=unname(quantile(x, .025)), q975=unname(quantile(x, .975)), probability_positive=mean(x > 0))
 
-# Northern direct and specific indirect effects.
-b <- as_draws_df(n_bombus); w <- as_draws_df(n_wind); s <- as_draws_df(n_sc); p <- as_draws_df(n_plain)
-nd <- min(nrow(b), nrow(w), nrow(s), nrow(p)); b <- b[1:nd,]; w <- w[1:nd,]; s <- s[1:nd,]; p <- p[1:nd,]
-i_b <- coef_draw(b, "b_z_log_distance"); i_w <- coef_draw(w, "b_z_log_distance"); b_w <- coef_draw(w, "b_z_bombus_deficit")
-i_s <- coef_draw(s, "b_z_log_distance"); b_s <- coef_draw(s, "b_z_bombus_deficit"); w_s <- coef_draw(s, "b_z_wind_share")
-i_p <- coef_draw(p, "b_z_log_distance"); b_p <- coef_draw(p, "b_z_bombus_deficit"); w_p <- coef_draw(p, "b_z_wind_share"); s_p <- coef_draw(p, "b_z_sc_share")
+summarize_draw <- function(domain, outcome, path, x) {
+  data.table(
+    domain = domain,
+    outcome = outcome,
+    path = path,
+    mean = mean(x),
+    q025 = unname(quantile(x, 0.025)),
+    q975 = unname(quantile(x, 0.975)),
+    probability_positive = mean(x > 0)
+  )
+}
+
+# Northern direct and mediated effects. Because SC is parallel rather than a mediator
+# of floral traits, no SC -> flower path products are computed.
+b <- as_draws_df(n_bombus)
+w <- as_draws_df(n_wind)
+s <- as_draws_df(n_sc)
+sh <- as_draws_df(n_showy)
+cx <- as_draws_df(n_complex)
+nd <- min(nrow(b), nrow(w), nrow(s), nrow(sh), nrow(cx))
+b <- b[seq_len(nd), ]
+w <- w[seq_len(nd), ]
+s <- s[seq_len(nd), ]
+sh <- sh[seq_len(nd), ]
+cx <- cx[seq_len(nd), ]
+
+i_b <- coef_draw(b, "b_z_log_distance")
+i_w <- coef_draw(w, "b_z_log_distance")
+b_w <- coef_draw(w, "b_z_bombus_deficit")
+
+i_s <- coef_draw(s, "b_z_log_distance")
+b_s <- coef_draw(s, "b_z_bombus_deficit")
+w_s <- coef_draw(s, "b_z_wind_share")
+
+i_sh <- coef_draw(sh, "b_z_log_distance")
+b_sh <- coef_draw(sh, "b_z_bombus_deficit")
+w_sh <- coef_draw(sh, "b_z_wind_share")
+
+i_cx <- coef_draw(cx, "b_z_log_distance")
+b_cx <- coef_draw(cx, "b_z_bombus_deficit")
+w_cx <- coef_draw(cx, "b_z_wind_share")
 
 north_paths <- rbindlist(list(
-  summarize_draw("northern_midlatitude", "Isolation_to_Plain_direct", i_p),
-  summarize_draw("northern_midlatitude", "Isolation_to_Bombus_to_Plain", i_b*b_p),
-  summarize_draw("northern_midlatitude", "Isolation_to_Wind_to_Plain", i_w*w_p),
-  summarize_draw("northern_midlatitude", "Isolation_to_SC_to_Plain", i_s*s_p),
-  summarize_draw("northern_midlatitude", "Isolation_to_Bombus_to_Wind_to_Plain", i_b*b_w*w_p),
-  summarize_draw("northern_midlatitude", "Isolation_to_Bombus_to_SC_to_Plain", i_b*b_s*s_p),
-  summarize_draw("northern_midlatitude", "Isolation_to_Wind_to_SC_to_Plain", i_w*w_s*s_p),
-  summarize_draw("northern_midlatitude", "Isolation_to_Bombus_to_Wind_to_SC_to_Plain", i_b*b_w*w_s*s_p),
-  summarize_draw("northern_midlatitude", "Bombus_to_Plain_direct", b_p),
-  summarize_draw("northern_midlatitude", "Bombus_to_Wind_to_Plain", b_w*w_p),
-  summarize_draw("northern_midlatitude", "Bombus_to_SC_to_Plain", b_s*s_p),
-  summarize_draw("northern_midlatitude", "Bombus_to_Wind_to_SC_to_Plain", b_w*w_s*s_p)
+  summarize_draw("northern_midlatitude", "Bombus_deficit", "Isolation_direct", i_b),
+
+  summarize_draw("northern_midlatitude", "Wind", "Isolation_direct", i_w),
+  summarize_draw("northern_midlatitude", "Wind", "Isolation_to_Bombus_to_Wind", i_b * b_w),
+  summarize_draw("northern_midlatitude", "Wind", "Isolation_total", i_w + i_b * b_w),
+  summarize_draw("northern_midlatitude", "Wind", "Bombus_direct", b_w),
+
+  summarize_draw("northern_midlatitude", "SC", "Isolation_direct", i_s),
+  summarize_draw("northern_midlatitude", "SC", "Isolation_to_Bombus_to_SC", i_b * b_s),
+  summarize_draw("northern_midlatitude", "SC", "Isolation_to_Wind_to_SC", i_w * w_s),
+  summarize_draw("northern_midlatitude", "SC", "Isolation_to_Bombus_to_Wind_to_SC", i_b * b_w * w_s),
+  summarize_draw("northern_midlatitude", "SC", "Bombus_direct", b_s),
+  summarize_draw("northern_midlatitude", "SC", "Wind_direct", w_s),
+
+  summarize_draw("northern_midlatitude", "Showy", "Isolation_direct", i_sh),
+  summarize_draw("northern_midlatitude", "Showy", "Isolation_to_Bombus_to_Showy", i_b * b_sh),
+  summarize_draw("northern_midlatitude", "Showy", "Isolation_to_Wind_to_Showy", i_w * w_sh),
+  summarize_draw("northern_midlatitude", "Showy", "Isolation_to_Bombus_to_Wind_to_Showy", i_b * b_w * w_sh),
+  summarize_draw("northern_midlatitude", "Showy", "Bombus_direct", b_sh),
+  summarize_draw("northern_midlatitude", "Showy", "Wind_direct", w_sh),
+
+  summarize_draw("northern_midlatitude", "Complex", "Isolation_direct", i_cx),
+  summarize_draw("northern_midlatitude", "Complex", "Isolation_to_Bombus_to_Complex", i_b * b_cx),
+  summarize_draw("northern_midlatitude", "Complex", "Isolation_to_Wind_to_Complex", i_w * w_cx),
+  summarize_draw("northern_midlatitude", "Complex", "Isolation_to_Bombus_to_Wind_to_Complex", i_b * b_w * w_cx),
+  summarize_draw("northern_midlatitude", "Complex", "Bombus_direct", b_cx),
+  summarize_draw("northern_midlatitude", "Complex", "Wind_direct", w_cx)
 ))
 fwrite(north_paths, file.path(outdir, "northern_path_effects.csv"))
 
-# Alternative-pollinator direct, specific indirect, chained indirect, and total effects.
-m <- as_draws_df(s_mobile); v <- as_draws_df(s_vivid); t <- as_draws_df(s_tubular)
-nd2 <- min(nrow(m), nrow(v), nrow(t)); m <- m[1:nd2,]; v <- v[1:nd2,]; t <- t[1:nd2,]
-i_m <- coef_draw(m, "b_z_log_distance")
-i_v <- coef_draw(v, "b_z_log_distance"); m_v <- coef_draw(v, "b_z_mobile_alt")
-i_t <- coef_draw(t, "b_z_log_distance"); m_t <- coef_draw(t, "b_z_mobile_alt"); v_t <- coef_draw(t, "b_z_vivid_share")
+# Counter-domain isolation effects on the same flower-syndrome axes.
+ssh <- as_draws_df(s_showy)
+scx <- as_draws_df(s_complex)
+ns <- min(nrow(ssh), nrow(scx))
+ssh <- ssh[seq_len(ns), ]
+scx <- scx[seq_len(ns), ]
+s_i_sh <- coef_draw(ssh, "b_z_log_distance")
+s_i_cx <- coef_draw(scx, "b_z_log_distance")
 
-alt_paths <- rbindlist(list(
-  summarize_draw("tropical_plus_southern", "Isolation_to_Vivid_direct", i_v),
-  summarize_draw("tropical_plus_southern", "Isolation_to_MobileAlt_to_Vivid", i_m*m_v),
-  summarize_draw("tropical_plus_southern", "Isolation_to_Vivid_total", i_v + i_m*m_v),
-  summarize_draw("tropical_plus_southern", "MobileAlt_to_Vivid_direct", m_v),
-  summarize_draw("tropical_plus_southern", "Isolation_to_Tubular_direct", i_t),
-  summarize_draw("tropical_plus_southern", "Isolation_to_MobileAlt_to_Tubular", i_m*m_t),
-  summarize_draw("tropical_plus_southern", "Isolation_to_Vivid_to_Tubular", i_v*v_t),
-  summarize_draw("tropical_plus_southern", "Isolation_to_MobileAlt_to_Vivid_to_Tubular", i_m*m_v*v_t),
-  summarize_draw("tropical_plus_southern", "MobileAlt_to_Tubular_direct", m_t),
-  summarize_draw("tropical_plus_southern", "MobileAlt_to_Vivid_to_Tubular", m_v*v_t),
-  summarize_draw("tropical_plus_southern", "Vivid_to_Tubular_direct", v_t),
-  summarize_draw("tropical_plus_southern", "Isolation_to_Tubular_total", i_t + i_m*m_t + i_v*v_t + i_m*m_v*v_t),
-  summarize_draw("tropical_plus_southern", "MobileAlt_to_Tubular_total", m_t + m_v*v_t)
+counter_paths <- rbindlist(list(
+  summarize_draw("tropical_plus_southern", "Showy", "Isolation_direct", s_i_sh),
+  summarize_draw("tropical_plus_southern", "Complex", "Isolation_direct", s_i_cx)
 ))
-fwrite(alt_paths, file.path(outdir, "alternative_pollinator_path_effects.csv"))
+fwrite(counter_paths, file.path(outdir, "counterdomain_flower_effects.csv"))
+
+# Direct posterior contrasts of the isolation slopes across domains.
+contrast_n <- min(length(i_sh), length(s_i_sh), length(i_cx), length(s_i_cx))
+contrasts <- rbindlist(list(
+  summarize_draw(
+    "south_minus_north", "Showy", "Isolation_slope_contrast",
+    s_i_sh[seq_len(contrast_n)] - i_sh[seq_len(contrast_n)]
+  ),
+  summarize_draw(
+    "south_minus_north", "Complex", "Isolation_slope_contrast",
+    s_i_cx[seq_len(contrast_n)] - i_cx[seq_len(contrast_n)]
+  )
+))
+fwrite(contrasts, file.path(outdir, "counterdomain_contrasts_vs_north.csv"))
 
 sampler_diagnostics <- rbindlist(lapply(names(fits), function(nm) {
   np <- nuts_params(fits[[nm]])
-  diag <- as.data.table(summarise_draws(as_draws_array(fits[[nm]]), rhat, ess_bulk, ess_tail))[grepl("^b_", variable)]
+  diag <- as.data.table(summarise_draws(as_draws_array(fits[[nm]]), rhat, ess_bulk, ess_tail))[
+    grepl("^b_", variable)
+  ]
   data.table(
-    model=nm,
-    divergent_transitions=sum(np$Parameter == "divergent__" & np$Value == 1),
-    max_treedepth_hits=sum(np$Parameter == "treedepth__" & np$Value >= 15),
-    max_rhat=if (nrow(diag) == 0 || all(is.na(diag$rhat))) NA_real_ else max(diag$rhat, na.rm=TRUE),
-    min_bulk_ess=if (nrow(diag) == 0 || all(is.na(diag$ess_bulk))) NA_real_ else min(diag$ess_bulk, na.rm=TRUE),
-    min_tail_ess=if (nrow(diag) == 0 || all(is.na(diag$ess_tail))) NA_real_ else min(diag$ess_tail, na.rm=TRUE)
+    model = nm,
+    divergent_transitions = sum(np$Parameter == "divergent__" & np$Value == 1),
+    max_treedepth_hits = sum(np$Parameter == "treedepth__" & np$Value >= 15),
+    max_rhat = if (nrow(diag) == 0 || all(is.na(diag$rhat))) NA_real_ else max(diag$rhat, na.rm = TRUE),
+    min_bulk_ess = if (nrow(diag) == 0 || all(is.na(diag$ess_bulk))) NA_real_ else min(diag$ess_bulk, na.rm = TRUE),
+    min_tail_ess = if (nrow(diag) == 0 || all(is.na(diag$ess_tail))) NA_real_ else min(diag$ess_tail, na.rm = TRUE)
   )
-}), fill=TRUE)
+}), fill = TRUE)
 fwrite(sampler_diagnostics, file.path(outdir, "sampler_diagnostics.csv"))
 if (any(sampler_diagnostics$divergent_transitions > 0)) warning("Divergent transitions detected; inspect sampler_diagnostics.csv")
-if (any(sampler_diagnostics$max_rhat > 1.01, na.rm=TRUE)) warning("R-hat > 1.01 detected; inspect sampler_diagnostics.csv")
+if (any(sampler_diagnostics$max_rhat > 1.01, na.rm = TRUE)) warning("R-hat > 1.01 detected; inspect sampler_diagnostics.csv")
 
-capture.output(lapply(fits, summary), file=file.path(outdir, "model_summaries.txt"))
+capture.output(lapply(fits, summary), file = file.path(outdir, "model_summaries.txt"))
+
 meta <- list(
-  contract="v2_bayesian_shortest_two-mechanism_test_v2",
-  northern_hypothesis="Island isolation -> Bombus deficit -> wind pollination / self-compatibility -> plain floral syndrome, with direct and specific indirect paths retained",
-  tropical_southern_hypothesis="Island isolation -> mobile alternative pollinator guild share (birds, butterflies, moths, bats) -> vivid colours -> tubular flowers, with direct, specific indirect, chained indirect, and total effects retained",
-  adjustment_covariates="log island area and climate PCs in every equation",
-  founder_effect_covariate="not included: no independent founder-effect variable is available in the locked input",
-  analysis_tier="sensitivity_all",
-  n_input_islands=n_input,
-  n_zero_or_negative_distance_excluded=n_zero_distance,
-  sampler="2 chains x 2000 iterations, 1000 warmup, adapt_delta=0.99, max_treedepth=15"
+  contract = "v2_bayesian_noncircular_flower_syndrome_test_v1",
+  northern_hypothesis = "Isolation -> Bombus deficit; isolation/Bombus deficit -> wind and SC; isolation/Bombus deficit/wind -> showy colour and complex floral form",
+  counterdomain_hypothesis = "Tropical plus southern islands provide a counter-domain for isolation effects on the same showy/plain and complex/simple floral axes",
+  colour_axis = "plain = white/green/brown/inconspicuous; showy = all other resolved colours",
+  form_axis = "complex = tubular/trumpet + zygomorphic/specialized; simple = open/generalized + composite/brush",
+  sc_causal_guardrail = "SC is a parallel response and is not used as a predictor of floral traits",
+  pollinator_guild_guardrail = "Plant-derived bird/butterfly/moth/bat guild summaries are excluded from causal flower-trait models",
+  adjustment_covariates = "log island area and climate PCs in every equation",
+  founder_effect_covariate = "not included: no independent founder-effect variable is available in the locked input",
+  analysis_tier = "sensitivity_all",
+  n_input_islands = n_input,
+  n_zero_or_negative_distance_excluded = n_zero_distance,
+  sampler = "2 chains x 2000 iterations, 1000 warmup, adapt_delta=0.99, max_treedepth=15"
 )
-write_json(meta, file.path(outdir, "analysis_metadata.json"), pretty=TRUE, auto_unbox=TRUE)
+write_json(meta, file.path(outdir, "analysis_metadata.json"), pretty = TRUE, auto_unbox = TRUE)
