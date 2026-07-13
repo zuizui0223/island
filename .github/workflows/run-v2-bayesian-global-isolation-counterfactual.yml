@@ -79,10 +79,31 @@ jobs:
           assert len(d) == 8265
           assert (d['color_trials'].fillna(0) >= d['color_plain'].fillna(0)).all()
           assert (d['form_trials'].fillna(0) >= d['form_open_generalized'].fillna(0)).all()
+
+          # Fail before the expensive brms stage if floral recoding collapses
+          # either response to a constant or silently loses canonical classes.
+          plain = d.loc[d['color_trials'].fillna(0) > 0, 'plain_share'].dropna()
+          generalized = d.loc[d['form_trials'].fillna(0) > 0, 'generalized_share'].dropna()
+          assert plain.nunique() > 1, 'plain_share is degenerate after trait recoding'
+          assert generalized.nunique() > 1, 'generalized_share is degenerate after trait recoding'
+          assert (d['color_yellow_orange'].fillna(0) > 0).any()
+          assert (d['color_red_pink'].fillna(0) > 0).any()
+          assert (d['color_blue_purple'].fillna(0) > 0).any()
+          assert (d['form_open_generalized'].fillna(0) > 0).any()
+          assert (d['form_tubular_trumpet'].fillna(0) > 0).any()
+
           positive = int((d['distance_to_continent_km'] > 0).sum())
           zero = int((d['distance_to_continent_km'] <= 0).sum())
           assert positive > 0
-          print({'n_input': len(d), 'n_positive_distance': positive, 'n_zero_or_negative_distance': zero})
+          print({
+              'n_input': len(d),
+              'n_positive_distance': positive,
+              'n_zero_or_negative_distance': zero,
+              'n_plain_share_values': int(plain.nunique()),
+              'n_generalized_share_values': int(generalized.nunique()),
+              'plain_share_range': [float(plain.min()), float(plain.max())],
+              'generalized_share_range': [float(generalized.min()), float(generalized.max())],
+          })
           PY
 
       - name: Install R and Bayesian packages
