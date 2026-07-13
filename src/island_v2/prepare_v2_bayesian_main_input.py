@@ -1,4 +1,4 @@
-"""Prepare compact island-level inputs for the v2 Bayesian M0-M4 main analysis.
+"""Prepare compact island-level inputs for the v2 Bayesian scalar path analysis.
 
 The source master is ~8.7M rows. DuckDB performs the species-level pivot and
 island aggregation out-of-core so the Bayesian stage reads one compact table.
@@ -53,16 +53,12 @@ def main() -> None:
           CASE WHEN pollen_vector_mode='abiotic_wind' THEN 1 ELSE 0 END AS is_wind,
           CASE WHEN pollen_vector_mode IN ('biotic','abiotic_wind') THEN 1 ELSE 0 END AS has_binary_vector_mode,
           CASE
-            -- Prefer the canonical cascade categories. These values contain
-            -- underscores, so DuckDB's full-string `~` operator must not be
-            -- used as if it were a substring matcher.
             WHEN lower(coalesce(flower_primary_color,'')) = 'blue_purple' THEN 'blue_purple'
             WHEN lower(coalesce(flower_primary_color,'')) = 'red_pink' THEN 'red_pink'
             WHEN lower(coalesce(flower_primary_color,'')) = 'yellow_orange' THEN 'yellow_orange'
             WHEN lower(coalesce(flower_primary_color,'')) IN (
               'white', 'plain', 'green_brown_inconspicuous'
             ) THEN 'plain'
-            -- Retain compatibility with any direct/free-text evidence.
             WHEN regexp_matches(lower(coalesce(flower_primary_color,'')),
                                 'blue|purple|violet|lilac|lavender') THEN 'blue_purple'
             WHEN regexp_matches(lower(coalesce(flower_primary_color,'')),
@@ -74,7 +70,6 @@ def main() -> None:
             ELSE NULL
           END AS color_cat,
           CASE
-            -- Canonical floral-form categories from the trait cascade.
             WHEN lower(coalesce(floral_form,'')) IN (
               'zygomorphic_specialized', 'zygomorphic', 'orchid',
               'papilionaceous', 'spurred', 'bilabiate'
@@ -90,7 +85,6 @@ def main() -> None:
               'open_generalized', 'open_radial', 'actinomorphic',
               'bowl_cup', 'star_shaped'
             ) THEN 'open_generalized'
-            -- Retain compatibility with any direct/free-text evidence.
             WHEN regexp_matches(lower(coalesce(floral_form,'')),
                                 'zygomorphic|orchid|papilion|spur|bilabiate') THEN 'zygomorphic_specialized'
             WHEN regexp_matches(lower(coalesce(floral_form,'')),
@@ -104,6 +98,10 @@ def main() -> None:
           CASE WHEN self_incompatibility IN ('SC','likely_SC') THEN 1
                WHEN self_incompatibility IN ('SI','likely_SI','obligate_SI') THEN 0
                ELSE NULL END AS sc_binary,
+          CASE WHEN pollination_functional_guild='birds' THEN 1 ELSE 0 END AS bird_guild,
+          CASE WHEN pollination_functional_guild='butterflies' THEN 1 ELSE 0 END AS butterfly_guild,
+          CASE WHEN pollination_functional_guild='moths' THEN 1 ELSE 0 END AS moth_guild,
+          CASE WHEN pollination_functional_guild IN ('birds','butterflies','moths') THEN 1 ELSE 0 END AS mobile_alt_guild,
           CASE WHEN pollination_functional_guild IN ('birds','butterflies','moths','bats') THEN 1 ELSE 0 END AS showy_alt,
           CASE WHEN pollination_functional_guild IN ('other_bees','bees') THEN 1 ELSE 0 END AS other_bee,
           CASE WHEN pollination_functional_guild IN ('flies','beetles_wasps_ants','mixed','mixed_or_generalist') THEN 1 ELSE 0 END AS generalist_insect
@@ -132,6 +130,11 @@ def main() -> None:
           sum(CASE WHEN is_animal=1 AND form_cat='composite_brush' THEN 1 ELSE 0 END) AS form_composite_brush,
           sum(CASE WHEN is_animal=1 AND sc_binary IS NOT NULL THEN 1 ELSE 0 END) AS sc_trials,
           sum(CASE WHEN is_animal=1 AND sc_binary=1 THEN 1 ELSE 0 END) AS sc_successes,
+          sum(CASE WHEN is_animal=1 AND pollination_functional_guild IS NOT NULL THEN 1 ELSE 0 END) AS pollinator_guild_trials,
+          sum(CASE WHEN is_animal=1 THEN bird_guild ELSE 0 END) AS n_bird_guild_species,
+          sum(CASE WHEN is_animal=1 THEN butterfly_guild ELSE 0 END) AS n_butterfly_guild_species,
+          sum(CASE WHEN is_animal=1 THEN moth_guild ELSE 0 END) AS n_moth_guild_species,
+          sum(CASE WHEN is_animal=1 THEN mobile_alt_guild ELSE 0 END) AS n_mobile_alt_guild_species,
           avg(CASE WHEN is_animal=1 THEN showy_alt END) AS showy_alt_guild_share,
           avg(CASE WHEN is_animal=1 THEN other_bee END) AS other_bee_guild_share,
           avg(CASE WHEN is_animal=1 THEN generalist_insect END) AS generalist_insect_guild_share
@@ -150,7 +153,11 @@ def main() -> None:
             CASE WHEN t.pollen_vector_trials > 0 THEN 1.0*t.n_wind_species/t.pollen_vector_trials END AS wind_share,
             CASE WHEN t.color_trials > 0 THEN 1.0*t.color_plain/t.color_trials END AS plain_share,
             CASE WHEN t.form_trials > 0 THEN 1.0*t.form_open_generalized/t.form_trials END AS generalized_share,
-            CASE WHEN t.sc_trials > 0 THEN 1.0*t.sc_successes/t.sc_trials END AS sc_share
+            CASE WHEN t.sc_trials > 0 THEN 1.0*t.sc_successes/t.sc_trials END AS sc_share,
+            CASE WHEN t.pollinator_guild_trials > 0 THEN 1.0*t.n_mobile_alt_guild_species/t.pollinator_guild_trials END AS mobile_alt_guild_share,
+            CASE WHEN t.pollinator_guild_trials > 0 THEN 1.0*t.n_bird_guild_species/t.pollinator_guild_trials END AS bird_guild_share,
+            CASE WHEN t.pollinator_guild_trials > 0 THEN 1.0*t.n_butterfly_guild_species/t.pollinator_guild_trials END AS butterfly_guild_share,
+            CASE WHEN t.pollinator_guild_trials > 0 THEN 1.0*t.n_moth_guild_species/t.pollinator_guild_trials END AS moth_guild_share
           FROM read_csv_auto('{cov}') c
           LEFT JOIN island_traits t USING (island_id)
         ) TO '{out}' (HEADER, DELIMITER ',');
