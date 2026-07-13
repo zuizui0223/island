@@ -1,0 +1,113 @@
+name: run_m0_global_baseline
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/recover-global-trait-artifacts
+    paths:
+      - ".github/workflows/run-m0-global-baseline.yml"
+      - "src/island_v2/m0_global_baseline.py"
+      - "pyproject.toml"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  m0-global:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Validate M0 implementation
+        run: |
+          python -m py_compile src/island_v2/m0_global_baseline.py
+          ruff check src/island_v2/m0_global_baseline.py
+
+      - name: Download locked integrated trait master artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${GITHUB_REPOSITORY}/actions/artifacts/8260957919/zip \
+            > /tmp/integrated-master.zip
+          mkdir -p /tmp/integrated
+          unzip -q /tmp/integrated-master.zip -d /tmp/integrated
+
+      - name: Download locked Bombus environment artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID=$(jq -r '.artifact_id' config/bombus_hypervolume_artifact_lock.json)
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip \
+            > /tmp/bombus-global.zip
+          mkdir -p /tmp/bombus-global
+          unzip -q /tmp/bombus-global.zip -d /tmp/bombus-global
+          ENV_FILE=$(find /tmp/bombus-global -name global_island_environment.csv -print -quit)
+          test -n "$ENV_FILE"
+          cp "$ENV_FILE" /tmp/global_island_environment.csv
+
+      - name: Run M0 globally for all analysis tiers
+        run: |
+          set -euo pipefail
+          for TIER in primary broad sensitivity_all; do
+            ROOT="/tmp/integrated/data/v2/staging/traits/cascade_analysis/bombus_join/${TIER}"
+            test -f "$ROOT/island_trait_composition_with_bombus.csv.gz"
+            test -f "$ROOT/island_bombus_trait_analysis_input.csv"
+            island-v2-m0-global-baseline \
+              --trait-composition-csv "$ROOT/island_trait_composition_with_bombus.csv.gz" \
+              --island-environment-csv /tmp/global_island_environment.csv \
+              --island-metrics-csv "$ROOT/island_bombus_trait_analysis_input.csv" \
+              --analysis-tier "$TIER" \
+              --output-dir "data/v2/staging/analysis/m0/${TIER}"
+          done
+
+      - name: Verify M0 global scope and tier outputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          summary = {}
+          for tier in ('primary', 'broad', 'sensitivity_all'):
+              root = Path(f'data/v2/staging/analysis/m0/{tier}')
+              manifest = json.loads((root / 'm0_global_baseline_manifest.json').read_text())
+              results = pd.read_csv(root / 'm0_global_baseline_results.csv')
+              assert manifest['bombus_applicability_used'] is False
+              assert manifest['bombus_channel_used'] is False
+              assert manifest['n_islands_trait_metrics'] > 0
+              assert not results.empty
+              summary[tier] = {
+                  'n_islands': manifest['n_islands_trait_metrics'],
+                  'n_models': int(len(results)),
+                  'n_fitted': int((results['status'] == 'fitted').sum()),
+              }
+          Path('data/v2/staging/analysis/m0/m0_cross_tier_summary.json').write_text(
+              json.dumps(summary, indent=2) + '\n'
+          )
+          print(json.dumps(summary, indent=2))
+          PY
+
+      - name: Upload global M0 results
+        uses: actions/upload-artifact@v4
+        with:
+          name: m0-global-baseline-${{ github.run_id }}
+          path: data/v2/staging/analysis/m0/
+          if-no-files-found: error
+          retention-days: 90
