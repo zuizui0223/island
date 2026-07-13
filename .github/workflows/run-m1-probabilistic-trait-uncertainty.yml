@@ -11,6 +11,7 @@ on:
       - "config/m0_m4_full_analysis_artifact_lock.json"
       - "config/trait_inference_validation_artifact_lock.json"
       - "src/island_v2/m1_probabilistic_trait_uncertainty.py"
+      - "src/island_v2/m1_probabilistic_trait_uncertainty_fastfit.py"
       - "tests/test_m1_probabilistic_trait_uncertainty.py"
 
 permissions:
@@ -35,7 +36,9 @@ jobs:
         run: |
           set -euo pipefail
           pytest -q tests/test_m1_probabilistic_trait_uncertainty.py
-          python -m py_compile src/island_v2/m1_probabilistic_trait_uncertainty.py
+          python -m py_compile \
+            src/island_v2/m1_probabilistic_trait_uncertainty.py \
+            src/island_v2/m1_probabilistic_trait_uncertainty_fastfit.py
 
       - name: Download locked integrated trait-Bombus artifact
         env:
@@ -76,7 +79,7 @@ jobs:
           REFERENCE=$(find /tmp/full-analysis -path "*/sensitivity_all/full_analysis_island_data.csv" -print -quit)
           test -n "$MASTER"
           test -n "$REFERENCE"
-          python -m island_v2.m1_probabilistic_trait_uncertainty \
+          python -m island_v2.m1_probabilistic_trait_uncertainty_fastfit \
             --species-master-csv "$MASTER" \
             --reference-island-data-csv "$REFERENCE" \
             --output-dir data/v2/staging/analysis/m1_probabilistic_trait_uncertainty
@@ -95,6 +98,8 @@ jobs:
           comparators = pd.read_csv(root / 'imputation_m1_comparators.csv')
           if manifest['n_imputations'] != 200:
               raise SystemExit(f"unexpected imputation count: {manifest['n_imputations']}")
+          if manifest.get('runner') != 'precomputed_design_exact_equivalent':
+              raise SystemExit(f"unexpected runner: {manifest.get('runner')}")
           if manifest['n_species'] < 60000:
               raise SystemExit(f"unexpectedly few direct/genus/family species: {manifest['n_species']}")
           if set(pooled['baseline_spec']) != {'full', 'no_abs_latitude'}:
@@ -109,6 +114,7 @@ jobs:
 
           summary = {
               'contract': manifest['contract'],
+              'runner': manifest['runner'],
               'input_integrated_artifact': json.loads(
                   Path('config/integrated_trait_bombus_artifact_lock.json').read_text()
               ),
