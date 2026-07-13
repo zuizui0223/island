@@ -197,14 +197,17 @@ fwrite(paths, file.path(outdir, "northern_direct_indirect_total_effects.csv"))
 
 sampler_diagnostics <- rbindlist(lapply(names(fits), function(nm) {
   np <- nuts_params(fits[[nm]])
-  summ <- summary(fits[[nm]])$fixed
+  summ <- posterior_summary(fits[[nm]], pars = "^b_")
+  rhat <- summ[, "Rhat"]
+  bulk_ess <- summ[, "Bulk_ESS"]
+  tail_ess <- summ[, "Tail_ESS"]
   data.table(
     model = nm,
     divergent_transitions = sum(np$Parameter == "divergent__" & np$Value == 1),
     max_treedepth_hits = sum(np$Parameter == "treedepth__" & np$Value >= 15),
-    max_rhat = max(summ[, "Rhat"], na.rm = TRUE),
-    min_bulk_ess = min(summ[, "Bulk_ESS"], na.rm = TRUE),
-    min_tail_ess = min(summ[, "Tail_ESS"], na.rm = TRUE)
+    max_rhat = if (all(is.na(rhat))) NA_real_ else max(rhat, na.rm = TRUE),
+    min_bulk_ess = if (all(is.na(bulk_ess))) NA_real_ else min(bulk_ess, na.rm = TRUE),
+    min_tail_ess = if (all(is.na(tail_ess))) NA_real_ else min(tail_ess, na.rm = TRUE)
   )
 }), fill = TRUE)
 fwrite(sampler_diagnostics, file.path(outdir, "sampler_diagnostics.csv"))
