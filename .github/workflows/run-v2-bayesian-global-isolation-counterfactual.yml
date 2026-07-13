@@ -79,16 +79,29 @@ jobs:
           assert len(d) == 8265
           assert (d['pollen_vector_trials'].fillna(0) >= d['n_wind_species'].fillna(0)).all()
           assert (d['color_trials'].fillna(0) >= d['color_plain'].fillna(0)).all()
-          assert (d['form_trials'].fillna(0) >= d['form_tubular_trumpet'].fillna(0)).all()
-          assert d['showy_alt_guild_share'].notna().any()
+
+          complex_count = d['form_tubular_trumpet'].fillna(0) + d['form_zygomorphic_specialized'].fillna(0)
+          simple_count = d['form_open_generalized'].fillna(0) + d['form_composite_brush'].fillna(0)
+          assert (complex_count + simple_count == d['form_trials'].fillna(0)).all()
 
           wind = d.loc[d['pollen_vector_trials'].fillna(0) > 0, 'wind_share'].dropna()
-          plain = d.loc[d['color_trials'].fillna(0) > 0, 'plain_share'].dropna()
+          showy = d.loc[d['color_trials'].fillna(0) > 0, 'color_trials'] - d.loc[d['color_trials'].fillna(0) > 0, 'color_plain']
+          showy_share = showy / d.loc[d['color_trials'].fillna(0) > 0, 'color_trials']
+          complex_share = complex_count[d['form_trials'].fillna(0) > 0] / d.loc[d['form_trials'].fillna(0) > 0, 'form_trials']
+
           assert wind.nunique() > 1, 'wind_share is degenerate after pollen-vector recoding'
-          assert plain.nunique() > 1, 'plain_share is degenerate after trait recoding'
-          assert (d['form_tubular_trumpet'].fillna(0) > 0).any()
+          assert showy_share.dropna().nunique() > 1, 'showy_share is degenerate after colour recoding'
+          assert complex_share.dropna().nunique() > 1, 'complex_share is degenerate after form recoding'
           assert (d['color_yellow_orange'].fillna(0) + d['color_red_pink'].fillna(0) + d['color_blue_purple'].fillna(0) > 0).any()
-          print({'n_input': len(d), 'n_wind_share_values': int(wind.nunique()), 'n_plain_share_values': int(plain.nunique())})
+          assert (complex_count > 0).any()
+          assert (simple_count > 0).any()
+
+          print({
+              'n_input': len(d),
+              'n_wind_share_values': int(wind.nunique()),
+              'n_showy_share_values': int(showy_share.dropna().nunique()),
+              'n_complex_share_values': int(complex_share.dropna().nunique()),
+          })
           PY
 
       - name: Install R and Bayesian packages
@@ -100,7 +113,7 @@ jobs:
           sudo Rscript -e "install.packages('brms', repos='https://cloud.r-project.org', quiet=TRUE)"
           Rscript -e "parse(file='analysis/v2/run_bayesian_global_isolation_counterfactual.R'); library(BH); stopifnot(nchar(system.file('include', package='BH')) > 0); packageVersion('brms')"
 
-      - name: Run shortest two-mechanism Bayesian test
+      - name: Run noncircular flower-syndrome Bayesian test
         run: |
           set -o pipefail
           mkdir -p data/v2/staging/analysis/bayesian_global_isolation/results
@@ -112,17 +125,20 @@ jobs:
       - name: Summarize results
         if: success()
         run: |
-          echo '## Bayesian shortest two-mechanism test' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Bayesian noncircular flower-syndrome test' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/analysis_metadata.json >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Equation-specific support' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/equation_support.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Northern Bombus-loss mechanism' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Northern Bombus-loss paths' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/northern_path_effects.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Tropical + southern mobile-alternative-pollinator mechanism' >> "$GITHUB_STEP_SUMMARY"
-          cat data/v2/staging/analysis/bayesian_global_isolation/results/alternative_pollinator_path_effects.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '### Tropical + southern counter-domain flower effects' >> "$GITHUB_STEP_SUMMARY"
+          cat data/v2/staging/analysis/bayesian_global_isolation/results/counterdomain_flower_effects.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Counter-domain contrasts versus northern midlatitudes' >> "$GITHUB_STEP_SUMMARY"
+          cat data/v2/staging/analysis/bayesian_global_isolation/results/counterdomain_contrasts_vs_north.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Sampler diagnostics' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/sampler_diagnostics.csv >> "$GITHUB_STEP_SUMMARY"
