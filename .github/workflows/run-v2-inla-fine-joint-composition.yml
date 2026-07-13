@@ -1,0 +1,161 @@
+name: run_v2_inla_fine_joint_flower_composition
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - feat/recover-global-trait-artifacts
+    paths:
+      - ".github/workflows/run-v2-inla-fine-joint-composition.yml"
+      - "analysis/v2/run_inla_fine_joint_color_form_composition.R"
+      - "src/island_v2/build_species_trait_states.py"
+      - "src/island_v2/aggregate_island_trait_evidence.py"
+      - "src/island_v2/prepare_v2_bayesian_main_input.py"
+      - "src/island_v2/ontology/flower_color_fine.yml"
+      - "src/island_v2/ontology/floral_form_fine.yml"
+      - "config/v2_fine_joint_contract.yml"
+      - "config/integrated_trait_bombus_artifact_lock.json"
+      - "config/purpose_shortest_artifact_lock.json"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  fine-joint-composition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Python preparation dependency
+        run: pip install -e ".[dev]" duckdb
+
+      - name: Download locked integrated trait-Bombus artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ID=$(jq -r '.artifact_id' config/integrated_trait_bombus_artifact_lock.json)
+          EXPECTED=$(jq -r '.artifact_digest' config/integrated_trait_bombus_artifact_lock.json | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ID}/zip" > /tmp/integrated.zip
+          test "$(sha256sum /tmp/integrated.zip | awk '{print $1}')" = "$EXPECTED"
+          mkdir -p /tmp/integrated
+          unzip -q /tmp/integrated.zip -d /tmp/integrated
+
+      - name: Download locked geographic-covariate artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ID=$(jq -r '.artifact_id' config/purpose_shortest_artifact_lock.json)
+          EXPECTED=$(jq -r '.artifact_digest' config/purpose_shortest_artifact_lock.json | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ID}/zip" > /tmp/covariates.zip
+          test "$(sha256sum /tmp/covariates.zip | awk '{print $1}')" = "$EXPECTED"
+          mkdir -p /tmp/covariates
+          unzip -q /tmp/covariates.zip -d /tmp/covariates
+
+      - name: Prepare promoted fine-joint model input
+        run: |
+          set -euo pipefail
+          MASTER=$(find /tmp/integrated -type f -path '*/bombus_join/sensitivity_all/island_species_trait_bombus_master.csv.gz' -print -quit)
+          COV=$(find /tmp/covariates -type f -name purpose_shortest_island_data.csv -print -quit)
+          FULL=data/v2/staging/analysis/fine_joint/v2_full_input.csv
+          MODEL=data/v2/staging/analysis/fine_joint/v2_model_input.csv
+          test -f "$MASTER"
+          test -f "$COV"
+          mkdir -p data/v2/staging/analysis/fine_joint
+          python src/island_v2/prepare_v2_bayesian_main_input.py \
+            --master-csv-gz "$MASTER" \
+            --island-covariates-csv "$COV" \
+            --analysis-tier sensitivity_all \
+            --output-csv "$FULL"
+          python - <<'PY'
+          import pandas as pd
+
+          path = 'data/v2/staging/analysis/fine_joint/v2_full_input.csv'
+          full = pd.read_csv(path)
+          colors = ['white','blue','yellow','red','green','cream','rare_other']
+          forms = ['tubular','composite_head','star','bell_campanulate','open_radial','trumpet_funnel','rare_other']
+          joint_cols = [f'fine_joint_{c}__{f}' for c in colors for f in forms]
+          required = set(['fine_joint_color_form_trials'] + joint_cols)
+          missing = sorted(required - set(full.columns))
+          assert not missing, f'missing promoted fine-joint columns: {missing}'
+          assert (full[joint_cols].fillna(0).sum(axis=1) == full['fine_joint_color_form_trials'].fillna(0)).all()
+          observed = [c for c in joint_cols if full[c].fillna(0).sum() > 0]
+          assert len(observed) >= 2, observed
+          model = full.loc[full['distance_to_continent_km'] > 0].copy()
+          model.to_csv('data/v2/staging/analysis/fine_joint/v2_model_input.csv', index=False)
+          print({
+              'n_full': len(full),
+              'n_model': len(model),
+              'max_joint_cells': len(joint_cols),
+              'observed_joint_cells': len(observed),
+              'fine_joint_trials_total': int(full['fine_joint_color_form_trials'].fillna(0).sum()),
+          })
+          PY
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "release"
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::data.table
+            any::jsonlite
+          cache: true
+
+      - name: Install and parse R-INLA analysis
+        run: |
+          set -euo pipefail
+          Rscript - <<'RS'
+          options(timeout = 600)
+          repos <- c(CRAN = "https://cloud.r-project.org", INLA = "https://inla.r-inla-download.org/R/stable")
+          install.packages("INLA", repos = repos, dependencies = c("Depends", "Imports", "LinkingTo"))
+          if (!requireNamespace("INLA", quietly = TRUE)) stop("INLA install failed")
+          parse(file = "analysis/v2/run_inla_fine_joint_color_form_composition.R")
+          RS
+
+      - name: Run promoted fine joint composition analysis
+        run: |
+          set -o pipefail
+          OUT=data/v2/staging/analysis/fine_joint/results
+          mkdir -p "$OUT"
+          Rscript analysis/v2/run_inla_fine_joint_color_form_composition.R \
+            data/v2/staging/analysis/fine_joint/v2_model_input.csv \
+            "$OUT" 2>&1 | tee "$OUT/run.log"
+
+      - name: Summarize fine joint results
+        if: success()
+        run: |
+          set -euo pipefail
+          OUT=data/v2/staging/analysis/fine_joint/results
+          echo '## Promoted fine joint flower composition' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/fine_joint_color_form_metadata.json" >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Model comparison' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/fine_joint_color_form_model_comparisons.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Observed promoted cells' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/fine_joint_color_form_observed_cells.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Key FJ3 effects' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/fine_joint_color_form_key_effects.csv" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload promoted fine-joint artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v2-promoted-fine-joint-inla-${{ github.run_id }}
+          path: data/v2/staging/analysis/fine_joint/
+          if-no-files-found: error
+          retention-days: 90
