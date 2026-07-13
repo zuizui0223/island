@@ -81,8 +81,6 @@ jobs:
           assert (d['color_trials'].fillna(0) >= d['color_plain'].fillna(0)).all()
           assert (d['form_trials'].fillna(0) >= d['form_open_generalized'].fillna(0)).all()
 
-          # Fail before the expensive brms stage if pollen-vector or floral recoding
-          # collapses an outcome to a constant or silently loses canonical classes.
           wind = d.loc[d['pollen_vector_trials'].fillna(0) > 0, 'wind_share'].dropna()
           plain = d.loc[d['color_trials'].fillna(0) > 0, 'plain_share'].dropna()
           generalized = d.loc[d['form_trials'].fillna(0) > 0, 'generalized_share'].dropna()
@@ -134,15 +132,15 @@ jobs:
       - name: Summarize results
         if: success()
         run: |
-          echo '## Noncanonical Bayesian scalar replication' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Noncanonical Bayesian scalar path replication' >> "$GITHUB_STEP_SUMMARY"
           echo 'Canonical category-preserving inference remains the northern INLA workflow from PR #115.' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/analysis_metadata.json >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Equation-specific maximum support' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/equation_support.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Northern direct, indirect, and total effects' >> "$GITHUB_STEP_SUMMARY"
-          cat data/v2/staging/analysis/bayesian_global_isolation/results/northern_direct_indirect_total_effects.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '### Northern direct, specific indirect, and total effects on plain flowers' >> "$GITHUB_STEP_SUMMARY"
+          cat data/v2/staging/analysis/bayesian_global_isolation/results/northern_path_effects.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Sampler diagnostics' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/sampler_diagnostics.csv >> "$GITHUB_STEP_SUMMARY"
