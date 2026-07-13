@@ -103,11 +103,14 @@ jobs:
           echo '## Bayesian v2 M0-M4 main analysis' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_main/results/analysis_metadata.json >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### M0-M3 LOO comparison' >> "$GITHUB_STEP_SUMMARY"
-          head -40 data/v2/staging/analysis/bayesian_main/results/m0_m3_loo_comparison.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '### M0-M3 summed component LOO-ELPD comparison' >> "$GITHUB_STEP_SUMMARY"
+          cat data/v2/staging/analysis/bayesian_main/results/m0_m3_scenario_comparison_total_elpd.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### M2-M3 indirect effects' >> "$GITHUB_STEP_SUMMARY"
-          cat data/v2/staging/analysis/bayesian_main/results/m2_m3_indirect_effects.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '### M3 indirect effects' >> "$GITHUB_STEP_SUMMARY"
+          cat data/v2/staging/analysis/bayesian_main/results/m3_indirect_effects.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### M4 category-preserving effects' >> "$GITHUB_STEP_SUMMARY"
+          head -40 data/v2/staging/analysis/bayesian_main/results/m4_multinomial_fixed_effects.csv >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload Bayesian main-analysis artifact
         if: always()
