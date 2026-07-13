@@ -9,10 +9,13 @@ on:
       - "config/trait_cascade_artifact_lock.json"
       - "config/bombus_hypervolume_artifact_lock.json"
       - "config/trait_cascade_analysis_tiers.yml"
+      - "config/m0_m4_sem.yml"
       - "src/island_v2/trait_cascade_analysis.py"
       - "src/island_v2/trait_bombus_analysis.py"
+      - "src/island_v2/m0_m4_sem.py"
       - "tests/test_trait_cascade_analysis.py"
       - "tests/test_trait_bombus_analysis.py"
+      - "tests/test_m0_m4_sem.py"
       - "pyproject.toml"
 
 permissions:
@@ -36,12 +39,17 @@ jobs:
 
       - name: Test analysis contracts
         run: |
-          pytest -q tests/test_trait_cascade_analysis.py tests/test_trait_bombus_analysis.py
+          pytest -q \
+            tests/test_trait_cascade_analysis.py \
+            tests/test_trait_bombus_analysis.py \
+            tests/test_m0_m4_sem.py
           ruff check \
             src/island_v2/trait_cascade_analysis.py \
             src/island_v2/trait_bombus_analysis.py \
+            src/island_v2/m0_m4_sem.py \
             tests/test_trait_cascade_analysis.py \
-            tests/test_trait_bombus_analysis.py
+            tests/test_trait_bombus_analysis.py \
+            tests/test_m0_m4_sem.py
 
       - name: Download locked PR 102 trait artifact
         env:
@@ -104,9 +112,9 @@ jobs:
           assert table['n_bombus_species_scored'].max() == expected['n_bombus_species_scored'] == 142
           assert not table['island_id'].duplicated().any()
           print(json.dumps({
-              'bombus_lock_verified': True,
-              'n_islands': int(table['island_id'].nunique()),
-              'n_bombus_species_total': int(table['n_bombus_species_total'].max()),
+            'bombus_lock_verified': True,
+            'n_islands': int(table['island_id'].nunique()),
+            'n_bombus_species_total': int(table['n_bombus_species_total'].max()),
           }, indent=2))
           PY
 
@@ -173,6 +181,7 @@ jobs:
           path: |
             config/trait_cascade_artifact_lock.json
             config/bombus_hypervolume_artifact_lock.json
+            config/m0_m4_sem.yml
             data/v2/staging/traits/cascade_analysis/
           if-no-files-found: error
           retention-days: 90
