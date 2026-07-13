@@ -16,7 +16,17 @@ def _config() -> dict:
         "analysis_contract": "test_full_analysis",
         "bombus_channel": {"predictor": "environmental_compatibility_max"},
         "climate": {
-            "columns": ["bio1", "bio4", "bio5", "bio6", "bio12", "bio15", "bio18", "bio19", "elevation"],
+            "columns": [
+                "bio1",
+                "bio4",
+                "bio5",
+                "bio6",
+                "bio12",
+                "bio15",
+                "bio18",
+                "bio19",
+                "elevation",
+            ],
             "n_pcs": 4,
             "expected_min_cumulative_variance": 0.80,
         },
@@ -35,9 +45,9 @@ def _config() -> dict:
                 "trait_name": "pollination_functional_guild",
                 "positive_values": ["bumblebees"],
             },
-            "autonomous_selfing": {
-                "trait_name": "autonomous_selfing_capacity",
-                "positive_values": ["autonomous"],
+            "mixed_mating": {
+                "trait_name": "mating_system",
+                "positive_values": ["mixed_mating"],
             },
             "self_compatibility": {
                 "trait_name": "self_incompatibility",
@@ -45,8 +55,14 @@ def _config() -> dict:
             },
             "alternative_pollen_vector": {
                 "trait_name": "pollen_vector_mode",
-                "positive_values": ["wind", "mixed"],
+                "positive_values": ["abiotic_wind"],
             },
+        },
+        "non_informative_traits": {
+            "autonomous_selfing_capacity": {
+                "observed_values": ["autonomous"],
+                "action": "excluded_from_M2_M3_because_no_between_island_contrast",
+            }
         },
         "reporting": {"minimum_complete_islands": 20, "nominal_z_threshold": 1.96},
     }
@@ -92,7 +108,9 @@ def test_build_covariates_fits_deterministic_climate_pcs() -> None:
     assert set(loadings["variable"]) == set(config["climate"]["columns"])
 
 
-def _synthetic_tables(n_islands: int = 120) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def _synthetic_tables(
+    n_islands: int = 120,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     rng = np.random.default_rng(42)
     composition_rows = []
     metric_rows = []
@@ -101,16 +119,24 @@ def _synthetic_tables(n_islands: int = 120) -> tuple[pd.DataFrame, pd.DataFrame,
         island_id = f"island_{index:03d}"
         bombus = index / (n_islands - 1)
         richness = 80 + index % 40
-        bumblebee_count = int(np.clip(round(10 + 50 * bombus + rng.normal(0, 3)), 1, richness - 1))
-        autonomous_count = int(np.clip(round(45 - 20 * bombus + rng.normal(0, 3)), 1, richness - 1))
-        sc_count = int(np.clip(round(50 - 15 * bombus + rng.normal(0, 3)), 1, richness - 1))
-        wind_count = int(np.clip(round(35 - 10 * bombus + rng.normal(0, 3)), 1, richness - 1))
+        bumblebee_count = int(
+            np.clip(round(10 + 50 * bombus + rng.normal(0, 3)), 1, richness - 1)
+        )
+        mixed_mating_count = int(
+            np.clip(round(35 - 15 * bombus + rng.normal(0, 3)), 1, richness - 1)
+        )
+        sc_count = int(
+            np.clip(round(50 - 15 * bombus + rng.normal(0, 3)), 1, richness - 1)
+        )
+        wind_count = int(
+            np.clip(round(35 - 10 * bombus + rng.normal(0, 3)), 1, richness - 1)
+        )
 
         for trait_name, positive_value, negative_value, positive_count in (
             ("pollination_functional_guild", "bumblebees", "other_bees", bumblebee_count),
-            ("autonomous_selfing_capacity", "autonomous", "dependent", autonomous_count),
+            ("mating_system", "mixed_mating", "predominantly_outcrossing", mixed_mating_count),
             ("self_incompatibility", "SC", "SI", sc_count),
-            ("pollen_vector_mode", "wind", "biotic", wind_count),
+            ("pollen_vector_mode", "abiotic_wind", "biotic", wind_count),
         ):
             composition_rows.extend(
                 [
@@ -148,7 +174,11 @@ def _synthetic_tables(n_islands: int = 120) -> tuple[pd.DataFrame, pd.DataFrame,
                 "spatial_block": f"block_{index // 10:02d}",
             }
         )
-    return pd.DataFrame(composition_rows), pd.DataFrame(metric_rows), pd.DataFrame(covariate_rows)
+    return (
+        pd.DataFrame(composition_rows),
+        pd.DataFrame(metric_rows),
+        pd.DataFrame(covariate_rows),
+    )
 
 
 def test_full_model_ladder_uses_independent_m4_proxy_and_clustered_binomial() -> None:
@@ -156,6 +186,7 @@ def test_full_model_ladder_uses_independent_m4_proxy_and_clustered_binomial() ->
     composition, metrics, covariates = _synthetic_tables()
     data, metadata = build_full_analysis_data(composition, metrics, covariates, config)
     assert metadata["baseline_complete"] is True
+    assert metadata["mediators"] == ["mixed_mating", "self_compatibility"]
     assert not np.allclose(
         data["floral_phenotype_share"].fillna(0),
         1.0 - data["alternative_pollen_vector_share"].fillna(0),
@@ -176,7 +207,7 @@ def test_full_model_ladder_uses_independent_m4_proxy_and_clustered_binomial() ->
     assert "alternative_pollen_vector" in m4_predictors
     assert "bombus_x_alternative" in m4_predictors
     assert set(indirect["mediator"]) == {
-        "autonomous_selfing",
+        "mixed_mating",
         "self_compatibility",
         "parallel_total",
     }
