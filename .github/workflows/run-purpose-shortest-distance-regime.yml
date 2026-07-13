@@ -1,0 +1,183 @@
+name: run_purpose_shortest_distance_regime
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/run-purpose-shortest-distance-regime.yml"
+      - "src/island_v2/purpose_shortest_analysis.py"
+      - "src/island_v2/m0_m4_full_analysis.py"
+      - "src/island_v2/full_analysis_covariates.py"
+      - "config/integrated_trait_bombus_artifact_lock.json"
+      - "config/bombus_hypervolume_artifact_lock.json"
+      - "config/island_universe_artifact_lock.json"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  purpose-shortest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Compile shortest analysis
+        run: python -m py_compile src/island_v2/purpose_shortest_analysis.py
+
+      - name: Download locked integrated trait-Bombus artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ID=$(jq -r '.artifact_id' config/integrated_trait_bombus_artifact_lock.json)
+          EXPECTED=$(jq -r '.artifact_digest' config/integrated_trait_bombus_artifact_lock.json | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ID}/zip" > /tmp/integrated.zip
+          test "$(sha256sum /tmp/integrated.zip | awk '{print $1}')" = "$EXPECTED"
+          mkdir -p /tmp/integrated
+          unzip -q /tmp/integrated.zip -d /tmp/integrated
+
+      - name: Download locked Bombus environmental artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ID=$(jq -r '.artifact_id' config/bombus_hypervolume_artifact_lock.json)
+          EXPECTED=$(jq -r '.artifact_digest' config/bombus_hypervolume_artifact_lock.json | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ID}/zip" > /tmp/bombus.zip
+          test "$(sha256sum /tmp/bombus.zip | awk '{print $1}')" = "$EXPECTED"
+          mkdir -p /tmp/bombus
+          unzip -q /tmp/bombus.zip -d /tmp/bombus
+
+      - name: Download locked island universe
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ID=$(jq -r '.artifact_id' config/island_universe_artifact_lock.json)
+          EXPECTED=$(jq -r '.artifact_digest' config/island_universe_artifact_lock.json | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ID}/zip" > /tmp/islands.zip
+          test "$(sha256sum /tmp/islands.zip | awk '{print $1}')" = "$EXPECTED"
+          mkdir -p /tmp/islands
+          unzip -q /tmp/islands.zip -d /tmp/islands
+
+      - name: Download versioned Natural Earth 110m land
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 \
+            https://naturalearth.s3.amazonaws.com/110m_physical/ne_110m_land.zip \
+            -o /tmp/ne_110m_land.zip
+          unzip -t /tmp/ne_110m_land.zip >/dev/null
+
+      - name: Build baseline climate and area covariates
+        run: |
+          set -euo pipefail
+          ISLAND_ENV=$(find /tmp/bombus -name global_island_environment.csv -print -quit)
+          ENV_SAMPLES=$(find /tmp/bombus -name global_island_environment_samples.csv.gz -print -quit)
+          ISLAND_MANIFEST=$(find /tmp/islands -name island_manifest.csv -print -quit)
+          test -n "$ISLAND_ENV"
+          test -n "$ENV_SAMPLES"
+          test -n "$ISLAND_MANIFEST"
+          island-v2-full-analysis-covariates \
+            --island-environment-csv "$ISLAND_ENV" \
+            --environment-samples-csv "$ENV_SAMPLES" \
+            --island-manifest-csv "$ISLAND_MANIFEST" \
+            --output-dir data/v2/staging/analysis/purpose_shortest/covariates
+
+      - name: Run shortest purpose-aligned analysis on all available filled data
+        run: |
+          set -euo pipefail
+          ROOT=$(find /tmp/integrated -type d -path '*/bombus_join/sensitivity_all' -print -quit)
+          COMP="$ROOT/island_trait_composition_with_bombus.csv.gz"
+          METRICS="$ROOT/island_bombus_trait_analysis_input.csv"
+          COV=data/v2/staging/analysis/purpose_shortest/covariates/full_analysis_covariates.csv
+          ISLANDS=$(find /tmp/islands -name islands_v2.gpkg -print -quit)
+          test -f "$COMP"
+          test -f "$METRICS"
+          test -f "$COV"
+          test -f "$ISLANDS"
+          python -m island_v2.purpose_shortest_analysis run \
+            --trait-composition-csv "$COMP" \
+            --island-metrics-csv "$METRICS" \
+            --covariates-csv "$COV" \
+            --islands-gpkg "$ISLANDS" \
+            --natural-earth-land-zip /tmp/ne_110m_land.zip \
+            --output-dir data/v2/staging/analysis/purpose_shortest/results
+
+      - name: Summarize shortest-route results
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('data/v2/staging/analysis/purpose_shortest/results')
+          coef = pd.read_csv(root / 'purpose_shortest_coefficients.csv')
+          fits = pd.read_csv(root / 'purpose_shortest_model_fit.csv')
+          regions = pd.read_csv(root / 'purpose_shortest_region_summary.csv')
+
+          def row(model, regime, outcome, predictor):
+              x = coef.loc[
+                  coef['model'].eq(model)
+                  & coef['regime'].eq(regime)
+                  & coef['outcome'].eq(outcome)
+                  & coef['predictor'].eq(predictor)
+              ]
+              return None if x.empty else x.iloc[0].to_dict()
+
+          def aic(model, regime, outcome):
+              x = fits.loc[
+                  fits['model'].eq(model)
+                  & fits['regime'].eq(regime)
+                  & fits['outcome'].eq(outcome)
+              ]
+              return None if x.empty else float(x.iloc[0]['aic'])
+
+          summary = {
+              'contract': 'purpose_shortest_distance_regime_result_v1',
+              'northern_midlatitude': {
+                  'distance_to_plain_color_M0': row('M0_geography', 'northern_midlatitude', 'plain_color', 'log_distance_to_mainland_km'),
+                  'bombus_to_plain_color_M1': row('M1_add_bombus', 'northern_midlatitude', 'plain_color', 'bombus_channel_state'),
+                  'delta_aic_plain_M1_minus_M0': aic('M1_add_bombus', 'northern_midlatitude', 'plain_color') - aic('M0_geography', 'northern_midlatitude', 'plain_color'),
+                  'distance_to_generalized_form_M0': row('M0_geography', 'northern_midlatitude', 'generalized_form', 'log_distance_to_mainland_km'),
+                  'bombus_to_generalized_form_M1': row('M1_add_bombus', 'northern_midlatitude', 'generalized_form', 'bombus_channel_state'),
+                  'delta_aic_form_M1_minus_M0': aic('M1_add_bombus', 'northern_midlatitude', 'generalized_form') - aic('M0_geography', 'northern_midlatitude', 'generalized_form'),
+              },
+              'tropical_replacement': {
+                  'alternative_animal_guild_to_conspicuous_color': row('M4_replacement_shortest', 'tropical', 'conspicuous_color', 'alternative_animal_guild_share'),
+                  'wind_mixed_to_conspicuous_color': row('M4_replacement_shortest', 'tropical', 'conspicuous_color', 'wind_mixed_share'),
+              },
+              'southern_extratropical_replacement': {
+                  'alternative_animal_guild_to_conspicuous_color': row('M4_replacement_shortest', 'southern_extratropical', 'conspicuous_color', 'alternative_animal_guild_share'),
+                  'wind_mixed_to_conspicuous_color': row('M4_replacement_shortest', 'southern_extratropical', 'conspicuous_color', 'wind_mixed_share'),
+              },
+              'regional_means': regions.to_dict('records'),
+              'interpretation_guardrail': (
+                  'First all-filled-data exploratory run only. Northern midlatitude is a geographic proxy, '
+                  'Bombus is environmental compatibility rather than observed absence, and alternative guild '
+                  'share is plant pollination-guild composition rather than measured local pollinator abundance.'
+              ),
+          }
+          (root / 'purpose_shortest_key_results.json').write_text(json.dumps(summary, indent=2) + '\n')
+          print(json.dumps(summary, indent=2))
+          PY
+
+      - name: Upload shortest-route result
+        uses: actions/upload-artifact@v4
+        with:
+          name: purpose-shortest-distance-regime-${{ github.run_id }}
+          path: data/v2/staging/analysis/purpose_shortest/
+          if-no-files-found: error
+          retention-days: 90
