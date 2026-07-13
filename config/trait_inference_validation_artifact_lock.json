@@ -1,0 +1,24 @@
+{
+  "contract": "trait_inference_validation_artifact_lock_v1",
+  "repository": "zuizui0223/island",
+  "workflow_run_id": 29224195545,
+  "workflow_job_id": 86734976685,
+  "artifact_id": 8269178974,
+  "artifact_name": "trait-inference-validation-29224195545",
+  "artifact_digest": "sha256:add70ee582ed54824dc507aace18701589fdf963c2e4478240299151dfa1a6a1",
+  "head_branch": "feat/recover-global-trait-artifacts",
+  "head_sha": "133eeb479dea9357ddc3fc75d9a4935af958f50a",
+  "verified_summary": {
+    "n_species_direct_cells": 3767,
+    "pollination_functional_guild_direct_species": 586,
+    "pollination_guild_operational_multiclass_accuracy": 0.6177474402730375,
+    "pollination_guild_operational_multiclass_balanced_accuracy": 0.2443861954092133,
+    "pollination_guild_bumblebee_binary_accuracy": 0.7389078498293515,
+    "pollination_guild_bumblebee_binary_brier": 0.1941510896322458,
+    "pollen_vector_mode_operational_accuracy": 0.9009009009009008,
+    "mating_system_operational_accuracy": 0.6909090909090909,
+    "self_incompatibility_operational_accuracy": 0.5775862068965517
+  },
+  "status": "canonical_leave_one_species_out_trait_inference_validation",
+  "interpretation": "Hard genus/family pollination-guild inference is not accurate enough for confirmatory multiclass use. Binary bumblebee probabilities contain moderate predictive information and should be propagated probabilistically rather than treated as known labels."
+}

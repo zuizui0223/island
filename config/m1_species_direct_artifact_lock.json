@@ -1,0 +1,35 @@
+{
+  "contract": "m1_species_direct_artifact_lock_v1",
+  "repository": "zuizui0223/island",
+  "workflow_run_id": 29223753672,
+  "workflow_job_id": 86733776260,
+  "artifact_id": 8269046021,
+  "artifact_name": "m1-species-direct-analysis-29223753672",
+  "artifact_digest": "sha256:73a254b7406d615a467dc10dae54136b966a7b5613bc2f165c8a70e2ac553676",
+  "head_branch": "feat/recover-global-trait-artifacts",
+  "head_sha": "afa145f949fac7ab9055a95d409b20a3e593c454",
+  "verified_summary": {
+    "n_rows": 44068,
+    "n_islands": 2653,
+    "n_species": 586,
+    "n_families": 110,
+    "n_spatial_blocks": 237
+  },
+  "primary_result": {
+    "estimate_log_odds_per_1sd_bombus_compatibility": 0.0761202208996308,
+    "odds_ratio": 1.0790922958060876,
+    "two_way_cluster_robust_se": 0.0675791132007492,
+    "z_value": 1.1263867975525153,
+    "two_sided_normal_p": 0.260001832613949,
+    "nominally_supported": false,
+    "clusters": "accepted_species + 10_degree_spatial_block"
+  },
+  "spatial_cv_result": {
+    "full_baseline_row_weighted_median_delta_loglik_per_1000": -0.0016838566075931,
+    "full_baseline_row_weighted_positive_repeats": 0.4,
+    "full_baseline_equal_species_median_delta_loglik_per_1000": -1.204550983997737,
+    "full_baseline_equal_species_positive_repeats": 0.0
+  },
+  "status": "canonical_species_direct_confirmatory_M1_result",
+  "interpretation": "The species-direct global Bombus compatibility association is positive but not supported after two-way species and spatial clustering, and does not show stable held-out spatial predictive gain."
+}

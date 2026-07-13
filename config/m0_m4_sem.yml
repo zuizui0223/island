@@ -1,0 +1,69 @@
+version: "1.0"
+analysis_unit: island
+analysis_tiers:
+  - primary
+  - broad
+  - sensitivity_all
+
+# These are trait-composition proxies, not claims about realised pollinators.
+proxies:
+  floral_phenotype_proxy:
+    trait_name: pollination_functional_guild
+    positive_values: [bumblebees]
+    label: large_bee_or_Bombus_like_floral_phenotype_proxy
+  reproductive_assurance_proxy:
+    components:
+      - trait_name: autonomous_selfing_capacity
+        positive_values: [autonomous]
+      - trait_name: self_incompatibility
+        positive_values: [SC, likely_SC]
+    aggregation: mean_available
+  alternative_functional_replacement_proxy:
+    trait_name: pollination_functional_guild
+    positive_values: [other_bees, flies, birds, bats, wind, mixed]
+    aggregation: sum_capped_one
+
+bombus_channel:
+  column: environmental_compatibility_max
+  applicability_gate_column: primary_bombus_channel_analysis
+  extrapolation_quality_column: extrapolation_quality
+
+baseline_candidates:
+  # Used when present. Missing baseline blocks are reported and never silently fabricated.
+  - log_island_area_km2
+  - isolation_km
+  - abs_latitude
+  - climate_pc1
+  - climate_pc2
+  - n_trait_species
+
+models:
+  M0:
+    equations:
+      - floral_phenotype_proxy ~ baseline
+  M1:
+    equations:
+      - floral_phenotype_proxy ~ baseline + bombus_channel_state
+  M2:
+    equations:
+      - reproductive_assurance_proxy ~ baseline + bombus_channel_state
+      - floral_phenotype_proxy ~ baseline + reproductive_assurance_proxy
+  M3:
+    equations:
+      - reproductive_assurance_proxy ~ baseline + bombus_channel_state
+      - floral_phenotype_proxy ~ baseline + bombus_channel_state + reproductive_assurance_proxy
+  M4:
+    equations:
+      - floral_phenotype_proxy ~ baseline + bombus_channel_state + alternative_functional_replacement_proxy + bombus_x_alternative
+
+reporting:
+  standardize_continuous_predictors: true
+  minimum_complete_islands: 20
+  primary_extrapolation_quality: [low, moderate]
+  sensitivity_extrapolation_quality: [low, moderate, high, unknown]
+  outputs:
+    - sem_island_data.csv
+    - sem_path_coefficients.csv
+    - sem_model_fit.csv
+    - sem_indirect_effects.csv
+    - sem_manifest.json

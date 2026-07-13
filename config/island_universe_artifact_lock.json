@@ -1,0 +1,19 @@
+{
+  "contract": "island_universe_artifact_lock_v1",
+  "repository": "zuizui0223/island",
+  "workflow_run_id": 28659417688,
+  "artifact_id": 8066083419,
+  "artifact_name": "gbif-three-block-pilot-28659417688",
+  "artifact_digest": "sha256:bee33e14672ec7ff4ed1f7acaea36b32cc6170a45c3d14b2caeb5f43bfaa623b",
+  "head_branch": "main",
+  "head_sha": "6c349fb9b76609d19461a350009d531c92da9a77",
+  "created_at": "2026-07-03T12:08:48Z",
+  "expires_at": "2026-10-01T12:05:30Z",
+  "verified_summary": {
+    "n_islands": 8265,
+    "minimum_area_km2": 5.0,
+    "contains_islands_gpkg": true,
+    "contains_island_manifest_csv": true
+  },
+  "status": "canonical_frozen_global_island_universe_for_full_analysis"
+}

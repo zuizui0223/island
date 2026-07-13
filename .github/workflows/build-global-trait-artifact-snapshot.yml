@@ -1,0 +1,44 @@
+name: build_global_trait_artifact_snapshot
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/recover-global-trait-artifacts]
+    paths:
+      - ".github/workflows/build-global-trait-artifact-snapshot.yml"
+      - "src/island_v2/trait_artifact_snapshot.py"
+      - "tests/test_trait_artifact_snapshot.py"
+      - "data/v2/staging/traits/global_campaign/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Validate snapshot contract
+        run: |
+          pytest -q tests/test_trait_artifact_snapshot.py
+          ruff check src/island_v2/trait_artifact_snapshot.py tests/test_trait_artifact_snapshot.py
+      - name: Build snapshot from existing global campaign
+        run: |
+          set -euo pipefail
+          python -m island_v2.trait_artifact_snapshot build \
+            --campaign-dir data/v2/staging/traits/global_campaign \
+            --output-dir data/v2/staging/traits/artifact_snapshot
+          cat data/v2/staging/traits/artifact_snapshot/trait_artifact_snapshot_summary.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload trait candidate artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: global-trait-artifact-snapshot-${{ github.run_id }}
+          path: data/v2/staging/traits/artifact_snapshot/
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,17 @@
+{
+  "contract": "m0_m4_common_support_cv_artifact_lock_v1",
+  "repository": "zuizui0223/island",
+  "workflow_run_id": 29223060225,
+  "artifact_id": 8268820059,
+  "artifact_name": "m0-m4-common-support-cv-29223060225",
+  "artifact_digest": "sha256:dee0189864dc185758fe72401e88dbab799c40b3aed80a9eaa0d2928a79fa9db",
+  "head_branch": "feat/recover-global-trait-artifacts",
+  "head_sha": "2874186e924e4c2461e60216f648d333594ece98",
+  "verified_support": {
+    "M0_vs_M1_common_islands": 2653,
+    "M2_vs_M3_common_islands": 1488,
+    "M4_common_islands": 2434
+  },
+  "status": "canonical_identical_island_identical_fold_trait_tier_comparison",
+  "key_result": "Tier disagreement persists on identical islands and folds, so sample-domain differences do not explain the primary versus inferred-tier predictive split."
+}

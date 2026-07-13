@@ -1,0 +1,130 @@
+name: run_trait_inference_validation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/run-trait-inference-validation.yml"
+      - "config/trait_inference_validation.yml"
+      - "config/trait_fill_cascade.yml"
+      - "config/trait_cascade_artifact_lock.json"
+      - "src/island_v2/trait_inference_validation.py"
+      - "src/island_v2/trait_inference_validation_fast.py"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  validate-inference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Compile validation implementation
+        run: |
+          python -m py_compile \
+            src/island_v2/trait_inference_validation.py \
+            src/island_v2/trait_inference_validation_fast.py
+
+      - name: Download and verify locked trait cascade artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          LOCK=config/trait_cascade_artifact_lock.json
+          ARTIFACT_ID=$(jq -r '.artifact_id' "$LOCK")
+          EXPECTED_ZIP=$(jq -r '.artifact_zip_digest' "$LOCK" | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            > /tmp/trait-cascade.zip
+          ACTUAL_ZIP=$(sha256sum /tmp/trait-cascade.zip | awk '{print $1}')
+          test "$ACTUAL_ZIP" = "$EXPECTED_ZIP"
+          mkdir -p /tmp/trait-cascade-download /tmp/trait-cascade-extracted
+          unzip -q /tmp/trait-cascade.zip -d /tmp/trait-cascade-download
+          ARCHIVE=$(find /tmp/trait-cascade-download -name trait-fill-cascade-full.tgz -print -quit)
+          test -n "$ARCHIVE"
+          EXPECTED_ARCHIVE=$(jq -r '.archive_sha256' "$LOCK")
+          ACTUAL_ARCHIVE=$(sha256sum "$ARCHIVE" | awk '{print $1}')
+          test "$ACTUAL_ARCHIVE" = "$EXPECTED_ARCHIVE"
+          tar -xzf "$ARCHIVE" -C /tmp/trait-cascade-extracted
+          CASCADE_ROOT=$(find /tmp/trait-cascade-extracted -type d -name fill_cascade -print -quit)
+          test -n "$CASCADE_ROOT"
+          cd "$CASCADE_ROOT"
+          sha256sum -c SHA256SUMS
+
+      - name: Run leave-one-species-out cascade validation
+        run: |
+          set -euo pipefail
+          CASCADE_ROOT=$(find /tmp/trait-cascade-extracted -type d -name fill_cascade -print -quit)
+          python -m island_v2.trait_inference_validation_fast \
+            --cascade-root "$CASCADE_ROOT" \
+            --output-dir data/v2/staging/analysis/trait_inference_validation
+
+      - name: Validate and summarize inference accuracy
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('data/v2/staging/analysis/trait_inference_validation')
+          manifest = json.loads((root / 'trait_inference_validation_manifest.json').read_text())
+          metrics = pd.read_csv(root / 'trait_inference_loo_metrics.csv')
+          binary = pd.read_csv(root / 'pollination_guild_binary_validation.csv')
+          grid = pd.read_csv(root / 'trait_inference_threshold_grid.csv')
+          if manifest['n_species_direct_cells'] != 3767:
+              raise SystemExit(f"unexpected direct-cell count: {manifest['n_species_direct_cells']}")
+          if manifest['trait_direct_counts'].get('pollination_functional_guild') != 586:
+              raise SystemExit('pollination guild direct-cell count changed')
+          if len(grid) != 9 * 5 * 4:
+              raise SystemExit(f'unexpected threshold-grid size: {len(grid)}')
+          focused = binary.loc[binary['trait_name'].eq('pollination_functional_guild')]
+          if set(focused['validation_layer']) != {
+              'genus_all_evaluable', 'family_all_evaluable', 'cascade_policy'
+          }:
+              raise SystemExit('focused binary validation layers incomplete')
+
+          summary = {
+              'contract': manifest['contract'],
+              'input_trait_artifact': json.loads(
+                  Path('config/trait_cascade_artifact_lock.json').read_text()
+              ),
+              'dimensions': {
+                  'n_species_direct_cells': manifest['n_species_direct_cells'],
+                  'n_direct_species': manifest['n_direct_species'],
+                  'trait_direct_counts': manifest['trait_direct_counts'],
+              },
+              'operational_layer_metrics': metrics.to_dict('records'),
+              'pollination_guild_binary_validation': focused.to_dict('records'),
+              'threshold_grid_complete': True,
+              'interpretation_guardrail': (
+                  'LOO accuracy validates predictive behavior of inference tiers but never converts inferred cells into direct evidence.'
+              ),
+          }
+          (root / 'trait_inference_validation_summary.json').write_text(
+              json.dumps(summary, indent=2) + '\n'
+          )
+          print(json.dumps(summary, indent=2))
+          PY
+
+      - name: Upload inference validation outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: trait-inference-validation-${{ github.run_id }}
+          path: |
+            config/trait_inference_validation.yml
+            config/trait_fill_cascade.yml
+            config/trait_cascade_artifact_lock.json
+            data/v2/staging/analysis/trait_inference_validation/
+          if-no-files-found: error
+          retention-days: 90

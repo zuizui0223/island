@@ -1,0 +1,70 @@
+version: "1.0"
+analysis_contract: m1_species_direct_two_way_clustered_v1
+analysis_unit: island_species_occurrence
+
+outcome:
+  trait_name: pollination_functional_guild
+  required_fill_tier: species_direct
+  positive_value: bumblebees
+  interpretation: directly_evidenced_species_belongs_to_bumblebee_pollination_guild
+
+bombus_predictor:
+  column: bombus_channel_state
+  interpretation: environmental_compatibility_not_observed_absence
+
+baseline_full:
+  - log_island_area_km2
+  - abs_latitude
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+  - log_trait_species_richness
+  - log_gbif_flora_records
+
+baseline_sensitivity_no_abs_latitude:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+  - log_trait_species_richness
+  - log_gbif_flora_records
+
+weight_schemes:
+  primary: row_weighted
+  sensitivity: equal_species_weighted
+
+covariance_schemes:
+  primary:
+    cluster_a: accepted_species
+    cluster_b: spatial_block
+  taxonomic_sensitivity:
+    cluster_a: family
+    cluster_b: spatial_block
+
+spatial_cv:
+  folds: 10
+  repeats: 5
+  seed: 20260713
+  holdout_unit: spatial_block
+  comparisons:
+    - M0_vs_M1_full_baseline
+    - M0_vs_M1_no_abs_latitude
+  weight_schemes:
+    - row_weighted
+    - equal_species_weighted
+
+reporting:
+  nominal_z_threshold: 1.96
+  minimum_rows: 1000
+  minimum_species_clusters: 100
+  minimum_family_clusters: 50
+  minimum_spatial_blocks: 50
+
+interpretation_guardrails:
+  - Species traits are invariant across islands; repeated species are explicitly clustered.
+  - The model estimates island-level compositional filtering among directly evidenced species, not within-species trait evolution.
+  - Bombus is environmental compatibility, not observed biological absence.
+  - Equal-species weighting prevents widespread species from dominating the association.
+  - Family-plus-spatial-block covariance is a conservative taxonomic-dependence sensitivity, not a phylogenetic model.

@@ -1,0 +1,123 @@
+name: run_v1_v2_minimal_bridge
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/run-v1-v2-minimal-bridge.yml"
+      - "src/island_v2/v1_v2_bridge_analysis.py"
+      - "src/island_v2/purpose_shortest_analysis.py"
+      - "src/island_v2/m0_m4_full_analysis.py"
+      - "src/island_v2/full_analysis_covariates.py"
+      - "config/integrated_trait_bombus_artifact_lock.json"
+      - "config/bombus_hypervolume_artifact_lock.json"
+      - "config/island_universe_artifact_lock.json"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Compile bridge
+        run: python -m py_compile src/island_v2/v1_v2_bridge_analysis.py
+
+      - name: Download locked integrated trait-Bombus artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ID=$(jq -r '.artifact_id' config/integrated_trait_bombus_artifact_lock.json)
+          EXPECTED=$(jq -r '.artifact_digest' config/integrated_trait_bombus_artifact_lock.json | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ID}/zip" > /tmp/integrated.zip
+          test "$(sha256sum /tmp/integrated.zip | awk '{print $1}')" = "$EXPECTED"
+          mkdir -p /tmp/integrated
+          unzip -q /tmp/integrated.zip -d /tmp/integrated
+
+      - name: Download locked Bombus environmental artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ID=$(jq -r '.artifact_id' config/bombus_hypervolume_artifact_lock.json)
+          EXPECTED=$(jq -r '.artifact_digest' config/bombus_hypervolume_artifact_lock.json | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ID}/zip" > /tmp/bombus.zip
+          test "$(sha256sum /tmp/bombus.zip | awk '{print $1}')" = "$EXPECTED"
+          mkdir -p /tmp/bombus
+          unzip -q /tmp/bombus.zip -d /tmp/bombus
+
+      - name: Download locked island universe
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ID=$(jq -r '.artifact_id' config/island_universe_artifact_lock.json)
+          EXPECTED=$(jq -r '.artifact_digest' config/island_universe_artifact_lock.json | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ID}/zip" > /tmp/islands.zip
+          test "$(sha256sum /tmp/islands.zip | awk '{print $1}')" = "$EXPECTED"
+          mkdir -p /tmp/islands
+          unzip -q /tmp/islands.zip -d /tmp/islands
+
+      - name: Download versioned Natural Earth 110m land
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 \
+            https://naturalearth.s3.amazonaws.com/110m_physical/ne_110m_land.zip \
+            -o /tmp/ne_110m_land.zip
+          unzip -t /tmp/ne_110m_land.zip >/dev/null
+
+      - name: Build baseline covariates
+        run: |
+          set -euo pipefail
+          ISLAND_ENV=$(find /tmp/bombus -name global_island_environment.csv -print -quit)
+          ENV_SAMPLES=$(find /tmp/bombus -name global_island_environment_samples.csv.gz -print -quit)
+          ISLAND_MANIFEST=$(find /tmp/islands -name island_manifest.csv -print -quit)
+          island-v2-full-analysis-covariates \
+            --island-environment-csv "$ISLAND_ENV" \
+            --environment-samples-csv "$ENV_SAMPLES" \
+            --island-manifest-csv "$ISLAND_MANIFEST" \
+            --output-dir data/v2/staging/analysis/v1_v2_bridge/covariates
+
+      - name: Run minimal v1-v2 bridge
+        run: |
+          set -euo pipefail
+          ROOT=$(find /tmp/integrated -type d -path '*/bombus_join/sensitivity_all' -print -quit)
+          MASTER="$ROOT/island_species_trait_bombus_master.csv.gz"
+          METRICS="$ROOT/island_bombus_trait_analysis_input.csv"
+          COV=data/v2/staging/analysis/v1_v2_bridge/covariates/full_analysis_covariates.csv
+          ISLANDS=$(find /tmp/islands -name islands_v2.gpkg -print -quit)
+          test -f "$MASTER"
+          test -f "$METRICS"
+          test -f "$COV"
+          test -f "$ISLANDS"
+          python -m island_v2.v1_v2_bridge_analysis \
+            --species-master-csv "$MASTER" \
+            --island-metrics-csv "$METRICS" \
+            --covariates-csv "$COV" \
+            --islands-gpkg "$ISLANDS" \
+            --natural-earth-land-zip /tmp/ne_110m_land.zip \
+            --output-dir data/v2/staging/analysis/v1_v2_bridge/results
+
+      - name: Upload bridge result
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-v2-minimal-bridge-${{ github.run_id }}
+          path: data/v2/staging/analysis/v1_v2_bridge/
+          if-no-files-found: error
+          retention-days: 90

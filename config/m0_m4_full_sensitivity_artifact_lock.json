@@ -1,0 +1,24 @@
+{
+  "contract": "m0_m4_full_sensitivity_artifact_lock_v2",
+  "repository": "zuizui0223/island",
+  "workflow_run_id": 29224537922,
+  "artifact_id": 8269265418,
+  "artifact_name": "m0-m4-full-sensitivity-v2-29224537922",
+  "artifact_digest": "sha256:84397215d0ccfc7161c7419764f7f7e73bfebfa29a3426cdc4e71c1bd06747cc",
+  "head_branch": "feat/recover-global-trait-artifacts",
+  "head_sha": "c90791f310a177ad1f42801cf225f2e265800fcf",
+  "bootstrap": {
+    "replicates_per_tier": 200,
+    "unit": "10_degree_spatial_block",
+    "residualization_refit_within_each_replicate": true
+  },
+  "key_results": {
+    "M1_raw_bombus_bootstrap_direction_consistent_all_tiers": true,
+    "M1_raw_bombus_bootstrap_95ci_excludes_zero_all_tiers": true,
+    "M3_raw_direct_bombus_bootstrap_95ci_excludes_zero_all_tiers": true,
+    "M3_parallel_indirect_bootstrap_95ci_excludes_zero_all_tiers": false,
+    "M4_interaction_bootstrap_95ci_excludes_zero_all_tiers": false,
+    "spatial_cross_validation_note": "Bootstrap association stability does not imply out-of-region predictive generalization; the separate spatial-CV artifacts remain the predictive evidence source."
+  },
+  "status": "canonical_spatial_block_bootstrap_sensitivity_v2"
+}

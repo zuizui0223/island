@@ -1,0 +1,128 @@
+name: run_m0_m4_existing_paths
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/recover-global-trait-artifacts
+    paths:
+      - ".github/workflows/run-m0-m4-existing-paths.yml"
+      - "config/integrated_trait_bombus_artifact_lock.json"
+      - "src/island_v2/m0_m4_existing_paths.py"
+      - "config/m0_m4_sem.yml"
+      - "pyproject.toml"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/run-m0-m4-existing-paths.yml"
+      - "config/integrated_trait_bombus_artifact_lock.json"
+      - "src/island_v2/m0_m4_existing_paths.py"
+      - "config/m0_m4_sem.yml"
+      - "pyproject.toml"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  existing-paths:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Download locked integrated trait-Bombus artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          LOCK=config/integrated_trait_bombus_artifact_lock.json
+          ARTIFACT_ID=$(jq -r '.artifact_id' "$LOCK")
+          EXPECTED=$(jq -r '.artifact_digest' "$LOCK" | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            > /tmp/integrated.zip
+          ACTUAL=$(sha256sum /tmp/integrated.zip | awk '{print $1}')
+          test "$ACTUAL" = "$EXPECTED"
+          mkdir -p /tmp/integrated
+          unzip -q /tmp/integrated.zip -d /tmp/integrated
+          echo "locked_artifact_id=$ARTIFACT_ID"
+          echo "locked_artifact_sha256=$ACTUAL"
+
+      - name: Run M0-M4 paths for all existing analysis tiers
+        run: |
+          set -euo pipefail
+          for TIER in primary broad sensitivity_all; do
+            ROOT=$(find /tmp/integrated -type d -path "*/bombus_join/${TIER}" -print -quit)
+            test -n "$ROOT"
+            COMP="$ROOT/island_trait_composition_with_bombus.csv.gz"
+            METRICS="$ROOT/island_bombus_trait_analysis_input.csv"
+            test -f "$COMP"
+            test -f "$METRICS"
+            island-v2-m0-m4-existing-paths \
+              --trait-composition-csv "$COMP" \
+              --island-metrics-csv "$METRICS" \
+              --analysis-tier "$TIER" \
+              --output-dir "data/v2/staging/analysis/m0_m4_existing_paths/${TIER}"
+          done
+
+      - name: Summarize and validate path results
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('data/v2/staging/analysis/m0_m4_existing_paths')
+          lock = json.loads(Path('config/integrated_trait_bombus_artifact_lock.json').read_text())
+          summary = {
+              'contract': 'm0_m4_existing_data_paths_v1',
+              'input_artifact': {
+                  'artifact_id': lock['artifact_id'],
+                  'artifact_digest': lock['artifact_digest'],
+                  'workflow_run_id': lock['workflow_run_id'],
+              },
+              'tiers': {},
+          }
+          for tier in ('primary', 'broad', 'sensitivity_all'):
+              d = root / tier
+              manifest = json.loads((d / 'path_manifest.json').read_text())
+              paths = pd.read_csv(d / 'path_coefficients.csv')
+              fit = pd.read_csv(d / 'path_model_fit.csv')
+              indirect = pd.read_csv(d / 'path_indirect_effects.csv')
+              if manifest['analysis_tier'] != tier:
+                  raise SystemExit(f'analysis tier mismatch for {tier}: {manifest}')
+              if manifest['n_islands'] <= 0:
+                  raise SystemExit(f'no islands available for {tier}')
+              if paths.empty or fit.empty:
+                  raise SystemExit(f'empty path output for {tier}')
+              summary['tiers'][tier] = {
+                  'n_islands': manifest['n_islands'],
+                  'baseline_covariates_used': manifest['baseline_covariates_used'],
+                  'bombus_predictor': manifest['bombus_predictor'],
+                  'n_path_coefficients': int(len(paths)),
+                  'models': sorted(paths['model'].dropna().astype(str).unique().tolist()),
+                  'indirect_effects': indirect.to_dict('records'),
+              }
+          (root / 'm0_m4_existing_paths_summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+          print(json.dumps(summary, indent=2))
+          PY
+
+      - name: Upload path-analysis outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: m0-m4-existing-paths-${{ github.run_id }}
+          path: |
+            config/integrated_trait_bombus_artifact_lock.json
+            config/m0_m4_sem.yml
+            data/v2/staging/analysis/m0_m4_existing_paths/
+          if-no-files-found: error
+          retention-days: 90

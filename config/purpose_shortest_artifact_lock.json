@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "role": "prepared_distance_area_climate_bombus_covariates_for_initial_v2_bayesian_main_analysis",
+  "workflow_run_id": 29228212586,
+  "artifact_id": 8270544465,
+  "artifact_name": "purpose-shortest-distance-regime-29228212586",
+  "artifact_digest": "sha256:695f35b97bae07e81b05deab537dd73fa687b2d99e9efdb1cb3babd2fa12dfb6",
+  "source_commit": "c4f0dede08255f7af02ba3e693c22d0ca7330179",
+  "required_file": "results/purpose_shortest_island_data.csv"
+}
