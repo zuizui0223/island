@@ -37,9 +37,12 @@ def prepare_main_input(
     audit_dir = output_csv.parent / "input_audit"
     audit_dir.mkdir(parents=True, exist_ok=True)
 
+    # Persist species-level states so ontology coverage, conflicts, and fine
+    # category support can be audited after the preparation job completes.
+    species_states = audit_dir / "species_trait_states.parquet"
+
     with tempfile.TemporaryDirectory(prefix="island-v2-main-") as tmp:
         tmpdir = Path(tmp)
-        species_states = tmpdir / "species_trait_states.parquet"
         evidence_wide = tmpdir / "island_trait_evidence_wide.parquet"
         evidence_long = audit_dir / "island_trait_evidence_long.parquet"
         bombus_channel = audit_dir / "bombus_channel_components.parquet"
