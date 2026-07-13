@@ -1,10 +1,11 @@
-version: 5
+version: 6
 canonical_analysis:
   workflow: .github/workflows/run-v2-inla-category-preserving-north.yml
   engine: INLA
   current_evidence_tier: sensitivity_all
   planned_confirmatory_evidence_tier: primary
   layered_all_data: true
+  joint_colour_form_composition: true
   population:
     primary: northern_midlatitude
     global_regimes:
@@ -15,6 +16,7 @@ canonical_analysis:
 retained_categories:
   flower_color: [plain, yellow_orange, red_pink, blue_purple]
   floral_form: [open_generalized, tubular_trumpet, zygomorphic_specialized, composite_brush]
+  joint_colour_form_cells: 16
 full_flora_outcomes:
   - animal_pollinated
   - wind_mixed
@@ -76,6 +78,21 @@ models:
     extends: N3_direct_indirect
     add_predictors: [wind_mixed]
     reports: [wind_adjusted_direct_effect, wind_adjusted_indirect_effect, wind_adjusted_total_effect]
+  J0_joint_geo:
+    response: joint_colour_form_composition
+    cells: 16
+    representation: poisson_loglinear_with_shared_island_effect
+    predictors: [distance_to_continent, island_area, climate]
+  J1_joint_bombus:
+    extends: J0_joint_geo
+    add_predictors: [bombus_deficit]
+  J2_joint_sc_wind:
+    extends: J0_joint_geo
+    add_predictors: [self_compatibility, wind_mixed]
+  J3_joint_full:
+    extends: J0_joint_geo
+    add_predictors: [bombus_deficit, self_compatibility, wind_mixed]
+    interpretation: category_reallocation_within_joint_colour_form_composition
   global_falsification:
     population:
       - northern_midlatitude
@@ -103,6 +120,7 @@ engine_roles:
     owns:
       - full_flora_pollination_mode
       - all_retained_flower_categories
+      - joint_colour_form_composition
       - direct_indirect_decomposition
       - wind_mixed_adjusted_decomposition
       - four_regime_falsification
@@ -111,8 +129,11 @@ engine_roles:
     category_models_allowed: false
 principles:
   unknown_is_not_negative: true
+  conflicting_species_states_are_unresolved: true
   category_omission_allowed: false
   outcome_layer_omission_allowed: false
+  separate_binary_models_are_not_joint_composition: true
+  joint_colour_form_counts_must_exhaust_joint_trials: true
   exclude_zero_distance_from_fitted_models: true
   use_equation_specific_maximum_support: true
   compare_models_only_on_matched_support: true
