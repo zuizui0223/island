@@ -1,0 +1,132 @@
+name: run_v2_bayesian_binary_pathway_inference
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [feat/inla-v2-m0-m4-main]
+    paths:
+      - ".github/workflows/run-v2-bayesian-binary-pathway.yml"
+      - "analysis/v2/run_bayesian_binary_pathway.R"
+      - "docs/v2_engine_specific_analysis_contract.md"
+      - "src/island_v2/prepare_v2_bayesian_main_input.py"
+      - "config/integrated_trait_bombus_artifact_lock.json"
+      - "config/purpose_shortest_artifact_lock.json"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  binary-pathway-inference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Python preparation dependency
+        run: |
+          pip install -e ".[dev]" duckdb
+          python -m py_compile src/island_v2/prepare_v2_bayesian_main_input.py
+
+      - name: Download locked integrated trait-Bombus artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ID=$(jq -r '.artifact_id' config/integrated_trait_bombus_artifact_lock.json)
+          EXPECTED=$(jq -r '.artifact_digest' config/integrated_trait_bombus_artifact_lock.json | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ID}/zip" > /tmp/integrated.zip
+          test "$(sha256sum /tmp/integrated.zip | awk '{print $1}')" = "$EXPECTED"
+          mkdir -p /tmp/integrated
+          unzip -q /tmp/integrated.zip -d /tmp/integrated
+
+      - name: Download locked geographic-covariate artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ID=$(jq -r '.artifact_id' config/purpose_shortest_artifact_lock.json)
+          EXPECTED=$(jq -r '.artifact_digest' config/purpose_shortest_artifact_lock.json | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ID}/zip" > /tmp/covariates.zip
+          test "$(sha256sum /tmp/covariates.zip | awk '{print $1}')" = "$EXPECTED"
+          mkdir -p /tmp/covariates
+          unzip -q /tmp/covariates.zip -d /tmp/covariates
+
+      - name: Prepare binary pathway input
+        run: |
+          set -euo pipefail
+          MASTER=$(find /tmp/integrated -type f -path '*/bombus_join/sensitivity_all/island_species_trait_bombus_master.csv.gz' -print -quit)
+          COV=$(find /tmp/covariates -type f -name purpose_shortest_island_data.csv -print -quit)
+          test -f "$MASTER"
+          test -f "$COV"
+          mkdir -p data/v2/staging/analysis/bayesian_binary_pathway
+          python src/island_v2/prepare_v2_bayesian_main_input.py \
+            --master-csv-gz "$MASTER" \
+            --island-covariates-csv "$COV" \
+            --analysis-tier sensitivity_all \
+            --output-csv data/v2/staging/analysis/bayesian_binary_pathway/input.csv
+          python - <<'PY'
+          import pandas as pd
+          p = 'data/v2/staging/analysis/bayesian_binary_pathway/input.csv'
+          d = pd.read_csv(p)
+          assert d['island_id'].is_unique
+          assert len(d) == 8265
+          assert (d['color_trials'].fillna(0) >= d['color_plain'].fillna(0)).all()
+          assert (d['form_trials'].fillna(0) >= d['form_open_generalized'].fillna(0)).all()
+          assert int((d['distance_to_continent_km'] > 0).sum()) > 0
+          print({'n_input': len(d), 'n_positive_distance': int((d['distance_to_continent_km'] > 0).sum())})
+          PY
+
+      - name: Install R and Bayesian packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            r-base r-cran-brms r-cran-bh r-cran-data.table r-cran-posterior r-cran-jsonlite r-cran-extradistr
+          sudo Rscript -e "install.packages(c('BH', 'StanHeaders'), repos='https://cloud.r-project.org', quiet=TRUE)"
+          sudo Rscript -e "install.packages('brms', repos='https://cloud.r-project.org', quiet=TRUE)"
+          Rscript -e "parse(file='analysis/v2/run_bayesian_binary_pathway.R'); library(BH); stopifnot(nchar(system.file('include', package='BH')) > 0); packageVersion('brms')"
+
+      - name: Run binary pathway inference
+        run: |
+          set -o pipefail
+          OUT=data/v2/staging/analysis/bayesian_binary_pathway/results
+          mkdir -p "$OUT"
+          Rscript analysis/v2/run_bayesian_binary_pathway.R \
+            data/v2/staging/analysis/bayesian_binary_pathway/input.csv \
+            "$OUT" 2>&1 | tee "$OUT/run.log"
+
+      - name: Summarize pathway results
+        if: success()
+        run: |
+          OUT=data/v2/staging/analysis/bayesian_binary_pathway/results
+          echo '## Bayesian binary pathway inference' >> "$GITHUB_STEP_SUMMARY"
+          echo 'INLA owns category-preserving decomposition; this workflow estimates broad direct and SC-mediated paths.' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/analysis_metadata.json" >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Equation-specific support' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/equation_support.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Northern direct, indirect, and total effects' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/northern_direct_indirect_total_effects.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Cross-regime isolation slopes' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/cross_regime_isolation_slopes.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Sampler diagnostics' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/sampler_diagnostics.csv" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Bayesian pathway artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v2-bayesian-binary-pathway-${{ github.run_id }}
+          path: data/v2/staging/analysis/bayesian_binary_pathway/
+          if-no-files-found: error
+          retention-days: 90
