@@ -1,24 +1,31 @@
-version: 1
+version: 2
 project: island-v2
 
 canonical:
-  primary:
+  current:
     workflow: .github/workflows/run-v2-inla-m0-m4-main.yml
     engine: INLA
-    evidence_tier: primary
-    role: primary_inference
+    evidence_tier: sensitivity_all
+    role: current_all_data_analysis
     models: [M0, M1, M2, M3, M4]
     description: >-
-      Canonical manuscript inference. Uses species-direct evidence only, the frozen
-      island universe and locked covariates, with coarse spatial-block adjustment.
+      Current full-data analysis requested for maximum island and species coverage. Uses
+      all completed trait-cascade tiers, including global fallback, while retaining the
+      frozen island universe for audit and excluding distance-to-continent == 0 only from
+      the fitted model input.
+  planned_primary:
+    engine: INLA
+    evidence_tier: primary
+    role: confirmatory_primary_inference
+    status: deferred_until_all_data_diagnostics_are_reviewed
 
 robustness:
   evidence_tiers:
     workflows:
       - .github/workflows/run-m0-m4-full-sensitivity.yml
       - .github/workflows/run-m0-m4-evidence-layer-diagnostics.yml
-    evidence_tiers: [broad, sensitivity_all]
-    role: sensitivity_analysis
+    evidence_tiers: [primary, broad, sensitivity_all]
+    role: evidence_tier_comparison
   spatial:
     workflows:
       - .github/workflows/run-m0-m4-spatial-cv.yml
@@ -37,8 +44,8 @@ replication:
     role: computational_replication
     required_evidence_tier: primary
     note: >-
-      This workflow must not be interpreted as primary inference and must not use
-      sensitivity_all as its default analysis tier.
+      This workflow remains a primary-tier computational replication and is not the
+      current full-data INLA run.
 
 legacy:
   workflows:
@@ -51,12 +58,13 @@ legacy:
     - .github/workflows/run-v1-v2-minimal-bridge.yml
   role: development_history
   interpretation: >-
-    Retained for provenance and method development. These workflows are not part of
-    the canonical manuscript inference path unless explicitly promoted in this registry.
+    Retained for provenance and method development. These workflows are not the current
+    analysis route unless explicitly promoted in this registry.
 
 guardrails:
-  primary_evidence_tier: primary
-  forbid_primary_sensitivity_all: true
+  current_evidence_tier: sensitivity_all
+  preserve_frozen_island_universe: true
+  exclude_zero_distance_from_fitted_models: true
   require_locked_inputs: true
   require_analysis_contract: config/v2_analysis_contract.yml
   require_input_validation: src/island_v2/validate_analysis_inputs.py
