@@ -7,7 +7,6 @@ from pathlib import Path
 
 import duckdb
 
-
 COLORS = ("plain", "yellow_orange", "red_pink", "blue_purple")
 FORMS = (
     "open_generalized",
@@ -15,6 +14,22 @@ FORMS = (
     "zygomorphic_specialized",
     "composite_brush",
 )
+
+# Promoted from the empirical support audit. Everything resolved but outside these
+# supported states is retained as rare_other rather than silently discarded.
+FINE_COLORS = ("white", "blue", "yellow", "red", "green", "cream", "rare_other")
+FINE_FORMS = (
+    "tubular",
+    "composite_head",
+    "star",
+    "bell_campanulate",
+    "open_radial",
+    "trumpet_funnel",
+    "rare_other",
+)
+
+FINE_COLOR_CORE = set(FINE_COLORS[:-1])
+FINE_FORM_CORE = set(FINE_FORMS[:-1])
 
 
 def aggregate_island_trait_evidence(
@@ -43,7 +58,46 @@ def aggregate_island_trait_evidence(
         for form in FORMS
     )
 
+    fine_color_sql = (
+        "CASE WHEN color_fine_cat IS NULL THEN NULL "
+        + " ".join(
+            f"WHEN color_fine_cat='{cat}' THEN '{cat}'" for cat in FINE_COLORS[:-1]
+        )
+        + " ELSE 'rare_other' END"
+    )
+    fine_form_sql = (
+        "CASE WHEN form_fine_cat IS NULL THEN NULL "
+        + " ".join(
+            f"WHEN form_fine_cat='{cat}' THEN '{cat}'" for cat in FINE_FORMS[:-1]
+        )
+        + " ELSE 'rare_other' END"
+    )
+
+    fine_color_columns = ",\n          ".join(
+        f"sum(CASE WHEN is_animal=1 AND promoted_color='{cat}' THEN 1 ELSE 0 END) AS fine_color_{cat}"
+        for cat in FINE_COLORS
+    )
+    fine_form_columns = ",\n          ".join(
+        f"sum(CASE WHEN is_animal=1 AND promoted_form='{cat}' THEN 1 ELSE 0 END) AS fine_form_{cat}"
+        for cat in FINE_FORMS
+    )
+    fine_joint_columns = ",\n          ".join(
+        f"sum(CASE WHEN is_animal=1 AND promoted_color='{color}' AND promoted_form='{form}' "
+        f"THEN 1 ELSE 0 END) AS fine_joint_{color}__{form}"
+        for color in FINE_COLORS
+        for form in FINE_FORMS
+    )
+
     con = duckdb.connect()
+    con.execute(
+        f"""
+        CREATE TEMP TABLE promoted_species AS
+        SELECT *,
+               {fine_color_sql} AS promoted_color,
+               {fine_form_sql} AS promoted_form
+        FROM read_parquet('{src}')
+        """
+    )
     con.execute(
         f"""
         CREATE TEMP TABLE island_wide AS
@@ -68,12 +122,19 @@ def aggregate_island_trait_evidence(
           sum(CASE WHEN is_animal=1 AND color_cat IS NOT NULL AND form_cat IS NOT NULL
                    THEN 1 ELSE 0 END) AS joint_color_form_trials,
           {joint_columns},
+          sum(CASE WHEN is_animal=1 AND promoted_color IS NOT NULL THEN 1 ELSE 0 END) AS fine_color_trials,
+          {fine_color_columns},
+          sum(CASE WHEN is_animal=1 AND promoted_form IS NOT NULL THEN 1 ELSE 0 END) AS fine_form_trials,
+          {fine_form_columns},
+          sum(CASE WHEN is_animal=1 AND promoted_color IS NOT NULL AND promoted_form IS NOT NULL
+                   THEN 1 ELSE 0 END) AS fine_joint_color_form_trials,
+          {fine_joint_columns},
           sum(CASE WHEN is_animal=1 AND sc_binary IS NOT NULL THEN 1 ELSE 0 END) AS sc_trials,
           sum(CASE WHEN is_animal=1 AND sc_binary=1 THEN 1 ELSE 0 END) AS sc_successes,
           avg(CASE WHEN is_animal=1 THEN showy_alt END) AS showy_alt_guild_share,
           avg(CASE WHEN is_animal=1 THEN other_bee END) AS other_bee_guild_share,
           avg(CASE WHEN is_animal=1 THEN generalist_insect END) AS generalist_insect_guild_share
-        FROM read_parquet('{src}')
+        FROM promoted_species
         GROUP BY island_id
         """
     )
@@ -96,6 +157,23 @@ def aggregate_island_trait_evidence(
             long_parts.append(
                 f"SELECT island_id, 'joint_color_form', '{category}', "
                 f"joint_{category}, joint_color_form_trials FROM island_wide"
+            )
+    for category in FINE_COLORS:
+        long_parts.append(
+            f"SELECT island_id, 'fine_flower_color', '{category}', "
+            f"fine_color_{category}, fine_color_trials FROM island_wide"
+        )
+    for category in FINE_FORMS:
+        long_parts.append(
+            f"SELECT island_id, 'fine_floral_form', '{category}', "
+            f"fine_form_{category}, fine_form_trials FROM island_wide"
+        )
+    for color in FINE_COLORS:
+        for form in FINE_FORMS:
+            category = f"{color}__{form}"
+            long_parts.append(
+                f"SELECT island_id, 'fine_joint_color_form', '{category}', "
+                f"fine_joint_{category}, fine_joint_color_form_trials FROM island_wide"
             )
     long_parts.append(
         "SELECT island_id, 'self_compatibility', 'self_compatible', "
