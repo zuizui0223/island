@@ -31,11 +31,13 @@ d[, z_log_area := z(log(area_km2))]
 for (nm in c("climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4")) d[[paste0("z_", nm)]] <- z(d[[nm]])
 d[, wind_share := fifelse(pollen_vector_trials > 0, n_wind_species / pollen_vector_trials, NA_real_)]
 d[, vivid_successes := color_trials - color_plain]
+d[, vivid_share := fifelse(color_trials > 0, vivid_successes / color_trials, NA_real_)]
 d[, tubular_successes := form_tubular_trumpet]
 d[, z_bombus_deficit := z(bombus_deficit)]
 d[, z_wind_share := z(wind_share)]
 d[, z_sc_share := z(sc_share)]
 d[, z_mobile_alt := z(showy_alt_guild_share)]
+d[, z_vivid_share := z(vivid_share)]
 
 fit_bb <- function(formula, data, file) {
   if (nrow(data) < 30) stop(paste("Too few rows for", deparse(formula)))
@@ -84,13 +86,14 @@ n_plain <- fit_bb(
   n_plain_dat, file.path(outdir, "north_bombus_wind_sc_plain")
 )
 
-# Tropical + southern alternative-pollinator mechanism:
-# isolation -> mobile bird/butterfly/moth guild share -> vivid colour and tubular form.
+# Tropical + southern mechanism:
+# isolation -> mobile alternative pollinators -> vivid flowers -> tubular flowers,
+# with direct isolation and mobile-pollinator effects retained.
 south <- d[analysis_regime %in% c("tropical", "southern_extratropical")]
 s_base <- complete.cases(south[, ..covars]) & is.finite(south$z_mobile_alt)
 s_mobile_dat <- south[s_base]
 s_vivid_dat <- south[s_base & color_trials > 0]
-s_tubular_dat <- south[s_base & form_trials > 0]
+s_tubular_dat <- south[s_base & form_trials > 0 & is.finite(z_vivid_share)]
 
 s_mobile <- fit_gaussian(
   z_mobile_alt ~ z_log_distance + z_log_area + z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
@@ -101,8 +104,8 @@ s_vivid <- fit_bb(
   s_vivid_dat, file.path(outdir, "south_mobile_alt_vivid")
 )
 s_tubular <- fit_bb(
-  tubular_successes | trials(form_trials) ~ z_mobile_alt + z_log_distance + z_log_area + z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
-  s_tubular_dat, file.path(outdir, "south_mobile_alt_tubular")
+  tubular_successes | trials(form_trials) ~ z_mobile_alt + z_vivid_share + z_log_distance + z_log_area + z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  s_tubular_dat, file.path(outdir, "south_mobile_alt_vivid_tubular")
 )
 
 fits <- list(N_Bombus=n_bombus, N_wind=n_wind, N_SC=n_sc, N_plain=n_plain, S_mobile_alt=s_mobile, S_vivid=s_vivid, S_tubular=s_tubular)
@@ -127,7 +130,7 @@ coef_draw <- function(draws, name) {
 }
 summarize_draw <- function(domain, path, x) data.table(domain=domain, path=path, mean=mean(x), q025=unname(quantile(x, .025)), q975=unname(quantile(x, .975)), probability_positive=mean(x > 0))
 
-# Northern path products.
+# Northern direct and specific indirect effects.
 b <- as_draws_df(n_bombus); w <- as_draws_df(n_wind); s <- as_draws_df(n_sc); p <- as_draws_df(n_plain)
 nd <- min(nrow(b), nrow(w), nrow(s), nrow(p)); b <- b[1:nd,]; w <- w[1:nd,]; s <- s[1:nd,]; p <- p[1:nd,]
 i_b <- coef_draw(b, "b_z_log_distance"); i_w <- coef_draw(w, "b_z_log_distance"); b_w <- coef_draw(w, "b_z_bombus_deficit")
@@ -150,12 +153,13 @@ north_paths <- rbindlist(list(
 ))
 fwrite(north_paths, file.path(outdir, "northern_path_effects.csv"))
 
-# Alternative-pollinator direct, indirect, and total effects.
+# Alternative-pollinator direct, specific indirect, chained indirect, and total effects.
 m <- as_draws_df(s_mobile); v <- as_draws_df(s_vivid); t <- as_draws_df(s_tubular)
 nd2 <- min(nrow(m), nrow(v), nrow(t)); m <- m[1:nd2,]; v <- v[1:nd2,]; t <- t[1:nd2,]
 i_m <- coef_draw(m, "b_z_log_distance")
 i_v <- coef_draw(v, "b_z_log_distance"); m_v <- coef_draw(v, "b_z_mobile_alt")
-i_t <- coef_draw(t, "b_z_log_distance"); m_t <- coef_draw(t, "b_z_mobile_alt")
+i_t <- coef_draw(t, "b_z_log_distance"); m_t <- coef_draw(t, "b_z_mobile_alt"); v_t <- coef_draw(t, "b_z_vivid_share")
+
 alt_paths <- rbindlist(list(
   summarize_draw("tropical_plus_southern", "Isolation_to_Vivid_direct", i_v),
   summarize_draw("tropical_plus_southern", "Isolation_to_MobileAlt_to_Vivid", i_m*m_v),
@@ -163,8 +167,13 @@ alt_paths <- rbindlist(list(
   summarize_draw("tropical_plus_southern", "MobileAlt_to_Vivid_direct", m_v),
   summarize_draw("tropical_plus_southern", "Isolation_to_Tubular_direct", i_t),
   summarize_draw("tropical_plus_southern", "Isolation_to_MobileAlt_to_Tubular", i_m*m_t),
-  summarize_draw("tropical_plus_southern", "Isolation_to_Tubular_total", i_t + i_m*m_t),
-  summarize_draw("tropical_plus_southern", "MobileAlt_to_Tubular_direct", m_t)
+  summarize_draw("tropical_plus_southern", "Isolation_to_Vivid_to_Tubular", i_v*v_t),
+  summarize_draw("tropical_plus_southern", "Isolation_to_MobileAlt_to_Vivid_to_Tubular", i_m*m_v*v_t),
+  summarize_draw("tropical_plus_southern", "MobileAlt_to_Tubular_direct", m_t),
+  summarize_draw("tropical_plus_southern", "MobileAlt_to_Vivid_to_Tubular", m_v*v_t),
+  summarize_draw("tropical_plus_southern", "Vivid_to_Tubular_direct", v_t),
+  summarize_draw("tropical_plus_southern", "Isolation_to_Tubular_total", i_t + i_m*m_t + i_v*v_t + i_m*m_v*v_t),
+  summarize_draw("tropical_plus_southern", "MobileAlt_to_Tubular_total", m_t + m_v*v_t)
 ))
 fwrite(alt_paths, file.path(outdir, "alternative_pollinator_path_effects.csv"))
 
@@ -186,9 +195,9 @@ if (any(sampler_diagnostics$max_rhat > 1.01, na.rm=TRUE)) warning("R-hat > 1.01 
 
 capture.output(lapply(fits, summary), file=file.path(outdir, "model_summaries.txt"))
 meta <- list(
-  contract="v2_bayesian_shortest_two-mechanism_test_v1",
-  northern_hypothesis="Island isolation -> Bombus deficit -> wind pollination / self-compatibility -> plain floral syndrome, with direct paths retained",
-  tropical_southern_hypothesis="Island isolation -> mobile alternative pollinator guild share (birds, butterflies, moths, bats) -> vivid colours and tubular flowers, with direct isolation effects retained",
+  contract="v2_bayesian_shortest_two-mechanism_test_v2",
+  northern_hypothesis="Island isolation -> Bombus deficit -> wind pollination / self-compatibility -> plain floral syndrome, with direct and specific indirect paths retained",
+  tropical_southern_hypothesis="Island isolation -> mobile alternative pollinator guild share (birds, butterflies, moths, bats) -> vivid colours -> tubular flowers, with direct, specific indirect, chained indirect, and total effects retained",
   adjustment_covariates="log island area and climate PCs in every equation",
   founder_effect_covariate="not included: no independent founder-effect variable is available in the locked input",
   analysis_tier="sensitivity_all",
