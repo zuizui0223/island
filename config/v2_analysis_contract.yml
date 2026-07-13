@@ -1,4 +1,4 @@
-version: 3
+version: 4
 canonical_analysis:
   workflow: .github/workflows/run-v2-inla-category-preserving-north.yml
   engine: INLA
@@ -10,7 +10,7 @@ canonical_analysis:
     falsification: [tropical, southern_extratropical]
 retained_categories:
   flower_color: [plain, yellow_orange, red_pink, blue_purple]
-  floral_form: [open_generalized, tubular_trumpet]
+  floral_form: [open_generalized, tubular_trumpet, zygomorphic_specialized, composite_brush]
 models:
   N0_geo:
     population: northern_midlatitude
@@ -22,6 +22,8 @@ models:
       - blue_purple
       - open_generalized
       - tubular_trumpet
+      - zygomorphic_specialized
+      - composite_brush
     predictors: [distance_to_continent, island_area, climate]
   N1_bombus:
     extends: N0_geo
@@ -40,6 +42,8 @@ models:
       - blue_purple
       - open_generalized
       - tubular_trumpet
+      - zygomorphic_specialized
+      - composite_brush
   global_falsification:
     population: [northern_midlatitude, tropical, southern_extratropical]
     responses:
@@ -50,16 +54,18 @@ models:
       - blue_purple
       - open_generalized
       - tubular_trumpet
+      - zygomorphic_specialized
+      - composite_brush
     predictors: [distance_to_continent, island_area, climate, analysis_regime, distance_by_regime]
     interpretation: >-
       Tests whether northern isolation-associated slopes weaken, disappear, or reverse
-      outside the northern-midlatitude domain for every retained colour and floral-form
+      outside the northern-midlatitude domain for every observed colour and floral-form
       category. Alternative pollinator guilds remain Discussion-level interpretations.
 engine_roles:
   INLA:
     owns:
-      - all_retained_flower_color_categories
-      - all_retained_floral_form_categories
+      - all_observed_flower_color_categories
+      - all_observed_floral_form_categories
       - direct_indirect_decomposition_for_each_category
       - global_falsification_for_each_category
   brms:
@@ -69,6 +75,7 @@ principles:
   unknown_is_not_negative: true
   preserve_category_resolution: true
   category_omission_allowed: false
+  verify_category_counts_against_trials: true
   separate_current_exploratory_from_planned_confirmatory: true
   preserve_bombus_channel_components: true
   exclude_zero_distance_from_fitted_models: true
