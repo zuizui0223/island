@@ -7,8 +7,8 @@ Southern extratropical regime comparisons, and avoids mediation/sensitivity laye
 Interpretation guardrails:
 - the mainland-distance metric replicates the v1 Natural Earth 110m land-distance idea;
 - Bombus is environmental compatibility, not observed biological absence;
-- tropical/Southern models use plant pollination-guild composition as an exploratory
-  functional-replacement correlate, not direct evidence of local pollinator abundance.
+- tropical/Southern models use plant pollination-guild composition as exploratory
+  functional-replacement correlates, not direct evidence of local pollinator abundance.
 """
 
 from __future__ import annotations
@@ -53,7 +53,9 @@ ANIMAL_GUILDS = {
     "beetles_wasps_ants",
     "mixed_or_generalist",
 }
-ALTERNATIVE_ANIMAL_GUILDS = ANIMAL_GUILDS - {"bumblebees"}
+SHOWY_ALTERNATIVE_GUILDS = {"butterflies", "moths", "birds", "bats"}
+OTHER_BEE_GUILDS = {"other_bees"}
+GENERALIST_INSECT_GUILDS = {"flies", "beetles_wasps_ants", "mixed_or_generalist"}
 
 
 def _contrast_counts(
@@ -197,9 +199,23 @@ def run_analysis(
         _contrast_counts(
             composition,
             trait_name="pollination_functional_guild",
-            positive_values=ALTERNATIVE_ANIMAL_GUILDS,
+            positive_values=SHOWY_ALTERNATIVE_GUILDS,
             denominator_values=ANIMAL_GUILDS,
-            prefix="alternative_animal_guild",
+            prefix="showy_alternative_guild",
+        ),
+        _contrast_counts(
+            composition,
+            trait_name="pollination_functional_guild",
+            positive_values=OTHER_BEE_GUILDS,
+            denominator_values=ANIMAL_GUILDS,
+            prefix="other_bee_guild",
+        ),
+        _contrast_counts(
+            composition,
+            trait_name="pollination_functional_guild",
+            positive_values=GENERALIST_INSECT_GUILDS,
+            denominator_values=ANIMAL_GUILDS,
+            prefix="generalist_insect_guild",
         ),
     ]
     data = base.copy()
@@ -247,7 +263,9 @@ def run_analysis(
             trials="conspicuous_color_trials",
             predictors=[
                 *baseline,
-                "alternative_animal_guild_share",
+                "showy_alternative_guild_share",
+                "other_bee_guild_share",
+                "generalist_insect_guild_share",
                 "wind_mixed_share",
             ],
         )
@@ -269,7 +287,9 @@ def run_analysis(
             mean_conspicuous_color_share=("conspicuous_color_share", "mean"),
             mean_generalized_form_share=("generalized_form_share", "mean"),
             mean_wind_mixed_share=("wind_mixed_share", "mean"),
-            mean_alternative_animal_guild_share=("alternative_animal_guild_share", "mean"),
+            mean_showy_alternative_guild_share=("showy_alternative_guild_share", "mean"),
+            mean_other_bee_guild_share=("other_bee_guild_share", "mean"),
+            mean_generalist_insect_guild_share=("generalist_insect_guild_share", "mean"),
         )
         .reset_index()
     )
@@ -301,7 +321,7 @@ def run(
     region_summary.to_csv(output_dir / "purpose_shortest_region_summary.csv", index=False)
 
     summary = {
-        "contract": "purpose_shortest_distance_regime_analysis_v1",
+        "contract": "purpose_shortest_distance_regime_analysis_v2",
         "analysis_tier": "sensitivity_all_all_available_filled_data",
         "n_islands": int(data["island_id"].nunique()),
         "regime_counts": {
@@ -311,14 +331,14 @@ def run(
         "models": [
             "northern_midlatitude: M0 geography -> plain color / generalized form",
             "northern_midlatitude: M1 geography + Bombus environmental compatibility",
-            "tropical: conspicuous color ~ geography + alternative animal guild + wind/mixed",
+            "tropical: conspicuous color ~ geography + showy alternatives + other bees + generalist insects + wind/mixed",
             "southern_extratropical: same replacement model",
         ],
         "guardrails": [
             "distance metric is the v1-compatible Natural Earth 110m boundary-distance continuity metric",
             "northern_midlatitude is a geographic proxy, not a frozen global Bombus applicability registry",
             "Bombus predictor is environmental compatibility, not observed biological absence",
-            "alternative animal guild share is plant pollination-guild composition, not direct island pollinator abundance",
+            "alternative guild shares are plant pollination-guild composition, not direct island pollinator abundance",
             "all fill tiers including global fallback are used because this is the requested first all-data exploratory run",
         ],
     }
