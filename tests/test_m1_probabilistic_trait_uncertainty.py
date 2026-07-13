@@ -6,9 +6,14 @@ import numpy as np
 import pandas as pd
 
 from island_v2.m1_probabilistic_trait_uncertainty import (
+    _fit_snapshot,
     aggregate_species_states,
     build_probability_mapping,
     run_imputations,
+)
+from island_v2.m1_probabilistic_trait_uncertainty_fastfit import (
+    fit_prepared_design,
+    prepare_design,
 )
 
 
@@ -82,7 +87,11 @@ def _synthetic_tables() -> tuple[pd.DataFrame, pd.DataFrame]:
         )
         # Higher Bombus compatibility makes higher-p species more likely to occur.
         scores = np.array(
-            [species_probabilities[name] * (0.5 + 2.0 * bombus) + rng.normal(0, 0.08) for name in species]
+            [
+                species_probabilities[name] * (0.5 + 2.0 * bombus)
+                + rng.normal(0, 0.08)
+                for name in species
+            ]
         )
         selected = np.argsort(scores)[-30:]
         for species_index in selected:
@@ -156,3 +165,45 @@ def test_probabilistic_imputation_returns_pooled_and_comparator_results() -> Non
     }
     assert np.isfinite(pooled["pooled_estimate_log_odds"]).all()
     assert (pooled["n_imputations"] == 20).all()
+
+
+def test_fast_prepared_fitter_matches_original_grouped_binomial_snapshot() -> None:
+    master, reference = _synthetic_tables()
+    config = _config()
+    mapping, _ = build_probability_mapping(master, reference, config)
+    probabilities = mapping.species_table["positive_probability"].to_numpy(dtype=float)
+    successes = aggregate_species_states(mapping, probabilities)
+    baseline = config["baseline_specs"]["full"]
+    bombus = config["bombus_predictor"]
+    spatial_cluster = config["spatial_cluster"]
+
+    original = _fit_snapshot(
+        mapping.island_table,
+        successes,
+        mapping.trials,
+        baseline,
+        bombus,
+        spatial_cluster,
+        config["nominal_z_threshold"],
+    )
+    m0_design = prepare_design(
+        mapping.island_table,
+        mapping.trials,
+        baseline,
+        spatial_cluster,
+        None,
+    )
+    m1_design = prepare_design(
+        mapping.island_table,
+        mapping.trials,
+        [*baseline, bombus],
+        spatial_cluster,
+        bombus,
+    )
+    fast_m0 = fit_prepared_design(m0_design, successes, need_cluster_se=False)
+    fast_m1 = fit_prepared_design(m1_design, successes, need_cluster_se=True)
+
+    assert np.isclose(fast_m1["estimate"], original["estimate"], atol=1e-10)
+    assert np.isclose(fast_m1["within_se"], original["within_se"], atol=1e-10)
+    assert np.isclose(fast_m0["aic"], original["m0_aic"], atol=1e-8)
+    assert np.isclose(fast_m1["aic"], original["m1_aic"], atol=1e-8)
