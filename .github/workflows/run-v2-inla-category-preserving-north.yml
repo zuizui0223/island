@@ -76,24 +76,37 @@ jobs:
 
           path = 'data/v2/staging/analysis/inla_category_north/v2_full_input.csv'
           full = pd.read_csv(path)
-          required = {
-              'color_trials', 'color_plain', 'color_yellow_orange',
+          colour = [
+              'color_plain', 'color_yellow_orange',
               'color_red_pink', 'color_blue_purple',
-              'form_trials', 'form_open_generalized', 'form_tubular_trumpet',
-          }
+          ]
+          form = [
+              'form_open_generalized', 'form_tubular_trumpet',
+              'form_zygomorphic_specialized', 'form_composite_brush',
+          ]
+          required = {'color_trials', 'form_trials', *colour, *form}
           missing = sorted(required - set(full.columns))
           assert not missing, f'missing retained category columns: {missing}'
-          for col in ['color_plain', 'color_yellow_orange', 'color_red_pink', 'color_blue_purple']:
+
+          for col in colour:
               assert (full[col].fillna(0) <= full['color_trials'].fillna(0)).all(), col
-          for col in ['form_open_generalized', 'form_tubular_trumpet']:
+          for col in form:
               assert (full[col].fillna(0) <= full['form_trials'].fillna(0)).all(), col
+
+          colour_sum = full[colour].fillna(0).sum(axis=1)
+          form_sum = full[form].fillna(0).sum(axis=1)
+          assert colour_sum.equals(full['color_trials'].fillna(0)), 'colour categories do not exhaust color_trials'
+          assert form_sum.equals(full['form_trials'].fillna(0)), 'form categories do not exhaust form_trials'
+
           model = full.loc[full['distance_to_continent_km'] > 0].copy()
           model.to_csv('data/v2/staging/analysis/inla_category_north/v2_model_input.csv', index=False)
           print({
               'n_full': len(full),
               'n_model': len(model),
-              'retained_colour_categories': 4,
-              'retained_form_categories': 2,
+              'retained_colour_categories': len(colour),
+              'retained_form_categories': len(form),
+              'colour_totals_verified': True,
+              'form_totals_verified': True,
           })
           PY
 
