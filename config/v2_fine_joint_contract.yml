@@ -1,0 +1,43 @@
+version: 1
+role: primary_flower_phenotype_composition
+analysis_tier:
+  current: sensitivity_all
+  confirmatory: primary
+population: northern_midlatitude
+colour_categories:
+  - white
+  - blue
+  - yellow
+  - red
+  - green
+  - cream
+  - rare_other
+form_categories:
+  - tubular
+  - composite_head
+  - star
+  - bell_campanulate
+  - open_radial
+  - trumpet_funnel
+  - rare_other
+max_joint_cells: 49
+fit_rule: globally_observed_cells_only
+retention_rule: resolved_low_support_states_to_rare_other
+response: fine_joint_colour_form_composition
+model_ladder:
+  FJ0_geo:
+    predictors: [distance_to_continent, island_area, climate]
+  FJ1_bombus:
+    extends: FJ0_geo
+    add_predictors: [bombus_deficit]
+  FJ2_sc_wind:
+    extends: FJ0_geo
+    add_predictors: [self_compatibility, wind_mixed]
+  FJ3_full:
+    extends: FJ0_geo
+    add_predictors: [bombus_deficit, self_compatibility, wind_mixed]
+interpretation:
+  primary: compositional_reallocation
+  not_equivalent_to: [independent_binary_selection, direct_evolutionary_selection]
+coarse_4x4_role: sensitivity_analysis
+one_vs_rest_role: diagnostic_only
