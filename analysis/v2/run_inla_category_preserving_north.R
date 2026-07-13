@@ -15,11 +15,17 @@ set.seed(20260713)
 
 d <- fread(infile)
 z <- function(x) as.numeric(scale(x))
-for (nm in c("log_distance_to_continent_km", "log_island_area_km2", "climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4")) {
+for (nm in c(
+  "log_distance_to_continent_km", "log_island_area_km2",
+  "climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4"
+)) {
   d[[paste0("z_", nm)]] <- z(d[[nm]])
 }
 d[, z_bombus_deficit := z(bombus_deficit)]
 d[, z_sc_share := z(sc_share)]
+d[, z_showy_alt_guild_share := z(showy_alt_guild_share)]
+d[, z_other_bee_guild_share := z(other_bee_guild_share_1)]
+d[, z_generalist_insect_guild_share := z(generalist_insect_guild_share_1)]
 d[, spatial_id := as.integer(factor(spatial_block))]
 
 geo_terms <- paste(
@@ -27,11 +33,19 @@ geo_terms <- paste(
   "z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4 +",
   "f(spatial_id, model='iid')"
 )
+alt_terms <- paste(
+  "z_showy_alt_guild_share + z_other_bee_guild_share +",
+  "z_generalist_insect_guild_share"
+)
 model_rhs <- list(
   M0_geo = geo_terms,
   M1_bombus = paste("z_bombus_deficit +", geo_terms),
   M2_sc = paste("z_sc_share +", geo_terms),
-  M3_bombus_sc = paste("z_bombus_deficit + z_sc_share +", geo_terms)
+  M3_bombus_sc = paste("z_bombus_deficit + z_sc_share +", geo_terms),
+  M4_alt = paste(alt_terms, "+", geo_terms),
+  M5_bombus_alt = paste("z_bombus_deficit +", alt_terms, "+", geo_terms),
+  M6_sc_alt = paste("z_sc_share +", alt_terms, "+", geo_terms),
+  M7_full = paste("z_bombus_deficit + z_sc_share +", alt_terms, "+", geo_terms)
 )
 
 specs <- list(
@@ -49,7 +63,7 @@ compute <- list(dic = TRUE, waic = TRUE, cpo = TRUE, config = TRUE)
 fit_grouped <- function(success_col, trials_col, rhs, dd) {
   x <- copy(dd)
   x[, obs_id := seq_len(.N)]
-  fit <- inla(
+  inla(
     as.formula(paste(success_col, "~", rhs, "+ f(obs_id, model='iid')")),
     family = "binomial",
     data = x,
@@ -58,7 +72,6 @@ fit_grouped <- function(success_col, trials_col, rhs, dd) {
     control.predictor = list(compute = TRUE),
     verbose = FALSE
   )
-  fit
 }
 score_fit <- function(fit) {
   cpo <- fit$cpo$cpo
@@ -71,12 +84,17 @@ score_fit <- function(fit) {
   )
 }
 
+# All candidate models use the same maximum complete-case support required by the
+# fullest channel model. This keeps CPO comparisons fair while retaining the
+# largest dataset compatible with geography, Bombus, SC, and alternative guilds.
 north <- d[
   analysis_regime == "northern_midlatitude" &
     complete.cases(
       z_log_distance_to_continent_km, z_log_island_area_km2,
       z_climate_pc1, z_climate_pc2, z_climate_pc3, z_climate_pc4,
-      z_bombus_deficit, z_sc_share, spatial_id
+      z_bombus_deficit, z_sc_share,
+      z_showy_alt_guild_share, z_other_bee_guild_share,
+      z_generalist_insect_guild_share, spatial_id
     )
 ]
 if (nrow(north) < 30) stop("Too few complete northern-midlatitude islands")
@@ -92,7 +110,9 @@ for (outcome in names(specs)) {
   dd <- north[get(trials_col) > 0]
   bad <- !is.finite(dd[[success_col]]) | !is.finite(dd[[trials_col]]) |
     dd[[success_col]] < 0 | dd[[trials_col]] <= 0 |
-    dd[[success_col]] > dd[[trials_col]]
+    dd[[success_col]] > dd[[trials_col]] |
+    dd[[success_col]] != floor(dd[[success_col]]) |
+    dd[[trials_col]] != floor(dd[[trials_col]])
   if (any(bad)) stop("Invalid grouped counts for ", outcome)
   support_rows[[outcome]] <- data.table(outcome = outcome, n_islands = nrow(dd))
 
@@ -121,11 +141,19 @@ fixed <- rbindlist(fixed_rows, fill = TRUE)
 setcolorder(fixed, c("outcome", "model", "parameter"))
 fwrite(fixed, file.path(outdir, "category_fixed_effects.csv"))
 
-m3 <- fixed[model == "M3_bombus_sc" & parameter %in% c("z_bombus_deficit", "z_sc_share")]
-m3[, excludes_zero := (`0.025quant` > 0 & `0.975quant` > 0) | (`0.025quant` < 0 & `0.975quant` < 0)]
-m3[, direction := fifelse(mean > 0, "positive", "negative")]
-setorder(m3, outcome, parameter)
-fwrite(m3, file.path(outdir, "m3_category_channel_effects.csv"))
+full_effects <- fixed[
+  model == "M7_full" & parameter %in% c(
+    "z_bombus_deficit", "z_sc_share", "z_showy_alt_guild_share",
+    "z_other_bee_guild_share", "z_generalist_insect_guild_share"
+  )
+]
+full_effects[, excludes_zero :=
+  (`0.025quant` > 0 & `0.975quant` > 0) |
+  (`0.025quant` < 0 & `0.975quant` < 0)
+]
+full_effects[, direction := fifelse(mean > 0, "positive", "negative")]
+setorder(full_effects, outcome, parameter)
+fwrite(full_effects, file.path(outdir, "m7_full_channel_effects.csv"))
 
 best <- scores[, .SD[which.max(log_cpo_sum)], by = outcome]
 best <- best[, .(outcome, best_model = model, log_cpo_sum, waic, dic, n_cpo)]
@@ -135,11 +163,25 @@ support <- rbindlist(support_rows)
 fwrite(support, file.path(outdir, "category_support.csv"))
 
 meta <- list(
-  contract = "v2_inla_category_preserving_northern_midlatitude_max_data_v1",
+  contract = "v2_inla_category_preserving_northern_midlatitude_max_data_alt_routes_v2",
   analysis_tier = unique(d$analysis_tier),
   regime = "northern_midlatitude",
-  support_policy = "for each category, M0-M3 are fit on the same maximum complete-case support required by M3",
+  support_policy = "for each category, M0-M7 are fit on the same maximum complete-case support required by the full Bombus + SC + alternative-pollinator model",
   category_policy = "one-vs-rest grouped binomial-logit-normal; no color/form binary collapse",
+  channel_models = list(
+    M0_geo = "geography + climate",
+    M1_bombus = "Bombus deficit + geography + climate",
+    M2_sc = "self-compatibility + geography + climate",
+    M3_bombus_sc = "Bombus deficit + self-compatibility + geography + climate",
+    M4_alt = "alternative pollinator guilds + geography + climate",
+    M5_bombus_alt = "Bombus deficit + alternative pollinator guilds + geography + climate",
+    M6_sc_alt = "self-compatibility + alternative pollinator guilds + geography + climate",
+    M7_full = "Bombus deficit + self-compatibility + alternative pollinator guilds + geography + climate"
+  ),
+  alternative_pollinator_terms = c(
+    "showy_alt_guild_share", "other_bee_guild_share_1",
+    "generalist_insect_guild_share_1"
+  ),
   n_complete_northern_midlatitude = nrow(north),
   n_spatial_blocks = uniqueN(north$spatial_id)
 )
