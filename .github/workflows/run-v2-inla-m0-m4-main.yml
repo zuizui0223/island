@@ -9,6 +9,13 @@ on:
       - ".github/workflows/run-v2-inla-m0-m4-main.yml"
       - "analysis/v2/run_inla_m0_m4_main.R"
       - "src/island_v2/prepare_v2_bayesian_main_input.py"
+      - "src/island_v2/build_species_trait_states.py"
+      - "src/island_v2/aggregate_island_trait_evidence.py"
+      - "src/island_v2/build_bombus_channel.py"
+      - "src/island_v2/build_analysis_contract.py"
+      - "src/island_v2/validate_analysis_inputs.py"
+      - "src/island_v2/ontology/**"
+      - "config/v2_analysis_contract.yml"
       - "config/integrated_trait_bombus_artifact_lock.json"
       - "config/purpose_shortest_artifact_lock.json"
 
@@ -31,7 +38,13 @@ jobs:
       - name: Install Python preparation dependency
         run: |
           pip install -e ".[dev]" duckdb
-          python -m py_compile src/island_v2/prepare_v2_bayesian_main_input.py
+          python -m py_compile \
+            src/island_v2/prepare_v2_bayesian_main_input.py \
+            src/island_v2/build_species_trait_states.py \
+            src/island_v2/aggregate_island_trait_evidence.py \
+            src/island_v2/build_bombus_channel.py \
+            src/island_v2/build_analysis_contract.py \
+            src/island_v2/validate_analysis_inputs.py
 
       - name: Download locked integrated trait-Bombus artifact
         env:
@@ -59,26 +72,26 @@ jobs:
           mkdir -p /tmp/covariates
           unzip -q /tmp/covariates.zip -d /tmp/covariates
 
-      - name: Prepare compact island-level INLA input
+      - name: Prepare auditable primary-tier INLA input
         run: |
           set -euo pipefail
-          MASTER=$(find /tmp/integrated -type f -path '*/bombus_join/sensitivity_all/island_species_trait_bombus_master.csv.gz' -print -quit)
+          MASTER=$(find /tmp/integrated -type f -path '*/bombus_join/primary/island_species_trait_bombus_master.csv.gz' -print -quit)
           COV=$(find /tmp/covariates -type f -name purpose_shortest_island_data.csv -print -quit)
           test -f "$MASTER"
           test -f "$COV"
           python src/island_v2/prepare_v2_bayesian_main_input.py \
             --master-csv-gz "$MASTER" \
             --island-covariates-csv "$COV" \
+            --analysis-tier primary \
             --output-csv data/v2/staging/analysis/inla_main/v2_inla_main_input.csv
+          python src/island_v2/validate_analysis_inputs.py \
+            --input-csv data/v2/staging/analysis/inla_main/v2_inla_main_input.csv \
+            --expected-islands 8265
           python - <<'PY'
           import pandas as pd
           p = 'data/v2/staging/analysis/inla_main/v2_inla_main_input.csv'
           d = pd.read_csv(p)
-          assert d['island_id'].is_unique
-          assert len(d) == 8265
-          assert (d['color_trials'].fillna(0) >= d['color_plain'].fillna(0)).all()
-          assert (d['form_trials'].fillna(0) >= d['form_open_generalized'].fillna(0)).all()
-          print(d[['analysis_regime', 'area_km2', 'distance_to_continent_km', 'bombus_deficit', 'color_trials', 'form_trials', 'sc_trials']].describe(include='all'))
+          print(d[['analysis_tier', 'analysis_regime', 'area_km2', 'distance_to_continent_km', 'bombus_deficit', 'color_trials', 'form_trials', 'sc_trials']].describe(include='all'))
           PY
 
       - uses: r-lib/actions/setup-r@v2
