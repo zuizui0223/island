@@ -1,4 +1,4 @@
-name: run_v2_inla_northern_bombus_mediation_falsification
+name: run_v2_inla_all_data_layered_analysis
 
 on:
   workflow_dispatch:
@@ -17,9 +17,9 @@ permissions:
   contents: read
 
 jobs:
-  northern-bombus-mediation:
+  all-data-layered-analysis:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
 
@@ -57,7 +57,7 @@ jobs:
           mkdir -p /tmp/covariates
           unzip -q /tmp/covariates.zip -d /tmp/covariates
 
-      - name: Prepare maximum-data model input
+      - name: Prepare and audit complete layered model input
         run: |
           set -euo pipefail
           MASTER=$(find /tmp/integrated -type f -path '*/bombus_join/sensitivity_all/island_species_trait_bombus_master.csv.gz' -print -quit)
@@ -74,39 +74,51 @@ jobs:
           python - <<'PY'
           import pandas as pd
 
-          path = 'data/v2/staging/analysis/inla_category_north/v2_full_input.csv'
-          full = pd.read_csv(path)
-          colour = [
-              'color_plain', 'color_yellow_orange',
-              'color_red_pink', 'color_blue_purple',
-          ]
-          form = [
+          full = pd.read_csv('data/v2/staging/analysis/inla_category_north/v2_full_input.csv')
+          colours = ['color_plain', 'color_yellow_orange', 'color_red_pink', 'color_blue_purple']
+          forms = [
               'form_open_generalized', 'form_tubular_trumpet',
               'form_zygomorphic_specialized', 'form_composite_brush',
           ]
-          required = {'color_trials', 'form_trials', *colour, *form}
+          full_flora = [
+              'wind_mixed_trials', 'wind_mixed_successes', 'wind_mixed_share',
+              'animal_status_observed', 'n_animal_species', 'n_wind_species',
+              'sc_trials', 'sc_successes', 'sc_share',
+          ]
+          bombus = [
+              'bombus_deficit', 'bombus_environmental_compatibility',
+              'environmental_compatibility_max', 'environmental_compatibility_mean',
+              'environmental_extrapolation_share', 'n_bombus_species_total',
+              'n_bombus_species_scored', 'n_bombus_species_unscored',
+              'n_environmentally_compatible_species',
+          ]
+          guilds = [
+              'showy_alternative_guild_trials', 'showy_alternative_guild_successes',
+              'other_bee_guild_trials', 'other_bee_guild_successes',
+              'generalist_insect_guild_trials', 'generalist_insect_guild_successes',
+          ]
+          required = set(['color_trials', 'form_trials', 'analysis_regime'] + colours + forms + full_flora + bombus + guilds)
           missing = sorted(required - set(full.columns))
-          assert not missing, f'missing retained category columns: {missing}'
-
-          for col in colour:
-              assert (full[col].fillna(0) <= full['color_trials'].fillna(0)).all(), col
-          for col in form:
-              assert (full[col].fillna(0) <= full['form_trials'].fillna(0)).all(), col
-
-          colour_sum = full[colour].fillna(0).sum(axis=1)
-          form_sum = full[form].fillna(0).sum(axis=1)
-          assert colour_sum.equals(full['color_trials'].fillna(0)), 'colour categories do not exhaust color_trials'
-          assert form_sum.equals(full['form_trials'].fillna(0)), 'form categories do not exhaust form_trials'
-
+          assert not missing, f'missing analysis columns: {missing}'
+          assert (full[colours].fillna(0).sum(axis=1) == full['color_trials'].fillna(0)).all()
+          assert (full[forms].fillna(0).sum(axis=1) == full['form_trials'].fillna(0)).all()
+          assert ((full['n_animal_species'] + full['n_wind_species']).fillna(0) == full['animal_status_observed'].fillna(0)).all()
+          assert (full['wind_mixed_trials'].fillna(0) == full['animal_status_observed'].fillna(0)).all()
+          assert (full['wind_mixed_successes'].fillna(0) == full['n_wind_species'].fillna(0)).all()
+          regimes = set(full['analysis_regime'].dropna().unique())
+          expected_regimes = {
+              'northern_midlatitude', 'northern_high_latitude',
+              'tropical', 'southern_extratropical',
+          }
+          assert expected_regimes.issubset(regimes), regimes
           model = full.loc[full['distance_to_continent_km'] > 0].copy()
           model.to_csv('data/v2/staging/analysis/inla_category_north/v2_model_input.csv', index=False)
           print({
-              'n_full': len(full),
-              'n_model': len(model),
-              'retained_colour_categories': len(colour),
-              'retained_form_categories': len(form),
-              'colour_totals_verified': True,
-              'form_totals_verified': True,
+              'n_full': len(full), 'n_model': len(model),
+              'colour_categories': colours, 'form_categories': forms,
+              'regimes': sorted(regimes),
+              'wind_mixed_trials_total': int(full['wind_mixed_trials'].fillna(0).sum()),
+              'animal_pollinated_total': int(full['n_animal_species'].fillna(0).sum()),
           })
           PY
 
@@ -130,7 +142,7 @@ jobs:
             any::sf
           cache: true
 
-      - name: Install R-INLA
+      - name: Install and parse R-INLA analysis
         run: |
           set -euo pipefail
           Rscript - <<'RS'
@@ -141,7 +153,7 @@ jobs:
           parse(file = "analysis/v2/run_inla_category_preserving_north.R")
           RS
 
-      - name: Run all-category northern paths and global falsification
+      - name: Run layered all-data INLA analysis
         run: |
           set -o pipefail
           OUT=data/v2/staging/analysis/inla_category_north/results
@@ -150,31 +162,28 @@ jobs:
             data/v2/staging/analysis/inla_category_north/v2_model_input.csv \
             "$OUT" 2>&1 | tee "$OUT/run.log"
 
-      - name: Summarize all-category results
+      - name: Summarize layered results
         if: success()
         run: |
           set -euo pipefail
           OUT=data/v2/staging/analysis/inla_category_north/results
-          echo '## All-category northern Bombus paths with tropical/southern falsification' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Layered all-data INLA analysis' >> "$GITHUB_STEP_SUMMARY"
           cat "$OUT/analysis_metadata.json" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Equation-specific maximum support' >> "$GITHUB_STEP_SUMMARY"
-          cat "$OUT/northern_equation_support.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '### Equation support' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/equation_support_all_layers.csv" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Northern model comparisons' >> "$GITHUB_STEP_SUMMARY"
-          cat "$OUT/northern_model_comparisons.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '### Direct, indirect, total effects' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/direct_indirect_total_effects_all_categories.csv" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Direct, indirect, and total effects for every retained category' >> "$GITHUB_STEP_SUMMARY"
-          cat "$OUT/northern_direct_indirect_total_effects.csv" >> "$GITHUB_STEP_SUMMARY"
-          echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Tropical and southern falsification for every retained category' >> "$GITHUB_STEP_SUMMARY"
-          cat "$OUT/cross_regime_isolation_summary.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '### Four-regime isolation tests' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/cross_regime_isolation_summary_all_outcomes.csv" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload all-category mediation and falsification artifact
+      - name: Upload layered all-data artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: v2-all-category-northern-paths-falsification-${{ github.run_id }}
+          name: v2-layered-all-data-inla-${{ github.run_id }}
           path: data/v2/staging/analysis/inla_category_north/
           if-no-files-found: error
           retention-days: 90
