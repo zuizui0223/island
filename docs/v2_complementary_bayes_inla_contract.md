@@ -1,59 +1,72 @@
-# v2 complementary Bayesian and INLA analysis contract
+# v2 engine-specific analysis contract
 
-## Scientific hypothesis
+## Central hypothesis
 
-Island isolation does not necessarily generate a universal floral syndrome. Its consequences depend on whether the dominant regional pollination channel is disrupted. In northern-midlatitude systems, isolation may generate a Bombus deficit that affects floral composition directly and indirectly through self-compatibility. Tropical and southern-extratropical regimes are used as falsification domains for the universality of this northern pathway.
+Island isolation does not necessarily generate a universal floral syndrome. Its consequences depend on whether the dominant regional pollination channel is disrupted. In northern-midlatitude systems, isolation may generate a Bombus deficit that changes floral composition through two biologically distinct paths:
 
-Birds, butterflies, moths, and other bees are retained as biological explanations for functional replacement outside the northern regime. They are not included as primary causal predictors in the current models because the available evidence does not support consistent island-level measurement of those channels.
+1. a direct path from Bombus deficit to floral composition, representing altered pollinator-mediated selection; and
+2. an indirect path from Bombus deficit through self-compatibility to floral composition, representing reproductive assurance.
 
-## Complementary engine roles
+Tropical and southern-extratropical regimes are falsification domains for the universality of this northern pathway. Birds, butterflies, moths, and other bees remain discussion-level functional-replacement explanations until comparable island-level channel measurements are available.
 
-### Bayesian binary pathway analysis
+## The engines answer different questions
 
-The brms workflow estimates broad syndrome-level responses:
+The Bayesian and INLA analyses are not duplicate implementations and are not combined into a single model-selection contest.
+
+### Bayesian pathway inference
+
+The brms workflow is restricted to broad binary outcomes:
 
 - self-compatible versus self-incompatible;
 - plain versus non-plain colour composition;
 - open/generalized versus other floral forms.
 
-It estimates:
+Its purpose is to estimate the pathway structure:
 
 1. Bombus deficit to self-compatibility;
-2. the direct Bombus-deficit effect on each binary floral response;
-3. the indirect Bombus-deficit effect through self-compatibility;
-4. the total direct plus indirect effect;
-5. isolation-by-regime slopes as a global falsification test.
+2. direct Bombus-deficit effects on binary floral responses;
+3. indirect Bombus-deficit effects through self-compatibility;
+4. total direct plus indirect effects;
+5. regime-specific isolation slopes used to falsify a universal island syndrome.
 
-Each equation uses its maximum available island support. Islands with non-positive distance to the continent are audited and excluded before logarithmic transformation.
+Bayesian output is interpreted at the syndrome/pathway level only. It is not used to decide which individual colour or floral-form category changed.
 
-### INLA category-level decomposition
+### INLA category decomposition
 
-The INLA workflow retains the available flower categories rather than collapsing them into a single binary syndrome. It determines which colour and floral-form categories account for any broad pattern observed in the Bayesian analysis.
+INLA owns category-preserving inference. It estimates retained flower categories separately and determines which categories increase, decrease, oppose one another, or cancel under binary aggregation.
 
-The retained colour categories are:
+Retained colour categories:
 
 - plain;
 - yellow/orange;
 - red/pink;
 - blue/purple.
 
-The retained floral-form categories are:
+Retained floral-form categories:
 
 - open/generalized;
 - tubular/trumpet.
 
-Category availability is checked explicitly before fitting. Each outcome uses its own maximum support.
+INLA output is interpreted at the category-composition level. It is not treated as a second estimate of the same binary pathway.
+
+## Support and filtering
+
+- Islands with `distance_to_continent_km <= 0` are audited and excluded before logarithmic transformation.
+- Each response equation uses its maximum available island support.
+- Missing floral-form evidence does not remove an otherwise usable island from SC or colour equations.
+- The current exploratory implementation uses `sensitivity_all`; evidence-tier robustness remains a separate question.
+
+## Falsification design
+
+The northern-midlatitude Bombus pathway is fitted only in the Bombus-primary regime. Outside that regime, the analysis tests whether isolation-associated shifts in SC, plain colour, and generalized form weaken, disappear, or reverse.
+
+This is a falsification test of a universal isolation syndrome, not an attempt to impose a Bombus causal mechanism on tropical or southern-extratropical islands.
 
 ## Interpretation rules
 
-The two engines are complementary, not competing primary and replication analyses.
-
-- Bayesian results answer whether a broad binary island syndrome and its direct/SC-mediated pathways are supported.
-- INLA results answer which retained categories drive, oppose, or complicate that syndrome.
-- Agreement between the two engines is not counted as two independent confirmations because both use the same underlying island-trait data.
-- A binary Bayesian effect without a coherent category-level INLA decomposition must be described as an aggregate result rather than a universal category shift.
-- A category-level INLA effect that cancels in the binary analysis is interpreted as category turnover hidden by aggregation.
-
-## Falsification boundary
-
-The northern Bombus pathway is not imposed globally. Tropical and southern-extratropical islands test whether isolation slopes weaken, disappear, or reverse outside the Bombus-primary regime. Functional replacement by highly mobile pollinators remains a discussion-level explanation unless direct comparable channel data become available.
+- Bayesian results answer whether the broad direct and SC-mediated pathways are supported.
+- INLA results answer which retained categories produce or contradict the broad binary pattern.
+- Agreement is not counted as two independent confirmations because both engines use the same underlying island-trait data.
+- A Bayesian binary effect without coherent category-level decomposition is reported as an aggregate effect.
+- An INLA category effect that cancels in the binary analysis is reported as category turnover hidden by aggregation.
+- Alternative pollinator mobility is a biological explanation, not a measured causal path in the current models.
