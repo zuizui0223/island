@@ -184,7 +184,9 @@ component_summaries <- rbindlist(lapply(names(components), function(nm) {
 fwrite(component_summaries, file.path(outdir, "posterior_fixed_effects.csv"))
 
 # v1-style scenario comparison: sum component ELPD across the same response set.
-component_loos <- lapply(components, loo)
+# Pass newdata explicitly to work around a brms 2.20.x LOO restructuring issue
+# where adforms$trials is not recovered correctly for certain formula structures.
+component_loos <- lapply(components, function(fit) loo(fit, newdata = fit$data))
 loo_component_rows <- list()
 scenario_rows <- list()
 for (scenario_name in names(scenarios)) {
