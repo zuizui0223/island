@@ -146,32 +146,67 @@ jobs:
               ]
               return None if x.empty else float(x.iloc[0]['aic'])
 
+          def replacement(regime):
+              return {
+                  'showy_alternative_guild_to_conspicuous_color': row(
+                      'M4_replacement_shortest', regime, 'conspicuous_color',
+                      'showy_alternative_guild_share'
+                  ),
+                  'other_bee_guild_to_conspicuous_color': row(
+                      'M4_replacement_shortest', regime, 'conspicuous_color',
+                      'other_bee_guild_share'
+                  ),
+                  'generalist_insect_guild_to_conspicuous_color': row(
+                      'M4_replacement_shortest', regime, 'conspicuous_color',
+                      'generalist_insect_guild_share'
+                  ),
+                  'wind_mixed_to_conspicuous_color': row(
+                      'M4_replacement_shortest', regime, 'conspicuous_color',
+                      'wind_mixed_share'
+                  ),
+              }
+
           summary = {
-              'contract': 'purpose_shortest_distance_regime_result_v1',
+              'contract': 'purpose_shortest_distance_regime_result_v3',
               'northern_midlatitude': {
-                  'distance_to_plain_color_M0': row('M0_geography', 'northern_midlatitude', 'plain_color', 'log_distance_to_mainland_km'),
-                  'bombus_to_plain_color_M1': row('M1_add_bombus', 'northern_midlatitude', 'plain_color', 'bombus_channel_state'),
-                  'delta_aic_plain_M1_minus_M0': aic('M1_add_bombus', 'northern_midlatitude', 'plain_color') - aic('M0_geography', 'northern_midlatitude', 'plain_color'),
-                  'distance_to_generalized_form_M0': row('M0_geography', 'northern_midlatitude', 'generalized_form', 'log_distance_to_mainland_km'),
-                  'bombus_to_generalized_form_M1': row('M1_add_bombus', 'northern_midlatitude', 'generalized_form', 'bombus_channel_state'),
-                  'delta_aic_form_M1_minus_M0': aic('M1_add_bombus', 'northern_midlatitude', 'generalized_form') - aic('M0_geography', 'northern_midlatitude', 'generalized_form'),
+                  'distance_to_plain_color_M0': row(
+                      'M0_geography', 'northern_midlatitude', 'plain_color',
+                      'log_distance_to_continent_km'
+                  ),
+                  'bombus_to_plain_color_M1': row(
+                      'M1_add_bombus', 'northern_midlatitude', 'plain_color',
+                      'bombus_channel_state'
+                  ),
+                  'delta_aic_plain_M1_minus_M0': (
+                      aic('M1_add_bombus', 'northern_midlatitude', 'plain_color')
+                      - aic('M0_geography', 'northern_midlatitude', 'plain_color')
+                  ),
+                  'distance_to_generalized_form_M0': row(
+                      'M0_geography', 'northern_midlatitude', 'generalized_form',
+                      'log_distance_to_continent_km'
+                  ),
+                  'bombus_to_generalized_form_M1': row(
+                      'M1_add_bombus', 'northern_midlatitude', 'generalized_form',
+                      'bombus_channel_state'
+                  ),
+                  'delta_aic_form_M1_minus_M0': (
+                      aic('M1_add_bombus', 'northern_midlatitude', 'generalized_form')
+                      - aic('M0_geography', 'northern_midlatitude', 'generalized_form')
+                  ),
               },
-              'tropical_replacement': {
-                  'alternative_animal_guild_to_conspicuous_color': row('M4_replacement_shortest', 'tropical', 'conspicuous_color', 'alternative_animal_guild_share'),
-                  'wind_mixed_to_conspicuous_color': row('M4_replacement_shortest', 'tropical', 'conspicuous_color', 'wind_mixed_share'),
-              },
-              'southern_extratropical_replacement': {
-                  'alternative_animal_guild_to_conspicuous_color': row('M4_replacement_shortest', 'southern_extratropical', 'conspicuous_color', 'alternative_animal_guild_share'),
-                  'wind_mixed_to_conspicuous_color': row('M4_replacement_shortest', 'southern_extratropical', 'conspicuous_color', 'wind_mixed_share'),
-              },
+              'tropical_replacement': replacement('tropical'),
+              'southern_extratropical_replacement': replacement('southern_extratropical'),
               'regional_means': regions.to_dict('records'),
               'interpretation_guardrail': (
-                  'First all-filled-data exploratory run only. Northern midlatitude is a geographic proxy, '
-                  'Bombus is environmental compatibility rather than observed absence, and alternative guild '
-                  'share is plant pollination-guild composition rather than measured local pollinator abundance.'
+                  'First all-filled-data exploratory run only. Distance is to seeded major '
+                  'continental landmasses. Northern midlatitude is a geographic proxy, Bombus '
+                  'is environmental compatibility rather than observed absence, and guild shares '
+                  'are plant trait composition rather than measured local pollinator abundance.'
               ),
           }
-          (root / 'purpose_shortest_key_results.json').write_text(json.dumps(summary, indent=2) + '\n')
+          (root / 'purpose_shortest_key_results.json').write_text(
+              json.dumps(summary, indent=2) + '\n'
+          )
           print(json.dumps(summary, indent=2))
           PY
 
