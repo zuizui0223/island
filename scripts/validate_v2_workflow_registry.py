@@ -10,6 +10,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "config" / "v2_workflow_registry.yml"
 CONTRACT = ROOT / "config" / "v2_analysis_contract.yml"
+INLA_SCRIPT = ROOT / "analysis" / "v2" / "run_inla_category_preserving_north.R"
 
 
 def fail(message: str) -> None:
@@ -29,6 +30,7 @@ def main() -> None:
     current = registry["canonical"]["current"]
     current_path = current["workflow"]
     current_text = read_text(current_path)
+    inla_text = INLA_SCRIPT.read_text(encoding="utf-8")
     tier = str(current.get("evidence_tier", ""))
 
     expected_path = f"bombus_join/{tier}/"
@@ -42,7 +44,7 @@ def main() -> None:
         positive_distance_markers = (
             "distance_to_continent_km'].gt(0)",
             "distance_to_continent_km'] > 0",
-            'distance_to_continent_km\"] > 0',
+            'distance_to_continent_km"] > 0',
         )
         if not any(marker in current_text for marker in positive_distance_markers):
             fail("current workflow does not explicitly construct positive-distance model support")
@@ -102,11 +104,56 @@ def main() -> None:
         fail("analysis contract must exclude zero-distance islands from fitted models")
     if principles.get("use_equation_specific_maximum_support") is not True:
         fail("analysis contract must require equation-specific maximum support")
+    if principles.get("compare_models_only_on_matched_support") is not True:
+        fail("analysis contract must require matched support for model comparisons")
+    if principles.get("category_omission_allowed") is not False:
+        fail("analysis contract must prohibit category omission")
 
     global_predictors = set(contract["models"]["global_falsification"].get("predictors", []))
-    forbidden = {"alternative_pollinator_guild", "showy_alt_guild", "other_bee_guild", "generalist_insect_guild"}
+    forbidden = {
+        "alternative_pollinator_guild",
+        "showy_alt_guild",
+        "other_bee_guild",
+        "generalist_insect_guild",
+    }
     if global_predictors & forbidden:
         fail("global falsification model must not include alternative-pollinator guild covariates")
+
+    retained = contract.get("retained_categories", {})
+    expected_colours = {"plain", "yellow_orange", "red_pink", "blue_purple"}
+    expected_forms = {"open_generalized", "tubular_trumpet"}
+    contract_colours = set(retained.get("flower_color", []))
+    contract_forms = set(retained.get("floral_form", []))
+    if contract_colours != expected_colours:
+        fail(f"retained flower-colour categories changed or are incomplete: {sorted(contract_colours)}")
+    if contract_forms != expected_forms:
+        fail(f"retained floral-form categories changed or are incomplete: {sorted(contract_forms)}")
+
+    required_script_tokens = {
+        "plain": 'plain = c("color_plain", "color_trials")',
+        "yellow_orange": 'yellow_orange = c("color_yellow_orange", "color_trials")',
+        "red_pink": 'red_pink = c("color_red_pink", "color_trials")',
+        "blue_purple": 'blue_purple = c("color_blue_purple", "color_trials")',
+        "open_generalized": 'open_generalized = c("form_open_generalized", "form_trials")',
+        "tubular_trumpet": 'tubular_trumpet = c("form_tubular_trumpet", "form_trials")',
+    }
+    missing_script_categories = [
+        category for category, token in required_script_tokens.items() if token not in inla_text
+    ]
+    if missing_script_categories:
+        fail(
+            "canonical INLA script omits retained categories: "
+            + ", ".join(sorted(missing_script_categories))
+        )
+
+    n3_categories = set(contract["models"]["N3_direct_indirect"].get("applies_to", []))
+    expected_all = expected_colours | expected_forms
+    if n3_categories != expected_all:
+        fail("N3 direct/indirect paths must apply to every retained colour/form category")
+
+    global_responses = set(contract["models"]["global_falsification"].get("responses", []))
+    if not ({"self_compatibility"} | expected_all).issubset(global_responses):
+        fail("global falsification must include SC and every retained colour/form category")
 
     registered: set[str] = {current_path}
     for group in registry.get("robustness", {}).values():
@@ -128,9 +175,15 @@ def main() -> None:
             "current_workflow": current_path,
             "current_engine": current.get("engine"),
             "current_evidence_tier": tier,
-            "planned_confirmatory_evidence_tier": canonical_contract.get("planned_confirmatory_evidence_tier"),
+            "planned_confirmatory_evidence_tier": canonical_contract.get(
+                "planned_confirmatory_evidence_tier"
+            ),
+            "retained_colour_categories": sorted(contract_colours),
+            "retained_form_categories": sorted(contract_forms),
             "category_engine": registry["guardrails"].get("category_engine"),
-            "brms_category_models_allowed": not registry["guardrails"].get("prohibit_brms_category_models", False),
+            "brms_category_models_allowed": not registry["guardrails"].get(
+                "prohibit_brms_category_models", False
+            ),
             "registered_workflows": len(registered),
             "status": "ok",
         }
