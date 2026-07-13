@@ -12,6 +12,9 @@ on:
       - "src/island_v2/build_species_trait_states.py"
       - "src/island_v2/aggregate_island_trait_evidence.py"
       - "src/island_v2/prepare_v2_bayesian_main_input.py"
+      - "src/island_v2/ontology/flower_color*.yml"
+      - "src/island_v2/ontology/floral_form*.yml"
+      - "scripts/audit_fine_trait_categories.py"
       - "config/integrated_trait_bombus_artifact_lock.json"
       - "config/purpose_shortest_artifact_lock.json"
 
@@ -74,6 +77,9 @@ jobs:
             --island-covariates-csv "$COV" \
             --analysis-tier sensitivity_all \
             --output-csv "$FULL"
+          python scripts/audit_fine_trait_categories.py \
+            --species-states-parquet data/v2/staging/analysis/inla_category_north/input_audit/species_trait_states.parquet \
+            --output-dir data/v2/staging/analysis/inla_category_north/input_audit/fine_categories
           python - <<'PY'
           import pandas as pd
 
@@ -190,8 +196,12 @@ jobs:
         run: |
           set -euo pipefail
           OUT=data/v2/staging/analysis/inla_category_north/results
+          AUDIT=data/v2/staging/analysis/inla_category_north/input_audit/fine_categories
           echo '## Layered all-data and joint colour-form INLA analysis' >> "$GITHUB_STEP_SUMMARY"
           cat "$OUT/analysis_metadata.json" >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Fine category support' >> "$GITHUB_STEP_SUMMARY"
+          cat "$AUDIT/fine_category_support.csv" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Direct, indirect, total effects' >> "$GITHUB_STEP_SUMMARY"
           cat "$OUT/direct_indirect_total_effects_all_categories.csv" >> "$GITHUB_STEP_SUMMARY"
