@@ -1,4 +1,4 @@
-version: 3
+version: 4
 project: island-v2
 
 canonical:
@@ -16,6 +16,7 @@ canonical:
       fitted model support.
 
   planned_primary:
+    workflow: .github/workflows/run-v2-inla-category-preserving-north.yml
     engine: INLA
     evidence_tier: primary
     role: confirmatory_category_inference
@@ -41,10 +42,13 @@ engine_roles:
       - category_preserving_flower_colour
       - category_preserving_floral_form
       - multinomial_category_models
+      - alternative_pollinator_primary_path
     status: noncanonical_replication_only
     note: >-
       brms is not allowed to own the category analysis. If used later, it is restricted
       to compact scalar/aggregate checks of the Bombus and self-compatibility paths.
+      Alternative-pollinator guilds are biological interpretations, not required
+      covariates in the canonical primary mechanism.
 
 robustness:
   evidence_tiers:
@@ -71,6 +75,7 @@ replication:
     role: noncanonical_scalar_replication_only
     required_evidence_tier: primary
     category_models_allowed: false
+    alternative_pollinator_covariates_allowed: false
     note: >-
       This historical workflow is not the current analysis route. Any future brms reuse
       must remove/skip category models and be limited to compact scalar path replication.
@@ -92,10 +97,13 @@ legacy:
 
 guardrails:
   current_evidence_tier: sensitivity_all
+  planned_confirmatory_evidence_tier: primary
   preserve_frozen_island_universe: true
   exclude_zero_distance_from_fitted_models: true
+  use_equation_specific_maximum_support: true
   require_locked_inputs: true
   category_engine: INLA
   prohibit_brms_category_models: true
+  prohibit_alternative_pollinator_primary_covariates: true
   require_analysis_contract: config/v2_analysis_contract.yml
   require_input_validation: src/island_v2/validate_analysis_inputs.py
