@@ -1,0 +1,12 @@
+{
+  "contract": "m0_m4_spatial_cv_artifact_lock_v1",
+  "repository": "zuizui0223/island",
+  "workflow_run_id": 29222953423,
+  "artifact_id": 8268788802,
+  "artifact_name": "m0-m4-spatial-cv-29222953423",
+  "artifact_digest": "sha256:11b2e22d206b02a0cc52e71204eb5eb5c23a9cdf3456af2b08f843378bb0d326",
+  "head_branch": "feat/recover-global-trait-artifacts",
+  "head_sha": "9e1730e2b0680ddcaf52cd85f8fdacd4c63741eb",
+  "status": "canonical_repeated_spatial_cv_before_common_support_diagnosis",
+  "key_result": "Predictive gain from Bombus is not consistent across trait evidence tiers; primary differs from broad and sensitivity_all."
+}
