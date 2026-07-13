@@ -15,105 +15,81 @@ set.seed(20260713)
 
 d <- fread(infile)
 required <- c(
-  "island_id", "analysis_regime", "log_distance_to_continent_km",
-  "log_island_area_km2", "climate_pc1", "climate_pc2", "climate_pc3",
-  "climate_pc4", "bombus_deficit", "sc_share", "spatial_block",
-  "showy_alt_guild_share", "other_bee_guild_share_1",
-  "generalist_insect_guild_share_1", "color_trials", "color_plain",
-  "color_yellow_orange", "color_red_pink", "color_blue_purple",
-  "form_trials", "form_open_generalized", "form_tubular_trumpet",
-  "form_zygomorphic_specialized", "form_composite_brush"
+  "analysis_regime", "log_distance_to_continent_km", "log_island_area_km2",
+  "climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4",
+  "bombus_deficit", "sc_trials", "sc_successes", "sc_share", "spatial_block",
+  "color_trials", "color_plain", "color_yellow_orange", "color_red_pink",
+  "form_trials", "form_open_generalized", "form_tubular_trumpet"
 )
 missing <- setdiff(required, names(d))
 if (length(missing)) stop("missing required columns: ", paste(missing, collapse = ", "))
 
-# Freeze scaling on the northern-midlatitude training domain, then apply those
-# same transformations to every regime for honest out-of-domain projection.
-raw_predictors <- c(
+# Simple v2 question:
+# 1) In the northern-midlatitude Bombus domain, does isolation predict more
+#    self-compatibility and plainer/generalized flowers?
+# 2) Does Bombus deficit improve that northern explanation?
+# 3) Do those isolation relationships fail outside the northern domain?
+# Alternative-pollinator covariates are deliberately excluded from the
+# northern mechanism; tropical/southern regimes are falsification domains.
+
+scale_vars <- c(
   "log_distance_to_continent_km", "log_island_area_km2",
   "climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4",
-  "bombus_deficit", "sc_share", "showy_alt_guild_share",
-  "other_bee_guild_share_1", "generalist_insect_guild_share_1"
+  "bombus_deficit", "sc_share"
 )
 north_ref <- d[analysis_regime == "northern_midlatitude"]
-scaling <- rbindlist(lapply(raw_predictors, function(nm) {
+scaling <- rbindlist(lapply(scale_vars, function(nm) {
   x <- north_ref[[nm]]
   data.table(variable = nm, center = mean(x, na.rm = TRUE), scale = sd(x, na.rm = TRUE))
 }))
-if (any(!is.finite(scaling$scale) | scaling$scale <= 0)) {
-  stop("non-finite or zero northern training scale for: ", paste(scaling[!is.finite(scale) | scale <= 0, variable], collapse = ", "))
-}
+if (any(!is.finite(scaling$scale) | scaling$scale <= 0)) stop("invalid northern scaling")
 for (i in seq_len(nrow(scaling))) {
   nm <- scaling$variable[i]
   d[[paste0("z_", nm)]] <- (d[[nm]] - scaling$center[i]) / scaling$scale[i]
 }
 fwrite(scaling, file.path(outdir, "northern_training_scaling.csv"))
 d[, spatial_id := as.integer(factor(spatial_block))]
+d[, regime := factor(analysis_regime,
+  levels = c("northern_midlatitude", "tropical", "southern_extratropical"))]
 
-generic_geo <- paste(
+geo_fixed <- paste(
   "z_log_distance_to_continent_km * z_log_island_area_km2 +",
   "z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4"
 )
-alt_terms <- paste(
-  "z_showy_alt_guild_share + z_other_bee_guild_share_1 +",
-  "z_generalist_insect_guild_share_1"
+geo_fit <- paste(geo_fixed, "+ f(spatial_id, model='iid')")
+
+outcomes <- list(
+  self_compatibility = c("sc_successes", "sc_trials"),
+  plain_flower = c("color_plain", "color_trials"),
+  generalized_flower = c("form_open_generalized", "form_trials")
 )
-replacement_interactions <- paste(
-  "z_bombus_deficit:z_showy_alt_guild_share +",
-  "z_bombus_deficit:z_other_bee_guild_share_1 +",
-  "z_bombus_deficit:z_generalist_insect_guild_share_1"
-)
-fixed_rhs <- list(
-  M0_geo = generic_geo,
-  M1_bombus = paste("z_bombus_deficit +", generic_geo),
-  M2_sc = paste("z_sc_share +", generic_geo),
-  M3_bombus_sc = paste("z_bombus_deficit + z_sc_share +", generic_geo),
-  M4_alt = paste(alt_terms, "+", generic_geo),
-  M5_bombus_alt = paste("z_bombus_deficit +", alt_terms, "+", generic_geo),
-  M6_sc_alt = paste("z_sc_share +", alt_terms, "+", generic_geo),
-  M7_full = paste("z_bombus_deficit + z_sc_share +", alt_terms, "+", generic_geo),
-  M8_replacement = paste(
-    "z_bombus_deficit + z_sc_share +", alt_terms, "+",
-    replacement_interactions, "+", generic_geo
+model_rhs <- list(
+  self_compatibility = list(
+    N0_geo = geo_fit,
+    N1_bombus = paste("z_bombus_deficit +", geo_fit)
+  ),
+  plain_flower = list(
+    N0_geo = geo_fit,
+    N1_bombus = paste("z_bombus_deficit +", geo_fit),
+    N2_sc = paste("z_sc_share +", geo_fit),
+    N3_bombus_sc = paste("z_bombus_deficit + z_sc_share +", geo_fit)
+  ),
+  generalized_flower = list(
+    N0_geo = geo_fit,
+    N1_bombus = paste("z_bombus_deficit +", geo_fit),
+    N2_sc = paste("z_sc_share +", geo_fit),
+    N3_bombus_sc = paste("z_bombus_deficit + z_sc_share +", geo_fit)
   )
 )
-fit_rhs <- lapply(fixed_rhs, function(x) paste(x, "+ f(spatial_id, model='iid')"))
-
-specs <- list(
-  color_plain = c("color_plain", "color_trials"),
-  color_yellow_orange = c("color_yellow_orange", "color_trials"),
-  color_red_pink = c("color_red_pink", "color_trials"),
-  color_blue_purple = c("color_blue_purple", "color_trials"),
-  form_open_generalized = c("form_open_generalized", "form_trials"),
-  form_tubular_trumpet = c("form_tubular_trumpet", "form_trials"),
-  form_zygomorphic_specialized = c("form_zygomorphic_specialized", "form_trials"),
-  form_composite_brush = c("form_composite_brush", "form_trials")
-)
-
-all_z <- c(
-  "z_log_distance_to_continent_km", "z_log_island_area_km2",
-  "z_climate_pc1", "z_climate_pc2", "z_climate_pc3", "z_climate_pc4",
-  "z_bombus_deficit", "z_sc_share", "z_showy_alt_guild_share",
-  "z_other_bee_guild_share_1", "z_generalist_insect_guild_share_1"
-)
-complete_full <- d[complete.cases(d[, ..all_z])]
-north <- complete_full[analysis_regime == "northern_midlatitude"]
-if (nrow(north) < 30) stop("Too few complete northern-midlatitude islands")
 
 compute <- list(dic = TRUE, waic = TRUE, cpo = TRUE, config = TRUE)
 fit_grouped <- function(success_col, trials_col, rhs, dd) {
   x <- copy(dd)
-  success <- x[[success_col]]
-  trials <- x[[trials_col]]
-  bad <- !is.finite(success) | !is.finite(trials) | success < 0 | trials <= 0 |
-    success > trials | success != floor(success) | trials != floor(trials)
-  if (any(bad)) stop("Invalid grouped counts for ", success_col, "/", trials_col)
   x[, obs_id := seq_len(.N)]
   inla(
     as.formula(paste(success_col, "~", rhs, "+ f(obs_id, model='iid')")),
-    family = "binomial", data = x, Ntrials = trials,
-    control.compute = compute,
-    control.predictor = list(compute = TRUE),
+    family = "binomial", data = x, Ntrials = x[[trials_col]],
+    control.compute = compute, control.predictor = list(compute = TRUE),
     verbose = FALSE
   )
 }
@@ -126,147 +102,102 @@ score_fit <- function(fit) {
   )
 }
 
-# Population-level projection deliberately excludes spatial and observation-level
-# random effects. This tests transfer of the northern fixed-effect mechanism itself.
-project_fixed <- function(fit, rhs, dd) {
-  mm <- model.matrix(as.formula(paste("~", rhs)), data = dd)
-  beta <- fit$summary.fixed$mean
-  names(beta) <- rownames(fit$summary.fixed)
-  common <- intersect(colnames(mm), names(beta))
-  missing_coef <- setdiff(colnames(mm), names(beta))
-  if (length(missing_coef)) stop("projection coefficients missing: ", paste(missing_coef, collapse = ", "))
-  eta <- as.numeric(mm[, common, drop = FALSE] %*% beta[common])
-  plogis(eta)
-}
-projection_metrics <- function(success, trials, p) {
-  p <- pmin(pmax(p, 1e-8), 1 - 1e-8)
-  observed <- success / trials
-  ll <- dbinom(success, size = trials, prob = p, log = TRUE)
-  data.table(
-    n_islands = length(success),
-    n_trials = sum(trials),
-    log_score_sum = sum(ll),
-    log_score_per_trial = sum(ll) / sum(trials),
-    brier_share = mean((observed - p)^2),
-    mean_observed_share = mean(observed),
-    mean_predicted_share = mean(p)
-  )
-}
+core_z <- c(
+  "z_log_distance_to_continent_km", "z_log_island_area_km2",
+  "z_climate_pc1", "z_climate_pc2", "z_climate_pc3", "z_climate_pc4",
+  "z_bombus_deficit", "z_sc_share"
+)
+complete <- d[complete.cases(d[, ..core_z]) & !is.na(regime)]
+north <- complete[regime == "northern_midlatitude"]
+if (nrow(north) < 30) stop("Too few complete northern-midlatitude islands")
 
-fits <- list()
-score_rows <- list()
-fixed_rows <- list()
-support_rows <- list()
-projection_rows <- list()
-
-for (outcome in names(specs)) {
-  success_col <- specs[[outcome]][1]
-  trials_col <- specs[[outcome]][2]
-  train <- north[get(trials_col) > 0]
-  global_eval <- complete_full[
-    analysis_regime %in% c("northern_midlatitude", "tropical", "southern_extratropical") &
-      get(trials_col) > 0
-  ]
-  support_rows[[outcome]] <- data.table(
-    outcome = outcome,
-    n_train_northern = nrow(train),
-    n_eval_northern = nrow(global_eval[analysis_regime == "northern_midlatitude"]),
-    n_eval_tropical = nrow(global_eval[analysis_regime == "tropical"]),
-    n_eval_southern_extratropical = nrow(global_eval[analysis_regime == "southern_extratropical"])
-  )
-
-  for (model in names(fit_rhs)) {
+fits <- list(); score_rows <- list(); fixed_rows <- list(); support_rows <- list()
+for (outcome in names(outcomes)) {
+  success_col <- outcomes[[outcome]][1]
+  trials_col <- outcomes[[outcome]][2]
+  dd <- north[get(trials_col) > 0]
+  bad <- !is.finite(dd[[success_col]]) | !is.finite(dd[[trials_col]]) |
+    dd[[success_col]] < 0 | dd[[trials_col]] <= 0 | dd[[success_col]] > dd[[trials_col]]
+  if (any(bad)) stop("invalid grouped counts for ", outcome)
+  support_rows[[outcome]] <- data.table(outcome = outcome, n_northern_islands = nrow(dd))
+  for (model in names(model_rhs[[outcome]])) {
     key <- paste(outcome, model, sep = "__")
-    fit <- fit_grouped(success_col, trials_col, fit_rhs[[model]], train)
+    fit <- fit_grouped(success_col, trials_col, model_rhs[[outcome]][[model]], dd)
     fits[[key]] <- fit
-
-    s <- score_fit(fit)
-    s[, `:=`(outcome = outcome, model = model)]
-    score_rows[[key]] <- s
-
+    s <- score_fit(fit); s[, `:=`(outcome = outcome, model = model)]; score_rows[[key]] <- s
     f <- as.data.table(fit$summary.fixed, keep.rownames = "parameter")
-    f[, `:=`(outcome = outcome, model = model)]
-    fixed_rows[[key]] <- f
-
-    for (regime in c("northern_midlatitude", "tropical", "southern_extratropical")) {
-      eval <- global_eval[analysis_regime == regime]
-      if (!nrow(eval)) next
-      p <- project_fixed(fit, fixed_rhs[[model]], eval)
-      pm <- projection_metrics(eval[[success_col]], eval[[trials_col]], p)
-      pm[, `:=`(outcome = outcome, model = model, regime = regime)]
-      projection_rows[[paste(key, regime, sep = "__")]] <- pm
-    }
+    f[, `:=`(outcome = outcome, model = model)]; fixed_rows[[key]] <- f
   }
 }
 
 scores <- rbindlist(score_rows, fill = TRUE)
 scores[, delta_log_cpo_from_best := log_cpo_sum - max(log_cpo_sum, na.rm = TRUE), by = outcome]
-scores[, best_model := model[which.max(log_cpo_sum)], by = outcome]
 setorder(scores, outcome, -log_cpo_sum)
-fwrite(scores, file.path(outdir, "category_model_comparisons.csv"))
+fwrite(scores, file.path(outdir, "northern_model_comparisons.csv"))
 
 fixed <- rbindlist(fixed_rows, fill = TRUE)
-setcolorder(fixed, c("outcome", "model", "parameter"))
-fwrite(fixed, file.path(outdir, "category_fixed_effects.csv"))
+fixed[, excludes_zero := (`0.025quant` > 0 & `0.975quant` > 0) |
+  (`0.025quant` < 0 & `0.975quant` < 0)]
+fwrite(fixed, file.path(outdir, "northern_fixed_effects.csv"))
+key_effects <- fixed[
+  (outcome == "self_compatibility" & model == "N1_bombus" & parameter == "z_bombus_deficit") |
+  (outcome %in% c("plain_flower", "generalized_flower") & model == "N3_bombus_sc" &
+    parameter %in% c("z_bombus_deficit", "z_sc_share"))
+]
+fwrite(key_effects, file.path(outdir, "northern_bombus_syndrome_effects.csv"))
+fwrite(rbindlist(support_rows), file.path(outdir, "northern_support.csv"))
 
-replacement_effects <- fixed[
-  model == "M8_replacement" & parameter %in% c(
-    "z_bombus_deficit", "z_sc_share", "z_showy_alt_guild_share",
-    "z_other_bee_guild_share_1", "z_generalist_insect_guild_share_1",
-    "z_bombus_deficit:z_showy_alt_guild_share",
-    "z_bombus_deficit:z_other_bee_guild_share_1",
-    "z_bombus_deficit:z_generalist_insect_guild_share_1"
+# Falsification across regimes. The first three outcomes test whether the
+# northern isolation syndrome is geographically restricted. The last three
+# are descriptive counter-patterns for conspicuous/specialized flowers only.
+falsification_outcomes <- list(
+  self_compatibility = c("sc_successes", "sc_trials"),
+  plain_flower = c("color_plain", "color_trials"),
+  generalized_flower = c("form_open_generalized", "form_trials"),
+  yellow_orange = c("color_yellow_orange", "color_trials"),
+  red_pink = c("color_red_pink", "color_trials"),
+  tubular_trumpet = c("form_tubular_trumpet", "form_trials")
+)
+regime_rows <- list(); regime_fits <- list()
+for (outcome in names(falsification_outcomes)) {
+  success_col <- falsification_outcomes[[outcome]][1]
+  trials_col <- falsification_outcomes[[outcome]][2]
+  dd <- complete[get(trials_col) > 0]
+  dd[, obs_id := seq_len(.N)]
+  rhs <- paste(
+    "regime * z_log_distance_to_continent_km + z_log_island_area_km2 +",
+    "z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4 +",
+    "f(spatial_id, model='iid') + f(obs_id, model='iid')"
   )
+  fit <- inla(
+    as.formula(paste(success_col, "~", rhs)), family = "binomial", data = dd,
+    Ntrials = dd[[trials_col]], control.compute = compute,
+    control.predictor = list(compute = TRUE), verbose = FALSE
+  )
+  regime_fits[[outcome]] <- fit
+  f <- as.data.table(fit$summary.fixed, keep.rownames = "parameter")
+  f[, outcome := outcome]; regime_rows[[outcome]] <- f
+}
+regime_effects <- rbindlist(regime_rows, fill = TRUE)
+regime_effects[, excludes_zero := (`0.025quant` > 0 & `0.975quant` > 0) |
+  (`0.025quant` < 0 & `0.975quant` < 0)]
+fwrite(regime_effects, file.path(outdir, "cross_regime_isolation_effects.csv"))
+isolation_terms <- regime_effects[
+  grepl("z_log_distance_to_continent_km", parameter),
+  .(outcome, parameter, mean, `0.025quant`, `0.975quant`, excludes_zero)
 ]
-replacement_effects[, excludes_zero :=
-  (`0.025quant` > 0 & `0.975quant` > 0) |
-    (`0.025quant` < 0 & `0.975quant` < 0)
-]
-replacement_effects[, direction := fifelse(mean > 0, "positive", "negative")]
-setorder(replacement_effects, outcome, parameter)
-fwrite(replacement_effects, file.path(outdir, "replacement_category_channel_effects.csv"))
-
-best <- scores[, .SD[which.max(log_cpo_sum)], by = outcome]
-best <- best[, .(outcome, best_model = model, log_cpo_sum, waic, dic, n_cpo)]
-fwrite(best, file.path(outdir, "category_best_models.csv"))
-
-projection <- rbindlist(projection_rows, fill = TRUE)
-# Projection failure is defined relative to each northern-trained model's score
-# in its own northern training regime. Negative values mean worse transfer.
-projection[, northern_reference := log_score_per_trial[regime == "northern_midlatitude"][1], by = .(outcome, model)]
-projection[, transfer_delta_log_score_per_trial := log_score_per_trial - northern_reference]
-projection[, projection_failure := regime != "northern_midlatitude" & transfer_delta_log_score_per_trial < 0]
-setorder(projection, outcome, model, regime)
-fwrite(projection, file.path(outdir, "cross_regime_projection_performance.csv"))
-
-projection_summary <- projection[, .(
-  n_outcome_models = .N,
-  mean_transfer_delta = mean(transfer_delta_log_score_per_trial, na.rm = TRUE),
-  median_transfer_delta = median(transfer_delta_log_score_per_trial, na.rm = TRUE),
-  share_projection_failure = mean(projection_failure, na.rm = TRUE)
-), by = regime]
-fwrite(projection_summary, file.path(outdir, "cross_regime_projection_summary.csv"))
-
-support <- rbindlist(support_rows)
-fwrite(support, file.path(outdir, "category_support.csv"))
+fwrite(isolation_terms, file.path(outdir, "cross_regime_isolation_summary.csv"))
 
 meta <- list(
-  contract = "v2_inla_category_preserving_replacement_projection_v3",
+  contract = "v2_simple_northern_bombus_syndrome_falsification_v1",
   analysis_tier = unique(d$analysis_tier),
-  training_regime = "northern_midlatitude",
-  evaluation_regimes = c("northern_midlatitude", "tropical", "southern_extratropical"),
-  support_policy = "for each category, M0-M8 use the same maximum complete-case northern training support; projection uses all complete islands with category trials in each evaluation regime",
-  category_policy = "one-vs-rest grouped binomial-logit-normal; no color/form binary collapse",
-  channel_policy = "compare geography, Bombus deficit, reproductive assurance, alternative-pollinator replacement, additive combinations, and Bombus-deficit by replacement interactions",
-  projection_policy = "northern scaling and fixed effects are frozen before population-level projection; spatial and observation-level random effects are excluded from out-of-domain prediction",
-  alternative_pollinator_terms = c(
-    "showy_alt_guild_share", "other_bee_guild_share_1", "generalist_insect_guild_share_1"
-  ),
-  note = "showy_alt_guild_share is the currently available combined showy-alternative functional channel; this artifact does not yet separate bird from butterfly/moth evidence",
+  primary_claim = "isolation-associated increases in self-compatibility and plain/generalized floral composition are tested as a northern-midlatitude Bombus-linked syndrome",
+  northern_mechanism = "geography -> Bombus deficit -> self-compatibility and plain/generalized floral composition",
+  falsification = "the same isolation slopes are estimated in tropical and southern-extratropical regimes; yellow/orange, red/pink and tubular/trumpet categories are descriptive counter-patterns only",
+  excluded_from_primary_mechanism = "alternative-pollinator covariates and Bombus-by-alternative interactions",
   n_complete_northern_midlatitude = nrow(north),
-  n_complete_global_evaluation = nrow(complete_full),
-  n_spatial_blocks_north = uniqueN(north$spatial_id)
+  n_complete_all_regimes = nrow(complete)
 )
 write_json(meta, file.path(outdir, "analysis_metadata.json"), pretty = TRUE, auto_unbox = TRUE)
-
-capture.output(lapply(fits, summary), file = file.path(outdir, "model_summaries.txt"))
+capture.output(c(lapply(fits, summary), lapply(regime_fits, summary)),
+  file = file.path(outdir, "model_summaries.txt"))
