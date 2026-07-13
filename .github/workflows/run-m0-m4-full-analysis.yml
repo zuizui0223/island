@@ -9,6 +9,7 @@ on:
       - "config/m0_m4_full_analysis.yml"
       - "config/integrated_trait_bombus_artifact_lock.json"
       - "config/bombus_hypervolume_artifact_lock.json"
+      - "config/island_universe_artifact_lock.json"
       - "src/island_v2/full_analysis_covariates.py"
       - "src/island_v2/m0_m4_full_analysis.py"
       - "tests/test_m0_m4_full_analysis.py"
@@ -74,23 +75,48 @@ jobs:
           mkdir -p /tmp/bombus
           unzip -q /tmp/bombus.zip -d /tmp/bombus
 
-      - name: Rebuild the frozen island manifest for area covariates
+      - name: Download locked frozen island universe
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
-          test -f data/v2/external/islands/gshhg/prepared/island_manifest.csv
+          LOCK=config/island_universe_artifact_lock.json
+          ARTIFACT_ID=$(jq -r '.artifact_id' "$LOCK")
+          EXPECTED=$(jq -r '.artifact_digest' "$LOCK" | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            > /tmp/island-universe.zip
+          ACTUAL=$(sha256sum /tmp/island-universe.zip | awk '{print $1}')
+          test "$ACTUAL" = "$EXPECTED"
+          mkdir -p /tmp/island-universe
+          unzip -q /tmp/island-universe.zip -d /tmp/island-universe
+          ISLAND_MANIFEST=$(find /tmp/island-universe -name island_manifest.csv -print -quit)
+          test -n "$ISLAND_MANIFEST"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          lock = json.loads(Path('config/island_universe_artifact_lock.json').read_text())
+          manifest = next(Path('/tmp/island-universe').rglob('island_manifest.csv'))
+          table = pd.read_csv(manifest)
+          assert table['island_id'].nunique() == lock['verified_summary']['n_islands'] == 8265
+          assert not table['island_id'].duplicated().any()
+          print({'island_universe_verified': True, 'n_islands': int(len(table))})
+          PY
 
       - name: Build deterministic full-analysis covariates
         run: |
           set -euo pipefail
           ISLAND_ENV=$(find /tmp/bombus -name global_island_environment.csv -print -quit)
           ENV_SAMPLES=$(find /tmp/bombus -name global_island_environment_samples.csv.gz -print -quit)
+          ISLAND_MANIFEST=$(find /tmp/island-universe -name island_manifest.csv -print -quit)
           test -n "$ISLAND_ENV"
           test -n "$ENV_SAMPLES"
+          test -n "$ISLAND_MANIFEST"
           island-v2-full-analysis-covariates \
             --island-environment-csv "$ISLAND_ENV" \
             --environment-samples-csv "$ENV_SAMPLES" \
-            --island-manifest-csv data/v2/external/islands/gshhg/prepared/island_manifest.csv \
+            --island-manifest-csv "$ISLAND_MANIFEST" \
             --output-dir data/v2/staging/analysis/full_analysis/covariates
 
       - name: Fit grouped-binomial M0-M4 models for all tiers
@@ -174,6 +200,9 @@ jobs:
               'input_bombus_artifact': json.loads(
                   Path('config/bombus_hypervolume_artifact_lock.json').read_text()
               ),
+              'input_island_universe_artifact': json.loads(
+                  Path('config/island_universe_artifact_lock.json').read_text()
+              ),
               'covariates': covariate_manifest,
               'tiers': tier_summary,
               'robustness': {
@@ -199,6 +228,7 @@ jobs:
             config/m0_m4_full_analysis.yml
             config/integrated_trait_bombus_artifact_lock.json
             config/bombus_hypervolume_artifact_lock.json
+            config/island_universe_artifact_lock.json
             data/v2/staging/analysis/full_analysis/
           if-no-files-found: error
           retention-days: 90
