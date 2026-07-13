@@ -11,48 +11,59 @@ if (length(args) != 2) stop("usage: run_inla_category_preserving_north.R <input.
 infile <- args[[1]]
 outdir <- args[[2]]
 dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
-set.seed(20260713)
+set.seed(20260714)
 
 d <- fread(infile)
-colour_outcomes <- list(
-  plain = c("color_plain", "color_trials"),
-  yellow_orange = c("color_yellow_orange", "color_trials"),
-  red_pink = c("color_red_pink", "color_trials"),
-  blue_purple = c("color_blue_purple", "color_trials")
-)
-form_outcomes <- list(
-  open_generalized = c("form_open_generalized", "form_trials"),
-  tubular_trumpet = c("form_tubular_trumpet", "form_trials"),
-  zygomorphic_specialized = c("form_zygomorphic_specialized", "form_trials"),
-  composite_brush = c("form_composite_brush", "form_trials")
-)
-trait_outcomes <- c(colour_outcomes, form_outcomes)
-
 required <- c(
   "island_id", "analysis_tier", "analysis_regime",
   "log_distance_to_continent_km", "log_island_area_km2",
-  "climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4",
-  "bombus_deficit", "sc_trials", "sc_successes", "sc_share", "spatial_block",
-  "color_trials", unname(vapply(colour_outcomes, `[[`, character(1), 1)),
-  "form_trials", unname(vapply(form_outcomes, `[[`, character(1), 1))
+  "climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4", "spatial_block",
+  "bombus_deficit", "bombus_environmental_compatibility",
+  "environmental_compatibility_max", "environmental_compatibility_mean",
+  "environmental_extrapolation_share", "n_bombus_species_total",
+  "n_bombus_species_scored", "n_bombus_species_unscored",
+  "n_environmentally_compatible_species",
+  "sc_trials", "sc_successes", "sc_share",
+  "wind_mixed_trials", "wind_mixed_successes", "wind_mixed_share",
+  "animal_status_observed", "n_animal_species", "n_wind_species", "n_species_total",
+  "showy_alternative_guild_trials", "showy_alternative_guild_successes",
+  "other_bee_guild_trials", "other_bee_guild_successes",
+  "generalist_insect_guild_trials", "generalist_insect_guild_successes",
+  "color_trials", "color_plain", "color_yellow_orange", "color_red_pink", "color_blue_purple",
+  "form_trials", "form_open_generalized", "form_tubular_trumpet",
+  "form_zygomorphic_specialized", "form_composite_brush"
 )
 missing <- setdiff(required, names(d))
 if (length(missing)) stop("missing required columns: ", paste(missing, collapse = ", "))
 
-# Verify that the retained categories exhaust the recorded totals.
-colour_sum <- Reduce(`+`, lapply(colour_outcomes, function(x) fifelse(is.na(d[[x[[1]]]]), 0, d[[x[[1]]]])))
-form_sum <- Reduce(`+`, lapply(form_outcomes, function(x) fifelse(is.na(d[[x[[1]]]]), 0, d[[x[[1]]]])))
-if (any(colour_sum != fifelse(is.na(d$color_trials), 0, d$color_trials))) {
-  stop("retained colour categories do not sum to color_trials")
-}
-if (any(form_sum != fifelse(is.na(d$form_trials), 0, d$form_trials))) {
-  stop("retained floral-form categories do not sum to form_trials")
-}
+if (any(rowSums(d[, .(color_plain, color_yellow_orange, color_red_pink, color_blue_purple)], na.rm = TRUE) !=
+        fifelse(is.na(d$color_trials), 0, d$color_trials))) stop("colour categories do not sum to color_trials")
+if (any(rowSums(d[, .(form_open_generalized, form_tubular_trumpet,
+                      form_zygomorphic_specialized, form_composite_brush)], na.rm = TRUE) !=
+        fifelse(is.na(d$form_trials), 0, d$form_trials))) stop("form categories do not sum to form_trials")
+if (any(d$n_animal_species + d$n_wind_species != d$animal_status_observed, na.rm = TRUE))
+  stop("animal + wind species do not sum to observed pollen-vector trials")
+if (any(d$wind_mixed_trials != d$animal_status_observed, na.rm = TRUE))
+  stop("wind_mixed_trials and animal_status_observed disagree")
+if (any(d$wind_mixed_successes != d$n_wind_species, na.rm = TRUE))
+  stop("wind_mixed_successes and n_wind_species disagree")
+
+d[, animal_pollinated_trials := animal_status_observed]
+d[, animal_pollinated_successes := n_animal_species]
+clip01 <- function(x, eps = 1e-5) pmin(pmax(as.numeric(x), eps), 1 - eps)
+d[, logit_bombus_deficit := qlogis(clip01(bombus_deficit))]
+
+regime_levels <- c(
+  "northern_midlatitude", "northern_high_latitude",
+  "tropical", "southern_extratropical"
+)
+d[, regime := factor(analysis_regime, levels = regime_levels)]
+d[, spatial_id := as.integer(factor(spatial_block))]
 
 scale_vars <- c(
   "log_distance_to_continent_km", "log_island_area_km2",
   "climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4",
-  "bombus_deficit", "sc_share"
+  "bombus_deficit", "sc_share", "wind_mixed_share"
 )
 north_ref <- d[analysis_regime == "northern_midlatitude"]
 scaling <- rbindlist(lapply(scale_vars, function(nm) {
@@ -61,15 +72,10 @@ scaling <- rbindlist(lapply(scale_vars, function(nm) {
 }))
 if (any(!is.finite(scaling$scale) | scaling$scale <= 0)) stop("invalid northern scaling")
 for (i in seq_len(nrow(scaling))) {
-  nm <- scaling$variable[[i]]
-  d[[paste0("z_", nm)]] <- (d[[nm]] - scaling$center[[i]]) / scaling$scale[[i]]
+  nm <- scaling$variable[i]
+  d[[paste0("z_", nm)]] <- (d[[nm]] - scaling$center[i]) / scaling$scale[i]
 }
 fwrite(scaling, file.path(outdir, "northern_training_scaling.csv"))
-
-d[, spatial_id := as.integer(factor(spatial_block))]
-d[, regime := factor(analysis_regime, levels = c(
-  "northern_midlatitude", "tropical", "southern_extratropical"
-))]
 
 geo_vars <- c(
   "z_log_distance_to_continent_km", "z_log_island_area_km2",
@@ -90,9 +96,16 @@ fit_grouped <- function(success_col, trials_col, rhs, dd) {
   inla(
     as.formula(paste(success_col, "~", rhs, "+ f(obs_id, model='iid')")),
     family = "binomial", data = x, Ntrials = x[[trials_col]],
-    control.compute = compute,
-    control.predictor = list(compute = TRUE),
-    verbose = FALSE
+    control.compute = compute, control.predictor = list(compute = TRUE), verbose = FALSE
+  )
+}
+
+fit_gaussian <- function(response_col, rhs, dd) {
+  x <- copy(dd)
+  if (nrow(x) < 30) stop("too few rows for ", response_col, ": ", nrow(x))
+  inla(
+    as.formula(paste(response_col, "~", rhs)), family = "gaussian", data = x,
+    control.compute = compute, control.predictor = list(compute = TRUE), verbose = FALSE
   )
 }
 
@@ -105,13 +118,11 @@ score_fit <- function(fit) {
   )
 }
 
-fixed_table <- function(fit, outcome_name, model_name, support_name, n_support) {
+fixed_table <- function(fit, outcome_name, model_name, support_name, n_support, layer) {
   x <- as.data.table(fit$summary.fixed, keep.rownames = "parameter")
   x[, `:=`(
-    outcome = outcome_name,
-    model = model_name,
-    support = support_name,
-    n_support = n_support
+    outcome = outcome_name, model = model_name, support = support_name,
+    n_support = n_support, analysis_layer = layer
   )]
   x
 }
@@ -124,18 +135,16 @@ sample_fixed <- function(fit, parameter, n = 50000L) {
 summarize_draws <- function(x, outcome_name, effect_name, n_support) {
   q <- quantile(x, c(0.025, 0.5, 0.975), na.rm = TRUE)
   data.table(
-    outcome = outcome_name,
-    effect = effect_name,
-    n_support = n_support,
-    mean = mean(x, na.rm = TRUE),
-    median = unname(q[[2]]),
-    `0.025quant` = unname(q[[1]]),
-    `0.975quant` = unname(q[[3]]),
+    outcome = outcome_name, effect = effect_name, n_support = n_support,
+    mean = mean(x, na.rm = TRUE), median = unname(q[[2]]),
+    `0.025quant` = unname(q[[1]]), `0.975quant` = unname(q[[3]]),
     excludes_zero = unname(q[[1]] > 0 | q[[3]] < 0)
   )
 }
 
+complete_geo <- d[complete.cases(d[, ..geo_vars]) & !is.na(regime)]
 base_complete <- d[complete.cases(d[, ..base_vars]) & !is.na(regime)]
+north_geo <- complete_geo[regime == "northern_midlatitude"]
 north_base <- base_complete[regime == "northern_midlatitude"]
 if (nrow(north_base) < 30) stop("too few northern-midlatitude islands")
 
@@ -144,52 +153,107 @@ score_rows <- list()
 fixed_rows <- list()
 support_rows <- list()
 
-sc_support <- north_base[sc_trials > 0]
-support_rows[["self_compatibility"]] <- data.table(
-  outcome = "self_compatibility", support = "maximum_equation_support", n_islands = nrow(sc_support)
+full_flora_outcomes <- list(
+  animal_pollinated = c("animal_pollinated_successes", "animal_pollinated_trials"),
+  wind_mixed = c("wind_mixed_successes", "wind_mixed_trials"),
+  self_compatibility = c("sc_successes", "sc_trials")
 )
-sc_models <- list(
-  N0_geo = geo_fit,
-  N1_bombus = paste("z_bombus_deficit +", geo_fit)
-)
-for (model_name in names(sc_models)) {
-  key <- paste("self_compatibility", model_name, sep = "__")
-  fit <- fit_grouped("sc_successes", "sc_trials", sc_models[[model_name]], sc_support)
-  fits[[key]] <- fit
-  s <- score_fit(fit)
-  s[, `:=`(
-    outcome = "self_compatibility", model = model_name,
-    support = "maximum_equation_support", n_support = nrow(sc_support)
-  )]
-  score_rows[[key]] <- s
-  fixed_rows[[key]] <- fixed_table(
-    fit, "self_compatibility", model_name, "maximum_equation_support", nrow(sc_support)
+for (outcome_name in names(full_flora_outcomes)) {
+  success_col <- full_flora_outcomes[[outcome_name]][1]
+  trials_col <- full_flora_outcomes[[outcome_name]][2]
+  dd <- north_base[get(trials_col) > 0]
+  support_rows[[paste0("full_flora__", outcome_name)]] <- data.table(
+    analysis_layer = "full_flora", outcome = outcome_name,
+    support = "maximum_equation_support", n_islands = nrow(dd)
   )
+  models <- if (outcome_name == "self_compatibility") {
+    list(
+      F0_geo = geo_fit,
+      F1_bombus = paste("z_bombus_deficit +", geo_fit),
+      F2_wind = paste("z_wind_mixed_share +", geo_fit),
+      F3_bombus_wind = paste("z_bombus_deficit + z_wind_mixed_share +", geo_fit)
+    )
+  } else {
+    list(F0_geo = geo_fit, F1_bombus = paste("z_bombus_deficit +", geo_fit))
+  }
+  if (outcome_name == "self_compatibility") dd <- dd[is.finite(z_wind_mixed_share)]
+  for (model_name in names(models)) {
+    key <- paste("full_flora", outcome_name, model_name, sep = "__")
+    fit <- fit_grouped(success_col, trials_col, models[[model_name]], dd)
+    fits[[key]] <- fit
+    s <- score_fit(fit)
+    s[, `:=`(outcome = outcome_name, model = model_name,
+             support = "matched_full_flora_support", n_support = nrow(dd),
+             analysis_layer = "full_flora")]
+    score_rows[[key]] <- s
+    fixed_rows[[key]] <- fixed_table(
+      fit, outcome_name, model_name, "matched_full_flora_support", nrow(dd), "full_flora"
+    )
+  }
 }
 
-for (outcome_name in names(trait_outcomes)) {
-  success_col <- trait_outcomes[[outcome_name]][[1]]
-  trials_col <- trait_outcomes[[outcome_name]][[2]]
+bombus_support <- north_geo[is.finite(logit_bombus_deficit)]
+bombus_fit <- fit_gaussian("logit_bombus_deficit", geo_fit, bombus_support)
+fits[["bombus_deficit__B0_geo"]] <- bombus_fit
+fixed_rows[["bombus_deficit__B0_geo"]] <- fixed_table(
+  bombus_fit, "bombus_deficit", "B0_geo", "maximum_bombus_support",
+  nrow(bombus_support), "bombus_channel"
+)
+score_rows[["bombus_deficit__B0_geo"]] <- cbind(
+  score_fit(bombus_fit),
+  data.table(outcome = "bombus_deficit", model = "B0_geo",
+             support = "maximum_bombus_support", n_support = nrow(bombus_support),
+             analysis_layer = "bombus_channel")
+)
+support_rows[["bombus_deficit"]] <- data.table(
+  analysis_layer = "bombus_channel", outcome = "bombus_deficit",
+  support = "maximum_bombus_support", n_islands = nrow(bombus_support)
+)
 
+trait_outcomes <- list(
+  plain = c("color_plain", "color_trials"),
+  yellow_orange = c("color_yellow_orange", "color_trials"),
+  red_pink = c("color_red_pink", "color_trials"),
+  blue_purple = c("color_blue_purple", "color_trials"),
+  open_generalized = c("form_open_generalized", "form_trials"),
+  tubular_trumpet = c("form_tubular_trumpet", "form_trials"),
+  zygomorphic_specialized = c("form_zygomorphic_specialized", "form_trials"),
+  composite_brush = c("form_composite_brush", "form_trials")
+)
+
+sc_path_support <- north_base[sc_trials > 0]
+a_fit <- fits[["full_flora__self_compatibility__F1_bombus"]]
+a_adjusted_fit <- fits[["full_flora__self_compatibility__F3_bombus_wind"]]
+a_draw <- sample_fixed(a_fit, "z_bombus_deficit")
+a_adjusted_draw <- sample_fixed(a_adjusted_fit, "z_bombus_deficit")
+mediation_rows <- list()
+
+for (outcome_name in names(trait_outcomes)) {
+  success_col <- trait_outcomes[[outcome_name]][1]
+  trials_col <- trait_outcomes[[outcome_name]][2]
   max_support <- north_base[get(trials_col) > 0]
   path_support <- max_support[is.finite(z_sc_share)]
-  if (nrow(max_support) < 30) stop("too few maximum-support rows for ", outcome_name)
-  if (nrow(path_support) < 30) stop("too few path-support rows for ", outcome_name)
+  adjusted_support <- path_support[is.finite(z_wind_mixed_share)]
+  if (min(nrow(max_support), nrow(path_support), nrow(adjusted_support)) < 30)
+    stop("too few support rows for ", outcome_name)
 
   support_rows[[paste0(outcome_name, "__max")]] <- data.table(
-    outcome = outcome_name, support = "maximum_category_support", n_islands = nrow(max_support)
+    analysis_layer = "animal_pollinated_flower", outcome = outcome_name,
+    support = "maximum_category_support", n_islands = nrow(max_support)
   )
   support_rows[[paste0(outcome_name, "__path")]] <- data.table(
-    outcome = outcome_name, support = "sc_path_support", n_islands = nrow(path_support)
+    analysis_layer = "animal_pollinated_flower", outcome = outcome_name,
+    support = "sc_path_support", n_islands = nrow(path_support)
+  )
+  support_rows[[paste0(outcome_name, "__adjusted")]] <- data.table(
+    analysis_layer = "animal_pollinated_flower", outcome = outcome_name,
+    support = "sc_wind_adjusted_support", n_islands = nrow(adjusted_support)
   )
 
-  ladders <- list(
+  model_sets <- list(
     maximum_category_support = list(
       data = max_support,
-      models = list(
-        N0_geo_max = geo_fit,
-        N1_bombus_max = paste("z_bombus_deficit +", geo_fit)
-      )
+      models = list(N0_geo_max = geo_fit, N1_bombus_max = paste("z_bombus_deficit +", geo_fit))
     ),
     sc_path_support = list(
       data = path_support,
@@ -199,87 +263,114 @@ for (outcome_name in names(trait_outcomes)) {
         N2_sc_path = paste("z_sc_share +", geo_fit),
         N3_direct_indirect_path = paste("z_bombus_deficit + z_sc_share +", geo_fit)
       )
+    ),
+    sc_wind_adjusted_support = list(
+      data = adjusted_support,
+      models = list(
+        N0_geo_adjusted = geo_fit,
+        N1_bombus_adjusted = paste("z_bombus_deficit +", geo_fit),
+        N2_sc_adjusted = paste("z_sc_share +", geo_fit),
+        N3_direct_indirect_adjusted = paste("z_bombus_deficit + z_sc_share +", geo_fit),
+        N4_wind_adjusted = paste("z_bombus_deficit + z_sc_share + z_wind_mixed_share +", geo_fit)
+      )
     )
   )
 
-  for (support_name in names(ladders)) {
-    dd <- ladders[[support_name]]$data
-    for (model_name in names(ladders[[support_name]]$models)) {
+  for (support_name in names(model_sets)) {
+    dd <- model_sets[[support_name]]$data
+    models <- model_sets[[support_name]]$models
+    for (model_name in names(models)) {
       key <- paste(outcome_name, model_name, sep = "__")
-      fit <- fit_grouped(success_col, trials_col, ladders[[support_name]]$models[[model_name]], dd)
+      fit <- fit_grouped(success_col, trials_col, models[[model_name]], dd)
       fits[[key]] <- fit
       s <- score_fit(fit)
-      s[, `:=`(
-        outcome = outcome_name, model = model_name,
-        support = support_name, n_support = nrow(dd)
-      )]
+      s[, `:=`(outcome = outcome_name, model = model_name, support = support_name,
+               n_support = nrow(dd), analysis_layer = "animal_pollinated_flower")]
       score_rows[[key]] <- s
-      fixed_rows[[key]] <- fixed_table(fit, outcome_name, model_name, support_name, nrow(dd))
+      fixed_rows[[key]] <- fixed_table(
+        fit, outcome_name, model_name, support_name, nrow(dd), "animal_pollinated_flower"
+      )
     }
   }
-}
 
-scores <- rbindlist(score_rows, fill = TRUE)
-scores[, delta_log_cpo_from_best := log_cpo_sum - max(log_cpo_sum, na.rm = TRUE), by = .(outcome, support)]
-setorder(scores, outcome, support, -log_cpo_sum)
-fwrite(scores, file.path(outdir, "northern_model_comparisons.csv"))
-
-fixed <- rbindlist(fixed_rows, fill = TRUE)
-fixed[, excludes_zero := (`0.025quant` > 0 & `0.975quant` > 0) |
-  (`0.025quant` < 0 & `0.975quant` < 0)]
-fwrite(fixed, file.path(outdir, "northern_fixed_effects.csv"))
-fwrite(rbindlist(support_rows), file.path(outdir, "northern_equation_support.csv"))
-
-a_fit <- fits[["self_compatibility__N1_bombus"]]
-a_draw <- sample_fixed(a_fit, "z_bombus_deficit")
-mediation_rows <- list()
-for (outcome_name in names(trait_outcomes)) {
   trait_fit <- fits[[paste0(outcome_name, "__N3_direct_indirect_path")]]
   direct_draw <- sample_fixed(trait_fit, "z_bombus_deficit")
   b_draw <- sample_fixed(trait_fit, "z_sc_share")
   indirect_draw <- a_draw * b_draw
   total_draw <- direct_draw + indirect_draw
-  n_support <- unique(fixed[
-    outcome == outcome_name & model == "N3_direct_indirect_path", n_support
-  ])
+  mediation_rows[[paste0(outcome_name, "__unadjusted_a")]] <- summarize_draws(
+    a_draw, outcome_name, "a_bombus_to_sc", nrow(sc_path_support)
+  )
+  mediation_rows[[paste0(outcome_name, "__unadjusted_b")]] <- summarize_draws(
+    b_draw, outcome_name, "b_sc_to_category", nrow(path_support)
+  )
+  mediation_rows[[paste0(outcome_name, "__unadjusted_direct")]] <- summarize_draws(
+    direct_draw, outcome_name, "direct_bombus_to_category", nrow(path_support)
+  )
+  mediation_rows[[paste0(outcome_name, "__unadjusted_indirect")]] <- summarize_draws(
+    indirect_draw, outcome_name, "indirect_bombus_via_sc", nrow(path_support)
+  )
+  mediation_rows[[paste0(outcome_name, "__unadjusted_total")]] <- summarize_draws(
+    total_draw, outcome_name, "total_bombus_effect", nrow(path_support)
+  )
 
-  mediation_rows[[paste0(outcome_name, "_a")]] <- summarize_draws(
-    a_draw, outcome_name, "a_bombus_to_self_compatibility", nrow(sc_support)
+  adjusted_trait_fit <- fits[[paste0(outcome_name, "__N4_wind_adjusted")]]
+  direct_adjusted_draw <- sample_fixed(adjusted_trait_fit, "z_bombus_deficit")
+  b_adjusted_draw <- sample_fixed(adjusted_trait_fit, "z_sc_share")
+  indirect_adjusted_draw <- a_adjusted_draw * b_adjusted_draw
+  total_adjusted_draw <- direct_adjusted_draw + indirect_adjusted_draw
+  mediation_rows[[paste0(outcome_name, "__adjusted_a")]] <- summarize_draws(
+    a_adjusted_draw, outcome_name, "a_bombus_to_sc_adjusted_for_wind_mixed", nrow(sc_path_support)
   )
-  mediation_rows[[paste0(outcome_name, "_b")]] <- summarize_draws(
-    b_draw, outcome_name, "b_self_compatibility_to_category", n_support
+  mediation_rows[[paste0(outcome_name, "__adjusted_b")]] <- summarize_draws(
+    b_adjusted_draw, outcome_name, "b_sc_to_category_adjusted_for_wind_mixed", nrow(adjusted_support)
   )
-  mediation_rows[[paste0(outcome_name, "_direct")]] <- summarize_draws(
-    direct_draw, outcome_name, "direct_bombus_to_category", n_support
+  mediation_rows[[paste0(outcome_name, "__adjusted_direct")]] <- summarize_draws(
+    direct_adjusted_draw, outcome_name, "direct_bombus_to_category_adjusted_for_wind_mixed", nrow(adjusted_support)
   )
-  mediation_rows[[paste0(outcome_name, "_indirect")]] <- summarize_draws(
-    indirect_draw, outcome_name, "indirect_bombus_via_self_compatibility", n_support
+  mediation_rows[[paste0(outcome_name, "__adjusted_indirect")]] <- summarize_draws(
+    indirect_adjusted_draw, outcome_name, "indirect_bombus_via_sc_adjusted_for_wind_mixed", nrow(adjusted_support)
   )
-  mediation_rows[[paste0(outcome_name, "_total")]] <- summarize_draws(
-    total_draw, outcome_name, "total_bombus_effect", n_support
+  mediation_rows[[paste0(outcome_name, "__adjusted_total")]] <- summarize_draws(
+    total_adjusted_draw, outcome_name, "total_bombus_effect_adjusted_for_wind_mixed", nrow(adjusted_support)
   )
 }
-mediation_effects <- rbindlist(mediation_rows)
-fwrite(mediation_effects, file.path(outdir, "northern_direct_indirect_total_effects.csv"))
 
-key_effects <- fixed[
-  (outcome == "self_compatibility" & model == "N1_bombus" & parameter == "z_bombus_deficit") |
-  (outcome %in% names(trait_outcomes) & model == "N3_direct_indirect_path" &
-     parameter %in% c("z_bombus_deficit", "z_sc_share"))
-]
-fwrite(key_effects, file.path(outdir, "northern_bombus_syndrome_effects.csv"))
+scores <- rbindlist(score_rows, fill = TRUE)
+scores[, delta_log_cpo_from_best := log_cpo_sum - max(log_cpo_sum, na.rm = TRUE),
+       by = .(analysis_layer, outcome, support)]
+setorder(scores, analysis_layer, outcome, support, -log_cpo_sum)
+fwrite(scores, file.path(outdir, "model_comparisons_all_layers.csv"))
 
-falsification_outcomes <- c(
-  list(self_compatibility = c("sc_successes", "sc_trials")),
-  trait_outcomes
+fixed <- rbindlist(fixed_rows, fill = TRUE)
+fixed[, excludes_zero := (`0.025quant` > 0 & `0.975quant` > 0) |
+  (`0.025quant` < 0 & `0.975quant` < 0)]
+fwrite(fixed, file.path(outdir, "fixed_effects_all_layers.csv"))
+fwrite(rbindlist(support_rows, fill = TRUE), file.path(outdir, "equation_support_all_layers.csv"))
+fwrite(rbindlist(mediation_rows, fill = TRUE),
+       file.path(outdir, "direct_indirect_total_effects_all_categories.csv"))
+
+bombus_audit_cols <- c(
+  "island_id", "analysis_regime", "n_bombus_species_total", "n_bombus_species_scored",
+  "n_bombus_species_unscored", "n_environmentally_compatible_species",
+  "bombus_environmental_compatibility", "environmental_compatibility_max",
+  "environmental_compatibility_mean", "environmental_extrapolation_share", "bombus_deficit"
 )
+fwrite(d[, ..bombus_audit_cols], file.path(outdir, "bombus_channel_component_audit.csv"))
+
+guild_outcomes <- list(
+  showy_alternative_guild = c("showy_alternative_guild_successes", "showy_alternative_guild_trials"),
+  other_bee_guild = c("other_bee_guild_successes", "other_bee_guild_trials"),
+  generalist_insect_guild = c("generalist_insect_guild_successes", "generalist_insect_guild_trials")
+)
+global_outcomes <- c(full_flora_outcomes, trait_outcomes, guild_outcomes)
 regime_rows <- list()
-regime_fits <- list()
 regime_support_rows <- list()
-for (outcome_name in names(falsification_outcomes)) {
-  success_col <- falsification_outcomes[[outcome_name]][[1]]
-  trials_col <- falsification_outcomes[[outcome_name]][[2]]
-  dd <- copy(base_complete[get(trials_col) > 0])
+regime_fits <- list()
+for (outcome_name in names(global_outcomes)) {
+  success_col <- global_outcomes[[outcome_name]][1]
+  trials_col <- global_outcomes[[outcome_name]][2]
+  dd <- copy(complete_geo[get(trials_col) > 0])
   support <- dd[, .N, by = analysis_regime]
   support[, outcome := outcome_name]
   setcolorder(support, c("outcome", "analysis_regime", "N"))
@@ -291,47 +382,47 @@ for (outcome_name in names(falsification_outcomes)) {
     "f(spatial_id, model='iid') + f(obs_id, model='iid')"
   )
   fit <- inla(
-    as.formula(paste(success_col, "~", rhs)),
-    family = "binomial", data = dd, Ntrials = dd[[trials_col]],
-    control.compute = compute,
-    control.predictor = list(compute = TRUE),
-    verbose = FALSE
+    as.formula(paste(success_col, "~", rhs)), family = "binomial", data = dd,
+    Ntrials = dd[[trials_col]], control.compute = compute,
+    control.predictor = list(compute = TRUE), verbose = FALSE
   )
   regime_fits[[outcome_name]] <- fit
   f <- as.data.table(fit$summary.fixed, keep.rownames = "parameter")
   f[, outcome := outcome_name]
   regime_rows[[outcome_name]] <- f
 }
-
 regime_effects <- rbindlist(regime_rows, fill = TRUE)
 regime_effects[, excludes_zero := (`0.025quant` > 0 & `0.975quant` > 0) |
   (`0.025quant` < 0 & `0.975quant` < 0)]
-fwrite(regime_effects, file.path(outdir, "cross_regime_isolation_effects.csv"))
+fwrite(regime_effects, file.path(outdir, "cross_regime_effects_all_outcomes.csv"))
 fwrite(
   regime_effects[grepl("z_log_distance_to_continent_km", parameter),
-    .(outcome, parameter, mean, `0.025quant`, `0.975quant`, excludes_zero)],
-  file.path(outdir, "cross_regime_isolation_summary.csv")
+                 .(outcome, parameter, mean, `0.025quant`, `0.975quant`, excludes_zero)],
+  file.path(outdir, "cross_regime_isolation_summary_all_outcomes.csv")
 )
-fwrite(rbindlist(regime_support_rows), file.path(outdir, "cross_regime_support.csv"))
+fwrite(rbindlist(regime_support_rows, fill = TRUE),
+       file.path(outdir, "cross_regime_support_all_outcomes.csv"))
 
 meta <- list(
-  contract = "v2_all_retained_categories_northern_paths_global_falsification_v4",
+  contract = "v2_all_data_layered_inla_v4",
   analysis_tier = unique(d$analysis_tier),
-  primary_engine = "INLA",
-  primary_domain = "northern_midlatitude",
-  retained_colour_categories = names(colour_outcomes),
-  retained_floral_form_categories = names(form_outcomes),
-  n_retained_colour_categories = length(colour_outcomes),
-  n_retained_floral_form_categories = length(form_outcomes),
-  support_strategy = paste(
-    "maximum equation support for SC and N0/N1 category models;",
-    "matched SC-path support for N0-N3 and mediation"
+  engine = "INLA",
+  regime_levels = regime_levels,
+  layers = list(
+    full_flora = names(full_flora_outcomes),
+    bombus_channel = c("isolation_to_bombus_deficit", bombus_audit_cols[-1]),
+    animal_pollinated_flower = names(trait_outcomes),
+    global_descriptive_falsification = c(names(global_outcomes))
   ),
-  category_totals_verified = TRUE,
-  zero_distance_rule = "excluded before this script by workflow",
-  mediation_uncertainty = "product-of-INLA-posterior-marginals approximation",
-  falsification = "isolation-by-regime slopes for SC and every retained colour/form category",
-  alternative_pollinator_covariates = "excluded from primary models"
+  flower_path_models = c(
+    "unadjusted Bombus -> SC -> category",
+    "wind/mixed-adjusted Bombus -> SC -> category"
+  ),
+  alternative_guild_role = "descriptive global outcomes only; not primary causal predictors",
+  bombus_component_role = "fully exported and audited; collinear construction components are not simultaneously entered as causal covariates",
+  support_rule = "maximum support per equation; model comparisons only within matched support",
+  distance_rule = "distance_to_continent_km > 0 enforced by workflow",
+  n_model_islands = nrow(d)
 )
 write_json(meta, file.path(outdir, "analysis_metadata.json"), pretty = TRUE, auto_unbox = TRUE)
 capture.output(
