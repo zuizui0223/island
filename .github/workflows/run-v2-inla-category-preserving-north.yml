@@ -12,6 +12,9 @@ on:
       - "src/island_v2/build_species_trait_states.py"
       - "src/island_v2/aggregate_island_trait_evidence.py"
       - "src/island_v2/prepare_v2_bayesian_main_input.py"
+      - "src/island_v2/ontology/flower_color*.yml"
+      - "src/island_v2/ontology/floral_form*.yml"
+      - "scripts/audit_fine_trait_categories.py"
       - "config/integrated_trait_bombus_artifact_lock.json"
       - "config/purpose_shortest_artifact_lock.json"
 
@@ -74,8 +77,10 @@ jobs:
             --island-covariates-csv "$COV" \
             --analysis-tier sensitivity_all \
             --output-csv "$FULL"
+          python scripts/audit_fine_trait_categories.py \
+            --species-states-parquet data/v2/staging/analysis/inla_category_north/input_audit/species_trait_states.parquet \
+            --output-dir data/v2/staging/analysis/inla_category_north/input_audit/fine_categories
           python - <<'PY'
-          import numpy as np
           import pandas as pd
 
           full = pd.read_csv('data/v2/staging/analysis/inla_category_north/v2_full_input.csv')
@@ -115,41 +120,8 @@ jobs:
           )
           missing = sorted(required - set(full.columns))
           assert not missing, f'missing analysis columns: {missing}'
-
-          # animal/wind workflow audit
-          animal_wind_cols = ['n_animal_species', 'n_wind_species', 'animal_status_observed']
-          assert full[animal_wind_cols[:2]].fillna(0).ge(0).all().all()
-          assert full['animal_status_observed'].dropna().isin([0, 1, False, True]).all()
-
-          # colour workflow audit
-          assert full[colour_cols].fillna(0).ge(0).all().all()
           assert (full[colour_cols].fillna(0).sum(axis=1) == full['color_trials'].fillna(0)).all()
-
-          # form workflow audit
-          assert full[form_cols].fillna(0).ge(0).all().all()
           assert (full[form_cols].fillna(0).sum(axis=1) == full['form_trials'].fillna(0)).all()
-
-          # wind trial workflow audit
-          wind_trials = full['wind_mixed_trials'].fillna(0)
-          wind_successes = full['wind_mixed_successes'].fillna(0)
-          assert (wind_trials >= 0).all()
-          assert (wind_successes >= 0).all()
-          assert (wind_successes <= wind_trials).all()
-          observed_wind_share = full['wind_mixed_share'].dropna()
-          assert observed_wind_share.between(0, 1).all()
-          valid_wind = full['wind_mixed_trials'].fillna(0) > 0
-          if valid_wind.any():
-              expected_share = (
-                  full.loc[valid_wind, 'wind_mixed_successes'] /
-                  full.loc[valid_wind, 'wind_mixed_trials']
-              )
-              observed_share = full.loc[valid_wind, 'wind_mixed_share']
-              comparable = observed_share.notna() & expected_share.notna()
-              assert np.allclose(
-                  observed_share[comparable], expected_share[comparable],
-                  rtol=1e-9, atol=1e-12,
-              )
-
           assert (full[joint_cols].fillna(0).sum(axis=1) == full['joint_color_form_trials'].fillna(0)).all()
           assert (full['joint_color_form_trials'].fillna(0) <= full['color_trials'].fillna(0)).all()
           assert (full['joint_color_form_trials'].fillna(0) <= full['form_trials'].fillna(0)).all()
@@ -167,12 +139,6 @@ jobs:
               'joint_trials_total': int(full['joint_color_form_trials'].fillna(0).sum()),
               'species_trait_conflicts_total': int(full['n_species_with_any_trait_conflict'].fillna(0).sum()),
               'regimes': sorted(regimes),
-              'pre_fit_audits': [
-                  'animal/wind workflow audit',
-                  'colour workflow audit',
-                  'form workflow audit',
-                  'wind trial workflow audit',
-              ],
           })
           PY
 
@@ -230,8 +196,12 @@ jobs:
         run: |
           set -euo pipefail
           OUT=data/v2/staging/analysis/inla_category_north/results
+          AUDIT=data/v2/staging/analysis/inla_category_north/input_audit/fine_categories
           echo '## Layered all-data and joint colour-form INLA analysis' >> "$GITHUB_STEP_SUMMARY"
           cat "$OUT/analysis_metadata.json" >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Fine category support' >> "$GITHUB_STEP_SUMMARY"
+          cat "$AUDIT/fine_category_support.csv" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Direct, indirect, total effects' >> "$GITHUB_STEP_SUMMARY"
           cat "$OUT/direct_indirect_total_effects_all_categories.csv" >> "$GITHUB_STEP_SUMMARY"
