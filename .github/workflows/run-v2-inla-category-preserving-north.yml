@@ -110,7 +110,7 @@ jobs:
           parse(file = "analysis/v2/run_inla_category_preserving_north.R")
           RS
 
-      - name: Run category-preserving northern-midlatitude M0-M3
+      - name: Run integrated category, replacement, and projection analysis
         run: |
           set -o pipefail
           OUT=data/v2/staging/analysis/inla_category_north/results
@@ -119,24 +119,28 @@ jobs:
             data/v2/staging/analysis/inla_category_north/v2_model_input.csv \
             "$OUT" 2>&1 | tee "$OUT/run.log"
 
-      - name: Summarize category-preserving results
+      - name: Summarize integrated results
         if: success()
         run: |
+          set -euo pipefail
           OUT=data/v2/staging/analysis/inla_category_north/results
-          echo '## Category-preserving northern-midlatitude INLA' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Category-preserving replacement + cross-regime projection INLA' >> "$GITHUB_STEP_SUMMARY"
           cat "$OUT/analysis_metadata.json" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Best model by category' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Best northern model by category' >> "$GITHUB_STEP_SUMMARY"
           cat "$OUT/category_best_models.csv" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### M3 channel effects' >> "$GITHUB_STEP_SUMMARY"
-          cat "$OUT/m3_category_channel_effects.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '### M8 replacement-channel effects' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/replacement_category_channel_effects.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Cross-regime projection summary' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/cross_regime_projection_summary.csv" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload category-preserving analysis artifact
+      - name: Upload integrated analysis artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: v2-inla-category-north-${{ github.run_id }}
+          name: v2-inla-category-replacement-projection-${{ github.run_id }}
           path: data/v2/staging/analysis/inla_category_north/
           if-no-files-found: error
           retention-days: 90
