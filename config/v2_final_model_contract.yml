@@ -13,7 +13,8 @@ estimand:
     occupancy or abundance.
 
 primary_global_population:
-  include_pollination_modes: [animal, wind, mixed]
+  include_pollination_modes: [animal, wind, mixed, unresolved]
+  rule: include every observed species with the focal floral trait resolved, regardless of pollen-vector-mode resolution
   exclude_zero_distance_from_fitted_models: true
   regimes:
     - northern_midlatitude
