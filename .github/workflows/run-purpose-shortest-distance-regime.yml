@@ -1,5 +1,6 @@
 name: run_purpose_shortest_distance_regime
 
+# Purpose-first exploratory run: distance continuity + regional pollination regimes.
 on:
   workflow_dispatch:
   pull_request:
