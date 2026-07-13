@@ -1,11 +1,14 @@
 """Run the shortest purpose-aligned global analysis on the locked all-data tier.
 
-This is intentionally simple. It restores the v1 continuity variable (distance to
-mainland), keeps the Northern mid-latitude Bombus test separate from tropical and
-Southern extratropical regime comparisons, and avoids mediation/sensitivity layers.
+This is intentionally simple. It restores mainland/continent distance as the v1
+continuity variable, keeps the Northern mid-latitude Bombus test separate from
+tropical and Southern extratropical regime comparisons, and avoids mediation or
+sensitivity layers.
 
 Interpretation guardrails:
-- the mainland-distance metric replicates the v1 Natural Earth 110m land-distance idea;
+- the legacy v1 all-land distance is retained for audit only;
+- the fitted models use distance to seeded major continental landmasses, not distance
+  to every Natural Earth land polygon;
 - Bombus is environmental compatibility, not observed biological absence;
 - tropical/Southern models use plant pollination-guild composition as exploratory
   functional-replacement correlates, not direct evidence of local pollinator abundance.
@@ -21,6 +24,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import typer
+from shapely.geometry import Point
 
 from island_v2.m0_m4_full_analysis import fit_grouped_binomial_clustered
 
@@ -28,6 +32,18 @@ app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 TROPIC = 23.4366
 ARCTIC = 66.5634
+
+# Seed points identify the six major continental landmasses in Natural Earth 110m.
+# This avoids the v1 implementation problem where distance to *all* land polygons can
+# become zero when the focal island itself is represented as a Natural Earth polygon.
+CONTINENT_SEEDS = {
+    "africa": (20.0, 0.0),
+    "eurasia": (80.0, 50.0),
+    "north_america": (-100.0, 40.0),
+    "south_america": (-60.0, -15.0),
+    "australia": (135.0, -25.0),
+    "antarctica": (0.0, -80.0),
+}
 
 PLAIN_COLORS = {"white", "green_brown_inconspicuous"}
 CONSPICUOUS_COLORS = {"yellow_orange", "red_pink", "blue_purple"}
@@ -89,11 +105,11 @@ def _contrast_counts(
     return out
 
 
-def compute_v1_compatible_mainland_distance(
+def compute_distance_metrics(
     islands_gpkg: Path,
     natural_earth_land_zip: Path,
 ) -> pd.DataFrame:
-    """Replicate the v1 boundary-to-Natural-Earth-110m-land distance concept."""
+    """Return true continent distance plus the legacy v1 all-land comparator."""
     islands = gpd.read_file(islands_gpkg)
     if "island_id" not in islands.columns:
         raise typer.BadParameter("islands GPKG must contain island_id")
@@ -102,14 +118,39 @@ def compute_v1_compatible_mainland_distance(
         raise typer.BadParameter("island and Natural Earth layers must have CRS metadata")
 
     islands_m = islands[["island_id", "geometry"]].to_crs(3857)
-    land_m = land.to_crs(3857)
-    land_union = land_m.geometry.union_all()
-    distance_km = islands_m.geometry.distance(land_union).to_numpy(dtype=float) / 1000.0
+    land_wgs = land.to_crs(4326)
+    land_m = land_wgs.to_crs(3857)
+
+    # Legacy comparator: minimum distance to every Natural Earth land polygon.
+    legacy_land_union = land_m.geometry.union_all()
+    legacy_distance_km = (
+        islands_m.geometry.distance(legacy_land_union).to_numpy(dtype=float) / 1000.0
+    )
+
+    # Select only the major continental land polygons using fixed geographic seeds.
+    selected_indices: set[object] = set()
+    for name, (longitude, latitude) in CONTINENT_SEEDS.items():
+        point = Point(longitude, latitude)
+        covered = land_wgs.geometry.covers(point)
+        if not bool(covered.any()):
+            raise typer.BadParameter(
+                f"Natural Earth land layer did not contain the {name} continent seed"
+            )
+        selected_indices.add(land_wgs.index[covered][0])
+
+    continent_m = land_wgs.loc[sorted(selected_indices)].to_crs(3857)
+    continent_union = continent_m.geometry.union_all()
+    continent_distance_km = (
+        islands_m.geometry.distance(continent_union).to_numpy(dtype=float) / 1000.0
+    )
+
     return pd.DataFrame(
         {
             "island_id": islands_m["island_id"].astype(str).to_numpy(),
-            "distance_to_mainland_km": distance_km,
-            "log_distance_to_mainland_km": np.log1p(distance_km),
+            "distance_to_continent_km": continent_distance_km,
+            "log_distance_to_continent_km": np.log1p(continent_distance_km),
+            "legacy_v1_all_land_distance_km": legacy_distance_km,
+            "legacy_v1_log_all_land_distance_km": np.log1p(legacy_distance_km),
         }
     )
 
@@ -223,7 +264,7 @@ def run_analysis(
         data = data.merge(table, on="island_id", how="left", validate="one_to_one")
 
     baseline = [
-        "log_distance_to_mainland_km",
+        "log_distance_to_continent_km",
         "log_island_area_km2",
         "climate_pc1",
         "climate_pc2",
@@ -281,7 +322,8 @@ def run_analysis(
         data.groupby("analysis_regime", dropna=False)
         .agg(
             n_islands=("island_id", "nunique"),
-            mean_distance_to_mainland_km=("distance_to_mainland_km", "mean"),
+            mean_distance_to_continent_km=("distance_to_continent_km", "mean"),
+            mean_legacy_v1_all_land_distance_km=("legacy_v1_all_land_distance_km", "mean"),
             mean_bombus_compatibility=("bombus_channel_state", "mean"),
             mean_plain_color_share=("plain_color_share", "mean"),
             mean_conspicuous_color_share=("conspicuous_color_share", "mean"),
@@ -308,22 +350,33 @@ def run(
     composition = pd.read_csv(trait_composition_csv)
     island_metrics = pd.read_csv(island_metrics_csv)
     covariates = pd.read_csv(covariates_csv)
-    distance = compute_v1_compatible_mainland_distance(islands_gpkg, natural_earth_land_zip)
+    distance = compute_distance_metrics(islands_gpkg, natural_earth_land_zip)
     data, coefficients, fits, region_summary = run_analysis(
         composition, island_metrics, covariates, distance
     )
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    distance.to_csv(output_dir / "v1_compatible_mainland_distance.csv", index=False)
+    distance.to_csv(output_dir / "continent_and_legacy_distance.csv", index=False)
     data.to_csv(output_dir / "purpose_shortest_island_data.csv", index=False)
     coefficients.to_csv(output_dir / "purpose_shortest_coefficients.csv", index=False)
     fits.to_csv(output_dir / "purpose_shortest_model_fit.csv", index=False)
     region_summary.to_csv(output_dir / "purpose_shortest_region_summary.csv", index=False)
 
     summary = {
-        "contract": "purpose_shortest_distance_regime_analysis_v2",
+        "contract": "purpose_shortest_distance_regime_analysis_v3",
         "analysis_tier": "sensitivity_all_all_available_filled_data",
         "n_islands": int(data["island_id"].nunique()),
+        "distance_definition": {
+            "model_predictor": "distance_to_continent_km",
+            "continents": sorted(CONTINENT_SEEDS),
+            "legacy_all_land_distance_retained_for_audit": True,
+            "legacy_zero_distance_share": float(
+                (distance["legacy_v1_all_land_distance_km"] == 0).mean()
+            ),
+            "continent_zero_distance_share": float(
+                (distance["distance_to_continent_km"] == 0).mean()
+            ),
+        },
         "regime_counts": {
             str(key): int(value)
             for key, value in data["analysis_regime"].value_counts(dropna=False).items()
@@ -335,7 +388,7 @@ def run(
             "southern_extratropical: same replacement model",
         ],
         "guardrails": [
-            "distance metric is the v1-compatible Natural Earth 110m boundary-distance continuity metric",
+            "fitted distance is to seeded major continental landmasses; the v1 all-land metric is audit-only",
             "northern_midlatitude is a geographic proxy, not a frozen global Bombus applicability registry",
             "Bombus predictor is environmental compatibility, not observed biological absence",
             "alternative guild shares are plant pollination-guild composition, not direct island pollinator abundance",
