@@ -104,12 +104,8 @@ north_base <- complete.cases(north[, .(
   z_climate_pc3, z_climate_pc4, z_bombus_deficit
 )])
 sc_north <- north[north_base & sc_trials > 0]
-color_north <- north[
-  north_base & color_trials > 0 & is.finite(z_sc_share)
-]
-form_north <- north[
-  north_base & form_trials > 0 & is.finite(z_sc_share)
-]
+color_north <- north[north_base & color_trials > 0 & is.finite(z_sc_share)]
+form_north <- north[north_base & form_trials > 0 & is.finite(z_sc_share)]
 
 n_sc <- fit_bb(
   sc_successes | trials(sc_trials) ~
@@ -142,10 +138,7 @@ fits <- list(
   N_generalized = n_form
 )
 posterior_rows <- rbindlist(lapply(names(fits), function(nm) {
-  x <- as.data.table(
-    posterior_summary(fits[[nm]], pars = "^b_"),
-    keep.rownames = "parameter"
-  )
+  x <- as.data.table(posterior_summary(fits[[nm]], pars = "^b_"), keep.rownames = "parameter")
   x[, model := nm]
   setcolorder(x, c("model", "parameter"))
   x
@@ -201,6 +194,23 @@ paths <- rbindlist(list(
   summarize_draw("Bombus_deficit_to_generalized_total", b_bombus_form + b_bombus_sc * b_sc_form)
 ))
 fwrite(paths, file.path(outdir, "northern_direct_indirect_total_effects.csv"))
+
+sampler_diagnostics <- rbindlist(lapply(names(fits), function(nm) {
+  np <- nuts_params(fits[[nm]])
+  summ <- summary(fits[[nm]])$fixed
+  data.table(
+    model = nm,
+    divergent_transitions = sum(np$Parameter == "divergent__" & np$Value == 1),
+    max_treedepth_hits = sum(np$Parameter == "treedepth__" & np$Value >= 15),
+    max_rhat = max(summ[, "Rhat"], na.rm = TRUE),
+    min_bulk_ess = min(summ[, "Bulk_ESS"], na.rm = TRUE),
+    min_tail_ess = min(summ[, "Tail_ESS"], na.rm = TRUE)
+  )
+}), fill = TRUE)
+fwrite(sampler_diagnostics, file.path(outdir, "sampler_diagnostics.csv"))
+if (any(sampler_diagnostics$divergent_transitions > 0)) warning("Divergent transitions detected; inspect sampler_diagnostics.csv")
+if (any(sampler_diagnostics$max_rhat > 1.01, na.rm = TRUE)) warning("R-hat > 1.01 detected; inspect sampler_diagnostics.csv")
+
 capture.output(lapply(fits, summary), file = file.path(outdir, "model_summaries.txt"))
 
 meta <- list(
