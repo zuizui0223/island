@@ -1,0 +1,19 @@
+version: 1
+unknown_policy: preserve_null
+groups:
+  showy_alt:
+    positive:
+      - birds
+      - butterflies
+      - moths
+      - bats
+  other_bee:
+    positive:
+      - other_bees
+      - bees
+  generalist_insect:
+    positive:
+      - flies
+      - beetles_wasps_ants
+      - mixed
+      - mixed_or_generalist
