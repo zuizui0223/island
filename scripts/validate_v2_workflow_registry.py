@@ -41,12 +41,12 @@ def main() -> None:
         fail(f"current workflow does not pass {expected_arg!r}: {current_path}")
 
     if registry["guardrails"].get("exclude_zero_distance_from_fitted_models"):
-        positive_distance_markers = (
+        markers = (
             "distance_to_continent_km'].gt(0)",
             "distance_to_continent_km'] > 0",
             'distance_to_continent_km"] > 0',
         )
-        if not any(marker in current_text for marker in positive_distance_markers):
+        if not any(marker in current_text for marker in markers):
             fail("current workflow does not explicitly construct positive-distance model support")
 
     if registry["guardrails"].get("category_engine") != "INLA":
@@ -58,18 +58,18 @@ def main() -> None:
 
     brms_role = registry.get("engine_roles", {}).get("bayesian_brms", {})
     if registry["guardrails"].get("prohibit_brms_category_models"):
-        excluded = set(brms_role.get("excludes", []))
         required_exclusions = {
             "category_preserving_flower_colour",
             "category_preserving_floral_form",
             "multinomial_category_models",
         }
-        if not required_exclusions.issubset(excluded):
+        if not required_exclusions.issubset(set(brms_role.get("excludes", []))):
             fail("brms role must explicitly exclude category-preserving/multinomial models")
 
-    required_contract = registry["guardrails"]["require_analysis_contract"]
-    required_validator = registry["guardrails"]["require_input_validation"]
-    for relative in (required_contract, required_validator):
+    for relative in (
+        registry["guardrails"]["require_analysis_contract"],
+        registry["guardrails"]["require_input_validation"],
+    ):
         if not (ROOT / relative).is_file():
             fail(f"required contract file is missing: {relative}")
 
@@ -83,45 +83,53 @@ def main() -> None:
     if canonical_contract.get("planned_confirmatory_evidence_tier") != "primary":
         fail("planned confirmatory evidence tier must remain primary")
 
-    if registry["guardrails"].get("planned_confirmatory_evidence_tier") != "primary":
+    guardrails = registry["guardrails"]
+    if guardrails.get("planned_confirmatory_evidence_tier") != "primary":
         fail("registry planned confirmatory evidence tier must remain primary")
-    if registry["guardrails"].get("use_equation_specific_maximum_support") is not True:
+    if guardrails.get("use_equation_specific_maximum_support") is not True:
         fail("registry must require equation-specific maximum support")
-    if registry["guardrails"].get("prohibit_alternative_pollinator_primary_covariates") is not True:
+    if guardrails.get("prohibit_alternative_pollinator_primary_covariates") is not True:
         fail("registry must prohibit alternative-pollinator primary covariates")
 
     contract_models = set(contract.get("models", {}))
-    registry_models = set(current.get("models", []))
-    if not registry_models.issubset(contract_models):
+    if not set(current.get("models", [])).issubset(contract_models):
         fail("registry canonical models are not all defined in the analysis contract")
     if "global_falsification" not in contract_models:
         fail("analysis contract must define the global falsification model")
 
     principles = contract.get("principles", {})
-    if principles.get("alternative_pollinator_covariates_in_primary_models") is not False:
-        fail("alternative pollinator covariates must remain outside primary models")
-    if principles.get("exclude_zero_distance_from_fitted_models") is not True:
-        fail("analysis contract must exclude zero-distance islands from fitted models")
-    if principles.get("use_equation_specific_maximum_support") is not True:
-        fail("analysis contract must require equation-specific maximum support")
-    if principles.get("compare_models_only_on_matched_support") is not True:
-        fail("analysis contract must require matched support for model comparisons")
+    required_true = {
+        "exclude_zero_distance_from_fitted_models",
+        "use_equation_specific_maximum_support",
+        "compare_models_only_on_matched_support",
+        "verify_category_counts_against_trials",
+    }
+    for name in required_true:
+        if principles.get(name) is not True:
+            fail(f"analysis contract must require {name}")
     if principles.get("category_omission_allowed") is not False:
         fail("analysis contract must prohibit category omission")
+    if principles.get("alternative_pollinator_covariates_in_primary_models") is not False:
+        fail("alternative pollinator covariates must remain outside primary models")
 
-    global_predictors = set(contract["models"]["global_falsification"].get("predictors", []))
     forbidden = {
         "alternative_pollinator_guild",
         "showy_alt_guild",
         "other_bee_guild",
         "generalist_insect_guild",
     }
+    global_predictors = set(contract["models"]["global_falsification"].get("predictors", []))
     if global_predictors & forbidden:
         fail("global falsification model must not include alternative-pollinator guild covariates")
 
     retained = contract.get("retained_categories", {})
     expected_colours = {"plain", "yellow_orange", "red_pink", "blue_purple"}
-    expected_forms = {"open_generalized", "tubular_trumpet"}
+    expected_forms = {
+        "open_generalized",
+        "tubular_trumpet",
+        "zygomorphic_specialized",
+        "composite_brush",
+    }
     contract_colours = set(retained.get("flower_color", []))
     contract_forms = set(retained.get("floral_form", []))
     if contract_colours != expected_colours:
@@ -136,6 +144,8 @@ def main() -> None:
         "blue_purple": 'blue_purple = c("color_blue_purple", "color_trials")',
         "open_generalized": 'open_generalized = c("form_open_generalized", "form_trials")',
         "tubular_trumpet": 'tubular_trumpet = c("form_tubular_trumpet", "form_trials")',
+        "zygomorphic_specialized": 'zygomorphic_specialized = c("form_zygomorphic_specialized", "form_trials")',
+        "composite_brush": 'composite_brush = c("form_composite_brush", "form_trials")',
     }
     missing_script_categories = [
         category for category, token in required_script_tokens.items() if token not in inla_text
@@ -146,8 +156,17 @@ def main() -> None:
             + ", ".join(sorted(missing_script_categories))
         )
 
-    n3_categories = set(contract["models"]["N3_direct_indirect"].get("applies_to", []))
+    if "retained colour categories do not sum to color_trials" not in inla_text:
+        fail("canonical INLA script does not verify colour category totals")
+    if "retained floral-form categories do not sum to form_trials" not in inla_text:
+        fail("canonical INLA script does not verify floral-form category totals")
+    if "colour categories do not exhaust color_trials" not in current_text:
+        fail("workflow does not verify colour category totals before fitting")
+    if "form categories do not exhaust form_trials" not in current_text:
+        fail("workflow does not verify floral-form category totals before fitting")
+
     expected_all = expected_colours | expected_forms
+    n3_categories = set(contract["models"]["N3_direct_indirect"].get("applies_to", []))
     if n3_categories != expected_all:
         fail("N3 direct/indirect paths must apply to every retained colour/form category")
 
@@ -175,15 +194,9 @@ def main() -> None:
             "current_workflow": current_path,
             "current_engine": current.get("engine"),
             "current_evidence_tier": tier,
-            "planned_confirmatory_evidence_tier": canonical_contract.get(
-                "planned_confirmatory_evidence_tier"
-            ),
             "retained_colour_categories": sorted(contract_colours),
             "retained_form_categories": sorted(contract_forms),
-            "category_engine": registry["guardrails"].get("category_engine"),
-            "brms_category_models_allowed": not registry["guardrails"].get(
-                "prohibit_brms_category_models", False
-            ),
+            "category_totals_verified": True,
             "registered_workflows": len(registered),
             "status": "ok",
         }
