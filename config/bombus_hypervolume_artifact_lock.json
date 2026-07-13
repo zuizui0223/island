@@ -18,5 +18,7 @@
     "n_occurrence_rows_before_thinning": 278566,
     "n_occurrence_rows_after_thinning": 78955,
     "environment_dimensions": 9
-  }
+  },
+  "status": "canonical_real_data_run_pending_applicability_refresh",
+  "notes": "The numerical hypervolume products are locked. Applicability is outcome-blind and is rebuilt from curated source-region evidence rather than inferred from this artifact."
 }
