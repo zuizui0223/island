@@ -1,0 +1,56 @@
+version: 1
+unknown_policy: preserve_null
+parent_categories:
+  white: plain
+  cream: plain
+  pale_unspecified: plain
+  green: plain
+  brown: plain
+  inconspicuous: plain
+  blue: blue_purple
+  purple_violet: blue_purple
+  lilac_lavender: blue_purple
+  red: red_pink
+  pink: red_pink
+  magenta: red_pink
+  scarlet_crimson: red_pink
+  yellow: yellow_orange
+  orange: yellow_orange
+  gold: yellow_orange
+categories:
+  white:
+    - white
+  cream:
+    - cream
+  pale_unspecified:
+    - pale
+  green:
+    - green
+  brown:
+    - brown
+  inconspicuous:
+    - inconspicuous
+    - dull
+  blue:
+    - blue
+  purple_violet:
+    - purple
+    - violet
+  lilac_lavender:
+    - lilac
+    - lavender
+  red:
+    - red
+  pink:
+    - pink
+  magenta:
+    - magenta
+  scarlet_crimson:
+    - scarlet
+    - crimson
+  yellow:
+    - yellow
+  orange:
+    - orange
+  gold:
+    - gold
