@@ -1,0 +1,31 @@
+{
+  "contract": "m0_m4_full_analysis_artifact_lock_v1",
+  "repository": "zuizui0223/island",
+  "workflow_run_id": 29222265637,
+  "workflow_job_id": 86729631789,
+  "artifact_id": 8268578487,
+  "artifact_name": "m0-m4-full-analysis-29222265637",
+  "artifact_digest": "sha256:76c5f898254fc4b4581e966704d6921384090f9cd10bba9288bcc2e9760de50c",
+  "head_branch": "feat/recover-global-trait-artifacts",
+  "head_sha": "874b78bf009287b9697d88bcd32e127be5bc66f1",
+  "created_at": "2026-07-13T03:43:23Z",
+  "expires_at": "2026-10-11T03:42:33Z",
+  "verified_summary": {
+    "n_islands_covariates": 8265,
+    "n_spatial_blocks": 291,
+    "n_climate_pca_complete": 8219,
+    "climate_pc_cumulative_variance": 0.9000778449,
+    "analysis_tiers": ["primary", "broad", "sensitivity_all"],
+    "model_ladder": ["M0", "M1", "M2", "M3", "M4"],
+    "n_robustness_paths": 85,
+    "n_direction_consistent_paths": 40,
+    "n_all_tiers_nominally_supported": 16
+  },
+  "key_results": {
+    "m3_direct_bombus_path_direction_consistent": true,
+    "m3_direct_bombus_path_all_tiers_nominally_supported": true,
+    "mediation_paths_robust_across_tiers": false,
+    "m4_interaction_robust_across_tiers": false
+  },
+  "interpretation": "Bombus predictor is environmental compatibility, not observed biological absence. This artifact is the locked baseline for residualization, collinearity, and spatial block-bootstrap sensitivity analyses."
+}
