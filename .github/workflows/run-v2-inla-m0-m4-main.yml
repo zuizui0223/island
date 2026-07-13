@@ -86,11 +86,23 @@ jobs:
           r-version: "release"
           use-public-rspm: true
 
+      - name: Install geospatial system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libudunits2-dev \
+            libgdal-dev \
+            libgeos-dev \
+            libproj-dev \
+            libsqlite3-dev
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           packages: |
             any::data.table
             any::jsonlite
+            any::units
+            any::sf
           cache: true
 
       - name: Install R-INLA
