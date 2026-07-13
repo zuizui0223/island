@@ -55,7 +55,12 @@ def _proxy_counts(
         .sum()
         .rename(f"{prefix}_successes")
     )
-    result = total.to_frame().join(success, how="left").fillna({f"{prefix}_successes": 0.0}).reset_index()
+    result = (
+        total.to_frame()
+        .join(success, how="left")
+        .fillna({f"{prefix}_successes": 0.0})
+        .reset_index()
+    )
     trials = pd.to_numeric(result[f"{prefix}_trials"], errors="coerce")
     successes = pd.to_numeric(result[f"{prefix}_successes"], errors="coerce")
     result[f"{prefix}_share"] = successes / trials.replace(0, np.nan)
@@ -81,7 +86,7 @@ def build_full_analysis_data(
     proxy_tables = []
     for prefix, key in (
         ("floral_phenotype", "floral_phenotype"),
-        ("autonomous_selfing", "autonomous_selfing"),
+        ("mixed_mating", "mixed_mating"),
         ("self_compatibility", "self_compatibility"),
         ("alternative_pollen_vector", "alternative_pollen_vector"),
     ):
@@ -96,7 +101,10 @@ def build_full_analysis_data(
         )
 
     result = island_metrics.drop_duplicates("island_id").merge(
-        covariates.drop_duplicates("island_id"), on="island_id", how="left", validate="one_to_one"
+        covariates.drop_duplicates("island_id"),
+        on="island_id",
+        how="left",
+        validate="one_to_one",
     )
     for proxy_table in proxy_tables:
         result = result.merge(proxy_table, on="island_id", how="left", validate="one_to_one")
@@ -123,6 +131,8 @@ def build_full_analysis_data(
         "missing_baseline_covariates": missing_baseline,
         "baseline_complete": not missing_baseline,
         "bombus_predictor": predictor,
+        "mediators": ["mixed_mating", "self_compatibility"],
+        "non_informative_traits": config.get("non_informative_traits", {}),
     }
     return result, metadata
 
@@ -182,7 +192,15 @@ def fit_grouped_binomial_clustered(
     successes = work[successes_column].to_numpy(dtype=float)
     trials = work[trials_column].to_numpy(dtype=float)
     y = successes / trials
-    X, names, scaling = _prepare_predictors(work, predictors)
+    try:
+        X, names, scaling = _prepare_predictors(work, predictors)
+    except ValueError as exc:
+        return pd.DataFrame(), {
+            "status": "constant_or_invalid_predictor",
+            "n_islands": n_islands,
+            "n_clusters": int(work[cluster_column].nunique()),
+            "error": str(exc),
+        }
     beta = np.zeros(X.shape[1], dtype=float)
     converged = False
 
@@ -216,14 +234,21 @@ def fit_grouped_binomial_clustered(
     n_clusters = int(len(unique_clusters))
     p = int(X.shape[1])
     if n_clusters > 1 and n_islands > p:
-        correction = (n_clusters / (n_clusters - 1.0)) * ((n_islands - 1.0) / (n_islands - p))
+        correction = (n_clusters / (n_clusters - 1.0)) * (
+            (n_islands - 1.0) / (n_islands - p)
+        )
         covariance *= correction
     standard_errors = np.sqrt(np.clip(np.diag(covariance), 0.0, None))
 
     log_likelihood = float(
-        np.sum(successes * np.log(probability) + (trials - successes) * np.log(1.0 - probability))
+        np.sum(
+            successes * np.log(probability)
+            + (trials - successes) * np.log(1.0 - probability)
+        )
     )
-    mean_probability = float(np.clip(successes.sum() / trials.sum(), 1e-10, 1.0 - 1e-10))
+    mean_probability = float(
+        np.clip(successes.sum() / trials.sum(), 1e-10, 1.0 - 1e-10)
+    )
     null_log_likelihood = float(
         np.sum(
             successes * np.log(mean_probability)
@@ -231,14 +256,23 @@ def fit_grouped_binomial_clustered(
         )
     )
     aic = float(-2.0 * log_likelihood + 2.0 * p)
-    pseudo_r2 = float(1.0 - log_likelihood / null_log_likelihood) if null_log_likelihood != 0 else np.nan
+    pseudo_r2 = (
+        float(1.0 - log_likelihood / null_log_likelihood)
+        if null_log_likelihood != 0
+        else np.nan
+    )
     pearson = float(
-        np.sum((successes - trials * probability) ** 2 / np.maximum(trials * probability * (1.0 - probability), 1e-12))
+        np.sum(
+            (successes - trials * probability) ** 2
+            / np.maximum(trials * probability * (1.0 - probability), 1e-12)
+        )
     )
     dispersion = float(pearson / max(n_islands - p, 1))
 
     rows: list[dict[str, Any]] = []
-    for index, (name, estimate, standard_error) in enumerate(zip(names, beta, standard_errors, strict=True)):
+    for index, (name, estimate, standard_error) in enumerate(
+        zip(names, beta, standard_errors, strict=True)
+    ):
         z_value = float(estimate / standard_error) if standard_error > 0 else np.nan
         rows.append(
             {
@@ -246,7 +280,9 @@ def fit_grouped_binomial_clustered(
                 "estimate_log_odds": float(estimate),
                 "cluster_robust_se": float(standard_error),
                 "z_value": z_value,
-                "nominally_supported": bool(abs(z_value) >= z_threshold) if math.isfinite(z_value) else False,
+                "nominally_supported": (
+                    bool(abs(z_value) >= z_threshold) if math.isfinite(z_value) else False
+                ),
                 "predictor_mean": 0.0 if index == 0 else scaling[name]["mean"],
                 "predictor_sd": 1.0 if index == 0 else scaling[name]["sd"],
                 "n_islands": n_islands,
@@ -269,7 +305,12 @@ def fit_grouped_binomial_clustered(
 def _equations(baseline: list[str]) -> dict[str, list[tuple[str, str, str, list[str]]]]:
     return {
         "M0": [
-            ("floral_phenotype", "floral_phenotype_successes", "floral_phenotype_trials", baseline),
+            (
+                "floral_phenotype",
+                "floral_phenotype_successes",
+                "floral_phenotype_trials",
+                baseline,
+            ),
         ],
         "M1": [
             (
@@ -281,9 +322,9 @@ def _equations(baseline: list[str]) -> dict[str, list[tuple[str, str, str, list[
         ],
         "M2": [
             (
-                "autonomous_selfing",
-                "autonomous_selfing_successes",
-                "autonomous_selfing_trials",
+                "mixed_mating",
+                "mixed_mating_successes",
+                "mixed_mating_trials",
                 [*baseline, "bombus_channel_state"],
             ),
             (
@@ -296,14 +337,14 @@ def _equations(baseline: list[str]) -> dict[str, list[tuple[str, str, str, list[
                 "floral_phenotype",
                 "floral_phenotype_successes",
                 "floral_phenotype_trials",
-                [*baseline, "autonomous_selfing_share", "self_compatibility_share"],
+                [*baseline, "mixed_mating_share", "self_compatibility_share"],
             ),
         ],
         "M3": [
             (
-                "autonomous_selfing",
-                "autonomous_selfing_successes",
-                "autonomous_selfing_trials",
+                "mixed_mating",
+                "mixed_mating_successes",
+                "mixed_mating_trials",
                 [*baseline, "bombus_channel_state"],
             ),
             (
@@ -319,7 +360,7 @@ def _equations(baseline: list[str]) -> dict[str, list[tuple[str, str, str, list[
                 [
                     *baseline,
                     "bombus_channel_state",
-                    "autonomous_selfing_share",
+                    "mixed_mating_share",
                     "self_compatibility_share",
                 ],
             ),
@@ -358,7 +399,9 @@ def fit_model_ladder(
     lookup: dict[tuple[str, str, str], tuple[float, float]] = {}
 
     for model, equations in _equations(baseline).items():
-        for equation_number, (outcome, successes, trials, predictors) in enumerate(equations, start=1):
+        for equation_number, (outcome, successes, trials, predictors) in enumerate(
+            equations, start=1
+        ):
             coefficients, fit = fit_grouped_binomial_clustered(
                 data,
                 successes,
@@ -391,7 +434,7 @@ def fit_model_ladder(
     for model in ("M2", "M3"):
         products: list[tuple[str, float, float]] = []
         for mediator, mediator_predictor in (
-            ("autonomous_selfing", "autonomous_selfing_share"),
+            ("mixed_mating", "mixed_mating_share"),
             ("self_compatibility", "self_compatibility_share"),
         ):
             a = lookup.get((model, mediator, "bombus_channel_state"))
@@ -401,7 +444,9 @@ def fit_model_ladder(
                 standard_error = np.nan
             else:
                 estimate = float(a[0] * b[0])
-                standard_error = float(math.sqrt((b[0] ** 2) * (a[1] ** 2) + (a[0] ** 2) * (b[1] ** 2)))
+                standard_error = float(
+                    math.sqrt((b[0] ** 2) * (a[1] ** 2) + (a[0] ** 2) * (b[1] ** 2))
+                )
             products.append((mediator, estimate, standard_error))
             indirect_rows.append(
                 {
@@ -423,7 +468,9 @@ def fit_model_ladder(
             }
         )
 
-    coefficients = pd.concat(coefficient_parts, ignore_index=True) if coefficient_parts else pd.DataFrame()
+    coefficients = (
+        pd.concat(coefficient_parts, ignore_index=True) if coefficient_parts else pd.DataFrame()
+    )
     fits = pd.DataFrame(fit_rows)
     indirect = pd.DataFrame(indirect_rows)
     model_summary = (
@@ -440,7 +487,10 @@ def fit_model_ladder(
     return coefficients, fits, indirect, model_summary
 
 
-def summarize_tier_robustness(coefficient_tables: dict[str, pd.DataFrame], z_threshold: float = 1.96) -> pd.DataFrame:
+def summarize_tier_robustness(
+    coefficient_tables: dict[str, pd.DataFrame],
+    z_threshold: float = 1.96,
+) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
     key_columns = ["model", "equation", "outcome", "predictor"]
     indexed = {
@@ -466,12 +516,22 @@ def summarize_tier_robustness(coefficient_tables: dict[str, pd.DataFrame], z_thr
                 "outcome": key[2],
                 "predictor": key[3],
                 "n_tiers_available": len(finite_estimates),
-                "direction_consistent_across_tiers": len(finite_estimates) >= 2 and len(nonzero_signs) <= 1,
-                "all_tiers_nominally_supported": len(z_values) >= 2 and all(abs(value) >= z_threshold for value in z_values.values()),
-                "max_absolute_coefficient_difference": (
-                    float(max(finite_estimates) - min(finite_estimates)) if finite_estimates else np.nan
+                "direction_consistent_across_tiers": (
+                    len(finite_estimates) >= 2 and len(nonzero_signs) <= 1
                 ),
-                **{f"{tier}_estimate": estimates.get(tier, np.nan) for tier in coefficient_tables},
+                "all_tiers_nominally_supported": (
+                    len(z_values) >= 2
+                    and all(abs(value) >= z_threshold for value in z_values.values())
+                ),
+                "max_absolute_coefficient_difference": (
+                    float(max(finite_estimates) - min(finite_estimates))
+                    if finite_estimates
+                    else np.nan
+                ),
+                **{
+                    f"{tier}_estimate": estimates.get(tier, np.nan)
+                    for tier in coefficient_tables
+                },
                 **{f"{tier}_z": z_values.get(tier, np.nan) for tier in coefficient_tables},
             }
         )
@@ -522,7 +582,7 @@ def run(
             if "M3" in summary_lookup and "M2" in summary_lookup
             else None
         ),
-        "m4_alternative_proxy": "pollen_vector_mode: wind or mixed",
+        "m4_alternative_proxy": "pollen_vector_mode: abiotic_wind",
         "m4_previous_complement_proxy_removed": True,
         "interpretation": (
             "Grouped-binomial island-level path models with geographic-cluster robust uncertainty. "
