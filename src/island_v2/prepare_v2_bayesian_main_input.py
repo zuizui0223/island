@@ -5,6 +5,11 @@ This compatibility entry point orchestrates four explicit layers:
 2. island-level long and wide evidence aggregation;
 3. Bombus-channel construction with components retained;
 4. final model table plus a machine-readable analysis contract.
+
+The frozen island universe is never reduced here. Islands with
+``distance_to_continent_km == 0`` remain in the analysis-ready table and are
+explicitly flagged. Canonical primary models exclude them at model-support
+selection time; sensitivity analyses may retain them.
 """
 
 from __future__ import annotations
@@ -55,6 +60,14 @@ def prepare_main_input(
                 c.*,
                 t.* EXCLUDE (island_id),
                 '{tier}' AS analysis_tier,
+                CASE
+                  WHEN c.distance_to_continent_km = 0 THEN TRUE
+                  ELSE FALSE
+                END AS distance_zero_flag,
+                CASE
+                  WHEN c.distance_to_continent_km > 0 THEN TRUE
+                  ELSE FALSE
+                END AS primary_distance_support,
                 CASE WHEN t.color_trials > 0
                   THEN 1.0*t.color_plain/t.color_trials END AS plain_share,
                 CASE WHEN t.form_trials > 0
@@ -66,6 +79,19 @@ def prepare_main_input(
             ) TO '{out}' (HEADER, DELIMITER ',')
             """
         )
+
+        zero_audit = str(audit_dir / "distance_zero_islands.csv").replace("'", "''")
+        con.execute(
+            f"""
+            COPY (
+              SELECT *
+              FROM read_csv_auto('{out}')
+              WHERE distance_to_continent_km = 0
+              ORDER BY island_id
+            ) TO '{zero_audit}' (HEADER, DELIMITER ',')
+            """
+        )
+        con.close()
 
     contract = Path("config/v2_analysis_contract.yml")
     if contract.exists():
