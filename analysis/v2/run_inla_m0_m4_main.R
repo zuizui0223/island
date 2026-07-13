@@ -29,7 +29,7 @@ required <- c(
 missing <- setdiff(required, names(d))
 if (length(missing)) stop("missing required columns: ", paste(missing, collapse = ", "))
 
-# Standardize once on the full available island universe so regional contrasts share a scale.
+# Standardize on the full model-input universe (distance > 0 is enforced upstream).
 for (nm in c(
   "log_distance_to_continent_km", "log_island_area_km2",
   "climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4"
@@ -50,16 +50,27 @@ geo_terms <- paste(
   "f(spatial_id, model='iid')"
 )
 
-north_main <- d[
+base_north <- d[
   analysis_regime == "northern_midlatitude" &
-    color_trials > 0 & form_trials > 0 & sc_trials > 0 &
     complete.cases(
       z_log_distance_to_continent_km, z_log_island_area_km2,
       z_climate_pc1, z_climate_pc2, z_climate_pc3, z_climate_pc4,
-      z_bombus_deficit, z_sc_share, spatial_id
+      spatial_id
     )
 ]
-if (nrow(north_main) < 30) stop("Too few northern-midlatitude islands on common M0-M3 support")
+if (nrow(base_north) < 30) stop("Too few northern-midlatitude islands after geographic filtering")
+
+bombus_data <- base_north[complete.cases(z_bombus_deficit, bombus_deficit_logit)]
+sc_geo_data <- base_north[sc_trials > 0]
+sc_bombus_data <- base_north[sc_trials > 0 & complete.cases(z_bombus_deficit)]
+color_geo_data <- base_north[color_trials > 0]
+color_bombus_data <- base_north[color_trials > 0 & complete.cases(z_bombus_deficit)]
+color_sc_data <- base_north[color_trials > 0 & complete.cases(z_sc_share)]
+color_bombus_sc_data <- base_north[color_trials > 0 & complete.cases(z_bombus_deficit, z_sc_share)]
+form_geo_data <- base_north[form_trials > 0]
+form_bombus_data <- base_north[form_trials > 0 & complete.cases(z_bombus_deficit)]
+form_sc_data <- base_north[form_trials > 0 & complete.cases(z_sc_share)]
+form_bombus_sc_data <- base_north[form_trials > 0 & complete.cases(z_bombus_deficit, z_sc_share)]
 
 compute <- list(dic = TRUE, waic = TRUE, cpo = TRUE, config = TRUE)
 
@@ -76,15 +87,8 @@ fit_bb <- function(lhs_success, lhs_trials, rhs, data) {
       ": ", sum(bad), " invalid rows"
     )
   }
-
-  # The native INLA betabinomial likelihood aborts inside GSL on the full v2
-  # dataset, bypassing R error handling. A grouped binomial with an observation-
-  # level iid random effect retains extra-binomial variation on the logit scale
-  # without relying on the crashing beta-function path.
   dd[, obs_id := seq_len(.N)]
-  formula <- as.formula(paste(
-    lhs_success, "~", rhs, "+ f(obs_id, model='iid')"
-  ))
+  formula <- as.formula(paste(lhs_success, "~", rhs, "+ f(obs_id, model='iid')"))
   inla(
     formula,
     family = "binomial",
@@ -108,57 +112,30 @@ fit_gaussian <- function(lhs, rhs, data) {
 }
 
 components <- list()
-
-# Geographic filtering of the Bombus channel.
-components$bombus_geo <- fit_gaussian(
-  "bombus_deficit_logit", geo_terms, north_main
-)
-
-# Reproductive-assurance alternatives.
-components$sc_geo <- fit_bb(
-  "sc_successes", "sc_trials", geo_terms, north_main
-)
+components$bombus_geo <- fit_gaussian("bombus_deficit_logit", geo_terms, bombus_data)
+components$sc_geo <- fit_bb("sc_successes", "sc_trials", geo_terms, sc_geo_data)
 components$sc_bombus_geo <- fit_bb(
-  "sc_successes", "sc_trials",
-  paste("z_bombus_deficit +", geo_terms), north_main
+  "sc_successes", "sc_trials", paste("z_bombus_deficit +", geo_terms), sc_bombus_data
 )
-
-# Final floral responses for M0-M3.
-for (response in c("plain", "form")) {
-  success <- if (response == "plain") "color_plain" else "form_open_generalized"
-  trials <- if (response == "plain") "color_trials" else "form_trials"
-
-  components[[paste0(response, "_geo")]] <- fit_bb(
-    success, trials, geo_terms, north_main
-  )
-  components[[paste0(response, "_bombus_geo")]] <- fit_bb(
-    success, trials, paste("z_bombus_deficit +", geo_terms), north_main
-  )
-  components[[paste0(response, "_sc_geo")]] <- fit_bb(
-    success, trials, paste("z_sc_share +", geo_terms), north_main
-  )
-  components[[paste0(response, "_bombus_sc_geo")]] <- fit_bb(
-    success, trials, paste("z_bombus_deficit + z_sc_share +", geo_terms), north_main
-  )
-}
-
-scenarios <- list(
-  M0_geographic_filter = c(
-    bombus = "bombus_geo", self = "sc_geo",
-    color = "plain_geo", form = "form_geo"
-  ),
-  M1_bombus_channel = c(
-    bombus = "bombus_geo", self = "sc_geo",
-    color = "plain_bombus_geo", form = "form_bombus_geo"
-  ),
-  M2_reproductive_assurance = c(
-    bombus = "bombus_geo", self = "sc_geo",
-    color = "plain_sc_geo", form = "form_sc_geo"
-  ),
-  M3_bombus_plus_reproductive_assurance = c(
-    bombus = "bombus_geo", self = "sc_bombus_geo",
-    color = "plain_bombus_sc_geo", form = "form_bombus_sc_geo"
-  )
+components$plain_geo <- fit_bb("color_plain", "color_trials", geo_terms, color_geo_data)
+components$plain_bombus_geo <- fit_bb(
+  "color_plain", "color_trials", paste("z_bombus_deficit +", geo_terms), color_bombus_data
+)
+components$plain_sc_geo <- fit_bb(
+  "color_plain", "color_trials", paste("z_sc_share +", geo_terms), color_sc_data
+)
+components$plain_bombus_sc_geo <- fit_bb(
+  "color_plain", "color_trials", paste("z_bombus_deficit + z_sc_share +", geo_terms), color_bombus_sc_data
+)
+components$form_geo <- fit_bb("form_open_generalized", "form_trials", geo_terms, form_geo_data)
+components$form_bombus_geo <- fit_bb(
+  "form_open_generalized", "form_trials", paste("z_bombus_deficit +", geo_terms), form_bombus_data
+)
+components$form_sc_geo <- fit_bb(
+  "form_open_generalized", "form_trials", paste("z_sc_share +", geo_terms), form_sc_data
+)
+components$form_bombus_sc_geo <- fit_bb(
+  "form_open_generalized", "form_trials", paste("z_bombus_deficit + z_sc_share +", geo_terms), form_bombus_sc_data
 )
 
 fixed_rows <- rbindlist(lapply(names(components), function(nm) {
@@ -188,49 +165,40 @@ score_rows <- rbindlist(lapply(names(components), function(nm) {
 }))
 fwrite(score_rows, file.path(outdir, "inla_component_scores.csv"))
 
-scenario_rows <- rbindlist(lapply(names(scenarios), function(scenario) {
-  refs <- scenarios[[scenario]]
-  s <- score_rows[match(unname(refs), component)]
-  data.table(
-    scenario = scenario,
-    total_log_cpo = sum(s$log_cpo_sum),
-    total_waic = sum(s$waic),
-    total_dic = sum(s$dic)
-  )
-}))
-scenario_rows[, delta_log_cpo_from_best := total_log_cpo - max(total_log_cpo)]
-setorder(scenario_rows, -total_log_cpo)
-fwrite(scenario_rows, file.path(outdir, "inla_m0_m3_scenario_comparison.csv"))
+# Compare alternatives only within the same biological endpoint. Different endpoints
+# deliberately use all available observations and therefore need not share one sample size.
+endpoint_comparisons <- rbindlist(list(
+  data.table(endpoint = "self_compatibility", model = c("M0_geo", "M1_bombus"), component = c("sc_geo", "sc_bombus_geo")),
+  data.table(endpoint = "flower_color", model = c("M0_geo", "M1_bombus", "M2_sc", "M3_bombus_sc"), component = c("plain_geo", "plain_bombus_geo", "plain_sc_geo", "plain_bombus_sc_geo")),
+  data.table(endpoint = "floral_form", model = c("M0_geo", "M1_bombus", "M2_sc", "M3_bombus_sc"), component = c("form_geo", "form_bombus_geo", "form_sc_geo", "form_bombus_sc_geo"))
+))
+endpoint_comparisons <- merge(endpoint_comparisons, score_rows, by = "component", all.x = TRUE)
+endpoint_comparisons[, delta_log_cpo_from_best := log_cpo_sum - max(log_cpo_sum, na.rm = TRUE), by = endpoint]
+setorder(endpoint_comparisons, endpoint, -log_cpo_sum)
+fwrite(endpoint_comparisons, file.path(outdir, "inla_endpoint_model_comparisons.csv"))
 
-# Approximate posterior products from INLA marginals for the M3 indirect paths.
+# M3 mediation remains estimated on the observations required by each path.
 draw_coef <- function(fit, parameter, n = 50000L) {
   m <- fit$marginals.fixed[[parameter]]
   if (is.null(m)) stop("fixed-effect marginal not found: ", parameter)
   inla.rmarginal(n, m)
 }
-
 b_bombus_sc <- draw_coef(components$sc_bombus_geo, "z_bombus_deficit")
 b_sc_plain <- draw_coef(components$plain_bombus_sc_geo, "z_sc_share")
 b_sc_form <- draw_coef(components$form_bombus_sc_geo, "z_sc_share")
 plain_indirect <- b_bombus_sc * b_sc_plain
 form_indirect <- b_bombus_sc * b_sc_form
 indirect <- data.table(
-  path = c(
-    "Bombus_deficit_to_SC_to_plain",
-    "Bombus_deficit_to_SC_to_generalized"
-  ),
+  path = c("Bombus_deficit_to_SC_to_plain", "Bombus_deficit_to_SC_to_generalized"),
   mean = c(mean(plain_indirect), mean(form_indirect)),
   q025 = c(quantile(plain_indirect, 0.025), quantile(form_indirect, 0.025)),
   q975 = c(quantile(plain_indirect, 0.975), quantile(form_indirect, 0.975))
 )
 fwrite(indirect, file.path(outdir, "inla_m3_indirect_effects.csv"))
 
-# M4: retain detailed categories as biologically interpretable one-vs-rest models.
-# This avoids collapsing red/pink, blue/purple, tubular, or zygomorphic responses.
+# M4: category-preserving one-vs-rest models, each using every island with trials > 0.
 m4 <- d[
-  analysis_regime %in% c(
-    "northern_midlatitude", "tropical", "southern_extratropical"
-  ) &
+  analysis_regime %in% c("northern_midlatitude", "tropical", "southern_extratropical") &
     complete.cases(
       z_log_distance_to_continent_km, z_log_island_area_km2,
       z_showy_alt_guild_share, z_other_bee_guild_share,
@@ -238,13 +206,11 @@ m4 <- d[
     )
 ]
 m4[, analysis_regime := factor(analysis_regime)]
-
 m4_rhs <- paste(
   "z_log_distance_to_continent_km * z_log_island_area_km2 * analysis_regime +",
   "z_showy_alt_guild_share + z_other_bee_guild_share +",
   "z_generalist_insect_guild_share + f(spatial_id, model='iid')"
 )
-
 m4_specs <- list(
   color_yellow_orange = c("color_yellow_orange", "color_trials"),
   color_red_pink = c("color_red_pink", "color_trials"),
@@ -253,7 +219,6 @@ m4_specs <- list(
   form_zygomorphic_specialized = c("form_zygomorphic_specialized", "form_trials"),
   form_composite_brush = c("form_composite_brush", "form_trials")
 )
-
 m4_fits <- list()
 for (nm in names(m4_specs)) {
   success <- m4_specs[[nm]][1]
@@ -261,7 +226,6 @@ for (nm in names(m4_specs)) {
   dd <- m4[get(trials) > 0]
   m4_fits[[nm]] <- fit_bb(success, trials, m4_rhs, dd)
 }
-
 m4_fixed <- rbindlist(lapply(names(m4_fits), function(nm) {
   x <- as.data.table(m4_fits[[nm]]$summary.fixed, keep.rownames = "parameter")
   x[, outcome := nm]
@@ -269,7 +233,6 @@ m4_fixed <- rbindlist(lapply(names(m4_fits), function(nm) {
   x
 }), fill = TRUE)
 fwrite(m4_fixed, file.path(outdir, "inla_m4_category_fixed_effects.csv"))
-
 m4_scores <- rbindlist(lapply(names(m4_fits), function(nm) {
   x <- component_score(m4_fits[[nm]])
   x[, outcome := nm]
@@ -278,18 +241,38 @@ m4_scores <- rbindlist(lapply(names(m4_fits), function(nm) {
 }))
 fwrite(m4_scores, file.path(outdir, "inla_m4_category_scores.csv"))
 
+support <- data.table(
+  component = c(
+    "bombus_geo", "sc_geo", "sc_bombus_geo",
+    "plain_geo", "plain_bombus_geo", "plain_sc_geo", "plain_bombus_sc_geo",
+    "form_geo", "form_bombus_geo", "form_sc_geo", "form_bombus_sc_geo",
+    "m4_base"
+  ),
+  n_islands = c(
+    nrow(bombus_data), nrow(sc_geo_data), nrow(sc_bombus_data),
+    nrow(color_geo_data), nrow(color_bombus_data), nrow(color_sc_data), nrow(color_bombus_sc_data),
+    nrow(form_geo_data), nrow(form_bombus_data), nrow(form_sc_data), nrow(form_bombus_sc_data),
+    nrow(m4)
+  )
+)
+fwrite(support, file.path(outdir, "inla_component_support.csv"))
+
 meta <- list(
-  contract = "v2_inla_m0_m4_main_v2",
-  method = "INLA piecewise latent-Gaussian analysis with grouped binomial-logit-normal floral/reproductive responses using observation-level iid overdispersion, Gaussian logit Bombus deficit, and 10-degree spatial-block random effects",
-  analysis_tier = "sensitivity_all_all_filled_data_requested_first_run",
-  sensitivity_analysis = "deferred by design",
+  contract = "v2_inla_m0_m4_all_filled_endpoint_specific_support_v3",
+  method = "INLA piecewise latent-Gaussian analysis with grouped binomial-logit-normal responses, endpoint-specific maximum available data, observation-level iid overdispersion, Gaussian logit Bombus deficit, and 10-degree spatial-block random effects",
+  analysis_tier = "sensitivity_all",
+  distance_scope = "distance_to_continent_km > 0 enforced upstream; zero-distance islands retained only in audit/full-universe input",
+  common_support = FALSE,
+  support_policy = "each endpoint/model uses all available observations required for that model; model-score comparisons are reported within endpoint rather than summed across endpoints",
   main_interaction = "log distance to continent x log island area",
-  m0_m3_common_support = TRUE,
-  m0_m3_scenario_metric = "sum of component log CPO (LPML-like; higher is better), with WAIC and DIC also reported",
-  m4 = "category-preserving one-vs-rest grouped binomial-logit-normal models for colour and floral-form categories",
-  n_northern_midlatitude_common_support = nrow(north_main),
+  m4 = "category-preserving one-vs-rest grouped binomial-logit-normal models using all available trials per category",
+  n_base_northern_midlatitude = nrow(base_north),
+  n_bombus = nrow(bombus_data),
+  n_sc_geo = nrow(sc_geo_data),
+  n_color_geo = nrow(color_geo_data),
+  n_form_geo = nrow(form_geo_data),
   n_global_m4 = nrow(m4),
-  n_spatial_blocks_north = uniqueN(north_main$spatial_id),
+  n_spatial_blocks_north = uniqueN(base_north$spatial_id),
   n_spatial_blocks_global = uniqueN(m4$spatial_id)
 )
 write_json(meta, file.path(outdir, "analysis_metadata.json"), pretty = TRUE, auto_unbox = TRUE)
