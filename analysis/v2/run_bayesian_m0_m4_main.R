@@ -256,7 +256,7 @@ m4[, analysis_regime := factor(analysis_regime)]
 # itself is unchanged; explicit category-specific priors can be added later using
 # get_prior() once the final category contract is frozen.
 m4_color <- brm(
-  cbind(color_plain, color_yellow_orange, color_red_pink, color_blue_purple) ~
+  cbind(color_plain, color_yellow_orange, color_red_pink, color_blue_purple) | trials(color_trials) ~
     z_log_distance_to_continent_km * z_log_island_area_km2 * analysis_regime +
     z_showy_alt_guild_share + z_other_bee_guild_share + z_generalist_insect_guild_share,
   data = m4[color_trials > 0],
@@ -267,7 +267,7 @@ m4_color <- brm(
 )
 
 m4_form <- brm(
-  cbind(form_open_generalized, form_tubular_trumpet, form_zygomorphic_specialized, form_composite_brush) ~
+  cbind(form_open_generalized, form_tubular_trumpet, form_zygomorphic_specialized, form_composite_brush) | trials(form_trials) ~
     z_log_distance_to_continent_km * z_log_island_area_km2 * analysis_regime +
     z_showy_alt_guild_share + z_other_bee_guild_share + z_generalist_insect_guild_share,
   data = m4[form_trials > 0],
