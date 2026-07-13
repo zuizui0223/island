@@ -16,16 +16,23 @@ dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
 
 d <- fread(infile)
 
-# Main analysis only: no evidence-tier sensitivity analyses here.
-# M0-M3 use northern mid-latitude islands, matching the v2 Bombus mechanism scope.
-north <- d[analysis_regime == "northern_midlatitude" &
-           is.finite(log_distance_to_continent_km) &
-           is.finite(log_island_area_km2) &
-           is.finite(bombus_deficit)]
+# Main analysis only: sensitivity analyses are deliberately deferred.
+# M0-M3 use one common northern-midlatitude island set so scenario LOO values
+# are comparable. M4 keeps the detailed v2 colour/form categories as a separate
+# pollination-regime extension and is not forced into the M0-M3 LOO ranking.
+north <- d[
+  analysis_regime == "northern_midlatitude" &
+    is.finite(log_distance_to_continent_km) &
+    is.finite(log_island_area_km2) &
+    is.finite(bombus_deficit)
+]
 
 z <- function(x) as.numeric(scale(x))
-for (nm in c("log_distance_to_continent_km", "log_island_area_km2",
-             "climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4")) {
+standardize_cols <- c(
+  "log_distance_to_continent_km", "log_island_area_km2",
+  "climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4"
+)
+for (nm in standardize_cols) {
   north[[paste0("z_", nm)]] <- z(north[[nm]])
   d[[paste0("z_", nm)]] <- z(d[[nm]])
 }
@@ -35,7 +42,25 @@ d[, z_showy_alt_guild_share := z(showy_alt_guild_share)]
 d[, z_other_bee_guild_share := z(other_bee_guild_share)]
 d[, z_generalist_insect_guild_share := z(generalist_insect_guild_share)]
 
-g <- "z_log_distance_to_continent_km * z_log_island_area_km2 + climate_pc1 + climate_pc2 + climate_pc3 + climate_pc4"
+# One common support for every M0-M3 component and response.
+north_main <- north[
+  color_trials > 0 &
+    form_trials > 0 &
+    sc_trials > 0 &
+    is.finite(z_sc_share) &
+    complete.cases(
+      z_log_distance_to_continent_km,
+      z_log_island_area_km2,
+      z_climate_pc1, z_climate_pc2, z_climate_pc3, z_climate_pc4,
+      z_bombus_deficit
+    )
+]
+if (nrow(north_main) < 30) stop("Too few northern-midlatitude islands on common M0-M3 support")
+
+geo <- paste(
+  "z_log_distance_to_continent_km * z_log_island_area_km2 +",
+  "z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4"
+)
 
 fit_bb <- function(formula, data, file) {
   brm(
@@ -74,46 +99,162 @@ fit_beta <- function(formula, data, file) {
   )
 }
 
-# M0: geographic filtering, with the key v2 extension distance x island area.
-m0_plain <- fit_bb(as.formula(paste("color_plain | trials(color_trials) ~", g)),
-                   north[color_trials > 0], file.path(outdir, "m0_plain"))
-m0_form <- fit_bb(as.formula(paste("form_open_generalized | trials(form_trials) ~", g)),
-                  north[form_trials > 0], file.path(outdir, "m0_form"))
+# Fit each unique component once, then map components into pathway scenarios.
+# This preserves v1-style summed component LOO while avoiding duplicate MCMC fits.
+components <- list()
 
-# M1: isolation/area -> Bombus deficit; Bombus deficit adds to floral traits.
-m1_bombus <- fit_beta(as.formula(paste("bombus_deficit ~", g)),
-                      north, file.path(outdir, "m1_bombus"))
-m1_plain <- fit_bb(as.formula(paste("color_plain | trials(color_trials) ~ z_bombus_deficit +", g)),
-                   north[color_trials > 0], file.path(outdir, "m1_plain"))
-m1_form <- fit_bb(as.formula(paste("form_open_generalized | trials(form_trials) ~ z_bombus_deficit +", g)),
-                  north[form_trials > 0], file.path(outdir, "m1_form"))
+# Geography -> Bombus is common to all v2 pathway scenarios.
+components$bombus_geo <- fit_beta(
+  as.formula(paste("bombus_deficit ~", geo)),
+  north_main, file.path(outdir, "component_bombus_geo")
+)
 
-# M2: Bombus deficit -> reproductive assurance; reproductive assurance -> floral traits.
-m2_sc <- fit_bb(as.formula(paste("sc_successes | trials(sc_trials) ~ z_bombus_deficit +", g)),
-                north[sc_trials > 0], file.path(outdir, "m2_sc"))
-m2_plain <- fit_bb(as.formula(paste("color_plain | trials(color_trials) ~ z_sc_share +", g)),
-                   north[color_trials > 0 & is.finite(z_sc_share)], file.path(outdir, "m2_plain"))
-m2_form <- fit_bb(as.formula(paste("form_open_generalized | trials(form_trials) ~ z_sc_share +", g)),
-                  north[form_trials > 0 & is.finite(z_sc_share)], file.path(outdir, "m2_form"))
+# Reproductive-assurance alternatives.
+components$sc_geo <- fit_bb(
+  as.formula(paste("sc_successes | trials(sc_trials) ~", geo)),
+  north_main, file.path(outdir, "component_sc_geo")
+)
+components$sc_bombus_geo <- fit_bb(
+  as.formula(paste("sc_successes | trials(sc_trials) ~ z_bombus_deficit +", geo)),
+  north_main, file.path(outdir, "component_sc_bombus_geo")
+)
 
-# M3: direct Bombus path plus reproductive-assurance path.
-m3_plain <- fit_bb(as.formula(paste("color_plain | trials(color_trials) ~ z_bombus_deficit + z_sc_share +", g)),
-                   north[color_trials > 0 & is.finite(z_sc_share)], file.path(outdir, "m3_plain"))
-m3_form <- fit_bb(as.formula(paste("form_open_generalized | trials(form_trials) ~ z_bombus_deficit + z_sc_share +", g)),
-                  north[form_trials > 0 & is.finite(z_sc_share)], file.path(outdir, "m3_form"))
+# Final floral responses for M0-M3.
+for (response in c("plain", "form")) {
+  if (response == "plain") {
+    lhs <- "color_plain | trials(color_trials)"
+  } else {
+    lhs <- "form_open_generalized | trials(form_trials)"
+  }
 
-# M4: preserve v2 category information. Multinomial colour and form composition are
-# modelled globally as functions of distance x area x pollination regime plus the
-# three alternative-pollinator composition axes. This is the replacement/regime test.
-m4 <- d[analysis_regime %in% c("northern_midlatitude", "tropical", "southern_extratropical")]
+  components[[paste0(response, "_geo")]] <- fit_bb(
+    as.formula(paste(lhs, "~", geo)),
+    north_main, file.path(outdir, paste0("component_", response, "_geo"))
+  )
+  components[[paste0(response, "_bombus_geo")]] <- fit_bb(
+    as.formula(paste(lhs, "~ z_bombus_deficit +", geo)),
+    north_main, file.path(outdir, paste0("component_", response, "_bombus_geo"))
+  )
+  components[[paste0(response, "_sc_geo")]] <- fit_bb(
+    as.formula(paste(lhs, "~ z_sc_share +", geo)),
+    north_main, file.path(outdir, paste0("component_", response, "_sc_geo"))
+  )
+  components[[paste0(response, "_bombus_sc_geo")]] <- fit_bb(
+    as.formula(paste(lhs, "~ z_bombus_deficit + z_sc_share +", geo)),
+    north_main, file.path(outdir, paste0("component_", response, "_bombus_sc_geo"))
+  )
+}
+
+# M0-M3 pathway definitions. Every scenario has the same four responses and
+# exactly the same islands; only the hypothesised predictors differ.
+scenarios <- list(
+  M0_geographic_filter = list(
+    bombus = "bombus_geo",
+    self = "sc_geo",
+    color = "plain_geo",
+    form = "form_geo"
+  ),
+  M1_bombus_channel = list(
+    bombus = "bombus_geo",
+    self = "sc_geo",
+    color = "plain_bombus_geo",
+    form = "form_bombus_geo"
+  ),
+  M2_reproductive_assurance = list(
+    bombus = "bombus_geo",
+    self = "sc_geo",
+    color = "plain_sc_geo",
+    form = "form_sc_geo"
+  ),
+  M3_bombus_plus_reproductive_assurance = list(
+    bombus = "bombus_geo",
+    self = "sc_bombus_geo",
+    color = "plain_bombus_sc_geo",
+    form = "form_bombus_sc_geo"
+  )
+)
+
+# Component-level posterior summaries.
+component_summaries <- rbindlist(lapply(names(components), function(nm) {
+  x <- as.data.table(posterior_summary(components[[nm]], pars = "^b_"), keep.rownames = "parameter")
+  x[, component := nm]
+  setcolorder(x, c("component", "parameter"))
+  x
+}), fill = TRUE)
+fwrite(component_summaries, file.path(outdir, "posterior_fixed_effects.csv"))
+
+# v1-style scenario comparison: sum component ELPD across the same response set.
+component_loos <- lapply(components, loo)
+loo_component_rows <- list()
+scenario_rows <- list()
+for (scenario_name in names(scenarios)) {
+  refs <- scenarios[[scenario_name]]
+  rows <- rbindlist(lapply(names(refs), function(response_name) {
+    component_name <- refs[[response_name]]
+    x <- component_loos[[component_name]]$estimates
+    data.table(
+      scenario = scenario_name,
+      response = response_name,
+      component = component_name,
+      elpd_loo = x["elpd_loo", "Estimate"],
+      se_elpd_loo = x["elpd_loo", "SE"],
+      p_loo = x["p_loo", "Estimate"],
+      looic = x["looic", "Estimate"]
+    )
+  }))
+  loo_component_rows[[scenario_name]] <- rows
+  scenario_rows[[scenario_name]] <- data.table(
+    scenario = scenario_name,
+    total_elpd_loo = sum(rows$elpd_loo),
+    approx_se_total_elpd_loo = sqrt(sum(rows$se_elpd_loo^2)),
+    total_looic = sum(rows$looic)
+  )
+}
+loo_components <- rbindlist(loo_component_rows)
+scenario_comparison <- rbindlist(scenario_rows)
+scenario_comparison[, delta_elpd_from_best := total_elpd_loo - max(total_elpd_loo)]
+setorder(scenario_comparison, -total_elpd_loo)
+fwrite(loo_components, file.path(outdir, "m0_m3_component_loo.csv"))
+fwrite(scenario_comparison, file.path(outdir, "m0_m3_scenario_comparison_total_elpd.csv"))
+
+# Posterior products for the M3 mediated path: Bombus deficit -> SC -> floral trait.
+sc_draws <- as_draws_df(components$sc_bombus_geo)
+plain_draws <- as_draws_df(components$plain_bombus_sc_geo)
+form_draws <- as_draws_df(components$form_bombus_sc_geo)
+n <- min(nrow(sc_draws), nrow(plain_draws), nrow(form_draws))
+plain_indirect <- sc_draws$b_z_bombus_deficit[1:n] * plain_draws$b_z_sc_share[1:n]
+form_indirect <- sc_draws$b_z_bombus_deficit[1:n] * form_draws$b_z_sc_share[1:n]
+indirect <- data.table(
+  path = c("Bombus_deficit_to_SC_to_plain", "Bombus_deficit_to_SC_to_generalized"),
+  mean = c(mean(plain_indirect), mean(form_indirect)),
+  q025 = c(quantile(plain_indirect, 0.025), quantile(form_indirect, 0.025)),
+  q975 = c(quantile(plain_indirect, 0.975), quantile(form_indirect, 0.975))
+)
+fwrite(indirect, file.path(outdir, "m3_indirect_effects.csv"))
+
+# M4: category-preserving pollination-regime extension. This asks whether detailed
+# colour/form composition changes with distance x area differently among regions and
+# with alternative pollinator-guild composition. It is reported separately because
+# its multinomial responses differ from the planned-contrast M0-M3 responses.
+m4 <- d[
+  analysis_regime %in% c("northern_midlatitude", "tropical", "southern_extratropical") &
+    complete.cases(
+      z_log_distance_to_continent_km,
+      z_log_island_area_km2,
+      z_showy_alt_guild_share,
+      z_other_bee_guild_share,
+      z_generalist_insect_guild_share
+    )
+]
 m4[, analysis_regime := factor(analysis_regime)]
 
 m4_color <- brm(
   cbind(color_plain, color_yellow_orange, color_red_pink, color_blue_purple) ~
     z_log_distance_to_continent_km * z_log_island_area_km2 * analysis_regime +
     z_showy_alt_guild_share + z_other_bee_guild_share + z_generalist_insect_guild_share,
-  data = m4[color_trials > 0 & complete.cases(z_showy_alt_guild_share, z_other_bee_guild_share, z_generalist_insect_guild_share)],
-  family = multinomial(), prior = prior(normal(0, 1), class = "b"),
+  data = m4[color_trials > 0],
+  family = multinomial(),
+  prior = prior(normal(0, 1), class = "b"),
   chains = 2, cores = 2, iter = 1200, warmup = 600, seed = 20260713,
   control = list(adapt_delta = 0.95), save_pars = save_pars(all = TRUE),
   file = file.path(outdir, "m4_color"), refresh = 100
@@ -123,78 +264,33 @@ m4_form <- brm(
   cbind(form_open_generalized, form_tubular_trumpet, form_zygomorphic_specialized, form_composite_brush) ~
     z_log_distance_to_continent_km * z_log_island_area_km2 * analysis_regime +
     z_showy_alt_guild_share + z_other_bee_guild_share + z_generalist_insect_guild_share,
-  data = m4[form_trials > 0 & complete.cases(z_showy_alt_guild_share, z_other_bee_guild_share, z_generalist_insect_guild_share)],
-  family = multinomial(), prior = prior(normal(0, 1), class = "b"),
+  data = m4[form_trials > 0],
+  family = multinomial(),
+  prior = prior(normal(0, 1), class = "b"),
   chains = 2, cores = 2, iter = 1200, warmup = 600, seed = 20260713,
   control = list(adapt_delta = 0.95), save_pars = save_pars(all = TRUE),
   file = file.path(outdir, "m4_form"), refresh = 100
 )
 
-fits <- list(
-  M0_plain=m0_plain, M0_form=m0_form,
-  M1_bombus=m1_bombus, M1_plain=m1_plain, M1_form=m1_form,
-  M2_SC=m2_sc, M2_plain=m2_plain, M2_form=m2_form,
-  M3_plain=m3_plain, M3_form=m3_form,
-  M4_color=m4_color, M4_form=m4_form
-)
+m4_summaries <- rbindlist(list(
+  cbind(model = "M4_color", as.data.table(posterior_summary(m4_color, pars = "^b_"), keep.rownames = "parameter")),
+  cbind(model = "M4_form", as.data.table(posterior_summary(m4_form, pars = "^b_"), keep.rownames = "parameter"))
+), fill = TRUE)
+fwrite(m4_summaries, file.path(outdir, "m4_multinomial_fixed_effects.csv"))
 
-summaries <- rbindlist(lapply(names(fits), function(nm) {
-  x <- as.data.table(posterior_summary(fits[[nm]], pars = "^b_"), keep.rownames = "parameter")
-  x[, model := nm]
-  setcolorder(x, c("model", "parameter"))
-  x
-}), fill = TRUE)
-fwrite(summaries, file.path(outdir, "posterior_fixed_effects.csv"))
-
-# Compare only models with identical responses. M4 is a category-preserving extension,
-# not forced into the same LOO table as the planned binary contrasts.
-loo_rows <- list()
-for (response in c("plain", "form")) {
-  ms <- list(
-    M0 = fits[[paste0("M0_", response)]],
-    M1 = fits[[paste0("M1_", response)]],
-    M2 = fits[[paste0("M2_", response)]],
-    M3 = fits[[paste0("M3_", response)]]
-  )
-  loos <- lapply(ms, loo)
-  cmp <- as.data.table(loo_compare(loos), keep.rownames = "scenario")
-  cmp[, response := response]
-  loo_rows[[response]] <- cmp
-}
-fwrite(rbindlist(loo_rows, fill = TRUE), file.path(outdir, "m0_m3_loo_comparison.csv"))
-
-# Posterior products for the main mediated path: Bombus deficit -> SC -> floral trait.
-sc_draws <- as_draws_df(m2_sc)
-plain_draws <- as_draws_df(m3_plain)
-form_draws <- as_draws_df(m3_form)
-n <- min(nrow(sc_draws), nrow(plain_draws), nrow(form_draws))
-indirect <- data.table(
-  path = c("Bombus_deficit_to_SC_to_plain", "Bombus_deficit_to_SC_to_generalized"),
-  mean = c(
-    mean(sc_draws$b_z_bombus_deficit[1:n] * plain_draws$b_z_sc_share[1:n]),
-    mean(sc_draws$b_z_bombus_deficit[1:n] * form_draws$b_z_sc_share[1:n])
-  ),
-  q025 = c(
-    quantile(sc_draws$b_z_bombus_deficit[1:n] * plain_draws$b_z_sc_share[1:n], 0.025),
-    quantile(sc_draws$b_z_bombus_deficit[1:n] * form_draws$b_z_sc_share[1:n], 0.025)
-  ),
-  q975 = c(
-    quantile(sc_draws$b_z_bombus_deficit[1:n] * plain_draws$b_z_sc_share[1:n], 0.975),
-    quantile(sc_draws$b_z_bombus_deficit[1:n] * form_draws$b_z_sc_share[1:n], 0.975)
-  )
-)
-fwrite(indirect, file.path(outdir, "m2_m3_indirect_effects.csv"))
+all_fits <- c(components, list(M4_color = m4_color, M4_form = m4_form))
+capture.output(lapply(all_fits, summary), file = file.path(outdir, "model_summaries.txt"))
 
 meta <- list(
-  contract = "v2_bayesian_m0_m4_main_v1",
+  contract = "v2_bayesian_m0_m4_main_v2",
   analysis_tier = "sensitivity_all_all_filled_data_requested_first_run",
-  method = "Bayesian piecewise path models; beta-binomial planned contrasts plus multinomial M4 category composition",
+  method = "Bayesian piecewise path models; beta-binomial M0-M3 scenario comparison plus category-preserving multinomial M4",
   main_interaction = "log distance to continent x log island area",
-  n_northern_midlatitude = nrow(north),
+  m0_m3_common_support = TRUE,
+  m0_m3_scenario_comparison = "summed component LOO-ELPD across Bombus, self-compatibility, colour, and form responses",
+  n_northern_midlatitude_common_support = nrow(north_main),
   n_global_m4 = nrow(m4),
   sensitivity_analysis = "deferred by design",
-  note = "Initial main fit uses 2 chains x 1200 iterations; convergence diagnostics are reported with outputs and should be checked before manuscript claims."
+  note = "Initial main fit uses 2 chains x 1200 iterations. Check R-hat, ESS, divergences, and Pareto-k diagnostics before manuscript claims."
 )
 write_json(meta, file.path(outdir, "analysis_metadata.json"), pretty = TRUE, auto_unbox = TRUE)
-
-capture.output(lapply(fits, summary), file = file.path(outdir, "model_summaries.txt"))
