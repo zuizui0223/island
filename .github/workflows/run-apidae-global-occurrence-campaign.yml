@@ -80,7 +80,7 @@ jobs:
           MANIFEST=data/v2/staging/bombus/apidae_campaign/gbif_block_request_manifest.csv
           for i in $(seq 1 90); do
             island-v2-gbif-flora poll --request-manifest "$MANIFEST"
-            python - <<'PY'
+            if python - <<'PY'
           import pandas as pd
           p='data/v2/staging/bombus/apidae_campaign/gbif_block_request_manifest.csv'
           t=pd.read_csv(p,dtype=str).fillna('')
@@ -92,11 +92,15 @@ jobs:
               raise SystemExit(0)
           raise SystemExit(10)
           PY
-            code=$?
-            if [[ "$code" -eq 0 ]]; then
+            then
               break
-            elif [[ "$code" -eq 2 ]]; then
-              exit 2
+            else
+              code=$?
+              if [[ "$code" -eq 2 ]]; then
+                exit 2
+              elif [[ "$code" -ne 10 ]]; then
+                exit "$code"
+              fi
             fi
             sleep 120
           done
