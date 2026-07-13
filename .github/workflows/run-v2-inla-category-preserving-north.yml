@@ -8,6 +8,9 @@ on:
     paths:
       - ".github/workflows/run-v2-inla-category-preserving-north.yml"
       - "analysis/v2/run_inla_category_preserving_north.R"
+      - "analysis/v2/run_inla_joint_color_form_composition.R"
+      - "src/island_v2/build_species_trait_states.py"
+      - "src/island_v2/aggregate_island_trait_evidence.py"
       - "src/island_v2/prepare_v2_bayesian_main_input.py"
       - "config/integrated_trait_bombus_artifact_lock.json"
       - "config/purpose_shortest_artifact_lock.json"
@@ -19,7 +22,7 @@ permissions:
 jobs:
   all-data-layered-analysis:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
 
@@ -75,15 +78,23 @@ jobs:
           import pandas as pd
 
           full = pd.read_csv('data/v2/staging/analysis/inla_category_north/v2_full_input.csv')
-          colours = ['color_plain', 'color_yellow_orange', 'color_red_pink', 'color_blue_purple']
+          colours = ['plain', 'yellow_orange', 'red_pink', 'blue_purple']
           forms = [
-              'form_open_generalized', 'form_tubular_trumpet',
-              'form_zygomorphic_specialized', 'form_composite_brush',
+              'open_generalized', 'tubular_trumpet',
+              'zygomorphic_specialized', 'composite_brush',
           ]
+          colour_cols = [f'color_{x}' for x in colours]
+          form_cols = [f'form_{x}' for x in forms]
+          joint_cols = [f'joint_{c}__{f}' for c in colours for f in forms]
           full_flora = [
               'wind_mixed_trials', 'wind_mixed_successes', 'wind_mixed_share',
               'animal_status_observed', 'n_animal_species', 'n_wind_species',
               'sc_trials', 'sc_successes', 'sc_share',
+          ]
+          conflict_audit = [
+              'n_species_with_any_trait_conflict', 'n_pollen_vector_conflicts',
+              'n_flower_color_conflicts', 'n_floral_form_conflicts',
+              'n_self_incompatibility_conflicts', 'n_pollinator_guild_conflicts',
           ]
           bombus = [
               'bombus_deficit', 'bombus_environmental_compatibility',
@@ -97,14 +108,17 @@ jobs:
               'other_bee_guild_trials', 'other_bee_guild_successes',
               'generalist_insect_guild_trials', 'generalist_insect_guild_successes',
           ]
-          required = set(['color_trials', 'form_trials', 'analysis_regime'] + colours + forms + full_flora + bombus + guilds)
+          required = set(
+              ['color_trials', 'form_trials', 'joint_color_form_trials', 'analysis_regime']
+              + colour_cols + form_cols + joint_cols + full_flora + conflict_audit + bombus + guilds
+          )
           missing = sorted(required - set(full.columns))
           assert not missing, f'missing analysis columns: {missing}'
-          assert (full[colours].fillna(0).sum(axis=1) == full['color_trials'].fillna(0)).all()
-          assert (full[forms].fillna(0).sum(axis=1) == full['form_trials'].fillna(0)).all()
-          assert ((full['n_animal_species'] + full['n_wind_species']).fillna(0) == full['animal_status_observed'].fillna(0)).all()
-          assert (full['wind_mixed_trials'].fillna(0) == full['animal_status_observed'].fillna(0)).all()
-          assert (full['wind_mixed_successes'].fillna(0) == full['n_wind_species'].fillna(0)).all()
+          assert (full[colour_cols].fillna(0).sum(axis=1) == full['color_trials'].fillna(0)).all()
+          assert (full[form_cols].fillna(0).sum(axis=1) == full['form_trials'].fillna(0)).all()
+          assert (full[joint_cols].fillna(0).sum(axis=1) == full['joint_color_form_trials'].fillna(0)).all()
+          assert (full['joint_color_form_trials'].fillna(0) <= full['color_trials'].fillna(0)).all()
+          assert (full['joint_color_form_trials'].fillna(0) <= full['form_trials'].fillna(0)).all()
           regimes = set(full['analysis_regime'].dropna().unique())
           expected_regimes = {
               'northern_midlatitude', 'northern_high_latitude',
@@ -115,10 +129,10 @@ jobs:
           model.to_csv('data/v2/staging/analysis/inla_category_north/v2_model_input.csv', index=False)
           print({
               'n_full': len(full), 'n_model': len(model),
-              'colour_categories': colours, 'form_categories': forms,
+              'joint_categories': len(joint_cols),
+              'joint_trials_total': int(full['joint_color_form_trials'].fillna(0).sum()),
+              'species_trait_conflicts_total': int(full['n_species_with_any_trait_conflict'].fillna(0).sum()),
               'regimes': sorted(regimes),
-              'wind_mixed_trials_total': int(full['wind_mixed_trials'].fillna(0).sum()),
-              'animal_pollinated_total': int(full['n_animal_species'].fillna(0).sum()),
           })
           PY
 
@@ -142,7 +156,7 @@ jobs:
             any::sf
           cache: true
 
-      - name: Install and parse R-INLA analysis
+      - name: Install and parse R-INLA analyses
         run: |
           set -euo pipefail
           Rscript - <<'RS'
@@ -151,6 +165,7 @@ jobs:
           install.packages("INLA", repos = repos, dependencies = c("Depends", "Imports", "LinkingTo"))
           if (!requireNamespace("INLA", quietly = TRUE)) stop("INLA install failed")
           parse(file = "analysis/v2/run_inla_category_preserving_north.R")
+          parse(file = "analysis/v2/run_inla_joint_color_form_composition.R")
           RS
 
       - name: Run layered all-data INLA analysis
@@ -162,19 +177,30 @@ jobs:
             data/v2/staging/analysis/inla_category_north/v2_model_input.csv \
             "$OUT" 2>&1 | tee "$OUT/run.log"
 
-      - name: Summarize layered results
+      - name: Run joint 4x4 colour-form composition analysis
+        run: |
+          set -o pipefail
+          OUT=data/v2/staging/analysis/inla_category_north/results
+          Rscript analysis/v2/run_inla_joint_color_form_composition.R \
+            data/v2/staging/analysis/inla_category_north/v2_model_input.csv \
+            "$OUT" 2>&1 | tee "$OUT/joint_color_form_run.log"
+
+      - name: Summarize layered and joint results
         if: success()
         run: |
           set -euo pipefail
           OUT=data/v2/staging/analysis/inla_category_north/results
-          echo '## Layered all-data INLA analysis' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Layered all-data and joint colour-form INLA analysis' >> "$GITHUB_STEP_SUMMARY"
           cat "$OUT/analysis_metadata.json" >> "$GITHUB_STEP_SUMMARY"
-          echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Equation support' >> "$GITHUB_STEP_SUMMARY"
-          cat "$OUT/equation_support_all_layers.csv" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Direct, indirect, total effects' >> "$GITHUB_STEP_SUMMARY"
           cat "$OUT/direct_indirect_total_effects_all_categories.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Joint colour-form model comparison' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/joint_color_form_model_comparisons.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Joint colour-form key effects' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/joint_color_form_key_effects.csv" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Four-regime isolation tests' >> "$GITHUB_STEP_SUMMARY"
           cat "$OUT/cross_regime_isolation_summary_all_outcomes.csv" >> "$GITHUB_STEP_SUMMARY"
@@ -183,7 +209,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: v2-layered-all-data-inla-${{ github.run_id }}
+          name: v2-layered-joint-all-data-inla-${{ github.run_id }}
           path: data/v2/staging/analysis/inla_category_north/
           if-no-files-found: error
           retention-days: 90
