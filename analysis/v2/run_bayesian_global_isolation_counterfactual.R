@@ -108,16 +108,26 @@ f0_form <- fit_bb(
   file.path(outdir, "f0_global_isolation_generalized")
 )
 
-# Northern-midlatitude scalar replication of the canonical direct/indirect path.
+# Northern-midlatitude scalar replication of the canonical Bombus mechanism.
+# Wind share is added as a separate whole-flora response so we can test directly
+# whether stronger Bombus deficit is associated with a shift toward wind pollination.
 north <- d[analysis_regime == "northern_midlatitude"]
 north_base <- complete.cases(north[, .(
   z_log_distance, z_log_area, z_climate_pc1, z_climate_pc2,
   z_climate_pc3, z_climate_pc4, z_bombus_deficit
 )])
+wind_north <- north[north_base & pollen_vector_trials > 0]
 sc_north <- north[north_base & sc_trials > 0]
 color_north <- north[north_base & color_trials > 0 & is.finite(z_sc_share)]
 form_north <- north[north_base & form_trials > 0 & is.finite(z_sc_share)]
 
+n_wind <- fit_bb(
+  n_wind_species | trials(pollen_vector_trials) ~
+    z_bombus_deficit + z_log_distance + z_log_area +
+    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  wind_north,
+  file.path(outdir, "northern_bombus_wind")
+)
 n_sc <- fit_bb(
   sc_successes | trials(sc_trials) ~
     z_bombus_deficit + z_log_distance + z_log_area +
@@ -145,6 +155,7 @@ fits <- list(
   F0_SC = f0_sc,
   F0_plain = f0_color,
   F0_generalized = f0_form,
+  N_wind = n_wind,
   N_SC = n_sc,
   N_plain = n_color,
   N_generalized = n_form
@@ -160,11 +171,11 @@ fwrite(posterior_rows, file.path(outdir, "posterior_fixed_effects.csv"))
 support <- data.table(
   equation = c(
     "global_wind", "global_SC", "global_plain", "global_generalized",
-    "northern_SC", "northern_plain", "northern_generalized"
+    "northern_wind", "northern_SC", "northern_plain", "northern_generalized"
   ),
   n_islands = c(
     nrow(wind_global), nrow(sc_global), nrow(color_global), nrow(form_global),
-    nrow(sc_north), nrow(color_north), nrow(form_north)
+    nrow(wind_north), nrow(sc_north), nrow(color_north), nrow(form_north)
   )
 )
 fwrite(support, file.path(outdir, "equation_support.csv"))
@@ -233,20 +244,21 @@ if (any(sampler_diagnostics$max_rhat > 1.01, na.rm = TRUE)) warning("R-hat > 1.0
 capture.output(lapply(fits, summary), file = file.path(outdir, "model_summaries.txt"))
 
 meta <- list(
-  contract = "v2_bayesian_scalar_falsification_replication_v3",
+  contract = "v2_bayesian_scalar_falsification_replication_v4",
   role = "noncanonical scalar replication of the canonical INLA analysis",
-  method = "Global isolation-by-regime falsification for wind share, SC, plain colour, and generalized form plus northern scalar Bombus/SC path replication",
+  method = "Global isolation-by-regime falsification for wind share, SC, plain colour, and generalized form plus northern Bombus effects on wind share, SC, and scalar floral traits",
   analysis_tier = "sensitivity_all",
   category_preserving_models = FALSE,
   alternative_pollinator_primary_covariates = FALSE,
   wind_pollination_scope = "whole-flora resolved biotic vs abiotic_wind composition; analysed upstream and separately from animal-mediated floral traits",
+  northern_wind_test = "Bombus deficit -> wind-pollinated share, adjusted for isolation, area, and climate PCs",
   n_input_islands = n_input,
   n_zero_or_negative_distance_excluded = n_zero_distance,
   n_positive_distance_islands_retained_before_equation_missingness = nrow(d),
   distance_rule = "distance_to_continent_km > 0; log(distance_to_continent_km)",
   support_strategy = "maximum available islands per equation; no forced wind+colour+form+SC complete-case intersection",
   global_falsification = "isolation x analysis_regime for wind share, SC, plain colour, and open/generalized form",
-  northern_replication = "Bombus deficit -> SC and direct/SC-mediated paths to scalar plain/generalized outcomes",
+  northern_replication = "Bombus deficit -> wind share; Bombus deficit -> SC; and direct/SC-mediated paths to scalar plain/generalized outcomes",
   interpretation_guardrail = "Wind pollination is a separate whole-flora composition outcome; it is not inserted into animal-mediated flower-colour or flower-form denominators. This workflow does not replace the category-preserving INLA analysis.",
   sampler = "2 chains x 2000 iterations, 1000 warmup, adapt_delta=0.99, max_treedepth=15"
 )
