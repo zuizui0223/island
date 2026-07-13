@@ -1,0 +1,62 @@
+version: 1
+project: island-v2
+
+canonical:
+  primary:
+    workflow: .github/workflows/run-v2-inla-m0-m4-main.yml
+    engine: INLA
+    evidence_tier: primary
+    role: primary_inference
+    models: [M0, M1, M2, M3, M4]
+    description: >-
+      Canonical manuscript inference. Uses species-direct evidence only, the frozen
+      island universe and locked covariates, with coarse spatial-block adjustment.
+
+robustness:
+  evidence_tiers:
+    workflows:
+      - .github/workflows/run-m0-m4-full-sensitivity.yml
+      - .github/workflows/run-m0-m4-evidence-layer-diagnostics.yml
+    evidence_tiers: [broad, sensitivity_all]
+    role: sensitivity_analysis
+  spatial:
+    workflows:
+      - .github/workflows/run-m0-m4-spatial-cv.yml
+      - .github/workflows/run-m0-m4-common-support-cv.yml
+    role: spatial_robustness
+  trait_uncertainty:
+    workflows:
+      - .github/workflows/run-m1-probabilistic-trait-uncertainty.yml
+      - .github/workflows/run-trait-inference-validation.yml
+    role: trait_uncertainty
+
+replication:
+  bayesian_engine:
+    workflow: .github/workflows/run-v2-bayesian-m0-m4-main.yml
+    engine: brms
+    role: computational_replication
+    required_evidence_tier: primary
+    note: >-
+      This workflow must not be interpreted as primary inference and must not use
+      sensitivity_all as its default analysis tier.
+
+legacy:
+  workflows:
+    - .github/workflows/run-m0-global-baseline.yml
+    - .github/workflows/run-m0-m4-all-data.yml
+    - .github/workflows/run-m0-m4-existing-paths.yml
+    - .github/workflows/run-m0-m4-full-analysis.yml
+    - .github/workflows/run-m1-species-direct-analysis.yml
+    - .github/workflows/run-m1-species-direct-family-fe.yml
+    - .github/workflows/run-v1-v2-minimal-bridge.yml
+  role: development_history
+  interpretation: >-
+    Retained for provenance and method development. These workflows are not part of
+    the canonical manuscript inference path unless explicitly promoted in this registry.
+
+guardrails:
+  primary_evidence_tier: primary
+  forbid_primary_sensitivity_all: true
+  require_locked_inputs: true
+  require_analysis_contract: config/v2_analysis_contract.yml
+  require_input_validation: src/island_v2/validate_analysis_inputs.py
