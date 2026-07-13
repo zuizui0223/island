@@ -1,5 +1,5 @@
-version: 1
-status: final_pr115_model
+version: 2
+status: final_pr115_model_colour_primary
 workflow: .github/workflows/run-v2-final-floral-composition.yml
 engine: INLA
 current_evidence_tier: sensitivity_all
@@ -8,13 +8,12 @@ planned_confirmatory_evidence_tier: primary
 estimand:
   name: conditional_relative_category_probability
   definition: >-
-    Probability of a fine floral category within the observed, trait-resolved
-    island flora. This is not raw detection probability and not latent true
-    occupancy or abundance.
+    Probability of a floral category within the observed, trait-resolved island flora.
+    This is not raw detection probability and not latent true occupancy or abundance.
 
 primary_global_population:
   include_pollination_modes: [animal, wind, mixed, unresolved]
-  rule: include every observed species with the focal floral trait resolved, regardless of pollen-vector-mode resolution
+  rule: include every observed species with flower colour resolved, regardless of pollen-vector-mode resolution
   exclude_zero_distance_from_fitted_models: true
   regimes:
     - northern_midlatitude
@@ -22,13 +21,19 @@ primary_global_population:
     - tropical
     - southern_extratropical
 
-primary_endpoints:
+canonical_primary_endpoint:
   fine_colour_composition:
     categories: [white, blue, yellow, red, green, cream, rare_other]
-  fine_floral_form_composition:
-    categories: [tubular, composite_head, star, bell_campanulate, open_radial, trumpet_funnel, rare_other]
-  analyse_colour_and_form_separately: true
-  colour_by_form_joint_model_role: sensitivity_only
+    role: primary
+
+secondary_exploratory_endpoint:
+  floral_access_structure:
+    categories: [open_accessible, intermediate_bell_funnel, restricted_tubular, specialized_restricted, multi_flower_display, other]
+    role: secondary_exploratory
+    interpretation: >-
+      Diagnostic of isolation and broader pollination-mode/floristic composition only.
+      It is not used as primary evidence for Bombus-mediated selection because floral
+      form may be strongly confounded with wind-pollinated and lineage composition.
 
 isolation:
   predictor: log_distance_to_continent_km
@@ -38,33 +43,42 @@ isolation:
     linear: local direction of compositional change along the isolation gradient
     quadratic: whether the change strengthens, saturates, or reverses on highly isolated islands
 
-global_model:
-  formula_concept: category_composition ~ isolation * regime + isolation_squared * regime + area + climate + spatial_effects
-  purpose: test whether the isolation-associated floral redistribution differs among regional pollination regimes
+global_primary_colour_model:
+  formula_concept: colour_composition ~ isolation * regime + isolation_squared * regime + area + climate + spatial_effects
+  bombus_terms: excluded
+  purpose: test whether isolation-associated colour redistribution differs among regional pollination regimes
 
-northern_mechanism:
-  population: northern_midlatitude animal-pollinated trait-resolved flora
+northern_colour_mechanism:
+  population: northern_midlatitude animal-pollinated colour-resolved flora
   nested_models:
     N0_isolation: [isolation, isolation_squared, area, climate, spatial_effects]
     N1_bombus: [N0_isolation, bombus_deficit]
     N2_bombus_sc: [N1_bombus, self_compatibility]
-    N3_full: [N2_bombus_sc, wind_share, mixed_share]
+    N3_full: [N2_bombus_sc, estimable_wind_or_mixed_controls]
   mechanisms:
-    bombus_deficit: relaxation_or_loss_of_Bombus_mediated_selection
+    bombus_deficit: relaxation_or_loss_of_Bombus_mediated_colour_selection
     self_compatibility: reproductive_assurance_pathway_consistent_with_selfing_syndrome
-    wind_and_mixed_shares: broader_pollination_mode_composition_controls
-  explicit_sc_equation: self_compatibility ~ isolation + isolation_squared + bombus_deficit + wind_share + mixed_share + area + climate + spatial_effects
+  explicit_sc_equation: self_compatibility ~ isolation + isolation_squared + bombus_deficit + estimable_wind_or_mixed_controls + area + climate + spatial_effects
+
+secondary_form_diagnostic:
+  global: access_structure ~ isolation * regime + isolation_squared * regime + area + climate + spatial_effects
+  northern: access_structure ~ isolation + isolation_squared + estimable_wind_or_mixed_controls + area + climate + spatial_effects
+  bombus_terms: excluded
 
 hypotheses:
-  H1: isolation restructures fine colour and floral-form composition across the whole observed trait-resolved flora
-  H2: compositional change can strengthen or bend at high isolation rather than being strictly linear
-  H3: in northern temperate systems, Bombus deficit explains part of the isolation-associated floral redistribution
+  H1: isolation restructures fine flower-colour composition across the whole observed trait-resolved flora
+  H2: colour redistribution can strengthen or bend at high isolation rather than being strictly linear
+  H3: in northern temperate systems, Bombus deficit explains part of the isolation-associated colour redistribution
   H4: self-compatibility provides a non-exclusive reproductive-assurance pathway consistent with selfing-syndrome evolution
-  H5: tropical and southern extratropical regimes need not show the northern Bombus-linked pattern because Bombus is not the regional baseline pollination channel
+  H5: tropical and southern extratropical regimes need not show the northern colour response because Bombus is not the regional baseline pollination channel
+  H6: floral-form/access responses are secondary and may primarily reflect pollination-mode or floristic composition rather than Bombus selection
 
 principles:
-  use_all_available_pollination_modes_in_global_primary_model: true
-  restrict_Bombus_mechanism_to_relevant_animal_pollinated_regime: true
+  colour_is_canonical_primary_endpoint: true
+  floral_form_is_secondary_exploratory: true
+  use_all_available_pollination_modes_in_global_colour_model: true
+  restrict_Bombus_mechanism_to_relevant_animal_pollinated_northern_colour_model: true
+  do_not_use_Bombus_to_explain_secondary_form_endpoint: true
   do_not_call_conditional_category_probability_detection_probability: true
   preserve_unknown_as_unknown: true
   preserve_rare_resolved_states_as_rare_other: true
