@@ -7,13 +7,15 @@ on:
       - feat/recover-global-trait-artifacts
     paths:
       - ".github/workflows/run-v2-final-floral-composition.yml"
-      - "analysis/v2/run_inla_final_flora_composition.R"
+      - "analysis/v2/run_inla_final_color_access_composition.R"
       - "scripts/add_all_flora_fine_composition.py"
+      - "scripts/add_floral_access_structure_composition.py"
       - "src/island_v2/build_species_trait_states.py"
       - "src/island_v2/aggregate_island_trait_evidence.py"
       - "src/island_v2/prepare_v2_bayesian_main_input.py"
       - "src/island_v2/ontology/flower_color_fine.yml"
       - "src/island_v2/ontology/floral_form_fine.yml"
+      - "config/v2_final_model_contract.yml"
       - "config/integrated_trait_bombus_artifact_lock.json"
       - "config/purpose_shortest_artifact_lock.json"
 
@@ -69,6 +71,7 @@ jobs:
           COV=$(find /tmp/covariates -type f -name purpose_shortest_island_data.csv -print -quit)
           DIR=data/v2/staging/analysis/final_flora
           BASE="$DIR/v2_base_input.csv"
+          FINE="$DIR/v2_fine_input.csv"
           FINAL="$DIR/v2_final_input.csv"
           MODEL="$DIR/v2_model_input.csv"
           mkdir -p "$DIR"
@@ -82,28 +85,32 @@ jobs:
           python scripts/add_all_flora_fine_composition.py \
             --model-csv "$BASE" \
             --species-states-parquet "$DIR/input_audit/species_trait_states.parquet" \
+            --output-csv "$FINE"
+          python scripts/add_floral_access_structure_composition.py \
+            --input-csv "$FINE" \
+            --species-states-parquet "$DIR/input_audit/species_trait_states.parquet" \
             --output-csv "$FINAL"
           python - <<'PY'
           import pandas as pd
           p = 'data/v2/staging/analysis/final_flora/v2_final_input.csv'
           d = pd.read_csv(p)
           colors = ['white','blue','yellow','red','green','cream','rare_other']
-          forms = ['tubular','composite_head','star','bell_campanulate','open_radial','trumpet_funnel','rare_other']
+          access = ['open_accessible','intermediate_bell_funnel','restricted_tubular','specialized_restricted','multi_flower_display','other']
           ac = [f'all_fine_color_{x}' for x in colors]
-          af = [f'all_fine_form_{x}' for x in forms]
           nc = [f'fine_color_{x}' for x in colors]
-          nf = [f'fine_form_{x}' for x in forms]
+          aa = [f'all_access_{x}' for x in access]
+          na = [f'animal_access_{x}' for x in access]
           required = set(
-              ['all_fine_color_trials','all_fine_form_trials','fine_color_trials','fine_form_trials',
+              ['all_fine_color_trials','fine_color_trials','all_access_trials','animal_access_trials',
                'n_mixed_species','n_wind_species','animal_status_observed','analysis_regime']
-              + ac + af + nc + nf
+              + ac + nc + aa + na
           )
           missing = sorted(required - set(d.columns))
           assert not missing, missing
           assert (d[ac].fillna(0).sum(axis=1) == d['all_fine_color_trials'].fillna(0)).all()
-          assert (d[af].fillna(0).sum(axis=1) == d['all_fine_form_trials'].fillna(0)).all()
           assert (d[nc].fillna(0).sum(axis=1) == d['fine_color_trials'].fillna(0)).all()
-          assert (d[nf].fillna(0).sum(axis=1) == d['fine_form_trials'].fillna(0)).all()
+          assert (d[aa].fillna(0).sum(axis=1) == d['all_access_trials'].fillna(0)).all()
+          assert (d[na].fillna(0).sum(axis=1) == d['animal_access_trials'].fillna(0)).all()
           regimes = set(d['analysis_regime'].dropna().unique())
           expected = {'northern_midlatitude','northern_high_latitude','tropical','southern_extratropical'}
           assert expected.issubset(regimes), regimes
@@ -113,9 +120,9 @@ jobs:
               'n_all_islands': len(d),
               'n_positive_distance': len(model),
               'all_flora_color_trials': int(d['all_fine_color_trials'].fillna(0).sum()),
-              'all_flora_form_trials': int(d['all_fine_form_trials'].fillna(0).sum()),
+              'all_flora_access_trials': int(d['all_access_trials'].fillna(0).sum()),
               'animal_color_trials': int(d['fine_color_trials'].fillna(0).sum()),
-              'animal_form_trials': int(d['fine_form_trials'].fillna(0).sum()),
+              'animal_access_trials': int(d['animal_access_trials'].fillna(0).sum()),
               'regimes': sorted(regimes),
           })
           PY
@@ -149,7 +156,7 @@ jobs:
           repos <- c(CRAN = "https://cloud.r-project.org", INLA = "https://inla.r-inla-download.org/R/stable")
           install.packages("INLA", repos = repos, dependencies = c("Depends", "Imports", "LinkingTo"))
           suppressPackageStartupMessages(library(INLA))
-          parse(file = "analysis/v2/run_inla_final_flora_composition.R")
+          parse(file = "analysis/v2/run_inla_final_color_access_composition.R")
           RS
 
       - name: Run final PR115 model
@@ -157,7 +164,7 @@ jobs:
           set -o pipefail
           OUT=data/v2/staging/analysis/final_flora/results
           mkdir -p "$OUT"
-          Rscript analysis/v2/run_inla_final_flora_composition.R \
+          Rscript analysis/v2/run_inla_final_color_access_composition.R \
             data/v2/staging/analysis/final_flora/v2_model_input.csv \
             "$OUT" 2>&1 | tee "$OUT/run.log"
 
@@ -166,14 +173,17 @@ jobs:
         run: |
           set -euo pipefail
           OUT=data/v2/staging/analysis/final_flora/results
-          echo '## Final PR115 floral-composition model' >> "$GITHUB_STEP_SUMMARY"
-          cat "$OUT/final_flora_metadata.json" >> "$GITHUB_STEP_SUMMARY"
+          echo '## Final PR115 colour + floral access-structure model' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/final_color_access_metadata.json" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Model support' >> "$GITHUB_STEP_SUMMARY"
-          cat "$OUT/final_flora_support.csv" >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/final_color_access_support.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Global regime isolation effects (no Bombus)' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/global_regime_isolation_effects_no_bombus.csv" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Key effects' >> "$GITHUB_STEP_SUMMARY"
-          cat "$OUT/final_flora_key_effects.csv" >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/final_color_access_key_effects.csv" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### SC pathway' >> "$GITHUB_STEP_SUMMARY"
           cat "$OUT/final_sc_pathway.csv" >> "$GITHUB_STEP_SUMMARY"
