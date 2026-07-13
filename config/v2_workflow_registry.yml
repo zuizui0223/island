@@ -1,23 +1,50 @@
-version: 2
+version: 3
 project: island-v2
 
 canonical:
   current:
-    workflow: .github/workflows/run-v2-inla-m0-m4-main.yml
+    workflow: .github/workflows/run-v2-inla-category-preserving-north.yml
     engine: INLA
     evidence_tier: sensitivity_all
-    role: current_all_data_analysis
-    models: [M0, M1, M2, M3, M4]
+    role: primary_category_preserving_inference
+    models: [N0_geo, N1_bombus, N2_sc, N3_direct_indirect]
     description: >-
-      Current full-data analysis requested for maximum island and species coverage. Uses
-      all completed trait-cascade tiers, including global fallback, while retaining the
-      frozen island universe for audit and excluding distance-to-continent == 0 only from
-      the fitted model input.
+      Active v2 analysis. INLA owns category-preserving flower-colour and floral-form
+      models, the northern-midlatitude Bombus direct/SC-mediated indirect decomposition,
+      and tropical/southern falsification tests. Maximum available sensitivity_all data
+      are used; zero-distance islands remain in the audit universe but are excluded from
+      fitted model support.
+
   planned_primary:
     engine: INLA
     evidence_tier: primary
-    role: confirmatory_primary_inference
-    status: deferred_until_all_data_diagnostics_are_reviewed
+    role: confirmatory_category_inference
+    status: deferred_until_maximum_data_results_are_reviewed
+
+engine_roles:
+  inla:
+    owns:
+      - category_preserving_flower_colour
+      - category_preserving_floral_form
+      - northern_bombus_direct_effect
+      - sc_mediated_indirect_effect
+      - direct_indirect_total_decomposition
+      - tropical_and_southern_falsification
+    note: >-
+      Category models stay in INLA. Do not move multinomial/category-preserving models
+      into brms because that route is computationally prohibitive for this dataset.
+  bayesian_brms:
+    owns:
+      - optional_scalar_aggregate_replication
+      - optional_simple_path_replication
+    excludes:
+      - category_preserving_flower_colour
+      - category_preserving_floral_form
+      - multinomial_category_models
+    status: noncanonical_replication_only
+    note: >-
+      brms is not allowed to own the category analysis. If used later, it is restricted
+      to compact scalar/aggregate checks of the Bombus and self-compatibility paths.
 
 robustness:
   evidence_tiers:
@@ -41,14 +68,16 @@ replication:
   bayesian_engine:
     workflow: .github/workflows/run-v2-bayesian-m0-m4-main.yml
     engine: brms
-    role: computational_replication
+    role: noncanonical_scalar_replication_only
     required_evidence_tier: primary
+    category_models_allowed: false
     note: >-
-      This workflow remains a primary-tier computational replication and is not the
-      current full-data INLA run.
+      This historical workflow is not the current analysis route. Any future brms reuse
+      must remove/skip category models and be limited to compact scalar path replication.
 
 legacy:
   workflows:
+    - .github/workflows/run-v2-inla-m0-m4-main.yml
     - .github/workflows/run-m0-global-baseline.yml
     - .github/workflows/run-m0-m4-all-data.yml
     - .github/workflows/run-m0-m4-existing-paths.yml
@@ -66,5 +95,7 @@ guardrails:
   preserve_frozen_island_universe: true
   exclude_zero_distance_from_fitted_models: true
   require_locked_inputs: true
+  category_engine: INLA
+  prohibit_brms_category_models: true
   require_analysis_contract: config/v2_analysis_contract.yml
   require_input_validation: src/island_v2/validate_analysis_inputs.py
