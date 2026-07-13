@@ -1,0 +1,27 @@
+version: 1
+unknown_policy: preserve_null
+categories:
+  blue_purple:
+    - blue
+    - purple
+    - violet
+    - lilac
+    - lavender
+  red_pink:
+    - red
+    - pink
+    - magenta
+    - scarlet
+    - crimson
+  yellow_orange:
+    - yellow
+    - orange
+    - gold
+  plain:
+    - white
+    - cream
+    - pale
+    - green
+    - brown
+    - inconspicuous
+    - dull
