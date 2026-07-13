@@ -1,0 +1,58 @@
+version: 1
+unknown_policy: preserve_null
+parent_categories:
+  open_radial: open_generalized
+  bowl_cup: open_generalized
+  star: open_generalized
+  tubular: tubular_trumpet
+  trumpet_funnel: tubular_trumpet
+  salver: tubular_trumpet
+  urn_urceolate: tubular_trumpet
+  bell_campanulate: tubular_trumpet
+  zygomorphic_unspecified: zygomorphic_specialized
+  orchid: zygomorphic_specialized
+  papilionoid: zygomorphic_specialized
+  spurred: zygomorphic_specialized
+  bilabiate: zygomorphic_specialized
+  composite_head: composite_brush
+  brush_puff: composite_brush
+categories:
+  open_radial:
+    - open
+    - radial
+    - actinomorphic
+  bowl_cup:
+    - bowl
+    - cup
+  star:
+    - star
+  tubular:
+    - tubular
+  trumpet_funnel:
+    - trumpet
+    - funnel
+  salver:
+    - salver
+  urn_urceolate:
+    - urn
+    - urceolate
+  bell_campanulate:
+    - campanulate
+    - bell
+  zygomorphic_unspecified:
+    - zygomorphic
+  orchid:
+    - orchid
+  papilionoid:
+    - papilion
+  spurred:
+    - spurred
+    - spur
+  bilabiate:
+    - bilabiate
+  composite_head:
+    - composite
+    - head
+  brush_puff:
+    - brush
+    - puff
