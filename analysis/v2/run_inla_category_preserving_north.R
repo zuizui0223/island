@@ -24,13 +24,12 @@ required <- c(
 missing <- setdiff(required, names(d))
 if (length(missing)) stop("missing required columns: ", paste(missing, collapse = ", "))
 
-# Simple v2 question:
-# 1) In the northern-midlatitude Bombus domain, does isolation predict more
-#    self-compatibility and plainer/generalized flowers?
-# 2) Does Bombus deficit improve that northern explanation?
-# 3) Do those isolation relationships fail outside the northern domain?
-# Alternative-pollinator covariates are deliberately excluded from the
-# northern mechanism; tropical/southern regimes are falsification domains.
+# Primary causal story, deliberately kept simple:
+# northern isolation -> Bombus deficit -> two routes to dull/generalized flowers
+#   direct:   Bombus deficit -> floral composition
+#   indirect: Bombus deficit -> self-compatibility -> floral composition
+# Tropical and southern-extratropical islands are falsification domains: the
+# northern isolation syndrome should weaken, disappear, or reverse there.
 
 scale_vars <- c(
   "log_distance_to_continent_km", "log_island_area_km2",
@@ -57,32 +56,8 @@ geo_fixed <- paste(
   "z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4"
 )
 geo_fit <- paste(geo_fixed, "+ f(spatial_id, model='iid')")
-
-outcomes <- list(
-  self_compatibility = c("sc_successes", "sc_trials"),
-  plain_flower = c("color_plain", "color_trials"),
-  generalized_flower = c("form_open_generalized", "form_trials")
-)
-model_rhs <- list(
-  self_compatibility = list(
-    N0_geo = geo_fit,
-    N1_bombus = paste("z_bombus_deficit +", geo_fit)
-  ),
-  plain_flower = list(
-    N0_geo = geo_fit,
-    N1_bombus = paste("z_bombus_deficit +", geo_fit),
-    N2_sc = paste("z_sc_share +", geo_fit),
-    N3_bombus_sc = paste("z_bombus_deficit + z_sc_share +", geo_fit)
-  ),
-  generalized_flower = list(
-    N0_geo = geo_fit,
-    N1_bombus = paste("z_bombus_deficit +", geo_fit),
-    N2_sc = paste("z_sc_share +", geo_fit),
-    N3_bombus_sc = paste("z_bombus_deficit + z_sc_share +", geo_fit)
-  )
-)
-
 compute <- list(dic = TRUE, waic = TRUE, cpo = TRUE, config = TRUE)
+
 fit_grouped <- function(success_col, trials_col, rhs, dd) {
   x <- copy(dd)
   x[, obs_id := seq_len(.N)]
@@ -101,6 +76,11 @@ score_fit <- function(fit) {
     n_cpo = length(cpo), waic = fit$waic$waic, dic = fit$dic$dic
   )
 }
+fixed_table <- function(fit, outcome, model) {
+  x <- as.data.table(fit$summary.fixed, keep.rownames = "parameter")
+  x[, `:=`(outcome = outcome, model = model)]
+  x
+}
 
 core_z <- c(
   "z_log_distance_to_continent_km", "z_log_island_area_km2",
@@ -111,22 +91,47 @@ complete <- d[complete.cases(d[, ..core_z]) & !is.na(regime)]
 north <- complete[regime == "northern_midlatitude"]
 if (nrow(north) < 30) stop("Too few complete northern-midlatitude islands")
 
-fits <- list(); score_rows <- list(); fixed_rows <- list(); support_rows <- list()
-for (outcome in names(outcomes)) {
-  success_col <- outcomes[[outcome]][1]
-  trials_col <- outcomes[[outcome]][2]
-  dd <- north[get(trials_col) > 0]
-  bad <- !is.finite(dd[[success_col]]) | !is.finite(dd[[trials_col]]) |
-    dd[[success_col]] < 0 | dd[[trials_col]] <= 0 | dd[[success_col]] > dd[[trials_col]]
-  if (any(bad)) stop("invalid grouped counts for ", outcome)
-  support_rows[[outcome]] <- data.table(outcome = outcome, n_northern_islands = nrow(dd))
-  for (model in names(model_rhs[[outcome]])) {
+# Use a common northern support for the mediation system so direct and indirect
+# paths refer to the same island set.
+mediation_support <- north[sc_trials > 0 & color_trials > 0 & form_trials > 0]
+if (nrow(mediation_support) < 30) stop("Too few islands on common mediation support")
+fwrite(mediation_support[, .(island_id, analysis_regime, sc_trials, color_trials, form_trials)],
+  file.path(outdir, "northern_mediation_support.csv"))
+
+# A path: Bombus deficit -> self-compatibility.
+sc_models <- list(
+  N0_geo = geo_fit,
+  N1_bombus = paste("z_bombus_deficit +", geo_fit)
+)
+# Trait paths: direct Bombus effect and SC-mediated path are estimated together.
+trait_models <- list(
+  N0_geo = geo_fit,
+  N1_bombus = paste("z_bombus_deficit +", geo_fit),
+  N2_sc = paste("z_sc_share +", geo_fit),
+  N3_direct_indirect = paste("z_bombus_deficit + z_sc_share +", geo_fit)
+)
+
+fits <- list(); score_rows <- list(); fixed_rows <- list()
+for (model in names(sc_models)) {
+  key <- paste("self_compatibility", model, sep = "__")
+  fit <- fit_grouped("sc_successes", "sc_trials", sc_models[[model]], mediation_support)
+  fits[[key]] <- fit
+  s <- score_fit(fit); s[, `:=`(outcome = "self_compatibility", model = model)]; score_rows[[key]] <- s
+  fixed_rows[[key]] <- fixed_table(fit, "self_compatibility", model)
+}
+trait_outcomes <- list(
+  plain_flower = c("color_plain", "color_trials"),
+  generalized_flower = c("form_open_generalized", "form_trials")
+)
+for (outcome in names(trait_outcomes)) {
+  success_col <- trait_outcomes[[outcome]][1]
+  trials_col <- trait_outcomes[[outcome]][2]
+  for (model in names(trait_models)) {
     key <- paste(outcome, model, sep = "__")
-    fit <- fit_grouped(success_col, trials_col, model_rhs[[outcome]][[model]], dd)
+    fit <- fit_grouped(success_col, trials_col, trait_models[[model]], mediation_support)
     fits[[key]] <- fit
     s <- score_fit(fit); s[, `:=`(outcome = outcome, model = model)]; score_rows[[key]] <- s
-    f <- as.data.table(fit$summary.fixed, keep.rownames = "parameter")
-    f[, `:=`(outcome = outcome, model = model)]; fixed_rows[[key]] <- f
+    fixed_rows[[key]] <- fixed_table(fit, outcome, model)
   }
 }
 
@@ -139,17 +144,51 @@ fixed <- rbindlist(fixed_rows, fill = TRUE)
 fixed[, excludes_zero := (`0.025quant` > 0 & `0.975quant` > 0) |
   (`0.025quant` < 0 & `0.975quant` < 0)]
 fwrite(fixed, file.path(outdir, "northern_fixed_effects.csv"))
+
+# Direct, indirect, and total effects. The two component models are separate;
+# posterior marginal draws are therefore combined as an explicit product-of-
+# marginals approximation. This is reported in the output metadata.
+sample_fixed <- function(fit, parameter, n = 50000L) {
+  if (!parameter %in% rownames(fit$summary.fixed)) stop("missing parameter: ", parameter)
+  inla.rmarginal(n, fit$marginals.fixed[[parameter]])
+}
+summarize_draws <- function(x, outcome, effect) {
+  q <- quantile(x, c(0.025, 0.5, 0.975), na.rm = TRUE)
+  data.table(
+    outcome = outcome, effect = effect, mean = mean(x, na.rm = TRUE),
+    median = unname(q[[2]]), `0.025quant` = unname(q[[1]]),
+    `0.975quant` = unname(q[[3]]),
+    excludes_zero = unname(q[[1]] > 0 | q[[3]] < 0)
+  )
+}
+a_fit <- fits[["self_compatibility__N1_bombus"]]
+a_draw <- sample_fixed(a_fit, "z_bombus_deficit")
+mediation_rows <- list()
+for (outcome in names(trait_outcomes)) {
+  trait_fit <- fits[[paste0(outcome, "__N3_direct_indirect")]]
+  direct_draw <- sample_fixed(trait_fit, "z_bombus_deficit")
+  b_draw <- sample_fixed(trait_fit, "z_sc_share")
+  indirect_draw <- a_draw * b_draw
+  total_draw <- direct_draw + indirect_draw
+  mediation_rows[[paste0(outcome, "_a")]] <- summarize_draws(a_draw, outcome, "a_bombus_to_self_compatibility")
+  mediation_rows[[paste0(outcome, "_b")]] <- summarize_draws(b_draw, outcome, "b_self_compatibility_to_trait")
+  mediation_rows[[paste0(outcome, "_direct")]] <- summarize_draws(direct_draw, outcome, "direct_bombus_to_trait")
+  mediation_rows[[paste0(outcome, "_indirect")]] <- summarize_draws(indirect_draw, outcome, "indirect_bombus_via_self_compatibility")
+  mediation_rows[[paste0(outcome, "_total")]] <- summarize_draws(total_draw, outcome, "total_bombus_effect")
+}
+mediation_effects <- rbindlist(mediation_rows)
+fwrite(mediation_effects, file.path(outdir, "northern_direct_indirect_total_effects.csv"))
+
 key_effects <- fixed[
   (outcome == "self_compatibility" & model == "N1_bombus" & parameter == "z_bombus_deficit") |
-  (outcome %in% c("plain_flower", "generalized_flower") & model == "N3_bombus_sc" &
+  (outcome %in% names(trait_outcomes) & model == "N3_direct_indirect" &
     parameter %in% c("z_bombus_deficit", "z_sc_share"))
 ]
 fwrite(key_effects, file.path(outdir, "northern_bombus_syndrome_effects.csv"))
-fwrite(rbindlist(support_rows), file.path(outdir, "northern_support.csv"))
 
-# Falsification across regimes. The first three outcomes test whether the
-# northern isolation syndrome is geographically restricted. The last three
-# are descriptive counter-patterns for conspicuous/specialized flowers only.
+# Falsification: estimate whether the northern isolation slopes for SC and dull/
+# generalized flowers weaken, disappear, or reverse in tropical and southern
+# extratropical regimes. Conspicuous categories are descriptive counter-patterns.
 falsification_outcomes <- list(
   self_compatibility = c("sc_successes", "sc_trials"),
   plain_flower = c("color_plain", "color_trials"),
@@ -158,11 +197,12 @@ falsification_outcomes <- list(
   red_pink = c("color_red_pink", "color_trials"),
   tubular_trumpet = c("form_tubular_trumpet", "form_trials")
 )
-regime_rows <- list(); regime_fits <- list()
+regime_rows <- list(); regime_fits <- list(); regime_support_rows <- list()
 for (outcome in names(falsification_outcomes)) {
   success_col <- falsification_outcomes[[outcome]][1]
   trials_col <- falsification_outcomes[[outcome]][2]
   dd <- complete[get(trials_col) > 0]
+  regime_support_rows[[outcome]] <- dd[, .N, by = .(outcome = outcome, analysis_regime)]
   dd[, obs_id := seq_len(.N)]
   rhs <- paste(
     "regime * z_log_distance_to_continent_km + z_log_island_area_km2 +",
@@ -187,15 +227,23 @@ isolation_terms <- regime_effects[
   .(outcome, parameter, mean, `0.025quant`, `0.975quant`, excludes_zero)
 ]
 fwrite(isolation_terms, file.path(outdir, "cross_regime_isolation_summary.csv"))
+fwrite(rbindlist(regime_support_rows), file.path(outdir, "cross_regime_support.csv"))
 
 meta <- list(
-  contract = "v2_simple_northern_bombus_syndrome_falsification_v1",
+  contract = "v2_northern_bombus_direct_indirect_with_global_falsification_v1",
   analysis_tier = unique(d$analysis_tier),
-  primary_claim = "isolation-associated increases in self-compatibility and plain/generalized floral composition are tested as a northern-midlatitude Bombus-linked syndrome",
-  northern_mechanism = "geography -> Bombus deficit -> self-compatibility and plain/generalized floral composition",
-  falsification = "the same isolation slopes are estimated in tropical and southern-extratropical regimes; yellow/orange, red/pink and tubular/trumpet categories are descriptive counter-patterns only",
+  primary_domain = "northern_midlatitude",
+  primary_claim = "isolation-associated self-compatibility and dull/generalized floral composition are tested as a northern Bombus-linked syndrome",
+  causal_decomposition = list(
+    direct = "Bombus deficit -> plain/generalized floral composition",
+    indirect = "Bombus deficit -> self-compatibility -> plain/generalized floral composition",
+    total = "direct + indirect"
+  ),
+  mediation_support = "common northern island support with SC, colour, and floral-form trials",
+  mediation_uncertainty = "product-of-INLA-posterior-marginals approximation across separately fitted component models",
+  falsification = "tropical and southern-extratropical regimes test whether the northern isolation slopes weaken, disappear, or reverse; conspicuous categories are descriptive counter-patterns",
   excluded_from_primary_mechanism = "alternative-pollinator covariates and Bombus-by-alternative interactions",
-  n_complete_northern_midlatitude = nrow(north),
+  n_common_northern_mediation_islands = nrow(mediation_support),
   n_complete_all_regimes = nrow(complete)
 )
 write_json(meta, file.path(outdir, "analysis_metadata.json"), pretty = TRUE, auto_unbox = TRUE)
