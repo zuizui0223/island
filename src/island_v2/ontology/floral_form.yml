@@ -1,0 +1,31 @@
+version: 1
+unknown_policy: preserve_null
+categories:
+  zygomorphic_specialized:
+    - zygomorphic
+    - orchid
+    - papilion
+    - spurred
+    - spur
+    - bilabiate
+  tubular_trumpet:
+    - tubular
+    - trumpet
+    - funnel
+    - salver
+    - urn
+    - urceolate
+    - campanulate
+    - bell
+  composite_brush:
+    - composite
+    - head
+    - brush
+    - puff
+  open_generalized:
+    - open
+    - radial
+    - actinomorphic
+    - bowl
+    - cup
+    - star
