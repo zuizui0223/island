@@ -1,0 +1,79 @@
+version: "1.0"
+analysis_unit: island
+analysis_contract: existing_locked_artifacts_full_path_v1
+
+# All inputs are already locked in PR #112/#113. No new occurrence acquisition is
+# required for this analysis. Bombus is interpreted as environmental compatibility,
+# not observed biological absence.
+bombus_channel:
+  predictor: environmental_compatibility_max
+  interpretation: potential_Bombus_channel_strength_from_environmental_compatibility
+
+climate:
+  columns: [bio1, bio4, bio5, bio6, bio12, bio15, bio18, bio19, elevation]
+  n_pcs: 4
+  expected_min_cumulative_variance: 0.85
+
+spatial_inference:
+  block_degrees: 10.0
+  covariance: cluster_robust_sandwich
+
+baseline_covariates:
+  - log_island_area_km2
+  - abs_latitude
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+  - log_trait_species_richness
+
+proxies:
+  floral_phenotype:
+    trait_name: pollination_functional_guild
+    positive_values: [bumblebees]
+  autonomous_selfing:
+    trait_name: autonomous_selfing_capacity
+    positive_values: [autonomous]
+  self_compatibility:
+    trait_name: self_incompatibility
+    positive_values: [SC, likely_SC]
+  alternative_pollen_vector:
+    # Independent of the pollination_functional_guild outcome partition, avoiding
+    # the previous algebraic bumblebees-vs-other-guilds complement artifact.
+    trait_name: pollen_vector_mode
+    positive_values: [wind, mixed]
+
+models:
+  M0:
+    equations:
+      - floral_phenotype ~ baseline
+  M1:
+    equations:
+      - floral_phenotype ~ baseline + bombus_channel_state
+  M2:
+    equations:
+      - autonomous_selfing ~ baseline + bombus_channel_state
+      - self_compatibility ~ baseline + bombus_channel_state
+      - floral_phenotype ~ baseline + autonomous_selfing + self_compatibility
+  M3:
+    equations:
+      - autonomous_selfing ~ baseline + bombus_channel_state
+      - self_compatibility ~ baseline + bombus_channel_state
+      - floral_phenotype ~ baseline + bombus_channel_state + autonomous_selfing + self_compatibility
+  M4:
+    equations:
+      - floral_phenotype ~ baseline + bombus_channel_state + alternative_pollen_vector + bombus_x_alternative
+
+reporting:
+  analysis_tiers: [primary, broad, sensitivity_all]
+  minimum_complete_islands: 50
+  nominal_z_threshold: 1.96
+  robustness_outputs:
+    - direction_consistent_across_tiers
+    - all_tiers_nominally_supported
+    - max_absolute_coefficient_difference
+
+limitations:
+  - Bombus predictor is environmental compatibility, not observed absence.
+  - Source-pool membership and establishment are not yet represented in this locked exploratory-production bridge.
+  - Isolation is not inserted with an ad-hoc nearest-island proxy; it remains a declared missing baseline block until a reviewed definition is frozen.
