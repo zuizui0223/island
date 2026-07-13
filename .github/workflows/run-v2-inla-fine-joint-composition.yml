@@ -107,28 +107,39 @@ jobs:
           r-version: "release"
           use-public-rspm: true
 
+      - name: Install geospatial system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libudunits2-dev libgdal-dev libgeos-dev libproj-dev libsqlite3-dev
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           packages: |
             any::data.table
             any::jsonlite
+            any::units
+            any::sf
+            any::fmesher
           cache: true
 
-      - name: Install and parse R-INLA analysis
+      - name: Install, load, and parse R-INLA analysis
         run: |
           set -euo pipefail
           Rscript - <<'RS'
           options(timeout = 600)
-          user_lib <- Sys.getenv("R_LIBS_USER")
-          if (!nzchar(user_lib)) stop("R_LIBS_USER is not set")
-          dir.create(user_lib, recursive = TRUE, showWarnings = FALSE)
-          .libPaths(unique(c(user_lib, .libPaths())))
           repos <- c(CRAN = "https://cloud.r-project.org", INLA = "https://inla.r-inla-download.org/R/stable")
-          install.packages("INLA", lib = user_lib, repos = repos, dependencies = c("Depends", "Imports", "LinkingTo"))
-          .libPaths(unique(c(user_lib, .libPaths())))
-          if (!requireNamespace("INLA", quietly = TRUE, lib.loc = user_lib)) {
-            stop("INLA install failed; library paths: ", paste(.libPaths(), collapse = "; "))
-          }
+          install.packages("INLA", repos = repos, dependencies = c("Depends", "Imports", "LinkingTo"))
+          ok <- tryCatch({
+            suppressPackageStartupMessages(library(INLA))
+            TRUE
+          }, error = function(e) {
+            message("INLA namespace load error: ", conditionMessage(e))
+            message("Installed INLA paths: ", paste(find.package("INLA", quiet = TRUE), collapse = "; "))
+            message("Library paths: ", paste(.libPaths(), collapse = "; "))
+            FALSE
+          })
+          if (!ok) stop("INLA install/load failed")
           parse(file = "analysis/v2/run_inla_fine_joint_color_form_composition.R")
           RS
 
