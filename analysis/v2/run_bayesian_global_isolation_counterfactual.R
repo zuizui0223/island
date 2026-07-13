@@ -16,7 +16,9 @@ d <- fread(infile)
 
 # This workflow is a noncanonical scalar replication of the canonical INLA analysis.
 # It does not fit category-preserving flower models and does not use alternative-
-# pollinator guilds as primary covariates.
+# pollinator guilds as primary covariates. Wind pollination is analysed separately
+# as an upstream whole-flora composition outcome, not mixed into animal-mediated
+# floral-trait denominators.
 n_input <- nrow(d)
 n_zero_distance <- sum(is.finite(d$distance_to_continent_km) & d$distance_to_continent_km <= 0, na.rm = TRUE)
 d <- d[
@@ -64,17 +66,26 @@ fit_bb <- function(formula, data, file) {
   )
 }
 
-# Each equation uses its own maximum available support. Missing form evidence does
-# not remove an otherwise usable island from the colour or SC equations.
+# Each equation uses its own maximum available support. Wind share uses the whole
+# flora with a resolved binary pollen-vector mode (biotic vs abiotic_wind). Floral
+# colour, form, and SC equations remain restricted to animal-mediated species.
 base_complete <- complete.cases(d[, .(
   z_log_distance, z_log_area, z_climate_pc1, z_climate_pc2,
   z_climate_pc3, z_climate_pc4, analysis_regime
 )])
+wind_global <- d[base_complete & pollen_vector_trials > 0]
 sc_global <- d[base_complete & sc_trials > 0]
 color_global <- d[base_complete & color_trials > 0]
 form_global <- d[base_complete & form_trials > 0]
 
 # Global falsification: test whether isolation slopes differ among regimes.
+f0_wind <- fit_bb(
+  n_wind_species | trials(pollen_vector_trials) ~
+    z_log_distance * analysis_regime + z_log_area +
+    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  wind_global,
+  file.path(outdir, "f0_global_isolation_wind")
+)
 f0_sc <- fit_bb(
   sc_successes | trials(sc_trials) ~
     z_log_distance * analysis_regime + z_log_area +
@@ -130,6 +141,7 @@ n_form <- fit_bb(
 )
 
 fits <- list(
+  F0_wind = f0_wind,
   F0_SC = f0_sc,
   F0_plain = f0_color,
   F0_generalized = f0_form,
@@ -147,11 +159,11 @@ fwrite(posterior_rows, file.path(outdir, "posterior_fixed_effects.csv"))
 
 support <- data.table(
   equation = c(
-    "global_SC", "global_plain", "global_generalized",
+    "global_wind", "global_SC", "global_plain", "global_generalized",
     "northern_SC", "northern_plain", "northern_generalized"
   ),
   n_islands = c(
-    nrow(sc_global), nrow(color_global), nrow(form_global),
+    nrow(wind_global), nrow(sc_global), nrow(color_global), nrow(form_global),
     nrow(sc_north), nrow(color_north), nrow(form_north)
   )
 )
@@ -221,20 +233,21 @@ if (any(sampler_diagnostics$max_rhat > 1.01, na.rm = TRUE)) warning("R-hat > 1.0
 capture.output(lapply(fits, summary), file = file.path(outdir, "model_summaries.txt"))
 
 meta <- list(
-  contract = "v2_bayesian_scalar_falsification_replication_v2",
+  contract = "v2_bayesian_scalar_falsification_replication_v3",
   role = "noncanonical scalar replication of the canonical INLA analysis",
-  method = "Global isolation-by-regime falsification plus northern scalar Bombus/SC path replication",
+  method = "Global isolation-by-regime falsification for wind share, SC, plain colour, and generalized form plus northern scalar Bombus/SC path replication",
   analysis_tier = "sensitivity_all",
   category_preserving_models = FALSE,
   alternative_pollinator_primary_covariates = FALSE,
+  wind_pollination_scope = "whole-flora resolved biotic vs abiotic_wind composition; analysed upstream and separately from animal-mediated floral traits",
   n_input_islands = n_input,
   n_zero_or_negative_distance_excluded = n_zero_distance,
   n_positive_distance_islands_retained_before_equation_missingness = nrow(d),
   distance_rule = "distance_to_continent_km > 0; log(distance_to_continent_km)",
-  support_strategy = "maximum available islands per equation; no forced colour+form+SC complete-case intersection",
-  global_falsification = "isolation x analysis_regime for SC, plain colour, and open/generalized form",
+  support_strategy = "maximum available islands per equation; no forced wind+colour+form+SC complete-case intersection",
+  global_falsification = "isolation x analysis_regime for wind share, SC, plain colour, and open/generalized form",
   northern_replication = "Bombus deficit -> SC and direct/SC-mediated paths to scalar plain/generalized outcomes",
-  interpretation_guardrail = "This workflow does not replace the category-preserving INLA analysis and does not estimate alternative-pollinator causal paths.",
+  interpretation_guardrail = "Wind pollination is a separate whole-flora composition outcome; it is not inserted into animal-mediated flower-colour or flower-form denominators. This workflow does not replace the category-preserving INLA analysis.",
   sampler = "2 chains x 2000 iterations, 1000 warmup, adapt_delta=0.99, max_treedepth=15"
 )
 write_json(meta, file.path(outdir, "analysis_metadata.json"), pretty = TRUE, auto_unbox = TRUE)
