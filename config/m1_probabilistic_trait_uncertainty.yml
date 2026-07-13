@@ -1,0 +1,56 @@
+version: "1.0"
+analysis_contract: m1_probabilistic_trait_uncertainty_v1
+analysis_role: inference_uncertainty_sensitivity_not_direct_confirmatory
+
+outcome:
+  trait_name: pollination_functional_guild
+  positive_value: bumblebees
+  included_fill_tiers:
+    - species_direct
+    - genus_inference
+    - family_inference
+  excluded_fill_tiers:
+    - global_fallback
+
+imputation:
+  species_level_draws: true
+  n_imputations: 200
+  random_seed: 20260713
+  direct_cells_fixed: true
+  inferred_probability_source: value_distribution
+  pooling: rubin_style_within_plus_between_variance
+
+baseline_specs:
+  full:
+    - log_island_area_km2
+    - abs_latitude
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+    - log_trait_species_richness
+  no_abs_latitude:
+    - log_island_area_km2
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+    - log_trait_species_richness
+
+bombus_predictor: bombus_channel_state
+spatial_cluster: spatial_block
+nominal_z_threshold: 1.96
+
+reporting:
+  minimum_imputations: 100
+  empirical_interval: [0.025, 0.975]
+  compare_to:
+    - hard_modal_broad_without_global_fallback
+    - expected_probability_counts
+    - locked_species_direct_confirmatory_result
+
+interpretation_guardrails:
+  - This is an empirical uncertainty sensitivity, not a formal missing-at-random multiple-imputation model.
+  - Each inferred species is sampled once per imputation and retains that sampled trait across every island occurrence.
+  - Global fallback is excluded because it has no species-specific taxonomic evidence and was shown to contribute a constant zero bumblebee share.
+  - LOO validation accuracy limits interpretation even when the pooled coefficient is stable.
