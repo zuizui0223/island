@@ -1,0 +1,28 @@
+version: 1
+main_evidence_tier: primary
+sensitivity_tiers:
+  - broad
+  - sensitivity_all
+models:
+  M0:
+    population: northern_midlatitude
+    responses: [flower_color, floral_form, self_compatibility]
+    predictors: [distance_to_continent, island_area, climate]
+  M1:
+    extends: M0
+    add_predictors: [bombus_channel]
+  M2:
+    extends: M0
+    add_predictors: [reproductive_assurance]
+  M3:
+    extends: M0
+    add_predictors: [bombus_channel, reproductive_assurance]
+  M4:
+    population: global
+    responses: [detailed_flower_color, detailed_floral_form]
+    predictors: [distance_to_continent, island_area, analysis_regime, alternative_pollinator_guild]
+principles:
+  unknown_is_not_negative: true
+  preserve_category_resolution: true
+  separate_main_from_sensitivity: true
+  preserve_bombus_channel_components: true
