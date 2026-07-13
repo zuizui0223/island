@@ -72,39 +72,41 @@ jobs:
           mkdir -p /tmp/covariates
           unzip -q /tmp/covariates.zip -d /tmp/covariates
 
-      - name: Prepare auditable primary-tier INLA input
+      - name: Prepare auditable all-data INLA input
         run: |
           set -euo pipefail
-          MASTER=$(find /tmp/integrated -type f -path '*/bombus_join/primary/island_species_trait_bombus_master.csv.gz' -print -quit)
+          MASTER=$(find /tmp/integrated -type f -path '*/bombus_join/sensitivity_all/island_species_trait_bombus_master.csv.gz' -print -quit)
           COV=$(find /tmp/covariates -type f -name purpose_shortest_island_data.csv -print -quit)
           FULL=data/v2/staging/analysis/inla_main/v2_inla_full_universe_input.csv
-          MODEL=data/v2/staging/analysis/inla_main/v2_inla_primary_model_input.csv
+          MODEL=data/v2/staging/analysis/inla_main/v2_inla_all_data_model_input.csv
           test -f "$MASTER"
           test -f "$COV"
           python src/island_v2/prepare_v2_bayesian_main_input.py \
             --master-csv-gz "$MASTER" \
             --island-covariates-csv "$COV" \
-            --analysis-tier primary \
+            --analysis-tier sensitivity_all \
             --output-csv "$FULL"
           python src/island_v2/validate_analysis_inputs.py \
             --input-csv "$FULL" \
-            --expected-tier primary \
+            --expected-tier sensitivity_all \
             --reference-islands-csv "$COV"
           python - <<'PY'
           import pandas as pd
           full_path = 'data/v2/staging/analysis/inla_main/v2_inla_full_universe_input.csv'
-          model_path = 'data/v2/staging/analysis/inla_main/v2_inla_primary_model_input.csv'
+          model_path = 'data/v2/staging/analysis/inla_main/v2_inla_all_data_model_input.csv'
           d = pd.read_csv(full_path)
           zero = d['distance_zero_flag'].astype(bool)
-          primary = d['primary_distance_support'].astype(bool)
+          support = d['primary_distance_support'].astype(bool)
           assert zero.equals(d['distance_to_continent_km'].eq(0))
-          assert primary.equals(d['distance_to_continent_km'].gt(0))
-          d.loc[primary].to_csv(model_path, index=False)
-          assert (pd.read_csv(model_path)['distance_to_continent_km'] > 0).all()
+          assert support.equals(d['distance_to_continent_km'].gt(0))
+          d.loc[support].to_csv(model_path, index=False)
+          model = pd.read_csv(model_path)
+          assert (model['distance_to_continent_km'] > 0).all()
           print({
+              'analysis_tier': 'sensitivity_all',
               'n_frozen_universe': int(len(d)),
               'n_distance_zero_audit': int(zero.sum()),
-              'n_primary_distance_support': int(primary.sum()),
+              'n_distance_positive_model_input': int(support.sum()),
           })
           print(d[['analysis_tier', 'analysis_regime', 'area_km2', 'distance_to_continent_km', 'bombus_deficit', 'color_trials', 'form_trials', 'sc_trials']].describe(include='all'))
           PY
@@ -174,19 +176,19 @@ jobs:
           INLA::inla.version()
           RS
 
-      - name: Run INLA M0-M4 main analysis
+      - name: Run INLA M0-M4 all-data analysis
         run: |
           set -o pipefail
           mkdir -p data/v2/staging/analysis/inla_main/results
           Rscript analysis/v2/run_inla_m0_m4_main.R \
-            data/v2/staging/analysis/inla_main/v2_inla_primary_model_input.csv \
+            data/v2/staging/analysis/inla_main/v2_inla_all_data_model_input.csv \
             data/v2/staging/analysis/inla_main/results \
             2>&1 | tee data/v2/staging/analysis/inla_main/results/run.log
 
-      - name: Summarize INLA main results
+      - name: Summarize INLA all-data results
         if: success()
         run: |
-          echo '## INLA v2 M0-M4 main analysis' >> "$GITHUB_STEP_SUMMARY"
+          echo '## INLA v2 M0-M4 all-data analysis' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/inla_main/results/analysis_metadata.json >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### M0-M3 scenario comparison' >> "$GITHUB_STEP_SUMMARY"
@@ -195,11 +197,11 @@ jobs:
           echo '### M3 indirect effects' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/inla_main/results/inla_m3_indirect_effects.csv >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload INLA main-analysis artifact
+      - name: Upload INLA all-data analysis artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: v2-inla-m0-m4-main-${{ github.run_id }}
+          name: v2-inla-m0-m4-all-data-${{ github.run_id }}
           path: data/v2/staging/analysis/inla_main/
           if-no-files-found: error
           retention-days: 90
