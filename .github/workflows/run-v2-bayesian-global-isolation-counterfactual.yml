@@ -120,7 +120,7 @@ jobs:
           sudo Rscript -e "install.packages('brms', repos='https://cloud.r-project.org', quiet=TRUE)"
           Rscript -e "parse(file='analysis/v2/run_bayesian_global_isolation_counterfactual.R'); library(BH); stopifnot(nchar(system.file('include', package='BH')) > 0); packageVersion('brms')"
 
-      - name: Run noncanonical scalar falsification and northern path replication
+      - name: Run noncanonical scalar path replication and falsification
         run: |
           set -o pipefail
           mkdir -p data/v2/staging/analysis/bayesian_global_isolation/results
@@ -132,15 +132,18 @@ jobs:
       - name: Summarize results
         if: success()
         run: |
-          echo '## Noncanonical Bayesian scalar path replication' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Noncanonical Bayesian scalar path replication and falsification' >> "$GITHUB_STEP_SUMMARY"
           echo 'Canonical category-preserving inference remains the northern INLA workflow from PR #115.' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/analysis_metadata.json >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Equation-specific maximum support' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/equation_support.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Northern direct, specific indirect, and total effects on plain flowers' >> "$GITHUB_STEP_SUMMARY"
-          cat data/v2/staging/analysis/bayesian_global_isolation/results/northern_path_effects.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '### Matched northern, tropical, and southern path effects' >> "$GITHUB_STEP_SUMMARY"
+          cat data/v2/staging/analysis/bayesian_global_isolation/results/regime_path_effects.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Falsification contrasts versus northern midlatitudes' >> "$GITHUB_STEP_SUMMARY"
+          cat data/v2/staging/analysis/bayesian_global_isolation/results/falsification_contrasts_vs_north.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Sampler diagnostics' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/sampler_diagnostics.csv >> "$GITHUB_STEP_SUMMARY"
