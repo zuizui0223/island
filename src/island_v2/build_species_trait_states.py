@@ -25,7 +25,8 @@ def _load_yaml(path: Path) -> dict:
 def _category_case(column: str, ontology: dict) -> str:
     clauses: list[str] = []
     for category, terms in ontology["categories"].items():
-        pattern = "|".join(re.escape(str(term).lower()) for term in terms)
+        escaped = [re.escape(str(term).strip().lower()) for term in terms]
+        pattern = "|".join(f"(?:^|[^a-z]){term}(?:$|[^a-z])" for term in escaped)
         clauses.append(
             f"WHEN regexp_matches(lower(coalesce({column}, '')), '(?:{pattern})') "
             f"THEN '{category}'"
@@ -45,14 +46,18 @@ def _guild_case(column: str, values: list[str]) -> str:
 
 def build_species_trait_states(master_csv_gz: Path, output_parquet: Path) -> None:
     color = _load_yaml(ONTOLOGY_DIR / "flower_color.yml")
+    color_fine = _load_yaml(ONTOLOGY_DIR / "flower_color_fine.yml")
     form = _load_yaml(ONTOLOGY_DIR / "floral_form.yml")
+    form_fine = _load_yaml(ONTOLOGY_DIR / "floral_form_fine.yml")
     guild = _load_yaml(ONTOLOGY_DIR / "pollinator_guild.yml")
     output_parquet.parent.mkdir(parents=True, exist_ok=True)
 
     master = str(master_csv_gz).replace("'", "''")
     out = str(output_parquet).replace("'", "''")
     color_case = _category_case("flower_primary_color", color)
+    color_fine_case = _category_case("flower_primary_color", color_fine)
     form_case = _category_case("floral_form", form)
+    form_fine_case = _category_case("floral_form", form_fine)
     showy_alt_case = _guild_case(
         "pollination_functional_guild", guild["groups"]["showy_alt"]["positive"]
     )
@@ -135,10 +140,12 @@ def build_species_trait_states(master_csv_gz: Path, output_parquet: Path) -> Non
               ELSE NULL
             END AS is_mixed,
             {color_case} AS color_cat,
+            {color_fine_case} AS color_fine_cat,
             {form_case} AS form_cat,
+            {form_fine_case} AS form_fine_cat,
             CASE
-              WHEN self_incompatibility IN ('SC','likely_SC') THEN 1
-              WHEN self_incompatibility IN ('SI','likely_SI','obligate_SI') THEN 0
+              WHEN lower(self_incompatibility) IN ('sc','likely_sc') THEN 1
+              WHEN lower(self_incompatibility) IN ('si','likely_si','obligate_si') THEN 0
               ELSE NULL
             END AS sc_binary,
             {showy_alt_case} AS showy_alt,
