@@ -11,6 +11,14 @@ on:
       - "src/island_v2/m0_m4_existing_paths.py"
       - "config/m0_m4_sem.yml"
       - "pyproject.toml"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/run-m0-m4-existing-paths.yml"
+      - "config/integrated_trait_bombus_artifact_lock.json"
+      - "src/island_v2/m0_m4_existing_paths.py"
+      - "config/m0_m4_sem.yml"
+      - "pyproject.toml"
 
 permissions:
   actions: read
