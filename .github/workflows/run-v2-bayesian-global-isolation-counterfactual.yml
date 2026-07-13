@@ -1,4 +1,4 @@
-name: run_v2_bayesian_binary_pathway_falsification
+name: run_v2_bayesian_binary_pathway_inference
 
 on:
   workflow_dispatch:
@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 jobs:
-  binary-pathway-falsification:
+  binary-pathway-inference:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     steps:
@@ -59,7 +59,7 @@ jobs:
           mkdir -p /tmp/covariates
           unzip -q /tmp/covariates.zip -d /tmp/covariates
 
-      - name: Prepare global binary pathway input
+      - name: Prepare binary pathway input
         run: |
           set -euo pipefail
           MASTER=$(find /tmp/integrated -type f -path '*/bombus_join/sensitivity_all/island_species_trait_bombus_master.csv.gz' -print -quit)
@@ -96,7 +96,7 @@ jobs:
           sudo Rscript -e "install.packages('brms', repos='https://cloud.r-project.org', quiet=TRUE)"
           Rscript -e "parse(file='analysis/v2/run_bayesian_global_isolation_counterfactual.R'); library(BH); stopifnot(nchar(system.file('include', package='BH')) > 0); packageVersion('brms')"
 
-      - name: Run binary syndrome pathway and global falsification
+      - name: Run northern binary pathways and cross-regime falsification
         run: |
           set -o pipefail
           mkdir -p data/v2/staging/analysis/bayesian_global_isolation/results
@@ -105,11 +105,11 @@ jobs:
             data/v2/staging/analysis/bayesian_global_isolation/results \
             2>&1 | tee data/v2/staging/analysis/bayesian_global_isolation/results/run.log
 
-      - name: Summarize results
+      - name: Summarize pathway results
         if: success()
         run: |
-          echo '## Bayesian binary syndrome-level pathway analysis' >> "$GITHUB_STEP_SUMMARY"
-          echo 'INLA provides the complementary category-level decomposition.' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Bayesian binary pathway inference' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Purpose: estimate broad direct and SC-mediated paths. Category-level effects are delegated to INLA.' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/analysis_metadata.json >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Equation-specific maximum support' >> "$GITHUB_STEP_SUMMARY"
@@ -121,11 +121,11 @@ jobs:
           echo '### Sampler diagnostics' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/sampler_diagnostics.csv >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload Bayesian binary pathway artifact
+      - name: Upload Bayesian pathway artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: v2-bayesian-binary-pathway-falsification-${{ github.run_id }}
+          name: v2-bayesian-binary-pathway-inference-${{ github.run_id }}
           path: data/v2/staging/analysis/bayesian_global_isolation/
           if-no-files-found: error
           retention-days: 90
