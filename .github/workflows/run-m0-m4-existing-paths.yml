@@ -59,7 +59,7 @@ jobs:
             METRICS="$ROOT/island_bombus_trait_analysis_input.csv"
             test -f "$COMP"
             test -f "$METRICS"
-            island-v2-m0-m4-existing-paths run \
+            island-v2-m0-m4-existing-paths \
               --trait-composition-csv "$COMP" \
               --island-metrics-csv "$METRICS" \
               --analysis-tier "$TIER" \
