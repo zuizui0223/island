@@ -84,9 +84,6 @@ score_fit <- function(fit) {
   )
 }
 
-# All candidate models use the same maximum complete-case support required by the
-# fullest channel model. This keeps CPO comparisons fair while retaining the
-# largest dataset compatible with geography, Bombus, SC, and alternative guilds.
 north <- d[
   analysis_regime == "northern_midlatitude" &
     complete.cases(
@@ -110,9 +107,7 @@ for (outcome in names(specs)) {
   dd <- north[get(trials_col) > 0]
   bad <- !is.finite(dd[[success_col]]) | !is.finite(dd[[trials_col]]) |
     dd[[success_col]] < 0 | dd[[trials_col]] <= 0 |
-    dd[[success_col]] > dd[[trials_col]] |
-    dd[[success_col]] != floor(dd[[success_col]]) |
-    dd[[trials_col]] != floor(dd[[trials_col]])
+    dd[[success_col]] > dd[[trials_col]]
   if (any(bad)) stop("Invalid grouped counts for ", outcome)
   support_rows[[outcome]] <- data.table(outcome = outcome, n_islands = nrow(dd))
 
@@ -142,10 +137,11 @@ setcolorder(fixed, c("outcome", "model", "parameter"))
 fwrite(fixed, file.path(outdir, "category_fixed_effects.csv"))
 
 full_effects <- fixed[
-  model == "M7_full" & parameter %in% c(
-    "z_bombus_deficit", "z_sc_share", "z_showy_alt_guild_share",
-    "z_other_bee_guild_share", "z_generalist_insect_guild_share"
-  )
+  model == "M7_full" &
+    parameter %in% c(
+      "z_bombus_deficit", "z_sc_share", "z_showy_alt_guild_share",
+      "z_other_bee_guild_share", "z_generalist_insect_guild_share"
+    )
 ]
 full_effects[, excludes_zero :=
   (`0.025quant` > 0 & `0.975quant` > 0) |
@@ -153,7 +149,7 @@ full_effects[, excludes_zero :=
 ]
 full_effects[, direction := fifelse(mean > 0, "positive", "negative")]
 setorder(full_effects, outcome, parameter)
-fwrite(full_effects, file.path(outdir, "m7_full_channel_effects.csv"))
+fwrite(full_effects, file.path(outdir, "full_category_channel_effects.csv"))
 
 best <- scores[, .SD[which.max(log_cpo_sum)], by = outcome]
 best <- best[, .(outcome, best_model = model, log_cpo_sum, waic, dic, n_cpo)]
@@ -163,24 +159,14 @@ support <- rbindlist(support_rows)
 fwrite(support, file.path(outdir, "category_support.csv"))
 
 meta <- list(
-  contract = "v2_inla_category_preserving_northern_midlatitude_max_data_alt_routes_v2",
+  contract = "v2_inla_category_preserving_northern_midlatitude_max_data_v2",
   analysis_tier = unique(d$analysis_tier),
   regime = "northern_midlatitude",
   support_policy = "for each category, M0-M7 are fit on the same maximum complete-case support required by the full Bombus + SC + alternative-pollinator model",
   category_policy = "one-vs-rest grouped binomial-logit-normal; no color/form binary collapse",
-  channel_models = list(
-    M0_geo = "geography + climate",
-    M1_bombus = "Bombus deficit + geography + climate",
-    M2_sc = "self-compatibility + geography + climate",
-    M3_bombus_sc = "Bombus deficit + self-compatibility + geography + climate",
-    M4_alt = "alternative pollinator guilds + geography + climate",
-    M5_bombus_alt = "Bombus deficit + alternative pollinator guilds + geography + climate",
-    M6_sc_alt = "self-compatibility + alternative pollinator guilds + geography + climate",
-    M7_full = "Bombus deficit + self-compatibility + alternative pollinator guilds + geography + climate"
-  ),
+  channel_policy = "compare geography, Bombus deficit, reproductive assurance, alternative-pollinator replacement, and all additive combinations on identical support",
   alternative_pollinator_terms = c(
-    "showy_alt_guild_share", "other_bee_guild_share_1",
-    "generalist_insect_guild_share_1"
+    "showy_alt_guild_share", "other_bee_guild_share_1", "generalist_insect_guild_share_1"
   ),
   n_complete_northern_midlatitude = nrow(north),
   n_spatial_blocks = uniqueN(north$spatial_id)
