@@ -1,0 +1,47 @@
+name: validate_v2_analysis_registry
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+      - "config/v2_workflow_registry.yml"
+      - "config/v2_analysis_contract.yml"
+      - "docs/v2_analysis_workflow_map.md"
+      - "scripts/validate_v2_workflow_registry.py"
+      - "src/island_v2/validate_analysis_inputs.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-registry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install registry validation dependencies
+        run: pip install PyYAML
+
+      - name: Validate canonical analysis roles
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/validate_v2_workflow_registry.py
+          python scripts/validate_v2_workflow_registry.py
+
+      - name: Publish registry summary
+        run: |
+          {
+            echo '## v2 analysis workflow registry'
+            echo ''
+            echo '- Canonical primary inference: INLA M0-M4'
+            echo '- Primary evidence tier: primary (species-direct)'
+            echo '- broad and sensitivity_all: robustness only'
+            echo '- brms: alternative-engine replication'
+            echo '- older M0-M4 routes: provenance/development unless promoted in registry'
+          } >> "$GITHUB_STEP_SUMMARY"
