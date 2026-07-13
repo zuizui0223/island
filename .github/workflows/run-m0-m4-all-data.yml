@@ -1,0 +1,176 @@
+name: run_m0_m4_all_data
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/run-m0-m4-all-data.yml"
+      - "config/m0_m4_full_analysis.yml"
+      - "config/integrated_trait_bombus_artifact_lock.json"
+      - "config/bombus_hypervolume_artifact_lock.json"
+      - "config/island_universe_artifact_lock.json"
+      - "src/island_v2/full_analysis_covariates.py"
+      - "src/island_v2/m0_m4_full_analysis.py"
+      - "pyproject.toml"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  all-data-m0-m4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Download locked integrated trait-Bombus artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          LOCK=config/integrated_trait_bombus_artifact_lock.json
+          ARTIFACT_ID=$(jq -r '.artifact_id' "$LOCK")
+          EXPECTED=$(jq -r '.artifact_digest' "$LOCK" | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            > /tmp/integrated.zip
+          test "$(sha256sum /tmp/integrated.zip | awk '{print $1}')" = "$EXPECTED"
+          mkdir -p /tmp/integrated
+          unzip -q /tmp/integrated.zip -d /tmp/integrated
+
+      - name: Download locked Bombus environmental artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          LOCK=config/bombus_hypervolume_artifact_lock.json
+          ARTIFACT_ID=$(jq -r '.artifact_id' "$LOCK")
+          EXPECTED=$(jq -r '.artifact_digest' "$LOCK" | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            > /tmp/bombus.zip
+          test "$(sha256sum /tmp/bombus.zip | awk '{print $1}')" = "$EXPECTED"
+          mkdir -p /tmp/bombus
+          unzip -q /tmp/bombus.zip -d /tmp/bombus
+
+      - name: Download locked island universe
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          LOCK=config/island_universe_artifact_lock.json
+          ARTIFACT_ID=$(jq -r '.artifact_id' "$LOCK")
+          EXPECTED=$(jq -r '.artifact_digest' "$LOCK" | sed 's/^sha256://')
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            > /tmp/island-universe.zip
+          test "$(sha256sum /tmp/island-universe.zip | awk '{print $1}')" = "$EXPECTED"
+          mkdir -p /tmp/island-universe
+          unzip -q /tmp/island-universe.zip -d /tmp/island-universe
+
+      - name: Build baseline covariates
+        run: |
+          set -euo pipefail
+          ISLAND_ENV=$(find /tmp/bombus -name global_island_environment.csv -print -quit)
+          ENV_SAMPLES=$(find /tmp/bombus -name global_island_environment_samples.csv.gz -print -quit)
+          ISLAND_MANIFEST=$(find /tmp/island-universe -name island_manifest.csv -print -quit)
+          test -n "$ISLAND_ENV"
+          test -n "$ENV_SAMPLES"
+          test -n "$ISLAND_MANIFEST"
+          island-v2-full-analysis-covariates \
+            --island-environment-csv "$ISLAND_ENV" \
+            --environment-samples-csv "$ENV_SAMPLES" \
+            --island-manifest-csv "$ISLAND_MANIFEST" \
+            --output-dir data/v2/staging/analysis/m0_m4_all_data/covariates
+
+      - name: Fit M0-M4 once on all available trait data
+        run: |
+          set -euo pipefail
+          ROOT=$(find /tmp/integrated -type d -path "*/bombus_join/sensitivity_all" -print -quit)
+          test -n "$ROOT"
+          COMP="$ROOT/island_trait_composition_with_bombus.csv.gz"
+          METRICS="$ROOT/island_bombus_trait_analysis_input.csv"
+          COV=data/v2/staging/analysis/m0_m4_all_data/covariates/full_analysis_covariates.csv
+          test -f "$COMP"
+          test -f "$METRICS"
+          test -f "$COV"
+          island-v2-m0-m4-full-analysis \
+            --trait-composition-csv "$COMP" \
+            --island-metrics-csv "$METRICS" \
+            --covariates-csv "$COV" \
+            --analysis-tier sensitivity_all \
+            --output-dir data/v2/staging/analysis/m0_m4_all_data/results
+
+      - name: Validate and summarize M0-M4 results
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('data/v2/staging/analysis/m0_m4_all_data/results')
+          coef = pd.read_csv(root / 'full_analysis_path_coefficients.csv')
+          fits = pd.read_csv(root / 'full_analysis_equation_fit.csv')
+          indirect = pd.read_csv(root / 'full_analysis_indirect_effects.csv')
+          manifest = json.loads((root / 'full_analysis_manifest.json').read_text())
+
+          models = set(coef['model'].astype(str))
+          expected = {'M0', 'M1', 'M2', 'M3', 'M4'}
+          if models != expected:
+              raise SystemExit(f'incomplete M0-M4 ladder: {models}')
+          if not fits['status'].isin(['fitted', 'max_iter_reached']).all():
+              raise SystemExit('one or more equations failed')
+
+          targets = {
+              'M1_bombus': ('M1', 'floral_phenotype', 'bombus_channel_state'),
+              'M3_direct_bombus': ('M3', 'floral_phenotype', 'bombus_channel_state'),
+              'M4_interaction': ('M4', 'floral_phenotype', 'bombus_x_alternative'),
+          }
+          summary = {
+              'contract': 'simple_all_data_m0_m4_v1',
+              'analysis_tier': 'sensitivity_all',
+              'n_islands_input': manifest['n_islands_input'],
+              'n_spatial_blocks_input': manifest['n_spatial_blocks_input'],
+              'm1_minus_m0_total_aic': manifest['m1_minus_m0_total_aic'],
+              'm3_minus_m2_total_aic': manifest['m3_minus_m2_total_aic'],
+              'target_paths': {},
+              'indirect_effects': indirect.to_dict('records'),
+              'interpretation_guardrail': (
+                  'Exploratory all-data run using all trait fill tiers. '
+                  'Sensitivity analyses are intentionally deferred.'
+              ),
+          }
+          for name, (model, outcome, predictor) in targets.items():
+              row = coef.loc[
+                  coef['model'].eq(model)
+                  & coef['outcome'].eq(outcome)
+                  & coef['predictor'].eq(predictor)
+              ]
+              summary['target_paths'][name] = None if row.empty else row.iloc[0].to_dict()
+
+          (root / 'all_data_m0_m4_summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+          print(json.dumps(summary, indent=2))
+          PY
+
+      - name: Upload simple all-data M0-M4 outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: m0-m4-all-data-${{ github.run_id }}
+          path: |
+            config/m0_m4_full_analysis.yml
+            config/integrated_trait_bombus_artifact_lock.json
+            config/bombus_hypervolume_artifact_lock.json
+            config/island_universe_artifact_lock.json
+            data/v2/staging/analysis/m0_m4_all_data/
+          if-no-files-found: error
+          retention-days: 90
