@@ -1,4 +1,4 @@
-name: run_v2_inla_category_preserving_north
+name: run_v2_inla_northern_bombus_mediation_falsification
 
 on:
   workflow_dispatch:
@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 jobs:
-  category-north:
+  northern-bombus-mediation:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
@@ -110,7 +110,7 @@ jobs:
           parse(file = "analysis/v2/run_inla_category_preserving_north.R")
           RS
 
-      - name: Run integrated category, replacement, and projection analysis
+      - name: Run northern Bombus mediation and global falsification analysis
         run: |
           set -o pipefail
           OUT=data/v2/staging/analysis/inla_category_north/results
@@ -119,28 +119,28 @@ jobs:
             data/v2/staging/analysis/inla_category_north/v2_model_input.csv \
             "$OUT" 2>&1 | tee "$OUT/run.log"
 
-      - name: Summarize integrated results
+      - name: Summarize direct, indirect, total, and falsification results
         if: success()
         run: |
           set -euo pipefail
           OUT=data/v2/staging/analysis/inla_category_north/results
-          echo '## Category-preserving replacement + cross-regime projection INLA' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Northern Bombus mediation with tropical/southern falsification' >> "$GITHUB_STEP_SUMMARY"
           cat "$OUT/analysis_metadata.json" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Best northern model by category' >> "$GITHUB_STEP_SUMMARY"
-          cat "$OUT/category_best_models.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '### Northern model comparisons' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/northern_model_comparisons.csv" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### M8 replacement-channel effects' >> "$GITHUB_STEP_SUMMARY"
-          cat "$OUT/replacement_category_channel_effects.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '### Direct, indirect, and total Bombus effects' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/northern_direct_indirect_total_effects.csv" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Cross-regime projection summary' >> "$GITHUB_STEP_SUMMARY"
-          cat "$OUT/cross_regime_projection_summary.csv" >> "$GITHUB_STEP_SUMMARY"
+          echo '### Tropical and southern falsification' >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUT/cross_regime_isolation_summary.csv" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload integrated analysis artifact
+      - name: Upload mediation and falsification artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: v2-inla-category-replacement-projection-${{ github.run_id }}
+          name: v2-northern-bombus-mediation-falsification-${{ github.run_id }}
           path: data/v2/staging/analysis/inla_category_north/
           if-no-files-found: error
           retention-days: 90
