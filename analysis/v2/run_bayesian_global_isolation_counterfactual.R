@@ -195,19 +195,23 @@ paths <- rbindlist(list(
 ))
 fwrite(paths, file.path(outdir, "northern_direct_indirect_total_effects.csv"))
 
+# Use posterior's stable diagnostic API rather than brms summary column names,
+# which differ across brms/posterior versions (for example Rhat vs rhat).
 sampler_diagnostics <- rbindlist(lapply(names(fits), function(nm) {
   np <- nuts_params(fits[[nm]])
-  summ <- posterior_summary(fits[[nm]], pars = "^b_")
-  rhat <- summ[, "Rhat"]
-  bulk_ess <- summ[, "Bulk_ESS"]
-  tail_ess <- summ[, "Tail_ESS"]
+  draws <- as_draws_array(fits[[nm]])
+  diag <- as.data.table(summarise_draws(draws, rhat, ess_bulk, ess_tail))
+  diag <- diag[grepl("^b_", variable)]
+  rhat_values <- diag$rhat
+  bulk_ess <- diag$ess_bulk
+  tail_ess <- diag$ess_tail
   data.table(
     model = nm,
     divergent_transitions = sum(np$Parameter == "divergent__" & np$Value == 1),
     max_treedepth_hits = sum(np$Parameter == "treedepth__" & np$Value >= 15),
-    max_rhat = if (all(is.na(rhat))) NA_real_ else max(rhat, na.rm = TRUE),
-    min_bulk_ess = if (all(is.na(bulk_ess))) NA_real_ else min(bulk_ess, na.rm = TRUE),
-    min_tail_ess = if (all(is.na(tail_ess))) NA_real_ else min(tail_ess, na.rm = TRUE)
+    max_rhat = if (length(rhat_values) == 0 || all(is.na(rhat_values))) NA_real_ else max(rhat_values, na.rm = TRUE),
+    min_bulk_ess = if (length(bulk_ess) == 0 || all(is.na(bulk_ess))) NA_real_ else min(bulk_ess, na.rm = TRUE),
+    min_tail_ess = if (length(tail_ess) == 0 || all(is.na(tail_ess))) NA_real_ else min(tail_ess, na.rm = TRUE)
   )
 }), fill = TRUE)
 fwrite(sampler_diagnostics, file.path(outdir, "sampler_diagnostics.csv"))
