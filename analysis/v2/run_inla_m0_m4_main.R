@@ -64,12 +64,32 @@ if (nrow(north_main) < 30) stop("Too few northern-midlatitude islands on common 
 compute <- list(dic = TRUE, waic = TRUE, cpo = TRUE, config = TRUE)
 
 fit_bb <- function(lhs_success, lhs_trials, rhs, data) {
-  formula <- as.formula(paste(lhs_success, "~", rhs))
+  dd <- copy(data)
+  success <- dd[[lhs_success]]
+  trials <- dd[[lhs_trials]]
+  bad <- !is.finite(success) | !is.finite(trials) |
+    success < 0 | trials <= 0 | success > trials |
+    success != floor(success) | trials != floor(trials)
+  if (any(bad)) {
+    stop(
+      "Invalid grouped-binomial counts for ", lhs_success, "/", lhs_trials,
+      ": ", sum(bad), " invalid rows"
+    )
+  }
+
+  # The native INLA betabinomial likelihood aborts inside GSL on the full v2
+  # dataset, bypassing R error handling. A grouped binomial with an observation-
+  # level iid random effect retains extra-binomial variation on the logit scale
+  # without relying on the crashing beta-function path.
+  dd[, obs_id := seq_len(.N)]
+  formula <- as.formula(paste(
+    lhs_success, "~", rhs, "+ f(obs_id, model='iid')"
+  ))
   inla(
     formula,
-    family = "betabinomial",
-    data = data,
-    Ntrials = data[[lhs_trials]],
+    family = "binomial",
+    data = dd,
+    Ntrials = trials,
     control.compute = compute,
     control.predictor = list(compute = TRUE),
     verbose = FALSE
@@ -259,14 +279,14 @@ m4_scores <- rbindlist(lapply(names(m4_fits), function(nm) {
 fwrite(m4_scores, file.path(outdir, "inla_m4_category_scores.csv"))
 
 meta <- list(
-  contract = "v2_inla_m0_m4_main_v1",
-  method = "INLA piecewise latent-Gaussian analysis with grouped beta-binomial floral/reproductive responses, Gaussian logit Bombus deficit, and 10-degree spatial-block random effects",
+  contract = "v2_inla_m0_m4_main_v2",
+  method = "INLA piecewise latent-Gaussian analysis with grouped binomial-logit-normal floral/reproductive responses using observation-level iid overdispersion, Gaussian logit Bombus deficit, and 10-degree spatial-block random effects",
   analysis_tier = "sensitivity_all_all_filled_data_requested_first_run",
   sensitivity_analysis = "deferred by design",
   main_interaction = "log distance to continent x log island area",
   m0_m3_common_support = TRUE,
   m0_m3_scenario_metric = "sum of component log CPO (LPML-like; higher is better), with WAIC and DIC also reported",
-  m4 = "category-preserving one-vs-rest beta-binomial models for colour and floral-form categories",
+  m4 = "category-preserving one-vs-rest grouped binomial-logit-normal models for colour and floral-form categories",
   n_northern_midlatitude_common_support = nrow(north_main),
   n_global_m4 = nrow(m4),
   n_spatial_blocks_north = uniqueN(north_main$spatial_id),
