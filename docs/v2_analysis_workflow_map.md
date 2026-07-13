@@ -1,74 +1,41 @@
 # v2 analysis workflow map
 
-This document defines the scientific role of the v2 analysis workflows. The registry in `config/v2_workflow_registry.yml` is the machine-readable source of truth.
+## Canonical current analysis
 
-## Canonical manuscript path
+The canonical v2 route is:
 
-```text
-frozen island universe
-        ↓
-evidence-tiered species trait master (primary = species-direct)
-        ↓
-island trait evidence aggregation
-        ↓
-Bombus channel components + locked geographic/climate covariates
-        ↓
-validated analysis-ready input
-        ↓
-PRIMARY: INLA M0–M4
-```
+- workflow: `.github/workflows/run-v2-inla-category-preserving-north.yml`
+- engine: INLA
+- current evidence tier: `sensitivity_all`
+- planned confirmatory tier: `primary`
 
-The only canonical primary-inference workflow is:
+The northern-midlatitude mechanism is evaluated as:
 
-- `.github/workflows/run-v2-inla-m0-m4-main.yml`
+1. isolation and geography/climate predict Bombus channel deficit;
+2. Bombus deficit predicts self-compatibility;
+3. flower colour and floral form respond through a direct Bombus-linked path and an indirect self-compatibility-mediated path;
+4. direct, indirect, and total effects are reported separately.
 
-Primary inference uses the `primary` evidence tier. `broad` and `sensitivity_all` are robustness tiers and must not silently replace the primary tier.
+Tropical and southern-extratropical islands are falsification domains. The global comparison tests whether isolation-associated slopes weaken, disappear, or reverse outside the northern-midlatitude domain. Alternative pollinator guilds are not required primary-model covariates; birds, butterflies, moths, bats, other bees, and generalist insects remain biological interpretations of counter-patterns.
 
-## Model ladder
+## Data support rules
 
-- **M0**: geographic filter — isolation × island area + climate.
-- **M1**: adds the Bombus channel to floral-trait components.
-- **M2**: adds reproductive assurance.
-- **M3**: combines Bombus and reproductive-assurance paths, including indirect effects.
-- **M4**: category-preserving replacement/regime analysis.
+- Preserve the frozen 8,265-island audit universe.
+- Exclude `distance_to_continent_km <= 0` from fitted model support.
+- Use the maximum available support for each equation rather than one colour/form/SC complete-case intersection.
+- Preserve flower-colour and floral-form category resolution in INLA.
+- Treat unknown evidence as unknown, not as a negative observation.
 
-The executable model contract is `config/v2_analysis_contract.yml`.
+## Engine roles
 
-## Robustness analyses
+INLA owns category-preserving colour/form inference, the northern direct/indirect decomposition, and the tropical/southern falsification analysis.
 
-Robustness workflows test whether the primary conclusion survives changes in evidence depth, spatial validation and trait uncertainty. They are not alternate definitions of the primary analysis.
+brms is noncanonical replication only. It may be used for compact scalar path checks, but it must not become a second competing category-analysis route.
 
-- Evidence depth: `broad`, `sensitivity_all`
-- Spatial robustness: spatial CV and common-support CV
-- Trait uncertainty: probabilistic trait uncertainty and inference validation
-- Alternative model engine: brms replication
+## Evidence tiers
 
-## Replication
+The current maximum-data run uses `sensitivity_all` to inspect support and model behaviour. The planned confirmatory run must use the `primary` species-direct tier. Neither tier may silently replace the other.
 
-`.github/workflows/run-v2-bayesian-m0-m4-main.yml` is retained as a Bayesian engine replication using brms. It should use the same primary evidence contract when used for manuscript replication and should not be described as a second independent primary analysis.
+## Legacy workflows
 
-## Legacy and development workflows
-
-Older M0–M4 workflows are retained for provenance. Their existence records the method-development history; it does not make them part of the manuscript's canonical inferential path. Promotion of any legacy workflow requires an explicit edit to `config/v2_workflow_registry.yml`.
-
-## Scientific guardrails
-
-1. Unknown evidence is not a negative observation.
-2. `primary` means species-direct evidence only.
-3. `sensitivity_all` includes fallback-derived values and is sensitivity-only.
-4. Bombus environmental compatibility must not be described as observed absence.
-5. Input artifacts must be locked and digest-verified.
-6. Producer and consumer schemas must be validated before a full analysis run.
-7. The frozen island universe is defined by its manifest, not by an unexplained hard-coded row count.
-
-## Intended repository shape
-
-```text
-Data production → frozen inputs → one primary analysis
-                                ├─ evidence-tier sensitivity
-                                ├─ spatial robustness
-                                ├─ trait-uncertainty robustness
-                                └─ alternative-engine replication
-```
-
-New workflows should be added only when they represent a genuinely new scientific robustness dimension. Small implementation experiments should be tests or local scripts rather than new manuscript-level workflows.
+Older all-data M0-M4 and Bayesian category routes remain only for provenance and method-development history unless explicitly promoted in both `config/v2_workflow_registry.yml` and `config/v2_analysis_contract.yml`.
