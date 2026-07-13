@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the scientific role registry for v2 analysis workflows."""
+"""Validate the scientific role registry and analysis contract for v2 workflows."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "config" / "v2_workflow_registry.yml"
+CONTRACT = ROOT / "config" / "v2_analysis_contract.yml"
 
 
 def fail(message: str) -> None:
@@ -24,6 +25,7 @@ def read_text(relative: str) -> str:
 
 def main() -> None:
     registry = yaml.safe_load(REGISTRY.read_text(encoding="utf-8"))
+    contract = yaml.safe_load(CONTRACT.read_text(encoding="utf-8"))
     current = registry["canonical"]["current"]
     current_path = current["workflow"]
     current_text = read_text(current_path)
@@ -69,6 +71,36 @@ def main() -> None:
         if not (ROOT / relative).is_file():
             fail(f"required contract file is missing: {relative}")
 
+    canonical_contract = contract.get("canonical_analysis", {})
+    if canonical_contract.get("workflow") != current_path:
+        fail("analysis contract and registry disagree on canonical workflow")
+    if canonical_contract.get("engine") != current.get("engine"):
+        fail("analysis contract and registry disagree on canonical engine")
+    if canonical_contract.get("current_evidence_tier") != tier:
+        fail("analysis contract and registry disagree on current evidence tier")
+    if canonical_contract.get("planned_confirmatory_evidence_tier") != "primary":
+        fail("planned confirmatory evidence tier must remain primary")
+
+    contract_models = set(contract.get("models", {}))
+    registry_models = set(current.get("models", []))
+    if not registry_models.issubset(contract_models):
+        fail("registry canonical models are not all defined in the analysis contract")
+    if "global_falsification" not in contract_models:
+        fail("analysis contract must define the global falsification model")
+
+    principles = contract.get("principles", {})
+    if principles.get("alternative_pollinator_covariates_in_primary_models") is not False:
+        fail("alternative pollinator covariates must remain outside primary models")
+    if principles.get("exclude_zero_distance_from_fitted_models") is not True:
+        fail("analysis contract must exclude zero-distance islands from fitted models")
+    if principles.get("use_equation_specific_maximum_support") is not True:
+        fail("analysis contract must require equation-specific maximum support")
+
+    global_predictors = set(contract["models"]["global_falsification"].get("predictors", []))
+    forbidden = {"alternative_pollinator_guild", "showy_alt_guild", "other_bee_guild", "generalist_insect_guild"}
+    if global_predictors & forbidden:
+        fail("global falsification model must not include alternative-pollinator guild covariates")
+
     registered: set[str] = {current_path}
     for group in registry.get("robustness", {}).values():
         registered.update(group.get("workflows", []))
@@ -85,9 +117,11 @@ def main() -> None:
     print(
         {
             "registry": str(REGISTRY.relative_to(ROOT)),
+            "contract": str(CONTRACT.relative_to(ROOT)),
             "current_workflow": current_path,
             "current_engine": current.get("engine"),
             "current_evidence_tier": tier,
+            "planned_confirmatory_evidence_tier": canonical_contract.get("planned_confirmatory_evidence_tier"),
             "category_engine": registry["guardrails"].get("category_engine"),
             "brms_category_models_allowed": not registry["guardrails"].get("prohibit_brms_category_models", False),
             "registered_workflows": len(registered),
