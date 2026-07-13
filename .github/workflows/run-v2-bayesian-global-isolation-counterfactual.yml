@@ -115,6 +115,9 @@ jobs:
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Northern direct, indirect, and total effects' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/northern_direct_indirect_total_effects.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Sampler diagnostics' >> "$GITHUB_STEP_SUMMARY"
+          cat data/v2/staging/analysis/bayesian_global_isolation/results/sampler_diagnostics.csv >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload scalar replication artifact
         if: always()
