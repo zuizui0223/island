@@ -95,7 +95,7 @@ jobs:
           sudo Rscript -e "install.packages('brms', repos='https://cloud.r-project.org', quiet=TRUE)"
           Rscript -e "parse(file='analysis/v2/run_bayesian_global_isolation_counterfactual.R'); library(BH); stopifnot(nchar(system.file('include', package='BH')) > 0); packageVersion('brms')"
 
-      - name: Run scalar falsification and northern path replication
+      - name: Run noncanonical scalar falsification and northern path replication
         run: |
           set -o pipefail
           mkdir -p data/v2/staging/analysis/bayesian_global_isolation/results
@@ -108,6 +108,7 @@ jobs:
         if: success()
         run: |
           echo '## Noncanonical Bayesian scalar replication' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Canonical category-preserving inference remains the northern INLA workflow from PR #115.' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_global_isolation/results/analysis_metadata.json >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Equation-specific maximum support' >> "$GITHUB_STEP_SUMMARY"
