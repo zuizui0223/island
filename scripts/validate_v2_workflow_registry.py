@@ -81,6 +81,13 @@ def main() -> None:
     if canonical_contract.get("planned_confirmatory_evidence_tier") != "primary":
         fail("planned confirmatory evidence tier must remain primary")
 
+    if registry["guardrails"].get("planned_confirmatory_evidence_tier") != "primary":
+        fail("registry planned confirmatory evidence tier must remain primary")
+    if registry["guardrails"].get("use_equation_specific_maximum_support") is not True:
+        fail("registry must require equation-specific maximum support")
+    if registry["guardrails"].get("prohibit_alternative_pollinator_primary_covariates") is not True:
+        fail("registry must prohibit alternative-pollinator primary covariates")
+
     contract_models = set(contract.get("models", {}))
     registry_models = set(current.get("models", []))
     if not registry_models.issubset(contract_models):
