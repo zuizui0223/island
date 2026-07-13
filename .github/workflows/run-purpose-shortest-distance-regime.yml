@@ -109,7 +109,7 @@ jobs:
           test -f "$METRICS"
           test -f "$COV"
           test -f "$ISLANDS"
-          python -m island_v2.purpose_shortest_analysis run \
+          python -m island_v2.purpose_shortest_analysis \
             --trait-composition-csv "$COMP" \
             --island-metrics-csv "$METRICS" \
             --covariates-csv "$COV" \
