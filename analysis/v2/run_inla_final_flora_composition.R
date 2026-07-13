@@ -60,7 +60,7 @@ for (ep in names(endpoints)) {
   }
 }
 
-# Scale isolation/geography on all positive-distance islands; mechanism variables on northern islands.
+# Scale isolation/geography on all positive-distance islands.
 global_scale_vars <- c(
   "log_distance_to_continent_km", "log_island_area_km2",
   "climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4"
@@ -71,15 +71,45 @@ for (nm in global_scale_vars) {
   if (!is.finite(sig) || sig <= 0) stop("invalid scale for ", nm)
   d[[paste0("z_", nm)]] <- (d[[nm]] - mu) / sig
 }
-d[, z_isolation_sq := z_log_distance_to_continent_km^2]
+set(d, j = "z_isolation_sq", value = d$z_log_distance_to_continent_km^2)
 
+# Mechanism variables are scaled on the northern reference population. A
+# zero-variance variable is not statistically identifiable and is omitted from
+# fitted equations, but its availability and reason are written to an audit.
 north <- d[analysis_regime == "northern_midlatitude"]
-for (nm in c("bombus_deficit", "sc_share", "wind_share", "mixed_share")) {
+mechanism_candidates <- c("bombus_deficit", "sc_share", "wind_share", "mixed_share")
+mechanism_audit <- rbindlist(lapply(mechanism_candidates, function(nm) {
+  x <- north[[nm]]
+  n_nonmissing <- sum(is.finite(x))
+  n_unique <- uniqueN(x[is.finite(x)])
+  sig <- sd(x, na.rm = TRUE)
+  estimable <- n_nonmissing >= 2 && n_unique >= 2 && is.finite(sig) && sig > 0
+  data.table(
+    variable = nm,
+    n_nonmissing = n_nonmissing,
+    n_unique = n_unique,
+    sd = sig,
+    estimable = estimable,
+    reason = if (estimable) "estimable" else "zero_or_insufficient_variation"
+  )
+}))
+fwrite(mechanism_audit, file.path(outdir, "final_mechanism_variable_audit.csv"))
+
+for (nm in mechanism_audit[estimable == TRUE, variable]) {
   mu <- mean(north[[nm]], na.rm = TRUE)
   sig <- sd(north[[nm]], na.rm = TRUE)
-  if (!is.finite(sig) || sig <= 0) stop("invalid northern scale for ", nm)
   d[[paste0("z_", nm)]] <- (d[[nm]] - mu) / sig
 }
+
+if (!"z_bombus_deficit" %in% names(d)) stop("bombus_deficit is not estimable in northern mechanism population")
+if (!"z_sc_share" %in% names(d)) stop("sc_share is not estimable in northern mechanism population")
+
+pollination_controls <- mechanism_audit[
+  variable %in% c("wind_share", "mixed_share") & estimable == TRUE,
+  variable
+]
+pollination_control_terms <- paste0("category:z_", pollination_controls)
+pollination_control_sc_terms <- paste0("z_", pollination_controls)
 
 compute <- list(dic = TRUE, waic = TRUE, cpo = TRUE, config = TRUE)
 fixed_rows <- list()
@@ -88,14 +118,15 @@ support_rows <- list()
 
 fit_poisson_composition <- function(data, endpoint, model_name, prefix, trials, categories, rhs) {
   cols <- paste0(prefix, categories)
+  candidate_id_vars <- c(
+    "island_id", "spatial_block", "analysis_regime", trials,
+    "z_log_distance_to_continent_km", "z_isolation_sq", "z_log_island_area_km2",
+    "z_climate_pc1", "z_climate_pc2", "z_climate_pc3", "z_climate_pc4",
+    "z_bombus_deficit", "z_sc_share", "z_wind_share", "z_mixed_share"
+  )
   long <- melt(
     data,
-    id.vars = intersect(c(
-      "island_id", "spatial_block", "analysis_regime", trials,
-      "z_log_distance_to_continent_km", "z_isolation_sq", "z_log_island_area_km2",
-      "z_climate_pc1", "z_climate_pc2", "z_climate_pc3", "z_climate_pc4",
-      "z_bombus_deficit", "z_sc_share", "z_wind_share", "z_mixed_share"
-    ), names(data)),
+    id.vars = intersect(candidate_id_vars, names(data)),
     measure.vars = cols,
     variable.name = "category", value.name = "count"
   )
@@ -133,7 +164,7 @@ random_terms <- "+ f(island_id_re, model='iid') + f(spatial_id, model='iid') + f
 for (ep in names(endpoints)) {
   x <- endpoints[[ep]]
 
-  # GLOBAL PRIMARY: all trait-resolved flora, including animal, wind and mixed modes.
+  # GLOBAL PRIMARY: all trait-resolved flora, irrespective of pollination mode.
   global_support <- d[
     !is.na(analysis_regime) & get(x$all_trials) > 0 &
       complete.cases(d[, .(
@@ -158,27 +189,25 @@ for (ep in names(endpoints)) {
   )
 
   # NORTHERN MECHANISM: animal-pollinated trait-resolved flora only.
+  mech_vars <- c(
+    "z_log_distance_to_continent_km", "z_isolation_sq", "z_log_island_area_km2",
+    "z_climate_pc1", "z_climate_pc2", "z_climate_pc3", "z_climate_pc4",
+    "z_bombus_deficit", "z_sc_share", paste0("z_", pollination_controls)
+  )
   north_support <- d[
     analysis_regime == "northern_midlatitude" & get(x$animal_trials) > 0 &
-      complete.cases(d[, .(
-        z_log_distance_to_continent_km, z_isolation_sq, z_log_island_area_km2,
-        z_climate_pc1, z_climate_pc2, z_climate_pc3, z_climate_pc4,
-        z_bombus_deficit, z_sc_share, z_wind_share, z_mixed_share
-      )])
+      complete.cases(d[, ..mech_vars])
   ]
   base_rhs <- paste(
     "0 + category + category:z_log_distance_to_continent_km + category:z_isolation_sq +",
     geo_terms, random_terms
   )
+  n3_extra <- c("category:z_bombus_deficit", "category:z_sc_share", pollination_control_terms)
   north_models <- list(
     N0_isolation = base_rhs,
     N1_bombus = paste(base_rhs, "+ category:z_bombus_deficit"),
     N2_bombus_sc = paste(base_rhs, "+ category:z_bombus_deficit + category:z_sc_share"),
-    N3_full = paste(
-      base_rhs,
-      "+ category:z_bombus_deficit + category:z_sc_share +",
-      "category:z_wind_share + category:z_mixed_share"
-    )
+    N3_full = paste(base_rhs, "+", paste(n3_extra, collapse = " + "))
   )
   for (nm in names(north_models)) {
     fit_poisson_composition(
@@ -193,19 +222,23 @@ for (ep in names(endpoints)) {
 }
 
 # Explicit reproductive-assurance equation for the proposed indirect pathway.
+sc_mech_vars <- c(
+  "z_log_distance_to_continent_km", "z_isolation_sq", "z_log_island_area_km2",
+  "z_climate_pc1", "z_climate_pc2", "z_climate_pc3", "z_climate_pc4",
+  "z_bombus_deficit", pollination_control_sc_terms
+)
 sc_support <- d[
-  analysis_regime == "northern_midlatitude" & !is.na(sc_share) &
-    complete.cases(d[, .(
-      z_log_distance_to_continent_km, z_isolation_sq, z_log_island_area_km2,
-      z_climate_pc1, z_climate_pc2, z_climate_pc3, z_climate_pc4,
-      z_bombus_deficit, z_wind_share, z_mixed_share, sc_trials, sc_successes
-    )]) & sc_trials > 0
+  analysis_regime == "northern_midlatitude" & !is.na(sc_share) & sc_trials > 0 &
+    complete.cases(d[, ..sc_mech_vars]) & !is.na(sc_successes)
 ]
-sc_formula <- sc_successes ~ z_log_distance_to_continent_km + z_isolation_sq +
-  z_bombus_deficit + z_wind_share + z_mixed_share + z_log_island_area_km2 +
-  z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4 +
-  f(spatial_id_sc, model = "iid")
+sc_rhs <- c(
+  "z_log_distance_to_continent_km", "z_isolation_sq", "z_bombus_deficit",
+  pollination_control_sc_terms,
+  "z_log_island_area_km2", "z_climate_pc1", "z_climate_pc2", "z_climate_pc3", "z_climate_pc4",
+  "f(spatial_id_sc, model='iid')"
+)
 sc_support[, spatial_id_sc := as.integer(factor(spatial_block))]
+sc_formula <- as.formula(paste("sc_successes ~", paste(sc_rhs, collapse = " + ")))
 sc_fit <- inla(
   sc_formula, family = "betabinomial", data = sc_support, Ntrials = sc_trials,
   control.compute = compute, control.predictor = list(compute = TRUE), verbose = FALSE
@@ -235,7 +268,7 @@ meta <- list(
     "Conditional relative category probability within the observed, trait-resolved island flora;",
     "not raw detection probability and not latent true occupancy."
   ),
-  global_primary_population = "all trait-resolved flora, including animal-, wind-, and mixed-pollinated species",
+  global_primary_population = "all trait-resolved flora, irrespective of animal, wind, mixed, or unresolved pollination mode",
   primary_endpoints = c("fine colour composition", "fine floral-form composition"),
   isolation = "continuous standardized log distance plus category-specific quadratic term",
   global_test = "category-specific isolation and isolation-squared effects by four analysis regimes",
@@ -243,8 +276,12 @@ meta <- list(
   northern_mechanisms = c(
     "Bombus deficit: reduced/relaxed Bombus-mediated selection",
     "self-compatibility: reproductive-assurance pathway consistent with selfing-syndrome evolution",
-    "wind and mixed shares: broader pollination-mode composition controls"
+    paste0(
+      "pollination-mode composition controls included only when estimable: ",
+      if (length(pollination_controls)) paste(pollination_controls, collapse = ", ") else "none"
+    )
   ),
+  nonestimable_mechanism_controls = mechanism_audit[estimable == FALSE, variable],
   joint_colour_form = "sensitivity only, not part of the final primary model"
 )
 write_json(meta, file.path(outdir, "final_flora_metadata.json"), pretty = TRUE, auto_unbox = TRUE)
