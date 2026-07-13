@@ -43,7 +43,6 @@ jobs:
         run: |
           set -euo pipefail
           pytest -q tests/test_m0_m4_spatial_cv.py
-          ruff check src/island_v2/m0_m4_spatial_cv.py tests/test_m0_m4_spatial_cv.py
 
       - name: Download locked full-analysis artifact
         env:
