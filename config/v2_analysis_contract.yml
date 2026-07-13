@@ -1,4 +1,4 @@
-version: 2
+version: 3
 canonical_analysis:
   workflow: .github/workflows/run-v2-inla-category-preserving-north.yml
   engine: INLA
@@ -8,10 +8,20 @@ canonical_analysis:
   population:
     primary: northern_midlatitude
     falsification: [tropical, southern_extratropical]
+retained_categories:
+  flower_color: [plain, yellow_orange, red_pink, blue_purple]
+  floral_form: [open_generalized, tubular_trumpet]
 models:
   N0_geo:
     population: northern_midlatitude
-    responses: [flower_color, floral_form, self_compatibility]
+    responses:
+      - self_compatibility
+      - plain
+      - yellow_orange
+      - red_pink
+      - blue_purple
+      - open_generalized
+      - tubular_trumpet
     predictors: [distance_to_continent, island_area, climate]
   N1_bombus:
     extends: N0_geo
@@ -23,25 +33,45 @@ models:
     extends: N0_geo
     add_predictors: [bombus_channel, self_compatibility]
     reports: [direct_effect, sc_mediated_indirect_effect, total_effect]
+    applies_to:
+      - plain
+      - yellow_orange
+      - red_pink
+      - blue_purple
+      - open_generalized
+      - tubular_trumpet
   global_falsification:
     population: [northern_midlatitude, tropical, southern_extratropical]
-    responses: [self_compatibility, plain_flower_color, open_generalized_floral_form]
+    responses:
+      - self_compatibility
+      - plain
+      - yellow_orange
+      - red_pink
+      - blue_purple
+      - open_generalized
+      - tubular_trumpet
     predictors: [distance_to_continent, island_area, climate, analysis_regime, distance_by_regime]
     interpretation: >-
-      Tests whether the northern isolation-associated slopes weaken, disappear, or reverse
-      outside the northern-midlatitude domain. Alternative pollinator guilds are not primary
-      model covariates and may be discussed only as biological interpretations of counter-patterns.
+      Tests whether northern isolation-associated slopes weaken, disappear, or reverse
+      outside the northern-midlatitude domain for every retained colour and floral-form
+      category. Alternative pollinator guilds remain Discussion-level interpretations.
 engine_roles:
   INLA:
-    owns: [category_preserving_flower_color, category_preserving_floral_form, direct_indirect_decomposition, global_falsification]
+    owns:
+      - all_retained_flower_color_categories
+      - all_retained_floral_form_categories
+      - direct_indirect_decomposition_for_each_category
+      - global_falsification_for_each_category
   brms:
     role: noncanonical_scalar_replication_only
     category_models_allowed: false
 principles:
   unknown_is_not_negative: true
   preserve_category_resolution: true
+  category_omission_allowed: false
   separate_current_exploratory_from_planned_confirmatory: true
   preserve_bombus_channel_components: true
   exclude_zero_distance_from_fitted_models: true
   use_equation_specific_maximum_support: true
+  compare_models_only_on_matched_support: true
   alternative_pollinator_covariates_in_primary_models: false
