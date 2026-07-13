@@ -53,17 +53,52 @@ def main() -> None:
             WHEN pollen_vector_mode='biotic' THEN 1 ELSE 0
           END AS is_animal,
           CASE
-            WHEN lower(coalesce(flower_primary_color,'')) ~ 'blue|purple|violet|lilac|lavender' THEN 'blue_purple'
-            WHEN lower(coalesce(flower_primary_color,'')) ~ 'red|pink|magenta|scarlet|crimson' THEN 'red_pink'
-            WHEN lower(coalesce(flower_primary_color,'')) ~ 'yellow|orange|gold' THEN 'yellow_orange'
-            WHEN lower(coalesce(flower_primary_color,'')) ~ 'white|cream|pale|green|brown|inconspicuous|dull' THEN 'plain'
+            -- Prefer the canonical cascade categories. These values contain
+            -- underscores, so DuckDB's full-string `~` operator must not be
+            -- used as if it were a substring matcher.
+            WHEN lower(coalesce(flower_primary_color,'')) = 'blue_purple' THEN 'blue_purple'
+            WHEN lower(coalesce(flower_primary_color,'')) = 'red_pink' THEN 'red_pink'
+            WHEN lower(coalesce(flower_primary_color,'')) = 'yellow_orange' THEN 'yellow_orange'
+            WHEN lower(coalesce(flower_primary_color,'')) IN (
+              'white', 'plain', 'green_brown_inconspicuous'
+            ) THEN 'plain'
+            -- Retain compatibility with any direct/free-text evidence.
+            WHEN regexp_matches(lower(coalesce(flower_primary_color,'')),
+                                'blue|purple|violet|lilac|lavender') THEN 'blue_purple'
+            WHEN regexp_matches(lower(coalesce(flower_primary_color,'')),
+                                'red|pink|magenta|scarlet|crimson') THEN 'red_pink'
+            WHEN regexp_matches(lower(coalesce(flower_primary_color,'')),
+                                'yellow|orange|gold') THEN 'yellow_orange'
+            WHEN regexp_matches(lower(coalesce(flower_primary_color,'')),
+                                'white|cream|pale|green|brown|inconspicuous|dull') THEN 'plain'
             ELSE NULL
           END AS color_cat,
           CASE
-            WHEN lower(coalesce(floral_form,'')) ~ 'zygomorphic|orchid|papilion|spurr|bilabiate' THEN 'zygomorphic_specialized'
-            WHEN lower(coalesce(floral_form,'')) ~ 'tubular|trumpet|funnel|salver|urn|urceolate|campanulate|bell' THEN 'tubular_trumpet'
-            WHEN lower(coalesce(floral_form,'')) ~ 'composite|head|brush|puff' THEN 'composite_brush'
-            WHEN lower(coalesce(floral_form,'')) ~ 'open|radial|actinomorphic|bowl|cup|star' THEN 'open_generalized'
+            -- Canonical floral-form categories from the trait cascade.
+            WHEN lower(coalesce(floral_form,'')) IN (
+              'zygomorphic_specialized', 'zygomorphic', 'orchid',
+              'papilionaceous', 'spurred', 'bilabiate'
+            ) THEN 'zygomorphic_specialized'
+            WHEN lower(coalesce(floral_form,'')) IN (
+              'tubular_trumpet', 'tubular', 'funnel_trumpet',
+              'bell_campanulate', 'urn_urceolate', 'salverform'
+            ) THEN 'tubular_trumpet'
+            WHEN lower(coalesce(floral_form,'')) IN (
+              'composite_brush', 'composite_head', 'brush_puff'
+            ) THEN 'composite_brush'
+            WHEN lower(coalesce(floral_form,'')) IN (
+              'open_generalized', 'open_radial', 'actinomorphic',
+              'bowl_cup', 'star_shaped'
+            ) THEN 'open_generalized'
+            -- Retain compatibility with any direct/free-text evidence.
+            WHEN regexp_matches(lower(coalesce(floral_form,'')),
+                                'zygomorphic|orchid|papilion|spur|bilabiate') THEN 'zygomorphic_specialized'
+            WHEN regexp_matches(lower(coalesce(floral_form,'')),
+                                'tubular|trumpet|funnel|salver|urn|urceolate|campanulate|bell') THEN 'tubular_trumpet'
+            WHEN regexp_matches(lower(coalesce(floral_form,'')),
+                                'composite|head|brush|puff') THEN 'composite_brush'
+            WHEN regexp_matches(lower(coalesce(floral_form,'')),
+                                'open|radial|actinomorphic|bowl|cup|star') THEN 'open_generalized'
             ELSE NULL
           END AS form_cat,
           CASE WHEN self_incompatibility IN ('SC','likely_SC') THEN 1
