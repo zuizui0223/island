@@ -1,4 +1,4 @@
-"""Aggregate species-level trait states to island-level evidence tables."""
+"""Aggregate conflict-safe species trait states to island-level evidence tables."""
 
 from __future__ import annotations
 
@@ -6,6 +6,15 @@ import argparse
 from pathlib import Path
 
 import duckdb
+
+
+COLORS = ("plain", "yellow_orange", "red_pink", "blue_purple")
+FORMS = (
+    "open_generalized",
+    "tubular_trumpet",
+    "zygomorphic_specialized",
+    "composite_brush",
+)
 
 
 def aggregate_island_trait_evidence(
@@ -19,6 +28,21 @@ def aggregate_island_trait_evidence(
     out_long = str(output_long_parquet).replace("'", "''")
     out_wide = str(output_wide_parquet).replace("'", "''")
 
+    color_columns = ",\n          ".join(
+        f"sum(CASE WHEN is_animal=1 AND color_cat='{cat}' THEN 1 ELSE 0 END) AS color_{cat}"
+        for cat in COLORS
+    )
+    form_columns = ",\n          ".join(
+        f"sum(CASE WHEN is_animal=1 AND form_cat='{cat}' THEN 1 ELSE 0 END) AS form_{cat}"
+        for cat in FORMS
+    )
+    joint_columns = ",\n          ".join(
+        f"sum(CASE WHEN is_animal=1 AND color_cat='{color}' AND form_cat='{form}' "
+        f"THEN 1 ELSE 0 END) AS joint_{color}__{form}"
+        for color in COLORS
+        for form in FORMS
+    )
+
     con = duckdb.connect()
     con.execute(
         f"""
@@ -28,17 +52,22 @@ def aggregate_island_trait_evidence(
           count(*) AS n_species_total,
           count(is_animal) AS animal_status_observed,
           sum(CASE WHEN is_animal=1 THEN 1 ELSE 0 END) AS n_animal_species,
-          sum(CASE WHEN pollen_vector_mode='abiotic_wind' THEN 1 ELSE 0 END) AS n_wind_species,
+          sum(CASE WHEN is_wind=1 THEN 1 ELSE 0 END) AS n_wind_species,
+          sum(CASE WHEN is_mixed=1 THEN 1 ELSE 0 END) AS n_mixed_species,
+          sum(CASE WHEN is_wind=1 OR is_mixed=1 THEN 1 ELSE 0 END) AS n_wind_mixed_species,
+          sum(CASE WHEN any_trait_conflict THEN 1 ELSE 0 END) AS n_species_with_any_trait_conflict,
+          sum(pollen_vector_conflict) AS n_pollen_vector_conflicts,
+          sum(flower_color_conflict) AS n_flower_color_conflicts,
+          sum(floral_form_conflict) AS n_floral_form_conflicts,
+          sum(self_incompatibility_conflict) AS n_self_incompatibility_conflicts,
+          sum(pollinator_guild_conflict) AS n_pollinator_guild_conflicts,
           sum(CASE WHEN is_animal=1 AND color_cat IS NOT NULL THEN 1 ELSE 0 END) AS color_trials,
-          sum(CASE WHEN is_animal=1 AND color_cat='plain' THEN 1 ELSE 0 END) AS color_plain,
-          sum(CASE WHEN is_animal=1 AND color_cat='yellow_orange' THEN 1 ELSE 0 END) AS color_yellow_orange,
-          sum(CASE WHEN is_animal=1 AND color_cat='red_pink' THEN 1 ELSE 0 END) AS color_red_pink,
-          sum(CASE WHEN is_animal=1 AND color_cat='blue_purple' THEN 1 ELSE 0 END) AS color_blue_purple,
+          {color_columns},
           sum(CASE WHEN is_animal=1 AND form_cat IS NOT NULL THEN 1 ELSE 0 END) AS form_trials,
-          sum(CASE WHEN is_animal=1 AND form_cat='open_generalized' THEN 1 ELSE 0 END) AS form_open_generalized,
-          sum(CASE WHEN is_animal=1 AND form_cat='tubular_trumpet' THEN 1 ELSE 0 END) AS form_tubular_trumpet,
-          sum(CASE WHEN is_animal=1 AND form_cat='zygomorphic_specialized' THEN 1 ELSE 0 END) AS form_zygomorphic_specialized,
-          sum(CASE WHEN is_animal=1 AND form_cat='composite_brush' THEN 1 ELSE 0 END) AS form_composite_brush,
+          {form_columns},
+          sum(CASE WHEN is_animal=1 AND color_cat IS NOT NULL AND form_cat IS NOT NULL
+                   THEN 1 ELSE 0 END) AS joint_color_form_trials,
+          {joint_columns},
           sum(CASE WHEN is_animal=1 AND sc_binary IS NOT NULL THEN 1 ELSE 0 END) AS sc_trials,
           sum(CASE WHEN is_animal=1 AND sc_binary=1 THEN 1 ELSE 0 END) AS sc_successes,
           avg(CASE WHEN is_animal=1 THEN showy_alt END) AS showy_alt_guild_share,
@@ -49,30 +78,34 @@ def aggregate_island_trait_evidence(
         """
     )
     con.execute(f"COPY island_wide TO '{out_wide}' (FORMAT PARQUET, COMPRESSION ZSTD)")
-    con.execute(
-        f"""
-        COPY (
-          SELECT island_id, 'flower_color' AS endpoint, 'plain' AS category,
-                 color_plain AS successes, color_trials AS trials FROM island_wide
-          UNION ALL
-          SELECT island_id, 'flower_color', 'yellow_orange', color_yellow_orange, color_trials FROM island_wide
-          UNION ALL
-          SELECT island_id, 'flower_color', 'red_pink', color_red_pink, color_trials FROM island_wide
-          UNION ALL
-          SELECT island_id, 'flower_color', 'blue_purple', color_blue_purple, color_trials FROM island_wide
-          UNION ALL
-          SELECT island_id, 'floral_form', 'open_generalized', form_open_generalized, form_trials FROM island_wide
-          UNION ALL
-          SELECT island_id, 'floral_form', 'tubular_trumpet', form_tubular_trumpet, form_trials FROM island_wide
-          UNION ALL
-          SELECT island_id, 'floral_form', 'zygomorphic_specialized', form_zygomorphic_specialized, form_trials FROM island_wide
-          UNION ALL
-          SELECT island_id, 'floral_form', 'composite_brush', form_composite_brush, form_trials FROM island_wide
-          UNION ALL
-          SELECT island_id, 'self_compatibility', 'self_compatible', sc_successes, sc_trials FROM island_wide
-        ) TO '{out_long}' (FORMAT PARQUET, COMPRESSION ZSTD)
-        """
+
+    long_parts: list[str] = []
+    for category in COLORS:
+        long_parts.append(
+            f"SELECT island_id, 'flower_color' AS endpoint, '{category}' AS category, "
+            f"color_{category} AS successes, color_trials AS trials FROM island_wide"
+        )
+    for category in FORMS:
+        long_parts.append(
+            f"SELECT island_id, 'floral_form', '{category}', "
+            f"form_{category}, form_trials FROM island_wide"
+        )
+    for color in COLORS:
+        for form in FORMS:
+            category = f"{color}__{form}"
+            long_parts.append(
+                f"SELECT island_id, 'joint_color_form', '{category}', "
+                f"joint_{category}, joint_color_form_trials FROM island_wide"
+            )
+    long_parts.append(
+        "SELECT island_id, 'self_compatibility', 'self_compatible', "
+        "sc_successes, sc_trials FROM island_wide"
     )
+    union_sql = "\nUNION ALL\n".join(long_parts)
+    con.execute(
+        f"COPY ({union_sql}) TO '{out_long}' (FORMAT PARQUET, COMPRESSION ZSTD)"
+    )
+    con.close()
 
 
 def main() -> None:
