@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import yaml
@@ -38,8 +37,31 @@ def main() -> None:
         fail(f"current workflow does not pass {expected_arg!r}: {current_path}")
 
     if registry["guardrails"].get("exclude_zero_distance_from_fitted_models"):
-        if "distance_to_continent_km'].gt(0)" not in current_text:
+        positive_distance_markers = (
+            "distance_to_continent_km'].gt(0)",
+            "distance_to_continent_km'] > 0",
+            'distance_to_continent_km\"] > 0',
+        )
+        if not any(marker in current_text for marker in positive_distance_markers):
             fail("current workflow does not explicitly construct positive-distance model support")
+
+    if registry["guardrails"].get("category_engine") != "INLA":
+        fail("category_engine must be INLA")
+    if current.get("engine") != "INLA":
+        fail("canonical category-preserving workflow must use INLA")
+    if "run_inla_category_preserving_north.R" not in current_text:
+        fail("canonical workflow does not run the category-preserving INLA analysis")
+
+    brms_role = registry.get("engine_roles", {}).get("bayesian_brms", {})
+    if registry["guardrails"].get("prohibit_brms_category_models"):
+        excluded = set(brms_role.get("excludes", []))
+        required_exclusions = {
+            "category_preserving_flower_colour",
+            "category_preserving_floral_form",
+            "multinomial_category_models",
+        }
+        if not required_exclusions.issubset(excluded):
+            fail("brms role must explicitly exclude category-preserving/multinomial models")
 
     required_contract = registry["guardrails"]["require_analysis_contract"]
     required_validator = registry["guardrails"]["require_input_validation"]
@@ -60,22 +82,14 @@ def main() -> None:
     if missing:
         fail("registered workflow files are missing: " + ", ".join(missing))
 
-    replication = registry.get("replication", {}).get("bayesian_engine", {})
-    replication_path = replication.get("workflow")
-    if replication_path:
-        text = read_text(replication_path)
-        if "sensitivity_all" in text and replication.get("required_evidence_tier") == "primary":
-            print(
-                "WARNING: brms replication still references sensitivity_all; "
-                "it is classified as replication, not the current INLA route.",
-                file=sys.stderr,
-            )
-
     print(
         {
             "registry": str(REGISTRY.relative_to(ROOT)),
             "current_workflow": current_path,
+            "current_engine": current.get("engine"),
             "current_evidence_tier": tier,
+            "category_engine": registry["guardrails"].get("category_engine"),
+            "brms_category_models_allowed": not registry["guardrails"].get("prohibit_brms_category_models", False),
             "registered_workflows": len(registered),
             "status": "ok",
         }
