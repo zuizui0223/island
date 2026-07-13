@@ -41,7 +41,7 @@ fit_bb <- function(formula, data, file) {
   brm(
     formula = formula,
     data = data,
-    family = beta_binomial2(link = "logit"),
+    family = beta_binomial(link = "logit"),
     prior = c(
       prior(normal(0, 1), class = "b"),
       prior(normal(0, 1.5), class = "Intercept"),
