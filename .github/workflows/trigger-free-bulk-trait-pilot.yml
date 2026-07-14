@@ -47,20 +47,17 @@ jobs:
             --master-name-column accepted_species \
             --output-json data/v2/staging/traits/bulk/austraits/coverage_report.json
 
+      - name: Fetch and audit real LEDA trait data
+        run: python scripts/fetch_leda_bulk.py
+
       - name: Audit verified official trait and flora sources
         continue-on-error: true
         run: python scripts/audit_verified_plant_sources.py
 
       - name: Print results
         run: |
-          cat data/v2/staging/traits/bulk/austraits/fetch_manifest.json
           cat data/v2/staging/traits/bulk/austraits/coverage_report.json
-          if [ -f data/v2/staging/traits/bulk/verified_source_audit/source_status.csv ]; then
-            cat data/v2/staging/traits/bulk/verified_source_audit/source_status.csv
-          fi
-          if [ -f data/v2/staging/traits/bulk/verified_source_audit/discovered_machine_links.csv ]; then
-            cat data/v2/staging/traits/bulk/verified_source_audit/discovered_machine_links.csv
-          fi
+          cat data/v2/staging/traits/bulk/leda/coverage_report.json
 
       - name: Upload results
         uses: actions/upload-artifact@v4
@@ -69,5 +66,7 @@ jobs:
           path: |
             data/v2/staging/traits/bulk/austraits/fetch_manifest.json
             data/v2/staging/traits/bulk/austraits/coverage_report.json
+            data/v2/staging/traits/bulk/leda/coverage_report.json
+            data/v2/staging/traits/bulk/leda/file_coverage.csv
             data/v2/staging/traits/bulk/verified_source_audit/
           retention-days: 14
