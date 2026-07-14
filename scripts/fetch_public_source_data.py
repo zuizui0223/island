@@ -44,12 +44,9 @@ SOURCES = {
         "hosts": {"sftp.kew.org"},
         "max_pages": 40,
     },
-    "try": {
-        "name": "TRY Plant Trait Database",
-        "start": "https://www.try-db.org/",
-        "hosts": {"www.try-db.org", "try-db.org"},
-        "max_pages": 50,
-    },
+    # TRY (try-db.org) is intentionally omitted: it exposes no anonymous bulk
+    # download — data is released only via an authenticated, per-request export —
+    # so a crawler cannot acquire real machine-readable data from it.
     "sid": {
         "name": "Kew Seed Information Database",
         "start": "https://ser-sid.org/",

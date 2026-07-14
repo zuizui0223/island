@@ -59,8 +59,6 @@ jobs:
             shard: 0
           - source: powo
             shard: 0
-          - source: try
-            shard: 0
           - source: sid
             shard: 0
     steps:
@@ -79,9 +77,6 @@ jobs:
 
       - name: Install and verify BIEN package
         if: matrix.source == 'bien'
-        # BIEN comes from CRAN and is best-effort like the source itself; a failed
-        # install must not fail the job. The fetch step records the miss instead.
-        continue-on-error: true
         run: |
           Rscript -e 'options(repos=c(CRAN="https://cloud.r-project.org")); install.packages("BIEN", dependencies=TRUE)'
           Rscript -e 'stopifnot(requireNamespace("BIEN", quietly=TRUE)); cat("BIEN version:", as.character(packageVersion("BIEN")), "\n")'
@@ -97,60 +92,44 @@ jobs:
           SHARD: ${{ matrix.shard }}
           BIEN_SHARD_COUNT: '6'
         run: |
-          set -uo pipefail
+          set -euo pipefail
 
-          # Acquire one source. AusTraits is the tested core experiment and its
-          # failure must fail this check. Every other public DB is best-effort:
-          # an unreachable site or a source exposing no bulk payload is recorded
-          # in its artifact but must leave the job (and the check) green.
-          run_source() {
-            case "$SOURCE" in
-              leda)
-                python scripts/fetch_leda_bulk.py
-                ;;
-              bien)
-                export BIEN_SHARD_INDEX="$SHARD"
-                Rscript scripts/fetch_bien_traits.R
-                ;;
-              wfo-plant-list|efloras)
-                python scripts/fetch_public_flora_real_data.py --source "$SOURCE"
-                ;;
-              gift|wfo|powo|try|sid)
-                python scripts/fetch_public_source_data.py --source "$SOURCE"
-                ;;
-              *)
-                echo "Unknown source: $SOURCE" >&2
-                return 2
-                ;;
-            esac
-          }
-
-          if [ "$SOURCE" = "austraits" ]; then
-            set -e
-            python -m island_v2.fetch_austraits_bulk \
-              --dataset-key "" \
-              --output-csv data/v2/staging/traits/bulk/austraits/austraits_all.csv \
-              --manifest-json data/v2/staging/traits/bulk/austraits/fetch_manifest.json
-            python -m island_v2.free_bulk_trait_pilot \
-              --source-csv data/v2/staging/traits/bulk/austraits/austraits_all.csv \
-              --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
-              --source-taxon-column taxon_name \
-              --source-trait-column trait_name \
-              --source-dataset-column dataset_key \
-              --master-name-column accepted_species \
-              --output-json data/v2/staging/traits/bulk/austraits/coverage_report.json
-          else
-            if run_source; then
-              echo "$SOURCE: acquisition completed"
-            else
-              status=$?
-              if [ "$status" -eq 2 ]; then
-                echo "::error::Unknown source '$SOURCE' in matrix"
-                exit 2
-              fi
-              echo "::warning::$SOURCE is a best-effort public source and did not complete (exit $status); recorded in its artifact, not failing the check"
-            fi
-          fi
+          # Every source is a hard gate: it must actually acquire real
+          # machine-readable data or the job (and the required check) fails.
+          # Each fetcher exits non-zero when no real payload is saved.
+          case "$SOURCE" in
+            austraits)
+              python -m island_v2.fetch_austraits_bulk \
+                --dataset-key "" \
+                --output-csv data/v2/staging/traits/bulk/austraits/austraits_all.csv \
+                --manifest-json data/v2/staging/traits/bulk/austraits/fetch_manifest.json
+              python -m island_v2.free_bulk_trait_pilot \
+                --source-csv data/v2/staging/traits/bulk/austraits/austraits_all.csv \
+                --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+                --source-taxon-column taxon_name \
+                --source-trait-column trait_name \
+                --source-dataset-column dataset_key \
+                --master-name-column accepted_species \
+                --output-json data/v2/staging/traits/bulk/austraits/coverage_report.json
+              ;;
+            leda)
+              python scripts/fetch_leda_bulk.py
+              ;;
+            bien)
+              export BIEN_SHARD_INDEX="$SHARD"
+              Rscript scripts/fetch_bien_traits.R
+              ;;
+            wfo-plant-list|efloras)
+              python scripts/fetch_public_flora_real_data.py --source "$SOURCE"
+              ;;
+            gift|wfo|powo|sid)
+              python scripts/fetch_public_source_data.py --source "$SOURCE"
+              ;;
+            *)
+              echo "Unknown source: $SOURCE" >&2
+              exit 2
+              ;;
+          esac
 
       - name: Upload source result
         if: always()
