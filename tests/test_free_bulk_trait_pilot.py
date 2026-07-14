@@ -20,6 +20,7 @@ def test_audit_reports_exact_matches_and_unmapped_traits(tmp_path: Path) -> None
         [
             {"taxon_name": "Campanula punctata", "trait_name": "flower_length", "value": "4.2"},
             {"taxon_name": "Campanula  punctata", "trait_name": "flower_diameter", "value": "3.1"},
+            {"taxon_name": "Campanula punctata", "trait_name": "flower_length", "value": "4.5"},
             {"taxon_name": "Other species", "trait_name": "unknown_trait", "value": "x"},
         ],
     )
@@ -31,10 +32,16 @@ def test_audit_reports_exact_matches_and_unmapped_traits(tmp_path: Path) -> None
         trait_column="trait_name",
     )
 
-    assert report["input_records"] == 3
+    assert report["input_records"] == 4
     assert report["unique_source_taxa"] == 2
     assert report["exact_master_matches"] == 1
-    assert report["mapped_records"] == 2
+    assert report["mapped_records"] == 3
+    assert report["mapped_records_in_master"] == 3
+    assert report["candidate_fallback_replacement_cells"] == 2
+    assert report["candidate_fallback_replacement_cells_by_target_trait"] == {
+        "flower_diameter_mm": 1,
+        "flower_length_mm": 1,
+    }
     assert report["unmapped_trait_records"] == 1
     assert report["policy"]["fuzzy_matching"] is False
 
@@ -61,3 +68,4 @@ def test_cli_writes_json_report(tmp_path: Path) -> None:
     assert payload["mapped_records_by_target_trait"] == {
         "flower_perianth_fusion_fraction": 1
     }
+    assert payload["candidate_fallback_replacement_cells"] == 1
