@@ -5,48 +5,9 @@ name: ingest_eol_traitbank_bulk
 # and records a compact, reviewable evidence bundle in the repository. Manual
 # dispatch remains available for targeted reruns.
 on:
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
   workflow_dispatch:
-    inputs:
-      eol_zip_url:
-        description: "Direct EOL traits_all.zip URL."
-        required: true
-        default: "https://zenodo.org/records/13305577/files/traits_all.zip?download=1"
-        type: string
-      source_name:
-        description: "Stable source/release name."
-        required: true
-        default: "eol_traitbank_all_zenodo_13305577"
-        type: string
-      expected_md5:
-        description: "Expected MD5 from the Zenodo file record."
-        required: true
-        default: "17c8e3a9de5d3299d6151c16bb17600f"
-        type: string
-      chunksize:
-        description: "traits.csv rows streamed per chunk."
-        required: true
-        default: 200000
-        type: number
-      max_trait_rows:
-        description: "Smoke-test cap; 0 means full archive."
-        required: true
-        default: 0
-        type: number
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/ingest-eol-traitbank-bulk.yml"
-      - "config/eol_traitbank_terms.yml"
-      - "config/bulk_trait_sources.yml"
-      - "config/trait_ontology.yml"
-      - "src/island_v2/eol_traitbank.py"
-      - "src/island_v2/bulk_trait_ingest.py"
-      - "tests/test_eol_traitbank.py"
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/ingest-eol-traitbank-bulk.yml"
-
 permissions:
   contents: write
 

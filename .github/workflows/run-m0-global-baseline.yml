@@ -1,15 +1,9 @@
 name: run_m0_global_baseline
 
 on:
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
   workflow_dispatch:
-  push:
-    branches:
-      - feat/recover-global-trait-artifacts
-    paths:
-      - ".github/workflows/run-m0-global-baseline.yml"
-      - "src/island_v2/m0_global_baseline.py"
-      - "pyproject.toml"
-
 permissions:
   actions: read
   contents: read

@@ -1,18 +1,9 @@
 name: filter_eol_traitbank_to_campaign
 
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/filter-eol-traitbank-to-campaign.yml"
-      - "src/island_v2/eol_campaign_filter.py"
-      - "tests/test_eol_campaign_filter.py"
-  push:
-    branches: [main]
-    paths:
-      - "data/v2/staging/traits/eol_traitbank/trait_candidates.csv.gz"
-      - "data/v2/staging/traits/eol_traitbank/coverage_summary.json"
-
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
+  workflow_dispatch:
 permissions:
   contents: write
 

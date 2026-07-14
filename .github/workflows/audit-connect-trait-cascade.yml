@@ -1,29 +1,9 @@
 name: audit_connect_trait_cascade
 
 on:
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
   workflow_dispatch:
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/audit-connect-trait-cascade.yml"
-      - "config/trait_cascade_artifact_lock.json"
-      - "config/bombus_hypervolume_artifact_lock.json"
-      - "config/trait_cascade_analysis_tiers.yml"
-      - "config/m0_m4_sem.yml"
-      - "src/island_v2/trait_cascade_analysis.py"
-      - "src/island_v2/trait_bombus_analysis.py"
-      - "src/island_v2/m0_m4_sem.py"
-      - "src/island_v2/m0_m4_sem_scoped.py"
-      - "src/island_v2/m0_global_baseline.py"
-      - "src/island_v2/m1_m3_bombus_channel_input.py"
-      - "src/island_v2/sem_readiness.py"
-      - "tests/test_trait_cascade_analysis.py"
-      - "tests/test_trait_bombus_analysis.py"
-      - "tests/test_m0_m4_sem.py"
-      - "tests/test_m0_m4_sem_scoped.py"
-      - "tests/test_m1_m3_bombus_channel_input.py"
-      - "pyproject.toml"
-
 permissions:
   actions: read
   contents: read

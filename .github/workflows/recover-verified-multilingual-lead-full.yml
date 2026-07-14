@@ -1,31 +1,9 @@
 name: recover_verified_multilingual_lead_full
 
 on:
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
   workflow_dispatch:
-    inputs:
-      batch_size:
-        description: "Primary-screened species to recover (1-2000)."
-        required: false
-        default: "1000"
-        type: string
-      languages:
-        description: "Comma-separated Wikipedia language codes."
-        required: false
-        default: "ja,zh,ru"
-        type: string
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/recover-verified-multilingual-lead-full.yml"
-      - "src/island_v2/verified_multilingual_wikimedia_recovery_v2.py"
-      - "tests/test_verified_multilingual_wikimedia_recovery_v2.py"
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/recover-verified-multilingual-lead-full.yml"
-      - "src/island_v2/verified_multilingual_wikimedia_recovery_v2.py"
-      - "tests/test_verified_multilingual_wikimedia_recovery_v2.py"
-
 permissions:
   contents: write
 

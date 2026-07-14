@@ -1,4 +1,4 @@
-name: Free bulk trait pilot check
+name: Core trait acquisition check
 
 on:
   pull_request:
@@ -9,54 +9,130 @@ permissions:
   contents: read
 
 jobs:
-  free-bulk-trait-pilot:
+  validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 15
     steps:
-      - name: Checkout PR merge ref
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
-
       - name: Install package and tests
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e . pytest
-
       - name: Run focused tests
         run: pytest -q tests/test_free_bulk_trait_pilot.py tests/test_fetch_austraits_bulk.py
 
-      - name: Fetch all AusTraits datasets
+  fetch-source:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {source: austraits, shard: 0}
+          - {source: leda, shard: 0}
+          - {source: bien, shard: 0}
+          - {source: bien, shard: 1}
+          - {source: bien, shard: 2}
+          - {source: bien, shard: 3}
+          - {source: bien, shard: 4}
+          - {source: bien, shard: 5}
+          - {source: efloras, shard: 0}
+    steps:
+      - name: Checkout PR merge ref
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - uses: r-lib/actions/setup-r@v2
+        if: matrix.source == 'bien'
+        with:
+          use-public-rspm: true
+      - name: Install BIEN system dependencies
+        if: matrix.source == 'bien'
         run: |
-          python -m island_v2.fetch_austraits_bulk \
-            --dataset-key "" \
-            --output-csv data/v2/staging/traits/bulk/austraits/austraits_all.csv \
-            --manifest-json data/v2/staging/traits/bulk/austraits/fetch_manifest.json
-
-      - name: Audit all AusTraits datasets against island master
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libgdal-dev libgeos-dev libproj-dev libudunits2-dev
+      - name: Install and verify BIEN package
+        if: matrix.source == 'bien'
         run: |
-          python -m island_v2.free_bulk_trait_pilot \
-            --source-csv data/v2/staging/traits/bulk/austraits/austraits_all.csv \
-            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
-            --source-taxon-column taxon_name \
-            --source-trait-column trait_name \
-            --source-dataset-column dataset_key \
-            --master-name-column accepted_species \
-            --output-json data/v2/staging/traits/bulk/austraits/coverage_report.json
-
-      - name: Print results
+          Rscript -e 'install.packages("BIEN", dependencies=NA)'
+          Rscript -e 'stopifnot(requireNamespace("BIEN", quietly=TRUE)); cat("BIEN version:", as.character(packageVersion("BIEN")), "\n")'
+      - name: Install island package
         run: |
-          cat data/v2/staging/traits/bulk/austraits/fetch_manifest.json
-          cat data/v2/staging/traits/bulk/austraits/coverage_report.json
-
-      - name: Upload results
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+      - name: Fetch core source
+        env:
+          SOURCE: ${{ matrix.source }}
+          SHARD: ${{ matrix.shard }}
+          BIEN_SHARD_COUNT: '6'
+          EFLORAS_SHARD_COUNT: '1'
+          EFLORAS_MAX_SPECIES: '1500'
+        run: |
+          set -euo pipefail
+          case "$SOURCE" in
+            austraits)
+              python -m island_v2.fetch_austraits_bulk --dataset-key "" --output-csv data/v2/staging/traits/bulk/austraits/austraits_all.csv --manifest-json data/v2/staging/traits/bulk/austraits/fetch_manifest.json
+              python -m island_v2.free_bulk_trait_pilot --source-csv data/v2/staging/traits/bulk/austraits/austraits_all.csv --master-csv data/v2/staging/gbif/collected/island_taxa.csv --source-taxon-column taxon_name --source-trait-column trait_name --source-dataset-column dataset_key --master-name-column accepted_species --output-json data/v2/staging/traits/bulk/austraits/coverage_report.json
+              ;;
+            leda) python scripts/fetch_leda_bulk.py ;;
+            bien)
+              export BIEN_SHARD_INDEX="$SHARD"
+              Rscript scripts/fetch_bien_traits.R
+              ;;
+            efloras)
+              export EFLORAS_SHARD_INDEX="$SHARD"
+              python scripts/fetch_flora_of_china_traits.py
+              ;;
+            *) echo "Unknown core source: $SOURCE" >&2; exit 2 ;;
+          esac
+      - name: Upload core source result
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: austraits-all-floral-bulk-pilot
+          name: core-trait-source-${{ matrix.source }}-${{ matrix.shard }}
           path: |
+            data/v2/staging/traits/bulk/austraits/austraits_all.csv
             data/v2/staging/traits/bulk/austraits/fetch_manifest.json
             data/v2/staging/traits/bulk/austraits/coverage_report.json
+            data/v2/staging/traits/bulk/leda/coverage_report.json
+            data/v2/staging/traits/bulk/leda/file_coverage.csv
+            data/v2/staging/traits/bulk/bien/
+            data/v2/staging/traits/bulk/efloras/
+          if-no-files-found: warn
           retention-days: 14
+
+  collect-results:
+    if: always()
+    needs: fetch-source
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all core source artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: core-trait-source-*
+          path: collected-core-results
+      - name: Rebuild species-direct trait base
+        run: |
+          python scripts/rebuild_species_direct_trait_base.py \
+            --artifact-root collected-core-results \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --output-dir data/v2/staging/traits/species_direct_base
+      - name: Inventory core coverage
+        run: |
+          find collected-core-results -type f -maxdepth 10 -print | sort
+          cat data/v2/staging/traits/species_direct_base/species_direct_coverage.json
+      - name: Upload rebuilt trait base and gap ledger
+        uses: actions/upload-artifact@v4
+        with:
+          name: species-direct-trait-base
+          path: data/v2/staging/traits/species_direct_base/
+          retention-days: 30

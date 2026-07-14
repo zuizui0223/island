@@ -1,23 +1,9 @@
 name: run_m0_m4_full_sensitivity
 
 on:
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
   workflow_dispatch:
-    inputs:
-      bootstrap_replicates:
-        description: "Number of 10-degree spatial-block bootstrap replicates per analysis tier"
-        required: false
-        default: "200"
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/run-m0-m4-full-sensitivity.yml"
-      - "config/m0_m4_full_analysis_artifact_lock.json"
-      - "config/m0_m4_full_analysis.yml"
-      - "src/island_v2/m0_m4_full_sensitivity.py"
-      - "src/island_v2/m0_m4_full_sensitivity_refit.py"
-      - "tests/test_m0_m4_full_sensitivity.py"
-      - "pyproject.toml"
-
 permissions:
   actions: read
   contents: read

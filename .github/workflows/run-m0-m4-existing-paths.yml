@@ -1,25 +1,9 @@
 name: run_m0_m4_existing_paths
 
 on:
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
   workflow_dispatch:
-  push:
-    branches:
-      - feat/recover-global-trait-artifacts
-    paths:
-      - ".github/workflows/run-m0-m4-existing-paths.yml"
-      - "config/integrated_trait_bombus_artifact_lock.json"
-      - "src/island_v2/m0_m4_existing_paths.py"
-      - "config/m0_m4_sem.yml"
-      - "pyproject.toml"
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/run-m0-m4-existing-paths.yml"
-      - "config/integrated_trait_bombus_artifact_lock.json"
-      - "src/island_v2/m0_m4_existing_paths.py"
-      - "config/m0_m4_sem.yml"
-      - "pyproject.toml"
-
 permissions:
   actions: read
   contents: read

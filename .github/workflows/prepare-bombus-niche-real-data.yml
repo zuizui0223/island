@@ -1,30 +1,9 @@
 name: prepare_bombus_niche_real_data
 
 on:
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
   workflow_dispatch:
-    inputs:
-      min_occurrence_records:
-        description: "Minimum coordinate-bearing GBIF records required for a Bombus species"
-        required: false
-        default: "50"
-      max_species:
-        description: "Maximum globally discovered Bombus species retained"
-        required: false
-        default: "300"
-      max_occurrences_per_species:
-        description: "Maximum GBIF occurrence records retained per species"
-        required: false
-        default: "5000"
-      spatial_thin_degrees:
-        description: "Geographic grid-cell width used to thin occurrence records"
-        required: false
-        default: "0.25"
-  push:
-    branches:
-      - feat/bombus-hypervolume-real-data
-    paths:
-      - ".github/workflows/prepare-bombus-niche-real-data.yml"
-
 permissions:
   contents: read
 

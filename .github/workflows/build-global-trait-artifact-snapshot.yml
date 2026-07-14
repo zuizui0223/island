@@ -1,15 +1,9 @@
 name: build_global_trait_artifact_snapshot
 
 on:
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
   workflow_dispatch:
-  push:
-    branches: [feat/recover-global-trait-artifacts]
-    paths:
-      - ".github/workflows/build-global-trait-artifact-snapshot.yml"
-      - "src/island_v2/trait_artifact_snapshot.py"
-      - "tests/test_trait_artifact_snapshot.py"
-      - "data/v2/staging/traits/global_campaign/**"
-
 permissions:
   contents: read
 

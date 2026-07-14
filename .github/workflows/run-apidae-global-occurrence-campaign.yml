@@ -1,14 +1,9 @@
 name: run_apidae_global_occurrence_campaign
 
 on:
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
   workflow_dispatch:
-  push:
-    branches:
-      - feat/recover-global-trait-artifacts
-    paths:
-      - ".github/workflows/run-apidae-global-occurrence-campaign.yml"
-      - "src/island_v2/m1_m3_bombus_channel_input.py"
-
 permissions:
   actions: read
   contents: read

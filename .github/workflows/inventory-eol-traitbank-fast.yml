@@ -1,28 +1,9 @@
 name: inventory_eol_traitbank_fast
 
 on:
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
   workflow_dispatch:
-    inputs:
-      max_trait_rows:
-        description: "Optional row cap; 0 scans the complete table."
-        required: true
-        default: 0
-        type: number
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/inventory-eol-traitbank-fast.yml"
-      - "src/island_v2/eol_traitbank_inventory_fast.py"
-      - "tests/test_eol_traitbank_inventory_fast.py"
-      - "config/eol_traitbank_terms.yml"
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/inventory-eol-traitbank-fast.yml"
-      - "src/island_v2/eol_traitbank_inventory_fast.py"
-      - "tests/test_eol_traitbank_inventory_fast.py"
-      - "config/eol_traitbank_terms.yml"
-
 permissions:
   contents: write
 

@@ -3,17 +3,9 @@ name: collect_gbif_full_acquisition
 # Stage 3: manual GBIF exact-island collection. Automatic cron and self-chain
 # dispatch are disabled so the workflow only runs when explicitly dispatched.
 on:
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
   workflow_dispatch:
-    inputs:
-      max_blocks:
-        description: "Succeeded GBIF blocks to process in this run."
-        required: false
-        default: "1"
-  push:
-    branches: [main]
-    paths:
-      - "config/gbif_collection_trigger.json"
-
 permissions:
   contents: write
   actions: write
