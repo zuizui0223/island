@@ -36,6 +36,7 @@ jobs:
         run: |
           python -m island_v2.fetch_austraits_bulk \
             --dataset-key eFLOWER_Dun_2022 \
+            --versions-api "https://zenodo.org/api/records/?q=conceptrecid:3568418&sort=mostrecent&size=100" \
             --output-csv data/v2/staging/traits/bulk/austraits/eFLOWER_Dun_2022.csv \
             --manifest-json data/v2/staging/traits/bulk/austraits/fetch_manifest.json
 
