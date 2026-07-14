@@ -1,0 +1,50 @@
+{
+  "version": "0.3-experiment",
+  "sources": {
+    "austraits_all_floral": {
+      "status": "pilot",
+      "access": "open_bulk_download",
+      "source_family": "AusTraits",
+      "dataset_key": null,
+      "versions_api": "https://zenodo.org/api/records/3568418/versions",
+      "source_columns": {
+        "taxon": "taxon_name",
+        "trait": "trait_name",
+        "value": "trait_value",
+        "unit": "trait_unit",
+        "dataset": "dataset_key"
+      },
+      "trait_map": {
+        "flower_length": "flower_length_continuous_raw",
+        "flower_diameter": "flower_diameter_continuous_raw",
+        "flower_perianth_fusion": "flower_perianth_fusion_continuous_raw",
+        "flower_structural_sex_type": "flower_structural_sex_type_raw",
+        "flower_colour": "flower_colour_raw",
+        "perianth_colour": "perianth_colour_raw",
+        "flower_perianth_symmetry": "flower_perianth_symmetry_raw"
+      },
+      "integration_policy": {
+        "preserve_raw_values": true,
+        "preserve_source_units": true,
+        "preserve_dataset_provenance": true,
+        "allow_fuzzy_taxon_match": false,
+        "allow_automatic_category_derivation": false,
+        "replace_fallback_only_with_curated_or_direct_evidence": true
+      }
+    },
+    "austraits_eflower_dun_2022": {
+      "status": "validated_pilot",
+      "access": "open_bulk_download",
+      "source_family": "AusTraits",
+      "dataset_key": "eFLOWER_Dun_2022",
+      "versions_api": "https://zenodo.org/api/records/3568418/versions",
+      "observed_2026_07_14": {
+        "release_version": "v7.0.0",
+        "source_rows": 30650,
+        "unique_source_taxa": 1865,
+        "exact_island_master_matches": 1247,
+        "candidate_species_trait_cells_for_initial_four_traits": 2015
+      }
+    }
+  }
+}
