@@ -4,6 +4,13 @@ options(repos = c(CRAN = "https://cloud.r-project.org"), timeout = 600)
 out_dir <- "data/v2/staging/traits/bulk/bien"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
+shard_index <- as.integer(Sys.getenv("BIEN_SHARD_INDEX", "0"))
+shard_count <- as.integer(Sys.getenv("BIEN_SHARD_COUNT", "1"))
+if (is.na(shard_index) || is.na(shard_count) || shard_count < 1 || shard_index < 0 || shard_index >= shard_count) {
+  stop("Invalid BIEN shard configuration")
+}
+suffix <- if (shard_count > 1) sprintf("_shard_%02d_of_%02d", shard_index + 1, shard_count) else ""
+
 if (!requireNamespace("BIEN", quietly = TRUE)) {
   install.packages("BIEN", dependencies = NA)
 }
@@ -14,16 +21,21 @@ missing <- setdiff(required, exports)
 if (length(missing)) stop("Required BIEN API functions missing: ", paste(missing, collapse = ", "))
 
 trait_list <- BIEN::BIEN_trait_list()
-write.csv(trait_list, file.path(out_dir, "trait_list.csv"), row.names = FALSE, na = "")
+write.csv(trait_list, file.path(out_dir, paste0("trait_list", suffix, ".csv")), row.names = FALSE, na = "")
 
+# BIEN 1.2.8 documents BIEN_trait_list() and BIEN_trait_trait(); identify the
+# returned trait-name column from the actual response rather than assuming a schema.
 trait_col <- intersect(c("trait_name", "trait", "Trait", "traitName"), names(trait_list))[1]
 if (is.na(trait_col)) {
   char_cols <- names(trait_list)[vapply(trait_list, is.character, logical(1))]
   if (!length(char_cols)) stop("Could not identify trait-name column in BIEN_trait_list()")
   trait_col <- char_cols[1]
 }
-traits <- unique(trimws(as.character(trait_list[[trait_col]])))
-traits <- traits[nzchar(traits) & !is.na(traits)]
+traits_all <- unique(trimws(as.character(trait_list[[trait_col]])))
+traits_all <- traits_all[nzchar(traits_all) & !is.na(traits_all)]
+traits <- traits_all[(seq_along(traits_all) - 1L) %% shard_count == shard_index]
+if (!length(traits)) stop("BIEN shard contains no traits")
+message(sprintf("BIEN shard %d/%d: %d of %d traits", shard_index + 1, shard_count, length(traits), length(traits_all)))
 
 master <- read.csv("data/v2/staging/gbif/collected/island_taxa.csv", stringsAsFactors = FALSE, check.names = FALSE)
 master_col <- "accepted_species"
@@ -44,7 +56,7 @@ summary_rows <- list()
 matched_chunks <- list()
 for (i in seq_along(traits)) {
   tr <- traits[[i]]
-  message(sprintf("BIEN trait %d/%d: %s", i, length(traits), tr))
+  message(sprintf("BIEN shard %d/%d trait %d/%d: %s", shard_index + 1, shard_count, i, length(traits), tr))
   dat <- tryCatch(BIEN::BIEN_trait_trait(trait = tr), error = function(e) e)
   if (inherits(dat, "error")) {
     summary_rows[[length(summary_rows)+1]] <- data.frame(trait = tr, records = 0, candidate_taxa = 0, exact_master_matches = 0, error = conditionMessage(dat))
@@ -73,7 +85,7 @@ for (i in seq_along(traits)) {
 }
 
 summary_df <- do.call(rbind, summary_rows)
-write.csv(summary_df, file.path(out_dir, "trait_coverage.csv"), row.names = FALSE, na = "")
+write.csv(summary_df, file.path(out_dir, paste0("trait_coverage", suffix, ".csv")), row.names = FALSE, na = "")
 
 if (length(matched_chunks)) {
   all_names <- unique(unlist(lapply(matched_chunks, names)))
@@ -82,7 +94,7 @@ if (length(matched_chunks)) {
     x[all_names]
   })
   matched_all <- do.call(rbind, matched_chunks)
-  gz <- gzfile(file.path(out_dir, "master_matched_trait_records.csv.gz"), "wt")
+  gz <- gzfile(file.path(out_dir, paste0("master_matched_trait_records", suffix, ".csv.gz")), "wt")
   write.csv(matched_all, gz, row.names = FALSE, na = "")
   close(gz)
   matched_unique_taxa <- length(unique(trimws(as.character(matched_all[[pick_name_col(matched_all)]]))))
@@ -96,12 +108,21 @@ report <- list(
   source = "BIEN",
   access = "official CRAN BIEN package querying BIEN database",
   package_version = as.character(utils::packageVersion("BIEN")),
+  shard_index = shard_index,
+  shard_count = shard_count,
+  traits_available = length(traits_all),
   traits_queried = length(traits),
   successful_trait_queries = sum(summary_df$error == ""),
+  failed_trait_queries = sum(summary_df$error != ""),
   total_records_returned = sum(summary_df$records),
   unique_exact_master_matches = matched_unique_taxa,
   matched_records_saved = matched_records
 )
-json <- paste0("{\n", paste(sprintf('  "%s": %s', names(report), vapply(report, function(v) if (is.character(v)) paste0('"', gsub('"','\\\\"',v), '"') else as.character(v), character(1))), collapse = ",\n"), "\n}\n")
-writeLines(json, file.path(out_dir, "coverage_report.json"))
+json_value <- function(v) {
+  if (is.character(v)) return(paste0('"', gsub('"', '\\\\"', v), '"'))
+  if (is.logical(v)) return(tolower(as.character(v)))
+  as.character(v)
+}
+json <- paste0("{\n", paste(sprintf('  "%s": %s', names(report), vapply(report, json_value, character(1))), collapse = ",\n"), "\n}\n")
+writeLines(json, file.path(out_dir, paste0("coverage_report", suffix, ".json")))
 print(report)
