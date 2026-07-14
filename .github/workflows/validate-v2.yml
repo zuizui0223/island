@@ -65,7 +65,7 @@ jobs:
       - name: Acquire quality-filtered and thinned Bombus environments
         run: |
           set -euo pipefail
-          island-v2-bombus-niche-inputs acquire-global \
+          island-v2-bombus-niche-inputs \
             --islands-gpkg data/v2/external/islands/gshhg/prepared/islands_v2.gpkg \
             --min-occurrence-records 50 \
             --max-species 300 \
