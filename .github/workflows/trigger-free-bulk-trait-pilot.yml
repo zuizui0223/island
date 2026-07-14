@@ -21,10 +21,6 @@ jobs:
           python-version: '3.12'
           cache: pip
 
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          use-public-rspm: true
-
       - name: Install package and tests
         run: |
           python -m pip install --upgrade pip
@@ -51,16 +47,19 @@ jobs:
             --master-name-column accepted_species \
             --output-json data/v2/staging/traits/bulk/austraits/coverage_report.json
 
-      - name: Probe BIEN BROT and GIFT
+      - name: Audit verified official trait and flora sources
         continue-on-error: true
-        run: Rscript scripts/probe_external_trait_sources.R
+        run: python scripts/audit_verified_plant_sources.py
 
       - name: Print results
         run: |
           cat data/v2/staging/traits/bulk/austraits/fetch_manifest.json
           cat data/v2/staging/traits/bulk/austraits/coverage_report.json
-          if [ -f data/v2/staging/traits/bulk/source_probe/source_probe_summary.csv ]; then
-            cat data/v2/staging/traits/bulk/source_probe/source_probe_summary.csv
+          if [ -f data/v2/staging/traits/bulk/verified_source_audit/source_status.csv ]; then
+            cat data/v2/staging/traits/bulk/verified_source_audit/source_status.csv
+          fi
+          if [ -f data/v2/staging/traits/bulk/verified_source_audit/discovered_machine_links.csv ]; then
+            cat data/v2/staging/traits/bulk/verified_source_audit/discovered_machine_links.csv
           fi
 
       - name: Upload results
@@ -70,5 +69,5 @@ jobs:
           path: |
             data/v2/staging/traits/bulk/austraits/fetch_manifest.json
             data/v2/staging/traits/bulk/austraits/coverage_report.json
-            data/v2/staging/traits/bulk/source_probe/
+            data/v2/staging/traits/bulk/verified_source_audit/
           retention-days: 14
