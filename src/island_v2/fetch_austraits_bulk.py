@@ -20,7 +20,10 @@ import zipfile
 from pathlib import Path
 from typing import Iterable
 
-VERSIONS_API = "https://zenodo.org/api/records/3568418/versions?size=100"
+# This exact endpoint is pinned to the URL that produced the successful
+# 2026-07-14 pilot run (run 29299168447). Do not append unsupported query
+# parameters such as ``?size=100``; Zenodo returned HTTP 400 for that variant.
+VERSIONS_API = "https://zenodo.org/api/records/3568418/versions"
 USER_AGENT = "island-v2-free-bulk-trait-pilot/0.1"
 TAXON_ALIASES = ("taxon_name", "accepted_name", "scientific_name", "species_name", "taxon")
 TRAIT_ALIASES = ("trait_name", "trait")
