@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Download real LEDA Traitbase TXT files from the official data-files page and audit master coverage."""
 from __future__ import annotations
-import csv, json, re, urllib.parse, urllib.request
+import csv, json, re, time, urllib.parse, urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -21,10 +21,17 @@ class Anchors(HTMLParser):
         if tag.lower()=="a" and self.href is not None:
             self.items.append((" ".join("".join(self.text).split()),self.href)); self.href=None; self.text=[]
 
-def get(url,limit=None):
-    req=urllib.request.Request(url,headers=UA)
-    with urllib.request.urlopen(req,timeout=180) as r:
-        return r.read() if limit is None else r.read(limit)
+def get(url,limit=None,attempts=5):
+    last=None
+    for attempt in range(attempts):
+        try:
+            req=urllib.request.Request(url,headers=UA)
+            with urllib.request.urlopen(req,timeout=180) as r:
+                return r.read() if limit is None else r.read(limit)
+        except Exception as exc:
+            last=exc
+            if attempt+1<attempts: time.sleep(2**attempt)
+    raise RuntimeError(f"GET failed after {attempts} attempts: {url}: {last}")
 
 def norm_name(s): return " ".join((s or "").replace("×","x").split()).strip()
 
@@ -59,14 +66,21 @@ def main():
         if label.upper()=="TXT" or low.endswith((".txt",".csv",".tsv")):
             if url not in seen: seen.add(url); links.append(url)
     if not links: raise RuntimeError("LEDA official page exposed no TXT/CSV/TSV data links")
-    master=master_names(); reports=[]; union=set()
+    master=master_names(); reports=[]; union=set(); failures=[]
     for i,url in enumerate(links,1):
         name=Path(urllib.parse.urlparse(url).path).name or f"leda_{i}.txt"
-        blob=get(url); (OUT/name).write_bytes(blob)
-        text=decode(blob); taxa=candidate_names(text); matches=taxa & master; union |= matches
-        reports.append({"file":name,"url":url,"bytes":len(blob),"candidate_taxa":len(taxa),"exact_master_matches":len(matches)})
-        print(f"LEDA {i}/{len(links)} {name}: bytes={len(blob)} taxa={len(taxa)} matches={len(matches)}")
-    report={"source":"LEDA Traitbase","official_landing":LANDING,"files_downloaded":len(reports),"downloaded_bytes":sum(x["bytes"] for x in reports),"unique_exact_master_matches":len(union),"files":reports}
+        try:
+            blob=get(url); (OUT/name).write_bytes(blob)
+            text=decode(blob); taxa=candidate_names(text); matches=taxa & master; union |= matches
+            reports.append({"file":name,"url":url,"bytes":len(blob),"candidate_taxa":len(taxa),"exact_master_matches":len(matches),"error":""})
+            print(f"LEDA {i}/{len(links)} {name}: bytes={len(blob)} taxa={len(taxa)} matches={len(matches)}")
+        except Exception as exc:
+            failures.append({"file":name,"url":url,"error":str(exc)})
+            reports.append({"file":name,"url":url,"bytes":0,"candidate_taxa":0,"exact_master_matches":0,"error":str(exc)})
+            print(f"LEDA {i}/{len(links)} {name}: FAILED: {exc}")
+    successful=sum(1 for x in reports if x["bytes"]>0)
+    if successful==0: raise RuntimeError(f"LEDA: all {len(links)} downloads failed")
+    report={"source":"LEDA Traitbase","official_landing":LANDING,"real_data_acquired":True,"files_discovered":len(links),"files_downloaded":successful,"files_failed":len(failures),"downloaded_bytes":sum(x["bytes"] for x in reports),"unique_exact_master_matches":len(union),"failures":failures,"files":reports}
     (OUT/"coverage_report.json").write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding="utf-8")
     with (OUT/"file_coverage.csv").open("w",encoding="utf-8",newline="") as f:
         w=csv.DictWriter(f,fieldnames=reports[0].keys()); w.writeheader(); w.writerows(reports)
