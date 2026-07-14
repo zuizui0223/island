@@ -10,7 +10,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Iterable
 
@@ -52,6 +52,9 @@ def audit_bulk_source(
     source_taxa: set[str] = set()
     matched_taxa: set[str] = set()
     mapped_records = Counter()
+    mapped_records_in_master = Counter()
+    matched_taxa_by_target_trait: dict[str, set[str]] = defaultdict(set)
+    replacement_cells: set[tuple[str, str]] = set()
     unmapped_traits = Counter()
     input_records = 0
 
@@ -66,18 +69,25 @@ def audit_bulk_source(
             input_records += 1
             taxon = normalize_scientific_name(row.get(taxon_column, ""))
             trait = (row.get(trait_column, "") or "").strip()
+            matched = bool(taxon and taxon in master_names)
             if taxon:
                 source_taxa.add(taxon)
-                if taxon in master_names:
+                if matched:
                     matched_taxa.add(taxon)
             if trait in mapping:
-                mapped_records[mapping[trait]] += 1
+                target_trait = mapping[trait]
+                mapped_records[target_trait] += 1
+                if matched:
+                    mapped_records_in_master[target_trait] += 1
+                    matched_taxa_by_target_trait[target_trait].add(taxon)
+                    replacement_cells.add((taxon, target_trait))
             elif trait:
                 unmapped_traits[trait] += 1
 
     unmatched_taxa = source_taxa - master_names
     match_rate = len(matched_taxa) / len(source_taxa) if source_taxa else 0.0
     mapped_total = sum(mapped_records.values())
+    mapped_master_total = sum(mapped_records_in_master.values())
 
     return {
         "input_records": input_records,
@@ -87,12 +97,22 @@ def audit_bulk_source(
         "exact_taxon_match_rate": match_rate,
         "mapped_records": mapped_total,
         "mapped_records_by_target_trait": dict(sorted(mapped_records.items())),
+        "mapped_records_in_master": mapped_master_total,
+        "mapped_records_in_master_by_target_trait": dict(sorted(mapped_records_in_master.items())),
+        "matched_unique_taxa_by_target_trait": {
+            trait: len(taxa) for trait, taxa in sorted(matched_taxa_by_target_trait.items())
+        },
+        "candidate_fallback_replacement_cells": len(replacement_cells),
+        "candidate_fallback_replacement_cells_by_target_trait": {
+            trait: len(taxa) for trait, taxa in sorted(matched_taxa_by_target_trait.items())
+        },
         "unmapped_trait_records": sum(unmapped_traits.values()),
         "top_unmapped_source_traits": dict(unmapped_traits.most_common(25)),
         "policy": {
             "taxon_matching": "exact_after_whitespace_normalization",
             "fuzzy_matching": False,
             "continuous_to_category_derivation": False,
+            "replacement_metric": "unique_exact-master-matched_species_x_mapped-target-trait_cells",
         },
     }
 
