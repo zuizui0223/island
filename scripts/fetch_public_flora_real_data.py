@@ -5,7 +5,7 @@ import argparse, csv, hashlib, html, json, os, re, ssl, time, urllib.parse, urll
 from html.parser import HTMLParser
 from pathlib import Path
 
-UA={"User-Agent":"island-v2-trait-harvester/1.1 (+https://github.com/zuizui0223/island)"}
+UA={"User-Agent":"island-v2-trait-harvester/1.2 (+https://github.com/zuizui0223/island)"}
 MASTER=Path("data/v2/staging/gbif/collected/island_taxa.csv")
 
 class Links(HTMLParser):
@@ -69,16 +69,31 @@ def stable_bucket(value: str, count: int) -> int:
     return int.from_bytes(hashlib.sha1(value.encode("utf-8")).digest()[:8],"big") % count
 
 
-def extract_trait_candidates(text: str, species: set[str], source_url: str, source_file: str) -> list[dict[str,str]]:
+def focal_species_for_page(text: str, page_matches: set[str]) -> str:
+    """Choose the treatment taxon from the page header, not incidental names in keys/references."""
+    if not page_matches: return ""
+    head=" ".join(text[:4000].split())
+    ranked=[]
+    for name in page_matches:
+        pos=head.find(name)
+        if pos>=0: ranked.append((pos,-len(name),name))
+    if ranked: return min(ranked)[2]
+    return next(iter(page_matches)) if len(page_matches)==1 else ""
+
+
+def treatment_text_present(text: str, focal: str) -> bool:
+    if not focal: return False
+    low=text.lower()
+    return focal in text[:4000] and any(term in low for term in ("flowers", "corolla", "petals", "perianth", "flowering")) and len(text)>800
+
+
+def extract_trait_candidates(text: str, focal_species: str, source_url: str, source_file: str) -> list[dict[str,str]]:
     rows=[]; seen=set()
+    if not focal_species: return rows
     for sentence in SENTENCE_SPLIT.split(text):
         sentence=" ".join(sentence.split())
         if len(sentence)<12 or len(sentence)>1000: continue
-        sentence_species={name for name in species if name in sentence}
-        if not sentence_species and len(species)==1: sentence_species=set(species)
-        if not sentence_species: continue
-        low=sentence.lower()
-        hits=[]
+        low=sentence.lower(); hits=[]
         if FLORAL_CONTEXT.search(sentence):
             colors=[word for word in COLOR_WORDS if re.search(rf"\b{re.escape(word)}(?:ish)?\b",low)]
             if colors: hits.append(("flower_primary_color","|".join(colors),"floral colour phrase"))
@@ -98,12 +113,11 @@ def extract_trait_candidates(text: str, species: set[str], source_url: str, sour
         for phrase,value in (("bee","bee"),("bumblebee","bumblebee"),("butterfl","butterfly"),("moth","moth"),("bird","bird"),("bat","bat"),("fly","fly"),("wind-pollinat","wind")):
             if phrase in low and ("pollinat" in low or "visited by" in low): pollinators.append(value)
         if pollinators: hits.append(("pollination_functional_guild","|".join(sorted(set(pollinators))),"pollinator phrase"))
-        for sp in sentence_species:
-            for trait,value,rule in hits:
-                key=(sp,trait,value,sentence)
-                if key in seen: continue
-                seen.add(key)
-                rows.append({"accepted_species":sp,"trait_name":trait,"candidate_value":value,"source_name":"eFloras","source_trait":rule,"source_url":source_url,"source_record_id":source_file,"source_excerpt":sentence[:1000],"evidence_scope":"species_direct","evidence_status":"source_backed_rule_extracted_unreviewed"})
+        for trait,value,rule in hits:
+            key=(focal_species,trait,value,sentence)
+            if key in seen: continue
+            seen.add(key)
+            rows.append({"accepted_species":focal_species,"trait_name":trait,"candidate_value":value,"source_name":"eFloras","source_trait":rule,"source_url":source_url,"source_record_id":source_file,"source_excerpt":sentence[:1000],"evidence_scope":"species_direct","evidence_status":"source_backed_rule_extracted_unreviewed"})
     return rows
 
 
@@ -124,7 +138,7 @@ def fetch_wfo_plant_list(out: Path) -> dict:
 
 
 def fetch_efloras(out: Path) -> dict:
-    landing="http://www.efloras.org/"; shard_index=int(os.environ.get("EFLORAS_SHARD_INDEX","0")); shard_count=max(1,int(os.environ.get("EFLORAS_SHARD_COUNT","1"))); max_pages=max(1,int(os.environ.get("EFLORAS_MAX_PAGES","250")));
+    landing="http://www.efloras.org/"; shard_index=int(os.environ.get("EFLORAS_SHARD_INDEX","0")); shard_count=max(1,int(os.environ.get("EFLORAS_SHARD_COUNT","1"))); max_pages=max(1,int(os.environ.get("EFLORAS_MAX_PAGES","1000")))
     body,final,_=get(landing); p=Links(); p.feed(decode(body)); content=[]
     for href in p.links:
         u=urllib.parse.urljoin(final,href)
@@ -132,7 +146,7 @@ def fetch_efloras(out: Path) -> dict:
     content=sorted(dict.fromkeys(content))
     if not content: raise RuntimeError("eFloras: no flora/taxon content links discovered")
     seeds=[u for u in content if stable_bucket(u,shard_count)==shard_index] or content[shard_index:shard_index+1]
-    out.mkdir(parents=True,exist_ok=True); master=master_names(); matched=set(); saved=[]; candidates=[]; queue=seeds[:50]; seen=set()
+    out.mkdir(parents=True,exist_ok=True); master=master_names(); matched=set(); focal_matched=set(); saved=[]; candidates=[]; queue=seeds[:100]; seen=set(); treatment_pages=0
     while queue and len(saved)<max_pages:
         u=queue.pop(0)
         if u in seen: continue
@@ -141,18 +155,22 @@ def fetch_efloras(out: Path) -> dict:
         except Exception: continue
         if len(b)<1000: continue
         raw=decode(b); text=visible_text(raw); taxa=set(BINOMIAL.findall(text)); page_matches=taxa & master; matched |= page_matches
+        focal=focal_species_for_page(text,page_matches)
+        is_treatment="florataxon.aspx" in f.lower() and treatment_text_present(text,focal)
+        if is_treatment:
+            treatment_pages+=1; focal_matched.add(focal)
         name=f"page_{len(saved)+1:05d}.html"; (out/name).write_bytes(b)
-        page_candidates=extract_trait_candidates(text,page_matches,f,name); candidates.extend(page_candidates)
-        saved.append({"url":f,"file":name,"bytes":len(b),"candidate_taxa":len(taxa),"exact_master_matches":len(page_matches),"trait_candidates":len(page_candidates)})
+        page_candidates=extract_trait_candidates(text,focal if is_treatment else "",f,name); candidates.extend(page_candidates)
+        saved.append({"url":f,"file":name,"bytes":len(b),"candidate_taxa":len(taxa),"exact_master_matches":len(page_matches),"focal_species":focal,"is_species_treatment":is_treatment,"trait_candidates":len(page_candidates)})
         q=Links(); q.feed(raw)
         for href in q.links:
             v=urllib.parse.urljoin(f,href)
-            if urllib.parse.urlparse(v).netloc.endswith("efloras.org") and "florataxon.aspx" in v.lower() and v not in seen and stable_bucket(v,shard_count)==shard_index and len(queue)<3000: queue.append(v)
+            if urllib.parse.urlparse(v).netloc.endswith("efloras.org") and "florataxon.aspx" in v.lower() and v not in seen and stable_bucket(v,shard_count)==shard_index and len(queue)<20000: queue.append(v)
     if not saved: raise RuntimeError("eFloras: no substantive flora content pages acquired")
     fields=["accepted_species","trait_name","candidate_value","source_name","source_trait","source_url","source_record_id","source_excerpt","evidence_scope","evidence_status"]
     with (out/"efloras_species_direct_candidates.csv").open("w",encoding="utf-8",newline="") as handle:
         writer=csv.DictWriter(handle,fieldnames=fields); writer.writeheader(); writer.writerows(candidates)
-    report={"source":"eFloras","real_data_acquired":True,"shard_index":shard_index,"shard_count":shard_count,"pages_saved":len(saved),"bytes_saved":sum(x["bytes"] for x in saved),"unique_exact_master_matches":len(matched),"species_direct_trait_candidate_rows":len(candidates),"species_with_trait_candidates":len({r['accepted_species'] for r in candidates}),"trait_candidate_cells":len({(r['accepted_species'],r['trait_name']) for r in candidates}),"pages":saved}
+    report={"source":"eFloras","real_data_acquired":True,"shard_index":shard_index,"shard_count":shard_count,"pages_saved":len(saved),"species_treatment_pages":treatment_pages,"bytes_saved":sum(x["bytes"] for x in saved),"unique_exact_master_matches_anywhere":len(matched),"unique_focal_species_treatments":len(focal_matched),"species_direct_trait_candidate_rows":len(candidates),"species_with_trait_candidates":len({r['accepted_species'] for r in candidates}),"trait_candidate_cells":len({(r['accepted_species'],r['trait_name']) for r in candidates}),"trait_cells_by_trait":{t:len({(r['accepted_species'],r['trait_name']) for r in candidates if r['trait_name']==t}) for t in sorted({r['trait_name'] for r in candidates})},"pages":saved}
     (out/"coverage_report.json").write_text(json.dumps(report,indent=2),encoding="utf-8"); return report
 
 
