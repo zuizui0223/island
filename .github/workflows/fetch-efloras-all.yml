@@ -75,6 +75,7 @@ jobs:
     timeout-minutes: 30
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
+      flora_matrix: ${{ steps.plan.outputs.flora_matrix }}
       count: ${{ steps.plan.outputs.count }}
     steps:
       - uses: actions/checkout@v4
@@ -125,13 +126,20 @@ jobs:
           # Keep Flora as the inner loop so the first parallel wave spreads
           # requests across sources instead of starting every shard of one Flora.
           include = [
-              {**flora, 'shard_index': shard_index, 'shard_count': shard_count}
+              {
+                  **flora,
+                  'shard_index': shard_index,
+                  'shard_count': shard_count,
+                  'shard_dir': f'shard-{shard_index:04d}-of-{shard_count:04d}',
+              }
               for shard_index in shard_indexes
               for flora in floras
           ]
           matrix = json.dumps({'include': include}, ensure_ascii=True, separators=(',', ':'))
+          flora_matrix = json.dumps({'include': floras}, ensure_ascii=True, separators=(',', ':'))
           with Path(os.environ['GITHUB_OUTPUT']).open('a', encoding='utf-8') as handle:
               handle.write(f'matrix={matrix}\n')
+              handle.write(f'flora_matrix={flora_matrix}\n')
               handle.write(f'count={len(include)}\n')
           print(json.dumps({'selected_jobs': include, 'count': len(include)}, indent=2))
           PY
@@ -144,11 +152,51 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  fetch:
+  inventory:
     if: github.event_name == 'workflow_dispatch' && needs.discover.outputs.count != '0'
+    needs: discover
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.discover.outputs.flora_matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install scraper dependencies
+        run: python -m pip install requests beautifulsoup4
+      - name: Build one complete reusable taxon inventory per Flora
+        run: |
+          python scripts/fetch_efloras_traits.py \
+            --flora-id "${{ matrix.flora_id }}" \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --master-name-column accepted_species \
+            --max-species 0 \
+            --shard-index 0 \
+            --shard-count 1 \
+            --checkpoint-every 10 \
+            --delay-min 1.0 \
+            --delay-max 2.0 \
+            --inventory-only
+      - name: Upload reusable Flora inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: efloras-inventory-flora-${{ matrix.flora_id }}
+          path: data/v2/staging/traits/bulk/efloras/flora-${{ matrix.flora_id }}/
+          if-no-files-found: error
+          retention-days: 30
+
+  fetch:
+    if: always() && github.event_name == 'workflow_dispatch' && needs.discover.result == 'success' && needs.discover.outputs.count != '0'
     needs:
       - validate
       - discover
+      - inventory
     runs-on: ubuntu-latest
     timeout-minutes: 330
     strategy:
@@ -161,6 +209,11 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
+      - name: Reuse the complete Flora inventory for this shard
+        uses: actions/download-artifact@v4
+        with:
+          name: efloras-inventory-flora-${{ matrix.flora_id }}
+          path: data/v2/staging/traits/bulk/efloras/flora-${{ matrix.flora_id }}/${{ matrix.shard_dir }}
       - name: Install scraper dependencies
         run: python -m pip install requests beautifulsoup4
       - name: Resolve acquisition limit

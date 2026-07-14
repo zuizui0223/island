@@ -5,6 +5,7 @@ import importlib.util
 import json
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 
 SCRIPT = Path(__file__).parents[1] / "scripts" / "fetch_efloras_traits.py"
@@ -282,6 +283,37 @@ def test_acquisition_status_does_not_hide_rejected_selected_records() -> None:
 def test_treatment_circuit_breaker_defaults_to_three_exhausted_species_requests() -> None:
     args = efloras.build_parser().parse_args(["--flora-id", "11"])
     assert args.max_consecutive_treatment_failures == 3
+
+
+def test_inventory_only_mode_is_explicit() -> None:
+    assert efloras.build_parser().parse_args(["--flora-id", "2"]).inventory_only is False
+    assert efloras.build_parser().parse_args(["--flora-id", "2", "--inventory-only"]).inventory_only is True
+
+
+def test_inventory_coverage_reports_complete_reusable_inventory() -> None:
+    taxa = [
+        {"listing_rank": "genus", "original_taxon_name": "Poa", "match_status": "not_species"},
+        {
+            "listing_rank": "species",
+            "original_taxon_name": "Poa annua",
+            "match_status": "exact_accepted_name_match",
+        },
+        {"listing_rank": "species", "original_taxon_name": "Poa alpina", "match_status": "unmatched"},
+    ]
+    report = efloras.inventory_coverage(
+        flora_id=2,
+        flora_name="Flora of China",
+        landing_url="http://example.test/flora/2",
+        taxa=taxa,
+        eligible_count=1,
+        crawl_metrics={"inventory_complete": True, "inventory_stop_reason": "queue_exhausted"},
+        client=SimpleNamespace(http_errors=0, errors=[]),
+    )
+    assert report["status"] == "inventory_ready"
+    assert report["taxa_links_discovered"] == 3
+    assert report["species_names_discovered"] == 2
+    assert report["exact_master_matches"] == 1
+    assert report["unmatched_names"] == 1
 
 
 def test_combined_coverage_deduplicates_species_across_floras(tmp_path: Path) -> None:

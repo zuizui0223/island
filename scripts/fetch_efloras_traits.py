@@ -537,6 +537,42 @@ def acquisition_status(
     return "ok"
 
 
+def inventory_coverage(
+    *,
+    flora_id: int,
+    flora_name: str,
+    landing_url: str,
+    taxa: list[dict[str, str]],
+    eligible_count: int,
+    crawl_metrics: dict[str, Any],
+    client: Client,
+) -> dict[str, Any]:
+    species_names = {row["original_taxon_name"] for row in taxa if row["listing_rank"] == "species"}
+    match_counts = Counter(
+        row.get("match_status", "")
+        for row in taxa
+        if row["listing_rank"] == "species" and row.get("match_status")
+    )
+    return {
+        "status": "inventory_ready" if crawl_metrics.get("inventory_complete") else "failed_inventory",
+        "inventory_only": True,
+        "flora_id": flora_id,
+        "flora_name": flora_name,
+        "landing_url": landing_url,
+        **crawl_metrics,
+        "taxa_links_discovered": len(taxa),
+        "species_names_discovered": len(species_names),
+        "exact_master_matches": match_counts.get("exact_accepted_name_match", 0),
+        "normalized_matches": match_counts.get("normalized_binomial_match", 0),
+        "synonym_matches": match_counts.get("synonym_match", 0),
+        "unmatched_names": match_counts.get("unmatched", 0),
+        "ambiguous_names": match_counts.get("ambiguous", 0),
+        "eligible_unique_master_species": eligible_count,
+        "HTTP_errors": client.http_errors,
+        "error_records": len(client.errors),
+    }
+
+
 def crawl_taxa(
     *,
     client: Client,
@@ -949,6 +985,25 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
             row["selection_status"] = "selected" if row["taxon_id"] in selected_ids else "not_in_current_shard_or_limit"
     write_csv(output_dir / "master_match_report.csv", match_report, MATCH_FIELDS)
 
+    if args.inventory_only:
+        match_by_taxon = {row["taxon_id"]: row["match_status"] for row in match_report}
+        inventory_taxa = [{**row, "match_status": match_by_taxon.get(row["taxon_id"], "")} for row in taxa]
+        report = inventory_coverage(
+            flora_id=flora_id,
+            flora_name=flora_name,
+            landing_url=landing_url,
+            taxa=inventory_taxa,
+            eligible_count=len(eligible),
+            crawl_metrics=crawl_metrics,
+            client=client,
+        )
+        write_json(output_dir / "coverage_report.json", report)
+        write_errors(output_dir / "errors.jsonl", client.errors)
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        if report["status"] != "inventory_ready":
+            raise AcquisitionError(f"flora {flora_id}: inventory did not complete")
+        return report
+
     treatment_path = output_dir / "species_treatments.csv"
     candidate_path = output_dir / "trait_candidates.csv"
     treatments: list[dict[str, Any]] = read_csv(treatment_path) if args.resume else []
@@ -1243,6 +1298,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--attempts", type=int, default=6)
     parser.add_argument("--max-consecutive-treatment-failures", type=int, default=3)
     parser.add_argument("--min-description-chars", type=int, default=20)
+    parser.add_argument("--inventory-only", action="store_true")
     parser.add_argument("--save-html", action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--resume", action=argparse.BooleanOptionalAction, default=True)
     return parser

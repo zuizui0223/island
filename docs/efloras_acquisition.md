@@ -121,5 +121,7 @@ For production, first review the smoke/pilot `coverage_report.json` and
 `errors.jsonl`, then dispatch `production`. Large production runs should use
 `shard_count` and set the workflow's `shard_index` input to `all`. The workflow
 expands every index from zero through `shard_count - 1` in one rate-limited
-matrix and combines their artifacts afterward. A numeric `shard_index` remains
-available for rerunning one failed shard.
+matrix and combines their artifacts afterward. Before the shard matrix starts,
+the workflow crawls each Flora once and shares that completed inventory with
+every shard, so sharding does not multiply browse-page traffic. A numeric
+`shard_index` remains available for rerunning one failed shard.
