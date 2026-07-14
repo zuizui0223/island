@@ -1,7 +1,6 @@
 name: Run free bulk trait pilot
 
 # Emergency Actions-budget mode: run only when explicitly requested.
-# Restore scoped automatic triggers after the monthly billing cycle resets.
 on:
   workflow_dispatch:
 
@@ -9,9 +8,9 @@ permissions:
   contents: read
 
 jobs:
-  austraits-eflower-pilot:
+  austraits-all-floral-pilot:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -29,21 +28,21 @@ jobs:
         run: |
           pytest -q tests/test_free_bulk_trait_pilot.py tests/test_fetch_austraits_bulk.py
 
-      - name: Fetch latest AusTraits release and extract eFLOWER_Dun_2022
+      - name: Fetch latest AusTraits release across all datasets
         run: |
           python -m island_v2.fetch_austraits_bulk \
-            --dataset-key eFLOWER_Dun_2022 \
-            --versions-api "https://zenodo.org/api/records/?q=conceptrecid:3568418&sort=mostrecent&size=100" \
-            --output-csv data/v2/staging/traits/bulk/austraits/eFLOWER_Dun_2022.csv \
+            --dataset-key "" \
+            --output-csv data/v2/staging/traits/bulk/austraits/austraits_all.csv \
             --manifest-json data/v2/staging/traits/bulk/austraits/fetch_manifest.json
 
-      - name: Audit against the current island species master
+      - name: Audit all AusTraits datasets against the island species master
         run: |
           python -m island_v2.free_bulk_trait_pilot \
-            --source-csv data/v2/staging/traits/bulk/austraits/eFLOWER_Dun_2022.csv \
+            --source-csv data/v2/staging/traits/bulk/austraits/austraits_all.csv \
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
             --source-taxon-column taxon_name \
             --source-trait-column trait_name \
+            --source-dataset-column dataset_key \
             --master-name-column accepted_species \
             --output-json data/v2/staging/traits/bulk/austraits/coverage_report.json
 
@@ -58,27 +57,26 @@ jobs:
           report = json.loads(Path("data/v2/staging/traits/bulk/austraits/coverage_report.json").read_text())
           summary = Path(os.environ["GITHUB_STEP_SUMMARY"])
           with summary.open("a", encoding="utf-8") as handle:
-              handle.write("# AusTraits / eFLOWER bulk pilot\n\n")
+              handle.write("# AusTraits all-dataset floral bulk pilot\n\n")
               handle.write(f"- Release: `{manifest.get('release_version')}` ({manifest.get('publication_date')})\n")
               handle.write(f"- Standardized source rows: **{manifest.get('standardized_rows', 0):,}**\n")
               handle.write(f"- Unique source taxa: **{manifest.get('unique_taxa', 0):,}**\n")
               handle.write(f"- Exact island-master matches: **{report.get('exact_master_matches', 0):,}**\n")
               handle.write(f"- Exact taxon match rate: **{report.get('exact_taxon_match_rate', 0):.1%}**\n")
-              handle.write(f"- Candidate fallback-replacement cells: **{report.get('candidate_fallback_replacement_cells', 0):,}**\n\n")
-              handle.write("## Replacement candidates by mapped target trait\n\n")
+              handle.write(f"- Candidate species × trait cells: **{report.get('candidate_fallback_replacement_cells', 0):,}**\n\n")
+              handle.write("## Candidate cells by mapped target trait\n\n")
               for trait, count in report.get("candidate_fallback_replacement_cells_by_target_trait", {}).items():
                   handle.write(f"- `{trait}`: {count:,}\n")
-              handle.write("\n## Top unmapped source traits\n\n")
-              for trait, count in report.get("top_unmapped_source_traits", {}).items():
-                  handle.write(f"- `{trait}`: {count:,}\n")
+              handle.write("\n## Top contributing AusTraits datasets\n\n")
+              for dataset, count in list(report.get("candidate_fallback_replacement_cells_by_dataset", {}).items())[:25]:
+                  handle.write(f"- `{dataset}`: {count:,} cells\n")
           PY
 
       - name: Upload pilot outputs
         uses: actions/upload-artifact@v4
         with:
-          name: austraits-eflower-bulk-pilot
+          name: austraits-all-floral-bulk-pilot
           path: |
             data/v2/staging/traits/bulk/austraits/fetch_manifest.json
             data/v2/staging/traits/bulk/austraits/coverage_report.json
-            data/v2/staging/traits/bulk/austraits/eFLOWER_Dun_2022.csv
           retention-days: 14
