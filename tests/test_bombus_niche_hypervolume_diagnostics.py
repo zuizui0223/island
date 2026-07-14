@@ -35,6 +35,7 @@ def test_ellipsoidal_boundary_is_calibrated_to_half_membership() -> None:
         training,
         probe,
         environment_columns=["bio1", "bio12"],
+        min_occurrences=20,
     ).iloc[0]
 
     reconstructed = 2 ** (-float(scored["ellipsoidal_distance_ratio"]))
@@ -64,6 +65,7 @@ def test_univariate_extrapolation_is_explicit() -> None:
         _training(),
         targets,
         environment_columns=["bio1", "bio12"],
+        min_occurrences=20,
     ).set_index("island_id")
 
     assert not bool(result.loc["inside_axes", "environmental_extrapolation"])
