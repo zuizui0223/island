@@ -26,16 +26,23 @@ SOURCES = {
         "max_pages": 80,
     },
     "wfo": {
-        "name": "World Flora Online",
-        "start": "https://www.worldfloraonline.org/",
-        "hosts": {"www.worldfloraonline.org", "worldfloraonline.org"},
-        "max_pages": 80,
+        "name": "World Flora Online (taxonomic backbone download)",
+        # The WFO homepage is a JS app with no bulk file. Its Darwin Core
+        # backbone archives are published on the download page and served from
+        # the files.* host, so start there and allow that host.
+        "start": "https://www.worldfloraonline.org/downloadData",
+        "hosts": {"www.worldfloraonline.org", "worldfloraonline.org", "files.worldfloraonline.org"},
+        "max_pages": 60,
     },
     "powo": {
-        "name": "Plants of the World Online",
-        "start": "https://powo.science.kew.org/",
-        "hosts": {"powo.science.kew.org"},
-        "max_pages": 80,
+        "name": "Plants of the World Online (WCVP bulk backbone)",
+        # POWO's website exposes no bulk payload to a crawler. Its authoritative
+        # machine-readable checklist is published as the World Checklist of
+        # Vascular Plants (WCVP) in Kew's data repository, so pull the real bulk
+        # archive from there instead of scraping the POWO web app.
+        "start": "https://sftp.kew.org/pub/data-repositories/WCVP/",
+        "hosts": {"sftp.kew.org"},
+        "max_pages": 40,
     },
     "try": {
         "name": "TRY Plant Trait Database",
