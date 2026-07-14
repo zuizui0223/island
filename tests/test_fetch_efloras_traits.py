@@ -279,6 +279,11 @@ def test_acquisition_status_does_not_hide_rejected_selected_records() -> None:
     assert efloras.acquisition_status(**common, treatment_count=20, rejected_count=0) == "ok"
 
 
+def test_treatment_circuit_breaker_defaults_to_three_exhausted_species_requests() -> None:
+    args = efloras.build_parser().parse_args(["--flora-id", "11"])
+    assert args.max_consecutive_treatment_failures == 3
+
+
 def test_combined_coverage_deduplicates_species_across_floras(tmp_path: Path) -> None:
     root = tmp_path / "input"
     for flora_id in (1, 2):

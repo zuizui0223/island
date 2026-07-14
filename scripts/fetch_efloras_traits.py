@@ -962,6 +962,8 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
         request_total = int(checkpoint.get("species_treatment_requests", 0))
     errors = read_jsonl(output_dir / "errors.jsonl") if args.resume else []
     errors.extend(error for error in client.errors if error not in errors)
+    consecutive_request_failures = 0
+    treatment_circuit_breaker_open = False
 
     for index, selected in enumerate(sharded, start=1):
         taxon_id = selected["taxon_id"]
@@ -972,6 +974,7 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
             response = client.get(selected["treatment_url"], stage="species_treatment")
             parsed = parse_treatment(response.text, response.url, args.min_description_chars)
         except Exception as exc:
+            consecutive_request_failures += 1
             errors.append(
                 {
                     "stage": "species_treatment",
@@ -982,8 +985,24 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
                     "error": str(exc),
                 }
             )
+            if (
+                args.max_consecutive_treatment_failures > 0
+                and consecutive_request_failures >= args.max_consecutive_treatment_failures
+            ):
+                treatment_circuit_breaker_open = True
+                errors.append(
+                    {
+                        "stage": "treatment_circuit_breaker",
+                        "flora_id": flora_id,
+                        "error": "maximum consecutive exhausted treatment requests reached",
+                        "consecutive_failures": consecutive_request_failures,
+                        "pending_selected_treatments": len(selected_ids.difference(processed_taxon_ids)),
+                    }
+                )
+                break
             continue
 
+        consecutive_request_failures = 0
         if not parsed["treatment_confirmed"]:
             errors.append(
                 {
@@ -1117,6 +1136,7 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
         "species_treatments_saved": len(treatments),
         "pending_selected_treatments": len(pending_selected),
         "rejected_selected_treatments": len(rejected_selected),
+        "treatment_circuit_breaker_open": treatment_circuit_breaker_open,
         "empty_descriptions": sum(
             error.get("error") == "not_a_confirmed_species_treatment"
             and int(error.get("narrative_chars", 0)) < args.min_description_chars
@@ -1221,6 +1241,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--delay-max", type=float, default=3.5)
     parser.add_argument("--timeout", type=float, default=120)
     parser.add_argument("--attempts", type=int, default=6)
+    parser.add_argument("--max-consecutive-treatment-failures", type=int, default=3)
     parser.add_argument("--min-description-chars", type=int, default=20)
     parser.add_argument("--save-html", action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--resume", action=argparse.BooleanOptionalAction, default=True)

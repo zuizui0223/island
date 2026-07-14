@@ -87,6 +87,11 @@ completed treatment rows, retries transport-failed treatment requests, and
 deduplicates output keys. Shard assignment is deterministic after conservative
 master matching.
 
+After three consecutive species requests each exhaust all configured retries,
+the treatment circuit breaker stops that Flora run. Remaining species stay
+pending in the checkpoint for a later resume, avoiding a large repeated burst
+against a systematically failing source.
+
 ## Running
 
 Discover the current published Flora set:
