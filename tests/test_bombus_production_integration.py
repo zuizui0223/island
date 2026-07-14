@@ -45,12 +45,12 @@ def test_raw_environment_and_occurrence_inputs_produce_channel_scores(
 
     training_path = tmp_path / "bombus_occurrence_environment.csv"
     training_rows = []
-    for index in range(20):
+    for index in range(60):
         training_rows.append(
             {
                 "bombus_species": "Bombus alpha",
-                "bio1": 10.0 + index * 0.1,
-                "bio12": 900.0 + index * 5.0 + (index % 3),
+                "bio1": 10.0 + index * 0.05,
+                "bio12": 900.0 + index * 2.0 + (index % 3),
             }
         )
     pd.DataFrame(training_rows).to_csv(training_path, index=False)
@@ -92,7 +92,7 @@ def test_raw_environment_and_occurrence_inputs_produce_channel_scores(
             "--diagnostics-csv",
             str(final_dir / "island_bombus_occurrence_evidence.csv"),
             "--environmental-scores-csv",
-            str(niche_dir / "bombus_species_environmental_compatibility.csv"),
+            str(niche_dir / "bombus_regularized_ellipsoidal_niche_scores.csv"),
             "--output-dir",
             str(channel_dir),
         ],
