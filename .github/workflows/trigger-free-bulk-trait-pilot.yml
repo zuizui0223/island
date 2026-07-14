@@ -11,7 +11,7 @@ permissions:
 jobs:
   free-bulk-trait-pilot:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     steps:
       - name: Checkout PR merge ref
         uses: actions/checkout@v4
@@ -20,6 +20,10 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
 
       - name: Install package and tests
         run: |
@@ -50,6 +54,9 @@ jobs:
       - name: Fetch and audit real LEDA trait data
         run: python scripts/fetch_leda_bulk.py
 
+      - name: Fetch and audit real BIEN trait data
+        run: Rscript scripts/fetch_bien_traits.R
+
       - name: Audit verified official trait and flora sources
         continue-on-error: true
         run: python scripts/audit_verified_plant_sources.py
@@ -58,6 +65,7 @@ jobs:
         run: |
           cat data/v2/staging/traits/bulk/austraits/coverage_report.json
           cat data/v2/staging/traits/bulk/leda/coverage_report.json
+          cat data/v2/staging/traits/bulk/bien/coverage_report.json
 
       - name: Upload results
         uses: actions/upload-artifact@v4
@@ -68,5 +76,6 @@ jobs:
             data/v2/staging/traits/bulk/austraits/coverage_report.json
             data/v2/staging/traits/bulk/leda/coverage_report.json
             data/v2/staging/traits/bulk/leda/file_coverage.csv
+            data/v2/staging/traits/bulk/bien/
             data/v2/staging/traits/bulk/verified_source_audit/
           retention-days: 14
