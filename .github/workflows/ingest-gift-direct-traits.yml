@@ -52,6 +52,7 @@ jobs:
         run: pip install -e ".[dev]"
       - name: Fetch version-pinned public non-derived GIFT records
         run: |
+          mkdir -p /tmp/gift
           island-v2-fetch-gift-traits run \
             --output-dir /tmp/gift/prepared \
             --version 3.2 \
