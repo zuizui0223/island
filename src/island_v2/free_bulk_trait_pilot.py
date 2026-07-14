@@ -20,6 +20,9 @@ DEFAULT_TRAIT_MAP = {
     "flower_diameter": "flower_diameter_continuous_raw",
     "flower_perianth_fusion": "flower_perianth_fusion_continuous_raw",
     "flower_structural_sex_type": "flower_structural_sex_type_raw",
+    "flower_colour": "flower_colour_raw",
+    "perianth_colour": "perianth_colour_raw",
+    "flower_perianth_symmetry": "flower_perianth_symmetry_raw",
 }
 
 
@@ -46,6 +49,7 @@ def audit_bulk_source(
     *,
     taxon_column: str,
     trait_column: str,
+    dataset_column: str | None = None,
     trait_map: dict[str, str] | None = None,
 ) -> dict[str, object]:
     mapping = trait_map or DEFAULT_TRAIT_MAP
@@ -55,6 +59,8 @@ def audit_bulk_source(
     mapped_records_in_master = Counter()
     matched_taxa_by_target_trait: dict[str, set[str]] = defaultdict(set)
     replacement_cells: set[tuple[str, str]] = set()
+    replacement_cells_by_dataset: dict[str, set[tuple[str, str]]] = defaultdict(set)
+    matched_taxa_by_dataset: dict[str, set[str]] = defaultdict(set)
     unmapped_traits = Counter()
     input_records = 0
 
@@ -64,23 +70,31 @@ def audit_bulk_source(
         missing = {taxon_column, trait_column} - fields
         if missing:
             raise ValueError(f"source columns not found: {sorted(missing)}")
+        if dataset_column and dataset_column not in fields:
+            raise ValueError(f"dataset column {dataset_column!r} not found")
 
         for row in reader:
             input_records += 1
             taxon = normalize_scientific_name(row.get(taxon_column, ""))
             trait = (row.get(trait_column, "") or "").strip()
+            dataset = (row.get(dataset_column, "") or "").strip() if dataset_column else ""
             matched = bool(taxon and taxon in master_names)
             if taxon:
                 source_taxa.add(taxon)
                 if matched:
                     matched_taxa.add(taxon)
+                    if dataset:
+                        matched_taxa_by_dataset[dataset].add(taxon)
             if trait in mapping:
                 target_trait = mapping[trait]
                 mapped_records[target_trait] += 1
                 if matched:
                     mapped_records_in_master[target_trait] += 1
                     matched_taxa_by_target_trait[target_trait].add(taxon)
-                    replacement_cells.add((taxon, target_trait))
+                    cell = (taxon, target_trait)
+                    replacement_cells.add(cell)
+                    if dataset:
+                        replacement_cells_by_dataset[dataset].add(cell)
             elif trait:
                 unmapped_traits[trait] += 1
 
@@ -105,6 +119,14 @@ def audit_bulk_source(
         "candidate_fallback_replacement_cells": len(replacement_cells),
         "candidate_fallback_replacement_cells_by_target_trait": {
             trait: len(taxa) for trait, taxa in sorted(matched_taxa_by_target_trait.items())
+        },
+        "matched_unique_taxa_by_dataset": {
+            dataset: len(taxa)
+            for dataset, taxa in sorted(matched_taxa_by_dataset.items(), key=lambda item: (-len(item[1]), item[0]))
+        },
+        "candidate_fallback_replacement_cells_by_dataset": {
+            dataset: len(cells)
+            for dataset, cells in sorted(replacement_cells_by_dataset.items(), key=lambda item: (-len(item[1]), item[0]))
         },
         "unmapped_trait_records": sum(unmapped_traits.values()),
         "top_unmapped_source_traits": dict(unmapped_traits.most_common(25)),
@@ -135,6 +157,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--master-csv", type=Path, required=True)
     parser.add_argument("--source-taxon-column", default="taxon_name")
     parser.add_argument("--source-trait-column", default="trait_name")
+    parser.add_argument("--source-dataset-column")
     parser.add_argument("--master-name-column", default="scientific_name")
     parser.add_argument("--trait-map-json", type=Path)
     parser.add_argument("--output-json", type=Path, required=True)
@@ -149,6 +172,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         master_names,
         taxon_column=args.source_taxon_column,
         trait_column=args.source_trait_column,
+        dataset_column=args.source_dataset_column,
         trait_map=load_trait_map(args.trait_map_json),
     )
     args.output_json.parent.mkdir(parents=True, exist_ok=True)
