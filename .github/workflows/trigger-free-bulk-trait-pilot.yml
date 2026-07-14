@@ -77,10 +77,22 @@ jobs:
         with:
           use-public-rspm: true
 
+      - name: Install BIEN system dependencies
+        if: matrix.source == 'bien'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgdal-dev \
+            libgeos-dev \
+            libproj-dev \
+            libudunits2-dev
+
       - name: Install and verify BIEN package
         if: matrix.source == 'bien'
         run: |
-          Rscript -e 'options(repos=c(CRAN="https://cloud.r-project.org")); install.packages("BIEN", dependencies=TRUE)'
+          # Keep the repository configured by setup-r/use-public-rspm so binary
+          # packages are used where available. Do not pull Suggests.
+          Rscript -e 'install.packages("BIEN", dependencies=NA)'
           Rscript -e 'stopifnot(requireNamespace("BIEN", quietly=TRUE)); cat("BIEN version:", as.character(packageVersion("BIEN")), "\n")'
 
       - name: Install island package
@@ -178,9 +190,6 @@ jobs:
 
           print(json.dumps(reports, indent=2, ensure_ascii=False))
 
-          # Summarise which databases delivered real data in this cross-source
-          # sweep. Every source is a hard gate, so any leg that acquired no
-          # machine-readable payload has already failed its own job.
           summary = []
           for name in sorted(p.name for p in root.iterdir() if p.is_dir()):
               jsons = list((root / name).rglob('*.json'))
