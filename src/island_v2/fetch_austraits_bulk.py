@@ -5,14 +5,13 @@ versions endpoint. This module follows the same public API without requiring R. 
 prefers a ZIP archive containing CSV tables, discovers a long-format trait table by
 column contract, and writes a compact standardized CSV for a requested dataset.
 
-No trait values are inferred or recoded here.
+No trait values are inferred, recoded, or assigned units here.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
-import io
 import json
 import shutil
 import tempfile
@@ -21,11 +20,12 @@ import zipfile
 from pathlib import Path
 from typing import Iterable
 
-VERSIONS_API = "https://zenodo.org/api/records/3568418/versions"
+VERSIONS_API = "https://zenodo.org/api/records/3568418/versions?size=100"
 USER_AGENT = "island-v2-free-bulk-trait-pilot/0.1"
 TAXON_ALIASES = ("taxon_name", "accepted_name", "scientific_name", "species_name", "taxon")
 TRAIT_ALIASES = ("trait_name", "trait")
 VALUE_ALIASES = ("trait_value", "value")
+UNIT_ALIASES = ("unit", "trait_unit", "unit_name")
 DATASET_ALIASES = ("dataset_id", "dataset_key", "dataset", "source_id")
 
 
@@ -113,12 +113,12 @@ def discover_long_trait_table(root: Path) -> tuple[Path, dict[str, str | None]]:
         value = _first_present(fields, VALUE_ALIASES)
         if not taxon or not trait or not value:
             continue
-        dataset = _first_present(fields, DATASET_ALIASES)
         candidates.append((path.stat().st_size, path, {
             "taxon": taxon,
             "trait": trait,
             "value": value,
-            "dataset": dataset,
+            "unit": _first_present(fields, UNIT_ALIASES),
+            "dataset": _first_present(fields, DATASET_ALIASES),
         }))
     if not candidates:
         raise ValueError("no long-format trait CSV with taxon/trait/value columns found in AusTraits archive")
@@ -138,7 +138,9 @@ def standardize_dataset(
     written_rows = 0
     source_taxa: set[str] = set()
     source_traits: set[str] = set()
+    source_units: set[str] = set()
     dataset_column = columns.get("dataset")
+    unit_column = columns.get("unit")
     if dataset_key and not dataset_column:
         raise ValueError(
             f"dataset filter {dataset_key!r} requested but discovered trait table has no dataset column"
@@ -150,7 +152,14 @@ def standardize_dataset(
         reader = csv.DictReader(source)
         writer = csv.DictWriter(
             target,
-            fieldnames=["taxon_name", "trait_name", "trait_value", "dataset_key", "source_record_id"],
+            fieldnames=[
+                "taxon_name",
+                "trait_name",
+                "trait_value",
+                "trait_unit",
+                "dataset_key",
+                "source_record_id",
+            ],
         )
         writer.writeheader()
         for index, row in enumerate(reader, start=1):
@@ -160,14 +169,18 @@ def standardize_dataset(
             taxon = " ".join(str(row.get(str(columns["taxon"]), "")).split())
             trait = str(row.get(str(columns["trait"]), "")).strip()
             value = str(row.get(str(columns["value"]), "")).strip()
+            unit = str(row.get(str(unit_column), "")).strip() if unit_column else ""
             if not taxon or not trait or not value:
                 continue
             source_taxa.add(taxon)
             source_traits.add(trait)
+            if unit:
+                source_units.add(unit)
             writer.writerow({
                 "taxon_name": taxon,
                 "trait_name": trait,
                 "trait_value": value,
+                "trait_unit": unit,
                 "dataset_key": dataset_key or str(row.get(str(dataset_column), "")).strip(),
                 "source_record_id": f"austraits:{dataset_key or 'all'}:{index}",
             })
@@ -178,6 +191,7 @@ def standardize_dataset(
         "standardized_rows": written_rows,
         "unique_taxa": len(source_taxa),
         "unique_traits": len(source_traits),
+        "unique_nonempty_units": len(source_units),
     }
 
 
