@@ -1,10 +1,10 @@
 """Species-level Bombus environmental niche hypervolumes for island compatibility.
 
-This restores the production estimator used by the successful PR #112 real-data run:
+Production estimator restored from the successful PR #112 real-data workflow:
 winsorized and standardized species environments, ridge-regularized covariance,
-Mahalanobis ellipsoidal hypervolumes, empirical tail support, and extrapolation
- diagnostics. The score is environmental compatibility, not realized occurrence or
-Bombus absence.
+Mahalanobis ellipsoidal hypervolumes, empirical tail support, and explicit
+extrapolation diagnostics. The score is environmental compatibility, not realized
+occurrence probability or Bombus absence.
 """
 from __future__ import annotations
 
@@ -31,36 +31,21 @@ def _environment_columns(
     requested: list[str] | None = None,
 ) -> list[str]:
     if requested:
-        missing = [
-            column
-            for column in requested
-            if column not in occurrences.columns or column not in island_species.columns
-        ]
+        missing = [c for c in requested if c not in occurrences.columns or c not in island_species.columns]
         if missing:
-            raise typer.BadParameter(
-                f"environment columns missing from one or both tables: {missing}"
-            )
+            raise typer.BadParameter(f"environment columns missing from one or both tables: {missing}")
         return requested
-    shared = [
-        column
-        for column in occurrences.columns
-        if column in island_species.columns and column not in ID_COLUMNS
-    ]
-    numeric: list[str] = []
-    for column in shared:
-        left = pd.to_numeric(occurrences[column], errors="coerce")
-        right = pd.to_numeric(island_species[column], errors="coerce")
-        if left.notna().any() and right.notna().any():
-            numeric.append(column)
+    shared = [c for c in occurrences.columns if c in island_species.columns and c not in ID_COLUMNS]
+    numeric = []
+    for c in shared:
+        if pd.to_numeric(occurrences[c], errors="coerce").notna().any() and pd.to_numeric(island_species[c], errors="coerce").notna().any():
+            numeric.append(c)
     if not numeric:
         raise typer.BadParameter("no shared numeric environmental columns were found")
     return numeric
 
 
-def _regularized_inverse_covariance(
-    matrix: np.ndarray,
-    ridge_fraction: float,
-) -> tuple[np.ndarray, np.ndarray, float]:
+def _regularized_inverse_covariance(matrix: np.ndarray, ridge_fraction: float) -> tuple[np.ndarray, np.ndarray, float]:
     covariance = np.atleast_2d(np.cov(matrix, rowvar=False)).astype(float)
     dimensions = covariance.shape[0]
     average_variance = float(np.trace(covariance) / max(dimensions, 1))
@@ -69,11 +54,7 @@ def _regularized_inverse_covariance(
     return regularized, np.linalg.pinv(regularized), float(np.linalg.cond(regularized))
 
 
-def _mahalanobis_d2(
-    values: np.ndarray,
-    center: np.ndarray,
-    inverse_covariance: np.ndarray,
-) -> np.ndarray:
+def _mahalanobis_d2(values: np.ndarray, center: np.ndarray, inverse_covariance: np.ndarray) -> np.ndarray:
     delta = values - center
     return np.einsum("ij,jk,ik->i", delta, inverse_covariance, delta)
 
@@ -81,15 +62,7 @@ def _mahalanobis_d2(
 def _standardize_training_environment(
     training: pd.DataFrame,
     environment_columns: list[str],
-) -> tuple[
-    np.ndarray,
-    np.ndarray,
-    np.ndarray,
-    np.ndarray,
-    np.ndarray,
-    list[str],
-    list[str],
-]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, list[str], list[str]]:
     lower = training.quantile(0.01).to_numpy(dtype=float)
     upper = training.quantile(0.99).to_numpy(dtype=float)
     matrix = training.clip(lower=lower, upper=upper, axis="columns").to_numpy(dtype=float)
@@ -101,10 +74,15 @@ def _standardize_training_environment(
     if not active:
         empty = np.empty(0, dtype=float)
         return np.empty((len(training), 0), dtype=float), empty, empty, empty, empty, active, dropped
-    active_center = center[usable]
-    active_scale = scale[usable]
-    standardized = (matrix[:, usable] - active_center) / active_scale
-    return standardized, active_center, active_scale, lower[usable], upper[usable], active, dropped
+    return (
+        (matrix[:, usable] - center[usable]) / scale[usable],
+        center[usable],
+        scale[usable],
+        lower[usable],
+        upper[usable],
+        active,
+        dropped,
+    )
 
 
 def _unresolved_row(
@@ -152,11 +130,9 @@ def score_niche_hypervolumes(
     ridge_fraction: float = 0.05,
     **_: object,
 ) -> pd.DataFrame:
-    required_occurrence = {"bombus_species"}
-    required_island = {"island_id", "bombus_species"}
-    if missing := required_occurrence.difference(occurrences.columns):
+    if missing := {"bombus_species"}.difference(occurrences.columns):
         raise typer.BadParameter(f"occurrence table missing columns: {sorted(missing)}")
-    if missing := required_island.difference(island_species.columns):
+    if missing := {"island_id", "bombus_species"}.difference(island_species.columns):
         raise typer.BadParameter(f"island source-pool table missing columns: {sorted(missing)}")
     if min_occurrences < 3:
         raise typer.BadParameter("min_occurrences must be at least 3")
@@ -170,15 +146,15 @@ def score_niche_hypervolumes(
     island_work = island_species.copy()
     occurrence_work["bombus_species"] = occurrence_work["bombus_species"].fillna("").astype(str).str.strip()
     occurrence_work = occurrence_work.loc[occurrence_work["bombus_species"].ne("")].copy()
-    for column in ("island_id", "bombus_species"):
-        island_work[column] = island_work[column].fillna("").astype(str).str.strip()
+    for c in ("island_id", "bombus_species"):
+        island_work[c] = island_work[c].fillna("").astype(str).str.strip()
     if island_work[["island_id", "bombus_species"]].eq("").any(axis=None):
         raise typer.BadParameter("island source-pool table contains blank island_id or bombus_species")
     if island_work.duplicated(["island_id", "bombus_species"]).any():
         raise typer.BadParameter("island source-pool table must have one row per island_id x bombus_species")
-    for column in env:
-        occurrence_work[column] = pd.to_numeric(occurrence_work[column], errors="coerce")
-        island_work[column] = pd.to_numeric(island_work[column], errors="coerce")
+    for c in env:
+        occurrence_work[c] = pd.to_numeric(occurrence_work[c], errors="coerce")
+        island_work[c] = pd.to_numeric(island_work[c], errors="coerce")
 
     rows: list[dict[str, object]] = []
     for species, targets in island_work.groupby("bombus_species", sort=True):
@@ -186,26 +162,17 @@ def score_niche_hypervolumes(
         n_records = int(len(training))
         n_requested = len(env)
         if n_records < min_occurrences:
-            rows.extend(
-                _unresolved_row(t, species, n_records, n_requested, n_requested, "", "insufficient_occurrences")
-                for _, t in targets.iterrows()
-            )
+            rows.extend(_unresolved_row(t, species, n_records, n_requested, n_requested, "", "insufficient_occurrences") for _, t in targets.iterrows())
             continue
 
         matrix, center, scale, lower, upper, active_env, dropped_env = _standardize_training_environment(training, env)
         n_dimensions = len(active_env)
         dropped_text = "|".join(dropped_env)
         if n_dimensions == 0:
-            rows.extend(
-                _unresolved_row(t, species, n_records, 0, n_requested, dropped_text, "insufficient_environmental_variation")
-                for _, t in targets.iterrows()
-            )
+            rows.extend(_unresolved_row(t, species, n_records, 0, n_requested, dropped_text, "insufficient_environmental_variation") for _, t in targets.iterrows())
             continue
         if n_records < n_dimensions + 2:
-            rows.extend(
-                _unresolved_row(t, species, n_records, n_dimensions, n_requested, dropped_text, "insufficient_occurrences")
-                for _, t in targets.iterrows()
-            )
+            rows.extend(_unresolved_row(t, species, n_records, n_dimensions, n_requested, dropped_text, "insufficient_occurrences") for _, t in targets.iterrows())
             continue
 
         _, inverse_covariance, condition_number = _regularized_inverse_covariance(matrix, ridge_fraction)
@@ -216,9 +183,7 @@ def score_niche_hypervolumes(
         for _, target in targets.iterrows():
             target_values = target[active_env]
             if target_values.isna().any():
-                rows.append(
-                    _unresolved_row(t=target, species=species, n_records=n_records, n_dimensions=n_dimensions, n_requested_dimensions=n_requested, dropped_text=dropped_text, status="missing_island_environment", threshold=threshold)
-                )
+                rows.append(_unresolved_row(target, species, n_records, n_dimensions, n_requested, dropped_text, "missing_island_environment", threshold))
                 continue
             raw_vector = target_values.to_numpy(dtype=float)
             vector = ((raw_vector - center) / scale).reshape(1, -1)
@@ -267,10 +232,10 @@ def run(
     ridge_fraction: float = typer.Option(0.05, min=1e-9),
     pca_variance_retained: float = typer.Option(0.95, min=0.5, max=1.0),
 ) -> None:
-    del pca_variance_retained  # retained only for temporary CLI compatibility with #120
+    del pca_variance_retained
     occurrences = pd.read_csv(occurrence_environment_csv, dtype=str).fillna("")
     island_species = pd.read_csv(island_source_pool_environment_csv, dtype=str).fillna("")
-    requested = [value.strip() for value in environment_columns.split(",") if value.strip()]
+    requested = [v.strip() for v in environment_columns.split(",") if v.strip()]
     result = score_niche_hypervolumes(
         occurrences,
         island_species,
@@ -280,9 +245,7 @@ def run(
         ridge_fraction=ridge_fraction,
     )
     output_dir.mkdir(parents=True, exist_ok=True)
-    canonical = output_dir / "bombus_species_environmental_compatibility.csv"
-    result.to_csv(canonical, index=False)
-    # Compatibility aliases for the short-lived #120 naming change.
+    result.to_csv(output_dir / "bombus_species_environmental_compatibility.csv", index=False)
     result.to_csv(output_dir / "bombus_regularized_ellipsoidal_niche_scores.csv", index=False)
     result.to_csv(output_dir / "bombus_niche_hypervolume_scores.csv", index=False)
     status_counts = result["model_status"].value_counts(dropna=False).to_dict()
@@ -295,7 +258,7 @@ def run(
         "min_occurrences": min_occurrences,
         "hypervolume_quantile": hypervolume_quantile,
         "ridge_fraction": ridge_fraction,
-        "model_status_counts": {str(key): int(value) for key, value in status_counts.items()},
+        "model_status_counts": {str(k): int(v) for k, v in status_counts.items()},
         "n_scored_extrapolated": int(scored["environmental_extrapolation"].fillna(False).astype(bool).sum()),
         "compatibility_calibration": "0.5 at the fitted hypervolume boundary",
         "method": "species-specific winsorized and standardized ridge-regularized Mahalanobis ellipsoidal hypervolume with empirical-tail and extrapolation diagnostics",
