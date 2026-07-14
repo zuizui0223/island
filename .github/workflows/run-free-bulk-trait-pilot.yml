@@ -1,27 +1,9 @@
 name: Run free bulk trait pilot
 
+# Emergency Actions-budget mode: run only when explicitly requested.
+# Restore scoped automatic triggers after the monthly billing cycle resets.
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/run-free-bulk-trait-pilot.yml"
-      - "src/island_v2/free_bulk_trait_pilot.py"
-      - "src/island_v2/fetch_austraits_bulk.py"
-      - "config/free_bulk_trait_sources.json"
-      - "tests/test_free_bulk_trait_pilot.py"
-      - "tests/test_fetch_austraits_bulk.py"
-  push:
-    branches:
-      - agent/free-bulk-trait-pilot
-    paths:
-      - ".github/workflows/run-free-bulk-trait-pilot.yml"
-      - "src/island_v2/free_bulk_trait_pilot.py"
-      - "src/island_v2/fetch_austraits_bulk.py"
-      - "config/free_bulk_trait_sources.json"
-      - "tests/test_free_bulk_trait_pilot.py"
-      - "tests/test_fetch_austraits_bulk.py"
 
 permissions:
   contents: read
