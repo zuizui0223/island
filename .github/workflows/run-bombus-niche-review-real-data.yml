@@ -1,0 +1,93 @@
+name: run_bombus_niche_review_real_data
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - fix/bombus-niche-review-hardening
+    paths:
+      - ".github/workflows/run-bombus-niche-review-real-data.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  acquire-and-score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Rebuild global island universe
+        run: |
+          set -euo pipefail
+          island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
+          test -f data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
+
+      - name: Acquire quality-filtered and thinned Bombus environments
+        run: |
+          set -euo pipefail
+          island-v2-bombus-niche-inputs acquire-global \
+            --islands-gpkg data/v2/external/islands/gshhg/prepared/islands_v2.gpkg \
+            --min-occurrence-records 50 \
+            --max-species 300 \
+            --max-occurrences-per-species 10000 \
+            --max-environment-samples-per-island 128 \
+            --environment-grid-size 16 \
+            --thinning-grid-degrees 0.25 \
+            --max-coordinate-uncertainty-m 20000 \
+            --min-year 1950 \
+            --output-dir data/v2/staging/bombus/niche_review_real_data
+
+      - name: Fit PR112-compatible hardened hypervolumes
+        run: |
+          set -euo pipefail
+          island-v2-bombus-niche-hypervolume run \
+            --occurrence-environment-csv data/v2/staging/bombus/niche_review_real_data/bombus_occurrence_environment.csv \
+            --island-source-pool-environment-csv data/v2/staging/bombus/niche_review_real_data/island_global_environmental_screen.csv \
+            --environment-columns bio1,bio4,bio5,bio6,bio12,bio15,bio18,bio19,elevation \
+            --min-occurrences 50 \
+            --output-dir data/v2/staging/bombus/niche_review_real_data/scored
+
+      - name: Summarize real-data result
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path("data/v2/staging/bombus/niche_review_real_data")
+          manifest = json.loads((root / "bombus_niche_input_manifest.json").read_text())
+          scores = pd.read_csv(root / "scored" / "bombus_species_environmental_compatibility.csv")
+          scored = scores.loc[scores["model_status"].eq("scored")].copy()
+          summary = {
+              "input_manifest": manifest,
+              "n_rows": int(len(scores)),
+              "n_islands": int(scores["island_id"].nunique()),
+              "n_species": int(scores["bombus_species"].nunique()),
+              "status_counts": scores["model_status"].value_counts(dropna=False).to_dict(),
+              "inside_hypervolume": int(scored["inside_hypervolume"].fillna(False).astype(bool).sum()),
+              "environmental_extrapolation": int(scored["environmental_extrapolation"].fillna(False).astype(bool).sum()),
+              "method": "PR112-compatible winsorized standardized ridge-regularized Mahalanobis ellipsoidal hypervolume after quality filtering and 0.25-degree thinning",
+          }
+          (root / "global_real_data_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+          print(json.dumps(summary, indent=2))
+          PY
+
+      - name: Upload hardened Bombus niche products
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bombus-niche-review-real-data-${{ github.run_id }}
+          path: data/v2/staging/bombus/niche_review_real_data/
+          if-no-files-found: error
+          retention-days: 90

@@ -24,6 +24,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   validate:
@@ -44,3 +45,103 @@ jobs:
         run: island-v2-validate ontology --ontology-path config/trait_ontology.yml
       - name: Test controlled inference and GBIF request construction
         run: pytest -q
+
+  bombus-real-data:
+    if: github.event_name == 'pull_request' && github.head_ref == 'fix/bombus-niche-review-hardening'
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Restore canonical PR112 Bombus real-data inputs
+        run: |
+          set -euo pipefail
+          mkdir -p canonical_bombus
+          gh run download 29193219855 \
+            --repo "${GITHUB_REPOSITORY}" \
+            --name bombus-niche-global-real-data-29193219855 \
+            --dir canonical_bombus
+          test -f canonical_bombus/staging/bombus/niche_global/bombus_global_species_registry.csv
+          test -f canonical_bombus/staging/bombus/niche_global/bombus_occurrence_environment.csv
+          test -f canonical_bombus/staging/bombus/niche_global/island_source_pool_environment.csv
+          rm -rf data/v2/staging/bombus/niche_review_real_data
+          mkdir -p data/v2/staging/bombus/niche_review_real_data
+          cp -a canonical_bombus/staging/bombus/niche_global/. data/v2/staging/bombus/niche_review_real_data/
+      - name: Verify canonical PR112 input universe
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          root = Path("data/v2/staging/bombus/niche_review_real_data")
+          species = pd.read_csv(root / "bombus_global_species_registry.csv")
+          occurrences = pd.read_csv(root / "bombus_occurrence_environment.csv")
+          targets = pd.read_csv(root / "island_source_pool_environment.csv", usecols=["island_id", "bombus_species"])
+          observed = {
+              "n_species": int(species["bombus_species"].nunique()),
+              "n_occurrence_rows": int(len(occurrences)),
+              "n_islands": int(targets["island_id"].nunique()),
+              "n_island_species_rows": int(len(targets)),
+          }
+          expected = {
+              "n_species": 169,
+              "n_occurrence_rows": 78955,
+              "n_islands": 8265,
+              "n_island_species_rows": 1396785,
+          }
+          if observed != expected:
+              raise SystemExit(f"Canonical PR112 input contract changed: observed={observed}, expected={expected}")
+          (root / "restored_pr112_input_contract.json").write_text(json.dumps(observed, indent=2) + "\n")
+          print(json.dumps(observed, indent=2))
+          PY
+      - name: Refit PR112-compatible hardened hypervolumes
+        run: |
+          set -euo pipefail
+          rm -rf data/v2/staging/bombus/niche_review_real_data/scored
+          island-v2-bombus-niche-hypervolume run \
+            --occurrence-environment-csv data/v2/staging/bombus/niche_review_real_data/bombus_occurrence_environment.csv \
+            --island-source-pool-environment-csv data/v2/staging/bombus/niche_review_real_data/island_source_pool_environment.csv \
+            --environment-columns bio1,bio4,bio5,bio6,bio12,bio15,bio18,bio19,elevation \
+            --min-occurrences 50 \
+            --output-dir data/v2/staging/bombus/niche_review_real_data/scored
+      - name: Verify restored hypervolume result
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          root = Path("data/v2/staging/bombus/niche_review_real_data")
+          scores = pd.read_csv(root / "scored" / "bombus_species_environmental_compatibility.csv")
+          scored = scores.loc[scores["model_status"].eq("scored")].copy()
+          summary = {
+              "n_rows": int(len(scores)),
+              "n_islands": int(scores["island_id"].nunique()),
+              "n_species": int(scores["bombus_species"].nunique()),
+              "n_species_scored": int(scored["bombus_species"].nunique()),
+              "status_counts": scores["model_status"].value_counts(dropna=False).to_dict(),
+              "inside_hypervolume": int(scored["inside_hypervolume"].fillna(False).astype(bool).sum()),
+              "environmental_extrapolation": int(scored["environmental_extrapolation"].fillna(False).astype(bool).sum()),
+              "method": "restored canonical PR112 169-species input universe with PR112-compatible ridge-regularized Mahalanobis ellipsoidal hypervolume",
+          }
+          if summary["n_species"] != 169 or summary["n_species_scored"] != 142 or summary["n_islands"] != 8265 or summary["n_rows"] != 1396785:
+              raise SystemExit(f"Restored PR112 hypervolume contract changed: {summary}")
+          (root / "global_real_data_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+          print(json.dumps(summary, indent=2))
+          PY
+      - name: Upload restored Bombus niche products
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bombus-niche-review-real-data-${{ github.run_id }}
+          path: data/v2/staging/bombus/niche_review_real_data/
+          if-no-files-found: warn
+          retention-days: 90
