@@ -3,7 +3,9 @@ name: run_v2_bayesian_binary_pathway_inference
 on:
   workflow_dispatch:
   pull_request:
-    branches: [agent/complementary-bayes-inla-analysis]
+    branches:
+      - feat/inla-v2-m0-m4-main
+      - agent/complementary-bayes-inla-analysis
     paths:
       - ".github/workflows/run-v2-bayesian-binary-pathway.yml"
       - "analysis/v2/run_bayesian_binary_pathway.R"
@@ -32,7 +34,8 @@ jobs:
       - name: Install Python preparation dependency
         run: |
           pip install -e ".[dev]" duckdb
-          python -m py_compile src/island_v2/prepare_v2_bayesian_main_input.py src/island_v2/build_bombus_channel.py
+          python -m py_compile src/island_v2/prepare_v2_bayesian_main_input.py
+          python -m py_compile src/island_v2/build_bombus_channel.py
 
       - name: Download locked integrated trait-Bombus artifact
         env:
@@ -60,7 +63,7 @@ jobs:
           mkdir -p /tmp/covariates
           unzip -q /tmp/covariates.zip -d /tmp/covariates
 
-      - name: Prepare and audit binary pathway input
+      - name: Prepare binary pathway input
         run: |
           set -euo pipefail
           MASTER=$(find /tmp/integrated -type f -path '*/bombus_join/sensitivity_all/island_species_trait_bombus_master.csv.gz' -print -quit)
@@ -85,22 +88,37 @@ jobs:
           assert (d['color_trials'].fillna(0) >= d['color_plain'].fillna(0)).all()
           assert (d['form_trials'].fillna(0) >= d['form_open_generalized'].fillna(0)).all()
           assert int((d['distance_to_continent_km'] > 0).sum()) > 0
-          required = {'bombus_deficit', 'bombus_predictor_kind', 'bombus_deficit_interpretation'}
+          required = {
+              'bombus_deficit', 'bombus_predictor_kind',
+              'bombus_deficit_interpretation',
+              'bombus_environmental_source_pool_constrained',
+          }
           missing = sorted(required - set(d.columns))
           assert not missing, f'missing Bombus predictor audit columns: {missing}'
           kinds = d['bombus_predictor_kind'].fillna('missing').value_counts().to_dict()
-          assert set(kinds).issubset({
+          allowed = {
               'occurrence_informed_combined_channel',
-              'declared_primary_channel',
-              'environmental_mismatch_proxy',
-          }), kinds
+              'occurrence_informed_source_pool_channel',
+              'occurrence_only_channel',
+              'declared_source_pool_channel',
+              'source_pool_environmental_compatibility',
+              'global_environmental_screen_only',
+          }
+          assert set(kinds).issubset(allowed), kinds
+          global_only = d['bombus_predictor_kind'].eq('global_environmental_screen_only')
+          assert d.loc[global_only, 'bombus_deficit'].isna().all(), (
+              'unconstrained global Bombus maximum must never enter bombus_deficit'
+          )
           audit = {
               'n_input': len(d),
               'n_positive_distance': int((d['distance_to_continent_km'] > 0).sum()),
               'bombus_predictor_kind_counts': {str(k): int(v) for k, v in kinds.items()},
+              'n_source_pool_constrained_environmental_rows': int(
+                  d['bombus_environmental_source_pool_constrained'].fillna(False).astype(bool).sum()
+              ),
               'interpretation_guardrail': (
-                  'environmental_mismatch_proxy is not observed Bombus absence; '
-                  'occurrence-informed channel rows are preferred when present'
+                  'global all-species environmental maxima are diagnostic only and '
+                  'cannot enter the analysis-ready Bombus deficit'
               ),
           }
           Path('data/v2/staging/analysis/bayesian_binary_pathway/bombus_predictor_audit.json').write_text(
@@ -132,9 +150,7 @@ jobs:
         run: |
           OUT=data/v2/staging/analysis/bayesian_binary_pathway/results
           echo '## Bayesian binary pathway inference' >> "$GITHUB_STEP_SUMMARY"
-          echo 'INLA owns category-preserving decomposition; this workflow estimates broad pathway associations.' >> "$GITHUB_STEP_SUMMARY"
-          echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Bombus predictor audit' >> "$GITHUB_STEP_SUMMARY"
+          echo 'INLA owns category-preserving decomposition; this workflow estimates broad direct and SC-mediated paths.' >> "$GITHUB_STEP_SUMMARY"
           cat data/v2/staging/analysis/bayesian_binary_pathway/bombus_predictor_audit.json >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           cat "$OUT/analysis_metadata.json" >> "$GITHUB_STEP_SUMMARY"
