@@ -1,46 +1,76 @@
 # Free bulk trait source pilot
 
-This experiment tests whether curated, openly accessible bulk plant-trait datasets can replace low-resolution genus/family/global fallback values before species-by-species web retrieval.
+## Goal
 
-## Pilot source
+Before spending retrieval budget on species-by-species search, exhaust open bulk trait
+sources that can replace low-resolution genus/family/global cascade fills with direct
+or curated species-level evidence.
 
-AusTraits / eFLOWER_Dun_2022 is the first source inspected because its metadata describes roughly 2,000 taxa, 36 floral traits, and more than 29,000 trait values scored from taxonomic literature.
+The first live pilot is AusTraits, focusing on the `eFLOWER_Dun_2022` component.
+The source metadata describes roughly 2,000 taxa, 36 floral traits, and more than
+29,000 trait values derived from taxonomic literature.
 
-## Decision rule
+## Live pipeline
 
-A bulk source is promoted into the production cascade only when:
+The branch now contains a reproducible end-to-end experiment:
 
-1. its licence and citation are recorded;
-2. source trait definitions are reviewed explicitly;
-3. taxon names can be reconciled to the island master without silent fuzzy matching;
-4. source values are preserved in a lossless raw layer before any v2 categorical derivation;
-5. direct/curated evidence replaces fallback values but never the reverse;
-6. unmatched and unmapped records are reported, not guessed.
+1. Query the same public Zenodo concept-record versions endpoint used by the official
+   AusTraits R client.
+2. Select the newest release by publication date.
+3. Prefer a plain-text ZIP archive rather than an R-only serialized object.
+4. Discover the long-format trait CSV from its column contract rather than from a
+   hard-coded archive path.
+5. Filter `eFLOWER_Dun_2022` and standardize only the transport columns required for
+   auditing.
+6. Preserve source values and source units exactly; do not infer categories or units.
+7. Exact-match normalized scientific names to the current island species master.
+8. Report the number of unique matched `species x mapped target trait` cells. This is
+   the direct estimate of candidate fallback cells that a promoted source could replace.
 
-## Pilot metrics
+The workflow is `.github/workflows/run-free-bulk-trait-pilot.yml`. Its artifact contains:
 
-The adapter reports:
+- `fetch_manifest.json`
+- `coverage_report.json`
+- the standardized `eFLOWER_Dun_2022.csv`
 
-- input records;
-- unique source taxa;
-- exact master-name matches;
-- unmatched taxa;
-- mapped and unmapped source traits;
-- records eligible to replace each existing fill tier.
+## Current mapping policy
 
-## Initial mapping target
+The pilot intentionally maps only a small set of source traits while exposing the top
+unmapped source traits for the next mapping pass:
 
-The pilot intentionally starts with source traits that can be retained without lossy biological interpretation:
+- `flower_length` -> `flower_length_continuous_raw`
+- `flower_diameter` -> `flower_diameter_continuous_raw`
+- `flower_perianth_fusion` -> `flower_perianth_fusion_continuous_raw`
+- `flower_structural_sex_type` -> `flower_structural_sex_type_raw`
 
-- flower_length -> flower_length_mm
-- flower_diameter -> flower_diameter_mm
-- flower_perianth_fusion -> flower_perianth_fusion_fraction
-- flower_structural_sex_type -> raw structural-sex evidence
+The raw continuous names are deliberately unit-neutral. The standardized transport
+file keeps `trait_unit`; unit normalization and any derived categorical trait must be
+a separate reviewed transformation.
 
-The first three are stored as continuous raw traits. Existing categorical traits such as `flower_size_class` or `floral_form` should be derived later using preregistered thresholds or explicit rules, rather than overwriting the continuous measurements.
+## Guardrails
 
-## Scope
+- no fuzzy taxon matching;
+- no silent synonym guessing;
+- no continuous-to-category conversion during acquisition;
+- no unit assignment when the source does not provide one;
+- repeated observations do not inflate fallback-replacement potential: the promotion
+  metric counts unique exact-master-matched `species x target_trait` cells;
+- source rows remain traceable through `source_record_id`, dataset key, release DOI,
+  release version, and fetch manifest.
 
-This PR is an experiment, not a claim that AusTraits alone provides global coverage. The intended workflow is:
+## Promotion criteria
 
-open bulk sources -> source-specific adapters -> taxon reconciliation -> evidence ledger -> fallback replacement audit -> only then species-by-species retrieval for remaining high-value gaps.
+A source should move from `pilot` to the production bulk cascade only after the live
+report establishes:
+
+1. a non-trivial exact match to the island species master;
+2. useful unique species-trait replacement coverage rather than merely many duplicate
+   observations;
+3. an explicit source codebook and reviewed mapping;
+4. preserved provenance and units;
+5. focused tests passing on the production adapter.
+
+After promotion, the source should write the existing `candidate_long` contract under
+`data/v2/staging/traits/bulk/**/trait_candidates.csv*`, then the current fill cascade can
+consume it without changing the cascade algorithm. Direct evidence should replace
+fallback values; fallback remains only for unresolved cells.
