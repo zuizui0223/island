@@ -5,6 +5,8 @@ suppressPackageStartupMessages({
   library(data.table)
   library(sf)
   library(jsonlite)
+  library(Matrix)
+  library(fmesher)
 })
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -36,7 +38,6 @@ if (length(missing)) stop("missing SPDE sensitivity columns: ", paste(missing, c
 d[, wind_share := fifelse(animal_status_observed > 0, n_wind_species / animal_status_observed, NA_real_)]
 d[, mixed_share := fifelse(animal_status_observed > 0, n_mixed_species / animal_status_observed, NA_real_)]
 
-# Standardize geography globally, as in the canonical colour model.
 for (nm in c(
   "log_distance_to_continent_km", "log_island_area_km2",
   "climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4"
@@ -46,9 +47,8 @@ for (nm in c(
   if (!is.finite(sig) || sig <= 0) stop("invalid SPDE scale for ", nm)
   d[[paste0("z_", nm)]] <- (d[[nm]] - mu) / sig
 }
-d[, z_isolation_sq := z_log_distance_to_continent_km^2]
+set(d, j = "z_isolation_sq", value = d$z_log_distance_to_continent_km^2)
 
-# Mechanism variables are only defined/scaled in the northern Bombus-relevant regime.
 north <- d[analysis_regime == "northern_midlatitude"]
 mech_candidates <- c("bombus_deficit", "sc_share", "wind_share", "mixed_share")
 mech_audit <- rbindlist(lapply(mech_candidates, function(nm) {
@@ -68,7 +68,6 @@ if (!"z_bombus_deficit" %in% names(d)) stop("bombus_deficit is not estimable for
 if (!"z_sc_share" %in% names(d)) stop("sc_share is not estimable for SPDE sensitivity")
 poll_controls <- mech_audit[variable %in% c("wind_share", "mixed_share") & estimable == TRUE, variable]
 
-# Project island coordinates to a global equal-area CRS before meshing.
 coord_dt <- unique(d[
   is.finite(island_longitude) & is.finite(island_latitude),
   .(island_id, island_longitude, island_latitude)
@@ -79,9 +78,7 @@ xy <- st_coordinates(pts)
 coord_lookup <- data.table(island_id = coord_dt$island_id, x_spde = xy[, 1], y_spde = xy[, 2])
 d <- merge(d, coord_lookup, by = "island_id", all.x = TRUE, sort = FALSE)
 
-# Mesh scale is in metres in EPSG:6933. The conservative global mesh is a sensitivity
-# model, not the canonical estimator. PC priors penalize unrealistically short-range fields.
-mesh <- inla.mesh.2d(
+mesh <- fmesher::fm_mesh_2d_inla(
   loc = as.matrix(d[is.finite(x_spde) & is.finite(y_spde), .(x_spde, y_spde)]),
   cutoff = 100000,
   max.edge = c(500000, 1500000),
@@ -106,6 +103,18 @@ mesh_meta <- list(
   prior_sigma = c(1, 0.01)
 )
 
+make_category_block_A <- function(loc, category_id) {
+  A0 <- fmesher::fm_basis(mesh, loc = loc)
+  A0 <- as(A0, "dgTMatrix")
+  n_spde <- mesh$n
+  sparseMatrix(
+    i = A0@i + 1L,
+    j = A0@j + 1L + (category_id[A0@i + 1L] - 1L) * n_spde,
+    x = A0@x,
+    dims = c(nrow(loc), n_spde * length(colors))
+  )
+}
+
 fit_spde_composition <- function(data, endpoint, model_name, prefix, trials, rhs) {
   cols <- paste0(prefix, colors)
   ids <- intersect(c(
@@ -128,16 +137,10 @@ fit_spde_composition <- function(data, endpoint, model_name, prefix, trials, rhs
   long[, log_trials := log(get(trials))]
 
   loc <- as.matrix(long[, .(x_spde, y_spde)])
-  A <- inla.spde.make.A(
-    mesh = mesh,
-    loc = loc,
-    group = long$category_id,
-    group.mesh = seq_along(colors)
-  )
+  A <- make_category_block_A(loc, long$category_id)
   spde_index <- inla.spde.make.index(
     "spatial_field",
-    n.spde = spde$n.spde,
-    n.group = length(colors)
+    n.spde = spde$n.spde * length(colors)
   )
 
   fixed_data <- data.frame(
@@ -162,14 +165,15 @@ fit_spde_composition <- function(data, endpoint, model_name, prefix, trials, rhs
   stk <- inla.stack(
     data = list(y = long$count),
     A = list(1, A),
-    effects = list(fixed_data, spatial_field = spde_index),
+    effects = list(fixed_data, spatial_field = spde_index$spatial_field),
     tag = model_name
   )
   stk_data <- inla.stack.data(stk)
   formula <- as.formula(paste(
     "y ~", rhs,
-    "+ f(spatial_field, model=spde, group=spatial_field.group,",
-    "control.group=list(model='iid')) + f(obs_id, model='iid') + offset(log_trials)"
+    "+ f(spatial_field, model=generic0, Cmatrix=kronecker(Diagonal(length(colors)), spde$param.inla$M0),",
+    "hyper=list(prec=list(prior='loggamma', param=c(1, 0.00005))))",
+    "+ f(obs_id, model='iid') + offset(log_trials)"
   ))
   fit <- inla(
     formula,
@@ -202,8 +206,6 @@ geo_terms <- paste(
   "category:z_climate_pc3 + category:z_climate_pc4"
 )
 
-# Global all-flora colour model: same fixed effects as canonical model, but with
-# category-specific SPDE fields instead of the coarse spatial-block iid effect.
 global_support <- d[
   !is.na(analysis_regime) & all_fine_color_trials > 0 &
     is.finite(x_spde) & is.finite(y_spde) &
@@ -227,8 +229,6 @@ fit_spde_composition(
   global_rhs
 )
 
-# Northern animal-pollinated colour mechanism with SPDE. Only estimable
-# pollination-mode controls are included, matching the canonical variable audit.
 mech_vars <- c(
   "z_log_distance_to_continent_km", "z_isolation_sq", "z_log_island_area_km2",
   "z_climate_pc1", "z_climate_pc2", "z_climate_pc3", "z_climate_pc4",
@@ -269,7 +269,7 @@ fwrite(mech_audit, file.path(outdir, "color_spde_mechanism_variable_audit.csv"))
 write_json(
   list(
     role = "spatial sensitivity analysis for canonical flower-colour endpoint",
-    spatial_model = "category-specific independent Matérn SPDE fields in EPSG:6933",
+    spatial_model = "category-specific independent spatial fields on a shared EPSG:6933 mesh",
     canonical_model_replaced = FALSE,
     global_population = "all colour-resolved flora",
     northern_mechanism_population = "animal-pollinated colour-resolved northern-midlatitude flora",
