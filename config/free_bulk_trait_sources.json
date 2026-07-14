@@ -1,5 +1,5 @@
 {
-  "version": "0.5-production",
+  "version": "0.6-production",
   "sources": {
     "austraits_all_floral": {
       "status": "production",
@@ -68,6 +68,56 @@
         "floral_symmetry_species": 594,
         "archive_checksum_verified": true,
         "archive_sha256": "2995fb9e5eebf9271f9241b5a6c2e2cbb7b45e8eda5ce4db43c14c68f95e2f3f"
+      }
+    },
+    "gift_v3_2_direct": {
+      "status": "production",
+      "access": "public_unauthenticated_versioned_api",
+      "source_family": "GIFT",
+      "database_version": "3.2",
+      "api_endpoint": "https://gift.uni-goettingen.de/api/extended/index3.2.php",
+      "versions_api": "https://gift.uni-goettingen.de/api/index.php?query=versions",
+      "documentation": "https://biogeomacro.github.io/GIFT/articles/web_only/GIFT_API.html",
+      "disclaimer": "https://biogeomacro.github.io/GIFT/articles/web_only/GIFT_Disclaimer.html",
+      "target_trait_ids": {
+        "3.21.1": "Flower_colour",
+        "3.4.1": "Reproduction_sexual_1",
+        "3.6.1": "Pollination_syndrome_1",
+        "3.6.2": "Pollination_syndrome_2",
+        "3.6.3": "Pollination_syndrome_3"
+      },
+      "integration_policy": {
+        "stable_version_only": true,
+        "public_references_only": true,
+        "include_derived_values": false,
+        "include_bias_derived_values": false,
+        "allow_infraspecific_to_species_collapse": false,
+        "allow_ambiguous_category_mapping": false,
+        "preserve_raw_api_rows": true,
+        "preserve_primary_reference": true,
+        "allow_automatic_curation": false
+      },
+      "licence_note": "The public API and GIFT disclaimer were recorded; no separate permissive redistribution licence is asserted.",
+      "observed_production_2026_07_14": {
+        "raw_api_rows": 14122,
+        "prepared_canonical_rows": 21745,
+        "excluded_or_unmapped_rows": 709,
+        "island_candidate_rows": 19243,
+        "island_species_with_any_direct_evidence": 6983,
+        "flower_primary_color_species": 1613,
+        "sex_system_species": 1929,
+        "pollen_vector_mode_species": 5210,
+        "pollination_functional_guild_species": 5288,
+        "empty_required_evidence_fields": 0,
+        "production_run_id": 29338693288,
+        "artifact_id": 8313108327,
+        "artifact_digest": "sha256:ae660ca791bab115f21d8b2ce7c9fdf65446c66365b274b6e33a7af1ada9ccca",
+        "all_master_ledger_run_id": 29339087438,
+        "all_master_ledger_artifact_id": 8313251120,
+        "all_master_ledger_artifact_digest": "sha256:ec604e91852f324a3989a77c7a3632a8935df72808577cb94aa2efd95b19f103",
+        "combined_source_backed_any_trait_species": 16815,
+        "combined_partial_source_backed_species": 16448,
+        "combined_eligible_species_without_candidate": 89833
       }
     }
   }

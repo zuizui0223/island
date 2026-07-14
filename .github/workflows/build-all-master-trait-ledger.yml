@@ -21,7 +21,7 @@ on:
       gift_run_id:
         description: Completed GIFT direct-traits production run ID; blank omits GIFT
         required: false
-        default: ""
+        default: "29338693288"
         type: string
   pull_request:
     paths:

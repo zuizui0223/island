@@ -131,3 +131,19 @@ fields, while `source_citation` retains the underlying bibliographic
 `ref_long`. API rows leaking outside the requested reference/trait pair,
 infraspecific records, unresolved names, restricted/missing references, and
 ambiguous ontology mappings never become candidates.
+
+The full GitHub production run
+[`29338693288`](https://github.com/zuizui0223/island/actions/runs/29338693288)
+archived 14,122 raw API rows and produced 19,243 Island-matched candidates
+across 6,983 species. Required evidence fields were empty in zero candidates.
+The resulting source coverage is 5,288 species for functional guild, 5,210 for
+pollen-vector mode, 1,929 for sex system, and 1,613 for flower colour. Its
+90-day artifact is `gift-direct-traits-29338693288` (artifact ID `8313108327`,
+digest `sha256:ae660ca791bab115f21d8b2ce7c9fdf65446c66365b274b6e33a7af1ada9ccca`).
+
+The three-source EOL + AusTraits + GIFT all-master build
+[`29339087438`](https://github.com/zuizui0223/island/actions/runs/29339087438)
+retains all 115,328 species and all 1,499,264 species-trait cells. It raises
+source-backed any-trait coverage from 12,454 to 16,815 species and reduces the
+eligible no-candidate count from 94,063 to 89,833. This remains incomplete
+coverage, not a claim that the other species lack the traits.
