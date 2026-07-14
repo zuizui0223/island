@@ -5,7 +5,7 @@ A run is successful only when non-trivial data files/pages are actually written.
 Landing-page reachability alone is not success.
 """
 from __future__ import annotations
-import argparse, csv, json, os, re, ssl, time, urllib.parse, urllib.request
+import argparse, csv, hashlib, json, os, re, ssl, time, urllib.parse, urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -42,6 +42,10 @@ def master_names() -> set[str]:
     with MASTER.open(encoding="utf-8-sig",newline="") as f:
         rd=csv.DictReader(f)
         return {" ".join((r.get("accepted_species") or "").split()) for r in rd if r.get("accepted_species")}
+
+def stable_bucket(value: str, count: int) -> int:
+    digest=hashlib.sha1(value.encode("utf-8")).digest()
+    return int.from_bytes(digest[:8],"big") % count
 
 def fetch_wfo_plant_list(out: Path) -> dict:
     landing="https://wfoplantlist.org/"
@@ -99,9 +103,8 @@ def fetch_efloras(out: Path) -> dict:
     if not content:
         raise RuntimeError("eFloras: no flora/taxon content links discovered")
 
-    # Deterministically split independent entry points across shards.
     content=sorted(content)
-    shard_seeds=[u for i,u in enumerate(content) if i % shard_count == shard_index]
+    shard_seeds=[u for u in content if stable_bucket(u,shard_count)==shard_index]
     if not shard_seeds:
         shard_seeds=content[shard_index:shard_index+1]
 
@@ -128,8 +131,7 @@ def fetch_efloras(out: Path) -> dict:
         for href in q.links:
             v=urllib.parse.urljoin(f,href)
             if urllib.parse.urlparse(v).netloc.endswith("efloras.org") and "florataxon.aspx" in v.lower() and v not in seen:
-                # Keep each shard on a deterministic subset of taxon URLs to reduce duplicate crawling.
-                if (hash(v) % shard_count) == shard_index and len(queue)<3000:
+                if stable_bucket(v,shard_count)==shard_index and len(queue)<3000:
                     queue.append(v)
     if not saved:
         raise RuntimeError("eFloras: no substantive flora content pages acquired")
