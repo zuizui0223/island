@@ -1,8 +1,8 @@
 {
-  "version": "0.4-production",
+  "version": "0.5-production",
   "sources": {
     "austraits_all_floral": {
-      "status": "pilot",
+      "status": "production_ready",
       "access": "open_bulk_download",
       "source_family": "AusTraits",
       "dataset_key": null,
@@ -30,6 +30,19 @@
         "allow_fuzzy_taxon_match": false,
         "allow_automatic_category_derivation": false,
         "replace_fallback_only_with_curated_or_direct_evidence": true
+      },
+      "observed_full_release_target_filter_2026_07_14": {
+        "release_version": "v7.0.0",
+        "source_rows_scanned": 1798215,
+        "selected_target_rows": 51451,
+        "selected_source_taxa": 25223,
+        "candidate_rows": 31647,
+        "species_with_any_direct_evidence": 9464,
+        "flower_primary_color_species": 3881,
+        "floral_symmetry_species": 741,
+        "sex_system_species": 8334,
+        "pollen_vector_mode_species": 3577,
+        "pollination_functional_guild_species": 3953
       }
     },
     "austraits_eflower_dun_2022": {

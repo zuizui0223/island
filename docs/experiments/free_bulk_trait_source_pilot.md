@@ -95,3 +95,25 @@ The live v7.0.0 run against the 115,328-species master produced:
 Continuous flower measurements, `disymmetric` perianths, and flower-level structural-sex
 states remain explicit unmapped audit rows. They are not coerced to flower-size classes,
 the narrower symmetry ontology, or species-level `sex_system` values.
+
+## Full-release target expansion
+
+The eFLOWER-only production lane is complemented by
+`.github/workflows/ingest-austraits-all-floral-bulk.yml`. This lane scans all 1,798,215
+v7.0.0 records but retains only six inspected categorical source traits: flower colour,
+perianth colour, perianth symmetry, whole-plant sex type, pollination syndrome, and
+pollination system. The original AusTraits component dataset remains embedded in every
+source record ID.
+
+The full local production-equivalent join produced 31,647 candidates across 9,464 species:
+
+- `sex_system`: 8,334 species;
+- `pollination_functional_guild`: 3,953 species;
+- `flower_primary_color`: 3,881 species;
+- `pollen_vector_mode`: 3,577 species;
+- `floral_symmetry`: 741 species.
+
+All 65 observed `flower_colour` labels have explicit profile mappings. Unsupported broad
+abiotic/self combinations, `disymmetric`, unknown sex type, rare pollination, and
+unidentified specialised-biotic codes remain in the unmapped audit. No missing source
+code is guessed.

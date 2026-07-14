@@ -88,6 +88,63 @@ def test_discovers_and_standardizes_requested_dataset(tmp_path: Path) -> None:
     assert rows[0]["taxon_name"] == "Campanula punctata"
     assert rows[0]["trait_name"] == "flower_length"
     assert rows[0]["trait_unit"] == "mm"
+    assert rows[0]["source_record_id"] == "austraits:eFLOWER_Dun_2022:1"
+
+
+def test_standardize_can_filter_traits_across_all_datasets(tmp_path: Path) -> None:
+    source = tmp_path / "traits.csv"
+    with source.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=["taxon_name", "trait_name", "value", "dataset_id"],
+        )
+        writer.writeheader()
+        writer.writerows(
+            [
+                {
+                    "taxon_name": "Poa annua",
+                    "trait_name": "sex_type",
+                    "value": "hermaphrodite",
+                    "dataset_id": "Dataset_A",
+                },
+                {
+                    "taxon_name": "Poa annua",
+                    "trait_name": "leaf_area",
+                    "value": "4",
+                    "dataset_id": "Dataset_A",
+                },
+                {
+                    "taxon_name": "Acacia dealbata",
+                    "trait_name": "pollination_syndrome",
+                    "value": "insect",
+                    "dataset_id": "Dataset_B",
+                },
+            ]
+        )
+
+    output = tmp_path / "selected.csv"
+    stats = standardize_dataset(
+        source,
+        output,
+        columns={
+            "taxon": "taxon_name",
+            "trait": "trait_name",
+            "value": "value",
+            "unit": None,
+            "dataset": "dataset_id",
+        },
+        dataset_key=None,
+        trait_names={"sex_type", "pollination_syndrome"},
+    )
+
+    rows = list(csv.DictReader(output.open(encoding="utf-8")))
+    assert stats["standardized_rows"] == 2
+    assert [row["trait_name"] for row in rows] == ["sex_type", "pollination_syndrome"]
+    assert [row["dataset_key"] for row in rows] == ["Dataset_A", "Dataset_B"]
+    assert [row["source_record_id"] for row in rows] == [
+        "austraits:Dataset_A:1",
+        "austraits:Dataset_B:3",
+    ]
 
 
 def test_verifies_declared_archive_checksum(tmp_path: Path) -> None:

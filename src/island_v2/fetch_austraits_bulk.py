@@ -177,6 +177,7 @@ def standardize_dataset(
     *,
     columns: dict[str, str | None],
     dataset_key: str | None,
+    trait_names: set[str] | None = None,
 ) -> dict[str, object]:
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     input_rows = 0
@@ -186,6 +187,7 @@ def standardize_dataset(
     source_units: set[str] = set()
     dataset_column = columns.get("dataset")
     unit_column = columns.get("unit")
+    selected_traits = {name.strip() for name in (trait_names or set()) if name.strip()}
     if dataset_key and not dataset_column:
         raise ValueError(
             f"dataset filter {dataset_key!r} requested but discovered trait table has no dataset column"
@@ -216,6 +218,9 @@ def standardize_dataset(
             trait = str(row.get(str(columns["trait"]), "")).strip()
             value = str(row.get(str(columns["value"]), "")).strip()
             unit = str(row.get(str(unit_column), "")).strip() if unit_column else ""
+            row_dataset = str(row.get(str(dataset_column), "")).strip() if dataset_column else ""
+            if selected_traits and trait not in selected_traits:
+                continue
             if not taxon or not trait or not value:
                 continue
             source_taxa.add(taxon)
@@ -228,8 +233,10 @@ def standardize_dataset(
                     "trait_name": trait,
                     "trait_value": value,
                     "trait_unit": unit,
-                    "dataset_key": dataset_key or str(row.get(str(dataset_column), "")).strip(),
-                    "source_record_id": f"austraits:{dataset_key or 'all'}:{index}",
+                    "dataset_key": dataset_key or row_dataset,
+                    "source_record_id": (
+                        f"austraits:{row_dataset or dataset_key or 'all'}:{index}"
+                    ),
                 }
             )
             written_rows += 1
@@ -248,6 +255,7 @@ def run_fetch(
     manifest_json: Path,
     *,
     dataset_key: str | None,
+    trait_names: set[str] | None = None,
     versions_api: str = VERSIONS_API,
 ) -> dict[str, object]:
     versions = _request_json(versions_api)
@@ -279,6 +287,7 @@ def run_fetch(
             output_csv,
             columns=columns,
             dataset_key=dataset_key,
+            trait_names=trait_names,
         )
 
     manifest = {
@@ -296,6 +305,7 @@ def run_fetch(
         "archive_sha256": archive_sha256,
         "archive_size_bytes": archive_size_bytes,
         "dataset_key": dataset_key,
+        "requested_trait_names": sorted(trait_names or set()),
         "discovered_columns": columns,
         **stats,
     }
@@ -311,6 +321,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-csv", type=Path, required=True)
     parser.add_argument("--manifest-json", type=Path, required=True)
     parser.add_argument("--dataset-key", default="eFLOWER_Dun_2022")
+    parser.add_argument(
+        "--trait-name",
+        action="append",
+        default=[],
+        help="Optional exact source trait name to retain; repeat for multiple traits.",
+    )
     parser.add_argument("--versions-api", default=VERSIONS_API)
     return parser
 
@@ -321,6 +337,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         args.output_csv,
         args.manifest_json,
         dataset_key=args.dataset_key or None,
+        trait_names=set(args.trait_name) or None,
         versions_api=args.versions_api,
     )
     return 0

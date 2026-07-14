@@ -199,3 +199,80 @@ def test_austraits_eflower_maps_only_directly_corresponding_categories(tmp_path:
         "unmapped_trait_name",
         "unmapped_or_invalid_trait_value",
     }
+
+
+def test_austraits_all_profiles_separate_vector_and_functional_guild(tmp_path: Path) -> None:
+    master = tmp_path / "master.csv"
+    source = tmp_path / "austraits_all.csv"
+    _write_master(master)
+    pd.DataFrame(
+        [
+            {
+                "taxon_name": "Campanula microdonta",
+                "trait_name": "flower_colour",
+                "trait_value": "blue_purple white_cream",
+                "source_record_id": "all1",
+            },
+            {
+                "taxon_name": "Campanula microdonta",
+                "trait_name": "sex_type",
+                "trait_value": "dioecious",
+                "source_record_id": "all2",
+            },
+            {
+                "taxon_name": "Campanula microdonta",
+                "trait_name": "pollination_syndrome",
+                "trait_value": "insect wind",
+                "source_record_id": "all3",
+            },
+            {
+                "taxon_name": "Poa annua",
+                "trait_name": "pollination_system",
+                "trait_value": "bee",
+                "source_record_id": "all4",
+            },
+            {
+                "taxon_name": "Campanula microdonta",
+                "trait_name": "sex_type",
+                "trait_value": "unknown",
+                "source_record_id": "all5",
+            },
+        ]
+    ).to_csv(source, index=False)
+
+    common = {
+        "master_csv": master,
+        "source_csv": source,
+        "profiles_path": Path("config/bulk_trait_sources.yml"),
+        "source_name": "austraits_all_v7.0.0",
+        "source_citation_override": "AusTraits v7.0.0",
+        "source_url_override": "https://doi.org/10.5281/zenodo.15718081",
+    }
+    primary_report = ingest_bulk_traits(
+        **common,
+        output_dir=tmp_path / "primary",
+        profile_name="austraits_all_primary",
+    )
+    guild_report = ingest_bulk_traits(
+        **common,
+        output_dir=tmp_path / "guild",
+        profile_name="austraits_all_pollinator_guild",
+    )
+
+    primary = pd.read_csv(primary_report["candidate_csv"], dtype=str).fillna("")
+    assert set(zip(primary["trait_name"], primary["standardized_value"], strict=True)) == {
+        ("flower_primary_color", "multicolored_variable"),
+        ("sex_system", "dioecious"),
+        ("pollen_vector_mode", "mixed"),
+        ("pollen_vector_mode", "biotic"),
+    }
+    primary_unmapped = pd.read_csv(primary_report["unmapped_values_csv"], dtype=str).fillna("")
+    assert primary_unmapped.loc[
+        primary_unmapped["source_record_id"].eq("all5"), "reason"
+    ].item() == ("unmapped_or_invalid_trait_value")
+
+    guild = pd.read_csv(guild_report["candidate_csv"], dtype=str).fillna("")
+    assert set(zip(guild["trait_name"], guild["standardized_value"], strict=True)) == {
+        ("pollination_functional_guild", "mixed_or_generalist"),
+        ("pollination_functional_guild", "other_bees"),
+    }
