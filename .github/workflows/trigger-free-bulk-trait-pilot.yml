@@ -76,7 +76,7 @@ jobs:
           SHARD: ${{ matrix.shard }}
           BIEN_SHARD_COUNT: '6'
           EFLORAS_SHARD_COUNT: '4'
-          EFLORAS_MAX_PAGES: '250'
+          EFLORAS_MAX_PAGES: '1000'
         run: |
           set -euo pipefail
           case "$SOURCE" in
