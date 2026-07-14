@@ -111,6 +111,7 @@ def materialize(
     staging_root: Path,
     output_dir: Path,
     efloras_artifact_dir: Path | None = None,
+    gift_artifact_dir: Path | None = None,
 ) -> dict[str, Any]:
     """Copy exact source-backed candidates into paths read by acquisition-rate config."""
     eol_source = _find_unique(
@@ -149,6 +150,21 @@ def materialize(
             staging_root / "efloras" / "combined" / "trait_candidates.csv",
             "eFloras",
         )
+    if gift_artifact_dir is not None:
+        gift_source = _find_unique(
+            gift_artifact_dir,
+            (
+                "**/data/v2/staging/traits/bulk/gift_v3_2/"
+                "bulk_trait_candidates_gift_v3_2_direct.csv",
+                "**/bulk_trait_candidates_gift_v3_2_direct.csv",
+            ),
+            "GIFT",
+        )
+        sources["gift_v3_2_direct"] = _copy_source(
+            gift_source,
+            staging_root / "bulk" / "gift_v3_2" / "bulk_trait_candidates_gift_v3_2_direct.csv",
+            "GIFT",
+        )
 
     manifest = {
         "version": "1.0",
@@ -176,12 +192,14 @@ def run(
     staging_root: Path = typer.Option(Path("data/v2/staging/traits")),
     output_dir: Path = typer.Option(...),
     efloras_artifact_dir: Path | None = typer.Option(None, file_okay=False),
+    gift_artifact_dir: Path | None = typer.Option(None, file_okay=False),
 ) -> None:
     """Materialize candidate artifacts and emit a provenance/count manifest."""
     manifest = materialize(
         eol_artifact_dir=eol_artifact_dir,
         austraits_artifact_dir=austraits_artifact_dir,
         efloras_artifact_dir=efloras_artifact_dir,
+        gift_artifact_dir=gift_artifact_dir,
         staging_root=staging_root,
         output_dir=output_dir,
     )

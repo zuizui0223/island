@@ -106,3 +106,28 @@ small `max_trait_rows` smoke test, inspect the unmapped-term and name-match
 audits, then rerun with `max_trait_rows = 0` for the full archive. `inferred.csv`
 is deliberately not used for direct evidence candidates; only rows attached to
 the EOL trait record itself enter the v2 pending-evidence path.
+
+## GIFT 3.2 direct-record lane
+
+The `Acquire GIFT direct floral traits` workflow uses the
+[official versioned public API](https://biogeomacro.github.io/GIFT/articles/web_only/GIFT_API.html)
+rather than an aggregated trait table. Its filtering follows the documented
+[raw-trait contract](https://biogeomacro.github.io/GIFT/reference/GIFT_traits_raw.html)
+and records the [GIFT data-quality disclaimer](https://biogeomacro.github.io/GIFT/articles/web_only/GIFT_Disclaimer.html):
+
+```text
+GIFT 3.2 metadata + references + species + traits_raw
+-> deriv=0 / biasderiv=0 and public-reference checks
+-> exact categorical ontology mappings + exclusion audit
+-> version-pinned GIFT work-species names
+-> generic canonical-long bulk importer
+-> Island-master pending candidates
+```
+
+`island-v2-fetch-gift-traits` archives every returned raw row, the full species
+and reference metadata used, query URLs, file checksums, and every exclusion
+reason. The evidence excerpt is a compact serialization of the exact raw GIFT
+fields, while `source_citation` retains the underlying bibliographic
+`ref_long`. API rows leaking outside the requested reference/trait pair,
+infraspecific records, unresolved names, restricted/missing references, and
+ambiguous ontology mappings never become candidates.

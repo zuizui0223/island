@@ -92,6 +92,45 @@ def test_materialize_optionally_adds_combined_efloras_candidates(tmp_path: Path)
     assert manifest["sources"]["efloras"]["excerpt_column"] == "source_excerpt"
 
 
+def test_materialize_optionally_adds_gift_candidates(tmp_path: Path) -> None:
+    eol, austraits = _artifact_dirs(tmp_path)
+    gift = tmp_path / "gift"
+    gift_path = (
+        gift
+        / "home"
+        / "runner"
+        / "work"
+        / "island"
+        / "island"
+        / "data"
+        / "v2"
+        / "staging"
+        / "traits"
+        / "bulk"
+        / "gift_v3_2"
+        / "bulk_trait_candidates_gift_v3_2_direct.csv"
+    )
+    gift_path.parent.mkdir(parents=True)
+    _candidate("gift").to_csv(gift_path, index=False)
+
+    staging = tmp_path / "staging"
+    manifest = materialize(
+        eol_artifact_dir=eol,
+        austraits_artifact_dir=austraits,
+        gift_artifact_dir=gift,
+        staging_root=staging,
+        output_dir=tmp_path / "output",
+    )
+
+    assert set(manifest["sources"]) == {
+        "eol_traitbank",
+        "austraits_all",
+        "gift_v3_2_direct",
+    }
+    assert manifest["sources"]["gift_v3_2_direct"]["n_species"] == 1
+    assert (staging / "bulk" / "gift_v3_2" / "bulk_trait_candidates_gift_v3_2_direct.csv").exists()
+
+
 def test_materialize_rejects_empty_source_evidence(tmp_path: Path) -> None:
     eol, austraits = _artifact_dirs(tmp_path)
     path = eol / "ingested" / "bulk_trait_candidates_release.csv"

@@ -60,14 +60,14 @@ failed lookups.
 ## Rebuild from production artifacts
 
 `Build all-master source-backed trait ledger` downloads the exact successful EOL
-and AusTraits run artifacts, and optionally a completed eFloras production
-artifact. It validates that every copied candidate retains a species, trait,
-value, source URL, verbatim excerpt, and source record ID before rebuilding the
-two exhaustive ledgers. The output artifact includes the copied candidate files,
-their SHA-256 digests and counts, GitHub artifact metadata, and all rate/ledger
-tables. A blank `efloras_run_id` creates an interim bulk-source ledger; supplying
-the completed production run adds `all_trait_candidates.csv` without changing
-the 115,328-species denominator.
+and AusTraits run artifacts, and optionally completed GIFT and eFloras production
+artifacts. It validates that every copied candidate retains a species, trait,
+value, source URL, verbatim/source-record excerpt, and source record ID before
+rebuilding the two exhaustive ledgers. The output artifact includes the copied
+candidate files, their SHA-256 digests and counts, GitHub artifact metadata, and
+all rate/ledger tables. Blank optional run IDs create an interim ledger;
+supplying `gift_run_id` and/or `efloras_run_id` adds the corresponding immutable
+artifact without changing the 115,328-species denominator.
 
 ## Configuration
 

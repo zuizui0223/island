@@ -18,6 +18,11 @@ on:
         required: false
         default: ""
         type: string
+      gift_run_id:
+        description: Completed GIFT direct-traits production run ID; blank omits GIFT
+        required: false
+        default: ""
+        type: string
   pull_request:
     paths:
       - ".github/workflows/build-all-master-trait-ledger.yml"
@@ -64,6 +69,7 @@ jobs:
       EOL_RUN_ID: ${{ inputs.eol_run_id }}
       AUSTRAITS_RUN_ID: ${{ inputs.austraits_run_id }}
       EFLORAS_RUN_ID: ${{ inputs.efloras_run_id }}
+      GIFT_RUN_ID: ${{ inputs.gift_run_id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -78,6 +84,7 @@ jobs:
           [[ "$EOL_RUN_ID" =~ ^[0-9]+$ ]]
           [[ "$AUSTRAITS_RUN_ID" =~ ^[0-9]+$ ]]
           if [[ -n "$EFLORAS_RUN_ID" ]]; then [[ "$EFLORAS_RUN_ID" =~ ^[0-9]+$ ]]; fi
+          if [[ -n "$GIFT_RUN_ID" ]]; then [[ "$GIFT_RUN_ID" =~ ^[0-9]+$ ]]; fi
       - name: Download exact source artifacts and metadata
         run: |
           set -euo pipefail
@@ -103,6 +110,15 @@ jobs:
             gh api "repos/$GH_REPO/actions/runs/$EFLORAS_RUN_ID/artifacts" \
               > /tmp/source_artifacts/metadata/efloras_artifacts.json
           fi
+          if [[ -n "$GIFT_RUN_ID" ]]; then
+            mkdir -p /tmp/source_artifacts/gift
+            gh run download "$GIFT_RUN_ID" \
+              --repo "$GH_REPO" \
+              --name "gift-direct-traits-$GIFT_RUN_ID" \
+              --dir /tmp/source_artifacts/gift
+            gh api "repos/$GH_REPO/actions/runs/$GIFT_RUN_ID/artifacts" \
+              > /tmp/source_artifacts/metadata/gift_artifacts.json
+          fi
       - name: Materialize evidence-preserving candidates
         run: |
           set -euo pipefail
@@ -110,12 +126,17 @@ jobs:
           if [[ -n "$EFLORAS_RUN_ID" ]]; then
             EFLORAS_ARGS=(--efloras-artifact-dir /tmp/source_artifacts/efloras)
           fi
+          GIFT_ARGS=()
+          if [[ -n "$GIFT_RUN_ID" ]]; then
+            GIFT_ARGS=(--gift-artifact-dir /tmp/source_artifacts/gift)
+          fi
           island-v2-materialize-trait-artifacts run \
             --eol-artifact-dir /tmp/source_artifacts/eol \
             --austraits-artifact-dir /tmp/source_artifacts/austraits \
             --staging-root data/v2/staging/traits \
             --output-dir /tmp/all_master_trait_ledger \
-            "${EFLORAS_ARGS[@]}"
+            "${EFLORAS_ARGS[@]}" \
+            "${GIFT_ARGS[@]}"
       - name: Build exhaustive all-master ledgers
         run: |
           island-v2-acquisition-rate run \
@@ -133,7 +154,9 @@ jobs:
           root = Path("/tmp/all_master_trait_ledger")
           summary = json.loads((root / "acquisition_rate_summary.json").read_text(encoding="utf-8"))
           materialized = json.loads((root / "materialization_manifest.json").read_text(encoding="utf-8"))
-          expected_sources = 3 if os.environ.get("EFLORAS_RUN_ID", "") else 2
+          expected_sources = 2
+          expected_sources += bool(os.environ.get("EFLORAS_RUN_ID", ""))
+          expected_sources += bool(os.environ.get("GIFT_RUN_ID", ""))
           assert materialized["source_count"] == expected_sources
           assert summary["n_master_species_accounted"] == 115_328
           assert summary["n_species_trait_cells_accounted"] == 1_499_264
@@ -166,6 +189,7 @@ jobs:
             /tmp/source_artifacts/metadata/
             data/v2/staging/traits/eol_traitbank/trait_candidates.csv
             data/v2/staging/traits/bulk/austraits_all/trait_candidates.csv.gz
+            data/v2/staging/traits/bulk/gift_v3_2/bulk_trait_candidates_gift_v3_2_direct.csv
             data/v2/staging/traits/efloras/combined/trait_candidates.csv
           if-no-files-found: warn
           retention-days: 90
