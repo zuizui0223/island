@@ -121,7 +121,7 @@ jobs:
               python scripts/fetch_public_flora_real_data.py --source "$SOURCE"
               ;;
             gift|wfo|powo|try|sid)
-              python scripts/audit_verified_plant_sources.py --source "$SOURCE"
+              python scripts/fetch_public_source_data.py --source "$SOURCE"
               ;;
             *)
               echo "Unknown source: $SOURCE" >&2
@@ -142,10 +142,7 @@ jobs:
             data/v2/staging/traits/bulk/bien/
             data/v2/staging/traits/bulk/wfo-plant-list/
             data/v2/staging/traits/bulk/efloras/
-            data/v2/staging/traits/bulk/verified_source_audit/${{ matrix.source }}/
-            data/v2/staging/traits/bulk/verified_source_audit/source_status.json
-            data/v2/staging/traits/bulk/verified_source_audit/source_status.csv
-            data/v2/staging/traits/bulk/verified_source_audit/discovered_machine_links.csv
+            data/v2/staging/traits/bulk/public_sources/${{ matrix.source }}/
           if-no-files-found: warn
           retention-days: 14
 
