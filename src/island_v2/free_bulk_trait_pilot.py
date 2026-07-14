@@ -16,9 +16,9 @@ from typing import Iterable
 
 
 DEFAULT_TRAIT_MAP = {
-    "flower_length": "flower_length_mm",
-    "flower_diameter": "flower_diameter_mm",
-    "flower_perianth_fusion": "flower_perianth_fusion_fraction",
+    "flower_length": "flower_length_continuous_raw",
+    "flower_diameter": "flower_diameter_continuous_raw",
+    "flower_perianth_fusion": "flower_perianth_fusion_continuous_raw",
     "flower_structural_sex_type": "flower_structural_sex_type_raw",
 }
 
