@@ -39,7 +39,7 @@ def test_discovers_and_standardizes_requested_dataset(tmp_path: Path) -> None:
     with traits.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(
             handle,
-            fieldnames=["taxon_name", "trait_name", "trait_value", "dataset_id"],
+            fieldnames=["taxon_name", "trait_name", "trait_value", "unit", "dataset_id"],
         )
         writer.writeheader()
         writer.writerows(
@@ -48,12 +48,14 @@ def test_discovers_and_standardizes_requested_dataset(tmp_path: Path) -> None:
                     "taxon_name": "Campanula  punctata",
                     "trait_name": "flower_length",
                     "trait_value": "42",
+                    "unit": "mm",
                     "dataset_id": "eFLOWER_Dun_2022",
                 },
                 {
                     "taxon_name": "Other species",
                     "trait_name": "leaf_area",
                     "trait_value": "3",
+                    "unit": "mm2",
                     "dataset_id": "other_dataset",
                 },
             ]
@@ -74,7 +76,9 @@ def test_discovers_and_standardizes_requested_dataset(tmp_path: Path) -> None:
         "standardized_rows": 1,
         "unique_taxa": 1,
         "unique_traits": 1,
+        "unique_nonempty_units": 1,
     }
     rows = list(csv.DictReader(output.open(encoding="utf-8")))
     assert rows[0]["taxon_name"] == "Campanula punctata"
     assert rows[0]["trait_name"] == "flower_length"
+    assert rows[0]["trait_unit"] == "mm"
