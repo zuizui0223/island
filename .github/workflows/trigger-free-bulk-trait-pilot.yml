@@ -29,6 +29,11 @@ jobs:
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    # AusTraits is the tested, reliable core experiment and gates this check.
+    # Every other public DB is queried best-effort in the same cross-source
+    # sweep: an unreachable site or a source that exposes no bulk payload is
+    # recorded in its artifact but must not turn the required check red.
+    continue-on-error: ${{ matrix.source != 'austraits' }}
     strategy:
       fail-fast: false
       matrix:
@@ -157,17 +162,29 @@ jobs:
         with:
           pattern: trait-source-*
           path: collected-source-results
-      - name: Inventory completed source outputs
+      - name: Inventory cross-source coverage
         run: |
           find collected-source-results -type f -maxdepth 8 -print | sort
           python - <<'PY'
           import json
           from pathlib import Path
-          reports = []
-          for path in Path('collected-source-results').rglob('*.json'):
+
+          root = Path('collected-source-results')
+          reports = {}
+          for path in root.rglob('*.json'):
               try:
-                  reports.append((str(path), json.loads(path.read_text(encoding='utf-8'))))
+                  reports[str(path.relative_to(root))] = json.loads(path.read_text(encoding='utf-8'))
               except Exception as exc:
                   print(f'Could not parse {path}: {exc}')
-          print(json.dumps(dict(reports), indent=2, ensure_ascii=False))
+
+          print(json.dumps(reports, indent=2, ensure_ascii=False))
+
+          # Summarise which databases delivered data in this cross-source sweep.
+          # This is observability only: best-effort sources never fail the check.
+          summary = []
+          for name in sorted(p.name for p in root.iterdir() if p.is_dir()):
+              jsons = list((root / name).rglob('*.json'))
+              summary.append(f"{name}: {'ok' if jsons else 'no-report'} ({len(jsons)} report(s))")
+          print('\nCross-source coverage summary:')
+          print('\n'.join(summary) if summary else 'No source artifacts collected.')
           PY
