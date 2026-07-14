@@ -189,7 +189,7 @@ jobs:
             /tmp/source_artifacts/metadata/
             data/v2/staging/traits/eol_traitbank/trait_candidates.csv
             data/v2/staging/traits/bulk/austraits_all/trait_candidates.csv.gz
-            data/v2/staging/traits/bulk/gift_v3_2/bulk_trait_candidates_gift_v3_2_direct.csv
+            data/v2/staging/traits/bulk/gift_v3_2/trait_candidates.csv
             data/v2/staging/traits/efloras/combined/trait_candidates.csv
           if-no-files-found: warn
           retention-days: 90

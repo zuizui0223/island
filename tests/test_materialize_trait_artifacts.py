@@ -6,6 +6,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+from island_v2.acquisition_rate_report import adapter_candidate_long
 from island_v2.materialize_trait_artifacts import materialize
 
 
@@ -128,7 +129,13 @@ def test_materialize_optionally_adds_gift_candidates(tmp_path: Path) -> None:
         "gift_v3_2_direct",
     }
     assert manifest["sources"]["gift_v3_2_direct"]["n_species"] == 1
-    assert (staging / "bulk" / "gift_v3_2" / "bulk_trait_candidates_gift_v3_2_direct.csv").exists()
+    assert (staging / "bulk" / "gift_v3_2" / "trait_candidates.csv").exists()
+    observed = adapter_candidate_long(
+        {"glob": str(staging / "bulk" / "**" / "trait_candidates.csv*")}
+    )
+    assert observed.to_dict("records") == [
+        {"accepted_species": "Aaa bbb", "trait_name": "flower_primary_color"}
+    ]
 
 
 def test_materialize_rejects_empty_source_evidence(tmp_path: Path) -> None:

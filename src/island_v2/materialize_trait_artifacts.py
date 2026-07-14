@@ -162,7 +162,7 @@ def materialize(
         )
         sources["gift_v3_2_direct"] = _copy_source(
             gift_source,
-            staging_root / "bulk" / "gift_v3_2" / "bulk_trait_candidates_gift_v3_2_direct.csv",
+            staging_root / "bulk" / "gift_v3_2" / "trait_candidates.csv",
             "GIFT",
         )
 
