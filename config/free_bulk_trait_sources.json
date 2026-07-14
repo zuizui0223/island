@@ -1,0 +1,32 @@
+{
+  "version": "0.1-experiment",
+  "sources": {
+    "austraits_eflower_dun_2022": {
+      "status": "pilot",
+      "access": "open_bulk_download",
+      "source_family": "AusTraits",
+      "dataset_key": "eFLOWER_Dun_2022",
+      "expected_scale": {
+        "taxa": "approximately 2000",
+        "floral_traits": 36,
+        "trait_values": "more than 29000"
+      },
+      "source_columns": {
+        "taxon": "taxon_name",
+        "trait": "trait_name"
+      },
+      "trait_map": {
+        "flower_length": "flower_length_mm",
+        "flower_diameter": "flower_diameter_mm",
+        "flower_perianth_fusion": "flower_perianth_fusion_fraction",
+        "flower_structural_sex_type": "flower_structural_sex_type_raw"
+      },
+      "integration_policy": {
+        "preserve_raw_values": true,
+        "allow_fuzzy_taxon_match": false,
+        "allow_automatic_category_derivation": false,
+        "replace_fallback_only_with_curated_or_direct_evidence": true
+      }
+    }
+  }
+}
