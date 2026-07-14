@@ -17,12 +17,11 @@ def test_occurrence_quality_filter_and_spatial_thinning():
     out = quality_filter_and_thin_occurrences(
         d, grid_degrees=0.25, max_coordinate_uncertainty_m=20000, min_year=1950
     )
-    # first two records occupy the same 0.25-degree cell; old and imprecise records drop
     assert len(out) == 2
     assert out["year"].astype(int).min() >= 1950
 
 
-def test_correlated_predictors_are_reduced_before_ellipsoidal_fit():
+def test_correlated_predictors_are_stable_under_ridge_regularization():
     rng = np.random.default_rng(42)
     n = 100
     x = rng.normal(size=n)
@@ -39,13 +38,12 @@ def test_correlated_predictors_are_reduced_before_ellipsoidal_fit():
         "bio5": [0.0],
         "bio12": [0.0],
     })
-    result = score_niche_hypervolumes(
+    row = score_niche_hypervolumes(
         occ, target, ["bio1", "bio5", "bio12"], min_occurrences=50
-    )
-    row = result.iloc[0]
+    ).iloc[0]
     assert row["model_status"] == "scored"
-    assert row["model_type"] == "regularized_ellipsoidal_environmental_niche"
-    assert int(row["n_pca_dimensions"]) < 3
+    assert row["model_type"] == "ridge_regularized_mahalanobis_ellipsoidal_hypervolume"
+    assert np.isfinite(float(row["covariance_condition_number"]))
     assert 0 <= float(row["environmental_compatibility"]) <= 1
 
 
@@ -66,4 +64,4 @@ def test_score_is_environmental_compatibility_not_absence_probability():
         occ, target, ["bio1", "bio12"], min_occurrences=50
     ).set_index("island_id")
     assert result.loc["near", "environmental_compatibility"] > result.loc["far", "environmental_compatibility"]
-    assert set(result["model_type"]) == {"regularized_ellipsoidal_environmental_niche"}
+    assert set(result["model_type"]) == {"ridge_regularized_mahalanobis_ellipsoidal_hypervolume"}
