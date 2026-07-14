@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from island_v2.bombus_niche_hypervolume import score_niche_hypervolumes
-from island_v2.bombus_niche_inputs import quality_filter_and_thin_occurrences
+from island_v2.bombus_occurrence_quality import quality_filter_and_thin_occurrences
 
 
 def test_occurrence_quality_filter_and_spatial_thinning():
