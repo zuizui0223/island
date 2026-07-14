@@ -35,6 +35,13 @@ z <- function(x) {
 d[, z_distance := z(distance_to_continent_km)]
 d[, z_distance_sq := z_distance^2]
 d[, z_log_area := z(log(area_km2))]
+
+# Absolute latitude is included explicitly so that distance effects are not
+# mistaken for a high-latitude environmental gradient. The quadratic term
+# allows non-monotonic latitudinal responses after climate-PC adjustment.
+d[, z_abs_latitude := z(abs_latitude)]
+d[, z_abs_latitude_sq := z_abs_latitude^2]
+
 for (nm in c("climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4")) {
   d[[paste0("z_", nm)]] <- z(d[[nm]])
 }
@@ -82,59 +89,53 @@ fit_bb <- function(formula, data, file) {
 }
 
 base_complete <- complete.cases(d[, .(
-  z_distance, z_distance_sq, z_log_area, z_climate_pc1, z_climate_pc2,
+  z_distance, z_distance_sq, z_abs_latitude, z_abs_latitude_sq,
+  z_log_area, z_climate_pc1, z_climate_pc2,
   z_climate_pc3, z_climate_pc4, analysis_regime
 )])
 sc_global <- d[base_complete & sc_trials > 0]
 color_global <- d[base_complete & color_trials > 0]
 form_global <- d[base_complete & form_trials > 0]
 
+geo_terms <- ~ (z_distance + z_distance_sq) * analysis_regime +
+  z_abs_latitude + z_abs_latitude_sq + z_log_area +
+  z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4
+
 f_sc <- fit_bb(
-  sc_successes | trials(sc_trials) ~
-    (z_distance + z_distance_sq) * analysis_regime + z_log_area +
-    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  update.formula(sc_successes | trials(sc_trials) ~ 1, geo_terms),
   sc_global,
   file.path(outdir, "falsification_sc")
 )
 f_plain <- fit_bb(
-  color_plain | trials(color_trials) ~
-    (z_distance + z_distance_sq) * analysis_regime + z_log_area +
-    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  update.formula(color_plain | trials(color_trials) ~ 1, geo_terms),
   color_global,
   file.path(outdir, "falsification_plain")
 )
 f_generalist_like <- fit_bb(
-  form_generalist_like | trials(form_trials) ~
-    (z_distance + z_distance_sq) * analysis_regime + z_log_area +
-    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  update.formula(form_generalist_like | trials(form_trials) ~ 1, geo_terms),
   form_global,
   file.path(outdir, "falsification_generalist_like")
 )
 f_red_pink <- fit_bb(
-  color_red_pink | trials(color_trials) ~
-    (z_distance + z_distance_sq) * analysis_regime + z_log_area +
-    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  update.formula(color_red_pink | trials(color_trials) ~ 1, geo_terms),
   color_global,
   file.path(outdir, "falsification_red_pink")
 )
 f_yellow_orange <- fit_bb(
-  color_yellow_orange | trials(color_trials) ~
-    (z_distance + z_distance_sq) * analysis_regime + z_log_area +
-    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  update.formula(color_yellow_orange | trials(color_trials) ~ 1, geo_terms),
   color_global,
   file.path(outdir, "falsification_yellow_orange")
 )
 f_tubular <- fit_bb(
-  form_tubular_trumpet | trials(form_trials) ~
-    (z_distance + z_distance_sq) * analysis_regime + z_log_area +
-    z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
+  update.formula(form_tubular_trumpet | trials(form_trials) ~ 1, geo_terms),
   form_global,
   file.path(outdir, "falsification_tubular_trumpet")
 )
 
 north <- d[analysis_regime == "northern_midlatitude"]
 north_base <- complete.cases(north[, .(
-  z_distance, z_distance_sq, z_log_area, z_climate_pc1, z_climate_pc2,
+  z_distance, z_distance_sq, z_abs_latitude, z_abs_latitude_sq,
+  z_log_area, z_climate_pc1, z_climate_pc2,
   z_climate_pc3, z_climate_pc4, z_bombus_deficit
 )])
 sc_north <- north[north_base & sc_trials > 0]
@@ -143,21 +144,24 @@ generalist_like_north <- north[north_base & form_trials > 0 & is.finite(z_sc_sha
 
 n_sc <- fit_bb(
   sc_successes | trials(sc_trials) ~
-    z_bombus_deficit + z_distance + z_distance_sq + z_log_area +
+    z_bombus_deficit + z_distance + z_distance_sq +
+    z_abs_latitude + z_abs_latitude_sq + z_log_area +
     z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
   sc_north,
   file.path(outdir, "north_bombus_sc")
 )
 n_plain <- fit_bb(
   color_plain | trials(color_trials) ~
-    z_bombus_deficit + z_sc_share + z_distance + z_distance_sq + z_log_area +
+    z_bombus_deficit + z_sc_share + z_distance + z_distance_sq +
+    z_abs_latitude + z_abs_latitude_sq + z_log_area +
     z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
   plain_north,
   file.path(outdir, "north_bombus_sc_plain")
 )
 n_generalist_like <- fit_bb(
   form_generalist_like | trials(form_trials) ~
-    z_bombus_deficit + z_sc_share + z_distance + z_distance_sq + z_log_area +
+    z_bombus_deficit + z_sc_share + z_distance + z_distance_sq +
+    z_abs_latitude + z_abs_latitude_sq + z_log_area +
     z_climate_pc1 + z_climate_pc2 + z_climate_pc3 + z_climate_pc4,
   generalist_like_north,
   file.path(outdir, "north_bombus_sc_generalist_like")
@@ -259,6 +263,22 @@ regime_distance_effects <- rbindlist(list(
 ), fill = TRUE)
 fwrite(regime_distance_effects, file.path(outdir, "cross_regime_isolation_slopes.csv"))
 
+# Report latitude coefficients separately so the red/pink result can be read as
+# either an environmental latitude gradient or a residual isolation effect.
+latitude_effects <- rbindlist(lapply(c(
+  "F_SC", "F_plain", "F_generalist_like", "F_red_pink",
+  "F_yellow_orange", "F_tubular"
+), function(nm) {
+  draws <- as_draws_df(fits[[nm]])
+  rbindlist(list(
+    cbind(model = nm, component = "absolute_latitude_linear",
+          summarize_draw("absolute_latitude_linear", coef_draw(draws, "b_z_abs_latitude"))),
+    cbind(model = nm, component = "absolute_latitude_quadratic",
+          summarize_draw("absolute_latitude_quadratic", coef_draw(draws, "b_z_abs_latitude_sq")))
+  ), fill = TRUE)
+}), fill = TRUE)
+fwrite(latitude_effects, file.path(outdir, "global_latitude_effects.csv"))
+
 sc_draws <- as_draws_df(n_sc)
 plain_draws <- as_draws_df(n_plain)
 generalist_draws <- as_draws_df(n_generalist_like)
@@ -309,7 +329,7 @@ fwrite(sampler_diagnostics, file.path(outdir, "sampler_diagnostics.csv"))
 
 capture.output(lapply(fits, summary), file = file.path(outdir, "model_summaries.txt"))
 write_json(list(
-  contract = "v2_engine_specific_bayesian_binary_pathway_v3",
+  contract = "v2_engine_specific_bayesian_binary_pathway_v4",
   role = "binary syndrome inference plus targeted channel-associated trait contrasts; INLA owns full category decomposition",
   analysis_tier = "sensitivity_all",
   binary_outcomes = c(
@@ -318,8 +338,9 @@ write_json(list(
     "generalist_like_open_plus_composite_vs_tubular_plus_zygomorphic"
   ),
   targeted_global_traits = c("red_pink", "yellow_orange", "tubular_trumpet"),
+  environmental_adjustment = "absolute latitude plus quadratic absolute latitude, climate PCs 1-4 and island area",
   northern_pathway = "Bombus deficit predicts parallel SC, plain-colour and generalist-like form responses; SC-mediated quantities are descriptive rather than assumed causal",
-  falsification = "four-regime raw-distance linear and quadratic effects without global Bombus causal imposition",
+  falsification = "four-regime raw-distance linear and quadratic effects after explicit latitude and climate adjustment",
   distance_function = "standardized raw distance plus quadratic term; positive quadratic means accelerating isolation effect",
   global_regimes = c(
     "northern_midlatitude",
