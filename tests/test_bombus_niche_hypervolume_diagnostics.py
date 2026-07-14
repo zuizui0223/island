@@ -19,7 +19,7 @@ def _training() -> pd.DataFrame:
     )
 
 
-def test_hypervolume_boundary_is_calibrated_to_half_membership() -> None:
+def test_ellipsoidal_boundary_is_calibrated_to_half_membership() -> None:
     training = _training()
     probe = pd.DataFrame(
         [
@@ -37,7 +37,7 @@ def test_hypervolume_boundary_is_calibrated_to_half_membership() -> None:
         environment_columns=["bio1", "bio12"],
     ).iloc[0]
 
-    reconstructed = 2 ** (-float(scored["hypervolume_distance_ratio"]))
+    reconstructed = 2 ** (-float(scored["ellipsoidal_distance_ratio"]))
     assert scored["environmental_compatibility"] == pytest.approx(reconstructed)
     assert scored["empirical_training_tail_support"] > 0
     assert scored["covariance_condition_number"] >= 1
@@ -91,9 +91,9 @@ def test_unresolved_rows_keep_diagnostic_schema() -> None:
         _training().head(4),
         target,
         environment_columns=["bio1", "bio12"],
-        min_occurrences=10,
+        min_occurrences=20,
     ).iloc[0]
 
-    assert result["model_status"] == "insufficient_occurrences"
-    assert pd.isna(result["hypervolume_distance_ratio"])
+    assert result["model_status"] == "insufficient_occurrences_after_quality_filtering"
+    assert pd.isna(result["ellipsoidal_distance_ratio"])
     assert pd.isna(result["environmental_extrapolation"])
