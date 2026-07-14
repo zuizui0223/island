@@ -512,6 +512,28 @@ def _matched_species_count(taxa: Iterable[dict[str, str]], matcher: MasterMatche
     return sum(matcher.match(row["original_taxon_name"])["match_status"] not in {"unmatched", "ambiguous"} for row in species)
 
 
+def acquisition_status(
+    *,
+    crawl_stop_reason: str,
+    pending_selected: int,
+    treatment_count: int,
+    selected_count: int,
+    species_count: int,
+) -> str:
+    """Classify an acquisition outcome without conflating source depth and matching."""
+    if crawl_stop_reason == "browse_request_error":
+        return "failed_browse_request"
+    if pending_selected:
+        return "partial_treatment_errors"
+    if treatment_count:
+        return "ok"
+    if species_count == 0:
+        return "no_species_taxa_discovered"
+    if selected_count == 0:
+        return "no_master_matches"
+    return "failed_no_treatments"
+
+
 def crawl_taxa(
     *,
     client: Client,
@@ -1061,12 +1083,13 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
     species_with_traits = {row["accepted_species"] for row in candidates}
     traits = sorted({row["trait_name"] for row in candidates})
     pending_selected = sorted(selected_ids.difference(processed_taxon_ids))
-    if crawl_metrics.get("inventory_stop_reason") == "browse_request_error":
-        status = "failed_browse_request"
-    elif pending_selected:
-        status = "partial_treatment_errors"
-    else:
-        status = "ok" if treatments else ("no_master_matches" if not sharded else "failed_no_treatments")
+    status = acquisition_status(
+        crawl_stop_reason=crawl_metrics.get("inventory_stop_reason", ""),
+        pending_selected=len(pending_selected),
+        treatment_count=len(treatments),
+        selected_count=len(sharded),
+        species_count=len(species_names),
+    )
     report = {
         "status": status,
         "flora_id": flora_id,

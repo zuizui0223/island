@@ -66,6 +66,11 @@ The combine mode writes deduplicated cross-Flora treatment/candidate tables and
 `combined_coverage.json`, including cross-Flora duplicate counts and coverage
 by trait.
 
+An empty result is never reported as success. `no_species_taxa_discovered`
+means the published hierarchy ended above species rank (for example, a
+family/genus-only checklist). This is distinct from `no_master_matches`, where
+species names were enumerated but none matched the island master list.
+
 ## Rate limiting and recovery
 
 The default client uses randomized 1.5-3.5 second delays, a descriptive user

@@ -254,6 +254,17 @@ def test_checkpoint_persistence_deduplicates_on_reload(tmp_path: Path) -> None:
     assert len(efloras.read_csv(tmp_path / "species_treatments.csv")) == 1
 
 
+def test_acquisition_status_distinguishes_missing_species_depth_from_no_match() -> None:
+    common = {
+        "crawl_stop_reason": "queue_exhausted",
+        "pending_selected": 0,
+        "treatment_count": 0,
+        "selected_count": 0,
+    }
+    assert efloras.acquisition_status(**common, species_count=0) == "no_species_taxa_discovered"
+    assert efloras.acquisition_status(**common, species_count=12) == "no_master_matches"
+
+
 def test_combined_coverage_deduplicates_species_across_floras(tmp_path: Path) -> None:
     root = tmp_path / "input"
     for flora_id in (1, 2):
