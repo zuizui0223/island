@@ -9,6 +9,7 @@ description = "Evidence-tracked data pipeline for global island floral-syndrome 
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+  "beautifulsoup4>=4.12.0",
   "geopandas>=1.0.0",
   "httpx>=0.27.0",
   "numpy>=1.26.0",
@@ -19,6 +20,7 @@ dependencies = [
   "pyogrio>=0.9.0",
   "PyYAML>=6.0.1",
   "rasterio>=1.4.0",
+  "requests>=2.32.0",
   "shapely>=2.0.0",
   "truststore>=0.10.0",
   "typer>=0.12.0",
