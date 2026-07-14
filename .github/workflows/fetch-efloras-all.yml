@@ -23,7 +23,7 @@ on:
         default: ''
         type: string
       shard_index:
-        description: Zero-based shard index
+        description: Zero-based shard index, or "all" to run every shard in one workflow
         required: true
         default: '0'
         type: string
@@ -96,6 +96,9 @@ jobs:
             --delay-max 1.0
       - name: Build dynamic valid-Flora matrix
         id: plan
+        env:
+          REQUESTED_SHARD_INDEX: ${{ inputs.shard_index }}
+          REQUESTED_SHARD_COUNT: ${{ inputs.shard_count }}
         run: |
           python - <<'PY'
           import json
@@ -103,16 +106,34 @@ jobs:
           from pathlib import Path
 
           rows = json.loads(Path('efloras-manifest/flora_manifest.json').read_text(encoding='utf-8'))
-          include = [
+          floras = [
               {'flora_id': int(row['flora_id']), 'flora_name': row['flora_name']}
               for row in rows
               if row['status'] in {'ok', 'ok_unlisted'} and row['has_browse_structure']
+          ]
+          shard_count = int(os.environ['REQUESTED_SHARD_COUNT'])
+          if shard_count < 1:
+              raise SystemExit('shard_count must be at least 1')
+          requested = os.environ['REQUESTED_SHARD_INDEX'].strip().casefold()
+          if requested == 'all':
+              shard_indexes = range(shard_count)
+          else:
+              shard_index = int(requested)
+              if not 0 <= shard_index < shard_count:
+                  raise SystemExit('shard_index must satisfy 0 <= index < shard_count')
+              shard_indexes = [shard_index]
+          # Keep Flora as the inner loop so the first parallel wave spreads
+          # requests across sources instead of starting every shard of one Flora.
+          include = [
+              {**flora, 'shard_index': shard_index, 'shard_count': shard_count}
+              for shard_index in shard_indexes
+              for flora in floras
           ]
           matrix = json.dumps({'include': include}, ensure_ascii=True, separators=(',', ':'))
           with Path(os.environ['GITHUB_OUTPUT']).open('a', encoding='utf-8') as handle:
               handle.write(f'matrix={matrix}\n')
               handle.write(f'count={len(include)}\n')
-          print(json.dumps({'selected_floras': include, 'count': len(include)}, indent=2))
+          print(json.dumps({'selected_jobs': include, 'count': len(include)}, indent=2))
           PY
       - name: Upload flora manifest even when no Flora is runnable
         if: always()
@@ -163,8 +184,8 @@ jobs:
         env:
           FLORA_ID: ${{ matrix.flora_id }}
           MAX_SPECIES: ${{ steps.limit.outputs.max_species }}
-          SHARD_INDEX: ${{ inputs.shard_index }}
-          SHARD_COUNT: ${{ inputs.shard_count }}
+          SHARD_INDEX: ${{ matrix.shard_index }}
+          SHARD_COUNT: ${{ matrix.shard_count }}
           SAVE_HTML: ${{ inputs.save_html }}
         run: |
           set -euo pipefail
@@ -194,7 +215,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: efloras-flora-${{ matrix.flora_id }}-shard-${{ inputs.shard_index }}-of-${{ inputs.shard_count }}
+          name: efloras-flora-${{ matrix.flora_id }}-shard-${{ matrix.shard_index }}-of-${{ matrix.shard_count }}
           path: data/v2/staging/traits/bulk/efloras/flora-${{ matrix.flora_id }}/
           if-no-files-found: error
           retention-days: 30

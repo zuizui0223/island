@@ -119,5 +119,7 @@ Use the **Fetch eFloras species treatments** workflow for GitHub-hosted runs:
 
 For production, first review the smoke/pilot `coverage_report.json` and
 `errors.jsonl`, then dispatch `production`. Large production runs should use
-`shard_index` and `shard_count`; run every index from zero through
-`shard_count - 1` and combine their artifacts afterward.
+`shard_count` and set the workflow's `shard_index` input to `all`. The workflow
+expands every index from zero through `shard_count - 1` in one rate-limited
+matrix and combines their artifacts afterward. A numeric `shard_index` remains
+available for rerunning one failed shard.
