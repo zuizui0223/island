@@ -70,6 +70,10 @@ An empty result is never reported as success. `no_species_taxa_discovered`
 means the published hierarchy ended above species rank (for example, a
 family/genus-only checklist). This is distinct from `no_master_matches`, where
 species names were enumerated but none matched the island master list.
+`partial_unconfirmed_treatments` means at least one selected eFloras leaf was
+rejected by the species-treatment contract; the report records its count as
+`rejected_selected_treatments` instead of presenting partial coverage as fully
+successful.
 
 ## Rate limiting and recovery
 

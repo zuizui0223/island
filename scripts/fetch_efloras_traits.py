@@ -519,19 +519,22 @@ def acquisition_status(
     treatment_count: int,
     selected_count: int,
     species_count: int,
+    rejected_count: int = 0,
 ) -> str:
     """Classify an acquisition outcome without conflating source depth and matching."""
     if crawl_stop_reason == "browse_request_error":
         return "failed_browse_request"
     if pending_selected:
         return "partial_treatment_errors"
-    if treatment_count:
-        return "ok"
     if species_count == 0:
         return "no_species_taxa_discovered"
     if selected_count == 0:
         return "no_master_matches"
-    return "failed_no_treatments"
+    if treatment_count == 0:
+        return "failed_no_treatments"
+    if rejected_count:
+        return "partial_unconfirmed_treatments"
+    return "ok"
 
 
 def crawl_taxa(
@@ -1083,12 +1086,15 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
     species_with_traits = {row["accepted_species"] for row in candidates}
     traits = sorted({row["trait_name"] for row in candidates})
     pending_selected = sorted(selected_ids.difference(processed_taxon_ids))
+    saved_selected_ids = {str(row["taxon_id"]) for row in treatments}
+    rejected_selected = sorted(selected_ids.intersection(processed_taxon_ids).difference(saved_selected_ids))
     status = acquisition_status(
         crawl_stop_reason=crawl_metrics.get("inventory_stop_reason", ""),
         pending_selected=len(pending_selected),
         treatment_count=len(treatments),
         selected_count=len(sharded),
         species_count=len(species_names),
+        rejected_count=len(rejected_selected),
     )
     report = {
         "status": status,
@@ -1110,6 +1116,7 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
         "species_treatment_requests": request_total,
         "species_treatments_saved": len(treatments),
         "pending_selected_treatments": len(pending_selected),
+        "rejected_selected_treatments": len(rejected_selected),
         "empty_descriptions": sum(
             error.get("error") == "not_a_confirmed_species_treatment"
             and int(error.get("narrative_chars", 0)) < args.min_description_chars

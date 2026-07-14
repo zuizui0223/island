@@ -265,6 +265,20 @@ def test_acquisition_status_distinguishes_missing_species_depth_from_no_match() 
     assert efloras.acquisition_status(**common, species_count=12) == "no_master_matches"
 
 
+def test_acquisition_status_does_not_hide_rejected_selected_records() -> None:
+    common = {
+        "crawl_stop_reason": "queue_exhausted",
+        "pending_selected": 0,
+        "selected_count": 20,
+        "species_count": 50,
+    }
+    assert (
+        efloras.acquisition_status(**common, treatment_count=19, rejected_count=1)
+        == "partial_unconfirmed_treatments"
+    )
+    assert efloras.acquisition_status(**common, treatment_count=20, rejected_count=0) == "ok"
+
+
 def test_combined_coverage_deduplicates_species_across_floras(tmp_path: Path) -> None:
     root = tmp_path / "input"
     for flora_id in (1, 2):
