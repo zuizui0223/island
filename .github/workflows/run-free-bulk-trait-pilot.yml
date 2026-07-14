@@ -2,6 +2,16 @@ name: Run free bulk trait pilot
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/run-free-bulk-trait-pilot.yml"
+      - "src/island_v2/free_bulk_trait_pilot.py"
+      - "src/island_v2/fetch_austraits_bulk.py"
+      - "config/free_bulk_trait_sources.json"
+      - "tests/test_free_bulk_trait_pilot.py"
+      - "tests/test_fetch_austraits_bulk.py"
   push:
     branches:
       - agent/free-bulk-trait-pilot
@@ -58,11 +68,12 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import os
           from pathlib import Path
 
           manifest = json.loads(Path("data/v2/staging/traits/bulk/austraits/fetch_manifest.json").read_text())
           report = json.loads(Path("data/v2/staging/traits/bulk/austraits/coverage_report.json").read_text())
-          summary = Path(__import__("os").environ["GITHUB_STEP_SUMMARY"])
+          summary = Path(os.environ["GITHUB_STEP_SUMMARY"])
           with summary.open("a", encoding="utf-8") as handle:
               handle.write("# AusTraits / eFLOWER bulk pilot\n\n")
               handle.write(f"- Release: `{manifest.get('release_version')}` ({manifest.get('publication_date')})\n")
