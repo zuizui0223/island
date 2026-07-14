@@ -4,21 +4,9 @@ name: collect_gbif_selected_block
 # rationale must be geographic/source-region coverage only; this workflow does
 # not accept or inspect traits, pollinator records, reproduction, or model results.
 on:
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
   workflow_dispatch:
-    inputs:
-      block_id:
-        description: "Exact succeeded and uncollected GBIF block ID."
-        required: true
-        type: string
-      selection_rationale:
-        description: "Predeclared geographic/source-region coverage rationale; not trait/outcome based."
-        required: true
-        type: string
-  push:
-    branches: [main]
-    paths:
-      - "config/gbif_selected_collection_request_001.json"
-
 permissions:
   contents: write
 

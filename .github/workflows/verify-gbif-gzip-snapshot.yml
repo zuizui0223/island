@@ -1,12 +1,9 @@
 name: verify_gbif_gzip_snapshot
 
 on:
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "config/verify_gbif_gzip_snapshot.json"
-
 permissions:
   contents: read
 

@@ -59,6 +59,8 @@ jobs:
             shard: 0
           - source: powo
             shard: 0
+          - source: try
+            shard: 0
           - source: sid
             shard: 0
     steps:
@@ -122,7 +124,7 @@ jobs:
             wfo-plant-list|efloras)
               python scripts/fetch_public_flora_real_data.py --source "$SOURCE"
               ;;
-            gift|wfo|powo|sid)
+            gift|wfo|powo|try|sid)
               python scripts/fetch_public_source_data.py --source "$SOURCE"
               ;;
             *)
@@ -176,8 +178,9 @@ jobs:
 
           print(json.dumps(reports, indent=2, ensure_ascii=False))
 
-          # Summarise which databases delivered data in this cross-source sweep.
-          # This is observability only: best-effort sources never fail the check.
+          # Summarise which databases delivered real data in this cross-source
+          # sweep. Every source is a hard gate, so any leg that acquired no
+          # machine-readable payload has already failed its own job.
           summary = []
           for name in sorted(p.name for p in root.iterdir() if p.is_dir()):
               jsons = list((root / name).rglob('*.json'))

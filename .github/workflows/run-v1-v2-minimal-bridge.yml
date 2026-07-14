@@ -1,19 +1,9 @@
 name: run_v1_v2_minimal_bridge
 
 on:
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
   workflow_dispatch:
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/run-v1-v2-minimal-bridge.yml"
-      - "src/island_v2/v1_v2_bridge_analysis.py"
-      - "src/island_v2/purpose_shortest_analysis.py"
-      - "src/island_v2/m0_m4_full_analysis.py"
-      - "src/island_v2/full_analysis_covariates.py"
-      - "config/integrated_trait_bombus_artifact_lock.json"
-      - "config/bombus_hypervolume_artifact_lock.json"
-      - "config/island_universe_artifact_lock.json"
-
 permissions:
   actions: read
   contents: read

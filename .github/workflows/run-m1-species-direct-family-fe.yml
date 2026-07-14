@@ -1,15 +1,9 @@
 name: run_m1_species_direct_family_fe
 
 on:
+  # Auto-triggers paused: manual dispatch only while the final
+  # cross-source trait pilot is being stabilized.
   workflow_dispatch:
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/run-m1-species-direct-family-fe.yml"
-      - "config/m1_species_direct_analysis.yml"
-      - "config/m1_species_direct_artifact_lock.json"
-      - "src/island_v2/m1_species_direct_family_fe.py"
-
 permissions:
   actions: read
   contents: read

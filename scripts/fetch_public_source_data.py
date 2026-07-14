@@ -44,9 +44,16 @@ SOURCES = {
         "hosts": {"sftp.kew.org"},
         "max_pages": 40,
     },
-    # TRY (try-db.org) is intentionally omitted: it exposes no anonymous bulk
-    # download — data is released only via an authenticated, per-request export —
-    # so a crawler cannot acquire real machine-readable data from it.
+    "try": {
+        "name": "TRY Plant Trait Database (public datasets)",
+        # The try-db.org root exposes no file links at depth 1, so the earlier
+        # crawl found nothing. Start on the public Data page, which links the
+        # openly released datasets (e.g. the Categorical Traits Dataset), and
+        # allow the whole try-db.org host so the crawler can follow to the files.
+        "start": "https://www.try-db.org/TryWeb/Data.php",
+        "hosts": {"www.try-db.org", "try-db.org"},
+        "max_pages": 120,
+    },
     "sid": {
         "name": "Kew Seed Information Database",
         "start": "https://ser-sid.org/",
