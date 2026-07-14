@@ -49,7 +49,19 @@ jobs:
             shard: 4
           - source: bien
             shard: 5
-          - source: verified-source-audit
+          - source: gift
+            shard: 0
+          - source: wfo-plant-list
+            shard: 0
+          - source: wfo
+            shard: 0
+          - source: powo
+            shard: 0
+          - source: efloras
+            shard: 0
+          - source: try
+            shard: 0
+          - source: sid
             shard: 0
     steps:
       - name: Checkout PR merge ref
@@ -99,8 +111,8 @@ jobs:
               export BIEN_SHARD_INDEX="$SHARD"
               Rscript scripts/fetch_bien_traits.R
               ;;
-            verified-source-audit)
-              python scripts/audit_verified_plant_sources.py
+            gift|wfo-plant-list|wfo|powo|efloras|try|sid)
+              python scripts/audit_verified_plant_sources.py --source "$SOURCE"
               ;;
             *)
               echo "Unknown source: $SOURCE" >&2
@@ -119,7 +131,10 @@ jobs:
             data/v2/staging/traits/bulk/leda/coverage_report.json
             data/v2/staging/traits/bulk/leda/file_coverage.csv
             data/v2/staging/traits/bulk/bien/
-            data/v2/staging/traits/bulk/verified_source_audit/
+            data/v2/staging/traits/bulk/verified_source_audit/${{ matrix.source }}/
+            data/v2/staging/traits/bulk/verified_source_audit/source_status.json
+            data/v2/staging/traits/bulk/verified_source_audit/source_status.csv
+            data/v2/staging/traits/bulk/verified_source_audit/discovered_machine_links.csv
           if-no-files-found: warn
           retention-days: 14
 
@@ -141,7 +156,7 @@ jobs:
           import json
           from pathlib import Path
           reports = []
-          for path in Path('collected-source-results').rglob('coverage_report*.json'):
+          for path in Path('collected-source-results').rglob('*.json'):
               try:
                   reports.append((str(path), json.loads(path.read_text(encoding='utf-8'))))
               except Exception as exc:
