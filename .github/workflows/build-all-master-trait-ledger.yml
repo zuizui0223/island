@@ -1,0 +1,171 @@
+name: Build all-master source-backed trait ledger
+
+on:
+  workflow_dispatch:
+    inputs:
+      eol_run_id:
+        description: Successful full EOL TraitBank workflow run ID
+        required: true
+        default: "29332758352"
+        type: string
+      austraits_run_id:
+        description: Successful full AusTraits target-trait workflow run ID
+        required: true
+        default: "29335900995"
+        type: string
+      efloras_run_id:
+        description: Completed eFloras production run ID; blank omits eFloras for an interim ledger
+        required: false
+        default: ""
+        type: string
+  pull_request:
+    paths:
+      - ".github/workflows/build-all-master-trait-ledger.yml"
+      - "config/acquisition_rate.yml"
+      - "src/island_v2/acquisition_rate_report.py"
+      - "src/island_v2/materialize_trait_artifacts.py"
+      - "tests/test_acquisition_rate_report.py"
+      - "tests/test_materialize_trait_artifacts.py"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: all-master-trait-ledger-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install focused dependencies
+        run: pip install -e ".[dev]"
+      - name: Test artifact materialization and exhaustive-ledger contract
+        run: |
+          pytest -q \
+            tests/test_materialize_trait_artifacts.py \
+            tests/test_acquisition_rate_report.py
+
+  materialize:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      EOL_RUN_ID: ${{ inputs.eol_run_id }}
+      AUSTRAITS_RUN_ID: ${{ inputs.austraits_run_id }}
+      EFLORAS_RUN_ID: ${{ inputs.efloras_run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Validate immutable source-run inputs
+        run: |
+          set -euo pipefail
+          [[ "$EOL_RUN_ID" =~ ^[0-9]+$ ]]
+          [[ "$AUSTRAITS_RUN_ID" =~ ^[0-9]+$ ]]
+          if [[ -n "$EFLORAS_RUN_ID" ]]; then [[ "$EFLORAS_RUN_ID" =~ ^[0-9]+$ ]]; fi
+      - name: Download exact source artifacts and metadata
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/source_artifacts/{eol,austraits,metadata}
+          gh run download "$EOL_RUN_ID" \
+            --repo "$GH_REPO" \
+            --name "eol-traitbank-bulk-$EOL_RUN_ID" \
+            --dir /tmp/source_artifacts/eol
+          gh run download "$AUSTRAITS_RUN_ID" \
+            --repo "$GH_REPO" \
+            --name "austraits-all-floral-bulk-$AUSTRAITS_RUN_ID" \
+            --dir /tmp/source_artifacts/austraits
+          gh api "repos/$GH_REPO/actions/runs/$EOL_RUN_ID/artifacts" \
+            > /tmp/source_artifacts/metadata/eol_artifacts.json
+          gh api "repos/$GH_REPO/actions/runs/$AUSTRAITS_RUN_ID/artifacts" \
+            > /tmp/source_artifacts/metadata/austraits_artifacts.json
+          if [[ -n "$EFLORAS_RUN_ID" ]]; then
+            mkdir -p /tmp/source_artifacts/efloras
+            gh run download "$EFLORAS_RUN_ID" \
+              --repo "$GH_REPO" \
+              --name efloras-all-floras-combined \
+              --dir /tmp/source_artifacts/efloras
+            gh api "repos/$GH_REPO/actions/runs/$EFLORAS_RUN_ID/artifacts" \
+              > /tmp/source_artifacts/metadata/efloras_artifacts.json
+          fi
+      - name: Materialize evidence-preserving candidates
+        run: |
+          set -euo pipefail
+          EFLORAS_ARGS=()
+          if [[ -n "$EFLORAS_RUN_ID" ]]; then
+            EFLORAS_ARGS=(--efloras-artifact-dir /tmp/source_artifacts/efloras)
+          fi
+          island-v2-materialize-trait-artifacts run \
+            --eol-artifact-dir /tmp/source_artifacts/eol \
+            --austraits-artifact-dir /tmp/source_artifacts/austraits \
+            --staging-root data/v2/staging/traits \
+            --output-dir /tmp/all_master_trait_ledger \
+            "${EFLORAS_ARGS[@]}"
+      - name: Build exhaustive all-master ledgers
+        run: |
+          island-v2-acquisition-rate run \
+            --config-path config/acquisition_rate.yml \
+            --output-dir /tmp/all_master_trait_ledger
+      - name: Verify population, evidence accounting, and report coverage
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          import pandas as pd
+
+          root = Path("/tmp/all_master_trait_ledger")
+          summary = json.loads((root / "acquisition_rate_summary.json").read_text(encoding="utf-8"))
+          materialized = json.loads((root / "materialization_manifest.json").read_text(encoding="utf-8"))
+          expected_sources = 3 if os.environ.get("EFLORAS_RUN_ID", "") else 2
+          assert materialized["source_count"] == expected_sources
+          assert summary["n_master_species_accounted"] == 115_328
+          assert summary["n_species_trait_cells_accounted"] == 1_499_264
+
+          species = pd.read_csv(root / "acquisition_status_by_species.csv.gz", dtype=str).fillna("")
+          cells = pd.read_csv(
+              root / "acquisition_status_by_species_trait.csv.gz", dtype=str
+          ).fillna("")
+          assert len(species) == 115_328
+          assert len(cells) == 1_499_264
+
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as handle:
+              handle.write("## All-master source-backed trait ledger\n\n")
+              handle.write(f"- master species retained: {len(species):,}\n")
+              handle.write(f"- species-trait cells retained: {len(cells):,}\n")
+              handle.write(f"- materialized bulk/flora sources: {expected_sources}\n")
+              for status, count in summary["species_acquisition_status_counts"].items():
+                  handle.write(f"- {status}: {count:,}\n")
+              handle.write("\n### Source-backed coverage by trait\n")
+              coverage = pd.read_csv(root / "acquisition_rate_by_trait.csv")
+              for row in coverage.itertuples(index=False):
+                  handle.write(f"- {row.trait_name}: {int(row.n_species_broad):,} species\n")
+          PY
+      - name: Upload exact candidates, metadata, and exhaustive ledgers
+        uses: actions/upload-artifact@v4
+        with:
+          name: all-master-trait-ledger-${{ github.run_id }}
+          path: |
+            /tmp/all_master_trait_ledger/
+            /tmp/source_artifacts/metadata/
+            data/v2/staging/traits/eol_traitbank/trait_candidates.csv
+            data/v2/staging/traits/bulk/austraits_all/trait_candidates.csv.gz
+            data/v2/staging/traits/efloras/combined/trait_candidates.csv
+          if-no-files-found: warn
+          retention-days: 90
