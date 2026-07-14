@@ -82,6 +82,10 @@ agent, a 120-second timeout, and up to six exponentially backed-off attempts.
 The GitHub workflow uses 1-2 second delays and at most four Flora jobs in
 parallel. It never launches a large single-host request burst.
 
+Browse pagination follows the page numbers advertised by the current eFloras
+node. It does not request a duplicate or empty page after the advertised last
+page.
+
 Both browse state and treatment state are checkpointed. A resumed run reuses
 completed treatment rows, retries transport-failed treatment requests, and
 deduplicates output keys. Shard assignment is deterministic after conservative

@@ -113,6 +113,47 @@ def test_listing_parser_follows_genus_to_species() -> None:
     assert row["genus"] == "Acanthus"
 
 
+def test_listing_entries_follow_advertised_pages_without_empty_probe() -> None:
+    task = efloras.BrowseTask(url="http://example.test/browse.aspx?flora_id=2", parent_rank="flora")
+    page_one = listing_html("Acanthaceae", "10002").replace(
+        "</body>", '<a href="browse.aspx?flora_id=2&amp;page=2">2</a></body>'
+    )
+    page_two = listing_html("Aizoaceae", "10020")
+
+    class FakeClient:
+        def __init__(self) -> None:
+            self.urls: list[str] = []
+
+        def get(self, url: str, stage: str) -> SimpleNamespace:
+            self.urls.append(url)
+            html = page_two if efloras.query_value(url, "page") == "2" else page_one
+            return SimpleNamespace(text=html, url=url)
+
+    client = FakeClient()
+    rows, pages = efloras.listing_entries(client, task, flora_id=2, max_pages=50)
+    assert [row["taxon_id"] for row in rows] == ["10002", "10020"]
+    assert pages == 2
+    assert len(client.urls) == 2
+
+
+def test_listing_entries_stop_after_one_page_when_no_pagination_is_advertised() -> None:
+    task = efloras.BrowseTask(url="http://example.test/browse.aspx?flora_id=2", parent_rank="flora")
+
+    class FakeClient:
+        def __init__(self) -> None:
+            self.urls: list[str] = []
+
+        def get(self, url: str, stage: str) -> SimpleNamespace:
+            self.urls.append(url)
+            return SimpleNamespace(text=listing_html("Acanthaceae", "10002"), url=url)
+
+    client = FakeClient()
+    rows, pages = efloras.listing_entries(client, task, flora_id=2, max_pages=50)
+    assert len(rows) == 1
+    assert pages == 1
+    assert len(client.urls) == 1
+
+
 def test_treatment_parser_requires_bold_heading_and_description() -> None:
     parsed = efloras.parse_treatment(
         '<span id="lblTaxonDesc">1. <b>Acanthus ebracteatus</b> Vahl. '

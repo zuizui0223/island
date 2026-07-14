@@ -482,6 +482,21 @@ def parse_listing_page(
     return parsed
 
 
+def advertised_listing_pages(page_html: str, page_url: str, task_url: str) -> set[int]:
+    """Return pagination links for exactly the current browse node."""
+    soup = BeautifulSoup(page_html, "html.parser")
+    target = canonical_browse_url(task_url)
+    pages: set[int] = set()
+    for link in soup.find_all("a", href=True):
+        absolute = urljoin(page_url, link["href"])
+        if "browse.aspx" not in absolute or canonical_browse_url(absolute) != target:
+            continue
+        page = query_value(absolute, "page")
+        if page.isdigit() and int(page) > 0:
+            pages.add(int(page))
+    return pages
+
+
 def listing_entries(
     client: Client,
     task: BrowseTask,
@@ -491,17 +506,23 @@ def listing_entries(
     found: dict[str, dict[str, str]] = {}
     signatures: set[tuple[str, ...]] = set()
     pages_visited = 0
-    for page_number in range(1, max_pages + 1):
+    page_number = 1
+    advertised_max = 1
+    while page_number <= min(max_pages, advertised_max):
         url = with_query(task.url, page=page_number)
         response = client.get(url, stage="browse")
         pages_visited += 1
         entries = parse_listing_page(response.text, response.url, flora_id, task)
+        advertised = advertised_listing_pages(response.text, response.url, task.url)
+        if advertised:
+            advertised_max = max(advertised_max, max(advertised))
         signature = tuple(entry["taxon_id"] for entry in entries)
         if not signature or signature in signatures:
             break
         signatures.add(signature)
         for entry in entries:
             found.setdefault(entry["taxon_id"], entry)
+        page_number += 1
     return list(found.values()), pages_visited
 
 
