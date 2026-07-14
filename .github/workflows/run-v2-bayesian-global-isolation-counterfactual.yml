@@ -1,0 +1,15 @@
+name: PAUSED -- superseded Bayesian counterfactual workflow
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  paused:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo 'This workflow is superseded.'
+          echo 'Use run-v2-bayesian-binary-pathway.yml.'
