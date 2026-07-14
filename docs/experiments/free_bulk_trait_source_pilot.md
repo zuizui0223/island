@@ -74,3 +74,24 @@ After promotion, the source should write the existing `candidate_long` contract 
 `data/v2/staging/traits/bulk/**/trait_candidates.csv*`, then the current fill cascade can
 consume it without changing the cascade algorithm. Direct evidence should replace
 fallback values; fallback remains only for unresolved cells.
+
+## Production promotion (2026-07-14)
+
+The validated eFLOWER component is now promoted through
+`.github/workflows/ingest-austraits-eflower-bulk.yml`. The production path verifies the
+Zenodo-declared archive MD5, records a SHA-256, maps only directly corresponding APD
+categories, writes review-pending source-backed candidates, and rebuilds the exhaustive
+Island acquisition ledger.
+
+The live v7.0.0 run against the 115,328-species master produced:
+
+- 30,650 eFLOWER source rows and 21,114 master-matched rows;
+- 2,589 source-backed candidate rows across 1,017 species;
+- 938 species with `flower_primary_color` evidence;
+- 594 species with `floral_symmetry` evidence;
+- zero empty source URLs, evidence excerpts, or source record IDs;
+- exactly 115,328 species rows and 1,499,264 species-trait rows in the resulting ledger.
+
+Continuous flower measurements, `disymmetric` perianths, and flower-level structural-sex
+states remain explicit unmapped audit rows. They are not coerced to flower-size classes,
+the narrower symmetry ontology, or species-level `sex_system` values.

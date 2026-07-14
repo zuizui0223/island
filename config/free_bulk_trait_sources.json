@@ -1,5 +1,5 @@
 {
-  "version": "0.3-experiment",
+  "version": "0.4-production",
   "sources": {
     "austraits_all_floral": {
       "status": "pilot",
@@ -33,7 +33,7 @@
       }
     },
     "austraits_eflower_dun_2022": {
-      "status": "validated_pilot",
+      "status": "production",
       "access": "open_bulk_download",
       "source_family": "AusTraits",
       "dataset_key": "eFLOWER_Dun_2022",
@@ -43,7 +43,13 @@
         "source_rows": 30650,
         "unique_source_taxa": 1865,
         "exact_island_master_matches": 1247,
-        "candidate_species_trait_cells_for_initial_four_traits": 2015
+        "candidate_species_trait_cells_for_initial_four_traits": 2015,
+        "production_candidate_rows": 2589,
+        "production_species_with_any_direct_evidence": 1017,
+        "flower_primary_color_species": 938,
+        "floral_symmetry_species": 594,
+        "archive_checksum_verified": true,
+        "archive_sha256": "2995fb9e5eebf9271f9241b5a6c2e2cbb7b45e8eda5ce4db43c14c68f95e2f3f"
       }
     }
   }

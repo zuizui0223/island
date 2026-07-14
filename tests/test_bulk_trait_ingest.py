@@ -96,9 +96,9 @@ def test_bulk_ingest_keeps_direct_evidence_and_audits_non_matches(tmp_path: Path
     assert set(candidates["candidate_kind"]) == {"source_backed"}
     assert set(candidates["evidence_scope"]) == {"species_direct"}
     assert set(candidates["review_status"]) == {"pending"}
-    assert candidates.loc[candidates["accepted_species"].eq("Poa annua"), "name_match_method"].item() == (
-        "accepted_name_author_stripped"
-    )
+    assert candidates.loc[
+        candidates["accepted_species"].eq("Poa annua"), "name_match_method"
+    ].item() == ("accepted_name_author_stripped")
 
     unmatched = pd.read_csv(report["unmatched_taxa_csv"], dtype=str).fillna("")
     assert unmatched["source_scientific_name"].tolist() == ["Poa annua subsp. annua"]
@@ -139,3 +139,63 @@ def test_bulk_ingest_rejects_unknown_source_profile(tmp_path: Path) -> None:
         assert "Unknown source profile" in str(error)
     else:
         raise AssertionError("Expected an unknown profile to fail explicitly")
+
+
+def test_austraits_eflower_maps_only_directly_corresponding_categories(tmp_path: Path) -> None:
+    master = tmp_path / "master.csv"
+    source = tmp_path / "austraits.csv"
+    _write_master(master)
+    pd.DataFrame(
+        [
+            {
+                "taxon_name": "Campanula microdonta",
+                "trait_name": "flower_colour",
+                "trait_value": "blue_purple",
+                "source_record_id": "a1",
+            },
+            {
+                "taxon_name": "Campanula microdonta",
+                "trait_name": "flower_perianth_symmetry",
+                "trait_value": "actinomorphic_general",
+                "source_record_id": "a2",
+            },
+            {
+                "taxon_name": "Campanula microdonta",
+                "trait_name": "flower_perianth_symmetry",
+                "trait_value": "disymmetric",
+                "source_record_id": "a3",
+            },
+            {
+                "taxon_name": "Campanula microdonta",
+                "trait_name": "flower_structural_sex_type",
+                "trait_value": "bisexual",
+                "source_record_id": "a4",
+            },
+        ]
+    ).to_csv(source, index=False)
+
+    report = ingest_bulk_traits(
+        master_csv=master,
+        source_csv=source,
+        output_dir=tmp_path / "output",
+        profiles_path=Path("config/bulk_trait_sources.yml"),
+        profile_name="austraits_eflower",
+        source_name="austraits_eflower_v7.0.0",
+        source_citation_override="AusTraits v7.0.0, eFLOWER_Dun_2022",
+        source_url_override="https://doi.org/10.5281/zenodo.15718081",
+    )
+
+    candidates = pd.read_csv(report["candidate_csv"], dtype=str).fillna("")
+    assert candidates[["trait_name", "standardized_value"]].to_dict("records") == [
+        {"trait_name": "flower_primary_color", "standardized_value": "blue_purple"},
+        {"trait_name": "floral_symmetry", "standardized_value": "actinomorphic"},
+    ]
+    assert candidates["source_url"].eq("https://doi.org/10.5281/zenodo.15718081").all()
+    assert candidates["evidence_excerpt"].str.contains("austraits_eflower").all()
+
+    unmapped = pd.read_csv(report["unmapped_values_csv"], dtype=str).fillna("")
+    assert set(unmapped["source_record_id"]) == {"a3", "a4"}
+    assert set(unmapped["reason"]) == {
+        "unmapped_trait_name",
+        "unmapped_or_invalid_trait_value",
+    }

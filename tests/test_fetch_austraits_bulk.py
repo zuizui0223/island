@@ -1,7 +1,11 @@
 import csv
+import hashlib
 from pathlib import Path
 
+import pytest
+
 from island_v2.fetch_austraits_bulk import (
+    _verify_declared_checksum,
     discover_long_trait_table,
     select_latest_release,
     select_plain_text_archive,
@@ -15,7 +19,9 @@ def test_selects_latest_release_and_zip_archive() -> None:
             "hits": [
                 {
                     "metadata": {"publication_date": "2024-01-01", "version": "5.0"},
-                    "files": [{"key": "austraits-5.0.rds", "links": {"self": "https://example/rds"}}],
+                    "files": [
+                        {"key": "austraits-5.0.rds", "links": {"self": "https://example/rds"}}
+                    ],
                 },
                 {
                     "metadata": {"publication_date": "2025-01-01", "version": "6.0"},
@@ -82,3 +88,13 @@ def test_discovers_and_standardizes_requested_dataset(tmp_path: Path) -> None:
     assert rows[0]["taxon_name"] == "Campanula punctata"
     assert rows[0]["trait_name"] == "flower_length"
     assert rows[0]["trait_unit"] == "mm"
+
+
+def test_verifies_declared_archive_checksum(tmp_path: Path) -> None:
+    archive = tmp_path / "austraits.zip"
+    archive.write_bytes(b"verified public archive")
+    expected = hashlib.md5(archive.read_bytes()).hexdigest()  # noqa: S324 - source checksum contract
+
+    assert _verify_declared_checksum(archive, f"md5:{expected}") is True
+    with pytest.raises(ValueError, match="checksum mismatch"):
+        _verify_declared_checksum(archive, "md5:00000000000000000000000000000000")
