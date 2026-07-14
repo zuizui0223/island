@@ -21,7 +21,7 @@ def _training(n: int = 100) -> pd.DataFrame:
     )
 
 
-def test_species_ellipsoidal_niche_scores_near_environment_higher_than_far() -> None:
+def test_species_hypervolume_scores_near_environment_higher_than_far() -> None:
     islands = pd.DataFrame(
         [
             {"island_id": "near", "bombus_species": "Bombus alpha", "bio1": 10.0, "bio5": 20.0, "bio12": 900.0},
@@ -34,9 +34,9 @@ def test_species_ellipsoidal_niche_scores_near_environment_higher_than_far() -> 
     assert result.loc["near", "model_status"] == "scored"
     assert result.loc["far", "model_status"] == "scored"
     assert result.loc["near", "environmental_compatibility"] > result.loc["far", "environmental_compatibility"]
-    assert bool(result.loc["near", "inside_ellipsoidal_envelope"])
-    assert not bool(result.loc["far", "inside_ellipsoidal_envelope"])
-    assert result.loc["near", "model_type"] == "regularized_ellipsoidal_environmental_niche"
+    assert bool(result.loc["near", "inside_hypervolume"])
+    assert not bool(result.loc["far", "inside_hypervolume"])
+    assert result.loc["near", "model_type"] == "ridge_regularized_mahalanobis_ellipsoidal_hypervolume"
 
 
 def test_insufficient_species_occurrences_remain_unresolved() -> None:
@@ -47,7 +47,7 @@ def test_insufficient_species_occurrences_remain_unresolved() -> None:
     result = score_niche_hypervolumes(
         occurrences, islands, environment_columns=["bio1", "bio5", "bio12"], min_occurrences=50
     ).iloc[0]
-    assert result["model_status"] == "insufficient_occurrences_after_quality_filtering"
+    assert result["model_status"] == "insufficient_occurrences"
     assert pd.isna(result["environmental_compatibility"])
 
 
@@ -91,19 +91,21 @@ def test_constant_environment_dimension_is_reported_and_dropped() -> None:
         occurrences, islands, environment_columns=["bio1", "bio5", "bio12", "constant"], min_occurrences=50
     ).iloc[0]
     assert result["model_status"] == "scored"
-    assert result["n_environmental_dimensions_active"] == 3
+    assert result["n_environmental_dimensions"] == 3
     assert result["n_environmental_dimensions_requested"] == 4
     assert result["dropped_environmental_dimensions"] == "constant"
 
 
-def test_correlated_dimensions_are_reduced_by_pca() -> None:
+def test_correlated_dimensions_are_stabilized_by_ridge_regularization() -> None:
     islands = pd.DataFrame(
         [{"island_id": "i1", "bombus_species": "Bombus alpha", "bio1": 10.0, "bio5": 20.0, "bio12": 900.0}]
     )
     result = score_niche_hypervolumes(
         _training(), islands, environment_columns=["bio1", "bio5", "bio12"], min_occurrences=50
     ).iloc[0]
-    assert int(result["n_pca_dimensions"]) < int(result["n_environmental_dimensions_active"])
+    assert result["model_status"] == "scored"
+    assert np.isfinite(float(result["covariance_condition_number"]))
+    assert 0.0 <= float(result["environmental_compatibility"]) <= 1.0
 
 
 def test_duplicate_island_species_targets_are_rejected() -> None:
