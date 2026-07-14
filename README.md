@@ -1,80 +1,62 @@
-# Island floral syndrome  -  v2
+# Island floral syndrome — v2
 
-This repository is organized around a reproducible v2 pipeline for a
-**conditional** island floral-syndrome analysis. It does not assume that islands
-share one universal Bombus-driven white-flower or inconspicuous-flower syndrome.
+This repository supports a global comparative analysis of island floral and reproductive composition. The working hypothesis is **conditional**, not universal: island isolation may be associated with different floral outcomes in different pollination regimes, and a Bombus-channel hypothesis is evaluated only where that channel is biologically interpretable.
 
-The framework first asks how isolation, source pools, establishment, observation
-processes, and pollination-function regimes shape whole-flora pollen-vector and
-reproductive-assurance composition. It then tests a Bombus-channel hypothesis
-only where Bombus is biologically applicable to the island's predeclared
-source-region context.
+The analysis does **not** treat absence of a Bombus record as pollinator loss and does not claim that cross-sectional island associations prove causal floral evolution.
+
+## Manuscript status
+
+The repository contains substantial development history. For submission, a result is canonical only when it follows the rules in:
+
+- [`docs/manuscript_submission_contract.md`](docs/manuscript_submission_contract.md) — submission surface, evidence-tier rules, model safeguards, and archival requirements;
+- [`docs/v2_pollination_regime_framework.md`](docs/v2_pollination_regime_framework.md) — scientific scope and conditional pollination-regime framework;
+- [`docs/v2_channel_architecture.md`](docs/v2_channel_architecture.md) — channel measurement architecture;
+- [`config/bombus_applicability.yml`](config/bombus_applicability.yml) — outcome-blind applicability rules.
+
+Historical pilots, scouting workflows, alternative model variants, and acquisition experiments are development records, not manuscript methods unless explicitly promoted into the submission contract.
+
+## Reproducible data path
 
 ```text
 frozen exact island universe
--> GBIF download blocks and campaign ledger
--> archive collection and exact point-in-polygon assignment
--> flora and Bombus observation-process diagnostics
--> bulk taxonomic / trait evidence tables
--> coverage and attrition audit
--> conditional island-level inference
+→ exact point-in-polygon flora assignment
+→ locked trait evidence with explicit evidence tier
+→ locked geographic/environmental covariates
+→ Bombus environmental/occurrence diagnostics with provenance
+→ attrition and model-support audit
+→ global composition analysis
+→ northern-midlatitude conditional Bombus analysis
+→ declared sensitivity analyses
 ```
 
-The governing design documents are:
+## Evidence tiers
 
-- [`docs/v2_pollination_regime_framework.md`](docs/v2_pollination_regime_framework.md)  -  scientific scope, island strata, preregistration, models, and continuation rules;
-- [`docs/v2_channel_architecture.md`](docs/v2_channel_architecture.md)  -  compact channel-audit architecture;
-- [`docs/v2_trait_acquisition_quantitative_plan.md`](docs/v2_trait_acquisition_quantitative_plan.md)  -  category-first trait acquisition with optional quantitative enrichment;
-- [`config/bombus_applicability.yml`](config/bombus_applicability.yml)  -  outcome-blind rule for the biological applicability of the Bombus hypothesis;
-- [`config/bombus_observation_diagnostics.yml`](config/bombus_observation_diagnostics.yml)  -  effort-aware Bombus detection and non-detection policy.
+Complete fill is not complete evidence. Trait resolution must remain visible in every analysis.
 
-## Active code
+- **Confirmatory:** direct source-backed species evidence.
+- **Secondary robustness:** taxonomic inference at genus/family level.
+- **Sensitivity only:** global fallback.
 
-- `src/island_v2/`  -  v2 Python package
-- `config/`  -  current data-acquisition and inference configuration
-- `data/v2/`  -  external, staging, curated, and template data layers
-- `docs/`  -  v2 architecture, data policy, and operational notes
-- `.github/workflows/`  -  validation, GBIF submission/polling/collection, and manual trait acquisition
+The `sensitivity_all` layer may be useful for stress-testing conclusions, but it is not itself confirmatory evidence.
 
-## Global trait acquisition
+## Bombus interpretation boundary
 
-The expected species master is too large for one-by-one web or LLM retrieval to
-be the global coverage path. The primary route is a downloaded, public bulk trait
-source joined to `island_taxa.csv` with a source-specific codebook profile.
+The retained environmental-niche estimator measures climatic-environmental compatibility. It is not realized occurrence probability, source-pool membership, abundance, visitation rate, pollination service, or evidence of historical loss.
 
-`ingest_bulk_trait_source` is the manual GitHub Actions workflow for this route.
-It needs a direct source-download URL and **no OpenAI key**. Each run creates
-pending source-backed candidates plus taxon-match, unmapped-code, trait-coverage,
-and family-coverage audits as an artifact. It never commits downloaded data or
-curates trait values automatically. Details are in
-[`docs/bulk_trait_acquisition.md`](docs/bulk_trait_acquisition.md).
+A global all-species environmental maximum is diagnostic only. Any analysis-ready Bombus predictor must carry explicit provenance and satisfy the downstream semantic guardrails.
 
-Low-confidence is not the same as wrong. Declared weak-source and taxonomic
-inference candidates remain auditable in the broad track, while logical errors
-such as inferring autonomous selfing from self-compatibility alone are quarantined.
+## Repository layout
 
-The single scoreboard for how far acquisition has actually got is
-`island-v2-acquisition-rate`, which unions every channel against the master
-species set and reports the broad, source-backed coverage rate per trait. It is
-the confirm-instrument for the rate-first workflow: land a source, rerun, read
-the delta. Details are in
-[`docs/acquisition_rate_report.md`](docs/acquisition_rate_report.md).
+- `src/island_v2/` — reusable v2 data and analysis utilities
+- `analysis/v2/` — statistical analysis scripts
+- `config/` — frozen contracts, ontology, and artifact locks
+- `data/v2/` — external/staging/curated/template data layers
+- `docs/` — scientific design, data policy, methods, and reproducibility notes
+- `.github/workflows/` — active validation, materialization, and analysis workflows
+- `legacy/v1/` — frozen v1 provenance only
 
-For yield-first coverage, `island-v2-trait-fill-cascade` fills every master
-species-trait by a source-blind taxonomic ladder
-(`species_direct -> synonym -> genus -> family -> global_fallback`), driving the
-9-column `unknown` toward zero while tagging each fill with `fill_tier`,
-`evidence_scope`, and `confidence` so resolution stays a downstream sensitivity
-axis rather than an acquisition gate. Details are in
-[`docs/trait_fill_cascade.md`](docs/trait_fill_cascade.md).
+## Reproducibility rule before submission
 
-## Frozen v1
+GitHub Actions artifacts are temporary and are not a permanent supplement. The manuscript release must archive all critical inputs and outputs durably, record checksums, identify one canonical workflow per main analysis, and report the attrition from the frozen 8,265-island universe to every fitted model.
 
-The original standalone R analysis is preserved without edits under
-[`legacy/v1/`](legacy/v1/). It is retained for provenance and is not part of
-the active v2 workflow.
-
-## Current campaign rule
-
-GBIF request catchments are used only to retrieve candidate records. Final
-assignment is always against the original, exact island polygons.
+GBIF request catchments are retrieval devices only. Final occurrence assignment is always against the original exact island polygons.
