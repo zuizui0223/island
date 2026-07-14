@@ -1,24 +1,20 @@
-name: Trigger free bulk trait pilot
+name: Free bulk trait pilot check
 
 on:
   pull_request:
-    types: [closed]
     branches: [main]
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
-  pull-requests: read
 
 jobs:
-  run-pilot:
-    if: github.event.pull_request.merged == true && github.event.pull_request.number == 119
+  free-bulk-trait-pilot:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - name: Checkout merged main
+      - name: Checkout PR merge ref
         uses: actions/checkout@v4
-        with:
-          ref: main
 
       - uses: actions/setup-python@v5
         with:
