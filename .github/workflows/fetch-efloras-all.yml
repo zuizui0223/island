@@ -1,0 +1,128 @@
+name: Fetch all eFloras floral traits
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_species:
+        description: Maximum matched species per flora; 0 means no limit
+        required: false
+        default: '200'
+      flora_ids:
+        description: Informational only; edit matrix to change flora IDs
+        required: false
+        default: '1-12'
+  push:
+    paths:
+      - scripts/fetch_efloras_traits.py
+      - .github/workflows/fetch-efloras-all.yml
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        flora_id: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install scraper dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests beautifulsoup4
+
+      - name: Fetch species treatments and extract floral traits
+        env:
+          FLORA_ID: ${{ matrix.flora_id }}
+          INPUT_MAX_SPECIES: ${{ github.event.inputs.max_species }}
+        run: |
+          set -euo pipefail
+          MAX_SPECIES="${INPUT_MAX_SPECIES:-200}"
+          python scripts/fetch_efloras_traits.py \
+            --flora-id "$FLORA_ID" \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --master-name-column accepted_species \
+            --max-species "$MAX_SPECIES" \
+            --max-pages 30 \
+            --max-depth 6 \
+            --delay-min 1.5 \
+            --delay-max 3.5
+
+      - name: Print coverage
+        if: always()
+        run: |
+          REPORT="data/v2/staging/traits/bulk/efloras/flora-${{ matrix.flora_id }}/coverage_report.json"
+          if [ -f "$REPORT" ]; then
+            cat "$REPORT"
+          else
+            echo "No coverage report produced for flora ${{ matrix.flora_id }}"
+          fi
+
+      - name: Upload flora result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: efloras-flora-${{ matrix.flora_id }}
+          path: data/v2/staging/traits/bulk/efloras/flora-${{ matrix.flora_id }}/
+          if-no-files-found: warn
+          retention-days: 30
+
+  collect:
+    if: always()
+    needs: fetch
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: efloras-flora-*
+          path: collected-efloras
+          merge-multiple: false
+
+      - name: Build combined coverage summary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          reports = []
+          for path in sorted(Path('collected-efloras').rglob('coverage_report.json')):
+              try:
+                  reports.append(json.loads(path.read_text(encoding='utf-8')))
+              except Exception as exc:
+                  reports.append({'path': str(path), 'read_error': str(exc)})
+
+          totals = {
+              'flora_reports': len(reports),
+              'species_discovered_sum': sum(r.get('species_discovered', 0) for r in reports),
+              'master_species_selected_sum': sum(r.get('master_species_selected', 0) for r in reports),
+              'species_treatments_saved_sum': sum(r.get('species_treatments_saved', 0) for r in reports),
+              'species_with_trait_candidates_sum': sum(r.get('species_with_trait_candidates', 0) for r in reports),
+              'trait_candidate_rows_sum': sum(r.get('trait_candidate_rows', 0) for r in reports),
+              'reports': reports,
+          }
+          Path('collected-efloras/combined_coverage.json').write_text(
+              json.dumps(totals, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps(totals, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Upload combined eFloras result
+        uses: actions/upload-artifact@v4
+        with:
+          name: efloras-all-floras-combined
+          path: collected-efloras/
+          retention-days: 30
