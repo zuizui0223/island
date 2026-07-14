@@ -49,15 +49,15 @@ jobs:
             shard: 4
           - source: bien
             shard: 5
-          - source: gift
-            shard: 0
           - source: wfo-plant-list
+            shard: 0
+          - source: efloras
+            shard: 0
+          - source: gift
             shard: 0
           - source: wfo
             shard: 0
           - source: powo
-            shard: 0
-          - source: efloras
             shard: 0
           - source: try
             shard: 0
@@ -117,7 +117,10 @@ jobs:
               export BIEN_SHARD_INDEX="$SHARD"
               Rscript scripts/fetch_bien_traits.R
               ;;
-            gift|wfo-plant-list|wfo|powo|efloras|try|sid)
+            wfo-plant-list|efloras)
+              python scripts/fetch_public_flora_real_data.py --source "$SOURCE"
+              ;;
+            gift|wfo|powo|try|sid)
               python scripts/audit_verified_plant_sources.py --source "$SOURCE"
               ;;
             *)
@@ -137,6 +140,8 @@ jobs:
             data/v2/staging/traits/bulk/leda/coverage_report.json
             data/v2/staging/traits/bulk/leda/file_coverage.csv
             data/v2/staging/traits/bulk/bien/
+            data/v2/staging/traits/bulk/wfo-plant-list/
+            data/v2/staging/traits/bulk/efloras/
             data/v2/staging/traits/bulk/verified_source_audit/${{ matrix.source }}/
             data/v2/staging/traits/bulk/verified_source_audit/source_status.json
             data/v2/staging/traits/bulk/verified_source_audit/source_status.csv
