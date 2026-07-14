@@ -2,7 +2,7 @@
   "version": "0.5-production",
   "sources": {
     "austraits_all_floral": {
-      "status": "production_ready",
+      "status": "production",
       "access": "open_bulk_download",
       "source_family": "AusTraits",
       "dataset_key": null,
@@ -42,7 +42,12 @@
         "floral_symmetry_species": 741,
         "sex_system_species": 8334,
         "pollen_vector_mode_species": 3577,
-        "pollination_functional_guild_species": 3953
+        "pollination_functional_guild_species": 3953,
+        "production_run_id": 29335900995,
+        "artifact_id": 8311986936,
+        "artifact_digest": "sha256:c53729a1c5f47892226331fb2707c17ab6335d90d6c524ce65dbbccd291d131c",
+        "combined_with_eol_partial_source_backed_species": 12217,
+        "combined_with_eol_eligible_species_without_candidate": 94063
       }
     },
     "austraits_eflower_dun_2022": {

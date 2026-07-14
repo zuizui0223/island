@@ -105,7 +105,9 @@ perianth colour, perianth symmetry, whole-plant sex type, pollination syndrome, 
 pollination system. The original AusTraits component dataset remains embedded in every
 source record ID.
 
-The full local production-equivalent join produced 31,647 candidates across 9,464 species:
+The full GitHub production run
+[`29335900995`](https://github.com/zuizui0223/island/actions/runs/29335900995)
+produced 31,647 candidates across 9,464 species:
 
 - `sex_system`: 8,334 species;
 - `pollination_functional_guild`: 3,953 species;
@@ -117,3 +119,7 @@ All 65 observed `flower_colour` labels have explicit profile mappings. Unsupport
 abiotic/self combinations, `disymmetric`, unknown sex type, rare pollination, and
 unidentified specialised-biotic codes remain in the unmapped audit. No missing source
 code is guessed.
+
+Its 90-day artifact is `austraits-all-floral-bulk-29335900995` (artifact ID
+`8311986936`, digest
+`sha256:c53729a1c5f47892226331fb2707c17ab6335d90d6c524ce65dbbccd291d131c`).
