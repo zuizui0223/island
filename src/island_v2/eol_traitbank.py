@@ -329,6 +329,7 @@ def _write_counter(counter: Counter[tuple[str, str, str, str, str]], path: Path)
 def prepare_eol_traitbank_long(
     *,
     eol_archive: Path,
+    eol_content_dir: Path | None = None,
     output_dir: Path,
     config_path: Path,
     ontology_path: Path = Path("config/trait_ontology.yml"),
@@ -339,6 +340,11 @@ def prepare_eol_traitbank_long(
     """Stream EOL TraitBank all-traits export into reviewed v2 long rows."""
     if not eol_archive.exists():
         raise typer.BadParameter(f"EOL archive does not exist: {eol_archive}")
+    content_path = eol_content_dir or eol_archive
+    if not content_path.exists():
+        raise typer.BadParameter(f"EOL extracted content does not exist: {content_path}")
+    if eol_content_dir is not None and not eol_content_dir.is_dir():
+        raise typer.BadParameter(f"EOL extracted content must be a directory: {eol_content_dir}")
     if chunksize < 1:
         raise typer.BadParameter("chunksize must be positive.")
     if max_trait_rows is not None and max_trait_rows < 1:
@@ -349,8 +355,8 @@ def prepare_eol_traitbank_long(
     ontology = _load_ontology(ontology_path)
     rules = _validate_rules(config, ontology)
     predicate_index = _predicate_index(rules)
-    pages = _read_pages(eol_archive)
-    terms = _read_terms(eol_archive)
+    pages = _read_pages(content_path)
+    terms = _read_terms(content_path)
 
     long_path = output_dir / "eol_traitbank_v2_long.csv"
     unmapped_path = output_dir / "eol_traitbank_unmapped_terms.csv"
@@ -370,7 +376,7 @@ def prepare_eol_traitbank_long(
     n_unmapped_value = 0
     header_written = False
 
-    with _open_archive_member(eol_archive, "traits.csv") as handle:
+    with _open_archive_member(content_path, "traits.csv") as handle:
         reader = pd.read_csv(handle, dtype=str, chunksize=chunksize)
         for chunk in reader:
             chunk = chunk.fillna("")
@@ -497,6 +503,7 @@ def prepare_eol_traitbank_long(
         "dataset_url": dataset_url,
         "eol_archive": str(eol_archive),
         "eol_archive_sha256": _sha256_file(eol_archive),
+        "eol_content_path": str(content_path),
         "config_path": str(config_path),
         "ontology_path": str(ontology_path),
         "n_pages": len(pages),

@@ -43,6 +43,19 @@ Outputs:
   coverage and rate.
 - `acquisition_rate_by_track.csv` — per-channel species reach and species-trait
   pair counts.
+- `acquisition_status_by_species.csv.gz` - exactly one row for every master
+  name, including rows with no candidate, with an explicit acquisition status,
+  unresolved reason, and missing-trait list.
+- `acquisition_status_by_species_trait.csv.gz` - the complete master x reported
+  trait ledger. Every cell is `source_backed_candidate`,
+  `candidate_non_source_backed_only`, or `no_candidate_yet`; the latter two
+  retain an explicit unresolved reason and are never interpreted as biological
+  absence.
+
+Both ledgers retain all 115,328 master rows. For the 9,033 non-angiosperm or
+family-unresolved rows, angiosperm-only floral and pollination cells are marked
+`not_applicable_taxonomic_scope`; they are not discarded and are not counted as
+failed lookups.
 
 ## Configuration
 

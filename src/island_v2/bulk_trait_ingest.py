@@ -87,7 +87,9 @@ def _profile(config: dict[str, Any], profile_name: str) -> dict[str, Any]:
     columns = profile.get("columns") or {}
     missing = PROFILE_REQUIRED_COLUMNS.difference(columns)
     if missing:
-        raise typer.BadParameter(f"Profile '{profile_name}' lacks required column mappings: {sorted(missing)}")
+        raise typer.BadParameter(
+            f"Profile '{profile_name}' lacks required column mappings: {sorted(missing)}"
+        )
     return profile
 
 
@@ -102,7 +104,9 @@ def _load_master(path: Path) -> pd.DataFrame:
     master = master.loc[master["accepted_species"].ne("")].copy()
     master["n_islands"] = pd.to_numeric(master["n_islands"], errors="coerce").fillna(0).astype(int)
     master["n_records"] = pd.to_numeric(master["n_records"], errors="coerce").fillna(0).astype(int)
-    master = master.drop_duplicates(subset=["accepted_species"], keep="first").reset_index(drop=True)
+    master = master.drop_duplicates(subset=["accepted_species"], keep="first").reset_index(
+        drop=True
+    )
     master["_exact_key"] = master["accepted_species"].map(_key)
     master["_binomial_key"] = master["accepted_species"].map(_binomial_key)
     return master
@@ -118,7 +122,9 @@ def _unique_index(table: pd.DataFrame, key_column: str) -> dict[str, int]:
     }
 
 
-def _match_species(source_name: Any, exact_index: dict[str, int], binomial_index: dict[str, int]) -> tuple[int | None, str]:
+def _match_species(
+    source_name: Any, exact_index: dict[str, int], binomial_index: dict[str, int]
+) -> tuple[int | None, str]:
     exact = _key(source_name)
     if exact in exact_index:
         return exact_index[exact], "accepted_name_exact"
@@ -136,17 +142,23 @@ def _optional_value(row: pd.Series, source_column: Any) -> str:
 
 def _trait_name(raw_name: str, profile: dict[str, Any], ontology: dict[str, Any]) -> str | None:
     key = _key(raw_name)
-    mapping = {_key(source): target for source, target in (profile.get("trait_name_map") or {}).items()}
+    mapping = {
+        _key(source): target for source, target in (profile.get("trait_name_map") or {}).items()
+    }
     candidate = mapping.get(key, raw_name)
     candidate = _normalise_text(candidate)
     return candidate if candidate in (ontology.get("traits") or {}) else None
 
 
-def _trait_value(raw_value: str, trait_name: str, profile: dict[str, Any], ontology: dict[str, Any]) -> str | None:
+def _trait_value(
+    raw_value: str, trait_name: str, profile: dict[str, Any], ontology: dict[str, Any]
+) -> str | None:
     trait_map = (profile.get("trait_value_map") or {}).get(trait_name) or {}
     mapping = {_key(source): _normalise_text(target) for source, target in trait_map.items()}
     candidate = mapping.get(_key(raw_value), _normalise_text(raw_value))
-    allowed = set(((ontology.get("traits") or {}).get(trait_name) or {}).get("allowed_values") or [])
+    allowed = set(
+        ((ontology.get("traits") or {}).get(trait_name) or {}).get("allowed_values") or []
+    )
     return candidate if candidate in allowed else None
 
 
@@ -159,7 +171,10 @@ def _role_by_trait(config: dict[str, Any]) -> dict[str, str]:
 
 
 def _validate_source_defaults(profile: dict[str, Any]) -> dict[str, str]:
-    defaults = {str(key): _normalise_text(value) for key, value in (profile.get("source_defaults") or {}).items()}
+    defaults = {
+        str(key): _normalise_text(value)
+        for key, value in (profile.get("source_defaults") or {}).items()
+    }
     source_type = defaults.get("source_type", "")
     reliability = defaults.get("source_reliability", "")
     if source_type not in {item.value for item in SourceType}:
@@ -247,7 +262,9 @@ def ingest_bulk_traits(
         source_scientific_name = _optional_value(source_row, columns["scientific_name"])
         source_trait_name = _optional_value(source_row, columns["trait_name"])
         source_trait_value = _optional_value(source_row, columns["trait_value"])
-        master_index, match_method = _match_species(source_scientific_name, exact_index, binomial_index)
+        master_index, match_method = _match_species(
+            source_scientific_name, exact_index, binomial_index
+        )
         record_id = _optional_value(source_row, columns.get("source_record_id")) or str(row_number)
         base_audit = {
             "source_name": source_name,
@@ -273,7 +290,13 @@ def ingest_bulk_traits(
         )
         canonical_trait = _trait_name(source_trait_name, profile, ontology)
         if canonical_trait is None:
-            unmapped.append({**base_audit, "accepted_species": master_row["accepted_species"], "reason": "unmapped_trait_name"})
+            unmapped.append(
+                {
+                    **base_audit,
+                    "accepted_species": master_row["accepted_species"],
+                    "reason": "unmapped_trait_name",
+                }
+            )
             continue
         canonical_value = _trait_value(source_trait_value, canonical_trait, profile, ontology)
         if canonical_value is None:
@@ -287,7 +310,11 @@ def ingest_bulk_traits(
             )
             continue
 
-        row_citation = _optional_value(source_row, columns.get("source_citation")) or source_citation_override or source_name
+        row_citation = (
+            _optional_value(source_row, columns.get("source_citation"))
+            or source_citation_override
+            or source_name
+        )
         row_url = _optional_value(source_row, columns.get("source_url")) or source_url_override
         excerpt = _optional_value(source_row, columns.get("evidence_excerpt"))
         if not excerpt:
@@ -324,11 +351,19 @@ def ingest_bulk_traits(
     candidate_table = pd.DataFrame(candidates, columns=_candidate_columns())
     if not candidate_table.empty:
         candidate_table = candidate_table.drop_duplicates(
-            subset=["accepted_species", "trait_name", "standardized_value", "source_name", "source_record_id"],
+            subset=[
+                "accepted_species",
+                "trait_name",
+                "standardized_value",
+                "source_name",
+                "source_record_id",
+            ],
             keep="first",
         )
     match_table = pd.DataFrame(matches)
-    unmatched_table = match_table.loc[match_table.get("match_status", pd.Series(dtype=str)).eq("unmatched")].copy()
+    unmatched_table = match_table.loc[
+        match_table.get("match_status", pd.Series(dtype=str)).eq("unmatched")
+    ].copy()
     unmapped_table = pd.DataFrame(unmapped)
 
     source_slug = re.sub(r"[^A-Za-z0-9_.-]+", "_", source_name).strip("_") or "bulk_source"
@@ -344,8 +379,12 @@ def ingest_bulk_traits(
     total_species = len(master)
     total_pairs = int(master["n_islands"].sum())
     coverage_rows: list[dict[str, Any]] = []
-    for trait_name in (ontology.get("traits") or {}):
-        selected = candidate_table.loc[candidate_table["trait_name"].eq(trait_name)] if not candidate_table.empty else candidate_table
+    for trait_name in ontology.get("traits") or {}:
+        selected = (
+            candidate_table.loc[candidate_table["trait_name"].eq(trait_name)]
+            if not candidate_table.empty
+            else candidate_table
+        )
         species = set(selected["accepted_species"].tolist()) if not selected.empty else set()
         covered_master = master.loc[master["accepted_species"].isin(species)]
         covered_pairs = int(covered_master["n_islands"].sum()) if not covered_master.empty else 0
@@ -357,10 +396,14 @@ def ingest_bulk_traits(
                 "n_candidate_rows": int(len(selected)),
                 "n_species_with_direct_evidence": len(species),
                 "n_master_species": total_species,
-                "pct_master_species_covered": round(100 * len(species) / total_species, 6) if total_species else 0.0,
+                "pct_master_species_covered": round(100 * len(species) / total_species, 6)
+                if total_species
+                else 0.0,
                 "n_island_species_pairs_covered": covered_pairs,
                 "n_master_island_species_pairs": total_pairs,
-                "pct_island_species_pairs_covered": round(100 * covered_pairs / total_pairs, 6) if total_pairs else 0.0,
+                "pct_island_species_pairs_covered": round(100 * covered_pairs / total_pairs, 6)
+                if total_pairs
+                else 0.0,
             }
         )
     coverage_table = pd.DataFrame(coverage_rows)
@@ -369,7 +412,9 @@ def ingest_bulk_traits(
 
     family_rows: list[dict[str, Any]] = []
     if not candidate_table.empty:
-        for (family, trait_name), group in candidate_table.groupby(["family", "trait_name"], dropna=False):
+        for (family, trait_name), group in candidate_table.groupby(
+            ["family", "trait_name"], dropna=False
+        ):
             species = set(group["accepted_species"])
             family_master = master.loc[master["family"].eq(family)]
             family_rows.append(
@@ -380,8 +425,14 @@ def ingest_bulk_traits(
                     "analysis_role": roles.get(trait_name, "unclassified"),
                     "n_species_with_direct_evidence": len(species),
                     "n_master_species_in_family": int(len(family_master)),
-                    "pct_family_species_covered": round(100 * len(species) / len(family_master), 6) if len(family_master) else 0.0,
-                    "n_island_species_pairs_covered": int(family_master.loc[family_master["accepted_species"].isin(species), "n_islands"].sum()),
+                    "pct_family_species_covered": round(100 * len(species) / len(family_master), 6)
+                    if len(family_master)
+                    else 0.0,
+                    "n_island_species_pairs_covered": int(
+                        family_master.loc[
+                            family_master["accepted_species"].isin(species), "n_islands"
+                        ].sum()
+                    ),
                 }
             )
     family_coverage_path = output_dir / f"bulk_trait_coverage_by_family_{source_slug}.csv"
@@ -394,11 +445,15 @@ def ingest_bulk_traits(
         "source_sha256": _sha256_file(source_csv),
         "master_path": str(master_csv),
         "n_source_rows": int(len(source)),
-        "n_name_matched_rows": int(match_table.get("match_status", pd.Series(dtype=str)).eq("matched").sum()),
+        "n_name_matched_rows": int(
+            match_table.get("match_status", pd.Series(dtype=str)).eq("matched").sum()
+        ),
         "n_unmatched_taxon_rows": int(len(unmatched_table)),
         "n_unmapped_value_rows": int(len(unmapped_table)),
         "n_candidate_rows": int(len(candidate_table)),
-        "n_species_with_any_direct_evidence": int(candidate_table["accepted_species"].nunique()) if not candidate_table.empty else 0,
+        "n_species_with_any_direct_evidence": int(candidate_table["accepted_species"].nunique())
+        if not candidate_table.empty
+        else 0,
         "n_master_species": total_species,
         "candidate_csv": str(candidate_path),
         "name_match_csv": str(match_path),
@@ -419,12 +474,18 @@ def ingest_bulk_traits(
 def ingest(
     master_csv: Path = typer.Option(..., exists=True, help="Current island species master CSV."),
     source_csv: Path = typer.Option(..., exists=True, help="Downloaded long-format trait CSV/TSV."),
-    output_dir: Path = typer.Option(..., help="Directory for pending candidates and coverage audits."),
+    output_dir: Path = typer.Option(
+        ..., help="Directory for pending candidates and coverage audits."
+    ),
     profiles_path: Path = typer.Option(Path("config/bulk_trait_sources.yml"), exists=True),
     profile_name: str = typer.Option("v2_canonical_long_csv", help="Named source profile in YAML."),
     source_name: str = typer.Option(..., help="Stable short name for this source version."),
-    source_citation: str = typer.Option("", help="Dataset-level citation used when a row does not provide one."),
-    source_url: str = typer.Option("", help="Dataset-level URL used when a row does not provide one."),
+    source_citation: str = typer.Option(
+        "", help="Dataset-level citation used when a row does not provide one."
+    ),
+    source_url: str = typer.Option(
+        "", help="Dataset-level URL used when a row does not provide one."
+    ),
 ) -> None:
     """Match a bulk source to the global master and write pending evidence plus coverage."""
     report = ingest_bulk_traits(
@@ -453,19 +514,39 @@ def profiles(
 
 @app.command("prepare-eol")
 def prepare_eol(
-    eol_archive: Path = typer.Option(..., exists=True, help="EOL traits_all.zip or extracted archive directory."),
-    output_dir: Path = typer.Option(..., help="Directory for EOL long CSV and unmapped-term audit."),
+    eol_archive: Path = typer.Option(
+        ..., exists=True, help="EOL traits_all.zip or extracted archive directory."
+    ),
+    eol_content_dir: Path | None = typer.Option(
+        None,
+        exists=True,
+        file_okay=False,
+        help=(
+            "Optional separately extracted archive directory. This avoids Python ZIP "
+            "streaming for very large exports while retaining the original archive checksum."
+        ),
+    ),
+    output_dir: Path = typer.Option(
+        ..., help="Directory for EOL long CSV and unmapped-term audit."
+    ),
     config_path: Path = typer.Option(Path("config/eol_traitbank_terms.yml"), exists=True),
     ontology_path: Path = typer.Option(Path("config/trait_ontology.yml"), exists=True),
-    source_name: str = typer.Option("eol_traitbank_all", help="Stable source/release name for manifests."),
-    chunksize: int = typer.Option(200_000, min=1, help="traits.csv rows streamed per pandas chunk."),
-    max_trait_rows: int | None = typer.Option(None, min=1, help="Optional smoke-test cap; omit for full archive."),
+    source_name: str = typer.Option(
+        "eol_traitbank_all", help="Stable source/release name for manifests."
+    ),
+    chunksize: int = typer.Option(
+        200_000, min=1, help="traits.csv rows streamed per pandas chunk."
+    ),
+    max_trait_rows: int | None = typer.Option(
+        None, min=1, help="Optional smoke-test cap; omit for full archive."
+    ),
 ) -> None:
     """Convert EOL TraitBank all-traits export to canonical v2 long rows."""
     from island_v2.eol_traitbank import prepare_eol_traitbank_long
 
     report = prepare_eol_traitbank_long(
         eol_archive=eol_archive,
+        eol_content_dir=eol_content_dir,
         output_dir=output_dir,
         config_path=config_path,
         ontology_path=ontology_path,

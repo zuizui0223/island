@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import zipfile
 from pathlib import Path
 
@@ -166,3 +167,27 @@ def test_prepare_eol_traitbank_and_join_scientific_names(tmp_path: Path) -> None
     )
     manifest = json.loads(Path(prepare_report["manifest_json"]).read_text(encoding="utf-8"))
     assert manifest["inferred_csv_policy"].startswith("EOL inferred.csv is not used")
+
+
+def test_prepare_eol_can_read_extracted_content_and_keep_archive_checksum(
+    tmp_path: Path,
+) -> None:
+    archive = tmp_path / "traits_all.zip"
+    extracted = tmp_path / "extracted"
+    prepared = tmp_path / "prepared"
+    _write_eol_archive(archive)
+    shutil.unpack_archive(archive, extracted)
+
+    report = prepare_eol_traitbank_long(
+        eol_archive=archive,
+        eol_content_dir=extracted,
+        output_dir=prepared,
+        config_path=Path("config/eol_traitbank_terms.yml"),
+        source_name="eol_extracted_test",
+        chunksize=2,
+    )
+
+    assert report["eol_content_path"] == str(extracted)
+    assert len(report["eol_archive_sha256"]) == 64
+    assert report["n_trait_rows_scanned"] == 5
+    assert report["n_long_rows"] == 3
