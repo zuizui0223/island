@@ -3,12 +3,13 @@ name: run_v2_bayesian_binary_pathway_inference
 on:
   workflow_dispatch:
   pull_request:
-    branches: [feat/inla-v2-m0-m4-main]
+    branches: [agent/complementary-bayes-inla-analysis]
     paths:
       - ".github/workflows/run-v2-bayesian-binary-pathway.yml"
       - "analysis/v2/run_bayesian_binary_pathway.R"
       - "docs/v2_engine_specific_analysis_contract.md"
       - "src/island_v2/prepare_v2_bayesian_main_input.py"
+      - "src/island_v2/build_bombus_channel.py"
       - "config/integrated_trait_bombus_artifact_lock.json"
       - "config/purpose_shortest_artifact_lock.json"
 
@@ -31,7 +32,7 @@ jobs:
       - name: Install Python preparation dependency
         run: |
           pip install -e ".[dev]" duckdb
-          python -m py_compile src/island_v2/prepare_v2_bayesian_main_input.py
+          python -m py_compile src/island_v2/prepare_v2_bayesian_main_input.py src/island_v2/build_bombus_channel.py
 
       - name: Download locked integrated trait-Bombus artifact
         env:
@@ -59,7 +60,7 @@ jobs:
           mkdir -p /tmp/covariates
           unzip -q /tmp/covariates.zip -d /tmp/covariates
 
-      - name: Prepare binary pathway input
+      - name: Prepare and audit binary pathway input
         run: |
           set -euo pipefail
           MASTER=$(find /tmp/integrated -type f -path '*/bombus_join/sensitivity_all/island_species_trait_bombus_master.csv.gz' -print -quit)
@@ -73,15 +74,39 @@ jobs:
             --analysis-tier sensitivity_all \
             --output-csv data/v2/staging/analysis/bayesian_binary_pathway/input.csv
           python - <<'PY'
+          import json
+          from pathlib import Path
           import pandas as pd
-          p = 'data/v2/staging/analysis/bayesian_binary_pathway/input.csv'
+
+          p = Path('data/v2/staging/analysis/bayesian_binary_pathway/input.csv')
           d = pd.read_csv(p)
           assert d['island_id'].is_unique
           assert len(d) == 8265
           assert (d['color_trials'].fillna(0) >= d['color_plain'].fillna(0)).all()
           assert (d['form_trials'].fillna(0) >= d['form_open_generalized'].fillna(0)).all()
           assert int((d['distance_to_continent_km'] > 0).sum()) > 0
-          print({'n_input': len(d), 'n_positive_distance': int((d['distance_to_continent_km'] > 0).sum())})
+          required = {'bombus_deficit', 'bombus_predictor_kind', 'bombus_deficit_interpretation'}
+          missing = sorted(required - set(d.columns))
+          assert not missing, f'missing Bombus predictor audit columns: {missing}'
+          kinds = d['bombus_predictor_kind'].fillna('missing').value_counts().to_dict()
+          assert set(kinds).issubset({
+              'occurrence_informed_combined_channel',
+              'declared_primary_channel',
+              'environmental_mismatch_proxy',
+          }), kinds
+          audit = {
+              'n_input': len(d),
+              'n_positive_distance': int((d['distance_to_continent_km'] > 0).sum()),
+              'bombus_predictor_kind_counts': {str(k): int(v) for k, v in kinds.items()},
+              'interpretation_guardrail': (
+                  'environmental_mismatch_proxy is not observed Bombus absence; '
+                  'occurrence-informed channel rows are preferred when present'
+              ),
+          }
+          Path('data/v2/staging/analysis/bayesian_binary_pathway/bombus_predictor_audit.json').write_text(
+              json.dumps(audit, indent=2) + '\n', encoding='utf-8'
+          )
+          print(audit)
           PY
 
       - name: Install R and Bayesian packages
@@ -107,7 +132,11 @@ jobs:
         run: |
           OUT=data/v2/staging/analysis/bayesian_binary_pathway/results
           echo '## Bayesian binary pathway inference' >> "$GITHUB_STEP_SUMMARY"
-          echo 'INLA owns category-preserving decomposition; this workflow estimates broad direct and SC-mediated paths.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'INLA owns category-preserving decomposition; this workflow estimates broad pathway associations.' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Bombus predictor audit' >> "$GITHUB_STEP_SUMMARY"
+          cat data/v2/staging/analysis/bayesian_binary_pathway/bombus_predictor_audit.json >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
           cat "$OUT/analysis_metadata.json" >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Equation-specific support' >> "$GITHUB_STEP_SUMMARY"
