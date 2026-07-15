@@ -1,0 +1,129 @@
+name: Acquire USDA PLANTS direct floral traits
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/ingest-usda-plants-direct-traits.yml"
+      - "config/bulk_trait_sources.yml"
+      - "config/trait_ontology.yml"
+      - "src/island_v2/fetch_usda_plants_traits.py"
+      - "src/island_v2/bulk_trait_ingest.py"
+      - "tests/test_fetch_usda_plants_traits.py"
+      - "tests/test_bulk_trait_ingest.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: usda-plants-direct-traits-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install focused dependencies
+        run: pip install -e ".[dev]"
+      - name: Test USDA mapping, evidence, and bulk-ingest contracts
+        run: |
+          pytest -q \
+            tests/test_fetch_usda_plants_traits.py \
+            tests/test_bulk_trait_ingest.py
+
+  acquire:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Snapshot the public current USDA PLANTS API
+        run: |
+          mkdir -p /tmp/usda-plants
+          island-v2-fetch-usda-plants-traits run \
+            --output-dir /tmp/usda-plants/prepared \
+            --max-workers 4 \
+            | tee /tmp/usda-plants/fetch_stdout.json
+      - name: Match canonical rows to the complete Island master
+        run: |
+          island-v2-bulk-traits ingest \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --source-csv /tmp/usda-plants/prepared/usda_plants_prepared_canonical_long.csv.gz \
+            --output-dir data/v2/staging/traits/bulk/usda_plants_current \
+            --profiles-path config/bulk_trait_sources.yml \
+            --profile-name v2_canonical_long_csv \
+            --source-name usda_plants_current \
+            | tee /tmp/usda-plants/ingest_stdout.json
+      - name: Verify evidence completeness and report production coverage
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          import pandas as pd
+
+          root = Path("/tmp/usda-plants/prepared")
+          manifest = json.loads(
+              (root / "usda_plants_fetch_manifest.json").read_text(encoding="utf-8")
+          )
+          ingest = json.loads(
+              Path("/tmp/usda-plants/ingest_stdout.json").read_text(encoding="utf-8")
+          )
+          candidates = pd.read_csv(ingest["candidate_csv"], dtype=str).fillna("")
+
+          assert manifest["source_snapshot"].startswith("USDA PLANTS")
+          assert manifest["n_flower_color_source_ids"] > 0
+          assert manifest["n_prepared_canonical_rows"] > 0
+          assert ingest["n_master_species"] == 115_328
+          assert ingest["n_candidate_rows"] == len(candidates) > 0
+          assert set(candidates["trait_name"]) == {"flower_primary_color"}
+          required = [
+              "accepted_species",
+              "trait_name",
+              "standardized_value",
+              "source_url",
+              "source_record_id",
+              "evidence_excerpt",
+          ]
+          assert not candidates[required].apply(
+              lambda column: column.str.strip().eq("").any()
+          ).any()
+
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as handle:
+              handle.write("## USDA PLANTS direct Flower Color\n\n")
+              handle.write(
+                  f"- source Flower Color plant IDs: "
+                  f"{manifest['n_flower_color_source_ids']:,}\n"
+              )
+              handle.write(f"- Island-matched candidate rows: {len(candidates):,}\n")
+              handle.write(
+                  f"- Island species with direct evidence: "
+                  f"{candidates['accepted_species'].nunique():,} / 115,328\n"
+              )
+              handle.write(
+                  "\nExcluded records remain in the uploaded audit; no missing value is inferred.\n"
+              )
+          PY
+      - name: Upload exact API snapshots, audits, and Island candidates
+        uses: actions/upload-artifact@v4
+        with:
+          name: usda-plants-direct-traits-${{ github.run_id }}
+          path: |
+            /tmp/usda-plants/
+            data/v2/staging/traits/bulk/usda_plants_current/
+          if-no-files-found: error
+          retention-days: 90

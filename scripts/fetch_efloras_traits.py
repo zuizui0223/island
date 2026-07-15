@@ -322,7 +322,9 @@ class Client:
                 self.http_errors += 1
                 last = RuntimeError(f"HTTP {response.status_code}")
                 retry_after = response.headers.get("Retry-After", "")
-                wait = float(retry_after) if retry_after.isdigit() else min(60.0, 2.0 ** (attempt - 1))
+                wait = (
+                    float(retry_after) if retry_after.isdigit() else min(60.0, 2.0 ** (attempt - 1))
+                )
             except Exception as exc:  # requests exposes several transport exceptions
                 self.http_errors += 1
                 last = exc
@@ -368,15 +370,25 @@ class MasterMatcher:
             synonym_rows = read_csv(synonyms_csv)
             if synonym_rows:
                 alias_column = next(
-                    (name for name in ("original_taxon_name", "synonym", "scientific_name", "name") if name in synonym_rows[0]),
+                    (
+                        name
+                        for name in ("original_taxon_name", "synonym", "scientific_name", "name")
+                        if name in synonym_rows[0]
+                    ),
                     None,
                 )
                 accepted_column = next(
-                    (name for name in ("accepted_species", "accepted_name") if name in synonym_rows[0]),
+                    (
+                        name
+                        for name in ("accepted_species", "accepted_name")
+                        if name in synonym_rows[0]
+                    ),
                     None,
                 )
                 if not alias_column or not accepted_column:
-                    raise ValueError("Synonym CSV needs an alias column and accepted_species/accepted_name")
+                    raise ValueError(
+                        "Synonym CSV needs an alias column and accepted_species/accepted_name"
+                    )
                 synonyms = [(row[alias_column], row[accepted_column]) for row in synonym_rows]
         return cls((row[name_column] for row in rows), synonyms)
 
@@ -384,7 +396,11 @@ class MasterMatcher:
     def _result(candidates: list[str], status: str) -> dict[str, str]:
         unique = sorted(set(candidates))
         if len(unique) == 1:
-            return {"accepted_species": unique[0], "match_status": status, "match_candidates": unique[0]}
+            return {
+                "accepted_species": unique[0],
+                "match_status": status,
+                "match_candidates": unique[0],
+            }
         if len(unique) > 1:
             return {
                 "accepted_species": "",
@@ -530,7 +546,10 @@ def _matched_species_count(taxa: Iterable[dict[str, str]], matcher: MasterMatche
     species = [row for row in taxa if row["listing_rank"] == "species"]
     if matcher is None:
         return len(species)
-    return sum(matcher.match(row["original_taxon_name"])["match_status"] not in {"unmatched", "ambiguous"} for row in species)
+    return sum(
+        matcher.match(row["original_taxon_name"])["match_status"] not in {"unmatched", "ambiguous"}
+        for row in species
+    )
 
 
 def acquisition_status(
@@ -551,10 +570,12 @@ def acquisition_status(
         return "no_species_taxa_discovered"
     if selected_count == 0:
         return "no_master_matches"
+    if treatment_count + rejected_count != selected_count:
+        return "partial_unaccounted_treatments"
+    if rejected_count:
+        return "complete_with_rejections"
     if treatment_count == 0:
         return "failed_no_treatments"
-    if rejected_count:
-        return "partial_unconfirmed_treatments"
     return "ok"
 
 
@@ -575,7 +596,9 @@ def inventory_coverage(
         if row["listing_rank"] == "species" and row.get("match_status")
     )
     return {
-        "status": "inventory_ready" if crawl_metrics.get("inventory_complete") else "failed_inventory",
+        "status": "inventory_ready"
+        if crawl_metrics.get("inventory_complete")
+        else "failed_inventory",
         "inventory_only": True,
         "flora_id": flora_id,
         "flora_name": flora_name,
@@ -621,7 +644,9 @@ def crawl_taxa(
         pages_visited = int(saved.get("pages_visited", 0))
         resumed = True
     else:
-        queue = deque([BrowseTask(url=f"{BASE_URL}browse.aspx?flora_id={flora_id}", parent_rank="flora")])
+        queue = deque(
+            [BrowseTask(url=f"{BASE_URL}browse.aspx?flora_id={flora_id}", parent_rank="flora")]
+        )
 
     tasks_processed = 0
     stop_reason = "queue_exhausted"
@@ -645,7 +670,11 @@ def crawl_taxa(
         pages_visited += page_count
         for entry in entries:
             taxa.setdefault(entry["taxon_id"], entry)
-            if entry["browse_url"] and task.depth < max_depth and entry["listing_rank"] not in {"infraspecies", "hybrid"}:
+            if (
+                entry["browse_url"]
+                and task.depth < max_depth
+                and entry["listing_rank"] not in {"infraspecies", "hybrid"}
+            ):
                 queue.append(
                     BrowseTask(
                         url=entry["browse_url"],
@@ -680,7 +709,10 @@ def crawl_taxa(
         "inventory_stop_reason": stop_reason,
         "crawl_resumed": resumed,
     }
-    ordered = sorted(taxa.values(), key=lambda row: (row["listing_rank"], row["original_taxon_name"], row["taxon_id"]))
+    ordered = sorted(
+        taxa.values(),
+        key=lambda row: (row["listing_rank"], row["original_taxon_name"], row["taxon_id"]),
+    )
     write_json(
         checkpoint_path,
         {
@@ -695,7 +727,9 @@ def crawl_taxa(
     return ordered, metrics
 
 
-def parse_treatment(page_html: str, source_url: str, min_description_chars: int = 20) -> dict[str, Any]:
+def parse_treatment(
+    page_html: str, source_url: str, min_description_chars: int = 20
+) -> dict[str, Any]:
     soup = BeautifulSoup(page_html, "html.parser")
     node = soup.find(id="lblTaxonDesc")
     description = clean(node.get_text(" ", strip=True)) if node else ""
@@ -743,7 +777,9 @@ def _color_hits(text: str) -> list[str]:
             previous_organs = [position for position in organ_positions if position < match.start()]
             if not previous_organs:
                 continue
-            previous_nonfloral = [position for position in nonfloral_positions if position < match.start()]
+            previous_nonfloral = [
+                position for position in nonfloral_positions if position < match.start()
+            ]
             if previous_nonfloral and max(previous_nonfloral) > max(previous_organs):
                 continue
             if INDUMENTUM_AFTER_COLOR.search(low[match.end() : match.end() + 50]):
@@ -851,17 +887,32 @@ def discover_floras(
             landing = client.get(landing_url, stage="flora_manifest_landing")
             landing_soup = BeautifulSoup(landing.text, "html.parser")
             flora_name = flora_name_from_landing(landing.text, listed_name)
-            has_volume = any("volume_page.aspx" in urljoin(landing.url, link["href"]) for link in landing_soup.find_all("a", href=True))
-            browse = client.get(f"{BASE_URL}browse.aspx?flora_id={flora_id}", stage="flora_manifest_browse")
+            has_volume = any(
+                "volume_page.aspx" in urljoin(landing.url, link["href"])
+                for link in landing_soup.find_all("a", href=True)
+            )
+            browse = client.get(
+                f"{BASE_URL}browse.aspx?flora_id={flora_id}", stage="flora_manifest_browse"
+            )
             browse_soup = BeautifulSoup(browse.text, "html.parser")
-            has_browse = bool(browse_soup.select("tr.underline") and browse_soup.find("a", href=re.compile(r"taxon_id=")))
+            has_browse = bool(
+                browse_soup.select("tr.underline")
+                and browse_soup.find("a", href=re.compile(r"taxon_id="))
+            )
             if flora_id not in listed:
                 status = "not_listed" if not has_browse else "ok_unlisted"
             elif not has_browse:
                 status = "unsupported_no_browse"
         except Exception as exc:
             status = "http_error"
-            client.errors.append({"stage": "flora_manifest", "flora_id": flora_id, "url": landing_url, "error": str(exc)})
+            client.errors.append(
+                {
+                    "stage": "flora_manifest",
+                    "flora_id": flora_id,
+                    "url": landing_url,
+                    "error": str(exc),
+                }
+            )
         rows.append(
             {
                 "flora_id": flora_id,
@@ -915,8 +966,19 @@ def _match_inventory(
         if selection_status == "eligible":
             selected.append({**taxon, **match})
 
-    priority = {"exact_accepted_name_match": 0, "normalized_binomial_match": 1, "synonym_match": 2, "no_master_filter": 3}
-    selected.sort(key=lambda row: (row["accepted_species"], priority.get(row["match_status"], 9), row["taxon_id"]))
+    priority = {
+        "exact_accepted_name_match": 0,
+        "normalized_binomial_match": 1,
+        "synonym_match": 2,
+        "no_master_filter": 3,
+    }
+    selected.sort(
+        key=lambda row: (
+            row["accepted_species"],
+            priority.get(row["match_status"], 9),
+            row["taxon_id"],
+        )
+    )
     unique: list[dict[str, str]] = []
     seen_species: set[str] = set()
     for row in selected:
@@ -941,7 +1003,14 @@ def _persist_treatment_state(
     request_total: int,
 ) -> None:
     treatments.sort(key=lambda row: (str(row["accepted_species"]), str(row["taxon_id"])))
-    candidates.sort(key=lambda row: (row["accepted_species"], row["trait_name"], row["taxon_id"], row["source_excerpt"]))
+    candidates.sort(
+        key=lambda row: (
+            row["accepted_species"],
+            row["trait_name"],
+            row["taxon_id"],
+            row["source_excerpt"],
+        )
+    )
     write_csv(output_dir / "species_treatments.csv", treatments, TREATMENT_FIELDS)
     write_csv(output_dir / "trait_candidates.csv", candidates, CANDIDATE_FIELDS)
     write_errors(output_dir / "errors.jsonl", errors)
@@ -978,7 +1047,13 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
         landing = client.get(landing_url, stage="landing")
         flora_name = flora_name_from_landing(landing.text, f"eFloras flora {flora_id}")
     except Exception as exc:
-        report = {"status": "failed_landing", "flora_id": flora_id, "flora_name": "", "error": str(exc), "HTTP_errors": client.http_errors}
+        report = {
+            "status": "failed_landing",
+            "flora_id": flora_id,
+            "flora_name": "",
+            "error": str(exc),
+            "HTTP_errors": client.http_errors,
+        }
         write_json(output_dir / "coverage_report.json", report)
         write_errors(output_dir / "errors.jsonl", client.errors)
         raise AcquisitionError(str(exc)) from exc
@@ -1003,12 +1078,16 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
     selected_ids = {row["taxon_id"] for row in sharded}
     for row in match_report:
         if row["selection_status"] == "eligible":
-            row["selection_status"] = "selected" if row["taxon_id"] in selected_ids else "not_in_current_shard_or_limit"
+            row["selection_status"] = (
+                "selected" if row["taxon_id"] in selected_ids else "not_in_current_shard_or_limit"
+            )
     write_csv(output_dir / "master_match_report.csv", match_report, MATCH_FIELDS)
 
     if args.inventory_only:
         match_by_taxon = {row["taxon_id"]: row["match_status"] for row in match_report}
-        inventory_taxa = [{**row, "match_status": match_by_taxon.get(row["taxon_id"], "")} for row in taxa]
+        inventory_taxa = [
+            {**row, "match_status": match_by_taxon.get(row["taxon_id"], "")} for row in taxa
+        ]
         report = inventory_coverage(
             flora_id=flora_id,
             flora_name=flora_name,
@@ -1072,7 +1151,9 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
                         "flora_id": flora_id,
                         "error": "maximum consecutive exhausted treatment requests reached",
                         "consecutive_failures": consecutive_request_failures,
-                        "pending_selected_treatments": len(selected_ids.difference(processed_taxon_ids)),
+                        "pending_selected_treatments": len(
+                            selected_ids.difference(processed_taxon_ids)
+                        ),
                     }
                 )
                 break
@@ -1096,12 +1177,19 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
             processed_taxon_ids.add(taxon_id)
             continue
 
-        heading_match = matcher.match(parsed["taxon_heading"]) if matcher else {
-            "accepted_species": parsed["taxon_heading"],
-            "match_status": "no_master_filter",
-            "match_candidates": parsed["taxon_heading"],
-        }
-        if parsed["taxonomic_rank"] != "species" or heading_match["match_status"] in {"unmatched", "ambiguous"}:
+        heading_match = (
+            matcher.match(parsed["taxon_heading"])
+            if matcher
+            else {
+                "accepted_species": parsed["taxon_heading"],
+                "match_status": "no_master_filter",
+                "match_candidates": parsed["taxon_heading"],
+            }
+        )
+        if parsed["taxonomic_rank"] != "species" or heading_match["match_status"] in {
+            "unmatched",
+            "ambiguous",
+        }:
             errors.append(
                 {
                     "stage": "treatment_validation",
@@ -1156,13 +1244,22 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
                 processed_taxon_ids=processed_taxon_ids,
                 request_total=request_total,
             )
-            print(f"{index}/{len(sharded)} selected treatments; saved={len(treatments)} candidates={len(candidates)}", flush=True)
+            print(
+                f"{index}/{len(sharded)} selected treatments; saved={len(treatments)} candidates={len(candidates)}",
+                flush=True,
+            )
 
     # De-duplicate deterministically when resuming from a previous partial run.
     treatments = list({(row["flora_id"], row["taxon_id"]): row for row in treatments}.values())
     candidates = list(
         {
-            (row["flora_id"], row["taxon_id"], row["trait_name"], row["candidate_value"], row["source_excerpt"]): row
+            (
+                row["flora_id"],
+                row["taxon_id"],
+                row["trait_name"],
+                row["candidate_value"],
+                row["source_excerpt"],
+            ): row
             for row in candidates
         }.values()
     )
@@ -1176,13 +1273,17 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
         request_total=request_total,
     )
 
-    status_counts = Counter(row["match_status"] for row in match_report if row["listing_rank"] == "species")
+    status_counts = Counter(
+        row["match_status"] for row in match_report if row["listing_rank"] == "species"
+    )
     species_names = {row["original_taxon_name"] for row in taxa if row["listing_rank"] == "species"}
     species_with_traits = {row["accepted_species"] for row in candidates}
     traits = sorted({row["trait_name"] for row in candidates})
     pending_selected = sorted(selected_ids.difference(processed_taxon_ids))
     saved_selected_ids = {str(row["taxon_id"]) for row in treatments}
-    rejected_selected = sorted(selected_ids.intersection(processed_taxon_ids).difference(saved_selected_ids))
+    rejected_selected = sorted(
+        selected_ids.intersection(processed_taxon_ids).difference(saved_selected_ids)
+    )
     status = acquisition_status(
         crawl_stop_reason=crawl_metrics.get("inventory_stop_reason", ""),
         pending_selected=len(pending_selected),
@@ -1221,9 +1322,13 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
         "HTTP_errors": client.http_errors,
         "species_with_any_trait": len(species_with_traits),
         "trait_candidate_rows": len(candidates),
-        "unique_species_trait_cells": len({(row["accepted_species"], row["trait_name"]) for row in candidates}),
+        "unique_species_trait_cells": len(
+            {(row["accepted_species"], row["trait_name"]) for row in candidates}
+        ),
         "species_by_trait": {
-            trait: len({row["accepted_species"] for row in candidates if row["trait_name"] == trait})
+            trait: len(
+                {row["accepted_species"] for row in candidates if row["trait_name"] == trait}
+            )
             for trait in traits
         },
         "error_records": len(errors),
@@ -1231,7 +1336,7 @@ def run_flora(args: argparse.Namespace) -> dict[str, Any]:
     }
     write_json(output_dir / "coverage_report.json", report)
     print(json.dumps(report, ensure_ascii=False, indent=2))
-    if status != "ok":
+    if status not in {"ok", "complete_with_rejections"}:
         raise AcquisitionError(
             f"flora {flora_id}: status={status}; selected={len(sharded)} treatments_saved={len(treatments)}"
         )
@@ -1242,15 +1347,19 @@ def combine_results(root: Path, output_dir: Path) -> dict[str, Any]:
     treatment_paths = sorted(root.rglob("species_treatments.csv"))
     candidate_paths = sorted(root.rglob("trait_candidates.csv"))
     report_paths = sorted(root.rglob("coverage_report.json"))
+    error_paths = sorted(root.rglob("errors.jsonl"))
     treatments = [row for path in treatment_paths for row in read_csv(path)]
     candidates = [row for path in candidate_paths for row in read_csv(path)]
+    errors = [row for path in error_paths for row in read_jsonl(path)]
     reports = []
     for path in report_paths:
         try:
             reports.append(json.loads(path.read_text(encoding="utf-8")))
         except Exception as exc:
             reports.append({"status": "report_read_error", "path": str(path), "error": str(exc)})
-    treatments = list({(row.get("flora_id", ""), row.get("taxon_id", "")): row for row in treatments}.values())
+    treatments = list(
+        {(row.get("flora_id", ""), row.get("taxon_id", "")): row for row in treatments}.values()
+    )
     candidates = list(
         {
             (
@@ -1263,6 +1372,12 @@ def combine_results(root: Path, output_dir: Path) -> dict[str, Any]:
             for row in candidates
         }.values()
     )
+    errors = list(
+        {
+            json.dumps(row, ensure_ascii=False, sort_keys=True, separators=(",", ":")): row
+            for row in errors
+        }.values()
+    )
     flora_by_species: dict[str, set[str]] = defaultdict(set)
     for row in treatments:
         flora_by_species[row.get("accepted_species", "")].add(row.get("flora_id", ""))
@@ -1271,12 +1386,26 @@ def combine_results(root: Path, output_dir: Path) -> dict[str, Any]:
         "flora_reports": len(reports),
         "flora_statuses": dict(Counter(str(row.get("status", "unknown")) for row in reports)),
         "species_treatment_rows": len(treatments),
-        "unique_species_excluding_cross_flora_duplicates": len({row.get("accepted_species", "") for row in treatments if row.get("accepted_species")}),
-        "species_repeated_across_floras": sum(len(floras) > 1 for floras in flora_by_species.values()),
+        "unique_species_excluding_cross_flora_duplicates": len(
+            {row.get("accepted_species", "") for row in treatments if row.get("accepted_species")}
+        ),
+        "species_repeated_across_floras": sum(
+            len(floras) > 1 for floras in flora_by_species.values()
+        ),
         "trait_candidate_rows": len(candidates),
-        "unique_species_trait_cells": len({(row.get("accepted_species", ""), row.get("trait_name", "")) for row in candidates}),
+        "acquisition_failure_rows": len(errors),
+        "failure_reason_counts": dict(Counter(str(row.get("error", "unknown")) for row in errors)),
+        "unique_species_trait_cells": len(
+            {(row.get("accepted_species", ""), row.get("trait_name", "")) for row in candidates}
+        ),
         "species_by_trait": {
-            trait: len({row.get("accepted_species", "") for row in candidates if row.get("trait_name") == trait})
+            trait: len(
+                {
+                    row.get("accepted_species", "")
+                    for row in candidates
+                    if row.get("trait_name") == trait
+                }
+            )
             for trait in traits
         },
         "per_flora": reports,
@@ -1284,6 +1413,7 @@ def combine_results(root: Path, output_dir: Path) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
     write_csv(output_dir / "all_species_treatments.csv", treatments, TREATMENT_FIELDS)
     write_csv(output_dir / "all_trait_candidates.csv", candidates, CANDIDATE_FIELDS)
+    write_errors(output_dir / "all_acquisition_failures.jsonl", errors)
     write_json(output_dir / "combined_coverage.json", report)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return report
@@ -1302,8 +1432,14 @@ def build_parser() -> argparse.ArgumentParser:
     mode.add_argument("--discover-floras", action="store_true")
     mode.add_argument("--combine-root", type=Path)
     mode.add_argument("--flora-id", type=int)
-    parser.add_argument("--flora-ids", default="", help="Comma-separated manifest filter; missing IDs remain explicit failures")
-    parser.add_argument("--output-dir", type=Path, default=Path("data/v2/staging/traits/bulk/efloras"))
+    parser.add_argument(
+        "--flora-ids",
+        default="",
+        help="Comma-separated manifest filter; missing IDs remain explicit failures",
+    )
+    parser.add_argument(
+        "--output-dir", type=Path, default=Path("data/v2/staging/traits/bulk/efloras")
+    )
     parser.add_argument("--master-csv", type=Path)
     parser.add_argument("--master-name-column", default="accepted_species")
     parser.add_argument("--synonyms-csv", type=Path)
@@ -1331,7 +1467,9 @@ def main() -> None:
     try:
         if args.discover_floras:
             client = Client(args.delay_min, args.delay_max, args.timeout, args.attempts)
-            rows = discover_floras(client=client, output_dir=args.output_dir, requested_ids=comma_ids(args.flora_ids))
+            rows = discover_floras(
+                client=client, output_dir=args.output_dir, requested_ids=comma_ids(args.flora_ids)
+            )
             print(json.dumps(rows, ensure_ascii=False, indent=2))
         elif args.combine_root:
             combine_results(args.combine_root, args.output_dir)

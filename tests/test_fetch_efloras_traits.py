@@ -18,9 +18,7 @@ SPEC.loader.exec_module(efloras)
 
 def listing_html(name: str, taxon_id: str, child: bool = True) -> str:
     child_link = (
-        f'<a href="browse.aspx?flora_id=2&amp;start_taxon_id={taxon_id}">3</a>'
-        if child
-        else ""
+        f'<a href="browse.aspx?flora_id=2&amp;start_taxon_id={taxon_id}">3</a>' if child else ""
     )
     return f"""
     <html><body><table><tr class="underline">
@@ -166,9 +164,12 @@ def test_treatment_parser_requires_bold_heading_and_description() -> None:
 
 
 def test_treatment_parser_rejects_empty_description_and_non_species() -> None:
-    empty = efloras.parse_treatment('<span id="lblTaxonDesc"><b>Acanthus ebracteatus</b></span>', "x")
+    empty = efloras.parse_treatment(
+        '<span id="lblTaxonDesc"><b>Acanthus ebracteatus</b></span>', "x"
+    )
     genus = efloras.parse_treatment(
-        '<span id="lblTaxonDesc"><b>Acanthus</b> Genus description long enough to parse.</span>', "x"
+        '<span id="lblTaxonDesc"><b>Acanthus</b> Genus description long enough to parse.</span>',
+        "x",
     )
     assert empty["treatment_confirmed"] is False
     assert genus["taxonomic_rank"] == "genus"
@@ -192,7 +193,11 @@ def test_flower_colour_requires_a_floral_organ_in_same_fragment() -> None:
     )
     assert ("flower_primary_color", "white") in values
     assert ("flower_primary_color", "purple|violet") in values
-    assert all(value not in {"green", "red", "brown"} for trait, value in values if trait == "flower_primary_color")
+    assert all(
+        value not in {"green", "red", "brown"}
+        for trait, value in values
+        if trait == "flower_primary_color"
+    )
 
 
 def test_lip_and_labellum_are_valid_flower_colour_contexts() -> None:
@@ -266,7 +271,10 @@ def test_match_inventory_excludes_infraspecies_and_deduplicates_accepted_species
     ]
     report, selected = efloras._match_inventory(taxa, 2, matcher)
     assert [row["taxon_id"] for row in selected] == ["1"]
-    assert next(row for row in report if row["taxon_id"] == "2")["selection_status"] == "excluded_infraspecies"
+    assert (
+        next(row for row in report if row["taxon_id"] == "2")["selection_status"]
+        == "excluded_infraspecies"
+    )
 
 
 def test_checkpoint_persistence_deduplicates_on_reload(tmp_path: Path) -> None:
@@ -307,7 +315,7 @@ def test_acquisition_status_distinguishes_missing_species_depth_from_no_match() 
     assert efloras.acquisition_status(**common, species_count=12) == "no_master_matches"
 
 
-def test_acquisition_status_does_not_hide_rejected_selected_records() -> None:
+def test_acquisition_status_treats_rejected_records_as_explicitly_accounted() -> None:
     common = {
         "crawl_stop_reason": "queue_exhausted",
         "pending_selected": 0,
@@ -316,9 +324,13 @@ def test_acquisition_status_does_not_hide_rejected_selected_records() -> None:
     }
     assert (
         efloras.acquisition_status(**common, treatment_count=19, rejected_count=1)
-        == "partial_unconfirmed_treatments"
+        == "complete_with_rejections"
     )
     assert efloras.acquisition_status(**common, treatment_count=20, rejected_count=0) == "ok"
+    assert (
+        efloras.acquisition_status(**common, treatment_count=18, rejected_count=1)
+        == "partial_unaccounted_treatments"
+    )
 
 
 def test_treatment_circuit_breaker_defaults_to_three_exhausted_species_requests() -> None:
@@ -328,7 +340,10 @@ def test_treatment_circuit_breaker_defaults_to_three_exhausted_species_requests(
 
 def test_inventory_only_mode_is_explicit() -> None:
     assert efloras.build_parser().parse_args(["--flora-id", "2"]).inventory_only is False
-    assert efloras.build_parser().parse_args(["--flora-id", "2", "--inventory-only"]).inventory_only is True
+    assert (
+        efloras.build_parser().parse_args(["--flora-id", "2", "--inventory-only"]).inventory_only
+        is True
+    )
 
 
 def test_inventory_coverage_reports_complete_reusable_inventory() -> None:
@@ -339,7 +354,11 @@ def test_inventory_coverage_reports_complete_reusable_inventory() -> None:
             "original_taxon_name": "Poa annua",
             "match_status": "exact_accepted_name_match",
         },
-        {"listing_rank": "species", "original_taxon_name": "Poa alpina", "match_status": "unmatched"},
+        {
+            "listing_rank": "species",
+            "original_taxon_name": "Poa alpina",
+            "match_status": "unmatched",
+        },
     ]
     report = efloras.inventory_coverage(
         flora_id=2,
@@ -362,7 +381,9 @@ def test_combined_coverage_deduplicates_species_across_floras(tmp_path: Path) ->
     for flora_id in (1, 2):
         target = root / f"flora-{flora_id}"
         treatment = {field: "" for field in efloras.TREATMENT_FIELDS}
-        treatment.update({"accepted_species": "A a", "flora_id": str(flora_id), "taxon_id": str(flora_id)})
+        treatment.update(
+            {"accepted_species": "A a", "flora_id": str(flora_id), "taxon_id": str(flora_id)}
+        )
         candidate = {field: "" for field in efloras.CANDIDATE_FIELDS}
         candidate.update(
             {
@@ -376,16 +397,26 @@ def test_combined_coverage_deduplicates_species_across_floras(tmp_path: Path) ->
         )
         efloras.write_csv(target / "species_treatments.csv", [treatment], efloras.TREATMENT_FIELDS)
         efloras.write_csv(target / "trait_candidates.csv", [candidate], efloras.CANDIDATE_FIELDS)
+        efloras.write_errors(
+            target / "errors.jsonl",
+            [{"flora_id": flora_id, "taxon_id": f"rejected-{flora_id}", "error": "bad_page"}],
+        )
         efloras.write_json(target / "coverage_report.json", {"status": "ok", "flora_id": flora_id})
     report = efloras.combine_results(root, tmp_path / "combined")
     assert report["species_treatment_rows"] == 2
     assert report["unique_species_excluding_cross_flora_duplicates"] == 1
     assert report["species_repeated_across_floras"] == 1
+    assert report["acquisition_failure_rows"] == 2
+    assert report["failure_reason_counts"] == {"bad_page": 2}
+    failures = efloras.read_jsonl(tmp_path / "combined" / "all_acquisition_failures.jsonl")
+    assert len(failures) == 2
 
 
 def test_parser_exposes_resume_and_shard_inputs() -> None:
     parser = efloras.build_parser()
-    args = parser.parse_args(["--flora-id", "2", "--shard-index", "1", "--shard-count", "3", "--no-resume"])
+    args = parser.parse_args(
+        ["--flora-id", "2", "--shard-index", "1", "--shard-count", "3", "--no-resume"]
+    )
     assert isinstance(args, argparse.Namespace)
     assert args.shard_index == 1
     assert args.shard_count == 3

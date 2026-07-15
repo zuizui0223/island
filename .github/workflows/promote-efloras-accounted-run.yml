@@ -1,0 +1,130 @@
+name: Promote accounted eFloras shard artifacts
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: eFloras run whose complete shard artifacts should be re-collected
+        required: true
+        default: "29330032130"
+        type: string
+  pull_request:
+    paths:
+      - ".github/workflows/promote-efloras-accounted-run.yml"
+      - "scripts/fetch_efloras_traits.py"
+      - "tests/test_fetch_efloras_traits.py"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: promote-efloras-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install pytest requests beautifulsoup4
+      - name: Test accounting and combined-audit contracts
+        run: pytest -q tests/test_fetch_efloras_traits.py
+
+  promote:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Validate immutable source run ID
+        run: '[[ "$SOURCE_RUN_ID" =~ ^[0-9]+$ ]]'
+      - name: Download every source shard and source artifact manifest
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/efloras-shards /tmp/efloras-combined/metadata
+          gh run download "$SOURCE_RUN_ID" \
+            --repo "$GH_REPO" \
+            --pattern "efloras-flora-*-shard-*-of-*" \
+            --dir /tmp/efloras-shards
+          gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN_ID/artifacts" \
+            > /tmp/efloras-combined/metadata/source_run_artifacts.json
+      - name: Rebuild combined data and acquisition-failure audit
+        run: |
+          python scripts/fetch_efloras_traits.py \
+            --combine-root /tmp/efloras-shards \
+            --output-dir /tmp/efloras-combined
+      - name: Verify complete accounting and evidence
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          import csv
+
+          root = Path("/tmp/efloras-combined")
+          report = json.loads((root / "combined_coverage.json").read_text(encoding="utf-8"))
+          per_flora = report["per_flora"]
+          assert len(per_flora) == 12
+          assert all(row["pending_selected_treatments"] == 0 for row in per_flora)
+          assert all(not row["treatment_circuit_breaker_open"] for row in per_flora)
+          assert all(
+              row["species_treatments_saved"] + row["rejected_selected_treatments"]
+              == row["selected_for_shard"]
+              for row in per_flora
+          )
+          assert report["trait_candidate_rows"] > 0
+          assert report["acquisition_failure_rows"] > 0
+
+          with (root / "all_trait_candidates.csv").open(
+              encoding="utf-8-sig", newline=""
+          ) as handle:
+              candidates = list(csv.DictReader(handle))
+          required = [
+              "accepted_species",
+              "trait_name",
+              "candidate_value",
+              "source_url",
+              "source_record_id",
+              "source_excerpt",
+          ]
+          assert len(candidates) == report["trait_candidate_rows"]
+          assert all(all(str(row.get(key, "")).strip() for key in required) for row in candidates)
+
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as handle:
+              handle.write("## Accounted eFloras production snapshot\n\n")
+              handle.write(f"- source run: {os.environ['SOURCE_RUN_ID']}\n")
+              handle.write(f"- shard reports: {len(per_flora):,}\n")
+              handle.write(
+                  f"- confirmed treatment species: "
+                  f"{report['unique_species_excluding_cross_flora_duplicates']:,}\n"
+              )
+              handle.write(f"- direct trait candidates: {len(candidates):,}\n")
+              handle.write(
+                  f"- explicitly rejected acquisition records: "
+                  f"{report['acquisition_failure_rows']:,}\n"
+              )
+          PY
+      - name: Upload successful immutable combined snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: efloras-all-floras-combined
+          path: /tmp/efloras-combined/
+          if-no-files-found: error
+          retention-days: 90

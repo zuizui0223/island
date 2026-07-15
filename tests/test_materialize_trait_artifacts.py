@@ -138,6 +138,51 @@ def test_materialize_optionally_adds_gift_candidates(tmp_path: Path) -> None:
     ]
 
 
+def test_materialize_optionally_adds_usda_candidates(tmp_path: Path) -> None:
+    eol, austraits = _artifact_dirs(tmp_path)
+    usda = tmp_path / "usda"
+    usda_path = (
+        usda
+        / "home"
+        / "runner"
+        / "work"
+        / "island"
+        / "island"
+        / "data"
+        / "v2"
+        / "staging"
+        / "traits"
+        / "bulk"
+        / "usda_plants_current"
+        / "bulk_trait_candidates_usda_plants_current.csv"
+    )
+    usda_path.parent.mkdir(parents=True)
+    _candidate("usda").to_csv(usda_path, index=False)
+
+    staging = tmp_path / "staging"
+    manifest = materialize(
+        eol_artifact_dir=eol,
+        austraits_artifact_dir=austraits,
+        usda_artifact_dir=usda,
+        staging_root=staging,
+        output_dir=tmp_path / "output",
+    )
+
+    assert set(manifest["sources"]) == {
+        "eol_traitbank",
+        "austraits_all",
+        "usda_plants_current",
+    }
+    assert manifest["sources"]["usda_plants_current"]["n_species"] == 1
+    assert (staging / "bulk" / "usda_plants_current" / "trait_candidates.csv").exists()
+    observed = adapter_candidate_long(
+        {"glob": str(staging / "bulk" / "**" / "trait_candidates.csv*")}
+    )
+    assert observed.to_dict("records") == [
+        {"accepted_species": "Aaa bbb", "trait_name": "flower_primary_color"}
+    ]
+
+
 def test_materialize_rejects_empty_source_evidence(tmp_path: Path) -> None:
     eol, austraits = _artifact_dirs(tmp_path)
     path = eol / "ingested" / "bulk_trait_candidates_release.csv"

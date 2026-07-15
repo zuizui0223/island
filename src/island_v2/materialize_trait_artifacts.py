@@ -112,6 +112,7 @@ def materialize(
     output_dir: Path,
     efloras_artifact_dir: Path | None = None,
     gift_artifact_dir: Path | None = None,
+    usda_artifact_dir: Path | None = None,
 ) -> dict[str, Any]:
     """Copy exact source-backed candidates into paths read by acquisition-rate config."""
     eol_source = _find_unique(
@@ -165,6 +166,21 @@ def materialize(
             staging_root / "bulk" / "gift_v3_2" / "trait_candidates.csv",
             "GIFT",
         )
+    if usda_artifact_dir is not None:
+        usda_source = _find_unique(
+            usda_artifact_dir,
+            (
+                "**/data/v2/staging/traits/bulk/usda_plants_current/"
+                "bulk_trait_candidates_usda_plants_current.csv",
+                "**/bulk_trait_candidates_usda_plants_current.csv",
+            ),
+            "USDA PLANTS",
+        )
+        sources["usda_plants_current"] = _copy_source(
+            usda_source,
+            staging_root / "bulk" / "usda_plants_current" / "trait_candidates.csv",
+            "USDA PLANTS",
+        )
 
     manifest = {
         "version": "1.0",
@@ -193,6 +209,7 @@ def run(
     output_dir: Path = typer.Option(...),
     efloras_artifact_dir: Path | None = typer.Option(None, file_okay=False),
     gift_artifact_dir: Path | None = typer.Option(None, file_okay=False),
+    usda_artifact_dir: Path | None = typer.Option(None, file_okay=False),
 ) -> None:
     """Materialize candidate artifacts and emit a provenance/count manifest."""
     manifest = materialize(
@@ -200,6 +217,7 @@ def run(
         austraits_artifact_dir=austraits_artifact_dir,
         efloras_artifact_dir=efloras_artifact_dir,
         gift_artifact_dir=gift_artifact_dir,
+        usda_artifact_dir=usda_artifact_dir,
         staging_root=staging_root,
         output_dir=output_dir,
     )
