@@ -52,6 +52,8 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+      - name: Install aggregation dependencies
+        run: python -m pip install requests beautifulsoup4
       - name: Validate immutable source run ID
         run: '[[ "$SOURCE_RUN_ID" =~ ^[0-9]+$ ]]'
       - name: Download every source shard and source artifact manifest
