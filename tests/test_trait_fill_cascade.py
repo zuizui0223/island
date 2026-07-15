@@ -88,6 +88,37 @@ def test_family_threshold_blocks_thin_support(tmp_path):
     assert fills.loc["Bbb gap", "fill_tier"] == "global_fallback"
 
 
+def test_candidate_long_reads_standardized_values_and_excludes_inference(tmp_path):
+    candidates = tmp_path / "trait_candidates.csv"
+    pd.DataFrame(
+        [
+            {
+                "accepted_species": "Alpha one",
+                "trait_name": "self_incompatibility",
+                "standardized_value": "SC",
+                "candidate_kind": "source_backed",
+                "evidence_scope": "species_direct",
+            },
+            {
+                "accepted_species": "Alpha two",
+                "trait_name": "self_incompatibility",
+                "standardized_value": "SC",
+                "candidate_kind": "hierarchical_inference",
+                "evidence_scope": "genus_inference",
+            },
+        ]
+    ).to_csv(candidates, index=False)
+    loaded = cascade._evidence_candidate_long({"glob": str(candidates)})
+    assert loaded.to_dict("records") == [
+        {
+            "accepted_species": "Alpha one",
+            "trait_name": "self_incompatibility",
+            "value": "SC",
+            "weight": 1.0,
+        }
+    ]
+
+
 def test_coverage_summary_zero_unknown(tmp_path):
     master = _master()
     config = _config(tmp_path / "m.csv")

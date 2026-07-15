@@ -96,6 +96,30 @@ def _master() -> pd.DataFrame:
     )
 
 
+def test_production_config_prioritizes_intrinsic_floral_and_reproductive_traits():
+    config = campaign.load_config(Path("config/global_trait_campaign.yml"))
+
+    assert config["task_order"][0] == "floral_access_wikimedia"
+    assert config["tasks"]["floral_access_wikimedia"]["eligibility"] == "all"
+    required_tasks = [
+        config["tasks"][name]
+        for name in config["task_order"]
+        if config["tasks"][name].get("required_for_primary_completion", True)
+    ]
+    required_targets = {
+        trait
+        for task in required_tasks
+        for trait in task.get("target_traits", [])
+    }
+    assert "flower_primary_color" in required_targets
+    assert "floral_form" in required_targets
+    assert "floral_symmetry" in required_targets
+    assert "mating_system" in required_targets
+    assert "self_incompatibility" in required_targets
+    assert "pollination_functional_guild" not in required_targets
+    assert "pollen_vector_mode" not in required_targets
+
+
 def test_family_balanced_batch_spreads_first_wave_across_families():
     ledger = campaign.reconcile_ledger(_master(), None, _config())
     task = campaign.choose_active_task(ledger, _config())
@@ -103,6 +127,20 @@ def test_family_balanced_batch_spreads_first_wave_across_families():
 
     assert task == "reproductive_wikimedia"
     assert set(batch["family"]) == {"FamA", "FamB", "FamC"}
+
+
+def test_reconcile_reopens_historical_not_applicable_after_task_becomes_all_species():
+    config = _config()
+    config["tasks"]["floral_access_wikimedia"]["eligibility"] = "all"
+    config["tasks"]["floral_access_wikimedia"]["depends_on"] = []
+    config["reopen_not_applicable_tasks"] = ["floral_access_wikimedia"]
+    old = campaign.reconcile_ledger(_master(), None, _config())
+    old["floral_access_wikimedia_status"] = "not_applicable"
+    old["floral_access_wikimedia_attempts"] = 2
+
+    reopened = campaign.reconcile_ledger(_master(), old, config)
+    assert set(reopened["floral_access_wikimedia_status"]) == {"pending"}
+    assert set(reopened["floral_access_wikimedia_attempts"]) == {0}
 
 
 def test_phase_barrier_and_biotic_gate_are_fail_closed():

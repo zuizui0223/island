@@ -115,8 +115,23 @@ def _evidence_candidate_long(source: dict[str, Any]) -> pd.DataFrame:
         frame = pd.read_csv(path, dtype=str).fillna("")
         if frame.empty:
             continue
+        if "candidate_kind" in frame.columns:
+            frame = frame.loc[frame["candidate_kind"].map(_text).eq("source_backed")].copy()
+        if "evidence_scope" in frame.columns:
+            frame = frame.loc[
+                frame["evidence_scope"].map(_text).isin({"species_direct", "species_indirect"})
+            ].copy()
+        if frame.empty:
+            continue
         species_col = next((c for c in ("accepted_species", "scientific_name", "species") if c in frame), None)
-        value_col = next((c for c in ("candidate_value", "trait_value", "value") if c in frame), None)
+        value_col = next(
+            (
+                c
+                for c in ("candidate_value", "standardized_value", "trait_value", "value")
+                if c in frame
+            ),
+            None,
+        )
         if species_col is None or value_col is None or "trait_name" not in frame:
             continue
         frames.append(

@@ -1859,12 +1859,11 @@ def collect_free_sources(
     all_fields = {
         "flower_color",
         "flower_shape",
-        "pollination_guild",
         "mating_system",
         "self_incompatibility",
     }
     floral_fields = {"flower_color", "flower_shape"}
-    reproductive_fields = {"pollination_guild", "mating_system", "self_incompatibility"}
+    reproductive_fields = {"mating_system", "self_incompatibility"}
     web_description_index = (
         load_web_description_index(web_description_index_path)
         if include_web_descriptions and web_description_index_path is not None
@@ -1943,7 +1942,7 @@ def collect_free_sources(
                 species,
                 source_rows,
                 seed,
-                {"flower_color", "flower_shape", "pollination_guild"},
+                floral_fields,
             )
             rows, errors = _web_description_sources(
                 missing,

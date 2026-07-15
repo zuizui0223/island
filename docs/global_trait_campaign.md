@@ -14,20 +14,20 @@ the method.
 
 ## Ordered tasks
 
-1. Retrieve explicit pollen-vector and reproductive-assurance statements from
-   Wikimedia species text.
-2. Repeat the same target layer against OpenAlex title/abstract text.
-3. Only after both global reproductive tasks terminate, retrieve flower access
-   traits for species carrying a direct machine candidate for biotic pollen
-   vector.
-4. After that layer terminates, make a focused OpenAlex pass for alternative
-   pollinator functional guilds.
+1. Retrieve flower colour, form, symmetry, size and access traits from Wikimedia
+   species text for every eligible flowering-plant species.
+2. Retrieve explicit mating-system, autonomous-selfing and
+   self-incompatibility statements from Wikimedia species text.
+3. Repeat the reproductive target layer against OpenAlex title/abstract text.
+4. Alternative-pollinator functional-guild passes are optional, deferred
+   interaction evidence and are not required for primary trait completion.
 
-The order separates the upstream question—whether a species depends on a biotic,
-wind, or mixed pollen vector—from self-compatibility and autonomous selfing, and
-only then asks how accessible or specialized the flowers are. Functional-guild
-claims remain direct text evidence; flower colour is never used to infer a bird,
-bee, moth, or other pollinator.
+The flower-trait pass covers the full eligible master before the campaign spends
+effort on optional interaction evidence. The active completion fields are flower
+colour, flower form/symmetry, mating system and
+self-incompatibility. Existing functional-guild evidence is retained, but new
+guild retrieval cannot block these fields; flower colour is never used to infer
+a bird, bee, moth, or other pollinator.
 
 ## Resumption and failure rules
 
@@ -55,33 +55,28 @@ evidence scope, matched term, and method provenance. It does not:
 
 ## Operation
 
-The workflow `.github/workflows/drive-global-trait-campaign.yml` runs hourly and
-advances one bounded wave. A manual dispatch can override the default batch size
-between 1 and 500. The campaign automatically moves between tasks when all
-eligible rows in the preceding task are terminal.
+The production workflow `.github/workflows/run-public-web-trait-shards.yml`
+advances 128 resumable all-species shards. The campaign CLI also supports
+bounded family-balanced waves. Both routes treat a zero-hit lookup as an audit
+result, not as evidence that a trait is absent.
 
 
 ## Per-species streaming scheduler
 
-The scheduled workflow advances a bounded bundle every 30 minutes: a broad
-family-balanced Wikimedia wave followed by smaller OpenAlex, floral-access,
-and alternative-guild waves. Dependencies are evaluated per species, not as
-a global phase barrier. A species can therefore reach floral-access and
-alternative-pollinator extraction as soon as its own upstream rows are
-terminal, while the remaining global master continues through the first
-source. The forced task option selects only a measurement stage, never a
-region, island, trait outcome, or Bombus result.
+The scheduler advances bounded family-balanced or hash-stable shard batches.
+Flower colour and form/symmetry are attempted for every eligible species;
+reproductive enrichment proceeds independently. Optional alternative-guild
+work is deferred and never gates primary completion. A forced task selects only
+a measurement stage, never a region, island, trait outcome, or Bombus result.
 
 
 ## One-week global primary screen
 
-The scheduled primary path is intentionally database-light: 1,000 globally
-family-balanced species are screened through Wikimedia every 30 minutes, for a
-theoretical capacity of 48,000 species per day. Floral-access and alternative
-guild Wikimedia extraction run only for direct machine biotic-vector candidates.
-OpenAlex remains an optional scholarly-enrichment lane and is not required for
-primary completion. The one-week target refers to complete machine first-pass
-coverage, not manual acceptance of every candidate trait.
+The primary path is intentionally database-light and resumable. Flower colour,
+form and symmetry are screened for the entire 106,295-species angiosperm
+master, while OpenAlex remains an optional scholarly-enrichment lane. The
+completion target refers to a recorded first-pass attempt for every species,
+not to inventing a value when public evidence is absent.
 
 ## Free recovery-rate improvement
 
@@ -92,3 +87,24 @@ species, the campaign tries the configured non-English sitelinks from Wikidata
 English path cheap while recovering explicit statements that exist only in other
 Wikipedia editions. These rows remain machine-only candidates with source URL,
 excerpt, language-specific citation, and no curated trait decision.
+
+## Completion hierarchy at 100,000-species scale
+
+The production order is bulk direct datasets first, strict accepted-name and
+exact-synonym reconciliation second, then resumable public Flora/plant-site text
+retrieval. Source-locked LLM extraction may parse retrieved statements but does
+not replace a source. SC/SI gaps may additionally receive a separate genus
+inference only when at least five directly supported congeners are unanimous;
+the output is low-confidence `likely_SC`/`likely_SI` and never overwrites a
+species-level record. Unsupported cells remain `unknown`.
+
+## Landed reproductive evidence (2026-07-15)
+
+Two pinned open datasets now add 3,305 distinct species-trait cells before
+deduplication against earlier sources: 2,509 direct SC/SI species from Meyer,
+Galloway & Eckert (2026), plus 920 conservative reproductive cells across 585
+species from Razanajatovo et al. (2016). After overlap with the previous ledger,
+3,218 cells are new direct evidence. A separately labelled unanimous-genus rule
+adds 2,353 further new `likely_SC`/`likely_SI` cells; leave-one-out agreement is
+372/384 (96.9%). Direct and inferred evidence remain distinguishable in every
+export.

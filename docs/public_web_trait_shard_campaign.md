@@ -22,6 +22,11 @@ The v6 runner is `island-v2-web-trait-shards` and the workflow is
 global machine candidates are loaded first, so a source is queried only when a
 target field remains missing.
 
+The active acquisition fields are flower colour, flower shape/symmetry, mating
+system and self-incompatibility. The legacy nine-column output still preserves
+any pollination-guild evidence already found, but guild is no longer a field
+whose absence triggers another provider lookup.
+
 The enabled production providers are strict GBIF species descriptions,
 Wikipedia, indexed flora, illustrated-plant and horticultural reference sites
 (NCSU Plant Toolbox, NZPCN, PFAF and Useful Tropical Plants), and exact-species

@@ -1,0 +1,58 @@
+version: "1.0"
+
+# CC0 literature synthesis of species-level self-compatibility (SC) and
+# self-incompatibility (SI).  The published output column is named
+# `mating_system`, but the accompanying metadata defines its sc/si values as
+# compatibility states, so this source maps only to self_incompatibility.
+source:
+  name: meyer_galloway_eckert_2026_dryad
+  citation: >-
+    Meyer, Galloway & Eckert (2026), The evolutionary dynamics of plant mating
+    systems: how bias for studying 'interesting' plant reproductive systems
+    could backfire, Dryad dataset, version 4.
+  dataset_url: https://doi.org/10.5061/dryad.cc2fqz6hr
+  dataset_landing_page: https://datadryad.org/dataset/doi:10.5061/dryad.cc2fqz6hr
+  source_repository_commit: >-
+    https://github.com/elenacicada/interesting_flowers/tree/e1f6dc237ae58234738ef4ae98d7a98e7ea37f5a
+  license: CC0-1.0
+  expected_output_sha256: dbc454103faa2d1677586b5b690b8ccc3e6b1a99fb39cdc0b00181703b4c6b56
+  expected_output_rows: 4324
+
+value_map:
+  sc: SC
+  si: SI
+
+# The authors' preparation script collapsed DIO (dioecious) into si. Dioecy is
+# not evidence of a genetic self-incompatibility system. These four DIO-only
+# names survived into Output_Data_MS.csv and are therefore explicitly removed.
+# Generic "sp." DIO records did not survive the final species table.
+excluded_dio_only_names:
+  - Arcoa gonavensis
+  - Ateleia herbert-smithii
+  - Bauhinia macranthera
+  - Ceratonia oreothauma
+
+gbif_reconciliation:
+  endpoint: https://api.gbif.org/v1/species/match
+  minimum_confidence: 95
+  allowed_match_type: EXACT
+  allowed_rank: SPECIES
+  allowed_kingdom: Plantae
+  # Only an exact synonym whose accepted species occurs uniquely in the island
+  # master is transferred. Fuzzy, higher-rank and family-conflicting matches are
+  # retained in the audit but never become trait candidates.
+  allowed_status:
+    - SYNONYM
+
+genus_inference:
+  enabled: true
+  target_trait: self_incompatibility
+  minimum_direct_species: 5
+  minimum_modal_purity: 1.0
+  confidence: low
+  output_values:
+    SI: likely_SI
+    SC: likely_SC
+  # This is a labelled sensitivity/completion layer, never species-direct
+  # evidence and never a replacement for a conflicting species-level record.
+  analysis_role: sensitivity_only_genus_inference

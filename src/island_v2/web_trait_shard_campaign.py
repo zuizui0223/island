@@ -51,7 +51,7 @@ PROVIDER_IMPLEMENTATION_VERSIONS = {
     "web_descriptions": "web_descriptions_indexed_v1",
     "wikimedia": "wikimedia_exact_title_v1",
     "openalex": "openalex_title_abstract_v1",
-    "europe_pmc": "europe_pmc_title_abstract_v1",
+    "europe_pmc": "europe_pmc_title_abstract_reproduction_v2",
 }
 PROVIDER_TARGET_FIELDS = {
     "gbif": frozenset({"flower_color", "flower_shape"}),
@@ -59,7 +59,6 @@ PROVIDER_TARGET_FIELDS = {
         {
             "flower_color",
             "flower_shape",
-            "pollination_guild",
             "mating_system",
             "self_incompatibility",
         }
@@ -68,7 +67,6 @@ PROVIDER_TARGET_FIELDS = {
         {
             "flower_color",
             "flower_shape",
-            "pollination_guild",
             "mating_system",
             "self_incompatibility",
         }
@@ -77,14 +75,16 @@ PROVIDER_TARGET_FIELDS = {
         {
             "flower_color",
             "flower_shape",
-            "pollination_guild",
             "mating_system",
             "self_incompatibility",
         }
     ),
-    "openalex": frozenset({"pollination_guild", "mating_system", "self_incompatibility"}),
-    "europe_pmc": frozenset({"pollination_guild", "mating_system", "self_incompatibility"}),
+    "openalex": frozenset({"mating_system", "self_incompatibility"}),
+    "europe_pmc": frozenset({"mating_system", "self_incompatibility"}),
 }
+ACTIVE_TARGET_FIELDS = frozenset(
+    {"flower_color", "flower_shape", "mating_system", "self_incompatibility"}
+)
 # v4/v5 did not persist provider attempts. These were the production campaign's
 # enabled providers; any provider outside this set remains pending on migration.
 LEGACY_DEFAULT_ENABLED_PROVIDERS = {
@@ -634,6 +634,7 @@ def _status_report(
         "contract_version": CONTRACT_VERSION,
         "provider_policy_version": PROVIDER_POLICY_VERSION,
         "enabled_providers": sorted(enabled_providers),
+        "active_target_fields": sorted(ACTIVE_TARGET_FIELDS),
         "updated_at": _now(),
         "n_global_species": global_species,
         "shard_index": shard_index,
@@ -652,7 +653,8 @@ def _status_report(
         "interpretation": (
             "provider no_hit is a terminal successful zero-result lookup, while "
             "skipped_covered means seed evidence already covered every provider target "
-            "field; neither is biological absence, and retry/exhausted retain failures."
+            "field. Pollination guild remains in the compatibility output but is not an "
+            "active acquisition target; none of these statuses is biological absence."
         ),
     }
 
@@ -673,6 +675,7 @@ def _packet_manifest(packet_dir: Path, packet_id: str, species: list[str]) -> di
     return {
         "contract_version": CONTRACT_VERSION,
         "provider_policy_version": PROVIDER_POLICY_VERSION,
+        "active_target_fields": sorted(ACTIVE_TARGET_FIELDS),
         "packet_id": packet_id,
         "created_at": _now(),
         "species": species,

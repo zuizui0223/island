@@ -115,6 +115,95 @@ def test_candidate_mapping_is_direct_and_conservative() -> None:
     assert map_candidate_value("mating_system", "predominantly_outcrossing") == []
 
 
+def test_genus_si_candidates_are_likely_low_confidence_and_never_source_backed(
+    tmp_path: Path,
+) -> None:
+    master = tmp_path / "master.csv"
+    pd.DataFrame(
+        {
+            "accepted_species": ["Alpha target", "Beta target", "Gamma conflict"],
+            "genus": ["Alpha", "Beta", "Gamma"],
+            "family": ["FamA", "FamB", "FamC"],
+        }
+    ).to_csv(master, index=False)
+    candidates = tmp_path / "candidates.csv"
+    pd.DataFrame(
+        [
+            {
+                "accepted_species": "Alpha target",
+                "trait_name": "self_incompatibility",
+                "standardized_value": "SC",
+                "candidate_kind": "source_backed",
+                "evidence_scope": "species_direct",
+                "source_type": "curated_trait_database",
+                "source_name": "direct_db",
+                "source_url": "https://example.test/direct",
+                "source_record_id": "direct:1",
+                "evidence_excerpt": "Alpha target is self-compatible.",
+                "source_reliability": "B_curated_database_or_institution",
+                "confidence": "medium",
+            },
+            {
+                "accepted_species": "Alpha target",
+                "trait_name": "self_incompatibility",
+                "standardized_value": "SI",
+                "candidate_kind": "hierarchical_inference",
+                "evidence_scope": "genus_inference",
+                "source_type": "curated_trait_database",
+                "source_name": "genus_db",
+                "source_url": "https://example.test/genus",
+                "source_record_id": "genus:alpha",
+                "evidence_excerpt": "Five directly reported congeners are SI.",
+                "source_reliability": "B_curated_database_or_institution",
+                "confidence": "low",
+            },
+            {
+                "accepted_species": "Beta target",
+                "trait_name": "self_incompatibility",
+                "standardized_value": "SI",
+                "candidate_kind": "hierarchical_inference",
+                "evidence_scope": "genus_inference",
+                "source_type": "curated_trait_database",
+                "source_name": "genus_db",
+                "source_url": "https://example.test/genus",
+                "source_record_id": "genus:beta",
+                "evidence_excerpt": "Six directly reported congeners are SI.",
+                "source_reliability": "B_curated_database_or_institution",
+                "confidence": "low",
+            },
+            *[
+                {
+                    "accepted_species": "Gamma conflict",
+                    "trait_name": "self_incompatibility",
+                    "standardized_value": value,
+                    "candidate_kind": "source_backed",
+                    "evidence_scope": "species_direct",
+                    "source_type": "curated_trait_database",
+                    "source_name": f"conflict_{value}",
+                    "source_url": f"https://example.test/{value}",
+                    "source_record_id": f"conflict:{value}",
+                    "evidence_excerpt": f"Gamma conflict is {value}.",
+                    "source_reliability": "B_curated_database_or_institution",
+                    "confidence": "medium",
+                }
+                for value in ("SI", "SC")
+            ],
+        ]
+    ).to_csv(candidates, index=False)
+
+    output = tmp_path / "output"
+    report = build_export(master_csv=master, output_dir=output, candidate_csvs=[candidates])
+    result = pd.read_csv(output / "all_species_traits.csv", dtype=str).set_index("species")
+    assert result.loc["Alpha target", "self_incompatibility"] == "SC"
+    assert result.loc["Alpha target", "confidence"] == "medium"
+    assert result.loc["Beta target", "self_incompatibility"] == "likely_SI"
+    assert result.loc["Beta target", "evidence_type"] == "inference"
+    assert result.loc["Beta target", "confidence"] == "low"
+    assert result.loc["Gamma conflict", "self_incompatibility"] == "unknown"
+    assert result.loc["Gamma conflict", "confidence"] == "low"
+    assert report["n_source_backed_evidence_rows"] == 3
+
+
 def test_build_export_retains_every_species_and_keeps_llm_separate(tmp_path: Path) -> None:
     master = tmp_path / "master.csv"
     pd.DataFrame(

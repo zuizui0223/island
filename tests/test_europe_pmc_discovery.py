@@ -72,7 +72,7 @@ def _matching_payload() -> dict[str, object]:
 def test_query_is_exact_quoted_species_and_title_abstract_reproductive_terms() -> None:
     query = build_query("Plantus alba")
     assert query.startswith('TITLE_ABS:"Plantus alba" AND (')
-    assert "TITLE_ABS:pollinat*" in query
+    assert "TITLE_ABS:pollinat*" not in query
     assert 'TITLE_ABS:"breeding system"' in query
     assert 'TITLE_ABS:"self-incompatibility"' in query
 

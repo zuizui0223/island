@@ -21,6 +21,7 @@ coverage_priorities:
     - cleistogamy
   direct_ecology_best_effort:
     - pollen_vector_mode
+  deferred_interaction_evidence:
     - pollination_functional_guild
 
 measurement_structures:

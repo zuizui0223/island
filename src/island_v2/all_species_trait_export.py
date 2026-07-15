@@ -299,6 +299,21 @@ def candidate_evidence(
         species = _text(record.get("accepted_species"))
         trait = _text(record.get("trait_name"))
         raw_value = _text(record.get(value_column))
+        candidate_kind = _text(record.get("candidate_kind"))
+        evidence_scope = _text(record.get("evidence_scope"))
+        hierarchical_inference = candidate_kind == "hierarchical_inference"
+        if hierarchical_inference and evidence_scope not in {"genus_inference", "family_inference"}:
+            audit.append(
+                {
+                    "input_file": str(input_path),
+                    "row_number": str(row_number),
+                    "species": species,
+                    "trait_name": trait,
+                    "raw_value": raw_value,
+                    "reason": "hierarchical_candidate_without_genus_or_family_scope",
+                }
+            )
+            continue
         mapped = map_candidate_value(trait, raw_value)
         if not mapped:
             audit.append(
@@ -338,7 +353,14 @@ def candidate_evidence(
             )
         )
         source_backed = bool(source_url and excerpt and source_record_id)
-        if not source_backed:
+        if hierarchical_inference:
+            # The cited records support congeners/confamilials, not the target
+            # species. Preserve provenance but never count the transfer as
+            # source-backed species evidence. SI/SC transfers use the explicit
+            # likely_* vocabulary in the nine-column completion table.
+            source_kind = f"{source_kind}_{evidence_scope}"
+            evidence_type, confidence, rank, source_backed = "inference", "low", 4, False
+        elif not source_backed:
             audit.append(
                 {
                     "input_file": str(input_path),
@@ -351,6 +373,8 @@ def candidate_evidence(
             )
             evidence_type, confidence, rank = "inference", "low", 4
         for field, value in mapped:
+            if hierarchical_inference and field == "self_incompatibility":
+                value = {"SI": "likely_SI", "SC": "likely_SC"}.get(value, value)
             evidence.append(
                 {
                     "species": species,
@@ -789,6 +813,12 @@ def collapse_all_species(master_species: list[str], evidence: pd.DataFrame) -> p
         evidence_type, confidence, notes = metadata_by_species.get(
             species, ("inference", "low", "unknown")
         )
+        if all(value == "unknown" for value in values.values()):
+            # Conflicting direct SI/SC reports deliberately collapse to unknown.
+            # The presentation contract requires every all-unknown row to remain
+            # low confidence even though its companion evidence table retains the
+            # conflicting medium-confidence source records for review.
+            confidence = "low"
         output.append(
             {
                 "species": species,
@@ -913,9 +943,11 @@ def build_export(
         "llm_extracted_bundle_dirs": [str(path) for path in llm_extracted_bundle_dirs or []],
         "policy": (
             "Source-backed candidates, including evidence-locked LLM extraction, outrank "
-            "public-web rule matches, which outrank validated LLM-only inference. Raw LLM "
-            "responses are never accepted. LLM-only rows are always inference/low. Missing "
-            "fields remain unknown; every master species remains exactly once."
+            "public-web rule matches, which outrank labelled hierarchical and validated "
+            "LLM-only inference. Hierarchical SI/SC is emitted only as likely_SI/likely_SC "
+            "with inference/low and never counted as source-backed species evidence. Raw LLM "
+            "responses are never accepted. Missing fields remain unknown; every master "
+            "species remains exactly once."
         ),
     }
     (output_dir / "all_species_traits_manifest.json").write_text(

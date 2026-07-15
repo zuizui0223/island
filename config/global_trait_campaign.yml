@@ -1,4 +1,4 @@
-version: "1.0"
+version: "1.1"
 default_batch_size: 1000
 max_attempts: 3
 
@@ -17,22 +17,26 @@ wikipedia_languages:
   - it
 
 task_order:
+  - floral_access_wikimedia
   - reproductive_wikimedia
   - reproductive_openalex
-  - floral_access_wikimedia
   - alternative_guild_wikimedia
   - alternative_guild_openalex
 
+# v1.0 marked non-biotic rows not_applicable for floral access. v1.1 makes that
+# task all-species, so those historical terminal gates must be reopened once.
+reopen_not_applicable_tasks:
+  - floral_access_wikimedia
+
 tasks:
   reproductive_wikimedia:
-    phase: reproductive_and_pollen_vector
+    phase: reproductive_biology
     source_kind: wikimedia_reported_ecology
     eligibility: all
     depends_on: []
     pause_seconds: 0.05
     max_retries: 4
     target_traits:
-      - pollen_vector_mode
       - self_incompatibility
       - autonomous_selfing_capacity
       - mating_system
@@ -41,7 +45,7 @@ tasks:
       - sex_system
 
   reproductive_openalex:
-    phase: reproductive_and_pollen_vector
+    phase: reproductive_biology
     required_for_primary_completion: false
     source_kind: openalex_reported_ecology
     eligibility: all
@@ -59,10 +63,9 @@ tasks:
       - autonomous selfing
       - mating system
       - cleistogamy
-      - pollen vector
-      - pollination
+      - dichogamy
+      - breeding system
     target_traits:
-      - pollen_vector_mode
       - self_incompatibility
       - autonomous_selfing_capacity
       - mating_system
@@ -73,9 +76,8 @@ tasks:
   floral_access_wikimedia:
     phase: floral_access
     source_kind: wikimedia_web_reported
-    eligibility: machine_biotic_candidate
-    depends_on:
-      - reproductive_wikimedia
+    eligibility: all
+    depends_on: []
     pause_seconds: 0.05
     max_retries: 4
     keyword_config: config/global_floral_access_keywords.yml
@@ -88,6 +90,7 @@ tasks:
 
   alternative_guild_wikimedia:
     phase: alternative_pollinator_function
+    required_for_primary_completion: false
     source_kind: wikimedia_reported_ecology
     eligibility: machine_biotic_candidate
     depends_on:

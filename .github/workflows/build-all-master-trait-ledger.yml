@@ -47,9 +47,23 @@ on:
       - "tests/test_acquisition_rate_report.py"
       - "tests/test_materialize_trait_artifacts.py"
       - "src/island_v2/all_species_trait_export.py"
+      - "src/island_v2/meyer_2026_reproductive_traits.py"
+      - "config/meyer_2026_reproductive_traits.yml"
+      - "data/v2/external/traits/meyer_2026/Output_Data_MS.csv"
+      - "data/v2/staging/traits/bulk/meyer_2026_reproductive_traits/**"
+      - "src/island_v2/razanajatovo_2016_reproductive_traits.py"
+      - "config/razanajatovo_2016_reproductive_traits.yml"
+      - "data/v2/external/traits/razanajatovo_2016/**"
+      - "data/v2/staging/traits/bulk/razanajatovo_2016_reproductive_traits/**"
+      - "src/island_v2/si_genus_inference.py"
+      - "config/si_genus_inference.yml"
+      - "data/v2/staging/traits/inference/si_genus_v1/**"
       - "src/island_v2/search_enabled_llm_campaign.py"
       - "src/island_v2/llm_evidence_extraction.py"
       - "tests/test_all_species_trait_export.py"
+      - "tests/test_meyer_2026_reproductive_traits.py"
+      - "tests/test_razanajatovo_2016_reproductive_traits.py"
+      - "tests/test_si_genus_inference.py"
       - "tests/test_search_enabled_llm_campaign.py"
       - "tests/test_llm_evidence_extraction.py"
 
@@ -79,6 +93,9 @@ jobs:
             tests/test_materialize_trait_artifacts.py \
             tests/test_acquisition_rate_report.py \
             tests/test_all_species_trait_export.py \
+            tests/test_meyer_2026_reproductive_traits.py \
+            tests/test_razanajatovo_2016_reproductive_traits.py \
+            tests/test_si_genus_inference.py \
             tests/test_search_enabled_llm_campaign.py \
             tests/test_llm_evidence_extraction.py
 
@@ -212,6 +229,9 @@ jobs:
           CANDIDATE_ARGS=(
             --candidate-csv data/v2/staging/traits/eol_traitbank/trait_candidates.csv
             --candidate-csv data/v2/staging/traits/bulk/austraits_all/trait_candidates.csv.gz
+            --candidate-csv data/v2/staging/traits/bulk/meyer_2026_reproductive_traits/trait_candidates.csv.gz
+            --candidate-csv data/v2/staging/traits/bulk/razanajatovo_2016_reproductive_traits/trait_candidates.csv.gz
+            --candidate-csv data/v2/staging/traits/inference/si_genus_v1/genus_inference_candidates.csv.gz
             --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz
           )
           if [[ -f data/v2/staging/traits/efloras/combined/trait_candidates.csv ]]; then
@@ -337,6 +357,9 @@ jobs:
             /tmp/source_artifacts/metadata/
             data/v2/staging/traits/eol_traitbank/trait_candidates.csv
             data/v2/staging/traits/bulk/austraits_all/trait_candidates.csv.gz
+            data/v2/staging/traits/bulk/meyer_2026_reproductive_traits/
+            data/v2/staging/traits/bulk/razanajatovo_2016_reproductive_traits/
+            data/v2/staging/traits/inference/si_genus_v1/
             data/v2/staging/traits/bulk/gift_v3_2/trait_candidates.csv
             data/v2/staging/traits/bulk/usda_plants_current/trait_candidates.csv
             data/v2/staging/traits/efloras/combined/trait_candidates.csv

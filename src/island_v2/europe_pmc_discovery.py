@@ -1,8 +1,8 @@
 """Conservative Europe PMC title/abstract discovery for reproductive evidence.
 
 Only the public Europe PMC REST API is queried.  The adapter freezes article
-metadata when the full focal species name and a reproductive or pollination
-term occur in the returned title/abstract.  It never scrapes article pages and
+metadata when the full focal species name and a breeding-system or reproductive
+term occur in the returned title/abstract. It never scrapes article pages and
 never assigns or infers a plant trait.
 """
 
@@ -29,10 +29,9 @@ EUROPE_PMC_REST_ROOT = "https://www.ebi.ac.uk/europepmc/webservices/rest"
 EUROPE_PMC_SEARCH_URL = f"{EUROPE_PMC_REST_ROOT}/search"
 EUROPE_PMC_ARTICLE_ROOT = "https://europepmc.org/article"
 USER_AGENT = "island-floral-traits/0.1 (Europe PMC REST discovery)"
-CONTRACT_VERSION = "europe_pmc_title_abstract_v1"
+CONTRACT_VERSION = "europe_pmc_title_abstract_reproduction_v2"
 
 REPRODUCTIVE_QUERY_TERMS = (
-    "pollinat*",
     '"breeding system"',
     '"mating system"',
     "selfing",
@@ -49,7 +48,6 @@ REPRODUCTIVE_QUERY_TERMS = (
 REPRODUCTIVE_TEXT_PATTERNS = tuple(
     re.compile(pattern, flags=re.IGNORECASE)
     for pattern in (
-        r"\bpollinat\w*\b",
         r"\bbreeding systems?\b",
         r"\bmating systems?\b",
         r"\bselfing\b",

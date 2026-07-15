@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "source_name": "meyer_galloway_eckert_2026_dryad",
+  "source_path": "data\\v2\\external\\traits\\meyer_2026\\Output_Data_MS.csv",
+  "source_sha256": "dbc454103faa2d1677586b5b690b8ccc3e6b1a99fb39cdc0b00181703b4c6b56",
+  "source_license": "CC0-1.0",
+  "source_url": "https://doi.org/10.5061/dryad.cc2fqz6hr",
+  "n_source_rows": 4324,
+  "n_source_sc_si_rows": 4004,
+  "n_dio_only_rows_excluded": 4,
+  "n_usable_source_rows": 4000,
+  "n_direct_candidate_species": 2509,
+  "direct_candidates_by_value": {
+    "SC": 1646,
+    "SI": 863
+  },
+  "direct_candidates_by_name_match_method": {
+    "accepted_name_exact": 2430,
+    "gbif_exact_synonym_to_accepted": 79
+  },
+  "n_conflicting_master_mappings_quarantined": 3,
+  "conflicting_master_species": [
+    "Carthamus creticus",
+    "Epipactis helleborine",
+    "Epipactis phyllanthes"
+  ],
+  "n_unmatched_usable_source_rows": 1475,
+  "n_angiosperm_master_species": 106295,
+  "genus_inference": {
+    "minimum_direct_species": 5,
+    "minimum_modal_purity": 1.0,
+    "n_qualifying_genera": 47,
+    "n_inferred_species": 2274,
+    "leave_one_out_n": 389,
+    "leave_one_out_correct": 372,
+    "leave_one_out_accuracy": 0.9562982005141388
+  },
+  "outputs": {
+    "trait_candidates": "data\\v2\\staging\\traits\\bulk\\meyer_2026_reproductive_traits\\trait_candidates.csv.gz",
+    "genus_inference_candidates": "data\\v2\\staging\\traits\\bulk\\meyer_2026_reproductive_traits\\genus_inference_candidates.csv.gz",
+    "name_match_audit": "data\\v2\\staging\\traits\\bulk\\meyer_2026_reproductive_traits\\name_match_audit.csv.gz",
+    "unmatched_taxa": "data\\v2\\staging\\traits\\bulk\\meyer_2026_reproductive_traits\\unmatched_taxa.csv",
+    "source_exclusions": "data\\v2\\staging\\traits\\bulk\\meyer_2026_reproductive_traits\\source_exclusions.csv",
+    "gbif_match_cache": "data\\v2\\staging\\traits\\bulk\\meyer_2026_reproductive_traits\\gbif_species_match_cache.jsonl.gz"
+  },
+  "policy": "SC/SI are species-direct only after exact accepted-name or strict GBIF exact-synonym reconciliation. Genus inference is a separate low-confidence layer requiring the configured support and purity; fuzzy and family-conflicting matches remain unmatched."
+}

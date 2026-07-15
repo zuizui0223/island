@@ -1,0 +1,32 @@
+{
+  "version": "1.0",
+  "source_name": "razanajatovo_etal_2016_nature_communications",
+  "source_license": "CC-BY-4.0",
+  "workbook_sha256": "cb17009ae65c4f6cb2d28b21239714782600d0904effa77c5635249d28e62fc0",
+  "sheet_csv_sha256": "e030e1053d0c0b5a73ecc9a4dde3b26ba3fab20f8bb65cd61d01f4883800547b",
+  "n_source_observations": 1890,
+  "n_source_species": 1752,
+  "n_source_species_with_conservative_candidate": 1027,
+  "n_direct_candidate_species": 585,
+  "n_direct_candidate_cells": 920,
+  "candidate_counts_by_trait_value": {
+    "autonomous_selfing_capacity:absent": 258,
+    "autonomous_selfing_capacity:autonomous": 79,
+    "autonomous_selfing_capacity:mixed_or_variable": 139,
+    "self_incompatibility:SC": 210,
+    "self_incompatibility:mixed_or_variable": 234
+  },
+  "name_match_counts": {
+    "accepted_name_exact": 527,
+    "unmatched": 442,
+    "gbif_exact_synonym_to_accepted": 58
+  },
+  "n_unmatched_useful_source_species": 442,
+  "outputs": {
+    "trait_candidates": "data\\v2\\staging\\traits\\bulk\\razanajatovo_2016_reproductive_traits\\trait_candidates.csv.gz",
+    "name_match_audit": "data\\v2\\staging\\traits\\bulk\\razanajatovo_2016_reproductive_traits\\name_match_audit.csv.gz",
+    "unmatched_taxa": "data\\v2\\staging\\traits\\bulk\\razanajatovo_2016_reproductive_traits\\unmatched_taxa.csv",
+    "gbif_match_cache": "data\\v2\\staging\\traits\\bulk\\razanajatovo_2016_reproductive_traits\\gbif_species_match_cache.jsonl.gz"
+  },
+  "policy": "High compatibility indices support SC; low compatibility indices never become SI. Autofertility maps only to autonomous_selfing_capacity. Exact synonyms are accepted only through the strict GBIF species/family contract."
+}
