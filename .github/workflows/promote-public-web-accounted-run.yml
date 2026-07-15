@@ -6,12 +6,22 @@ on:
       source_run_id:
         description: Completed 128-shard public-web workflow run ID
         required: true
-        default: "29186029383"
+        type: string
+      expected_species:
+        description: Exact source checkpoint denominator
+        required: true
+        default: "106295"
+        type: string
+      expected_contract:
+        description: Exact shard contract version
+        required: true
+        default: "public_web_9col_shards_v6"
         type: string
   pull_request:
     paths:
       - ".github/workflows/promote-public-web-accounted-run.yml"
       - "src/island_v2/combine_public_web_artifacts.py"
+      - "src/island_v2/web_trait_shard_campaign.py"
       - "tests/test_combine_public_web_artifacts.py"
       - "pyproject.toml"
 
@@ -43,6 +53,8 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+      EXPECTED_SPECIES: ${{ inputs.expected_species }}
+      EXPECTED_CONTRACT: ${{ inputs.expected_contract }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -54,6 +66,7 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$SOURCE_RUN_ID" =~ ^[0-9]+$ ]]
+          [[ "$EXPECTED_SPECIES" =~ ^[0-9]+$ ]]
           mkdir -p /tmp/public_web_source /tmp/public_web_combined
           gh run download "$SOURCE_RUN_ID" \
             --repo "$GITHUB_REPOSITORY" \
@@ -69,8 +82,8 @@ jobs:
             --output-dir /tmp/public_web_combined \
             --source-run-id "$SOURCE_RUN_ID" \
             --expected-shards 128 \
-            --expected-species 105612 \
-            --expected-contract public_web_9col_shards_v4 \
+            --expected-species "$EXPECTED_SPECIES" \
+            --expected-contract "$EXPECTED_CONTRACT" \
             --artifact-metadata-jsonl /tmp/public_web_source_artifacts.jsonl
           cp /tmp/public_web_source_artifacts.jsonl \
             /tmp/public_web_combined/source_artifacts.jsonl
@@ -86,7 +99,8 @@ jobs:
               .read_text(encoding="utf-8")
           )
           assert manifest["shard_count"] == 128
-          assert manifest["source_denominator"] == 105_612
+          assert manifest["source_denominator"] == int(os.environ["EXPECTED_SPECIES"])
+          assert manifest["source_contract"] == os.environ["EXPECTED_CONTRACT"]
           assert manifest["source_artifact_count"] == 128
           with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as out:
               out.write("## Promoted public-web evidence\n\n")

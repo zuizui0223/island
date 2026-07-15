@@ -27,7 +27,7 @@ on:
         default: false
         type: boolean
       seed_run_id:
-        description: "Prior 128-shard run used only when no v5 checkpoint cache exists."
+        description: "Prior 128-shard run used only when no v6 checkpoint cache exists."
         required: false
         default: "29186029383"
         type: string
@@ -39,7 +39,10 @@ on:
       - ".github/workflows/run-public-web-trait-shards.yml"
       - "src/island_v2/web_trait_shard_campaign.py"
       - "src/island_v2/v1_category_search.py"
+      - "src/island_v2/europe_pmc_discovery.py"
       - "tests/test_web_trait_shard_campaign.py"
+      - "tests/test_v1_category_search.py"
+      - "tests/test_europe_pmc_discovery.py"
       - "config/angiosperm_scope.yml"
       - "pyproject.toml"
 
@@ -76,6 +79,7 @@ jobs:
           pytest -q \
             tests/test_web_trait_shard_campaign.py \
             tests/test_v1_category_search.py \
+            tests/test_europe_pmc_discovery.py \
             tests/test_v1_category_traits.py
           island-v2-web-trait-shards --help >/dev/null
       - name: Validate the 106,295-species angiosperm shard plan
@@ -87,6 +91,11 @@ jobs:
             --shard-count 128 \
             --expected-species 106295
           cat /tmp/public_web_trait_plan/shard_plan.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Freeze plant-site sitemap indexes once for all shards
+        if: github.event_name != 'pull_request'
+        run: |
+          island-v2-v1-category-search build-web-index \
+            --output-json /tmp/public_web_trait_plan/web_description_index.json
       - name: Build bounded matrix
         id: matrix
         run: |
@@ -130,8 +139,8 @@ jobs:
     timeout-minutes: 90
     env:
       SHARD_DIR: /tmp/public-web-trait-shards/shard-${{ matrix.shard }}
-      CACHE_KEY: public-web-9col-v5-shard-${{ matrix.shard }}-${{ github.run_id }}-${{ github.run_attempt }}
-      CACHE_PREFIX: public-web-9col-v5-shard-${{ matrix.shard }}-
+      CACHE_KEY: public-web-9col-v6-shard-${{ matrix.shard }}-${{ github.run_id }}-${{ github.run_attempt }}
+      CACHE_PREFIX: public-web-9col-v6-shard-${{ matrix.shard }}-
       GH_TOKEN: ${{ github.token }}
       SEED_RUN_ID: ${{ inputs.seed_run_id || '29186029383' }}
     steps:
@@ -140,6 +149,11 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
+      - name: Download frozen shard plan and plant-site indexes
+        uses: actions/download-artifact@v4
+        with:
+          name: public-web-trait-shard-plan-${{ github.run_id }}
+          path: /tmp/public_web_trait_plan
       - name: Install package
         run: pip install -e ".[dev]"
       - name: Restore shard checkpoint
@@ -148,13 +162,14 @@ jobs:
         with:
           path: |
             ${{ env.SHARD_DIR }}/checkpoint.csv
+            ${{ env.SHARD_DIR }}/provider_checkpoint.csv
             ${{ env.SHARD_DIR }}/campaign_manifest.json
             ${{ env.SHARD_DIR }}/campaign_status.json
             ${{ env.SHARD_DIR }}/cumulative/
           key: ${{ env.CACHE_KEY }}
           restore-keys: |
             ${{ env.CACHE_PREFIX }}
-      - name: Bootstrap immutable v4 shard when no v5 checkpoint exists
+      - name: Bootstrap immutable v4 shard when no v6 checkpoint exists
         if: github.event_name != 'pull_request'
         run: |
           set -euo pipefail
@@ -187,7 +202,10 @@ jobs:
             --batch-size "$BATCH_SIZE" \
             --max-attempts 3 \
             --expected-species 106295 \
-            --pause-seconds 0.5 \
+            --web-description-index \
+              /tmp/public_web_trait_plan/web_description_index.json \
+            --pause-seconds 1.0 \
+            --europe-pmc \
             --no-openalex \
             --no-world-flora \
             --migrate-v4 \
@@ -212,22 +230,27 @@ jobs:
                   print(f"- terminal: {status['n_terminal']}/{status['n_species_in_shard']}", file=out)
                   print(f"- remaining: {status['n_remaining']}", file=out)
                   print(f"- status counts: {status['status_counts']}", file=out)
+                  print(f"- provider remaining: {status['n_provider_remaining']}", file=out)
+                  print(f"- provider counts: {status['provider_status_counts']}", file=out)
                   print(f"- coverage: {status['coverage']}", file=out)
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
               print(f"attempted={attempted}", file=out)
           PY
       - name: Save resumable shard checkpoint
-        if: always() && steps.status.outputs.attempted != '0'
+        if: >-
+          always() && steps.advance.outcome == 'success' &&
+          steps.status.outputs.attempted != '0'
         uses: actions/cache/save@v4
         with:
           path: |
             ${{ env.SHARD_DIR }}/checkpoint.csv
+            ${{ env.SHARD_DIR }}/provider_checkpoint.csv
             ${{ env.SHARD_DIR }}/campaign_manifest.json
             ${{ env.SHARD_DIR }}/campaign_status.json
             ${{ env.SHARD_DIR }}/cumulative/
           key: ${{ env.CACHE_KEY }}
       - name: Upload current search evidence packet and cumulative snapshot
-        if: always() && steps.status.outputs.attempted != '0'
+        if: always() && steps.advance.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: public-web-trait-shard-${{ matrix.shard }}-${{ github.run_id }}
@@ -235,6 +258,7 @@ jobs:
             ${{ env.SHARD_DIR }}/campaign_manifest.json
             ${{ env.SHARD_DIR }}/campaign_status.json
             ${{ env.SHARD_DIR }}/checkpoint.csv
+            ${{ env.SHARD_DIR }}/provider_checkpoint.csv
             ${{ env.SHARD_DIR }}/packets/
             ${{ env.SHARD_DIR }}/cumulative/
           if-no-files-found: error

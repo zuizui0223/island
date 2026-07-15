@@ -1,0 +1,240 @@
+name: Ingest validated LLM result bundles
+
+# This workflow never calls a model. It binds already-produced provider rows to
+# one immutable prepared-job artifact, revalidates job/prompt/result hashes, and
+# publishes the only model-only artifact accepted by the all-master exporter.
+on:
+  workflow_dispatch:
+    inputs:
+      prepared_jobs_run_id:
+        description: Run containing search-enabled-llm-jobs-<run_id>
+        required: true
+        type: string
+      provider_results_run_ids:
+        description: Comma-separated successful runs containing canonical provider_results.jsonl
+        required: true
+        type: string
+      provider_results_artifact_name:
+        description: Exact artifact name shared by the provider-result runs
+        required: true
+        default: openai-llm-provider-results
+        type: string
+      model_provider:
+        description: Stable provider identifier recorded on every accepted row
+        required: true
+        type: string
+      model_id:
+        description: Exact model identifier recorded on every accepted row
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      PREPARED_RUN_ID: ${{ inputs.prepared_jobs_run_id }}
+      RESULT_RUN_IDS: ${{ inputs.provider_results_run_ids }}
+      RESULT_ARTIFACT: ${{ inputs.provider_results_artifact_name }}
+      MODEL_PROVIDER: ${{ inputs.model_provider }}
+      MODEL_ID: ${{ inputs.model_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install and test validation contracts
+        run: |
+          pip install -e ".[dev]"
+          pytest -q \
+            tests/test_search_enabled_llm_campaign.py \
+            tests/test_all_species_trait_export.py
+      - name: Download immutable prepared jobs and provider results
+        run: |
+          set -euo pipefail
+          [[ "$PREPARED_RUN_ID" =~ ^[0-9]+$ ]]
+          [[ -n "$RESULT_ARTIFACT" ]]
+          [[ -n "$MODEL_PROVIDER" ]]
+          [[ -n "$MODEL_ID" ]]
+          mkdir -p /tmp/prepared /tmp/provider_results
+          gh run download "$PREPARED_RUN_ID" \
+            --repo "$GH_REPO" \
+            --name "search-enabled-llm-jobs-$PREPARED_RUN_ID" \
+            --dir /tmp/prepared
+          gh run view "$PREPARED_RUN_ID" \
+            --repo "$GH_REPO" \
+            --json databaseId,status,conclusion,headSha,url \
+            > /tmp/prepared_run.json
+
+          IFS=',' read -ra ids <<< "$RESULT_RUN_IDS"
+          if (( ${#ids[@]} == 0 )); then
+            echo "provider_results_run_ids is empty" >&2
+            exit 1
+          fi
+          : > /tmp/provider_result_runs.jsonl
+          for raw_id in "${ids[@]}"; do
+            run_id="$(printf '%s' "$raw_id" | xargs)"
+            [[ "$run_id" =~ ^[0-9]+$ ]]
+            mkdir -p "/tmp/provider_results/$run_id"
+            gh run download "$run_id" \
+              --repo "$GH_REPO" \
+              --name "$RESULT_ARTIFACT" \
+              --dir "/tmp/provider_results/$run_id"
+            gh run view "$run_id" \
+              --repo "$GH_REPO" \
+              --json databaseId,status,conclusion,headSha,url \
+              | jq -c . \
+              >> /tmp/provider_result_runs.jsonl
+          done
+
+          mapfile -t ledgers < <(find /tmp/prepared -type f -name campaign_ledger.csv)
+          if (( ${#ledgers[@]} != 1 )); then
+            echo "expected exactly one campaign_ledger.csv" >&2
+            printf '%s\n' "${ledgers[@]}" >&2
+            exit 1
+          fi
+          campaign_dir="$(dirname "${ledgers[0]}")"
+          echo "CAMPAIGN_DIR=$campaign_dir" >> "$GITHUB_ENV"
+      - name: Verify prepared artifact before mutation
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["CAMPAIGN_DIR"])
+          manifest_path = root / "prepared_jobs_manifest.json"
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          assert manifest["contract_version"] == "2.0"
+
+          def sha(path: Path) -> str:
+              return hashlib.sha256(path.read_bytes()).hexdigest()
+
+          for name, expected in manifest["campaign_file_sha256"].items():
+              assert sha(root / name) == expected, name
+          observed_shards = {
+              path.name: sha(path) for path in sorted(root.glob("jobs_shard_*.jsonl"))
+          }
+          assert observed_shards == manifest["jobs_shard_sha256"]
+          run = json.loads(Path("/tmp/prepared_run.json").read_text(encoding="utf-8"))
+          assert run["databaseId"] == int(os.environ["PREPARED_RUN_ID"])
+          assert run["status"] == "completed" and run["conclusion"] == "success"
+          PY
+      - name: Ingest every canonical provider result file
+        run: |
+          set -euo pipefail
+          mapfile -t result_files < <(
+            find /tmp/provider_results -type f -name provider_results.jsonl | sort
+          )
+          if (( ${#result_files[@]} == 0 )); then
+            echo "no provider_results.jsonl files were found" >&2
+            exit 1
+          fi
+          for result_file in "${result_files[@]}"; do
+            island-v2-search-enabled-llm ingest \
+              --campaign-dir "$CAMPAIGN_DIR" \
+              --results-jsonl "$result_file" \
+              --model-provider "$MODEL_PROVIDER" \
+              --model-id "$MODEL_ID"
+          done
+      - name: Build and independently revalidate publishable bundle
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import shutil
+          from pathlib import Path
+
+          import pandas as pd
+
+          from island_v2.all_species_trait_export import llm_inference_evidence
+
+          source = Path(os.environ["CAMPAIGN_DIR"])
+          target = Path("/tmp/validated_llm_traits/inference")
+          if target.exists():
+              shutil.rmtree(target)
+          shutil.copytree(source, target)
+
+          def sha(path: Path) -> str:
+              return hashlib.sha256(path.read_bytes()).hexdigest()
+
+          results_path = target / "validated_trait_results.csv"
+          history_path = target / "job_history.csv"
+          results = pd.read_csv(results_path, dtype=str).fillna("")
+          history = pd.read_csv(history_path, dtype=str).fillna("")
+          assert len(results) > 0
+          assert results["job_id"].is_unique
+          assert history["job_id"].is_unique
+          assert set(results["model_provider"]) == {os.environ["MODEL_PROVIDER"]}
+          assert set(results["model_id"]) == {os.environ["MODEL_ID"]}
+
+          run_records = [
+              json.loads(line)
+              for line in Path("/tmp/provider_result_runs.jsonl")
+              .read_text(encoding="utf-8")
+              .splitlines()
+              if line.strip()
+          ]
+          assert run_records
+          assert all(
+              record["status"] == "completed" and record["conclusion"] == "success"
+              for record in run_records
+          )
+          result_files = sorted(Path("/tmp/provider_results").rglob("provider_results.jsonl"))
+          manifest = {
+              "contract_version": "validated_llm_traits_v1",
+              "validation_status": "success",
+              "prepared_jobs_run_id": int(os.environ["PREPARED_RUN_ID"]),
+              "provider_result_runs": run_records,
+              "provider_result_file_sha256": {
+                  str(path.relative_to("/tmp/provider_results")): sha(path)
+                  for path in result_files
+              },
+              "model_provider": os.environ["MODEL_PROVIDER"],
+              "model_id": os.environ["MODEL_ID"],
+              "n_validated_results": len(results),
+              "n_validated_species": int(results["species"].nunique()),
+              "n_completed_jobs": int(history["status"].eq("completed").sum()),
+              "validated_trait_results_sha256": sha(results_path),
+              "job_history_sha256": sha(history_path),
+              "prepared_jobs_manifest_sha256": sha(target / "prepared_jobs_manifest.json"),
+              "policy": (
+                  "Only job-, prompt-, and canonical-result-hash-locked rows are published. "
+                  "They remain model-only inference/low in the final export."
+              ),
+          }
+          (target / "validated_llm_manifest.json").write_text(
+              json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+
+          master = pd.read_csv(
+              "data/v2/staging/gbif/collected/island_taxa.csv", dtype=str
+          ).fillna("")
+          evidence = llm_inference_evidence([target], master)
+          assert len(evidence) == int(
+              results[
+                  [
+                      "flower_color", "flower_shape", "pollination_guild",
+                      "mating_system", "self_incompatibility",
+                  ]
+              ].ne("unknown").sum().sum()
+          )
+          print(json.dumps(manifest, indent=2))
+          PY
+      - name: Upload the only model-only artifact accepted downstream
+        uses: actions/upload-artifact@v4
+        with:
+          name: validated-llm-traits
+          path: /tmp/validated_llm_traits/
+          if-no-files-found: error
+          retention-days: 90

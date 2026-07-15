@@ -1,0 +1,350 @@
+name: Prepare gap-only validated LLM jobs
+
+# This workflow does not call a model and uses no paid API. It freezes one
+# prompt per applicable species with unresolved fields, keyed to an immutable
+# all-master artifact. Provider responses must later echo prompt_sha256 and pass
+# island-v2-search-enabled-llm ingest before they can enter the final export.
+on:
+  workflow_dispatch:
+    inputs:
+      all_master_run_id:
+        description: Successful all-master run containing the exact table and applicability ledger
+        required: true
+        type: string
+      shard_start:
+        description: First deterministic LLM shard (0-127)
+        required: false
+        default: "0"
+        type: string
+      shard_end:
+        description: Last deterministic LLM shard, inclusive (0-127)
+        required: false
+        default: "127"
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      ALL_MASTER_RUN_ID: ${{ inputs.all_master_run_id }}
+      SHARD_START: ${{ inputs.shard_start }}
+      SHARD_END: ${{ inputs.shard_end }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install focused package
+        run: pip install -e ".[dev]"
+      - name: Validate job and exporter contracts
+        run: |
+          pytest -q \
+            tests/test_search_enabled_llm_campaign.py \
+            tests/test_all_species_trait_export.py
+      - name: Download immutable all-master inputs
+        run: |
+          set -euo pipefail
+          [[ "$ALL_MASTER_RUN_ID" =~ ^[0-9]+$ ]]
+          [[ "$SHARD_START" =~ ^[0-9]+$ ]]
+          [[ "$SHARD_END" =~ ^[0-9]+$ ]]
+          (( SHARD_START >= 0 && SHARD_START <= SHARD_END && SHARD_END < 128 ))
+          mkdir -p /tmp/all_master
+          gh run download "$ALL_MASTER_RUN_ID" \
+            --repo "$GH_REPO" \
+            --name "all-master-trait-ledger-$ALL_MASTER_RUN_ID" \
+            --dir /tmp/all_master
+          gh api "repos/$GH_REPO/actions/runs/$ALL_MASTER_RUN_ID/artifacts?per_page=100" \
+            > /tmp/all_master/source_artifacts.json
+          gh run view "$ALL_MASTER_RUN_ID" \
+            --repo "$GH_REPO" \
+            --json databaseId,status,conclusion,headSha,event,url,workflowName \
+            > /tmp/all_master/source_run.json
+
+          resolve_one() {
+            local filename="$1"
+            mapfile -t matches < <(find /tmp/all_master -type f -name "$filename" -print)
+            if (( ${#matches[@]} != 1 )); then
+              printf 'expected exactly one %s, found %s\n' \
+                "$filename" "${#matches[@]}" >&2
+              printf '%s\n' "${matches[@]}" >&2
+              exit 1
+            fi
+            printf '%s' "${matches[0]}"
+          }
+
+          traits_path="$(resolve_one all_species_traits.csv)"
+          applicability_path="$(resolve_one acquisition_status_by_species.csv.gz)"
+          manifest_path="$(resolve_one all_species_traits_manifest.json)"
+          artifact_dir="$(dirname "$traits_path")"
+          test "$(dirname "$applicability_path")" = "$artifact_dir"
+          test "$(dirname "$manifest_path")" = "$artifact_dir"
+          {
+            echo "ALL_MASTER_DIR=$artifact_dir"
+            echo "ALL_MASTER_TRAITS=$traits_path"
+            echo "ALL_MASTER_APPLICABILITY=$applicability_path"
+            echo "ALL_MASTER_MANIFEST=$manifest_path"
+          } >> "$GITHUB_ENV"
+      - name: Validate immutable all-master population
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          import pandas as pd
+
+          expected_n = 115_328
+          master_path = Path("data/v2/staging/gbif/collected/island_taxa.csv")
+          traits_path = Path(os.environ["ALL_MASTER_TRAITS"])
+          applicability_path = Path(os.environ["ALL_MASTER_APPLICABILITY"])
+          manifest_path = Path(os.environ["ALL_MASTER_MANIFEST"])
+
+          master = pd.read_csv(master_path, dtype=str).fillna("")
+          traits = pd.read_csv(traits_path, dtype=str).fillna("")
+          applicability = pd.read_csv(applicability_path, dtype=str).fillna("")
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          source_run = json.loads(
+              Path("/tmp/all_master/source_run.json").read_text(encoding="utf-8")
+          )
+          source_artifacts = json.loads(
+              Path("/tmp/all_master/source_artifacts.json").read_text(encoding="utf-8")
+          )
+
+          def exact_species(frame: pd.DataFrame, column: str, label: str) -> set[str]:
+              assert column in frame.columns, f"{label} is missing {column}"
+              values = frame[column].astype(str).str.strip()
+              assert len(values) == expected_n, f"{label} row count: {len(values)}"
+              assert values.ne("").all(), f"{label} contains blank species"
+              assert values.is_unique, f"{label} contains duplicate species"
+              return set(values)
+
+          master_species = exact_species(master, "accepted_species", "checkout master")
+          traits_species = exact_species(traits, "species", "all_species_traits.csv")
+          applicability_species = exact_species(
+              applicability,
+              "accepted_species",
+              "acquisition_status_by_species.csv.gz",
+          )
+          assert traits_species == master_species
+          assert applicability_species == master_species
+          assert manifest["n_master_species"] == expected_n
+          assert manifest["n_output_rows"] == expected_n
+          output_sha = hashlib.sha256(traits_path.read_bytes()).hexdigest()
+          assert manifest["output_sha256"] == output_sha
+          legacy_raw_results = manifest.get("llm_results_jsonls")
+          assert legacy_raw_results in (None, "", [], {}), (
+              "legacy raw llm_results_jsonls are forbidden for validated job preparation"
+          )
+          assert source_run["databaseId"] == int(os.environ["ALL_MASTER_RUN_ID"])
+          assert source_run["status"] == "completed"
+          assert source_run["conclusion"] == "success"
+          assert source_run["workflowName"] == (
+              "Build all-master source-backed trait ledger"
+          )
+          expected_artifact = f"all-master-trait-ledger-{os.environ['ALL_MASTER_RUN_ID']}"
+          matches = [
+              artifact
+              for artifact in source_artifacts.get("artifacts", [])
+              if artifact.get("name") == expected_artifact and not artifact.get("expired")
+          ]
+          assert len(matches) == 1, "source run must contain one unexpired expected artifact"
+          PY
+      - name: Prepare deterministic gap-only shards
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/search_enabled_llm_campaign
+          for shard in $(seq "$SHARD_START" "$SHARD_END"); do
+            island-v2-search-enabled-llm prepare \
+              --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+              --campaign-dir /tmp/search_enabled_llm_campaign \
+              --applicability-csv \
+                "$ALL_MASTER_APPLICABILITY" \
+              --current-traits-csv "$ALL_MASTER_TRAITS" \
+              --shard-index "$shard" \
+              --shard-count 128 \
+              --batch-size 10000
+          done
+      - name: Verify prompt population and write manifest
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          import pandas as pd
+
+          from island_v2.search_enabled_llm_campaign import (
+              JOB_HISTORY_COLUMNS,
+              PROMPT_TEMPLATE,
+              PROMPT_VERSION,
+              TRAIT_FIELDS,
+              canonical_job_sha,
+          )
+
+          root = Path("/tmp/search_enabled_llm_campaign")
+          ledger = pd.read_csv(root / "campaign_ledger.csv", dtype=str).fillna("")
+          history = pd.read_csv(root / "job_history.csv", dtype=str).fillna("")
+          campaign_input_manifest = json.loads(
+              (root / "campaign_input_manifest.json").read_text(encoding="utf-8")
+          )
+          jobs = []
+          shard_start = int(os.environ["SHARD_START"])
+          shard_end = int(os.environ["SHARD_END"])
+          shard_paths = sorted(root.glob("jobs_shard_*.jsonl"))
+          expected_names = {
+              f"jobs_shard_{shard:04d}.jsonl"
+              for shard in range(shard_start, shard_end + 1)
+          }
+          assert {path.name for path in shard_paths} == expected_names
+          for path in shard_paths:
+              shard = int(path.stem.rsplit("_", 1)[1])
+              for line in path.read_text(encoding="utf-8").splitlines():
+                  if line.strip():
+                      job = json.loads(line)
+                      assert int(job["shard_index"]) == shard
+                      assert int(job["shard_count"]) == 128
+                      assert hashlib.sha256(job["prompt"].encode("utf-8")).hexdigest() == (
+                          job["prompt_sha256"]
+                      )
+                      assert canonical_job_sha(job) == job["job_sha256"]
+                      assert job["job_id"] == f"trait_{job['job_sha256'][:20]}"
+                      jobs.append(job)
+          assert ledger["species"].is_unique
+          assert ledger["job_id"].is_unique
+          assert history["job_id"].is_unique
+          assert set(JOB_HISTORY_COLUMNS).issubset(history.columns)
+          assert set(ledger["status"]).issubset(
+              {"pending", "queued", "retry", "invalid", "completed"}
+          )
+          assert len({job["job_id"] for job in jobs}) == len(jobs)
+          assert len({job["species"] for job in jobs}) == len(jobs)
+          assert all(job["target_fields"] for job in jobs)
+          assert len(jobs) == int(ledger["status"].eq("queued").sum())
+
+          ledger_by_job = ledger.set_index("job_id", drop=False)
+          history_by_job = history.set_index("job_id", drop=False)
+          for record in ledger.to_dict("records"):
+              target_fields = record["target_fields"].split("|")
+              assert target_fields
+              assert set(target_fields).issubset(TRAIT_FIELDS)
+              prompt = PROMPT_TEMPLATE.format(
+                  species=record["species"],
+                  genus=record["genus"],
+                  family=record["family"],
+                  target_fields=", ".join(target_fields),
+              )
+              prompt_sha = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
+              assert record["prompt_version"] == PROMPT_VERSION
+              assert record["prompt_sha256"] == prompt_sha
+              assert record["prompt_policy_sha256"] == campaign_input_manifest[
+                  "prompt_policy_sha256"
+              ]
+              assert record["job_sha256"] == canonical_job_sha(record)
+              assert record["job_id"] == f"trait_{record['job_sha256'][:20]}"
+          for job in jobs:
+              ledger_row = ledger_by_job.loc[job["job_id"]]
+              history_row = history_by_job.loc[job["job_id"]]
+              for column in (
+                  "job_id", "job_sha256", "species", "target_fields",
+                  "prompt_version", "prompt_sha256",
+              ):
+                  assert ledger_row[column] == job[column]
+                  assert history_row[column] == job[column]
+              assert job["prompt_policy_sha256"] == ledger_row[
+                  "prompt_policy_sha256"
+              ]
+              assert ledger_row["status"] == "queued"
+              assert history_row["status"] == "queued"
+
+          def sha(path: Path) -> str:
+              return hashlib.sha256(path.read_bytes()).hexdigest()
+
+          input_paths = {
+              "checkout_master_csv": Path(
+                  "data/v2/staging/gbif/collected/island_taxa.csv"
+              ),
+              "all_master_traits_csv": Path(os.environ["ALL_MASTER_TRAITS"]),
+              "all_master_applicability_csv": Path(
+                  os.environ["ALL_MASTER_APPLICABILITY"]
+              ),
+              "all_master_manifest_json": Path(os.environ["ALL_MASTER_MANIFEST"]),
+              "source_artifacts_json": Path("/tmp/all_master/source_artifacts.json"),
+              "source_run_json": Path("/tmp/all_master/source_run.json"),
+          }
+          input_hashes = {name: sha(path) for name, path in input_paths.items()}
+          assert campaign_input_manifest["master_csv_sha256"] == input_hashes[
+              "checkout_master_csv"
+          ]
+          assert campaign_input_manifest["applicability_csv_sha256"] == input_hashes[
+              "all_master_applicability_csv"
+          ]
+          assert campaign_input_manifest["current_traits_csv_sha256"] == input_hashes[
+              "all_master_traits_csv"
+          ]
+          shard_hashes = {path.name: sha(path) for path in shard_paths}
+          campaign_hashes = {
+              name: sha(root / name)
+              for name in (
+                  "campaign_input_manifest.json",
+                  "campaign_ledger.csv",
+                  "job_history.csv",
+                  "validated_trait_results.csv",
+              )
+          }
+          composite_material = {
+              "input_sha256": input_hashes,
+              "campaign_file_sha256": campaign_hashes,
+              "jobs_shard_sha256": shard_hashes,
+          }
+          composite_sha = hashlib.sha256(
+              json.dumps(
+                  composite_material,
+                  ensure_ascii=False,
+                  separators=(",", ":"),
+                  sort_keys=True,
+              ).encode("utf-8")
+          ).hexdigest()
+          manifest = {
+              "contract_version": "2.0",
+              "source_all_master_run_id": int(os.environ["ALL_MASTER_RUN_ID"]),
+              "shard_start": shard_start,
+              "shard_end": shard_end,
+              "n_master_species": 115_328,
+              "n_campaign_species": len(ledger),
+              "n_jobs_prepared": len(jobs),
+              "n_queued": int(ledger["status"].eq("queued").sum()),
+              "n_pending": int(ledger["status"].eq("pending").sum()),
+              "prompt_version": PROMPT_VERSION,
+              "prompt_policy_sha256": campaign_input_manifest[
+                  "prompt_policy_sha256"
+              ],
+              **composite_material,
+              "composite_sha256": composite_sha,
+              "policy": (
+                  "No model call is made. Jobs include only applicable species and "
+                  "currently unknown fields. A result is non-authoritative until its "
+                  "job, prompt, and canonical result hashes pass validated ingestion."
+              ),
+          }
+          (root / "prepared_jobs_manifest.json").write_text(
+              json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(manifest, indent=2))
+          PY
+      - name: Upload provider-neutral validated job bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: search-enabled-llm-jobs-${{ github.run_id }}
+          path: /tmp/search_enabled_llm_campaign/
+          if-no-files-found: error
+          retention-days: 90

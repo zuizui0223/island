@@ -9,6 +9,7 @@ canonical long CSV plus an aggregate unmapped-term audit.
 from __future__ import annotations
 
 import hashlib
+import html
 import json
 import re
 import unicodedata
@@ -48,6 +49,7 @@ UNMAPPED_COLUMNS = [
 
 PAGE_ID_COLUMNS = ("page_id", "pageid", "eol_page_id", "eolid", "id")
 PAGE_NAME_COLUMNS = ("canonical", "scientific_name", "scientificname", "name")
+PAGE_RANK_COLUMNS = ("rank", "taxon_rank", "taxonrank")
 TERM_URI_COLUMNS = ("uri", "term_uri", "termuri", "id")
 TERM_NAME_COLUMNS = ("name", "label", "term_name", "termname")
 TERM_TYPE_COLUMNS = ("type", "term_type", "termtype")
@@ -87,6 +89,13 @@ class EolTerm:
 
 
 @dataclass(frozen=True)
+class EolPage:
+    page_id: str
+    canonical: str
+    rank: str
+
+
+@dataclass(frozen=True)
 class EolMappingRule:
     rule_id: str
     target_trait: str
@@ -97,6 +106,13 @@ class EolMappingRule:
 def _normalise_text(value: Any) -> str:
     text = unicodedata.normalize("NFKC", str(value or "")).strip()
     return re.sub(r"\s+", " ", text)
+
+
+def _clean_taxon_name(value: Any) -> str:
+    """HTML-unescape EOL taxon names and remove only harmless italic markup."""
+    text = html.unescape(_normalise_text(value))
+    text = re.sub(r"</?i(?:\s[^>]*)?>", "", text, flags=re.IGNORECASE)
+    return _normalise_text(text)
 
 
 def _key(value: Any) -> str:
@@ -237,20 +253,28 @@ def _open_archive_member(path: Path, basename: str) -> Iterator[BinaryIO]:
             yield handle
 
 
-def _read_pages(path: Path) -> dict[str, str]:
+def _read_pages(path: Path) -> dict[str, EolPage]:
     with _open_archive_member(path, "pages.csv") as handle:
         pages = pd.read_csv(handle, dtype=str).fillna("")
     columns = list(pages.columns)
     page_id_col = _column(columns, PAGE_ID_COLUMNS)
     name_col = _column(columns, PAGE_NAME_COLUMNS)
-    if not page_id_col or not name_col:
+    rank_col = _column(columns, PAGE_RANK_COLUMNS)
+    if not page_id_col or not name_col or not rank_col:
         raise typer.BadParameter(
-            "EOL pages.csv must contain page_id and canonical/scientific-name columns."
+            "EOL pages.csv must contain page_id, canonical/scientific-name, and rank columns."
         )
     pages[page_id_col] = pages[page_id_col].map(_normalise_text)
-    pages[name_col] = pages[name_col].map(_normalise_text)
-    pages = pages.loc[pages[page_id_col].ne("") & pages[name_col].ne("")]
-    return dict(zip(pages[page_id_col], pages[name_col], strict=False))
+    pages[name_col] = pages[name_col].map(_clean_taxon_name)
+    pages[rank_col] = pages[rank_col].map(_normalise_text)
+    # EOL permits a blank canonical name.  Keep the ranked page so traits.csv's
+    # scientific_name can provide the taxon name while the page rank remains the
+    # authority for excluding genus and other non-species records.
+    pages = pages.loc[pages[page_id_col].ne("")]
+    return {
+        row[0]: EolPage(page_id=row[0], canonical=row[1], rank=row[2])
+        for row in pages[[page_id_col, name_col, rank_col]].itertuples(index=False, name=None)
+    }
 
 
 def _read_terms(path: Path) -> dict[str, EolTerm]:
@@ -374,6 +398,9 @@ def prepare_eol_traitbank_long(
     n_predicate_matched = 0
     n_unmapped_predicate = 0
     n_unmapped_value = 0
+    n_missing_page_rows = 0
+    n_non_species_page_rows = 0
+    n_missing_scientific_name_rows = 0
     header_written = False
 
     with _open_archive_member(content_path, "traits.csv") as handle:
@@ -403,9 +430,9 @@ def prepare_eol_traitbank_long(
             source_col = _column(columns, SOURCE_COLUMNS)
             if not predicate_col:
                 raise typer.BadParameter("EOL traits.csv must contain a predicate column.")
-            if not page_id_col and not scientific_name_col:
+            if not page_id_col:
                 raise typer.BadParameter(
-                    "EOL traits.csv must contain page_id or scientific_name for taxon matching."
+                    "EOL traits.csv must contain page_id for species-rank taxon matching."
                 )
 
             work = pd.DataFrame(
@@ -428,8 +455,17 @@ def prepare_eol_traitbank_long(
             rows: list[dict[str, str]] = []
             for offset, row in enumerate(work.itertuples(index=False), start=1):
                 row_number = n_scanned + offset
-                page_name = pages.get(row.page_id, "")
-                scientific_name = row.scientific_name or page_name
+                page = pages.get(row.page_id)
+                if page is None:
+                    n_missing_page_rows += 1
+                    continue
+                if _key(page.rank) != "species":
+                    n_non_species_page_rows += 1
+                    continue
+                scientific_name = page.canonical or _clean_taxon_name(row.scientific_name)
+                if not scientific_name:
+                    n_missing_scientific_name_rows += 1
+                    continue
                 predicate_label = _term_label(row.predicate, row.predicate_label, terms)
                 object_label = _term_label(row.object_term, row.object_label, terms)
                 value_candidates = (
@@ -513,6 +549,9 @@ def prepare_eol_traitbank_long(
         "n_rows_with_mapped_predicate": int(n_predicate_matched),
         "n_unmapped_predicate_rows": int(n_unmapped_predicate),
         "n_unmapped_value_rows": int(n_unmapped_value),
+        "n_missing_page_rows": int(n_missing_page_rows),
+        "n_non_species_page_rows": int(n_non_species_page_rows),
+        "n_missing_scientific_name_rows": int(n_missing_scientific_name_rows),
         "n_long_rows": int(n_candidates),
         "long_csv": str(long_path),
         "unmapped_terms_csv": str(unmapped_path),

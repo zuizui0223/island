@@ -31,6 +31,11 @@ on:
       public_web_run_id:
         description: Promoted public-web combined artifact run ID; blank omits public web
         required: false
+        default: "29385927769"
+        type: string
+      llm_run_id:
+        description: Immutable validated-LLM artifact run ID; blank omits LLM channels
+        required: false
         default: ""
         type: string
   pull_request:
@@ -41,6 +46,12 @@ on:
       - "src/island_v2/materialize_trait_artifacts.py"
       - "tests/test_acquisition_rate_report.py"
       - "tests/test_materialize_trait_artifacts.py"
+      - "src/island_v2/all_species_trait_export.py"
+      - "src/island_v2/search_enabled_llm_campaign.py"
+      - "src/island_v2/llm_evidence_extraction.py"
+      - "tests/test_all_species_trait_export.py"
+      - "tests/test_search_enabled_llm_campaign.py"
+      - "tests/test_llm_evidence_extraction.py"
 
 permissions:
   actions: read
@@ -67,7 +78,9 @@ jobs:
           pytest -q \
             tests/test_materialize_trait_artifacts.py \
             tests/test_acquisition_rate_report.py \
-            tests/test_all_species_trait_export.py
+            tests/test_all_species_trait_export.py \
+            tests/test_search_enabled_llm_campaign.py \
+            tests/test_llm_evidence_extraction.py
 
   materialize:
     if: github.event_name == 'workflow_dispatch'
@@ -83,6 +96,7 @@ jobs:
       GIFT_RUN_ID: ${{ inputs.gift_run_id }}
       USDA_RUN_ID: ${{ inputs.usda_run_id }}
       PUBLIC_WEB_RUN_ID: ${{ inputs.public_web_run_id }}
+      LLM_RUN_ID: ${{ inputs.llm_run_id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -102,6 +116,7 @@ jobs:
           if [[ -n "$PUBLIC_WEB_RUN_ID" ]]; then
             [[ "$PUBLIC_WEB_RUN_ID" =~ ^[0-9]+$ ]]
           fi
+          if [[ -n "$LLM_RUN_ID" ]]; then [[ "$LLM_RUN_ID" =~ ^[0-9]+$ ]]; fi
       - name: Download exact source artifacts and metadata
         run: |
           set -euo pipefail
@@ -153,6 +168,15 @@ jobs:
               --dir /tmp/source_artifacts/public_web
             gh api "repos/$GH_REPO/actions/runs/$PUBLIC_WEB_RUN_ID/artifacts" \
               > /tmp/source_artifacts/metadata/public_web_artifacts.json
+          fi
+          if [[ -n "$LLM_RUN_ID" ]]; then
+            mkdir -p /tmp/source_artifacts/llm
+            gh run download "$LLM_RUN_ID" \
+              --repo "$GH_REPO" \
+              --name validated-llm-traits \
+              --dir /tmp/source_artifacts/llm
+            gh api "repos/$GH_REPO/actions/runs/$LLM_RUN_ID/artifacts" \
+              > /tmp/source_artifacts/metadata/llm_artifacts.json
           fi
       - name: Materialize evidence-preserving candidates
         run: |
@@ -206,10 +230,25 @@ jobs:
             )
           fi
           LLM_ARGS=()
-          while IFS= read -r result_file; do
-            LLM_ARGS+=(--llm-results-jsonl "$result_file")
-          done < <(find data/v2/staging/traits/search_enabled_llm_campaign \
-            -maxdepth 1 -name 'batch_*_results.jsonl' -type f | sort)
+          if [[ -n "$LLM_RUN_ID" ]]; then
+            LLM_BUNDLES=0
+            while IFS= read -r manifest_file; do
+              bundle_dir=$(dirname "$manifest_file")
+              LLM_ARGS+=(--llm-inference-bundle "$bundle_dir")
+              ((LLM_BUNDLES+=1))
+            done < <(find /tmp/source_artifacts/llm \
+              -name 'validated_llm_manifest.json' -type f | sort)
+            while IFS= read -r manifest_file; do
+              bundle_dir=$(dirname "$manifest_file")
+              LLM_ARGS+=(--llm-extracted-bundle "$bundle_dir")
+              ((LLM_BUNDLES+=1))
+            done < <(find /tmp/source_artifacts/llm \
+              -name 'llm_ingest_manifest.json' -type f | sort)
+            if (( LLM_BUNDLES == 0 )); then
+              echo "Validated LLM artifact contained no hash-locked validation bundles" >&2
+              exit 1
+            fi
+          fi
           WEB_ARGS=()
           if [[ -f /tmp/source_artifacts/public_web/combined_trait_evidence.csv ]]; then
             WEB_ARGS+=(

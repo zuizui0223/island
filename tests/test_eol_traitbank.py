@@ -14,9 +14,15 @@ from island_v2.eol_traitbank import prepare_eol_traitbank_long
 def _write_eol_archive(path: Path) -> None:
     pages = pd.DataFrame(
         [
-            {"page_id": "10", "canonical": "Poa annua"},
-            {"page_id": "20", "canonical": "Campanula microdonta"},
-            {"page_id": "30", "canonical": "Unmatched plant"},
+            {"page_id": "10", "canonical": "Poa annua", "rank": "species"},
+            {
+                "page_id": "20",
+                "canonical": "<i>Campanula&nbsp;microdonta</i>",
+                "rank": "species",
+            },
+            {"page_id": "30", "canonical": "Unmatched plant", "rank": "species"},
+            {"page_id": "40", "canonical": "Adelia", "rank": "genus"},
+            {"page_id": "50", "canonical": "", "rank": "species"},
         ]
     )
     terms = pd.DataFrame(
@@ -35,6 +41,11 @@ def _write_eol_archive(path: Path) -> None:
             {"uri": "eol:value:bee", "name": "bee pollination", "type": "value"},
             {"uri": "eol:value:white", "name": "white", "type": "value"},
             {"uri": "eol:value:unsupported", "name": "chartreuse", "type": "value"},
+            {
+                "uri": "http://purl.obolibrary.org/obo/PATO_0000321",
+                "name": "magenta",
+                "type": "value",
+            },
             {"uri": "eol:trait:unsupported", "name": "leaf size", "type": "measurement"},
         ]
     )
@@ -83,6 +94,42 @@ def _write_eol_archive(path: Path) -> None:
                 "page_id": "30",
                 "scientific_name": "Unmatched plant",
                 "predicate": "eol:trait:unsupported",
+                "value_uri": "eol:value:white",
+                "citation": "EOL test fixture",
+            },
+            {
+                "eol_pk": "t6",
+                "resource_pk": "r6",
+                "page_id": "20",
+                "scientific_name": "<i>Campanula microdonta</i>",
+                "predicate": "http://eol.org/schema/terms/FlowerColor",
+                "value_uri": "http://purl.obolibrary.org/obo/PATO_0000321",
+                "citation": "EOL test fixture",
+            },
+            {
+                "eol_pk": "t7",
+                "resource_pk": "r7",
+                "page_id": "40",
+                "scientific_name": "<i>Adelia</i>",
+                "predicate": "http://eol.org/schema/terms/FlowerColor",
+                "value_uri": "eol:value:white",
+                "citation": "EOL test fixture",
+            },
+            {
+                "eol_pk": "t8",
+                "resource_pk": "r8",
+                "page_id": "20",
+                "scientific_name": "Campanula microdonta",
+                "predicate": "http://eol.org/schema/terms/SexualSystem",
+                "value_uri": "https://www.wikidata.org/entity/Q1558451",
+                "citation": "EOL test fixture",
+            },
+            {
+                "eol_pk": "t9",
+                "resource_pk": "r9",
+                "page_id": "50",
+                "scientific_name": "<i>Poa&nbsp;annua</i>",
+                "predicate": "http://eol.org/schema/terms/FlowerColor",
                 "value_uri": "eol:value:white",
                 "citation": "EOL test fixture",
             },
@@ -138,6 +185,8 @@ def test_prepare_eol_traitbank_and_join_scientific_names(tmp_path: Path) -> None
         ("pollen_vector_mode", "abiotic_wind"),
         ("flower_primary_color", "white"),
         ("pollination_functional_guild", "other_bees"),
+        ("flower_primary_color", "red_pink"),
+        ("sex_system", "gynodioecious"),
     }
     assert (
         long.loc[long["source_record_id"].eq("t2"), "scientific_name"].item()
@@ -146,8 +195,10 @@ def test_prepare_eol_traitbank_and_join_scientific_names(tmp_path: Path) -> None
 
     unmapped = pd.read_csv(prepare_report["unmapped_terms_csv"], dtype=str).fillna("")
     assert set(unmapped["reason"]) == {"unmapped_value", "unmapped_predicate"}
-    assert prepare_report["n_trait_rows_scanned"] == 5
-    assert prepare_report["n_long_rows"] == 3
+    assert prepare_report["n_trait_rows_scanned"] == 9
+    assert prepare_report["n_long_rows"] == 6
+    assert prepare_report["n_non_species_page_rows"] == 1
+    assert prepare_report["n_missing_scientific_name_rows"] == 0
 
     ingest_report = ingest_bulk_traits(
         master_csv=master,
@@ -158,11 +209,14 @@ def test_prepare_eol_traitbank_and_join_scientific_names(tmp_path: Path) -> None
         source_name="eol_test",
     )
     candidates = pd.read_csv(ingest_report["candidate_csv"], dtype=str).fillna("")
-    assert len(candidates) == 3
+    assert len(candidates) == 6
     assert candidates.loc[candidates["source_record_id"].eq("t1"), "name_match_method"].item() == (
-        "accepted_name_author_stripped"
+        "accepted_name_exact"
     )
     assert candidates.loc[candidates["source_record_id"].eq("t2"), "name_match_method"].item() == (
+        "accepted_name_exact"
+    )
+    assert candidates.loc[candidates["source_record_id"].eq("t9"), "name_match_method"].item() == (
         "accepted_name_exact"
     )
     manifest = json.loads(Path(prepare_report["manifest_json"]).read_text(encoding="utf-8"))
@@ -189,5 +243,5 @@ def test_prepare_eol_can_read_extracted_content_and_keep_archive_checksum(
 
     assert report["eol_content_path"] == str(extracted)
     assert len(report["eol_archive_sha256"]) == 64
-    assert report["n_trait_rows_scanned"] == 5
-    assert report["n_long_rows"] == 3
+    assert report["n_trait_rows_scanned"] == 9
+    assert report["n_long_rows"] == 6

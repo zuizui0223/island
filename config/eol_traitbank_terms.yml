@@ -30,11 +30,17 @@ rules:
       yellow: yellow_orange
       orange: yellow_orange
       red: red_pink
+      magenta: red_pink
+      PATO_0000321: red_pink
+      http://purl.obolibrary.org/obo/PATO_0000321: red_pink
       pink: red_pink
       rose: red_pink
       purple: blue_purple
       violet: blue_purple
       blue: blue_purple
+      cyan: blue_purple
+      PATO_0000319: blue_purple
+      http://purl.obolibrary.org/obo/PATO_0000319: blue_purple
       multicolored: multicolored_variable
       multicoloured: multicolored_variable
       variable: multicolored_variable
@@ -124,10 +130,24 @@ rules:
       monoecious: monoecious
       dioecious: dioecious
       gynodioecious: gynodioecious
+      Q1558451: gynodioecious
+      http://www.wikidata.org/entity/Q1558451: gynodioecious
+      https://www.wikidata.org/entity/Q1558451: gynodioecious
       androdioecious: androdioecious
+      Q512190: androdioecious
+      http://www.wikidata.org/entity/Q512190: androdioecious
+      https://www.wikidata.org/entity/Q512190: androdioecious
+      andromonoecious: polygamous_or_other
+      https://eol.org/schema/terms/andromonoecious: polygamous_or_other
+      gynomonoecious: polygamous_or_other
+      https://eol.org/schema/terms/gynomonoecious: polygamous_or_other
       polygamous: polygamous_or_other
       polygamodioecious: polygamous_or_other
+      https://eol.org/schema/terms/polygamodioecious: polygamous_or_other
       polygamomonoecious: polygamous_or_other
+      Q7226331: polygamous_or_other
+      http://www.wikidata.org/entity/Q7226331: polygamous_or_other
+      https://www.wikidata.org/entity/Q7226331: polygamous_or_other
 
   - id: mating_system
     target_trait: mating_system

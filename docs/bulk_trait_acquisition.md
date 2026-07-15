@@ -69,6 +69,47 @@ forced into a 100,000-species global table: pollination guild, SI/SC,
 autonomous selfing, mating system, herkogamy, dichogamy, and cleistogamy.
 They are analysed later as source-rich sensitivity panels, not imputed globally.
 
+## Public-page and LLM gap-filling lanes
+
+Bulk databases remain the first pass, but they are not the only configured
+source class. Remaining gaps can be searched in public floras, illustrated
+plant references, institutional plant sites, horticultural references,
+Wikipedia, GBIF descriptions and exact-species scholarly metadata. The
+[public-web shard campaign](public_web_trait_shard_campaign.md) records the
+retrieved URL, bounded source excerpt, species identity and source-text hash.
+A page contributes only the traits that its text states; descriptive colour or
+shape is not converted into a pollination or mating-system claim.
+
+Google and Brave are bounded URL-discovery options through their official APIs.
+Search-result HTML is not scraped, and titles or snippets never count as trait
+evidence. A discovered URL must be retrieved under the source site's access
+policy and provide an exact species-matched excerpt before a source-backed row
+can be created.
+
+LLM processing has two separate acceptance paths, described in
+[Reproducible LLM-assisted evidence extraction](v2_llm_evidence_extraction.md):
+
+- quote-locked extraction can remain source-backed only when the frozen page,
+  exact quote, species, ontology value and all packet hashes validate; and
+- model-only completion has no source URL and is always stored as
+  `evidence_type=inference`, `confidence=low`; direct `SI`/`SC` model outputs
+  are weakened to `likely_SI`/`likely_SC` at export.
+
+Raw model responses and generic candidate CSVs are not accepted as LLM inputs
+to the all-master exporter. Source-backed rows outrank validated model-only
+inference when both exist.
+
+## Whole-master accounting contract
+
+Acquisition coverage and output-row coverage are different quantities. Every
+all-master build must emit exactly one nine-column row for each of the 115,328
+unique master species. The current scope contains 106,295 applicable
+family-classified angiosperms; all 9,033 non-angiosperm or family-unresolved
+names remain present as explicit all-`unknown`, `confidence=low` rows. An
+applicable all-`unknown` row means "not yet acquired", never biological absence.
+The current requested-field counts and remaining gap count are reported with
+the promoted public-web snapshot rather than described as complete coverage.
+
 ## Running an import
 
 The GitHub Actions workflow `ingest_bulk_trait_source` is manual and needs no

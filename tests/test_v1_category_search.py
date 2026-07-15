@@ -1,21 +1,46 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pandas as pd
 
 from island_v2.v1_category_search import (
     SOURCE_COLUMNS,
+    _gbif_sources,
     _json_getter,
     _web_description_sources,
     _wikipedia_exact_sources,
     _world_flora_sources,
+    build_web_description_index,
     build_priority_traits,
     collapse_likely_traits,
     collapse_v1_rows,
+    collect_free_sources,
+    compact_source_texts,
     evidence_from_bulk_candidates,
     extract_evidence_from_sources,
     infer_likely_traits,
     v2_reported_candidates,
 )
+
+
+def test_disabled_web_provider_does_not_parse_sitemap_snapshot(tmp_path: Path) -> None:
+    invalid_index = tmp_path / "invalid-index.json"
+    invalid_index.write_text("not-json", encoding="utf-8")
+
+    sources, errors = collect_free_sources(
+        ["Plantus alpha"],
+        include_gbif=False,
+        include_wikimedia=False,
+        include_openalex=False,
+        include_europe_pmc=False,
+        include_web_descriptions=False,
+        include_world_flora=False,
+        web_description_index_path=invalid_index,
+    )
+
+    assert sources.empty
+    assert errors.empty
 
 
 class _Response:
@@ -231,8 +256,7 @@ def test_rejects_nonfloral_powdery_bloom_color_near_flowering_time() -> None:
         {
             "accepted_species": "Plantus ripeningii",
             "source_text": (
-                "The flower balls are white, then form hooked spikes which when ripe "
-                "brown off."
+                "The flower balls are white, then form hooked spikes which when ripe brown off."
             ),
             "source_url": "https://example.org/plantus-ripeningii",
             "source_citation": "Example flora",
@@ -297,9 +321,7 @@ def test_rejects_internal_organ_and_cultivar_colors() -> None:
     sources = _sources(
         {
             "accepted_species": "Plantus antheralis",
-            "source_text": (
-                "The flowers are red with purple anthers and a black stigma."
-            ),
+            "source_text": ("The flowers are red with purple anthers and a black stigma."),
             "source_url": "https://example.org/plantus-antheralis",
             "source_citation": "Example flora",
             "source_type": "flora_or_monograph",
@@ -308,8 +330,7 @@ def test_rejects_internal_organ_and_cultivar_colors() -> None:
         {
             "accepted_species": "Plantus cultivarensis",
             "source_text": (
-                "The flowers are pink to red. Cultivars / Varieties: 'Alba'. "
-                "White flowers."
+                "The flowers are pink to red. Cultivars / Varieties: 'Alba'. White flowers."
             ),
             "source_url": "https://example.org/plantus-cultivarensis",
             "source_citation": "Example horticulture account",
@@ -321,12 +342,10 @@ def test_rejects_internal_organ_and_cultivar_colors() -> None:
     evidence = extract_evidence_from_sources(sources)
 
     antheralis = evidence.loc[
-        evidence["species"].eq("Plantus antheralis")
-        & evidence["field"].eq("flower_color")
+        evidence["species"].eq("Plantus antheralis") & evidence["field"].eq("flower_color")
     ]
     cultivarensis = evidence.loc[
-        evidence["species"].eq("Plantus cultivarensis")
-        & evidence["field"].eq("flower_color")
+        evidence["species"].eq("Plantus cultivarensis") & evidence["field"].eq("flower_color")
     ]
     assert set(antheralis["value"]) == {"red"}
     assert set(cultivarensis["value"]) == {"pink", "red"}
@@ -467,6 +486,336 @@ def test_horticulture_page_is_verified_and_extracted_with_provenance() -> None:
     inferred = evidence.loc[evidence["rule_id"].eq("guild_attracts_birds")].iloc[0]
     assert inferred["confidence"] == "low"
     assert inferred["source_tier"] == "C_horticulture"
+
+
+def test_frozen_web_index_avoids_repeated_sitemap_fetches(monkeypatch) -> None:
+    source = {
+        "name": "indexed_flora",
+        "source_type": "flora_or_monograph",
+        "url_style": "slug",
+        "url_template": "https://flora.test/species/{name}/",
+        "sitemap_url": "https://flora.test/sitemap.xml",
+        "required_marker": "Detailed description",
+    }
+
+    class Client:
+        def __init__(self) -> None:
+            self.sitemap_calls = 0
+
+        def get(self, url: str, params: object = None) -> _Response:
+            del params
+            if url.endswith("sitemap.xml"):
+                self.sitemap_calls += 1
+                return _Response(
+                    """
+                    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                      <url><loc>https://flora.test/species/plantus-indexed/</loc></url>
+                    </urlset>
+                    """,
+                    200,
+                    url,
+                )
+            return _Response(
+                """
+                <html><body><h1>Plantus indexed</h1>
+                <h2>Detailed description</h2>
+                <p>Flowers are white and pollinated by bees.</p></body></html>
+                """,
+                200,
+                url,
+            )
+
+    monkeypatch.setattr(
+        "island_v2.v1_category_search.WEB_DESCRIPTION_SOURCES",
+        [source],
+    )
+    client = Client()
+    index = build_web_description_index(client)
+    rows, errors = _web_description_sources(
+        ["Plantus indexed"],
+        client,
+        pause_seconds=0,
+        source_index=index,
+    )
+
+    assert client.sitemap_calls == 1
+    assert not errors
+    assert len(rows) == 1
+
+
+def test_public_artifact_source_text_is_bounded_and_hashes_retrieval() -> None:
+    full_text = (
+        "Plantus longissima general description. " * 180
+        + "Flowers are tubular and pollinated by bees. "
+        + "Additional habitat account. " * 180
+    )
+    compact = compact_source_texts(
+        pd.DataFrame(
+            [
+                {
+                    "accepted_species": "Plantus longissima",
+                    "source_text": full_text,
+                    "source_url": "https://flora.test/longissima",
+                    "source_citation": "Example flora",
+                    "source_type": "flora_or_monograph",
+                    "evidence_scope": "species_direct",
+                }
+            ]
+        )
+    )
+
+    assert len(compact.loc[0, "source_text"]) <= 4000
+    assert "pollinated by bees" in compact.loc[0, "source_text"]
+    assert "retrieved_content_sha256=" in compact.loc[0, "source_citation"]
+
+
+def test_pfaf_retains_visible_content_inside_aspnet_form(monkeypatch) -> None:
+    source = {
+        "name": "pfaf",
+        "source_type": "horticulture_site",
+        "url_style": "query",
+        "url_template": "https://pfaf.org/user/Plant.aspx?LatinName={name}",
+        "sitemap_url": "https://pfaf.org/sitemap.xml",
+        "required_marker": "Physical Characteristics",
+        "visible_text_mode": "aspnet_form",
+    }
+
+    class Client:
+        def get(self, url: str, params: object = None) -> _Response:
+            del params
+            if url.endswith("sitemap.xml"):
+                return _Response(
+                    """
+                    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+                      <url><loc>https://pfaf.org/user/Plant.aspx?LatinName=Plantus+formensis</loc></url>
+                    </urlset>
+                    """,
+                    200,
+                    url,
+                )
+            return _Response(
+                """
+                <html><body><form>
+                <h1>Plantus formensis</h1>
+                <h2>Physical Characteristics</h2>
+                <p>The flowers are red and pollinated by bees.</p>
+                <script>The flowers are green and pollinated by wind.</script>
+                </form></body></html>
+                """,
+                200,
+                url,
+            )
+
+    monkeypatch.setattr(
+        "island_v2.v1_category_search.WEB_DESCRIPTION_SOURCES",
+        [source],
+    )
+
+    rows, errors = _web_description_sources(
+        ["Plantus formensis"],
+        Client(),
+        pause_seconds=0,
+    )
+
+    assert not errors
+    assert len(rows) == 1
+    assert "Physical Characteristics" in rows[0]["source_text"]
+    assert "flowers are red" in rows[0]["source_text"]
+    assert "flowers are green" not in rows[0]["source_text"]
+
+
+def test_unindexed_web_source_processes_every_explicit_species(monkeypatch) -> None:
+    source = {
+        "name": "useful_tropical_plants",
+        "source_type": "horticulture_site",
+        "url_style": "query",
+        "url_template": "https://tropical.test/view.php?id={name}",
+        "required_marker": "General Information",
+        "reject_marker": "We have no record for",
+    }
+
+    class Client:
+        def __init__(self) -> None:
+            self.urls: list[str] = []
+
+        def get(self, url: str, params: object = None) -> _Response:
+            del params
+            self.urls.append(url)
+            return _Response("<html><body>Not found</body></html>", 404, url)
+
+    monkeypatch.setattr(
+        "island_v2.v1_category_search.WEB_DESCRIPTION_SOURCES",
+        [source],
+    )
+    species = [f"Plantus species{index}" for index in range(105)]
+    client = Client()
+
+    rows, errors = _web_description_sources(species, client, pause_seconds=0)
+
+    assert not rows
+    assert not errors
+    assert len(client.urls) == len(species)
+    assert client.urls[-1].endswith("Plantus+species104")
+
+
+def test_gbif_accepts_exact_species_match_and_retains_diagnostics() -> None:
+    calls: list[tuple[str, dict[str, object]]] = []
+
+    def getter(url: str, params: dict[str, object]) -> dict[str, object]:
+        calls.append((url, params))
+        if url.endswith("/species/match"):
+            return {
+                "usageKey": 11,
+                "scientificName": "Plantus exactus Author",
+                "canonicalName": "Plantus exactus",
+                "rank": "SPECIES",
+                "status": "ACCEPTED",
+                "confidence": 97,
+                "matchType": "EXACT",
+            }
+        if url.endswith("/species/11/descriptions"):
+            return {
+                "results": [
+                    {
+                        "type": "morphology",
+                        "description": "Plantus exactus has red flowers.",
+                        "source": "Example checklist",
+                    }
+                ]
+            }
+        raise AssertionError(f"unexpected GBIF URL: {url}")
+
+    rows, errors = _gbif_sources(["Plantus exactus"], getter, max_descriptions=20)
+
+    assert not errors
+    assert len(rows) == 1
+    assert rows[0]["source_url"] == "https://www.gbif.org/species/11"
+    assert "Example checklist" in rows[0]["source_citation"]
+    assert "matchType=EXACT" in rows[0]["source_citation"]
+    assert "status=ACCEPTED" in rows[0]["source_citation"]
+    assert "confidence=97" in rows[0]["source_citation"]
+    assert [url.rsplit("/", 1)[-1] for url, _ in calls] == ["match", "descriptions"]
+
+
+def test_gbif_rejects_fuzzy_higher_rank_and_wrong_binomial_matches() -> None:
+    rejected_payloads = [
+        {
+            "usageKey": 21,
+            "canonicalName": "Plantus exactus",
+            "rank": "SPECIES",
+            "status": "ACCEPTED",
+            "matchType": "FUZZY",
+        },
+        {
+            "usageKey": 22,
+            "canonicalName": "Plantaceae",
+            "rank": "FAMILY",
+            "status": "ACCEPTED",
+            "matchType": "HIGHERRANK",
+        },
+        {
+            "usageKey": 23,
+            "canonicalName": "Otherus alius",
+            "rank": "SPECIES",
+            "status": "ACCEPTED",
+            "matchType": "EXACT",
+        },
+    ]
+
+    for payload in rejected_payloads:
+        calls = 0
+
+        def getter(url: str, params: dict[str, object]) -> dict[str, object]:
+            nonlocal calls
+            calls += 1
+            assert url.endswith("/species/match")
+            assert params == {"name": "Plantus exactus"}
+            return payload
+
+        rows, errors = _gbif_sources(["Plantus exactus"], getter, max_descriptions=20)
+
+        assert not rows
+        assert not errors
+        assert calls == 1
+
+
+def test_gbif_accepts_only_audited_synonym_to_accepted_species() -> None:
+    calls: list[str] = []
+
+    def getter(url: str, params: dict[str, object]) -> dict[str, object]:
+        del params
+        calls.append(url)
+        if url.endswith("/species/match"):
+            return {
+                "usageKey": 31,
+                "acceptedUsageKey": 32,
+                "scientificName": "Plantus oldii Author",
+                "canonicalName": "Plantus oldii",
+                "rank": "SPECIES",
+                "status": "SYNONYM",
+                "confidence": 98,
+                "matchType": "EXACT",
+            }
+        if url.endswith("/species/32/descriptions"):
+            return {
+                "results": [
+                    {
+                        "type": "description",
+                        "description": "Novus acceptedii has white flowers.",
+                        "source": "Example backbone",
+                    }
+                ]
+            }
+        if url.endswith("/species/32"):
+            return {
+                "key": 32,
+                "scientificName": "Novus acceptedii Author",
+                "canonicalName": "Novus acceptedii",
+                "rank": "SPECIES",
+                "taxonomicStatus": "ACCEPTED",
+            }
+        raise AssertionError(f"unexpected GBIF URL: {url}")
+
+    rows, errors = _gbif_sources(["Plantus oldii"], getter, max_descriptions=20)
+
+    assert not errors
+    assert len(rows) == 1
+    assert rows[0]["source_url"] == "https://www.gbif.org/species/32"
+    assert "matched=Plantus oldii" in rows[0]["source_citation"]
+    assert "resolved=Novus acceptedii" in rows[0]["source_citation"]
+    assert "status=SYNONYM" in rows[0]["source_citation"]
+    assert calls == [
+        "https://api.gbif.org/v1/species/match",
+        "https://api.gbif.org/v1/species/32",
+        "https://api.gbif.org/v1/species/32/descriptions",
+    ]
+
+
+def test_gbif_rejects_synonym_when_accepted_target_is_not_a_species() -> None:
+    def getter(url: str, params: dict[str, object]) -> dict[str, object]:
+        del params
+        if url.endswith("/species/match"):
+            return {
+                "usageKey": 41,
+                "acceptedUsageKey": 42,
+                "canonicalName": "Plantus oldii",
+                "rank": "SPECIES",
+                "status": "SYNONYM",
+                "matchType": "EXACT",
+            }
+        if url.endswith("/species/42"):
+            return {
+                "key": 42,
+                "canonicalName": "Plantus",
+                "rank": "GENUS",
+                "taxonomicStatus": "ACCEPTED",
+            }
+        raise AssertionError(f"unexpected GBIF URL: {url}")
+
+    rows, errors = _gbif_sources(["Plantus oldii"], getter, max_descriptions=20)
+
+    assert not rows
+    assert not errors
 
 
 def test_warm_tubular_flower_is_only_emitted_as_likely_guild() -> None:
