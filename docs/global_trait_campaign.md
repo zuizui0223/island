@@ -108,3 +108,13 @@ species from Razanajatovo et al. (2016). After overlap with the previous ledger,
 adds 2,353 further new `likely_SC`/`likely_SI` cells; leave-one-out agreement is
 372/384 (96.9%). Direct and inferred evidence remain distinguishable in every
 export.
+
+The legacy nine-column table currently has only two accepted `mating_system`
+rows because its allowed vocabulary is stricter than the acquisition ledger.
+Nineteen former rows were unsupported raw-LLM family/genus guesses and are now
+correctly excluded; generic `outcrossing` candidates are not converted to
+`obligate_outcrossing`. This does not mean reproductive evidence is limited to
+two species: the current all-master table contains 2,750 direct SC/SI values and
+2,354 separately labelled likely genus completions (5,104 total). SC,
+autofertility and realized mating rate remain distinct and are never converted
+into one another merely to raise coverage.

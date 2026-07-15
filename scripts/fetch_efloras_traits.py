@@ -82,25 +82,56 @@ COLOR_TERMS = {
 FORM_TERMS = {
     "campanulate": "campanulate",
     "bell-shaped": "campanulate",
+    "bell shaped": "campanulate",
     "tubular": "tubular",
+    "tube-shaped": "tubular",
+    "tube shaped": "tubular",
     "funnelform": "funnelform",
     "funnel-shaped": "funnelform",
+    "trumpet-shaped": "funnelform",
+    "trumpet shaped": "funnelform",
+    "infundibuliform": "funnelform",
     "rotate": "rotate",
+    "stellate": "rotate",
+    "star-shaped": "rotate",
+    "star shaped": "rotate",
     "salverform": "salverform",
+    "salver-shaped": "salverform",
+    "hypocrateriform": "salverform",
     "urceolate": "urceolate",
+    "urn-shaped": "urceolate",
+    "urn shaped": "urceolate",
     "bilabiate": "bilabiate",
     "two-lipped": "bilabiate",
     "2-lipped": "bilabiate",
     "papilionaceous": "papilionaceous",
     "spurred": "spurred",
+    "brush-like": "brush_puff",
+    "brushlike": "brush_puff",
+    "puffball": "brush_puff",
+    "powder-puff": "brush_puff",
+    "powder puff": "brush_puff",
+    "capitulum": "composite_head",
+    "capitula": "composite_head",
+    "composite head": "composite_head",
+    "flower head": "composite_head",
 }
 SYMMETRY_TERMS = {
     "actinomorphic": "radial",
+    "actinomorph": "radial",
     "radially symmetric": "radial",
     "radially symmetrical": "radial",
+    "radial symmetry": "radial",
     "zygomorphic": "bilateral",
+    "zygomorph": "bilateral",
     "bilaterally symmetric": "bilateral",
     "bilaterally symmetrical": "bilateral",
+    "bilateral symmetry": "bilateral",
+    "bilabiate": "bilateral",
+    "two-lipped": "bilateral",
+    "two lipped": "bilateral",
+    "asymmetric": "asymmetric",
+    "asymmetrical": "asymmetric",
 }
 SEX_TERMS = (
     "bisexual",
@@ -844,7 +875,7 @@ def trait_candidates(
                     "source_record_id": f"efloras:{flora_id}:{taxon_id}",
                     "evidence_scope": "species_direct",
                     "evidence_status": "source_backed_rule_extracted_unreviewed",
-                    "extraction_method": "rule_based_floral_context_v2",
+                    "extraction_method": "rule_based_floral_context_v3",
                     "name_match_method": name_match_method,
                 }
             )
@@ -1349,7 +1380,7 @@ def combine_results(root: Path, output_dir: Path) -> dict[str, Any]:
     report_paths = sorted(root.rglob("coverage_report.json"))
     error_paths = sorted(root.rglob("errors.jsonl"))
     treatments = [row for path in treatment_paths for row in read_csv(path)]
-    candidates = [row for path in candidate_paths for row in read_csv(path)]
+    source_candidates = [row for path in candidate_paths for row in read_csv(path)]
     errors = [row for path in error_paths for row in read_jsonl(path)]
     reports = []
     for path in report_paths:
@@ -1360,6 +1391,45 @@ def combine_results(root: Path, output_dir: Path) -> dict[str, Any]:
     treatments = list(
         {(row.get("flora_id", ""), row.get("taxon_id", "")): row for row in treatments}.values()
     )
+    reextracted_candidates: list[dict[str, str]] = []
+    for row in treatments:
+        flora_id = clean(row.get("flora_id", ""))
+        description = clean(row.get("description", ""))
+        if not flora_id.isdigit() or not description:
+            continue
+        reextracted_candidates.extend(
+            trait_candidates(
+                flora_id=int(flora_id),
+                flora_name=clean(row.get("flora_name", "")),
+                accepted_species=clean(row.get("accepted_species", "")),
+                original_taxon_name=clean(row.get("original_taxon_name", "")),
+                taxon_id=clean(row.get("taxon_id", "")),
+                description=description,
+                source_url=clean(row.get("source_url", "")),
+                name_match_method=clean(row.get("match_status", "")),
+            )
+        )
+    source_candidate_keys = {
+        (
+            row.get("flora_id", ""),
+            row.get("taxon_id", ""),
+            row.get("trait_name", ""),
+            row.get("candidate_value", ""),
+            row.get("source_excerpt", ""),
+        )
+        for row in source_candidates
+    }
+    reextracted_candidate_keys = {
+        (
+            row.get("flora_id", ""),
+            row.get("taxon_id", ""),
+            row.get("trait_name", ""),
+            row.get("candidate_value", ""),
+            row.get("source_excerpt", ""),
+        )
+        for row in reextracted_candidates
+    }
+    candidates = source_candidates + reextracted_candidates
     candidates = list(
         {
             (
@@ -1393,6 +1463,8 @@ def combine_results(root: Path, output_dir: Path) -> dict[str, Any]:
             len(floras) > 1 for floras in flora_by_species.values()
         ),
         "trait_candidate_rows": len(candidates),
+        "rule_reextracted_candidate_rows": len(reextracted_candidate_keys),
+        "rule_new_candidate_rows": len(reextracted_candidate_keys - source_candidate_keys),
         "acquisition_failure_rows": len(errors),
         "failure_reason_counts": dict(Counter(str(row.get("error", "unknown")) for row in errors)),
         "unique_species_trait_cells": len(

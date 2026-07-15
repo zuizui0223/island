@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 from pathlib import Path
 
@@ -611,6 +610,41 @@ def test_changed_provider_policy_version_requeues_terminal_provider(tmp_path: Pa
     assert openalex["attempts"] == "1"
 
 
+def test_legacy_sitemap_digest_policy_suffix_is_normalized_without_requeue(
+    tmp_path: Path,
+) -> None:
+    master = _master(tmp_path / "master.csv", ["Plantus alpha"])
+    campaign = tmp_path / "campaign"
+    arguments = {
+        "master_csv": master,
+        "campaign_dir": campaign,
+        "scope_config_path": CONFIG,
+        "shard_index": 0,
+        "shard_count": 1,
+        "batch_size": 1,
+        "expected_species": 0,
+        "include_gbif": False,
+        "include_wikimedia": False,
+        "include_openalex": False,
+        "include_europe_pmc": False,
+        "include_web_descriptions": True,
+        "include_world_flora": False,
+        "collector": _empty_collector,
+    }
+    run_shard(**arguments)
+    provider_path = campaign / "provider_checkpoint.csv"
+    providers = pd.read_csv(provider_path, dtype=str)
+    mask = providers["provider"].eq("web_descriptions")
+    providers.loc[mask, "policy_version"] += ":0123456789abcdef"
+    providers.to_csv(provider_path, index=False)
+
+    second = run_shard(**arguments)
+
+    assert second["n_species_attempted_this_run"] == 0
+    normalized = pd.read_csv(provider_path, dtype=str).loc[mask, "policy_version"].iloc[0]
+    assert normalized == _provider_policy_versions()["web_descriptions"]
+
+
 def test_invalid_restored_provider_status_fails_closed(tmp_path: Path) -> None:
     master = _master(tmp_path / "master.csv", ["Plantus alpha"])
     campaign = tmp_path / "campaign"
@@ -639,7 +673,7 @@ def test_invalid_restored_provider_status_fails_closed(tmp_path: Path) -> None:
         run_shard(**arguments)
 
 
-def test_sitemap_snapshot_change_requeues_only_web_descriptions(tmp_path: Path) -> None:
+def test_sitemap_snapshot_change_is_provenance_without_global_requeue(tmp_path: Path) -> None:
     master = _master(tmp_path / "master.csv", ["Plantus alpha"])
     campaign = tmp_path / "campaign"
     first_index = tmp_path / "web-index-1.json"
@@ -683,17 +717,14 @@ def test_sitemap_snapshot_change_requeues_only_web_descriptions(tmp_path: Path) 
     calls.clear()
     run_shard(**arguments, web_description_index_path=second_index)
 
-    assert calls == [("web_descriptions", second_index)]
+    assert calls == []
     providers = pd.read_csv(campaign / "provider_checkpoint.csv", dtype=str)
     versions = providers.set_index("provider")["policy_version"].to_dict()
     assert set(versions) == set(PROVIDERS)
     assert versions["gbif"] == _provider_policy_versions()["gbif"]
-    assert (
-        versions["web_descriptions"]
-        == _provider_policy_versions(hashlib.sha256(second_index.read_bytes()).hexdigest())[
-            "web_descriptions"
-        ]
-    )
+    assert versions["web_descriptions"] == _provider_policy_versions()["web_descriptions"]
+    manifest = json.loads((campaign / "campaign_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["provider_policy"]["web_description_index_sha256"]
 
 
 def test_seed_complete_provider_is_skipped_without_becoming_no_hit(tmp_path: Path) -> None:
@@ -807,9 +838,9 @@ def test_cumulative_source_ranking_prevents_weaker_provider_regression(
     assert result.loc[0, "evidence_type"] == "flora"
 
 
-def test_completed_shards_are_still_uploaded_for_single_run_promotion() -> None:
+def test_valid_shard_checkpoints_are_uploaded_even_after_later_step_failure() -> None:
     workflow = Path(".github/workflows/run-public-web-trait-shards.yml").read_text(encoding="utf-8")
     assert (
         "- name: Upload current search evidence packet and cumulative snapshot\n"
-        "        if: always() && steps.advance.outcome == 'success'"
+        "        if: always() && steps.status.outputs.ready == 'true'"
     ) in workflow

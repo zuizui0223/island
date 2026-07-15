@@ -241,6 +241,18 @@ def test_form_symmetry_sex_and_self_incompatibility_are_unreviewed_candidates() 
     assert all(row["source_excerpt"] and row["source_url"] for row in rows)
 
 
+def test_expanded_direct_form_terms_require_floral_context() -> None:
+    values = candidate_values(
+        "Flowers stellate and infundibuliform; corolla hypocrateriform. "
+        "Flowers in capitula and sometimes asymmetric."
+    )
+    assert ("floral_form", "funnelform|rotate") in values
+    assert ("floral_form", "salverform") in values
+    assert ("floral_form", "composite_head") in values
+    assert ("floral_symmetry", "asymmetric") in values
+    assert candidate_values("Leaves stellate; fruits in capitula.") == set()
+
+
 def test_match_inventory_excludes_infraspecies_and_deduplicates_accepted_species() -> None:
     matcher = efloras.MasterMatcher(["Poa annua", "Poa annua var. annua"])
     taxa = [
@@ -382,7 +394,16 @@ def test_combined_coverage_deduplicates_species_across_floras(tmp_path: Path) ->
         target = root / f"flora-{flora_id}"
         treatment = {field: "" for field in efloras.TREATMENT_FIELDS}
         treatment.update(
-            {"accepted_species": "A a", "flora_id": str(flora_id), "taxon_id": str(flora_id)}
+            {
+                "accepted_species": "A a",
+                "original_taxon_name": "A a",
+                "flora_id": str(flora_id),
+                "flora_name": f"Flora {flora_id}",
+                "taxon_id": str(flora_id),
+                "source_url": f"https://flora.test/{flora_id}",
+                "description": "Flowers stellate.",
+                "match_status": "exact_accepted_name_match",
+            }
         )
         candidate = {field: "" for field in efloras.CANDIDATE_FIELDS}
         candidate.update(
@@ -408,6 +429,10 @@ def test_combined_coverage_deduplicates_species_across_floras(tmp_path: Path) ->
     assert report["species_repeated_across_floras"] == 1
     assert report["acquisition_failure_rows"] == 2
     assert report["failure_reason_counts"] == {"bad_page": 2}
+    assert report["rule_reextracted_candidate_rows"] == 2
+    assert report["rule_new_candidate_rows"] == 2
+    candidates = efloras.read_csv(tmp_path / "combined" / "all_trait_candidates.csv")
+    assert sum(row["candidate_value"] == "rotate" for row in candidates) == 2
     failures = efloras.read_jsonl(tmp_path / "combined" / "all_acquisition_failures.jsonl")
     assert len(failures) == 2
 

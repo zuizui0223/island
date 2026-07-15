@@ -124,6 +124,8 @@ def test_combine_validates_population_and_preserves_exact_rows(tmp_path: Path) -
     )
 
     assert report["checkpoint_status_counts"] == {"completed": 2}
+    assert report["n_species_remaining"] == 0
+    assert report["complete"] is True
     assert report["n_result_species"] == 2
     assert report["n_species_any_requested_value"] == 1
     assert report["n_trait_evidence_rows"] == 2
@@ -214,6 +216,7 @@ def test_combine_v6_accounts_for_every_species_provider_pair(tmp_path: Path) -> 
     assert report["n_provider_checkpoint_rows"] == 2 * len(PROVIDERS)
     assert set(report["provider_status_counts"]) == set(PROVIDERS)
     assert report["provider_status_counts"]["gbif"]["skipped_covered"] == 1
+    assert report["n_enabled_provider_remaining"] == 0
     assert report["source_provider_policy"] == policy
     providers = pd.read_csv(output / "combined_provider_checkpoint.csv.gz", dtype=str)
     assert not providers.duplicated(["species", "provider"]).any()

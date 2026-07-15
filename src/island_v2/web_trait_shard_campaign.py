@@ -45,6 +45,16 @@ PROVIDERS = (
     "openalex",
     "europe_pmc",
 )
+# Flower-description providers run before literature discovery so bounded jobs
+# make floral progress even when a later API is slow or temporarily unavailable.
+PROVIDER_EXECUTION_ORDER = (
+    "gbif",
+    "web_descriptions",
+    "wikimedia",
+    "world_flora",
+    "europe_pmc",
+    "openalex",
+)
 PROVIDER_IMPLEMENTATION_VERSIONS = {
     "gbif": "gbif_exact_species_v1",
     "world_flora": "world_flora_v1",
@@ -267,13 +277,16 @@ def _provider_policy(
 
 
 def _provider_policy_versions(web_description_index_sha256: str = "") -> dict[str, str]:
-    """Return independently bumpable policy versions for every provider."""
+    """Return independently bumpable implementation-policy versions.
+
+    The frozen sitemap digest is provenance, not an implementation version. A
+    routine sitemap refresh must not requeue all 106,295 species.
+    """
+    del web_description_index_sha256
     versions = {
         provider: f"{PROVIDER_POLICY_VERSION}:{PROVIDER_IMPLEMENTATION_VERSIONS[provider]}"
         for provider in PROVIDERS
     }
-    snapshot = web_description_index_sha256[:16] or "live-sitemaps"
-    versions["web_descriptions"] = f"{versions['web_descriptions']}:{snapshot}"
     return versions
 
 
@@ -290,6 +303,22 @@ def _manifest_enabled_providers(manifest: dict[str, Any]) -> set[str]:
     if "enabled_providers" in manifest and isinstance(listed, list):
         return {str(value) for value in listed if str(value) in PROVIDERS}
     return set(LEGACY_DEFAULT_ENABLED_PROVIDERS)
+
+
+def _equivalent_provider_policy_version(
+    provider: str,
+    restored: str,
+    expected: str,
+) -> bool:
+    """Accept the former sitemap-digest suffix without redoing every species."""
+    if restored == expected:
+        return True
+    if provider != "web_descriptions" or not restored.startswith(f"{expected}:"):
+        return False
+    suffix = restored.removeprefix(f"{expected}:")
+    return suffix == "live-sitemaps" or (
+        len(suffix) == 16 and all(character in "0123456789abcdef" for character in suffix)
+    )
 
 
 def reconcile_checkpoint(
@@ -438,7 +467,24 @@ def reconcile_provider_checkpoint(
                 base.loc[index, "status"] = "retry"
 
     expected_policy_version = base["provider"].map(policy_versions).map(_text)
-    stale_policy = has_existing & restored_policy_version.ne(expected_policy_version)
+    equivalent_policy = pd.Series(
+        (
+            _equivalent_provider_policy_version(
+                _text(provider),
+                _text(restored),
+                _text(expected),
+            )
+            for provider, restored, expected in zip(
+                base["provider"],
+                restored_policy_version,
+                expected_policy_version,
+                strict=True,
+            )
+        ),
+        index=base.index,
+        dtype=bool,
+    )
+    stale_policy = (~equivalent_policy) if has_existing else pd.Series(False, index=base.index)
     if stale_policy.any():
         base.loc[stale_policy, "status"] = "pending"
         base.loc[stale_policy, "attempts"] = 0
@@ -1096,7 +1142,9 @@ def run_shard(
     try:
         source_parts: list[pd.DataFrame] = []
         error_parts: list[pd.DataFrame] = []
-        for provider in sorted(attempted_providers):
+        for provider in PROVIDER_EXECUTION_ORDER:
+            if provider not in attempted_providers:
+                continue
             provider_species = sorted(
                 name
                 for name, candidate_provider in running_pairs

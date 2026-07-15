@@ -103,10 +103,22 @@ completed zero-hit row.
 
 ## GitHub Actions persistence
 
-The workflow runs at most two shards concurrently to bound traffic per public
-site. It advances 50 species per shard by default and is scheduled every six
-hours. Plant-site sitemaps are fetched once in the plan job, hash-frozen, and
-shared by all 128 shards instead of being downloaded separately by every job.
+The workflow runs at most four shards concurrently to bound traffic per public
+site. It advances up to 500 species per shard by default and is scheduled every
+six hours. Plant-site sitemaps are fetched once in the plan job, hash-frozen,
+and shared by all 128 shards instead of being downloaded separately by every
+job. A sitemap digest is retained as provenance but is not a provider
+implementation version: an ordinary sitemap refresh therefore cannot reset all
+106,295 species. If one sitemap is temporarily unavailable, the frozen partial
+index proceeds and the affected provider/species rows remain retryable.
+
+On `main`, a successful full 128-shard run automatically triggers exact
+artifact promotion. Promotion dispatches the next full pass only when enabled
+provider work remains and the completed pass advanced at least one species.
+The successful promoted artifact in turn triggers the 115,328-row all-master
+build. Pull-request validation uses a separate concurrency group and cannot
+replace a pending production pass. Cache is only an accelerator; the next pass
+can bootstrap from the newest complete 128-artifact run across branch scopes.
 
 Wikipedia is queried directly by exact scientific-name title, with bounded
 backoff and a per-species pause. GBIF accepts only exact rank=SPECIES matches or
@@ -172,7 +184,7 @@ Run all shards manually:
 gh workflow run run-public-web-trait-shards.yml \
   -f shard_start=0 \
   -f shard_end=127 \
-  -f batch_size=50
+  -f batch_size=500
 ```
 
 Run a bounded diagnostic subset:

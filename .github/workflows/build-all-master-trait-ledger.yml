@@ -1,6 +1,10 @@
 name: Build all-master source-backed trait ledger
 
 on:
+  workflow_run:
+    workflows: ["Promote accounted public-web shard run"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       eol_run_id:
@@ -100,20 +104,23 @@ jobs:
             tests/test_llm_evidence_extraction.py
 
   materialize:
-    if: github.event_name == 'workflow_dispatch'
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == github.event.repository.default_branch)
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
-      EOL_RUN_ID: ${{ inputs.eol_run_id }}
-      AUSTRAITS_RUN_ID: ${{ inputs.austraits_run_id }}
-      EFLORAS_RUN_ID: ${{ inputs.efloras_run_id }}
-      GIFT_RUN_ID: ${{ inputs.gift_run_id }}
-      USDA_RUN_ID: ${{ inputs.usda_run_id }}
-      PUBLIC_WEB_RUN_ID: ${{ inputs.public_web_run_id }}
-      LLM_RUN_ID: ${{ inputs.llm_run_id }}
+      EOL_RUN_ID: ${{ inputs.eol_run_id || '29394577660' }}
+      AUSTRAITS_RUN_ID: ${{ inputs.austraits_run_id || '29335900995' }}
+      EFLORAS_RUN_ID: ${{ inputs.efloras_run_id || '29382678187' }}
+      GIFT_RUN_ID: ${{ inputs.gift_run_id || '29338693288' }}
+      USDA_RUN_ID: ${{ inputs.usda_run_id || '29382621509' }}
+      PUBLIC_WEB_RUN_ID: ${{ github.event.workflow_run.id || inputs.public_web_run_id || '29385927769' }}
+      LLM_RUN_ID: ${{ inputs.llm_run_id || '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

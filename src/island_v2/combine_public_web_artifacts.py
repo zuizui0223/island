@@ -288,6 +288,18 @@ def combine_public_web_run(
         str(status): int(count)
         for status, count in checkpoint["status"].value_counts().sort_index().items()
     }
+    n_species_remaining = int(
+        checkpoint["status"].isin({"pending", "running", "retry"}).sum()
+    )
+    n_species_attempted_in_source_run = 0
+    for _, shard_dir, _ in shards:
+        status_path = shard_dir / "campaign_status.json"
+        if not status_path.exists():
+            continue
+        status = json.loads(status_path.read_text(encoding="utf-8"))
+        n_species_attempted_in_source_run += int(
+            status.get("n_species_attempted_this_run", 0)
+        )
     fields = [
         "flower_color",
         "flower_shape",
@@ -313,6 +325,16 @@ def combine_public_web_run(
         if not provider_checkpoint.empty
         else {}
     )
+    n_enabled_provider_remaining = (
+        int(
+            (
+                provider_checkpoint["enabled"].str.casefold().eq("true")
+                & provider_checkpoint["status"].isin({"pending", "running", "retry"})
+            ).sum()
+        )
+        if not provider_checkpoint.empty
+        else n_species_remaining
+    )
     files = {
         key: {
             "path": path.name,
@@ -330,6 +352,10 @@ def combine_public_web_run(
         "source_denominator": expected_species,
         "shard_count": expected_shards,
         "checkpoint_status_counts": status_counts,
+        "n_species_remaining": n_species_remaining,
+        "n_species_attempted_in_source_run": n_species_attempted_in_source_run,
+        "n_enabled_provider_remaining": n_enabled_provider_remaining,
+        "complete": n_enabled_provider_remaining == 0,
         "provider_status_counts": provider_status_counts,
         "n_provider_checkpoint_rows": len(provider_checkpoint),
         "n_result_species": len(results),

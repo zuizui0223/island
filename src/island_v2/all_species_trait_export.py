@@ -116,6 +116,7 @@ FORM_MAP = {
     "tubular": "tubular",
     "urceolate": "urn-shaped",
     "urn_urceolate": "urn-shaped",
+    "brush_puff": "brush / puff-shaped",
     "composite_head": "composite head / capitulum",
     "papilionaceous": "papilionaceous",
 }
@@ -124,6 +125,7 @@ SYMMETRY_MAP = {
     "actinomorphic": "actinomorphic / radially symmetric",
     "bilateral": "zygomorphic / bilaterally symmetric",
     "zygomorphic": "zygomorphic / bilaterally symmetric",
+    "asymmetric": "asymmetric",
 }
 GUILD_MAP = {
     "other_bees": "bees",

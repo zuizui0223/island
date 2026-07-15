@@ -1,6 +1,10 @@
 name: Promote accounted public-web shard run
 
 on:
+  workflow_run:
+    workflows: ["run_public_web_trait_shards"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       source_run_id:
@@ -26,7 +30,7 @@ on:
       - "pyproject.toml"
 
 permissions:
-  actions: read
+  actions: write
   contents: read
 
 concurrency:
@@ -46,15 +50,18 @@ jobs:
       - run: pytest -q tests/test_combine_public_web_artifacts.py
 
   promote:
-    if: github.event_name == 'workflow_dispatch'
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == github.event.repository.default_branch)
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
       GH_TOKEN: ${{ github.token }}
-      SOURCE_RUN_ID: ${{ inputs.source_run_id }}
-      EXPECTED_SPECIES: ${{ inputs.expected_species }}
-      EXPECTED_CONTRACT: ${{ inputs.expected_contract }}
+      SOURCE_RUN_ID: ${{ github.event.workflow_run.id || inputs.source_run_id }}
+      EXPECTED_SPECIES: ${{ inputs.expected_species || '106295' }}
+      EXPECTED_CONTRACT: ${{ inputs.expected_contract || 'public_web_9col_shards_v6' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -88,6 +95,7 @@ jobs:
           cp /tmp/public_web_source_artifacts.jsonl \
             /tmp/public_web_combined/source_artifacts.jsonl
       - name: Publish verified source-backed counts
+        id: metrics
         run: |
           python - <<'PY'
           import json
@@ -112,6 +120,21 @@ jobs:
                   f"{manifest['n_species_any_requested_value']:,}\n"
               )
               out.write(f"- evidence rows: {manifest['n_trait_evidence_rows']:,}\n")
+              out.write(
+                  f"- enabled provider work remaining: "
+                  f"{manifest['n_enabled_provider_remaining']:,}\n"
+              )
+              out.write(
+                  f"- species attempted in source run: "
+                  f"{manifest['n_species_attempted_in_source_run']:,}\n"
+              )
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as out:
+              out.write(
+                  f"remaining={manifest['n_enabled_provider_remaining']}\n"
+              )
+              out.write(
+                  f"attempted={manifest['n_species_attempted_in_source_run']}\n"
+              )
           PY
       - uses: actions/upload-artifact@v4
         with:
@@ -119,3 +142,27 @@ jobs:
           path: /tmp/public_web_combined/
           if-no-files-found: error
           retention-days: 90
+      - name: Continue the full campaign from this immutable source run
+        if: >-
+          github.event_name == 'workflow_run' &&
+          steps.metrics.outputs.remaining != '0' &&
+          steps.metrics.outputs.attempted != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          gh workflow run run-public-web-trait-shards.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$DEFAULT_BRANCH" \
+            -f shard_start=0 \
+            -f shard_end=127 \
+            -f batch_size=500 \
+            -f retry_exhausted=false \
+            -f seed_run_id="$SOURCE_RUN_ID"
+      - name: Record a stalled incomplete campaign
+        if: >-
+          github.event_name == 'workflow_run' &&
+          steps.metrics.outputs.remaining != '0' &&
+          steps.metrics.outputs.attempted == '0'
+        run: |
+          echo "::warning::Campaign remains incomplete but advanced zero species; automatic chaining stopped."
