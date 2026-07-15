@@ -118,3 +118,16 @@ two species: the current all-master table contains 2,750 direct SC/SI values and
 2,354 separately labelled likely genus completions (5,104 total). SC,
 autofertility and realized mating rate remain distinct and are never converted
 into one another merely to raise coverage.
+
+All-master run
+[`29409415292`](https://github.com/zuizui0223/island/actions/runs/29409415292)
+integrated the expanded eFloras snapshot and retained exactly 115,328 unique
+rows. Direct or explicitly labelled inferred SC/SI remains 5,104 species
+(`SC` 1,845, `SI` 905, `likely_SC` 1,980, `likely_SI` 374), while accepted
+mating system remains the two explicit mixed-mating records. The same rebuild
+raised accepted flower-shape coverage from 3,238 to 3,470 species (+232) with
+source excerpts preserved. Artifact `all-master-trait-ledger-29409415292` has
+ID `8340477381`, digest
+`sha256:0cbba21f384d2b595272f13ed7be5a4b89d8ab0b77c6a0dd7a355fb3b3be1665`,
+and nine-column table SHA-256
+`71736613fd298e95e71af3d375de07dd19b9eb1ade24f7d394edd44c8626acb3`.
