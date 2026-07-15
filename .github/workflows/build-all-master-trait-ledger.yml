@@ -16,7 +16,7 @@ on:
       efloras_run_id:
         description: Completed eFloras production run ID; blank omits eFloras for an interim ledger
         required: false
-        default: ""
+        default: "29382678187"
         type: string
       gift_run_id:
         description: Completed GIFT direct-traits production run ID; blank omits GIFT
@@ -26,7 +26,7 @@ on:
       usda_run_id:
         description: Completed USDA PLANTS direct-traits run ID; blank omits USDA PLANTS
         required: false
-        default: ""
+        default: "29382621509"
         type: string
   pull_request:
     paths:

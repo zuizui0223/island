@@ -1,5 +1,5 @@
 {
-  "version": "0.6-production",
+  "version": "0.8-production",
   "sources": {
     "austraits_all_floral": {
       "status": "production",
@@ -119,6 +119,128 @@
         "combined_partial_source_backed_species": 16448,
         "combined_eligible_species_without_candidate": 89833
       }
+    },
+    "efloras_full_accounted_2026_07_14": {
+      "status": "production",
+      "access": "public_html_species_treatments",
+      "source_family": "eFloras",
+      "source_run_id": 29330032130,
+      "source_run_url": "https://github.com/zuizui0223/island/actions/runs/29330032130",
+      "promoted_run_id": 29382678187,
+      "promoted_artifact_id": 8330314679,
+      "promoted_artifact_digest": "sha256:9abe55a5c50c22c3bb272bf1509bf3b99c47e80fbd698660a4dd0382bfd8a896",
+      "integration_policy": {
+        "complete_inventory_required": true,
+        "species_treatment_heading_required": true,
+        "allow_genus_or_family_page_as_species_evidence": false,
+        "allow_unconfirmed_treatment_as_candidate": false,
+        "allow_fuzzy_taxon_match": false,
+        "preserve_source_excerpt": true,
+        "preserve_rejected_acquisition_records": true,
+        "infer_missing_values": false
+      },
+      "observed_production_2026_07_15": {
+        "flora_shard_reports": 12,
+        "selected_species_treatment_requests": 18251,
+        "confirmed_species_treatment_rows": 14734,
+        "unique_confirmed_species": 13875,
+        "explicitly_rejected_treatments": 3517,
+        "pending_selected_treatments": 0,
+        "http_errors": 0,
+        "candidate_rows": 14008,
+        "candidate_species": 8668,
+        "species_trait_pairs": 11115,
+        "flower_primary_color_species": 7834,
+        "floral_form_species": 2069,
+        "sex_system_species": 1032,
+        "floral_symmetry_species": 101,
+        "self_incompatibility_species": 79,
+        "empty_required_evidence_fields": 0,
+        "failure_audit_sha256": "2e71a860ed7230b26bc4bc4a44fd26033bc13c0eeb269482afd656fe6ce952ae"
+      }
+    },
+    "usda_plants_current_flower_color": {
+      "status": "production",
+      "access": "public_unauthenticated_unversioned_api_snapshot",
+      "source_family": "USDA PLANTS",
+      "results_api": "https://plantsservices.sc.egov.usda.gov/api/characteristicSearchResults",
+      "filters_api": "https://plantsservices.sc.egov.usda.gov/api/characteristicSearchFilterResults",
+      "profile_api_root": "https://plantsservices.sc.egov.usda.gov/api/PlantProfile",
+      "database_page": "https://plants.sc.egov.usda.gov/",
+      "help_and_citation": "https://plants.sc.egov.usda.gov/help",
+      "integration_policy": {
+        "direct_flower_color_only": true,
+        "angiosperm_groups_only": true,
+        "allow_infraspecific_to_species_collapse": false,
+        "allow_hybrid_taxa": false,
+        "allow_fuzzy_taxon_match": false,
+        "preserve_exact_api_snapshots": true,
+        "preserve_unmapped_and_excluded_records": true,
+        "infer_missing_values": false
+      },
+      "licence_note": "The public API and official citation guidance were recorded; no separate permissive redistribution licence is asserted.",
+      "observed_production_2026_07_15": {
+        "accessed_on": "2026-07-15",
+        "api_result_rows": 2186,
+        "filter_definitions": 94,
+        "flower_color_source_ids": 2117,
+        "missing_ids_resolved_by_profile": 78,
+        "prepared_canonical_rows": 1868,
+        "excluded_or_unmapped_rows": 246,
+        "non_angiosperm_exclusions": 102,
+        "non_binomial_or_hybrid_exclusions": 144,
+        "island_candidate_rows": 1451,
+        "island_species_with_direct_evidence": 1451,
+        "flower_primary_color_species": 1451,
+        "empty_required_evidence_fields": 0,
+        "candidate_sha256": "b7c9f8d2c72b6d89f50b506d68fe3fb353e43b780563783873f3717e0b9cc69a",
+        "production_run_id": 29382621509,
+        "artifact_id": 8330303160,
+        "artifact_digest": "sha256:786f65fb8f10d786aa2ffb44a5f1f91522a9dc0f452b8331f42841eb2103bdf1"
+      }
+    }
+  },
+  "latest_all_master_integration": {
+    "status": "production",
+    "run_id": 29382735518,
+    "run_url": "https://github.com/zuizui0223/island/actions/runs/29382735518",
+    "head_sha": "97896dedda95fea1f34dd17f6d592930f4a98d25",
+    "artifact_id": 8330348999,
+    "artifact_name": "all-master-trait-ledger-29382735518",
+    "artifact_digest": "sha256:00c3b7c0a12973bde27fe70f0387b48bcf410e3869402fd89a52e5c932f36c9a",
+    "source_run_ids": {
+      "eol_traitbank": 29332758352,
+      "austraits_all": 29335900995,
+      "gift_v3_2_direct": 29338693288,
+      "efloras": 29382678187,
+      "usda_plants_current": 29382621509
+    },
+    "observed_production_2026_07_15": {
+      "source_count": 5,
+      "master_species_accounted": 115328,
+      "species_trait_cells_accounted": 1499264,
+      "source_backed_any_trait_species_broad": 23006,
+      "source_backed_any_trait_rate_broad": 0.1994832130965594,
+      "any_channel_species": 23019,
+      "partial_source_backed_species": 22621,
+      "eligible_species_without_candidate": 83661,
+      "not_applicable_taxonomic_scope_species": 9033,
+      "non_source_backed_only_species": 13,
+      "core_minimum_broad_species": 2550,
+      "flower_primary_color_species": 13257,
+      "floral_form_species": 2124,
+      "floral_symmetry_species": 855,
+      "flower_size_class_species": 23,
+      "tube_depth_class_species": 1,
+      "pollen_vector_mode_species": 8674,
+      "pollination_functional_guild_species": 9035,
+      "sex_system_species": 11804,
+      "mating_system_species": 37,
+      "self_incompatibility_species": 178,
+      "autonomous_selfing_capacity_species": 308,
+      "cleistogamy_species": 2,
+      "dichogamy_species": 69,
+      "empty_required_evidence_fields_all_sources": 0
     }
   }
 }
