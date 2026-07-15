@@ -20,7 +20,7 @@ on:
       efloras_run_id:
         description: Completed eFloras production run ID; blank omits eFloras for an interim ledger
         required: false
-        default: "29382678187"
+        default: "29409302362"
         type: string
       gift_run_id:
         description: Completed GIFT direct-traits production run ID; blank omits GIFT
@@ -116,7 +116,7 @@ jobs:
       GH_REPO: ${{ github.repository }}
       EOL_RUN_ID: ${{ inputs.eol_run_id || '29394577660' }}
       AUSTRAITS_RUN_ID: ${{ inputs.austraits_run_id || '29335900995' }}
-      EFLORAS_RUN_ID: ${{ inputs.efloras_run_id || '29382678187' }}
+      EFLORAS_RUN_ID: ${{ inputs.efloras_run_id || '29409302362' }}
       GIFT_RUN_ID: ${{ inputs.gift_run_id || '29338693288' }}
       USDA_RUN_ID: ${{ inputs.usda_run_id || '29382621509' }}
       PUBLIC_WEB_RUN_ID: ${{ github.event.workflow_run.id || inputs.public_web_run_id || '29385927769' }}

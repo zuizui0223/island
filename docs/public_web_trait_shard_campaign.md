@@ -119,6 +119,10 @@ The successful promoted artifact in turn triggers the 115,328-row all-master
 build. Pull-request validation uses a separate concurrency group and cannot
 replace a pending production pass. Cache is only an accelerator; the next pass
 can bootstrap from the newest complete 128-artifact run across branch scopes.
+An explicitly dispatched full run on a non-default working branch performs the
+same combine, all-master dispatch and bounded continuation inside that run, so
+an in-flight campaign does not have to discard its progress while awaiting
+merge.
 
 Wikipedia is queried directly by exact scientific-name title, with bounded
 backoff and a per-species pause. GBIF accepts only exact rank=SPECIES matches or

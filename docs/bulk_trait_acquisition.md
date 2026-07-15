@@ -216,6 +216,16 @@ rejection records to `all_acquisition_failures.jsonl`. Its 90-day artifact is
 `efloras-all-floras-combined` (artifact ID `8330314679`, digest
 `sha256:9abe55a5c50c22c3bb272bf1509bf3b99c47e80fbd698660a4dd0382bfd8a896`).
 
+The evidence-preserving re-extraction run
+[`29409302362`](https://github.com/zuizui0223/island/actions/runs/29409302362)
+reused those same 14,734 confirmed treatment texts and expanded only direct
+floral-context terms (for example stellate, infundibuliform, hypocrateriform,
+capitulum and asymmetric). It made no new taxonomic matches and no trait
+inference. The promoted artifact contains 14,502 candidate rows: floral-form
+coverage increased from 2,069 to 2,316 species and floral-symmetry coverage
+from 101 to 141 species. Its artifact ID is `8340405765` and digest is
+`sha256:adf0ed8529a22faf37e22873864469e29fc59dd5ece04fa4956926b82055a502`.
+
 ## USDA PLANTS direct Flower Color lane
 
 The `Acquire USDA PLANTS direct floral traits` workflow snapshots the public
