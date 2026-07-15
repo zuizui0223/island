@@ -28,6 +28,11 @@ on:
         required: false
         default: "29382621509"
         type: string
+      public_web_run_id:
+        description: Promoted public-web combined artifact run ID; blank omits public web
+        required: false
+        default: ""
+        type: string
   pull_request:
     paths:
       - ".github/workflows/build-all-master-trait-ledger.yml"
@@ -61,7 +66,8 @@ jobs:
         run: |
           pytest -q \
             tests/test_materialize_trait_artifacts.py \
-            tests/test_acquisition_rate_report.py
+            tests/test_acquisition_rate_report.py \
+            tests/test_all_species_trait_export.py
 
   materialize:
     if: github.event_name == 'workflow_dispatch'
@@ -76,6 +82,7 @@ jobs:
       EFLORAS_RUN_ID: ${{ inputs.efloras_run_id }}
       GIFT_RUN_ID: ${{ inputs.gift_run_id }}
       USDA_RUN_ID: ${{ inputs.usda_run_id }}
+      PUBLIC_WEB_RUN_ID: ${{ inputs.public_web_run_id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -92,6 +99,9 @@ jobs:
           if [[ -n "$EFLORAS_RUN_ID" ]]; then [[ "$EFLORAS_RUN_ID" =~ ^[0-9]+$ ]]; fi
           if [[ -n "$GIFT_RUN_ID" ]]; then [[ "$GIFT_RUN_ID" =~ ^[0-9]+$ ]]; fi
           if [[ -n "$USDA_RUN_ID" ]]; then [[ "$USDA_RUN_ID" =~ ^[0-9]+$ ]]; fi
+          if [[ -n "$PUBLIC_WEB_RUN_ID" ]]; then
+            [[ "$PUBLIC_WEB_RUN_ID" =~ ^[0-9]+$ ]]
+          fi
       - name: Download exact source artifacts and metadata
         run: |
           set -euo pipefail
@@ -135,6 +145,15 @@ jobs:
             gh api "repos/$GH_REPO/actions/runs/$USDA_RUN_ID/artifacts" \
               > /tmp/source_artifacts/metadata/usda_artifacts.json
           fi
+          if [[ -n "$PUBLIC_WEB_RUN_ID" ]]; then
+            mkdir -p /tmp/source_artifacts/public_web
+            gh run download "$PUBLIC_WEB_RUN_ID" \
+              --repo "$GH_REPO" \
+              --name public-web-traits-combined \
+              --dir /tmp/source_artifacts/public_web
+            gh api "repos/$GH_REPO/actions/runs/$PUBLIC_WEB_RUN_ID/artifacts" \
+              > /tmp/source_artifacts/metadata/public_web_artifacts.json
+          fi
       - name: Materialize evidence-preserving candidates
         run: |
           set -euo pipefail
@@ -163,6 +182,49 @@ jobs:
           island-v2-acquisition-rate run \
             --config-path config/acquisition_rate.yml \
             --output-dir /tmp/all_master_trait_ledger
+      - name: Build exact nine-column all-species table
+        run: |
+          set -euo pipefail
+          CANDIDATE_ARGS=(
+            --candidate-csv data/v2/staging/traits/eol_traitbank/trait_candidates.csv
+            --candidate-csv data/v2/staging/traits/bulk/austraits_all/trait_candidates.csv.gz
+            --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz
+          )
+          if [[ -f data/v2/staging/traits/efloras/combined/trait_candidates.csv ]]; then
+            CANDIDATE_ARGS+=(
+              --candidate-csv data/v2/staging/traits/efloras/combined/trait_candidates.csv
+            )
+          fi
+          if [[ -f data/v2/staging/traits/bulk/gift_v3_2/trait_candidates.csv ]]; then
+            CANDIDATE_ARGS+=(
+              --candidate-csv data/v2/staging/traits/bulk/gift_v3_2/trait_candidates.csv
+            )
+          fi
+          if [[ -f data/v2/staging/traits/bulk/usda_plants_current/trait_candidates.csv ]]; then
+            CANDIDATE_ARGS+=(
+              --candidate-csv data/v2/staging/traits/bulk/usda_plants_current/trait_candidates.csv
+            )
+          fi
+          LLM_ARGS=()
+          while IFS= read -r result_file; do
+            LLM_ARGS+=(--llm-results-jsonl "$result_file")
+          done < <(find data/v2/staging/traits/search_enabled_llm_campaign \
+            -maxdepth 1 -name 'batch_*_results.jsonl' -type f | sort)
+          WEB_ARGS=()
+          if [[ -f /tmp/source_artifacts/public_web/combined_trait_evidence.csv ]]; then
+            WEB_ARGS+=(
+              --web-evidence-csv \
+              /tmp/source_artifacts/public_web/combined_trait_evidence.csv
+            )
+          fi
+          island-v2-all-species-trait-export \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --applicability-csv \
+              /tmp/all_master_trait_ledger/acquisition_status_by_species.csv.gz \
+            --output-dir /tmp/all_master_trait_ledger \
+            "${CANDIDATE_ARGS[@]}" \
+            "${WEB_ARGS[@]}" \
+            "${LLM_ARGS[@]}"
       - name: Verify population, evidence accounting, and report coverage
         run: |
           python - <<'PY'
@@ -189,12 +251,37 @@ jobs:
           ).fillna("")
           assert len(species) == 115_328
           assert len(cells) == 1_499_264
+          final_table = pd.read_csv(root / "all_species_traits.csv", dtype=str).fillna("")
+          final_manifest = json.loads(
+              (root / "all_species_traits_manifest.json").read_text(encoding="utf-8")
+          )
+          expected_columns = [
+              "species", "flower_color", "flower_shape", "pollination_guild",
+              "pollination_notes", "mating_system", "self_incompatibility",
+              "evidence_type", "confidence",
+          ]
+          assert list(final_table.columns) == expected_columns
+          assert len(final_table) == 115_328
+          assert final_table["species"].is_unique
+          assert final_manifest["n_output_rows"] == 115_328
+          all_unknown = final_table[
+              ["flower_color", "flower_shape", "pollination_guild", "mating_system",
+               "self_incompatibility"]
+          ].eq("unknown").all(axis=1)
+          assert final_table.loc[all_unknown, "confidence"].eq("low").all()
 
           with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as handle:
               handle.write("## All-master source-backed trait ledger\n\n")
               handle.write(f"- master species retained: {len(species):,}\n")
               handle.write(f"- species-trait cells retained: {len(cells):,}\n")
               handle.write(f"- materialized bulk/flora sources: {expected_sources}\n")
+              handle.write(
+                  f"- exact nine-column rows: {final_manifest['n_output_rows']:,}\n"
+              )
+              handle.write(
+                  f"- species with any requested value: "
+                  f"{final_manifest['n_species_any_known']:,}\n"
+              )
               for status, count in summary["species_acquisition_status_counts"].items():
                   handle.write(f"- {status}: {count:,}\n")
               handle.write("\n### Source-backed coverage by trait\n")
