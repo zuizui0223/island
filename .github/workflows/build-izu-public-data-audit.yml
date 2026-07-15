@@ -1,8 +1,10 @@
 name: Build Izu public-data audit
 
 on:
+  workflow_dispatch:
   push:
     branches:
+      - main
       - agent/izu-public-data-acquisition-final4
     paths:
       - "src/island_v2/izu_public_data.py"
@@ -16,14 +18,19 @@ on:
       - "tests/test_izu_public_data.py"
       - ".github/workflows/build-izu-public-data-audit.yml"
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
       - run: python -m pip install -e '.[dev]'
       - run: python -m pytest tests/test_izu_public_data.py
       - name: Extract exact-island Izu records
