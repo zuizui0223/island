@@ -309,3 +309,100 @@ jobs:
             ${{ env.SHARD_DIR }}/cumulative/
           if-no-files-found: error
           retention-days: 90
+
+  promote-and-continue-nondefault:
+    if: >-
+      always() && github.event_name == 'workflow_dispatch' &&
+      github.ref_name != github.event.repository.default_branch &&
+      needs.advance-shards.result == 'success' &&
+      inputs.shard_start == '0' && inputs.shard_end == '127'
+    needs: [plan, advance-shards]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: ${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Download this run's complete immutable shard set
+        uses: actions/download-artifact@v4
+        with:
+          pattern: public-web-trait-shard-*-${{ github.run_id }}
+          path: /tmp/public_web_source
+          merge-multiple: false
+      - name: Validate and combine all 128 shards
+        run: |
+          mkdir -p /tmp/public_web_combined
+          gh api --paginate \
+            "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID/artifacts?per_page=100" \
+            --jq '.artifacts[]' > /tmp/public_web_source_artifacts.jsonl
+          island-v2-combine-public-web \
+            --artifact-root /tmp/public_web_source \
+            --output-dir /tmp/public_web_combined \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --expected-shards 128 \
+            --expected-species 106295 \
+            --expected-contract public_web_9col_shards_v6 \
+            --artifact-metadata-jsonl /tmp/public_web_source_artifacts.jsonl
+          cp /tmp/public_web_source_artifacts.jsonl \
+            /tmp/public_web_combined/source_artifacts.jsonl
+      - name: Publish continuation metrics
+        id: metrics
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          manifest = json.loads(
+              Path("/tmp/public_web_combined/combined_public_web_manifest.json")
+              .read_text(encoding="utf-8")
+          )
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as out:
+              out.write(f"remaining={manifest['n_enabled_provider_remaining']}\n")
+              out.write(f"attempted={manifest['n_species_attempted_in_source_run']}\n")
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as out:
+              out.write("## Combined non-default-branch acquisition\n\n")
+              out.write(f"- source run: {manifest['source_run_id']}\n")
+              out.write(f"- coverage: {manifest['coverage']}\n")
+              out.write(
+                  f"- enabled provider work remaining: "
+                  f"{manifest['n_enabled_provider_remaining']:,}\n"
+              )
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: public-web-traits-combined
+          path: /tmp/public_web_combined/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Rebuild the all-master ledger from this exact combined artifact
+        run: |
+          gh workflow run build-all-master-trait-ledger.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f public_web_run_id="$SOURCE_RUN_ID"
+      - name: Continue incomplete non-default-branch acquisition
+        if: >-
+          steps.metrics.outputs.remaining != '0' &&
+          steps.metrics.outputs.attempted != '0'
+        run: |
+          gh workflow run run-public-web-trait-shards.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f shard_start=0 \
+            -f shard_end=127 \
+            -f batch_size=500 \
+            -f retry_exhausted=false \
+            -f seed_run_id="$SOURCE_RUN_ID"
+      - name: Record a stalled incomplete non-default campaign
+        if: >-
+          steps.metrics.outputs.remaining != '0' &&
+          steps.metrics.outputs.attempted == '0'
+        run: |
+          echo "::warning::Campaign remains incomplete but advanced zero species; automatic chaining stopped."
