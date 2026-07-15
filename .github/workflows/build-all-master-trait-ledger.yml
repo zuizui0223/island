@@ -6,7 +6,7 @@ on:
       eol_run_id:
         description: Successful full EOL TraitBank workflow run ID
         required: true
-        default: "29332758352"
+        default: "29394577660"
         type: string
       austraits_run_id:
         description: Successful full AusTraits target-trait workflow run ID
