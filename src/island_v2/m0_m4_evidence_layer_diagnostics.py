@@ -1,8 +1,8 @@
 """Diagnose whether M0-M4 conclusions depend on inferred trait evidence layers.
 
-The global cascade is complete by construction but not uniform in evidence quality.
-This module separates the pollination-functional-guild outcome into species-direct,
-genus-inferred, family-inferred, and global-fallback layers, then quantifies both
+The trait matrix is rectangular but not uniform in evidence quality. This module
+separates an outcome into species-direct, genus-inferred, and family-inferred layers,
+then quantifies both
 layer-specific Bombus paths and primary-tier predictive performance across a full
 predeclared grid of direct-evidence coverage thresholds.
 """
@@ -28,7 +28,7 @@ from island_v2.m0_m4_spatial_cv import (
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
-FILL_LAYERS = ("species_direct", "genus_inference", "family_inference", "global_fallback")
+FILL_LAYERS = ("species_direct", "genus_inference", "family_inference")
 PRIMARY_COVERAGE_THRESHOLDS = (1, 3, 5, 10, 20, 30, 50)
 MEDIATOR_COVERAGE_THRESHOLDS = (1, 2, 3, 5, 10)
 

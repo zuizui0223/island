@@ -29,7 +29,7 @@ def test_main_input_excludes_every_non_direct_fill_tier(tmp_path: Path) -> None:
     for tier, species in (
         ("genus_inference", "Genusa rubra"),
         ("family_inference", "Familia rubra"),
-        ("global_fallback", "Globala rubra"),
+        ("unresolved_no_evidence", "Unresolveda rubra"),
         ("llm_inference", "Modela rubra"),
     ):
         for trait, value in (

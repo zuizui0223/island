@@ -1,19 +1,22 @@
-"""Fill-first taxonomic cascade to drive flower/reproductive trait gaps toward zero.
+"""Evidence-grounded taxonomic cascade for flower and reproductive traits.
 
 The operational priority is trait yield, not measurement. Direct source-backed
 evidence covers a small fraction of the master species, so this cascade fills
-every remaining species-trait by descending a source-blind fallback ladder:
+every remaining species-trait by descending a taxonomic evidence ladder:
 
     species_direct -> synonym_direct -> genus_inference -> family_inference
-    -> global_fallback
+    -> unresolved_no_evidence
 
 Every fill records ``fill_tier``, ``evidence_scope`` and ``confidence`` so a
 low-resolution fill is always separable for sensitivity analysis and never
 masquerades as accepted direct evidence. Fills are written to staging, never to
 curated. A cascade fill is candidate coverage, never a biological absence, and
 one trait is never derived from another (self-compatibility never fills
-autonomous selfing). Inference tiers also retain the supporting value
-distribution so a modal fill can be checked against a distribution-aware draw.
+autonomous selfing). Inference tiers retain supporting taxa, support size,
+winner share, and the full value distribution. A taxonomic inference is emitted
+only when configured support and consensus thresholds are met; tied or otherwise
+unqualified evidence remains explicitly unresolved. No dataset-wide modal value
+is ever assigned to a species without a genus or family evidence link.
 The mutually exclusive ``reported_value`` and ``inferred_value`` channels make
 that separation explicit even for consumers that do not inspect ``fill_tier``.
 """
@@ -229,7 +232,16 @@ OUTPUT_COLUMNS = [
     "evidence_scope",
     "confidence",
     "support_n",
+    "total_support_n",
+    "supporting_genera_n",
     "value_distribution",
+    "supporting_taxa",
+    "supporting_genera",
+    "winner_share",
+    "inference_basis",
+    "unresolved_reason",
+    "rejected_inference_diagnostics",
+    "analysis_eligible",
     "direct_conflict",
     "direct_conflict_distribution",
 ]
@@ -265,6 +277,51 @@ def load_config(path: Path) -> dict[str, Any]:
             "cascade config must contain master_taxa_csv, species/genus/family columns, "
             "target_traits, evidence_sources, tier_labels, angiosperm_scope_config, "
             "and trait_ontology_path"
+        )
+    for key in (
+        "min_genus_support",
+        "min_family_support",
+        "min_family_supporting_genera",
+    ):
+        if int(config.get(key, 1)) < 1:
+            raise typer.BadParameter(f"{key} must be at least 1")
+    for key in ("min_genus_consensus", "min_family_consensus"):
+        value = float(config.get(key, 1.0))
+        if not 0.0 < value <= 1.0:
+            raise typer.BadParameter(f"{key} must be in (0, 1]")
+    traits = [str(value) for value in config["target_traits"]]
+    if len(traits) != len(set(traits)):
+        raise typer.BadParameter("target_traits must be unique and ordered")
+    policies = config.get("inference_policies") or {}
+    if not isinstance(policies, dict):
+        raise typer.BadParameter("inference_policies must be a trait-keyed mapping")
+    unknown_policies = set(policies).difference(traits)
+    if unknown_policies:
+        raise typer.BadParameter(
+            f"inference_policies contain traits outside target_traits: {sorted(unknown_policies)}"
+        )
+    for trait, policy in policies.items():
+        if not isinstance(policy, dict):
+            raise typer.BadParameter(f"inference policy for {trait} must be a mapping")
+        for key in ("min_genus_support", "min_family_support", "min_family_supporting_genera"):
+            if key in policy and int(policy[key]) < 1:
+                raise typer.BadParameter(f"{trait}.{key} must be at least 1")
+        for key in ("min_genus_consensus", "min_family_consensus"):
+            if key in policy and not 0.0 < float(policy[key]) <= 1.0:
+                raise typer.BadParameter(f"{trait}.{key} must be in (0, 1]")
+        if "family_allowed" in policy and not isinstance(policy["family_allowed"], bool):
+            raise typer.BadParameter(f"{trait}.family_allowed must be boolean")
+    required_tiers = {
+        "species_direct",
+        "synonym_direct",
+        "genus_inference",
+        "family_inference",
+        "unresolved_no_evidence",
+    }
+    missing_tiers = required_tiers.difference(config["tier_labels"])
+    if missing_tiers:
+        raise typer.BadParameter(
+            f"cascade tier_labels missing required tiers: {sorted(missing_tiers)}"
         )
     return config
 
@@ -434,7 +491,16 @@ def _evidence_allmaster_long(source: dict[str, Any]) -> pd.DataFrame:
     frames: list[pd.DataFrame] = []
     for path in sorted(globlib.glob(source["glob"], recursive=True)):
         frame = pd.read_csv(path, dtype=str).fillna("")
-        required = {"species", "field", "value", "source_backed", "evidence_type"}
+        required = {
+            "species",
+            "field",
+            "value",
+            "source_backed",
+            "evidence_type",
+            "source_url",
+            "source_record_id",
+            "source_excerpt",
+        }
         if frame.empty:
             continue
         missing = required.difference(frame.columns)
@@ -446,7 +512,12 @@ def _evidence_allmaster_long(source: dict[str, Any]) -> pd.DataFrame:
         directly_reported = frame["evidence_type"].map(_text).str.casefold().isin(
             {"field_study", "review", "flora", "horticulture"}
         )
-        frame = frame.loc[source_backed & directly_reported].copy()
+        traceable = (
+            frame["source_url"].map(_is_present)
+            & frame["source_record_id"].map(_is_present)
+            & frame["source_excerpt"].map(_is_present)
+        )
+        frame = frame.loc[source_backed & directly_reported & traceable].copy()
         source_kinds = {_text(value) for value in source.get("include_source_kinds", [])}
         if source_kinds:
             if "source_kind" not in frame.columns:
@@ -621,7 +692,7 @@ def load_direct_evidence(config: dict[str, Any], traits: set[str]) -> pd.DataFra
 
 
 def _modal(frame: pd.DataFrame, group_cols: list[str]) -> pd.DataFrame:
-    """Return modal candidates plus an explicit count of tied top values."""
+    """Return modal candidates with auditable support and consensus."""
     if frame.empty:
         return pd.DataFrame(
             columns=[
@@ -630,6 +701,12 @@ def _modal(frame: pd.DataFrame, group_cols: list[str]) -> pd.DataFrame:
                 "weight",
                 "value_distribution",
                 "support_n",
+                "total_support_n",
+                "supporting_genera_n",
+                "supporting_taxa",
+                "supporting_genera",
+                "total_weight",
+                "winner_share",
                 "top_tie_n",
             ]
         )
@@ -639,6 +716,9 @@ def _modal(frame: pd.DataFrame, group_cols: list[str]) -> pd.DataFrame:
         ascending=[*([True] * len(group_cols)), False, True],
     )
     winners = totals.drop_duplicates(group_cols, keep="first")
+    total_weight = totals.groupby(group_cols)["weight"].sum().rename("total_weight").reset_index()
+    winners = winners.merge(total_weight, on=group_cols)
+    winners["winner_share"] = winners["weight"] / winners["total_weight"]
     top_weight = totals.groupby(group_cols)["weight"].transform("max")
     ties = (
         totals.loc[totals["weight"].eq(top_weight)]
@@ -653,50 +733,151 @@ def _modal(frame: pd.DataFrame, group_cols: list[str]) -> pd.DataFrame:
         .rename("value_distribution")
         .reset_index()
     )
-    support = frame.groupby(group_cols)["value"].size().rename("support_n").reset_index()
-    return winners.merge(dist, on=group_cols).merge(support, on=group_cols).merge(ties, on=group_cols)
-
-
-def _stable_distribution_draw(value_distribution: str, seed: str) -> str:
-    """Draw reproducibly from an empirical distribution without inventing a state.
-
-    This is used only for tied inference summaries.  The selected categorical
-    value remains an explicitly low-confidence inference, while the complete
-    empirical distribution is retained beside it for sensitivity analysis.
-    """
-    raw = json.loads(value_distribution)
-    weighted = [
-        (str(value), float(weight))
-        for value, weight in raw.items()
-        if float(weight) > 0
-    ]
-    if not weighted:
-        raise ValueError("cannot draw from an empty empirical distribution")
-    total = sum(weight for _, weight in weighted)
-    digest = hashlib.sha256(seed.encode("utf-8")).digest()
-    target = (int.from_bytes(digest[:8], "big") / 2**64) * total
-    cumulative = 0.0
-    for value, weight in weighted:
-        cumulative += weight
-        if target < cumulative:
-            return value
-    return weighted[-1][0]
-
-
-def _inference_value(candidate: Any, *, species: str, trait: str, tier: str) -> str:
-    """Use the unique mode, or a stable empirical draw when the mode is tied."""
-    if int(candidate.top_tie_n) == 1:
-        return str(candidate.value)
-    return _stable_distribution_draw(
-        str(candidate.value_distribution),
-        seed=f"{tier}\x1f{species}\x1f{trait}\x1f{candidate.value_distribution}",
+    if "accepted_species" in frame.columns:
+        support_frame = frame.assign(_support_taxon=frame["accepted_species"].map(_text))
+        winner_keys = winners[[*group_cols, "value"]]
+        winner_support_frame = support_frame.merge(
+            winner_keys,
+            on=[*group_cols, "value"],
+            how="inner",
+            validate="many_to_one",
+        )
+        support = (
+            winner_support_frame.groupby(group_cols)["_support_taxon"]
+            .nunique()
+            .rename("support_n")
+            .reset_index()
+        )
+        total_support = (
+            support_frame.groupby(group_cols)["_support_taxon"]
+            .nunique()
+            .rename("total_support_n")
+            .reset_index()
+        )
+        supporting_taxa = (
+            winner_support_frame.groupby(group_cols)["_support_taxon"]
+            .apply(
+                lambda values: json.dumps(
+                    sorted({value for value in values if value}), ensure_ascii=False
+                )
+            )
+            .rename("supporting_taxa")
+            .reset_index()
+        )
+        if "genus" in winner_support_frame.columns:
+            winner_support_frame = winner_support_frame.assign(
+                _support_genus=winner_support_frame["genus"].map(_text)
+            )
+            nonblank_genera = winner_support_frame.loc[
+                winner_support_frame["_support_genus"].ne("")
+            ]
+            supporting_genera_n = (
+                nonblank_genera.groupby(group_cols)["_support_genus"]
+                .nunique()
+                .rename("supporting_genera_n")
+                .reindex(
+                    pd.MultiIndex.from_frame(support[group_cols]),
+                    fill_value=0,
+                )
+                .rename_axis(group_cols)
+                .reset_index()
+            )
+            supporting_genera = (
+                nonblank_genera.groupby(group_cols)["_support_genus"]
+                .apply(
+                    lambda values: json.dumps(
+                        sorted(set(values)),
+                        ensure_ascii=False,
+                    )
+                )
+                .reindex(
+                    pd.MultiIndex.from_frame(support[group_cols]),
+                    fill_value="[]",
+                )
+                .rename("supporting_genera")
+                .rename_axis(group_cols)
+                .reset_index()
+            )
+        else:
+            supporting_genera_n = support[group_cols].copy()
+            supporting_genera_n["supporting_genera_n"] = 0
+            supporting_genera = support[group_cols].copy()
+            supporting_genera["supporting_genera"] = "[]"
+    else:
+        support = frame.groupby(group_cols)["value"].size().rename("support_n").reset_index()
+        total_support = support.rename(columns={"support_n": "total_support_n"})
+        supporting_taxa = support[group_cols].copy()
+        supporting_taxa["supporting_taxa"] = "[]"
+        supporting_genera_n = support[group_cols].copy()
+        supporting_genera_n["supporting_genera_n"] = 0
+        supporting_genera = support[group_cols].copy()
+        supporting_genera["supporting_genera"] = "[]"
+    return (
+        winners.merge(dist, on=group_cols)
+        .merge(support, on=group_cols)
+        .merge(total_support, on=group_cols)
+        .merge(supporting_genera_n, on=group_cols)
+        .merge(supporting_taxa, on=group_cols)
+        .merge(supporting_genera, on=group_cols)
+        .merge(ties, on=group_cols)
     )
+
+
+def _qualified_inference(
+    candidate: Any,
+    *,
+    min_support: int,
+    min_consensus: float,
+    min_supporting_genera: int = 0,
+) -> bool:
+    """Require a unique winner plus explicit taxon support and consensus."""
+    return bool(
+        candidate is not None
+        and int(candidate.support_n) >= min_support
+        and int(candidate.top_tie_n) == 1
+        and float(candidate.winner_share) >= min_consensus
+        and int(candidate.supporting_genera_n) >= min_supporting_genera
+    )
+
+
+def _rejected_inference_diagnostic(
+    candidate: Any,
+    *,
+    basis: str,
+    min_support: int,
+    min_consensus: float,
+    min_supporting_genera: int = 0,
+) -> dict[str, Any] | None:
+    """Describe why an available taxonomic candidate did not qualify."""
+    if candidate is None:
+        return None
+    failed_gates: list[str] = []
+    if int(candidate.support_n) < min_support:
+        failed_gates.append("winner_support_below_threshold")
+    if int(candidate.top_tie_n) != 1:
+        failed_gates.append("top_value_tied")
+    if float(candidate.winner_share) < min_consensus:
+        failed_gates.append("consensus_below_threshold")
+    if int(candidate.supporting_genera_n) < min_supporting_genera:
+        failed_gates.append("supporting_genera_below_threshold")
+    return {
+        "basis": basis,
+        "support_n": int(candidate.support_n),
+        "total_support_n": int(candidate.total_support_n),
+        "supporting_genera_n": int(candidate.supporting_genera_n),
+        "winner_share": round(float(candidate.winner_share), 6),
+        "top_tie_n": int(candidate.top_tie_n),
+        "value_distribution": json.loads(str(candidate.value_distribution)),
+        "supporting_taxa": json.loads(str(candidate.supporting_taxa)),
+        "supporting_genera": json.loads(str(candidate.supporting_genera)),
+        "failed_gates": failed_gates,
+    }
 
 
 def build_model(master: pd.DataFrame, evidence: pd.DataFrame, config: dict[str, Any]) -> dict[str, Any]:
     """Build the shared cascade model once from all evidence, for per-shard reuse.
 
-    Genus/family/global distributions are computed over the full eligible master
+    Genus/family distributions are computed over the full eligible master
     and evidence, so applying the model to any species subset yields identical
     fills to a single whole-universe pass.
     """
@@ -736,43 +917,40 @@ def build_model(master: pd.DataFrame, evidence: pd.DataFrame, config: dict[str, 
     direct_taxo["weight"] = 1.0
 
     genus_modal = _modal(
-        direct_taxo[["genus", "trait_name", "value", "weight"]], ["genus", "trait_name"]
+        direct_taxo[["accepted_species", "genus", "trait_name", "value", "weight"]],
+        ["genus", "trait_name"],
     )
     genus_lookup = {
         (r.genus, r.trait_name): r for r in genus_modal.itertuples(index=False)
     }
     family_modal = _modal(
-        direct_taxo[["family", "trait_name", "value", "weight"]], ["family", "trait_name"]
+        direct_taxo[
+            ["accepted_species", "genus", "family", "trait_name", "value", "weight"]
+        ],
+        ["family", "trait_name"],
     )
     family_lookup = {
         (r.family, r.trait_name): r for r in family_modal.itertuples(index=False)
     }
-    global_input = species_direct[["trait_name", "value"]].copy()
-    global_input["weight"] = 1.0
-    global_modal = _modal(global_input, ["trait_name"])
-    global_lookup = {r.trait_name: r for r in global_modal.itertuples(index=False)}
     return {
         "species_value": species_value,
         "direct_conflicts": conflict_lookup,
         "genus_lookup": genus_lookup,
         "family_lookup": family_lookup,
-        "global_lookup": global_lookup,
     }
 
 
 def fill_species_frame(
     species_frame: pd.DataFrame, model: dict[str, Any], config: dict[str, Any]
 ) -> pd.DataFrame:
-    """Fill one species subset by descending the cascade with a prebuilt model."""
+    """Resolve one species subset without inventing a global biological value."""
     traits = list(config["target_traits"])
     labels = config["tier_labels"]
-    min_genus = int(config.get("min_genus_support", 1))
-    min_family = int(config.get("min_family_support", 3))
+    inference_policies = config.get("inference_policies") or {}
     species_value = model["species_value"]
     direct_conflicts = model["direct_conflicts"]
     genus_lookup = model["genus_lookup"]
     family_lookup = model["family_lookup"]
-    global_lookup = model["global_lookup"]
 
     rows: list[dict[str, Any]] = []
     for sp in species_frame.itertuples(index=False):
@@ -780,27 +958,126 @@ def fill_species_frame(
         genus = _text(sp.genus)
         family = _text(sp.family)
         for trait in traits:
+            policy = inference_policies.get(trait) or {}
+            min_genus = int(policy.get("min_genus_support", config.get("min_genus_support", 1)))
+            min_family = int(
+                policy.get("min_family_support", config.get("min_family_support", 3))
+            )
+            min_family_genera = int(
+                policy.get(
+                    "min_family_supporting_genera",
+                    config.get("min_family_supporting_genera", 2),
+                )
+            )
+            min_genus_consensus = float(
+                policy.get(
+                    "min_genus_consensus",
+                    config.get("min_genus_consensus", 1.0),
+                )
+            )
+            min_family_consensus = float(
+                policy.get(
+                    "min_family_consensus",
+                    config.get("min_family_consensus", 0.8),
+                )
+            )
+            family_allowed = bool(policy.get("family_allowed", True))
             direct = species_value.get((species, trait))
             conflict = direct_conflicts.get((species, trait))
             if direct is not None:
-                tier, value, support, dist = "species_direct", direct.value, int(direct.support_n), direct.value_distribution
+                tier, value = "species_direct", direct.value
+                candidate = direct
+                inference_basis = "species_direct"
+                unresolved_reason = ""
+                rejected_diagnostics = ""
             else:
-                gen = genus_lookup.get((genus, trait))
-                fam = family_lookup.get((family, trait))
-                glob = global_lookup.get(trait)
-                if gen is not None and int(gen.support_n) >= min_genus:
-                    tier, support, dist = "genus_inference", int(gen.support_n), gen.value_distribution
-                    value = _inference_value(gen, species=species, trait=trait, tier=tier)
-                elif fam is not None and int(fam.support_n) >= min_family:
-                    tier, support, dist = "family_inference", int(fam.support_n), fam.value_distribution
-                    value = _inference_value(fam, species=species, trait=trait, tier=tier)
-                elif glob is not None:
-                    tier, support, dist = "global_fallback", int(glob.support_n), glob.value_distribution
-                    value = _inference_value(glob, species=species, trait=trait, tier=tier)
+                gen = genus_lookup.get((genus, trait)) if genus else None
+                fam = family_lookup.get((family, trait)) if family else None
+                if _qualified_inference(
+                    gen,
+                    min_support=min_genus,
+                    min_consensus=min_genus_consensus,
+                ):
+                    tier, value, candidate = "genus_inference", str(gen.value), gen
+                    inference_basis = f"genus:{genus}"
+                    unresolved_reason = ""
+                    rejected_diagnostics = ""
+                elif family_allowed and _qualified_inference(
+                    fam,
+                    min_support=min_family,
+                    min_consensus=min_family_consensus,
+                    min_supporting_genera=min_family_genera,
+                ):
+                    tier, value, candidate = "family_inference", str(fam.value), fam
+                    inference_basis = f"family:{family}"
+                    unresolved_reason = ""
+                    rejected_diagnostics = ""
                 else:
-                    continue  # trait has zero evidence anywhere; leave genuinely unknown
+                    tier, value = "unresolved_no_evidence", "unresolved"
+                    candidate = None
+                    inference_basis = ""
+                    diagnostics = [
+                        diagnostic
+                        for diagnostic in (
+                            _rejected_inference_diagnostic(
+                                gen,
+                                basis=f"genus:{genus}",
+                                min_support=min_genus,
+                                min_consensus=min_genus_consensus,
+                            ),
+                            _rejected_inference_diagnostic(
+                                fam,
+                                basis=f"family:{family}",
+                                min_support=min_family,
+                                min_consensus=min_family_consensus,
+                                min_supporting_genera=min_family_genera,
+                            ),
+                        )
+                        if diagnostic is not None
+                    ]
+                    if fam is not None and not family_allowed:
+                        family_diagnostic = _rejected_inference_diagnostic(
+                            fam,
+                            basis=f"family:{family}",
+                            min_support=min_family,
+                            min_consensus=min_family_consensus,
+                            min_supporting_genera=min_family_genera,
+                        )
+                        if family_diagnostic is not None:
+                            family_diagnostic["failed_gates"] = sorted(
+                                set(family_diagnostic["failed_gates"])
+                                | {"family_inference_disabled_for_trait"}
+                            )
+                            diagnostics[-1:] = [family_diagnostic]
+                    rejected_diagnostics = json.dumps(
+                        diagnostics, ensure_ascii=False, sort_keys=True
+                    )
+                    if conflict is not None:
+                        unresolved_reason = (
+                            "species_direct_conflict_no_qualified_taxonomic_inference"
+                        )
+                    elif not diagnostics:
+                        unresolved_reason = "no_genus_or_family_direct_evidence"
+                    elif not family_allowed:
+                        unresolved_reason = "no_qualified_genus_inference_family_disabled"
+                    else:
+                        unresolved_reason = "no_qualified_genus_or_family_inference"
             label = labels[tier]
             is_reported = tier in {"species_direct", "synonym_direct"}
+            is_inferred = tier in {"genus_inference", "family_inference"}
+            support = int(candidate.support_n) if candidate is not None else 0
+            total_support = int(candidate.total_support_n) if candidate is not None else 0
+            supporting_genera_n = (
+                int(candidate.supporting_genera_n) if candidate is not None else 0
+            )
+            dist = str(candidate.value_distribution) if candidate is not None else ""
+            supporting_taxa = str(candidate.supporting_taxa) if candidate is not None else "[]"
+            supporting_genera = (
+                str(candidate.supporting_genera) if candidate is not None else "[]"
+            )
+            winner_share = (
+                round(float(candidate.winner_share), 6) if candidate is not None else ""
+            )
             rows.append(
                 {
                     "accepted_species": species,
@@ -808,13 +1085,22 @@ def fill_species_frame(
                     "family": family,
                     "trait_name": trait,
                     "reported_value": value if is_reported else "",
-                    "inferred_value": value if not is_reported else "",
+                    "inferred_value": value if is_inferred else "",
                     "filled_value": value,
                     "fill_tier": tier,
                     "evidence_scope": label["evidence_scope"],
                     "confidence": label["confidence"],
                     "support_n": support,
-                    "value_distribution": dist if tier != "species_direct" else "",
+                    "total_support_n": total_support,
+                    "supporting_genera_n": supporting_genera_n,
+                    "value_distribution": dist if not is_reported else "",
+                    "supporting_taxa": supporting_taxa,
+                    "supporting_genera": supporting_genera,
+                    "winner_share": winner_share,
+                    "inference_basis": inference_basis,
+                    "unresolved_reason": unresolved_reason,
+                    "rejected_inference_diagnostics": rejected_diagnostics,
+                    "analysis_eligible": "false" if tier == "unresolved_no_evidence" else "true",
                     "direct_conflict": "true" if conflict is not None else "false",
                     "direct_conflict_distribution": (
                         conflict.value_distribution if conflict is not None else ""
@@ -831,12 +1117,16 @@ def build_fills(master: pd.DataFrame, evidence: pd.DataFrame, config: dict[str, 
 
 
 def build_coverage_summary(fills: pd.DataFrame, config: dict[str, Any], n_master: int) -> dict[str, Any]:
-    """Per-trait fill coverage and tier composition against the master."""
+    """Per-trait grounded resolution and rectangular cell-presence coverage."""
     traits = list(config["target_traits"])
     by_trait: dict[str, Any] = {}
     for trait in traits:
         sub = fills.loc[fills["trait_name"].eq(trait)]
-        n_filled = int(sub["accepted_species"].nunique())
+        n_cells_present = int(sub["accepted_species"].nunique())
+        n_unresolved = int(
+            sub.loc[sub["fill_tier"].eq("unresolved_no_evidence"), "accepted_species"].nunique()
+        )
+        n_filled = n_cells_present - n_unresolved
         tiers = {str(k): int(v) for k, v in sub["fill_tier"].value_counts().items()}
         direct = int(sub.loc[sub["fill_tier"].eq("species_direct"), "accepted_species"].nunique())
         conflicts = int(
@@ -845,9 +1135,12 @@ def build_coverage_summary(fills: pd.DataFrame, config: dict[str, Any], n_master
         by_trait[trait] = {
             "n_filled": n_filled,
             "fill_rate": n_filled / n_master if n_master else 0.0,
+            "n_cells_present": n_cells_present,
+            "cell_presence_rate": n_cells_present / n_master if n_master else 0.0,
             "n_species_direct": direct,
             "n_species_direct_conflict": conflicts,
             "species_direct_rate": direct / n_master if n_master else 0.0,
+            "n_unresolved_no_evidence": n_unresolved,
             "n_unknown_remaining": n_master - n_filled,
             "by_tier": tiers,
         }
@@ -859,9 +1152,9 @@ def build_coverage_summary(fills: pd.DataFrame, config: dict[str, Any], n_master
         "by_trait": by_trait,
         "fills_by_tier": overall_tiers,
         "interpretation": (
-            "Fill-first cascade coverage. filled_value at genus/family/global tiers is "
-            "low-resolution inference tagged by fill_tier and confidence, separable for "
-            "sensitivity analysis, never accepted evidence or biological absence."
+            "Evidence-grounded cascade coverage. Genus/family values require explicit "
+            "support and consensus; cells without qualified taxonomic evidence remain "
+            "unresolved_no_evidence and are not analysis-eligible."
         ),
     }
 
@@ -880,7 +1173,7 @@ def build_benchmark(fills: pd.DataFrame, master: pd.DataFrame, config: dict[str,
 
 # --- sharding, checkpoint, resume ------------------------------------------
 
-CONTRACT_VERSION = "trait_fill_cascade_shards_v3"
+CONTRACT_VERSION = "trait_fill_cascade_shards_v4"
 
 
 def _sha_text(text: str) -> str:
@@ -941,6 +1234,12 @@ def model_fingerprint(
             "traits": list(config["target_traits"]),
             "min_genus_support": int(config.get("min_genus_support", 1)),
             "min_family_support": int(config.get("min_family_support", 3)),
+            "min_family_supporting_genera": int(
+                config.get("min_family_supporting_genera", 2)
+            ),
+            "min_genus_consensus": float(config.get("min_genus_consensus", 1.0)),
+            "min_family_consensus": float(config.get("min_family_consensus", 0.8)),
+            "inference_policies": dict(config.get("inference_policies") or {}),
             "tier_labels": config["tier_labels"],
             "contract": CONTRACT_VERSION,
         },
@@ -967,8 +1266,14 @@ def shard_summary_from_fills(shard_fills: pd.DataFrame, config: dict[str, Any]) 
     by_trait: dict[str, Any] = {}
     for trait in traits:
         sub = shard_fills.loc[shard_fills["trait_name"].eq(trait)]
+        n_cells_present = int(sub["accepted_species"].nunique())
+        n_unresolved = int(
+            sub.loc[sub["fill_tier"].eq("unresolved_no_evidence"), "accepted_species"].nunique()
+        )
         by_trait[trait] = {
-            "n_filled": int(sub["accepted_species"].nunique()),
+            "n_filled": n_cells_present - n_unresolved,
+            "n_cells_present": n_cells_present,
+            "n_unresolved_no_evidence": n_unresolved,
             "n_species_direct": int(
                 sub.loc[sub["fill_tier"].eq("species_direct"), "accepted_species"].nunique()
             ),
@@ -993,6 +1298,13 @@ def aggregate_shard_summaries(
     fills_by_tier: dict[str, int] = {}
     for trait in traits:
         n_filled = sum(s["by_trait"].get(trait, {}).get("n_filled", 0) for s in summaries)
+        n_cells_present = sum(
+            s["by_trait"].get(trait, {}).get("n_cells_present", 0) for s in summaries
+        )
+        n_unresolved = sum(
+            s["by_trait"].get(trait, {}).get("n_unresolved_no_evidence", 0)
+            for s in summaries
+        )
         direct = sum(s["by_trait"].get(trait, {}).get("n_species_direct", 0) for s in summaries)
         conflicts = sum(
             s["by_trait"].get(trait, {}).get("n_species_direct_conflict", 0)
@@ -1005,9 +1317,12 @@ def aggregate_shard_summaries(
         by_trait[trait] = {
             "n_filled": n_filled,
             "fill_rate": n_filled / n_eligible if n_eligible else 0.0,
+            "n_cells_present": n_cells_present,
+            "cell_presence_rate": n_cells_present / n_eligible if n_eligible else 0.0,
             "n_species_direct": direct,
             "n_species_direct_conflict": conflicts,
             "species_direct_rate": direct / n_eligible if n_eligible else 0.0,
+            "n_unresolved_no_evidence": n_unresolved,
             "n_unknown_remaining": n_eligible - n_filled,
             "by_tier": tiers,
         }
@@ -1021,9 +1336,9 @@ def aggregate_shard_summaries(
         "by_trait": by_trait,
         "fills_by_tier": fills_by_tier,
         "interpretation": (
-            "Fill-first cascade coverage. filled_value at genus/family/global tiers is "
-            "low-resolution inference tagged by fill_tier and confidence, separable for "
-            "sensitivity analysis, never accepted evidence or biological absence."
+            "Evidence-grounded cascade coverage. Genus/family values require explicit "
+            "support and consensus; cells without qualified taxonomic evidence remain "
+            "unresolved_no_evidence and are not analysis-eligible."
         ),
     }
 

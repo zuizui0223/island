@@ -8,8 +8,10 @@ on:
     paths:
       - ".github/workflows/run-purpose-shortest-distance-regime.yml"
       - "src/island_v2/purpose_shortest_analysis.py"
+      - "src/island_v2/trait_bombus_analysis.py"
       - "src/island_v2/m0_m4_full_analysis.py"
       - "src/island_v2/full_analysis_covariates.py"
+      - "tests/test_grounded_downstream_analysis.py"
       - "config/integrated_trait_bombus_artifact_lock.json"
       - "config/bombus_hypervolume_artifact_lock.json"
       - "config/island_universe_artifact_lock.json"
@@ -33,7 +35,11 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: Compile shortest analysis
-        run: python -m py_compile src/island_v2/purpose_shortest_analysis.py
+        run: |
+          python -m py_compile \
+            src/island_v2/purpose_shortest_analysis.py \
+            src/island_v2/trait_bombus_analysis.py
+          pytest -q tests/test_grounded_downstream_analysis.py
 
       - name: Download locked integrated trait-Bombus artifact
         env:
@@ -97,20 +103,20 @@ jobs:
             --island-manifest-csv "$ISLAND_MANIFEST" \
             --output-dir data/v2/staging/analysis/purpose_shortest/covariates
 
-      - name: Run shortest purpose-aligned analysis on all available filled data
+      - name: Run shortest purpose-aligned analysis on grounded species rows
         run: |
           set -euo pipefail
           ROOT=$(find /tmp/integrated -type d -path '*/bombus_join/sensitivity_all' -print -quit)
-          COMP="$ROOT/island_trait_composition_with_bombus.csv.gz"
+          MASTER="$ROOT/island_species_trait_bombus_master.csv.gz"
           METRICS="$ROOT/island_bombus_trait_analysis_input.csv"
           COV=data/v2/staging/analysis/purpose_shortest/covariates/full_analysis_covariates.csv
           ISLANDS=$(find /tmp/islands -name islands_v2.gpkg -print -quit)
-          test -f "$COMP"
+          test -f "$MASTER"
           test -f "$METRICS"
           test -f "$COV"
           test -f "$ISLANDS"
           python -m island_v2.purpose_shortest_analysis \
-            --trait-composition-csv "$COMP" \
+            --species-master-csv "$MASTER" \
             --island-metrics-csv "$METRICS" \
             --covariates-csv "$COV" \
             --islands-gpkg "$ISLANDS" \
@@ -125,9 +131,13 @@ jobs:
           import pandas as pd
 
           root = Path('data/v2/staging/analysis/purpose_shortest/results')
+          analysis_summary = json.loads((root / 'purpose_shortest_summary.json').read_text())
           coef = pd.read_csv(root / 'purpose_shortest_coefficients.csv')
           fits = pd.read_csv(root / 'purpose_shortest_model_fit.csv')
           regions = pd.read_csv(root / 'purpose_shortest_region_summary.csv')
+          grounded_filter = analysis_summary['grounded_input_filter']
+          if grounded_filter['forbidden_rows_after_filter'] != 0:
+              raise SystemExit('non-grounded trait rows entered purpose-shortest analysis')
 
           def row(model, regime, outcome, predictor):
               x = coef.loc[
@@ -168,6 +178,8 @@ jobs:
 
           summary = {
               'contract': 'purpose_shortest_distance_regime_result_v3',
+              'analysis_tier': analysis_summary['analysis_tier'],
+              'grounded_input_filter': grounded_filter,
               'northern_midlatitude': {
                   'distance_to_plain_color_M0': row(
                       'M0_geography', 'northern_midlatitude', 'plain_color',
@@ -198,7 +210,7 @@ jobs:
               'southern_extratropical_replacement': replacement('southern_extratropical'),
               'regional_means': regions.to_dict('records'),
               'interpretation_guardrail': (
-                  'First all-filled-data exploratory run only. Distance is to seeded major '
+                  'Grounded direct/genus/family exploratory run only. Distance is to seeded major '
                   'continental landmasses. Northern midlatitude is a geographic proxy, Bombus '
                   'is environmental compatibility rather than observed absence, and guild shares '
                   'are plant trait composition rather than measured local pollinator abundance.'

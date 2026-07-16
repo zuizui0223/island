@@ -39,3 +39,20 @@ traits:
     medium: [medium-sized flowers, medium sized flowers]
     large: [large flowers]
     very_large: [very large flowers, giant flowers, exceptionally large flowers]
+
+  inflorescence_display:
+    solitary: [flowers are solitary, solitary flowers, borne singly]
+    few_flowered: [few-flowered, few flowered]
+    raceme_spike_panicle: [flowers borne in racemes, flowers borne in spikes, flowers borne in panicles, racemose inflorescence, spicate inflorescence, paniculate inflorescence]
+    umbel_corymb: [flowers borne in umbels, flowers borne in corymbs, umbellate inflorescence, corymbose inflorescence]
+    composite_display: [flowers borne in heads, capitulum inflorescence, composite flower head]
+    brush_puff_display: [brush-like inflorescence, brushlike inflorescence, powder-puff inflorescence, powder puff inflorescence]
+
+  reward_type:
+    nectar: [flowers produce nectar, nectar-producing flowers, nectar reward, nectariferous flowers]
+    pollen: [pollen reward, pollen-reward flowers]
+    oil: [floral oil reward, oil-producing flowers]
+    resin: [floral resin reward, resin-producing flowers]
+    fragrance: [fragrance reward, floral scent reward]
+    rewardless: [rewardless flowers, flowers offer no reward, deceptive flowers with no reward]
+    mixed_or_multiple: [nectar and pollen rewards, multiple floral rewards]

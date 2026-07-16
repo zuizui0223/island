@@ -229,7 +229,7 @@ def run_fast_imputations(
     comparator_rows: list[dict[str, Any]] = []
     for comparator, successes in (
         ("expected_probability_counts", expected_successes),
-        ("hard_modal_broad_without_global_fallback", hard_successes),
+        ("hard_modal_grounded_taxonomic", hard_successes),
     ):
         for baseline_name in baselines:
             comparator_rows.append(

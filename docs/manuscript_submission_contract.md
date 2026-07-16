@@ -29,8 +29,8 @@ The study is a global comparative analysis. It does not identify a historical po
    - products of coefficients from separate nonlinear models must not be labelled causal indirect effects or total effects.
 
 4. **Sensitivity analyses**
-   - expanded genus/family inference and global fallback may be used only as explicitly labelled sensitivity analyses;
-   - results based on `sensitivity_all` are not confirmatory evidence because global fallback values are model-imputed priors rather than species-level observations.
+   - expanded qualified genus/family inference may be used only as explicitly labelled sensitivity analyses;
+   - unresolved cells carry no biological value and must be excluded from all analyses.
 
 ## Evidence-tier rule
 
@@ -38,7 +38,7 @@ The manuscript must report trait evidence resolution rather than hide it behind 
 
 - **Confirmatory:** direct source-backed species evidence, with a separately declared broader direct-evidence track if justified.
 - **Secondary robustness:** taxonomic inference at genus/family level.
-- **Sensitivity only:** global fallback.
+- **Not analysable:** `unresolved_no_evidence` rows and any historical global-fallback artifact.
 
 Every primary figure/table must state the evidence tier and the number of islands, species, and trait-resolved trials contributing to the estimate.
 

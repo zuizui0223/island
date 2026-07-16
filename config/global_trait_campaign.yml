@@ -1,6 +1,8 @@
 version: "1.1"
 default_batch_size: 1000
 max_attempts: 3
+scope_config_path: config/angiosperm_scope.yml
+expected_species: 106295
 
 # Primary completion has scheduling priority. Optional recovery and scholarly
 # enrichment must not consume the serialized 30-minute Wikimedia campaign lane.
@@ -20,8 +22,6 @@ task_order:
   - floral_access_wikimedia
   - reproductive_wikimedia
   - reproductive_openalex
-  - alternative_guild_wikimedia
-  - alternative_guild_openalex
 
 # v1.0 marked non-biotic rows not_applicable for floral access. v1.1 makes that
 # task all-species, so those historical terminal gates must be reopened once.
@@ -41,8 +41,10 @@ tasks:
       - autonomous_selfing_capacity
       - mating_system
       - cleistogamy
-      - dichogamy
       - sex_system
+      - pollen_vector_mode
+      - dichogamy
+      - herkogamy
 
   reproductive_openalex:
     phase: reproductive_biology
@@ -65,13 +67,20 @@ tasks:
       - cleistogamy
       - dichogamy
       - breeding system
+      - herkogamy
+      - protandry
+      - protogyny
+      - dioecious
+      - wind pollination
     target_traits:
       - self_incompatibility
       - autonomous_selfing_capacity
       - mating_system
       - cleistogamy
-      - dichogamy
       - sex_system
+      - pollen_vector_mode
+      - dichogamy
+      - herkogamy
 
   floral_access_wikimedia:
     phase: floral_access
@@ -87,44 +96,8 @@ tasks:
       - tube_depth_class
       - flower_size_class
       - flower_primary_color
-
-  alternative_guild_wikimedia:
-    phase: alternative_pollinator_function
-    required_for_primary_completion: false
-    source_kind: wikimedia_reported_ecology
-    eligibility: machine_biotic_candidate
-    depends_on:
-      - floral_access_wikimedia
-    pause_seconds: 0.05
-    max_retries: 4
-    target_traits:
-      - pollination_functional_guild
-
-  alternative_guild_openalex:
-    phase: alternative_pollinator_function
-    required_for_primary_completion: false
-    source_kind: openalex_reported_ecology
-    eligibility: machine_biotic_candidate
-    depends_on:
-      - alternative_guild_wikimedia
-    pause_seconds: 0.25
-    per_page: 8
-    require_api_key: true
-    max_retries: 3
-    backoff_seconds: 5.0
-    max_backoff_seconds: 60.0
-    query_terms:
-      - pollinated by bees
-      - bumblebee
-      - bird pollination
-      - butterfly pollination
-      - moth pollination
-      - fly pollination
-      - bat pollination
-      - floral visitor
-      - generalist pollinator
-    target_traits:
-      - pollination_functional_guild
+      - inflorescence_display
+      - reward_type
 
 # Coarse fail-closed exclusion copied from the validation-pilot scope. Taxonomic
 # review remains authoritative; this only prevents obvious fern/lycophyte/

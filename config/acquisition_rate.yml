@@ -22,16 +22,18 @@ reported_traits:
   - flower_primary_color
   - floral_form
   - floral_symmetry
-  - flower_size_class
-  - tube_depth_class
-  - pollen_vector_mode
-  - pollination_functional_guild
-  - sex_system
-  - mating_system
   - self_incompatibility
   - autonomous_selfing_capacity
+  - mating_system
   - cleistogamy
+  - sex_system
+  - pollen_vector_mode
+  - flower_size_class
+  - tube_depth_class
+  - inflorescence_display
+  - reward_type
   - dichogamy
+  - herkogamy
 
 # The repository's current reproductive/floral analysis contract is defined for
 # angiosperms. Non-angiosperm master rows remain in both ledgers but these cells
@@ -40,16 +42,18 @@ angiosperm_only_traits:
   - flower_primary_color
   - floral_form
   - floral_symmetry
-  - flower_size_class
-  - tube_depth_class
-  - pollen_vector_mode
-  - pollination_functional_guild
-  - sex_system
-  - mating_system
   - self_incompatibility
   - autonomous_selfing_capacity
+  - mating_system
   - cleistogamy
+  - sex_system
+  - pollen_vector_mode
+  - flower_size_class
+  - tube_depth_class
+  - inflorescence_display
+  - reward_type
   - dichogamy
+  - herkogamy
 
 # Acquisition channels unioned into the report. counts_as_broad selects whether
 # a channel's source-backed candidates fold into the broad rate. Inference and

@@ -8,8 +8,10 @@ on:
       - ".github/workflows/run-v1-v2-minimal-bridge.yml"
       - "src/island_v2/v1_v2_bridge_analysis.py"
       - "src/island_v2/purpose_shortest_analysis.py"
+      - "src/island_v2/trait_bombus_analysis.py"
       - "src/island_v2/m0_m4_full_analysis.py"
       - "src/island_v2/full_analysis_covariates.py"
+      - "tests/test_grounded_downstream_analysis.py"
       - "config/integrated_trait_bombus_artifact_lock.json"
       - "config/bombus_hypervolume_artifact_lock.json"
       - "config/island_universe_artifact_lock.json"
@@ -33,7 +35,12 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: Compile bridge
-        run: python -m py_compile src/island_v2/v1_v2_bridge_analysis.py
+        run: |
+          python -m py_compile \
+            src/island_v2/v1_v2_bridge_analysis.py \
+            src/island_v2/purpose_shortest_analysis.py \
+            src/island_v2/trait_bombus_analysis.py
+          pytest -q tests/test_grounded_downstream_analysis.py
 
       - name: Download locked integrated trait-Bombus artifact
         env:
@@ -113,6 +120,18 @@ jobs:
             --islands-gpkg "$ISLANDS" \
             --natural-earth-land-zip /tmp/ne_110m_land.zip \
             --output-dir data/v2/staging/analysis/v1_v2_bridge/results
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(
+              Path('data/v2/staging/analysis/v1_v2_bridge/results/v1_v2_bridge_summary.json').read_text()
+          )
+          grounded_filter = summary['grounded_input_filter']
+          if grounded_filter['forbidden_rows_after_filter'] != 0:
+              raise SystemExit('non-grounded trait rows entered v1-v2 bridge analysis')
+          PY
 
       - name: Upload bridge result
         uses: actions/upload-artifact@v4

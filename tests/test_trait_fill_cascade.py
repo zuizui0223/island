@@ -16,13 +16,19 @@ def _config(master_path) -> dict:
         "target_traits": ["flower_primary_color"],
         "min_genus_support": 1,
         "min_family_support": 3,
+        "min_family_supporting_genera": 2,
+        "min_genus_consensus": 1.0,
+        "min_family_consensus": 0.8,
         "evidence_sources": {},
         "tier_labels": {
             "species_direct": {"evidence_scope": "species_direct", "confidence": "direct_reported"},
             "synonym_direct": {"evidence_scope": "synonym_direct", "confidence": "synonym_reported"},
             "genus_inference": {"evidence_scope": "genus_inference", "confidence": "genus_inference_low"},
             "family_inference": {"evidence_scope": "family_inference", "confidence": "family_inference_very_low"},
-            "global_fallback": {"evidence_scope": "global_fallback", "confidence": "global_fallback_negligible"},
+            "unresolved_no_evidence": {
+                "evidence_scope": "unresolved",
+                "confidence": "unresolved",
+            },
         },
         "benchmark_sample_size": 10,
     }
@@ -31,7 +37,7 @@ def _config(master_path) -> dict:
 def _master() -> pd.DataFrame:
     # Genus Aaa: one direct species + one gap (genus inference).
     # Genus Bbb (family Fff): no direct, but family Fff has >=3 direct -> family inference.
-    # Genus Zzz (family Ggg): nothing in family -> global fallback.
+    # Genus Zzz (family Ggg): nothing in family -> explicit unresolved cell.
     rows = [
         ("Aaa one", "Aaa", "Fam1"),
         ("Aaa two", "Aaa", "Fam1"),   # gap -> genus inference from Aaa one
@@ -39,7 +45,9 @@ def _master() -> pd.DataFrame:
         ("Fff a", "Ccc", "Fff"),
         ("Fff b", "Ddd", "Fff"),
         ("Fff c", "Eee", "Fff"),
-        ("Zzz gap", "Zzz", "Ggg"),    # nothing in genus/family -> global fallback
+        ("Fff d", "Eff", "Fff"),
+        ("Fff e", "Fff", "Fff"),
+        ("Zzz gap", "Zzz", "Ggg"),    # nothing in genus/family -> unresolved
     ]
     return pd.DataFrame(rows, columns=["accepted_species", "genus", "family"])
 
@@ -49,7 +57,9 @@ def _evidence() -> pd.DataFrame:
         ("Aaa one", "flower_primary_color", "red", 5.0),
         ("Fff a", "flower_primary_color", "white", 1.0),
         ("Fff b", "flower_primary_color", "white", 1.0),
-        ("Fff c", "flower_primary_color", "blue", 1.0),  # family modal = white (2 vs 1)
+        ("Fff c", "flower_primary_color", "white", 1.0),
+        ("Fff d", "flower_primary_color", "white", 1.0),
+        ("Fff e", "flower_primary_color", "blue", 1.0),  # family consensus = 4/5
     ]
     return pd.DataFrame(rows, columns=["accepted_species", "trait_name", "value", "weight"])
 
@@ -68,16 +78,33 @@ def test_cascade_tiers_and_modal(tmp_path):
     assert fills.loc["Aaa two", "filled_value"] == "red"
     assert fills.loc["Aaa two", "reported_value"] == ""
     assert fills.loc["Aaa two", "inferred_value"] == "red"
-    # genus Bbb empty, family Fff has 3 direct -> family inference, modal white
+    # genus Bbb empty, family Fff has five direct and 80% consensus -> family inference
     assert fills.loc["Bbb gap", "fill_tier"] == "family_inference"
     assert fills.loc["Bbb gap", "filled_value"] == "white"
-    # nothing in genus/family -> global fallback; global prior is one species,
-    # one vote, so two white species beat one red and one blue species.
-    assert fills.loc["Zzz gap", "fill_tier"] == "global_fallback"
-    assert fills.loc["Zzz gap", "filled_value"] == "white"
+    assert fills.loc["Bbb gap", "support_n"] == 4
+    assert fills.loc["Bbb gap", "total_support_n"] == 5
+    assert fills.loc["Bbb gap", "supporting_genera_n"] == 4
+    assert fills.loc["Bbb gap", "winner_share"] == 0.8
+    assert set(json.loads(fills.loc["Bbb gap", "supporting_taxa"])) == {
+        "Fff a",
+        "Fff b",
+        "Fff c",
+        "Fff d",
+    }
+    # No genus/family evidence means no biological value is invented.
+    assert fills.loc["Zzz gap", "fill_tier"] == "unresolved_no_evidence"
+    assert fills.loc["Zzz gap", "filled_value"] == "unresolved"
+    assert fills.loc["Zzz gap", "reported_value"] == ""
+    assert fills.loc["Zzz gap", "inferred_value"] == ""
+    assert fills.loc["Zzz gap", "analysis_eligible"] == "false"
 
-    # The selected value is never duplicated across reported and inferred channels.
-    assert (fills["reported_value"].ne("") ^ fills["inferred_value"].ne("")).all()
+    # Reported and inferred values are mutually exclusive; unresolved has neither.
+    assert not (fills["reported_value"].ne("") & fills["inferred_value"].ne("")).any()
+    resolved = fills["fill_tier"].ne("unresolved_no_evidence")
+    assert (
+        fills.loc[resolved, "reported_value"].ne("")
+        ^ fills.loc[resolved, "inferred_value"].ne("")
+    ).all()
 
     # every master species got a fill: unknown driven to zero
     assert len(fills) == len(master)
@@ -86,16 +113,40 @@ def test_cascade_tiers_and_modal(tmp_path):
     assert fills.loc["Aaa two", "value_distribution"] != ""
     assert fills.loc["Aaa one", "value_distribution"] == ""
     dist = json.loads(fills.loc["Bbb gap", "value_distribution"])
-    assert dist["white"] == 2.0 and dist["blue"] == 1.0
+    assert dist["white"] == 4.0 and dist["blue"] == 1.0
 
 
 def test_family_threshold_blocks_thin_support(tmp_path):
     master = _master()
     config = _config(tmp_path / "m.csv")
-    config["min_family_support"] = 5  # Fff has only 3 direct -> below threshold
+    config["min_family_support"] = 5  # only four taxa support the winning value
     fills = cascade.build_fills(master, _evidence(), config).set_index("accepted_species")
-    # Bbb gap can no longer use family Fff (3 < 5) -> falls through to global fallback
-    assert fills.loc["Bbb gap", "fill_tier"] == "global_fallback"
+    assert fills.loc["Bbb gap", "fill_tier"] == "unresolved_no_evidence"
+    assert fills.loc["Bbb gap", "inferred_value"] == ""
+
+
+def test_trait_specific_policy_requires_two_congeners_and_can_disable_family(tmp_path):
+    master = _master()
+    config = _config(tmp_path / "m.csv")
+    config["inference_policies"] = {
+        "flower_primary_color": {
+            "min_genus_support": 2,
+            "min_genus_consensus": 1.0,
+            "family_allowed": False,
+        }
+    }
+
+    fills = cascade.build_fills(master, _evidence(), config).set_index("accepted_species")
+
+    assert fills.loc["Aaa two", "fill_tier"] == "unresolved_no_evidence"
+    assert fills.loc["Bbb gap", "fill_tier"] == "unresolved_no_evidence"
+    assert (
+        fills.loc["Bbb gap", "unresolved_reason"]
+        == "no_qualified_genus_inference_family_disabled"
+    )
+    diagnostics = json.loads(fills.loc["Bbb gap", "rejected_inference_diagnostics"])
+    family = next(item for item in diagnostics if item["basis"] == "family:Fff")
+    assert "family_inference_disabled_for_trait" in family["failed_gates"]
 
 
 def test_equal_weight_species_conflict_is_not_promoted_as_reported(tmp_path):
@@ -117,13 +168,14 @@ def test_equal_weight_species_conflict_is_not_promoted_as_reported(tmp_path):
 
     conflict = fills.loc["Conflict one"]
     assert conflict["reported_value"] == ""
-    assert conflict["inferred_value"] == "SI"
-    assert conflict["fill_tier"] == "global_fallback"
+    assert conflict["inferred_value"] == ""
+    assert conflict["filled_value"] == "unresolved"
+    assert conflict["fill_tier"] == "unresolved_no_evidence"
     assert conflict["direct_conflict"] == "true"
     assert json.loads(conflict["direct_conflict_distribution"]) == {"SC": 1.0, "SI": 1.0}
 
 
-def test_tied_global_prior_uses_reproducible_distribution_draw(tmp_path):
+def test_unrelated_global_evidence_never_fills_a_gap(tmp_path):
     master = pd.DataFrame(
         [
             ("Open one", "Open", "Openaceae"),
@@ -143,20 +195,17 @@ def test_tied_global_prior_uses_reproducible_distribution_draw(tmp_path):
     config["target_traits"] = ["tube_depth_class"]
 
     first = cascade.build_fills(master, evidence, config).set_index("accepted_species")
-    second = cascade.build_fills(master, evidence, config).set_index("accepted_species")
     gap = first.loc["Gap one"]
 
-    assert gap["fill_tier"] == "global_fallback"
+    assert gap["fill_tier"] == "unresolved_no_evidence"
     assert gap["reported_value"] == ""
-    assert gap["inferred_value"] in {"absent_or_open", "deep"}
-    assert gap["filled_value"] == second.loc["Gap one", "filled_value"]
-    assert json.loads(gap["value_distribution"]) == {
-        "absent_or_open": 1.0,
-        "deep": 1.0,
-    }
+    assert gap["inferred_value"] == ""
+    assert gap["filled_value"] == "unresolved"
+    assert gap["value_distribution"] == ""
+    assert gap["unresolved_reason"] == "no_genus_or_family_direct_evidence"
 
 
-def test_tied_genus_prior_stays_at_genus_tier(tmp_path):
+def test_tied_genus_prior_is_not_randomly_resolved(tmp_path):
     master = pd.DataFrame(
         [
             ("Aaa one", "Aaa", "Fff"),
@@ -179,12 +228,49 @@ def test_tied_genus_prior_stays_at_genus_tier(tmp_path):
     fills = cascade.build_fills(master, evidence, config).set_index("accepted_species")
 
     gap = fills.loc["Aaa gap"]
-    assert gap["fill_tier"] == "genus_inference"
-    assert gap["filled_value"] in {"actinomorphic", "zygomorphic"}
-    assert json.loads(gap["value_distribution"]) == {
+    assert gap["fill_tier"] == "unresolved_no_evidence"
+    assert gap["filled_value"] == "unresolved"
+    assert gap["inferred_value"] == ""
+    diagnostics = json.loads(gap["rejected_inference_diagnostics"])
+    assert diagnostics[0]["basis"] == "genus:Aaa"
+    assert diagnostics[0]["failed_gates"] == ["top_value_tied", "consensus_below_threshold"]
+    assert gap["unresolved_reason"] == "no_qualified_genus_or_family_inference"
+    assert diagnostics[0]["value_distribution"] == {
         "actinomorphic": 1.0,
         "zygomorphic": 1.0,
     }
+
+
+def test_blank_genus_never_satisfies_family_genus_diversity(tmp_path):
+    master = pd.DataFrame(
+        [
+            ("Known one", "Known", "Fff"),
+            ("Blank one", "", "Fff"),
+            ("Gap one", "Gap", "Fff"),
+        ],
+        columns=["accepted_species", "genus", "family"],
+    )
+    evidence = pd.DataFrame(
+        [
+            ("Known one", "flower_primary_color", "white", 1.0),
+            ("Blank one", "flower_primary_color", "white", 1.0),
+        ],
+        columns=["accepted_species", "trait_name", "value", "weight"],
+    )
+    config = _config(tmp_path / "m.csv")
+    config["min_family_support"] = 2
+    config["min_family_consensus"] = 1.0
+
+    gap = cascade.build_fills(master, evidence, config).set_index("accepted_species").loc[
+        "Gap one"
+    ]
+
+    assert gap["fill_tier"] == "unresolved_no_evidence"
+    diagnostics = json.loads(gap["rejected_inference_diagnostics"])
+    family = next(item for item in diagnostics if item["basis"] == "family:Fff")
+    assert family["supporting_genera_n"] == 1
+    assert family["supporting_genera"] == ["Known"]
+    assert "supporting_genera_below_threshold" in family["failed_gates"]
 
 
 def test_candidate_long_reads_standardized_values_and_excludes_inference(tmp_path):
@@ -314,6 +400,9 @@ def test_allmaster_adapter_keeps_only_source_backed_and_maps_legacy_fields(tmp_p
                 "value": "red/pink",
                 "source_backed": "True",
                 "evidence_type": "flora",
+                "source_url": "https://example.test/alpha-one",
+                "source_record_id": "flora:alpha-one",
+                "source_excerpt": "Flowers red or pink.",
             },
             {
                 "species": "Alpha two",
@@ -321,6 +410,9 @@ def test_allmaster_adapter_keeps_only_source_backed_and_maps_legacy_fields(tmp_p
                 "value": "likely_SC",
                 "source_backed": "False",
                 "evidence_type": "inference",
+                "source_url": "https://example.test/alpha-two",
+                "source_record_id": "inference:alpha-two",
+                "source_excerpt": "Inferred self compatibility.",
             },
             {
                 "species": "Alpha three",
@@ -328,6 +420,9 @@ def test_allmaster_adapter_keeps_only_source_backed_and_maps_legacy_fields(tmp_p
                 "value": "actinomorphic / radially symmetric",
                 "source_backed": "yes",
                 "evidence_type": "flora",
+                "source_url": "https://example.test/alpha-three",
+                "source_record_id": "flora:alpha-three",
+                "source_excerpt": "Flowers radially symmetric.",
             },
             {
                 "species": "Alpha four",
@@ -335,6 +430,19 @@ def test_allmaster_adapter_keeps_only_source_backed_and_maps_legacy_fields(tmp_p
                 "value": "bees",
                 "source_backed": "True",
                 "evidence_type": "inference",
+                "source_url": "https://example.test/alpha-four",
+                "source_record_id": "inference:alpha-four",
+                "source_excerpt": "Bee pollination was inferred.",
+            },
+            {
+                "species": "Alpha five",
+                "field": "flower_color",
+                "value": "white",
+                "source_backed": "True",
+                "evidence_type": "flora",
+                "source_url": "",
+                "source_record_id": "flora:alpha-five",
+                "source_excerpt": "Flowers white.",
             },
         ]
     ).to_csv(evidence, index=False, compression="gzip")
@@ -374,15 +482,18 @@ def test_direct_value_normalization_is_ontology_safe_and_conservative():
     assert cascade._normalize_direct_value("sex_system", "unisexual") == ""
 
 
-def test_coverage_summary_zero_unknown(tmp_path):
+def test_coverage_summary_separates_rectangular_presence_from_grounded_fill(tmp_path):
     master = _master()
     config = _config(tmp_path / "m.csv")
     fills = cascade.build_fills(master, _evidence(), config)
     summary = cascade.build_coverage_summary(fills, config, len(master))
     trait = summary["by_trait"]["flower_primary_color"]
-    assert trait["n_filled"] == len(master)
-    assert trait["n_unknown_remaining"] == 0
-    assert trait["n_species_direct"] == 4  # Aaa one + Fff a/b/c have direct evidence
+    assert trait["n_cells_present"] == len(master)
+    assert trait["cell_presence_rate"] == 1.0
+    assert trait["n_filled"] == len(master) - 1
+    assert trait["n_unknown_remaining"] == 1
+    assert trait["n_unresolved_no_evidence"] == 1
+    assert trait["n_species_direct"] == 6  # Aaa one + five Fff species
 
 
 def test_stable_shard_is_deterministic_and_bounded():
@@ -401,6 +512,20 @@ def test_model_fingerprint_changes_with_evidence(tmp_path):
         ignore_index=True,
     )
     assert cascade.model_fingerprint(more, config) != base
+
+
+def test_model_fingerprint_changes_with_trait_inference_policy(tmp_path):
+    config = _config(tmp_path / "m.csv")
+    config["inference_policies"] = {
+        "mating_system": {"min_genus_support": 2, "family_allowed": False}
+    }
+    base = cascade.model_fingerprint(_evidence(), config)
+    changed = dict(config)
+    changed["inference_policies"] = {
+        "mating_system": {"min_genus_support": 3, "family_allowed": False}
+    }
+
+    assert cascade.model_fingerprint(_evidence(), changed) != base
 
 
 def test_model_and_shard_fingerprints_change_with_taxonomy(tmp_path):

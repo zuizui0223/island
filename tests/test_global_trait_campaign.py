@@ -99,6 +99,8 @@ def _master() -> pd.DataFrame:
 def test_production_config_prioritizes_intrinsic_floral_and_reproductive_traits():
     config = campaign.load_config(Path("config/global_trait_campaign.yml"))
 
+    assert config["scope_config_path"] == "config/angiosperm_scope.yml"
+    assert config["expected_species"] == 106295
     assert config["task_order"][0] == "floral_access_wikimedia"
     assert config["tasks"]["floral_access_wikimedia"]["eligibility"] == "all"
     required_tasks = [
@@ -117,7 +119,53 @@ def test_production_config_prioritizes_intrinsic_floral_and_reproductive_traits(
     assert "mating_system" in required_targets
     assert "self_incompatibility" in required_targets
     assert "pollination_functional_guild" not in required_targets
-    assert "pollen_vector_mode" not in required_targets
+    assert "pollen_vector_mode" in required_targets
+    assert "inflorescence_display" in required_targets
+    assert "reward_type" in required_targets
+    assert "herkogamy" in required_targets
+    assert "alternative_guild_wikimedia" not in config["task_order"]
+
+
+def test_reproductive_rules_cover_new_priority_traits_without_guild_targeting():
+    ontology = campaign.ecology.load_ontology(Path("config/trait_ontology.yml"))
+    sources = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Alpha one",
+                "source_text": (
+                    "Alpha one has pronounced herkogamy, is mainly selfing, "
+                    "and is ambophilous with variable dichogamy."
+                ),
+                "source_url": "https://example.test/alpha",
+                "source_citation": "Example flora",
+                "source_type": "flora",
+                "evidence_scope": "species_direct",
+            }
+        ]
+    )
+
+    candidates, _ = campaign.ecology.extract_candidates_from_text_sources(
+        sources,
+        ontology,
+        extraction_model="test",
+        prompt_id="test",
+    )
+    observed = set(candidates[["trait_name", "candidate_value"]].itertuples(index=False, name=None))
+
+    assert ("herkogamy", "pronounced") in observed
+    assert ("mating_system", "predominantly_selfing") in observed
+    assert ("pollen_vector_mode", "mixed") in observed
+    assert ("dichogamy", "variable") in observed
+
+
+def test_production_master_uses_exact_angiosperm_scope_denominator() -> None:
+    config = campaign.load_config(Path("config/global_trait_campaign.yml"))
+    master = campaign.load_species_master(
+        Path("data/v2/staging/gbif/collected/island_taxa.csv"), config
+    )
+
+    assert len(master) == 106295
+    assert master["accepted_species"].is_unique
 
 
 def test_family_balanced_batch_spreads_first_wave_across_families():
@@ -127,6 +175,43 @@ def test_family_balanced_batch_spreads_first_wave_across_families():
 
     assert task == "reproductive_wikimedia"
     assert set(batch["family"]) == {"FamA", "FamB", "FamC"}
+
+
+def test_family_balance_never_crosses_a_higher_priority_geographic_stratum():
+    ledger = campaign.reconcile_ledger(_master(), None, _config())
+    task = campaign.choose_active_task(ledger, _config())
+    ledger["scheduling_region_category"] = [
+        "reviewed_nh_temperate",
+        "southern_hemisphere",
+        "reviewed_nh_temperate",
+        "reviewed_nh_temperate",
+    ]
+    ledger["any_reviewed_NH_temperate"] = ["true", "false", "true", "true"]
+    ledger["any_NH_temperate_unreviewed"] = [
+        "false",
+        "false",
+        "false",
+        "false",
+    ]
+
+    batch = campaign.family_balanced_batch(ledger, task, 3)
+
+    assert batch["accepted_species"].tolist() == ["Alpha one", "Beta one", "Gamma one"]
+    assert set(batch["scheduling_region_category"]) == {"reviewed_nh_temperate"}
+
+
+def test_family_balance_never_crosses_a_higher_priority_trait_stratum():
+    ledger = campaign.reconcile_ledger(_master(), None, _config())
+    task = campaign.choose_active_task(ledger, _config())
+    ledger["scheduling_region_category"] = "nh_temperate_unreviewed"
+    ledger["any_reviewed_NH_temperate"] = "false"
+    ledger["any_NH_temperate_unreviewed"] = "true"
+    ledger["highest_priority_unresolved_rank"] = [2, 1, 2, 1]
+    ledger["weighted_unresolved_trait_score"] = [10, 1, 10, 1]
+
+    batch = campaign.family_balanced_batch(ledger, task, 2)
+
+    assert batch["highest_priority_unresolved_rank"].tolist() == [1, 1]
 
 
 def test_reconcile_reopens_historical_not_applicable_after_task_becomes_all_species():

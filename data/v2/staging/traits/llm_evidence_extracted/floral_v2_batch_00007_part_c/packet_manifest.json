@@ -1,0 +1,12 @@
+{
+  "contract_version": "1.0",
+  "n_requested_trait_gaps": 1500,
+  "n_source_chunks": 149,
+  "n_species": 100,
+  "ontology_sha256": "65d38869476404aaaa7e6ae2392d94e60a6bbb83ea281d19756f806737175de1",
+  "packet_id": "batch_00007",
+  "packet_input_sha256": "dbb3851b47204ea4fd112eddb0b76c9aeebe42a484ee2f82c1ac5a89c16e6572",
+  "prompt_sha256": "90e71ff9c9cf7a64d8fb075a5ffbdba363b6e9cfa888398aaf801fe024580531",
+  "prompt_version": "v2_llm_evidence_v1",
+  "source_csv_sha256": "5affe325528bb4c87b10a6bdca5645d44bd91013a5759c7daf6b9aacb303d16d"
+}

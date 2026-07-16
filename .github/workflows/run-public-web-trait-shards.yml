@@ -17,9 +17,9 @@ on:
         default: "127"
         type: string
       batch_size:
-        description: "Species advanced per shard in this run (1-500)."
+        description: "Species advanced per shard (1-500; default 300, up to 38,400 across all 128 shards)."
         required: false
-        default: "500"
+        default: "300"
         type: string
       retry_exhausted:
         description: "Retry rows that already reached max_attempts."
@@ -44,12 +44,20 @@ on:
     paths:
       - ".github/workflows/run-public-web-trait-shards.yml"
       - "src/island_v2/web_trait_shard_campaign.py"
+      - "src/island_v2/trait_acquisition_priority.py"
       - "src/island_v2/v1_category_search.py"
       - "src/island_v2/europe_pmc_discovery.py"
       - "tests/test_web_trait_shard_campaign.py"
       - "tests/test_v1_category_search.py"
       - "tests/test_europe_pmc_discovery.py"
       - "config/angiosperm_scope.yml"
+      - "config/acquisition_rate.yml"
+      - "data/v2/curation/island_canonical_latitudes.csv"
+      - "data/v2/curation/island_source_region_assignments.csv"
+      - "data/v2/curation/island_assignment_evidence.csv"
+      - "data/v2/curation/pilot_island_registry.csv"
+      - "data/v2/curation/source_region_*registry.csv"
+      - "data/v2/staging/gbif/collected/island_species_occurrences.csv.gz"
       - "pyproject.toml"
 
 permissions:
@@ -71,7 +79,7 @@ jobs:
     env:
       SHARD_START: ${{ inputs.shard_start || '0' }}
       SHARD_END: ${{ inputs.shard_end || '127' }}
-      BATCH_SIZE: ${{ inputs.batch_size || '500' }}
+      BATCH_SIZE: ${{ inputs.batch_size || '300' }}
       RETRY_EXHAUSTED: ${{ github.event_name == 'schedule' && github.event.schedule == '47 3 * * 1' && 'true' || inputs.retry_exhausted || 'false' }}
     steps:
       - uses: actions/checkout@v4
@@ -129,6 +137,34 @@ jobs:
                   file=output,
               )
           PY
+      - name: Freeze the per-shard continuation contract
+        env:
+          BATCH_SIZE: ${{ steps.matrix.outputs.batch_size }}
+          RETRY_EXHAUSTED: ${{ steps.matrix.outputs.retry_exhausted }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          contract = {
+              "contract_version": "public_web_continuation_v1",
+              "source_run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "shard_start": int(os.environ["SHARD_START"]),
+              "shard_end": int(os.environ["SHARD_END"]),
+              "batch_size": int(os.environ["BATCH_SIZE"]),
+              "batch_size_scope": "per_shard",
+              "maximum_species_advanced_across_selected_shards": (
+                  int(os.environ["BATCH_SIZE"])
+                  * (int(os.environ["SHARD_END"]) - int(os.environ["SHARD_START"]) + 1)
+              ),
+              "retry_exhausted": os.environ["RETRY_EXHAUSTED"].lower() == "true",
+          }
+          Path("/tmp/public_web_trait_plan/continuation_contract.json").write_text(
+              json.dumps(contract, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
       - name: Resolve durable artifact seed
         id: seed
         if: github.event_name != 'pull_request'
@@ -184,7 +220,7 @@ jobs:
     env:
       SHARD_DIR: /tmp/public-web-trait-shards/shard-${{ matrix.shard }}
       CACHE_KEY: public-web-9col-v6-shard-${{ matrix.shard }}-${{ github.run_id }}-${{ github.run_attempt }}
-      CACHE_PREFIX: public-web-9col-v6-shard-${{ matrix.shard }}-
+      SEED_CACHE_PREFIX: public-web-9col-v6-shard-${{ matrix.shard }}-${{ needs.plan.outputs.seed_run_id }}-
       GH_TOKEN: ${{ github.token }}
       SEED_RUN_ID: ${{ needs.plan.outputs.seed_run_id }}
     steps:
@@ -212,7 +248,7 @@ jobs:
             ${{ env.SHARD_DIR }}/cumulative/
           key: ${{ env.CACHE_KEY }}
           restore-keys: |
-            ${{ env.CACHE_PREFIX }}
+            ${{ env.SEED_CACHE_PREFIX }}
       - name: Bootstrap immutable v4 shard when no v6 checkpoint exists
         if: github.event_name != 'pull_request'
         run: |
@@ -241,6 +277,8 @@ jobs:
             --scope-config-path config/angiosperm_scope.yml \
             --campaign-dir "$SHARD_DIR" \
             --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz \
+            --priority-audit-csv \
+              /tmp/public_web_trait_plan/acquisition_priority.csv.gz \
             --shard-index "$SHARD_INDEX" \
             --shard-count 128 \
             --batch-size "$BATCH_SIZE" \
@@ -280,6 +318,7 @@ jobs:
                   print(f"- coverage: {status['coverage']}", file=out)
           required = [
               "campaign_manifest.json",
+              "campaign_status.json",
               "checkpoint.csv",
               "provider_checkpoint.csv",
           ]
@@ -315,6 +354,11 @@ jobs:
             ${{ env.SHARD_DIR }}/cumulative/
           if-no-files-found: error
           retention-days: 90
+      - name: Fail when the shard checkpoint contract is missing
+        if: always() && steps.status.outputs.ready != 'true'
+        run: |
+          echo "::error::Shard did not produce campaign_manifest, campaign_status, checkpoint, and provider_checkpoint."
+          exit 1
 
   recover-failed-nondefault-pass:
     if: >-
@@ -351,13 +395,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           SEED_RUN_ID: ${{ needs.plan.outputs.seed_run_id }}
           NEXT_ATTEMPT: ${{ steps.recovery.outputs.next_attempt }}
+          BATCH_SIZE: ${{ needs.plan.outputs.batch_size }}
         run: |
           gh workflow run run-public-web-trait-shards.yml \
             --repo "$GITHUB_REPOSITORY" \
             --ref "$GITHUB_REF_NAME" \
             -f shard_start=0 \
             -f shard_end=127 \
-            -f batch_size=500 \
+            -f batch_size="$BATCH_SIZE" \
             -f retry_exhausted=false \
             -f seed_run_id="$SEED_RUN_ID" \
             -f recovery_attempt="$NEXT_ATTEMPT"
@@ -374,6 +419,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       SOURCE_RUN_ID: ${{ github.run_id }}
+      BATCH_SIZE: ${{ needs.plan.outputs.batch_size }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -448,7 +494,7 @@ jobs:
             --ref "$GITHUB_REF_NAME" \
             -f shard_start=0 \
             -f shard_end=127 \
-            -f batch_size=500 \
+            -f batch_size="$BATCH_SIZE" \
             -f retry_exhausted=false \
             -f seed_run_id="$SOURCE_RUN_ID" \
             -f recovery_attempt=0
@@ -463,7 +509,7 @@ jobs:
             --ref "$GITHUB_REF_NAME" \
             -f shard_start=0 \
             -f shard_end=127 \
-            -f batch_size=500 \
+            -f batch_size="$BATCH_SIZE" \
             -f retry_exhausted=true \
             -f seed_run_id="$SOURCE_RUN_ID" \
             -f recovery_attempt=0
@@ -496,7 +542,7 @@ jobs:
             --ref "$GITHUB_REF_NAME" \
             -f shard_start=0 \
             -f shard_end=127 \
-            -f batch_size=500 \
+            -f batch_size="$BATCH_SIZE" \
             -f retry_exhausted=true \
             -f seed_run_id="$SOURCE_RUN_ID" \
             -f recovery_attempt="$NEXT_ATTEMPT"
@@ -507,12 +553,14 @@ jobs:
           inputs.retry_exhausted == true
         run: |
           echo "::warning::Provider failures remain exhausted; main's scheduled repair pass will retry them without treating them as biological absence."
-      - name: Rebuild the all-master ledger from this exact combined artifact
+      - name: Retain the branch artifact for default-branch promotion
         run: |
-          gh workflow run build-all-master-trait-ledger.yml \
-            --repo "$GITHUB_REPOSITORY" \
-            --ref "$GITHUB_REF_NAME" \
-            -f public_web_run_id="$SOURCE_RUN_ID"
+          {
+            echo "## Promotion boundary"
+            echo
+            echo "This non-default run's combined artifact is retained for audit."
+            echo "The all-master rebuild is dispatched only by the verified default-branch promotion workflow."
+          } >> "$GITHUB_STEP_SUMMARY"
 
   recover-failed-nondefault-promotion:
     if: >-
@@ -534,6 +582,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RECOVERY_ATTEMPT: ${{ inputs.recovery_attempt || '0' }}
           SEED_RUN_ID: ${{ needs.plan.outputs.seed_run_id }}
+          BATCH_SIZE: ${{ needs.plan.outputs.batch_size }}
         run: |
           set -euo pipefail
           [[ "$RECOVERY_ATTEMPT" =~ ^[0-2]$ ]]
@@ -546,7 +595,7 @@ jobs:
             --ref "$GITHUB_REF_NAME" \
             -f shard_start=0 \
             -f shard_end=127 \
-            -f batch_size=500 \
+            -f batch_size="$BATCH_SIZE" \
             -f retry_exhausted=false \
             -f seed_run_id="$SEED_RUN_ID" \
             -f recovery_attempt="$((RECOVERY_ATTEMPT + 1))"

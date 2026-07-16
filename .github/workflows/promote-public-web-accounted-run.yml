@@ -96,6 +96,42 @@ jobs:
           gh api --paginate \
             "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID/artifacts?per_page=100" \
             --jq '.artifacts[]' > /tmp/public_web_source_artifacts.jsonl
+      - name: Resolve the immutable per-shard continuation batch
+        id: continuation
+        run: |
+          set -euo pipefail
+          mapfile -t contracts < <(
+            find /tmp/public_web_source -type f -name continuation_contract.json -print
+          )
+          if (( ${#contracts[@]} == 0 )); then
+            echo "::warning::Legacy source run has no continuation contract; using the fail-safe 300 species per shard."
+            echo "batch_size=300" >> "$GITHUB_OUTPUT"
+            echo "batch_source=legacy_fail_safe" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if (( ${#contracts[@]} != 1 )); then
+            echo "::error::Expected exactly one continuation contract, found ${#contracts[@]}."
+            exit 1
+          fi
+          CONTRACT_PATH="${contracts[0]}" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          contract = json.loads(Path(os.environ["CONTRACT_PATH"]).read_text(encoding="utf-8"))
+          assert contract["contract_version"] == "public_web_continuation_v1", contract
+          assert contract["source_run_id"] == int(os.environ["SOURCE_RUN_ID"]), contract
+          assert contract["shard_start"] == 0 and contract["shard_end"] == 127, contract
+          assert contract["batch_size_scope"] == "per_shard", contract
+          batch_size = int(contract["batch_size"])
+          assert 1 <= batch_size <= 500, contract
+          assert contract["maximum_species_advanced_across_selected_shards"] == (
+              batch_size * 128
+          ), contract
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as out:
+              out.write(f"batch_size={batch_size}\n")
+              out.write("batch_source=source_contract\n")
+          PY
       - name: Validate and combine all 128 shards
         run: |
           island-v2-combine-public-web \
@@ -110,6 +146,9 @@ jobs:
             /tmp/public_web_combined/source_artifacts.jsonl
       - name: Publish verified source-backed counts
         id: metrics
+        env:
+          CONTINUATION_BATCH_SIZE: ${{ steps.continuation.outputs.batch_size }}
+          CONTINUATION_BATCH_SOURCE: ${{ steps.continuation.outputs.batch_source }}
         run: |
           python - <<'PY'
           import json
@@ -146,6 +185,11 @@ jobs:
                   f"- species attempted in source run: "
                   f"{manifest['n_species_attempted_in_source_run']:,}\n"
               )
+              out.write(
+                  f"- continuation batch: "
+                  f"{os.environ['CONTINUATION_BATCH_SIZE']} species per shard "
+                  f"({os.environ['CONTINUATION_BATCH_SOURCE']})\n"
+              )
           with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as out:
               out.write(
                   f"remaining={manifest['n_enabled_provider_remaining']}\n"
@@ -171,13 +215,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          BATCH_SIZE: ${{ steps.continuation.outputs.batch_size }}
         run: |
           gh workflow run run-public-web-trait-shards.yml \
             --repo "$GITHUB_REPOSITORY" \
             --ref "$DEFAULT_BRANCH" \
             -f shard_start=0 \
             -f shard_end=127 \
-            -f batch_size=500 \
+            -f batch_size="$BATCH_SIZE" \
             -f retry_exhausted=false \
             -f seed_run_id="$SOURCE_RUN_ID" \
             -f recovery_attempt=0

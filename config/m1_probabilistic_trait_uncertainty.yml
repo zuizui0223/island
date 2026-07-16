@@ -10,7 +10,7 @@ outcome:
     - genus_inference
     - family_inference
   excluded_fill_tiers:
-    - global_fallback
+    - unresolved_no_evidence
 
 imputation:
   species_level_draws: true
@@ -45,12 +45,12 @@ reporting:
   minimum_imputations: 100
   empirical_interval: [0.025, 0.975]
   compare_to:
-    - hard_modal_broad_without_global_fallback
+    - hard_modal_grounded_taxonomic
     - expected_probability_counts
     - locked_species_direct_confirmatory_result
 
 interpretation_guardrails:
   - This is an empirical uncertainty sensitivity, not a formal missing-at-random multiple-imputation model.
   - Each inferred species is sampled once per imputation and retains that sampled trait across every island occurrence.
-  - Global fallback is excluded because it has no species-specific taxonomic evidence and was shown to contribute a constant zero bumblebee share.
+  - Unresolved cells carry no biological value and are excluded from every analysis.
   - LOO validation accuracy limits interpretation even when the pooled coefficient is stable.

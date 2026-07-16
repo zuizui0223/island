@@ -1,4 +1,4 @@
-version: "1.1"
+version: "1.2"
 
 # Acquisition keeps source observations richer than the eventual analysis.
 # No field in this file is a decided pollinator identity.
@@ -26,6 +26,33 @@ coverage_priorities:
     - pollen_vector_mode
   deferred_interaction_evidence:
     - pollination_functional_guild
+
+# One explicit order for the 106,295-species campaign. The first three traits
+# provide the broad floral-phenotype outcome. Reproductive-assurance mediators
+# follow before reproductive architecture, pollen-vector context and optional
+# access/measurement enrichment. Pollinator guild is deliberately absent.
+priority_order:
+  - flower_primary_color
+  - floral_form
+  - floral_symmetry
+  - self_incompatibility
+  - autonomous_selfing_capacity
+  - mating_system
+  - cleistogamy
+  - sex_system
+  - pollen_vector_mode
+  - flower_size_class
+  - tube_depth_class
+  - inflorescence_display
+  - reward_type
+  - dichogamy
+  - herkogamy
+
+per_trait_completion_order:
+  - species_direct
+  - qualified_genus_inference
+  - qualified_family_inference
+  - unresolved_no_evidence
 
 measurement_structures:
   flower_diameter: {canonical_unit: mm, analysis_transform: log1p}
@@ -117,14 +144,15 @@ scaling_policy:
     - cached_flora_and_encyclopedia_text_extraction
     - gap_only_public_web_lookup_for_color_and_form
     - llm_evidence_extraction_from_frozen_source_text_for_remaining_gaps
-    - labelled_llm_inference_for_still_unresolved_cells
-    - local_likely_proxy_generation
+    - qualified_genus_inference_with_support_distribution
+    - qualified_family_inference_with_multiple_supporting_genera
+    - explicit_unresolved_no_evidence
   no_paid_api_required: true
   packet_size_is_not_turn_limit: true
   parallel_packet_wave_species: 300
   completion_contract:
     reported_column: source_backed_value
-    inferred_column: llm_inferred_value
+    inferred_column: taxonomically_inferred_value
     direct_evidence_never_overwritten: true
-    inferred_confidence: low
+    inferred_confidence: support_and_consensus_dependent_low
     missing_after_inference: unknown
