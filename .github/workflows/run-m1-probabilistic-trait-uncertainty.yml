@@ -108,7 +108,7 @@ jobs:
               raise SystemExit('imputation draw table incomplete')
           if set(comparators['comparator']) != {
               'expected_probability_counts',
-              'hard_modal_broad_without_global_fallback'
+              'hard_modal_grounded_taxonomic'
           }:
               raise SystemExit('comparator set incomplete')
 

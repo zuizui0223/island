@@ -1,16 +1,22 @@
-version: "1.0"
-contract: trait_cascade_leave_one_species_out_validation_v1
+version: "2.0"
+contract: trait_cascade_grounded_leave_one_species_out_validation_v2
 
 validate_traits:
   - flower_primary_color
   - floral_form
   - floral_symmetry
+  - tube_depth_class
+  - flower_size_class
+  - inflorescence_display
+  - reward_type
   - pollen_vector_mode
-  - pollination_functional_guild
   - sex_system
   - mating_system
   - self_incompatibility
   - autonomous_selfing_capacity
+  - herkogamy
+  - dichogamy
+  - cleistogamy
 
 cascade_policy:
   source_config: config/trait_fill_cascade.yml
@@ -18,8 +24,8 @@ cascade_policy:
   family_support_grid: [3, 5, 10, 20]
 
 focused_binary_diagnostic:
-  trait_name: pollination_functional_guild
-  positive_value: bumblebees
+  trait_name: self_incompatibility
+  positive_value: SI
 
 reporting:
   minimum_evaluable_for_metric: 5
@@ -33,7 +39,7 @@ reporting:
     - [50, 1000000]
 
 interpretation_guardrails:
-  - Validation is leave-one-species-out within species-direct cells; the target species is removed from genus, family, and global support before prediction.
-  - Genus and family predictions reproduce the cascade weighted-modal logic over species-direct winners.
-  - Global fallback reconstructs weighted raw evidence distributions from each direct cell value_distribution.
+  - Validation is leave-one-species-out within species-direct cells; the target species is removed from genus and family support before prediction.
+  - Genus and family predictions reproduce the cascade one-species-one-vote modal logic and its support, unique-winner, and consensus gates.
+  - Targets without a qualified genus or family prediction remain unresolved and are omitted from accuracy denominators.
   - Threshold-grid results are reported completely and must not be cherry-picked after seeing accuracy.

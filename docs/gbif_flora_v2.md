@@ -18,7 +18,11 @@ island-v2-gshhg build \
   --output-dir data/v2/external/islands/gshhg
 ```
 
-It downloads the pinned archive, extracts the high-resolution (`h`) L1 land-ocean layer, recombines split components that share a GSHHG polygon ID, calculates equal-area polygon size, and writes:
+It downloads the pinned archive, extracts the high-resolution (`h`) L1 land-ocean
+layer, and recombines antimeridian-split components by GSHHG `sibling_id` before
+calculating equal-area polygon size. Literal `id` values such as `0-E` and `0-W`
+are separate GIS pieces of one landmass and must not be filtered independently.
+The command writes:
 
 ```text
 data/v2/external/islands/gshhg/prepared/islands_v2.gpkg

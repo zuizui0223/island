@@ -1,11 +1,12 @@
-version: "1.0"
+version: "2.1"
 
-# Fill-first cascade. Every master species gets a value for every target trait
-# by descending a source-blind fallback ladder, so unresolved target cells are
-# driven toward zero. Resolution is never hidden: each fill records fill_tier,
-# evidence_scope, and confidence, so low-resolution fills can be separated for
-# sensitivity analysis and never masquerade as accepted direct evidence. Fills
-# live in staging, never in curated. A cascade fill is not a biological absence.
+# Evidence-grounded cascade. Every eligible master species keeps one row for
+# every target trait, but a biological value is assigned only from species-
+# direct evidence or a qualified genus/family distribution. Cells without that
+# evidence are explicit unresolved_no_evidence rows, not global modal values.
+# Resolution and support are never hidden: each taxonomic inference records its
+# support species, complete value distribution, winner share and taxonomic basis.
+# Fills live in staging, never in curated, and unresolved is not an absence.
 master_taxa_csv: data/v2/staging/gbif/collected/island_taxa.csv
 species_column: accepted_species
 genus_column: genus
@@ -25,24 +26,50 @@ target_traits:
   - flower_primary_color
   - floral_form
   - floral_symmetry
-  - tube_depth_class
-  - flower_size_class
-  - inflorescence_display
-  - reward_type
-  - pollen_vector_mode
-  - sex_system
-  - mating_system
   - self_incompatibility
   - autonomous_selfing_capacity
-  - herkogamy
-  - dichogamy
+  - mating_system
   - cleistogamy
+  - sex_system
+  - pollen_vector_mode
+  - flower_size_class
+  - tube_depth_class
+  - inflorescence_display
+  - reward_type
+  - dichogamy
+  - herkogamy
 
-# Minimum number of direct-evidence congeners/confamilials before an inference
-# tier may fill. Below the genus threshold the family tier is tried; below the
-# family threshold the global fallback fills.
+# A taxonomic inference requires both enough direct-evidence taxa and a unique
+# modal value meeting the consensus threshold. support_n counts taxa supporting
+# the selected value; total_support_n and value_distribution retain dissenters.
+# If neither genus nor family qualifies, the cell remains unresolved.
 min_genus_support: 1
 min_family_support: 3
+min_family_supporting_genera: 2
+min_genus_consensus: 1.0
+min_family_consensus: 0.8
+
+# Trait-specific safeguards override the defaults above. Species-variable
+# reproductive mechanisms require at least two concordant congeners; SI/SC is
+# allowed from one congener as an explicitly low-resolution rescue because this
+# is the user-approved sparse-evidence use case. Family inference is disabled
+# for the most labile reproductive traits rather than fabricating completeness.
+inference_policies:
+  flower_primary_color: {min_genus_support: 2, min_genus_consensus: 0.8, family_allowed: true}
+  floral_form: {min_genus_support: 2, min_genus_consensus: 0.8, family_allowed: true}
+  floral_symmetry: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: true}
+  self_incompatibility: {min_genus_support: 1, min_genus_consensus: 1.0, family_allowed: true}
+  autonomous_selfing_capacity: {min_genus_support: 2, min_genus_consensus: 1.0, family_allowed: false}
+  mating_system: {min_genus_support: 2, min_genus_consensus: 1.0, family_allowed: false}
+  cleistogamy: {min_genus_support: 2, min_genus_consensus: 1.0, family_allowed: false}
+  sex_system: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: true}
+  pollen_vector_mode: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: true}
+  flower_size_class: {min_genus_support: 2, min_genus_consensus: 0.8, family_allowed: true}
+  tube_depth_class: {min_genus_support: 2, min_genus_consensus: 0.8, family_allowed: true}
+  inflorescence_display: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: true}
+  reward_type: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: false}
+  dichogamy: {min_genus_support: 2, min_genus_consensus: 1.0, family_allowed: false}
+  herkogamy: {min_genus_support: 2, min_genus_consensus: 1.0, family_allowed: false}
 
 # Direct-evidence sources unioned before the cascade runs. Order matters only
 # for provenance display; modal value wins regardless of source.
@@ -94,9 +121,9 @@ tier_labels:
   family_inference:
     evidence_scope: family_inference
     confidence: family_inference_very_low
-  global_fallback:
-    evidence_scope: global_fallback
-    confidence: global_fallback_negligible
+  unresolved_no_evidence:
+    evidence_scope: unresolved
+    confidence: unresolved
 
 # Model-only output is deliberately absent from evidence_sources. It may be
 # joined later as an llm_inference value channel, but it must never be promoted

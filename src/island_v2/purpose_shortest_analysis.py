@@ -1,4 +1,4 @@
-"""Run the shortest purpose-aligned global analysis on the locked all-data tier.
+"""Run the shortest purpose-aligned analysis from a grounded species master.
 
 This is intentionally simple. It restores mainland/continent distance as the v1
 continuity variable, keeps the Northern mid-latitude Bombus test separate from
@@ -27,6 +27,12 @@ import typer
 from shapely.geometry import Point
 
 from island_v2.m0_m4_full_analysis import fit_grouped_binomial_clustered
+from island_v2.trait_bombus_analysis import (
+    GROUNDED_FILL_TIERS,
+    aggregate_trait_composition,
+    load_trait_rows_for_grounded_analysis,
+    require_grounded_trait_rows,
+)
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
@@ -72,6 +78,31 @@ ANIMAL_GUILDS = {
 SHOWY_ALTERNATIVE_GUILDS = {"butterflies", "moths", "birds", "bats"}
 OTHER_BEE_GUILDS = {"other_bees"}
 GENERALIST_INSECT_GUILDS = {"flies", "beetles_wasps_ants", "mixed_or_generalist"}
+
+
+def build_grounded_trait_composition(
+    species_master: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Filter the species master before rebuilding composition and richness."""
+    grounded = require_grounded_trait_rows(species_master)
+    composition, richness = aggregate_trait_composition(grounded)
+    return grounded, composition, richness
+
+
+def replace_trait_richness(
+    island_metrics: pd.DataFrame,
+    grounded_richness: pd.DataFrame,
+) -> pd.DataFrame:
+    """Replace richness inherited from a historical all-fill artifact."""
+    metrics = island_metrics.drop(columns=["n_trait_species"], errors="ignore")
+    metrics = metrics.merge(
+        grounded_richness,
+        on="island_id",
+        how="left",
+        validate="one_to_one",
+    )
+    metrics["n_trait_species"] = metrics["n_trait_species"].fillna(0).astype(int)
+    return metrics
 
 
 def _contrast_counts(
@@ -340,15 +371,16 @@ def run_analysis(
 
 @app.command("run")
 def run(
-    trait_composition_csv: Path = typer.Option(..., exists=True),
+    species_master_csv: Path = typer.Option(..., exists=True),
     island_metrics_csv: Path = typer.Option(..., exists=True),
     covariates_csv: Path = typer.Option(..., exists=True),
     islands_gpkg: Path = typer.Option(..., exists=True),
     natural_earth_land_zip: Path = typer.Option(..., exists=True),
     output_dir: Path = typer.Option(...),
 ) -> None:
-    composition = pd.read_csv(trait_composition_csv)
-    island_metrics = pd.read_csv(island_metrics_csv)
+    species_master = load_trait_rows_for_grounded_analysis(species_master_csv)
+    grounded, composition, richness = build_grounded_trait_composition(species_master)
+    island_metrics = replace_trait_richness(pd.read_csv(island_metrics_csv), richness)
     covariates = pd.read_csv(covariates_csv)
     distance = compute_distance_metrics(islands_gpkg, natural_earth_land_zip)
     data, coefficients, fits, region_summary = run_analysis(
@@ -364,7 +396,16 @@ def run(
 
     summary = {
         "contract": "purpose_shortest_distance_regime_analysis_v3",
-        "analysis_tier": "sensitivity_all_all_available_filled_data",
+        "analysis_tier": "sensitivity_all_grounded_available_values",
+        "grounded_input_filter": {
+            "required_fill_tiers": sorted(GROUNDED_FILL_TIERS),
+            "n_species_master_rows": int(len(species_master)),
+            "n_grounded_rows": int(len(grounded)),
+            "n_excluded_rows": int(len(species_master) - len(grounded)),
+            "forbidden_rows_after_filter": int(
+                (~grounded["fill_tier"].astype(str).isin(GROUNDED_FILL_TIERS)).sum()
+            ),
+        },
         "n_islands": int(data["island_id"].nunique()),
         "distance_definition": {
             "model_predictor": "distance_to_continent_km",
@@ -392,7 +433,7 @@ def run(
             "northern_midlatitude is a geographic proxy, not a frozen global Bombus applicability registry",
             "Bombus predictor is environmental compatibility, not observed biological absence",
             "alternative guild shares are plant pollination-guild composition, not direct island pollinator abundance",
-            "all fill tiers including global fallback are used because this is the requested first all-data exploratory run",
+            "all qualified direct/genus/family tiers are used; unresolved cells are excluded",
         ],
     }
     (output_dir / "purpose_shortest_summary.json").write_text(

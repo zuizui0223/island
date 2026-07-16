@@ -6,6 +6,7 @@ The public-web campaign follows one fixed path:
 
 ```text
 106,295 family-classified angiosperm species
+  -> exact one-row-per-species acquisition-priority audit
   -> deterministic scientific-name hash
   -> 128 shards (763-893 species per shard)
   -> species x provider checkpoint
@@ -26,6 +27,18 @@ The active acquisition fields are flower colour, flower shape/symmetry, mating
 system and self-incompatibility. The legacy nine-column output still preserves
 any pollination-guild evidence already found, but guild is no longer a field
 whose absence triggers another provider lookup.
+
+The plan job now freezes `acquisition_priority.csv.gz` once and verifies that it
+contains exactly the same 106,295 species as the shard denominator. Every shard
+consumes that identical file. Scheduling is lexicographic: reviewed Northern
+Hemisphere temperate geography first, then unreviewed Northern Hemisphere
+temperate geography, followed by the remaining geographic strata. Within one
+geographic stratum the first missing trait in
+`config/v2_trait_acquisition.yml::priority_order` comes first, followed by the
+weighted unresolved-cell yield, grounded genus-rescue yield, frozen source
+availability, checkpoint status, attempt count, update time and species name.
+Missing geography remains explicit
+`unclassified`; no global default value is introduced.
 
 The enabled production providers are strict GBIF species descriptions,
 Wikipedia, indexed flora, illustrated-plant and horticultural reference sites
@@ -107,8 +120,18 @@ chained passes keep the three-attempt traffic bound.
 ## GitHub Actions persistence
 
 The workflow runs at most four shards concurrently to bound traffic per public
-site. It advances up to 500 species per shard by default and is scheduled every
-six hours. Plant-site sitemaps are fetched once in the plan job, hash-frozen,
+site. It advances up to 300 species **per shard** by default (at most 38,400
+species across a complete 128-shard pass) and is scheduled every six hours. The
+per-shard batch is frozen in the source artifact and inherited by every chained
+continuation; legacy artifacts without that contract use the fail-safe value 300.
+The priority audit is generated in the same plan job from the checked-in
+occurrence, canonical island-latitude, reviewed region-assignment and current
+source-backed trait-coverage inputs. A missing input, duplicate species,
+denominator mismatch, invalid region category or absent geography-first sort
+key fails the plan before public requests begin. Each evidence packet preserves
+the selected species' priority rows and the campaign manifest records the full
+audit digest.
+Plant-site sitemaps are fetched once in the plan job, hash-frozen,
 and shared by all 128 shards instead of being downloaded separately by every
 job. A sitemap digest is retained as provenance but is not a provider
 implementation version: an ordinary sitemap refresh therefore cannot reset all
@@ -202,7 +225,7 @@ Run all shards manually:
 gh workflow run run-public-web-trait-shards.yml \
   -f shard_start=0 \
   -f shard_end=127 \
-  -f batch_size=500
+  -f batch_size=300
 ```
 
 Run a bounded diagnostic subset:
@@ -214,8 +237,9 @@ gh workflow run run-public-web-trait-shards.yml \
   -f batch_size=10
 ```
 
-Normal reruns restore the newest cache for each shard and continue from the
-first pending row. `retry_exhausted=true` is reserved for an intentional retry
+Normal reruns restore only a cache whose run ID matches the exact immutable seed
+artifact, then continue from the highest-priority eligible row. `retry_exhausted=true` is
+reserved for an intentional retry
 after an external source or extraction bug has been fixed.
 
 ## In-flight v6 audit (2026-07-16)

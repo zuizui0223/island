@@ -1,7 +1,8 @@
 version: "1.0"
 
-# The completed fill cascade is exhaustive but mixes direct evidence and increasingly
-# coarse inference. These tiers keep that resolution explicit in modelling.
+# The species-trait matrix is rectangular but only evidence-grounded values are
+# analysable. These tiers keep direct and qualified taxonomic inference explicit;
+# unresolved_no_evidence is excluded from every tier.
 analysis_tiers:
   primary:
     allowed_fill_tiers:
@@ -13,21 +14,14 @@ analysis_tiers:
       - species_direct
       - genus_inference
       - family_inference
-    interpretation: "Taxonomically informed values; excludes global fallback."
-
-  llm_completion_sensitivity:
-    allowed_fill_tiers:
-      - species_direct
-      - llm_inference
-    interpretation: "Complete-model candidate values remain separate from reported evidence."
+    interpretation: "Taxonomically informed values with qualified support and consensus."
 
   sensitivity_all:
     allowed_fill_tiers:
       - species_direct
       - genus_inference
       - family_inference
-      - global_fallback
-    interpretation: "Complete 106,295-species table; global fallback retained only for sensitivity analysis."
+    interpretation: "All evidence-grounded direct/genus/family values; unresolved cells are excluded."
 
 required_traits:
   floral:

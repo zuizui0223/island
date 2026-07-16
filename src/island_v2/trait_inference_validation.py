@@ -1,14 +1,14 @@
-"""Leave-one-species-out validation of genus/family/global trait cascade inference.
+"""Leave-one-species-out validation of grounded taxonomic inference.
 
 The completed trait matrix is rectangular, but most cells are inferred. This
 module asks whether those inference tiers can predict species-direct values when
 the target species is removed from all support pools. It mirrors the operational
 cascade:
 
-- genus/family use weighted modal species-direct winners;
-- genus is used above its support threshold;
-- family is used only when genus support is insufficient;
-- global fallback aggregates the reconstructed weighted raw value distributions.
+- genus/family count one species-direct winner per supporting species;
+- a unique winner must meet both support and consensus thresholds;
+- family is used only when genus evidence does not qualify;
+- targets without a qualified taxonomic prediction remain unresolved.
 
 Validation is descriptive and policy-auditing. It never promotes an inference
 tier to direct evidence.
@@ -118,7 +118,7 @@ def _winner_distribution(frame: pd.DataFrame) -> dict[str, float]:
     totals: dict[str, float] = {}
     for row in frame.itertuples(index=False):
         value = str(row.filled_value)
-        totals[value] = totals.get(value, 0.0) + float(row.winner_weight)
+        totals[value] = totals.get(value, 0.0) + 1.0
     return totals
 
 
@@ -132,22 +132,27 @@ def _raw_distribution(frame: pd.DataFrame) -> dict[str, float]:
 
 def _prediction_record(
     distribution: dict[str, float],
-    support_species: int,
     prefix: str,
 ) -> dict[str, Any]:
     winner = _weighted_winner(distribution)
     if winner is None:
         return {
             f"{prefix}_prediction": "",
-            f"{prefix}_support_species": int(support_species),
+            f"{prefix}_support_species": 0,
+            f"{prefix}_total_support_species": 0,
             f"{prefix}_winner_share": np.nan,
+            f"{prefix}_top_tie_n": 0,
             f"{prefix}_distribution": "{}",
         }
-    value, _, share = winner
+    value, winner_weight, share = winner
+    top_weight = max(distribution.values())
+    top_tie_n = sum(float(weight) == float(top_weight) for weight in distribution.values())
     return {
         f"{prefix}_prediction": value,
-        f"{prefix}_support_species": int(support_species),
+        f"{prefix}_support_species": int(winner_weight),
+        f"{prefix}_total_support_species": int(sum(distribution.values())),
         f"{prefix}_winner_share": float(share),
+        f"{prefix}_top_tie_n": int(top_tie_n),
         f"{prefix}_distribution": json.dumps(
             {key: round(float(weight), 6) for key, weight in sorted(distribution.items())},
             sort_keys=True,
@@ -159,9 +164,29 @@ def leave_one_species_out_predictions(
     direct: pd.DataFrame,
     genus_min_support: int,
     family_min_support: int,
+    genus_min_consensus: float = 1.0,
+    family_min_consensus: float = 0.8,
+    family_min_supporting_genera: int = 2,
+    inference_policies: dict[str, dict[str, Any]] | None = None,
 ) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
     for trait_name, trait in direct.groupby("trait_name", sort=True):
+        policy = (inference_policies or {}).get(str(trait_name)) or {}
+        trait_genus_min = int(policy.get("min_genus_support", genus_min_support))
+        trait_family_min = int(policy.get("min_family_support", family_min_support))
+        trait_genus_consensus = float(
+            policy.get("min_genus_consensus", genus_min_consensus)
+        )
+        trait_family_consensus = float(
+            policy.get("min_family_consensus", family_min_consensus)
+        )
+        trait_family_genera_min = int(
+            policy.get(
+                "min_family_supporting_genera",
+                family_min_supporting_genera,
+            )
+        )
+        family_allowed = bool(policy.get("family_allowed", True))
         trait = trait.reset_index(drop=True)
         for target_index, target in trait.iterrows():
             remaining = trait.drop(index=target_index)
@@ -175,7 +200,6 @@ def leave_one_species_out_predictions(
             ]
             genus_distribution = _winner_distribution(genus)
             family_distribution = _winner_distribution(family)
-            global_distribution = _raw_distribution(remaining)
             record: dict[str, Any] = {
                 "accepted_species": str(target["accepted_species"]),
                 "genus": genus_name,
@@ -183,22 +207,32 @@ def leave_one_species_out_predictions(
                 "trait_name": str(trait_name),
                 "actual_value": str(target["filled_value"]),
                 "direct_support_n": int(float(target["support_n"])) if str(target["support_n"]).strip() else 0,
+                "operational_genus_min_support": trait_genus_min,
+                "operational_family_min_support": trait_family_min,
+                "operational_genus_min_consensus": trait_genus_consensus,
+                "operational_family_min_consensus": trait_family_consensus,
+                "operational_family_min_supporting_genera": trait_family_genera_min,
+                "operational_family_allowed": family_allowed,
             }
             record.update(
-                _prediction_record(genus_distribution, int(len(genus)), "genus")
+                _prediction_record(genus_distribution, "genus")
             )
             record.update(
-                _prediction_record(family_distribution, int(len(family)), "family")
+                _prediction_record(family_distribution, "family")
             )
-            record.update(
-                _prediction_record(
-                    global_distribution, int(len(remaining)), "global"
-                )
+            family_winner = str(record["family_prediction"])
+            record["family_supporting_genera"] = int(
+                family.loc[family["filled_value"].astype(str).eq(family_winner), "genus"]
+                .astype(str)
+                .loc[lambda values: values.ne("")]
+                .nunique()
             )
 
             if (
                 record["genus_prediction"]
-                and int(record["genus_support_species"]) >= genus_min_support
+                and int(record["genus_support_species"]) >= trait_genus_min
+                and int(record["genus_top_tie_n"]) == 1
+                and float(record["genus_winner_share"]) >= trait_genus_consensus
             ):
                 cascade_tier = "genus_inference"
                 prediction = record["genus_prediction"]
@@ -206,8 +240,13 @@ def leave_one_species_out_predictions(
                 winner_share = record["genus_winner_share"]
                 distribution = record["genus_distribution"]
             elif (
-                record["family_prediction"]
-                and int(record["family_support_species"]) >= family_min_support
+                family_allowed
+                and record["family_prediction"]
+                and int(record["family_support_species"]) >= trait_family_min
+                and int(record["family_top_tie_n"]) == 1
+                and float(record["family_winner_share"]) >= trait_family_consensus
+                and int(record["family_supporting_genera"])
+                >= trait_family_genera_min
             ):
                 cascade_tier = "family_inference"
                 prediction = record["family_prediction"]
@@ -215,11 +254,11 @@ def leave_one_species_out_predictions(
                 winner_share = record["family_winner_share"]
                 distribution = record["family_distribution"]
             else:
-                cascade_tier = "global_fallback"
-                prediction = record["global_prediction"]
-                support = record["global_support_species"]
-                winner_share = record["global_winner_share"]
-                distribution = record["global_distribution"]
+                cascade_tier = "unresolved_no_evidence"
+                prediction = ""
+                support = 0
+                winner_share = np.nan
+                distribution = "{}"
 
             record.update(
                 {
@@ -305,6 +344,9 @@ def threshold_grid(
     direct: pd.DataFrame,
     genus_thresholds: list[int],
     family_thresholds: list[int],
+    genus_min_consensus: float = 1.0,
+    family_min_consensus: float = 0.8,
+    family_min_supporting_genera: int = 2,
 ) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
     for genus_min in genus_thresholds:
@@ -313,6 +355,9 @@ def threshold_grid(
                 direct,
                 genus_min_support=genus_min,
                 family_min_support=family_min,
+                genus_min_consensus=genus_min_consensus,
+                family_min_consensus=family_min_consensus,
+                family_min_supporting_genera=family_min_supporting_genera,
             )
             for trait_name, trait in predictions.groupby("trait_name", sort=True):
                 metrics = _classification_metrics(
@@ -331,8 +376,8 @@ def threshold_grid(
                         "n_family_predictions": int(
                             tier_counts.get("family_inference", 0)
                         ),
-                        "n_global_predictions": int(
-                            tier_counts.get("global_fallback", 0)
+                        "n_unresolved_predictions": int(
+                            tier_counts.get("unresolved_no_evidence", 0)
                         ),
                     }
                 )
@@ -459,16 +504,27 @@ def run(
     direct = prepare_direct_cells(load_species_direct_cells(cascade_root, traits))
     genus_min = int(cascade.get("min_genus_support", 1))
     family_min = int(cascade.get("min_family_support", 3))
+    family_genera_min = int(cascade.get("min_family_supporting_genera", 2))
+    genus_consensus = float(cascade.get("min_genus_consensus", 1.0))
+    family_consensus = float(cascade.get("min_family_consensus", 0.8))
+    inference_policies = dict(cascade.get("inference_policies") or {})
     predictions = leave_one_species_out_predictions(
         direct,
         genus_min_support=genus_min,
         family_min_support=family_min,
+        genus_min_consensus=genus_consensus,
+        family_min_consensus=family_consensus,
+        family_min_supporting_genera=family_genera_min,
+        inference_policies=inference_policies,
     )
     layer_metrics = summarize_prediction_layers(predictions)
     grid = threshold_grid(
         direct,
         [int(value) for value in validation["cascade_policy"]["genus_support_grid"]],
         [int(value) for value in validation["cascade_policy"]["family_support_grid"]],
+        genus_min_consensus=genus_consensus,
+        family_min_consensus=family_consensus,
+        family_min_supporting_genera=family_genera_min,
     )
     support_metrics = support_stratified_metrics(
         predictions,
@@ -489,7 +545,7 @@ def run(
     layer_metrics.to_csv(output_dir / "trait_inference_loo_metrics.csv", index=False)
     grid.to_csv(output_dir / "trait_inference_threshold_grid.csv", index=False)
     support_metrics.to_csv(output_dir / "trait_inference_support_metrics.csv", index=False)
-    binary.to_csv(output_dir / "pollination_guild_binary_validation.csv", index=False)
+    binary.to_csv(output_dir / "focused_binary_validation.csv", index=False)
 
     manifest = {
         "contract": str(validation["contract"]),
@@ -502,6 +558,10 @@ def run(
         "operational_cascade_thresholds": {
             "min_genus_support": genus_min,
             "min_family_support": family_min,
+            "min_family_supporting_genera": family_genera_min,
+            "min_genus_consensus": genus_consensus,
+            "min_family_consensus": family_consensus,
+            "trait_specific_policy_count": len(inference_policies),
         },
         "operational_layer_metrics": layer_metrics.to_dict("records"),
         "focused_binary_metrics": binary.to_dict("records"),

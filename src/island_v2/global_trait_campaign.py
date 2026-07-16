@@ -1,13 +1,16 @@
 """Drive a resumable, outcome-blind global trait-extraction campaign.
 
 The campaign operates on the unique species master rather than selecting islands
-or regions from observed floral outcomes. It advances four ordered machine-only
+or regions from observed floral outcomes. It advances three ordered machine-only
 source tasks:
 
-1. flower colour, form, symmetry, size and access statements for every species;
-2. reproductive-biology statements from Wikimedia;
-3. reproductive-biology statements from OpenAlex;
-4. optional alternative-pollinator guild statements in a separate layer.
+1. flower colour, form, symmetry, size, display, reward and access statements;
+2. reproductive-biology and pollen-vector statements from Wikimedia;
+3. reproductive-biology and pollen-vector statements from OpenAlex.
+
+Pollinator functional guild is not an exhaustive acquisition target. Any guild
+statement encountered remains auxiliary evidence, but no campaign task spends
+requests solely to fill it.
 
 Every machine hit keeps its source excerpt and remains unreviewed. A species with
 no hit is recorded as a completed zero-hit lookup, never as a biological absence.
@@ -31,7 +34,12 @@ import pandas as pd
 import typer
 import yaml
 
-from island_v2 import reported_ecology_machine as ecology, trait_web_reported_scout as web_reported
+from island_v2 import (
+    reported_ecology_machine as ecology,
+    trait_acquisition_priority as acquisition_priority,
+    trait_web_reported_scout as web_reported,
+)
+from island_v2.angiosperm_scope import classify_scope, load_config as load_scope_config
 from island_v2.trait_source_discovery import openalex_abstract
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
@@ -112,21 +120,40 @@ def load_species_master(master_csv: Path, config: dict[str, Any]) -> pd.DataFram
             master[column] = 0
         master[column] = pd.to_numeric(master[column], errors="coerce").fillna(0).astype(int)
 
-    excluded = {str(value).strip() for value in config.get("excluded_families") or []}
-    valid_name = (
-        master["accepted_species"].ne("")
-        & master["family"].ne("")
-        & ~master["accepted_species"].str.contains("×", regex=False)
-        & master["accepted_species"].str.split().str.len().ge(2)
-    )
-    master = master.loc[valid_name & ~master["family"].isin(excluded)].copy()
+    scope_path_value = _text(config.get("scope_config_path"))
+    if scope_path_value:
+        scope_path = Path(scope_path_value)
+        if not scope_path.exists():
+            raise typer.BadParameter(f"angiosperm scope config does not exist: {scope_path}")
+        scope = classify_scope(master, load_scope_config(scope_path))
+        eligible = set(
+            scope.loc[scope["angiosperm_analysis_eligible"], "accepted_species"].map(_text)
+        )
+        master = master.loc[master["accepted_species"].isin(eligible)].copy()
+    else:
+        # Backward-compatible fallback for small synthetic/test configurations.
+        excluded = {str(value).strip() for value in config.get("excluded_families") or []}
+        valid_name = (
+            master["accepted_species"].ne("")
+            & master["family"].ne("")
+            & ~master["accepted_species"].str.contains("×", regex=False)
+            & master["accepted_species"].str.split().str.len().ge(2)
+        )
+        master = master.loc[valid_name & ~master["family"].isin(excluded)].copy()
     master = master.sort_values(
         ["accepted_species", "n_islands", "n_records"],
         ascending=[True, False, False],
     ).drop_duplicates("accepted_species", keep="first")
-    return master[["accepted_species", "genus", "family", "n_islands", "n_records"]].reset_index(
-        drop=True
-    )
+    master = master[
+        ["accepted_species", "genus", "family", "n_islands", "n_records"]
+    ].reset_index(drop=True)
+    expected_species = int(config.get("expected_species") or 0)
+    if expected_species and len(master) != expected_species:
+        raise typer.BadParameter(
+            "global campaign denominator changed after exact angiosperm scope gate: "
+            f"expected {expected_species}, got {len(master)}"
+        )
+    return master
 
 
 def _task_columns(task: str) -> list[str]:
@@ -273,33 +300,107 @@ def family_balanced_batch(
     pending = ledger.loc[eligible].copy()
     if pending.empty:
         return pending
-    pending = pending.sort_values(
-        ["family", "n_islands", "n_records", "accepted_species"],
-        ascending=[True, False, False, True],
+    task_targets = (
+        [str(value) for value in config["tasks"][task].get("target_traits") or []]
+        if config is not None
+        else None
     )
-    groups = {
-        str(family): group.reset_index(drop=True)
-        for family, group in pending.groupby("family", sort=True)
-    }
-    family_order = sorted(groups, key=lambda family: (-len(groups[family]), family))
+    pending, priority_sort_columns = acquisition_priority.add_priority_sort_keys(
+        pending,
+        target_traits=task_targets,
+    )
+    # Geography and the highest unresolved target-trait rank are hard scheduling
+    # strata. Family round-robin remains useful for source-discovery breadth, but
+    # it must never pull a lower-priority region or trait while a higher stratum
+    # still has eligible species.
+    hard_stratum_columns = [
+        column
+        for column in (
+            "_priority_geo",
+            "_priority_trait_rank_unknown",
+            "_priority_trait_rank",
+        )
+        if column in priority_sort_columns
+    ]
+    within_stratum_priority = [
+        column for column in priority_sort_columns if column not in hard_stratum_columns
+    ]
+    stratum_values: list[tuple[object, ...]]
+    if not hard_stratum_columns:
+        stratum_values = [()]
+    else:
+        stratum_values = sorted(
+            set(
+                pending[hard_stratum_columns]
+                .itertuples(index=False, name=None)
+            )
+        )
+
     rows: list[pd.Series] = []
-    round_index = 0
-    while len(rows) < batch_size:
-        added = False
-        for family in family_order:
-            group = groups[family]
-            if round_index < len(group):
-                rows.append(group.iloc[round_index])
-                added = True
-                if len(rows) >= batch_size:
-                    break
-        if not added:
+    for stratum_value in stratum_values:
+        if not hard_stratum_columns:
+            stratum = pending.copy()
+        else:
+            mask = pd.Series(True, index=pending.index)
+            for column, value in zip(
+                hard_stratum_columns, stratum_value, strict=True
+            ):
+                mask &= pending[column].eq(value)
+            stratum = pending.loc[mask].copy()
+        stratum = stratum.sort_values(
+            [
+                "family",
+                *within_stratum_priority,
+                "n_islands",
+                "n_records",
+                "accepted_species",
+            ],
+            ascending=[
+                True,
+                *([True] * len(within_stratum_priority)),
+                False,
+                False,
+                True,
+            ],
+        )
+        groups = {
+            str(family): group.reset_index(drop=True)
+            for family, group in stratum.groupby("family", sort=True)
+        }
+        family_order = sorted(
+            groups,
+            key=lambda family: (
+                *(groups[family].iloc[0][column] for column in within_stratum_priority),
+                -len(groups[family]),
+                family,
+            ),
+        )
+        round_index = 0
+        while len(rows) < batch_size:
+            added = False
+            for family in family_order:
+                group = groups[family]
+                if round_index < len(group):
+                    rows.append(group.iloc[round_index])
+                    added = True
+                    if len(rows) >= batch_size:
+                        break
+            if not added:
+                break
+            round_index += 1
+        if len(rows) >= batch_size:
             break
-        round_index += 1
     if not rows:
         return pending.head(0)
     batch = pd.DataFrame(rows).reset_index(drop=True)
-    return batch[["accepted_species", "genus", "family", "n_islands", "n_records"]]
+    audit_columns = [
+        column
+        for column in acquisition_priority.PRIORITY_AUDIT_COLUMNS
+        if column in batch.columns
+    ]
+    return batch[
+        ["accepted_species", "genus", "family", "n_islands", "n_records", *audit_columns]
+    ]
 
 
 def _next_wave_id(campaign_dir: Path, task: str) -> str:
@@ -796,6 +897,7 @@ def campaign_summary(ledger: pd.DataFrame, config: dict[str, Any]) -> dict[str, 
         "n_global_species": int(len(ledger)),
         "n_families": int(ledger["family"].nunique()),
         "n_machine_biotic_candidates": int(ledger["machine_biotic_candidate"].sum()),
+        "priority_audit": acquisition_priority.priority_summary(ledger),
         "active_task": choose_active_task(ledger, config),
         "tasks": tasks,
         "interpretation": (
@@ -820,13 +922,66 @@ def run(
         "--task",
         help="Advance one named task using per-species dependency eligibility.",
     ),
+    priority_occurrence_csv: Path = typer.Option(
+        acquisition_priority.DEFAULT_OCCURRENCE_CSV,
+        help="Exact species-by-island occurrence ledger used only for audited priority.",
+    ),
+    priority_canonical_island_latitudes_csv: Path = typer.Option(
+        acquisition_priority.DEFAULT_CANONICAL_ISLAND_LATITUDES_CSV,
+    ),
+    priority_island_registry_csv: Path = typer.Option(
+        acquisition_priority.DEFAULT_ISLAND_REGISTRY_CSV,
+    ),
+    priority_island_assignments_csv: Path = typer.Option(
+        acquisition_priority.DEFAULT_ISLAND_ASSIGNMENTS_CSV,
+    ),
+    priority_island_assignment_evidence_csv: Path = typer.Option(
+        acquisition_priority.DEFAULT_ISLAND_ASSIGNMENT_EVIDENCE_CSV,
+    ),
+    priority_source_region_registry_csv: Path = typer.Option(
+        acquisition_priority.DEFAULT_SOURCE_REGION_REGISTRY_CSV,
+    ),
+    priority_source_region_evidence_csv: Path = typer.Option(
+        acquisition_priority.DEFAULT_SOURCE_REGION_EVIDENCE_CSV,
+    ),
+    priority_acquisition_config_path: Path = typer.Option(
+        acquisition_priority.DEFAULT_ACQUISITION_CONFIG,
+        help="Existing source-backed coverage contract; missing input remains unknown.",
+    ),
+    priority_current_cells_csv: Path | None = typer.Option(
+        None,
+        help="Optional complete cell snapshot overriding the acquisition-rate contract.",
+    ),
+    priority_qualified_genus_glob: str = typer.Option(
+        acquisition_priority.DEFAULT_QUALIFIED_GENUS_GLOB,
+    ),
+    priority_frozen_packet_glob: str = typer.Option(
+        acquisition_priority.DEFAULT_FROZEN_PACKET_GLOB,
+    ),
 ) -> None:
     """Advance exactly one bounded global campaign wave and persist its audit state."""
     config = load_config(config_path)
+    master_header = pd.read_csv(master_csv, nrows=0)
     master = load_species_master(master_csv, config)
     ledger_path = campaign_dir / "campaign_ledger.csv.gz"
     existing = pd.read_csv(ledger_path, dtype=str).fillna("") if ledger_path.exists() else None
     ledger = reconcile_ledger(master, existing, config)
+    audit = acquisition_priority.build_repository_priority_audit(
+        master,
+        master_genus_is_explicit="genus" in master_header.columns,
+        occurrence_csv=priority_occurrence_csv,
+        canonical_island_latitudes_csv=priority_canonical_island_latitudes_csv,
+        island_registry_csv=priority_island_registry_csv,
+        island_assignments_csv=priority_island_assignments_csv,
+        island_assignment_evidence_csv=priority_island_assignment_evidence_csv,
+        source_region_registry_csv=priority_source_region_registry_csv,
+        source_region_evidence_csv=priority_source_region_evidence_csv,
+        acquisition_config_path=priority_acquisition_config_path,
+        current_cells_csv=priority_current_cells_csv,
+        qualified_genus_glob=priority_qualified_genus_glob,
+        frozen_packet_glob=priority_frozen_packet_glob,
+    )
+    ledger = acquisition_priority.merge_priority_audit(ledger, audit)
     ledger = prepare_dependent_statuses(ledger, config)
     requested_task = _text(task)
     if requested_task and requested_task not in config["tasks"]:
@@ -892,6 +1047,7 @@ def run(
         "n_candidates_total": int(len(candidates)),
         "n_target_candidates": int(candidates["target_for_task"].astype(bool).sum()),
         "n_lookup_errors": int(len(errors)),
+        "priority_audit": acquisition_priority.priority_summary(batch),
         "policy": "Machine-only; no candidate is curated or used as a biological absence.",
     }
     (wave_dir / "wave_summary.json").write_text(

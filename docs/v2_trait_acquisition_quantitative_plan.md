@@ -9,9 +9,14 @@ contrasts remain secondary summaries for continuity. Numeric measurements are
 optional enrichment and never determine whether a species enters the core set.
 
 The broad-coverage minimum is flower colour plus flower form (symmetry is the
-shape fallback). Reproductive assurance is the next priority. Direct pollen
-vector and effective pollinator evidence are collected whenever available, but
-their low coverage must not block acquisition of colour and form.
+shape fallback). Reproductive assurance is the next priority. The exact
+15-trait order is frozen in `config/v2_trait_acquisition.yml`. For each trait,
+species-direct evidence is attempted first, then only unresolved cells may use
+a qualified genus inference, then a qualified family inference; unsupported
+cells remain explicit unresolved values. Direct pollen-vector evidence is
+collected whenever available, but effective pollinator guild is not an
+exhaustive completion target and cannot block acquisition of intrinsic floral
+or reproductive traits.
 
 The machine-readable contract is
 [`config/v2_trait_acquisition.yml`](../config/v2_trait_acquisition.yml).

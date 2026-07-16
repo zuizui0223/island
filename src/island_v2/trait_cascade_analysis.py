@@ -1,4 +1,4 @@
-"""Audit and connect the completed 106,295-species trait cascade dataset."""
+"""Audit and connect the rectangular, evidence-grounded trait cascade."""
 
 from __future__ import annotations
 
@@ -20,6 +20,23 @@ REQUIRED_COLUMNS = {
     "evidence_scope",
     "confidence",
 }
+GROUNDED_ANALYSIS_TIERS = {
+    "species_direct",
+    "synonym_direct",
+    "genus_inference",
+    "family_inference",
+}
+
+
+def _analysis_eligibility_mask(frame: pd.DataFrame) -> pd.Series:
+    """Return a fail-closed mask for both current and historical artifacts."""
+    tier_supported = frame["fill_tier"].astype(str).isin(GROUNDED_ANALYSIS_TIERS)
+    if "analysis_eligible" not in frame.columns:
+        return tier_supported
+    return (
+        frame["analysis_eligible"].astype(str).str.lower().eq("true")
+        & tier_supported
+    )
 
 
 def _load_shards(root: Path) -> pd.DataFrame:
@@ -38,6 +55,14 @@ def _load_tiers(path: Path) -> dict[str, object]:
     payload = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict) or "analysis_tiers" not in payload:
         raise typer.BadParameter("analysis-tier config must contain analysis_tiers")
+    for tier_name, rule in dict(payload["analysis_tiers"]).items():
+        allowed = {str(value) for value in rule.get("allowed_fill_tiers", [])}
+        unsupported = allowed.difference(GROUNDED_ANALYSIS_TIERS)
+        if unsupported:
+            raise typer.BadParameter(
+                f"analysis tier {tier_name!r} includes non-analysable fills: "
+                f"{sorted(unsupported)}"
+            )
     return payload
 
 
@@ -74,7 +99,7 @@ def audit(
     coverage.to_csv(output_dir / "trait_fill_tier_coverage.csv", index=False)
 
     summary = {
-        "contract": "completed_trait_cascade_audit_v1",
+        "contract": "evidence_grounded_trait_cascade_audit_v2",
         "n_shards": 128,
         "n_rows": int(len(frame)),
         "n_species": n_species,
@@ -84,9 +109,12 @@ def audit(
         "fill_tier_counts": {
             str(key): int(value) for key, value in frame["fill_tier"].value_counts().items()
         },
+        "n_analysis_eligible_rows": int(
+            _analysis_eligibility_mask(frame).sum()
+        ),
         "interpretation": (
-            "Complete fill matrix. Genus, family, and global fallback rows are inferred values, "
-            "not equivalent to species-direct evidence."
+            "Rectangular species-trait matrix. Genus/family rows are qualified inferred "
+            "values; unresolved_no_evidence rows carry no biological value and are excluded."
         ),
     }
     (output_dir / "trait_cascade_audit.json").write_text(
@@ -121,9 +149,13 @@ def join_islands(
     )
 
     base = occurrences.rename(columns={species_column: "accepted_species"})
+    # Compatibility with historical artifacts while retaining a hard safety
+    # firewall: neither the removed global tier nor unresolved sentinels can
+    # enter an analysis even if a config is accidentally broadened.
+    analysable = frame.loc[_analysis_eligibility_mask(frame)].copy()
     for tier_name, rule in dict(config["analysis_tiers"]).items():
         allowed = {str(value) for value in rule.get("allowed_fill_tiers", [])}
-        subset = frame.loc[frame["fill_tier"].isin(allowed)].copy()
+        subset = analysable.loc[analysable["fill_tier"].isin(allowed)].copy()
         joined = base.merge(subset, on="accepted_species", how="left", validate="many_to_many")
         joined["analysis_tier"] = str(tier_name)
         joined.to_csv(output_dir / f"island_species_traits_{tier_name}.csv.gz", index=False, compression="gzip")

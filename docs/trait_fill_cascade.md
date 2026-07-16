@@ -1,20 +1,20 @@
-# Fill-first trait cascade
+# Evidence-grounded trait cascade
 
 ## Purpose
 
-The operational priority is **complete, resolution-labelled coverage while
-continuing to increase direct evidence**. Direct source-backed coverage is
-uneven across traits, so
-`island-v2-trait-fill-cascade` fills every eligible species-trait by descending a
-fallback ladder until unresolved eligible cells are driven toward zero:
+The operational priority is a **complete rectangular form without inventing
+biological values**, while direct evidence keeps increasing. Every eligible
+species-trait has a row, but `island-v2-trait-fill-cascade` assigns a value only
+through this evidence ladder:
 
 ```text
-species_direct -> synonym_direct -> genus_inference -> family_inference -> global_fallback
+species_direct -> synonym_direct -> qualified genus_inference
+               -> qualified family_inference -> unresolved_no_evidence
 ```
 
 ## Angiosperm eligibility gate (before the cascade)
 
-The target is 100% fill **within the eligible flowering-plant universe**, not
+The target is 100% cell presence **within the eligible flowering-plant universe**, not
 the raw Tracheophyta acquisition universe. Non-seed vascular plants (ferns,
 lycophytes), gymnosperms, and fossil lineages have no flowers or comparable
 pollen-vector states, so a family-based angiosperm gate runs *before* the
@@ -26,40 +26,42 @@ eligible set. On the current master that is 106,295 of 115,328 species; the
 family_unresolved (missing family). Two fern-sounding families that are actually
 angiosperms — Cardiopteridaceae, Pteridophyllaceae — stay eligible.
 
-Low-resolution fills are never discarded and never hidden. Every fill carries
-`fill_tier`, `evidence_scope`, and `confidence`, so a genus/family/global fill is
-always separable for sensitivity analysis and never masquerades as accepted
-direct evidence. Fills are written to staging, never to curated. A cascade fill
-is candidate coverage, never a biological absence.
+Low-resolution fills are never hidden. Every row carries `fill_tier`,
+`evidence_scope`, and `confidence`. Genus/family values also retain support and
+consensus diagnostics. `unresolved_no_evidence` carries `filled_value=unresolved`,
+blank reported/inferred channels, and `analysis_eligible=false`. It is cell
+accounting, not a biological state or absence.
 
 ## Guardrails
 
 - **Traits are filled independently.** One trait is never derived from another;
   self-compatibility never fills autonomous selfing.
-- **Inference keeps its distribution.** Genus/family/global fills record the
-  supporting `value_distribution`. A unique mode is selected when one exists;
-  tied modes use a reproducible empirical-distribution draw keyed by species
-  and trait. This avoids alphabetical tie-breaking, preserves the taxonomically
-  closest available tier, and remains explicitly low-confidence inference.
+- **Inference keeps its basis.** Genus/family fills record `support_n` for the
+  winning value, `total_support_n`, `supporting_taxa`, `supporting_genera_n`,
+  `supporting_genera`, `value_distribution`, `winner_share`, and
+  `inference_basis`. A tied mode is never randomly resolved. Family inference
+  additionally requires support across the configured minimum number of genera.
 - **Direct conflicts are not silently decided.** Equal-weight species-level
   states are removed from `reported_value`, retained in
   `direct_conflict_distribution`, and rescued only through the explicitly
   inferred channel. Multiple reported flower colours are retained as
   `multicolored_variable`, because colour is intentionally a plural trait.
-- **One species, one prior vote.** After resolving each species' direct value,
-  genus, family and global distributions count each species once. Duplicate
+- **One species, one taxonomic vote.** After resolving each species' direct value,
+  genus and family distributions count each species once. Duplicate
   databases or repeated source rows cannot dominate inference merely by volume.
 - **Ontology is fail-closed.** Source-specific direct-evidence adapters require
   species-direct scope and source provenance. Values are normalized to
   `config/trait_ontology.yml`; an out-of-domain value fails materialization
   instead of spreading through a fallback tier.
-- **Support thresholds.** `min_genus_support` / `min_family_support` gate the
-  inference tiers; below family support the global fallback fills.
+- **Support and consensus thresholds.** `min_genus_support` /
+  `min_family_support` and `min_genus_consensus` / `min_family_consensus` gate
+  inference. Below either gate the next taxonomic tier is tried, then the cell
+  remains unresolved.
 - **Direct evidence wins.** A species with its own value always keeps it. Curated
   evidence outweighs machine candidates in the modal vote.
 - **Reported and inferred values remain distinguishable.** `species_direct` and
-  `synonym_direct` are reported-evidence tiers; genus, family, and global tiers
-  are explicitly inferred sensitivity values. Every shard also has mutually
+  `synonym_direct` are reported-evidence tiers; genus and family tiers are
+  explicitly inferred sensitivity values. Every shard also has mutually
   exclusive `reported_value` and `inferred_value` columns alongside the selected
   `filled_value`; consumers do not have to infer origin from the value itself. A
   model-only answer is not loaded as direct evidence and can never train the
@@ -73,14 +75,14 @@ is candidate coverage, never a biological absence.
 
 The cascade does not recompute all ~115k species every run. Eligible species are
 partitioned into deterministic shards by a stable hash of the accepted name, and
-each shard is checkpointed independently. The shared model (species/genus/family/
-global distributions) is built once from all evidence and applied per shard, so a
+each shard is checkpointed independently. The shared model (species/genus/family
+distributions) is built once from all evidence and applied per shard, so a
 sharded run is bit-for-bit identical to a single whole-universe pass.
 
 A shard is recomputed only when its inputs change:
 
 - **model fingerprint** — any evidence row or cascade parameter change flips it
-  and correctly invalidates every shard (global distributions moved);
+  and correctly invalidates every shard;
 - **species fingerprint** — the shard's exact species membership, so master
   growth only touches the shards whose membership changed.
 
@@ -143,11 +145,9 @@ all-master run.
 
 ## Reading the current baseline
 
-The cascade takes each trait that has at least one reported observation to 100%
-candidate fill across the 106,295 angiosperm-eligible species. Global ties do
-not remain blank or acquire a false deterministic mode: they receive a stable
-draw from the recorded empirical prior. The resulting
-matrix is expected to be dominated initially by genus/family/global inference;
-that is a coverage product, not a claim that all cells are observed facts. Each
-new bulk source or quote-locked extraction upgrades cells to `species_direct`
-and also sharpens the distributions behind the remaining taxonomic inference.
+The cascade retains 100% of the 106,295 x target-trait cells. A cell is resolved
+only by species-direct evidence or a qualified genus/family distribution; every
+other cell is explicit unresolved and excluded from analysis. Each new bulk
+source or quote-locked extraction upgrades cells to `species_direct`, can rescue
+related unresolved cells through auditable taxonomic support, and never
+overwrites direct evidence.

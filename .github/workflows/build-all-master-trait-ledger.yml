@@ -54,6 +54,11 @@ on:
         required: true
         default: true
         type: boolean
+      pinned_source_variable:
+        description: Internal exact source variable to preserve while resolving the others
+        required: false
+        default: ""
+        type: string
   pull_request:
     paths:
       - ".github/workflows/build-all-master-trait-ledger.yml"
@@ -159,6 +164,8 @@ jobs:
       PUBLIC_WEB_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Promote accounted public-web shard run' && github.event.workflow_run.id || inputs.public_web_run_id || '29385927769' }}
       LLM_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Ingest validated LLM result bundles' && github.event.workflow_run.id || inputs.llm_run_id || '' }}
       RESOLVE_LATEST_SOURCES: ${{ inputs.resolve_latest_sources }}
+      PINNED_SOURCE_VARIABLE: ${{ inputs.pinned_source_variable || '' }}
+      TRIGGER_SOURCE_WORKFLOW: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name || '' }}
       DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
     steps:
       - uses: actions/checkout@v4
@@ -177,6 +184,23 @@ jobs:
             exit 0
           fi
 
+          pinned_source="${PINNED_SOURCE_VARIABLE:-}"
+          if [[ -z "$pinned_source" && -n "${TRIGGER_SOURCE_WORKFLOW:-}" ]]; then
+            case "$TRIGGER_SOURCE_WORKFLOW" in
+              ingest_eol_traitbank_bulk) pinned_source=EOL_RUN_ID ;;
+              "Ingest all AusTraits target floral traits") pinned_source=AUSTRAITS_RUN_ID ;;
+              "Promote accounted eFloras shard artifacts") pinned_source=EFLORAS_RUN_ID ;;
+              "Acquire GIFT direct floral traits") pinned_source=GIFT_RUN_ID ;;
+              "Acquire USDA PLANTS direct floral traits") pinned_source=USDA_RUN_ID ;;
+              "Promote accounted public-web shard run") pinned_source=PUBLIC_WEB_RUN_ID ;;
+              "Ingest validated LLM result bundles") pinned_source=LLM_RUN_ID ;;
+            esac
+          fi
+          case "$pinned_source" in
+            ""|EOL_RUN_ID|AUSTRAITS_RUN_ID|EFLORAS_RUN_ID|GIFT_RUN_ID|USDA_RUN_ID|PUBLIC_WEB_RUN_ID|LLM_RUN_ID) ;;
+            *) echo "Unsupported pinned_source_variable: $pinned_source" >&2; exit 1 ;;
+          esac
+
           resolve_run() {
             local variable="$1"
             local workflow="$2"
@@ -188,6 +212,41 @@ jobs:
             local expected=""
             local marker=""
             local current="${!variable}"
+            if [[ "$pinned_source" == "$variable" ]]; then
+              [[ "$current" =~ ^[0-9]+$ ]] || {
+                echo "::error::Pinned $variable is not a numeric run ID: $current"
+                exit 1
+              }
+              if [[ "$artifact_mode" == "run_suffix" ]]; then
+                expected="${artifact_prefix}${current}"
+              else
+                expected="$artifact_prefix"
+              fi
+              run_metadata=$(gh api "repos/$GH_REPO/actions/runs/$current")
+              test "$(jq -r .conclusion <<<"$run_metadata")" = "success"
+              test "$(jq -r .head_branch <<<"$run_metadata")" = "$DEFAULT_BRANCH"
+              test "$(jq -r .path <<<"$run_metadata")" = ".github/workflows/$workflow"
+              if ! gh api --paginate \
+                "repos/$GH_REPO/actions/runs/$current/artifacts?per_page=100" \
+                --jq ".artifacts[] | select(.expired == false and .name == \"$expected\") | .id" \
+                | grep -Eq '^[0-9]+$'; then
+                echo "::error::Pinned $variable run $current has no live $expected artifact."
+                exit 1
+              fi
+              if [[ -n "$marker_prefix" ]]; then
+                marker="${marker_prefix}${current}"
+                if ! gh api --paginate \
+                  "repos/$GH_REPO/actions/runs/$current/artifacts?per_page=100" \
+                  --jq ".artifacts[] | select(.expired == false and .name == \"$marker\") | .id" \
+                  | grep -Eq '^[0-9]+$'; then
+                  echo "::error::Pinned $variable run $current lacks production marker $marker."
+                  exit 1
+                fi
+              fi
+              echo "- $variable: $current (exact verified production source)" \
+                >> "$GITHUB_STEP_SUMMARY"
+              return 0
+            fi
             while IFS= read -r candidate; do
               [[ "$candidate" =~ ^[0-9]+$ ]] || continue
               if [[ "$artifact_mode" == "run_suffix" ]]; then

@@ -2,7 +2,7 @@
 
 The hard broad tier treats inferred categorical values as known. This sensitivity
 instead converts each species' stored value_distribution into a bumblebee-guild
-probability, fixes species-direct cells at 0/1, excludes global fallback, and draws
+probability, fixes species-direct cells at 0/1, excludes unresolved cells, and draws
 one trait state per species per imputation. The sampled state is then shared across
 all island occurrences of that species.
 
@@ -355,7 +355,7 @@ def run_imputations(
     comparator_rows: list[dict[str, Any]] = []
     for comparator, successes in (
         ("expected_probability_counts", expected_successes),
-        ("hard_modal_broad_without_global_fallback", hard_successes),
+        ("hard_modal_grounded_taxonomic", hard_successes),
     ):
         for baseline_name, baseline in baselines.items():
             result = _fit_snapshot(
@@ -460,7 +460,7 @@ def run(
         "comparators": comparators.to_dict("records"),
         "interpretation": (
             "Species-direct cells are fixed; genus/family cells are sampled once per species per imputation from stored taxonomic value distributions. "
-            "Global fallback is excluded. This propagates trait inference uncertainty but does not upgrade inferred cells to direct evidence."
+            "Unresolved cells are excluded. This propagates taxonomic inference uncertainty but does not upgrade inferred cells to direct evidence."
         ),
     }
     (output_dir / "probabilistic_trait_uncertainty_manifest.json").write_text(
