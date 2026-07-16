@@ -1,0 +1,43 @@
+{
+  "version": "1.0",
+  "source_name": "eol_traitbank_all_zenodo_13305577",
+  "dataset_url": "https://zenodo.org/records/13305577",
+  "archive_sha256": "a029cef6f771b08c1ad5cb2cd5f5a56a53de6896cee768ebcd7c61f756735072",
+  "github_run_id": "29474976082",
+  "github_sha": "4fdfcad130cec43e819fa15f9e11440e74c7aecc",
+  "n_trait_rows_scanned": 11394558,
+  "n_rows_with_mapped_predicate": 12258,
+  "n_unmapped_predicate_rows": 10203463,
+  "n_unmapped_value_rows_prepare": 5209,
+  "n_long_rows": 7049,
+  "n_name_matched_rows": 3381,
+  "n_unmatched_taxon_rows": 3668,
+  "n_unmapped_value_rows_ingest": 0,
+  "n_candidate_rows": 3381,
+  "n_species_with_any_direct_evidence": 2768,
+  "n_master_species": 115328,
+  "bundle_files": {
+    "trait_candidates.csv.gz": {
+      "persisted": true,
+      "bytes": 116599
+    },
+    "coverage_by_family.csv.gz": {
+      "persisted": true,
+      "bytes": 3396
+    },
+    "unmatched_taxa.csv.gz": {
+      "persisted": true,
+      "bytes": 52596
+    },
+    "unmapped_values.csv.gz": {
+      "persisted": true,
+      "bytes": 41
+    },
+    "unmapped_eol_terms.csv.gz": {
+      "persisted": true,
+      "bytes": 1472925
+    }
+  },
+  "curation_rule": "All imported observations are source-backed pending candidates; no values are automatically curated.",
+  "non_inference_rule": "Unmatched taxa and unmapped source labels/values are retained in audits and never guessed."
+}
