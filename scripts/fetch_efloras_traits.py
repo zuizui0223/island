@@ -142,6 +142,44 @@ SEX_TERMS = (
     "andromonoecious",
     "gynomonoecious",
 )
+FLORAL_MEASUREMENT = re.compile(
+    r"\b(?:flowers?|corollas?)\b[^;.!?]{0,120}?"
+    r"(?P<low>\d+(?:\.\d+)?)\s*(?:[-–—]\s*(?P<high>\d+(?:\.\d+)?))?\s*"
+    r"(?P<unit>mm|cm)\b",
+    re.I,
+)
+TUBE_MEASUREMENT = re.compile(
+    r"\b(?:corolla\s+)?tube\b[^;.!?]{0,100}?"
+    r"(?P<low>\d+(?:\.\d+)?)\s*(?:[-–—]\s*(?P<high>\d+(?:\.\d+)?))?\s*"
+    r"(?P<unit>mm|cm)\b",
+    re.I,
+)
+INFLORESCENCE_TERMS = {
+    "solitary": "solitary",
+    "few-flowered": "few_flowered",
+    "few flowered": "few_flowered",
+    "raceme": "raceme_spike_panicle",
+    "racemose": "raceme_spike_panicle",
+    "spike": "raceme_spike_panicle",
+    "spicate": "raceme_spike_panicle",
+    "panicle": "raceme_spike_panicle",
+    "paniculate": "raceme_spike_panicle",
+    "umbel": "umbel_corymb",
+    "umbellate": "umbel_corymb",
+    "corymb": "umbel_corymb",
+    "corymbose": "umbel_corymb",
+    "capitulum": "composite_display",
+    "capitula": "composite_display",
+    "flower head": "composite_display",
+}
+REWARD_PATTERNS = {
+    "nectar": re.compile(r"\bnectar(?:y|ies|iferous)?\b", re.I),
+    "pollen": re.compile(r"\b(?:pollen[- ]reward|reward(?:ed)?\s+(?:with|by)\s+pollen)\b", re.I),
+    "oil": re.compile(r"\b(?:oil[- ]reward|floral oil)\b", re.I),
+    "resin": re.compile(r"\b(?:resin[- ]reward|floral resin)\b", re.I),
+    "fragrance": re.compile(r"\bfragrance[- ]reward\b", re.I),
+    "rewardless": re.compile(r"\brewardless\b", re.I),
+}
 
 DISCOVERED_FIELDS = [
     "flora_id",
@@ -819,6 +857,40 @@ def _color_hits(text: str) -> list[str]:
     return sorted(hits)
 
 
+def _measurement_classes(text: str, pattern: re.Pattern[str], trait: str) -> list[str]:
+    """Classify explicit floral measurements; conflicting dimensions are skipped."""
+    classes: set[str] = set()
+    for match in pattern.finditer(text):
+        low = float(match.group("low"))
+        high = float(match.group("high") or low)
+        mm = ((low + high) / 2.0) * (10.0 if match.group("unit").casefold() == "cm" else 1.0)
+        if trait == "flower_size_class":
+            value = next(
+                label
+                for maximum, label in (
+                    (2.0, "very_small"),
+                    (10.0, "small"),
+                    (30.0, "medium"),
+                    (100.0, "large"),
+                    (float("inf"), "very_large"),
+                )
+                if mm <= maximum
+            )
+        else:
+            value = next(
+                label
+                for maximum, label in (
+                    (1.0, "absent_or_open"),
+                    (5.0, "shallow"),
+                    (15.0, "intermediate"),
+                    (float("inf"), "deep"),
+                )
+                if mm <= maximum
+            )
+        classes.add(value)
+    return sorted(classes) if len(classes) == 1 else []
+
+
 def trait_candidates(
     *,
     flora_id: int,
@@ -848,6 +920,28 @@ def trait_candidates(
             symmetry = _term_hits(excerpt, SYMMETRY_TERMS)
             if symmetry:
                 hits.append(("floral_symmetry", "|".join(symmetry)))
+            sizes = _measurement_classes(excerpt, FLORAL_MEASUREMENT, "flower_size_class")
+            if sizes:
+                hits.append(("flower_size_class", sizes[0]))
+            tube_depths = _measurement_classes(excerpt, TUBE_MEASUREMENT, "tube_depth_class")
+            if tube_depths:
+                hits.append(("tube_depth_class", tube_depths[0]))
+        display_context = bool(
+            re.search(r"\b(?:flowers?|inflorescences?|flower heads?)\b", low)
+            or (re.search(r"\bcapitula\b", low) and not NONFLORAL_COLOR_CONTEXT.search(excerpt))
+        )
+        if display_context:
+            displays = _term_hits(excerpt, INFLORESCENCE_TERMS)
+            if displays:
+                hits.append(("inflorescence_display", "|".join(displays)))
+        rewards = sorted(value for value, pattern in REWARD_PATTERNS.items() if pattern.search(excerpt))
+        if rewards:
+            hits.append(
+                (
+                    "reward_type",
+                    rewards[0] if len(rewards) == 1 else "mixed_or_multiple",
+                )
+            )
         sex = sorted({term for term in SEX_TERMS if re.search(rf"\b{re.escape(term)}\b", low)})
         if sex:
             hits.append(("sex_system", "|".join(sex)))
@@ -875,7 +969,7 @@ def trait_candidates(
                     "source_record_id": f"efloras:{flora_id}:{taxon_id}",
                     "evidence_scope": "species_direct",
                     "evidence_status": "source_backed_rule_extracted_unreviewed",
-                    "extraction_method": "rule_based_floral_context_v3",
+                    "extraction_method": "rule_based_floral_context_v4",
                     "name_match_method": name_match_method,
                 }
             )

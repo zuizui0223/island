@@ -909,7 +909,7 @@ def run_shard(
     include_openalex: bool = False,
     include_europe_pmc: bool = False,
     include_web_descriptions: bool = True,
-    include_world_flora: bool = True,
+    include_world_flora: bool = False,
     web_description_index_path: Path | None = None,
     pause_seconds: float = 0.1,
     collector: Collector | None = None,
@@ -1058,7 +1058,14 @@ def run_shard(
         allowed.add("exhausted")
     eligible = checkpoint.loc[checkpoint["status"].isin(allowed)].copy()
     eligible["_priority"] = eligible["status"].map({"pending": 0, "retry": 1, "exhausted": 2})
-    selected = eligible.sort_values(["_priority", "species"]).head(batch_size)
+    # Scheduled repair passes must rotate across exhausted rows. Sorting only by
+    # species would retry the same first ``batch_size`` names forever whenever a
+    # shard had more exhausted rows than the batch bound.
+    eligible["_attempts_order"] = pd.to_numeric(eligible["attempts"], errors="coerce").fillna(0)
+    eligible["_updated_order"] = eligible["updated_at"].map(_text)
+    selected = eligible.sort_values(
+        ["_priority", "_attempts_order", "_updated_order", "species"]
+    ).head(batch_size)
     packet_id = _next_packet_id(checkpoint)
     selected_indexes = selected.index.tolist()
 
@@ -1420,7 +1427,7 @@ def run_command(
         True,
         "--web-descriptions/--no-web-descriptions",
     ),
-    world_flora: bool = typer.Option(True, "--world-flora/--no-world-flora"),
+    world_flora: bool = typer.Option(False, "--world-flora/--no-world-flora"),
     web_description_index: Path | None = typer.Option(None, exists=True),
     pause_seconds: float = typer.Option(0.1, min=0.0),
 ) -> None:

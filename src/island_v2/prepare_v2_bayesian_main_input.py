@@ -12,18 +12,13 @@ from pathlib import Path
 import duckdb
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--master-csv-gz", type=Path, required=True)
-    parser.add_argument("--island-covariates-csv", type=Path, required=True)
-    parser.add_argument("--output-csv", type=Path, required=True)
-    args = parser.parse_args()
-    args.output_csv.parent.mkdir(parents=True, exist_ok=True)
-
+def prepare_input(master_csv_gz: Path, island_covariates_csv: Path, output_csv: Path) -> None:
+    """Build the confirmatory input from species-direct reported traits only."""
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
     con = duckdb.connect()
-    master = str(args.master_csv_gz).replace("'", "''")
-    cov = str(args.island_covariates_csv).replace("'", "''")
-    out = str(args.output_csv).replace("'", "''")
+    master = str(master_csv_gz).replace("'", "''")
+    cov = str(island_covariates_csv).replace("'", "''")
+    out = str(output_csv).replace("'", "''")
 
     con.execute(
         f"""
@@ -41,10 +36,10 @@ def main() -> None:
           'pollen_vector_mode','flower_primary_color','floral_form',
           'self_incompatibility','pollination_functional_guild'
         )
+          AND fill_tier='species_direct'
         GROUP BY island_id, accepted_species;
         """
     )
-
     con.execute(
         """
         CREATE TEMP TABLE classified AS
@@ -53,17 +48,17 @@ def main() -> None:
             WHEN pollen_vector_mode='biotic' THEN 1 ELSE 0
           END AS is_animal,
           CASE
-            WHEN lower(coalesce(flower_primary_color,'')) ~ 'blue|purple|violet|lilac|lavender' THEN 'blue_purple'
-            WHEN lower(coalesce(flower_primary_color,'')) ~ 'red|pink|magenta|scarlet|crimson' THEN 'red_pink'
-            WHEN lower(coalesce(flower_primary_color,'')) ~ 'yellow|orange|gold' THEN 'yellow_orange'
-            WHEN lower(coalesce(flower_primary_color,'')) ~ 'white|cream|pale|green|brown|inconspicuous|dull' THEN 'plain'
+            WHEN regexp_matches(lower(coalesce(flower_primary_color,'')), 'blue|purple|violet|lilac|lavender') THEN 'blue_purple'
+            WHEN regexp_matches(lower(coalesce(flower_primary_color,'')), 'red|pink|magenta|scarlet|crimson') THEN 'red_pink'
+            WHEN regexp_matches(lower(coalesce(flower_primary_color,'')), 'yellow|orange|gold') THEN 'yellow_orange'
+            WHEN regexp_matches(lower(coalesce(flower_primary_color,'')), 'white|cream|pale|green|brown|inconspicuous|dull') THEN 'plain'
             ELSE NULL
           END AS color_cat,
           CASE
-            WHEN lower(coalesce(floral_form,'')) ~ 'zygomorphic|orchid|papilion|spurr|bilabiate' THEN 'zygomorphic_specialized'
-            WHEN lower(coalesce(floral_form,'')) ~ 'tubular|trumpet|funnel|salver|urn|urceolate|campanulate|bell' THEN 'tubular_trumpet'
-            WHEN lower(coalesce(floral_form,'')) ~ 'composite|head|brush|puff' THEN 'composite_brush'
-            WHEN lower(coalesce(floral_form,'')) ~ 'open|radial|actinomorphic|bowl|cup|star' THEN 'open_generalized'
+            WHEN regexp_matches(lower(coalesce(floral_form,'')), 'zygomorphic|orchid|papilion|spurr|bilabiate') THEN 'zygomorphic_specialized'
+            WHEN regexp_matches(lower(coalesce(floral_form,'')), 'tubular|trumpet|funnel|salver|urn|urceolate|campanulate|bell') THEN 'tubular_trumpet'
+            WHEN regexp_matches(lower(coalesce(floral_form,'')), 'composite|head|brush|puff') THEN 'composite_brush'
+            WHEN regexp_matches(lower(coalesce(floral_form,'')), 'open|radial|actinomorphic|bowl|cup|star') THEN 'open_generalized'
             ELSE NULL
           END AS form_cat,
           CASE WHEN self_incompatibility IN ('SC','likely_SC') THEN 1
@@ -119,6 +114,15 @@ def main() -> None:
         ) TO '{out}' (HEADER, DELIMITER ',');
         """
     )
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--master-csv-gz", type=Path, required=True)
+    parser.add_argument("--island-covariates-csv", type=Path, required=True)
+    parser.add_argument("--output-csv", type=Path, required=True)
+    args = parser.parse_args()
+    prepare_input(args.master_csv_gz, args.island_covariates_csv, args.output_csv)
 
 
 if __name__ == "__main__":

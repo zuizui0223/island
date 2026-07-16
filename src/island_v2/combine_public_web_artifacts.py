@@ -335,6 +335,16 @@ def combine_public_web_run(
         if not provider_checkpoint.empty
         else n_species_remaining
     )
+    n_enabled_provider_exhausted = (
+        int(
+            (
+                provider_checkpoint["enabled"].str.casefold().eq("true")
+                & provider_checkpoint["status"].eq("exhausted")
+            ).sum()
+        )
+        if not provider_checkpoint.empty
+        else 0
+    )
     files = {
         key: {
             "path": path.name,
@@ -355,7 +365,18 @@ def combine_public_web_run(
         "n_species_remaining": n_species_remaining,
         "n_species_attempted_in_source_run": n_species_attempted_in_source_run,
         "n_enabled_provider_remaining": n_enabled_provider_remaining,
-        "complete": n_enabled_provider_remaining == 0,
+        "n_enabled_provider_exhausted": n_enabled_provider_exhausted,
+        "complete": n_enabled_provider_remaining == 0
+        and n_enabled_provider_exhausted == 0,
+        "completion_status": (
+            "complete"
+            if n_enabled_provider_remaining == 0 and n_enabled_provider_exhausted == 0
+            else (
+                "partial_with_failures"
+                if n_enabled_provider_remaining == 0
+                else "in_progress"
+            )
+        ),
         "provider_status_counts": provider_status_counts,
         "n_provider_checkpoint_rows": len(provider_checkpoint),
         "n_result_species": len(results),
@@ -371,7 +392,9 @@ def combine_public_web_run(
         "interpretation": (
             "Provider no_hit rows are successful zero-result lookups; skipped_covered "
             "rows used complete seed coverage without a lookup. Neither is biological "
-            "absence. URLs and excerpts remain in the combined evidence tables."
+            "absence. Exhausted rows remain explicitly incomplete and are retried by "
+            "the scheduled repair pass. URLs and excerpts remain in the combined "
+            "evidence tables."
         ),
     }
     (output_dir / "combined_public_web_manifest.json").write_text(

@@ -171,8 +171,8 @@ jobs:
           audit = json.loads(Path('data/v2/staging/traits/cascade_analysis/trait_cascade_audit.json').read_text())
           assert audit['n_shards'] == trait_lock['n_shards'] == 128
           assert audit['n_species'] == trait_lock['n_angiosperm_eligible'] == 106295
-          assert audit['n_traits'] == trait_lock['n_traits'] == 9
-          assert audit['n_rows'] == trait_lock['n_rows'] == 956655
+          assert audit['n_traits'] == trait_lock['n_traits']
+          assert audit['n_rows'] == trait_lock['n_rows']
           assert audit['duplicate_species_trait_rows'] == 0
           assert audit['fill_tier_counts'] == trait_lock['fill_tier_counts']
 

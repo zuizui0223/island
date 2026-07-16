@@ -191,7 +191,13 @@ def test_combine_v6_accounts_for_every_species_provider_pair(tmp_path: Path) -> 
                     "policy_version": policy["provider_versions"][provider],
                     "enabled": "true",
                     "status": (
-                        "skipped_covered" if index == 0 and provider == "gbif" else "no_hit"
+                        "skipped_covered"
+                        if index == 0 and provider == "gbif"
+                        else (
+                            "exhausted"
+                            if index == 1 and provider == "openalex"
+                            else "no_hit"
+                        )
                     ),
                     "attempts": "1",
                     "last_packet_id": "batch_000001",
@@ -217,6 +223,9 @@ def test_combine_v6_accounts_for_every_species_provider_pair(tmp_path: Path) -> 
     assert set(report["provider_status_counts"]) == set(PROVIDERS)
     assert report["provider_status_counts"]["gbif"]["skipped_covered"] == 1
     assert report["n_enabled_provider_remaining"] == 0
+    assert report["n_enabled_provider_exhausted"] == 1
+    assert report["complete"] is False
+    assert report["completion_status"] == "partial_with_failures"
     assert report["source_provider_policy"] == policy
     providers = pd.read_csv(output / "combined_provider_checkpoint.csv.gz", dtype=str)
     assert not providers.duplicated(["species", "provider"]).any()

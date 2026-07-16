@@ -60,6 +60,8 @@ def make_candidates(
                 modal_value = max(probs, key=probs.get)
                 modal_probability = float(probs[modal_value])
                 rule = get_rule(policy, trait_name, level)
+                if not bool(rule.get("enabled", True)):
+                    continue
                 if n_species < int(rule["minimum_supporting_species"]):
                     continue
                 if modal_probability < float(rule["minimum_modal_probability"]):

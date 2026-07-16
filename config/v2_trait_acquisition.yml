@@ -15,9 +15,12 @@ coverage_priorities:
     - corolla_aperture_width
     - inflorescence_display_diameter
   reproductive_next:
+    - sex_system
+    - self_incompatibility
     - autonomous_selfing_capacity
     - mating_system
-    - self_incompatibility
+    - herkogamy
+    - dichogamy
     - cleistogamy
   direct_ecology_best_effort:
     - pollen_vector_mode
@@ -61,12 +64,22 @@ derived_feature_contracts:
     output_type: continuous_log_mm
   reproductive_assurance:
     inputs:
+      - self_incompatibility
       - autonomous_selfing_capacity
       - mating_system
-      - self_incompatibility
       - cleistogamy
     output_type: multivariate_or_latent
     limitation: Self-compatibility alone never implies autonomous selfing.
+  reproductive_architecture:
+    inputs:
+      - sex_system
+      - herkogamy
+      - dichogamy
+    output_type: separate_categorical_and_mechanism_covariates
+    limitation: >-
+      Sex system is not a mating system. Dioecy normally requires mating between
+      individuals for sexual reproduction, but hermaphroditism and monoecy do not
+      establish selfing, outcrossing, compatibility, or a pollen vector.
 
 llm_evidence_recovery:
   role: optional_gap_recovery_from_frozen_source_text
@@ -104,5 +117,14 @@ scaling_policy:
     - cached_flora_and_encyclopedia_text_extraction
     - gap_only_public_web_lookup_for_color_and_form
     - llm_evidence_extraction_from_frozen_source_text_for_remaining_gaps
+    - labelled_llm_inference_for_still_unresolved_cells
     - local_likely_proxy_generation
   no_paid_api_required: true
+  packet_size_is_not_turn_limit: true
+  parallel_packet_wave_species: 300
+  completion_contract:
+    reported_column: source_backed_value
+    inferred_column: llm_inferred_value
+    direct_evidence_never_overwritten: true
+    inferred_confidence: low
+    missing_after_inference: unknown

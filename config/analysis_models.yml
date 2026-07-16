@@ -20,8 +20,35 @@ baseline_covariates:
   - establishment
   - observation_process
 
-# Phenotype-type outcome (a proxy, never a decided pollinator).
-primary_outcome_proxy: large_bee_or_Bombus_like_floral_phenotype_proxy
+# Outcomes are observed flower/reproductive categories, not an inferred
+# pollinator guild. Binary plain/generalized summaries are secondary only.
+primary_outcomes:
+  - multistate_flower_colour_composition
+  - multistate_floral_form_and_symmetry_composition
+  - flower_size_and_access_measurements
+  - reproductive_architecture_and_assurance_composition
+secondary_summaries:
+  - plain_vs_conspicuous
+  - generalized_vs_specialized
+
+# Reproductive information is intentionally multivariate. Sex expression is a
+# structural state and must not be converted into a realized mating system.
+reproductive_information:
+  architecture_covariates_or_secondary_outcomes:
+    - sex_system
+    - herkogamy
+    - dichogamy
+  compatibility:
+    - self_incompatibility
+  reproductive_assurance_mediators:
+    - autonomous_selfing_capacity
+    - mating_system
+    - cleistogamy
+  non_equivalence_rule: >-
+    Never derive selfing, outcrossing, self-compatibility, or pollen vector from
+    hermaphroditic or monoecious sex expression. Keep dioecy as a reported
+    reproductive-architecture category rather than recoding it as a measured
+    mating-system value.
 
 # Alternative pollination-channel phenotype proxies for the M4 compensation model.
 alternative_functional_replacement_proxies:
@@ -36,31 +63,36 @@ models:
   M0:
     name: baseline
     covariates: baseline_covariates
-    outcome: composition of floral-phenotype / reproductive-assurance / pollination-channel proxies
+    outcome: composition of floral-phenotype / reproductive-architecture / reproductive-assurance proxies
     question: Can the baseline alone explain the proxy composition?
 
   M1:
     name: bombus_channel_association
     covariates: baseline_covariates + bombus_channel_state
-    outcome: large_bee_or_Bombus_like_floral_phenotype_proxy
-    note: Comparison of Bombus-associated floral phenotype; NOT confirmation of the real pollinator.
+    outcome: multistate floral-signal and floral-architecture composition
+    note: Comparison of floral phenotype by Bombus-channel state; NOT confirmation of the real pollinator.
 
   M2:
     name: reproductive_assurance_mediated_route
-    path: bombus_channel_state -> reproductive_assurance/compatibility/selfing (reported OR proxy) -> floral phenotype proxy
-    note: Mediation via reproductive assurance, using reported evidence or proxy for the mediator.
+    path: bombus_channel_state -> compatibility/selfing/assurance (reported OR proxy) -> floral phenotype proxy
+    structural_covariate_or_secondary_outcome: sex_system
+    note: >-
+      Mediation uses compatibility and direct assurance variables. Sex system is
+      analysed separately as reproductive architecture, never as a selfing proxy.
 
   M3:
     name: joint_direct_plus_mediated_route
     paths:
       - bombus_channel_state -> floral_phenotype_proxy                                   # direct
       - bombus_channel_state -> reproductive_assurance (reported/proxy) -> floral_phenotype_proxy  # mediated
-    note: Both paths carried simultaneously in one model.
+    structural_covariate_or_secondary_outcome: sex_system
+    note: Both paths are carried simultaneously; sex system remains a separate categorical term.
 
   M4:
     name: alternative_functional_replacement_compensation
     main_term: bombus_channel_state x alternative_functional_replacement_proxy   # interaction
     scope: islands where the Bombus channel is weak, absent, or not applicable
+    status: optional_only_when_direct_interaction_evidence_is_adequate
     question: >
       Does the Bombus-like phenotype reduction on Bombus-absent islands weaken,
       disappear, or reverse because another channel type is present (compensation)?
@@ -69,5 +101,6 @@ guardrails:
   - reported evidence and proxy are separate columns in every model (M0-M4).
   - a proxy is a candidate phenotype-type outcome from web/DB/literature statements or
     trait information; it is not real data.
-  - never label a taxon "Bombus-pollinated" -- use large_bee_or_Bombus_like_floral_phenotype_proxy.
+  - never label a taxon "Bombus-pollinated" from floral or reproductive traits.
+  - pollinator guild is optional direct interaction evidence, never an exhaustively inferred outcome.
   - gated behind accepted taxon scope, island establishment, and the Bombus applicability freeze.

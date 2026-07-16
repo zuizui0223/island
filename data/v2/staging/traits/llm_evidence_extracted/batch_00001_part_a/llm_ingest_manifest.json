@@ -1,0 +1,20 @@
+{
+  "accepted_csv_filename": "v2_llm_reported_candidates.csv",
+  "accepted_csv_row_count": 42,
+  "accepted_csv_sha256": "cedeb37c0b08fb83eda7b8310f2ba9db56df802dcd66e1075d66b7d4f462efbc",
+  "contract_version": "1.0",
+  "extraction_run_id": "llm_8a294f4390e08b7b767a",
+  "model_id": "gpt-5",
+  "model_provider": "openai_codex_app",
+  "n_rejected_claims": 0,
+  "n_species_with_validated_claims": 19,
+  "n_validated_claims": 42,
+  "ontology_sha256": "65d38869476404aaaa7e6ae2392d94e60a6bbb83ea281d19756f806737175de1",
+  "packet_input_sha256": "ff775a8d135316d8d7c48083f2ec59f5cb7339fa385adbb8954045c0dd10a04a",
+  "packet_manifest_sha256": "498b3bc4a1a5371cc6d580aaef6a4bc1f621793a2dc3a7df53ad2c69588e62d0",
+  "policy": "Validated rows are source-backed unreviewed candidates, not curated truth. A missing LLM claim is unresolved and never biological absence.",
+  "prompt_sha256": "2136e68faa912faf0214e1ca609c231d4a1db740446c23b7e2329ef86cb63a40",
+  "prompt_version": "v2_llm_evidence_v1",
+  "result_jsonl_sha256": "80bdaf97ef2a66dffc83077b4136f52d3d210d350ca7015d09840979935046f9",
+  "validation_status": "success"
+}

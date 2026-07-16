@@ -518,6 +518,65 @@ def test_provider_wide_failure_retries_then_exhausts_every_selected_species(
     assert not checkpoint["status"].eq("completed").any()
 
 
+def test_exhausted_repair_rotates_to_the_least_attempted_species(tmp_path: Path) -> None:
+    names = ["Plantus alpha", "Plantus beta", "Plantus gamma"]
+    master = _master(tmp_path / "master.csv", names)
+    campaign = tmp_path / "campaign"
+    arguments = {
+        "master_csv": master,
+        "campaign_dir": campaign,
+        "scope_config_path": CONFIG,
+        "shard_index": 0,
+        "shard_count": 1,
+        "batch_size": 3,
+        "max_attempts": 1,
+        "expected_species": 0,
+        "include_gbif": False,
+        "include_wikimedia": False,
+        "include_openalex": True,
+        "include_web_descriptions": False,
+        "include_world_flora": False,
+    }
+
+    def fail_all(
+        species: list[str],
+        **_: object,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        return (
+            pd.DataFrame(),
+            pd.DataFrame(
+                [
+                    {"species": name, "source": "openalex", "error": "HTTP 503"}
+                    for name in species
+                ]
+            ),
+        )
+
+    run_shard(**arguments, collector=fail_all)
+    checkpoint_path = campaign / "checkpoint.csv"
+    checkpoint = pd.read_csv(checkpoint_path, dtype=str).fillna("")
+    checkpoint.loc[checkpoint["species"].eq("Plantus alpha"), "attempts"] = "5"
+    checkpoint.loc[checkpoint["species"].eq("Plantus beta"), "attempts"] = "2"
+    checkpoint.loc[checkpoint["species"].eq("Plantus gamma"), "attempts"] = "3"
+    checkpoint.to_csv(checkpoint_path, index=False)
+
+    seen: list[str] = []
+
+    def record_one(
+        species: list[str],
+        **_: object,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        seen.extend(species)
+        return pd.DataFrame(), pd.DataFrame()
+
+    run_shard(
+        **{**arguments, "batch_size": 1},
+        retry_exhausted=True,
+        collector=record_one,
+    )
+    assert seen == ["Plantus beta"]
+
+
 def test_each_provider_receives_only_species_with_pending_work(tmp_path: Path) -> None:
     master = _master(tmp_path / "master.csv", ["Plantus alpha", "Plantus beta"])
     campaign = tmp_path / "campaign"

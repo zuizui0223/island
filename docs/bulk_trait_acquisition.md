@@ -271,3 +271,14 @@ system, 37 for mating system, 178 for self-incompatibility, 308 for autonomous
 selfing, 2 for cleistogamy, and 69 for dichogamy. The artifact
 `all-master-trait-ledger-29382735518` has ID `8330348999` and digest
 `sha256:00c3b7c0a12973bde27fe70f0387b48bcf410e3869402fd89a52e5c932f36c9a`.
+
+## Artifact continuity
+
+The monthly `Refresh durable trait source artifacts` controller dispatches
+fresh EOL, AusTraits, eFloras, GIFT, and USDA snapshots before their Actions
+artifacts expire. eFloras intermediate and combined artifacts use the same
+90-day retention window as the other bulk lanes. An automatic all-master build
+resolves the newest successful run that still contains the exact expected,
+non-expired artifact name and records the resolved run IDs in its summary.
+For a historical reconstruction, manually set `resolve_latest_sources=false`
+and supply the pinned run IDs instead.

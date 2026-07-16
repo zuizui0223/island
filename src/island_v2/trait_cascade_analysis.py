@@ -56,8 +56,8 @@ def audit(
     expected_rows = n_species * n_traits
     if n_species != 106295:
         raise RuntimeError(f"expected 106295 species, found {n_species}")
-    if n_traits != 9:
-        raise RuntimeError(f"expected 9 traits, found {n_traits}")
+    if n_traits < 1:
+        raise RuntimeError("trait cascade contains no traits")
     if len(frame) != expected_rows or duplicates:
         raise RuntimeError(
             f"species-trait matrix is not rectangular: rows={len(frame)}, expected={expected_rows}, duplicates={duplicates}"

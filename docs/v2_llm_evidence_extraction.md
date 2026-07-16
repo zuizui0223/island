@@ -90,12 +90,20 @@ The model returns one JSON object per supported claim:
 
 Unsupported traits are omitted. The model must not emit `unresolved`; no output means unresolved.
 
+The default extraction target covers flower colour, form, symmetry, tube depth,
+size, inflorescence display and reward; sex system, compatibility, selfing,
+mating system, herkogamy, dichogamy and cleistogamy; and coarse pollen-vector
+mode. Pollinator functional guild is not part of the exhaustive target.
+
 The model must not:
 
 - browse or use prior knowledge;
 - infer effective pollinators from flower colour or form;
 - infer biological absence from missing text;
-- collapse self-incompatibility, autonomous selfing, mating system or cleistogamy into one state;
+- collapse sex system, self-incompatibility, autonomous selfing, mating system,
+  herkogamy, dichogamy or cleistogamy into one state;
+- infer selfing, outcrossing, compatibility or pollen vector from
+  hermaphroditism or monoecy;
 - convert self-compatibility into autonomous selfing.
 
 ## Validate a completed packet

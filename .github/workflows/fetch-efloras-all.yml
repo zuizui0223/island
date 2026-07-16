@@ -150,7 +150,7 @@ jobs:
           name: efloras-flora-manifest
           path: efloras-manifest/
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 90
 
   inventory:
     if: github.event_name == 'workflow_dispatch' && needs.discover.outputs.count != '0'
@@ -189,7 +189,7 @@ jobs:
           name: efloras-inventory-flora-${{ matrix.flora_id }}
           path: data/v2/staging/traits/bulk/efloras/flora-${{ matrix.flora_id }}/
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 90
 
   fetch:
     if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && needs.discover.result == 'success' && needs.discover.outputs.count != '0' }}
@@ -271,7 +271,7 @@ jobs:
           name: efloras-flora-${{ matrix.flora_id }}-shard-${{ matrix.shard_index }}-of-${{ matrix.shard_count }}
           path: data/v2/staging/traits/bulk/efloras/flora-${{ matrix.flora_id }}/
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 90
 
   collect:
     if: always() && github.event_name == 'workflow_dispatch' && needs.discover.outputs.count != '0'
@@ -305,4 +305,4 @@ jobs:
           name: efloras-all-floras-combined
           path: combined-efloras/
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 90

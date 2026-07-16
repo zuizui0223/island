@@ -60,6 +60,15 @@ AUDIT_COLUMNS = [
     "raw_value",
     "reason",
 ]
+VALUE_CHANNEL_COLUMNS = [
+    "species",
+    "field",
+    "applicability",
+    "reported_value",
+    "inferred_value",
+    "selected_value",
+    "selected_origin",
+]
 LLM_PROVENANCE_COLUMNS = {
     "job_id",
     "job_sha256",
@@ -839,6 +848,62 @@ def collapse_all_species(master_species: list[str], evidence: pd.DataFrame) -> p
     )
 
 
+def build_value_channels(
+    master_species: list[str], eligible_species: set[str], evidence: pd.DataFrame
+) -> pd.DataFrame:
+    """Keep reported and inferred values in different columns for every cell."""
+
+    def strongest_values(frame: pd.DataFrame) -> dict[tuple[str, str], str]:
+        if frame.empty:
+            return {}
+        work = frame.copy()
+        work["source_rank"] = pd.to_numeric(work["source_rank"], errors="coerce").fillna(9)
+        best_rank = work.groupby(["species", "field"], sort=False)["source_rank"].transform(
+            "min"
+        )
+        selected = work.loc[work["source_rank"].eq(best_rank)]
+        return {
+            (_text(species), _text(field)): _collapse_value(
+                _text(field), _unique(group["value"])
+            )
+            for (species, field), group in selected.groupby(
+                ["species", "field"], sort=False
+            )
+        }
+
+    source_backed = evidence["source_backed"].map(
+        lambda value: value is True or _text(value).casefold() == "true"
+    )
+    reported = strongest_values(evidence.loc[source_backed])
+    inferred = strongest_values(evidence.loc[~source_backed])
+    rows: list[dict[str, str]] = []
+    for species in master_species:
+        applicable = species in eligible_species
+        for field in FIELDS:
+            reported_value = reported.get((species, field), "unknown")
+            inferred_value = inferred.get((species, field), "unknown")
+            if not applicable:
+                selected_value, selected_origin = "not_applicable", "not_applicable"
+            elif reported_value != "unknown":
+                selected_value, selected_origin = reported_value, "reported"
+            elif inferred_value != "unknown":
+                selected_value, selected_origin = inferred_value, "inferred"
+            else:
+                selected_value, selected_origin = "unknown", "unresolved"
+            rows.append(
+                {
+                    "species": species,
+                    "field": field,
+                    "applicability": "applicable" if applicable else "not_applicable",
+                    "reported_value": reported_value,
+                    "inferred_value": inferred_value,
+                    "selected_value": selected_value,
+                    "selected_origin": selected_origin,
+                }
+            )
+    return pd.DataFrame(rows, columns=VALUE_CHANNEL_COLUMNS)
+
+
 def build_export(
     *,
     master_csv: Path,
@@ -910,14 +975,17 @@ def build_export(
         else pd.DataFrame(columns=AUDIT_COLUMNS)
     )
     result = collapse_all_species(master_species, evidence)
+    value_channels = build_value_channels(master_species, eligible_species, evidence)
 
     output_dir.mkdir(parents=True, exist_ok=True)
     output_csv = output_dir / "all_species_traits.csv"
     evidence_csv = output_dir / "all_species_trait_evidence.csv.gz"
     audit_csv = output_dir / "all_species_trait_unmapped.csv"
+    value_channels_csv = output_dir / "all_species_trait_value_channels.csv.gz"
     result.to_csv(output_csv, index=False)
     evidence.to_csv(evidence_csv, index=False, compression="gzip")
     audit.to_csv(audit_csv, index=False)
+    value_channels.to_csv(value_channels_csv, index=False, compression="gzip")
 
     coverage = {field: int(result[field].ne("unknown").sum()) for field in FIELDS}
     any_known = result[list(FIELDS)].ne("unknown").any(axis=1)
@@ -933,11 +1001,20 @@ def build_export(
         "n_source_backed_evidence_rows": int(evidence["source_backed"].astype(bool).sum()),
         "n_llm_only_evidence_rows": int(evidence["source_kind"].eq("llm_only").sum()),
         "n_unmapped_or_invalid_rows": len(audit),
+        "n_reported_cells": int(value_channels["selected_origin"].eq("reported").sum()),
+        "n_inferred_cells": int(value_channels["selected_origin"].eq("inferred").sum()),
+        "n_unresolved_applicable_cells": int(
+            value_channels["selected_origin"].eq("unresolved").sum()
+        ),
+        "n_not_applicable_cells": int(
+            value_channels["selected_origin"].eq("not_applicable").sum()
+        ),
         "coverage": coverage,
         "n_species_any_known": int(any_known.sum()),
         "n_species_all_five_known": int(all_known.sum()),
         "n_species_all_unknown": int((~any_known).sum()),
         "output_sha256": _sha256(output_csv),
+        "value_channels_sha256": _sha256(value_channels_csv),
         "candidate_csvs": [str(path) for path in candidate_csvs or []],
         "applicability_csv": str(applicability_csv) if applicability_csv is not None else None,
         "web_evidence_csvs": [str(path) for path in web_evidence_csvs or []],
@@ -949,7 +1026,9 @@ def build_export(
             "LLM-only inference. Hierarchical SI/SC is emitted only as likely_SI/likely_SC "
             "with inference/low and never counted as source-backed species evidence. Raw LLM "
             "responses are never accepted. Missing fields remain unknown; every master "
-            "species remains exactly once."
+            "species remains exactly once. The companion value-channel table stores "
+            "reported and inferred values separately for every species-trait cell; "
+            "reported always wins selection and non-flowering taxa are not_applicable."
         ),
     }
     (output_dir / "all_species_traits_manifest.json").write_text(

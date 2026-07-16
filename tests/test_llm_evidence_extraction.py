@@ -25,6 +25,22 @@ def _ontology(path: Path) -> None:
                         "domain": "floral_architecture",
                         "allowed_values": ["tubular", "open_radial", "unresolved"],
                     },
+                    "tube_depth_class": {
+                        "domain": "floral_architecture",
+                        "allowed_values": ["shallow", "deep", "unresolved"],
+                    },
+                    "flower_size_class": {
+                        "domain": "floral_architecture",
+                        "allowed_values": ["small", "large", "unresolved"],
+                    },
+                    "inflorescence_display": {
+                        "domain": "floral_architecture",
+                        "allowed_values": ["solitary", "few_flowered", "unresolved"],
+                    },
+                    "reward_type": {
+                        "domain": "floral_architecture",
+                        "allowed_values": ["nectar", "pollen", "unresolved"],
+                    },
                     "self_incompatibility": {
                         "domain": "reproductive_assurance",
                         "allowed_values": ["SI", "SC", "unresolved"],
@@ -36,6 +52,18 @@ def _ontology(path: Path) -> None:
                     "mating_system": {
                         "domain": "reproductive_assurance",
                         "allowed_values": ["mixed_mating", "unresolved"],
+                    },
+                    "sex_system": {
+                        "domain": "reproductive_assurance",
+                        "allowed_values": ["hermaphroditic", "dioecious", "unresolved"],
+                    },
+                    "herkogamy": {
+                        "domain": "reproductive_assurance",
+                        "allowed_values": ["pronounced", "absent", "unresolved"],
+                    },
+                    "dichogamy": {
+                        "domain": "reproductive_assurance",
+                        "allowed_values": ["protandry", "protogyny", "unresolved"],
                     },
                     "cleistogamy": {
                         "domain": "reproductive_assurance",
@@ -122,6 +150,8 @@ def test_prepare_packets_is_gap_only_and_hash_locked(tmp_path: Path) -> None:
     task = packet["tasks"][0]
     assert task["accepted_species"] == "Plantus alba"
     assert "flower_primary_color" not in task["target_traits"]
+    assert "sex_system" in task["target_traits"]
+    assert "pollination_functional_guild" not in task["target_traits"]
     assert "unresolved" not in task["allowed_values"]["floral_form"]
     assert {source["accepted_species"] for source in packet["sources"]} == {"Plantus alba"}
     manifest = json.loads((packet_dir / "packet_manifest.json").read_text())

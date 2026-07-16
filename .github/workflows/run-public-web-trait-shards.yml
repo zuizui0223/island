@@ -31,8 +31,14 @@ on:
         required: false
         default: ""
         type: string
+      recovery_attempt:
+        description: "Internal bounded restart counter after a failed full pass (0-2)."
+        required: false
+        default: "0"
+        type: string
   schedule:
     - cron: "23 */6 * * *"
+    - cron: "47 3 * * 1"
   pull_request:
     branches: [main]
     paths:
@@ -51,7 +57,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.event_name == 'pull_request' && format('public-web-trait-shards-pr-{0}', github.event.pull_request.number) || 'public-web-trait-shards' }}
+  group: ${{ github.event_name == 'pull_request' && format('public-web-trait-shards-pr-{0}', github.event.pull_request.number) || format('public-web-trait-shards-{0}', github.ref_name) }}
   cancel-in-progress: false
 
 jobs:
@@ -66,7 +72,7 @@ jobs:
       SHARD_START: ${{ inputs.shard_start || '0' }}
       SHARD_END: ${{ inputs.shard_end || '127' }}
       BATCH_SIZE: ${{ inputs.batch_size || '500' }}
-      RETRY_EXHAUSTED: ${{ inputs.retry_exhausted || 'false' }}
+      RETRY_EXHAUSTED: ${{ github.event_name == 'schedule' && github.event.schedule == '47 3 * * 1' && 'true' || inputs.retry_exhausted || 'false' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -310,6 +316,52 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
+  recover-failed-nondefault-pass:
+    if: >-
+      always() && github.event_name == 'workflow_dispatch' &&
+      github.ref_name != github.event.repository.default_branch &&
+      needs.plan.result == 'success' &&
+      needs.advance-shards.result != 'success' &&
+      inputs.shard_start == '0' && inputs.shard_end == '127'
+    needs: [plan, advance-shards]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Bound automatic checkpoint recovery
+        id: recovery
+        env:
+          RECOVERY_ATTEMPT: ${{ inputs.recovery_attempt || '0' }}
+        run: |
+          set -euo pipefail
+          [[ "$RECOVERY_ATTEMPT" =~ ^[0-2]$ ]]
+          if (( RECOVERY_ATTEMPT < 2 )); then
+            echo "retry=true" >> "$GITHUB_OUTPUT"
+            echo "next_attempt=$((RECOVERY_ATTEMPT + 1))" >> "$GITHUB_OUTPUT"
+          else
+            echo "retry=false" >> "$GITHUB_OUTPUT"
+            echo "::error::Full public-web pass failed after two automatic checkpoint recoveries."
+            exit 1
+          fi
+      - name: Dispatch a fresh pass that restores the newest per-shard checkpoints
+        if: steps.recovery.outputs.retry == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SEED_RUN_ID: ${{ needs.plan.outputs.seed_run_id }}
+          NEXT_ATTEMPT: ${{ steps.recovery.outputs.next_attempt }}
+        run: |
+          gh workflow run run-public-web-trait-shards.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f shard_start=0 \
+            -f shard_end=127 \
+            -f batch_size=500 \
+            -f retry_exhausted=false \
+            -f seed_run_id="$SEED_RUN_ID" \
+            -f recovery_attempt="$NEXT_ATTEMPT"
+
   promote-and-continue-nondefault:
     if: >-
       always() && github.event_name == 'workflow_dispatch' &&
@@ -365,6 +417,7 @@ jobs:
           )
           with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as out:
               out.write(f"remaining={manifest['n_enabled_provider_remaining']}\n")
+              out.write(f"exhausted={manifest['n_enabled_provider_exhausted']}\n")
               out.write(f"attempted={manifest['n_species_attempted_in_source_run']}\n")
           with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as out:
               out.write("## Combined non-default-branch acquisition\n\n")
@@ -374,6 +427,10 @@ jobs:
                   f"- enabled provider work remaining: "
                   f"{manifest['n_enabled_provider_remaining']:,}\n"
               )
+              out.write(
+                  f"- enabled provider work exhausted: "
+                  f"{manifest['n_enabled_provider_exhausted']:,}\n"
+              )
           PY
       - uses: actions/upload-artifact@v4
         with:
@@ -381,12 +438,6 @@ jobs:
           path: /tmp/public_web_combined/
           if-no-files-found: error
           retention-days: 90
-      - name: Rebuild the all-master ledger from this exact combined artifact
-        run: |
-          gh workflow run build-all-master-trait-ledger.yml \
-            --repo "$GITHUB_REPOSITORY" \
-            --ref "$GITHUB_REF_NAME" \
-            -f public_web_run_id="$SOURCE_RUN_ID"
       - name: Continue incomplete non-default-branch acquisition
         if: >-
           steps.metrics.outputs.remaining != '0' &&
@@ -399,10 +450,103 @@ jobs:
             -f shard_end=127 \
             -f batch_size=500 \
             -f retry_exhausted=false \
-            -f seed_run_id="$SOURCE_RUN_ID"
+            -f seed_run_id="$SOURCE_RUN_ID" \
+            -f recovery_attempt=0
+      - name: Retry exhausted providers once before awaiting the scheduled repair lane
+        if: >-
+          steps.metrics.outputs.remaining == '0' &&
+          steps.metrics.outputs.exhausted != '0' &&
+          inputs.retry_exhausted != true
+        run: |
+          gh workflow run run-public-web-trait-shards.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f shard_start=0 \
+            -f shard_end=127 \
+            -f batch_size=500 \
+            -f retry_exhausted=true \
+            -f seed_run_id="$SOURCE_RUN_ID" \
+            -f recovery_attempt=0
       - name: Record a stalled incomplete non-default campaign
         if: >-
           steps.metrics.outputs.remaining != '0' &&
           steps.metrics.outputs.attempted == '0'
+        id: stalled
+        env:
+          RECOVERY_ATTEMPT: ${{ inputs.recovery_attempt || '0' }}
         run: |
-          echo "::warning::Campaign remains incomplete but advanced zero species; automatic chaining stopped."
+          set -euo pipefail
+          [[ "$RECOVERY_ATTEMPT" =~ ^[0-2]$ ]]
+          if (( RECOVERY_ATTEMPT < 2 )); then
+            echo "retry=true" >> "$GITHUB_OUTPUT"
+            echo "next_attempt=$((RECOVERY_ATTEMPT + 1))" >> "$GITHUB_OUTPUT"
+            echo "::warning::Campaign remains incomplete but advanced zero species; dispatching a bounded repair pass."
+          else
+            echo "retry=false" >> "$GITHUB_OUTPUT"
+            echo "::error::Campaign remains incomplete and advanced zero species after two repair passes."
+            exit 1
+          fi
+      - name: Dispatch bounded stalled-state repair
+        if: steps.stalled.outputs.retry == 'true'
+        env:
+          NEXT_ATTEMPT: ${{ steps.stalled.outputs.next_attempt }}
+        run: |
+          gh workflow run run-public-web-trait-shards.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f shard_start=0 \
+            -f shard_end=127 \
+            -f batch_size=500 \
+            -f retry_exhausted=true \
+            -f seed_run_id="$SOURCE_RUN_ID" \
+            -f recovery_attempt="$NEXT_ATTEMPT"
+      - name: Record source failures retained after the bounded repair pass
+        if: >-
+          steps.metrics.outputs.remaining == '0' &&
+          steps.metrics.outputs.exhausted != '0' &&
+          inputs.retry_exhausted == true
+        run: |
+          echo "::warning::Provider failures remain exhausted; main's scheduled repair pass will retry them without treating them as biological absence."
+      - name: Rebuild the all-master ledger from this exact combined artifact
+        run: |
+          gh workflow run build-all-master-trait-ledger.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f public_web_run_id="$SOURCE_RUN_ID"
+
+  recover-failed-nondefault-promotion:
+    if: >-
+      always() && github.event_name == 'workflow_dispatch' &&
+      github.ref_name != github.event.repository.default_branch &&
+      needs.plan.result == 'success' &&
+      needs.promote-and-continue-nondefault.result != 'success' &&
+      needs.promote-and-continue-nondefault.result != 'skipped' &&
+      inputs.shard_start == '0' && inputs.shard_end == '127'
+    needs: [plan, promote-and-continue-nondefault]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Redispatch after combination, upload, or continuation failure
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RECOVERY_ATTEMPT: ${{ inputs.recovery_attempt || '0' }}
+          SEED_RUN_ID: ${{ needs.plan.outputs.seed_run_id }}
+        run: |
+          set -euo pipefail
+          [[ "$RECOVERY_ATTEMPT" =~ ^[0-2]$ ]]
+          if (( RECOVERY_ATTEMPT >= 2 )); then
+            echo "::error::Non-default public-web promotion failed after two recoveries."
+            exit 1
+          fi
+          gh workflow run run-public-web-trait-shards.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f shard_start=0 \
+            -f shard_end=127 \
+            -f batch_size=500 \
+            -f retry_exhausted=false \
+            -f seed_run_id="$SEED_RUN_ID" \
+            -f recovery_attempt="$((RECOVERY_ATTEMPT + 1))"

@@ -320,12 +320,35 @@ def test_build_export_retains_every_species_and_keeps_llm_separate(tmp_path: Pat
     assert gamma["confidence"] == "low"
     evidence = pd.read_csv(output / "all_species_trait_evidence.csv.gz", dtype=str).fillna("")
     assert evidence.loc[evidence["source_kind"].eq("llm_only"), "source_backed"].eq("False").all()
+    channels = pd.read_csv(
+        output / "all_species_trait_value_channels.csv.gz", dtype=str
+    ).fillna("")
+    assert len(channels) == 3 * 5
+    alpha_color = channels.loc[
+        channels["species"].eq("Alpha one") & channels["field"].eq("flower_color")
+    ].iloc[0]
+    assert alpha_color["reported_value"] == "red, white"
+    assert alpha_color["inferred_value"] == "unknown"
+    assert alpha_color["selected_origin"] == "reported"
+    beta_color = channels.loc[
+        channels["species"].eq("Beta two") & channels["field"].eq("flower_color")
+    ].iloc[0]
+    assert beta_color["reported_value"] == "unknown"
+    assert beta_color["inferred_value"] == "blue"
+    assert beta_color["selected_origin"] == "inferred"
+    assert channels.loc[channels["species"].eq("Gamma three"), "selected_origin"].eq(
+        "not_applicable"
+    ).all()
     assert report["n_master_species"] == 3
     assert report["n_output_rows"] == 3
     assert report["n_trait_applicable_species"] == 2
     assert report["n_trait_not_applicable_species"] == 1
     assert report["n_species_all_unknown"] == 1
     assert report["n_llm_only_evidence_rows"] == 5
+    assert report["n_reported_cells"] == 3
+    assert report["n_inferred_cells"] == 5
+    assert report["n_not_applicable_cells"] == 5
+    assert report["n_unresolved_applicable_cells"] == 2
 
 
 def test_source_backed_field_outranks_llm_for_same_field(tmp_path: Path) -> None:
@@ -363,6 +386,14 @@ def test_source_backed_field_outranks_llm_for_same_field(tmp_path: Path) -> None
     assert result.loc[0, "flower_color"] == "white"
     assert result.loc[0, "evidence_type"] == "review"
     assert result.loc[0, "confidence"] == "medium"
+    channels = pd.read_csv(
+        tmp_path / "out" / "all_species_trait_value_channels.csv.gz", dtype=str
+    )
+    color = channels.loc[channels["field"].eq("flower_color")].iloc[0]
+    assert color["reported_value"] == "white"
+    assert color["inferred_value"] == "red"
+    assert color["selected_value"] == "white"
+    assert color["selected_origin"] == "reported"
 
 
 def test_inference_bundle_rejects_jointly_rehashed_fake_result_hash(tmp_path: Path) -> None:

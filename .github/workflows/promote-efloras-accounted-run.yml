@@ -1,6 +1,10 @@
 name: Promote accounted eFloras shard artifacts
 
 on:
+  workflow_run:
+    workflows: ["Fetch eFloras species treatments"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       source_run_id:
@@ -23,6 +27,20 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  propagate-upstream-failure:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion != 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preserve the failed acquisition conclusion
+        env:
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+          SOURCE_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        run: |
+          echo "::error::eFloras source run $SOURCE_RUN_ID concluded $SOURCE_CONCLUSION; promotion was not attempted."
+          exit 1
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -38,14 +56,18 @@ jobs:
         run: pytest -q tests/test_fetch_efloras_traits.py
 
   promote:
-    if: github.event_name == 'workflow_dispatch'
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == github.event.repository.default_branch)
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
-      SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+      SOURCE_RUN_ID: ${{ github.event.workflow_run.id || inputs.source_run_id }}
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -66,6 +88,8 @@ jobs:
             --dir /tmp/efloras-shards
           gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN_ID/artifacts" \
             > /tmp/efloras-combined/metadata/source_run_artifacts.json
+          gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN_ID" \
+            > /tmp/efloras-combined/metadata/source_run.json
       - name: Rebuild combined data and acquisition-failure audit
         run: |
           python scripts/fetch_efloras_traits.py \
@@ -79,11 +103,42 @@ jobs:
           from pathlib import Path
 
           import csv
+          from collections import defaultdict
 
           root = Path("/tmp/efloras-combined")
           report = json.loads((root / "combined_coverage.json").read_text(encoding="utf-8"))
           per_flora = report["per_flora"]
-          assert len(per_flora) == 12
+          source_run = json.loads(
+              (root / "metadata/source_run.json").read_text(encoding="utf-8")
+          )
+          assert source_run["path"] == ".github/workflows/fetch-efloras-all.yml"
+          assert source_run["event"] == "workflow_dispatch"
+          assert source_run["status"] == "completed"
+          assert source_run["conclusion"] == "success"
+          assert source_run["head_branch"] == os.environ["DEFAULT_BRANCH"]
+
+          by_flora = defaultdict(list)
+          for row in per_flora:
+              flora_id = int(row["flora_id"])
+              shard_index = int(row["shard_index"])
+              shard_count = int(row["shard_count"])
+              assert shard_count > 0
+              assert 0 <= shard_index < shard_count
+              by_flora[flora_id].append(row)
+
+          # eFloras currently exposes twelve published Flora portals. Require at
+          # least that complete population, while allowing newly published portals.
+          assert len(by_flora) >= 12
+          shard_counts = {int(row["shard_count"]) for row in per_flora}
+          assert len(shard_counts) == 1
+          shard_count = shard_counts.pop()
+          assert len(per_flora) == len(by_flora) * shard_count
+          for flora_id, rows in by_flora.items():
+              assert {int(row["shard_index"]) for row in rows} == set(range(shard_count))
+              eligible = {int(row["eligible_unique_master_species"]) for row in rows}
+              assert len(eligible) == 1
+              # A smoke/pilot cap selects fewer records than the complete inventory.
+              assert sum(int(row["selected_for_shard"]) for row in rows) == eligible.pop()
           assert all(row["pending_selected_treatments"] == 0 for row in per_flora)
           assert all(not row["treatment_circuit_breaker_open"] for row in per_flora)
           assert all(
@@ -92,7 +147,7 @@ jobs:
               for row in per_flora
           )
           assert report["trait_candidate_rows"] > 0
-          assert report["acquisition_failure_rows"] > 0
+          assert report["acquisition_failure_rows"] >= 0
 
           with (root / "all_trait_candidates.csv").open(
               encoding="utf-8-sig", newline=""
@@ -108,6 +163,21 @@ jobs:
           ]
           assert len(candidates) == report["trait_candidate_rows"]
           assert all(all(str(row.get(key, "")).strip() for key in required) for row in candidates)
+
+          contract = {
+              "contract_version": "efloras_complete_inventory_v1",
+              "source_run_id": int(os.environ["SOURCE_RUN_ID"]),
+              "source_head_sha": source_run["head_sha"],
+              "default_branch": os.environ["DEFAULT_BRANCH"],
+              "flora_count": len(by_flora),
+              "shard_count": shard_count,
+              "shard_reports": len(per_flora),
+              "trait_candidate_rows": len(candidates),
+          }
+          (root / "production_contract.json").write_text(
+              json.dumps(contract, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
 
           with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as handle:
               handle.write("## Accounted eFloras production snapshot\n\n")

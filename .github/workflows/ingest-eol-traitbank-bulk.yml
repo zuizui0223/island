@@ -353,3 +353,41 @@ jobs:
           path: /tmp/eol_traitbank_bulk/
           if-no-files-found: error
           retention-days: 90
+      - name: Write full-archive production contract
+        if: >-
+          github.event_name != 'pull_request' && env.MAX_TRAIT_ROWS == '0' &&
+          github.ref_name == github.event.repository.default_branch
+        env:
+          RUN_ID: ${{ github.run_id }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          mkdir -p /tmp/eol-production-contract
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          contract = {
+              "contract_version": "eol_traitbank_full_archive_v1",
+              "run_id": int(os.environ["RUN_ID"]),
+              "head_sha": os.environ["HEAD_SHA"],
+              "source_name": os.environ["SOURCE_NAME"],
+              "source_url": os.environ["EOL_ZIP_URL"],
+              "expected_md5": os.environ["EXPECTED_MD5"].lower(),
+              "max_trait_rows": 0,
+          }
+          Path("/tmp/eol-production-contract/production_contract.json").write_text(
+              json.dumps(contract, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+      - name: Upload full-archive production marker
+        if: >-
+          github.event_name != 'pull_request' && env.MAX_TRAIT_ROWS == '0' &&
+          github.ref_name == github.event.repository.default_branch
+        uses: actions/upload-artifact@v4
+        with:
+          name: eol-traitbank-production-${{ github.run_id }}
+          path: /tmp/eol-production-contract/
+          if-no-files-found: error
+          retention-days: 90

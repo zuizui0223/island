@@ -253,6 +253,26 @@ def test_expanded_direct_form_terms_require_floral_context() -> None:
     assert candidate_values("Leaves stellate; fruits in capitula.") == set()
 
 
+def test_explicit_floral_measurements_display_and_reward_are_extracted() -> None:
+    values = candidate_values(
+        "Flowers solitary, 6-8 mm in diameter; corolla tube 12-18 mm long; "
+        "nectary present. Inflorescences sometimes racemose."
+    )
+    assert ("flower_size_class", "small") in values
+    assert ("tube_depth_class", "intermediate") in values
+    assert ("inflorescence_display", "solitary") in values
+    assert ("inflorescence_display", "raceme_spike_panicle") in values
+    assert ("reward_type", "nectar") in values
+
+
+def test_nonfloral_measurements_and_plain_pollen_mentions_are_not_traits() -> None:
+    values = candidate_values("Leaves 3-5 mm long; fruits 8 mm across; pollen tricolpate.")
+    assert all(
+        trait not in {"flower_size_class", "tube_depth_class", "reward_type"}
+        for trait, _ in values
+    )
+
+
 def test_match_inventory_excludes_infraspecies_and_deduplicates_accepted_species() -> None:
     matcher = efloras.MasterMatcher(["Poa annua", "Poa annua var. annua"])
     taxa = [

@@ -1,11 +1,6 @@
 name: materialize_trait_fill_cascade
 
 on:
-  push:
-    branches:
-      - claude/trait-data-acquisition-2935gv
-    paths:
-      - ".github/workflows/materialize-trait-fill-cascade.yml"
   pull_request:
     branches: [main]
     paths:
@@ -13,10 +8,18 @@ on:
       - "src/island_v2/trait_fill_cascade.py"
       - "src/island_v2/angiosperm_scope.py"
       - "config/trait_fill_cascade.yml"
+      - "config/trait_ontology.yml"
       - "config/angiosperm_scope.yml"
+      - "data/v2/staging/traits/llm_evidence_extracted/**"
   workflow_dispatch:
+    inputs:
+      allmaster_run_id:
+        description: Successful all-master run whose exact artifact must be materialized
+        required: false
+        type: string
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -38,27 +41,120 @@ jobs:
       - name: Install package
         run: pip install -e ".[dev]"
 
+      - name: Restore the newest durable source-backed ledger and generated candidates
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRIGGER_RUN_ID: ${{ inputs.allmaster_run_id || '' }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          RESOLVE_BRANCH: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          download=/tmp/latest_allmaster
+          rm -rf "$download"
+          mkdir -p "$download"
+          source_run_id="$TRIGGER_RUN_ID"
+          if [[ -z "$source_run_id" ]]; then
+            while IFS= read -r candidate; do
+              expected="all-master-trait-ledger-$candidate"
+              if gh api --paginate \
+                "repos/$GITHUB_REPOSITORY/actions/runs/$candidate/artifacts?per_page=100" \
+                --jq ".artifacts[] | select(.expired == false and .name == \"$expected\") | .id" \
+                | grep -Eq '^[0-9]+$'; then
+                source_run_id="$candidate"
+                break
+              fi
+            done < <(
+              gh run list --repo "$GITHUB_REPOSITORY" \
+                --workflow build-all-master-trait-ledger.yml \
+                --branch "$RESOLVE_BRANCH" --status success --limit 100 \
+                --json databaseId --jq '.[].databaseId'
+            )
+          fi
+          if [[ -z "$source_run_id" ]]; then
+            echo "No successful all-master ledger artifact is available for $RESOLVE_BRANCH." >&2
+            exit 1
+          fi
+          artifact_name="all-master-trait-ledger-$source_run_id"
+          test "$(gh run view "$source_run_id" --repo "$GITHUB_REPOSITORY" \
+            --json conclusion --jq .conclusion)" = "success"
+          test "$(gh run view "$source_run_id" --repo "$GITHUB_REPOSITORY" \
+            --json headBranch --jq .headBranch)" = "$RESOLVE_BRANCH"
+          gh api --paginate \
+            "repos/$GITHUB_REPOSITORY/actions/runs/$source_run_id/artifacts?per_page=100" \
+            --jq ".artifacts[] | select(.expired == false and .name == \"$artifact_name\") | .id" \
+            | grep -Eq '^[0-9]+$'
+          gh run download "$source_run_id" --repo "$GITHUB_REPOSITORY" \
+            --name "$artifact_name" --dir "$download"
+
+          source_root=$(find "$download" -type d -path '*/data/v2/staging/traits' | sed -n '1p')
+          evidence_file=$(find "$download" -type f \
+            -path '*/all_master_trait_ledger/all_species_trait_evidence.csv.gz' | sed -n '1p')
+          test -n "$source_root"
+          test -n "$evidence_file"
+          SOURCE_ROOT="$source_root" EVIDENCE_FILE="$evidence_file" python - <<'PY'
+          import os
+          from pathlib import Path
+
+          import yaml
+
+          source_root = Path(os.environ["SOURCE_ROOT"])
+          config = yaml.safe_load(Path("config/trait_fill_cascade.yml").read_text())
+          sources = config["evidence_sources"]
+          sources["durable_allmaster_reported"]["glob"] = os.environ["EVIDENCE_FILE"]
+          sources["efloras_direct"]["glob"] = str(
+              source_root / "efloras" / "**" / "trait_candidates.csv*"
+          )
+          sources["eol_traitbank_direct"]["glob"] = str(
+              source_root / "eol_traitbank" / "**" / "trait_candidates.csv*"
+          )
+          sources["bulk_trait"]["glob"] = str(
+              source_root / "bulk" / "**" / "trait_candidates.csv*"
+          )
+          resolved = Path("/tmp/trait_fill_cascade_resolved.yml")
+          resolved.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+          PY
+          echo "CASCADE_CONFIG_PATH=/tmp/trait_fill_cascade_resolved.yml" >> "$GITHUB_ENV"
+          echo "ISLAND_ALLMASTER_SOURCE_RUN_ID=$source_run_id" >> "$GITHUB_ENV"
+          echo "Restored source candidates and reported ledger from run $source_run_id." \
+            >> "$GITHUB_STEP_SUMMARY"
+
       - name: Materialize all current shards
         run: |
           set -euo pipefail
           OUT="data/v2/staging/traits/fill_cascade"
-          island-v2-trait-fill-cascade run --output-dir "$OUT"
-          island-v2-trait-fill-cascade status --output-dir "$OUT"
+          island-v2-trait-fill-cascade run \
+            --config-path "$CASCADE_CONFIG_PATH" --output-dir "$OUT"
+          island-v2-trait-fill-cascade status \
+            --config-path "$CASCADE_CONFIG_PATH" --output-dir "$OUT"
 
       - name: Verify complete 100% fill
         run: |
           set -euo pipefail
           python - <<'PY'
           import json
+          import os
           from pathlib import Path
+
+          import pandas as pd
+          import yaml
 
           out = Path("data/v2/staging/traits/fill_cascade")
           summary = json.loads((out / "fill_coverage_summary.json").read_text())
           manifest = json.loads((out / "cascade_manifest.json").read_text())
+          config = yaml.safe_load(Path(os.environ["CASCADE_CONFIG_PATH"]).read_text())
+          ontology = yaml.safe_load(Path(config["trait_ontology_path"]).read_text())["traits"]
+          allowed = {
+              trait: set(details["allowed_values"]) - {"unresolved"}
+              for trait, details in ontology.items()
+          }
 
           assert manifest["shards_complete"] is True, manifest
           assert manifest["n_shards_current"] == manifest["shard_count"] == 128, manifest
           assert summary["n_angiosperm_eligible"] == 106295, summary
+          assert set(summary["by_trait"]) == set(config["target_traits"]), summary
+          assert summary["n_target_traits"] == len(config["target_traits"]), summary
+          assert summary["direct_evidence_audit"]["n_ontology_invalid"] == 0, summary
+          assert manifest["upstream_allmaster_run_id"], manifest
           for trait, stats in summary["by_trait"].items():
               assert stats["fill_rate"] == 1.0, (trait, stats)
               assert stats["n_unknown_remaining"] == 0, (trait, stats)
@@ -67,6 +163,23 @@ jobs:
           checkpoint_files = sorted(out.glob("shards/shard_*/shard_checkpoint.json"))
           assert len(shard_files) == 128, len(shard_files)
           assert len(checkpoint_files) == 128, len(checkpoint_files)
+          for shard_file in shard_files:
+              frame = pd.read_csv(shard_file, dtype=str).fillna("")
+              assert {"reported_value", "inferred_value", "filled_value"}.issubset(frame.columns)
+              reported = frame["fill_tier"].isin(["species_direct", "synonym_direct"])
+              assert frame.loc[reported, "reported_value"].eq(
+                  frame.loc[reported, "filled_value"]
+              ).all()
+              assert frame.loc[reported, "inferred_value"].eq("").all()
+              assert frame.loc[~reported, "inferred_value"].eq(
+                  frame.loc[~reported, "filled_value"]
+              ).all()
+              assert frame.loc[~reported, "reported_value"].eq("").all()
+              conflicts = frame["direct_conflict"].eq("true")
+              assert frame.loc[conflicts, "reported_value"].eq("").all()
+              assert frame.loc[conflicts, "direct_conflict_distribution"].ne("").all()
+              for trait, values in frame.groupby("trait_name")["filled_value"]:
+                  assert set(values).issubset(allowed[trait]), (trait, set(values) - allowed[trait])
           print(json.dumps({
               "eligible_species": summary["n_angiosperm_eligible"],
               "traits": len(summary["by_trait"]),

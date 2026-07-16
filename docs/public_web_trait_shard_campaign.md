@@ -99,7 +99,10 @@ field targeted by that provider, whereas `no_hit` requires a completed lookup.
 Adding or repairing a provider therefore requeues it without discarding
 evidence already obtained from another source. A provider-wide sitemap/API
 failure is fanned out to every affected species and cannot silently become a
-completed zero-hit row.
+completed zero-hit row. `exhausted` is reported as `partial_with_failures`, not
+as a completed biological screen. A separate weekly repair schedule retries
+exhausted rows in least-attempted/oldest-first order; ordinary six-hour and
+chained passes keep the three-attempt traffic bound.
 
 ## GitHub Actions persistence
 
@@ -122,7 +125,12 @@ can bootstrap from the newest complete 128-artifact run across branch scopes.
 An explicitly dispatched full run on a non-default working branch performs the
 same combine, all-master dispatch and bounded continuation inside that run, so
 an in-flight campaign does not have to discard its progress while awaiting
-merge.
+merge. If a full non-default-branch pass has a failed shard, the workflow
+dispatches a fresh pass that restores the newest per-shard checkpoints. This
+failure recovery is bounded to two restarts so a deterministic defect cannot
+create an infinite run loop. The next acquisition pass is queued before the
+all-master rebuild is dispatched, so a transient reporting failure cannot stop
+collection progress that was already checkpointed.
 
 Wikipedia is queried directly by exact scientific-name title, with bounded
 backoff and a per-species pause. GBIF accepts only exact rank=SPECIES matches or
@@ -130,7 +138,13 @@ an exact synonym whose accepted species identity is independently verified.
 PFAF's ASP.NET form body is retained by a site-specific parser, and the former
 silent 100-species cap for Useful Tropical Plants has been removed. Europe PMC
 uses its REST API only, retains exact full-species title/abstract matches with
-reproductive terms, and performs no trait inference.
+reproductive terms, and performs no trait inference. World Flora Online remains
+disabled because its current robots policy disallows this automated collector.
+OpenAlex remains a separate enrichment lane rather than a full-matrix provider:
+its API now requires a key for work at scale and its free daily search budget is
+far below 106,295 species. A future key-backed daily queue or CC0 snapshot import
+must preserve the same exact-name and source-excerpt requirements; a search hit
+alone can never become a biological value.
 
 The production cache uses contract v6. It migrates immutable v4/v5 artifacts
 from run `29186029383`, preserves their evidence, reuses completed Wikipedia
@@ -203,6 +217,23 @@ gh workflow run run-public-web-trait-shards.yml \
 Normal reruns restore the newest cache for each shard and continue from the
 first pending row. `retry_exhausted=true` is reserved for an intentional retry
 after an external source or extraction bug has been fixed.
+
+## In-flight v6 audit (2026-07-16)
+
+Run
+[`29394773467`](https://github.com/zuizui0223/island/actions/runs/29394773467)
+had produced immutable artifacts for shards 0--98 at the audit cutoff. Those 99
+shards cover 82,149 planned species and attempted 49,500 in this pass; 49,072
+were terminal, 448 retryable, and 57,223 of the complete 106,295-species scope
+remained at species level. Enabled provider/species work remaining was 227,548.
+
+The partial artifacts already contained at least one of the four active
+flower/reproduction traits for 8,573 species: flower colour 8,042, flower shape
+1,963, explicit mating-system text 106, and self-incompatibility 500. These are
+strict machine-extracted, source-linked candidates, not reviewed biological
+truth. They are not yet part of the all-master table: promotion waits for all
+128 immutable shard artifacts so a partial run cannot silently change the
+analysis denominator.
 
 ## First promoted public-web snapshot
 

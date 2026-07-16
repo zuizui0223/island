@@ -2,7 +2,14 @@ name: Build all-master source-backed trait ledger
 
 on:
   workflow_run:
-    workflows: ["Promote accounted public-web shard run"]
+    workflows:
+      - "Promote accounted public-web shard run"
+      - "Promote accounted eFloras shard artifacts"
+      - "Ingest validated LLM result bundles"
+      - "ingest_eol_traitbank_bulk"
+      - "Ingest all AusTraits target floral traits"
+      - "Acquire GIFT direct floral traits"
+      - "Acquire USDA PLANTS direct floral traits"
     types: [completed]
     branches: [main]
   workflow_dispatch:
@@ -42,6 +49,11 @@ on:
         required: false
         default: ""
         type: string
+      resolve_latest_sources:
+        description: Resolve the newest successful non-expired bulk/flora artifacts
+        required: true
+        default: true
+        type: boolean
   pull_request:
     paths:
       - ".github/workflows/build-all-master-trait-ledger.yml"
@@ -70,9 +82,19 @@ on:
       - "tests/test_si_genus_inference.py"
       - "tests/test_search_enabled_llm_campaign.py"
       - "tests/test_llm_evidence_extraction.py"
+      - "data/v2/staging/traits/llm_evidence_extracted/**"
+  push:
+    branches: [main]
+    paths:
+      - "data/v2/staging/traits/llm_evidence_extracted/**"
+      - ".github/workflows/materialize-trait-fill-cascade.yml"
+      - "src/island_v2/trait_fill_cascade.py"
+      - "config/trait_fill_cascade.yml"
+      - "config/trait_ontology.yml"
+      - "config/angiosperm_scope.yml"
 
 permissions:
-  actions: read
+  actions: write
   contents: read
 
 concurrency:
@@ -80,6 +102,21 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  propagate-upstream-failure:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion != 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preserve the failed promotion conclusion
+        env:
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+          SOURCE_WORKFLOW: ${{ github.event.workflow_run.name }}
+          SOURCE_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        run: |
+          echo "::error::Upstream $SOURCE_WORKFLOW run $SOURCE_RUN_ID concluded $SOURCE_CONCLUSION; no all-master ledger was built."
+          exit 1
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -105,7 +142,7 @@ jobs:
 
   materialize:
     if: >-
-      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'workflow_dispatch' || github.event_name == 'push' ||
       (github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_branch == github.event.repository.default_branch)
     needs: validate
@@ -114,13 +151,15 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
-      EOL_RUN_ID: ${{ inputs.eol_run_id || '29394577660' }}
-      AUSTRAITS_RUN_ID: ${{ inputs.austraits_run_id || '29335900995' }}
-      EFLORAS_RUN_ID: ${{ inputs.efloras_run_id || '29409302362' }}
-      GIFT_RUN_ID: ${{ inputs.gift_run_id || '29338693288' }}
-      USDA_RUN_ID: ${{ inputs.usda_run_id || '29382621509' }}
-      PUBLIC_WEB_RUN_ID: ${{ github.event.workflow_run.id || inputs.public_web_run_id || '29385927769' }}
-      LLM_RUN_ID: ${{ inputs.llm_run_id || '' }}
+      EOL_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'ingest_eol_traitbank_bulk' && github.event.workflow_run.id || inputs.eol_run_id || '29394577660' }}
+      AUSTRAITS_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Ingest all AusTraits target floral traits' && github.event.workflow_run.id || inputs.austraits_run_id || '29335900995' }}
+      EFLORAS_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Promote accounted eFloras shard artifacts' && github.event.workflow_run.id || inputs.efloras_run_id || '29409302362' }}
+      GIFT_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Acquire GIFT direct floral traits' && github.event.workflow_run.id || inputs.gift_run_id || '29338693288' }}
+      USDA_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Acquire USDA PLANTS direct floral traits' && github.event.workflow_run.id || inputs.usda_run_id || '29382621509' }}
+      PUBLIC_WEB_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Promote accounted public-web shard run' && github.event.workflow_run.id || inputs.public_web_run_id || '29385927769' }}
+      LLM_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Ingest validated LLM result bundles' && github.event.workflow_run.id || inputs.llm_run_id || '' }}
+      RESOLVE_LATEST_SOURCES: ${{ inputs.resolve_latest_sources }}
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -129,6 +168,86 @@ jobs:
           cache: pip
       - name: Install v2 package
         run: pip install -e ".[dev]"
+      - name: Resolve newest successful non-expired bulk and flora artifacts
+        run: |
+          set -euo pipefail
+          resolve_latest="${RESOLVE_LATEST_SOURCES:-true}"
+          if [[ "$resolve_latest" != "true" ]]; then
+            echo "Using explicitly pinned source runs" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          resolve_run() {
+            local variable="$1"
+            local workflow="$2"
+            local artifact_prefix="$3"
+            local artifact_mode="$4"
+            local marker_prefix="${5:-}"
+            local chosen=""
+            local candidate=""
+            local expected=""
+            local marker=""
+            local current="${!variable}"
+            while IFS= read -r candidate; do
+              [[ "$candidate" =~ ^[0-9]+$ ]] || continue
+              if [[ "$artifact_mode" == "run_suffix" ]]; then
+                expected="${artifact_prefix}${candidate}"
+              else
+                expected="$artifact_prefix"
+              fi
+              if ! gh api --paginate \
+                "repos/$GH_REPO/actions/runs/$candidate/artifacts?per_page=100" \
+                --jq ".artifacts[] | select(.expired == false and .name == \"$expected\") | .id" \
+                | grep -Eq '^[0-9]+$'; then
+                continue
+              fi
+              if [[ -n "$marker_prefix" ]]; then
+                marker="${marker_prefix}${candidate}"
+                if ! gh api --paginate \
+                  "repos/$GH_REPO/actions/runs/$candidate/artifacts?per_page=100" \
+                  --jq ".artifacts[] | select(.expired == false and .name == \"$marker\") | .id" \
+                  | grep -Eq '^[0-9]+$'; then
+                  continue
+                fi
+              fi
+              chosen="$candidate"
+              break
+            done < <(
+              gh run list \
+                --repo "$GH_REPO" \
+                --workflow "$workflow" \
+                --status success \
+                --branch "$DEFAULT_BRANCH" \
+                --limit 100 \
+                --json databaseId \
+                --jq '.[].databaseId'
+            )
+            if [[ -z "$chosen" ]]; then
+              echo "::warning::No newer default-branch production artifact found for $artifact_prefix; retaining pinned run $current"
+              echo "- $variable: $current (pinned fallback)" >> "$GITHUB_STEP_SUMMARY"
+              return 0
+            fi
+            printf -v "$variable" '%s' "$chosen"
+            export "$variable"
+            echo "$variable=$chosen" >> "$GITHUB_ENV"
+            echo "- $variable: $chosen" >> "$GITHUB_STEP_SUMMARY"
+          }
+
+          echo "## Resolved durable source snapshots" >> "$GITHUB_STEP_SUMMARY"
+          resolve_run EOL_RUN_ID ingest-eol-traitbank-bulk.yml \
+            eol-traitbank-bulk- run_suffix eol-traitbank-production-
+          resolve_run AUSTRAITS_RUN_ID ingest-austraits-all-floral-bulk.yml \
+            austraits-all-floral-bulk- run_suffix
+          resolve_run EFLORAS_RUN_ID promote-efloras-accounted-run.yml \
+            efloras-all-floras-combined constant
+          resolve_run GIFT_RUN_ID ingest-gift-direct-traits.yml \
+            gift-direct-traits- run_suffix
+          resolve_run USDA_RUN_ID ingest-usda-plants-direct-traits.yml \
+            usda-plants-direct-traits- run_suffix
+          resolve_run PUBLIC_WEB_RUN_ID promote-public-web-accounted-run.yml \
+            public-web-traits-combined constant
+          resolve_run LLM_RUN_ID ingest-search-enabled-llm-results.yml \
+            validated-llm-traits constant
       - name: Validate immutable source-run inputs
         run: |
           set -euo pipefail
@@ -257,25 +376,35 @@ jobs:
             )
           fi
           LLM_ARGS=()
+          LLM_BUNDLES=0
+          while IFS= read -r manifest_file; do
+            bundle_dir=$(dirname "$manifest_file")
+            LLM_ARGS+=(--llm-extracted-bundle "$bundle_dir")
+            ((LLM_BUNDLES+=1))
+          done < <(find data/v2/staging/traits/llm_evidence_extracted \
+            -name 'llm_ingest_manifest.json' -type f 2>/dev/null | sort)
           if [[ -n "$LLM_RUN_ID" ]]; then
-            LLM_BUNDLES=0
+            REMOTE_LLM_BUNDLES=0
             while IFS= read -r manifest_file; do
               bundle_dir=$(dirname "$manifest_file")
               LLM_ARGS+=(--llm-inference-bundle "$bundle_dir")
               ((LLM_BUNDLES+=1))
+              ((REMOTE_LLM_BUNDLES+=1))
             done < <(find /tmp/source_artifacts/llm \
               -name 'validated_llm_manifest.json' -type f | sort)
             while IFS= read -r manifest_file; do
               bundle_dir=$(dirname "$manifest_file")
               LLM_ARGS+=(--llm-extracted-bundle "$bundle_dir")
               ((LLM_BUNDLES+=1))
+              ((REMOTE_LLM_BUNDLES+=1))
             done < <(find /tmp/source_artifacts/llm \
               -name 'llm_ingest_manifest.json' -type f | sort)
-            if (( LLM_BUNDLES == 0 )); then
+            if (( REMOTE_LLM_BUNDLES == 0 )); then
               echo "Validated LLM artifact contained no hash-locked validation bundles" >&2
               exit 1
             fi
           fi
+          echo "Validated LLM bundles: $LLM_BUNDLES" >> "$GITHUB_STEP_SUMMARY"
           WEB_ARGS=()
           if [[ -f /tmp/source_artifacts/public_web/combined_trait_evidence.csv ]]; then
             WEB_ARGS+=(
@@ -330,6 +459,20 @@ jobs:
           assert len(final_table) == 115_328
           assert final_table["species"].is_unique
           assert final_manifest["n_output_rows"] == 115_328
+          value_channels = pd.read_csv(
+              root / "all_species_trait_value_channels.csv.gz", dtype=str
+          ).fillna("")
+          assert len(value_channels) == 115_328 * 5
+          assert set(value_channels["selected_origin"]).issubset(
+              {"reported", "inferred", "unresolved", "not_applicable"}
+          )
+          assert value_channels["selected_origin"].eq("not_applicable").sum() == 9_033 * 5
+          reported_selected = value_channels["selected_origin"].eq("reported")
+          assert value_channels.loc[reported_selected, "reported_value"].ne("unknown").all()
+          assert (
+              value_channels.loc[reported_selected, "selected_value"]
+              == value_channels.loc[reported_selected, "reported_value"]
+          ).all()
           all_unknown = final_table[
               ["flower_color", "flower_shape", "pollination_guild", "mating_system",
                "self_incompatibility"]
@@ -372,3 +515,19 @@ jobs:
             data/v2/staging/traits/efloras/combined/trait_candidates.csv
           if-no-files-found: warn
           retention-days: 90
+      - name: Dispatch exact exhaustive cascade materialization
+        if: >-
+          github.event_name == 'workflow_run' ||
+          (github.event_name != 'pull_request' &&
+          github.ref_name == github.event.repository.default_branch)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          gh workflow run materialize-trait-fill-cascade.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$DEFAULT_BRANCH" \
+            -f allmaster_run_id="$GITHUB_RUN_ID"
+          echo "Dispatched exhaustive cascade from all-master run $GITHUB_RUN_ID." \
+            >> "$GITHUB_STEP_SUMMARY"
