@@ -1,0 +1,3 @@
+# Evidence-locked bundles are byte-addressed artifacts. Normalize to one
+# cross-platform representation so SHA-256 provenance survives every checkout.
+data/v2/staging/traits/llm_evidence_extracted/** text eol=lf
