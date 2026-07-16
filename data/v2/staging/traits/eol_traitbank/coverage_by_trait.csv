@@ -1,0 +1,17 @@
+source_name,trait_name,analysis_role,n_candidate_rows,n_species_with_direct_evidence,n_master_species,pct_master_species_covered,n_island_species_pairs_covered,n_master_island_species_pairs,pct_island_species_pairs_covered
+eol_traitbank_all_zenodo_13305577,flower_primary_color,global_bulk_priority,2053,1494,115328,1.295436,119016,1039757,11.446521
+eol_traitbank_all_zenodo_13305577,floral_symmetry,global_bulk_priority,0,0,115328,0.0,0,1039757,0.0
+eol_traitbank_all_zenodo_13305577,floral_form,global_bulk_priority,0,0,115328,0.0,0,1039757,0.0
+eol_traitbank_all_zenodo_13305577,tube_depth_class,global_bulk_priority,0,0,115328,0.0,0,1039757,0.0
+eol_traitbank_all_zenodo_13305577,flower_size_class,global_bulk_priority,0,0,115328,0.0,0,1039757,0.0
+eol_traitbank_all_zenodo_13305577,inflorescence_display,global_bulk_priority,0,0,115328,0.0,0,1039757,0.0
+eol_traitbank_all_zenodo_13305577,reward_type,global_bulk_priority,0,0,115328,0.0,0,1039757,0.0
+eol_traitbank_all_zenodo_13305577,pollen_vector_mode,global_bulk_priority,0,0,115328,0.0,0,1039757,0.0
+eol_traitbank_all_zenodo_13305577,pollination_functional_guild,evidence_rich_subset,0,0,115328,0.0,0,1039757,0.0
+eol_traitbank_all_zenodo_13305577,self_incompatibility,evidence_rich_subset,0,0,115328,0.0,0,1039757,0.0
+eol_traitbank_all_zenodo_13305577,autonomous_selfing_capacity,evidence_rich_subset,0,0,115328,0.0,0,1039757,0.0
+eol_traitbank_all_zenodo_13305577,mating_system,evidence_rich_subset,0,0,115328,0.0,0,1039757,0.0
+eol_traitbank_all_zenodo_13305577,herkogamy,evidence_rich_subset,0,0,115328,0.0,0,1039757,0.0
+eol_traitbank_all_zenodo_13305577,dichogamy,evidence_rich_subset,0,0,115328,0.0,0,1039757,0.0
+eol_traitbank_all_zenodo_13305577,cleistogamy,evidence_rich_subset,0,0,115328,0.0,0,1039757,0.0
+eol_traitbank_all_zenodo_13305577,sex_system,global_bulk_priority,1328,1301,115328,1.128087,18478,1039757,1.777146
