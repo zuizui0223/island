@@ -1,128 +1,308 @@
-name: Fetch all eFloras floral traits
+name: Fetch eFloras species treatments
 
 on:
   workflow_dispatch:
     inputs:
+      run_mode:
+        description: Acquisition scale (smoke=20, pilot=200, production=unlimited per flora)
+        required: true
+        default: smoke
+        type: choice
+        options:
+          - smoke
+          - pilot
+          - production
       max_species:
-        description: Maximum matched species per flora; 0 means no limit
+        description: Optional per-flora override; blank uses run_mode and 0 means unlimited
         required: false
-        default: '200'
+        default: ''
+        type: string
       flora_ids:
-        description: Informational only; edit matrix to change flora IDs
+        description: Optional comma-separated flora IDs; blank discovers all published Floras
         required: false
-        default: '1-12'
-  push:
+        default: ''
+        type: string
+      shard_index:
+        description: Zero-based shard index, or "all" to run every shard in one workflow
+        required: true
+        default: '0'
+        type: string
+      shard_count:
+        description: Total deterministic shards
+        required: true
+        default: '1'
+        type: string
+      save_html:
+        description: Preserve raw treatment HTML in addition to verbatim treatment text
+        required: true
+        default: false
+        type: boolean
+  pull_request:
     paths:
       - scripts/fetch_efloras_traits.py
+      - tests/test_fetch_efloras_traits.py
       - .github/workflows/fetch-efloras-all.yml
+      - pyproject.toml
 
 permissions:
   contents: read
 
-jobs:
-  fetch:
-    runs-on: ubuntu-latest
-    timeout-minutes: 330
-    continue-on-error: true
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        flora_id: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+concurrency:
+  group: efloras-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: false
 
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
-
-      - name: Install scraper dependencies
+      - name: Install focused test dependencies
+        run: python -m pip install pytest requests beautifulsoup4
+      - name: Run fixture-based eFloras tests
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install requests beautifulsoup4
+          python -m py_compile scripts/fetch_efloras_traits.py
+          python -m pytest -q tests/test_fetch_efloras_traits.py
 
-      - name: Fetch species treatments and extract floral traits
+  discover:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      flora_matrix: ${{ steps.plan.outputs.flora_matrix }}
+      count: ${{ steps.plan.outputs.count }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install scraper dependencies
+        run: python -m pip install requests beautifulsoup4
+      - name: Discover published eFloras and page structures
+        env:
+          REQUESTED_FLORA_IDS: ${{ inputs.flora_ids }}
+        run: |
+          python scripts/fetch_efloras_traits.py \
+            --discover-floras \
+            --flora-ids "$REQUESTED_FLORA_IDS" \
+            --output-dir efloras-manifest \
+            --delay-min 0.5 \
+            --delay-max 1.0
+      - name: Build dynamic valid-Flora matrix
+        id: plan
+        env:
+          REQUESTED_SHARD_INDEX: ${{ inputs.shard_index }}
+          REQUESTED_SHARD_COUNT: ${{ inputs.shard_count }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          rows = json.loads(Path('efloras-manifest/flora_manifest.json').read_text(encoding='utf-8'))
+          floras = [
+              {'flora_id': int(row['flora_id']), 'flora_name': row['flora_name']}
+              for row in rows
+              if row['status'] in {'ok', 'ok_unlisted'} and row['has_browse_structure']
+          ]
+          shard_count = int(os.environ['REQUESTED_SHARD_COUNT'])
+          if shard_count < 1:
+              raise SystemExit('shard_count must be at least 1')
+          requested = os.environ['REQUESTED_SHARD_INDEX'].strip().casefold()
+          if requested == 'all':
+              shard_indexes = range(shard_count)
+          else:
+              shard_index = int(requested)
+              if not 0 <= shard_index < shard_count:
+                  raise SystemExit('shard_index must satisfy 0 <= index < shard_count')
+              shard_indexes = [shard_index]
+          # Keep Flora as the inner loop so the first parallel wave spreads
+          # requests across sources instead of starting every shard of one Flora.
+          include = [
+              {
+                  **flora,
+                  'shard_index': shard_index,
+                  'shard_count': shard_count,
+                  'shard_dir': f'shard-{shard_index:04d}-of-{shard_count:04d}',
+              }
+              for shard_index in shard_indexes
+              for flora in floras
+          ]
+          matrix = json.dumps({'include': include}, ensure_ascii=True, separators=(',', ':'))
+          flora_matrix = json.dumps({'include': floras}, ensure_ascii=True, separators=(',', ':'))
+          with Path(os.environ['GITHUB_OUTPUT']).open('a', encoding='utf-8') as handle:
+              handle.write(f'matrix={matrix}\n')
+              handle.write(f'flora_matrix={flora_matrix}\n')
+              handle.write(f'count={len(include)}\n')
+          print(json.dumps({'selected_jobs': include, 'count': len(include)}, indent=2))
+          PY
+      - name: Upload flora manifest even when no Flora is runnable
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: efloras-flora-manifest
+          path: efloras-manifest/
+          if-no-files-found: error
+          retention-days: 90
+
+  inventory:
+    if: github.event_name == 'workflow_dispatch' && needs.discover.outputs.count != '0'
+    needs: discover
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.discover.outputs.flora_matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install scraper dependencies
+        run: python -m pip install requests beautifulsoup4
+      - name: Build one complete reusable taxon inventory per Flora
+        run: |
+          python scripts/fetch_efloras_traits.py \
+            --flora-id "${{ matrix.flora_id }}" \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --master-name-column accepted_species \
+            --max-species 0 \
+            --shard-index 0 \
+            --shard-count 1 \
+            --checkpoint-every 10 \
+            --delay-min 1.0 \
+            --delay-max 2.0 \
+            --inventory-only
+      - name: Upload reusable Flora inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: efloras-inventory-flora-${{ matrix.flora_id }}
+          path: data/v2/staging/traits/bulk/efloras/flora-${{ matrix.flora_id }}/
+          if-no-files-found: error
+          retention-days: 90
+
+  fetch:
+    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && needs.discover.result == 'success' && needs.discover.outputs.count != '0' }}
+    needs:
+      - validate
+      - discover
+      - inventory
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Reuse the complete Flora inventory for this shard
+        uses: actions/download-artifact@v4
+        with:
+          name: efloras-inventory-flora-${{ matrix.flora_id }}
+          path: data/v2/staging/traits/bulk/efloras/flora-${{ matrix.flora_id }}/${{ matrix.shard_dir }}
+      - name: Install scraper dependencies
+        run: python -m pip install requests beautifulsoup4
+      - name: Resolve acquisition limit
+        id: limit
+        env:
+          RUN_MODE: ${{ inputs.run_mode }}
+          MAX_SPECIES_OVERRIDE: ${{ inputs.max_species }}
+        run: |
+          if [ -n "$MAX_SPECIES_OVERRIDE" ]; then
+            value="$MAX_SPECIES_OVERRIDE"
+          elif [ "$RUN_MODE" = "smoke" ]; then
+            value=20
+          elif [ "$RUN_MODE" = "pilot" ]; then
+            value=200
+          else
+            value=0
+          fi
+          echo "max_species=$value" >> "$GITHUB_OUTPUT"
+          echo "Resolved max_species=$value for run_mode=$RUN_MODE"
+      - name: Fetch confirmed species treatments and extract candidates
         env:
           FLORA_ID: ${{ matrix.flora_id }}
-          INPUT_MAX_SPECIES: ${{ github.event.inputs.max_species }}
+          MAX_SPECIES: ${{ steps.limit.outputs.max_species }}
+          SHARD_INDEX: ${{ matrix.shard_index }}
+          SHARD_COUNT: ${{ matrix.shard_count }}
+          SAVE_HTML: ${{ inputs.save_html }}
         run: |
           set -euo pipefail
-          MAX_SPECIES="${INPUT_MAX_SPECIES:-200}"
+          html_flag="--no-save-html"
+          if [ "$SAVE_HTML" = "true" ]; then html_flag="--save-html"; fi
           python scripts/fetch_efloras_traits.py \
             --flora-id "$FLORA_ID" \
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
             --master-name-column accepted_species \
             --max-species "$MAX_SPECIES" \
-            --max-pages 30 \
-            --max-depth 6 \
-            --delay-min 1.5 \
-            --delay-max 3.5
-
-      - name: Print coverage
+            --max-pages 50 \
+            --max-depth 5 \
+            --shard-index "$SHARD_INDEX" \
+            --shard-count "$SHARD_COUNT" \
+            --checkpoint-every 10 \
+            --delay-min 1.0 \
+            --delay-max 2.0 \
+            "$html_flag"
+      - name: Print coverage and errors
         if: always()
+        env:
+          FLORA_ID: ${{ matrix.flora_id }}
         run: |
-          REPORT="data/v2/staging/traits/bulk/efloras/flora-${{ matrix.flora_id }}/coverage_report.json"
-          if [ -f "$REPORT" ]; then
-            cat "$REPORT"
-          else
-            echo "No coverage report produced for flora ${{ matrix.flora_id }}"
-          fi
-
-      - name: Upload flora result
+          find "data/v2/staging/traits/bulk/efloras/flora-$FLORA_ID" -name coverage_report.json -print -exec cat {} \; || true
+          find "data/v2/staging/traits/bulk/efloras/flora-$FLORA_ID" -name errors.jsonl -print -exec tail -n 30 {} \; || true
+      - name: Upload partial or complete Flora result
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: efloras-flora-${{ matrix.flora_id }}
+          name: efloras-flora-${{ matrix.flora_id }}-shard-${{ matrix.shard_index }}-of-${{ matrix.shard_count }}
           path: data/v2/staging/traits/bulk/efloras/flora-${{ matrix.flora_id }}/
-          if-no-files-found: warn
-          retention-days: 30
+          if-no-files-found: error
+          retention-days: 90
 
   collect:
-    if: always()
-    needs: fetch
+    if: always() && github.event_name == 'workflow_dispatch' && needs.discover.outputs.count != '0'
+    needs:
+      - discover
+      - fetch
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install aggregation dependencies
+        run: python -m pip install requests beautifulsoup4
       - uses: actions/download-artifact@v4
         with:
-          pattern: efloras-flora-*
+          pattern: efloras-flora-*-shard-*
           path: collected-efloras
           merge-multiple: false
-
-      - name: Build combined coverage summary
+      - name: Build combined treatments, candidates, and coverage
         run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-
-          reports = []
-          for path in sorted(Path('collected-efloras').rglob('coverage_report.json')):
-              try:
-                  reports.append(json.loads(path.read_text(encoding='utf-8')))
-              except Exception as exc:
-                  reports.append({'path': str(path), 'read_error': str(exc)})
-
-          totals = {
-              'flora_reports': len(reports),
-              'species_discovered_sum': sum(r.get('species_discovered', 0) for r in reports),
-              'master_species_selected_sum': sum(r.get('master_species_selected', 0) for r in reports),
-              'species_treatments_saved_sum': sum(r.get('species_treatments_saved', 0) for r in reports),
-              'species_with_trait_candidates_sum': sum(r.get('species_with_trait_candidates', 0) for r in reports),
-              'trait_candidate_rows_sum': sum(r.get('trait_candidate_rows', 0) for r in reports),
-              'reports': reports,
-          }
-          Path('collected-efloras/combined_coverage.json').write_text(
-              json.dumps(totals, ensure_ascii=False, indent=2) + '\n',
-              encoding='utf-8',
-          )
-          print(json.dumps(totals, ensure_ascii=False, indent=2))
-          PY
-
+          python scripts/fetch_efloras_traits.py \
+            --combine-root collected-efloras \
+            --output-dir combined-efloras
       - name: Upload combined eFloras result
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: efloras-all-floras-combined
-          path: collected-efloras/
-          retention-days: 30
+          path: combined-efloras/
+          if-no-files-found: error
+          retention-days: 90

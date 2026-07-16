@@ -1,0 +1,19 @@
+version: "1.0"
+
+master_csv: data/v2/staging/gbif/collected/island_taxa.csv
+scope_config: config/angiosperm_scope.yml
+direct_candidate_csvs:
+  - data/v2/staging/traits/bulk/meyer_2026_reproductive_traits/trait_candidates.csv.gz
+  - data/v2/staging/traits/bulk/razanajatovo_2016_reproductive_traits/trait_candidates.csv.gz
+
+trait_name: self_incompatibility
+explicit_values: [SI, SC]
+disqualifying_values: [mixed_or_variable]
+minimum_direct_species: 5
+minimum_modal_purity: 1.0
+confidence: low
+analysis_role: sensitivity_only_genus_inference
+
+# Any directly reported mixed state, within-species source conflict, or mixed
+# SI/SC genus disqualifies that genus. Direct records always outrank this layer.
+policy: unanimous_multi_source_genus_only

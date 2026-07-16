@@ -8,6 +8,7 @@ It does not call an LLM or a paid API.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import time
@@ -23,6 +24,7 @@ import pandas as pd
 import typer
 
 from island_v2 import reported_ecology_machine, trait_descriptive_scout, trait_web_reported_scout
+from island_v2.europe_pmc_discovery import discover_europe_pmc_sources
 from island_v2.v1_category_traits import (
     OUTPUT_COLUMNS,
     derive_v1_categories,
@@ -39,6 +41,12 @@ SOURCE_COLUMNS = [
     "source_type",
     "evidence_scope",
 ]
+TRAIT_TEXT_MARKERS = re.compile(
+    r"flower|floral|corolla|petal|blossom|pollinat|bee|bumble|fly|moth|"
+    r"butterfl|bird|wind|selfing|outcross|mating|breeding system|"
+    r"self[- ](?:in)?compatib|autogam|cleistogam",
+    flags=re.IGNORECASE,
+)
 
 WEB_DESCRIPTION_SOURCES = [
     {
@@ -64,6 +72,7 @@ WEB_DESCRIPTION_SOURCES = [
         "url_template": "https://pfaf.org/user/Plant.aspx?LatinName={name}",
         "sitemap_url": "https://pfaf.org/sitemap.xml",
         "required_marker": "Physical Characteristics",
+        "visible_text_mode": "aspnet_form",
     },
     {
         "name": "useful_tropical_plants",
@@ -74,6 +83,7 @@ WEB_DESCRIPTION_SOURCES = [
         "reject_marker": "We have no record for",
     },
 ]
+WEB_DESCRIPTION_INDEX_VERSION = "public_plant_site_sitemaps_v1"
 
 EVIDENCE_COLUMNS = [
     "species",
@@ -637,6 +647,56 @@ def _text(value: object) -> str:
     return " ".join(str(value).split())
 
 
+def _bounded_trait_text(text: str, species: str, max_chars: int = 4000) -> str:
+    normalized = _text(text)
+    if len(normalized) <= max_chars:
+        return normalized
+    anchors = [match.start() for match in TRAIT_TEXT_MARKERS.finditer(normalized)]
+    species_key = _text(species)
+    if species_key:
+        species_match = re.search(re.escape(species_key), normalized, re.IGNORECASE)
+        if species_match:
+            anchors.append(species_match.start())
+    windows: list[tuple[int, int]] = []
+    for anchor in sorted(set(anchors)):
+        start = max(0, anchor - 350)
+        end = min(len(normalized), anchor + 650)
+        if windows and start <= windows[-1][1]:
+            windows[-1] = (windows[-1][0], max(windows[-1][1], end))
+        else:
+            windows.append((start, end))
+    pieces: list[str] = []
+    used = 0
+    for start, end in windows:
+        remaining = max_chars - used
+        if remaining <= 0:
+            break
+        piece = normalized[start:end].strip()[:remaining]
+        if piece:
+            pieces.append(piece)
+            used += len(piece)
+    compact = " … ".join(pieces)
+    return compact[:max_chars] if compact else normalized[:max_chars]
+
+
+def compact_source_texts(sources: pd.DataFrame) -> pd.DataFrame:
+    """Keep bounded evidence-oriented text plus the original retrieval hash."""
+    compact = pd.DataFrame(sources, columns=SOURCE_COLUMNS).fillna("").copy()
+    for index, row in compact.iterrows():
+        citation = _text(row["source_citation"])
+        if "retrieved_content_sha256=" in citation:
+            continue
+        full_text = _text(row["source_text"])
+        stored = _bounded_trait_text(full_text, _text(row["accepted_species"]))
+        content_sha = hashlib.sha256(full_text.encode("utf-8")).hexdigest()
+        compact.loc[index, "source_text"] = stored
+        compact.loc[index, "source_citation"] = (
+            f"{citation} | retrieved_content_sha256={content_sha} | "
+            f"stored_excerpt_chars={len(stored)}"
+        ).strip(" |")
+    return compact
+
+
 def _excerpt(text: str, start: int, end: int, pad: int = 110) -> str:
     lo = max(0, start - pad)
     hi = min(len(text), end + pad)
@@ -1012,14 +1072,11 @@ def infer_likely_traits(raw: pd.DataFrame, evidence: pd.DataFrame) -> pd.DataFra
                 "source_url",
             ]
             composite = any(term in shape for term in ("composite head", "capitulum"))
-            tube = not composite and any(
-                term in shape for term in ("tubular", "funnel", "trumpet")
-            )
+            tube = not composite and any(term in shape for term in ("tubular", "funnel", "trumpet"))
             warm = any(term in color for term in ("red", "pink", "orange"))
             bee_color = any(term in color for term in ("blue", "purple", "violet", "yellow"))
             bee_form = any(
-                term in shape
-                for term in ("zygomorphic", "bilateral", "papilionaceous", "spurred")
+                term in shape for term in ("zygomorphic", "bilateral", "papilionaceous", "spurred")
             )
             bee_form = bee_form or (not composite and "tubular" in shape)
             if warm and tube:
@@ -1273,20 +1330,21 @@ class _VisibleTextParser(HTMLParser):
         "tr",
     }
 
-    def __init__(self) -> None:
+    def __init__(self, *, include_form_text: bool = False) -> None:
         super().__init__(convert_charrefs=True)
+        self._skip_tags = self._SKIP_TAGS - ({"form"} if include_form_text else set())
         self._skip_depth = 0
         self._parts: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         del attrs
-        if tag in self._SKIP_TAGS:
+        if tag in self._skip_tags:
             self._skip_depth += 1
         elif tag in self._BLOCK_TAGS and not self._skip_depth:
             self._parts.append(". ")
 
     def handle_endtag(self, tag: str) -> None:
-        if tag in self._SKIP_TAGS and self._skip_depth:
+        if tag in self._skip_tags and self._skip_depth:
             self._skip_depth -= 1
         elif tag in self._BLOCK_TAGS and not self._skip_depth:
             self._parts.append(". ")
@@ -1302,8 +1360,8 @@ class _VisibleTextParser(HTMLParser):
         return _text(text)
 
 
-def html_visible_text(html: str) -> str:
-    parser = _VisibleTextParser()
+def html_visible_text(html: str, *, include_form_text: bool = False) -> str:
+    parser = _VisibleTextParser(include_form_text=include_form_text)
     parser.feed(html)
     parser.close()
     return parser.text()
@@ -1377,11 +1435,106 @@ def _web_source_url(source: dict[str, str], species: str) -> str:
     return source["url_template"].format(name=encoded)
 
 
+def _sitemap_locations(content: bytes) -> tuple[str, list[str]]:
+    if len(content) > 8_000_000:
+        raise ValueError("sitemap response exceeded 8 MB")
+    root = ElementTree.fromstring(content)
+    root_type = root.tag.rsplit("}", 1)[-1]
+    locations = [
+        _text(element.text)
+        for element in root.iter()
+        if element.tag.rsplit("}", 1)[-1] == "loc" and _text(element.text)
+    ]
+    return root_type, locations
+
+
+def _fetch_sitemap_urls(client: Any, sitemap_url: str) -> set[str]:
+    """Fetch one sitemap or one bounded sitemap-index level."""
+    response = client.get(sitemap_url)
+    response.raise_for_status()
+    root_type, locations = _sitemap_locations(response.content)
+    if root_type != "sitemapindex":
+        return {location.casefold() for location in locations}
+    if len(locations) > 50:
+        raise ValueError("sitemap index exceeded 50 child sitemaps")
+    indexed_urls: set[str] = set()
+    for child_url in locations:
+        child = client.get(child_url)
+        child.raise_for_status()
+        child_type, child_locations = _sitemap_locations(child.content)
+        if child_type == "sitemapindex":
+            raise ValueError("nested sitemap index depth exceeded")
+        indexed_urls.update(location.casefold() for location in child_locations)
+        if len(indexed_urls) > 250_000:
+            raise ValueError("sitemap index exceeded 250,000 URLs")
+    return indexed_urls
+
+
+def build_web_description_index(
+    client: Any,
+    *,
+    max_attempts: int = 3,
+    backoff_seconds: float = 1.0,
+) -> dict[str, Any]:
+    """Fetch configured plant-site indexes once for reuse by all shards."""
+    if max_attempts < 1:
+        raise ValueError("max_attempts must be positive")
+    sources: dict[str, dict[str, Any]] = {}
+    for source in WEB_DESCRIPTION_SOURCES:
+        sitemap_url = source.get("sitemap_url", "")
+        if not sitemap_url:
+            continue
+        error = ""
+        urls: list[str] = []
+        attempts = 0
+        for attempts in range(1, max_attempts + 1):
+            try:
+                urls = sorted(_fetch_sitemap_urls(client, sitemap_url))
+                error = ""
+                break
+            except Exception as exc:  # noqa: BLE001
+                error = f"{type(exc).__name__}:{exc}"
+                if attempts < max_attempts and backoff_seconds > 0:
+                    time.sleep(backoff_seconds * (2 ** (attempts - 1)))
+        if error:
+            sources[source["name"]] = {
+                "status": "retry",
+                "sitemap_url": sitemap_url,
+                "n_urls": 0,
+                "urls": [],
+                "error": error,
+                "attempts": attempts,
+            }
+        else:
+            sources[source["name"]] = {
+                "status": "completed",
+                "sitemap_url": sitemap_url,
+                "n_urls": len(urls),
+                "urls": urls,
+                "error": "",
+                "attempts": attempts,
+            }
+    return {
+        "contract_version": WEB_DESCRIPTION_INDEX_VERSION,
+        "sources": sources,
+    }
+
+
+def load_web_description_index(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("contract_version") != WEB_DESCRIPTION_INDEX_VERSION:
+        raise typer.BadParameter(f"unsupported web-description index contract in {path}")
+    if not isinstance(payload.get("sources"), dict):
+        raise typer.BadParameter(f"web-description index has no sources mapping: {path}")
+    return payload
+
+
 def _web_description_sources(
     species: list[str],
     client: Any,
     pause_seconds: float,
     source_types: set[str] | None = None,
+    source_index: dict[str, Any] | None = None,
 ) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
     configured_sources = [
         source
@@ -1400,16 +1553,19 @@ def _web_description_sources(
         sitemap_url = source.get("sitemap_url", "")
         if sitemap_url:
             try:
-                response = client.get(sitemap_url)
-                response.raise_for_status()
-                if len(response.content) > 8_000_000:
-                    raise ValueError("sitemap response exceeded 8 MB")
-                root = ElementTree.fromstring(response.content)
-                indexed_urls = {
-                    _text(element.text).casefold()
-                    for element in root.iter()
-                    if element.tag.rsplit("}", 1)[-1] == "loc" and _text(element.text)
-                }
+                if source_index is None:
+                    indexed_urls = _fetch_sitemap_urls(client, sitemap_url)
+                else:
+                    entry = (source_index.get("sources") or {}).get(source["name"])
+                    if not isinstance(entry, dict):
+                        raise ValueError("source missing from frozen sitemap index")
+                    if entry.get("status") != "completed":
+                        raise ValueError(
+                            f"frozen sitemap index unavailable:{entry.get('error', '')}"
+                        )
+                    indexed_urls = {
+                        _text(url).casefold() for url in entry.get("urls", []) if _text(url)
+                    }
             except Exception as exc:  # noqa: BLE001
                 source_errors.append(
                     {
@@ -1419,8 +1575,7 @@ def _web_description_sources(
                     }
                 )
                 return source_rows, source_errors
-        selected_species = species if indexed_urls is not None else species[:100]
-        for name in selected_species:
+        for name in species:
             url = _web_source_url(source, name)
             if indexed_urls is not None and url.casefold() not in indexed_urls:
                 continue
@@ -1431,7 +1586,10 @@ def _web_description_sources(
                 response.raise_for_status()
                 if len(response.content) > 3_000_000:
                     raise ValueError("HTML response exceeded 3 MB")
-                text = html_visible_text(response.text)
+                text = html_visible_text(
+                    response.text,
+                    include_form_text=source.get("visible_text_mode") == "aspnet_form",
+                )
                 if name.casefold() not in text.casefold():
                     continue
                 required = source.get("required_marker", "")
@@ -1474,6 +1632,108 @@ def _web_description_sources(
     return rows, errors
 
 
+def _strict_binomial_identity(value: object) -> str:
+    """Return a comparison key only for an unadorned two-part scientific name."""
+    parts = _text(value).split()
+    if len(parts) != 2:
+        return ""
+    for part in parts:
+        letters = part.replace("-", "")
+        if not letters or not letters.isalpha() or part.startswith("×"):
+            return ""
+    return " ".join(parts).casefold()
+
+
+def _gbif_taxon_name(payload: dict[str, Any]) -> str:
+    canonical_name = _text(payload.get("canonicalName"))
+    if _strict_binomial_identity(canonical_name):
+        return canonical_name
+    scientific_name = _text(payload.get("scientificName"))
+    candidate = " ".join(scientific_name.split()[:2])
+    return candidate if _strict_binomial_identity(candidate) else ""
+
+
+def _validated_gbif_species_match(
+    getter: Callable[[str, dict[str, Any]], dict[str, Any]],
+    name: str,
+) -> dict[str, str] | None:
+    """Accept only an exact species match or a verified synonym-to-species mapping."""
+    requested_identity = _strict_binomial_identity(name)
+    if not requested_identity:
+        return None
+
+    payload = getter(
+        f"{trait_descriptive_scout.GBIF_API}/species/match",
+        {"name": name},
+    )
+    match_type = _text(payload.get("matchType")).upper()
+    rank = _text(payload.get("rank")).upper()
+    status = _text(payload.get("status")).upper()
+    matched_name = _gbif_taxon_name(payload)
+    matched_identity = _strict_binomial_identity(matched_name)
+    matched_key = _text(payload.get("usageKey") or payload.get("nubKey"))
+    if (
+        match_type != "EXACT"
+        or rank != "SPECIES"
+        or matched_identity != requested_identity
+        or not matched_key
+    ):
+        return None
+
+    resolved_key = matched_key
+    resolved_name = matched_name
+    if status == "SYNONYM":
+        resolved_key = _text(payload.get("acceptedUsageKey"))
+        if not resolved_key:
+            return None
+        accepted = getter(
+            f"{trait_descriptive_scout.GBIF_API}/species/{resolved_key}",
+            {},
+        )
+        accepted_key = _text(accepted.get("key") or accepted.get("nubKey"))
+        accepted_rank = _text(accepted.get("rank")).upper()
+        accepted_status = _text(accepted.get("taxonomicStatus") or accepted.get("status")).upper()
+        resolved_name = _gbif_taxon_name(accepted)
+        if (
+            accepted_key != resolved_key
+            or accepted_rank != "SPECIES"
+            or accepted_status != "ACCEPTED"
+            or not resolved_name
+        ):
+            return None
+    elif status != "ACCEPTED":
+        return None
+
+    return {
+        "query_name": _text(name),
+        "matched_name": matched_name,
+        "resolved_name": resolved_name,
+        "matched_key": matched_key,
+        "resolved_key": resolved_key,
+        "match_type": match_type,
+        "rank": rank,
+        "status": status,
+        "confidence": _text(payload.get("confidence")) or "unknown",
+    }
+
+
+def _gbif_match_provenance(match: dict[str, str]) -> str:
+    return "; ".join(
+        [
+            "GBIF taxon match",
+            f"query={match['query_name']}",
+            f"matched={match['matched_name']}",
+            f"resolved={match['resolved_name']}",
+            f"matchType={match['match_type']}",
+            f"rank={match['rank']}",
+            f"status={match['status']}",
+            f"confidence={match['confidence']}",
+            f"matchedKey={match['matched_key']}",
+            f"resolvedKey={match['resolved_key']}",
+        ]
+    )
+
+
 def _gbif_sources(
     species: list[str],
     getter: Callable[[str, dict[str, Any]], dict[str, Any]],
@@ -1484,7 +1744,8 @@ def _gbif_sources(
     wanted_types = {"morphology", "description", "general", "diagnostic", "reproduction"}
     for name in species:
         try:
-            key = trait_descriptive_scout.fetch_species_key(getter, name)
+            match = _validated_gbif_species_match(getter, name)
+            key = match["resolved_key"] if match else ""
             descriptions = (
                 trait_descriptive_scout.fetch_descriptions(getter, key, max_descriptions)
                 if key
@@ -1495,12 +1756,16 @@ def _gbif_sources(
                 text = _text(document.get("description"))
                 if not text or (description_type and description_type not in wanted_types):
                     continue
+                citation = _text(document.get("source"))
+                provenance = _gbif_match_provenance(match) if match else ""
                 rows.append(
                     {
                         "accepted_species": name,
                         "source_text": text,
                         "source_url": f"https://www.gbif.org/species/{key}",
-                        "source_citation": _text(document.get("source")),
+                        "source_citation": " | ".join(
+                            part for part in (citation, provenance) if part
+                        ),
                         "source_type": "gbif_species_description",
                         "evidence_scope": "species_direct",
                     }
@@ -1525,19 +1790,62 @@ def _missing_species_for_fields(
     return [name for name in species if any((name, field) not in covered for field in fields)]
 
 
+def _europe_pmc_sources(
+    species: list[str],
+    pause_seconds: float,
+) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    """Adapt exact Europe PMC title/abstract discovery to the shared source schema."""
+    if not species:
+        return [], []
+    batch = discover_europe_pmc_sources(
+        species,
+        min_interval_seconds=max(1.0, pause_seconds),
+    )
+    rows = [
+        {
+            "accepted_species": record["accepted_species"],
+            "source_text": record["source_text"],
+            "source_url": record["source_url"],
+            "source_citation": record["source_citation"],
+            "source_type": "europe_pmc_title_abstract",
+            "evidence_scope": "species_direct",
+        }
+        for record in batch.sources
+    ]
+    errors = [
+        {
+            "species": record["accepted_species"],
+            "source": "europe_pmc",
+            "error": ":".join(
+                value
+                for value in (
+                    record["error_class"],
+                    record["error_code"],
+                    record["message"],
+                )
+                if value
+            ),
+        }
+        for record in batch.errors
+    ]
+    return rows, errors
+
+
 def collect_free_sources(
     species: list[str],
     *,
     include_gbif: bool = True,
     include_wikimedia: bool = True,
-    include_openalex: bool = True,
+    include_openalex: bool = False,
+    include_europe_pmc: bool = False,
     include_web_descriptions: bool = True,
-    include_world_flora: bool = True,
+    include_world_flora: bool = False,
     max_descriptions: int = 20,
     openalex_per_page: int = 5,
     pause_seconds: float = 0.05,
     wikipedia_languages: list[str] | None = None,
     seed_evidence: pd.DataFrame | None = None,
+    web_description_index_path: Path | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Retrieve public text in reliability order, querying only remaining gaps."""
     import ssl
@@ -1551,12 +1859,16 @@ def collect_free_sources(
     all_fields = {
         "flower_color",
         "flower_shape",
-        "pollination_guild",
         "mating_system",
         "self_incompatibility",
     }
     floral_fields = {"flower_color", "flower_shape"}
-    reproductive_fields = {"pollination_guild", "mating_system", "self_incompatibility"}
+    reproductive_fields = {"mating_system", "self_incompatibility"}
+    web_description_index = (
+        load_web_description_index(web_description_index_path)
+        if include_web_descriptions and web_description_index_path is not None
+        else None
+    )
     with httpx.Client(
         timeout=45.0,
         follow_redirects=True,
@@ -1583,6 +1895,7 @@ def collect_free_sources(
                 client,
                 pause_seconds,
                 source_types={"flora_or_monograph"},
+                source_index=web_description_index,
             )
             source_rows.extend(rows)
             error_rows.extend(errors)
@@ -1614,18 +1927,29 @@ def collect_free_sources(
                 source_rows.extend(rows.to_dict("records"))
             except Exception as exc:  # noqa: BLE001
                 error_rows.append({"species": "", "source": "openalex", "error": str(exc)})
+        if include_europe_pmc:
+            missing = _missing_species_for_fields(
+                species,
+                source_rows,
+                seed,
+                reproductive_fields,
+            )
+            rows, errors = _europe_pmc_sources(missing, pause_seconds)
+            source_rows.extend(rows)
+            error_rows.extend(errors)
         if include_web_descriptions:
             missing = _missing_species_for_fields(
                 species,
                 source_rows,
                 seed,
-                {"flower_color", "flower_shape", "pollination_guild"},
+                floral_fields,
             )
             rows, errors = _web_description_sources(
                 missing,
                 client,
                 pause_seconds,
                 source_types={"horticulture_site"},
+                source_index=web_description_index,
             )
             source_rows.extend(rows)
             error_rows.extend(errors)
@@ -1647,6 +1971,7 @@ def write_search_outputs(
     errors: pd.DataFrame,
     bulk_candidates: pd.DataFrame | None = None,
 ) -> dict[str, Any]:
+    sources = compact_source_texts(sources)
     text_evidence = extract_evidence_from_sources(sources)
     bulk_evidence = (
         evidence_from_bulk_candidates(bulk_candidates)
@@ -1763,6 +2088,50 @@ def write_search_outputs(
     return report
 
 
+@app.command("build-web-index")
+def build_web_index_command(
+    output_json: Path = typer.Option(...),
+) -> None:
+    """Freeze plant-site sitemap indexes once for reuse across all shards."""
+    import ssl
+
+    import httpx
+    import truststore
+
+    with httpx.Client(
+        timeout=45.0,
+        follow_redirects=True,
+        verify=truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT),
+        headers={
+            "User-Agent": "island-floral-v2/0.1 (https://github.com/zuizui0223/island)",
+        },
+    ) as client:
+        payload = build_web_description_index(client)
+    output_json.parent.mkdir(parents=True, exist_ok=True)
+    output_json.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    failed = {
+        name: entry.get("error", "")
+        for name, entry in payload["sources"].items()
+        if entry.get("status") != "completed"
+    }
+    if failed:
+        raise typer.BadParameter(f"plant-site sitemap index failures: {failed}")
+    typer.echo(
+        json.dumps(
+            {
+                "contract_version": WEB_DESCRIPTION_INDEX_VERSION,
+                "output_json": str(output_json),
+                "n_sources": len(payload["sources"]),
+                "n_urls": sum(entry["n_urls"] for entry in payload["sources"].values()),
+            },
+            ensure_ascii=False,
+        )
+    )
+
+
 @app.command("search")
 def search_command(
     species_csv: Path = typer.Option(..., exists=True),
@@ -1775,13 +2144,15 @@ def search_command(
     wikipedia_language: list[str] | None = typer.Option(None, "--wikipedia-language"),
     gbif: bool = typer.Option(True, "--gbif/--no-gbif"),
     wikimedia: bool = typer.Option(True, "--wikimedia/--no-wikimedia"),
-    openalex: bool = typer.Option(True, "--openalex/--no-openalex"),
+    openalex: bool = typer.Option(False, "--openalex/--no-openalex"),
+    europe_pmc: bool = typer.Option(False, "--europe-pmc/--no-europe-pmc"),
     web_descriptions: bool = typer.Option(
         True,
         "--web-descriptions/--no-web-descriptions",
     ),
-    world_flora: bool = typer.Option(True, "--world-flora/--no-world-flora"),
+    world_flora: bool = typer.Option(False, "--world-flora/--no-world-flora"),
     candidate_csv: Path | None = typer.Option(None, exists=True),
+    web_description_index: Path | None = typer.Option(None, exists=True),
 ) -> None:
     """Search public sources and write v1 rows plus auditable evidence."""
     table = pd.read_csv(species_csv, dtype=str).fillna("")
@@ -1801,6 +2172,7 @@ def search_command(
         include_gbif=gbif,
         include_wikimedia=wikimedia,
         include_openalex=openalex,
+        include_europe_pmc=europe_pmc,
         include_web_descriptions=web_descriptions,
         include_world_flora=world_flora,
         max_descriptions=max_descriptions,
@@ -1808,6 +2180,7 @@ def search_command(
         pause_seconds=pause_seconds,
         wikipedia_languages=wikipedia_language,
         seed_evidence=seed_evidence,
+        web_description_index_path=web_description_index,
     )
     report = write_search_outputs(
         output_dir,

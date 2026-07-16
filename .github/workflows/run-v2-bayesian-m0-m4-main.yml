@@ -8,6 +8,7 @@ on:
       - ".github/workflows/run-v2-bayesian-m0-m4-main.yml"
       - "analysis/v2/run_bayesian_m0_m4_main.R"
       - "src/island_v2/prepare_v2_bayesian_main_input.py"
+      - "tests/test_prepare_v2_bayesian_main_input.py"
       - "config/integrated_trait_bombus_artifact_lock.json"
       - "config/purpose_shortest_artifact_lock.json"
 
@@ -31,6 +32,7 @@ jobs:
         run: |
           pip install -e ".[dev]" duckdb
           python -m py_compile src/island_v2/prepare_v2_bayesian_main_input.py
+          pytest -q tests/test_prepare_v2_bayesian_main_input.py
 
       - name: Download locked integrated trait-Bombus artifact
         env:
@@ -61,7 +63,7 @@ jobs:
       - name: Prepare compact island-level Bayesian input
         run: |
           set -euo pipefail
-          MASTER=$(find /tmp/integrated -type f -path '*/bombus_join/sensitivity_all/island_species_trait_bombus_master.csv.gz' -print -quit)
+          MASTER=$(find /tmp/integrated -type f -path '*/bombus_join/primary/island_species_trait_bombus_master.csv.gz' -print -quit)
           COV=$(find /tmp/covariates -type f -name purpose_shortest_island_data.csv -print -quit)
           test -f "$MASTER"
           test -f "$COV"

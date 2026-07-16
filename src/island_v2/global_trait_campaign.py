@@ -4,10 +4,10 @@ The campaign operates on the unique species master rather than selecting islands
 or regions from observed floral outcomes. It advances four ordered machine-only
 source tasks:
 
-1. reproductive and pollen-vector statements from Wikimedia;
-2. reproductive and pollen-vector statements from OpenAlex;
-3. floral-access statements for species with a direct biotic-vector candidate;
-4. alternative-pollinator guild statements for the same conservative subset.
+1. flower colour, form, symmetry, size and access statements for every species;
+2. reproductive-biology statements from Wikimedia;
+3. reproductive-biology statements from OpenAlex;
+4. optional alternative-pollinator guild statements in a separate layer.
 
 Every machine hit keeps its source excerpt and remains unreviewed. A species with
 no hit is recorded as a completed zero-hit lookup, never as a biological absence.
@@ -172,6 +172,19 @@ def reconcile_ledger(
         if error not in base.columns:
             base[error] = ""
         base[error] = base[error].fillna("").astype(str)
+
+        reopen = {str(value) for value in config.get("reopen_not_applicable_tasks") or []}
+        if str(task) in reopen:
+            if str(config["tasks"][task].get("eligibility", "all")) != "all":
+                raise typer.BadParameter(
+                    f"reopen_not_applicable_tasks requires all-species eligibility: {task}"
+                )
+            stale_gate = base[status].eq("not_applicable")
+            base.loc[stale_gate, status] = "pending"
+            base.loc[stale_gate, attempts] = 0
+            base.loc[stale_gate, wave] = ""
+            base.loc[stale_gate, count] = 0
+            base.loc[stale_gate, error] = ""
 
     if "machine_biotic_candidate" not in base.columns:
         base["machine_biotic_candidate"] = False

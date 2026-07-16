@@ -24,6 +24,9 @@ layers:
 
   M1_reproductive_assurance_pollen_vector:
     traits:
+      # Sex expression is reproductive architecture, not a mating-system
+      # synonym.  It stays as its own reported categorical trait.
+      - sex_system
       - pollen_vector_mode
       - self_incompatibility
       - autonomous_selfing_capacity
@@ -48,11 +51,14 @@ layers:
 # Traits whose genus/family inference must NEVER enter the main analysis and is
 # only ever an explicitly labelled expanded-sensitivity result.
 hierarchical_inference_sensitivity_only_traits:
+  - sex_system
+  - pollen_vector_mode
   - self_incompatibility
   - autonomous_selfing_capacity
   - mating_system
   - herkogamy
   - dichogamy
+  - cleistogamy
   - pollination_functional_guild
 
 analysis_tracks:

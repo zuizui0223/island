@@ -1,0 +1,533 @@
+name: Build all-master source-backed trait ledger
+
+on:
+  workflow_run:
+    workflows:
+      - "Promote accounted public-web shard run"
+      - "Promote accounted eFloras shard artifacts"
+      - "Ingest validated LLM result bundles"
+      - "ingest_eol_traitbank_bulk"
+      - "Ingest all AusTraits target floral traits"
+      - "Acquire GIFT direct floral traits"
+      - "Acquire USDA PLANTS direct floral traits"
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      eol_run_id:
+        description: Successful full EOL TraitBank workflow run ID
+        required: true
+        default: "29394577660"
+        type: string
+      austraits_run_id:
+        description: Successful full AusTraits target-trait workflow run ID
+        required: true
+        default: "29335900995"
+        type: string
+      efloras_run_id:
+        description: Completed eFloras production run ID; blank omits eFloras for an interim ledger
+        required: false
+        default: "29409302362"
+        type: string
+      gift_run_id:
+        description: Completed GIFT direct-traits production run ID; blank omits GIFT
+        required: false
+        default: "29338693288"
+        type: string
+      usda_run_id:
+        description: Completed USDA PLANTS direct-traits run ID; blank omits USDA PLANTS
+        required: false
+        default: "29382621509"
+        type: string
+      public_web_run_id:
+        description: Promoted public-web combined artifact run ID; blank omits public web
+        required: false
+        default: "29385927769"
+        type: string
+      llm_run_id:
+        description: Immutable validated-LLM artifact run ID; blank omits LLM channels
+        required: false
+        default: ""
+        type: string
+      resolve_latest_sources:
+        description: Resolve the newest successful non-expired bulk/flora artifacts
+        required: true
+        default: true
+        type: boolean
+  pull_request:
+    paths:
+      - ".github/workflows/build-all-master-trait-ledger.yml"
+      - "config/acquisition_rate.yml"
+      - "src/island_v2/acquisition_rate_report.py"
+      - "src/island_v2/materialize_trait_artifacts.py"
+      - "tests/test_acquisition_rate_report.py"
+      - "tests/test_materialize_trait_artifacts.py"
+      - "src/island_v2/all_species_trait_export.py"
+      - "src/island_v2/meyer_2026_reproductive_traits.py"
+      - "config/meyer_2026_reproductive_traits.yml"
+      - "data/v2/external/traits/meyer_2026/Output_Data_MS.csv"
+      - "data/v2/staging/traits/bulk/meyer_2026_reproductive_traits/**"
+      - "src/island_v2/razanajatovo_2016_reproductive_traits.py"
+      - "config/razanajatovo_2016_reproductive_traits.yml"
+      - "data/v2/external/traits/razanajatovo_2016/**"
+      - "data/v2/staging/traits/bulk/razanajatovo_2016_reproductive_traits/**"
+      - "src/island_v2/si_genus_inference.py"
+      - "config/si_genus_inference.yml"
+      - "data/v2/staging/traits/inference/si_genus_v1/**"
+      - "src/island_v2/search_enabled_llm_campaign.py"
+      - "src/island_v2/llm_evidence_extraction.py"
+      - "tests/test_all_species_trait_export.py"
+      - "tests/test_meyer_2026_reproductive_traits.py"
+      - "tests/test_razanajatovo_2016_reproductive_traits.py"
+      - "tests/test_si_genus_inference.py"
+      - "tests/test_search_enabled_llm_campaign.py"
+      - "tests/test_llm_evidence_extraction.py"
+      - "data/v2/staging/traits/llm_evidence_extracted/**"
+  push:
+    branches: [main]
+    paths:
+      - "data/v2/staging/traits/llm_evidence_extracted/**"
+      - ".github/workflows/materialize-trait-fill-cascade.yml"
+      - "src/island_v2/trait_fill_cascade.py"
+      - "config/trait_fill_cascade.yml"
+      - "config/trait_ontology.yml"
+      - "config/angiosperm_scope.yml"
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: all-master-trait-ledger-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  propagate-upstream-failure:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion != 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preserve the failed promotion conclusion
+        env:
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+          SOURCE_WORKFLOW: ${{ github.event.workflow_run.name }}
+          SOURCE_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        run: |
+          echo "::error::Upstream $SOURCE_WORKFLOW run $SOURCE_RUN_ID concluded $SOURCE_CONCLUSION; no all-master ledger was built."
+          exit 1
+
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install focused dependencies
+        run: pip install -e ".[dev]"
+      - name: Test artifact materialization and exhaustive-ledger contract
+        run: |
+          pytest -q \
+            tests/test_materialize_trait_artifacts.py \
+            tests/test_acquisition_rate_report.py \
+            tests/test_all_species_trait_export.py \
+            tests/test_meyer_2026_reproductive_traits.py \
+            tests/test_razanajatovo_2016_reproductive_traits.py \
+            tests/test_si_genus_inference.py \
+            tests/test_search_enabled_llm_campaign.py \
+            tests/test_llm_evidence_extraction.py
+
+  materialize:
+    if: >-
+      github.event_name == 'workflow_dispatch' || github.event_name == 'push' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == github.event.repository.default_branch)
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      EOL_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'ingest_eol_traitbank_bulk' && github.event.workflow_run.id || inputs.eol_run_id || '29394577660' }}
+      AUSTRAITS_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Ingest all AusTraits target floral traits' && github.event.workflow_run.id || inputs.austraits_run_id || '29335900995' }}
+      EFLORAS_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Promote accounted eFloras shard artifacts' && github.event.workflow_run.id || inputs.efloras_run_id || '29409302362' }}
+      GIFT_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Acquire GIFT direct floral traits' && github.event.workflow_run.id || inputs.gift_run_id || '29338693288' }}
+      USDA_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Acquire USDA PLANTS direct floral traits' && github.event.workflow_run.id || inputs.usda_run_id || '29382621509' }}
+      PUBLIC_WEB_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Promote accounted public-web shard run' && github.event.workflow_run.id || inputs.public_web_run_id || '29385927769' }}
+      LLM_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Ingest validated LLM result bundles' && github.event.workflow_run.id || inputs.llm_run_id || '' }}
+      RESOLVE_LATEST_SOURCES: ${{ inputs.resolve_latest_sources }}
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Resolve newest successful non-expired bulk and flora artifacts
+        run: |
+          set -euo pipefail
+          resolve_latest="${RESOLVE_LATEST_SOURCES:-true}"
+          if [[ "$resolve_latest" != "true" ]]; then
+            echo "Using explicitly pinned source runs" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          resolve_run() {
+            local variable="$1"
+            local workflow="$2"
+            local artifact_prefix="$3"
+            local artifact_mode="$4"
+            local marker_prefix="${5:-}"
+            local chosen=""
+            local candidate=""
+            local expected=""
+            local marker=""
+            local current="${!variable}"
+            while IFS= read -r candidate; do
+              [[ "$candidate" =~ ^[0-9]+$ ]] || continue
+              if [[ "$artifact_mode" == "run_suffix" ]]; then
+                expected="${artifact_prefix}${candidate}"
+              else
+                expected="$artifact_prefix"
+              fi
+              if ! gh api --paginate \
+                "repos/$GH_REPO/actions/runs/$candidate/artifacts?per_page=100" \
+                --jq ".artifacts[] | select(.expired == false and .name == \"$expected\") | .id" \
+                | grep -Eq '^[0-9]+$'; then
+                continue
+              fi
+              if [[ -n "$marker_prefix" ]]; then
+                marker="${marker_prefix}${candidate}"
+                if ! gh api --paginate \
+                  "repos/$GH_REPO/actions/runs/$candidate/artifacts?per_page=100" \
+                  --jq ".artifacts[] | select(.expired == false and .name == \"$marker\") | .id" \
+                  | grep -Eq '^[0-9]+$'; then
+                  continue
+                fi
+              fi
+              chosen="$candidate"
+              break
+            done < <(
+              gh run list \
+                --repo "$GH_REPO" \
+                --workflow "$workflow" \
+                --status success \
+                --branch "$DEFAULT_BRANCH" \
+                --limit 100 \
+                --json databaseId \
+                --jq '.[].databaseId'
+            )
+            if [[ -z "$chosen" ]]; then
+              echo "::warning::No newer default-branch production artifact found for $artifact_prefix; retaining pinned run $current"
+              echo "- $variable: $current (pinned fallback)" >> "$GITHUB_STEP_SUMMARY"
+              return 0
+            fi
+            printf -v "$variable" '%s' "$chosen"
+            export "$variable"
+            echo "$variable=$chosen" >> "$GITHUB_ENV"
+            echo "- $variable: $chosen" >> "$GITHUB_STEP_SUMMARY"
+          }
+
+          echo "## Resolved durable source snapshots" >> "$GITHUB_STEP_SUMMARY"
+          resolve_run EOL_RUN_ID ingest-eol-traitbank-bulk.yml \
+            eol-traitbank-bulk- run_suffix eol-traitbank-production-
+          resolve_run AUSTRAITS_RUN_ID ingest-austraits-all-floral-bulk.yml \
+            austraits-all-floral-bulk- run_suffix
+          resolve_run EFLORAS_RUN_ID promote-efloras-accounted-run.yml \
+            efloras-all-floras-combined constant
+          resolve_run GIFT_RUN_ID ingest-gift-direct-traits.yml \
+            gift-direct-traits- run_suffix
+          resolve_run USDA_RUN_ID ingest-usda-plants-direct-traits.yml \
+            usda-plants-direct-traits- run_suffix
+          resolve_run PUBLIC_WEB_RUN_ID promote-public-web-accounted-run.yml \
+            public-web-traits-combined constant
+          resolve_run LLM_RUN_ID ingest-search-enabled-llm-results.yml \
+            validated-llm-traits constant
+      - name: Validate immutable source-run inputs
+        run: |
+          set -euo pipefail
+          [[ "$EOL_RUN_ID" =~ ^[0-9]+$ ]]
+          [[ "$AUSTRAITS_RUN_ID" =~ ^[0-9]+$ ]]
+          if [[ -n "$EFLORAS_RUN_ID" ]]; then [[ "$EFLORAS_RUN_ID" =~ ^[0-9]+$ ]]; fi
+          if [[ -n "$GIFT_RUN_ID" ]]; then [[ "$GIFT_RUN_ID" =~ ^[0-9]+$ ]]; fi
+          if [[ -n "$USDA_RUN_ID" ]]; then [[ "$USDA_RUN_ID" =~ ^[0-9]+$ ]]; fi
+          if [[ -n "$PUBLIC_WEB_RUN_ID" ]]; then
+            [[ "$PUBLIC_WEB_RUN_ID" =~ ^[0-9]+$ ]]
+          fi
+          if [[ -n "$LLM_RUN_ID" ]]; then [[ "$LLM_RUN_ID" =~ ^[0-9]+$ ]]; fi
+      - name: Download exact source artifacts and metadata
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/source_artifacts/{eol,austraits,metadata}
+          gh run download "$EOL_RUN_ID" \
+            --repo "$GH_REPO" \
+            --name "eol-traitbank-bulk-$EOL_RUN_ID" \
+            --dir /tmp/source_artifacts/eol
+          gh run download "$AUSTRAITS_RUN_ID" \
+            --repo "$GH_REPO" \
+            --name "austraits-all-floral-bulk-$AUSTRAITS_RUN_ID" \
+            --dir /tmp/source_artifacts/austraits
+          gh api "repos/$GH_REPO/actions/runs/$EOL_RUN_ID/artifacts" \
+            > /tmp/source_artifacts/metadata/eol_artifacts.json
+          gh api "repos/$GH_REPO/actions/runs/$AUSTRAITS_RUN_ID/artifacts" \
+            > /tmp/source_artifacts/metadata/austraits_artifacts.json
+          if [[ -n "$EFLORAS_RUN_ID" ]]; then
+            mkdir -p /tmp/source_artifacts/efloras
+            gh run download "$EFLORAS_RUN_ID" \
+              --repo "$GH_REPO" \
+              --name efloras-all-floras-combined \
+              --dir /tmp/source_artifacts/efloras
+            gh api "repos/$GH_REPO/actions/runs/$EFLORAS_RUN_ID/artifacts" \
+              > /tmp/source_artifacts/metadata/efloras_artifacts.json
+          fi
+          if [[ -n "$GIFT_RUN_ID" ]]; then
+            mkdir -p /tmp/source_artifacts/gift
+            gh run download "$GIFT_RUN_ID" \
+              --repo "$GH_REPO" \
+              --name "gift-direct-traits-$GIFT_RUN_ID" \
+              --dir /tmp/source_artifacts/gift
+            gh api "repos/$GH_REPO/actions/runs/$GIFT_RUN_ID/artifacts" \
+              > /tmp/source_artifacts/metadata/gift_artifacts.json
+          fi
+          if [[ -n "$USDA_RUN_ID" ]]; then
+            mkdir -p /tmp/source_artifacts/usda
+            gh run download "$USDA_RUN_ID" \
+              --repo "$GH_REPO" \
+              --name "usda-plants-direct-traits-$USDA_RUN_ID" \
+              --dir /tmp/source_artifacts/usda
+            gh api "repos/$GH_REPO/actions/runs/$USDA_RUN_ID/artifacts" \
+              > /tmp/source_artifacts/metadata/usda_artifacts.json
+          fi
+          if [[ -n "$PUBLIC_WEB_RUN_ID" ]]; then
+            mkdir -p /tmp/source_artifacts/public_web
+            gh run download "$PUBLIC_WEB_RUN_ID" \
+              --repo "$GH_REPO" \
+              --name public-web-traits-combined \
+              --dir /tmp/source_artifacts/public_web
+            gh api "repos/$GH_REPO/actions/runs/$PUBLIC_WEB_RUN_ID/artifacts" \
+              > /tmp/source_artifacts/metadata/public_web_artifacts.json
+          fi
+          if [[ -n "$LLM_RUN_ID" ]]; then
+            mkdir -p /tmp/source_artifacts/llm
+            gh run download "$LLM_RUN_ID" \
+              --repo "$GH_REPO" \
+              --name validated-llm-traits \
+              --dir /tmp/source_artifacts/llm
+            gh api "repos/$GH_REPO/actions/runs/$LLM_RUN_ID/artifacts" \
+              > /tmp/source_artifacts/metadata/llm_artifacts.json
+          fi
+      - name: Materialize evidence-preserving candidates
+        run: |
+          set -euo pipefail
+          EFLORAS_ARGS=()
+          if [[ -n "$EFLORAS_RUN_ID" ]]; then
+            EFLORAS_ARGS=(--efloras-artifact-dir /tmp/source_artifacts/efloras)
+          fi
+          GIFT_ARGS=()
+          if [[ -n "$GIFT_RUN_ID" ]]; then
+            GIFT_ARGS=(--gift-artifact-dir /tmp/source_artifacts/gift)
+          fi
+          USDA_ARGS=()
+          if [[ -n "$USDA_RUN_ID" ]]; then
+            USDA_ARGS=(--usda-artifact-dir /tmp/source_artifacts/usda)
+          fi
+          island-v2-materialize-trait-artifacts run \
+            --eol-artifact-dir /tmp/source_artifacts/eol \
+            --austraits-artifact-dir /tmp/source_artifacts/austraits \
+            --staging-root data/v2/staging/traits \
+            --output-dir /tmp/all_master_trait_ledger \
+            "${EFLORAS_ARGS[@]}" \
+            "${GIFT_ARGS[@]}" \
+            "${USDA_ARGS[@]}"
+      - name: Build exhaustive all-master ledgers
+        run: |
+          island-v2-acquisition-rate run \
+            --config-path config/acquisition_rate.yml \
+            --output-dir /tmp/all_master_trait_ledger
+      - name: Build exact nine-column all-species table
+        run: |
+          set -euo pipefail
+          CANDIDATE_ARGS=(
+            --candidate-csv data/v2/staging/traits/eol_traitbank/trait_candidates.csv
+            --candidate-csv data/v2/staging/traits/bulk/austraits_all/trait_candidates.csv.gz
+            --candidate-csv data/v2/staging/traits/bulk/meyer_2026_reproductive_traits/trait_candidates.csv.gz
+            --candidate-csv data/v2/staging/traits/bulk/razanajatovo_2016_reproductive_traits/trait_candidates.csv.gz
+            --candidate-csv data/v2/staging/traits/inference/si_genus_v1/genus_inference_candidates.csv.gz
+            --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz
+          )
+          if [[ -f data/v2/staging/traits/efloras/combined/trait_candidates.csv ]]; then
+            CANDIDATE_ARGS+=(
+              --candidate-csv data/v2/staging/traits/efloras/combined/trait_candidates.csv
+            )
+          fi
+          if [[ -f data/v2/staging/traits/bulk/gift_v3_2/trait_candidates.csv ]]; then
+            CANDIDATE_ARGS+=(
+              --candidate-csv data/v2/staging/traits/bulk/gift_v3_2/trait_candidates.csv
+            )
+          fi
+          if [[ -f data/v2/staging/traits/bulk/usda_plants_current/trait_candidates.csv ]]; then
+            CANDIDATE_ARGS+=(
+              --candidate-csv data/v2/staging/traits/bulk/usda_plants_current/trait_candidates.csv
+            )
+          fi
+          LLM_ARGS=()
+          LLM_BUNDLES=0
+          while IFS= read -r manifest_file; do
+            bundle_dir=$(dirname "$manifest_file")
+            LLM_ARGS+=(--llm-extracted-bundle "$bundle_dir")
+            ((LLM_BUNDLES+=1))
+          done < <(find data/v2/staging/traits/llm_evidence_extracted \
+            -name 'llm_ingest_manifest.json' -type f 2>/dev/null | sort)
+          if [[ -n "$LLM_RUN_ID" ]]; then
+            REMOTE_LLM_BUNDLES=0
+            while IFS= read -r manifest_file; do
+              bundle_dir=$(dirname "$manifest_file")
+              LLM_ARGS+=(--llm-inference-bundle "$bundle_dir")
+              ((LLM_BUNDLES+=1))
+              ((REMOTE_LLM_BUNDLES+=1))
+            done < <(find /tmp/source_artifacts/llm \
+              -name 'validated_llm_manifest.json' -type f | sort)
+            while IFS= read -r manifest_file; do
+              bundle_dir=$(dirname "$manifest_file")
+              LLM_ARGS+=(--llm-extracted-bundle "$bundle_dir")
+              ((LLM_BUNDLES+=1))
+              ((REMOTE_LLM_BUNDLES+=1))
+            done < <(find /tmp/source_artifacts/llm \
+              -name 'llm_ingest_manifest.json' -type f | sort)
+            if (( REMOTE_LLM_BUNDLES == 0 )); then
+              echo "Validated LLM artifact contained no hash-locked validation bundles" >&2
+              exit 1
+            fi
+          fi
+          echo "Validated LLM bundles: $LLM_BUNDLES" >> "$GITHUB_STEP_SUMMARY"
+          WEB_ARGS=()
+          if [[ -f /tmp/source_artifacts/public_web/combined_trait_evidence.csv ]]; then
+            WEB_ARGS+=(
+              --web-evidence-csv \
+              /tmp/source_artifacts/public_web/combined_trait_evidence.csv
+            )
+          fi
+          island-v2-all-species-trait-export \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --applicability-csv \
+              /tmp/all_master_trait_ledger/acquisition_status_by_species.csv.gz \
+            --output-dir /tmp/all_master_trait_ledger \
+            "${CANDIDATE_ARGS[@]}" \
+            "${WEB_ARGS[@]}" \
+            "${LLM_ARGS[@]}"
+      - name: Verify population, evidence accounting, and report coverage
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          import pandas as pd
+
+          root = Path("/tmp/all_master_trait_ledger")
+          summary = json.loads((root / "acquisition_rate_summary.json").read_text(encoding="utf-8"))
+          materialized = json.loads((root / "materialization_manifest.json").read_text(encoding="utf-8"))
+          expected_sources = 2
+          expected_sources += bool(os.environ.get("EFLORAS_RUN_ID", ""))
+          expected_sources += bool(os.environ.get("GIFT_RUN_ID", ""))
+          expected_sources += bool(os.environ.get("USDA_RUN_ID", ""))
+          assert materialized["source_count"] == expected_sources
+          assert summary["n_master_species_accounted"] == 115_328
+          assert summary["n_species_trait_cells_accounted"] == 1_499_264
+
+          species = pd.read_csv(root / "acquisition_status_by_species.csv.gz", dtype=str).fillna("")
+          cells = pd.read_csv(
+              root / "acquisition_status_by_species_trait.csv.gz", dtype=str
+          ).fillna("")
+          assert len(species) == 115_328
+          assert len(cells) == 1_499_264
+          final_table = pd.read_csv(root / "all_species_traits.csv", dtype=str).fillna("")
+          final_manifest = json.loads(
+              (root / "all_species_traits_manifest.json").read_text(encoding="utf-8")
+          )
+          expected_columns = [
+              "species", "flower_color", "flower_shape", "pollination_guild",
+              "pollination_notes", "mating_system", "self_incompatibility",
+              "evidence_type", "confidence",
+          ]
+          assert list(final_table.columns) == expected_columns
+          assert len(final_table) == 115_328
+          assert final_table["species"].is_unique
+          assert final_manifest["n_output_rows"] == 115_328
+          value_channels = pd.read_csv(
+              root / "all_species_trait_value_channels.csv.gz", dtype=str
+          ).fillna("")
+          assert len(value_channels) == 115_328 * 5
+          assert set(value_channels["selected_origin"]).issubset(
+              {"reported", "inferred", "unresolved", "not_applicable"}
+          )
+          assert value_channels["selected_origin"].eq("not_applicable").sum() == 9_033 * 5
+          reported_selected = value_channels["selected_origin"].eq("reported")
+          assert value_channels.loc[reported_selected, "reported_value"].ne("unknown").all()
+          assert (
+              value_channels.loc[reported_selected, "selected_value"]
+              == value_channels.loc[reported_selected, "reported_value"]
+          ).all()
+          all_unknown = final_table[
+              ["flower_color", "flower_shape", "pollination_guild", "mating_system",
+               "self_incompatibility"]
+          ].eq("unknown").all(axis=1)
+          assert final_table.loc[all_unknown, "confidence"].eq("low").all()
+
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as handle:
+              handle.write("## All-master source-backed trait ledger\n\n")
+              handle.write(f"- master species retained: {len(species):,}\n")
+              handle.write(f"- species-trait cells retained: {len(cells):,}\n")
+              handle.write(f"- materialized bulk/flora sources: {expected_sources}\n")
+              handle.write(
+                  f"- exact nine-column rows: {final_manifest['n_output_rows']:,}\n"
+              )
+              handle.write(
+                  f"- species with any requested value: "
+                  f"{final_manifest['n_species_any_known']:,}\n"
+              )
+              for status, count in summary["species_acquisition_status_counts"].items():
+                  handle.write(f"- {status}: {count:,}\n")
+              handle.write("\n### Source-backed coverage by trait\n")
+              coverage = pd.read_csv(root / "acquisition_rate_by_trait.csv")
+              for row in coverage.itertuples(index=False):
+                  handle.write(f"- {row.trait_name}: {int(row.n_species_broad):,} species\n")
+          PY
+      - name: Upload exact candidates, metadata, and exhaustive ledgers
+        uses: actions/upload-artifact@v4
+        with:
+          name: all-master-trait-ledger-${{ github.run_id }}
+          path: |
+            /tmp/all_master_trait_ledger/
+            /tmp/source_artifacts/metadata/
+            data/v2/staging/traits/eol_traitbank/trait_candidates.csv
+            data/v2/staging/traits/bulk/austraits_all/trait_candidates.csv.gz
+            data/v2/staging/traits/bulk/meyer_2026_reproductive_traits/
+            data/v2/staging/traits/bulk/razanajatovo_2016_reproductive_traits/
+            data/v2/staging/traits/inference/si_genus_v1/
+            data/v2/staging/traits/bulk/gift_v3_2/trait_candidates.csv
+            data/v2/staging/traits/bulk/usda_plants_current/trait_candidates.csv
+            data/v2/staging/traits/efloras/combined/trait_candidates.csv
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Dispatch exact exhaustive cascade materialization
+        if: >-
+          github.event_name == 'workflow_run' ||
+          (github.event_name != 'pull_request' &&
+          github.ref_name == github.event.repository.default_branch)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          gh workflow run materialize-trait-fill-cascade.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$DEFAULT_BRANCH" \
+            -f allmaster_run_id="$GITHUB_RUN_ID"
+          echo "Dispatched exhaustive cascade from all-master run $GITHUB_RUN_ID." \
+            >> "$GITHUB_STEP_SUMMARY"

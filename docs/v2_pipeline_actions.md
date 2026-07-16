@@ -14,7 +14,7 @@ transformations.
 | 3.6 Pollinator collect | `island-v2-gbif-pollinator-collect collect` | after a separately declared Apidae campaign | Preserve exact-island pollinator records for effort-aware Bombus diagnostics. |
 | 3.7 Bombus diagnostics | `island-v2-bombus-diagnostics run` | after pollinator collection | Classify `detected`, `adequate_non_detection`, `insufficient_effort`, or `unresolved`. |
 | 3.8 Bombus environmental compatibility | `island-v2-bombus-niche-hypervolume run` | after outcome-blind source-pool and environmental tables are frozen | Fit species-specific standardized ellipsoidal niches and score each island x candidate Bombus species; retain unresolved species explicitly. |
-| 4. Global trait campaign | `drive-global-trait-campaign.yml` / `island-v2-global-trait-campaign run` | hourly / manual | Advance one family-balanced wave across the global unique-species master. The ordered tasks are reproductive and pollen-vector evidence, floral-access traits for direct biotic-vector candidates, then alternative-pollinator guild evidence. |
+| 4. Global trait campaign | `run-public-web-trait-shards.yml` / `island-v2-web-trait-shards run` / `island-v2-global-trait-campaign run` | scheduled / manual | Advance resumable all-species shards or family-balanced waves for flower colour/form/symmetry and reproductive assurance. Alternative-pollinator guild evidence is retained as an optional deferred layer and cannot block primary completion. |
 | 4a. Regional source discovery | `discover-core-pilot-trait-sources.yml` | manual only | Optional deep reading for a named island or regional mechanism case. It no longer drives global acquisition. |
 | 4b. Public PDF locator | `island-v2-trait-pdf-locator locate-pages` | manual / after source discovery | Save matched public-PDF page locators without treating page hits as biological confirmation. |
 | 4c. Public-web gap recovery | `run-public-web-trait-shards.yml` / `island-v2-web-trait-shards run` | scheduled / manual | Seed from bulk and machine candidates, then advance 128 resumable shards through public-web evidence packets and exact nine-column validation. |
@@ -30,11 +30,11 @@ and occurrence-derived availability counts.
 
 The campaign proceeds through four ordered source tasks:
 
-1. reproductive and pollen-vector statements from Wikimedia;
-2. reproductive and pollen-vector statements from OpenAlex;
-3. floral symmetry, form, tube depth, size, and colour for species carrying a
-   direct machine candidate for biotic pollen vector;
-4. focused alternative-pollinator functional-guild evidence.
+1. floral symmetry, form, tube depth, size, and colour for all eligible species;
+2. mating-system, autonomous-selfing and self-incompatibility statements from
+   Wikimedia;
+3. the same reproductive targets from OpenAlex;
+4. optional deferred alternative-pollinator functional-guild evidence.
 
 The ledger is resumable. New species added to the global master are appended
 without resetting completed work. A successful lookup with no matching statement

@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "config_path": "config\\si_genus_inference.yml",
+  "direct_candidate_csvs": [
+    "data\\v2\\staging\\traits\\bulk\\meyer_2026_reproductive_traits\\trait_candidates.csv.gz",
+    "data\\v2\\staging\\traits\\bulk\\razanajatovo_2016_reproductive_traits\\trait_candidates.csv.gz"
+  ],
+  "n_direct_candidate_rows": 2953,
+  "n_direct_species_any_state": 2829,
+  "n_ambiguous_or_mixed_direct_species": 237,
+  "n_qualifying_genera": 45,
+  "n_inferred_species": 2355,
+  "leave_one_out_n": 384,
+  "leave_one_out_correct": 372,
+  "leave_one_out_accuracy": 0.96875,
+  "outputs": {
+    "genus_inference_candidates": "data\\v2\\staging\\traits\\inference\\si_genus_v1\\genus_inference_candidates.csv.gz",
+    "qualifying_genera": "data\\v2\\staging\\traits\\inference\\si_genus_v1\\qualifying_genera.csv"
+  },
+  "policy": "Low-confidence multi-source genus completion only. Mixed/variable species, within-species conflicts and mixed genera disqualify transfer."
+}

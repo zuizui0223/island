@@ -1,0 +1,212 @@
+name: Ingest AusTraits eFLOWER bulk traits
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/ingest-austraits-eflower-bulk.yml"
+      - "config/acquisition_rate.yml"
+      - "config/angiosperm_scope.yml"
+      - "config/bulk_trait_sources.yml"
+      - "config/trait_ontology.yml"
+      - "src/island_v2/acquisition_rate_report.py"
+      - "src/island_v2/bulk_trait_ingest.py"
+      - "src/island_v2/fetch_austraits_bulk.py"
+      - "tests/test_acquisition_rate_report.py"
+      - "tests/test_bulk_trait_ingest.py"
+      - "tests/test_fetch_austraits_bulk.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: austraits-eflower-bulk-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install focused dependencies
+        run: pip install -e ".[dev]"
+      - name: Validate AusTraits mapping and exhaustive ledger contract
+        run: |
+          pytest -q \
+            tests/test_fetch_austraits_bulk.py \
+            tests/test_bulk_trait_ingest.py \
+            tests/test_acquisition_rate_report.py
+
+  ingest:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install v2 package
+        run: pip install -e ".[dev]"
+      - name: Fetch checksum-verified latest AusTraits eFLOWER data
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/austraits_bulk/prepared
+          python -m island_v2.fetch_austraits_bulk \
+            --dataset-key eFLOWER_Dun_2022 \
+            --output-csv /tmp/austraits_bulk/prepared/eflower.csv \
+            --manifest-json /tmp/austraits_bulk/fetch_manifest.json
+      - name: Set release-specific provenance
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          manifest = json.loads(
+              Path("/tmp/austraits_bulk/fetch_manifest.json").read_text(encoding="utf-8")
+          )
+          version = str(manifest.get("release_version") or "unknown")
+          doi = str(manifest.get("doi") or "")
+          release_url = str(manifest.get("release_page_url") or "")
+          if doi:
+              release_url = f"https://doi.org/{doi}"
+          source_name = f"austraits_eflower_{version}"
+          citation = f"AusTraits {version}, eFLOWER_Dun_2022"
+          if doi:
+              citation += f", DOI {doi}"
+          with Path(os.environ["GITHUB_ENV"]).open("a", encoding="utf-8") as handle:
+              handle.write(f"SOURCE_NAME={source_name}\n")
+              handle.write(f"SOURCE_CITATION={citation}\n")
+              handle.write(f"SOURCE_URL={release_url}\n")
+          PY
+      - name: Match source records and retain reviewable candidates
+        run: |
+          set -euo pipefail
+          island-v2-bulk-traits ingest \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --source-csv /tmp/austraits_bulk/prepared/eflower.csv \
+            --output-dir /tmp/austraits_bulk/output \
+            --profiles-path config/bulk_trait_sources.yml \
+            --profile-name austraits_eflower \
+            --source-name "$SOURCE_NAME" \
+            --source-citation "$SOURCE_CITATION" \
+            --source-url "$SOURCE_URL" | tee /tmp/austraits_bulk/ingest_report.json
+      - name: Stage compact candidate contract
+        run: |
+          python - <<'PY'
+          import gzip
+          import json
+          import shutil
+          from pathlib import Path
+
+          root = Path("/tmp/austraits_bulk")
+          target = Path("data/v2/staging/traits/bulk/austraits")
+          if target.exists():
+              shutil.rmtree(target)
+          target.mkdir(parents=True)
+
+          fetch = json.loads((root / "fetch_manifest.json").read_text(encoding="utf-8"))
+          ingest = json.loads((root / "ingest_report.json").read_text(encoding="utf-8"))
+          with Path(ingest["candidate_csv"]).open("rb") as source, gzip.open(
+              target / "trait_candidates.csv.gz", "wb", compresslevel=9
+          ) as output:
+              shutil.copyfileobj(source, output)
+          shutil.copy2(root / "fetch_manifest.json", target / "fetch_manifest.json")
+          shutil.copy2(ingest["coverage_by_trait_csv"], target / "coverage_by_trait.csv")
+
+          summary = {
+              "version": "1.0",
+              "source_name": ingest["source_name"],
+              "release_version": fetch["release_version"],
+              "release_doi": fetch["doi"],
+              "archive_declared_checksum": fetch["archive_declared_checksum"],
+              "archive_checksum_verified": fetch["archive_checksum_verified"],
+              "archive_sha256": fetch["archive_sha256"],
+              "n_source_rows": ingest["n_source_rows"],
+              "n_name_matched_rows": ingest["n_name_matched_rows"],
+              "n_unmatched_taxon_rows": ingest["n_unmatched_taxon_rows"],
+              "n_unmapped_value_rows": ingest["n_unmapped_value_rows"],
+              "n_candidate_rows": ingest["n_candidate_rows"],
+              "n_species_with_any_direct_evidence": ingest[
+                  "n_species_with_any_direct_evidence"
+              ],
+              "n_master_species": ingest["n_master_species"],
+              "curation_rule": ingest["curation_rule"],
+              "non_inference_rule": ingest["non_inference_rule"],
+          }
+          (target / "coverage_summary.json").write_text(
+              json.dumps(summary, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+      - name: Build all-master acquisition ledger
+        run: |
+          island-v2-acquisition-rate run \
+            --config-path config/acquisition_rate.yml \
+            --output-dir /tmp/austraits_bulk/acquisition_rate
+      - name: Verify provenance and exhaustive accounting
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          import pandas as pd
+
+          root = Path("/tmp/austraits_bulk")
+          fetch = json.loads((root / "fetch_manifest.json").read_text(encoding="utf-8"))
+          ingest = json.loads((root / "ingest_report.json").read_text(encoding="utf-8"))
+          ledger = json.loads(
+              (root / "acquisition_rate" / "acquisition_rate_summary.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+          candidates = pd.read_csv(ingest["candidate_csv"], dtype=str).fillna("")
+
+          assert fetch["archive_checksum_verified"] is True
+          assert fetch["archive_sha256"]
+          assert not candidates.empty
+          assert set(candidates["trait_name"]) <= {
+              "flower_primary_color",
+              "floral_symmetry",
+          }
+          for column in ("source_record_id", "source_url", "evidence_excerpt"):
+              assert candidates[column].ne("").all(), f"empty provenance column: {column}"
+          assert ledger["n_master_species_accounted"] == 115_328
+          assert ledger["n_species_trait_cells_accounted"] == 1_499_264
+
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as summary:
+              summary.write("## AusTraits eFLOWER full production\n\n")
+              summary.write(f"- release: {fetch['release_version']} ({fetch['doi']})\n")
+              summary.write(f"- source rows: {ingest['n_source_rows']:,}\n")
+              summary.write(f"- matched rows: {ingest['n_name_matched_rows']:,}\n")
+              summary.write(f"- candidate rows: {ingest['n_candidate_rows']:,}\n")
+              summary.write(
+                  "- species with direct evidence: "
+                  f"{ingest['n_species_with_any_direct_evidence']:,}\n"
+              )
+              summary.write(
+                  f"- master species accounted: {ledger['n_master_species_accounted']:,}\n"
+              )
+              summary.write(
+                  "- species-trait cells accounted: "
+                  f"{ledger['n_species_trait_cells_accounted']:,}\n"
+              )
+          PY
+      - name: Upload candidates, audits, and all-master ledger
+        uses: actions/upload-artifact@v4
+        with:
+          name: austraits-eflower-bulk-${{ github.run_id }}
+          path: |
+            /tmp/austraits_bulk/
+            data/v2/staging/traits/bulk/austraits/
+          if-no-files-found: error
+          retention-days: 90

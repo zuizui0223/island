@@ -15,6 +15,12 @@ analysis_tiers:
       - family_inference
     interpretation: "Taxonomically informed values; excludes global fallback."
 
+  llm_completion_sensitivity:
+    allowed_fill_tiers:
+      - species_direct
+      - llm_inference
+    interpretation: "Complete-model candidate values remain separate from reported evidence."
+
   sensitivity_all:
     allowed_fill_tiers:
       - species_direct
@@ -28,14 +34,24 @@ required_traits:
     - flower_primary_color
     - floral_form
     - floral_symmetry
-  pollination:
+    - tube_depth_class
+    - flower_size_class
+    - inflorescence_display
+    - reward_type
+  pollen_vector_best_effort:
     - pollen_vector_mode
-    - pollination_functional_guild
   reproductive:
     - sex_system
     - mating_system
     - self_incompatibility
     - autonomous_selfing_capacity
+    - herkogamy
+    - dichogamy
+    - cleistogamy
+
+optional_noncore_traits:
+  interaction_evidence:
+    - pollination_functional_guild
 
 identity:
   species_column: accepted_species

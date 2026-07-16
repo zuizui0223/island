@@ -28,6 +28,7 @@ import pandas as pd
 import typer
 import yaml
 
+from island_v2 import angiosperm_scope
 from island_v2.search_enabled_llm_campaign import (
     OUTPUT_COLUMNS as LLM_OUTPUT_COLUMNS,
     _parse_csv_row as parse_llm_result,
@@ -68,7 +69,13 @@ def _is_present(value: object) -> bool:
 def load_config(path: Path) -> dict[str, Any]:
     """Load and minimally validate the versioned acquisition-rate configuration."""
     config = yaml.safe_load(path.read_text(encoding="utf-8"))
-    required = {"master_taxa_csv", "master_species_column", "core_traits", "reported_traits", "sources"}
+    required = {
+        "master_taxa_csv",
+        "master_species_column",
+        "core_traits",
+        "reported_traits",
+        "sources",
+    }
     if not isinstance(config, dict) or not required.issubset(config):
         raise typer.BadParameter(
             "acquisition-rate config must contain master_taxa_csv, master_species_column, "
@@ -88,6 +95,25 @@ def load_master_species(path: Path, column: str) -> list[str]:
         if name and name not in seen:
             seen[name] = None
     return list(seen)
+
+
+def load_master_applicability(
+    master_path: Path,
+    species_column: str,
+    config: dict[str, Any],
+) -> pd.DataFrame | None:
+    """Load the existing taxonomic scope gate without dropping master rows."""
+    scope_path_value = _text(config.get("scope_config_path"))
+    if not scope_path_value:
+        return None
+    scope_path = Path(scope_path_value)
+    if not scope_path.exists():
+        raise typer.BadParameter(f"scope config does not exist: {scope_path}")
+    master = pd.read_csv(master_path, dtype=str).fillna("")
+    if species_column != "accepted_species":
+        master = master.rename(columns={species_column: "accepted_species"})
+    scope_config = angiosperm_scope.load_config(scope_path)
+    return angiosperm_scope.classify_scope(master, scope_config)
 
 
 def _normalize_long(
@@ -131,7 +157,10 @@ def adapter_candidate_long(source: dict[str, Any]) -> pd.DataFrame:
         if frame.empty:
             continue
         species_col = _first_column(frame, ["accepted_species", "scientific_name", "species"])
-        value_col = _first_column(frame, ["candidate_value", "trait_value", "value"])
+        value_col = _first_column(
+            frame,
+            ["candidate_value", "standardized_value", "trait_value", "value"],
+        )
         frames.append(_normalize_long(frame, species_col, "trait_name", value_col))
     if not frames:
         return pd.DataFrame(columns=["accepted_species", "trait_name"])
@@ -147,7 +176,10 @@ def adapter_curated_evidence(source: dict[str, Any]) -> pd.DataFrame:
             continue
         if "review_status" in frame.columns:
             frame = frame.loc[frame["review_status"].map(_text).str.lower().eq("accepted")]
-        value_col = _first_column(frame, ["trait_value", "candidate_value", "value"])
+        value_col = _first_column(
+            frame,
+            ["trait_value", "standardized_value", "candidate_value", "value"],
+        )
         frames.append(_normalize_long(frame, "accepted_species", "trait_name", value_col))
     if not frames:
         return pd.DataFrame(columns=["accepted_species", "trait_name"])
@@ -189,7 +221,9 @@ ADAPTERS: dict[str, Callable[[dict[str, Any]], pd.DataFrame]] = {
 assert set(LLM_TRAIT_MAP).issubset(LLM_OUTPUT_COLUMNS)
 
 
-def collect_contributions(config: dict[str, Any], master: set[str]) -> tuple[pd.DataFrame, dict[str, int]]:
+def collect_contributions(
+    config: dict[str, Any], master: set[str]
+) -> tuple[pd.DataFrame, dict[str, int]]:
     """Run every configured source adapter and return master-scoped contributions."""
     frames: list[pd.DataFrame] = []
     off_master: dict[str, int] = {}
@@ -212,7 +246,9 @@ def collect_contributions(config: dict[str, Any], master: set[str]) -> tuple[pd.
     return pd.concat(frames, ignore_index=True).drop_duplicates(), off_master
 
 
-def _species_with_trait(contributions: pd.DataFrame, traits: list[str], *, broad_only: bool) -> set[str]:
+def _species_with_trait(
+    contributions: pd.DataFrame, traits: list[str], *, broad_only: bool
+) -> set[str]:
     frame = contributions
     if broad_only:
         frame = frame.loc[frame["counts_as_broad"]]
@@ -220,7 +256,9 @@ def _species_with_trait(contributions: pd.DataFrame, traits: list[str], *, broad
     return set(frame["accepted_species"])
 
 
-def build_by_trait(contributions: pd.DataFrame, config: dict[str, Any], n_master: int) -> pd.DataFrame:
+def build_by_trait(
+    contributions: pd.DataFrame, config: dict[str, Any], n_master: int
+) -> pd.DataFrame:
     """Per-trait broad vs. any-channel species coverage against the master."""
     rows: list[dict[str, Any]] = []
     for trait in config["reported_traits"]:
@@ -242,10 +280,18 @@ def build_by_track(contributions: pd.DataFrame, n_master: int) -> pd.DataFrame:
     """Per-channel species reach and species-trait pair counts."""
     if contributions.empty:
         return pd.DataFrame(
-            columns=["track", "counts_as_broad", "n_species", "species_rate", "n_species_trait_pairs"]
+            columns=[
+                "track",
+                "counts_as_broad",
+                "n_species",
+                "species_rate",
+                "n_species_trait_pairs",
+            ]
         )
     rows: list[dict[str, Any]] = []
-    for (track, counts_as_broad), group in contributions.groupby(["track", "counts_as_broad"], sort=True):
+    for (track, counts_as_broad), group in contributions.groupby(
+        ["track", "counts_as_broad"], sort=True
+    ):
         species = set(group["accepted_species"])
         rows.append(
             {
@@ -253,13 +299,180 @@ def build_by_track(contributions: pd.DataFrame, n_master: int) -> pd.DataFrame:
                 "counts_as_broad": bool(counts_as_broad),
                 "n_species": len(species),
                 "species_rate": len(species) / n_master if n_master else 0.0,
-                "n_species_trait_pairs": int(len(group.drop_duplicates(["accepted_species", "trait_name"]))),
+                "n_species_trait_pairs": int(
+                    len(group.drop_duplicates(["accepted_species", "trait_name"]))
+                ),
             }
         )
-    return pd.DataFrame(rows).sort_values(["counts_as_broad", "track"], ascending=[False, True]).reset_index(drop=True)
+    return (
+        pd.DataFrame(rows)
+        .sort_values(["counts_as_broad", "track"], ascending=[False, True])
+        .reset_index(drop=True)
+    )
 
 
-def build_summary(contributions: pd.DataFrame, config: dict[str, Any], n_master: int) -> dict[str, Any]:
+def _joined(values: pd.Series) -> str:
+    return "|".join(sorted({_text(value) for value in values if _text(value)}))
+
+
+def build_species_trait_ledger(
+    master_species: list[str],
+    contributions: pd.DataFrame,
+    reported_traits: list[str],
+    applicability: pd.DataFrame | None = None,
+    angiosperm_only_traits: set[str] | None = None,
+) -> pd.DataFrame:
+    """Account for every master species x reported-trait cell explicitly."""
+    base = pd.MultiIndex.from_product(
+        [master_species, reported_traits],
+        names=["accepted_species", "trait_name"],
+    ).to_frame(index=False)
+    if applicability is None:
+        base["taxonomic_group"] = ""
+        base["angiosperm_analysis_eligible"] = True
+    else:
+        base = base.merge(
+            applicability[
+                [
+                    "accepted_species",
+                    "taxonomic_group",
+                    "angiosperm_analysis_eligible",
+                ]
+            ],
+            on="accepted_species",
+            how="left",
+            validate="many_to_one",
+        )
+        base["taxonomic_group"] = base["taxonomic_group"].fillna("family_unresolved")
+        base["angiosperm_analysis_eligible"] = (
+            base["angiosperm_analysis_eligible"].fillna(False).astype(bool)
+        )
+    gated_traits = angiosperm_only_traits or set()
+    base["trait_applicable"] = (
+        ~base["trait_name"].isin(gated_traits) | base["angiosperm_analysis_eligible"]
+    )
+    selected = contributions.loc[contributions["trait_name"].isin(reported_traits)].copy()
+    if selected.empty:
+        grouped = pd.DataFrame(
+            columns=[
+                "accepted_species",
+                "trait_name",
+                "source_keys",
+                "tracks",
+                "source_backed",
+            ]
+        )
+    else:
+        grouped = (
+            selected.groupby(["accepted_species", "trait_name"], sort=False)
+            .agg(
+                source_keys=("source_key", _joined),
+                tracks=("track", _joined),
+                source_backed=("counts_as_broad", "any"),
+            )
+            .reset_index()
+        )
+    ledger = base.merge(
+        grouped,
+        on=["accepted_species", "trait_name"],
+        how="left",
+        validate="one_to_one",
+    )
+    ledger["source_keys"] = ledger["source_keys"].fillna("")
+    ledger["tracks"] = ledger["tracks"].fillna("")
+    ledger["source_backed"] = ledger["source_backed"].fillna(False).astype(bool)
+    ledger.loc[~ledger["trait_applicable"], "source_backed"] = False
+    has_candidate = ledger["source_keys"].ne("")
+    ledger["acquisition_status"] = "no_candidate_yet"
+    ledger.loc[has_candidate & ~ledger["source_backed"], "acquisition_status"] = (
+        "candidate_non_source_backed_only"
+    )
+    ledger.loc[ledger["source_backed"], "acquisition_status"] = "source_backed_candidate"
+    ledger["unresolved_reason"] = "not_found_in_configured_sources_yet"
+    ledger.loc[has_candidate & ~ledger["source_backed"], "unresolved_reason"] = (
+        "only_non_source_backed_candidate"
+    )
+    ledger.loc[ledger["source_backed"], "unresolved_reason"] = ""
+    ledger.loc[~ledger["trait_applicable"], "acquisition_status"] = "not_applicable_taxonomic_scope"
+    ledger.loc[~ledger["trait_applicable"], "unresolved_reason"] = (
+        "trait_not_applicable_to_non_angiosperm_scope"
+    )
+    return ledger
+
+
+def build_species_ledger(
+    master_species: list[str],
+    species_trait_ledger: pd.DataFrame,
+    reported_traits: list[str],
+) -> pd.DataFrame:
+    """Summarise all trait-cell states without dropping zero-hit species."""
+    work = species_trait_ledger.copy()
+    work["has_any_candidate"] = work["source_keys"].ne("")
+    summary = (
+        work.groupby("accepted_species", sort=False)
+        .agg(
+            taxonomic_group=("taxonomic_group", "first"),
+            angiosperm_analysis_eligible=("angiosperm_analysis_eligible", "first"),
+            n_reported_traits=("trait_name", "size"),
+            n_applicable_traits=("trait_applicable", "sum"),
+            n_traits_source_backed=("source_backed", "sum"),
+            n_traits_any_channel=("has_any_candidate", "sum"),
+        )
+        .reindex(master_species)
+        .reset_index()
+    )
+    broad = (
+        work.loc[work["source_backed"]]
+        .groupby("accepted_species", sort=False)["trait_name"]
+        .agg("|".join)
+    )
+    missing = (
+        work.loc[work["trait_applicable"] & ~work["source_backed"]]
+        .groupby("accepted_species", sort=False)["trait_name"]
+        .agg("|".join)
+    )
+    summary["source_backed_traits"] = summary["accepted_species"].map(broad).fillna("")
+    summary["missing_source_backed_traits"] = summary["accepted_species"].map(missing).fillna("")
+    summary["acquisition_status"] = "no_candidate_yet"
+    summary["unresolved_reason"] = "not_found_in_configured_sources_yet"
+    inference_only = summary["n_traits_any_channel"].gt(0) & summary["n_traits_source_backed"].eq(0)
+    partial = summary["n_traits_source_backed"].gt(0) & summary["n_traits_source_backed"].lt(
+        summary["n_applicable_traits"]
+    )
+    not_applicable = summary["n_applicable_traits"].eq(0)
+    complete = summary["n_applicable_traits"].gt(0) & summary["n_traits_source_backed"].eq(
+        summary["n_applicable_traits"]
+    )
+    summary.loc[inference_only, "acquisition_status"] = "candidate_non_source_backed_only"
+    summary.loc[inference_only, "unresolved_reason"] = "only_non_source_backed_candidates"
+    summary.loc[partial, "acquisition_status"] = "partial_source_backed"
+    summary.loc[partial, "unresolved_reason"] = "source_backed_candidate_missing_for_some_traits"
+    summary.loc[complete, "acquisition_status"] = "all_reported_traits_source_backed"
+    summary.loc[complete, "unresolved_reason"] = ""
+    summary.loc[not_applicable, "acquisition_status"] = "not_applicable_taxonomic_scope"
+    summary.loc[not_applicable, "unresolved_reason"] = (
+        "all_reported_traits_outside_angiosperm_scope"
+    )
+    return summary[
+        [
+            "accepted_species",
+            "taxonomic_group",
+            "angiosperm_analysis_eligible",
+            "acquisition_status",
+            "unresolved_reason",
+            "n_reported_traits",
+            "n_applicable_traits",
+            "n_traits_source_backed",
+            "n_traits_any_channel",
+            "source_backed_traits",
+            "missing_source_backed_traits",
+        ]
+    ]
+
+
+def build_summary(
+    contributions: pd.DataFrame, config: dict[str, Any], n_master: int
+) -> dict[str, Any]:
     """Headline broad acquisition rates for the core minimum and any trait."""
     colour_traits = list(config["core_traits"].get("colour", []))
     form_traits = list(config["core_traits"].get("form", []))
@@ -300,19 +513,54 @@ def run(
 ) -> None:
     """Write per-trait, per-track, and headline broad acquisition-rate outputs."""
     config = load_config(config_path)
-    master_list = load_master_species(Path(config["master_taxa_csv"]), config["master_species_column"])
+    master_list = load_master_species(
+        Path(config["master_taxa_csv"]), config["master_species_column"]
+    )
+    applicability = load_master_applicability(
+        Path(config["master_taxa_csv"]),
+        config["master_species_column"],
+        config,
+    )
     master = set(master_list)
     n_master = len(master_list)
 
     contributions, off_master = collect_contributions(config, master)
     by_trait = build_by_trait(contributions, config, n_master)
     by_track = build_by_track(contributions, n_master)
+    species_trait_ledger = build_species_trait_ledger(
+        master_list,
+        contributions,
+        list(config["reported_traits"]),
+        applicability,
+        set(config.get("angiosperm_only_traits") or []),
+    )
+    species_ledger = build_species_ledger(
+        master_list,
+        species_trait_ledger,
+        list(config["reported_traits"]),
+    )
     summary = build_summary(contributions, config, n_master)
     summary["off_master_rows_dropped_by_source"] = off_master
+    summary["n_master_species_accounted"] = int(len(species_ledger))
+    summary["n_species_trait_cells_accounted"] = int(len(species_trait_ledger))
+    summary["species_acquisition_status_counts"] = {
+        str(key): int(value)
+        for key, value in species_ledger["acquisition_status"].value_counts().items()
+    }
 
     output_dir.mkdir(parents=True, exist_ok=True)
     by_trait.to_csv(output_dir / "acquisition_rate_by_trait.csv", index=False)
     by_track.to_csv(output_dir / "acquisition_rate_by_track.csv", index=False)
+    species_ledger.to_csv(
+        output_dir / "acquisition_status_by_species.csv.gz",
+        index=False,
+        compression={"method": "gzip", "mtime": 0},
+    )
+    species_trait_ledger.to_csv(
+        output_dir / "acquisition_status_by_species_trait.csv.gz",
+        index=False,
+        compression={"method": "gzip", "mtime": 0},
+    )
     (output_dir / "acquisition_rate_summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )

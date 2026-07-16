@@ -1,0 +1,46 @@
+version: "1.0"
+
+source:
+  name: razanajatovo_etal_2016_nature_communications
+  citation: >-
+    Razanajatovo et al. (2016), Plants capable of selfing are more likely to
+    become naturalized, Nature Communications 7:13313, Supplementary Data 1.
+  article_url: https://doi.org/10.1038/ncomms13313
+  data_url: >-
+    https://static-content.springer.com/esm/art%3A10.1038%2Fncomms13313/MediaObjects/41467_2016_BFncomms13313_MOESM1062_ESM.xlsx
+  license: CC-BY-4.0
+  expected_workbook_sha256: cb17009ae65c4f6cb2d28b21239714782600d0904effa77c5635249d28e62fc0
+  expected_sheet_csv_sha256: e030e1053d0c0b5a73ecc9a4dde3b26ba3fab20f8bb65cd61d01f4883800547b
+  expected_rows: 1890
+  worksheet: Razanajatovo_etal_data
+
+columns:
+  scientific_name: Species
+  family: Family
+  source_reference: Data_source
+  self_compatibility_indices:
+    - Self-compatibility_index_FS
+    - Self-compatibility_index_SFL
+  autofertility_indices:
+    - Autofertility_index_FS
+    - Autofertility_index_SFL
+
+thresholds:
+  lower: 0.2
+  upper: 0.8
+  # Low selfed fruit/seed set alone does not prove a genetic SI mechanism, so
+  # values at or below lower are not converted to SI.
+  low_self_compatibility_is_si: false
+
+family_aliases:
+  Compositae: Asteraceae
+  Leguminosae: Fabaceae
+
+gbif_reconciliation:
+  endpoint: https://api.gbif.org/v1/species/match
+  minimum_confidence: 95
+  allowed_match_type: EXACT
+  allowed_rank: SPECIES
+  allowed_kingdom: Plantae
+  allowed_status:
+    - SYNONYM

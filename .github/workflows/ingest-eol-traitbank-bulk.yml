@@ -38,9 +38,12 @@ on:
       - ".github/workflows/ingest-eol-traitbank-bulk.yml"
       - "config/eol_traitbank_terms.yml"
       - "config/bulk_trait_sources.yml"
+      - "config/acquisition_rate.yml"
       - "config/trait_ontology.yml"
+      - "src/island_v2/acquisition_rate_report.py"
       - "src/island_v2/eol_traitbank.py"
       - "src/island_v2/bulk_trait_ingest.py"
+      - "tests/test_acquisition_rate_report.py"
       - "tests/test_eol_traitbank.py"
   push:
     branches: [main]
@@ -93,7 +96,11 @@ jobs:
               raise SystemExit("max_trait_rows must be zero or positive.")
           PY
       - name: Run focused EOL tests
-        run: pytest -q tests/test_eol_traitbank.py tests/test_bulk_trait_ingest.py
+        run: |
+          pytest -q \
+            tests/test_eol_traitbank.py \
+            tests/test_bulk_trait_ingest.py \
+            tests/test_acquisition_rate_report.py
       - name: Restore EOL archive cache
         if: github.event_name != 'pull_request'
         uses: actions/cache@v4
@@ -135,6 +142,18 @@ jobs:
             | tee /tmp/eol_traitbank_bulk/download_sha/download_sha256.txt
           du -h /tmp/traits_all.zip
           df -h
+      - name: Extract CRC-verified EOL archive
+        if: github.event_name != 'pull_request'
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/eol_traitbank_archive
+          mkdir -p /tmp/eol_traitbank_archive
+          unzip -q /tmp/traits_all.zip -d /tmp/eol_traitbank_archive
+          TRAITS_CSV=$(find /tmp/eol_traitbank_archive -type f -name traits.csv -print -quit)
+          test -n "$TRAITS_CSV"
+          test -s "$TRAITS_CSV"
+          du -sh /tmp/eol_traitbank_archive
+          df -h
       - name: Convert EOL TraitBank terms to v2 long CSV
         if: github.event_name != 'pull_request'
         run: |
@@ -145,6 +164,7 @@ jobs:
           fi
           island-v2-bulk-traits prepare-eol \
             --eol-archive /tmp/traits_all.zip \
+            --eol-content-dir /tmp/eol_traitbank_archive \
             --output-dir /tmp/eol_traitbank_bulk/prepared \
             --config-path config/eol_traitbank_terms.yml \
             --ontology-path config/trait_ontology.yml \
@@ -209,11 +229,13 @@ jobs:
                   )
           PY
       - name: Build compact repository evidence bundle
-        if: github.event_name == 'push' && env.MAX_TRAIT_ROWS == '0'
+        if: github.event_name != 'pull_request' && env.MAX_TRAIT_ROWS == '0'
         run: |
           set -euo pipefail
-          git fetch origin main
-          git checkout -B main origin/main
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            git fetch origin main
+            git checkout -B main origin/main
+          fi
           python - <<'PY'
           import gzip
           import json
@@ -281,6 +303,27 @@ jobs:
               encoding="utf-8",
           )
           PY
+      - name: Build all-master acquisition ledger
+        if: github.event_name != 'pull_request' && env.MAX_TRAIT_ROWS == '0'
+        run: |
+          set -euo pipefail
+          island-v2-acquisition-rate run \
+            --config-path config/acquisition_rate.yml \
+            --output-dir /tmp/eol_traitbank_bulk/acquisition_rate
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+
+          summary = json.loads(
+              Path("/tmp/eol_traitbank_bulk/acquisition_rate/acquisition_rate_summary.json")
+              .read_text(encoding="utf-8")
+          )
+          print("\n### All-master acquisition ledger")
+          print(f"- master species accounted: {summary['n_master_species_accounted']}")
+          print(f"- species-trait cells accounted: {summary['n_species_trait_cells_accounted']}")
+          for status, count in summary["species_acquisition_status_counts"].items():
+              print(f"- {status}: {count}")
+          PY
       - name: Commit full-run coverage bundle
         if: github.event_name == 'push' && env.MAX_TRAIT_ROWS == '0'
         run: |
@@ -308,5 +351,43 @@ jobs:
         with:
           name: eol-traitbank-bulk-${{ github.run_id }}
           path: /tmp/eol_traitbank_bulk/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Write full-archive production contract
+        if: >-
+          github.event_name != 'pull_request' && env.MAX_TRAIT_ROWS == '0' &&
+          github.ref_name == github.event.repository.default_branch
+        env:
+          RUN_ID: ${{ github.run_id }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          mkdir -p /tmp/eol-production-contract
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          contract = {
+              "contract_version": "eol_traitbank_full_archive_v1",
+              "run_id": int(os.environ["RUN_ID"]),
+              "head_sha": os.environ["HEAD_SHA"],
+              "source_name": os.environ["SOURCE_NAME"],
+              "source_url": os.environ["EOL_ZIP_URL"],
+              "expected_md5": os.environ["EXPECTED_MD5"].lower(),
+              "max_trait_rows": 0,
+          }
+          Path("/tmp/eol-production-contract/production_contract.json").write_text(
+              json.dumps(contract, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+      - name: Upload full-archive production marker
+        if: >-
+          github.event_name != 'pull_request' && env.MAX_TRAIT_ROWS == '0' &&
+          github.ref_name == github.event.repository.default_branch
+        uses: actions/upload-artifact@v4
+        with:
+          name: eol-traitbank-production-${{ github.run_id }}
+          path: /tmp/eol-production-contract/
           if-no-files-found: error
           retention-days: 90

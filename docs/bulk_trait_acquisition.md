@@ -69,6 +69,47 @@ forced into a 100,000-species global table: pollination guild, SI/SC,
 autonomous selfing, mating system, herkogamy, dichogamy, and cleistogamy.
 They are analysed later as source-rich sensitivity panels, not imputed globally.
 
+## Public-page and LLM gap-filling lanes
+
+Bulk databases remain the first pass, but they are not the only configured
+source class. Remaining gaps can be searched in public floras, illustrated
+plant references, institutional plant sites, horticultural references,
+Wikipedia, GBIF descriptions and exact-species scholarly metadata. The
+[public-web shard campaign](public_web_trait_shard_campaign.md) records the
+retrieved URL, bounded source excerpt, species identity and source-text hash.
+A page contributes only the traits that its text states; descriptive colour or
+shape is not converted into a pollination or mating-system claim.
+
+Google and Brave are bounded URL-discovery options through their official APIs.
+Search-result HTML is not scraped, and titles or snippets never count as trait
+evidence. A discovered URL must be retrieved under the source site's access
+policy and provide an exact species-matched excerpt before a source-backed row
+can be created.
+
+LLM processing has two separate acceptance paths, described in
+[Reproducible LLM-assisted evidence extraction](v2_llm_evidence_extraction.md):
+
+- quote-locked extraction can remain source-backed only when the frozen page,
+  exact quote, species, ontology value and all packet hashes validate; and
+- model-only completion has no source URL and is always stored as
+  `evidence_type=inference`, `confidence=low`; direct `SI`/`SC` model outputs
+  are weakened to `likely_SI`/`likely_SC` at export.
+
+Raw model responses and generic candidate CSVs are not accepted as LLM inputs
+to the all-master exporter. Source-backed rows outrank validated model-only
+inference when both exist.
+
+## Whole-master accounting contract
+
+Acquisition coverage and output-row coverage are different quantities. Every
+all-master build must emit exactly one nine-column row for each of the 115,328
+unique master species. The current scope contains 106,295 applicable
+family-classified angiosperms; all 9,033 non-angiosperm or family-unresolved
+names remain present as explicit all-`unknown`, `confidence=low` rows. An
+applicable all-`unknown` row means "not yet acquired", never biological absence.
+The current requested-field counts and remaining gap count are reported with
+the promoted public-web snapshot rather than described as complete coverage.
+
 ## Running an import
 
 The GitHub Actions workflow `ingest_bulk_trait_source` is manual and needs no
@@ -106,3 +147,138 @@ small `max_trait_rows` smoke test, inspect the unmapped-term and name-match
 audits, then rerun with `max_trait_rows = 0` for the full archive. `inferred.csv`
 is deliberately not used for direct evidence candidates; only rows attached to
 the EOL trait record itself enter the v2 pending-evidence path.
+
+## GIFT 3.2 direct-record lane
+
+The `Acquire GIFT direct floral traits` workflow uses the
+[official versioned public API](https://biogeomacro.github.io/GIFT/articles/web_only/GIFT_API.html)
+rather than an aggregated trait table. Its filtering follows the documented
+[raw-trait contract](https://biogeomacro.github.io/GIFT/reference/GIFT_traits_raw.html)
+and records the [GIFT data-quality disclaimer](https://biogeomacro.github.io/GIFT/articles/web_only/GIFT_Disclaimer.html):
+
+```text
+GIFT 3.2 metadata + references + species + traits_raw
+-> deriv=0 / biasderiv=0 and public-reference checks
+-> exact categorical ontology mappings + exclusion audit
+-> version-pinned GIFT work-species names
+-> generic canonical-long bulk importer
+-> Island-master pending candidates
+```
+
+`island-v2-fetch-gift-traits` archives every returned raw row, the full species
+and reference metadata used, query URLs, file checksums, and every exclusion
+reason. The evidence excerpt is a compact serialization of the exact raw GIFT
+fields, while `source_citation` retains the underlying bibliographic
+`ref_long`. API rows leaking outside the requested reference/trait pair,
+infraspecific records, unresolved names, restricted/missing references, and
+ambiguous ontology mappings never become candidates.
+
+The full GitHub production run
+[`29338693288`](https://github.com/zuizui0223/island/actions/runs/29338693288)
+archived 14,122 raw API rows and produced 19,243 Island-matched candidates
+across 6,983 species. Required evidence fields were empty in zero candidates.
+The resulting source coverage is 5,288 species for functional guild, 5,210 for
+pollen-vector mode, 1,929 for sex system, and 1,613 for flower colour. Its
+90-day artifact is `gift-direct-traits-29338693288` (artifact ID `8313108327`,
+digest `sha256:ae660ca791bab115f21d8b2ce7c9fdf65446c66365b274b6e33a7af1ada9ccca`).
+
+The three-source EOL + AusTraits + GIFT all-master build
+[`29339087438`](https://github.com/zuizui0223/island/actions/runs/29339087438)
+retains all 115,328 species and all 1,499,264 species-trait cells. It raises
+source-backed any-trait coverage from 12,454 to 16,815 species and reduces the
+eligible no-candidate count from 94,063 to 89,833. This remains incomplete
+coverage, not a claim that the other species lack the traits.
+
+## Accounted eFloras production lane
+
+The all-Flora workflow built complete inventories for Flora of North America,
+Flora of China, and the Annotated Checklist of the Flowering Plants of Nepal,
+then split every Island-matched treatment request across 12 shards. A page only
+becomes evidence when `lblTaxonDesc` contains a confirmed species treatment
+whose heading resolves back to the Island master. Genus pages, short or empty
+records, and mismatching headings are rejected explicitly rather than reused as
+species evidence.
+
+The source run
+[`29330032130`](https://github.com/zuizui0223/island/actions/runs/29330032130)
+accounted for all 18,251 selected treatment requests: 14,734 confirmed treatment
+rows and 3,517 rejected records, with zero pending requests and zero HTTP
+errors. The confirmed records yielded 14,008 direct candidates for 8,668 Island
+species: 7,834 flower-colour, 2,069 floral-form, 1,032 sex-system, 101
+floral-symmetry, and 79 self-incompatibility species.
+
+The original jobs returned a failure conclusion because their first contract
+treated any rejected page as an incomplete run. The successful promotion run
+[`29382678187`](https://github.com/zuizui0223/island/actions/runs/29382678187)
+re-collected the immutable 12 shard artifacts without requesting eFloras again,
+verified `confirmed + rejected = selected` for every shard, and added all 3,517
+rejection records to `all_acquisition_failures.jsonl`. Its 90-day artifact is
+`efloras-all-floras-combined` (artifact ID `8330314679`, digest
+`sha256:9abe55a5c50c22c3bb272bf1509bf3b99c47e80fbd698660a4dd0382bfd8a896`).
+
+The evidence-preserving re-extraction run
+[`29409302362`](https://github.com/zuizui0223/island/actions/runs/29409302362)
+reused those same 14,734 confirmed treatment texts and expanded only direct
+floral-context terms (for example stellate, infundibuliform, hypocrateriform,
+capitulum and asymmetric). It made no new taxonomic matches and no trait
+inference. The promoted artifact contains 14,502 candidate rows: floral-form
+coverage increased from 2,069 to 2,316 species and floral-symmetry coverage
+from 101 to 141 species. Its artifact ID is `8340405765` and digest is
+`sha256:adf0ed8529a22faf37e22873864469e29fc59dd5ece04fa4956926b82055a502`.
+
+## USDA PLANTS direct Flower Color lane
+
+The `Acquire USDA PLANTS direct floral traits` workflow snapshots the public
+USDA PLANTS characteristic-result and characteristic-filter API responses. The
+API is not versioned, so the pipeline archives the exact JSON fields, retrieval
+time, query URLs, and SHA-256 checksums. It follows the database's
+[official scope and citation guidance](https://plants.sc.egov.usda.gov/help).
+
+Only the direct `Flower Color` values Blue, Brown, Green, Orange, Purple, Red,
+White, and Yellow are mapped. Source IDs must also be explicitly classified as
+Dicot or Monocot. Non-angiosperms, infraspecific names, hybrids, unknown values,
+and unresolved identifiers remain in the exclusion audit; no value is inferred.
+Obsolete IDs absent from the bulk result are resolved only through their exact
+public `PlantProfile/{id}` response.
+
+Production run
+[`29382621509`](https://github.com/zuizui0223/island/actions/runs/29382621509)
+snapshotted 2,117 source Flower Color IDs, prepared 1,868 conservative binomial
+angiosperm rows, and retained 246 explicit exclusions. Exact Island-master
+matching produced 1,451 flower-colour candidates across 1,451 species, with
+zero empty required evidence fields. Its 90-day artifact is
+`usda-plants-direct-traits-29382621509` (artifact ID `8330303160`, digest
+`sha256:786f65fb8f10d786aa2ffb44a5f1f91522a9dc0f452b8331f42841eb2103bdf1`).
+
+## Five-source all-master production ledger
+
+The five-source production build
+[`29382735518`](https://github.com/zuizui0223/island/actions/runs/29382735518)
+materialized the exact EOL, AusTraits, GIFT, eFloras, and USDA artifacts above.
+It retains all 115,328 master species and all 1,499,264 species-trait cells.
+Every required evidence field is nonempty in every materialized source.
+
+Broad direct-candidate coverage is 23,006 species (19.95%). The exhaustive
+species ledger classifies 22,621 species as partially source-backed, 83,661 as
+eligible but still without a configured-source candidate, 9,033 as outside the
+taxonomic scope of floral traits, and 13 as having only non-source-backed
+candidates. These are acquisition states, not biological absence claims.
+
+Coverage by requested trait is 13,257 species for flower colour, 2,124 for
+floral form, 855 for symmetry, 23 for flower-size class, 1 for tube depth,
+8,674 for pollen-vector mode, 9,035 for pollination guild, 11,804 for sex
+system, 37 for mating system, 178 for self-incompatibility, 308 for autonomous
+selfing, 2 for cleistogamy, and 69 for dichogamy. The artifact
+`all-master-trait-ledger-29382735518` has ID `8330348999` and digest
+`sha256:00c3b7c0a12973bde27fe70f0387b48bcf410e3869402fd89a52e5c932f36c9a`.
+
+## Artifact continuity
+
+The monthly `Refresh durable trait source artifacts` controller dispatches
+fresh EOL, AusTraits, eFloras, GIFT, and USDA snapshots before their Actions
+artifacts expire. eFloras intermediate and combined artifacts use the same
+90-day retention window as the other bulk lanes. An automatic all-master build
+resolves the newest successful run that still contains the exact expected,
+non-expired artifact name and records the resolved run IDs in its summary.
+For a historical reconstruction, manually set `resolve_latest_sources=false`
+and supply the pinned run IDs instead.

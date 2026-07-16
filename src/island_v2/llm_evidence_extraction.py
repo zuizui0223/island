@@ -37,12 +37,18 @@ TARGET_TRAITS = [
     "flower_primary_color",
     "floral_form",
     "floral_symmetry",
+    "tube_depth_class",
+    "flower_size_class",
+    "inflorescence_display",
+    "reward_type",
+    "sex_system",
     "autonomous_selfing_capacity",
     "mating_system",
     "self_incompatibility",
+    "herkogamy",
+    "dichogamy",
     "cleistogamy",
     "pollen_vector_mode",
-    "pollination_functional_guild",
 ]
 CLAIM_REQUIRED_FIELDS = {
     "accepted_species",
@@ -101,11 +107,22 @@ def _file_sha256(path: Path) -> str:
     return _sha256_bytes(path.read_bytes())
 
 
+def _atomic_write_text(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.tmp")
+    temporary.write_text(text, encoding="utf-8", newline="\n")
+    temporary.replace(path)
+
+
 def _json_dump(path: Path, value: Any) -> None:
-    path.write_text(
+    _atomic_write_text(
+        path,
         json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
     )
+
+
+def _csv_dump(path: Path, frame: pd.DataFrame) -> None:
+    _atomic_write_text(path, frame.to_csv(index=False, lineterminator="\n"))
 
 
 def load_ontology(path: Path = DEFAULT_ONTOLOGY_PATH) -> tuple[dict[str, Any], str]:
@@ -286,12 +303,16 @@ def prepare_packets(
 
     ontology, ontology_sha = load_ontology(ontology_path)
     requested_traits = [_text(value) for value in target_traits if _text(value)]
-    unknown_traits = [trait for trait in requested_traits if trait not in (ontology.get("traits") or {})]
+    unknown_traits = [
+        trait for trait in requested_traits if trait not in (ontology.get("traits") or {})
+    ]
     if unknown_traits:
         raise typer.BadParameter(f"target traits not present in ontology: {unknown_traits}")
 
     order = _species_order(sources, species_csv, species_column)
-    source_species = set(sources.loc[sources["evidence_scope"].eq("species_direct"), "accepted_species"])
+    source_species = set(
+        sources.loc[sources["evidence_scope"].eq("species_direct"), "accepted_species"]
+    )
     coverage = existing_coverage(candidate_csvs)
 
     task_specs: list[dict[str, Any]] = []
@@ -306,7 +327,9 @@ def prepare_packets(
                 "accepted_species": species,
                 "target_traits": gaps,
                 "allowed_values": {
-                    trait: [value for value in allowed_values(ontology, trait) if value != "unresolved"]
+                    trait: [
+                        value for value in allowed_values(ontology, trait) if value != "unresolved"
+                    ]
                     for trait in gaps
                 },
             }
@@ -330,8 +353,11 @@ def prepare_packets(
         if chunks_by_species.get(task["accepted_species"])
     ]
 
-    prompt_text = prompt_path.read_text(encoding="utf-8")
-    prompt_sha = _sha256_text(prompt_text)
+    # ``read_text`` normalizes platform line endings.  Encode that normalized
+    # text once and write the exact bytes so the manifest hashes the same
+    # prompt payload on Windows and POSIX systems.
+    prompt_bytes = prompt_path.read_text(encoding="utf-8").encode("utf-8")
+    prompt_sha = _sha256_bytes(prompt_bytes)
     output_dir.mkdir(parents=True, exist_ok=True)
     packet_rows: list[dict[str, Any]] = []
 
@@ -351,7 +377,7 @@ def prepare_packets(
         }
         input_path = batch_dir / "packet_input.json"
         _json_dump(input_path, packet_input)
-        (batch_dir / "prompt.txt").write_text(prompt_text, encoding="utf-8")
+        (batch_dir / "prompt.txt").write_bytes(prompt_bytes)
         (batch_dir / "result_template.jsonl").write_text("", encoding="utf-8")
         input_sha = _file_sha256(input_path)
         manifest = {
@@ -433,6 +459,13 @@ def validate_results(
 ) -> dict[str, Any]:
     if not model_id.strip():
         raise typer.BadParameter("model_id is required")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    accepted_path = output_dir / "v2_llm_reported_candidates.csv"
+    rejected_path = output_dir / "llm_rejected_claims.csv"
+    ingest_manifest_path = output_dir / "llm_ingest_manifest.json"
+    for stale_path in (accepted_path, rejected_path, ingest_manifest_path):
+        stale_path.unlink(missing_ok=True)
+
     input_path = packet_dir / "packet_input.json"
     prompt_path = packet_dir / "prompt.txt"
     manifest_path = packet_dir / "packet_manifest.json"
@@ -454,6 +487,7 @@ def validate_results(
         _text(source.get("source_chunk_id")): source for source in packet.get("sources", [])
     }
     result_sha = _file_sha256(result_jsonl)
+    packet_manifest_sha = _file_sha256(manifest_path)
     run_material = "|".join(
         [
             _text(model_provider),
@@ -546,12 +580,9 @@ def validate_results(
             }
         )
 
-    output_dir.mkdir(parents=True, exist_ok=True)
     accepted_frame = pd.DataFrame(accepted, columns=VALIDATED_COLUMNS)
     rejected_frame = pd.DataFrame(rejected, columns=["line_number", "reason", "raw_json"])
-    accepted_frame.to_csv(output_dir / "v2_llm_reported_candidates.csv", index=False)
-    rejected_frame.to_csv(output_dir / "llm_rejected_claims.csv", index=False)
-    report = {
+    base_report = {
         "contract_version": "1.0",
         "extraction_run_id": extraction_run_id,
         "model_provider": _text(model_provider),
@@ -560,22 +591,44 @@ def validate_results(
         "prompt_version": _text(packet.get("prompt_version")),
         "prompt_sha256": _text(manifest.get("prompt_sha256")),
         "packet_input_sha256": _text(manifest.get("packet_input_sha256")),
+        "packet_manifest_sha256": packet_manifest_sha,
         "ontology_sha256": _text(packet.get("ontology_sha256")),
-        "n_validated_claims": len(accepted_frame),
         "n_rejected_claims": len(rejected_frame),
-        "n_species_with_validated_claims": (
-            int(accepted_frame["accepted_species"].nunique()) if len(accepted_frame) else 0
-        ),
         "policy": (
             "Validated rows are source-backed unreviewed candidates, not curated truth. "
             "A missing LLM claim is unresolved and never biological absence."
         ),
     }
-    _json_dump(output_dir / "llm_ingest_manifest.json", report)
     if strict and len(rejected_frame):
+        _csv_dump(rejected_path, rejected_frame)
+        failure_report = {
+            **base_report,
+            "validation_status": "failed",
+            "failure_reason": "strict_claim_validation_failed",
+            "n_claims_passing_validation": len(accepted_frame),
+            "n_validated_claims": 0,
+            "n_species_with_validated_claims": 0,
+        }
+        _json_dump(ingest_manifest_path, failure_report)
         raise typer.BadParameter(
             f"{len(rejected_frame)} LLM claim(s) failed validation; see llm_rejected_claims.csv"
         )
+
+    _csv_dump(rejected_path, rejected_frame)
+    _csv_dump(accepted_path, accepted_frame)
+    accepted_sha = _file_sha256(accepted_path)
+    report = {
+        **base_report,
+        "validation_status": "success",
+        "accepted_csv_filename": accepted_path.name,
+        "accepted_csv_sha256": accepted_sha,
+        "accepted_csv_row_count": len(accepted_frame),
+        "n_validated_claims": len(accepted_frame),
+        "n_species_with_validated_claims": (
+            int(accepted_frame["accepted_species"].nunique()) if len(accepted_frame) else 0
+        ),
+    }
+    _json_dump(ingest_manifest_path, report)
     return report
 
 
@@ -634,7 +687,9 @@ def ingest_command(
     packet_dir: Path = typer.Option(..., exists=True),
     result_jsonl: Path = typer.Option(..., exists=True),
     output_dir: Path = typer.Option(...),
-    model_id: str = typer.Option(..., help="Exact model identifier recorded for this extraction run."),
+    model_id: str = typer.Option(
+        ..., help="Exact model identifier recorded for this extraction run."
+    ),
     model_provider: str = typer.Option("user_supplied"),
     strict: bool = typer.Option(True, "--strict/--allow-rejected"),
 ) -> None:

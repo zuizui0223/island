@@ -186,17 +186,27 @@ membership is exactly:
   `floral_form`, `tube_depth_class`, `flower_size_class`, `inflorescence_display`.
   May be candidated broadly from floras, descriptions, herbarium and
   botanic-garden pages.
-- **M1 reproductive assurance / pollen vector**: `pollen_vector_mode`,
-  `self_incompatibility`, `autonomous_selfing_capacity`, `mating_system`,
+- **M1 reproductive architecture / assurance / pollen vector**: `sex_system`,
+  `pollen_vector_mode`, `self_incompatibility`, `autonomous_selfing_capacity`, `mating_system`,
   `herkogamy`, `dichogamy`, `cleistogamy`. **Main-analysis values restricted to
-  species-direct evidence.**
-- **M2 pollinator functional evidence**: pollinator guild, evidence type,
-  effectiveness evidence.
+  species-direct evidence.** `sex_system` is retained as a separate structural
+  category and is never recoded to selfing, outcrossing, compatibility, or a
+  pollen vector.
+- **M2 pollinator functional evidence (optional, non-core)**: pollinator guild,
+  evidence type, effectiveness evidence. It is not part of the exhaustive trait
+  completion target.
 
 Genus/family inference stays allowed but **isolated as `hierarchical_inference`
 for an expanded sensitivity track only**  -  never in the main analysis  -  for:
-`self_incompatibility`, `autonomous_selfing_capacity`, `mating_system`,
+`sex_system`, `self_incompatibility`, `autonomous_selfing_capacity`, `mating_system`,
 `herkogamy`, `dichogamy`, `pollination_functional_guild`.
+
+The coverage-completion table keeps two parallel value channels: a reported,
+source-backed value and an explicitly labelled low-confidence LLM-inference
+value. The latter may fill an otherwise unresolved display cell, but never
+overwrites reported evidence and never enters the primary direct-evidence
+analysis. A 100-species packet is a validation/retry unit rather than a per-turn
+limit; multiple packets are processed in parallel waves.
 
 ## Stage 3  -  pollinator functional evidence (long format)  implemented
 
@@ -267,25 +277,26 @@ zero-denominator rate is reported as `null` (undefined), never fabricated.
 The confirmatory/exploratory **model ladder**. These are analysis models, distinct
 from the trait evidence layers above. They are **gated**: no model is fitted or
 released until accepted taxon scope AND island establishment AND the region-scoped
-Bombus applicability freeze hold (see fail-closed principles). The outcome throughout
-is a **floral-phenotype-type proxy** (e.g. `large_bee_or_Bombus_like_floral_phenotype_proxy`),
-never an assertion of the actual pollinator. `reported` evidence and `proxy` stay in
-separate columns in every model.
+Bombus applicability freeze hold (see fail-closed principles). The outcomes are
+the observed multistate composition of floral signal, floral architecture and
+reproductive traits, never an inferred pollinator identity. `reported` evidence
+and `proxy` stay in separate columns in every model.
 
 - **M0  -  baseline model.** Covariates only: geography, source pool, lineage
   composition, island area, isolation, climate, establishment, observation process.
   Question: can the baseline alone explain the composition of floral-phenotype,
-  reproductive-assurance, and pollination-channel **proxies**?
+  reproductive-architecture and reproductive-assurance traits?
 
 - **M1  -  Bombus-channel association.** Add **Bombus channel state** to the M0
-  covariates and test whether it explains the large-bee/Bombus-like floral phenotype
-  proxy outcome. This is a comparison of *Bombus-associated floral phenotype*, **not**
-  confirmation of the real pollinator.
+  covariates and test whether it explains multistate floral-signal and
+  floral-architecture composition. This is a comparison of floral phenotype by
+  Bombus-channel state, **not** confirmation of the real pollinator.
 
 - **M2  -  reproductive-assurance-mediated route.** Test whether Bombus channel state
   relates to the floral-phenotype outcome **via** reproductive assurance /
   compatibility / selfing  -  using either `reported` evidence or `proxy` for the
-  mediator. (Mediation path: Bombus channel -> reproductive assurance -> phenotype.)
+  mediator. Sex system remains a separate reproductive-architecture category,
+  not a selfing proxy. (Path: Bombus channel -> reproductive assurance -> phenotype.)
 
 - **M3  -  joint direct-plus-mediated route.** A single model carrying **both** paths
   simultaneously:
@@ -293,7 +304,8 @@ separate columns in every model.
   - Bombus channel -> reproductive assurance (reported/proxy) -> floral phenotype proxy
     (mediated).
 
-- **M4  -  alternative functional replacement / compensation route.** On islands where
+- **M4  -  optional alternative functional replacement / compensation route.** Only
+  when direct interaction evidence is adequate, on islands where
   the Bombus channel is weak, absent, or not applicable, test whether **other channel
   types compensate**: `open_or_generalist_insect_like`, `small_bee_or_fly_like`,
   `butterfly_or_moth_like`, `bird_or_bat_like`, `wind_like`. The main term is the
@@ -303,5 +315,6 @@ separate columns in every model.
 
 Guardrails (all models): keep `reported` and `proxy` in separate columns; a proxy is a
 candidate phenotype-type outcome built from web/DB/literature statements or trait
-information, **not real data**; never label a taxon "Bombus-pollinated"  -  use
-`large_bee_or_Bombus_like_floral_phenotype_proxy`.
+information, **not real data**; never label a taxon "Bombus-pollinated" from
+floral or reproductive traits. Pollinator guild is optional direct interaction
+evidence and is not an exhaustive trait-completion target.

@@ -2,10 +2,11 @@
 
 ## Purpose
 
-The operational priority is **trait yield**, not measurement. Direct
-source-backed evidence covers well under 1% of the master for most fields, so
+The operational priority is **complete, resolution-labelled coverage while
+continuing to increase direct evidence**. Direct source-backed coverage is
+uneven across traits, so
 `island-v2-trait-fill-cascade` fills every eligible species-trait by descending a
-source-blind fallback ladder until the 9-column `unknown` is driven toward zero:
+fallback ladder until unresolved eligible cells are driven toward zero:
 
 ```text
 species_direct -> synonym_direct -> genus_inference -> family_inference -> global_fallback
@@ -36,12 +37,37 @@ is candidate coverage, never a biological absence.
 - **Traits are filled independently.** One trait is never derived from another;
   self-compatibility never fills autonomous selfing.
 - **Inference keeps its distribution.** Genus/family/global fills record the
-  supporting `value_distribution`, so a modal fill can be checked against a
-  distribution-aware draw rather than trusted as a hard code.
+  supporting `value_distribution`. A unique mode is selected when one exists;
+  tied modes use a reproducible empirical-distribution draw keyed by species
+  and trait. This avoids alphabetical tie-breaking, preserves the taxonomically
+  closest available tier, and remains explicitly low-confidence inference.
+- **Direct conflicts are not silently decided.** Equal-weight species-level
+  states are removed from `reported_value`, retained in
+  `direct_conflict_distribution`, and rescued only through the explicitly
+  inferred channel. Multiple reported flower colours are retained as
+  `multicolored_variable`, because colour is intentionally a plural trait.
+- **One species, one prior vote.** After resolving each species' direct value,
+  genus, family and global distributions count each species once. Duplicate
+  databases or repeated source rows cannot dominate inference merely by volume.
+- **Ontology is fail-closed.** Source-specific direct-evidence adapters require
+  species-direct scope and source provenance. Values are normalized to
+  `config/trait_ontology.yml`; an out-of-domain value fails materialization
+  instead of spreading through a fallback tier.
 - **Support thresholds.** `min_genus_support` / `min_family_support` gate the
   inference tiers; below family support the global fallback fills.
 - **Direct evidence wins.** A species with its own value always keeps it. Curated
   evidence outweighs machine candidates in the modal vote.
+- **Reported and inferred values remain distinguishable.** `species_direct` and
+  `synonym_direct` are reported-evidence tiers; genus, family, and global tiers
+  are explicitly inferred sensitivity values. Every shard also has mutually
+  exclusive `reported_value` and `inferred_value` columns alongside the selected
+  `filled_value`; consumers do not have to infer origin from the value itself. A
+  model-only answer is not loaded as direct evidence and can never train the
+  reported genus/family summaries.
+- **No guild completion requirement.** Pollinator functional guild is not a
+  target of the exhaustive cascade. The target is the flower itself: colour,
+  form, symmetry, tube depth, size, display and reward, plus pollen-vector and
+  reproductive architecture/assurance traits.
 
 ## Sharded, checkpointed, resumable
 
@@ -92,19 +118,36 @@ Outputs:
 
 ## Sources
 
-All evidence channels are unioned before the cascade, source-blind: the machine
-wave index, search-enabled LLM batches, bulk trait joins (`candidate_long`
-layout), and curated accepted evidence. A newly landed bulk source raises
+All reported-evidence channels are unioned before the cascade: the source-backed
+machine-wave index, evidence-locked LLM extraction with exact source quotes,
+bulk trait joins (`candidate_long` layout), and curated accepted evidence.
+Model-only LLM output is deliberately excluded from this direct-evidence union.
+A newly landed reported source raises
 species-direct coverage and sharpens every inference tier with no code change.
+
+The materialization workflow first restores the newest durable all-master
+artifact, including its reported-evidence ledger and generated eFloras, EOL,
+GIFT, USDA and AusTraits candidate files. It reruns after a successful all-master
+build. The all-master workflow explicitly dispatches materialization with its
+exact run id after artifact upload, avoiding workflow-chain depth limits. Bulk
+and eFloras refresh completions also trigger a new all-master build, so their
+direct evidence does not wait for a later public-web run. This prevents evidence acquired in Actions from disappearing merely
+because the generated source files are not committed to Git. Workflow-triggered
+runs use the triggering default-branch artifact; other runs resolve only a
+successful default-branch artifact, and record that run id in the cascade
+manifest. Generated sources are read from a clean temporary overlay, while the
+tracked machine index and quote-locked LLM bundles remain separate inputs.
+Pull-request validation may use the latest successful artifact from that exact
+head branch; merged materialization is always rebuilt from the triggering main
+all-master run.
 
 ## Reading the current baseline
 
-With direct evidence alone at 0.02–1.45% per field, the cascade takes every
-field to 100% fill (zero unknown) across the 106,295 angiosperm-eligible
-species — dominated by genus/family/global inference, with only ~3,700
-species-direct cells. That is the intended yield-first state: maximal coverage
-within the flowering-plant universe now, resolution made explicit so quality is
-a downstream sensitivity axis, not an acquisition gate. The lever that upgrades
-resolution is landing more direct evidence (bulk sources, un-gated colour
-extraction); rerun the cascade after each landing and watch species-direct climb
-and the global-fallback share fall.
+The cascade takes each trait that has at least one reported observation to 100%
+candidate fill across the 106,295 angiosperm-eligible species. Global ties do
+not remain blank or acquire a false deterministic mode: they receive a stable
+draw from the recorded empirical prior. The resulting
+matrix is expected to be dominated initially by genus/family/global inference;
+that is a coverage product, not a claim that all cells are observed facts. Each
+new bulk source or quote-locked extraction upgrades cells to `species_direct`
+and also sharpens the distributions behind the remaining taxonomic inference.

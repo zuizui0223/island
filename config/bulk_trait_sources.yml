@@ -54,6 +54,255 @@ source_profiles:
     trait_name_map: {}
     trait_value_map: {}
 
+  austraits_eflower:
+    description: >-
+      AusTraits eFLOWER_Dun_2022 categorical flower-colour and perianth-symmetry
+      records. Mappings are limited to directly corresponding APD categories;
+      continuous measurements and flower-level structural sex remain in the
+      unmapped audit rather than being converted to species-level v2 states.
+    read:
+      delimiter: ","
+      encoding: "utf-8"
+    columns:
+      scientific_name: "taxon_name"
+      trait_name: "trait_name"
+      trait_value: "trait_value"
+      source_record_id: "source_record_id"
+    source_defaults:
+      source_type: "curated_trait_database"
+      source_reliability: "B_curated_database_or_institution"
+      confidence: "medium"
+    trait_name_map:
+      flower_colour: flower_primary_color
+      perianth_colour: flower_primary_color
+      flower_perianth_symmetry: floral_symmetry
+    trait_value_map:
+      flower_primary_color: &austraits_flower_color_values
+        white_cream: white
+        white: white
+        yellow_orange: yellow_orange
+        yellow: yellow_orange
+        orange: yellow_orange
+        blue_purple: blue_purple
+        blue: blue_purple
+        purple: blue_purple
+        pink: red_pink
+        red: red_pink
+        green: green_brown_inconspicuous
+        brown: green_brown_inconspicuous
+        red_brown: other_described
+        grey: other_described
+        black: other_described
+        "white_cream yellow_orange": multicolored_variable
+        "pink white_cream": multicolored_variable
+        "red_brown yellow_orange": multicolored_variable
+        "blue_purple white_cream": multicolored_variable
+        "red_brown white_cream": multicolored_variable
+        "green yellow_orange": multicolored_variable
+        "green white_cream": multicolored_variable
+        "blue_purple pink": multicolored_variable
+        "blue_purple pink white_cream": multicolored_variable
+        "blue_purple yellow_orange": multicolored_variable
+        "green red_brown white_cream": multicolored_variable
+        "blue_purple green": multicolored_variable
+        "blue_purple white_cream yellow_orange": multicolored_variable
+        "red_brown white_cream yellow_orange": multicolored_variable
+        "green red_brown": multicolored_variable
+        "green white_cream yellow_orange": multicolored_variable
+        "green red_brown yellow_orange": multicolored_variable
+        "blue_purple red_brown": multicolored_variable
+        "pink white_cream yellow_orange": multicolored_variable
+        "blue_purple green white_cream": multicolored_variable
+        "blue_purple red_brown yellow_orange": multicolored_variable
+        "blue_purple pink white_cream yellow_orange": multicolored_variable
+        "green pink white_cream": multicolored_variable
+        "pink yellow_orange": multicolored_variable
+        "blue_purple red_brown white_cream": multicolored_variable
+        "green red_brown white_cream yellow_orange": multicolored_variable
+        "blue_purple green yellow_orange": multicolored_variable
+        "blue_purple green white_cream yellow_orange": multicolored_variable
+        "pink red_brown white_cream": multicolored_variable
+        "pink red_brown": multicolored_variable
+        "blue_purple green red_brown white_cream": multicolored_variable
+        "blue_purple red_brown white_cream yellow_orange": multicolored_variable
+        "blue_purple pink yellow_orange": multicolored_variable
+        "blue_purple green red_brown yellow_orange": multicolored_variable
+        "green pink yellow_orange": multicolored_variable
+        "green pink white_cream yellow_orange": multicolored_variable
+        "blue_purple green red_brown white_cream yellow_orange": multicolored_variable
+        "green pink": multicolored_variable
+        "blue_purple green red_brown": multicolored_variable
+        "blue_purple green pink white_cream": multicolored_variable
+        "blue_purple green pink white_cream yellow_orange": multicolored_variable
+        "pink red_brown white_cream yellow_orange": multicolored_variable
+        "blue_purple green pink": multicolored_variable
+        "blue_purple pink red_brown": multicolored_variable
+        "blue_purple pink red_brown white_cream": multicolored_variable
+        "blue_purple green pink yellow_orange": multicolored_variable
+        "green pink red_brown white_cream yellow_orange": multicolored_variable
+        "green pink red_brown yellow_orange": multicolored_variable
+        "pink red_brown yellow_orange": multicolored_variable
+        "blue_purple green pink red_brown white_cream yellow_orange": multicolored_variable
+        "green pink red_brown white_cream": multicolored_variable
+        "blue_purple pink red_brown yellow_orange": multicolored_variable
+        "green pink red_brown": multicolored_variable
+        "blue_purple pink red_brown white_cream yellow_orange": multicolored_variable
+        "blue_purple green pink red_brown yellow_orange": multicolored_variable
+        "blue_purple green pink red_brown white_cream": multicolored_variable
+        "blue_purple green pink red_brown": multicolored_variable
+      floral_symmetry: &austraits_flower_symmetry_values
+        actinomorphic_general: actinomorphic
+        actinomorphic_rotational: actinomorphic
+        actinomorphic_strictly_polysymmetric: actinomorphic
+        actinomorphic_spiral: actinomorphic
+        zygomorphic: zygomorphic
+        asymmetric: asymmetric
+
+  austraits_all_primary:
+    description: >-
+      Selected categorical AusTraits records across all component datasets.
+      Direct APD flower colours, perianth symmetry, whole-plant sex type, and
+      explicit biotic/wind pollen-vector labels are mapped conservatively.
+    read:
+      delimiter: ","
+      encoding: "utf-8"
+    columns:
+      scientific_name: "taxon_name"
+      trait_name: "trait_name"
+      trait_value: "trait_value"
+      source_record_id: "source_record_id"
+    source_defaults:
+      source_type: "curated_trait_database"
+      source_reliability: "B_curated_database_or_institution"
+      confidence: "medium"
+    trait_name_map:
+      flower_colour: flower_primary_color
+      perianth_colour: flower_primary_color
+      flower_perianth_symmetry: floral_symmetry
+      sex_type: sex_system
+      pollination_syndrome: pollen_vector_mode
+      pollination_system: pollen_vector_mode
+    trait_value_map:
+      flower_primary_color: *austraits_flower_color_values
+      floral_symmetry: *austraits_flower_symmetry_values
+      sex_system:
+        hermaphrodite: hermaphroditic
+        dioecious: dioecious
+        monoecious: monoecious
+        gynodioecious: gynodioecious
+        androdioecious: androdioecious
+        andromonoecious: polygamous_or_other
+        gynomonoecious: polygamous_or_other
+        trioecious: polygamous_or_other
+        polygamous: polygamous_or_other
+        polygamodioecious: polygamous_or_other
+        "hermaphrodite monoecious": polygamous_or_other
+        "dioecious monoecious": polygamous_or_other
+        "dioecious hermaphrodite monoecious": polygamous_or_other
+        "andromonoecious gynomonoecious hermaphrodite monoecious": polygamous_or_other
+        "dioecious polygamous": polygamous_or_other
+        "andromonoecious dioecious": polygamous_or_other
+        "dioecious polygamodioecious": polygamous_or_other
+        "andromonoecious gynomonoecious": polygamous_or_other
+        "dioecious hermaphrodite": polygamous_or_other
+        "dioecious gynodioecious": polygamous_or_other
+        "monoecious polygamous": polygamous_or_other
+        "androdioecious dioecious monoecious": polygamous_or_other
+        "andromonoecious gynomonoecious monoecious": polygamous_or_other
+      pollen_vector_mode:
+        insect: biotic
+        wind: abiotic_wind
+        "insect vertebrate": biotic
+        bee: biotic
+        "bird insect mammal": biotic
+        "insect wind": mixed
+        vertebrate: biotic
+        beetle: biotic
+        "bird insect": biotic
+        fly: biotic
+        bird: biotic
+        "insect self": biotic
+        butterfly: biotic
+        moth: biotic
+        "abiotic insect vertebrate": mixed
+        "bee insect": biotic
+        "abiotic insect": mixed
+        "abiotic insect water wind": mixed
+        bat: biotic
+        wasp: biotic
+        "bee wind": mixed
+        animal: biotic
+        "bee wasp": biotic
+        thrip: biotic
+        "bird moth": biotic
+        "bee fly": biotic
+        "insect pollination_rare vertebrate": biotic
+        biotic_unspecialised: biotic
+        biotic_specialised: biotic
+        "butterfly moth": biotic
+        "bird wind": mixed
+        "fly thrip": biotic
+        "bee moth": biotic
+        "bee bird": biotic
+
+  austraits_all_pollinator_guild:
+    description: >-
+      Selected AusTraits pollination_syndrome and pollination_system rows mapped
+      to the v2 functional-guild vocabulary. Unidentified specialised biotic,
+      rare, and unsupported mixed labels stay in the unmapped audit.
+    read:
+      delimiter: ","
+      encoding: "utf-8"
+    columns:
+      scientific_name: "taxon_name"
+      trait_name: "trait_name"
+      trait_value: "trait_value"
+      source_record_id: "source_record_id"
+    source_defaults:
+      source_type: "curated_trait_database"
+      source_reliability: "B_curated_database_or_institution"
+      confidence: "medium"
+    trait_name_map:
+      pollination_syndrome: pollination_functional_guild
+      pollination_system: pollination_functional_guild
+    trait_value_map:
+      pollination_functional_guild:
+        insect: mixed_or_generalist
+        abiotic: wind_water
+        wind: wind_water
+        "insect vertebrate": mixed_or_generalist
+        bee: other_bees
+        "bird insect mammal": mixed_or_generalist
+        "insect wind": mixed_or_generalist
+        vertebrate: mixed_or_generalist
+        beetle: beetles_wasps_ants
+        "bird insect": mixed_or_generalist
+        fly: flies
+        bird: birds
+        "insect self": mixed_or_generalist
+        butterfly: butterflies
+        moth: moths
+        water: wind_water
+        "abiotic insect vertebrate": mixed_or_generalist
+        "bee insect": mixed_or_generalist
+        "abiotic insect": mixed_or_generalist
+        "abiotic insect water wind": mixed_or_generalist
+        bat: bats
+        wasp: beetles_wasps_ants
+        "bee wind": mixed_or_generalist
+        animal: mixed_or_generalist
+        "bee wasp": mixed_or_generalist
+        self: self_only
+        "bird moth": mixed_or_generalist
+        "bee fly": mixed_or_generalist
+        "insect pollination_rare vertebrate": mixed_or_generalist
+        biotic_unspecialised: mixed_or_generalist
+        "butterfly moth": mixed_or_generalist
+        "bird wind": mixed_or_generalist
+        "fly thrip": mixed_or_generalist
+        "bee moth": mixed_or_generalist
+        "bee bird": mixed_or_generalist
+
 # Trait roles intentionally separate what can be used as a high-coverage global
 # layer from traits that remain evidence-rich sensitivity analyses. A source may
 # still import any ontology trait; this controls reporting, not data deletion.

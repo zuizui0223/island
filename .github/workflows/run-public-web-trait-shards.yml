@@ -1,0 +1,552 @@
+name: run_public_web_trait_shards
+
+# No paid API is used. Existing machine candidates seed the extractor, then
+# public web sources are queried only for remaining gaps. Each shard restores a
+# private checkpoint cache and publishes the current evidence packet as an artifact.
+on:
+  workflow_dispatch:
+    inputs:
+      shard_start:
+        description: "First shard index (0-127)."
+        required: false
+        default: "0"
+        type: string
+      shard_end:
+        description: "Last shard index, inclusive (0-127)."
+        required: false
+        default: "127"
+        type: string
+      batch_size:
+        description: "Species advanced per shard in this run (1-500)."
+        required: false
+        default: "500"
+        type: string
+      retry_exhausted:
+        description: "Retry rows that already reached max_attempts."
+        required: false
+        default: false
+        type: boolean
+      seed_run_id:
+        description: "Prior complete 128-shard run; blank auto-selects the newest valid run."
+        required: false
+        default: ""
+        type: string
+      recovery_attempt:
+        description: "Internal bounded restart counter after a failed full pass (0-2)."
+        required: false
+        default: "0"
+        type: string
+  schedule:
+    - cron: "23 */6 * * *"
+    - cron: "47 3 * * 1"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/run-public-web-trait-shards.yml"
+      - "src/island_v2/web_trait_shard_campaign.py"
+      - "src/island_v2/v1_category_search.py"
+      - "src/island_v2/europe_pmc_discovery.py"
+      - "tests/test_web_trait_shard_campaign.py"
+      - "tests/test_v1_category_search.py"
+      - "tests/test_europe_pmc_discovery.py"
+      - "config/angiosperm_scope.yml"
+      - "pyproject.toml"
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('public-web-trait-shards-pr-{0}', github.event.pull_request.number) || format('public-web-trait-shards-{0}', github.ref_name) }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.matrix.outputs.shards }}
+      batch_size: ${{ steps.matrix.outputs.batch_size }}
+      retry_exhausted: ${{ steps.matrix.outputs.retry_exhausted }}
+      seed_run_id: ${{ steps.seed.outputs.seed_run_id }}
+    env:
+      SHARD_START: ${{ inputs.shard_start || '0' }}
+      SHARD_END: ${{ inputs.shard_end || '127' }}
+      BATCH_SIZE: ${{ inputs.batch_size || '500' }}
+      RETRY_EXHAUSTED: ${{ github.event_name == 'schedule' && github.event.schedule == '47 3 * * 1' && 'true' || inputs.retry_exhausted || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Test shard, extraction, and resume contracts
+        run: |
+          pytest -q \
+            tests/test_web_trait_shard_campaign.py \
+            tests/test_v1_category_search.py \
+            tests/test_europe_pmc_discovery.py \
+            tests/test_v1_category_traits.py
+          island-v2-web-trait-shards --help >/dev/null
+      - name: Validate the 106,295-species angiosperm shard plan
+        run: |
+          island-v2-web-trait-shards plan \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --scope-config-path config/angiosperm_scope.yml \
+            --output-dir /tmp/public_web_trait_plan \
+            --shard-count 128 \
+            --expected-species 106295
+          cat /tmp/public_web_trait_plan/shard_plan.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Freeze plant-site sitemap indexes once for all shards
+        if: github.event_name != 'pull_request'
+        run: |
+          if ! island-v2-v1-category-search build-web-index \
+            --output-json /tmp/public_web_trait_plan/web_description_index.json; then
+            test -s /tmp/public_web_trait_plan/web_description_index.json
+            echo "::warning::At least one sitemap refresh failed; continuing with the frozen partial index and retry accounting."
+          fi
+      - name: Build bounded matrix
+        id: matrix
+        run: |
+          python - <<'PY'
+          import json
+          import os
+
+          start = int(os.environ["SHARD_START"])
+          end = int(os.environ["SHARD_END"])
+          batch = int(os.environ["BATCH_SIZE"])
+          if not 0 <= start <= end < 128:
+              raise SystemExit("shard_start/shard_end must satisfy 0 <= start <= end < 128")
+          if not 1 <= batch <= 500:
+              raise SystemExit("batch_size must be between 1 and 500")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              print(f"shards={json.dumps(list(range(start, end + 1)))}", file=output)
+              print(f"batch_size={batch}", file=output)
+              print(
+                  "retry_exhausted="
+                  + str(os.environ["RETRY_EXHAUSTED"]).strip().lower(),
+                  file=output,
+              )
+          PY
+      - name: Resolve durable artifact seed
+        id: seed
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_SEED_RUN_ID: ${{ inputs.seed_run_id || '' }}
+        run: |
+          set -euo pipefail
+          seed="$REQUESTED_SEED_RUN_ID"
+          if [[ -n "$seed" ]]; then
+            [[ "$seed" =~ ^[0-9]+$ ]]
+          else
+            while IFS= read -r candidate; do
+              count=$(gh api --paginate \
+                "repos/$GITHUB_REPOSITORY/actions/runs/$candidate/artifacts?per_page=100" \
+                --jq ".artifacts[] | select(.expired == false) | .name" \
+                | grep -Ec "^public-web-trait-shard-[0-9]+-$candidate$" || true)
+              if [[ "$count" == "128" ]]; then
+                seed="$candidate"
+                break
+              fi
+            done < <(
+              gh run list \
+                --repo "$GITHUB_REPOSITORY" \
+                --workflow run-public-web-trait-shards.yml \
+                --status success \
+                --limit 50 \
+                --json databaseId,event \
+                --jq '.[] | select(.event != "pull_request") | .databaseId'
+            )
+          fi
+          seed="${seed:-29186029383}"
+          echo "seed_run_id=$seed" >> "$GITHUB_OUTPUT"
+          echo "Durable seed run: $seed" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload global shard plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-web-trait-shard-plan-${{ github.run_id }}
+          path: /tmp/public_web_trait_plan/
+          if-no-files-found: error
+          retention-days: 90
+
+  advance-shards:
+    if: github.event_name != 'pull_request'
+    needs: plan
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SHARD_DIR: /tmp/public-web-trait-shards/shard-${{ matrix.shard }}
+      CACHE_KEY: public-web-9col-v6-shard-${{ matrix.shard }}-${{ github.run_id }}-${{ github.run_attempt }}
+      CACHE_PREFIX: public-web-9col-v6-shard-${{ matrix.shard }}-
+      GH_TOKEN: ${{ github.token }}
+      SEED_RUN_ID: ${{ needs.plan.outputs.seed_run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Download frozen shard plan and plant-site indexes
+        uses: actions/download-artifact@v4
+        with:
+          name: public-web-trait-shard-plan-${{ github.run_id }}
+          path: /tmp/public_web_trait_plan
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Restore shard checkpoint
+        id: cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ${{ env.SHARD_DIR }}/checkpoint.csv
+            ${{ env.SHARD_DIR }}/provider_checkpoint.csv
+            ${{ env.SHARD_DIR }}/campaign_manifest.json
+            ${{ env.SHARD_DIR }}/campaign_status.json
+            ${{ env.SHARD_DIR }}/cumulative/
+          key: ${{ env.CACHE_KEY }}
+          restore-keys: |
+            ${{ env.CACHE_PREFIX }}
+      - name: Bootstrap immutable v4 shard when no v6 checkpoint exists
+        if: github.event_name != 'pull_request'
+        run: |
+          set -euo pipefail
+          if [[ ! -f "$SHARD_DIR/checkpoint.csv" && -n "$SEED_RUN_ID" ]]; then
+            [[ "$SEED_RUN_ID" =~ ^[0-9]+$ ]]
+            gh run download "$SEED_RUN_ID" \
+              --repo "$GITHUB_REPOSITORY" \
+              --name "public-web-trait-shard-${{ matrix.shard }}-$SEED_RUN_ID" \
+              --dir "$SHARD_DIR"
+          fi
+      - name: Advance public-web search, extraction, and validation
+        id: advance
+        env:
+          SHARD_INDEX: ${{ matrix.shard }}
+          BATCH_SIZE: ${{ needs.plan.outputs.batch_size }}
+          RETRY_EXHAUSTED: ${{ needs.plan.outputs.retry_exhausted }}
+        run: |
+          mkdir -p "$SHARD_DIR"
+          EXTRA_ARGS=()
+          if [[ "$RETRY_EXHAUSTED" == "true" ]]; then
+            EXTRA_ARGS+=(--retry-exhausted)
+          fi
+          island-v2-web-trait-shards run \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --scope-config-path config/angiosperm_scope.yml \
+            --campaign-dir "$SHARD_DIR" \
+            --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz \
+            --shard-index "$SHARD_INDEX" \
+            --shard-count 128 \
+            --batch-size "$BATCH_SIZE" \
+            --max-attempts 3 \
+            --expected-species 106295 \
+            --web-description-index \
+              /tmp/public_web_trait_plan/web_description_index.json \
+            --pause-seconds 1.0 \
+            --europe-pmc \
+            --no-openalex \
+            --no-world-flora \
+            --migrate-v4 \
+            "${EXTRA_ARGS[@]}"
+      - name: Publish shard status
+        id: status
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path(os.environ["SHARD_DIR"]) / "campaign_status.json"
+          attempted = -1
+          ready = False
+          if path.exists():
+              status = json.loads(path.read_text(encoding="utf-8"))
+              attempted = int(status.get("n_species_attempted_this_run", 0))
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as out:
+                  print(f"## Public-web trait shard {status['shard_index']}", file=out)
+                  print(f"- attempted this run: {attempted}", file=out)
+                  print(f"- terminal: {status['n_terminal']}/{status['n_species_in_shard']}", file=out)
+                  print(f"- remaining: {status['n_remaining']}", file=out)
+                  print(f"- status counts: {status['status_counts']}", file=out)
+                  print(f"- provider remaining: {status['n_provider_remaining']}", file=out)
+                  print(f"- provider counts: {status['provider_status_counts']}", file=out)
+                  print(f"- coverage: {status['coverage']}", file=out)
+          required = [
+              "campaign_manifest.json",
+              "checkpoint.csv",
+              "provider_checkpoint.csv",
+          ]
+          ready = all((Path(os.environ["SHARD_DIR"]) / name).is_file() for name in required)
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              print(f"attempted={attempted}", file=out)
+              print(f"ready={str(ready).lower()}", file=out)
+          PY
+      - name: Save resumable shard checkpoint
+        if: >-
+          always() && steps.status.outputs.ready == 'true' &&
+          steps.status.outputs.attempted != '0'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ${{ env.SHARD_DIR }}/checkpoint.csv
+            ${{ env.SHARD_DIR }}/provider_checkpoint.csv
+            ${{ env.SHARD_DIR }}/campaign_manifest.json
+            ${{ env.SHARD_DIR }}/campaign_status.json
+            ${{ env.SHARD_DIR }}/cumulative/
+          key: ${{ env.CACHE_KEY }}
+      - name: Upload current search evidence packet and cumulative snapshot
+        if: always() && steps.status.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-web-trait-shard-${{ matrix.shard }}-${{ github.run_id }}
+          path: |
+            ${{ env.SHARD_DIR }}/campaign_manifest.json
+            ${{ env.SHARD_DIR }}/campaign_status.json
+            ${{ env.SHARD_DIR }}/checkpoint.csv
+            ${{ env.SHARD_DIR }}/provider_checkpoint.csv
+            ${{ env.SHARD_DIR }}/packets/
+            ${{ env.SHARD_DIR }}/cumulative/
+          if-no-files-found: error
+          retention-days: 90
+
+  recover-failed-nondefault-pass:
+    if: >-
+      always() && github.event_name == 'workflow_dispatch' &&
+      github.ref_name != github.event.repository.default_branch &&
+      needs.plan.result == 'success' &&
+      needs.advance-shards.result != 'success' &&
+      inputs.shard_start == '0' && inputs.shard_end == '127'
+    needs: [plan, advance-shards]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Bound automatic checkpoint recovery
+        id: recovery
+        env:
+          RECOVERY_ATTEMPT: ${{ inputs.recovery_attempt || '0' }}
+        run: |
+          set -euo pipefail
+          [[ "$RECOVERY_ATTEMPT" =~ ^[0-2]$ ]]
+          if (( RECOVERY_ATTEMPT < 2 )); then
+            echo "retry=true" >> "$GITHUB_OUTPUT"
+            echo "next_attempt=$((RECOVERY_ATTEMPT + 1))" >> "$GITHUB_OUTPUT"
+          else
+            echo "retry=false" >> "$GITHUB_OUTPUT"
+            echo "::error::Full public-web pass failed after two automatic checkpoint recoveries."
+            exit 1
+          fi
+      - name: Dispatch a fresh pass that restores the newest per-shard checkpoints
+        if: steps.recovery.outputs.retry == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SEED_RUN_ID: ${{ needs.plan.outputs.seed_run_id }}
+          NEXT_ATTEMPT: ${{ steps.recovery.outputs.next_attempt }}
+        run: |
+          gh workflow run run-public-web-trait-shards.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f shard_start=0 \
+            -f shard_end=127 \
+            -f batch_size=500 \
+            -f retry_exhausted=false \
+            -f seed_run_id="$SEED_RUN_ID" \
+            -f recovery_attempt="$NEXT_ATTEMPT"
+
+  promote-and-continue-nondefault:
+    if: >-
+      always() && github.event_name == 'workflow_dispatch' &&
+      github.ref_name != github.event.repository.default_branch &&
+      needs.advance-shards.result == 'success' &&
+      inputs.shard_start == '0' && inputs.shard_end == '127'
+    needs: [plan, advance-shards]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: ${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Download this run's complete immutable shard set
+        uses: actions/download-artifact@v4
+        with:
+          pattern: public-web-trait-shard-*-${{ github.run_id }}
+          path: /tmp/public_web_source
+          merge-multiple: false
+      - name: Validate and combine all 128 shards
+        run: |
+          mkdir -p /tmp/public_web_combined
+          gh api --paginate \
+            "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID/artifacts?per_page=100" \
+            --jq '.artifacts[]' > /tmp/public_web_source_artifacts.jsonl
+          island-v2-combine-public-web \
+            --artifact-root /tmp/public_web_source \
+            --output-dir /tmp/public_web_combined \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --expected-shards 128 \
+            --expected-species 106295 \
+            --expected-contract public_web_9col_shards_v6 \
+            --artifact-metadata-jsonl /tmp/public_web_source_artifacts.jsonl
+          cp /tmp/public_web_source_artifacts.jsonl \
+            /tmp/public_web_combined/source_artifacts.jsonl
+      - name: Publish continuation metrics
+        id: metrics
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          manifest = json.loads(
+              Path("/tmp/public_web_combined/combined_public_web_manifest.json")
+              .read_text(encoding="utf-8")
+          )
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as out:
+              out.write(f"remaining={manifest['n_enabled_provider_remaining']}\n")
+              out.write(f"exhausted={manifest['n_enabled_provider_exhausted']}\n")
+              out.write(f"attempted={manifest['n_species_attempted_in_source_run']}\n")
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as out:
+              out.write("## Combined non-default-branch acquisition\n\n")
+              out.write(f"- source run: {manifest['source_run_id']}\n")
+              out.write(f"- coverage: {manifest['coverage']}\n")
+              out.write(
+                  f"- enabled provider work remaining: "
+                  f"{manifest['n_enabled_provider_remaining']:,}\n"
+              )
+              out.write(
+                  f"- enabled provider work exhausted: "
+                  f"{manifest['n_enabled_provider_exhausted']:,}\n"
+              )
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: public-web-traits-combined
+          path: /tmp/public_web_combined/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Continue incomplete non-default-branch acquisition
+        if: >-
+          steps.metrics.outputs.remaining != '0' &&
+          steps.metrics.outputs.attempted != '0'
+        run: |
+          gh workflow run run-public-web-trait-shards.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f shard_start=0 \
+            -f shard_end=127 \
+            -f batch_size=500 \
+            -f retry_exhausted=false \
+            -f seed_run_id="$SOURCE_RUN_ID" \
+            -f recovery_attempt=0
+      - name: Retry exhausted providers once before awaiting the scheduled repair lane
+        if: >-
+          steps.metrics.outputs.remaining == '0' &&
+          steps.metrics.outputs.exhausted != '0' &&
+          inputs.retry_exhausted != true
+        run: |
+          gh workflow run run-public-web-trait-shards.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f shard_start=0 \
+            -f shard_end=127 \
+            -f batch_size=500 \
+            -f retry_exhausted=true \
+            -f seed_run_id="$SOURCE_RUN_ID" \
+            -f recovery_attempt=0
+      - name: Record a stalled incomplete non-default campaign
+        if: >-
+          steps.metrics.outputs.remaining != '0' &&
+          steps.metrics.outputs.attempted == '0'
+        id: stalled
+        env:
+          RECOVERY_ATTEMPT: ${{ inputs.recovery_attempt || '0' }}
+        run: |
+          set -euo pipefail
+          [[ "$RECOVERY_ATTEMPT" =~ ^[0-2]$ ]]
+          if (( RECOVERY_ATTEMPT < 2 )); then
+            echo "retry=true" >> "$GITHUB_OUTPUT"
+            echo "next_attempt=$((RECOVERY_ATTEMPT + 1))" >> "$GITHUB_OUTPUT"
+            echo "::warning::Campaign remains incomplete but advanced zero species; dispatching a bounded repair pass."
+          else
+            echo "retry=false" >> "$GITHUB_OUTPUT"
+            echo "::error::Campaign remains incomplete and advanced zero species after two repair passes."
+            exit 1
+          fi
+      - name: Dispatch bounded stalled-state repair
+        if: steps.stalled.outputs.retry == 'true'
+        env:
+          NEXT_ATTEMPT: ${{ steps.stalled.outputs.next_attempt }}
+        run: |
+          gh workflow run run-public-web-trait-shards.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f shard_start=0 \
+            -f shard_end=127 \
+            -f batch_size=500 \
+            -f retry_exhausted=true \
+            -f seed_run_id="$SOURCE_RUN_ID" \
+            -f recovery_attempt="$NEXT_ATTEMPT"
+      - name: Record source failures retained after the bounded repair pass
+        if: >-
+          steps.metrics.outputs.remaining == '0' &&
+          steps.metrics.outputs.exhausted != '0' &&
+          inputs.retry_exhausted == true
+        run: |
+          echo "::warning::Provider failures remain exhausted; main's scheduled repair pass will retry them without treating them as biological absence."
+      - name: Rebuild the all-master ledger from this exact combined artifact
+        run: |
+          gh workflow run build-all-master-trait-ledger.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f public_web_run_id="$SOURCE_RUN_ID"
+
+  recover-failed-nondefault-promotion:
+    if: >-
+      always() && github.event_name == 'workflow_dispatch' &&
+      github.ref_name != github.event.repository.default_branch &&
+      needs.plan.result == 'success' &&
+      needs.promote-and-continue-nondefault.result != 'success' &&
+      needs.promote-and-continue-nondefault.result != 'skipped' &&
+      inputs.shard_start == '0' && inputs.shard_end == '127'
+    needs: [plan, promote-and-continue-nondefault]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Redispatch after combination, upload, or continuation failure
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RECOVERY_ATTEMPT: ${{ inputs.recovery_attempt || '0' }}
+          SEED_RUN_ID: ${{ needs.plan.outputs.seed_run_id }}
+        run: |
+          set -euo pipefail
+          [[ "$RECOVERY_ATTEMPT" =~ ^[0-2]$ ]]
+          if (( RECOVERY_ATTEMPT >= 2 )); then
+            echo "::error::Non-default public-web promotion failed after two recoveries."
+            exit 1
+          fi
+          gh workflow run run-public-web-trait-shards.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f shard_start=0 \
+            -f shard_end=127 \
+            -f batch_size=500 \
+            -f retry_exhausted=false \
+            -f seed_run_id="$SEED_RUN_ID" \
+            -f recovery_attempt="$((RECOVERY_ATTEMPT + 1))"

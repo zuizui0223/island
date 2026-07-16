@@ -36,7 +36,10 @@ def _config(tmp_path, master_path) -> dict:
     return {
         "master_taxa_csv": str(master_path),
         "master_species_column": "accepted_species",
-        "core_traits": {"colour": ["flower_primary_color"], "form": ["floral_form", "floral_symmetry"]},
+        "core_traits": {
+            "colour": ["flower_primary_color"],
+            "form": ["floral_form", "floral_symmetry"],
+        },
         "reported_traits": ["flower_primary_color", "floral_form", "sex_system"],
         "sources": {
             "machine": {
@@ -61,19 +64,41 @@ def test_broad_rate_counts_source_backed_and_excludes_inference(tmp_path):
     _write_candidate_index(
         tmp_path / "machine_candidate_index.csv.gz",
         [
-            {"accepted_species": "Aaa bbb", "trait_name": "flower_primary_color", "candidate_value": "white"},
+            {
+                "accepted_species": "Aaa bbb",
+                "trait_name": "flower_primary_color",
+                "candidate_value": "white",
+            },
             {"accepted_species": "Aaa bbb", "trait_name": "floral_form", "candidate_value": "open"},
             # duplicate species-trait with a second value must not double count
-            {"accepted_species": "Aaa bbb", "trait_name": "flower_primary_color", "candidate_value": "cream"},
-            {"accepted_species": "Ccc ddd", "trait_name": "flower_primary_color", "candidate_value": "red"},
+            {
+                "accepted_species": "Aaa bbb",
+                "trait_name": "flower_primary_color",
+                "candidate_value": "cream",
+            },
+            {
+                "accepted_species": "Ccc ddd",
+                "trait_name": "flower_primary_color",
+                "candidate_value": "red",
+            },
             # empty value must not count as acquired
-            {"accepted_species": "Eee fff", "trait_name": "flower_primary_color", "candidate_value": "unknown"},
+            {
+                "accepted_species": "Eee fff",
+                "trait_name": "flower_primary_color",
+                "candidate_value": "unknown",
+            },
             # species outside the master must be dropped
-            {"accepted_species": "Zzz zzz", "trait_name": "flower_primary_color", "candidate_value": "blue"},
+            {
+                "accepted_species": "Zzz zzz",
+                "trait_name": "flower_primary_color",
+                "candidate_value": "blue",
+            },
         ],
     )
     llm_result = "Ggg hhh,yellow,star-shaped,bees,notes,mixed_mating,likely_SI,inference,low"
-    (tmp_path / "batch_0.jsonl").write_text(json.dumps({"result": llm_result}) + "\n", encoding="utf-8")
+    (tmp_path / "batch_0.jsonl").write_text(
+        json.dumps({"result": llm_result}) + "\n", encoding="utf-8"
+    )
 
     config = _config(tmp_path, tmp_path / "master.csv")
     master_list = report.load_master_species(tmp_path / "master.csv", "accepted_species")
@@ -92,7 +117,9 @@ def test_broad_rate_counts_source_backed_and_excludes_inference(tmp_path):
     # any-channel includes the LLM species
     assert summary["n_any_trait_any_channel"] == 3
 
-    by_trait = report.build_by_trait(contributions, config, len(master_list)).set_index("trait_name")
+    by_trait = report.build_by_trait(contributions, config, len(master_list)).set_index(
+        "trait_name"
+    )
     assert by_trait.loc["flower_primary_color", "n_species_broad"] == 2
     # LLM colour for Ggg hhh shows only in the any-channel count
     assert by_trait.loc["flower_primary_color", "n_species_any_channel"] == 3
@@ -112,3 +139,101 @@ def test_missing_source_files_contribute_nothing(tmp_path):
     summary = report.build_summary(contributions, config, len(master))
     assert summary["n_any_trait_broad"] == 0
     assert summary["any_trait_broad_rate"] == 0.0
+
+
+def test_master_wide_ledgers_keep_every_species_and_trait_cell(tmp_path):
+    master = ["Aaa bbb", "Ccc ddd", "GenusOnly"]
+    _write_master(tmp_path / "master.csv", master)
+    _write_candidate_index(
+        tmp_path / "machine_candidate_index.csv.gz",
+        [
+            {
+                "accepted_species": "Aaa bbb",
+                "trait_name": "flower_primary_color",
+                "candidate_value": "white",
+            }
+        ],
+    )
+    config = _config(tmp_path, tmp_path / "master.csv")
+    contributions, _ = report.collect_contributions(config, set(master))
+
+    cell_ledger = report.build_species_trait_ledger(
+        master,
+        contributions,
+        config["reported_traits"],
+    )
+    species_ledger = report.build_species_ledger(
+        master,
+        cell_ledger,
+        config["reported_traits"],
+    ).set_index("accepted_species")
+
+    assert len(cell_ledger) == len(master) * len(config["reported_traits"])
+    assert set(cell_ledger["accepted_species"]) == set(master)
+    acquired = cell_ledger.loc[
+        cell_ledger["accepted_species"].eq("Aaa bbb")
+        & cell_ledger["trait_name"].eq("flower_primary_color")
+    ].iloc[0]
+    assert acquired["acquisition_status"] == "source_backed_candidate"
+    assert acquired["unresolved_reason"] == ""
+    missing = cell_ledger.loc[
+        cell_ledger["accepted_species"].eq("Ccc ddd") & cell_ledger["trait_name"].eq("sex_system")
+    ].iloc[0]
+    assert missing["acquisition_status"] == "no_candidate_yet"
+    assert missing["unresolved_reason"] == "not_found_in_configured_sources_yet"
+    assert species_ledger.loc["Aaa bbb", "acquisition_status"] == "partial_source_backed"
+    assert species_ledger.loc["GenusOnly", "acquisition_status"] == "no_candidate_yet"
+
+
+def test_candidate_long_reads_bulk_standardized_value(tmp_path):
+    path = tmp_path / "trait_candidates.csv.gz"
+    pd.DataFrame(
+        [
+            {
+                "accepted_species": "Aaa bbb",
+                "trait_name": "flower_primary_color",
+                "standardized_value": "white",
+            }
+        ]
+    ).to_csv(path, index=False, compression={"method": "gzip", "mtime": 0})
+
+    pairs = report.adapter_candidate_long({"glob": str(path)})
+
+    assert pairs.to_dict("records") == [
+        {"accepted_species": "Aaa bbb", "trait_name": "flower_primary_color"}
+    ]
+
+
+def test_taxonomically_inapplicable_species_remain_in_both_ledgers():
+    master = ["Aaa bbb", "Fern ccc"]
+    traits = ["flower_primary_color", "sex_system"]
+    applicability = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Aaa bbb",
+                "taxonomic_group": "angiosperm",
+                "angiosperm_analysis_eligible": True,
+            },
+            {
+                "accepted_species": "Fern ccc",
+                "taxonomic_group": "non_seed_vascular",
+                "angiosperm_analysis_eligible": False,
+            },
+        ]
+    )
+    empty = pd.DataFrame(columns=report.CONTRIBUTION_COLUMNS)
+
+    cells = report.build_species_trait_ledger(
+        master,
+        empty,
+        traits,
+        applicability,
+        set(traits),
+    )
+    species = report.build_species_ledger(master, cells, traits).set_index("accepted_species")
+
+    fern_cells = cells.loc[cells["accepted_species"].eq("Fern ccc")]
+    assert set(fern_cells["acquisition_status"]) == {"not_applicable_taxonomic_scope"}
+    assert species.loc["Fern ccc", "acquisition_status"] == ("not_applicable_taxonomic_scope")
+    assert species.loc["Fern ccc", "n_applicable_traits"] == 0
+    assert species.loc["Aaa bbb", "n_applicable_traits"] == 2

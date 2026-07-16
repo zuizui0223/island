@@ -4,6 +4,7 @@ version: "1.0"
 # universe assembled from the exact island polygons.
 master_taxa_csv: data/v2/staging/gbif/collected/island_taxa.csv
 master_species_column: accepted_species
+scope_config_path: config/angiosperm_scope.yml
 
 # Broad-coverage minimum. flower_primary_color is the single most important
 # acquisition target; floral_form/floral_symmetry are the shape axis, with
@@ -18,6 +19,24 @@ core_traits:
 
 # Traits reported in the per-trait coverage table, in display order.
 reported_traits:
+  - flower_primary_color
+  - floral_form
+  - floral_symmetry
+  - flower_size_class
+  - tube_depth_class
+  - pollen_vector_mode
+  - pollination_functional_guild
+  - sex_system
+  - mating_system
+  - self_incompatibility
+  - autonomous_selfing_capacity
+  - cleistogamy
+  - dichogamy
+
+# The repository's current reproductive/floral analysis contract is defined for
+# angiosperms. Non-angiosperm master rows remain in both ledgers but these cells
+# are marked taxonomically not applicable instead of being called missing.
+angiosperm_only_traits:
   - flower_primary_color
   - floral_form
   - floral_symmetry
@@ -56,6 +75,18 @@ sources:
     glob: "data/v2/staging/traits/bulk/**/trait_candidates.csv*"
     counts_as_broad: true
     track: bulk_source_backed
+
+  eol_traitbank:
+    adapter: candidate_long
+    glob: "data/v2/staging/traits/eol_traitbank/trait_candidates.csv*"
+    counts_as_broad: true
+    track: eol_traitbank_source_backed
+
+  efloras:
+    adapter: candidate_long
+    glob: "data/v2/staging/traits/efloras/**/trait_candidates.csv*"
+    counts_as_broad: true
+    track: efloras_source_backed
 
   search_enabled_llm:
     adapter: search_enabled_llm
