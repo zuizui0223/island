@@ -1,10 +1,10 @@
-version: "3.0"
+version: "3.1"
 
-# Three-axis selfing-syndrome cascade. Direct evidence is always preferred,
-# regardless of whether it came from a database, flora, monograph, or public
-# species description. Missing direct evidence falls back to qualified genus,
-# then qualified family evidence. No global fallback exists. If family evidence
-# is also unavailable or fails consensus, the axis remains unresolved.
+# Three-axis selfing-syndrome acquisition with a legacy rectangular compatibility
+# ledger. Active collection and primary completion use only colour vividness,
+# floral complexity, and reproductive assurance. The remaining historical cells
+# stay in the matrix so existing materialization and downstream contracts do not
+# break, but they do not consume acquisition priority.
 master_taxa_csv: data/v2/staging/gbif/collected/island_taxa.csv
 species_column: accepted_species
 genus_column: genus
@@ -41,24 +41,28 @@ primary_completion:
   repeat_direct_acquisition_before_taxonomic_fallback: true
   max_direct_rounds: 6
 
-# Raw traits needed to construct the three axes. Removed sex system, pollen
-# vector, reward, dichogamy, and herkogamy from this primary campaign because
-# they do not determine the requested three-axis completion condition.
+# Compatibility matrix. Only traits referenced by axis_definitions are active
+# acquisition targets; the other five remain passive legacy cells.
 target_traits:
   - flower_primary_color
   - floral_form
   - floral_symmetry
-  - tube_depth_class
-  - flower_size_class
-  - inflorescence_display
   - self_incompatibility
   - autonomous_selfing_capacity
   - mating_system
   - cleistogamy
+  - sex_system
+  - pollen_vector_mode
+  - flower_size_class
+  - tube_depth_class
+  - inflorescence_display
+  - reward_type
+  - dichogamy
+  - herkogamy
 
-# Taxonomic fallback order is fixed and exhaustive:
+# Fallback order for every axis trait is fixed:
 # species/synonym direct -> genus -> family -> unresolved.
-# There is deliberately no global fallback tier.
+# No global fallback tier exists.
 min_genus_support: 1
 min_family_support: 3
 min_family_supporting_genera: 2
@@ -69,13 +73,18 @@ inference_policies:
   flower_primary_color: {min_genus_support: 2, min_genus_consensus: 0.8, family_allowed: true}
   floral_form: {min_genus_support: 2, min_genus_consensus: 0.8, family_allowed: true}
   floral_symmetry: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: true}
-  tube_depth_class: {min_genus_support: 2, min_genus_consensus: 0.8, family_allowed: true}
-  flower_size_class: {min_genus_support: 2, min_genus_consensus: 0.8, family_allowed: true}
-  inflorescence_display: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: true}
   self_incompatibility: {min_genus_support: 1, min_genus_consensus: 1.0, family_allowed: true}
   autonomous_selfing_capacity: {min_genus_support: 2, min_genus_consensus: 1.0, family_allowed: true}
   mating_system: {min_genus_support: 2, min_genus_consensus: 1.0, family_allowed: true}
   cleistogamy: {min_genus_support: 2, min_genus_consensus: 1.0, family_allowed: true}
+  flower_size_class: {min_genus_support: 2, min_genus_consensus: 0.8, family_allowed: true}
+  tube_depth_class: {min_genus_support: 2, min_genus_consensus: 0.8, family_allowed: true}
+  inflorescence_display: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: true}
+  sex_system: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: true}
+  pollen_vector_mode: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: true}
+  reward_type: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: false}
+  dichogamy: {min_genus_support: 2, min_genus_consensus: 1.0, family_allowed: false}
+  herkogamy: {min_genus_support: 2, min_genus_consensus: 1.0, family_allowed: false}
 
 evidence_sources:
   machine_wave:
