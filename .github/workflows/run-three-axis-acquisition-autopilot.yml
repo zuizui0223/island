@@ -5,6 +5,9 @@ on:
     branches: [codex/direct-evidence-continuation]
     paths:
       - ".github/workflows/run-three-axis-acquisition-autopilot.yml"
+      - "src/island_v2/three_axis_acquisition_checkpoint.py"
+      - "src/island_v2/web_trait_shard_campaign.py"
+      - "config/acquisition_rate.yml"
   workflow_dispatch:
     inputs:
       shard_start:
@@ -23,7 +26,7 @@ on:
         default: "100"
         type: string
       seed_run_id:
-        description: "Prior autopilot or public-web run; blank selects newest durable checkpoint"
+        description: "Prior complete autopilot/public-web run; blank auto-selects or starts fresh"
         required: false
         default: ""
         type: string
@@ -99,7 +102,7 @@ jobs:
           if ! island-v2-v1-category-search build-web-index \
             --output-json /tmp/three_axis_plan/web_description_index.json; then
             test -s /tmp/three_axis_plan/web_description_index.json
-            echo "::warning::Using the frozen partial public-description index after a source refresh failure."
+            echo "::warning::Using frozen partial public-description index."
           fi
       - name: Build bounded shard matrix
         id: matrix
@@ -126,7 +129,7 @@ jobs:
               print(f"max_rounds={max_rounds}", file=out)
               print(f"retry_exhausted={os.environ['RETRY_EXHAUSTED'].lower()}", file=out)
           PY
-      - name: Resolve newest durable checkpoint seed
+      - name: Resolve newest complete durable checkpoint seed
         id: seed
         env:
           GH_TOKEN: ${{ github.token }}
@@ -135,22 +138,33 @@ jobs:
           set -euo pipefail
           seed="$REQUESTED_SEED_RUN_ID"
           kind=""
+
+          count_artifacts() {
+            local run_id="$1"
+            local prefix="$2"
+            gh api --paginate \
+              "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/artifacts?per_page=100" \
+              --jq '.artifacts[] | select(.expired == false) | .name' \
+              | grep -Ec "^${prefix}[0-9]+-${run_id}$" || true
+          }
+
           if [[ -n "$seed" ]]; then
             [[ "$seed" =~ ^[0-9]+$ ]]
-            if gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$seed/artifacts?per_page=100" \
-              --jq '.artifacts[].name' | grep -Eq "^three-axis-shard-[0-9]+-$seed$"; then
+            autopilot_count=$(count_artifacts "$seed" "three-axis-shard-")
+            public_count=$(count_artifacts "$seed" "public-web-trait-shard-")
+            if [[ "$autopilot_count" == "128" ]]; then
               kind="autopilot"
-            else
+            elif [[ "$public_count" == "128" ]]; then
               kind="public_web"
+            else
+              echo "::warning::Requested seed $seed is incomplete or expired; starting fresh."
+              seed=""
             fi
           fi
+
           if [[ -z "$seed" ]]; then
             while IFS= read -r candidate; do
-              count=$(gh api --paginate \
-                "repos/$GITHUB_REPOSITORY/actions/runs/$candidate/artifacts?per_page=100" \
-                --jq '.artifacts[] | select(.expired == false) | .name' \
-                | grep -Ec "^three-axis-shard-[0-9]+-$candidate$" || true)
-              if [[ "$count" == "128" ]]; then
+              if [[ "$(count_artifacts "$candidate" "three-axis-shard-")" == "128" ]]; then
                 seed="$candidate"
                 kind="autopilot"
                 break
@@ -159,13 +173,10 @@ jobs:
               --workflow run-three-axis-acquisition-autopilot.yml \
               --status success --limit 30 --json databaseId --jq '.[].databaseId')
           fi
+
           if [[ -z "$seed" ]]; then
             while IFS= read -r candidate; do
-              count=$(gh api --paginate \
-                "repos/$GITHUB_REPOSITORY/actions/runs/$candidate/artifacts?per_page=100" \
-                --jq '.artifacts[] | select(.expired == false) | .name' \
-                | grep -Ec "^public-web-trait-shard-[0-9]+-$candidate$" || true)
-              if [[ "$count" == "128" ]]; then
+              if [[ "$(count_artifacts "$candidate" "public-web-trait-shard-")" == "128" ]]; then
                 seed="$candidate"
                 kind="public_web"
                 break
@@ -175,11 +186,11 @@ jobs:
               --status success --limit 50 --json databaseId,event \
               --jq '.[] | select(.event != "pull_request") | .databaseId')
           fi
-          seed="${seed:-29186029383}"
-          kind="${kind:-public_web}"
+
+          kind="${kind:-fresh}"
           echo "seed_run_id=$seed" >> "$GITHUB_OUTPUT"
           echo "seed_kind=$kind" >> "$GITHUB_OUTPUT"
-          echo "Seed checkpoint: $seed ($kind)" >> "$GITHUB_STEP_SUMMARY"
+          echo "Seed checkpoint: ${seed:-none} ($kind)" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
           name: three-axis-plan-${{ github.run_id }}
@@ -212,7 +223,8 @@ jobs:
           name: three-axis-plan-${{ github.run_id }}
           path: /tmp/three_axis_plan
       - run: pip install -e ".[dev]"
-      - name: Restore immutable per-shard checkpoint
+      - name: Restore immutable per-shard checkpoint when available
+        if: needs.plan.outputs.seed_kind != 'fresh'
         run: |
           set -euo pipefail
           mkdir -p "$SHARD_DIR"
@@ -225,6 +237,9 @@ jobs:
             --name "$artifact" --dir "$SHARD_DIR"
           test -f "$SHARD_DIR/checkpoint.csv"
           test -f "$SHARD_DIR/provider_checkpoint.csv"
+      - name: Initialize fresh shard workspace
+        if: needs.plan.outputs.seed_kind == 'fresh'
+        run: mkdir -p "$SHARD_DIR"
       - name: Advance only unresolved provider/species work
         env:
           SHARD_INDEX: ${{ matrix.shard }}
@@ -307,11 +322,8 @@ jobs:
           import json, os
           from pathlib import Path
           roots = sorted(Path('/tmp/three_axis_results').glob('three-axis-shard-*'))
-          summaries = []
-          attempted = 0
-          remaining_provider = 0
-          all_three = 0
-          species = 0
+          attempted = remaining_provider = all_three = species = 0
+          summaries = 0
           for root in roots:
               status_paths = list(root.rglob('campaign_status.json'))
               axis_paths = list(root.rglob('three_axis_checkpoint_summary.json'))
@@ -320,7 +332,7 @@ jobs:
                   attempted += int(status.get('n_species_attempted_this_run', 0))
               if axis_paths:
                   axis = json.loads(axis_paths[0].read_text())
-                  summaries.append(axis)
+                  summaries += 1
                   species += int(axis.get('n_species', 0))
                   all_three += int(axis.get('n_all_three_axes_direct', 0))
                   remaining_provider += sum(int(v) for v in axis.get('provider_remaining_counts', {}).values())
@@ -328,11 +340,11 @@ jobs:
           max_rounds = int(os.environ['MAX_ROUNDS'])
           should_continue = attempted > 0 and remaining_provider > 0 and round_index + 1 < max_rounds
           result = {
-              'contract_version': 'three_axis_autopilot_progress_v1',
+              'contract_version': 'three_axis_autopilot_progress_v2',
               'source_run_id': int(os.environ['GITHUB_RUN_ID']),
               'round_index': round_index,
               'max_rounds': max_rounds,
-              'n_shards': len(summaries),
+              'n_shards': summaries,
               'n_species_checkpointed': species,
               'n_all_three_axes_direct': all_three,
               'n_species_attempted_this_round': attempted,
@@ -376,5 +388,4 @@ jobs:
       - name: Record bounded stopping condition
         if: steps.progress.outputs.continue != 'true'
         run: |
-          echo "Autopilot stopped because the round made no progress, no provider work remains, or max_direct_rounds was reached." \
-            >> "$GITHUB_STEP_SUMMARY"
+          echo "Autopilot stopped because the round made no progress, no provider work remains, or max rounds was reached." >> "$GITHUB_STEP_SUMMARY"
