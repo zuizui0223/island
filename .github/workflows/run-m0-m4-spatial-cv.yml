@@ -11,14 +11,6 @@ on:
         description: "Number of repeated balanced block partitions"
         required: false
         default: "5"
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/run-m0-m4-spatial-cv.yml"
-      - "config/m0_m4_full_analysis_artifact_lock.json"
-      - "config/m0_m4_full_analysis.yml"
-      - "src/island_v2/m0_m4_spatial_cv.py"
-      - "tests/test_m0_m4_spatial_cv.py"
 
 permissions:
   actions: read
@@ -78,77 +70,10 @@ jobs:
               --output-dir "data/v2/staging/analysis/spatial_cv/${TIER}"
           done
 
-      - name: Summarize cross-tier predictive gains
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          import pandas as pd
-
-          root = Path('data/v2/staging/analysis/spatial_cv')
-          tiers = ('primary', 'broad', 'sensitivity_all')
-          tables = {}
-          summary = {
-              'contract': 'm0_m4_spatial_cv_cross_tier_v1',
-              'input_full_analysis_artifact': json.loads(
-                  Path('config/m0_m4_full_analysis_artifact_lock.json').read_text()
-              ),
-              'tiers': {},
-              'cross_tier': {},
-          }
-          for tier in tiers:
-              manifest = json.loads((root / tier / 'spatial_cv_manifest.json').read_text())
-              table = pd.read_csv(root / tier / 'spatial_cv_summary.csv').set_index('comparison')
-              tables[tier] = table
-              summary['tiers'][tier] = manifest
-
-          comparisons = sorted(set.intersection(*(set(table.index) for table in tables.values())))
-          for comparison in comparisons:
-              rows = {tier: tables[tier].loc[comparison] for tier in tiers}
-              summary['cross_tier'][comparison] = {
-                  'all_tiers_positive_loglik_gain': all(
-                      float(row['median_delta_log_likelihood_per_1000_trials']) > 0
-                      for row in rows.values()
-                  ),
-                  'all_tiers_improved_brier': all(
-                      float(row['median_delta_brier_full_minus_reduced']) < 0
-                      for row in rows.values()
-                  ),
-                  'all_tiers_predictive_gain_consistent': all(
-                      bool(row['predictive_gain_consistent']) for row in rows.values()
-                  ),
-                  'tiers': {
-                      tier: {
-                          'median_delta_log_likelihood_per_1000_trials': float(
-                              row['median_delta_log_likelihood_per_1000_trials']
-                          ),
-                          'median_delta_brier_full_minus_reduced': float(
-                              row['median_delta_brier_full_minus_reduced']
-                          ),
-                          'proportion_repeats_full_model_better_loglik': float(
-                              row['proportion_repeats_full_model_better_loglik']
-                          ),
-                          'proportion_repeats_full_model_better_brier': float(
-                              row['proportion_repeats_full_model_better_brier']
-                          ),
-                      }
-                      for tier, row in rows.items()
-                  },
-              }
-
-          (root / 'spatial_cv_cross_tier_summary.json').write_text(
-              json.dumps(summary, indent=2) + '\n'
-          )
-          print(json.dumps(summary, indent=2))
-          PY
-
       - name: Upload spatial-CV outputs
         uses: actions/upload-artifact@v4
         with:
           name: m0-m4-spatial-cv-${{ github.run_id }}
-          path: |
-            config/m0_m4_full_analysis_artifact_lock.json
-            config/m0_m4_full_analysis.yml
-            data/v2/staging/analysis/spatial_cv/
+          path: data/v2/staging/analysis/spatial_cv/
           if-no-files-found: error
           retention-days: 90
