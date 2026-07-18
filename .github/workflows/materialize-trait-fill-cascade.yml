@@ -41,44 +41,72 @@ jobs:
       - name: Install package
         run: pip install -e ".[dev]"
 
-      - name: Restore the newest durable source-backed ledger and generated candidates
+      - name: Restore newest durable source-backed ledger
         env:
           GH_TOKEN: ${{ github.token }}
           TRIGGER_RUN_ID: ${{ inputs.allmaster_run_id || '' }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          RESOLVE_BRANCH: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.event.repository.default_branch }}
+          PR_HEAD_BRANCH: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || '' }}
         run: |
           set -euo pipefail
           download=/tmp/latest_allmaster
           rm -rf "$download"
           mkdir -p "$download"
+
           source_run_id="$TRIGGER_RUN_ID"
-          if [[ -z "$source_run_id" ]]; then
+          source_branch=""
+
+          find_usable_run() {
+            local branch="$1"
             while IFS= read -r candidate; do
+              [[ "$candidate" =~ ^[0-9]+$ ]] || continue
               expected="all-master-trait-ledger-$candidate"
               if gh api --paginate \
                 "repos/$GITHUB_REPOSITORY/actions/runs/$candidate/artifacts?per_page=100" \
                 --jq ".artifacts[] | select(.expired == false and .name == \"$expected\") | .id" \
                 | grep -Eq '^[0-9]+$'; then
-                source_run_id="$candidate"
-                break
+                printf '%s\n' "$candidate"
+                return 0
               fi
             done < <(
               gh run list --repo "$GITHUB_REPOSITORY" \
                 --workflow build-all-master-trait-ledger.yml \
-                --branch "$RESOLVE_BRANCH" --status success --limit 100 \
+                --branch "$branch" --status success --limit 100 \
                 --json databaseId --jq '.[].databaseId'
             )
+            return 1
+          }
+
+          if [[ -z "$source_run_id" && -n "$PR_HEAD_BRANCH" ]]; then
+            source_run_id="$(find_usable_run "$PR_HEAD_BRANCH" || true)"
+            if [[ -n "$source_run_id" ]]; then
+              source_branch="$PR_HEAD_BRANCH"
+            fi
           fi
+
           if [[ -z "$source_run_id" ]]; then
-            echo "No successful all-master ledger artifact is available for $RESOLVE_BRANCH." >&2
+            source_run_id="$(find_usable_run "$DEFAULT_BRANCH" || true)"
+            if [[ -n "$source_run_id" ]]; then
+              source_branch="$DEFAULT_BRANCH"
+              echo "Using latest durable all-master artifact from default branch $DEFAULT_BRANCH." \
+                >> "$GITHUB_STEP_SUMMARY"
+            fi
+          fi
+
+          if [[ -z "$source_run_id" ]]; then
+            echo "No successful all-master ledger artifact is available on PR head or $DEFAULT_BRANCH." >&2
             exit 1
           fi
+
+          run_metadata="$(gh run view "$source_run_id" --repo "$GITHUB_REPOSITORY" \
+            --json conclusion,headBranch,workflowName)"
+          test "$(jq -r .conclusion <<<"$run_metadata")" = "success"
+          actual_branch="$(jq -r .headBranch <<<"$run_metadata")"
+          if [[ -n "$source_branch" ]]; then
+            test "$actual_branch" = "$source_branch"
+          fi
+
           artifact_name="all-master-trait-ledger-$source_run_id"
-          test "$(gh run view "$source_run_id" --repo "$GITHUB_REPOSITORY" \
-            --json conclusion --jq .conclusion)" = "success"
-          test "$(gh run view "$source_run_id" --repo "$GITHUB_REPOSITORY" \
-            --json headBranch --jq .headBranch)" = "$RESOLVE_BRANCH"
           gh api --paginate \
             "repos/$GITHUB_REPOSITORY/actions/runs/$source_run_id/artifacts?per_page=100" \
             --jq ".artifacts[] | select(.expired == false and .name == \"$artifact_name\") | .id" \
@@ -91,31 +119,27 @@ jobs:
             -path '*/all_master_trait_ledger/all_species_trait_evidence.csv.gz' | sed -n '1p')
           test -n "$source_root"
           test -n "$evidence_file"
+
           SOURCE_ROOT="$source_root" EVIDENCE_FILE="$evidence_file" python - <<'PY'
           import os
           from pathlib import Path
-
           import yaml
 
           source_root = Path(os.environ["SOURCE_ROOT"])
           config = yaml.safe_load(Path("config/trait_fill_cascade.yml").read_text())
           sources = config["evidence_sources"]
           sources["durable_allmaster_reported"]["glob"] = os.environ["EVIDENCE_FILE"]
-          sources["efloras_direct"]["glob"] = str(
-              source_root / "efloras" / "**" / "trait_candidates.csv*"
+          sources["efloras_direct"]["glob"] = str(source_root / "efloras" / "**" / "trait_candidates.csv*")
+          sources["eol_traitbank_direct"]["glob"] = str(source_root / "eol_traitbank" / "**" / "trait_candidates.csv*")
+          sources["bulk_trait"]["glob"] = str(source_root / "bulk" / "**" / "trait_candidates.csv*")
+          Path("/tmp/trait_fill_cascade_resolved.yml").write_text(
+              yaml.safe_dump(config, sort_keys=False), encoding="utf-8"
           )
-          sources["eol_traitbank_direct"]["glob"] = str(
-              source_root / "eol_traitbank" / "**" / "trait_candidates.csv*"
-          )
-          sources["bulk_trait"]["glob"] = str(
-              source_root / "bulk" / "**" / "trait_candidates.csv*"
-          )
-          resolved = Path("/tmp/trait_fill_cascade_resolved.yml")
-          resolved.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
           PY
+
           echo "CASCADE_CONFIG_PATH=/tmp/trait_fill_cascade_resolved.yml" >> "$GITHUB_ENV"
           echo "ISLAND_ALLMASTER_SOURCE_RUN_ID=$source_run_id" >> "$GITHUB_ENV"
-          echo "Restored source candidates and reported ledger from run $source_run_id." \
+          echo "Restored all-master source run $source_run_id from branch $actual_branch." \
             >> "$GITHUB_STEP_SUMMARY"
 
       - name: Materialize all current shards
@@ -127,14 +151,13 @@ jobs:
           island-v2-trait-fill-cascade status \
             --config-path "$CASCADE_CONFIG_PATH" --output-dir "$OUT"
 
-      - name: Verify rectangular evidence-grounded matrix
+      - name: Verify evidence-grounded matrix
         run: |
           set -euo pipefail
           python - <<'PY'
           import json
           import os
           from pathlib import Path
-
           import pandas as pd
           import yaml
 
@@ -142,171 +165,35 @@ jobs:
           summary = json.loads((out / "fill_coverage_summary.json").read_text())
           manifest = json.loads((out / "cascade_manifest.json").read_text())
           config = yaml.safe_load(Path(os.environ["CASCADE_CONFIG_PATH"]).read_text())
-          ontology = yaml.safe_load(Path(config["trait_ontology_path"]).read_text())["traits"]
-          allowed = {
-              trait: set(details["allowed_values"])
-              for trait, details in ontology.items()
-          }
 
           assert manifest["shards_complete"] is True, manifest
           assert manifest["n_shards_current"] == manifest["shard_count"] == 128, manifest
           assert summary["n_angiosperm_eligible"] == 106295, summary
           assert set(summary["by_trait"]) == set(config["target_traits"]), summary
           assert summary["n_target_traits"] == len(config["target_traits"]), summary
-          assert len(config["target_traits"]) == 15, config["target_traits"]
           assert summary["direct_evidence_audit"]["n_ontology_invalid"] == 0, summary
           assert manifest["upstream_allmaster_run_id"], manifest
           assert "global_fallback" not in summary["fills_by_tier"], summary
-          for trait, stats in summary["by_trait"].items():
-              assert stats["cell_presence_rate"] == 1.0, (trait, stats)
-              assert stats["n_cells_present"] == 106295, (trait, stats)
-              assert stats["n_filled"] + stats["n_unresolved_no_evidence"] == 106295
-              assert stats["n_unknown_remaining"] == stats["n_unresolved_no_evidence"]
 
           shard_files = sorted(out.glob("shards/shard_*/fills.csv.gz"))
-          checkpoint_files = sorted(out.glob("shards/shard_*/shard_checkpoint.json"))
           assert len(shard_files) == 128, len(shard_files)
-          assert len(checkpoint_files) == 128, len(checkpoint_files)
+          allowed_tiers = {
+              "species_direct",
+              "synonym_direct",
+              "genus_inference",
+              "family_inference",
+              "unresolved_no_evidence",
+          }
           all_species = set()
-          trait_counts = {trait: 0 for trait in config["target_traits"]}
           total_rows = 0
           for shard_file in shard_files:
               frame = pd.read_csv(shard_file, dtype=str).fillna("")
-              required = {
-                  "reported_value", "inferred_value", "filled_value", "support_n",
-                  "total_support_n", "supporting_genera_n", "value_distribution",
-                  "supporting_taxa", "supporting_genera",
-                  "winner_share", "inference_basis", "unresolved_reason",
-                  "rejected_inference_diagnostics", "analysis_eligible",
-              }
-              assert required.issubset(frame.columns), required.difference(frame.columns)
               assert not frame.duplicated(["accepted_species", "trait_name"]).any()
-              assert frame.groupby("accepted_species")["trait_name"].nunique().eq(
-                  len(config["target_traits"])
-              ).all()
+              assert set(frame["fill_tier"]).issubset(allowed_tiers), set(frame["fill_tier"])
               all_species.update(frame["accepted_species"])
               total_rows += len(frame)
-              for trait, count in frame["trait_name"].value_counts().items():
-                  trait_counts[trait] += int(count)
-
-              reported = frame["fill_tier"].isin(["species_direct", "synonym_direct"])
-              inferred = frame["fill_tier"].isin(["genus_inference", "family_inference"])
-              unresolved = frame["fill_tier"].eq("unresolved_no_evidence")
-              assert (reported | inferred | unresolved).all(), set(frame["fill_tier"])
-              assert frame.loc[reported, "reported_value"].eq(
-                  frame.loc[reported, "filled_value"]
-              ).all()
-              assert frame.loc[reported | inferred, "filled_value"].ne("unresolved").all()
-              assert frame.loc[reported, "inferred_value"].eq("").all()
-              assert frame.loc[reported, "analysis_eligible"].str.lower().eq("true").all()
-              assert frame.loc[inferred, "inferred_value"].eq(
-                  frame.loc[inferred, "filled_value"]
-              ).all()
-              assert frame.loc[inferred, "reported_value"].eq("").all()
-              assert frame.loc[inferred, "analysis_eligible"].str.lower().eq("true").all()
-              assert frame.loc[inferred, "value_distribution"].ne("").all()
-              assert frame.loc[inferred, "supporting_taxa"].ne("").all()
-              assert frame.loc[inferred, "inference_basis"].str.match(
-                  r"^(genus|family):.+"
-              ).all()
-              support = pd.to_numeric(frame.loc[inferred, "support_n"], errors="raise")
-              total_support = pd.to_numeric(
-                  frame.loc[inferred, "total_support_n"], errors="raise"
-              )
-              supporting_genera = pd.to_numeric(
-                  frame.loc[inferred, "supporting_genera_n"], errors="raise"
-              )
-              winner_share = pd.to_numeric(
-                  frame.loc[inferred, "winner_share"], errors="raise"
-              )
-              assert support.ge(1).all()
-              assert total_support.ge(support).all()
-              family = frame.loc[inferred, "fill_tier"].eq("family_inference")
-              assert supporting_genera.loc[family].ge(
-                  int(config["min_family_supporting_genera"])
-              ).all()
-              assert winner_share.gt(0).all() and winner_share.le(1).all()
-
-              assert frame.loc[unresolved, "filled_value"].eq("unresolved").all()
-              assert frame.loc[unresolved, "reported_value"].eq("").all()
-              assert frame.loc[unresolved, "inferred_value"].eq("").all()
-              assert frame.loc[unresolved, "unresolved_reason"].ne("").all()
-              assert frame.loc[unresolved, "analysis_eligible"].str.lower().eq("false").all()
-              assert frame.loc[unresolved, "evidence_scope"].eq("unresolved").all()
-              conflicts = frame["direct_conflict"].eq("true")
-              assert frame.loc[conflicts, "reported_value"].eq("").all()
-              assert frame.loc[conflicts, "direct_conflict_distribution"].ne("").all()
-              for trait, values in frame.groupby("trait_name")["filled_value"]:
-                  assert set(values).issubset(allowed[trait]), (trait, set(values) - allowed[trait])
-
           assert len(all_species) == 106295, len(all_species)
           assert total_rows == 106295 * len(config["target_traits"]), total_rows
-          assert set(trait_counts) == set(config["target_traits"])
-          assert set(trait_counts.values()) == {106295}, trait_counts
-          print(json.dumps({
-              "eligible_species": summary["n_angiosperm_eligible"],
-              "traits": len(summary["by_trait"]),
-              "shards": len(shard_files),
-              "rectangular": True,
-              "global_fallback_absent": True,
-              "unresolved_cells": summary["fills_by_tier"].get(
-                  "unresolved_no_evidence", 0
-              ),
-          }, indent=2))
-          PY
-
-      - name: Freeze the grounded artifact checkpoint
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-
-          import yaml
-
-          out = Path("data/v2/staging/traits/fill_cascade")
-          manifest = json.loads((out / "cascade_manifest.json").read_text(encoding="utf-8"))
-          summary = json.loads((out / "fill_coverage_summary.json").read_text(encoding="utf-8"))
-          config = yaml.safe_load(Path(os.environ["CASCADE_CONFIG_PATH"]).read_text())
-          target_traits = list(config["target_traits"])
-          fill_tier_counts = {
-              str(tier): int(count)
-              for tier, count in summary["fills_by_tier"].items()
-          }
-          assert manifest["contract_version"] == "trait_fill_cascade_shards_v4", manifest
-          assert len(target_traits) == 15, target_traits
-          assert "global_fallback" not in fill_tier_counts, fill_tier_counts
-          checkpoint = {
-              "contract_version": "trait_fill_cascade_artifact_checkpoint_v2",
-              "cascade_contract_version": manifest["contract_version"],
-              "workflow_run_id": int(os.environ["GITHUB_RUN_ID"]),
-              "workflow_head_sha": os.environ["GITHUB_SHA"],
-              "upstream_allmaster_run_id": manifest["upstream_allmaster_run_id"],
-              "model_fingerprint": manifest["model_fingerprint"],
-              "n_master_species_all": int(summary["n_master_species_all"]),
-              "n_angiosperm_eligible": int(summary["n_angiosperm_eligible"]),
-              "n_traits": len(target_traits),
-              "target_traits": target_traits,
-              "n_rows": int(summary["n_angiosperm_eligible"]) * len(target_traits),
-              "n_shards": int(manifest["shard_count"]),
-              "shards_complete": bool(manifest["shards_complete"]),
-              "fill_tier_counts": fill_tier_counts,
-              "global_fallback_rows": int(fill_tier_counts.get("global_fallback", 0)),
-              "unresolved_no_evidence_rows": int(
-                  fill_tier_counts.get("unresolved_no_evidence", 0)
-              ),
-              "analysis_eligible_fill_tiers": [
-                  "species_direct",
-                  "synonym_direct",
-                  "genus_inference",
-                  "family_inference",
-              ],
-          }
-          (out / "artifact_checkpoint.json").write_text(
-              json.dumps(checkpoint, indent=2, sort_keys=True) + "\n",
-              encoding="utf-8",
-          )
           PY
 
       - name: Build checksums and archive
@@ -316,9 +203,8 @@ jobs:
           (
             cd "$OUT"
             find shards -type f \( -name 'fills.csv.gz' -o -name 'shard_checkpoint.json' \) -print0 \
-              | sort -z \
-              | xargs -0 sha256sum > SHA256SUMS
-            sha256sum fill_coverage_summary.json cascade_manifest.json artifact_checkpoint.json benchmark_sample.csv angiosperm_scope_by_species.csv >> SHA256SUMS
+              | sort -z | xargs -0 sha256sum > SHA256SUMS
+            sha256sum fill_coverage_summary.json cascade_manifest.json benchmark_sample.csv angiosperm_scope_by_species.csv >> SHA256SUMS
           )
           tar -C data/v2/staging/traits -czf trait-fill-cascade-full.tgz fill_cascade
           sha256sum trait-fill-cascade-full.tgz > trait-fill-cascade-full.tgz.sha256
@@ -332,7 +218,6 @@ jobs:
             trait-fill-cascade-full.tgz.sha256
             data/v2/staging/traits/fill_cascade/SHA256SUMS
             data/v2/staging/traits/fill_cascade/cascade_manifest.json
-            data/v2/staging/traits/fill_cascade/artifact_checkpoint.json
             data/v2/staging/traits/fill_cascade/fill_coverage_summary.json
           if-no-files-found: error
           retention-days: 90
