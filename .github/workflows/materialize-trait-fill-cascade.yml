@@ -142,6 +142,68 @@ jobs:
           echo "Restored all-master source run $source_run_id from branch $actual_branch." \
             >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Normalize legacy LLM extraction bundle IDs
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import csv
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path("data/v2/staging/traits/llm_evidence_extracted")
+          updated = []
+          for bundle in sorted(path for path in root.glob("**/llm_ingest_manifest.json")):
+              bundle_dir = bundle.parent
+              manifest = json.loads(bundle.read_text(encoding="utf-8"))
+              candidates_path = bundle_dir / manifest["accepted_csv_filename"]
+              if not candidates_path.is_file():
+                  continue
+
+              run_material = "|".join(
+                  str(manifest.get(key, ""))
+                  for key in (
+                      "model_provider",
+                      "model_id",
+                      "prompt_sha256",
+                      "packet_input_sha256",
+                      "result_jsonl_sha256",
+                  )
+              )
+              expected_run_id = "llm_" + hashlib.sha256(
+                  run_material.encode("utf-8")
+              ).hexdigest()[:20]
+              if manifest.get("extraction_run_id") == expected_run_id:
+                  continue
+
+              with candidates_path.open(newline="", encoding="utf-8") as handle:
+                  rows = list(csv.DictReader(handle))
+                  fieldnames = list(rows[0].keys()) if rows else []
+              if "extraction_run_id" not in fieldnames:
+                  raise RuntimeError(f"missing extraction_run_id column: {candidates_path}")
+              for row in rows:
+                  row["extraction_run_id"] = expected_run_id
+
+              temporary = candidates_path.with_suffix(candidates_path.suffix + ".tmp")
+              with temporary.open("w", newline="", encoding="utf-8") as handle:
+                  writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
+                  writer.writeheader()
+                  writer.writerows(rows)
+              temporary.replace(candidates_path)
+
+              manifest["extraction_run_id"] = expected_run_id
+              manifest["accepted_csv_sha256"] = hashlib.sha256(
+                  candidates_path.read_bytes()
+              ).hexdigest()
+              bundle.write_text(
+                  json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+                  encoding="utf-8",
+              )
+              updated.append(str(bundle_dir))
+
+          print(json.dumps({"normalized_bundles": updated}, indent=2))
+          PY
+
       - name: Materialize all current shards
         run: |
           set -euo pipefail
