@@ -1,0 +1,60 @@
+name: aggregate_three_axis_direct_evidence
+
+on:
+  workflow_run:
+    workflows: ["run_public_web_trait_shards"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Successful public-web shard run to aggregate
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: aggregate-three-axis-${{ github.event.workflow_run.id || inputs.source_run_id }}
+  cancel-in-progress: false
+
+jobs:
+  aggregate:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SOURCE_RUN_ID: ${{ github.event.workflow_run.id || inputs.source_run_id }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/direct-evidence-continuation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Download all shard checkpoints and evidence
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/campaign
+          gh run download "$SOURCE_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern 'public-web-trait-shard-*' \
+            --dir /tmp/campaign
+          test -n "$(find /tmp/campaign -name checkpoint.csv -print -quit)"
+          test -n "$(find /tmp/campaign -name provider_checkpoint.csv -print -quit)"
+      - name: Aggregate one evidence ledger and round report
+        run: |
+          python -m island_v2.full_coverage_trait_campaign build \
+            --campaign-root /tmp/campaign \
+            --output-dir /tmp/three-axis-output
+          cat /tmp/three-axis-output/collection_round_summary.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: three-axis-direct-evidence-${{ env.SOURCE_RUN_ID }}
+          path: /tmp/three-axis-output/
+          if-no-files-found: error
+          retention-days: 90
