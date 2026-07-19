@@ -5,6 +5,10 @@ on:
     branches: [codex/direct-evidence-continuation]
     paths:
       - ".github/workflows/smoke-three-axis-real-acquisition.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/smoke-three-axis-real-acquisition.yml"
   workflow_dispatch:
 
 permissions:
