@@ -1,0 +1,79 @@
+{
+  "accepted": [
+    {
+      "accepted_trait": "mating_system",
+      "accepted_value": "predominantly_outcrossing",
+      "candidate_id": "2cfc523616229b433bcf40480519f2f780bceeb8b731f4803b7b2073ecca18ae",
+      "evidence_excerpt": "Erigeron acris. Generative reproduction type: facultative allogamy.",
+      "review_reason": "Exact Pladias taxon field reviewed; facultative allogamy explicitly states that outcrossing prevails while selfing remains possible."
+    },
+    {
+      "accepted_trait": "mating_system",
+      "accepted_value": "predominantly_outcrossing",
+      "candidate_id": "6c3e5e9dcd2acd33877bb77e107023f4b20d3dd7c0e0ae93eb7646aac90da168",
+      "evidence_excerpt": "Eschscholzia californica. Generative reproduction type: allogamy self-incompatibility.",
+      "review_reason": "Exact Pladias compound taxon field reviewed; its explicit allogamy category supports the existing predominantly-outcrossing endpoint."
+    },
+    {
+      "accepted_trait": "self_incompatibility",
+      "accepted_value": "SI",
+      "candidate_id": "6c3e5e9dcd2acd33877bb77e107023f4b20d3dd7c0e0ae93eb7646aac90da168",
+      "evidence_excerpt": "Eschscholzia californica. Generative reproduction type: allogamy self-incompatibility.",
+      "review_reason": "Exact Pladias compound taxon field reviewed; it explicitly states self-incompatibility."
+    },
+    {
+      "accepted_trait": "mating_system",
+      "accepted_value": "predominantly_outcrossing",
+      "candidate_id": "5f4471a1d1f6d62174c9fd4e9cc123dbc494188c5b811314067dc4363d5f507d",
+      "evidence_excerpt": "Eurybia macrophylla. Generative reproduction type: facultative allogamy.",
+      "review_reason": "Exact Pladias taxon field reviewed; facultative allogamy explicitly states that outcrossing prevails while selfing remains possible."
+    },
+    {
+      "accepted_trait": "mating_system",
+      "accepted_value": "predominantly_outcrossing",
+      "candidate_id": "eca80fbea9e05e11d7326dbf5c8d5e9aa76a4d8da01d592690df2da7d20978bb",
+      "evidence_excerpt": "Festuca amethystina. Generative reproduction type: facultative allogamy.",
+      "review_reason": "Exact Pladias taxon field reviewed; facultative allogamy explicitly states that outcrossing prevails while selfing remains possible."
+    },
+    {
+      "accepted_trait": "mating_system",
+      "accepted_value": "predominantly_outcrossing",
+      "candidate_id": "487f6b190d5cda5f853aa6d1b4b123fda89ed30ada8170e27d1b359f2a5fd4ab",
+      "evidence_excerpt": "Ficaria verna. Generative reproduction type: facultative allogamy.",
+      "review_reason": "Exact Pladias taxon field reviewed; facultative allogamy explicitly states that outcrossing prevails while selfing remains possible."
+    },
+    {
+      "accepted_trait": "mating_system",
+      "accepted_value": "predominantly_outcrossing",
+      "candidate_id": "840e407601b3812edfb6e6b40cca079b6c4b17987fbacd21701d102ccf7b135c",
+      "evidence_excerpt": "Ficus carica. Generative reproduction type: allogamy.",
+      "review_reason": "Exact Pladias taxon field reviewed; its explicit allogamy category supports the existing predominantly-outcrossing endpoint."
+    },
+    {
+      "accepted_trait": "mating_system",
+      "accepted_value": "predominantly_outcrossing",
+      "candidate_id": "d3d0f3cd5fb93d7ecfcc911fd0c1db11332a0536ea357836fc760aeede593149",
+      "evidence_excerpt": "Frangula alnus. Generative reproduction type: allogamy self-incompatibility.",
+      "review_reason": "Exact Pladias compound taxon field reviewed; its explicit allogamy category supports the existing predominantly-outcrossing endpoint."
+    },
+    {
+      "accepted_trait": "self_incompatibility",
+      "accepted_value": "SI",
+      "candidate_id": "d3d0f3cd5fb93d7ecfcc911fd0c1db11332a0536ea357836fc760aeede593149",
+      "evidence_excerpt": "Frangula alnus. Generative reproduction type: allogamy self-incompatibility.",
+      "review_reason": "Exact Pladias compound taxon field reviewed; it explicitly states self-incompatibility."
+    }
+  ],
+  "contract_version": "reviewed_search_cache_selection_v1",
+  "selection_manifests": {
+    "/Users/rachelzhang/Documents/Codex/2026-07-18/local_trait_work/providers/pladias/batches/pladias_20260719T001137036914Z/review_selection.json": {
+      "bytes": 4731,
+      "sha256": "118e61f640f3f49dba0ae025e7646748aa199362a470d704aeb43178c986226e"
+    }
+  },
+  "source": {
+    "bytes": 6186,
+    "path": "/Users/rachelzhang/Documents/Codex/2026-07-18/local_trait_work/providers/pladias/batches/pladias_20260719T001137036914Z/source_evidence.csv",
+    "sha256": "6c1e28916f72494f6f34c92e8eacd0d22080c40e11b5e44d7fca0668fd1fbafa"
+  }
+}
