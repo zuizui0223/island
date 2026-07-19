@@ -61,7 +61,7 @@ jobs:
         run: |
           set -euo pipefail
           test -s /tmp/campaign/checkpoint.csv
-          python -m island_v2.real_acquisition_ledger build \
+          python -m island_v2.real_acquisition_ledger \
             --campaign-root /tmp/campaign \
             --output-dir /tmp/ledger
           cat /tmp/campaign/campaign_status.json >> "$GITHUB_STEP_SUMMARY"
