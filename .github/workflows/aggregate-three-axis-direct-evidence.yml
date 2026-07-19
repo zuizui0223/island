@@ -1,6 +1,11 @@
 name: aggregate_three_axis_direct_evidence
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/aggregate-three-axis-direct-evidence.yml"
+      - "src/island_v2/full_coverage_trait_campaign.py"
+      - "tests/test_full_coverage_trait_campaign.py"
   workflow_run:
     workflows: ["run_public_web_trait_shards"]
     types: [completed]
@@ -16,12 +21,24 @@ permissions:
   contents: read
 
 concurrency:
-  group: aggregate-three-axis-${{ github.event.workflow_run.id || inputs.source_run_id }}
+  group: aggregate-three-axis-${{ github.event.workflow_run.id || inputs.source_run_id || github.sha }}
   cancel-in-progress: false
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: pytest -q tests/test_full_coverage_trait_campaign.py
+
   aggregate:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name != 'pull_request' && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+    needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
