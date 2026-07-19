@@ -61,18 +61,21 @@ def test_any_reproductive_trait_completes_reproductive_axis(config):
     assert bool(status["all_three_axes_direct"])
 
 
-def test_missing_reproductive_axis_is_highest_priority(config):
+def test_missing_axes_have_equal_campaign_priority(config):
     frame = pd.DataFrame(
         [
             rows("Alpha beta", "flower_primary_color", "species_direct", "red"),
             rows("Alpha beta", "floral_form", "species_direct", "rotate"),
             rows("Alpha beta", "self_incompatibility", "unresolved_no_evidence", "unresolved"),
+            rows("Gamma delta", "flower_primary_color", "unresolved_no_evidence", "unresolved"),
+            rows("Gamma delta", "floral_form", "species_direct", "rotate"),
+            rows("Gamma delta", "mating_system", "species_direct", "mixed"),
         ]
     )
-    status = axis_status(frame, config, round_index=0).iloc[0]
-    assert status["missing_direct_axes"] == "reproductive_assurance"
-    assert status["collection_priority"] == 0
-    assert bool(status["continue_direct_acquisition"])
+    status = axis_status(frame, config, round_index=0)
+    assert set(status["collection_priority"]) == {0}
+    assert set(status["accepted_species"]) == {"Alpha beta", "Gamma delta"}
+    assert status["continue_direct_acquisition"].all()
 
 
 def test_genus_then_family_resolve_but_do_not_count_as_direct(config):
