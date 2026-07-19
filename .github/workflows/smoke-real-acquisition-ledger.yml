@@ -38,17 +38,14 @@ jobs:
             test -s /tmp/plan/web_description_index.json
           fi
       - name: Query real providers for 20 species
-        id: acquire
-        continue-on-error: true
         run: |
-          set -uo pipefail
+          set -euo pipefail
           mkdir -p /tmp/campaign
           island-v2-web-trait-shards run \
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
             --scope-config-path config/angiosperm_scope.yml \
             --campaign-dir /tmp/campaign \
             --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz \
-            --priority-audit-csv /tmp/plan/acquisition_priority.csv.gz \
             --shard-index 0 \
             --shard-count 128 \
             --batch-size 20 \
@@ -60,20 +57,14 @@ jobs:
             --no-openalex \
             --no-world-flora \
             --migrate-v4
-          status=$?
-          echo "collector_exit_code=$status" >> "$GITHUB_OUTPUT"
-          exit 0
       - name: Aggregate and publish progress
-        if: always()
         run: |
           set -euo pipefail
           test -s /tmp/campaign/checkpoint.csv
           python -m island_v2.real_acquisition_ledger build \
             --campaign-root /tmp/campaign \
             --output-dir /tmp/ledger
-          if test -s /tmp/campaign/campaign_status.json; then
-            cat /tmp/campaign/campaign_status.json >> "$GITHUB_STEP_SUMMARY"
-          fi
+          cat /tmp/campaign/campaign_status.json >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/ledger/collection_round_summary.json >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: always()
@@ -82,10 +73,5 @@ jobs:
           path: |
             /tmp/campaign/
             /tmp/ledger/
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 30
-      - name: Require an aggregated ledger
-        if: always()
-        run: |
-          test -s /tmp/ledger/collection_round_summary.json
-          test -s /tmp/ledger/all_master_evidence.csv.gz
