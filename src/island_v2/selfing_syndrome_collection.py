@@ -1,14 +1,8 @@
-"""Plan and summarize three-axis selfing-syndrome trait acquisition.
+"""Plan and summarize the three-axis direct-evidence campaign.
 
-The planner is intentionally narrow. It requires colour vividness, floral
-complexity, and reproductive assurance for each species. Database records,
-floras, monographs, and public descriptions are equivalent when they retain a
-source-backed species- or synonym-direct excerpt. Missing axes are sent through
-repeated direct-acquisition rounds before the resolved cascade is accepted:
-
-species/synonym direct -> genus inference -> family inference -> unresolved.
-
-There is no global fallback.
+Every accepted species and every axis has equal scheduling priority. Direct
+collection continues independently of whether another axis is already covered;
+missing values remain unresolved and global fallback is prohibited.
 """
 from __future__ import annotations
 
@@ -95,11 +89,7 @@ def axis_status(frame: pd.DataFrame, config: dict[str, Any], round_index: int) -
             row[f"{axis}_direct"] = not direct.empty
             row[f"{axis}_resolved"] = not direct.empty or not inferred.empty
             row[f"{axis}_resolution_tier"] = (
-                "direct"
-                if not direct.empty
-                else "genus_or_family"
-                if not inferred.empty
-                else "unresolved"
+                "direct" if not direct.empty else "genus_or_family" if not inferred.empty else "unresolved"
             )
             row[f"{axis}_evidence_traits"] = "|".join(
                 sorted(set((direct if not direct.empty else inferred)["trait_name"]))
@@ -116,21 +106,13 @@ def axis_status(frame: pd.DataFrame, config: dict[str, Any], round_index: int) -
         row["direct_round"] = round_index
         row["continue_direct_acquisition"] = bool(missing_direct) and round_index < max_rounds
         row["ready_for_taxonomic_fallback"] = bool(missing_direct) and round_index >= max_rounds
-        row["collection_priority"] = (
-            0
-            if "reproductive_assurance" in missing_direct
-            else 1
-            if "floral_complexity" in missing_direct
-            else 2
-            if "colour_vividness" in missing_direct
-            else 3
-        )
+        # Equal priority is the campaign contract: no species subset and no axis
+        # is advanced ahead of another.
+        row["collection_priority"] = 0
         rows.append(row)
 
-    result = pd.DataFrame(rows)
-    return result.sort_values(
-        ["continue_direct_acquisition", "collection_priority", "accepted_species"],
-        ascending=[False, True, True],
+    return pd.DataFrame(rows).sort_values(
+        ["continue_direct_acquisition", "accepted_species"], ascending=[False, True]
     ).reset_index(drop=True)
 
 
@@ -149,6 +131,7 @@ def write_outputs(status: pd.DataFrame, output_dir: Path) -> dict[str, object]:
         "n_continue_direct_acquisition": int(status["continue_direct_acquisition"].sum()),
         "n_ready_for_taxonomic_fallback": int(status["ready_for_taxonomic_fallback"].sum()),
         "n_unresolved_after_family": int(status["unresolved_axes"].ne("").sum()),
+        "axis_priority_policy": "equal",
         "global_fallback_used": False,
         "axis_direct_counts": {
             axis: int(status[f"{axis}_direct"].sum())
