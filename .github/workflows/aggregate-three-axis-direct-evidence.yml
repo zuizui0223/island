@@ -3,9 +3,9 @@ name: aggregate_three_axis_direct_evidence
 on:
   pull_request:
     paths:
-      - ".github/workflows/aggregate-three-axis-direct-evidence.yml"
       - "src/island_v2/full_coverage_trait_campaign.py"
       - "tests/test_full_coverage_trait_campaign.py"
+      - ".github/workflows/aggregate-three-axis-direct-evidence.yml"
   workflow_run:
     workflows: ["run_public_web_trait_shards"]
     types: [completed]
@@ -21,7 +21,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: aggregate-three-axis-${{ github.event.workflow_run.id || inputs.source_run_id || github.sha }}
+  group: aggregate-three-axis-${{ github.event.workflow_run.id || inputs.source_run_id || github.run_id }}
   cancel-in-progress: false
 
 jobs:
@@ -37,8 +37,7 @@ jobs:
       - run: pytest -q tests/test_full_coverage_trait_campaign.py
 
   aggregate:
-    if: github.event_name != 'pull_request' && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
-    needs: validate
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -63,7 +62,7 @@ jobs:
             --dir /tmp/campaign
           test -n "$(find /tmp/campaign -name checkpoint.csv -print -quit)"
           test -n "$(find /tmp/campaign -name provider_checkpoint.csv -print -quit)"
-      - name: Aggregate one evidence ledger and round report
+      - name: Aggregate high medium low evidence ledger
         run: |
           python -m island_v2.full_coverage_trait_campaign build \
             --campaign-root /tmp/campaign \
@@ -71,7 +70,7 @@ jobs:
           cat /tmp/three-axis-output/collection_round_summary.json >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
-          name: three-axis-direct-evidence-${{ env.SOURCE_RUN_ID }}
+          name: three-axis-evidence-${{ env.SOURCE_RUN_ID }}
           path: /tmp/three-axis-output/
           if-no-files-found: error
           retention-days: 90
