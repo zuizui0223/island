@@ -1,0 +1,133 @@
+name: run_full_real_acquisition_ledger
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/run-full-real-acquisition-ledger.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: full-real-acquisition-ledger-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.matrix.outputs.shards }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate collector and ledger
+        run: |
+          pytest -q tests/test_real_acquisition_ledger.py tests/test_web_trait_shard_campaign.py
+      - name: Build 106295-species plan and frozen web index
+        run: |
+          set -euo pipefail
+          island-v2-web-trait-shards plan \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --scope-config-path config/angiosperm_scope.yml \
+            --output-dir /tmp/full-plan \
+            --shard-count 128 \
+            --expected-species 106295
+          if ! island-v2-v1-category-search build-web-index \
+            --output-json /tmp/full-plan/web_description_index.json; then
+            test -s /tmp/full-plan/web_description_index.json
+          fi
+      - id: matrix
+        name: Freeze 128-shard matrix
+        run: |
+          python - <<'PY'
+          import json, os
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              print('shards=' + json.dumps(list(range(128))), file=out)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: full-real-acquisition-plan-${{ github.run_id }}
+          path: /tmp/full-plan/
+          if-no-files-found: error
+          retention-days: 90
+
+  acquire:
+    needs: plan
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SHARD_DIR: /tmp/full-real-acquisition/shard-${{ matrix.shard }}
+      SEED_RUN_ID: "29186029383"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - uses: actions/download-artifact@v4
+        with:
+          name: full-real-acquisition-plan-${{ github.run_id }}
+          path: /tmp/full-plan
+      - run: pip install -e ".[dev]"
+      - name: Restore existing shard checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p "$SHARD_DIR"
+          gh run download "$SEED_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name "public-web-trait-shard-${{ matrix.shard }}-$SEED_RUN_ID" \
+            --dir "$SHARD_DIR"
+          test -s "$SHARD_DIR/checkpoint.csv"
+      - name: Advance 300 species with real providers
+        run: |
+          set -euo pipefail
+          island-v2-web-trait-shards run \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --scope-config-path config/angiosperm_scope.yml \
+            --campaign-dir "$SHARD_DIR" \
+            --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz \
+            --shard-index "${{ matrix.shard }}" \
+            --shard-count 128 \
+            --batch-size 300 \
+            --max-attempts 3 \
+            --expected-species 106295 \
+            --web-description-index /tmp/full-plan/web_description_index.json \
+            --pause-seconds 1.0 \
+            --europe-pmc \
+            --no-openalex \
+            --no-world-flora \
+            --migrate-v4
+      - name: Build evidence-quality ledger
+        run: |
+          set -euo pipefail
+          python -m island_v2.real_acquisition_ledger \
+            --campaign-root "$SHARD_DIR" \
+            --output-dir "$SHARD_DIR/ledger"
+          cat "$SHARD_DIR/campaign_status.json" >> "$GITHUB_STEP_SUMMARY"
+          cat "$SHARD_DIR/ledger/collection_round_summary.json" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: full-real-acquisition-shard-${{ matrix.shard }}-${{ github.run_id }}
+          path: |
+            ${{ env.SHARD_DIR }}/campaign_manifest.json
+            ${{ env.SHARD_DIR }}/campaign_status.json
+            ${{ env.SHARD_DIR }}/checkpoint.csv
+            ${{ env.SHARD_DIR }}/provider_checkpoint.csv
+            ${{ env.SHARD_DIR }}/packets/
+            ${{ env.SHARD_DIR }}/cumulative/
+            ${{ env.SHARD_DIR }}/ledger/
+          if-no-files-found: error
+          retention-days: 90
