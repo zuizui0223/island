@@ -27,7 +27,7 @@ permissions:
 
 concurrency:
   group: three-pass-trait-acquisition-${{ github.event.pull_request.number || github.ref_name }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   plan-pass1-high:
