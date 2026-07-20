@@ -69,7 +69,8 @@ jobs:
           import json
           from pathlib import Path
           import pandas as pd
-          root = Path('/tmp/shard-${{ matrix.shard }}')
+          shard = ${{ matrix.shard }}
+          root = Path(f'/tmp/shard-{shard}')
           p = root / 'passes' / 'pass1_high'
           high = pd.read_csv(p / 'accepted_high_evidence.csv.gz', dtype=str).fillna('')
           medium = pd.read_csv(p / 'held_medium_evidence.csv.gz', dtype=str).fillna('')
@@ -88,7 +89,7 @@ jobs:
               resolved[axis] += int(ok)
             all_three += int(all(flags.values()))
           out = {
-            'shard': ${{ matrix.shard }},
+            'shard': shard,
             'processed_species': int(coverage['accepted_species'].nunique()),
             'accepted_high_records': int(len(high)),
             'species_with_high_evidence': int(high['accepted_species'].nunique()),
@@ -103,14 +104,14 @@ jobs:
             'high_reproductive_assurance_species': resolved['reproductive_assurance'],
             'species_with_all_three_axes_high': all_three,
           }
-          d = Path('/tmp/metric-${{ matrix.shard }}')
+          d = Path(f'/tmp/metric-{shard}')
           d.mkdir(parents=True, exist_ok=True)
-          (d / 'metric.json').write_text(json.dumps(out, indent=2) + '\n', encoding='utf-8')
+          (d / f'metric-{shard}.json').write_text(json.dumps(out, indent=2) + '\n', encoding='utf-8')
           PY
       - uses: actions/upload-artifact@v4
         with:
           name: pass1-metric-${{ matrix.shard }}
-          path: /tmp/metric-${{ matrix.shard }}/metric.json
+          path: /tmp/metric-${{ matrix.shard }}/metric-${{ matrix.shard }}.json
           if-no-files-found: error
 
   aggregate:
@@ -127,7 +128,7 @@ jobs:
           python - <<'PY'
           import json, os
           from pathlib import Path
-          rows = [json.loads(p.read_text()) for p in Path('/tmp/metrics').rglob('metric.json')]
+          rows = [json.loads(p.read_text()) for p in Path('/tmp/metrics').glob('metric-*.json')]
           if len(rows) != 128:
             raise SystemExit(f'expected 128 metrics, found {len(rows)}')
           keys = [k for k in rows[0] if k != 'shard']
