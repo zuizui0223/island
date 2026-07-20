@@ -9,7 +9,7 @@ on:
       seed_run_id:
         description: "Completed three-pass pass-1 run to audit"
         required: false
-        default: "29669923162"
+        default: "29712016620"
         type: string
 
 permissions:
@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
-      SEED_RUN_ID: ${{ inputs.seed_run_id || '29669923162' }}
+      SEED_RUN_ID: ${{ inputs.seed_run_id || '29712016620' }}
     steps:
       - uses: actions/setup-python@v5
         with:
@@ -117,6 +117,8 @@ jobs:
   aggregate:
     needs: audit-shard
     runs-on: ubuntu-latest
+    env:
+      SEED_RUN_ID: ${{ inputs.seed_run_id || '29712016620' }}
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -132,7 +134,7 @@ jobs:
           if len(rows) != 128:
             raise SystemExit(f'expected 128 metrics, found {len(rows)}')
           keys = [k for k in rows[0] if k != 'shard']
-          total = {'seed_run_id': 29669923162, 'shards': 128}
+          total = {'seed_run_id': int(os.environ['SEED_RUN_ID']), 'shards': 128}
           for k in keys:
             total[k] = sum(int(r[k]) for r in rows)
           out = Path('/tmp/pass1-audit')
