@@ -16,9 +16,9 @@ on:
         default: "300"
         type: string
       seed_run_id:
-        description: "Complete 128-shard seed run"
+        description: "Complete 128-shard three-pass pass-1 seed run"
         required: false
-        default: "29186029383"
+        default: "29669923162"
         type: string
 
 permissions:
@@ -66,14 +66,14 @@ jobs:
         name: Freeze pass-one matrix
         env:
           REQUESTED_BATCH: ${{ inputs.batch_size || '300' }}
-          REQUESTED_SEED: ${{ inputs.seed_run_id || '29186029383' }}
+          REQUESTED_SEED: ${{ inputs.seed_run_id || '29669923162' }}
         run: |
           python - <<'PY'
           import json, os
           batch = int(os.environ['REQUESTED_BATCH'])
+          seed = os.environ['REQUESTED_SEED'].strip()
           if not 1 <= batch <= 500:
               raise SystemExit('batch_size must be 1..500')
-          seed = os.environ['REQUESTED_SEED'].strip()
           if not seed.isdigit():
               raise SystemExit('seed_run_id must be numeric')
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
@@ -113,16 +113,17 @@ jobs:
           name: three-pass-plan-${{ github.run_id }}
           path: /tmp/three-pass-plan
       - run: pip install -e ".[dev]"
-      - name: Restore durable checkpoint
+      - name: Restore latest three-pass pass-one checkpoint
         run: |
           set -euo pipefail
           mkdir -p "$SHARD_DIR"
           gh run download "$SEED_RUN_ID" \
             --repo "$GITHUB_REPOSITORY" \
-            --name "public-web-trait-shard-${{ matrix.shard }}-$SEED_RUN_ID" \
+            --name "three-pass-pass1-shard-${{ matrix.shard }}-$SEED_RUN_ID" \
             --dir "$SHARD_DIR"
           test -s "$SHARD_DIR/checkpoint.csv"
-      - name: Query real providers for pass-one candidates
+          test -s "$SHARD_DIR/passes/pass1_high/pass1_summary.json"
+      - name: Query real providers for next pass-one batch
         run: |
           set -euo pipefail
           island-v2-web-trait-shards run \
@@ -156,63 +157,39 @@ jobs:
           ledger_dir = root / 'ledger'
           pass_dir = root / 'passes' / 'pass1_high'
           pass_dir.mkdir(parents=True, exist_ok=True)
-
           evidence = pd.read_csv(ledger_dir / 'all_master_evidence.csv.gz', dtype=str).fillna('')
           coverage = pd.read_csv(ledger_dir / 'three_axis_coverage.csv.gz', dtype=str).fillna('')
           high = evidence.loc[evidence['evidence_quality'].eq('high')].copy()
-          held_medium = evidence.loc[evidence['evidence_quality'].eq('medium')].copy()
-          held_low = evidence.loc[evidence['evidence_quality'].eq('low')].copy()
+          evidence.loc[evidence['evidence_quality'].eq('medium')].to_csv(pass_dir / 'held_medium_evidence.csv.gz', index=False)
+          evidence.loc[evidence['evidence_quality'].eq('low')].to_csv(pass_dir / 'held_low_evidence.csv.gz', index=False)
           high.to_csv(pass_dir / 'accepted_high_evidence.csv.gz', index=False)
-          held_medium.to_csv(pass_dir / 'held_medium_evidence.csv.gz', index=False)
-          held_low.to_csv(pass_dir / 'held_low_evidence.csv.gz', index=False)
-
           axes = {
               'flower_colour': {'flower_primary_color', 'flower_color'},
-              'floral_structural_complexity': {
-                  'floral_form', 'floral_symmetry', 'tube_depth_class',
-                  'flower_size_class', 'inflorescence_display', 'flower_shape'
-              },
-              'reproductive_assurance': {
-                  'self_incompatibility', 'autonomous_selfing_capacity',
-                  'mating_system', 'cleistogamy'
-              },
+              'floral_structural_complexity': {'floral_form', 'floral_symmetry', 'tube_depth_class', 'flower_size_class', 'inflorescence_display', 'flower_shape'},
+              'reproductive_assurance': {'self_incompatibility', 'autonomous_selfing_capacity', 'mating_system', 'cleistogamy'},
           }
           processed = sorted(set(coverage.get('accepted_species', pd.Series(dtype=str))))
           rows = []
           for species in processed:
               subset = high.loc[high['accepted_species'].eq(species)]
               for axis, traits in axes.items():
-                  resolved = subset['trait_name'].isin(traits).any()
-                  if not resolved:
-                      rows.append({
-                          'accepted_species': species,
-                          'axis': axis,
-                          'target_quality': 'medium',
-                          'next_pass': 2,
-                          'reason': 'no_high_direct_evidence',
-                      })
-          pass2 = pd.DataFrame(rows, columns=[
-              'accepted_species', 'axis', 'target_quality', 'next_pass', 'reason'
-          ])
+                  if not subset['trait_name'].isin(traits).any():
+                      rows.append({'accepted_species': species, 'axis': axis, 'target_quality': 'medium', 'next_pass': 2, 'reason': 'no_high_direct_evidence'})
+          pass2 = pd.DataFrame(rows, columns=['accepted_species', 'axis', 'target_quality', 'next_pass', 'reason'])
           pass2.to_csv(pass_dir / 'pass2_medium_tasks.csv.gz', index=False)
           summary = {
               'campaign_contract': 'three_pass_species_axis_v1',
               'pass': 1,
-              'target_quality': 'high',
+              'seed_run_id': int(os.environ['SEED_RUN_ID']),
+              'batch_size': int(os.environ['BATCH_SIZE']),
               'processed_species': len(processed),
               'accepted_high_records': int(len(high)),
-              'held_medium_records': int(len(held_medium)),
-              'held_low_records': int(len(held_low)),
               'pass2_species_axis_tasks': int(len(pass2)),
               'family_inference_used': False,
               'global_fallback_used': False,
           }
-          (pass_dir / 'pass1_summary.json').write_text(
-              json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + '\n',
-              encoding='utf-8',
-          )
+          (pass_dir / 'pass1_summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + '\n', encoding='utf-8')
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as out:
-              print('## Three-pass campaign: pass 1 high', file=out)
               for key, value in summary.items():
                   print(f'- {key}: {value}', file=out)
           PY
