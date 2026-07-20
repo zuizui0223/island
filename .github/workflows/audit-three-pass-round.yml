@@ -21,47 +21,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
-      GH_TOKEN: ${{ github.token }}
       SEED_RUN_ID: ${{ inputs.seed_run_id || '29669923162' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Download all 128 pass-one artifacts individually
+      - name: Download all pass-one artifacts from completed run
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ env.SEED_RUN_ID }}
+          pattern: three-pass-pass1-shard-*-${{ env.SEED_RUN_ID }}
+          path: /tmp/pass1
+          merge-multiple: false
+      - name: Require all 128 shard summaries
         run: |
           set -euo pipefail
-          mkdir -p /tmp/pass1 /tmp/zips
-          mapfile -t artifacts < <(
-            gh api --paginate \
-              "repos/$GITHUB_REPOSITORY/actions/runs/$SEED_RUN_ID/artifacts?per_page=100" \
-              --jq ".artifacts[] | select(.expired == false) | select(.name | startswith(\"three-pass-pass1-shard-\")) | [.id,.name] | @tsv"
-          )
-          test "${#artifacts[@]}" -eq 128
-          for record in "${artifacts[@]}"; do
-            IFS=$'\t' read -r artifact_id artifact_name <<< "$record"
-            zip_path="/tmp/zips/$artifact_name.zip"
-            out_dir="/tmp/pass1/$artifact_name"
-            ok=false
-            for attempt in 1 2 3 4 5; do
-              rm -f "$zip_path"
-              if gh api \
-                -H "Accept: application/vnd.github+json" \
-                "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" \
-                > "$zip_path" && unzip -tq "$zip_path" >/dev/null; then
-                ok=true
-                break
-              fi
-              sleep $((attempt * 10))
-            done
-            if [[ "$ok" != true ]]; then
-              echo "::error::Failed to download artifact $artifact_name after five attempts"
-              exit 1
-            fi
-            mkdir -p "$out_dir"
-            unzip -q "$zip_path" -d "$out_dir"
-          done
           count=$(find /tmp/pass1 -name pass1_summary.json | wc -l)
+          echo "found summaries: $count"
           test "$count" -eq 128
       - name: Aggregate exact round metrics
         run: |
@@ -120,11 +99,10 @@ jobs:
                   'floral_structural_complexity': {'floral_form','floral_symmetry','tube_depth_class','flower_size_class','inflorescence_display','flower_shape'},
                   'reproductive_assurance': {'self_incompatibility','autonomous_selfing_capacity','mating_system','cleistogamy'},
               }
-              all_three = 0
-              for _, group in high.groupby('accepted_species'):
-                  if all(group['trait_name'].isin(traits).any() for traits in axes.values()):
-                      all_three += 1
-              summary['species_with_all_three_axes_high'] = all_three
+              summary['species_with_all_three_axes_high'] = sum(
+                  all(group['trait_name'].isin(traits).any() for traits in axes.values())
+                  for _, group in high.groupby('accepted_species')
+              )
           out = Path('/tmp/pass1-audit')
           out.mkdir(parents=True, exist_ok=True)
           (out / 'round_summary.json').write_text(
