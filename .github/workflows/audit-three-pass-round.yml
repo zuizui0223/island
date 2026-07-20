@@ -13,117 +13,136 @@ on:
         type: string
 
 permissions:
-  actions: read
+  actions: write
   contents: read
 
 jobs:
-  audit:
+  plan:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    outputs:
+      shards: ${{ steps.matrix.outputs.shards }}
+    steps:
+      - id: matrix
+        run: |
+          python - <<'PY'
+          import json, os
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              print('shards=' + json.dumps(list(range(128))), file=out)
+          PY
+
+  audit-shard:
+    needs: plan
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    runs-on: ubuntu-latest
     env:
+      GH_TOKEN: ${{ github.token }}
       SEED_RUN_ID: ${{ inputs.seed_run_id || '29669923162' }}
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Download all pass-one artifacts from completed run
-        uses: actions/download-artifact@v4
-        with:
-          github-token: ${{ github.token }}
-          repository: ${{ github.repository }}
-          run-id: ${{ env.SEED_RUN_ID }}
-          pattern: three-pass-pass1-shard-*-${{ env.SEED_RUN_ID }}
-          path: /tmp/pass1
-          merge-multiple: false
-      - name: Require all 128 shard summaries
+      - name: Download one shard artifact with retries
         run: |
           set -euo pipefail
-          count=$(find /tmp/pass1 -name pass1_summary.json | wc -l)
-          echo "found summaries: $count"
-          test "$count" -eq 128
-      - name: Aggregate exact round metrics
+          out="/tmp/shard-${{ matrix.shard }}"
+          mkdir -p "$out"
+          for attempt in 1 2 3 4 5; do
+            rm -rf "$out"/*
+            if gh run download "$SEED_RUN_ID" \
+              --repo "$GITHUB_REPOSITORY" \
+              --name "three-pass-pass1-shard-${{ matrix.shard }}-$SEED_RUN_ID" \
+              --dir "$out"; then
+              test -s "$out/passes/pass1_high/pass1_summary.json"
+              break
+            fi
+            if [[ "$attempt" == 5 ]]; then exit 1; fi
+            sleep $((attempt * 15))
+          done
+      - name: Build compact shard metrics
         run: |
           python - <<'PY'
           import json
-          import os
           from pathlib import Path
           import pandas as pd
-
-          root = Path('/tmp/pass1')
-          summaries = []
-          high_frames = []
-          medium_frames = []
-          pass2_frames = []
-          coverage_frames = []
-          for path in root.rglob('pass1_summary.json'):
-              summaries.append(json.loads(path.read_text(encoding='utf-8')))
-              pass_dir = path.parent
-              high = pass_dir / 'accepted_high_evidence.csv.gz'
-              medium = pass_dir / 'held_medium_evidence.csv.gz'
-              pass2 = pass_dir / 'pass2_medium_tasks.csv.gz'
-              if high.exists():
-                  high_frames.append(pd.read_csv(high, dtype=str).fillna(''))
-              if medium.exists():
-                  medium_frames.append(pd.read_csv(medium, dtype=str).fillna(''))
-              if pass2.exists():
-                  pass2_frames.append(pd.read_csv(pass2, dtype=str).fillna(''))
-              ledger_cov = pass_dir.parents[1] / 'ledger' / 'three_axis_coverage.csv.gz'
-              if ledger_cov.exists():
-                  coverage_frames.append(pd.read_csv(ledger_cov, dtype=str).fillna(''))
-
-          high = pd.concat(high_frames, ignore_index=True) if high_frames else pd.DataFrame()
-          medium = pd.concat(medium_frames, ignore_index=True) if medium_frames else pd.DataFrame()
-          pass2 = pd.concat(pass2_frames, ignore_index=True) if pass2_frames else pd.DataFrame()
-          coverage = pd.concat(coverage_frames, ignore_index=True) if coverage_frames else pd.DataFrame()
-
-          processed_species = sorted(set(coverage.get('accepted_species', pd.Series(dtype=str))))
-          high_species = int(high['accepted_species'].nunique()) if not high.empty else 0
-          medium_species = int(medium['accepted_species'].nunique()) if not medium.empty else 0
-          axis_counts = pass2['axis'].value_counts().to_dict() if not pass2.empty else {}
-          summary = {
-              'seed_run_id': int(os.environ['SEED_RUN_ID']),
-              'shards': len(summaries),
-              'processed_species': len(processed_species),
-              'accepted_high_records': int(len(high)),
-              'species_with_high_evidence': high_species,
-              'held_medium_records': int(len(medium)),
-              'species_with_medium_evidence': medium_species,
-              'pass2_species_axis_tasks': int(len(pass2)),
-              'pass2_tasks_by_axis': {k: int(v) for k, v in axis_counts.items()},
-              'species_with_all_three_axes_high': 0,
+          root = Path('/tmp/shard-${{ matrix.shard }}')
+          p = root / 'passes' / 'pass1_high'
+          high = pd.read_csv(p / 'accepted_high_evidence.csv.gz', dtype=str).fillna('')
+          medium = pd.read_csv(p / 'held_medium_evidence.csv.gz', dtype=str).fillna('')
+          pass2 = pd.read_csv(p / 'pass2_medium_tasks.csv.gz', dtype=str).fillna('')
+          coverage = pd.read_csv(root / 'ledger' / 'three_axis_coverage.csv.gz', dtype=str).fillna('')
+          axes = {
+            'flower_colour': {'flower_primary_color','flower_color'},
+            'floral_structural_complexity': {'floral_form','floral_symmetry','tube_depth_class','flower_size_class','inflorescence_display','flower_shape'},
+            'reproductive_assurance': {'self_incompatibility','autonomous_selfing_capacity','mating_system','cleistogamy'},
           }
-          if not high.empty:
-              axes = {
-                  'flower_colour': {'flower_primary_color', 'flower_color'},
-                  'floral_structural_complexity': {'floral_form','floral_symmetry','tube_depth_class','flower_size_class','inflorescence_display','flower_shape'},
-                  'reproductive_assurance': {'self_incompatibility','autonomous_selfing_capacity','mating_system','cleistogamy'},
-              }
-              summary['species_with_all_three_axes_high'] = sum(
-                  all(group['trait_name'].isin(traits).any() for traits in axes.values())
-                  for _, group in high.groupby('accepted_species')
-              )
-          out = Path('/tmp/pass1-audit')
-          out.mkdir(parents=True, exist_ok=True)
-          (out / 'round_summary.json').write_text(
-              json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + '\n',
-              encoding='utf-8',
-          )
-          if not high.empty:
-              high.to_csv(out / 'accepted_high_evidence_all.csv.gz', index=False)
-          if not medium.empty:
-              medium.to_csv(out / 'held_medium_evidence_all.csv.gz', index=False)
-          if not pass2.empty:
-              pass2.to_csv(out / 'pass2_medium_tasks_all.csv.gz', index=False)
-          print(json.dumps(summary, ensure_ascii=False, indent=2))
-          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as fh:
-              print('## Exact first-round acquisition audit', file=fh)
-              for key, value in summary.items():
-                  print(f'- {key}: {value}', file=fh)
+          resolved = {axis: 0 for axis in axes}
+          all_three = 0
+          for species, g in high.groupby('accepted_species'):
+            flags = {axis: bool(g['trait_name'].isin(traits).any()) for axis, traits in axes.items()}
+            for axis, ok in flags.items():
+              resolved[axis] += int(ok)
+            all_three += int(all(flags.values()))
+          out = {
+            'shard': ${{ matrix.shard }},
+            'processed_species': int(coverage['accepted_species'].nunique()),
+            'accepted_high_records': int(len(high)),
+            'species_with_high_evidence': int(high['accepted_species'].nunique()),
+            'held_medium_records': int(len(medium)),
+            'species_with_medium_evidence': int(medium['accepted_species'].nunique()),
+            'pass2_species_axis_tasks': int(len(pass2)),
+            'pass2_flower_colour': int((pass2['axis'] == 'flower_colour').sum()),
+            'pass2_floral_structural_complexity': int((pass2['axis'] == 'floral_structural_complexity').sum()),
+            'pass2_reproductive_assurance': int((pass2['axis'] == 'reproductive_assurance').sum()),
+            'high_flower_colour_species': resolved['flower_colour'],
+            'high_floral_structural_complexity_species': resolved['floral_structural_complexity'],
+            'high_reproductive_assurance_species': resolved['reproductive_assurance'],
+            'species_with_all_three_axes_high': all_three,
+          }
+          d = Path('/tmp/metric-${{ matrix.shard }}')
+          d.mkdir(parents=True, exist_ok=True)
+          (d / 'metric.json').write_text(json.dumps(out, indent=2) + '\n', encoding='utf-8')
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: three-pass-round-audit-${{ env.SEED_RUN_ID }}-${{ github.run_id }}
-          path: /tmp/pass1-audit/
+          name: pass1-metric-${{ matrix.shard }}
+          path: /tmp/metric-${{ matrix.shard }}/metric.json
           if-no-files-found: error
-          retention-days: 90
+
+  aggregate:
+    needs: audit-shard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: pass1-metric-*
+          path: /tmp/metrics
+          merge-multiple: true
+      - name: Sum exact metrics
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          rows = [json.loads(p.read_text()) for p in Path('/tmp/metrics').rglob('metric.json')]
+          if len(rows) != 128:
+            raise SystemExit(f'expected 128 metrics, found {len(rows)}')
+          keys = [k for k in rows[0] if k != 'shard']
+          total = {'seed_run_id': 29669923162, 'shards': 128}
+          for k in keys:
+            total[k] = sum(int(r[k]) for r in rows)
+          out = Path('/tmp/pass1-audit')
+          out.mkdir(parents=True, exist_ok=True)
+          (out / 'round_summary.json').write_text(json.dumps(total, ensure_ascii=False, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(json.dumps(total, ensure_ascii=False, indent=2))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as fh:
+            print('## Exact first-round acquisition audit', file=fh)
+            for k, v in total.items(): print(f'- {k}: {v}', file=fh)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: three-pass-round-audit-${{ github.run_id }}
+          path: /tmp/pass1-audit/round_summary.json
+          if-no-files-found: error
