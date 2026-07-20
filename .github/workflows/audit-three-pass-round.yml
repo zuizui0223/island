@@ -19,7 +19,7 @@ permissions:
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       GH_TOKEN: ${{ github.token }}
       SEED_RUN_ID: ${{ inputs.seed_run_id || '29669923162' }}
@@ -28,22 +28,38 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Download all 128 pass-one artifacts
+      - name: Download all 128 pass-one artifacts individually
         run: |
           set -euo pipefail
-          mkdir -p /tmp/pass1
-          for attempt in 1 2 3 4 5; do
-            rm -rf /tmp/pass1/*
-            if gh run download "$SEED_RUN_ID" \
-              --repo "$GITHUB_REPOSITORY" \
-              --pattern "three-pass-pass1-shard-*-$SEED_RUN_ID" \
-              --dir /tmp/pass1; then
-              break
-            fi
-            if [[ "$attempt" == 5 ]]; then
+          mkdir -p /tmp/pass1 /tmp/zips
+          mapfile -t artifacts < <(
+            gh api --paginate \
+              "repos/$GITHUB_REPOSITORY/actions/runs/$SEED_RUN_ID/artifacts?per_page=100" \
+              --jq ".artifacts[] | select(.expired == false) | select(.name | startswith(\"three-pass-pass1-shard-\")) | [.id,.name] | @tsv"
+          )
+          test "${#artifacts[@]}" -eq 128
+          for record in "${artifacts[@]}"; do
+            IFS=$'\t' read -r artifact_id artifact_name <<< "$record"
+            zip_path="/tmp/zips/$artifact_name.zip"
+            out_dir="/tmp/pass1/$artifact_name"
+            ok=false
+            for attempt in 1 2 3 4 5; do
+              rm -f "$zip_path"
+              if gh api \
+                -H "Accept: application/vnd.github+json" \
+                "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" \
+                > "$zip_path" && unzip -tq "$zip_path" >/dev/null; then
+                ok=true
+                break
+              fi
+              sleep $((attempt * 10))
+            done
+            if [[ "$ok" != true ]]; then
+              echo "::error::Failed to download artifact $artifact_name after five attempts"
               exit 1
             fi
-            sleep $((attempt * 15))
+            mkdir -p "$out_dir"
+            unzip -q "$zip_path" -d "$out_dir"
           done
           count=$(find /tmp/pass1 -name pass1_summary.json | wc -l)
           test "$count" -eq 128
@@ -51,6 +67,7 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import os
           from pathlib import Path
           import pandas as pd
 
@@ -86,7 +103,7 @@ jobs:
           medium_species = int(medium['accepted_species'].nunique()) if not medium.empty else 0
           axis_counts = pass2['axis'].value_counts().to_dict() if not pass2.empty else {}
           summary = {
-              'seed_run_id': int(Path('/tmp').name == 'tmp') and int(__import__('os').environ['SEED_RUN_ID']),
+              'seed_run_id': int(os.environ['SEED_RUN_ID']),
               'shards': len(summaries),
               'processed_species': len(processed_species),
               'accepted_high_records': int(len(high)),
@@ -104,13 +121,16 @@ jobs:
                   'reproductive_assurance': {'self_incompatibility','autonomous_selfing_capacity','mating_system','cleistogamy'},
               }
               all_three = 0
-              for species, group in high.groupby('accepted_species'):
+              for _, group in high.groupby('accepted_species'):
                   if all(group['trait_name'].isin(traits).any() for traits in axes.values()):
                       all_three += 1
               summary['species_with_all_three_axes_high'] = all_three
           out = Path('/tmp/pass1-audit')
           out.mkdir(parents=True, exist_ok=True)
-          (out / 'round_summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          (out / 'round_summary.json').write_text(
+              json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
           if not high.empty:
               high.to_csv(out / 'accepted_high_evidence_all.csv.gz', index=False)
           if not medium.empty:
@@ -118,7 +138,7 @@ jobs:
           if not pass2.empty:
               pass2.to_csv(out / 'pass2_medium_tasks_all.csv.gz', index=False)
           print(json.dumps(summary, ensure_ascii=False, indent=2))
-          with open(__import__('os').environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as fh:
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as fh:
               print('## Exact first-round acquisition audit', file=fh)
               for key, value in summary.items():
                   print(f'- {key}: {value}', file=fh)
