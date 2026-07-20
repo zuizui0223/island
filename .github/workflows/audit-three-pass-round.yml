@@ -45,6 +45,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
+      - run: python -m pip install pandas
       - name: Download one shard artifact with retries
         run: |
           set -euo pipefail
@@ -81,7 +83,7 @@ jobs:
           }
           resolved = {axis: 0 for axis in axes}
           all_three = 0
-          for species, g in high.groupby('accepted_species'):
+          for _, g in high.groupby('accepted_species'):
             flags = {axis: bool(g['trait_name'].isin(traits).any()) for axis, traits in axes.items()}
             for axis, ok in flags.items():
               resolved[axis] += int(ok)
