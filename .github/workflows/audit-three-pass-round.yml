@@ -1,0 +1,131 @@
+name: audit_three_pass_round
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/audit-three-pass-round.yml"
+  workflow_dispatch:
+    inputs:
+      seed_run_id:
+        description: "Completed three-pass pass-1 run to audit"
+        required: false
+        default: "29669923162"
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SEED_RUN_ID: ${{ inputs.seed_run_id || '29669923162' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download all 128 pass-one artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/pass1
+          for attempt in 1 2 3 4 5; do
+            rm -rf /tmp/pass1/*
+            if gh run download "$SEED_RUN_ID" \
+              --repo "$GITHUB_REPOSITORY" \
+              --pattern "three-pass-pass1-shard-*-$SEED_RUN_ID" \
+              --dir /tmp/pass1; then
+              break
+            fi
+            if [[ "$attempt" == 5 ]]; then
+              exit 1
+            fi
+            sleep $((attempt * 15))
+          done
+          count=$(find /tmp/pass1 -name pass1_summary.json | wc -l)
+          test "$count" -eq 128
+      - name: Aggregate exact round metrics
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('/tmp/pass1')
+          summaries = []
+          high_frames = []
+          medium_frames = []
+          pass2_frames = []
+          coverage_frames = []
+          for path in root.rglob('pass1_summary.json'):
+              summaries.append(json.loads(path.read_text(encoding='utf-8')))
+              pass_dir = path.parent
+              high = pass_dir / 'accepted_high_evidence.csv.gz'
+              medium = pass_dir / 'held_medium_evidence.csv.gz'
+              pass2 = pass_dir / 'pass2_medium_tasks.csv.gz'
+              if high.exists():
+                  high_frames.append(pd.read_csv(high, dtype=str).fillna(''))
+              if medium.exists():
+                  medium_frames.append(pd.read_csv(medium, dtype=str).fillna(''))
+              if pass2.exists():
+                  pass2_frames.append(pd.read_csv(pass2, dtype=str).fillna(''))
+              ledger_cov = pass_dir.parents[1] / 'ledger' / 'three_axis_coverage.csv.gz'
+              if ledger_cov.exists():
+                  coverage_frames.append(pd.read_csv(ledger_cov, dtype=str).fillna(''))
+
+          high = pd.concat(high_frames, ignore_index=True) if high_frames else pd.DataFrame()
+          medium = pd.concat(medium_frames, ignore_index=True) if medium_frames else pd.DataFrame()
+          pass2 = pd.concat(pass2_frames, ignore_index=True) if pass2_frames else pd.DataFrame()
+          coverage = pd.concat(coverage_frames, ignore_index=True) if coverage_frames else pd.DataFrame()
+
+          processed_species = sorted(set(coverage.get('accepted_species', pd.Series(dtype=str))))
+          high_species = int(high['accepted_species'].nunique()) if not high.empty else 0
+          medium_species = int(medium['accepted_species'].nunique()) if not medium.empty else 0
+          axis_counts = pass2['axis'].value_counts().to_dict() if not pass2.empty else {}
+          summary = {
+              'seed_run_id': int(Path('/tmp').name == 'tmp') and int(__import__('os').environ['SEED_RUN_ID']),
+              'shards': len(summaries),
+              'processed_species': len(processed_species),
+              'accepted_high_records': int(len(high)),
+              'species_with_high_evidence': high_species,
+              'held_medium_records': int(len(medium)),
+              'species_with_medium_evidence': medium_species,
+              'pass2_species_axis_tasks': int(len(pass2)),
+              'pass2_tasks_by_axis': {k: int(v) for k, v in axis_counts.items()},
+              'species_with_all_three_axes_high': 0,
+          }
+          if not high.empty:
+              axes = {
+                  'flower_colour': {'flower_primary_color', 'flower_color'},
+                  'floral_structural_complexity': {'floral_form','floral_symmetry','tube_depth_class','flower_size_class','inflorescence_display','flower_shape'},
+                  'reproductive_assurance': {'self_incompatibility','autonomous_selfing_capacity','mating_system','cleistogamy'},
+              }
+              all_three = 0
+              for species, group in high.groupby('accepted_species'):
+                  if all(group['trait_name'].isin(traits).any() for traits in axes.values()):
+                      all_three += 1
+              summary['species_with_all_three_axes_high'] = all_three
+          out = Path('/tmp/pass1-audit')
+          out.mkdir(parents=True, exist_ok=True)
+          (out / 'round_summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          if not high.empty:
+              high.to_csv(out / 'accepted_high_evidence_all.csv.gz', index=False)
+          if not medium.empty:
+              medium.to_csv(out / 'held_medium_evidence_all.csv.gz', index=False)
+          if not pass2.empty:
+              pass2.to_csv(out / 'pass2_medium_tasks_all.csv.gz', index=False)
+          print(json.dumps(summary, ensure_ascii=False, indent=2))
+          with open(__import__('os').environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as fh:
+              print('## Exact first-round acquisition audit', file=fh)
+              for key, value in summary.items():
+                  print(f'- {key}: {value}', file=fh)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: three-pass-round-audit-${{ env.SEED_RUN_ID }}-${{ github.run_id }}
+          path: /tmp/pass1-audit/
+          if-no-files-found: error
+          retention-days: 90
