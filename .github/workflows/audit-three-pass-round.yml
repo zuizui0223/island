@@ -9,7 +9,7 @@ on:
       seed_run_id:
         description: "Completed three-pass pass-1 run to audit"
         required: false
-        default: "29808834822"
+        default: "29742199817"
         type: string
 
 permissions:
@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
-      SEED_RUN_ID: ${{ inputs.seed_run_id || '29808834822' }}
+      SEED_RUN_ID: ${{ inputs.seed_run_id || '29742199817' }}
     steps:
       - uses: actions/setup-python@v5
         with:
@@ -118,7 +118,7 @@ jobs:
     needs: audit-shard
     runs-on: ubuntu-latest
     env:
-      SEED_RUN_ID: ${{ inputs.seed_run_id || '29808834822' }}
+      SEED_RUN_ID: ${{ inputs.seed_run_id || '29742199817' }}
     steps:
       - uses: actions/download-artifact@v4
         with:
