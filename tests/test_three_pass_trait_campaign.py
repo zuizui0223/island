@@ -1,3 +1,4 @@
+# Acquisition trigger: resume from completed seed run 29742199817.
 import pandas as pd
 
 from island_v2.three_pass_trait_campaign import build_tasks
