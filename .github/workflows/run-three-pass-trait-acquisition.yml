@@ -18,7 +18,7 @@ on:
       seed_run_id:
         description: "Complete 128-shard three-pass pass-1 seed run"
         required: false
-        default: "29712016620"
+        default: "29742199817"
         type: string
 
 permissions:
@@ -66,7 +66,7 @@ jobs:
         name: Freeze pass-one matrix
         env:
           REQUESTED_BATCH: ${{ inputs.batch_size || '300' }}
-          REQUESTED_SEED: ${{ inputs.seed_run_id || '29712016620' }}
+          REQUESTED_SEED: ${{ inputs.seed_run_id || '29742199817' }}
         run: |
           python - <<'PY2'
           import json, os
