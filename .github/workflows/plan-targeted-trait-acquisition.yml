@@ -69,15 +69,47 @@ jobs:
               out / 'global_unresolved_after_pass3.csv.gz', index=False
           )
           PY
-      - name: Rank target-aligned near-threshold genera
+      - name: Build broad source-expansion pilot plan
         run: |
+          set -euo pipefail
           python -m island_v2.targeted_acquisition_priority \
             --evidence-csv /tmp/input/global_direct_evidence.csv.gz \
             --unresolved-csv /tmp/input/global_unresolved_after_pass3.csv.gz \
-            --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz \
             --output-dir /tmp/output \
             --min-species 3 \
             --max-target-species-per-genus-axis 2
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          out = Path('/tmp/output')
+          tasks = pd.read_csv(out / 'targeted_acquisition_tasks.csv.gz', dtype=str).fillna('')
+          tasks = (
+              tasks.sort_values(['axis', 'priority_rank', 'accepted_species'])
+              .groupby('axis', group_keys=False)
+              .head(100)
+              .drop_duplicates(['accepted_species', 'axis'])
+              .reset_index(drop=True)
+          )
+          if tasks.empty:
+              raise SystemExit('broad source-expansion pilot produced no tasks')
+          tasks['acquisition_round'] = 'expanded_provider_100_per_axis_pilot'
+          tasks.to_csv(out / 'targeted_acquisition_tasks.csv.gz', index=False)
+          summary_path = out / 'targeted_acquisition_summary.json'
+          summary = json.loads(summary_path.read_text())
+          summary['contract'] = 'expanded_provider_source_pilot_v1'
+          summary['candidate_hints_used'] = False
+          summary['pilot_cap_per_axis'] = 100
+          summary['target_species_axis_tasks'] = int(len(tasks))
+          summary['target_species'] = int(tasks['accepted_species'].nunique())
+          summary['axes'] = {
+              axis: {'target_tasks': int((tasks['axis'] == axis).sum())}
+              for axis in sorted(tasks['axis'].unique())
+          }
+          summary_path.write_text(json.dumps(summary, indent=2) + '\n')
+          print(json.dumps(summary, indent=2))
+          PY
           cat /tmp/output/targeted_acquisition_summary.json >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
@@ -85,3 +117,10 @@ jobs:
           path: /tmp/output/
           if-no-files-found: error
           retention-days: 90
+      - name: Dispatch expanded-provider acquisition
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          gh workflow run run-targeted-trait-reacquisition.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f plan_run_id="$GITHUB_RUN_ID"
