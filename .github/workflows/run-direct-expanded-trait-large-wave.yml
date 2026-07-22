@@ -81,14 +81,13 @@ jobs:
           if not species:
               raise SystemExit(f'no species remain for offset={offset}, limit={limit}; ranked_total={len(ranked)}')
 
-          raw_targeted = master.loc[master['accepted_species'].isin(species)].drop_duplicates('accepted_species').copy()
+          raw = master.loc[master['accepted_species'].isin(species)].drop_duplicates('accepted_species').copy()
           order = {sp: i for i, sp in enumerate(species)}
-          raw_targeted['_rank'] = raw_targeted['accepted_species'].map(order)
-          raw_targeted = raw_targeted.sort_values('_rank').drop(columns='_rank')
-
-          scope = classify_scope(raw_targeted, load_config(Path('config/angiosperm_scope.yml')))
+          raw['_rank'] = raw['accepted_species'].map(order)
+          raw = raw.sort_values('_rank').drop(columns='_rank')
+          scope = classify_scope(raw, load_config(Path('config/angiosperm_scope.yml')))
           eligible = set(scope.loc[scope['angiosperm_analysis_eligible'], 'accepted_species'])
-          targeted = raw_targeted.loc[raw_targeted['accepted_species'].isin(eligible)].copy()
+          targeted = raw.loc[raw['accepted_species'].isin(eligible)].copy()
           if targeted.empty:
               raise SystemExit(f'no angiosperm species matched for offset={offset}, limit={limit}')
 
@@ -98,10 +97,13 @@ jobs:
           scope.to_csv(out / 'selected_wave_scope_audit.csv.gz', index=False)
 
           n = len(targeted)
-          shard_count = min(40, n)
-          batch_size = min(500, math.ceil(n / shard_count))
-          if math.ceil(n / shard_count) > 500:
-              raise SystemExit(f'shard plan exceeds CLI batch-size cap: n={n}, shards={shard_count}')
+          # Preserve the proven 2,000-species run contract: no acquisition job
+          # receives more than 100 species. Scale by adding shards, not by making
+          # each network-heavy job larger.
+          batch_size = 100
+          shard_count = math.ceil(n / batch_size)
+          if shard_count > 256:
+              raise SystemExit(f'matrix would exceed GitHub limit: n={n}, shards={shard_count}')
           offset_end = offset + len(species)
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
               print('shards=' + json.dumps(list(range(shard_count))), file=fh)
@@ -112,28 +114,28 @@ jobs:
               print(f'offset_end={offset_end}', file=fh)
           print(json.dumps({
               'ranked_total': len(ranked),
-              'raw_selected_species': len(raw_targeted),
+              'raw_selected_species': len(raw),
               'scoped_target_species': n,
-              'excluded_by_scope': len(raw_targeted) - n,
+              'excluded_by_scope': len(raw) - n,
               'offset_start': offset,
               'offset_end': offset_end,
               'shards': shard_count,
               'batch_size': batch_size,
           }, indent=2))
           PY
-      - name: Build acquisition plan
+      - name: Build acquisition plan and web index
         run: |
+          set -euo pipefail
           island-v2-web-trait-shards plan \
             --master-csv /tmp/direct-large/targeted_master.csv.gz \
             --scope-config-path config/angiosperm_scope.yml \
             --output-dir /tmp/direct-large/plan \
             --shard-count '${{ steps.freeze.outputs.shard_count }}' \
             --expected-species '${{ steps.freeze.outputs.expected_species }}'
-      - name: Build web description index
-        continue-on-error: true
-        run: |
-          island-v2-v1-category-search build-web-index \
-            --output-json /tmp/direct-large/plan/web_description_index.json
+          if ! island-v2-v1-category-search build-web-index \
+            --output-json /tmp/direct-large/plan/web_description_index.json; then
+            test -s /tmp/direct-large/plan/web_description_index.json
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: direct-expanded-large-input-${{ github.run_id }}
@@ -145,11 +147,11 @@ jobs:
     needs: prepare
     strategy:
       fail-fast: false
-      max-parallel: 16
+      max-parallel: 4
       matrix:
         shard: ${{ fromJSON(needs.prepare.outputs.shards) }}
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 90
     env:
       CAMPAIGN_DIR: /tmp/direct-expanded-large/shard-${{ matrix.shard }}
     steps:
@@ -179,9 +181,11 @@ jobs:
             --expected-species '${{ needs.prepare.outputs.expected_species }}' \
             --web-description-index /tmp/direct-large/plan/web_description_index.json \
             --pause-seconds 1.0 \
-            --europe-pmc --openalex --world-flora --migrate-v4
+            --europe-pmc \
+            --openalex \
+            --world-flora \
+            --migrate-v4
       - name: Normalize evidence
-        if: success()
         run: |
           python -m island_v2.real_acquisition_ledger \
             --campaign-root "$CAMPAIGN_DIR" \
@@ -220,12 +224,13 @@ jobs:
           if not files:
               raise SystemExit('no evidence ledgers found')
           evidence = pd.concat([pd.read_csv(p, dtype=str).fillna('') for p in files], ignore_index=True).drop_duplicates()
-          out = Path('/tmp/final'); out.mkdir(parents=True, exist_ok=True)
+          out = Path('/tmp/final')
+          out.mkdir(parents=True, exist_ok=True)
           evidence.to_csv(out / 'direct_expanded_trait_evidence.csv.gz', index=False)
           expected = int(os.environ['EXPECTED_SPECIES'])
           species = int(evidence['accepted_species'].nunique()) if len(evidence) else 0
           summary = {
-              'contract': 'direct_expanded_trait_large_wave_v6',
+              'contract': 'direct_expanded_trait_large_wave_v7',
               'offset_start': int(os.environ['OFFSET_START']),
               'offset_end': int(os.environ['OFFSET_END']),
               'expected_species': expected,
