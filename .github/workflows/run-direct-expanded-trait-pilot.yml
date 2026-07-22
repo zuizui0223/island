@@ -5,13 +5,24 @@ on:
     paths:
       - ".github/workflows/run-direct-expanded-trait-pilot.yml"
   workflow_dispatch:
+    inputs:
+      offset:
+        description: "Zero-based offset in ranked candidate species"
+        required: false
+        default: "4000"
+        type: string
+      limit:
+        description: "Number of species to acquire in this wave"
+        required: false
+        default: "20000"
+        type: string
 
 permissions:
   contents: read
   actions: write
 
 concurrency:
-  group: direct-expanded-trait-pilot-${{ github.event.pull_request.number || github.ref_name }}
+  group: direct-expanded-trait-${{ github.event.pull_request.number || github.ref_name }}-${{ inputs.offset || '4000' }}
   cancel-in-progress: true
 
 jobs:
@@ -22,6 +33,11 @@ jobs:
       shard_count: ${{ steps.freeze.outputs.shard_count }}
       expected_species: ${{ steps.freeze.outputs.expected_species }}
       batch_size: ${{ steps.freeze.outputs.batch_size }}
+      offset_start: ${{ steps.freeze.outputs.offset_start }}
+      offset_end: ${{ steps.freeze.outputs.offset_end }}
+    env:
+      ACQUISITION_OFFSET: ${{ inputs.offset || '4000' }}
+      ACQUISITION_LIMIT: ${{ inputs.limit || '20000' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -30,12 +46,17 @@ jobs:
           cache: pip
       - run: pip install -e ".[dev]"
       - id: freeze
-        name: Select second direct expansion species wave
+        name: Select direct expansion species wave
         run: |
           python - <<'PY'
           import json, math, os
           from pathlib import Path
           import pandas as pd
+
+          offset = int(os.environ['ACQUISITION_OFFSET'])
+          limit = int(os.environ['ACQUISITION_LIMIT'])
+          if offset < 0 or limit < 1:
+              raise SystemExit(f'invalid offset/limit: {offset}/{limit}')
 
           master_path = Path('data/v2/staging/gbif/collected/island_taxa.csv')
           candidate_path = Path('data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz')
@@ -58,27 +79,37 @@ jobs:
               selected = selected.loc[selected[trait_col].isin(target_traits)].copy()
           selected[species_col] = selected[species_col].astype(str).str.strip()
           ranked = sorted(set(selected[species_col]) - {''})
-          species = ranked[2000:4000]
+          species = ranked[offset:offset + limit]
           if not species:
               fallback = sorted(set(master['accepted_species'].astype(str).str.strip()) - {''})
-              species = fallback[2000:4000]
+              species = fallback[offset:offset + limit]
 
           targeted = master.loc[master['accepted_species'].isin(species)].drop_duplicates('accepted_species').copy()
           if targeted.empty:
-              raise SystemExit('no second-wave expansion species matched island master')
+              raise SystemExit(f'no expansion species matched island master for offset={offset} limit={limit}')
 
           out = Path('/tmp/direct-pilot')
           out.mkdir(parents=True, exist_ok=True)
           targeted.to_csv(out / 'targeted_master.csv.gz', index=False)
           n = len(targeted)
-          shard_count = min(32, n)
-          batch_size = min(100, math.ceil(n / shard_count))
+          shard_count = min(128, n)
+          batch_size = min(250, math.ceil(n / shard_count))
+          offset_end = offset + len(species)
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
               print('shards=' + json.dumps(list(range(shard_count))), file=fh)
               print(f'shard_count={shard_count}', file=fh)
               print(f'expected_species={n}', file=fh)
               print(f'batch_size={batch_size}', file=fh)
-          print(json.dumps({'wave': 2, 'offset_start': 2000, 'offset_end': 4000, 'target_species': n, 'shards': shard_count, 'batch_size': batch_size}, indent=2))
+              print(f'offset_start={offset}', file=fh)
+              print(f'offset_end={offset_end}', file=fh)
+          print(json.dumps({
+              'offset_start': offset,
+              'offset_end': offset_end,
+              'requested_limit': limit,
+              'target_species': n,
+              'shards': shard_count,
+              'batch_size': batch_size,
+          }, indent=2))
           PY
       - name: Build direct expansion plan and web index
         run: |
@@ -95,7 +126,7 @@ jobs:
           fi
       - uses: actions/upload-artifact@v4
         with:
-          name: direct-expanded-trait-pilot-input-${{ github.run_id }}
+          name: direct-expanded-trait-input-${{ github.run_id }}
           path: /tmp/direct-pilot/
           if-no-files-found: error
           retention-days: 90
@@ -104,13 +135,13 @@ jobs:
     needs: prepare
     strategy:
       fail-fast: false
-      max-parallel: 4
+      max-parallel: 16
       matrix:
         shard: ${{ fromJSON(needs.prepare.outputs.shards) }}
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 180
     env:
-      CAMPAIGN_DIR: /tmp/direct-expanded-trait-pilot/shard-${{ matrix.shard }}
+      CAMPAIGN_DIR: /tmp/direct-expanded-trait/shard-${{ matrix.shard }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -119,7 +150,7 @@ jobs:
           cache: pip
       - uses: actions/download-artifact@v4
         with:
-          name: direct-expanded-trait-pilot-input-${{ github.run_id }}
+          name: direct-expanded-trait-input-${{ github.run_id }}
           path: /tmp/direct-pilot
       - run: pip install -e ".[dev]"
       - name: Query expanded real providers
@@ -150,7 +181,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: direct-expanded-trait-pilot-shard-${{ matrix.shard }}-${{ github.run_id }}
+          name: direct-expanded-trait-shard-${{ matrix.shard }}-${{ github.run_id }}
           path: |
             ${{ env.CAMPAIGN_DIR }}/campaign_status.json
             ${{ env.CAMPAIGN_DIR }}/checkpoint.csv
@@ -161,7 +192,7 @@ jobs:
           retention-days: 90
 
   aggregate:
-    needs: acquire
+    needs: [prepare, acquire]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v5
@@ -170,39 +201,49 @@ jobs:
       - run: python -m pip install pandas
       - uses: actions/download-artifact@v4
         with:
-          pattern: direct-expanded-trait-pilot-shard-*
+          pattern: direct-expanded-trait-shard-*
           path: /tmp/results
       - name: Aggregate expansion evidence
+        env:
+          OFFSET_START: ${{ needs.prepare.outputs.offset_start }}
+          OFFSET_END: ${{ needs.prepare.outputs.offset_end }}
+          EXPECTED_SPECIES: ${{ needs.prepare.outputs.expected_species }}
         run: |
           python - <<'PY'
-          import json
+          import json, os
           from pathlib import Path
           import pandas as pd
 
           files = list(Path('/tmp/results').glob('**/ledger/all_master_evidence.csv.gz'))
           if not files:
               raise SystemExit('no direct expansion evidence ledgers found')
-          evidence = pd.concat([pd.read_csv(p, dtype=str).fillna('') for p in files], ignore_index=True).drop_duplicates()
+          evidence = pd.concat(
+              [pd.read_csv(p, dtype=str).fillna('') for p in files],
+              ignore_index=True,
+          ).drop_duplicates()
           out = Path('/tmp/final')
           out.mkdir(parents=True, exist_ok=True)
-          evidence.to_csv(out / 'direct_expanded_trait_pilot_evidence.csv.gz', index=False)
+          evidence.to_csv(out / 'direct_expanded_trait_evidence.csv.gz', index=False)
+          expected_species = int(os.environ['EXPECTED_SPECIES'])
+          species_with_evidence = int(evidence['accepted_species'].nunique()) if len(evidence) else 0
           summary = {
-              'contract': 'direct_expanded_trait_expansion_v3_wave2',
-              'wave': 2,
-              'offset_start': 2000,
-              'offset_end': 4000,
+              'contract': 'direct_expanded_trait_large_wave_v1',
+              'offset_start': int(os.environ['OFFSET_START']),
+              'offset_end': int(os.environ['OFFSET_END']),
+              'expected_species': expected_species,
               'shards': len(files),
               'records': int(len(evidence)),
-              'species_with_any_evidence': int(evidence['accepted_species'].nunique()) if len(evidence) else 0,
+              'species_with_any_evidence': species_with_evidence,
+              'yield_fraction': species_with_evidence / expected_species if expected_species else 0.0,
               'records_by_provider': evidence['provider'].replace('', 'unknown').value_counts().sort_index().astype(int).to_dict() if len(evidence) and 'provider' in evidence.columns else {},
               'records_by_trait': evidence['trait_name'].replace('', 'unknown').value_counts().sort_index().astype(int).to_dict() if len(evidence) and 'trait_name' in evidence.columns else {},
           }
-          (out / 'direct_expanded_trait_pilot_summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+          (out / 'direct_expanded_trait_summary.json').write_text(json.dumps(summary, indent=2) + '\n')
           print(json.dumps(summary, indent=2))
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: direct-expanded-trait-pilot-final-${{ github.run_id }}
+          name: direct-expanded-trait-final-${{ github.run_id }}
           path: /tmp/final/
           if-no-files-found: error
           retention-days: 90
