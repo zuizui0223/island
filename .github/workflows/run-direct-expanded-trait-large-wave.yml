@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       offset:
-        description: "Zero-based offset in ranked candidate species"
+        description: "Zero-based offset in ranked island species"
         required: false
         default: "4000"
         type: string
@@ -55,6 +55,9 @@ jobs:
 
           offset = int(os.environ['ACQUISITION_OFFSET'])
           limit = int(os.environ['ACQUISITION_LIMIT'])
+          if offset < 0 or limit < 1:
+              raise SystemExit(f'invalid offset/limit: {offset}/{limit}')
+
           master = pd.read_csv('data/v2/staging/gbif/collected/island_taxa.csv', dtype=str).fillna('')
           candidates = pd.read_csv('data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz', dtype=str).fillna('')
           species_col = next(c for c in ('accepted_species', 'species') if c in candidates.columns)
@@ -68,11 +71,25 @@ jobs:
           selected = candidates
           if trait_col:
               selected = selected.loc[selected[trait_col].isin(target_traits)].copy()
-          ranked = sorted(set(selected[species_col].astype(str).str.strip()) - {''})
+
+          prioritized = sorted(set(selected[species_col].astype(str).str.strip()) - {''})
+          all_master = sorted(set(master['accepted_species'].astype(str).str.strip()) - {''})
+          prioritized_set = set(prioritized)
+          ranked = prioritized + [sp for sp in all_master if sp not in prioritized_set]
           species = ranked[offset:offset + limit]
+          if not species:
+              raise SystemExit(
+                  f'no species remain for offset={offset}, limit={limit}; ranked_total={len(ranked)}'
+              )
+
           targeted = master.loc[master['accepted_species'].isin(species)].drop_duplicates('accepted_species').copy()
           if targeted.empty:
-              raise SystemExit(f'no species matched for offset={offset}, limit={limit}')
+              raise SystemExit(f'no master rows matched for offset={offset}, limit={limit}')
+
+          order = {sp: i for i, sp in enumerate(species)}
+          targeted['_rank'] = targeted['accepted_species'].map(order)
+          targeted = targeted.sort_values('_rank').drop(columns='_rank')
+
           out = Path('/tmp/direct-large')
           out.mkdir(parents=True, exist_ok=True)
           targeted.to_csv(out / 'targeted_master.csv.gz', index=False)
@@ -87,7 +104,15 @@ jobs:
               print(f'batch_size={batch_size}', file=fh)
               print(f'offset_start={offset}', file=fh)
               print(f'offset_end={offset_end}', file=fh)
-          print(json.dumps({'target_species': n, 'shards': shard_count, 'batch_size': batch_size}, indent=2))
+          print(json.dumps({
+              'ranked_total': len(ranked),
+              'priority_candidate_species': len(prioritized),
+              'target_species': n,
+              'offset_start': offset,
+              'offset_end': offset_end,
+              'shards': shard_count,
+              'batch_size': batch_size,
+          }, indent=2))
           PY
       - name: Build acquisition plan
         run: |
@@ -195,7 +220,7 @@ jobs:
           expected = int(os.environ['EXPECTED_SPECIES'])
           species = int(evidence['accepted_species'].nunique()) if len(evidence) else 0
           summary = {
-              'contract': 'direct_expanded_trait_large_wave_v3',
+              'contract': 'direct_expanded_trait_large_wave_v4',
               'offset_start': int(os.environ['OFFSET_START']),
               'offset_end': int(os.environ['OFFSET_END']),
               'expected_species': expected,
