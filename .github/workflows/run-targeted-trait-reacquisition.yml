@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/run-targeted-trait-reacquisition.yml"
       - "src/island_v2/targeted_acquisition_priority.py"
+      - "src/island_v2/real_acquisition_ledger.py"
   workflow_dispatch:
     inputs:
       plan_run_id:
@@ -126,7 +127,7 @@ jobs:
           name: targeted-reacquisition-input-${{ github.run_id }}
           path: /tmp/targeted-input
       - run: pip install -e ".[dev]"
-      - name: Query real providers for targeted species
+      - name: Query expanded real providers for targeted species
         run: |
           set -euo pipefail
           mkdir -p "$CAMPAIGN_DIR"
@@ -143,8 +144,8 @@ jobs:
             --web-description-index /tmp/targeted-input/plan/web_description_index.json \
             --pause-seconds 1.0 \
             --europe-pmc \
-            --no-openalex \
-            --no-world-flora \
+            --openalex \
+            --world-flora \
             --migrate-v4
       - name: Normalize targeted evidence
         run: |
@@ -176,7 +177,7 @@ jobs:
         with:
           pattern: targeted-reacquisition-shard-*
           path: /tmp/results
-      - name: Aggregate newly acquired evidence
+      - name: Aggregate newly acquired evidence and provider yield
         run: |
           python - <<'PY'
           import json
@@ -191,12 +192,25 @@ jobs:
           out = Path('/tmp/final')
           out.mkdir(parents=True, exist_ok=True)
           evidence.to_csv(out / 'targeted_new_evidence.csv.gz', index=False)
+
+          provider_counts = (
+              evidence['provider'].replace('', 'unknown').value_counts().sort_index().astype(int).to_dict()
+              if len(evidence) and 'provider' in evidence.columns else {}
+          )
+          trait_counts = (
+              evidence['trait_name'].replace('', 'unknown').value_counts().sort_index().astype(int).to_dict()
+              if len(evidence) and 'trait_name' in evidence.columns else {}
+          )
           summary = {
+              'contract': 'expanded_provider_targeted_pilot_v1',
+              'providers_enabled': ['europe_pmc', 'openalex', 'world_flora'],
               'shards': len(files),
               'new_records': int(len(evidence)),
               'species_with_any_evidence': int(evidence['accepted_species'].nunique()) if len(evidence) else 0,
               'high_records': int((evidence['evidence_quality'] == 'high').sum()) if len(evidence) else 0,
               'medium_records': int((evidence['evidence_quality'] == 'medium').sum()) if len(evidence) else 0,
+              'records_by_provider': provider_counts,
+              'records_by_trait': trait_counts,
           }
           (out / 'targeted_reacquisition_summary.json').write_text(json.dumps(summary, indent=2) + '\n')
           print(json.dumps(summary, indent=2))
