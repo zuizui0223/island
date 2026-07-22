@@ -19,6 +19,15 @@ EMPTY = {"", "unknown", "unresolved", "na", "nan", "none"}
 HIGH_MARKERS = {"crossref", "doi", "europe_pmc", "pubmed", "openalex", "semantic_scholar", "journal", "literature", "flora", "monograph", "efloras", "gbif", "traitbank", "austraits", "gift", "usda", "database"}
 TRAIT_ALIASES = {"flower_color": "flower_primary_color", "flower_shape": "floral_form"}
 LEDGER_COLUMNS = ["accepted_species", "matched_source_name", "trait_name", "reported_value", "raw_candidate_value", "source_url", "provider", "source_title", "excerpt", "retrieval_date", "stable_source_id", "evidence_scope", "evidence_quality"]
+COVERAGE_COLUMNS = [
+    "accepted_species",
+    *[column for axis in AXES for column in (
+        f"{axis}_direct", f"{axis}_genus_inferred", f"{axis}_resolved"
+    )],
+    "all_three_axes_direct",
+    "all_three_axes_resolved",
+    "unresolved_axes",
+]
 
 
 def _text(value: object) -> str:
@@ -70,19 +79,41 @@ def _normalise(frame: pd.DataFrame) -> pd.DataFrame:
     return frame[LEDGER_COLUMNS].drop_duplicates()
 
 
+def _empty_shard_status(campaign_root: Path) -> bool:
+    status_files = sorted(campaign_root.rglob("campaign_status.json"))
+    if not status_files:
+        return False
+    try:
+        status = json.loads(status_files[0].read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        return False
+    return bool(status.get("complete")) and int(status.get("n_species_in_shard", -1)) == 0
+
+
 def aggregate(campaign_root: Path, output_dir: Path) -> dict[str, object]:
     checkpoint = _read_many(sorted(campaign_root.rglob("checkpoint.csv")))
-    if checkpoint.empty or "species" not in checkpoint.columns:
+    empty_shard = checkpoint.empty and _empty_shard_status(campaign_root)
+    if checkpoint.empty and not empty_shard:
         raise typer.BadParameter("no usable checkpoint.csv found")
+    if not checkpoint.empty and "species" not in checkpoint.columns:
+        raise typer.BadParameter("checkpoint.csv is missing species column")
+
     preferred = sorted(campaign_root.rglob("v2_reported_candidates.csv"))
     fallback = sorted(campaign_root.rglob("trait_evidence.csv"))
     evidence = _normalise(_read_many(preferred if preferred else fallback))
-    attempted = pd.Series(False, index=checkpoint.index)
-    if "attempts" in checkpoint.columns:
-        attempted |= pd.to_numeric(checkpoint["attempts"], errors="coerce").fillna(0).gt(0)
-    if "status" in checkpoint.columns:
-        attempted |= ~checkpoint["status"].map(_text).isin({"", "pending"})
-    processed = sorted({_text(v) for v in checkpoint.loc[attempted, "species"] if _text(v)})
+
+    if empty_shard:
+        processed: list[str] = []
+        total_species = 0
+    else:
+        attempted = pd.Series(False, index=checkpoint.index)
+        if "attempts" in checkpoint.columns:
+            attempted |= pd.to_numeric(checkpoint["attempts"], errors="coerce").fillna(0).gt(0)
+        if "status" in checkpoint.columns:
+            attempted |= ~checkpoint["status"].map(_text).isin({"", "pending"})
+        processed = sorted({_text(v) for v in checkpoint.loc[attempted, "species"] if _text(v)})
+        total_species = int(checkpoint["species"].map(_text).ne("").sum())
+
     evidence = evidence.loc[evidence["accepted_species"].isin(processed)].copy()
     rows = []
     for species in processed:
@@ -102,12 +133,14 @@ def aggregate(campaign_root: Path, output_dir: Path) -> dict[str, object]:
         row["all_three_axes_resolved"] = all(row[f"{axis}_resolved"] for axis in AXES)
         row["unresolved_axes"] = "|".join(missing)
         rows.append(row)
-    coverage = pd.DataFrame(rows)
+    coverage = pd.DataFrame(rows, columns=COVERAGE_COLUMNS)
+
     summary = {
         "contract_version": "real_acquisition_ledger_v1",
         "family_inference_used": False,
         "global_fallback_used": False,
-        "total_species_in_shard": int(checkpoint["species"].map(_text).ne("").sum()),
+        "empty_shard": empty_shard,
+        "total_species_in_shard": total_species,
         "total_species_processed": len(processed),
         "species_with_any_evidence": int(evidence["accepted_species"].nunique()),
         "evidence_records": int(len(evidence)),
