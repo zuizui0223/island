@@ -10,7 +10,7 @@ on:
       targeted_run_id:
         description: "Completed targeted reacquisition run"
         required: false
-        default: "29899135810"
+        default: "29915258170"
         type: string
 
 permissions:
@@ -30,7 +30,7 @@ jobs:
       PASS1_RUN_ID: "29814502655"
       PASS2_RUN_ID: "29819475348"
       PASS3_RUN_ID: "29840507345"
-      TARGETED_RUN_ID: ${{ inputs.targeted_run_id || '29899135810' }}
+      TARGETED_RUN_ID: ${{ inputs.targeted_run_id || '29915258170' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -121,7 +121,7 @@ jobs:
       - name: Build impact summary
         run: |
           python - <<'PY'
-          import json
+          import json, os
           from pathlib import Path
           axes = ['floral_structural_complexity', 'flower_colour', 'reproductive_assurance']
           baseline = {
@@ -129,7 +129,7 @@ jobs:
               'flower_colour': {'resolved': 8970, 'remaining': 80326, 'eligible_rules': 524},
               'reproductive_assurance': {'resolved': 7447, 'remaining': 97374, 'eligible_rules': 516},
           }
-          impact = {'targeted_run_id': 29899135810, 'axes': {}}
+          impact = {'targeted_run_id': int(os.environ['TARGETED_RUN_ID']), 'axes': {}}
           for axis in axes:
               s = json.loads((Path('/tmp/output') / axis / 'validated_low_summary.json').read_text())
               b = baseline[axis]
