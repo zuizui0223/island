@@ -1,0 +1,213 @@
+name: finalize_three_pass_ledger
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/finalize-three-pass-ledger.yml"
+  workflow_dispatch:
+    inputs:
+      pass1_run_id:
+        description: "Completed pass-1 run"
+        required: false
+        default: "29814502655"
+        type: string
+      pass2_run_id:
+        description: "Completed pass-2 run"
+        required: false
+        default: "29819475348"
+        type: string
+      pass3_run_id:
+        description: "Completed pass-3 run"
+        required: false
+        default: "29840507345"
+        type: string
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: finalize-three-pass-ledger-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.matrix.outputs.shards }}
+      pass1_run_id: ${{ steps.matrix.outputs.pass1_run_id }}
+      pass2_run_id: ${{ steps.matrix.outputs.pass2_run_id }}
+      pass3_run_id: ${{ steps.matrix.outputs.pass3_run_id }}
+    steps:
+      - id: matrix
+        env:
+          PASS1: ${{ inputs.pass1_run_id || '29814502655' }}
+          PASS2: ${{ inputs.pass2_run_id || '29819475348' }}
+          PASS3: ${{ inputs.pass3_run_id || '29840507345' }}
+        run: |
+          python - <<'PY'
+          import json, os
+          ids = [os.environ['PASS1'].strip(), os.environ['PASS2'].strip(), os.environ['PASS3'].strip()]
+          if not all(value.isdigit() for value in ids):
+              raise SystemExit('run IDs must be numeric')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              print('shards=' + json.dumps(list(range(128))), file=out)
+              print(f'pass1_run_id={ids[0]}', file=out)
+              print(f'pass2_run_id={ids[1]}', file=out)
+              print(f'pass3_run_id={ids[2]}', file=out)
+          PY
+
+  finalize-shard:
+    needs: plan
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PASS1_RUN_ID: ${{ needs.plan.outputs.pass1_run_id }}
+      PASS2_RUN_ID: ${{ needs.plan.outputs.pass2_run_id }}
+      PASS3_RUN_ID: ${{ needs.plan.outputs.pass3_run_id }}
+      ROOT: /tmp/final/shard-${{ matrix.shard }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pandas
+      - name: Restore all three passes
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/pass1" "$ROOT/pass2" "$ROOT/pass3"
+          gh run download "$PASS1_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "three-pass-pass1-shard-${{ matrix.shard }}-$PASS1_RUN_ID" --dir "$ROOT/pass1"
+          gh run download "$PASS2_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "three-pass-pass2-shard-${{ matrix.shard }}-$PASS2_RUN_ID" --dir "$ROOT/pass2"
+          gh run download "$PASS3_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "three-pass-pass3-shard-${{ matrix.shard }}-$PASS3_RUN_ID" --dir "$ROOT/pass3"
+          test -s "$ROOT/pass1/passes/pass1_high/accepted_high_evidence.csv.gz"
+          test -s "$ROOT/pass2/accepted_medium_evidence.csv.gz"
+          test -s "$ROOT/pass3/accepted_low_genus_evidence.csv.gz"
+          test -s "$ROOT/pass3/unresolved_after_pass3.csv.gz"
+      - name: Build final shard ledger
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path(os.environ['ROOT'])
+          out = root / 'output'
+          out.mkdir(parents=True, exist_ok=True)
+
+          high = pd.read_csv(root / 'pass1' / 'passes' / 'pass1_high' / 'accepted_high_evidence.csv.gz', dtype=str).fillna('')
+          medium = pd.read_csv(root / 'pass2' / 'accepted_medium_evidence.csv.gz', dtype=str).fillna('')
+          low = pd.read_csv(root / 'pass3' / 'accepted_low_genus_evidence.csv.gz', dtype=str).fillna('')
+          unresolved = pd.read_csv(root / 'pass3' / 'unresolved_after_pass3.csv.gz', dtype=str).fillna('')
+
+          axes = {
+              'flower_colour': {'flower_primary_color', 'flower_color'},
+              'floral_structural_complexity': {'floral_form', 'floral_symmetry', 'tube_depth_class', 'flower_size_class', 'inflorescence_display', 'flower_shape'},
+              'reproductive_assurance': {'self_incompatibility', 'autonomous_selfing_capacity', 'mating_system', 'cleistogamy'},
+          }
+
+          parts = []
+          for quality, frame in [('high', high), ('medium', medium), ('low', low)]:
+              if frame.empty:
+                  continue
+              frame = frame.copy()
+              if 'axis' not in frame.columns:
+                  frame['axis'] = ''
+              for axis, traits in axes.items():
+                  mask = frame['trait_name'].isin(traits)
+                  frame.loc[mask, 'axis'] = axis
+              frame['final_quality'] = quality
+              parts.append(frame)
+
+          evidence = pd.concat(parts, ignore_index=True, sort=False) if parts else pd.DataFrame()
+          evidence.to_csv(out / 'final_accepted_evidence.csv.gz', index=False)
+          unresolved.to_csv(out / 'final_unresolved_species_axis.csv.gz', index=False)
+
+          resolved_keys = set(zip(evidence.get('accepted_species', pd.Series(dtype=str)), evidence.get('axis', pd.Series(dtype=str))))
+          summary = {
+              'shard': int('${{ matrix.shard }}'),
+              'accepted_high_records': int(len(high)),
+              'accepted_medium_records': int(len(medium)),
+              'accepted_low_records': int(len(low)),
+              'accepted_total_records': int(len(evidence)),
+              'resolved_species_axis_tasks': int(len(resolved_keys)),
+              'unresolved_species_axis_tasks': int(len(unresolved)),
+              'species_with_any_accepted_evidence': int(evidence['accepted_species'].nunique()) if not evidence.empty else 0,
+              'family_inference_used': False,
+              'global_fallback_used': False,
+          }
+          (out / 'final_shard_summary.json').write_text(json.dumps(summary, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: three-pass-final-shard-${{ matrix.shard }}-${{ github.run_id }}
+          path: ${{ env.ROOT }}/output/
+          if-no-files-found: error
+          retention-days: 90
+
+  aggregate:
+    needs: finalize-shard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: three-pass-final-shard-*
+          path: /tmp/final-results
+      - run: python -m pip install pandas
+      - name: Aggregate final three-pass ledger
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('/tmp/final-results')
+          summaries = list(root.glob('**/final_shard_summary.json'))
+          if len(summaries) != 128:
+              raise SystemExit(f'expected 128 final summaries, found {len(summaries)}')
+
+          rows = [json.loads(path.read_text()) for path in summaries]
+          evidence_files = list(root.glob('**/final_accepted_evidence.csv.gz'))
+          unresolved_files = list(root.glob('**/final_unresolved_species_axis.csv.gz'))
+          evidence = pd.concat([pd.read_csv(path, dtype=str).fillna('') for path in evidence_files], ignore_index=True, sort=False)
+          unresolved = pd.concat([pd.read_csv(path, dtype=str).fillna('') for path in unresolved_files], ignore_index=True, sort=False)
+
+          out = Path('/tmp/final-ledger')
+          out.mkdir(parents=True, exist_ok=True)
+          evidence.to_csv(out / 'three_pass_final_accepted_evidence.csv.gz', index=False)
+          unresolved.to_csv(out / 'three_pass_final_unresolved_species_axis.csv.gz', index=False)
+
+          total = {
+              'contract': 'three_pass_species_axis_v1',
+              'shards': 128,
+              'species_axis_denominator': 106295 * 3,
+              'accepted_high_records': sum(r['accepted_high_records'] for r in rows),
+              'accepted_medium_records': sum(r['accepted_medium_records'] for r in rows),
+              'accepted_low_records': sum(r['accepted_low_records'] for r in rows),
+              'accepted_total_records': int(len(evidence)),
+              'resolved_species_axis_tasks': int(len(set(zip(evidence['accepted_species'], evidence['axis'])))),
+              'unresolved_species_axis_tasks': int(len(unresolved)),
+              'species_with_any_accepted_evidence': int(evidence['accepted_species'].nunique()),
+              'family_inference_used': False,
+              'global_fallback_used': False,
+          }
+          total['coverage_fraction'] = total['resolved_species_axis_tasks'] / total['species_axis_denominator']
+          (out / 'three_pass_final_summary.json').write_text(json.dumps(total, ensure_ascii=False, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(json.dumps(total, ensure_ascii=False, indent=2))
+          with open(Path(__import__('os').environ['GITHUB_STEP_SUMMARY']), 'a', encoding='utf-8') as fh:
+              print('## Final three-pass evidence ledger', file=fh)
+              for key, value in total.items():
+                  print(f'- {key}: {value}', file=fh)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: three-pass-final-ledger-${{ github.run_id }}
+          path: /tmp/final-ledger/
+          if-no-files-found: error
+          retention-days: 90
