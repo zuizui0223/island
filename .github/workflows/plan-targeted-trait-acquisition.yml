@@ -69,11 +69,12 @@ jobs:
               out / 'global_unresolved_after_pass3.csv.gz', index=False
           )
           PY
-      - name: Rank near-threshold genera and generate reacquisition tasks
+      - name: Rank target-aligned near-threshold genera
         run: |
           python -m island_v2.targeted_acquisition_priority \
             --evidence-csv /tmp/input/global_direct_evidence.csv.gz \
             --unresolved-csv /tmp/input/global_unresolved_after_pass3.csv.gz \
+            --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz \
             --output-dir /tmp/output \
             --min-species 3 \
             --max-target-species-per-genus-axis 2
