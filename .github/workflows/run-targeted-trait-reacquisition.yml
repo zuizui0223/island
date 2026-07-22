@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       shards: ${{ steps.freeze.outputs.shards }}
+      shard_count: ${{ steps.freeze.outputs.shard_count }}
       expected_species: ${{ steps.freeze.outputs.expected_species }}
       batch_size: ${{ steps.freeze.outputs.batch_size }}
     env:
@@ -45,7 +46,7 @@ jobs:
           gh run download "$PLAN_RUN_ID" --repo "$GITHUB_REPOSITORY" \
             --name "targeted-trait-acquisition-plan-$PLAN_RUN_ID" \
             --dir /tmp/target-plan
-          find /tmp/target-plan -type f -maxdepth 3 -print
+          find /tmp/target-plan -maxdepth 3 -type f -print
       - id: freeze
         name: Build targeted master and matrix
         run: |
@@ -78,6 +79,7 @@ jobs:
           batch = min(500, math.ceil(n / shard_count))
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
               print('shards=' + json.dumps(list(range(shard_count))), file=fh)
+              print(f'shard_count={shard_count}', file=fh)
               print(f'expected_species={n}', file=fh)
               print(f'batch_size={batch}', file=fh)
           print(json.dumps({'target_species': n, 'shards': shard_count, 'batch_size': batch}, indent=2))
@@ -89,7 +91,7 @@ jobs:
             --master-csv /tmp/targeted-input/targeted_master.csv.gz \
             --scope-config-path config/angiosperm_scope.yml \
             --output-dir /tmp/targeted-input/plan \
-            --shard-count '${{ fromJSON(steps.freeze.outputs.shards).length }}' \
+            --shard-count '${{ steps.freeze.outputs.shard_count }}' \
             --expected-species '${{ steps.freeze.outputs.expected_species }}'
           if ! island-v2-v1-category-search build-web-index \
             --output-json /tmp/targeted-input/plan/web_description_index.json; then
@@ -134,7 +136,7 @@ jobs:
             --campaign-dir "$CAMPAIGN_DIR" \
             --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz \
             --shard-index '${{ matrix.shard }}' \
-            --shard-count '${{ strategy.job-total }}' \
+            --shard-count '${{ needs.prepare.outputs.shard_count }}' \
             --batch-size '${{ needs.prepare.outputs.batch_size }}' \
             --max-attempts 3 \
             --expected-species '${{ needs.prepare.outputs.expected_species }}' \
