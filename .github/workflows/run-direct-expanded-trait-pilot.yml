@@ -30,7 +30,7 @@ jobs:
           cache: pip
       - run: pip install -e ".[dev]"
       - id: freeze
-        name: Select direct expansion species from repository data
+        name: Select second direct expansion species wave
         run: |
           python - <<'PY'
           import json, math, os
@@ -57,13 +57,15 @@ jobs:
           if trait_col is not None:
               selected = selected.loc[selected[trait_col].isin(target_traits)].copy()
           selected[species_col] = selected[species_col].astype(str).str.strip()
-          species = sorted(set(selected[species_col]) - {''})[:2000]
+          ranked = sorted(set(selected[species_col]) - {''})
+          species = ranked[2000:4000]
           if not species:
-              species = sorted(set(master['accepted_species'].astype(str).str.strip()) - {''})[:2000]
+              fallback = sorted(set(master['accepted_species'].astype(str).str.strip()) - {''})
+              species = fallback[2000:4000]
 
           targeted = master.loc[master['accepted_species'].isin(species)].drop_duplicates('accepted_species').copy()
           if targeted.empty:
-              raise SystemExit('no expansion species matched island master')
+              raise SystemExit('no second-wave expansion species matched island master')
 
           out = Path('/tmp/direct-pilot')
           out.mkdir(parents=True, exist_ok=True)
@@ -76,7 +78,7 @@ jobs:
               print(f'shard_count={shard_count}', file=fh)
               print(f'expected_species={n}', file=fh)
               print(f'batch_size={batch_size}', file=fh)
-          print(json.dumps({'target_species': n, 'shards': shard_count, 'batch_size': batch_size}, indent=2))
+          print(json.dumps({'wave': 2, 'offset_start': 2000, 'offset_end': 4000, 'target_species': n, 'shards': shard_count, 'batch_size': batch_size}, indent=2))
           PY
       - name: Build direct expansion plan and web index
         run: |
@@ -185,7 +187,10 @@ jobs:
           out.mkdir(parents=True, exist_ok=True)
           evidence.to_csv(out / 'direct_expanded_trait_pilot_evidence.csv.gz', index=False)
           summary = {
-              'contract': 'direct_expanded_trait_expansion_v2',
+              'contract': 'direct_expanded_trait_expansion_v3_wave2',
+              'wave': 2,
+              'offset_start': 2000,
+              'offset_end': 4000,
               'shards': len(files),
               'records': int(len(evidence)),
               'species_with_any_evidence': int(evidence['accepted_species'].nunique()) if len(evidence) else 0,
