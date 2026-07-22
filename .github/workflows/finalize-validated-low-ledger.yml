@@ -1,0 +1,131 @@
+name: finalize_validated_low_ledger
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/finalize-validated-low-ledger.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STRUCTURE_RUN_ID: "29889781298"
+      COLOUR_RUN_ID: "29890703956"
+      REPRODUCTIVE_RUN_ID: "29891611535"
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pandas
+      - name: Download accepted three-axis artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/low/structure /tmp/low/colour /tmp/low/reproductive
+          gh run download "$STRUCTURE_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "validated-low-structure-global-$STRUCTURE_RUN_ID" \
+            --dir /tmp/low/structure
+          gh run download "$COLOUR_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "validated-low-colour-global-$COLOUR_RUN_ID" \
+            --dir /tmp/low/colour
+          gh run download "$REPRODUCTIVE_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "validated-low-reproductive-global-$REPRODUCTIVE_RUN_ID" \
+            --dir /tmp/low/reproductive
+      - name: Build final validated-low ledger
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          import pandas as pd
+
+          roots = {
+              'floral_structural_complexity': Path('/tmp/low/structure'),
+              'flower_colour': Path('/tmp/low/colour'),
+              'reproductive_assurance': Path('/tmp/low/reproductive'),
+          }
+          accepted_parts = []
+          unresolved_parts = []
+          rule_parts = []
+          summaries = {}
+          for axis, root in roots.items():
+              accepted = pd.read_csv(root / 'accepted_validated_low_evidence.csv.gz', dtype=str).fillna('')
+              unresolved = pd.read_csv(root / 'unresolved_after_validated_low.csv.gz', dtype=str).fillna('')
+              rules = pd.read_csv(root / 'validated_genus_rules.csv.gz', dtype=str).fillna('')
+              summary = json.loads((root / 'validated_low_summary.json').read_text())
+              if not accepted.empty and set(accepted['axis']) != {axis}:
+                  raise SystemExit(f'accepted axis mismatch for {axis}: {set(accepted["axis"])}')
+              if not unresolved.empty and set(unresolved['axis']) != {axis}:
+                  raise SystemExit(f'unresolved axis mismatch for {axis}: {set(unresolved["axis"])}')
+              accepted_parts.append(accepted)
+              unresolved_parts.append(unresolved)
+              rule_parts.append(rules)
+              summaries[axis] = summary
+
+          accepted = pd.concat(accepted_parts, ignore_index=True).drop_duplicates()
+          unresolved = pd.concat(unresolved_parts, ignore_index=True).drop_duplicates(['accepted_species', 'axis'])
+          rules = pd.concat(rule_parts, ignore_index=True).drop_duplicates()
+
+          resolved_keys = accepted[['accepted_species', 'axis']].drop_duplicates()
+          if resolved_keys.duplicated().any():
+              raise SystemExit('duplicate resolved species-axis keys')
+          if accepted['family_inference_used'].astype(str).str.lower().eq('true').any():
+              raise SystemExit('family inference detected')
+          if accepted['global_fallback_used'].astype(str).str.lower().eq('true').any():
+              raise SystemExit('global fallback detected')
+
+          per_axis = {}
+          for axis, summary in summaries.items():
+              per_axis[axis] = {
+                  'input_tasks': int(summary['input_tasks']),
+                  'accepted_low_records': int(summary['accepted_low_records']),
+                  'resolved_species_axis_tasks': int(summary['resolved_species_axis_tasks']),
+                  'remaining_tasks': int(summary['remaining_tasks']),
+                  'eligible_rules': int(summary['eligible_rules']),
+              }
+          final = {
+              'contract': 'validated_low_three_axis_ledger_v1',
+              'source_runs': {
+                  'floral_structural_complexity': int(os.environ['STRUCTURE_RUN_ID']),
+                  'flower_colour': int(os.environ['COLOUR_RUN_ID']),
+                  'reproductive_assurance': int(os.environ['REPRODUCTIVE_RUN_ID']),
+              },
+              'axes': per_axis,
+              'total_input_tasks': sum(v['input_tasks'] for v in per_axis.values()),
+              'total_accepted_low_records': int(len(accepted)),
+              'total_resolved_species_axis_tasks': int(len(resolved_keys)),
+              'total_remaining_tasks': int(len(unresolved)),
+              'total_eligible_rules': int(rules.loc[rules['eligible'].astype(str).str.lower().eq('true')].shape[0]),
+              'family_inference_used': False,
+              'global_fallback_used': False,
+          }
+          expected_resolved = sum(v['resolved_species_axis_tasks'] for v in per_axis.values())
+          expected_remaining = sum(v['remaining_tasks'] for v in per_axis.values())
+          if final['total_resolved_species_axis_tasks'] != expected_resolved:
+              raise SystemExit(f'resolved total mismatch: {final["total_resolved_species_axis_tasks"]} != {expected_resolved}')
+          if final['total_remaining_tasks'] != expected_remaining:
+              raise SystemExit(f'remaining total mismatch: {final["total_remaining_tasks"]} != {expected_remaining}')
+
+          out = Path('/tmp/final-low-ledger')
+          out.mkdir(parents=True, exist_ok=True)
+          accepted.to_csv(out / 'accepted_validated_low_three_axes.csv.gz', index=False)
+          unresolved.to_csv(out / 'unresolved_after_validated_low_three_axes.csv.gz', index=False)
+          rules.to_csv(out / 'validated_genus_rules_three_axes.csv.gz', index=False)
+          (out / 'validated_low_three_axis_summary.json').write_text(json.dumps(final, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(final, indent=2, sort_keys=True))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as fh:
+              print('## Final validated-low three-axis ledger', file=fh)
+              for key in ('total_input_tasks', 'total_accepted_low_records', 'total_resolved_species_axis_tasks', 'total_remaining_tasks', 'total_eligible_rules'):
+                  print(f'- {key}: {final[key]}', file=fh)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: validated-low-three-axis-ledger-${{ github.run_id }}
+          path: /tmp/final-low-ledger/
+          if-no-files-found: error
+          retention-days: 90
