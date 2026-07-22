@@ -1,11 +1,6 @@
 name: plan_targeted_trait_acquisition
 
 on:
-  pull_request:
-    paths:
-      - "src/island_v2/targeted_acquisition_priority.py"
-      - "tests/test_targeted_acquisition_priority.py"
-      - ".github/workflows/plan-targeted-trait-acquisition.yml"
   workflow_dispatch:
 
 permissions:
@@ -13,7 +8,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: targeted-trait-acquisition-${{ github.event.pull_request.number || github.ref_name }}
+  group: targeted-trait-acquisition-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -118,7 +113,6 @@ jobs:
           if-no-files-found: error
           retention-days: 90
       - name: Dispatch expanded-provider acquisition
-        if: github.event_name == 'workflow_dispatch'
         run: |
           gh workflow run run-targeted-trait-reacquisition.yml \
             --repo "$GITHUB_REPOSITORY" \
