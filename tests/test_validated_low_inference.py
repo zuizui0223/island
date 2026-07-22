@@ -53,3 +53,38 @@ def test_never_uses_family_or_global_fallback():
     assert accepted.empty
     assert len(remaining) == 1
     assert rules.iloc[0]["n_direct_species"] == 1
+
+
+def test_reads_real_acquisition_raw_candidate_value():
+    direct = pd.DataFrame([
+        ("Delta one", "floral_form", "tubular", "high", "species_direct"),
+        ("Delta two", "floral_form", "tubular", "medium", "species_direct"),
+        ("Delta three", "floral_form", "tubular", "high", "synonym_direct"),
+        ("Delta four", "floral_form", "tubular", "high", "species_direct"),
+    ], columns=[
+        "accepted_species", "trait_name", "raw_candidate_value",
+        "evidence_quality", "evidence_scope",
+    ])
+    tasks = pd.DataFrame([{"accepted_species": "Delta target", "axis": "floral_structural_complexity"}])
+    accepted, remaining, rules = infer_low_evidence(tasks, direct)
+    assert len(accepted) == 1
+    assert accepted.iloc[0]["normalized_value"] == "tubular"
+    assert remaining.empty
+    assert bool(rules.iloc[0]["eligible"])
+
+
+def test_empty_usable_evidence_returns_schema_stable_outputs():
+    direct = pd.DataFrame([{
+        "accepted_species": "Epsilon one",
+        "trait_name": "floral_form",
+        "raw_candidate_value": "tubular",
+        "evidence_quality": "low",
+        "evidence_scope": "family_inference",
+    }])
+    tasks = pd.DataFrame([{"accepted_species": "Epsilon target", "axis": "floral_structural_complexity"}])
+    accepted, remaining, rules = infer_low_evidence(tasks, direct)
+    assert accepted.empty
+    assert list(accepted.columns)
+    assert len(remaining) == 1
+    assert remaining.iloc[0]["reason"] == "no_usable_direct_evidence"
+    assert list(rules.columns)
