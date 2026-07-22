@@ -10,7 +10,7 @@ on:
       plan_run_id:
         description: "Completed targeted acquisition planning run"
         required: false
-        default: "29895692897"
+        default: "29905377435"
         type: string
 
 permissions:
@@ -31,7 +31,7 @@ jobs:
       batch_size: ${{ steps.freeze.outputs.batch_size }}
     env:
       GH_TOKEN: ${{ github.token }}
-      PLAN_RUN_ID: ${{ inputs.plan_run_id || '29895692897' }}
+      PLAN_RUN_ID: ${{ inputs.plan_run_id || '29905377435' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
