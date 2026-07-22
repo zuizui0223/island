@@ -58,11 +58,8 @@ jobs:
           if offset < 0 or limit < 1:
               raise SystemExit(f'invalid offset/limit: {offset}/{limit}')
 
-          master_path = Path('data/v2/staging/gbif/collected/island_taxa.csv')
-          candidate_path = Path('data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz')
-          master = pd.read_csv(master_path, dtype=str).fillna('')
-          candidates = pd.read_csv(candidate_path, dtype=str).fillna('')
-
+          master = pd.read_csv('data/v2/staging/gbif/collected/island_taxa.csv', dtype=str).fillna('')
+          candidates = pd.read_csv('data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz', dtype=str).fillna('')
           species_col = next((c for c in ('accepted_species', 'species') if c in candidates.columns), None)
           trait_col = next((c for c in ('trait_name', 'trait', 'field') if c in candidates.columns), None)
           if species_col is None:
@@ -92,8 +89,8 @@ jobs:
           out.mkdir(parents=True, exist_ok=True)
           targeted.to_csv(out / 'targeted_master.csv.gz', index=False)
           n = len(targeted)
-          shard_count = min(128, n)
-          batch_size = min(250, math.ceil(n / shard_count))
+          shard_count = min(64, n)
+          batch_size = min(500, math.ceil(n / shard_count))
           offset_end = offset + len(species)
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
               print('shards=' + json.dumps(list(range(shard_count))), file=fh)
@@ -102,14 +99,7 @@ jobs:
               print(f'batch_size={batch_size}', file=fh)
               print(f'offset_start={offset}', file=fh)
               print(f'offset_end={offset_end}', file=fh)
-          print(json.dumps({
-              'offset_start': offset,
-              'offset_end': offset_end,
-              'requested_limit': limit,
-              'target_species': n,
-              'shards': shard_count,
-              'batch_size': batch_size,
-          }, indent=2))
+          print(json.dumps({'offset_start': offset, 'offset_end': offset_end, 'target_species': n, 'shards': shard_count, 'batch_size': batch_size}, indent=2))
           PY
       - name: Build direct expansion plan and web index
         run: |
@@ -217,17 +207,14 @@ jobs:
           files = list(Path('/tmp/results').glob('**/ledger/all_master_evidence.csv.gz'))
           if not files:
               raise SystemExit('no direct expansion evidence ledgers found')
-          evidence = pd.concat(
-              [pd.read_csv(p, dtype=str).fillna('') for p in files],
-              ignore_index=True,
-          ).drop_duplicates()
+          evidence = pd.concat([pd.read_csv(p, dtype=str).fillna('') for p in files], ignore_index=True).drop_duplicates()
           out = Path('/tmp/final')
           out.mkdir(parents=True, exist_ok=True)
           evidence.to_csv(out / 'direct_expanded_trait_evidence.csv.gz', index=False)
           expected_species = int(os.environ['EXPECTED_SPECIES'])
           species_with_evidence = int(evidence['accepted_species'].nunique()) if len(evidence) else 0
           summary = {
-              'contract': 'direct_expanded_trait_large_wave_v1',
+              'contract': 'direct_expanded_trait_large_wave_v2',
               'offset_start': int(os.environ['OFFSET_START']),
               'offset_end': int(os.environ['OFFSET_END']),
               'expected_species': expected_species,
