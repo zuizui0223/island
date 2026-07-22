@@ -1,0 +1,158 @@
+name: rerun_validated_low_after_targeted_acquisition
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/rerun-validated-low-after-targeted-acquisition.yml"
+      - "src/island_v2/validated_low_inference.py"
+  workflow_dispatch:
+    inputs:
+      targeted_run_id:
+        description: "Completed targeted reacquisition run"
+        required: false
+        default: "29899135810"
+        type: string
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: rerun-validated-low-targeted-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  rerun:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PASS1_RUN_ID: "29814502655"
+      PASS2_RUN_ID: "29819475348"
+      PASS3_RUN_ID: "29840507345"
+      TARGETED_RUN_ID: ${{ inputs.targeted_run_id || '29899135810' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Download baseline and targeted evidence
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/pass1 /tmp/pass2 /tmp/pass3 /tmp/targeted
+          gh run download "$PASS1_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --pattern "three-pass-pass1-shard-*-$PASS1_RUN_ID" --dir /tmp/pass1
+          gh run download "$PASS2_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --pattern "three-pass-pass2-shard-*-$PASS2_RUN_ID" --dir /tmp/pass2
+          gh run download "$PASS3_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --pattern "three-pass-pass3-shard-*-$PASS3_RUN_ID" --dir /tmp/pass3
+          gh run download "$TARGETED_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "targeted-reacquisition-final-$TARGETED_RUN_ID" --dir /tmp/targeted
+      - name: Build augmented direct-evidence inputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          high = list(Path('/tmp/pass1').glob('**/accepted_high_evidence.csv.gz'))
+          medium = list(Path('/tmp/pass2').glob('**/accepted_medium_evidence.csv.gz'))
+          unresolved = list(Path('/tmp/pass3').glob('**/unresolved_after_pass3.csv.gz'))
+          targeted = list(Path('/tmp/targeted').glob('**/targeted_new_evidence.csv.gz'))
+          if (len(high), len(medium), len(unresolved), len(targeted)) != (128, 128, 128, 1):
+              raise SystemExit(f'input counts={len(high)}/{len(medium)}/{len(unresolved)}/{len(targeted)}')
+
+          baseline = pd.concat(
+              [pd.read_csv(p, dtype=str).fillna('') for p in high + medium],
+              ignore_index=True,
+          ).drop_duplicates()
+          added = pd.read_csv(targeted[0], dtype=str).fillna('')
+          added = added.loc[added['evidence_quality'].isin(['high', 'medium'])].copy()
+          evidence = pd.concat([baseline, added], ignore_index=True, sort=False).fillna('').drop_duplicates()
+          tasks = pd.concat(
+              [pd.read_csv(p, dtype=str).fillna('') for p in unresolved],
+              ignore_index=True,
+          ).drop_duplicates(['accepted_species', 'axis'])
+
+          out = Path('/tmp/input')
+          out.mkdir(parents=True, exist_ok=True)
+          evidence.to_csv(out / 'augmented_direct_evidence.csv.gz', index=False)
+          tasks.to_csv(out / 'all_unresolved.csv.gz', index=False)
+          summary = {
+              'baseline_records': int(len(baseline)),
+              'targeted_records_total': int(len(pd.read_csv(targeted[0], dtype=str))),
+              'targeted_direct_records': int(len(added)),
+              'augmented_records': int(len(evidence)),
+              'targeted_species': int(added['accepted_species'].nunique()),
+          }
+          (out / 'augmentation_summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+          print(json.dumps(summary, indent=2))
+          PY
+      - name: Recompute all three axes
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          tasks = pd.read_csv('/tmp/input/all_unresolved.csv.gz', dtype=str).fillna('')
+          for axis in ('floral_structural_complexity', 'flower_colour', 'reproductive_assurance'):
+              subset = tasks.loc[tasks['axis'].eq(axis)].drop_duplicates(['accepted_species', 'axis'])
+              d = Path('/tmp/input') / axis
+              d.mkdir(parents=True, exist_ok=True)
+              subset.to_csv(d / 'unresolved.csv.gz', index=False)
+          PY
+          python -m island_v2.validated_low_inference \
+            --unresolved-csv /tmp/input/floral_structural_complexity/unresolved.csv.gz \
+            --evidence-csv /tmp/input/augmented_direct_evidence.csv.gz \
+            --output-dir /tmp/output/floral_structural_complexity \
+            --min-species 3 --min-dominance 0.80 --min-masked-accuracy 0.75
+          python -m island_v2.validated_low_inference \
+            --unresolved-csv /tmp/input/flower_colour/unresolved.csv.gz \
+            --evidence-csv /tmp/input/augmented_direct_evidence.csv.gz \
+            --output-dir /tmp/output/flower_colour \
+            --min-species 3 --min-dominance 0.90 --min-masked-accuracy 0.80
+          python -m island_v2.validated_low_inference \
+            --unresolved-csv /tmp/input/reproductive_assurance/unresolved.csv.gz \
+            --evidence-csv /tmp/input/augmented_direct_evidence.csv.gz \
+            --output-dir /tmp/output/reproductive_assurance \
+            --min-species 3 --min-dominance 0.95 --min-masked-accuracy 0.85
+      - name: Build impact summary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          axes = ['floral_structural_complexity', 'flower_colour', 'reproductive_assurance']
+          baseline = {
+              'floral_structural_complexity': {'resolved': 14791, 'remaining': 87558, 'eligible_rules': 548},
+              'flower_colour': {'resolved': 8970, 'remaining': 80326, 'eligible_rules': 524},
+              'reproductive_assurance': {'resolved': 7447, 'remaining': 97374, 'eligible_rules': 516},
+          }
+          impact = {'targeted_run_id': 29899135810, 'axes': {}}
+          for axis in axes:
+              s = json.loads((Path('/tmp/output') / axis / 'validated_low_summary.json').read_text())
+              b = baseline[axis]
+              impact['axes'][axis] = {
+                  'resolved_species_axis_tasks': int(s['resolved_species_axis_tasks']),
+                  'remaining_tasks': int(s['remaining_tasks']),
+                  'eligible_rules': int(s['eligible_rules']),
+                  'delta_resolved': int(s['resolved_species_axis_tasks']) - b['resolved'],
+                  'delta_remaining': int(s['remaining_tasks']) - b['remaining'],
+                  'delta_eligible_rules': int(s['eligible_rules']) - b['eligible_rules'],
+              }
+          impact['total_delta_resolved'] = sum(v['delta_resolved'] for v in impact['axes'].values())
+          impact['total_delta_remaining'] = sum(v['delta_remaining'] for v in impact['axes'].values())
+          (Path('/tmp/output') / 'targeted_acquisition_impact_summary.json').write_text(
+              json.dumps(impact, indent=2, sort_keys=True) + '\n'
+          )
+          print(json.dumps(impact, indent=2, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: validated-low-after-targeted-${{ github.run_id }}
+          path: |
+            /tmp/input/augmentation_summary.json
+            /tmp/output/
+          if-no-files-found: error
+          retention-days: 90
