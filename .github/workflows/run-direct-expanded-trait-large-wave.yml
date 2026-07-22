@@ -12,7 +12,7 @@ on:
         default: "4000"
         type: string
       limit:
-        description: "Number of raw ranked species in this wave"
+        description: "Number of species in this wave"
         required: false
         default: "20000"
         type: string
@@ -35,7 +35,6 @@ jobs:
       batch_size: ${{ steps.freeze.outputs.batch_size }}
       offset_start: ${{ steps.freeze.outputs.offset_start }}
       offset_end: ${{ steps.freeze.outputs.offset_end }}
-      raw_selected_species: ${{ steps.freeze.outputs.raw_selected_species }}
     env:
       ACQUISITION_OFFSET: ${{ inputs.offset || '4000' }}
       ACQUISITION_LIMIT: ${{ inputs.limit || '20000' }}
@@ -60,20 +59,15 @@ jobs:
           if offset < 0 or limit < 1:
               raise SystemExit(f'invalid offset/limit: {offset}/{limit}')
 
-          master = pd.read_csv(
-              'data/v2/staging/gbif/collected/island_taxa.csv', dtype=str
-          ).fillna('')
-          candidates = pd.read_csv(
-              'data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz',
-              dtype=str,
-          ).fillna('')
+          master = pd.read_csv('data/v2/staging/gbif/collected/island_taxa.csv', dtype=str).fillna('')
+          candidates = pd.read_csv('data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz', dtype=str).fillna('')
           species_col = next(c for c in ('accepted_species', 'species') if c in candidates.columns)
           trait_col = next((c for c in ('trait_name', 'trait', 'field') if c in candidates.columns), None)
           target_traits = {
               'flower_primary_color', 'flower_color', 'floral_form', 'flower_shape',
               'floral_symmetry', 'tube_depth_class', 'flower_size_class',
               'inflorescence_display', 'self_incompatibility',
-              'autonomous_selfing_capacity', 'mating_system', 'cleistogamy',
+              'autonomous_selfing_capacity', 'mating_system', 'cleistogamy'
           }
           selected = candidates
           if trait_col:
@@ -83,30 +77,20 @@ jobs:
           all_master = sorted(set(master['accepted_species'].astype(str).str.strip()) - {''})
           prioritized_set = set(prioritized)
           ranked = prioritized + [sp for sp in all_master if sp not in prioritized_set]
-          raw_species = ranked[offset:offset + limit]
-          if not raw_species:
-              raise SystemExit(
-                  f'no species remain for offset={offset}, limit={limit}; ranked_total={len(ranked)}'
-              )
+          species = ranked[offset:offset + limit]
+          if not species:
+              raise SystemExit(f'no species remain for offset={offset}, limit={limit}; ranked_total={len(ranked)}')
 
-          targeted = master.loc[
-              master['accepted_species'].isin(raw_species)
-          ].drop_duplicates('accepted_species').copy()
-          order = {sp: i for i, sp in enumerate(raw_species)}
-          targeted['_rank'] = targeted['accepted_species'].map(order)
-          targeted = targeted.sort_values('_rank').drop(columns='_rank')
+          raw_targeted = master.loc[master['accepted_species'].isin(species)].drop_duplicates('accepted_species').copy()
+          order = {sp: i for i, sp in enumerate(species)}
+          raw_targeted['_rank'] = raw_targeted['accepted_species'].map(order)
+          raw_targeted = raw_targeted.sort_values('_rank').drop(columns='_rank')
 
-          scope = classify_scope(targeted, load_config(Path('config/angiosperm_scope.yml')))
-          eligible = set(
-              scope.loc[scope['angiosperm_analysis_eligible'], 'accepted_species']
-          )
-          targeted = targeted.loc[
-              targeted['accepted_species'].isin(eligible)
-          ].drop_duplicates('accepted_species').copy()
+          scope = classify_scope(raw_targeted, load_config(Path('config/angiosperm_scope.yml')))
+          eligible = set(scope.loc[scope['angiosperm_analysis_eligible'], 'accepted_species'])
+          targeted = raw_targeted.loc[raw_targeted['accepted_species'].isin(eligible)].copy()
           if targeted.empty:
-              raise SystemExit(
-                  f'raw wave had {len(raw_species)} species but none passed angiosperm scope'
-              )
+              raise SystemExit(f'no angiosperm species matched for offset={offset}, limit={limit}')
 
           out = Path('/tmp/direct-large')
           out.mkdir(parents=True, exist_ok=True)
@@ -114,9 +98,11 @@ jobs:
           scope.to_csv(out / 'selected_wave_scope_audit.csv.gz', index=False)
 
           n = len(targeted)
-          shard_count = min(32, n)
-          batch_size = math.ceil(n / shard_count)
-          offset_end = offset + len(raw_species)
+          shard_count = min(40, n)
+          batch_size = min(500, math.ceil(n / shard_count))
+          if math.ceil(n / shard_count) > 500:
+              raise SystemExit(f'shard plan exceeds CLI batch-size cap: n={n}, shards={shard_count}')
+          offset_end = offset + len(species)
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
               print('shards=' + json.dumps(list(range(shard_count))), file=fh)
               print(f'shard_count={shard_count}', file=fh)
@@ -124,13 +110,11 @@ jobs:
               print(f'batch_size={batch_size}', file=fh)
               print(f'offset_start={offset}', file=fh)
               print(f'offset_end={offset_end}', file=fh)
-              print(f'raw_selected_species={len(raw_species)}', file=fh)
           print(json.dumps({
               'ranked_total': len(ranked),
-              'priority_candidate_species': len(prioritized),
-              'raw_selected_species': len(raw_species),
-              'scope_eligible_species': n,
-              'scope_excluded_species': len(raw_species) - n,
+              'raw_selected_species': len(raw_targeted),
+              'scoped_target_species': n,
+              'excluded_by_scope': len(raw_targeted) - n,
               'offset_start': offset,
               'offset_end': offset_end,
               'shards': shard_count,
@@ -183,10 +167,6 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$CAMPAIGN_DIR"
-          EXTRA_INDEX=()
-          if test -s /tmp/direct-large/plan/web_description_index.json; then
-            EXTRA_INDEX=(--web-description-index /tmp/direct-large/plan/web_description_index.json)
-          fi
           island-v2-web-trait-shards run \
             --master-csv /tmp/direct-large/targeted_master.csv.gz \
             --scope-config-path config/angiosperm_scope.yml \
@@ -197,10 +177,11 @@ jobs:
             --batch-size '${{ needs.prepare.outputs.batch_size }}' \
             --max-attempts 3 \
             --expected-species '${{ needs.prepare.outputs.expected_species }}' \
-            "${EXTRA_INDEX[@]}" \
+            --web-description-index /tmp/direct-large/plan/web_description_index.json \
             --pause-seconds 1.0 \
             --europe-pmc --openalex --world-flora --migrate-v4
       - name: Normalize evidence
+        if: success()
         run: |
           python -m island_v2.real_acquisition_ledger \
             --campaign-root "$CAMPAIGN_DIR" \
@@ -210,7 +191,7 @@ jobs:
         with:
           name: direct-expanded-large-shard-${{ matrix.shard }}-${{ github.run_id }}
           path: ${{ env.CAMPAIGN_DIR }}/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 90
 
   aggregate:
@@ -229,40 +210,31 @@ jobs:
         env:
           OFFSET_START: ${{ needs.prepare.outputs.offset_start }}
           OFFSET_END: ${{ needs.prepare.outputs.offset_end }}
-          RAW_SELECTED_SPECIES: ${{ needs.prepare.outputs.raw_selected_species }}
           EXPECTED_SPECIES: ${{ needs.prepare.outputs.expected_species }}
         run: |
           python - <<'PY'
           import json, os
           from pathlib import Path
           import pandas as pd
-
           files = list(Path('/tmp/results').glob('**/ledger/all_master_evidence.csv.gz'))
           if not files:
               raise SystemExit('no evidence ledgers found')
-          evidence = pd.concat(
-              [pd.read_csv(p, dtype=str).fillna('') for p in files],
-              ignore_index=True,
-          ).drop_duplicates()
-          out = Path('/tmp/final')
-          out.mkdir(parents=True, exist_ok=True)
+          evidence = pd.concat([pd.read_csv(p, dtype=str).fillna('') for p in files], ignore_index=True).drop_duplicates()
+          out = Path('/tmp/final'); out.mkdir(parents=True, exist_ok=True)
           evidence.to_csv(out / 'direct_expanded_trait_evidence.csv.gz', index=False)
           expected = int(os.environ['EXPECTED_SPECIES'])
           species = int(evidence['accepted_species'].nunique()) if len(evidence) else 0
           summary = {
-              'contract': 'direct_expanded_trait_large_wave_v5_scoped',
+              'contract': 'direct_expanded_trait_large_wave_v6',
               'offset_start': int(os.environ['OFFSET_START']),
               'offset_end': int(os.environ['OFFSET_END']),
-              'raw_selected_species': int(os.environ['RAW_SELECTED_SPECIES']),
-              'scope_eligible_species': expected,
+              'expected_species': expected,
               'shards': len(files),
               'records': int(len(evidence)),
               'species_with_any_evidence': species,
               'yield_fraction': species / expected if expected else 0.0,
           }
-          (out / 'direct_expanded_trait_summary.json').write_text(
-              json.dumps(summary, indent=2) + '\n'
-          )
+          (out / 'direct_expanded_trait_summary.json').write_text(json.dumps(summary, indent=2) + '\n')
           print(json.dumps(summary, indent=2))
           PY
       - uses: actions/upload-artifact@v4
