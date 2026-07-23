@@ -9,7 +9,7 @@ on:
       offset:
         description: "Zero-based offset in ranked island species"
         required: false
-        default: "4000"
+        default: "24000"
         type: string
       limit:
         description: "Number of species in this wave"
@@ -22,7 +22,7 @@ permissions:
   actions: write
 
 concurrency:
-  group: direct-expanded-large-${{ github.event.pull_request.number || github.ref_name }}-${{ inputs.offset || '4000' }}
+  group: direct-expanded-large-${{ github.event.pull_request.number || github.ref_name }}-${{ inputs.offset || '24000' }}
   cancel-in-progress: true
 
 jobs:
@@ -36,7 +36,7 @@ jobs:
       offset_start: ${{ steps.freeze.outputs.offset_start }}
       offset_end: ${{ steps.freeze.outputs.offset_end }}
     env:
-      ACQUISITION_OFFSET: ${{ inputs.offset || '4000' }}
+      ACQUISITION_OFFSET: ${{ inputs.offset || '24000' }}
       ACQUISITION_LIMIT: ${{ inputs.limit || '20000' }}
     steps:
       - uses: actions/checkout@v4
