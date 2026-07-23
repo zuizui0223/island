@@ -1,0 +1,220 @@
+name: run_three_pass_trait_acquisition
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/run-three-pass-trait-acquisition.yml"
+      - "src/island_v2/real_acquisition_ledger.py"
+      - "src/island_v2/three_pass_trait_campaign.py"
+      - "tests/test_real_acquisition_ledger.py"
+      - "tests/test_three_pass_trait_campaign.py"
+  workflow_dispatch:
+    inputs:
+      batch_size:
+        description: "Species advanced per shard in pass 1"
+        required: false
+        default: "300"
+        type: string
+      seed_run_id:
+        description: "Complete 128-shard three-pass pass-1 seed run"
+        required: false
+        default: "29742199817"
+        type: string
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: three-pass-trait-acquisition-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  plan-pass1-high:
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.matrix.outputs.shards }}
+      batch_size: ${{ steps.matrix.outputs.batch_size }}
+      seed_run_id: ${{ steps.matrix.outputs.seed_run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate three-pass and ledger contracts
+        run: |
+          pytest -q \
+            tests/test_real_acquisition_ledger.py \
+            tests/test_three_pass_trait_campaign.py \
+            tests/test_web_trait_shard_campaign.py
+      - name: Build 106295-species plan and frozen web index
+        run: |
+          set -euo pipefail
+          island-v2-web-trait-shards plan \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --scope-config-path config/angiosperm_scope.yml \
+            --output-dir /tmp/three-pass-plan \
+            --shard-count 128 \
+            --expected-species 106295
+          if ! island-v2-v1-category-search build-web-index \
+            --output-json /tmp/three-pass-plan/web_description_index.json; then
+            test -s /tmp/three-pass-plan/web_description_index.json
+          fi
+      - id: matrix
+        name: Freeze pass-one matrix
+        env:
+          REQUESTED_BATCH: ${{ inputs.batch_size || '300' }}
+          REQUESTED_SEED: ${{ inputs.seed_run_id || '29742199817' }}
+        run: |
+          python - <<'PY2'
+          import json, os
+          batch = int(os.environ['REQUESTED_BATCH'])
+          seed = os.environ['REQUESTED_SEED'].strip()
+          if not 1 <= batch <= 500:
+              raise SystemExit('batch_size must be 1..500')
+          if not seed.isdigit():
+              raise SystemExit('seed_run_id must be numeric')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              print('shards=' + json.dumps(list(range(128))), file=out)
+              print(f'batch_size={batch}', file=out)
+              print(f'seed_run_id={seed}', file=out)
+          PY2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: three-pass-plan-${{ github.run_id }}
+          path: /tmp/three-pass-plan/
+          if-no-files-found: error
+          retention-days: 90
+
+  pass1-high:
+    needs: plan-pass1-high
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: ${{ fromJSON(needs.plan-pass1-high.outputs.shards) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SHARD_DIR: /tmp/three-pass-campaign/shard-${{ matrix.shard }}
+      GH_TOKEN: ${{ github.token }}
+      SEED_RUN_ID: ${{ needs.plan-pass1-high.outputs.seed_run_id }}
+      BATCH_SIZE: ${{ needs.plan-pass1-high.outputs.batch_size }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - uses: actions/download-artifact@v4
+        with:
+          name: three-pass-plan-${{ github.run_id }}
+          path: /tmp/three-pass-plan
+      - run: pip install -e ".[dev]"
+      - name: Restore latest three-pass pass-one checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p "$SHARD_DIR"
+          artifact="three-pass-pass1-shard-${{ matrix.shard }}-$SEED_RUN_ID"
+          for attempt in 1 2 3 4 5; do
+            rm -rf "$SHARD_DIR"/*
+            if gh run download "$SEED_RUN_ID" \
+              --repo "$GITHUB_REPOSITORY" \
+              --name "$artifact" \
+              --dir "$SHARD_DIR"; then
+              break
+            fi
+            if [[ "$attempt" == "5" ]]; then
+              echo "::error::Failed to download $artifact after 5 attempts."
+              exit 1
+            fi
+            sleep $((attempt * 15))
+          done
+          test -s "$SHARD_DIR/checkpoint.csv"
+          test -s "$SHARD_DIR/passes/pass1_high/pass1_summary.json"
+      - name: Query real providers for next pass-one batch
+        run: |
+          set -euo pipefail
+          island-v2-web-trait-shards run \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --scope-config-path config/angiosperm_scope.yml \
+            --campaign-dir "$SHARD_DIR" \
+            --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz \
+            --shard-index "${{ matrix.shard }}" \
+            --shard-count 128 \
+            --batch-size "$BATCH_SIZE" \
+            --max-attempts 3 \
+            --expected-species 106295 \
+            --web-description-index /tmp/three-pass-plan/web_description_index.json \
+            --pause-seconds 1.0 \
+            --europe-pmc \
+            --no-openalex \
+            --no-world-flora \
+            --migrate-v4
+      - name: Normalize evidence and freeze pass-one decisions
+        run: |
+          set -euo pipefail
+          python -m island_v2.real_acquisition_ledger \
+            --campaign-root "$SHARD_DIR" \
+            --output-dir "$SHARD_DIR/ledger"
+          python - <<'PY2'
+          import json, os
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path(os.environ['SHARD_DIR'])
+          ledger_dir = root / 'ledger'
+          pass_dir = root / 'passes' / 'pass1_high'
+          pass_dir.mkdir(parents=True, exist_ok=True)
+          evidence = pd.read_csv(ledger_dir / 'all_master_evidence.csv.gz', dtype=str).fillna('')
+          coverage = pd.read_csv(ledger_dir / 'three_axis_coverage.csv.gz', dtype=str).fillna('')
+          high = evidence.loc[evidence['evidence_quality'].eq('high')].copy()
+          evidence.loc[evidence['evidence_quality'].eq('medium')].to_csv(pass_dir / 'held_medium_evidence.csv.gz', index=False)
+          evidence.loc[evidence['evidence_quality'].eq('low')].to_csv(pass_dir / 'held_low_evidence.csv.gz', index=False)
+          high.to_csv(pass_dir / 'accepted_high_evidence.csv.gz', index=False)
+          axes = {
+              'flower_colour': {'flower_primary_color', 'flower_color'},
+              'floral_structural_complexity': {'floral_form', 'floral_symmetry', 'tube_depth_class', 'flower_size_class', 'inflorescence_display', 'flower_shape'},
+              'reproductive_assurance': {'self_incompatibility', 'autonomous_selfing_capacity', 'mating_system', 'cleistogamy'},
+          }
+          processed = sorted(set(coverage.get('accepted_species', pd.Series(dtype=str))))
+          rows = []
+          for species in processed:
+              subset = high.loc[high['accepted_species'].eq(species)]
+              for axis, traits in axes.items():
+                  if not subset['trait_name'].isin(traits).any():
+                      rows.append({'accepted_species': species, 'axis': axis, 'target_quality': 'medium', 'next_pass': 2, 'reason': 'no_high_direct_evidence'})
+          pass2 = pd.DataFrame(rows, columns=['accepted_species', 'axis', 'target_quality', 'next_pass', 'reason'])
+          pass2.to_csv(pass_dir / 'pass2_medium_tasks.csv.gz', index=False)
+          summary = {
+              'campaign_contract': 'three_pass_species_axis_v1',
+              'pass': 1,
+              'seed_run_id': int(os.environ['SEED_RUN_ID']),
+              'batch_size': int(os.environ['BATCH_SIZE']),
+              'processed_species': len(processed),
+              'accepted_high_records': int(len(high)),
+              'pass2_species_axis_tasks': int(len(pass2)),
+              'family_inference_used': False,
+              'global_fallback_used': False,
+          }
+          (pass_dir / 'pass1_summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as out:
+              for key, value in summary.items():
+                  print(f'- {key}: {value}', file=out)
+          PY2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: three-pass-pass1-shard-${{ matrix.shard }}-${{ github.run_id }}
+          path: |
+            ${{ env.SHARD_DIR }}/campaign_manifest.json
+            ${{ env.SHARD_DIR }}/campaign_status.json
+            ${{ env.SHARD_DIR }}/checkpoint.csv
+            ${{ env.SHARD_DIR }}/provider_checkpoint.csv
+            ${{ env.SHARD_DIR }}/cumulative/
+            ${{ env.SHARD_DIR }}/ledger/
+            ${{ env.SHARD_DIR }}/passes/pass1_high/
+          if-no-files-found: error
+          retention-days: 90

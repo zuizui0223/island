@@ -1,0 +1,152 @@
+name: audit_three_pass_round
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/audit-three-pass-round.yml"
+  workflow_dispatch:
+    inputs:
+      seed_run_id:
+        description: "Completed three-pass pass-1 run to audit"
+        required: false
+        default: "29742199817"
+        type: string
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.matrix.outputs.shards }}
+    steps:
+      - id: matrix
+        run: |
+          python - <<'PY'
+          import json, os
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              print('shards=' + json.dumps(list(range(128))), file=out)
+          PY
+
+  audit-shard:
+    needs: plan
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SEED_RUN_ID: ${{ inputs.seed_run_id || '29742199817' }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pandas
+      - name: Download one shard artifact with retries
+        run: |
+          set -euo pipefail
+          out="/tmp/shard-${{ matrix.shard }}"
+          mkdir -p "$out"
+          for attempt in 1 2 3 4 5; do
+            rm -rf "$out"/*
+            if gh run download "$SEED_RUN_ID" \
+              --repo "$GITHUB_REPOSITORY" \
+              --name "three-pass-pass1-shard-${{ matrix.shard }}-$SEED_RUN_ID" \
+              --dir "$out"; then
+              test -s "$out/passes/pass1_high/pass1_summary.json"
+              break
+            fi
+            if [[ "$attempt" == 5 ]]; then exit 1; fi
+            sleep $((attempt * 15))
+          done
+      - name: Build compact shard metrics
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          shard = ${{ matrix.shard }}
+          root = Path(f'/tmp/shard-{shard}')
+          p = root / 'passes' / 'pass1_high'
+          high = pd.read_csv(p / 'accepted_high_evidence.csv.gz', dtype=str).fillna('')
+          medium = pd.read_csv(p / 'held_medium_evidence.csv.gz', dtype=str).fillna('')
+          pass2 = pd.read_csv(p / 'pass2_medium_tasks.csv.gz', dtype=str).fillna('')
+          coverage = pd.read_csv(root / 'ledger' / 'three_axis_coverage.csv.gz', dtype=str).fillna('')
+          axes = {
+            'flower_colour': {'flower_primary_color','flower_color'},
+            'floral_structural_complexity': {'floral_form','floral_symmetry','tube_depth_class','flower_size_class','inflorescence_display','flower_shape'},
+            'reproductive_assurance': {'self_incompatibility','autonomous_selfing_capacity','mating_system','cleistogamy'},
+          }
+          resolved = {axis: 0 for axis in axes}
+          all_three = 0
+          for _, g in high.groupby('accepted_species'):
+            flags = {axis: bool(g['trait_name'].isin(traits).any()) for axis, traits in axes.items()}
+            for axis, ok in flags.items():
+              resolved[axis] += int(ok)
+            all_three += int(all(flags.values()))
+          out = {
+            'shard': shard,
+            'processed_species': int(coverage['accepted_species'].nunique()),
+            'accepted_high_records': int(len(high)),
+            'species_with_high_evidence': int(high['accepted_species'].nunique()),
+            'held_medium_records': int(len(medium)),
+            'species_with_medium_evidence': int(medium['accepted_species'].nunique()),
+            'pass2_species_axis_tasks': int(len(pass2)),
+            'pass2_flower_colour': int((pass2['axis'] == 'flower_colour').sum()),
+            'pass2_floral_structural_complexity': int((pass2['axis'] == 'floral_structural_complexity').sum()),
+            'pass2_reproductive_assurance': int((pass2['axis'] == 'reproductive_assurance').sum()),
+            'high_flower_colour_species': resolved['flower_colour'],
+            'high_floral_structural_complexity_species': resolved['floral_structural_complexity'],
+            'high_reproductive_assurance_species': resolved['reproductive_assurance'],
+            'species_with_all_three_axes_high': all_three,
+          }
+          d = Path(f'/tmp/metric-{shard}')
+          d.mkdir(parents=True, exist_ok=True)
+          (d / f'metric-{shard}.json').write_text(json.dumps(out, indent=2) + '\n', encoding='utf-8')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pass1-metric-${{ matrix.shard }}
+          path: /tmp/metric-${{ matrix.shard }}/metric-${{ matrix.shard }}.json
+          if-no-files-found: error
+
+  aggregate:
+    needs: audit-shard
+    runs-on: ubuntu-latest
+    env:
+      SEED_RUN_ID: ${{ inputs.seed_run_id || '29742199817' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: pass1-metric-*
+          path: /tmp/metrics
+          merge-multiple: true
+      - name: Sum exact metrics
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          rows = [json.loads(p.read_text()) for p in Path('/tmp/metrics').glob('metric-*.json')]
+          if len(rows) != 128:
+            raise SystemExit(f'expected 128 metrics, found {len(rows)}')
+          keys = [k for k in rows[0] if k != 'shard']
+          total = {'seed_run_id': int(os.environ['SEED_RUN_ID']), 'shards': 128}
+          for k in keys:
+            total[k] = sum(int(r[k]) for r in rows)
+          out = Path('/tmp/pass1-audit')
+          out.mkdir(parents=True, exist_ok=True)
+          (out / 'round_summary.json').write_text(json.dumps(total, ensure_ascii=False, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(json.dumps(total, ensure_ascii=False, indent=2))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as fh:
+            print('## Exact first-round acquisition audit', file=fh)
+            for k, v in total.items(): print(f'- {k}: {v}', file=fh)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: three-pass-round-audit-${{ github.run_id }}
+          path: /tmp/pass1-audit/round_summary.json
+          if-no-files-found: error

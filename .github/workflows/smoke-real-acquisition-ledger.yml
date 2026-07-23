@@ -1,0 +1,77 @@
+name: smoke_real_acquisition_ledger
+
+on:
+  pull_request:
+    paths:
+      - "src/island_v2/real_acquisition_ledger.py"
+      - "tests/test_real_acquisition_ledger.py"
+      - ".github/workflows/smoke-real-acquisition-ledger.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate compatibility mapping
+        run: pytest -q tests/test_real_acquisition_ledger.py
+      - name: Build bounded acquisition plan
+        run: |
+          set -euo pipefail
+          island-v2-web-trait-shards plan \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --scope-config-path config/angiosperm_scope.yml \
+            --output-dir /tmp/plan \
+            --shard-count 128 \
+            --expected-species 106295
+          if ! island-v2-v1-category-search build-web-index \
+            --output-json /tmp/plan/web_description_index.json; then
+            test -s /tmp/plan/web_description_index.json
+          fi
+      - name: Query real providers for 20 species
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/campaign
+          island-v2-web-trait-shards run \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --scope-config-path config/angiosperm_scope.yml \
+            --campaign-dir /tmp/campaign \
+            --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz \
+            --shard-index 0 \
+            --shard-count 128 \
+            --batch-size 20 \
+            --max-attempts 1 \
+            --expected-species 106295 \
+            --web-description-index /tmp/plan/web_description_index.json \
+            --pause-seconds 0.2 \
+            --europe-pmc \
+            --no-openalex \
+            --no-world-flora \
+            --migrate-v4
+      - name: Aggregate and publish progress
+        run: |
+          set -euo pipefail
+          test -s /tmp/campaign/checkpoint.csv
+          python -m island_v2.real_acquisition_ledger \
+            --campaign-root /tmp/campaign \
+            --output-dir /tmp/ledger
+          cat /tmp/campaign/campaign_status.json >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/ledger/collection_round_summary.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: real-acquisition-ledger-${{ github.run_id }}
+          path: |
+            /tmp/campaign/
+            /tmp/ledger/
+          if-no-files-found: error
+          retention-days: 30
