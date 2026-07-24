@@ -1,0 +1,162 @@
+{
+  "contract": "integrated_trait_coverage_source_manifest_v1",
+  "repository": "zuizui0223/island",
+  "pull_request": 128,
+  "branch": "agent/validated-low-inference",
+  "denominator_species": 106295,
+  "sources": [
+    {
+      "source_group": "three_pass_high",
+      "run_id": 29814502655,
+      "artifact_name": "three-pass-pass1-shard-*-29814502655",
+      "role": "baseline_high"
+    },
+    {
+      "source_group": "three_pass_medium",
+      "run_id": 29819475348,
+      "artifact_name": "three-pass-pass2-shard-*-29819475348",
+      "role": "baseline_medium"
+    },
+    {
+      "source_group": "three_pass_unresolved",
+      "run_id": 29840507345,
+      "artifact_name": "three-pass-pass3-shard-*-29840507345",
+      "role": "denominator_unresolved"
+    },
+    {
+      "source_group": "expanded_wave",
+      "run_id": 29926967923,
+      "artifact_name": "direct-expanded-trait-pilot-final-29926967923",
+      "range": "[0,2000)",
+      "role": "baseline_direct"
+    },
+    {
+      "source_group": "expanded_wave_input",
+      "run_id": 29926967923,
+      "artifact_name": "direct-expanded-trait-pilot-input-29926967923",
+      "range": "[0,2000)",
+      "role": "range_verification"
+    },
+    {
+      "source_group": "expanded_wave",
+      "run_id": 30076138052,
+      "artifact_name": "direct-expanded-large-final-30076138052",
+      "range": "[2000,4000)",
+      "role": "baseline_direct"
+    },
+    {
+      "source_group": "expanded_wave",
+      "run_id": 29935400807,
+      "artifact_name": "direct-expanded-large-final-29935400807",
+      "range": "[4000,24000)",
+      "role": "baseline_direct"
+    },
+    {
+      "source_group": "expanded_wave",
+      "run_id": 29982714811,
+      "artifact_name": "direct-expanded-large-final-29982714811",
+      "range": "[24000,44000)",
+      "role": "baseline_direct"
+    },
+    {
+      "source_group": "expanded_wave",
+      "run_id": 30024100020,
+      "artifact_name": "direct-expanded-large-final-30024100020",
+      "range": "[44000,64000)",
+      "role": "baseline_direct"
+    },
+    {
+      "source_group": "expanded_wave",
+      "run_id": 30055434119,
+      "artifact_name": "direct-expanded-large-final-30055434119",
+      "range": "[64000,84000)",
+      "role": "baseline_direct"
+    },
+    {
+      "source_group": "expanded_wave",
+      "run_id": 30076151486,
+      "artifact_name": "direct-expanded-large-final-30076151486",
+      "range": "[84000,107000)",
+      "role": "baseline_direct"
+    },
+    {
+      "source_group": "targeted_reacquisition",
+      "run_id": 30055437912,
+      "artifact_name": "targeted-reacquisition-final-30055437912",
+      "role": "baseline_direct"
+    },
+    {
+      "source_group": "validated_low",
+      "run_id": 30055434111,
+      "artifact_name": "validated-low-after-targeted-30055434111",
+      "role": "baseline_validated_low"
+    },
+    {
+      "source_group": "all_master_materialization",
+      "run_id": 30081415812,
+      "artifact_name": "all-master-trait-ledger-30081415812",
+      "artifact_id": 8591993646,
+      "artifact_digest": "sha256:4acc773aa72f535eb1567b903f9b99d9e2e14e0cdbfa12b34b87194addde9871",
+      "role": "bulk_materialization"
+    },
+    {
+      "source_group": "eol_traitbank",
+      "run_id": 29475141548,
+      "artifact_name": "eol-traitbank-bulk-29475141548",
+      "artifact_id": 8366432868,
+      "role": "bulk_original_artifact"
+    },
+    {
+      "source_group": "austraits",
+      "run_id": 29475142172,
+      "artifact_name": "austraits-all-floral-bulk-29475142172",
+      "artifact_id": 8366283959,
+      "role": "bulk_original_artifact"
+    },
+    {
+      "source_group": "efloras",
+      "run_id": 29409302362,
+      "artifact_name": "efloras-all-floras-combined",
+      "artifact_id": 8340405765,
+      "role": "bulk_original_artifact"
+    },
+    {
+      "source_group": "gift",
+      "run_id": 29475142071,
+      "artifact_name": "gift-direct-traits-29475142071",
+      "artifact_id": 8366279401,
+      "role": "bulk_original_artifact"
+    },
+    {
+      "source_group": "usda_plants",
+      "run_id": 29475142133,
+      "artifact_name": "usda-plants-direct-traits-29475142133",
+      "artifact_id": 8366271791,
+      "role": "bulk_original_artifact"
+    },
+    {
+      "source_group": "meyer_2026",
+      "run_id": 30081415812,
+      "artifact_name": "all-master-trait-ledger-30081415812",
+      "source_path": "data/v2/staging/traits/bulk/meyer_2026_reproductive_traits/trait_candidates.csv.gz",
+      "source_doi": "10.5061/dryad.cc2fqz6hr",
+      "role": "repo_staged_bulk"
+    },
+    {
+      "source_group": "razanajatovo_2016",
+      "run_id": 30081415812,
+      "artifact_name": "all-master-trait-ledger-30081415812",
+      "source_path": "data/v2/staging/traits/bulk/razanajatovo_2016_reproductive_traits/trait_candidates.csv.gz",
+      "source_doi": "10.1038/ncomms13313",
+      "role": "repo_staged_bulk"
+    },
+    {
+      "source_group": "promoted_public_web",
+      "run_id": 30081293493,
+      "artifact_name": "public-web-traits-combined",
+      "artifact_id": 8591936182,
+      "artifact_digest": "sha256:b10a024454f8099bfc4b516a7e5447724e8e828b7dce973efd364fc767309c1e",
+      "role": "promoted_source_backed_web"
+    }
+  ]
+}
