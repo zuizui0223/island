@@ -11,13 +11,13 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Annotated, Any
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import pandas as pd
 import typer
-
 
 app = typer.Typer(add_completion=False)
 
@@ -146,8 +146,7 @@ def _canonical_url(value: object) -> str:
     except ValueError:
         return text.casefold()
     host = parts.netloc.casefold()
-    if host.startswith("www."):
-        host = host[4:]
+    host = host.removeprefix("www.")
     query = urlencode(
         [
             (key, item)
@@ -174,7 +173,7 @@ def source_lineage(record: dict[str, Any]) -> tuple[str, str]:
     excerpt = _text(record.get("source_excerpt"))
     source_group = _text(record.get("source_group"))
     record_id = _text(record.get("source_record_id"))
-    combined = " ".join((citation, url, excerpt))
+    combined = f"{citation} {url} {excerpt}"
     if source_group == "austraits" and record_id.startswith("austraits:"):
         dataset = record_id.split(":", 2)[1]
         return f"origin:austraits:{dataset.casefold()}", "provider_component_dataset"
@@ -194,7 +193,7 @@ def source_lineage(record: dict[str, Any]) -> tuple[str, str]:
     canonical_url = _canonical_url(url)
     if canonical_url:
         return f"url:{canonical_url}", "canonical_url"
-    fallback = "|".join((source_group, record_id, citation_key, excerpt))
+    fallback = f"{source_group}|{record_id}|{citation_key}|{excerpt}"
     digest = hashlib.sha256(fallback.encode("utf-8")).hexdigest()[:20]
     return f"record:{digest}", "record_fallback"
 
@@ -772,7 +771,7 @@ def _coverage_snapshot(
             quality: int(subset["quality"].eq(quality).sum())
             for quality in ("high", "medium", "low")
         }
-        filled = int(len(subset))
+        filled = len(subset)
         by_axis[axis] = {
             "denominator": int((universe["axis"] == axis).sum()),
             "quality_counts": counts,
@@ -799,8 +798,8 @@ def _coverage_snapshot(
     return (
         {
             "quality_counts": quality_counts,
-            "filled_species_axis": int(len(best)),
-            "unresolved_species_axis": int(len(unresolved)),
+            "filled_species_axis": len(best),
+            "unresolved_species_axis": len(unresolved),
             "by_axis": by_axis,
             "species_by_filled_axis_count": distribution,
         },
@@ -835,13 +834,13 @@ def _source_increments(
             pure_gain = source_best.copy()
             sequential_gain = source_best.copy()
         result[source_group] = {
-            "accepted_lineages": int(len(source)),
-            "unique_species_axis": int(len(source_best)),
-            "pure_gain_vs_before": int(len(pure_gain)),
+            "accepted_lineages": len(source),
+            "unique_species_axis": len(source_best),
+            "pure_gain_vs_before": len(pure_gain),
             "pure_gain_vs_before_by_axis": {
                 axis: int(pure_gain["axis"].eq(axis).sum()) for axis in AXES
             },
-            "sequential_marginal_gain": int(len(sequential_gain)),
+            "sequential_marginal_gain": len(sequential_gain),
             "sequential_marginal_gain_by_axis": {
                 axis: int(sequential_gain["axis"].eq(axis).sum()) for axis in AXES
             },
@@ -888,15 +887,15 @@ def _direct_run_contributions(
         pure_gain = contributed.loc[contributed["without_quality"].isna()].copy()
         upgrades = contributed.loc[contributed["without_quality"].notna()].copy()
         result[run_text] = {
-            "accepted_lineages": int(len(owned)),
+            "accepted_lineages": len(owned),
             "unique_species_axis": int(
                 owned[["accepted_species", "axis"]].drop_duplicates().shape[0]
             ),
-            "pure_gain_species_axis": int(len(pure_gain)),
+            "pure_gain_species_axis": len(pure_gain),
             "pure_gain_by_axis": {
                 axis: int(pure_gain["axis"].eq(axis).sum()) for axis in AXES
             },
-            "quality_upgrades": int(len(upgrades)),
+            "quality_upgrades": len(upgrades),
             "quality_upgrades_by_transition": {
                 f"{old}_to_{new}": int(
                     (
@@ -1084,7 +1083,7 @@ def aggregate(
                 for quality in ("high", "medium", "low")
             },
             "by_axis": net_by_axis,
-            "validated_low_upgraded_to_direct": int(len(low_upgrades)),
+            "validated_low_upgraded_to_direct": len(low_upgrades),
         },
         "source_increments": _source_increments(
             before_best, bulk_lineages, universe
@@ -1093,17 +1092,17 @@ def aggregate(
             before_lineages, source_manifest
         ),
         "input_audit": {
-            "baseline_evidence_rows": int(len(before_raw)),
-            "baseline_lineages": int(len(before_lineages)),
-            "bulk_candidate_rows_audited": int(len(bulk_audit)),
+            "baseline_evidence_rows": len(before_raw),
+            "baseline_lineages": len(before_lineages),
+            "bulk_candidate_rows_audited": len(bulk_audit),
             "bulk_candidate_rows_contract_accepted": int(
                 bulk_audit["accepted"].eq("True").sum()
             ),
             "bulk_candidate_rows_rejected": int(
                 bulk_audit["accepted"].ne("True").sum()
             ),
-            "bulk_accepted_lineages": int(len(bulk_lineages)),
-            "lineage_duplicate_rows": int(len(cross_duplicates)),
+            "bulk_accepted_lineages": len(bulk_lineages),
+            "lineage_duplicate_rows": len(cross_duplicates),
             "lineage_duplicate_groups": int(
                 cross_duplicates[
                     ["accepted_species", "axis", "source_lineage"]
@@ -1112,7 +1111,7 @@ def aggregate(
             "out_of_universe_bulk_rows": int(len(bulk_raw) - len(bulk_in_universe)),
         },
         "checks": {
-            "denominator_exact": int(len(universe)) == expected_species * 3,
+            "denominator_exact": len(universe) == expected_species * 3,
             "quality_counts_sum_before": (
                 sum(before_summary["quality_counts"].values())
                 == before_summary["filled_species_axis"]
@@ -1184,18 +1183,28 @@ def write_outputs(
 
 @app.command()
 def build(
-    three_pass_high_dir: Path = typer.Option(..., exists=True, file_okay=False),
-    three_pass_medium_dir: Path = typer.Option(..., exists=True, file_okay=False),
-    three_pass_unresolved_dir: Path = typer.Option(..., exists=True, file_okay=False),
-    expanded_artifact_dir: list[Path] = typer.Option(
-        ..., exists=True, file_okay=False
-    ),
-    targeted_dir: Path = typer.Option(..., exists=True, file_okay=False),
-    validated_low_dir: Path = typer.Option(..., exists=True, file_okay=False),
-    all_master_dir: Path = typer.Option(..., exists=True, file_okay=False),
-    source_manifest_json: Path = typer.Option(..., exists=True, dir_okay=False),
-    output_dir: Path = typer.Option(..., file_okay=False),
-    expected_species: int = typer.Option(106_295, min=1),
+    three_pass_high_dir: Annotated[
+        Path, typer.Option(exists=True, file_okay=False)
+    ],
+    three_pass_medium_dir: Annotated[
+        Path, typer.Option(exists=True, file_okay=False)
+    ],
+    three_pass_unresolved_dir: Annotated[
+        Path, typer.Option(exists=True, file_okay=False)
+    ],
+    expanded_artifact_dir: Annotated[
+        list[Path], typer.Option(exists=True, file_okay=False)
+    ],
+    targeted_dir: Annotated[Path, typer.Option(exists=True, file_okay=False)],
+    validated_low_dir: Annotated[
+        Path, typer.Option(exists=True, file_okay=False)
+    ],
+    all_master_dir: Annotated[Path, typer.Option(exists=True, file_okay=False)],
+    source_manifest_json: Annotated[
+        Path, typer.Option(exists=True, dir_okay=False)
+    ],
+    output_dir: Annotated[Path, typer.Option(file_okay=False)],
+    expected_species: Annotated[int, typer.Option(min=1)] = 106_295,
 ) -> None:
     """Build the reproducible before/after species-axis coverage ledger."""
     manifest = json.loads(source_manifest_json.read_text(encoding="utf-8"))

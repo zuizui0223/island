@@ -6,7 +6,6 @@ import pandas as pd
 
 from island_v2 import integrated_trait_coverage as coverage
 
-
 DIRECT_COLUMNS = [
     "accepted_species",
     "matched_source_name",
