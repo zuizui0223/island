@@ -46,12 +46,13 @@ jobs:
           cache: pip
       - run: pip install -e ".[dev]"
       - id: freeze
-        name: Select direct expansion species wave
+        name: Select and scope direct expansion species wave
         run: |
           python - <<'PY'
           import json, math, os
           from pathlib import Path
           import pandas as pd
+          from island_v2.angiosperm_scope import classify_scope, load_config
 
           offset = int(os.environ['ACQUISITION_OFFSET'])
           limit = int(os.environ['ACQUISITION_LIMIT'])
@@ -81,13 +82,22 @@ jobs:
               fallback = sorted(set(master['accepted_species'].astype(str).str.strip()) - {''})
               species = fallback[offset:offset + limit]
 
-          targeted = master.loc[master['accepted_species'].isin(species)].drop_duplicates('accepted_species').copy()
-          if targeted.empty:
+          raw = master.loc[master['accepted_species'].isin(species)].drop_duplicates('accepted_species').copy()
+          if raw.empty:
               raise SystemExit(f'no expansion species matched island master for offset={offset} limit={limit}')
+          order = {sp: i for i, sp in enumerate(species)}
+          raw['_rank'] = raw['accepted_species'].map(order)
+          raw = raw.sort_values('_rank').drop(columns='_rank')
+          scope = classify_scope(raw, load_config(Path('config/angiosperm_scope.yml')))
+          eligible = set(scope.loc[scope['angiosperm_analysis_eligible'], 'accepted_species'])
+          targeted = raw.loc[raw['accepted_species'].isin(eligible)].copy()
+          if targeted.empty:
+              raise SystemExit(f'no angiosperm species matched for offset={offset} limit={limit}')
 
           out = Path('/tmp/direct-pilot')
           out.mkdir(parents=True, exist_ok=True)
           targeted.to_csv(out / 'targeted_master.csv.gz', index=False)
+          scope.to_csv(out / 'selected_wave_scope_audit.csv.gz', index=False)
           n = len(targeted)
           shard_count = min(64, n)
           batch_size = min(500, math.ceil(n / shard_count))
@@ -99,7 +109,15 @@ jobs:
               print(f'batch_size={batch_size}', file=fh)
               print(f'offset_start={offset}', file=fh)
               print(f'offset_end={offset_end}', file=fh)
-          print(json.dumps({'offset_start': offset, 'offset_end': offset_end, 'target_species': n, 'shards': shard_count, 'batch_size': batch_size}, indent=2))
+          print(json.dumps({
+              'offset_start': offset,
+              'offset_end': offset_end,
+              'raw_selected_species': len(raw),
+              'target_species': n,
+              'excluded_by_scope': len(raw) - n,
+              'shards': shard_count,
+              'batch_size': batch_size,
+          }, indent=2))
           PY
       - name: Build direct expansion plan and web index
         run: |
@@ -123,6 +141,7 @@ jobs:
 
   acquire:
     needs: prepare
+    if: github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       max-parallel: 16
@@ -183,6 +202,7 @@ jobs:
 
   aggregate:
     needs: [prepare, acquire]
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v5
