@@ -223,14 +223,48 @@ jobs:
           ]:
               raise SystemExit(f"large-wave ranges overlap or have gaps: {observed}")
 
-          pilot = list(
+          pilot_masters = list(
               (root / "pilot-input").glob("**/targeted_master.csv.gz")
           )
-          if len(pilot) != 1:
-              raise SystemExit(f"pilot targeted-master count={len(pilot)}")
-          import pandas as pd
-          if len(pd.read_csv(pilot[0], dtype=str)) != 2000:
-              raise SystemExit("pilot artifact does not contain 2,000 target species")
+          pilot_plans = list(
+              (root / "pilot-input").glob("**/plan/shard_plan.json")
+          )
+          if len(pilot_masters) != 1 or len(pilot_plans) != 1:
+              raise SystemExit(
+                  "pilot artifact file counts differ from contract: "
+                  f"masters={len(pilot_masters)}, plans={len(pilot_plans)}"
+              )
+          from island_v2.web_trait_shard_campaign import (
+              _master_fingerprint,
+              load_campaign_master,
+          )
+
+          pilot_master = load_campaign_master(
+              pilot_masters[0],
+              Path("config/angiosperm_scope.yml"),
+          )
+          pilot_plan = json.loads(pilot_plans[0].read_text())
+          pilot_count = len(pilot_master)
+          pilot_fingerprint = _master_fingerprint(pilot_master)
+          expected_pilot_count = 715
+          expected_pilot_fingerprint = (
+              "9be8660b108a5d0926c157ba063135e0e"
+              "a95447e4080717ce3b0b7db1084f584"
+          )
+          if pilot_count != expected_pilot_count:
+              raise SystemExit(
+                  f"pilot scoped species={pilot_count} != {expected_pilot_count}"
+              )
+          if pilot_fingerprint != expected_pilot_fingerprint:
+              raise SystemExit(
+                  "pilot targeted-master fingerprint changed: "
+                  f"{pilot_fingerprint}"
+              )
+          if (
+              pilot_plan["n_global_species"] != pilot_count
+              or pilot_plan["master_fingerprint"] != pilot_fingerprint
+          ):
+              raise SystemExit("pilot targeted-master and shard plan disagree")
           print("artifact-confirmed expanded-wave coverage: [0,107000)")
           PY
 

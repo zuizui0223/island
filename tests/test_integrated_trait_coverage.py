@@ -356,3 +356,18 @@ def test_validated_low_rejects_family_or_global_fallback(tmp_path: Path) -> None
         assert "family inference" in str(exc)
     else:
         raise AssertionError("family inference should be rejected")
+
+
+def test_workflow_pins_scoped_pilot_artifact_instead_of_raw_range_size() -> None:
+    workflow = Path(
+        ".github/workflows/build-integrated-trait-coverage.yml"
+    ).read_text(encoding="utf-8")
+    verification = workflow.split(
+        "- name: Verify artifact-confirmed expanded-wave ranges",
+        1,
+    )[1].split("- name: Build integrated species-axis ledger", 1)[0]
+
+    assert "expected_pilot_count = 715" in verification
+    assert "9be8660b108a5d0926c157ba063135e0e" in verification
+    assert "pilot targeted-master and shard plan disagree" in verification
+    assert "does not contain 2,000 target species" not in verification
