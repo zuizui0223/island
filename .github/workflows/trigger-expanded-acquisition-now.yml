@@ -1,0 +1,24 @@
+name: trigger_expanded_acquisition_now
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/trigger-expanded-acquisition-now.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Dispatch expanded-provider acquisition from verified plan
+        run: |
+          gh workflow run run-targeted-trait-reacquisition.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref agent/validated-low-inference \
+            -f plan_run_id=29905377435

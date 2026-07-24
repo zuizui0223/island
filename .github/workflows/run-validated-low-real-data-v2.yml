@@ -1,0 +1,99 @@
+name: run_validated_low_real_data_v2
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/run-validated-low-real-data-v2.yml"
+      - "src/island_v2/validated_low_inference.py"
+      - "tests/test_validated_low_inference.py"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: validated-low-real-v2-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  infer-validated-low:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PASS1_RUN_ID: "29814502655"
+      PASS2_RUN_ID: "29819475348"
+      PASS3_RUN_ID: "29840507345"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Download completed three-pass artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/pass1 /tmp/pass2 /tmp/pass3
+          gh run download "$PASS1_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --pattern "three-pass-pass1-shard-*-$PASS1_RUN_ID" --dir /tmp/pass1
+          gh run download "$PASS2_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --pattern "three-pass-pass2-shard-*-$PASS2_RUN_ID" --dir /tmp/pass2
+          gh run download "$PASS3_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --pattern "three-pass-pass3-shard-*-$PASS3_RUN_ID" --dir /tmp/pass3
+      - name: Build global evidence and unresolved tables
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+
+          high_files = list(Path('/tmp/pass1').glob('**/accepted_high_evidence.csv.gz'))
+          medium_files = list(Path('/tmp/pass2').glob('**/accepted_medium_evidence.csv.gz'))
+          unresolved_files = list(Path('/tmp/pass3').glob('**/unresolved_after_pass3.csv.gz'))
+          if len(high_files) != 128:
+              raise SystemExit(f'expected 128 high files, found {len(high_files)}')
+          if len(medium_files) != 128:
+              raise SystemExit(f'expected 128 medium files, found {len(medium_files)}')
+          if len(unresolved_files) != 128:
+              raise SystemExit(f'expected 128 unresolved files, found {len(unresolved_files)}')
+
+          evidence = pd.concat(
+              [pd.read_csv(p, dtype=str).fillna('') for p in high_files + medium_files],
+              ignore_index=True,
+          ).drop_duplicates()
+          unresolved = pd.concat(
+              [pd.read_csv(p, dtype=str).fillna('') for p in unresolved_files],
+              ignore_index=True,
+          )
+          unresolved = unresolved.loc[
+              unresolved['axis'].eq('floral_structural_complexity')
+          ].drop_duplicates(['accepted_species', 'axis'])
+
+          out = Path('/tmp/input')
+          out.mkdir(parents=True, exist_ok=True)
+          evidence.to_csv(out / 'global_direct_evidence.csv.gz', index=False)
+          unresolved.to_csv(out / 'structural_unresolved.csv.gz', index=False)
+          print(f'high_files={len(high_files)}')
+          print(f'medium_files={len(medium_files)}')
+          print(f'unresolved_files={len(unresolved_files)}')
+          print(f'direct_records={len(evidence)}')
+          print(f'direct_species={evidence.accepted_species.nunique()}')
+          print(f'structural_tasks={len(unresolved)}')
+          PY
+      - name: Infer validated genus-level structural evidence
+        run: |
+          python -m island_v2.validated_low_inference \
+            --unresolved-csv /tmp/input/structural_unresolved.csv.gz \
+            --evidence-csv /tmp/input/global_direct_evidence.csv.gz \
+            --output-dir /tmp/output \
+            --min-species 3 \
+            --min-dominance 0.80 \
+            --min-masked-accuracy 0.75
+          cat /tmp/output/validated_low_summary.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: validated-low-structure-global-${{ github.run_id }}
+          path: /tmp/output/
+          if-no-files-found: error
+          retention-days: 90

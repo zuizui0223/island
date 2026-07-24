@@ -60,6 +60,7 @@ island-v2-materialize-trait-artifacts = "island_v2.materialize_trait_artifacts:a
 island-v2-fetch-gift-traits = "island_v2.fetch_gift_traits:app"
 island-v2-fetch-usda-plants-traits = "island_v2.fetch_usda_plants_traits:app"
 island-v2-all-species-trait-export = "island_v2.all_species_trait_export:app"
+island-v2-integrated-trait-coverage = "island_v2.integrated_trait_coverage:app"
 island-v2-search-enabled-llm = "island_v2.search_enabled_llm_campaign:app"
 island-v2-web-trait-shards = "island_v2.web_trait_shard_campaign:app"
 island-v2-combine-public-web = "island_v2.combine_public_web_artifacts:app"

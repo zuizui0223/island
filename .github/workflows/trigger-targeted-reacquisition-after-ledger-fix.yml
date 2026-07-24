@@ -1,0 +1,24 @@
+name: trigger_targeted_reacquisition_after_ledger_fix
+
+on:
+  pull_request:
+    paths:
+      - "src/island_v2/real_acquisition_ledger.py"
+      - ".github/workflows/trigger-targeted-reacquisition-after-ledger-fix.yml"
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Dispatch corrected targeted reacquisition
+        run: |
+          gh workflow run run-targeted-trait-reacquisition.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "${{ github.head_ref }}" \
+            -f plan_run_id=29905377435

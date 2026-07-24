@@ -1,0 +1,24 @@
+name: validated_low_inference
+
+on:
+  pull_request:
+    paths:
+      - "src/island_v2/validated_low_inference.py"
+      - "tests/test_validated_low_inference.py"
+      - ".github/workflows/validated-low-inference.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: pytest -q tests/test_validated_low_inference.py

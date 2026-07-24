@@ -1,0 +1,250 @@
+name: run_direct_expanded_trait_large_wave
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/run-direct-expanded-trait-large-wave.yml"
+  workflow_dispatch:
+    inputs:
+      offset:
+        description: "Zero-based offset in ranked island species"
+        required: false
+        default: "64000"
+        type: string
+      limit:
+        description: "Number of species in this wave"
+        required: false
+        default: "20000"
+        type: string
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: direct-expanded-large-${{ github.event.pull_request.number || github.ref_name }}-${{ inputs.offset || '64000' }}
+  cancel-in-progress: true
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.freeze.outputs.shards }}
+      shard_count: ${{ steps.freeze.outputs.shard_count }}
+      expected_species: ${{ steps.freeze.outputs.expected_species }}
+      batch_size: ${{ steps.freeze.outputs.batch_size }}
+      offset_start: ${{ steps.freeze.outputs.offset_start }}
+      offset_end: ${{ steps.freeze.outputs.offset_end }}
+    env:
+      ACQUISITION_OFFSET: ${{ inputs.offset || '64000' }}
+      ACQUISITION_LIMIT: ${{ inputs.limit || '20000' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - id: freeze
+        name: Select and scope direct expansion species wave
+        run: |
+          python - <<'PY'
+          import json, math, os
+          from pathlib import Path
+          import pandas as pd
+          from island_v2.angiosperm_scope import classify_scope, load_config
+
+          offset = int(os.environ['ACQUISITION_OFFSET'])
+          limit = int(os.environ['ACQUISITION_LIMIT'])
+          if offset < 0 or limit < 1:
+              raise SystemExit(f'invalid offset/limit: {offset}/{limit}')
+
+          master = pd.read_csv('data/v2/staging/gbif/collected/island_taxa.csv', dtype=str).fillna('')
+          candidates = pd.read_csv('data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz', dtype=str).fillna('')
+          species_col = next(c for c in ('accepted_species', 'species') if c in candidates.columns)
+          trait_col = next((c for c in ('trait_name', 'trait', 'field') if c in candidates.columns), None)
+          target_traits = {
+              'flower_primary_color', 'flower_color', 'floral_form', 'flower_shape',
+              'floral_symmetry', 'tube_depth_class', 'flower_size_class',
+              'inflorescence_display', 'self_incompatibility',
+              'autonomous_selfing_capacity', 'mating_system', 'cleistogamy'
+          }
+          selected = candidates
+          if trait_col:
+              selected = selected.loc[selected[trait_col].isin(target_traits)].copy()
+
+          prioritized = sorted(set(selected[species_col].astype(str).str.strip()) - {''})
+          all_master = sorted(set(master['accepted_species'].astype(str).str.strip()) - {''})
+          prioritized_set = set(prioritized)
+          ranked = prioritized + [sp for sp in all_master if sp not in prioritized_set]
+          species = ranked[offset:offset + limit]
+          if not species:
+              raise SystemExit(f'no species remain for offset={offset}, limit={limit}; ranked_total={len(ranked)}')
+
+          raw = master.loc[master['accepted_species'].isin(species)].drop_duplicates('accepted_species').copy()
+          order = {sp: i for i, sp in enumerate(species)}
+          raw['_rank'] = raw['accepted_species'].map(order)
+          raw = raw.sort_values('_rank').drop(columns='_rank')
+          scope = classify_scope(raw, load_config(Path('config/angiosperm_scope.yml')))
+          eligible = set(scope.loc[scope['angiosperm_analysis_eligible'], 'accepted_species'])
+          targeted = raw.loc[raw['accepted_species'].isin(eligible)].copy()
+          if targeted.empty:
+              raise SystemExit(f'no angiosperm species matched for offset={offset}, limit={limit}')
+
+          out = Path('/tmp/direct-large')
+          out.mkdir(parents=True, exist_ok=True)
+          targeted.to_csv(out / 'targeted_master.csv.gz', index=False)
+          scope.to_csv(out / 'selected_wave_scope_audit.csv.gz', index=False)
+
+          n = len(targeted)
+          # Preserve the proven 2,000-species run contract: no acquisition job
+          # receives more than 100 species. Scale by adding shards, not by making
+          # each network-heavy job larger.
+          batch_size = 100
+          shard_count = math.ceil(n / batch_size)
+          if shard_count > 256:
+              raise SystemExit(f'matrix would exceed GitHub limit: n={n}, shards={shard_count}')
+          offset_end = offset + len(species)
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
+              print('shards=' + json.dumps(list(range(shard_count))), file=fh)
+              print(f'shard_count={shard_count}', file=fh)
+              print(f'expected_species={n}', file=fh)
+              print(f'batch_size={batch_size}', file=fh)
+              print(f'offset_start={offset}', file=fh)
+              print(f'offset_end={offset_end}', file=fh)
+          print(json.dumps({
+              'ranked_total': len(ranked),
+              'raw_selected_species': len(raw),
+              'scoped_target_species': n,
+              'excluded_by_scope': len(raw) - n,
+              'offset_start': offset,
+              'offset_end': offset_end,
+              'shards': shard_count,
+              'batch_size': batch_size,
+          }, indent=2))
+          PY
+      - name: Build acquisition plan and web index
+        run: |
+          set -euo pipefail
+          island-v2-web-trait-shards plan \
+            --master-csv /tmp/direct-large/targeted_master.csv.gz \
+            --scope-config-path config/angiosperm_scope.yml \
+            --output-dir /tmp/direct-large/plan \
+            --shard-count '${{ steps.freeze.outputs.shard_count }}' \
+            --expected-species '${{ steps.freeze.outputs.expected_species }}'
+          if ! island-v2-v1-category-search build-web-index \
+            --output-json /tmp/direct-large/plan/web_description_index.json; then
+            test -s /tmp/direct-large/plan/web_description_index.json
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: direct-expanded-large-input-${{ github.run_id }}
+          path: /tmp/direct-large/
+          if-no-files-found: error
+          retention-days: 90
+
+  acquire:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: ${{ fromJSON(needs.prepare.outputs.shards) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      CAMPAIGN_DIR: /tmp/direct-expanded-large/shard-${{ matrix.shard }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - uses: actions/download-artifact@v4
+        with:
+          name: direct-expanded-large-input-${{ github.run_id }}
+          path: /tmp/direct-large
+      - run: pip install -e ".[dev]"
+      - name: Query expanded real providers
+        run: |
+          set -euo pipefail
+          mkdir -p "$CAMPAIGN_DIR"
+          island-v2-web-trait-shards run \
+            --master-csv /tmp/direct-large/targeted_master.csv.gz \
+            --scope-config-path config/angiosperm_scope.yml \
+            --campaign-dir "$CAMPAIGN_DIR" \
+            --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz \
+            --shard-index '${{ matrix.shard }}' \
+            --shard-count '${{ needs.prepare.outputs.shard_count }}' \
+            --batch-size '${{ needs.prepare.outputs.batch_size }}' \
+            --max-attempts 3 \
+            --expected-species '${{ needs.prepare.outputs.expected_species }}' \
+            --web-description-index /tmp/direct-large/plan/web_description_index.json \
+            --pause-seconds 1.0 \
+            --europe-pmc \
+            --openalex \
+            --world-flora \
+            --migrate-v4
+      - name: Normalize evidence
+        run: |
+          python -m island_v2.real_acquisition_ledger \
+            --campaign-root "$CAMPAIGN_DIR" \
+            --output-dir "$CAMPAIGN_DIR/ledger"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: direct-expanded-large-shard-${{ matrix.shard }}-${{ github.run_id }}
+          path: ${{ env.CAMPAIGN_DIR }}/
+          if-no-files-found: warn
+          retention-days: 90
+
+  aggregate:
+    needs: [prepare, acquire]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pandas
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: direct-expanded-large-shard-*
+          path: /tmp/results
+      - name: Aggregate evidence
+        env:
+          OFFSET_START: ${{ needs.prepare.outputs.offset_start }}
+          OFFSET_END: ${{ needs.prepare.outputs.offset_end }}
+          EXPECTED_SPECIES: ${{ needs.prepare.outputs.expected_species }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          import pandas as pd
+          files = list(Path('/tmp/results').glob('**/ledger/all_master_evidence.csv.gz'))
+          if not files:
+              raise SystemExit('no evidence ledgers found')
+          evidence = pd.concat([pd.read_csv(p, dtype=str).fillna('') for p in files], ignore_index=True).drop_duplicates()
+          out = Path('/tmp/final')
+          out.mkdir(parents=True, exist_ok=True)
+          evidence.to_csv(out / 'direct_expanded_trait_evidence.csv.gz', index=False)
+          expected = int(os.environ['EXPECTED_SPECIES'])
+          species = int(evidence['accepted_species'].nunique()) if len(evidence) else 0
+          summary = {
+              'contract': 'direct_expanded_trait_large_wave_v7',
+              'offset_start': int(os.environ['OFFSET_START']),
+              'offset_end': int(os.environ['OFFSET_END']),
+              'expected_species': expected,
+              'shards': len(files),
+              'records': int(len(evidence)),
+              'species_with_any_evidence': species,
+              'yield_fraction': species / expected if expected else 0.0,
+          }
+          (out / 'direct_expanded_trait_summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+          print(json.dumps(summary, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: direct-expanded-large-final-${{ github.run_id }}
+          path: /tmp/final/
+          if-no-files-found: error
+          retention-days: 90

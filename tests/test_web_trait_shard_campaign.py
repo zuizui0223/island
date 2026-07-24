@@ -903,3 +903,26 @@ def test_valid_shard_checkpoints_are_uploaded_even_after_later_step_failure() ->
         "- name: Upload current search evidence packet and cumulative snapshot\n"
         "        if: always() && steps.status.outputs.ready == 'true'"
     ) in workflow
+
+
+def test_direct_expanded_pilot_scopes_before_freezing_denominator() -> None:
+    workflow = Path(".github/workflows/run-direct-expanded-trait-pilot.yml").read_text(
+        encoding="utf-8"
+    )
+    freeze = workflow.split("name: Select and scope direct expansion species wave", 1)[1]
+    freeze = freeze.split("- name: Build direct expansion plan and web index", 1)[0]
+
+    scope_position = freeze.index("scope = classify_scope(")
+    targeted_position = freeze.index("targeted = raw.loc[")
+    denominator_position = freeze.index("n = len(targeted)")
+
+    assert scope_position < targeted_position < denominator_position
+    assert "scope.to_csv(out / 'selected_wave_scope_audit.csv.gz'" in freeze
+    assert "print(f'expected_species={n}'" in freeze
+
+
+def test_direct_expanded_pilot_only_acquires_on_manual_dispatch() -> None:
+    workflow = Path(".github/workflows/run-direct-expanded-trait-pilot.yml").read_text(
+        encoding="utf-8"
+    )
+    assert workflow.count("if: github.event_name == 'workflow_dispatch'") == 2

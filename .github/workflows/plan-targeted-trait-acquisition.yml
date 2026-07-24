@@ -1,0 +1,120 @@
+name: plan_targeted_trait_acquisition
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: targeted-trait-acquisition-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  plan-targeted-acquisition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PASS1_RUN_ID: "29814502655"
+      PASS2_RUN_ID: "29819475348"
+      PASS3_RUN_ID: "29840507345"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: pytest -q tests/test_targeted_acquisition_priority.py
+      - name: Download direct evidence and unresolved tasks
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/pass1 /tmp/pass2 /tmp/pass3
+          gh run download "$PASS1_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --pattern "three-pass-pass1-shard-*-$PASS1_RUN_ID" --dir /tmp/pass1
+          gh run download "$PASS2_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --pattern "three-pass-pass2-shard-*-$PASS2_RUN_ID" --dir /tmp/pass2
+          gh run download "$PASS3_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --pattern "three-pass-pass3-shard-*-$PASS3_RUN_ID" --dir /tmp/pass3
+      - name: Combine acquisition inputs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+
+          high = list(Path('/tmp/pass1').glob('**/accepted_high_evidence.csv.gz'))
+          medium = list(Path('/tmp/pass2').glob('**/accepted_medium_evidence.csv.gz'))
+          unresolved = list(Path('/tmp/pass3').glob('**/unresolved_after_pass3.csv.gz'))
+          if len(high) != 128 or len(medium) != 128 or len(unresolved) != 128:
+              raise SystemExit(
+                  f'expected 128/128/128 inputs, found {len(high)}/{len(medium)}/{len(unresolved)}'
+              )
+          out = Path('/tmp/input')
+          out.mkdir(parents=True, exist_ok=True)
+          pd.concat(
+              [pd.read_csv(p, dtype=str).fillna('') for p in high + medium],
+              ignore_index=True,
+          ).drop_duplicates().to_csv(out / 'global_direct_evidence.csv.gz', index=False)
+          pd.concat(
+              [pd.read_csv(p, dtype=str).fillna('') for p in unresolved],
+              ignore_index=True,
+          ).drop_duplicates(['accepted_species', 'axis']).to_csv(
+              out / 'global_unresolved_after_pass3.csv.gz', index=False
+          )
+          PY
+      - name: Build broad source-expansion pilot plan
+        run: |
+          set -euo pipefail
+          python -m island_v2.targeted_acquisition_priority \
+            --evidence-csv /tmp/input/global_direct_evidence.csv.gz \
+            --unresolved-csv /tmp/input/global_unresolved_after_pass3.csv.gz \
+            --output-dir /tmp/output \
+            --min-species 3 \
+            --max-target-species-per-genus-axis 2
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          out = Path('/tmp/output')
+          tasks = pd.read_csv(out / 'targeted_acquisition_tasks.csv.gz', dtype=str).fillna('')
+          tasks = (
+              tasks.sort_values(['axis', 'priority_rank', 'accepted_species'])
+              .groupby('axis', group_keys=False)
+              .head(100)
+              .drop_duplicates(['accepted_species', 'axis'])
+              .reset_index(drop=True)
+          )
+          if tasks.empty:
+              raise SystemExit('broad source-expansion pilot produced no tasks')
+          tasks['acquisition_round'] = 'expanded_provider_100_per_axis_pilot'
+          tasks.to_csv(out / 'targeted_acquisition_tasks.csv.gz', index=False)
+          summary_path = out / 'targeted_acquisition_summary.json'
+          summary = json.loads(summary_path.read_text())
+          summary['contract'] = 'expanded_provider_source_pilot_v1'
+          summary['candidate_hints_used'] = False
+          summary['pilot_cap_per_axis'] = 100
+          summary['target_species_axis_tasks'] = int(len(tasks))
+          summary['target_species'] = int(tasks['accepted_species'].nunique())
+          summary['axes'] = {
+              axis: {'target_tasks': int((tasks['axis'] == axis).sum())}
+              for axis in sorted(tasks['axis'].unique())
+          }
+          summary_path.write_text(json.dumps(summary, indent=2) + '\n')
+          print(json.dumps(summary, indent=2))
+          PY
+          cat /tmp/output/targeted_acquisition_summary.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: targeted-trait-acquisition-plan-${{ github.run_id }}
+          path: /tmp/output/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Dispatch expanded-provider acquisition
+        run: |
+          gh workflow run run-targeted-trait-reacquisition.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f plan_run_id="$GITHUB_RUN_ID"
