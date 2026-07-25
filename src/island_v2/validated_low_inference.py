@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Annotated
 
 import pandas as pd
 import typer
@@ -49,6 +50,9 @@ class Thresholds:
     min_masked_accuracy: float = 0.75
     colour_min_dominance: float = 0.90
     reproductive_min_dominance: float = 0.95
+
+
+DEFAULT_THRESHOLDS = Thresholds()
 
 
 def _text(value: object) -> str:
@@ -118,7 +122,10 @@ def _required_dominance(axis: str, thresholds: Thresholds) -> float:
     return thresholds.min_dominance
 
 
-def build_genus_consensus(votes: pd.DataFrame, thresholds: Thresholds = Thresholds()) -> pd.DataFrame:
+def build_genus_consensus(
+    votes: pd.DataFrame,
+    thresholds: Thresholds = DEFAULT_THRESHOLDS,
+) -> pd.DataFrame:
     rows: list[dict[str, object]] = []
     if votes.empty:
         return _empty_rules().drop(columns=["masked_n", "masked_correct", "masked_accuracy", "eligible"])
@@ -126,7 +133,7 @@ def build_genus_consensus(votes: pd.DataFrame, thresholds: Thresholds = Threshol
     for (genus, axis, trait), group in species_values.groupby(["genus", "axis", "trait_name"]):
         per_species = group.groupby("accepted_species")["normalized_value"].agg(lambda x: sorted(set(x)))
         unambiguous = per_species.loc[per_species.map(len).eq(1)].map(lambda x: x[0])
-        n_species = int(len(unambiguous))
+        n_species = len(unambiguous)
         if n_species == 0:
             continue
         counts = unambiguous.value_counts()
@@ -175,14 +182,30 @@ def masked_validate(votes: pd.DataFrame, consensus: pd.DataFrame) -> pd.DataFram
 def infer_low_evidence(
     unresolved: pd.DataFrame,
     evidence: pd.DataFrame,
-    thresholds: Thresholds = Thresholds(),
+    thresholds: Thresholds = DEFAULT_THRESHOLDS,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     tasks = unresolved.copy()
-    for column in ("accepted_species", "axis"):
+    for column in ("accepted_species", "axis", "trait_name"):
         if column not in tasks.columns:
             tasks[column] = ""
         tasks[column] = tasks[column].map(_text)
     tasks["genus"] = tasks["accepted_species"].str.split().str[0]
+    expected_axis = tasks["trait_name"].map(
+        {
+            trait: axis
+            for axis, traits in AXES.items()
+            for trait in traits
+        }
+    ).fillna("")
+    mismatched = tasks["trait_name"].ne("") & expected_axis.ne(tasks["axis"])
+    if mismatched.any():
+        examples = tasks.loc[
+            mismatched, ["accepted_species", "axis", "trait_name"]
+        ].head(3)
+        raise ValueError(
+            "unresolved trait_name does not belong to axis: "
+            f"{examples.to_dict('records')}"
+        )
 
     votes = build_species_votes(evidence)
     consensus = build_genus_consensus(votes, thresholds)
@@ -202,11 +225,17 @@ def infer_low_evidence(
 
     accepted_parts: list[pd.DataFrame] = []
     for axis in AXES:
-        axis_tasks = tasks.loc[tasks["axis"].eq(axis)]
+        axis_tasks = tasks.loc[
+            tasks["axis"].eq(axis) & tasks["trait_name"].ne("")
+        ]
         axis_rules = rules.loc[rules["axis"].eq(axis) & rules["eligible"]]
         if axis_tasks.empty or axis_rules.empty:
             continue
-        merged = axis_tasks.merge(axis_rules, on=["genus", "axis"], how="inner")
+        merged = axis_tasks.merge(
+            axis_rules,
+            on=["genus", "axis", "trait_name"],
+            how="inner",
+        )
         merged["normalized_value"] = merged["inferred_value"]
         merged["evidence_quality"] = "low"
         merged["evidence_scope"] = "genus_consensus"
@@ -222,14 +251,21 @@ def infer_low_evidence(
     ].copy()
     remaining["state"] = "unresolved"
     remaining["reason"] = "no_validated_genus_consensus"
+    remaining.loc[
+        remaining["trait_name"].eq(""), "reason"
+    ] = "trait_name_required_for_validated_low"
     return accepted, remaining, rules
 
 
 @app.command()
 def build(
-    unresolved_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    evidence_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    output_dir: Path = typer.Option(...),
+    unresolved_csv: Annotated[
+        Path, typer.Option(exists=True, dir_okay=False)
+    ],
+    evidence_csv: Annotated[
+        Path, typer.Option(exists=True, dir_okay=False)
+    ],
+    output_dir: Annotated[Path, typer.Option()],
     min_species: int = 3,
     min_dominance: float = 0.80,
     min_masked_accuracy: float = 0.75,
@@ -248,10 +284,10 @@ def build(
     rules.to_csv(output_dir / "validated_genus_rules.csv.gz", index=False)
     summary = {
         "contract": "validated_low_inference_v1",
-        "input_tasks": int(len(unresolved)),
-        "accepted_low_records": int(len(accepted)),
-        "resolved_species_axis_tasks": int(len(set(zip(accepted["accepted_species"], accepted["axis"])))),
-        "remaining_tasks": int(len(remaining)),
+        "input_tasks": len(unresolved),
+        "accepted_low_records": len(accepted),
+        "resolved_species_axis_tasks": len(set(zip(accepted["accepted_species"], accepted["axis"]))),
+        "remaining_tasks": len(remaining),
         "eligible_rules": int(rules["eligible"].sum()) if "eligible" in rules else 0,
         "family_inference_used": False,
         "global_fallback_used": False,

@@ -17,7 +17,11 @@ def test_accepts_consistent_structural_genus_rule():
         ("Alpha three", "floral_symmetry", "actinomorphic", "high", "synonym_direct"),
         ("Alpha four", "floral_symmetry", "actinomorphic", "high", "species_direct"),
     ])
-    tasks = pd.DataFrame([{"accepted_species": "Alpha target", "axis": "floral_structural_complexity"}])
+    tasks = pd.DataFrame([{
+        "accepted_species": "Alpha target",
+        "axis": "floral_structural_complexity",
+        "trait_name": "floral_symmetry",
+    }])
     accepted, remaining, rules = infer_low_evidence(
         tasks, direct, Thresholds(min_species=3, min_masked_accuracy=0.75)
     )
@@ -35,7 +39,11 @@ def test_rejects_variable_flower_colour():
         ("Beta three", "flower_color", "red", "high", "species_direct"),
         ("Beta four", "flower_color", "white", "high", "species_direct"),
     ])
-    tasks = pd.DataFrame([{"accepted_species": "Beta target", "axis": "flower_colour"}])
+    tasks = pd.DataFrame([{
+        "accepted_species": "Beta target",
+        "axis": "flower_colour",
+        "trait_name": "flower_color",
+    }])
     accepted, remaining, rules = infer_low_evidence(tasks, direct)
     assert accepted.empty
     assert len(remaining) == 1
@@ -48,7 +56,11 @@ def test_never_uses_family_or_global_fallback():
         ("Gamma two", "mating_system", "self_compatible", "medium", "global_fallback"),
         ("Gamma three", "mating_system", "self_compatible", "high", "species_direct"),
     ])
-    tasks = pd.DataFrame([{"accepted_species": "Gamma target", "axis": "reproductive_assurance"}])
+    tasks = pd.DataFrame([{
+        "accepted_species": "Gamma target",
+        "axis": "reproductive_assurance",
+        "trait_name": "mating_system",
+    }])
     accepted, remaining, rules = infer_low_evidence(tasks, direct)
     assert accepted.empty
     assert len(remaining) == 1
@@ -65,7 +77,11 @@ def test_reads_real_acquisition_raw_candidate_value():
         "accepted_species", "trait_name", "raw_candidate_value",
         "evidence_quality", "evidence_scope",
     ])
-    tasks = pd.DataFrame([{"accepted_species": "Delta target", "axis": "floral_structural_complexity"}])
+    tasks = pd.DataFrame([{
+        "accepted_species": "Delta target",
+        "axis": "floral_structural_complexity",
+        "trait_name": "floral_form",
+    }])
     accepted, remaining, rules = infer_low_evidence(tasks, direct)
     assert len(accepted) == 1
     assert accepted.iloc[0]["normalized_value"] == "tubular"
@@ -81,10 +97,45 @@ def test_empty_usable_evidence_returns_schema_stable_outputs():
         "evidence_quality": "low",
         "evidence_scope": "family_inference",
     }])
-    tasks = pd.DataFrame([{"accepted_species": "Epsilon target", "axis": "floral_structural_complexity"}])
+    tasks = pd.DataFrame([{
+        "accepted_species": "Epsilon target",
+        "axis": "floral_structural_complexity",
+        "trait_name": "floral_form",
+    }])
     accepted, remaining, rules = infer_low_evidence(tasks, direct)
     assert accepted.empty
     assert list(accepted.columns)
     assert len(remaining) == 1
     assert remaining.iloc[0]["reason"] == "no_usable_direct_evidence"
     assert list(rules.columns)
+
+
+def test_axis_only_task_is_not_filled_by_a_different_trait_rule():
+    direct = evidence([
+        ("Zeta one", "floral_form", "tubular", "high", "species_direct"),
+        ("Zeta two", "floral_form", "tubular", "high", "species_direct"),
+        ("Zeta three", "floral_form", "tubular", "high", "species_direct"),
+    ])
+    tasks = pd.DataFrame([{
+        "accepted_species": "Zeta target",
+        "axis": "floral_structural_complexity",
+    }])
+    accepted, remaining, _ = infer_low_evidence(tasks, direct)
+    assert accepted.empty
+    assert remaining.iloc[0]["reason"] == "trait_name_required_for_validated_low"
+
+
+def test_trait_task_never_joins_to_another_trait_on_the_same_axis():
+    direct = evidence([
+        ("Eta one", "floral_form", "tubular", "high", "species_direct"),
+        ("Eta two", "floral_form", "tubular", "high", "species_direct"),
+        ("Eta three", "floral_form", "tubular", "high", "species_direct"),
+    ])
+    tasks = pd.DataFrame([{
+        "accepted_species": "Eta target",
+        "axis": "floral_structural_complexity",
+        "trait_name": "floral_symmetry",
+    }])
+    accepted, remaining, _ = infer_low_evidence(tasks, direct)
+    assert accepted.empty
+    assert remaining.iloc[0]["reason"] == "no_validated_genus_consensus"

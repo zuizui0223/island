@@ -5,8 +5,13 @@ on:
     paths:
       - ".github/workflows/build-integrated-trait-coverage.yml"
       - "config/integrated_trait_coverage_sources.json"
+      - "config/trait_ontology.yml"
       - "src/island_v2/integrated_trait_coverage.py"
+      - "src/island_v2/all_evidence_trait_audit.py"
+      - "src/island_v2/validated_low_inference.py"
       - "tests/test_integrated_trait_coverage.py"
+      - "tests/test_all_evidence_trait_audit.py"
+      - "tests/test_validated_low_inference.py"
       - "pyproject.toml"
   workflow_dispatch:
 
@@ -31,15 +36,22 @@ jobs:
       - run: pip install -e ".[dev]"
       - run: |
           ruff check \
+            src/island_v2/all_evidence_trait_audit.py \
             src/island_v2/integrated_trait_coverage.py \
-            tests/test_integrated_trait_coverage.py
-          pytest -q tests/test_integrated_trait_coverage.py
+            src/island_v2/validated_low_inference.py \
+            tests/test_all_evidence_trait_audit.py \
+            tests/test_integrated_trait_coverage.py \
+            tests/test_validated_low_inference.py
+          pytest -q \
+            tests/test_all_evidence_trait_audit.py \
+            tests/test_integrated_trait_coverage.py \
+            tests/test_validated_low_inference.py
 
   aggregate:
     if: github.event_name == 'workflow_dispatch'
     needs: validate
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
@@ -113,6 +125,23 @@ jobs:
               expired = [artifact["name"] for artifact in matches if artifact["expired"]]
               if expired:
                   raise SystemExit(f"expired source artifacts: {expired}")
+              pinned_id = entry.get("artifact_id")
+              if pinned_id and (
+                  len(matches) != 1 or matches[0]["id"] != int(pinned_id)
+              ):
+                  raise SystemExit(
+                      f"source {entry['source_group']} artifact id does not "
+                      f"match pin {pinned_id}"
+                  )
+              pinned_digest = entry.get("artifact_digest")
+              if pinned_digest and (
+                  len(matches) != 1
+                  or matches[0].get("digest", "") != pinned_digest
+              ):
+                  raise SystemExit(
+                      f"source {entry['source_group']} artifact digest does "
+                      f"not match pin {pinned_digest}"
+                  )
               item = dict(entry)
               item["run_status"] = run["status"]
               item["run_conclusion"] = run["conclusion"]
@@ -141,6 +170,7 @@ jobs:
           set -euo pipefail
           mkdir -p "$INPUT_ROOT"/{three-pass-high,three-pass-medium,three-pass-unresolved}
           mkdir -p "$INPUT_ROOT"/{expanded,targeted,validated-low,all-master,pilot-input}
+          mkdir -p "$INPUT_ROOT/latest-public-web"
 
           gh run download 29814502655 \
             --pattern "three-pass-pass1-shard-*-29814502655" \
@@ -180,6 +210,9 @@ jobs:
           gh run download 30081415812 \
             --name "all-master-trait-ledger-30081415812" \
             --dir "$INPUT_ROOT/all-master"
+          gh run download 30141880859 \
+            --name "broad-web-medium-full-30141880859" \
+            --dir "$INPUT_ROOT/latest-public-web"
 
       - name: Verify artifact-confirmed expanded-wave ranges
         run: |
@@ -289,6 +322,24 @@ jobs:
             --expected-species 106295 \
             > "$OUTPUT_ROOT.log"
           cat "$OUTPUT_ROOT/integrated_trait_coverage_summary.json" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Rebuild Validated Low and strict all-evidence audit
+        run: |
+          island-v2-all-evidence-trait-audit \
+            --integrated-dir "$OUTPUT_ROOT" \
+            --latest-public-web-dir "$INPUT_ROOT/latest-public-web" \
+            --validated-low-dir "$INPUT_ROOT/validated-low" \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --island-occurrences-csv data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
+            --source-manifest-json /tmp/resolved_integrated_trait_sources.json \
+            --ontology-yaml config/trait_ontology.yml \
+            --angiosperm-scope-yaml config/angiosperm_scope.yml \
+            --sensitivity-lock-json config/trait_cascade_artifact_lock.json \
+            --output-dir "$OUTPUT_ROOT" \
+            --expected-species 106295 \
+            > "$OUTPUT_ROOT/all_evidence_audit.log"
+          cat "$OUTPUT_ROOT/all_evidence_trait_coverage_summary.json" \
+            >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
         with:
