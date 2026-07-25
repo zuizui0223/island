@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 import pandas as pd
 import typer
@@ -58,9 +58,10 @@ def incremental_genus_reaudit(
     unresolved: pd.DataFrame,
     baseline_evidence: pd.DataFrame,
     new_evidence: pd.DataFrame,
-    thresholds: Thresholds = Thresholds(),
+    thresholds: Thresholds | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
     """Return new Validated Low rows caused only by the added direct evidence."""
+    thresholds = thresholds or Thresholds()
     tasks = unresolved[["accepted_species", "axis"]].copy().fillna("")
     tasks = tasks.drop_duplicates(["accepted_species", "axis"])
     baseline = _direct_evidence(baseline_evidence)
@@ -128,10 +129,11 @@ def run_reaudit(
     integrated_evidence_csv: Path,
     new_evidence_csvs: list[Path],
     output_dir: Path,
-    thresholds: Thresholds = Thresholds(),
+    thresholds: Thresholds | None = None,
 ) -> dict[str, Any]:
     if not new_evidence_csvs:
         raise ValueError("at least one new evidence CSV is required")
+    thresholds = thresholds or Thresholds()
     coverage = pd.read_csv(coverage_csv, dtype=str).fillna("")
     quality_column = "combined_quality" if "combined_quality" in coverage else "after_quality"
     if quality_column not in coverage:
@@ -216,18 +218,29 @@ def run_reaudit(
 
 @app.command("run")
 def run_command(
-    coverage_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    integrated_evidence_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    new_evidence_csv: list[Path] = typer.Option(
-        ...,
-        "--new-evidence-csv",
-        exists=True,
-        dir_okay=False,
-    ),
-    output_dir: Path = typer.Option(..., file_okay=False),
-    min_species: int = typer.Option(3, min=2, max=100),
-    min_dominance: float = typer.Option(0.80, min=0.5, max=1.0),
-    min_masked_accuracy: float = typer.Option(0.75, min=0.5, max=1.0),
+    coverage_csv: Annotated[
+        Path,
+        typer.Option(exists=True, dir_okay=False),
+    ],
+    integrated_evidence_csv: Annotated[
+        Path,
+        typer.Option(exists=True, dir_okay=False),
+    ],
+    new_evidence_csv: Annotated[
+        list[Path],
+        typer.Option(
+            "--new-evidence-csv",
+            exists=True,
+            dir_okay=False,
+        ),
+    ],
+    output_dir: Annotated[Path, typer.Option(file_okay=False)],
+    min_species: Annotated[int, typer.Option(min=2, max=100)] = 3,
+    min_dominance: Annotated[float, typer.Option(min=0.5, max=1.0)] = 0.80,
+    min_masked_accuracy: Annotated[
+        float,
+        typer.Option(min=0.5, max=1.0),
+    ] = 0.75,
 ) -> None:
     report = run_reaudit(
         coverage_csv=coverage_csv,

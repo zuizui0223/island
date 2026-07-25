@@ -20,7 +20,7 @@ import urllib.robotparser
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 from urllib.parse import parse_qs, quote_plus, unquote, urlsplit, urlunsplit
 
 import httpx
@@ -298,11 +298,9 @@ def _host_class(url: str) -> tuple[str, str]:
     if not host or any(fragment in host for fragment in BLOCKED_HOST_FRAGMENTS):
         return "", "blocked"
     if (
-        host.endswith(".gov")
+        host.endswith((".gov", ".edu", ".ac.uk"))
         or ".gov." in host
-        or host.endswith(".edu")
         or ".edu." in host
-        or host.endswith(".ac.uk")
         or ".ac." in host
     ):
         return "general_web_institutional", "medium"
@@ -1598,7 +1596,11 @@ def run_pilot(
         for axis in AXES
     }
     target_axis_counts = {
-        axis: int(targets["target_axis"].map(lambda value: axis in _text(value).split("|")).sum())
+        axis: int(
+            targets["target_axis"]
+            .map(lambda value, target_axis=axis: target_axis in _text(value).split("|"))
+            .sum()
+        )
         for axis in AXES
     }
     summary = {
@@ -1671,11 +1673,20 @@ def run_pilot(
 
 @app.command("select")
 def select_command(
-    coverage_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    master_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    integrated_evidence_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    output_csv: Path = typer.Option(..., dir_okay=False),
-    limit: int = typer.Option(100, min=3, max=1000),
+    coverage_csv: Annotated[
+        Path,
+        typer.Option(exists=True, dir_okay=False),
+    ],
+    master_csv: Annotated[
+        Path,
+        typer.Option(exists=True, dir_okay=False),
+    ],
+    integrated_evidence_csv: Annotated[
+        Path,
+        typer.Option(exists=True, dir_okay=False),
+    ],
+    output_csv: Annotated[Path, typer.Option(dir_okay=False)],
+    limit: Annotated[int, typer.Option(min=3, max=1000)] = 100,
 ) -> None:
     targets = select_pilot_targets(
         pd.read_csv(coverage_csv, dtype=str).fillna(""),
@@ -1690,32 +1701,68 @@ def select_command(
 
 @app.command("run")
 def run_command(
-    coverage_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    master_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    integrated_evidence_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    output_dir: Path = typer.Option(..., file_okay=False),
-    limit: int = typer.Option(100, min=0, max=110_000),
-    resolve_synonyms: bool = typer.Option(True, "--resolve-synonyms/--no-resolve-synonyms"),
-    max_aliases_per_species: int = typer.Option(3, min=0, max=20),
-    max_aliases_to_search: int = typer.Option(2, min=0, max=10),
-    wfo_pause_seconds: float = typer.Option(0.25, min=0.0, max=10),
-    query_pause_seconds: float = typer.Option(0.25, min=0.0, max=10),
-    max_results_per_query: int = typer.Option(5, min=1, max=10),
-    max_gbif_usages_per_species: int = typer.Option(25, min=1, max=100),
-    workers: int = typer.Option(12, min=1, max=32),
-    include_structured_domains: bool = typer.Option(
-        True,
-        "--structured-domains/--no-structured-domains",
-    ),
-    include_pladias: bool = typer.Option(False, "--pladias/--no-pladias"),
-    include_gobotany: bool = typer.Option(True, "--gobotany/--no-gobotany"),
-    include_gbif: bool = typer.Option(True, "--gbif/--no-gbif"),
-    include_general_web: bool = typer.Option(
-        True,
-        "--general-web/--no-general-web",
-    ),
-    selection_mode: str = typer.Option("pilot", "--selection-mode"),
-    offset: int = typer.Option(0, min=0, max=110_000),
+    coverage_csv: Annotated[
+        Path,
+        typer.Option(exists=True, dir_okay=False),
+    ],
+    master_csv: Annotated[
+        Path,
+        typer.Option(exists=True, dir_okay=False),
+    ],
+    integrated_evidence_csv: Annotated[
+        Path,
+        typer.Option(exists=True, dir_okay=False),
+    ],
+    output_dir: Annotated[Path, typer.Option(file_okay=False)],
+    limit: Annotated[int, typer.Option(min=0, max=110_000)] = 100,
+    resolve_synonyms: Annotated[
+        bool,
+        typer.Option("--resolve-synonyms/--no-resolve-synonyms"),
+    ] = True,
+    max_aliases_per_species: Annotated[
+        int,
+        typer.Option(min=0, max=20),
+    ] = 3,
+    max_aliases_to_search: Annotated[
+        int,
+        typer.Option(min=0, max=10),
+    ] = 2,
+    wfo_pause_seconds: Annotated[
+        float,
+        typer.Option(min=0.0, max=10),
+    ] = 0.25,
+    query_pause_seconds: Annotated[
+        float,
+        typer.Option(min=0.0, max=10),
+    ] = 0.25,
+    max_results_per_query: Annotated[int, typer.Option(min=1, max=10)] = 5,
+    max_gbif_usages_per_species: Annotated[
+        int,
+        typer.Option(min=1, max=100),
+    ] = 25,
+    workers: Annotated[int, typer.Option(min=1, max=32)] = 12,
+    include_structured_domains: Annotated[
+        bool,
+        typer.Option("--structured-domains/--no-structured-domains"),
+    ] = True,
+    include_pladias: Annotated[
+        bool,
+        typer.Option("--pladias/--no-pladias"),
+    ] = False,
+    include_gobotany: Annotated[
+        bool,
+        typer.Option("--gobotany/--no-gobotany"),
+    ] = True,
+    include_gbif: Annotated[
+        bool,
+        typer.Option("--gbif/--no-gbif"),
+    ] = True,
+    include_general_web: Annotated[
+        bool,
+        typer.Option("--general-web/--no-general-web"),
+    ] = True,
+    selection_mode: Annotated[str, typer.Option("--selection-mode")] = "pilot",
+    offset: Annotated[int, typer.Option(min=0, max=110_000)] = 0,
 ) -> None:
     summary = run_pilot(
         coverage_csv=coverage_csv,
