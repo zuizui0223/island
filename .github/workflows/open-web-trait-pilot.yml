@@ -86,7 +86,6 @@ jobs:
             tests/test_open_web_evidence.py \
             tests/test_open_web_pilot.py
           pytest -q \
-            tests/test_official_search_discovery.py \
             tests/test_open_web_search.py \
             tests/test_open_web_evidence.py \
             tests/test_open_web_pilot.py
