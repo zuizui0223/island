@@ -24,7 +24,10 @@ import pandas as pd
 import typer
 
 from island_v2 import reported_ecology_machine, trait_descriptive_scout, trait_web_reported_scout
-from island_v2.europe_pmc_discovery import discover_europe_pmc_sources
+from island_v2.europe_pmc_discovery import (
+    discover_europe_pmc_full_text_sources,
+    discover_europe_pmc_sources,
+)
 from island_v2.v1_category_traits import (
     OUTPUT_COLUMNS,
     derive_v1_categories,
@@ -765,6 +768,11 @@ def _source_evidence(source_type: str, citation: str) -> tuple[str, str, str]:
         ):
             return "field_study", "medium", "A_literature"
         return "inference", "low", "D_inference"
+    if source in {
+        "europe_pmc_full_text_xml",
+        "europe_pmc_title_abstract_direct",
+    }:
+        return "field_study", "medium", "A_literature"
     if source in {"wikipedia_extract", "wikidata_description"}:
         return "inference", "low", "B_encyclopedia"
     return "inference", "low", "D_inference"
@@ -1801,6 +1809,10 @@ def _europe_pmc_sources(
         species,
         min_interval_seconds=max(1.0, pause_seconds),
     )
+    full_text = discover_europe_pmc_full_text_sources(
+        batch.sources,
+        min_interval_seconds=max(0.25, pause_seconds),
+    )
     rows = [
         {
             "accepted_species": record["accepted_species"],
@@ -1812,6 +1824,17 @@ def _europe_pmc_sources(
         }
         for record in batch.sources
     ]
+    rows.extend(
+        {
+            "accepted_species": record["accepted_species"],
+            "source_text": record["source_text"],
+            "source_url": record["source_url"],
+            "source_citation": record["source_citation"],
+            "source_type": "europe_pmc_full_text_xml",
+            "evidence_scope": "species_direct",
+        }
+        for record in full_text.sources
+    )
     errors = [
         {
             "species": record["accepted_species"],
@@ -1828,6 +1851,22 @@ def _europe_pmc_sources(
         }
         for record in batch.errors
     ]
+    errors.extend(
+        {
+            "species": record["accepted_species"],
+            "source": "europe_pmc_full_text",
+            "error": ":".join(
+                value
+                for value in (
+                    record["error_class"],
+                    record["error_code"],
+                    record["message"],
+                )
+                if value
+            ),
+        }
+        for record in full_text.errors
+    )
     return rows, errors
 
 

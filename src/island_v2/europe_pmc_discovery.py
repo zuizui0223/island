@@ -24,12 +24,15 @@ from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
+from xml.etree import ElementTree
 
 EUROPE_PMC_REST_ROOT = "https://www.ebi.ac.uk/europepmc/webservices/rest"
 EUROPE_PMC_SEARCH_URL = f"{EUROPE_PMC_REST_ROOT}/search"
 EUROPE_PMC_ARTICLE_ROOT = "https://europepmc.org/article"
 USER_AGENT = "island-floral-traits/0.1 (Europe PMC REST discovery)"
 CONTRACT_VERSION = "europe_pmc_title_abstract_reproduction_v2"
+FULL_TEXT_CONTRACT_VERSION = "europe_pmc_species_direct_full_text_v1"
+MAX_FULL_TEXT_BYTES = 25_000_000
 
 REPRODUCTIVE_QUERY_TERMS = (
     '"breeding system"',
@@ -57,6 +60,23 @@ REPRODUCTIVE_TEXT_PATTERNS = tuple(
         r"\bself[- ]compatib\w*\b",
         r"\bcleistogam\w*\b",
         r"\breproductive biology\b",
+    )
+)
+
+FULL_TEXT_DIRECT_PATTERNS = tuple(
+    re.compile(pattern, flags=re.IGNORECASE)
+    for pattern in (
+        r"\bbreeding systems?\b",
+        r"\bmating systems?\b",
+        r"\bselfing\b",
+        r"\boutcross\w*\b",
+        r"\bautogam\w*\b",
+        r"\bself[- ]incompatib\w*\b",
+        r"\bself[- ]compatib\w*\b",
+        r"\bcleistogam\w*\b",
+        r"\bself[- ]fertili[sz]\w*\b",
+        r"\bcross[- ]fertili[sz]\w*\b",
+        r"\bautonomous self[- ]pollination\b",
     )
 )
 
@@ -105,6 +125,43 @@ ERROR_COLUMNS = [
     "retrieved_at_utc",
 ]
 
+FULL_TEXT_SOURCE_COLUMNS = [
+    "accepted_species",
+    "source_text",
+    "source_url",
+    "source_citation",
+    "source_type",
+    "evidence_scope",
+    "title",
+    "pmcid",
+    "doi",
+    "license",
+    "is_open_access",
+    "full_text_xml_url",
+    "full_text_xml_sha256",
+    "passage_sha256",
+    "source_record_id",
+    "source_lineage",
+    "searched_name",
+    "matched_name",
+    "name_match_method",
+    "name_resolution_lineage",
+    "retrieved_at_utc",
+]
+
+FULL_TEXT_ERROR_COLUMNS = [
+    "accepted_species",
+    "pmcid",
+    "full_text_xml_url",
+    "error_class",
+    "error_code",
+    "http_status",
+    "message",
+    "attempts",
+    "retry_after_seconds",
+    "retrieved_at_utc",
+]
+
 
 @dataclass(frozen=True)
 class HttpResponse:
@@ -125,6 +182,15 @@ class DiscoveryBatch:
     """Returned source records and fully accounted discovery errors."""
 
     requested_species: tuple[str, ...]
+    sources: tuple[dict[str, str], ...]
+    errors: tuple[dict[str, str], ...]
+
+
+@dataclass(frozen=True)
+class FullTextBatch:
+    """Species-direct passages and fully accounted full-text misses."""
+
+    requested_articles: tuple[tuple[str, str], ...]
     sources: tuple[dict[str, str], ...]
     errors: tuple[dict[str, str], ...]
 
@@ -257,7 +323,7 @@ def build_search_api_url(species: str, *, page_size: int = 25) -> str:
 def _stdlib_transport(url: str, timeout_seconds: float) -> HttpResponse:
     request = urllib.request.Request(
         url,
-        headers={"Accept": "application/json", "User-Agent": USER_AGENT},
+        headers={"Accept": "*/*", "User-Agent": USER_AGENT},
     )
     try:
         with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
@@ -861,6 +927,482 @@ def freeze_europe_pmc_sources(
         ),
     }
     (output_dir / "europe_pmc_manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return manifest
+
+
+def build_full_text_xml_url(pmcid: object) -> str:
+    """Return the official Europe PMC OA full-text endpoint for one PMCID."""
+
+    value = _text(pmcid).upper()
+    if not re.fullmatch(r"PMC\d+", value):
+        raise ValueError("pmcid must match PMC followed by digits")
+    return f"{EUROPE_PMC_REST_ROOT}/{value}/fullTextXML"
+
+
+def _request_bytes(
+    url: str,
+    *,
+    transport: Transport,
+    timeout_seconds: float,
+    max_attempts: int,
+    backoff_seconds: float,
+    max_backoff_seconds: float,
+    sleeper: SleepHook,
+    before_request: Callable[[], None],
+) -> tuple[bytes, int]:
+    _validate_request_bounds(
+        timeout_seconds=timeout_seconds,
+        max_attempts=max_attempts,
+        backoff_seconds=backoff_seconds,
+        max_backoff_seconds=max_backoff_seconds,
+    )
+    for attempt in range(1, max_attempts + 1):
+        before_request()
+        try:
+            response = transport(url, timeout_seconds)
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            if attempt >= max_attempts:
+                raise EuropePmcRequestError(
+                    f"Europe PMC transport failure: {exc}",
+                    retryable=True,
+                    code="transport_error",
+                    attempts=attempt,
+                ) from exc
+            sleeper(_backoff_delay(attempt, backoff_seconds, max_backoff_seconds))
+            continue
+
+        if response.status == 200:
+            if len(response.body) > MAX_FULL_TEXT_BYTES:
+                raise EuropePmcRequestError(
+                    "Europe PMC full-text XML exceeded 25 MB",
+                    retryable=False,
+                    code="full_text_too_large",
+                    attempts=attempt,
+                    http_status=response.status,
+                )
+            return response.body, attempt
+
+        retryable = response.status in RETRYABLE_HTTP_STATUSES
+        retry_after = _retry_after_seconds(_header(response.headers, "Retry-After"))
+        if not retryable:
+            raise EuropePmcRequestError(
+                f"Europe PMC returned terminal HTTP {response.status}",
+                retryable=False,
+                code=f"http_{response.status}",
+                attempts=attempt,
+                http_status=response.status,
+                retry_after_seconds=retry_after,
+            )
+        if attempt >= max_attempts or (
+            retry_after is not None and retry_after > max_backoff_seconds
+        ):
+            raise EuropePmcRequestError(
+                f"Europe PMC returned retryable HTTP {response.status}",
+                retryable=True,
+                code=f"http_{response.status}",
+                attempts=attempt,
+                http_status=response.status,
+                retry_after_seconds=retry_after,
+            )
+        sleeper(
+            retry_after
+            if retry_after is not None
+            else _backoff_delay(attempt, backoff_seconds, max_backoff_seconds)
+        )
+    raise RuntimeError("unreachable")
+
+
+def _element_name(element: ElementTree.Element) -> str:
+    return str(element.tag).rsplit("}", 1)[-1].casefold()
+
+
+def _sentence_candidates(text: str) -> list[str]:
+    normalized = _text(text)
+    if not normalized:
+        return []
+    return [
+        _text(part)
+        for part in re.split(r"(?<=[.!?])\s+(?=[A-Z0-9(])", normalized)
+        if _text(part)
+    ]
+
+
+def extract_species_direct_text_passages(
+    text: str,
+    accepted_species: str,
+    *,
+    aliases: Iterable[str] = (),
+    max_passages: int = 50,
+) -> tuple[dict[str, str], ...]:
+    """Keep text sentences joining an exact focal name to a direct trait term."""
+
+    species = _normalise_species(accepted_species)
+    names = tuple(
+        dict.fromkeys(
+            _normalise_species(name)
+            for name in (species, *aliases)
+            if _text(name)
+        )
+    )
+    rows: list[dict[str, str]] = []
+    for unit in _sentence_candidates(text):
+        matched_name = next(
+            (name for name in names if _contains_full_species(unit, name)),
+            "",
+        )
+        if not matched_name or not any(
+            pattern.search(unit) for pattern in FULL_TEXT_DIRECT_PATTERNS
+        ):
+            continue
+        rows.append(
+            {
+                "text": unit,
+                "matched_name": matched_name,
+                "element": "sentence",
+                "passage_sha256": _sha256_text(unit),
+            }
+        )
+        if len(rows) >= max_passages:
+            break
+    return tuple(rows)
+
+
+def extract_species_direct_full_text_passages(
+    xml_bytes: bytes,
+    accepted_species: str,
+    *,
+    aliases: Iterable[str] = (),
+    max_passages: int = 50,
+) -> tuple[dict[str, str], ...]:
+    """Keep only XML sentences/table rows joining an exact name to a direct trait term."""
+
+    species = _normalise_species(accepted_species)
+    names = tuple(
+        dict.fromkeys(
+            _normalise_species(name)
+            for name in (species, *aliases)
+            if _text(name)
+        )
+    )
+    if not 1 <= max_passages <= 500:
+        raise ValueError("max_passages must be between 1 and 500")
+    if len(xml_bytes) > MAX_FULL_TEXT_BYTES:
+        raise ValueError("Europe PMC full-text XML exceeded 25 MB")
+    try:
+        root = ElementTree.fromstring(xml_bytes)
+    except ElementTree.ParseError as exc:
+        raise ValueError(f"invalid Europe PMC full-text XML: {exc}") from exc
+
+    rows: list[dict[str, str]] = []
+    seen: set[str] = set()
+    wanted_elements = {"article-title", "title", "p", "caption", "tr"}
+    for element in root.iter():
+        element_name = _element_name(element)
+        if element_name not in wanted_elements:
+            continue
+        text = _text(" ".join(element.itertext()))
+        if not text:
+            continue
+        units = [text] if element_name == "tr" else _sentence_candidates(text)
+        for unit in units:
+            matched_name = next(
+                (name for name in names if _contains_full_species(unit, name)),
+                "",
+            )
+            if not matched_name or not any(pattern.search(unit) for pattern in FULL_TEXT_DIRECT_PATTERNS):
+                continue
+            passage_sha = _sha256_text(unit)
+            if passage_sha in seen:
+                continue
+            seen.add(passage_sha)
+            rows.append(
+                {
+                    "text": unit,
+                    "matched_name": matched_name,
+                    "element": element_name,
+                    "passage_sha256": passage_sha,
+                }
+            )
+            if len(rows) >= max_passages:
+                return tuple(rows)
+    return tuple(rows)
+
+
+def _full_text_error_row(
+    *,
+    species: str,
+    pmcid: str,
+    url: str,
+    error_class: str,
+    error_code: str,
+    message: str,
+    attempts: int,
+    retrieved_at_utc: str,
+    http_status: int | None = None,
+    retry_after_seconds: float | None = None,
+) -> dict[str, str]:
+    return {
+        "accepted_species": species,
+        "pmcid": pmcid,
+        "full_text_xml_url": url,
+        "error_class": error_class,
+        "error_code": error_code,
+        "http_status": str(http_status) if http_status is not None else "",
+        "message": _text(message),
+        "attempts": str(attempts),
+        "retry_after_seconds": (
+            f"{retry_after_seconds:g}" if retry_after_seconds is not None else ""
+        ),
+        "retrieved_at_utc": retrieved_at_utc,
+    }
+
+
+def discover_europe_pmc_full_text_sources(
+    discovery_sources: Iterable[Mapping[str, str]],
+    *,
+    aliases_by_species: Mapping[str, Iterable[str]] | None = None,
+    transport: Transport = _stdlib_transport,
+    timeout_seconds: float = 45,
+    max_attempts: int = 3,
+    backoff_seconds: float = 1,
+    max_backoff_seconds: float = 30,
+    min_interval_seconds: float = 0.25,
+    sleeper: SleepHook = time.sleep,
+    clock: ClockHook = time.monotonic,
+    retrieved_at_utc: str | None = None,
+) -> FullTextBatch:
+    """Retrieve OA XML and retain only exact-name, direct reproductive passages."""
+
+    retrieved = retrieved_at_utc or _utc_timestamp()
+    aliases_map = aliases_by_species or {}
+    limiter = BoundedRateLimiter(
+        min_interval_seconds=min_interval_seconds,
+        sleeper=sleeper,
+        clock=clock,
+    )
+    records: list[tuple[str, str, Mapping[str, str]]] = []
+    seen_articles: set[tuple[str, str]] = set()
+    errors: list[dict[str, str]] = []
+    sources: list[dict[str, str]] = []
+
+    for record in discovery_sources:
+        species = _text(record.get("accepted_species"))
+        pmcid = _text(record.get("pmcid")).upper()
+        if not species:
+            continue
+        if not pmcid:
+            errors.append(
+                _full_text_error_row(
+                    species=species,
+                    pmcid="",
+                    url="",
+                    error_class="terminal",
+                    error_code="missing_pmcid",
+                    message="Europe PMC discovery record has no PMCID",
+                    attempts=0,
+                    retrieved_at_utc=retrieved,
+                )
+            )
+            continue
+        key = (species, pmcid)
+        if key in seen_articles:
+            continue
+        seen_articles.add(key)
+        try:
+            url = build_full_text_xml_url(pmcid)
+        except ValueError as exc:
+            errors.append(
+                _full_text_error_row(
+                    species=species,
+                    pmcid=pmcid,
+                    url="",
+                    error_class="terminal",
+                    error_code="invalid_pmcid",
+                    message=str(exc),
+                    attempts=0,
+                    retrieved_at_utc=retrieved,
+                )
+            )
+            continue
+        records.append((species, url, record))
+
+    for species, url, record in records:
+        pmcid = _text(record.get("pmcid")).upper()
+        if _text(record.get("is_open_access")).casefold() not in {"y", "yes", "true", "1"}:
+            errors.append(
+                _full_text_error_row(
+                    species=species,
+                    pmcid=pmcid,
+                    url=url,
+                    error_class="terminal",
+                    error_code="not_open_access",
+                    message="Europe PMC record is not marked open access",
+                    attempts=0,
+                    retrieved_at_utc=retrieved,
+                )
+            )
+            continue
+        try:
+            xml_bytes, attempts = _request_bytes(
+                url,
+                transport=transport,
+                timeout_seconds=timeout_seconds,
+                max_attempts=max_attempts,
+                backoff_seconds=backoff_seconds,
+                max_backoff_seconds=max_backoff_seconds,
+                sleeper=sleeper,
+                before_request=limiter.wait,
+            )
+            passages = extract_species_direct_full_text_passages(
+                xml_bytes,
+                species,
+                aliases=aliases_map.get(species, ()),
+            )
+        except EuropePmcRequestError as exc:
+            errors.append(
+                _full_text_error_row(
+                    species=species,
+                    pmcid=pmcid,
+                    url=url,
+                    error_class="retryable" if exc.retryable else "terminal",
+                    error_code=exc.code,
+                    message=str(exc),
+                    attempts=exc.attempts,
+                    retrieved_at_utc=retrieved,
+                    http_status=exc.http_status,
+                    retry_after_seconds=exc.retry_after_seconds,
+                )
+            )
+            continue
+        except ValueError as exc:
+            errors.append(
+                _full_text_error_row(
+                    species=species,
+                    pmcid=pmcid,
+                    url=url,
+                    error_class="terminal",
+                    error_code="invalid_full_text_xml",
+                    message=str(exc),
+                    attempts=1,
+                    retrieved_at_utc=retrieved,
+                    http_status=200,
+                )
+            )
+            continue
+        if not passages:
+            errors.append(
+                _full_text_error_row(
+                    species=species,
+                    pmcid=pmcid,
+                    url=url,
+                    error_class="terminal",
+                    error_code="no_species_direct_reproductive_passage",
+                    message=(
+                        "No XML sentence or table row contained both an exact focal "
+                        "name and a direct reproductive trait term"
+                    ),
+                    attempts=attempts,
+                    retrieved_at_utc=retrieved,
+                    http_status=200,
+                )
+            )
+            continue
+
+        xml_sha = _sha256_bytes(xml_bytes)
+        doi = _clean_doi(record.get("doi"))
+        lineage = f"doi:{doi}" if doi else f"pmcid:{pmcid.casefold()}"
+        base_citation = _text(record.get("source_citation"))
+        for passage in passages:
+            passage_sha = passage["passage_sha256"]
+            citation = " | ".join(
+                part
+                for part in (
+                    base_citation,
+                    f"Europe PMC OA full text {pmcid}",
+                    f"full_text_xml_sha256={xml_sha}",
+                    f"passage_sha256={passage_sha}",
+                )
+                if part
+            )
+            sources.append(
+                {
+                    "accepted_species": species,
+                    "source_text": passage["text"],
+                    "source_url": url,
+                    "source_citation": citation,
+                    "source_type": "europe_pmc_full_text_xml",
+                    "evidence_scope": "species_direct",
+                    "title": _plain_text(record.get("title")),
+                    "pmcid": pmcid,
+                    "doi": doi,
+                    "license": _text(record.get("license")),
+                    "is_open_access": _text(record.get("is_open_access")),
+                    "full_text_xml_url": url,
+                    "full_text_xml_sha256": xml_sha,
+                    "passage_sha256": passage_sha,
+                    "source_record_id": f"{pmcid}:{passage_sha}",
+                    "source_lineage": lineage,
+                    "searched_name": _text(record.get("searched_name")) or species,
+                    "matched_name": passage["matched_name"],
+                    "name_match_method": (
+                        "accepted_exact"
+                        if passage["matched_name"].casefold() == species.casefold()
+                        else "synonym_exact"
+                    ),
+                    "name_resolution_lineage": _text(
+                        record.get("name_resolution_lineage")
+                    ),
+                    "retrieved_at_utc": retrieved,
+                }
+            )
+    requested = tuple((species, _text(record.get("pmcid")).upper()) for species, _, record in records)
+    return FullTextBatch(requested, tuple(sources), tuple(errors))
+
+
+def freeze_europe_pmc_full_text_sources(
+    discovery_sources: Iterable[Mapping[str, str]],
+    output_dir: Path,
+    **discovery_kwargs: Any,
+) -> dict[str, Any]:
+    """Freeze OA XML passages, accounted misses, hashes, and source-lineage policy."""
+
+    batch = discover_europe_pmc_full_text_sources(discovery_sources, **discovery_kwargs)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    source_path = output_dir / "europe_pmc_full_text_sources.csv"
+    error_path = output_dir / "europe_pmc_full_text_errors.csv"
+    _write_csv(source_path, FULL_TEXT_SOURCE_COLUMNS, batch.sources)
+    _write_csv(error_path, FULL_TEXT_ERROR_COLUMNS, batch.errors)
+    manifest = {
+        "contract_version": FULL_TEXT_CONTRACT_VERSION,
+        "source": "Europe PMC REST OA fullTextXML",
+        "api_root": EUROPE_PMC_REST_ROOT,
+        "n_requested_articles": len(batch.requested_articles),
+        "n_source_passages": len(batch.sources),
+        "n_species_with_passages": len(
+            {row["accepted_species"] for row in batch.sources}
+        ),
+        "n_errors": len(batch.errors),
+        "files": {
+            source_path.name: {
+                "sha256": _file_sha256(source_path),
+                "rows": len(batch.sources),
+            },
+            error_path.name: {
+                "sha256": _file_sha256(error_path),
+                "rows": len(batch.errors),
+            },
+        },
+        "policy": (
+            "Official OA fullTextXML only; exact accepted species or explicitly supplied "
+            "synonym must co-occur with a direct reproductive trait term in the same XML "
+            "sentence or table row; no family inference, global fallback, or abbreviated-"
+            "name expansion."
+        ),
+    }
+    (output_dir / "europe_pmc_full_text_manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )

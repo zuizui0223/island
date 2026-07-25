@@ -61,7 +61,7 @@ PROVIDER_IMPLEMENTATION_VERSIONS = {
     "web_descriptions": "web_descriptions_indexed_v1",
     "wikimedia": "wikimedia_exact_title_v1",
     "openalex": "openalex_title_abstract_v1",
-    "europe_pmc": "europe_pmc_title_abstract_reproduction_v2",
+    "europe_pmc": "europe_pmc_species_direct_full_text_v1",
 }
 PROVIDER_TARGET_FIELDS = {
     "gbif": frozenset({"flower_color", "flower_shape"}),

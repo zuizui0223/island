@@ -9,9 +9,13 @@ from pathlib import Path
 
 from island_v2.europe_pmc_discovery import (
     HttpResponse,
+    build_full_text_xml_url,
     build_query,
     build_search_api_url,
+    discover_europe_pmc_full_text_sources,
     discover_species_sources,
+    extract_species_direct_full_text_passages,
+    extract_species_direct_text_passages,
     freeze_europe_pmc_sources,
 )
 
@@ -199,3 +203,79 @@ def test_freeze_writes_hashed_sources_errors_and_no_inference_manifest(tmp_path:
         manifest["files"][source_path.name]["sha256"]
         == hashlib.sha256(source_path.read_bytes()).hexdigest()
     )
+
+
+def test_full_text_passages_require_exact_species_and_direct_term_same_unit() -> None:
+    xml = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <article>
+      <body>
+        <sec>
+          <p>Plantus alba was included in the experiment.</p>
+          <p>Anothera rubra was self-incompatible.</p>
+          <p>Plantus alba is self-compatible and capable of autonomous selfing.</p>
+          <table-wrap><table><tr><td>Plantus alba</td><td>mixed mating system</td></tr></table></table-wrap>
+        </sec>
+      </body>
+    </article>"""
+
+    passages = extract_species_direct_full_text_passages(xml, "Plantus alba")
+
+    assert len(passages) == 2
+    assert {row["element"] for row in passages} == {"p", "tr"}
+    assert all("Plantus alba" in row["text"] for row in passages)
+    assert all(len(row["passage_sha256"]) == 64 for row in passages)
+
+    abstract_passages = extract_species_direct_text_passages(
+        (
+            "Plantus alba was sampled. Anothera rubra was self-incompatible. "
+            "Plantus alba has a mixed mating system."
+        ),
+        "Plantus alba",
+    )
+    assert [row["text"] for row in abstract_passages] == [
+        "Plantus alba has a mixed mating system."
+    ]
+
+
+def test_full_text_fetch_records_hash_lineage_and_accounted_miss() -> None:
+    matching_xml = b"""<article><body><p>
+      Plantus alba has a mixed mating system and is self-compatible.
+    </p></body></article>"""
+    discovery = {
+        "accepted_species": "Plantus alba",
+        "title": "Breeding biology of Plantus alba",
+        "source_citation": "Author. DOI:10.1000/plant.1",
+        "pmcid": "PMC7654321",
+        "doi": "10.1000/plant.1",
+        "license": "cc by",
+        "is_open_access": "Y",
+    }
+    transport = FakeTransport([HttpResponse(200, {}, matching_xml)])
+
+    batch = discover_europe_pmc_full_text_sources(
+        [discovery],
+        transport=transport,
+        min_interval_seconds=0,
+        sleeper=lambda _seconds: None,
+        retrieved_at_utc="2026-07-25T00:00:00Z",
+    )
+
+    assert not batch.errors
+    assert len(batch.sources) == 1
+    row = batch.sources[0]
+    assert row["source_type"] == "europe_pmc_full_text_xml"
+    assert row["evidence_scope"] == "species_direct"
+    assert row["source_lineage"] == "doi:10.1000/plant.1"
+    assert row["source_url"] == build_full_text_xml_url("PMC7654321")
+    assert row["full_text_xml_sha256"] == hashlib.sha256(matching_xml).hexdigest()
+    assert row["source_record_id"].startswith("PMC7654321:")
+
+    non_oa = discover_europe_pmc_full_text_sources(
+        [{**discovery, "is_open_access": "N"}],
+        transport=FakeTransport([]),
+        min_interval_seconds=0,
+        sleeper=lambda _seconds: None,
+        retrieved_at_utc="2026-07-25T00:00:00Z",
+    )
+    assert not non_oa.sources
+    assert non_oa.errors[0]["error_code"] == "not_open_access"
