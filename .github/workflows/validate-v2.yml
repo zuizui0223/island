@@ -6,10 +6,12 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
 
 jobs:
   validate:
+    if: github.ref != 'refs/heads/codex/direct-web-reacquisition'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -28,3 +30,15 @@ jobs:
         run: island-v2-validate ontology --ontology-path config/trait_ontology.yml
       - name: Test controlled inference and GBIF request construction
         run: pytest -q
+
+  acquire_broad_web_medium:
+    if: github.ref == 'refs/heads/codex/direct-web-reacquisition'
+    uses: ./.github/workflows/run-broad-web-medium-acquisition.yml
+    with:
+      baseline_run_id: "30107066525"
+      offset: 0
+      limit: 0
+      workers: 12
+    permissions:
+      actions: read
+      contents: read
