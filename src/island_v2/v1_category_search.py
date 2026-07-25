@@ -773,6 +773,12 @@ def _source_evidence(source_type: str, citation: str) -> tuple[str, str, str]:
         "europe_pmc_title_abstract_direct",
     }:
         return "field_study", "medium", "A_literature"
+    if source == "gbif_checklist_description":
+        return "flora", "medium", "A_flora"
+    if source == "general_web_scientific":
+        return "field_study", "medium", "A_literature"
+    if source in {"general_web_institutional", "general_web_curated"}:
+        return "flora", "medium", "A_flora"
     if source in {"wikipedia_extract", "wikidata_description"}:
         return "inference", "low", "B_encyclopedia"
     return "inference", "low", "D_inference"

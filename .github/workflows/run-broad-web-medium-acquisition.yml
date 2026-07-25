@@ -1,0 +1,202 @@
+name: Run sitemap-backed broad-web Medium acquisition
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/run-broad-web-medium-acquisition.yml"
+      - "src/island_v2/broad_web_medium_pilot.py"
+      - "src/island_v2/incremental_genus_reaudit.py"
+      - "src/island_v2/v1_category_search.py"
+      - "tests/test_broad_web_medium_pilot.py"
+      - "tests/test_incremental_genus_reaudit.py"
+      - "pyproject.toml"
+  workflow_dispatch:
+    inputs:
+      baseline_run_id:
+        description: Successful integrated-trait-coverage run ID
+        required: true
+        type: string
+        default: "30107066525"
+      offset:
+        description: Offset in the sorted unique unresolved-species list
+        required: true
+        type: number
+        default: 0
+      limit:
+        description: Species limit after offset; zero means all remaining
+        required: true
+        type: number
+        default: 0
+      workers:
+        description: Concurrent exact-page fetches
+        required: true
+        type: number
+        default: 12
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: broad-web-medium-${{ github.ref }}-${{ inputs.offset || 0 }}-${{ inputs.limit || 0 }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: |
+          ruff check \
+            src/island_v2/broad_web_medium_pilot.py \
+            src/island_v2/incremental_genus_reaudit.py \
+            tests/test_broad_web_medium_pilot.py \
+            tests/test_incremental_genus_reaudit.py
+          pytest -q \
+            tests/test_broad_web_medium_pilot.py \
+            tests/test_incremental_genus_reaudit.py \
+            tests/test_validated_low_inference.py \
+            tests/test_v1_category_search.py \
+            tests/test_direct_web_reacquisition.py
+
+  acquire:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      BASELINE_RUN_ID: ${{ inputs.baseline_run_id }}
+      OFFSET: ${{ inputs.offset }}
+      LIMIT: ${{ inputs.limit }}
+      WORKERS: ${{ inputs.workers }}
+      INPUT_ROOT: /tmp/broad-web-medium-input
+      OUTPUT_ROOT: /tmp/broad-web-medium
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Download and verify fixed integrated baseline
+        run: |
+          set -euo pipefail
+          mkdir -p "$INPUT_ROOT"
+          gh run download "$BASELINE_RUN_ID" \
+            --name "integrated-trait-coverage-$BASELINE_RUN_ID" \
+            --dir "$INPUT_ROOT"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["INPUT_ROOT"])
+          summary = json.loads(
+              (root / "integrated_trait_coverage_summary.json").read_text()
+          )
+          denominator = summary["denominator"]
+          expected = {"species": 106295, "axes": 3, "species_axis": 318885}
+          observed = {
+              "species": denominator["species"],
+              "axes": denominator["axes"],
+              "species_axis": denominator["species_axis"],
+          }
+          if observed != expected:
+              raise SystemExit(f"baseline denominator {observed} != {expected}")
+          for name in (
+              "integrated_species_axis_coverage.csv.gz",
+              "integrated_evidence_lineage.csv.gz",
+          ):
+              if not (root / name).is_file():
+                  raise SystemExit(f"baseline artifact lacks {name}")
+          print(f"verified integrated baseline run {os.environ['BASELINE_RUN_ID']}")
+          PY
+
+      - name: Acquire exact sitemap-backed Medium evidence
+        run: |
+          set -euo pipefail
+          mkdir -p "$OUTPUT_ROOT/full"
+          island-v2-broad-web-medium-pilot run \
+            --coverage-csv "$INPUT_ROOT/integrated_species_axis_coverage.csv.gz" \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --integrated-evidence-csv "$INPUT_ROOT/integrated_evidence_lineage.csv.gz" \
+            --output-dir "$OUTPUT_ROOT/full" \
+            --selection-mode all_unresolved \
+            --offset "$OFFSET" \
+            --limit "$LIMIT" \
+            --no-resolve-synonyms \
+            --no-gbif \
+            --no-general-web \
+            --structured-domains \
+            --no-pladias \
+            --gobotany \
+            --workers "$WORKERS"
+
+      - name: Apply High then Medium then Validated Low precedence
+        run: |
+          set -euo pipefail
+          island-v2-direct-web-reacquisition combine \
+            --coverage-csv "$INPUT_ROOT/integrated_species_axis_coverage.csv.gz" \
+            --evidence-csv "$OUTPUT_ROOT/full/broad_web_medium_evidence.csv.gz" \
+            --output-dir "$OUTPUT_ROOT/combined"
+
+      - name: Re-audit only incremental Validated Low genus gains
+        run: |
+          set -euo pipefail
+          island-v2-incremental-genus-reaudit \
+            --coverage-csv "$OUTPUT_ROOT/combined/direct_web_combined_coverage.csv.gz" \
+            --integrated-evidence-csv "$INPUT_ROOT/integrated_evidence_lineage.csv.gz" \
+            --new-evidence-csv "$OUTPUT_ROOT/full/broad_web_medium_evidence.csv.gz" \
+            --output-dir "$OUTPUT_ROOT/genus"
+
+      - name: Record immutable run manifest
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["OUTPUT_ROOT"])
+          files = {}
+          for path in sorted(root.rglob("*")):
+              if path.is_file():
+                  files[str(path.relative_to(root))] = {
+                      "bytes": path.stat().st_size,
+                      "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                  }
+          manifest = {
+              "workflow_run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "git_sha": os.environ["GITHUB_SHA"],
+              "baseline_run_id": int(os.environ["BASELINE_RUN_ID"]),
+              "offset": int(os.environ["OFFSET"]),
+              "limit": int(os.environ["LIMIT"]),
+              "workers": int(os.environ["WORKERS"]),
+              "files": files,
+          }
+          (root / "source_run_manifest.json").write_text(
+              json.dumps(manifest, indent=2, sort_keys=True) + "\n"
+          )
+          PY
+          cat "$OUTPUT_ROOT/full/broad_web_medium_pilot_summary.json" \
+            >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUTPUT_ROOT/combined/direct_web_combined_summary.json" \
+            >> "$GITHUB_STEP_SUMMARY"
+          cat "$OUTPUT_ROOT/genus/incremental_genus_reaudit_summary.json" \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: broad-web-medium-full-${{ github.run_id }}
+          path: /tmp/broad-web-medium
+          if-no-files-found: error
+          retention-days: 90
