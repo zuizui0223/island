@@ -90,14 +90,14 @@ jobs:
   network-pilot:
     needs: validate
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       GH_TOKEN: ${{ github.token }}
       BASELINE_RUN_ID: ${{ inputs.baseline_run_id || '30107066525' }}
-      SPECIES_LIMIT: ${{ inputs.species_limit || '20' }}
+      SPECIES_LIMIT: ${{ inputs.species_limit || '120' }}
       TRAITS_PER_SPECIES: ${{ inputs.traits_per_species || '1' }}
-      MAX_QUERIES: ${{ inputs.max_queries || '10' }}
-      MAX_PAGES: ${{ inputs.max_pages || '50' }}
+      MAX_QUERIES: ${{ inputs.max_queries || '100' }}
+      MAX_PAGES: ${{ inputs.max_pages || '300' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
