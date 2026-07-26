@@ -1,0 +1,160 @@
+name: Pilot multi-domain open-Web trait acquisition
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/open-web-trait-multidomain-pilot.yml"
+      - "config/open_web_domain_registry_v2.yml"
+      - "config/open_web_trait_acquisition.yml"
+      - "src/island_v2/open_web_multidomain.py"
+      - "src/island_v2/open_web_multidomain_runner.py"
+      - "src/island_v2/open_web_finalize.py"
+      - "src/island_v2/open_web_evidence.py"
+      - "tests/test_open_web_multidomain.py"
+  workflow_dispatch:
+    inputs:
+      baseline_run_id:
+        description: Successful integrated-coverage run
+        required: true
+        default: "30107066525"
+      max_pages_per_domain:
+        description: Hard inventory-treatment cap per domain
+        required: true
+        default: "150"
+      audit_pages:
+        description: Deterministic unique-page audit sample
+        required: true
+        default: "160"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: open-web-multidomain-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate multi-domain acquisition code
+        run: |
+          ruff check \
+            src/island_v2/open_web_multidomain.py \
+            src/island_v2/open_web_multidomain_runner.py \
+            src/island_v2/open_web_finalize.py \
+            tests/test_open_web_multidomain.py
+          ruff format --check \
+            src/island_v2/open_web_multidomain.py \
+            src/island_v2/open_web_multidomain_runner.py \
+            src/island_v2/open_web_finalize.py \
+            tests/test_open_web_multidomain.py
+          pytest -q \
+            tests/test_open_web_multidomain.py \
+            tests/test_open_web_search.py \
+            tests/test_open_web_evidence.py \
+            tests/test_open_web_pilot.py
+          python - <<'PY'
+          import yaml
+          from pathlib import Path
+          yaml.safe_load(Path("config/open_web_domain_registry_v2.yml").read_text())
+          yaml.safe_load(Path("config/open_web_trait_acquisition.yml").read_text())
+          PY
+
+  acquire:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BASELINE_RUN_ID: ${{ inputs.baseline_run_id || '30107066525' }}
+      MAX_PAGES_PER_DOMAIN: ${{ inputs.max_pages_per_domain || '150' }}
+      AUDIT_PAGES: ${{ inputs.audit_pages || '160' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - name: Download formal integrated baseline
+        run: |
+          mkdir -p /tmp/open-web-baseline
+          gh run download "$BASELINE_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "integrated-trait-coverage-$BASELINE_RUN_ID" \
+            --dir /tmp/open-web-baseline
+          test -f /tmp/open-web-baseline/integrated_trait_coverage_summary.json
+          test -f /tmp/open-web-baseline/integrated_species_axis_coverage.csv.gz
+          test -f /tmp/open-web-baseline/integrated_evidence_lineage.csv.gz
+      - name: Crawl multiple independent botanical inventories
+        run: |
+          mkdir -p outputs/open_web_multidomain
+          python -m island_v2.open_web_multidomain_runner run \
+            --baseline-dir /tmp/open-web-baseline \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --registry-yaml config/open_web_domain_registry_v2.yml \
+            --config-yaml config/open_web_trait_acquisition.yml \
+            --output-dir outputs/open_web_multidomain \
+            --domain mikawanoyasou.org \
+            --domain botanic.jp \
+            --domain tbg.kahaku.go.jp \
+            --domain plantnet.rbgsyd.nsw.gov.au \
+            --max-pages-per-domain "$MAX_PAGES_PER_DOMAIN" \
+            --audit-pages "$AUDIT_PAGES" \
+            --pause-seconds 0.25 \
+            --audit-seed "${{ github.sha }}"
+          cat outputs/open_web_multidomain/multidomain_pilot_report.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Freeze run manifest
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          paths = [
+              Path("config/open_web_domain_registry_v2.yml"),
+              Path("config/open_web_trait_acquisition.yml"),
+              Path("outputs/open_web_multidomain/multidomain_pilot_report.json"),
+              Path("outputs/open_web_multidomain/domain_summary.csv"),
+          ]
+          payload = {
+              "contract": "open_web_multidomain_run_manifest_v1",
+              "repository": os.environ["GITHUB_REPOSITORY"],
+              "git_sha": os.environ["GITHUB_SHA"],
+              "workflow_run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "baseline_run_id": int(os.environ["BASELINE_RUN_ID"]),
+              "search_api_key_used": False,
+              "snippets_are_evidence": False,
+              "manual_review_required": True,
+              "family_inference": False,
+              "global_fallback": False,
+              "files": [
+                  {
+                      "path": str(path),
+                      "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                      "size_bytes": path.stat().st_size,
+                  }
+                  for path in paths
+              ],
+          }
+          Path("outputs/open_web_multidomain/source_run_manifest.json").write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: open-web-multidomain-pilot-${{ github.run_id }}
+          path: outputs/open_web_multidomain/
+          retention-days: 90
+          if-no-files-found: error
