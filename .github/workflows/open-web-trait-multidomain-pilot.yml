@@ -122,7 +122,7 @@ jobs:
         run: |
           mkdir -p "$OUTPUT_DIR"
           set +e
-          python -m island_v2.open_web_multidomain_runner run \
+          python -m island_v2.open_web_multidomain_runner \
             --baseline-dir /tmp/open-web-baseline \
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
             --registry-yaml config/open_web_domain_registry_v2.yml \
