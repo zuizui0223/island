@@ -1,0 +1,119 @@
+version: "2.0"
+contract: open_web_domain_registry_v2
+domains:
+  - domain: mikawanoyasou.org
+    source_name: Flora of Mikawa / 三河の植物観察
+    source_type: specialist_regional_flora
+    region: Japan
+    language: ja
+    organization_type: expert_personal_botanical_site
+    robots_access_notes: robots.txt returns 404; use low-rate GETs, cache pages, and do not crawl images
+    page_pattern: "^https://mikawanoyasou\\.org/data/[A-Za-z0-9_-]+\\.htm$"
+    treatment_end_pattern: "fami(?:ly|liy)\\s*:?"
+    inventory_urls:
+      - https://mikawanoyasou.org/50on/wamei-data.htm
+    inventory_depth: 2
+    scientific_name_displayed: true
+    cultivar_descriptions_present: true
+    provenance_quality: specialist description with page-level references and stable species treatments
+    recommended_evidence_tier: B
+    review_status: approved
+    allowed_traits:
+      - flower_primary_color
+      - floral_form
+      - floral_symmetry
+      - tube_depth_class
+      - flower_size_class
+      - inflorescence_display
+      - reward_type
+      - pollen_vector_mode
+
+  - domain: botanic.jp
+    source_name: Botanic Garden digital plant encyclopedia
+    source_type: expert_personal_botanical_site
+    region: global
+    language: ja-en
+    organization_type: expert_personal_botanical_site
+    robots_access_notes: crawl only index-linked HTML treatments at low rate; cache pages and skip images
+    page_pattern: "^https://botanic\\.jp/plants-[a-z]{2}/[A-Za-z0-9_-]+\\.htm$"
+    treatment_end_pattern: "Shu Suehiro"
+    inventory_urls:
+      - https://www.botanic.jp/contents/aa.htm
+      - https://www.botanic.jp/contents/ka.htm
+      - https://www.botanic.jp/contents/sa.htm
+      - https://www.botanic.jp/contents/ta.htm
+      - https://www.botanic.jp/contents/na.htm
+      - https://www.botanic.jp/contents/ha.htm
+      - https://www.botanic.jp/contents/ma.htm
+      - https://www.botanic.jp/contents/ya.htm
+      - https://www.botanic.jp/contents/ra.htm
+      - https://www.botanic.jp/contents/wa.htm
+    inventory_depth: 1
+    scientific_name_displayed: true
+    cultivar_descriptions_present: true
+    provenance_quality: bilingual species descriptions with scientific name, family, observations, and stable author attribution
+    recommended_evidence_tier: B
+    review_status: approved
+    allowed_traits:
+      - flower_primary_color
+      - floral_form
+      - floral_symmetry
+      - tube_depth_class
+      - flower_size_class
+      - inflorescence_display
+      - reward_type
+      - pollen_vector_mode
+
+  - domain: tbg.kahaku.go.jp
+    source_name: Tsukuba Botanical Garden illustrated flora
+    source_type: public_botanic_garden_flora
+    region: Japan and cultivated global collection
+    language: ja
+    organization_type: national_museum_botanic_garden
+    robots_access_notes: crawl only the illustrated-flora index and result pages at low rate; skip image assets
+    page_pattern: "^https://tbg\\.kahaku\\.go\\.jp/recommend/illustrated/result\\.php\\?name=.*$"
+    treatment_end_pattern: "名前の由来"
+    inventory_urls:
+      - https://tbg.kahaku.go.jp/recommend/illustrated/index.php?list=jname
+    inventory_depth: 2
+    scientific_name_displayed: true
+    cultivar_descriptions_present: true
+    provenance_quality: institutional species profile with scientific name, family, description, distribution, and collection metadata
+    recommended_evidence_tier: A
+    review_status: approved
+    allowed_traits:
+      - flower_primary_color
+      - floral_form
+      - floral_symmetry
+      - tube_depth_class
+      - flower_size_class
+      - inflorescence_display
+      - reward_type
+      - pollen_vector_mode
+
+  - domain: plantnet.rbgsyd.nsw.gov.au
+    source_name: PlantNET New South Wales Flora Online
+    source_type: institutional_regional_flora
+    region: New South Wales, Australia
+    language: en
+    organization_type: state_herbarium_botanic_garden
+    robots_access_notes: crawl the published full index and species treatments at low rate; no spatial queries or images
+    page_pattern: "^https://plantnet\\.rbgsyd\\.nsw\\.gov\\.au/cgi-bin/NSWfl\\.pl\\?(?=.*lvl=sp)(?=.*name=).*$"
+    treatment_end_pattern: "Text by"
+    inventory_urls:
+      - https://plantnet.rbgsyd.nsw.gov.au/PlantNet/NSWflora/fullindex.html
+    inventory_depth: 1
+    scientific_name_displayed: true
+    cultivar_descriptions_present: true
+    provenance_quality: institutional flora treatment with scientific name, family, botanical description, authorship, and taxon concept
+    recommended_evidence_tier: A
+    review_status: approved
+    allowed_traits:
+      - flower_primary_color
+      - floral_form
+      - floral_symmetry
+      - tube_depth_class
+      - flower_size_class
+      - inflorescence_display
+      - reward_type
+      - pollen_vector_mode
