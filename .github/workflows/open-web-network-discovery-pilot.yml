@@ -5,10 +5,13 @@ on:
     paths:
       - ".github/workflows/open-web-network-discovery-pilot.yml"
       - "src/island_v2/open_web_network_pilot.py"
+      - "src/island_v2/open_web_network_structured_pilot.py"
+      - "src/island_v2/open_web_structured_traits.py"
       - "src/island_v2/open_web_evidence.py"
       - "config/open_web_trait_acquisition.yml"
       - "config/open_web_domain_registry.yml"
       - "tests/test_open_web_network_pilot.py"
+      - "tests/test_open_web_structured_traits.py"
   workflow_dispatch:
     inputs:
       baseline_run_id:
@@ -58,10 +61,15 @@ jobs:
           ruff check \
             --ignore B008 \
             src/island_v2/open_web_network_pilot.py \
+            src/island_v2/open_web_network_structured_pilot.py \
+            src/island_v2/open_web_structured_traits.py \
             tests/test_open_web_network_pilot.py \
+            tests/test_open_web_structured_traits.py \
             > outputs/open_web_network_validation/ruff.txt 2>&1
           ruff_status=$?
-          pytest -q tests/test_open_web_network_pilot.py \
+          pytest -q \
+            tests/test_open_web_network_pilot.py \
+            tests/test_open_web_structured_traits.py \
             > outputs/open_web_network_validation/pytest.txt 2>&1
           pytest_status=$?
           printf '{"ruff_status":%s,"pytest_status":%s}\n' \
@@ -110,7 +118,7 @@ jobs:
       - name: Search broadly and fetch exact source pages
         run: |
           mkdir -p outputs/open_web_network_pilot
-          python -m island_v2.open_web_network_pilot \
+          python -m island_v2.open_web_network_structured_pilot \
             --baseline-dir /tmp/open-web-network-baseline \
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
             --output-dir outputs/open_web_network_pilot \
