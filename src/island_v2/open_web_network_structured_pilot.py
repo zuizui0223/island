@@ -26,14 +26,19 @@ def _combined_extract_rules(
     config,
     treatment_end_pattern: str = "",
 ):
-    sentence_rows = _RULE_EXTRACTOR(
+    # Explicit key-value blocks have a clearer subject boundary than sentences
+    # elsewhere on the page.  When present, they replace rather than supplement
+    # free-text matches, preventing comparison keys or alternative options from
+    # creating contradictory pseudo-records.
+    structured_rows = extract_structured_characteristics(page, trait_name=trait_name)
+    if structured_rows:
+        return structured_rows
+    return _RULE_EXTRACTOR(
         page,
         trait_name=trait_name,
         config=config,
         treatment_end_pattern=treatment_end_pattern,
     )
-    structured_rows = extract_structured_characteristics(page, trait_name=trait_name)
-    return list(dict.fromkeys([*sentence_rows, *structured_rows]))
 
 
 def _diversified_priority_queue(
@@ -170,9 +175,7 @@ def _fetch_all_strict_traits(
                 if candidate_key in seen_candidates:
                     continue
                 seen_candidates.add(candidate_key)
-                candidate_id = network._sha(
-                    "|".join([*candidate_key, excerpt])
-                )[:24]
+                candidate_id = network._sha("|".join([*candidate_key, excerpt]))[:24]
                 approved = registry_record is not None and registry_record.allows_trait(trait)
                 candidates.append(
                     {
