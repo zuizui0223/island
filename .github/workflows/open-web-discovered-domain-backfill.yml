@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/open-web-discovered-domain-backfill.yml"
       - "src/island_v2/open_web_inventory_pilot.py"
+      - "src/island_v2/open_web_inventory_strict_pilot.py"
       - "src/island_v2/open_web_network_structured_pilot.py"
       - "src/island_v2/open_web_structured_traits.py"
       - "config/open_web_domain_registry.yml"
@@ -50,6 +51,7 @@ jobs:
           mkdir -p outputs/open_web_inventory_validation
           ruff check --ignore B008 \
             src/island_v2/open_web_inventory_pilot.py \
+            src/island_v2/open_web_inventory_strict_pilot.py \
             tests/test_open_web_inventory_pilot.py \
             > outputs/open_web_inventory_validation/ruff.txt 2>&1
           ruff_status=$?
@@ -100,7 +102,7 @@ jobs:
       - name: Discover and extract the approved site inventory
         run: |
           mkdir -p outputs/open_web_inventory_backfill
-          python -m island_v2.open_web_inventory_pilot \
+          python -m island_v2.open_web_inventory_strict_pilot \
             --baseline-dir /tmp/open-web-inventory-baseline \
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
             --output-dir outputs/open_web_inventory_backfill \
@@ -117,6 +119,7 @@ jobs:
             and .automatic_promotion == false
             and .family_inference == false
             and .global_fallback == false
+            and (.contract_eligible_novel_rows >= 0)
           ' outputs/open_web_inventory_backfill/inventory_pilot_report.json
       - uses: actions/upload-artifact@v4
         with:
