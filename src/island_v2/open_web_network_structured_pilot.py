@@ -16,6 +16,7 @@ from island_v2.open_web_evidence import (
 from island_v2.open_web_structured_traits import extract_structured_characteristics
 
 _RULE_EXTRACTOR = network.extract_rules
+_QUEUE_BUILDER = network.build_priority_queue
 
 
 def _combined_extract_rules(
@@ -35,6 +36,55 @@ def _combined_extract_rules(
     return list(dict.fromkeys([*sentence_rows, *structured_rows]))
 
 
+def _diversified_priority_queue(
+    coverage,
+    evidence,
+    master,
+    *,
+    species_limit: int,
+    traits_per_species: int,
+):
+    """Retain information value while preventing one large genus dominating discovery."""
+
+    expanded_limit = min(500, max(species_limit * 20, species_limit))
+    expanded = _QUEUE_BUILDER(
+        coverage,
+        evidence,
+        master,
+        species_limit=expanded_limit,
+        traits_per_species=traits_per_species,
+    ).sort_values(
+        ["priority_score", "potential_species_trait_unlocked", "accepted_species"],
+        ascending=[False, False, True],
+    )
+    species_rows = expanded.drop_duplicates("accepted_species")
+    selected_species: list[str] = []
+    genus_counts: Counter[str] = Counter()
+    for row in species_rows.itertuples(index=False):
+        genus = network._text(row.genus)
+        if genus_counts[genus] >= 2:
+            continue
+        selected_species.append(row.accepted_species)
+        genus_counts[genus] += 1
+        if len(selected_species) >= species_limit:
+            break
+    if len(selected_species) < species_limit:
+        chosen = set(selected_species)
+        for species in species_rows["accepted_species"]:
+            if species in chosen:
+                continue
+            selected_species.append(species)
+            chosen.add(species)
+            if len(selected_species) >= species_limit:
+                break
+    rank = {species: index + 1 for index, species in enumerate(selected_species)}
+    selected = expanded.loc[expanded["accepted_species"].isin(rank)].copy()
+    selected["species_rank"] = selected["accepted_species"].map(rank)
+    return selected.sort_values(
+        ["species_rank", "priority_score"], ascending=[True, False]
+    ).reset_index(drop=True)
+
+
 def _fetch_all_strict_traits(
     hits: Sequence[Mapping[str, object]],
     *,
@@ -52,6 +102,7 @@ def _fetch_all_strict_traits(
     page_audit: list[dict[str, object]] = []
     domain_stats: dict[str, Counter[str]] = defaultdict(Counter)
     seen_urls: set[str] = set()
+    seen_candidates: set[tuple[str, str, str, str]] = set()
 
     for hit in hits:
         if len(seen_urls) >= max_pages:
@@ -110,16 +161,17 @@ def _fetch_all_strict_traits(
             )
             for raw_value, normalized_value, excerpt in extracted:
                 lineage, lineage_method = source_lineage(url, excerpt)
+                candidate_key = (
+                    resolution.accepted_species,
+                    trait,
+                    normalized_value,
+                    lineage,
+                )
+                if candidate_key in seen_candidates:
+                    continue
+                seen_candidates.add(candidate_key)
                 candidate_id = network._sha(
-                    "|".join(
-                        [
-                            resolution.accepted_species,
-                            trait,
-                            normalized_value,
-                            lineage,
-                            excerpt,
-                        ]
-                    )
+                    "|".join([*candidate_key, excerpt])
                 )[:24]
                 approved = registry_record is not None and registry_record.allows_trait(trait)
                 candidates.append(
@@ -191,6 +243,7 @@ def _fetch_all_strict_traits(
 
 
 network.extract_rules = _combined_extract_rules
+network.build_priority_queue = _diversified_priority_queue
 network.fetch_candidates = _fetch_all_strict_traits
 
 
