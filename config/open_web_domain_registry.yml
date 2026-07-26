@@ -29,6 +29,31 @@ domains:
       - pollen_vector_mode
     success_rate: 0.5266666666666666
     false_positive_audit: "2026-07-25: 100/100 audited candidate pages correct after fail-closed gates; cultivar contamination 0/100"
+  - domain: gobotany.nativeplanttrust.org
+    source_name: Go Botany / Native Plant Trust
+    source_type: specialist_regional_botanical_database
+    region: New England, North America
+    language: en
+    organization_type: nonprofit_botanical_conservation_organization
+    robots_access_notes: use result URLs only; low-rate cached GETs; do not crawl images
+    page_pattern: "^https://gobotany\\.nativeplanttrust\\.org/species/[a-z-]+/[a-z-]+$"
+    treatment_end_pattern: ""
+    inventory_urls: []
+    inventory_depth: 0
+    scientific_name_displayed: true
+    cultivar_descriptions_present: false
+    provenance_quality: expert-curated regional flora with explicit structured species characteristics
+    recommended_evidence_tier: B
+    review_status: approved
+    allowed_traits:
+      - flower_primary_color
+      - floral_form
+      - floral_symmetry
+      - flower_size_class
+      - inflorescence_display
+      - cleistogamy
+    success_rate: null
+    false_positive_audit: pending_network_pilot_manual_review
   - domain: powo.science.kew.org
     source_name: Plants of the World Online
     source_type: public_botanical_database
