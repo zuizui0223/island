@@ -53,11 +53,31 @@ jobs:
       - run: pip install -e ".[dev]"
       - name: Validate broad discovery safeguards
         run: |
+          set +e
+          mkdir -p outputs/open_web_network_validation
           ruff check \
             --ignore B008 \
             src/island_v2/open_web_network_pilot.py \
-            tests/test_open_web_network_pilot.py
-          pytest -q tests/test_open_web_network_pilot.py
+            tests/test_open_web_network_pilot.py \
+            > outputs/open_web_network_validation/ruff.txt 2>&1
+          ruff_status=$?
+          pytest -q tests/test_open_web_network_pilot.py \
+            > outputs/open_web_network_validation/pytest.txt 2>&1
+          pytest_status=$?
+          printf '{"ruff_status":%s,"pytest_status":%s}\n' \
+            "$ruff_status" "$pytest_status" \
+            > outputs/open_web_network_validation/status.json
+          cat outputs/open_web_network_validation/ruff.txt
+          cat outputs/open_web_network_validation/pytest.txt
+          test "$ruff_status" -eq 0
+          test "$pytest_status" -eq 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: open-web-network-validation-${{ github.run_id }}
+          path: outputs/open_web_network_validation/
+          if-no-files-found: warn
+          retention-days: 7
 
   network-pilot:
     needs: validate
