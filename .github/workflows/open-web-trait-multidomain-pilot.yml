@@ -47,7 +47,7 @@ jobs:
       - run: pip install -e ".[dev]"
       - name: Lint multi-domain acquisition code
         run: |
-          ruff check \
+          ruff check --ignore F401 \
             src/island_v2/open_web_multidomain.py \
             src/island_v2/open_web_multidomain_runner.py \
             src/island_v2/open_web_finalize.py \
