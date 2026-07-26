@@ -1,0 +1,99 @@
+from __future__ import annotations
+
+from island_v2.open_web_evidence import DomainRecord, Page
+from island_v2.open_web_inventory_pilot import discover_species_urls
+
+
+class FakeFetcher:
+    def __init__(self, pages: dict[str, Page]) -> None:
+        self.pages = pages
+        self.calls: list[str] = []
+
+    def fetch(self, url: str) -> Page:
+        self.calls.append(url)
+        return self.pages[url]
+
+
+def _page(url: str, links: tuple[str, ...]) -> Page:
+    return Page(
+        requested_url=url,
+        final_url=url,
+        status_code=200,
+        content_type="text/html",
+        title="Index",
+        text="index",
+        language="en",
+        retrieved_at_utc="2026-07-26T00:00:00Z",
+        content_sha256="abc",
+        links=links,
+    )
+
+
+def test_inventory_discovers_species_urls_without_fetching_treatments_twice() -> None:
+    index = "https://flora.example/list"
+    species_one = "https://flora.example/species/alpha/one"
+    species_two = "https://flora.example/species/beta/two"
+    outside = "https://elsewhere.example/species/gamma/three"
+    record = DomainRecord(
+        domain="flora.example",
+        source_name="Example Flora",
+        source_type="specialist_regional_flora",
+        region="Test",
+        language="en",
+        organization_type="nonprofit",
+        robots_access_notes="test",
+        page_pattern=r"^https://flora\.example/species/[a-z-]+/[a-z-]+$",
+        treatment_end_pattern="",
+        inventory_urls=(index,),
+        inventory_depth=1,
+        scientific_name_displayed=True,
+        cultivar_descriptions_present=False,
+        provenance_quality="test",
+        recommended_evidence_tier="B",
+        review_status="approved",
+        allowed_traits="all",
+    )
+    fetcher = FakeFetcher(
+        {index: _page(index, (species_one, species_two, outside))}
+    )
+    urls, audit = discover_species_urls(
+        record,
+        fetcher=fetcher,  # type: ignore[arg-type]
+        max_species_pages=10,
+    )
+    assert urls == [species_one, species_two]
+    assert fetcher.calls == [index]
+    assert len(audit) == 1
+
+
+def test_inventory_respects_species_page_cap() -> None:
+    index = "https://flora.example/list"
+    children = tuple(
+        f"https://flora.example/species/genus/species-{number}"
+        for number in range(10)
+    )
+    record = DomainRecord(
+        domain="flora.example",
+        source_name="Example Flora",
+        source_type="specialist_regional_flora",
+        region="Test",
+        language="en",
+        organization_type="nonprofit",
+        robots_access_notes="test",
+        page_pattern=r"^https://flora\.example/species/[a-z-]+/[a-z0-9-]+$",
+        treatment_end_pattern="",
+        inventory_urls=(index,),
+        inventory_depth=1,
+        scientific_name_displayed=True,
+        cultivar_descriptions_present=False,
+        provenance_quality="test",
+        recommended_evidence_tier="B",
+        review_status="approved",
+        allowed_traits="all",
+    )
+    urls, _ = discover_species_urls(
+        record,
+        fetcher=FakeFetcher({index: _page(index, children)}),  # type: ignore[arg-type]
+        max_species_pages=3,
+    )
+    assert len(urls) == 3
