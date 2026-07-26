@@ -71,7 +71,7 @@ domains:
     language: ja
     organization_type: national_museum_botanic_garden
     robots_access_notes: crawl only the illustrated-flora index and result pages at low rate; skip image assets
-    page_pattern: "^https://tbg\\.kahaku\\.go\\.jp/recommend/illustrated/result\\.php\\?name=.*$"
+    page_pattern: "^https://tbg\\.kahaku\\.go\\.jp/recommend/illustrated/result\\.php\\?(?=.*(?:^|&)name=).*$"
     treatment_end_pattern: "名前の由来"
     inventory_urls:
       - https://tbg.kahaku.go.jp/recommend/illustrated/index.php?list=jname
