@@ -1,16 +1,16 @@
 """Finalize reviewed open-Web evidence with trait-specific Low rebuilding.
 
-This module supersedes the pilot's first-pass finalizer. It fixes two material
-issues: audit errors can no longer disappear from the precision denominator,
-and genus rules are applied through genus x axis x trait rather than genus x
-axis alone. Reward and pollen-vector evidence remain separate outcomes and do
-not fill the floral-structure axis.
+Audit errors remain in the precision denominator. Genus rules are applied via
+``genus x axis x trait_name``. Reward and pollen-vector evidence stay as
+separate outcomes and never fill the floral-structure axis.
 """
+
+# Typer command defaults intentionally use Option metadata.
+# ruff: noqa: B008
 
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -59,10 +59,47 @@ MASKED = {
     "floral_structural_complexity": 0.75,
     "reproductive_assurance": 0.85,
 }
+RULE_COLUMNS = [
+    "genus",
+    "axis",
+    "trait_name",
+    "inferred_value",
+    "n_direct_species",
+    "dominant_species",
+    "counterexample_species",
+    "dominance",
+    "required_dominance",
+    "masked_n",
+    "masked_correct",
+    "masked_accuracy",
+    "required_masked_accuracy",
+    "eligible",
+]
+LOW_COLUMNS = [
+    "accepted_species",
+    "genus",
+    "axis",
+    "trait_name",
+    *[column for column in RULE_COLUMNS if column not in {"genus", "axis", "trait_name"}],
+    "normalized_value",
+    "quality",
+    "evidence_scope",
+    "inference_method",
+    "family_inference_used",
+    "global_fallback_used",
+]
 
 
 def _now() -> str:
     return datetime.now(UTC).isoformat().replace("+00:00", "Z")
+
+
+def _empty_rules() -> pd.DataFrame:
+    return pd.DataFrame(columns=RULE_COLUMNS)
+
+
+def _empty_low() -> pd.DataFrame:
+    return pd.DataFrame(columns=LOW_COLUMNS)
 
 
 def _winning_direct(
@@ -92,10 +129,16 @@ def _winning_direct(
                 "source_lineage",
             ]
         ].rename(columns={"confidence": "quality"})
-        added = added.loc[added["trait_name"].isin(STRICT_TRAIT_AXIS)]
-        direct = pd.concat([direct, added], ignore_index=True)
-    direct["quality_rank"] = direct["quality"].map({"medium": 1, "high": 2})
-    direct["quality_rank"] = direct["quality_rank"].fillna(0)
+        direct = pd.concat(
+            [direct, added.loc[added["trait_name"].isin(STRICT_TRAIT_AXIS)]],
+            ignore_index=True,
+        )
+    if direct.empty:
+        return pd.DataFrame(columns=columns), pd.DataFrame(
+            columns=["accepted_species", "trait_name", "normalized_value"]
+        )
+
+    direct["quality_rank"] = direct["quality"].map({"medium": 1, "high": 2}).fillna(0)
     best_rank = direct.groupby(["accepted_species", "trait_name"])[
         "quality_rank"
     ].transform("max")
@@ -121,18 +164,18 @@ def _winning_direct(
         unambiguous_keys,
         on=["accepted_species", "trait_name"],
         how="inner",
-    ).copy()
+    )
     unambiguous = unambiguous.loc[
         ~unambiguous["normalized_value"].isin(
             {"multicolored_variable", "multistate_variable"}
         )
-    ]
+    ].copy()
     return unambiguous, conflicts
 
 
 def _genus_rules(direct: pd.DataFrame) -> pd.DataFrame:
     if direct.empty:
-        return pd.DataFrame()
+        return _empty_rules()
     votes = direct.drop_duplicates(
         ["accepted_species", "trait_name", "normalized_value"]
     ).copy()
@@ -149,13 +192,11 @@ def _genus_rules(direct: pd.DataFrame) -> pd.DataFrame:
     ].copy()
     species_values["value"] = species_values["normalized_value"].str[0]
     rows: list[dict[str, object]] = []
-    for (genus, trait), group in species_values.groupby(
-        ["genus", "trait_name"]
-    ):
+    for (genus, trait), group in species_values.groupby(["genus", "trait_name"]):
         axis = STRICT_TRAIT_AXIS[trait]
         counts = group["value"].value_counts()
         n_species = int(group["accepted_species"].nunique())
-        dominant_value = _text(counts.index[0])
+        inferred_value = _text(counts.index[0])
         dominant_species = int(counts.iloc[0])
         dominance = dominant_species / n_species
         outcomes: list[bool] = []
@@ -163,20 +204,15 @@ def _genus_rules(direct: pd.DataFrame) -> pd.DataFrame:
             training = group.drop(index=index)
             if training.empty:
                 continue
-            predicted = _text(training["value"].value_counts().index[0])
-            outcomes.append(predicted == _text(held["value"]))
+            prediction = _text(training["value"].value_counts().index[0])
+            outcomes.append(prediction == _text(held["value"]))
         masked_accuracy = sum(outcomes) / len(outcomes) if outcomes else 0.0
-        eligible = (
-            n_species >= 3
-            and dominance >= DOMINANCE[axis]
-            and masked_accuracy >= MASKED[axis]
-        )
         rows.append(
             {
                 "genus": genus,
                 "axis": axis,
                 "trait_name": trait,
-                "inferred_value": dominant_value,
+                "inferred_value": inferred_value,
                 "n_direct_species": n_species,
                 "dominant_species": dominant_species,
                 "counterexample_species": n_species - dominant_species,
@@ -186,10 +222,14 @@ def _genus_rules(direct: pd.DataFrame) -> pd.DataFrame:
                 "masked_correct": int(sum(outcomes)),
                 "masked_accuracy": masked_accuracy,
                 "required_masked_accuracy": MASKED[axis],
-                "eligible": eligible,
+                "eligible": bool(
+                    n_species >= 3
+                    and dominance >= DOMINANCE[axis]
+                    and masked_accuracy >= MASKED[axis]
+                ),
             }
         )
-    return pd.DataFrame(rows)
+    return pd.DataFrame(rows, columns=RULE_COLUMNS)
 
 
 def rebuild_validated_low(
@@ -212,38 +252,39 @@ def rebuild_validated_low(
             )
         ],
         ["accepted_species", "axis"],
-    ].copy()
-    task_rows: list[dict[str, str]] = []
-    for row in unresolved_axes.itertuples(index=False):
-        for trait in STRICT_AXIS_TRAITS[_text(row.axis)]:
-            task_rows.append(
-                {
-                    "accepted_species": _text(row.accepted_species),
-                    "genus": _text(row.accepted_species).split()[0],
-                    "axis": _text(row.axis),
-                    "trait_name": trait,
-                }
-            )
-    tasks = pd.DataFrame(task_rows)
-    eligible = (
-        rules.loc[rules["eligible"]].copy()
-        if not rules.empty
-        else pd.DataFrame(columns=["genus", "axis", "trait_name"])
+    ]
+    task_rows = [
+        {
+            "accepted_species": _text(row.accepted_species),
+            "genus": _text(row.accepted_species).split()[0],
+            "axis": _text(row.axis),
+            "trait_name": trait,
+        }
+        for row in unresolved_axes.itertuples(index=False)
+        for trait in STRICT_AXIS_TRAITS[_text(row.axis)]
+    ]
+    tasks = pd.DataFrame(
+        task_rows,
+        columns=["accepted_species", "genus", "axis", "trait_name"],
     )
-    low = tasks.merge(
-        eligible,
-        on=["genus", "axis", "trait_name"],
-        how="inner",
-    )
-    low["normalized_value"] = low["inferred_value"]
-    low["quality"] = "low"
-    low["evidence_scope"] = "genus_consensus"
-    low["inference_method"] = "validated_genus_consensus"
-    low["family_inference_used"] = False
-    low["global_fallback_used"] = False
-    low = low.drop_duplicates(
-        ["accepted_species", "trait_name", "normalized_value"]
-    )
+    eligible = rules.loc[rules["eligible"]].copy() if not rules.empty else _empty_rules()
+    if tasks.empty or eligible.empty:
+        low = _empty_low()
+    else:
+        low = tasks.merge(
+            eligible,
+            on=["genus", "axis", "trait_name"],
+            how="inner",
+        )
+        low["normalized_value"] = low["inferred_value"]
+        low["quality"] = "low"
+        low["evidence_scope"] = "genus_consensus"
+        low["inference_method"] = "validated_genus_consensus"
+        low["family_inference_used"] = False
+        low["global_fallback_used"] = False
+        low = low.drop_duplicates(
+            ["accepted_species", "trait_name", "normalized_value"]
+        ).reindex(columns=LOW_COLUMNS)
 
     old_low_axes = set(
         zip(
@@ -259,9 +300,7 @@ def rebuild_validated_low(
         "family_inference": False,
         "global_fallback": False,
         "direct_species_trait_conflicts_excluded": len(conflicts),
-        "eligible_genus_trait_rules": (
-            int(rules["eligible"].sum()) if not rules.empty else 0
-        ),
+        "eligible_genus_trait_rules": int(rules["eligible"].sum()) if not rules.empty else 0,
         "rebuilt_validated_low_species_trait": int(
             low.drop_duplicates(["accepted_species", "trait_name"]).shape[0]
         ),
@@ -305,12 +344,13 @@ def apply_review(
         & reviewed["provenance_complete"].map(_bool)
         & ~reviewed["cultivar_contamination"].map(_bool)
     )
-    accepted_audit = reviewed.loc[good_mask].copy()
-    review_rows = accepted_audit.assign(decision="accept").to_dict("records")
+    accepted_audit = reviewed.loc[good_mask]
     promoted = pd.DataFrame(
-        promote_reviewed(candidates.to_dict("records"), review_rows)
+        promote_reviewed(
+            candidates.to_dict("records"),
+            accepted_audit.assign(decision="accept").to_dict("records"),
+        )
     )
-
     precision = len(accepted_audit) / len(reviewed) if len(reviewed) else None
     cultivar_rate = (
         float(reviewed["cultivar_contamination"].map(_bool).mean())
@@ -326,22 +366,17 @@ def apply_review(
             "precision": len(good) / len(group) if len(group) else None,
         }
     approved_traits = _production_approved_traits(by_trait)
-
     rules, low, conflicts, low_report = rebuild_validated_low(
         coverage=coverage,
         evidence=evidence,
         promoted=promoted,
     )
-    direct_baseline_axes = set(
+    baseline_direct_axes = set(
         zip(
             coverage.loc[
-                coverage["after_quality"].isin(DIRECT_QUALITY),
-                "accepted_species",
+                coverage["after_quality"].isin(DIRECT_QUALITY), "accepted_species"
             ],
-            coverage.loc[
-                coverage["after_quality"].isin(DIRECT_QUALITY),
-                "axis",
-            ],
+            coverage.loc[coverage["after_quality"].isin(DIRECT_QUALITY), "axis"],
         )
     )
     promoted_axes = {
@@ -350,21 +385,19 @@ def apply_review(
         if row.trait_name in STRICT_TRAIT_AXIS
     }
     low_axes = set(zip(low["accepted_species"], low["axis"]))
-    final_axes = direct_baseline_axes | promoted_axes | low_axes
+    final_axes = baseline_direct_axes | promoted_axes | low_axes
     baseline_axes = set(
         zip(
             coverage.loc[coverage["after_quality"].ne(""), "accepted_species"],
             coverage.loc[coverage["after_quality"].ne(""), "axis"],
         )
     )
-
     output_dir.mkdir(parents=True, exist_ok=True)
     promoted.to_csv(output_dir / "accepted_open_web_evidence.csv", index=False)
     rules.to_csv(output_dir / "rebuilt_validated_genus_rules.csv.gz", index=False)
     low.to_csv(output_dir / "rebuilt_validated_low_evidence.csv.gz", index=False)
     conflicts.to_csv(
-        output_dir / "direct_species_trait_conflicts_excluded.csv.gz",
-        index=False,
+        output_dir / "direct_species_trait_conflicts_excluded.csv.gz", index=False
     )
     report: dict[str, object] = {
         "contract": CONTRACT,
@@ -373,42 +406,21 @@ def apply_review(
         "accepted_correct": len(accepted_audit),
         "precision_denominator": len(reviewed),
         "precision": precision,
-        "species_identity_accuracy": (
-            float(reviewed["species_identity_correct"].map(_bool).mean())
-            if len(reviewed)
-            else None
-        ),
-        "value_accuracy": (
-            float(reviewed["value_correct"].map(_bool).mean())
-            if len(reviewed)
-            else None
-        ),
-        "provenance_completeness": (
-            float(reviewed["provenance_complete"].map(_bool).mean())
-            if len(reviewed)
-            else None
-        ),
         "cultivar_contamination_rate": cultivar_rate,
         "by_trait": by_trait,
         "production_approved_traits": approved_traits,
         "new_direct_species_trait": (
-            int(
-                promoted.drop_duplicates(["accepted_species", "trait_name"])
-                .shape[0]
-            )
+            int(promoted.drop_duplicates(["accepted_species", "trait_name"]).shape[0])
             if not promoted.empty
             else 0
         ),
-        "new_direct_species_axis": len(promoted_axes - direct_baseline_axes),
+        "new_direct_species_axis": len(promoted_axes - baseline_direct_axes),
         "validated_low_rebuild": low_report,
         "strict_filled_species_axis_before": len(baseline_axes),
         "strict_filled_species_axis_after": len(final_axes),
         "strict_coverage_before": len(baseline_axes) / 318_885,
         "strict_coverage_after": len(final_axes) / 318_885,
-        "strict_coverage_increment": (
-            len(final_axes) - len(baseline_axes)
-        )
-        / 318_885,
+        "strict_coverage_increment": (len(final_axes) - len(baseline_axes)) / 318_885,
         "production_approved": bool(
             len(reviewed) >= 100
             and precision is not None
