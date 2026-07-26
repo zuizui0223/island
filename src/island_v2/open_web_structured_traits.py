@@ -1,16 +1,14 @@
 """Extract explicit key-value floral traits from structured species pages.
 
-Many regional floras and specialist sites render a characteristic name on one
-line and its value on the next.  The sentence-rule extractor intentionally does
-not join arbitrary neighbouring text, so this module handles only a small set of
-explicit, auditable field labels.  Each result retains the exact label and value
-as the supporting excerpt.
+Regional floras and specialist sites often render a characteristic label followed
+by one or more values.  This module reads the complete value block rather than
+an arbitrary sentence.  Multiple reported states remain explicit instead of
+being collapsed to whichever option happens to occur last on the page.
 """
 
 from __future__ import annotations
 
 import re
-from collections.abc import Sequence
 
 from island_v2.open_web_evidence import Page
 
@@ -61,13 +59,46 @@ def _text(value: object) -> str:
     return " ".join(str(value or "").replace("\xa0", " ").split())
 
 
-def _pairs(text: str) -> Sequence[tuple[str, str]]:
-    lines = [_text(line) for line in text.splitlines() if _text(line)]
-    return tuple(zip(lines, lines[1:]))
-
-
 def _matches_label(label: str, trait_name: str) -> bool:
     return any(pattern.fullmatch(label) for pattern in LABELS.get(trait_name, ()))
+
+
+def _known_label(line: str) -> bool:
+    return any(
+        pattern.fullmatch(line)
+        for patterns in LABELS.values()
+        for pattern in patterns
+    )
+
+
+def _looks_like_next_field(line: str) -> bool:
+    """Recognize a short characteristic heading, not a value sentence."""
+
+    if _known_label(line):
+        return True
+    if line.casefold() in {"na", "n/a", "no", "yes", "unknown"}:
+        return False
+    if len(line) > 80 or len(line.split()) > 9:
+        return False
+    if re.search(r"[.!?;:]$", line):
+        return False
+    return bool(re.fullmatch(r"[A-Z][A-Za-z ()/,'-]{2,79}", line))
+
+
+def _field_blocks(text: str, trait_name: str) -> list[tuple[str, list[str]]]:
+    lines = [_text(line) for line in text.splitlines() if _text(line)]
+    blocks: list[tuple[str, list[str]]] = []
+    for index, label in enumerate(lines):
+        if not _matches_label(label, trait_name):
+            continue
+        values: list[str] = []
+        for value in lines[index + 1 : index + 7]:
+            if _looks_like_next_field(value):
+                break
+            values.append(value)
+        if values:
+            blocks.append((label, values))
+    return blocks
 
 
 def _colour(value: str) -> str:
@@ -81,19 +112,27 @@ def _colour(value: str) -> str:
 
 
 def _symmetry(value: str) -> str:
-    if re.search(
-        r"radially\s+symmetr|actinomorph|two\s+or\s+more\s+ways\s+to\s+evenly\s+divide|"
-        r"放射相称|辐射对称",
-        value,
-        re.IGNORECASE,
-    ):
+    radial = bool(
+        re.search(
+            r"radially\s+symmetr|actinomorph|two\s+or\s+more\s+ways\s+to\s+evenly\s+divide|"
+            r"放射相称|辐射对称",
+            value,
+            re.IGNORECASE,
+        )
+    )
+    bilateral = bool(
+        re.search(
+            r"bilaterally\s+symmetr|zygomorph|only\s+one\s+way\s+to\s+evenly\s+divide|"
+            r"左右相称|两侧对称",
+            value,
+            re.IGNORECASE,
+        )
+    )
+    if radial and bilateral:
+        return "multistate_variable"
+    if radial:
         return "actinomorphic"
-    if re.search(
-        r"bilaterally\s+symmetr|zygomorph|only\s+one\s+way\s+to\s+evenly\s+divide|"
-        r"左右相称|两侧对称",
-        value,
-        re.IGNORECASE,
-    ):
+    if bilateral:
         return "zygomorphic"
     return ""
 
@@ -119,17 +158,47 @@ def _size(value: str) -> str:
 
 
 def _cleistogamy(value: str) -> str:
-    if re.search(
-        r"\b(?:no|none|absent|not)\b.{0,30}cleistogam|"
-        r"there\s+are\s+no\s+cleistogamous\s+flowers|閉鎖花.{0,10}(?:ない|無し|なし)",
-        value,
-        re.IGNORECASE,
-    ):
-        return "absent"
-    if re.search(r"facultative|chasmogamous\s+and\s+cleistogamous|開放花と閉鎖花", value, re.IGNORECASE):
-        return "facultative"
-    if re.search(r"obligate|only\s+cleistogamous|閉鎖花のみ", value, re.IGNORECASE):
+    absent = bool(
+        re.search(
+            r"\b(?:no|none|absent|not)\b.{0,40}cleistogam|"
+            r"there\s+are\s+no\s+cleistogamous\s+flowers|"
+            r"閉鎖花.{0,10}(?:ない|無し|なし)",
+            value,
+            re.IGNORECASE,
+        )
+    )
+    present = bool(
+        re.search(
+            r"(?:has|have|with|some|both).{0,35}cleistogam|"
+            r"cleistogamous\s+flowers?.{0,20}(?:present|occur)|"
+            r"閉鎖花.{0,10}(?:ある|あり|つける)",
+            value,
+            re.IGNORECASE,
+        )
+    )
+    obligate = bool(
+        re.search(
+            r"obligate|only\s+cleistogamous|閉鎖花のみ",
+            value,
+            re.IGNORECASE,
+        )
+    )
+    facultative = bool(
+        re.search(
+            r"facultative|chasmogamous\s+and\s+cleistogamous|"
+            r"some\s+cleistogamous|開放花と閉鎖花",
+            value,
+            re.IGNORECASE,
+        )
+    )
+    if present and absent:
+        return "multistate_variable"
+    if obligate:
         return "obligate"
+    if facultative or present:
+        return "facultative"
+    if absent:
+        return "absent"
     return ""
 
 
@@ -150,9 +219,8 @@ def extract_structured_characteristics(
     if extractor is None:
         return []
     rows: list[tuple[str, str, str]] = []
-    for label, value in _pairs(page.text):
-        if not _matches_label(label, trait_name):
-            continue
+    for label, values in _field_blocks(page.text, trait_name):
+        value = "; ".join(values)
         normalized = extractor(value)
         if not normalized:
             continue
