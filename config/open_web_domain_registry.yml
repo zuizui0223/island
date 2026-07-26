@@ -48,10 +48,8 @@ domains:
     review_status: approved
     allowed_traits:
       - flower_primary_color
-      - floral_form
       - floral_symmetry
       - flower_size_class
-      - inflorescence_display
       - cleistogamy
     success_rate: null
     false_positive_audit: pending_inventory_backfill_manual_review
@@ -80,7 +78,7 @@ domains:
     language: en
     organization_type: university
     robots_access_notes: use result URLs only; respect current robots directives
-    page_pattern: "^https://plants\\.ces\\.ncsu\\.edu/plants/"
+    page_pattern: "^https://plants\\.ces.ncsu\\.edu/plants/"
     inventory_urls: []
     inventory_depth: 0
     scientific_name_displayed: true
