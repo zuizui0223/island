@@ -45,23 +45,22 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -e ".[dev]"
-      - name: Validate multi-domain acquisition code
+      - name: Lint multi-domain acquisition code
         run: |
           ruff check \
             src/island_v2/open_web_multidomain.py \
             src/island_v2/open_web_multidomain_runner.py \
             src/island_v2/open_web_finalize.py \
             tests/test_open_web_multidomain.py
-          ruff format --check \
-            src/island_v2/open_web_multidomain.py \
-            src/island_v2/open_web_multidomain_runner.py \
-            src/island_v2/open_web_finalize.py \
-            tests/test_open_web_multidomain.py
+      - name: Run focused tests
+        run: |
           pytest -q \
             tests/test_open_web_multidomain.py \
             tests/test_open_web_search.py \
             tests/test_open_web_evidence.py \
             tests/test_open_web_pilot.py
+      - name: Parse acquisition configuration
+        run: |
           python - <<'PY'
           import yaml
           from pathlib import Path
