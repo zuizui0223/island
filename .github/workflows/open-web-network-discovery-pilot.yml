@@ -1,0 +1,121 @@
+name: Discover regional and specialist plant sites across the open Web
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/open-web-network-discovery-pilot.yml"
+      - "src/island_v2/open_web_network_pilot.py"
+      - "src/island_v2/open_web_evidence.py"
+      - "config/open_web_trait_acquisition.yml"
+      - "config/open_web_domain_registry.yml"
+      - "tests/test_open_web_network_pilot.py"
+  workflow_dispatch:
+    inputs:
+      baseline_run_id:
+        description: Successful integrated three-axis coverage run
+        required: true
+        default: "30107066525"
+      species_limit:
+        description: Prioritized unresolved species in this bounded pilot
+        required: true
+        default: "120"
+      traits_per_species:
+        description: Highest-information traits queried per species
+        required: true
+        default: "1"
+      max_queries:
+        description: Hard Marginalia public-API request cap
+        required: true
+        default: "100"
+      max_pages:
+        description: Hard source-page fetch cap
+        required: true
+        default: "300"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: open-web-network-discovery-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate broad discovery safeguards
+        run: |
+          ruff check \
+            src/island_v2/open_web_network_pilot.py \
+            tests/test_open_web_network_pilot.py
+          ruff format --check \
+            src/island_v2/open_web_network_pilot.py \
+            tests/test_open_web_network_pilot.py
+          pytest -q tests/test_open_web_network_pilot.py
+
+  network-pilot:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BASELINE_RUN_ID: ${{ inputs.baseline_run_id || '30107066525' }}
+      SPECIES_LIMIT: ${{ inputs.species_limit || '80' }}
+      TRAITS_PER_SPECIES: ${{ inputs.traits_per_species || '1' }}
+      MAX_QUERIES: ${{ inputs.max_queries || '60' }}
+      MAX_PAGES: ${{ inputs.max_pages || '180' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - name: Download the formal integrated baseline
+        run: |
+          mkdir -p /tmp/open-web-network-baseline
+          gh run download "$BASELINE_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "integrated-trait-coverage-$BASELINE_RUN_ID" \
+            --dir /tmp/open-web-network-baseline
+          test -f /tmp/open-web-network-baseline/integrated_trait_coverage_summary.json
+          test -f /tmp/open-web-network-baseline/integrated_species_axis_coverage.csv.gz
+          test -f /tmp/open-web-network-baseline/integrated_evidence_lineage.csv.gz
+      - name: Search broadly and fetch exact source pages
+        run: |
+          mkdir -p outputs/open_web_network_pilot
+          python -m island_v2.open_web_network_pilot \
+            --baseline-dir /tmp/open-web-network-baseline \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --output-dir outputs/open_web_network_pilot \
+            --species-limit "$SPECIES_LIMIT" \
+            --traits-per-species "$TRAITS_PER_SPECIES" \
+            --max-queries "$MAX_QUERIES" \
+            --results-per-query 5 \
+            --max-pages "$MAX_PAGES" \
+            --query-pause-seconds 1.25 \
+            --page-pause-seconds 0.35
+          cat outputs/open_web_network_pilot/network_pilot_report.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Assert that no provisional result was auto-promoted
+        run: |
+          jq -e '
+            .accepted_evidence_rows == 0
+            and .automatic_domain_approval == false
+            and .manual_review_required == true
+            and .family_inference == false
+            and .global_fallback == false
+          ' outputs/open_web_network_pilot/network_pilot_report.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: open-web-network-discovery-${{ github.run_id }}
+          path: outputs/open_web_network_pilot/
+          if-no-files-found: error
+          retention-days: 90
