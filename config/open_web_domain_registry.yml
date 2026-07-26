@@ -35,11 +35,12 @@ domains:
     region: New England, North America
     language: en
     organization_type: nonprofit_botanical_conservation_organization
-    robots_access_notes: use result URLs only; low-rate cached GETs; do not crawl images
+    robots_access_notes: use low-rate cached GETs; do not crawl images
     page_pattern: "^https://gobotany\\.nativeplanttrust\\.org/species/[a-z-]+/[a-z-]+$"
     treatment_end_pattern: ""
-    inventory_urls: []
-    inventory_depth: 0
+    inventory_urls:
+      - https://gobotany.nativeplanttrust.org/list/
+    inventory_depth: 1
     scientific_name_displayed: true
     cultivar_descriptions_present: false
     provenance_quality: expert-curated regional flora with explicit structured species characteristics
@@ -53,7 +54,7 @@ domains:
       - inflorescence_display
       - cleistogamy
     success_rate: null
-    false_positive_audit: pending_network_pilot_manual_review
+    false_positive_audit: pending_inventory_backfill_manual_review
   - domain: powo.science.kew.org
     source_name: Plants of the World Online
     source_type: public_botanical_database
