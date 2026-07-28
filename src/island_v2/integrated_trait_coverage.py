@@ -685,7 +685,7 @@ def dedupe_source_lineages(
     data = data.sort_values(
         [
             "accepted_species",
-            "axis",
+            "trait_name",
             "source_lineage",
             "quality_rank",
             "source_group",
@@ -694,17 +694,17 @@ def dedupe_source_lineages(
         ascending=[True, True, True, False, True, True],
     )
     duplicate_mask = data.duplicated(
-        ["accepted_species", "axis", "source_lineage"], keep=False
+        ["accepted_species", "trait_name", "source_lineage"], keep=False
     )
     duplicates = data.loc[duplicate_mask].copy()
     duplicates["lineage_record_count"] = duplicates.groupby(
-        ["accepted_species", "axis", "source_lineage"]
+        ["accepted_species", "trait_name", "source_lineage"]
     )["source_lineage"].transform("size")
     duplicates["lineage_value_count"] = duplicates.groupby(
-        ["accepted_species", "axis", "source_lineage"]
+        ["accepted_species", "trait_name", "source_lineage"]
     )["normalized_value"].transform("nunique")
     deduped = data.drop_duplicates(
-        ["accepted_species", "axis", "source_lineage"], keep="first"
+        ["accepted_species", "trait_name", "source_lineage"], keep="first"
     ).drop(columns=["quality_rank"])
     return deduped, duplicates.drop(columns=["quality_rank"])
 
@@ -1105,7 +1105,7 @@ def aggregate(
             "lineage_duplicate_rows": len(cross_duplicates),
             "lineage_duplicate_groups": int(
                 cross_duplicates[
-                    ["accepted_species", "axis", "source_lineage"]
+                    ["accepted_species", "trait_name", "source_lineage"]
                 ].drop_duplicates().shape[0]
             ),
             "out_of_universe_bulk_rows": int(len(bulk_raw) - len(bulk_in_universe)),

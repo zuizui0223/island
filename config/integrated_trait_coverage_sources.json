@@ -1,8 +1,7 @@
 {
-  "contract": "integrated_trait_coverage_source_manifest_v1",
+  "contract": "integrated_trait_coverage_source_manifest_v2",
   "repository": "zuizui0223/island",
-  "pull_request": 128,
-  "branch": "agent/validated-low-inference",
+  "baseline_pull_requests": [128, 130],
   "denominator_species": 106295,
   "sources": [
     {
@@ -157,6 +156,14 @@
       "artifact_id": 8591936182,
       "artifact_digest": "sha256:b10a024454f8099bfc4b516a7e5447724e8e828b7dce973efd364fc767309c1e",
       "role": "promoted_source_backed_web"
+    },
+    {
+      "source_group": "latest_public_web",
+      "run_id": 30141880859,
+      "artifact_name": "broad-web-medium-full-30141880859",
+      "artifact_id": 8614792912,
+      "artifact_digest": "sha256:e4059b90ab54334fde9fcb5b160be825131561cb3d0d9dc628e063ecd63fe9b1",
+      "role": "latest_species_direct_web"
     }
   ]
 }
