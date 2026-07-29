@@ -175,6 +175,31 @@ def accepted_review_ids(
     return set(reviewed.loc[good, "candidate_id"].map(_text))
 
 
+def coverage_change_counts(
+    before_axes: set[tuple[str, str]],
+    after_axes: set[tuple[str, str]],
+) -> dict[str, Any]:
+    """Separate gross fills from invalidations so ``net_change`` is not overstated."""
+
+    gross_gain = after_axes - before_axes
+    loss = before_axes - after_axes
+    by_axis: dict[str, dict[str, int]] = {}
+    for axis in AXES:
+        gained = sum(1 for _, value in gross_gain if value == axis)
+        lost = sum(1 for _, value in loss if value == axis)
+        by_axis[axis] = {
+            "gross_gain": gained,
+            "loss": lost,
+            "net_change": gained - lost,
+        }
+    return {
+        "gross_gain": len(gross_gain),
+        "loss": len(loss),
+        "net_change": len(after_axes) - len(before_axes),
+        "by_axis": by_axis,
+    }
+
+
 def promoted_to_common_evidence(promoted: pd.DataFrame) -> pd.DataFrame:
     """Convert reviewed Web rows to the common species-direct evidence schema."""
 
@@ -357,6 +382,7 @@ def rebuild_with_common_all_evidence(
     old_low_keys = set(zip(old_low["accepted_species"], old_low["trait_name"]))
     new_low_keys = set(zip(rebuilt_low["accepted_species"], rebuilt_low["trait_name"]))
     direct_keys = set(zip(direct_cells["accepted_species"], direct_cells["trait_name"]))
+    coverage_change = coverage_change_counts(base_axes, after_axes)
     report = {
         "contract": "open_web_shared_all_evidence_rebuild_v1",
         "implementation": "island_v2.all_evidence_trait_audit",
@@ -390,7 +416,8 @@ def rebuild_with_common_all_evidence(
         },
         "coverage_before": coverage_snapshot(before),
         "coverage_after": coverage_snapshot(after),
-        "coverage_increment_species_axis": len(after_axes - base_axes),
+        "coverage_change_species_axis": coverage_change,
+        "coverage_increment_species_axis": coverage_change["net_change"],
         "family_inference": False,
         "global_fallback": False,
     }

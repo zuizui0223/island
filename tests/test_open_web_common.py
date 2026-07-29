@@ -11,6 +11,7 @@ from island_v2.open_web_checkpoint import finalize_shard, prepare_shard
 from island_v2.open_web_common import (
     NON_AXIS_TRAITS,
     STRICT_TRAIT_AXIS,
+    coverage_change_counts,
     reviewed_audit_metrics,
 )
 
@@ -79,6 +80,30 @@ def test_domain_trait_gate_requires_ten_reviews_and_thresholds() -> None:
     approved = scopes.set_index(["domain", "trait_name"])["production_approved"]
     assert bool(approved.loc[("good.example", "floral_form")])
     assert not bool(approved.loc[("thin.example", "floral_form")])
+
+
+def test_coverage_change_reports_gross_loss_and_net_separately() -> None:
+    before = {
+        ("A a", "flower_colour"),
+        ("B b", "flower_colour"),
+        ("C c", "reproductive_assurance"),
+    }
+    after = {
+        ("B b", "flower_colour"),
+        ("D d", "flower_colour"),
+        ("E e", "floral_structural_complexity"),
+    }
+    change = coverage_change_counts(before, after)
+    assert change["gross_gain"] == 2
+    assert change["loss"] == 2
+    assert change["net_change"] == 0
+    assert change["by_axis"]["flower_colour"] == {
+        "gross_gain": 1,
+        "loss": 1,
+        "net_change": 0,
+    }
+    assert change["by_axis"]["reproductive_assurance"]["net_change"] == -1
+    assert change["by_axis"]["floral_structural_complexity"]["net_change"] == 1
 
 
 def test_registry_has_at_least_five_generic_inventory_domains() -> None:
