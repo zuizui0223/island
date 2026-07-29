@@ -42,6 +42,8 @@ jobs:
       PILOT_ARTIFACT_NAME: >-
         ${{ inputs.pilot_artifact_name ||
         'open-web-multidomain-pilot-30434418380' }}
+      PRIOR_PUBLIC_WEB_RUN_ID: "30141880859"
+      PRIOR_PUBLIC_WEB_ARTIFACT: "broad-web-medium-full-30141880859"
       AUDIT_CSV_PATH: >-
         ${{ inputs.audit_csv_path ||
         'data/v2/staging/traits/open_web_pilot/multidomain_manual_audit_200_30434418380.csv' }}
@@ -63,7 +65,10 @@ jobs:
             tests/test_all_evidence_trait_audit.py
       - name: Download baseline and the exact acquisition artifact
         run: |
-          mkdir -p /tmp/open-web-baseline /tmp/open-web-pilot
+          mkdir -p \
+            /tmp/open-web-baseline \
+            /tmp/open-web-pilot \
+            /tmp/open-web-prior
           gh run download "$BASELINE_RUN_ID" \
             --repo "${{ github.repository }}" \
             --name "integrated-trait-coverage-$BASELINE_RUN_ID" \
@@ -72,7 +77,13 @@ jobs:
             --repo "${{ github.repository }}" \
             --name "$PILOT_ARTIFACT_NAME" \
             --dir /tmp/open-web-pilot
+          gh run download "$PRIOR_PUBLIC_WEB_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "$PRIOR_PUBLIC_WEB_ARTIFACT" \
+            --dir /tmp/open-web-prior
           test -f /tmp/open-web-pilot/open_web_multidomain_candidates.csv
+          test -f \
+            /tmp/open-web-prior/full/broad_web_medium_evidence.csv.gz
           test -f "$AUDIT_CSV_PATH"
       - name: Promote approved domain-trait scopes and recalculate coverage
         run: |
@@ -85,7 +96,11 @@ jobs:
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
             --output-dir outputs/reviewed_open_web \
             --source-run-id "$PILOT_RUN_ID" \
-            --source-artifact "$PILOT_ARTIFACT_NAME"
+            --source-artifact "$PILOT_ARTIFACT_NAME" \
+            --prior-public-web-csv \
+              /tmp/open-web-prior/full/broad_web_medium_evidence.csv.gz \
+            --prior-public-web-run-id "$PRIOR_PUBLIC_WEB_RUN_ID" \
+            --prior-public-web-artifact "$PRIOR_PUBLIC_WEB_ARTIFACT"
           jq -e '
             .audit.pilot_gate_passed == true
             and .audit.reviewed_pages_or_candidates >= 200
@@ -97,6 +112,11 @@ jobs:
             and .shared_all_evidence.axis_join_for_inference == false
             and .shared_all_evidence.family_inference == false
             and .shared_all_evidence.global_fallback == false
+            and .prior_formal_public_web_evidence_rows > 0
+            and (
+              .combined_formal_public_web_evidence_rows
+              > .prior_formal_public_web_evidence_rows
+            )
             and (
               .shared_all_evidence.coverage_increment_species_axis
               == (

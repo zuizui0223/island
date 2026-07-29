@@ -58,6 +58,57 @@ def _load_baseline(root: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
     return coverage, evidence
 
 
+def combine_public_web_ledgers(
+    prior: pd.DataFrame,
+    promoted: pd.DataFrame,
+    *,
+    prior_run_id: str = "",
+    prior_artifact: str = "",
+) -> pd.DataFrame:
+    """Append reviewed evidence without replacing the prior formal Web ledger."""
+
+    old = prior.copy().fillna("")
+    new = promoted.copy().fillna("")
+    for frame in (old, new):
+        for column in (
+            "accepted_species",
+            "trait_name",
+            "normalized_value",
+            "source_lineage",
+            "source_url",
+            "source_run_id",
+            "source_artifact",
+        ):
+            if column not in frame:
+                frame[column] = ""
+    if not old.empty:
+        old["source_run_id"] = old["source_run_id"].where(
+            old["source_run_id"].ne(""),
+            prior_run_id,
+        )
+        old["source_artifact"] = old["source_artifact"].where(
+            old["source_artifact"].ne(""),
+            prior_artifact,
+        )
+    combined = pd.concat([old, new], ignore_index=True, sort=False).fillna("")
+    if combined.empty:
+        return combined
+    combined["_dedup_lineage"] = combined["source_lineage"].where(
+        combined["source_lineage"].ne(""),
+        "url:" + combined["source_url"].str.rstrip("/").str.casefold(),
+    )
+    combined = combined.drop_duplicates(
+        [
+            "accepted_species",
+            "trait_name",
+            "_dedup_lineage",
+            "normalized_value",
+        ],
+        keep="last",
+    )
+    return combined.drop(columns="_dedup_lineage").reset_index(drop=True)
+
+
 def _report_groups(reviewed: pd.DataFrame, column: str) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for value, group in reviewed.groupby(column, sort=True):
@@ -84,6 +135,9 @@ def finalize_review(
     ontology_yaml: Path = Path("config/trait_ontology.yml"),
     source_run_id: str = "",
     source_artifact: str = "",
+    prior_public_web_csv: Path | None = None,
+    prior_public_web_run_id: str = "",
+    prior_public_web_artifact: str = "",
     synonym_csv: Path | None = None,
     vernacular_csv: Path | None = None,
     acquisition_config_yaml: Path = Path("config/open_web_trait_acquisition.yml"),
@@ -170,7 +224,18 @@ def finalize_review(
             formal.get("supporting_excerpt", ""),
         )
         formal["inference_rule"] = ""
-    formal.to_csv(
+    prior_formal = (
+        pd.read_csv(prior_public_web_csv, dtype=str).fillna("")
+        if prior_public_web_csv is not None
+        else pd.DataFrame()
+    )
+    combined_formal = combine_public_web_ledgers(
+        prior_formal,
+        formal,
+        prior_run_id=prior_public_web_run_id,
+        prior_artifact=prior_public_web_artifact,
+    )
+    combined_formal.to_csv(
         output_dir / "broad_web_medium_evidence.csv.gz",
         index=False,
     )
@@ -219,6 +284,8 @@ def finalize_review(
             else []
         ),
         "promoted_reviewed_evidence_rows": len(promoted),
+        "prior_formal_public_web_evidence_rows": len(prior_formal),
+        "combined_formal_public_web_evidence_rows": len(combined_formal),
         "next_search_queue": {
             "species_trait_rows": len(species_queue),
             "search_tasks": len(search_tasks),
@@ -237,7 +304,12 @@ def finalize_review(
                 "contract": "broad_web_medium_pilot_summary_v1",
                 "run_id": source_run_id,
                 "artifact": source_artifact,
-                "accepted_evidence_rows": len(promoted),
+                "accepted": {
+                    "evidence_rows": len(combined_formal),
+                },
+                "accepted_evidence_rows": len(combined_formal),
+                "new_promoted_evidence_rows": len(promoted),
+                "prior_evidence_rows": len(prior_formal),
                 "manual_reviewed": True,
                 "audit_precision": audit_summary["precision"],
                 "cultivar_contamination_rate": audit_summary["cultivar_contamination_rate"],
@@ -255,6 +327,13 @@ def finalize_review(
         "source_run_id": source_run_id,
         "source_artifact": source_artifact,
         "common_validated_low_implementation": ("island_v2.all_evidence_trait_audit"),
+        "prior_public_web": {
+            "run_id": prior_public_web_run_id,
+            "artifact": prior_public_web_artifact,
+            "source_file": (
+                str(prior_public_web_csv) if prior_public_web_csv is not None else ""
+            ),
+        },
         "files": [
             {
                 "path": str(path.relative_to(output_dir)),
@@ -284,6 +363,12 @@ def apply_audit_command(
     ] = Path("config/trait_ontology.yml"),
     source_run_id: str = "",
     source_artifact: str = "",
+    prior_public_web_csv: Annotated[
+        Path | None,
+        typer.Option(exists=True, dir_okay=False),
+    ] = None,
+    prior_public_web_run_id: str = "",
+    prior_public_web_artifact: str = "",
     synonym_csv: Annotated[
         Path | None,
         typer.Option(exists=True, dir_okay=False),
@@ -306,6 +391,9 @@ def apply_audit_command(
         ontology_yaml=ontology_yaml,
         source_run_id=source_run_id,
         source_artifact=source_artifact,
+        prior_public_web_csv=prior_public_web_csv,
+        prior_public_web_run_id=prior_public_web_run_id,
+        prior_public_web_artifact=prior_public_web_artifact,
         synonym_csv=synonym_csv,
         vernacular_csv=vernacular_csv,
         acquisition_config_yaml=acquisition_config_yaml,

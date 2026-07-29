@@ -14,6 +14,7 @@ from island_v2.open_web_common import (
     coverage_change_counts,
     reviewed_audit_metrics,
 )
+from island_v2.open_web_finalize import combine_public_web_ledgers
 
 
 def _review_rows(domain: str, trait: str, count: int) -> list[dict[str, object]]:
@@ -67,6 +68,9 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "'30433986432'" in workflow
     assert "'30434418380'" in workflow
     assert "open-web-multidomain-pilot-30434418380" in workflow
+    assert 'PRIOR_PUBLIC_WEB_RUN_ID: "30141880859"' in workflow
+    assert "broad-web-medium-full-30141880859" in workflow
+    assert "--prior-public-web-csv" in workflow
     assert "coverage_change_species_axis.net_change" in workflow
 
 
@@ -116,6 +120,51 @@ def test_coverage_change_reports_gross_loss_and_net_separately() -> None:
     }
     assert change["by_axis"]["reproductive_assurance"]["net_change"] == -1
     assert change["by_axis"]["floral_structural_complexity"]["net_change"] == 1
+
+
+def test_reviewed_web_ledger_appends_to_prior_instead_of_replacing_it() -> None:
+    prior = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Alpha one",
+                "trait_name": "floral_form",
+                "normalized_value": "tubular",
+                "source_lineage": "page:alpha",
+                "source_url": "https://prior.example/alpha",
+            },
+            {
+                "accepted_species": "Alpha one",
+                "trait_name": "floral_form",
+                "normalized_value": "tubular",
+                "source_lineage": "page:alpha",
+                "source_url": "https://prior.example/alpha",
+            },
+        ]
+    )
+    promoted = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Beta two",
+                "trait_name": "flower_primary_color",
+                "normalized_value": "white",
+                "source_lineage": "page:beta",
+                "source_url": "https://new.example/beta",
+                "source_run_id": "new-run",
+                "source_artifact": "new-artifact",
+            }
+        ]
+    )
+    combined = combine_public_web_ledgers(
+        prior,
+        promoted,
+        prior_run_id="prior-run",
+        prior_artifact="prior-artifact",
+    )
+    assert len(combined) == 2
+    by_species = combined.set_index("accepted_species")
+    assert by_species.loc["Alpha one", "source_run_id"] == "prior-run"
+    assert by_species.loc["Alpha one", "source_artifact"] == "prior-artifact"
+    assert by_species.loc["Beta two", "source_run_id"] == "new-run"
 
 
 def test_registry_has_at_least_five_generic_inventory_domains() -> None:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pandas as pd
 
@@ -62,6 +63,45 @@ def row(
         "source_file": "test.csv",
         "acceptance_contract": "test",
     }
+
+
+def test_latest_public_web_loader_preserves_original_artifact_provenance(
+    tmp_path: Path,
+) -> None:
+    pd.DataFrame(
+        [
+            {
+                "accepted_species": "Alpha one",
+                "trait_name": "floral_form",
+                "normalized_value": "tubular",
+                "evidence_quality": "medium",
+                "evidence_scope": "species_direct",
+                "source_provider": "prior.example",
+                "source_url": "https://prior.example/alpha",
+                "source_record_id": "alpha",
+                "source_citation": "Prior source",
+                "source_excerpt": "Flowers tubular.",
+                "name_match_method": "accepted_name_exact",
+                "source_lineage": "page:alpha",
+                "inference_rule": "",
+                "source_run_id": "prior-run",
+                "source_artifact": "prior-artifact",
+            }
+        ]
+    ).to_csv(tmp_path / "broad_web_medium_evidence.csv.gz", index=False)
+    manifest = {
+        "sources": [
+            {
+                "source_group": "latest_public_web",
+                "run_id": "wrapper-run",
+                "artifact_name": "wrapper-artifact",
+            }
+        ]
+    }
+    loaded = audit.load_latest_public_web(tmp_path, manifest)
+    assert len(loaded) == 1
+    assert loaded.iloc[0]["source_run_id"] == "prior-run"
+    assert loaded.iloc[0]["source_artifact"] == "prior-artifact"
 
 
 def test_lineage_dedup_is_trait_specific_not_axis_specific() -> None:

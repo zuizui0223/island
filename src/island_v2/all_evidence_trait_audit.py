@@ -300,8 +300,8 @@ def load_latest_public_web(root: Path, manifest: dict[str, Any]) -> pd.DataFrame
                 "name_match_method": _text(record.get("name_match_method")),
                 "source_lineage": _text(record.get("source_lineage")),
                 "lineage_method": "artifact_source_lineage",
-                "source_run_id": run_id,
-                "source_artifact": artifact,
+                "source_run_id": _text(record.get("source_run_id")) or run_id,
+                "source_artifact": _text(record.get("source_artifact")) or artifact,
                 "source_file": str(candidates[0]),
                 "acceptance_contract": "latest_public_web_species_direct_v1",
             }
