@@ -114,6 +114,13 @@ jobs:
             and .shared_all_evidence.global_fallback == false
             and .prior_formal_public_web_evidence_rows > 0
             and (
+              .shared_all_evidence.prior_formal_public_web_evidence_rows
+              == .prior_formal_public_web_evidence_rows
+            )
+            and (.shared_all_evidence.pilot_validated_low_change.added >= 0)
+            and (.shared_all_evidence.pilot_validated_low_change.invalidated >= 0)
+            and (.shared_all_evidence.pilot_validated_low_change.upgraded_to_direct >= 0)
+            and (
               .combined_formal_public_web_evidence_rows
               > .prior_formal_public_web_evidence_rows
             )

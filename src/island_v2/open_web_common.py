@@ -200,6 +200,96 @@ def coverage_change_counts(
     }
 
 
+def compare_incremental_validated_low(
+    before_low: pd.DataFrame,
+    after_low: pd.DataFrame,
+    incremental_direct: pd.DataFrame,
+) -> tuple[pd.DataFrame, dict[str, int]]:
+    """Classify the incremental pilot's trait-specific effect on Validated Low."""
+
+    def states_by_pair(frame: pd.DataFrame) -> dict[tuple[str, str], set[str]]:
+        if frame.empty:
+            return {}
+        grouped: dict[tuple[str, str], set[str]] = {}
+        for row in frame.fillna("").itertuples(index=False):
+            key = (_text(row.accepted_species), _text(row.trait_name))
+            grouped.setdefault(key, set()).add(_text(row.state_set))
+        return grouped
+
+    before = states_by_pair(before_low)
+    after = states_by_pair(after_low)
+    incremental_direct_pairs = (
+        set(
+            zip(
+                incremental_direct["accepted_species"].map(_text),
+                incremental_direct["trait_name"].map(_text),
+                strict=True,
+            )
+        )
+        if not incremental_direct.empty
+        else set()
+    )
+    rows: list[dict[str, str]] = []
+    for accepted_species, trait_name in sorted(set(before) | set(after)):
+        key = (accepted_species, trait_name)
+        before_states = before.get(key, set())
+        after_states = after.get(key, set())
+        if before_states and key in incremental_direct_pairs:
+            status = "upgraded_to_incremental_direct"
+        elif not before_states and after_states:
+            status = "added"
+        elif before_states and not after_states:
+            status = "invalidated"
+        elif before_states != after_states:
+            status = "inferred_value_changed"
+        else:
+            status = "retained"
+        rows.append(
+            {
+                "accepted_species": accepted_species,
+                "trait_name": trait_name,
+                "axis": trait_axis(trait_name),
+                "before_state_sets": json.dumps(
+                    sorted(before_states),
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                ),
+                "after_state_sets": json.dumps(
+                    sorted(after_states),
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                ),
+                "pilot_change_status": status,
+            }
+        )
+    detail = pd.DataFrame(
+        rows,
+        columns=[
+            "accepted_species",
+            "trait_name",
+            "axis",
+            "before_state_sets",
+            "after_state_sets",
+            "pilot_change_status",
+        ],
+    )
+    counts = (
+        detail["pilot_change_status"].value_counts().to_dict()
+        if not detail.empty
+        else {}
+    )
+    summary = {
+        "added": int(counts.get("added", 0)),
+        "invalidated": int(counts.get("invalidated", 0)),
+        "upgraded_to_direct": int(
+            counts.get("upgraded_to_incremental_direct", 0)
+        ),
+        "inferred_value_changed": int(counts.get("inferred_value_changed", 0)),
+        "retained": int(counts.get("retained", 0)),
+    }
+    return detail, summary
+
+
 def promoted_to_common_evidence(promoted: pd.DataFrame) -> pd.DataFrame:
     """Convert reviewed Web rows to the common species-direct evidence schema."""
 
@@ -224,7 +314,9 @@ def promoted_to_common_evidence(promoted: pd.DataFrame) -> pd.DataFrame:
                 "source_group": "latest_public_web",
                 "source_provider": _text(record.get("source_provider") or record.get("domain")),
                 "source_url": _text(record.get("source_url")),
-                "source_record_id": _text(record.get("candidate_id")),
+                "source_record_id": _text(
+                    record.get("candidate_id") or record.get("source_record_id")
+                ),
                 "source_citation": _text(record.get("source_citation") or record.get("page_title")),
                 "source_excerpt": _text(
                     record.get("source_excerpt") or record.get("supporting_excerpt")
@@ -232,7 +324,11 @@ def promoted_to_common_evidence(promoted: pd.DataFrame) -> pd.DataFrame:
                 "evidence_scope": _text(record.get("evidence_scope") or "species_direct"),
                 "name_match_method": _text(record.get("name_match_method")),
                 "source_lineage": _text(record.get("source_lineage")),
-                "lineage_method": _text(record.get("source_lineage_method")),
+                "lineage_method": _text(
+                    record.get("source_lineage_method")
+                    or record.get("lineage_method")
+                    or "artifact_source_lineage"
+                ),
                 "source_run_id": _text(record.get("source_run_id")),
                 "source_artifact": _text(record.get("source_artifact")),
                 "source_file": _text(record.get("source_file")),
@@ -319,6 +415,7 @@ def rebuild_with_common_all_evidence(
     coverage: pd.DataFrame,
     evidence: pd.DataFrame,
     promoted: pd.DataFrame,
+    prior_promoted: pd.DataFrame | None = None,
     master: pd.DataFrame | None = None,
     ontology_yaml: Path = Path("config/trait_ontology.yml"),
 ) -> tuple[dict[str, Any], dict[str, pd.DataFrame]]:
@@ -329,14 +426,22 @@ def rebuild_with_common_all_evidence(
     common_master = _master_for_common(coverage, master)
     ontology = load_ontology(ontology_yaml)
     base_raw = _baseline_direct(evidence)
+    prior_raw = (
+        promoted_to_common_evidence(prior_promoted)
+        if prior_promoted is not None
+        else pd.DataFrame(columns=EVIDENCE_COLUMNS)
+    )
     promoted_raw = promoted_to_common_evidence(promoted)
 
-    base_lineages, _ = dedupe_direct_lineages(base_raw, ontology)
+    baseline_raw = pd.concat([base_raw, prior_raw], ignore_index=True).fillna("")
+    base_lineages, _ = dedupe_direct_lineages(baseline_raw, ontology)
     base_cells, _ = resolve_direct_cells(base_lineages)
     if not base_cells.empty:
         base_cells["genus"] = base_cells["accepted_species"].str.split().str[0]
+    if not base_lineages.empty:
+        base_lineages["genus"] = base_lineages["accepted_species"].str.split().str[0]
 
-    raw = pd.concat([base_raw, promoted_raw], ignore_index=True).fillna("")
+    raw = pd.concat([baseline_raw, promoted_raw], ignore_index=True).fillna("")
     lineages, lineage_duplicates = dedupe_direct_lineages(raw, ontology)
     direct_cells, cell_audit = resolve_direct_cells(lineages)
     if not direct_cells.empty:
@@ -345,6 +450,13 @@ def rebuild_with_common_all_evidence(
         lineages["genus"] = lineages["accepted_species"].str.split().str[0]
 
     old_low = _old_low(evidence, ontology)
+    base_rules = build_rule_audit(base_cells, base_lineages, old_low)
+    base_rebuilt_low = apply_genus_rules(
+        common_master,
+        base_cells,
+        base_rules,
+        "current_min3",
+    )
     rules = build_rule_audit(direct_cells, lineages, old_low)
     rebuilt_low = apply_genus_rules(
         common_master,
@@ -352,7 +464,7 @@ def rebuild_with_common_all_evidence(
         rules,
         "current_min3",
     )
-    before = species_axis_coverage(common_master, base_cells, old_low)
+    before = species_axis_coverage(common_master, base_cells, base_rebuilt_low)
     after = species_axis_coverage(common_master, direct_cells, rebuilt_low)
     comparison, comparison_summary = compare_old_low(
         old_low,
@@ -363,8 +475,18 @@ def rebuild_with_common_all_evidence(
     )
     queue = acquisition_queue(common_master, after, rules)
 
-    base_pairs = set(zip(base_raw["accepted_species"], base_raw["trait_name"]))
-    promoted_pairs = set(zip(promoted_raw["accepted_species"], promoted_raw["trait_name"]))
+    base_direct_pairs = set(zip(base_cells["accepted_species"], base_cells["trait_name"]))
+    direct_pairs = set(zip(direct_cells["accepted_species"], direct_cells["trait_name"]))
+    incremental_direct = direct_cells.loc[
+        [
+            (species, trait) not in base_direct_pairs
+            for species, trait in zip(
+                direct_cells["accepted_species"],
+                direct_cells["trait_name"],
+                strict=True,
+            )
+        ]
+    ].copy()
     base_axes = set(
         zip(
             before.loc[before["quality"].isin(QUALITY_RANK), "accepted_species"],
@@ -382,6 +504,11 @@ def rebuild_with_common_all_evidence(
     old_low_keys = set(zip(old_low["accepted_species"], old_low["trait_name"]))
     new_low_keys = set(zip(rebuilt_low["accepted_species"], rebuilt_low["trait_name"]))
     direct_keys = set(zip(direct_cells["accepted_species"], direct_cells["trait_name"]))
+    pilot_low_comparison, pilot_low_summary = compare_incremental_validated_low(
+        base_rebuilt_low,
+        rebuilt_low,
+        incremental_direct,
+    )
     coverage_change = coverage_change_counts(base_axes, after_axes)
     report = {
         "contract": "open_web_shared_all_evidence_rebuild_v1",
@@ -395,8 +522,9 @@ def rebuild_with_common_all_evidence(
             "axes": len(AXES),
             "species_axis": 318_885,
         },
-        "new_direct_species_trait": len(promoted_pairs - base_pairs),
+        "new_direct_species_trait": len(direct_pairs - base_direct_pairs),
         "new_direct_species_axis": len(direct_axes - base_direct_axes),
+        "prior_formal_public_web_evidence_rows": len(prior_raw),
         "lineage_duplicates_before_after": {
             "raw_rows": len(raw),
             "deduplicated_lineages": len(lineages),
@@ -414,6 +542,7 @@ def rebuild_with_common_all_evidence(
             "invalidated": len(old_low_keys - new_low_keys - direct_keys),
             "upgraded_to_direct": len(old_low_keys & direct_keys),
         },
+        "pilot_validated_low_change": pilot_low_summary,
         "coverage_before": coverage_snapshot(before),
         "coverage_after": coverage_snapshot(after),
         "coverage_change_species_axis": coverage_change,
@@ -428,7 +557,10 @@ def rebuild_with_common_all_evidence(
         "direct_cells": direct_cells,
         "direct_conflicts": cell_audit,
         "rules": rules,
+        "prior_rules": base_rules,
         "rebuilt_low": rebuilt_low,
+        "prior_rebuilt_low": base_rebuilt_low,
+        "pilot_low_comparison": pilot_low_comparison,
         "old_low_comparison": comparison,
         "strict_coverage": after,
         "next_queue": queue,

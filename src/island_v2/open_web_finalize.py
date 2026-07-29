@@ -180,10 +180,34 @@ def finalize_review(
         promoted["source_artifact"] = source_artifact
         promoted["source_file"] = str(candidates_csv)
 
+    formal = promoted.copy()
+    if not formal.empty:
+        formal["evidence_quality"] = formal.get("confidence", "medium")
+        formal["source_provider"] = formal.get("domain", "")
+        formal["source_record_id"] = formal.get("candidate_id", "")
+        formal["source_citation"] = formal.get("source_citation", formal.get("page_title", ""))
+        formal["source_excerpt"] = formal.get(
+            "source_excerpt",
+            formal.get("supporting_excerpt", ""),
+        )
+        formal["inference_rule"] = ""
+    prior_formal = (
+        pd.read_csv(prior_public_web_csv, dtype=str).fillna("")
+        if prior_public_web_csv is not None
+        else pd.DataFrame()
+    )
+    combined_formal = combine_public_web_ledgers(
+        prior_formal,
+        formal,
+        prior_run_id=prior_public_web_run_id,
+        prior_artifact=prior_public_web_artifact,
+    )
+
     common_report, tables = rebuild_with_common_all_evidence(
         coverage=coverage,
         evidence=evidence,
-        promoted=promoted,
+        promoted=formal,
+        prior_promoted=prior_formal,
         master=master,
         ontology_yaml=ontology_yaml,
     )
@@ -213,28 +237,6 @@ def finalize_review(
     )
     promoted.to_csv(output_dir / "accepted_open_web_evidence.csv.gz", index=False)
 
-    formal = promoted.copy()
-    if not formal.empty:
-        formal["evidence_quality"] = formal.get("confidence", "medium")
-        formal["source_provider"] = formal.get("domain", "")
-        formal["source_record_id"] = formal.get("candidate_id", "")
-        formal["source_citation"] = formal.get("source_citation", formal.get("page_title", ""))
-        formal["source_excerpt"] = formal.get(
-            "source_excerpt",
-            formal.get("supporting_excerpt", ""),
-        )
-        formal["inference_rule"] = ""
-    prior_formal = (
-        pd.read_csv(prior_public_web_csv, dtype=str).fillna("")
-        if prior_public_web_csv is not None
-        else pd.DataFrame()
-    )
-    combined_formal = combine_public_web_ledgers(
-        prior_formal,
-        formal,
-        prior_run_id=prior_public_web_run_id,
-        prior_artifact=prior_public_web_artifact,
-    )
     combined_formal.to_csv(
         output_dir / "broad_web_medium_evidence.csv.gz",
         index=False,
@@ -246,7 +248,10 @@ def finalize_review(
         "direct_cells": "direct_species_trait_ledger.csv.gz",
         "direct_conflicts": "source_lineage_conflict_table.csv.gz",
         "rules": "trait_specific_genus_rule_audit.csv.gz",
+        "prior_rules": "prior_trait_specific_genus_rule_audit.csv.gz",
         "rebuilt_low": "rebuilt_all_evidence_validated_low.csv.gz",
+        "prior_rebuilt_low": "prior_rebuilt_all_evidence_validated_low.csv.gz",
+        "pilot_low_comparison": "pilot_validated_low_change.csv.gz",
         "old_low_comparison": "old_low_comparison.csv.gz",
         "strict_coverage": "strict_species_axis_coverage.csv.gz",
         "next_queue": "prioritized_unresolved_search_queue.csv.gz",

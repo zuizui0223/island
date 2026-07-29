@@ -11,7 +11,9 @@ from island_v2.open_web_checkpoint import finalize_shard, prepare_shard
 from island_v2.open_web_common import (
     NON_AXIS_TRAITS,
     STRICT_TRAIT_AXIS,
+    compare_incremental_validated_low,
     coverage_change_counts,
+    promoted_to_common_evidence,
     reviewed_audit_metrics,
 )
 from island_v2.open_web_finalize import combine_public_web_ledgers
@@ -120,6 +122,90 @@ def test_coverage_change_reports_gross_loss_and_net_separately() -> None:
     }
     assert change["by_axis"]["reproductive_assurance"]["net_change"] == -1
     assert change["by_axis"]["floral_structural_complexity"]["net_change"] == 1
+
+
+def test_incremental_low_change_separates_add_invalidate_upgrade_and_value_change() -> None:
+    before = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Alpha one",
+                "trait_name": "floral_form",
+                "state_set": '["tubular"]',
+            },
+            {
+                "accepted_species": "Beta two",
+                "trait_name": "flower_primary_color",
+                "state_set": '["white"]',
+            },
+            {
+                "accepted_species": "Gamma three",
+                "trait_name": "floral_form",
+                "state_set": '["rotate"]',
+            },
+        ]
+    )
+    after = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Delta four",
+                "trait_name": "floral_form",
+                "state_set": '["tubular"]',
+            },
+            {
+                "accepted_species": "Gamma three",
+                "trait_name": "floral_form",
+                "state_set": '["campanulate"]',
+            },
+        ]
+    )
+    incremental_direct = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Alpha one",
+                "trait_name": "floral_form",
+            }
+        ]
+    )
+    detail, summary = compare_incremental_validated_low(
+        before,
+        after,
+        incremental_direct,
+    )
+    assert summary == {
+        "added": 1,
+        "invalidated": 1,
+        "upgraded_to_direct": 1,
+        "inferred_value_changed": 1,
+        "retained": 0,
+    }
+    assert set(detail["pilot_change_status"]) == {
+        "added",
+        "invalidated",
+        "upgraded_to_incremental_direct",
+        "inferred_value_changed",
+    }
+
+
+def test_prior_formal_web_provenance_survives_common_schema_conversion() -> None:
+    converted = promoted_to_common_evidence(
+        pd.DataFrame(
+            [
+                {
+                    "accepted_species": "Alpha one",
+                    "trait_name": "floral_form",
+                    "normalized_value": "tubular",
+                    "evidence_quality": "medium",
+                    "source_record_id": "prior-record",
+                    "source_lineage": "citation:prior",
+                    "source_run_id": "30141880859",
+                    "source_artifact": "broad-web-medium-full-30141880859",
+                }
+            ]
+        )
+    )
+    assert converted.loc[0, "source_record_id"] == "prior-record"
+    assert converted.loc[0, "lineage_method"] == "artifact_source_lineage"
+    assert converted.loc[0, "source_run_id"] == "30141880859"
 
 
 def test_reviewed_web_ledger_appends_to_prior_instead_of_replacing_it() -> None:
