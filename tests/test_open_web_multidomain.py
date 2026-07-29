@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pandas as pd
 
 from island_v2.open_web_common import STRICT_TRAIT_AXIS
@@ -33,3 +35,13 @@ def test_multidomain_audit_sample_is_hash_based_trait_stratified_and_unique() ->
 def test_pollen_vector_does_not_fill_structure_axis() -> None:
     assert "pollen_vector_mode" not in STRICT_TRAIT_AXIS
     assert "reward_type" not in STRICT_TRAIT_AXIS
+
+
+def test_multidomain_workflow_invokes_runner_subcommand_and_fails_closed() -> None:
+    workflow = Path(
+        ".github/workflows/open-web-trait-multidomain-pilot.yml"
+    ).read_text(encoding="utf-8")
+    assert "python -m island_v2.open_web_multidomain_runner run \\" in workflow
+    assert 'if report["domain_artifacts"] < 5:' in workflow
+    assert 'if report["audit_pages_sampled"] < 200:' in workflow
+    assert 'if report["audit_domains_sampled"] < 5:' in workflow

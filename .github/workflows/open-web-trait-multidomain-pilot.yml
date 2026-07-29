@@ -127,7 +127,7 @@ jobs:
         run: |
           mkdir -p "$OUTPUT_DIR"
           set +e
-          python -m island_v2.open_web_multidomain_runner \
+          python -m island_v2.open_web_multidomain_runner run \
             --baseline-dir /tmp/open-web-baseline \
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
             --registry-yaml config/open_web_domain_registry_v2.yml \
@@ -228,6 +228,32 @@ jobs:
             --output-dir outputs/open_web_multidomain_combined \
             --audit-pages 200 \
             --audit-seed "${{ github.sha }}-${{ github.run_id }}"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(
+              Path(
+                  "outputs/open_web_multidomain_combined/"
+                  "multidomain_collection_report.json"
+              ).read_text(encoding="utf-8")
+          )
+          if report["domain_artifacts"] < 5:
+              raise SystemExit(
+                  f"credential-free pilot requires >=5 domain artifacts; "
+                  f"found {report['domain_artifacts']}"
+              )
+          if report["audit_pages_sampled"] < 200:
+              raise SystemExit(
+                  f"credential-free pilot requires >=200 sampled pages; "
+                  f"found {report['audit_pages_sampled']}"
+              )
+          if report["audit_domains_sampled"] < 5:
+              raise SystemExit(
+                  f"credential-free pilot requires >=5 sampled domains; "
+                  f"found {report['audit_domains_sampled']}"
+              )
+          PY
           cat outputs/open_web_multidomain_combined/multidomain_collection_report.json \
             >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
