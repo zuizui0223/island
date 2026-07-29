@@ -44,7 +44,9 @@ Redistributing providers do not create independent evidence. Lineage keys
 prefer an original DOI, then known origin aliases (for example, EOL records
 whose citation identifies USDA PLANTS), provider component datasets, normalized
 original citations, and finally canonical source URLs. Only one record per
-`accepted_species × axis × source_lineage` is retained. Duplicate rows and
+`accepted_species × trait_name × source_lineage` is retained. The trait-level
+key is required because one source page can independently report several
+traits on the same broad axis. Duplicate rows and
 same-lineage value disagreements remain visible in
 `source_lineage_duplicates.csv.gz`.
 
@@ -80,3 +82,8 @@ upgrades, source-specific marginal gains, and per-run direct contributions.
 The artifact also contains the selected coverage table, full accepted-lineage
 ledger, unresolved tables, source-lineage duplicates, and the resolved source
 manifest.
+
+The same workflow then runs the all-evidence audit described in
+`docs/all_evidence_trait_audit.md`. That second stage adds the latest pinned
+public-web artifact, resolves direct conflicts, rebuilds Validated Low from all
+direct High/Medium evidence, and emits analysis-tier manifests.

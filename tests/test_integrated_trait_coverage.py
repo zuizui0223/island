@@ -292,6 +292,37 @@ def test_bulk_pending_rows_need_strict_contract_and_lineage_dedup(tmp_path: Path
     assert len(duplicates) == 2
 
 
+def test_lineage_dedup_preserves_distinct_traits_on_the_same_axis() -> None:
+    rows = [
+        coverage._make_evidence(
+            species="Alpha one",
+            trait_name=trait,
+            value=value,
+            quality="medium",
+            source_group="efloras",
+            provider="efloras:2",
+            url="https://example.org/same-treatment",
+            record_id=f"alpha:{trait}",
+            citation="Example flora",
+            excerpt=f"{trait}={value}",
+            scope="species_direct",
+            name_match="accepted_name_exact",
+            source_file=Path("artifact.csv"),
+            contract="test",
+            manifest={"sources": []},
+        )
+        for trait, value in (
+            ("floral_form", "tubular"),
+            ("floral_symmetry", "actinomorphic"),
+        )
+    ]
+    deduped, duplicates = coverage.dedupe_source_lineages(
+        pd.DataFrame(rows, columns=coverage.EVIDENCE_COLUMNS)
+    )
+    assert len(deduped) == 2
+    assert duplicates.empty
+
+
 def test_aggregate_reports_before_after_low_upgrade_and_exact_denominator(
     tmp_path: Path,
     monkeypatch,
