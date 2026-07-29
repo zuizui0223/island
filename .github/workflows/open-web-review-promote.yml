@@ -1,6 +1,13 @@
 name: Review, promote, and recalculate open-Web trait evidence
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/open-web-review-promote.yml"
+      - "data/v2/staging/traits/open_web_pilot/multidomain_manual_audit_*.csv"
+      - "src/island_v2/open_web_common.py"
+      - "src/island_v2/open_web_finalize.py"
+      - "tests/test_open_web_common.py"
   workflow_dispatch:
     inputs:
       baseline_run_id:
@@ -30,6 +37,14 @@ jobs:
     timeout-minutes: 60
     env:
       GH_TOKEN: ${{ github.token }}
+      BASELINE_RUN_ID: ${{ inputs.baseline_run_id || '30433986432' }}
+      PILOT_RUN_ID: ${{ inputs.pilot_run_id || '30434418380' }}
+      PILOT_ARTIFACT_NAME: >-
+        ${{ inputs.pilot_artifact_name ||
+        'open-web-multidomain-pilot-30434418380' }}
+      AUDIT_CSV_PATH: >-
+        ${{ inputs.audit_csv_path ||
+        'data/v2/staging/traits/open_web_pilot/multidomain_manual_audit_200_30434418380.csv' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -49,16 +64,16 @@ jobs:
       - name: Download baseline and the exact acquisition artifact
         run: |
           mkdir -p /tmp/open-web-baseline /tmp/open-web-pilot
-          gh run download "${{ inputs.baseline_run_id }}" \
+          gh run download "$BASELINE_RUN_ID" \
             --repo "${{ github.repository }}" \
-            --name "integrated-trait-coverage-${{ inputs.baseline_run_id }}" \
+            --name "integrated-trait-coverage-$BASELINE_RUN_ID" \
             --dir /tmp/open-web-baseline
-          gh run download "${{ inputs.pilot_run_id }}" \
+          gh run download "$PILOT_RUN_ID" \
             --repo "${{ github.repository }}" \
-            --name "${{ inputs.pilot_artifact_name }}" \
+            --name "$PILOT_ARTIFACT_NAME" \
             --dir /tmp/open-web-pilot
           test -f /tmp/open-web-pilot/open_web_multidomain_candidates.csv
-          test -f "${{ inputs.audit_csv_path }}"
+          test -f "$AUDIT_CSV_PATH"
       - name: Promote approved domain-trait scopes and recalculate coverage
         run: |
           mkdir -p outputs/reviewed_open_web
@@ -66,11 +81,11 @@ jobs:
             --baseline-dir /tmp/open-web-baseline \
             --candidates-csv \
               /tmp/open-web-pilot/open_web_multidomain_candidates.csv \
-            --audit-csv "${{ inputs.audit_csv_path }}" \
+            --audit-csv "$AUDIT_CSV_PATH" \
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
             --output-dir outputs/reviewed_open_web \
-            --source-run-id "${{ inputs.pilot_run_id }}" \
-            --source-artifact "${{ inputs.pilot_artifact_name }}"
+            --source-run-id "$PILOT_RUN_ID" \
+            --source-artifact "$PILOT_ARTIFACT_NAME"
           jq -e '
             .audit.pilot_gate_passed == true
             and .audit.reviewed_pages_or_candidates >= 200
@@ -82,6 +97,17 @@ jobs:
             and .shared_all_evidence.axis_join_for_inference == false
             and .shared_all_evidence.family_inference == false
             and .shared_all_evidence.global_fallback == false
+            and (
+              .shared_all_evidence.coverage_increment_species_axis
+              == (
+                .shared_all_evidence.coverage_after.filled_species_axis
+                - .shared_all_evidence.coverage_before.filled_species_axis
+              )
+            )
+            and (
+              .shared_all_evidence.coverage_change_species_axis.net_change
+              == .shared_all_evidence.coverage_increment_species_axis
+            )
           ' outputs/reviewed_open_web/open_web_formalization_summary.json
           cat outputs/reviewed_open_web/open_web_formalization_summary.json \
             >> "$GITHUB_STEP_SUMMARY"

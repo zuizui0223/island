@@ -58,6 +58,18 @@ def test_pr132_has_no_independent_validated_low_implementation() -> None:
     assert "apply_genus_rules(" in common
 
 
+def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
+    workflow = Path(".github/workflows/open-web-review-promote.yml").read_text(
+        encoding="utf-8"
+    )
+    assert "pull_request:" in workflow
+    assert "BASELINE_RUN_ID:" in workflow
+    assert "'30433986432'" in workflow
+    assert "'30434418380'" in workflow
+    assert "open-web-multidomain-pilot-30434418380" in workflow
+    assert "coverage_change_species_axis.net_change" in workflow
+
+
 def test_precision_is_accepted_correct_over_every_reviewed_row() -> None:
     rows = _review_rows("example.org", "floral_form", 10)
     rows.append(
