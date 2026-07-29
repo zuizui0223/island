@@ -9,7 +9,6 @@ from island_v2.open_web_pilot import (
     _production_approved_traits,
     _source_type,
     _stratified_unique_page_audit,
-    rebuild_all_direct_validated_low,
 )
 
 
@@ -63,57 +62,3 @@ def test_production_approves_only_sufficiently_audited_precise_traits() -> None:
             "flower_size_class": {"audited": 20, "precision": 0.89},
         }
     ) == ["floral_form"]
-
-
-def test_low_rebuild_joins_rules_by_genus_axis_and_trait() -> None:
-    coverage = pd.DataFrame(
-        [
-            {
-                "accepted_species": "Alpha one",
-                "axis": "floral_structural_complexity",
-                "after_quality": "high",
-            },
-            {
-                "accepted_species": "Alpha two",
-                "axis": "floral_structural_complexity",
-                "after_quality": "medium",
-            },
-            {
-                "accepted_species": "Alpha three",
-                "axis": "floral_structural_complexity",
-                "after_quality": "high",
-            },
-            {
-                "accepted_species": "Alpha target",
-                "axis": "floral_structural_complexity",
-                "after_quality": "",
-            },
-        ]
-    )
-    evidence = pd.DataFrame(
-        [
-            {
-                "accepted_species": species,
-                "trait_name": "floral_symmetry",
-                "normalized_value": "actinomorphic",
-                "quality": quality,
-                "evidence_scope": "species_direct",
-                "source_lineage": f"url:{species}",
-            }
-            for species, quality in (
-                ("Alpha one", "high"),
-                ("Alpha two", "medium"),
-                ("Alpha three", "high"),
-            )
-        ]
-    )
-    rules, low, conflicts, report = rebuild_all_direct_validated_low(
-        coverage=coverage,
-        evidence=evidence,
-        promoted=pd.DataFrame(),
-    )
-    assert conflicts.empty
-    assert bool(rules.iloc[0]["eligible"])
-    assert set(low["accepted_species"]) == {"Alpha target"}
-    assert set(low["trait_name"]) == {"floral_symmetry"}
-    assert report["rebuilt_validated_low_species_axis"] == 1

@@ -117,3 +117,53 @@ domains:
       - inflorescence_display
       - reward_type
       - pollen_vector_mode
+
+  - domain: gobotany.nativeplanttrust.org
+    source_name: Go Botany / Native Plant Trust
+    source_type: specialist_regional_botanical_database
+    region: New England, North America
+    language: en
+    organization_type: nonprofit_botanical_conservation_organization
+    robots_access_notes: use low-rate cached GETs from the published list; do not crawl images
+    page_pattern: "^https://gobotany\\.nativeplanttrust\\.org/species/[a-z-]+/[a-z-]+$"
+    treatment_end_pattern: ""
+    inventory_urls:
+      - https://gobotany.nativeplanttrust.org/list/
+    inventory_depth: 1
+    scientific_name_displayed: true
+    cultivar_descriptions_present: false
+    provenance_quality: expert-curated regional flora with explicit structured species characteristics
+    recommended_evidence_tier: B
+    review_status: approved
+    allowed_traits:
+      - flower_primary_color
+      - floral_symmetry
+      - flower_size_class
+      - cleistogamy
+
+  - domain: nzpcn.org.nz
+    source_name: New Zealand Plant Conservation Network Flora
+    source_type: specialist_regional_botanical_database
+    region: New Zealand botanical region
+    language: en-mi
+    organization_type: nonprofit_botanical_conservation_organization
+    robots_access_notes: crawl only the published flora index and species factsheets at low rate; skip images and generated books
+    page_pattern: "^https://nzpcn\\.org\\.nz/flora/species/[a-z0-9-]+$"
+    treatment_end_pattern: "References and further reading"
+    inventory_urls:
+      - https://www.nzpcn.org.nz/flora/species/
+    inventory_depth: 3
+    scientific_name_displayed: true
+    cultivar_descriptions_present: true
+    provenance_quality: expert-curated species factsheets with scientific name, family, detailed description, status, and cited flora
+    recommended_evidence_tier: B
+    review_status: approved
+    allowed_traits:
+      - flower_primary_color
+      - floral_form
+      - floral_symmetry
+      - tube_depth_class
+      - flower_size_class
+      - inflorescence_display
+      - reward_type
+      - pollen_vector_mode

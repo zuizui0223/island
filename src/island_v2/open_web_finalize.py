@@ -1,438 +1,271 @@
-"""Finalize reviewed open-Web evidence with trait-specific Low rebuilding.
-
-Audit errors remain in the precision denominator. Genus rules are applied via
-``genus x axis x trait_name``. Reward and pollen-vector evidence stay as
-separate outcomes and never fill the floral-structure axis.
-"""
-
-# Typer command defaults intentionally use Option metadata.
-# ruff: noqa: B008
+"""Promote audited open-Web evidence through the shared all-evidence pipeline."""
 
 from __future__ import annotations
 
+import hashlib
 import json
+from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Annotated, Any
 
 import pandas as pd
 import typer
 
-from island_v2.open_web_evidence import promote_reviewed
-from island_v2.open_web_pilot import (
-    DIRECT_QUALITY,
-    _bool,
-    _production_approved_traits,
-    _read_baseline,
-    _text,
-    _validate_denominator,
+from island_v2.open_web_common import (
+    accepted_review_ids,
+    rebuild_with_common_all_evidence,
+    reviewed_audit_metrics,
+)
+from island_v2.open_web_network_pilot import build_priority_queue
+from island_v2.open_web_search import (
+    build_query_tasks,
+    load_config,
+    load_strict_name_variants,
+    load_vernacular_names,
 )
 
-CONTRACT = "open_web_review_finalization_v2"
 app = typer.Typer(add_completion=False, no_args_is_help=True)
-
-STRICT_AXIS_TRAITS = {
-    "flower_colour": ("flower_primary_color",),
-    "floral_structural_complexity": (
-        "floral_form",
-        "floral_symmetry",
-        "tube_depth_class",
-        "flower_size_class",
-        "inflorescence_display",
-    ),
-    "reproductive_assurance": (
-        "self_incompatibility",
-        "autonomous_selfing_capacity",
-        "mating_system",
-        "cleistogamy",
-    ),
-}
-STRICT_TRAIT_AXIS = {
-    trait: axis for axis, traits in STRICT_AXIS_TRAITS.items() for trait in traits
-}
-DOMINANCE = {
-    "flower_colour": 0.90,
-    "floral_structural_complexity": 0.80,
-    "reproductive_assurance": 0.95,
-}
-MASKED = {
-    "flower_colour": 0.80,
-    "floral_structural_complexity": 0.75,
-    "reproductive_assurance": 0.85,
-}
-RULE_COLUMNS = [
-    "genus",
-    "axis",
-    "trait_name",
-    "inferred_value",
-    "n_direct_species",
-    "dominant_species",
-    "counterexample_species",
-    "dominance",
-    "required_dominance",
-    "masked_n",
-    "masked_correct",
-    "masked_accuracy",
-    "required_masked_accuracy",
-    "eligible",
-]
-LOW_COLUMNS = [
-    "accepted_species",
-    "genus",
-    "axis",
-    "trait_name",
-    *[column for column in RULE_COLUMNS if column not in {"genus", "axis", "trait_name"}],
-    "normalized_value",
-    "quality",
-    "evidence_scope",
-    "inference_method",
-    "family_inference_used",
-    "global_fallback_used",
-]
 
 
 def _now() -> str:
     return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
-def _empty_rules() -> pd.DataFrame:
-    return pd.DataFrame(columns=RULE_COLUMNS)
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
-def _empty_low() -> pd.DataFrame:
-    return pd.DataFrame(columns=LOW_COLUMNS)
+def _load_baseline(root: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
+    coverage = pd.read_csv(
+        root / "integrated_species_axis_coverage.csv.gz",
+        dtype=str,
+    ).fillna("")
+    evidence = pd.read_csv(
+        root / "integrated_evidence_lineage.csv.gz",
+        dtype=str,
+    ).fillna("")
+    if (
+        len(coverage) != 318_885
+        or coverage["accepted_species"].nunique() != 106_295
+        or coverage.duplicated(["accepted_species", "axis"]).any()
+    ):
+        raise ValueError("baseline does not satisfy the fixed 106295 x 3 contract")
+    return coverage, evidence
 
 
-def _winning_direct(
-    evidence: pd.DataFrame,
-    promoted: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    columns = [
-        "accepted_species",
-        "trait_name",
-        "normalized_value",
-        "quality",
-        "source_lineage",
-    ]
-    direct = evidence.loc[
-        evidence["quality"].isin(DIRECT_QUALITY)
-        & evidence["evidence_scope"].isin({"species_direct", "synonym_direct"})
-        & evidence["trait_name"].isin(STRICT_TRAIT_AXIS),
-        columns,
-    ].copy()
-    if not promoted.empty:
-        added = promoted[
-            [
-                "accepted_species",
-                "trait_name",
-                "normalized_value",
-                "confidence",
-                "source_lineage",
-            ]
-        ].rename(columns={"confidence": "quality"})
-        direct = pd.concat(
-            [direct, added.loc[added["trait_name"].isin(STRICT_TRAIT_AXIS)]],
-            ignore_index=True,
-        )
-    if direct.empty:
-        return pd.DataFrame(columns=columns), pd.DataFrame(
-            columns=["accepted_species", "trait_name", "normalized_value"]
-        )
-
-    direct["quality_rank"] = direct["quality"].map({"medium": 1, "high": 2}).fillna(0)
-    best_rank = direct.groupby(["accepted_species", "trait_name"])[
-        "quality_rank"
-    ].transform("max")
-    winning = direct.loc[direct["quality_rank"].eq(best_rank)].drop_duplicates(
-        [
-            "accepted_species",
-            "trait_name",
-            "normalized_value",
-            "source_lineage",
-        ]
-    )
-    values = (
-        winning.groupby(["accepted_species", "trait_name"])["normalized_value"]
-        .agg(lambda items: sorted({_text(item) for item in items if _text(item)}))
-        .reset_index()
-    )
-    conflicts = values.loc[values["normalized_value"].map(len).gt(1)].copy()
-    unambiguous_keys = values.loc[
-        values["normalized_value"].map(len).eq(1),
-        ["accepted_species", "trait_name"],
-    ]
-    unambiguous = winning.merge(
-        unambiguous_keys,
-        on=["accepted_species", "trait_name"],
-        how="inner",
-    )
-    unambiguous = unambiguous.loc[
-        ~unambiguous["normalized_value"].isin(
-            {"multicolored_variable", "multistate_variable"}
-        )
-    ].copy()
-    return unambiguous, conflicts
-
-
-def _genus_rules(direct: pd.DataFrame) -> pd.DataFrame:
-    if direct.empty:
-        return _empty_rules()
-    votes = direct.drop_duplicates(
-        ["accepted_species", "trait_name", "normalized_value"]
-    ).copy()
-    votes["genus"] = votes["accepted_species"].str.split().str[0]
-    species_values = (
-        votes.groupby(["genus", "trait_name", "accepted_species"])[
-            "normalized_value"
-        ]
-        .agg(lambda values: sorted(set(values)))
-        .reset_index()
-    )
-    species_values = species_values.loc[
-        species_values["normalized_value"].map(len).eq(1)
-    ].copy()
-    species_values["value"] = species_values["normalized_value"].str[0]
-    rows: list[dict[str, object]] = []
-    for (genus, trait), group in species_values.groupby(["genus", "trait_name"]):
-        axis = STRICT_TRAIT_AXIS[trait]
-        counts = group["value"].value_counts()
-        n_species = int(group["accepted_species"].nunique())
-        inferred_value = _text(counts.index[0])
-        dominant_species = int(counts.iloc[0])
-        dominance = dominant_species / n_species
-        outcomes: list[bool] = []
-        for index, held in group.iterrows():
-            training = group.drop(index=index)
-            if training.empty:
-                continue
-            prediction = _text(training["value"].value_counts().index[0])
-            outcomes.append(prediction == _text(held["value"]))
-        masked_accuracy = sum(outcomes) / len(outcomes) if outcomes else 0.0
+def _report_groups(reviewed: pd.DataFrame, column: str) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for value, group in reviewed.groupby(column, sort=True):
+        accepted_correct = int(group["_accepted_correct"].sum())
         rows.append(
             {
-                "genus": genus,
-                "axis": axis,
-                "trait_name": trait,
-                "inferred_value": inferred_value,
-                "n_direct_species": n_species,
-                "dominant_species": dominant_species,
-                "counterexample_species": n_species - dominant_species,
-                "dominance": dominance,
-                "required_dominance": DOMINANCE[axis],
-                "masked_n": len(outcomes),
-                "masked_correct": int(sum(outcomes)),
-                "masked_accuracy": masked_accuracy,
-                "required_masked_accuracy": MASKED[axis],
-                "eligible": bool(
-                    n_species >= 3
-                    and dominance >= DOMINANCE[axis]
-                    and masked_accuracy >= MASKED[axis]
-                ),
+                column: str(value) or "unknown_not_recorded",
+                "reviewed": len(group),
+                "accepted_correct": accepted_correct,
+                "precision": accepted_correct / len(group),
+                "cultivar_contamination_rate": float(group["_cultivar"].mean()),
             }
         )
-    return pd.DataFrame(rows, columns=RULE_COLUMNS)
+    return rows
 
 
-def rebuild_validated_low(
-    *,
-    coverage: pd.DataFrame,
-    evidence: pd.DataFrame,
-    promoted: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, dict[str, object]]:
-    direct, conflicts = _winning_direct(evidence, promoted)
-    rules = _genus_rules(direct)
-    direct_axes = {
-        (species, STRICT_TRAIT_AXIS[trait])
-        for species, trait in zip(direct["accepted_species"], direct["trait_name"])
-    }
-    unresolved_axes = coverage.loc[
-        [
-            (species, axis) not in direct_axes
-            for species, axis in zip(
-                coverage["accepted_species"], coverage["axis"]
-            )
-        ],
-        ["accepted_species", "axis"],
-    ]
-    task_rows = [
-        {
-            "accepted_species": _text(row.accepted_species),
-            "genus": _text(row.accepted_species).split()[0],
-            "axis": _text(row.axis),
-            "trait_name": trait,
-        }
-        for row in unresolved_axes.itertuples(index=False)
-        for trait in STRICT_AXIS_TRAITS[_text(row.axis)]
-    ]
-    tasks = pd.DataFrame(
-        task_rows,
-        columns=["accepted_species", "genus", "axis", "trait_name"],
-    )
-    eligible = rules.loc[rules["eligible"]].copy() if not rules.empty else _empty_rules()
-    if tasks.empty or eligible.empty:
-        low = _empty_low()
-    else:
-        low = tasks.merge(
-            eligible,
-            on=["genus", "axis", "trait_name"],
-            how="inner",
-        )
-        low["normalized_value"] = low["inferred_value"]
-        low["quality"] = "low"
-        low["evidence_scope"] = "genus_consensus"
-        low["inference_method"] = "validated_genus_consensus"
-        low["family_inference_used"] = False
-        low["global_fallback_used"] = False
-        low = low.drop_duplicates(
-            ["accepted_species", "trait_name", "normalized_value"]
-        ).reindex(columns=LOW_COLUMNS)
-
-    old_low_axes = set(
-        zip(
-            coverage.loc[coverage["after_quality"].eq("low"), "accepted_species"],
-            coverage.loc[coverage["after_quality"].eq("low"), "axis"],
-        )
-    )
-    rebuilt_low_axes = set(zip(low["accepted_species"], low["axis"]))
-    report: dict[str, object] = {
-        "contract": "trait_specific_all_direct_validated_low_v2",
-        "quality_precedence": ["high", "medium"],
-        "trait_specific_join": True,
-        "family_inference": False,
-        "global_fallback": False,
-        "direct_species_trait_conflicts_excluded": len(conflicts),
-        "eligible_genus_trait_rules": int(rules["eligible"].sum()) if not rules.empty else 0,
-        "rebuilt_validated_low_species_trait": int(
-            low.drop_duplicates(["accepted_species", "trait_name"]).shape[0]
-        ),
-        "rebuilt_validated_low_species_axis": len(rebuilt_low_axes),
-        "validated_low_added": len(rebuilt_low_axes - old_low_axes),
-        "validated_low_invalidated": len(old_low_axes - rebuilt_low_axes),
-        "validated_low_retained": len(old_low_axes & rebuilt_low_axes),
-    }
-    return rules, low, conflicts, report
-
-
-def apply_review(
+def finalize_review(
     *,
     baseline_dir: Path,
     candidates_csv: Path,
     audit_csv: Path,
+    master_csv: Path,
     output_dir: Path,
-) -> dict[str, object]:
-    summary, coverage, evidence, _ = _read_baseline(baseline_dir)
-    _validate_denominator(summary, coverage)
+    ontology_yaml: Path = Path("config/trait_ontology.yml"),
+    source_run_id: str = "",
+    source_artifact: str = "",
+    synonym_csv: Path | None = None,
+    vernacular_csv: Path | None = None,
+    acquisition_config_yaml: Path = Path("config/open_web_trait_acquisition.yml"),
+) -> dict[str, Any]:
+    """Apply the audit gate and run PR #131's shared all-evidence functions."""
+
+    coverage, evidence = _load_baseline(baseline_dir)
     candidates = pd.read_csv(candidates_csv, dtype=str).fillna("")
-    audits = pd.read_csv(audit_csv, dtype=str).fillna("")
-    required = {
-        "candidate_id",
-        "decision",
-        "species_identity_correct",
-        "value_correct",
-        "provenance_complete",
-        "cultivar_contamination",
-    }
-    missing = required.difference(audits.columns)
-    if missing:
-        raise ValueError(f"audit is missing columns: {sorted(missing)}")
-    reviewed = audits.loc[
-        audits["decision"].str.casefold().isin({"accept", "reject"})
-    ].copy()
-    good_mask = (
+    audit = pd.read_csv(audit_csv, dtype=str).fillna("")
+    master = pd.read_csv(master_csv, dtype=str).fillna("")
+    scope_table, audit_summary = reviewed_audit_metrics(audit)
+
+    reviewed = audit.loc[audit["decision"].str.casefold().isin({"accept", "reject"})].copy()
+    reviewed["_accepted_correct"] = (
         reviewed["decision"].str.casefold().eq("accept")
-        & reviewed["species_identity_correct"].map(_bool)
-        & reviewed["value_correct"].map(_bool)
-        & reviewed["provenance_complete"].map(_bool)
-        & ~reviewed["cultivar_contamination"].map(_bool)
+        & reviewed["species_identity_correct"]
+        .astype(str)
+        .str.casefold()
+        .isin({"1", "true", "yes", "y"})
+        & reviewed["value_correct"].astype(str).str.casefold().isin({"1", "true", "yes", "y"})
+        & reviewed["provenance_complete"].astype(str).str.casefold().isin({"1", "true", "yes", "y"})
+        & ~reviewed["cultivar_contamination"]
+        .astype(str)
+        .str.casefold()
+        .isin({"1", "true", "yes", "y"})
     )
-    accepted_audit = reviewed.loc[good_mask]
-    promoted = pd.DataFrame(
-        promote_reviewed(
-            candidates.to_dict("records"),
-            accepted_audit.assign(decision="accept").to_dict("records"),
-        )
+    reviewed["_cultivar"] = (
+        reviewed["cultivar_contamination"]
+        .astype(str)
+        .str.casefold()
+        .isin({"1", "true", "yes", "y"})
     )
-    precision = len(accepted_audit) / len(reviewed) if len(reviewed) else None
-    cultivar_rate = (
-        float(reviewed["cultivar_contamination"].map(_bool).mean())
-        if len(reviewed)
-        else None
+    approved_ids = (
+        accepted_review_ids(audit, scope_table) if audit_summary["pilot_gate_passed"] else set()
     )
-    by_trait: dict[str, dict[str, object]] = {}
-    for trait, group in reviewed.groupby("trait_name"):
-        good = group.loc[good_mask.loc[group.index]]
-        by_trait[_text(trait)] = {
-            "audited": len(group),
-            "accepted_correct": len(good),
-            "precision": len(good) / len(group) if len(group) else None,
-        }
-    approved_traits = _production_approved_traits(by_trait)
-    rules, low, conflicts, low_report = rebuild_validated_low(
+    promoted = candidates.loc[candidates["candidate_id"].isin(approved_ids)].copy()
+    if not promoted.empty:
+        promoted["review_status"] = "accepted_manual_audit"
+        promoted["source_run_id"] = source_run_id
+        promoted["source_artifact"] = source_artifact
+        promoted["source_file"] = str(candidates_csv)
+
+    common_report, tables = rebuild_with_common_all_evidence(
         coverage=coverage,
         evidence=evidence,
         promoted=promoted,
+        master=master,
+        ontology_yaml=ontology_yaml,
     )
-    baseline_direct_axes = set(
-        zip(
-            coverage.loc[
-                coverage["after_quality"].isin(DIRECT_QUALITY), "accepted_species"
-            ],
-            coverage.loc[coverage["after_quality"].isin(DIRECT_QUALITY), "axis"],
-        )
+    strict_for_queue = tables["strict_coverage"].rename(columns={"quality": "after_quality"})
+    species_queue = build_priority_queue(
+        strict_for_queue,
+        tables["lineages"],
+        master,
+        species_limit=1000,
+        traits_per_species=2,
     )
-    promoted_axes = {
-        (row.accepted_species, STRICT_TRAIT_AXIS[row.trait_name])
-        for row in promoted.itertuples(index=False)
-        if row.trait_name in STRICT_TRAIT_AXIS
-    }
-    low_axes = set(zip(low["accepted_species"], low["axis"]))
-    final_axes = baseline_direct_axes | promoted_axes | low_axes
-    baseline_axes = set(
-        zip(
-            coverage.loc[coverage["after_quality"].ne(""), "accepted_species"],
-            coverage.loc[coverage["after_quality"].ne(""), "axis"],
-        )
+    search_tasks = build_query_tasks(
+        species_queue.to_dict("records"),
+        config=load_config(acquisition_config_yaml),
+        synonyms=load_strict_name_variants(synonym_csv),
+        vernacular_names=load_vernacular_names(vernacular_csv),
     )
+
     output_dir.mkdir(parents=True, exist_ok=True)
-    promoted.to_csv(output_dir / "accepted_open_web_evidence.csv", index=False)
-    rules.to_csv(output_dir / "rebuilt_validated_genus_rules.csv.gz", index=False)
-    low.to_csv(output_dir / "rebuilt_validated_low_evidence.csv.gz", index=False)
-    conflicts.to_csv(
-        output_dir / "direct_species_trait_conflicts_excluded.csv.gz", index=False
+    scope_table.to_csv(
+        output_dir / "domain_trait_audit_precision.csv",
+        index=False,
     )
-    report: dict[str, object] = {
-        "contract": CONTRACT,
-        "completed_at_utc": _now(),
-        "audited_pages_or_candidates": len(reviewed),
-        "accepted_correct": len(accepted_audit),
-        "precision_denominator": len(reviewed),
-        "precision": precision,
-        "cultivar_contamination_rate": cultivar_rate,
-        "by_trait": by_trait,
-        "production_approved_traits": approved_traits,
-        "new_direct_species_trait": (
-            int(promoted.drop_duplicates(["accepted_species", "trait_name"]).shape[0])
-            if not promoted.empty
-            else 0
-        ),
-        "new_direct_species_axis": len(promoted_axes - baseline_direct_axes),
-        "validated_low_rebuild": low_report,
-        "strict_filled_species_axis_before": len(baseline_axes),
-        "strict_filled_species_axis_after": len(final_axes),
-        "strict_coverage_before": len(baseline_axes) / 318_885,
-        "strict_coverage_after": len(final_axes) / 318_885,
-        "strict_coverage_increment": (len(final_axes) - len(baseline_axes)) / 318_885,
-        "production_approved": bool(
-            len(reviewed) >= 100
-            and precision is not None
-            and precision >= 0.90
-            and (cultivar_rate or 0.0) <= 0.02
-            and approved_traits
-        ),
-        "family_inference": False,
-        "global_fallback": False,
+    reviewed.drop(columns=["_accepted_correct", "_cultivar"]).to_csv(
+        output_dir / "reviewed_audit_sample.csv",
+        index=False,
+    )
+    promoted.to_csv(output_dir / "accepted_open_web_evidence.csv.gz", index=False)
+
+    formal = promoted.copy()
+    if not formal.empty:
+        formal["evidence_quality"] = formal.get("confidence", "medium")
+        formal["source_provider"] = formal.get("domain", "")
+        formal["source_record_id"] = formal.get("candidate_id", "")
+        formal["source_citation"] = formal.get("source_citation", formal.get("page_title", ""))
+        formal["source_excerpt"] = formal.get(
+            "source_excerpt",
+            formal.get("supporting_excerpt", ""),
+        )
+        formal["inference_rule"] = ""
+    formal.to_csv(
+        output_dir / "broad_web_medium_evidence.csv.gz",
+        index=False,
+    )
+
+    table_files = {
+        "lineages": "reviewed_source_lineages.csv.gz",
+        "lineage_duplicates": "source_lineage_duplicates.csv.gz",
+        "direct_cells": "direct_species_trait_ledger.csv.gz",
+        "direct_conflicts": "source_lineage_conflict_table.csv.gz",
+        "rules": "trait_specific_genus_rule_audit.csv.gz",
+        "rebuilt_low": "rebuilt_all_evidence_validated_low.csv.gz",
+        "old_low_comparison": "old_low_comparison.csv.gz",
+        "strict_coverage": "strict_species_axis_coverage.csv.gz",
+        "next_queue": "prioritized_unresolved_search_queue.csv.gz",
     }
-    (output_dir / "manual_audit_gain_report_v2.json").write_text(
+    for key, filename in table_files.items():
+        tables[key].to_csv(output_dir / filename, index=False)
+    species_queue.to_csv(
+        output_dir / "prioritized_search_queue.csv.gz",
+        index=False,
+    )
+    pd.DataFrame([asdict(task) for task in search_tasks]).to_csv(
+        output_dir / "search_tasks.csv", index=False
+    )
+
+    report = {
+        "contract": "reviewed_open_web_formal_ledger_v1",
+        "completed_at_utc": _now(),
+        "source_run_id": source_run_id,
+        "source_artifact": source_artifact,
+        "search_queries": 0,
+        "search_cost_usd": 0.0,
+        "credential_free_inventory": True,
+        "audit": {
+            **audit_summary,
+            "by_domain": _report_groups(reviewed, "domain"),
+            "by_language": _report_groups(reviewed, "language"),
+            "by_trait": _report_groups(reviewed, "trait_name"),
+        },
+        "production_approved_domain_trait_scopes": (
+            scope_table.loc[
+                scope_table["production_approved"].astype(bool),
+                ["domain", "trait_name"],
+            ].to_dict("records")
+            if not scope_table.empty
+            else []
+        ),
+        "promoted_reviewed_evidence_rows": len(promoted),
+        "next_search_queue": {
+            "species_trait_rows": len(species_queue),
+            "search_tasks": len(search_tasks),
+            "strict_synonym_snapshot_used": synonym_csv is not None,
+            "vernacular_snapshot_used": vernacular_csv is not None,
+        },
+        "shared_all_evidence": common_report,
+    }
+    (output_dir / "open_web_formalization_summary.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    (output_dir / "broad_web_medium_pilot_summary.json").write_text(
+        json.dumps(
+            {
+                "contract": "broad_web_medium_pilot_summary_v1",
+                "run_id": source_run_id,
+                "artifact": source_artifact,
+                "accepted_evidence_rows": len(promoted),
+                "manual_reviewed": True,
+                "audit_precision": audit_summary["precision"],
+                "cultivar_contamination_rate": audit_summary["cultivar_contamination_rate"],
+            },
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    files = sorted(path for path in output_dir.rglob("*") if path.is_file())
+    manifest = {
+        "contract": "reviewed_open_web_source_run_manifest_v1",
+        "source_run_id": source_run_id,
+        "source_artifact": source_artifact,
+        "common_validated_low_implementation": ("island_v2.all_evidence_trait_audit"),
+        "files": [
+            {
+                "path": str(path.relative_to(output_dir)),
+                "sha256": _sha256(path),
+                "size_bytes": path.stat().st_size,
+            }
+            for path in files
+        ],
+    }
+    (output_dir / "source_run_manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
     return report
@@ -440,16 +273,42 @@ def apply_review(
 
 @app.command("apply-audit")
 def apply_audit_command(
-    baseline_dir: Path = typer.Option(..., exists=True, file_okay=False),
-    candidates_csv: Path = typer.Option(..., exists=True),
-    audit_csv: Path = typer.Option(..., exists=True),
-    output_dir: Path = typer.Option(...),
+    baseline_dir: Annotated[Path, typer.Option(exists=True, file_okay=False)],
+    candidates_csv: Annotated[Path, typer.Option(exists=True, dir_okay=False)],
+    audit_csv: Annotated[Path, typer.Option(exists=True, dir_okay=False)],
+    master_csv: Annotated[Path, typer.Option(exists=True, dir_okay=False)],
+    output_dir: Annotated[Path, typer.Option(file_okay=False)],
+    ontology_yaml: Annotated[
+        Path,
+        typer.Option(exists=True, dir_okay=False),
+    ] = Path("config/trait_ontology.yml"),
+    source_run_id: str = "",
+    source_artifact: str = "",
+    synonym_csv: Annotated[
+        Path | None,
+        typer.Option(exists=True, dir_okay=False),
+    ] = None,
+    vernacular_csv: Annotated[
+        Path | None,
+        typer.Option(exists=True, dir_okay=False),
+    ] = None,
+    acquisition_config_yaml: Annotated[
+        Path,
+        typer.Option(exists=True, dir_okay=False),
+    ] = Path("config/open_web_trait_acquisition.yml"),
 ) -> None:
-    report = apply_review(
+    report = finalize_review(
         baseline_dir=baseline_dir,
         candidates_csv=candidates_csv,
         audit_csv=audit_csv,
+        master_csv=master_csv,
         output_dir=output_dir,
+        ontology_yaml=ontology_yaml,
+        source_run_id=source_run_id,
+        source_artifact=source_artifact,
+        synonym_csv=synonym_csv,
+        vernacular_csv=vernacular_csv,
+        acquisition_config_yaml=acquisition_config_yaml,
     )
     typer.echo(json.dumps(report, ensure_ascii=False, sort_keys=True))
 

@@ -141,16 +141,21 @@ The pilot workflow:
 4. creates multilingual official-search tasks;
 5. uses an official search adapter only when its secret exists;
 6. runs a bounded approved-domain inventory pilot;
-7. freezes a trait-stratified, 100-unique-page audit sheet; and
-8. promotes no evidence until reviewed decisions are supplied.
+7. when search credentials are absent, crawls the registered inventories of
+   at least five independently approved domains (currently Mikawa, Botanic.jp,
+   Tsukuba Botanical Garden, PlantNET NSW, Go Botany, and NZPCN);
+8. freezes a reproducibly hashed, domain × trait-stratified,
+   200-unique-page audit sheet; and
+9. promotes no evidence until reviewed decisions are supplied.
 
-Applying the audit also rebuilds Validated Low from every lineage-deduplicated
-direct High/Medium row plus accepted pilot rows. The rebuild enforces
-High-over-Medium precedence at `species × trait`, excludes unresolved
-same-tier multivalue conflicts from genus rules, and applies rules through
-`genus × axis × trait_name`. It writes the rebuilt rules, Low ledger, conflict
-table, Low additions/invalidations, and final strict coverage rather than
-assuming the prior Low ledger remains valid.
+Applying the audit does not contain a second Validated Low implementation.
+Reviewed rows are converted to the shared evidence schema, then PR #131's
+`all_evidence_trait_audit` lineage deduplication, conflict resolution,
+`build_rule_audit`, `apply_genus_rules`, coverage, and acquisition-queue
+functions run directly. Rules are applied by `genus × trait_name`; axis is
+reporting metadata and is never the inference join. `reward_type` and
+`pollen_vector_mode` remain queryable ledgers but never fill the strict flower
+structure axis.
 
 Run it with:
 
@@ -166,7 +171,7 @@ gh workflow run open-web-trait-pilot.yml \
   -f search_backend=auto
 ```
 
-Fill `manual_audit_100_pages.csv` with:
+Fill `manual_audit_multidomain.csv` with:
 
 - `decision=accept|reject`;
 - `species_identity_correct`;
@@ -176,20 +181,27 @@ Fill `manual_audit_100_pages.csv` with:
 - false-positive reason and reviewer metadata.
 
 Only `accept` rows whose three accuracy fields are true and cultivar field is
-false are promoted. Production is gated on at least 100 audited pages,
-overall precision at least 0.90, and cultivar contamination no more than 0.02.
-Within a passing pilot, only traits with at least 10 audited candidates and
-trait-specific precision at least 0.90 enter the production queue. Unobserved
-or weakly audited traits remain blocked even when the overall pilot passes.
+false count as `accepted_correct`; precision is exactly
+`accepted_correct / all reviewed`. Production is gated on at least 200
+reviewed pages from at least five domains, overall precision at least 0.90,
+and cultivar contamination no more than 0.02. Within a passing pilot, each
+domain × trait scope must itself have at least 10 reviews, precision at least
+0.90, and cultivar contamination no more than 0.02. Unreviewed or weak scopes
+remain blocked.
 
 ## Production and resumption
 
-`open-web-trait-production.yml` refuses to start unless the referenced pilot
+`open-web-trait-production.yml` refuses to start unless the referenced reviewed
 artifact satisfies that gate and the selected official-search credential
-exists. Each run records an exact half-open task range `[offset, offset+limit)`,
-a hard request cap, and optional prior-run checkpoint. Overlapping dispatches
-are prevented by the workflow concurrency key, but operators must still choose
-non-overlapping ranges.
+exists. Each query has a stable task ID. Before a shard runs, all available
+prior checkpoint manifests on the branch are loaded; a different run whose
+half-open range overlaps the request is rejected, and every completed task ID
+is removed. An exact incomplete range may be resumed only by naming its source
+run. A completed range cannot be resumed or searched again.
+
+Without Brave or Google CSE credentials, the six-domain workflow is the honest
+credential-free acquisition lane. Its query count and cost remain zero; it
+does not label an inventory crawl as an official search.
 
 Production outputs remain review-only until their own audit/promotion step.
 They include search tasks and costs, URL discovery, page fetches, species

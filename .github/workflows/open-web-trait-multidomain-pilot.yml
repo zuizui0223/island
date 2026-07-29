@@ -9,6 +9,7 @@ on:
       - "src/island_v2/open_web_multidomain.py"
       - "src/island_v2/open_web_multidomain_runner.py"
       - "src/island_v2/open_web_finalize.py"
+      - "src/island_v2/open_web_common.py"
       - "src/island_v2/open_web_evidence.py"
       - "tests/test_open_web_multidomain.py"
   workflow_dispatch:
@@ -20,7 +21,7 @@ on:
       max_pages_per_domain:
         description: Hard inventory-treatment cap per domain
         required: true
-        default: "150"
+        default: "500"
 
 permissions:
   actions: read
@@ -94,12 +95,16 @@ jobs:
             domain: tbg.kahaku.go.jp
           - key: plantnet-nsw
             domain: plantnet.rbgsyd.nsw.gov.au
+          - key: gobotany
+            domain: gobotany.nativeplanttrust.org
+          - key: nzpcn
+            domain: nzpcn.org.nz
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
       GH_TOKEN: ${{ github.token }}
       BASELINE_RUN_ID: ${{ inputs.baseline_run_id || '30107066525' }}
-      MAX_PAGES_PER_DOMAIN: ${{ inputs.max_pages_per_domain || '150' }}
+      MAX_PAGES_PER_DOMAIN: ${{ inputs.max_pages_per_domain || '500' }}
       OUTPUT_DIR: outputs/open_web_multidomain/${{ matrix.key }}
     steps:
       - uses: actions/checkout@v4
@@ -130,7 +135,7 @@ jobs:
             --output-dir "$OUTPUT_DIR" \
             --domain "${{ matrix.domain }}" \
             --max-pages-per-domain "$MAX_PAGES_PER_DOMAIN" \
-            --audit-pages 40 \
+            --audit-pages 80 \
             --pause-seconds 0.25 \
             --audit-seed "${{ github.sha }}-${{ matrix.key }}" \
             > "$OUTPUT_DIR/crawl.stdout.log" \
@@ -198,5 +203,36 @@ jobs:
         with:
           name: open-web-domain-${{ matrix.key }}-${{ github.run_id }}
           path: ${{ env.OUTPUT_DIR }}/
+          retention-days: 90
+          if-no-files-found: error
+
+  collect:
+    needs: acquire
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: open-web-domain-*-${{ github.run_id }}
+          path: /tmp/open-web-domain-artifacts
+      - name: Build the reproducible 200-page cross-domain audit sample
+        run: |
+          python -m island_v2.open_web_multidomain collect \
+            --input-root /tmp/open-web-domain-artifacts \
+            --output-dir outputs/open_web_multidomain_combined \
+            --audit-pages 200 \
+            --audit-seed "${{ github.sha }}-${{ github.run_id }}"
+          cat outputs/open_web_multidomain_combined/multidomain_collection_report.json \
+            >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: open-web-multidomain-pilot-${{ github.run_id }}
+          path: outputs/open_web_multidomain_combined/
           retention-days: 90
           if-no-files-found: error

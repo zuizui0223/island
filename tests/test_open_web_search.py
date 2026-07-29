@@ -12,6 +12,7 @@ from island_v2.open_web_search import (
     SearchTask,
     build_query_tasks,
     discover,
+    load_strict_name_variants,
     load_strict_synonyms,
     write_csv,
 )
@@ -47,6 +48,9 @@ def test_multilingual_query_generation_keeps_trait_and_name_kind() -> None:
     assert all(task.trait_name == "self_incompatibility" for task in tasks)
     assert any("自家不和合性" in task.query for task in tasks)
     assert not any("自動自殖" in task.query for task in tasks)
+    vernacular = [task for task in tasks if task.name_kind == "vernacular"]
+    assert {task.language for task in vernacular} == {"ja"}
+    assert all("self-compatible" not in task.query for task in vernacular)
 
 
 def test_self_fertile_query_is_never_relabelled_as_autonomous_selfing() -> None:
@@ -109,6 +113,7 @@ def test_query_budget_stops_before_second_task() -> None:
     second = SearchTask(**{**asdict(task), "task_id": "two", "query": "two"})
     _, _, report = discover([task, second], backends=[backend], max_queries=1)
     assert report["queries_used"] == 1
+    assert report["attempted_task_ids"] == ["one"]
 
 
 def test_empty_discovery_csv_retains_schema_for_resumable_workflow(tmp_path: Path) -> None:
@@ -133,3 +138,29 @@ def test_query_synonyms_require_two_backbone_snapshots(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     assert load_strict_synonyms(target) == {"Plantus alba": ["Planta candida"]}
+
+
+def test_basionym_requires_two_backbones_and_keeps_name_kind(
+    tmp_path: Path,
+) -> None:
+    target = tmp_path / "names.csv"
+    target.write_text(
+        "accepted_species,basionym,backbone\n"
+        "Plantus alba,Basionyma alba,GBIF\n"
+        "Plantus alba,Basionyma alba,WFO\n",
+        encoding="utf-8",
+    )
+    variants = load_strict_name_variants(target)
+    assert variants == {"Plantus alba": [("Basionyma alba", "basionym")]}
+    tasks = build_query_tasks(
+        [
+            {
+                "accepted_species": "Plantus alba",
+                "trait_name": "floral_form",
+            }
+        ],
+        config=_config(),
+        synonyms=variants,
+        include_pdf_query=False,
+    )
+    assert any(task.name_kind == "basionym" for task in tasks)

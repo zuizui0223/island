@@ -857,6 +857,37 @@ def test_lineage_deduplicator_does_not_count_republished_excerpt_twice() -> None
     assert duplicates[0]["duplicate_reason"] == "same_excerpt_republished_or_mirrored"
 
 
+def test_lineage_deduplicator_uses_citation_and_content_fingerprint() -> None:
+    base = {
+        "accepted_species": "Plantus alba",
+        "trait_name": "floral_form",
+        "normalized_value": "tubular",
+        "supporting_excerpt": "Flowers are tubular.",
+        "source_citation": "Flora Example (2020), treatment 4",
+        "content_fingerprint": "abc123",
+        "source_lineage": "url:https://one.example/page",
+    }
+    citation_mirror = {
+        **base,
+        "supporting_excerpt": "Flowers  are tubular!",
+        "source_lineage": "url:https://mirror.example/page",
+        "content_fingerprint": "different",
+    }
+    selected, duplicates = dedupe_candidates([base, citation_mirror])
+    assert len(selected) == 1
+    assert duplicates[0]["duplicate_reason"] == ("same_citation_and_normalized_excerpt")
+
+    content_mirror = {
+        **base,
+        "source_citation": "Different citation",
+        "supporting_excerpt": "Tubular flowers occur.",
+        "source_lineage": "url:https://other.example/page",
+    }
+    selected, duplicates = dedupe_candidates([base, content_mirror])
+    assert len(selected) == 1
+    assert duplicates[0]["duplicate_reason"] == "same_content_fingerprint"
+
+
 def test_canonical_url_removes_tracking_without_changing_source_path() -> None:
     assert canonical_url("https://www.Example.org/a/?utm_source=x&id=4#frag") == (
         "https://example.org/a?id=4"

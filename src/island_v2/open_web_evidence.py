@@ -118,10 +118,39 @@ def canonical_url(value: object) -> str:
     )
 
 
-def source_lineage(url: str, excerpt: str) -> tuple[str, str]:
-    doi = re.search(r"\b10\.\d{4,9}/[-._;()/:A-Za-z0-9]+\b", f"{url} {excerpt}")
+def _normalised_lineage_text(value: object) -> str:
+    return re.sub(
+        r"\s+",
+        " ",
+        re.sub(r"[^\w\s]", " ", _text(value).casefold()),
+    ).strip()
+
+
+def source_lineage(
+    url: str,
+    excerpt: str,
+    *,
+    citation: str = "",
+    content_fingerprint: str = "",
+) -> tuple[str, str]:
+    """Identify original-source lineage beyond URL-only equality."""
+
+    doi = re.search(
+        r"\b10\.\d{4,9}/[-._;()/:A-Za-z0-9]+\b",
+        f"{url} {citation} {excerpt}",
+    )
     if doi:
         return f"doi:{doi.group(0).rstrip('.,;').casefold()}", "doi"
+    normalised_citation = _normalised_lineage_text(citation)
+    normalised_excerpt = _normalised_lineage_text(excerpt)
+    if normalised_citation and normalised_excerpt:
+        fingerprint = _sha_text(f"{normalised_citation}|{normalised_excerpt}")
+        return f"citation-excerpt:{fingerprint}", "citation_normalized_excerpt"
+    if _text(content_fingerprint):
+        return (
+            f"content:{_text(content_fingerprint).casefold()}",
+            "content_fingerprint",
+        )
     canonical = canonical_url(url)
     if canonical:
         return f"url:{canonical}", "canonical_url"
@@ -235,7 +264,9 @@ class StrictNameResolver:
                 self._accepted[key] = (species, _text(row.get("family")))
         grouped: dict[str, list[Mapping[str, object]]] = defaultdict(list)
         for row in synonym_rows:
-            grouped[_name_key(row.get("synonym") or row.get("submitted_name"))].append(row)
+            grouped[
+                _name_key(row.get("synonym") or row.get("basionym") or row.get("submitted_name"))
+            ].append(row)
         self._synonyms: dict[str, NameResolution] = {}
         for key, rows in grouped.items():
             if not key:
@@ -254,7 +285,11 @@ class StrictNameResolver:
             if master is None or (families and master[1] and master[1] not in families):
                 continue
             self._synonyms[key] = NameResolution(
-                submitted_name=_text(rows[0].get("synonym") or rows[0].get("submitted_name")),
+                submitted_name=_text(
+                    rows[0].get("synonym")
+                    or rows[0].get("basionym")
+                    or rows[0].get("submitted_name")
+                ),
                 accepted_species=master[0],
                 family=master[1],
                 method="strict_cross_backbone_synonym",
@@ -980,7 +1015,14 @@ def _candidate(
     search_provider: str,
     extraction_version: str,
 ) -> dict[str, object]:
-    lineage, lineage_method = source_lineage(page.final_url, excerpt)
+    citation = f"{domain.source_name}. {page.title}".strip(" .")
+    normalised_excerpt = _normalised_lineage_text(excerpt)
+    lineage, lineage_method = source_lineage(
+        page.final_url,
+        excerpt,
+        citation=citation,
+        content_fingerprint=page.content_sha256,
+    )
     return {
         "accepted_species": resolution.accepted_species,
         "searched_name": searched_name,
@@ -1001,6 +1043,9 @@ def _candidate(
         "organization_type": domain.organization_type,
         "language": page.language or domain.language,
         "supporting_excerpt": excerpt,
+        "source_citation": citation,
+        "normalized_excerpt_sha256": _sha_text(normalised_excerpt),
+        "content_fingerprint": page.content_sha256,
         "retrieval_date": page.retrieved_at_utc[:10],
         "query": query,
         "search_rank": search_rank,
@@ -1184,7 +1229,9 @@ def dedupe_candidates(
 ) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
     selected: dict[tuple[str, str, str, str], dict[str, object]] = {}
     duplicates: list[dict[str, object]] = []
-    excerpt_seen: dict[tuple[str, str, str], str] = {}
+    excerpt_seen: dict[tuple[str, str, str, str], str] = {}
+    citation_excerpt_seen: dict[tuple[str, str, str, str], str] = {}
+    content_seen: dict[tuple[str, str, str, str], str] = {}
     for raw in rows:
         row = dict(raw)
         key = (
@@ -1193,11 +1240,45 @@ def dedupe_candidates(
             _text(row.get("normalized_value")),
             _text(row.get("source_lineage")),
         )
+        excerpt_fingerprint = _text(row.get("normalized_excerpt_sha256")) or _sha_text(
+            _normalised_lineage_text(row.get("supporting_excerpt"))
+        )
         excerpt_key = (
             key[0],
             key[1],
-            _sha_text(_text(row.get("supporting_excerpt")).casefold()),
+            key[2],
+            excerpt_fingerprint,
         )
+        citation_text = _normalised_lineage_text(row.get("source_citation"))
+        citation_fingerprint = _sha_text(citation_text)
+        citation_excerpt_key = (
+            key[0],
+            key[1],
+            key[2],
+            _sha_text(f"{citation_fingerprint}|{excerpt_fingerprint}"),
+        )
+        content_key = (
+            key[0],
+            key[1],
+            key[2],
+            _text(row.get("content_fingerprint") or row.get("page_content_sha256")).casefold(),
+        )
+        if citation_text:
+            mirror_lineage = citation_excerpt_seen.get(citation_excerpt_key)
+            if mirror_lineage and mirror_lineage != key[3]:
+                row["duplicate_reason"] = "same_citation_and_normalized_excerpt"
+                row["duplicate_of_lineage"] = mirror_lineage
+                duplicates.append(row)
+                continue
+            citation_excerpt_seen[citation_excerpt_key] = key[3]
+        if content_key[3]:
+            mirror_lineage = content_seen.get(content_key)
+            if mirror_lineage and mirror_lineage != key[3]:
+                row["duplicate_reason"] = "same_content_fingerprint"
+                row["duplicate_of_lineage"] = mirror_lineage
+                duplicates.append(row)
+                continue
+            content_seen[content_key] = key[3]
         mirror_lineage = excerpt_seen.get(excerpt_key)
         if mirror_lineage and mirror_lineage != key[3]:
             row["duplicate_reason"] = "same_excerpt_republished_or_mirrored"

@@ -4,7 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       pilot_run_id:
-        description: Pilot run containing manual_audit_gain_report.json
+        description: Pilot run containing a >=200-page reviewed formalization
+        required: true
+      pilot_artifact_name:
+        description: Exact reviewed pilot artifact name
         required: true
       offset:
         description: Start row in prioritized species-trait task queue
@@ -56,16 +59,17 @@ jobs:
           mkdir -p /tmp/open-web-pilot
           gh run download "${{ inputs.pilot_run_id }}" \
             --repo "${{ github.repository }}" \
-            --name "open-web-trait-pilot-${{ inputs.pilot_run_id }}" \
+            --name "${{ inputs.pilot_artifact_name }}" \
             --dir /tmp/open-web-pilot
-          test -f /tmp/open-web-pilot/reviewed/manual_audit_gain_report.json
+          test -f /tmp/open-web-pilot/open_web_formalization_summary.json
           jq -e '
-            .production_approved == true
-            and .audited_pages_or_candidates >= 100
-            and .precision >= 0.90
-            and .cultivar_contamination_rate <= 0.02
-            and (.production_approved_traits | length > 0)
-          ' /tmp/open-web-pilot/reviewed/manual_audit_gain_report.json
+            .audit.pilot_gate_passed == true
+            and .audit.reviewed_pages_or_candidates >= 200
+            and .audit.reviewed_domains >= 5
+            and .audit.precision >= 0.90
+            and .audit.cultivar_contamination_rate <= 0.02
+            and (.production_approved_domain_trait_scopes | length > 0)
+          ' /tmp/open-web-pilot/open_web_formalization_summary.json
       - name: Require an official-search credential
         run: |
           if [ "${{ inputs.search_backend }}" = "brave" ]; then
@@ -80,46 +84,38 @@ jobs:
       - name: Restore the immutable pilot queue and optional checkpoint
         run: |
           mkdir -p outputs/open_web_production
-          cp /tmp/open-web-pilot/prioritized_search_queue.csv outputs/open_web_production/
+          mkdir -p /tmp/open-web-prior-runs
+          cp /tmp/open-web-pilot/prioritized_search_queue.csv.gz \
+            outputs/open_web_production/
           cp /tmp/open-web-pilot/search_tasks.csv outputs/open_web_production/
-          if [ -n "${{ inputs.resume_run_id }}" ]; then
-            mkdir -p /tmp/open-web-resume
-            gh run download "${{ inputs.resume_run_id }}" \
-              --repo "${{ github.repository }}" \
-              --name "open-web-trait-production-${{ inputs.resume_run_id }}" \
-              --dir /tmp/open-web-resume
-            cp -R /tmp/open-web-resume/. outputs/open_web_production/
-          fi
+          gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow open-web-trait-production.yml \
+            --branch "${{ github.ref_name }}" \
+            --status success \
+            --limit 100 \
+            --json databaseId \
+            --jq '.[].databaseId' \
+            | while read -r run_id; do
+                if [ "$run_id" = "${{ github.run_id }}" ]; then
+                  continue
+                fi
+                mkdir -p "/tmp/open-web-prior-runs/$run_id"
+                gh run download "$run_id" \
+                  --repo "${{ github.repository }}" \
+                  --name "open-web-trait-production-$run_id" \
+                  --dir "/tmp/open-web-prior-runs/$run_id" || true
+              done
       - name: Select an exact non-overlapping task range
         run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-
-          import pandas as pd
-
-          src = Path("outputs/open_web_production/search_tasks.csv")
-          table = pd.read_csv(src, dtype=str).fillna("")
-          pilot_report = json.loads(
-              Path("/tmp/open-web-pilot/reviewed/manual_audit_gain_report.json").read_text(
-                  encoding="utf-8"
-              )
-          )
-          approved_traits = set(pilot_report["production_approved_traits"])
-          table = table.loc[table["trait_name"].isin(approved_traits)].copy()
-          offset = int("${{ inputs.offset }}")
-          limit = int("${{ inputs.limit }}")
-          if offset < 0 or limit <= 0 or offset > len(table):
-              raise SystemExit("invalid offset/limit")
-          shard = table.iloc[offset : offset + limit].copy()
-          shard.to_csv("outputs/open_web_production/search_tasks_shard.csv", index=False)
-          Path("outputs/open_web_production/range.txt").write_text(
-              f"[{offset},{offset + len(shard)})\n", encoding="utf-8"
-          )
-          Path("outputs/open_web_production/production_approved_traits.json").write_text(
-              json.dumps(sorted(approved_traits), indent=2) + "\n", encoding="utf-8"
-          )
-          PY
+          python -m island_v2.open_web_checkpoint prepare \
+            --tasks-csv outputs/open_web_production/search_tasks.csv \
+            --output-dir outputs/open_web_production \
+            --offset "${{ inputs.offset }}" \
+            --limit "${{ inputs.limit }}" \
+            --source-run-id "${{ github.run_id }}" \
+            --prior-root /tmp/open-web-prior-runs \
+            --resume-run-id "${{ inputs.resume_run_id }}"
       - name: Discover official result URLs
         run: |
           island-v2-open-web-search discover \
@@ -138,6 +134,15 @@ jobs:
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
             --output-dir outputs/open_web_production/evidence \
             "${identity_args[@]}"
+      - name: Freeze completed and remaining task IDs
+        run: |
+          python -m island_v2.open_web_checkpoint finalize \
+            --checkpoint-plan-json \
+              outputs/open_web_production/checkpoint_plan.json \
+            --discovery-report-json \
+              outputs/open_web_production/discovery/search_report.json \
+            --output-json \
+              outputs/open_web_production/checkpoint_manifest.json
       - uses: actions/upload-artifact@v4
         with:
           name: open-web-trait-production-${{ github.run_id }}

@@ -29,6 +29,7 @@ import httpx
 import pandas as pd
 import typer
 
+from island_v2.open_web_common import STRICT_AXIS_TRAITS, STRICT_TRAIT_AXIS
 from island_v2.open_web_evidence import (
     DomainRegistry,
     PageFetcher,
@@ -49,23 +50,8 @@ USER_AGENT = "island-floral-traits/0.2 (small non-commercial discovery pilot)"
 # These are the manuscript-facing three-axis mappings.  Reward and pollen-vector
 # mode remain useful separate traits, but neither is allowed to resolve the
 # floral-structural-complexity axis.
-AXIS_TRAITS: dict[str, tuple[str, ...]] = {
-    "flower_colour": ("flower_primary_color",),
-    "floral_structural_complexity": (
-        "floral_form",
-        "floral_symmetry",
-        "tube_depth_class",
-        "flower_size_class",
-        "inflorescence_display",
-    ),
-    "reproductive_assurance": (
-        "self_incompatibility",
-        "autonomous_selfing_capacity",
-        "mating_system",
-        "cleistogamy",
-    ),
-}
-TRAIT_AXIS = {trait: axis for axis, traits in AXIS_TRAITS.items() for trait in traits}
+AXIS_TRAITS = STRICT_AXIS_TRAITS
+TRAIT_AXIS = STRICT_TRAIT_AXIS
 
 SEARCH_TERMS: dict[str, tuple[str, ...]] = {
     "flower_primary_color": ("flower color", "corolla colour", "floral description"),
@@ -177,7 +163,13 @@ def build_priority_queue(
         master["genus"].ne(""), master["accepted_species"].str.split().str[0]
     )
     unresolved = coverage.loc[coverage["after_quality"].eq("")].merge(
-        master[[column for column in ("accepted_species", "genus", "family", "n_records") if column in master]],
+        master[
+            [
+                column
+                for column in ("accepted_species", "genus", "family", "n_records")
+                if column in master
+            ]
+        ],
         on="accepted_species",
         how="left",
     )
@@ -232,7 +224,9 @@ def build_priority_queue(
         ["priority_score", "potential_species_trait_unlocked", "accepted_species", "trait_name"],
         ascending=[False, False, True, True],
     )
-    species_order = queue.drop_duplicates("accepted_species").head(species_limit)["accepted_species"]
+    species_order = queue.drop_duplicates("accepted_species").head(species_limit)[
+        "accepted_species"
+    ]
     selected = queue.loc[queue["accepted_species"].isin(set(species_order))].copy()
     selected["species_rank"] = selected["accepted_species"].map(
         {species: index + 1 for index, species in enumerate(species_order)}
@@ -404,15 +398,8 @@ def fetch_candidates(
         for raw_value, normalized_value, excerpt in extracted:
             lineage, lineage_method = source_lineage(url, excerpt)
             candidate_id = _sha(
-                "|".join(
-                    [
-                        resolution.accepted_species,
-                        trait,
-                        normalized_value,
-                        lineage,
-                        excerpt,
-                    ]
-                )
+                f"{resolution.accepted_species}|{trait}|{normalized_value}|"
+                f"{lineage}|{excerpt}"
             )[:24]
             approved = registry_record is not None
             candidates.append(
@@ -433,12 +420,16 @@ def fetch_candidates(
                     "name_match_method": resolution.method,
                     "matched_page_name": page_name,
                     "source_tier": (
-                        registry_record.recommended_evidence_tier if approved else "D_pending_domain_review"
+                        registry_record.recommended_evidence_tier
+                        if approved
+                        else "D_pending_domain_review"
                     ),
                     "source_type": (
                         registry_record.source_type if approved else "unclassified_open_web"
                     ),
-                    "domain_review_status": "approved_registry" if approved else "pending_registry_review",
+                    "domain_review_status": "approved_registry"
+                    if approved
+                    else "pending_registry_review",
                     "evidence_status": "review_only_not_promoted",
                     "content_sha256": page.content_sha256,
                     "retrieved_at_utc": page.retrieved_at_utc,
@@ -613,7 +604,9 @@ def run(
     _write_csv(
         output_dir / "page_identity_audit.csv",
         page_audit,
-        tuple(page_audit[0]) if page_audit else (
+        tuple(page_audit[0])
+        if page_audit
+        else (
             "accepted_species",
             "trait_name",
             "result_url",
@@ -651,7 +644,9 @@ def run(
         "search": search_report,
         "unique_domains_discovered": len({_text(hit.get("result_domain")) for hit in hits}),
         "source_pages_attempted": len(page_audit),
-        "identity_passed_pages": sum(row.get("page_status") == "identity_passed" for row in page_audit),
+        "identity_passed_pages": sum(
+            row.get("page_status") == "identity_passed" for row in page_audit
+        ),
         "provisional_candidate_rows": len(candidates),
         "provisional_species_trait": (
             len(candidate_frame.drop_duplicates(["accepted_species", "trait_name"]))

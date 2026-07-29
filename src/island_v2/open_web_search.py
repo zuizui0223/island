@@ -16,6 +16,7 @@ import csv
 import hashlib
 import json
 import os
+import re
 import urllib.parse
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, fields
@@ -228,7 +229,7 @@ def build_query_tasks(
     queue: Sequence[Mapping[str, object]],
     *,
     config: Mapping[str, Any],
-    synonyms: Mapping[str, Sequence[str]] | None = None,
+    synonyms: Mapping[str, Sequence[object]] | None = None,
     vernacular_names: Mapping[str, Sequence[tuple[str, str]]] | None = None,
     max_names_per_species: int = 3,
     include_pdf_query: bool = True,
@@ -249,23 +250,36 @@ def build_query_tasks(
             for name in (language.get("query_labels", {}) if isinstance(language, dict) else {})
         }:
             continue
-        name_variants: list[tuple[str, str, str]] = [(species, "accepted", "en")]
-        name_variants.extend(
-            (name, "synonym", "en")
-            for name in list(dict.fromkeys(aliases.get(species, ())))[:max_names_per_species]
-        )
+        name_variants: list[tuple[str, str, str]] = [(species, "accepted", "")]
+        scientific_aliases: list[tuple[str, str, str]] = []
+        for raw_alias in aliases.get(species, ()):
+            if isinstance(raw_alias, (tuple, list)) and len(raw_alias) >= 2:
+                alias_name = _text(raw_alias[0])
+                alias_kind = _text(raw_alias[1]).casefold()
+            else:
+                alias_name = _text(raw_alias)
+                alias_kind = "synonym"
+            if alias_name and alias_kind in {"synonym", "basionym"}:
+                scientific_aliases.append((alias_name, alias_kind, ""))
+        name_variants.extend(list(dict.fromkeys(scientific_aliases))[:max_names_per_species])
         name_variants.extend(
             (name, "vernacular", language)
             for name, language in list(dict.fromkeys(local_names.get(species, ())))[
                 :max_names_per_species
             ]
         )
-        requested_languages = ["en", "la"]
-        requested_languages.extend(
-            language for _, _, language in name_variants if language not in requested_languages
-        )
+        distribution_languages = [
+            _text(value).casefold()
+            for value in re.split(
+                r"[|,; ]+",
+                _text(row.get("distribution_languages") or row.get("search_languages")),
+            )
+            if _text(value)
+        ]
+        requested_languages = list(dict.fromkeys(["en", "la", *distribution_languages]))
         for name, kind, name_language in name_variants[: 1 + max_names_per_species * 2]:
-            for language in requested_languages:
+            languages_for_name = [name_language] if kind == "vernacular" else requested_languages
+            for language in languages_for_name:
                 language_cfg = languages.get(language, {})
                 labels = (
                     language_cfg.get("query_labels", {}).get(trait, [])
@@ -274,7 +288,7 @@ def build_query_tasks(
                 )
                 if not labels:
                     continue
-                effective_language = name_language if kind == "vernacular" else language
+                effective_language = language
                 for pdf in [False, True] if include_pdf_query else [False]:
                     query = _query(name, labels[:3], pdf=pdf)
                     identity = (species, trait, effective_language, query)
@@ -335,14 +349,17 @@ def discover(
     used = 0
     hits: list[SearchHit] = []
     errors: list[dict[str, object]] = []
+    attempted_task_ids: list[str] = []
     by_backend: dict[str, int] = {backend.name: 0 for backend in backends}
     for task in tasks:
         if used >= max_queries:
             break
+        task_attempted = False
         for backend in backends:
             if used >= max_queries:
                 break
             used += 1
+            task_attempted = True
             by_backend[backend.name] += 1
             try:
                 rows = backend.search(task, count=results_per_query)
@@ -394,6 +411,8 @@ def discover(
             hits.extend(backend_hits)
             if backend_hits:
                 break
+        if task_attempted:
+            attempted_task_ids.append(task.task_id)
     costs = {
         backend.name: (
             None
@@ -411,6 +430,8 @@ def discover(
         "unique_urls": len({hit.result_url for hit in hits}),
         "provider_query_counts": by_backend,
         "provider_cost_usd": costs,
+        "attempted_task_count": len(attempted_task_ids),
+        "attempted_task_ids": attempted_task_ids,
         "snippets_are_evidence": False,
         "source_pages_must_be_fetched": True,
     }
@@ -439,6 +460,34 @@ def load_strict_synonyms(path: Path | None) -> dict[str, list[str]]:
         if len(backbones) >= 2:
             result.setdefault(accepted, []).append(synonym)
     return {accepted: sorted(set(names)) for accepted, names in result.items()}
+
+
+def load_strict_name_variants(
+    path: Path | None,
+) -> dict[str, list[tuple[str, str]]]:
+    """Load two-backbone-agreed synonyms and basionyms with their name kind."""
+
+    if path is None:
+        return {}
+    grouped: dict[tuple[str, str, str], set[str]] = {}
+    for row in read_csv_rows(path):
+        accepted = _text(row.get("accepted_species"))
+        explicit_basionym = _text(row.get("basionym"))
+        name = _text(row.get("synonym") or explicit_basionym or row.get("name"))
+        kind = _text(row.get("name_kind")).casefold()
+        if not kind:
+            kind = "basionym" if explicit_basionym else "synonym"
+        backbone = _text(row.get("backbone"))
+        if accepted and name and kind in {"synonym", "basionym"} and backbone:
+            grouped.setdefault((accepted, name, kind), set()).add(backbone.casefold())
+    result: dict[str, list[tuple[str, str]]] = {}
+    for (accepted, name, kind), backbones in grouped.items():
+        if len(backbones) >= 2:
+            result.setdefault(accepted, []).append((name, kind))
+    return {
+        accepted: sorted(set(names), key=lambda item: (item[1], item[0].casefold()))
+        for accepted, names in result.items()
+    }
 
 
 def load_vernacular_names(path: Path | None) -> dict[str, list[tuple[str, str]]]:
@@ -515,7 +564,7 @@ def build_queries_command(
     tasks = build_query_tasks(
         read_csv_rows(queue_csv),
         config=load_config(config_yaml),
-        synonyms=load_strict_synonyms(synonym_csv),
+        synonyms=load_strict_name_variants(synonym_csv),
         vernacular_names=load_vernacular_names(vernacular_csv),
         max_names_per_species=max_names_per_species,
     )

@@ -15,13 +15,15 @@ axis_traits:
     - tube_depth_class
     - flower_size_class
     - inflorescence_display
-    - reward_type
-    - pollen_vector_mode
   reproductive_assurance:
     - self_incompatibility
     - autonomous_selfing_capacity
     - mating_system
     - cleistogamy
+
+non_axis_traits:
+  - reward_type
+  - pollen_vector_mode
 
 quality_precedence:
   - high

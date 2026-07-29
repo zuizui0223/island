@@ -8,12 +8,23 @@ on:
       - "config/trait_ontology.yml"
       - "src/island_v2/integrated_trait_coverage.py"
       - "src/island_v2/all_evidence_trait_audit.py"
+      - "src/island_v2/open_web_common.py"
+      - "src/island_v2/open_web_finalize.py"
       - "src/island_v2/validated_low_inference.py"
       - "tests/test_integrated_trait_coverage.py"
       - "tests/test_all_evidence_trait_audit.py"
       - "tests/test_validated_low_inference.py"
       - "pyproject.toml"
   workflow_dispatch:
+    inputs:
+      latest_public_web_run_id:
+        description: Successful reviewed public-Web evidence run
+        required: true
+        default: "30141880859"
+      latest_public_web_artifact:
+        description: Exact reviewed public-Web artifact name
+        required: true
+        default: "broad-web-medium-full-30141880859"
 
 permissions:
   actions: read
@@ -57,6 +68,8 @@ jobs:
       GH_REPO: ${{ github.repository }}
       INPUT_ROOT: /tmp/integrated-trait-inputs
       OUTPUT_ROOT: /tmp/integrated-trait-coverage
+      LATEST_PUBLIC_WEB_RUN_ID: ${{ inputs.latest_public_web_run_id || '30141880859' }}
+      LATEST_PUBLIC_WEB_ARTIFACT: ${{ inputs.latest_public_web_artifact || 'broad-web-medium-full-30141880859' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -77,6 +90,13 @@ jobs:
           config = json.loads(
               Path("config/integrated_trait_coverage_sources.json").read_text()
           )
+          for entry in config["sources"]:
+              if entry["source_group"] != "latest_public_web":
+                  continue
+              entry["run_id"] = int(os.environ["LATEST_PUBLIC_WEB_RUN_ID"])
+              entry["artifact_name"] = os.environ["LATEST_PUBLIC_WEB_ARTIFACT"]
+              entry.pop("artifact_id", None)
+              entry.pop("artifact_digest", None)
           repo = config["repository"]
           resolved = []
           run_cache = {}
@@ -210,8 +230,8 @@ jobs:
           gh run download 30081415812 \
             --name "all-master-trait-ledger-30081415812" \
             --dir "$INPUT_ROOT/all-master"
-          gh run download 30141880859 \
-            --name "broad-web-medium-full-30141880859" \
+          gh run download "$LATEST_PUBLIC_WEB_RUN_ID" \
+            --name "$LATEST_PUBLIC_WEB_ARTIFACT" \
             --dir "$INPUT_ROOT/latest-public-web"
 
       - name: Verify artifact-confirmed expanded-wave ranges

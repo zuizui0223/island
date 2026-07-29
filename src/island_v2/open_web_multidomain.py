@@ -7,6 +7,9 @@ Every source page still passes the existing registry, identity, cultivar,
 provenance, ontology, and source-lineage gates before it becomes a candidate.
 """
 
+# Typer's command defaults intentionally contain Option metadata.
+# ruff: noqa: B008
+
 from __future__ import annotations
 
 import csv
@@ -19,6 +22,10 @@ from pathlib import Path
 import pandas as pd
 import typer
 
+from island_v2.open_web_common import (
+    SEARCH_TRAITS,
+    STRICT_TRAIT_AXIS,
+)
 from island_v2.open_web_evidence import (
     DomainRecord,
     DomainRegistry,
@@ -29,14 +36,9 @@ from island_v2.open_web_evidence import (
     load_yaml,
     page_scientific_names,
     process_pages,
+    read_csv,
 )
-from island_v2.open_web_pilot import (
-    DIRECT_QUALITY,
-    TRAIT_AXIS,
-    _read_baseline,
-    _text,
-    _validate_denominator,
-)
+from island_v2.open_web_pilot import DIRECT_QUALITY, _read_baseline, _text, _validate_denominator
 
 CONTRACT = "open_web_multidomain_pilot_v1"
 app = typer.Typer(add_completion=False, no_args_is_help=True)
@@ -106,38 +108,31 @@ def _hash_sample(
     sample_pages: int,
     seed: str,
 ) -> pd.DataFrame:
-    """Select a deterministic trait-stratified sample of unique pages."""
+    """Select a deterministic domain x trait-stratified sample of unique pages."""
 
     if candidates.empty:
         return pd.DataFrame()
     table = candidates.copy()
-    stable = (
-        table["source_url"].map(_text)
-        + "|"
-        + table["candidate_id"].map(_text)
-        + "|"
-        + seed
-    )
+    stable = table["source_url"].map(_text) + "|" + table["candidate_id"].map(_text) + "|" + seed
     table["_audit_hash"] = stable.map(
         lambda value: hashlib.sha256(value.encode("utf-8")).hexdigest()
     )
-    table = table.sort_values(
-        ["trait_name", "_audit_hash", "source_url", "candidate_id"]
-    )
+    table["domain"] = table.get("domain", "unknown_not_recorded")
+    table = table.sort_values(["domain", "trait_name", "_audit_hash", "source_url", "candidate_id"])
     pools = {
-        trait: group.to_dict("records")
-        for trait, group in table.groupby("trait_name", sort=True)
+        key: group.to_dict("records")
+        for key, group in table.groupby(["domain", "trait_name"], sort=True)
     }
-    positions = {trait: 0 for trait in pools}
+    positions = {key: 0 for key in pools}
     selected: list[dict[str, object]] = []
     seen_urls: set[str] = set()
     while len(selected) < sample_pages:
         progressed = False
-        for trait in sorted(pools):
-            rows = pools[trait]
-            while positions[trait] < len(rows):
-                row = rows[positions[trait]]
-                positions[trait] += 1
+        for key in sorted(pools):
+            rows = pools[key]
+            while positions[key] < len(rows):
+                row = rows[positions[key]]
+                positions[key] += 1
                 url = _text(row.get("source_url"))
                 if not url or url in seen_urls:
                     continue
@@ -172,9 +167,7 @@ def _domain_rows(
         "fetched_pages": fetched_pages,
         "candidate_rows": candidate_rows,
         "candidate_pages": candidate_pages,
-        "candidate_page_rate": (
-            candidate_pages / fetched_pages if fetched_pages else None
-        ),
+        "candidate_page_rate": (candidate_pages / fetched_pages if fetched_pages else None),
     }
 
 
@@ -190,6 +183,7 @@ def run_multidomain_pilot(
     audit_pages: int,
     pause_seconds: float,
     audit_seed: str,
+    synonym_csv: Path | None = None,
 ) -> dict[str, object]:
     summary, coverage, evidence, _ = _read_baseline(baseline_dir)
     _validate_denominator(summary, coverage)
@@ -198,7 +192,8 @@ def run_multidomain_pilot(
     master = master.loc[master["accepted_species"].isin(universe)].drop_duplicates(
         "accepted_species"
     )
-    resolver = StrictNameResolver(master.to_dict("records"))
+    synonym_rows = read_csv(synonym_csv) if synonym_csv else []
+    resolver = StrictNameResolver(master.to_dict("records"), synonym_rows)
     registry = DomainRegistry.load(registry_yaml)
     records = {record.domain: record for record in registry.all()}
     requested = list(dict.fromkeys(domain.strip() for domain in domains if domain.strip()))
@@ -255,7 +250,7 @@ def run_multidomain_pilot(
             resolver=resolver,
             config=config,
             fetcher=fetcher,
-            default_traits=tuple(TRAIT_AXIS),
+            default_traits=SEARCH_TRAITS,
         )
         candidates = list(result["candidates"])
         for row in candidates:
@@ -303,9 +298,7 @@ def run_multidomain_pilot(
         candidates = candidates.loc[
             [
                 (species, trait) not in direct_pairs
-                for species, trait in zip(
-                    candidates["accepted_species"], candidates["trait_name"]
-                )
+                for species, trait in zip(candidates["accepted_species"], candidates["trait_name"])
             ]
         ].copy()
         candidates["candidate_id"] = candidates.apply(
@@ -394,7 +387,7 @@ def run_multidomain_pilot(
         ),
         "candidate_species_axis": (
             int(
-                candidates.assign(axis=candidates["trait_name"].map(TRAIT_AXIS))
+                candidates.assign(axis=candidates["trait_name"].map(STRICT_TRAIT_AXIS))
                 .dropna(subset=["axis"])
                 .drop_duplicates(["accepted_species", "axis"])
                 .shape[0]
@@ -403,7 +396,8 @@ def run_multidomain_pilot(
             else 0
         ),
         "audit_pages_sampled": len(audit),
-        "audit_sampling": "deterministic_hash_trait_stratified_unique_page",
+        "audit_sampling": ("deterministic_hash_domain_trait_stratified_unique_page"),
+        "strict_synonym_rows_loaded": len(synonym_rows),
         "accepted_evidence_rows": 0,
         "manual_review_required": True,
         "official_search_queries": 0,
@@ -412,6 +406,101 @@ def run_multidomain_pilot(
         "domain_results": domain_summary,
     }
     (output_dir / "multidomain_pilot_report.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return report
+
+
+def collect_multidomain_outputs(
+    *,
+    input_root: Path,
+    output_dir: Path,
+    audit_pages: int,
+    audit_seed: str,
+) -> dict[str, object]:
+    """Combine independent domain artifacts into one reproducible audit frame."""
+
+    candidate_paths = sorted(input_root.glob("**/open_web_multidomain_candidates.csv"))
+    report_paths = sorted(input_root.glob("**/multidomain_pilot_report.json"))
+    frames = [
+        pd.read_csv(path, dtype=str).fillna("") for path in candidate_paths if path.stat().st_size
+    ]
+    candidates = pd.concat(frames, ignore_index=True).fillna("") if frames else pd.DataFrame()
+    if not candidates.empty:
+        candidates = candidates.drop_duplicates("candidate_id").reset_index(drop=True)
+    reports = [json.loads(path.read_text(encoding="utf-8")) for path in report_paths]
+    domains_attempted = sorted(
+        {str(domain) for report in reports for domain in report.get("domains_requested", [])}
+    )
+    domains_with_candidates = sorted(set(candidates["domain"])) if not candidates.empty else []
+    audit = _hash_sample(
+        candidates,
+        sample_pages=audit_pages,
+        seed=audit_seed,
+    )
+    if not audit.empty:
+        columns = [
+            "candidate_id",
+            "accepted_species",
+            "trait_name",
+            "normalized_value",
+            "source_url",
+            "page_title",
+            "source_citation",
+            "source_tier",
+            "source_type",
+            "domain",
+            "language",
+            "supporting_excerpt",
+            "normalized_excerpt_sha256",
+            "content_fingerprint",
+            "name_match_method",
+            "wild_cultivated_cultivar_status",
+        ]
+        audit = audit[[column for column in columns if column in audit.columns]]
+        for column in (
+            "decision",
+            "species_identity_correct",
+            "value_correct",
+            "provenance_complete",
+            "cultivar_contamination",
+            "false_positive_reason",
+            "decision_reason",
+            "reviewer",
+            "reviewed_at_utc",
+        ):
+            audit[column] = ""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    candidates.to_csv(
+        output_dir / "open_web_multidomain_candidates.csv",
+        index=False,
+    )
+    audit.to_csv(output_dir / "manual_audit_multidomain.csv", index=False)
+    report = {
+        "contract": "open_web_multidomain_collection_v1",
+        "completed_at_utc": _now(),
+        "domain_artifacts": len(candidate_paths),
+        "domains_attempted": domains_attempted,
+        "domains_with_candidates": domains_with_candidates,
+        "candidate_rows": len(candidates),
+        "candidate_species": (
+            int(candidates["accepted_species"].nunique()) if not candidates.empty else 0
+        ),
+        "candidate_species_trait": (
+            int(candidates.drop_duplicates(["accepted_species", "trait_name"]).shape[0])
+            if not candidates.empty
+            else 0
+        ),
+        "audit_pages_sampled": len(audit),
+        "audit_domains_sampled": (int(audit["domain"].nunique()) if not audit.empty else 0),
+        "audit_sampling": ("deterministic_hash_domain_trait_stratified_unique_page"),
+        "manual_review_required": True,
+        "accepted_evidence_rows": 0,
+        "official_search_queries": 0,
+        "query_cost_usd": 0.0,
+    }
+    (output_dir / "multidomain_collection_report.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
@@ -436,6 +525,12 @@ def run_command(
     audit_pages: int = typer.Option(120, min=20, max=1000),
     pause_seconds: float = typer.Option(0.25, min=0, max=30),
     audit_seed: str = typer.Option("open-web-multidomain-v1"),
+    synonym_csv: Path | None = typer.Option(
+        None,
+        exists=True,
+        dir_okay=False,
+        help="Optional two-backbone synonym/basionym snapshot",
+    ),
 ) -> None:
     registry = DomainRegistry.load(registry_yaml)
     domains = domain or [
@@ -453,6 +548,23 @@ def run_command(
         max_pages_per_domain=max_pages_per_domain,
         audit_pages=audit_pages,
         pause_seconds=pause_seconds,
+        audit_seed=audit_seed,
+        synonym_csv=synonym_csv,
+    )
+    typer.echo(json.dumps(report, ensure_ascii=False, sort_keys=True))
+
+
+@app.command("collect")
+def collect_command(
+    input_root: Path = typer.Option(..., exists=True, file_okay=False),
+    output_dir: Path = typer.Option(...),
+    audit_pages: int = typer.Option(200, min=200, max=1000),
+    audit_seed: str = typer.Option("open-web-multidomain-audit-v2"),
+) -> None:
+    report = collect_multidomain_outputs(
+        input_root=input_root,
+        output_dir=output_dir,
+        audit_pages=audit_pages,
         audit_seed=audit_seed,
     )
     typer.echo(json.dumps(report, ensure_ascii=False, sort_keys=True))

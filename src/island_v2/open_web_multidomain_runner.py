@@ -15,21 +15,6 @@ from urllib.parse import parse_qs, unquote_plus, urlsplit
 from island_v2 import open_web_evidence as evidence
 from island_v2 import open_web_multidomain as pilot
 
-pilot.TRAIT_AXIS = {
-    "flower_primary_color": "flower_colour",
-    "floral_form": "floral_structural_complexity",
-    "floral_symmetry": "floral_structural_complexity",
-    "tube_depth_class": "floral_structural_complexity",
-    "flower_size_class": "floral_structural_complexity",
-    "inflorescence_display": "floral_structural_complexity",
-    "reward_type": None,
-    "pollen_vector_mode": None,
-    "self_incompatibility": "reproductive_assurance",
-    "autonomous_selfing_capacity": "reproductive_assurance",
-    "mating_system": "reproductive_assurance",
-    "cleistogamy": "reproductive_assurance",
-}
-
 _original_term_match = evidence._term_match
 _original_subject = pilot._resolved_subject
 _GENERIC_JA_COLOURS = {"白色", "赤色", "黄色", "緑色", "青色", "紫色"}
