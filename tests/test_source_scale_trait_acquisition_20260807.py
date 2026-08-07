@@ -1,18 +1,36 @@
 from __future__ import annotations
 
+import importlib.util
 from pathlib import Path
+from types import ModuleType
 
 import pandas as pd
 
-from analysis.fetch_europe_pmc_reproduction_scale_20260807 import VALUE_PATTERNS
-from analysis.integrate_europe_pmc_reproduction_scale_20260807 import (
-    INVALIDATED_PRIOR,
-    PROMOTIONS,
-    common_evidence,
-    review_candidates,
-)
-
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def load_script(name: str, path: Path) -> ModuleType:
+    spec = importlib.util.spec_from_file_location(name, path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+FETCH = load_script(
+    "fetch_europe_pmc_reproduction_scale_20260807",
+    ROOT / "analysis/fetch_europe_pmc_reproduction_scale_20260807.py",
+)
+INTEGRATE = load_script(
+    "integrate_europe_pmc_reproduction_scale_20260807",
+    ROOT / "analysis/integrate_europe_pmc_reproduction_scale_20260807.py",
+)
+VALUE_PATTERNS = FETCH.VALUE_PATTERNS
+INVALIDATED_PRIOR = INTEGRATE.INVALIDATED_PRIOR
+PROMOTIONS = INTEGRATE.PROMOTIONS
+common_evidence = INTEGRATE.common_evidence
+review_candidates = INTEGRATE.review_candidates
+
 CANDIDATES = (
     ROOT
     / "data/v2/staging/traits/direct_llm_pilot"
