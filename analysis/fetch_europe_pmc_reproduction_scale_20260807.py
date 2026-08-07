@@ -171,8 +171,42 @@ def search(query: str) -> dict[str, Any]:
     return json.loads(request_bytes(url).decode("utf-8"))
 
 
-def build_tasks(queue_path: Path, top_n: int) -> pd.DataFrame:
+def build_tasks(
+    queue_path: Path,
+    top_n: int,
+    completed_query_logs: list[Path] | None = None,
+    max_tasks: int | None = None,
+    current_direct_path: Path | None = None,
+    require_agreement: bool = False,
+) -> pd.DataFrame:
     queue = pd.read_csv(queue_path, dtype=str).fillna("").head(top_n)
+    if current_direct_path is not None:
+        direct = pd.read_csv(current_direct_path, dtype=str).fillna("")
+        direct = direct.loc[direct["resolution_status"].eq("resolved")].drop_duplicates(
+            ["accepted_species", "genus", "axis", "trait_name"]
+        )
+        current = (
+            direct.groupby(["genus", "axis", "trait_name"], as_index=False)
+            .agg(
+                latest_support=("accepted_species", "nunique"),
+                latest_value_count=("state_set", "nunique"),
+            )
+        )
+        queue["_queue_order"] = range(len(queue))
+        queue = queue.merge(
+            current,
+            on=["genus", "axis", "trait_name"],
+            how="left",
+            validate="many_to_one",
+        ).sort_values("_queue_order", kind="stable")
+        queue["current_support"] = (
+            pd.to_numeric(queue["latest_support"], errors="coerce")
+            .fillna(0)
+            .astype(int)
+            .astype(str)
+        )
+        if require_agreement:
+            queue = queue.loc[queue["latest_value_count"].eq(1)].copy()
     queue = queue.loc[
         queue["trait_name"].isin(REPRO_TRAITS) & queue["current_support"].eq("2")
     ].copy()
@@ -180,7 +214,23 @@ def build_tasks(queue_path: Path, top_n: int) -> pd.DataFrame:
         f'("{genus}") AND ({QUERY_TERMS[trait]}) AND OPEN_ACCESS:Y AND IN_EPMC:Y'
         for genus, trait in zip(queue["genus"], queue["trait_name"], strict=True)
     ]
-    return queue.drop_duplicates(["genus", "trait_name"])
+    queue = queue.drop_duplicates(["genus", "trait_name"])
+    completed: set[tuple[str, str]] = set()
+    for path in completed_query_logs or []:
+        log = pd.read_csv(
+            path,
+            usecols=["genus", "trait_name"],
+            dtype=str,
+        ).fillna("")
+        completed.update(
+            log[["genus", "trait_name"]].itertuples(index=False, name=None)
+        )
+    if completed:
+        keys = queue[["genus", "trait_name"]].apply(tuple, axis=1)
+        queue = queue.loc[~keys.isin(completed)].copy()
+    if max_tasks is not None:
+        queue = queue.head(max_tasks)
+    return queue.reset_index(drop=True)
 
 
 def load_species(
@@ -365,6 +415,24 @@ def main() -> None:
     parser.add_argument("--genus-map", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--top-n", type=int, default=100)
+    parser.add_argument(
+        "--completed-query-log",
+        type=Path,
+        action="append",
+        default=[],
+        help="Exclude terminal genus x trait tasks recorded by earlier runs.",
+    )
+    parser.add_argument("--max-tasks", type=int)
+    parser.add_argument(
+        "--current-direct",
+        type=Path,
+        help="Recalculate current support and state agreement from this direct ledger.",
+    )
+    parser.add_argument(
+        "--require-agreement",
+        action="store_true",
+        help="Keep only genus x trait tasks whose current species values agree.",
+    )
     parser.add_argument("--delay", type=float, default=0.15)
     parser.add_argument("--workers", type=int, default=6)
     args = parser.parse_args()
@@ -374,7 +442,14 @@ def main() -> None:
     search_dir = args.output / "search_results"
     search_dir.mkdir(exist_ok=True)
 
-    tasks = build_tasks(args.queue, args.top_n)
+    tasks = build_tasks(
+        args.queue,
+        args.top_n,
+        args.completed_query_log,
+        args.max_tasks,
+        args.current_direct,
+        args.require_agreement,
+    )
     canonical, by_genus, _ = load_species(args.coverage, args.genus_map)
     query_rows: list[dict[str, Any]] = []
     articles: dict[str, dict[str, Any]] = {}

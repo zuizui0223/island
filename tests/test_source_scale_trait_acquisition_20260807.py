@@ -26,6 +26,11 @@ INTEGRATE = load_script(
     ROOT / "analysis/integrate_europe_pmc_reproduction_scale_20260807.py",
 )
 VALUE_PATTERNS = FETCH.VALUE_PATTERNS
+BATCH2_CORRECTED_PROMOTIONS = INTEGRATE.BATCH2_CORRECTED_PROMOTIONS
+BATCH2_CORROBORATING_NOT_COUNTED = INTEGRATE.BATCH2_CORROBORATING_NOT_COUNTED
+BATCH2_INVALIDATED_PRIOR = INTEGRATE.BATCH2_INVALIDATED_PRIOR
+BATCH2_PROMOTIONS = INTEGRATE.BATCH2_PROMOTIONS
+BATCH2_REJECTIONS = INTEGRATE.BATCH2_REJECTIONS
 INVALIDATED_PRIOR = INTEGRATE.INVALIDATED_PRIOR
 PROMOTIONS = INTEGRATE.PROMOTIONS
 common_evidence = INTEGRATE.common_evidence
@@ -80,3 +85,143 @@ def test_self_fertile_is_not_an_autonomous_selfing_pattern() -> None:
     assert not any(
         pattern.search("The plant is self-fertile.") for _, pattern in autonomous_patterns
     )
+
+
+def test_batch2_review_is_complete_and_preserves_correction_audit() -> None:
+    candidate_ids = sorted(
+        set(BATCH2_PROMOTIONS)
+        | set(BATCH2_CORRECTED_PROMOTIONS)
+        | set(BATCH2_CORROBORATING_NOT_COUNTED)
+        | set(BATCH2_REJECTIONS)
+    )
+    candidates = pd.DataFrame(
+        {
+            "candidate_id": candidate_ids,
+            "accepted_species": [f"Species {index}" for index in range(len(candidate_ids))],
+            "trait_name": "self_incompatibility",
+            "axis": "reproductive_assurance",
+            "raw_value": "SI",
+            "normalized_value": "SI",
+            "pmcid": [f"PMC{index}" for index in range(len(candidate_ids))],
+        }
+    )
+
+    review = review_candidates(candidates, "20260808_batch2")
+
+    assert len(review) == 53
+    assert int(review["accepted_correct"].sum()) == 37
+    assert int(review["promotion_accepted"].sum()) == 12
+    assert review["review_decision"].value_counts().to_dict() == {
+        "corroborating_not_counted": 27,
+        "rejected": 14,
+        "accepted": 10,
+        "corrected_and_accepted": 2,
+    }
+    corrected = review.loc[review["review_decision"].eq("corrected_and_accepted")]
+    assert set(corrected["extracted_trait_name"]) == {"self_incompatibility"}
+    assert set(corrected["trait_name"]) == {"mating_system"}
+    assert not corrected["accepted_correct"].any()
+    assert len(BATCH2_INVALIDATED_PRIOR) == 5
+
+
+def test_completed_query_logs_are_excluded_before_next_batch(tmp_path: Path) -> None:
+    queue = pd.DataFrame(
+        [
+            {
+                "genus": "Done",
+                "trait_name": "self_incompatibility",
+                "current_support": "2",
+            },
+            {
+                "genus": "Next",
+                "trait_name": "self_incompatibility",
+                "current_support": "2",
+            },
+        ]
+    )
+    queue_path = tmp_path / "queue.csv"
+    queue.to_csv(queue_path, index=False)
+    completed_path = tmp_path / "completed.csv"
+    pd.DataFrame(
+        [{"genus": "Done", "trait_name": "self_incompatibility"}]
+    ).to_csv(completed_path, index=False)
+
+    tasks = FETCH.build_tasks(
+        queue_path,
+        top_n=10,
+        completed_query_logs=[completed_path],
+    )
+
+    assert tasks[["genus", "trait_name"]].to_dict("records") == [
+        {"genus": "Next", "trait_name": "self_incompatibility"}
+    ]
+
+
+def test_latest_direct_support_and_agreement_control_the_next_queue(
+    tmp_path: Path,
+) -> None:
+    queue_path = tmp_path / "queue.csv"
+    pd.DataFrame(
+        [
+            {
+                "genus": "Agree",
+                "axis": "reproductive_assurance",
+                "trait_name": "self_incompatibility",
+                "current_support": "1",
+            },
+            {
+                "genus": "Conflict",
+                "axis": "reproductive_assurance",
+                "trait_name": "self_incompatibility",
+                "current_support": "2",
+            },
+        ]
+    ).to_csv(queue_path, index=False)
+    direct_path = tmp_path / "direct.csv"
+    pd.DataFrame(
+        [
+            {
+                "accepted_species": "Agree one",
+                "genus": "Agree",
+                "axis": "reproductive_assurance",
+                "trait_name": "self_incompatibility",
+                "resolution_status": "resolved",
+                "state_set": '["SI"]',
+            },
+            {
+                "accepted_species": "Agree two",
+                "genus": "Agree",
+                "axis": "reproductive_assurance",
+                "trait_name": "self_incompatibility",
+                "resolution_status": "resolved",
+                "state_set": '["SI"]',
+            },
+            {
+                "accepted_species": "Conflict one",
+                "genus": "Conflict",
+                "axis": "reproductive_assurance",
+                "trait_name": "self_incompatibility",
+                "resolution_status": "resolved",
+                "state_set": '["SI"]',
+            },
+            {
+                "accepted_species": "Conflict two",
+                "genus": "Conflict",
+                "axis": "reproductive_assurance",
+                "trait_name": "self_incompatibility",
+                "resolution_status": "resolved",
+                "state_set": '["SC"]',
+            },
+        ]
+    ).to_csv(direct_path, index=False)
+
+    tasks = FETCH.build_tasks(
+        queue_path,
+        top_n=10,
+        current_direct_path=direct_path,
+        require_agreement=True,
+    )
+
+    assert tasks[["genus", "trait_name"]].to_dict("records") == [
+        {"genus": "Agree", "trait_name": "self_incompatibility"}
+    ]

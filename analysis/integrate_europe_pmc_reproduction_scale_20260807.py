@@ -32,6 +32,7 @@ from island_v2.integrated_trait_coverage import EVIDENCE_COLUMNS
 REVIEWER = "codex_fulltext_context_review_20260807"
 RUN_ID = "europe-pmc-reproduction-source-scale-20260807"
 REVIEWED_AT = "2026-08-07T10:00:00Z"
+SOURCE_ARTIFACT = "20260807_europe_pmc_reproduction_scale"
 
 # One source-backed row is promoted for each accepted species x trait claim.
 # Repeated papers restating the same Panicum virgatum claim are retained in
@@ -103,6 +104,148 @@ REJECTIONS = {
     "EPMC-07914e008fd9162f4606": ("genus_statement_is_for_Rheum_not_target_Rumex_species"),
 }
 
+BATCH2_PROMOTIONS = {
+    "EPMC-9cd833846c73cbf651e7": (
+        "high",
+        "Peer-reviewed paper explicitly reports Bidens frondosa among the listed mixed-mating Bidens species.",
+    ),
+    "EPMC-c0c4a8cf75670e3081f2": (
+        "high",
+        "Peer-reviewed species paper explicitly reports Brachypodium distachyon as self-fertile and autogamous.",
+    ),
+    "EPMC-08f862b8ecf36f5bcb59": (
+        "high",
+        "Peer-reviewed species paper explicitly reports Brachypodium sylvaticum as self-fertile.",
+    ),
+    "EPMC-ad1f6aaf56946d10e151": (
+        "high",
+        "Peer-reviewed field study explicitly reports Fagus crenata flowers as self-incompatible.",
+    ),
+    "EPMC-73a751730919de2a1c8d": (
+        "high",
+        "Peer-reviewed paper explicitly reports Noccaea caerulescens as self-compatible.",
+    ),
+    "EPMC-d6bf40eb207c4d59ddd8": (
+        "high",
+        "Peer-reviewed species paper explicitly reports Psittacanthus schiedeanus as self-compatible.",
+    ),
+    "EPMC-e95615f6842b8012ddfe": (
+        "high",
+        "Peer-reviewed species paper explicitly reports Sagittaria guayanensis as self-compatible.",
+    ),
+    "EPMC-738892a1d11a24cd6563": (
+        "high",
+        "Peer-reviewed species study explicitly reports Sagittaria pygmaea as self-compatible.",
+    ),
+    "EPMC-3aa25edc152ca66e45bc": (
+        "high",
+        "Peer-reviewed species paper explicitly reports Sagittaria trifolia as self-compatible.",
+    ),
+    "EPMC-0d56a3d32adbdc8c214e": (
+        "high",
+        "Peer-reviewed genomic paper explicitly reports Vanilla planifolia as self-compatible.",
+    ),
+}
+
+BATCH2_CORRECTED_PROMOTIONS = {
+    "EPMC-2539e0a1244a4a8a6d51": (
+        "high",
+        "mating_system",
+        "mixed_mating",
+        (
+            "The machine candidate attached self-incompatibility from Solidago "
+            "canadensis to Ambrosia artemisiifolia. The same fetched paragraph "
+            "instead explicitly reports mixed mating for A. artemisiifolia."
+        ),
+    ),
+    "EPMC-8aad4347ae2dd0dbfde1": (
+        "high",
+        "mating_system",
+        "predominantly_selfing",
+        (
+            "The machine candidate attributed Noccaea corymbosa "
+            "self-incompatibility to N. brachypetala. The fetched paragraph "
+            "instead explicitly includes N. brachypetala among the "
+            "predominantly selfing species."
+        ),
+    ),
+}
+
+BATCH2_CORROBORATING_NOT_COUNTED = {
+    "EPMC-69bf09ca8cda4bb44c98",
+    "EPMC-bea24dd2e5cec425427c",
+    "EPMC-8887ed3eb288ce104533",
+    "EPMC-f562e1d55c40402968bf",
+    "EPMC-7812e756bcaed8008434",
+    "EPMC-a14fd0b820a5edd5cc91",
+    "EPMC-756e1538427d2b04d660",
+    "EPMC-cce2d17584c6d8f0a963",
+    "EPMC-dfad9d98fc77aa4cb376",
+    "EPMC-26dc275d8a7c273be3f4",
+    "EPMC-daaa09f7896278de77d7",
+    "EPMC-b4b30fa933428cddba9f",
+    "EPMC-8d99a7fd938abf4cdb3e",
+    "EPMC-661ac91215003a92f571",
+    "EPMC-111802794ed705c63862",
+    "EPMC-36770ca59f2d7d3b0dc3",
+    "EPMC-e1140c629623db12f8a3",
+    "EPMC-a2cd9d666b831dfe7faf",
+    "EPMC-c50b8790287330a1b4f3",
+    "EPMC-dc6f7b984db9d0bbf8f3",
+    "EPMC-b577e976a7afe96f3841",
+    "EPMC-e49e96e527fffff3998b",
+    "EPMC-bd9021210f81c596f820",
+    "EPMC-589075ca005d70efb98a",
+    "EPMC-d7c5bf1df80b4388d50e",
+    "EPMC-924f727890c6503d7f42",
+    "EPMC-c8804168b864513a845d",
+}
+
+BATCH2_REJECTIONS = {
+    "EPMC-d19d2dce45d4e38e47b8": (
+        "self_incompatibility_statement_applies_to_Astrocaryum_mexicanum"
+    ),
+    "EPMC-d5950ffa40dfc1db0fbd": (
+        "self_incompatibility_statement_applies_to_perennial_ryegrass"
+    ),
+    "EPMC-9e9a77e0800c050793bd": (
+        "generic_mating_system_list_does_not_classify_Brachypodium_distachyon"
+    ),
+    "EPMC-fefde154b8171bf70a90": (
+        "generic_mating_system_list_does_not_classify_Brachypodium_distachyon"
+    ),
+    "EPMC-fb98e52815dd8512235e": (
+        "self_compatibility_statement_applies_to_Arabidopsis"
+    ),
+    "EPMC-2a81fa9a4ad44ad52b86": (
+        "self_compatibility_statement_applies_to_Setaria"
+    ),
+    "EPMC-9e2bd44b0fb9218cf0f9": (
+        "self_compatibility_statement_applies_to_Hosta_not_Fagus"
+    ),
+    "EPMC-dcad8d86ec48ed756350": (
+        "commodity_table_column_bleed_from_self_fertile_Malus_cultivar"
+    ),
+    "EPMC-178739613942584d69b1": (
+        "self_compatible_phrase_applies_to_tomato_not_Leymus"
+    ),
+    "EPMC-b3e73e8cde8cf5b177d8": (
+        "self_compatibility_statement_applies_to_Noccaea_ochroleucum"
+    ),
+    "EPMC-b045442acadcc281cbb9": (
+        "self_incompatibility_statement_applies_to_Arabidopsis_halleri"
+    ),
+    "EPMC-2d96e719410df5b4a42e": (
+        "self_incompatibility_statement_applies_to_other_island_endemics"
+    ),
+    "EPMC-783d0a2b99ced995588c": (
+        "generic_self_compatible_phrase_does_not_describe_Sagittaria_lancifolia"
+    ),
+    "EPMC-447a7671622dede58e19": (
+        "genus_level_pollination_statement_is_explicitly_uncertain_for_Vanilla_planifolia"
+    ),
+}
+
 INVALIDATED_PRIOR = {
     (
         "Panicum hallii",
@@ -113,7 +256,49 @@ INVALIDATED_PRIOR = {
         "Excerpt says that switchgrass (Panicum virgatum), unlike P. hallii, "
         "is self-incompatible; the old extraction attached the comparison "
         "trait to the wrong species."
-    )
+    ),
+    (
+        "Brachypodium distachyon",
+        "self_incompatibility",
+        "SI",
+        "url:https://europepmc.org/article/MED/19943086",
+    ): (
+        "The excerpt describes self-incompatibility loci in perennial ryegrass, "
+        "not Brachypodium distachyon."
+    ),
+    (
+        "Brachypodium distachyon",
+        "self_incompatibility",
+        "SI",
+        "url:https://europepmc.org/article/MED/26408275",
+    ): (
+        "The excerpt describes the grass self-incompatibility mechanism without "
+        "attributing it to Brachypodium distachyon."
+    ),
+    (
+        "Brachypodium distachyon",
+        "self_incompatibility",
+        "SI",
+        "url:https://europepmc.org/article/MED/28824669",
+    ): (
+        "The excerpt describes a perennial ryegrass population, not "
+        "Brachypodium distachyon."
+    ),
+    (
+        "Brachypodium distachyon",
+        "self_incompatibility",
+        "SI",
+        "url:https://europepmc.org/article/MED/29247258",
+    ): (
+        "The excerpt describes pollen self-compatibility and SI loci in "
+        "perennial ryegrass and grasses generally, not Brachypodium distachyon."
+    ),
+}
+BATCH2_INVALIDATED_PRIOR = INVALIDATED_PRIOR
+INVALIDATED_PRIOR = {
+    key: reason
+    for key, reason in BATCH2_INVALIDATED_PRIOR.items()
+    if key[0] == "Panicum hallii"
 }
 
 
@@ -131,12 +316,55 @@ def keyed(frame: pd.DataFrame, columns: list[str]) -> set[tuple[str, ...]]:
     return set(frame[columns].fillna("").itertuples(index=False, name=None))
 
 
-def review_candidates(candidates: pd.DataFrame) -> pd.DataFrame:
+def review_candidates(
+    candidates: pd.DataFrame,
+    review_batch: str = "20260807",
+) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
     unclassified: list[str] = []
     for row in candidates.to_dict("records"):
         candidate_id = text(row["candidate_id"])
-        if candidate_id in PROMOTIONS:
+        override_trait = ""
+        override_value = ""
+        if review_batch == "20260808_batch2" and candidate_id in BATCH2_PROMOTIONS:
+            quality, reason = BATCH2_PROMOTIONS[candidate_id]
+            correct = True
+            promote = True
+            decision = "accepted"
+        elif (
+            review_batch == "20260808_batch2"
+            and candidate_id in BATCH2_CORRECTED_PROMOTIONS
+        ):
+            quality, override_trait, override_value, reason = (
+                BATCH2_CORRECTED_PROMOTIONS[candidate_id]
+            )
+            correct = False
+            promote = True
+            decision = "corrected_and_accepted"
+        elif (
+            review_batch == "20260808_batch2"
+            and candidate_id in BATCH2_CORROBORATING_NOT_COUNTED
+        ):
+            quality = "high"
+            correct = True
+            promote = False
+            decision = "corroborating_not_counted"
+            reason = (
+                "The species-level statement is correct, but the current direct "
+                "ledger already contains the same state at High quality; this "
+                "restatement is retained for audit without adding an independent "
+                "origin."
+            )
+        elif review_batch == "20260808_batch2" and candidate_id in BATCH2_REJECTIONS:
+            quality = ""
+            correct = False
+            promote = False
+            decision = "rejected"
+            reason = BATCH2_REJECTIONS[candidate_id]
+        elif review_batch == "20260808_batch2":
+            unclassified.append(candidate_id)
+            continue
+        elif candidate_id in PROMOTIONS:
             quality, reason = PROMOTIONS[candidate_id]
             correct = True
             promote = True
@@ -171,6 +399,17 @@ def review_candidates(candidates: pd.DataFrame) -> pd.DataFrame:
             unclassified.append(candidate_id)
             continue
         updated = dict(row)
+        if override_trait:
+            updated.update(
+                {
+                    "extracted_trait_name": text(row["trait_name"]),
+                    "extracted_normalized_value": text(row["normalized_value"]),
+                    "trait_name": override_trait,
+                    "normalized_value": override_value,
+                    "raw_value": override_value,
+                    "axis": "reproductive_assurance",
+                }
+            )
         updated.update(
             {
                 "accepted_correct": correct,
@@ -178,10 +417,19 @@ def review_candidates(candidates: pd.DataFrame) -> pd.DataFrame:
                 "promotion_quality": quality,
                 "review_decision": decision,
                 "review_reason": reason,
-                "reviewer": REVIEWER,
-                "reviewed_at_utc": REVIEWED_AT,
+                "reviewer": (
+                    "codex_fulltext_context_review_20260808"
+                    if review_batch == "20260808_batch2"
+                    else REVIEWER
+                ),
+                "reviewed_at_utc": (
+                    "2026-08-07T15:40:00Z"
+                    if review_batch == "20260808_batch2"
+                    else REVIEWED_AT
+                ),
                 "human_review_claimed": False,
                 "audit_denominator_contract": "accepted_correct / all_reviewed",
+                "review_batch": review_batch,
             }
         )
         rows.append(updated)
@@ -195,7 +443,12 @@ def review_candidates(candidates: pd.DataFrame) -> pd.DataFrame:
     ).reset_index(drop=True)
 
 
-def common_evidence(review: pd.DataFrame) -> pd.DataFrame:
+def common_evidence(
+    review: pd.DataFrame,
+    *,
+    run_id: str = RUN_ID,
+    source_artifact: str = SOURCE_ARTIFACT,
+) -> pd.DataFrame:
     rows = []
     for row in review.loc[review["promotion_accepted"]].to_dict("records"):
         doi = text(row["doi"]).lower()
@@ -217,8 +470,8 @@ def common_evidence(review: pd.DataFrame) -> pd.DataFrame:
                 "name_match_method": text(row["name_match_method"]),
                 "source_lineage": f"doi:{doi}" if doi else f"pmcid:{pmcid}",
                 "lineage_method": "article_doi" if doi else "pmcid",
-                "source_run_id": RUN_ID,
-                "source_artifact": "20260807_europe_pmc_reproduction_scale",
+                "source_run_id": run_id,
+                "source_artifact": source_artifact,
                 "source_file": "fulltext_reproductive_candidates.csv.gz",
                 "acceptance_contract": "fulltext_exact_species_context_review_v1",
             }
@@ -291,29 +544,60 @@ def main() -> None:
     parser.add_argument("--formal-lineage", type=Path, required=True)
     parser.add_argument("--prior-promoted-common", type=Path, required=True)
     parser.add_argument("--wfo-common", type=Path, required=True)
+    parser.add_argument(
+        "--additional-common",
+        type=Path,
+        action="append",
+        default=[],
+        help="Additional previously promoted direct-evidence files to preserve.",
+    )
     parser.add_argument("--current-direct", type=Path, required=True)
     parser.add_argument("--current-low", type=Path, required=True)
     parser.add_argument("--current-coverage", type=Path, required=True)
     parser.add_argument("--master-genus-map", type=Path, required=True)
     parser.add_argument("--ontology", type=Path, required=True)
+    parser.add_argument(
+        "--review-batch",
+        choices=["20260807", "20260808_batch2"],
+        default="20260807",
+    )
+    parser.add_argument("--run-id", default=RUN_ID)
+    parser.add_argument("--source-artifact", default=SOURCE_ARTIFACT)
+    parser.add_argument("--source-manifest", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
 
     candidates = pd.read_csv(args.candidates, dtype=str).fillna("")
-    review = review_candidates(candidates)
+    review = review_candidates(candidates, args.review_batch)
     accepted = review.loc[review["promotion_accepted"]].copy()
-    new_common = common_evidence(review)
+    new_common = common_evidence(
+        review,
+        run_id=args.run_id,
+        source_artifact=args.source_artifact,
+    )
 
     ontology = load_ontology(args.ontology)
     formal = direct_evidence_from_integrated(args.formal_lineage)
     prior = pd.read_csv(args.prior_promoted_common, dtype=str).fillna("")
     wfo = pd.read_csv(args.wfo_common, dtype=str).fillna("")
-    raw = pd.concat([formal, prior, wfo, new_common], ignore_index=True).fillna("")
+    additional = [
+        pd.read_csv(path, dtype=str).fillna("")
+        for path in args.additional_common
+    ]
+    raw = pd.concat(
+        [formal, prior, wfo, *additional, new_common],
+        ignore_index=True,
+    ).fillna("")
 
     invalidated_rows = []
     invalidated_mask = pd.Series(False, index=raw.index)
-    for key, reason in INVALIDATED_PRIOR.items():
+    invalidations = (
+        BATCH2_INVALIDATED_PRIOR
+        if args.review_batch == "20260808_batch2"
+        else INVALIDATED_PRIOR
+    )
+    for key, reason in invalidations.items():
         species, trait, value, lineage = key
         mask = (
             raw["accepted_species"].eq(species)
@@ -492,6 +776,11 @@ def main() -> None:
     )
 
     review_correct = int(review["accepted_correct"].sum())
+    source_manifest = (
+        json.loads(args.source_manifest.read_text(encoding="utf-8"))
+        if args.source_manifest
+        else {}
+    )
     summary = {
         "contract": "europe_pmc_reproduction_reviewed_integration_v1",
         "created_at_utc": utc_now(),
@@ -508,11 +797,18 @@ def main() -> None:
                 review["review_decision"].eq("corroborating_not_counted").sum()
             ),
             "rejected_rows": int(review["review_decision"].eq("rejected").sum()),
-            "queries": 30,
-            "search_hits": 753,
-            "fulltext_xml": 602,
-            "query_cost_usd": 0.0,
+            "queries": int(source_manifest.get("queries", 30)),
+            "search_hits": int(source_manifest.get("search_hits", 753)),
+            "fulltext_xml": int(
+                source_manifest.get("xml_fetched_or_cached", 602)
+            ),
+            "query_cost_usd": float(
+                source_manifest.get("query_cost_usd", 0.0)
+            ),
             "invalidated_prior_misattributions": len(invalidated),
+            "review_batch": args.review_batch,
+            "source_run_id": args.run_id,
+            "source_artifact": args.source_artifact,
         },
         "direct": {
             "before_species_trait": len(before_direct),
