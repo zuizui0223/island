@@ -1,6 +1,12 @@
 name: Acquire next non-overlapping Europe PMC support-2 batch
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/acquire-europe-pmc-support2-batch2.yml"
+      - "analysis/fetch_europe_pmc_reproduction_scale_20260807.py"
+      - "analysis/integrate_europe_pmc_reproduction_scale_20260807.py"
+      - "tests/test_source_scale_trait_acquisition_20260807.py"
   workflow_dispatch:
     inputs:
       formal_run_id:
@@ -46,8 +52,8 @@ jobs:
     timeout-minutes: 60
     env:
       GH_TOKEN: ${{ github.token }}
-      FORMAL_RUN_ID: ${{ inputs.formal_run_id }}
-      MAX_TASKS: ${{ inputs.max_tasks }}
+      FORMAL_RUN_ID: ${{ inputs.formal_run_id || '30440345597' }}
+      MAX_TASKS: ${{ inputs.max_tasks || '100' }}
       PYTHONUNBUFFERED: "1"
     steps:
       - uses: actions/checkout@v4
@@ -95,6 +101,7 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import os
           import pandas as pd
 
           old = pd.read_csv(
@@ -109,7 +116,7 @@ jobs:
               new[["genus", "trait_name"]].itertuples(index=False, name=None)
           )
           assert not old_keys & new_keys
-          assert len(new_keys) == int("${{ inputs.max_tasks }}")
+          assert len(new_keys) == int(os.environ["MAX_TASKS"])
           manifest = json.load(
               open("/tmp/europe-pmc-batch2-source/run_manifest.json")
           )
