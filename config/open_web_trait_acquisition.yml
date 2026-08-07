@@ -170,11 +170,11 @@ languages:
 
 extraction_terms:
   flower_primary_color:
-    white: ["white flower", "white corolla", "花は白", "白色の花", "白い花", "花冠は白", "白色花", "白色", "flores albae", "corolla alba", "flores blancas", "flores brancas", "fleurs blanches", "weiße blüten", "白色花冠"]
-    yellow_orange: ["yellow flower", "orange flower", "yellow corolla", "花は黄色", "花は橙", "黄色の花", "橙色の花", "黄色", "淡黄色", "黄白色", "淡黄白色", "橙色", "flores luteae", "flores amarillas", "flores amarelas", "fleurs jaunes", "gelbe blüten", "黄色花冠"]
-    red_pink: ["red flower", "pink flower", "red corolla", "pink corolla", "花は赤", "花は紅", "花は桃", "赤色の花", "紅色の花", "桃色の花", "赤色", "紅色", "桃色", "ピンク色", "corolla rubra", "corolla rosea", "flores rojas", "flores rosas", "fleurs rouges", "fleurs roses", "rote blüten", "rosa blüten", "红色花冠", "粉红色花冠"]
-    blue_purple: ["blue flower", "purple flower", "violet flower", "blue corolla", "purple corolla", "花は青", "花は紫", "青色の花", "紫色の花", "青色", "紫色", "淡紫色", "紅紫色", "紫紅色", "紫赤色", "青紫色", "corolla caerulea", "corolla purpurea", "flores azules", "flores violetas", "fleurs bleues", "fleurs violettes", "blaue blüten", "violette blüten", "蓝色花冠", "紫色花冠"]
-    green_brown_inconspicuous: ["green flower", "brown flower", "inconspicuous flower", "花は緑", "花は褐色", "目立たない花", "緑色", "緑白色", "黄緑色", "褐色", "corolla viridis", "flores verdes", "fleurs verdâtres", "grüne blüten", "绿色花"]
+    white: ["white flower", "white corolla", "white", "cream", "creamy", "花は白", "白色の花", "白い花", "花冠は白", "白色花", "白色", "flores albae", "corolla alba", "flores blancas", "flores brancas", "fleurs blanches", "weiße blüten", "白色花冠"]
+    yellow_orange: ["yellow flower", "orange flower", "yellow corolla", "yellow", "yellowish", "orange", "golden", "花は黄色", "花は橙", "黄色の花", "橙色の花", "黄色", "淡黄色", "黄白色", "淡黄白色", "橙色", "flores luteae", "flores amarillas", "flores amarelas", "fleurs jaunes", "gelbe blüten", "黄色花冠"]
+    red_pink: ["red flower", "pink flower", "red corolla", "pink corolla", "red", "pink", "scarlet", "crimson", "rose", "花は赤", "花は紅", "花は桃", "赤色の花", "紅色の花", "桃色の花", "赤色", "紅色", "桃色", "ピンク色", "corolla rubra", "corolla rosea", "flores rojas", "flores rosas", "fleurs rouges", "fleurs roses", "rote blüten", "rosa blüten", "红色花冠", "粉红色花冠"]
+    blue_purple: ["blue flower", "purple flower", "violet flower", "blue corolla", "purple corolla", "blue", "purple", "violet", "lilac", "mauve", "花は青", "花は紫", "青色の花", "紫色の花", "青色", "紫色", "淡紫色", "紅紫色", "紫紅色", "紫赤色", "青紫色", "corolla caerulea", "corolla purpurea", "flores azules", "flores violetas", "fleurs bleues", "fleurs violettes", "blaue blüten", "violette blüten", "蓝色花冠", "紫色花冠"]
+    green_brown_inconspicuous: ["green flower", "brown flower", "inconspicuous flower", "green", "brown", "maroon", "花は緑", "花は褐色", "目立たない花", "緑色", "緑白色", "黄緑色", "褐色", "corolla viridis", "flores verdes", "fleurs verdâtres", "grüne blüten", "绿色花"]
   floral_form:
     tubular: ["tubular flower", "tubular corolla", "花冠は筒状", "筒状花", "corolla tubularis", "corola tubular", "corolle tubulaire", "röhrenförmige blüte", "筒状花冠"]
     bell_campanulate: ["bell-shaped flower", "campanulate corolla", "花冠は鐘形", "鐘形花", "corolla campanulata", "corola campanulada", "corolle campanulée", "glockenförmige blüte", "钟状花冠"]
@@ -193,9 +193,9 @@ extraction_terms:
   inflorescence_display:
     solitary: ["solitary flower", "flowers solitary", "花は単生", "solitaria", "fleur solitaire", "einzelblüte", "花单生"]
     few_flowered: ["few-flowered", "2-5-flowered", "少数花", "pauciflora", "pauciflore", "wenigblütig", "少花"]
-    raceme_spike_panicle: ["raceme", "spike inflorescence", "panicle", "総状花序", "穂状花序", "円錐花序", "racemus", "panicula", "racimo", "panicule", "Traube", "Rispe", "总状花序", "圆锥花序"]
-    umbel_corymb: ["umbel", "corymb", "散形花序", "房状花序", "umbella", "umbela", "ombelle", "Dolde", "伞形花序"]
-    composite_display: ["capitulum", "flower head", "頭花", "頭状花序", "capítulo", "capitule", "Köpfchen", "头状花序"]
+    raceme_spike_panicle: ["raceme", "racemes", "spike inflorescence", "spike inflorescences", "panicle", "panicles", "総状花序", "穂状花序", "円錐花序", "racemus", "panicula", "racimo", "panicule", "Traube", "Rispe", "总状花序", "圆锥花序"]
+    umbel_corymb: ["umbel", "umbels", "corymb", "corymbs", "散形花序", "房状花序", "umbella", "umbela", "ombelle", "Dolde", "伞形花序"]
+    composite_display: ["capitulum", "capitula", "flower head", "flower heads", "頭花", "頭状花序", "capítulo", "capitule", "Köpfchen", "头状花序"]
   reward_type:
     nectar: ["nectar reward", "nectar-producing", "花蜜を分泌", "蜜を分泌", "nectarium", "produce néctar", "produit du nectar", "Nektar produziert", "分泌花蜜"]
     pollen: ["pollen reward", "pollen as reward", "花粉を報酬", "recompensa de polen", "récompense pollinique", "Pollenbelohnung", "花粉奖励"]

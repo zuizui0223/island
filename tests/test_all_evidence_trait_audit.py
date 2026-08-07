@@ -246,7 +246,13 @@ def test_thresholds_and_application_remain_trait_specific() -> None:
                 "genus": "Gamma",
                 "n_islands": "3",
                 "n_records": "10",
-            }
+            },
+            {
+                "accepted_species": "Gamma",
+                "genus": "Gamma",
+                "n_islands": "3",
+                "n_records": "10",
+            },
         ]
     )
     inferred = audit.apply_genus_rules(
@@ -256,6 +262,7 @@ def test_thresholds_and_application_remain_trait_specific() -> None:
         "current_min2_diagnostic",
     )
     assert len(inferred) == 1
+    assert inferred.iloc[0]["accepted_species"] == "Gamma target"
     assert inferred.iloc[0]["trait_name"] == "floral_symmetry"
 
 

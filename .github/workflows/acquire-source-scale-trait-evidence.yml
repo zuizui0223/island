@@ -1,0 +1,198 @@
+name: Acquire source-scale WFO and Europe PMC trait evidence
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/acquire-source-scale-trait-evidence.yml"
+      - "analysis/fetch_europe_pmc_reproduction_scale_20260807.py"
+      - "analysis/integrate_europe_pmc_reproduction_scale_20260807.py"
+      - "analysis/integrate_wfo_bulk_round2_20260807.py"
+      - "tests/test_source_scale_trait_acquisition_20260807.py"
+  workflow_dispatch:
+    inputs:
+      formal_run_id:
+        description: Formal integrated-coverage run supplying the fixed species universe
+        required: true
+        default: "30440345597"
+      top_queue_rows:
+        description: Prioritized genus x trait queue rows to inspect
+        required: true
+        default: "100"
+      live_europe_pmc:
+        description: Requery and fetch official Europe PMC full-text XML
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: source-scale-trait-evidence-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Lint source-scale acquisition
+        run: |
+          ruff check \
+            analysis/fetch_europe_pmc_reproduction_scale_20260807.py \
+            analysis/integrate_europe_pmc_reproduction_scale_20260807.py \
+            analysis/integrate_wfo_bulk_round2_20260807.py \
+            tests/test_source_scale_trait_acquisition_20260807.py
+      - name: Run focused tests
+        run: pytest -q tests/test_source_scale_trait_acquisition_20260807.py
+
+  acquire:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      FORMAL_RUN_ID: ${{ inputs.formal_run_id || '30440345597' }}
+      TOP_QUEUE_ROWS: ${{ inputs.top_queue_rows || '100' }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -e .
+
+      - name: Download the formal fixed-universe artifact
+        run: |
+          mkdir -p /tmp/formal
+          gh run download "$FORMAL_RUN_ID" \
+            --name "integrated-trait-coverage-$FORMAL_RUN_ID" \
+            --dir /tmp/formal
+          test -f /tmp/formal/integrated_evidence_lineage.csv.gz
+          test -f /tmp/formal/prioritized_acquisition_queue.csv.gz
+          test -f /tmp/formal/unresolved_reason_by_species_axis.csv.gz
+
+      - name: Acquire official Europe PMC full text
+        if: github.event_name == 'pull_request' || inputs.live_europe_pmc
+        run: |
+          python analysis/fetch_europe_pmc_reproduction_scale_20260807.py \
+            --queue /tmp/formal/prioritized_acquisition_queue.csv.gz \
+            --coverage \
+              data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/strict_species_axis_coverage.csv.gz \
+            --genus-map /tmp/formal/unresolved_reason_by_species_axis.csv.gz \
+            --output /tmp/europe-pmc-source \
+            --top-n "$TOP_QUEUE_ROWS" \
+            --delay 0.15 \
+            --workers 8
+
+      - name: Use the frozen reviewed Europe PMC discovery snapshot
+        if: github.event_name == 'workflow_dispatch' && !inputs.live_europe_pmc
+        run: |
+          mkdir -p /tmp/europe-pmc-source
+          cp \
+            data/v2/staging/traits/direct_llm_pilot/20260807_europe_pmc_reproduction_scale/fulltext_reproductive_candidates.csv.gz \
+            /tmp/europe-pmc-source/
+          cp \
+            data/v2/staging/traits/direct_llm_pilot/20260807_europe_pmc_reproduction_scale/query_log.csv \
+            /tmp/europe-pmc-source/
+          cp \
+            data/v2/staging/traits/direct_llm_pilot/20260807_europe_pmc_reproduction_scale/article_manifest.csv \
+            /tmp/europe-pmc-source/
+          cp \
+            data/v2/staging/traits/direct_llm_pilot/20260807_europe_pmc_reproduction_scale/run_manifest.json \
+            /tmp/europe-pmc-source/
+
+      - name: Review, deduplicate, and update trait-specific genus rules
+        run: |
+          python analysis/integrate_europe_pmc_reproduction_scale_20260807.py \
+            --candidates \
+              /tmp/europe-pmc-source/fulltext_reproductive_candidates.csv.gz \
+            --formal-lineage /tmp/formal/integrated_evidence_lineage.csv.gz \
+            --prior-promoted-common \
+              data/v2/staging/traits/direct_llm_pilot/20260807_agent_promoted_all_pending/promoted_common_direct_evidence.csv.gz \
+            --wfo-common \
+              data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/accepted_wfo_common_direct_evidence.csv.gz \
+            --current-direct \
+              data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/resolved_direct_species_trait.csv.gz \
+            --current-low \
+              data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/rebuilt_all_evidence_validated_low.csv.gz \
+            --current-coverage \
+              data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/strict_species_axis_coverage.csv.gz \
+            --master-genus-map \
+              /tmp/formal/unresolved_reason_by_species_axis.csv.gz \
+            --ontology config/trait_ontology.yml \
+            --output /tmp/source-scale-integrated
+
+      - name: Record source run IDs and independently validate the artifact
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          import pandas as pd
+
+          root = Path("/tmp/source-scale-integrated")
+          summary = json.loads((root / "integration_summary.json").read_text())
+          assert summary["source"]["candidate_rows"] == 43
+          assert summary["source"]["all_reviewed"] == 43
+          assert summary["source"]["accepted_correct"] == 17
+          assert summary["source"]["promoted_rows"] == 8
+          assert summary["source"]["invalidated_prior_misattributions"] == 1
+          assert summary["coverage"]["after"]["filled_species_axis"] == 96249
+          assert summary["coverage"]["after"]["unresolved_species_axis"] == 222636
+          assert summary["coverage"]["net_change"] == -241
+          assert summary["validated_low"]["invalidated_species_trait"] == 245
+          assert summary["verification"]["direct_low_overlap"] == 0
+
+          ledger = pd.read_csv(root / "strict_species_axis_coverage.csv.gz")
+          assert len(ledger) == 318885
+          assert ledger["accepted_species"].nunique() == 106295
+          assert not ledger.duplicated(["accepted_species", "axis"]).any()
+
+          failures = []
+          for line in (root / "file_manifest.sha256").read_text().splitlines():
+              expected, relative = line.split("  ", 1)
+              actual = hashlib.sha256((root / relative).read_bytes()).hexdigest()
+              if actual != expected:
+                  failures.append(relative)
+          assert not failures, failures
+
+          source_manifest = {
+              "contract": "source_scale_trait_evidence_run_manifest_v1",
+              "github_run_id": os.environ["GITHUB_RUN_ID"],
+              "github_sha": os.environ["GITHUB_SHA"],
+              "formal_integrated_run_id": os.environ["FORMAL_RUN_ID"],
+              "wfo_source_run_id": "wfo-official-bulk-round2-context-gated-20260807",
+              "europe_pmc_source_run_id":
+                  "europe-pmc-reproduction-source-scale-20260807",
+              "fixed_species": 106295,
+              "fixed_species_axis": 318885,
+          }
+          (root / "source_run_manifest.json").write_text(
+              json.dumps(source_manifest, indent=2) + "\n"
+          )
+          PY
+          cat /tmp/source-scale-integrated/integration_summary.json \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-scale-trait-evidence-${{ github.run_id }}
+          path: |
+            /tmp/europe-pmc-source/
+            /tmp/source-scale-integrated/
+            data/v2/staging/traits/direct_llm_pilot/20260807_wfo_bulk_trait_candidates_round2/
+            data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/integration_summary.json
+            data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/stratified_context_audit_sample.csv
+          retention-days: 90
+          if-no-files-found: error

@@ -775,6 +775,13 @@ def apply_genus_rules(
     if eligible.empty:
         return pd.DataFrame()
     species = master[["accepted_species", "genus"]].drop_duplicates()
+    # A genus-only token is not a species identity. Keep such denominator rows
+    # unresolved for name/rank repair rather than applying their own genus rule.
+    species = species.loc[
+        species["accepted_species"].astype(str).str.split().str.len().ge(2)
+        & species["genus"].astype(str).ne("")
+        & species["accepted_species"].astype(str).ne(species["genus"].astype(str))
+    ].copy()
     candidates = species.merge(
         eligible,
         on="genus",
