@@ -93,7 +93,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     needs: validate
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 75
     env:
       GH_TOKEN: ${{ github.token }}
       BASELINE_RUN_ID: ${{ inputs.baseline_run_id || '30107066525' }}
