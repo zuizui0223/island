@@ -255,9 +255,8 @@ def run_inventory(
     pd.DataFrame(domain_audit).to_csv(output_dir / "domain_outcome_audit.csv", index=False)
     candidate_frame.to_csv(output_dir / "all_inventory_candidates.csv", index=False)
     novel.to_csv(output_dir / "novel_inventory_candidates.csv", index=False)
-    audit_sample(novel, limit=100).to_csv(
-        output_dir / "manual_audit_sample.csv", index=False
-    )
+    manual_sample = audit_sample(novel, limit=200)
+    manual_sample.to_csv(output_dir / "manual_audit_sample.csv", index=False)
     pd.DataFrame({"source_url": species_urls}).to_csv(
         output_dir / "discovered_species_pages.csv", index=False
     )
@@ -321,6 +320,8 @@ def run_inventory(
         ),
         "accepted_evidence_rows": 0,
         "manual_review_required": True,
+        "manual_audit_sample_pages": len(manual_sample),
+        "manual_audit_sampling": "trait_stratified_fixed_hash_unique_source_url",
         "automatic_promotion": False,
         "family_inference": False,
         "global_fallback": False,
