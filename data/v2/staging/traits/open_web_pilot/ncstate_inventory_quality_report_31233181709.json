@@ -1,0 +1,63 @@
+{
+  "combined_audit": {
+    "accepted_correct": 658,
+    "approved_domain_trait_scopes": 13,
+    "cultivar_contamination_rate": 0.0,
+    "maximum_cultivar_contamination": 0.02,
+    "minimum_precision": 0.9,
+    "minimum_reviewed_domains": 5,
+    "minimum_reviewed_pages": 200,
+    "minimum_reviewed_per_domain_trait": 10,
+    "pilot_gate_passed": true,
+    "precision": 0.9762611275964391,
+    "precision_contract": "accepted_correct/all_reviewed",
+    "reviewed_domains": 6,
+    "reviewed_pages_or_candidates": 674
+  },
+  "combined_reviewed_domains": 6,
+  "combined_reviewed_rows": 674,
+  "contract": "inventory_artifact_source_backed_audit_v1",
+  "family_inference": false,
+  "global_fallback": false,
+  "network_refetches": 0,
+  "new_accepted_correct": 474,
+  "new_audit_precision": 1.0,
+  "new_production_approved_scopes": [
+    {
+      "domain": "plants.ces.ncsu.edu",
+      "precision": 1.0,
+      "reviewed": 76,
+      "trait_name": "floral_form"
+    },
+    {
+      "domain": "plants.ces.ncsu.edu",
+      "precision": 1.0,
+      "reviewed": 14,
+      "trait_name": "flower_primary_color"
+    },
+    {
+      "domain": "plants.ces.ncsu.edu",
+      "precision": 1.0,
+      "reviewed": 125,
+      "trait_name": "flower_size_class"
+    },
+    {
+      "domain": "plants.ces.ncsu.edu",
+      "precision": 1.0,
+      "reviewed": 259,
+      "trait_name": "inflorescence_display"
+    }
+  ],
+  "new_reviewed_rows": 474,
+  "post_gate_yield": 0.7303543913713405,
+  "pre_audit_excluded_rows": 175,
+  "pre_audit_exclusion_reasons": {
+    "ambiguous_upper_bound_measurement": 152,
+    "multistate_collapsed_to_other_described": 23,
+    "ontology_value_not_allowed": 17
+  },
+  "raw_candidate_rows": 649,
+  "raw_candidate_species_trait": 649,
+  "source_artifact": "open-web-domain-backfill-31233181709",
+  "source_run_id": "31233181709"
+}
