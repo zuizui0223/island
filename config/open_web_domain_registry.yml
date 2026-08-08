@@ -79,7 +79,8 @@ domains:
     organization_type: university
     robots_access_notes: use result URLs only; respect current robots directives
     page_pattern: "^https://plants\\.ces.ncsu\\.edu/plants/"
-    inventory_urls: []
+    inventory_urls:
+      - https://plants.ces.ncsu.edu/sitemap.xml
     inventory_depth: 0
     scientific_name_displayed: true
     cultivar_descriptions_present: true

@@ -42,21 +42,27 @@ def _text(value: object) -> str:
     return " ".join(str(value).replace("\xa0", " ").split())
 
 
-def _species_key_from_url(url: str) -> str:
-    """Return a conservative binomial key from the final two URL segments."""
+def _species_keys_from_url(url: str) -> set[str]:
+    """Return conservative binomial candidates encoded in a treatment URL."""
 
     parts = [
         urllib.parse.unquote(part).replace("_", " ")
         for part in urllib.parse.urlsplit(canonical_url(url)).path.strip("/").split("/")
         if part
     ]
+    if not parts:
+        return set()
+    keys: set[str] = set()
+    slug_tokens = [token for token in parts[-1].split("-") if token]
+    if len(slug_tokens) == 2:
+        keys.add(" ".join(slug_tokens).casefold())
     if len(parts) < 2:
-        return ""
+        return keys
     genus = _text(parts[-2])
     epithet = _text(parts[-1])
-    if " " in genus or " " in epithet:
-        return ""
-    return f"{genus} {epithet}".casefold()
+    if " " not in genus and " " not in epithet:
+        keys.add(f"{genus} {epithet}".casefold())
+    return keys
 
 
 def discover_species_urls(
@@ -101,7 +107,10 @@ def discover_species_urls(
         )
         if page.error:
             continue
-        for child in page.links:
+        page_links = list(page.links)
+        if "xml" in page.content_type.casefold() or url.casefold().endswith(".xml"):
+            page_links.extend(re.findall(r"https?://[^\s<>]+", page.text))
+        for child in page_links:
             child = canonical_url(child)
             if not child:
                 continue
@@ -109,7 +118,7 @@ def discover_species_urls(
             if child_host != record.domain.casefold():
                 continue
             if re.search(record.page_pattern, child):
-                if targets and _species_key_from_url(child) not in targets:
+                if targets and not (_species_keys_from_url(child) & targets):
                     continue
                 if child not in species_seen:
                     species_seen.add(child)

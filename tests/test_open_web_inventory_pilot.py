@@ -167,3 +167,37 @@ def test_inventory_targets_only_unresolved_species_url_keys() -> None:
         target_species_names={"Beta two", "Gamma three"},
     )
     assert urls == [species_two, species_three]
+
+
+def test_inventory_targets_hyphenated_binomial_slug() -> None:
+    index = "https://flora.example/sitemap.xml"
+    species_one = "https://flora.example/plants/alpha-one"
+    species_two = "https://flora.example/plants/beta-two"
+    record = DomainRecord(
+        domain="flora.example",
+        source_name="Example Flora",
+        source_type="university_extension",
+        region="Test",
+        language="en",
+        organization_type="university",
+        robots_access_notes="test",
+        page_pattern=r"^https://flora\.example/plants/[a-z-]+$",
+        treatment_end_pattern="",
+        inventory_urls=(index,),
+        inventory_depth=0,
+        scientific_name_displayed=True,
+        cultivar_descriptions_present=True,
+        provenance_quality="test",
+        recommended_evidence_tier="B",
+        review_status="approved",
+        allowed_traits="all",
+    )
+    urls, _ = discover_species_urls(
+        record,
+        fetcher=FakeFetcher(  # type: ignore[arg-type]
+            {index: _page(index, (species_one, species_two))}
+        ),
+        max_species_pages=10,
+        target_species_names={"Beta two"},
+    )
+    assert urls == [species_two]
