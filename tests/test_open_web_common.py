@@ -16,7 +16,10 @@ from island_v2.open_web_common import (
     promoted_to_common_evidence,
     reviewed_audit_metrics,
 )
-from island_v2.open_web_finalize import combine_public_web_ledgers
+from island_v2.open_web_finalize import (
+    combine_public_web_ledgers,
+    validate_individually_reviewed_evidence,
+)
 
 
 def _review_rows(domain: str, trait: str, count: int) -> list[dict[str, object]]:
@@ -251,6 +254,98 @@ def test_reviewed_web_ledger_appends_to_prior_instead_of_replacing_it() -> None:
     assert by_species.loc["Alpha one", "source_run_id"] == "prior-run"
     assert by_species.loc["Alpha one", "source_artifact"] == "prior-artifact"
     assert by_species.loc["Beta two", "source_run_id"] == "new-run"
+
+
+def _individual_candidate() -> dict[str, object]:
+    excerpt = "Alpha one has actinomorphic flowers."
+    lineage = "doi:10.1234/example"
+    return {
+        "candidate_id": "66a9d783fb17b8510f7af25d",
+        "accepted_species": "Alpha one",
+        "trait_name": "floral_symmetry",
+        "normalized_value": "actinomorphic",
+        "evidence_quality": "high",
+        "evidence_scope": "species_direct",
+        "source_url": "https://journal.example/article.pdf",
+        "source_citation": "Original article, p. 3",
+        "source_excerpt": excerpt,
+        "source_lineage": lineage,
+        "name_match_method": "accepted_name_exact",
+        "source_tier": "A",
+        "content_sha256": "a" * 64,
+        "content_sha256_basis": "downloaded_pdf_bytes",
+        "retrieved_at_utc": "2026-08-08T00:00:00Z",
+        "inference_rule": "",
+    }
+
+
+def _individual_audit() -> dict[str, object]:
+    excerpt = "Alpha one has actinomorphic flowers."
+    return {
+        "candidate_id": "66a9d783fb17b8510f7af25d",
+        "decision": "accept",
+        "species_identity_correct": True,
+        "value_correct": True,
+        "provenance_complete": True,
+        "cultivar_contamination": False,
+        "reviewer": "reviewer",
+        "reviewed_at_utc": "2026-08-08T00:05:00Z",
+        "supporting_excerpt": excerpt,
+        "normalized_excerpt_sha256": (
+            "0ffb879a5307a170c0ffd3df61975cfb545c12141cd845d232b2f3d3b1f2e576"
+        ),
+        "content_fingerprint": (
+            "93672467f7819aea0f5121b3d362199cc714eceb922308f075c7fa66d3a74c24"
+        ),
+    }
+
+
+def test_individual_manual_review_accepts_source_backed_direct_evidence(
+    tmp_path: Path,
+) -> None:
+    ontology = tmp_path / "ontology.yml"
+    ontology.write_text(
+        "traits:\n  floral_symmetry:\n    allowed_values:\n      - actinomorphic\n",
+        encoding="utf-8",
+    )
+    result = validate_individually_reviewed_evidence(
+        pd.DataFrame([_individual_candidate()]),
+        pd.DataFrame([_individual_audit()]),
+        pd.DataFrame([{"accepted_species": "Alpha one"}]),
+        ontology,
+    )
+    assert result["candidate_id"].tolist() == ["66a9d783fb17b8510f7af25d"]
+
+
+@pytest.mark.parametrize(
+    ("candidate_patch", "audit_patch", "match"),
+    [
+        ({"source_tier": "B", "evidence_quality": "high"}, {}, "high_without_tier_a"),
+        ({"name_match_method": "fuzzy"}, {}, "invalid_name_match"),
+        ({"normalized_value": "unknown"}, {}, "invalid_ontology_value"),
+        ({}, {"cultivar_contamination": True}, "accepted and correct"),
+    ],
+)
+def test_individual_manual_review_fails_closed(
+    tmp_path: Path,
+    candidate_patch: dict[str, object],
+    audit_patch: dict[str, object],
+    match: str,
+) -> None:
+    ontology = tmp_path / "ontology.yml"
+    ontology.write_text(
+        "traits:\n  floral_symmetry:\n    allowed_values:\n      - actinomorphic\n",
+        encoding="utf-8",
+    )
+    candidate = {**_individual_candidate(), **candidate_patch}
+    audit = {**_individual_audit(), **audit_patch}
+    with pytest.raises(ValueError, match=match):
+        validate_individually_reviewed_evidence(
+            pd.DataFrame([candidate]),
+            pd.DataFrame([audit]),
+            pd.DataFrame([{"accepted_species": "Alpha one"}]),
+            ontology,
+        )
 
 
 def test_registry_has_at_least_five_generic_inventory_domains() -> None:

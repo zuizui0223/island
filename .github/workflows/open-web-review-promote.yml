@@ -6,6 +6,8 @@ on:
       - ".github/workflows/open-web-review-promote.yml"
       - "data/v2/staging/traits/open_web_pilot/multidomain_manual_audit_*.csv"
       - "data/v2/staging/traits/open_web_pilot/ncstate_inventory_manual_audit_*.csv"
+      - "data/v2/staging/traits/open_web_pilot/high_leverage_species_direct_*.csv"
+      - "data/v2/staging/traits/open_web_pilot/high_leverage_source_manifest_*.json"
       - "src/island_v2/open_web_common.py"
       - "src/island_v2/open_web_finalize.py"
       - "src/island_v2/review_inventory_artifact.py"
@@ -29,6 +31,14 @@ on:
         description: Candidate CSV inside the exact acquisition artifact
         required: true
         default: "open_web_multidomain_candidates.csv"
+      curated_evidence_csv_path:
+        description: Individually reviewed species-direct evidence committed on this ref
+        required: false
+        default: ""
+      curated_audit_csv_path:
+        description: Line-by-line audit for the curated evidence
+        required: false
+        default: ""
 
 permissions:
   actions: read
@@ -56,6 +66,8 @@ jobs:
         'data/v2/staging/traits/open_web_pilot/multidomain_manual_audit_200_30434418380.csv' }}
       CANDIDATE_FILE_NAME: >-
         ${{ inputs.candidate_file_name || 'open_web_multidomain_candidates.csv' }}
+      CURATED_EVIDENCE_CSV_PATH: ${{ inputs.curated_evidence_csv_path || '' }}
+      CURATED_AUDIT_CSV_PATH: ${{ inputs.curated_audit_csv_path || '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -97,9 +109,26 @@ jobs:
           test -f \
             /tmp/open-web-prior/full/broad_web_medium_evidence.csv.gz
           test -f "$AUDIT_CSV_PATH"
+          if [[ -n "$CURATED_EVIDENCE_CSV_PATH" ]]; then
+            test -n "$CURATED_AUDIT_CSV_PATH"
+            test -f "$CURATED_EVIDENCE_CSV_PATH"
+            test -f "$CURATED_AUDIT_CSV_PATH"
+          elif [[ -n "$CURATED_AUDIT_CSV_PATH" ]]; then
+            echo "curated audit was supplied without curated evidence" >&2
+            exit 1
+          fi
       - name: Promote approved domain-trait scopes and recalculate coverage
         run: |
           mkdir -p outputs/reviewed_open_web
+          curated_args=()
+          if [[ -n "$CURATED_EVIDENCE_CSV_PATH" ]]; then
+            curated_args=(
+              --curated-evidence-csv "$CURATED_EVIDENCE_CSV_PATH"
+              --curated-audit-csv "$CURATED_AUDIT_CSV_PATH"
+              --curated-source-run-id "$GITHUB_SHA"
+              --curated-source-artifact "$CURATED_EVIDENCE_CSV_PATH"
+            )
+          fi
           python -m island_v2.open_web_finalize \
             --baseline-dir /tmp/open-web-baseline \
             --candidates-csv \
@@ -112,7 +141,8 @@ jobs:
             --prior-public-web-csv \
               /tmp/open-web-prior/full/broad_web_medium_evidence.csv.gz \
             --prior-public-web-run-id "$PRIOR_PUBLIC_WEB_RUN_ID" \
-            --prior-public-web-artifact "$PRIOR_PUBLIC_WEB_ARTIFACT"
+            --prior-public-web-artifact "$PRIOR_PUBLIC_WEB_ARTIFACT" \
+            "${curated_args[@]}"
           jq -e '
             .audit.pilot_gate_passed == true
             and .audit.reviewed_pages_or_candidates >= 200

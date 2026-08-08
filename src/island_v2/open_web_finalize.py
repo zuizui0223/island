@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -12,6 +13,7 @@ from typing import Annotated, Any
 import pandas as pd
 import typer
 
+from island_v2.all_evidence_trait_audit import load_ontology, normalise_state_set
 from island_v2.open_web_common import (
     accepted_review_ids,
     rebuild_with_common_all_evidence,
@@ -27,6 +29,15 @@ from island_v2.open_web_search import (
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
+_TRUE_VALUES = {"1", "true", "yes", "y"}
+_DIRECT_NAME_MATCHES = {
+    "accepted_name_exact",
+    "exact_accepted_name",
+    "exact_synonym",
+    "synonym_exact",
+}
+_DIRECT_SCOPES = {"species_direct", "synonym_direct"}
+
 
 def _now() -> str:
     return datetime.now(UTC).isoformat().replace("+00:00", "Z")
@@ -38,6 +49,173 @@ def _sha256(path: Path) -> str:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def _bool(value: object) -> bool:
+    return str(value).strip().casefold() in _TRUE_VALUES
+
+
+def validate_individually_reviewed_evidence(
+    candidates: pd.DataFrame,
+    audit: pd.DataFrame,
+    master: pd.DataFrame,
+    ontology_yaml: Path,
+) -> pd.DataFrame:
+    """Fail closed on small, line-by-line reviewed species-direct batches.
+
+    The domain x trait production gate is for automated inventory/search lanes.
+    A separately committed curated batch may bypass that aggregate gate only
+    when every candidate has an explicit, correct manual review and complete
+    source-backed provenance.
+    """
+
+    candidate_required = {
+        "candidate_id",
+        "accepted_species",
+        "trait_name",
+        "normalized_value",
+        "evidence_quality",
+        "evidence_scope",
+        "source_url",
+        "source_citation",
+        "source_excerpt",
+        "source_lineage",
+        "name_match_method",
+        "source_tier",
+        "content_sha256",
+        "content_sha256_basis",
+        "retrieved_at_utc",
+        "inference_rule",
+    }
+    audit_required = {
+        "candidate_id",
+        "decision",
+        "species_identity_correct",
+        "value_correct",
+        "provenance_complete",
+        "cultivar_contamination",
+        "reviewer",
+        "reviewed_at_utc",
+        "supporting_excerpt",
+        "normalized_excerpt_sha256",
+        "content_fingerprint",
+    }
+    missing_candidates = candidate_required.difference(candidates.columns)
+    missing_audit = audit_required.difference(audit.columns)
+    if missing_candidates:
+        raise ValueError(
+            "individually reviewed evidence is missing columns: "
+            f"{sorted(missing_candidates)}"
+        )
+    if missing_audit:
+        raise ValueError(
+            "individual audit is missing columns: " f"{sorted(missing_audit)}"
+        )
+    if candidates.empty:
+        return candidates.copy()
+    if candidates["candidate_id"].duplicated().any() or audit["candidate_id"].duplicated().any():
+        raise ValueError("individual candidate_id values must be unique")
+    candidate_ids = set(candidates["candidate_id"].astype(str))
+    audit_ids = set(audit["candidate_id"].astype(str))
+    if candidate_ids != audit_ids:
+        raise ValueError("individual audit must cover every candidate exactly once")
+
+    reviewed = candidates.merge(
+        audit,
+        on="candidate_id",
+        how="inner",
+        validate="one_to_one",
+        suffixes=("", "_audit"),
+    ).fillna("")
+    correct = (
+        reviewed["decision"].str.casefold().eq("accept")
+        & reviewed["species_identity_correct"].map(_bool)
+        & reviewed["value_correct"].map(_bool)
+        & reviewed["provenance_complete"].map(_bool)
+        & ~reviewed["cultivar_contamination"].map(_bool)
+        & reviewed["reviewer"].astype(str).str.strip().ne("")
+        & reviewed["reviewed_at_utc"].astype(str).str.strip().ne("")
+    )
+    if not bool(correct.all()):
+        rejected = reviewed.loc[~correct, "candidate_id"].astype(str).tolist()
+        raise ValueError(
+            "individually curated evidence must be accepted and correct: "
+            f"{rejected}"
+        )
+
+    accepted_names = set(master["accepted_species"].astype(str))
+    ontology = load_ontology(ontology_yaml)
+    failures: list[str] = []
+    for row in reviewed.to_dict("records"):
+        candidate_id = str(row["candidate_id"])
+        trait = str(row["trait_name"])
+        valid, invalid = normalise_state_set(trait, row["normalized_value"], ontology)
+        excerpt = " ".join(str(row["source_excerpt"]).split())
+        normalized_excerpt = excerpt.casefold()
+        expected_excerpt_sha256 = hashlib.sha256(
+            normalized_excerpt.encode("utf-8")
+        ).hexdigest()
+        expected_fingerprint = hashlib.sha256(
+            (str(row["source_lineage"]) + "\n" + normalized_excerpt).encode("utf-8")
+        ).hexdigest()
+        expected_candidate_id = hashlib.sha256(
+            "|".join(
+                [
+                    str(row["accepted_species"]),
+                    trait,
+                    str(row["normalized_value"]),
+                    str(row["source_lineage"]),
+                ]
+            ).encode("utf-8")
+        ).hexdigest()[:24]
+        checks = {
+            "unstable_candidate_id": candidate_id != expected_candidate_id,
+            "species_not_in_master": str(row["accepted_species"]) not in accepted_names,
+            "invalid_direct_scope": str(row["evidence_scope"]) not in _DIRECT_SCOPES,
+            "invalid_name_match": str(row["name_match_method"]) not in _DIRECT_NAME_MATCHES,
+            "invalid_source_tier": str(row["source_tier"]).upper() not in {"A", "B"},
+            "invalid_quality": str(row["evidence_quality"]).casefold() not in {"high", "medium"},
+            "high_without_tier_a": (
+                str(row["evidence_quality"]).casefold() == "high"
+                and str(row["source_tier"]).upper() != "A"
+            ),
+            "invalid_ontology_value": bool(invalid) or not valid,
+            "invalid_source_url": not str(row["source_url"]).startswith(("http://", "https://")),
+            "missing_source_citation": not str(row["source_citation"]).strip(),
+            "missing_exact_excerpt": not excerpt,
+            "audit_excerpt_mismatch": excerpt
+            != " ".join(str(row["supporting_excerpt"]).split()),
+            "invalid_excerpt_sha256": str(row["normalized_excerpt_sha256"])
+            != expected_excerpt_sha256,
+            "invalid_content_fingerprint": str(row["content_fingerprint"])
+            != expected_fingerprint,
+            "missing_source_lineage": not str(row["source_lineage"]).strip(),
+            "invalid_content_sha256": re.fullmatch(
+                r"[0-9a-f]{64}", str(row["content_sha256"]).strip().casefold()
+            )
+            is None,
+            "missing_content_sha256_basis": not str(row["content_sha256_basis"]).strip(),
+            "invalid_retrieval_date": re.fullmatch(
+                r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z",
+                str(row["retrieved_at_utc"]).strip(),
+            )
+            is None,
+            "contains_inference_rule": bool(str(row["inference_rule"]).strip()),
+        }
+        failures.extend(
+            f"{candidate_id}:{reason}" for reason, failed in checks.items() if failed
+        )
+    duplicate_keys = reviewed.duplicated(
+        ["accepted_species", "trait_name", "normalized_value", "source_lineage"]
+    )
+    if duplicate_keys.any():
+        failures.extend(
+            f"{value}:duplicate_species_trait_value_lineage"
+            for value in reviewed.loc[duplicate_keys, "candidate_id"].astype(str)
+        )
+    if failures:
+        raise ValueError("individual evidence validation failed: " + "; ".join(failures))
+    return candidates.copy().fillna("")
 
 
 def _load_baseline(root: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -141,6 +319,10 @@ def finalize_review(
     synonym_csv: Path | None = None,
     vernacular_csv: Path | None = None,
     acquisition_config_yaml: Path = Path("config/open_web_trait_acquisition.yml"),
+    curated_evidence_csv: Path | None = None,
+    curated_audit_csv: Path | None = None,
+    curated_source_run_id: str = "",
+    curated_source_artifact: str = "",
 ) -> dict[str, Any]:
     """Apply the audit gate and run PR #131's shared all-evidence functions."""
 
@@ -191,6 +373,44 @@ def finalize_review(
             formal.get("supporting_excerpt", ""),
         )
         formal["inference_rule"] = ""
+    curated_formal = pd.DataFrame()
+    curated_audit_summary: dict[str, Any] = {
+        "reviewed": 0,
+        "accepted_correct": 0,
+        "precision": None,
+        "cultivar_contamination_rate": None,
+    }
+    if (curated_evidence_csv is None) != (curated_audit_csv is None):
+        raise ValueError(
+            "curated_evidence_csv and curated_audit_csv must be supplied together"
+        )
+    if curated_evidence_csv is not None and curated_audit_csv is not None:
+        curated_candidates = pd.read_csv(curated_evidence_csv, dtype=str).fillna("")
+        curated_audit = pd.read_csv(curated_audit_csv, dtype=str).fillna("")
+        curated_formal = validate_individually_reviewed_evidence(
+            curated_candidates,
+            curated_audit,
+            master,
+            ontology_yaml,
+        )
+        curated_formal["review_status"] = "accepted_individual_manual_audit"
+        curated_formal["evidence_status"] = "accepted_manual_audit"
+        curated_formal["source_run_id"] = curated_source_run_id
+        curated_formal["source_artifact"] = (
+            curated_source_artifact or str(curated_evidence_csv)
+        )
+        curated_formal["source_file"] = str(curated_evidence_csv)
+        curated_audit_summary = {
+            "reviewed": len(curated_audit),
+            "accepted_correct": len(curated_formal),
+            "precision": len(curated_formal) / len(curated_audit),
+            "cultivar_contamination_rate": 0.0,
+        }
+    incremental_formal = pd.concat(
+        [formal, curated_formal],
+        ignore_index=True,
+        sort=False,
+    ).fillna("")
     prior_formal = (
         pd.read_csv(prior_public_web_csv, dtype=str).fillna("")
         if prior_public_web_csv is not None
@@ -198,7 +418,7 @@ def finalize_review(
     )
     combined_formal = combine_public_web_ledgers(
         prior_formal,
-        formal,
+        incremental_formal,
         prior_run_id=prior_public_web_run_id,
         prior_artifact=prior_public_web_artifact,
     )
@@ -206,7 +426,7 @@ def finalize_review(
     common_report, tables = rebuild_with_common_all_evidence(
         coverage=coverage,
         evidence=evidence,
-        promoted=formal,
+        promoted=incremental_formal,
         prior_promoted=prior_formal,
         master=master,
         ontology_yaml=ontology_yaml,
@@ -235,7 +455,10 @@ def finalize_review(
         output_dir / "reviewed_audit_sample.csv",
         index=False,
     )
-    promoted.to_csv(output_dir / "accepted_open_web_evidence.csv.gz", index=False)
+    incremental_formal.to_csv(
+        output_dir / "accepted_open_web_evidence.csv.gz",
+        index=False,
+    )
 
     combined_formal.to_csv(
         output_dir / "broad_web_medium_evidence.csv.gz",
@@ -289,6 +512,9 @@ def finalize_review(
             else []
         ),
         "promoted_reviewed_evidence_rows": len(promoted),
+        "individually_reviewed_evidence_rows": len(curated_formal),
+        "total_incremental_reviewed_evidence_rows": len(incremental_formal),
+        "individual_manual_audit": curated_audit_summary,
         "prior_formal_public_web_evidence_rows": len(prior_formal),
         "combined_formal_public_web_evidence_rows": len(combined_formal),
         "next_search_queue": {
@@ -339,6 +565,15 @@ def finalize_review(
                 str(prior_public_web_csv) if prior_public_web_csv is not None else ""
             ),
         },
+        "curated_inputs": [
+            {
+                "path": str(path),
+                "sha256": _sha256(path),
+                "size_bytes": path.stat().st_size,
+            }
+            for path in (curated_evidence_csv, curated_audit_csv)
+            if path is not None
+        ],
         "files": [
             {
                 "path": str(path.relative_to(output_dir)),
@@ -386,6 +621,16 @@ def apply_audit_command(
         Path,
         typer.Option(exists=True, dir_okay=False),
     ] = Path("config/open_web_trait_acquisition.yml"),
+    curated_evidence_csv: Annotated[
+        Path | None,
+        typer.Option(exists=True, dir_okay=False),
+    ] = None,
+    curated_audit_csv: Annotated[
+        Path | None,
+        typer.Option(exists=True, dir_okay=False),
+    ] = None,
+    curated_source_run_id: str = "",
+    curated_source_artifact: str = "",
 ) -> None:
     report = finalize_review(
         baseline_dir=baseline_dir,
@@ -402,6 +647,10 @@ def apply_audit_command(
         synonym_csv=synonym_csv,
         vernacular_csv=vernacular_csv,
         acquisition_config_yaml=acquisition_config_yaml,
+        curated_evidence_csv=curated_evidence_csv,
+        curated_audit_csv=curated_audit_csv,
+        curated_source_run_id=curated_source_run_id,
+        curated_source_artifact=curated_source_artifact,
     )
     typer.echo(json.dumps(report, ensure_ascii=False, sort_keys=True))
 
