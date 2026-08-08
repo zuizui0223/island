@@ -25,6 +25,14 @@ on:
         description: Exact reviewed public-Web artifact name
         required: true
         default: "broad-web-medium-full-30141880859"
+      all_master_run_id:
+        description: Successful all-master ledger run containing every structured source package
+        required: true
+        default: "30081415812"
+      all_master_artifact:
+        description: Exact all-master artifact name
+        required: true
+        default: "all-master-trait-ledger-30081415812"
 
 permissions:
   actions: read
@@ -70,6 +78,8 @@ jobs:
       OUTPUT_ROOT: /tmp/integrated-trait-coverage
       LATEST_PUBLIC_WEB_RUN_ID: ${{ inputs.latest_public_web_run_id || '30141880859' }}
       LATEST_PUBLIC_WEB_ARTIFACT: ${{ inputs.latest_public_web_artifact || 'broad-web-medium-full-30141880859' }}
+      ALL_MASTER_RUN_ID: ${{ inputs.all_master_run_id || '30081415812' }}
+      ALL_MASTER_ARTIFACT: ${{ inputs.all_master_artifact || 'all-master-trait-ledger-30081415812' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -92,9 +102,13 @@ jobs:
           )
           for entry in config["sources"]:
               if entry["source_group"] != "latest_public_web":
-                  continue
-              entry["run_id"] = int(os.environ["LATEST_PUBLIC_WEB_RUN_ID"])
-              entry["artifact_name"] = os.environ["LATEST_PUBLIC_WEB_ARTIFACT"]
+                  if entry.get("role") not in {"bulk_materialization", "repo_staged_bulk"}:
+                      continue
+                  entry["run_id"] = int(os.environ["ALL_MASTER_RUN_ID"])
+                  entry["artifact_name"] = os.environ["ALL_MASTER_ARTIFACT"]
+              else:
+                  entry["run_id"] = int(os.environ["LATEST_PUBLIC_WEB_RUN_ID"])
+                  entry["artifact_name"] = os.environ["LATEST_PUBLIC_WEB_ARTIFACT"]
               entry.pop("artifact_id", None)
               entry.pop("artifact_digest", None)
           repo = config["repository"]
@@ -227,8 +241,8 @@ jobs:
           gh run download 30055434111 \
             --name "validated-low-after-targeted-30055434111" \
             --dir "$INPUT_ROOT/validated-low"
-          gh run download 30081415812 \
-            --name "all-master-trait-ledger-30081415812" \
+          gh run download "$ALL_MASTER_RUN_ID" \
+            --name "$ALL_MASTER_ARTIFACT" \
             --dir "$INPUT_ROOT/all-master"
           gh run download "$LATEST_PUBLIC_WEB_RUN_ID" \
             --name "$LATEST_PUBLIC_WEB_ARTIFACT" \

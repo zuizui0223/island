@@ -323,6 +323,29 @@ def test_lineage_dedup_preserves_distinct_traits_on_the_same_axis() -> None:
     assert duplicates.empty
 
 
+def test_generic_bulk_candidate_preserves_explicit_original_source_lineage(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "trait_candidates.csv.gz"
+    record = _bulk_row(
+        "ferrer_2024_si_database",
+        "Alpha one",
+        "self_incompatibility",
+        "SI",
+        citation="Original study, 2001",
+    )
+    record["source_lineage"] = "citation-set:abc123"
+    pd.DataFrame([record]).to_csv(path, index=False)
+
+    evidence, audit = coverage.load_generic_bulk_candidates(path, {"sources": []})
+    assert audit["accepted"].tolist() == ["True"]
+    assert evidence["source_group"].tolist() == ["ferrer_2024_si"]
+    assert evidence["source_lineage"].tolist() == ["citation-set:abc123"]
+    assert evidence["lineage_method"].tolist() == [
+        "candidate_explicit_source_lineage"
+    ]
+
+
 def test_aggregate_reports_before_after_low_upgrade_and_exact_denominator(
     tmp_path: Path,
     monkeypatch,

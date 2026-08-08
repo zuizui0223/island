@@ -64,6 +64,7 @@ GENERIC_BULK_SOURCES = {
     "eol_traitbank_all_zenodo_13305577": "eol_traitbank",
     "gift_v3_2_direct": "gift",
     "meyer_galloway_eckert_2026_dryad": "meyer_2026",
+    "ferrer_2024_si_database": "ferrer_2024_si",
     "razanajatovo_etal_2016_nature_communications": "razanajatovo_2016",
     "usda_plants_current": "usda_plants",
 }
@@ -78,6 +79,7 @@ BULK_ORDER = (
     "gift",
     "usda_plants",
     "meyer_2026",
+    "ferrer_2024_si",
     "razanajatovo_2016",
     "promoted_public_web",
 )
@@ -211,6 +213,12 @@ def _manifest_entry(
         for entry in entries
         if _text(entry.get("source_group")) == source_group
     ]
+    if not matching:
+        matching = [
+            entry
+            for entry in entries
+            if _text(entry.get("role")) == "bulk_materialization"
+        ]
     path_text = str(source_file)
     path_matching = [
         entry
@@ -249,6 +257,7 @@ def _make_evidence(
     source_file: Path,
     contract: str,
     manifest: dict[str, Any],
+    explicit_lineage: object = "",
 ) -> dict[str, str]:
     run_id, artifact = _manifest_entry(manifest, source_group, source_file)
     row = {
@@ -270,7 +279,11 @@ def _make_evidence(
         "source_file": str(source_file),
         "acceptance_contract": contract,
     }
-    lineage, method = source_lineage(row)
+    lineage = _text(explicit_lineage)
+    if lineage:
+        method = "candidate_explicit_source_lineage"
+    else:
+        lineage, method = source_lineage(row)
     row["source_lineage"] = lineage
     row["lineage_method"] = method
     return row
@@ -501,6 +514,7 @@ def load_generic_bulk_candidates(
                 source_file=path,
                 contract="strict_bulk_species_direct_v1",
                 manifest=manifest,
+                explicit_lineage=record.get("source_lineage"),
             )
         )
     return (

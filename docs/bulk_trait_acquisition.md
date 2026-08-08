@@ -282,3 +282,29 @@ resolves the newest successful run that still contains the exact expected,
 non-expired artifact name and records the resolved run IDs in its summary.
 For a historical reconstruction, manually set `resolve_latest_sources=false`
 and supply the pinned run IDs instead.
+
+## Source-package-first reproductive acquisition
+
+The Ferrer et al. global self-incompatibility workbook is acquired at workflow
+runtime from its stable OUP article resolver and accepted only when its exact
+SHA-256 is `8ef2f5ac99780ca19a15b847442272457634064577f8a12fbb9710f5521e5899`.
+The copyrighted workbook is not committed. The artifact retains the download
+hash, source citation, row identifier, exact structured supporting excerpt,
+name-match audit, exclusions, conflicts, and derived candidates.
+
+The importer deliberately does not treat the complete published SI column as
+species-direct evidence. Reference-supported SC is retained; SI and partial SI
+require a phenotype reaction plus a cited source. Self-sterility alone and the
+authors' genus-transferred SI assignments are excluded. Exact accepted names
+and strict, family-consistent GBIF synonyms are allowed. Multiple values that
+resolve to one accepted species are quarantined rather than selected by row
+order. Values agreeing with the Meyer compilation are assigned the Meyer
+lineage so the two redistributed records cannot masquerade as independent
+support.
+
+This adapter emits no genus inference. Its High/Medium direct rows enter the
+same all-master artifact as other bulk sources, and the integrated workflow
+then rebuilds trait-specific Validated Low from all direct evidence. The
+integrated workflow accepts an explicit all-master Run ID and artifact name, so
+a formal coverage run can be pinned to the exact source-package build that it
+consumed.

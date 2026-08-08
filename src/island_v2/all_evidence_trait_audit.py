@@ -50,6 +50,7 @@ BULK_AND_PUBLIC_GROUPS = {
     "eol_traitbank",
     "gift",
     "meyer_2026",
+    "ferrer_2024_si",
     "promoted_public_web",
     "razanajatovo_2016",
     "usda_plants",
