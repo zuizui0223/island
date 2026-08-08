@@ -847,6 +847,8 @@ def prepare_pladias(
             "citation": source["citation"],
             "website": source["website"],
             "usage_terms_url": source["usage_terms_url"],
+            "usage_contract": source["usage_contract"],
+            "large_scale_use_action": source["large_scale_use_action"],
             "robots_url": source["robots_url"],
             "taxon_list_url": source["taxon_list_url"],
             "taxon_list_sha256": observed_hash,

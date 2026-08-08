@@ -80,6 +80,10 @@ def _config(path: Path, taxon_list: Path) -> None:
                     ).hexdigest(),
                     "species_page_template": "https://pladias.cz/en/taxon/data/{species}",
                     "user_agent": "test-agent",
+                    "usage_contract": "public_scientific_use_with_required_citation",
+                    "large_scale_use_action": (
+                        "contact_pladias_governing_board_before_publication"
+                    ),
                     "accepted_feature_labels": [
                         "Flower colour",
                         "Flower symmetry",
@@ -231,6 +235,9 @@ def test_prepare_uses_cache_exact_identity_and_emits_no_cross_trait_proxy(
     assert manifest["counts"]["candidate_species"] == 1
     assert manifest["quality_contract"]["pollen_vector_or_reward_projected_to_strict_axes"] is False
     assert manifest["quality_contract"]["genus_inference_emitted"] is False
+    assert manifest["source"]["large_scale_use_action"] == (
+        "contact_pladias_governing_board_before_publication"
+    )
     assert len(quality_audit) == 1
     assert quality_audit.loc[0, "accepted_correct"] == "True"
     assert manifest["quality_contract"]["audit"]["precision"] == 1.0

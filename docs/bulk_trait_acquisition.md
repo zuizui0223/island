@@ -336,7 +336,9 @@ curated Pladias values; that distinction is recorded in the audit manifest.
 
 Pladias requires database and original-source citation for scientific reuse;
 the adapter records those citations and does not assert a Creative Commons
-license. The all-master workflow materializes the package under
+license. Because this package uses a large part of the database, its manifest
+also records the requirement to contact the Pladias Governing Board before
+publication. The all-master workflow materializes the package under
 `data/v2/staging/traits/bulk/pladias_czech_flora/`, after which the common
 integrator performs source-lineage deduplication, direct conflict handling and
 the trait-specific all-evidence Validated Low rebuild.

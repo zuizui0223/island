@@ -16,6 +16,7 @@ source:
   user_agent: >-
     island-trait-source-package/1.0 (+https://github.com/zuizui0223/island)
   usage_contract: public_scientific_use_with_required_citation
+  large_scale_use_action: contact_pladias_governing_board_before_publication
   accepted_feature_labels:
     - Flower colour
     - Flower symmetry
