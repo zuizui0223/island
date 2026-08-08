@@ -81,6 +81,7 @@ jobs:
           if-no-files-found: error
 
   acquire:
+    if: github.event_name == 'workflow_dispatch'
     needs: validate
     continue-on-error: true
     strategy:

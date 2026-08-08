@@ -54,6 +54,7 @@ jobs:
         run: pytest -q tests/test_source_scale_trait_acquisition_20260807.py
 
   acquire:
+    if: github.event_name == 'workflow_dispatch'
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 45

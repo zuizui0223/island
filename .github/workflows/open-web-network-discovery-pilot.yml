@@ -88,6 +88,7 @@ jobs:
           retention-days: 7
 
   network-pilot:
+    if: github.event_name == 'workflow_dispatch'
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 30

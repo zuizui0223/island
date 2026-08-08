@@ -25,6 +25,18 @@ def test_inventory_backfill_never_runs_from_pr_synchronization() -> None:
     assert "backfill:\n    if: github.event_name == 'workflow_dispatch'" in workflow
 
 
+def test_other_network_acquisition_jobs_require_explicit_dispatch() -> None:
+    jobs = {
+        ".github/workflows/acquire-europe-pmc-support2-batch2.yml": "acquire",
+        ".github/workflows/acquire-source-scale-trait-evidence.yml": "acquire",
+        ".github/workflows/open-web-network-discovery-pilot.yml": "network-pilot",
+        ".github/workflows/open-web-trait-multidomain-pilot.yml": "acquire",
+    }
+    for path, job in jobs.items():
+        workflow = Path(path).read_text(encoding="utf-8")
+        assert f"{job}:\n    if: github.event_name == 'workflow_dispatch'" in workflow
+
+
 def test_inventory_url_passes_exact_accepted_species_to_identity_gate() -> None:
     url = (
         "https://plantnet.rbgsyd.nsw.gov.au/cgi-bin/NSWfl.pl?"
