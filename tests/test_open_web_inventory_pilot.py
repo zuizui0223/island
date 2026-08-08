@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from island_v2.open_web_evidence import DomainRecord, Page
 from island_v2.open_web_inventory_pilot import (
     _accepted_species_from_url,
@@ -14,6 +16,13 @@ def test_species_key_supports_query_encoded_flora_treatments() -> None:
         "page=nswfl&lvl=sp&name=Acanthus~mollis"
     )
     assert _species_keys_from_url(url) == {"acanthus mollis"}
+
+
+def test_inventory_backfill_never_runs_from_pr_synchronization() -> None:
+    workflow = Path(".github/workflows/open-web-discovered-domain-backfill.yml").read_text(
+        encoding="utf-8"
+    )
+    assert "backfill:\n    if: github.event_name == 'workflow_dispatch'" in workflow
 
 
 def test_inventory_url_passes_exact_accepted_species_to_identity_gate() -> None:

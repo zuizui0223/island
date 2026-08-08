@@ -97,7 +97,7 @@ NON_PRIMARY_FLORAL_ORGAN = re.compile(
 FLOWER_SIZE_BRIDGE_BLOCKER = re.compile(
     r"\b(?:inflorescences?|racemes?|spikes?|panicles?|umbels?|corymbs?|"
     r"capitula|heads?|clusters?|peduncles?|pedicels?|stalks?|caly(?:x|ces)|"
-    r"sepals?|bracts?|lobes?|limbs?|tubes?)\b",
+    r"sepals?|bracts?|spathes?|branches?|axes?|lobes?|limbs?|tubes?)\b",
     re.IGNORECASE,
 )
 INFLORESCENCE_SUBJECT = re.compile(

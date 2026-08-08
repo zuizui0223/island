@@ -168,6 +168,16 @@ def test_narrative_rejects_component_lengths_as_whole_flower_size() -> None:
     ]
 
 
+def test_narrative_size_rejects_spathe_and_branch_measurements() -> None:
+    page = _page(
+        "Description:\nFlowers subtended by a spathe 20–30 mm long. "
+        "Flowers on branches 4–6 cm long. Corolla 12–16 mm long."
+    )
+    assert extract_botanical_description(page, trait_name="flower_size_class") == [
+        ("12–16 mm", "small", "Corolla 12–16 mm long.")
+    ]
+
+
 def test_narrative_tube_depth_rejects_bare_anther_and_width_measurements() -> None:
     page = _page(
         "Description:\nTube 6–12 mm long. Anther tube 1 mm long. "

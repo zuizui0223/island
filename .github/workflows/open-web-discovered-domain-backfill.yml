@@ -90,6 +90,7 @@ jobs:
           retention-days: 7
 
   backfill:
+    if: github.event_name == 'workflow_dispatch'
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 35
