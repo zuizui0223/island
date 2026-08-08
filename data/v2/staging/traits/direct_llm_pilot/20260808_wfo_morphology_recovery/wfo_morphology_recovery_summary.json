@@ -1,0 +1,46 @@
+{
+  "approved_providers": [
+    "flora_north_america",
+    "nybg_brittonia",
+    "nybg_memoirs"
+  ],
+  "audit": {
+    "accepted_correct": 242,
+    "by_trait": [
+      {
+        "accepted_correct": 214,
+        "precision": 0.9907407407407407,
+        "reviewed": 216,
+        "trait_name": "flower_size_class"
+      },
+      {
+        "accepted_correct": 28,
+        "precision": 1.0,
+        "reviewed": 28,
+        "trait_name": "tube_depth_class"
+      }
+    ],
+    "cultivar_contamination_rate": 0.0,
+    "precision": 0.9918032786885246,
+    "reviewed": 244
+  },
+  "audit_independent_of_excluded_candidate_ids": true,
+  "audit_queue_rows": 0,
+  "by_trait": {
+    "flower_size_class": 216,
+    "tube_depth_class": 28
+  },
+  "classification_rule_version": "size_tube_v2_ontology_aligned",
+  "contract": "wfo_morphology_recovery_v1",
+  "cost_usd": 0.0,
+  "excluded_audit_files": [
+    "data\\v2\\staging\\traits\\direct_llm_pilot\\20260807_wfo_round2_context_gated_integrated\\stratified_trait_audit_200_20260808.csv"
+  ],
+  "input_context_gated_flower_size_rows": 948,
+  "network_requests": 0,
+  "recovered_evidence_rows": 244,
+  "recovered_species_traits": 240,
+  "rejected_or_unclassifiable_rows": 168,
+  "search_queries": 0,
+  "source_run_id": "wfo-official-bulk-morphology-recovery-20260808"
+}
