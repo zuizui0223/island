@@ -13,12 +13,30 @@ import re
 from island_v2.open_web_evidence import Page, primary_treatment_text
 
 COLOUR_MAP: tuple[tuple[re.Pattern[str], str], ...] = (
-    (re.compile(r"\b(?:white|cream)\b|白", re.IGNORECASE), "white"),
-    (re.compile(r"\b(?:yellow|orange)\b|黄|橙", re.IGNORECASE), "yellow_orange"),
-    (re.compile(r"\b(?:red|pink|rose)\b|赤|紅|桃", re.IGNORECASE), "red_pink"),
-    (re.compile(r"\b(?:blue|purple|violet)\b|青|紫", re.IGNORECASE), "blue_purple"),
+    (re.compile(r"\b(?:white|whitish|cream|creamy)\b|白", re.IGNORECASE), "white"),
     (
-        re.compile(r"\b(?:green|brown|inconspicuous)\b|緑|褐|目立たない", re.IGNORECASE),
+        re.compile(r"\b(?:yellow|yellowish|orange|orange-red)\b|黄|橙", re.IGNORECASE),
+        "yellow_orange",
+    ),
+    (
+        re.compile(
+            r"\b(?:red|reddish|pink|pinkish|rose|maroon|scarlet|crimson)\b|赤|紅|桃",
+            re.IGNORECASE,
+        ),
+        "red_pink",
+    ),
+    (
+        re.compile(
+            r"\b(?:blue|bluish|purple|purplish|violet|lilac|mauve)\b|青|紫",
+            re.IGNORECASE,
+        ),
+        "blue_purple",
+    ),
+    (
+        re.compile(
+            r"\b(?:green|greenish|brown|brownish|inconspicuous)\b|緑|褐|目立たない",
+            re.IGNORECASE,
+        ),
         "green_brown_inconspicuous",
     ),
 )
@@ -65,7 +83,11 @@ NARRATIVE_FRAGMENT_SPLIT = re.compile(
     r"(?<=[;!?])\s+|(?<=[a-z\]\)])\.\s+(?=[A-Z])|\n+"
 )
 PRIMARY_FLORAL_ORGAN = re.compile(
-    r"\b(?:flowers?|corollas?|petals?|tepals?|perianths?)\b", re.IGNORECASE
+    r"\b(?:flowers?(?!\s+heads?)|corollas?|petals?|tepals?|perianths?)\b",
+    re.IGNORECASE,
+)
+WHOLE_FLOWER_ORGAN = re.compile(
+    r"\b(?:flowers?(?!\s+heads?)|corollas?)\b", re.IGNORECASE
 )
 NON_PRIMARY_FLORAL_ORGAN = re.compile(
     r"\b(?:caly(?:x|ces)|sepals?|bracts?|anthers?|stamens?|styles?|stigmas?|"
@@ -74,7 +96,8 @@ NON_PRIMARY_FLORAL_ORGAN = re.compile(
 )
 FLOWER_SIZE_BRIDGE_BLOCKER = re.compile(
     r"\b(?:inflorescences?|racemes?|spikes?|panicles?|umbels?|corymbs?|"
-    r"capitula|heads?|peduncles?|pedicels?|caly(?:x|ces)|sepals?|bracts?|lobes?)\b",
+    r"capitula|heads?|clusters?|peduncles?|pedicels?|stalks?|caly(?:x|ces)|"
+    r"sepals?|bracts?|lobes?|limbs?|tubes?)\b",
     re.IGNORECASE,
 )
 INFLORESCENCE_SUBJECT = re.compile(
@@ -83,7 +106,13 @@ INFLORESCENCE_SUBJECT = re.compile(
     r"capitulum|flower head)\b",
     re.IGNORECASE,
 )
-TUBE_SUBJECT = re.compile(r"\b(?:corolla\s+|floral\s+)?tube\b", re.IGNORECASE)
+TUBE_SUBJECT = re.compile(
+    r"\b(?:corolla|perianth|floral|tepal)\s+tube\b", re.IGNORECASE
+)
+TUBE_BRIDGE_BLOCKER = re.compile(
+    r"\b(?:lobes?|teeth|fimbriae|hairs?|scales?|anthers?|stamens?)\b",
+    re.IGNORECASE,
+)
 DESCRIPTION_END = re.compile(
     r"\n(?:Flowering|Distribution(?: and occurrence)?|Habitat|Phenology|Notes?)\s*:",
     re.IGNORECASE,
@@ -310,7 +339,13 @@ def _tube_depth(value: str) -> str:
     if not subject:
         return ""
     match = MEASUREMENT.search(value, subject.end())
-    if not match or match.start() - subject.end() > 100:
+    if not match or match.start() - subject.end() > 60:
+        return ""
+    bridge = value[subject.end() : match.start()]
+    if TUBE_BRIDGE_BLOCKER.search(bridge):
+        return ""
+    after = value[match.end() : match.end() + 20]
+    if not re.match(r"\s*(?:long|in\s+length)\b", after, re.IGNORECASE):
         return ""
     low = float(match.group("low"))
     high = float(match.group("high") or match.group("low"))
@@ -347,8 +382,10 @@ def extract_botanical_description(
         normalized = ""
         raw_value = fragment
         if trait_name == "flower_primary_color":
-            if _primary_organ_subject(fragment) and not NON_PRIMARY_FLORAL_ORGAN.search(
-                fragment
+            if (
+                _primary_organ_subject(fragment)
+                and not NON_PRIMARY_FLORAL_ORGAN.search(fragment)
+                and not re.search(r"\bin\s+bud\b", fragment, re.IGNORECASE)
             ):
                 normalized = _colour(fragment)
         elif trait_name == "floral_form":
@@ -358,7 +395,9 @@ def extract_botanical_description(
             if _primary_organ_subject(fragment):
                 normalized = _symmetry(fragment)
         elif trait_name == "flower_size_class":
-            subject = _primary_organ_subject(fragment)
+            subject = WHOLE_FLOWER_ORGAN.search(fragment)
+            if subject and NON_PRIMARY_FLORAL_ORGAN.search(fragment[: subject.start()]):
+                subject = None
             if subject:
                 measurement = MEASUREMENT.search(fragment, subject.end())
                 bridge = fragment[subject.end() : measurement.start()] if measurement else ""
@@ -374,11 +413,19 @@ def extract_botanical_description(
         elif trait_name == "inflorescence_display":
             if INFLORESCENCE_SUBJECT.search(fragment):
                 normalized = _inflorescence(fragment)
+                if normalized == "solitary" and not re.search(
+                    r"\b(?:flowers?\s+(?:are\s+)?solitary|solitary\s+flowers?|"
+                    r"inflorescences?\s+(?:of\s+)?(?:a\s+)?single\s+flower)\b",
+                    fragment,
+                    re.IGNORECASE,
+                ):
+                    normalized = ""
         elif trait_name == "cleistogamy" and re.search(
             r"\bcleistogam", fragment, re.IGNORECASE
         ):
             normalized = _cleistogamy(fragment)
-        if normalized and normalized != "other_described":
+        incomplete = bool(re.search(r"\((?:e\.g|i\.e)\.?$", fragment, re.IGNORECASE))
+        if normalized and normalized != "other_described" and not incomplete:
             rows.append((raw_value, normalized, fragment))
     return list(dict.fromkeys(rows))
 

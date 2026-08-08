@@ -65,7 +65,7 @@ def run_strict(
     contract.to_csv(output_dir / "contract_eligible_novel_candidates.csv", index=False)
     discovery_only.to_csv(output_dir / "discovery_only_or_existing_candidates.csv", index=False)
     contract.to_csv(output_dir / "novel_inventory_candidates.csv", index=False)
-    audit_sample(contract, limit=100).to_csv(
+    audit_sample(contract, limit=200).to_csv(
         output_dir / "manual_audit_sample.csv", index=False
     )
 

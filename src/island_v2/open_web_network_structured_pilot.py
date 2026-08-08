@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
 
@@ -43,12 +44,21 @@ def _combined_extract_rules(
     )
     if narrative_rows:
         return narrative_rows
-    return _RULE_EXTRACTOR(
+    fallback_rows = _RULE_EXTRACTOR(
         page,
         trait_name=trait_name,
         config=config,
         treatment_end_pattern=treatment_end_pattern,
     )
+    return [
+        row
+        for row in fallback_rows
+        if not re.search(r"\((?:e\.g|i\.e)\.?$", row[2], re.IGNORECASE)
+        and not (
+            trait_name == "flower_primary_color"
+            and re.search(r"\bin\s+bud\b", row[2], re.IGNORECASE)
+        )
+    ]
 
 
 def _diversified_priority_queue(

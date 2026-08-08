@@ -156,3 +156,53 @@ def test_narrative_colour_rejects_calyx_colour_near_corolla_reference() -> None:
     assert extract_botanical_description(
         page, trait_name="flower_primary_color"
     ) == [("Corolla white.", "white", "Corolla white.")]
+
+
+def test_narrative_rejects_component_lengths_as_whole_flower_size() -> None:
+    page = _page(
+        "Description:\nPetals 3–6 mm long. Corolla tube 4–8 mm long. "
+        "Flowers 10–20 mm diam. Flowers solitary on stalks 5–40 cm long."
+    )
+    assert extract_botanical_description(page, trait_name="flower_size_class") == [
+        ("10–20 mm", "small", "Flowers 10–20 mm diam")
+    ]
+
+
+def test_narrative_tube_depth_rejects_bare_anther_and_width_measurements() -> None:
+    page = _page(
+        "Description:\nTube 6–12 mm long. Anther tube 1 mm long. "
+        "Perianth tube 6–12 mm wide. Corolla tube slender, 7–14 mm long."
+    )
+    assert extract_botanical_description(page, trait_name="tube_depth_class") == [
+        (
+            "Corolla tube slender, 7–14 mm long.",
+            "intermediate",
+            "Corolla tube slender, 7–14 mm long.",
+        )
+    ]
+
+
+def test_narrative_solitary_spikelets_are_not_solitary_flower_display() -> None:
+    page = _page(
+        "Description:\nInflorescence compound with many solitary spikelets. "
+        "Flowers solitary or in pairs."
+    )
+    assert extract_botanical_description(
+        page, trait_name="inflorescence_display"
+    ) == [("Flowers solitary or in pairs.", "solitary", "Flowers solitary or in pairs.")]
+
+
+def test_narrative_flower_head_shape_is_not_individual_floral_form() -> None:
+    page = _page("Description:\nFlower heads cup-shaped. Corolla campanulate.")
+    assert extract_botanical_description(page, trait_name="floral_form") == [
+        ("Corolla campanulate.", "bell_campanulate", "Corolla campanulate.")
+    ]
+
+
+def test_narrative_colour_preserves_suffix_variants_as_multicolour() -> None:
+    page = _page(
+        "Description:\nCorolla white, greenish or yellowish, with maroon throat."
+    )
+    assert extract_botanical_description(
+        page, trait_name="flower_primary_color"
+    )[0][1] == "multicolored_variable"
