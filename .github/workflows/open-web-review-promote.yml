@@ -146,7 +146,7 @@ jobs:
             tests/test_review_inventory_artifact.py \
             tests/test_open_web_common.py \
             tests/test_scale_trait_source_packages_20260808.py
-          pytest -q \
+          python -m pytest -q \
             tests/test_open_web_common.py \
             tests/test_review_inventory_artifact.py \
             tests/test_scale_trait_source_packages_20260808.py \
