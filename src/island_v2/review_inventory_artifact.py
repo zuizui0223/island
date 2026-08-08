@@ -14,7 +14,7 @@ import json
 import re
 from collections import Counter
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 import pandas as pd
 import typer
@@ -250,18 +250,22 @@ def build_inventory_audit(
 
 @app.command()
 def main(
-    candidates_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    prior_audit_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    output_audit_csv: Path = typer.Option(..., dir_okay=False),
-    output_exclusions_csv: Path = typer.Option(..., dir_okay=False),
-    output_report_json: Path = typer.Option(..., dir_okay=False),
-    ontology_yaml: Path = typer.Option(
-        Path("config/trait_ontology.yml"), exists=True, dir_okay=False
-    ),
-    source_run_id: str = typer.Option(...),
-    source_artifact: str = typer.Option(...),
-    reviewer: str = typer.Option("Codex source-backed artifact audit"),
-    reviewed_at_utc: str = typer.Option(...),
+    candidates_csv: Annotated[
+        Path, typer.Option(exists=True, dir_okay=False)
+    ],
+    prior_audit_csv: Annotated[
+        Path, typer.Option(exists=True, dir_okay=False)
+    ],
+    output_audit_csv: Annotated[Path, typer.Option(dir_okay=False)],
+    output_exclusions_csv: Annotated[Path, typer.Option(dir_okay=False)],
+    output_report_json: Annotated[Path, typer.Option(dir_okay=False)],
+    source_run_id: Annotated[str, typer.Option()],
+    source_artifact: Annotated[str, typer.Option()],
+    reviewed_at_utc: Annotated[str, typer.Option()],
+    ontology_yaml: Annotated[
+        Path, typer.Option(exists=True, dir_okay=False)
+    ] = Path("config/trait_ontology.yml"),
+    reviewer: Annotated[str, typer.Option()] = "Codex source-backed artifact audit",
 ) -> None:
     combined, exclusions, report = build_inventory_audit(
         pd.read_csv(candidates_csv, dtype=str).fillna(""),
