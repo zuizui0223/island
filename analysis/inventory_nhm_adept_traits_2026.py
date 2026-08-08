@@ -112,9 +112,7 @@ def inventory_resource(
     resource_id = RESOURCES[resource_name]
     cache_dir = output_dir / "page_cache" / resource_name
     session = requests.Session()
-    session.headers.update(
-        {"User-Agent": "island-trait-research/1.0 (reproducible CKAN client)"}
-    )
+    session.headers.update({"User-Agent": "island-trait-research/1.0 (reproducible CKAN client)"})
 
     records: list[dict[str, Any]] = []
     offset = 0
@@ -138,21 +136,26 @@ def inventory_resource(
         offset += len(page)
 
     frame = pd.DataFrame(records).fillna("")
+    # ADEPT resources share the trait schema but not every provenance column.
+    # BHL exposes ``source_id``/``bhl`` page identifiers, while the eFlora
+    # resources expose only their stable WFO taxon URI and CKAN record id.
+    # Retain a uniform export schema without inventing an original page id.
+    for field in IDENTITY_FIELDS:
+        if field not in frame:
+            frame[field] = ""
     master = pd.read_csv(master_csv, dtype=str).fillna("")
     accepted = set(master["accepted_species"])
     frame["accepted_name_exact"] = frame["taxon"].isin(accepted)
     frame["has_target_trait"] = frame.reindex(columns=TRAIT_FIELDS).ne("").any(axis=1)
     selected = frame.loc[frame["accepted_name_exact"] & frame["has_target_trait"]].copy()
-    selected = selected.sort_values(["taxon", "source_id", "_id"], kind="stable")
+    selected = selected.sort_values(["taxon", "source", "wfo", "_id"], kind="stable")
 
     output_dir.mkdir(parents=True, exist_ok=True)
     records_path = output_dir / f"{resource_name}_exact_master_records.csv.gz"
     selected.to_csv(records_path, index=False, compression="gzip")
 
     counts = {
-        field: int(selected[field].ne("").sum())
-        for field in TRAIT_FIELDS
-        if field in selected
+        field: int(selected[field].ne("").sum()) for field in TRAIT_FIELDS if field in selected
     }
     report = {
         "contract": "nhm_adept_2026_inventory_v1",

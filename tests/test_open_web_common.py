@@ -70,11 +70,12 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     workflow = Path(".github/workflows/open-web-review-promote.yml").read_text(encoding="utf-8")
     assert "pull_request:" in workflow
     assert "BASELINE_RUN_ID:" in workflow
-    assert "'30433986432'" in workflow
+    assert "'31245813999'" in workflow
     assert "'30434418380'" in workflow
     assert "open-web-multidomain-pilot-30434418380" in workflow
-    assert "inputs.prior_public_web_run_id || '30141880859'" in workflow
-    assert "broad-web-medium-full-30141880859" in workflow
+    assert "inputs.prior_public_web_run_id || '31257281120'" in workflow
+    assert "reviewed-open-web-evidence-31257281120" in workflow
+    assert "broad_web_medium_evidence.csv.gz" in workflow
     assert "prior_public_web_run_id:" in workflow
     assert "prior_public_web_artifact_name:" in workflow
     assert "prior_public_web_file_name:" in workflow
@@ -82,6 +83,9 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "--prior-public-web-csv" in workflow
     assert "source_package_evidence_csv_path:" in workflow
     assert "source_package_audit_csv_path:" in workflow
+    assert "20260808_scale_source_acquisition/scale_source_incremental_evidence.csv.gz" in workflow
+    assert "20260808_scale_source_acquisition/scale_source_manual_audit.csv" in workflow
+    assert "scale-source-acquisition-20260808-v2" in workflow
     assert "--source-package-evidence-csv" in workflow
     assert ".source_package.novelty_rate >= 0.50" in workflow
     assert "coverage_change_species_axis.net_change" in workflow

@@ -1,0 +1,13 @@
+{
+  "reviewed_at_utc": "2026-08-08T15:48:00Z",
+  "precision_contract": "accepted_correct/all_reviewed",
+  "reviewed": 1622,
+  "accepted_correct": 1622,
+  "precision": 1.0,
+  "cultivar_contamination_rate": 0.0,
+  "providers_reviewed": 12,
+  "traits_reviewed": 9,
+  "sampling": "deterministic stratified by source_provider and trait_name; random_state=20260808; 200 records per large provider and every record for providers with <=200 records",
+  "reviewer": "Codex evidence audit 2026-08-08",
+  "scope_metrics_file": "scale_source_provider_trait_audit_precision.csv"
+}

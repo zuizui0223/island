@@ -78,14 +78,23 @@ AUDIT_COLUMNS = [
 ]
 
 COLOUR_PATTERNS = (
-    (r"\b(?:white|whitish|cream|creamy)\b", "white"),
-    (r"\b(?:yellow|yellowish|orange|orange-red)\b", "yellow_orange"),
-    (r"\b(?:red|reddish|pink|pinkish|rose|maroon|scarlet|crimson)\b", "red_pink"),
+    (r"\b(?:white|whitish|cream|creamy|ivory)\b", "white"),
     (
-        r"\b(?:blue|bluish|purple|purplish|violet|lilac|mauve|lavender)\b",
+        r"\b(?:yellow|yellowish|orange|orangish|orange-red|red-orange|gold|golden|stramineous|straw|ochre)\b",
+        "yellow_orange",
+    ),
+    (
+        r"\b(?:red|reddish|pink|pinkish|rose|roseate|maroon|scarlet|crimson|magenta|fuchsia|peach|cherry|coral)\b",
+        "red_pink",
+    ),
+    (
+        r"\b(?:blue|bluish|azure|purple|purplish|violet|violaceous|lilac|mauve|mauvish|lavender|plum)\b",
         "blue_purple",
     ),
-    (r"\b(?:green|greenish|brown|brownish|inconspicuous)\b", "green_brown_inconspicuous"),
+    (
+        r"\b(?:green|greenish|brown|brownish|grey|gray|greyish|grayish|beige|fuscous|ferruginous|ferrugineous|inconspicuous)\b",
+        "green_brown_inconspicuous",
+    ),
     (r"\bblack(?:ish)?\b", "other_described"),
 )
 FORM_PATTERNS = (
@@ -105,15 +114,13 @@ INFLORESCENCE_PATTERNS = (
     (r"\bfew[- ]flower", "few_flowered"),
     (r"\braceme\b|\bspike\b|\bpanicle\b|\bthyrse\b", "raceme_spike_panicle"),
     (r"\bumbel\b|\bcorymb\b|\bcyme\b|\bcincinnus\b", "umbel_corymb"),
-    (r"\bhead\b|\bcapitulum\b", "composite_display"),
+    (r"\bheads?\b|\bcapitul(?:um|a)\b", "composite_display"),
     (r"\bbrush\b|\bpuff\b", "brush_puff_display"),
 )
 
 
 def _states(value: str, patterns: tuple[tuple[str, str], ...]) -> str:
-    states = {
-        state for pattern, state in patterns if re.search(pattern, value, re.IGNORECASE)
-    }
+    states = {state for pattern, state in patterns if re.search(pattern, value, re.IGNORECASE)}
     return "|".join(sorted(states))
 
 
