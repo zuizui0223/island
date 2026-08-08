@@ -28,9 +28,8 @@ from island_v2.open_web_evidence import (
     canonical_url,
     load_yaml,
 )
-from island_v2.open_web_network_pilot import _load_baseline, _now
+from island_v2.open_web_network_pilot import _load_baseline, _now, audit_sample
 from island_v2.open_web_network_structured_pilot import _fetch_all_strict_traits
-from island_v2.open_web_network_pilot import audit_sample
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
@@ -48,9 +47,15 @@ def discover_species_urls(
     *,
     fetcher: PageFetcher,
     max_species_pages: int,
+    completed_species_urls: set[str] | None = None,
 ) -> tuple[list[str], list[dict[str, object]]]:
     """Discover species-page URLs without fetching each treatment twice."""
 
+    completed = {
+        canonical_url(url)
+        for url in (completed_species_urls or set())
+        if canonical_url(url)
+    }
     pending = deque((canonical_url(url), 0) for url in record.inventory_urls)
     seen_indexes: set[str] = set()
     species_urls: list[str] = []
@@ -85,6 +90,8 @@ def discover_species_urls(
             if re.search(record.page_pattern, child):
                 if child not in species_seen:
                     species_seen.add(child)
+                    if child in completed:
+                        continue
                     species_urls.append(child)
                     if len(species_urls) >= max_species_pages:
                         break
@@ -105,6 +112,7 @@ def run_inventory(
     max_species_pages: int,
     inventory_pause_seconds: float,
     page_pause_seconds: float,
+    completed_species_pages_csv: Path | None = None,
 ) -> dict[str, Any]:
     coverage, evidence = _load_baseline(baseline_dir)
     master = pd.read_csv(master_csv, dtype=str).fillna("")
@@ -123,10 +131,23 @@ def run_inventory(
         raise ValueError(f"domain has no inventory URL: {domain}")
 
     inventory_fetcher = PageFetcher(pause_seconds=inventory_pause_seconds)
+    completed_species_urls: set[str] = set()
+    if completed_species_pages_csv is not None:
+        completed_pages = pd.read_csv(
+            completed_species_pages_csv,
+            usecols=["source_url"],
+            dtype=str,
+        ).fillna("")
+        completed_species_urls = {
+            canonical_url(url)
+            for url in completed_pages["source_url"]
+            if canonical_url(url)
+        }
     species_urls, inventory_audit = discover_species_urls(
         record,
         fetcher=inventory_fetcher,
         max_species_pages=max_species_pages,
+        completed_species_urls=completed_species_urls,
     )
     leads = [
         {
@@ -193,6 +214,12 @@ def run_inventory(
         "inventory_index_pages_fetched": len(inventory_audit),
         "species_pages_discovered": len(species_urls),
         "species_pages_attempted": len(page_audit),
+        "completed_species_pages_excluded": len(completed_species_urls),
+        "completed_species_pages_csv": (
+            str(completed_species_pages_csv)
+            if completed_species_pages_csv is not None
+            else ""
+        ),
         "identity_passed_pages": sum(
             row.get("page_status") == "identity_passed" for row in page_audit
         ),
@@ -255,6 +282,12 @@ def main(
     max_species_pages: int = typer.Option(250, min=1, max=5000),
     inventory_pause_seconds: float = typer.Option(0.5, min=0.1, max=10),
     page_pause_seconds: float = typer.Option(0.35, min=0.1, max=10),
+    completed_species_pages_csv: Path | None = typer.Option(
+        None,
+        exists=True,
+        dir_okay=False,
+        help="Prior discovered_species_pages.csv; listed URLs are never fetched again.",
+    ),
 ) -> None:
     run_inventory(
         baseline_dir=baseline_dir,
@@ -266,6 +299,7 @@ def main(
         max_species_pages=max_species_pages,
         inventory_pause_seconds=inventory_pause_seconds,
         page_pause_seconds=page_pause_seconds,
+        completed_species_pages_csv=completed_species_pages_csv,
     )
 
 

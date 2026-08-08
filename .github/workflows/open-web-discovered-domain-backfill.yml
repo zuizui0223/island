@@ -24,7 +24,15 @@ on:
       max_species_pages:
         description: Hard cap on species treatments in this backfill shard
         required: true
-        default: "500"
+        default: "1000"
+      completed_run_id:
+        description: Prior successful inventory Run whose species-page URLs must be skipped
+        required: true
+        default: "31189690305"
+      completed_artifact_name:
+        description: Exact prior inventory artifact containing discovered_species_pages.csv
+        required: true
+        default: "open-web-domain-backfill-31189690305"
 
 permissions:
   actions: read
@@ -81,7 +89,11 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       BASELINE_RUN_ID: ${{ inputs.baseline_run_id || '30107066525' }}
       DOMAIN: ${{ inputs.domain || 'gobotany.nativeplanttrust.org' }}
-      MAX_SPECIES_PAGES: ${{ inputs.max_species_pages || '250' }}
+      MAX_SPECIES_PAGES: ${{ inputs.max_species_pages || '1000' }}
+      COMPLETED_RUN_ID: ${{ inputs.completed_run_id || '31189690305' }}
+      COMPLETED_ARTIFACT_NAME: >-
+        ${{ inputs.completed_artifact_name ||
+        'open-web-domain-backfill-31189690305' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -91,7 +103,9 @@ jobs:
       - run: pip install -e .
       - name: Download the formal integrated baseline
         run: |
-          mkdir -p /tmp/open-web-inventory-baseline
+          mkdir -p \
+            /tmp/open-web-inventory-baseline \
+            /tmp/open-web-inventory-completed
           gh run download "$BASELINE_RUN_ID" \
             --repo "${{ github.repository }}" \
             --name "integrated-trait-coverage-$BASELINE_RUN_ID" \
@@ -99,6 +113,14 @@ jobs:
           test -f /tmp/open-web-inventory-baseline/integrated_trait_coverage_summary.json
           test -f /tmp/open-web-inventory-baseline/integrated_species_axis_coverage.csv.gz
           test -f /tmp/open-web-inventory-baseline/integrated_evidence_lineage.csv.gz
+      - name: Download the prior completed species-page ledger
+        run: |
+          gh run download "$COMPLETED_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "$COMPLETED_ARTIFACT_NAME" \
+            --dir /tmp/open-web-inventory-completed
+          test -f \
+            /tmp/open-web-inventory-completed/discovered_species_pages.csv
       - name: Discover and extract the approved site inventory
         run: |
           mkdir -p outputs/open_web_inventory_backfill
@@ -108,17 +130,22 @@ jobs:
             --output-dir outputs/open_web_inventory_backfill \
             --domain "$DOMAIN" \
             --max-species-pages "$MAX_SPECIES_PAGES" \
+            --completed-species-pages-csv \
+              /tmp/open-web-inventory-completed/discovered_species_pages.csv \
             --inventory-pause-seconds 0.5 \
             --page-pause-seconds 0.35
           cat outputs/open_web_inventory_backfill/inventory_pilot_report.json >> "$GITHUB_STEP_SUMMARY"
       - name: Assert review-only output
         run: |
-          jq -e '
+          jq --argjson max_species_pages "$MAX_SPECIES_PAGES" -e '
             .accepted_evidence_rows == 0
             and .manual_review_required == true
             and .automatic_promotion == false
             and .family_inference == false
             and .global_fallback == false
+            and .completed_species_pages_excluded > 0
+            and .species_pages_attempted > 0
+            and .species_pages_attempted <= $max_species_pages
             and (.contract_eligible_novel_rows >= 0)
           ' outputs/open_web_inventory_backfill/inventory_pilot_report.json
       - uses: actions/upload-artifact@v4

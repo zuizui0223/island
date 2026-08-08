@@ -25,6 +25,7 @@ def run_strict(
     max_species_pages: int,
     inventory_pause_seconds: float,
     page_pause_seconds: float,
+    completed_species_pages_csv: Path | None = None,
 ) -> dict[str, object]:
     report = run_inventory(
         baseline_dir=baseline_dir,
@@ -36,6 +37,7 @@ def run_strict(
         max_species_pages=max_species_pages,
         inventory_pause_seconds=inventory_pause_seconds,
         page_pause_seconds=page_pause_seconds,
+        completed_species_pages_csv=completed_species_pages_csv,
     )
     all_candidates = pd.read_csv(
         output_dir / "all_inventory_candidates.csv", dtype=str
@@ -112,6 +114,12 @@ def main(
     max_species_pages: int = typer.Option(250, min=1, max=5000),
     inventory_pause_seconds: float = typer.Option(0.5, min=0.1, max=10),
     page_pause_seconds: float = typer.Option(0.35, min=0.1, max=10),
+    completed_species_pages_csv: Path | None = typer.Option(
+        None,
+        exists=True,
+        dir_okay=False,
+        help="Prior discovered_species_pages.csv; listed URLs are never fetched again.",
+    ),
 ) -> None:
     run_strict(
         baseline_dir=baseline_dir,
@@ -123,6 +131,7 @@ def main(
         max_species_pages=max_species_pages,
         inventory_pause_seconds=inventory_pause_seconds,
         page_pause_seconds=page_pause_seconds,
+        completed_species_pages_csv=completed_species_pages_csv,
     )
 
 
