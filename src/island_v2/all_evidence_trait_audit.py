@@ -51,6 +51,7 @@ BULK_AND_PUBLIC_GROUPS = {
     "gift",
     "meyer_2026",
     "ferrer_2024_si",
+    "pladias",
     "promoted_public_web",
     "razanajatovo_2016",
     "usda_plants",

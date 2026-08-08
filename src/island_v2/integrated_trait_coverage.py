@@ -65,6 +65,7 @@ GENERIC_BULK_SOURCES = {
     "gift_v3_2_direct": "gift",
     "meyer_galloway_eckert_2026_dryad": "meyer_2026",
     "ferrer_2024_si_database": "ferrer_2024_si",
+    "pladias_czech_flora_2025": "pladias",
     "razanajatovo_etal_2016_nature_communications": "razanajatovo_2016",
     "usda_plants_current": "usda_plants",
 }
@@ -80,6 +81,7 @@ BULK_ORDER = (
     "usda_plants",
     "meyer_2026",
     "ferrer_2024_si",
+    "pladias",
     "razanajatovo_2016",
     "promoted_public_web",
 )

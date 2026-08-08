@@ -25,6 +25,7 @@ dependencies = [
   "shapely>=2.0.0",
   "truststore>=0.10.0",
   "typer>=0.12.0",
+  "xlrd>=2.0.1",
 ]
 
 [project.optional-dependencies]
@@ -104,6 +105,7 @@ island-v2-trait-candidate-logic = "island_v2.trait_candidate_logic:app"
 island-v2-bulk-traits = "island_v2.bulk_trait_ingest:app"
 island-v2-meyer-reproductive-traits = "island_v2.meyer_2026_reproductive_traits:app"
 island-v2-ferrer-si-traits = "island_v2.ferrer_2024_si_traits:app"
+island-v2-pladias-traits = "island_v2.pladias_traits:app"
 island-v2-razanajatovo-reproductive-traits = "island_v2.razanajatovo_2016_reproductive_traits:app"
 island-v2-si-genus-inference = "island_v2.si_genus_inference:app"
 island-v2-interaction-evidence = "island_v2.interaction_evidence:app"

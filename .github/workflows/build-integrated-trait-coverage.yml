@@ -8,11 +8,14 @@ on:
       - "config/trait_ontology.yml"
       - "src/island_v2/integrated_trait_coverage.py"
       - "src/island_v2/all_evidence_trait_audit.py"
+      - "src/island_v2/pladias_traits.py"
+      - "config/pladias_traits.yml"
       - "src/island_v2/open_web_common.py"
       - "src/island_v2/open_web_finalize.py"
       - "src/island_v2/validated_low_inference.py"
       - "tests/test_integrated_trait_coverage.py"
       - "tests/test_all_evidence_trait_audit.py"
+      - "tests/test_pladias_traits.py"
       - "tests/test_validated_low_inference.py"
       - "pyproject.toml"
   workflow_dispatch:
@@ -57,9 +60,11 @@ jobs:
           ruff check \
             src/island_v2/all_evidence_trait_audit.py \
             src/island_v2/integrated_trait_coverage.py \
+            src/island_v2/pladias_traits.py \
             src/island_v2/validated_low_inference.py \
             tests/test_all_evidence_trait_audit.py \
             tests/test_integrated_trait_coverage.py \
+            tests/test_pladias_traits.py \
             tests/test_validated_low_inference.py
           pytest -q \
             tests/test_all_evidence_trait_audit.py \

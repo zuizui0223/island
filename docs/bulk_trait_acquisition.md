@@ -308,3 +308,35 @@ then rebuilds trait-specific Validated Low from all direct evidence. The
 integrated workflow accepts an explicit all-master Run ID and artifact name, so
 a formal coverage run can be pinned to the exact source-package build that it
 consumed.
+
+## Pladias Czech-flora source package
+
+`island-v2-pladias-traits` downloads the hash-pinned official Pladias taxon
+list, intersects exact species names with the island master, and fetches each
+matched species page once. Page-level evidence records are cached and retained
+with exact page identity, family breadcrumb, URL, retrieval time, content hash,
+feature-specific quotation and Pladias feature citation. A rerun reuses every
+completed page record instead of searching the species again.
+
+The package emits only species-direct High candidates from the institutional
+database. It preserves multistate flower colours, maps flower symmetry and
+supported inflorescence terminology trait-by-trait, and keeps
+self-incompatibility separate from mating system. Pollination syndrome is not
+used as floral structure, and neither pollen-vector nor reward evidence is
+projected onto the strict three axes. Apomixis and sterility are retained only
+in the raw page record because the current ontology does not justify treating
+them as reproductive assurance.
+
+Every build also writes a fixed-seed, trait-stratified 200-species extraction
+audit. It replays the exact-name identity gate, controlled-value mapping,
+supporting quotation, content hash and cultivar exclusion, and reports
+`accepted_correct / reviewed` plus cultivar contamination. This is an
+extraction-contract audit, not an independent biological re-measurement of the
+curated Pladias values; that distinction is recorded in the audit manifest.
+
+Pladias requires database and original-source citation for scientific reuse;
+the adapter records those citations and does not assert a Creative Commons
+license. The all-master workflow materializes the package under
+`data/v2/staging/traits/bulk/pladias_czech_flora/`, after which the common
+integrator performs source-lineage deduplication, direct conflict handling and
+the trait-specific all-evidence Validated Low rebuild.

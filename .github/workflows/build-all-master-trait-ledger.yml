@@ -81,6 +81,9 @@ on:
       - "src/island_v2/ferrer_2024_si_traits.py"
       - "config/ferrer_2024_si_traits.yml"
       - "tests/test_ferrer_2024_si_traits.py"
+      - "src/island_v2/pladias_traits.py"
+      - "config/pladias_traits.yml"
+      - "tests/test_pladias_traits.py"
       - "tests/test_razanajatovo_2016_reproductive_traits.py"
       - "tests/test_si_genus_inference.py"
       - "tests/test_search_enabled_llm_campaign.py"
@@ -139,6 +142,7 @@ jobs:
             tests/test_all_species_trait_export.py \
             tests/test_meyer_2026_reproductive_traits.py \
             tests/test_ferrer_2024_si_traits.py \
+            tests/test_pladias_traits.py \
             tests/test_razanajatovo_2016_reproductive_traits.py \
             tests/test_si_genus_inference.py \
             tests/test_search_enabled_llm_campaign.py \
@@ -185,6 +189,25 @@ jobs:
             --scope-config-path config/angiosperm_scope.yml \
             --meyer-candidates-csv \
               data/v2/staging/traits/bulk/meyer_2026_reproductive_traits/trait_candidates.csv.gz
+      - name: Restore exact Pladias page-evidence cache
+        uses: actions/cache@v4
+        with:
+          path: data/v2/staging/traits/bulk/pladias_czech_flora/page_cache
+          key: pladias-pages-v1-d1a9214e10f4aec6a81ac848ae22c4c28206b523f9b0b2b0b828ec0a1f319a74
+      - name: Acquire exact Pladias source package
+        run: |
+          set -euo pipefail
+          island-v2-pladias-traits download \
+            --output-xls /tmp/pladias/taxonList_legend_2025_12_15.xls \
+            --config-path config/pladias_traits.yml
+          island-v2-pladias-traits prepare \
+            --taxon-list-xls /tmp/pladias/taxonList_legend_2025_12_15.xls \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --output-dir data/v2/staging/traits/bulk/pladias_czech_flora \
+            --cache-dir data/v2/staging/traits/bulk/pladias_czech_flora/page_cache \
+            --config-path config/pladias_traits.yml \
+            --workers 6 \
+            --retries 2
       - name: Resolve newest successful non-expired bulk and flora artifacts
         run: |
           set -euo pipefail
@@ -374,6 +397,7 @@ jobs:
             --candidate-csv data/v2/staging/traits/bulk/austraits_all/trait_candidates.csv.gz
             --candidate-csv data/v2/staging/traits/bulk/meyer_2026_reproductive_traits/trait_candidates.csv.gz
             --candidate-csv data/v2/staging/traits/bulk/ferrer_2024_si_traits/trait_candidates.csv.gz
+            --candidate-csv data/v2/staging/traits/bulk/pladias_czech_flora/trait_candidates.csv.gz
             --candidate-csv data/v2/staging/traits/bulk/razanajatovo_2016_reproductive_traits/trait_candidates.csv.gz
             --candidate-csv data/v2/staging/traits/inference/si_genus_v1/genus_inference_candidates.csv.gz
             --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz
@@ -527,6 +551,7 @@ jobs:
             data/v2/staging/traits/bulk/austraits_all/trait_candidates.csv.gz
             data/v2/staging/traits/bulk/meyer_2026_reproductive_traits/
             data/v2/staging/traits/bulk/ferrer_2024_si_traits/
+            data/v2/staging/traits/bulk/pladias_czech_flora/
             data/v2/staging/traits/bulk/razanajatovo_2016_reproductive_traits/
             data/v2/staging/traits/inference/si_genus_v1/
             data/v2/staging/traits/bulk/gift_v3_2/trait_candidates.csv
