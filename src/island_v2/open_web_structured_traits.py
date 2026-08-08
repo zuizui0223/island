@@ -174,6 +174,8 @@ def _inflorescence(value: str) -> str:
 
 
 def _size(value: str) -> str:
+    if re.search(r"<\s*\d", value):
+        return ""
     inch = re.search(
         r"(?P<low>\d+(?:\.\d+)?)\s*(?:[-–—]\s*(?P<high>\d+(?:\.\d+)?))?\s*"
         r"(?:inches|inch|in\.)\b",

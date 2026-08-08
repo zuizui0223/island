@@ -89,3 +89,8 @@ def test_extracts_colon_delimited_university_profile_fields() -> None:
     assert extract_structured_characteristics(
         page, trait_name="flower_size_class"
     )[0][1] == "large"
+
+
+def test_rejects_ambiguous_upper_bound_flower_size() -> None:
+    page = _page("Flower Size:\n< 1 inch\nFlower Description:\nSmall flowers")
+    assert extract_structured_characteristics(page, trait_name="flower_size_class") == []
