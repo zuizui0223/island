@@ -13,7 +13,10 @@ from island_v2.open_web_evidence import (
     identity_gate,
     source_lineage,
 )
-from island_v2.open_web_structured_traits import extract_structured_characteristics
+from island_v2.open_web_structured_traits import (
+    extract_botanical_description,
+    extract_structured_characteristics,
+)
 
 _RULE_EXTRACTOR = network.extract_rules
 _QUEUE_BUILDER = network.build_priority_queue
@@ -33,6 +36,13 @@ def _combined_extract_rules(
     structured_rows = extract_structured_characteristics(page, trait_name=trait_name)
     if structured_rows:
         return structured_rows
+    narrative_rows = extract_botanical_description(
+        page,
+        trait_name=trait_name,
+        treatment_end_pattern=treatment_end_pattern,
+    )
+    if narrative_rows:
+        return narrative_rows
     return _RULE_EXTRACTOR(
         page,
         trait_name=trait_name,

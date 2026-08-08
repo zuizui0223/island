@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import re
 
-from island_v2.open_web_evidence import Page
+from island_v2.open_web_evidence import Page, primary_treatment_text
 
 COLOUR_MAP: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\b(?:white|cream)\b|白", re.IGNORECASE), "white"),
@@ -58,6 +58,34 @@ LABELS: dict[str, tuple[re.Pattern[str], ...]] = {
 MEASUREMENT = re.compile(
     r"(?P<low>\d+(?:\.\d+)?)\s*(?:[-–—~〜～]\s*(?P<high>\d+(?:\.\d+)?))?\s*"
     r"(?P<unit>mm|㎜|cm|㎝)",
+    re.IGNORECASE,
+)
+
+NARRATIVE_FRAGMENT_SPLIT = re.compile(
+    r"(?<=[;!?])\s+|(?<=[a-z\]\)])\.\s+(?=[A-Z])|\n+"
+)
+PRIMARY_FLORAL_ORGAN = re.compile(
+    r"\b(?:flowers?|corollas?|petals?|tepals?|perianths?)\b", re.IGNORECASE
+)
+NON_PRIMARY_FLORAL_ORGAN = re.compile(
+    r"\b(?:caly(?:x|ces)|sepals?|bracts?|anthers?|stamens?|styles?|stigmas?|"
+    r"ovaries|ovary)\b",
+    re.IGNORECASE,
+)
+FLOWER_SIZE_BRIDGE_BLOCKER = re.compile(
+    r"\b(?:inflorescences?|racemes?|spikes?|panicles?|umbels?|corymbs?|"
+    r"capitula|heads?|peduncles?|pedicels?|caly(?:x|ces)|sepals?|bracts?|lobes?)\b",
+    re.IGNORECASE,
+)
+INFLORESCENCE_SUBJECT = re.compile(
+    r"\binflorescences?\b|\bflowers?\b.{0,100}"
+    r"\b(?:solitary|few[- ]flowered|raceme|spike|panicle|umbel|corymb|"
+    r"capitulum|flower head)\b",
+    re.IGNORECASE,
+)
+TUBE_SUBJECT = re.compile(r"\b(?:corolla\s+|floral\s+)?tube\b", re.IGNORECASE)
+DESCRIPTION_END = re.compile(
+    r"\n(?:Flowering|Distribution(?: and occurrence)?|Habitat|Phenology|Notes?)\s*:",
     re.IGNORECASE,
 )
 
@@ -255,6 +283,104 @@ def _cleistogamy(value: str) -> str:
     if absent:
         return "absent"
     return ""
+
+
+def _narrative_fragments(
+    page: Page, *, treatment_end_pattern: str = ""
+) -> list[str]:
+    text = primary_treatment_text(
+        page,
+        treatment_end_pattern=treatment_end_pattern,
+    )
+    description = re.search(r"(?:^|\n)Description\s*:\s*", text, re.IGNORECASE)
+    if description:
+        text = text[description.end() :]
+    end = DESCRIPTION_END.search(text)
+    if end:
+        text = text[: end.start()]
+    return [
+        _text(fragment)
+        for fragment in NARRATIVE_FRAGMENT_SPLIT.split(text)
+        if len(_text(fragment)) >= 8
+    ]
+
+
+def _tube_depth(value: str) -> str:
+    subject = TUBE_SUBJECT.search(value)
+    if not subject:
+        return ""
+    match = MEASUREMENT.search(value, subject.end())
+    if not match or match.start() - subject.end() > 100:
+        return ""
+    low = float(match.group("low"))
+    high = float(match.group("high") or match.group("low"))
+    midpoint = (low + high) / 2
+    if match.group("unit").casefold() in {"cm", "㎝"}:
+        midpoint *= 10
+    return "shallow" if midpoint <= 5 else "intermediate" if midpoint <= 20 else "deep"
+
+
+def _primary_organ_subject(fragment: str) -> re.Match[str] | None:
+    subject = PRIMARY_FLORAL_ORGAN.search(fragment)
+    if subject and not NON_PRIMARY_FLORAL_ORGAN.search(fragment[: subject.start()]):
+        return subject
+    return None
+
+
+def extract_botanical_description(
+    page: Page,
+    *,
+    trait_name: str,
+    treatment_end_pattern: str = "",
+) -> list[tuple[str, str, str]]:
+    """Extract organ-scoped traits from narrative flora descriptions.
+
+    Botanical abbreviations such as ``c.`` must not split the organ from its
+    measurement or colour.  Every returned value therefore comes from one
+    verbatim description fragment with an explicit floral subject.
+    """
+
+    rows: list[tuple[str, str, str]] = []
+    for fragment in _narrative_fragments(
+        page, treatment_end_pattern=treatment_end_pattern
+    ):
+        normalized = ""
+        raw_value = fragment
+        if trait_name == "flower_primary_color":
+            if _primary_organ_subject(fragment) and not NON_PRIMARY_FLORAL_ORGAN.search(
+                fragment
+            ):
+                normalized = _colour(fragment)
+        elif trait_name == "floral_form":
+            if _primary_organ_subject(fragment):
+                normalized = _form(fragment)
+        elif trait_name == "floral_symmetry":
+            if _primary_organ_subject(fragment):
+                normalized = _symmetry(fragment)
+        elif trait_name == "flower_size_class":
+            subject = _primary_organ_subject(fragment)
+            if subject:
+                measurement = MEASUREMENT.search(fragment, subject.end())
+                bridge = fragment[subject.end() : measurement.start()] if measurement else ""
+                if (
+                    measurement
+                    and measurement.start() - subject.end() <= 120
+                    and not FLOWER_SIZE_BRIDGE_BLOCKER.search(bridge)
+                ):
+                    normalized = _size(fragment[subject.start() :])
+                    raw_value = measurement.group(0)
+        elif trait_name == "tube_depth_class":
+            normalized = _tube_depth(fragment)
+        elif trait_name == "inflorescence_display":
+            if INFLORESCENCE_SUBJECT.search(fragment):
+                normalized = _inflorescence(fragment)
+        elif trait_name == "cleistogamy" and re.search(
+            r"\bcleistogam", fragment, re.IGNORECASE
+        ):
+            normalized = _cleistogamy(fragment)
+        if normalized and normalized != "other_described":
+            rows.append((raw_value, normalized, fragment))
+    return list(dict.fromkeys(rows))
 
 
 def extract_structured_characteristics(

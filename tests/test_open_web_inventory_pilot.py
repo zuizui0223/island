@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from island_v2.open_web_evidence import DomainRecord, Page
 from island_v2.open_web_inventory_pilot import (
+    _accepted_species_from_url,
     _species_keys_from_url,
     discover_species_urls,
 )
@@ -13,6 +14,23 @@ def test_species_key_supports_query_encoded_flora_treatments() -> None:
         "page=nswfl&lvl=sp&name=Acanthus~mollis"
     )
     assert _species_keys_from_url(url) == {"acanthus mollis"}
+
+
+def test_inventory_url_passes_exact_accepted_species_to_identity_gate() -> None:
+    url = (
+        "https://plantnet.rbgsyd.nsw.gov.au/cgi-bin/NSWfl.pl?"
+        "page=nswfl&lvl=sp&name=Acanthus~mollis"
+    )
+    assert (
+        _accepted_species_from_url(
+            url,
+            {
+                "acanthus mollis": "Acanthus mollis",
+                "acanthus spinosus": "Acanthus spinosus",
+            },
+        )
+        == "Acanthus mollis"
+    )
 
 
 class FakeFetcher:

@@ -35,6 +35,32 @@ app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 CONTRACT = "open_web_discovered_domain_inventory_v1"
 
+INVENTORY_CANDIDATE_COLUMNS = [
+    "candidate_id",
+    "accepted_species",
+    "trait_name",
+    "axis",
+    "raw_value",
+    "normalized_value",
+    "source_url",
+    "page_title",
+    "domain",
+    "language",
+    "supporting_excerpt",
+    "source_lineage",
+    "lineage_method",
+    "name_match_method",
+    "matched_page_name",
+    "source_tier",
+    "source_type",
+    "domain_review_status",
+    "evidence_status",
+    "content_sha256",
+    "retrieved_at_utc",
+    "query",
+    "search_rank",
+]
+
 
 def _text(value: object) -> str:
     if value is None or pd.isna(value):
@@ -74,6 +100,19 @@ def _species_keys_from_url(url: str) -> set[str]:
     if " " not in genus and " " not in epithet:
         keys.add(f"{genus} {epithet}".casefold())
     return keys
+
+
+def _accepted_species_from_url(
+    url: str, accepted_species_by_key: dict[str, str]
+) -> str:
+    """Resolve one exact accepted binomial encoded in an inventory URL."""
+
+    matches = {
+        accepted_species_by_key[key]
+        for key in _species_keys_from_url(url)
+        if key in accepted_species_by_key
+    }
+    return next(iter(matches)) if len(matches) == 1 else ""
 
 
 def discover_species_urls(
@@ -208,9 +247,16 @@ def run_inventory(
         completed_species_urls=completed_species_urls,
         target_species_names=target_species_names,
     )
+    accepted_species_by_key = {
+        _text(name).casefold(): _text(name)
+        for name in master["accepted_species"]
+        if _text(name)
+    }
     leads = [
         {
-            "accepted_species": "",
+            "accepted_species": _accepted_species_from_url(
+                url, accepted_species_by_key
+            ),
             "trait_name": "",
             "query": f"inventory:{domain}",
             "provider": "approved_discovered_domain_inventory",
@@ -231,7 +277,7 @@ def run_inventory(
         page_pause_seconds=page_pause_seconds,
     )
 
-    candidate_frame = pd.DataFrame(candidates)
+    candidate_frame = pd.DataFrame(candidates, columns=INVENTORY_CANDIDATE_COLUMNS)
     baseline_direct = evidence.loc[evidence["quality"].isin({"high", "medium"})]
     baseline_pairs = set(
         zip(baseline_direct["accepted_species"], baseline_direct["trait_name"])
@@ -272,6 +318,9 @@ def run_inventory(
         "inventory_index_pages_fetched": len(inventory_audit),
         "species_pages_discovered": len(species_urls),
         "species_pages_attempted": len(page_audit),
+        "species_urls_exact_name_mapped": sum(
+            bool(lead["accepted_species"]) for lead in leads
+        ),
         "completed_species_pages_excluded": len(completed_species_urls),
         "completed_species_pages_csv": (
             str(completed_species_pages_csv)

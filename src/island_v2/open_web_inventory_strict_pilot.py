@@ -8,7 +8,10 @@ from pathlib import Path
 import pandas as pd
 import typer
 
-from island_v2.open_web_inventory_pilot import run_inventory
+from island_v2.open_web_inventory_pilot import (
+    INVENTORY_CANDIDATE_COLUMNS,
+    run_inventory,
+)
 from island_v2.open_web_network_pilot import audit_sample
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
@@ -41,9 +44,12 @@ def run_strict(
         completed_species_pages_csv=completed_species_pages_csv,
         target_coverage_csv=target_coverage_csv,
     )
-    all_candidates = pd.read_csv(
-        output_dir / "all_inventory_candidates.csv", dtype=str
-    ).fillna("")
+    try:
+        all_candidates = pd.read_csv(
+            output_dir / "all_inventory_candidates.csv", dtype=str
+        ).fillna("")
+    except pd.errors.EmptyDataError:
+        all_candidates = pd.DataFrame(columns=INVENTORY_CANDIDATE_COLUMNS)
     if all_candidates.empty:
         contract = all_candidates.copy()
         discovery_only = all_candidates.copy()

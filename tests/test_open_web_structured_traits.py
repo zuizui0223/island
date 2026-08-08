@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from island_v2.open_web_evidence import Page
-from island_v2.open_web_structured_traits import extract_structured_characteristics
+from island_v2.open_web_structured_traits import (
+    extract_botanical_description,
+    extract_structured_characteristics,
+)
 
 
 def _page(text: str) -> Page:
@@ -94,3 +97,62 @@ def test_extracts_colon_delimited_university_profile_fields() -> None:
 def test_rejects_ambiguous_upper_bound_flower_size() -> None:
     page = _page("Flower Size:\n< 1 inch\nFlower Description:\nSmall flowers")
     assert extract_structured_characteristics(page, trait_name="flower_size_class") == []
+
+
+def test_extracts_organ_scoped_plantnet_narrative_without_calyx_colour() -> None:
+    page = _page(
+        "Description:\n"
+        "Inflorescence an erect spike arising from a basal leaf rosette. "
+        "Calyx c. 4 cm long, purple. "
+        "Corolla c. 4–4.5 cm long, white; tube thickened distally.\n"
+        "Distribution and occurrence:\nCultivated and naturalised."
+    )
+    assert extract_botanical_description(
+        page,
+        trait_name="flower_primary_color",
+        treatment_end_pattern="Text by",
+    ) == [
+        (
+            "Corolla c. 4–4.5 cm long, white;",
+            "white",
+            "Corolla c. 4–4.5 cm long, white;",
+        )
+    ]
+    assert extract_botanical_description(
+        page, trait_name="flower_size_class"
+    )[0][:2] == ("4–4.5 cm", "large")
+    assert extract_botanical_description(
+        page, trait_name="inflorescence_display"
+    )[0][1] == "raceme_spike_panicle"
+
+
+def test_narrative_tube_depth_requires_explicit_tube_measurement() -> None:
+    overall = _page("Description:\nCorolla c. 4 cm long, white; tube thickened distally.")
+    explicit = _page("Description:\nCorolla tube 18–22 mm long, white.")
+    assert extract_botanical_description(overall, trait_name="tube_depth_class") == []
+    assert (
+        extract_botanical_description(explicit, trait_name="tube_depth_class")[0][1]
+        == "intermediate"
+    )
+
+
+def test_narrative_size_rejects_calyx_and_inflorescence_measurements() -> None:
+    page = _page(
+        "Description:\n"
+        "Calyx lobes form the upper lip of corolla, c. 4 cm long. "
+        "Flowers borne in racemes to 10 cm long; "
+        "corolla tubular-campanulate, 3–4 cm long."
+    )
+    assert extract_botanical_description(page, trait_name="flower_size_class") == [
+        ("3–4 cm", "large", "corolla tubular-campanulate, 3–4 cm long.")
+    ]
+
+
+def test_narrative_colour_rejects_calyx_colour_near_corolla_reference() -> None:
+    page = _page(
+        "Description:\n"
+        "Calyx lobes form the upper lip of corolla, purple. Corolla white."
+    )
+    assert extract_botanical_description(
+        page, trait_name="flower_primary_color"
+    ) == [("Corolla white.", "white", "Corolla white.")]
