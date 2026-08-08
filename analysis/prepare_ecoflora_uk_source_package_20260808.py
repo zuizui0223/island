@@ -155,6 +155,7 @@ def _record(
 def build(
     source_csv: Path,
     master_csv: Path,
+    current_coverage_csv: Path,
     current_lineages_csv: Path,
     output_dir: Path,
 ) -> dict[str, object]:
@@ -168,7 +169,20 @@ def build(
     )
     master = pd.read_csv(master_csv, dtype=str).fillna("")
     master_names = set(master["accepted_species"])
-    source = source.loc[source["accepted_species"].isin(master_names)].copy()
+    strict_universe = set(
+        pd.read_csv(
+            current_coverage_csv,
+            usecols=["accepted_species"],
+            dtype=str,
+        )["accepted_species"]
+    )
+    if len(strict_universe) != 106_295:
+        raise ValueError(
+            f"current strict coverage has {len(strict_universe)} species, expected 106295"
+        )
+    source = source.loc[
+        source["accepted_species"].isin(master_names & strict_universe)
+    ].copy()
     source = source.loc[
         ~source["accepted_species"].str.contains(
             r"\b(?:x|×)\b|\bhybrid(?:a|us|um)?\b|cultivar|cv\.",
@@ -254,6 +268,7 @@ def build(
         "source_commit": SOURCE_COMMIT,
         "source_csv_sha256": _sha256(source_csv),
         "source_snapshot_rows": len(source),
+        "strict_universe_species": len(strict_universe),
         "full_inventory_evidence_rows": len(inventory),
         "full_inventory_species_trait": len(
             inventory.drop_duplicates(["accepted_species", "trait_name"])
@@ -282,6 +297,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-csv", type=Path, required=True)
     parser.add_argument("--master-csv", type=Path, required=True)
+    parser.add_argument("--current-coverage-csv", type=Path, required=True)
     parser.add_argument("--current-lineages-csv", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
@@ -290,6 +306,7 @@ def main() -> None:
             build(
                 args.source_csv,
                 args.master_csv,
+                args.current_coverage_csv,
                 args.current_lineages_csv,
                 args.output_dir,
             ),
