@@ -26,6 +26,7 @@ def run_strict(
     inventory_pause_seconds: float,
     page_pause_seconds: float,
     completed_species_pages_csv: Path | None = None,
+    target_coverage_csv: Path | None = None,
 ) -> dict[str, object]:
     report = run_inventory(
         baseline_dir=baseline_dir,
@@ -38,6 +39,7 @@ def run_strict(
         inventory_pause_seconds=inventory_pause_seconds,
         page_pause_seconds=page_pause_seconds,
         completed_species_pages_csv=completed_species_pages_csv,
+        target_coverage_csv=target_coverage_csv,
     )
     all_candidates = pd.read_csv(
         output_dir / "all_inventory_candidates.csv", dtype=str
@@ -120,6 +122,11 @@ def main(
         dir_okay=False,
         help="Prior discovered_species_pages.csv; listed URLs are never fetched again.",
     ),
+    target_coverage_csv: Path | None = typer.Option(
+        None,
+        exists=True,
+        dir_okay=False,
+    ),
 ) -> None:
     run_strict(
         baseline_dir=baseline_dir,
@@ -132,6 +139,7 @@ def main(
         inventory_pause_seconds=inventory_pause_seconds,
         page_pause_seconds=page_pause_seconds,
         completed_species_pages_csv=completed_species_pages_csv,
+        target_coverage_csv=target_coverage_csv,
     )
 
 

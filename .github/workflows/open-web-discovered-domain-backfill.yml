@@ -25,14 +25,22 @@ on:
         description: Hard cap on species treatments in this backfill shard
         required: true
         default: "1000"
-      completed_run_id:
-        description: Prior successful inventory Run whose species-page URLs must be skipped
+      target_coverage_run_id:
+        description: Latest strict coverage Run used to select unresolved species
         required: true
-        default: "31189690305"
-      completed_artifact_name:
-        description: Exact prior inventory artifact containing discovered_species_pages.csv
+        default: "31195089605"
+      target_coverage_artifact_name:
+        description: Artifact from the latest strict coverage Run
         required: true
-        default: "open-web-domain-backfill-31189690305"
+        default: "europe-pmc-support2-batch2-31195089605"
+      completed_run_ids:
+        description: Comma-separated successful inventory Runs whose page URLs must be skipped
+        required: true
+        default: "31189690305,31231041298"
+      completed_artifact_names:
+        description: Comma-separated artifacts paired with completed_run_ids
+        required: true
+        default: "open-web-domain-backfill-31189690305,open-web-domain-backfill-31231041298"
 
 permissions:
   actions: read
@@ -90,10 +98,15 @@ jobs:
       BASELINE_RUN_ID: ${{ inputs.baseline_run_id || '30107066525' }}
       DOMAIN: ${{ inputs.domain || 'gobotany.nativeplanttrust.org' }}
       MAX_SPECIES_PAGES: ${{ inputs.max_species_pages || '1000' }}
-      COMPLETED_RUN_ID: ${{ inputs.completed_run_id || '31189690305' }}
-      COMPLETED_ARTIFACT_NAME: >-
-        ${{ inputs.completed_artifact_name ||
-        'open-web-domain-backfill-31189690305' }}
+      TARGET_COVERAGE_RUN_ID: ${{ inputs.target_coverage_run_id || '31195089605' }}
+      TARGET_COVERAGE_ARTIFACT_NAME: >-
+        ${{ inputs.target_coverage_artifact_name ||
+        'europe-pmc-support2-batch2-31195089605' }}
+      COMPLETED_RUN_IDS: >-
+        ${{ inputs.completed_run_ids || '31189690305,31231041298' }}
+      COMPLETED_ARTIFACT_NAMES: >-
+        ${{ inputs.completed_artifact_names ||
+        'open-web-domain-backfill-31189690305,open-web-domain-backfill-31231041298' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -105,7 +118,8 @@ jobs:
         run: |
           mkdir -p \
             /tmp/open-web-inventory-baseline \
-            /tmp/open-web-inventory-completed
+            /tmp/open-web-inventory-completed \
+            /tmp/open-web-inventory-target
           gh run download "$BASELINE_RUN_ID" \
             --repo "${{ github.repository }}" \
             --name "integrated-trait-coverage-$BASELINE_RUN_ID" \
@@ -115,12 +129,44 @@ jobs:
           test -f /tmp/open-web-inventory-baseline/integrated_evidence_lineage.csv.gz
       - name: Download the prior completed species-page ledger
         run: |
-          gh run download "$COMPLETED_RUN_ID" \
+          IFS=',' read -r -a run_ids <<< "$COMPLETED_RUN_IDS"
+          IFS=',' read -r -a artifact_names <<< "$COMPLETED_ARTIFACT_NAMES"
+          test "${#run_ids[@]}" -eq "${#artifact_names[@]}"
+          for index in "${!run_ids[@]}"; do
+            target_dir="/tmp/open-web-inventory-completed/${run_ids[$index]}"
+            mkdir -p "$target_dir"
+            gh run download "${run_ids[$index]}" \
+              --repo "${{ github.repository }}" \
+              --name "${artifact_names[$index]}" \
+              --dir "$target_dir"
+            test -f "$target_dir/discovered_species_pages.csv"
+          done
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+
+          files = sorted(Path("/tmp/open-web-inventory-completed").glob(
+              "*/discovered_species_pages.csv"
+          ))
+          pages = pd.concat(
+              [pd.read_csv(path, usecols=["source_url"], dtype=str) for path in files],
+              ignore_index=True,
+          ).drop_duplicates("source_url")
+          pages.to_csv(
+              "/tmp/open-web-inventory-completed/discovered_species_pages.csv",
+              index=False,
+          )
+          PY
+      - name: Download the latest strict coverage target
+        run: |
+          gh run download "$TARGET_COVERAGE_RUN_ID" \
             --repo "${{ github.repository }}" \
-            --name "$COMPLETED_ARTIFACT_NAME" \
-            --dir /tmp/open-web-inventory-completed
-          test -f \
-            /tmp/open-web-inventory-completed/discovered_species_pages.csv
+            --name "$TARGET_COVERAGE_ARTIFACT_NAME" \
+            --dir /tmp/open-web-inventory-target
+          target_coverage=$(find /tmp/open-web-inventory-target \
+            -name strict_species_axis_coverage.csv.gz -print -quit)
+          test -n "$target_coverage"
+          echo "TARGET_COVERAGE_CSV=$target_coverage" >> "$GITHUB_ENV"
       - name: Discover and extract the approved site inventory
         run: |
           mkdir -p outputs/open_web_inventory_backfill
@@ -132,6 +178,7 @@ jobs:
             --max-species-pages "$MAX_SPECIES_PAGES" \
             --completed-species-pages-csv \
               /tmp/open-web-inventory-completed/discovered_species_pages.csv \
+            --target-coverage-csv "$TARGET_COVERAGE_CSV" \
             --inventory-pause-seconds 0.5 \
             --page-pause-seconds 0.35
           cat outputs/open_web_inventory_backfill/inventory_pilot_report.json >> "$GITHUB_STEP_SUMMARY"
@@ -144,6 +191,8 @@ jobs:
             and .family_inference == false
             and .global_fallback == false
             and .completed_species_pages_excluded > 0
+            and .inventory_targeting == "unresolved_species_url_key"
+            and .target_unresolved_species > 0
             and .species_pages_attempted > 0
             and .species_pages_attempted <= $max_species_pages
             and (.contract_eligible_novel_rows >= 0)

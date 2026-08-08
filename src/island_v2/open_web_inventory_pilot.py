@@ -42,12 +42,30 @@ def _text(value: object) -> str:
     return " ".join(str(value).replace("\xa0", " ").split())
 
 
+def _species_key_from_url(url: str) -> str:
+    """Return a conservative binomial key from the final two URL segments."""
+
+    parts = [
+        urllib.parse.unquote(part).replace("_", " ")
+        for part in urllib.parse.urlsplit(canonical_url(url)).path.strip("/").split("/")
+        if part
+    ]
+    if len(parts) < 2:
+        return ""
+    genus = _text(parts[-2])
+    epithet = _text(parts[-1])
+    if " " in genus or " " in epithet:
+        return ""
+    return f"{genus} {epithet}".casefold()
+
+
 def discover_species_urls(
     record: DomainRecord,
     *,
     fetcher: PageFetcher,
     max_species_pages: int,
     completed_species_urls: set[str] | None = None,
+    target_species_names: set[str] | None = None,
 ) -> tuple[list[str], list[dict[str, object]]]:
     """Discover species-page URLs without fetching each treatment twice."""
 
@@ -55,6 +73,9 @@ def discover_species_urls(
         canonical_url(url)
         for url in (completed_species_urls or set())
         if canonical_url(url)
+    }
+    targets = {
+        _text(name).casefold() for name in (target_species_names or set()) if _text(name)
     }
     pending = deque((canonical_url(url), 0) for url in record.inventory_urls)
     seen_indexes: set[str] = set()
@@ -88,6 +109,8 @@ def discover_species_urls(
             if child_host != record.domain.casefold():
                 continue
             if re.search(record.page_pattern, child):
+                if targets and _species_key_from_url(child) not in targets:
+                    continue
                 if child not in species_seen:
                     species_seen.add(child)
                     if child in completed:
@@ -113,6 +136,7 @@ def run_inventory(
     inventory_pause_seconds: float,
     page_pause_seconds: float,
     completed_species_pages_csv: Path | None = None,
+    target_coverage_csv: Path | None = None,
 ) -> dict[str, Any]:
     coverage, evidence = _load_baseline(baseline_dir)
     master = pd.read_csv(master_csv, dtype=str).fillna("")
@@ -143,11 +167,26 @@ def run_inventory(
             for url in completed_pages["source_url"]
             if canonical_url(url)
         }
+    target_species_names: set[str] = set()
+    if target_coverage_csv is not None:
+        target_coverage = pd.read_csv(
+            target_coverage_csv,
+            usecols=["accepted_species", "quality"],
+            dtype=str,
+        ).fillna("")
+        target_species_names = set(
+            target_coverage.loc[
+                target_coverage["quality"].eq(""), "accepted_species"
+            ]
+        )
+        if not target_species_names:
+            raise ValueError("target coverage contains no unresolved species")
     species_urls, inventory_audit = discover_species_urls(
         record,
         fetcher=inventory_fetcher,
         max_species_pages=max_species_pages,
         completed_species_urls=completed_species_urls,
+        target_species_names=target_species_names,
     )
     leads = [
         {
@@ -220,6 +259,13 @@ def run_inventory(
             if completed_species_pages_csv is not None
             else ""
         ),
+        "target_coverage_csv": (
+            str(target_coverage_csv) if target_coverage_csv is not None else ""
+        ),
+        "target_unresolved_species": len(target_species_names),
+        "inventory_targeting": (
+            "unresolved_species_url_key" if target_species_names else "unfiltered"
+        ),
         "identity_passed_pages": sum(
             row.get("page_status") == "identity_passed" for row in page_audit
         ),
@@ -288,6 +334,12 @@ def main(
         dir_okay=False,
         help="Prior discovered_species_pages.csv; listed URLs are never fetched again.",
     ),
+    target_coverage_csv: Path | None = typer.Option(
+        None,
+        exists=True,
+        dir_okay=False,
+        help="Latest coverage ledger; only treatment URLs for unresolved species are fetched.",
+    ),
 ) -> None:
     run_inventory(
         baseline_dir=baseline_dir,
@@ -300,6 +352,7 @@ def main(
         inventory_pause_seconds=inventory_pause_seconds,
         page_pause_seconds=page_pause_seconds,
         completed_species_pages_csv=completed_species_pages_csv,
+        target_coverage_csv=target_coverage_csv,
     )
 
 

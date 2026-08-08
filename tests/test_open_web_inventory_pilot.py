@@ -132,3 +132,38 @@ def test_inventory_excludes_completed_species_pages() -> None:
         completed_species_urls={species_one},
     )
     assert urls == [species_two, species_three]
+
+
+def test_inventory_targets_only_unresolved_species_url_keys() -> None:
+    index = "https://flora.example/list"
+    species_one = "https://flora.example/species/alpha/one"
+    species_two = "https://flora.example/species/beta/two"
+    species_three = "https://flora.example/species/gamma/three"
+    record = DomainRecord(
+        domain="flora.example",
+        source_name="Example Flora",
+        source_type="specialist_regional_flora",
+        region="Test",
+        language="en",
+        organization_type="nonprofit",
+        robots_access_notes="test",
+        page_pattern=r"^https://flora\.example/species/[a-z-]+/[a-z-]+$",
+        treatment_end_pattern="",
+        inventory_urls=(index,),
+        inventory_depth=1,
+        scientific_name_displayed=True,
+        cultivar_descriptions_present=False,
+        provenance_quality="test",
+        recommended_evidence_tier="B",
+        review_status="approved",
+        allowed_traits="all",
+    )
+    urls, _ = discover_species_urls(
+        record,
+        fetcher=FakeFetcher(  # type: ignore[arg-type]
+            {index: _page(index, (species_one, species_two, species_three))}
+        ),
+        max_species_pages=10,
+        target_species_names={"Beta two", "Gamma three"},
+    )
+    assert urls == [species_two, species_three]
