@@ -12,7 +12,6 @@ import re
 
 from island_v2.open_web_evidence import Page
 
-
 COLOUR_MAP: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\b(?:white|cream)\b|白", re.IGNORECASE), "white"),
     (re.compile(r"\b(?:yellow|orange)\b|黄|橙", re.IGNORECASE), "yellow_orange"),
@@ -36,10 +35,18 @@ LABELS: dict[str, tuple[re.Pattern[str], ...]] = {
         re.compile(r"^corolla\s+symmetry$", re.IGNORECASE),
         re.compile(r"^花(?:冠)?(?:の)?相称$"),
     ),
+    "floral_form": (
+        re.compile(r"^flower\s+shape$", re.IGNORECASE),
+        re.compile(r"^corolla\s+(?:form|shape)$", re.IGNORECASE),
+    ),
     "flower_size_class": (
         re.compile(r"^flower\s+(?:diameter|length|size)$", re.IGNORECASE),
         re.compile(r"^corolla\s+(?:diameter|length|size)$", re.IGNORECASE),
         re.compile(r"^花(?:冠)?(?:の)?(?:直径|長さ|大きさ)$"),
+    ),
+    "inflorescence_display": (
+        re.compile(r"^flower\s+inflorescence$", re.IGNORECASE),
+        re.compile(r"^inflorescence(?:\s+type)?$", re.IGNORECASE),
     ),
     "cleistogamy": (
         re.compile(r"^cleistogamous\s+flowers?$", re.IGNORECASE),
@@ -60,12 +67,12 @@ def _text(value: object) -> str:
 
 
 def _matches_label(label: str, trait_name: str) -> bool:
-    return any(pattern.fullmatch(label) for pattern in LABELS.get(trait_name, ()))
+    return any(pattern.fullmatch(label.rstrip(":")) for pattern in LABELS.get(trait_name, ()))
 
 
 def _known_label(line: str) -> bool:
     return any(
-        pattern.fullmatch(line)
+        pattern.fullmatch(line.rstrip(":"))
         for patterns in LABELS.values()
         for pattern in patterns
     )
@@ -76,13 +83,11 @@ def _looks_like_next_field(line: str) -> bool:
 
     if _known_label(line):
         return True
+    if line.endswith(":"):
+        return True
     if line.casefold() in {"na", "n/a", "no", "yes", "unknown"}:
         return False
-    if len(line) > 80 or len(line.split()) > 9:
-        return False
-    if re.search(r"[.!?;:]$", line):
-        return False
-    return bool(re.fullmatch(r"[A-Z][A-Za-z ()/,'-]{2,79}", line))
+    return False
 
 
 def _field_blocks(text: str, trait_name: str) -> list[tuple[str, list[str]]]:
@@ -137,13 +142,61 @@ def _symmetry(value: str) -> str:
     return ""
 
 
+def _form(value: str) -> str:
+    mappings = (
+        (r"\bbell\b|campanulat", "bell_campanulate"),
+        (r"\btubular\b", "tubular"),
+        (r"salver", "salverform"),
+        (r"\bfunnel\b|\btrumpet\b", "funnel_trumpet"),
+        (r"\burn\b|urceolat", "urn_urceolate"),
+        (r"papilion|\bpea(?:-like)?\b", "papilionaceous"),
+        (r"\blipped\b|bilabiat|two[- ]lipped", "bilabiate"),
+        (r"\bspur(?:red)?\b", "spurred"),
+        (r"\bcup\b|\bsaucer\b|\bstar\b|rotate", "open_radial"),
+    )
+    states = [state for pattern, state in mappings if re.search(pattern, value, re.IGNORECASE)]
+    states = list(dict.fromkeys(states))
+    return states[0] if len(states) == 1 else "other_described" if states else ""
+
+
+def _inflorescence(value: str) -> str:
+    mappings = (
+        (r"\bsolitary\b|single flower", "solitary"),
+        (r"few[- ]flower", "few_flowered"),
+        (r"\braceme\b|\bspike\b|\bpanicle\b|\bcatkin\b", "raceme_spike_panicle"),
+        (r"\bumbel\b|\bcorymb\b|\bcyme\b", "umbel_corymb"),
+        (r"\bhead\b|capitulum", "composite_display"),
+        (r"brush|puff", "brush_puff_display"),
+    )
+    states = [state for pattern, state in mappings if re.search(pattern, value, re.IGNORECASE)]
+    states = list(dict.fromkeys(states))
+    return states[0] if len(states) == 1 else "other_described" if states else ""
+
+
 def _size(value: str) -> str:
-    match = MEASUREMENT.search(value)
+    inch = re.search(
+        r"(?P<low>\d+(?:\.\d+)?)\s*(?:[-–—]\s*(?P<high>\d+(?:\.\d+)?))?\s*"
+        r"(?:inches|inch|in\.)\b",
+        value,
+        re.IGNORECASE,
+    )
+    match = inch or MEASUREMENT.search(value)
     if not match:
         return ""
     low = float(match.group("low"))
     high = float(match.group("high") or match.group("low"))
     midpoint = (low + high) / 2
+    if inch:
+        midpoint *= 25.4
+        if midpoint <= 5:
+            return "very_small"
+        if midpoint <= 15:
+            return "small"
+        if midpoint <= 30:
+            return "medium"
+        if midpoint <= 60:
+            return "large"
+        return "very_large"
     if match.group("unit").casefold() in {"cm", "㎝"}:
         midpoint *= 10
     if midpoint <= 5:
@@ -212,7 +265,9 @@ def extract_structured_characteristics(
     extractors = {
         "flower_primary_color": _colour,
         "floral_symmetry": _symmetry,
+        "floral_form": _form,
         "flower_size_class": _size,
+        "inflorescence_display": _inflorescence,
         "cleistogamy": _cleistogamy,
     }
     extractor = extractors.get(trait_name)

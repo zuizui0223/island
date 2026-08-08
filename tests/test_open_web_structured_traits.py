@@ -68,3 +68,24 @@ def test_does_not_infer_from_unlabelled_or_unmapped_fields() -> None:
     page = _page("Leaf color\nyellow\nFruit diameter\n20–30 mm")
     assert extract_structured_characteristics(page, trait_name="flower_primary_color") == []
     assert extract_structured_characteristics(page, trait_name="flower_size_class") == []
+
+
+def test_extracts_colon_delimited_university_profile_fields() -> None:
+    page = _page(
+        "Flowers:\n"
+        "Flower Color:\nPink\nPurple/Lavender\nWhite\n"
+        "Flower Inflorescence:\nRaceme\nSpike\n"
+        "Flower Shape:\nTubular\n"
+        "Flower Size:\n1-3 inches\n"
+        "Flower Description:\nTwo-inch tubular flowers.\n"
+    )
+    assert extract_structured_characteristics(
+        page, trait_name="flower_primary_color"
+    )[0][1] == "multicolored_variable"
+    assert extract_structured_characteristics(
+        page, trait_name="inflorescence_display"
+    )[0][1] == "raceme_spike_panicle"
+    assert extract_structured_characteristics(page, trait_name="floral_form")[0][1] == "tubular"
+    assert extract_structured_characteristics(
+        page, trait_name="flower_size_class"
+    )[0][1] == "large"
