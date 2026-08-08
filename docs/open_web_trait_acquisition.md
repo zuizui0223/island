@@ -208,6 +208,12 @@ They include search tasks and costs, URL discovery, page fetches, species
 identity outcomes, evidence candidates, source-lineage duplicates, and
 provider/domain/language summaries.
 
+Successive reviewed source-package waves must chain from the immediately
+preceding formal Web artifact by setting `prior_public_web_run_id`,
+`prior_public_web_artifact_name`, and `prior_public_web_file_name`. This keeps
+all previously promoted direct rows in the append-only ledger while the
+completed-page manifests prevent reacquisition.
+
 ## Analysis contract
 
 - Confirmatory: source-lineage-deduplicated species/synonym-direct evidence,

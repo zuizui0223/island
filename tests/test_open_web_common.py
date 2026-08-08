@@ -72,8 +72,12 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "'30433986432'" in workflow
     assert "'30434418380'" in workflow
     assert "open-web-multidomain-pilot-30434418380" in workflow
-    assert 'PRIOR_PUBLIC_WEB_RUN_ID: "30141880859"' in workflow
+    assert "inputs.prior_public_web_run_id || '30141880859'" in workflow
     assert "broad-web-medium-full-30141880859" in workflow
+    assert "prior_public_web_run_id:" in workflow
+    assert "prior_public_web_artifact_name:" in workflow
+    assert "prior_public_web_file_name:" in workflow
+    assert '"/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_FILE_NAME"' in workflow
     assert "--prior-public-web-csv" in workflow
     assert "coverage_change_species_axis.net_change" in workflow
 
