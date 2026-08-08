@@ -16,6 +16,7 @@ from island_v2.open_web_common import (
     production_candidate_ids,
     promoted_to_common_evidence,
     reviewed_audit_metrics,
+    reviewed_source_package_evidence,
 )
 from island_v2.open_web_finalize import (
     combine_public_web_ledgers,
@@ -79,6 +80,10 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "prior_public_web_file_name:" in workflow
     assert '"/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_FILE_NAME"' in workflow
     assert "--prior-public-web-csv" in workflow
+    assert "source_package_evidence_csv_path:" in workflow
+    assert "source_package_audit_csv_path:" in workflow
+    assert "--source-package-evidence-csv" in workflow
+    assert ".source_package.novelty_rate >= 0.50" in workflow
     assert "coverage_change_species_axis.net_change" in workflow
 
 
@@ -171,6 +176,110 @@ def test_production_approval_scales_scope_but_excludes_reviewed_failures() -> No
         "good-reviewed",
         "unreviewed",
     }
+
+
+def test_source_package_gate_scales_only_passing_traits_and_excludes_failures() -> None:
+    audit_rows: list[dict[str, object]] = []
+    evidence_rows: list[dict[str, object]] = []
+    traits = [
+        ("floral_form", 20, {0}),
+        ("flower_size_class", 20, {0, 1}),
+        ("flower_primary_color", 160, set()),
+    ]
+    for trait, count, failures in traits:
+        axis = {
+            "floral_form": "floral_structural_complexity",
+            "flower_size_class": "floral_structural_complexity",
+            "flower_primary_color": "flower_colour",
+        }[trait]
+        value = {
+            "floral_form": "tubular",
+            "flower_size_class": "small",
+            "flower_primary_color": "white",
+        }[trait]
+        for index in range(count):
+            candidate_id = f"{trait}-{index}"
+            audit_rows.append(
+                {
+                    "candidate_id": candidate_id,
+                    "trait_name": trait,
+                    "accepted_correct": index not in failures,
+                    "cultivar_status": "wild_or_flora_treatment",
+                    "reviewer": "reviewer",
+                    "reviewed_at_utc": "2026-08-08T00:00:00Z",
+                    "audit_reason": "reviewed",
+                }
+            )
+            evidence_rows.append(
+                {
+                    "accepted_species": f"Plantus {trait}{index}",
+                    "axis": axis,
+                    "trait_name": trait,
+                    "normalized_value": value,
+                    "quality": "high",
+                    "source_group": "source_package",
+                    "source_provider": "official_flora",
+                    "source_url": f"https://flora.example/{candidate_id}",
+                    "source_record_id": candidate_id,
+                    "source_citation": "Official flora treatment",
+                    "source_excerpt": f"Flowers are {value}.",
+                    "evidence_scope": "species_direct",
+                    "name_match_method": "accepted_name_exact",
+                    "source_lineage": f"treatment:{candidate_id}",
+                    "lineage_method": "provider_treatment_id",
+                    "source_run_id": "package-run",
+                    "source_artifact": "package-artifact",
+                    "source_file": "package.csv.gz",
+                    "acceptance_contract": "source_package_audit_v1",
+                }
+            )
+
+    selected, scopes, summary = reviewed_source_package_evidence(
+        pd.DataFrame(evidence_rows),
+        pd.DataFrame(audit_rows),
+    )
+
+    approval = scopes.set_index("trait_name")["production_approved"]
+    assert bool(approval.loc["floral_form"])
+    assert bool(approval.loc["flower_primary_color"])
+    assert not bool(approval.loc["flower_size_class"])
+    assert summary["package_gate_passed"]
+    assert summary["precision"] == pytest.approx(197 / 200)
+    assert len(selected) == 179
+    assert "floral_form-0" not in set(selected["source_record_id"])
+    assert "flower_size_class-2" not in set(selected["source_record_id"])
+    assert set(selected["trait_name"]) == {"floral_form", "flower_primary_color"}
+
+
+def test_committed_wfo_source_package_audit_has_only_expected_approved_traits() -> None:
+    root = Path(
+        "data/v2/staging/traits/direct_llm_pilot/"
+        "20260807_wfo_round2_context_gated_integrated"
+    )
+    evidence = pd.read_csv(root / "accepted_wfo_common_direct_evidence.csv.gz", dtype=str)
+    audit = pd.read_csv(root / "stratified_trait_audit_200_20260808.csv", dtype=str)
+    selected, scopes, summary = reviewed_source_package_evidence(evidence, audit)
+
+    assert summary["reviewed"] == 200
+    assert summary["accepted_correct"] == 195
+    assert summary["precision"] == pytest.approx(0.975)
+    assert summary["cultivar_contamination_rate"] == 0.0
+    assert summary["package_gate_passed"]
+    assert set(scopes.loc[scopes["production_approved"], "trait_name"]) == {
+        "floral_form",
+        "floral_symmetry",
+        "flower_primary_color",
+        "inflorescence_display",
+        "tube_depth_class",
+    }
+    assert set(selected["trait_name"]) == {
+        "floral_form",
+        "floral_symmetry",
+        "flower_primary_color",
+        "inflorescence_display",
+        "tube_depth_class",
+    }
+    assert "WFOB-64bc03515616f3dc05b7" not in set(selected["source_record_id"])
 
 
 def test_coverage_change_reports_gross_loss_and_net_separately() -> None:

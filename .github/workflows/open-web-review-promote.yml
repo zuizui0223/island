@@ -9,6 +9,7 @@ on:
       - "data/v2/staging/traits/open_web_pilot/plantnet_inventory_manual_audit_*.csv"
       - "data/v2/staging/traits/open_web_pilot/high_leverage_species_direct_*.csv"
       - "data/v2/staging/traits/open_web_pilot/high_leverage_source_manifest_*.json"
+      - "data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/stratified_trait_audit_*.csv"
       - "src/island_v2/open_web_common.py"
       - "src/island_v2/open_web_finalize.py"
       - "src/island_v2/review_inventory_artifact.py"
@@ -52,6 +53,22 @@ on:
         description: Line-by-line audit for the curated evidence
         required: false
         default: ""
+      source_package_evidence_csv_path:
+        description: Common-schema evidence from an audited source package
+        required: false
+        default: ""
+      source_package_audit_csv_path:
+        description: Deterministic audit sample for the source package
+        required: false
+        default: ""
+      source_package_run_id:
+        description: Original acquisition run or immutable package identifier
+        required: false
+        default: ""
+      source_package_artifact_name:
+        description: Original source-package artifact name
+        required: false
+        default: ""
 
 permissions:
   actions: read
@@ -86,6 +103,13 @@ jobs:
         ${{ inputs.candidate_file_name || 'open_web_multidomain_candidates.csv' }}
       CURATED_EVIDENCE_CSV_PATH: ${{ inputs.curated_evidence_csv_path || '' }}
       CURATED_AUDIT_CSV_PATH: ${{ inputs.curated_audit_csv_path || '' }}
+      SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-
+        ${{ inputs.source_package_evidence_csv_path || '' }}
+      SOURCE_PACKAGE_AUDIT_CSV_PATH: >-
+        ${{ inputs.source_package_audit_csv_path || '' }}
+      SOURCE_PACKAGE_RUN_ID: ${{ inputs.source_package_run_id || '' }}
+      SOURCE_PACKAGE_ARTIFACT: >-
+        ${{ inputs.source_package_artifact_name || '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -134,6 +158,14 @@ jobs:
             echo "curated audit was supplied without curated evidence" >&2
             exit 1
           fi
+          if [[ -n "$SOURCE_PACKAGE_EVIDENCE_CSV_PATH" ]]; then
+            test -n "$SOURCE_PACKAGE_AUDIT_CSV_PATH"
+            test -f "$SOURCE_PACKAGE_EVIDENCE_CSV_PATH"
+            test -f "$SOURCE_PACKAGE_AUDIT_CSV_PATH"
+          elif [[ -n "$SOURCE_PACKAGE_AUDIT_CSV_PATH" ]]; then
+            echo "source-package audit was supplied without evidence" >&2
+            exit 1
+          fi
       - name: Promote approved domain-trait scopes and recalculate coverage
         run: |
           mkdir -p outputs/reviewed_open_web
@@ -144,6 +176,15 @@ jobs:
               --curated-audit-csv "$CURATED_AUDIT_CSV_PATH"
               --curated-source-run-id "$GITHUB_SHA"
               --curated-source-artifact "$CURATED_EVIDENCE_CSV_PATH"
+            )
+          fi
+          source_package_args=()
+          if [[ -n "$SOURCE_PACKAGE_EVIDENCE_CSV_PATH" ]]; then
+            source_package_args=(
+              --source-package-evidence-csv "$SOURCE_PACKAGE_EVIDENCE_CSV_PATH"
+              --source-package-audit-csv "$SOURCE_PACKAGE_AUDIT_CSV_PATH"
+              --source-package-run-id "$SOURCE_PACKAGE_RUN_ID"
+              --source-package-artifact "$SOURCE_PACKAGE_ARTIFACT"
             )
           fi
           python -m island_v2.open_web_finalize \
@@ -159,7 +200,8 @@ jobs:
               "/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_FILE_NAME" \
             --prior-public-web-run-id "$PRIOR_PUBLIC_WEB_RUN_ID" \
             --prior-public-web-artifact "$PRIOR_PUBLIC_WEB_ARTIFACT" \
-            "${curated_args[@]}"
+            "${curated_args[@]}" \
+            "${source_package_args[@]}"
           jq -e '
             .audit.pilot_gate_passed == true
             and .audit.reviewed_pages_or_candidates >= 200
@@ -195,6 +237,16 @@ jobs:
               == .shared_all_evidence.coverage_increment_species_axis
             )
           ' outputs/reviewed_open_web/open_web_formalization_summary.json
+          if [[ -n "$SOURCE_PACKAGE_EVIDENCE_CSV_PATH" ]]; then
+            jq -e '
+              .source_package.package_gate_passed == true
+              and .source_package.reviewed >= 200
+              and .source_package.precision >= 0.95
+              and .source_package.cultivar_contamination_rate <= 0.02
+              and .source_package.novelty_rate >= 0.50
+              and .source_package.selected_evidence_rows > 0
+            ' outputs/reviewed_open_web/open_web_formalization_summary.json
+          fi
           cat outputs/reviewed_open_web/open_web_formalization_summary.json \
             >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4

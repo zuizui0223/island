@@ -16,8 +16,10 @@ import typer
 from island_v2.all_evidence_trait_audit import load_ontology, normalise_state_set
 from island_v2.open_web_common import (
     production_candidate_ids,
+    promoted_to_common_evidence,
     rebuild_with_common_all_evidence,
     reviewed_audit_metrics,
+    reviewed_source_package_evidence,
 )
 from island_v2.open_web_network_pilot import build_priority_queue
 from island_v2.open_web_search import (
@@ -37,6 +39,7 @@ _DIRECT_NAME_MATCHES = {
     "synonym_exact",
 }
 _DIRECT_SCOPES = {"species_direct", "synonym_direct"}
+_MIN_SOURCE_PACKAGE_NOVELTY = 0.50
 
 
 def _now() -> str:
@@ -311,6 +314,10 @@ def finalize_review(
     curated_audit_csv: Path | None = None,
     curated_source_run_id: str = "",
     curated_source_artifact: str = "",
+    source_package_evidence_csv: Path | None = None,
+    source_package_audit_csv: Path | None = None,
+    source_package_run_id: str = "",
+    source_package_artifact: str = "",
 ) -> dict[str, Any]:
     """Apply the audit gate and run PR #131's shared all-evidence functions."""
 
@@ -392,7 +399,7 @@ def finalize_review(
             "precision": len(curated_formal) / len(curated_audit),
             "cultivar_contamination_rate": 0.0,
         }
-    incremental_formal = pd.concat(
+    web_incremental_formal = pd.concat(
         [formal, curated_formal],
         ignore_index=True,
         sort=False,
@@ -402,6 +409,100 @@ def finalize_review(
         if prior_public_web_csv is not None
         else pd.DataFrame()
     )
+    source_package_formal = pd.DataFrame()
+    source_package_scopes = pd.DataFrame()
+    source_package_summary: dict[str, Any] = {
+        "reviewed": 0,
+        "accepted_correct": 0,
+        "precision": None,
+        "cultivar_contamination_rate": None,
+        "package_gate_passed": False,
+        "approved_traits": [],
+        "candidate_evidence_rows": 0,
+        "selected_evidence_rows": 0,
+        "unique_species_trait": 0,
+        "novel_species_trait": 0,
+        "novelty_rate": None,
+        "minimum_novelty_rate": _MIN_SOURCE_PACKAGE_NOVELTY,
+    }
+    if (source_package_evidence_csv is None) != (source_package_audit_csv is None):
+        raise ValueError(
+            "source_package_evidence_csv and source_package_audit_csv must be supplied together"
+        )
+    if source_package_evidence_csv is not None and source_package_audit_csv is not None:
+        source_package = pd.read_csv(source_package_evidence_csv, dtype=str).fillna("")
+        source_package_audit = pd.read_csv(source_package_audit_csv, dtype=str).fillna("")
+        (
+            source_package_formal,
+            source_package_scopes,
+            source_package_summary,
+        ) = reviewed_source_package_evidence(source_package, source_package_audit)
+        if not source_package_summary["package_gate_passed"]:
+            raise ValueError("source package did not pass its review gate")
+        if source_package_run_id:
+            source_package_formal["source_run_id"] = source_package_formal[
+                "source_run_id"
+            ].where(source_package_formal["source_run_id"].ne(""), source_package_run_id)
+        if source_package_artifact:
+            source_package_formal["source_artifact"] = source_package_formal[
+                "source_artifact"
+            ].where(
+                source_package_formal["source_artifact"].ne(""),
+                source_package_artifact,
+            )
+        source_package_formal["source_file"] = source_package_formal["source_file"].where(
+            source_package_formal["source_file"].ne(""),
+            str(source_package_evidence_csv),
+        )
+
+        current_direct = pd.concat(
+            [
+                evidence,
+                promoted_to_common_evidence(prior_formal),
+                promoted_to_common_evidence(web_incremental_formal),
+            ],
+            ignore_index=True,
+            sort=False,
+        ).fillna("")
+        current_direct = current_direct.loc[
+            current_direct["quality"].str.casefold().isin({"high", "medium"})
+            & current_direct["evidence_scope"].str.casefold().isin(_DIRECT_SCOPES)
+        ]
+        current_pairs = set(
+            zip(
+                current_direct["accepted_species"],
+                current_direct["trait_name"],
+                strict=True,
+            )
+        )
+        package_pairs = set(
+            zip(
+                source_package_formal["accepted_species"],
+                source_package_formal["trait_name"],
+                strict=True,
+            )
+        )
+        novel_pairs = package_pairs.difference(current_pairs)
+        novelty_rate = len(novel_pairs) / len(package_pairs) if package_pairs else 0.0
+        source_package_summary.update(
+            {
+                "unique_species_trait": len(package_pairs),
+                "novel_species_trait": len(novel_pairs),
+                "novelty_rate": novelty_rate,
+                "minimum_novelty_rate": _MIN_SOURCE_PACKAGE_NOVELTY,
+            }
+        )
+        if novelty_rate < _MIN_SOURCE_PACKAGE_NOVELTY:
+            raise ValueError(
+                f"source-package novelty {novelty_rate:.6f} is below "
+                f"{_MIN_SOURCE_PACKAGE_NOVELTY:.2f}"
+            )
+
+    incremental_formal = pd.concat(
+        [web_incremental_formal, source_package_formal],
+        ignore_index=True,
+        sort=False,
+    ).fillna("")
     combined_formal = combine_public_web_ledgers(
         prior_formal,
         incremental_formal,
@@ -443,6 +544,14 @@ def finalize_review(
     )
     incremental_formal.to_csv(
         output_dir / "accepted_open_web_evidence.csv.gz",
+        index=False,
+    )
+    source_package_formal.to_csv(
+        output_dir / "accepted_source_package_evidence.csv.gz",
+        index=False,
+    )
+    source_package_scopes.to_csv(
+        output_dir / "source_package_trait_audit_precision.csv",
         index=False,
     )
 
@@ -501,6 +610,11 @@ def finalize_review(
         "individually_reviewed_evidence_rows": len(curated_formal),
         "total_incremental_reviewed_evidence_rows": len(incremental_formal),
         "individual_manual_audit": curated_audit_summary,
+        "source_package": {
+            **source_package_summary,
+            "source_run_id": source_package_run_id,
+            "source_artifact": source_package_artifact,
+        },
         "prior_formal_public_web_evidence_rows": len(prior_formal),
         "combined_formal_public_web_evidence_rows": len(combined_formal),
         "next_search_queue": {
@@ -558,6 +672,19 @@ def finalize_review(
             for path in (curated_evidence_csv, curated_audit_csv)
             if path is not None
         ],
+        "source_package": {
+            "run_id": source_package_run_id,
+            "artifact": source_package_artifact,
+            "inputs": [
+                {
+                    "path": str(path),
+                    "sha256": _sha256(path),
+                    "size_bytes": path.stat().st_size,
+                }
+                for path in (source_package_evidence_csv, source_package_audit_csv)
+                if path is not None
+            ],
+        },
         "files": [
             {
                 "path": str(path.relative_to(output_dir)),
@@ -615,6 +742,16 @@ def apply_audit_command(
     ] = None,
     curated_source_run_id: str = "",
     curated_source_artifact: str = "",
+    source_package_evidence_csv: Annotated[
+        Path | None,
+        typer.Option(exists=True, dir_okay=False),
+    ] = None,
+    source_package_audit_csv: Annotated[
+        Path | None,
+        typer.Option(exists=True, dir_okay=False),
+    ] = None,
+    source_package_run_id: str = "",
+    source_package_artifact: str = "",
 ) -> None:
     report = finalize_review(
         baseline_dir=baseline_dir,
@@ -635,6 +772,10 @@ def apply_audit_command(
         curated_audit_csv=curated_audit_csv,
         curated_source_run_id=curated_source_run_id,
         curated_source_artifact=curated_source_artifact,
+        source_package_evidence_csv=source_package_evidence_csv,
+        source_package_audit_csv=source_package_audit_csv,
+        source_package_run_id=source_package_run_id,
+        source_package_artifact=source_package_artifact,
     )
     typer.echo(json.dumps(report, ensure_ascii=False, sort_keys=True))
 

@@ -50,6 +50,7 @@ MIN_REVIEWED_DOMAINS = 5
 MIN_REVIEWED_PER_SCOPE = 10
 MIN_PRECISION = 0.95
 MAX_CULTIVAR_CONTAMINATION = 0.02
+MIN_SOURCE_PACKAGE_REVIEWED = 200
 
 
 def _text(value: object) -> str:
@@ -221,6 +222,159 @@ def production_candidate_ids(
     return set(eligible["candidate_id"].map(_text)).difference(rejected_ids)
 
 
+def reviewed_source_package_evidence(
+    evidence: pd.DataFrame,
+    audit: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
+    """Approve audited source-package traits and exclude every known failure.
+
+    Source packages such as official-flora archives share one acquisition and
+    identity contract across providers.  Their production gate is therefore
+    trait-specific, while Web-page inventories remain domain x trait-specific.
+    Unreviewed rows may scale only inside a trait whose deterministic audit has
+    at least ten rows and passes the same precision and cultivar thresholds as
+    the open-Web lane.
+    """
+
+    required_evidence = set(EVIDENCE_COLUMNS)
+    missing_evidence = required_evidence.difference(evidence.columns)
+    if missing_evidence:
+        raise ValueError(
+            f"source-package evidence is missing columns: {sorted(missing_evidence)}"
+        )
+    required_audit = {
+        "candidate_id",
+        "trait_name",
+        "accepted_correct",
+        "cultivar_status",
+        "reviewer",
+        "reviewed_at_utc",
+        "audit_reason",
+    }
+    missing_audit = required_audit.difference(audit.columns)
+    if missing_audit:
+        raise ValueError(f"source-package audit is missing columns: {sorted(missing_audit)}")
+
+    reviewed = audit.copy().fillna("")
+    if reviewed["candidate_id"].map(_text).duplicated().any():
+        raise ValueError("source-package audit has duplicate candidate_id values")
+    if reviewed[["candidate_id", "trait_name", "reviewer", "reviewed_at_utc"]].apply(
+        lambda column: column.map(_text).eq("").any()
+    ).any():
+        raise ValueError("source-package audit has incomplete review provenance")
+    reviewed["trait_name"] = reviewed["trait_name"].map(canonical_trait_name)
+    reviewed["_accepted_correct"] = reviewed["accepted_correct"].map(_bool)
+    cultivar_status = reviewed["cultivar_status"].map(_text).str.casefold()
+    if cultivar_status.eq("").any():
+        raise ValueError("source-package audit has missing cultivar status")
+    reviewed["_cultivar"] = cultivar_status.str.contains(
+        r"cultivar|hybrid|horticultural",
+        regex=True,
+    )
+
+    package = evidence.copy().fillna("")
+    package["trait_name"] = package["trait_name"].map(canonical_trait_name)
+    package["axis"] = package["trait_name"].map(trait_axis)
+    package["quality"] = package["quality"].str.casefold()
+    package["evidence_scope"] = package["evidence_scope"].str.casefold()
+    if package["source_record_id"].map(_text).duplicated().any():
+        raise ValueError("source-package evidence has duplicate source_record_id values")
+    missing_review_ids = set(
+        reviewed.loc[reviewed["_accepted_correct"], "candidate_id"].map(_text)
+    ).difference(
+        set(package["source_record_id"].map(_text))
+    )
+    if missing_review_ids:
+        raise ValueError(
+            f"source-package audit references {len(missing_review_ids)} missing evidence rows"
+        )
+
+    scopes: list[dict[str, Any]] = []
+    for trait, group in reviewed.groupby("trait_name", sort=True):
+        accepted_correct = int(group["_accepted_correct"].sum())
+        precision = accepted_correct / len(group)
+        cultivar_rate = float(group["_cultivar"].mean())
+        scopes.append(
+            {
+                "trait_name": trait,
+                "reviewed": len(group),
+                "accepted_correct": accepted_correct,
+                "precision": precision,
+                "cultivar_contamination_rate": cultivar_rate,
+                "production_approved": bool(
+                    len(group) >= MIN_REVIEWED_PER_SCOPE
+                    and precision >= MIN_PRECISION
+                    and cultivar_rate <= MAX_CULTIVAR_CONTAMINATION
+                ),
+            }
+        )
+    scope_table = pd.DataFrame(scopes)
+    accepted_correct = int(reviewed["_accepted_correct"].sum())
+    precision = accepted_correct / len(reviewed) if len(reviewed) else None
+    cultivar_rate = float(reviewed["_cultivar"].mean()) if len(reviewed) else None
+    approved_traits = set(
+        scope_table.loc[scope_table["production_approved"], "trait_name"]
+    )
+    package_gate_passed = bool(
+        len(reviewed) >= MIN_SOURCE_PACKAGE_REVIEWED
+        and precision is not None
+        and precision >= MIN_PRECISION
+        and cultivar_rate is not None
+        and cultivar_rate <= MAX_CULTIVAR_CONTAMINATION
+        and approved_traits
+    )
+    rejected_ids = set(
+        reviewed.loc[~reviewed["_accepted_correct"], "candidate_id"].map(_text)
+    )
+    selected = package.loc[
+        package_gate_passed
+        & package["trait_name"].isin(approved_traits)
+        & ~package["source_record_id"].map(_text).isin(rejected_ids)
+    ].copy()
+
+    required_nonempty = [
+        "accepted_species",
+        "trait_name",
+        "normalized_value",
+        "source_provider",
+        "source_url",
+        "source_record_id",
+        "source_citation",
+        "source_excerpt",
+        "source_lineage",
+        "name_match_method",
+    ]
+    if not selected.empty and selected[required_nonempty].apply(
+        lambda column: column.map(_text).eq("").any()
+    ).any():
+        raise ValueError("approved source-package evidence has incomplete provenance")
+    if not selected["quality"].isin({"high", "medium"}).all():
+        raise ValueError("approved source-package evidence has invalid direct quality")
+    if not selected["evidence_scope"].isin(DIRECT_SCOPES).all():
+        raise ValueError("approved source-package evidence is not species/synonym-direct")
+    expected_axis = selected["trait_name"].map(STRICT_TRAIT_AXIS)
+    if expected_axis.isna().any() or not selected["axis"].eq(expected_axis).all():
+        raise ValueError("approved source-package evidence violates strict trait-axis mapping")
+
+    summary = {
+        "precision_contract": "accepted_correct/all_reviewed",
+        "reviewed": len(reviewed),
+        "accepted_correct": accepted_correct,
+        "precision": precision,
+        "cultivar_contamination_rate": cultivar_rate,
+        "minimum_reviewed": MIN_SOURCE_PACKAGE_REVIEWED,
+        "minimum_reviewed_per_trait": MIN_REVIEWED_PER_SCOPE,
+        "minimum_precision": MIN_PRECISION,
+        "maximum_cultivar_contamination": MAX_CULTIVAR_CONTAMINATION,
+        "package_gate_passed": package_gate_passed,
+        "approved_traits": sorted(approved_traits),
+        "candidate_evidence_rows": len(package),
+        "selected_evidence_rows": len(selected),
+        "explicitly_rejected_candidate_ids": len(rejected_ids),
+    }
+    return selected.reset_index(drop=True), scope_table, summary
+
+
 def coverage_change_counts(
     before_axes: set[tuple[str, str]],
     after_axes: set[tuple[str, str]],
@@ -351,7 +505,7 @@ def promoted_to_common_evidence(promoted: pd.DataFrame) -> pd.DataFrame:
                 "trait_name": trait,
                 "normalized_value": _text(record.get("normalized_value")),
                 "quality": quality,
-                "source_group": "latest_public_web",
+                "source_group": _text(record.get("source_group") or "latest_public_web"),
                 "source_provider": _text(record.get("source_provider") or record.get("domain")),
                 "source_url": _text(record.get("source_url")),
                 "source_record_id": _text(
@@ -372,7 +526,10 @@ def promoted_to_common_evidence(promoted: pd.DataFrame) -> pd.DataFrame:
                 "source_run_id": _text(record.get("source_run_id")),
                 "source_artifact": _text(record.get("source_artifact")),
                 "source_file": _text(record.get("source_file")),
-                "acceptance_contract": "reviewed_open_web_species_direct_v2",
+                "acceptance_contract": _text(
+                    record.get("acceptance_contract")
+                    or "reviewed_open_web_species_direct_v2"
+                ),
             }
         )
     return pd.DataFrame(rows, columns=EVIDENCE_COLUMNS)
