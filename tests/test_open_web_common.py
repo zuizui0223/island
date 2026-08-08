@@ -494,6 +494,39 @@ def test_individual_manual_review_accepts_source_backed_direct_evidence(
     assert result["candidate_id"].tolist() == ["66a9d783fb17b8510f7af25d"]
 
 
+def test_committed_high_leverage_batch_is_fully_reviewed_and_reproducible() -> None:
+    root = Path("data/v2/staging/traits/open_web_pilot")
+    candidates = pd.read_csv(
+        root / "high_leverage_species_direct_evidence_20260808.csv",
+        dtype=str,
+    ).fillna("")
+    audit = pd.read_csv(
+        root / "high_leverage_species_direct_manual_audit_20260808.csv",
+        dtype=str,
+    ).fillna("")
+    master = pd.read_csv(
+        "data/v2/staging/gbif/collected/island_taxa.csv",
+        dtype=str,
+    ).fillna("")
+    manifest = json.loads(
+        (root / "high_leverage_source_manifest_20260808.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    accepted = validate_individually_reviewed_evidence(
+        candidates,
+        audit,
+        master,
+        Path("config/trait_ontology.yml"),
+    )
+    assert len(accepted) == len(candidates) == len(audit) == 5
+    assert set(accepted["candidate_id"]) == {
+        record["candidate_id"] for record in manifest["records"]
+    }
+    assert "034e50e8e8d6fccc5109e223" in set(accepted["candidate_id"])
+
+
 @pytest.mark.parametrize(
     ("candidate_patch", "audit_patch", "match"),
     [

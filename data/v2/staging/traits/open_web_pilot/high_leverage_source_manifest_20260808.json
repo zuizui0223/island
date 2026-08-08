@@ -54,6 +54,19 @@
       "trait_location": "PDF page 3",
       "review_result": "accepted_high_species_direct_conflict_member",
       "access_note": "Origin PDF was verified through full-text Web retrieval; direct binary download returned HTTP 403, so the hash is explicitly limited to URL plus exact excerpt."
+    },
+    {
+      "candidate_id": "034e50e8e8d6fccc5109e223",
+      "accepted_species": "Bulbophyllum hirundinis",
+      "trait_name": "self_incompatibility",
+      "source_url": "https://zlxb.zafu.edu.cn/en/article/doi/10.11833/j.issn.2095-0756.20250150",
+      "source_lineage": "doi:10.11833/j.issn.2095-0756.20250150",
+      "retrieval_method": "direct_html_download_and_visible_abstract_verification",
+      "content_sha256": "4c27d8e774e16b9af60c06938ce4e3d7579ae7f807b384b8e10bff87d4ab441c",
+      "content_sha256_basis": "downloaded_html_bytes",
+      "identity_location": "article title and abstract",
+      "trait_location": "abstract experimental-pollination result (3)",
+      "review_result": "accepted_high_species_direct_support3_trigger"
     }
   ]
 }
