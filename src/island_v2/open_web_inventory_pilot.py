@@ -45,14 +45,25 @@ def _text(value: object) -> str:
 def _species_keys_from_url(url: str) -> set[str]:
     """Return conservative binomial candidates encoded in a treatment URL."""
 
+    parsed = urllib.parse.urlsplit(canonical_url(url))
+    keys: set[str] = set()
+    query = urllib.parse.parse_qs(parsed.query)
+    for parameter in ("name", "species", "taxon"):
+        for raw_value in query.get(parameter, []):
+            value = _text(urllib.parse.unquote_plus(raw_value).replace("~", " "))
+            tokens = value.split()
+            if len(tokens) == 2:
+                keys.add(value.casefold())
+    if keys:
+        return keys
+
     parts = [
         urllib.parse.unquote(part).replace("_", " ")
-        for part in urllib.parse.urlsplit(canonical_url(url)).path.strip("/").split("/")
+        for part in parsed.path.strip("/").split("/")
         if part
     ]
     if not parts:
-        return set()
-    keys: set[str] = set()
+        return keys
     slug_tokens = [token for token in parts[-1].split("-") if token]
     if len(slug_tokens) == 2:
         keys.add(" ".join(slug_tokens).casefold())
