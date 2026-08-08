@@ -48,7 +48,7 @@ SEARCH_TRAITS = (*STRICT_TRAIT_AXIS, *NON_AXIS_TRAITS)
 MIN_REVIEWED_PAGES = 200
 MIN_REVIEWED_DOMAINS = 5
 MIN_REVIEWED_PER_SCOPE = 10
-MIN_PRECISION = 0.90
+MIN_PRECISION = 0.95
 MAX_CULTIVAR_CONTAMINATION = 0.02
 
 
@@ -175,6 +175,52 @@ def accepted_review_ids(
     return set(reviewed.loc[good, "candidate_id"].map(_text))
 
 
+def production_candidate_ids(
+    candidates: pd.DataFrame,
+    audit: pd.DataFrame,
+    approved_scopes: pd.DataFrame,
+) -> set[str]:
+    """Return candidates in approved scopes, excluding every reviewed failure.
+
+    The audit approves a domain x trait extraction scope, not merely the sampled
+    rows. Unreviewed candidates in an approved scope may therefore enter
+    production, while any candidate explicitly rejected (or failing an audit
+    component) remains blocked.
+    """
+
+    required_candidates = {"candidate_id", "domain", "trait_name"}
+    missing_candidates = required_candidates.difference(candidates.columns)
+    if missing_candidates:
+        raise ValueError(f"candidates are missing columns: {sorted(missing_candidates)}")
+    if approved_scopes.empty:
+        return set()
+    approved = approved_scopes.loc[
+        approved_scopes["production_approved"].astype(bool),
+        ["domain", "trait_name"],
+    ].drop_duplicates()
+    if approved.empty:
+        return set()
+
+    eligible = candidates.merge(
+        approved,
+        on=["domain", "trait_name"],
+        how="inner",
+        validate="many_to_one",
+    )
+    reviewed = audit.loc[audit["decision"].str.casefold().isin({"accept", "reject"})].copy()
+    if reviewed.empty:
+        return set(eligible["candidate_id"].map(_text))
+    good = (
+        reviewed["decision"].str.casefold().eq("accept")
+        & reviewed["species_identity_correct"].map(_bool)
+        & reviewed["value_correct"].map(_bool)
+        & reviewed["provenance_complete"].map(_bool)
+        & ~reviewed["cultivar_contamination"].map(_bool)
+    )
+    rejected_ids = set(reviewed.loc[~good, "candidate_id"].map(_text))
+    return set(eligible["candidate_id"].map(_text)).difference(rejected_ids)
+
+
 def coverage_change_counts(
     before_axes: set[tuple[str, str]],
     after_axes: set[tuple[str, str]],
@@ -273,17 +319,11 @@ def compare_incremental_validated_low(
             "pilot_change_status",
         ],
     )
-    counts = (
-        detail["pilot_change_status"].value_counts().to_dict()
-        if not detail.empty
-        else {}
-    )
+    counts = detail["pilot_change_status"].value_counts().to_dict() if not detail.empty else {}
     summary = {
         "added": int(counts.get("added", 0)),
         "invalidated": int(counts.get("invalidated", 0)),
-        "upgraded_to_direct": int(
-            counts.get("upgraded_to_incremental_direct", 0)
-        ),
+        "upgraded_to_direct": int(counts.get("upgraded_to_incremental_direct", 0)),
         "inferred_value_changed": int(counts.get("inferred_value_changed", 0)),
         "retained": int(counts.get("retained", 0)),
     }

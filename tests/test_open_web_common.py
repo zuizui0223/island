@@ -13,6 +13,7 @@ from island_v2.open_web_common import (
     STRICT_TRAIT_AXIS,
     compare_incremental_validated_low,
     coverage_change_counts,
+    production_candidate_ids,
     promoted_to_common_evidence,
     reviewed_audit_metrics,
 )
@@ -65,9 +66,7 @@ def test_pr132_has_no_independent_validated_low_implementation() -> None:
 
 
 def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
-    workflow = Path(".github/workflows/open-web-review-promote.yml").read_text(
-        encoding="utf-8"
-    )
+    workflow = Path(".github/workflows/open-web-review-promote.yml").read_text(encoding="utf-8")
     assert "pull_request:" in workflow
     assert "BASELINE_RUN_ID:" in workflow
     assert "'30433986432'" in workflow
@@ -101,6 +100,73 @@ def test_domain_trait_gate_requires_ten_reviews_and_thresholds() -> None:
     approved = scopes.set_index(["domain", "trait_name"])["production_approved"]
     assert bool(approved.loc[("good.example", "floral_form")])
     assert not bool(approved.loc[("thin.example", "floral_form")])
+
+
+def test_domain_trait_gate_requires_95_percent_precision() -> None:
+    passing = _review_rows("pass.example", "flower_size_class", 20)
+    passing[0]["value_correct"] = False
+    failing = _review_rows("fail.example", "flower_size_class", 20)
+    failing[0]["value_correct"] = False
+    failing[1]["value_correct"] = False
+    scopes, _ = reviewed_audit_metrics(pd.DataFrame([*passing, *failing]))
+    approved = scopes.set_index(["domain", "trait_name"])["production_approved"]
+    assert bool(approved.loc[("pass.example", "flower_size_class")])
+    assert not bool(approved.loc[("fail.example", "flower_size_class")])
+
+
+def test_production_approval_scales_scope_but_excludes_reviewed_failures() -> None:
+    candidates = pd.DataFrame(
+        [
+            {
+                "candidate_id": "good-reviewed",
+                "domain": "flora.example",
+                "trait_name": "flower_size_class",
+            },
+            {
+                "candidate_id": "bad-reviewed",
+                "domain": "flora.example",
+                "trait_name": "flower_size_class",
+            },
+            {
+                "candidate_id": "unreviewed",
+                "domain": "flora.example",
+                "trait_name": "flower_size_class",
+            },
+            {
+                "candidate_id": "blocked-scope",
+                "domain": "flora.example",
+                "trait_name": "floral_form",
+            },
+        ]
+    )
+    audit = pd.DataFrame(
+        [
+            {
+                **_review_rows("flora.example", "flower_size_class", 1)[0],
+                "candidate_id": "good-reviewed",
+            },
+            {
+                **_review_rows("flora.example", "flower_size_class", 1)[0],
+                "candidate_id": "bad-reviewed",
+                "decision": "reject",
+                "value_correct": False,
+            },
+        ]
+    )
+    scopes = pd.DataFrame(
+        [
+            {
+                "domain": "flora.example",
+                "trait_name": "flower_size_class",
+                "production_approved": True,
+            },
+            {"domain": "flora.example", "trait_name": "floral_form", "production_approved": False},
+        ]
+    )
+    assert production_candidate_ids(candidates, audit, scopes) == {
+        "good-reviewed",
+        "unreviewed",
+    }
 
 
 def test_coverage_change_reports_gross_loss_and_net_separately() -> None:
@@ -294,9 +360,7 @@ def _individual_audit() -> dict[str, object]:
         "normalized_excerpt_sha256": (
             "0ffb879a5307a170c0ffd3df61975cfb545c12141cd845d232b2f3d3b1f2e576"
         ),
-        "content_fingerprint": (
-            "93672467f7819aea0f5121b3d362199cc714eceb922308f075c7fa66d3a74c24"
-        ),
+        "content_fingerprint": ("93672467f7819aea0f5121b3d362199cc714eceb922308f075c7fa66d3a74c24"),
     }
 
 

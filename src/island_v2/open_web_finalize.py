@@ -15,7 +15,7 @@ import typer
 
 from island_v2.all_evidence_trait_audit import load_ontology, normalise_state_set
 from island_v2.open_web_common import (
-    accepted_review_ids,
+    production_candidate_ids,
     rebuild_with_common_all_evidence,
     reviewed_audit_metrics,
 )
@@ -104,13 +104,10 @@ def validate_individually_reviewed_evidence(
     missing_audit = audit_required.difference(audit.columns)
     if missing_candidates:
         raise ValueError(
-            "individually reviewed evidence is missing columns: "
-            f"{sorted(missing_candidates)}"
+            f"individually reviewed evidence is missing columns: {sorted(missing_candidates)}"
         )
     if missing_audit:
-        raise ValueError(
-            "individual audit is missing columns: " f"{sorted(missing_audit)}"
-        )
+        raise ValueError(f"individual audit is missing columns: {sorted(missing_audit)}")
     if candidates.empty:
         return candidates.copy()
     if candidates["candidate_id"].duplicated().any() or audit["candidate_id"].duplicated().any():
@@ -138,10 +135,7 @@ def validate_individually_reviewed_evidence(
     )
     if not bool(correct.all()):
         rejected = reviewed.loc[~correct, "candidate_id"].astype(str).tolist()
-        raise ValueError(
-            "individually curated evidence must be accepted and correct: "
-            f"{rejected}"
-        )
+        raise ValueError(f"individually curated evidence must be accepted and correct: {rejected}")
 
     accepted_names = set(master["accepted_species"].astype(str))
     ontology = load_ontology(ontology_yaml)
@@ -152,9 +146,7 @@ def validate_individually_reviewed_evidence(
         valid, invalid = normalise_state_set(trait, row["normalized_value"], ontology)
         excerpt = " ".join(str(row["source_excerpt"]).split())
         normalized_excerpt = excerpt.casefold()
-        expected_excerpt_sha256 = hashlib.sha256(
-            normalized_excerpt.encode("utf-8")
-        ).hexdigest()
+        expected_excerpt_sha256 = hashlib.sha256(normalized_excerpt.encode("utf-8")).hexdigest()
         expected_fingerprint = hashlib.sha256(
             (str(row["source_lineage"]) + "\n" + normalized_excerpt).encode("utf-8")
         ).hexdigest()
@@ -183,12 +175,10 @@ def validate_individually_reviewed_evidence(
             "invalid_source_url": not str(row["source_url"]).startswith(("http://", "https://")),
             "missing_source_citation": not str(row["source_citation"]).strip(),
             "missing_exact_excerpt": not excerpt,
-            "audit_excerpt_mismatch": excerpt
-            != " ".join(str(row["supporting_excerpt"]).split()),
+            "audit_excerpt_mismatch": excerpt != " ".join(str(row["supporting_excerpt"]).split()),
             "invalid_excerpt_sha256": str(row["normalized_excerpt_sha256"])
             != expected_excerpt_sha256,
-            "invalid_content_fingerprint": str(row["content_fingerprint"])
-            != expected_fingerprint,
+            "invalid_content_fingerprint": str(row["content_fingerprint"]) != expected_fingerprint,
             "missing_source_lineage": not str(row["source_lineage"]).strip(),
             "invalid_content_sha256": re.fullmatch(
                 r"[0-9a-f]{64}", str(row["content_sha256"]).strip().casefold()
@@ -202,9 +192,7 @@ def validate_individually_reviewed_evidence(
             is None,
             "contains_inference_rule": bool(str(row["inference_rule"]).strip()),
         }
-        failures.extend(
-            f"{candidate_id}:{reason}" for reason, failed in checks.items() if failed
-        )
+        failures.extend(f"{candidate_id}:{reason}" for reason, failed in checks.items() if failed)
     duplicate_keys = reviewed.duplicated(
         ["accepted_species", "trait_name", "normalized_value", "source_lineage"]
     )
@@ -353,7 +341,9 @@ def finalize_review(
         .isin({"1", "true", "yes", "y"})
     )
     approved_ids = (
-        accepted_review_ids(audit, scope_table) if audit_summary["pilot_gate_passed"] else set()
+        production_candidate_ids(candidates, audit, scope_table)
+        if audit_summary["pilot_gate_passed"]
+        else set()
     )
     promoted = candidates.loc[candidates["candidate_id"].isin(approved_ids)].copy()
     if not promoted.empty:
@@ -381,9 +371,7 @@ def finalize_review(
         "cultivar_contamination_rate": None,
     }
     if (curated_evidence_csv is None) != (curated_audit_csv is None):
-        raise ValueError(
-            "curated_evidence_csv and curated_audit_csv must be supplied together"
-        )
+        raise ValueError("curated_evidence_csv and curated_audit_csv must be supplied together")
     if curated_evidence_csv is not None and curated_audit_csv is not None:
         curated_candidates = pd.read_csv(curated_evidence_csv, dtype=str).fillna("")
         curated_audit = pd.read_csv(curated_audit_csv, dtype=str).fillna("")
@@ -396,9 +384,7 @@ def finalize_review(
         curated_formal["review_status"] = "accepted_individual_manual_audit"
         curated_formal["evidence_status"] = "accepted_manual_audit"
         curated_formal["source_run_id"] = curated_source_run_id
-        curated_formal["source_artifact"] = (
-            curated_source_artifact or str(curated_evidence_csv)
-        )
+        curated_formal["source_artifact"] = curated_source_artifact or str(curated_evidence_csv)
         curated_formal["source_file"] = str(curated_evidence_csv)
         curated_audit_summary = {
             "reviewed": len(curated_audit),
@@ -561,9 +547,7 @@ def finalize_review(
         "prior_public_web": {
             "run_id": prior_public_web_run_id,
             "artifact": prior_public_web_artifact,
-            "source_file": (
-                str(prior_public_web_csv) if prior_public_web_csv is not None else ""
-            ),
+            "source_file": (str(prior_public_web_csv) if prior_public_web_csv is not None else ""),
         },
         "curated_inputs": [
             {

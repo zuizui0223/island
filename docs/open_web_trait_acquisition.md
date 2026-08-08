@@ -183,10 +183,10 @@ Fill `manual_audit_multidomain.csv` with:
 Only `accept` rows whose three accuracy fields are true and cultivar field is
 false count as `accepted_correct`; precision is exactly
 `accepted_correct / all reviewed`. Production is gated on at least 200
-reviewed pages from at least five domains, overall precision at least 0.90,
+reviewed pages from at least five domains, overall precision at least 0.95,
 and cultivar contamination no more than 0.02. Within a passing pilot, each
 domain × trait scope must itself have at least 10 reviews, precision at least
-0.90, and cultivar contamination no more than 0.02. Unreviewed or weak scopes
+0.95, and cultivar contamination no more than 0.02. Unreviewed or weak scopes
 remain blocked.
 
 ## Production and resumption

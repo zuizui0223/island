@@ -6,6 +6,7 @@ on:
       - ".github/workflows/open-web-review-promote.yml"
       - "data/v2/staging/traits/open_web_pilot/multidomain_manual_audit_*.csv"
       - "data/v2/staging/traits/open_web_pilot/ncstate_inventory_manual_audit_*.csv"
+      - "data/v2/staging/traits/open_web_pilot/plantnet_inventory_manual_audit_*.csv"
       - "data/v2/staging/traits/open_web_pilot/high_leverage_species_direct_*.csv"
       - "data/v2/staging/traits/open_web_pilot/high_leverage_source_manifest_*.json"
       - "src/island_v2/open_web_common.py"
@@ -147,7 +148,7 @@ jobs:
             .audit.pilot_gate_passed == true
             and .audit.reviewed_pages_or_candidates >= 200
             and .audit.reviewed_domains >= 5
-            and .audit.precision >= 0.90
+            and .audit.precision >= 0.95
             and .audit.cultivar_contamination_rate <= 0.02
             and .shared_all_evidence.denominator.species == 106295
             and .shared_all_evidence.denominator.species_axis == 318885
