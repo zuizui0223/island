@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Acquire explicit flower-colour evidence from the official WA Florabase.
 
 The script is intentionally resumable: every search/profile response is cached,
