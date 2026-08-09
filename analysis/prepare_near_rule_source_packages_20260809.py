@@ -25,12 +25,15 @@ from pathlib import Path
 import pandas as pd
 
 from island_v2.integrated_trait_coverage import EVIDENCE_COLUMNS
+from island_v2.open_web_finalize import promoted_to_common_evidence
 
 CREATED_DATE = "2026-08-09"
-AUDIT_PER_PROVIDER_TRAIT = 40
+AUDIT_PER_PROVIDER_TRAIT = 200
 BIEN_URL = "https://bien.nceas.ucsb.edu/bien/data-and-access/"
 SINNOTT_DOI = "10.5061/dryad.r4xgxd2sc"
 GOLDBERG_DOI = "10.5061/dryad.1888"
+MOELLER_DOI = "10.5061/dryad.577q1"
+MOELLER_ARTICLE_DOI = "10.1111/ele.12738"
 MICHENEAU_DOI = "10.1093/aob/mcp299"
 HARTATI_DOI = "10.1590/0034-737x201966040004"
 IDE_DOI = "10.11519/jfsc.131.0_790"
@@ -77,6 +80,11 @@ ALLOWED_VALUES = {
     },
     "self_incompatibility": {"SI", "SC", "mixed_or_variable"},
     "autonomous_selfing_capacity": {"present", "absent", "mixed_or_variable"},
+    "mating_system": {
+        "predominantly_outcrossing",
+        "mixed_mating",
+        "predominantly_selfing",
+    },
 }
 
 AXIS = {
@@ -88,6 +96,7 @@ AXIS = {
     "inflorescence_display": "floral_structural_complexity",
     "self_incompatibility": "reproductive_assurance",
     "autonomous_selfing_capacity": "reproductive_assurance",
+    "mating_system": "reproductive_assurance",
 }
 
 COLOUR_TOKENS = {
@@ -193,6 +202,26 @@ def _current_pairs(path: Path) -> set[tuple[str, str]]:
     if "resolution_status" in direct:
         direct = direct.loc[direct["resolution_status"].eq("resolved")]
     return set(zip(direct["accepted_species"], direct["trait_name"], strict=True))
+
+
+def _formal_current_pairs(
+    baseline_evidence_csv: Path,
+    prior_public_web_csv: Path,
+) -> set[tuple[str, str]]:
+    """Reproduce the formalizer's novelty baseline, including unresolved rows."""
+
+    baseline = pd.read_csv(baseline_evidence_csv, dtype=str).fillna("")
+    prior = promoted_to_common_evidence(
+        pd.read_csv(prior_public_web_csv, dtype=str).fillna("")
+    )
+    current = pd.concat([baseline, prior], ignore_index=True, sort=False).fillna("")
+    current = current.loc[
+        current["quality"].str.casefold().isin({"high", "medium"})
+        & current["evidence_scope"]
+        .str.casefold()
+        .isin({"species_direct", "synonym_direct"})
+    ]
+    return set(zip(current["accepted_species"], current["trait_name"], strict=True))
 
 
 def _normalise_colour(raw: object) -> str:
@@ -585,6 +614,111 @@ def goldberg_rows(path: Path, master_names: set[str]) -> list[dict[str, str]]:
                 acceptance_contract="published_breeding_system_dataset_exact_species_v1",
             )
         )
+    return rows
+
+
+def _mating_system_from_outcrossing_rate(value: object) -> str:
+    """Map the published multilocus outcrossing rate without changing its trait."""
+    try:
+        rate = float(value)
+    except (TypeError, ValueError):
+        return ""
+    if not 0.0 <= rate <= 1.0:
+        return ""
+    if rate < 0.2:
+        return "predominantly_selfing"
+    if rate > 0.8:
+        return "predominantly_outcrossing"
+    return "mixed_mating"
+
+
+def moeller_rows(
+    path: Path,
+    master_names: set[str],
+    current_pairs: set[tuple[str, str]],
+) -> list[dict[str, str]]:
+    """Load exact-species SI/SC and mating-rate records from Moeller et al."""
+    source = pd.read_csv(path, encoding="latin1", low_memory=False)
+    required = {"family", "genus", "species", "si", "mean.tm", "reference", "References"}
+    missing = required.difference(source.columns)
+    if missing:
+        raise ValueError(f"Moeller database missing columns: {sorted(missing)}")
+
+    rows: list[dict[str, str]] = []
+    url = f"https://doi.org/{MOELLER_DOI}"
+    for row_index, item in source.iterrows():
+        genus = _text(item["genus"])
+        epithet = _text(item["species"])
+        species = f"{genus} {epithet}".strip()
+        # Underscores in this source denote subspecies, populations, or varieties.
+        # They are held for a synonym/backbone pass instead of being collapsed to a
+        # binomial.  The formal package accepts only an exact master binomial here.
+        if species not in master_names or not re.fullmatch(
+            r"[A-Z][A-Za-z.-]+ [a-z][A-Za-z.-]+", species
+        ):
+            continue
+
+        citation = _text(item["reference"]) or _text(item["References"])
+        citation_key = hashlib.sha256(
+            (citation.casefold() or f"{MOELLER_DOI}:row:{row_index}").encode("utf-8")
+        ).hexdigest()[:20]
+        lineage = (
+            f"citation:{citation_key}"
+            if citation
+            else f"doi:{MOELLER_DOI}:row:{row_index}"
+        )
+        common = {
+            "species": species,
+            "provider": "moeller_etal_2017_dryad",
+            "url": url,
+            "citation": (
+                f"Moeller et al. (2017), DOI {MOELLER_ARTICLE_DOI}; "
+                f"underlying study: {citation or 'dataset row without separate citation'}"
+            ),
+            "lineage": lineage,
+            "lineage_method": "underlying_study_citation_not_dryad_redistributor",
+            "source_run_id": "moeller-global-mating-system-dryad-5786",
+            "source_artifact": "dryad-file-30086-md5-c6b816501a98d336b6fa43fa60ae7ca4",
+            "source_file": path.name,
+            "quality": "high",
+            "acceptance_contract": "published_database_exact_species_reproductive_trait_v1",
+        }
+
+        if (species, "self_incompatibility") not in current_pairs:
+            try:
+                si = float(item["si"])
+            except (TypeError, ValueError):
+                si = float("nan")
+            if si in {0.0, 1.0}:
+                rows.append(
+                    _record(
+                        **common,
+                        trait="self_incompatibility",
+                        value="SC" if si == 1.0 else "SI",
+                        record_key=f"row:{row_index}:si:{si:g}",
+                        excerpt=(
+                            f"accepted species: {species}; source family: {_text(item['family'])}; "
+                            f"si: {si:g} (0 = self-incompatible; 1 = self-compatible)"
+                        ),
+                    )
+                )
+
+        if (species, "mating_system") not in current_pairs:
+            mating_system = _mating_system_from_outcrossing_rate(item["mean.tm"])
+            if mating_system:
+                rate = float(item["mean.tm"])
+                rows.append(
+                    _record(
+                        **common,
+                        trait="mating_system",
+                        value=mating_system,
+                        record_key=f"row:{row_index}:mean.tm:{rate:g}",
+                        excerpt=(
+                            f"accepted species: {species}; source family: {_text(item['family'])}; "
+                            f"mean.tm: {rate:g} (published multilocus outcrossing rate)"
+                        ),
+                    )
+                )
     return rows
 
 
@@ -1026,6 +1160,7 @@ def _audit(evidence: pd.DataFrame) -> pd.DataFrame:
 def build(
     *,
     sinnott_csv: Path,
+    moeller_csv: Path,
     plantnet_csv: list[Path],
     ncsu_csv: Path,
     bien_csv: Path,
@@ -1034,6 +1169,8 @@ def build(
     master_csv: Path,
     current_coverage_csv: Path,
     current_direct_csv: Path,
+    baseline_evidence_csv: Path,
+    prior_public_web_csv: Path,
     output_dir: Path,
 ) -> dict[str, object]:
     master = pd.read_csv(master_csv, usecols=["accepted_species"], dtype=str).fillna("")
@@ -1043,10 +1180,15 @@ def build(
     master_names = set(master["accepted_species"]) & set(coverage["accepted_species"])
     if len(master_names) != 106_295:
         raise ValueError(f"master has {len(master_names)} species, expected 106295")
-    current_pairs = _current_pairs(current_direct_csv)
+    resolved_current_pairs = _current_pairs(current_direct_csv)
+    current_pairs = _formal_current_pairs(
+        baseline_evidence_csv,
+        prior_public_web_csv,
+    )
 
     records = (
         sinnott_rows(sinnott_csv, master_names, current_pairs)
+        + moeller_rows(moeller_csv, master_names, current_pairs)
         + _inventory_rows(
             plantnet_csv,
             provider="plantnet_nsw_flora",
@@ -1070,6 +1212,14 @@ def build(
     evidence = evidence.drop_duplicates(
         ["accepted_species", "trait_name", "normalized_value", "source_lineage"]
     ).sort_values(["source_provider", "trait_name", "accepted_species", "source_record_id"])
+    evidence = evidence.loc[
+        [
+            (species, trait) not in current_pairs
+            for species, trait in zip(
+                evidence["accepted_species"], evidence["trait_name"], strict=True
+            )
+        ]
+    ].copy()
     if evidence["source_record_id"].duplicated().any():
         raise ValueError("source_record_id is not unique")
     invalid = evidence.loc[
@@ -1107,6 +1257,7 @@ def build(
         )
     input_paths = [
         sinnott_csv,
+        moeller_csv,
         *plantnet_csv,
         ncsu_csv,
         bien_csv,
@@ -1115,12 +1266,15 @@ def build(
         master_csv,
         current_coverage_csv,
         current_direct_csv,
+        baseline_evidence_csv,
+        prior_public_web_csv,
     ]
     summary: dict[str, object] = {
         "contract": "near_rule_multi_source_direct_evidence_v1",
         "created_at_utc": datetime.now(UTC).isoformat(),
         "strict_universe_species": len(master_names),
-        "baseline_direct_species_trait": len(current_pairs),
+        "baseline_resolved_direct_species_trait": len(resolved_current_pairs),
+        "formal_novelty_baseline_species_trait": len(current_pairs),
         "evidence_rows": len(evidence),
         "species_trait": len(direct_pairs),
         "novel_species_trait": len(novel_pairs),
@@ -1137,6 +1291,7 @@ def build(
         },
         "source_access": {
             "sinnott_armstrong_2025_dryad": f"https://doi.org/{SINNOTT_DOI}",
+            "moeller_etal_2017_dryad": f"https://doi.org/{MOELLER_DOI}",
             "plantnet_nsw_flora": "https://plantnet.rbgsyd.nsw.gov.au/",
             "ncsu_extension_plant_toolbox": "https://plants.ces.ncsu.edu/",
             "bien": BIEN_URL,
@@ -1160,11 +1315,12 @@ def build(
         },
         "strict_exclusions": [
             "species absent from the fixed 106295-species master",
-            "species x trait already directly resolved except independent SI corroboration",
+            "species x trait already present in the formal novelty baseline",
             "cultivar hybrid selection or grex text",
             "PlantNET non-flower measurements and calyx bract involucral tubes",
             "NCSU narrative prose outside structured Flower fields",
             "BIEN records without an attributable original citation",
+            "Moeller source names that are not exact master binomials",
             "sexual-system-only records and pollen-vector records outside strict axes",
             "family inference global fallback and n=2 genus inference",
         ],
@@ -1180,6 +1336,7 @@ def build(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--sinnott-csv", type=Path, required=True)
+    parser.add_argument("--moeller-csv", type=Path, required=True)
     parser.add_argument("--plantnet-csv", type=Path, action="append", required=True)
     parser.add_argument("--ncsu-csv", type=Path, required=True)
     parser.add_argument("--bien-csv", type=Path, required=True)
@@ -1188,6 +1345,8 @@ def main() -> None:
     parser.add_argument("--master-csv", type=Path, required=True)
     parser.add_argument("--current-coverage-csv", type=Path, required=True)
     parser.add_argument("--current-direct-csv", type=Path, required=True)
+    parser.add_argument("--baseline-evidence-csv", type=Path, required=True)
+    parser.add_argument("--prior-public-web-csv", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
     print(json.dumps(build(**vars(args)), indent=2, ensure_ascii=False))

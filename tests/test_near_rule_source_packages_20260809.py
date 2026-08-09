@@ -3,8 +3,10 @@ from pathlib import Path
 import pandas as pd
 
 from analysis.prepare_near_rule_source_packages_20260809 import (
+    _mating_system_from_outcrossing_rate,
     _ncsu_value,
     _normalise_colour,
+    curated_primary_rows,
 )
 from island_v2.open_web_common import reviewed_source_package_evidence
 
@@ -26,6 +28,14 @@ def test_colour_and_structured_ncsu_values_preserve_state_sets() -> None:
     ) == "raceme_spike_panicle|umbel_corymb"
 
 
+def test_outcrossing_rate_stays_a_mating_system_trait() -> None:
+    assert _mating_system_from_outcrossing_rate(0.19) == "predominantly_selfing"
+    assert _mating_system_from_outcrossing_rate(0.2) == "mixed_mating"
+    assert _mating_system_from_outcrossing_rate(0.8) == "mixed_mating"
+    assert _mating_system_from_outcrossing_rate(0.81) == "predominantly_outcrossing"
+    assert _mating_system_from_outcrossing_rate(1.1) == ""
+
+
 def test_committed_near_rule_package_passes_common_gate() -> None:
     evidence = pd.read_csv(
         PACKAGE / "near_rule_incremental_evidence.csv.gz", dtype=str
@@ -34,25 +44,20 @@ def test_committed_near_rule_package_passes_common_gate() -> None:
 
     selected, scopes, summary = reviewed_source_package_evidence(evidence, audit)
 
-    assert summary["reviewed"] == 431
-    assert summary["accepted_correct"] == 431
+    assert summary["reviewed"] == 208
+    assert summary["accepted_correct"] == 208
     assert summary["precision"] == 1.0
     assert summary["cultivar_contamination_rate"] == 0.0
     assert summary["package_gate_passed"]
-    assert len(evidence) == 1831
+    assert len(evidence) == 208
     # The exact autonomous-selfing record is retained, but its one-row trait
     # stratum remains below the production minimum of ten reviewed records.
-    assert len(selected) == 1830
+    assert len(selected) == 206
     assert evidence["source_record_id"].is_unique
-    assert evidence["source_provider"].nunique() == 13
+    assert evidence["source_provider"].nunique() == 3
     assert set(scopes.loc[scopes["production_approved"], "trait_name"]) == {
-        "floral_form",
-        "floral_symmetry",
-        "flower_primary_color",
-        "flower_size_class",
-        "inflorescence_display",
+        "mating_system",
         "self_incompatibility",
-        "tube_depth_class",
     }
     autonomous = scopes.loc[
         scopes["trait_name"].eq("autonomous_selfing_capacity")
@@ -61,10 +66,41 @@ def test_committed_near_rule_package_passes_common_gate() -> None:
     assert not autonomous["production_approved"]
 
 
-def test_wave2_symmetry_records_are_exact_species_direct_evidence() -> None:
+def test_moeller_global_mating_rows_retain_rates_and_source_lineage() -> None:
     evidence = pd.read_csv(
         PACKAGE / "near_rule_incremental_evidence.csv.gz", dtype=str
     ).fillna("")
+    moeller = evidence.loc[
+        evidence["source_provider"].eq("moeller_etal_2017_dryad")
+    ]
+
+    assert len(moeller) == 206
+    assert moeller["accepted_species"].nunique() == 161
+    assert len(moeller.drop_duplicates(["accepted_species", "trait_name"])) == 173
+    assert set(moeller["trait_name"]) == {"mating_system", "self_incompatibility"}
+    assert moeller["source_url"].eq("https://doi.org/10.5061/dryad.577q1").all()
+    assert moeller["source_excerpt"].str.contains(
+        r"(?:mean\.tm:|si:)"
+    ).all()
+    assert moeller["source_lineage"].str.startswith(
+        ("citation:", "doi:10.5061/dryad.577q1:row:")
+    ).all()
+
+
+def test_wave2_symmetry_records_are_exact_species_direct_evidence() -> None:
+    master_names = {
+        "Bulbophyllum singaporeanum",
+        "Commelina erecta",
+        "Drosera paradoxa",
+        "Epipremnum aureum",
+        "Pilea microphylla",
+        "Scaevola taccada",
+        "Tacca cristata",
+        "Uvaria grandiflora",
+        "Uvaria hirsuta",
+        "Uvaria littoralis",
+    }
+    evidence = pd.DataFrame(curated_primary_rows(master_names, set()))
     symmetry = evidence.loc[
         evidence["source_run_id"].eq("manual-source-backed-web-20260809-wave2")
         & evidence["trait_name"].eq("floral_symmetry")
@@ -81,9 +117,11 @@ def test_wave2_symmetry_records_are_exact_species_direct_evidence() -> None:
 
 
 def test_curated_primary_records_keep_reproductive_concepts_separate() -> None:
-    evidence = pd.read_csv(
-        PACKAGE / "near_rule_incremental_evidence.csv.gz", dtype=str
-    ).fillna("")
+    evidence = pd.DataFrame(
+        curated_primary_rows(
+            {"Angraecum cadetii", "Elaeocarpus angustifolius"}, set()
+        )
+    )
     angraecum = evidence.loc[
         evidence["accepted_species"].eq("Angraecum cadetii")
         & evidence["source_provider"].eq("micheneau_etal_2010_primary_article")
