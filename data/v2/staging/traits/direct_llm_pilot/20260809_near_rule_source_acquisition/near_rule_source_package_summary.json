@@ -1,0 +1,174 @@
+{
+  "audit_rows": 417,
+  "baseline_direct_species_trait": 70961,
+  "contract": "near_rule_multi_source_direct_evidence_v1",
+  "created_at_utc": "2026-08-09T00:14:46.029680+00:00",
+  "evidence_rows": 1817,
+  "input_files": {
+    ".work\\AMCS203\\3rd Assignment\\3rd Assignment\\data\\doi_10_5061_dryad_1888__v20100821\\NicSolstatus.csv": {
+      "bytes": 7639,
+      "sha256": "d05dc3211352a6f988c155d4328995cbaadadfebdc82ff62d754a79a17a074bf"
+    },
+    ".work\\artifact-31233181709\\contract_eligible_novel_candidates.csv": {
+      "bytes": 432146,
+      "sha256": "81ddc972d31bd388e692698fe73ca69f2e7427613df527f518c4b4f10d3076fa"
+    },
+    ".work\\bien-source-inventory-20260808\\bien_target_traits.csv": {
+      "bytes": 3325486,
+      "sha256": "add709e77db2701f029e318f19f331fe88a1c6205ac42ba636033a3e0ca3d53c"
+    },
+    ".work\\formal-31267113911\\direct_species_trait_ledger.csv.gz": {
+      "bytes": 1418498,
+      "sha256": "714f0d8535e7dfa8ea1f3f6c9743c75500186d4c52d691b0ef9b2d1e4c223be0"
+    },
+    ".work\\formal-31267113911\\strict_species_axis_coverage.csv.gz": {
+      "bytes": 2579571,
+      "sha256": "9106a955767cce99ab1bf108ef90fa229005b0557227eb5373bb22f152e28111"
+    },
+    ".work\\next-acquisition-20260808\\europe-pmc-batch2-priority-integrated\\accepted_common_direct_evidence.csv.gz": {
+      "bytes": 6767,
+      "sha256": "fad955fa96c8588ebc0044f51f44cb0d967a89f255d331fff792ebce8ed4a253"
+    },
+    ".work\\plantnet-31247162370\\contract_eligible_novel_candidates.csv": {
+      "bytes": 504554,
+      "sha256": "2bd107e55f0be9f7ba3ea6dfa35bfbda8958972b34d18b82f53537440d1e9ee9"
+    },
+    ".work\\plantnet-31247811264\\contract_eligible_novel_candidates.csv": {
+      "bytes": 415584,
+      "sha256": "255e95aeb11029fbfc227980390b84354c666cd2a23122004429ccc25181dd23"
+    },
+    ".work\\plantnet-31249406427\\contract_eligible_novel_candidates.csv": {
+      "bytes": 347911,
+      "sha256": "01e6781d6b56c0298e7026d998cb1507b421aceeb2b7b7cccc0278bab9d5283f"
+    },
+    ".work\\source-package-sinnott-armstrong-2025\\final_dataset.csv": {
+      "bytes": 118867,
+      "sha256": "a253308785e4cbd0e361b3ca04cdfdae29c523eefa843375cebf8030ee0874af"
+    },
+    "data\\v2\\staging\\gbif\\collected\\island_taxa.csv": {
+      "bytes": 5538726,
+      "sha256": "21925a4e4d6fc8431e8549b3c3ddff9acdbded0b017e0aa78a5c863147392fe9"
+    }
+  },
+  "novel_species_trait": 1623,
+  "novelty_rate": 0.9056919642857143,
+  "output_files": {
+    "near_rule_incremental_evidence.csv.gz": {
+      "sha256": "64a94ace15e30040a15b6eae0cb0e3be4b67be7104ab197b19d29e3153adc649"
+    },
+    "near_rule_source_audit.csv": {
+      "sha256": "eaf639d3744867cee8c8205fbb63fc8f19bff61f214f4f6bc69dcc5d7ae8b12e"
+    }
+  },
+  "providers": [
+    {
+      "audit_rows": 9,
+      "evidence_rows": 9,
+      "novel_species_trait": 1,
+      "source_provider": "Europe PMC",
+      "species_trait": 9,
+      "traits": [
+        "self_incompatibility"
+      ]
+    },
+    {
+      "audit_rows": 40,
+      "evidence_rows": 130,
+      "novel_species_trait": 124,
+      "source_provider": "bien_trait_original_citation",
+      "species_trait": 124,
+      "traits": [
+        "flower_primary_color"
+      ]
+    },
+    {
+      "audit_rows": 1,
+      "evidence_rows": 1,
+      "novel_species_trait": 1,
+      "source_provider": "flora_of_peninsular_india",
+      "species_trait": 1,
+      "traits": [
+        "floral_form"
+      ]
+    },
+    {
+      "audit_rows": 40,
+      "evidence_rows": 170,
+      "novel_species_trait": 9,
+      "source_provider": "goldberg_etal_2010_dryad",
+      "species_trait": 170,
+      "traits": [
+        "self_incompatibility"
+      ]
+    },
+    {
+      "audit_rows": 2,
+      "evidence_rows": 2,
+      "novel_species_trait": 2,
+      "source_provider": "micheneau_etal_2010_primary_article",
+      "species_trait": 2,
+      "traits": [
+        "autonomous_selfing_capacity",
+        "self_incompatibility"
+      ]
+    },
+    {
+      "audit_rows": 85,
+      "evidence_rows": 244,
+      "novel_species_trait": 244,
+      "source_provider": "ncsu_extension_plant_toolbox",
+      "species_trait": 244,
+      "traits": [
+        "floral_form",
+        "flower_primary_color",
+        "inflorescence_display"
+      ]
+    },
+    {
+      "audit_rows": 200,
+      "evidence_rows": 617,
+      "novel_species_trait": 614,
+      "source_provider": "plantnet_nsw_flora",
+      "species_trait": 614,
+      "traits": [
+        "floral_form",
+        "flower_primary_color",
+        "flower_size_class",
+        "inflorescence_display",
+        "tube_depth_class"
+      ]
+    },
+    {
+      "audit_rows": 40,
+      "evidence_rows": 644,
+      "novel_species_trait": 644,
+      "source_provider": "sinnott_armstrong_2025_dryad",
+      "species_trait": 644,
+      "traits": [
+        "flower_primary_color"
+      ]
+    }
+  ],
+  "source_access": {
+    "bien": "https://bien.nceas.ucsb.edu/bien/data-and-access/",
+    "europe_pmc": "https://europepmc.org/",
+    "flora_of_peninsular_india": "https://indiaflora-ces.iisc.ac.in/FloraPeninsular/herbsheet.php?cat=7&id=3541",
+    "goldberg_etal_2010_dryad": "https://doi.org/10.5061/dryad.1888",
+    "micheneau_etal_2010_primary_article": "https://doi.org/10.1093/aob/mcp299",
+    "ncsu_extension_plant_toolbox": "https://plants.ces.ncsu.edu/",
+    "plantnet_nsw_flora": "https://plantnet.rbgsyd.nsw.gov.au/",
+    "sinnott_armstrong_2025_dryad": "https://doi.org/10.5061/dryad.r4xgxd2sc"
+  },
+  "species_trait": 1792,
+  "strict_exclusions": [
+    "species absent from the fixed 106295-species master",
+    "species x trait already directly resolved except independent SI corroboration",
+    "cultivar hybrid selection or grex text",
+    "PlantNET non-flower measurements and calyx bract involucral tubes",
+    "NCSU narrative prose outside structured Flower fields",
+    "BIEN records without an attributable original citation",
+    "sexual-system-only records and pollen-vector records outside strict axes",
+    "family inference global fallback and n=2 genus inference"
+  ],
+  "strict_universe_species": 106295
+}
