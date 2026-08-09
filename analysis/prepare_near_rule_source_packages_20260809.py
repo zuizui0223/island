@@ -32,6 +32,8 @@ BIEN_URL = "https://bien.nceas.ucsb.edu/bien/data-and-access/"
 SINNOTT_DOI = "10.5061/dryad.r4xgxd2sc"
 GOLDBERG_DOI = "10.5061/dryad.1888"
 MICHENEAU_DOI = "10.1093/aob/mcp299"
+HARTATI_DOI = "10.1590/0034-737x201966040004"
+IDE_DOI = "10.11519/jfsc.131.0_790"
 FLORA_PENINSULAR_ELAEOCARPUS_URL = (
     "https://indiaflora-ces.iisc.ac.in/FloraPeninsular/"
     "herbsheet.php?cat=7&id=3541"
@@ -679,6 +681,300 @@ def curated_primary_rows(
             "quality": "high",
             "acceptance_contract": "institutional_flora_exact_species_morphology_v1",
         },
+        {
+            "species": "Coelogyne asperata",
+            "trait": "floral_form",
+            "value": "open_radial",
+            "provider": "hartati_etal_2019_primary_article",
+            "url": (
+                "https://www.scielo.br/j/rceres/a/"
+                "9tMLRGHmBGP3HwvJ8Csnw3t/?format=html&lang=en"
+            ),
+            "record_key": "coelogyne-asperata-flower-shape",
+            "citation": (
+                "Hartati et al. (2019), Morphological characterization of "
+                f"Coelogyne spp., Revista Ceres, DOI {HARTATI_DOI}"
+            ),
+            "excerpt": (
+                "Table 2, C. asperata: Flower shape = Star."
+            ),
+            "lineage": f"doi:{HARTATI_DOI}",
+            "lineage_method": "original_article_doi",
+            "source_run_id": "manual-source-backed-web-20260809-wave2",
+            "source_artifact": "Revista-Ceres-66-4-table-2",
+            "source_file": "curated_primary_rows_v2",
+            "quality": "high",
+            "acceptance_contract": "primary_article_exact_species_morphology_table_v1",
+        },
+        {
+            "species": "Pandanus amaryllifolius",
+            "trait": "inflorescence_display",
+            "value": "raceme_spike_panicle",
+            "provider": "singapore_nparks_flora_fauna_web",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/2/2/2299",
+            "record_key": "nparks-species-2299-male-inflorescence",
+            "citation": (
+                "National Parks Board Singapore, Flora & Fauna Web, "
+                "Pandanus amaryllifolius Roxb., species record 2299"
+            ),
+            "excerpt": (
+                "The male inflorescence is a spike of flowers with a white spathe."
+            ),
+            "lineage": "url:https://www.nparks.gov.sg/florafaunaweb/flora/2/2/2299",
+            "lineage_method": "government_species_treatment_url",
+            "source_run_id": "manual-source-backed-web-20260809-wave2",
+            "source_artifact": "NParks-FloraFaunaWeb-species-2299",
+            "source_file": "curated_primary_rows_v2",
+            "quality": "high",
+            "acceptance_contract": "government_database_exact_species_morphology_v1",
+        },
+        {
+            "species": "Pittosporum angustifolium",
+            "trait": "floral_form",
+            "value": "bell_campanulate",
+            "provider": "western_australian_museum",
+            "url": "https://visit.museum.wa.gov.au/goldfields/native-apricot",
+            "record_key": "wa-museum-native-apricot-appearance",
+            "citation": (
+                "Western Australian Museum (2022), Native Apricot, "
+                "Pittosporum angustifolium"
+            ),
+            "excerpt": "The white/creamy bell-shaped flowers appear from June to October.",
+            "lineage": "url:https://visit.museum.wa.gov.au/goldfields/native-apricot",
+            "lineage_method": "museum_species_treatment_url",
+            "source_run_id": "manual-source-backed-web-20260809-wave2",
+            "source_artifact": "WA-Museum-Native-Apricot",
+            "source_file": "curated_primary_rows_v2",
+            "quality": "high",
+            "acceptance_contract": "museum_exact_species_morphology_v1",
+        },
+        {
+            "species": "Pilea microphylla",
+            "trait": "floral_symmetry",
+            "value": "actinomorphic",
+            "provider": "leon_levy_native_plant_preserve",
+            "url": "https://levypreserve.org/plant-listings/pilea-microphylla/",
+            "record_key": "pilea-microphylla-floral-symmetry",
+            "citation": (
+                "Leon Levy Native Plant Preserve, Pilea microphylla species account"
+            ),
+            "excerpt": (
+                "The incomplete, imperfect, actinomorphic, flowers are in leaf axils."
+            ),
+            "lineage": "url:https://levypreserve.org/plant-listings/pilea-microphylla/",
+            "lineage_method": "botanical_preserve_species_treatment_url",
+            "source_run_id": "manual-source-backed-web-20260809-wave2",
+            "source_artifact": "Leon-Levy-Pilea-microphylla",
+            "source_file": "curated_primary_rows_v2",
+            "quality": "medium",
+            "acceptance_contract": "expert_botanical_site_exact_species_morphology_v1",
+        },
+        {
+            "species": "Uvaria grandiflora",
+            "trait": "floral_symmetry",
+            "value": "actinomorphic",
+            "provider": "singapore_nparks_flora_fauna_web",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/1/5/1527",
+            "record_key": "nparks-species-1527-flower-symmetry",
+            "citation": (
+                "National Parks Board Singapore, Flora & Fauna Web, "
+                "Uvaria grandiflora Roxb. ex Hornem., species record 1527"
+            ),
+            "excerpt": "Flower Symmetry | Radial",
+            "lineage": "url:https://www.nparks.gov.sg/florafaunaweb/flora/1/5/1527",
+            "lineage_method": "government_species_treatment_url",
+            "source_run_id": "manual-source-backed-web-20260809-wave2",
+            "source_artifact": "NParks-FloraFaunaWeb-species-1527",
+            "source_file": "curated_primary_rows_v2",
+            "quality": "high",
+            "acceptance_contract": "government_database_exact_species_morphology_v1",
+        },
+        {
+            "species": "Uvaria hirsuta",
+            "trait": "floral_symmetry",
+            "value": "actinomorphic",
+            "provider": "singapore_nparks_flora_fauna_web",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/1/5/1528",
+            "record_key": "nparks-species-1528-flower-symmetry",
+            "citation": (
+                "National Parks Board Singapore, Flora & Fauna Web, "
+                "Uvaria hirsuta Jack, species record 1528"
+            ),
+            "excerpt": "Flower Symmetry | Radial",
+            "lineage": "url:https://www.nparks.gov.sg/florafaunaweb/flora/1/5/1528",
+            "lineage_method": "government_species_treatment_url",
+            "source_run_id": "manual-source-backed-web-20260809-wave2",
+            "source_artifact": "NParks-FloraFaunaWeb-species-1528",
+            "source_file": "curated_primary_rows_v2",
+            "quality": "high",
+            "acceptance_contract": "government_database_exact_species_morphology_v1",
+        },
+        {
+            "species": "Uvaria littoralis",
+            "trait": "floral_symmetry",
+            "value": "actinomorphic",
+            "provider": "singapore_nparks_flora_fauna_web",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/7/4/7404",
+            "record_key": "nparks-species-7404-flower-symmetry",
+            "citation": (
+                "National Parks Board Singapore, Flora & Fauna Web, "
+                "Uvaria littoralis (Blume) Blume, species record 7404"
+            ),
+            "excerpt": "Flower Symmetry | Radial",
+            "lineage": "url:https://www.nparks.gov.sg/florafaunaweb/flora/7/4/7404",
+            "lineage_method": "government_species_treatment_url",
+            "source_run_id": "manual-source-backed-web-20260809-wave2",
+            "source_artifact": "NParks-FloraFaunaWeb-species-7404",
+            "source_file": "curated_primary_rows_v2",
+            "quality": "high",
+            "acceptance_contract": "government_database_exact_species_morphology_v1",
+        },
+        {
+            "species": "Scaevola taccada",
+            "trait": "floral_symmetry",
+            "value": "zygomorphic",
+            "provider": "singapore_nparks_flora_fauna_web",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/2/4/2431",
+            "record_key": "nparks-species-2431-flower-symmetry",
+            "citation": (
+                "National Parks Board Singapore, Flora & Fauna Web, "
+                "Scaevola taccada (Gaertn.) Roxb., species record 2431"
+            ),
+            "excerpt": "Flower Symmetry | Bilateral",
+            "lineage": "url:https://www.nparks.gov.sg/florafaunaweb/flora/2/4/2431",
+            "lineage_method": "government_species_treatment_url",
+            "source_run_id": "manual-source-backed-web-20260809-wave2",
+            "source_artifact": "NParks-FloraFaunaWeb-species-2431",
+            "source_file": "curated_primary_rows_v2",
+            "quality": "high",
+            "acceptance_contract": "government_database_exact_species_morphology_v1",
+        },
+        {
+            "species": "Drosera paradoxa",
+            "trait": "floral_symmetry",
+            "value": "actinomorphic",
+            "provider": "singapore_nparks_flora_fauna_web",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/7/2/7294",
+            "record_key": "nparks-species-7294-flower-symmetry",
+            "citation": (
+                "National Parks Board Singapore, Flora & Fauna Web, "
+                "Drosera paradoxa Lowrie, species record 7294"
+            ),
+            "excerpt": "Flower Symmetry | Radial",
+            "lineage": "url:https://www.nparks.gov.sg/florafaunaweb/flora/7/2/7294",
+            "lineage_method": "government_species_treatment_url",
+            "source_run_id": "manual-source-backed-web-20260809-wave2",
+            "source_artifact": "NParks-FloraFaunaWeb-species-7294",
+            "source_file": "curated_primary_rows_v2",
+            "quality": "high",
+            "acceptance_contract": "government_database_exact_species_morphology_v1",
+        },
+        {
+            "species": "Bulbophyllum singaporeanum",
+            "trait": "floral_symmetry",
+            "value": "zygomorphic",
+            "provider": "singapore_nparks_flora_fauna_web",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/4/9/4999",
+            "record_key": "nparks-species-4999-flower-symmetry",
+            "citation": (
+                "National Parks Board Singapore, Flora & Fauna Web, "
+                "Bulbophyllum singaporeanum Schltr., species record 4999"
+            ),
+            "excerpt": "Flower Symmetry | Bilateral",
+            "lineage": "url:https://www.nparks.gov.sg/florafaunaweb/flora/4/9/4999",
+            "lineage_method": "government_species_treatment_url",
+            "source_run_id": "manual-source-backed-web-20260809-wave2",
+            "source_artifact": "NParks-FloraFaunaWeb-species-4999",
+            "source_file": "curated_primary_rows_v2",
+            "quality": "high",
+            "acceptance_contract": "government_database_exact_species_morphology_v1",
+        },
+        {
+            "species": "Commelina erecta",
+            "trait": "floral_symmetry",
+            "value": "zygomorphic",
+            "provider": "singapore_nparks_flora_fauna_web",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/9/0/9003",
+            "record_key": "nparks-species-9003-flower-symmetry",
+            "citation": (
+                "National Parks Board Singapore, Flora & Fauna Web, "
+                "Commelina erecta L., species record 9003"
+            ),
+            "excerpt": "Flower Symmetry | Bilateral",
+            "lineage": "url:https://www.nparks.gov.sg/florafaunaweb/flora/9/0/9003",
+            "lineage_method": "government_species_treatment_url",
+            "source_run_id": "manual-source-backed-web-20260809-wave2",
+            "source_artifact": "NParks-FloraFaunaWeb-species-9003",
+            "source_file": "curated_primary_rows_v2",
+            "quality": "high",
+            "acceptance_contract": "government_database_exact_species_morphology_v1",
+        },
+        {
+            "species": "Epipremnum aureum",
+            "trait": "floral_symmetry",
+            "value": "actinomorphic",
+            "provider": "singapore_nparks_flora_fauna_web",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/1/3/1390",
+            "record_key": "nparks-species-1390-flower-symmetry",
+            "citation": (
+                "National Parks Board Singapore, Flora & Fauna Web, "
+                "Epipremnum aureum (Linden & André) G.S.Bunting, species record 1390"
+            ),
+            "excerpt": "Flower Symmetry | Radial",
+            "lineage": "url:https://www.nparks.gov.sg/florafaunaweb/flora/1/3/1390",
+            "lineage_method": "government_species_treatment_url",
+            "source_run_id": "manual-source-backed-web-20260809-wave2",
+            "source_artifact": "NParks-FloraFaunaWeb-species-1390",
+            "source_file": "curated_primary_rows_v2",
+            "quality": "high",
+            "acceptance_contract": "government_database_exact_species_morphology_v1",
+        },
+        {
+            "species": "Tacca cristata",
+            "trait": "floral_symmetry",
+            "value": "zygomorphic",
+            "provider": "singapore_nparks_flora_fauna_web",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/2/4/2490",
+            "record_key": "nparks-species-2490-flower-symmetry",
+            "citation": (
+                "National Parks Board Singapore, Flora & Fauna Web, "
+                "Tacca cristata Jack, species record 2490"
+            ),
+            "excerpt": "Flower Symmetry | Bilateral",
+            "lineage": "url:https://www.nparks.gov.sg/florafaunaweb/flora/2/4/2490",
+            "lineage_method": "government_species_treatment_url",
+            "source_run_id": "manual-source-backed-web-20260809-wave2",
+            "source_artifact": "NParks-FloraFaunaWeb-species-2490",
+            "source_file": "curated_primary_rows_v2",
+            "quality": "high",
+            "acceptance_contract": "government_database_exact_species_morphology_v1",
+        },
+        {
+            "species": "Gaultheria pyroloides",
+            "trait": "self_incompatibility",
+            "value": "SC",
+            "provider": "ide_etal_2020_jstage",
+            "url": (
+                "https://www.jstage.jst.go.jp/article/jfsc/131/0/"
+                "131_790/_article/-char/ja/"
+            ),
+            "record_key": "gaultheria-pyroloides-hand-self-pollination",
+            "citation": (
+                "Ide et al. (2020), Artificial pollination experiments of "
+                f"ericaceous dwarf shrubs, DOI {IDE_DOI}"
+            ),
+            "excerpt": (
+                "シラタマノキでは「コントロール」と「ネット掛け」より"
+                "「自家受粉」で有意に高い値を示した。"
+            ),
+            "lineage": f"doi:{IDE_DOI}",
+            "lineage_method": "conference_proceedings_doi",
+            "source_run_id": "manual-source-backed-web-20260809-wave2",
+            "source_artifact": "J-STAGE-jfsc-131-790",
+            "source_file": "curated_primary_rows_v2",
+            "quality": "high",
+            "acceptance_contract": "proceedings_exact_species_hand_self_pollination_v1",
+        },
     ]
     return [
         _record(**candidate)
@@ -850,6 +1146,17 @@ def build(
                 f"https://doi.org/{MICHENEAU_DOI}"
             ),
             "flora_of_peninsular_india": FLORA_PENINSULAR_ELAEOCARPUS_URL,
+            "hartati_etal_2019_primary_article": f"https://doi.org/{HARTATI_DOI}",
+            "singapore_nparks_flora_fauna_web": (
+                "https://www.nparks.gov.sg/florafaunaweb/"
+            ),
+            "western_australian_museum": (
+                "https://visit.museum.wa.gov.au/goldfields/native-apricot"
+            ),
+            "leon_levy_native_plant_preserve": (
+                "https://levypreserve.org/plant-listings/pilea-microphylla/"
+            ),
+            "ide_etal_2020_jstage": f"https://doi.org/{IDE_DOI}",
         },
         "strict_exclusions": [
             "species absent from the fixed 106295-species master",

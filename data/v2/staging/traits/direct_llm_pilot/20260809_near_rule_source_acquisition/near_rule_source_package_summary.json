@@ -1,9 +1,9 @@
 {
-  "audit_rows": 417,
+  "audit_rows": 431,
   "baseline_direct_species_trait": 70961,
   "contract": "near_rule_multi_source_direct_evidence_v1",
-  "created_at_utc": "2026-08-09T00:14:46.029680+00:00",
-  "evidence_rows": 1817,
+  "created_at_utc": "2026-08-09T02:19:23.571288+00:00",
+  "evidence_rows": 1831,
   "input_files": {
     ".work\\AMCS203\\3rd Assignment\\3rd Assignment\\data\\doi_10_5061_dryad_1888__v20100821\\NicSolstatus.csv": {
       "bytes": 7639,
@@ -50,14 +50,14 @@
       "sha256": "21925a4e4d6fc8431e8549b3c3ddff9acdbded0b017e0aa78a5c863147392fe9"
     }
   },
-  "novel_species_trait": 1623,
-  "novelty_rate": 0.9056919642857143,
+  "novel_species_trait": 1637,
+  "novelty_rate": 0.906423034330011,
   "output_files": {
     "near_rule_incremental_evidence.csv.gz": {
-      "sha256": "64a94ace15e30040a15b6eae0cb0e3be4b67be7104ab197b19d29e3153adc649"
+      "sha256": "602fb3024eceec098b429a2fb744ab4a1139233f01a303cf926bc85658d1ab7f"
     },
     "near_rule_source_audit.csv": {
-      "sha256": "eaf639d3744867cee8c8205fbb63fc8f19bff61f214f4f6bc69dcc5d7ae8b12e"
+      "sha256": "9c05df937c61f5ea6cfc70e607a49c6047f9ac4d8291adfa286b64427468311b"
     }
   },
   "providers": [
@@ -102,6 +102,36 @@
       ]
     },
     {
+      "audit_rows": 1,
+      "evidence_rows": 1,
+      "novel_species_trait": 1,
+      "source_provider": "hartati_etal_2019_primary_article",
+      "species_trait": 1,
+      "traits": [
+        "floral_form"
+      ]
+    },
+    {
+      "audit_rows": 1,
+      "evidence_rows": 1,
+      "novel_species_trait": 1,
+      "source_provider": "ide_etal_2020_jstage",
+      "species_trait": 1,
+      "traits": [
+        "self_incompatibility"
+      ]
+    },
+    {
+      "audit_rows": 1,
+      "evidence_rows": 1,
+      "novel_species_trait": 1,
+      "source_provider": "leon_levy_native_plant_preserve",
+      "species_trait": 1,
+      "traits": [
+        "floral_symmetry"
+      ]
+    },
+    {
       "audit_rows": 2,
       "evidence_rows": 2,
       "novel_species_trait": 2,
@@ -139,6 +169,17 @@
       ]
     },
     {
+      "audit_rows": 10,
+      "evidence_rows": 10,
+      "novel_species_trait": 10,
+      "source_provider": "singapore_nparks_flora_fauna_web",
+      "species_trait": 10,
+      "traits": [
+        "floral_symmetry",
+        "inflorescence_display"
+      ]
+    },
+    {
       "audit_rows": 40,
       "evidence_rows": 644,
       "novel_species_trait": 644,
@@ -147,6 +188,16 @@
       "traits": [
         "flower_primary_color"
       ]
+    },
+    {
+      "audit_rows": 1,
+      "evidence_rows": 1,
+      "novel_species_trait": 1,
+      "source_provider": "western_australian_museum",
+      "species_trait": 1,
+      "traits": [
+        "floral_form"
+      ]
     }
   ],
   "source_access": {
@@ -154,12 +205,17 @@
     "europe_pmc": "https://europepmc.org/",
     "flora_of_peninsular_india": "https://indiaflora-ces.iisc.ac.in/FloraPeninsular/herbsheet.php?cat=7&id=3541",
     "goldberg_etal_2010_dryad": "https://doi.org/10.5061/dryad.1888",
+    "hartati_etal_2019_primary_article": "https://doi.org/10.1590/0034-737x201966040004",
+    "ide_etal_2020_jstage": "https://doi.org/10.11519/jfsc.131.0_790",
+    "leon_levy_native_plant_preserve": "https://levypreserve.org/plant-listings/pilea-microphylla/",
     "micheneau_etal_2010_primary_article": "https://doi.org/10.1093/aob/mcp299",
     "ncsu_extension_plant_toolbox": "https://plants.ces.ncsu.edu/",
     "plantnet_nsw_flora": "https://plantnet.rbgsyd.nsw.gov.au/",
-    "sinnott_armstrong_2025_dryad": "https://doi.org/10.5061/dryad.r4xgxd2sc"
+    "singapore_nparks_flora_fauna_web": "https://www.nparks.gov.sg/florafaunaweb/",
+    "sinnott_armstrong_2025_dryad": "https://doi.org/10.5061/dryad.r4xgxd2sc",
+    "western_australian_museum": "https://visit.museum.wa.gov.au/goldfields/native-apricot"
   },
-  "species_trait": 1792,
+  "species_trait": 1806,
   "strict_exclusions": [
     "species absent from the fixed 106295-species master",
     "species x trait already directly resolved except independent SI corroboration",

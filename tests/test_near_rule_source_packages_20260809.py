@@ -34,19 +34,20 @@ def test_committed_near_rule_package_passes_common_gate() -> None:
 
     selected, scopes, summary = reviewed_source_package_evidence(evidence, audit)
 
-    assert summary["reviewed"] == 417
-    assert summary["accepted_correct"] == 417
+    assert summary["reviewed"] == 431
+    assert summary["accepted_correct"] == 431
     assert summary["precision"] == 1.0
     assert summary["cultivar_contamination_rate"] == 0.0
     assert summary["package_gate_passed"]
-    assert len(evidence) == 1817
+    assert len(evidence) == 1831
     # The exact autonomous-selfing record is retained, but its one-row trait
     # stratum remains below the production minimum of ten reviewed records.
-    assert len(selected) == 1816
+    assert len(selected) == 1830
     assert evidence["source_record_id"].is_unique
-    assert evidence["source_provider"].nunique() == 8
+    assert evidence["source_provider"].nunique() == 13
     assert set(scopes.loc[scopes["production_approved"], "trait_name"]) == {
         "floral_form",
+        "floral_symmetry",
         "flower_primary_color",
         "flower_size_class",
         "inflorescence_display",
@@ -58,6 +59,25 @@ def test_committed_near_rule_package_passes_common_gate() -> None:
     ].iloc[0]
     assert autonomous["reviewed"] == 1
     assert not autonomous["production_approved"]
+
+
+def test_wave2_symmetry_records_are_exact_species_direct_evidence() -> None:
+    evidence = pd.read_csv(
+        PACKAGE / "near_rule_incremental_evidence.csv.gz", dtype=str
+    ).fillna("")
+    symmetry = evidence.loc[
+        evidence["source_run_id"].eq("manual-source-backed-web-20260809-wave2")
+        & evidence["trait_name"].eq("floral_symmetry")
+    ]
+
+    assert len(symmetry) == 10
+    assert symmetry["accepted_species"].nunique() == 10
+    assert symmetry["source_lineage"].nunique() == 10
+    assert set(symmetry["normalized_value"]) == {"actinomorphic", "zygomorphic"}
+    assert symmetry["source_excerpt"].str.startswith("Flower Symmetry | ").sum() == 9
+    assert symmetry.loc[
+        symmetry["accepted_species"].eq("Tacca cristata"), "normalized_value"
+    ].item() == "zygomorphic"
 
 
 def test_curated_primary_records_keep_reproductive_concepts_separate() -> None:
