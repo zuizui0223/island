@@ -203,6 +203,47 @@ def test_measurement_owner_is_not_transferred_to_flower() -> None:
     assert "flower_size_class" not in result
 
 
+def test_flower_size_rejects_numbered_next_sentence_and_nested_display_parts() -> None:
+    result = extract_description(
+        "Flowers up to c. 8 mm across, tepals of male flowers 4, of female "
+        "flowers 5. Fruits c. 2 cm across. "
+        "Inflorescence has widely spaced flowers, fertile portion 25 mm long. "
+        "Flowers borne on pedicels of open flowers 4-7 mm long. "
+        "Supplementary inflorescences have 1-2 flowers on an axis 2.5 cm long. "
+        "Pedicels in flower 2.6 cm long. "
+        "Racemes dense in flower, 3 cm long in fruit. "
+        "Female flowers on 8.5 cm long peduncles. "
+        "Green-flower tree 5 m high. "
+        "Flowers on a wiry scape 400 mm high. "
+        "Spikes with 3-5 flowers, 9 mm long in fruit. "
+        "Flowers with lower glumes and lemmas 12 mm long. "
+        "Flowers with heads 12 mm long. "
+        "Upper lip of corolla 14 mm long. "
+        "Corolla blue; limb 15 mm across. "
+        "Calyx tube in female flowers 4 mm long. "
+        "Capsule enclosed by corolla remains 4 mm long. "
+        "Irregular flowers borne on 8 cm long unbranched peduncles. "
+        "Three bracts to a flower, 5 mm long. "
+        "Perianth of six bristles 3 mm long. "
+        "Upper portion of perianth 15 mm long. "
+        "Panicles with clusters of flowers; female 180 mm long. "
+        "Fruit clearly exceeding perianth, 3 mm long. "
+        "Flowers in umbels; buds 12 mm long. "
+        "Perianth 5 cm long; perianth claws 8 mm long. "
+        "Cymes with bracts looking as if flowers solitary, bracts 3 mm long. "
+        "Corolla yellow; standard 14 mm long. "
+        "Flowers on short, 26 mm long, straight peduncles. "
+        "Female flowers with staminodes on a gynophore 0.3 mm long. "
+        "Perianth 4-5 cm long; perianth limbs 5-6 mm long. "
+        "Flowers in terminal flower heads, up to 200 mm long.",
+        _rules(),
+    )
+
+    assert result["flower_size_class"]["value"] == "large|small"
+    assert "medium" not in result["flower_size_class"]["value"]
+    assert "very_large" not in result["flower_size_class"]["value"]
+
+
 def test_cross_semicolon_corolla_tube_is_depth_not_whole_flower_size() -> None:
     result = extract_description(
         "Corolla yellow; tube c. 2 mm long, bearded at throat.",
@@ -211,6 +252,22 @@ def test_cross_semicolon_corolla_tube_is_depth_not_whole_flower_size() -> None:
 
     assert result["tube_depth_class"]["value"] == "shallow"
     assert "flower_size_class" not in result
+
+
+def test_parenthetical_tube_range_uses_core_range_and_rejects_lip_length() -> None:
+    ranged = extract_description(
+        "Corolla 20-25(-30) mm long; tube 12-16(-18) mm long, with basal "
+        "inflation 4 mm diam.",
+        _rules(),
+    )
+    lip_only = extract_description(
+        "Corolla 7 mm long; tube straight; upper lip 1 mm long.",
+        _rules(),
+    )
+
+    assert ranged["tube_depth_class"]["value"] == "intermediate"
+    assert ranged["tube_depth_class"]["raw_measurements"] == ("12-16 mm",)
+    assert "tube_depth_class" not in lip_only
 
 
 def test_source_lineage_uses_original_source_attribute_not_profile_url() -> None:

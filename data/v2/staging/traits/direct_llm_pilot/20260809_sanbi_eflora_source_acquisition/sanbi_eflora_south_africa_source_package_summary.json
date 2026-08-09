@@ -1,0 +1,60 @@
+{
+  "archive_bytes": 15561518,
+  "archive_sha256": "157fe16ca6a5698df24fca4796aec2d69a8da20fd38a3bd36633eb0d5cdedfe4",
+  "archive_url": "https://ipt.sanbi.org.za/archive.do?r=flora_descriptions&v=1.42",
+  "archive_version": "1.42",
+  "audit_quota": {
+    "floral_form": 20,
+    "floral_symmetry": 10,
+    "flower_primary_color": 70,
+    "flower_size_class": 45,
+    "inflorescence_display": 35,
+    "tube_depth_class": 20
+  },
+  "audit_rows": 200,
+  "audit_seed": "sanbi-eflora-south-africa-audit-20260809",
+  "contract": "sanbi_eflora_south_africa_source_package_v1",
+  "exact_fixed_morphology_taxon_ids": 2811,
+  "exact_fixed_species": 2811,
+  "exact_fixed_taxon_ids": 2811,
+  "fixed_universe_species": 106295,
+  "incremental_evidence_rows": 4069,
+  "incremental_species": 1546,
+  "incremental_species_axis": 1948,
+  "incremental_species_trait": 2550,
+  "landing_url": "https://ipt.sanbi.org.za/resource?r=flora_descriptions",
+  "outputs": {
+    "sanbi_eflora_south_africa_audit_queue_200.csv": {
+      "bytes": 178598,
+      "sha256": "b749b9ee41885a90639bd290b1d120367b6a39a717d395eb02d7b13977096cf1"
+    },
+    "sanbi_eflora_south_africa_evidence.csv.gz": {
+      "bytes": 504710,
+      "sha256": "49006c1516a32ea8238a4b2915f7949c5f730536de2c381cb9518778b484e5d6"
+    }
+  },
+  "promotion_performed": false,
+  "quality": "high",
+  "source_artifact": "sanbi-eflora-south-africa-dwca-v1.42",
+  "source_description_rows": 120439,
+  "source_morphology_rows": 43339,
+  "source_reference_rows": 43078,
+  "source_run_id": "sanbi-eflora-south-africa-v1.42-20260809",
+  "source_taxon_rows": 21586,
+  "strict_exclusions": [
+    "infraspecific_and_hybrid_names",
+    "non_exact_fixed_master_names",
+    "non_morphology_description_types",
+    "existing_direct_species_trait_pairs",
+    "pollen_vector_and_reward_outside_strict_axes",
+    "family_and_global_inference"
+  ],
+  "trait_rows": {
+    "floral_form": 363,
+    "floral_symmetry": 64,
+    "flower_primary_color": 860,
+    "flower_size_class": 582,
+    "inflorescence_display": 1985,
+    "tube_depth_class": 215
+  }
+}

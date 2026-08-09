@@ -129,10 +129,14 @@ SYMMETRY_NON_TARGET_SUBJECT = re.compile(
 )
 MEASUREMENT = re.compile(
     r"(?P<raw>(?:c\.?|ca\.?)?\s*\d+(?:\.\d+)?(?:\s*[\-–—]\s*\d+(?:\.\d+)?)?)"
+    r"(?:\s*\(\s*[+\-–—]?\s*\d+(?:\.\d+)?\s*\))?"
     r"\s*(?P<unit>mm|cm|m)\b",
     re.IGNORECASE,
 )
-CULTIVAR = re.compile(r"\b(?:cultivar|hybrid|grex|horticultural selection)\b|[×✕]", re.IGNORECASE)
+CULTIVAR = re.compile(
+    r"\b(?:cultivars?|cultivat(?:ed|ion)|hybrids?|grex|horticultural selection)\b|[×✕]",
+    re.IGNORECASE,
+)
 
 
 def _text(value: Any) -> str:
@@ -295,7 +299,7 @@ def _sentences(description: str) -> list[str]:
     return [
         value.strip()
         for value in re.split(
-            r"(?<!\d\.)(?<!\bc\.)(?<!\bca\.)(?<=[.!?])\s*(?=[A-Z0-9])",
+            r"(?<!\bc\.)(?<!\bca\.)(?<=[.!?])\s+(?=[A-Z0-9])",
             text,
         )
         if value.strip()
@@ -519,7 +523,42 @@ def _extract_measurements(
             subject_pattern = WHOLE_FLOWER_SUBJECT
         for subject in subject_pattern.finditer(normalized):
             prefix = normalized[max(0, subject.start() - 90) : subject.start()]
+            if trait == "flower_size_class" and (
+                (subject.start() > 0 and normalized[subject.start() - 1] == "-")
+                or re.search(r"\b(?:in|during)\s+$", prefix, re.IGNORECASE)
+                or re.search(
+                    r"\b(?:with|bearing)\s+(?:\d+(?:\s*-\s*\d+)?\s+)?$",
+                    prefix,
+                    re.IGNORECASE,
+                )
+                or re.search(
+                    r"\b(?:lip|limb|lobe|segment|part|portion)\s+of\s+(?:the\s+)?$",
+                    prefix,
+                    re.IGNORECASE,
+                )
+                or re.search(
+                    r"\b(?:calyx|tube|limb|lobe|segment|bract|pedicel|cluster|"
+                    r"bracteole|bud|cyme|inflorescence|panicle|raceme|spike|"
+                    r"head|axis|fruit)s?\b[^.;:]{0,70}$",
+                    prefix,
+                    re.IGNORECASE,
+                )
+                or re.search(
+                    r"\b(?:fruit|bract|sepal|calyx)\b[^.;:]{0,55}"
+                    r"\b(?:exceeding|surrounding|subtending)\s+(?:the\s+)?$",
+                    prefix,
+                    re.IGNORECASE,
+                )
+                or re.search(r"\b(?:to|per)\s+(?:a\s+)?$", prefix, re.IGNORECASE)
+            ):
+                continue
             if re.search(r"\bwithout\b[^.;]{0,35}$", prefix, re.IGNORECASE):
+                continue
+            if trait == "flower_size_class" and re.search(
+                r"\b(?:pedicels?|peduncles?|stalks?)\s+(?:of\s+)?(?:open\s+)?$",
+                prefix,
+                re.IGNORECASE,
+            ):
                 continue
             if re.search(
                 r"\b(?:pedicels?|sepals?|lobes?|filaments?|bracts?|bracteoles?|segments?)\b"
@@ -539,7 +578,8 @@ def _extract_measurements(
             ):
                 continue
             if trait == "flower_size_class" and re.match(
-                r"(?:[- ]+tube|\s+(?:stage|heads?))\b",
+                r"(?:[- ]+tube|\s+(?:stage|heads?|limbs?|lobes?|segments?|parts?|"
+                r"remains?|claws?))\b",
                 normalized[subject.end() : subject.end() + 12],
                 re.IGNORECASE,
             ):
@@ -558,12 +598,15 @@ def _extract_measurements(
             )
             if re.search(
                 r"\b(?:petals?|tepals?|sepals?|calyx|bracts?|bracteoles?|pedicels?|"
-                r"peduncles?|lobes?|segments?|anthers?|stamens?|styles?|ovary|"
+                r"peduncles?|lips?|lobes?|segments?|standards?|wings?|keels?|"
+                r"vexilla?|anthers?|stamens?|staminodes?|gynophores?|styles?|ovary|"
                 r"ovaries|androecium|gynoecium|disc|scales?|tubes?|hypanthium|"
-                r"operculum|filaments?|spathes?|"
+                r"operculum|filaments?|spathes?|limbs?|glumes?|lemmas?|paleas?|awns?|"
+                r"bristles?|buds?|"
                 r"fruit|fruiting|capsules?|leaves|leaf|inflorescences?|"
                 r"panicles?|pseudoracemes?|racemes?|spikes?|clusters?|fascicles?|"
-                r"stalks?|rachis)\b",
+                r"flower[- ]heads?|heads?|fertile\s+portion|"
+                r"stalks?|scapes?|rachis|axes?|axis)\b",
                 bridge_without_comparison,
                 re.IGNORECASE,
             ):
@@ -571,8 +614,25 @@ def _extract_measurements(
             if re.search(r"\bflowers?\s+not\s+seen\b", normalized, re.IGNORECASE):
                 continue
             after = window[measurement.end() : measurement.end() + 25]
-            if not re.match(
-                r"\s*(?:long|wide|diam(?:eter)?|across|high|deep)\b",
+            allowed_dimensions = (
+                r"\s*(?:long|deep)\b"
+                if trait == "tube_depth_class"
+                else r"\s*(?:long|wide|diam(?:eter)?|across|high|deep)\b"
+            )
+            if not re.match(allowed_dimensions, after, re.IGNORECASE):
+                continue
+            if trait == "flower_size_class" and re.match(
+                r"\s*(?:long|wide|diam(?:eter)?|across|high|deep)\s*,\s*"
+                r"(?:\w+[ -]+){0,2}(?:the\s+)?"
+                r"(?:pedicels?|peduncles?|stalks?|bracts?|fruits?)\b",
+                after,
+                re.IGNORECASE,
+            ):
+                continue
+            if trait == "flower_size_class" and re.match(
+                r"\s*(?:long|wide|diam(?:eter)?|across|high|deep)\s+"
+                r"(?:\w+[ -]+){0,2}(?:on\s+)?(?:the\s+)?"
+                r"(?:pedicels?|peduncles?|stalks?|axes?|axis)\b",
                 after,
                 re.IGNORECASE,
             ):
