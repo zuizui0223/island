@@ -1,0 +1,66 @@
+﻿{
+    "contract":  "plantnet_nsw_manual_source_package_audit_v1",
+    "precision_contract":  "accepted_correct/all_reviewed",
+    "reviewed":  200,
+    "accepted_correct":  200,
+    "precision":  1,
+    "cultivar_contamination_rate":  0,
+    "reviewer":  "codex_manual_quote_value_identity_audit_20260809",
+    "reviewed_at_utc":  "2026-08-09T11:59:05Z",
+    "deterministic_seed":  "plantnet_nsw-audit-20260809",
+    "approved_traits":  [
+                            "flower_size_class",
+                            "inflorescence_display",
+                            "tube_depth_class"
+                        ],
+    "by_trait":  [
+                     {
+                         "trait_name":  "floral_form",
+                         "reviewed":  7,
+                         "accepted_correct":  7,
+                         "precision":  1,
+                         "cultivar_contamination_rate":  0,
+                         "production_approved":  false
+                     },
+                     {
+                         "trait_name":  "floral_symmetry",
+                         "reviewed":  4,
+                         "accepted_correct":  4,
+                         "precision":  1,
+                         "cultivar_contamination_rate":  0,
+                         "production_approved":  false
+                     },
+                     {
+                         "trait_name":  "flower_primary_color",
+                         "reviewed":  2,
+                         "accepted_correct":  2,
+                         "precision":  1,
+                         "cultivar_contamination_rate":  0,
+                         "production_approved":  false
+                     },
+                     {
+                         "trait_name":  "flower_size_class",
+                         "reviewed":  65,
+                         "accepted_correct":  65,
+                         "precision":  1,
+                         "cultivar_contamination_rate":  0,
+                         "production_approved":  true
+                     },
+                     {
+                         "trait_name":  "inflorescence_display",
+                         "reviewed":  102,
+                         "accepted_correct":  102,
+                         "precision":  1,
+                         "cultivar_contamination_rate":  0,
+                         "production_approved":  true
+                     },
+                     {
+                         "trait_name":  "tube_depth_class",
+                         "reviewed":  20,
+                         "accepted_correct":  20,
+                         "precision":  1,
+                         "cultivar_contamination_rate":  0,
+                         "production_approved":  true
+                     }
+                 ]
+}

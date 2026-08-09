@@ -1,0 +1,69 @@
+{
+  "api_cost_usd": 0.0,
+  "audit_queue_rows": 200,
+  "audit_seed": "flora-of-australia-audit-20260809",
+  "baseline_species_trait_pairs": 73879,
+  "by_trait": [
+    {
+      "rows": 197,
+      "species": 197,
+      "trait_name": "floral_form"
+    },
+    {
+      "rows": 13,
+      "species": 13,
+      "trait_name": "floral_symmetry"
+    },
+    {
+      "rows": 415,
+      "species": 415,
+      "trait_name": "flower_primary_color"
+    },
+    {
+      "rows": 1185,
+      "species": 1185,
+      "trait_name": "flower_size_class"
+    },
+    {
+      "rows": 1878,
+      "species": 1878,
+      "trait_name": "inflorescence_display"
+    },
+    {
+      "rows": 372,
+      "species": 372,
+      "trait_name": "tube_depth_class"
+    }
+  ],
+  "collection_index_requests": 0,
+  "collection_species_profiles": 19207,
+  "contract": "flora_of_australia_source_scale_acquisition_v1",
+  "exact_master_profiles": 6794,
+  "guardrails": {
+    "axis_level_extraction": false,
+    "cultivar_hybrid_excluded": true,
+    "description_field": "Description_only",
+    "family_inference": false,
+    "global_fallback": false,
+    "rank": "species_only",
+    "snippet_as_evidence": false,
+    "species_identity": "accepted_name_exact_plus_family_exact"
+  },
+  "identity_gate_passed": 6528,
+  "measurement_classification_rule_version": "size_tube_v2_ontology_aligned",
+  "novel_candidate_rows": 4060,
+  "novel_species_axis": 3276,
+  "novel_species_trait": 4060,
+  "profile_fetch": {
+    "cached": 6794,
+    "failed": 0,
+    "fetched": 0,
+    "requested": 6794
+  },
+  "profile_requests_this_run": 0,
+  "profiles_with_description": 6329,
+  "search_queries": 0,
+  "source_landing_url": "https://profiles.ala.org.au/opus/foa",
+  "source_run_id": "flora-of-australia-source-scale-20260809",
+  "unique_species_with_novel_evidence": 2969
+}

@@ -1,0 +1,65 @@
+{
+  "api_cost_usd": 0.0,
+  "audit_queue_rows": 200,
+  "audit_seed": "plantnet-nsw-audit-20260809",
+  "baseline_species_trait_pairs": 77939,
+  "by_trait": [
+    {
+      "rows": 7,
+      "species": 7,
+      "trait_name": "floral_form"
+    },
+    {
+      "rows": 4,
+      "species": 4,
+      "trait_name": "floral_symmetry"
+    },
+    {
+      "rows": 2,
+      "species": 2,
+      "trait_name": "flower_primary_color"
+    },
+    {
+      "rows": 254,
+      "species": 254,
+      "trait_name": "flower_size_class"
+    },
+    {
+      "rows": 448,
+      "species": 448,
+      "trait_name": "inflorescence_display"
+    },
+    {
+      "rows": 43,
+      "species": 43,
+      "trait_name": "tube_depth_class"
+    }
+  ],
+  "collection_species_profiles": 7505,
+  "contract": "plantnet_nsw_source_scale_acquisition_v1",
+  "exact_master_profiles": 4236,
+  "guardrails": {
+    "axis_level_extraction": false,
+    "cultivar_hybrid_excluded": true,
+    "description_field": "Description_section_only",
+    "family_inference": false,
+    "global_fallback": false,
+    "rank": "species_index_only",
+    "snippet_as_evidence": false,
+    "species_identity": "accepted_name_exact_plus_family_exact"
+  },
+  "identity_gate_passed": 3602,
+  "index_fetch_status": "cached",
+  "measurement_classification_rule_version": "size_tube_v2_ontology_aligned",
+  "novel_candidate_rows": 758,
+  "novel_species_axis": 699,
+  "novel_species_trait": 758,
+  "profile_fetch_status": {
+    "cached": 4236
+  },
+  "profiles_with_description": 4052,
+  "search_queries": 0,
+  "source_landing_url": "https://plantnet.rbgsyd.nsw.gov.au/PlantNet/NSWflora/fullindex.html",
+  "source_run_id": "plantnet-nsw-source-scale-20260809",
+  "unique_species_with_novel_evidence": 698
+}

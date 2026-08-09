@@ -11,6 +11,10 @@ on:
       - "data/v2/staging/traits/open_web_pilot/high_leverage_source_manifest_*.json"
       - "data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/stratified_trait_audit_*.csv"
       - "data/v2/staging/traits/direct_llm_pilot/20260808_scale_source_acquisition/**"
+      - "data/v2/staging/traits/direct_llm_pilot/20260809_flora_of_australia_source_acquisition/**"
+      - "data/v2/staging/traits/direct_llm_pilot/20260809_plantnet_nsw_source_acquisition/**"
+      - "analysis/acquire_flora_of_australia_traits_20260809.py"
+      - "analysis/acquire_plantnet_nsw_traits_20260809.py"
       - "analysis/acquire_florabase_colours_20260808.py"
       - "analysis/acquire_ken_fern_reproductive_traits_20260808.py"
       - "analysis/acquire_kew_grassbase_traits_20260808.py"
@@ -26,6 +30,8 @@ on:
       - "tests/test_open_web_common.py"
       - "tests/test_review_inventory_artifact.py"
       - "tests/test_scale_trait_source_packages_20260808.py"
+      - "tests/test_flora_of_australia_source_scale.py"
+      - "tests/test_plantnet_nsw_source_scale.py"
       - "tests/test_near_rule_source_packages_20260809.py"
       - "tests/test_secondary_probabilistic_genus_low_20260809.py"
       - "data/v2/staging/traits/direct_llm_pilot/20260809_near_rule_source_acquisition/**"
@@ -139,6 +145,8 @@ jobs:
         run: |
           ruff check \
             analysis/acquire_florabase_colours_20260808.py \
+            analysis/acquire_flora_of_australia_traits_20260809.py \
+            analysis/acquire_plantnet_nsw_traits_20260809.py \
             analysis/acquire_ken_fern_reproductive_traits_20260808.py \
             analysis/acquire_kew_grassbase_traits_20260808.py \
             analysis/acquire_pfaf_reproductive_traits_20260808.py \
@@ -151,7 +159,11 @@ jobs:
             src/island_v2/open_web_finalize.py \
             src/island_v2/review_inventory_artifact.py \
             tests/test_review_inventory_artifact.py \
+            tests/test_flora_of_australia_source_scale.py \
+            tests/test_plantnet_nsw_source_scale.py \
             tests/test_open_web_common.py \
+            tests/test_flora_of_australia_source_scale.py \
+            tests/test_plantnet_nsw_source_scale.py \
             tests/test_near_rule_source_packages_20260809.py \
             tests/test_secondary_probabilistic_genus_low_20260809.py \
             tests/test_scale_trait_source_packages_20260808.py
