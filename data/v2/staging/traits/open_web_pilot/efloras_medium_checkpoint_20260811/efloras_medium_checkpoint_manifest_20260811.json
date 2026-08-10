@@ -1,0 +1,52 @@
+{
+  "contract": "efloras_medium_checkpoint_v1",
+  "counts": {
+    "audit_rows": 200,
+    "candidate_rows": 24298,
+    "selected_by_trait": {
+      "floral_form": 32,
+      "flower_size_class": 2794,
+      "inflorescence_display": 399,
+      "tube_depth_class": 48
+    },
+    "selected_evidence_rows": 3273,
+    "selected_species_trait": 3011,
+    "selection_reasons": {
+      "already_resolved_direct_species_trait": 16525,
+      "bud_measurement_not_open_flower": 22,
+      "comparative_other_taxon_context": 1,
+      "cultivar_or_horticultural_context": 6,
+      "incomplete_multistate_context": 200,
+      "no_safe_trait_grammar": 2150,
+      "not_direct_morphology_fragment": 101,
+      "outside_angiosperm_scope": 32,
+      "safe_grammar_value_mismatch": 91,
+      "selected_for_manual_audit_gate": 3273,
+      "taxonomic_comparative_note": 3,
+      "trait_outside_checkpoint": 1894
+    }
+  },
+  "family_inference": false,
+  "global_fallback": false,
+  "input_hashes": {
+    "baseline_direct_csv_sha256": "887ec11c5466bc6afab629be1ce562521dac0d3281652766e809a8ca17e4d6a1",
+    "candidates_csv_sha256": "ae34238875a879818bfdc18e9b7389f8f52773e3e1ca0810448bbffddd0412dc",
+    "master_csv_sha256": "21925a4e4d6fc8431e8549b3c3ddff9acdbded0b017e0aa78a5c863147392fe9",
+    "reviewed_audit_csv_sha256": "4c65651678d5210212650f8c913e41ec6d421deeca58aa32fe6e8b0c705720d0"
+  },
+  "manual_audit": {
+    "accepted_correct": 200,
+    "reviewed": 200,
+    "unique_source_pages": 200
+  },
+  "manual_audit_required_before_promotion": false,
+  "output_hashes": {
+    "efloras_medium_evidence_20260811.csv.gz": "5bed632835be74e47b6391ae240978cbfc605b4299ef5e923424bf2e13ac3adc",
+    "efloras_medium_manual_audit_200_20260811.csv": "4c65651678d5210212650f8c913e41ec6d421deeca58aa32fe6e8b0c705720d0",
+    "efloras_medium_selection_audit_20260811.csv.gz": "c256d5a9fbc6742a7bdb11219def54e7b51a33f4ec2952e04b77aa08a0a62e03"
+  },
+  "source_artifact": "efloras-all-floras-combined",
+  "source_artifact_id": "8818398786",
+  "source_run_conclusion": "failure_with_successful_final_collect_artifact",
+  "source_run_id": "30688236057"
+}

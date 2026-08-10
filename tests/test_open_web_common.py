@@ -73,8 +73,8 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "'31245813999'" in workflow
     assert "'30434418380'" in workflow
     assert "open-web-multidomain-pilot-30434418380" in workflow
-    assert "inputs.prior_public_web_run_id || '31350993446'" in workflow
-    assert "reviewed-open-web-evidence-31350993446" in workflow
+    assert "inputs.prior_public_web_run_id || '31397350878'" in workflow
+    assert "reviewed-open-web-evidence-31397350878" in workflow
     assert "broad_web_medium_evidence.csv.gz" in workflow
     assert "prior_public_web_run_id:" in workflow
     assert "prior_public_web_artifact_name:" in workflow
@@ -83,14 +83,12 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "--prior-public-web-csv" in workflow
     assert "source_package_evidence_csv_path:" in workflow
     assert "source_package_audit_csv_path:" in workflow
-    assert (
-        "SOURCE_PACKAGE_EVIDENCE_CSV_PATH: "
-        "${{ inputs.source_package_evidence_csv_path }}"
-    ) in workflow
-    assert (
-        "SOURCE_PACKAGE_AUDIT_CSV_PATH: "
-        "${{ inputs.source_package_audit_csv_path }}"
-    ) in workflow
+    assert "SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-" in workflow
+    assert "SOURCE_PACKAGE_AUDIT_CSV_PATH: >-" in workflow
+    assert "efloras_medium_evidence_20260811.csv.gz" in workflow
+    assert "efloras_medium_manual_audit_200_20260811.csv" in workflow
+    assert "efloras-all-floras-combined#artifact-8818398786" in workflow
+    assert "inputs.source_package_run_id || '30688236057'" in workflow
     assert "wfo_combined_high_yield_evidence.csv.gz" not in workflow
     assert "wfo_combined_high_yield_manual_audit_320.csv" not in workflow
     assert "--source-package-evidence-csv" in workflow

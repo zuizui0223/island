@@ -12,6 +12,7 @@ on:
       - "data/v2/staging/traits/open_web_pilot/curated_bulk_*_20260811.csv"
       - "data/v2/staging/traits/open_web_pilot/curated_bulk_*_20260811.csv.gz"
       - "data/v2/staging/traits/open_web_pilot/curated_bulk_*_20260811.json"
+      - "data/v2/staging/traits/open_web_pilot/efloras_medium_checkpoint_20260811/**"
       - "data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/stratified_trait_audit_*.csv"
       - "data/v2/staging/traits/direct_llm_pilot/20260808_scale_source_acquisition/**"
       - "data/v2/staging/traits/direct_llm_pilot/20260809_flora_of_australia_source_acquisition/**"
@@ -40,8 +41,10 @@ on:
       - "src/island_v2/open_web_common.py"
       - "src/island_v2/open_web_finalize.py"
       - "src/island_v2/curated_bulk_checkpoint.py"
+      - "src/island_v2/efloras_medium_checkpoint.py"
       - "src/island_v2/review_inventory_artifact.py"
       - "tests/test_curated_bulk_checkpoint.py"
+      - "tests/test_efloras_medium_checkpoint.py"
       - "tests/test_open_web_common.py"
       - "tests/test_review_inventory_artifact.py"
       - "tests/test_scale_trait_source_packages_20260808.py"
@@ -76,11 +79,11 @@ on:
       prior_public_web_run_id:
         description: Previous formal reviewed-Web run to extend
         required: false
-        default: "31350993446"
+        default: "31397350878"
       prior_public_web_artifact_name:
         description: Artifact containing the previous formal Web ledger
         required: false
-        default: "reviewed-open-web-evidence-31350993446"
+        default: "reviewed-open-web-evidence-31397350878"
       prior_public_web_file_name:
         description: Evidence CSV path inside the previous artifact
         required: false
@@ -88,27 +91,27 @@ on:
       curated_evidence_csv_path:
         description: Individually reviewed species-direct evidence committed on this ref
         required: false
-        default: ""
+        default: "data/v2/staging/traits/open_web_pilot/curated_bulk_direct_evidence_20260811.csv"
       curated_audit_csv_path:
         description: Line-by-line audit for the curated evidence
         required: false
-        default: ""
+        default: "data/v2/staging/traits/open_web_pilot/curated_bulk_direct_manual_audit_20260811.csv"
       source_package_evidence_csv_path:
         description: Common-schema evidence from an audited source package
         required: false
-        default: ""
+        default: "data/v2/staging/traits/open_web_pilot/efloras_medium_checkpoint_20260811/efloras_medium_evidence_20260811.csv.gz"
       source_package_audit_csv_path:
         description: Deterministic audit sample for the source package
         required: false
-        default: ""
+        default: "data/v2/staging/traits/open_web_pilot/efloras_medium_checkpoint_20260811/efloras_medium_manual_audit_200_20260811.csv"
       source_package_run_id:
         description: Original acquisition run or immutable package identifier
         required: false
-        default: ""
+        default: "30688236057"
       source_package_artifact_name:
         description: Original source-package artifact name
         required: false
-        default: ""
+        default: "efloras-all-floras-combined#artifact-8818398786"
 
 permissions:
   actions: read
@@ -129,10 +132,10 @@ jobs:
       PILOT_ARTIFACT_NAME: >-
         ${{ inputs.pilot_artifact_name ||
         'open-web-multidomain-pilot-30434418380' }}
-      PRIOR_PUBLIC_WEB_RUN_ID: ${{ inputs.prior_public_web_run_id || '31350993446' }}
+      PRIOR_PUBLIC_WEB_RUN_ID: ${{ inputs.prior_public_web_run_id || '31397350878' }}
       PRIOR_PUBLIC_WEB_ARTIFACT: >-
         ${{ inputs.prior_public_web_artifact_name ||
-        'reviewed-open-web-evidence-31350993446' }}
+        'reviewed-open-web-evidence-31397350878' }}
       PRIOR_PUBLIC_WEB_FILE_NAME: >-
         ${{ inputs.prior_public_web_file_name ||
         'broad_web_medium_evidence.csv.gz' }}
@@ -141,12 +144,22 @@ jobs:
         'data/v2/staging/traits/open_web_pilot/multidomain_manual_audit_200_30434418380.csv' }}
       CANDIDATE_FILE_NAME: >-
         ${{ inputs.candidate_file_name || 'open_web_multidomain_candidates.csv' }}
-      CURATED_EVIDENCE_CSV_PATH: ${{ inputs.curated_evidence_csv_path || '' }}
-      CURATED_AUDIT_CSV_PATH: ${{ inputs.curated_audit_csv_path || '' }}
-      SOURCE_PACKAGE_EVIDENCE_CSV_PATH: ${{ inputs.source_package_evidence_csv_path }}
-      SOURCE_PACKAGE_AUDIT_CSV_PATH: ${{ inputs.source_package_audit_csv_path }}
-      SOURCE_PACKAGE_RUN_ID: ${{ inputs.source_package_run_id }}
-      SOURCE_PACKAGE_ARTIFACT: ${{ inputs.source_package_artifact_name }}
+      CURATED_EVIDENCE_CSV_PATH: >-
+        ${{ inputs.curated_evidence_csv_path ||
+        'data/v2/staging/traits/open_web_pilot/curated_bulk_direct_evidence_20260811.csv' }}
+      CURATED_AUDIT_CSV_PATH: >-
+        ${{ inputs.curated_audit_csv_path ||
+        'data/v2/staging/traits/open_web_pilot/curated_bulk_direct_manual_audit_20260811.csv' }}
+      SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-
+        ${{ inputs.source_package_evidence_csv_path ||
+        'data/v2/staging/traits/open_web_pilot/efloras_medium_checkpoint_20260811/efloras_medium_evidence_20260811.csv.gz' }}
+      SOURCE_PACKAGE_AUDIT_CSV_PATH: >-
+        ${{ inputs.source_package_audit_csv_path ||
+        'data/v2/staging/traits/open_web_pilot/efloras_medium_checkpoint_20260811/efloras_medium_manual_audit_200_20260811.csv' }}
+      SOURCE_PACKAGE_RUN_ID: ${{ inputs.source_package_run_id || '30688236057' }}
+      SOURCE_PACKAGE_ARTIFACT: >-
+        ${{ inputs.source_package_artifact_name ||
+        'efloras-all-floras-combined#artifact-8818398786' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -176,8 +189,10 @@ jobs:
             src/island_v2/open_web_common.py \
             src/island_v2/open_web_finalize.py \
             src/island_v2/curated_bulk_checkpoint.py \
+            src/island_v2/efloras_medium_checkpoint.py \
             src/island_v2/review_inventory_artifact.py \
             tests/test_curated_bulk_checkpoint.py \
+            tests/test_efloras_medium_checkpoint.py \
             tests/test_review_inventory_artifact.py \
             tests/test_flora_of_australia_source_scale.py \
             tests/test_plantnet_nsw_source_scale.py \
@@ -192,6 +207,7 @@ jobs:
             tests/test_scale_trait_source_packages_20260808.py
           python -m pytest -q \
             tests/test_curated_bulk_checkpoint.py \
+            tests/test_efloras_medium_checkpoint.py \
             tests/test_open_web_common.py \
             tests/test_review_inventory_artifact.py \
             tests/test_flora_of_australia_source_scale.py \
@@ -303,8 +319,13 @@ jobs:
             and (.shared_all_evidence.pilot_validated_low_change.invalidated >= 0)
             and (.shared_all_evidence.pilot_validated_low_change.upgraded_to_direct >= 0)
             and (
-              .combined_formal_public_web_evidence_rows
-              > .prior_formal_public_web_evidence_rows
+              if .total_incremental_reviewed_evidence_rows > 0 then
+                .combined_formal_public_web_evidence_rows
+                > .prior_formal_public_web_evidence_rows
+              else
+                .combined_formal_public_web_evidence_rows
+                == .prior_formal_public_web_evidence_rows
+              end
             )
             and (
               .shared_all_evidence.coverage_increment_species_axis

@@ -214,6 +214,34 @@ preceding formal Web artifact by setting `prior_public_web_run_id`,
 all previously promoted direct rows in the append-only ledger while the
 completed-page manifests prevent reacquisition.
 
+## Reviewed eFloras Medium checkpoint (2026-08-11)
+
+The checkpoint under
+`data/v2/staging/traits/open_web_pilot/efloras_medium_checkpoint_20260811/`
+reuses the already-acquired final collect artifact
+`efloras-all-floras-combined` (artifact ID `8818398786`) from run
+`30688236057`. The run concluded as failed because some portal shards failed,
+so this checkpoint claims only the rows present in the successful final
+artifact; it does not claim complete eFloras coverage and performs no new Web
+requests.
+
+`island_v2.efloras_medium_checkpoint` filters pending rows before review. It
+requires exact accepted-name species matches and whole-flower grammatical
+contexts, excludes already resolved direct species-traits, non-angiosperms,
+cultivar text, measurements of flower parts or inflorescences, incomplete
+multistate displays, and comparative treatments of other taxa. The committed
+checkpoint contains 3,273 Medium evidence rows representing 3,011 unique
+species-traits. Its deterministic audit covers 200 distinct treatment URLs
+and all four admitted traits; all 200 reviewed rows were accepted and no
+cultivar contamination was found.
+
+The generator accepts `--reviewed-audit-csv` only to attach decisions to the
+same deterministic sample. Candidate IDs, species, traits, values, URLs,
+quotes, and sample hashes are immutable. The manifest records hashes of the
+source candidate artifact, baseline direct ledger, master taxa, reviewed
+audit, and all checkpoint outputs. Formal promotion still occurs only through
+`reviewed_source_package_evidence` and the shared all-evidence audit.
+
 ## Analysis contract
 
 - Confirmatory: source-lineage-deduplicated species/synonym-direct evidence,
