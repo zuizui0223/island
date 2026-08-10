@@ -85,10 +85,10 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "source_package_audit_csv_path:" in workflow
     assert "SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-" in workflow
     assert "SOURCE_PACKAGE_AUDIT_CSV_PATH: >-" in workflow
-    assert "bsdb_csiro_evidence_20260811.csv.gz" in workflow
-    assert "bsdb_csiro_manual_audit_400_20260811.csv" in workflow
-    assert "bsdb-csiro-reviewed-source-package-20260811" in workflow
-    assert "bsdb-csiro-checkpoint-20260811" in workflow
+    assert "bsdb_csiro_symmetry_evidence_20260811.csv.gz" in workflow
+    assert "bsdb_csiro_symmetry_manual_audit_600_20260811.csv" in workflow
+    assert "bsdb-csiro-symmetry-reviewed-source-package-20260811" in workflow
+    assert "bsdb-csiro-symmetry-checkpoint-20260811" in workflow
     assert "CURATED_EVIDENCE_CSV_PATH: ${{ inputs.curated_evidence_csv_path || '' }}" in workflow
     assert "CURATED_AUDIT_CSV_PATH: ${{ inputs.curated_audit_csv_path || '' }}" in workflow
     assert "wfo_combined_high_yield_evidence.csv.gz" not in workflow
@@ -264,24 +264,26 @@ def test_source_package_gate_scales_only_passing_traits_and_excludes_failures() 
     assert set(selected["trait_name"]) == {"floral_form", "flower_primary_color"}
 
 
-def test_committed_bsdb_csiro_package_passes_the_common_gate() -> None:
+def test_committed_bsdb_csiro_symmetry_package_passes_the_common_gate() -> None:
     root = Path(
         "data/v2/staging/traits/open_web_pilot/"
         "bsdb_csiro_checkpoint_20260811"
     )
-    evidence = pd.read_csv(root / "bsdb_csiro_evidence_20260811.csv.gz", dtype=str)
+    evidence = pd.read_csv(
+        root / "bsdb_csiro_symmetry_evidence_20260811.csv.gz", dtype=str
+    )
     audit = pd.read_csv(
-        root / "bsdb_csiro_manual_audit_400_20260811.csv", dtype=str
+        root / "bsdb_csiro_symmetry_manual_audit_600_20260811.csv", dtype=str
     )
 
     selected, scopes, summary = reviewed_source_package_evidence(evidence, audit)
 
     assert summary["package_gate_passed"] is True
-    assert summary["reviewed"] == 400
-    assert summary["accepted_correct"] == 400
+    assert summary["reviewed"] == 600
+    assert summary["accepted_correct"] == 600
     assert summary["precision"] == pytest.approx(1.0)
     assert summary["cultivar_contamination_rate"] == pytest.approx(0.0)
-    assert len(selected) == 1240
+    assert len(selected) == 2117
     assert set(scopes.loc[scopes["production_approved"], "trait_name"]) == {
         "floral_form",
         "floral_symmetry",

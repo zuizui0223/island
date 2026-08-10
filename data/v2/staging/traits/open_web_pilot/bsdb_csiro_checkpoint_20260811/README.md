@@ -1,24 +1,28 @@
-# BSdb + CSIRO reviewed source checkpoint (2026-08-11)
+# BSdb reproductive + BSdb symmetry + CSIRO reviewed checkpoint (2026-08-11)
 
 This checkpoint combines two independently acquired, source-lineage-preserving
 packages without treating the wrapper as an independent biological source:
 
 - Zell et al. (2025) BSdb (`10.1111/nph.20234`), pinned to
-  `dirtyplants/BSdb@9e87946d1e3121d39e657b702cf9f92ccc10936e`;
+  `dirtyplants/BSdb@9e87946d1e3121d39e657b702cf9f92ccc10936e`, for explicit
+  SC/SI rows and separately sourced species-level floral symmetry;
 - CSIRO Australian Tropical Rainforest Plants, online edition 8, whose current
   species index was retrieved from
   `https://apps.lucidcentral.org/rainforest/text/entities/index.htm?v=20260811`.
 
-The combined evidence file has 1,240 rows. BSdb contributes 574 explicit
-species-level `SC`/`SI` rows retaining 284 original-study lineages. CSIRO
+The current combined evidence file has 2,117 rows. BSdb contributes 574
+explicit species-level `SC`/`SI` rows retaining 284 original-study lineages
+and 877 floral-symmetry rows whose `trait.source` is explicitly documented as
+individually collected species-level data. The morphology adapter rejects all
+genus/family-only sources and does not map `wind` into floral symmetry. CSIRO
 contributes 666 species-direct flower-section rows (527 species) after exact
 accepted-name and family gates and exclusion of previously resolved direct
 species-traits. No snippet, family inference, global fallback, or axis-level
 trait substitution is used.
 
-The deterministic audit contains 400 rows: 200 BSdb structured records and
+The deterministic audit contains 600 rows: 400 BSdb structured records and
 200 CSIRO page excerpts. Every row records the exact value, quote or structured
-record, URL, reviewer, time, and decision. All 400 passed the extraction,
+record, URL, reviewer, time, and decision. All 600 passed the extraction,
 identity, provenance, and cultivar gates (precision 1.0; cultivar contamination
 0.0). This validates extraction from the cited records; it is not a new
 biological remeasurement of the upstream studies.
@@ -40,6 +44,8 @@ python -m island_v2.lucid_rainforest_checkpoint \
   --output-dir csiro-rainforest-output
 ```
 
-Formal promotion must use `bsdb_csiro_evidence_20260811.csv.gz` together with
-`bsdb_csiro_manual_audit_400_20260811.csv` through the common reviewed source
-package gate and PR #131's `genus x trait_name` Validated Low rebuild.
+Formal promotion must use `bsdb_csiro_symmetry_evidence_20260811.csv.gz`
+together with `bsdb_csiro_symmetry_manual_audit_600_20260811.csv` through the
+common reviewed source-package gate and PR #131's `genus x trait_name`
+Validated Low rebuild. The original 1,240-row files remain for checkpoint
+reproducibility.

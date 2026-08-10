@@ -283,6 +283,27 @@ The manifest records all input and output hashes. Formal coverage promotion
 still passes through the common source-package gate and the PR #131
 trait-specific Validated Low implementation.
 
+## Reviewed Zell et al. BSdb floral-symmetry checkpoint (2026-08-11)
+
+`island_v2.bsdb_morphology_checkpoint` uses the same pinned BSdb release but
+keeps a separate trait and provenance contract. The BSdb column description
+defines `trait.source` as individually collected species-level data. The
+adapter therefore requires that field and rejects rows supported only by
+`genus_trait_source` or `family_trait_source`. It also excludes infraspecific
+records, family conflicts, already resolved direct species-traits, and `wind`,
+which is a pollination mode rather than floral symmetry.
+
+Exact species and family gates retained 877 `floral_symmetry` rows for 843
+species: 720 actinomorphic and 157 zygomorphic. The 200-row reproducible audit
+passed at precision 1.0 with zero cultivar contamination. Against formal run
+`31426167270`, 183 of these species had an unresolved structural axis before
+the new records; the rest still contribute independent direct trait evidence
+and trait-specific genus-rule validation.
+
+The committed manifest pins the source CSV, master universe, baseline direct
+ledger, audit, and outputs. No family/genus source is silently promoted to
+species-direct evidence.
+
 ## Reviewed CSIRO rainforest flora checkpoint (2026-08-11)
 
 `island_v2.lucid_rainforest_checkpoint` acquires the public current-name index
@@ -302,23 +323,30 @@ both zero.
 
 The package under
 `data/v2/staging/traits/open_web_pilot/bsdb_csiro_checkpoint_20260811/`
-combines these 666 rows with the 574 reviewed BSdb rows while retaining the
-component source lineages. Its deterministic 400-row audit passed at precision
-1.0 with no cultivar contamination. The audit is a source-backed extraction
-review of exact excerpts or structured records, not an independent biological
-remeasurement.
+now combines these 666 rows with 574 reviewed BSdb reproductive rows and 877
+reviewed BSdb species-level symmetry rows while retaining the component source
+lineages. Its deterministic 600-row audit passed at precision 1.0 with no
+cultivar contamination. The audit is a source-backed extraction review of
+exact excerpts or structured records, not an independent biological
+remeasurement. The original 1,240-row package remains committed as an earlier
+checkpoint.
 
-A local formal rehearsal extending run `31410875934` admitted 1,153 new direct
-species-traits and 681 new direct species-axes. Rebuilding all trait-specific
-genus rules added 2,219 Low cells, invalidated 1,762 old Low cells, and upgraded
-124 old Low cells to direct evidence. The strict net change relative to that
-immediately preceding run was -176 cells (structure +458, colour -231,
-reproductive assurance -403) because the new direct counterexamples correctly
+Formal GitHub Actions run `31426167270` verified the original BSdb + CSIRO
+checkpoint: 1,153 new direct species-traits, 681 new direct species-axes, and
+strict coverage 136,370 / 318,885. Rebuilding all trait-specific genus rules
+added 2,219 Low cells, invalidated 1,762 old Low cells, and upgraded 124 old Low
+cells to direct evidence. The strict net change relative to the immediately
+preceding formal ledger was -176 cells because new counterexamples correctly
 removed more unsupported Low than the gross 1,226 cells gained. Relative to the
-fixed run `31397350878` checkpoint, strict coverage is +819 cells and the number
-of zero-axis species is 1,540 lower. These figures remain local rehearsal values
-until the GitHub Actions artifact for this checkpoint is downloaded and
-verified.
+fixed run `31397350878`, strict coverage is +819 cells and zero-axis species are
+1,540 lower.
+
+A local rehearsal adding BSdb species-level symmetry raises strict coverage to
+136,694 / 318,885: +324 cells over run `31426167270` and +1,143 over the fixed
+baseline. It adds 841 resolved direct species-traits and 65 eligible
+`genus x floral_symmetry` rules over run `31426167270`; zero-axis species fall
+by another 138. These symmetry-extended figures remain provisional until the
+next GitHub Actions artifact is downloaded and independently verified.
 
 Two attractive-looking sources were also rejected fail-closed. The 2026 Dryad
 Red Queen public archive contains heterostyly and pollen-ovule records, but its
