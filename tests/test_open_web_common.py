@@ -73,8 +73,8 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "'31245813999'" in workflow
     assert "'30434418380'" in workflow
     assert "open-web-multidomain-pilot-30434418380" in workflow
-    assert "inputs.prior_public_web_run_id || '31397350878'" in workflow
-    assert "reviewed-open-web-evidence-31397350878" in workflow
+    assert "inputs.prior_public_web_run_id || '31410875934'" in workflow
+    assert "reviewed-open-web-evidence-31410875934" in workflow
     assert "broad_web_medium_evidence.csv.gz" in workflow
     assert "prior_public_web_run_id:" in workflow
     assert "prior_public_web_artifact_name:" in workflow
@@ -85,10 +85,12 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "source_package_audit_csv_path:" in workflow
     assert "SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-" in workflow
     assert "SOURCE_PACKAGE_AUDIT_CSV_PATH: >-" in workflow
-    assert "efloras_medium_evidence_20260811.csv.gz" in workflow
-    assert "efloras_medium_manual_audit_200_20260811.csv" in workflow
-    assert "efloras-all-floras-combined#artifact-8818398786" in workflow
-    assert "inputs.source_package_run_id || '30688236057'" in workflow
+    assert "bsdb_csiro_evidence_20260811.csv.gz" in workflow
+    assert "bsdb_csiro_manual_audit_400_20260811.csv" in workflow
+    assert "bsdb-csiro-reviewed-source-package-20260811" in workflow
+    assert "bsdb-csiro-checkpoint-20260811" in workflow
+    assert "CURATED_EVIDENCE_CSV_PATH: ${{ inputs.curated_evidence_csv_path || '' }}" in workflow
+    assert "CURATED_AUDIT_CSV_PATH: ${{ inputs.curated_audit_csv_path || '' }}" in workflow
     assert "wfo_combined_high_yield_evidence.csv.gz" not in workflow
     assert "wfo_combined_high_yield_manual_audit_320.csv" not in workflow
     assert "--source-package-evidence-csv" in workflow
@@ -260,6 +262,35 @@ def test_source_package_gate_scales_only_passing_traits_and_excludes_failures() 
     assert "floral_form-0" not in set(selected["source_record_id"])
     assert "flower_size_class-2" not in set(selected["source_record_id"])
     assert set(selected["trait_name"]) == {"floral_form", "flower_primary_color"}
+
+
+def test_committed_bsdb_csiro_package_passes_the_common_gate() -> None:
+    root = Path(
+        "data/v2/staging/traits/open_web_pilot/"
+        "bsdb_csiro_checkpoint_20260811"
+    )
+    evidence = pd.read_csv(root / "bsdb_csiro_evidence_20260811.csv.gz", dtype=str)
+    audit = pd.read_csv(
+        root / "bsdb_csiro_manual_audit_400_20260811.csv", dtype=str
+    )
+
+    selected, scopes, summary = reviewed_source_package_evidence(evidence, audit)
+
+    assert summary["package_gate_passed"] is True
+    assert summary["reviewed"] == 400
+    assert summary["accepted_correct"] == 400
+    assert summary["precision"] == pytest.approx(1.0)
+    assert summary["cultivar_contamination_rate"] == pytest.approx(0.0)
+    assert len(selected) == 1240
+    assert set(scopes.loc[scopes["production_approved"], "trait_name"]) == {
+        "floral_form",
+        "floral_symmetry",
+        "flower_primary_color",
+        "flower_size_class",
+        "inflorescence_display",
+        "self_incompatibility",
+        "tube_depth_class",
+    }
 
 
 def test_committed_wfo_source_package_audit_has_only_expected_approved_traits() -> None:

@@ -242,6 +242,92 @@ source candidate artifact, baseline direct ledger, master taxa, reviewed
 audit, and all checkpoint outputs. Formal promotion still occurs only through
 `reviewed_source_package_evidence` and the shared all-evidence audit.
 
+## Reviewed Zell et al. BSdb reproductive checkpoint (2026-08-11)
+
+The checkpoint under
+`data/v2/staging/traits/open_web_pilot/bsdb_reproductive_checkpoint_20260811/`
+uses the published Breeding System Database released with Zell et al. (2025;
+DOI `10.1111/nph.20234`). The immutable upstream input is
+`Zell_df_12_29_23.csv` at repository commit
+`9e87946d1e3121d39e657b702cf9f92ccc10936e`.
+
+`island_v2.bsdb_reproductive_checkpoint` accepts only explicit species-level
+`SC` or `SI` records. It requires an exact species-rank WCVP TNRS name that is
+also an exact accepted species in the GBIF-backed island master list, requires
+family agreement and an original `bs.Source` key, and excludes infraspecific
+records and every species-trait already present in formal run `31410875934`.
+It does not translate mating system, autonomous selfing, pollination vector,
+or any genus/family score into self-incompatibility.
+
+The committed package contains 574 source rows for 533 new
+species x `self_incompatibility` cells (301 SC and 273 SI), retaining 284
+underlying-study lineages rather than treating BSdb as an independent lineage.
+A fixed hash-stratified sample of 100 SC and 100 SI rows was reviewed against
+the source record, identity, family, provenance, and cultivar gates. All 200
+passed; this is a structured-record extraction audit, not a re-review of each
+underlying pollination experiment.
+
+Rebuild the checkpoint from the pinned upstream CSV and the prior formal
+ledger with:
+
+```bash
+python -m island_v2.bsdb_reproductive_checkpoint \
+  --source-csv Zell_df_12_29_23.csv \
+  --baseline-direct-csv direct_species_trait_ledger.csv.gz \
+  --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+  --reviewed-audit-csv bsdb_reproductive_manual_audit_200_20260811.csv \
+  --output-dir bsdb_reproductive_checkpoint_20260811
+```
+
+The manifest records all input and output hashes. Formal coverage promotion
+still passes through the common source-package gate and the PR #131
+trait-specific Validated Low implementation.
+
+## Reviewed CSIRO rainforest flora checkpoint (2026-08-11)
+
+`island_v2.lucid_rainforest_checkpoint` acquires the public current-name index
+and static species treatments from CSIRO Australian Tropical Rainforest Plants.
+It intersects the index with the fixed 106,295-species universe and requests
+only species that still have an unresolved strict axis. Each treatment is kept
+in a resumable local gzip cache; the verification rerun fetched zero completed
+pages. Evidence is admitted only from the treatment's Flowers section after an
+exact accepted-name title match and exact family agreement.
+
+The acquisition found 1,674 exact master-list species, selected 1,407 unresolved
+species, passed 1,375 identity gates, and produced 666 novel direct
+species-traits for 527 species (561 novel species-axes). The rows comprise 273
+flower-size, 195 inflorescence-display, 89 tube-depth, 45 flower-colour, 33
+floral-form, and 31 floral-symmetry records. Search-API queries and cost were
+both zero.
+
+The package under
+`data/v2/staging/traits/open_web_pilot/bsdb_csiro_checkpoint_20260811/`
+combines these 666 rows with the 574 reviewed BSdb rows while retaining the
+component source lineages. Its deterministic 400-row audit passed at precision
+1.0 with no cultivar contamination. The audit is a source-backed extraction
+review of exact excerpts or structured records, not an independent biological
+remeasurement.
+
+A local formal rehearsal extending run `31410875934` admitted 1,153 new direct
+species-traits and 681 new direct species-axes. Rebuilding all trait-specific
+genus rules added 2,219 Low cells, invalidated 1,762 old Low cells, and upgraded
+124 old Low cells to direct evidence. The strict net change relative to that
+immediately preceding run was -176 cells (structure +458, colour -231,
+reproductive assurance -403) because the new direct counterexamples correctly
+removed more unsupported Low than the gross 1,226 cells gained. Relative to the
+fixed run `31397350878` checkpoint, strict coverage is +819 cells and the number
+of zero-axis species is 1,540 lower. These figures remain local rehearsal values
+until the GitHub Actions artifact for this checkpoint is downloaded and
+verified.
+
+Two attractive-looking sources were also rejected fail-closed. The 2026 Dryad
+Red Queen public archive contains heterostyly and pollen-ovule records, but its
+self-incompatibility and breeding-system tables remain request-only BiolFlor or
+TRY inputs; neither available trait substitutes for the strict reproductive
+axis. PSIA lists genomes from families with known SI mechanisms but includes
+self-compatible species and cultivars, so database membership is not accepted
+as species-level SI evidence.
+
 ## Analysis contract
 
 - Confirmatory: source-lineage-deduplicated species/synonym-direct evidence,

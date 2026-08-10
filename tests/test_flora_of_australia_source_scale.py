@@ -129,6 +129,32 @@ def test_colour_excludes_pressed_dry_state_colours() -> None:
     )
 
 
+def test_colour_rejects_bract_hair_pollen_and_oil_dot_colours() -> None:
+    descriptions = (
+        "Male spikes are subtended by three large white leafy bracts.",
+        "Stellate hairs on the outer surface of the perianth cream or golden.",
+        "Petals orbicular, with inconspicuous oil dots.",
+        "Flowers fragrant; pollen white; staminal filaments fleshy.",
+    )
+
+    for description in descriptions:
+        assert "flower_primary_color" not in extract_description(description, _rules())
+
+
+def test_numeric_two_lipped_form_and_regular_symmetry_are_preserved() -> None:
+    form = extract_description(
+        "Corolla tubular below and 2-lipped at the apex.",
+        _rules(),
+    )
+    symmetry = extract_description(
+        "Flowers regular or slightly zygomorphic.",
+        _rules(),
+    )
+
+    assert form["floral_form"]["value"] == "bilabiate|tubular"
+    assert symmetry["floral_symmetry"]["value"] == "actinomorphic|zygomorphic"
+
+
 def test_colour_keeps_coordinated_and_distant_flower_states() -> None:
     coordinated = extract_description(
         "Flowers reddish and green with yellow anthers.",
@@ -169,10 +195,20 @@ def test_flower_size_rejects_inflorescence_and_reproductive_part_measurements() 
             "Filaments 2 mm long in long-styled flowers, 1.5 mm long in "
             "short-styled flowers."
         ),
+        "Flowers fragrant; iInflorescence about 40 cm long; stamens 18-22.",
     )
 
     for description in descriptions:
         assert "flower_size_class" not in extract_description(description, _rules())
+
+
+def test_tube_depth_does_not_use_overall_corolla_length() -> None:
+    result = extract_description(
+        "Petals fused to form a short corolla tube, corolla about 3 mm long overall.",
+        _rules(),
+    )
+
+    assert "tube_depth_class" not in result
 
 
 def test_display_preserves_solitary_and_grouped_multistates() -> None:

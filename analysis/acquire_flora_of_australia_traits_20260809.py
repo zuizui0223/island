@@ -94,7 +94,7 @@ FORM_PATTERNS = (
     (r"\binfundibuliform\w*|\bfunnel[- ]shaped\b|\btrumpet[- ]shaped\b", "funnel_trumpet"),
     (r"\burn[- ]shaped\b|\burceolat\w*", "urn_urceolate"),
     (r"\bpapilion\w*", "papilionaceous"),
-    (r"\bbilabiat\w*|\btwo[- ]lipped\b", "bilabiate"),
+    (r"\bbilabiat\w*|\b(?:two|2)[- ]lipped\b", "bilabiate"),
     (r"\bspurred\b|\bcalcarate\b", "spurred"),
     (r"\brotate\b|\bstar[- ]shaped\b|\bsaucer[- ]shaped\b", "open_radial"),
 )
@@ -513,6 +513,26 @@ def _extract_pattern_states(
                     )
                 ):
                     continue
+                if state in {
+                    "white",
+                    "yellow_orange",
+                    "red_pink",
+                    "blue_purple",
+                    "green_brown_inconspicuous",
+                    "other_described",
+                } and (
+                    re.search(
+                        r"\b(?:bracts?|hairs?|pollen|oil\s+dots?)\b[^,;.]{0,90}$",
+                        sentence[max(0, match.start() - 90) : match.start()],
+                        re.IGNORECASE,
+                    )
+                    or re.match(
+                        r"[^,;.]{0,25}\b(?:bracts?|hairs?|pollen|oil\s+dots?)\b",
+                        suffix,
+                        re.IGNORECASE,
+                    )
+                ):
+                    continue
                 if (
                     require_floral_subject
                     and _nearest_subject(
@@ -534,6 +554,10 @@ def _extract_pattern_states(
 def _extract_symmetry(description: str) -> tuple[set[str], list[str]]:
     patterns = (
         (r"\bactinomorphic\b", "actinomorphic"),
+        (
+            r"\b(?:flowers?|corollas?|perianths?)\b[^.;]{0,25}\bregular\b",
+            "actinomorphic",
+        ),
         (r"\bzygomorphic\b", "zygomorphic"),
         (r"\basymmetric\b", "asymmetric"),
     )
@@ -762,7 +786,7 @@ def _extract_measurements(
                 r"ovaries|androecium|gynoecium|dis[ck]s?|scales?|tubes?|hypanthium|"
                 r"operculum|filaments?|spathes?|limbs?|glumes?|lemmas?|paleas?|awns?|"
                 r"bristles?|buds?|"
-                r"fruit|fruiting|capsules?|leaves|leaf|inflorescences?|"
+                r"fruit|fruiting|capsules?|leaves|leaf|i?inflorescences?|"
                 r"panicles?|pseudoracemes?|racemes?|spikes?|cymes?|catkins?|"
                 r"verticillasters?|clusters?|fascicles?|"
                 r"flower[- ]heads?|heads?|fertile\s+portion|"
@@ -774,6 +798,12 @@ def _extract_measurements(
             if re.search(r"\bflowers?\s+not\s+seen\b", normalized, re.IGNORECASE):
                 continue
             after = window[measurement.end() : measurement.end() + 25]
+            if (
+                trait == "tube_depth_class"
+                and re.search(r"\bcorolla\b", bridge, re.IGNORECASE)
+                and re.search(r"\boverall\b", after, re.IGNORECASE)
+            ):
+                continue
             allowed_dimensions = (
                 r"\s*(?:long|deep)\b"
                 if trait == "tube_depth_class"

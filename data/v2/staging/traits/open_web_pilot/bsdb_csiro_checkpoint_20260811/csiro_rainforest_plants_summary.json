@@ -1,0 +1,43 @@
+{
+  "api_cost_usd": 0.0,
+  "audit_rows": 200,
+  "audit_seed": "csiro-rainforest-audit-20260811",
+  "baseline_species_trait_pairs": 98091,
+  "by_trait": {
+    "floral_form": 33,
+    "floral_symmetry": 31,
+    "flower_primary_color": 45,
+    "flower_size_class": 273,
+    "inflorescence_display": 195,
+    "tube_depth_class": 89
+  },
+  "contract": "csiro_rainforest_plants_source_scale_acquisition_v1",
+  "fetch": {
+    "failed": 0,
+    "fetched": 0,
+    "selected": 1407
+  },
+  "guardrails": {
+    "accepted_name_exact": true,
+    "cultivar_excluded": true,
+    "family_exact": true,
+    "family_inference": false,
+    "flower_section_only": true,
+    "global_fallback": false,
+    "snippet_as_evidence": false
+  },
+  "identity_gate_passed": 1375,
+  "index_fetched_this_run": false,
+  "index_sha256": "cab86550942c4aafaae3337e7f960838aca5b466074796856d92a51a167df7f1",
+  "index_species": 2767,
+  "index_url": "https://apps.lucidcentral.org/rainforest/text/entities/index.htm?v=20260811",
+  "novel_candidate_rows": 666,
+  "novel_species_axis": 561,
+  "novel_species_trait": 666,
+  "pages_with_flower_text": 1406,
+  "search_queries": 0,
+  "selected_unresolved_species": 1407,
+  "source_run_id": "csiro-rainforest-plants-source-scale-20260811",
+  "strict_exact_species": 1674,
+  "unique_species": 527
+}
