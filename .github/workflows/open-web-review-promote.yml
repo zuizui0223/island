@@ -107,9 +107,9 @@ on:
         required: false
         default: "broad_web_medium_evidence.csv.gz"
       prior_public_web_supplement_file_name:
-        description: Last source package retained to repair lineage-quality precedence
+        description: Canonical lineage table used only to repair prior-ledger quality
         required: false
-        default: "accepted_source_package_evidence.csv.gz"
+        default: "reviewed_source_lineages.csv.gz"
       curated_evidence_csv_path:
         description: Individually reviewed species-direct evidence committed on this ref
         required: false
@@ -163,7 +163,7 @@ jobs:
         'broad_web_medium_evidence.csv.gz' }}
       PRIOR_PUBLIC_WEB_SUPPLEMENT_FILE_NAME: >-
         ${{ inputs.prior_public_web_supplement_file_name ||
-        'accepted_source_package_evidence.csv.gz' }}
+        'reviewed_source_lineages.csv.gz' }}
       AUDIT_CSV_PATH: >-
         ${{ inputs.audit_csv_path ||
         'data/v2/staging/traits/open_web_pilot/multidomain_manual_audit_200_30434418380.csv' }}

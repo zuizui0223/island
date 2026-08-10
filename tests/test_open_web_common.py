@@ -20,6 +20,7 @@ from island_v2.open_web_common import (
 )
 from island_v2.open_web_finalize import (
     combine_public_web_ledgers,
+    repair_public_web_ledger_quality,
     validate_individually_reviewed_evidence,
 )
 
@@ -80,6 +81,7 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "prior_public_web_artifact_name:" in workflow
     assert "prior_public_web_file_name:" in workflow
     assert "prior_public_web_supplement_file_name:" in workflow
+    assert "reviewed_source_lineages.csv.gz" in workflow
     assert '"/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_FILE_NAME"' in workflow
     assert '"/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_SUPPLEMENT_FILE_NAME"' in workflow
     assert "--prior-public-web-csv" in workflow
@@ -500,6 +502,34 @@ def test_reviewed_web_ledger_keeps_highest_quality_for_same_lineage() -> None:
     assert len(combined) == 1
     assert combined.loc[0, "quality"] == "high"
     assert combined.loc[0, "source_group"] == "original_database"
+
+
+def test_quality_repair_does_not_add_non_ledger_lineages() -> None:
+    shared = {
+        "accepted_species": "Alpha one",
+        "trait_name": "floral_symmetry",
+        "normalized_value": "actinomorphic",
+        "source_lineage": "original-study:alpha",
+        "source_url": "https://example.org/alpha",
+    }
+    prior = pd.DataFrame([{**shared, "quality": "medium", "source_group": "mirror"}])
+    canonical = pd.DataFrame(
+        [
+            {**shared, "quality": "high", "source_group": "original_database"},
+            {
+                **shared,
+                "accepted_species": "Beta two",
+                "source_lineage": "original-study:beta",
+                "quality": "high",
+            },
+        ]
+    )
+
+    repaired = repair_public_web_ledger_quality(prior, canonical)
+
+    assert len(repaired) == 1
+    assert repaired.loc[0, "accepted_species"] == "Alpha one"
+    assert repaired.loc[0, "quality"] == "high"
 
 
 def _individual_candidate() -> dict[str, object]:

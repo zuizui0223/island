@@ -295,6 +295,43 @@ def combine_public_web_ledgers(
     ).reset_index(drop=True)
 
 
+def repair_public_web_ledger_quality(
+    prior: pd.DataFrame,
+    canonical_lineages: pd.DataFrame,
+    *,
+    prior_run_id: str = "",
+    prior_artifact: str = "",
+) -> pd.DataFrame:
+    """Restore quality/provenance only for keys already present in the ledger."""
+
+    if prior.empty or canonical_lineages.empty:
+        return prior.copy().fillna("")
+    keys = [
+        "accepted_species",
+        "trait_name",
+        "source_lineage",
+        "normalized_value",
+    ]
+    missing = set(keys).difference(canonical_lineages.columns)
+    if missing:
+        raise ValueError(
+            f"canonical lineage supplement is missing columns: {sorted(missing)}"
+        )
+    prior_keys = prior.copy().fillna("")[keys].drop_duplicates()
+    matched = canonical_lineages.copy().fillna("").merge(
+        prior_keys,
+        on=keys,
+        how="inner",
+        validate="many_to_one",
+    )
+    return combine_public_web_ledgers(
+        prior,
+        matched,
+        prior_run_id=prior_run_id,
+        prior_artifact=prior_artifact,
+    )
+
+
 def _report_groups(reviewed: pd.DataFrame, column: str) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for value, group in reviewed.groupby(column, sort=True):
@@ -432,7 +469,7 @@ def finalize_review(
             prior_public_web_supplement_csv,
             dtype=str,
         ).fillna("")
-        prior_formal = combine_public_web_ledgers(
+        prior_formal = repair_public_web_ledger_quality(
             prior_formal,
             prior_supplement,
             prior_run_id=prior_public_web_run_id,
