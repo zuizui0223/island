@@ -9,6 +9,9 @@ on:
       - "data/v2/staging/traits/open_web_pilot/plantnet_inventory_manual_audit_*.csv"
       - "data/v2/staging/traits/open_web_pilot/high_leverage_species_direct_*.csv"
       - "data/v2/staging/traits/open_web_pilot/high_leverage_source_manifest_*.json"
+      - "data/v2/staging/traits/open_web_pilot/curated_bulk_*_20260811.csv"
+      - "data/v2/staging/traits/open_web_pilot/curated_bulk_*_20260811.csv.gz"
+      - "data/v2/staging/traits/open_web_pilot/curated_bulk_*_20260811.json"
       - "data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/stratified_trait_audit_*.csv"
       - "data/v2/staging/traits/direct_llm_pilot/20260808_scale_source_acquisition/**"
       - "data/v2/staging/traits/direct_llm_pilot/20260809_flora_of_australia_source_acquisition/**"
@@ -36,7 +39,9 @@ on:
       - "analysis/prepare_scale_trait_source_packages_20260808.py"
       - "src/island_v2/open_web_common.py"
       - "src/island_v2/open_web_finalize.py"
+      - "src/island_v2/curated_bulk_checkpoint.py"
       - "src/island_v2/review_inventory_artifact.py"
+      - "tests/test_curated_bulk_checkpoint.py"
       - "tests/test_open_web_common.py"
       - "tests/test_review_inventory_artifact.py"
       - "tests/test_scale_trait_source_packages_20260808.py"
@@ -170,7 +175,9 @@ jobs:
             analysis/prepare_scale_trait_source_packages_20260808.py \
             src/island_v2/open_web_common.py \
             src/island_v2/open_web_finalize.py \
+            src/island_v2/curated_bulk_checkpoint.py \
             src/island_v2/review_inventory_artifact.py \
+            tests/test_curated_bulk_checkpoint.py \
             tests/test_review_inventory_artifact.py \
             tests/test_flora_of_australia_source_scale.py \
             tests/test_plantnet_nsw_source_scale.py \
@@ -184,6 +191,7 @@ jobs:
             tests/test_secondary_probabilistic_genus_low_20260809.py \
             tests/test_scale_trait_source_packages_20260808.py
           python -m pytest -q \
+            tests/test_curated_bulk_checkpoint.py \
             tests/test_open_web_common.py \
             tests/test_review_inventory_artifact.py \
             tests/test_flora_of_australia_source_scale.py \
