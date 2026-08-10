@@ -83,10 +83,16 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "--prior-public-web-csv" in workflow
     assert "source_package_evidence_csv_path:" in workflow
     assert "source_package_audit_csv_path:" in workflow
-    assert "wfo_combined_high_yield_evidence.csv.gz" in workflow
-    assert "wfo_combined_high_yield_manual_audit_320.csv" in workflow
-    assert "wfo-high-yield-plus-fna-foc-africa-20260810" in workflow
-    assert "wfo-high-yield-plus-fna-foc-africa-source-package-20260810" in workflow
+    assert (
+        "SOURCE_PACKAGE_EVIDENCE_CSV_PATH: "
+        "${{ inputs.source_package_evidence_csv_path }}"
+    ) in workflow
+    assert (
+        "SOURCE_PACKAGE_AUDIT_CSV_PATH: "
+        "${{ inputs.source_package_audit_csv_path }}"
+    ) in workflow
+    assert "wfo_combined_high_yield_evidence.csv.gz" not in workflow
+    assert "wfo_combined_high_yield_manual_audit_320.csv" not in workflow
     assert "--source-package-evidence-csv" in workflow
     assert ".source_package.novelty_rate >= 0.50" in workflow
     assert "coverage_change_species_axis.net_change" in workflow
