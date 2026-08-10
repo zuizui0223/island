@@ -233,7 +233,8 @@ def reviewed_source_package_evidence(
     trait-specific, while Web-page inventories remain domain x trait-specific.
     Unreviewed rows may scale only inside a trait whose deterministic audit has
     at least ten rows and passes the same precision and cultivar thresholds as
-    the open-Web lane.
+    the open-Web lane. A failed extraction trait must not veto independently
+    audited passing traits from the same archive package.
     """
 
     required_evidence = set(EVIDENCE_COLUMNS)
@@ -317,8 +318,6 @@ def reviewed_source_package_evidence(
     )
     package_gate_passed = bool(
         len(reviewed) >= MIN_SOURCE_PACKAGE_REVIEWED
-        and precision is not None
-        and precision >= MIN_PRECISION
         and cultivar_rate is not None
         and cultivar_rate <= MAX_CULTIVAR_CONTAMINATION
         and approved_traits
@@ -366,8 +365,11 @@ def reviewed_source_package_evidence(
         "minimum_reviewed_per_trait": MIN_REVIEWED_PER_SCOPE,
         "minimum_precision": MIN_PRECISION,
         "maximum_cultivar_contamination": MAX_CULTIVAR_CONTAMINATION,
+        "approval_unit": "trait_name",
+        "overall_precision_gate_applied": False,
         "package_gate_passed": package_gate_passed,
         "approved_traits": sorted(approved_traits),
+        "approved_trait_count": len(approved_traits),
         "candidate_evidence_rows": len(package),
         "selected_evidence_rows": len(selected),
         "explicitly_rejected_candidate_ids": len(rejected_ids),

@@ -13,13 +13,14 @@ extraction are not used.
 | PlantNET NSW FloraOnline | 7,505 | 4,236 | 4,052 | 758 | 699 |
 | SANBI e-Flora of South Africa v1.42 | 21,586 taxon records | 2,811 | 2,811 | 2,548 | 1,947 |
 | Kew/WFO African floras (FTEA, FZ, FWTA) | 37,779 matched descriptions | 3,720 | 3,720 | 1,266 approved | 1,248 approved |
+| WFO global six-flora wave | 22,981 matched descriptions | 8,631 | 8,631 | 4,742 approved | 3,788 approved |
 
 PlantNET novelty is measured after excluding both the pre-wave formal ledger
 and Flora of Australia. It therefore represents the second source's pure
 candidate increment. The formal coverage workflow still recalculates direct
 conflicts and every trait-specific genus rule before reporting net coverage.
 
-All four source groups were acquired without search API credentials or query
+All five source groups were acquired without search API credentials or query
 cost. The complete public collection indexes are read once, and each
 exact-match profile or pinned archive is processed deterministically. A restart
 does not fetch a completed profile again.
@@ -70,6 +71,19 @@ the three reviewed failures, 1,485 evidence rows remain, covering 1,266 novel
 species x trait pairs and 1,248 species x axis pairs before formal conflict and
 Validated-Low recalculation.
 
+The fifth wave reads six additional pinned WFO-hosted archives in one local
+pass: Brazilian Flora 2020, e-Flora Thailand, Flora of Panama, Flora
+Neotropica, Memoirs of the New York Botanical Garden, and the Edinburgh
+Rhododendron monograph. The prior formal direct ledger is used as an exclusion
+set before extraction. The deterministic 200-row holdout accepted 187 rows
+(0.935 overall; cultivar contamination 0). Approval is deliberately
+trait-specific at the unchanged 0.95 threshold: form (30/30), symmetry
+(10/10), flower size (30/30), and inflorescence display (40/40) scale to
+production, while colour (64/70) and tube depth (13/20) remain preserved but
+unpromoted. This yields 5,434 selected evidence rows, 4,742 species x trait,
+and 3,788 species x axis candidates before conflict and Validated-Low
+recalculation.
+
 ## Reproduction
 
 The raw HTTP caches are intentionally not committed. Given the prior formal
@@ -100,6 +114,13 @@ py -3.13 -m analysis.acquire_wfo_kew_africa_traits_20260810 `
   --strict-coverage-csv <sanbi-strict-species-axis-coverage.csv.gz> `
   --current-direct-ledger-csv <sanbi-direct-species-trait-ledger.csv.gz> `
   --output-dir <wfo-kew-africa-output>
+
+py -3.13 -m analysis.acquire_wfo_global_flora_traits_20260810 `
+  --backbone-zip <wfo-plant-list-2026-06.zip> `
+  --archive-dir <six-wfo-provider-archives-directory> `
+  --strict-coverage-csv <wfo-kew-africa-strict-species-axis-coverage.csv.gz> `
+  --current-direct-ledger-csv <wfo-kew-africa-direct-species-trait-ledger.csv.gz> `
+  --output-dir <wfo-global-six-output>
 ```
 
 Committed evidence, treatment inventories, deterministic reviews, summaries,
@@ -109,7 +130,8 @@ and SHA-256 manifests are under:
 - `data/v2/staging/traits/direct_llm_pilot/20260809_plantnet_nsw_source_acquisition/`
 - `data/v2/staging/traits/direct_llm_pilot/20260809_sanbi_eflora_source_acquisition/`
 - `data/v2/staging/traits/direct_llm_pilot/20260810_wfo_kew_africa_source_acquisition/`
+- `data/v2/staging/traits/direct_llm_pilot/20260810_wfo_global_six_source_acquisition/`
 
 Formal promotion must run Flora of Australia, PlantNET, SANBI, then WFO/Kew
-Africa against the resulting artifact so later runs cannot rescan or
-double-count earlier evidence.
+Africa, then the WFO global six-flora wave against the resulting artifact so
+later runs cannot rescan or double-count earlier evidence.

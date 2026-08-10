@@ -1,0 +1,128 @@
+{
+  "contract": "wfo_global_six_manual_source_package_audit_v1",
+  "precision_contract": "accepted_correct/all_reviewed",
+  "reviewed": 200,
+  "accepted_correct": 187,
+  "precision": 0.935,
+  "cultivar_contamination_rate": 0.0,
+  "reviewer": "OpenAI Codex source-text holdout review",
+  "reviewed_at_utc": "2026-08-10T03:30:00Z",
+  "deterministic_seed": "wfo-global-six-floras-holdout-audit-20260810-v1",
+  "approved_traits": [
+    "floral_form",
+    "floral_symmetry",
+    "flower_size_class",
+    "inflorescence_display"
+  ],
+  "selected_evidence_rows": 5434,
+  "selected_species_trait": 4742,
+  "selected_species_axis": 3788,
+  "selected_species": 3788,
+  "by_trait": [
+    {
+      "trait_name": "floral_form",
+      "reviewed": 30,
+      "accepted_correct": 30,
+      "precision": 1.0,
+      "cultivar_contamination_rate": 0.0,
+      "production_approved": true
+    },
+    {
+      "trait_name": "floral_symmetry",
+      "reviewed": 10,
+      "accepted_correct": 10,
+      "precision": 1.0,
+      "cultivar_contamination_rate": 0.0,
+      "production_approved": true
+    },
+    {
+      "trait_name": "flower_primary_color",
+      "reviewed": 70,
+      "accepted_correct": 64,
+      "precision": 0.9142857142857143,
+      "cultivar_contamination_rate": 0.0,
+      "production_approved": false
+    },
+    {
+      "trait_name": "flower_size_class",
+      "reviewed": 30,
+      "accepted_correct": 30,
+      "precision": 1.0,
+      "cultivar_contamination_rate": 0.0,
+      "production_approved": true
+    },
+    {
+      "trait_name": "inflorescence_display",
+      "reviewed": 40,
+      "accepted_correct": 40,
+      "precision": 1.0,
+      "cultivar_contamination_rate": 0.0,
+      "production_approved": true
+    },
+    {
+      "trait_name": "tube_depth_class",
+      "reviewed": 20,
+      "accepted_correct": 13,
+      "precision": 0.65,
+      "cultivar_contamination_rate": 0.0,
+      "production_approved": false
+    }
+  ],
+  "rejected_candidates": [
+    {
+      "candidate_id": "wfo-global-82dbe650ab72194ba70064d1",
+      "reason": "yellow refers to a basal gland, not the flower colour; normalized state set is overinclusive"
+    },
+    {
+      "candidate_id": "wfo-global-82b1f787ea1964131de64308",
+      "reason": "white refers only to corolla trichomes; no flower colour is stated"
+    },
+    {
+      "candidate_id": "wfo-global-236adbca6b5dd77d07a8a76e",
+      "reason": "red and white refer to the fruiting perianth, not the flower colour"
+    },
+    {
+      "candidate_id": "wfo-global-41dc88cdb15b4b8d504318d8",
+      "reason": "red refers to minute calyx-margin glandular spots; flower colour is white"
+    },
+    {
+      "candidate_id": "wfo-global-9a5f3a3990eed1e0f60754df",
+      "reason": "normalized state omits explicit yellow and pink floral parts"
+    },
+    {
+      "candidate_id": "wfo-global-c228d6db83530331897a3496",
+      "reason": "normalized state omits the explicit purple-marked floral state (OCR text: pirple)"
+    },
+    {
+      "candidate_id": "wfo-global-268ae90d5c654f95deadc7f8",
+      "reason": "normalized depth used a sub-millimetre filament measure instead of the explicit 2-3 mm corolla tube"
+    },
+    {
+      "candidate_id": "wfo-global-af904400d942a8163a7aafe8",
+      "reason": "normalized depth used a filament-attachment measure instead of the explicit 8.8-14 mm corolla tube"
+    },
+    {
+      "candidate_id": "wfo-global-7f06b3efd8d3a47f6d7a6035",
+      "reason": "normalized depth used the 7.5 cm filament measure; no corolla-tube depth is stated"
+    },
+    {
+      "candidate_id": "wfo-global-b9094bccb7dde968794b08d5",
+      "reason": "normalized depth follows the 1-2 cm floral/calyx tube rather than the explicit ca. 5 mm corolla tube"
+    },
+    {
+      "candidate_id": "wfo-global-0c1bd9fa386a0b652d2753e9",
+      "reason": "4-7 mm floral tube belongs to the calyx context; corolla-tube depth is not directly measured"
+    },
+    {
+      "candidate_id": "wfo-global-0ae16202df6af9d22638bf8b",
+      "reason": "2-3 cm floral tube belongs to the calyx context; the corolla tube is not separately measured"
+    },
+    {
+      "candidate_id": "wfo-global-e727801dafb803eb98bc5a97",
+      "reason": "quote contains anther insertion and anther length only; no corolla-tube depth measurement"
+    }
+  ],
+  "approval_unit": "trait_name",
+  "overall_precision_gate_applied": false,
+  "package_gate_passed": true
+}

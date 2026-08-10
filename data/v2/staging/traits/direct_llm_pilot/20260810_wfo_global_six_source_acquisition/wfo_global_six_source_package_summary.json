@@ -1,0 +1,98 @@
+{
+  "audit_quota": {
+    "floral_form": 30,
+    "floral_symmetry": 10,
+    "flower_primary_color": 70,
+    "flower_size_class": 30,
+    "inflorescence_display": 40,
+    "tube_depth_class": 20
+  },
+  "audit_rows": 200,
+  "audit_seed": "wfo-global-six-floras-holdout-audit-20260810-v1",
+  "backbone": {
+    "bytes": 121660019,
+    "member": "classification.csv",
+    "sha256": "ccfc7e3ca85c8b80aa96eb52d4e50e07e1811d28916b544280d8a4f1a043ba72"
+  },
+  "contract": "wfo_global_six_source_package_v1",
+  "cross_provider_content_rows": 0,
+  "fixed_universe_species": 106295,
+  "generated_at_utc": "2026-08-10T02:33:41.485231Z",
+  "identity": {
+    "ambiguous_wfo_ids_excluded": 4683,
+    "exact_fixed_backbone_rows": 106277,
+    "resolved_fixed_species": 95207,
+    "resolved_wfo_ids": 333723,
+    "strict_synonym_cluster_rows": 232857
+  },
+  "incremental_evidence_rows": 6939,
+  "incremental_species": 4215,
+  "incremental_species_axis": 5067,
+  "incremental_species_trait": 6099,
+  "matched_description_rows": 22981,
+  "matched_species": 8631,
+  "promotion_performed": false,
+  "quality": "high",
+  "source_archives": {
+    "brazilian_flora_2020": {
+      "archive": "brazilian_flora_2020.zip",
+      "bytes": 13266709,
+      "citation": "Brazilian Flora 2020, official WFO Darwin Core Archive",
+      "member": "description.txt",
+      "sha256": "79455efc837678d0812c4f83247c9f024ab4d8dae43fe72f5c40b2302d50c923"
+    },
+    "eflora_thailand": {
+      "archive": "eflora_thailand.zip",
+      "bytes": 2208210,
+      "citation": "e-Flora Thailand, official WFO Darwin Core Archive",
+      "member": "description.txt",
+      "sha256": "26a135ce728fc6ebddb2576127113858f3222acbfbf00196aee4fae4736ce64e"
+    },
+    "flora_of_panama": {
+      "archive": "flora_panama.zip",
+      "bytes": 3686955,
+      "citation": "Flora of Panama, Missouri Botanical Garden, official WFO DwC-A",
+      "member": "description.txt",
+      "sha256": "b5b7d67e6038be4aee9ff3e9ffcfb9764b314bb025fa87aa887bfe96951b9859"
+    },
+    "nybg_floraneotropica": {
+      "archive": "nybg_floraneotropica.zip",
+      "bytes": 4711792,
+      "citation": "Flora Neotropica, New York Botanical Garden, official WFO DwC-A",
+      "member": "description.txt",
+      "sha256": "29fd3502f3b75b46f07f80a3cd8a248d570a998f25811668d6ca451f6b075fe7"
+    },
+    "nybg_memoirs": {
+      "archive": "nybg_memoirs.zip",
+      "bytes": 6256344,
+      "citation": "Memoirs of the New York Botanical Garden, official WFO DwC-A",
+      "member": "description.txt",
+      "sha256": "168015ec1f7fd17df00e1b5c07b4171453366451bc12e69630227f42a99ef93e"
+    },
+    "rhododendron_monograph": {
+      "archive": "rhododendron.zip",
+      "bytes": 302618,
+      "citation": "Rhododendron monograph, Royal Botanic Garden Edinburgh, official WFO DwC-A",
+      "member": "RhododendronDescriptions.txt",
+      "sha256": "f6a2cee64e3d4f17acf6cafb667781680df9aa64e908687b1b1e951a499d66c0"
+    }
+  },
+  "source_artifact": "wfo-global-six-official-dwca-20260810",
+  "source_run_id": "wfo-global-six-floras-20260810",
+  "strict_exclusions": [
+    "non_species_and_family_conflicting_names",
+    "ambiguous_wfo_identity_clusters",
+    "non_morphology_description_types",
+    "cultivar_and_hybrid_treatments",
+    "existing_direct_species_trait_pairs",
+    "family_and_global_inference"
+  ],
+  "trait_rows": {
+    "floral_form": 767,
+    "floral_symmetry": 39,
+    "flower_primary_color": 1396,
+    "flower_size_class": 1270,
+    "inflorescence_display": 3358,
+    "tube_depth_class": 109
+  }
+}

@@ -188,7 +188,7 @@ def test_source_package_gate_scales_only_passing_traits_and_excludes_failures() 
     evidence_rows: list[dict[str, object]] = []
     traits = [
         ("floral_form", 20, {0}),
-        ("flower_size_class", 20, {0, 1}),
+        ("flower_size_class", 20, set(range(10))),
         ("flower_primary_color", 160, set()),
     ]
     for trait, count, failures in traits:
@@ -249,7 +249,9 @@ def test_source_package_gate_scales_only_passing_traits_and_excludes_failures() 
     assert bool(approval.loc["flower_primary_color"])
     assert not bool(approval.loc["flower_size_class"])
     assert summary["package_gate_passed"]
-    assert summary["precision"] == pytest.approx(197 / 200)
+    assert summary["precision"] == pytest.approx(189 / 200)
+    assert summary["approval_unit"] == "trait_name"
+    assert summary["overall_precision_gate_applied"] is False
     assert len(selected) == 179
     assert "floral_form-0" not in set(selected["source_record_id"])
     assert "flower_size_class-2" not in set(selected["source_record_id"])
