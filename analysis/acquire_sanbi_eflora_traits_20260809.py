@@ -27,7 +27,7 @@ import requests
 from analysis.acquire_flora_of_australia_traits_20260809 import (
     AXIS,
     COLOUR_PATTERNS,
-    CULTIVAR,
+    _cultivar_or_hybrid_treatment,
     extract_description,
 )
 from island_v2.integrated_trait_coverage import EVIDENCE_COLUMNS
@@ -320,10 +320,10 @@ def build_evidence(
     ):
         wfo_id = str(record.id)
         reference_id = str(record.source)
-        description = _text(record.description)
-        if not description or CULTIVAR.search(description):
-            continue
         species = name_by_id[wfo_id]
+        description = _text(record.description)
+        if not description or _cultivar_or_hybrid_treatment(species, description):
+            continue
         citation = citation_by_key.get((wfo_id, reference_id), "")
         extracted = extract_description(description, rules)
         for trait, item in extracted.items():

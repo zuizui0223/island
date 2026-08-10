@@ -25,7 +25,7 @@ from bs4 import BeautifulSoup
 
 from analysis.acquire_flora_of_australia_traits_20260809 import (
     AXIS,
-    CULTIVAR,
+    _cultivar_or_hybrid_treatment,
     extract_description,
 )
 from island_v2.integrated_trait_coverage import EVIDENCE_COLUMNS
@@ -225,7 +225,7 @@ def build_evidence(
             and family == expected_family
         )
         description = _text(item.description)
-        cultivar_excluded = bool(CULTIVAR.search(f"{species} {description}"))
+        cultivar_excluded = _cultivar_or_hybrid_treatment(species, description)
         extracted = (
             extract_description(description, rules)
             if identity_ok and description and not cultivar_excluded

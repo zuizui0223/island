@@ -12,15 +12,17 @@ extraction are not used.
 | Flora of Australia | 19,207 | 6,794 | 6,329 | 4,060 | 3,276 |
 | PlantNET NSW FloraOnline | 7,505 | 4,236 | 4,052 | 758 | 699 |
 | SANBI e-Flora of South Africa v1.42 | 21,586 taxon records | 2,811 | 2,811 | 2,548 | 1,947 |
+| Kew/WFO African floras (FTEA, FZ, FWTA) | 37,779 matched descriptions | 3,720 | 3,720 | 1,266 approved | 1,248 approved |
 
 PlantNET novelty is measured after excluding both the pre-wave formal ledger
 and Flora of Australia. It therefore represents the second source's pure
 candidate increment. The formal coverage workflow still recalculates direct
 conflicts and every trait-specific genus rule before reporting net coverage.
 
-All three sources were acquired without search API credentials or query cost. The
-complete public collection index is read once, and each exact-match profile is
-cached independently. A restart does not fetch a completed profile again.
+All four source groups were acquired without search API credentials or query
+cost. The complete public collection indexes are read once, and each
+exact-match profile or pinned archive is processed deterministically. A restart
+does not fetch a completed profile again.
 SANBI is a versioned, CC BY 4.0 Darwin Core Archive rather than a profile API;
 the acquisition pins the 15,561,518-byte archive at SHA-256
 `157fe16ca6a5698df24fca4796aec2d69a8da20fd38a3bd36633eb0d5cdedfe4`.
@@ -54,10 +56,24 @@ PlantNET meets it for flower size, inflorescence display, and tube depth; its
 13 form/symmetry/colour rows remain recorded but are not production-approved
 in the separate PlantNET promotion.
 
+The fourth source-scale wave reads three official Kew/WFO Darwin Core Archives
+in one pass: Flora of Tropical East Africa, Flora Zambesiaca, and Flora of West
+Tropical Africa. Names are reconciled through the pinned June 2026 WFO Plant
+List using exact accepted names, exact fixed-universe synonyms, and their
+family-consistent WFO synonym clusters. Of 1,491 novel candidate rows, an
+independent deterministic holdout reviewed 200 source passages and accepted
+197 (precision 0.985; cultivar contamination 0). The trait-level production
+gate approves form (26/26), colour (98/99), size (13/13), and inflorescence
+display (57/59). Symmetry (1 row) and tube depth (2 rows) remain stored but are
+not scaled because each has fewer than ten reviewed records. After excluding
+the three reviewed failures, 1,485 evidence rows remain, covering 1,266 novel
+species x trait pairs and 1,248 species x axis pairs before formal conflict and
+Validated-Low recalculation.
+
 ## Reproduction
 
 The raw HTTP caches are intentionally not committed. Given the prior formal
-artifact files, the two resumable acquisitions are run as modules:
+artifact files, the source-scale acquisitions are run as modules:
 
 ```powershell
 py -3.13 -m analysis.acquire_flora_of_australia_traits_20260809 `
@@ -77,6 +93,13 @@ py -3.13 -m analysis.acquire_sanbi_eflora_traits_20260809 `
   --current-direct-ledger-csv <plantnet-direct-species-trait-ledger.csv.gz> `
   --strict-coverage-csv <plantnet-strict-species-axis-coverage.csv.gz> `
   --output-dir <sanbi-output>
+
+py -3.13 -m analysis.acquire_wfo_kew_africa_traits_20260810 `
+  --backbone-zip <wfo-plant-list-2026-06.zip> `
+  --archive-dir <three-kew-wfo-dwca-directory> `
+  --strict-coverage-csv <sanbi-strict-species-axis-coverage.csv.gz> `
+  --current-direct-ledger-csv <sanbi-direct-species-trait-ledger.csv.gz> `
+  --output-dir <wfo-kew-africa-output>
 ```
 
 Committed evidence, treatment inventories, deterministic reviews, summaries,
@@ -85,6 +108,8 @@ and SHA-256 manifests are under:
 - `data/v2/staging/traits/direct_llm_pilot/20260809_flora_of_australia_source_acquisition/`
 - `data/v2/staging/traits/direct_llm_pilot/20260809_plantnet_nsw_source_acquisition/`
 - `data/v2/staging/traits/direct_llm_pilot/20260809_sanbi_eflora_source_acquisition/`
+- `data/v2/staging/traits/direct_llm_pilot/20260810_wfo_kew_africa_source_acquisition/`
 
-Formal promotion must run Flora of Australia, PlantNET, then SANBI against the
-resulting artifact so later runs cannot rescan or double-count earlier evidence.
+Formal promotion must run Flora of Australia, PlantNET, SANBI, then WFO/Kew
+Africa against the resulting artifact so later runs cannot rescan or
+double-count earlier evidence.

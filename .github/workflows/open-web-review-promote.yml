@@ -14,9 +14,11 @@ on:
       - "data/v2/staging/traits/direct_llm_pilot/20260809_flora_of_australia_source_acquisition/**"
       - "data/v2/staging/traits/direct_llm_pilot/20260809_plantnet_nsw_source_acquisition/**"
       - "data/v2/staging/traits/direct_llm_pilot/20260809_sanbi_eflora_source_acquisition/**"
+      - "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_kew_africa_source_acquisition/**"
       - "analysis/acquire_flora_of_australia_traits_20260809.py"
       - "analysis/acquire_plantnet_nsw_traits_20260809.py"
       - "analysis/acquire_sanbi_eflora_traits_20260809.py"
+      - "analysis/acquire_wfo_kew_africa_traits_20260810.py"
       - "analysis/acquire_florabase_colours_20260808.py"
       - "analysis/acquire_ken_fern_reproductive_traits_20260808.py"
       - "analysis/acquire_kew_grassbase_traits_20260808.py"
@@ -35,6 +37,7 @@ on:
       - "tests/test_flora_of_australia_source_scale.py"
       - "tests/test_plantnet_nsw_source_scale.py"
       - "tests/test_sanbi_eflora_source_scale.py"
+      - "tests/test_wfo_kew_africa_source_scale.py"
       - "tests/test_near_rule_source_packages_20260809.py"
       - "tests/test_secondary_probabilistic_genus_low_20260809.py"
       - "data/v2/staging/traits/direct_llm_pilot/20260809_near_rule_source_acquisition/**"
@@ -151,6 +154,7 @@ jobs:
             analysis/acquire_flora_of_australia_traits_20260809.py \
             analysis/acquire_plantnet_nsw_traits_20260809.py \
             analysis/acquire_sanbi_eflora_traits_20260809.py \
+            analysis/acquire_wfo_kew_africa_traits_20260810.py \
             analysis/acquire_ken_fern_reproductive_traits_20260808.py \
             analysis/acquire_kew_grassbase_traits_20260808.py \
             analysis/acquire_pfaf_reproductive_traits_20260808.py \
@@ -166,6 +170,7 @@ jobs:
             tests/test_flora_of_australia_source_scale.py \
             tests/test_plantnet_nsw_source_scale.py \
             tests/test_sanbi_eflora_source_scale.py \
+            tests/test_wfo_kew_africa_source_scale.py \
             tests/test_open_web_common.py \
             tests/test_near_rule_source_packages_20260809.py \
             tests/test_secondary_probabilistic_genus_low_20260809.py \
@@ -176,6 +181,7 @@ jobs:
             tests/test_flora_of_australia_source_scale.py \
             tests/test_plantnet_nsw_source_scale.py \
             tests/test_sanbi_eflora_source_scale.py \
+            tests/test_wfo_kew_africa_source_scale.py \
             tests/test_near_rule_source_packages_20260809.py \
             tests/test_secondary_probabilistic_genus_low_20260809.py \
             tests/test_scale_trait_source_packages_20260808.py \

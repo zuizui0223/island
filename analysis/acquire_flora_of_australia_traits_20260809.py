@@ -101,10 +101,38 @@ FORM_PATTERNS = (
 
 INFLORESCENCE_PATTERNS = (
     (r"\bsolitary\b", "solitary"),
-    (r"\bfew[- ]flowered\b|\bflowers?\s+(?:in\s+)?pairs?\b", "few_flowered"),
-    (r"\b(?:racemes?|spikes?|panicles?|thyrses?|catkins?)\b", "raceme_spike_panicle"),
-    (r"\b(?:umbels?|corymbs?|cymes?|cincinni)\b", "umbel_corymb"),
-    (r"\b(?:capitula|capitulum|flower[- ]heads?)\b", "composite_display"),
+    (
+        (
+            r"\bfew[- ]flowered\b|\bfew-\s+to\s+many[- ]flowered\b|"
+            r"\b[2-5][ -]flowered\b|"
+            r"\bflowers?\s+(?:in\s+)?pairs?\b|"
+            r"\b(?:2|3|2\s*-\s*3)(?:\s*\([^)]*\))?\s+in\s+"
+            r"(?:a\s+)?fascicle\b|\bclusters?\s+of\s+"
+            r"(?:two|three|[2-5](?!\s*-\s*\d))\b"
+            r"|\bsmall(?:\s+axillary)?\s+clusters?\b"
+        ),
+        "few_flowered",
+    ),
+    (
+        (
+            r"\b(?:racemes?|racemos\w*|spikes?|spicat\w*|panicles?|panicul\w*|"
+            r"thyrses?|catkins?)\b"
+        ),
+        "raceme_spike_panicle",
+    ),
+    (
+        r"\b(?:umbels?|corymb\w*|cymes?|cymose|cymules?|cincinni)\b",
+        "umbel_corymb",
+    ),
+    (
+        (
+            r"\b(?:capitula|capitulum|flower[- ]heads?)\b|"
+            r"\b(?:florets?|flowers?)\b[^.;]{0,35}\bheads?\b|"
+            r"\b(?:inflorescences?|clusters?)\b[^.;]{0,25}\bcapitat\w*\b|"
+            r"\bcapitat\w*\s+(?:inflorescences?|clusters?)\b"
+        ),
+        "composite_display",
+    ),
     (r"\b(?:brush|puff)[- ](?:like|shaped)\b", "brush_puff_display"),
 )
 
@@ -118,13 +146,21 @@ WHOLE_FLOWER_SUBJECT = re.compile(
 )
 NON_TARGET_SUBJECT = re.compile(
     r"\b(?:plants?|fruits?|berries|leaves|leaf|foliage|stems?|branches?|bracts?|"
-    r"bracteoles?|calyces|calyx|sepals?|anthers?|filaments?|styles?|stigmas?|"
-    r"ovaries|ovary|hypanthia|hypanthium|capsules?|rays?|seeds?|hairs?|"
-    r"indumentum|pubescence)\b",
+    r"bracteoles?|calyces|calyx|sepals?|anthers?|stamens?|filaments?|styles?|"
+    r"stigmas?|pedicels?|peduncles?|"
+    r"ovaries|ovary|hypanthia|hypanthium|receptacles?|capsules?|rays?|seeds?|"
+    r"buds?|hairs?|cilia|discs?|disks?|axes?|axis|roots?|"
+    r"(?:aerial|subterranean)\s+parts?|indumentum|pubescence)\b",
     re.IGNORECASE,
 )
 SYMMETRY_NON_TARGET_SUBJECT = re.compile(
     rf"(?:{NON_TARGET_SUBJECT.pattern}|\b(?:lobes?|segments?)\b)",
+    re.IGNORECASE,
+)
+FORM_NON_TARGET_SUBJECT = re.compile(
+    rf"(?:{NON_TARGET_SUBJECT.pattern}|"
+    r"\b(?:petals?|tepals?|labellums?|labella|lips?|limbs?|lobes?|segments?|"
+    r"portions?)\b)",
     re.IGNORECASE,
 )
 MEASUREMENT = re.compile(
@@ -134,15 +170,28 @@ MEASUREMENT = re.compile(
     re.IGNORECASE,
 )
 CULTIVAR = re.compile(
-    r"\b(?:cultivars?|cultivat(?:ed|ion)|hybrids?|grex|horticultural selection)\b|[×✕]",
+    r"\b(?:cultivars?|cultivat(?:ed|ion)|hybrids?|grex|horticultural selection)\b",
     re.IGNORECASE,
 )
+HYBRID_TAXON = re.compile(r"[×✕]|(?:^|\s)[xX](?:\s|$)")
 
 
 def _text(value: Any) -> str:
     if value is None or pd.isna(value):
         return ""
     return " ".join(str(value).strip().split())
+
+
+def _cultivar_or_hybrid_treatment(species: str, description: str) -> bool:
+    """Reject cultivar text and hybrid taxon names, but keep dimension signs.
+
+    Botanical descriptions routinely use the multiplication sign in dimensions
+    such as ``5 × 3 mm``.  A multiplication sign is taxonomic evidence of a
+    hybrid only when it occurs in the scientific name, not anywhere in the
+    treatment text.
+    """
+
+    return bool(CULTIVAR.search(f"{species} {description}") or HYBRID_TAXON.search(species))
 
 
 def _normalise_text(value: Any) -> str:
@@ -321,12 +370,13 @@ def _nearest_subject(
         suffix = sentence[match.end() : match.end() + 12]
         return bool(
             re.search(
-                r"\b(?:overtopping|surrounding|subtending|exceeding|than)\s+$",
+                r"\b(?:overtopping|surrounding|subtending|exceeding|enclosing|than)"
+                r"\s+(?:the\s+)?$",
                 prefix,
                 re.IGNORECASE,
             )
             or re.search(r"\bwithout\b[^.;]{0,35}$", prefix, re.IGNORECASE)
-            or re.match(r"\s+heads?\b", suffix, re.IGNORECASE)
+            or re.match(r"[- ]heads?\b", suffix, re.IGNORECASE)
         )
 
     subjects: list[tuple[int, str]] = []
@@ -354,10 +404,14 @@ def _nearest_subject(
     if following:
         following_start, following_type = min(following)
         intervening = sentence[position:following_start]
-        if following_start - position <= 24 and not re.search(r"[,;:.]", intervening):
+        if (
+            following_start - position <= 40
+            and not re.search(r"[,;:.]", intervening)
+            and not re.search(r"\b(?:and|or|but|with)\b", intervening, re.IGNORECASE)
+        ):
             return following_type
 
-    if subjects and position - max(subjects)[0] <= 140:
+    if subjects and position - max(subjects)[0] <= 240:
         nearest = max(subjects)
         if nearest[1] == "target":
             return "target"
@@ -368,6 +422,15 @@ def _nearest_subject(
         if target_matches:
             target = target_matches[-1]
             bridge = sentence[target.end() : position]
+            nearest_non_target = max(subjects)[0]
+            if re.search(r"\blobes?\s+to\s+$", bridge, re.IGNORECASE):
+                return "target"
+            if re.search(
+                r"\b(?:but\s+)?during\s+anthesis\b",
+                sentence[nearest_non_target:position],
+                re.IGNORECASE,
+            ):
+                return "target"
             if len(bridge) <= 170 and re.search(
                 r"\b(?:shorter|longer|equal|as\s+long\s+as|exceed(?:s|ing)?)\b"
                 r"[^,;]{0,45}\b(?:calyx|calyces|sepals?|bracts?)\b\s*,",
@@ -396,11 +459,58 @@ def _extract_pattern_states(
         for pattern, state in patterns:
             for match in re.finditer(pattern, sentence, re.IGNORECASE):
                 prefix = sentence[max(0, match.start() - 35) : match.start()]
+                suffix = sentence[match.end() : match.end() + 35]
                 if re.search(
                     r"(?:\bnot\b|\bnever\b|\bwithout\b|\bnon[- ])"
                     r"(?:\s+\w+){0,2}\s*$",
                     prefix,
                     re.IGNORECASE,
+                ):
+                    continue
+                if re.match(r"[^,;.]{0,18}\bin bud\b", suffix, re.IGNORECASE):
+                    continue
+                if re.search(
+                    r"\b(?:drying|dried|turning)\b[^,;.]{0,22}$",
+                    prefix,
+                    re.IGNORECASE,
+                ) or re.match(
+                    r"[^,;.]{0,18}\bon drying\b",
+                    suffix,
+                    re.IGNORECASE,
+                ):
+                    continue
+                if re.search(
+                    r"\bin\s+the\s+dry\s+state\b[^,;.]{0,35}$",
+                    prefix,
+                    re.IGNORECASE,
+                ):
+                    continue
+                if state == "red_pink" and re.search(
+                    r"\bresembl(?:e|es|ed|ing)\s+(?:the\s+)?(?:wild\s+)?$",
+                    prefix,
+                    re.IGNORECASE,
+                ):
+                    continue
+                if state in {
+                    "white",
+                    "yellow_orange",
+                    "red_pink",
+                    "blue_purple",
+                    "green_brown_inconspicuous",
+                    "other_described",
+                } and (
+                    re.match(
+                        r"[- ](?:ciliate|pilose|pubescent|tomentose|hairy)\b",
+                        suffix,
+                        re.IGNORECASE,
+                    )
+                    or re.search(
+                        r"^\s*(?:achenes?|fruits?|seeds?)\b[^.;]{0,120}"
+                        r"\b(?:persistent\b[^.;]{0,35})?accrescent\b[^.;]{0,25}"
+                        r"\bperianth\b|\bpersistent\b[^.;]{0,35}\bperianth\b",
+                        sentence,
+                        re.IGNORECASE,
+                    )
                 ):
                     continue
                 if (
@@ -443,6 +553,7 @@ def _extract_form(description: str) -> tuple[set[str], list[str]]:
         whole_patterns,
         require_floral_subject=True,
         target_pattern=WHOLE_FLOWER_SUBJECT,
+        non_target_pattern=FORM_NON_TARGET_SUBJECT,
     )
     spur_states, spur_quotes = _extract_pattern_states(
         description,
@@ -458,6 +569,32 @@ def _extract_inflorescence(description: str) -> tuple[set[str], list[str]]:
     quotes: list[str] = []
     for sentence in _sentences(description):
         if re.search(r"\binfructescen", sentence, re.IGNORECASE):
+            continue
+        if re.match(
+            r"\s*(?:achenes?|figs?|fruits?|seeds?|leaves|leaf|stems?)\b",
+            sentence,
+            re.IGNORECASE,
+        ):
+            continue
+        if re.search(
+            r"\bstamens?\s+racemos\w*\b|\bindividual\s+racemes?\b",
+            sentence,
+            re.IGNORECASE,
+        ):
+            continue
+        if re.search(
+            r"\bsimulat(?:e|es|ed|ing)\s+(?:a\s+)?panicle\b|"
+            r"\bmistaken\s+for\b[^.;]{0,30}\bPanicum\b",
+            sentence,
+            re.IGNORECASE,
+        ):
+            continue
+        if re.search(r"\bfascicles?\b", sentence, re.IGNORECASE) and not re.search(
+            r"\b(?:2|3|2\s*-\s*3)(?:\s*\([^)]*\))?\s+in\s+"
+            r"(?:a\s+)?fascicle\b",
+            sentence,
+            re.IGNORECASE,
+        ):
             continue
         has_display_subject = bool(
             re.search(
@@ -476,11 +613,21 @@ def _extract_inflorescence(description: str) -> tuple[set[str], list[str]]:
             if re.search(pattern, sentence, re.IGNORECASE)
         }
         # A bare "solitary" must qualify a flower, not a leaf or plant.
-        if "solitary" in sentence_states and not re.search(
-            r"\b(?:flowers?\s+(?:usually\s+)?solitary|solitary\s+flowers?)\b",
+        flower_solitary = re.search(
+            r"\bsolitary\s+flowers?\b|"
+            r"\bflowers?\b[^.;]{0,150}\bsolitary\b",
             sentence,
             re.IGNORECASE,
-        ):
+        )
+        false_solitary = re.search(
+            r"\b(?:not|never)\s+solitary\b|\blooking\s+as\s+if\b[^.;]{0,35}"
+            r"\bflowers?\s+solitary\b|\bflowers?\b[^.;]{0,80}"
+            r"\b(?:cymes?|corymbs?|panicles?|racemes?|spikes?)\b[^.;]{0,50}"
+            r"\beither\s+terminal\s+and\s+solitary\b",
+            sentence,
+            re.IGNORECASE,
+        )
+        if "solitary" in sentence_states and (not flower_solitary or false_solitary):
             sentence_states.remove("solitary")
         if "solitary" in sentence_states and re.search(
             r"\bflowers?\s+solitary\s+within\s+(?:each|a)\s+bract\b|"
@@ -512,6 +659,12 @@ def _extract_measurements(
     raw_values: list[str] = []
     for sentence in _sentences(description):
         normalized = sentence.replace("–", "-").replace("—", "-")
+        if trait == "flower_size_class" and re.match(
+            r"\s*(?:anthers?|filaments?|styles?|stigmas?)\b",
+            normalized,
+            re.IGNORECASE,
+        ):
+            continue
         if trait == "tube_depth_class":
             subject_pattern = re.compile(
                 r"\b(?:(?:corolla|perianth|floral)[- ]+tube|"
@@ -523,6 +676,12 @@ def _extract_measurements(
             subject_pattern = WHOLE_FLOWER_SUBJECT
         for subject in subject_pattern.finditer(normalized):
             prefix = normalized[max(0, subject.start() - 90) : subject.start()]
+            if trait == "flower_size_class" and re.search(
+                r"\b(?:anthers?|filaments?|styles?|stigmas?)\b[^.;]{0,85}$",
+                prefix,
+                re.IGNORECASE,
+            ):
+                continue
             if trait == "flower_size_class" and (
                 (subject.start() > 0 and normalized[subject.start() - 1] == "-")
                 or re.search(r"\b(?:in|during)\s+$", prefix, re.IGNORECASE)
@@ -538,8 +697,8 @@ def _extract_measurements(
                 )
                 or re.search(
                     r"\b(?:calyx|tube|limb|lobe|segment|bract|pedicel|cluster|"
-                    r"bracteole|bud|cyme|inflorescence|panicle|raceme|spike|"
-                    r"head|axis|fruit)s?\b[^.;:]{0,70}$",
+                    r"bracteole|bud|cyme|catkin|verticillaster|inflorescence|panicle|"
+                    r"raceme|spike|head|rhachis|rachis|axis|fruit)s?\b[^.;:]{0,70}$",
                     prefix,
                     re.IGNORECASE,
                 )
@@ -599,14 +758,15 @@ def _extract_measurements(
             if re.search(
                 r"\b(?:petals?|tepals?|sepals?|calyx|bracts?|bracteoles?|pedicels?|"
                 r"peduncles?|lips?|lobes?|segments?|standards?|wings?|keels?|"
-                r"vexilla?|anthers?|stamens?|staminodes?|gynophores?|styles?|ovary|"
-                r"ovaries|androecium|gynoecium|disc|scales?|tubes?|hypanthium|"
+                r"vexilla?|anthers?|stamens?|staminodes?|gynophores?|styles?|stigmas?|ovary|"
+                r"ovaries|androecium|gynoecium|dis[ck]s?|scales?|tubes?|hypanthium|"
                 r"operculum|filaments?|spathes?|limbs?|glumes?|lemmas?|paleas?|awns?|"
                 r"bristles?|buds?|"
                 r"fruit|fruiting|capsules?|leaves|leaf|inflorescences?|"
-                r"panicles?|pseudoracemes?|racemes?|spikes?|clusters?|fascicles?|"
+                r"panicles?|pseudoracemes?|racemes?|spikes?|cymes?|catkins?|"
+                r"verticillasters?|clusters?|fascicles?|"
                 r"flower[- ]heads?|heads?|fertile\s+portion|"
-                r"stalks?|scapes?|rachis|axes?|axis)\b",
+                r"stalks?|scapes?|rhachis|rachis|axes?|axis)\b",
                 bridge_without_comparison,
                 re.IGNORECASE,
             ):
@@ -756,7 +916,7 @@ def build_evidence(
             and family
             and family == expected_family
         )
-        cultivar_excluded = bool(CULTIVAR.search(f"{species} {description}"))
+        cultivar_excluded = _cultivar_or_hybrid_treatment(species, description)
         extracted = (
             extract_description(description, rules)
             if identity_ok and description and not cultivar_excluded

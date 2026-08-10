@@ -5,6 +5,7 @@ import pandas as pd
 
 from analysis.acquire_flora_of_australia_traits_20260809 import (
     AXIS,
+    _cultivar_or_hybrid_treatment,
     _source_lineage,
     deterministic_audit_queue,
     extract_description,
@@ -21,6 +22,311 @@ COMMITTED_PACKAGE = (
 
 def _rules():
     return load_rules(Path("config/measurement_classification.yml"))
+
+
+def test_cultivar_gate_distinguishes_dimension_cross_from_hybrid_name() -> None:
+    description = "Flowers white, 5.5-14 × 2-6 cm; corolla 12 mm long."
+
+    assert not _cultivar_or_hybrid_treatment("Plantus alba", description)
+    assert _cultivar_or_hybrid_treatment("Plantus × hybrida", description)
+    assert _cultivar_or_hybrid_treatment(
+        "Plantus alba", "The flowers described here are from a red cultivar."
+    )
+
+
+def test_bud_form_and_receptacle_tube_do_not_define_open_flower_form() -> None:
+    bud = extract_description(
+        "Flowers white, slightly urceolate in bud; petals obovate.",
+        _rules(),
+    )
+    receptacle = extract_description(
+        "Flowers unisexual; receptacle-tube campanulate, enclosing the ovary.",
+        _rules(),
+    )
+
+    assert "floral_form" not in bud
+    assert "floral_form" not in receptacle
+
+
+def test_flower_form_rejects_component_and_comparison_object_shapes() -> None:
+    descriptions = (
+        "Corolla-tube 1.4 cm long; labellum funnel-shaped, white.",
+        "Calyx enclosing the corolla tube, broadly campanulate.",
+        "Copious panicles of purple campanulate flower-heads.",
+        "Corolla with a narrower cylindrical-tubular portion at fruiting-time.",
+    )
+
+    for description in descriptions:
+        assert "floral_form" not in extract_description(description, _rules())
+
+
+def test_flower_form_preserves_corolla_transition_across_lobe_phrase() -> None:
+    result = extract_description(
+        "Corolla campanulate with entire lobes to funnel-shaped with ciliate lobes.",
+        _rules(),
+    )
+
+    assert result["floral_form"]["value"] == "bell_campanulate|funnel_trumpet"
+
+
+def test_colour_excludes_nonfloral_drying_and_comparison_contexts() -> None:
+    axis = extract_description(
+        "Racemes with 2-3 flowers above the straw-coloured glabrescent axis.",
+        _rules(),
+    )
+    comparison = extract_description(
+        "Handsome white sweet-scented flowers somewhat resembling the wild rose.",
+        _rules(),
+    )
+    drying = extract_description(
+        "White flowers (turning red-brown on drying) in abbreviated spikes. "
+        "Petals white, drying red-brown.",
+        _rules(),
+    )
+
+    assert "flower_primary_color" not in axis
+    assert comparison["flower_primary_color"]["value"] == "white"
+    assert drying["flower_primary_color"]["value"] == "white"
+
+
+def test_colour_rejects_supporting_parts_indumentum_and_fruiting_perianth() -> None:
+    ancillary = extract_description(
+        "Flowers green with crimson stamens. Flowers cream with pink pedicels.",
+        _rules(),
+    )
+    indumentum = extract_description(
+        "Female flowers with tips white-ciliate and petals with white hairs. "
+        "Corolla white, greyish pubescent outside.",
+        _rules(),
+    )
+    fruiting = extract_description(
+        "Achene enclosed in the persistent, red, fleshy, accrescent perianth. "
+        "Achene surrounded by the orange, accrescent perianth.",
+        _rules(),
+    )
+    nonfloral_parts = extract_description(
+        "Aerial parts deep coral pink, perianth paler, subterranean parts whitish.",
+        _rules(),
+    )
+
+    assert ancillary["flower_primary_color"]["value"] == (
+        "green_brown_inconspicuous|white"
+    )
+    assert indumentum["flower_primary_color"]["value"] == "white"
+    assert "flower_primary_color" not in fruiting
+    assert "flower_primary_color" not in nonfloral_parts
+
+
+def test_colour_excludes_pressed_dry_state_colours() -> None:
+    result = extract_description(
+        "Perianth segments pale greenish to white, in the dry state pale "
+        "brownish to blackish.",
+        _rules(),
+    )
+
+    assert result["flower_primary_color"]["value"] == (
+        "green_brown_inconspicuous|white"
+    )
+
+
+def test_colour_keeps_coordinated_and_distant_flower_states() -> None:
+    coordinated = extract_description(
+        "Flowers reddish and green with yellow anthers.",
+        _rules(),
+    )
+    long_perianth = extract_description(
+        "Perianth-tube greenish, 9-15 cm long, curved above the erect involucre; "
+        "segments green in bud, but during anthesis pure white with a broad "
+        "sharply bordered purple dorsal streak.",
+        _rules(),
+    )
+
+    assert coordinated["flower_primary_color"]["value"] == (
+        "green_brown_inconspicuous|red_pink"
+    )
+    assert long_perianth["flower_primary_color"]["value"] == (
+        "blue_purple|green_brown_inconspicuous|white"
+    )
+
+
+def test_flower_size_rejects_inflorescence_and_reproductive_part_measurements() -> None:
+    descriptions = (
+        "Flowers 2-6, pseudo-umbellate or with rhachis up to 4 mm long.",
+        "Flowers forming apparent verticillasters 1-15 cm long.",
+        "Style 5 mm long in female flowers with capitate stigma 1 mm long.",
+        (
+            "Flowers sweetly scented; sepals rounded; tube 17-23 mm long; "
+            "lobes 19-30 mm long; corolla mouth open; disk 2-4.5 mm high."
+        ),
+        "Catkins of flowers 3-3.5 cm long.",
+        "Long-styled flowers, stigma arms 2-2.5 mm long.",
+        "Flowers in dense terminal cymes 1.5-4.5 cm wide.",
+        (
+            "Anthers present in both flower forms, 0.75 mm long in functionally "
+            "male flowers, 0.5 mm long in functionally female flowers."
+        ),
+        (
+            "Filaments 2 mm long in long-styled flowers, 1.5 mm long in "
+            "short-styled flowers."
+        ),
+    )
+
+    for description in descriptions:
+        assert "flower_size_class" not in extract_description(description, _rules())
+
+
+def test_display_preserves_solitary_and_grouped_multistates() -> None:
+    cyme = extract_description(
+        "Flowers terminal in few-flowered cymes or solitary.",
+        _rules(),
+    )
+    fascicle = extract_description(
+        "Flowers axillary, solitary or 2-3 in a fascicle or short raceme.",
+        _rules(),
+    )
+
+    assert cyme["inflorescence_display"]["value"] == (
+        "few_flowered|solitary|umbel_corymb"
+    )
+    assert fascicle["inflorescence_display"]["value"] == (
+        "few_flowered|raceme_spike_panicle|solitary"
+    )
+
+
+def test_display_handles_inflected_terms_and_rejects_incomplete_or_fruit_context() -> None:
+    inflected = extract_description(
+        "Inflorescence racemose, spicate and few-flowered.",
+        _rules(),
+    )
+    unsupported_fascicle = extract_description(
+        "Flowers in dense axillary fascicles, sometimes flowers solitary.",
+        _rules(),
+    )
+    fruit = extract_description(
+        "Achenes 45-100 per capitulum, 1.2-3 mm long.",
+        _rules(),
+    )
+    grouped_solitary = extract_description(
+        "Flowers in dense cymes forming corymbs either terminal and solitary "
+        "or grouped in panicles.",
+        _rules(),
+    )
+
+    assert inflected["inflorescence_display"]["value"] == (
+        "few_flowered|raceme_spike_panicle"
+    )
+    assert "inflorescence_display" not in unsupported_fascicle
+    assert "inflorescence_display" not in fruit
+    assert grouped_solitary["inflorescence_display"]["value"] == (
+        "raceme_spike_panicle|umbel_corymb"
+    )
+
+
+def test_display_preserves_heads_clusters_long_solo_and_corymbose_states() -> None:
+    heads = extract_description(
+        "White florets in small heads in terminal panicles.",
+        _rules(),
+    )
+    clusters = extract_description(
+        "Flowers fragrant, solitary or in clusters of three together.",
+        _rules(),
+    )
+    long_solo = extract_description(
+        "Flowers greenish-white, pedicels up to 2 mm long, in short "
+        "few-flowered lateral racemes up to about 1 cm long or solitary.",
+        _rules(),
+    )
+    corymbose = extract_description(
+        "Racemes many-flowered, pedunculate and corymbose.",
+        _rules(),
+    )
+    paniculate = extract_description(
+        "The yellow florets are held in capitula in paniculate inflorescences.",
+        _rules(),
+    )
+
+    assert heads["inflorescence_display"]["value"] == (
+        "composite_display|raceme_spike_panicle"
+    )
+    assert clusters["inflorescence_display"]["value"] == "few_flowered|solitary"
+    assert long_solo["inflorescence_display"]["value"] == (
+        "few_flowered|raceme_spike_panicle|solitary"
+    )
+    assert corymbose["inflorescence_display"]["value"] == (
+        "raceme_spike_panicle|umbel_corymb"
+    )
+    assert paniculate["inflorescence_display"]["value"] == (
+        "composite_display|raceme_spike_panicle"
+    )
+
+
+def test_display_rejects_fruit_leaf_and_stamen_arrangement_contexts() -> None:
+    descriptions = (
+        "Figs borne on long panicles on the main stem.",
+        "Leaves reaching at least to the base of the spike.",
+        "Stem 4 mm in diameter at the base of the spike.",
+        (
+            "Male inflorescences with spadices; stamens racemose, the individual "
+            "racemes 1 cm long."
+        ),
+    )
+
+    for description in descriptions:
+        assert "inflorescence_display" not in extract_description(description, _rules())
+
+
+def test_display_keeps_capitate_bracteate_head_and_small_cluster_states() -> None:
+    capitate = extract_description(
+        "Inflorescences capitate, few-flowered or many-flowered.",
+        _rules(),
+    )
+    heads = extract_description(
+        "Flowers in few-flowered bracteate heads.",
+        _rules(),
+    )
+    clusters = extract_description(
+        "Male flowers solitary or in small axillary clusters.",
+        _rules(),
+    )
+    numbered = extract_description(
+        "Inflorescence 2-flowered; flowers sometimes solitary.",
+        _rules(),
+    )
+    variable = extract_description(
+        "Flowers in few- to many-flowered corymbose cymes.",
+        _rules(),
+    )
+
+    assert capitate["inflorescence_display"]["value"] == (
+        "composite_display|few_flowered"
+    )
+    assert heads["inflorescence_display"]["value"] == (
+        "composite_display|few_flowered"
+    )
+    assert clusters["inflorescence_display"]["value"] == "few_flowered|solitary"
+    assert numbered["inflorescence_display"]["value"] == "few_flowered|solitary"
+    assert variable["inflorescence_display"]["value"] == (
+        "few_flowered|umbel_corymb"
+    )
+
+
+def test_display_rejects_large_cluster_range_and_comparison_only_panicle() -> None:
+    large_cluster = extract_description(
+        "Inflorescence in clusters of 3-12 flowers.",
+        _rules(),
+    )
+    comparison = extract_description(
+        "The inflorescence simulates a panicle and is commonly mistaken for Panicum.",
+        _rules(),
+    )
+    capitate_hairs = extract_description(
+        "A perennial 150 cm high including the inflorescence; hairs capitate-glandular.",
+        _rules(),
+    )
+
+    assert "inflorescence_display" not in large_cluster
+    assert "inflorescence_display" not in comparison
+    assert "inflorescence_display" not in capitate_hairs
 
 
 def test_six_traits_are_extracted_from_one_species_description() -> None:
