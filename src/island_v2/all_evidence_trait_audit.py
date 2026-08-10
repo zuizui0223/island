@@ -374,8 +374,42 @@ def dedupe_direct_lineages(
             "state_set"
         ].transform("nunique")
 
+    # Almost every lineage group contains one row.  Sending those groups through
+    # pandas ``groupby`` one at a time made a full rebuild take many hours even
+    # though their outcome is deterministic.  Materialise the singleton result
+    # in one vectorised pass and retain the original conflict logic for the
+    # comparatively small set of redistributed/multi-row lineages.
+    group_size = data.groupby(group_keys, dropna=False)["source_lineage"].transform(
+        "size"
+    )
+    singleton = data.loc[group_size.eq(1)].copy()
+    if not singleton.empty:
+        singleton["normalized_value"] = [
+            "|".join(json.loads(value)) if valid else ""
+            for value, valid in zip(
+                singleton["state_set"],
+                singleton["ontology_valid"],
+                strict=True,
+            )
+        ]
+        singleton["ontology_mismatch_rows"] = (
+            ~singleton["ontology_valid"].astype(bool)
+        ).astype(int)
+        singleton["lineage_internal_conflict"] = False
+        singleton["lineage_internal_classification"] = singleton[
+            "ontology_valid"
+        ].map(
+            {
+                True: "single_lineage_value",
+                False: "source_ontology_mismatch",
+            }
+        )
+        singleton["source_groups"] = singleton["source_group"]
+        singleton["source_record_ids"] = singleton["source_record_id"]
+
     rows: list[dict[str, Any]] = []
-    for keys, group in data.groupby(group_keys, sort=True, dropna=False):
+    repeated = data.loc[group_size.gt(1)]
+    for keys, group in repeated.groupby(group_keys, sort=True, dropna=False):
         species, trait, lineage = keys
         top_rank = group["quality"].map(QUALITY_RANK).max()
         top = group.loc[group["quality"].map(QUALITY_RANK).eq(top_rank)].copy()
@@ -427,17 +461,87 @@ def dedupe_direct_lineages(
             }
         )
         rows.append(first)
-    return pd.DataFrame(rows).fillna(""), duplicates.fillna("")
+    repeated_result = pd.DataFrame(rows)
+    result = pd.concat(
+        [singleton, repeated_result],
+        ignore_index=True,
+        sort=False,
+    ).fillna("")
+    if not result.empty:
+        result = result.sort_values(group_keys, kind="stable").reset_index(drop=True)
+    return result, duplicates.fillna("")
 
 
 def resolve_direct_cells(
     lineages: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Resolve independent direct evidence without row-order tie breaking."""
+    if lineages.empty:
+        return pd.DataFrame(), pd.DataFrame()
+
     rows: list[dict[str, Any]] = []
     audits: list[dict[str, Any]] = []
     keys = ["accepted_species", "axis", "trait_name"]
-    for (species, axis, trait), group in lineages.groupby(keys, sort=True):
+    group_size = lineages.groupby(keys)["source_lineage"].transform("size")
+    singleton = lineages.loc[group_size.eq(1)].copy()
+    singleton_usable = (
+        singleton["ontology_valid"].astype(bool)
+        & ~singleton["lineage_internal_conflict"].astype(bool)
+    )
+    singleton_invalid_tokens = singleton["invalid_state_tokens"].where(
+        ~singleton["invalid_state_tokens"].isin({"", "[]"}),
+        "",
+    )
+    singleton_audit = pd.DataFrame(
+        {
+            "accepted_species": singleton["accepted_species"],
+            "axis": singleton["axis"],
+            "trait_name": singleton["trait_name"],
+            "classification": "single_independent_lineage",
+            "resolution_status": "resolved",
+            "selected_quality": singleton["quality"],
+            "state_sets": "[" + singleton["state_set"] + "]",
+            "n_independent_lineages": 1,
+            "source_lineages": singleton["source_lineage"],
+            "source_groups": singleton["source_group"],
+            "cultivar_rows_excluded": 0,
+            "ontology_mismatch_rows": (
+                ~singleton["ontology_valid"].astype(bool)
+            ).astype(int),
+            "lineage_internal_conflicts": singleton[
+                "lineage_internal_conflict"
+            ].astype(bool).astype(int),
+            "invalid_state_tokens": singleton_invalid_tokens,
+        }
+    )
+    invalid_singletons = ~singleton_usable
+    singleton_audit.loc[invalid_singletons, "classification"] = singleton.loc[
+        invalid_singletons, "lineage_internal_conflict"
+    ].astype(bool).map(
+        {
+            True: "unresolved_direct_conflict",
+            False: "source_ontology_mismatch",
+        }
+    )
+    singleton_audit.loc[invalid_singletons, "resolution_status"] = "excluded"
+    singleton_audit.loc[invalid_singletons, "selected_quality"] = ""
+    singleton_audit.loc[invalid_singletons, "state_sets"] = "[]"
+    singleton_audit.loc[invalid_singletons, "n_independent_lineages"] = 0
+    singleton_audit.loc[invalid_singletons, "source_lineages"] = ""
+    singleton_audit.loc[invalid_singletons, "source_groups"] = ""
+
+    singleton_rows = singleton_audit.loc[singleton_usable].copy()
+    singleton_rows["quality"] = singleton.loc[singleton_usable, "quality"]
+    singleton_rows["state_set"] = singleton.loc[singleton_usable, "state_set"]
+    singleton_rows["normalized_value"] = singleton.loc[
+        singleton_usable, "normalized_value"
+    ]
+    singleton_rows["multistate"] = singleton.loc[
+        singleton_usable, "state_set"
+    ].map(lambda value: len(json.loads(value)) > 1)
+
+    repeated = lineages.loc[group_size.gt(1)]
+    for (species, axis, trait), group in repeated.groupby(keys, sort=True):
         usable = group.loc[
             group["ontology_valid"].astype(bool)
             & ~group["lineage_internal_conflict"].astype(bool)
@@ -569,7 +673,21 @@ def resolve_direct_cells(
                 "multistate": len(resolved_states) > 1,
             }
         )
-    return pd.DataFrame(rows).fillna(""), pd.DataFrame(audits).fillna("")
+    resolved = pd.concat(
+        [singleton_rows, pd.DataFrame(rows)],
+        ignore_index=True,
+        sort=False,
+    ).fillna("")
+    audit_frame = pd.concat(
+        [singleton_audit, pd.DataFrame(audits)],
+        ignore_index=True,
+        sort=False,
+    ).fillna("")
+    if not resolved.empty:
+        resolved = resolved.sort_values(keys, kind="stable").reset_index(drop=True)
+    if not audit_frame.empty:
+        audit_frame = audit_frame.sort_values(keys, kind="stable").reset_index(drop=True)
+    return resolved, audit_frame
 
 
 def _modal(values: list[str]) -> tuple[str, int]:
