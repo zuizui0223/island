@@ -366,6 +366,29 @@ axis. PSIA lists genomes from families with known SI mechanisms but includes
 self-compatible species and cultivars, so database membership is not accepted
 as species-level SI evidence.
 
+## Rodger 2021 pollinator-exclusion checkpoint (2026-08-11)
+
+The Rodger et al. (2021) Figshare dataset is a high-value reproductive lane
+because it retains measured reproductive output after pollinators were
+excluded. The adapter maps only those measurements to
+`autonomous_selfing_capacity`; it does not reinterpret GloPL hand-outcrossed
+bagged treatments, self-compatibility, or mating-system categories.
+
+Production rows require an exact master name or exact GBIF + WFO agreement on
+the same synonym target, a consistent family, a species-rank binomial, an
+original-study citation lineage, and a non-negative measured `auto.*` value.
+The package contains 337 novel direct species-traits from 206 original-study
+lineages. Its committed 200-row hash-stratified audit covers all three source
+datasets, both autonomous-capacity states, and accepted/synonym name matches;
+all 200 structured-record extractions passed with no cultivar contamination.
+
+The preceding formal artifact already exposes a conservative secondary
+min-species-3 genus layer with 5,201 additional species-axes, including 1,991
+reproductive-assurance axes. It retains the `genus x trait_name` join,
+excludes family/global fallback, and reports species- and source-lineage-
+leave-one-out validation. This layer remains secondary robustness rather than
+silently changing confirmatory strict coverage.
+
 ## Analysis contract
 
 - Confirmatory: source-lineage-deduplicated species/synonym-direct evidence,

@@ -73,8 +73,8 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "'31245813999'" in workflow
     assert "'30434418380'" in workflow
     assert "open-web-multidomain-pilot-30434418380" in workflow
-    assert "inputs.prior_public_web_run_id || '31410875934'" in workflow
-    assert "reviewed-open-web-evidence-31410875934" in workflow
+    assert "inputs.prior_public_web_run_id || '31434042386'" in workflow
+    assert "reviewed-open-web-evidence-31434042386" in workflow
     assert "broad_web_medium_evidence.csv.gz" in workflow
     assert "prior_public_web_run_id:" in workflow
     assert "prior_public_web_artifact_name:" in workflow
@@ -85,10 +85,10 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "source_package_audit_csv_path:" in workflow
     assert "SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-" in workflow
     assert "SOURCE_PACKAGE_AUDIT_CSV_PATH: >-" in workflow
-    assert "bsdb_csiro_wang_symmetry_evidence_20260811.csv.gz" in workflow
-    assert "bsdb_csiro_wang_symmetry_independent_audit_20260811.csv.gz" in workflow
-    assert "bsdb-csiro-wang-symmetry-reviewed-source-package-20260811" in workflow
-    assert "bsdb-csiro-wang-symmetry-checkpoint-20260811" in workflow
+    assert "rodger_2021_autofertility_evidence_20260811.csv.gz" in workflow
+    assert "rodger_2021_autofertility_audit_200_20260811.csv" in workflow
+    assert "rodger-2021-autofertility-reviewed-source-package-20260811" in workflow
+    assert "figshare-rodger-2021-autofertility-20260811" in workflow
     assert "CURATED_EVIDENCE_CSV_PATH: ${{ inputs.curated_evidence_csv_path || '' }}" in workflow
     assert "CURATED_AUDIT_CSV_PATH: ${{ inputs.curated_audit_csv_path || '' }}" in workflow
     assert "wfo_combined_high_yield_evidence.csv.gz" not in workflow
