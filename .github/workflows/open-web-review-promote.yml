@@ -16,11 +16,15 @@ on:
       - "data/v2/staging/traits/direct_llm_pilot/20260809_sanbi_eflora_source_acquisition/**"
       - "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_kew_africa_source_acquisition/**"
       - "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_global_six_source_acquisition/**"
+      - "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_high_yield_source_acquisition/**"
+      - "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_fna_foc_africa_source_acquisition/**"
       - "analysis/acquire_flora_of_australia_traits_20260809.py"
       - "analysis/acquire_plantnet_nsw_traits_20260809.py"
       - "analysis/acquire_sanbi_eflora_traits_20260809.py"
       - "analysis/acquire_wfo_kew_africa_traits_20260810.py"
       - "analysis/acquire_wfo_global_flora_traits_20260810.py"
+      - "analysis/prepare_wfo_high_yield_source_package_20260810.py"
+      - "analysis/prepare_wfo_fna_foc_source_package_20260810.py"
       - "analysis/acquire_florabase_colours_20260808.py"
       - "analysis/acquire_ken_fern_reproductive_traits_20260808.py"
       - "analysis/acquire_kew_grassbase_traits_20260808.py"
@@ -41,6 +45,8 @@ on:
       - "tests/test_sanbi_eflora_source_scale.py"
       - "tests/test_wfo_kew_africa_source_scale.py"
       - "tests/test_wfo_global_flora_source_scale.py"
+      - "tests/test_wfo_high_yield_source_package.py"
+      - "tests/test_wfo_fna_foc_source_package.py"
       - "tests/test_near_rule_source_packages_20260809.py"
       - "tests/test_secondary_probabilistic_genus_low_20260809.py"
       - "data/v2/staging/traits/direct_llm_pilot/20260809_near_rule_source_acquisition/**"
@@ -65,11 +71,11 @@ on:
       prior_public_web_run_id:
         description: Previous formal reviewed-Web run to extend
         required: false
-        default: "31290142917"
+        default: "31350993446"
       prior_public_web_artifact_name:
         description: Artifact containing the previous formal Web ledger
         required: false
-        default: "reviewed-open-web-evidence-31290142917"
+        default: "reviewed-open-web-evidence-31350993446"
       prior_public_web_file_name:
         description: Evidence CSV path inside the previous artifact
         required: false
@@ -118,10 +124,10 @@ jobs:
       PILOT_ARTIFACT_NAME: >-
         ${{ inputs.pilot_artifact_name ||
         'open-web-multidomain-pilot-30434418380' }}
-      PRIOR_PUBLIC_WEB_RUN_ID: ${{ inputs.prior_public_web_run_id || '31290142917' }}
+      PRIOR_PUBLIC_WEB_RUN_ID: ${{ inputs.prior_public_web_run_id || '31350993446' }}
       PRIOR_PUBLIC_WEB_ARTIFACT: >-
         ${{ inputs.prior_public_web_artifact_name ||
-        'reviewed-open-web-evidence-31290142917' }}
+        'reviewed-open-web-evidence-31350993446' }}
       PRIOR_PUBLIC_WEB_FILE_NAME: >-
         ${{ inputs.prior_public_web_file_name ||
         'broad_web_medium_evidence.csv.gz' }}
@@ -134,15 +140,16 @@ jobs:
       CURATED_AUDIT_CSV_PATH: ${{ inputs.curated_audit_csv_path || '' }}
       SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-
         ${{ inputs.source_package_evidence_csv_path ||
-        'data/v2/staging/traits/direct_llm_pilot/20260809_near_rule_source_acquisition/near_rule_incremental_evidence.csv.gz' }}
+        'data/v2/staging/traits/direct_llm_pilot/20260810_wfo_fna_foc_africa_source_acquisition/wfo_combined_high_yield_evidence.csv.gz' }}
       SOURCE_PACKAGE_AUDIT_CSV_PATH: >-
         ${{ inputs.source_package_audit_csv_path ||
-        'data/v2/staging/traits/direct_llm_pilot/20260809_near_rule_source_acquisition/near_rule_source_audit.csv' }}
+        'data/v2/staging/traits/direct_llm_pilot/20260810_wfo_fna_foc_africa_source_acquisition/wfo_combined_high_yield_manual_audit_320.csv' }}
       SOURCE_PACKAGE_RUN_ID: >-
-        ${{ inputs.source_package_run_id || 'moeller-mating-system-acquisition-20260809' }}
+        ${{ inputs.source_package_run_id ||
+        'wfo-high-yield-plus-fna-foc-africa-20260810' }}
       SOURCE_PACKAGE_ARTIFACT: >-
         ${{ inputs.source_package_artifact_name ||
-        'committed-moeller-mating-system-source-package-20260809' }}
+        'wfo-high-yield-plus-fna-foc-africa-source-package-20260810' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -159,6 +166,8 @@ jobs:
             analysis/acquire_sanbi_eflora_traits_20260809.py \
             analysis/acquire_wfo_kew_africa_traits_20260810.py \
             analysis/acquire_wfo_global_flora_traits_20260810.py \
+            analysis/prepare_wfo_high_yield_source_package_20260810.py \
+            analysis/prepare_wfo_fna_foc_source_package_20260810.py \
             analysis/acquire_ken_fern_reproductive_traits_20260808.py \
             analysis/acquire_kew_grassbase_traits_20260808.py \
             analysis/acquire_pfaf_reproductive_traits_20260808.py \
@@ -176,6 +185,8 @@ jobs:
             tests/test_sanbi_eflora_source_scale.py \
             tests/test_wfo_kew_africa_source_scale.py \
             tests/test_wfo_global_flora_source_scale.py \
+            tests/test_wfo_high_yield_source_package.py \
+            tests/test_wfo_fna_foc_source_package.py \
             tests/test_open_web_common.py \
             tests/test_near_rule_source_packages_20260809.py \
             tests/test_secondary_probabilistic_genus_low_20260809.py \
@@ -188,6 +199,8 @@ jobs:
             tests/test_sanbi_eflora_source_scale.py \
             tests/test_wfo_kew_africa_source_scale.py \
             tests/test_wfo_global_flora_source_scale.py \
+            tests/test_wfo_high_yield_source_package.py \
+            tests/test_wfo_fna_foc_source_package.py \
             tests/test_near_rule_source_packages_20260809.py \
             tests/test_secondary_probabilistic_genus_low_20260809.py \
             tests/test_scale_trait_source_packages_20260808.py \

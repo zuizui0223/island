@@ -1,0 +1,5 @@
+trait_name,reviewed,accepted_correct,precision,cultivar_contamination_rate,production_approved
+floral_form,30,29,0.9666666666666667,0.0,True
+flower_primary_color,60,59,0.9833333333333333,0.0,True
+flower_size_class,40,31,0.775,0.0,False
+inflorescence_display,70,70,1.0,0.0,True

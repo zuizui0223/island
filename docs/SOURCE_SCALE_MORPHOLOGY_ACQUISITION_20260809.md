@@ -84,6 +84,49 @@ unpromoted. This yields 5,434 selected evidence rows, 4,742 species x trait,
 and 3,788 species x axis candidates before conflict and Validated-Low
 recalculation.
 
+The sixth high-yield wave adds species treatments from the official Flora
+Malesiana and Flora of the Guianas FlorML archives, four further WFO-hosted
+Darwin Core archives, and a strictly re-gated subset of colour evidence that
+the fifth wave preserved but did not promote. It excludes every
+`accepted_species x trait_name` already present in formal run `31350993446`,
+deduplicates equal provider-treatment lineages, and rejects colour statements
+about fruits, indumentum, immature material, or dried material. Display counts
+for sex-specific or partial inflorescence units are also excluded. The frozen
+200-row review accepted 189 passages overall. The unchanged trait-specific
+0.95 gate approves floral form (29/30), flower colour (59/60), and
+inflorescence display (70/70), while flower size (31/40) remains stored but is
+not promoted. The approved scopes contain 5,467 evidence rows, representing
+5,231 species x trait and 4,731 species x axis candidates before formal
+conflict resolution and all-evidence Validated-Low reconstruction.
+
+The seventh wave extends that package with three more official WFO-hosted
+floras: Flora of North America, Flora of China, and Flore d'Afrique Centrale.
+Exact WFO accepted/synonym reconciliation found 14,819 fixed-universe species
+treatments. A quote-completeness gate removes any display row that drops an
+explicit second state (for example, capitula arranged in corymbs) and reruns
+the deterministic provider x trait audit strata. The new 120-row review
+accepted 116 passages (0.9667; cultivar contamination 0): form 20/20, colour
+19/20, display 60/60, and size 17/20. Combined with the sixth-wave holdout,
+the production gate is based on 320 reviews and approves form (49/50), colour
+(78/80), and display (130/130); size remains blocked (48/60). The approved
+combined package contains 9,337 evidence rows representing 9,049 species x
+trait and 8,484 species x axis candidates before formal conflict resolution
+and Validated-Low reconstruction. Plants of Nepal was inspected but excluded
+because its scalable treatment fields did not contain target floral
+descriptions.
+
+A deterministic local replay against formal Web run `31350993446` resolved
+8,945 new direct species x trait cells and 6,858 direct species x axis cells.
+After rebuilding all trait-specific genus rules, strict coverage changed from
+129,647 to 132,857 species x axis cells: 6,370 gross fills and 3,160 losses,
+for a net gain of 3,210. The losses are retained scientific corrections, not
+discarded acquisition failures: the new direct counterexamples invalidated
+5,881 prior Low rows, added 3,462 new Low rows, and upgraded 2,090 Low cells to
+direct evidence. Current-threshold eligible genus x trait rules increased from
+2,698 to 2,837 (+139). Consequently, subsequent acquisition prioritizes
+currently unresolved and all-axis-missing species; it does not suppress
+counterexamples merely to maximize the headline coverage count.
+
 ## Reproduction
 
 The raw HTTP caches are intentionally not committed. Given the prior formal
@@ -121,6 +164,22 @@ py -3.13 -m analysis.acquire_wfo_global_flora_traits_20260810 `
   --strict-coverage-csv <wfo-kew-africa-strict-species-axis-coverage.csv.gz> `
   --current-direct-ledger-csv <wfo-kew-africa-direct-species-trait-ledger.csv.gz> `
   --output-dir <wfo-global-six-output>
+
+py -3.13 analysis/prepare_wfo_high_yield_source_package_20260810.py `
+  --florml-evidence <malesiana-guianas-evidence.csv.gz> `
+  --regional-evidence <four-additional-wfo-floras-evidence.csv.gz> `
+  --prior-global-evidence <wfo-global-six-evidence.csv.gz> `
+  --current-direct-ledger <run-31350993446-direct-ledger.csv.gz> `
+  --audit-seed <frozen-high-yield-audit-seed.csv> `
+  --output-dir <wfo-high-yield-output>
+
+py -3.13 analysis/prepare_wfo_fna_foc_source_package_20260810.py `
+  --extracted-evidence <fna-foc-africa-extracted-evidence.csv.gz> `
+  --audit-seed <frozen-provider-trait-audit-seed.csv> `
+  --manual-audit <reviewed-provider-trait-audit.csv> `
+  --first-evidence <wfo-high-yield-output/evidence.csv.gz> `
+  --first-audit <wfo-high-yield-output/manual-audit.csv> `
+  --output-dir <wfo-combined-output>
 ```
 
 Committed evidence, treatment inventories, deterministic reviews, summaries,
@@ -131,7 +190,12 @@ and SHA-256 manifests are under:
 - `data/v2/staging/traits/direct_llm_pilot/20260809_sanbi_eflora_source_acquisition/`
 - `data/v2/staging/traits/direct_llm_pilot/20260810_wfo_kew_africa_source_acquisition/`
 - `data/v2/staging/traits/direct_llm_pilot/20260810_wfo_global_six_source_acquisition/`
+- `data/v2/staging/traits/direct_llm_pilot/20260810_wfo_high_yield_source_acquisition/`
+- `data/v2/staging/traits/direct_llm_pilot/20260810_wfo_fna_foc_africa_source_acquisition/`
 
 Formal promotion must run Flora of Australia, PlantNET, SANBI, then WFO/Kew
 Africa, then the WFO global six-flora wave against the resulting artifact so
 later runs cannot rescan or double-count earlier evidence.
+The combined high-yield wave extends formal run `31350993446`; its reviewed
+package is then passed through the same shared finalizer and trait-specific
+genus-rule implementation rather than an independent Low implementation.

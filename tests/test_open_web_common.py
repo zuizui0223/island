@@ -73,8 +73,8 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "'31245813999'" in workflow
     assert "'30434418380'" in workflow
     assert "open-web-multidomain-pilot-30434418380" in workflow
-    assert "inputs.prior_public_web_run_id || '31290142917'" in workflow
-    assert "reviewed-open-web-evidence-31290142917" in workflow
+    assert "inputs.prior_public_web_run_id || '31350993446'" in workflow
+    assert "reviewed-open-web-evidence-31350993446" in workflow
     assert "broad_web_medium_evidence.csv.gz" in workflow
     assert "prior_public_web_run_id:" in workflow
     assert "prior_public_web_artifact_name:" in workflow
@@ -83,10 +83,10 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "--prior-public-web-csv" in workflow
     assert "source_package_evidence_csv_path:" in workflow
     assert "source_package_audit_csv_path:" in workflow
-    assert "20260809_near_rule_source_acquisition/near_rule_incremental_evidence.csv.gz" in workflow
-    assert "20260809_near_rule_source_acquisition/near_rule_source_audit.csv" in workflow
-    assert "moeller-mating-system-acquisition-20260809" in workflow
-    assert "committed-moeller-mating-system-source-package-20260809" in workflow
+    assert "wfo_combined_high_yield_evidence.csv.gz" in workflow
+    assert "wfo_combined_high_yield_manual_audit_320.csv" in workflow
+    assert "wfo-high-yield-plus-fna-foc-africa-20260810" in workflow
+    assert "wfo-high-yield-plus-fna-foc-africa-source-package-20260810" in workflow
     assert "--source-package-evidence-csv" in workflow
     assert ".source_package.novelty_rate >= 0.50" in workflow
     assert "coverage_change_species_axis.net_change" in workflow

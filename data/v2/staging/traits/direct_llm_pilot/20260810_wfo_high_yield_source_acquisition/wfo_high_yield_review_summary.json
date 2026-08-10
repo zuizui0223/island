@@ -1,0 +1,23 @@
+{
+  "precision_contract": "accepted_correct/all_reviewed",
+  "reviewed": 200,
+  "accepted_correct": 189,
+  "precision": 0.945,
+  "cultivar_contamination_rate": 0.0,
+  "minimum_reviewed": 200,
+  "minimum_reviewed_per_trait": 10,
+  "minimum_precision": 0.95,
+  "maximum_cultivar_contamination": 0.02,
+  "approval_unit": "trait_name",
+  "overall_precision_gate_applied": false,
+  "package_gate_passed": true,
+  "approved_traits": [
+    "floral_form",
+    "flower_primary_color",
+    "inflorescence_display"
+  ],
+  "approved_trait_count": 3,
+  "candidate_evidence_rows": 6395,
+  "selected_evidence_rows": 5467,
+  "explicitly_rejected_candidate_ids": 11
+}

@@ -1,0 +1,69 @@
+{
+  "package_run_id": "wfo-high-yield-official-flora-20260810",
+  "package_artifact": "wfo-high-yield-official-flora-source-package-20260810",
+  "fixed_universe_species": 106295,
+  "baseline_formal_run_id": "31350993446",
+  "backbone": {
+    "name": "World Flora Online June 2026 backbone",
+    "file": "_DwC_backbone_R.zip",
+    "bytes": 121660019,
+    "sha256": "ccfc7e3ca85c8b80aa96eb52d4e50e07e1811d28916b544280d8a4f1a043ba72"
+  },
+  "raw_archives": [
+    {
+      "provider": "flora_malesiana",
+      "url": "https://files.worldfloraonline.org/files/Flora%20Malesiana/github/Flora%20Malesiana%20final%20files/Flora%20Malesiana%20final%20files.zip",
+      "file": "flora_malesiana.zip",
+      "bytes": 14842712,
+      "sha256": "2672f58d863c05cdba3c272efa17c11625b846645c5150929bf28ceefaa9e299"
+    },
+    {
+      "provider": "flora_of_the_guianas",
+      "url": "https://files.worldfloraonline.org/files/Flora%20Malesiana/github/Flora%20of%20the%20Guianas%20final%20files/Flora%20of%20the%20Guianas%20final%20files.zip",
+      "file": "flora_guianas.zip",
+      "bytes": 2004589,
+      "sha256": "582cfe0af56da2906e34c4db3b017fab0cb7a7b905b5c36905e97ad9f207f95e"
+    },
+    {
+      "provider": "flore_du_gabon",
+      "source_directory": "https://files.worldfloraonline.org/files/",
+      "file": "gabon.zip",
+      "bytes": 2446926,
+      "sha256": "a045ae3da6aa49690922bb70a8cf3dba1e515402008e185f2990a812b6680d21"
+    },
+    {
+      "provider": "flora_of_colombia",
+      "source_directory": "https://files.worldfloraonline.org/files/",
+      "file": "colombia.zip",
+      "bytes": 336858,
+      "sha256": "5cf48c4edd9a4c0050d867284896b36b3d5881d7acf842cd57fb9feba108da54"
+    },
+    {
+      "provider": "begonia_resource_centre",
+      "source_directory": "https://files.worldfloraonline.org/files/",
+      "file": "begonia.zip",
+      "bytes": 1133612,
+      "sha256": "82dfaf9d8c77d7e4aa3a206f6cc2015b3d57a99ac1fae6577ccaf472e937156a"
+    },
+    {
+      "provider": "flora_of_turkey",
+      "source_directory": "https://files.worldfloraonline.org/files/",
+      "file": "turkey.zip",
+      "bytes": 93116,
+      "sha256": "4cc760e68046c10a31edd963a1f50939f55cdb646e2cec2e13f09aba841f6f2c"
+    }
+  ],
+  "component_run_ids": [
+    "wfo-florml-malesiana-guianas-20260810",
+    "wfo-additional-four-floras-20260810",
+    "wfo-global-six-floras-20260810"
+  ],
+  "component_artifacts": [
+    "wfo-florml-malesiana-guianas-official-20260810",
+    "wfo-additional-four-official-dwca-20260810",
+    "wfo-global-six-official-dwca-20260810"
+  ],
+  "identity_contract": "WFO exact accepted or synonym species name, species rank, fixed-universe family consistent",
+  "evidence_contract": "species-direct exact treatment quote; source-lineage deduplicated; no family inference; no global fallback",
+  "audit_contract": "accepted_correct / all_reviewed, deterministic trait-stratified 200-row sample, production approval by trait"
+}
