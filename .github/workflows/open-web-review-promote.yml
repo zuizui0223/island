@@ -138,18 +138,10 @@ jobs:
         ${{ inputs.candidate_file_name || 'open_web_multidomain_candidates.csv' }}
       CURATED_EVIDENCE_CSV_PATH: ${{ inputs.curated_evidence_csv_path || '' }}
       CURATED_AUDIT_CSV_PATH: ${{ inputs.curated_audit_csv_path || '' }}
-      SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-
-        ${{ inputs.source_package_evidence_csv_path ||
-        'data/v2/staging/traits/direct_llm_pilot/20260810_wfo_fna_foc_africa_source_acquisition/wfo_combined_high_yield_evidence.csv.gz' }}
-      SOURCE_PACKAGE_AUDIT_CSV_PATH: >-
-        ${{ inputs.source_package_audit_csv_path ||
-        'data/v2/staging/traits/direct_llm_pilot/20260810_wfo_fna_foc_africa_source_acquisition/wfo_combined_high_yield_manual_audit_320.csv' }}
-      SOURCE_PACKAGE_RUN_ID: >-
-        ${{ inputs.source_package_run_id ||
-        'wfo-high-yield-plus-fna-foc-africa-20260810' }}
-      SOURCE_PACKAGE_ARTIFACT: >-
-        ${{ inputs.source_package_artifact_name ||
-        'wfo-high-yield-plus-fna-foc-africa-source-package-20260810' }}
+      SOURCE_PACKAGE_EVIDENCE_CSV_PATH: ${{ inputs.source_package_evidence_csv_path }}
+      SOURCE_PACKAGE_AUDIT_CSV_PATH: ${{ inputs.source_package_audit_csv_path }}
+      SOURCE_PACKAGE_RUN_ID: ${{ inputs.source_package_run_id }}
+      SOURCE_PACKAGE_ARTIFACT: ${{ inputs.source_package_artifact_name }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
