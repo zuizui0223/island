@@ -1,0 +1,102 @@
+{
+  "candidate_evidence_rows": 30200,
+  "component_hashes": {
+    "bsdb_csiro_symmetry_evidence_20260811.csv.gz": "5ee544b67c1def99f8307737e0cbf95749570218e57d1725b549e89045388233",
+    "bsdb_csiro_symmetry_manual_audit_600_20260811.csv": "ea1fca4133162e1f29b4702cce6ff0c871fea7f85a107f521c406c34b62e3935",
+    "wang_audit": "ca5cb8c47878db3fa5b6764cae77ddc2879dbd108751c10ad304715dd9abe14a",
+    "wang_evidence": "9834596fc2bd95d6075faa17a81d64fb3680fb148d02e2c71f58ea45cbb6336d"
+  },
+  "contract": "bsdb_csiro_wang_combined_reviewed_source_package_v1",
+  "output_hashes": {
+    "bsdb_csiro_wang_symmetry_evidence_20260811.csv.gz": "a9dfdac404f3b65fee2334cb1a54c4a794c579bf3bd29d46413cf82aa230053a",
+    "bsdb_csiro_wang_symmetry_independent_audit_20260811.csv.gz": "ca2ef71c1e141102fe5571f8752119dc18ec1d99d551e6e8b363af2b0a0e5d60",
+    "source_package_trait_audit_20260811.csv": "aacc41c274fd4c8a986fea181c5a34e37800483be673d4a425015b3732ae796a"
+  },
+  "reviewed_rows": 2236,
+  "selected_evidence_rows": 30165,
+  "source_package_gate": {
+    "accepted_correct": 2201,
+    "approval_unit": "trait_name",
+    "approved_trait_count": 7,
+    "approved_traits": [
+      "floral_form",
+      "floral_symmetry",
+      "flower_primary_color",
+      "flower_size_class",
+      "inflorescence_display",
+      "self_incompatibility",
+      "tube_depth_class"
+    ],
+    "candidate_evidence_rows": 30200,
+    "cultivar_contamination_rate": 0.0,
+    "explicitly_rejected_candidate_ids": 35,
+    "maximum_cultivar_contamination": 0.02,
+    "minimum_precision": 0.95,
+    "minimum_reviewed": 200,
+    "minimum_reviewed_per_trait": 10,
+    "overall_precision_gate_applied": false,
+    "package_gate_passed": true,
+    "precision": 0.9843470483005367,
+    "precision_contract": "accepted_correct/all_reviewed",
+    "reviewed": 2236,
+    "selected_evidence_rows": 30165
+  },
+  "trait_audit": [
+    {
+      "accepted_correct": 25,
+      "cultivar_contamination_rate": 0.0,
+      "precision": 1.0,
+      "production_approved": true,
+      "reviewed": 25,
+      "trait_name": "floral_form"
+    },
+    {
+      "accepted_correct": 1826,
+      "cultivar_contamination_rate": 0.0,
+      "precision": 0.9811929070392262,
+      "production_approved": true,
+      "reviewed": 1861,
+      "trait_name": "floral_symmetry"
+    },
+    {
+      "accepted_correct": 25,
+      "cultivar_contamination_rate": 0.0,
+      "precision": 1.0,
+      "production_approved": true,
+      "reviewed": 25,
+      "trait_name": "flower_primary_color"
+    },
+    {
+      "accepted_correct": 55,
+      "cultivar_contamination_rate": 0.0,
+      "precision": 1.0,
+      "production_approved": true,
+      "reviewed": 55,
+      "trait_name": "flower_size_class"
+    },
+    {
+      "accepted_correct": 45,
+      "cultivar_contamination_rate": 0.0,
+      "precision": 1.0,
+      "production_approved": true,
+      "reviewed": 45,
+      "trait_name": "inflorescence_display"
+    },
+    {
+      "accepted_correct": 200,
+      "cultivar_contamination_rate": 0.0,
+      "precision": 1.0,
+      "production_approved": true,
+      "reviewed": 200,
+      "trait_name": "self_incompatibility"
+    },
+    {
+      "accepted_correct": 25,
+      "cultivar_contamination_rate": 0.0,
+      "precision": 1.0,
+      "production_approved": true,
+      "reviewed": 25,
+      "trait_name": "tube_depth_class"
+    }
+  ]
+}

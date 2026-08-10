@@ -85,10 +85,10 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "source_package_audit_csv_path:" in workflow
     assert "SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-" in workflow
     assert "SOURCE_PACKAGE_AUDIT_CSV_PATH: >-" in workflow
-    assert "bsdb_csiro_symmetry_evidence_20260811.csv.gz" in workflow
-    assert "bsdb_csiro_symmetry_manual_audit_600_20260811.csv" in workflow
-    assert "bsdb-csiro-symmetry-reviewed-source-package-20260811" in workflow
-    assert "bsdb-csiro-symmetry-checkpoint-20260811" in workflow
+    assert "bsdb_csiro_wang_symmetry_evidence_20260811.csv.gz" in workflow
+    assert "bsdb_csiro_wang_symmetry_independent_audit_20260811.csv.gz" in workflow
+    assert "bsdb-csiro-wang-symmetry-reviewed-source-package-20260811" in workflow
+    assert "bsdb-csiro-wang-symmetry-checkpoint-20260811" in workflow
     assert "CURATED_EVIDENCE_CSV_PATH: ${{ inputs.curated_evidence_csv_path || '' }}" in workflow
     assert "CURATED_AUDIT_CSV_PATH: ${{ inputs.curated_audit_csv_path || '' }}" in workflow
     assert "wfo_combined_high_yield_evidence.csv.gz" not in workflow

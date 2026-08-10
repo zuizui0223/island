@@ -341,12 +341,22 @@ removed more unsupported Low than the gross 1,226 cells gained. Relative to the
 fixed run `31397350878`, strict coverage is +819 cells and zero-axis species are
 1,540 lower.
 
-A local rehearsal adding BSdb species-level symmetry raises strict coverage to
-136,694 / 318,885: +324 cells over run `31426167270` and +1,143 over the fixed
-baseline. It adds 841 resolved direct species-traits and 65 eligible
-`genus x floral_symmetry` rules over run `31426167270`; zero-axis species fall
-by another 138. These symmetry-extended figures remain provisional until the
-next GitHub Actions artifact is downloaded and independently verified.
+GitHub Actions run `31429573286` formally verified the BSdb species-level
+symmetry extension at 136,694 / 318,885: +324 cells over run `31426167270` and
++1,143 over the fixed baseline. It adds 841 resolved direct species-traits and
+65 eligible `genus x floral_symmetry` rules over run `31426167270`; zero-axis
+species fall by another 138.
+
+The next scale checkpoint adds Wang et al. (2023) supplementary Data S2. The
+published table contains 279,877 species-level floral-symmetry rows, but it
+lacks a row-to-upstream-source map, so it is never promoted wholesale or at
+High quality. Exact master-name/family matches are eligible only in families
+with at least 10 independent direct comparisons and precision >= 0.95, after
+excluding the paper's controversial family definitions. This admits 28,083
+Medium candidates from 38 families; 1,601 of 1,636 independent comparisons
+agree. All 35 known binary or non-binary conflicts are rejected, overlapping records reuse an existing
+lineage, and novel rows share one compilation lineage. This preserves the
+source-lineage leave-out guard while scaling direct structural coverage.
 
 Two attractive-looking sources were also rejected fail-closed. The 2026 Dryad
 Red Queen public archive contains heterostyly and pollen-ovule records, but its
