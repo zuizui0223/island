@@ -266,16 +266,33 @@ def combine_public_web_ledgers(
         combined["source_lineage"].ne(""),
         "url:" + combined["source_url"].str.rstrip("/").str.casefold(),
     )
-    combined = combined.drop_duplicates(
+    quality = combined.get(
+        "quality",
+        pd.Series("", index=combined.index, dtype=str),
+    ).astype(str)
+    if "evidence_quality" in combined:
+        quality = quality.where(quality.str.strip().ne(""), combined["evidence_quality"])
+    combined["_quality_rank"] = (
+        quality.str.casefold().map({"high": 2, "medium": 1, "low": 0}).fillna(-1)
+    )
+    combined["_input_order"] = range(len(combined))
+    combined = combined.sort_values(
+        ["_quality_rank", "_input_order"],
+        ascending=[False, False],
+        kind="stable",
+    ).drop_duplicates(
         [
             "accepted_species",
             "trait_name",
             "_dedup_lineage",
             "normalized_value",
         ],
-        keep="last",
+        keep="first",
     )
-    return combined.drop(columns="_dedup_lineage").reset_index(drop=True)
+    combined = combined.sort_values("_input_order", kind="stable")
+    return combined.drop(
+        columns=["_dedup_lineage", "_quality_rank", "_input_order"]
+    ).reset_index(drop=True)
 
 
 def _report_groups(reviewed: pd.DataFrame, column: str) -> list[dict[str, Any]]:
@@ -305,6 +322,7 @@ def finalize_review(
     source_run_id: str = "",
     source_artifact: str = "",
     prior_public_web_csv: Path | None = None,
+    prior_public_web_supplement_csv: Path | None = None,
     prior_public_web_run_id: str = "",
     prior_public_web_artifact: str = "",
     synonym_csv: Path | None = None,
@@ -409,6 +427,17 @@ def finalize_review(
         if prior_public_web_csv is not None
         else pd.DataFrame()
     )
+    if prior_public_web_supplement_csv is not None:
+        prior_supplement = pd.read_csv(
+            prior_public_web_supplement_csv,
+            dtype=str,
+        ).fillna("")
+        prior_formal = combine_public_web_ledgers(
+            prior_formal,
+            prior_supplement,
+            prior_run_id=prior_public_web_run_id,
+            prior_artifact=prior_public_web_artifact,
+        )
     source_package_formal = pd.DataFrame()
     source_package_scopes = pd.DataFrame()
     source_package_summary: dict[str, Any] = {
@@ -662,6 +691,11 @@ def finalize_review(
             "run_id": prior_public_web_run_id,
             "artifact": prior_public_web_artifact,
             "source_file": (str(prior_public_web_csv) if prior_public_web_csv is not None else ""),
+            "supplement_file": (
+                str(prior_public_web_supplement_csv)
+                if prior_public_web_supplement_csv is not None
+                else ""
+            ),
         },
         "curated_inputs": [
             {
@@ -718,6 +752,10 @@ def apply_audit_command(
         Path | None,
         typer.Option(exists=True, dir_okay=False),
     ] = None,
+    prior_public_web_supplement_csv: Annotated[
+        Path | None,
+        typer.Option(exists=True, dir_okay=False),
+    ] = None,
     prior_public_web_run_id: str = "",
     prior_public_web_artifact: str = "",
     synonym_csv: Annotated[
@@ -763,6 +801,7 @@ def apply_audit_command(
         source_run_id=source_run_id,
         source_artifact=source_artifact,
         prior_public_web_csv=prior_public_web_csv,
+        prior_public_web_supplement_csv=prior_public_web_supplement_csv,
         prior_public_web_run_id=prior_public_web_run_id,
         prior_public_web_artifact=prior_public_web_artifact,
         synonym_csv=synonym_csv,

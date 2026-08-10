@@ -79,8 +79,11 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "prior_public_web_run_id:" in workflow
     assert "prior_public_web_artifact_name:" in workflow
     assert "prior_public_web_file_name:" in workflow
+    assert "prior_public_web_supplement_file_name:" in workflow
     assert '"/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_FILE_NAME"' in workflow
+    assert '"/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_SUPPLEMENT_FILE_NAME"' in workflow
     assert "--prior-public-web-csv" in workflow
+    assert "--prior-public-web-supplement-csv" in workflow
     assert "source_package_evidence_csv_path:" in workflow
     assert "source_package_audit_csv_path:" in workflow
     assert "SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-" in workflow
@@ -477,6 +480,26 @@ def test_reviewed_web_ledger_appends_to_prior_instead_of_replacing_it() -> None:
     assert by_species.loc["Alpha one", "source_run_id"] == "prior-run"
     assert by_species.loc["Alpha one", "source_artifact"] == "prior-artifact"
     assert by_species.loc["Beta two", "source_run_id"] == "new-run"
+
+
+def test_reviewed_web_ledger_keeps_highest_quality_for_same_lineage() -> None:
+    shared = {
+        "accepted_species": "Alpha one",
+        "trait_name": "floral_symmetry",
+        "normalized_value": "actinomorphic",
+        "source_lineage": "original-study:alpha",
+        "source_url": "https://example.org/alpha",
+    }
+    prior = pd.DataFrame([{**shared, "quality": "medium", "source_group": "mirror"}])
+    promoted = pd.DataFrame(
+        [{**shared, "quality": "high", "source_group": "original_database"}]
+    )
+
+    combined = combine_public_web_ledgers(prior, promoted)
+
+    assert len(combined) == 1
+    assert combined.loc[0, "quality"] == "high"
+    assert combined.loc[0, "source_group"] == "original_database"
 
 
 def _individual_candidate() -> dict[str, object]:

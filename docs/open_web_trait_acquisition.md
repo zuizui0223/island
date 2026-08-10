@@ -389,6 +389,13 @@ excludes family/global fallback, and reports species- and source-lineage-
 leave-one-out validation. This layer remains secondary robustness rather than
 silently changing confirmatory strict coverage.
 
+Formal-ledger chaining also reloads the preceding artifact's last accepted
+source package. When multiple redistributed rows share species, trait, value,
+and original-study lineage, deduplication retains the highest evidence quality
+(`High > Medium > Low`) before preferring the most recent equal-quality row.
+This prevents a later checkpoint from downgrading a prior High row merely
+because a Medium redistribution happened to sort last.
+
 ## Analysis contract
 
 - Confirmatory: source-lineage-deduplicated species/synonym-direct evidence,
