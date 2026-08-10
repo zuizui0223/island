@@ -87,5 +87,8 @@ def test_committed_file_manifest_matches_bytes_and_hashes() -> None:
     manifest = json.loads((PACKAGE / "file_manifest.json").read_text())
     for row in manifest["files"]:
         payload = (PACKAGE / row["file"]).read_bytes()
-        assert len(payload) == row["bytes"]
-        assert hashlib.sha256(payload).hexdigest() == row["sha256"]
+        canonical = payload if row["file"].endswith(".gz") else payload.replace(
+            b"\r\n", b"\n"
+        )
+        assert len(canonical) == row["bytes"]
+        assert hashlib.sha256(canonical).hexdigest() == row["sha256"]
