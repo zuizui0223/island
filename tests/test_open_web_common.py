@@ -19,10 +19,49 @@ from island_v2.open_web_common import (
     reviewed_source_package_evidence,
 )
 from island_v2.open_web_finalize import (
+    apply_direct_evidence_exclusions,
     combine_public_web_ledgers,
     repair_public_web_ledger_quality,
     validate_individually_reviewed_evidence,
 )
+
+
+def test_direct_evidence_exclusions_match_the_full_trait_lineage_key() -> None:
+    evidence = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Begonia semiovata",
+                "trait_name": "autonomous_selfing_capacity",
+                "normalized_value": "autonomous",
+                "source_lineage": "url:https://example.test/article",
+            },
+            {
+                "accepted_species": "Begonia semiovata",
+                "trait_name": "mating_system",
+                "normalized_value": "predominantly_selfing",
+                "source_lineage": "url:https://example.test/article",
+            },
+        ]
+    )
+    exclusions = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Begonia semiovata",
+                "trait_name": "autonomous_selfing_capacity",
+                "normalized_value": "autonomous",
+                "source_lineage": "url:https://example.test/article",
+                "reason": "Self-pollination is not autonomous fruit or seed set.",
+                "reviewer": "reviewer",
+                "reviewed_at_utc": "2026-08-11T05:35:00Z",
+            }
+        ]
+    )
+
+    kept, audit = apply_direct_evidence_exclusions(evidence, exclusions)
+
+    assert len(kept) == 1
+    assert kept.iloc[0]["trait_name"] == "mating_system"
+    assert audit.iloc[0]["matched_rows"] == 1
 
 
 def _review_rows(domain: str, trait: str, count: int) -> list[dict[str, object]]:
@@ -96,6 +135,8 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "combined-gobotany-baseflor-proteus-20260811" in workflow
     assert "high_leverage_direct_evidence_20260811.csv" in workflow
     assert "high_leverage_direct_manual_audit_20260811.csv" in workflow
+    assert "direct_evidence_exclusions_20260811.csv" in workflow
+    assert "--direct-evidence-exclusions-csv" in workflow
     assert "wfo_combined_high_yield_evidence.csv.gz" not in workflow
     assert "wfo_combined_high_yield_manual_audit_320.csv" not in workflow
     assert "--source-package-evidence-csv" in workflow

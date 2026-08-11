@@ -1,0 +1,2 @@
+accepted_species,trait_name,normalized_value,source_lineage,source_url,reason,reviewer,reviewed_at_utc
+Begonia semiovata,autonomous_selfing_capacity,autonomous,url:https://europepmc.org/article/MED/28593678,https://europepmc.org/article/MED/28593678,"The excerpt says that a female flower requires pollen from a neighbouring male flower on the same plant; it does not report unassisted fruit or seed set and therefore cannot establish autonomous selfing capacity.",Codex trait-concept re-audit,2026-08-11T05:35:00Z

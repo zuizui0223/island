@@ -40,6 +40,12 @@ _DIRECT_NAME_MATCHES = {
 }
 _DIRECT_SCOPES = {"species_direct", "synonym_direct"}
 _MIN_SOURCE_PACKAGE_NOVELTY = 0.50
+_EXCLUSION_KEY = [
+    "accepted_species",
+    "trait_name",
+    "normalized_value",
+    "source_lineage",
+]
 
 
 def _now() -> str:
@@ -56,6 +62,47 @@ def _sha256(path: Path) -> str:
 
 def _bool(value: object) -> bool:
     return str(value).strip().casefold() in _TRUE_VALUES
+
+
+def apply_direct_evidence_exclusions(
+    evidence: pd.DataFrame,
+    exclusions: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Remove only exact, reviewed species x trait x value x lineage records."""
+
+    required = set(_EXCLUSION_KEY).union({"reason", "reviewer", "reviewed_at_utc"})
+    missing = required.difference(exclusions.columns)
+    if missing:
+        raise ValueError(f"direct-evidence exclusions missing columns: {sorted(missing)}")
+    work = exclusions.copy().fillna("")
+    if work[_EXCLUSION_KEY].duplicated().any():
+        raise ValueError("direct-evidence exclusion keys must be unique")
+    if work[list(required)].apply(lambda column: column.astype(str).str.strip().eq("").any()).any():
+        raise ValueError("direct-evidence exclusions require complete keys and review provenance")
+    if evidence.empty or work.empty:
+        audit = work.copy()
+        audit["matched_rows"] = 0
+        return evidence.copy(), audit
+
+    frame = evidence.copy().fillna("")
+    blocked = work[_EXCLUSION_KEY].copy()
+    blocked["_excluded"] = True
+    joined = frame.merge(
+        blocked,
+        on=_EXCLUSION_KEY,
+        how="left",
+        validate="many_to_one",
+    )
+    rejected = joined["_excluded"].fillna(False).astype(bool)
+    counts = (
+        joined.loc[rejected, _EXCLUSION_KEY]
+        .value_counts(sort=False)
+        .rename("matched_rows")
+        .reset_index()
+    )
+    audit = work.merge(counts, on=_EXCLUSION_KEY, how="left", validate="one_to_one")
+    audit["matched_rows"] = audit["matched_rows"].fillna(0).astype(int)
+    return joined.loc[~rejected, frame.columns].reset_index(drop=True), audit
 
 
 def validate_individually_reviewed_evidence(
@@ -373,6 +420,7 @@ def finalize_review(
     source_package_audit_csv: Path | None = None,
     source_package_run_id: str = "",
     source_package_artifact: str = "",
+    direct_evidence_exclusions_csv: Path | None = None,
 ) -> dict[str, Any]:
     """Apply the audit gate and run PR #131's shared all-evidence functions."""
 
@@ -380,6 +428,11 @@ def finalize_review(
     candidates = pd.read_csv(candidates_csv, dtype=str).fillna("")
     audit = pd.read_csv(audit_csv, dtype=str).fillna("")
     master = pd.read_csv(master_csv, dtype=str).fillna("")
+    direct_exclusions = (
+        pd.read_csv(direct_evidence_exclusions_csv, dtype=str).fillna("")
+        if direct_evidence_exclusions_csv is not None
+        else pd.DataFrame(columns=[*_EXCLUSION_KEY, "reason", "reviewer", "reviewed_at_utc"])
+    )
     scope_table, audit_summary = reviewed_audit_metrics(audit)
 
     reviewed = audit.loc[audit["decision"].str.casefold().isin({"accept", "reject"})].copy()
@@ -459,6 +512,10 @@ def finalize_review(
         ignore_index=True,
         sort=False,
     ).fillna("")
+    web_incremental_formal, incremental_exclusion_audit = apply_direct_evidence_exclusions(
+        web_incremental_formal,
+        direct_exclusions,
+    )
     prior_formal = (
         pd.read_csv(prior_public_web_csv, dtype=str).fillna("")
         if prior_public_web_csv is not None
@@ -475,6 +532,10 @@ def finalize_review(
             prior_run_id=prior_public_web_run_id,
             prior_artifact=prior_public_web_artifact,
         )
+    prior_formal, prior_exclusion_audit = apply_direct_evidence_exclusions(
+        prior_formal,
+        direct_exclusions,
+    )
     source_package_formal = pd.DataFrame()
     source_package_scopes = pd.DataFrame()
     source_package_summary: dict[str, Any] = {
@@ -519,6 +580,9 @@ def finalize_review(
         source_package_formal["source_file"] = source_package_formal["source_file"].where(
             source_package_formal["source_file"].ne(""),
             str(source_package_evidence_csv),
+        )
+        source_package_formal, source_package_exclusion_audit = (
+            apply_direct_evidence_exclusions(source_package_formal, direct_exclusions)
         )
 
         current_direct = pd.concat(
@@ -569,6 +633,9 @@ def finalize_review(
         ignore_index=True,
         sort=False,
     ).fillna("")
+    if source_package_formal.empty:
+        source_package_exclusion_audit = direct_exclusions.copy()
+        source_package_exclusion_audit["matched_rows"] = 0
     combined_formal = combine_public_web_ledgers(
         prior_formal,
         incremental_formal,
@@ -625,6 +692,16 @@ def finalize_review(
         output_dir / "broad_web_medium_evidence.csv.gz",
         index=False,
     )
+    exclusion_audit = pd.concat(
+        [
+            prior_exclusion_audit.assign(input_ledger="prior_public_web"),
+            incremental_exclusion_audit.assign(input_ledger="new_curated_or_web"),
+            source_package_exclusion_audit.assign(input_ledger="source_package"),
+        ],
+        ignore_index=True,
+        sort=False,
+    ).fillna("")
+    exclusion_audit.to_csv(output_dir / "direct_evidence_exclusion_audit.csv", index=False)
 
     table_files = {
         "lineages": "reviewed_source_lineages.csv.gz",
@@ -676,6 +753,14 @@ def finalize_review(
         "individually_reviewed_evidence_rows": len(curated_formal),
         "total_incremental_reviewed_evidence_rows": len(incremental_formal),
         "individual_manual_audit": curated_audit_summary,
+        "direct_evidence_exclusions": {
+            "configured_records": len(direct_exclusions),
+            "matched_rows": int(exclusion_audit["matched_rows"].sum()),
+            "by_input_ledger": {
+                str(name): int(group["matched_rows"].sum())
+                for name, group in exclusion_audit.groupby("input_ledger", sort=True)
+            },
+        },
         "source_package": {
             **source_package_summary,
             "source_run_id": source_package_run_id,
@@ -743,6 +828,15 @@ def finalize_review(
             for path in (curated_evidence_csv, curated_audit_csv)
             if path is not None
         ],
+        "direct_evidence_exclusions": (
+            {
+                "path": str(direct_evidence_exclusions_csv),
+                "sha256": _sha256(direct_evidence_exclusions_csv),
+                "size_bytes": direct_evidence_exclusions_csv.stat().st_size,
+            }
+            if direct_evidence_exclusions_csv is not None
+            else {}
+        ),
         "source_package": {
             "run_id": source_package_run_id,
             "artifact": source_package_artifact,
@@ -827,6 +921,10 @@ def apply_audit_command(
     ] = None,
     source_package_run_id: str = "",
     source_package_artifact: str = "",
+    direct_evidence_exclusions_csv: Annotated[
+        Path | None,
+        typer.Option(exists=True, dir_okay=False),
+    ] = None,
 ) -> None:
     report = finalize_review(
         baseline_dir=baseline_dir,
@@ -852,6 +950,7 @@ def apply_audit_command(
         source_package_audit_csv=source_package_audit_csv,
         source_package_run_id=source_package_run_id,
         source_package_artifact=source_package_artifact,
+        direct_evidence_exclusions_csv=direct_evidence_exclusions_csv,
     )
     typer.echo(json.dumps(report, ensure_ascii=False, sort_keys=True))
 

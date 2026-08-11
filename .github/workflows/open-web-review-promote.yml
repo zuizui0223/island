@@ -25,6 +25,7 @@ on:
       - "data/v2/staging/traits/open_web_pilot/official_flora_colour_recovery_checkpoint_20260811/**"
       - "data/v2/staging/traits/open_web_pilot/combined_next_source_package_20260811/**"
       - "data/v2/staging/traits/open_web_pilot/high_leverage_direct_checkpoint_20260811/**"
+      - "data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_*.csv"
       - "data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/stratified_trait_audit_*.csv"
       - "data/v2/staging/traits/direct_llm_pilot/20260808_scale_source_acquisition/**"
       - "data/v2/staging/traits/direct_llm_pilot/20260809_flora_of_australia_source_acquisition/**"
@@ -148,6 +149,10 @@ on:
         description: Original source-package artifact name
         required: false
         default: "combined-reviewed-source-package-20260811"
+      direct_evidence_exclusions_csv_path:
+        description: Reviewed exact-record exclusions committed on this ref
+        required: false
+        default: "data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_20260811.csv"
 
 permissions:
   actions: read
@@ -201,6 +206,9 @@ jobs:
       SOURCE_PACKAGE_ARTIFACT: >-
         ${{ inputs.source_package_artifact_name ||
         'combined-reviewed-source-package-20260811' }}
+      DIRECT_EVIDENCE_EXCLUSIONS_CSV_PATH: >-
+        ${{ inputs.direct_evidence_exclusions_csv_path ||
+        'data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_20260811.csv' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -314,6 +322,7 @@ jobs:
           test -f "/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_FILE_NAME"
           test -f "/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_SUPPLEMENT_FILE_NAME"
           test -f "$AUDIT_CSV_PATH"
+          test -f "$DIRECT_EVIDENCE_EXCLUSIONS_CSV_PATH"
           if [[ -n "$CURATED_EVIDENCE_CSV_PATH" ]]; then
             test -n "$CURATED_AUDIT_CSV_PATH"
             test -f "$CURATED_EVIDENCE_CSV_PATH"
@@ -366,6 +375,8 @@ jobs:
               "/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_SUPPLEMENT_FILE_NAME" \
             --prior-public-web-run-id "$PRIOR_PUBLIC_WEB_RUN_ID" \
             --prior-public-web-artifact "$PRIOR_PUBLIC_WEB_ARTIFACT" \
+            --direct-evidence-exclusions-csv \
+              "$DIRECT_EVIDENCE_EXCLUSIONS_CSV_PATH" \
             "${curated_args[@]}" \
             "${source_package_args[@]}"
           jq -e '
@@ -384,6 +395,8 @@ jobs:
             and .shared_all_evidence.axis_join_for_inference == false
             and .shared_all_evidence.family_inference == false
             and .shared_all_evidence.global_fallback == false
+            and .direct_evidence_exclusions.configured_records >= 1
+            and .direct_evidence_exclusions.matched_rows >= 1
             and .prior_formal_public_web_evidence_rows > 0
             and (
               .shared_all_evidence.prior_formal_public_web_evidence_rows
