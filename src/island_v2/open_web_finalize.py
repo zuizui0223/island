@@ -433,6 +433,15 @@ def finalize_review(
         if direct_evidence_exclusions_csv is not None
         else pd.DataFrame(columns=[*_EXCLUSION_KEY, "reason", "reviewer", "reviewed_at_utc"])
     )
+    # The baseline integrated artifact can itself contain a later-invalidated
+    # direct row (for example an expanded-wave extraction).  Filtering only
+    # prior/new public-Web ledgers leaves that row active in every rebuild.
+    # Apply the same reviewed full-key exclusion before baseline direct cells,
+    # source-package novelty, genus rules and strict coverage are computed.
+    evidence, baseline_exclusion_audit = apply_direct_evidence_exclusions(
+        evidence,
+        direct_exclusions,
+    )
     scope_table, audit_summary = reviewed_audit_metrics(audit)
 
     reviewed = audit.loc[audit["decision"].str.casefold().isin({"accept", "reject"})].copy()
@@ -694,6 +703,7 @@ def finalize_review(
     )
     exclusion_audit = pd.concat(
         [
+            baseline_exclusion_audit.assign(input_ledger="baseline_integrated"),
             prior_exclusion_audit.assign(input_ledger="prior_public_web"),
             incremental_exclusion_audit.assign(input_ledger="new_curated_or_web"),
             source_package_exclusion_audit.assign(input_ledger="source_package"),

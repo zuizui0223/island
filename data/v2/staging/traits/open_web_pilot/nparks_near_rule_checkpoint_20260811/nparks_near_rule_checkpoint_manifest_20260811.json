@@ -1,0 +1,329 @@
+{
+  "audit": {
+    "accepted_correct": 82,
+    "cultivar_contamination_rate": 0.0,
+    "precision": 1.0,
+    "reviewed": 82
+  },
+  "contract": "nparks_near_rule_complete_genus_inventory_v1",
+  "created_at_utc": "2026-08-11T06:16:10Z",
+  "evidence_rows": 82,
+  "files": {
+    "combined_curated_evidence_20260811.csv": {
+      "sha256": "d8a079bd08523c64dcef39b90555287d9ef4b9e48b8dcf107f07405bab0fca3c",
+      "size_bytes": 152263
+    },
+    "combined_curated_manual_audit_20260811.csv": {
+      "sha256": "b3c7eec0fbe1f0bd78dc40cce074f6b551a41f94d8833b33621e059fd62e47b2",
+      "size_bytes": 139672
+    },
+    "nparks_near_rule_evidence_20260811.csv": {
+      "sha256": "d4f6a74ab6ca4899221145c147b9ca4eacfcf243e32ca5d2a27014045d9cce72",
+      "size_bytes": 73933
+    },
+    "nparks_near_rule_inventory_20260811.csv.gz": {
+      "sha256": "4d7c15994910450b8f4462138179a2b92b427dcdbf51186b469a977a46f0a7a2",
+      "size_bytes": 14410
+    },
+    "nparks_near_rule_manual_audit_20260811.csv": {
+      "sha256": "5ee926fc3abcfef4443b169f2e52237b8e53d553273bbe84a95f15d23af48060",
+      "size_bytes": 67870
+    }
+  },
+  "genus_counts": [
+    {
+      "accepted_species_trait": 2,
+      "genus": "Myristica",
+      "master_species_pages": 3,
+      "suggestions": 4,
+      "unique_page_urls": 4
+    },
+    {
+      "accepted_species_trait": 5,
+      "genus": "Nepenthes",
+      "master_species_pages": 5,
+      "suggestions": 15,
+      "unique_page_urls": 15
+    },
+    {
+      "accepted_species_trait": 1,
+      "genus": "Grewia",
+      "master_species_pages": 2,
+      "suggestions": 2,
+      "unique_page_urls": 2
+    },
+    {
+      "accepted_species_trait": 3,
+      "genus": "Palaquium",
+      "master_species_pages": 9,
+      "suggestions": 10,
+      "unique_page_urls": 10
+    },
+    {
+      "accepted_species_trait": 6,
+      "genus": "Pinanga",
+      "master_species_pages": 7,
+      "suggestions": 8,
+      "unique_page_urls": 8
+    },
+    {
+      "accepted_species_trait": 3,
+      "genus": "Claoxylon",
+      "master_species_pages": 1,
+      "suggestions": 1,
+      "unique_page_urls": 1
+    },
+    {
+      "accepted_species_trait": 9,
+      "genus": "Horsfieldia",
+      "master_species_pages": 7,
+      "suggestions": 7,
+      "unique_page_urls": 7
+    },
+    {
+      "accepted_species_trait": 17,
+      "genus": "Sterculia",
+      "master_species_pages": 9,
+      "suggestions": 15,
+      "unique_page_urls": 10
+    },
+    {
+      "accepted_species_trait": 0,
+      "genus": "Ternstroemia",
+      "master_species_pages": 0,
+      "suggestions": 0,
+      "unique_page_urls": 0
+    },
+    {
+      "accepted_species_trait": 0,
+      "genus": "Allophylus",
+      "master_species_pages": 1,
+      "suggestions": 1,
+      "unique_page_urls": 1
+    },
+    {
+      "accepted_species_trait": 0,
+      "genus": "Pyrostria",
+      "master_species_pages": 0,
+      "suggestions": 0,
+      "unique_page_urls": 0
+    },
+    {
+      "accepted_species_trait": 5,
+      "genus": "Canarium",
+      "master_species_pages": 9,
+      "suggestions": 9,
+      "unique_page_urls": 9
+    },
+    {
+      "accepted_species_trait": 10,
+      "genus": "Heliconia",
+      "master_species_pages": 12,
+      "suggestions": 84,
+      "unique_page_urls": 69
+    },
+    {
+      "accepted_species_trait": 1,
+      "genus": "Benstonea",
+      "master_species_pages": 2,
+      "suggestions": 2,
+      "unique_page_urls": 2
+    },
+    {
+      "accepted_species_trait": 0,
+      "genus": "Osmoxylon",
+      "master_species_pages": 2,
+      "suggestions": 3,
+      "unique_page_urls": 3
+    },
+    {
+      "accepted_species_trait": 6,
+      "genus": "Musa",
+      "master_species_pages": 8,
+      "suggestions": 30,
+      "unique_page_urls": 27
+    },
+    {
+      "accepted_species_trait": 4,
+      "genus": "Globba",
+      "master_species_pages": 5,
+      "suggestions": 8,
+      "unique_page_urls": 8
+    },
+    {
+      "accepted_species_trait": 3,
+      "genus": "Dianella",
+      "master_species_pages": 2,
+      "suggestions": 5,
+      "unique_page_urls": 4
+    },
+    {
+      "accepted_species_trait": 0,
+      "genus": "Colea",
+      "master_species_pages": 0,
+      "suggestions": 1,
+      "unique_page_urls": 1
+    },
+    {
+      "accepted_species_trait": 0,
+      "genus": "Phrynium",
+      "master_species_pages": 0,
+      "suggestions": 3,
+      "unique_page_urls": 3
+    },
+    {
+      "accepted_species_trait": 1,
+      "genus": "Pipturus",
+      "master_species_pages": 1,
+      "suggestions": 1,
+      "unique_page_urls": 1
+    },
+    {
+      "accepted_species_trait": 6,
+      "genus": "Hornstedtia",
+      "master_species_pages": 3,
+      "suggestions": 3,
+      "unique_page_urls": 3
+    },
+    {
+      "accepted_species_trait": 0,
+      "genus": "Ptychosperma",
+      "master_species_pages": 2,
+      "suggestions": 2,
+      "unique_page_urls": 2
+    },
+    {
+      "accepted_species_trait": 0,
+      "genus": "Daphniphyllum",
+      "master_species_pages": 0,
+      "suggestions": 0,
+      "unique_page_urls": 0
+    },
+    {
+      "accepted_species_trait": 0,
+      "genus": "Leucosyke",
+      "master_species_pages": 0,
+      "suggestions": 0,
+      "unique_page_urls": 0
+    },
+    {
+      "accepted_species_trait": 0,
+      "genus": "Meistera",
+      "master_species_pages": 0,
+      "suggestions": 0,
+      "unique_page_urls": 0
+    },
+    {
+      "accepted_species_trait": 0,
+      "genus": "Stemonoporus",
+      "master_species_pages": 0,
+      "suggestions": 0,
+      "unique_page_urls": 0
+    },
+    {
+      "accepted_species_trait": 0,
+      "genus": "Chisocheton",
+      "master_species_pages": 1,
+      "suggestions": 1,
+      "unique_page_urls": 1
+    },
+    {
+      "accepted_species_trait": 0,
+      "genus": "Ceodes",
+      "master_species_pages": 0,
+      "suggestions": 0,
+      "unique_page_urls": 0
+    },
+    {
+      "accepted_species_trait": 0,
+      "genus": "Pimenta",
+      "master_species_pages": 1,
+      "suggestions": 1,
+      "unique_page_urls": 1
+    }
+  ],
+  "guardrails": {
+    "accepted_name_exact": true,
+    "all_genus_results_enumerated": true,
+    "axis_only_join": false,
+    "completed_species_trait_not_reacquired": true,
+    "counterexamples_retained": true,
+    "cultivar_hybrid_infraspecific_rejected": true,
+    "family_inference": false,
+    "global_fallback": false,
+    "reward_or_pollen_vector_added_to_structure_axis": false,
+    "unknown_ontology_fail_closed": true
+  },
+  "inputs": {
+    "current_direct_csv": {
+      "path": ".work\\github-31450245178-final\\direct_species_trait_ledger.csv.gz",
+      "sha256": "376f04c2cbf5a9f42bed9624a2dc0e0cdc72970fa448ffd813031579a0fbb123"
+    },
+    "master_csv": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "21925a4e4d6fc8431e8549b3c3ddff9acdbded0b017e0aa78a5c863147392fe9"
+    },
+    "prior_curated_audit_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\high_leverage_direct_checkpoint_20260811\\high_leverage_direct_manual_audit_20260811.csv",
+      "sha256": "338376706799f5eb9c79ee75e6dd068d248014d17e60ede1938f5ea5d2410528"
+    },
+    "prior_curated_evidence_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\high_leverage_direct_checkpoint_20260811\\high_leverage_direct_evidence_20260811.csv",
+      "sha256": "a7ec15ad4fd44485c557c711869fbac24bdadb01c0b9fd8e69f911ee29c9d6fe"
+    },
+    "prior_source_package_evidence_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\combined_next_source_package_20260811\\combined_next_evidence_20260811.csv.gz",
+      "sha256": "11146bc695cf0eaf329179188d1224bcd84c3b10b9d0a24d27803fa5525321a8"
+    }
+  },
+  "inventory_rows": 501,
+  "inventory_status_counts": {
+    "accepted_exact_species_trait": 82,
+    "already_resolved_direct": 71,
+    "no_trait_statement": 207,
+    "prior_curated_or_source_package_duplicate": 8,
+    "rejected_master_name_not_exact": 44,
+    "rejected_non_species_record": 89
+  },
+  "species": 54,
+  "species_trait": 82,
+  "target_genera": [
+    "Myristica",
+    "Nepenthes",
+    "Grewia",
+    "Palaquium",
+    "Pinanga",
+    "Claoxylon",
+    "Horsfieldia",
+    "Sterculia",
+    "Ternstroemia",
+    "Allophylus",
+    "Pyrostria",
+    "Canarium",
+    "Heliconia",
+    "Benstonea",
+    "Osmoxylon",
+    "Musa",
+    "Globba",
+    "Dianella",
+    "Colea",
+    "Phrynium",
+    "Pipturus",
+    "Hornstedtia",
+    "Ptychosperma",
+    "Daphniphyllum",
+    "Leucosyke",
+    "Meistera",
+    "Stemonoporus",
+    "Chisocheton",
+    "Ceodes",
+    "Pimenta"
+  ],
+  "target_selection": "current_support=2 morphology genera from the formal prioritized queue; all NParks autocomplete results retained before identity and ontology gates",
+  "trait_counts": {
+    "floral_form": 8,
+    "floral_symmetry": 20,
+    "flower_primary_color": 37,
+    "inflorescence_display": 17
+  }
+}

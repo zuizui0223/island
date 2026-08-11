@@ -64,6 +64,16 @@ def test_direct_evidence_exclusions_match_the_full_trait_lineage_key() -> None:
     assert audit.iloc[0]["matched_rows"] == 1
 
 
+def test_finalize_filters_baseline_integrated_evidence_too() -> None:
+    source = Path("src/island_v2/open_web_finalize.py").read_text(encoding="utf-8")
+    baseline_filter = source.index(
+        "evidence, baseline_exclusion_audit = apply_direct_evidence_exclusions("
+    )
+    common_rebuild = source.index("common_report, tables = rebuild_with_common_all_evidence(")
+    assert baseline_filter < common_rebuild
+    assert 'baseline_exclusion_audit.assign(input_ledger="baseline_integrated")' in source
+
+
 def _review_rows(domain: str, trait: str, count: int) -> list[dict[str, object]]:
     return [
         {
@@ -133,8 +143,8 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "combined_next_reviewed_audit_600_20260811.csv" in workflow
     assert "combined-reviewed-source-package-20260811" in workflow
     assert "combined-gobotany-baseflor-proteus-20260811" in workflow
-    assert "high_leverage_direct_evidence_20260811.csv" in workflow
-    assert "high_leverage_direct_manual_audit_20260811.csv" in workflow
+    assert "nparks_near_rule_checkpoint_20260811/combined_curated_evidence_20260811.csv" in workflow
+    assert "nparks_near_rule_checkpoint_20260811/combined_curated_manual_audit_20260811.csv" in workflow
     assert "direct_evidence_exclusions_20260811.csv" in workflow
     assert "--direct-evidence-exclusions-csv" in workflow
     assert "wfo_combined_high_yield_evidence.csv.gz" not in workflow
