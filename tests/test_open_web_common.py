@@ -74,8 +74,8 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "'31245813999'" in workflow
     assert "'30434418380'" in workflow
     assert "open-web-multidomain-pilot-30434418380" in workflow
-    assert "inputs.prior_public_web_run_id || '31440559943'" in workflow
-    assert "reviewed-open-web-evidence-31440559943" in workflow
+    assert "inputs.prior_public_web_run_id || '31445281207'" in workflow
+    assert "reviewed-open-web-evidence-31445281207" in workflow
     assert "broad_web_medium_evidence.csv.gz" in workflow
     assert "prior_public_web_run_id:" in workflow
     assert "prior_public_web_artifact_name:" in workflow
@@ -90,10 +90,10 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "source_package_audit_csv_path:" in workflow
     assert "SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-" in workflow
     assert "SOURCE_PACKAGE_AUDIT_CSV_PATH: >-" in workflow
-    assert "wfo_kew_africa_recovery_evidence_20260811.csv.gz" in workflow
-    assert "wfo_kew_africa_recovery_audit_200_20260811.csv" in workflow
-    assert "wfo-kew-africa-official-dwca-20260810" in workflow
-    assert "wfo-kew-africa-three-floras-20260810" in workflow
+    assert "official_flora_colour_evidence_20260811.csv.gz" in workflow
+    assert "official_flora_colour_audit_200_20260811.csv" in workflow
+    assert "official-flora-colour-recovery-reviewed-source-package-20260811" in workflow
+    assert "official-flora-colour-recovery-20260811" in workflow
     assert "CURATED_EVIDENCE_CSV_PATH: ${{ inputs.curated_evidence_csv_path || '' }}" in workflow
     assert "CURATED_AUDIT_CSV_PATH: ${{ inputs.curated_audit_csv_path || '' }}" in workflow
     assert "wfo_combined_high_yield_evidence.csv.gz" not in workflow
