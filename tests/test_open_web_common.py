@@ -143,8 +143,14 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "combined_next_reviewed_audit_600_20260811.csv" in workflow
     assert "combined-reviewed-source-package-20260811" in workflow
     assert "combined-gobotany-baseflor-proteus-20260811" in workflow
-    assert "nparks_near_rule_checkpoint_20260811/combined_curated_evidence_20260811.csv" in workflow
-    assert "nparks_near_rule_checkpoint_20260811/combined_curated_manual_audit_20260811.csv" in workflow
+    assert (
+        "goal_reproduction_checkpoint_20260811/combined_curated_evidence_20260811.csv"
+        in workflow
+    )
+    assert (
+        "goal_reproduction_checkpoint_20260811/combined_curated_manual_audit_20260811.csv"
+        in workflow
+    )
     assert "direct_evidence_exclusions_20260811.csv" in workflow
     assert "--direct-evidence-exclusions-csv" in workflow
     assert "wfo_combined_high_yield_evidence.csv.gz" not in workflow

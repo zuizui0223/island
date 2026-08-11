@@ -79,11 +79,18 @@ def _text(value: object) -> str:
 
 
 def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for block in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
+    return hashlib.sha256(_canonical_file_bytes(path)).hexdigest()
+
+
+def _canonical_file_bytes(path: Path) -> bytes:
+    payload = path.read_bytes()
+    if path.suffix.lower() in {".csv", ".json"}:
+        payload = payload.replace(b"\r\n", b"\n")
+    return payload
+
+
+def _canonical_file_size(path: Path) -> int:
+    return len(_canonical_file_bytes(path))
 
 
 def _candidate_id(species: str, trait: str, value: str, lineage: str) -> str:
@@ -613,7 +620,7 @@ def build(
         },
     }
     files = {
-        path.name: {"sha256": _sha256(path), "size_bytes": path.stat().st_size}
+        path.name: {"sha256": _sha256(path), "size_bytes": _canonical_file_size(path)}
         for path in (evidence_path, audit_path)
     }
     summary["files"] = files

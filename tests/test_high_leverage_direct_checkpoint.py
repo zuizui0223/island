@@ -13,11 +13,10 @@ from island_v2.open_web_finalize import validate_individually_reviewed_evidence
 
 
 def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for block in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
+    payload = path.read_bytes()
+    if path.suffix.lower() in {".csv", ".json"}:
+        payload = payload.replace(b"\r\n", b"\n")
+    return hashlib.sha256(payload).hexdigest()
 
 
 def test_only_resolved_direct_cells_suppress_reacquisition() -> None:

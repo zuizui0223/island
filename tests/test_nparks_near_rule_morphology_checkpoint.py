@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 
 from island_v2.nparks_near_rule_morphology_checkpoint import (
+    _canonical_file_size,
     normalize_field,
     page_record_kind,
 )
@@ -19,14 +20,16 @@ ROOT = Path(
 
 
 def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for block in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
+    payload = path.read_bytes()
+    if path.suffix.lower() in {".csv", ".json"}:
+        payload = payload.replace(b"\r\n", b"\n")
+    return hashlib.sha256(payload).hexdigest()
 
 
 def test_species_gate_rejects_forms_but_keeps_botanical_authorship() -> None:
+    assert page_record_kind("Begonia rex-cultorum", "Begonia") == (
+        "cultivar_hybrid_or_infraspecific"
+    )
     assert page_record_kind("Pinanga coronata (Blume) Blume", "Pinanga") == (
         "species_binomial"
     )
@@ -98,7 +101,7 @@ def test_committed_checkpoint_is_complete_reviewed_and_hash_pinned() -> None:
 
     for filename, metadata in manifest["files"].items():
         path = ROOT / filename
-        assert path.stat().st_size == metadata["size_bytes"]
+        assert _canonical_file_size(path) == metadata["size_bytes"]
         assert _sha256(path) == metadata["sha256"]
 
 

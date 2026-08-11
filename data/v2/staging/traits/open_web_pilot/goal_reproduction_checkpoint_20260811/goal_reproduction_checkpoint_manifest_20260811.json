@@ -1,0 +1,107 @@
+{
+  "version": "1.0",
+  "contract": "goal_reproduction_trait_specific_checkpoint_v1",
+  "generated_at_utc": "2026-08-11T11:36:25Z",
+  "base_curated_checkpoint": "nparks_near_rule_checkpoint_20260811",
+  "combined_evidence_rows": 248,
+  "combined_audit_rows": 248,
+  "incremental_reviewed_rows": 78,
+  "incremental_species": 72,
+  "incremental_species_trait": 78,
+  "incremental_by_source_group": {
+    "goal_reproduction_near_rule_checkpoint": 1,
+    "goal_reproduction_primary_mating_checkpoint": 3,
+    "nparks_near_rule_morphology_checkpoint": 49,
+    "silene_primary_reproduction_checkpoint": 2,
+    "whitehead_2018_population_mating_system": 23
+  },
+  "incremental_by_trait": {
+    "autonomous_selfing_capacity": 1,
+    "floral_form": 1,
+    "floral_symmetry": 11,
+    "flower_primary_color": 36,
+    "inflorescence_display": 1,
+    "mating_system": 27,
+    "self_incompatibility": 1
+  },
+  "quality_counts": {
+    "high": 77,
+    "medium": 1
+  },
+  "source_records": {
+    "whitehead_2018": {
+      "article_doi": "10.3389/fevo.2018.00038",
+      "supplement_url": "https://www.frontiersin.org/journals/ecology-and-evolution/articles/10.3389/fevo.2018.00038/full",
+      "mapping": "mean_tm <= 0.2 predominantly_selfing; 0.2 < mean_tm < 0.8 mixed_mating; mean_tm >= 0.8 predominantly_outcrossing",
+      "exact_master_species_rows": 23,
+      "source_zip_sha256": "7067064bf2bc37ade116b33dd3dc710f2938a36fc069265b0628499f887658f8"
+    },
+    "magnolia_salicifolia": {
+      "url": "https://www.nature.com/articles/hdy2008128",
+      "article_doi": "10.1038/hdy.2008.128",
+      "source_lineage": "underlying-study:takabayashi-tomaru-unpublished-magnolia-salicifolia-outcrossing-rate",
+      "mapping": "outcrossing rate 0.650 -> mating_system=mixed_mating",
+      "retrieved_html_sha256": "4264092bc6c5384e064fa1d26b408518b831ec72cd70d188ec02b7f968aa714b"
+    },
+    "ficus_arpazusa": {
+      "url": "https://doi.org/10.1007/s10592-008-9776-x",
+      "article_doi": "10.1007/s10592-008-9776-x",
+      "source_lineage": "doi:10.1007/s10592-008-9776-x",
+      "mapping": "species-specific allogamous statement -> mating_system=predominantly_outcrossing",
+      "retrieved_excerpt_sha256": "8e5254d3159921ad5ab8ea07f804a29444ba1b6542d90e23924513c3539e11a7"
+    },
+    "ficus_petiolaris": {
+      "url": "https://doi.org/10.3732/ajb.1100472",
+      "article_doi": "10.3732/ajb.1100472",
+      "source_lineage": "doi:10.3732/ajb.1100472",
+      "mapping": "species-specific complete outcrossing statement -> mating_system=predominantly_outcrossing",
+      "retrieved_excerpt_sha256": "1b62700dfb358f97c1883ca6aaaeb404a516d0654fe755f024f6653569d932f8"
+    },
+    "dioscorea_alata": {
+      "url": "https://doi.org/10.3390/plants10071412",
+      "article_doi": "10.3390/plants10071412",
+      "source_lineage": "doi:10.3390/plants10071412",
+      "mapping": "species-specific statement that cross-pollination is essential -> mating_system=predominantly_outcrossing; sex_system is not substituted",
+      "retrieved_pdf_sha256": "4a049e2a6fc5ca76ce35050099d21acc0fa9de773997bdcb3521a99342a0b14e"
+    }
+  },
+  "policy": {
+    "quality_precedence": [
+      "high",
+      "medium",
+      "validated_low"
+    ],
+    "trait_specific_genus_join": true,
+    "minimum_genus_species": 3,
+    "family_inference": false,
+    "global_fallback": false,
+    "n2_formal_adoption": false,
+    "cross_trait_substitution": false,
+    "exact_quote_required": true,
+    "strict_species_identity_required": true,
+    "source_lineage_deduplicated": true,
+    "cultivar_group_rejected": true
+  },
+  "files": {
+    "combined_curated_evidence_20260811.csv": {
+      "sha256": "53ce4eca681eaee76867fd69d44f02175d70b4c13935d02984b6ceb697bf7764",
+      "size_bytes": 229745
+    },
+    "combined_curated_manual_audit_20260811.csv": {
+      "sha256": "954bfe69cce0923c647ea215da1573b0ae122d3171ed7a9bdb20749c377b6956",
+      "size_bytes": 211930
+    },
+    "incremental_reviewed_evidence_20260811.csv": {
+      "sha256": "39944d28bdc7943a6fae406714eff002464ab0df66394b7fef2af6eac8c7db43",
+      "size_bytes": 77957
+    },
+    "incremental_reviewed_audit_20260811.csv": {
+      "sha256": "93986f115fd495e0e1d4359bb2d20765bd604ff685f05fa06546b4f0cbea53a3",
+      "size_bytes": 72836
+    },
+    "whitehead_2018_supplementary_data.zip": {
+      "sha256": "7067064bf2bc37ade116b33dd3dc710f2938a36fc069265b0628499f887658f8",
+      "size_bytes": 29877
+    }
+  }
+}
