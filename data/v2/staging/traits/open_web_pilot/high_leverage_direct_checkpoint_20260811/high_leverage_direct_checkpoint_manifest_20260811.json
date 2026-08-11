@@ -1,0 +1,67 @@
+{
+  "audit": {
+    "accepted_correct": 81,
+    "cultivar_contamination_rate": 0.0,
+    "precision": 1.0,
+    "reviewed": 81
+  },
+  "contract": "high_leverage_individually_reviewed_direct_checkpoint_v1",
+  "created_at_utc": "2026-08-11T05:10:00Z",
+  "current_resolved_direct_species_trait": 127275,
+  "evidence_rows": 81,
+  "files": {
+    "high_leverage_direct_evidence_20260811.csv": {
+      "sha256": "5512b6c2d99bd237831b2a4755735a15b72888c07781174867c74d2b628bcfcb",
+      "size_bytes": 72437
+    },
+    "high_leverage_direct_manual_audit_20260811.csv": {
+      "sha256": "62d8def17cb50672c32f12c66ae64dfb1f1666f4e54f67a0cf0243066f6504fd",
+      "size_bytes": 66271
+    }
+  },
+  "inputs": {
+    "current_direct_csv": {
+      "path": ".work\\github-31450245178-final\\direct_species_trait_ledger.csv.gz",
+      "sha256": "376f04c2cbf5a9f42bed9624a2dc0e0cdc72970fa448ffd813031579a0fbb123"
+    },
+    "diospyros_pdf": {
+      "path": ".work\\primary-high-leverage-20260811\\diospyros_celebica_2017.pdf",
+      "sha256": "6bbf90b64844268c8232dfdc673bf66646cc5395731e4c52692f0068dad24872"
+    },
+    "magnolia_pdf": {
+      "path": ".work\\primary-high-leverage-20260811\\magnolia_salicifolia_inbreeding_2020.pdf",
+      "sha256": "99843970098822c65cab6d7afa78c7e984b8dfaad5c3e7516db1292bcd86f9e5"
+    },
+    "master_csv": {
+      "path": ".work\\github-31450245178-final\\strict_species_axis_coverage.csv.gz",
+      "sha256": "8bd035b6625bb4b35215a8d549615833621764bfabaca6e22e32f7fe73cf2a3a"
+    },
+    "pfaf_csv": {
+      "path": ".work\\pfaf-all-acquisition-20260811\\pfaf_self_fertile_candidates.csv.gz",
+      "sha256": "1a5e1b6c22058d6b515f1b7195cfa5a4d7ffdf6bcaf6dd9b025d39c96a8adffe"
+    }
+  },
+  "mapping_guards": {
+    "family_inference": false,
+    "global_fallback": false,
+    "outcrossing_rate_to_mating_system_only": true,
+    "pollinator_exclusion_to_autonomous_selfing_only": true,
+    "self_fertile_to_self_incompatibility_only": true
+  },
+  "provider_counts": {
+    "ishida_etal_2020_primary_article": 1,
+    "plants_for_a_future": 79,
+    "restu_etal_2017_biotropia": 1
+  },
+  "quality_counts": {
+    "high": 2,
+    "medium": 79
+  },
+  "species": 81,
+  "species_trait": 81,
+  "trait_counts": {
+    "autonomous_selfing_capacity": 1,
+    "mating_system": 1,
+    "self_incompatibility": 79
+  }
+}
