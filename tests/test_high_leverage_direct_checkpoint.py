@@ -103,13 +103,22 @@ def test_committed_checkpoint_passes_individual_review_gate() -> None:
         Path("config/trait_ontology.yml"),
     )
 
-    assert len(evidence) == 81
-    assert len(accepted) == 81
-    assert evidence["accepted_species"].nunique() == 81
+    assert len(evidence) == 88
+    assert len(accepted) == 88
+    assert evidence["accepted_species"].nunique() == 84
     assert evidence["candidate_id"].is_unique
     assert evidence["source_excerpt"].ne("").all()
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
     assert set(evidence["evidence_quality"]) == {"high", "medium"}
+    nparks = evidence.loc[
+        evidence["source_provider"].eq("singapore_nparks_flora_fauna_web")
+    ]
+    assert len(nparks) == 7
+    assert set(nparks["accepted_species"]) == {
+        "Grewia occidentalis",
+        "Myristica elliptica",
+        "Nepenthes bicalcarata",
+    }
     assert not set(evidence["trait_name"]).intersection(
         {"pollen_vector_mode", "reward_type"}
     )

@@ -19,8 +19,22 @@ import pandas as pd
 
 DIOSPYROS_SHA256 = "6bbf90b64844268c8232dfdc673bf66646cc5395731e4c52692f0068dad24872"
 MAGNOLIA_SHA256 = "99843970098822c65cab6d7afa78c7e984b8dfaad5c3e7516db1292bcd86f9e5"
+NPARKS_SHA256 = {
+    "Grewia occidentalis": "275d87b68ed4ed089db3692f1e06ab6f32f01c2a0bd7d96bab68173143c61140",
+    "Myristica elliptica": "429a45acbb2c83b6459b4eaf792b714c062bb7b3bdff3d3f36685e718e3b1f8b",
+    "Nepenthes bicalcarata": "e7a5b5daa2fbb21ba6a9b96764bb9eb83ffeeae040036c31e28348f5916a9957",
+}
 CREATED_AT = "2026-08-11T05:10:00Z"
 REVIEWER = "Codex source-backed line-by-line evidence audit"
+TRAIT_AXIS = {
+    "flower_primary_color": "flower_colour",
+    "floral_form": "floral_structural_complexity",
+    "floral_symmetry": "floral_structural_complexity",
+    "inflorescence_display": "floral_structural_complexity",
+    "self_incompatibility": "reproductive_assurance",
+    "autonomous_selfing_capacity": "reproductive_assurance",
+    "mating_system": "reproductive_assurance",
+}
 
 EVIDENCE_COLUMNS = [
     "candidate_id",
@@ -103,7 +117,7 @@ def _evidence_row(
     return {
         "candidate_id": _candidate_id(species, trait, value, lineage),
         "accepted_species": species,
-        "axis": "reproductive_assurance",
+        "axis": TRAIT_AXIS[trait],
         "trait_name": trait,
         "raw_value": raw_value or value,
         "normalized_value": value,
@@ -264,6 +278,130 @@ def primary_rows(
     ]
 
 
+def nparks_rows(
+    *,
+    master_names: set[str],
+    completed_pairs: set[tuple[str, str]],
+    grewia_html: Path,
+    myristica_html: Path,
+    nepenthes_html: Path,
+) -> list[dict[str, str]]:
+    pages = {
+        "Grewia occidentalis": grewia_html,
+        "Myristica elliptica": myristica_html,
+        "Nepenthes bicalcarata": nepenthes_html,
+    }
+    for species, path in pages.items():
+        if _sha256(path) != NPARKS_SHA256[species]:
+            raise ValueError(f"NParks page hash differs from pinned bytes: {species}")
+
+    records = [
+        {
+            "species": "Myristica elliptica",
+            "trait": "floral_symmetry",
+            "value": "actinomorphic",
+            "raw": "Radial",
+            "excerpt": "Flower Symmetry | Radial",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/6/2/6288",
+            "record": "nparks:6288:flower-symmetry",
+            "retrieved": "2026-08-11T05:35:12Z",
+        },
+        {
+            "species": "Myristica elliptica",
+            "trait": "flower_primary_color",
+            "value": "white|yellow_orange",
+            "raw": "Cream / Off-White; Yellow / Golden",
+            "excerpt": "Flower Colour(s) | Cream / Off-White, Yellow / Golden",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/6/2/6288",
+            "record": "nparks:6288:flower-colour",
+            "retrieved": "2026-08-11T05:35:12Z",
+        },
+        {
+            "species": "Nepenthes bicalcarata",
+            "trait": "floral_symmetry",
+            "value": "actinomorphic",
+            "raw": "Radial",
+            "excerpt": "Flower Symmetry | Radial",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/4/4/4475",
+            "record": "nparks:4475:flower-symmetry",
+            "retrieved": "2026-08-11T05:35:13Z",
+        },
+        {
+            "species": "Nepenthes bicalcarata",
+            "trait": "floral_form",
+            "value": "open_radial",
+            "raw": "Stellate / Star-shaped",
+            "excerpt": "Individual Flower Shape | Stellate / Star-shaped",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/4/4/4475",
+            "record": "nparks:4475:individual-flower-shape",
+            "retrieved": "2026-08-11T05:35:13Z",
+        },
+        {
+            "species": "Nepenthes bicalcarata",
+            "trait": "inflorescence_display",
+            "value": "raceme_spike_panicle",
+            "raw": "Panicle",
+            "excerpt": "Inflorescence Type | Panicle",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/4/4/4475",
+            "record": "nparks:4475:inflorescence-type",
+            "retrieved": "2026-08-11T05:35:13Z",
+        },
+        {
+            "species": "Nepenthes bicalcarata",
+            "trait": "flower_primary_color",
+            "value": "blue_purple|other_described",
+            "raw": "Purple; Black",
+            "excerpt": "Flower Colour(s) | Purple, Black",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/4/4/4475",
+            "record": "nparks:4475:flower-colour",
+            "retrieved": "2026-08-11T05:35:13Z",
+        },
+        {
+            "species": "Grewia occidentalis",
+            "trait": "floral_form",
+            "value": "open_radial",
+            "raw": "Stellate / Star-shaped",
+            "excerpt": "Individual Flower Shape | Stellate / Star-shaped",
+            "url": "https://www.nparks.gov.sg/florafaunaweb/flora/4/2/4236",
+            "record": "nparks:4236:individual-flower-shape",
+            "retrieved": "2026-08-11T05:35:14Z",
+        },
+    ]
+    output: list[dict[str, str]] = []
+    for item in records:
+        species = item["species"]
+        trait = item["trait"]
+        if species not in master_names or (species, trait) in completed_pairs:
+            continue
+        output.append(
+            _evidence_row(
+                species=species,
+                trait=trait,
+                value=item["value"],
+                raw_value=item["raw"],
+                quality="high",
+                provider="singapore_nparks_flora_fauna_web",
+                url=item["url"],
+                title=f"NParks Flora & Fauna Web: {species}",
+                citation=(
+                    "National Parks Board Singapore, Flora & Fauna Web, "
+                    f"{species} species record"
+                ),
+                excerpt=item["excerpt"],
+                record_id=item["record"],
+                lineage=f"url:{item['url'].casefold()}",
+                lineage_method="government_species_treatment_url",
+                source_tier="A",
+                source_type="government_species_database",
+                domain="nparks.gov.sg",
+                content_sha256=NPARKS_SHA256[species],
+                content_sha256_basis="downloaded_species_page_html_bytes",
+                retrieved_at_utc=item["retrieved"],
+            )
+        )
+    return output
+
+
 def pfaf_rows(
     candidates: pd.DataFrame,
     *,
@@ -391,6 +529,9 @@ def build(
     master_csv: Path,
     diospyros_pdf: Path,
     magnolia_pdf: Path,
+    grewia_html: Path,
+    myristica_html: Path,
+    nepenthes_html: Path,
     output_dir: Path,
 ) -> dict[str, object]:
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -407,6 +548,12 @@ def build(
         completed_pairs=completed_pairs,
         diospyros_pdf=diospyros_pdf,
         magnolia_pdf=magnolia_pdf,
+    ) + nparks_rows(
+        master_names=master_names,
+        completed_pairs=completed_pairs,
+        grewia_html=grewia_html,
+        myristica_html=myristica_html,
+        nepenthes_html=nepenthes_html,
     )
     evidence = pd.DataFrame(rows, columns=EVIDENCE_COLUMNS).fillna("")
     evidence = evidence.sort_values(
@@ -454,6 +601,15 @@ def build(
             "master_csv": {"path": str(master_csv), "sha256": _sha256(master_csv)},
             "diospyros_pdf": {"path": str(diospyros_pdf), "sha256": _sha256(diospyros_pdf)},
             "magnolia_pdf": {"path": str(magnolia_pdf), "sha256": _sha256(magnolia_pdf)},
+            "grewia_html": {"path": str(grewia_html), "sha256": _sha256(grewia_html)},
+            "myristica_html": {
+                "path": str(myristica_html),
+                "sha256": _sha256(myristica_html),
+            },
+            "nepenthes_html": {
+                "path": str(nepenthes_html),
+                "sha256": _sha256(nepenthes_html),
+            },
         },
     }
     files = {
@@ -475,6 +631,9 @@ def main() -> None:
     parser.add_argument("--master-csv", type=Path, required=True)
     parser.add_argument("--diospyros-pdf", type=Path, required=True)
     parser.add_argument("--magnolia-pdf", type=Path, required=True)
+    parser.add_argument("--grewia-html", type=Path, required=True)
+    parser.add_argument("--myristica-html", type=Path, required=True)
+    parser.add_argument("--nepenthes-html", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
     print(json.dumps(build(**vars(args)), ensure_ascii=False, indent=2))

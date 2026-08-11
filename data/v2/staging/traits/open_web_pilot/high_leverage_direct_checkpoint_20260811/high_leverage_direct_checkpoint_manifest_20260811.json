@@ -1,22 +1,22 @@
 {
   "audit": {
-    "accepted_correct": 81,
+    "accepted_correct": 88,
     "cultivar_contamination_rate": 0.0,
     "precision": 1.0,
-    "reviewed": 81
+    "reviewed": 88
   },
   "contract": "high_leverage_individually_reviewed_direct_checkpoint_v1",
   "created_at_utc": "2026-08-11T05:10:00Z",
   "current_resolved_direct_species_trait": 127275,
-  "evidence_rows": 81,
+  "evidence_rows": 88,
   "files": {
     "high_leverage_direct_evidence_20260811.csv": {
-      "sha256": "5512b6c2d99bd237831b2a4755735a15b72888c07781174867c74d2b628bcfcb",
-      "size_bytes": 72437
+      "sha256": "a7ec15ad4fd44485c557c711869fbac24bdadb01c0b9fd8e69f911ee29c9d6fe",
+      "size_bytes": 78799
     },
     "high_leverage_direct_manual_audit_20260811.csv": {
-      "sha256": "62d8def17cb50672c32f12c66ae64dfb1f1666f4e54f67a0cf0243066f6504fd",
-      "size_bytes": 66271
+      "sha256": "338376706799f5eb9c79ee75e6dd068d248014d17e60ede1938f5ea5d2410528",
+      "size_bytes": 72208
     }
   },
   "inputs": {
@@ -28,6 +28,10 @@
       "path": ".work\\primary-high-leverage-20260811\\diospyros_celebica_2017.pdf",
       "sha256": "6bbf90b64844268c8232dfdc673bf66646cc5395731e4c52692f0068dad24872"
     },
+    "grewia_html": {
+      "path": ".work\\nparks-high-leverage-20260811\\grewia_occidentalis.html",
+      "sha256": "275d87b68ed4ed089db3692f1e06ab6f32f01c2a0bd7d96bab68173143c61140"
+    },
     "magnolia_pdf": {
       "path": ".work\\primary-high-leverage-20260811\\magnolia_salicifolia_inbreeding_2020.pdf",
       "sha256": "99843970098822c65cab6d7afa78c7e984b8dfaad5c3e7516db1292bcd86f9e5"
@@ -35,6 +39,14 @@
     "master_csv": {
       "path": ".work\\github-31450245178-final\\strict_species_axis_coverage.csv.gz",
       "sha256": "8bd035b6625bb4b35215a8d549615833621764bfabaca6e22e32f7fe73cf2a3a"
+    },
+    "myristica_html": {
+      "path": ".work\\nparks-high-leverage-20260811\\myristica_elliptica.html",
+      "sha256": "429a45acbb2c83b6459b4eaf792b714c062bb7b3bdff3d3f36685e718e3b1f8b"
+    },
+    "nepenthes_html": {
+      "path": ".work\\nparks-high-leverage-20260811\\nepenthes_bicalcarata.html",
+      "sha256": "e7a5b5daa2fbb21ba6a9b96764bb9eb83ffeeae040036c31e28348f5916a9957"
     },
     "pfaf_csv": {
       "path": ".work\\pfaf-all-acquisition-20260811\\pfaf_self_fertile_candidates.csv.gz",
@@ -51,16 +63,21 @@
   "provider_counts": {
     "ishida_etal_2020_primary_article": 1,
     "plants_for_a_future": 79,
-    "restu_etal_2017_biotropia": 1
+    "restu_etal_2017_biotropia": 1,
+    "singapore_nparks_flora_fauna_web": 7
   },
   "quality_counts": {
-    "high": 2,
+    "high": 9,
     "medium": 79
   },
-  "species": 81,
-  "species_trait": 81,
+  "species": 84,
+  "species_trait": 88,
   "trait_counts": {
     "autonomous_selfing_capacity": 1,
+    "floral_form": 2,
+    "floral_symmetry": 2,
+    "flower_primary_color": 2,
+    "inflorescence_display": 1,
     "mating_system": 1,
     "self_incompatibility": 79
   }
