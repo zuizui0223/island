@@ -90,6 +90,20 @@ OVERRIDES = {
     ("Trema orientale", "flower_primary_color"): "green_brown_inconspicuous",
 }
 
+SYNONYM_REJECTED: dict[tuple[str, str], str] = {
+    ("Pachygone ovata", "flower_primary_color"): (
+        "red describes the ripe drupe; the treatment does not state a flower colour"
+    ),
+}
+
+SYNONYM_OVERRIDES = {
+    ("Archidendron bigeminum", "flower_primary_color"): "white",
+    ("Mappianthus hookerianus", "flower_primary_color"): "white",
+    ("Ziziphus xylopyrus", "flower_primary_color"): (
+        "green_brown_inconspicuous|yellow_orange"
+    ),
+}
+
 
 def _sha(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
@@ -223,12 +237,151 @@ def curate(candidate_csv: Path, output_dir: Path) -> dict[str, object]:
     }
 
 
+def curate_synonym_candidates(candidate_csv: Path, output_dir: Path) -> dict[str, object]:
+    """Review IISc treatments resolved by exact WFO+GBIF synonym agreement."""
+
+    candidates = pd.read_csv(candidate_csv, dtype=str).fillna("")
+    required = {
+        "accepted_species",
+        "searched_name",
+        "page_id",
+        "family",
+        "wfo_taxon_id",
+        "wfo_accepted_usage_id",
+        "gbif_usage_key",
+        "gbif_accepted_usage_key",
+        "axis",
+        "trait_name",
+        "normalized_value",
+        "supporting_excerpt",
+        "source_url",
+        "page_content_sha256",
+        "name_match_method",
+    }
+    missing = required - set(candidates.columns)
+    if missing:
+        raise ValueError(f"synonym candidate table missing columns: {sorted(missing)}")
+    if len(candidates) != 71:
+        raise ValueError(f"expected 71 synonym candidates, found {len(candidates)}")
+    if not candidates["name_match_method"].eq(
+        "strict_exact_two_backbone_wfo_gbif_synonym"
+    ).all():
+        raise ValueError("synonym candidates must have exact WFO+GBIF agreement")
+    if not candidates["page_content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all():
+        raise ValueError("synonym candidates contain invalid page hashes")
+
+    reviewed: list[dict[str, str]] = []
+    accepted: list[dict[str, str]] = []
+    reviewed_at = "2026-08-12T14:29:00Z"
+    for row in candidates.to_dict("records"):
+        key = (row["accepted_species"], row["trait_name"])
+        rejection = SYNONYM_REJECTED.get(key, "")
+        value = SYNONYM_OVERRIDES.get(key, row["normalized_value"])
+        candidate_id = _sha(
+            "|".join(
+                [
+                    row["accepted_species"],
+                    row["trait_name"],
+                    value,
+                    f"provider_treatment:iisc-india-flora-online:{row['page_id']}",
+                ]
+            )
+        )[:24]
+        decision = "reject" if rejection else "accept"
+        reason = rejection or (
+            "Accepted after exact species-rank synonym and family agreement in WFO "
+            "June 2026 and GBIF, complete treatment quote, ontology and non-cultivar "
+            "review; multistate floral values retained."
+        )
+        reviewed.append(
+            {
+                "candidate_id": candidate_id,
+                "accepted_species": row["accepted_species"],
+                "searched_name": row["searched_name"],
+                "trait_name": row["trait_name"],
+                "normalized_value": value,
+                "source_url": row["source_url"],
+                "supporting_excerpt": row["supporting_excerpt"],
+                "decision": decision,
+                "species_identity_correct": "true",
+                "value_correct": str(not rejection).lower(),
+                "provenance_complete": "true",
+                "cultivar_contamination": "false",
+                "false_positive_reason": rejection,
+                "decision_reason": reason,
+                "reviewer": "Codex IISc two-backbone synonym full candidate audit",
+                "reviewed_at_utc": reviewed_at,
+            }
+        )
+        if rejection:
+            continue
+        accepted.append(
+            {
+                "candidate_id": candidate_id,
+                "accepted_species": row["accepted_species"],
+                "searched_name": row["searched_name"],
+                "page_id": row["page_id"],
+                "family": row["family"],
+                "wfo_taxon_id": row["wfo_taxon_id"],
+                "wfo_accepted_usage_id": row["wfo_accepted_usage_id"],
+                "gbif_usage_key": row["gbif_usage_key"],
+                "gbif_accepted_usage_key": row["gbif_accepted_usage_key"],
+                "axis": row["axis"],
+                "trait_name": row["trait_name"],
+                "normalized_value": value,
+                "supporting_excerpt": row["supporting_excerpt"],
+                "source_url": row["source_url"],
+                "page_content_sha256": row["page_content_sha256"],
+                "name_match_method": "exact_synonym",
+                "cultivar_status": "wild_or_species_level_statement_not_cultivar_limited",
+            }
+        )
+
+    evidence = pd.DataFrame(accepted).sort_values(
+        ["accepted_species", "trait_name", "candidate_id"]
+    )
+    audit = pd.DataFrame(reviewed).sort_values(
+        ["accepted_species", "trait_name", "candidate_id"]
+    )
+    if len(evidence) != 70 or len(audit) != 71:
+        raise ValueError(
+            f"unexpected synonym accepted/reviewed counts: {len(evidence)}/{len(audit)}"
+        )
+    output_dir.mkdir(parents=True, exist_ok=True)
+    evidence.to_csv(
+        output_dir / "india_flora_online_synonym_reviewed_records_20260812.csv",
+        index=False,
+        lineterminator="\n",
+    )
+    audit.to_csv(
+        output_dir / "india_flora_online_synonym_full_candidate_audit_20260812.csv",
+        index=False,
+        lineterminator="\n",
+    )
+    return {
+        "reviewed": len(audit),
+        "accepted_correct": len(evidence),
+        "precision": len(evidence) / len(audit),
+        "cultivar_contamination_rate": 0.0,
+        "accepted_species": int(evidence["accepted_species"].nunique()),
+        "accepted_species_trait": int(
+            evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0]
+        ),
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--candidate-csv", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--synonym-candidate-csv", type=Path)
     args = parser.parse_args()
-    print(curate(args.candidate_csv, args.output_dir))
+    result = {"accepted_name": curate(args.candidate_csv, args.output_dir)}
+    if args.synonym_candidate_csv is not None:
+        result["two_backbone_synonym"] = curate_synonym_candidates(
+            args.synonym_candidate_csv, args.output_dir
+        )
+    print(result)
 
 
 if __name__ == "__main__":

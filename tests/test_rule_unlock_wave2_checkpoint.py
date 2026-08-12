@@ -16,16 +16,16 @@ CHECKPOINT = Path(
 def test_wave2_rows_are_trait_specific_and_source_backed() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
 
-    assert len(evidence) == 404
-    assert evidence["accepted_species"].nunique() == 364
-    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 404
-    assert evidence["evidence_scope"].eq("species_direct").all()
+    assert len(evidence) == 474
+    assert evidence["accepted_species"].nunique() == 428
+    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 474
+    assert set(evidence["evidence_scope"]) == {"species_direct", "synonym_direct"}
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
     assert evidence["source_excerpt"].str.len().gt(30).all()
-    assert evidence["source_lineage"].nunique() == 326
+    assert evidence["source_lineage"].nunique() == 390
     assert evidence["evidence_quality"].value_counts().to_dict() == {
         "high": 46,
-        "medium": 358,
+        "medium": 428,
     }
 
     reproductive = evidence.loc[evidence["axis"].eq("reproductive_assurance")]
@@ -175,7 +175,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
 
-    assert len(evidence) == len(audit) == len(accepted) == 1189
+    assert len(evidence) == len(audit) == len(accepted) == 1259
     assert evidence["candidate_id"].is_unique
     assert audit["candidate_id"].is_unique
     assert audit["decision"].str.casefold().eq("accept").all()
@@ -183,12 +183,15 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
     wave = accepted.loc[accepted["source_group"].eq(
         "rule_unlock_wave2_checkpoint_20260812"
     )]
-    assert len(wave) == 404
+    assert len(wave) == 474
 
 
 def test_iisc_full_candidate_audit_is_precise_and_fail_closed() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
-    rows = evidence.loc[evidence["domain"].eq("indiaflora-ces.iisc.ac.in")]
+    rows = evidence.loc[
+        evidence["domain"].eq("indiaflora-ces.iisc.ac.in")
+        & evidence["name_match_method"].eq("accepted_name_exact")
+    ]
     full_audit = pd.read_csv(
         CHECKPOINT / "india_flora_online_full_candidate_audit_20260812.csv",
         dtype=str,
@@ -228,6 +231,45 @@ def test_iisc_full_candidate_audit_is_precise_and_fail_closed() -> None:
         "Spiraea bumalda",
     }.issubset(rejected)
     assert rejected_keys.isdisjoint(accepted_keys)
+
+
+def test_iisc_two_backbone_synonym_audit_is_exact_and_fail_closed() -> None:
+    evidence = pd.DataFrame(reviewed_rows()).fillna("")
+    rows = evidence.loc[
+        evidence["domain"].eq("indiaflora-ces.iisc.ac.in")
+        & evidence["name_match_method"].eq("exact_synonym")
+    ]
+    audit = pd.read_csv(
+        CHECKPOINT / "india_flora_online_synonym_full_candidate_audit_20260812.csv",
+        dtype=str,
+    ).fillna("")
+
+    assert len(audit) == 71
+    assert audit["decision"].value_counts().to_dict() == {
+        "accept": 70,
+        "reject": 1,
+    }
+    assert len(rows) == 70
+    assert rows["accepted_species"].nunique() == 64
+    assert rows["source_lineage"].nunique() == 64
+    assert rows["matched_page_name"].ne(rows["accepted_species"]).all()
+    assert rows["evidence_scope"].eq("synonym_direct").all()
+    assert rows["name_resolution_lineage"].str.contains("wfo_june_2026:").all()
+    assert rows["name_resolution_lineage"].str.contains(";gbif:").all()
+    assert rows["evidence_quality"].eq("medium").all()
+    assert rows["source_tier"].eq("A").all()
+    assert audit["decision"].eq("accept").mean() >= 0.95
+    assert audit["cultivar_contamination"].eq("true").mean() <= 0.02
+
+    rejected = audit.loc[audit["decision"].eq("reject")].iloc[0]
+    assert rejected["accepted_species"] == "Pachygone ovata"
+    assert "drupe" in rejected["false_positive_reason"]
+    assert not rows["accepted_species"].eq("Pachygone ovata").any()
+    assert rows.loc[
+        rows["accepted_species"].eq("Archidendron bigeminum")
+        & rows["trait_name"].eq("flower_primary_color"),
+        "normalized_value",
+    ].item() == "white"
 
 
 def test_bfis_bulk_snapshot_adds_only_explicit_novel_symmetry_records() -> None:

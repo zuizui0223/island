@@ -35,6 +35,16 @@ INDIA_FLORA_FULL_AUDIT_PATH = Path(
     "rule_unlock_wave2_checkpoint_20260812/"
     "india_flora_online_full_candidate_audit_20260812.csv"
 )
+INDIA_FLORA_SYNONYM_REVIEWED_PATH = Path(
+    "data/v2/staging/traits/open_web_pilot/"
+    "rule_unlock_wave2_checkpoint_20260812/"
+    "india_flora_online_synonym_reviewed_records_20260812.csv"
+)
+INDIA_FLORA_SYNONYM_FULL_AUDIT_PATH = Path(
+    "data/v2/staging/traits/open_web_pilot/"
+    "rule_unlock_wave2_checkpoint_20260812/"
+    "india_flora_online_synonym_full_candidate_audit_20260812.csv"
+)
 
 BFIS_BULK_SYMMETRY_ROWS = (
     ("Actephila excelsa", "Euphorbiaceae", "actinomorphic"),
@@ -267,6 +277,82 @@ def _india_flora_online_rows() -> list[dict[str, str]]:
             cultivar_status=record["cultivar_status"],
         )
         row["query"] = "bulk_exact_master_unresolved_morphology_index"
+        rows.append(row)
+    return rows
+
+
+def _india_flora_online_synonym_rows() -> list[dict[str, str]]:
+    """Return records whose IISc page names agree in both WFO and GBIF."""
+
+    reviewed = pd.read_csv(INDIA_FLORA_SYNONYM_REVIEWED_PATH, dtype=str).fillna("")
+    required = {
+        "candidate_id",
+        "accepted_species",
+        "searched_name",
+        "page_id",
+        "family",
+        "wfo_taxon_id",
+        "wfo_accepted_usage_id",
+        "gbif_usage_key",
+        "gbif_accepted_usage_key",
+        "trait_name",
+        "normalized_value",
+        "supporting_excerpt",
+        "source_url",
+        "page_content_sha256",
+        "name_match_method",
+        "cultivar_status",
+    }
+    missing = required - set(reviewed.columns)
+    if missing:
+        raise ValueError(f"IISc synonym records missing columns: {sorted(missing)}")
+    if len(reviewed) != 70 or reviewed["candidate_id"].duplicated().any():
+        raise ValueError("IISc synonym checkpoint must contain 70 unique records")
+    if not reviewed["name_match_method"].eq("exact_synonym").all():
+        raise ValueError("IISc synonym checkpoint lacks two-backbone agreement")
+    if not reviewed["page_content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all():
+        raise ValueError("IISc synonym checkpoint contains invalid page hashes")
+
+    rows: list[dict[str, str]] = []
+    for record in reviewed.to_dict("records"):
+        species = record["accepted_species"]
+        searched_name = record["searched_name"]
+        page_id = record["page_id"]
+        trait = record["trait_name"]
+        row = _row(
+            species=species,
+            trait=trait,
+            value=record["normalized_value"],
+            raw_value=record["supporting_excerpt"],
+            excerpt=f"Key identification features: {record['supporting_excerpt']}",
+            quality="medium",
+            provider="IISc India Flora Online",
+            url=record["source_url"],
+            title=f"India Flora Online - {searched_name}",
+            citation=(
+                "Sankara Rao, K. and Deepak Kumar (2026). India Flora Online, "
+                f"species treatment: {searched_name}."
+            ),
+            record_id=f"iisc-india-flora-online:{page_id}:{trait}",
+            lineage=f"provider_treatment:iisc-india-flora-online:{page_id}",
+            lineage_method="canonical_university_flora_species_treatment",
+            source_tier="A",
+            source_type="university_herbarium_regional_flora_species_treatment",
+            domain="indiaflora-ces.iisc.ac.in",
+            content_sha256=record["page_content_sha256"],
+            content_sha256_basis="downloaded_complete_species_treatment_html_bytes",
+            retrieved_at_utc="2026-08-12T14:29:00Z",
+            cultivar_status=record["cultivar_status"],
+            name_resolution_lineage=(
+                f"wfo_june_2026:{record['wfo_taxon_id']}:"
+                f"{record['wfo_accepted_usage_id']};gbif:"
+                f"{record['gbif_usage_key']}:{record['gbif_accepted_usage_key']}"
+            ),
+        )
+        row["name_match_method"] = record["name_match_method"]
+        row["matched_page_name"] = searched_name
+        row["evidence_scope"] = "synonym_direct"
+        row["query"] = "bulk_two_backbone_synonym_unresolved_morphology_index"
         rows.append(row)
     return rows
 
@@ -2207,6 +2293,7 @@ def reviewed_rows() -> list[dict[str, str]]:
     )
     rows.extend(_bfis_bulk_symmetry_rows())
     rows.extend(_india_flora_online_rows())
+    rows.extend(_india_flora_online_synonym_rows())
     return rows
 
 
@@ -2388,12 +2475,29 @@ def build(
     if conflicts:
         raise ValueError(f"family conflicts in reviewed checkpoint: {conflicts}")
 
+    synonym_reviewed = pd.read_csv(
+        INDIA_FLORA_SYNONYM_REVIEWED_PATH, dtype=str
+    ).fillna("")
+    synonym_family = synonym_reviewed.set_index("accepted_species")["family"].to_dict()
+    synonym_missing = sorted(set(synonym_family) - set(master_family))
+    if synonym_missing:
+        raise ValueError(
+            f"IISc synonym species absent from target master: {synonym_missing}"
+        )
+    synonym_conflicts = {
+        species: (family, master_family[species])
+        for species, family in synonym_family.items()
+        if master_family[species] != family
+    }
+    if synonym_conflicts:
+        raise ValueError(f"IISc synonym family conflicts: {synonym_conflicts}")
+
     evidence = pd.DataFrame(reviewed_rows(), columns=EVIDENCE_COLUMNS).fillna("")
     evidence = evidence.sort_values(
         ["accepted_species", "trait_name", "candidate_id"]
     ).reset_index(drop=True)
-    if len(evidence) != 404:
-        raise ValueError(f"expected 404 reviewed trait rows, found {len(evidence)}")
+    if len(evidence) != 474:
+        raise ValueError(f"expected 474 reviewed trait rows, found {len(evidence)}")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("wave-2 candidate IDs are not unique")
     audit = _review_audit(evidence)
@@ -2408,6 +2512,8 @@ def build(
         audit_path,
         INDIA_FLORA_REVIEWED_PATH,
         INDIA_FLORA_FULL_AUDIT_PATH,
+        INDIA_FLORA_SYNONYM_REVIEWED_PATH,
+        INDIA_FLORA_SYNONYM_FULL_AUDIT_PATH,
     ]
 
     combined_evidence: pd.DataFrame | None = None
@@ -2418,12 +2524,21 @@ def build(
         prior_evidence = pd.read_csv(prior_curated_evidence_csv, dtype=str).fillna("")
         prior_audit = pd.read_csv(prior_curated_audit_csv, dtype=str).fillna("")
         owned = set(evidence["candidate_id"])
+        prior_owned = prior_evidence["source_group"].eq(SOURCE_GROUP)
+        prior_owned_ids = set(
+            prior_evidence.loc[prior_owned, "candidate_id"].astype(str)
+        )
         combined_evidence = pd.concat(
-            [prior_evidence.loc[~prior_evidence["candidate_id"].isin(owned)], evidence],
+            [prior_evidence.loc[~prior_owned], evidence],
             ignore_index=True,
         )
         combined_audit = pd.concat(
-            [prior_audit.loc[~prior_audit["candidate_id"].isin(owned)], audit],
+            [
+                prior_audit.loc[
+                    ~prior_audit["candidate_id"].astype(str).isin(prior_owned_ids | owned)
+                ],
+                audit,
+            ],
             ignore_index=True,
         )
         for name, frame in (("evidence", combined_evidence), ("audit", combined_audit)):
@@ -2469,6 +2584,13 @@ def build(
             "accepted_correct": 250,
             "precision": 250 / 262,
             "cultivar_contamination_rate": 2 / 262,
+        },
+        "iisc_two_backbone_synonym_audit": {
+            "reviewed": 71,
+            "accepted_correct": 70,
+            "precision": 70 / 71,
+            "cultivar_contamination_rate": 0.0,
+            "identity_contract": "exact_species_family_agreement_wfo_june_2026_and_gbif",
         },
         "files": {},
     }

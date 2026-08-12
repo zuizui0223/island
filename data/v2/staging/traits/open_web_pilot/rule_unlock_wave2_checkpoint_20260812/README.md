@@ -2,7 +2,7 @@
 
 This checkpoint freezes individually reviewed species-direct evidence selected
 for information gain in the current `genus x trait_name` queue. It contains
-seventy-five reproductive records and 329 visible-morphology records.
+seventy-five reproductive records and 399 visible-morphology records.
 It never emits genus,
 family, or global inference itself.
 
@@ -150,6 +150,21 @@ while dropping colours belonging only to non-floral organs. All 250 accepted
 records remain species-direct Medium evidence despite the university Tier A
 source because the individual morphology fields are compiled treatments rather
 than independently attributed primary measurements.
+
+The twelfth increment reuses the same downloaded IISc index but does not relax
+the name gate. WFO June 2026 first connects historical treatment names to the
+fixed accepted master, after which the GBIF species-match API must independently
+return the same accepted species, family, species rank and exact match with at
+least 95 confidence. This reduced 605 morphology-relevant synonym candidates to
+373 treatments with two-backbone agreement. Only those pages were downloaded;
+71 trait candidates were extracted and all were reviewed. Seventy were accepted
+(precision 98.59%) across 64 accepted species, with no cultivar contamination.
+One apparent flower-colour record was rejected because red referred only to a
+ripe drupe. Three accepted state sets were corrected to remove leaf or fruit
+colours while retaining the explicit floral colours. The searched historical
+name, WFO and GBIF identifiers, full page hash, exact quote and one lineage per
+IISc treatment are preserved; neither one-backbone nor fuzzy matches enter the
+ledger.
 
 The combined files supersede the previous curated checkpoint as workflow input.
 Every new row has an `accept` audit decision, exact source URL, supporting
