@@ -2,7 +2,7 @@
 
 This checkpoint freezes individually reviewed species-direct evidence selected
 for information gain in the current `genus x trait_name` queue. It adds twenty-three
-reproductive records and ten visible-morphology records. It never emits genus,
+reproductive records and thirteen visible-morphology records. It never emits genus,
 family, or global inference itself.
 
 Reproductive concepts remain separate: failure of unassisted bagged flowers is
@@ -34,6 +34,16 @@ muelleri*, and an expert-attributed eFlora of India description of the branched
 spadix and male catkins of *Benstonea foetida*. The latter retains the credited
 India Biodiversity Portal treatment as its source lineage so redistribution is
 not counted as independent evidence.
+
+The next high-yield additions retain three different evidence tiers without
+weakening the identity or trait gates. A peer-reviewed New Caledonian taxonomic
+revision supplies the cream/white-edged corolla of *Pleioluma balansana*; cream
+remains in the ontology's white state. A species-only New Zealand nursery page
+supplies only the explicitly star-shaped flower form of *Kunzea ericoides* and
+is retained as Medium Tier C morphology, not reproductive evidence. A published
+species morphology account explicitly identifies *Corchorus olitorius* in
+Malvaceae and describes its flower as actinomorphic; because it is a secondary
+morphology account, it is conservatively retained as Medium rather than High.
 
 The combined files supersede the previous curated checkpoint as workflow input.
 Every new row has an `accept` audit decision, exact source URL, supporting

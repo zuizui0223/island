@@ -829,6 +829,119 @@ def reviewed_rows() -> list[dict[str, str]]:
         )
     )
 
+    rows.append(
+        _row(
+            species="Pleioluma balansana",
+            trait="flower_primary_color",
+            value="white",
+            raw_value="corolla cream with white-edged corolla lobes",
+            excerpt=(
+                "Pleioluma balansana (Pierre ex Baill.) Swenson & Munzinger. "
+                "Flowers 5-merous, 1-5 per fascicle; pedicel 2-5 mm long, "
+                "usually at least 0.7 mm wide, tomentulose. Sepals 1.0-2.0 "
+                "(-2.5) mm long with the same indument as the pedicel. Corolla "
+                "cream, with white-edged corolla lobes, 2.5-3.5 mm long."
+            ),
+            quality="high",
+            provider="Swenson et al. 2018 Australian Systematic Botany",
+            url="https://doi.org/10.1071/SB17040",
+            title=(
+                "Phylogeny, species delimitation and revision of Pleioluma "
+                "(Sapotaceae) in New Caledonia, a frequently gynodioecious genus"
+            ),
+            citation=(
+                "Swenson, Nylander & Munzinger (2018), Australian Systematic "
+                "Botany 31:120-165, DOI 10.1071/SB17040, p. 135"
+            ),
+            record_id="doi:10.1071/SB17040:p135:pleioluma-balansana:corolla-colour",
+            lineage="doi:10.1071/SB17040",
+            lineage_method="peer_reviewed_primary_taxonomic_revision_doi",
+            source_tier="A",
+            source_type="peer_reviewed_primary_taxonomic_revision",
+            domain="doi.org",
+            content_sha256=(
+                "1eb462ba75aee764fc20e77be96650b6647aa0de2667d79584b1a079e33a9997"
+            ),
+            content_sha256_basis="downloaded_author_copy_of_published_pdf_bytes",
+        )
+    )
+
+    rows.append(
+        _row(
+            species="Kunzea ericoides",
+            trait="floral_form",
+            value="open_radial",
+            raw_value="tiny white star-shaped flowers",
+            excerpt=(
+                "Kunzea ericoides, commonly known as Kanuka, is a versatile and "
+                "hardy evergreen shrub or small tree native to New Zealand. This "
+                "plant is known for its small, aromatic, needle-like leaves and "
+                "profusion of tiny, white, star-shaped flowers that bloom from "
+                "late spring to summer."
+            ),
+            quality="medium",
+            provider="The Plant Store New Zealand",
+            url=(
+                "https://www.theplantstore.co.nz/products/nz-natives/"
+                "kunzea-ericoides-kanuka/"
+            ),
+            title="Kunzea ericoides | Kanuka | The Plant Store",
+            citation=(
+                "The Plant Store New Zealand species page for Kunzea ericoides "
+                "(retrieved 2026-08-12)"
+            ),
+            record_id="theplantstore:kunzea-ericoides:star-shaped-flowers",
+            lineage="url:https://www.theplantstore.co.nz/products/nz-natives/kunzea-ericoides-kanuka",
+            lineage_method="canonical_species_page_url",
+            source_tier="C",
+            source_type="specialist_nursery_species_description_morphology_only",
+            domain="www.theplantstore.co.nz",
+            content_sha256=(
+                "689ef8e0e605868cda12c5e77ba6341d9cc633768901bad6c4e9e103b9237f5f"
+            ),
+            content_sha256_basis="retrieved_species_page_html_bytes",
+        )
+    )
+
+    rows.append(
+        _row(
+            species="Corchorus olitorius",
+            trait="floral_symmetry",
+            value="actinomorphic",
+            raw_value="flowers actinomorphic and regular",
+            excerpt=(
+                "Corchorus olitorius L. Taxonomy: Family Malvaceae; Genus "
+                "Corchorus; Species Corchorus olitorius. Flowers: Complete, "
+                "pedicellate, bracteate, small, bisexual, dichlamydeous, "
+                "actinomorphic, regular, pentamerous, hypogynous, yellow in color."
+            ),
+            quality="medium",
+            provider="Gupta et al. 2023 Journal of Pharmacognosy and Phytochemistry",
+            url=(
+                "https://www.phytojournal.com/archives/2023/vol12issue2/PartB/"
+                "12-2-16-171.pdf"
+            ),
+            title=(
+                "Morphological and pharmacological study of herbal medicine: "
+                "Corchorus olitorius L."
+            ),
+            citation=(
+                "Gupta et al. (2023), Journal of Pharmacognosy and "
+                "Phytochemistry 12(2):84-87, p. 85"
+            ),
+            record_id="gupta-2023:p85:corchorus-olitorius:actinomorphic",
+            lineage="publication:gupta-et-al-2023-corchorus-olitorius",
+            lineage_method="published_species_morphology_article",
+            source_tier="B",
+            source_type="published_species_morphology_review",
+            domain="www.phytojournal.com",
+            content_sha256=(
+                "09884189ef5cc681ed53663b1e16e8642df9ab4d6b5275f717e857065ae084f5"
+            ),
+            content_sha256_basis="downloaded_publisher_pdf_bytes",
+        )
+    )
+
     commelineae_excerpt = (
         "Breeding system studies in the selected taxa revealed that they were all "
         "self and cross-compatible species. Except Dictyospermum montanum (2.5%) "
@@ -967,8 +1080,8 @@ def build(
     evidence = evidence.sort_values(
         ["accepted_species", "trait_name", "candidate_id"]
     ).reset_index(drop=True)
-    if len(evidence) != 33:
-        raise ValueError(f"expected 33 reviewed trait rows, found {len(evidence)}")
+    if len(evidence) != 36:
+        raise ValueError(f"expected 36 reviewed trait rows, found {len(evidence)}")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("wave-2 candidate IDs are not unique")
     audit = _review_audit(evidence)
