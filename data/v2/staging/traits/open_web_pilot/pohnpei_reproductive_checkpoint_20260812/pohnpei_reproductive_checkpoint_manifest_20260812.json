@@ -1,0 +1,64 @@
+{
+  "audit": {
+    "accepted_correct": 49,
+    "cultivar_contamination_rate": 0.0,
+    "precision": 1.0,
+    "reviewed": 49
+  },
+  "autofertility_state_counts": {
+    "autonomous": 20,
+    "mixed_or_variable": 4
+  },
+  "combined": {
+    "audit_rows": 776,
+    "evidence_rows": 776,
+    "species": 583,
+    "species_trait": 775
+  },
+  "contract": "pohnpei_reproductive_individually_reviewed_checkpoint_v1",
+  "created_at_utc": "2026-08-12T06:20:00Z",
+  "excluded_same_lineage_source_rows": 11,
+  "files": {
+    "README.md": {
+      "sha256": "231a1182de6b5552a142afdce02f093a66d8b8a844d4562dc1e9296f9b73b4b9",
+      "size_bytes": 1252
+    },
+    "combined_curated_evidence_20260812.csv": {
+      "sha256": "ed871d2f627c98104086063f2dd8942e3134aeaaf1fc5eac05145cb19069f3f5",
+      "size_bytes": 755013
+    },
+    "combined_curated_manual_audit_20260812.csv": {
+      "sha256": "72bd19f1afbbdd99ca62d5dc1ed2ea7f138ff5936ffd089e92a90e7e749dab8b",
+      "size_bytes": 683444
+    },
+    "pohnpei_reproductive_evidence_20260812.csv": {
+      "sha256": "31e39d75c103e15d4ba6146131956fdba0c7b41909a516c38ecd1fa6e213d40d",
+      "size_bytes": 67933
+    },
+    "pohnpei_reproductive_manual_audit_20260812.csv": {
+      "sha256": "0c01d6c2636abd0c9ef2554202758240fa0b8539efdef6326a40e7c964f24825",
+      "size_bytes": 56704
+    }
+  },
+  "guardrails": {
+    "cross_trait_substitution": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "same_lineage_article_rows_excluded": true,
+    "trait_specific_records": true
+  },
+  "independent_chapter2_source_rows": 25,
+  "new_evidence_rows": 49,
+  "new_species": 25,
+  "new_species_trait": 49,
+  "quality_counts": {
+    "high": 49
+  },
+  "source_pdf_sha256": "1883a70541cb33f2e4ec85bec904f3dcb80683743cb2255efa0431122bba02ff",
+  "source_rows": 36,
+  "source_table_sha256": "c14cac6d0eccf22faf8ff0e2a99ccb9fc76078f77e16f6d93ebd41b47be5902f",
+  "trait_counts": {
+    "autonomous_selfing_capacity": 24,
+    "self_incompatibility": 25
+  }
+}

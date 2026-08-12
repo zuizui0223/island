@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -123,8 +124,10 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "'31245813999'" in workflow
     assert "'30434418380'" in workflow
     assert "open-web-multidomain-pilot-30434418380" in workflow
-    assert "inputs.prior_public_web_run_id || '31450245178'" in workflow
-    assert "reviewed-open-web-evidence-31450245178" in workflow
+    assert "inputs.prior_public_web_run_id || '31561713347'" in workflow
+    assert "rule_unlock_wave2_checkpoint_20260812/combined_curated_evidence_20260812.csv" in workflow
+    assert "inputs.source_package_evidence_csv_path || ''" in workflow
+    assert "reviewed-open-web-evidence-31561713347" in workflow
     assert "broad_web_medium_evidence.csv.gz" in workflow
     assert "prior_public_web_run_id:" in workflow
     assert "prior_public_web_artifact_name:" in workflow
@@ -139,16 +142,15 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "source_package_audit_csv_path:" in workflow
     assert "SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-" in workflow
     assert "SOURCE_PACKAGE_AUDIT_CSV_PATH: >-" in workflow
-    assert "combined_source_package_with_iospe_20260812_evidence.csv.gz" in workflow
-    assert "combined_source_package_with_iospe_20260812_audit.csv.gz" in workflow
-    assert "combined-reviewed-source-package-with-iospe-20260812" in workflow
-    assert "combined-gobotany-baseflor-proteus-florml-size-iospe-20260812" in workflow
+    assert "inputs.source_package_audit_csv_path || ''" in workflow
+    assert "inputs.source_package_run_id || ''" in workflow
+    assert "inputs.source_package_artifact_name || ''" in workflow
     assert (
-        "next_acquisition_checkpoint_20260811/combined_curated_evidence_20260811.csv"
+        "rule_unlock_wave2_checkpoint_20260812/combined_curated_evidence_20260812.csv"
         in workflow
     )
     assert (
-        "next_acquisition_checkpoint_20260811/combined_curated_manual_audit_20260811.csv"
+        "rule_unlock_wave2_checkpoint_20260812/combined_curated_manual_audit_20260812.csv"
         in workflow
     )
     assert "direct_evidence_exclusions_20260811.csv" in workflow
@@ -646,6 +648,64 @@ def test_individual_manual_review_accepts_source_backed_direct_evidence(
         ontology,
     )
     assert result["candidate_id"].tolist() == ["66a9d783fb17b8510f7af25d"]
+
+
+def test_individual_manual_review_accepts_tier_c_medium_only_for_flower_morphology(
+    tmp_path: Path,
+) -> None:
+    ontology = tmp_path / "ontology.yml"
+    ontology.write_text(
+        "traits:\n  floral_symmetry:\n    allowed_values:\n      - actinomorphic\n",
+        encoding="utf-8",
+    )
+    candidate = {
+        **_individual_candidate(),
+        "source_tier": "C",
+        "evidence_quality": "medium",
+    }
+    result = validate_individually_reviewed_evidence(
+        pd.DataFrame([candidate]),
+        pd.DataFrame([_individual_audit()]),
+        pd.DataFrame([{"accepted_species": "Alpha one"}]),
+        ontology,
+    )
+    assert result["candidate_id"].tolist() == ["66a9d783fb17b8510f7af25d"]
+
+
+def test_individual_manual_review_rejects_tier_c_reproductive_evidence(
+    tmp_path: Path,
+) -> None:
+    ontology = tmp_path / "ontology.yml"
+    ontology.write_text(
+        "traits:\n  self_incompatibility:\n    allowed_values:\n      - SC\n",
+        encoding="utf-8",
+    )
+    candidate = {
+        **_individual_candidate(),
+        "trait_name": "self_incompatibility",
+        "normalized_value": "SC",
+        "source_tier": "C",
+        "evidence_quality": "medium",
+    }
+    candidate_id = hashlib.sha256(
+        "|".join(
+            [
+                candidate["accepted_species"],
+                candidate["trait_name"],
+                candidate["normalized_value"],
+                candidate["source_lineage"],
+            ]
+        ).encode("utf-8")
+    ).hexdigest()[:24]
+    candidate["candidate_id"] = candidate_id
+    audit = {**_individual_audit(), "candidate_id": candidate_id}
+    with pytest.raises(ValueError, match="invalid_source_tier"):
+        validate_individually_reviewed_evidence(
+            pd.DataFrame([candidate]),
+            pd.DataFrame([audit]),
+            pd.DataFrame([{"accepted_species": "Alpha one"}]),
+            ontology,
+        )
 
 
 def test_committed_high_leverage_batch_is_fully_reviewed_and_reproducible() -> None:

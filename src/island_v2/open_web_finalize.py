@@ -39,6 +39,14 @@ _DIRECT_NAME_MATCHES = {
     "synonym_exact",
 }
 _DIRECT_SCOPES = {"species_direct", "synonym_direct"}
+_TIER_C_MEDIUM_TRAITS = {
+    "flower_primary_color",
+    "floral_form",
+    "floral_symmetry",
+    "tube_depth_class",
+    "flower_size_class",
+    "inflorescence_display",
+}
 _MIN_SOURCE_PACKAGE_NOVELTY = 0.50
 _EXCLUSION_KEY = [
     "accepted_species",
@@ -193,6 +201,13 @@ def validate_individually_reviewed_evidence(
     for row in reviewed.to_dict("records"):
         candidate_id = str(row["candidate_id"])
         trait = str(row["trait_name"])
+        source_tier = str(row["source_tier"]).upper()
+        evidence_quality = str(row["evidence_quality"]).casefold()
+        valid_source_tier = source_tier in {"A", "B"} or (
+            source_tier == "C"
+            and evidence_quality == "medium"
+            and trait in _TIER_C_MEDIUM_TRAITS
+        )
         valid, invalid = normalise_state_set(trait, row["normalized_value"], ontology)
         excerpt = " ".join(str(row["source_excerpt"]).split())
         normalized_excerpt = excerpt.casefold()
@@ -215,11 +230,10 @@ def validate_individually_reviewed_evidence(
             "species_not_in_master": str(row["accepted_species"]) not in accepted_names,
             "invalid_direct_scope": str(row["evidence_scope"]) not in _DIRECT_SCOPES,
             "invalid_name_match": str(row["name_match_method"]) not in _DIRECT_NAME_MATCHES,
-            "invalid_source_tier": str(row["source_tier"]).upper() not in {"A", "B"},
-            "invalid_quality": str(row["evidence_quality"]).casefold() not in {"high", "medium"},
+            "invalid_source_tier": not valid_source_tier,
+            "invalid_quality": evidence_quality not in {"high", "medium"},
             "high_without_tier_a": (
-                str(row["evidence_quality"]).casefold() == "high"
-                and str(row["source_tier"]).upper() != "A"
+                evidence_quality == "high" and source_tier != "A"
             ),
             "invalid_ontology_value": bool(invalid) or not valid,
             "invalid_source_url": not str(row["source_url"]).startswith(("http://", "https://")),

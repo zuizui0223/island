@@ -1,0 +1,11 @@
+trait_name,reviewed,accepted_correct,precision,cultivar_contamination_rate,production_approved
+autonomous_selfing_capacity,70,70,1.0,0.0,True
+cleistogamy,153,153,1.0,0.0,True
+floral_form,48,48,1.0,0.0,True
+floral_symmetry,1956,1921,0.9821063394683026,0.0,True
+flower_primary_color,107,107,1.0,0.0,True
+flower_size_class,55,55,1.0,0.0,True
+inflorescence_display,106,106,1.0,0.0,True
+mating_system,59,59,1.0,0.0,True
+self_incompatibility,257,257,1.0,0.0,True
+tube_depth_class,25,25,1.0,0.0,True
