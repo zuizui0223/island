@@ -235,7 +235,7 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "'30434418380'" in workflow
     assert "open-web-multidomain-pilot-30434418380" in workflow
     assert "inputs.prior_public_web_run_id || '31561713347'" in workflow
-    assert "rule_unlock_wave2_checkpoint_20260812/combined_curated_evidence_20260812.csv" in workflow
+    assert "rule_unlock_wave3_checkpoint_20260813/combined_curated_evidence_20260813.csv" in workflow
     assert "inputs.source_package_evidence_csv_path || ''" in workflow
     assert "reviewed-open-web-evidence-31561713347" in workflow
     assert "broad_web_medium_evidence.csv.gz" in workflow
@@ -256,11 +256,11 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "inputs.source_package_run_id || ''" in workflow
     assert "inputs.source_package_artifact_name || ''" in workflow
     assert (
-        "rule_unlock_wave2_checkpoint_20260812/combined_curated_evidence_20260812.csv"
+        "rule_unlock_wave3_checkpoint_20260813/combined_curated_evidence_20260813.csv"
         in workflow
     )
     assert (
-        "rule_unlock_wave2_checkpoint_20260812/combined_curated_manual_audit_20260812.csv"
+        "rule_unlock_wave3_checkpoint_20260813/combined_curated_manual_audit_20260813.csv"
         in workflow
     )
     assert "direct_evidence_exclusions_20260811.csv" in workflow

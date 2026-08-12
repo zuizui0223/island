@@ -38,6 +38,7 @@ on:
       - "data/v2/staging/traits/open_web_pilot/pohnpei_reproductive_checkpoint_20260812/**"
       - "data/v2/staging/traits/open_web_pilot/reproductive_rule_unlock_checkpoint_20260812/**"
       - "data/v2/staging/traits/open_web_pilot/rule_unlock_wave2_checkpoint_20260812/**"
+      - "data/v2/staging/traits/open_web_pilot/rule_unlock_wave3_checkpoint_20260813/**"
       - "data/v2/staging/traits/open_web_pilot/palmpedia_archive_checkpoint_20260813/**"
       - "data/v2/external/traits/konno_1999_bagging/**"
       - "data/v2/external/traits/yomai_2021_pohnpei/**"
@@ -91,6 +92,7 @@ on:
       - "src/island_v2/pohnpei_reproductive_checkpoint.py"
       - "src/island_v2/reproductive_rule_unlock_checkpoint.py"
       - "src/island_v2/rule_unlock_wave2_checkpoint.py"
+      - "src/island_v2/rule_unlock_wave3_checkpoint.py"
       - "src/island_v2/review_inventory_artifact.py"
       - "tests/test_curated_bulk_checkpoint.py"
       - "tests/test_efloras_medium_checkpoint.py"
@@ -112,6 +114,7 @@ on:
       - "tests/test_pohnpei_reproductive_checkpoint.py"
       - "tests/test_reproductive_rule_unlock_checkpoint.py"
       - "tests/test_rule_unlock_wave2_checkpoint.py"
+      - "tests/test_rule_unlock_wave3_checkpoint.py"
       - "tests/test_open_web_common.py"
       - "tests/test_review_inventory_artifact.py"
       - "tests/test_scale_trait_source_packages_20260808.py"
@@ -164,11 +167,11 @@ on:
       curated_evidence_csv_path:
         description: Individually reviewed species-direct evidence committed on this ref
         required: false
-        default: "data/v2/staging/traits/open_web_pilot/rule_unlock_wave2_checkpoint_20260812/combined_curated_evidence_20260812.csv"
+        default: "data/v2/staging/traits/open_web_pilot/rule_unlock_wave3_checkpoint_20260813/combined_curated_evidence_20260813.csv"
       curated_audit_csv_path:
         description: Line-by-line audit for the curated evidence
         required: false
-        default: "data/v2/staging/traits/open_web_pilot/rule_unlock_wave2_checkpoint_20260812/combined_curated_manual_audit_20260812.csv"
+        default: "data/v2/staging/traits/open_web_pilot/rule_unlock_wave3_checkpoint_20260813/combined_curated_manual_audit_20260813.csv"
       source_package_evidence_csv_path:
         description: Common-schema evidence from an audited source package
         required: false
@@ -291,6 +294,7 @@ jobs:
             src/island_v2/pohnpei_reproductive_checkpoint.py \
             src/island_v2/reproductive_rule_unlock_checkpoint.py \
             src/island_v2/rule_unlock_wave2_checkpoint.py \
+            src/island_v2/rule_unlock_wave3_checkpoint.py \
             src/island_v2/review_inventory_artifact.py \
             tests/test_curated_bulk_checkpoint.py \
             tests/test_efloras_medium_checkpoint.py \
@@ -313,6 +317,7 @@ jobs:
             tests/test_pohnpei_reproductive_checkpoint.py \
             tests/test_reproductive_rule_unlock_checkpoint.py \
             tests/test_rule_unlock_wave2_checkpoint.py \
+            tests/test_rule_unlock_wave3_checkpoint.py \
             tests/test_review_inventory_artifact.py \
             tests/test_flora_of_australia_source_scale.py \
             tests/test_plantnet_nsw_source_scale.py \
@@ -349,6 +354,7 @@ jobs:
             tests/test_pohnpei_reproductive_checkpoint.py \
             tests/test_reproductive_rule_unlock_checkpoint.py \
             tests/test_rule_unlock_wave2_checkpoint.py \
+            tests/test_rule_unlock_wave3_checkpoint.py \
             tests/test_open_web_common.py \
             tests/test_review_inventory_artifact.py \
             tests/test_flora_of_australia_source_scale.py \
