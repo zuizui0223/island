@@ -17,6 +17,42 @@ readiness:
 # Planning frontier reported by `island-v2-acquisition-value frontier`.
 frontier_targets: [2000, 5000, 10000, 20000, 30000, 50000]
 
+# The three strict axes, and the trait names that fill each. Mirrors the axis
+# mapping already used by targeted_acquisition_priority.py.
+#
+# `reward_type` and `pollen_vector_mode` are deliberately absent: they are
+# separate outcomes and must not fill the floral-structure axis.
+axes:
+  flower_colour:
+    - flower_primary_color
+    - flower_color
+  floral_structural_complexity:
+    - floral_form
+    - floral_symmetry
+    - tube_depth_class
+    - flower_size_class
+    - inflorescence_display
+    - flower_shape
+  reproductive_assurance:
+    - self_incompatibility
+    - autonomous_selfing_capacity
+    - mating_system
+    - cleistogamy
+
+# Evidence tiers evaluated by `island-v2-acquisition-value evaluate`.
+#
+# `direct_only` is the operational primary metric. Validated Low is a genus
+# inference that amplifies a handful of direct facts into hundreds of cells and
+# is withdrawn in bulk whenever a rebuild tightens, so it is reported strictly
+# as a separate sensitivity tier and never as the primary numerator.
+evaluation_tiers:
+  direct_only:
+    include_validated_low: false
+    role: primary
+  direct_plus_validated_low:
+    include_validated_low: true
+    role: sensitivity
+
 # Scope classes are ACQUISITION-PLANNING labels only.
 #
 # They partition the target list by how floral evidence must be obtained; they

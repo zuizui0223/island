@@ -172,7 +172,12 @@ genus rule は 2件の直接事実から 733 cells を生む。この増幅は
   flora mass の 5.6% しか持たない。第1期の標的から外す。
 - `cells 純増` を成果として報告する運用。解析可能島の純増に置き換える。
 
-## 再現
+## 実装済みの計測器
+
+本提案の各項目は、主張ではなく**実行可能な計測**として実装してある。
+すべてネットワーク不要、入力は凍結済み artifact。
+
+### 標的キューと planning frontier（2.2、2.3）
 
 ```bash
 island-v2-acquisition-value run \
@@ -180,9 +185,63 @@ island-v2-acquisition-value run \
   --output-dir data/v2/staging/traits/acquisition_value
 ```
 
-出力は `species_acquisition_value.csv.gz`（標的キュー）、
+出力は `species_acquisition_value.csv.gz`（`priority_rank` 付き標的キュー）、
 `acquisition_strategy_frontier.csv`（本書の表）、
 `target_scope_breakdown.csv`（レーン内訳）、`acquisition_value_summary.json`。
-`--covered-species-csv` に現行の accepted 種一覧を渡すと、
-現状の解析可能島数が `current_island_readiness.csv.gz` に出る。
-**この一手が本提案の最初の実測になる。**
+
+### 主指標の実測（2.1、2.4）
+
+```bash
+island-v2-acquisition-value evaluate \
+  --evidence-csv <accepted evidence ledger> \
+  --output-dir <out>
+```
+
+軸ごと・tier ごとに解析可能島数を出す。`direct_only` が primary、
+`direct_plus_validated_low` は sensitivity として**分離報告**される。
+family inference と global fallback はどちらの tier でも admit されない
+（テストで固定）。
+
+### source の受入判定（実行順 2、3）
+
+```bash
+island-v2-acquisition-value source-yield \
+  --candidate-csv <source candidates> \
+  --baseline-csv <current accepted species> \
+  --budget 10000 \
+  --output-dir <out>
+```
+
+1つのソースが baseline に対して**解析可能島を何島増やしたか**を返す。
+`priority_head_hit_rate` は、そのソースの新規種のうち上位予算に入った割合。
+種数や cells ではなくこの純増が受入判定になる。
+
+### 風媒 clade rule の検証（2.3）
+
+```bash
+island-v2-anemophilous-clade-rule build \
+  --evidence-csv <accepted evidence ledger> \
+  --unresolved-csv <unresolved species x trait> \
+  --output-dir <out>
+```
+
+宣言済み clade のみを対象に support / dominance / 源流数 /
+species LOO / lineage LOO を採点する。閾値は genus track より厳しく
+（`min_species=20`, `min_dominance=0.95`, `min_source_lineages=3`,
+両 LOO `0.95`）、1つでも外すと `eligible=False` と失格理由が残る。
+出力は `family_validated` tier で、strict 分子には決して入らない。
+**この tier を採用するか否かは submission contract の人間判断である。**
+本モジュールは「何が通るか」を報告するだけで、採用はしない。
+
+### CI
+
+`.github/workflows/measure-island-weighted-acquisition.yml` の
+`validate` job は PR ごとに lint / test と frontier 再構築を行う。
+`measure` job は dispatch 限定で、pin した evidence artifact を解決して
+上記の実測を実行し、artifact として上げる。
+
+## 最初の一手
+
+`measure` job に現行の integrated coverage artifact を渡して
+`evaluate` を走らせる。取得は不要で、いま何島が解析可能かが直接出る。
+**これが本提案の最初の実測になる。**

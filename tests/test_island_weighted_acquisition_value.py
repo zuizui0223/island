@@ -139,6 +139,192 @@ def test_missing_columns_fail_closed():
         value.build_species_value(MASTER.assign(n_islands=0), SCOPE_CLASSES)
 
 
+AXES = {
+    "flower_colour": ["flower_primary_color"],
+    "reproductive_assurance": ["self_incompatibility"],
+}
+
+TIERS = {
+    "direct_only": {"include_validated_low": False, "role": "primary"},
+    "direct_plus_validated_low": {"include_validated_low": True, "role": "sensitivity"},
+}
+
+EVIDENCE = pd.DataFrame(
+    {
+        "accepted_species": [
+            "Wide grassa",
+            "Plantago testa",
+            "Narrow enda",
+            "Equisetum testa",
+            "Wide grassa",
+        ],
+        "trait_name": [
+            "flower_primary_color",
+            "flower_primary_color",
+            "flower_primary_color",
+            "flower_primary_color",
+            "self_incompatibility",
+        ],
+        "evidence_scope": [
+            "species_direct",
+            "validated_low",
+            "family_inference",
+            "global_fallback",
+            "synonym_direct",
+        ],
+    }
+)
+
+
+def test_direct_tier_excludes_validated_low_and_prohibited_scopes():
+    direct = value.covered_species_by_axis(EVIDENCE, AXES, include_validated_low=False)
+
+    assert direct["flower_colour"] == {"Wide grassa"}
+    assert direct["reproductive_assurance"] == {"Wide grassa"}
+    # family inference and global fallback are never admitted by either tier
+    assert "Narrow enda" not in direct["flower_colour"]
+    assert "Equisetum testa" not in direct["flower_colour"]
+
+
+def test_sensitivity_tier_admits_validated_low_only():
+    sensitivity = value.covered_species_by_axis(EVIDENCE, AXES, include_validated_low=True)
+
+    assert sensitivity["flower_colour"] == {"Wide grassa", "Plantago testa"}
+    assert "Narrow enda" not in sensitivity["flower_colour"]
+    assert "Equisetum testa" not in sensitivity["flower_colour"]
+
+
+def test_traits_outside_the_declared_axes_are_ignored():
+    evidence = pd.DataFrame(
+        {
+            "accepted_species": ["Wide grassa", "Wide grassa"],
+            "trait_name": ["reward_type", "pollen_vector_mode"],
+            "evidence_scope": ["species_direct", "species_direct"],
+        }
+    )
+    assert value.covered_species_by_axis(evidence, AXES, include_validated_low=False) == {}
+
+
+def test_evaluate_reports_primary_and_sensitivity_separately():
+    table, summary = value.evaluate_tiers(
+        EVIDENCE,
+        ISLAND_SPECIES,
+        AXES,
+        TIERS,
+        min_covered_species=1,
+        min_covered_fraction=0.5,
+    )
+
+    assert set(table["tier"]) == {"direct_only", "direct_plus_validated_low"}
+    assert set(table["axis"]) == {"flower_colour", "reproductive_assurance"}
+
+    primary = table.loc[
+        (table["tier"] == "direct_only") & (table["axis"] == "flower_colour")
+    ].iloc[0]
+    sensitivity = table.loc[
+        (table["tier"] == "direct_plus_validated_low") & (table["axis"] == "flower_colour")
+    ].iloc[0]
+
+    assert primary["role"] == "primary"
+    assert sensitivity["role"] == "sensitivity"
+    # the genus-inference tier can only ever add species, never remove them
+    assert sensitivity["n_covered_species"] > primary["n_covered_species"]
+    assert summary["primary_metric"].startswith("n_islands_analysis_ready")
+    assert summary["sensitivity_min_axis_ready"] >= summary["primary_min_axis_ready"]
+
+
+def test_evaluate_fails_closed_on_a_malformed_ledger():
+    with pytest.raises(typer.BadParameter):
+        value.covered_species_by_axis(
+            EVIDENCE.drop(columns=["evidence_scope"]), AXES, include_validated_low=False
+        )
+
+
+def test_source_yield_scores_a_source_by_islands_not_species_count():
+    species_value = value.build_species_value(MASTER, SCOPE_CLASSES)
+
+    # a source that only supplies the narrowest endemic: many species, no islands
+    narrow = value.source_yield(
+        baseline=set(),
+        candidate={"Narrow enda", "Narrow endb"},
+        island_species=ISLAND_SPECIES,
+        species_value=species_value,
+        budget=5,
+        min_covered_species=1,
+        min_covered_fraction=0.6,
+    )
+    # a source that only supplies the widest species: fewer species, more islands
+    wide = value.source_yield(
+        baseline=set(),
+        candidate={"Wide grassa"},
+        island_species=ISLAND_SPECIES,
+        species_value=species_value,
+        budget=5,
+        min_covered_species=1,
+        min_covered_fraction=0.6,
+    )
+
+    assert narrow["n_new_species"] > wide["n_new_species"]
+    assert wide["n_islands_analysis_ready_gained"] > narrow["n_islands_analysis_ready_gained"]
+    assert wide["new_flora_mass_share"] > narrow["new_flora_mass_share"]
+
+
+def test_source_yield_excludes_species_already_in_the_baseline():
+    species_value = value.build_species_value(MASTER, SCOPE_CLASSES)
+    summary = value.source_yield(
+        baseline={"Wide grassa"},
+        candidate={"Wide grassa", "Plantago testa"},
+        island_species=ISLAND_SPECIES,
+        species_value=species_value,
+        budget=5,
+        min_covered_species=1,
+        min_covered_fraction=0.5,
+    )
+
+    assert summary["n_candidate_species"] == 2
+    assert summary["n_new_species"] == 1
+    assert summary["n_islands_analysis_ready_lost"] == 0
+
+
+def test_source_yield_reports_priority_head_hit_rate():
+    species_value = value.build_species_value(MASTER, SCOPE_CLASSES)
+    summary = value.source_yield(
+        baseline=set(),
+        candidate={"Wide grassa", "Narrow endb"},
+        island_species=ISLAND_SPECIES,
+        species_value=species_value,
+        budget=1,
+        min_covered_species=1,
+        min_covered_fraction=0.5,
+    )
+
+    # only Wide grassa is inside the top-1 priority head
+    assert summary["n_new_species_in_priority_head"] == 1
+    assert summary["priority_head_hit_rate"] == pytest.approx(0.5)
+
+
+def test_repository_config_declares_axes_and_tiers():
+    from pathlib import Path
+
+    config = value.load_config(Path("config/island_weighted_acquisition.yml"))
+
+    assert set(config["axes"]) == {
+        "flower_colour",
+        "floral_structural_complexity",
+        "reproductive_assurance",
+    }
+    # reward_type and pollen_vector_mode are separate outcomes and must not fill
+    # the floral-structure axis
+    structure = config["axes"]["floral_structural_complexity"]
+    assert "reward_type" not in structure
+    assert "pollen_vector_mode" not in structure
+
+    tiers = config["evaluation_tiers"]
+    assert tiers["direct_only"]["role"] == "primary"
+    assert tiers["direct_only"]["include_validated_low"] is False
+    assert tiers["direct_plus_validated_low"]["role"] == "sensitivity"
+
+
 def test_repository_config_is_loadable_and_declares_gates(tmp_path):
     from pathlib import Path
 
