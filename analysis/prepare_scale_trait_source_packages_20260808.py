@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import html
 import json
 import re
 from datetime import datetime, timezone
@@ -294,20 +293,9 @@ def baseflor_rows(path: Path, master_names: set[str]) -> list[dict[str, str]]:
                     excerpt=f"inflorescence: {_text(item['inflorescence'])}",
                 )
             )
-        pollination = _text(item["pollinisation"])
-        if re.search(r"(^|,\s*)autogame($|,)", pollination, re.IGNORECASE):
-            rows.append(
-                _record(
-                    **common,
-                    trait="autonomous_selfing_capacity",
-                    axis="reproductive_assurance",
-                    value="autonomous",
-                    source_key=f"{taxon_id}:pollination",
-                    citation="Julve, Baseflor 2023.10, pollination field",
-                    excerpt=f"pollinisation: {pollination}",
-                    quality="medium",
-                )
-            )
+        # Baseflor's ``pollinisation`` field describes pollen transfer.  An
+        # ``autogame`` token does not establish unassisted fertilisation,
+        # fruit set, or seed set, so it cannot populate reproductive assurance.
     return rows
 
 
@@ -422,14 +410,11 @@ def _floraweb_selfing_trait(value: str) -> tuple[str, str]:
     # presence or absence of true cleistogamy.
     if "pseudokleistogamie" in folded:
         return "", ""
+    # BiolFlor section 4.8 records pollen vectors independently from
+    # subsequent fertilisation.  Selbstbestäubung therefore cannot establish
+    # autonomous reproductive output (including delayed or absent output).
     if "selbstbestäubung" in folded:
-        if folded.startswith("nie "):
-            return "autonomous_selfing_capacity", "absent"
-        if folded.startswith("unbekannt "):
-            return "", ""
-        if folded.startswith("bei ausbleib."):
-            return "autonomous_selfing_capacity", "delayed"
-        return "autonomous_selfing_capacity", "autonomous"
+        return "", ""
     if "kleistogamie" in folded:
         if folded.startswith("nie "):
             return "cleistogamy", "absent"
@@ -692,47 +677,10 @@ def tree_of_sex_rows(path: Path, master: pd.DataFrame) -> list[dict[str, str]]:
 
 def alien_plants_autogamy_rows(path: Path, eligible_names: set[str]) -> list[dict[str, str]]:
     _require_hash(path, ALIEN_PLANTS_AUTOGAMY_SHA256, "Alien Plants autogamy page")
-    raw = path.read_text(encoding="utf-8", errors="replace")
-    links = re.findall(
-        r'<a[^>]+href="(/taxa/[^"]+)"[^>]*>(.*?)</a>', raw, re.IGNORECASE | re.DOTALL
-    )
-    rows: list[dict[str, str]] = []
-    seen: set[str] = set()
-    for href, label in links:
-        displayed = " ".join(html.unescape(re.sub(r"<[^>]+>", " ", label)).split())
-        tokens = displayed.split()
-        if len(tokens) < 2:
-            continue
-        species = " ".join(tokens[:2])
-        expected_slug = species.casefold().replace(" ", "-")
-        if href.rstrip("/").rsplit("/", 1)[-1].casefold() != expected_slug:
-            continue
-        if species not in eligible_names or species in seen:
-            continue
-        seen.add(species)
-        url = f"https://www.alienplants.gr{href}"
-        rows.append(
-            _record(
-                species=species,
-                trait="autonomous_selfing_capacity",
-                axis="reproductive_assurance",
-                value="autonomous",
-                provider="alien_plants_greece",
-                url=url,
-                source_key=href,
-                citation="Alien Plants in Greece web database, Pollination Type: Autogamy",
-                excerpt=f"{displayed}; Pollination Type: Autogamy (self-pollination)",
-                lineage=f"alien-plants-greece:taxon:{expected_slug}:autogamy",
-                lineage_method="original_database_taxon_pollination_record",
-                source_artifact=(
-                    f"alien-plants-greece-autogamy-sha256-{ALIEN_PLANTS_AUTOGAMY_SHA256}"
-                ),
-                source_file=path.name,
-                quality="medium",
-                acceptance_contract="exact_species_database_pollination_record_v1",
-            )
-        )
-    return rows
+    # The page explicitly labels these values as pollination type and glosses
+    # autogamy as self-pollination.  It contains no autonomous fruit/seed-set
+    # evidence, so the records remain discovery-only for the strict ledger.
+    return []
 
 
 def direct_literature_rows(path: Path, eligible_names: set[str]) -> list[dict[str, str]]:

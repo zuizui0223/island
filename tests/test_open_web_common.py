@@ -65,6 +65,79 @@ def test_direct_evidence_exclusions_match_the_full_trait_lineage_key() -> None:
     assert audit.iloc[0]["matched_rows"] == 1
 
 
+def test_direct_evidence_exclusions_support_reviewed_source_concept_prefixes() -> None:
+    evidence = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Species alpha",
+                "trait_name": "autonomous_selfing_capacity",
+                "normalized_value": "autonomous",
+                "source_lineage": "floraweb:name_usage_id:1",
+            },
+            {
+                "accepted_species": "Species beta",
+                "trait_name": "autonomous_selfing_capacity",
+                "normalized_value": "delayed",
+                "source_lineage": "floraweb:name_usage_id:2",
+            },
+            {
+                "accepted_species": "Species gamma",
+                "trait_name": "pollen_vector_mode",
+                "normalized_value": "biotic",
+                "source_lineage": "floraweb:name_usage_id:3",
+            },
+        ]
+    )
+    exclusions = pd.DataFrame(
+        [
+            {
+                "accepted_species": "*",
+                "trait_name": "autonomous_selfing_capacity",
+                "normalized_value": "*",
+                "source_lineage": "floraweb:name_usage_id:*",
+                "reason": "The source field describes pollen transfer, not reproductive output.",
+                "reviewer": "reviewer",
+                "reviewed_at_utc": "2026-08-13T00:00:00Z",
+            }
+        ]
+    )
+
+    kept, audit = apply_direct_evidence_exclusions(evidence, exclusions)
+
+    assert len(kept) == 1
+    assert kept.iloc[0]["trait_name"] == "pollen_vector_mode"
+    assert audit.iloc[0]["matched_rows"] == 2
+
+
+def test_direct_evidence_exclusions_reject_broad_unscoped_wildcards() -> None:
+    evidence = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Species alpha",
+                "trait_name": "autonomous_selfing_capacity",
+                "normalized_value": "autonomous",
+                "source_lineage": "floraweb:name_usage_id:1",
+            }
+        ]
+    )
+    exclusions = pd.DataFrame(
+        [
+            {
+                "accepted_species": "*",
+                "trait_name": "*",
+                "normalized_value": "*",
+                "source_lineage": "floraweb:*",
+                "reason": "Too broad.",
+                "reviewer": "reviewer",
+                "reviewed_at_utc": "2026-08-13T00:00:00Z",
+            }
+        ]
+    )
+
+    with pytest.raises(ValueError, match="source-concept exclusions"):
+        apply_direct_evidence_exclusions(evidence, exclusions)
+
+
 def test_reviewed_exclusion_table_blocks_known_species_context_and_ontology_errors() -> None:
     exclusions = pd.read_csv(
         "data/v2/staging/traits/open_web_pilot/"
@@ -87,6 +160,18 @@ def test_reviewed_exclusion_table_blocks_known_species_context_and_ontology_erro
         "self_incompatibility",
         "SI",
         "url:https://europepmc.org/article/ETH/451086",
+    ) in keys
+    assert (
+        "*",
+        "autonomous_selfing_capacity",
+        "*",
+        "floraweb:name_usage_id:*",
+    ) in keys
+    assert (
+        "*",
+        "autonomous_selfing_capacity",
+        "*",
+        "baseflor:species:*",
     ) in keys
 
 

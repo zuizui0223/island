@@ -1,3 +1,4 @@
+import inspect
 from pathlib import Path
 
 import pandas as pd
@@ -11,6 +12,9 @@ from analysis.acquire_pfaf_reproductive_traits_20260808 import (
 from analysis.prepare_scale_trait_source_packages_20260808 import (
     _baseflor_colour,
     _baseflor_inflorescence,
+    _floraweb_selfing_trait,
+    alien_plants_autogamy_rows,
+    baseflor_rows,
 )
 from island_v2.open_web_common import reviewed_source_package_evidence
 
@@ -23,6 +27,16 @@ def test_baseflor_multistate_values_remain_trait_specific() -> None:
         "composite_display|raceme_spike_panicle"
     )
     assert _baseflor_inflorescence("fleur solitaire terminale") == "solitary"
+
+
+def test_pollination_fields_do_not_substitute_for_autonomous_reproductive_output() -> None:
+    assert _floraweb_selfing_trait("häufig Selbstbestäubung") == ("", "")
+    assert _floraweb_selfing_trait("bei ausbleib. Fremdbest. Selbstbestäubung") == ("", "")
+    assert _floraweb_selfing_trait("Kleistogamie") == ("cleistogamy", "facultative")
+    assert 'trait="autonomous_selfing_capacity"' not in inspect.getsource(baseflor_rows)
+    assert 'trait="autonomous_selfing_capacity"' not in inspect.getsource(
+        alien_plants_autogamy_rows
+    )
 
 
 def test_committed_scale_package_passes_common_gate() -> None:

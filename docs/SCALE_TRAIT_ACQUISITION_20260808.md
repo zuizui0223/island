@@ -19,7 +19,7 @@ High/Medium evidence is not emitted again.
 | Plants For A Future | Exact public species pages | explicit self-fertility, mapped only to SC | Medium |
 | Useful Tropical / Temperate Plants | Ken Fern structured species properties | explicit wild-species self-fertility, mapped only to SC | Medium |
 | Tree of Sex | Dryad published database and original `source_selfing` citations | SC, SI, variable | High |
-| Alien Plants in Greece | Taxon-level Autogamy database records | autonomous selfing | Medium |
+| Alien Plants in Greece | Taxon-level Autogamy database records | discovery-only self-pollination | not admitted to strict axes |
 | Direct reproductive studies | Original articles or exact quotations in official species assessments | autonomous selfing, SC | High |
 
 NHM is a redistribution provider, not an independent original source.  When a
@@ -38,9 +38,13 @@ acquisition inventory as category conflicts and are not evidence.
 
 `pollen_vector_mode`, `reward_type`, and `sex_system` are not mapped to the
 strict floral-structure or reproductive-assurance axes.  Baseflor
-`entomogame`, `anemogame`, and `hydrogame` values remain outside the strict
-three-axis ledger.  Only an explicit `autogame` token is mapped, conservatively
-as Medium, to `autonomous_selfing_capacity=autonomous`.
+`entomogame`, `anemogame`, `hydrogame`, and `autogame` values remain outside the
+strict three-axis ledger. They describe pollen transfer and do not by
+themselves demonstrate unassisted fertilisation, fruit set, or seed set.
+FloraWeb/BiolFlor `Selbstbestäubung` and Alien Plants in Greece `Autogamy
+(self-pollination)` records follow the same fail-closed rule. They may be kept
+for discovery or a future pollen-transfer ontology, but cannot populate
+`autonomous_selfing_capacity`.
 
 ## Reproduction
 
