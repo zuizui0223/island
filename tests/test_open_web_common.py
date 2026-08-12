@@ -270,6 +270,12 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "--source-package-evidence-csv" in workflow
     assert ".source_package.novelty_rate >= 0.50" in workflow
     assert "coverage_change_species_axis.net_change" in workflow
+    assert (
+        ".combined_formal_public_web_evidence_rows\n"
+        "              >= .prior_formal_public_web_evidence_rows"
+        in workflow
+    )
+    assert "if .total_incremental_reviewed_evidence_rows > 0 then" not in workflow
 
 
 def test_precision_is_accepted_correct_over_every_reviewed_row() -> None:

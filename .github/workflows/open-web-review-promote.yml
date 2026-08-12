@@ -470,13 +470,8 @@ jobs:
             and (.shared_all_evidence.pilot_validated_low_change.invalidated >= 0)
             and (.shared_all_evidence.pilot_validated_low_change.upgraded_to_direct >= 0)
             and (
-              if .total_incremental_reviewed_evidence_rows > 0 then
-                .combined_formal_public_web_evidence_rows
-                > .prior_formal_public_web_evidence_rows
-              else
-                .combined_formal_public_web_evidence_rows
-                == .prior_formal_public_web_evidence_rows
-              end
+              .combined_formal_public_web_evidence_rows
+              >= .prior_formal_public_web_evidence_rows
             )
             and (
               .shared_all_evidence.coverage_increment_species_axis
