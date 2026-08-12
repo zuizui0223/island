@@ -1,7 +1,7 @@
 """Freeze the second trait-specific genus-rule unlock evidence wave.
 
 The checkpoint contains only individually reviewed species-direct statements.
-Reproductive traits remain separate, and the seven morphology records are direct
+Reproductive traits remain separate, and the ten morphology records are direct
 species descriptions.  Genus inference is rebuilt later by the shared
 all-evidence implementation using ``genus x trait_name`` rules.
 """
@@ -716,6 +716,119 @@ def reviewed_rows() -> list[dict[str, str]]:
         )
     )
 
+    rows.append(
+        _row(
+            species="Polycarpaea corymbosa",
+            trait="inflorescence_display",
+            value="umbel_corymb",
+            raw_value="flowers in terminal or axillary corymbose cymes",
+            excerpt=(
+                "Polycarpaea corymbosa (L.) Lamk. Erect, branched herbs, "
+                "tomentose. Leaves fascicled at nodes, 1-2 x 0.1 cm, "
+                "linear-lanceolate. Flowers in terminal or axillary corymbose "
+                "cymes; sepals silvery white or pink, longer than petals, "
+                "petals about 0.12 cm long. Capsules ovoid, 3-valved."
+            ),
+            quality="high",
+            provider="Botanical Survey of India - Flora of Sindhudurg",
+            url=(
+                "https://bsi.gov.in/uploads/documents/Public_Information/"
+                "publication/books/district_flora_latest/Flora%20of%20Sindhudurg.pdf"
+            ),
+            title="Flora of Sindhudurg",
+            citation=(
+                "Kulkarni, B.G. (1988), Flora of Sindhudurg, Botanical Survey "
+                "of India, p. 33"
+            ),
+            record_id=(
+                "bsi:flora-of-sindhudurg:p33:polycarpaea-corymbosa:"
+                "corymbose-cymes"
+            ),
+            lineage="publication:kulkarni-1988-flora-of-sindhudurg",
+            lineage_method="original_government_district_flora_species_treatment",
+            source_tier="A",
+            source_type="government_flora_species_description",
+            domain="bsi.gov.in",
+            content_sha256=(
+                "26b72112fa4cc1e796e0c2fcadd44fd3345aacc53b6b7d09f93a6578db44b12f"
+            ),
+            content_sha256_basis="downloaded_official_government_flora_pdf_bytes",
+        )
+    )
+
+    rows.append(
+        _row(
+            species="Boronia muelleri",
+            trait="floral_form",
+            value="open_radial",
+            raw_value="pink with star-like flowers",
+            excerpt=(
+                "At the entrance to the Sydney Region Flora, Boronia muelleri "
+                "[Section 191] is of medium size, pink with star-like flowers."
+            ),
+            quality="medium",
+            provider="Australian National Botanic Gardens",
+            url=(
+                "https://www.anbg.gov.au/gardens/visiting/iftw/iftw-archive/"
+                "iftw-2000-10-27.html"
+            ),
+            title="In Flower This Week - 27 October 2000",
+            citation=(
+                "Australian National Botanic Gardens, In Flower This Week, "
+                "27 October 2000, updated by Murray Fagg"
+            ),
+            record_id="anbg:iftw-2000-10-27:boronia-muelleri:star-like",
+            lineage="anbg:iftw-2000-10-27:boronia-muelleri",
+            lineage_method="official_botanic_garden_species_observation_page",
+            source_tier="A",
+            source_type="official_botanic_garden_species_observation",
+            domain="www.anbg.gov.au",
+            content_sha256=(
+                "18efaaace71baeaecc42ced86eff645b14caeb0f06a33490b1fa2c4abc6ad0b4"
+            ),
+            content_sha256_basis="retrieved_official_botanic_garden_html_bytes",
+        )
+    )
+
+    rows.append(
+        _row(
+            species="Benstonea foetida",
+            trait="inflorescence_display",
+            value="raceme_spike_panicle",
+            raw_value="spadix branched; male flowers in 5-6 cm long catkins",
+            excerpt=(
+                "Benstonea foetida (Roxb.) Callm. & Buerki. Shrubs with stilt "
+                "roots. Leaves spirally arranged; linear-lanceolate, acuminate, "
+                "spiny along the margins and midrib below, glabrous, to 1.5 m "
+                "long. Spadix branched, spathe ovate, acute. Male flowers in "
+                "5-6 cm long catkins; filaments 1 cm long."
+            ),
+            quality="medium",
+            provider="eFlora of India",
+            url="https://efloraofindia.com/efi/pandanus-foetidus/",
+            title="Benstonea foetida - eFlora of India",
+            citation=(
+                "eFlora of India species account for Benstonea foetida; "
+                "description attributed to Dr. N. Sasidharan, Kerala Forest "
+                "Research Institute, via India Biodiversity Portal"
+            ),
+            record_id="efloraindia:benstonea-foetida:branched-spadix-catkins",
+            lineage=(
+                "india-biodiversity-portal:dr-n-sasidharan:benstonea-foetida"
+            ),
+            lineage_method=(
+                "credited_expert_species_description_republished_by_efloraindia"
+            ),
+            source_tier="B",
+            source_type="specialist_regional_flora_species_description",
+            domain="efloraofindia.com",
+            content_sha256=(
+                "05f86f645f42189f94225dd02d4a2d890685ebb0f8215a21aa7c58f45335deab"
+            ),
+            content_sha256_basis="retrieved_source_page_html_bytes",
+        )
+    )
+
     commelineae_excerpt = (
         "Breeding system studies in the selected taxa revealed that they were all "
         "self and cross-compatible species. Except Dictyospermum montanum (2.5%) "
@@ -835,6 +948,9 @@ def build(
         "Sideritis canariensis": "Lamiaceae",
         "Adenia cissampeloides": "Passifloraceae",
         "Tristaniopsis laurina": "Myrtaceae",
+        "Polycarpaea corymbosa": "Caryophyllaceae",
+        "Boronia muelleri": "Rutaceae",
+        "Benstonea foetida": "Pandanaceae",
     }
     missing = sorted(set(expected_families) - set(master_family))
     if missing:
@@ -851,8 +967,8 @@ def build(
     evidence = evidence.sort_values(
         ["accepted_species", "trait_name", "candidate_id"]
     ).reset_index(drop=True)
-    if len(evidence) != 30:
-        raise ValueError(f"expected 30 reviewed trait rows, found {len(evidence)}")
+    if len(evidence) != 33:
+        raise ValueError(f"expected 33 reviewed trait rows, found {len(evidence)}")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("wave-2 candidate IDs are not unique")
     audit = _review_audit(evidence)

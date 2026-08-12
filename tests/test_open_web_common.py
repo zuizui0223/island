@@ -65,6 +65,31 @@ def test_direct_evidence_exclusions_match_the_full_trait_lineage_key() -> None:
     assert audit.iloc[0]["matched_rows"] == 1
 
 
+def test_reviewed_exclusion_table_blocks_known_species_context_and_ontology_errors() -> None:
+    exclusions = pd.read_csv(
+        "data/v2/staging/traits/open_web_pilot/"
+        "direct_evidence_exclusions_20260811.csv",
+        dtype=str,
+    ).fillna("")
+    keys = set(
+        exclusions[
+            ["accepted_species", "trait_name", "normalized_value", "source_lineage"]
+        ].itertuples(index=False, name=None)
+    )
+    assert (
+        "Canarium bengalense",
+        "floral_form",
+        "tubular",
+        "url:http://efloras.org/florataxon.aspx?flora_id=2&taxon_id=242310507",
+    ) in keys
+    assert (
+        "Dipterocarpus oblongifolius",
+        "self_incompatibility",
+        "SI",
+        "url:https://europepmc.org/article/ETH/451086",
+    ) in keys
+
+
 def test_finalize_filters_baseline_integrated_evidence_too() -> None:
     source = Path("src/island_v2/open_web_finalize.py").read_text(encoding="utf-8")
     baseline_filter = source.index(

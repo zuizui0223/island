@@ -16,16 +16,16 @@ CHECKPOINT = Path(
 def test_wave2_rows_are_trait_specific_and_source_backed() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
 
-    assert len(evidence) == 30
-    assert evidence["accepted_species"].nunique() == 18
-    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 30
+    assert len(evidence) == 33
+    assert evidence["accepted_species"].nunique() == 21
+    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 33
     assert evidence["evidence_scope"].eq("species_direct").all()
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
     assert evidence["source_excerpt"].str.len().gt(30).all()
-    assert evidence["source_lineage"].nunique() == 16
+    assert evidence["source_lineage"].nunique() == 19
     assert evidence["evidence_quality"].value_counts().to_dict() == {
-        "high": 26,
-        "medium": 4,
+        "high": 27,
+        "medium": 6,
     }
 
     reproductive = evidence.loc[evidence["axis"].eq("reproductive_assurance")]
@@ -93,6 +93,26 @@ def test_morphology_rows_keep_explicit_species_descriptions_trait_specific() -> 
     assert tube_depth.iloc[0]["normalized_value"] == "shallow"
     assert tube_depth.iloc[0]["evidence_quality"] == "high"
 
+    rule_unlocks = evidence.loc[
+        evidence["accepted_species"].isin(
+            {"Polycarpaea corymbosa", "Boronia muelleri", "Benstonea foetida"}
+        )
+    ].set_index("accepted_species")
+    assert rule_unlocks[["trait_name", "normalized_value"]].to_dict("index") == {
+        "Polycarpaea corymbosa": {
+            "trait_name": "inflorescence_display",
+            "normalized_value": "umbel_corymb",
+        },
+        "Boronia muelleri": {
+            "trait_name": "floral_form",
+            "normalized_value": "open_radial",
+        },
+        "Benstonea foetida": {
+            "trait_name": "inflorescence_display",
+            "normalized_value": "raceme_spike_panicle",
+        },
+    }
+
 
 def test_tristaniopsis_bagging_is_not_converted_to_self_incompatibility() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
@@ -146,7 +166,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
 
-    assert len(evidence) == len(audit) == len(accepted) == 815
+    assert len(evidence) == len(audit) == len(accepted) == 818
     assert evidence["candidate_id"].is_unique
     assert audit["candidate_id"].is_unique
     assert audit["decision"].str.casefold().eq("accept").all()
@@ -154,4 +174,4 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
     wave = accepted.loc[accepted["source_group"].eq(
         "rule_unlock_wave2_checkpoint_20260812"
     )]
-    assert len(wave) == 30
+    assert len(wave) == 33

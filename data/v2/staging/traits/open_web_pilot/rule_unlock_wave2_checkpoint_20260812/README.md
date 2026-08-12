@@ -2,7 +2,7 @@
 
 This checkpoint freezes individually reviewed species-direct evidence selected
 for information gain in the current `genus x trait_name` queue. It adds twenty-three
-reproductive records and seven visible-morphology records. It never emits genus,
+reproductive records and ten visible-morphology records. It never emits genus,
 family, or global inference itself.
 
 Reproductive concepts remain separate: failure of unassisted bagged flowers is
@@ -26,6 +26,14 @@ bagged flowers, versus 19.1% under open pollination) as autonomous-selfing
 capacity only. It is not converted into self-incompatibility. A separate 2019
 field study supplies explicit actinomorphic flower morphology. The PROTA Adenia
 species account supplies a regular-flower statement, normalized to actinomorphic.
+
+The latest morphology additions use a Botanical Survey of India district flora
+for the corymbose cyme of *Polycarpaea corymbosa*, a non-cultivar Australian
+National Botanic Gardens observation for the star-like flower of *Boronia
+muelleri*, and an expert-attributed eFlora of India description of the branched
+spadix and male catkins of *Benstonea foetida*. The latter retains the credited
+India Biodiversity Portal treatment as its source lineage so redistribution is
+not counted as independent evidence.
 
 The combined files supersede the previous curated checkpoint as workflow input.
 Every new row has an `accept` audit decision, exact source URL, supporting
