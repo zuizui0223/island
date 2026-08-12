@@ -38,6 +38,7 @@ on:
       - "data/v2/staging/traits/open_web_pilot/pohnpei_reproductive_checkpoint_20260812/**"
       - "data/v2/staging/traits/open_web_pilot/reproductive_rule_unlock_checkpoint_20260812/**"
       - "data/v2/staging/traits/open_web_pilot/rule_unlock_wave2_checkpoint_20260812/**"
+      - "data/v2/staging/traits/open_web_pilot/palmpedia_archive_checkpoint_20260813/**"
       - "data/v2/external/traits/konno_1999_bagging/**"
       - "data/v2/external/traits/yomai_2021_pohnpei/**"
       - "data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_*.csv"
@@ -66,6 +67,7 @@ on:
       - "analysis/prepare_near_rule_source_packages_20260809.py"
       - "analysis/build_secondary_probabilistic_genus_low_20260809.py"
       - "analysis/prepare_scale_trait_source_packages_20260808.py"
+      - "analysis/prepare_palmpedia_archive_source_package_20260813.py"
       - "src/island_v2/open_web_common.py"
       - "src/island_v2/open_web_finalize.py"
       - "src/island_v2/curated_bulk_checkpoint.py"
@@ -123,6 +125,7 @@ on:
       - "tests/test_near_rule_source_packages_20260809.py"
       - "tests/test_secondary_probabilistic_genus_low_20260809.py"
       - "tests/test_iospe_orchid_colour_checkpoint.py"
+      - "tests/test_palmpedia_archive_source_package.py"
       - "data/v2/staging/traits/direct_llm_pilot/20260809_near_rule_source_acquisition/**"
   workflow_dispatch:
     inputs:
@@ -264,6 +267,7 @@ jobs:
             analysis/prepare_near_rule_source_packages_20260809.py \
             analysis/build_secondary_probabilistic_genus_low_20260809.py \
             analysis/prepare_scale_trait_source_packages_20260808.py \
+            analysis/prepare_palmpedia_archive_source_package_20260813.py \
             src/island_v2/open_web_common.py \
             src/island_v2/open_web_finalize.py \
             src/island_v2/curated_bulk_checkpoint.py \
@@ -321,7 +325,8 @@ jobs:
             tests/test_near_rule_source_packages_20260809.py \
             tests/test_secondary_probabilistic_genus_low_20260809.py \
             tests/test_scale_trait_source_packages_20260808.py \
-            tests/test_iospe_orchid_colour_checkpoint.py
+            tests/test_iospe_orchid_colour_checkpoint.py \
+            tests/test_palmpedia_archive_source_package.py
           python -m pytest -q \
             tests/test_curated_bulk_checkpoint.py \
             tests/test_efloras_medium_checkpoint.py \
@@ -357,6 +362,7 @@ jobs:
             tests/test_secondary_probabilistic_genus_low_20260809.py \
             tests/test_scale_trait_source_packages_20260808.py \
             tests/test_iospe_orchid_colour_checkpoint.py \
+            tests/test_palmpedia_archive_source_package.py \
             tests/test_all_evidence_trait_audit.py
       - name: Download baseline and the exact acquisition artifact
         run: |
