@@ -1,0 +1,15 @@
+{
+  "candidate_rows": 1143,
+  "candidate_species": 301,
+  "credential_free": true,
+  "exact_rank_target_links": 312,
+  "fetch_errors": 0,
+  "http_requests": 313,
+  "identity_and_family_accepted_pages": 301,
+  "index_sha256": "3ea83e6d693a9a32a7329041e483cdb567184c6b9cb58ab844154bf5af6ccde1",
+  "index_url": "https://www.pngplants.org/PNGtrees/TreeDescriptions/",
+  "pages_fetched": 312,
+  "retrieved_at_utc": "2026-08-12T18:45:15Z",
+  "search_api_queries": 0,
+  "search_cost_usd": 0.0
+}

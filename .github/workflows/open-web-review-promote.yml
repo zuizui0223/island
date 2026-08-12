@@ -40,6 +40,7 @@ on:
       - "data/v2/staging/traits/open_web_pilot/rule_unlock_wave2_checkpoint_20260812/**"
       - "data/v2/staging/traits/open_web_pilot/rule_unlock_wave3_checkpoint_20260813/**"
       - "data/v2/staging/traits/open_web_pilot/kudo_2022_alpine_reproduction_checkpoint_20260813/**"
+      - "data/v2/staging/traits/open_web_pilot/pngtrees_source_package_20260813/**"
       - "data/v2/staging/traits/open_web_pilot/palmpedia_archive_checkpoint_20260813/**"
       - "data/v2/external/traits/konno_1999_bagging/**"
       - "data/v2/external/traits/yomai_2021_pohnpei/**"
@@ -95,6 +96,7 @@ on:
       - "src/island_v2/rule_unlock_wave2_checkpoint.py"
       - "src/island_v2/rule_unlock_wave3_checkpoint.py"
       - "src/island_v2/kudo_2022_alpine_reproduction_checkpoint.py"
+      - "analysis/acquire_pngtrees_source_package_20260813.py"
       - "src/island_v2/review_inventory_artifact.py"
       - "tests/test_curated_bulk_checkpoint.py"
       - "tests/test_efloras_medium_checkpoint.py"
@@ -118,6 +120,7 @@ on:
       - "tests/test_rule_unlock_wave2_checkpoint.py"
       - "tests/test_rule_unlock_wave3_checkpoint.py"
       - "tests/test_kudo_2022_alpine_reproduction_checkpoint.py"
+      - "tests/test_pngtrees_source_package.py"
       - "tests/test_open_web_common.py"
       - "tests/test_review_inventory_artifact.py"
       - "tests/test_scale_trait_source_packages_20260808.py"
@@ -154,11 +157,11 @@ on:
       prior_public_web_run_id:
         description: Previous formal reviewed-Web run to extend
         required: false
-        default: "31561713347"
+        default: "31625564228"
       prior_public_web_artifact_name:
         description: Artifact containing the previous formal Web ledger
         required: false
-        default: "reviewed-open-web-evidence-31561713347"
+        default: "reviewed-open-web-evidence-31625564228"
       prior_public_web_file_name:
         description: Evidence CSV path inside the previous artifact
         required: false
@@ -178,19 +181,19 @@ on:
       source_package_evidence_csv_path:
         description: Common-schema evidence from an audited source package
         required: false
-        default: ""
+        default: "data/v2/staging/traits/open_web_pilot/pngtrees_source_package_20260813/pngtrees_source_package_evidence_20260813.csv.gz"
       source_package_audit_csv_path:
         description: Deterministic audit sample for the source package
         required: false
-        default: ""
+        default: "data/v2/staging/traits/open_web_pilot/pngtrees_source_package_20260813/pngtrees_source_package_audit_200_20260813.csv"
       source_package_run_id:
         description: Original acquisition run or immutable package identifier
         required: false
-        default: ""
+        default: "credential-free-live-acquisition-20260813"
       source_package_artifact_name:
         description: Original source-package artifact name
         required: false
-        default: ""
+        default: "repo-staged-pngtrees-source-package-20260813"
       direct_evidence_exclusions_csv_path:
         description: Reviewed exact-record exclusions committed on this ref
         required: false
@@ -274,6 +277,7 @@ jobs:
             analysis/build_secondary_probabilistic_genus_low_20260809.py \
             analysis/prepare_scale_trait_source_packages_20260808.py \
             analysis/prepare_palmpedia_archive_source_package_20260813.py \
+            analysis/acquire_pngtrees_source_package_20260813.py \
             src/island_v2/open_web_common.py \
             src/island_v2/open_web_finalize.py \
             src/island_v2/curated_bulk_checkpoint.py \
@@ -336,7 +340,8 @@ jobs:
             tests/test_secondary_probabilistic_genus_low_20260809.py \
             tests/test_scale_trait_source_packages_20260808.py \
             tests/test_iospe_orchid_colour_checkpoint.py \
-            tests/test_palmpedia_archive_source_package.py
+            tests/test_palmpedia_archive_source_package.py \
+            tests/test_pngtrees_source_package.py
           python -m pytest -q \
             tests/test_curated_bulk_checkpoint.py \
             tests/test_efloras_medium_checkpoint.py \
@@ -375,6 +380,7 @@ jobs:
             tests/test_scale_trait_source_packages_20260808.py \
             tests/test_iospe_orchid_colour_checkpoint.py \
             tests/test_palmpedia_archive_source_package.py \
+            tests/test_pngtrees_source_package.py \
             tests/test_all_evidence_trait_audit.py
       - name: Download baseline and the exact acquisition artifact
         run: |
