@@ -53,6 +53,7 @@ def _row(
     content_sha256_basis: str,
     language: str = "en",
     name_resolution_lineage: str = "master_accepted_name_exact",
+    retrieved_at_utc: str = CREATED_AT,
 ) -> dict[str, str]:
     row = _evidence_row(
         species=species,
@@ -72,7 +73,7 @@ def _row(
         domain=domain,
         content_sha256=content_sha256,
         content_sha256_basis=content_sha256_basis,
-        retrieved_at_utc=CREATED_AT,
+        retrieved_at_utc=retrieved_at_utc,
         raw_value=raw_value,
     )
     row["source_group"] = SOURCE_GROUP
@@ -1050,6 +1051,87 @@ def reviewed_rows() -> list[dict[str, str]]:
         )
     )
 
+    rows.append(
+        _row(
+            species="Hakea carinata",
+            trait="autonomous_selfing_capacity",
+            value="autonomous",
+            raw_value=(
+                "fruit set after pre-anthesis insect exclusion in 8/10 and "
+                "6/10 wild plants; author concludes seed production by autogamy"
+            ),
+            excerpt=(
+                "Flowers from which insects were excluded set fruit on eight "
+                "of ten treated plants in Jenkins Scrub population and six of "
+                "ten in Humbug Scrub (RT) population. [...] Hakea carinata can "
+                "produce seed by autogamy."
+            ),
+            quality="high",
+            provider="University of Adelaide doctoral thesis repository",
+            url=(
+                "https://digital.library.adelaide.edu.au/server/api/core/bitstreams/"
+                "7e6f9e21-e413-48c2-8655-9396a292d389/content"
+            ),
+            title="Population Genetics of Hakea carinata F. Muell. ex Meissner",
+            citation=(
+                "Starr, G. (2001), University of Adelaide PhD thesis, "
+                "Chapter 5, pp. 84-85"
+            ),
+            record_id="starr-2001:hakea-carinata:pp84-85:autogamy-test",
+            lineage="hdl:2440/21691#chapter5-autogamy-test",
+            lineage_method=(
+                "persistent_handle_plus_distinct_original_chapter5_experiment"
+            ),
+            source_tier="A",
+            source_type="doctoral_thesis_controlled_insect_exclusion_experiment",
+            domain="digital.library.adelaide.edu.au",
+            content_sha256=(
+                "7f81f49a203ea024d7c399bd56ce80ae548e2abcfc95b7a10a0f823111a9bd02"
+            ),
+            content_sha256_basis="downloaded_institutional_repository_pdf_bytes",
+            retrieved_at_utc="2026-08-12T09:53:30Z",
+        )
+    )
+
+    rows.append(
+        _row(
+            species="Celtis sinensis",
+            trait="floral_symmetry",
+            value="actinomorphic",
+            raw_value="Flower symmetry: Radial (Actinomorphic)",
+            excerpt=(
+                "Celtis sinensis Pers. Flower symmetry: Radial "
+                "(Actinomorphic) 多方向對稱的."
+            ),
+            quality="medium",
+            provider="Shiu Ying Hu Herbarium, Chinese University of Hong Kong",
+            url=(
+                "https://syhuherbarium.sls.cuhk.edu.hk/collections/"
+                "factsheet-pro/celtis-sinensis/"
+            ),
+            title=(
+                "Celtis sinensis Pers. | Shiu Ying Hu Herbarium Collections"
+            ),
+            citation=(
+                "Shiu Ying Hu Herbarium Pro-Factsheet, Chinese University "
+                "of Hong Kong (retrieved 2026-08-12)"
+            ),
+            record_id="cuhk-herbarium:celtis-sinensis:floral-symmetry-radial",
+            lineage=(
+                "provider_treatment:cuhk_shiu_ying_hu_herbarium:Celtis_sinensis"
+            ),
+            lineage_method="official_university_herbarium_species_factsheet",
+            source_tier="B",
+            source_type="university_herbarium_species_factsheet",
+            domain="syhuherbarium.sls.cuhk.edu.hk",
+            content_sha256=(
+                "a155ec19fe0a221291917288b43bba13654f7c349e44d0a5910088535316501a"
+            ),
+            content_sha256_basis="retrieved_species_page_html_utf8_bytes",
+            retrieved_at_utc="2026-08-12T09:53:30Z",
+        )
+    )
+
     commelineae_excerpt = (
         "Breeding system studies in the selected taxa revealed that they were all "
         "self and cross-compatible species. Except Dictyospermum montanum (2.5%) "
@@ -1178,6 +1260,8 @@ def build(
         "Jacobaea aquatica": "Asteraceae",
         "Carpinus laxiflora": "Betulaceae",
         "Citharexylum myrianthum": "Verbenaceae",
+        "Hakea carinata": "Proteaceae",
+        "Celtis sinensis": "Cannabaceae",
     }
     missing = sorted(set(expected_families) - set(master_family))
     if missing:
@@ -1194,8 +1278,8 @@ def build(
     evidence = evidence.sort_values(
         ["accepted_species", "trait_name", "candidate_id"]
     ).reset_index(drop=True)
-    if len(evidence) != 39:
-        raise ValueError(f"expected 39 reviewed trait rows, found {len(evidence)}")
+    if len(evidence) != 41:
+        raise ValueError(f"expected 41 reviewed trait rows, found {len(evidence)}")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("wave-2 candidate IDs are not unique")
     audit = _review_audit(evidence)

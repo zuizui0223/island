@@ -16,20 +16,20 @@ CHECKPOINT = Path(
 def test_wave2_rows_are_trait_specific_and_source_backed() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
 
-    assert len(evidence) == 39
-    assert evidence["accepted_species"].nunique() == 27
-    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 39
+    assert len(evidence) == 41
+    assert evidence["accepted_species"].nunique() == 29
+    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 41
     assert evidence["evidence_scope"].eq("species_direct").all()
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
     assert evidence["source_excerpt"].str.len().gt(30).all()
-    assert evidence["source_lineage"].nunique() == 25
+    assert evidence["source_lineage"].nunique() == 27
     assert evidence["evidence_quality"].value_counts().to_dict() == {
-        "high": 30,
-        "medium": 9,
+        "high": 31,
+        "medium": 10,
     }
 
     reproductive = evidence.loc[evidence["axis"].eq("reproductive_assurance")]
-    assert len(reproductive) == 23
+    assert len(reproductive) == 24
     assert set(reproductive["trait_name"]) == {
         "autonomous_selfing_capacity",
         "mating_system",
@@ -58,6 +58,7 @@ def test_morphology_rows_keep_explicit_species_descriptions_trait_specific() -> 
     assert set(morphology.index) == {
         "Adenia cissampeloides",
         "Alangium salviifolium",
+        "Celtis sinensis",
         "Corchorus olitorius",
         "Drypetes assamica",
         "Melastoma malabathricum",
@@ -67,6 +68,7 @@ def test_morphology_rows_keep_explicit_species_descriptions_trait_specific() -> 
     assert morphology["normalized_value"].to_dict() == {
         "Adenia cissampeloides": "actinomorphic",
         "Alangium salviifolium": "actinomorphic",
+        "Celtis sinensis": "actinomorphic",
         "Corchorus olitorius": "actinomorphic",
         "Drypetes assamica": "actinomorphic",
         "Melastoma malabathricum": "actinomorphic",
@@ -169,7 +171,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
 
-    assert len(evidence) == len(audit) == len(accepted) == 824
+    assert len(evidence) == len(audit) == len(accepted) == 826
     assert evidence["candidate_id"].is_unique
     assert audit["candidate_id"].is_unique
     assert audit["decision"].str.casefold().eq("accept").all()
@@ -177,7 +179,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
     wave = accepted.loc[accepted["source_group"].eq(
         "rule_unlock_wave2_checkpoint_20260812"
     )]
-    assert len(wave) == 39
+    assert len(wave) == 41
 
 
 def test_next_rule_unlocks_are_explicit_and_do_not_cross_traits() -> None:
@@ -240,6 +242,33 @@ def test_third_rule_unlocks_are_species_direct_and_trait_specific() -> None:
         },
     }
     assert rows["evidence_scope"].eq("species_direct").all()
+    assert not set(rows["trait_name"]).intersection(
+        {"pollen_vector_mode", "reward_type"}
+    )
+
+
+def test_fourth_rule_unlocks_keep_autogamy_and_symmetry_trait_specific() -> None:
+    evidence = pd.DataFrame(reviewed_rows()).fillna("")
+    rows = evidence.loc[
+        evidence["accepted_species"].isin({"Hakea carinata", "Celtis sinensis"})
+    ].set_index("accepted_species")
+
+    assert rows[["trait_name", "normalized_value", "evidence_quality"]].to_dict(
+        "index"
+    ) == {
+        "Hakea carinata": {
+            "trait_name": "autonomous_selfing_capacity",
+            "normalized_value": "autonomous",
+            "evidence_quality": "high",
+        },
+        "Celtis sinensis": {
+            "trait_name": "floral_symmetry",
+            "normalized_value": "actinomorphic",
+            "evidence_quality": "medium",
+        },
+    }
+    assert rows["evidence_scope"].eq("species_direct").all()
+    assert rows["retrieved_at_utc"].eq("2026-08-12T09:53:30Z").all()
     assert not set(rows["trait_name"]).intersection(
         {"pollen_vector_mode", "reward_type"}
     )

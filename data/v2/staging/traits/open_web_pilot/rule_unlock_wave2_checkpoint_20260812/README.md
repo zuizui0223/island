@@ -1,8 +1,8 @@
 # Rule-unlock wave 2 checkpoint (2026-08-12)
 
 This checkpoint freezes individually reviewed species-direct evidence selected
-for information gain in the current `genus x trait_name` queue. It adds twenty-three
-reproductive records and sixteen visible-morphology records. It never emits genus,
+for information gain in the current `genus x trait_name` queue. It adds twenty-four
+reproductive records and seventeen visible-morphology records. It never emits genus,
 family, or global inference itself.
 
 Reproductive concepts remain separate: failure of unassisted bagged flowers is
@@ -53,6 +53,18 @@ image identify pistillate catkins in *Carpinus laxiflora*. The original article
 abstract for *Citharexylum myrianthum*, retrieved from the FAO AGRIS record and
 deduplicated under its DOI lineage, states that flowers occur in raceme-like
 inflorescences. The two institutional/original-publication records are High.
+
+The fourth increment targets two independent third-species rule unlocks. Gary
+Starr's University of Adelaide doctoral thesis reports fruit after pre-anthesis
+insect exclusion in two wild *Hakea carinata* populations and explicitly concludes
+that the species can produce seed by autogamy; this is retained only as
+`autonomous_selfing_capacity=autonomous`. The Chinese University of Hong Kong's
+Shiu Ying Hu Herbarium Pro-Factsheet identifies *Celtis sinensis* and records its
+flower symmetry as radial (actinomorphic). The thesis experiment is High. The
+herbarium factsheet is conservatively Medium because it does not attribute that
+field to an individual source or reviewer and categorizes the species as
+horticultural, although no cultivar or hybrid is named. Both records are
+source-fingerprinted and kept as distinct reproductive and morphology traits.
 
 The combined files supersede the previous curated checkpoint as workflow input.
 Every new row has an `accept` audit decision, exact source URL, supporting
