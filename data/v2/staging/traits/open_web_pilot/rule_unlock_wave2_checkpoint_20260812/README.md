@@ -2,7 +2,7 @@
 
 This checkpoint freezes individually reviewed species-direct evidence selected
 for information gain in the current `genus x trait_name` queue. It contains
-seventy-five reproductive records and thirty visible-morphology records.
+seventy-five reproductive records and seventy-nine visible-morphology records.
 It never emits genus,
 family, or global inference itself.
 
@@ -122,6 +122,18 @@ System's government species record explicitly identifies *Suregada lanceolata*
 and records actinomorphic floral symmetry. These records remain direct Medium
 evidence; any resulting Low cells must still pass the shared all-evidence,
 masked, and leave-one-lineage-out rule validation.
+
+The tenth increment freezes a credential-free bulk traversal of the Bangladesh
+Forest Information System government index. The downloaded HTML snapshot
+(SHA-256 `80f4d97075ebb66d41b5707b1ae4bc330dd41ea4df567b4ea19f63531aa88b4f`)
+contains 281 species treatments. Exact accepted-name matching found 119 target
+species, of which 108 had an explicit floral-symmetry field. Forty-nine records
+without prior direct floral-symmetry evidence are added as Medium, each with a
+species-specific provider-treatment lineage and quote. Existing direct values
+were never overwritten; four BFIS statements that disagree with an existing
+direct symmetry record were therefore not ingested. Historical family labels in
+the source quote are retained, while the identity gate checks each species
+against its current family in the fixed target master.
 
 The combined files supersede the previous curated checkpoint as workflow input.
 Every new row has an `accept` audit decision, exact source URL, supporting

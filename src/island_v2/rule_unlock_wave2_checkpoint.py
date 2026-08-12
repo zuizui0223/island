@@ -26,6 +26,58 @@ CREATED_AT = "2026-08-12T09:35:00Z"
 REVIEWER = "Codex source-backed rule-unlock wave-2 audit"
 SOURCE_GROUP = "rule_unlock_wave2_checkpoint_20260812"
 
+BFIS_BULK_SYMMETRY_ROWS = (
+    ("Actephila excelsa", "Euphorbiaceae", "actinomorphic"),
+    ("Alchornea tiliifolia", "Euphorbiaceae", "actinomorphic"),
+    ("Antidesma acidum", "Euphorbiaceae", "actinomorphic"),
+    ("Antidesma ghaesembilla", "Euphorbiaceae", "actinomorphic"),
+    ("Antidesma montanum", "Euphorbiaceae", "actinomorphic"),
+    ("Antidesma roxburghii", "Euphorbiaceae", "actinomorphic"),
+    ("Antidesma velutinum", "Euphorbiaceae", "actinomorphic"),
+    ("Aporosa aurea", "Euphorbiaceae", "actinomorphic"),
+    ("Baccaurea ramiflora", "Euphorbiaceae", "actinomorphic"),
+    ("Barringtonia acutangula", "Lecythidaceae", "actinomorphic"),
+    ("Breynia retusa", "Euphorbiaceae", "actinomorphic"),
+    ("Bridelia retusa", "Euphorbiaceae", "actinomorphic"),
+    ("Bridelia tomentosa", "Euphorbiaceae", "actinomorphic"),
+    ("Careya arborea", "Lecythidaceae", "actinomorphic"),
+    ("Casearia tomentosa", "Flacourtiaceae", "actinomorphic"),
+    ("Chaetocarpus castanocarpus", "Euphorbiaceae", "actinomorphic"),
+    ("Cinnamomum iners", "Lauraceae", "actinomorphic"),
+    ("Cleidion javanicum", "Euphorbiaceae", "actinomorphic"),
+    ("Couroupita guianensis", "Lecythidaceae", "actinomorphic"),
+    ("Croton aromaticus", "Euphorbiaceae", "actinomorphic"),
+    ("Croton joufra", "Euphorbiaceae", "actinomorphic"),
+    ("Croton tiglium", "Euphorbiaceae", "actinomorphic"),
+    ("Endospermum chinense", "Euphorbiaceae", "actinomorphic"),
+    ("Engelhardtia roxburghiana", "Juglandaceae", "actinomorphic"),
+    ("Engelhardtia spicata", "Juglandaceae", "actinomorphic"),
+    ("Epiprinus siletianus", "Euphorbiaceae", "actinomorphic"),
+    ("Euphorbia antiquorum", "Euphorbiaceae", "actinomorphic"),
+    ("Euphorbia cotinifolia", "Euphorbiaceae", "actinomorphic"),
+    ("Euphorbia neriifolia", "Euphorbiaceae", "actinomorphic"),
+    ("Euphorbia tirucalli", "Euphorbiaceae", "actinomorphic"),
+    ("Excoecaria oppositifolia", "Euphorbiaceae", "actinomorphic"),
+    ("Falconeria insignis", "Euphorbiaceae", "actinomorphic"),
+    ("Flacourtia jangomas", "Flacourtiaceae", "actinomorphic"),
+    ("Flueggea leucopyrus", "Euphorbiaceae", "actinomorphic"),
+    ("Flueggea virosa", "Euphorbiaceae", "actinomorphic"),
+    ("Gomphandra tetrandra", "Icacinaceae", "actinomorphic"),
+    ("Homonoia riparia", "Euphorbiaceae", "actinomorphic"),
+    ("Jatropha multifida", "Euphorbiaceae", "actinomorphic"),
+    ("Macaranga denticulata", "Euphorbiaceae", "actinomorphic"),
+    ("Macaranga peltata", "Euphorbiaceae", "actinomorphic"),
+    ("Mallotus nudiflorus", "Euphorbiaceae", "actinomorphic"),
+    ("Mallotus philippensis", "Euphorbiaceae", "actinomorphic"),
+    ("Mallotus repandus", "Euphorbiaceae", "actinomorphic"),
+    ("Mallotus tetracoccus", "Euphorbiaceae", "actinomorphic"),
+    ("Margaritaria indica", "Euphorbiaceae", "actinomorphic"),
+    ("Ostodes paniculata", "Euphorbiaceae", "actinomorphic"),
+    ("Shirakiopsis indica", "Euphorbiaceae", "actinomorphic"),
+    ("Sophora wightii", "Fabaceae", "zygomorphic"),
+    ("Triadica sebifera", "Euphorbiaceae", "actinomorphic"),
+)
+
 
 def _text_sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
@@ -83,6 +135,70 @@ def _row(
     row["wild_cultivated_cultivar_status"] = cultivar_status
     row["query"] = "current_support_2_rule_unlock_original_or_direct_species_source"
     return row
+
+
+def _bfis_bulk_symmetry_rows() -> list[dict[str, str]]:
+    """Return novel master-species records from one immutable BFIS snapshot.
+
+    The source page is a government database index containing 281 separate
+    species treatments.  Only exact master-name matches with an explicit
+    ``floral symmetry`` field and no pre-existing direct symmetry evidence in
+    the formal checkpoint are frozen here.  Historical source-family labels
+    are retained in the quote; current family identity is checked separately
+    against the target master in :func:`build`.
+    """
+
+    rows: list[dict[str, str]] = []
+    for species, source_family, value in BFIS_BULK_SYMMETRY_ROWS:
+        slug = species.casefold().replace(" ", "-")
+        rows.append(
+            _row(
+                species=species,
+                trait="floral_symmetry",
+                value=value,
+                raw_value=f"floral symmetry: {value}",
+                excerpt=(
+                    f"Tree Species Details: Family Name: {source_family}; Genus: "
+                    f"{species.split()[0]}; Species: {species}; floral symmetry: "
+                    f"{value}."
+                ),
+                quality="medium",
+                provider="Bangladesh Forest Information System",
+                url=(
+                    "https://bfis.bforest.gov.bd/nef/index.php/data/"
+                    "dataSpecies/40"
+                ),
+                title=f"Forest Emission Factor Database - {species}",
+                citation=(
+                    "Bangladesh Forest Information System, Forest Emission "
+                    f"Factor Database species record: {species}"
+                ),
+                record_id=(
+                    f"bfis:forest-emission-factor:{slug}:floral-symmetry"
+                ),
+                lineage=(
+                    "provider_treatment:bangladesh-forest-information-system:"
+                    f"{slug}"
+                ),
+                lineage_method="canonical_government_database_species_record",
+                source_tier="A",
+                source_type="government_forest_database_species_record",
+                domain="bfis.bforest.gov.bd",
+                content_sha256=(
+                    "80f4d97075ebb66d41b5707b1ae4bc330dd41ea4df567b4e"
+                    "a19f63531aa88b4f"
+                ),
+                content_sha256_basis=(
+                    "downloaded_full_government_database_html_bytes"
+                ),
+                retrieved_at_utc="2026-08-12T12:24:00Z",
+                name_resolution_lineage=(
+                    "master_accepted_name_exact; source_family_label_retained_"
+                    "and_current_master_family_checked"
+                ),
+            )
+        )
+    return rows
 
 
 def reviewed_rows() -> list[dict[str, str]]:
@@ -2019,6 +2135,7 @@ def reviewed_rows() -> list[dict[str, str]]:
             ),
         ]
     )
+    rows.extend(_bfis_bulk_symmetry_rows())
     return rows
 
 
@@ -2051,6 +2168,55 @@ def build(
     master = pd.read_csv(master_csv, dtype=str).fillna("")
     master_family = master.set_index("accepted_species")["family"].to_dict()
     expected_families = {
+        "Actephila excelsa": "Phyllanthaceae",
+        "Alchornea tiliifolia": "Euphorbiaceae",
+        "Antidesma acidum": "Phyllanthaceae",
+        "Antidesma ghaesembilla": "Phyllanthaceae",
+        "Antidesma montanum": "Phyllanthaceae",
+        "Antidesma roxburghii": "Phyllanthaceae",
+        "Antidesma velutinum": "Phyllanthaceae",
+        "Aporosa aurea": "Phyllanthaceae",
+        "Baccaurea ramiflora": "Phyllanthaceae",
+        "Barringtonia acutangula": "Lecythidaceae",
+        "Breynia retusa": "Phyllanthaceae",
+        "Bridelia retusa": "Phyllanthaceae",
+        "Bridelia tomentosa": "Phyllanthaceae",
+        "Careya arborea": "Lecythidaceae",
+        "Casearia tomentosa": "Salicaceae",
+        "Chaetocarpus castanocarpus": "Peraceae",
+        "Cinnamomum iners": "Lauraceae",
+        "Cleidion javanicum": "Euphorbiaceae",
+        "Couroupita guianensis": "Lecythidaceae",
+        "Croton aromaticus": "Euphorbiaceae",
+        "Croton joufra": "Euphorbiaceae",
+        "Croton tiglium": "Euphorbiaceae",
+        "Endospermum chinense": "Euphorbiaceae",
+        "Engelhardtia roxburghiana": "Juglandaceae",
+        "Engelhardtia spicata": "Juglandaceae",
+        "Epiprinus siletianus": "Euphorbiaceae",
+        "Euphorbia antiquorum": "Euphorbiaceae",
+        "Euphorbia cotinifolia": "Euphorbiaceae",
+        "Euphorbia neriifolia": "Euphorbiaceae",
+        "Euphorbia tirucalli": "Euphorbiaceae",
+        "Excoecaria oppositifolia": "Euphorbiaceae",
+        "Falconeria insignis": "Euphorbiaceae",
+        "Flacourtia jangomas": "Salicaceae",
+        "Flueggea leucopyrus": "Phyllanthaceae",
+        "Flueggea virosa": "Phyllanthaceae",
+        "Gomphandra tetrandra": "Stemonuraceae",
+        "Homonoia riparia": "Euphorbiaceae",
+        "Jatropha multifida": "Euphorbiaceae",
+        "Macaranga denticulata": "Euphorbiaceae",
+        "Macaranga peltata": "Euphorbiaceae",
+        "Mallotus nudiflorus": "Euphorbiaceae",
+        "Mallotus philippensis": "Euphorbiaceae",
+        "Mallotus repandus": "Euphorbiaceae",
+        "Mallotus tetracoccus": "Euphorbiaceae",
+        "Margaritaria indica": "Phyllanthaceae",
+        "Ostodes paniculata": "Euphorbiaceae",
+        "Shirakiopsis indica": "Euphorbiaceae",
+        "Sophora wightii": "Fabaceae",
+        "Triadica sebifera": "Euphorbiaceae",
         "Myrcia guianensis": "Myrtaceae",
         "Melastoma affine": "Melastomataceae",
         "Hosta ventricosa": "Asparagaceae",
@@ -2155,8 +2321,8 @@ def build(
     evidence = evidence.sort_values(
         ["accepted_species", "trait_name", "candidate_id"]
     ).reset_index(drop=True)
-    if len(evidence) != 105:
-        raise ValueError(f"expected 105 reviewed trait rows, found {len(evidence)}")
+    if len(evidence) != 154:
+        raise ValueError(f"expected 154 reviewed trait rows, found {len(evidence)}")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("wave-2 candidate IDs are not unique")
     audit = _review_audit(evidence)

@@ -16,16 +16,16 @@ CHECKPOINT = Path(
 def test_wave2_rows_are_trait_specific_and_source_backed() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
 
-    assert len(evidence) == 105
-    assert evidence["accepted_species"].nunique() == 88
-    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 105
+    assert len(evidence) == 154
+    assert evidence["accepted_species"].nunique() == 137
+    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 154
     assert evidence["evidence_scope"].eq("species_direct").all()
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
     assert evidence["source_excerpt"].str.len().gt(30).all()
-    assert evidence["source_lineage"].nunique() == 45
+    assert evidence["source_lineage"].nunique() == 94
     assert evidence["evidence_quality"].value_counts().to_dict() == {
         "high": 46,
-        "medium": 59,
+        "medium": 108,
     }
 
     reproductive = evidence.loc[evidence["axis"].eq("reproductive_assurance")]
@@ -55,7 +55,7 @@ def test_morphology_rows_keep_explicit_species_descriptions_trait_specific() -> 
         evidence["trait_name"].eq("floral_symmetry")
     ].set_index("accepted_species")
 
-    assert set(morphology.index) == {
+    expected = {
         "Adenia cissampeloides",
         "Alangium salviifolium",
         "Celtis sinensis",
@@ -66,7 +66,8 @@ def test_morphology_rows_keep_explicit_species_descriptions_trait_specific() -> 
         "Suregada lanceolata",
         "Tristaniopsis laurina",
     }
-    assert morphology["normalized_value"].to_dict() == {
+    assert expected.issubset(set(morphology.index))
+    assert morphology.loc[sorted(expected), "normalized_value"].to_dict() == {
         "Adenia cissampeloides": "actinomorphic",
         "Alangium salviifolium": "actinomorphic",
         "Celtis sinensis": "actinomorphic",
@@ -174,7 +175,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
 
-    assert len(evidence) == len(audit) == len(accepted) == 890
+    assert len(evidence) == len(audit) == len(accepted) == 939
     assert evidence["candidate_id"].is_unique
     assert audit["candidate_id"].is_unique
     assert audit["decision"].str.casefold().eq("accept").all()
@@ -182,7 +183,31 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
     wave = accepted.loc[accepted["source_group"].eq(
         "rule_unlock_wave2_checkpoint_20260812"
     )]
-    assert len(wave) == 105
+    assert len(wave) == 154
+
+
+def test_bfis_bulk_snapshot_adds_only_explicit_novel_symmetry_records() -> None:
+    evidence = pd.DataFrame(reviewed_rows()).fillna("")
+    rows = evidence.loc[
+        evidence["content_sha256"].eq(
+            "80f4d97075ebb66d41b5707b1ae4bc330dd41ea4df567b4e"
+            "a19f63531aa88b4f"
+        )
+    ]
+
+    assert len(rows) == rows["accepted_species"].nunique() == 49
+    assert set(rows["trait_name"]) == {"floral_symmetry"}
+    assert set(rows["normalized_value"]) == {"actinomorphic", "zygomorphic"}
+    assert rows["evidence_quality"].eq("medium").all()
+    assert rows["domain"].eq("bfis.bforest.gov.bd").all()
+    assert rows["source_lineage"].nunique() == 49
+    assert rows["source_excerpt"].str.contains(
+        r"Species: .+; floral symmetry: (?:actinomorphic|zygomorphic)\.",
+        regex=True,
+    ).all()
+    assert rows.loc[
+        rows["accepted_species"].eq("Sophora wightii"), "normalized_value"
+    ].tolist() == ["zygomorphic"]
 
 
 def test_seventh_increment_excludes_conflicted_galapagos_row() -> None:
