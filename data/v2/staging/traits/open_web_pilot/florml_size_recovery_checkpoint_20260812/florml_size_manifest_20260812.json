@@ -1,0 +1,22 @@
+{
+  "audit_rows": 200,
+  "audit_seed": "florml-size-strict-v2-audit",
+  "candidate_evidence_rows": 321,
+  "contract": "official_florml_whole_flower_size_recovery_v1",
+  "guardrails": {
+    "axis_only_join": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "trait_substitution": false,
+    "whole_flower_measurement_only": true
+  },
+  "inputs": {
+    ".work\\next-acquisition-formal-20260812\\direct_species_trait_ledger.csv.gz": "3c0f84fefa5df26a8132d4445f4d78b004c16cbf70caf28b1e21616e3bd93f69",
+    ".work\\wfo-new-wave-20260810\\florml-v1\\florml_evidence.csv.gz": "775e1e65dbb88ed7d666c077b82887226de7d78b68dcba7c18543bd3c85bac29"
+  },
+  "providers": {
+    "flora_malesiana": 298,
+    "flora_of_the_guianas": 23
+  },
+  "species_trait": 312
+}

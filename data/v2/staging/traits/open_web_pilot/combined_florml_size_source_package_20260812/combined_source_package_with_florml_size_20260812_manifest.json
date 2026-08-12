@@ -1,0 +1,56 @@
+{
+  "contract": "merged_reviewed_source_package_v1",
+  "generated_at_utc": "2026-08-11T16:23:00Z",
+  "input_packages": [
+    {
+      "evidence_path": "data/v2/staging/traits/open_web_pilot/combined_florml_source_package_20260811/combined_source_package_with_florml_20260811_evidence.csv.gz",
+      "evidence_sha256": "e0f492638c0686710476ac70807e9b0c721815bac4f2f2953d152fa6d860c82d",
+      "audit_path": "data/v2/staging/traits/open_web_pilot/combined_florml_source_package_20260811/combined_source_package_with_florml_20260811_audit.csv.gz",
+      "audit_sha256": "bb3fce19f9098dd51d44529c4ef07054b48243cfeafd927aba076c78bcdb810d"
+    },
+    {
+      "evidence_path": "data/v2/staging/traits/open_web_pilot/florml_size_recovery_checkpoint_20260812/florml_size_evidence_20260812.csv.gz",
+      "evidence_sha256": "d3676accf418a85c77caf43285d7d0615b69d7f5d2d1bcc6871f161d50401dbb",
+      "audit_path": "data/v2/staging/traits/open_web_pilot/florml_size_recovery_checkpoint_20260812/florml_size_reviewed_audit_200_20260812.csv",
+      "audit_sha256": "c9f66daa15df43c76a4ed52bf35db0c5e2835be5d5f10fec7718589665c1b00f"
+    }
+  ],
+  "candidate_evidence_rows": 1845,
+  "audit_rows": 1000,
+  "selected_evidence_rows": 1844,
+  "selected_species_trait": 1788,
+  "source_package_gate": {
+    "precision_contract": "accepted_correct/all_reviewed",
+    "reviewed": 1000,
+    "accepted_correct": 999,
+    "precision": 0.999,
+    "cultivar_contamination_rate": 0.0,
+    "minimum_reviewed": 200,
+    "minimum_reviewed_per_trait": 10,
+    "minimum_precision": 0.95,
+    "maximum_cultivar_contamination": 0.02,
+    "approval_unit": "trait_name",
+    "overall_precision_gate_applied": false,
+    "package_gate_passed": true,
+    "approved_traits": [
+      "autonomous_selfing_capacity",
+      "cleistogamy",
+      "floral_form",
+      "floral_symmetry",
+      "flower_primary_color",
+      "flower_size_class",
+      "inflorescence_display",
+      "mating_system",
+      "self_incompatibility"
+    ],
+    "approved_trait_count": 9,
+    "candidate_evidence_rows": 1845,
+    "selected_evidence_rows": 1844,
+    "explicitly_rejected_candidate_ids": 1
+  },
+  "output_hashes": {
+    "combined_source_package_with_florml_size_20260812_evidence.csv.gz": "137db814caa2dbf71fce8959cf18d0525f8806f62f802abc0feddd626d292037",
+    "combined_source_package_with_florml_size_20260812_audit.csv.gz": "e10546c17624cf5ee8710c9ce3e9b1f4d0ce63897fb0320f6cc56ac6b63b5a85",
+    "combined_source_package_with_florml_size_20260812_trait_audit.csv": "732a5b9e8f7f3c1ca7686511f58024a778f71ce9c5d2575a3bdb8df798d48947"
+  }
+}

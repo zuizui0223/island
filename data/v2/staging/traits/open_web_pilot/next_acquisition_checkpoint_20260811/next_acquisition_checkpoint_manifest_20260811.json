@@ -1,0 +1,63 @@
+{
+  "audit": {
+    "accepted_correct": 662,
+    "cultivar_contamination_rate": 0.0,
+    "precision": 1.0,
+    "reviewed": 662
+  },
+  "contract": "next_acquisition_individually_reviewed_checkpoint_v1",
+  "created_at_utc": "2026-08-12T08:35:00Z",
+  "evidence_rows": 662,
+  "files": {
+    "combined_curated_evidence_20260811.csv": {
+      "sha256": "d534c2833daa92441652c0fc9fc56afc3b230311dbdc6f091606be14ec8cf989",
+      "size_bytes": 610715
+    },
+    "combined_curated_manual_audit_20260811.csv": {
+      "sha256": "884e3672297414be1d65eb3576cdf92b75ee2a3c98dcbc1eabb0c61125726975",
+      "size_bytes": 561258
+    }
+  },
+  "provider_counts": {
+    "Gates & Nason 2012 American Journal of Botany": 1,
+    "Mondo et al. 2021 Plants": 1,
+    "Nazareno & de Carvalho 2009 Conservation Genetics": 1,
+    "Tamaki, Setsuko & Tomaru 2009 Heredity": 1,
+    "Whitehead et al. 2018 population-level outcrossing-rate database": 23,
+    "abid_etal_2010_primary_article": 2,
+    "barreto_etal_2025_primary_article": 1,
+    "flora_malesiana_araliaceae_1979": 1,
+    "hargreaves_2007_doctoral_thesis": 1,
+    "india_flora_online_iisc": 1,
+    "ishida_etal_2020_primary_article": 1,
+    "leon_levy_native_plant_preserve": 3,
+    "plants_for_a_future": 79,
+    "pngplants_tree_key": 1,
+    "polynesie_francaise_diren_tree_guide": 3,
+    "prieto_benitez_etal_2016_primary_article": 2,
+    "restu_etal_2017_biotropia": 1,
+    "sangvirotjanapat_etal_2020_taxonomic_revision": 2,
+    "singapore_nparks_flora_fauna_web": 515,
+    "suresh_etal_2019_primary_article": 1,
+    "twyford_etal_2015_primary_article": 1,
+    "vazquez_simberloff_2004_primary_article": 2,
+    "yomai_williams_2021_primary_article": 18
+  },
+  "quality_counts": {
+    "high": 578,
+    "medium": 84
+  },
+  "species": 499,
+  "species_trait": 661,
+  "trait_counts": {
+    "autonomous_selfing_capacity": 14,
+    "floral_form": 46,
+    "floral_symmetry": 169,
+    "flower_primary_color": 230,
+    "flower_size_class": 2,
+    "inflorescence_display": 79,
+    "mating_system": 29,
+    "self_incompatibility": 92,
+    "tube_depth_class": 1
+  }
+}

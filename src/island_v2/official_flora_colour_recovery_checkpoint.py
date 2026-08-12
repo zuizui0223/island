@@ -154,13 +154,13 @@ NEGATIVE_ORGAN = re.compile(
 NEGATIVE_AFTER = re.compile(
     r"^[\s,;:/-]{0,8}(?:[A-Za-z-]+\s+){0,2}"
     r"(?:glands?|hairs?|trichomes?|tomentum|pubescence|pubescent|pilose|"
-    r"tomentose|velvety|hairy|ciliate|spines?|prickles?|"
+    r"puberulous|puberulent|scurfy|scales?|tomentose|velvety|hairy|ciliate|spines?|prickles?|"
     r"bracts?|sepals?|caly(?:x|ces)|anthers?|glumes?|lemmas?|fruits?|berries)\b",
     re.IGNORECASE,
 )
 NEGATIVE_BEFORE = re.compile(
     r"\b(?:glands?|hairs?|trichomes?|tomentum|pubescence|pubescent|pilose|"
-    r"tomentose|velvety|hairy|ciliate|spines?|prickles?|"
+    r"puberulous|puberulent|scurfy|scales?|tomentose|velvety|hairy|ciliate|spines?|prickles?|"
     r"bracts?|sepals?|caly(?:x|ces)|anthers?|glumes?|lemmas?|fruits?|berries)"
     r"(?:\s+[A-Za-z-]+){0,2}[\s,;:/-]{0,8}$",
     re.IGNORECASE,
@@ -181,7 +181,7 @@ DRY_CONTEXT = re.compile(
 )
 INVALID_POSITIVE_PREFIX = re.compile(
     r"\b(?:fruiting|with(?:\s+the)?|among|between|subtending|beneath|"
-    r"as\s+long\s+as(?:\s+the)?|longer\s+than(?:\s+the)?|per)\s+$",
+    r"producing|as\s+long\s+as(?:\s+the)?|longer\s+than(?:\s+the)?|per)\s+$",
     re.IGNORECASE,
 )
 
