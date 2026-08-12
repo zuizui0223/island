@@ -1,8 +1,9 @@
 # Rule-unlock wave 2 checkpoint (2026-08-12)
 
 This checkpoint freezes individually reviewed species-direct evidence selected
-for information gain in the current `genus x trait_name` queue. It adds twenty-four
-reproductive records and seventeen visible-morphology records. It never emits genus,
+for information gain in the current `genus x trait_name` queue. It contains
+seventy-five reproductive records and thirty visible-morphology records.
+It never emits genus,
 family, or global inference itself.
 
 Reproductive concepts remain separate: failure of unassisted bagged flowers is
@@ -90,6 +91,37 @@ agreement. Munzinger & Gateble's peer-reviewed comparison preserves explicit
 colour state sets for *Acropogon bullatus*, *A. mesophilus*, and *A. veillonii*.
 These rows intentionally prevent an undifferentiated `multicolored_variable`
 label from hiding biologically different colour combinations.
+
+The seventh increment uses a peer-reviewed Galapagos species table for thirteen
+previously unresolved, unflagged compatibility or autonomous-selfing cells. Its
+numbered original references are preserved as lineage identifiers. Two
+*Chiococca alba* cells are deliberately excluded because the table's dagger
+footnote contradicts the displayed compatibility state. Repeated artificial
+selfing of *Encyclia phoenicea* and *E. plicata* is retained as Medium evidence
+of compatibility under a single living-collection lineage. A separate
+pollinator-exclusion experiment supports only absence of autonomous selfing in
+*E. tampensis* and is not converted to self-incompatibility.
+
+The eighth increment adds thirty compatibility cells from Lord's Southern Ocean
+Islands supplementary species table. The paper explicitly cautions that many
+compatibility entries are statements rather than experiments, so all remain
+Medium and share one conservative compilation lineage until their numbered
+original sources are retrieved. `SCp` is retained as `mixed_or_variable`, not
+collapsed to SC. Five High records come from Anderson et al.'s Juan Fernandez
+bagging and controlled-cross experiments. They keep SI, autonomous or delayed
+selfing, and mixed mating as distinct traits; the conflicting Escallonia
+self-cross assays are not used to overwrite its compatibility state.
+
+The ninth increment targets three visible traits whose current genus rules had
+two agreeing species. An official Academie de La Reunion arboretum sheet names
+*Pyrostria commersonii* and describes its corolla as yellowish white; the colour
+is retained as the explicit state set `white|yellow_orange`. A non-cultivar
+*Quintinia acutifolia* nursery species page explicitly reports white flowers and
+is limited to Medium Tier C morphology. The Bangladesh Forest Information
+System's government species record explicitly identifies *Suregada lanceolata*
+and records actinomorphic floral symmetry. These records remain direct Medium
+evidence; any resulting Low cells must still pass the shared all-evidence,
+masked, and leave-one-lineage-out rule validation.
 
 The combined files supersede the previous curated checkpoint as workflow input.
 Every new row has an `accept` audit decision, exact source URL, supporting

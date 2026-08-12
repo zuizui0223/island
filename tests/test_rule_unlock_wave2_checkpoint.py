@@ -16,20 +16,20 @@ CHECKPOINT = Path(
 def test_wave2_rows_are_trait_specific_and_source_backed() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
 
-    assert len(evidence) == 51
-    assert evidence["accepted_species"].nunique() == 37
-    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 51
+    assert len(evidence) == 105
+    assert evidence["accepted_species"].nunique() == 88
+    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 105
     assert evidence["evidence_scope"].eq("species_direct").all()
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
     assert evidence["source_excerpt"].str.len().gt(30).all()
-    assert evidence["source_lineage"].nunique() == 33
+    assert evidence["source_lineage"].nunique() == 45
     assert evidence["evidence_quality"].value_counts().to_dict() == {
-        "high": 40,
-        "medium": 11,
+        "high": 46,
+        "medium": 59,
     }
 
     reproductive = evidence.loc[evidence["axis"].eq("reproductive_assurance")]
-    assert len(reproductive) == 24
+    assert len(reproductive) == 75
     assert set(reproductive["trait_name"]) == {
         "autonomous_selfing_capacity",
         "mating_system",
@@ -63,6 +63,7 @@ def test_morphology_rows_keep_explicit_species_descriptions_trait_specific() -> 
         "Drypetes assamica",
         "Melastoma malabathricum",
         "Sideritis canariensis",
+        "Suregada lanceolata",
         "Tristaniopsis laurina",
     }
     assert morphology["normalized_value"].to_dict() == {
@@ -73,6 +74,7 @@ def test_morphology_rows_keep_explicit_species_descriptions_trait_specific() -> 
         "Drypetes assamica": "actinomorphic",
         "Melastoma malabathricum": "actinomorphic",
         "Sideritis canariensis": "zygomorphic",
+        "Suregada lanceolata": "actinomorphic",
         "Tristaniopsis laurina": "actinomorphic",
     }
     assert morphology.loc[
@@ -86,6 +88,7 @@ def test_morphology_rows_keep_explicit_species_descriptions_trait_specific() -> 
             "Drypetes assamica",
             "Melastoma malabathricum",
             "Sideritis canariensis",
+            "Suregada lanceolata",
         ],
         "evidence_quality",
     ].eq("medium").all()
@@ -171,7 +174,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
 
-    assert len(evidence) == len(audit) == len(accepted) == 836
+    assert len(evidence) == len(audit) == len(accepted) == 890
     assert evidence["candidate_id"].is_unique
     assert audit["candidate_id"].is_unique
     assert audit["decision"].str.casefold().eq("accept").all()
@@ -179,7 +182,131 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
     wave = accepted.loc[accepted["source_group"].eq(
         "rule_unlock_wave2_checkpoint_20260812"
     )]
-    assert len(wave) == 51
+    assert len(wave) == 105
+
+
+def test_seventh_increment_excludes_conflicted_galapagos_row() -> None:
+    evidence = pd.DataFrame(reviewed_rows()).fillna("")
+
+    assert "Chiococca alba" not in set(evidence["accepted_species"])
+    galapagos = evidence.loc[
+        evidence["source_url"].eq(
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC3489146/"
+        )
+    ]
+    assert len(galapagos) == 13
+    assert set(galapagos["evidence_quality"]) == {"medium"}
+    assert set(galapagos["trait_name"]) == {
+        "autonomous_selfing_capacity",
+        "self_incompatibility",
+    }
+
+
+def test_encyclia_selfing_and_exclusion_keep_distinct_traits() -> None:
+    evidence = pd.DataFrame(reviewed_rows()).fillna("")
+    rows = evidence.loc[evidence["accepted_species"].str.startswith("Encyclia ")]
+    observed = set(
+        zip(
+            rows["accepted_species"],
+            rows["trait_name"],
+            rows["normalized_value"],
+            rows["evidence_quality"],
+        )
+    )
+
+    assert observed == {
+        ("Encyclia phoenicea", "self_incompatibility", "SC", "medium"),
+        ("Encyclia plicata", "self_incompatibility", "SC", "medium"),
+        (
+            "Encyclia tampensis",
+            "autonomous_selfing_capacity",
+            "absent",
+            "high",
+        ),
+    }
+    assert not rows.loc[rows["accepted_species"].eq("Encyclia tampensis")][
+        "trait_name"
+    ].eq("self_incompatibility").any()
+
+
+def test_southern_ocean_compilation_uses_one_conservative_lineage() -> None:
+    evidence = pd.DataFrame(reviewed_rows()).fillna("")
+    rows = evidence.loc[
+        evidence["source_lineage"].eq(
+            "compilation:doi:10.1093/aobpla/plv095:table-s1"
+        )
+    ]
+
+    assert len(rows) == 30
+    assert set(rows["trait_name"]) == {"self_incompatibility"}
+    assert set(rows["evidence_quality"]) == {"medium"}
+    partial = rows.loc[rows["accepted_species"].eq("Colobanthus affinis")]
+    assert partial["normalized_value"].tolist() == ["mixed_or_variable"]
+
+
+def test_juan_fernandez_rows_do_not_substitute_reproductive_traits() -> None:
+    evidence = pd.DataFrame(reviewed_rows()).fillna("")
+    rows = evidence.loc[evidence["source_lineage"].eq("doi:10.2307/2657013")]
+
+    observed = set(
+        zip(
+            rows["accepted_species"],
+            rows["trait_name"],
+            rows["normalized_value"],
+        )
+    )
+    assert observed == {
+        ("Berberis corymbosa", "self_incompatibility", "SI"),
+        ("Wahlenbergia berteroi", "autonomous_selfing_capacity", "autonomous"),
+        ("Wahlenbergia fernandeziana", "autonomous_selfing_capacity", "delayed"),
+        ("Escallonia callcottiae", "autonomous_selfing_capacity", "autonomous"),
+        ("Escallonia callcottiae", "mating_system", "mixed_mating"),
+    }
+    assert set(rows["evidence_quality"]) == {"high"}
+
+
+def test_ninth_increment_keeps_visible_traits_species_direct() -> None:
+    evidence = pd.DataFrame(reviewed_rows()).fillna("")
+    rows = evidence.loc[
+        evidence["accepted_species"].isin(
+            {
+                "Pyrostria commersonii",
+                "Quintinia acutifolia",
+                "Suregada lanceolata",
+            }
+        )
+        & evidence["source_record_id"].str.contains(
+            "academie-reunion|vibrant-earth|suregada-lanceolata",
+            regex=True,
+        )
+    ].set_index("accepted_species")
+
+    assert rows[["trait_name", "normalized_value", "evidence_quality"]].to_dict(
+        "index"
+    ) == {
+        "Pyrostria commersonii": {
+            "trait_name": "flower_primary_color",
+            "normalized_value": "white|yellow_orange",
+            "evidence_quality": "medium",
+        },
+        "Quintinia acutifolia": {
+            "trait_name": "flower_primary_color",
+            "normalized_value": "white",
+            "evidence_quality": "medium",
+        },
+        "Suregada lanceolata": {
+            "trait_name": "floral_symmetry",
+            "normalized_value": "actinomorphic",
+            "evidence_quality": "medium",
+        },
+    }
+    assert rows["evidence_scope"].eq("species_direct").all()
+    assert not set(rows["trait_name"]).intersection(
+        {"pollen_vector_mode", "reward_type"}
+    )
+    assert rows.loc[
+        "Quintinia acutifolia", "wild_cultivated_cultivar_status"
+    ] == "species_level_horticultural_record_not_cultivar_limited"
 
 
 def test_sixth_increment_unlocks_only_exact_traits_and_preserves_colour_sets() -> None:

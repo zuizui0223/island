@@ -1488,6 +1488,537 @@ def reviewed_rows() -> list[dict[str, str]]:
                 **acropogon_common,
             )
         )
+
+    galapagos_excerpt_template = (
+        "Table 1, {species}: Autonomously self-pollinates: Yes; "
+        "Self-compatible: Yes; References: {references}. The table footnote "
+        "identifies the numbered original studies used for each species."
+    )
+    galapagos_common = {
+        "provider": "Traveset et al. 2013 Annals of Botany",
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3489146/",
+        "title": (
+            "Pollination patterns and plant breeding systems in the "
+            "Galapagos: a review"
+        ),
+        "citation": (
+            "Traveset et al. (2013), Annals of Botany 111:391-404, "
+            "Table 1, DOI 10.1093/aob/mcs132"
+        ),
+        "lineage_method": (
+            "peer_reviewed_compilation_carrier_linked_to_numbered_original_study"
+        ),
+        "source_tier": "B",
+        "source_type": "peer_reviewed_species_level_breeding_system_compilation",
+        "domain": "pmc.ncbi.nlm.nih.gov",
+        "content_sha256": (
+            "d94f9c9b6d56ed778f09a53eefc248a4d45374c4c169913c4a78ba9760b2f444"
+        ),
+        "content_sha256_basis": "downloaded_pmc_full_text_html_bytes",
+        "retrieved_at_utc": "2026-08-12T11:16:00Z",
+    }
+    galapagos_rows = (
+        (
+            "Alternanthera echinocephala",
+            "autonomous_selfing_capacity",
+            "autonomous",
+            "4, 6",
+            "bsdb-original:mcmullen_1987",
+        ),
+        (
+            "Bidens pilosa",
+            "self_incompatibility",
+            "SC",
+            "4, 6",
+            "bsdb-original:mcmullen_1987",
+        ),
+        (
+            "Pectis tenuifolia",
+            "autonomous_selfing_capacity",
+            "autonomous",
+            "12",
+            "study:philipp-et-al-2006:galapagos-lava-desert-network",
+        ),
+        (
+            "Scalesia helleri",
+            "autonomous_selfing_capacity",
+            "autonomous",
+            "2",
+            "source:rick-1966:galapagos-plant-animal-relations",
+        ),
+        (
+            "Scalesia aspera",
+            "autonomous_selfing_capacity",
+            "autonomous",
+            "6",
+            "study:mcmullen-1990:galapagos-reproductive-biology",
+        ),
+        (
+            "Scalesia baurii",
+            "autonomous_selfing_capacity",
+            "autonomous",
+            "7",
+            "study:mcmullen-naranjo-1994:scalesia-baurii-pollination",
+        ),
+        (
+            "Tournefortia pubescens",
+            "autonomous_selfing_capacity",
+            "autonomous",
+            "4, 6",
+            "bsdb-original:mcmullen_1987",
+        ),
+        (
+            "Tournefortia pubescens",
+            "self_incompatibility",
+            "SC",
+            "4, 6",
+            "bsdb-original:mcmullen_1987",
+        ),
+        (
+            "Cyperus elegans",
+            "autonomous_selfing_capacity",
+            "autonomous",
+            "4, 6",
+            "bsdb-original:mcmullen_1987",
+        ),
+        (
+            "Nolana galapagensis",
+            "autonomous_selfing_capacity",
+            "autonomous",
+            "2",
+            "source:rick-1966:galapagos-plant-animal-relations",
+        ),
+        (
+            "Nolana galapagensis",
+            "self_incompatibility",
+            "SC",
+            "2",
+            "source:rick-1966:galapagos-plant-animal-relations",
+        ),
+        (
+            "Paspalum conjugatum",
+            "autonomous_selfing_capacity",
+            "autonomous",
+            "4, 6",
+            "bsdb-original:mcmullen_1987",
+        ),
+        (
+            "Lycium minimum",
+            "autonomous_selfing_capacity",
+            "autonomous",
+            "2",
+            "source:rick-1966:galapagos-plant-animal-relations",
+        ),
+    )
+    for species, trait, value, references, lineage in galapagos_rows:
+        slug = species.casefold().replace(" ", "-")
+        rows.append(
+            _row(
+                species=species,
+                trait=trait,
+                value=value,
+                raw_value="Yes",
+                excerpt=galapagos_excerpt_template.format(
+                    species=species, references=references
+                ),
+                quality="medium",
+                record_id=(
+                    f"doi:10.1093/aob/mcs132:table1:{slug}:{trait}"
+                ),
+                lineage=lineage,
+                **galapagos_common,
+            )
+        )
+
+    encyclia_selfing_excerpt = (
+        "This is the first paper of a series that reports the results of over "
+        "50 years of selfing (autofecundation) of species by Ruben In Orchids "
+        "of Miami, Florida. In most cases usually only one plant was available "
+        "of each species, therefore outcrossing was not possible. These "
+        "included: Encyclia phoenicea (Lindl.) Neumann, Encyclia plicata "
+        "(Lindl.) Schltr. Selﬁngs were made several times of each species. "
+        "Accurate photographic records were kept."
+    )
+    encyclia_selfing_common = {
+        "provider": "Sauleda 2017 Orquideologia",
+        "url": (
+            "https://sco.org.co/wp-content/uploads/2018/07/"
+            "Orquideologia-34.pdf"
+        ),
+        "title": (
+            "Artificial Self-pollination (Autofecundation) as a Taxonomic "
+            "Tool - Encyclia tampensis (Lindl.) Small"
+        ),
+        "citation": "Sauleda, R. P. (2017), Orquideologia 34(2):181-197",
+        "lineage": "study:sauleda-2017:orchid-species-selfing-series",
+        "lineage_method": "same_50_year_living_collection_selfing_program",
+        "source_tier": "B",
+        "source_type": "orchid_society_journal_documented_artificial_selfing",
+        "domain": "sco.org.co",
+        "content_sha256": (
+            "8d788c4b4701b3752c8f87cb67e5407573305c7754f5bbbeafdf405c326f8df8"
+        ),
+        "content_sha256_basis": "downloaded_society_journal_issue_pdf_bytes",
+        "retrieved_at_utc": "2026-08-12T11:35:00Z",
+        "cultivar_status": (
+            "living_species_accession_statement_not_cultivar_or_hybrid_limited"
+        ),
+    }
+    for species in ("Encyclia phoenicea", "Encyclia plicata"):
+        slug = species.casefold().replace(" ", "-")
+        rows.append(
+            _row(
+                species=species,
+                trait="self_incompatibility",
+                value="SC",
+                raw_value="repeated artificial selfings of the species",
+                excerpt=encyclia_selfing_excerpt,
+                quality="medium",
+                record_id=f"sauleda-2017:p194:{slug}:self-compatible",
+                **encyclia_selfing_common,
+            )
+        )
+
+    tampensis_excerpt = (
+        "Experiments using pollinator-exclusion bags revealed that this species "
+        "is not capable of self-pollination and requires a pollen vector for "
+        "seed capsule development."
+    )
+    rows.append(
+        _row(
+            species="Encyclia tampensis",
+            trait="autonomous_selfing_capacity",
+            value="absent",
+            raw_value="not capable of spontaneous self-pollination",
+            excerpt=tampensis_excerpt,
+            quality="high",
+            provider="Ray et al. 2019 Florida Entomologist",
+            url=(
+                "https://www.ars.usda.gov/research/publications/publication/"
+                "?seqNo115=349510"
+            ),
+            title=(
+                "Aspects of the pollination biology of Encyclia tampensis, "
+                "the commercially exploited butterfly orchid, and Prosthechea "
+                "cochleata, the endangered clamshell orchid, in south Florida"
+            ),
+            citation=(
+                "Ray et al. (2019), Florida Entomologist 102(1):154-160, "
+                "DOI 10.1653/024.102.0125"
+            ),
+            record_id="doi:10.1653/024.102.0125:pollinator-exclusion:no-autonomy",
+            lineage="doi:10.1653/024.102.0125",
+            lineage_method="original_peer_reviewed_pollinator_exclusion_experiment",
+            source_tier="A",
+            source_type="peer_reviewed_primary_pollinator_exclusion_experiment",
+            domain="ars.usda.gov",
+            content_sha256=_text_sha256(tampensis_excerpt),
+            content_sha256_basis="verified_usda_ars_technical_abstract_excerpt_utf8",
+            retrieved_at_utc="2026-08-12T11:28:00Z",
+        )
+    )
+
+    southern_ocean_common = {
+        "provider": "Lord 2015 AoB PLANTS Southern Ocean Islands",
+        "url": (
+            "https://academic.oup.com/aobpla/article/doi/10.1093/"
+            "aobpla/plv095/1800409"
+        ),
+        "title": (
+            "Patterns in floral traits and plant breeding systems on "
+            "Southern Ocean Islands"
+        ),
+        "citation": (
+            "Lord, J. M. (2015), AoB PLANTS 7:plv095, Supporting "
+            "Information Table S1, DOI 10.1093/aobpla/plv095"
+        ),
+        "lineage": "compilation:doi:10.1093/aobpla/plv095:table-s1",
+        "lineage_method": (
+            "single_conservative_compilation_lineage_pending_original_source_retrieval"
+        ),
+        "source_tier": "B",
+        "source_type": "peer_reviewed_species_level_compatibility_compilation",
+        "domain": "academic.oup.com",
+        "content_sha256": (
+            "91222afed21322c51cfef98d083d75e4719cc4198e739594d6894db368291fe8"
+        ),
+        "content_sha256_basis": "downloaded_official_supplementary_docx_bytes",
+        "retrieved_at_utc": "2026-08-12T12:02:00Z",
+    }
+    southern_ocean_rows = (
+        ("Hydrocotyle chamaemorus", "SC", "SC; 5"),
+        ("Agoseris coronopifolia", "SC", "SC; 5"),
+        ("Anaphalioides bellidioides", "SI", "SI; 32"),
+        ("Gamochaeta antarctica", "SC", "SC; 5, 40"),
+        ("Gamochaeta malvinensis", "SC", "SC; 5, 40"),
+        ("Hieracium patagonicum", "SC", "SC; 5"),
+        ("Calceolaria biflora", "SC", "SC; 5"),
+        ("Colobanthus affinis", "mixed_or_variable", "SCp; 1, 18"),
+        ("Drosera stenopetala", "SC", "SC; 1, 35"),
+        ("Gentianella antarctica", "SC", "SC; 11, 14"),
+        ("Gentianella antipoda", "SC", "SC; 14"),
+        ("Lobelia pratiana", "SC", "SC; 5"),
+        ("Plantago barbata", "SC", "SC; 5"),
+        ("Veronica benthamii", "SC", "SC; 42"),
+        ("Ranunculus biternatus", "SC", "SC; 2, 5, 10"),
+        ("Ranunculus maclovianus", "SC", "SC; 5"),
+        ("Ranunculus sericocephalus", "SC", "SC; 5"),
+        ("Acaena antarctica", "SC", "SC; 5, 16"),
+        ("Acaena lucida", "SC", "SC; 5"),
+        ("Acaena magellanica", "SC", "SC; 2, 5, 9, 10"),
+        ("Acaena tenera", "SC", "SC; 10"),
+        ("Rubus geoides", "SC", "SC; 5"),
+        ("Saxifraga magellanica", "SC", "SC; 5, 16"),
+        ("Phyllachne colensoi", "SC", "SC; 32"),
+        ("Viola magellanica", "SC", "SC; 11"),
+        ("Juncus scheuchzerioides", "SC", "SC; 2, 5, 10"),
+        ("Luzula alopecurus", "SC", "SC; 5"),
+        ("Chiloglottis cornuta", "SC", "SC; 14"),
+        ("Deschampsia antarctica", "SC", "SC; 2, 5, 10"),
+        ("Puccinellia macquariensis", "SC", "SC; 23"),
+    )
+    for species, value, source_cell in southern_ocean_rows:
+        slug = species.casefold().replace(" ", "-")
+        excerpt = (
+            f"Supporting Information Table S1: {species}; compatibility and "
+            f"reference-number cell: {source_cell}. The table defines SC as "
+            "fully self-compatible, SCp as partially self-compatible, and SI "
+            "as self-incompatible."
+        )
+        rows.append(
+            _row(
+                species=species,
+                trait="self_incompatibility",
+                value=value,
+                raw_value=source_cell.split(";")[0],
+                excerpt=excerpt,
+                quality="medium",
+                record_id=f"doi:10.1093/aobpla/plv095:table-s1:{slug}:compatibility",
+                **southern_ocean_common,
+            )
+        )
+
+    anderson_common = {
+        "provider": "Anderson et al. 2001 American Journal of Botany",
+        "url": (
+            "https://ri.conicet.gov.ar/bitstream/handle/11336/38527/"
+            "CONICET_Digital_Nro.2a109d53-78cd-4bee-83fb-c7cfd6b3faab_A.pdf"
+            "?isAllowed=y&sequence=2"
+        ),
+        "title": (
+            "Breeding system and pollination of selected plants endemic to "
+            "Juan Fernandez Islands"
+        ),
+        "citation": (
+            "Anderson et al. (2001), American Journal of Botany 88:220-233, "
+            "DOI 10.2307/2657013"
+        ),
+        "lineage": "doi:10.2307/2657013",
+        "lineage_method": "original_peer_reviewed_field_experiment_doi",
+        "source_tier": "A",
+        "source_type": "peer_reviewed_primary_bagging_and_controlled_cross_experiment",
+        "domain": "ri.conicet.gov.ar",
+        "retrieved_at_utc": "2026-08-12T12:12:00Z",
+    }
+    anderson_rows = (
+        (
+            "Berberis corymbosa",
+            "self_incompatibility",
+            "SI",
+            "fruit set 0% (n=6); pollen tubes 0% (n=8)",
+            (
+                "Table 1 reports self crosses with fruit set 0% (n=6) and "
+                "pollen tubes 0% (n=8). In Berberis corymbosa pollen grains "
+                "germinate on the stigmata, but pollen tubes do not grow "
+                "beyond the stigmatic level. The authors classify it as SI."
+            ),
+            "p4:berberis-corymbosa:self-incompatible",
+        ),
+        (
+            "Wahlenbergia berteroi",
+            "autonomous_selfing_capacity",
+            "autonomous",
+            "wind-aided mechanism of autogamy",
+            (
+                "In Wahlenbergia berteroi there is a wind-aided mechanism of "
+                "autogamy: pollen on the inner corolla throat is gathered by "
+                "the stigmatic lobes when shaken by the ever-present wind. "
+                "Table 1 reports self crosses 100% (n=5)."
+            ),
+            "p5:wahlenbergia-berteroi:wind-aided-autogamy",
+        ),
+        (
+            "Wahlenbergia fernandeziana",
+            "autonomous_selfing_capacity",
+            "delayed",
+            "spontaneous selfing may occur late",
+            (
+                "In Wahlenbergia fernandeziana spontaneous selfing may occur "
+                "late in the lifetime of a flower because the stigma branches "
+                "recurve almost 360 degrees, allowing autogamous pollen "
+                "deposition; Table 1 reports self crosses 100% (n=5)."
+            ),
+            "p5:wahlenbergia-fernandeziana:delayed-selfing",
+        ),
+        (
+            "Escallonia callcottiae",
+            "autonomous_selfing_capacity",
+            "autonomous",
+            "100% fruit production from bagged flowers (N=20)",
+            (
+                "The stigma position and surface promote self-pollen "
+                "deposition as soon as the flower opens. The authors observed "
+                "100% fruit production from bagged flowers (N=20 flowers)."
+            ),
+            "p6:escallonia-callcottiae:bagged-autonomy",
+        ),
+        (
+            "Escallonia callcottiae",
+            "mating_system",
+            "mixed_mating",
+            "mixed breeding system with different degrees of xenogamy and autogamy",
+            (
+                "The authors classify Escallonia callcottiae as a facultative "
+                "selfer and state that it has a mixed breeding system with "
+                "different degrees of xenogamy and autogamy, including "
+                "geitonogamy promoted by hummingbirds."
+            ),
+            "p6:escallonia-callcottiae:mixed-breeding-system",
+        ),
+    )
+    for species, trait, value, raw_value, excerpt, record_id in anderson_rows:
+        rows.append(
+            _row(
+                species=species,
+                trait=trait,
+                value=value,
+                raw_value=raw_value,
+                excerpt=excerpt,
+                quality="high",
+                record_id=f"doi:10.2307/2657013:{record_id}",
+                content_sha256=_text_sha256(excerpt),
+                content_sha256_basis="verified_conicet_repository_pdf_excerpt_utf8",
+                **anderson_common,
+            )
+        )
+
+    rows.extend(
+        [
+            _row(
+                species="Pyrostria commersonii",
+                trait="flower_primary_color",
+                value="white|yellow_orange",
+                raw_value="corolle blanc jaunatre",
+                excerpt=(
+                    "Etablissement : Ravine des cabris. Nom scientifique: "
+                    "Pyrostria commersonii J.F. Gmel. Famille: Rubiaceae. "
+                    "Fleur : Corolle blanc jaunatre."
+                ),
+                quality="medium",
+                provider="Academie de La Reunion arboretum species sheets",
+                url=(
+                    "https://pedagogie.ac-reunion.fr/fileadmin/"
+                    "ANNEXES-ACADEMIQUES/03-PEDAGOGIE/02-COLLEGE/"
+                    "sciences-vie-terre/Fiches-peda/Arboretum/"
+                    "RavineDesCabris.pdf"
+                ),
+                title="Arboretum - Ravine des Cabris",
+                citation=(
+                    "Academie de La Reunion, Sciences de la vie et de la Terre, "
+                    "Arboretum Ravine des Cabris species sheet, p. 2"
+                ),
+                record_id=(
+                    "academie-reunion:ravine-des-cabris:"
+                    "pyrostria-commersonii:flower-colour"
+                ),
+                lineage=(
+                    "provider_treatment:academie-reunion:"
+                    "ravine-des-cabris:pyrostria-commersonii"
+                ),
+                lineage_method="official_education_species_sheet",
+                source_tier="B",
+                source_type="public_education_arboretum_species_sheet",
+                domain="pedagogie.ac-reunion.fr",
+                content_sha256=(
+                    "29228904c032b6983664cae35c5de182d1e15057676f4f8c6169c7f7fb7102e4"
+                ),
+                content_sha256_basis="downloaded_official_pdf_bytes",
+                language="fr",
+                retrieved_at_utc="2026-08-12T12:01:49Z",
+            ),
+            _row(
+                species="Quintinia acutifolia",
+                trait="flower_primary_color",
+                value="white",
+                raw_value="showy white flowers",
+                excerpt=(
+                    "Quintinia acutifolia. Handsome small tree with long glossy "
+                    "bronzy-green marbled leaves. In summer it has showy white "
+                    "flowers which look great with the bold foliage. Genus "
+                    "Quintinia; Species acutifolia; Cultivar [blank]."
+                ),
+                quality="medium",
+                provider="Vibrant Earth New Zealand Plant Nursery",
+                url=(
+                    "https://www.vibrantearth.nz/catalogue/plantsdetail.php?"
+                    "name=QUINTINIA+acutifolia&pid=1281"
+                ),
+                title="Quintinia acutifolia - Westland Quintinia",
+                citation=(
+                    "Vibrant Earth catalogue species treatment for Quintinia "
+                    "acutifolia; non-cultivar morphology only"
+                ),
+                record_id="vibrant-earth:pid-1281:flower-colour",
+                lineage="provider_treatment:vibrant-earth:pid-1281",
+                lineage_method="canonical_nursery_species_page",
+                source_tier="C",
+                source_type="specialist_native_plant_nursery_species_page",
+                domain="vibrantearth.nz",
+                content_sha256=(
+                    "ebd976ec71a9c55b00fcb3d8c5a0b9ec667d1fce95ecbf899ed99ff2ae566309"
+                ),
+                content_sha256_basis="verified_original_page_excerpt_utf8_bytes",
+                retrieved_at_utc="2026-08-12T12:01:49Z",
+                cultivar_status="species_level_horticultural_record_not_cultivar_limited",
+            ),
+            _row(
+                species="Suregada lanceolata",
+                trait="floral_symmetry",
+                value="actinomorphic",
+                raw_value="floral symmetry: actinomorphic",
+                excerpt=(
+                    "Tree Species Details: Family Name: Euphorbiaceae; Genus: "
+                    "Suregada; Species: Suregada lanceolata; floral symmetry: "
+                    "actinomorphic."
+                ),
+                quality="medium",
+                provider="Bangladesh Forest Information System",
+                url="https://bfis.bforest.gov.bd/nef/index.php/data/dataSpecies/40",
+                title="Forest Emission Factor Database - Suregada lanceolata",
+                citation=(
+                    "Bangladesh Forest Information System, Forest Emission "
+                    "Factor Database species record: Suregada lanceolata"
+                ),
+                record_id=(
+                    "bfis:forest-emission-factor:"
+                    "suregada-lanceolata:floral-symmetry"
+                ),
+                lineage=(
+                    "provider_treatment:bangladesh-forest-information-system:"
+                    "suregada-lanceolata"
+                ),
+                lineage_method="canonical_government_database_species_record",
+                source_tier="A",
+                source_type="government_forest_database_species_record",
+                domain="bfis.bforest.gov.bd",
+                content_sha256=(
+                    "a0ea8e5b9481d4c66d75fd24cf045c43986da201e0720061158cf75244e79cf0"
+                ),
+                content_sha256_basis="verified_original_page_excerpt_utf8_bytes",
+                retrieved_at_utc="2026-08-12T12:01:49Z",
+            ),
+        ]
+    )
     return rows
 
 
@@ -1557,6 +2088,57 @@ def build(
         "Acropogon bullatus": "Malvaceae",
         "Acropogon mesophilus": "Malvaceae",
         "Acropogon veillonii": "Malvaceae",
+        "Alternanthera echinocephala": "Amaranthaceae",
+        "Bidens pilosa": "Asteraceae",
+        "Pectis tenuifolia": "Asteraceae",
+        "Scalesia helleri": "Asteraceae",
+        "Scalesia aspera": "Asteraceae",
+        "Scalesia baurii": "Asteraceae",
+        "Tournefortia pubescens": "Heliotropiaceae",
+        "Cyperus elegans": "Cyperaceae",
+        "Nolana galapagensis": "Solanaceae",
+        "Paspalum conjugatum": "Poaceae",
+        "Lycium minimum": "Solanaceae",
+        "Encyclia phoenicea": "Orchidaceae",
+        "Encyclia plicata": "Orchidaceae",
+        "Encyclia tampensis": "Orchidaceae",
+        "Hydrocotyle chamaemorus": "Araliaceae",
+        "Agoseris coronopifolia": "Asteraceae",
+        "Anaphalioides bellidioides": "Asteraceae",
+        "Gamochaeta antarctica": "Asteraceae",
+        "Gamochaeta malvinensis": "Asteraceae",
+        "Hieracium patagonicum": "Asteraceae",
+        "Calceolaria biflora": "Calceolariaceae",
+        "Colobanthus affinis": "Caryophyllaceae",
+        "Drosera stenopetala": "Droseraceae",
+        "Gentianella antarctica": "Gentianaceae",
+        "Gentianella antipoda": "Gentianaceae",
+        "Lobelia pratiana": "Campanulaceae",
+        "Plantago barbata": "Plantaginaceae",
+        "Veronica benthamii": "Plantaginaceae",
+        "Ranunculus biternatus": "Ranunculaceae",
+        "Ranunculus maclovianus": "Ranunculaceae",
+        "Ranunculus sericocephalus": "Ranunculaceae",
+        "Acaena antarctica": "Rosaceae",
+        "Acaena lucida": "Rosaceae",
+        "Acaena magellanica": "Rosaceae",
+        "Acaena tenera": "Rosaceae",
+        "Rubus geoides": "Rosaceae",
+        "Saxifraga magellanica": "Saxifragaceae",
+        "Phyllachne colensoi": "Stylidiaceae",
+        "Viola magellanica": "Violaceae",
+        "Juncus scheuchzerioides": "Juncaceae",
+        "Luzula alopecurus": "Juncaceae",
+        "Chiloglottis cornuta": "Orchidaceae",
+        "Deschampsia antarctica": "Poaceae",
+        "Puccinellia macquariensis": "Poaceae",
+        "Berberis corymbosa": "Berberidaceae",
+        "Wahlenbergia berteroi": "Campanulaceae",
+        "Wahlenbergia fernandeziana": "Campanulaceae",
+        "Escallonia callcottiae": "Escalloniaceae",
+        "Pyrostria commersonii": "Rubiaceae",
+        "Quintinia acutifolia": "Paracryphiaceae",
+        "Suregada lanceolata": "Euphorbiaceae",
     }
     missing = sorted(set(expected_families) - set(master_family))
     if missing:
@@ -1573,8 +2155,8 @@ def build(
     evidence = evidence.sort_values(
         ["accepted_species", "trait_name", "candidate_id"]
     ).reset_index(drop=True)
-    if len(evidence) != 51:
-        raise ValueError(f"expected 51 reviewed trait rows, found {len(evidence)}")
+    if len(evidence) != 105:
+        raise ValueError(f"expected 105 reviewed trait rows, found {len(evidence)}")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("wave-2 candidate IDs are not unique")
     audit = _review_audit(evidence)
