@@ -16,15 +16,15 @@ CHECKPOINT = Path(
 def test_wave2_rows_are_trait_specific_and_source_backed() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
 
-    assert len(evidence) == 43
-    assert evidence["accepted_species"].nunique() == 31
-    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 43
+    assert len(evidence) == 51
+    assert evidence["accepted_species"].nunique() == 37
+    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 51
     assert evidence["evidence_scope"].eq("species_direct").all()
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
     assert evidence["source_excerpt"].str.len().gt(30).all()
-    assert evidence["source_lineage"].nunique() == 29
+    assert evidence["source_lineage"].nunique() == 33
     assert evidence["evidence_quality"].value_counts().to_dict() == {
-        "high": 32,
+        "high": 40,
         "medium": 11,
     }
 
@@ -171,7 +171,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
 
-    assert len(evidence) == len(audit) == len(accepted) == 828
+    assert len(evidence) == len(audit) == len(accepted) == 836
     assert evidence["candidate_id"].is_unique
     assert audit["candidate_id"].is_unique
     assert audit["decision"].str.casefold().eq("accept").all()
@@ -179,7 +179,54 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
     wave = accepted.loc[accepted["source_group"].eq(
         "rule_unlock_wave2_checkpoint_20260812"
     )]
-    assert len(wave) == 43
+    assert len(wave) == 51
+
+
+def test_sixth_increment_unlocks_only_exact_traits_and_preserves_colour_sets() -> None:
+    evidence = pd.DataFrame(reviewed_rows()).fillna("")
+
+    morphology = evidence.loc[
+        evidence["accepted_species"].isin(
+            {"Turraea cadetii", "Mosiera yamaniguensis"}
+        )
+    ]
+    observed = set(
+        zip(
+            morphology["accepted_species"],
+            morphology["trait_name"],
+            morphology["normalized_value"],
+        )
+    )
+    assert observed == {
+        ("Turraea cadetii", "inflorescence_display", "umbel_corymb"),
+        ("Turraea cadetii", "flower_primary_color", "white"),
+        ("Mosiera yamaniguensis", "inflorescence_display", "solitary"),
+        ("Mosiera yamaniguensis", "flower_primary_color", "white"),
+    }
+
+    colour = evidence.loc[
+        evidence["accepted_species"].isin(
+            {
+                "Dichaetanthera rutenbergiana",
+                "Acropogon bullatus",
+                "Acropogon mesophilus",
+                "Acropogon veillonii",
+            }
+        )
+    ].set_index("accepted_species")
+    assert colour["trait_name"].eq("flower_primary_color").all()
+    assert colour["normalized_value"].to_dict() == {
+        "Dichaetanthera rutenbergiana": (
+            "green_brown_inconspicuous|yellow_orange"
+        ),
+        "Acropogon bullatus": "red_pink|yellow_orange",
+        "Acropogon mesophilus": "blue_purple|yellow_orange",
+        "Acropogon veillonii": "red_pink|yellow_orange",
+    }
+    assert colour["evidence_quality"].eq("high").all()
+    assert not set(evidence["trait_name"]).intersection(
+        {"pollen_vector_mode", "reward_type"}
+    )
 
 
 def test_next_rule_unlocks_are_explicit_and_do_not_cross_traits() -> None:

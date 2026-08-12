@@ -75,6 +75,22 @@ species record for *Gonystylus confusus* gives the accepted species, matching
 family, and flower colour as yellow/golden; it is retained as High Tier A. No
 cultivar statement, search snippet, or cross-trait mapping is used.
 
+The sixth increment adds eight source-fingerprinted records without forcing
+genus consistency. CIRAD's species treatment for *Turraea cadetii* explicitly
+records axillary cymes and white petals, while the original Willdenowia
+description of *Mosiera yamaniguensis* records solitary axillary flowers and
+white petals. These are the third species for the existing trait-specific
+Turraea inflorescence and Mosiera inflorescence agreements; formal Low remains
+conditional on the shared all-evidence masked and lineage validation.
+
+The same increment also records counterevidence rather than manufacturing rule
+unlocks. Vatke's original description gives yellow and brownish flowers for
+*Dichaetanthera rutenbergiana*, contradicting the queued two-species red/pink
+agreement. Munzinger & Gateble's peer-reviewed comparison preserves explicit
+colour state sets for *Acropogon bullatus*, *A. mesophilus*, and *A. veillonii*.
+These rows intentionally prevent an undifferentiated `multicolored_variable`
+label from hiding biologically different colour combinations.
+
 The combined files supersede the previous curated checkpoint as workflow input.
 Every new row has an `accept` audit decision, exact source URL, supporting
 excerpt, retrieval timestamp, content fingerprint, and source lineage.

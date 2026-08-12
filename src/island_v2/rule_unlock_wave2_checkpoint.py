@@ -1276,6 +1276,218 @@ def reviewed_rows() -> list[dict[str, str]]:
                 ),
             ]
         )
+
+    turraea_excerpt = (
+        "Turraea cadetii A.J.Scott. Famille Meliaceae. Inflorescences : "
+        "cymes axillaires de 2 à 3 fleurs. Fleurs : Les pétales sont blancs. "
+        "Cette espèce est endémique de la Réunion."
+    )
+    turraea_common = {
+        "species": "Turraea cadetii",
+        "provider": "CIRAD Arbres et arbustes de La Réunion",
+        "url": (
+            "https://arbres-reunion.cirad.fr/especes/meliaceae/"
+            "turraea_cadetii_a_j_scott.html"
+        ),
+        "title": (
+            "Arbres et arbustes de La Réunion - Turraea cadetii A.J.Scott / "
+            "Meliaceae"
+        ),
+        "citation": (
+            "CIRAD, Arbres et arbustes de La Réunion, species treatment for "
+            "Turraea cadetii A.J.Scott"
+        ),
+        "lineage": "provider_treatment:cirad_reunion:Turraea_cadetii",
+        "lineage_method": "institutional_species_treatment_single_page_lineage",
+        "source_tier": "A",
+        "source_type": "institutional_regional_flora_species_treatment",
+        "domain": "arbres-reunion.cirad.fr",
+        "content_sha256": (
+            "338cd6013d1d7ac887bb9180bfed16d80c446b3c397564b60c2990487802ed67"
+        ),
+        "content_sha256_basis": "retrieved_cirad_species_page_http_response_bytes",
+        "language": "fr",
+        "retrieved_at_utc": "2026-08-12T10:45:00Z",
+    }
+    rows.extend(
+        [
+            _row(
+                trait="inflorescence_display",
+                value="umbel_corymb",
+                raw_value="cymes axillaires de 2 à 3 fleurs",
+                excerpt=turraea_excerpt,
+                quality="high",
+                record_id="cirad-reunion:turraea-cadetii:axillary-cymes",
+                **turraea_common,
+            ),
+            _row(
+                trait="flower_primary_color",
+                value="white",
+                raw_value="les pétales sont blancs",
+                excerpt=turraea_excerpt,
+                quality="high",
+                record_id="cirad-reunion:turraea-cadetii:white-petals",
+                **turraea_common,
+            ),
+        ]
+    )
+
+    mosiera_excerpt = (
+        "Mosiera yamaniguensis Bisse ex Urquiola & Z. Acosta, sp. nov. "
+        "Flowers on young branches, solitary, axillary, additional 2-4 flowers "
+        "per internode extra-axillary. Petals white, 3 mm long and wide, with "
+        "small glands and hairy margins."
+    )
+    mosiera_common = {
+        "species": "Mosiera yamaniguensis",
+        "provider": "Urquiola Cruz and Acosta Ramos 2008 Willdenowia",
+        "url": (
+            "https://www.bgbm.org/sites/default/files/documents/"
+            "wi38-2Urquiola%2BAcosta.pdf"
+        ),
+        "title": "Five new species of Mosiera (Myrtaceae) from Cuba",
+        "citation": (
+            "Urquiola Cruz, A. J. & Acosta Ramos, Z. (2008), Willdenowia "
+            "38:533-544, p. 543, DOI 10.3372/wi.38.38213"
+        ),
+        "lineage": "doi:10.3372/wi.38.38213",
+        "lineage_method": "original_peer_reviewed_taxonomic_article_doi",
+        "source_tier": "A",
+        "source_type": "peer_reviewed_primary_taxonomic_species_description",
+        "domain": "bgbm.org",
+        "content_sha256": (
+            "5e43877d31e0ab0e91be558534b6ab583e4e0089cf06b5eadc82c557a87c0a2c"
+        ),
+        "content_sha256_basis": "downloaded_bgbm_original_article_pdf_bytes",
+        "language": "en+la",
+        "retrieved_at_utc": "2026-08-12T10:45:00Z",
+    }
+    rows.extend(
+        [
+            _row(
+                trait="inflorescence_display",
+                value="solitary",
+                raw_value="flowers solitary, axillary",
+                excerpt=mosiera_excerpt,
+                quality="high",
+                record_id="doi:10.3372/wi.38.38213:p543:solitary-flowers",
+                **mosiera_common,
+            ),
+            _row(
+                trait="flower_primary_color",
+                value="white",
+                raw_value="petals white",
+                excerpt=mosiera_excerpt,
+                quality="high",
+                record_id="doi:10.3372/wi.38.38213:p543:white-petals",
+                **mosiera_common,
+            ),
+        ]
+    )
+
+    rows.append(
+        _row(
+            species="Dichaetanthera rutenbergiana",
+            trait="flower_primary_color",
+            value="green_brown_inconspicuous|yellow_orange",
+            raw_value="Flores lutei brunneique",
+            excerpt=(
+                "D. rutenbergiana Baill. ms. [...] Ambalita? Mai 1878, fl. fr. "
+                "jun. Flores lutei brunneique. Descriptio a cl. Baillon "
+                "communicata."
+            ),
+            quality="high",
+            provider="Vatke 1885 Reliquiae Rutenbergianae VI",
+            url=(
+                "https://archive.org/details/abhandlungenhera09natu/"
+                "page/116/mode/2up"
+            ),
+            title="Reliquiae Rutenbergianae VI (Botanik, Fortsetzung)",
+            citation=(
+                "Vatke, W. (1885), Reliquiae Rutenbergianae VI, "
+                "Abhandlungen des Naturwissenschaftlichen Vereins zu Bremen "
+                "9:115-138, p. 116"
+            ),
+            record_id="vatke-1885:p116:dichaetanthera-rutenbergiana:flower-colour",
+            lineage="publication:vatke-1885:reliquiae-rutenbergianae-vi",
+            lineage_method="original_taxonomic_species_description_publication",
+            source_tier="A",
+            source_type="original_taxonomic_species_description",
+            domain="archive.org",
+            content_sha256=(
+                "bfdb1926b67126cc794c3e67dc6c9723385379faab3ec206e3026072d979b4b7"
+            ),
+            content_sha256_basis="downloaded_internet_archive_volume_pdf_bytes",
+            language="la+de",
+            retrieved_at_utc="2026-08-12T10:50:00Z",
+        )
+    )
+
+    acropogon_excerpt = (
+        "Flower color of this new species is intermediate between A. veillonii, "
+        "which has yellow flowers with sometimes some red at the base of the "
+        "calyx, and A. bullatus, which has red flowers with some yellow at the "
+        "edges. Table 1: Flower (calyx) inside color - A. bullatus: Red with "
+        "some yellow at the edges; A. mesophilus: Yellow with 2-4 "
+        "grayish-purple stripes per lobe; A. veillonii: Yellow with some red at "
+        "the base."
+    )
+    acropogon_common = {
+        "provider": "Munzinger and Gâteblé 2017 Phytotaxa",
+        "url": (
+            "https://horizon.documentation.ird.fr/exl-doc/pleins_textes/"
+            "divers17-07/010070247.pdf"
+        ),
+        "title": (
+            "Novitates neocaledonicae VI: Acropogon mesophilus (Malvaceae, "
+            "Sterculioideae), a rare and threatened new species from the mesic "
+            "forest of New Caledonia"
+        ),
+        "citation": (
+            "Munzinger, J. & Gâteblé, G. (2017), Phytotaxa 307(3):183-190, "
+            "p. 188, DOI 10.11646/phytotaxa.307.3.2"
+        ),
+        "lineage": "doi:10.11646/phytotaxa.307.3.2",
+        "lineage_method": "original_peer_reviewed_comparative_taxonomic_article_doi",
+        "source_tier": "A",
+        "source_type": "peer_reviewed_primary_taxonomic_comparison",
+        "domain": "horizon.documentation.ird.fr",
+        "content_sha256": (
+            "c83b2f236f4a96a2ef20299a8716f135d35ec30d4f4f4a981605042e934150fb"
+        ),
+        "content_sha256_basis": "downloaded_ird_original_article_pdf_bytes",
+        "retrieved_at_utc": "2026-08-12T10:55:00Z",
+    }
+    for species, value, raw_value in (
+        (
+            "Acropogon bullatus",
+            "red_pink|yellow_orange",
+            "red with some yellow at the edges",
+        ),
+        (
+            "Acropogon mesophilus",
+            "blue_purple|yellow_orange",
+            "yellow with 2-4 grayish-purple stripes per calyx lobe",
+        ),
+        (
+            "Acropogon veillonii",
+            "red_pink|yellow_orange",
+            "yellow with sometimes some red at the base of the calyx",
+        ),
+    ):
+        slug = species.casefold().replace(" ", "-")
+        rows.append(
+            _row(
+                species=species,
+                trait="flower_primary_color",
+                value=value,
+                raw_value=raw_value,
+                excerpt=acropogon_excerpt,
+                quality="high",
+                record_id=f"doi:10.11646/phytotaxa.307.3.2:p188:{slug}:colour",
+                **acropogon_common,
+            )
+        )
     return rows
 
 
@@ -1339,6 +1551,12 @@ def build(
         "Celtis sinensis": "Cannabaceae",
         "Phoenix roebelenii": "Arecaceae",
         "Gonystylus confusus": "Thymelaeaceae",
+        "Turraea cadetii": "Meliaceae",
+        "Mosiera yamaniguensis": "Myrtaceae",
+        "Dichaetanthera rutenbergiana": "Melastomataceae",
+        "Acropogon bullatus": "Malvaceae",
+        "Acropogon mesophilus": "Malvaceae",
+        "Acropogon veillonii": "Malvaceae",
     }
     missing = sorted(set(expected_families) - set(master_family))
     if missing:
@@ -1355,8 +1573,8 @@ def build(
     evidence = evidence.sort_values(
         ["accepted_species", "trait_name", "candidate_id"]
     ).reset_index(drop=True)
-    if len(evidence) != 43:
-        raise ValueError(f"expected 43 reviewed trait rows, found {len(evidence)}")
+    if len(evidence) != 51:
+        raise ValueError(f"expected 51 reviewed trait rows, found {len(evidence)}")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("wave-2 candidate IDs are not unique")
     audit = _review_audit(evidence)
