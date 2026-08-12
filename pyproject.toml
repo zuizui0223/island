@@ -29,7 +29,11 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "pytest>=8.0.0",
-  "ruff>=0.6.0",
+  # Upper bound is required, not cosmetic. Every workflow installs the dev
+  # extra fresh, so an unpinned linter makes the lint gate drift with ruff
+  # releases: ruff 0.16 widened its default rule set and turned 746 pre-existing
+  # repository findings into CI failures on any PR that touches this file.
+  "ruff>=0.6.0,<0.16",
 ]
 
 [project.scripts]
