@@ -2,7 +2,7 @@
 
 This checkpoint freezes individually reviewed species-direct evidence selected
 for information gain in the current `genus x trait_name` queue. It adds twenty-three
-reproductive records and thirteen visible-morphology records. It never emits genus,
+reproductive records and sixteen visible-morphology records. It never emits genus,
 family, or global inference itself.
 
 Reproductive concepts remain separate: failure of unassisted bagged flowers is
@@ -44,6 +44,15 @@ is retained as Medium Tier C morphology, not reproductive evidence. A published
 species morphology account explicitly identifies *Corchorus olitorius* in
 Malvaceae and describes its flower as actinomorphic; because it is a secondary
 morphology account, it is conservatively retained as Medium rather than High.
+
+The third morphology increment adds three source-fingerprinted, species-direct
+statements. NatureSpot's specialist regional account identifies the rayed
+flowerheads of *Jacobaea aquatica* and is retained as Medium. The National
+Institute of Biological Resources' *Flora of Korea* treatment and downloaded page
+image identify pistillate catkins in *Carpinus laxiflora*. The original article
+abstract for *Citharexylum myrianthum*, retrieved from the FAO AGRIS record and
+deduplicated under its DOI lineage, states that flowers occur in raceme-like
+inflorescences. The two institutional/original-publication records are High.
 
 The combined files supersede the previous curated checkpoint as workflow input.
 Every new row has an `accept` audit decision, exact source URL, supporting

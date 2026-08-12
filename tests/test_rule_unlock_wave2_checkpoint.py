@@ -16,16 +16,16 @@ CHECKPOINT = Path(
 def test_wave2_rows_are_trait_specific_and_source_backed() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
 
-    assert len(evidence) == 36
-    assert evidence["accepted_species"].nunique() == 24
-    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 36
+    assert len(evidence) == 39
+    assert evidence["accepted_species"].nunique() == 27
+    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 39
     assert evidence["evidence_scope"].eq("species_direct").all()
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
     assert evidence["source_excerpt"].str.len().gt(30).all()
-    assert evidence["source_lineage"].nunique() == 22
+    assert evidence["source_lineage"].nunique() == 25
     assert evidence["evidence_quality"].value_counts().to_dict() == {
-        "high": 28,
-        "medium": 8,
+        "high": 30,
+        "medium": 9,
     }
 
     reproductive = evidence.loc[evidence["axis"].eq("reproductive_assurance")]
@@ -169,7 +169,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
 
-    assert len(evidence) == len(audit) == len(accepted) == 821
+    assert len(evidence) == len(audit) == len(accepted) == 824
     assert evidence["candidate_id"].is_unique
     assert audit["candidate_id"].is_unique
     assert audit["decision"].str.casefold().eq("accept").all()
@@ -177,7 +177,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
     wave = accepted.loc[accepted["source_group"].eq(
         "rule_unlock_wave2_checkpoint_20260812"
     )]
-    assert len(wave) == 36
+    assert len(wave) == 39
 
 
 def test_next_rule_unlocks_are_explicit_and_do_not_cross_traits() -> None:
@@ -207,6 +207,39 @@ def test_next_rule_unlocks_are_explicit_and_do_not_cross_traits() -> None:
             "evidence_quality": "medium",
         },
     }
+    assert not set(rows["trait_name"]).intersection(
+        {"pollen_vector_mode", "reward_type"}
+    )
+
+
+def test_third_rule_unlocks_are_species_direct_and_trait_specific() -> None:
+    evidence = pd.DataFrame(reviewed_rows()).fillna("")
+    rows = evidence.loc[
+        evidence["accepted_species"].isin(
+            {"Jacobaea aquatica", "Carpinus laxiflora", "Citharexylum myrianthum"}
+        )
+    ].set_index("accepted_species")
+
+    assert rows[["trait_name", "normalized_value", "evidence_quality"]].to_dict(
+        "index"
+    ) == {
+        "Jacobaea aquatica": {
+            "trait_name": "floral_form",
+            "normalized_value": "composite_head",
+            "evidence_quality": "medium",
+        },
+        "Carpinus laxiflora": {
+            "trait_name": "inflorescence_display",
+            "normalized_value": "raceme_spike_panicle",
+            "evidence_quality": "high",
+        },
+        "Citharexylum myrianthum": {
+            "trait_name": "inflorescence_display",
+            "normalized_value": "raceme_spike_panicle",
+            "evidence_quality": "high",
+        },
+    }
+    assert rows["evidence_scope"].eq("species_direct").all()
     assert not set(rows["trait_name"]).intersection(
         {"pollen_vector_mode", "reward_type"}
     )

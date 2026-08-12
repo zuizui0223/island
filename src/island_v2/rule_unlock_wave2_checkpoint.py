@@ -1,8 +1,8 @@
 """Freeze the second trait-specific genus-rule unlock evidence wave.
 
 The checkpoint contains only individually reviewed species-direct statements.
-Reproductive traits remain separate, and the ten morphology records are direct
-species descriptions.  Genus inference is rebuilt later by the shared
+Reproductive traits remain separate, and every morphology record is a direct
+species description.  Genus inference is rebuilt later by the shared
 all-evidence implementation using ``genus x trait_name`` rules.
 """
 
@@ -942,6 +942,114 @@ def reviewed_rows() -> list[dict[str, str]]:
         )
     )
 
+    rows.append(
+        _row(
+            species="Jacobaea aquatica",
+            trait="floral_form",
+            value="composite_head",
+            raw_value="yellow flowerheads with 12-15 rays",
+            excerpt=(
+                "Marsh Ragwort - Jacobaea aquatica. Flowerheads yellow, 25 to "
+                "30 mm, with 12 to 15 rays and borne in loose flat topped "
+                "clusters. Bracts not black tipped."
+            ),
+            quality="medium",
+            provider="NatureSpot Leicestershire and Rutland",
+            url="https://www.naturespot.org/species/marsh-ragwort",
+            title="Marsh Ragwort | NatureSpot",
+            citation=(
+                "NatureSpot species account for Jacobaea aquatica, "
+                "Leicestershire and Rutland (retrieved 2026-08-12)"
+            ),
+            record_id="naturespot:jacobaea-aquatica:yellow-rayed-flowerheads",
+            lineage="url:https://www.naturespot.org/species/marsh-ragwort",
+            lineage_method="canonical_specialist_regional_species_page_url",
+            source_tier="B",
+            source_type="specialist_regional_nature_recording_species_account",
+            domain="www.naturespot.org",
+            content_sha256=(
+                "0bf88934cc5a74a1bac7f8e9fe33338e604fe5c65318ba439f570a430cf7f81c"
+            ),
+            content_sha256_basis="retrieved_species_page_html_bytes",
+        )
+    )
+
+    rows.append(
+        _row(
+            species="Carpinus laxiflora",
+            trait="inflorescence_display",
+            value="raceme_spike_panicle",
+            raw_value="pistillate catkins 5-16 cm long",
+            excerpt=(
+                "2. Carpinus laxiflora (Siebold & Zucc.) Blume, Mus. Bot. "
+                "1: 309, 1851. Pistillate catkins 5-16 cm long; peduncle "
+                "slender, sparsely pubescent; bracts 14-72 per catkin."
+            ),
+            quality="high",
+            provider="National Institute of Biological Resources Flora of Korea",
+            url=(
+                "https://www.nibr.go.kr/aiibook/access/ecatalogt.jsp?"
+                "Dir=824&callmode=admin&catimage=&eclang=ko&start=86&um=s"
+            ),
+            title="Flora of Korea, volume 2b - Hamamelidae",
+            citation=(
+                "Flora of Korea Editorial Committee, Flora of Korea vol. 2b, "
+                "Betulaceae, pp. 73-74, National Institute of Biological Resources"
+            ),
+            record_id="nibr:flora-korea-v2b:p73:carpinus-laxiflora:catkins",
+            lineage="nibr:flora-of-korea-v2b:carpinus-laxiflora",
+            lineage_method="official_national_flora_species_treatment",
+            source_tier="A",
+            source_type="official_national_flora_species_treatment",
+            domain="www.nibr.go.kr",
+            content_sha256=(
+                "75825e4c6eb4c82326adcdd4a1c48e0316b34fbd86492978e58cc538cc687e45"
+            ),
+            content_sha256_basis="downloaded_official_flora_page_086_jpeg_bytes",
+        )
+    )
+
+    rows.append(
+        _row(
+            species="Citharexylum myrianthum",
+            trait="inflorescence_display",
+            value="raceme_spike_panicle",
+            raw_value="flowers occur in raceme-like inflorescences",
+            excerpt=(
+                "Citharexylum myrianthum is an example of cryptic dioecy in "
+                "morphologically perfect flowers. Flowers are small, tubular, "
+                "white-colored, and crepuscular, with a sweet, pleasant scent "
+                "and occur in raceme-like inflorescences."
+            ),
+            quality="high",
+            provider="Rocca and Sazima 2006 Flora via FAO AGRIS",
+            url=(
+                "https://agris.fao.org/search/en/providers/122535/records/"
+                "65de55f70f3e94b9e5cdae7a"
+            ),
+            title=(
+                "The dioecious, sphingophilous species Citharexylum "
+                "myrianthum (Verbenaceae): Pollination and visitor diversity"
+            ),
+            citation=(
+                "Rocca & Sazima (2006), Flora 201(6):440-450, "
+                "DOI 10.1016/j.flora.2006.02.001"
+            ),
+            record_id="doi:10.1016/j.flora.2006.02.001:abstract:raceme-like",
+            lineage="doi:10.1016/j.flora.2006.02.001",
+            lineage_method="original_peer_reviewed_article_doi",
+            source_tier="A",
+            source_type=(
+                "peer_reviewed_primary_article_abstract_official_fao_record"
+            ),
+            domain="agris.fao.org",
+            content_sha256=(
+                "478773f5836b53758c3de852f2ac4034a11969799e55c95fe27a6affdde06aa6"
+            ),
+            content_sha256_basis="retrieved_fao_agris_article_record_html_bytes",
+        )
+    )
+
     commelineae_excerpt = (
         "Breeding system studies in the selected taxa revealed that they were all "
         "self and cross-compatible species. Except Dictyospermum montanum (2.5%) "
@@ -1064,6 +1172,12 @@ def build(
         "Polycarpaea corymbosa": "Caryophyllaceae",
         "Boronia muelleri": "Rutaceae",
         "Benstonea foetida": "Pandanaceae",
+        "Pleioluma balansana": "Sapotaceae",
+        "Kunzea ericoides": "Myrtaceae",
+        "Corchorus olitorius": "Malvaceae",
+        "Jacobaea aquatica": "Asteraceae",
+        "Carpinus laxiflora": "Betulaceae",
+        "Citharexylum myrianthum": "Verbenaceae",
     }
     missing = sorted(set(expected_families) - set(master_family))
     if missing:
@@ -1080,8 +1194,8 @@ def build(
     evidence = evidence.sort_values(
         ["accepted_species", "trait_name", "candidate_id"]
     ).reset_index(drop=True)
-    if len(evidence) != 36:
-        raise ValueError(f"expected 36 reviewed trait rows, found {len(evidence)}")
+    if len(evidence) != 39:
+        raise ValueError(f"expected 39 reviewed trait rows, found {len(evidence)}")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("wave-2 candidate IDs are not unique")
     audit = _review_audit(evidence)
