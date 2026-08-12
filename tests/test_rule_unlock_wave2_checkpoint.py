@@ -16,20 +16,20 @@ CHECKPOINT = Path(
 def test_wave2_rows_are_trait_specific_and_source_backed() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
 
-    assert len(evidence) == 27
-    assert evidence["accepted_species"].nunique() == 16
-    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 27
+    assert len(evidence) == 30
+    assert evidence["accepted_species"].nunique() == 18
+    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 30
     assert evidence["evidence_scope"].eq("species_direct").all()
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
     assert evidence["source_excerpt"].str.len().gt(30).all()
-    assert evidence["source_lineage"].nunique() == 13
+    assert evidence["source_lineage"].nunique() == 16
     assert evidence["evidence_quality"].value_counts().to_dict() == {
-        "high": 23,
+        "high": 26,
         "medium": 4,
     }
 
     reproductive = evidence.loc[evidence["axis"].eq("reproductive_assurance")]
-    assert len(reproductive) == 22
+    assert len(reproductive) == 23
     assert set(reproductive["trait_name"]) == {
         "autonomous_selfing_capacity",
         "mating_system",
@@ -56,18 +56,34 @@ def test_morphology_rows_keep_explicit_species_descriptions_trait_specific() -> 
     ].set_index("accepted_species")
 
     assert set(morphology.index) == {
+        "Adenia cissampeloides",
         "Alangium salviifolium",
         "Drypetes assamica",
         "Melastoma malabathricum",
         "Sideritis canariensis",
+        "Tristaniopsis laurina",
     }
     assert morphology["normalized_value"].to_dict() == {
+        "Adenia cissampeloides": "actinomorphic",
         "Alangium salviifolium": "actinomorphic",
         "Drypetes assamica": "actinomorphic",
         "Melastoma malabathricum": "actinomorphic",
         "Sideritis canariensis": "zygomorphic",
+        "Tristaniopsis laurina": "actinomorphic",
     }
-    assert morphology["evidence_quality"].eq("medium").all()
+    assert morphology.loc[
+        ["Adenia cissampeloides", "Tristaniopsis laurina"],
+        "evidence_quality",
+    ].eq("high").all()
+    assert morphology.loc[
+        [
+            "Alangium salviifolium",
+            "Drypetes assamica",
+            "Melastoma malabathricum",
+            "Sideritis canariensis",
+        ],
+        "evidence_quality",
+    ].eq("medium").all()
 
     tube_depth = evidence.loc[
         evidence["accepted_species"].eq("Palaquium obovatum")
@@ -76,6 +92,18 @@ def test_morphology_rows_keep_explicit_species_descriptions_trait_specific() -> 
     assert len(tube_depth) == 1
     assert tube_depth.iloc[0]["normalized_value"] == "shallow"
     assert tube_depth.iloc[0]["evidence_quality"] == "high"
+
+
+def test_tristaniopsis_bagging_is_not_converted_to_self_incompatibility() -> None:
+    evidence = pd.DataFrame(reviewed_rows()).fillna("")
+    rows = evidence.loc[evidence["accepted_species"].eq("Tristaniopsis laurina")]
+    observed = set(zip(rows["trait_name"], rows["normalized_value"]))
+
+    assert observed == {
+        ("autonomous_selfing_capacity", "absent"),
+        ("floral_symmetry", "actinomorphic"),
+    }
+    assert "self_incompatibility" not in set(rows["trait_name"])
 
 
 def test_commelineae_thesis_keeps_si_and_mating_system_as_separate_traits() -> None:
@@ -118,7 +146,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
 
-    assert len(evidence) == len(audit) == len(accepted) == 812
+    assert len(evidence) == len(audit) == len(accepted) == 815
     assert evidence["candidate_id"].is_unique
     assert audit["candidate_id"].is_unique
     assert audit["decision"].str.casefold().eq("accept").all()
@@ -126,4 +154,4 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
     wave = accepted.loc[accepted["source_group"].eq(
         "rule_unlock_wave2_checkpoint_20260812"
     )]
-    assert len(wave) == 27
+    assert len(wave) == 30

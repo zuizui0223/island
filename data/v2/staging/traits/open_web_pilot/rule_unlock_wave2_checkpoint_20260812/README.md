@@ -1,8 +1,8 @@
 # Rule-unlock wave 2 checkpoint (2026-08-12)
 
 This checkpoint freezes individually reviewed species-direct evidence selected
-for information gain in the current `genus x trait_name` queue. It adds twenty-two
-reproductive records and five visible-morphology records. It never emits genus,
+for information gain in the current `genus x trait_name` queue. It adds twenty-three
+reproductive records and seven visible-morphology records. It never emits genus,
 family, or global inference itself.
 
 Reproductive concepts remain separate: failure of unassisted bagged flowers is
@@ -20,6 +20,12 @@ The University of Calicut doctoral thesis contributes two distinct records per
 studied species: controlled self-compatibility and the explicitly reported mixed
 mating system. The downloaded original repository PDF is fingerprinted; neither
 record is inferred from the other reproductive concept.
+
+The Tristaniopsis record keeps a primary bagging result (zero fruit from 189
+bagged flowers, versus 19.1% under open pollination) as autonomous-selfing
+capacity only. It is not converted into self-incompatibility. A separate 2019
+field study supplies explicit actinomorphic flower morphology. The PROTA Adenia
+species account supplies a regular-flower statement, normalized to actinomorphic.
 
 The combined files supersede the previous curated checkpoint as workflow input.
 Every new row has an `accept` audit decision, exact source URL, supporting

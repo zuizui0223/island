@@ -1,7 +1,7 @@
 """Freeze the second trait-specific genus-rule unlock evidence wave.
 
 The checkpoint contains only individually reviewed species-direct statements.
-Reproductive traits remain separate, and the five morphology records are direct
+Reproductive traits remain separate, and the seven morphology records are direct
 species descriptions.  Genus inference is rebuilt later by the shared
 all-evidence implementation using ``genus x trait_name`` rules.
 """
@@ -601,6 +601,121 @@ def reviewed_rows() -> list[dict[str, str]]:
         )
     )
 
+    rows.append(
+        _row(
+            species="Adenia cissampeloides",
+            trait="floral_symmetry",
+            value="actinomorphic",
+            raw_value="flowers regular",
+            excerpt=(
+                "Adenia cissampeloides (Planch. ex Hook.) Harms. Flowers "
+                "unisexual, regular, 5-merous, pale greenish; pedicel "
+                "2-10(-15) mm long in male flowers, slightly shorter in female ones."
+            ),
+            quality="high",
+            provider="Plant Resources of Tropical Africa (PROTA)",
+            url=(
+                "https://plantuse.plantnet.org/en/"
+                "Adenia_cissampeloides_%28PROTA%29"
+            ),
+            title="Adenia cissampeloides (PROTA)",
+            citation=(
+                "Grace, O.M. & Fowler, D.G. (2007), Adenia cissampeloides, "
+                "Plant Resources of Tropical Africa 11(1): Medicinal Plants 1"
+            ),
+            record_id="prota:adenia-cissampeloides:flowers-regular",
+            lineage="monograph:prota-11-1:adenia-cissampeloides",
+            lineage_method="original_expert_monograph_species_account",
+            source_tier="A",
+            source_type="expert_botanical_monograph_species_description",
+            domain="plantuse.plantnet.org",
+            content_sha256=(
+                "74ba4d8972a69f01339a05cf676f2638ae7c8ed66400224e3a57d17df9e44339"
+            ),
+            content_sha256_basis="retrieved_prota_species_account_html_bytes",
+        )
+    )
+
+    tristaniopsis_symmetry_excerpt = (
+        "Syzygium floribundum, Syzygium smithii and Tristaniopsis laurina "
+        "are small to medium-sized trees. The three species conform to the "
+        "'general entomophilous' flower structure in which individual flowers "
+        "are small with little depth effect in the corolla, normally do not "
+        "possess nectar guides, and are actinomorphic in form."
+    )
+    rows.append(
+        _row(
+            species="Tristaniopsis laurina",
+            trait="floral_symmetry",
+            value="actinomorphic",
+            raw_value="actinomorphic in form",
+            excerpt=tristaniopsis_symmetry_excerpt,
+            quality="high",
+            provider="Williams and Adam 2019 Cunninghamia",
+            url=(
+                "https://www.botanicgardens.org.au/sites/default/files/2023-06/"
+                "BGD0541_Cunninghamia-%C2%A0WILLIAMS-ADAM-Myrtaceae.pdf"
+            ),
+            title=(
+                "A Preliminary Checklist of Flower-visiting Insects from "
+                "Syzygium floribundum, Syzygium smithii and Tristaniopsis laurina"
+            ),
+            citation=(
+                "Williams, G. & Adam, P. (2019), Cunninghamia 19:57-74, p. 58"
+            ),
+            record_id="cunninghamia-19:tristaniopsis-laurina:actinomorphic",
+            lineage="publication:williams-adam-2019-cunninghamia-19-57-74",
+            lineage_method="original_peer_reviewed_species_field_study",
+            source_tier="A",
+            source_type="peer_reviewed_primary_flower_visitor_study",
+            domain="www.botanicgardens.org.au",
+            content_sha256=(
+                "4ce687100a9a10d72dfec9cc5a5d136ad6d0537decc99cab368945940932307b"
+            ),
+            content_sha256_basis="downloaded_publisher_pdf_bytes",
+        )
+    )
+
+    rows.append(
+        _row(
+            species="Tristaniopsis laurina",
+            trait="autonomous_selfing_capacity",
+            value="absent",
+            raw_value="bagged flowers 189; developing fruit 0; open fruit set 19.1%",
+            excerpt=(
+                "Table 2. Autogamy (automatic self-pollination) and open "
+                "pollination results in lowland rainforest species. "
+                "Tristaniopsis laurina: 1 plant; bagged flowers 189; developing "
+                "fruit 0; fruit set 0%; open flowers 210; developing fruit 40; "
+                "fruit set 19.1%."
+            ),
+            quality="high",
+            provider="Adam and Williams 2001 Cunninghamia",
+            url=(
+                "https://www.botanicgardens.org.au/sites/default/files/2023-06/"
+                "Volume-7%281%29-2001-Cun7Ada089-100_0.pdf"
+            ),
+            title=(
+                "Dioecy, self-compatibility and vegetative reproduction in "
+                "Australian subtropical rainforest trees and shrubs"
+            ),
+            citation=(
+                "Adam, P. & Williams, G. (2001), Cunninghamia 7(1):89-100, "
+                "Table 2, p. 94"
+            ),
+            record_id="cunninghamia-7-1:table-2:tristaniopsis-laurina:autogamy",
+            lineage="publication:adam-williams-2001-cunninghamia-7-89-100",
+            lineage_method="original_primary_bagging_experiment",
+            source_tier="A",
+            source_type="peer_reviewed_primary_field_bagging_experiment",
+            domain="www.botanicgardens.org.au",
+            content_sha256=(
+                "cc63c25c9759692479f98ad2c5bc7707d00022d3ade911762a5486a3f8c431fe"
+            ),
+            content_sha256_basis="downloaded_publisher_pdf_bytes",
+        )
+    )
+
     commelineae_excerpt = (
         "Breeding system studies in the selected taxa revealed that they were all "
         "self and cross-compatible species. Except Dictyospermum montanum (2.5%) "
@@ -718,6 +833,8 @@ def build(
         "Palaquium obovatum": "Sapotaceae",
         "Alangium salviifolium": "Cornaceae",
         "Sideritis canariensis": "Lamiaceae",
+        "Adenia cissampeloides": "Passifloraceae",
+        "Tristaniopsis laurina": "Myrtaceae",
     }
     missing = sorted(set(expected_families) - set(master_family))
     if missing:
@@ -734,8 +851,8 @@ def build(
     evidence = evidence.sort_values(
         ["accepted_species", "trait_name", "candidate_id"]
     ).reset_index(drop=True)
-    if len(evidence) != 27:
-        raise ValueError(f"expected 27 reviewed trait rows, found {len(evidence)}")
+    if len(evidence) != 30:
+        raise ValueError(f"expected 30 reviewed trait rows, found {len(evidence)}")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("wave-2 candidate IDs are not unique")
     audit = _review_audit(evidence)
