@@ -1,0 +1,47 @@
+submitted_name,accepted_species,source_family,master_family,pollinator,populations,observation_years,self_compatibility_index,source_category,decision,decision_reason,name_match_method,source_excerpt
+Bupleurum triradiatum,,Apiaceae,Apiaceae,Fly,1,1,Unknown,Unknown,reject,no_trait_statement,,Bupleurum triradiatum	Apiaceae	Fly	1	1	Unknown	Unknown
+Peucedanum multivittatum,Peucedanum multivittatum,Apiaceae,Apiaceae,Fly,8,3–13,0.18,Obligate outcrosser,accept,accepted,accepted_name_exact,Peucedanum multivittatum	Apiaceae	Fly	8	3–13	0.18	Obligate outcrosser
+Tilingia ajanensis,,Apiaceae,Apiaceae,Fly,4,1,Unknown,Unknown,reject,no_trait_statement,,Tilingia ajanensis	Apiaceae	Fly	4	1	Unknown	Unknown
+Arnica unalaschcensis,Arnica unalaschcensis,Asteraceae,Asteraceae,Fly,2,1,0.01,Self-incompatibility,accept,accepted,accepted_name_exact,Arnica unalaschcensis	Asteraceae	Fly	2	1	0.01	Self-incompatibility
+Saussurea riederi ssp. yezoensis,,Asteraceae,,Bee,1,1,0.04,Self-incompatibility,reject,rank_below_species_rejected,,Saussurea riederi ssp. yezoensis	Asteraceae	Bee	1	1	0.04	Self-incompatibility
+Saussurea yanagisawae,Saussurea yanagisawae,Asteraceae,Asteraceae,Bee,1,3,1.00,Autonomous selfer,accept,accepted,accepted_name_exact,Saussurea yanagisawae	Asteraceae	Bee	1	3	1.00	Autonomous selfer
+Senecio kawakamii,,Asteraceae,,Fly,1,1,Unknown,Unknown,reject,no_trait_statement,,Senecio kawakamii	Asteraceae	Fly	1	1	Unknown	Unknown
+Solidago virgaurea ssp. leiocarpa,,Asteraceae,,Fly,4,1–3,0.00,Obligate outcrosser,reject,rank_below_species_rejected,,Solidago virgaurea ssp. leiocarpa	Asteraceae	Fly	4	1–3	0.00	Obligate outcrosser
+Campanula chamissonis,,Campanulaceae,,Bee,1,3,0.00,Self-incompatibility,reject,no_strict_target_master_match,,Campanula chamissonis	Campanulaceae	Bee	1	3	0.00	Self-incompatibility
+Weigela middendorffiana,Weigela middendorffiana,Caprifoliaceae,Caprifoliaceae,Bee,2,3,0.00,Self-incompatibility,accept,accepted,accepted_name_exact,Weigela middendorffiana	Caprifoliaceae	Bee	2	3	0.00	Self-incompatibility
+Parnassia palustris,,Celastraceae,Parnassiaceae,Fly,2,1–2,0.00,Obligate outcrosser,reject,family_conflict_rejected,,Parnassia palustris	Celastraceae	Fly	2	1–2	0.00	Obligate outcrosser
+Diapensia lapponica,Diapensia lapponica,Diapensiaceae,Diapensiaceae,Mixture,2,3–6,0.00,Self-incompatibility,accept,accepted,accepted_name_exact,Diapensia lapponica	Diapensiaceae	Mixture	2	3–6	0.00	Self-incompatibility
+Arcterica nana,,Ericaceae,,Bee,2,2–4,0.00,Self-incompatibility,reject,no_strict_target_master_match,,Arcterica nana	Ericaceae	Bee	2	2–4	0.00	Self-incompatibility
+Arctous alpinus,,Ericaceae,,Bee,2,7–8,0.00,Self-incompatibility,reject,no_strict_target_master_match,,Arctous alpinus	Ericaceae	Bee	2	7–8	0.00	Self-incompatibility
+Bryanthus gmelinii,,Ericaceae,,Mixture,3,1–9,0.07,Obligate outcrosser,reject,no_strict_target_master_match,,Bryanthus gmelinii	Ericaceae	Mixture	3	1–9	0.07	Obligate outcrosser
+Harrimanella stelleriana,Harrimanella stelleriana,Ericaceae,Ericaceae,Mixture,1,2,0.00,Obligate outcrosser,accept,accepted,accepted_name_exact,Harrimanella stelleriana	Ericaceae	Mixture	1	2	0.00	Obligate outcrosser
+Loiseleuria procumbens,Kalmia procumbens,Ericaceae,Ericaceae,Mixture,3,2–9,0.00,Self-incompatibility,accept,accepted,exact_synonym,Loiseleuria procumbens	Ericaceae	Mixture	3	2–9	0.00	Self-incompatibility
+Phyllodoce aleutica,Phyllodoce aleutica,Ericaceae,Ericaceae,Bee,7,1–4,0.47,Mixed mating,accept,accepted,accepted_name_exact,Phyllodoce aleutica	Ericaceae	Bee	7	1–4	0.47	Mixed mating
+Phyllodoce caerulea,Phyllodoce caerulea,Ericaceae,Ericaceae,Bee,1,4,0.25,Mixed mating,accept,accepted,accepted_name_exact,Phyllodoce caerulea	Ericaceae	Bee	1	4	0.25	Mixed mating
+Phyllodoce caerulea var. yezoensis,,Ericaceae,,Bee,4,1–2,0.27,Mixed mating,reject,rank_below_species_rejected,,Phyllodoce caerulea var. yezoensis	Ericaceae	Bee	4	1–2	0.27	Mixed mating
+Rhododendron aureum,Rhododendron aureum,Ericaceae,Ericaceae,Bee,7,2–16,0.12,Obligate outcrosser,accept,accepted,accepted_name_exact,Rhododendron aureum	Ericaceae	Bee	7	2–16	0.12	Obligate outcrosser
+Rhododendron camtschaticum,Rhododendron camtschaticum,Ericaceae,Ericaceae,Bee,1,9,0.03,Self-incompatibility,accept,accepted,accepted_name_exact,Rhododendron camtschaticum	Ericaceae	Bee	1	9	0.03	Self-incompatibility
+Rhododendron diversipilosum,Rhododendron diversipilosum,Ericaceae,Ericaceae,Fly,1,2,0.07,Obligate outcrosser,accept,accepted,accepted_name_exact,Rhododendron diversipilosum	Ericaceae	Fly	1	2	0.07	Obligate outcrosser
+Rhododendron subarcticum,,Ericaceae,,Fly,2,1–6,0.03,Self-incompatibility,reject,no_strict_target_master_match,,Rhododendron subarcticum	Ericaceae	Fly	2	1–6	0.03	Self-incompatibility
+Vaccinium ovalifolium,Vaccinium ovalifolium,Ericaceae,Ericaceae,Bee,2,2,0.32,Mixed mating,accept,accepted,accepted_name_exact,Vaccinium ovalifolium	Ericaceae	Bee	2	2	0.32	Mixed mating
+Vaccinium uliginosum,Vaccinium uliginosum,Ericaceae,Ericaceae,Bee,2,5–6,0.00,Obligate ourcrosser,accept,accepted,accepted_name_exact,Vaccinium uliginosum	Ericaceae	Bee	2	5–6	0.00	Obligate ourcrosser
+Vaccinium vitis-idaea,Vaccinium vitis-idaea,Ericaceae,Ericaceae,Bee,2,7–8,0.04,Self-incompatibility,accept,accepted,accepted_name_exact,Vaccinium vitis-idaea	Ericaceae	Bee	2	7–8	0.04	Self-incompatibility
+Gentiana nipponica,Gentiana nipponica,Gentianaceae,Gentianaceae,Mixture,4,1–4,0.25,Mixed mating,accept,accepted,accepted_name_exact,Gentiana nipponica	Gentianaceae	Mixture	4	1–4	0.25	Mixed mating
+Geranium erianthum,Geranium erianthum,Geraniaceae,Geraniaceae,Mixture,2,1,0.00,Obligate outcrosser,accept,accepted,accepted_name_exact,Geranium erianthum	Geraniaceae	Mixture	2	1	0.00	Obligate outcrosser
+Hypericum kamtschaticum,Hypericum kamtschaticum,Hypericaceae,Hypericaceae,Fly,1,1,0.00,Obligate outcrosser,accept,accepted,accepted_name_exact,Hypericum kamtschaticum	Hypericaceae	Fly	1	1	0.00	Obligate outcrosser
+Veratrum album ssp. oxysepalum,,Melanthiaceae,,Mixture,1,2,0.00,Self-incompatibility,reject,rank_below_species_rejected,,Veratrum album ssp. oxysepalum	Melanthiaceae	Mixture	1	2	0.00	Self-incompatibility
+Nephrophyllidium crista-galli,Nephrophyllidium crista-galli,Menyanthaceae,Menyanthaceae,Fly,3,1–2,0.00,Self-incompatibility,accept,accepted,accepted_name_exact,Nephrophyllidium crista-galli	Menyanthaceae	Fly	3	1–2	0.00	Self-incompatibility
+Platanthera chorisiana,,Orchidaceae,Orchidaceae,Fly,1,1,Unknown,Unknown,reject,no_trait_statement,,Platanthera chorisiana	Orchidaceae	Fly	1	1	Unknown	Unknown
+Platanthera tipuloides var. sororia,,Orchidaceae,,Moth,2,1,0.00,Self-incompatibility,reject,rank_below_species_rejected,,Platanthera tipuloides var. sororia	Orchidaceae	Moth	2	1	0.00	Self-incompatibility
+Pedicularis chamissonis,Pedicularis chamissonis,Orobanchaceae,Orobanchaceae,Bee,5,1–6,0.12,Obligate outcrosser,accept,accepted,accepted_name_exact,Pedicularis chamissonis	Orobanchaceae	Bee	5	1–6	0.12	Obligate outcrosser
+Pennelianthus frutescens,,Plantaginaceae,,Bee,1,3,0.00,Self-incompatibility,reject,no_strict_target_master_match,,Pennelianthus frutescens	Plantaginaceae	Bee	1	3	0.00	Self-incompatibility
+Veronica stelleri var. longistyla,,Plantaginaceae,,Mixture,2,3,0.02,Obligate outcrosser,reject,rank_below_species_rejected,,Veronica stelleri var. longistyla	Plantaginaceae	Mixture	2	3	0.02	Obligate outcrosser
+Primura cuneifolia,,Primulaceae,,Bee,6,1–4,0.00,Self-incompatibility,reject,source_name_typo_not_fuzzily_matched,,Primura cuneifolia	Primulaceae	Bee	6	1–4	0.00	Self-incompatibility
+Anemone narcissiflora ssp. sachalinensis,,Ranunculaceae,,Fly,2,3–6,0.13,Obligate outcrosser,reject,rank_below_species_rejected,,Anemone narcissiflora ssp. sachalinensis	Ranunculaceae	Fly	2	3–6	0.13	Obligate outcrosser
+Anemone yezoensis,Anemone yezoensis,Ranunculaceae,Ranunculaceae,Fly,1,3,0.11,Obligate outcrosser,accept,accepted,accepted_name_exact,Anemone yezoensis	Ranunculaceae	Fly	1	3	0.11	Obligate outcrosser
+Trollius riederianus,Trollius riederianus,Ranunculaceae,Ranunculaceae,Mixture,1,1,0.06,Obligate outcrosser,accept,accepted,accepted_name_exact,Trollius riederianus	Ranunculaceae	Mixture	1	1	0.06	Obligate outcrosser
+Potentilla matsumurae,Potentilla matsumurae,Rosaceae,Rosaceae,Fly,7,1–5,0.04,Obligate outcrosser,accept,accepted,accepted_name_exact,Potentilla matsumurae	Rosaceae	Fly	7	1–5	0.04	Obligate outcrosser
+Sieversia pentapetala,,Rosaceae,,Mixture,5,2–3,0.05,Self-incompatibility,reject,no_strict_target_master_match,,Sieversia pentapetala	Rosaceae	Mixture	5	2–3	0.05	Self-incompatibility
+Spiraea betulifolia var. aemiliana,,Rosaceae,,Fly,2,2–3,0.01,Self-incompatibility,reject,rank_below_species_rejected,,Spiraea betulifolia var. aemiliana	Rosaceae	Fly	2	2–3	0.01	Self-incompatibility
+Patrinia sibirica,,Valerianaceae,Caprifoliaceae,Fly,1,3,0.05,Obligate outcrosser,reject,family_conflict_rejected,,Patrinia sibirica	Valerianaceae	Fly	1	3	0.05	Obligate outcrosser
+Hemerocallis middendorffii,,Xanthorrhoeaceae,Asphodelaceae,Butterfly,1,1,Unknown,Unknown,reject,no_trait_statement,,Hemerocallis middendorffii	Xanthorrhoeaceae	Butterfly	1	1	Unknown	Unknown
