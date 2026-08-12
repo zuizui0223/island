@@ -1,43 +1,51 @@
 {
   "audit": {
-    "accepted_correct": 154,
+    "accepted_correct": 404,
     "cultivar_contamination_rate": 0.0,
     "precision": 1.0,
-    "reviewed": 154
+    "reviewed": 404
   },
   "axis_counts": {
-    "floral_structural_complexity": 69,
-    "flower_colour": 10,
+    "floral_structural_complexity": 120,
+    "flower_colour": 209,
     "reproductive_assurance": 75
   },
   "combined": {
-    "audit_rows": 939,
-    "evidence_rows": 939,
-    "species": 722,
-    "species_trait": 934
+    "audit_rows": 1189,
+    "evidence_rows": 1189,
+    "species": 948,
+    "species_trait": 1184
   },
   "contract": "trait_specific_rule_unlock_wave2_individually_reviewed_v1",
   "created_at_utc": "2026-08-12T09:35:00Z",
   "files": {
     "README.md": {
-      "sha256": "351ec08b17d8f83749fb8d94e0efa9f761a6d2d98552e0df724b9dc01249c453",
-      "size_bytes": 9214
+      "sha256": "a451876cd3ecc35dc6e4442bcc0f63cf43a7819175f9b90fb05ef0082cddfb17",
+      "size_bytes": 10340
     },
     "combined_curated_evidence_20260812.csv": {
-      "sha256": "9e61250149902dd2af203ecb24e9061e64ffe06592ac63bfe132fec7efdda302",
-      "size_bytes": 966390
+      "sha256": "e6b75f09ce9317921af7abd80026d60bd6cc9d193fe9eeec15ec9b5855b49688",
+      "size_bytes": 1290104
     },
     "combined_curated_manual_audit_20260812.csv": {
-      "sha256": "9d38427ea3b9b45ccd5a77bcd496d412ac68a851b58f521a44303cfc87a62fa3",
-      "size_bytes": 861447
+      "sha256": "951cfa5650bfd7bf14360c12efce0f539648e0bdb4582da3721d4aef317d3c87",
+      "size_bytes": 1123837
+    },
+    "india_flora_online_full_candidate_audit_20260812.csv": {
+      "sha256": "36f543c47c228b2337dfea07395a66c64dd49cf95a805775544f5f82b152aa00",
+      "size_bytes": 142416
+    },
+    "india_flora_online_reviewed_records_20260812.csv": {
+      "sha256": "ff5a0de39c936ab2f52de576df0c4017824e702017f6021e18ebdd304dab7e88",
+      "size_bytes": 109775
     },
     "rule_unlock_wave2_evidence_20260812.csv": {
-      "sha256": "550abbd9f916a410a6c047b50f4b3cb6562d08ab5e6b19acf89aa310d9f34c51",
-      "size_bytes": 200676
+      "sha256": "d9df6b93519aa90d3328afb42e691f13ddf9d85705ca42560fe69103af0dfd36",
+      "size_bytes": 524390
     },
     "rule_unlock_wave2_manual_audit_20260812.csv": {
-      "sha256": "8ccfc9ab44a2957ec02ef3dab8b35162e755b1b4ee4dd2dc4a08b5c51b957ee1",
-      "size_bytes": 168432
+      "sha256": "d7b35243f232d6e7b1de08c9f780716a5fa45b7e7f135fb53fc1eb574de0b971",
+      "size_bytes": 430822
     }
   },
   "guardrails": {
@@ -49,20 +57,27 @@
     "search_snippet_evidence": false,
     "trait_specific_records": true
   },
-  "new_evidence_rows": 154,
-  "new_species": 137,
-  "new_species_trait": 154,
+  "iisc_full_candidate_audit": {
+    "accepted_correct": 250,
+    "cultivar_contamination_rate": 0.007633587786259542,
+    "precision": 0.9541984732824428,
+    "reviewed": 262
+  },
+  "new_evidence_rows": 404,
+  "new_species": 364,
+  "new_species_trait": 404,
   "quality_counts": {
     "high": 46,
-    "medium": 108
+    "medium": 358
   },
-  "source_lineages": 94,
+  "source_lineages": 326,
   "trait_counts": {
     "autonomous_selfing_capacity": 23,
-    "floral_form": 3,
+    "floral_form": 8,
     "floral_symmetry": 58,
-    "flower_primary_color": 10,
-    "inflorescence_display": 7,
+    "flower_primary_color": 209,
+    "flower_size_class": 2,
+    "inflorescence_display": 51,
     "mating_system": 6,
     "self_incompatibility": 46,
     "tube_depth_class": 1

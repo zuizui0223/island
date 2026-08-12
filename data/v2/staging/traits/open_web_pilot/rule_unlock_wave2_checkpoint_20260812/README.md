@@ -2,7 +2,7 @@
 
 This checkpoint freezes individually reviewed species-direct evidence selected
 for information gain in the current `genus x trait_name` queue. It contains
-seventy-five reproductive records and seventy-nine visible-morphology records.
+seventy-five reproductive records and 329 visible-morphology records.
 It never emits genus,
 family, or global inference itself.
 
@@ -134,6 +134,22 @@ were never overwritten; four BFIS statements that disagree with an existing
 direct symmetry record were therefore not ingested. Historical family labels in
 the source quote are retained, while the identity gate checks each species
 against its current family in the fixed target master.
+
+The eleventh increment traverses the Indian Institute of Science's India Flora
+Online index rather than issuing one search request per species. Of 14,982
+indexed angiosperm treatments, 5,607 names exactly matched the fixed Island
+master; only 1,626 treatments with an unresolved colour or structure axis were
+downloaded. The complete species page, stable URL, page SHA-256 and exact `Key
+identification features` excerpt are preserved. A full audit reviewed all 262
+extracted candidates: 250 were accepted (precision 95.42%) and 12 were rejected.
+Two rejected horticultural-hybrid treatments yield cultivar contamination of
+0.76%, below the 2% ceiling. The other rejections prevent fruit, pod, stem,
+involucre or spathe states from being transferred to flowers. Seventeen
+accepted colour records were corrected to preserve the exact floral state set
+while dropping colours belonging only to non-floral organs. All 250 accepted
+records remain species-direct Medium evidence despite the university Tier A
+source because the individual morphology fields are compiled treatments rather
+than independently attributed primary measurements.
 
 The combined files supersede the previous curated checkpoint as workflow input.
 Every new row has an `accept` audit decision, exact source URL, supporting

@@ -25,6 +25,16 @@ from island_v2.high_leverage_direct_checkpoint import (
 CREATED_AT = "2026-08-12T09:35:00Z"
 REVIEWER = "Codex source-backed rule-unlock wave-2 audit"
 SOURCE_GROUP = "rule_unlock_wave2_checkpoint_20260812"
+INDIA_FLORA_REVIEWED_PATH = Path(
+    "data/v2/staging/traits/open_web_pilot/"
+    "rule_unlock_wave2_checkpoint_20260812/"
+    "india_flora_online_reviewed_records_20260812.csv"
+)
+INDIA_FLORA_FULL_AUDIT_PATH = Path(
+    "data/v2/staging/traits/open_web_pilot/"
+    "rule_unlock_wave2_checkpoint_20260812/"
+    "india_flora_online_full_candidate_audit_20260812.csv"
+)
 
 BFIS_BULK_SYMMETRY_ROWS = (
     ("Actephila excelsa", "Euphorbiaceae", "actinomorphic"),
@@ -198,6 +208,66 @@ def _bfis_bulk_symmetry_rows() -> list[dict[str, str]]:
                 ),
             )
         )
+    return rows
+
+
+def _india_flora_online_rows() -> list[dict[str, str]]:
+    """Return the 250 accepted records from the full 262-candidate IISc audit."""
+
+    reviewed = pd.read_csv(INDIA_FLORA_REVIEWED_PATH, dtype=str).fillna("")
+    required = {
+        "candidate_id",
+        "accepted_species",
+        "page_id",
+        "axis",
+        "trait_name",
+        "normalized_value",
+        "supporting_excerpt",
+        "source_url",
+        "page_content_sha256",
+        "cultivar_status",
+    }
+    missing = required - set(reviewed.columns)
+    if missing:
+        raise ValueError(f"IISc reviewed records missing columns: {sorted(missing)}")
+    if len(reviewed) != 250 or reviewed["candidate_id"].duplicated().any():
+        raise ValueError("IISc checkpoint must contain 250 unique accepted candidates")
+    if not reviewed["page_content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all():
+        raise ValueError("IISc checkpoint contains invalid page-content hashes")
+
+    rows: list[dict[str, str]] = []
+    for record in reviewed.to_dict("records"):
+        species = record["accepted_species"]
+        page_id = record["page_id"]
+        trait = record["trait_name"]
+        excerpt = f"Key identification features: {record['supporting_excerpt']}"
+        row = _row(
+            species=species,
+            trait=trait,
+            value=record["normalized_value"],
+            raw_value=record["supporting_excerpt"],
+            excerpt=excerpt,
+            quality="medium",
+            provider="IISc India Flora Online",
+            url=record["source_url"],
+            title=f"India Flora Online - {species}",
+            citation=(
+                "Sankara Rao, K. and Deepak Kumar (2026). India Flora Online, "
+                f"species treatment: {species}."
+            ),
+            record_id=f"iisc-india-flora-online:{page_id}:{trait}",
+            lineage=f"provider_treatment:iisc-india-flora-online:{page_id}",
+            lineage_method="canonical_university_flora_species_treatment",
+            source_tier="A",
+            source_type="university_herbarium_regional_flora_species_treatment",
+            domain="indiaflora-ces.iisc.ac.in",
+            content_sha256=record["page_content_sha256"],
+            content_sha256_basis="downloaded_complete_species_treatment_html_bytes",
+            retrieved_at_utc="2026-08-12T13:02:00Z",
+            cultivar_status=record["cultivar_status"],
+        )
+        row["query"] = "bulk_exact_master_unresolved_morphology_index"
+        rows.append(row)
     return rows
 
 
@@ -2136,6 +2206,7 @@ def reviewed_rows() -> list[dict[str, str]]:
         ]
     )
     rows.extend(_bfis_bulk_symmetry_rows())
+    rows.extend(_india_flora_online_rows())
     return rows
 
 
@@ -2321,8 +2392,8 @@ def build(
     evidence = evidence.sort_values(
         ["accepted_species", "trait_name", "candidate_id"]
     ).reset_index(drop=True)
-    if len(evidence) != 154:
-        raise ValueError(f"expected 154 reviewed trait rows, found {len(evidence)}")
+    if len(evidence) != 404:
+        raise ValueError(f"expected 404 reviewed trait rows, found {len(evidence)}")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("wave-2 candidate IDs are not unique")
     audit = _review_audit(evidence)
@@ -2332,7 +2403,12 @@ def build(
     audit_path = output_dir / "rule_unlock_wave2_manual_audit_20260812.csv"
     evidence.to_csv(evidence_path, index=False, lineterminator="\n")
     audit.to_csv(audit_path, index=False, lineterminator="\n")
-    outputs = [evidence_path, audit_path]
+    outputs = [
+        evidence_path,
+        audit_path,
+        INDIA_FLORA_REVIEWED_PATH,
+        INDIA_FLORA_FULL_AUDIT_PATH,
+    ]
 
     combined_evidence: pd.DataFrame | None = None
     combined_audit: pd.DataFrame | None = None
@@ -2387,6 +2463,12 @@ def build(
             "n2_formal_inference": False,
             "cross_trait_substitution": False,
             "search_snippet_evidence": False,
+        },
+        "iisc_full_candidate_audit": {
+            "reviewed": 262,
+            "accepted_correct": 250,
+            "precision": 250 / 262,
+            "cultivar_contamination_rate": 2 / 262,
         },
         "files": {},
     }
