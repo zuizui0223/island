@@ -139,10 +139,10 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "source_package_audit_csv_path:" in workflow
     assert "SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-" in workflow
     assert "SOURCE_PACKAGE_AUDIT_CSV_PATH: >-" in workflow
-    assert "combined_source_package_with_florml_size_20260812_evidence.csv.gz" in workflow
-    assert "combined_source_package_with_florml_size_20260812_audit.csv.gz" in workflow
-    assert "combined-reviewed-source-package-with-florml-size-20260812" in workflow
-    assert "combined-gobotany-baseflor-proteus-florml-size-20260812" in workflow
+    assert "combined_source_package_with_iospe_20260812_evidence.csv.gz" in workflow
+    assert "combined_source_package_with_iospe_20260812_audit.csv.gz" in workflow
+    assert "combined-reviewed-source-package-with-iospe-20260812" in workflow
+    assert "combined-gobotany-baseflor-proteus-florml-size-iospe-20260812" in workflow
     assert (
         "next_acquisition_checkpoint_20260811/combined_curated_evidence_20260811.csv"
         in workflow
