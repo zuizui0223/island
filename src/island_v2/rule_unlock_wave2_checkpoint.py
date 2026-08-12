@@ -54,6 +54,7 @@ def _row(
     language: str = "en",
     name_resolution_lineage: str = "master_accepted_name_exact",
     retrieved_at_utc: str = CREATED_AT,
+    cultivar_status: str = "wild_or_species_level_statement_not_cultivar_limited",
 ) -> dict[str, str]:
     row = _evidence_row(
         species=species,
@@ -79,9 +80,7 @@ def _row(
     row["source_group"] = SOURCE_GROUP
     row["language"] = language
     row["name_resolution_lineage"] = name_resolution_lineage
-    row["wild_cultivated_cultivar_status"] = (
-        "wild_or_species_level_statement_not_cultivar_limited"
-    )
+    row["wild_cultivated_cultivar_status"] = cultivar_status
     row["query"] = "current_support_2_rule_unlock_original_or_direct_species_source"
     return row
 
@@ -1132,6 +1131,82 @@ def reviewed_rows() -> list[dict[str, str]]:
         )
     )
 
+    rows.append(
+        _row(
+            species="Phoenix roebelenii",
+            trait="inflorescence_display",
+            value="raceme_spike_panicle",
+            raw_value="Inflorescences: Type Panicle",
+            excerpt=(
+                "Phoenix roebelenii O'Brien. Family Arecaceae (Palmae). "
+                "Inflorescences: Position Axillary, Interfoliar; Type Panicle."
+            ),
+            quality="medium",
+            provider="Shiu Ying Hu Herbarium, Chinese University of Hong Kong",
+            url=(
+                "https://syhuherbarium.sls.cuhk.edu.hk/collections/"
+                "factsheet-pro/phoenix-roebelenii/"
+            ),
+            title=(
+                "Phoenix roebelenii O'Brien | Shiu Ying Hu Herbarium Collections"
+            ),
+            citation=(
+                "Shiu Ying Hu Herbarium Pro-Factsheet, Chinese University "
+                "of Hong Kong (retrieved 2026-08-12)"
+            ),
+            record_id=(
+                "cuhk-herbarium:phoenix-roebelenii:inflorescence-type-panicle"
+            ),
+            lineage=(
+                "provider_treatment:cuhk_shiu_ying_hu_herbarium:Phoenix_roebelenii"
+            ),
+            lineage_method="official_university_herbarium_species_factsheet",
+            source_tier="C",
+            source_type="university_herbarium_horticultural_species_factsheet",
+            domain="syhuherbarium.sls.cuhk.edu.hk",
+            content_sha256=(
+                "1ad7fb1b1d22e4917e4289773214edc6919948e98788bf2a3b6c2747143144ca"
+            ),
+            content_sha256_basis="retrieved_species_page_html_utf8_bytes",
+            retrieved_at_utc="2026-08-12T10:20:00Z",
+            cultivar_status=(
+                "species_level_horticultural_record_not_cultivar_limited"
+            ),
+        )
+    )
+
+    rows.append(
+        _row(
+            species="Gonystylus confusus",
+            trait="flower_primary_color",
+            value="yellow_orange",
+            raw_value="Flower Colour(s): Yellow / Golden",
+            excerpt=(
+                "Gonystylus confusus Airy Shaw. Family Name: Thymelaeaceae. "
+                "Floral (Angiosperm): Flower Colour(s) Yellow / Golden."
+            ),
+            quality="high",
+            provider="Singapore National Parks Board Flora & Fauna Web",
+            url="https://www.nparks.gov.sg/florafaunaweb/flora/4/2/4227",
+            title="Gonystylus confusus | NParks Flora & Fauna Web",
+            citation=(
+                "National Parks Board Singapore, Flora & Fauna Web species "
+                "record 4227 (updated 2025-03-26; retrieved 2026-08-12)"
+            ),
+            record_id="nparks:flora:4227:flower-colour",
+            lineage="url:https://www.nparks.gov.sg/florafaunaweb/flora/4/2/4227",
+            lineage_method="canonical_government_species_record_url",
+            source_tier="A",
+            source_type="government_species_trait_database",
+            domain="nparks.gov.sg",
+            content_sha256=(
+                "95b5251a0261187e344a28648ca8de199cd80433610eda1e90b59ff17c3bca78"
+            ),
+            content_sha256_basis="retrieved_species_page_html_bytes",
+            retrieved_at_utc="2026-08-12T10:20:00Z",
+        )
+    )
+
     commelineae_excerpt = (
         "Breeding system studies in the selected taxa revealed that they were all "
         "self and cross-compatible species. Except Dictyospermum montanum (2.5%) "
@@ -1262,6 +1337,8 @@ def build(
         "Citharexylum myrianthum": "Verbenaceae",
         "Hakea carinata": "Proteaceae",
         "Celtis sinensis": "Cannabaceae",
+        "Phoenix roebelenii": "Arecaceae",
+        "Gonystylus confusus": "Thymelaeaceae",
     }
     missing = sorted(set(expected_families) - set(master_family))
     if missing:
@@ -1278,8 +1355,8 @@ def build(
     evidence = evidence.sort_values(
         ["accepted_species", "trait_name", "candidate_id"]
     ).reset_index(drop=True)
-    if len(evidence) != 41:
-        raise ValueError(f"expected 41 reviewed trait rows, found {len(evidence)}")
+    if len(evidence) != 43:
+        raise ValueError(f"expected 43 reviewed trait rows, found {len(evidence)}")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("wave-2 candidate IDs are not unique")
     audit = _review_audit(evidence)

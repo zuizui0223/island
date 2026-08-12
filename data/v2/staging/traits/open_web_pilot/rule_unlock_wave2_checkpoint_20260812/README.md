@@ -66,6 +66,15 @@ field to an individual source or reviewer and categorizes the species as
 horticultural, although no cultivar or hybrid is named. Both records are
 source-fingerprinted and kept as distinct reproductive and morphology traits.
 
+The fifth increment adds two non-overlapping direct records discovered by
+credential-free institutional-site traversal. The Chinese University of Hong
+Kong factsheet for *Phoenix roebelenii* explicitly records a panicle, but the
+page is categorized as horticultural and has no field-level reviewer, so this
+structure-only record remains Medium Tier C. Singapore NParks' government
+species record for *Gonystylus confusus* gives the accepted species, matching
+family, and flower colour as yellow/golden; it is retained as High Tier A. No
+cultivar statement, search snippet, or cross-trait mapping is used.
+
 The combined files supersede the previous curated checkpoint as workflow input.
 Every new row has an `accept` audit decision, exact source URL, supporting
 excerpt, retrieval timestamp, content fingerprint, and source lineage.

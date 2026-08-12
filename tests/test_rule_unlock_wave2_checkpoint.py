@@ -16,16 +16,16 @@ CHECKPOINT = Path(
 def test_wave2_rows_are_trait_specific_and_source_backed() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
 
-    assert len(evidence) == 41
-    assert evidence["accepted_species"].nunique() == 29
-    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 41
+    assert len(evidence) == 43
+    assert evidence["accepted_species"].nunique() == 31
+    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 43
     assert evidence["evidence_scope"].eq("species_direct").all()
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
     assert evidence["source_excerpt"].str.len().gt(30).all()
-    assert evidence["source_lineage"].nunique() == 27
+    assert evidence["source_lineage"].nunique() == 29
     assert evidence["evidence_quality"].value_counts().to_dict() == {
-        "high": 31,
-        "medium": 10,
+        "high": 32,
+        "medium": 11,
     }
 
     reproductive = evidence.loc[evidence["axis"].eq("reproductive_assurance")]
@@ -171,7 +171,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
 
-    assert len(evidence) == len(audit) == len(accepted) == 826
+    assert len(evidence) == len(audit) == len(accepted) == 828
     assert evidence["candidate_id"].is_unique
     assert audit["candidate_id"].is_unique
     assert audit["decision"].str.casefold().eq("accept").all()
@@ -179,7 +179,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
     wave = accepted.loc[accepted["source_group"].eq(
         "rule_unlock_wave2_checkpoint_20260812"
     )]
-    assert len(wave) == 41
+    assert len(wave) == 43
 
 
 def test_next_rule_unlocks_are_explicit_and_do_not_cross_traits() -> None:
@@ -269,6 +269,37 @@ def test_fourth_rule_unlocks_keep_autogamy_and_symmetry_trait_specific() -> None
     }
     assert rows["evidence_scope"].eq("species_direct").all()
     assert rows["retrieved_at_utc"].eq("2026-08-12T09:53:30Z").all()
+    assert not set(rows["trait_name"]).intersection(
+        {"pollen_vector_mode", "reward_type"}
+    )
+
+
+def test_fifth_rule_unlocks_keep_horticulture_medium_and_government_db_high() -> None:
+    evidence = pd.DataFrame(reviewed_rows()).fillna("")
+    rows = evidence.loc[
+        evidence["accepted_species"].isin(
+            {"Phoenix roebelenii", "Gonystylus confusus"}
+        )
+    ].set_index("accepted_species")
+
+    assert rows[["trait_name", "normalized_value", "evidence_quality"]].to_dict(
+        "index"
+    ) == {
+        "Phoenix roebelenii": {
+            "trait_name": "inflorescence_display",
+            "normalized_value": "raceme_spike_panicle",
+            "evidence_quality": "medium",
+        },
+        "Gonystylus confusus": {
+            "trait_name": "flower_primary_color",
+            "normalized_value": "yellow_orange",
+            "evidence_quality": "high",
+        },
+    }
+    assert rows.loc[
+        "Phoenix roebelenii", "wild_cultivated_cultivar_status"
+    ] == "species_level_horticultural_record_not_cultivar_limited"
+    assert rows["evidence_scope"].eq("species_direct").all()
     assert not set(rows["trait_name"]).intersection(
         {"pollen_vector_mode", "reward_type"}
     )
