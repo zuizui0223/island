@@ -45,6 +45,16 @@ INDIA_FLORA_SYNONYM_FULL_AUDIT_PATH = Path(
     "rule_unlock_wave2_checkpoint_20260812/"
     "india_flora_online_synonym_full_candidate_audit_20260812.csv"
 )
+PROTA_REVIEWED_PATH = Path(
+    "data/v2/staging/traits/open_web_pilot/"
+    "rule_unlock_wave2_checkpoint_20260812/"
+    "plantuse_prota_reviewed_records_20260812.csv"
+)
+PROTA_FULL_AUDIT_PATH = Path(
+    "data/v2/staging/traits/open_web_pilot/"
+    "rule_unlock_wave2_checkpoint_20260812/"
+    "plantuse_prota_full_candidate_audit_20260812.csv"
+)
 
 BFIS_BULK_SYMMETRY_ROWS = (
     ("Actephila excelsa", "Euphorbiaceae", "actinomorphic"),
@@ -353,6 +363,73 @@ def _india_flora_online_synonym_rows() -> list[dict[str, str]]:
         row["matched_page_name"] = searched_name
         row["evidence_scope"] = "synonym_direct"
         row["query"] = "bulk_two_backbone_synonym_unresolved_morphology_index"
+        rows.append(row)
+    return rows
+
+
+def _prota_monograph_rows() -> list[dict[str, str]]:
+    """Return the 448 accepted records from the full PROTA candidate audit."""
+
+    reviewed = pd.read_csv(PROTA_REVIEWED_PATH, dtype=str).fillna("")
+    required = {
+        "candidate_id",
+        "accepted_species",
+        "family",
+        "page_id",
+        "revision_id",
+        "revision_timestamp",
+        "axis",
+        "trait_name",
+        "normalized_value",
+        "supporting_excerpt",
+        "page_title",
+        "source_url",
+        "citation",
+        "page_content_sha256",
+        "cultivar_status",
+    }
+    missing = required - set(reviewed.columns)
+    if missing:
+        raise ValueError(f"PROTA reviewed records missing columns: {sorted(missing)}")
+    if len(reviewed) != 448 or reviewed["candidate_id"].duplicated().any():
+        raise ValueError("PROTA checkpoint must contain 448 unique accepted candidates")
+    if not reviewed["page_content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all():
+        raise ValueError("PROTA checkpoint contains invalid revision-content hashes")
+    if reviewed["citation"].str.len().lt(100).any():
+        raise ValueError("PROTA checkpoint contains incomplete monograph citations")
+
+    rows: list[dict[str, str]] = []
+    for record in reviewed.to_dict("records"):
+        species = record["accepted_species"]
+        page_id = record["page_id"]
+        revision_id = record["revision_id"]
+        trait = record["trait_name"]
+        lineage = f"provider_treatment:prota:{page_id}"
+        if species == "Adenia cissampeloides":
+            lineage = "monograph:prota-11-1:adenia-cissampeloides"
+        row = _row(
+            species=species,
+            trait=trait,
+            value=record["normalized_value"],
+            raw_value=record["supporting_excerpt"],
+            excerpt=record["supporting_excerpt"],
+            quality="high",
+            provider="Plant Resources of Tropical Africa (PROTA)",
+            url=record["source_url"],
+            title=record["page_title"],
+            citation=record["citation"],
+            record_id=f"prota-mediawiki:{page_id}:{revision_id}:{trait}",
+            lineage=lineage,
+            lineage_method="canonical_authored_prota_species_monograph_revision",
+            source_tier="A",
+            source_type="expert_botanical_monograph_species_description",
+            domain="plantuse.plantnet.org",
+            content_sha256=record["page_content_sha256"],
+            content_sha256_basis="mediawiki_revision_wikitext_utf8_bytes",
+            retrieved_at_utc="2026-08-12T14:10:00Z",
+            cultivar_status=record["cultivar_status"],
+        )
+        row["query"] = "bulk_prota_api_exact_master_unresolved"
         rows.append(row)
     return rows
 
@@ -2294,6 +2371,7 @@ def reviewed_rows() -> list[dict[str, str]]:
     rows.extend(_bfis_bulk_symmetry_rows())
     rows.extend(_india_flora_online_rows())
     rows.extend(_india_flora_online_synonym_rows())
+    rows.extend(_prota_monograph_rows())
     return rows
 
 
@@ -2492,12 +2570,25 @@ def build(
     if synonym_conflicts:
         raise ValueError(f"IISc synonym family conflicts: {synonym_conflicts}")
 
+    prota_reviewed = pd.read_csv(PROTA_REVIEWED_PATH, dtype=str).fillna("")
+    prota_family = prota_reviewed.set_index("accepted_species")["family"].to_dict()
+    prota_missing = sorted(set(prota_family) - set(master_family))
+    if prota_missing:
+        raise ValueError(f"PROTA species absent from target master: {prota_missing}")
+    prota_conflicts = {
+        species: (family, master_family[species])
+        for species, family in prota_family.items()
+        if master_family[species] != family
+    }
+    if prota_conflicts:
+        raise ValueError(f"PROTA family conflicts: {prota_conflicts}")
+
     evidence = pd.DataFrame(reviewed_rows(), columns=EVIDENCE_COLUMNS).fillna("")
     evidence = evidence.sort_values(
         ["accepted_species", "trait_name", "candidate_id"]
     ).reset_index(drop=True)
-    if len(evidence) != 474:
-        raise ValueError(f"expected 474 reviewed trait rows, found {len(evidence)}")
+    if len(evidence) != 922:
+        raise ValueError(f"expected 922 reviewed trait rows, found {len(evidence)}")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("wave-2 candidate IDs are not unique")
     audit = _review_audit(evidence)
@@ -2514,6 +2605,8 @@ def build(
         INDIA_FLORA_FULL_AUDIT_PATH,
         INDIA_FLORA_SYNONYM_REVIEWED_PATH,
         INDIA_FLORA_SYNONYM_FULL_AUDIT_PATH,
+        PROTA_REVIEWED_PATH,
+        PROTA_FULL_AUDIT_PATH,
     ]
 
     combined_evidence: pd.DataFrame | None = None
@@ -2591,6 +2684,15 @@ def build(
             "precision": 70 / 71,
             "cultivar_contamination_rate": 0.0,
             "identity_contract": "exact_species_family_agreement_wfo_june_2026_and_gbif",
+        },
+        "prota_full_candidate_audit": {
+            "reviewed": 469,
+            "accepted_correct": 448,
+            "precision": 448 / 469,
+            "cultivar_contamination_rate": 0.0,
+            "exact_master_species_pages_fetched": 1287,
+            "non_redirect_pages_with_descriptions": 699,
+            "mediawiki_api_calls": 52,
         },
         "files": {},
     }

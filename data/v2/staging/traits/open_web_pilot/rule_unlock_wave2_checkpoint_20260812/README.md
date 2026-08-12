@@ -166,6 +166,24 @@ name, WFO and GBIF identifiers, full page hash, exact quote and one lineage per
 IISc treatment are preserved; neither one-backbone nor fuzzy matches enter the
 ledger.
 
+The thirteenth increment replaces per-species search with the official Pl@ntUse
+MediaWiki API for Plant Resources of Tropical Africa (PROTA). The public PROTA
+category contains 3,331 species monographs; 1,702 exactly match the fixed
+Island master, and 1,287 have at least one unresolved strict axis. Fifty-two
+batched API requests captured the exact page revision, timestamp and wikitext
+hash. Redirects were held back, leaving 699 species pages with an authored
+Description section. The complete audit reviewed 469 trait candidates and
+accepted 448 across 268 species (precision 95.52%, cultivar contamination 0%).
+The 21 rejections prevent mature fig colours, fruits, cyathial involucres,
+bracts, non-floral structures, reference-title matches and statements about a
+different species from entering the ledger. The accepted Tier A records retain
+149 colour, 126 symmetry, 159 inflorescence-display, 9 floral-form and 5
+trait-specific reproductive statements as species-direct High evidence. Each
+row stores its exact quote, stable monograph URL, authored citation, revision
+ID, revision timestamp, source-treatment lineage and revision-content SHA-256.
+Self-fertility is mapped only to compatibility; self-incompatibility,
+autonomous selfing and mating system remain separate traits.
+
 The combined files supersede the previous curated checkpoint as workflow input.
 Every new row has an `accept` audit decision, exact source URL, supporting
 excerpt, retrieval timestamp, content fingerprint, and source lineage.

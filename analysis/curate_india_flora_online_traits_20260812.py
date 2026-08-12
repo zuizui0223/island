@@ -104,6 +104,72 @@ SYNONYM_OVERRIDES = {
     ),
 }
 
+PROTA_REJECTED: dict[tuple[str, str], str] = {
+    ("Croton sakamaliensis", "flower_primary_color"): (
+        "yellowish describes ovary pubescence, not the primary floral display"
+    ),
+    ("Euphorbia antso", "flower_primary_color"): (
+        "purple describes only the ovary and is not a primary flower-colour statement"
+    ),
+    ("Euphorbia candelabrum", "flower_primary_color"): (
+        "golden-yellow describes the cyathial involucre, not the flowers"
+    ),
+    ("Euphorbia cooperi", "flower_primary_color"): (
+        "golden-yellow describes the cyathial involucre, not the flowers"
+    ),
+    ("Euphorbia granulata", "flower_primary_color"): (
+        "pink or white describes cyathial glands, not the flowers"
+    ),
+    ("Euphorbia schimperiana", "flower_primary_color"): (
+        "green to brownish red describes cyathial appendages, not the flowers"
+    ),
+    ("Ficus bussei", "flower_primary_color"): (
+        "green or yellow describes mature figs, not enclosed flower colour"
+    ),
+    ("Ficus glumosa", "flower_primary_color"): (
+        "orange to red describes figs at the fruiting stage"
+    ),
+    ("Ficus natalensis", "flower_primary_color"): (
+        "reddish-orange to brown describes mature figs"
+    ),
+    ("Ficus politoria", "flower_primary_color"): (
+        "yellow to red-brown describes mature figs"
+    ),
+    ("Ficus sur", "flower_primary_color"): (
+        "red to dark orange describes mature figs"
+    ),
+    ("Ficus tremula", "flower_primary_color"): (
+        "greenish to brown describes mature figs"
+    ),
+    ("Ficus vogeliana", "flower_primary_color"): (
+        "red, orange and pale spots describe mature figs"
+    ),
+    ("Milicia regia", "flower_primary_color"): (
+        "white describes hairs on the catkin; individual flower colour is absent"
+    ),
+    ("Musanga cecropioides", "flower_primary_color"): (
+        "greenish white explicitly describes the compound fruit"
+    ),
+    ("Uapaca guineensis", "flower_primary_color"): (
+        "bright yellow describes involucral bracts enclosing the flower buds"
+    ),
+    ("Hyphaene thebaica", "floral_form"): (
+        "tubular describes only the calyx base; overall floral form is not stated"
+    ),
+    ("Telfairia occidentalis", "floral_form"): (
+        "campanulate describes the receptacle, not the flower or corolla form"
+    ),
+    ("Telfairia pedata", "floral_form"): (
+        "campanulate describes the receptacle, not the flower or corolla form"
+    ),
+    ("Catharanthus trichophyllus", "autonomous_selfing_capacity"): (
+        "the match occurs only in a cited reference title about variant periwinkle strains"
+    ),
+    ("Catharanthus trichophyllus", "self_incompatibility"): (
+        "the self-incompatible state is explicitly restricted to Catharanthus roseus strains"
+    ),
+}
+
 
 def _sha(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
@@ -370,16 +436,154 @@ def curate_synonym_candidates(candidate_csv: Path, output_dir: Path) -> dict[str
     }
 
 
+def curate_prota_candidates(candidate_csv: Path, output_dir: Path) -> dict[str, object]:
+    """Freeze the full source-backed audit of exact-name PROTA treatments."""
+
+    candidates = pd.read_csv(candidate_csv, dtype=str).fillna("")
+    required = {
+        "accepted_species",
+        "page_id",
+        "axis",
+        "trait_name",
+        "normalized_value",
+        "supporting_excerpt",
+        "page_title",
+        "source_url",
+        "page_content_sha256",
+        "revision_id",
+        "revision_timestamp",
+        "citation",
+        "family",
+    }
+    missing = required - set(candidates.columns)
+    if missing:
+        raise ValueError(f"PROTA candidate table missing columns: {sorted(missing)}")
+    if len(candidates) != 469:
+        raise ValueError(f"expected 469 PROTA candidates, found {len(candidates)}")
+    if candidates[["accepted_species", "trait_name", "supporting_excerpt"]].duplicated().any():
+        raise ValueError("PROTA candidates are not unique at the reviewed source statement")
+    if not candidates["page_content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all():
+        raise ValueError("PROTA candidates contain invalid revision-content hashes")
+    keys = set(zip(candidates["accepted_species"], candidates["trait_name"]))
+    missing_decisions = sorted(set(PROTA_REJECTED) - keys)
+    if missing_decisions:
+        raise ValueError(f"PROTA review decisions absent from candidates: {missing_decisions}")
+
+    reviewed: list[dict[str, str]] = []
+    accepted: list[dict[str, str]] = []
+    reviewed_at = "2026-08-12T14:35:00Z"
+    for row in candidates.to_dict("records"):
+        key = (row["accepted_species"], row["trait_name"])
+        candidate_id = _sha(
+            "|".join(
+                [
+                    "plantuse-prota",
+                    row["revision_id"],
+                    row["accepted_species"],
+                    row["trait_name"],
+                    row["supporting_excerpt"],
+                ]
+            )
+        )[:24]
+        rejection = PROTA_REJECTED.get(key)
+        decision = "reject" if rejection else "accept"
+        reason = rejection or (
+            "Accepted after exact master-name and family identity, complete PROTA "
+            "revision, species-specific description, trait ontology, non-cultivar "
+            "and quoted-value review; multistate floral colours are retained."
+        )
+        reviewed.append(
+            {
+                "candidate_id": candidate_id,
+                "accepted_species": row["accepted_species"],
+                "trait_name": row["trait_name"],
+                "normalized_value": row["normalized_value"],
+                "source_url": row["source_url"],
+                "supporting_excerpt": row["supporting_excerpt"],
+                "decision": decision,
+                "species_identity_correct": "true",
+                "value_correct": str(not rejection).lower(),
+                "provenance_complete": "true",
+                "cultivar_contamination": "false",
+                "false_positive_reason": rejection or "",
+                "decision_reason": reason,
+                "reviewer": "Codex full PROTA monograph candidate audit",
+                "reviewed_at_utc": reviewed_at,
+            }
+        )
+        if rejection:
+            continue
+        accepted.append(
+            {
+                "candidate_id": candidate_id,
+                "accepted_species": row["accepted_species"],
+                "family": row["family"],
+                "page_id": row["page_id"],
+                "revision_id": row["revision_id"],
+                "revision_timestamp": row["revision_timestamp"],
+                "axis": row["axis"],
+                "trait_name": row["trait_name"],
+                "normalized_value": row["normalized_value"],
+                "supporting_excerpt": row["supporting_excerpt"],
+                "page_title": row["page_title"],
+                "source_url": row["source_url"],
+                "citation": row["citation"],
+                "page_content_sha256": row["page_content_sha256"],
+                "cultivar_status": (
+                    "wild_or_species_level_monograph_not_cultivar_limited"
+                ),
+            }
+        )
+
+    evidence = pd.DataFrame(accepted).sort_values(
+        ["accepted_species", "trait_name", "candidate_id"]
+    )
+    audit = pd.DataFrame(reviewed).sort_values(
+        ["accepted_species", "trait_name", "candidate_id"]
+    )
+    if len(evidence) != 448 or len(audit) != 469:
+        raise ValueError(f"unexpected PROTA accepted/reviewed counts: {len(evidence)}/{len(audit)}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    evidence.to_csv(
+        output_dir / "plantuse_prota_reviewed_records_20260812.csv",
+        index=False,
+        lineterminator="\n",
+    )
+    audit.to_csv(
+        output_dir / "plantuse_prota_full_candidate_audit_20260812.csv",
+        index=False,
+        lineterminator="\n",
+    )
+    return {
+        "reviewed": len(audit),
+        "accepted_correct": len(evidence),
+        "precision": len(evidence) / len(audit),
+        "cultivar_contamination_rate": 0.0,
+        "accepted_species": int(evidence["accepted_species"].nunique()),
+        "accepted_species_trait": int(
+            evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0]
+        ),
+        "accepted_species_axis": int(
+            evidence[["accepted_species", "axis"]].drop_duplicates().shape[0]
+        ),
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--candidate-csv", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--synonym-candidate-csv", type=Path)
+    parser.add_argument("--prota-candidate-csv", type=Path)
     args = parser.parse_args()
     result = {"accepted_name": curate(args.candidate_csv, args.output_dir)}
     if args.synonym_candidate_csv is not None:
         result["two_backbone_synonym"] = curate_synonym_candidates(
             args.synonym_candidate_csv, args.output_dir
+        )
+    if args.prota_candidate_csv is not None:
+        result["prota_monograph"] = curate_prota_candidates(
+            args.prota_candidate_csv, args.output_dir
         )
     print(result)
 

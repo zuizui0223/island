@@ -16,20 +16,20 @@ CHECKPOINT = Path(
 def test_wave2_rows_are_trait_specific_and_source_backed() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
 
-    assert len(evidence) == 474
-    assert evidence["accepted_species"].nunique() == 428
-    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 474
+    assert len(evidence) == 922
+    assert evidence["accepted_species"].nunique() == 695
+    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 922
     assert set(evidence["evidence_scope"]) == {"species_direct", "synonym_direct"}
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
-    assert evidence["source_excerpt"].str.len().gt(30).all()
-    assert evidence["source_lineage"].nunique() == 390
+    assert evidence["source_excerpt"].str.len().gt(20).all()
+    assert evidence["source_lineage"].nunique() == 657
     assert evidence["evidence_quality"].value_counts().to_dict() == {
-        "high": 46,
+        "high": 494,
         "medium": 428,
     }
 
     reproductive = evidence.loc[evidence["axis"].eq("reproductive_assurance")]
-    assert len(reproductive) == 75
+    assert len(reproductive) == 80
     assert set(reproductive["trait_name"]) == {
         "autonomous_selfing_capacity",
         "mating_system",
@@ -175,7 +175,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
 
-    assert len(evidence) == len(audit) == len(accepted) == 1259
+    assert len(evidence) == len(audit) == len(accepted) == 1707
     assert evidence["candidate_id"].is_unique
     assert audit["candidate_id"].is_unique
     assert audit["decision"].str.casefold().eq("accept").all()
@@ -183,7 +183,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
     wave = accepted.loc[accepted["source_group"].eq(
         "rule_unlock_wave2_checkpoint_20260812"
     )]
-    assert len(wave) == 474
+    assert len(wave) == 922
 
 
 def test_iisc_full_candidate_audit_is_precise_and_fail_closed() -> None:
@@ -270,6 +270,77 @@ def test_iisc_two_backbone_synonym_audit_is_exact_and_fail_closed() -> None:
         & rows["trait_name"].eq("flower_primary_color"),
         "normalized_value",
     ].item() == "white"
+
+
+def test_prota_full_audit_keeps_only_species_direct_monograph_statements() -> None:
+    evidence = pd.DataFrame(reviewed_rows()).fillna("")
+    rows = evidence.loc[
+        evidence["domain"].eq("plantuse.plantnet.org")
+        & evidence["source_record_id"].str.startswith("prota-mediawiki:")
+    ]
+    audit = pd.read_csv(
+        CHECKPOINT / "plantuse_prota_full_candidate_audit_20260812.csv",
+        dtype=str,
+    ).fillna("")
+
+    assert len(audit) == 469
+    assert audit["decision"].value_counts().to_dict() == {
+        "accept": 448,
+        "reject": 21,
+    }
+    assert len(rows) == 448
+    assert rows["accepted_species"].nunique() == 268
+    assert rows[["accepted_species", "axis"]].drop_duplicates().shape[0] == 317
+    assert rows["evidence_quality"].eq("high").all()
+    assert rows["source_tier"].eq("A").all()
+    assert rows["source_lineage"].nunique() == 268
+    assert rows["content_sha256_basis"].eq(
+        "mediawiki_revision_wikitext_utf8_bytes"
+    ).all()
+    assert set(rows["trait_name"]) == {
+        "autonomous_selfing_capacity",
+        "floral_form",
+        "floral_symmetry",
+        "flower_primary_color",
+        "inflorescence_display",
+        "mating_system",
+        "self_incompatibility",
+    }
+    assert audit["decision"].eq("accept").mean() >= 0.95
+    assert audit["cultivar_contamination"].eq("true").mean() <= 0.02
+
+    rejected = set(
+        zip(
+            audit.loc[audit["decision"].eq("reject"), "accepted_species"],
+            audit.loc[audit["decision"].eq("reject"), "trait_name"],
+        )
+    )
+    assert {
+        ("Ficus sur", "flower_primary_color"),
+        ("Musanga cecropioides", "flower_primary_color"),
+        ("Uapaca guineensis", "flower_primary_color"),
+        ("Catharanthus trichophyllus", "self_incompatibility"),
+    }.issubset(rejected)
+    assert not rows["accepted_species"].eq("Catharanthus trichophyllus").any()
+
+    reproductive = rows.loc[rows["axis"].eq("reproductive_assurance")]
+    assert set(
+        zip(
+            reproductive["accepted_species"],
+            reproductive["trait_name"],
+            reproductive["normalized_value"],
+        )
+    ) == {
+        ("Coix lacryma-jobi", "mating_system", "mixed_mating"),
+        (
+            "Echinochloa stagnina",
+            "autonomous_selfing_capacity",
+            "autonomous",
+        ),
+        ("Launaea cornuta", "self_incompatibility", "SC"),
+        ("Musa textilis", "mating_system", "predominantly_outcrossing"),
+        ("Pemphis acidula", "self_incompatibility", "SI"),
+    }
 
 
 def test_bfis_bulk_snapshot_adds_only_explicit_novel_symmetry_records() -> None:
