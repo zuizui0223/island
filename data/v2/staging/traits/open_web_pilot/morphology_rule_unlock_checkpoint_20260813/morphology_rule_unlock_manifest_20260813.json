@@ -1,0 +1,68 @@
+{
+  "accepted_rows": 9,
+  "combined": {
+    "audit_rows": 1746,
+    "evidence_rows": 1746
+  },
+  "contract": "morphology_support2_rule_unlock_checkpoint_v1",
+  "created_at_utc": "2026-08-12T19:30:00Z",
+  "excluded_as_duplicate_of_pngtrees_package": [
+    "Gonystylus macrophyllus|flower_size_class"
+  ],
+  "explicitly_rejected": [
+    "Sloanea dasycarpa|floral_symmetry|family_description"
+  ],
+  "files": {
+    "combined_curated_evidence_20260813.csv": {
+      "sha256": "60874e972d78a0c98350930aec0b255fcdc6dfa7e1d9b0ac54d46431cbf83d5d",
+      "size_bytes": 1989959
+    },
+    "combined_curated_manual_audit_20260813.csv": {
+      "sha256": "8324c38bd2e8302caedd9fe72f59a7ca0fbcbfee69f0c48cad34bbf8e78a9bd9",
+      "size_bytes": 1713896
+    },
+    "morphology_rule_unlock_evidence_20260813.csv": {
+      "sha256": "41406a14aff8c4a2913d9a1edad00546cc37a172f8ca5d49a2acb1a520359e0f",
+      "size_bytes": 8704
+    },
+    "morphology_rule_unlock_manual_audit_20260813.csv": {
+      "sha256": "1ede285a6d2204506a41bd638f200d9dd25a3240f47ee8522822e7ef426d9f50",
+      "size_bytes": 7822
+    }
+  },
+  "guardrails": {
+    "cross_trait_substitution": false,
+    "family_inference": false,
+    "genus_inference_emitted_here": false,
+    "global_fallback": false,
+    "trait_specific_records": true
+  },
+  "inputs": {
+    "master_csv": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e"
+    },
+    "prior_curated_audit_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\kudo_2022_alpine_reproduction_checkpoint_20260813\\combined_curated_manual_audit_20260813.csv",
+      "sha256": "e007f2c868403d6b5cc93de24bf80761814d68796b4c80916732c3d6349e6e0b"
+    },
+    "prior_curated_evidence_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\kudo_2022_alpine_reproduction_checkpoint_20260813\\combined_curated_evidence_20260813.csv",
+      "sha256": "06e9cad357120f878b5967760e5473b8b5d78962f375c35023ef1588f265ac96"
+    }
+  },
+  "quality_counts": {
+    "high": 6,
+    "medium": 3
+  },
+  "source_lineages": 9,
+  "species_trait": 9,
+  "theoretical_only_not_formal_coverage": true,
+  "theoretical_unique_rule_cells": 106,
+  "trait_counts": {
+    "floral_form": 2,
+    "floral_symmetry": 1,
+    "flower_size_class": 2,
+    "inflorescence_display": 4
+  }
+}
