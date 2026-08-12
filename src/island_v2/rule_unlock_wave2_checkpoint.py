@@ -1,7 +1,7 @@
 """Freeze the second trait-specific genus-rule unlock evidence wave.
 
 The checkpoint contains only individually reviewed species-direct statements.
-Reproductive traits remain separate, and the two morphology records are direct
+Reproductive traits remain separate, and the five morphology records are direct
 species descriptions.  Genus inference is rebuilt later by the shared
 all-evidence implementation using ``genus x trait_name`` rules.
 """
@@ -488,6 +488,119 @@ def reviewed_rows() -> list[dict[str, str]]:
         )
     )
 
+    rows.append(
+        _row(
+            species="Palaquium obovatum",
+            trait="tube_depth_class",
+            value="shallow",
+            raw_value="corolla tube very short",
+            excerpt=(
+                "Palaquium obovatum, King & Gamble. Corolla campanulate; tube "
+                "very short; lobes 6, imbricate and twisted."
+            ),
+            quality="high",
+            provider="King and Gamble 1906 Flora of the Malayan Peninsula",
+            url=(
+                "https://archive.org/download/JournalAsiaticSv74pAsia/"
+                "JournalAsiaticSv74pAsia.pdf"
+            ),
+            title="Materials for a Flora of the Malayan Peninsula, No. 17",
+            citation=(
+                "King, G. & Gamble, J.S. (1906), Journal of the Asiatic Society "
+                "of Bengal, Part II, Natural Science 74(2):190-191"
+            ),
+            record_id=(
+                "archive:JournalAsiaticSv74pAsia:palaquium-obovatum:corolla-tube"
+            ),
+            lineage="publication:king-gamble-1906-flora-malayan-peninsula",
+            lineage_method="original_taxonomic_treatment_publication",
+            source_tier="A",
+            source_type="primary_taxonomic_monograph_species_description",
+            domain="archive.org",
+            content_sha256=(
+                "6e81c50dee3798feacf92d45f0b4183ec6e56dba8d0a68dc29c24fcddbb38f66"
+            ),
+            content_sha256_basis="downloaded_internet_archive_original_scan_pdf_bytes",
+        )
+    )
+
+    rows.append(
+        _row(
+            species="Alangium salviifolium",
+            trait="floral_symmetry",
+            value="actinomorphic",
+            raw_value="floral symmetry: actinomorphic",
+            excerpt=(
+                "Tree Species Details: Family Name Alangiaceae; Genus Alangium; "
+                "Species Alangium salviifolium; Key character: floral symmetry: "
+                "actinomorphic."
+            ),
+            quality="medium",
+            provider="Bangladesh Forest Information System",
+            url="https://bfis.bforest.gov.bd/nef/index.php/data/dataSpecies#my43",
+            title="Forest Emission Factor Database - Alangium salviifolium",
+            citation=(
+                "Bangladesh Forest Information System, Forest Emission Factor "
+                "Database species record: Alangium salviifolium"
+            ),
+            record_id=(
+                "bfis:forest-emission-factor:alangium-salviifolium:floral-symmetry"
+            ),
+            lineage="bfis:species-record:alangium-salviifolium",
+            lineage_method="canonical_government_database_species_record",
+            source_tier="A",
+            source_type="government_forest_species_database",
+            domain="bfis.bforest.gov.bd",
+            content_sha256=(
+                "fdfc4f564792bfc59a271b9c05dfa65788e8901500afb11a9e99cd90141bc49b"
+            ),
+            content_sha256_basis="retrieved_government_database_html_bytes",
+            name_resolution_lineage=(
+                "master_accepted_name_exact; historical Alangiaceae placement "
+                "reconciled to current Cornaceae"
+            ),
+        )
+    )
+
+    rows.append(
+        _row(
+            species="Sideritis canariensis",
+            trait="floral_symmetry",
+            value="zygomorphic",
+            raw_value="corola tubulosa ... con pequeños labios",
+            excerpt=(
+                "Sideritis canariensis L. Cada flor presenta una pequeña corola "
+                "tubulosa de color blanquecino amarillento, con pequeños labios "
+                "de tonalidad marrón rojiza en la marchitez."
+            ),
+            quality="medium",
+            provider="Gobierno de Canarias CanariWiki",
+            url=(
+                "https://www3.gobiernodecanarias.org/medusa/wiki/"
+                "index.php?title=Chajorra_de_monte"
+            ),
+            title="Chajorra de monte - CanariWiki",
+            citation=(
+                "Gobierno de Canarias, CanariWiki species account: "
+                "Sideritis canariensis L."
+            ),
+            record_id="canariwiki:sideritis-canariensis:bilabiate-corolla",
+            lineage=(
+                "url:https://www3.gobiernodecanarias.org/medusa/wiki/"
+                "index.php?title=Chajorra_de_monte"
+            ),
+            lineage_method="canonical_government_species_description_page",
+            source_tier="A",
+            source_type="government_regional_flora_species_description",
+            domain="www3.gobiernodecanarias.org",
+            content_sha256=(
+                "c415210616906d709e4bc4d5410f45753558dc7d179a66183d43a8c499437e35"
+            ),
+            content_sha256_basis="retrieved_government_species_page_html_bytes",
+            language="es",
+        )
+    )
+
     commelineae_excerpt = (
         "Breeding system studies in the selected taxa revealed that they were all "
         "self and cross-compatible species. Except Dictyospermum montanum (2.5%) "
@@ -602,6 +715,9 @@ def build(
         "Floscopa scandens": "Commelinaceae",
         "Murdannia nudiflora": "Commelinaceae",
         "Rhopalephora scaberrima": "Commelinaceae",
+        "Palaquium obovatum": "Sapotaceae",
+        "Alangium salviifolium": "Cornaceae",
+        "Sideritis canariensis": "Lamiaceae",
     }
     missing = sorted(set(expected_families) - set(master_family))
     if missing:
@@ -618,8 +734,8 @@ def build(
     evidence = evidence.sort_values(
         ["accepted_species", "trait_name", "candidate_id"]
     ).reset_index(drop=True)
-    if len(evidence) != 24:
-        raise ValueError(f"expected 24 reviewed trait rows, found {len(evidence)}")
+    if len(evidence) != 27:
+        raise ValueError(f"expected 27 reviewed trait rows, found {len(evidence)}")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("wave-2 candidate IDs are not unique")
     audit = _review_audit(evidence)

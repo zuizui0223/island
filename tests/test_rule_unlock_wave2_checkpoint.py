@@ -16,16 +16,16 @@ CHECKPOINT = Path(
 def test_wave2_rows_are_trait_specific_and_source_backed() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
 
-    assert len(evidence) == 24
-    assert evidence["accepted_species"].nunique() == 13
-    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 24
+    assert len(evidence) == 27
+    assert evidence["accepted_species"].nunique() == 16
+    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 27
     assert evidence["evidence_scope"].eq("species_direct").all()
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
     assert evidence["source_excerpt"].str.len().gt(30).all()
-    assert evidence["source_lineage"].nunique() == 10
+    assert evidence["source_lineage"].nunique() == 13
     assert evidence["evidence_quality"].value_counts().to_dict() == {
-        "high": 22,
-        "medium": 2,
+        "high": 23,
+        "medium": 4,
     }
 
     reproductive = evidence.loc[evidence["axis"].eq("reproductive_assurance")]
@@ -49,18 +49,33 @@ def test_zero_bagged_set_does_not_overwrite_hand_self_compatibility() -> None:
         assert ("self_incompatibility", "SC") in observed
 
 
-def test_morphology_rows_are_species_direct_medium_only() -> None:
+def test_morphology_rows_keep_explicit_species_descriptions_trait_specific() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
     morphology = evidence.loc[
         evidence["trait_name"].eq("floral_symmetry")
     ].set_index("accepted_species")
 
     assert set(morphology.index) == {
+        "Alangium salviifolium",
         "Drypetes assamica",
         "Melastoma malabathricum",
+        "Sideritis canariensis",
     }
-    assert morphology["normalized_value"].eq("actinomorphic").all()
+    assert morphology["normalized_value"].to_dict() == {
+        "Alangium salviifolium": "actinomorphic",
+        "Drypetes assamica": "actinomorphic",
+        "Melastoma malabathricum": "actinomorphic",
+        "Sideritis canariensis": "zygomorphic",
+    }
     assert morphology["evidence_quality"].eq("medium").all()
+
+    tube_depth = evidence.loc[
+        evidence["accepted_species"].eq("Palaquium obovatum")
+        & evidence["trait_name"].eq("tube_depth_class")
+    ]
+    assert len(tube_depth) == 1
+    assert tube_depth.iloc[0]["normalized_value"] == "shallow"
+    assert tube_depth.iloc[0]["evidence_quality"] == "high"
 
 
 def test_commelineae_thesis_keeps_si_and_mating_system_as_separate_traits() -> None:
@@ -103,7 +118,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
 
-    assert len(evidence) == len(audit) == len(accepted) == 809
+    assert len(evidence) == len(audit) == len(accepted) == 812
     assert evidence["candidate_id"].is_unique
     assert audit["candidate_id"].is_unique
     assert audit["decision"].str.casefold().eq("accept").all()
@@ -111,4 +126,4 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
     wave = accepted.loc[accepted["source_group"].eq(
         "rule_unlock_wave2_checkpoint_20260812"
     )]
-    assert len(wave) == 24
+    assert len(wave) == 27

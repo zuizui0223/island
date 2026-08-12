@@ -2,14 +2,14 @@
 
 This checkpoint freezes individually reviewed species-direct evidence selected
 for information gain in the current `genus x trait_name` queue. It adds twenty-two
-reproductive records and two visible-morphology records. It never emits genus,
+reproductive records and five visible-morphology records. It never emits genus,
 family, or global inference itself.
 
 Reproductive concepts remain separate: failure of unassisted bagged flowers is
 stored as `autonomous_selfing_capacity=absent`, while successful hand-selfing is
 stored independently as `self_incompatibility=SC`. Flower symmetry is accepted
-only where the fetched species page explicitly says `actinomorphic` or
-`actinomorfas`.
+only from explicit symmetry terminology or a directly described bilabiate
+corolla; corolla-tube depth remains a separate trait.
 
 The UNESP thesis and publisher/government/source pages were retrieved and
 fingerprinted. Two otherwise inaccessible original full-text statements use a
