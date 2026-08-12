@@ -487,6 +487,76 @@ def reviewed_rows() -> list[dict[str, str]]:
             language="es",
         )
     )
+
+    commelineae_excerpt = (
+        "Breeding system studies in the selected taxa revealed that they were all "
+        "self and cross-compatible species. Except Dictyospermum montanum (2.5%) "
+        "and Floscopa scandens (14%), all others showed high percentages of "
+        "autogamous fruit set (72.38% in Commelina diffusa, 47.62% in Murdannia "
+        "nudiflora and 41.43% in Rhopalephora scaberrima). These species thus have "
+        "evolved a system of adaptive modifications which resulted in a mixed "
+        "mating system that produces both self and cross seeds."
+    )
+    commelineae_common = {
+        "provider": "Veena 2020 University of Calicut doctoral thesis",
+        "url": (
+            "https://scholar.uoc.ac.in/bitstreams/"
+            "dd6a8802-5ffd-4a70-9078-736a78794e8a/download"
+        ),
+        "title": (
+            "Pollination biology of selected taxa of the tribe Commelineae "
+            "(Commelinaceae)"
+        ),
+        "citation": (
+            "Veena, V. (2020), doctoral thesis, Department of Botany, "
+            "University of Calicut, pp. 174-176 and 181-183"
+        ),
+        "lineage": "study:veena-2020:commelineae-controlled-pollination",
+        "lineage_method": (
+            "underlying_multispecies_thesis_experiment; later species articles "
+            "must be reconciled to this study lineage"
+        ),
+        "source_tier": "A",
+        "source_type": "doctoral_thesis_controlled_pollination_experiment",
+        "domain": "scholar.uoc.ac.in",
+        "content_sha256": (
+            "1d40da559fe5e601e05fc9fc7d678b7b4d4c18a6f22462e37b212b00fc2263bd"
+        ),
+        "content_sha256_basis": "downloaded_official_repository_pdf_bytes",
+    }
+    commelineae_species = (
+        "Commelina diffusa",
+        "Dictyospermum montanum",
+        "Floscopa scandens",
+        "Murdannia nudiflora",
+        "Rhopalephora scaberrima",
+    )
+    for species in commelineae_species:
+        slug = species.casefold().replace(" ", "-")
+        rows.extend(
+            [
+                _row(
+                    species=species,
+                    trait="self_incompatibility",
+                    value="SC",
+                    raw_value="self- and cross-compatible in controlled pollinations",
+                    excerpt=commelineae_excerpt,
+                    quality="high",
+                    record_id=f"uoc:veena-2020:{slug}:self-compatible",
+                    **commelineae_common,
+                ),
+                _row(
+                    species=species,
+                    trait="mating_system",
+                    value="mixed_mating",
+                    raw_value="mixed mating system producing self and cross seeds",
+                    excerpt=commelineae_excerpt,
+                    quality="high",
+                    record_id=f"uoc:veena-2020:{slug}:mixed-mating",
+                    **commelineae_common,
+                ),
+            ]
+        )
     return rows
 
 
@@ -527,6 +597,11 @@ def build(
         "Drypetes assamica": "Putranjivaceae",
         "Cornus sericea": "Cornaceae",
         "Daucus montanus": "Apiaceae",
+        "Commelina diffusa": "Commelinaceae",
+        "Dictyospermum montanum": "Commelinaceae",
+        "Floscopa scandens": "Commelinaceae",
+        "Murdannia nudiflora": "Commelinaceae",
+        "Rhopalephora scaberrima": "Commelinaceae",
     }
     missing = sorted(set(expected_families) - set(master_family))
     if missing:
@@ -543,8 +618,8 @@ def build(
     evidence = evidence.sort_values(
         ["accepted_species", "trait_name", "candidate_id"]
     ).reset_index(drop=True)
-    if len(evidence) != 14:
-        raise ValueError(f"expected 14 reviewed trait rows, found {len(evidence)}")
+    if len(evidence) != 24:
+        raise ValueError(f"expected 24 reviewed trait rows, found {len(evidence)}")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("wave-2 candidate IDs are not unique")
     audit = _review_audit(evidence)

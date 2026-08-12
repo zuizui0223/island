@@ -16,22 +16,23 @@ CHECKPOINT = Path(
 def test_wave2_rows_are_trait_specific_and_source_backed() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
 
-    assert len(evidence) == 14
-    assert evidence["accepted_species"].nunique() == 8
-    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 14
+    assert len(evidence) == 24
+    assert evidence["accepted_species"].nunique() == 13
+    assert evidence[["accepted_species", "trait_name"]].drop_duplicates().shape[0] == 24
     assert evidence["evidence_scope"].eq("species_direct").all()
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
     assert evidence["source_excerpt"].str.len().gt(30).all()
-    assert evidence["source_lineage"].nunique() == 9
+    assert evidence["source_lineage"].nunique() == 10
     assert evidence["evidence_quality"].value_counts().to_dict() == {
-        "high": 12,
+        "high": 22,
         "medium": 2,
     }
 
     reproductive = evidence.loc[evidence["axis"].eq("reproductive_assurance")]
-    assert len(reproductive) == 12
+    assert len(reproductive) == 22
     assert set(reproductive["trait_name"]) == {
         "autonomous_selfing_capacity",
+        "mating_system",
         "self_incompatibility",
     }
     assert not set(evidence["trait_name"]).intersection(
@@ -62,6 +63,31 @@ def test_morphology_rows_are_species_direct_medium_only() -> None:
     assert morphology["evidence_quality"].eq("medium").all()
 
 
+def test_commelineae_thesis_keeps_si_and_mating_system_as_separate_traits() -> None:
+    evidence = pd.DataFrame(reviewed_rows()).fillna("")
+    species = {
+        "Commelina diffusa",
+        "Dictyospermum montanum",
+        "Floscopa scandens",
+        "Murdannia nudiflora",
+        "Rhopalephora scaberrima",
+    }
+    rows = evidence.loc[evidence["accepted_species"].isin(species)]
+
+    assert len(rows.loc[rows["source_lineage"].eq(
+        "study:veena-2020:commelineae-controlled-pollination"
+    )]) == 10
+    for accepted_species in species:
+        observed = set(
+            zip(
+                rows.loc[rows["accepted_species"].eq(accepted_species), "trait_name"],
+                rows.loc[rows["accepted_species"].eq(accepted_species), "normalized_value"],
+            )
+        )
+        assert ("self_incompatibility", "SC") in observed
+        assert ("mating_system", "mixed_mating") in observed
+
+
 def test_committed_combined_checkpoint_passes_review_gate() -> None:
     evidence = pd.read_csv(
         CHECKPOINT / "combined_curated_evidence_20260812.csv", dtype=str
@@ -77,7 +103,7 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
 
-    assert len(evidence) == len(audit) == len(accepted) == 799
+    assert len(evidence) == len(audit) == len(accepted) == 809
     assert evidence["candidate_id"].is_unique
     assert audit["candidate_id"].is_unique
     assert audit["decision"].str.casefold().eq("accept").all()
@@ -85,4 +111,4 @@ def test_committed_combined_checkpoint_passes_review_gate() -> None:
     wave = accepted.loc[accepted["source_group"].eq(
         "rule_unlock_wave2_checkpoint_20260812"
     )]
-    assert len(wave) == 14
+    assert len(wave) == 24
