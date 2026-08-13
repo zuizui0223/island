@@ -1,8 +1,8 @@
 {
-  "accepted_rows": 16,
+  "accepted_rows": 20,
   "combined": {
-    "audit_rows": 1762,
-    "evidence_rows": 1762
+    "audit_rows": 1766,
+    "evidence_rows": 1766
   },
   "contract": "independent_lineage_recovery_checkpoint_v1",
   "corrective_rows": {
@@ -19,20 +19,20 @@
   ],
   "files": {
     "combined_curated_evidence_20260813.csv": {
-      "sha256": "3856cf0d49940df123c760392360a25633bf60a0ce68ff6c958bdd0f4df74156",
-      "size_bytes": 2007281
+      "sha256": "bd8398073006138d24f9d60b9f4ec967f4327fff3912ce49c69a657da152bac4",
+      "size_bytes": 2011526
     },
     "combined_curated_manual_audit_20260813.csv": {
-      "sha256": "0ccaafe6e62576fbd3257c0ef91fbbbaf6756c8551df5b60161f774655081b0d",
-      "size_bytes": 1730122
+      "sha256": "aeb7d6042728cf26da3f4ec8278d760706af93e325a0eeebb6bff1eb1afe8a04",
+      "size_bytes": 1733990
     },
     "independent_lineage_recovery_evidence_20260813.csv": {
-      "sha256": "cf0e88f2f33b16f2f5d4816baf5fac12e89df4d859bab0e50a4d71ff496b582f",
-      "size_bytes": 17790
+      "sha256": "034762e6de4f9b93666ef352f18976421567775da826602fdace09dffa74f75e",
+      "size_bytes": 22035
     },
     "independent_lineage_recovery_manual_audit_20260813.csv": {
-      "sha256": "34792e40544e1fd6fb14f3e0c8a5a3cfe1486f36ca70ccac41f1851cb4706a72",
-      "size_bytes": 16631
+      "sha256": "5d8310b26f0464a8d9d1a86cef5b5fe85bc3a8917636a266b728c978a6f39eb5",
+      "size_bytes": 20499
     }
   },
   "guardrails": {
@@ -50,25 +50,29 @@
     },
     "prior_curated_audit_csv": {
       "path": "data\\v2\\staging\\traits\\open_web_pilot\\independent_lineage_recovery_checkpoint_20260813\\combined_curated_manual_audit_20260813.csv",
-      "sha256": "0ccaafe6e62576fbd3257c0ef91fbbbaf6756c8551df5b60161f774655081b0d"
+      "sha256": "aeb7d6042728cf26da3f4ec8278d760706af93e325a0eeebb6bff1eb1afe8a04"
     },
     "prior_curated_evidence_csv": {
       "path": "data\\v2\\staging\\traits\\open_web_pilot\\independent_lineage_recovery_checkpoint_20260813\\combined_curated_evidence_20260813.csv",
-      "sha256": "3856cf0d49940df123c760392360a25633bf60a0ce68ff6c958bdd0f4df74156"
+      "sha256": "bd8398073006138d24f9d60b9f4ec967f4327fff3912ce49c69a657da152bac4"
     }
   },
   "quality_counts": {
-    "high": 13,
-    "medium": 3
+    "high": 16,
+    "medium": 4
   },
-  "source_lineages": 11,
-  "species_trait": 16,
+  "source_lineages": 14,
+  "species_trait": 20,
   "theoretical_incremental_ficus_rule_cells": 634,
+  "theoretical_incremental_visible_rule_axis_cells_upper_bound": 314,
+  "theoretical_incremental_visible_rule_trait_cells": 432,
   "theoretical_only_not_formal_coverage": true,
-  "theoretical_rule_trait_cells": 1654,
+  "theoretical_rule_trait_cells": 2086,
   "trait_counts": {
     "autonomous_selfing_capacity": 6,
-    "floral_symmetry": 1,
+    "floral_symmetry": 2,
+    "flower_size_class": 2,
+    "inflorescence_display": 1,
     "mating_system": 7,
     "self_incompatibility": 2
   }

@@ -377,6 +377,141 @@ ROWS = [
         "content_sha256_basis": "retrieved_publisher_pdf_bytes",
         "raw_value": "genetically self-incompatible",
     },
+    {
+        "species": "Casearia grandiflora",
+        "trait": "floral_symmetry",
+        "value": "actinomorphic",
+        "quality": "high",
+        "provider": "Brazilian Journal of Botany primary article",
+        "url": "https://doi.org/10.1590/S0100-84042000000300004",
+        "title": (
+            "Biologia floral e reprodutiva de Casearia grandiflora Camb. "
+            "(Flacourtiaceae)"
+        ),
+        "citation": (
+            "Machado & Oliveira (2000), Brazilian Journal of Botany 23:283-290, "
+            "DOI 10.1590/S0100-84042000000300004"
+        ),
+        "excerpt": "Apresentam simetria radial e são do tipo aberto.",
+        "record_id": (
+            "doi:10.1590/S0100-84042000000300004:casearia-grandiflora:"
+            "radial-symmetry"
+        ),
+        "lineage": "doi:10.1590/S0100-84042000000300004",
+        "lineage_method": "original_primary_article_doi",
+        "source_tier": "A",
+        "source_type": "peer_reviewed_floral_biology_article",
+        "domain": "doi.org",
+        "content_sha256": (
+            "e0ca40d00fb8e429ea65ad9a28f63fd3da9387b609e41acde98ce57ee53cfcd6"
+        ),
+        "content_sha256_basis": "retrieved_full_article_pdf_bytes",
+        "raw_value": "simetria radial",
+        "language": "pt",
+        "retrieved_at_utc": "2026-08-13T03:59:37Z",
+    },
+    {
+        "species": "Casearia grandiflora",
+        "trait": "flower_size_class",
+        "value": "small",
+        "quality": "high",
+        "provider": "Brazilian Journal of Botany primary article",
+        "url": "https://doi.org/10.1590/S0100-84042000000300004",
+        "title": (
+            "Biologia floral e reprodutiva de Casearia grandiflora Camb. "
+            "(Flacourtiaceae)"
+        ),
+        "citation": (
+            "Machado & Oliveira (2000), Brazilian Journal of Botany 23:283-290, "
+            "DOI 10.1590/S0100-84042000000300004"
+        ),
+        "excerpt": (
+            "As flores são branco-esverdeadas, opacas e têm cerca de 7,0 mm de "
+            "diâmetro."
+        ),
+        "record_id": (
+            "doi:10.1590/S0100-84042000000300004:casearia-grandiflora:"
+            "flower-diameter-7mm"
+        ),
+        "lineage": "doi:10.1590/S0100-84042000000300004",
+        "lineage_method": "original_primary_article_doi",
+        "source_tier": "A",
+        "source_type": "peer_reviewed_floral_biology_article",
+        "domain": "doi.org",
+        "content_sha256": (
+            "e0ca40d00fb8e429ea65ad9a28f63fd3da9387b609e41acde98ce57ee53cfcd6"
+        ),
+        "content_sha256_basis": "retrieved_full_article_pdf_bytes",
+        "raw_value": "cerca de 7,0 mm de diâmetro",
+        "language": "pt",
+        "retrieved_at_utc": "2026-08-13T03:59:37Z",
+    },
+    {
+        "species": "Erythroxylum suberosum",
+        "trait": "flower_size_class",
+        "value": "small",
+        "quality": "medium",
+        "provider": "University of Brasilia institutional repository",
+        "url": (
+            "https://www.repositorio.unb.br/bitstream/10482/36875/1/"
+            "2019_DiegueHenriqueNascimentoMartins.pdf"
+        ),
+        "title": (
+            "Avaliacao da atividade fotoquimiopreventiva das especies vegetais "
+            "provenientes do Cerrado Brasileiro"
+        ),
+        "citation": (
+            "Martins (2019), doctoral thesis, Universidade de Brasilia, "
+            "repository record 10482/36875"
+        ),
+        "excerpt": (
+            "Suas flores são pequenas (4,5 mm), hermafroditas, pentâmeras, "
+            "actinomorfas, de coloração creme-claro."
+        ),
+        "record_id": "unb:10482/36875:erythroxylum-suberosum:flower-size-4.5mm",
+        "lineage": "thesis:martins-2019:unb:10482/36875",
+        "lineage_method": "institutional_repository_thesis_lineage",
+        "source_tier": "A",
+        "source_type": "doctoral_thesis_species_description",
+        "domain": "repositorio.unb.br",
+        "content_sha256": (
+            "af9c54475b026bd1b99ddc2f870f62f0896a5319ba20810fac0067f3f3cf89e5"
+        ),
+        "content_sha256_basis": "retrieved_institutional_repository_pdf_bytes",
+        "raw_value": "flores pequenas (4,5 mm)",
+        "language": "pt",
+        "retrieved_at_utc": "2026-08-13T03:59:37Z",
+    },
+    {
+        "species": "Calamagrostis epigejos",
+        "trait": "inflorescence_display",
+        "value": "raceme_spike_panicle",
+        "quality": "high",
+        "provider": "New Zealand Plant Conservation Network",
+        "url": (
+            "https://www.nzpcn.org.nz/flora/species/"
+            "calamagrostis-epigejos/?download=pdf"
+        ),
+        "title": "Calamagrostis epigejos (L.) Roth",
+        "citation": "New Zealand Plant Conservation Network species profile",
+        "excerpt": (
+            "Inflorescences (panicles) dense, yellowish-brown when seed is ripe, "
+            "15-30 cm long."
+        ),
+        "record_id": "nzpcn:calamagrostis-epigejos:inflorescence-panicle",
+        "lineage": "provider_treatment:nzpcn:Calamagrostis_epigejos",
+        "lineage_method": "conservation_network_species_treatment_lineage",
+        "source_tier": "A",
+        "source_type": "conservation_network_species_database",
+        "domain": "nzpcn.org.nz",
+        "content_sha256": (
+            "22fa8f46564d189ce1bc4edfcfcb0a8cb84ea79714884c233340769ba6928a7b"
+        ),
+        "content_sha256_basis": "retrieved_species_profile_pdf_bytes",
+        "raw_value": "Inflorescences (panicles) dense",
+        "wild_status": "introduced_wild_species_profile_not_cultivar_limited",
+        "retrieved_at_utc": "2026-08-13T03:59:37Z",
+    },
     *[
         {
             "species": species,
@@ -441,7 +576,7 @@ def reviewed_rows() -> list[dict[str, str]]:
             domain=item["domain"],
             content_sha256=item["content_sha256"],
             content_sha256_basis=item["content_sha256_basis"],
-            retrieved_at_utc=CREATED_AT,
+            retrieved_at_utc=item.get("retrieved_at_utc", CREATED_AT),
             raw_value=item["raw_value"],
         )
         evidence["source_group"] = SOURCE_GROUP
@@ -482,7 +617,8 @@ def build(
         raise ValueError("every independent-lineage row needs a retrieved content hash")
     audit = _audit(evidence)
     audit["reviewer"] = "Codex source-backed independent-lineage evidence audit"
-    audit["reviewed_at_utc"] = CREATED_AT
+    reviewed_at = evidence.set_index("candidate_id")["retrieved_at_utc"]
+    audit["reviewed_at_utc"] = audit["candidate_id"].map(reviewed_at)
     audit["decision_reason"] = (
         "Accepted species or exact source-stated synonym identity, exact source "
         "statement, trait-specific mapping, source URL and retrieved-content hash "
@@ -534,8 +670,10 @@ def build(
         "quality_counts": evidence["evidence_quality"].value_counts().to_dict(),
         "trait_counts": evidence["trait_name"].value_counts().to_dict(),
         "source_lineages": int(evidence["source_lineage"].nunique()),
-        "theoretical_rule_trait_cells": 1_654,
+        "theoretical_rule_trait_cells": 2_086,
         "theoretical_incremental_ficus_rule_cells": 634,
+        "theoretical_incremental_visible_rule_trait_cells": 432,
+        "theoretical_incremental_visible_rule_axis_cells_upper_bound": 314,
         "theoretical_only_not_formal_coverage": True,
         "corrective_rows": {
             "Lolium_rigidum_cross_species_exclusion": True,

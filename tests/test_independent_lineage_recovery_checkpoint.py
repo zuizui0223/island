@@ -17,21 +17,23 @@ CHECKPOINT = Path(
 def test_rows_are_direct_trait_specific_independent_evidence() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
 
-    assert len(evidence) == 16
+    assert len(evidence) == 20
     assert evidence[["accepted_species", "trait_name"]].duplicated().sum() == 0
     assert evidence["source_group"].eq(SOURCE_GROUP).all()
     assert evidence["evidence_scope"].eq("species_direct").all()
     assert evidence["evidence_quality"].value_counts().to_dict() == {
-        "high": 13,
-        "medium": 3,
+        "high": 16,
+        "medium": 4,
     }
     assert evidence["trait_name"].value_counts().to_dict() == {
         "autonomous_selfing_capacity": 6,
         "mating_system": 7,
         "self_incompatibility": 2,
-        "floral_symmetry": 1,
+        "floral_symmetry": 2,
+        "flower_size_class": 2,
+        "inflorescence_display": 1,
     }
-    assert evidence["source_lineage"].nunique() == 11
+    assert evidence["source_lineage"].nunique() == 14
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
     assert not set(evidence["trait_name"]).intersection(
         {"pollen_vector_mode", "reward_type"}
@@ -77,6 +79,16 @@ def test_multi_species_lineage_and_begonia_trait_separation_are_preserved() -> N
     assert "autonomous_selfing_capacity" not in set(begonia["trait_name"])
     assert begonia["source_lineage"].nunique() == 1
 
+    casearia = evidence.loc[
+        evidence["accepted_species"].eq("Casearia grandiflora")
+    ]
+    assert set(casearia["trait_name"]) == {
+        "floral_symmetry",
+        "flower_size_class",
+    }
+    assert casearia["source_lineage"].nunique() == 1
+    assert casearia["content_sha256"].nunique() == 1
+
 
 def test_bad_lolium_rigidum_row_is_explicitly_excluded() -> None:
     exclusions = pd.read_csv(
@@ -108,11 +120,13 @@ def test_committed_combined_checkpoint_passes_individual_review_gate() -> None:
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
 
-    assert len(evidence) == len(audit) == len(accepted) == 1_762
+    assert len(evidence) == len(audit) == len(accepted) == 1_766
     assert evidence["candidate_id"].is_unique
     assert audit["candidate_id"].is_unique
     recovered = accepted.loc[accepted["source_group"].eq(SOURCE_GROUP)]
-    assert len(recovered) == 16
-    assert recovered["source_lineage"].nunique() == 11
+    assert len(recovered) == 20
+    assert recovered["source_lineage"].nunique() == 14
     recovered_audit = audit.loc[audit["candidate_id"].isin(recovered["candidate_id"])]
-    assert recovered_audit["reviewed_at_utc"].eq("2026-08-13T09:42:00Z").all()
+    assert recovered_audit["reviewed_at_utc"].str.fullmatch(
+        r"2026-08-13T(?:03:59:37|09:42:00)Z"
+    ).all()
