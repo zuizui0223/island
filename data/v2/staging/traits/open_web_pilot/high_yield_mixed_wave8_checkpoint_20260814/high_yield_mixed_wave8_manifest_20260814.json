@@ -1,0 +1,76 @@
+{
+  "accepted_rows": 7,
+  "combined": {
+    "audit_rows": 1943,
+    "evidence_rows": 1943
+  },
+  "contract": "high_yield_trait_specific_support2_checkpoint_v1",
+  "created_at_utc": "2026-08-13T22:32:48Z",
+  "direct_counterevidence_rows": 3,
+  "files": {
+    "README.md": {
+      "sha256": "2233d02c2f5192fdd967d7965301b78a49c734408d30cc39da083401e7015dad",
+      "size_bytes": 2362
+    },
+    "combined_curated_evidence_20260814.csv": {
+      "sha256": "ba62301b3e7a5e23c11ec3b7614ccf15ace3d8c060788d50d75a3318c7cb4f69",
+      "size_bytes": 2195171
+    },
+    "combined_curated_manual_audit_20260814.csv": {
+      "sha256": "88c7f9ecfc1bab1ee4f006a5db57d9dcfc24701bf1289a535cad582fd7af183d",
+      "size_bytes": 1893052
+    },
+    "high_yield_mixed_wave8_evidence_20260814.csv": {
+      "sha256": "d848bad43013f2eb2a6a37f7e9588824b2ab4142ff5b8d338ff03129a9238d5e",
+      "size_bytes": 8841
+    },
+    "high_yield_mixed_wave8_manual_audit_20260814.csv": {
+      "sha256": "627dbaea17887757dde775b56e2f64b29d8845f5721523055ac926d5b55215df",
+      "size_bytes": 7538
+    }
+  },
+  "guardrails": {
+    "cross_trait_substitution": false,
+    "family_inference": false,
+    "genus_inference_emitted_here": false,
+    "global_fallback": false,
+    "n2_formal_inference": false,
+    "queue_potential_counted_as_coverage": false,
+    "search_snippet_evidence": false,
+    "trait_specific_records": true
+  },
+  "inputs": {
+    "master_csv": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e"
+    },
+    "prior_curated_audit_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\high_yield_mixed_wave7_checkpoint_20260814\\combined_curated_manual_audit_20260814.csv",
+      "sha256": "82ebb966adc2ee5a8b17b3652096a329e44eae0ab6f0b4a73b0d1bd2ae5aaa97"
+    },
+    "prior_curated_evidence_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\high_yield_mixed_wave7_checkpoint_20260814\\combined_curated_evidence_20260814.csv",
+      "sha256": "979f2ae0668342a97384ccaff2c2a343396962ef3a30826eb6bcd1801a3cc525"
+    }
+  },
+  "language_counts": {
+    "en": 6,
+    "pt": 1
+  },
+  "pending_rejected_rows": 2,
+  "quality_counts": {
+    "high": 2,
+    "medium": 5
+  },
+  "rule_candidates": 4,
+  "source_lineages": 7,
+  "species_trait": 7,
+  "theoretical_only_not_formal_coverage": true,
+  "theoretical_queue_cells_before_formal_validation": 60,
+  "trait_counts": {
+    "flower_primary_color": 2,
+    "flower_size_class": 1,
+    "mating_system": 1,
+    "self_incompatibility": 3
+  }
+}
