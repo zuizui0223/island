@@ -236,7 +236,7 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "open-web-multidomain-pilot-30434418380" in workflow
     assert "inputs.prior_public_web_run_id || '31666705636'" in workflow
     assert (
-        "reproductive_counterevidence_checkpoint_20260813/"
+        "visible_morphology_rule_checkpoint_20260813/"
         "combined_curated_evidence_20260813.csv" in workflow
     )
     assert "inputs.source_package_evidence_csv_path ||" in workflow
@@ -259,12 +259,12 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "inputs.source_package_run_id || '31667163418'" in workflow
     assert "inputs.source_package_artifact_name ||" in workflow
     assert (
-        "reproductive_counterevidence_checkpoint_20260813/"
+        "visible_morphology_rule_checkpoint_20260813/"
         "combined_curated_evidence_20260813.csv"
         in workflow
     )
     assert (
-        "reproductive_counterevidence_checkpoint_20260813/"
+        "visible_morphology_rule_checkpoint_20260813/"
         "combined_curated_manual_audit_20260813.csv"
         in workflow
     )

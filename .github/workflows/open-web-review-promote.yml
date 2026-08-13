@@ -45,6 +45,7 @@ on:
       - "data/v2/staging/traits/open_web_pilot/independent_lineage_recovery_checkpoint_20260813/**"
       - "data/v2/staging/traits/open_web_pilot/cached_evidence_recovery_checkpoint_20260813/**"
       - "data/v2/staging/traits/open_web_pilot/reproductive_counterevidence_checkpoint_20260813/**"
+      - "data/v2/staging/traits/open_web_pilot/visible_morphology_rule_checkpoint_20260813/**"
       - "data/v2/staging/traits/open_web_pilot/palmpedia_archive_checkpoint_20260813/**"
       - "data/v2/external/traits/konno_1999_bagging/**"
       - "data/v2/external/traits/yomai_2021_pohnpei/**"
@@ -104,6 +105,7 @@ on:
       - "src/island_v2/independent_lineage_recovery_checkpoint.py"
       - "src/island_v2/cached_evidence_recovery_checkpoint.py"
       - "src/island_v2/reproductive_counterevidence_checkpoint.py"
+      - "src/island_v2/visible_morphology_rule_checkpoint.py"
       - "analysis/acquire_pngtrees_source_package_20260813.py"
       - "src/island_v2/review_inventory_artifact.py"
       - "tests/test_curated_bulk_checkpoint.py"
@@ -132,6 +134,7 @@ on:
       - "tests/test_independent_lineage_recovery_checkpoint.py"
       - "tests/test_cached_evidence_recovery_checkpoint.py"
       - "tests/test_reproductive_counterevidence_checkpoint.py"
+      - "tests/test_visible_morphology_rule_checkpoint.py"
       - "tests/test_pngtrees_source_package.py"
       - "tests/test_open_web_common.py"
       - "tests/test_review_inventory_artifact.py"
@@ -185,11 +188,11 @@ on:
       curated_evidence_csv_path:
         description: Individually reviewed species-direct evidence committed on this ref
         required: false
-        default: "data/v2/staging/traits/open_web_pilot/reproductive_counterevidence_checkpoint_20260813/combined_curated_evidence_20260813.csv"
+        default: "data/v2/staging/traits/open_web_pilot/visible_morphology_rule_checkpoint_20260813/combined_curated_evidence_20260813.csv"
       curated_audit_csv_path:
         description: Line-by-line audit for the curated evidence
         required: false
-        default: "data/v2/staging/traits/open_web_pilot/reproductive_counterevidence_checkpoint_20260813/combined_curated_manual_audit_20260813.csv"
+        default: "data/v2/staging/traits/open_web_pilot/visible_morphology_rule_checkpoint_20260813/combined_curated_manual_audit_20260813.csv"
       source_package_evidence_csv_path:
         description: Common-schema evidence from an audited source package
         required: false
@@ -247,10 +250,10 @@ jobs:
         ${{ inputs.candidate_file_name || 'open_web_multidomain_candidates.csv' }}
       CURATED_EVIDENCE_CSV_PATH: >-
         ${{ inputs.curated_evidence_csv_path ||
-        'data/v2/staging/traits/open_web_pilot/reproductive_counterevidence_checkpoint_20260813/combined_curated_evidence_20260813.csv' }}
+        'data/v2/staging/traits/open_web_pilot/visible_morphology_rule_checkpoint_20260813/combined_curated_evidence_20260813.csv' }}
       CURATED_AUDIT_CSV_PATH: >-
         ${{ inputs.curated_audit_csv_path ||
-        'data/v2/staging/traits/open_web_pilot/reproductive_counterevidence_checkpoint_20260813/combined_curated_manual_audit_20260813.csv' }}
+        'data/v2/staging/traits/open_web_pilot/visible_morphology_rule_checkpoint_20260813/combined_curated_manual_audit_20260813.csv' }}
       SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-
         ${{ inputs.source_package_evidence_csv_path ||
         'data/v2/staging/traits/open_web_pilot/cached_evidence_recovery_checkpoint_20260813/cached_evidence_recovery_evidence_20260813.csv.gz' }}
@@ -322,6 +325,7 @@ jobs:
             src/island_v2/independent_lineage_recovery_checkpoint.py \
             src/island_v2/cached_evidence_recovery_checkpoint.py \
             src/island_v2/reproductive_counterevidence_checkpoint.py \
+            src/island_v2/visible_morphology_rule_checkpoint.py \
             src/island_v2/review_inventory_artifact.py \
             tests/test_curated_bulk_checkpoint.py \
             tests/test_efloras_medium_checkpoint.py \
@@ -350,6 +354,7 @@ jobs:
             tests/test_independent_lineage_recovery_checkpoint.py \
             tests/test_cached_evidence_recovery_checkpoint.py \
             tests/test_reproductive_counterevidence_checkpoint.py \
+            tests/test_visible_morphology_rule_checkpoint.py \
             tests/test_review_inventory_artifact.py \
             tests/test_flora_of_australia_source_scale.py \
             tests/test_plantnet_nsw_source_scale.py \
@@ -393,6 +398,7 @@ jobs:
             tests/test_independent_lineage_recovery_checkpoint.py \
             tests/test_cached_evidence_recovery_checkpoint.py \
             tests/test_reproductive_counterevidence_checkpoint.py \
+            tests/test_visible_morphology_rule_checkpoint.py \
             tests/test_open_web_common.py \
             tests/test_review_inventory_artifact.py \
             tests/test_flora_of_australia_source_scale.py \
