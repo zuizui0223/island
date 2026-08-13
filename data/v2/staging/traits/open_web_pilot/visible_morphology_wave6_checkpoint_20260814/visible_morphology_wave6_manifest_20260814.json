@@ -1,0 +1,74 @@
+{
+  "accepted_rows": 11,
+  "combined": {
+    "audit_rows": 1929,
+    "evidence_rows": 1929
+  },
+  "contract": "visible_morphology_support2_checkpoint_v1",
+  "created_at_utc": "2026-08-14T08:00:00Z",
+  "explicit_counterexample_rows": 1,
+  "files": {
+    "README.md": {
+      "sha256": "2acf672188f27ff92ead37da3fe468f781abb6dfae8b27132be0f5dcd2abb6ca",
+      "size_bytes": 1126
+    },
+    "combined_curated_evidence_20260814.csv": {
+      "sha256": "df89121490453e1b665120359c8037c66e85837568d869cbeb2222050fd13d3b",
+      "size_bytes": 2178687
+    },
+    "combined_curated_manual_audit_20260814.csv": {
+      "sha256": "48778f8fe4304b8decf4058bd0b00b4bd6c297ffc5587251aa035c569e4e5b06",
+      "size_bytes": 1879154
+    },
+    "visible_morphology_wave6_evidence_20260814.csv": {
+      "sha256": "c84d14e41cc74666b57ebc664fc039e0571b216c2f4f649e38623e7a661a0df7",
+      "size_bytes": 12319
+    },
+    "visible_morphology_wave6_manual_audit_20260814.csv": {
+      "sha256": "984d706f405286105ff917891a93a51a34a1078d727abd0aeb2322ffbc76b6f8",
+      "size_bytes": 10594
+    }
+  },
+  "guardrails": {
+    "cross_trait_substitution": false,
+    "explicit_multistate_retained": true,
+    "family_inference": false,
+    "genus_inference_emitted_here": false,
+    "global_fallback": false,
+    "n2_formal_inference": false,
+    "partial_organ_size_as_whole_flower_size": false,
+    "queue_potential_counted_as_coverage": false,
+    "search_snippet_evidence": false,
+    "trait_specific_records": true
+  },
+  "inputs": {
+    "master_csv": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e"
+    },
+    "prior_curated_audit_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\reproductive_rule_wave5_checkpoint_20260814\\combined_curated_manual_audit_20260814.csv",
+      "sha256": "f879e85de5ba926b14deff41dad26947565a3244783c50e126fe7e484813a59c"
+    },
+    "prior_curated_evidence_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\reproductive_rule_wave5_checkpoint_20260814\\combined_curated_evidence_20260814.csv",
+      "sha256": "66e3be04b78aedb1ebb4b3cede6a4a8690772d905f0f0ddf4abb27cadc95a173"
+    }
+  },
+  "quality_counts": {
+    "high": 7,
+    "medium": 4
+  },
+  "rule_candidates": 9,
+  "source_lineages": 10,
+  "species": 10,
+  "species_trait": 11,
+  "theoretical_only_not_formal_coverage": true,
+  "theoretical_queue_cells_before_formal_validation": 146,
+  "trait_counts": {
+    "flower_primary_color": 1,
+    "flower_size_class": 2,
+    "inflorescence_display": 7,
+    "tube_depth_class": 1
+  }
+}
