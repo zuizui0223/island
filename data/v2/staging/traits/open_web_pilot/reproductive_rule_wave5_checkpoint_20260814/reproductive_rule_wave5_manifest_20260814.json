@@ -1,0 +1,69 @@
+{
+  "accepted_rows": 7,
+  "combined": {
+    "audit_rows": 1918,
+    "evidence_rows": 1918
+  },
+  "contract": "reproductive_support2_third_species_checkpoint_v1",
+  "created_at_utc": "2026-08-13T17:15:00Z",
+  "files": {
+    "README.md": {
+      "sha256": "5df51055d09dd1403d451d478073871139063b3b9f1e0a2a664388c6d00813ea",
+      "size_bytes": 1530
+    },
+    "combined_curated_evidence_20260814.csv": {
+      "sha256": "1fe9f2760cca5fc5b70af168c516ac1ce9994ad59b7b3dfbf2022fdb3e0938ad",
+      "size_bytes": 2166638
+    },
+    "combined_curated_manual_audit_20260814.csv": {
+      "sha256": "877fb3ba6449cab57d1bc2e15bfb65b14e74e4a09f4ba0d031164289c798bee4",
+      "size_bytes": 1868767
+    },
+    "reproductive_rule_wave5_evidence_20260814.csv": {
+      "sha256": "dd263c0e3c228b5beaaa2b529d428adf9332d4b10425766b1098bcbd6327ce24",
+      "size_bytes": 8022
+    },
+    "reproductive_rule_wave5_manual_audit_20260814.csv": {
+      "sha256": "2835363af3a6d02746b26fcfeef878f51c7312b93139fc15c14ad5061d2f78af",
+      "size_bytes": 7076
+    }
+  },
+  "guardrails": {
+    "cross_trait_substitution": false,
+    "family_inference": false,
+    "genus_inference_emitted_here": false,
+    "global_fallback": false,
+    "n2_formal_inference": false,
+    "queue_potential_counted_as_coverage": false,
+    "search_snippet_evidence": false,
+    "trait_specific_records": true
+  },
+  "inputs": {
+    "master_csv": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e"
+    },
+    "prior_curated_audit_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\reproductive_rule_wave4_checkpoint_20260814\\combined_curated_manual_audit_20260814.csv",
+      "sha256": "1b4ae34328786584d017d8b9399a20cf8751dbc52637dbf208b2eb4284f28cb1"
+    },
+    "prior_curated_evidence_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\reproductive_rule_wave4_checkpoint_20260814\\combined_curated_evidence_20260814.csv",
+      "sha256": "b5e660bcc5890334b917e16836cf253f6d1936a676240d3c3532e1cad674b4f9"
+    }
+  },
+  "quality_counts": {
+    "high": 2,
+    "medium": 5
+  },
+  "rule_candidates": 7,
+  "source_lineages": 7,
+  "species_trait": 7,
+  "theoretical_only_not_formal_coverage": true,
+  "theoretical_queue_cells_before_formal_validation": 463,
+  "trait_counts": {
+    "autonomous_selfing_capacity": 2,
+    "mating_system": 3,
+    "self_incompatibility": 2
+  }
+}
