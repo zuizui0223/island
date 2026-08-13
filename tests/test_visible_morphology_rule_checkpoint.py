@@ -14,21 +14,21 @@ CHECKPOINT = Path(
 def test_rows_are_species_direct_trait_specific_and_source_backed() -> None:
     evidence = pd.DataFrame(reviewed_rows()).fillna("")
 
-    assert len(evidence) == 19
+    assert len(evidence) == 30
     assert evidence[["accepted_species", "trait_name"]].duplicated().sum() == 0
     assert evidence["source_group"].eq(SOURCE_GROUP).all()
     assert evidence["evidence_scope"].eq("species_direct").all()
     assert evidence["evidence_quality"].value_counts().to_dict() == {
-        "high": 12,
+        "high": 23,
         "medium": 7,
     }
     assert evidence["trait_name"].value_counts().to_dict() == {
-        "inflorescence_display": 8,
+        "inflorescence_display": 10,
         "tube_depth_class": 3,
-        "floral_symmetry": 2,
-        "flower_size_class": 2,
-        "flower_primary_color": 2,
-        "floral_form": 1,
+        "floral_symmetry": 6,
+        "flower_size_class": 3,
+        "flower_primary_color": 3,
+        "floral_form": 4,
         "cleistogamy": 1,
     }
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
@@ -52,12 +52,12 @@ def test_committed_combined_checkpoint_passes_individual_review_gate() -> None:
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
 
-    assert len(evidence) == len(audit) == len(accepted) == 1_894
+    assert len(evidence) == len(audit) == len(accepted) == 1_905
     assert evidence["candidate_id"].is_unique
     assert audit["candidate_id"].is_unique
     visible = accepted.loc[accepted["source_group"].eq(SOURCE_GROUP)]
-    assert len(visible) == 19
-    assert visible["source_lineage"].nunique() == 14
+    assert len(visible) == 30
+    assert visible["source_lineage"].nunique() == 24
     assert visible["wild_cultivated_cultivar_status"].eq(
         "wild_species_not_cultivar_limited"
     ).all()

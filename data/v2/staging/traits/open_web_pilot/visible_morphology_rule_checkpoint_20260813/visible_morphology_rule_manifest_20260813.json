@@ -1,11 +1,11 @@
 {
-  "accepted_rows": 19,
+  "accepted_rows": 30,
   "combined": {
-    "audit_rows": 1894,
-    "evidence_rows": 1894
+    "audit_rows": 1905,
+    "evidence_rows": 1905
   },
-  "contract": "visible_morphology_support2_rule_checkpoint_v2",
-  "created_at_utc": "2026-08-13T15:10:00Z",
+  "contract": "visible_morphology_support2_rule_checkpoint_v3",
+  "created_at_utc": "2026-08-13T15:49:21Z",
   "explicit_counterevidence": [
     "Sericolea arfakensis|flower_primary_color|red_pink",
     "Micromeria imbricata|tube_depth_class|shallow|intermediate",
@@ -13,20 +13,20 @@
   ],
   "files": {
     "combined_curated_evidence_20260813.csv": {
-      "sha256": "76dd415a0c319407bd094fcfc945e5f2996295e790ca9254f86687084db8caf0",
-      "size_bytes": 2139496
+      "sha256": "a656d702c05902a0d87d4b8a7d49962d93171d1da52ac33f942d129f6e970873",
+      "size_bytes": 2151056
     },
     "combined_curated_manual_audit_20260813.csv": {
-      "sha256": "8f7ad103bc374f4d65d2702977d27dc8f03b12475ec773bbce811b6eba59c15b",
-      "size_bytes": 1845125
+      "sha256": "485ea7b9b484734af2bdd94ff5ed6516986f2f781363fa24ec8a67bec1ec24f8",
+      "size_bytes": 1855230
     },
     "visible_morphology_rule_evidence_20260813.csv": {
-      "sha256": "29b4647b6eb173c2376594a313b9972fa2695d5dbd05aa22bbd94f7022996339",
-      "size_bytes": 19472
+      "sha256": "038f507b5d3c4cd90afb4a93bd056570c2f13414732541aaabf4ab05cb6e2824",
+      "size_bytes": 31032
     },
     "visible_morphology_rule_manual_audit_20260813.csv": {
-      "sha256": "f5d0aa27f790a25055e1c37fa8c2edb0da870e82d026d7faaf8f6d94d50b7df8",
-      "size_bytes": 16871
+      "sha256": "ba25fbb2fb8b498af1da71e2716e46dd521676e016f4dacf7352ef404dd06c90",
+      "size_bytes": 26976
     }
   },
   "guardrails": {
@@ -44,28 +44,28 @@
     },
     "prior_curated_audit_csv": {
       "path": "data\\v2\\staging\\traits\\open_web_pilot\\visible_morphology_rule_checkpoint_20260813\\combined_curated_manual_audit_20260813.csv",
-      "sha256": "8f7ad103bc374f4d65d2702977d27dc8f03b12475ec773bbce811b6eba59c15b"
+      "sha256": "485ea7b9b484734af2bdd94ff5ed6516986f2f781363fa24ec8a67bec1ec24f8"
     },
     "prior_curated_evidence_csv": {
       "path": "data\\v2\\staging\\traits\\open_web_pilot\\visible_morphology_rule_checkpoint_20260813\\combined_curated_evidence_20260813.csv",
-      "sha256": "76dd415a0c319407bd094fcfc945e5f2996295e790ca9254f86687084db8caf0"
+      "sha256": "a656d702c05902a0d87d4b8a7d49962d93171d1da52ac33f942d129f6e970873"
     }
   },
   "quality_counts": {
-    "high": 12,
+    "high": 23,
     "medium": 7
   },
-  "source_lineages": 14,
-  "species_trait": 19,
+  "source_lineages": 24,
+  "species_trait": 30,
   "theoretical_only_not_formal_coverage": true,
-  "theoretical_rule_cells_before_formal_validation": 250,
+  "theoretical_rule_cells_before_formal_validation": 443,
   "trait_counts": {
     "cleistogamy": 1,
-    "floral_form": 1,
-    "floral_symmetry": 2,
-    "flower_primary_color": 2,
-    "flower_size_class": 2,
-    "inflorescence_display": 8,
+    "floral_form": 4,
+    "floral_symmetry": 6,
+    "flower_primary_color": 3,
+    "flower_size_class": 3,
+    "inflorescence_display": 10,
     "tube_depth_class": 3
   }
 }
