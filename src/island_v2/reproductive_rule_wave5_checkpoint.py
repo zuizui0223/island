@@ -146,9 +146,12 @@ SOURCES: tuple[dict[str, object], ...] = (
         "title": "Self-pollination of Asarum caulescens Maxim. in Japan",
         "citation": "Tanaka & Yahara (1987), Plant Species Biology 2:133-136",
         "excerpt": (
-            "Bagged flowers set fruits with well-swollen seeds. The filaments "
-            "elongate rapidly after the flower opens and the anthers deposit "
-            "pollen grains directly on the stigmas."
+            "Observations in two populations of Asarum caulescens belonging to "
+            "sect. Asarum indicate that inbreeding predominates becuase (1) no "
+            "effective pollinator was observed, (2) bagged flowers set fruits "
+            "with well-swollen seeds, and (3) the behaviour of filaments, "
+            "changing from recurved to straight posture, results in direct "
+            "deposition of pollen grains on the stigmas."
         ),
         "raw_value": "bagged flowers set fruits with well-swollen seeds",
         "record_id": "doi:10.1111/j.1442-1984.1987.tb00040.x:bagged-flowers",
