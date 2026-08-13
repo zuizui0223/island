@@ -36,6 +36,7 @@ TRAIT_AXIS = {
     "self_incompatibility": "reproductive_assurance",
     "autonomous_selfing_capacity": "reproductive_assurance",
     "mating_system": "reproductive_assurance",
+    "cleistogamy": "reproductive_assurance",
 }
 
 EVIDENCE_COLUMNS = [
