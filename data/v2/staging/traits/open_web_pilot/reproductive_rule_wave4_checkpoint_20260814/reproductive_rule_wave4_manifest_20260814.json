@@ -1,0 +1,66 @@
+{
+  "accepted_rows": 6,
+  "combined": {
+    "audit_rows": 1911,
+    "evidence_rows": 1911
+  },
+  "contract": "reproductive_primary_hand_pollination_checkpoint_v1",
+  "created_at_utc": "2026-08-14T06:30:00Z",
+  "excluded_infraspecific_result": "Orchis patens subsp. brevicornis",
+  "files": {
+    "README.md": {
+      "sha256": "8cf1658cd8c6dae2ba31206073d616c657818cc4a1c351da9b034d82386ba44c",
+      "size_bytes": 1618
+    },
+    "combined_curated_evidence_20260814.csv": {
+      "sha256": "b5e660bcc5890334b917e16836cf253f6d1936a676240d3c3532e1cad674b4f9",
+      "size_bytes": 2159084
+    },
+    "combined_curated_manual_audit_20260814.csv": {
+      "sha256": "1b4ae34328786584d017d8b9399a20cf8751dbc52637dbf208b2eb4284f28cb1",
+      "size_bytes": 1862096
+    },
+    "reproductive_rule_wave4_evidence_20260814.csv": {
+      "sha256": "f39469436e4c5a7302eb32af923acde27614307c46d04e6f447fda2e37d01e81",
+      "size_bytes": 8496
+    },
+    "reproductive_rule_wave4_manual_audit_20260814.csv": {
+      "sha256": "a06ca94274ecc6dc7631b14dae7522c0cfc0406954a9520ffce6a70163f673c3",
+      "size_bytes": 7271
+    }
+  },
+  "guardrails": {
+    "cross_trait_substitution": false,
+    "family_inference": false,
+    "genus_inference_emitted_here": false,
+    "global_fallback": false,
+    "n2_formal_inference": false,
+    "search_snippet_evidence": false,
+    "shared_paper_counted_as_one_lineage": true,
+    "trait_specific_records": true
+  },
+  "inputs": {
+    "master_csv": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e"
+    },
+    "prior_curated_audit_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\visible_morphology_rule_checkpoint_20260813\\combined_curated_manual_audit_20260813.csv",
+      "sha256": "485ea7b9b484734af2bdd94ff5ed6516986f2f781363fa24ec8a67bec1ec24f8"
+    },
+    "prior_curated_evidence_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\visible_morphology_rule_checkpoint_20260813\\combined_curated_evidence_20260813.csv",
+      "sha256": "a656d702c05902a0d87d4b8a7d49962d93171d1da52ac33f942d129f6e970873"
+    }
+  },
+  "quality_counts": {
+    "high": 6
+  },
+  "source_lineages": 1,
+  "species_trait": 6,
+  "theoretical_only_not_formal_coverage": true,
+  "theoretical_ophrys_rule_cells_before_formal_validation": 52,
+  "trait_counts": {
+    "self_incompatibility": 6
+  }
+}
