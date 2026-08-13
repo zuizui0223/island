@@ -6,6 +6,7 @@ from pathlib import Path
 import pandas as pd
 
 from island_v2 import all_evidence_trait_audit as audit
+from island_v2.direct_evidence_exclusions import apply_direct_evidence_exclusions
 from island_v2.integrated_trait_coverage import EVIDENCE_COLUMNS
 
 ONTOLOGY = {
@@ -137,6 +138,56 @@ def test_latest_public_web_loader_coalesces_row_level_quality_columns(
         "Alpha one": "medium",
         "Beta two": "high",
     }
+
+
+def test_reviewed_exclusion_prevents_false_conflict_with_corrected_direct_row() -> None:
+    wrong = row(
+        "Calanthe striata",
+        "autonomous_selfing_capacity",
+        "autonomous",
+        "url:https://europepmc.org/article/AGR/IND500728652",
+        quality="high",
+    )
+    corrected = row(
+        "Calanthe striata",
+        "autonomous_selfing_capacity",
+        "absent",
+        "doi:10.3390/horticulturae10101025",
+        quality="high",
+    )
+    exclusions = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Calanthe striata",
+                "trait_name": "autonomous_selfing_capacity",
+                "normalized_value": "autonomous",
+                "source_lineage": "url:https://europepmc.org/article/AGR/IND500728652",
+                "reason": "saved excerpt says neither autogamous nor apogamous",
+                "reviewer": "reviewer",
+                "reviewed_at_utc": "2026-08-13T00:00:00Z",
+            }
+        ]
+    )
+
+    kept, exclusion_audit = apply_direct_evidence_exclusions(
+        pd.DataFrame([wrong, corrected], columns=EVIDENCE_COLUMNS),
+        exclusions,
+    )
+    lineages, _ = audit.dedupe_direct_lineages(kept, ONTOLOGY)
+    resolved, cell_audit = audit.resolve_direct_cells(lineages)
+
+    assert exclusion_audit.iloc[0]["matched_rows"] == 1
+    assert resolved.iloc[0]["normalized_value"] == "absent"
+    assert resolved.iloc[0]["resolution_status"] == "resolved"
+    assert cell_audit.iloc[0]["classification"] == "single_independent_lineage"
+
+
+def test_integrated_workflow_reapplies_reviewed_direct_exclusions() -> None:
+    workflow = Path(".github/workflows/build-integrated-trait-coverage.yml").read_text(
+        encoding="utf-8"
+    )
+    assert "--direct-evidence-exclusions-csv" in workflow
+    assert "direct_evidence_exclusions_20260811.csv" in workflow
 
 
 def test_lineage_dedup_is_trait_specific_not_axis_specific() -> None:

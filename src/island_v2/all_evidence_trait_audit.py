@@ -24,6 +24,10 @@ import yaml
 
 from island_v2.angiosperm_scope import classify_scope
 from island_v2.angiosperm_scope import load_config as load_scope_config
+from island_v2.direct_evidence_exclusions import (
+    DIRECT_EVIDENCE_EXCLUSION_KEY,
+    apply_direct_evidence_exclusions,
+)
 from island_v2.integrated_trait_coverage import (
     AXES,
     DIRECT_SCOPES,
@@ -1676,6 +1680,7 @@ def build_audit(
     angiosperm_scope_yaml: Path,
     sensitivity_lock_json: Path,
     expected_species: int,
+    direct_evidence_exclusions_csv: Path | None = None,
 ) -> tuple[dict[str, Any], dict[str, pd.DataFrame], dict[str, Any]]:
     started = perf_counter()
 
@@ -1738,6 +1743,22 @@ def build_audit(
     base_direct = direct_evidence_from_integrated(integrated_lineage)
     latest_direct = load_latest_public_web(latest_public_web_dir, manifest)
     raw_direct = pd.concat([base_direct, latest_direct], ignore_index=True).fillna("")
+    direct_exclusions = (
+        pd.read_csv(direct_evidence_exclusions_csv, dtype=str).fillna("")
+        if direct_evidence_exclusions_csv is not None
+        else pd.DataFrame(
+            columns=[
+                *DIRECT_EVIDENCE_EXCLUSION_KEY,
+                "reason",
+                "reviewer",
+                "reviewed_at_utc",
+            ]
+        )
+    )
+    raw_direct, direct_exclusion_audit = apply_direct_evidence_exclusions(
+        raw_direct,
+        direct_exclusions,
+    )
     raw_direct = raw_direct.loc[
         raw_direct["accepted_species"].isin(set(master["accepted_species"]))
     ].copy()
@@ -1973,6 +1994,10 @@ def build_audit(
             },
         },
         "source_lineage_audit": {
+            "reviewed_direct_evidence_exclusions": {
+                "configured_records": len(direct_exclusions),
+                "matched_rows": int(direct_exclusion_audit["matched_rows"].sum()),
+            },
             "upstream_integrated_artifact": {
                 key: int(value)
                 for key, value in integrated_summary.get(
@@ -2072,6 +2097,7 @@ def build_audit(
         "secondary": rebuilt_low,
         "island_coverage": island_coverage,
         "common_islands": common_islands,
+        "direct_exclusion_audit": direct_exclusion_audit,
     }
     input_manifest = {
         "contract": "all_evidence_source_run_manifest_v1",
@@ -2093,7 +2119,9 @@ def build_audit(
                 ontology_yaml,
                 angiosperm_scope_yaml,
                 sensitivity_lock_json,
+                direct_evidence_exclusions_csv,
             )
+            if path is not None
         },
         "latest_public_web_artifact_dir": str(latest_public_web_dir),
     }
@@ -2151,6 +2179,7 @@ def write_outputs(
         "secondary_genus_probability_input.csv.gz": "secondary",
         "analysis_island_endpoint_coverage.csv.gz": "island_coverage",
         "common_reproductive_pathway_islands.csv": "common_islands",
+        "direct_evidence_exclusion_audit.csv": "direct_exclusion_audit",
     }
     for name, key in csv_outputs.items():
         frames[key].to_csv(output_dir / name, index=False)
@@ -2178,6 +2207,9 @@ def build(
         Path, typer.Option(exists=True, dir_okay=False)
     ],
     output_dir: Annotated[Path, typer.Option(file_okay=False)],
+    direct_evidence_exclusions_csv: Annotated[
+        Path | None, typer.Option(exists=True, dir_okay=False)
+    ] = None,
     expected_species: Annotated[int, typer.Option(min=1)] = 106_295,
 ) -> None:
     summary, frames, manifests = build_audit(
@@ -2191,6 +2223,7 @@ def build(
         angiosperm_scope_yaml=angiosperm_scope_yaml,
         sensitivity_lock_json=sensitivity_lock_json,
         expected_species=expected_species,
+        direct_evidence_exclusions_csv=direct_evidence_exclusions_csv,
     )
     write_outputs(summary, frames, manifests, output_dir)
     typer.echo(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True))

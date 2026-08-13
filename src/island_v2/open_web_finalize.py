@@ -14,6 +14,10 @@ import pandas as pd
 import typer
 
 from island_v2.all_evidence_trait_audit import load_ontology, normalise_state_set
+from island_v2.direct_evidence_exclusions import (
+    DIRECT_EVIDENCE_EXCLUSION_KEY,
+    apply_direct_evidence_exclusions,
+)
 from island_v2.open_web_common import (
     production_candidate_ids,
     promoted_to_common_evidence,
@@ -48,12 +52,6 @@ _TIER_C_MEDIUM_TRAITS = {
     "inflorescence_display",
 }
 _MIN_SOURCE_PACKAGE_NOVELTY = 0.50
-_EXCLUSION_KEY = [
-    "accepted_species",
-    "trait_name",
-    "normalized_value",
-    "source_lineage",
-]
 
 
 def _now() -> str:
@@ -70,69 +68,6 @@ def _sha256(path: Path) -> str:
 
 def _bool(value: object) -> bool:
     return str(value).strip().casefold() in _TRUE_VALUES
-
-
-def apply_direct_evidence_exclusions(
-    evidence: pd.DataFrame,
-    exclusions: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Remove reviewed exact records or reviewed source-concept families.
-
-    Exact exclusions retain the species x trait x value x lineage contract.
-    A source-concept error may instead use ``*`` for species and value together
-    with a lineage-prefix key ending in ``*``.  This deliberately narrow
-    wildcard form lets one reviewed ontology decision remove every affected
-    redistribution row without pretending that each species was independently
-    reviewed.
-    """
-
-    required = set(_EXCLUSION_KEY).union({"reason", "reviewer", "reviewed_at_utc"})
-    missing = required.difference(exclusions.columns)
-    if missing:
-        raise ValueError(f"direct-evidence exclusions missing columns: {sorted(missing)}")
-    work = exclusions.copy().fillna("")
-    if work[_EXCLUSION_KEY].duplicated().any():
-        raise ValueError("direct-evidence exclusion keys must be unique")
-    if work[list(required)].apply(lambda column: column.astype(str).str.strip().eq("").any()).any():
-        raise ValueError("direct-evidence exclusions require complete keys and review provenance")
-    wildcard = work[_EXCLUSION_KEY].apply(
-        lambda column: column.astype(str).str.contains("*", regex=False)
-    ).any(axis=1)
-    valid_wildcard = (
-        work["accepted_species"].eq("*")
-        & work["normalized_value"].eq("*")
-        & work["source_lineage"].str.endswith("*")
-        & ~work["trait_name"].str.contains("*", regex=False)
-        & work["source_lineage"].str.count(r"\*").eq(1)
-    )
-    if (wildcard & ~valid_wildcard).any():
-        raise ValueError(
-            "source-concept exclusions require species='*', value='*', "
-            "an exact trait, and one trailing lineage-prefix '*'"
-        )
-    if evidence.empty or work.empty:
-        audit = work.copy()
-        audit["matched_rows"] = 0
-        return evidence.copy(), audit
-
-    frame = evidence.copy().fillna("")
-    rejected = pd.Series(False, index=frame.index)
-    matched_rows: list[int] = []
-    for item in work.to_dict("records"):
-        match = frame["trait_name"].eq(item["trait_name"])
-        if item["accepted_species"] != "*":
-            match &= frame["accepted_species"].eq(item["accepted_species"])
-        if item["normalized_value"] != "*":
-            match &= frame["normalized_value"].eq(item["normalized_value"])
-        if item["source_lineage"].endswith("*"):
-            match &= frame["source_lineage"].str.startswith(item["source_lineage"][:-1])
-        else:
-            match &= frame["source_lineage"].eq(item["source_lineage"])
-        matched_rows.append(int(match.sum()))
-        rejected |= match
-    audit = work.copy()
-    audit["matched_rows"] = matched_rows
-    return frame.loc[~rejected].reset_index(drop=True), audit
 
 
 def validate_individually_reviewed_evidence(
@@ -467,7 +402,14 @@ def finalize_review(
     direct_exclusions = (
         pd.read_csv(direct_evidence_exclusions_csv, dtype=str).fillna("")
         if direct_evidence_exclusions_csv is not None
-        else pd.DataFrame(columns=[*_EXCLUSION_KEY, "reason", "reviewer", "reviewed_at_utc"])
+        else pd.DataFrame(
+            columns=[
+                *DIRECT_EVIDENCE_EXCLUSION_KEY,
+                "reason",
+                "reviewer",
+                "reviewed_at_utc",
+            ]
+        )
     )
     # The baseline integrated artifact can itself contain a later-invalidated
     # direct row (for example an expanded-wave extraction).  Filtering only
