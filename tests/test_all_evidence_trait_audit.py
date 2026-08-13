@@ -104,6 +104,41 @@ def test_latest_public_web_loader_preserves_original_artifact_provenance(
     assert loaded.iloc[0]["source_artifact"] == "prior-artifact"
 
 
+def test_latest_public_web_loader_coalesces_row_level_quality_columns(
+    tmp_path: Path,
+) -> None:
+    pd.DataFrame(
+        [
+            {
+                "accepted_species": "Alpha one",
+                "trait_name": "floral_form",
+                "normalized_value": "tubular",
+                "evidence_quality": "",
+                "quality": "medium",
+                "evidence_scope": "species_direct",
+                "source_lineage": "page:legacy-quality",
+            },
+            {
+                "accepted_species": "Beta two",
+                "trait_name": "floral_symmetry",
+                "normalized_value": "actinomorphic",
+                "evidence_quality": "high",
+                "quality": "",
+                "evidence_scope": "species_direct",
+                "source_lineage": "page:new-evidence-quality",
+            },
+        ]
+    ).to_csv(tmp_path / "broad_web_medium_evidence.csv.gz", index=False)
+
+    loaded = audit.load_latest_public_web(tmp_path, {"sources": []})
+
+    assert len(loaded) == 2
+    assert dict(zip(loaded["accepted_species"], loaded["quality"], strict=True)) == {
+        "Alpha one": "medium",
+        "Beta two": "high",
+    }
+
+
 def test_lineage_dedup_is_trait_specific_not_axis_specific() -> None:
     evidence = pd.DataFrame(
         [

@@ -273,7 +273,10 @@ def load_latest_public_web(root: Path, manifest: dict[str, Any]) -> pd.DataFrame
     )
     rows: list[dict[str, str]] = []
     for record in frame.to_dict("records"):
-        quality = _text(record.get("evidence_quality")).casefold()
+        quality = (
+            _text(record.get("evidence_quality")).casefold()
+            or _text(record.get("quality")).casefold()
+        )
         scope = _text(record.get("evidence_scope"))
         trait = canonical_trait_name(record.get("trait_name"))
         if (
