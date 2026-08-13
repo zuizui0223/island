@@ -733,12 +733,15 @@ def _lineage_loo(
         )
     )
     outcomes: list[bool] = []
-    for row in genus_lineages.itertuples(index=False):
-        truth = str(row.state_set)
+    for _, held_out in genus_lineages.groupby("source_lineage", sort=True):
+        truth, _ = _modal(list(held_out["state_set"]))
+        if not truth:
+            continue
+        held_out_species = set(held_out["accepted_species"])
         training_values = [
             value
             for species, value in cell_values.items()
-            if species != row.accepted_species
+            if species not in held_out_species
         ]
         predicted, _ = _modal(training_values)
         if predicted:

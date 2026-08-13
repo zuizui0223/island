@@ -266,6 +266,58 @@ def test_thresholds_and_application_remain_trait_specific() -> None:
     assert inferred.iloc[0]["trait_name"] == "floral_symmetry"
 
 
+def test_lineage_loo_removes_every_species_from_the_held_out_lineage() -> None:
+    evidence = pd.DataFrame(
+        [
+            row("Delta one", "self_incompatibility", "SC", "paper:shared"),
+            row("Delta two", "self_incompatibility", "SC", "paper:shared"),
+            row("Delta three", "self_incompatibility", "SC", "paper:independent"),
+        ],
+        columns=EVIDENCE_COLUMNS,
+    )
+    lineages, _ = audit.dedupe_direct_lineages(evidence, ONTOLOGY)
+    cells, _ = audit.resolve_direct_cells(lineages)
+    cells["genus"] = cells["accepted_species"].str.split().str[0]
+    lineages["genus"] = lineages["accepted_species"].str.split().str[0]
+    old_low = pd.DataFrame(
+        columns=["accepted_species", "genus", "axis", "trait_name", "state_set"]
+    )
+
+    rules = audit.build_rule_audit(cells, lineages, old_low)
+    current = rules.loc[rules["setting"].eq("current_min3")].iloc[0]
+
+    assert current["n_direct_species"] == 3
+    assert current["lineage_loo_n"] == 2
+    assert current["lineage_loo_correct"] == 2
+    assert current["lineage_loo_accuracy"] == 1.0
+
+
+def test_lineage_loo_does_not_count_same_paper_species_as_independent_validation() -> None:
+    evidence = pd.DataFrame(
+        [
+            row("Epsilon one", "self_incompatibility", "SC", "paper:shared"),
+            row("Epsilon two", "self_incompatibility", "SC", "paper:shared"),
+            row("Epsilon three", "self_incompatibility", "SI", "paper:independent"),
+        ],
+        columns=EVIDENCE_COLUMNS,
+    )
+    lineages, _ = audit.dedupe_direct_lineages(evidence, ONTOLOGY)
+    cells, _ = audit.resolve_direct_cells(lineages)
+    cells["genus"] = cells["accepted_species"].str.split().str[0]
+    lineages["genus"] = lineages["accepted_species"].str.split().str[0]
+    old_low = pd.DataFrame(
+        columns=["accepted_species", "genus", "axis", "trait_name", "state_set"]
+    )
+
+    rules = audit.build_rule_audit(cells, lineages, old_low)
+    current = rules.loc[rules["setting"].eq("current_min3")].iloc[0]
+
+    assert current["lineage_loo_n"] == 2
+    assert current["lineage_loo_correct"] == 0
+    assert current["lineage_loo_accuracy"] == 0.0
+    assert not bool(current["eligible"])
+
+
 def test_species_axis_coverage_uses_quality_precedence_and_exact_denominator() -> None:
     master = pd.DataFrame(
         [
