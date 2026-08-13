@@ -22,7 +22,7 @@ from island_v2.high_leverage_direct_checkpoint import (
     _evidence_row,
 )
 
-CREATED_AT = "2026-08-13T00:32:40Z"
+CREATED_AT = "2026-08-13T09:42:00Z"
 SOURCE_GROUP = "independent_lineage_recovery_checkpoint_20260813"
 
 
@@ -271,6 +271,152 @@ ROWS = [
         "content_sha256_basis": "retrieved_publisher_abstract_page_bytes",
         "raw_value": "self-incompatible",
     },
+    {
+        "species": "Erigeron bonariensis",
+        "trait": "autonomous_selfing_capacity",
+        "value": "autonomous",
+        "quality": "high",
+        "provider": "University of Konstanz KOPS author manuscript",
+        "url": (
+            "https://kops.uni-konstanz.de/server/api/core/bitstreams/"
+            "75919609-eccf-4fc4-a176-06a43b25d151/content"
+        ),
+        "title": (
+            "A test of Baker's law: breeding systems of invasive species of "
+            "Asteraceae in China"
+        ),
+        "citation": (
+            "Hao et al. (2011), Biological Invasions 13:571-580, "
+            "DOI 10.1007/s10530-010-9850-4"
+        ),
+        "excerpt": "Conyza bonariensis ... Self-compatible, autogamous",
+        "record_id": "doi:10.1007/s10530-010-9850-4:table-1:conyza-bonariensis",
+        "lineage": "doi:10.1007/s10530-010-9850-4",
+        "lineage_method": "original_primary_article_doi",
+        "source_tier": "A",
+        "source_type": "peer_reviewed_pollinator_exclusion_experiment",
+        "domain": "kops.uni-konstanz.de",
+        "content_sha256": (
+            "a2c868381508ae28b8d8a46cc57cb4a975282bd69c3db629606a9ccfe2a45d76"
+        ),
+        "content_sha256_basis": "retrieved_institutional_repository_pdf_bytes",
+        "raw_value": "Self-compatible, autogamous",
+        "matched_page_name": "Conyza bonariensis",
+        "name_match_method": "exact_synonym",
+        "name_resolution_lineage": (
+            "powo:urn:lsid:ipni.org:names:64809-2:"
+            "synonym_of_Erigeron_bonariensis"
+        ),
+    },
+    {
+        "species": "Erigeron sumatrensis",
+        "trait": "autonomous_selfing_capacity",
+        "value": "autonomous",
+        "quality": "high",
+        "provider": "University of Konstanz KOPS author manuscript",
+        "url": (
+            "https://kops.uni-konstanz.de/server/api/core/bitstreams/"
+            "75919609-eccf-4fc4-a176-06a43b25d151/content"
+        ),
+        "title": (
+            "A test of Baker's law: breeding systems of invasive species of "
+            "Asteraceae in China"
+        ),
+        "citation": (
+            "Hao et al. (2011), Biological Invasions 13:571-580, "
+            "DOI 10.1007/s10530-010-9850-4"
+        ),
+        "excerpt": "Conyza sumatrensis ... Self-compatible, autogamous",
+        "record_id": "doi:10.1007/s10530-010-9850-4:table-1:conyza-sumatrensis",
+        "lineage": "doi:10.1007/s10530-010-9850-4",
+        "lineage_method": "original_primary_article_doi",
+        "source_tier": "A",
+        "source_type": "peer_reviewed_pollinator_exclusion_experiment",
+        "domain": "kops.uni-konstanz.de",
+        "content_sha256": (
+            "a2c868381508ae28b8d8a46cc57cb4a975282bd69c3db629606a9ccfe2a45d76"
+        ),
+        "content_sha256_basis": "retrieved_institutional_repository_pdf_bytes",
+        "raw_value": "Self-compatible, autogamous",
+        "matched_page_name": "Conyza sumatrensis",
+        "name_match_method": "exact_synonym",
+        "name_resolution_lineage": (
+            "powo:urn:lsid:ipni.org:names:197781-1:"
+            "synonym_of_Erigeron_sumatrensis"
+        ),
+    },
+    {
+        "species": "Begonia integerrima",
+        "trait": "self_incompatibility",
+        "value": "SI",
+        "quality": "high",
+        "provider": "Journal of Pollination Ecology",
+        "url": (
+            "https://pollinationecology.org/index.php/jpe/article/download/"
+            "159/24/214"
+        ),
+        "title": (
+            "Pollination and reproductive biology of thirteen species of "
+            "Begonia in the Serra do Mar State Park, Sao Paulo, Brazil"
+        ),
+        "citation": "Wyatt & Sazima (2011), Journal of Pollination Ecology 6:95-107",
+        "excerpt": (
+            "the complete absence of pollen tubes in the styles of self-pollinated "
+            "flowers of B. integerrima suggests that the species is genetically "
+            "self-incompatible."
+        ),
+        "record_id": "wyatt-sazima-2011:begonia-integerrima:self-incompatible",
+        "lineage": "article:wyatt_sazima_2011:begonia_serra_do_mar",
+        "lineage_method": "original_primary_article_lineage",
+        "source_tier": "A",
+        "source_type": "peer_reviewed_controlled_pollination_experiment",
+        "domain": "pollinationecology.org",
+        "content_sha256": (
+            "157fa4233ffc07a5521b79ba1ff64d91f0ebdc2f75d77fc31fe948fd027f6295"
+        ),
+        "content_sha256_basis": "retrieved_publisher_pdf_bytes",
+        "raw_value": "genetically self-incompatible",
+    },
+    *[
+        {
+            "species": species,
+            "trait": "mating_system",
+            "value": "predominantly_outcrossing",
+            "quality": "high",
+            "provider": "Smithsonian Tropical Research Institute",
+            "url": (
+                "https://stri-apps.si.edu/docs/publications/pdfs/"
+                "STRI-W_Herre_1998_nason_etal.pdf"
+            ),
+            "title": "The breeding structure of a tropical keystone plant resource",
+            "citation": (
+                "Nason, Herre & Hamrick (1998), Nature 391:685-687, "
+                "DOI 10.1038/35607"
+            ),
+            "excerpt": (
+                "F. citrifolia, F. nymphiifolia, F. obtusifolia, F. pertusa "
+                "and F. popenoei ... these species are obligately outcrossing."
+            ),
+            "record_id": f"doi:10.1038/35607:{species.replace(' ', '-').casefold()}",
+            "lineage": "doi:10.1038/35607",
+            "lineage_method": "original_primary_article_doi",
+            "source_tier": "A",
+            "source_type": "peer_reviewed_paternity_analysis",
+            "domain": "stri-apps.si.edu",
+            "content_sha256": (
+                "caf208371814ba154ea39d1a6a5d31853f1265aaa822ffd8012a198bb503d0a4"
+            ),
+            "content_sha256_basis": "retrieved_institutional_repository_pdf_bytes",
+            "raw_value": "obligately outcrossing",
+        }
+        for species in (
+            "Ficus citrifolia",
+            "Ficus nymphaeifolia",
+            "Ficus obtusifolia",
+            "Ficus pertusa",
+            "Ficus popenoei",
+        )
+    ],
 ]
 
 
@@ -388,7 +534,8 @@ def build(
         "quality_counts": evidence["evidence_quality"].value_counts().to_dict(),
         "trait_counts": evidence["trait_name"].value_counts().to_dict(),
         "source_lineages": int(evidence["source_lineage"].nunique()),
-        "theoretical_rule_trait_cells": 1_020,
+        "theoretical_rule_trait_cells": 1_654,
+        "theoretical_incremental_ficus_rule_cells": 634,
         "theoretical_only_not_formal_coverage": True,
         "corrective_rows": {
             "Lolium_rigidum_cross_species_exclusion": True,
@@ -398,6 +545,8 @@ def build(
             "Calamus javensis|flower_size_class|petal_size_not_whole_flower_size",
             "Cirsium brevistylum|autonomous_selfing_capacity|apomixis_not_excluded",
             "Durio zibethinus|self_incompatibility|cultivar_specific_variability",
+            "Begonia|autonomous_selfing_capacity|genus_rule_blocked_by_direct_counterexample",
+            "Begonia integerrima|autonomous_selfing_capacity|manual_geitonogamy_not_substituted_for_autonomous_capacity",
         ],
         "combined": {
             "evidence_rows": len(combined_evidence),
