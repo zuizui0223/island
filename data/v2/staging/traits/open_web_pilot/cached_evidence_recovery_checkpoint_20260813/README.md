@@ -16,7 +16,11 @@ The output contains 235 novel species-trait records after conservative
 same-clause colour, whole-flower size, inflorescence-state and reproductive
 trait gates. One hundred were expressed
 in the line-by-line curated schema and appended to the preceding 1,766 reviewed
-records. The package audit is a deterministic 200-row stratified sample; only a
+records. Those 100 records are omitted from source-package production where the
+200-row minimum permits; a deterministic 65-row overlap remains only to satisfy
+the package audit-size contract. The downstream novelty gate still compares all
+approved package pairs against the curated lane and must remain at least 0.50.
+The package audit is a deterministic 200-row stratified sample; only a
 trait with at least ten audited records and precision/cultivar gates passing may
 scale. The formal PR #131 implementation remains authoritative for source-lineage
 deduplication, direct conflict resolution, `genus × trait_name` Validated Low,

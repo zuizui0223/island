@@ -81,8 +81,8 @@
     }
   },
   "outputs": {
-    "cached_evidence_recovery_audit_200_20260813.csv": "5b78d5274cd6102550e8a637dfe6a4d40bc7996cb1a5938c36cbe8d0dfd6f1f9",
-    "cached_evidence_recovery_evidence_20260813.csv.gz": "a0bf268db1a3b86f90e86069c9554def8616d6936f0959177cf1d670669acff8",
+    "cached_evidence_recovery_audit_200_20260813.csv": "87d6d2fee0cd6c9fa0a0f7352ff9f8be1fa2386f450c318f714fb90808f031be",
+    "cached_evidence_recovery_evidence_20260813.csv.gz": "58b91388ad6db6f2311e362a2f7d489f09c1a8f5c70cda39af80072943629dc1",
     "cached_evidence_recovery_individual_100_20260813.csv": "085e84a95e2eef4431b755d479cd2c93a422ee98304798996f6a73ce9ac9b801",
     "cached_evidence_recovery_individual_audit_100_20260813.csv": "a44ab84fb3f14297482552af62b23022de835ce36999f63f1bd097165c4ba0f5",
     "combined_curated_evidence_20260813.csv": "cd0eae299f19a495a4844c4bb95bdca7d150302486477cfdf63f57780520c038",
@@ -112,6 +112,7 @@
   "selected_evidence_rows": 235,
   "selected_species_trait": 235,
   "selection_formal_run_id": "31667163418",
+  "source_package_rows_after_individual_partition": 200,
   "trait_counts": {
     "autonomous_selfing_capacity": 1,
     "floral_form": 6,
