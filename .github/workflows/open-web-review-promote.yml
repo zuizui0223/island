@@ -43,6 +43,7 @@ on:
       - "data/v2/staging/traits/open_web_pilot/pngtrees_source_package_20260813/**"
       - "data/v2/staging/traits/open_web_pilot/morphology_rule_unlock_checkpoint_20260813/**"
       - "data/v2/staging/traits/open_web_pilot/independent_lineage_recovery_checkpoint_20260813/**"
+      - "data/v2/staging/traits/open_web_pilot/cached_evidence_recovery_checkpoint_20260813/**"
       - "data/v2/staging/traits/open_web_pilot/palmpedia_archive_checkpoint_20260813/**"
       - "data/v2/external/traits/konno_1999_bagging/**"
       - "data/v2/external/traits/yomai_2021_pohnpei/**"
@@ -100,6 +101,7 @@ on:
       - "src/island_v2/kudo_2022_alpine_reproduction_checkpoint.py"
       - "src/island_v2/morphology_rule_unlock_checkpoint.py"
       - "src/island_v2/independent_lineage_recovery_checkpoint.py"
+      - "src/island_v2/cached_evidence_recovery_checkpoint.py"
       - "analysis/acquire_pngtrees_source_package_20260813.py"
       - "src/island_v2/review_inventory_artifact.py"
       - "tests/test_curated_bulk_checkpoint.py"
@@ -126,6 +128,7 @@ on:
       - "tests/test_kudo_2022_alpine_reproduction_checkpoint.py"
       - "tests/test_morphology_rule_unlock_checkpoint.py"
       - "tests/test_independent_lineage_recovery_checkpoint.py"
+      - "tests/test_cached_evidence_recovery_checkpoint.py"
       - "tests/test_pngtrees_source_package.py"
       - "tests/test_open_web_common.py"
       - "tests/test_review_inventory_artifact.py"
@@ -163,11 +166,11 @@ on:
       prior_public_web_run_id:
         description: Previous formal reviewed-Web run to extend
         required: false
-        default: "31650388116"
+        default: "31666705636"
       prior_public_web_artifact_name:
         description: Artifact containing the previous formal Web ledger
         required: false
-        default: "reviewed-open-web-evidence-31650388116"
+        default: "reviewed-open-web-evidence-31666705636"
       prior_public_web_file_name:
         description: Evidence CSV path inside the previous artifact
         required: false
@@ -179,27 +182,27 @@ on:
       curated_evidence_csv_path:
         description: Individually reviewed species-direct evidence committed on this ref
         required: false
-        default: "data/v2/staging/traits/open_web_pilot/independent_lineage_recovery_checkpoint_20260813/combined_curated_evidence_20260813.csv"
+        default: "data/v2/staging/traits/open_web_pilot/cached_evidence_recovery_checkpoint_20260813/combined_curated_evidence_20260813.csv"
       curated_audit_csv_path:
         description: Line-by-line audit for the curated evidence
         required: false
-        default: "data/v2/staging/traits/open_web_pilot/independent_lineage_recovery_checkpoint_20260813/combined_curated_manual_audit_20260813.csv"
+        default: "data/v2/staging/traits/open_web_pilot/cached_evidence_recovery_checkpoint_20260813/combined_curated_manual_audit_20260813.csv"
       source_package_evidence_csv_path:
         description: Common-schema evidence from an audited source package
         required: false
-        default: ""
+        default: "data/v2/staging/traits/open_web_pilot/cached_evidence_recovery_checkpoint_20260813/cached_evidence_recovery_evidence_20260813.csv.gz"
       source_package_audit_csv_path:
         description: Deterministic audit sample for the source package
         required: false
-        default: ""
+        default: "data/v2/staging/traits/open_web_pilot/cached_evidence_recovery_checkpoint_20260813/cached_evidence_recovery_audit_200_20260813.csv"
       source_package_run_id:
         description: Original acquisition run or immutable package identifier
         required: false
-        default: ""
+        default: "31667163418"
       source_package_artifact_name:
         description: Original source-package artifact name
         required: false
-        default: ""
+        default: "repo-pinned-cached-evidence-recovery-20260813"
       direct_evidence_exclusions_csv_path:
         description: Reviewed exact-record exclusions committed on this ref
         required: false
@@ -224,10 +227,10 @@ jobs:
       PILOT_ARTIFACT_NAME: >-
         ${{ inputs.pilot_artifact_name ||
         'open-web-multidomain-pilot-30434418380' }}
-      PRIOR_PUBLIC_WEB_RUN_ID: ${{ inputs.prior_public_web_run_id || '31650388116' }}
+      PRIOR_PUBLIC_WEB_RUN_ID: ${{ inputs.prior_public_web_run_id || '31666705636' }}
       PRIOR_PUBLIC_WEB_ARTIFACT: >-
         ${{ inputs.prior_public_web_artifact_name ||
-        'reviewed-open-web-evidence-31650388116' }}
+        'reviewed-open-web-evidence-31666705636' }}
       PRIOR_PUBLIC_WEB_FILE_NAME: >-
         ${{ inputs.prior_public_web_file_name ||
         'broad_web_medium_evidence.csv.gz' }}
@@ -241,18 +244,21 @@ jobs:
         ${{ inputs.candidate_file_name || 'open_web_multidomain_candidates.csv' }}
       CURATED_EVIDENCE_CSV_PATH: >-
         ${{ inputs.curated_evidence_csv_path ||
-        'data/v2/staging/traits/open_web_pilot/independent_lineage_recovery_checkpoint_20260813/combined_curated_evidence_20260813.csv' }}
+        'data/v2/staging/traits/open_web_pilot/cached_evidence_recovery_checkpoint_20260813/combined_curated_evidence_20260813.csv' }}
       CURATED_AUDIT_CSV_PATH: >-
         ${{ inputs.curated_audit_csv_path ||
-        'data/v2/staging/traits/open_web_pilot/independent_lineage_recovery_checkpoint_20260813/combined_curated_manual_audit_20260813.csv' }}
+        'data/v2/staging/traits/open_web_pilot/cached_evidence_recovery_checkpoint_20260813/combined_curated_manual_audit_20260813.csv' }}
       SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-
-        ${{ inputs.source_package_evidence_csv_path || '' }}
+        ${{ inputs.source_package_evidence_csv_path ||
+        'data/v2/staging/traits/open_web_pilot/cached_evidence_recovery_checkpoint_20260813/cached_evidence_recovery_evidence_20260813.csv.gz' }}
       SOURCE_PACKAGE_AUDIT_CSV_PATH: >-
-        ${{ inputs.source_package_audit_csv_path || '' }}
+        ${{ inputs.source_package_audit_csv_path ||
+        'data/v2/staging/traits/open_web_pilot/cached_evidence_recovery_checkpoint_20260813/cached_evidence_recovery_audit_200_20260813.csv' }}
       SOURCE_PACKAGE_RUN_ID: >-
-        ${{ inputs.source_package_run_id || '' }}
+        ${{ inputs.source_package_run_id || '31667163418' }}
       SOURCE_PACKAGE_ARTIFACT: >-
-        ${{ inputs.source_package_artifact_name || '' }}
+        ${{ inputs.source_package_artifact_name ||
+        'repo-pinned-cached-evidence-recovery-20260813' }}
       DIRECT_EVIDENCE_EXCLUSIONS_CSV_PATH: >-
         ${{ inputs.direct_evidence_exclusions_csv_path ||
         'data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_20260811.csv' }}
@@ -311,6 +317,7 @@ jobs:
             src/island_v2/kudo_2022_alpine_reproduction_checkpoint.py \
             src/island_v2/morphology_rule_unlock_checkpoint.py \
             src/island_v2/independent_lineage_recovery_checkpoint.py \
+            src/island_v2/cached_evidence_recovery_checkpoint.py \
             src/island_v2/review_inventory_artifact.py \
             tests/test_curated_bulk_checkpoint.py \
             tests/test_efloras_medium_checkpoint.py \
@@ -337,6 +344,7 @@ jobs:
             tests/test_kudo_2022_alpine_reproduction_checkpoint.py \
             tests/test_morphology_rule_unlock_checkpoint.py \
             tests/test_independent_lineage_recovery_checkpoint.py \
+            tests/test_cached_evidence_recovery_checkpoint.py \
             tests/test_review_inventory_artifact.py \
             tests/test_flora_of_australia_source_scale.py \
             tests/test_plantnet_nsw_source_scale.py \
@@ -378,6 +386,7 @@ jobs:
             tests/test_kudo_2022_alpine_reproduction_checkpoint.py \
             tests/test_morphology_rule_unlock_checkpoint.py \
             tests/test_independent_lineage_recovery_checkpoint.py \
+            tests/test_cached_evidence_recovery_checkpoint.py \
             tests/test_open_web_common.py \
             tests/test_review_inventory_artifact.py \
             tests/test_flora_of_australia_source_scale.py \
