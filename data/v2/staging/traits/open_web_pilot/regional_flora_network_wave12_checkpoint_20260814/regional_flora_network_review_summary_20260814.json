@@ -1,0 +1,29 @@
+{
+  "accepted_by_provider": {
+    "Flora of Botswana": 1,
+    "Flora of Malawi": 18,
+    "Flora of Mozambique": 10,
+    "Flora of Zambia": 2
+  },
+  "accepted_by_trait": {
+    "floral_form": 1,
+    "floral_symmetry": 1,
+    "flower_primary_color": 14,
+    "flower_size_class": 7,
+    "inflorescence_display": 8
+  },
+  "accepted_correct": 31,
+  "cultivar_contamination_rate": 0.0,
+  "precision": 0.8378378378378378,
+  "rejected": 6,
+  "rejection_reasons": {
+    "component_measurement_not_whole_flower": 3,
+    "fruit_measurement_not_flower_size": 1,
+    "non_primary_organ_colour": 1,
+    "spacing_measurement_not_flower_size": 1
+  },
+  "reviewed_candidates": 37,
+  "source_artifact_id": "9207019490",
+  "source_artifact_name": "regional-flora-network-acquisition-31767694551",
+  "source_run_id": "31767694551"
+}

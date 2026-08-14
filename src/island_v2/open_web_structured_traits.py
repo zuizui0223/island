@@ -97,7 +97,9 @@ NON_PRIMARY_FLORAL_ORGAN = re.compile(
 FLOWER_SIZE_BRIDGE_BLOCKER = re.compile(
     r"\b(?:inflorescences?|racemes?|spikes?|panicles?|umbels?|corymbs?|"
     r"capitula|heads?|clusters?|peduncles?|pedicels?|stalks?|caly(?:x|ces)|"
-    r"sepals?|bracts?|spathes?|branches?|axes?|lobes?|limbs?|tubes?)\b",
+    r"sepals?|petals?|tepals?|perianths?|bracts?|spathes?|anthers?|stamens?|"
+    r"styles?|stigmas?|ovaries|ovary|fruits?|seeds?|capsules?|branches?|axes?|"
+    r"lobes?|limbs?|tubes?)\b",
     re.IGNORECASE,
 )
 INFLORESCENCE_SUBJECT = re.compile(
@@ -405,6 +407,11 @@ def extract_botanical_description(
                     measurement
                     and measurement.start() - subject.end() <= 120
                     and not FLOWER_SIZE_BRIDGE_BLOCKER.search(bridge)
+                    and not re.match(
+                        r"\s*(?:apart|spaced|between)\b",
+                        fragment[measurement.end() :],
+                        re.IGNORECASE,
+                    )
                 ):
                     normalized = _size(fragment[subject.start() :])
                     raw_value = measurement.group(0)

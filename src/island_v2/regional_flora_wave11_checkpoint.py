@@ -26,6 +26,30 @@ CREATED_AT = "2026-08-14T02:45:00Z"
 SOURCE_GROUP = "regional_flora_wave11_checkpoint_20260814"
 OUTPUT_STEM = "regional_flora_wave11"
 REVIEWER = "Codex regional-flora species-direct source audit"
+WAVE11_ACQUISITION_INVENTORY = {
+    "endemia": {
+        "structured_query_pages": 67,
+        "raw_colour_assignments": 629,
+        "listed_species": 582,
+        "family_conflicts_rejected": 5,
+        "retained_rows": 364,
+    },
+    "flora_of_zimbabwe": {
+        "family_index_pages": 251,
+        "listed_records": 6412,
+        "retrieved_species_pages": 493,
+        "retained_rows": 112,
+    },
+    "nzpcn": {
+        "structured_query_pages": 137,
+        "raw_colour_assignments": 2564,
+        "listed_taxa": 1614,
+        "retrieved_species_pages": 283,
+        "retained_rows": 283,
+    },
+    "search_api_queries": 0,
+    "search_api_cost": 0,
+}
 
 SOURCE_REQUIRED = {
     "accepted_species",
@@ -74,7 +98,11 @@ def load_source_rows(path: Path) -> pd.DataFrame:
     return rows
 
 
-def reviewed_rows(source_snapshot_csv: Path) -> list[dict[str, str]]:
+def reviewed_rows(
+    source_snapshot_csv: Path,
+    *,
+    source_group: str = SOURCE_GROUP,
+) -> list[dict[str, str]]:
     source_rows = load_source_rows(source_snapshot_csv)
     rows: list[dict[str, str]] = []
     for source in source_rows.to_dict("records"):
@@ -101,7 +129,7 @@ def reviewed_rows(source_snapshot_csv: Path) -> list[dict[str, str]]:
         )
         row.update(
             {
-                "source_group": SOURCE_GROUP,
+                "source_group": source_group,
                 "query": str(source["query"]),
                 "language": str(source["language"]),
                 "matched_page_name": str(source["accepted_species"]),
@@ -123,6 +151,12 @@ def build(
     prior_curated_evidence_csv: Path,
     prior_curated_audit_csv: Path,
     output_dir: Path,
+    source_group: str = SOURCE_GROUP,
+    output_stem: str = OUTPUT_STEM,
+    created_at: str = CREATED_AT,
+    reviewer: str = REVIEWER,
+    contract: str = "regional_flora_wave11_checkpoint_v1",
+    acquisition_inventory: dict[str, object] | None = None,
 ) -> dict[str, object]:
     source_rows = load_source_rows(source_snapshot_csv)
     master = pd.read_csv(master_csv, dtype=str).fillna("")
@@ -140,12 +174,15 @@ def build(
             f"master identity failure: missing={missing}, family_conflicts={family_conflicts}"
         )
 
-    evidence = pd.DataFrame(reviewed_rows(source_snapshot_csv), columns=EVIDENCE_COLUMNS).fillna("")
+    evidence = pd.DataFrame(
+        reviewed_rows(source_snapshot_csv, source_group=source_group),
+        columns=EVIDENCE_COLUMNS,
+    ).fillna("")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("wave 11 candidate IDs must be unique")
     audit = _audit(evidence)
-    audit["reviewer"] = REVIEWER
-    audit["reviewed_at_utc"] = CREATED_AT
+    audit["reviewer"] = reviewer
+    audit["reviewed_at_utc"] = created_at
     audit["decision_reason"] = (
         "Accepted after exact fixed-master species and family match, original-page "
         "trait field or species-treatment excerpt review, ontology mapping, content "
@@ -154,7 +191,7 @@ def build(
 
     prior_evidence = pd.read_csv(prior_curated_evidence_csv, dtype=str).fillna("")
     prior_audit = pd.read_csv(prior_curated_audit_csv, dtype=str).fillna("")
-    owned = prior_evidence["source_group"].eq(SOURCE_GROUP)
+    owned = prior_evidence["source_group"].eq(source_group)
     prior_ids = set(prior_evidence.loc[owned, "candidate_id"])
     current_ids = set(evidence["candidate_id"])
     combined_evidence = pd.concat([prior_evidence.loc[~owned], evidence], ignore_index=True).fillna(
@@ -173,9 +210,9 @@ def build(
 
     output_dir.mkdir(parents=True, exist_ok=True)
     paths = {
-        "source_snapshot": output_dir / f"{OUTPUT_STEM}_source_rows_20260814.csv",
-        "evidence": output_dir / f"{OUTPUT_STEM}_evidence_20260814.csv",
-        "audit": output_dir / f"{OUTPUT_STEM}_manual_audit_20260814.csv",
+        "source_snapshot": output_dir / f"{output_stem}_source_rows_20260814.csv",
+        "evidence": output_dir / f"{output_stem}_evidence_20260814.csv",
+        "audit": output_dir / f"{output_stem}_manual_audit_20260814.csv",
         "combined_evidence": output_dir / "combined_curated_evidence_20260814.csv",
         "combined_audit": output_dir / "combined_curated_manual_audit_20260814.csv",
     }
@@ -186,39 +223,16 @@ def build(
     combined_audit.to_csv(paths["combined_audit"], index=False, lineterminator="\n")
 
     summary: dict[str, object] = {
-        "contract": "regional_flora_wave11_checkpoint_v1",
-        "created_at": CREATED_AT,
-        "source_group": SOURCE_GROUP,
+        "contract": contract,
+        "created_at": created_at,
+        "source_group": source_group,
         "reviewed_species_trait_rows": len(evidence),
         "reviewed_species": int(evidence["accepted_species"].nunique()),
         "by_provider": evidence["source_provider"].value_counts().sort_index().to_dict(),
         "by_trait": evidence["trait_name"].value_counts().sort_index().to_dict(),
         "by_quality": evidence["evidence_quality"].value_counts().sort_index().to_dict(),
         "lineages": int(evidence["source_lineage"].nunique()),
-        "acquisition_inventory": {
-            "endemia": {
-                "structured_query_pages": 67,
-                "raw_colour_assignments": 629,
-                "listed_species": 582,
-                "family_conflicts_rejected": 5,
-                "retained_rows": 364,
-            },
-            "flora_of_zimbabwe": {
-                "family_index_pages": 251,
-                "listed_records": 6412,
-                "retrieved_species_pages": 493,
-                "retained_rows": 112,
-            },
-            "nzpcn": {
-                "structured_query_pages": 137,
-                "raw_colour_assignments": 2564,
-                "listed_taxa": 1614,
-                "retrieved_species_pages": 283,
-                "retained_rows": 283,
-            },
-            "search_api_queries": 0,
-            "search_api_cost": 0,
-        },
+        "acquisition_inventory": acquisition_inventory or WAVE11_ACQUISITION_INVENTORY,
         "wave_audit": {
             "reviewed": len(audit),
             "accepted_correct": len(audit),
@@ -250,7 +264,7 @@ def build(
             },
         },
     }
-    manifest_path = output_dir / f"{OUTPUT_STEM}_manifest_20260814.json"
+    manifest_path = output_dir / f"{output_stem}_manifest_20260814.json"
     summary["outputs"] = {
         label: {
             "path": str(path),
@@ -273,13 +287,30 @@ def main() -> None:
     parser.add_argument("--prior-curated-evidence-csv", type=Path, required=True)
     parser.add_argument("--prior-curated-audit-csv", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--source-group", default=SOURCE_GROUP)
+    parser.add_argument("--output-stem", default=OUTPUT_STEM)
+    parser.add_argument("--created-at", default=CREATED_AT)
+    parser.add_argument("--reviewer", default=REVIEWER)
+    parser.add_argument("--contract", default="regional_flora_wave11_checkpoint_v1")
+    parser.add_argument("--acquisition-manifest-json", type=Path)
     args = parser.parse_args()
+    acquisition_inventory = None
+    if args.acquisition_manifest_json:
+        acquisition_inventory = json.loads(
+            args.acquisition_manifest_json.read_text(encoding="utf-8")
+        )
     report = build(
         source_snapshot_csv=args.source_snapshot_csv,
         master_csv=args.master_csv,
         prior_curated_evidence_csv=args.prior_curated_evidence_csv,
         prior_curated_audit_csv=args.prior_curated_audit_csv,
         output_dir=args.output_dir,
+        source_group=args.source_group,
+        output_stem=args.output_stem,
+        created_at=args.created_at,
+        reviewer=args.reviewer,
+        contract=args.contract,
+        acquisition_inventory=acquisition_inventory,
     )
     print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
 

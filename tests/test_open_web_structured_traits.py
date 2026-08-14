@@ -178,6 +178,20 @@ def test_narrative_size_rejects_spathe_and_branch_measurements() -> None:
     ]
 
 
+def test_narrative_size_rejects_component_fruit_and_spacing_measurements() -> None:
+    page = _page(
+        "Description:\n"
+        "Male flowers: anthers 6-10 mm long. "
+        "Female flowers: ovary 1-2 mm, petals 4.5 mm long. "
+        "Flowers evenly spaced, 2-4 cm apart. "
+        "Flowers very small; fruit ellipsoid, 1-1.5 cm in diameter. "
+        "Corolla 18-22 mm long."
+    )
+    assert extract_botanical_description(page, trait_name="flower_size_class") == [
+        ("18-22 mm", "medium", "Corolla 18-22 mm long.")
+    ]
+
+
 def test_narrative_tube_depth_rejects_bare_anther_and_width_measurements() -> None:
     page = _page(
         "Description:\nTube 6–12 mm long. Anther tube 1 mm long. "
