@@ -140,8 +140,7 @@ def test_direct_evidence_exclusions_reject_broad_unscoped_wildcards() -> None:
 
 def test_reviewed_exclusion_table_blocks_known_species_context_and_ontology_errors() -> None:
     exclusions = pd.read_csv(
-        "data/v2/staging/traits/open_web_pilot/"
-        "direct_evidence_exclusions_20260811.csv",
+        "data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_20260811.csv",
         dtype=str,
     ).fillna("")
     keys = set(
@@ -246,13 +245,13 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "'31245813999'" in workflow
     assert "'30434418380'" in workflow
     assert "open-web-multidomain-pilot-30434418380" in workflow
-    assert "inputs.prior_public_web_run_id || '31666705636'" in workflow
+    assert "inputs.prior_public_web_run_id || '31758203023'" in workflow
     assert (
-        "high_yield_reproductive_wave10_checkpoint_20260814/"
+        "regional_flora_wave11_checkpoint_20260814/"
         "combined_curated_evidence_20260814.csv" in workflow
     )
     assert "inputs.source_package_evidence_csv_path ||" in workflow
-    assert "reviewed-open-web-evidence-31666705636" in workflow
+    assert "reviewed-open-web-evidence-31758203023" in workflow
     assert "broad_web_medium_evidence.csv.gz" in workflow
     assert "prior_public_web_run_id:" in workflow
     assert "prior_public_web_artifact_name:" in workflow
@@ -268,17 +267,15 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-" in workflow
     assert "SOURCE_PACKAGE_AUDIT_CSV_PATH: >-" in workflow
     assert "inputs.source_package_audit_csv_path ||" in workflow
-    assert "inputs.source_package_run_id || '31667163418'" in workflow
+    assert "inputs.source_package_run_id || ''" in workflow
     assert "inputs.source_package_artifact_name ||" in workflow
     assert (
-        "high_yield_reproductive_wave10_checkpoint_20260814/"
-        "combined_curated_evidence_20260814.csv"
-        in workflow
+        "regional_flora_wave11_checkpoint_20260814/"
+        "combined_curated_evidence_20260814.csv" in workflow
     )
     assert (
-        "high_yield_reproductive_wave10_checkpoint_20260814/"
-        "combined_curated_manual_audit_20260814.csv"
-        in workflow
+        "regional_flora_wave11_checkpoint_20260814/"
+        "combined_curated_manual_audit_20260814.csv" in workflow
     )
     assert "direct_evidence_exclusions_20260811.csv" in workflow
     assert "--direct-evidence-exclusions-csv" in workflow
@@ -289,8 +286,7 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "coverage_change_species_axis.net_change" in workflow
     assert (
         ".combined_formal_public_web_evidence_rows\n"
-        "              >= .prior_formal_public_web_evidence_rows"
-        in workflow
+        "              >= .prior_formal_public_web_evidence_rows" in workflow
     )
     assert "if .total_incremental_reviewed_evidence_rows > 0 then" not in workflow
 
@@ -462,16 +458,9 @@ def test_source_package_gate_scales_only_passing_traits_and_excludes_failures() 
 
 
 def test_committed_bsdb_csiro_symmetry_package_passes_the_common_gate() -> None:
-    root = Path(
-        "data/v2/staging/traits/open_web_pilot/"
-        "bsdb_csiro_checkpoint_20260811"
-    )
-    evidence = pd.read_csv(
-        root / "bsdb_csiro_symmetry_evidence_20260811.csv.gz", dtype=str
-    )
-    audit = pd.read_csv(
-        root / "bsdb_csiro_symmetry_manual_audit_600_20260811.csv", dtype=str
-    )
+    root = Path("data/v2/staging/traits/open_web_pilot/bsdb_csiro_checkpoint_20260811")
+    evidence = pd.read_csv(root / "bsdb_csiro_symmetry_evidence_20260811.csv.gz", dtype=str)
+    audit = pd.read_csv(root / "bsdb_csiro_symmetry_manual_audit_600_20260811.csv", dtype=str)
 
     selected, scopes, summary = reviewed_source_package_evidence(evidence, audit)
 
@@ -494,8 +483,7 @@ def test_committed_bsdb_csiro_symmetry_package_passes_the_common_gate() -> None:
 
 def test_committed_wfo_source_package_audit_has_only_expected_approved_traits() -> None:
     root = Path(
-        "data/v2/staging/traits/direct_llm_pilot/"
-        "20260807_wfo_round2_context_gated_integrated"
+        "data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated"
     )
     evidence = pd.read_csv(root / "accepted_wfo_common_direct_evidence.csv.gz", dtype=str)
     audit = pd.read_csv(root / "stratified_trait_audit_200_20260808.csv", dtype=str)
@@ -685,9 +673,7 @@ def test_reviewed_web_ledger_keeps_highest_quality_for_same_lineage() -> None:
         "source_url": "https://example.org/alpha",
     }
     prior = pd.DataFrame([{**shared, "quality": "medium", "source_group": "mirror"}])
-    promoted = pd.DataFrame(
-        [{**shared, "quality": "high", "source_group": "original_database"}]
-    )
+    promoted = pd.DataFrame([{**shared, "quality": "high", "source_group": "original_database"}])
 
     combined = combine_public_web_ledgers(prior, promoted)
 
@@ -856,9 +842,7 @@ def test_committed_high_leverage_batch_is_fully_reviewed_and_reproducible() -> N
         dtype=str,
     ).fillna("")
     manifest = json.loads(
-        (root / "high_leverage_source_manifest_20260808.json").read_text(
-            encoding="utf-8"
-        )
+        (root / "high_leverage_source_manifest_20260808.json").read_text(encoding="utf-8")
     )
 
     accepted = validate_individually_reviewed_evidence(

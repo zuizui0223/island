@@ -1,0 +1,108 @@
+{
+  "acquisition_inventory": {
+    "endemia": {
+      "family_conflicts_rejected": 5,
+      "listed_species": 582,
+      "raw_colour_assignments": 629,
+      "retained_rows": 364,
+      "structured_query_pages": 67
+    },
+    "flora_of_zimbabwe": {
+      "family_index_pages": 251,
+      "listed_records": 6412,
+      "retained_rows": 112,
+      "retrieved_species_pages": 493
+    },
+    "nzpcn": {
+      "listed_taxa": 1614,
+      "raw_colour_assignments": 2564,
+      "retained_rows": 283,
+      "retrieved_species_pages": 283,
+      "structured_query_pages": 137
+    },
+    "search_api_cost": 0,
+    "search_api_queries": 0
+  },
+  "by_provider": {
+    "Endemia New Caledonia": 364,
+    "Flora of Zimbabwe": 112,
+    "New Zealand Plant Conservation Network": 283
+  },
+  "by_quality": {
+    "high": 283,
+    "medium": 476
+  },
+  "by_trait": {
+    "floral_form": 3,
+    "flower_primary_color": 687,
+    "flower_size_class": 10,
+    "inflorescence_display": 58,
+    "tube_depth_class": 1
+  },
+  "contract": "regional_flora_wave11_checkpoint_v1",
+  "created_at": "2026-08-14T02:45:00Z",
+  "guardrails": {
+    "axis_only_genus_join": false,
+    "family_inference": false,
+    "fixed_master_species_and_family_exact": true,
+    "global_fallback": false,
+    "source_page_and_excerpt_required": true,
+    "species_direct_only": true,
+    "trait_specific_genus_inference_delegated_to_common_rebuild": true
+  },
+  "inputs": {
+    "master": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e"
+    },
+    "prior_audit": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\high_yield_reproductive_wave10_checkpoint_20260814\\combined_curated_manual_audit_20260814.csv",
+      "sha256": "f518bcadabebb8904147dca8d893744ca92e61e87c284518a0514c7c107896fe"
+    },
+    "prior_evidence": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\high_yield_reproductive_wave10_checkpoint_20260814\\combined_curated_evidence_20260814.csv",
+      "sha256": "0c20124e2dcc3002db2a96f2d621d792366c55625f975ea0ffcfdd050924e582"
+    },
+    "source_snapshot": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_wave11_checkpoint_20260814\\regional_flora_wave11_source_rows_20260814.csv",
+      "sha256": "09660ec9e755032c801fee29fd60d1e482b87e5c2f929eb9e8e47b50eda996ba"
+    }
+  },
+  "lineages": 729,
+  "outputs": {
+    "audit": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_wave11_checkpoint_20260814\\regional_flora_wave11_manual_audit_20260814.csv",
+      "rows": 759,
+      "sha256": "bd952c98c8678cf9ca92a340be7a43a29f91a5865e859041149832148078d99e"
+    },
+    "combined_audit": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_wave11_checkpoint_20260814\\combined_curated_manual_audit_20260814.csv",
+      "rows": 2718,
+      "sha256": "d0d9e28b08b114875570c85aec859f160af365cfe23422d7fbcf2c2f4a0716bb"
+    },
+    "combined_evidence": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_wave11_checkpoint_20260814\\combined_curated_evidence_20260814.csv",
+      "rows": 2718,
+      "sha256": "6b0a871f4c352f97fb759cbebbf5563a75913787fe3c74ec777b6ad27bc5d36a"
+    },
+    "evidence": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_wave11_checkpoint_20260814\\regional_flora_wave11_evidence_20260814.csv",
+      "rows": 759,
+      "sha256": "68001e04a20b580fa8bd7c5556b2dc51f49df56c69a7e6d13674560df77a4c74"
+    },
+    "source_snapshot": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_wave11_checkpoint_20260814\\regional_flora_wave11_source_rows_20260814.csv",
+      "rows": 759,
+      "sha256": "09660ec9e755032c801fee29fd60d1e482b87e5c2f929eb9e8e47b50eda996ba"
+    }
+  },
+  "reviewed_species": 729,
+  "reviewed_species_trait_rows": 759,
+  "source_group": "regional_flora_wave11_checkpoint_20260814",
+  "wave_audit": {
+    "accepted_correct": 759,
+    "cultivar_contamination_rate": 0.0,
+    "precision": 1.0,
+    "reviewed": 759
+  }
+}
