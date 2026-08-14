@@ -1,0 +1,115 @@
+{
+  "acquisition_inventory": {
+    "accepted_source_domains": 2,
+    "accepted_source_lineages": 2,
+    "accepted_species_trait_rows": 2,
+    "contract": "targeted_support2_wave13_acquisition_v1",
+    "formal_search_api_queries": 0,
+    "guardrails": {
+      "cross_trait_substitution": false,
+      "family_inference": false,
+      "global_fallback": false,
+      "search_snippet_as_evidence": false,
+      "species_direct_only": true
+    },
+    "manual_open_web_queries": 48,
+    "retrieved_at_utc": "2026-08-14T04:49:00Z",
+    "reviewed_candidates": 5,
+    "search_cost_usd": 0.0,
+    "strategy": "independent third-species direct evidence for support=2 genus x trait rules",
+    "withheld_or_rejected": [
+      {
+        "accepted_species": "Anthemis rigida",
+        "candidate": "capitulum diameter 3-9 mm",
+        "reason": "inflorescence diameter is not individual disc-floret corolla size; replaced by a source reporting corollas 3-3.5 mm"
+      },
+      {
+        "accepted_species": "Cassipourea elliptica",
+        "candidate": "regular flowers",
+        "reason": "the explicit symmetry statement is attached to a genus treatment rather than the species description"
+      },
+      {
+        "accepted_species": "Mouriri grandiflora",
+        "candidate": "petals 4.5-5 mm",
+        "reason": "original publisher PDF could not be re-fetched and archived during this checkpoint; search result text alone is not evidence"
+      }
+    ]
+  },
+  "by_provider": {
+    "Auckland Botanical Society Journal": 1,
+    "Turkiye Bitkileri": 1
+  },
+  "by_quality": {
+    "medium": 2
+  },
+  "by_trait": {
+    "floral_symmetry": 1,
+    "flower_size_class": 1
+  },
+  "contract": "targeted_support2_wave13_checkpoint_v1",
+  "created_at": "2026-08-14T04:49:00Z",
+  "guardrails": {
+    "axis_only_genus_join": false,
+    "family_inference": false,
+    "fixed_master_species_and_family_exact": true,
+    "global_fallback": false,
+    "source_page_and_excerpt_required": true,
+    "species_direct_only": true,
+    "trait_specific_genus_inference_delegated_to_common_rebuild": true
+  },
+  "inputs": {
+    "master": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e"
+    },
+    "prior_audit": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_network_wave12_checkpoint_20260814\\combined_curated_manual_audit_20260814.csv",
+      "sha256": "71c029d3028812f914816551a94a7959fc1cd7f360d786a5e7c0330c14f4b4f8"
+    },
+    "prior_evidence": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_network_wave12_checkpoint_20260814\\combined_curated_evidence_20260814.csv",
+      "sha256": "d923ff0edaed6f5ea3e460f0b5cb7290508a5fb37123313e53104b4144f52018"
+    },
+    "source_snapshot": {
+      "path": ".work\\wave13-sources\\targeted_support2_wave13_source_rows.csv",
+      "sha256": "a935257605c3d083ad850ac69f2616cbc18da7813eb445934c616cd92d75e425"
+    }
+  },
+  "lineages": 2,
+  "outputs": {
+    "audit": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave13_checkpoint_20260814\\targeted_support2_wave13_manual_audit_20260814.csv",
+      "rows": 2,
+      "sha256": "ebe5ed036a2d07412dfb183fd0daa950c980dbcc57f3302906860d9a1980e417"
+    },
+    "combined_audit": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave13_checkpoint_20260814\\combined_curated_manual_audit_20260814.csv",
+      "rows": 2751,
+      "sha256": "3310cb8f724835ff6a6ebe0ec0fe616d2ac1dd44247c673999af5e57167b4e5b"
+    },
+    "combined_evidence": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave13_checkpoint_20260814\\combined_curated_evidence_20260814.csv",
+      "rows": 2751,
+      "sha256": "e8b2b48ec8441798805ae48b6c19908a1e23061338a0aaeeb32d5c18dba46d3a"
+    },
+    "evidence": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave13_checkpoint_20260814\\targeted_support2_wave13_evidence_20260814.csv",
+      "rows": 2,
+      "sha256": "a8874180c656e33ca77df5b187a9a71458d93b63baf6649537c05f677448a3ca"
+    },
+    "source_snapshot": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave13_checkpoint_20260814\\targeted_support2_wave13_source_rows_20260814.csv",
+      "rows": 2,
+      "sha256": "c41e3becc8724bbbe0f9aa686e645fea1f1a6de4ae377e09ea8fb8c0ba913411"
+    }
+  },
+  "reviewed_species": 2,
+  "reviewed_species_trait_rows": 2,
+  "source_group": "targeted_support2_wave13_checkpoint_20260814",
+  "wave_audit": {
+    "accepted_correct": 2,
+    "cultivar_contamination_rate": 0.0,
+    "precision": 1.0,
+    "reviewed": 2
+  }
+}

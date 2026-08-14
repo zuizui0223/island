@@ -1,0 +1,36 @@
+{
+  "contract": "targeted_support2_wave13_acquisition_v1",
+  "retrieved_at_utc": "2026-08-14T04:49:00Z",
+  "strategy": "independent third-species direct evidence for support=2 genus x trait rules",
+  "formal_search_api_queries": 0,
+  "manual_open_web_queries": 48,
+  "search_cost_usd": 0.0,
+  "reviewed_candidates": 5,
+  "accepted_species_trait_rows": 2,
+  "accepted_source_domains": 2,
+  "accepted_source_lineages": 2,
+  "withheld_or_rejected": [
+    {
+      "accepted_species": "Anthemis rigida",
+      "candidate": "capitulum diameter 3-9 mm",
+      "reason": "inflorescence diameter is not individual disc-floret corolla size; replaced by a source reporting corollas 3-3.5 mm"
+    },
+    {
+      "accepted_species": "Cassipourea elliptica",
+      "candidate": "regular flowers",
+      "reason": "the explicit symmetry statement is attached to a genus treatment rather than the species description"
+    },
+    {
+      "accepted_species": "Mouriri grandiflora",
+      "candidate": "petals 4.5-5 mm",
+      "reason": "original publisher PDF could not be re-fetched and archived during this checkpoint; search result text alone is not evidence"
+    }
+  ],
+  "guardrails": {
+    "search_snippet_as_evidence": false,
+    "species_direct_only": true,
+    "cross_trait_substitution": false,
+    "family_inference": false,
+    "global_fallback": false
+  }
+}

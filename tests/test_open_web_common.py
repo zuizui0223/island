@@ -245,13 +245,13 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "'31245813999'" in workflow
     assert "'30434418380'" in workflow
     assert "open-web-multidomain-pilot-30434418380" in workflow
-    assert "inputs.prior_public_web_run_id || '31765847152'" in workflow
+    assert "inputs.prior_public_web_run_id || '31769914116'" in workflow
     assert (
-        "regional_flora_network_wave12_checkpoint_20260814/"
+        "targeted_support2_wave13_checkpoint_20260814/"
         "combined_curated_evidence_20260814.csv" in workflow
     )
     assert "inputs.source_package_evidence_csv_path ||" in workflow
-    assert "reviewed-open-web-evidence-31765847152" in workflow
+    assert "reviewed-open-web-evidence-31769914116" in workflow
     assert "broad_web_medium_evidence.csv.gz" in workflow
     assert "prior_public_web_run_id:" in workflow
     assert "prior_public_web_artifact_name:" in workflow
@@ -270,11 +270,11 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "inputs.source_package_run_id || ''" in workflow
     assert "inputs.source_package_artifact_name ||" in workflow
     assert (
-        "regional_flora_network_wave12_checkpoint_20260814/"
+        "targeted_support2_wave13_checkpoint_20260814/"
         "combined_curated_evidence_20260814.csv" in workflow
     )
     assert (
-        "regional_flora_network_wave12_checkpoint_20260814/"
+        "targeted_support2_wave13_checkpoint_20260814/"
         "combined_curated_manual_audit_20260814.csv" in workflow
     )
     assert "direct_evidence_exclusions_20260811.csv" in workflow
