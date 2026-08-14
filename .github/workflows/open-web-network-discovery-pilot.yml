@@ -7,15 +7,25 @@ on:
       - "src/island_v2/open_web_network_pilot.py"
       - "src/island_v2/open_web_network_structured_pilot.py"
       - "src/island_v2/open_web_structured_traits.py"
+      - "src/island_v2/regional_flora_network_acquisition.py"
       - "src/island_v2/open_web_evidence.py"
       - "config/open_web_trait_acquisition.yml"
       - "config/open_web_domain_registry.yml"
       - "tests/test_open_web_network_pilot.py"
       - "tests/test_open_web_structured_traits.py"
+      - "tests/test_regional_flora_network_acquisition.py"
   workflow_dispatch:
     inputs:
+      mode:
+        description: Acquisition lane to run
+        required: true
+        type: choice
+        options:
+          - regional_flora_network
+          - discovery
+        default: regional_flora_network
       baseline_run_id:
-        description: Successful integrated three-axis coverage run
+        description: Successful formal coverage run used as the unresolved baseline
         required: true
         default: "30107066525"
       species_limit:
@@ -63,13 +73,16 @@ jobs:
             src/island_v2/open_web_network_pilot.py \
             src/island_v2/open_web_network_structured_pilot.py \
             src/island_v2/open_web_structured_traits.py \
+            src/island_v2/regional_flora_network_acquisition.py \
             tests/test_open_web_network_pilot.py \
             tests/test_open_web_structured_traits.py \
+            tests/test_regional_flora_network_acquisition.py \
             > outputs/open_web_network_validation/ruff.txt 2>&1
           ruff_status=$?
           pytest -q \
             tests/test_open_web_network_pilot.py \
             tests/test_open_web_structured_traits.py \
+            tests/test_regional_flora_network_acquisition.py \
             > outputs/open_web_network_validation/pytest.txt 2>&1
           pytest_status=$?
           printf '{"ruff_status":%s,"pytest_status":%s}\n' \
@@ -88,7 +101,7 @@ jobs:
           retention-days: 7
 
   network-pilot:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'discovery'
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -145,4 +158,62 @@ jobs:
           name: open-web-network-discovery-${{ github.run_id }}
           path: outputs/open_web_network_pilot/
           if-no-files-found: error
+          retention-days: 90
+
+  regional-flora-network:
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'regional_flora_network'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PRIOR_RUN_ID: ${{ inputs.baseline_run_id }}
+      MAX_SPECIES_PAGES: ${{ inputs.max_pages }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - name: Download the exact latest formal artifact
+        run: |
+          mkdir -p /tmp/prior-formal
+          gh run download "$PRIOR_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "reviewed-open-web-evidence-$PRIOR_RUN_ID" \
+            --dir /tmp/prior-formal
+          test -f /tmp/prior-formal/strict_species_axis_coverage.csv.gz
+          test -f /tmp/prior-formal/direct_species_trait_ledger.csv.gz
+          test -f /tmp/prior-formal/prioritized_unresolved_search_queue.csv.gz
+      - name: Acquire prioritized unresolved regional-flora pages
+        run: |
+          mkdir -p outputs/regional_flora_network
+          python -m island_v2.regional_flora_network_acquisition \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --strict-coverage-csv /tmp/prior-formal/strict_species_axis_coverage.csv.gz \
+            --direct-ledger-csv /tmp/prior-formal/direct_species_trait_ledger.csv.gz \
+            --rule-queue-csv /tmp/prior-formal/prioritized_unresolved_search_queue.csv.gz \
+            --output-dir outputs/regional_flora_network \
+            --sites zambia,mozambique,malawi,botswana \
+            --family-id-start 1 \
+            --family-id-end 320 \
+            --max-species-pages "$MAX_SPECIES_PAGES" \
+            --workers 12
+          jq -e '
+            .fixed_denominator.species == 106295
+            and .fixed_denominator.species_axis == 318885
+            and .guardrails.accepted_name_exact == true
+            and .guardrails.page_family_exact == true
+            and .guardrails.species_direct_only == true
+            and .guardrails.family_inference == false
+            and .guardrails.global_fallback == false
+            and .promotion_status == "not_promoted_pending_individual_review"
+          ' outputs/regional_flora_network/regional_flora_acquisition_manifest.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: regional-flora-network-acquisition-${{ github.run_id }}
+          path: outputs/regional_flora_network/
+          if-no-files-found: warn
           retention-days: 90
