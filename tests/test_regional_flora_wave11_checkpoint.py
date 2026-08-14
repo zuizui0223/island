@@ -33,6 +33,22 @@ def test_wave11_is_reviewed_species_direct_evidence() -> None:
     assert not evidence["trait_name"].isin({"pollen_vector_mode", "reward_type"}).any()
 
 
+def test_reviewed_rows_preserve_optional_strict_synonym_identity_fields(tmp_path: Path) -> None:
+    source = pd.read_csv(SOURCE_ROWS, dtype=str).fillna("").iloc[[0]].copy()
+    source["matched_page_name"] = "Strict synonym example"
+    source["name_match_method"] = "synonym_exact"
+    source["name_resolution_lineage"] = "gbif:1|wfo:wfo-1"
+    source_path = tmp_path / "source.csv"
+    source.to_csv(source_path, index=False)
+
+    evidence = pd.DataFrame(reviewed_rows(source_path)).fillna("")
+
+    assert evidence.loc[0, "matched_page_name"] == "Strict synonym example"
+    assert evidence.loc[0, "evidence_scope"] == "synonym_direct"
+    assert evidence.loc[0, "name_match_method"] == "synonym_exact"
+    assert evidence.loc[0, "name_resolution_lineage"] == "gbif:1|wfo:wfo-1"
+
+
 def test_provider_quality_and_lineage_contract() -> None:
     evidence = pd.DataFrame(reviewed_rows(SOURCE_ROWS)).fillna("")
 

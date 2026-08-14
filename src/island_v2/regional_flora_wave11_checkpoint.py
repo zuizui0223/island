@@ -1,9 +1,11 @@
 """Freeze reviewed regional-flora evidence for acquisition wave 11.
 
-The checkpoint accepts only species-direct source rows whose scientific name
-and family were matched exactly to the fixed island master.  It never emits a
-genus value: the common trait-specific all-evidence rebuild remains solely
-responsible for Validated Low inference and its masked/source-lineage checks.
+The checkpoint accepts only species-direct source rows whose accepted species
+and family match the fixed island master. Optional page-name and strict-synonym
+resolution fields are preserved instead of being relabelled as accepted-name
+matches. It never emits a genus value: the common trait-specific all-evidence
+rebuild remains solely responsible for Validated Low inference and its
+masked/source-lineage checks.
 """
 
 from __future__ import annotations
@@ -106,6 +108,9 @@ def reviewed_rows(
     source_rows = load_source_rows(source_snapshot_csv)
     rows: list[dict[str, str]] = []
     for source in source_rows.to_dict("records"):
+        name_match_method = str(
+            source.get("name_match_method", "") or "accepted_name_exact"
+        )
         row = _evidence_row(
             species=str(source["accepted_species"]),
             trait=str(source["trait_name"]),
@@ -132,10 +137,19 @@ def reviewed_rows(
                 "source_group": source_group,
                 "query": str(source["query"]),
                 "language": str(source["language"]),
-                "matched_page_name": str(source["accepted_species"]),
-                "evidence_scope": "species_direct",
-                "name_match_method": "accepted_name_exact",
-                "name_resolution_lineage": "master_accepted_name_and_family_exact",
+                "matched_page_name": str(
+                    source.get("matched_page_name", "") or source["accepted_species"]
+                ),
+                "evidence_scope": (
+                    "synonym_direct"
+                    if name_match_method in {"exact_synonym", "synonym_exact"}
+                    else "species_direct"
+                ),
+                "name_match_method": name_match_method,
+                "name_resolution_lineage": str(
+                    source.get("name_resolution_lineage", "")
+                    or "master_accepted_name_and_family_exact"
+                ),
                 "wild_cultivated_cultivar_status": str(source["wild_cultivated_cultivar_status"]),
                 "inference_rule": "",
             }
@@ -242,6 +256,7 @@ def build(
         "guardrails": {
             "species_direct_only": True,
             "fixed_master_species_and_family_exact": True,
+            "optional_strict_synonym_identity_fields_preserved": True,
             "source_page_and_excerpt_required": True,
             "trait_specific_genus_inference_delegated_to_common_rebuild": True,
             "axis_only_genus_join": False,

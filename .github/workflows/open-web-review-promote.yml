@@ -56,6 +56,7 @@ on:
       - "data/v2/staging/traits/open_web_pilot/regional_flora_wave11_checkpoint_20260814/**"
       - "data/v2/staging/traits/open_web_pilot/regional_flora_network_wave12_checkpoint_20260814/**"
       - "data/v2/staging/traits/open_web_pilot/targeted_support2_wave13_checkpoint_20260814/**"
+      - "data/v2/staging/traits/open_web_pilot/targeted_support2_wave14_checkpoint_20260814/**"
       - "data/v2/staging/traits/open_web_pilot/palmpedia_archive_checkpoint_20260813/**"
       - "data/v2/external/traits/konno_1999_bagging/**"
       - "data/v2/external/traits/yomai_2021_pohnpei/**"
@@ -164,6 +165,7 @@ on:
       - "tests/test_regional_flora_wave11_checkpoint.py"
       - "tests/test_regional_flora_network_wave12_checkpoint.py"
       - "tests/test_targeted_support2_wave13_checkpoint.py"
+      - "tests/test_targeted_support2_wave14_checkpoint.py"
       - "tests/test_open_web_structured_traits.py"
       - "tests/test_pngtrees_source_package.py"
       - "tests/test_open_web_common.py"
@@ -202,11 +204,11 @@ on:
       prior_public_web_run_id:
         description: Previous formal reviewed-Web run to extend
         required: false
-        default: "31769914116"
+        default: "31771437676"
       prior_public_web_artifact_name:
         description: Artifact containing the previous formal Web ledger
         required: false
-        default: "reviewed-open-web-evidence-31769914116"
+        default: "reviewed-open-web-evidence-31771437676"
       prior_public_web_file_name:
         description: Evidence CSV path inside the previous artifact
         required: false
@@ -218,19 +220,19 @@ on:
       curated_evidence_csv_path:
         description: Individually reviewed species-direct evidence committed on this ref
         required: false
-        default: "data/v2/staging/traits/open_web_pilot/targeted_support2_wave13_checkpoint_20260814/combined_curated_evidence_20260814.csv"
+        default: "data/v2/staging/traits/open_web_pilot/targeted_support2_wave14_checkpoint_20260814/combined_curated_evidence_20260814.csv"
       curated_audit_csv_path:
         description: Line-by-line audit for the curated evidence
         required: false
-        default: "data/v2/staging/traits/open_web_pilot/targeted_support2_wave13_checkpoint_20260814/combined_curated_manual_audit_20260814.csv"
+        default: "data/v2/staging/traits/open_web_pilot/targeted_support2_wave14_checkpoint_20260814/combined_curated_manual_audit_20260814.csv"
       curated_source_run_id:
         description: Original acquisition Run ID for the curated checkpoint
         required: false
-        default: "manual-open-web-wave13-20260814"
+        default: "manual-open-web-wave14-20260814"
       curated_source_artifact_name:
         description: Original acquisition artifact for the curated checkpoint
         required: false
-        default: "targeted-support2-wave13-source-snapshot"
+        default: "targeted-support2-wave14-source-snapshot"
       source_package_evidence_csv_path:
         description: Common-schema evidence from an audited source package
         required: false
@@ -271,10 +273,10 @@ jobs:
       PILOT_ARTIFACT_NAME: >-
         ${{ inputs.pilot_artifact_name ||
         'open-web-multidomain-pilot-30434418380' }}
-      PRIOR_PUBLIC_WEB_RUN_ID: ${{ inputs.prior_public_web_run_id || '31769914116' }}
+      PRIOR_PUBLIC_WEB_RUN_ID: ${{ inputs.prior_public_web_run_id || '31771437676' }}
       PRIOR_PUBLIC_WEB_ARTIFACT: >-
         ${{ inputs.prior_public_web_artifact_name ||
-        'reviewed-open-web-evidence-31769914116' }}
+        'reviewed-open-web-evidence-31771437676' }}
       PRIOR_PUBLIC_WEB_FILE_NAME: >-
         ${{ inputs.prior_public_web_file_name ||
         'broad_web_medium_evidence.csv.gz' }}
@@ -288,15 +290,15 @@ jobs:
         ${{ inputs.candidate_file_name || 'open_web_multidomain_candidates.csv' }}
       CURATED_EVIDENCE_CSV_PATH: >-
         ${{ inputs.curated_evidence_csv_path ||
-        'data/v2/staging/traits/open_web_pilot/targeted_support2_wave13_checkpoint_20260814/combined_curated_evidence_20260814.csv' }}
+        'data/v2/staging/traits/open_web_pilot/targeted_support2_wave14_checkpoint_20260814/combined_curated_evidence_20260814.csv' }}
       CURATED_AUDIT_CSV_PATH: >-
         ${{ inputs.curated_audit_csv_path ||
-        'data/v2/staging/traits/open_web_pilot/targeted_support2_wave13_checkpoint_20260814/combined_curated_manual_audit_20260814.csv' }}
+        'data/v2/staging/traits/open_web_pilot/targeted_support2_wave14_checkpoint_20260814/combined_curated_manual_audit_20260814.csv' }}
       CURATED_SOURCE_RUN_ID: >-
-        ${{ inputs.curated_source_run_id || 'manual-open-web-wave13-20260814' }}
+        ${{ inputs.curated_source_run_id || 'manual-open-web-wave14-20260814' }}
       CURATED_SOURCE_ARTIFACT: >-
         ${{ inputs.curated_source_artifact_name ||
-        'targeted-support2-wave13-source-snapshot' }}
+        'targeted-support2-wave14-source-snapshot' }}
       SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-
         ${{ inputs.source_package_evidence_csv_path || '' }}
       SOURCE_PACKAGE_AUDIT_CSV_PATH: >-
@@ -414,6 +416,7 @@ jobs:
             tests/test_regional_flora_wave11_checkpoint.py \
             tests/test_regional_flora_network_wave12_checkpoint.py \
             tests/test_targeted_support2_wave13_checkpoint.py \
+            tests/test_targeted_support2_wave14_checkpoint.py \
             tests/test_open_web_structured_traits.py \
             tests/test_review_inventory_artifact.py \
             tests/test_flora_of_australia_source_scale.py \
@@ -469,6 +472,7 @@ jobs:
             tests/test_regional_flora_wave11_checkpoint.py \
             tests/test_regional_flora_network_wave12_checkpoint.py \
             tests/test_targeted_support2_wave13_checkpoint.py \
+            tests/test_targeted_support2_wave14_checkpoint.py \
             tests/test_open_web_structured_traits.py \
             tests/test_open_web_common.py \
             tests/test_review_inventory_artifact.py \
