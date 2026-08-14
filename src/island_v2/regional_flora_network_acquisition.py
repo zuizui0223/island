@@ -361,16 +361,22 @@ def acquire(
 
     output_dir.mkdir(parents=True, exist_ok=True)
     master = pd.read_csv(master_csv, dtype=str).fillna("")
-    if master["accepted_species"].nunique() != 106_295:
-        raise ValueError("fixed master denominator is not 106,295 accepted species")
+    if master["accepted_species"].duplicated().any():
+        raise ValueError("fixed master accepted species must be unique")
     family_by_species = master.set_index("accepted_species")["family"].to_dict()
     master_names = set(family_by_species)
 
     strict = pd.read_csv(strict_coverage_csv, dtype=str).fillna("")
     if len(strict) != 318_885 or strict["accepted_species"].nunique() != 106_295:
         raise ValueError("strict artifact denominator is not 106,295 x 3")
+    strict_names = set(strict["accepted_species"])
+    missing_from_master = strict_names.difference(master_names)
+    if missing_from_master:
+        raise ValueError(
+            f"strict denominator has {len(missing_from_master)} species absent from fixed master"
+        )
     axis_quality = strict.pivot(index="accepted_species", columns="axis", values="quality")
-    axis_quality = axis_quality.reindex(master["accepted_species"]).fillna("")
+    axis_quality = axis_quality.reindex(sorted(strict_names)).fillna("")
 
     direct = pd.read_csv(
         direct_ledger_csv,
@@ -464,7 +470,7 @@ def acquire(
     inventory = inventory.drop_duplicates(["site_key", "species_id"], keep="last")
     inventory["accepted_species"] = inventory["source_scientific_name"]
     inventory["identity_status"] = "name_not_in_fixed_master"
-    exact = inventory["accepted_species"].isin(master_names)
+    exact = inventory["accepted_species"].isin(strict_names)
     inventory.loc[exact, "expected_family"] = inventory.loc[exact, "accepted_species"].map(
         family_by_species
     )
