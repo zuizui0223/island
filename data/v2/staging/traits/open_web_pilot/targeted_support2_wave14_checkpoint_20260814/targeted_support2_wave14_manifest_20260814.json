@@ -1,8 +1,8 @@
 {
   "acquisition_inventory": {
-    "accepted_source_domains": 3,
-    "accepted_source_lineages": 3,
-    "accepted_species_trait_rows": 8,
+    "accepted_source_domains": 2,
+    "accepted_source_lineages": 2,
+    "accepted_species_trait_rows": 7,
     "contract": "targeted_support2_wave14_acquisition_v1",
     "formal_search_api_queries": 0,
     "guardrails": {
@@ -49,20 +49,23 @@
         "accepted_species": "Schoenus spp.",
         "candidate": "self-compatibility rule unlock",
         "reason": "no third fixed-master species with species-direct reproductive evidence was located"
+      },
+      {
+        "accepted_species": "Cassipourea elliptica",
+        "candidate": "regular flowers in a World Flora Online treatment",
+        "reason": "the regular-flower sentence is a genus description from a separate provider block; naming C. elliptica elsewhere on the page does not make that sentence species-direct"
       }
     ]
   },
   "by_provider": {
     "Federal University of Pernambuco institutional repository": 6,
-    "Plant Species Biology": 1,
-    "World Flora Online / Flora Mesoamericana": 1
+    "Plant Species Biology": 1
   },
   "by_quality": {
-    "high": 8
+    "high": 7
   },
   "by_trait": {
     "autonomous_selfing_capacity": 3,
-    "floral_symmetry": 1,
     "self_incompatibility": 4
   },
   "contract": "targeted_support2_wave14_checkpoint_v1",
@@ -92,44 +95,44 @@
     },
     "source_snapshot": {
       "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave14_checkpoint_20260814\\targeted_support2_wave14_source_rows_20260814.csv",
-      "sha256": "f3a3b3ac6849cf3be463ca9c5cb085dc2c40944db71f25d2aa2d17d04a2d7193"
+      "sha256": "534a406c1ee426ce66cc2e382fd3740c4463f6879ce4b34cd18901f469885a47"
     }
   },
-  "lineages": 3,
+  "lineages": 2,
   "outputs": {
     "audit": {
       "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave14_checkpoint_20260814\\targeted_support2_wave14_manual_audit_20260814.csv",
-      "rows": 8,
-      "sha256": "1fa5a0bc8670ebdb3ec67ea342e63962b23f2a460197ee04850afcfb0d249db4"
+      "rows": 7,
+      "sha256": "c8d91d62ee88949bd91cdc69d1fe7591559ddabe1363262e33ddf25627c25f62"
     },
     "combined_audit": {
       "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave14_checkpoint_20260814\\combined_curated_manual_audit_20260814.csv",
-      "rows": 2759,
-      "sha256": "b6a4ca2cad296f286540757541c33c581488de032d3af413f2dc2afcd4d6aea3"
+      "rows": 2758,
+      "sha256": "ea877af35287924775e0fc6ea7b9e17a455691ff9e0acc1899a4ac9716e2ba12"
     },
     "combined_evidence": {
       "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave14_checkpoint_20260814\\combined_curated_evidence_20260814.csv",
-      "rows": 2759,
-      "sha256": "05e7456688619a14ddf67d87317491cfb03421db5345194c691ee1cb6c51922f"
+      "rows": 2758,
+      "sha256": "2fbc392a690e4b2df1c307c15e56e96151fe050b3058c721238390c54c4c8343"
     },
     "evidence": {
       "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave14_checkpoint_20260814\\targeted_support2_wave14_evidence_20260814.csv",
-      "rows": 8,
-      "sha256": "d8ad2a4afa096cc4fb40ed73666f9a081943ff5bb2764590d931a985233212e8"
+      "rows": 7,
+      "sha256": "bf76702aad03d57bae40a9a3d20d1355c942cfb0f30ee57cdea086178f762640"
     },
     "source_snapshot": {
       "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave14_checkpoint_20260814\\targeted_support2_wave14_source_rows_20260814.csv",
-      "rows": 8,
-      "sha256": "f3a3b3ac6849cf3be463ca9c5cb085dc2c40944db71f25d2aa2d17d04a2d7193"
+      "rows": 7,
+      "sha256": "534a406c1ee426ce66cc2e382fd3740c4463f6879ce4b34cd18901f469885a47"
     }
   },
-  "reviewed_species": 5,
-  "reviewed_species_trait_rows": 8,
+  "reviewed_species": 4,
+  "reviewed_species_trait_rows": 7,
   "source_group": "targeted_support2_wave14_checkpoint_20260814",
   "wave_audit": {
-    "accepted_correct": 8,
+    "accepted_correct": 7,
     "cultivar_contamination_rate": 0.0,
     "precision": 1.0,
-    "reviewed": 8
+    "reviewed": 7
   }
 }

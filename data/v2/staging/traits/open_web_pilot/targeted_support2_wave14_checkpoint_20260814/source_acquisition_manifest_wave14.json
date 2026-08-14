@@ -6,9 +6,9 @@
   "manual_open_web_queries": 43,
   "search_cost_usd": 0.0,
   "reviewed_candidates": 14,
-  "accepted_species_trait_rows": 8,
-  "accepted_source_domains": 3,
-  "accepted_source_lineages": 3,
+  "accepted_species_trait_rows": 7,
+  "accepted_source_domains": 2,
+  "accepted_source_lineages": 2,
   "withheld_or_rejected": [
     {
       "accepted_species": "Orthoceras spp. queue entries",
@@ -39,6 +39,11 @@
       "accepted_species": "Schoenus spp.",
       "candidate": "self-compatibility rule unlock",
       "reason": "no third fixed-master species with species-direct reproductive evidence was located"
+    },
+    {
+      "accepted_species": "Cassipourea elliptica",
+      "candidate": "regular flowers in a World Flora Online treatment",
+      "reason": "the regular-flower sentence is a genus description from a separate provider block; naming C. elliptica elsewhere on the page does not make that sentence species-direct"
     }
   ],
   "guardrails": {

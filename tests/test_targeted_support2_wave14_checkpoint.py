@@ -20,8 +20,8 @@ def test_wave14_rows_are_reviewed_species_direct_individual_traits() -> None:
         CHECKPOINT / "targeted_support2_wave14_manual_audit_20260814.csv", dtype=str
     ).fillna("")
 
-    assert len(evidence) == len(audit) == 8
-    assert evidence["accepted_species"].nunique() == 5
+    assert len(evidence) == len(audit) == 7
+    assert evidence["accepted_species"].nunique() == 4
     assert set(evidence["evidence_scope"]) == {"species_direct", "synonym_direct"}
     assert evidence["evidence_quality"].eq("high").all()
     assert evidence["source_group"].eq(SOURCE_GROUP).all()
@@ -29,11 +29,10 @@ def test_wave14_rows_are_reviewed_species_direct_individual_traits() -> None:
     assert set(evidence["trait_name"]) == {
         "self_incompatibility",
         "autonomous_selfing_capacity",
-        "floral_symmetry",
     }
     assert not evidence["trait_name"].isin({"pollen_vector_mode", "reward_type"}).any()
     assert evidence["source_excerpt"].ne("").all()
-    assert evidence["source_lineage"].nunique() == 3
+    assert evidence["source_lineage"].nunique() == 2
     assert evidence["content_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
     assert audit["decision"].eq("accept").all()
 
@@ -66,8 +65,8 @@ def test_wave14_combined_checkpoint_passes_common_review_gate() -> None:
     accepted = validate_individually_reviewed_evidence(
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
-    assert len(evidence) == len(audit) == len(accepted) == 2_759
-    assert len(accepted.loc[accepted["source_group"].eq(SOURCE_GROUP)]) == 8
+    assert len(evidence) == len(audit) == len(accepted) == 2_758
+    assert len(accepted.loc[accepted["source_group"].eq(SOURCE_GROUP)]) == 7
 
 
 def test_wave14_manifest_is_fail_closed_and_costed() -> None:
@@ -79,7 +78,7 @@ def test_wave14_manifest_is_fail_closed_and_costed() -> None:
     assert manifest["manual_open_web_queries"] == 43
     assert manifest["formal_search_api_queries"] == 0
     assert manifest["search_cost_usd"] == 0.0
-    assert manifest["accepted_species_trait_rows"] == 8
-    assert len(manifest["withheld_or_rejected"]) == 6
+    assert manifest["accepted_species_trait_rows"] == 7
+    assert len(manifest["withheld_or_rejected"]) == 7
     assert manifest["guardrails"]["search_snippet_as_evidence"] is False
     assert manifest["guardrails"]["cross_trait_substitution"] is False
