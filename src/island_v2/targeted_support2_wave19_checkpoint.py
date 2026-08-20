@@ -1,6 +1,6 @@
 """Build the Wave 19 reviewed support-two evidence checkpoint.
 
-Wave 19 adds exact-species evidence for four current support=2 genus x trait
+Wave 19 adds exact-species evidence for three current support=2 genus x trait
 rules plus two additional traits stated by the same Pulicaria species
 treatment.  It never creates genus inference itself; the shared all-evidence
 rebuild remains the sole producer of Validated Low rows.
@@ -45,11 +45,7 @@ def _row(*args: str, **kwargs: str) -> dict[str, str]:
 
 
 def primary_rows() -> list[dict[str, str]]:
-    """Return six individually reviewed exact-species evidence rows."""
-    chrysanthemum_excerpt = (
-        "Synflorescence a lax terminal flat-topped cyme. Capitula many or few. "
-        "Ray floret lamina yellow, 1-1.3 cm, apex entire or 3-denticulate."
-    )
+    """Return five individually reviewed exact-species evidence rows."""
     pulicaria_oman_excerpt = (
         "Capitula radiate, at the end of the stems in a loosely corymbiform "
         "synflorescence, rarely single. Flowers yellow; ray flowers pistillate, "
@@ -65,28 +61,6 @@ def primary_rows() -> list[dict[str, str]]:
     )
 
     rows = [
-        _row(
-            "Chrysanthemum indicum",
-            "floral_structural_complexity",
-            "floral_form",
-            "capitula with ray florets",
-            "composite_head",
-            "high",
-            "Flora of China / eFloras",
-            "https://www.efloras.org/florataxon.aspx?flora_id=2&taxon_id=220002857",
-            "Chrysanthemum indicum in Flora of China",
-            "Flora of China treatment 2:220002857.",
-            chrysanthemum_excerpt,
-            "provider_treatment:flora_of_china:Chrysanthemum indicum",
-            "A",
-            "official_flora_exact_species_treatment",
-            "en",
-            '"Chrysanthemum indicum" capitula ray florets',
-            content_sha256=(
-                "01227c54cc37a666aa7ca27e0a94a7b257e15652f05a962c35f0ed01442ac4a7"
-            ),
-            content_sha256_basis="retrieved_official_species_page_utf8_bytes",
-        ),
         _row(
             "Lilium philadelphicum",
             "reproductive_assurance",
@@ -194,8 +168,8 @@ def primary_rows() -> list[dict[str, str]]:
             '"Pulicaria arabica" floret length',
         )
     )
-    if len(rows) != 6:
-        raise AssertionError("Wave19 must define exactly six direct rows")
+    if len(rows) != 5:
+        raise AssertionError("Wave19 must define exactly five direct rows")
     return rows
 
 
@@ -228,8 +202,8 @@ def build_checkpoint(output_dir: Path = CHECKPOINT) -> dict[str, Any]:
     )
     evidence = evidence.reset_index(drop=True)
     audit = build_audit(evidence)
-    if len(evidence) != 6 or len(audit) != 6:
-        raise ValueError("Wave19 must contain exactly six individually reviewed rows")
+    if len(evidence) != 5 or len(audit) != 5:
+        raise ValueError("Wave19 must contain exactly five individually reviewed rows")
     if evidence["candidate_id"].duplicated().any():
         raise ValueError("Wave19 candidate IDs must be unique")
     if evidence.duplicated(["accepted_species", "trait_name"]).any():
@@ -274,12 +248,11 @@ def build_checkpoint(output_dir: Path = CHECKPOINT) -> dict[str, Any]:
         "formal_search_api_queries": 0,
         "search_cost_usd": 0.0,
         "targeted_support2_rules": [
-            "Chrysanthemum|floral_form",
             "Lilium|mating_system",
             "Pulicaria|floral_symmetry",
             "Pulicaria|flower_size_class",
         ],
-        "theoretical_rule_cells_touched": 83,
+        "theoretical_rule_cells_touched": 67,
         "guardrails": {
             "search_snippet_as_evidence": False,
             "family_inference": False,
@@ -298,7 +271,7 @@ def build_checkpoint(output_dir: Path = CHECKPOINT) -> dict[str, Any]:
             if key != "manifest"
         },
         "notes": (
-            "The 83 cells are a queue ceiling, not observed coverage gain. Formal "
+            "The 67 cells are a queue ceiling, not observed coverage gain. Formal "
             "all-evidence rebuilding and species/lineage leave-one-out validation "
             "determine realized direct and Validated Low changes. Pulicaria colour "
             "and display rows are direct additions but are not counted in the rule "

@@ -15,12 +15,12 @@ def _read(name: str) -> pd.DataFrame:
     return pd.read_csv(CHECKPOINT / name, dtype=str).fillna("")
 
 
-def test_wave19_has_six_unique_reviewed_direct_species_traits() -> None:
+def test_wave19_has_five_unique_reviewed_direct_species_traits() -> None:
     evidence = _read("targeted_support2_wave19_evidence_20260820.csv")
     audit = _read("targeted_support2_wave19_manual_audit_20260820.csv")
 
-    assert len(evidence) == len(audit) == 6
-    assert evidence["accepted_species"].nunique() == 3
+    assert len(evidence) == len(audit) == 5
+    assert evidence["accepted_species"].nunique() == 2
     assert not evidence.duplicated(["accepted_species", "trait_name"]).any()
     assert not evidence["candidate_id"].duplicated().any()
     assert set(evidence["evidence_scope"]) == {"species_direct"}
@@ -42,9 +42,6 @@ def test_wave19_preserves_trait_specific_and_multistate_values() -> None:
         ["accepted_species", "trait_name"]
     )
 
-    assert evidence.loc[("Chrysanthemum indicum", "floral_form")][
-        "normalized_value"
-    ] == "composite_head"
     assert evidence.loc[("Lilium philadelphicum", "mating_system")][
         "normalized_value"
     ] == "predominantly_outcrossing"
@@ -70,8 +67,8 @@ def test_wave19_combined_checkpoint_passes_common_review_gate() -> None:
     accepted = validate_individually_reviewed_evidence(
         evidence, audit, master, Path("config/trait_ontology.yml")
     )
-    assert len(evidence) == len(audit) == len(accepted) == 2_912
-    assert len(accepted.loc[accepted["source_group"].eq(SOURCE_GROUP)]) == 6
+    assert len(evidence) == len(audit) == len(accepted) == 2_911
+    assert len(accepted.loc[accepted["source_group"].eq(SOURCE_GROUP)]) == 5
 
 
 def test_wave19_manifest_records_ceiling_cost_and_fail_closed_rules() -> None:
@@ -82,11 +79,11 @@ def test_wave19_manifest_records_ceiling_cost_and_fail_closed_rules() -> None:
     )
 
     assert manifest["baseline_formal_run_id"] == 32344088168
-    assert manifest["accepted_evidence_rows"] == 6
-    assert manifest["accepted_species_trait"] == 6
-    assert manifest["accepted_species"] == 3
-    assert len(manifest["targeted_support2_rules"]) == 4
-    assert manifest["theoretical_rule_cells_touched"] == 83
+    assert manifest["accepted_evidence_rows"] == 5
+    assert manifest["accepted_species_trait"] == 5
+    assert manifest["accepted_species"] == 2
+    assert len(manifest["targeted_support2_rules"]) == 3
+    assert manifest["theoretical_rule_cells_touched"] == 67
     assert manifest["formal_search_api_queries"] == 0
     assert manifest["search_cost_usd"] == 0.0
     assert manifest["guardrails"]["genus_axis_only_join"] is False
