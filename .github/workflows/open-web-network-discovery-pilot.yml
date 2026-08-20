@@ -44,6 +44,10 @@ on:
         description: Hard source-page fetch cap
         required: true
         default: "300"
+      resume_run_id:
+        description: Optional earlier regional-flora run whose completed page URLs must not be fetched again
+        required: false
+        default: ""
 
 permissions:
   actions: read
@@ -169,6 +173,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       PRIOR_RUN_ID: ${{ inputs.baseline_run_id }}
       MAX_SPECIES_PAGES: ${{ inputs.max_pages }}
+      RESUME_RUN_ID: ${{ inputs.resume_run_id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -186,9 +191,22 @@ jobs:
           test -f /tmp/prior-formal/strict_species_axis_coverage.csv.gz
           test -f /tmp/prior-formal/direct_species_trait_ledger.csv.gz
           test -f /tmp/prior-formal/prioritized_unresolved_search_queue.csv.gz
+      - name: Download optional resumable checkpoint
+        if: ${{ inputs.resume_run_id != '' }}
+        run: |
+          mkdir -p /tmp/resume
+          gh run download "$RESUME_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "regional-flora-network-acquisition-$RESUME_RUN_ID" \
+            --dir /tmp/resume
+          test -f /tmp/resume/regional_flora_acquisition_manifest.json
       - name: Acquire prioritized unresolved regional-flora pages
         run: |
           mkdir -p outputs/regional_flora_network
+          resume_args=()
+          if [[ -n "$RESUME_RUN_ID" ]]; then
+            resume_args=(--resume-dir /tmp/resume)
+          fi
           python -m island_v2.regional_flora_network_acquisition \
             --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
             --strict-coverage-csv /tmp/prior-formal/strict_species_axis_coverage.csv.gz \
@@ -199,7 +217,8 @@ jobs:
             --family-id-start 1 \
             --family-id-end 320 \
             --max-species-pages "$MAX_SPECIES_PAGES" \
-            --workers 12
+            --workers 12 \
+            "${resume_args[@]}"
           jq -e '
             .fixed_denominator.species == 106295
             and .fixed_denominator.species_axis == 318885
