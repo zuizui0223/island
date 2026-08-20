@@ -1,0 +1,37 @@
+{
+  "checkpoint": "targeted_support2_wave19_checkpoint_20260820",
+  "built_at_utc": "2026-08-20T18:00:00Z",
+  "baseline_formal_run_id": 32344088168,
+  "accepted_evidence_rows": 6,
+  "accepted_species_trait": 6,
+  "accepted_species": 3,
+  "recorded_queries": 6,
+  "formal_search_api_queries": 0,
+  "search_cost_usd": 0.0,
+  "targeted_support2_rules": [
+    "Chrysanthemum|floral_form",
+    "Lilium|mating_system",
+    "Pulicaria|floral_symmetry",
+    "Pulicaria|flower_size_class"
+  ],
+  "theoretical_rule_cells_touched": 83,
+  "guardrails": {
+    "search_snippet_as_evidence": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "min_species_two_production": false,
+    "cross_trait_substitution": false,
+    "genus_axis_only_join": false,
+    "pollen_vector_or_reward_mixed_into_structure": false,
+    "self_fertility_silently_mapped_to_autonomous_selfing": false,
+    "paywall_or_access_control_bypassed": false,
+    "cited_characterization_counted_as_independent_replication": false
+  },
+  "output_sha256": {
+    "evidence": "16255ea80c99459f2afb4130248a6b9f61c494bb5110a3031f3138488b6cc6ee",
+    "audit": "db5466c3ece9a3ac8e105a15c463293df9b573266a4d9c96f7f75e183052b420",
+    "combined_evidence": "d0dc1e86827ea125da27901bfa4c55f48ec11dcb144b836856100897ad64ee77",
+    "combined_audit": "4d390c32f778e3a4c185c3a505ac0a82e87c95f52da96561fc9b908d42028415"
+  },
+  "notes": "The 83 cells are a queue ceiling, not observed coverage gain. Formal all-evidence rebuilding and species/lineage leave-one-out validation determine realized direct and Validated Low changes. Pulicaria colour and display rows are direct additions but are not counted in the rule ceiling."
+}
