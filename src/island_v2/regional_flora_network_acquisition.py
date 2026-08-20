@@ -326,6 +326,22 @@ def _read_optional_csv(path: Path, **kwargs: object) -> pd.DataFrame:
     return pd.read_csv(path, dtype=str, **kwargs).fillna("") if path.exists() else pd.DataFrame()
 
 
+def _terminal_task_rows(frame: pd.DataFrame) -> pd.Series:
+    """Identify completed fetches, including permanent HTTP no-hits.
+
+    A 404 is a reproducible negative result, not a transient network failure.
+    Keeping it in the resume checkpoint prevents every later wave from sending
+    the same request again while still allowing timeouts and 5xx responses to
+    be retried.
+    """
+
+    if frame.empty:
+        return pd.Series(dtype=bool)
+    status = frame["status"].fillna("")
+    error = frame.get("error", pd.Series("", index=frame.index)).fillna("")
+    return status.ne("fetch_failed") & status.ne("") | error.eq("http_status_404")
+
+
 def _resume_tables(resume_dir: Path | None) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     if resume_dir is None:
         return (pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
@@ -405,7 +421,7 @@ def acquire(
     if not old_family_audit.empty:
         completed_family_tasks = set(
             old_family_audit.loc[
-                old_family_audit["status"].eq("success"), ["site_key", "family_id"]
+                _terminal_task_rows(old_family_audit), ["site_key", "family_id"]
             ].itertuples(index=False, name=None)
         )
     family_tasks = [
@@ -480,7 +496,7 @@ def acquire(
     if not old_page_audit.empty:
         completed_urls = set(
             old_page_audit.loc[
-                ~old_page_audit["status"].isin({"fetch_failed", ""}), "source_url"
+                _terminal_task_rows(old_page_audit), "source_url"
             ]
         )
     candidates = inventory.loc[exact & ~inventory["source_url"].isin(completed_urls)].copy()

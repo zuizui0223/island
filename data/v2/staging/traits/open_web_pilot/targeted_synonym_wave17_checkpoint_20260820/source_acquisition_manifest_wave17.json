@@ -1,0 +1,51 @@
+{
+  "checkpoint": "targeted_synonym_wave17_checkpoint_20260820",
+  "built_at_utc": "2026-08-20T08:00:00Z",
+  "baseline_formal_run_id": 32334209990,
+  "accepted_evidence_rows": 12,
+  "accepted_species_trait": 10,
+  "bsdb_acquisition": {
+    "source_rows": 3609,
+    "unresolved_unique_names_queried": 1383,
+    "wfo_requests": 1383,
+    "gbif_requests": 1383,
+    "total_web_api_requests": 2766,
+    "strict_two_backbone_agreements": 21,
+    "strict_mapping_rate": 0.01518438,
+    "new_direct_rows": 10,
+    "new_direct_species_trait": 8,
+    "direct_conflict_species_trait": 1,
+    "api_cost_usd": 0.0,
+    "frozen_response_jsonl_sha256": "898ebdc9f3bf57958f34a3d368e02fd8c476d08684700d8cfd548c2e0f2cd1d3",
+    "pinned_bsdb_csv_sha256": "f935c8150b3d719aba5f62f14335c1a185304155403bf50db1e3ef1393fc55f4"
+  },
+  "regional_flora_resume": {
+    "completed_species_pages_not_researched": 1207,
+    "new_species_pages_fetched": 333,
+    "new_reviewed_direct_rows": 2,
+    "new_reviewed_species_trait": 2,
+    "source_domain": "zambiaflora.com",
+    "search_api_cost_usd": 0.0
+  },
+  "recorded_queries": 2766,
+  "search_cost_usd": 0.0,
+  "guardrails": {
+    "both_backbones_same_accepted_species": true,
+    "fixed_master_family_exact": true,
+    "fuzzy_or_one_backbone_match": false,
+    "search_snippet_as_evidence": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "min_species_two_production": false,
+    "cross_trait_substitution": false,
+    "genus_axis_only_join": false,
+    "direct_conflict_forced_resolved": false
+  },
+  "output_sha256": {
+    "evidence": "07c47ed4716894d4856b15badfff3f8db9d985e3cefdeff57134ebe55b07f127",
+    "audit": "35afdab922a5ed41159c9ac70347f6c727f7d4a9e9c7bf15e9e71e9f9c6d6c58",
+    "combined_evidence": "de9c08d6f2ed225a33c40cb112d5f931d1dcfd416b320df49d44d71e558ed5ee",
+    "combined_audit": "1cad2027272584f20fdfe4c20646fae643119a83c79fa982c7b5aace7bbe676d"
+  },
+  "notes": "Doona cordifolia retains three independent High rows with SC/SI disagreement and must remain an unresolved direct conflict. The formal all-evidence rebuild, not this checkpoint, determines strict and Low gains."
+}

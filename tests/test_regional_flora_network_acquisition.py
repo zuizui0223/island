@@ -1,5 +1,8 @@
+import pandas as pd
+
 from island_v2.regional_flora_network_acquisition import (
     SITES,
+    _terminal_task_rows,
     parse_family_index,
     parse_species_page,
 )
@@ -90,3 +93,13 @@ def test_species_page_rejects_name_or_family_conflict() -> None:
     )
     assert family_audit["status"] == "rejected_family_mismatch"
     assert family_rows == []
+
+
+def test_resume_keeps_permanent_no_hits_but_retries_transient_failures() -> None:
+    tasks = pd.DataFrame(
+        {
+            "status": ["success", "fetch_failed", "fetch_failed", "fetch_failed", ""],
+            "error": ["", "http_status_404", "http_status_503", "ReadTimeout:x", ""],
+        }
+    )
+    assert _terminal_task_rows(tasks).tolist() == [True, True, False, False, False]

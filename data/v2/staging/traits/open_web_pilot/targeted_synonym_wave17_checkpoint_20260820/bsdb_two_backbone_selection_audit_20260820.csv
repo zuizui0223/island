@@ -1,0 +1,26 @@
+source_row,source_name,accepted_species,BreedingSys,bs.Source,selection_reason
+200,Hugueninia tanacetifolia,Descurainia tanacetifolia,SI,hildebrand1896|fryxell1957,selected
+826,Alyssum desertorum,Alyssum turkestanicum,SC,mulligan.key,already_resolved_direct_pair
+1272,Clidemia pustulata,Miconia fenestrata,SC,ramirez2019,selected
+1280,Leandra dasytricha,Miconia dasytricha,SC,goldenberg2001,already_resolved_direct_pair
+1293,Tococa guianensis,Miconia tococa,SC,Hokche and Ramirez 2008,already_resolved_direct_pair
+1294,Tococa guianensis,Miconia tococa,SI,ramirez2019,already_resolved_direct_pair
+1438,Papaver argemone,Roemeria argemone,SC,rogers1969,already_resolved_direct_pair
+1946,Draba cuneifolia,Tomostima cuneifolia,SC,hall2002,already_resolved_direct_pair
+2089,Echinopsis chamaecereus,Chamaecereus silvestrii,SI,Boyle and Idnurm 2001,already_resolved_direct_pair
+2125,Shorea megistophylla,Doona macrophylla,SI,dayanandan1990,selected
+2130,Shorea disticha,Doona disticha,SI,bawa1998,selected
+2131,Shorea congestiflora,Doona congestiflora,SI,dayanandan1990,already_resolved_direct_pair
+2133,Shorea trapezifolia,Doona trapezifolia,SI,bawa1998,already_resolved_direct_pair
+2134,Shorea trapezifolia,Doona trapezifolia,SI,dayanandan1990,already_resolved_direct_pair
+2135,Shorea cordifolia,Doona cordifolia,SC,bawa1998,selected
+2136,Shorea cordifolia,Doona cordifolia,SI,dayanandan1990,selected
+2137,Shorea cordifolia,Doona cordifolia,SI,stacy2001,selected
+2307,Tibouchina sellowiana,Pleroma sellowianum,SC,goldenberg2001,already_resolved_direct_pair
+2517,Calibrachoa rupestris,Calibrachoa paranensis,SI,tsukamoto2002,selected
+3078,Erechtites atkinsoniae,Senecio bipinnatisectus,SC,lawrence1985b,already_resolved_direct_pair
+3178,Erechtites glomeratus,Senecio glomeratus,SC,lawrence1985a,already_resolved_direct_pair
+3198,Erechtites sonchoides,Senecio biserratus,SC,lawrence1985b,selected
+3199,Erechtites gunnii,Senecio gunnii,SC,lawrence1985b,selected
+3249,Shorea siamensis,Pentacme siamensis,SI,Ghazoul et al. 1998,already_resolved_direct_pair
+3337,Turritis brassica,Fourraea alpina,SC,koch1999,already_resolved_direct_pair

@@ -41,6 +41,7 @@ _DIRECT_NAME_MATCHES = {
     "exact_accepted_name",
     "exact_synonym",
     "synonym_exact",
+    "synonym_exact_two_backbone",
 }
 _DIRECT_SCOPES = {"species_direct", "synonym_direct"}
 _TIER_C_MEDIUM_TRAITS = {
