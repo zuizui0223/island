@@ -1,0 +1,49 @@
+{
+  "checkpoint": "targeted_support2_wave16_checkpoint_20260820",
+  "built_at_utc": "2026-08-20T12:30:00Z",
+  "source_artifacts": [
+    {
+      "source_run_id": "31233181709",
+      "source_artifact_id": "9014569071",
+      "source_artifact_name": "open-web-domain-backfill-31233181709",
+      "accepted_rows": 2
+    },
+    {
+      "source_run_id": "31247162370",
+      "source_artifact_id": "9018965291",
+      "source_artifact_name": "open-web-domain-backfill-31247162370",
+      "accepted_rows": 22
+    },
+    {
+      "source_run_id": "31249406427",
+      "source_artifact_id": "9020100238",
+      "source_artifact_name": "open-web-domain-backfill-31249406427",
+      "accepted_rows": 1
+    }
+  ],
+  "source_artifact_snapshot_sha256": "6740771cfb90700b713bebd05f22f02740a8155dd98f6cefff0e06c4fa63fed0",
+  "accepted_species_trait_rows": 27,
+  "accepted_species": 26,
+  "recorded_queries": 4,
+  "formal_search_api_queries": 0,
+  "search_cost_usd": 0.0,
+  "targeted_support2_rules": [
+    "Yucca|flower_size_class",
+    "Planchonella|floral_symmetry",
+    "Rhamnus|mating_system",
+    "Viscum|mating_system"
+  ],
+  "targeted_support2_rule_count": 4,
+  "guardrails": {
+    "search_snippet_as_evidence": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "min_species_two_production": false,
+    "cross_trait_substitution": false,
+    "genus_axis_only_join": false,
+    "pollen_vector_or_reward_mixed_into_structure": false,
+    "component_size_promoted_without_source_audit": false,
+    "solitary_spikelet_mapped_to_solitary_flower_display": false
+  },
+  "notes": "The formal all-evidence rebuild determines realized direct and Low gains. Seven PlantNET solitary-spikelet rows and coarse NCSU less-than-one-inch size rows were deliberately excluded."
+}
