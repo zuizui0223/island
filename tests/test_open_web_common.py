@@ -247,7 +247,7 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "open-web-multidomain-pilot-30434418380" in workflow
     assert "inputs.prior_public_web_run_id || '31771437676'" in workflow
     assert (
-        "targeted_support2_wave20_checkpoint_20260821/"
+        "goodwillie_2005_mixed_mating_checkpoint_20260821/"
         "combined_curated_evidence_20260821.csv" in workflow
     )
     assert "inputs.source_package_evidence_csv_path ||" in workflow
@@ -270,11 +270,11 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "inputs.source_package_run_id || ''" in workflow
     assert "inputs.source_package_artifact_name ||" in workflow
     assert (
-        "targeted_support2_wave20_checkpoint_20260821/"
+        "goodwillie_2005_mixed_mating_checkpoint_20260821/"
         "combined_curated_evidence_20260821.csv" in workflow
     )
     assert (
-        "targeted_support2_wave20_checkpoint_20260821/"
+        "goodwillie_2005_mixed_mating_checkpoint_20260821/"
         "combined_curated_manual_audit_20260821.csv" in workflow
     )
     assert "direct_evidence_exclusions_20260811.csv" in workflow

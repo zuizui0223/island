@@ -1,0 +1,52 @@
+{
+  "checkpoint": "goodwillie_2005_mixed_mating_checkpoint_20260821",
+  "built_at_utc": "2026-08-21T04:15:00Z",
+  "baseline_formal_run_id": 32445414491,
+  "dryad_dataset_doi": "10.5061/dryad.292q34fp",
+  "dryad_file_id": 27237,
+  "license": "CC0-1.0",
+  "source_rows": 469,
+  "exact_master_mating_system_rows": 243,
+  "novel_mating_system_rows": 0,
+  "accepted_evidence_rows": 9,
+  "accepted_species_trait": 9,
+  "accepted_species": 8,
+  "accepted_source_lineages": 8,
+  "accepted_by_trait": {
+    "autonomous_selfing_capacity": 7,
+    "cleistogamy": 2
+  },
+  "recorded_queries": 1,
+  "formal_search_api_queries": 0,
+  "search_cost_usd": 0.0,
+  "local_formal_simulation": {
+    "strict_species_axis_before": 159443,
+    "strict_species_axis_after": 160103,
+    "net_change": 660,
+    "reproductive_assurance_before": 30398,
+    "reproductive_assurance_after": 31058,
+    "new_eligible_rule": "Begonia|autonomous_selfing_capacity"
+  },
+  "source_sha256": {
+    "mixed_mating_outcrossing_rate_database.xls": "9ec35a0d56bc695c5792f5037cfd325f465a01737c7666f3eb042cc587f0fdc9",
+    "README.txt": "49f8283f2f52cee33d3e9fa429df24127572f53c2bddb7b636915c19c384fb9b",
+    "mixed_mating_outcrossing_rate_database_normalized.csv": "7e2a72856f85f9f7db25b9d3888248b575f4502a0d1713407592fb1c95d5fbff"
+  },
+  "guardrails": {
+    "outcrossing_rate_reinterpreted_as_other_trait": false,
+    "none_mapped_to_absent_autonomous_selfing": false,
+    "geitonogamy_mapped_to_autonomous_selfing": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "min_species_two_production": false,
+    "cross_trait_substitution": false,
+    "genus_axis_only_join": false
+  },
+  "output_sha256": {
+    "evidence": "a4ddee5fdc2c959eede36a1d9c22d4141f4ef328bc2c4f46835f6ad6426fb0fc",
+    "audit": "3c22cf4ab5a07d86f64d9f8039c95095998d95e90767d031cede488540ea5c4d",
+    "combined_evidence": "8d18962a12e025ef209f0f352d410cdeba34f92f8cd2be2c8150ab5191f17815",
+    "combined_audit": "80a58f6932d0c9d93b85c2fb1623b04c3a227a2c2f920d664fd4d4f475eee48a"
+  },
+  "notes": "The +660 value is a local dry-run expectation, not a formal artifact claim. The GitHub all-evidence rebuild remains authoritative. The 243 exact-master mating-system rows were already represented by prior lineages and were not duplicated."
+}
