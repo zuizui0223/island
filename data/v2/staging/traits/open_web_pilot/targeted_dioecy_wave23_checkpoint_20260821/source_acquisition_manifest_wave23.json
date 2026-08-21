@@ -1,0 +1,42 @@
+{
+  "checkpoint": "targeted_dioecy_wave23_checkpoint_20260821",
+  "built_at_utc": "2026-08-21T06:00:00Z",
+  "baseline_formal_run_id": 32449801624,
+  "accepted_evidence_rows": 11,
+  "accepted_species_trait": 11,
+  "accepted_species": 11,
+  "accepted_source_lineages": 10,
+  "quality_counts": {
+    "high": 9,
+    "medium": 2
+  },
+  "recorded_queries": 11,
+  "formal_search_api_queries": 0,
+  "search_cost_usd": 0.0,
+  "targeted_support2_rules": [
+    "Asparagus|mating_system",
+    "Ilex|mating_system",
+    "Litsea|mating_system",
+    "Myrsine|mating_system",
+    "Nepenthes|mating_system"
+  ],
+  "theoretical_rule_cells_touched": 831,
+  "guardrails": {
+    "search_snippet_as_evidence": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "min_species_two_production": false,
+    "cross_trait_substitution": false,
+    "genus_axis_only_join": false,
+    "dioecy_mapped_to_self_incompatibility": false,
+    "dioecy_mapped_to_autonomous_selfing": false,
+    "cultivar_or_hybrid_transferred_to_wild_species": false
+  },
+  "output_sha256": {
+    "evidence": "993e057909cc36ff27bf98a1466e8cebf6e8c8fcf9c2da5761c3452b8c55df72",
+    "audit": "ae6558344d5f56d4429d080d1c404aa8a4b9b7306e1aec1e8e48f5627b3e0341",
+    "combined_evidence": "fdadc24b45a6d815244e5c10395cf416fab45cd9b8059df3ef8ec279bb1d667c",
+    "combined_audit": "24492af82a01f1171e6d9019dd745ae422d4bdbfde53afba3c1c1f2f6a961698"
+  },
+  "notes": "The 831 cells are a queue ceiling, not observed coverage gain. The shared all-evidence rebuild must independently pass dominance, masked species validation, and source-lineage leave-one-out validation."
+}
