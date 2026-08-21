@@ -1,0 +1,55 @@
+{
+  "checkpoint": "ferrer_2024_powo_synonym_checkpoint_20260821",
+  "built_at_utc": "2026-08-21T05:08:53Z",
+  "baseline_formal_run_id": 32447600643,
+  "source_rows": 5686,
+  "safe_direct_rows_before_name_matching": 3706,
+  "prior_direct_candidate_species": 2427,
+  "unmatched_safe_rows": 1181,
+  "unique_unmatched_names_queried": 1171,
+  "wfo_requests": 1171,
+  "reused_gbif_responses": 1171,
+  "powo_manual_result_pages_reviewed": 3,
+  "search_api_cost_usd": 0.0,
+  "accepted_evidence_rows": 3,
+  "accepted_species_trait": 3,
+  "accepted_source_lineages": 3,
+  "wfo_gbif_mapping_counts": {
+    "agreed_name_not_in_fixed_master": 885,
+    "backbones_disagree": 60,
+    "family_conflict": 2,
+    "gbif_no_response": 33,
+    "gbif_not_exact": 27,
+    "wfo_no_exact_match": 164
+  },
+  "theoretical_rule_candidate": {
+    "genus": "Chaetogastra",
+    "trait_name": "self_incompatibility",
+    "new_value": "SC",
+    "prior_support_species": 2,
+    "potential_unresolved_cells": 12,
+    "formal_gain_claimed": false
+  },
+  "source_sha256": {
+    "oup_supplementary_workbook": "8ef2f5ac99780ca19a15b847442272457634064577f8a12fbb9710f5521e5899",
+    "ferrer_two_backbone_responses_20260821.jsonl.gz": "8fd6076a5895c4b1844f082126f342f653b38c9376b1bb67eea501132f1c3660",
+    "ferrer_two_backbone_mapping_audit_20260821.csv.gz": "c778928d169e28d61bbdb0b49889600a25d91edc6e42f0bf78a9578143b10cfb"
+  },
+  "guardrails": {
+    "single_backbone_match_accepted": false,
+    "fuzzy_match_accepted": false,
+    "family_conflict_accepted": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "min_species_two_production": false,
+    "cross_trait_substitution": false,
+    "genus_axis_only_join": false
+  },
+  "output_sha256": {
+    "evidence": "d9f0e46ecfa8281ef6c74ce95a9910fb295714e5c0c9ef857dbe9167b1cdccec",
+    "audit": "d4d95d422adb05b244e21190c52deea7a73f4ae21a232f64c3cef33d22038cc1",
+    "combined_evidence": "f0afb283120c8b1ba6ee3dcaac2c47f5c84cebeb686b5cdeaa825c6eba851663",
+    "combined_audit": "f5791d7342fe056399873eb9bf5374ce847a9093446cbbe4eb2abc34acde73e6"
+  },
+  "notes": "The 12-cell rule value is a queue ceiling, not a coverage claim. Only the formal all-evidence rebuild may report strict or Low gain."
+}

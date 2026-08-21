@@ -64,10 +64,12 @@ on:
       - "data/v2/staging/traits/open_web_pilot/targeted_support2_wave19_checkpoint_20260820/**"
       - "data/v2/staging/traits/open_web_pilot/targeted_support2_wave20_checkpoint_20260821/**"
       - "data/v2/staging/traits/open_web_pilot/goodwillie_2005_mixed_mating_checkpoint_20260821/**"
+      - "data/v2/staging/traits/open_web_pilot/ferrer_2024_powo_synonym_checkpoint_20260821/**"
       - "data/v2/staging/traits/open_web_pilot/palmpedia_archive_checkpoint_20260813/**"
       - "data/v2/external/traits/konno_1999_bagging/**"
       - "data/v2/external/traits/yomai_2021_pohnpei/**"
       - "data/v2/external/traits/goodwillie_2005/**"
+      - "data/v2/external/traits/ferrer_2024_two_backbone/**"
       - "data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_*.csv"
       - "data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/stratified_trait_audit_*.csv"
       - "data/v2/staging/traits/direct_llm_pilot/20260808_scale_source_acquisition/**"
@@ -189,6 +191,8 @@ on:
       - "src/island_v2/targeted_support2_wave20_checkpoint.py"
       - "tests/test_goodwillie_2005_mixed_mating_checkpoint.py"
       - "src/island_v2/goodwillie_2005_mixed_mating_checkpoint.py"
+      - "tests/test_ferrer_2024_powo_synonym_checkpoint.py"
+      - "src/island_v2/ferrer_2024_powo_synonym_checkpoint.py"
       - "tests/test_open_web_structured_traits.py"
       - "tests/test_pngtrees_source_package.py"
       - "tests/test_open_web_common.py"
@@ -243,19 +247,19 @@ on:
       curated_evidence_csv_path:
         description: Individually reviewed species-direct evidence committed on this ref
         required: false
-        default: "data/v2/staging/traits/open_web_pilot/goodwillie_2005_mixed_mating_checkpoint_20260821/combined_curated_evidence_20260821.csv"
+        default: "data/v2/staging/traits/open_web_pilot/ferrer_2024_powo_synonym_checkpoint_20260821/combined_curated_evidence_20260821.csv"
       curated_audit_csv_path:
         description: Line-by-line audit for the curated evidence
         required: false
-        default: "data/v2/staging/traits/open_web_pilot/goodwillie_2005_mixed_mating_checkpoint_20260821/combined_curated_manual_audit_20260821.csv"
+        default: "data/v2/staging/traits/open_web_pilot/ferrer_2024_powo_synonym_checkpoint_20260821/combined_curated_manual_audit_20260821.csv"
       curated_source_run_id:
         description: Original acquisition Run ID for the curated checkpoint
         required: false
-        default: "dryad-goodwillie-2005-2012-wave21-20260821"
+        default: "ferrer-2024-wfo-powo-synonym-wave22-20260821"
       curated_source_artifact_name:
         description: Original acquisition artifact for the curated checkpoint
         required: false
-        default: "goodwillie-2005-mixed-mating-source-snapshot"
+        default: "ferrer-2024-wfo-powo-synonym-source-snapshot"
       source_package_evidence_csv_path:
         description: Common-schema evidence from an audited source package
         required: false
@@ -313,15 +317,15 @@ jobs:
         ${{ inputs.candidate_file_name || 'open_web_multidomain_candidates.csv' }}
       CURATED_EVIDENCE_CSV_PATH: >-
         ${{ inputs.curated_evidence_csv_path ||
-        'data/v2/staging/traits/open_web_pilot/goodwillie_2005_mixed_mating_checkpoint_20260821/combined_curated_evidence_20260821.csv' }}
+        'data/v2/staging/traits/open_web_pilot/ferrer_2024_powo_synonym_checkpoint_20260821/combined_curated_evidence_20260821.csv' }}
       CURATED_AUDIT_CSV_PATH: >-
         ${{ inputs.curated_audit_csv_path ||
-        'data/v2/staging/traits/open_web_pilot/goodwillie_2005_mixed_mating_checkpoint_20260821/combined_curated_manual_audit_20260821.csv' }}
+        'data/v2/staging/traits/open_web_pilot/ferrer_2024_powo_synonym_checkpoint_20260821/combined_curated_manual_audit_20260821.csv' }}
       CURATED_SOURCE_RUN_ID: >-
-        ${{ inputs.curated_source_run_id || 'dryad-goodwillie-2005-2012-wave21-20260821' }}
+        ${{ inputs.curated_source_run_id || 'ferrer-2024-wfo-powo-synonym-wave22-20260821' }}
       CURATED_SOURCE_ARTIFACT: >-
         ${{ inputs.curated_source_artifact_name ||
-        'goodwillie-2005-mixed-mating-source-snapshot' }}
+        'ferrer-2024-wfo-powo-synonym-source-snapshot' }}
       SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-
         ${{ inputs.source_package_evidence_csv_path || '' }}
       SOURCE_PACKAGE_AUDIT_CSV_PATH: >-
@@ -405,6 +409,7 @@ jobs:
             src/island_v2/targeted_support2_wave19_checkpoint.py \
             src/island_v2/targeted_support2_wave20_checkpoint.py \
             src/island_v2/goodwillie_2005_mixed_mating_checkpoint.py \
+            src/island_v2/ferrer_2024_powo_synonym_checkpoint.py \
             src/island_v2/open_web_structured_traits.py \
             src/island_v2/review_inventory_artifact.py \
             tests/test_curated_bulk_checkpoint.py \
@@ -453,6 +458,7 @@ jobs:
             tests/test_targeted_support2_wave19_checkpoint.py \
             tests/test_targeted_support2_wave20_checkpoint.py \
             tests/test_goodwillie_2005_mixed_mating_checkpoint.py \
+            tests/test_ferrer_2024_powo_synonym_checkpoint.py \
             tests/test_open_web_structured_traits.py \
             tests/test_review_inventory_artifact.py \
             tests/test_flora_of_australia_source_scale.py \
@@ -516,6 +522,7 @@ jobs:
             tests/test_targeted_support2_wave19_checkpoint.py \
             tests/test_targeted_support2_wave20_checkpoint.py \
             tests/test_goodwillie_2005_mixed_mating_checkpoint.py \
+            tests/test_ferrer_2024_powo_synonym_checkpoint.py \
             tests/test_open_web_structured_traits.py \
             tests/test_open_web_common.py \
             tests/test_review_inventory_artifact.py \
