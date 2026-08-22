@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "src/island_v2/flora_status_support.py"
+      - "src/island_v2/flora_status_support_decision.py"
       - "src/island_v2/genus_fixed_trait_null.py"
       - "src/island_v2/gift_floristic_status_match.py"
       - "src/island_v2/floristic_status_resolve.py"
@@ -13,11 +14,13 @@ on:
       - "config/flora_status_support.yml"
       - "config/flora_endemism_analysis.yml"
       - "tests/test_flora_status_support.py"
+      - "tests/test_flora_status_support_decision.py"
       - "tests/test_genus_fixed_trait_null.py"
       - "tests/test_gift_floristic_status_match.py"
       - "tests/test_floristic_status_resolve.py"
       - "tests/test_flora_endemism_analysis.py"
       - "docs/flora_status_lineage_analysis_plan.md"
+      - "docs/flora_status_real_data_checkpoint_20260822.md"
   workflow_dispatch:
 
 permissions:
@@ -38,11 +41,13 @@ jobs:
         run: |
           ruff check \
             src/island_v2/flora_status_support.py \
+            src/island_v2/flora_status_support_decision.py \
             src/island_v2/genus_fixed_trait_null.py \
             src/island_v2/gift_floristic_status_match.py \
             src/island_v2/floristic_status_resolve.py \
             src/island_v2/flora_endemism_analysis.py \
             tests/test_flora_status_support.py \
+            tests/test_flora_status_support_decision.py \
             tests/test_genus_fixed_trait_null.py \
             tests/test_gift_floristic_status_match.py \
             tests/test_floristic_status_resolve.py \
@@ -51,6 +56,7 @@ jobs:
         run: |
           pytest -q \
             tests/test_flora_status_support.py \
+            tests/test_flora_status_support_decision.py \
             tests/test_genus_fixed_trait_null.py \
             tests/test_gift_floristic_status_match.py \
             tests/test_floristic_status_resolve.py \
