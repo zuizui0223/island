@@ -30,6 +30,24 @@ def test_family_index_parser_is_provider_generic() -> None:
     assert all(row["domain"] == "zambiaflora.com" for row in rows)
 
 
+def test_expanded_african_flora_network_is_registered() -> None:
+    site = SITES["zimbabwe"]
+    assert site.provider == "Flora of Zimbabwe"
+    assert site.domain == "zimbabweflora.co.zw"
+    assert site.family_url(1).startswith("https://www.zimbabweflora.co.zw/")
+    assert {
+        "caprivi",
+        "burundi",
+        "drcongo",
+        "rwanda",
+        "angola",
+        "kenya",
+        "tanzania",
+        "uganda",
+    }.issubset(SITES)
+    assert len({site.domain for site in SITES.values()}) == len(SITES)
+
+
 def _species_html(*, name: str = "Thunbergia alata", family: str = "Acanthaceae") -> bytes:
     return f"""
     <html><head><title>Flora: Species information: {name}</title></head><body>

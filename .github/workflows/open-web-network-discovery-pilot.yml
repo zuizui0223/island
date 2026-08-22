@@ -213,10 +213,11 @@ jobs:
             --direct-ledger-csv /tmp/prior-formal/direct_species_trait_ledger.csv.gz \
             --rule-queue-csv /tmp/prior-formal/prioritized_unresolved_search_queue.csv.gz \
             --output-dir outputs/regional_flora_network \
-            --sites zambia,mozambique,malawi,botswana \
+            --sites zambia,mozambique,malawi,botswana,zimbabwe,caprivi,burundi,drcongo,rwanda,angola,kenya,tanzania,uganda \
             --family-id-start 1 \
             --family-id-end 320 \
             --max-species-pages "$MAX_SPECIES_PAGES" \
+            --min-islands 11 \
             --workers 12 \
             "${resume_args[@]}"
           jq -e '

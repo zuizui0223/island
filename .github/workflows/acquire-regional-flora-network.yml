@@ -14,7 +14,7 @@ on:
       sites:
         description: Comma-separated regional-flora site keys
         required: true
-        default: "zambia,mozambique,malawi,botswana"
+        default: "zambia,mozambique,malawi,botswana,zimbabwe,caprivi,burundi,drcongo,rwanda,angola,kenya,tanzania,uganda"
       family_id_start:
         description: First family ID (inclusive)
         required: true
@@ -27,6 +27,10 @@ on:
         description: Maximum prioritized species pages in this checkpoint
         required: true
         default: "5000"
+      min_islands:
+        description: Minimum fixed-master island occurrences per target species
+        required: true
+        default: "11"
       workers:
         description: Bounded concurrent requests
         required: true
@@ -56,6 +60,7 @@ jobs:
       FAMILY_ID_START: ${{ inputs.family_id_start }}
       FAMILY_ID_END: ${{ inputs.family_id_end }}
       MAX_SPECIES_PAGES: ${{ inputs.max_species_pages }}
+      MIN_ISLANDS: ${{ inputs.min_islands }}
       WORKERS: ${{ inputs.workers }}
       RESUME_RUN_ID: ${{ inputs.resume_run_id }}
     steps:
@@ -107,6 +112,7 @@ jobs:
             --family-id-start "$FAMILY_ID_START" \
             --family-id-end "$FAMILY_ID_END" \
             --max-species-pages "$MAX_SPECIES_PAGES" \
+            --min-islands "$MIN_ISLANDS" \
             --workers "$WORKERS" \
             "${resume_args[@]}"
           jq -e '

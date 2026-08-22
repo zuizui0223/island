@@ -1,11 +1,11 @@
 """Acquire unresolved floral traits from a reusable regional-flora network.
 
-The Flora of Zimbabwe, Zambia, Mozambique, Malawi and Botswana sites expose
-the same family-checklist and species-treatment interface.  This module uses
-that interface as a provider family, not as site-specific scraping code.  It
-first inventories family indexes, intersects exact binomials with the fixed
-island master, and only then retrieves pages that can fill a currently missing
-strict axis or provide a third species for a support=2 genus x trait rule.
+Thirteen African e-flora sites expose the same family-checklist and
+species-treatment interface.  This module uses that interface as a provider
+family, not as site-specific scraping code.  It first inventories family
+indexes, intersects exact binomials with the fixed island master, and only then
+retrieves pages that can fill a currently missing strict axis or provide a
+third species for a support=2 genus x trait rule.
 
 Outputs are review candidates.  They are never promoted to the formal ledger
 by this acquisition command alone.
@@ -99,6 +99,69 @@ SITES = {
             "https://www.botswanaflora.com",
             "botswanaflora.com",
             "Botswana",
+        ),
+        FloraSite(
+            "zimbabwe",
+            "Flora of Zimbabwe",
+            "https://www.zimbabweflora.co.zw",
+            "zimbabweflora.co.zw",
+            "Zimbabwe",
+        ),
+        FloraSite(
+            "caprivi",
+            "Flora of Caprivi",
+            "https://www.capriviflora.com",
+            "capriviflora.com",
+            "Namibia, Caprivi",
+        ),
+        FloraSite(
+            "burundi",
+            "Flora of Burundi",
+            "https://www.burundiflora.com",
+            "burundiflora.com",
+            "Burundi",
+        ),
+        FloraSite(
+            "drcongo",
+            "Flora of the Democratic Republic of the Congo",
+            "https://www.drcongoflora.com",
+            "drcongoflora.com",
+            "Democratic Republic of the Congo",
+        ),
+        FloraSite(
+            "rwanda",
+            "Flora of Rwanda",
+            "https://www.rwandaflora.com",
+            "rwandaflora.com",
+            "Rwanda",
+        ),
+        FloraSite(
+            "angola",
+            "Flora of Angola",
+            "https://www.angolaflora.com",
+            "angolaflora.com",
+            "Angola",
+        ),
+        FloraSite(
+            "kenya",
+            "Flora of Kenya",
+            "https://www.kenyaflora.com",
+            "kenyaflora.com",
+            "Kenya",
+        ),
+        FloraSite(
+            "tanzania",
+            "Flora of Tanzania",
+            "https://www.tanzaniaflora.com",
+            "tanzaniaflora.com",
+            "Tanzania",
+        ),
+        FloraSite(
+            "uganda",
+            "Flora of Uganda",
+            "https://www.ugandaflora.com",
+            "ugandaflora.com",
+            "Uganda",
         ),
     )
 }
@@ -364,6 +427,7 @@ def acquire(
     family_id_start: int,
     family_id_end: int,
     max_species_pages: int,
+    min_islands: int,
     workers: int,
     resume_dir: Path | None = None,
 ) -> dict[str, object]:
@@ -374,6 +438,8 @@ def acquire(
         raise ValueError("at least one regional flora site is required")
     if max_species_pages < 1:
         raise ValueError("max_species_pages must be positive")
+    if min_islands < 1:
+        raise ValueError("min_islands must be positive")
 
     output_dir.mkdir(parents=True, exist_ok=True)
     master = pd.read_csv(master_csv, dtype=str).fillna("")
@@ -531,7 +597,8 @@ def acquire(
     candidates["n_islands"] = candidates["accepted_species"].map(island_counts).fillna(0)
     candidates["n_records"] = candidates["accepted_species"].map(record_counts).fillna(0)
     candidates = candidates.loc[
-        candidates["missing_strict_axes"].gt(0) | candidates["rule_unlock_potential"].gt(0)
+        (candidates["missing_strict_axes"].gt(0) | candidates["rule_unlock_potential"].gt(0))
+        & candidates["n_islands"].ge(min_islands)
     ]
     candidates = candidates.sort_values(
         [
@@ -623,6 +690,7 @@ def acquire(
         "family_tasks": family_audit["status"].value_counts().sort_index().to_dict(),
         "inventory_rows": len(inventory),
         "fixed_master_exact_inventory_rows": int(exact.sum()),
+        "minimum_island_occurrences": min_islands,
         "selected_species_pages": len(selected),
         "page_tasks": page_audit["status"].value_counts().sort_index().to_dict(),
         "candidate_rows": len(evidence),
@@ -677,6 +745,7 @@ def main() -> None:
     parser.add_argument("--family-id-start", type=int, default=1)
     parser.add_argument("--family-id-end", type=int, default=320)
     parser.add_argument("--max-species-pages", type=int, default=5000)
+    parser.add_argument("--min-islands", type=int, default=1)
     parser.add_argument("--workers", type=int, default=12)
     parser.add_argument("--resume-dir", type=Path)
     args = parser.parse_args()
@@ -694,6 +763,7 @@ def main() -> None:
         family_id_start=args.family_id_start,
         family_id_end=args.family_id_end,
         max_species_pages=args.max_species_pages,
+        min_islands=args.min_islands,
         workers=args.workers,
         resume_dir=args.resume_dir,
     )
