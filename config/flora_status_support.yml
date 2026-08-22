@@ -1,0 +1,30 @@
+version: "1.0"
+
+# Final manuscript-facing outcomes only. Support is measured per outcome, not on
+# the old three-axis all-or-nothing gate.
+outcomes:
+  flower_colour:
+    trait_names: [flower_primary_color]
+  floral_form:
+    trait_names: [floral_form]
+  self_compatibility:
+    trait_names: [self_incompatibility]
+
+support:
+  # A model-support diagnostic, not a biological coverage threshold. Islands
+  # below this count remain in the attrition table; missing values are not filled.
+  min_direct_species_per_island: 30
+  min_direct_fraction: 0.0
+  pilot_min_islands: 30
+  confirmatory_min_islands: 50
+  regime_column: analysis_regime
+  isolation_column: distance_to_continent_km
+
+status_contract:
+  required_columns: [island_id, accepted_species, origin_status, endemic_status]
+  origin_status_values: [native, introduced, unresolved]
+  endemic_status_values: [endemic, nonendemic, unresolved]
+  primary_status_source: GIFT
+  rule: >-
+    Never infer native, introduced, or endemic status from GBIF island occurrence
+    footprint. Conflicting or unavailable status remains unresolved.
