@@ -1,0 +1,22 @@
+version: "1.0"
+regime_column: analysis_regime
+regimes: [northern_midlatitude, tropical, southern_extratropical]
+spatial_cluster: spatial_block
+min_resolved_native_species: 30
+nominal_z_threshold: 1.96
+
+# The isolation coefficient is interpreted within each regime. Regional baseline
+# differences are therefore not mistaken for an isolation slope.
+baseline_covariates:
+  - log_distance_to_continent_km
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+response_contract:
+  successes: n_endemic_species
+  trials: n_endemic_species + n_native_nonendemic_species
+  unresolved_native_endemism: exclude_from_denominator_and_report_resolution_fraction
+  interpretation: island_level_floristic_association_not_speciation_rate
