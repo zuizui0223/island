@@ -6,13 +6,16 @@ on:
       - "src/island_v2/flora_status_support.py"
       - "src/island_v2/genus_fixed_trait_null.py"
       - "src/island_v2/gift_floristic_status_match.py"
+      - "src/island_v2/floristic_status_resolve.py"
       - "src/island_v2/flora_endemism_analysis.py"
       - "scripts/fetch_gift_floristic_status.R"
+      - "scripts/export_wcvp_native_ranges.R"
       - "config/flora_status_support.yml"
       - "config/flora_endemism_analysis.yml"
       - "tests/test_flora_status_support.py"
       - "tests/test_genus_fixed_trait_null.py"
       - "tests/test_gift_floristic_status_match.py"
+      - "tests/test_floristic_status_resolve.py"
       - "tests/test_flora_endemism_analysis.py"
       - "docs/flora_status_lineage_analysis_plan.md"
   workflow_dispatch:
@@ -37,10 +40,12 @@ jobs:
             src/island_v2/flora_status_support.py \
             src/island_v2/genus_fixed_trait_null.py \
             src/island_v2/gift_floristic_status_match.py \
+            src/island_v2/floristic_status_resolve.py \
             src/island_v2/flora_endemism_analysis.py \
             tests/test_flora_status_support.py \
             tests/test_genus_fixed_trait_null.py \
             tests/test_gift_floristic_status_match.py \
+            tests/test_floristic_status_resolve.py \
             tests/test_flora_endemism_analysis.py
       - name: Run focused tests
         run: |
@@ -48,4 +53,5 @@ jobs:
             tests/test_flora_status_support.py \
             tests/test_genus_fixed_trait_null.py \
             tests/test_gift_floristic_status_match.py \
+            tests/test_floristic_status_resolve.py \
             tests/test_flora_endemism_analysis.py
