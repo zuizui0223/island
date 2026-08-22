@@ -1,0 +1,90 @@
+name: Materialize WCVP-corroborated endemism
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/materialize-wcvp-endemism.yml"
+      - "scripts/export_wcvp_native_ranges.R"
+      - "src/island_v2/floristic_status_resolve.py"
+      - "tests/test_floristic_status_resolve.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+      - name: Install WCVP dependencies
+        run: |
+          Rscript -e 'install.packages(c("rWCVP","dplyr","readr","sf","jsonlite"), repos="https://cloud.r-project.org")'
+          Rscript -e 'install.packages("rWCVPdata", repos=c("https://matildabrown.github.io/drat","https://cloud.r-project.org"))'
+
+      - name: Validate resolver
+        run: |
+          ruff check src/island_v2/floristic_status_resolve.py tests/test_floristic_status_resolve.py
+          pytest -q tests/test_floristic_status_resolve.py
+
+      - name: Download frozen GIFT status artifact
+        run: |
+          mkdir -p /tmp/gift-artifact
+          gh run download 32555972362 \
+            -n gift-floristic-status-32555972362 \
+            -D /tmp/gift-artifact
+          test -s /tmp/gift-artifact/gift-matched/gift_floristic_status_ledger.csv.gz
+
+      - name: Export exact-name WCVP native ranges
+        run: |
+          Rscript scripts/export_wcvp_native_ranges.R \
+            data/v2/staging/gbif/collected/island_taxa.csv \
+            /tmp/wcvp
+          test -s /tmp/wcvp/wcvp_native_range_summary.csv.gz
+          test -s /tmp/wcvp/wgsrpd_level3.gpkg
+
+      - name: Rebuild frozen island geometry
+        run: |
+          island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
+          test -s data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
+
+      - name: Resolve origin and corroborated endemism
+        run: |
+          python -m island_v2.floristic_status_resolve \
+            --gift-status-ledger-csv /tmp/gift-artifact/gift-matched/gift_floristic_status_ledger.csv.gz \
+            --wcvp-native-range-csv /tmp/wcvp/wcvp_native_range_summary.csv.gz \
+            --islands-gpkg data/v2/external/islands/gshhg/prepared/islands_v2.gpkg \
+            --tdwg-gpkg /tmp/wcvp/wgsrpd_level3.gpkg \
+            --output-dir /tmp/resolved
+          test -s /tmp/resolved/resolved_floristic_status_ledger.csv.gz
+
+      - name: Show manifests
+        run: |
+          cat /tmp/wcvp/wcvp_native_range_manifest.json
+          cat /tmp/resolved/floristic_status_resolve_manifest.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wcvp-corroborated-floristic-status-${{ github.run_id }}
+          path: |
+            /tmp/wcvp/wcvp_native_range_manifest.json
+            /tmp/resolved/gift_origin_collapsed.csv.gz
+            /tmp/resolved/island_tdwg_l3_mapping.csv
+            /tmp/resolved/resolved_floristic_status_ledger.csv.gz
+            /tmp/resolved/floristic_status_resolve_manifest.json
+          if-no-files-found: error
+          retention-days: 90
