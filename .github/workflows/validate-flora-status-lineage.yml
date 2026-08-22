@@ -5,9 +5,12 @@ on:
     paths:
       - "src/island_v2/flora_status_support.py"
       - "src/island_v2/genus_fixed_trait_null.py"
+      - "src/island_v2/gift_floristic_status_match.py"
+      - "scripts/fetch_gift_floristic_status.R"
       - "config/flora_status_support.yml"
       - "tests/test_flora_status_support.py"
       - "tests/test_genus_fixed_trait_null.py"
+      - "tests/test_gift_floristic_status_match.py"
       - "docs/flora_status_lineage_analysis_plan.md"
   workflow_dispatch:
 
@@ -30,10 +33,13 @@ jobs:
           ruff check \
             src/island_v2/flora_status_support.py \
             src/island_v2/genus_fixed_trait_null.py \
+            src/island_v2/gift_floristic_status_match.py \
             tests/test_flora_status_support.py \
-            tests/test_genus_fixed_trait_null.py
+            tests/test_genus_fixed_trait_null.py \
+            tests/test_gift_floristic_status_match.py
       - name: Run focused tests
         run: |
           pytest -q \
             tests/test_flora_status_support.py \
-            tests/test_genus_fixed_trait_null.py
+            tests/test_genus_fixed_trait_null.py \
+            tests/test_gift_floristic_status_match.py
