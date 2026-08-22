@@ -1,0 +1,167 @@
+name: Mine GBIF specimen label traits
+
+# Why this source: the unresolved tail of the master is island endemics with a
+# median of four GBIF records each. Literature mining cannot reach them because
+# almost none appear in a flora treatment or a pollination study. Each of those
+# four records is a pressed specimen whose collector wrote the flower colour on
+# the label, so this is the one broad source that reaches the tail, and it is
+# species-direct by construction.
+#
+# `validate` runs on every pull request with no network. `mine` is dispatch-only
+# because it requests a GBIF occurrence download; GBIF prepares downloads
+# asynchronously, so the job polls until the archive is ready.
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/mine-gbif-specimen-labels.yml"
+      - "config/gbif_label_mining.yml"
+      - "src/island_v2/gbif_label_trait_mining.py"
+      - "tests/test_gbif_label_trait_mining.py"
+  workflow_dispatch:
+    inputs:
+      taxon_key:
+        description: "GBIF taxon key to download (6 = Tracheophyta)"
+        required: false
+        default: "6"
+      max_wait_minutes:
+        description: "How long to wait for GBIF to prepare the download"
+        required: false
+        default: "120"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gbif-label-mining-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Lint and test
+        run: |
+          ruff check \
+            src/island_v2/gbif_label_trait_mining.py \
+            tests/test_gbif_label_trait_mining.py
+          pytest -q tests/test_gbif_label_trait_mining.py
+
+  mine:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      GBIF_USER: ${{ secrets.GBIF_USER }}
+      GBIF_PWD: ${{ secrets.GBIF_PWD }}
+      GBIF_EMAIL: ${{ secrets.GBIF_EMAIL }}
+      TAXON_KEY: ${{ inputs.taxon_key || '6' }}
+      MAX_WAIT_MINUTES: ${{ inputs.max_wait_minutes || '120' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Require GBIF download credentials
+        run: |
+          set -euo pipefail
+          test -n "${GBIF_USER:-}" || { echo "GBIF_USER secret is not configured"; exit 1; }
+          test -n "${GBIF_PWD:-}"  || { echo "GBIF_PWD secret is not configured";  exit 1; }
+          test -n "${GBIF_EMAIL:-}" || { echo "GBIF_EMAIL secret is not configured"; exit 1; }
+
+      - name: Request and download the occurrence archive
+        run: |
+          python - <<'PY'
+          import json, os, time, zipfile
+          from pathlib import Path
+
+          import requests
+
+          user, pwd = os.environ["GBIF_USER"], os.environ["GBIF_PWD"]
+          predicate = {
+              "creator": user,
+              "notificationAddresses": [os.environ["GBIF_EMAIL"]],
+              "sendNotification": False,
+              "format": "SIMPLE_CSV",
+              "predicate": {
+                  "type": "and",
+                  "predicates": [
+                      {"type": "equals", "key": "TAXON_KEY",
+                       "value": os.environ["TAXON_KEY"]},
+                      {"type": "in", "key": "BASIS_OF_RECORD",
+                       "values": ["PRESERVED_SPECIMEN", "MATERIAL_SAMPLE",
+                                  "MATERIAL_CITATION"]},
+                      {"type": "equals", "key": "TAXONOMIC_STATUS", "value": "ACCEPTED"},
+                  ],
+              },
+          }
+          response = requests.post(
+              "https://api.gbif.org/v1/occurrence/download/request",
+              auth=(user, pwd), json=predicate, timeout=60,
+          )
+          response.raise_for_status()
+          key = response.text.strip()
+          print("download key:", key)
+
+          deadline = time.time() + int(os.environ["MAX_WAIT_MINUTES"]) * 60
+          status = ""
+          while time.time() < deadline:
+              meta = requests.get(
+                  f"https://api.gbif.org/v1/occurrence/download/{key}", timeout=60
+              ).json()
+              status = meta.get("status", "")
+              print("status:", status, flush=True)
+              if status in {"SUCCEEDED", "KILLED", "FAILED", "CANCELLED"}:
+                  break
+              time.sleep(60)
+          if status != "SUCCEEDED":
+              raise SystemExit(f"GBIF download did not succeed: {status}")
+
+          archive = Path("/tmp/gbif-occurrences.zip")
+          with requests.get(
+              f"https://api.gbif.org/v1/occurrence/download/request/{key}",
+              stream=True, timeout=600,
+          ) as stream:
+              stream.raise_for_status()
+              with archive.open("wb") as handle:
+                  for chunk in stream.iter_content(chunk_size=1 << 20):
+                      handle.write(chunk)
+          print("archive bytes:", archive.stat().st_size)
+
+          with zipfile.ZipFile(archive) as bundle:
+              bundle.extractall("/tmp/gbif-occurrences")
+          Path("/tmp/gbif-download-key.json").write_text(
+              json.dumps({"download_key": key, "doi": meta.get("doi", "")}, indent=2)
+          )
+          PY
+
+      - name: Mine label text into a reviewable candidate ledger
+        run: |
+          set -euo pipefail
+          SOURCE=$(find /tmp/gbif-occurrences -name "*.csv" -print -quit)
+          test -n "$SOURCE"
+          island-v2-gbif-label-mining run \
+            --config config/gbif_label_mining.yml \
+            --occurrences-csv "$SOURCE" \
+            --output-dir /tmp/label-mining
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gbif-label-mining-${{ github.run_id }}
+          path: |
+            /tmp/label-mining
+            /tmp/gbif-download-key.json
+          if-no-files-found: error
+          retention-days: 90
