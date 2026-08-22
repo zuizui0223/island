@@ -1,0 +1,97 @@
+version: "1.0"
+
+# Recovery of evidence the pipeline already fetched and then discarded.
+#
+# Two independent lanes, both auditable and both fail-closed. Neither lane
+# invents evidence: each one re-examines rows the pipeline itself recorded as
+# rejected and separates "rejected for a good reason" from "rejected by a gap in
+# our own matching or extraction".
+
+name_match:
+  # A rejected bulk row is a re-resolution candidate only when GBIF itself was
+  # confident. Everything else stays rejected.
+  required_gbif_match_type: [EXACT]
+  required_gbif_status: [ACCEPTED, SYNONYM]
+  # Reasons that must never be recovered, whatever GBIF said.
+  never_recover_reasons:
+    - reject_family_conflict
+    - accepted_name_family_conflict
+    - reject_non_species_rank
+  # Recovered rows are reported under their own tier and are never merged into
+  # the direct evidence ledger without the normal review gate.
+  recovered_tier: gbif_usage_key_resolved
+
+extraction:
+  # Organ words that make a measurement or colour belong to something other than
+  # the whole flower. A quote containing one of these is correctly rejected: the
+  # style is not the flower, and its length must not fill flower_size_class.
+  non_target_organ_terms:
+    - style
+    - stigma
+    - calyx
+    - cáliz
+    - sepal
+    - sepals
+    - petal
+    - petals
+    - hypanthium
+    - throat
+    - pedicel
+    - ovary
+    - anther
+    - filament
+    - bract
+    - fruit
+    - leaf
+    - pistillate
+    - staminate
+  # Descriptive keys that enumerate every possible state rather than asserting
+  # one. "pauciflora(s)/multiflora(s)" is an unfilled form field, not evidence.
+  enumeration_markers:
+    - "/"
+    - "(s)"
+    - "número de"
+  min_enumeration_hits: 2
+
+  # Explicit floral terms in languages the English-centric rules missed. These
+  # are the recoverable slice: the source states the trait plainly, in another
+  # language. Terms are matched only inside a retained exact quote.
+  multilingual_terms:
+    de:
+      traube: raceme
+      rispe: panicle
+      dolde: umbel
+      ähre: spike
+      köpfchen: head
+    fr:
+      panicule: panicle
+      grappe: raceme
+      ombelle: umbel
+      épi: spike
+      capitule: head
+    es:
+      panícula: panicle
+      racimo: raceme
+      umbela: umbel
+      espiga: spike
+      capítulo: head
+    pt:
+      panícula: panicle
+      cacho: raceme
+      umbela: umbel
+    it:
+      pannocchia: panicle
+      grappolo: raceme
+      ombrella: umbel
+
+# The language column in the acquired ledgers is not normalized: en, English,
+# EN, eng, fre, es, Spanish and empty all occur. Recovery must normalize before
+# any language-conditioned rule is applied, and an unresolvable tag stays
+# unknown rather than being guessed as English.
+language_aliases:
+  en: [en, eng, english, "en-us", "en-gb"]
+  de: [de, deu, ger, german, deutsch]
+  fr: [fr, fra, fre, french, français]
+  es: [es, spa, spanish, español]
+  pt: [pt, por, portuguese, português]
+  it: [it, ita, italian, italiano]
