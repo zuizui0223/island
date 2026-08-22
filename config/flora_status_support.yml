@@ -28,3 +28,22 @@ status_contract:
   rule: >-
     Never infer native, introduced, or endemic status from GBIF island occurrence
     footprint. Conflicting or unavailable status remains unresolved.
+
+# Broad binary contrasts used only by the genus-composition-preserving lineage
+# null. Cross-class multistate values are excluded rather than forced into one
+# side. These do not replace the category-preserving INLA outcomes.
+binary_outcomes:
+  plain_colour:
+    trait_name: flower_primary_color
+    positive_states: [white, green_brown_inconspicuous]
+    negative_states: [yellow_orange, red_pink, blue_purple]
+  generalized_form:
+    trait_name: floral_form
+    positive_states: [open_radial, brush_puff, composite_head]
+    negative_states:
+      [tubular, bell_campanulate, funnel_trumpet, urn_urceolate, bilabiate,
+       salverform, papilionaceous, spurred]
+  self_compatibility:
+    trait_name: self_incompatibility
+    positive_states: [SC]
+    negative_states: [SI]
