@@ -1,0 +1,107 @@
+name: Materialize GIFT floristic status
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/materialize-gift-floristic-status.yml"
+      - "scripts/fetch_gift_floristic_status.R"
+      - "src/island_v2/gift_floristic_status_match.py"
+      - "tests/test_gift_floristic_status_match.py"
+  workflow_dispatch:
+    inputs:
+      gift_version:
+        description: "Stable GIFT database version"
+        required: false
+        default: "3.2"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gift-floristic-status-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GIFT_VERSION: ${{ inputs.gift_version || '3.2' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Python package
+        run: pip install -e ".[dev]"
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::GIFT
+            any::sf
+            any::jsonlite
+
+      - name: Focused matcher validation
+        run: |
+          ruff check src/island_v2/gift_floristic_status_match.py tests/test_gift_floristic_status_match.py
+          pytest -q tests/test_gift_floristic_status_match.py
+
+      - name: Export GIFT island checklist status and exact-island shapes
+        run: |
+          set -euo pipefail
+          Rscript scripts/fetch_gift_floristic_status.R /tmp/gift-status "$GIFT_VERSION"
+          test -s /tmp/gift-status/gift_island_list_metadata.csv
+          test -s /tmp/gift-status/gift_island_checklist_rows.csv
+          test -s /tmp/gift-status/gift_exact_island_shapes.gpkg
+
+      - name: Rebuild frozen GSHHG island geometry
+        run: |
+          set -euo pipefail
+          island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
+          test -s data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
+
+      - name: Match GIFT exact islands and build status ledger
+        run: |
+          set -euo pipefail
+          python -m island_v2.gift_floristic_status_match \
+            --gift-checklists-csv /tmp/gift-status/gift_island_checklist_rows.csv \
+            --gift-list-metadata-csv /tmp/gift-status/gift_island_list_metadata.csv \
+            --gift-shapes-gpkg /tmp/gift-status/gift_exact_island_shapes.gpkg \
+            --gshhg-islands-gpkg data/v2/external/islands/gshhg/prepared/islands_v2.gpkg \
+            --island-species-csv data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
+            --gift-version "$GIFT_VERSION" \
+            --output-dir /tmp/gift-matched
+          test -f /tmp/gift-matched/gift_floristic_status_match_manifest.json
+
+      - name: Summarize status materialization
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          export = json.loads(Path('/tmp/gift-status/gift_floristic_status_export_manifest.json').read_text())
+          matched = json.loads(Path('/tmp/gift-matched/gift_floristic_status_match_manifest.json').read_text())
+          print(json.dumps({'gift_export': export, 'matched_status': matched}, indent=2))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gift-floristic-status-${{ github.run_id }}
+          path: |
+            /tmp/gift-status/gift_floristic_status_export_manifest.json
+            /tmp/gift-status/gift_versions.csv
+            /tmp/gift-status/gift_island_list_metadata.csv
+            /tmp/gift-matched/gift_to_gshhg_island_matches.csv
+            /tmp/gift-matched/gift_to_gshhg_spatial_candidates.csv.gz
+            /tmp/gift-matched/gift_floristic_status_ledger.csv.gz
+            /tmp/gift-matched/gift_floristic_status_audit.csv.gz
+            /tmp/gift-matched/gift_floristic_status_match_manifest.json
+          if-no-files-found: error
+          retention-days: 90
