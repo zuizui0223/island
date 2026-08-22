@@ -1,9 +1,6 @@
 name: Run native-status direct-trait support
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/run-native-status-support.yml"
   workflow_dispatch:
 
 permissions:
@@ -27,15 +24,9 @@ jobs:
       - name: Download frozen status, trait, and isolation artifacts
         run: |
           mkdir -p /tmp/gift /tmp/traits /tmp/isolation
-          gh run download 32555972362 \
-            -n gift-floristic-status-32555972362 \
-            -D /tmp/gift
-          gh run download 32551742699 \
-            -n reviewed-open-web-evidence-32551742699 \
-            -D /tmp/traits
-          gh run download 29228212586 \
-            -n purpose-shortest-distance-regime-29228212586 \
-            -D /tmp/isolation
+          gh run download 32555972362 -n gift-floristic-status-32555972362 -D /tmp/gift
+          gh run download 32551742699 -n reviewed-open-web-evidence-32551742699 -D /tmp/traits
+          gh run download 29228212586 -n purpose-shortest-distance-regime-29228212586 -D /tmp/isolation
           test -s /tmp/gift/gift-matched/gift_floristic_status_ledger.csv.gz
           test -s /tmp/traits/direct_species_trait_ledger.csv.gz
           test -s /tmp/isolation/results/purpose_shortest_island_data.csv
