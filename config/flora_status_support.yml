@@ -1,4 +1,4 @@
-version: "1.0"
+version: "1.1"
 
 # Final manuscript-facing outcomes only. Support is measured per outcome, not on
 # the old three-axis all-or-nothing gate.
@@ -11,10 +11,15 @@ outcomes:
     trait_names: [self_incompatibility]
 
 support:
-  # A model-support diagnostic, not a biological coverage threshold. Islands
-  # below this count remain in the attrition table; missing values are not filled.
-  min_direct_species_per_island: 30
+  # Primary model support means that the island contributes at least one direct
+  # trait trial in the focal flora stratum. Grouped-binomial models retain the
+  # actual trial count, so an endemic-poor island is not discarded merely for
+  # having fewer than an arbitrary number of endemic species. Robustness checks
+  # report stricter >=3, >=5, and >=10 direct-trial subsets separately.
+  min_direct_species_per_island: 1
+  direct_species_sensitivity_thresholds: [1, 3, 5, 10]
   min_direct_fraction: 0.0
+  # These are counts of usable islands, not per-island species thresholds.
   pilot_min_islands: 30
   confirmatory_min_islands: 50
   regime_column: analysis_regime
