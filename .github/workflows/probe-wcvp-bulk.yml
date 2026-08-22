@@ -1,0 +1,56 @@
+name: Probe official WCVP bulk schema
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/probe-wcvp-bulk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download official Kew WCVP bulk
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 \
+            https://sftp.kew.org/pub/data-repositories/WCVP/wcvp.zip \
+            -o /tmp/wcvp.zip
+          test -s /tmp/wcvp.zip
+          sha256sum /tmp/wcvp.zip | tee /tmp/wcvp.sha256
+          unzip -l /tmp/wcvp.zip | tee /tmp/wcvp_zip_listing.txt
+      - name: Inspect table schemas
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wcvp
+          unzip -q /tmp/wcvp.zip -d /tmp/wcvp
+          python - <<'PY' | tee /tmp/wcvp_schema_report.txt
+          import csv
+          from pathlib import Path
+
+          root = Path('/tmp/wcvp')
+          files = sorted(p for p in root.rglob('*') if p.is_file())
+          for path in files:
+              print('\nFILE', path.relative_to(root), 'BYTES', path.stat().st_size)
+              if path.suffix.lower() in {'.csv', '.txt', '.tsv'}:
+                  raw = path.open('r', encoding='utf-8-sig', errors='replace')
+                  first = raw.readline().rstrip('\n\r')
+                  print('HEADER', first[:4000])
+                  second = raw.readline().rstrip('\n\r')
+                  print('ROW1', second[:2000])
+                  raw.close()
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wcvp-bulk-schema-${{ github.run_id }}
+          path: |
+            /tmp/wcvp.sha256
+            /tmp/wcvp_zip_listing.txt
+            /tmp/wcvp_schema_report.txt
+          if-no-files-found: error
+          retention-days: 30
