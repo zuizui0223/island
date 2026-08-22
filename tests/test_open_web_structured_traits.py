@@ -216,6 +216,21 @@ def test_narrative_solitary_spikelets_are_not_solitary_flower_display() -> None:
     ) == [("Flowers solitary or in pairs.", "solitary", "Flowers solitary or in pairs.")]
 
 
+def test_narrative_extracts_plural_panicles_as_flower_display() -> None:
+    page = _page(
+        "Description:\nFlowers small, with dull red petals, in large pendent panicles."
+    )
+    assert extract_botanical_description(
+        page, trait_name="inflorescence_display"
+    ) == [
+        (
+            "Flowers small, with dull red petals, in large pendent panicles.",
+            "raceme_spike_panicle",
+            "Flowers small, with dull red petals, in large pendent panicles.",
+        )
+    ]
+
+
 def test_narrative_flower_head_shape_is_not_individual_floral_form() -> None:
     page = _page("Description:\nFlower heads cup-shaped. Corolla campanulate.")
     assert extract_botanical_description(page, trait_name="floral_form") == [

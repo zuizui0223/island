@@ -104,8 +104,8 @@ FLOWER_SIZE_BRIDGE_BLOCKER = re.compile(
 )
 INFLORESCENCE_SUBJECT = re.compile(
     r"\binflorescences?\b|\bflowers?\b.{0,100}"
-    r"\b(?:solitary|few[- ]flowered|raceme|spike|panicle|umbel|corymb|"
-    r"capitulum|flower head)\b",
+    r"\b(?:solitary|few[- ]flowered|racemes?|spikes?|panicles?|umbels?|corymbs?|"
+    r"capitula|flower heads?)\b",
     re.IGNORECASE,
 )
 TUBE_SUBJECT = re.compile(
@@ -222,9 +222,12 @@ def _inflorescence(value: str) -> str:
     mappings = (
         (r"\bsolitary\b|single flower", "solitary"),
         (r"few[- ]flower", "few_flowered"),
-        (r"\braceme\b|\bspike\b|\bpanicle\b|\bcatkin\b", "raceme_spike_panicle"),
-        (r"\bumbel\b|\bcorymb\b|\bcyme\b", "umbel_corymb"),
-        (r"\bhead\b|capitulum", "composite_display"),
+        (
+            r"\bracemes?\b|\bspikes?\b|\bpanicles?\b|\bcatkins?\b",
+            "raceme_spike_panicle",
+        ),
+        (r"\bumbels?\b|\bcorymbs?\b|\bcymes?\b", "umbel_corymb"),
+        (r"\bheads?\b|capitula", "composite_display"),
         (r"brush|puff", "brush_puff_display"),
     )
     states = [state for pattern, state in mappings if re.search(pattern, value, re.IGNORECASE)]
