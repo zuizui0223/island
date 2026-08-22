@@ -1,9 +1,6 @@
 name: Probe official WCVP bulk schema
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/probe-wcvp-bulk.yml"
   workflow_dispatch:
 
 permissions:
@@ -30,7 +27,6 @@ jobs:
           mkdir -p /tmp/wcvp
           unzip -q /tmp/wcvp.zip -d /tmp/wcvp
           python - <<'PY' | tee /tmp/wcvp_schema_report.txt
-          import csv
           from pathlib import Path
 
           root = Path('/tmp/wcvp')
@@ -39,10 +35,8 @@ jobs:
               print('\nFILE', path.relative_to(root), 'BYTES', path.stat().st_size)
               if path.suffix.lower() in {'.csv', '.txt', '.tsv'}:
                   raw = path.open('r', encoding='utf-8-sig', errors='replace')
-                  first = raw.readline().rstrip('\n\r')
-                  print('HEADER', first[:4000])
-                  second = raw.readline().rstrip('\n\r')
-                  print('ROW1', second[:2000])
+                  print('HEADER', raw.readline().rstrip('\n\r')[:4000])
+                  print('ROW1', raw.readline().rstrip('\n\r')[:2000])
                   raw.close()
           PY
       - uses: actions/upload-artifact@v4
