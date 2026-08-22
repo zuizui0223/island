@@ -82,7 +82,16 @@ jobs:
             --island-support-csv /tmp/support/direct_trait_support_by_island.csv.gz \
             --output-dir /tmp/decision
 
-      - name: Summarize manuscript-relevant native support
+      - name: Fit direct-native regime M0
+        run: |
+          python -m island_v2.native_status_trait_analysis \
+            --status-ledger-csv /tmp/gift/origin_only_status_ledger.csv.gz \
+            --direct-evidence-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --output-dir /tmp/native-m0
+          test -s /tmp/native-m0/native_direct_isolation_coefficients.csv
+
+      - name: Summarize manuscript-relevant native support and M0
         run: |
           python - <<'PY'
           import json
@@ -91,6 +100,7 @@ jobs:
 
           decisions = pd.read_csv('/tmp/decision/support_decisions.csv')
           robustness = pd.read_csv('/tmp/decision/direct_species_threshold_robustness.csv')
+          isolation = pd.read_csv('/tmp/native-m0/native_direct_isolation_coefficients.csv')
           keep_regimes = ['northern_midlatitude','tropical','southern_extratropical']
           main = decisions[
               decisions['regime'].isin(keep_regimes)
@@ -100,21 +110,30 @@ jobs:
               robustness['regime'].isin(keep_regimes)
               & robustness['stratum'].isin(['all_native','introduced'])
           ].copy()
+          iso = isolation[isolation['regime'].isin(keep_regimes)].copy()
           main.to_csv('/tmp/decision/manuscript_status_support.csv', index=False)
           robust.to_csv('/tmp/decision/manuscript_threshold_robustness.csv', index=False)
+          iso.to_csv('/tmp/decision/manuscript_native_m0_isolation.csv', index=False)
           payload = {
-              'contract': 'native_status_direct_support_checkpoint_v1',
+              'contract': 'native_status_direct_support_and_m0_checkpoint_v2',
               'gift_status_run': 32555972362,
               'direct_trait_run': 32551742699,
               'isolation_run': 29228212586,
-              'note': 'GIFT endemism is disabled here; this artifact is origin-only.',
+              'note': (
+                  'GIFT endemism is disabled here; this artifact is origin-only. '
+                  'M0 is direct-native, pre-lineage, pre-Bombus.'
+              ),
               'decisions': main.to_dict('records'),
+              'isolation_coefficients': iso.to_dict('records'),
           }
           Path('/tmp/decision/native_status_support_manifest.json').write_text(
               json.dumps(payload, indent=2) + '\n', encoding='utf-8'
           )
           print(main[['regime','stratum','outcome','n_islands_with_stratum',
                       'n_direct_eligible_islands','support_decision','next_action']].to_string(index=False))
+          print('\nDIRECT-NATIVE M0 ISOLATION')
+          print(iso[['regime','outcome','estimate_log_odds','cluster_robust_se','z_value',
+                     'nominally_supported','n_islands','n_clusters']].to_string(index=False))
           PY
 
       - uses: actions/upload-artifact@v4
@@ -129,6 +148,11 @@ jobs:
             /tmp/decision/direct_species_threshold_robustness.csv
             /tmp/decision/manuscript_status_support.csv
             /tmp/decision/manuscript_threshold_robustness.csv
+            /tmp/decision/manuscript_native_m0_isolation.csv
             /tmp/decision/native_status_support_manifest.json
+            /tmp/native-m0/native_direct_binary_counts.csv
+            /tmp/native-m0/native_direct_m0_coefficients.csv
+            /tmp/native-m0/native_direct_m0_fit.csv
+            /tmp/native-m0/native_direct_m0_manifest.json
           if-no-files-found: error
           retention-days: 90
