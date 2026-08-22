@@ -1,12 +1,6 @@
 name: Materialize WCVP-corroborated endemism
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/materialize-wcvp-endemism.yml"
-      - "scripts/export_wcvp_native_ranges.R"
-      - "src/island_v2/floristic_status_resolve.py"
-      - "tests/test_floristic_status_resolve.py"
   workflow_dispatch:
 
 permissions:
