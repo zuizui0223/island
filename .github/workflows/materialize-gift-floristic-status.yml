@@ -1,12 +1,6 @@
 name: Materialize GIFT floristic status
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/materialize-gift-floristic-status.yml"
-      - "scripts/fetch_gift_floristic_status.R"
-      - "src/island_v2/gift_floristic_status_match.py"
-      - "tests/test_gift_floristic_status_match.py"
   workflow_dispatch:
     inputs:
       gift_version:
