@@ -1,9 +1,6 @@
 name: Materialize official-WCVP corroborated endemism
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/materialize-wcvp-bulk-endemism.yml"
   workflow_dispatch:
 
 permissions:
