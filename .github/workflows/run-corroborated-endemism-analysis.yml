@@ -1,9 +1,6 @@
 name: Run corroborated endemism and endemic-trait support
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/run-corroborated-endemism-analysis.yml"
   workflow_dispatch:
 
 permissions:
