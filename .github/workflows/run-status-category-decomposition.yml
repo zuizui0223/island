@@ -1,0 +1,106 @@
+name: Run status-aware category decomposition
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/run-status-category-decomposition.yml"
+      - "src/island_v2/status_category_decomposition.py"
+      - "tests/test_status_category_decomposition.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate category decomposition
+        run: |
+          ruff check src/island_v2/status_category_decomposition.py tests/test_status_category_decomposition.py
+          pytest -q tests/test_status_category_decomposition.py
+
+      - name: Download corrected status, direct traits, and covariates
+        run: |
+          mkdir -p /tmp/status /tmp/traits /tmp/isolation
+          gh run download 32559322028 \
+            -n official-wcvp-corroborated-status-32559322028 \
+            -D /tmp/status
+          gh run download 32551742699 \
+            -n reviewed-open-web-evidence-32551742699 \
+            -D /tmp/traits
+          gh run download 29228212586 \
+            -n purpose-shortest-distance-regime-29228212586 \
+            -D /tmp/isolation
+          test -s /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz
+          test -s /tmp/traits/direct_species_trait_ledger.csv.gz
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+
+      - name: Run direct category decomposition
+        run: |
+          python -m island_v2.status_category_decomposition \
+            --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
+            --direct-evidence-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --master-taxa-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --output-dir /tmp/categories
+          test -s /tmp/categories/status_category_isolation.csv
+
+      - name: Summarize category-level decision
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          iso = pd.read_csv('/tmp/categories/status_category_isolation.csv')
+          support = pd.read_csv('/tmp/categories/status_category_support.csv')
+          focus = iso[
+              iso['stratum'].isin(['all_native','native_nonendemic','endemic'])
+              & iso['regime'].isin(['northern_midlatitude','tropical','southern_extratropical'])
+          ].copy()
+          focus.to_csv('/tmp/categories/manuscript_status_category_isolation.csv', index=False)
+          payload = {
+              'contract': 'status_category_decomposition_checkpoint_v1',
+              'status_run': 32559322028,
+              'trait_run': 32551742699,
+              'covariate_run': 29228212586,
+              'isolation_coefficients': focus.to_dict('records'),
+              'support': support.to_dict('records'),
+              'guardrail': (
+                  'Category residuals control genus expectation but are not a pollination mechanism. '
+                  'Below-pilot endemic categories remain diagnostics only.'
+              ),
+          }
+          Path('/tmp/categories/status_category_checkpoint.json').write_text(
+              json.dumps(payload, indent=2) + '\n', encoding='utf-8'
+          )
+          print(focus[['stratum','regime','domain','category','estimate','cluster_robust_se',
+                       'p_value','n_islands','n_clusters']].to_string(index=False))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: status-category-decomposition-${{ github.run_id }}
+          path: |
+            /tmp/categories/status_category_manifest.json
+            /tmp/categories/status_category_audit.csv
+            /tmp/categories/status_category_residuals.csv.gz
+            /tmp/categories/status_category_coefficients.csv
+            /tmp/categories/status_category_support.csv
+            /tmp/categories/status_category_isolation.csv
+            /tmp/categories/manuscript_status_category_isolation.csv
+            /tmp/categories/status_category_checkpoint.json
+          if-no-files-found: error
+          retention-days: 90
