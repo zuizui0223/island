@@ -95,3 +95,45 @@ def test_category_isolation_model_keeps_categories_separate():
     assert estimates["plain"] > 0
     assert estimates["red_pink"] < 0
     assert set(support["category"]) == {"plain", "red_pink"}
+
+
+def test_the_manifest_domains_survive_json_encoding():
+    # Dumping CATEGORY_SPECS straight into the manifest raised "Object of type
+    # set is not JSON serializable" at the very end of a full run, after every
+    # CSV was already written. It reached CI because no test touched the
+    # manifest -- the others exercise the mapping and the genus expectation.
+    import json
+
+    encoded = json.loads(json.dumps(mod._json_safe_specs(mod.CATEGORY_SPECS)))
+
+    assert encoded["colour"]["trait_name"] == "flower_primary_color"
+    assert encoded["colour"]["categories"]["plain"] == [
+        "green_brown_inconspicuous",
+        "white",
+    ]
+    for spec in encoded.values():
+        for members in spec["categories"].values():
+            assert isinstance(members, list)
+
+
+def test_the_encoded_manifest_is_stable_between_runs():
+    import json
+
+    assert json.dumps(mod._json_safe_specs(mod.CATEGORY_SPECS)) == json.dumps(
+        mod._json_safe_specs(mod.CATEGORY_SPECS)
+    )
+
+
+def test_encoding_the_domains_does_not_alter_the_specification():
+    # The classifier does subset tests against these sets, so the manifest must
+    # take a copy rather than convert the contract in place.
+    def snapshot():
+        return {
+            domain: {name: set(members) for name, members in spec["categories"].items()}
+            for domain, spec in mod.CATEGORY_SPECS.items()
+        }
+
+    before = snapshot()
+    mod._json_safe_specs(mod.CATEGORY_SPECS)
+    assert snapshot() == before
+    assert isinstance(mod.CATEGORY_SPECS["colour"]["categories"]["plain"], set)
