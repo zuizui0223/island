@@ -1,12 +1,6 @@
 name: Run status-stratified genus-fixed lineage analysis
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/run-status-stratified-lineage.yml"
-      - "src/island_v2/genus_fixed_trait_null.py"
-      - "src/island_v2/status_stratified_lineage_analysis.py"
-      - "tests/test_status_stratified_lineage_analysis.py"
   workflow_dispatch:
 
 permissions:
