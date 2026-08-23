@@ -5,7 +5,9 @@ on:
     paths:
       - ".github/workflows/run-status-category-decomposition.yml"
       - "src/island_v2/status_category_decomposition.py"
+      - "src/island_v2/status_category_fdr.py"
       - "tests/test_status_category_decomposition.py"
+      - "tests/test_status_category_fdr.py"
   workflow_dispatch:
 
 permissions:
@@ -28,8 +30,12 @@ jobs:
 
       - name: Validate category decomposition
         run: |
-          ruff check src/island_v2/status_category_decomposition.py tests/test_status_category_decomposition.py
-          pytest -q tests/test_status_category_decomposition.py
+          ruff check \
+            src/island_v2/status_category_decomposition.py \
+            src/island_v2/status_category_fdr.py \
+            tests/test_status_category_decomposition.py \
+            tests/test_status_category_fdr.py
+          pytest -q tests/test_status_category_decomposition.py tests/test_status_category_fdr.py
 
       - name: Download corrected status, direct traits, and covariates
         run: |
@@ -56,6 +62,10 @@ jobs:
             --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
             --output-dir /tmp/categories
           test -s /tmp/categories/status_category_isolation.csv
+          python -m island_v2.status_category_fdr \
+            --isolation-csv /tmp/categories/status_category_isolation.csv \
+            --output-csv /tmp/categories/status_category_isolation_fdr.csv
+          test -s /tmp/categories/status_category_isolation_fdr.csv
 
       - name: Summarize category-level decision
         run: |
@@ -64,7 +74,7 @@ jobs:
           from pathlib import Path
           import pandas as pd
 
-          iso = pd.read_csv('/tmp/categories/status_category_isolation.csv')
+          iso = pd.read_csv('/tmp/categories/status_category_isolation_fdr.csv')
           support = pd.read_csv('/tmp/categories/status_category_support.csv')
           focus = iso[
               iso['stratum'].isin(['all_native','native_nonendemic','endemic'])
@@ -76,6 +86,7 @@ jobs:
               'status_run': 32559322028,
               'trait_run': 32551742699,
               'covariate_run': 29228212586,
+              'multiple_testing': 'BH within stratum x regime x domain',
               'isolation_coefficients': focus.to_dict('records'),
               'support': support.to_dict('records'),
               'guardrail': (
@@ -87,7 +98,7 @@ jobs:
               json.dumps(payload, indent=2) + '\n', encoding='utf-8'
           )
           print(focus[['stratum','regime','domain','category','estimate','cluster_robust_se',
-                       'p_value','n_islands','n_clusters']].to_string(index=False))
+                       'p_value','q_value_bh','fdr_supported','n_islands','n_clusters']].to_string(index=False))
           PY
 
       - uses: actions/upload-artifact@v4
@@ -100,6 +111,7 @@ jobs:
             /tmp/categories/status_category_coefficients.csv
             /tmp/categories/status_category_support.csv
             /tmp/categories/status_category_isolation.csv
+            /tmp/categories/status_category_isolation_fdr.csv
             /tmp/categories/manuscript_status_category_isolation.csv
             /tmp/categories/status_category_checkpoint.json
           if-no-files-found: error
