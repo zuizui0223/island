@@ -1,6 +1,12 @@
 name: Build minimum endemic trait acquisition queue
 
 on:
+  pull_request:
+    paths:
+      - "data/v2/curation/minimum_endemic_colour_manual_review_20260823.csv"
+      - ".github/workflows/build-minimum-endemic-acquisition-queue.yml"
+      - "src/island_v2/endemic_trait_support_targets.py"
+      - "src/island_v2/endemic_minimum_acquisition_queue.py"
   workflow_dispatch:
 
 permissions:
@@ -48,11 +54,36 @@ jobs:
           test -s /tmp/traits/direct_species_trait_ledger.csv.gz
           test -s /tmp/isolation/results/purpose_shortest_island_data.csv
 
+      - name: Add manually reviewed minimum-queue colour evidence
+        run: |
+          python - <<'PY'
+          import pandas as pd
+
+          baseline = pd.read_csv('/tmp/traits/direct_species_trait_ledger.csv.gz')
+          manual = pd.read_csv(
+              'data/v2/curation/minimum_endemic_colour_manual_review_20260823.csv'
+          )
+          required = {'accepted_species', 'trait_name', 'normalized_value', 'evidence_scope'}
+          missing = required - set(manual.columns)
+          if missing:
+              raise SystemExit(f'manual review file missing columns: {sorted(missing)}')
+          if not manual['evidence_scope'].eq('species_direct').all():
+              raise SystemExit('manual review file contains non-species-direct evidence')
+          combined = pd.concat([baseline, manual], ignore_index=True, sort=False)
+          combined.to_csv('/tmp/traits/direct_species_trait_ledger_with_manual.csv', index=False)
+          print({
+              'baseline_rows': int(len(baseline)),
+              'manual_rows': int(len(manual)),
+              'combined_rows': int(len(combined)),
+              'manual_species': manual['accepted_species'].tolist(),
+          })
+          PY
+
       - name: Rank endemic trait targets
         run: |
           python -m island_v2.endemic_trait_support_targets \
             --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
-            --direct-evidence-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --direct-evidence-csv /tmp/traits/direct_species_trait_ledger_with_manual.csv \
             --island-taxa-csv data/v2/staging/gbif/collected/island_taxa.csv \
             --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
             --output-dir /tmp/targets
