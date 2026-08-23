@@ -1,12 +1,6 @@
 name: Build minimum endemic trait acquisition queue
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/build-minimum-endemic-acquisition-queue.yml"
-      - "src/island_v2/endemic_trait_support_targets.py"
-      - "src/island_v2/endemic_minimum_acquisition_queue.py"
-      - "tests/test_endemic_minimum_acquisition_queue.py"
   workflow_dispatch:
 
 permissions:
