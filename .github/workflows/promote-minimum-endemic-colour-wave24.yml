@@ -81,9 +81,9 @@ jobs:
           audit = pd.read_csv("data/v2/staging/traits/open_web_pilot/minimum_endemic_colour_wave24_checkpoint_20260823/curated_manual_audit_20260823.csv", dtype=str).fillna("")
           master = pd.read_csv("data/v2/staging/gbif/collected/island_taxa.csv", dtype=str).fillna("")
           validated = validate_individually_reviewed_evidence(candidates, audit, master, Path("config/trait_ontology.yml"))
-          assert len(validated) == 2
-          assert set(validated["accepted_species"]) == {"Astragalus kawakamii", "Viola cephalonica"}
-          print({"validated_delta_rows": len(validated)})
+          assert len(validated) == 3
+          assert set(validated["accepted_species"]) == {"Astragalus kawakamii", "Limonium aphroditae", "Viola cephalonica"}
+          print({"validated_delta_rows": len(validated), "species": sorted(validated["accepted_species"].tolist())})
           PY
 
       - name: Rebuild formal evidence with wave24 delta
