@@ -1,15 +1,11 @@
 name: Mine GBIF specimen label traits
 
-# Why this source: the unresolved tail of the master is island endemics with a
-# median of four GBIF records each. Literature mining cannot reach them because
-# almost none appear in a flora treatment or a pollination study. Each of those
-# four records is a pressed specimen whose collector wrote the flower colour on
-# the label, so this is the one broad source that reaches the tail, and it is
-# species-direct by construction.
+# Primary acquisition is now model-support driven. The default dispatch resolves
+# only the locked minimum endemic-colour queue to exact accepted GBIF species
+# keys and downloads vouchered records for those taxa. The historical broad
+# Tracheophyta download is retained only as an explicit legacy mode.
 #
-# `validate` runs on every pull request with no network. `mine` is dispatch-only
-# because it requests a GBIF occurrence download; GBIF prepares downloads
-# asynchronously, so the job polls until the archive is ready.
+# `validate` runs on pull requests without network. `mine` is dispatch-only.
 
 on:
   pull_request:
@@ -20,8 +16,16 @@ on:
       - "tests/test_gbif_label_trait_mining.py"
   workflow_dispatch:
     inputs:
+      target_mode:
+        description: "minimum_endemic_colour (default) or legacy_tracheophyta"
+        required: false
+        default: "minimum_endemic_colour"
+      target_queue_run:
+        description: "Run carrying the locked minimum endemic-colour queue"
+        required: false
+        default: "32614335237"
       taxon_key:
-        description: "GBIF taxon key to download (6 = Tracheophyta)"
+        description: "Legacy mode only: GBIF taxon key (6 = Tracheophyta)"
         required: false
         default: "6"
       max_wait_minutes:
@@ -31,6 +35,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: gbif-label-mining-${{ github.ref }}
@@ -64,6 +69,9 @@ jobs:
       GBIF_USER: ${{ secrets.GBIF_USER }}
       GBIF_PWD: ${{ secrets.GBIF_PWD }}
       GBIF_EMAIL: ${{ secrets.GBIF_EMAIL }}
+      GH_TOKEN: ${{ github.token }}
+      TARGET_MODE: ${{ inputs.target_mode || 'minimum_endemic_colour' }}
+      TARGET_QUEUE_RUN: ${{ inputs.target_queue_run || '32614335237' }}
       TAXON_KEY: ${{ inputs.taxon_key || '6' }}
       MAX_WAIT_MINUTES: ${{ inputs.max_wait_minutes || '120' }}
     steps:
@@ -78,10 +86,96 @@ jobs:
         run: |
           set -euo pipefail
           test -n "${GBIF_USER:-}" || { echo "GBIF_USER secret is not configured"; exit 1; }
-          test -n "${GBIF_PWD:-}"  || { echo "GBIF_PWD secret is not configured";  exit 1; }
+          test -n "${GBIF_PWD:-}"  || { echo "GBIF_PWD secret is not configured"; exit 1; }
           test -n "${GBIF_EMAIL:-}" || { echo "GBIF_EMAIL secret is not configured"; exit 1; }
 
-      - name: Request and download the occurrence archive
+      - name: Build exact accepted-taxon target set
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/gbif-labels
+          if [ "$TARGET_MODE" = "minimum_endemic_colour" ]; then
+            mkdir -p /tmp/locked-queue
+            gh run download "$TARGET_QUEUE_RUN" \
+              -n "minimum-endemic-acquisition-queue-${TARGET_QUEUE_RUN}" \
+              -D /tmp/locked-queue
+            QUEUE=$(find /tmp/locked-queue -name minimum_endemic_trait_acquisition_queue.csv -print -quit)
+            test -s "$QUEUE"
+            python - "$QUEUE" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          import pandas as pd
+          import requests
+
+          queue = pd.read_csv(sys.argv[1])
+          queue = queue.loc[queue['outcome'].eq('plain_colour')].copy()
+          queue = queue.sort_values(['regime', 'selection_order']).drop_duplicates('accepted_species')
+
+          rows = []
+          keys = []
+          for species in queue['accepted_species'].astype(str):
+              response = requests.get(
+                  'https://api.gbif.org/v1/species/match',
+                  params={'name': species, 'rank': 'species', 'kingdom': 'Plantae'},
+                  timeout=60,
+              )
+              response.raise_for_status()
+              match = response.json()
+              canonical = str(match.get('canonicalName') or '').strip()
+              match_type = str(match.get('matchType') or '').upper()
+              rank = str(match.get('rank') or '').upper()
+              status = str(match.get('status') or '').upper()
+              key = match.get('usageKey')
+              accepted = (
+                  match_type == 'EXACT'
+                  and rank == 'SPECIES'
+                  and canonical.casefold() == species.casefold()
+                  and status in {'ACCEPTED', ''}
+                  and key is not None
+              )
+              rows.append({
+                  'accepted_species': species,
+                  'gbif_usage_key': key if key is not None else '',
+                  'gbif_canonical_name': canonical,
+                  'match_type': match_type,
+                  'rank': rank,
+                  'status': status,
+                  'accepted_for_download': accepted,
+              })
+              if accepted:
+                  keys.append(str(int(key)))
+
+          audit = pd.DataFrame(rows)
+          audit.to_csv('/tmp/gbif-labels/gbif_species_match_audit.csv', index=False)
+          if not keys:
+              raise SystemExit('No minimum-queue species resolved to exact accepted GBIF species keys')
+          Path('/tmp/gbif-labels/gbif_target_keys.json').write_text(
+              json.dumps(sorted(set(keys)), indent=2) + '\n', encoding='utf-8'
+          )
+          queue.to_csv('/tmp/gbif-labels/minimum_endemic_colour_queue.csv', index=False)
+          print({
+              'target_mode': 'minimum_endemic_colour',
+              'n_queue_species': int(len(queue)),
+              'n_exact_gbif_species': int(audit['accepted_for_download'].sum()),
+              'n_unresolved_matches': int((~audit['accepted_for_download']).sum()),
+          })
+          PY
+          elif [ "$TARGET_MODE" = "legacy_tracheophyta" ]; then
+            python - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path('/tmp/gbif-labels/gbif_target_keys.json').write_text(
+              json.dumps([str(int(os.environ['TAXON_KEY']))], indent=2) + '\n',
+              encoding='utf-8',
+          )
+          PY
+          else
+            echo "Unknown TARGET_MODE=$TARGET_MODE" >&2
+            exit 1
+          fi
+
+      - name: Request and download the bounded occurrence archive
         run: |
           python - <<'PY'
           import json, os, time, zipfile
@@ -90,6 +184,12 @@ jobs:
           import requests
 
           user, pwd = os.environ["GBIF_USER"], os.environ["GBIF_PWD"]
+          target_keys = json.loads(Path('/tmp/gbif-labels/gbif_target_keys.json').read_text())
+          taxon_predicate = (
+              {"type": "in", "key": "ACCEPTED_TAXON_KEY", "values": target_keys}
+              if os.environ["TARGET_MODE"] == "minimum_endemic_colour"
+              else {"type": "equals", "key": "TAXON_KEY", "value": target_keys[0]}
+          )
           predicate = {
               "creator": user,
               "notificationAddresses": [os.environ["GBIF_EMAIL"]],
@@ -98,25 +198,36 @@ jobs:
               "predicate": {
                   "type": "and",
                   "predicates": [
-                      {"type": "equals", "key": "TAXON_KEY",
-                       "value": os.environ["TAXON_KEY"]},
+                      taxon_predicate,
                       {"type": "in", "key": "BASIS_OF_RECORD",
                        "values": ["PRESERVED_SPECIMEN", "MATERIAL_SAMPLE",
                                   "MATERIAL_CITATION"]},
-                      {"type": "equals", "key": "TAXONOMIC_STATUS", "value": "ACCEPTED"},
                   ],
               },
           }
+
+          # Validate before consuming an asynchronous GBIF download slot.
+          validation = requests.post(
+              "https://api.gbif.org/v1/occurrence/download/request/validate",
+              json=predicate,
+              timeout=60,
+          )
+          validation.raise_for_status()
+          Path('/tmp/gbif-labels/download_predicate_validation.json').write_text(
+              json.dumps(validation.json(), indent=2) + '\n', encoding='utf-8'
+          )
+
           response = requests.post(
               "https://api.gbif.org/v1/occurrence/download/request",
               auth=(user, pwd), json=predicate, timeout=60,
           )
           response.raise_for_status()
-          key = response.text.strip()
+          key = response.text.strip().strip('"')
           print("download key:", key)
 
           deadline = time.time() + int(os.environ["MAX_WAIT_MINUTES"]) * 60
           status = ""
+          meta = {}
           while time.time() < deadline:
               meta = requests.get(
                   f"https://api.gbif.org/v1/occurrence/download/{key}", timeout=60
@@ -142,8 +253,9 @@ jobs:
 
           with zipfile.ZipFile(archive) as bundle:
               bundle.extractall("/tmp/gbif-occurrences")
-          Path("/tmp/gbif-download-key.json").write_text(
-              json.dumps({"download_key": key, "doi": meta.get("doi", "")}, indent=2)
+          Path("/tmp/gbif-labels/gbif_download_key.json").write_text(
+              json.dumps({"download_key": key, "doi": meta.get("doi", "")}, indent=2) + '\n',
+              encoding='utf-8',
           )
           PY
 
@@ -155,13 +267,17 @@ jobs:
           island-v2-gbif-label-mining run \
             --config config/gbif_label_mining.yml \
             --occurrences-csv "$SOURCE" \
-            --output-dir /tmp/label-mining
+            --output-dir /tmp/gbif-labels/results
 
       - uses: actions/upload-artifact@v4
         with:
           name: gbif-label-mining-${{ github.run_id }}
           path: |
-            /tmp/label-mining
-            /tmp/gbif-download-key.json
-          if-no-files-found: error
+            /tmp/gbif-labels/results
+            /tmp/gbif-labels/gbif_download_key.json
+            /tmp/gbif-labels/download_predicate_validation.json
+            /tmp/gbif-labels/gbif_target_keys.json
+            /tmp/gbif-labels/gbif_species_match_audit.csv
+            /tmp/gbif-labels/minimum_endemic_colour_queue.csv
+          if-no-files-found: warn
           retention-days: 90
