@@ -1,0 +1,33 @@
+{
+  "checkpoint": "targeted_endemic_colour_multilingual_checkpoint_20260823",
+  "built_at_utc": "2026-08-23T03:20:00Z",
+  "upstream_minimum_queue_run_id": 32614335237,
+  "upstream_public_web_run_id": 32614810789,
+  "accepted_evidence_rows": 2,
+  "accepted_species_trait": 2,
+  "accepted_species": 2,
+  "axis": "flower_colour",
+  "trait_name": "flower_primary_color",
+  "normalized_value_counts": {
+    "blue_purple": 2
+  },
+  "language_counts": {
+    "el": 2
+  },
+  "source_provider": "GBIF species descriptions citing The Red Data Book of Rare and Threatened Plants of Greece (E-Z)",
+  "identity_policy": "fixed-master accepted name exact plus GBIF EXACT/SPECIES/ACCEPTED/confidence 99",
+  "guardrails": {
+    "search_snippet_as_evidence": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "multilingual_mapping_reviewed_individually": true,
+    "flower_subject_attachment_required": true,
+    "cultivar_or_hybrid_transferred_to_wild_species": false,
+    "automatic_promotion": false
+  },
+  "output_sha256": {
+    "evidence": "a0bd067d35232761f70039b2ad0b90c4c5754a0c9841864e120c72fb4715942a",
+    "audit": "8fb19102a178c0eb918b0c2257e4809d89db9e8cb0b214d0c42da0a5f2e7e52d"
+  },
+  "expected_support_role": "Two northern endemic-colour queue targets; realized island-support gain is determined only after the shared formal rebuild."
+}
