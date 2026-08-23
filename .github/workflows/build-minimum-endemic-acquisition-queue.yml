@@ -1,0 +1,105 @@
+name: Build minimum endemic trait acquisition queue
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/build-minimum-endemic-acquisition-queue.yml"
+      - "src/island_v2/endemic_trait_support_targets.py"
+      - "src/island_v2/endemic_minimum_acquisition_queue.py"
+      - "tests/test_endemic_minimum_acquisition_queue.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate queue implementation
+        run: |
+          ruff check \
+            src/island_v2/endemic_trait_support_targets.py \
+            src/island_v2/endemic_minimum_acquisition_queue.py \
+            tests/test_endemic_trait_support_targets.py \
+            tests/test_endemic_minimum_acquisition_queue.py
+          pytest -q \
+            tests/test_endemic_trait_support_targets.py \
+            tests/test_endemic_minimum_acquisition_queue.py
+
+      - name: Download corrected status, direct traits, and covariates
+        run: |
+          mkdir -p /tmp/status /tmp/traits /tmp/isolation
+          gh run download 32559322028 \
+            -n official-wcvp-corroborated-status-32559322028 \
+            -D /tmp/status
+          gh run download 32551742699 \
+            -n reviewed-open-web-evidence-32551742699 \
+            -D /tmp/traits
+          gh run download 29228212586 \
+            -n purpose-shortest-distance-regime-29228212586 \
+            -D /tmp/isolation
+          test -s /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz
+          test -s /tmp/traits/direct_species_trait_ledger.csv.gz
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+
+      - name: Rank endemic trait targets
+        run: |
+          python -m island_v2.endemic_trait_support_targets \
+            --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
+            --direct-evidence-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --island-taxa-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --output-dir /tmp/targets
+          test -s /tmp/targets/endemic_trait_support_decisions.csv
+
+      - name: Cut the queue at the confirmatory island target
+        run: |
+          python -m island_v2.endemic_minimum_acquisition_queue \
+            --decisions-csv /tmp/targets/endemic_trait_support_decisions.csv \
+            --unsupported-islands-csv /tmp/targets/endemic_unsupported_islands.csv \
+            --targets-csv /tmp/targets/endemic_trait_acquisition_targets.csv \
+            --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
+            --output-dir /tmp/minimum
+          test -f /tmp/minimum/minimum_endemic_trait_acquisition_queue.csv
+
+      - name: Summarize queue
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          queue = pd.read_csv('/tmp/minimum/minimum_endemic_trait_acquisition_queue.csv')
+          summary = pd.read_csv('/tmp/minimum/minimum_endemic_trait_acquisition_summary.csv')
+          print(summary.to_string(index=False))
+          if len(queue):
+              print('\nSELECTED QUEUE')
+              cols = [c for c in [
+                  'regime','outcome','selection_order','accepted_species','n_records',
+                  'extends_supported_isolation_5_95','new_island_ids','cumulative_new_islands'
+              ] if c in queue.columns]
+              print(queue[cols].to_string(index=False))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: minimum-endemic-acquisition-queue-${{ github.run_id }}
+          path: |
+            /tmp/targets/endemic_trait_support_decisions.csv
+            /tmp/targets/endemic_unsupported_islands.csv
+            /tmp/targets/endemic_trait_acquisition_targets.csv
+            /tmp/targets/endemic_trait_target_manifest.json
+            /tmp/minimum/minimum_endemic_trait_acquisition_queue.csv
+            /tmp/minimum/minimum_endemic_trait_acquisition_summary.csv
+            /tmp/minimum/minimum_endemic_trait_acquisition_manifest.json
+          if-no-files-found: error
+          retention-days: 90
