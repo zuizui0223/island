@@ -1,0 +1,97 @@
+name: Run northern Bombus lineage-residual analysis
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/run-northern-bombus-lineage-residual.yml"
+      - "src/island_v2/northern_bombus_residual_analysis.py"
+      - "tests/test_northern_bombus_residual_analysis.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate Bombus residual analysis
+        run: |
+          ruff check src/island_v2/northern_bombus_residual_analysis.py tests/test_northern_bombus_residual_analysis.py
+          pytest -q tests/test_northern_bombus_residual_analysis.py
+
+      - name: Download lineage-null and locked covariates
+        run: |
+          mkdir -p /tmp/lineage /tmp/isolation
+          gh run download 32613129024 \
+            -n status-stratified-lineage-32613129024 \
+            -D /tmp/lineage
+          gh run download 29228212586 \
+            -n purpose-shortest-distance-regime-29228212586 \
+            -D /tmp/isolation
+          test -s /tmp/lineage/null/genus_fixed_null_by_island.csv.gz
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+
+      - name: Fit incremental northern Bombus models
+        run: |
+          python -m island_v2.northern_bombus_residual_analysis \
+            --genus-null-csv /tmp/lineage/null/genus_fixed_null_by_island.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --output-dir /tmp/bombus
+          test -s /tmp/bombus/northern_bombus_residual_spatial_cv.csv
+
+      - name: Summarize incremental value
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          cv = pd.read_csv('/tmp/bombus/northern_bombus_residual_spatial_cv.csv')
+          coef = pd.read_csv('/tmp/bombus/northern_bombus_focal_coefficients.csv')
+          support = pd.read_csv('/tmp/bombus/northern_bombus_residual_support.csv')
+          payload = {
+              'contract': 'northern_bombus_lineage_residual_checkpoint_v1',
+              'lineage_run': 32613129024,
+              'covariate_run': 29228212586,
+              'cv': cv.to_dict('records'),
+              'focal_coefficients': coef.to_dict('records'),
+              'support': support.to_dict('records'),
+              'interpretation_guardrail': (
+                  'Environmental compatibility is a climate-derived hypervolume proxy, not observed Bombus loss. '
+                  'M1/M2 are useful only if they improve spatial-block CV beyond M0.'
+              ),
+          }
+          Path('/tmp/bombus/northern_bombus_checkpoint.json').write_text(
+              json.dumps(payload, indent=2) + '\n', encoding='utf-8'
+          )
+          print('SPATIAL CV')
+          print(cv[['stratum','outcome','model','weighted_rmse','rmse_improvement_vs_m0']].to_string(index=False))
+          print('\nFOCAL COEFFICIENTS')
+          if len(coef):
+              print(coef[['stratum','outcome','model','predictor','estimate','cluster_robust_se','p_value']].to_string(index=False))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: northern-bombus-lineage-residual-${{ github.run_id }}
+          path: |
+            /tmp/bombus/northern_bombus_residual_manifest.json
+            /tmp/bombus/northern_bombus_residual_coefficients.csv
+            /tmp/bombus/northern_bombus_focal_coefficients.csv
+            /tmp/bombus/northern_bombus_residual_spatial_cv.csv
+            /tmp/bombus/northern_bombus_residual_support.csv
+            /tmp/bombus/northern_bombus_checkpoint.json
+          if-no-files-found: error
+          retention-days: 90
