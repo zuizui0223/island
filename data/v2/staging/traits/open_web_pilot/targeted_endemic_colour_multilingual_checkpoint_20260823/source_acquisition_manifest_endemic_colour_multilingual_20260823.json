@@ -26,8 +26,8 @@
     "automatic_promotion": false
   },
   "output_sha256": {
-    "evidence": "a0bd067d35232761f70039b2ad0b90c4c5754a0c9841864e120c72fb4715942a",
-    "audit": "8fb19102a178c0eb918b0c2257e4809d89db9e8cb0b214d0c42da0a5f2e7e52d"
+    "evidence": "a946eb6c469a9ed2b0c2fbefc48691dc14d006c4ce6fd96e5090abb4c522b63f",
+    "audit": "b131a6496aa1243fe60e0f124431a925683200491ce93203b7d8143016f715bf"
   },
   "expected_support_role": "Two northern endemic-colour queue targets; realized island-support gain is determined only after the shared formal rebuild."
 }
