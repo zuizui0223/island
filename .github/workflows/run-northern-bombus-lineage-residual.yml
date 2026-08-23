@@ -1,11 +1,6 @@
 name: Run northern Bombus lineage-residual analysis
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/run-northern-bombus-lineage-residual.yml"
-      - "src/island_v2/northern_bombus_residual_analysis.py"
-      - "tests/test_northern_bombus_residual_analysis.py"
   workflow_dispatch:
 
 permissions:
