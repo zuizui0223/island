@@ -18,6 +18,7 @@ on:
       - "src/island_v2/flora_endemism_analysis.py"
       - "src/island_v2/flora_endemism_resolution_sensitivity.py"
       - "src/island_v2/endemic_trait_support_targets.py"
+      - "src/island_v2/endemic_minimum_acquisition_queue.py"
       - "scripts/fetch_gift_floristic_status.R"
       - "scripts/export_wcvp_native_ranges.py"
       - "config/flora_status_support.yml"
@@ -37,6 +38,7 @@ on:
       - "tests/test_flora_endemism_analysis.py"
       - "tests/test_flora_endemism_resolution_sensitivity.py"
       - "tests/test_endemic_trait_support_targets.py"
+      - "tests/test_endemic_minimum_acquisition_queue.py"
       - "docs/flora_status_lineage_analysis_plan.md"
       - "docs/flora_status_real_data_checkpoint_20260822.md"
       - "docs/native_direct_m0_lineage_checkpoint_20260822.md"
@@ -46,6 +48,7 @@ on:
       - "docs/status_stratified_lineage_checkpoint_20260823.md"
       - "docs/northern_bombus_lineage_residual_checkpoint_20260823.md"
       - "docs/status_category_decomposition_checkpoint_20260823.md"
+      - "docs/minimum_endemic_colour_acquisition_queue_20260823.md"
   workflow_dispatch:
 
 permissions:
@@ -80,6 +83,7 @@ jobs:
             src/island_v2/flora_endemism_analysis.py \
             src/island_v2/flora_endemism_resolution_sensitivity.py \
             src/island_v2/endemic_trait_support_targets.py \
+            src/island_v2/endemic_minimum_acquisition_queue.py \
             scripts/export_wcvp_native_ranges.py \
             tests/test_flora_status_support.py \
             tests/test_flora_status_support_decision.py \
@@ -95,7 +99,8 @@ jobs:
             tests/test_floristic_status_resolve.py \
             tests/test_flora_endemism_analysis.py \
             tests/test_flora_endemism_resolution_sensitivity.py \
-            tests/test_endemic_trait_support_targets.py
+            tests/test_endemic_trait_support_targets.py \
+            tests/test_endemic_minimum_acquisition_queue.py
       - name: Run focused tests
         run: |
           pytest -q \
@@ -113,4 +118,5 @@ jobs:
             tests/test_floristic_status_resolve.py \
             tests/test_flora_endemism_analysis.py \
             tests/test_flora_endemism_resolution_sensitivity.py \
-            tests/test_endemic_trait_support_targets.py
+            tests/test_endemic_trait_support_targets.py \
+            tests/test_endemic_minimum_acquisition_queue.py
