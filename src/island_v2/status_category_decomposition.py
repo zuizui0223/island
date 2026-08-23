@@ -66,6 +66,20 @@ def _text(series: pd.Series) -> pd.Series:
     return series.fillna("").astype(str).str.strip()
 
 
+def _json_safe_specs(specs: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Return a deterministic JSON-safe copy of the category contract."""
+    safe: dict[str, dict[str, Any]] = {}
+    for domain, spec in specs.items():
+        safe[domain] = {
+            "trait_name": str(spec["trait_name"]),
+            "categories": {
+                str(name): sorted(str(state) for state in states)
+                for name, states in spec["categories"].items()
+            },
+        }
+    return safe
+
+
 def _classify_value(value: object, categories: dict[str, set[str]]) -> str | None:
     tokens = {token.strip() for token in str(value or "").split("|") if token.strip()}
     if not tokens:
@@ -99,7 +113,7 @@ def direct_categorical_species(
         _classify_value(value, categories) for value in work["normalized_value"]
     ]
     work = work.dropna(subset=["category"])
-    # Multiple independent direct rows are allowed only when they agree.
+
     agreement = work.groupby("accepted_species")["category"].nunique()
     conflicts = set(agreement.loc[agreement.gt(1)].index)
     work = work.loc[~work["accepted_species"].isin(conflicts)]
@@ -299,7 +313,7 @@ def run(
         "evidence": "direct species evidence only",
         "status": "GIFT origin plus WCVP-corroborated regional endemism",
         "lineage_control": "exact category expectation from direct species in the same genus",
-        "domains": CATEGORY_SPECS,
+        "domains": _json_safe_specs(CATEGORY_SPECS),
         "guardrail": (
             "This is a category-preserving decision layer before any final INLA model. "
             "A category residual slope is not by itself a pollination mechanism."
