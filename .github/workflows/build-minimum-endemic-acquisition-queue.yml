@@ -57,25 +57,65 @@ jobs:
       - name: Add manually reviewed minimum-queue colour evidence
         run: |
           python - <<'PY'
+          import json
           import pandas as pd
 
           baseline = pd.read_csv('/tmp/traits/direct_species_trait_ledger.csv.gz')
           manual = pd.read_csv(
               'data/v2/curation/minimum_endemic_colour_manual_review_20260823.csv'
           )
-          required = {'accepted_species', 'trait_name', 'normalized_value', 'evidence_scope'}
+          required = {
+              'accepted_species', 'axis', 'trait_name', 'normalized_value',
+              'quality', 'evidence_scope', 'source_group', 'source_lineage'
+          }
           missing = required - set(manual.columns)
           if missing:
               raise SystemExit(f'manual review file missing columns: {sorted(missing)}')
-          if not manual['evidence_scope'].eq('species_direct').all():
-              raise SystemExit('manual review file contains non-species-direct evidence')
-          combined = pd.concat([baseline, manual], ignore_index=True, sort=False)
+          allowed_scopes = {'species_direct', 'synonym_direct'}
+          scopes = set(manual['evidence_scope'].fillna('').astype(str))
+          if not scopes <= allowed_scopes:
+              raise SystemExit(f'manual review file contains invalid scopes: {sorted(scopes)}')
+
+          # The reviewed artifact is already a collapsed direct species-trait ledger and
+          # intentionally has no evidence_scope column. Adding the long-form review rows
+          # directly would create a new evidence_scope column whose baseline values are
+          # missing, causing downstream code to drop the entire baseline. Project manual
+          # rows into the existing ledger schema before concatenation.
+          rows = []
+          for row in manual.itertuples(index=False):
+              state = str(row.normalized_value).strip()
+              rows.append({
+                  'accepted_species': str(row.accepted_species).strip(),
+                  'axis': str(row.axis).strip(),
+                  'trait_name': str(row.trait_name).strip(),
+                  'classification': 'manual_review_single_lineage',
+                  'resolution_status': 'resolved',
+                  'selected_quality': str(row.quality).strip(),
+                  'state_sets': json.dumps([[state]], ensure_ascii=False),
+                  'n_independent_lineages': 1,
+                  'source_lineages': str(row.source_lineage).strip(),
+                  'source_groups': str(row.source_group).strip(),
+                  'cultivar_rows_excluded': 0,
+                  'ontology_mismatch_rows': 0,
+                  'lineage_internal_conflicts': 0,
+                  'invalid_state_tokens': '',
+                  'quality': str(row.quality).strip(),
+                  'state_set': json.dumps([state], ensure_ascii=False),
+                  'normalized_value': state,
+                  'multistate': False,
+                  'genus': str(row.accepted_species).strip().split()[0],
+              })
+          projected = pd.DataFrame(rows, columns=baseline.columns)
+          combined = pd.concat([baseline, projected], ignore_index=True, sort=False)
+          if list(combined.columns) != list(baseline.columns):
+              raise SystemExit('manual projection changed direct-ledger schema')
           combined.to_csv('/tmp/traits/direct_species_trait_ledger_with_manual.csv', index=False)
           print({
               'baseline_rows': int(len(baseline)),
               'manual_rows': int(len(manual)),
               'combined_rows': int(len(combined)),
               'manual_species': manual['accepted_species'].tolist(),
+              'schema_preserved': True,
           })
           PY
 
@@ -103,9 +143,20 @@ jobs:
         run: |
           python - <<'PY'
           import pandas as pd
-          queue = pd.read_csv('/tmp/minimum/minimum_endemic_trait_acquisition_queue.csv')
-          summary = pd.read_csv('/tmp/minimum/minimum_endemic_trait_acquisition_summary.csv')
-          print(summary.to_string(index=False))
+          from pandas.errors import EmptyDataError
+
+          def read_or_empty(path):
+              try:
+                  return pd.read_csv(path)
+              except EmptyDataError:
+                  return pd.DataFrame()
+
+          queue = read_or_empty('/tmp/minimum/minimum_endemic_trait_acquisition_queue.csv')
+          summary = read_or_empty('/tmp/minimum/minimum_endemic_trait_acquisition_summary.csv')
+          if len(summary):
+              print(summary.to_string(index=False))
+          else:
+              print('No targeted-acquisition strata remain.')
           if len(queue):
               print('\nSELECTED QUEUE')
               cols = [c for c in [
@@ -113,6 +164,8 @@ jobs:
                   'extends_supported_isolation_5_95','new_island_ids','cumulative_new_islands'
               ] if c in queue.columns]
               print(queue[cols].to_string(index=False))
+          else:
+              print('Queue empty: stopping condition or no targetable stratum.')
           PY
 
       - uses: actions/upload-artifact@v4
