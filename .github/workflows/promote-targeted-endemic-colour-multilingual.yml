@@ -1,0 +1,158 @@
+name: Promote reviewed multilingual endemic-colour evidence
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/promote-targeted-endemic-colour-multilingual.yml"
+      - "data/v2/staging/traits/open_web_pilot/targeted_endemic_colour_multilingual_checkpoint_20260823/**"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: targeted-endemic-colour-multilingual-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BASELINE_RUN_ID: "31245813999"
+      PILOT_RUN_ID: "30434418380"
+      PILOT_ARTIFACT: "open-web-multidomain-pilot-30434418380"
+      PRIOR_RUN_ID: "32551742699"
+      PRIOR_ARTIFACT: "reviewed-open-web-evidence-32551742699"
+      CURATED_EVIDENCE: "data/v2/staging/traits/open_web_pilot/targeted_endemic_colour_multilingual_checkpoint_20260823/targeted_endemic_colour_multilingual_evidence_20260823.csv"
+      CURATED_AUDIT: "data/v2/staging/traits/open_web_pilot/targeted_endemic_colour_multilingual_checkpoint_20260823/targeted_endemic_colour_multilingual_manual_audit_20260823.csv"
+      DIRECT_EXCLUSIONS: "data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_20260811.csv"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate the reviewed checkpoint
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          evidence_path = Path('${{ env.CURATED_EVIDENCE }}')
+          audit_path = Path('${{ env.CURATED_AUDIT }}')
+          manifest_path = evidence_path.parent / 'source_acquisition_manifest_endemic_colour_multilingual_20260823.json'
+          evidence = pd.read_csv(evidence_path)
+          audit = pd.read_csv(audit_path)
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          assert len(evidence) == 2
+          assert len(audit) == 2
+          assert set(evidence['accepted_species']) == {'Limonium aphroditae', 'Viola cephalonica'}
+          assert set(evidence['trait_name']) == {'flower_primary_color'}
+          assert set(evidence['normalized_value']) == {'blue_purple'}
+          assert set(evidence['evidence_scope']) == {'species_direct'}
+          assert set(evidence['language']) == {'el'}
+          assert set(audit['decision']) == {'accept'}
+          assert audit['species_identity_correct'].astype(str).str.lower().eq('true').all()
+          assert audit['value_correct'].astype(str).str.lower().eq('true').all()
+          assert audit['provenance_complete'].astype(str).str.lower().eq('true').all()
+          assert audit['cultivar_contamination'].astype(str).str.lower().eq('false').all()
+          assert hashlib.sha256(evidence_path.read_bytes()).hexdigest() == manifest['output_sha256']['evidence']
+          assert hashlib.sha256(audit_path.read_bytes()).hexdigest() == manifest['output_sha256']['audit']
+          print(manifest)
+          PY
+
+      - name: Download locked baseline, pilot, and latest prior formal evidence
+        run: |
+          mkdir -p /tmp/baseline /tmp/pilot /tmp/prior outputs/endemic_colour_multilingual
+          gh run download "$BASELINE_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "integrated-trait-coverage-$BASELINE_RUN_ID" \
+            --dir /tmp/baseline
+          gh run download "$PILOT_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "$PILOT_ARTIFACT" \
+            --dir /tmp/pilot
+          gh run download "$PRIOR_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "$PRIOR_ARTIFACT" \
+            --dir /tmp/prior
+          test -s /tmp/pilot/open_web_multidomain_candidates.csv
+          test -s /tmp/prior/broad_web_medium_evidence.csv.gz
+          test -s /tmp/prior/reviewed_source_lineages.csv.gz
+          test -s "$CURATED_EVIDENCE"
+          test -s "$CURATED_AUDIT"
+          test -s "$DIRECT_EXCLUSIONS"
+
+      - name: Rebuild shared formal evidence with only the two reviewed additions
+        run: |
+          python -m island_v2.open_web_finalize \
+            --baseline-dir /tmp/baseline \
+            --candidates-csv /tmp/pilot/open_web_multidomain_candidates.csv \
+            --audit-csv data/v2/staging/traits/open_web_pilot/multidomain_manual_audit_200_30434418380.csv \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --output-dir outputs/endemic_colour_multilingual \
+            --source-run-id "$PILOT_RUN_ID" \
+            --source-artifact "$PILOT_ARTIFACT" \
+            --prior-public-web-csv /tmp/prior/broad_web_medium_evidence.csv.gz \
+            --prior-public-web-supplement-csv /tmp/prior/reviewed_source_lineages.csv.gz \
+            --prior-public-web-run-id "$PRIOR_RUN_ID" \
+            --prior-public-web-artifact "$PRIOR_ARTIFACT" \
+            --direct-evidence-exclusions-csv "$DIRECT_EXCLUSIONS" \
+            --curated-evidence-csv "$CURATED_EVIDENCE" \
+            --curated-audit-csv "$CURATED_AUDIT" \
+            --curated-source-run-id "minimum-endemic-colour-public-web-32614810789" \
+            --curated-source-artifact "minimum-endemic-colour-public-web-32614810789"
+
+      - name: Verify realized formal gain
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('outputs/endemic_colour_multilingual')
+          summary = json.loads((root / 'open_web_formalization_summary.json').read_text())
+          direct = pd.read_csv(root / 'direct_species_trait_ledger.csv.gz')
+          strict = pd.read_csv(root / 'strict_species_axis_coverage.csv.gz')
+          targets = direct.loc[
+              direct['accepted_species'].isin(['Limonium aphroditae', 'Viola cephalonica'])
+              & direct['trait_name'].eq('flower_primary_color')
+          ].copy()
+          if set(targets['accepted_species']) != {'Limonium aphroditae', 'Viola cephalonica'}:
+              raise SystemExit('Both reviewed target rows were not present in the rebuilt direct ledger')
+          if not set(targets['normalized_value']) == {'blue_purple'}:
+              raise SystemExit('Unexpected rebuilt target values')
+          target_strict = strict.loc[
+              strict['accepted_species'].isin(['Limonium aphroditae', 'Viola cephalonica'])
+              & strict['axis'].eq('flower_colour')
+          ].copy()
+          payload = {
+              'contract': 'targeted_endemic_colour_multilingual_formal_gain_v1',
+              'prior_formal_run_id': 32551742699,
+              'reviewed_species': ['Limonium aphroditae', 'Viola cephalonica'],
+              'target_direct_rows': targets.to_dict('records'),
+              'target_strict_rows': target_strict.to_dict('records'),
+              'coverage_before': summary['shared_all_evidence']['coverage_before'],
+              'coverage_after': summary['shared_all_evidence']['coverage_after'],
+              'coverage_increment_species_axis': summary['shared_all_evidence']['coverage_increment_species_axis'],
+              'curated': summary.get('curated', {}),
+          }
+          (root / 'targeted_endemic_colour_multilingual_gain.json').write_text(
+              json.dumps(payload, indent=2, default=str) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(payload, indent=2, default=str))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: targeted-endemic-colour-multilingual-formal-${{ github.run_id }}
+          path: outputs/endemic_colour_multilingual/
+          if-no-files-found: error
+          retention-days: 90
