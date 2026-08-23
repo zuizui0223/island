@@ -6,8 +6,10 @@ on:
       - ".github/workflows/run-status-category-decomposition.yml"
       - "src/island_v2/status_category_decomposition.py"
       - "src/island_v2/status_category_fdr.py"
+      - "src/island_v2/status_category_coverage_sensitivity.py"
       - "tests/test_status_category_decomposition.py"
       - "tests/test_status_category_fdr.py"
+      - "tests/test_status_category_coverage_sensitivity.py"
   workflow_dispatch:
 
 permissions:
@@ -33,9 +35,14 @@ jobs:
           ruff check \
             src/island_v2/status_category_decomposition.py \
             src/island_v2/status_category_fdr.py \
+            src/island_v2/status_category_coverage_sensitivity.py \
             tests/test_status_category_decomposition.py \
-            tests/test_status_category_fdr.py
-          pytest -q tests/test_status_category_decomposition.py tests/test_status_category_fdr.py
+            tests/test_status_category_fdr.py \
+            tests/test_status_category_coverage_sensitivity.py
+          pytest -q \
+            tests/test_status_category_decomposition.py \
+            tests/test_status_category_fdr.py \
+            tests/test_status_category_coverage_sensitivity.py
 
       - name: Download corrected status, direct traits, and covariates
         run: |
@@ -67,6 +74,16 @@ jobs:
             --output-csv /tmp/categories/status_category_isolation_fdr.csv
           test -s /tmp/categories/status_category_isolation_fdr.csv
 
+      - name: Stress-test FDR-supported categories against coverage imbalance
+        run: |
+          python -m island_v2.status_category_coverage_sensitivity \
+            --residuals-csv /tmp/categories/status_category_residuals.csv.gz \
+            --category-fdr-csv /tmp/categories/status_category_isolation_fdr.csv \
+            --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --output-csv /tmp/categories/status_category_coverage_sensitivity.csv
+          test -f /tmp/categories/status_category_coverage_sensitivity.csv
+
       - name: Summarize category-level decision
         run: |
           python - <<'PY'
@@ -76,29 +93,36 @@ jobs:
 
           iso = pd.read_csv('/tmp/categories/status_category_isolation_fdr.csv')
           support = pd.read_csv('/tmp/categories/status_category_support.csv')
+          coverage = pd.read_csv('/tmp/categories/status_category_coverage_sensitivity.csv')
           focus = iso[
               iso['stratum'].isin(['all_native','native_nonendemic','endemic'])
               & iso['regime'].isin(['northern_midlatitude','tropical','southern_extratropical'])
           ].copy()
           focus.to_csv('/tmp/categories/manuscript_status_category_isolation.csv', index=False)
           payload = {
-              'contract': 'status_category_decomposition_checkpoint_v1',
+              'contract': 'status_category_decomposition_checkpoint_v2',
               'status_run': 32559322028,
               'trait_run': 32551742699,
               'covariate_run': 29228212586,
               'multiple_testing': 'BH within stratum x regime x domain',
+              'coverage_sensitivity': 'continuous adjustment plus direct-fraction subsets 0.25/0.30/0.40/0.50',
               'isolation_coefficients': focus.to_dict('records'),
+              'coverage_results': coverage.to_dict('records'),
               'support': support.to_dict('records'),
               'guardrail': (
                   'Category residuals control genus expectation but are not a pollination mechanism. '
-                  'Below-pilot endemic categories remain diagnostics only.'
+                  'A remaining signal must also survive measurement-coverage sensitivity before interpretation.'
               ),
           }
           Path('/tmp/categories/status_category_checkpoint.json').write_text(
               json.dumps(payload, indent=2) + '\n', encoding='utf-8'
           )
-          print(focus[['stratum','regime','domain','category','estimate','cluster_robust_se',
-                       'p_value','q_value_bh','fdr_supported','n_islands','n_clusters']].to_string(index=False))
+          print('FDR-SUPPORTED >=50 ISLANDS')
+          print(focus[(focus['fdr_supported']) & (focus['n_islands'] >= 50)][
+              ['stratum','regime','domain','category','estimate','p_value','q_value_bh','n_islands']
+          ].to_string(index=False))
+          print('\nCOVERAGE SENSITIVITY')
+          print(coverage.to_string(index=False))
           PY
 
       - uses: actions/upload-artifact@v4
@@ -112,6 +136,7 @@ jobs:
             /tmp/categories/status_category_support.csv
             /tmp/categories/status_category_isolation.csv
             /tmp/categories/status_category_isolation_fdr.csv
+            /tmp/categories/status_category_coverage_sensitivity.csv
             /tmp/categories/manuscript_status_category_isolation.csv
             /tmp/categories/status_category_checkpoint.json
           if-no-files-found: error
