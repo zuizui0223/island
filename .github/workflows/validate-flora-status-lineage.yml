@@ -10,6 +10,7 @@ on:
       - "src/island_v2/genus_fixed_trait_null.py"
       - "src/island_v2/status_stratified_lineage_analysis.py"
       - "src/island_v2/northern_bombus_residual_analysis.py"
+      - "src/island_v2/status_category_decomposition.py"
       - "src/island_v2/gift_floristic_status_match.py"
       - "src/island_v2/floristic_status_resolve.py"
       - "src/island_v2/flora_endemism_analysis.py"
@@ -26,6 +27,7 @@ on:
       - "tests/test_genus_fixed_trait_null.py"
       - "tests/test_status_stratified_lineage_analysis.py"
       - "tests/test_northern_bombus_residual_analysis.py"
+      - "tests/test_status_category_decomposition.py"
       - "tests/test_gift_floristic_status_match.py"
       - "tests/test_floristic_status_resolve.py"
       - "tests/test_flora_endemism_analysis.py"
@@ -37,6 +39,8 @@ on:
       - "docs/introduced_transport_checkpoint_20260822.md"
       - "docs/corroborated_endemism_checkpoint_20260822.md"
       - "docs/status_stratified_trait_checkpoint_20260822.md"
+      - "docs/status_stratified_lineage_checkpoint_20260823.md"
+      - "docs/northern_bombus_lineage_residual_checkpoint_20260823.md"
   workflow_dispatch:
 
 permissions:
@@ -63,6 +67,7 @@ jobs:
             src/island_v2/genus_fixed_trait_null.py \
             src/island_v2/status_stratified_lineage_analysis.py \
             src/island_v2/northern_bombus_residual_analysis.py \
+            src/island_v2/status_category_decomposition.py \
             src/island_v2/gift_floristic_status_match.py \
             src/island_v2/floristic_status_resolve.py \
             src/island_v2/flora_endemism_analysis.py \
@@ -76,6 +81,7 @@ jobs:
             tests/test_genus_fixed_trait_null.py \
             tests/test_status_stratified_lineage_analysis.py \
             tests/test_northern_bombus_residual_analysis.py \
+            tests/test_status_category_decomposition.py \
             tests/test_gift_floristic_status_match.py \
             tests/test_floristic_status_resolve.py \
             tests/test_flora_endemism_analysis.py \
@@ -91,6 +97,7 @@ jobs:
             tests/test_genus_fixed_trait_null.py \
             tests/test_status_stratified_lineage_analysis.py \
             tests/test_northern_bombus_residual_analysis.py \
+            tests/test_status_category_decomposition.py \
             tests/test_gift_floristic_status_match.py \
             tests/test_floristic_status_resolve.py \
             tests/test_flora_endemism_analysis.py \
