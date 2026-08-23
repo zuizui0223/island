@@ -1,19 +1,8 @@
 name: Acquire protologue floral traits
 
-# Why this source: the unresolved tail is 74,846 species on three islands or
-# fewer. No monograph or ecological study covers most of them, but every one has
-# a protologue, because the name was validly published -- and for a species with
-# four occurrence records that original description is frequently the only
-# floral description in existence.
-#
-# `validate` runs on every pull request with no network: the extraction,
-# declension, sentence-boundary and copyright-gate logic is all exercised
-# against fakes. `acquire` is dispatch-only because it needs a BHL API key and
-# walks a queue of tens of thousands of species against two external APIs.
-#
-# Only the two routes declared in config/island_flora_sources.yml are used --
-# the IPNI official API for the citation and the BHL official API for the scan.
-# Nothing is crawled, and an item BHL declares still in copyright is skipped.
+# Default acquisition is now the model-support-driven endemic-colour queue.
+# The historical <=3-island tail remains available only when explicitly chosen.
+# Candidate statements are unreviewed and never promoted by this workflow.
 
 on:
   pull_request:
@@ -25,17 +14,26 @@ on:
       - "tests/test_protologue_trait_acquisition.py"
   workflow_dispatch:
     inputs:
+      target_mode:
+        description: "minimum_endemic_colour (default) or legacy_tail"
+        required: false
+        default: "minimum_endemic_colour"
+      target_queue_run:
+        description: "Run carrying minimum-endemic-acquisition-queue artifact"
+        required: false
+        default: "32614335237"
       limit:
         description: "How many queued species to attempt (0 walks the whole queue)"
         required: false
         default: "500"
       max_islands:
-        description: "Tail cutoff: queue species occurring on at most this many islands"
+        description: "Legacy tail only: queue species occurring on at most this many islands"
         required: false
         default: "3"
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: protologue-acquisition-${{ github.ref }}
@@ -67,6 +65,9 @@ jobs:
     timeout-minutes: 300
     env:
       BHL_API_KEY: ${{ secrets.BHL_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+      TARGET_MODE: ${{ inputs.target_mode || 'minimum_endemic_colour' }}
+      TARGET_QUEUE_RUN: ${{ inputs.target_queue_run || '32614335237' }}
       LIMIT: ${{ inputs.limit || '500' }}
       MAX_ISLANDS: ${{ inputs.max_islands || '3' }}
     steps:
@@ -86,23 +87,51 @@ jobs:
             exit 1
           }
 
-      - name: Build the tail queue
+      - name: Build the declared acquisition queue
         run: |
           set -euo pipefail
-          python - <<'PY'
+          mkdir -p /tmp/protologue
+          if [ "$TARGET_MODE" = "minimum_endemic_colour" ]; then
+            mkdir -p /tmp/locked-queue
+            gh run download "$TARGET_QUEUE_RUN" \
+              -n "minimum-endemic-acquisition-queue-${TARGET_QUEUE_RUN}" \
+              -D /tmp/locked-queue
+            QUEUE=$(find /tmp/locked-queue -name minimum_endemic_trait_acquisition_queue.csv -print -quit)
+            test -s "$QUEUE"
+            python - "$QUEUE" <<'PY'
+          import sys
+          import pandas as pd
+
+          source = pd.read_csv(sys.argv[1])
+          source = source.loc[source['outcome'].eq('plain_colour')].copy()
+          source = source.sort_values(['regime', 'selection_order'])
+          source = source.drop_duplicates('accepted_species')
+          source.to_csv('/tmp/protologue/queue.csv', index=False)
+          print({
+              'target_mode': 'minimum_endemic_colour',
+              'n_queued': int(len(source)),
+              'regimes': source['regime'].value_counts().to_dict(),
+          })
+          PY
+          elif [ "$TARGET_MODE" = "legacy_tail" ]; then
+            python - <<'PY'
           import os
           from pathlib import Path
-
           import yaml
 
-          path = Path("config/protologue_acquisition.yml")
-          config = yaml.safe_load(path.read_text(encoding="utf-8"))
-          config["target_selection"]["max_islands"] = int(os.environ["MAX_ISLANDS"])
-          path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+          path = Path('config/protologue_acquisition.yml')
+          config = yaml.safe_load(path.read_text(encoding='utf-8'))
+          config['target_selection']['max_islands'] = int(os.environ['MAX_ISLANDS'])
+          path.write_text(yaml.safe_dump(config, sort_keys=False), encoding='utf-8')
           PY
-          island-v2-protologue-acquisition queue \
-            --config config/protologue_acquisition.yml \
-            --output-csv /tmp/protologue/queue.csv
+            island-v2-protologue-acquisition queue \
+              --config config/protologue_acquisition.yml \
+              --output-csv /tmp/protologue/queue.csv
+          else
+            echo "Unknown TARGET_MODE=$TARGET_MODE; expected minimum_endemic_colour or legacy_tail" >&2
+            exit 1
+          fi
+          test -s /tmp/protologue/queue.csv
 
       - name: Resolve protologues and mine floral statements
         run: |
