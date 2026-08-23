@@ -1,15 +1,6 @@
 name: Run status-aware category decomposition
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/run-status-category-decomposition.yml"
-      - "src/island_v2/status_category_decomposition.py"
-      - "src/island_v2/status_category_fdr.py"
-      - "src/island_v2/status_category_coverage_sensitivity.py"
-      - "tests/test_status_category_decomposition.py"
-      - "tests/test_status_category_fdr.py"
-      - "tests/test_status_category_coverage_sensitivity.py"
   workflow_dispatch:
 
 permissions:
