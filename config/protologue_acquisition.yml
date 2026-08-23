@@ -1,0 +1,529 @@
+version: "1.0"
+
+# Acquiring floral descriptions from protologues, via IPNI for the citation and
+# BHL for the scanned page.
+#
+# Why this source: the unresolved tail is 74,846 species on three islands or
+# fewer, with a median of four GBIF records each. They are island endemics, and
+# for most of them no monograph, revision or ecological study exists. What does
+# exist -- by definition, because the name is validly published -- is the
+# original description. For a species with four records the protologue is
+# frequently the only floral description anywhere.
+#
+# Two constraints shape everything below.
+#
+# 1. Protologues are Latin, French, German or Spanish far more often than they
+#    are English. This is not a preference but a measured requirement: in the
+#    WFO rejection ledger the one automatically recoverable slice (8.8%) was
+#    non-English statements that English-only rules had failed to bind. An
+#    English-only vocabulary here would repeat that failure at scale.
+#
+# 2. The organ-attachment discipline from label mining applies unchanged, and
+#    for the same measured reason: 38.6% of WFO rejections were a style, calyx
+#    or fruit value being read as a whole-flower value. A protologue reading
+#    "fructus ruber" is not flower colour.
+
+# Which species to target. The tail is defined by island occupancy, not by
+# record count alone -- a species on many islands is not the acquisition
+# problem even when poorly recorded.
+target_selection:
+  max_islands: 3
+  # Species already carrying species-direct evidence for the axis are skipped
+  # when a resolved-species list is supplied; without one every tail species is
+  # queued and the caller deduplicates downstream.
+  axis: flower_primary_color
+
+# Step 1: resolve the species to its protologue citation.
+citation_index:
+  provider: IPNI
+  base_url: "https://www.ipni.org/api/1/search"
+  access: official_api
+  # A citation is only usable when it names both the work and the page.
+  fields_required:
+    - publication
+    - page
+    - year
+
+# Step 2: locate the scanned page.
+scan_provider:
+  provider: BHL
+  base_url: "https://www.biodiversitylibrary.org/api3"
+  access: official_api
+  # Items still in copyright are skipped, never scraped. Both gates must pass:
+  # the declared rights string must be one of the public-domain values, and the
+  # publication year must be at or before the cutoff.
+  public_domain_rights:
+    - "Public domain"
+    - "Public domain. The BHL considers that this work is no longer under copyright protection"
+    - "NOT_IN_COPYRIGHT"
+    - "CC0"
+  max_copyright_year: 1928
+
+# A colour word counts only when it sits within this many characters of a floral
+# organ word. Wider than the 40 used for specimen labels because protologue
+# prose is denser: "Corolla infundibuliformis, tubo brevi, limbo albo" puts the
+# colour well past 40 characters from its organ while still describing it.
+organ_proximity_chars: 60
+
+# Matching is on folded text -- lowercased, diacritics stripped, ss for eszett --
+# and every term is matched at word boundaries. Boundaries are not optional
+# here: substring matching would read "rotundifolia" as German "rot" and
+# "albacea" as Latin "alba", and protologue prose is long enough that such hits
+# would dominate the ledger.
+#
+# Terms are enumerated in full rather than stemmed. Latin inflects in a small
+# closed set of endings, so enumeration is both feasible and honest about what
+# is actually being matched.
+
+floral_organ_terms:
+  # English
+  - flower
+  - flowers
+  - corolla
+  - corollas
+  - perianth
+  - petal
+  - petals
+  - tepal
+  - tepals
+  - inflorescence
+  - blossom
+  - blossoms
+  # Latin
+  - flos
+  - flores
+  - floris
+  - florum
+  - floribus
+  - corollae
+  - corollam
+  - corolla
+  - perianthium
+  - perianthii
+  - petalum
+  - petala
+  - petalis
+  - tepalum
+  - tepala
+  - inflorescentia
+  - inflorescentiae
+  - limbus
+  - limbo
+  - limbi
+  # French
+  - fleur
+  - fleurs
+  - corolle
+  - corolles
+  - petale
+  - petales
+  - perianthe
+  - inflorescence
+  - inflorescences
+  # German
+  - blute
+  - bluten
+  - blume
+  - blumen
+  - blumenkrone
+  - blutenblatt
+  - blutenblatter
+  - blutenstand
+  - krone
+  # Spanish
+  - flor
+  - flores
+  - corola
+  - corolas
+  - petalo
+  - petalos
+  - perianto
+  - inflorescencia
+
+# Organs whose colour must never become flower colour. Checked first: when the
+# nearest organ word is one of these the row is rejected outright, and a tie in
+# distance resolves to the competing organ.
+competing_organ_terms:
+  # English
+  - fruit
+  - fruits
+  - berry
+  - berries
+  - seed
+  - seeds
+  - leaf
+  - leaves
+  - foliage
+  - stem
+  - stems
+  - bark
+  - root
+  - roots
+  - bract
+  - bracts
+  - calyx
+  - sepal
+  - sepals
+  - anther
+  - anthers
+  - filament
+  - style
+  - stigma
+  - ovary
+  - capsule
+  # Latin
+  - fructus
+  - fructu
+  - bacca
+  - baccae
+  - semen
+  - semina
+  - seminibus
+  - folium
+  - folia
+  - foliis
+  - foliorum
+  - caulis
+  - caule
+  - cortex
+  - radix
+  - radice
+  - bractea
+  - bracteae
+  - calyx
+  - calycis
+  - calyce
+  - sepalum
+  - sepala
+  - anthera
+  - antherae
+  - filamentum
+  - stylus
+  - stylo
+  - stigma
+  - stigmate
+  - ovarium
+  - ovario
+  - capsula
+  - capsulae
+  # French
+  - feuille
+  - feuilles
+  - graine
+  - graines
+  - tige
+  - tiges
+  - ecorce
+  - racine
+  - racines
+  - bractee
+  - bractees
+  - calice
+  - sepale
+  - sepales
+  - anthere
+  - antheres
+  - stigmate
+  - ovaire
+  # German
+  - frucht
+  - fruchte
+  - beere
+  - beeren
+  - samen
+  - blatt
+  - blatter
+  - stengel
+  - stangel
+  - rinde
+  - wurzel
+  - hochblatt
+  - kelch
+  - kelchblatt
+  - staubbeutel
+  - griffel
+  - narbe
+  - fruchtknoten
+  - kapsel
+  # Spanish
+  - fruto
+  - frutos
+  - baya
+  - semilla
+  - semillas
+  - hoja
+  - hojas
+  - tallo
+  - corteza
+  - raiz
+  - bractea
+  - bracteas
+  - caliz
+  - sepalo
+  - sepalos
+  - antera
+  - anteras
+  - estilo
+  - estigma
+  - ovario
+  - capsula
+
+# Phrases that void a statement. A description that declines to state the colour
+# is not an observation of an absent colour.
+negation_markers:
+  - "not seen"
+  - "not known"
+  - "unknown"
+  - "flowers not seen"
+  - "ignota"
+  - "ignotus"
+  - "ignoti"
+  - "non visa"
+  - "non visi"
+  - "non vidi"
+  - "desunt"
+  - "inconnue"
+  - "inconnues"
+  - "non vue"
+  - "non vues"
+  - "unbekannt"
+  - "nicht gesehen"
+  - "desconocida"
+  - "desconocido"
+  - "?"
+
+
+# Latin adjectives are not enumerated form by form. They agree with the noun, so
+# the form that actually appears is dictated by which organ word precedes it --
+# "corolla alba" but "flores albi" but "floribus albis" -- and a protologue uses
+# the plural at least as often as the singular. Listing only the dictionary form
+# would silently drop most real statements, which is why the endings are applied
+# to the stem here rather than trusted to a hand-written list.
+#
+# The endings are the closed set that occurs in descriptive text: nominative
+# singular and plural in all three genders, plus the ablative used in the
+# "floribus albis" construction. Endings that generate a non-word simply never
+# match, so over-generation costs nothing while under-generation loses evidence.
+latin_adjective_endings: [us, a, um, i, ae, o, is]
+
+latin_adjective_stems:
+  alb: white
+  albid: white
+  nive: white
+  lacte: white
+  eburne: white
+  flav: yellow_orange
+  lute: yellow_orange
+  aure: yellow_orange
+  aurantiac: yellow_orange
+  ochroleuc: yellow_orange
+  rubr: red_pink
+  coccine: red_pink
+  sanguine: red_pink
+  purpure: blue_purple
+  rose: red_pink
+  carne: red_pink
+  caerule: blue_purple
+  coerule: blue_purple
+  azure: blue_purple
+  violace: blue_purple
+  lilacin: blue_purple
+  fusc: green_brown_inconspicuous
+  brunne: green_brown_inconspicuous
+  viridul: green_brown_inconspicuous
+
+# Third-declension colour adjectives take a different closed set of endings.
+latin_third_declension_endings: [is, e, i, es, ia, ibus]
+
+latin_third_declension_stems:
+  virid: green_brown_inconspicuous
+
+# Everything else is enumerated literally: the modern languages, and the Latin
+# forms the stem rules cannot generate (ruber and the present participles).
+# Written folded -- lowercase, no diacritics, ss for eszett -- so "blanchatre"
+# matches "blanchâtre" and "weiss" matches "weiß".
+colour_terms:
+  # --- Latin irregulars and participles ---
+  ruber: red_pink
+  rubescens: red_pink
+  rubens: red_pink
+  flavescens: yellow_orange
+  lutescens: yellow_orange
+  virescens: green_brown_inconspicuous
+  albescens: white
+  purpurascens: blue_purple
+
+  # --- English ---
+  white: white
+  whitish: white
+  cream: white
+  creamy: white
+  ivory: white
+  yellow: yellow_orange
+  yellowish: yellow_orange
+  golden: yellow_orange
+  orange: yellow_orange
+  red: red_pink
+  reddish: red_pink
+  scarlet: red_pink
+  crimson: red_pink
+  pink: red_pink
+  pinkish: red_pink
+  magenta: red_pink
+  blue: blue_purple
+  bluish: blue_purple
+  purple: blue_purple
+  purplish: blue_purple
+  violet: blue_purple
+  lilac: blue_purple
+  lavender: blue_purple
+  mauve: blue_purple
+  green: green_brown_inconspicuous
+  greenish: green_brown_inconspicuous
+  brown: green_brown_inconspicuous
+  brownish: green_brown_inconspicuous
+  inconspicuous: green_brown_inconspicuous
+
+  # --- French ---
+  blanc: white
+  blanche: white
+  blancs: white
+  blanches: white
+  blanchatre: white
+  blanchatres: white
+  creme: white
+  ivoire: white
+  jaune: yellow_orange
+  jaunes: yellow_orange
+  jaunatre: yellow_orange
+  jaunatres: yellow_orange
+  dore: yellow_orange
+  doree: yellow_orange
+  dores: yellow_orange
+  dorees: yellow_orange
+  rouge: red_pink
+  rouges: red_pink
+  rougeatre: red_pink
+  rougeatres: red_pink
+  ecarlate: red_pink
+  ecarlates: red_pink
+  rosee: red_pink
+  rosees: red_pink
+  bleu: blue_purple
+  bleue: blue_purple
+  bleus: blue_purple
+  bleues: blue_purple
+  bleuatre: blue_purple
+  pourpre: blue_purple
+  pourpres: blue_purple
+  violette: blue_purple
+  violettes: blue_purple
+  lilas: blue_purple
+  vert: green_brown_inconspicuous
+  verte: green_brown_inconspicuous
+  verts: green_brown_inconspicuous
+  vertes: green_brown_inconspicuous
+  verdatre: green_brown_inconspicuous
+  verdatres: green_brown_inconspicuous
+  brun: green_brown_inconspicuous
+  brune: green_brown_inconspicuous
+  bruns: green_brown_inconspicuous
+  brunes: green_brown_inconspicuous
+  brunatre: green_brown_inconspicuous
+
+  # --- German ---
+  weiss: white
+  weisse: white
+  weisser: white
+  weisses: white
+  weisslich: white
+  weissliche: white
+  elfenbein: white
+  gelb: yellow_orange
+  gelbe: yellow_orange
+  gelber: yellow_orange
+  gelbes: yellow_orange
+  gelblich: yellow_orange
+  gelbliche: yellow_orange
+  rot: red_pink
+  rote: red_pink
+  roter: red_pink
+  rotes: red_pink
+  rotlich: red_pink
+  rotliche: red_pink
+  scharlach: red_pink
+  scharlachrot: red_pink
+  rosa: red_pink
+  rosarot: red_pink
+  blau: blue_purple
+  blaue: blue_purple
+  blauer: blue_purple
+  blaues: blue_purple
+  blaulich: blue_purple
+  violett: blue_purple
+  purpurn: blue_purple
+  lila: blue_purple
+  grun: green_brown_inconspicuous
+  grune: green_brown_inconspicuous
+  gruner: green_brown_inconspicuous
+  grunlich: green_brown_inconspicuous
+  braun: green_brown_inconspicuous
+  braune: green_brown_inconspicuous
+  brauner: green_brown_inconspicuous
+  braunlich: green_brown_inconspicuous
+
+  # --- Spanish ---
+  blanco: white
+  blanca: white
+  blancos: white
+  blancas: white
+  blanquecino: white
+  blanquecina: white
+  marfil: white
+  amarillo: yellow_orange
+  amarilla: yellow_orange
+  amarillos: yellow_orange
+  amarillas: yellow_orange
+  amarillento: yellow_orange
+  dorado: yellow_orange
+  dorada: yellow_orange
+  naranja: yellow_orange
+  rojo: red_pink
+  roja: red_pink
+  rojos: red_pink
+  rojas: red_pink
+  rojizo: red_pink
+  rojiza: red_pink
+  escarlata: red_pink
+  rosado: red_pink
+  rosada: red_pink
+  rosados: red_pink
+  azul: blue_purple
+  azules: blue_purple
+  azulado: blue_purple
+  azulada: blue_purple
+  violeta: blue_purple
+  purpura: blue_purple
+  morado: blue_purple
+  morada: blue_purple
+  verde: green_brown_inconspicuous
+  verdes: green_brown_inconspicuous
+  verdoso: green_brown_inconspicuous
+  verdosa: green_brown_inconspicuous
+  pardo: green_brown_inconspicuous
+  parda: green_brown_inconspicuous
+  marron: green_brown_inconspicuous
+
+# When a description names colours mapping to different ontology values --
+# "corolla alba demum rosea" -- the species is not given a single primary
+# colour. The row is retained as variable rather than resolved to the first hit.
+multiple_value_result: multicolored_variable
+
+# Every acquired record must carry these before it can become a candidate.
+# Missing any one of them rejects the row rather than downgrading it.
+required_lineage_fields:
+  - source_url
+  - source_citation
+  - license
+  - retrieval_date
+  - exact_supporting_quote

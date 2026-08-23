@@ -7,7 +7,7 @@
 |---|---|---|---|---|
 | 1 捨てた証拠の回収 | 不要 | 中 | 中立 | 実装済・実測済 |
 | 2 標本ラベル採掘 | bulk・無料 | **高** | **平坦化** | 実装済・CI 待ち |
-| 3 島嶼フロラ／原記載 | BHL 等 | **高** | **平坦化** | registry 宣言のみ |
+| 3 島嶼フロラ／原記載 | IPNI＋BHL | **高** | **平坦化** | 原記載は実装済・CI 待ち／島嶼フロラは許諾待ち |
 
 ## 1. 捨てた証拠の回収（実測済み）
 
@@ -60,30 +60,72 @@ WFO 棄却の 38.6% が別器官の値を全体花の値として読んだもの
 
 ## 3. 島嶼フロラと原記載
 
-`config/island_flora_sources.yml` に宣言のみ。**取得は有効化していない。**
+registry は `config/island_flora_sources.yml`。ここは**2レーンに分かれる**。
 
-テール 74,846種は定義上ほぼ島嶼固有種で、それを記載しているのは
-Flore de Madagascar、Flora Malesiana、Flora of Socotra といった地域島嶼フロラと、
-最狭域の種については**原記載**である。記録4件の種にとって、
-原記載が現存する唯一の花形態記載であることが多い。
+### 3a. 原記載（実装済み）
 
-registry は各ソースに access 種別を付け、許可された経路のみを列挙する：
-official API / official bulk export / BHL 経由の public domain スキャン / DwC-A。
-**robots.txt に反する crawl と無許可の portal scrape は明示的に禁止。**
+`island-v2-protologue-acquisition`。IPNI（書誌）→ BHL（スキャン）の2段。
+両方とも registry の `permitted_routes` にある official API なので、
+許諾確認待ちの島嶼フロラと違って有効化してよい経路。
+
+テール 74,846種は定義上ほぼ島嶼固有種で、記録4件の種にとって
+**原記載が現存する唯一の花形態記載であることが多い**。しかも
+「名前が有効発表されている以上、原記載は必ず存在する」という点で、
+文献の有無が種によってばらつく他のソースと性質が違う。
+
+凍結マスタからテールを切ると **83,119種**（n_islands ≤ 3、記録数中央値5）。
+
+実装上、他のテキスト採掘と決定的に違う点が3つある。
+
+**多言語は要件であって好みではない。** 原記載はラテン語・仏語・独語・西語が
+普通で、英語前提が失敗することは既に実測済み（WFO 棄却のうち自動回収可能な
+唯一の層 8.8% が非英語記載だった）。照合は fold したテキスト
+（小文字化・ダイアクリティカル除去・ß→ss）に対して行う。
+
+**ラテン語は語形を展開する。** 形容詞は名詞に一致するので、実際に出る語形は
+文が決める — `corolla alba` だが `flores albi` だが `floribus albis`。
+原記載は複数形を辞書形と同じくらい使うので、辞書形だけ列挙すると
+大半を取りこぼす。よって語幹に閉じた語尾集合を適用する
+（161個の literal → 335語形）。実際これはテストで捕まった欠陥で、
+最初は `lutei` も `rubri` も引けていなかった。
+
+**文境界を越えない。** 器官探索を文（`.` `;` 改行区切り）の内側に閉じる。
+`Folia coriacea, subtus fusca. Flores albi.` で「fusca」から見ると
+自分の `Folia` より次の文の `Flores` の方が近く、境界がないと
+**葉の褐色が花色に混入する**。これも実装中に実データ形のサンプルで発覚した。
+WFO 棄却の 38.6% がまさにこの器官取り違えである。
+
+保守側に倒す設計なので、既知の取りこぼしがある。
+`Corolla alba demum rosea, calyce viridi` は `rosea` が `corolla` より
+`calyce` に近いため落ち、`white` だけが残る。誤った帰属を作るより
+ニュアンスを失う方を選んでおり、テストで意図として固定してある。
+
+著作権は二重ゲート。BHL が public domain と宣言し、かつ刊行年が 1928 年以前。
+**保護期間内のものは skip であって scrape ではない。**
+lineage 5項目（source_url / source_citation / license / retrieval_date /
+exact_supporting_quote）を欠く行は降格ではなく棄却。
+
+### 3b. 島嶼フロラ（未着手・許諾待ち）
+
+Flore de Madagascar、Flora Malesiana、Flora of Socotra など。
+registry に access 種別を付けてあるが、多くが `needs_review`。
+**各ソースの許諾確認が先**で、こちらでは一切取得していない。
+robots.txt に反する crawl と無許可の portal scrape は明示的に禁止。
 WFO portal は禁止済みとして記録し、再発見されないようにしてある。
-
-原記載は IPNI（書誌）→ BHL（スキャン）の2段。ラテン語・仏語・独語が普通なので、
-抽出は 1 の多言語語彙を再利用する。英語前提にすると、
-WFO で回収可能分を捨てたのと同じ失敗を繰り返す。
 
 ## 実行
 
 ```bash
 # 2（GBIF download 認証が要る。workflow から dispatch）
 island-v2-gbif-label-mining run --occurrences-csv <occ.csv> --output-dir <out>
+
+# 3a（BHL_API_KEY が要る。workflow から dispatch）
+island-v2-protologue-acquisition queue --output-csv <queue.csv>
+island-v2-protologue-acquisition run --queue-csv <queue.csv> --output-dir <out>
 ```
 
-CI: `mine-gbif-specimen-labels.yml`（validate は PR ごと、mine は dispatch）。
+CI: `mine-gbif-specimen-labels.yml`、`acquire-protologue-traits.yml`
+（いずれも validate は PR ごと、取得は dispatch）。
 
 1 の測定を再現するには正準の bulk-recovery 実装が要る。
 
@@ -92,5 +134,10 @@ CI: `mine-gbif-specimen-labels.yml`（validate は PR ごと、mine は dispatch
 - 1 の解決収量（1,753キーのうち何件が island master に着地するか）は
   GBIF API が要るため CI 実行待ち。作成環境からは到達できない。
 - 2 のラベル記載ヒット率は未知。パイロットで測る。
-- 3 は access 欄が `needs_review` のものが多い。**各ソースの許諾確認が先**で、
+- 3a のヒット率は未知。`BHL_API_KEY` が未設定なので一度も走っていない。
+  効かない側の見込みも書いておく：BHL に該当ページのスキャンが無い、
+  OCR が古い植物ラテン語で崩れる、citation の page が BHL の
+  `PageNumbers` と一致しない、のいずれかで大半が落ちる可能性がある。
+  まず `--limit 500` のパイロットで棄却理由の内訳を見るべき。
+- 3b は access 欄が `needs_review` のものが多い。**各ソースの許諾確認が先**で、
   こちらでは一切取得していない。

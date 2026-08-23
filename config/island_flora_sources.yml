@@ -98,6 +98,14 @@ protologue_route:
   extraction:
     multilingual_vocabulary: required
     default_review_status: unreviewed
+  # Implemented. src/island_v2/protologue_trait_acquisition.py walks this route
+  # and nothing else: IPNI for the citation, BHL for a public-domain scan, no
+  # crawling. Copyright is a double gate -- BHL must declare the item public
+  # domain and the year must be at or before the cutoff -- and an item still in
+  # copyright is skipped, never scraped.
+  implementation: src/island_v2/protologue_trait_acquisition.py
+  config: config/protologue_acquisition.yml
+  status: implemented_awaiting_bhl_api_key
 
 # Known prohibitions, recorded so they are not rediscovered by trial.
 blocked_providers:
