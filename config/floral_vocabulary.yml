@@ -1,0 +1,760 @@
+version: "1.0"
+
+# The floral colour vocabulary and organ discipline, shared by every acquisition
+# lane.
+#
+# This file exists because the rules below are only worth anything if the lanes
+# agree on them. Protologue mining and specimen-label mining feed the same
+# candidate ledger and the same reviewer, so a colour word that is evidence in
+# one lane and invisible in the other is not two policies -- it is one policy
+# applied inconsistently. That is not hypothetical: the label lane was written
+# with thirty English colour words and no boundary guard while the protologue
+# lane grew to 255 terms across nine languages, and the two drifted until the
+# same sentence produced different answers.
+#
+# Two constraints shape everything here.
+#
+# 1. Multilingual by requirement, not preference. In the WFO rejection ledger
+#    the one automatically recoverable slice (8.8%) was non-English statements
+#    that English-only rules had failed to bind, and a third of the first frozen
+#    review ledger was Japanese sources an English-and-Latin vocabulary read as
+#    having no colour at all.
+#
+# 2. Organ attachment, for the same measured reason: 38.6% of WFO rejections
+#    were a style, calyx or fruit value being read as a whole-flower value. A
+#    statement reading "fructus ruber" is not flower colour, on a printed page
+#    or on a collector's label.
+#
+# What is deliberately NOT here: how wide the organ window is, and what voids a
+# statement. Both are lane-specific and stay in the lane's own config.
+# Protologue prose needs a wider window than a label written in the field, and a
+# collector's "sterile" means there was nothing to observe while a protologue's
+# "flores steriles" is a description of the floret.
+
+# Matching is on folded text -- lowercased, diacritics stripped, ss for eszett,
+# Japanese voicing marks preserved -- and every term is matched at word
+# boundaries where its script has them. Boundaries are not optional: substring
+# matching reads "rotundifolia" as German "rot", "albacea" as Latin "alba" and
+# "reduced" as English "red". Japanese and Chinese need the opposite, because
+# those scripts do not separate words at all.
+#
+# Terms are enumerated in full rather than stemmed, except in Latin, which
+# inflects in a small closed set of endings.
+
+floral_organ_terms:
+  # English
+  - flower
+  - flowers
+  - corolla
+  - corollas
+  - perianth
+  - petal
+  - petals
+  - tepal
+  - tepals
+  - inflorescence
+  - blossom
+  - blossoms
+  - bloom
+  - blooms
+  - floret
+  - florets
+  - flower's
+  # Latin
+  - flos
+  - flores
+  - floris
+  - florum
+  - floribus
+  - corollae
+  - corollam
+  - corolla
+  - perianthium
+  - perianthii
+  - petalum
+  - petala
+  - petalis
+  - tepalum
+  - tepala
+  - inflorescentia
+  - inflorescentiae
+  - limbus
+  - limbo
+  - limbi
+  # French
+  - fleur
+  - fleurs
+  - corolle
+  - corolles
+  - petale
+  - petales
+  - perianthe
+  - inflorescence
+  - inflorescences
+  # German
+  - blute
+  - bluten
+  - blume
+  - blumen
+  - blumenkrone
+  - blutenblatt
+  - blutenblatter
+  - blutenstand
+  - krone
+  # Spanish
+  - flor
+  - flores
+  - corola
+  - corolas
+  - petalo
+  - petalos
+  - perianto
+  - inflorescencia
+  # Portuguese
+  - flor
+  - flores
+  - corola
+  - corolas
+  - petala
+  - petalas
+  - perianto
+  - inflorescencia
+  - inflorescencias
+  # Russian. Folding decomposes Cyrillic, so й becomes и and ё becomes е;
+  # these are written in the form matching will actually see.
+  - cvetok
+  - цветок
+  - цветка
+  - цветки
+  - цветков
+  - цветы
+  - венчик
+  - венчика
+  - лепесток
+  - лепестки
+  - лепестков
+  - околоцветник
+  - соцветие
+  - соцветия
+  # Japanese and Chinese. Han forms are shared; kana and the simplified and
+  # traditional variants are listed where they diverge.
+  - 花
+  - 花冠
+  - 花弁
+  - 花瓣
+  - 花被
+  - 小花
+  - 花序
+  - はな
+  # Collectors' abbreviations. The period is handled in segmentation, so the
+  # terms themselves are bare.
+  - fl
+  - fls
+  - infl
+  - infls
+
+# Organs whose colour must never become flower colour. Checked first: when the
+# nearest organ word is one of these the row is rejected outright, and a tie in
+# distance resolves to the competing organ.
+competing_organ_terms:
+  # English
+  - fruit
+  - fruits
+  - berry
+  - berries
+  - seed
+  - seeds
+  - leaf
+  - leaves
+  - foliage
+  - stem
+  - stems
+  - bark
+  - root
+  - roots
+  - bract
+  - bracts
+  - calyx
+  - sepal
+  - sepals
+  - capsule
+  - pod
+  # Collectors' abbreviation for "fruit", bare for the same reason.
+  - fr
+  - frs
+  - anther
+  - anthers
+  - filament
+  - style
+  - stigma
+  - ovary
+  - capsule
+  # Latin
+  - fructus
+  - fructu
+  - bacca
+  - baccae
+  - semen
+  - semina
+  - seminibus
+  - folium
+  - folia
+  - foliis
+  - foliorum
+  - caulis
+  - caule
+  - cortex
+  - radix
+  - radice
+  - bractea
+  - bracteae
+  - calyx
+  - calycis
+  - calyce
+  - sepalum
+  - sepala
+  - anthera
+  - antherae
+  - filamentum
+  - stylus
+  - stylo
+  - stigma
+  - stigmate
+  - ovarium
+  - ovario
+  - capsula
+  - capsulae
+  # French
+  - feuille
+  - feuilles
+  - graine
+  - graines
+  - tige
+  - tiges
+  - ecorce
+  - racine
+  - racines
+  - bractee
+  - bractees
+  - calice
+  - sepale
+  - sepales
+  - anthere
+  - antheres
+  - stigmate
+  - ovaire
+  # German
+  - frucht
+  - fruchte
+  - beere
+  - beeren
+  - samen
+  - blatt
+  - blatter
+  - stengel
+  - stangel
+  - rinde
+  - wurzel
+  - hochblatt
+  - kelch
+  - kelchblatt
+  - staubbeutel
+  - griffel
+  - narbe
+  - fruchtknoten
+  - kapsel
+  # Spanish
+  - fruto
+  - frutos
+  - baya
+  - semilla
+  - semillas
+  - hoja
+  - hojas
+  - tallo
+  - corteza
+  - raiz
+  - bractea
+  - bracteas
+  - caliz
+  - sepalo
+  - sepalos
+  - antera
+  - anteras
+  - estilo
+  - estigma
+  - ovario
+  - capsula
+  # Portuguese
+  - fruta
+  - frutas
+  - folha
+  - folhas
+  - semente
+  - sementes
+  - caule
+  - casca
+  - raiz
+  - raizes
+  - bractea
+  - calice
+  - sepala
+  - sepalas
+  - antera
+  - estilete
+  - estigma
+  - ovario
+  - capsula
+  # Russian (folded: й -> и, ё -> е)
+  - плод
+  - плода
+  - плоды
+  - ягода
+  - семя
+  - семена
+  - лист
+  - листа
+  - листья
+  - листьев
+  - стебель
+  - стебля
+  - кора
+  - корень
+  - корни
+  - прицветник
+  - чашечка
+  - чашелистик
+  - пыльник
+  - пыльники
+  - столбик
+  - рыльце
+  - завязь
+  - коробочка
+  # Japanese and Chinese
+  - 果実
+  - 果实
+  - 果實
+  - 果
+  - 液果
+  - 種子
+  - 种子
+  - 葉
+  - 叶
+  - 茎
+  - 樹皮
+  - 树皮
+  - 根
+  - 苞
+  - 萼
+  - 萼片
+  - 葯
+  - 花糸
+  - 花柱
+  - 柱頭
+  - 柱头
+  - 子房
+  - 蒴果
+
+latin_adjective_endings: [us, a, um, i, ae, o, is]
+
+latin_adjective_stems:
+  alb: white
+  albid: white
+  nive: white
+  lacte: white
+  eburne: white
+  flav: yellow_orange
+  lute: yellow_orange
+  aure: yellow_orange
+  aurantiac: yellow_orange
+  ochroleuc: yellow_orange
+  rubr: red_pink
+  coccine: red_pink
+  sanguine: red_pink
+  purpure: blue_purple
+  rose: red_pink
+  carne: red_pink
+  caerule: blue_purple
+  coerule: blue_purple
+  azure: blue_purple
+  violace: blue_purple
+  lilacin: blue_purple
+  fusc: green_brown_inconspicuous
+  brunne: green_brown_inconspicuous
+  viridul: green_brown_inconspicuous
+
+# Third-declension colour adjectives take a different closed set of endings.
+latin_third_declension_endings: [is, e, i, es, ia, ibus]
+
+latin_third_declension_stems:
+  virid: green_brown_inconspicuous
+
+# Everything else is enumerated literally: the modern languages, and the Latin
+# forms the stem rules cannot generate (ruber and the present participles).
+# Written folded -- lowercase, no diacritics, ss for eszett -- so "blanchatre"
+# matches "blanchâtre" and "weiss" matches "weiß".
+colour_terms:
+  # --- Latin irregulars and participles ---
+  ruber: red_pink
+  rubescens: red_pink
+  rubens: red_pink
+  flavescens: yellow_orange
+  lutescens: yellow_orange
+  virescens: green_brown_inconspicuous
+  albescens: white
+  purpurascens: blue_purple
+
+  # --- English ---
+  white: white
+  whitish: white
+  cream: white
+  creamy: white
+  ivory: white
+  yellow: yellow_orange
+  yellowish: yellow_orange
+  golden: yellow_orange
+  orange: yellow_orange
+  red: red_pink
+  reddish: red_pink
+  scarlet: red_pink
+  crimson: red_pink
+  pink: red_pink
+  pinkish: red_pink
+  magenta: red_pink
+  # Also French and Portuguese for pink, and the Latin ablative the stem
+  # rule cannot generate.
+  rose: red_pink
+  blue: blue_purple
+  bluish: blue_purple
+  purple: blue_purple
+  purplish: blue_purple
+  violet: blue_purple
+  lilac: blue_purple
+  lavender: blue_purple
+  mauve: blue_purple
+  green: green_brown_inconspicuous
+  greenish: green_brown_inconspicuous
+  brown: green_brown_inconspicuous
+  brownish: green_brown_inconspicuous
+  inconspicuous: green_brown_inconspicuous
+
+  # --- French ---
+  blanc: white
+  blanche: white
+  blancs: white
+  blanches: white
+  blanchatre: white
+  blanchatres: white
+  creme: white
+  ivoire: white
+  jaune: yellow_orange
+  jaunes: yellow_orange
+  jaunatre: yellow_orange
+  jaunatres: yellow_orange
+  dore: yellow_orange
+  doree: yellow_orange
+  dores: yellow_orange
+  dorees: yellow_orange
+  rouge: red_pink
+  rouges: red_pink
+  rougeatre: red_pink
+  rougeatres: red_pink
+  ecarlate: red_pink
+  ecarlates: red_pink
+  rosee: red_pink
+  rosees: red_pink
+  bleu: blue_purple
+  bleue: blue_purple
+  bleus: blue_purple
+  bleues: blue_purple
+  bleuatre: blue_purple
+  pourpre: blue_purple
+  pourpres: blue_purple
+  violette: blue_purple
+  violettes: blue_purple
+  lilas: blue_purple
+  vert: green_brown_inconspicuous
+  verte: green_brown_inconspicuous
+  verts: green_brown_inconspicuous
+  vertes: green_brown_inconspicuous
+  verdatre: green_brown_inconspicuous
+  verdatres: green_brown_inconspicuous
+  brun: green_brown_inconspicuous
+  brune: green_brown_inconspicuous
+  bruns: green_brown_inconspicuous
+  brunes: green_brown_inconspicuous
+  brunatre: green_brown_inconspicuous
+
+  # --- German ---
+  weiss: white
+  weisse: white
+  weisser: white
+  weisses: white
+  weisslich: white
+  weissliche: white
+  elfenbein: white
+  gelb: yellow_orange
+  gelbe: yellow_orange
+  gelber: yellow_orange
+  gelbes: yellow_orange
+  gelblich: yellow_orange
+  gelbliche: yellow_orange
+  rot: red_pink
+  rote: red_pink
+  roter: red_pink
+  rotes: red_pink
+  rotlich: red_pink
+  rotliche: red_pink
+  scharlach: red_pink
+  scharlachrot: red_pink
+  rosa: red_pink
+  rosarot: red_pink
+  blau: blue_purple
+  blaue: blue_purple
+  blauer: blue_purple
+  blaues: blue_purple
+  blaulich: blue_purple
+  violett: blue_purple
+  purpurn: blue_purple
+  lila: blue_purple
+  grun: green_brown_inconspicuous
+  grune: green_brown_inconspicuous
+  gruner: green_brown_inconspicuous
+  grunlich: green_brown_inconspicuous
+  braun: green_brown_inconspicuous
+  braune: green_brown_inconspicuous
+  brauner: green_brown_inconspicuous
+  braunlich: green_brown_inconspicuous
+
+  # --- Spanish ---
+  blanco: white
+  blanca: white
+  blancos: white
+  blancas: white
+  blanquecino: white
+  blanquecina: white
+  marfil: white
+  amarillo: yellow_orange
+  amarilla: yellow_orange
+  amarillos: yellow_orange
+  amarillas: yellow_orange
+  amarillento: yellow_orange
+  dorado: yellow_orange
+  dorada: yellow_orange
+  naranja: yellow_orange
+  rojo: red_pink
+  roja: red_pink
+  rojos: red_pink
+  rojas: red_pink
+  rojizo: red_pink
+  rojiza: red_pink
+  escarlata: red_pink
+  rosado: red_pink
+  rosada: red_pink
+  rosados: red_pink
+  azul: blue_purple
+  azules: blue_purple
+  azulado: blue_purple
+  azulada: blue_purple
+  violeta: blue_purple
+  purpura: blue_purple
+  morado: blue_purple
+  morada: blue_purple
+  verde: green_brown_inconspicuous
+  verdes: green_brown_inconspicuous
+  verdoso: green_brown_inconspicuous
+  verdosa: green_brown_inconspicuous
+  pardo: green_brown_inconspicuous
+  parda: green_brown_inconspicuous
+  marron: green_brown_inconspicuous
+
+  # --- Portuguese ---
+  branco: white
+  branca: white
+  brancos: white
+  brancas: white
+  esbranquicado: white
+  creme: white
+  amarelo: yellow_orange
+  amarela: yellow_orange
+  amarelos: yellow_orange
+  amarelas: yellow_orange
+  amarelado: yellow_orange
+  dourado: yellow_orange
+  laranja: yellow_orange
+  vermelho: red_pink
+  vermelha: red_pink
+  vermelhos: red_pink
+  vermelhas: red_pink
+  avermelhado: red_pink
+  escarlate: red_pink
+  rosado: red_pink
+  rosada: red_pink
+  azul: blue_purple
+  azuis: blue_purple
+  azulado: blue_purple
+  roxo: blue_purple
+  roxa: blue_purple
+  violeta: blue_purple
+  lilas: blue_purple
+  verde: green_brown_inconspicuous
+  verdes: green_brown_inconspicuous
+  esverdeado: green_brown_inconspicuous
+  castanho: green_brown_inconspicuous
+  castanha: green_brown_inconspicuous
+  pardo: green_brown_inconspicuous
+
+  # --- Russian (folded: й -> и, ё -> е) ---
+  белыи: white
+  белая: white
+  белые: white
+  беловатыи: white
+  кремовыи: white
+  желтыи: yellow_orange
+  желтая: yellow_orange
+  желтые: yellow_orange
+  желтоватыи: yellow_orange
+  золотистыи: yellow_orange
+  оранжевыи: yellow_orange
+  красныи: red_pink
+  красная: red_pink
+  красные: red_pink
+  красноватыи: red_pink
+  алыи: red_pink
+  розовыи: red_pink
+  розовая: red_pink
+  розовые: red_pink
+  синии: blue_purple
+  синяя: blue_purple
+  синие: blue_purple
+  голубои: blue_purple
+  голубая: blue_purple
+  фиолетовыи: blue_purple
+  фиолетовая: blue_purple
+  пурпурныи: blue_purple
+  лиловыи: blue_purple
+  сиреневыи: blue_purple
+  зеленыи: green_brown_inconspicuous
+  зеленая: green_brown_inconspicuous
+  зеленые: green_brown_inconspicuous
+  зеленоватыи: green_brown_inconspicuous
+  бурыи: green_brown_inconspicuous
+  коричневыи: green_brown_inconspicuous
+
+  # --- Japanese and Chinese ---
+  # Longest-first matching makes the compound forms win over their parts, so
+  # 淡黄色 resolves before 黄色 and 黄. Kana spellings are listed where a source
+  # is likely to use them instead of the character.
+  白色: white
+  白: white
+  淡白色: white
+  乳白色: white
+  クリーム色: white
+  黄色: yellow_orange
+  淡黄色: yellow_orange
+  黄白色: white
+  黄: yellow_orange
+  黄金色: yellow_orange
+  橙色: yellow_orange
+  オレンジ色: yellow_orange
+  赤色: red_pink
+  赤: red_pink
+  紅色: red_pink
+  紅: red_pink
+  淡紅色: red_pink
+  桃色: red_pink
+  ピンク色: red_pink
+  ピンク: red_pink
+  深紅色: red_pink
+  青色: blue_purple
+  青: blue_purple
+  藍色: blue_purple
+  紫色: blue_purple
+  紫: blue_purple
+  淡紫色: blue_purple
+  青紫色: blue_purple
+  すみれ色: blue_purple
+  緑色: green_brown_inconspicuous
+  绿色: green_brown_inconspicuous
+  緑: green_brown_inconspicuous
+  淡緑色: green_brown_inconspicuous
+  褐色: green_brown_inconspicuous
+  茶色: green_brown_inconspicuous
+
+# When a description names colours mapping to different ontology values --
+# "corolla alba demum rosea" -- the species is not given a single primary
+# colour. The row is retained as variable rather than resolved to the first hit.
+multiple_value_result: multicolored_variable
+
+# The plain / non-plain line the analysis actually models. Declared here rather
+# than imported so acquisition stays free of the analysis dependency chain; a
+# test asserts it still equals the definition in status_category_decomposition.
+plain_colour_values:
+  - white
+  - green_brown_inconspicuous
+
+# Several ontology values written as one hue -- "pale reddish purple" -- is not
+# the same claim as a corolla that changes colour, so it gets its own value. The
+# reviewer's frozen call on exactly that phrase was that the five-value ontology
+# cannot decide it while the binary plain/non-plain class can.
+compound_hue_result: ontology_unresolved
+
+# Words that may sit between two colour words without separating them. English
+# puts its intensity word in front ("pale reddish purple") but Japanese puts it
+# between (紫がかった濃いピンク色 -- "deep pink with a purple tinge"), so the gap
+# rule needs them or it reads one hue as a corolla that changes colour.
+#
+# A bare range marker is deliberately absent. "Corolla white shading to pink" is
+# one gradient, but "corolla white to pink" is a population that produces both,
+# which is variability and not a hue the ontology merely cannot name. Listing
+# "to" on its own would collapse the second onto the first.
+compound_gap_terms:
+  - pale
+  - light
+  - dark
+  - deep
+  - bright
+  - dull
+  - tinged
+  - shading to
+  - suffused with
+  - がかった
+  - がかつた
+  - をおびた
+  - を帯びた
+  - っぽい
+  - つぽい
+  - みの
+  - 濃い
+  - 淡い
+  - 薄い
+  - やや
+
+# Periods that abbreviate rather than end a sentence. "fl. pink" is one floral
+# statement; split on that period the colour has no organ in its segment.
+#
+# The list is dominated by collectors' shorthand because a specimen label is
+# written almost entirely in it, but nothing here is label-only: a protologue
+# carrying "det." or "infl." wants the same treatment, and an abbreviation that
+# never appears simply never masks anything.
+abbreviations:
+  - fl
+  - fls
+  - fr
+  - frs
+  - infl
+  - infls
+  - var
+  - subsp
+  - ssp
+  - cf
+  - aff
+  - sp
+  - det
+  - leg
+  - coll
+  - alt
+  - ca
+  - herb
+  - hb
+  - "no"

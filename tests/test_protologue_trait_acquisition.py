@@ -32,6 +32,30 @@ def test_diacritics_do_not_shift_offsets():
     assert origin == list(range(len("corolle blanchâtre")))
 
 
+def test_japanese_voicing_survives_folding():
+    """Dakuten is not an accent, so stripping it is not folding but corruption.
+
+    Discarding the mark the way an acute is discarded turns ピンク into ヒンク and
+    collapses ハラ, バラ and パラ onto one form. Nothing was mis-valued by it --
+    the mangled terms still matched each other -- but the audit ledger recorded
+    `matched_terms` that do not appear on the page the reviewer is reading, and
+    any future kana pair separated only by voicing would silently merge.
+    """
+    for text in ("ピンク色", "オレンジ色", "バラ", "パラ", "ハラ"):
+        assert protologue.fold(text)[0] == text
+
+    # Halfwidth kana, which is how a good deal of scanned Japanese arrives,
+    # folds onto the precomposed form rather than staying a separate spelling.
+    assert protologue.fold("ﾋﾟﾝｸ")[0] == "ピンク"
+
+
+def test_the_matched_terms_appear_in_the_quote_they_came_from():
+    outcome, _, matched, quote = _extract("花はピンク色")
+    assert outcome == protologue.ACCEPTED
+    for term in matched.split("+"):
+        assert term in quote, (term, quote)
+
+
 # --- multilingual extraction --------------------------------------------
 
 
@@ -527,6 +551,9 @@ def test_a_range_marker_still_means_genuine_variability():
     for description in (
         "Corolla alba demum rosea.",
         "Perianth greenish yellow or yellowish green",
+        # A bare "to" is a range across a population, not a gradient on one
+        # flower: "white shading to pink" is one hue, "white to pink" is two.
+        "Corolla white to pink.",
     ):
         outcome, value, _, _ = _extract(description)
         assert outcome == protologue.ACCEPTED

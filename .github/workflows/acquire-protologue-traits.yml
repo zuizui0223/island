@@ -9,9 +9,12 @@ on:
     paths:
       - ".github/workflows/acquire-protologue-traits.yml"
       - "config/protologue_acquisition.yml"
+      - "config/floral_vocabulary.yml"
       - "config/island_flora_sources.yml"
       - "src/island_v2/protologue_trait_acquisition.py"
+      - "src/island_v2/floral_text_matching.py"
       - "tests/test_protologue_trait_acquisition.py"
+      - "tests/test_floral_text_matching.py"
   workflow_dispatch:
     inputs:
       target_mode:
@@ -55,8 +58,16 @@ jobs:
         run: |
           ruff check \
             src/island_v2/protologue_trait_acquisition.py \
-            tests/test_protologue_trait_acquisition.py
-          pytest -q tests/test_protologue_trait_acquisition.py
+            src/island_v2/floral_text_matching.py \
+            tests/test_protologue_trait_acquisition.py \
+            tests/test_floral_text_matching.py
+          # The label suite is the regression guard for the shared matching
+          # core, so a change here that breaks the other lane fails on this
+          # pull request rather than on that one.
+          pytest -q \
+            tests/test_protologue_trait_acquisition.py \
+            tests/test_floral_text_matching.py \
+            tests/test_gbif_label_trait_mining.py
 
   acquire:
     if: github.event_name == 'workflow_dispatch'

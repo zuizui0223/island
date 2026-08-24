@@ -12,8 +12,11 @@ on:
     paths:
       - ".github/workflows/mine-gbif-specimen-labels.yml"
       - "config/gbif_label_mining.yml"
+      - "config/floral_vocabulary.yml"
       - "src/island_v2/gbif_label_trait_mining.py"
+      - "src/island_v2/floral_text_matching.py"
       - "tests/test_gbif_label_trait_mining.py"
+      - "tests/test_floral_text_matching.py"
   workflow_dispatch:
     inputs:
       target_mode:
@@ -57,8 +60,16 @@ jobs:
         run: |
           ruff check \
             src/island_v2/gbif_label_trait_mining.py \
-            tests/test_gbif_label_trait_mining.py
-          pytest -q tests/test_gbif_label_trait_mining.py
+            src/island_v2/floral_text_matching.py \
+            tests/test_gbif_label_trait_mining.py \
+            tests/test_floral_text_matching.py
+          # The protologue suite is the regression guard for the shared
+          # matching core, so a change here that breaks the other lane
+          # fails on this pull request rather than on that one.
+          pytest -q \
+            tests/test_gbif_label_trait_mining.py \
+            tests/test_floral_text_matching.py \
+            tests/test_protologue_trait_acquisition.py
 
   mine:
     if: github.event_name == 'workflow_dispatch'

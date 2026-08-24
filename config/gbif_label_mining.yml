@@ -1,5 +1,10 @@
 version: "1.0"
 
+# The colour vocabulary, organ terms and ontology rules are shared with the
+# protologue lane, so the two cannot read the same sentence differently.
+# Keys declared below override the inherited ones.
+extends: floral_vocabulary.yml
+
 # Mining floral traits from herbarium specimen label text.
 #
 # Why this source exists: the unresolved tail of the master is island endemics
@@ -40,57 +45,6 @@ required_taxon_rank: SPECIES
 # leaves or stem.
 organ_proximity_chars: 40
 
-floral_organ_terms:
-  - flower
-  - flowers
-  - flower's
-  - fl.
-  - floret
-  - florets
-  - corolla
-  - corollas
-  - perianth
-  - petal
-  - petals
-  - tepal
-  - tepals
-  - inflorescence
-  - blossom
-  - blossoms
-  - bloom
-  - blooms
-
-# Organs whose colour must never become flower colour. Checked first: if the
-# nearest organ word is one of these, the row is rejected outright.
-competing_organ_terms:
-  - fruit
-  - fruits
-  - berry
-  - berries
-  - seed
-  - seeds
-  - leaf
-  - leaves
-  - foliage
-  - stem
-  - stems
-  - bark
-  - root
-  - roots
-  - bract
-  - bracts
-  - calyx
-  - sepal
-  - sepals
-  - anther
-  - anthers
-  - filament
-  - style
-  - stigma
-  - ovary
-  - capsule
-  - pod
-
 # Phrases that void a statement. A collector writing "flowers not seen" is
 # telling us there is no observation, which is not the same as no colour.
 negation_markers:
@@ -104,46 +58,6 @@ negation_markers:
   - "immature"
   - "past flowering"
   - "?"
-
-# Raw colour words mapped onto the trait ontology values for
-# flower_primary_color. Kept deliberately small and literal: a label is a few
-# words written in the field, not a description to be interpreted.
-colour_terms:
-  white: white
-  whitish: white
-  cream: white
-  creamy: white
-  ivory: white
-  yellow: yellow_orange
-  yellowish: yellow_orange
-  golden: yellow_orange
-  orange: yellow_orange
-  red: red_pink
-  reddish: red_pink
-  scarlet: red_pink
-  crimson: red_pink
-  pink: red_pink
-  pinkish: red_pink
-  magenta: red_pink
-  rose: red_pink
-  blue: blue_purple
-  bluish: blue_purple
-  purple: blue_purple
-  purplish: blue_purple
-  violet: blue_purple
-  lilac: blue_purple
-  lavender: blue_purple
-  mauve: blue_purple
-  green: green_brown_inconspicuous
-  greenish: green_brown_inconspicuous
-  brown: green_brown_inconspicuous
-  brownish: green_brown_inconspicuous
-  inconspicuous: green_brown_inconspicuous
-
-# When a label names colours that map to different ontology values -- "flowers
-# white to pink" -- the species is not given a single primary colour. The row is
-# retained as variable rather than resolved arbitrarily to the first term.
-multiple_value_result: multicolored_variable
 
 # Independence. One collector, one day, one population is one observation
 # however many duplicate sheets were distributed to herbaria. Deduplicate on

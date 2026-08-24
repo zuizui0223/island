@@ -10,13 +10,20 @@ colour is the character a dried sheet loses.
 That makes label text the one broad source that reaches the tail, and it is
 species-direct by construction: the label belongs to a determined specimen.
 
-The extraction is deliberately literal. A label is a handful of words written in
-the field, not prose to be interpreted, so this module anchors every colour word
-to a floral organ within a short window, rejects the row outright when the
-nearest organ is a fruit or a leaf, and voids statements a collector negated.
-That discipline is not theoretical: in the WFO rejection ledger 38.6% of
-rejected candidates were a style, calyx or petal measurement being read as a
-whole-flower value.
+The matching itself is not this module's. It lives in ``floral_text_matching``
+and is shared with the protologue lane, because both lanes feed the same
+candidate ledger and the same reviewer, and a rule applied in one and not the
+other is not two policies but one policy applied inconsistently. Written on its
+own this module had two measured defects the shared rules do not have: it read
+"Flowers on reduced peduncles" as red, matching inside "reduced", and it read
+"Leaves coriaceous, beneath brown. Flowers seen." as brown, a leaf clause
+reaching across a full stop. Both produced a populated cell a reviewer would
+read as an observation, which is worse than producing nothing.
+
+What stays here is what is genuinely specific to a specimen label: which
+occurrence fields carry label text, which basis-of-record counts as vouchered,
+what a collector's shorthand voids, and the fact that a gathering split across
+four herbaria is one observation and not four.
 
 Output is a candidate ledger with the verbatim label quote retained. Nothing is
 promoted to accepted evidence here.
@@ -30,7 +37,18 @@ from typing import Any
 
 import pandas as pd
 import typer
-import yaml
+
+from island_v2 import floral_text_matching as matching
+
+# Outcome names shared with the protologue lane, imported rather than restated
+# so a ledger holding rows from both can be read with one vocabulary.
+from island_v2.floral_text_matching import (
+    ACCEPTED,
+    REJECT_COMPETING,
+    REJECT_NEGATED,
+    REJECT_NO_COLOUR,
+    REJECT_NO_ORGAN,
+)
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
@@ -38,15 +56,25 @@ TRAIT_NAME = "flower_primary_color"
 EVIDENCE_SCOPE = "species_direct"
 SOURCE_TYPE = "herbarium_specimen_label"
 
+# A record with no label text is a distinct failure from one whose label was
+# read and simply says nothing about colour, so it keeps its own name.
 REJECT_NO_LABEL = "no_label_text"
 REJECT_BASIS = "basis_of_record_not_vouchered"
 REJECT_RANK = "not_determined_to_species"
 REJECT_OFF_MASTER = "species_not_in_island_master"
-REJECT_NEGATED = "statement_negated_or_uncertain"
-REJECT_NO_COLOUR = "no_colour_term"
-REJECT_NO_ORGAN = "colour_not_anchored_to_floral_organ"
-REJECT_COMPETING = "colour_belongs_to_non_floral_organ"
-ACCEPTED = "candidate"
+
+__all__ = [
+    "ACCEPTED",
+    "REJECT_BASIS",
+    "REJECT_COMPETING",
+    "REJECT_NEGATED",
+    "REJECT_NO_COLOUR",
+    "REJECT_NO_LABEL",
+    "REJECT_NO_ORGAN",
+    "REJECT_OFF_MASTER",
+    "REJECT_RANK",
+    "app",
+]
 
 
 @app.callback()
@@ -55,8 +83,7 @@ def main() -> None:
 
 
 def load_config(path: Path) -> dict[str, Any]:
-    """Load and minimally validate the versioned label-mining configuration."""
-    config = yaml.safe_load(path.read_text(encoding="utf-8"))
+    """Load the label-mining configuration and the vocabulary it inherits."""
     required = {
         "label_fields",
         "accepted_basis_of_record",
@@ -65,10 +92,9 @@ def load_config(path: Path) -> dict[str, Any]:
         "colour_terms",
         "negation_markers",
         "organ_proximity_chars",
+        "plain_colour_values",
     }
-    if not isinstance(config, dict) or not required.issubset(config):
-        raise typer.BadParameter(f"config must contain {sorted(required)}")
-    return config
+    return matching.load_config(path, required)
 
 
 def _text(value: object) -> str:
@@ -83,89 +109,28 @@ def join_label_text(row: pd.Series, fields: list[str]) -> str:
     return " ".join(part for part in parts if part)
 
 
-def _nearest_organ(
-    text: str, position: int, floral: list[str], competing: list[str], window: int
-) -> str:
-    """Return "floral", "competing" or "" for the organ closest to a colour word.
+def extract_colour(
+    label_text: str, config: dict[str, Any]
+) -> tuple[str, str, str, str]:
+    """Return (outcome, normalized_value, matched_terms, verbatim_quote).
 
-    Distance is measured to the nearest occurrence of any organ term on either
-    side. Ties go to the competing organ, so "fruits and flowers red" is
-    rejected rather than accepted -- the conservative reading.
+    The whole rule is the shared one, so a label and a protologue page reading
+    the same sentence produce the same answer. Only the empty-text outcome is
+    this lane's own.
     """
-    best_kind = ""
-    best_distance = window + 1
-    for kind, terms in (("competing", competing), ("floral", floral)):
-        for term in terms:
-            start = 0
-            while True:
-                index = text.find(term, start)
-                if index == -1:
-                    break
-                distance = (
-                    0
-                    if index <= position <= index + len(term)
-                    else min(abs(position - index), abs(position - (index + len(term))))
-                )
-                if distance <= window and (
-                    distance < best_distance
-                    or (distance == best_distance and kind == "competing")
-                ):
-                    best_distance = distance
-                    best_kind = kind
-                start = index + 1
-    return best_kind
+    return matching.extract_floral_colour(
+        label_text, config, empty_text_outcome=REJECT_NO_LABEL
+    )
 
 
-def extract_colour(label_text: str, config: dict[str, Any]) -> tuple[str, str, str]:
-    """Return (outcome, normalized_value, matched_terms) for one label."""
-    text = label_text.lower()
-    if not text:
-        return REJECT_NO_LABEL, "", ""
+def binary_plain_class(matched_terms: str, config: dict[str, Any]) -> str:
+    """Return "plain", "nonplain" or "unresolved" for the terms that matched.
 
-    for marker in config["negation_markers"]:
-        if str(marker).lower() in text:
-            return REJECT_NEGATED, "", ""
-
-    colours: dict[str, str] = {str(k).lower(): str(v) for k, v in config["colour_terms"].items()}
-    floral = [str(t).lower() for t in config["floral_organ_terms"]]
-    competing = [str(t).lower() for t in config["competing_organ_terms"]]
-    window = int(config["organ_proximity_chars"])
-
-    values: list[str] = []
-    matched: list[str] = []
-    saw_colour = False
-    saw_competing = False
-
-    # Longer terms first so "yellowish" is not consumed by "yellow".
-    for term in sorted(colours, key=len, reverse=True):
-        start = 0
-        while True:
-            index = text.find(term, start)
-            if index == -1:
-                break
-            start = index + len(term)
-            # skip a hit that is merely the tail of a longer word already matched
-            if any(term in seen for seen in matched):
-                continue
-            saw_colour = True
-            kind = _nearest_organ(text, index, floral, competing, window)
-            if kind == "competing":
-                saw_competing = True
-                continue
-            if kind != "floral":
-                continue
-            value = colours[term]
-            matched.append(term)
-            if value not in values:
-                values.append(value)
-
-    if not saw_colour:
-        return REJECT_NO_COLOUR, "", ""
-    if not values:
-        return (REJECT_COMPETING if saw_competing else REJECT_NO_ORGAN), "", ""
-    if len(values) > 1:
-        return ACCEPTED, str(config.get("multiple_value_result", "multicolored_variable")), "+".join(matched)
-    return ACCEPTED, values[0], "+".join(matched)
+    This is the level the downstream model actually consumes, and it decides
+    cases the five-value ontology cannot: "corolla pale reddish purple" is not
+    uniquely red-pink or blue-purple, but it is certainly not plain.
+    """
+    return matching.binary_plain_class(matched_terms, config)
 
 
 def mine_occurrences(
@@ -182,22 +147,27 @@ def mine_occurrences(
         label = join_label_text(row, fields)
 
         if _text(row.get("basisOfRecord")).upper() not in basis:
-            outcome, value, matched = REJECT_BASIS, "", ""
+            outcome, value, matched, quote = REJECT_BASIS, "", "", ""
         elif _text(row.get("taxonRank")).upper() != required_rank:
-            outcome, value, matched = REJECT_RANK, "", ""
+            outcome, value, matched, quote = REJECT_RANK, "", "", ""
         elif species not in master_species:
-            outcome, value, matched = REJECT_OFF_MASTER, "", ""
+            outcome, value, matched, quote = REJECT_OFF_MASTER, "", "", ""
         else:
-            outcome, value, matched = extract_colour(label, config)
+            outcome, value, matched, quote = extract_colour(label, config)
 
         rows.append(
             {
                 "accepted_species": species,
                 "trait_name": TRAIT_NAME,
                 "normalized_value": value,
+                "binary_plain_class": binary_plain_class(matched, config),
                 "outcome": outcome,
                 "matched_colour_terms": matched,
-                "exact_supporting_quote": label[:500],
+                # The statement the colour was read from, and the whole label it
+                # came from. A reviewer needs both: the sentence to judge the
+                # claim, the label to judge the specimen.
+                "exact_supporting_quote": (quote or label)[:500],
+                "label_text": label[:500],
                 "gbif_id": _text(row.get("gbifID")),
                 "occurrence_id": _text(row.get("occurrenceID")),
                 "dataset_key": _text(row.get("datasetKey")),
@@ -228,7 +198,12 @@ def collapse_to_independent_events(
 
     key_fields = [str(k) for k in (config.get("independence_key") or [])]
     alias = {"recordedBy": "recorded_by", "eventDate": "event_date", "locality": "locality"}
-    columns = ["accepted_species", "trait_name", "normalized_value"] + [
+    columns = [
+        "accepted_species",
+        "trait_name",
+        "normalized_value",
+        "binary_plain_class",
+    ] + [
         alias.get(k, k) for k in key_fields if alias.get(k, k) in accepted.columns
     ]
 
@@ -238,6 +213,7 @@ def collapse_to_independent_events(
         .agg(
             n_duplicate_sheets=("n_duplicate_sheets", "sum"),
             exact_supporting_quote=("exact_supporting_quote", "first"),
+            label_text=("label_text", "first"),
             gbif_id=("gbif_id", "first"),
             dataset_key=("dataset_key", "first"),
             institution_code=("institution_code", "first"),
@@ -282,6 +258,12 @@ def run(
         "n_species_with_a_candidate": int(events["accepted_species"].nunique())
         if len(events)
         else 0,
+        "binary_plain_class": {
+            str(k): int(v)
+            for k, v in (
+                events["binary_plain_class"].value_counts().items() if len(events) else ()
+            )
+        },
         "interpretation": (
             "Candidates are unreviewed species-direct label statements with the "
             "verbatim quote retained. They are not accepted evidence, and a "
