@@ -1,14 +1,16 @@
 name: Acquire minimum endemic colour from public Web
 
+# The bounded 10-species campaign completed successfully in run 32684784722
+# with zero reviewable flower-colour rows. Keep this route available for an
+# explicitly new locked queue, but do not repeat the same exhausted campaign on
+# ordinary PR updates.
+
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/acquire-minimum-endemic-colour-public-web.yml"
   workflow_dispatch:
     inputs:
       target_queue_run:
-        description: "Run carrying the locked minimum endemic-colour queue"
-        required: false
+        description: "Run carrying a newly locked minimum endemic-colour queue"
+        required: true
         default: "32684677834"
 
 permissions:
@@ -25,7 +27,7 @@ jobs:
     timeout-minutes: 60
     env:
       GH_TOKEN: ${{ github.token }}
-      TARGET_QUEUE_RUN: ${{ inputs.target_queue_run || '32684677834' }}
+      TARGET_QUEUE_RUN: ${{ inputs.target_queue_run }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -39,7 +41,7 @@ jobs:
           ruff check src/island_v2/web_trait_shard_campaign.py
           pytest -q tests/test_web_trait_shard_campaign.py
 
-      - name: Download the current minimum queue
+      - name: Download the explicitly selected minimum queue
         run: |
           set -euo pipefail
           mkdir -p /tmp/locked-queue
