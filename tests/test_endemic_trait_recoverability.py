@@ -1,6 +1,7 @@
 import pandas as pd
 
 from island_v2.endemic_trait_recoverability import (
+    build_minimum_pilot_queue,
     recoverability_headroom,
     strictest_pilot_threshold,
 )
@@ -39,12 +40,14 @@ def _fixture():
                 "outcome": "generalized_form",
                 "accepted_species": "Alpha one",
                 "n_records": 80,
+                "priority_rank": 1,
             },
             {
                 "regime": "northern_midlatitude",
                 "outcome": "generalized_form",
                 "accepted_species": "Beta two",
                 "n_records": 15,
+                "priority_rank": 2,
             },
         ]
     )
@@ -127,3 +130,36 @@ def test_strictest_pilot_threshold_uses_highest_passing_threshold():
     assert row["unsupported_islands_reached_at_threshold"] == 2
     assert row["max_support_at_threshold"] == 30
     assert bool(row["pilot_reachable_under_tested_thresholds"])
+
+
+def test_minimum_pilot_queue_stops_at_30_and_keeps_threshold_gate():
+    decisions, unsupported, targets, status = _fixture()
+    headroom = recoverability_headroom(
+        decisions,
+        unsupported,
+        targets,
+        status,
+        thresholds=(100, 50, 10),
+        pilot_target=30,
+    )
+    summary = strictest_pilot_threshold(headroom)
+    queue, plan = build_minimum_pilot_queue(
+        summary,
+        unsupported,
+        targets,
+        status,
+        pilot_target=30,
+    )
+
+    assert queue["accepted_species"].tolist() == ["Alpha one"]
+    assert queue.iloc[0]["selected_gbif_record_threshold"] == 50
+    assert queue.iloc[0]["new_islands_added"] == 2
+    assert queue.iloc[0]["cumulative_new_islands"] == 2
+    assert queue.iloc[0]["required_pilot_gap"] == 2
+
+    row = plan.iloc[0]
+    assert row["current_direct_supported_islands"] == 28
+    assert row["pilot_gap"] == 2
+    assert row["n_selected_species"] == 1
+    assert row["n_new_islands_covered"] == 2
+    assert bool(row["queue_reaches_pilot"])
