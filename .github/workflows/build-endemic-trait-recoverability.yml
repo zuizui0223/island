@@ -58,7 +58,7 @@ jobs:
 
       - name: Diagnose observation-effort headroom before acquisition
         run: |
-          python -m island_v2.endemic_trait_recoverability run \
+          python -m island_v2.endemic_trait_recoverability \
             --decisions-csv /tmp/support/targets/endemic_trait_support_decisions.csv \
             --unsupported-islands-csv /tmp/support/targets/endemic_unsupported_islands.csv \
             --targets-csv /tmp/support/targets/endemic_trait_acquisition_targets.csv \
@@ -68,6 +68,7 @@ jobs:
             --pilot-target 30 \
             --confirmatory-target 50
           cat /tmp/recoverability/endemic_trait_recoverability_summary.csv >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/recoverability/minimum_endemic_trait_pilot_plan.csv >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/recoverability/endemic_trait_recoverability_manifest.json >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
