@@ -1,0 +1,17 @@
+version: "1.0"
+
+# Post-pilot lineage analysis only. The input island flora is prefiltered to
+# confirmed native endemic island x species rows before this config is used.
+# Keeping only the two below-pilot outcomes avoids recomputing unrelated colour
+# and non-endemic nulls while preserving the exact genus-fixed null definition.
+binary_outcomes:
+  generalized_form:
+    trait_name: floral_form
+    positive_states: [open_radial, brush_puff, composite_head]
+    negative_states:
+      [tubular, bell_campanulate, funnel_trumpet, urn_urceolate, bilabiate,
+       salverform, papilionaceous, spurred]
+  self_compatibility:
+    trait_name: self_incompatibility
+    positive_states: [SC]
+    negative_states: [SI]
