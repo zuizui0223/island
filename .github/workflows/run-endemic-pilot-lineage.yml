@@ -1,12 +1,15 @@
 name: Reanalyse endemic form and SC pilot
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/run-endemic-pilot-lineage.yml"
   workflow_dispatch:
     inputs:
       trait_run_id:
         description: "Formal reviewed-open-web-evidence run to analyse"
-        required: true
-        default: "32698552866"
+        required: false
+        default: "32702160934"
       null_draws:
         description: "Genus-fixed null draws"
         required: false
@@ -22,7 +25,7 @@ jobs:
     timeout-minutes: 120
     env:
       GH_TOKEN: ${{ github.token }}
-      TRAIT_RUN_ID: ${{ inputs.trait_run_id }}
+      TRAIT_RUN_ID: ${{ inputs.trait_run_id || '32702160934' }}
       NULL_DRAWS: ${{ inputs.null_draws || '1000' }}
       STATUS_RUN_ID: "32559322028"
       STATUS_ARTIFACT: "official-wcvp-corroborated-status-32559322028"
