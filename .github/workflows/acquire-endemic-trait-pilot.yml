@@ -1,0 +1,190 @@
+name: Acquire endemic form and SC pilot evidence
+
+# One bounded review-only acquisition over the minimum below-pilot queue.
+# This workflow never promotes evidence automatically and never expands a
+# below-pilot stratum directly to the 50-island confirmatory target.
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/acquire-endemic-trait-pilot.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: endemic-trait-pilot-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SUPPORT_RUN_ID: "32695319042"
+      STATUS_RUN_ID: "32559322028"
+      STATUS_ARTIFACT: "official-wcvp-corroborated-status-32559322028"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate pilot queue and public-Web engines
+        run: |
+          ruff check \
+            src/island_v2/endemic_trait_recoverability.py \
+            src/island_v2/web_trait_shard_campaign.py \
+            tests/test_endemic_trait_recoverability.py \
+            tests/test_web_trait_shard_campaign.py
+          pytest -q \
+            tests/test_endemic_trait_recoverability.py \
+            tests/test_web_trait_shard_campaign.py
+
+      - name: Build the minimum pilot-to-30 queue
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/support /tmp/status /tmp/recoverability
+          gh run download "$SUPPORT_RUN_ID" \
+            -n "minimum-endemic-acquisition-queue-${SUPPORT_RUN_ID}" \
+            -D /tmp/support
+          gh run download "$STATUS_RUN_ID" \
+            -n "$STATUS_ARTIFACT" \
+            -D /tmp/status
+          python -m island_v2.endemic_trait_recoverability \
+            --decisions-csv /tmp/support/targets/endemic_trait_support_decisions.csv \
+            --unsupported-islands-csv /tmp/support/targets/endemic_unsupported_islands.csv \
+            --targets-csv /tmp/support/targets/endemic_trait_acquisition_targets.csv \
+            --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
+            --output-dir /tmp/recoverability \
+            --thresholds 200,100,50,20,10,5,1 \
+            --pilot-target 30 \
+            --confirmatory-target 50
+          test -s /tmp/recoverability/minimum_endemic_trait_pilot_queue.csv
+
+      - name: Collapse overlapping form and SC targets to one species master
+        run: |
+          python - <<'PY'
+          import os
+          import pandas as pd
+
+          queue = pd.read_csv('/tmp/recoverability/minimum_endemic_trait_pilot_queue.csv')
+          if queue.empty:
+              raise SystemExit('Pilot queue is empty; no acquisition should run')
+          master = pd.read_csv('data/v2/staging/gbif/collected/island_taxa.csv')
+          species = queue[['accepted_species']].drop_duplicates()
+          target_master = species.merge(
+              master[['accepted_species', 'genus', 'family']].drop_duplicates('accepted_species'),
+              on='accepted_species', how='left', validate='one_to_one'
+          )
+          missing = target_master.loc[
+              target_master['genus'].isna() | target_master['family'].isna(),
+              'accepted_species'
+          ].astype(str).tolist()
+          if missing:
+              raise SystemExit(f'Pilot species missing from master: {missing}')
+          target_master = target_master.sort_values('accepted_species').reset_index(drop=True)
+          target_master.to_csv('/tmp/endemic_trait_pilot_master.csv', index=False)
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as handle:
+              handle.write(f'N_PILOT_SPECIES={len(target_master)}\n')
+          print({
+              'queue_rows': int(len(queue)),
+              'unique_species': int(len(target_master)),
+              'by_regime_outcome': queue.groupby(['regime','outcome']).size().to_dict(),
+          })
+          print(target_master.to_string(index=False))
+          PY
+
+      - name: Run one bounded multi-provider evidence search
+        run: |
+          set -euo pipefail
+          island-v2-web-trait-shards run \
+            --master-csv /tmp/endemic_trait_pilot_master.csv \
+            --campaign-dir /tmp/campaign \
+            --shard-index 0 \
+            --shard-count 1 \
+            --batch-size "$N_PILOT_SPECIES" \
+            --max-attempts 1 \
+            --expected-species 0 \
+            --gbif \
+            --wikimedia \
+            --web-descriptions \
+            --world-flora \
+            --openalex \
+            --europe-pmc \
+            --pause-seconds 0.1
+          test -s /tmp/campaign/campaign_status.json
+
+      - name: Extract review-only form and SI-SC candidates
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          queue = pd.read_csv('/tmp/recoverability/minimum_endemic_trait_pilot_queue.csv')
+          queue_species = set(queue['accepted_species'].astype(str))
+          frames = []
+          for path in Path('/tmp/campaign').rglob('*.csv'):
+              try:
+                  table = pd.read_csv(path)
+              except Exception:
+                  continue
+              species_col = 'species' if 'species' in table.columns else (
+                  'accepted_species' if 'accepted_species' in table.columns else None
+              )
+              if species_col is None:
+                  continue
+              relevant = [
+                  col for col in ['flower_shape', 'self_incompatibility', 'mating_system']
+                  if col in table.columns
+              ]
+              if not relevant:
+                  continue
+              work = table.loc[table[species_col].astype(str).isin(queue_species)].copy()
+              if work.empty:
+                  continue
+              nonempty = pd.Series(False, index=work.index)
+              for col in relevant:
+                  value = work[col].fillna('').astype(str).str.strip()
+                  nonempty |= value.ne('') & ~value.str.lower().eq('unknown')
+              work = work.loc[nonempty]
+              if not work.empty:
+                  work['source_file'] = str(path)
+                  frames.append(work)
+          review = pd.concat(frames, ignore_index=True, sort=False) if frames else pd.DataFrame()
+          review.to_csv('/tmp/endemic_trait_pilot_review_candidates.csv', index=False)
+
+          status = json.loads(Path('/tmp/campaign/campaign_status.json').read_text(encoding='utf-8'))
+          summary = {
+              'contract': 'endemic_trait_pilot_review_only_v1',
+              'support_run_id': 32695319042,
+              'pilot_target': 30,
+              'queue_rows': int(len(queue)),
+              'unique_queue_species': int(queue['accepted_species'].nunique()),
+              'candidate_rows': int(len(review)),
+              'promotion_policy': 'manual review required; no automatic promotion',
+              'campaign_status': status,
+          }
+          Path('/tmp/endemic_trait_pilot_acquisition_summary.json').write_text(
+              json.dumps(summary, indent=2, default=str) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(summary, indent=2, default=str))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: endemic-trait-pilot-acquisition-${{ github.run_id }}
+          path: |
+            /tmp/recoverability/
+            /tmp/endemic_trait_pilot_master.csv
+            /tmp/endemic_trait_pilot_review_candidates.csv
+            /tmp/endemic_trait_pilot_acquisition_summary.json
+            /tmp/campaign/
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,91 @@
+name: Materialize official-WCVP corroborated endemism
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Download frozen GIFT status artifact
+        run: |
+          mkdir -p /tmp/gift
+          gh run download 32555972362 \
+            -n gift-floristic-status-32555972362 \
+            -D /tmp/gift
+          test -s /tmp/gift/gift-matched/gift_floristic_status_ledger.csv.gz
+
+      - name: Download official Kew WCVP 2026 bulk
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 \
+            https://sftp.kew.org/pub/data-repositories/WCVP/wcvp.zip \
+            -o /tmp/wcvp.zip
+          test -s /tmp/wcvp.zip
+          sha256sum /tmp/wcvp.zip | tee /tmp/wcvp_sha256.txt
+
+      - name: Export exact accepted-species native ranges
+        run: |
+          python scripts/export_wcvp_native_ranges.py \
+            data/v2/staging/gbif/collected/island_taxa.csv \
+            /tmp/wcvp.zip \
+            /tmp/wcvp-range
+          test -s /tmp/wcvp-range/wcvp_native_range_summary.csv.gz
+
+      - name: Download official TDWG WGSRPD level-3 geometry
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/tdwg
+          for ext in shp shx dbf prj; do
+            curl --fail --location --retry 3 \
+              "https://raw.githubusercontent.com/tdwg/wgsrpd/master/level3/level3.${ext}" \
+              -o "/tmp/tdwg/level3.${ext}"
+          done
+          test -s /tmp/tdwg/level3.shp
+
+      - name: Rebuild frozen GSHHG island geometry
+        run: |
+          island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
+          test -s data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
+
+      - name: Resolve GIFT origin plus WCVP-corroborated endemism
+        run: |
+          python -m island_v2.floristic_status_resolve \
+            --gift-status-ledger-csv /tmp/gift/gift-matched/gift_floristic_status_ledger.csv.gz \
+            --wcvp-native-range-csv /tmp/wcvp-range/wcvp_native_range_summary.csv.gz \
+            --islands-gpkg data/v2/external/islands/gshhg/prepared/islands_v2.gpkg \
+            --tdwg-gpkg /tmp/tdwg/level3.shp \
+            --output-dir /tmp/resolved
+          test -s /tmp/resolved/resolved_floristic_status_ledger.csv.gz
+
+      - name: Summarize
+        run: |
+          cat /tmp/wcvp-range/wcvp_native_range_manifest.json
+          cat /tmp/resolved/floristic_status_resolve_manifest.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: official-wcvp-corroborated-status-${{ github.run_id }}
+          path: |
+            /tmp/wcvp_sha256.txt
+            /tmp/wcvp-range/wcvp_native_range_manifest.json
+            /tmp/resolved/gift_origin_collapsed.csv.gz
+            /tmp/resolved/island_tdwg_l3_mapping.csv
+            /tmp/resolved/resolved_floristic_status_ledger.csv.gz
+            /tmp/resolved/floristic_status_resolve_manifest.json
+          if-no-files-found: error
+          retention-days: 90

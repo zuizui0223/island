@@ -1,0 +1,79 @@
+name: Build endemic trait recoverability diagnostic
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/build-endemic-trait-recoverability.yml"
+      - "src/island_v2/endemic_trait_recoverability.py"
+      - "tests/test_endemic_trait_recoverability.py"
+  workflow_dispatch:
+    inputs:
+      support_run_id:
+        description: "Run carrying endemic support decisions/targets"
+        required: false
+        default: "32695319042"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SUPPORT_RUN_ID: ${{ inputs.support_run_id || '32695319042' }}
+      STATUS_RUN_ID: "32559322028"
+      STATUS_ARTIFACT: "official-wcvp-corroborated-status-32559322028"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate recoverability implementation
+        run: |
+          ruff check \
+            src/island_v2/endemic_trait_recoverability.py \
+            tests/test_endemic_trait_recoverability.py
+          pytest -q tests/test_endemic_trait_recoverability.py
+
+      - name: Download support and status artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/support /tmp/status /tmp/recoverability
+          gh run download "$SUPPORT_RUN_ID" \
+            -n "minimum-endemic-acquisition-queue-${SUPPORT_RUN_ID}" \
+            -D /tmp/support
+          gh run download "$STATUS_RUN_ID" \
+            -n "$STATUS_ARTIFACT" \
+            -D /tmp/status
+          test -s /tmp/support/targets/endemic_trait_support_decisions.csv
+          test -s /tmp/support/targets/endemic_unsupported_islands.csv
+          test -s /tmp/support/targets/endemic_trait_acquisition_targets.csv
+          test -s /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz
+
+      - name: Diagnose observation-effort headroom before acquisition
+        run: |
+          python -m island_v2.endemic_trait_recoverability \
+            --decisions-csv /tmp/support/targets/endemic_trait_support_decisions.csv \
+            --unsupported-islands-csv /tmp/support/targets/endemic_unsupported_islands.csv \
+            --targets-csv /tmp/support/targets/endemic_trait_acquisition_targets.csv \
+            --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
+            --output-dir /tmp/recoverability \
+            --thresholds 200,100,50,20,10,5,1 \
+            --pilot-target 30 \
+            --confirmatory-target 50
+          cat /tmp/recoverability/endemic_trait_recoverability_summary.csv >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/recoverability/minimum_endemic_trait_pilot_plan.csv >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/recoverability/endemic_trait_recoverability_manifest.json >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: endemic-trait-recoverability-${{ github.run_id }}
+          path: /tmp/recoverability/
+          if-no-files-found: error
+          retention-days: 90

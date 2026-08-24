@@ -1,0 +1,114 @@
+version: "1.0"
+
+# Sources that reach the endemic tail, and the access rules for each.
+#
+# The unresolved tail is 74,846 species on three islands or fewer, overwhelmingly
+# island endemics. Acquisition so far has been source-driven toward large
+# continental floras, which is why the tail was never touched: the treatments
+# that describe these species are regional island floras and, for the narrowest
+# endemics, the original protologue.
+#
+# This registry is a declaration of intent and access constraints, not an
+# activation. Nothing here is crawled until its `access` entry says a permitted
+# route exists and a human has approved that route. Providers whose robots.txt
+# forbids general crawling are recorded as `blocked` so the prohibition stays
+# visible rather than being rediscovered.
+
+access_policy:
+  # Only these routes are ever permitted. Scraping a portal that forbids it is
+  # never an option, whatever the scientific value of the content.
+  permitted_routes:
+    - official_api
+    - official_bulk_export
+    - public_domain_scan_via_bhl_api
+    - darwin_core_archive
+  forbidden:
+    - general_web_crawl_against_robots_txt
+    - portal_scrape_without_declared_permission
+  # Every acquired record must carry these before it can become a candidate.
+  required_lineage_fields:
+    - source_url
+    - source_citation
+    - license
+    - retrieval_date
+    - exact_supporting_quote
+
+# Regional island floras. Priority is by how much of the unresolved tail each
+# region carries, not by how easy the source is to fetch.
+island_floras:
+  - region: Hawaiian Islands
+    reference: "Wagner, Herbst & Sohmer, Manual of the Flowering Plants of Hawai'i"
+    access: needs_review
+    notes: >-
+      Smithsonian holds a digitised treatment. Check for an official API or
+      bulk export before any page-level access.
+  - region: Malesia
+    reference: "Flora Malesiana"
+    access: needs_review
+    notes: "Naturalis portal; check terms and whether a DwC-A export exists."
+  - region: Madagascar and the Comoros
+    reference: "Flore de Madagascar et des Comores"
+    access: public_domain_scan_via_bhl_api
+    notes: "Older volumes are out of copyright and present in BHL."
+  - region: New Caledonia
+    reference: "Flore de la Nouvelle-Calédonie"
+    access: needs_review
+  - region: Fiji
+    reference: "Flora Vitiensis Nova"
+    access: needs_review
+  - region: Galápagos
+    reference: "Flora of the Galápagos Islands"
+    access: needs_review
+  - region: Canary Islands and Macaronesia
+    reference: "Flora of Macaronesia"
+    access: needs_review
+  - region: Mascarenes
+    reference: "Flore des Mascareignes"
+    access: needs_review
+  - region: Ogasawara and Ryukyu Islands
+    reference: "Flora of Japan, island volumes"
+    access: needs_review
+  - region: Juan Fernández
+    reference: "Flora de Juan Fernández"
+    access: needs_review
+  - region: Socotra
+    reference: "Flora of Socotra"
+    access: public_domain_scan_via_bhl_api
+
+# Protologues. For a species with four occurrence records, the original
+# description is frequently the only floral description that exists anywhere.
+protologue_route:
+  # Step 1: resolve the species to its protologue citation.
+  citation_index:
+    provider: IPNI
+    access: official_api
+    fields_required: [publication, volume, page, year]
+  # Step 2: locate the scanned page.
+  scan_provider:
+    provider: BHL
+    access: official_api
+    notes: >-
+      Most pre-1929 botanical literature is public domain and present in BHL.
+      Items still in copyright are skipped, not scraped.
+  # Protologues are frequently Latin, French or German, so extraction must
+  # carry a multilingual vocabulary rather than assuming English. That is a
+  # measured requirement, not a preference: in the WFO rejection ledger the
+  # only automatically recoverable slice was non-English statements that the
+  # English-only rules had failed to bind.
+  extraction:
+    multilingual_vocabulary: required
+    default_review_status: unreviewed
+  # Implemented. src/island_v2/protologue_trait_acquisition.py walks this route
+  # and nothing else: IPNI for the citation, BHL for a public-domain scan, no
+  # crawling. Copyright is a double gate -- BHL must declare the item public
+  # domain and the year must be at or before the cutoff -- and an item still in
+  # copyright is skipped, never scraped.
+  implementation: src/island_v2/protologue_trait_acquisition.py
+  config: config/protologue_acquisition.yml
+  status: implemented_awaiting_bhl_api_key
+
+# Known prohibitions, recorded so they are not rediscovered by trial.
+blocked_providers:
+  - provider: World Flora Online portal
+    reason: "robots.txt disallows general bots; already disabled in the shard campaign"
+    permitted_alternative: "official DwC-A content export from WFO or the origin provider"

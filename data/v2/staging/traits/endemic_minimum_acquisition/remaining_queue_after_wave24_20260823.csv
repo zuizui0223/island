@@ -1,0 +1,21 @@
+regime,original_selection_order,accepted_species,new_island_id,extends_original_supported_isolation_5_95,isolation_value,current_support,current_gap_to_50
+northern_midlatitude,1,Rostraria azorica,gshhg_2.3.7_h_20e5aa31efa2955613bb,true,7.463612219881255,34,16
+northern_midlatitude,2,Adinandra ryukyuensis,gshhg_2.3.7_h_cd42141a2c144edf982e,true,6.562962733554603,34,16
+northern_midlatitude,3,Odontarrhena lesbiaca,gshhg_2.3.7_h_7242317396d6bf8bc7ba,true,0.0,34,16
+northern_midlatitude,4,Cirsium tanegashimense,gshhg_2.3.7_h_3c1be651d6759927d58f,true,6.40533347844727,34,16
+northern_midlatitude,5,Sasa jotanii,gshhg_2.3.7_h_78b9099b78b447bab1fd,true,7.048425935276796,34,16
+northern_midlatitude,6,Mammillaria evermanniana,gshhg_2.3.7_h_9e4d3dde26d99b8f4d4e,true,2.949729063531852,34,16
+northern_midlatitude,7,Centaurea thasia,gshhg_2.3.7_h_9f8ba488a21c2756558e,true,2.578850643819281,34,16
+northern_midlatitude,8,Campanula sciathia,gshhg_2.3.7_h_255586b0805b32f286fe,true,1.952947873431532,34,16
+northern_midlatitude,9,Centaurea xylobasis,gshhg_2.3.7_h_e6279e284687f5399a77,true,0.0,34,16
+northern_midlatitude,12,Oxytropis kunashiriensis,gshhg_2.3.7_h_8c4a837193019f79609b,true,6.791513310272011,34,16
+northern_midlatitude,13,Fritillaria rhodia,gshhg_2.3.7_h_cb5443d2f61798986764,false,3.395520293193077,34,16
+northern_midlatitude,14,Cirsium ishizuchiense,gshhg_2.3.7_h_e40c996ed1aa59c4f200,false,5.9962464264887565,34,16
+northern_midlatitude,15,Erysimum naxense,gshhg_2.3.7_h_9d1b60fcc556d0bffdd9,false,5.0941016849822445,34,16
+northern_midlatitude,16,Hedysarum sachalinense,gshhg_2.3.7_h_98880201ffb561e96974,false,3.360236748003862,34,16
+northern_midlatitude,17,Cirsium umezawanum,gshhg_2.3.7_h_6a86f7bbfdbdbb14e284,false,5.912031170946564,34,16
+northern_midlatitude,18,Limonium retusum,gshhg_2.3.7_h_60198456b2d3fe541822,false,4.957894192125951,34,16
+tropical,1,Dracaena fernaldii,gshhg_2.3.7_h_3cdd58a885ee881a1861,true,8.381561963973102,46,4
+tropical,2,Ixora mooreensis,gshhg_2.3.7_h_a27c26cc92ce015733ed,true,8.759885996324945,46,4
+tropical,3,Myrcia stenocarpa,gshhg_2.3.7_h_bbe260e649a8f8fd7ae5,true,2.8023641031206465,46,4
+tropical,4,Myrsine fasciculata,gshhg_2.3.7_h_d934e980134be6e4507c,true,8.770758781182193,46,4

@@ -1,0 +1,122 @@
+name: Validate flora-status and lineage support
+
+on:
+  pull_request:
+    paths:
+      - "src/island_v2/flora_status_support.py"
+      - "src/island_v2/flora_status_support_decision.py"
+      - "src/island_v2/native_status_trait_analysis.py"
+      - "src/island_v2/introduced_status_trait_analysis.py"
+      - "src/island_v2/genus_fixed_trait_null.py"
+      - "src/island_v2/status_stratified_lineage_analysis.py"
+      - "src/island_v2/northern_bombus_residual_analysis.py"
+      - "src/island_v2/status_category_decomposition.py"
+      - "src/island_v2/status_category_fdr.py"
+      - "src/island_v2/status_category_coverage_sensitivity.py"
+      - "src/island_v2/gift_floristic_status_match.py"
+      - "src/island_v2/floristic_status_resolve.py"
+      - "src/island_v2/flora_endemism_analysis.py"
+      - "src/island_v2/flora_endemism_resolution_sensitivity.py"
+      - "src/island_v2/endemic_trait_support_targets.py"
+      - "src/island_v2/endemic_minimum_acquisition_queue.py"
+      - "scripts/fetch_gift_floristic_status.R"
+      - "scripts/export_wcvp_native_ranges.py"
+      - "config/flora_status_support.yml"
+      - "config/flora_endemism_analysis.yml"
+      - "tests/test_flora_status_support.py"
+      - "tests/test_flora_status_support_decision.py"
+      - "tests/test_native_status_trait_analysis.py"
+      - "tests/test_introduced_status_trait_analysis.py"
+      - "tests/test_genus_fixed_trait_null.py"
+      - "tests/test_status_stratified_lineage_analysis.py"
+      - "tests/test_northern_bombus_residual_analysis.py"
+      - "tests/test_status_category_decomposition.py"
+      - "tests/test_status_category_fdr.py"
+      - "tests/test_status_category_coverage_sensitivity.py"
+      - "tests/test_gift_floristic_status_match.py"
+      - "tests/test_floristic_status_resolve.py"
+      - "tests/test_flora_endemism_analysis.py"
+      - "tests/test_flora_endemism_resolution_sensitivity.py"
+      - "tests/test_endemic_trait_support_targets.py"
+      - "tests/test_endemic_minimum_acquisition_queue.py"
+      - "docs/flora_status_lineage_analysis_plan.md"
+      - "docs/flora_status_real_data_checkpoint_20260822.md"
+      - "docs/native_direct_m0_lineage_checkpoint_20260822.md"
+      - "docs/introduced_transport_checkpoint_20260822.md"
+      - "docs/corroborated_endemism_checkpoint_20260822.md"
+      - "docs/status_stratified_trait_checkpoint_20260822.md"
+      - "docs/status_stratified_lineage_checkpoint_20260823.md"
+      - "docs/northern_bombus_lineage_residual_checkpoint_20260823.md"
+      - "docs/status_category_decomposition_checkpoint_20260823.md"
+      - "docs/minimum_endemic_colour_acquisition_queue_20260823.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Lint focused modules
+        run: |
+          ruff check \
+            src/island_v2/flora_status_support.py \
+            src/island_v2/flora_status_support_decision.py \
+            src/island_v2/native_status_trait_analysis.py \
+            src/island_v2/introduced_status_trait_analysis.py \
+            src/island_v2/genus_fixed_trait_null.py \
+            src/island_v2/status_stratified_lineage_analysis.py \
+            src/island_v2/northern_bombus_residual_analysis.py \
+            src/island_v2/status_category_decomposition.py \
+            src/island_v2/status_category_fdr.py \
+            src/island_v2/status_category_coverage_sensitivity.py \
+            src/island_v2/gift_floristic_status_match.py \
+            src/island_v2/floristic_status_resolve.py \
+            src/island_v2/flora_endemism_analysis.py \
+            src/island_v2/flora_endemism_resolution_sensitivity.py \
+            src/island_v2/endemic_trait_support_targets.py \
+            src/island_v2/endemic_minimum_acquisition_queue.py \
+            scripts/export_wcvp_native_ranges.py \
+            tests/test_flora_status_support.py \
+            tests/test_flora_status_support_decision.py \
+            tests/test_native_status_trait_analysis.py \
+            tests/test_introduced_status_trait_analysis.py \
+            tests/test_genus_fixed_trait_null.py \
+            tests/test_status_stratified_lineage_analysis.py \
+            tests/test_northern_bombus_residual_analysis.py \
+            tests/test_status_category_decomposition.py \
+            tests/test_status_category_fdr.py \
+            tests/test_status_category_coverage_sensitivity.py \
+            tests/test_gift_floristic_status_match.py \
+            tests/test_floristic_status_resolve.py \
+            tests/test_flora_endemism_analysis.py \
+            tests/test_flora_endemism_resolution_sensitivity.py \
+            tests/test_endemic_trait_support_targets.py \
+            tests/test_endemic_minimum_acquisition_queue.py
+      - name: Run focused tests
+        run: |
+          pytest -q \
+            tests/test_flora_status_support.py \
+            tests/test_flora_status_support_decision.py \
+            tests/test_native_status_trait_analysis.py \
+            tests/test_introduced_status_trait_analysis.py \
+            tests/test_genus_fixed_trait_null.py \
+            tests/test_status_stratified_lineage_analysis.py \
+            tests/test_northern_bombus_residual_analysis.py \
+            tests/test_status_category_decomposition.py \
+            tests/test_status_category_fdr.py \
+            tests/test_status_category_coverage_sensitivity.py \
+            tests/test_gift_floristic_status_match.py \
+            tests/test_floristic_status_resolve.py \
+            tests/test_flora_endemism_analysis.py \
+            tests/test_flora_endemism_resolution_sensitivity.py \
+            tests/test_endemic_trait_support_targets.py \
+            tests/test_endemic_minimum_acquisition_queue.py

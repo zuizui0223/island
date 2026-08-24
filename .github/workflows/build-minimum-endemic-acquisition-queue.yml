@@ -1,0 +1,208 @@
+name: Build minimum endemic trait acquisition queue
+
+on:
+  pull_request:
+    paths:
+      - "data/v2/curation/minimum_endemic_colour_manual_review_20260823.csv"
+      - ".github/workflows/build-minimum-endemic-acquisition-queue.yml"
+      - "src/island_v2/endemic_trait_support_targets.py"
+      - "src/island_v2/endemic_minimum_acquisition_queue.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STATUS_RUN_ID: "32559322028"
+      STATUS_ARTIFACT: "official-wcvp-corroborated-status-32559322028"
+      TRAIT_RUN_ID: "32698552866"
+      TRAIT_ARTIFACT: "reviewed-open-web-evidence-32698552866"
+      ISOLATION_RUN_ID: "29228212586"
+      ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate queue implementation
+        run: |
+          ruff check \
+            src/island_v2/endemic_trait_support_targets.py \
+            src/island_v2/endemic_minimum_acquisition_queue.py \
+            tests/test_endemic_trait_support_targets.py \
+            tests/test_endemic_minimum_acquisition_queue.py
+          pytest -q \
+            tests/test_endemic_trait_support_targets.py \
+            tests/test_endemic_minimum_acquisition_queue.py
+
+      - name: Download corrected status, latest formal direct traits, and covariates
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/status /tmp/traits /tmp/isolation
+          gh run download "$STATUS_RUN_ID" \
+            -n "$STATUS_ARTIFACT" \
+            -D /tmp/status
+          gh run download "$TRAIT_RUN_ID" \
+            -n "$TRAIT_ARTIFACT" \
+            -D /tmp/traits
+          gh run download "$ISOLATION_RUN_ID" \
+            -n "$ISOLATION_ARTIFACT" \
+            -D /tmp/isolation
+          test -s /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz
+          test -s /tmp/traits/direct_species_trait_ledger.csv.gz
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+
+      - name: Add only manually reviewed rows not already formalized
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import pandas as pd
+
+          baseline = pd.read_csv('/tmp/traits/direct_species_trait_ledger.csv.gz').fillna('')
+          manual = pd.read_csv(
+              'data/v2/curation/minimum_endemic_colour_manual_review_20260823.csv'
+          ).fillna('')
+          required = {
+              'accepted_species', 'axis', 'trait_name', 'normalized_value',
+              'quality', 'evidence_scope', 'source_group', 'source_lineage'
+          }
+          missing = required - set(manual.columns)
+          if missing:
+              raise SystemExit(f'manual review file missing columns: {sorted(missing)}')
+          allowed_scopes = {'species_direct', 'synonym_direct'}
+          scopes = set(manual['evidence_scope'].astype(str))
+          if not scopes <= allowed_scopes:
+              raise SystemExit(f'manual review file contains invalid scopes: {sorted(scopes)}')
+
+          formal_values = {
+              (str(r.accepted_species).strip(), str(r.trait_name).strip()):
+                  str(r.normalized_value).strip()
+              for r in baseline.itertuples(index=False)
+          }
+          already_formal = []
+          rows = []
+          for row in manual.itertuples(index=False):
+              species = str(row.accepted_species).strip()
+              trait = str(row.trait_name).strip()
+              state = str(row.normalized_value).strip()
+              key = (species, trait)
+              if key in formal_values:
+                  formal_state = formal_values[key]
+                  if formal_state != state:
+                      raise SystemExit(
+                          'manual/formal conflict for '
+                          f'{species} {trait}: manual={state!r}, formal={formal_state!r}'
+                      )
+                  already_formal.append(species)
+                  continue
+              rows.append({
+                  'accepted_species': species,
+                  'axis': str(row.axis).strip(),
+                  'trait_name': trait,
+                  'classification': 'manual_review_single_lineage',
+                  'resolution_status': 'resolved',
+                  'selected_quality': str(row.quality).strip(),
+                  'state_sets': json.dumps([[state]], ensure_ascii=False),
+                  'n_independent_lineages': 1,
+                  'source_lineages': str(row.source_lineage).strip(),
+                  'source_groups': str(row.source_group).strip(),
+                  'cultivar_rows_excluded': 0,
+                  'ontology_mismatch_rows': 0,
+                  'lineage_internal_conflicts': 0,
+                  'invalid_state_tokens': '',
+                  'quality': str(row.quality).strip(),
+                  'state_set': json.dumps([state], ensure_ascii=False),
+                  'normalized_value': state,
+                  'multistate': False,
+                  'genus': species.split()[0],
+              })
+
+          projected = pd.DataFrame(rows, columns=baseline.columns)
+          combined = pd.concat([baseline, projected], ignore_index=True, sort=False)
+          if list(combined.columns) != list(baseline.columns):
+              raise SystemExit('manual projection changed direct-ledger schema')
+          combined.to_csv('/tmp/traits/direct_species_trait_ledger_with_manual.csv', index=False)
+          print({
+              'formal_trait_run_id': os.environ['TRAIT_RUN_ID'],
+              'baseline_rows': int(len(baseline)),
+              'manual_rows_input': int(len(manual)),
+              'manual_rows_already_formal': int(len(already_formal)),
+              'already_formal_species': sorted(already_formal),
+              'manual_rows_added': int(len(projected)),
+              'combined_rows': int(len(combined)),
+              'schema_preserved': True,
+          })
+          PY
+
+      - name: Rank endemic trait targets
+        run: |
+          python -m island_v2.endemic_trait_support_targets \
+            --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
+            --direct-evidence-csv /tmp/traits/direct_species_trait_ledger_with_manual.csv \
+            --island-taxa-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --output-dir /tmp/targets
+          test -s /tmp/targets/endemic_trait_support_decisions.csv
+
+      - name: Cut the queue at the confirmatory island target
+        run: |
+          python -m island_v2.endemic_minimum_acquisition_queue \
+            --decisions-csv /tmp/targets/endemic_trait_support_decisions.csv \
+            --unsupported-islands-csv /tmp/targets/endemic_unsupported_islands.csv \
+            --targets-csv /tmp/targets/endemic_trait_acquisition_targets.csv \
+            --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
+            --output-dir /tmp/minimum
+          test -f /tmp/minimum/minimum_endemic_trait_acquisition_queue.csv
+
+      - name: Summarize queue
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from pandas.errors import EmptyDataError
+
+          def read_or_empty(path):
+              try:
+                  return pd.read_csv(path)
+              except EmptyDataError:
+                  return pd.DataFrame()
+
+          queue = read_or_empty('/tmp/minimum/minimum_endemic_trait_acquisition_queue.csv')
+          summary = read_or_empty('/tmp/minimum/minimum_endemic_trait_acquisition_summary.csv')
+          if len(summary):
+              print(summary.to_string(index=False))
+          else:
+              print('No targeted-acquisition strata remain.')
+          if len(queue):
+              print('\nSELECTED QUEUE')
+              cols = [c for c in [
+                  'regime','outcome','selection_order','accepted_species','n_records',
+                  'extends_supported_isolation_5_95','new_island_ids','cumulative_new_islands'
+              ] if c in queue.columns]
+              print(queue[cols].to_string(index=False))
+          else:
+              print('Queue empty: stopping condition or no targetable stratum.')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: minimum-endemic-acquisition-queue-${{ github.run_id }}
+          path: |
+            /tmp/targets/endemic_trait_support_decisions.csv
+            /tmp/targets/endemic_unsupported_islands.csv
+            /tmp/targets/endemic_trait_acquisition_targets.csv
+            /tmp/targets/endemic_trait_target_manifest.json
+            /tmp/minimum/minimum_endemic_trait_acquisition_queue.csv
+            /tmp/minimum/minimum_endemic_trait_acquisition_summary.csv
+            /tmp/minimum/minimum_endemic_trait_acquisition_manifest.json
+          if-no-files-found: error
+          retention-days: 90

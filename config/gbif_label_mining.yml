@@ -1,0 +1,154 @@
+version: "1.0"
+
+# Mining floral traits from herbarium specimen label text.
+#
+# Why this source exists: the unresolved tail of the master is island endemics
+# with a median of four GBIF records each. No monograph, flora treatment or
+# journal article covers most of them, but every one of those four records is a
+# pressed specimen whose collector routinely wrote the flower colour on the
+# label while the plant was still fresh. For much of the tail this is the only
+# floral observation that exists, and it is species-direct by construction --
+# the label is attached to a determined specimen.
+#
+# The same organ-attachment discipline that governs flora-text extraction
+# applies here, and for the same measured reason: in the WFO rejection ledger
+# 38.6% of rejected candidates were measurements of a style, calyx or petal
+# being read as whole-flower values. A label saying "fruits red" is not flower
+# colour.
+
+# Occurrence fields that can carry collector label text. Everything else in the
+# download is metadata, not observation.
+label_fields:
+  - occurrenceRemarks
+  - fieldNotes
+  - dynamicProperties
+  - habitat
+
+# Only determined, vouchered material. A casual human observation carries no
+# label and no specimen to re-check.
+accepted_basis_of_record:
+  - PRESERVED_SPECIMEN
+  - MATERIAL_SAMPLE
+  - MATERIAL_CITATION
+
+# The record must be determined to species and must resolve to the frozen
+# island master. Higher ranks are never mined.
+required_taxon_rank: SPECIES
+
+# A colour word counts only when it sits within this many characters of a
+# floral organ word. Beyond that the sentence has usually moved on to fruit,
+# leaves or stem.
+organ_proximity_chars: 40
+
+floral_organ_terms:
+  - flower
+  - flowers
+  - flower's
+  - fl.
+  - floret
+  - florets
+  - corolla
+  - corollas
+  - perianth
+  - petal
+  - petals
+  - tepal
+  - tepals
+  - inflorescence
+  - blossom
+  - blossoms
+  - bloom
+  - blooms
+
+# Organs whose colour must never become flower colour. Checked first: if the
+# nearest organ word is one of these, the row is rejected outright.
+competing_organ_terms:
+  - fruit
+  - fruits
+  - berry
+  - berries
+  - seed
+  - seeds
+  - leaf
+  - leaves
+  - foliage
+  - stem
+  - stems
+  - bark
+  - root
+  - roots
+  - bract
+  - bracts
+  - calyx
+  - sepal
+  - sepals
+  - anther
+  - anthers
+  - filament
+  - style
+  - stigma
+  - ovary
+  - capsule
+  - pod
+
+# Phrases that void a statement. A collector writing "flowers not seen" is
+# telling us there is no observation, which is not the same as no colour.
+negation_markers:
+  - "not seen"
+  - "not observed"
+  - "no flowers"
+  - "without flowers"
+  - "flowers absent"
+  - "not in flower"
+  - "sterile"
+  - "immature"
+  - "past flowering"
+  - "?"
+
+# Raw colour words mapped onto the trait ontology values for
+# flower_primary_color. Kept deliberately small and literal: a label is a few
+# words written in the field, not a description to be interpreted.
+colour_terms:
+  white: white
+  whitish: white
+  cream: white
+  creamy: white
+  ivory: white
+  yellow: yellow_orange
+  yellowish: yellow_orange
+  golden: yellow_orange
+  orange: yellow_orange
+  red: red_pink
+  reddish: red_pink
+  scarlet: red_pink
+  crimson: red_pink
+  pink: red_pink
+  pinkish: red_pink
+  magenta: red_pink
+  rose: red_pink
+  blue: blue_purple
+  bluish: blue_purple
+  purple: blue_purple
+  purplish: blue_purple
+  violet: blue_purple
+  lilac: blue_purple
+  lavender: blue_purple
+  mauve: blue_purple
+  green: green_brown_inconspicuous
+  greenish: green_brown_inconspicuous
+  brown: green_brown_inconspicuous
+  brownish: green_brown_inconspicuous
+  inconspicuous: green_brown_inconspicuous
+
+# When a label names colours that map to different ontology values -- "flowers
+# white to pink" -- the species is not given a single primary colour. The row is
+# retained as variable rather than resolved arbitrarily to the first term.
+multiple_value_result: multicolored_variable
+
+# Independence. One collector, one day, one population is one observation
+# however many duplicate sheets were distributed to herbaria. Deduplicate on
+# the collecting event before counting support.
+independence_key:
+  - recordedBy
+  - eventDate
+  - locality

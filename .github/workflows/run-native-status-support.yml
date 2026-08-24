@@ -1,0 +1,149 @@
+name: Run native-status direct-trait support
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  support:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Download frozen status, trait, and isolation artifacts
+        run: |
+          mkdir -p /tmp/gift /tmp/traits /tmp/isolation
+          gh run download 32555972362 -n gift-floristic-status-32555972362 -D /tmp/gift
+          gh run download 32551742699 -n reviewed-open-web-evidence-32551742699 -D /tmp/traits
+          gh run download 29228212586 -n purpose-shortest-distance-regime-29228212586 -D /tmp/isolation
+          test -s /tmp/gift/gift-matched/gift_floristic_status_ledger.csv.gz
+          test -s /tmp/traits/direct_species_trait_ledger.csv.gz
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+
+      - name: Collapse GIFT origin independently from endemism
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from island_v2.floristic_status_resolve import collapse_gift_origin
+
+          raw = pd.read_csv('/tmp/gift/gift-matched/gift_floristic_status_ledger.csv.gz')
+          origin = collapse_gift_origin(raw)
+          out = origin[['island_id','accepted_species','origin_status']].copy()
+          out['endemic_status'] = 'unresolved'
+          out['status_source'] = 'GIFT_3.2_origin_only'
+          out['status_reference'] = origin['gift_status_references']
+          out['status_evidence_id'] = (
+              'GIFT_ORIGIN_' + out['island_id'].astype(str) + '_' + out['accepted_species'].astype(str)
+          )
+          out.to_csv('/tmp/gift/origin_only_status_ledger.csv.gz', index=False)
+          print({
+              'n_rows': len(out),
+              'n_islands': out.island_id.nunique(),
+              'n_species': out.accepted_species.nunique(),
+              'origin_status': out.origin_status.value_counts().to_dict(),
+              'origin_conflicts': int(origin.origin_conflict.sum()),
+          })
+          PY
+
+      - name: Run direct support audit
+        run: |
+          python -m island_v2.flora_status_support \
+            --island-species-csv data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
+            --status-ledger-csv /tmp/gift/origin_only_status_ledger.csv.gz \
+            --direct-evidence-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/flora_status_support.yml \
+            --output-dir /tmp/support
+
+      - name: Separate status ceilings from trait gaps
+        run: |
+          python -m island_v2.flora_status_support_decision \
+            --support-summary-csv /tmp/support/direct_trait_support_summary.csv \
+            --island-support-csv /tmp/support/direct_trait_support_by_island.csv.gz \
+            --output-dir /tmp/decision
+
+      - name: Fit direct-native regime M0
+        run: |
+          python -m island_v2.native_status_trait_analysis \
+            --status-ledger-csv /tmp/gift/origin_only_status_ledger.csv.gz \
+            --direct-evidence-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --output-dir /tmp/native-m0
+          test -s /tmp/native-m0/native_direct_isolation_coefficients.csv
+
+      - name: Summarize manuscript-relevant native support and M0
+        run: |
+          python - <<'PY'
+          import json
+          import pandas as pd
+          from pathlib import Path
+
+          decisions = pd.read_csv('/tmp/decision/support_decisions.csv')
+          robustness = pd.read_csv('/tmp/decision/direct_species_threshold_robustness.csv')
+          isolation = pd.read_csv('/tmp/native-m0/native_direct_isolation_coefficients.csv')
+          keep_regimes = ['northern_midlatitude','tropical','southern_extratropical']
+          main = decisions[
+              decisions['regime'].isin(keep_regimes)
+              & decisions['stratum'].isin(['all_native','introduced'])
+          ].copy()
+          robust = robustness[
+              robustness['regime'].isin(keep_regimes)
+              & robustness['stratum'].isin(['all_native','introduced'])
+          ].copy()
+          iso = isolation[isolation['regime'].isin(keep_regimes)].copy()
+          main.to_csv('/tmp/decision/manuscript_status_support.csv', index=False)
+          robust.to_csv('/tmp/decision/manuscript_threshold_robustness.csv', index=False)
+          iso.to_csv('/tmp/decision/manuscript_native_m0_isolation.csv', index=False)
+          payload = {
+              'contract': 'native_status_direct_support_and_m0_checkpoint_v2',
+              'gift_status_run': 32555972362,
+              'direct_trait_run': 32551742699,
+              'isolation_run': 29228212586,
+              'note': (
+                  'GIFT endemism is disabled here; this artifact is origin-only. '
+                  'M0 is direct-native, pre-lineage, pre-Bombus.'
+              ),
+              'decisions': main.to_dict('records'),
+              'isolation_coefficients': iso.to_dict('records'),
+          }
+          Path('/tmp/decision/native_status_support_manifest.json').write_text(
+              json.dumps(payload, indent=2) + '\n', encoding='utf-8'
+          )
+          print(main[['regime','stratum','outcome','n_islands_with_stratum',
+                      'n_direct_eligible_islands','support_decision','next_action']].to_string(index=False))
+          print('\nDIRECT-NATIVE M0 ISOLATION')
+          print(iso[['regime','outcome','estimate_log_odds','cluster_robust_se','z_value',
+                     'nominally_supported','n_islands','n_clusters']].to_string(index=False))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-status-direct-support-${{ github.run_id }}
+          path: |
+            /tmp/gift/origin_only_status_ledger.csv.gz
+            /tmp/support/flora_status_support_manifest.json
+            /tmp/support/direct_trait_support_by_island.csv.gz
+            /tmp/support/direct_trait_support_summary.csv
+            /tmp/decision/support_decisions.csv
+            /tmp/decision/direct_species_threshold_robustness.csv
+            /tmp/decision/manuscript_status_support.csv
+            /tmp/decision/manuscript_threshold_robustness.csv
+            /tmp/decision/manuscript_native_m0_isolation.csv
+            /tmp/decision/native_status_support_manifest.json
+            /tmp/native-m0/native_direct_binary_counts.csv
+            /tmp/native-m0/native_direct_m0_coefficients.csv
+            /tmp/native-m0/native_direct_m0_fit.csv
+            /tmp/native-m0/native_direct_m0_manifest.json
+          if-no-files-found: error
+          retention-days: 90
