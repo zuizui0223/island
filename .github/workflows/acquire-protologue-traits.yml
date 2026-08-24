@@ -21,7 +21,7 @@ on:
       target_queue_run:
         description: "Run carrying minimum-endemic-acquisition-queue artifact"
         required: false
-        default: "32684677834"
+        default: "32685711975"
       limit:
         description: "How many queued species to attempt (0 walks the whole queue)"
         required: false
@@ -67,7 +67,7 @@ jobs:
       BHL_API_KEY: ${{ secrets.BHL_API_KEY }}
       GH_TOKEN: ${{ github.token }}
       TARGET_MODE: ${{ inputs.target_mode || 'minimum_endemic_colour' }}
-      TARGET_QUEUE_RUN: ${{ inputs.target_queue_run || '32684677834' }}
+      TARGET_QUEUE_RUN: ${{ inputs.target_queue_run || '32685711975' }}
       LIMIT: ${{ inputs.limit || '500' }}
       MAX_ISLANDS: ${{ inputs.max_islands || '3' }}
     steps:
