@@ -9,7 +9,7 @@ on:
       target_queue_run:
         description: "Run carrying the locked minimum endemic-colour queue"
         required: false
-        default: "32614335237"
+        default: "32684677834"
 
 permissions:
   contents: read
@@ -25,7 +25,7 @@ jobs:
     timeout-minutes: 60
     env:
       GH_TOKEN: ${{ github.token }}
-      TARGET_QUEUE_RUN: ${{ inputs.target_queue_run || '32614335237' }}
+      TARGET_QUEUE_RUN: ${{ inputs.target_queue_run || '32684677834' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -39,7 +39,7 @@ jobs:
           ruff check src/island_v2/web_trait_shard_campaign.py
           pytest -q tests/test_web_trait_shard_campaign.py
 
-      - name: Download the frozen 23-species queue
+      - name: Download the current minimum queue
         run: |
           set -euo pipefail
           mkdir -p /tmp/locked-queue
@@ -50,26 +50,34 @@ jobs:
           test -s "$QUEUE"
           cp "$QUEUE" /tmp/minimum_endemic_trait_acquisition_queue.csv
 
-      - name: Build a 23-species campaign master
+      - name: Build the queue-sized campaign master
         run: |
           python - <<'PY'
+          import os
           import pandas as pd
 
           queue = pd.read_csv('/tmp/minimum_endemic_trait_acquisition_queue.csv')
           queue = queue.loc[queue['outcome'].eq('plain_colour')].copy()
-          targets = set(queue['accepted_species'].astype(str))
+          queue = queue.sort_values(['regime', 'selection_order']).drop_duplicates('accepted_species')
+          if queue.empty:
+              raise SystemExit('Current minimum endemic-colour queue is empty; acquisition should stop')
+
           master = pd.read_csv('data/v2/staging/gbif/collected/island_taxa.csv')
-          target_master = master.loc[
-              master['accepted_species'].astype(str).isin(targets),
-              ['accepted_species', 'genus', 'family'],
-          ].drop_duplicates('accepted_species')
-          missing = sorted(targets - set(target_master['accepted_species'].astype(str)))
+          target_master = queue[['accepted_species']].merge(
+              master[['accepted_species', 'genus', 'family']].drop_duplicates('accepted_species'),
+              on='accepted_species', how='left', validate='one_to_one'
+          )
+          missing = target_master.loc[
+              target_master['genus'].isna() | target_master['family'].isna(),
+              'accepted_species'
+          ].astype(str).tolist()
           if missing:
               raise SystemExit(f'Queue species missing from master: {missing}')
-          target_master = target_master.sort_values('accepted_species').reset_index(drop=True)
-          if len(target_master) != 23:
-              raise SystemExit(f'Expected exactly 23 locked targets, got {len(target_master)}')
           target_master.to_csv('/tmp/target_master.csv', index=False)
+          n = len(target_master)
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as handle:
+              handle.write(f'N_LOCKED_SPECIES={n}\n')
+          print({'queue_run': os.environ['TARGET_QUEUE_RUN'], 'n_locked_species': n})
           print(target_master.to_string(index=False))
           PY
 
@@ -81,7 +89,7 @@ jobs:
             --campaign-dir /tmp/campaign \
             --shard-index 0 \
             --shard-count 1 \
-            --batch-size 23 \
+            --batch-size "$N_LOCKED_SPECIES" \
             --max-attempts 1 \
             --expected-species 0 \
             --gbif \
@@ -97,13 +105,13 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import os
           from pathlib import Path
           import pandas as pd
 
           root = Path('/tmp/campaign')
-          csvs = list(root.rglob('*.csv'))
           candidate_frames = []
-          for path in csvs:
+          for path in root.rglob('*.csv'):
               try:
                   table = pd.read_csv(path)
               except Exception:
@@ -122,9 +130,9 @@ jobs:
 
           status = json.loads((root / 'campaign_status.json').read_text(encoding='utf-8'))
           summary = {
-              'contract': 'minimum_endemic_colour_public_web_review_only_v1',
-              'queue_run': 32614335237,
-              'n_locked_species': 23,
+              'contract': 'minimum_endemic_colour_public_web_review_only_v2',
+              'queue_run': int(os.environ['TARGET_QUEUE_RUN']),
+              'n_locked_species': int(os.environ['N_LOCKED_SPECIES']),
               'providers': ['gbif', 'web_descriptions', 'wikimedia', 'world_flora'],
               'n_nonempty_colour_candidate_rows': int(len(colour)),
               'campaign_status': status,
