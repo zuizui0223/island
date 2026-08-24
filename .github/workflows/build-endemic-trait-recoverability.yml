@@ -11,7 +11,7 @@ on:
       support_run_id:
         description: "Run carrying endemic support decisions/targets"
         required: false
-        default: "32693474778"
+        default: "32695319042"
 
 permissions:
   contents: read
@@ -23,7 +23,7 @@ jobs:
     timeout-minutes: 20
     env:
       GH_TOKEN: ${{ github.token }}
-      SUPPORT_RUN_ID: ${{ inputs.support_run_id || '32693474778' }}
+      SUPPORT_RUN_ID: ${{ inputs.support_run_id || '32695319042' }}
       STATUS_RUN_ID: "32559322028"
       STATUS_ARTIFACT: "official-wcvp-corroborated-status-32559322028"
     steps:
@@ -51,17 +51,17 @@ jobs:
           gh run download "$STATUS_RUN_ID" \
             -n "$STATUS_ARTIFACT" \
             -D /tmp/status
-          test -s /tmp/support/endemic_trait_support_decisions.csv
-          test -s /tmp/support/endemic_unsupported_islands.csv
-          test -s /tmp/support/endemic_trait_acquisition_targets.csv
+          test -s /tmp/support/targets/endemic_trait_support_decisions.csv
+          test -s /tmp/support/targets/endemic_unsupported_islands.csv
+          test -s /tmp/support/targets/endemic_trait_acquisition_targets.csv
           test -s /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz
 
       - name: Diagnose observation-effort headroom before acquisition
         run: |
           python -m island_v2.endemic_trait_recoverability run \
-            --decisions-csv /tmp/support/endemic_trait_support_decisions.csv \
-            --unsupported-islands-csv /tmp/support/endemic_unsupported_islands.csv \
-            --targets-csv /tmp/support/endemic_trait_acquisition_targets.csv \
+            --decisions-csv /tmp/support/targets/endemic_trait_support_decisions.csv \
+            --unsupported-islands-csv /tmp/support/targets/endemic_unsupported_islands.csv \
+            --targets-csv /tmp/support/targets/endemic_trait_acquisition_targets.csv \
             --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
             --output-dir /tmp/recoverability \
             --thresholds 200,100,50,20,10,5,1 \
