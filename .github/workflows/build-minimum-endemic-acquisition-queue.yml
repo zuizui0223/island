@@ -203,6 +203,6 @@ jobs:
             /tmp/targets/endemic_trait_target_manifest.json
             /tmp/minimum/minimum_endemic_trait_acquisition_queue.csv
             /tmp/minimum/minimum_endemic_trait_acquisition_summary.csv
-            /tmp/minimum/minimum_endemic_acquisition_manifest.json
+            /tmp/minimum/minimum_endemic_trait_acquisition_manifest.json
           if-no-files-found: error
           retention-days: 90
