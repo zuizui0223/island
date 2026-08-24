@@ -56,7 +56,7 @@ jobs:
           gh run download "$STATUS_RUN_ID" \
             -n "$STATUS_ARTIFACT" \
             -D /tmp/status
-          python -m island_v2.endemic_trait_recoverability run \
+          python -m island_v2.endemic_trait_recoverability \
             --decisions-csv /tmp/support/targets/endemic_trait_support_decisions.csv \
             --unsupported-islands-csv /tmp/support/targets/endemic_unsupported_islands.csv \
             --targets-csv /tmp/support/targets/endemic_trait_acquisition_targets.csv \
