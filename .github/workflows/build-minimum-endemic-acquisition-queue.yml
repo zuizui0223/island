@@ -21,8 +21,8 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       STATUS_RUN_ID: "32559322028"
       STATUS_ARTIFACT: "official-wcvp-corroborated-status-32559322028"
-      TRAIT_RUN_ID: "32686741283"
-      TRAIT_ARTIFACT: "reviewed-open-web-evidence-32686741283"
+      TRAIT_RUN_ID: "32694486236"
+      TRAIT_ARTIFACT: "reviewed-open-web-evidence-32694486236"
       ISOLATION_RUN_ID: "29228212586"
       ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
     steps:
