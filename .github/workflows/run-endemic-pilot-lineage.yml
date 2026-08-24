@@ -90,7 +90,7 @@ jobs:
           test -s /tmp/lineage/status_stratified_lineage_support.csv
           test -s /tmp/lineage/status_stratified_lineage_isolation.csv
 
-      - name: Freeze pilot-facing checkpoint
+      - name: Freeze pilot-facing checkpoint and enforce stop boundary
         run: |
           python - <<'PY'
           import json, os
@@ -112,19 +112,42 @@ jobs:
           focus_support.to_csv('/tmp/lineage/endemic_pilot_support.csv', index=False)
           focus_iso.to_csv('/tmp/lineage/endemic_pilot_isolation.csv', index=False)
 
+          tropical_form = focus_support.loc[
+              focus_support['regime'].eq('tropical')
+              & focus_support['outcome'].eq('generalized_form')
+          ]
+          if tropical_form.empty:
+              raise SystemExit('Missing tropical endemic generalized-form support row')
+          support_column = next(
+              (c for c in ['n_islands', 'n_complete_islands', 'n'] if c in tropical_form.columns),
+              None,
+          )
+          if support_column is None:
+              raise SystemExit(
+                  'Cannot identify island-support column in status_stratified_lineage_support.csv: '
+                  f'{list(tropical_form.columns)}'
+              )
+          tropical_form_n = int(tropical_form.iloc[0][support_column])
+          if tropical_form_n < 30:
+              raise SystemExit(
+                  f'Wave30 did not reach the declared tropical form pilot boundary: {tropical_form_n}'
+              )
+
           payload = {
-              'contract': 'endemic_form_sc_postpilot_lineage_v1',
+              'contract': 'endemic_form_sc_postpilot_lineage_v2',
               'trait_run_id': int(os.environ['TRAIT_RUN_ID']),
               'null_draws': int(os.environ['NULL_DRAWS']),
               'min_species_per_island': 1,
               'pilot_target_islands': 30,
               'confirmatory_target_islands': 50,
+              'tropical_form_pilot_support': tropical_form_n,
+              'tropical_form_acquisition_decision': 'stop_at_30_and_reanalyse',
               'support': focus_support.to_dict('records'),
               'isolation_coefficients': focus_iso.to_dict('records'),
               'decision_rule': (
-                  'Reanalyse at 30 islands before any further acquisition. '
-                  'Do not interpret below-30 strata as biological findings and '
-                  'do not continue toward 50 automatically.'
+                  'Tropical endemic form acquisition stops at 30 islands. '
+                  'Do not continue toward 50 without a new post-pilot scientific justification. '
+                  'Other below-30 strata remain non-confirmatory.'
               ),
           }
           Path('/tmp/lineage/endemic_pilot_lineage_checkpoint.json').write_text(
@@ -132,6 +155,10 @@ jobs:
           )
           print(focus_support.to_string(index=False))
           print(focus_iso.to_string(index=False))
+          print(json.dumps({
+              'tropical_form_support': tropical_form_n,
+              'decision': 'stop_at_30_and_reanalyse',
+          }))
           PY
 
       - uses: actions/upload-artifact@v4
