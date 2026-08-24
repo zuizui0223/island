@@ -21,8 +21,8 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       STATUS_RUN_ID: "32559322028"
       STATUS_ARTIFACT: "official-wcvp-corroborated-status-32559322028"
-      TRAIT_RUN_ID: "32637872865"
-      TRAIT_ARTIFACT: "reviewed-open-web-evidence-32637872865"
+      TRAIT_RUN_ID: "32685093016"
+      TRAIT_ARTIFACT: "reviewed-open-web-evidence-32685093016"
       ISOLATION_RUN_ID: "29228212586"
       ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
     steps:
@@ -132,7 +132,7 @@ jobs:
               raise SystemExit('manual projection changed direct-ledger schema')
           combined.to_csv('/tmp/traits/direct_species_trait_ledger_with_manual.csv', index=False)
           print({
-              'formal_trait_run_id': 32637872865,
+              'formal_trait_run_id': 32685093016,
               'baseline_rows': int(len(baseline)),
               'manual_rows_input': int(len(manual)),
               'manual_rows_already_formal': int(len(already_formal)),
