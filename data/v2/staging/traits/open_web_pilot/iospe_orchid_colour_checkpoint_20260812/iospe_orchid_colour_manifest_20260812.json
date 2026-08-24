@@ -1,0 +1,40 @@
+{
+  "audit_rows": 200,
+  "contract": "iospe_orchid_colour_checkpoint_v1",
+  "development_audit_sha256": "8fbdf7409fa3a8c576ed3faa186c9e9044eef75f2abfd03549401cefdb6ef0b2",
+  "failed_pages": 113,
+  "fetch_manifest_sha256": "71c859840adb7c7a9d5f90c1eda03c4da6732b7f025871578117e1f68281d427",
+  "fetched_pages": 3655,
+  "indexed_exact_accepted_species": 5644,
+  "unresolved_colour_candidates": 3768,
+  "guardrails": {
+    "axis_only_join": false,
+    "cross_trait_substitution": false,
+    "cultivar_text_rejected": true,
+    "exact_quote": true,
+    "exact_species_heading": true,
+    "family_inference": false,
+    "global_fallback": false,
+    "source_text_only": true
+  },
+  "selected_evidence_rows": 668,
+  "selected_genera": 103,
+  "selected_species_trait": 636,
+  "final_holdout": {
+    "accepted_correct": 193,
+    "audit_sha256": "52c3d2b0cf51bdc6d43461288cd73853f94ec510b637d40cc8256700daa155b0",
+    "cultivar_contamination_rate": 0.0,
+    "precision": 0.965,
+    "precision_contract": "accepted_correct/all_reviewed",
+    "production_approved": true,
+    "reviewed": 200
+  },
+  "approved_evidence_rows": 661,
+  "approved_species_trait": 631,
+  "output_hashes": {
+    "iospe_orchid_colour_evidence_20260812.csv.gz": "3a56d57687d9277fc2a59e9766977a933cf535bcad9e1ec06b2f40f042afc913",
+    "iospe_orchid_colour_selection_20260812.csv.gz": "1f5d7ff0a6adfb3b1b8410cb2f4773840eee64186538b4c4383f191447c5bfe7"
+  },
+  "source_artifact": "iospe-orchid-colour-reviewed-source-package-20260812",
+  "source_run_id": "iospe-orchid-colour-20260812"
+}

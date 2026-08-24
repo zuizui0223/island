@@ -1,0 +1,206 @@
+name: Backfill an approved botanical site's species inventory
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/open-web-discovered-domain-backfill.yml"
+      - "src/island_v2/open_web_inventory_pilot.py"
+      - "src/island_v2/open_web_inventory_strict_pilot.py"
+      - "src/island_v2/open_web_network_structured_pilot.py"
+      - "src/island_v2/open_web_structured_traits.py"
+      - "config/open_web_domain_registry.yml"
+      - "config/open_web_trait_acquisition.yml"
+      - "tests/test_open_web_inventory_pilot.py"
+  workflow_dispatch:
+    inputs:
+      baseline_run_id:
+        description: Successful integrated three-axis coverage run
+        required: true
+        default: "30107066525"
+      domain:
+        description: Approved registry domain with an inventory URL
+        required: true
+        default: "gobotany.nativeplanttrust.org"
+      max_species_pages:
+        description: Hard cap on species treatments in this backfill shard
+        required: true
+        default: "1000"
+      target_coverage_run_id:
+        description: Latest strict coverage Run used to select unresolved species
+        required: true
+        default: "31195089605"
+      target_coverage_artifact_name:
+        description: Artifact from the latest strict coverage Run
+        required: true
+        default: "europe-pmc-support2-batch2-31195089605"
+      completed_run_ids:
+        description: Comma-separated successful inventory Runs whose page URLs must be skipped
+        required: true
+        default: "31189690305,31231041298"
+      completed_artifact_names:
+        description: Comma-separated artifacts paired with completed_run_ids
+        required: true
+        default: "open-web-domain-backfill-31189690305,open-web-domain-backfill-31231041298"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: open-web-domain-backfill-${{ github.ref }}-${{ inputs.domain || 'gobotany' }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate inventory backfill safeguards
+        run: |
+          set +e
+          mkdir -p outputs/open_web_inventory_validation
+          ruff check --ignore B008 \
+            src/island_v2/open_web_inventory_pilot.py \
+            src/island_v2/open_web_inventory_strict_pilot.py \
+            tests/test_open_web_inventory_pilot.py \
+            > outputs/open_web_inventory_validation/ruff.txt 2>&1
+          ruff_status=$?
+          pytest -q tests/test_open_web_inventory_pilot.py \
+            > outputs/open_web_inventory_validation/pytest.txt 2>&1
+          pytest_status=$?
+          printf '{"ruff_status":%s,"pytest_status":%s}\n' \
+            "$ruff_status" "$pytest_status" \
+            > outputs/open_web_inventory_validation/status.json
+          cat outputs/open_web_inventory_validation/ruff.txt
+          cat outputs/open_web_inventory_validation/pytest.txt
+          test "$ruff_status" -eq 0
+          test "$pytest_status" -eq 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: open-web-inventory-validation-${{ github.run_id }}
+          path: outputs/open_web_inventory_validation/
+          if-no-files-found: warn
+          retention-days: 7
+
+  backfill:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BASELINE_RUN_ID: ${{ inputs.baseline_run_id || '30107066525' }}
+      DOMAIN: ${{ inputs.domain || 'gobotany.nativeplanttrust.org' }}
+      MAX_SPECIES_PAGES: ${{ inputs.max_species_pages || '1000' }}
+      TARGET_COVERAGE_RUN_ID: ${{ inputs.target_coverage_run_id || '31195089605' }}
+      TARGET_COVERAGE_ARTIFACT_NAME: >-
+        ${{ inputs.target_coverage_artifact_name ||
+        'europe-pmc-support2-batch2-31195089605' }}
+      COMPLETED_RUN_IDS: >-
+        ${{ inputs.completed_run_ids || '31189690305,31231041298' }}
+      COMPLETED_ARTIFACT_NAMES: >-
+        ${{ inputs.completed_artifact_names ||
+        'open-web-domain-backfill-31189690305,open-web-domain-backfill-31231041298' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - name: Download the formal integrated baseline
+        run: |
+          mkdir -p \
+            /tmp/open-web-inventory-baseline \
+            /tmp/open-web-inventory-completed \
+            /tmp/open-web-inventory-target
+          gh run download "$BASELINE_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "integrated-trait-coverage-$BASELINE_RUN_ID" \
+            --dir /tmp/open-web-inventory-baseline
+          test -f /tmp/open-web-inventory-baseline/integrated_trait_coverage_summary.json
+          test -f /tmp/open-web-inventory-baseline/integrated_species_axis_coverage.csv.gz
+          test -f /tmp/open-web-inventory-baseline/integrated_evidence_lineage.csv.gz
+      - name: Download the prior completed species-page ledger
+        run: |
+          IFS=',' read -r -a run_ids <<< "$COMPLETED_RUN_IDS"
+          IFS=',' read -r -a artifact_names <<< "$COMPLETED_ARTIFACT_NAMES"
+          test "${#run_ids[@]}" -eq "${#artifact_names[@]}"
+          for index in "${!run_ids[@]}"; do
+            target_dir="/tmp/open-web-inventory-completed/${run_ids[$index]}"
+            mkdir -p "$target_dir"
+            gh run download "${run_ids[$index]}" \
+              --repo "${{ github.repository }}" \
+              --name "${artifact_names[$index]}" \
+              --dir "$target_dir"
+            test -f "$target_dir/discovered_species_pages.csv"
+          done
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+
+          files = sorted(Path("/tmp/open-web-inventory-completed").glob(
+              "*/discovered_species_pages.csv"
+          ))
+          pages = pd.concat(
+              [pd.read_csv(path, usecols=["source_url"], dtype=str) for path in files],
+              ignore_index=True,
+          ).drop_duplicates("source_url")
+          pages.to_csv(
+              "/tmp/open-web-inventory-completed/discovered_species_pages.csv",
+              index=False,
+          )
+          PY
+      - name: Download the latest strict coverage target
+        run: |
+          gh run download "$TARGET_COVERAGE_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "$TARGET_COVERAGE_ARTIFACT_NAME" \
+            --dir /tmp/open-web-inventory-target
+          target_coverage=$(find /tmp/open-web-inventory-target \
+            -name strict_species_axis_coverage.csv.gz -print -quit)
+          test -n "$target_coverage"
+          echo "TARGET_COVERAGE_CSV=$target_coverage" >> "$GITHUB_ENV"
+      - name: Discover and extract the approved site inventory
+        run: |
+          mkdir -p outputs/open_web_inventory_backfill
+          python -m island_v2.open_web_inventory_strict_pilot \
+            --baseline-dir /tmp/open-web-inventory-baseline \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --output-dir outputs/open_web_inventory_backfill \
+            --domain "$DOMAIN" \
+            --max-species-pages "$MAX_SPECIES_PAGES" \
+            --completed-species-pages-csv \
+              /tmp/open-web-inventory-completed/discovered_species_pages.csv \
+            --target-coverage-csv "$TARGET_COVERAGE_CSV" \
+            --inventory-pause-seconds 0.5 \
+            --page-pause-seconds 0.35
+          cat outputs/open_web_inventory_backfill/inventory_pilot_report.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Assert review-only output
+        run: |
+          jq --argjson max_species_pages "$MAX_SPECIES_PAGES" -e '
+            .accepted_evidence_rows == 0
+            and .manual_review_required == true
+            and .automatic_promotion == false
+            and .family_inference == false
+            and .global_fallback == false
+            and .completed_species_pages_excluded > 0
+            and .inventory_targeting == "unresolved_species_url_key"
+            and .target_unresolved_species > 0
+            and .species_pages_attempted > 0
+            and .species_pages_attempted <= $max_species_pages
+            and (.contract_eligible_novel_rows >= 0)
+          ' outputs/open_web_inventory_backfill/inventory_pilot_report.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: open-web-domain-backfill-${{ github.run_id }}
+          path: outputs/open_web_inventory_backfill/
+          if-no-files-found: error
+          retention-days: 90

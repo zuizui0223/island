@@ -1,0 +1,57 @@
+{
+  "contract": "merged_reviewed_source_package_v1",
+  "generated_at_utc": "2026-08-11T10:30:00Z",
+  "input_packages": [
+    {
+      "evidence_path": "data/v2/staging/traits/open_web_pilot/combined_next_source_package_20260811/combined_next_evidence_20260811.csv.gz",
+      "evidence_sha256": "11146bc695cf0eaf329179188d1224bcd84c3b10b9d0a24d27803fa5525321a8",
+      "audit_path": "data/v2/staging/traits/open_web_pilot/combined_next_source_package_20260811/combined_next_reviewed_audit_600_20260811.csv",
+      "audit_sha256": "4803b49f758f0ba0aa6a5490a6c0515e2e9635b8800fcbb20d2f9a59d0cbf51c"
+    },
+    {
+      "evidence_path": "data/v2/staging/traits/open_web_pilot/bsdb_csiro_wang_checkpoint_20260811/bsdb_csiro_wang_symmetry_evidence_20260811.csv.gz",
+      "evidence_sha256": "a9dfdac404f3b65fee2334cb1a54c4a794c579bf3bd29d46413cf82aa230053a",
+      "audit_path": "data/v2/staging/traits/open_web_pilot/bsdb_csiro_wang_checkpoint_20260811/bsdb_csiro_wang_symmetry_independent_audit_20260811.csv.gz",
+      "audit_sha256": "ca2ef71c1e141102fe5571f8752119dc18ec1d99d551e6e8b363af2b0a0e5d60"
+    }
+  ],
+  "candidate_evidence_rows": 31262,
+  "audit_rows": 2836,
+  "selected_evidence_rows": 31227,
+  "selected_species_trait": 30984,
+  "source_package_gate": {
+    "precision_contract": "accepted_correct/all_reviewed",
+    "reviewed": 2836,
+    "accepted_correct": 2801,
+    "precision": 0.9876586741889986,
+    "cultivar_contamination_rate": 0.0,
+    "minimum_reviewed": 200,
+    "minimum_reviewed_per_trait": 10,
+    "minimum_precision": 0.95,
+    "maximum_cultivar_contamination": 0.02,
+    "approval_unit": "trait_name",
+    "overall_precision_gate_applied": false,
+    "package_gate_passed": true,
+    "approved_traits": [
+      "autonomous_selfing_capacity",
+      "cleistogamy",
+      "floral_form",
+      "floral_symmetry",
+      "flower_primary_color",
+      "flower_size_class",
+      "inflorescence_display",
+      "mating_system",
+      "self_incompatibility",
+      "tube_depth_class"
+    ],
+    "approved_trait_count": 10,
+    "candidate_evidence_rows": 31262,
+    "selected_evidence_rows": 31227,
+    "explicitly_rejected_candidate_ids": 35
+  },
+  "output_hashes": {
+    "goal_scale_source_package_20260811_evidence.csv.gz": "64c98e2f0ca7d84166e06afb9d392c5deb0fa124909a09acf6053d4bde4c293c",
+    "goal_scale_source_package_20260811_audit.csv.gz": "87c4819134ca52c9bdc693208f14e3bb4cd77cd2b89860045e63371c5605a7ab",
+    "goal_scale_source_package_20260811_trait_audit.csv": "56c5faf2572413e3ef5b5ae5ec5b1c94babcc353f39466ff456ed1e86182003a"
+  }
+}

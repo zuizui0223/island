@@ -1,0 +1,82 @@
+{
+  "accepted_rows": 9,
+  "combined": {
+    "audit_rows": 1952,
+    "evidence_rows": 1952
+  },
+  "contract": "high_yield_trait_specific_support2_checkpoint_v1",
+  "created_at_utc": "2026-08-13T23:42:09Z",
+  "direct_counterevidence_rows": 4,
+  "direct_enrichment_rows": 3,
+  "files": {
+    "README.md": {
+      "sha256": "24b24842c0181898ad4d249ca34ea7d56cbe274669e1e857c8d57bc47dbded75",
+      "size_bytes": 1260
+    },
+    "combined_curated_evidence_20260814.csv": {
+      "sha256": "b1ca96fdfdee18567058dfb9da3e84bb69a45af0ae0032195253f7e979f79f46",
+      "size_bytes": 2206788
+    },
+    "combined_curated_manual_audit_20260814.csv": {
+      "sha256": "a656d57fa119aa2dabeb7527d234628837c61505d6c8659c174c32baba289188",
+      "size_bytes": 1903174
+    },
+    "high_yield_mixed_wave9_evidence_20260814.csv": {
+      "sha256": "c01d89c44c1ba3d348aaebcc9400c9c4527b1ec0ba4b86132dad541f8ac54c9f",
+      "size_bytes": 12085
+    },
+    "high_yield_mixed_wave9_manual_audit_20260814.csv": {
+      "sha256": "5f095c25f0bc342fcb0bcca56a30e2487d7c41c8f8896d1b784f0852afbb114f",
+      "size_bytes": 10527
+    }
+  },
+  "guardrails": {
+    "counterevidence_preserved": true,
+    "cross_trait_substitution": false,
+    "family_inference": false,
+    "genus_inference_emitted_here": false,
+    "global_fallback": false,
+    "n2_formal_inference": false,
+    "queue_potential_counted_as_coverage": false,
+    "search_snippet_evidence": false,
+    "trait_specific_records": true
+  },
+  "inputs": {
+    "master_csv": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e"
+    },
+    "prior_curated_audit_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\high_yield_mixed_wave8_checkpoint_20260814\\combined_curated_manual_audit_20260814.csv",
+      "sha256": "88c7f9ecfc1bab1ee4f006a5db57d9dcfc24701bf1289a535cad582fd7af183d"
+    },
+    "prior_curated_evidence_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\high_yield_mixed_wave8_checkpoint_20260814\\combined_curated_evidence_20260814.csv",
+      "sha256": "ba62301b3e7a5e23c11ec3b7614ccf15ace3d8c060788d50d75a3318c7cb4f69"
+    }
+  },
+  "language_counts": {
+    "en": 9
+  },
+  "pending_rejected_rows": 4,
+  "quality_counts": {
+    "high": 6,
+    "medium": 3
+  },
+  "role_counts": {
+    "direct_counterexample": 4,
+    "direct_enrichment": 3,
+    "rule_candidate": 2
+  },
+  "rule_candidates": 2,
+  "source_lineages": 6,
+  "species_trait": 9,
+  "theoretical_only_not_formal_coverage": true,
+  "theoretical_queue_cells_before_formal_validation": 84,
+  "trait_counts": {
+    "autonomous_selfing_capacity": 3,
+    "floral_symmetry": 1,
+    "mating_system": 4,
+    "self_incompatibility": 1
+  }
+}

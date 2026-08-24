@@ -1,0 +1,26 @@
+version: "1.0"
+
+source:
+  name: pladias_czech_flora_2025
+  citation: >-
+    Pladias Database of the Czech Flora and Vegetation, www.pladias.cz;
+    Chytry et al. (2021), Preslia 93: 1-87.
+  website: https://pladias.cz
+  usage_terms_url: https://pladias.cz/en/download/features
+  robots_url: https://pladias.cz/robots.txt
+  taxon_list_url: >-
+    https://files.ibot.cas.cz/cevs/downloads/taxonList_legend_2025_12_15.xls
+  expected_taxon_list_sha256: >-
+    d1a9214e10f4aec6a81ac848ae22c4c28206b523f9b0b2b0b828ec0a1f319a74
+  species_page_template: https://pladias.cz/en/taxon/data/{species}
+  user_agent: >-
+    island-trait-source-package/1.0 (+https://github.com/zuizui0223/island)
+  usage_contract: public_scientific_use_with_required_citation
+  large_scale_use_action: contact_pladias_governing_board_before_publication
+  accepted_feature_labels:
+    - Flower colour
+    - Flower symmetry
+    - Inflorescence type
+    - Shape of the sympetalous corolla or syntepalous perianth
+    - Generative reproduction type
+    - Pollination syndrome

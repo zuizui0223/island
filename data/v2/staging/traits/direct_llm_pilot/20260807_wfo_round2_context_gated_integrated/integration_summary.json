@@ -1,0 +1,159 @@
+{
+  "contract": "wfo_official_bulk_round2_context_gated_integration_v1",
+  "created_at_utc": "2026-08-07T09:40:02.377465Z",
+  "source": {
+    "candidate_artifact": "data\\v2\\staging\\traits\\direct_llm_pilot\\20260807_wfo_bulk_trait_candidates_round2\\llm_evidence_candidates.csv.gz",
+    "candidate_rows": 6696,
+    "accepted_rows": 6445,
+    "rejected_rows": 251,
+    "accepted_species": 4348,
+    "accepted_species_trait": 5894,
+    "providers": 18,
+    "archive_downloads": 24,
+    "search_queries": 0,
+    "cost_usd": 0.0
+  },
+  "audit": {
+    "reviewer": "codex_wfo_bulk_context_audit_20260807",
+    "human_review_claimed": false,
+    "method": "deterministic trait-by-provider sample plus direct LLM context review",
+    "all_reviewed": 185,
+    "accepted_correct": 181,
+    "precision": 0.9783783783783784,
+    "note": "Precision is reported for the conservative context gate decision in the reproducible audit sample; it is not an independent human audit."
+  },
+  "direct": {
+    "before_species_trait": 44248,
+    "after_species_trait": 48570,
+    "added_species_trait": 4367,
+    "removed_species_trait": 45,
+    "affected_conflicts": 206
+  },
+  "validated_low": {
+    "before_species_trait": 61021,
+    "after_species_trait": 66747,
+    "added_species_trait": 7053,
+    "invalidated_species_trait": 1327,
+    "upgraded_to_direct_species_trait": 229
+  },
+  "coverage": {
+    "before": {
+      "quality_counts": {
+        "high": 8811,
+        "medium": 32138,
+        "low": 49794
+      },
+      "filled_species_axis": 90743,
+      "unresolved_species_axis": 228142,
+      "by_axis": {
+        "flower_colour": {
+          "denominator": 106295,
+          "filled_species": 28075,
+          "fill_rate": 0.2641234300766734,
+          "quality_counts": {
+            "high": 4115,
+            "medium": 21230,
+            "low": 2730
+          },
+          "unresolved_species": 78220
+        },
+        "floral_structural_complexity": {
+          "denominator": 106295,
+          "filled_species": 43701,
+          "fill_rate": 0.41112940401712217,
+          "quality_counts": {
+            "high": 3460,
+            "medium": 7134,
+            "low": 33107
+          },
+          "unresolved_species": 62594
+        },
+        "reproductive_assurance": {
+          "denominator": 106295,
+          "filled_species": 18967,
+          "fill_rate": 0.17843736770309046,
+          "quality_counts": {
+            "high": 1236,
+            "medium": 3774,
+            "low": 13957
+          },
+          "unresolved_species": 87328
+        }
+      },
+      "species_by_filled_axis_count": {
+        "0": 48198,
+        "1": 31945,
+        "2": 19658,
+        "3": 6494
+      }
+    },
+    "after": {
+      "quality_counts": {
+        "high": 13895,
+        "medium": 30734,
+        "low": 51861
+      },
+      "filled_species_axis": 96490,
+      "unresolved_species_axis": 222395,
+      "by_axis": {
+        "flower_colour": {
+          "denominator": 106295,
+          "filled_species": 29638,
+          "fill_rate": 0.278827790582812,
+          "quality_counts": {
+            "high": 6768,
+            "medium": 20158,
+            "low": 2712
+          },
+          "unresolved_species": 76657
+        },
+        "floral_structural_complexity": {
+          "denominator": 106295,
+          "filled_species": 47884,
+          "fill_rate": 0.4504821487370055,
+          "quality_counts": {
+            "high": 5883,
+            "medium": 6809,
+            "low": 35192
+          },
+          "unresolved_species": 58411
+        },
+        "reproductive_assurance": {
+          "denominator": 106295,
+          "filled_species": 18968,
+          "fill_rate": 0.17844677548332472,
+          "quality_counts": {
+            "high": 1244,
+            "medium": 3767,
+            "low": 13957
+          },
+          "unresolved_species": 87327
+        }
+      },
+      "species_by_filled_axis_count": {
+        "0": 45040,
+        "1": 32872,
+        "2": 21531,
+        "3": 6852
+      }
+    },
+    "gross_gain": 6452,
+    "loss": 705,
+    "net_change": 5747
+  },
+  "safeguards": {
+    "trait_specific_genus_join": "genus_x_trait_name",
+    "axis_only_join": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "snippets_as_evidence": false,
+    "source_lineage_deduplicated": true,
+    "pollen_vector_or_reward_mixed_into_axes": false
+  },
+  "verification": {
+    "ledger_rows": 318885,
+    "unique_species": 106295,
+    "duplicate_species_axis": 0,
+    "quality_sum_matches_filled": true
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "contract": "targeted_support2_wave14_acquisition_v1",
+  "retrieved_at_utc": "2026-08-14T06:10:00Z",
+  "strategy": "independent third-species direct evidence for support=2 genus x individual-trait rules",
+  "formal_search_api_queries": 0,
+  "manual_open_web_queries": 43,
+  "search_cost_usd": 0.0,
+  "reviewed_candidates": 14,
+  "accepted_species_trait_rows": 7,
+  "accepted_source_domains": 2,
+  "accepted_source_lineages": 2,
+  "withheld_or_rejected": [
+    {
+      "accepted_species": "Orthoceras spp. queue entries",
+      "candidate": "floral symmetry rule unlock",
+      "reason": "fixed-master identity collision includes fossil cephalopod names mislabeled as Orchidaceae; genus inference is unsafe"
+    },
+    {
+      "accepted_species": "Rumicastrum calyptratum",
+      "candidate": "white flower-colour rule unlock",
+      "reason": "species-level pink-flower counterevidence prevents a homogeneous genus rule"
+    },
+    {
+      "accepted_species": "Rhamnus alaternus",
+      "candidate": "predominantly outcrossing rule unlock",
+      "reason": "official descriptions conflict between monoecious and dioecious sexual systems; dioecy was not substituted for mating system"
+    },
+    {
+      "accepted_species": "Ouratea spectabilis",
+      "candidate": "self-incompatibility direct evidence",
+      "reason": "the evidenced species is not in the fixed 106295-species master"
+    },
+    {
+      "accepted_species": "Buxus spp.",
+      "candidate": "self-compatibility rule unlock",
+      "reason": "no third fixed-master species with a controlled, species-direct result was located"
+    },
+    {
+      "accepted_species": "Schoenus spp.",
+      "candidate": "self-compatibility rule unlock",
+      "reason": "no third fixed-master species with species-direct reproductive evidence was located"
+    },
+    {
+      "accepted_species": "Cassipourea elliptica",
+      "candidate": "regular flowers in a World Flora Online treatment",
+      "reason": "the regular-flower sentence is a genus description from a separate provider block; naming C. elliptica elsewhere on the page does not make that sentence species-direct"
+    }
+  ],
+  "guardrails": {
+    "search_snippet_as_evidence": false,
+    "species_direct_only": true,
+    "strict_synonym_requires_two_backbones": true,
+    "cross_trait_substitution": false,
+    "genus_trait_join_only": true,
+    "family_inference": false,
+    "global_fallback": false
+  }
+}

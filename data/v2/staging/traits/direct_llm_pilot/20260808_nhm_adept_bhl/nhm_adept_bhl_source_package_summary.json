@@ -1,0 +1,33 @@
+{
+  "audit_queue_rows": 200,
+  "audit_quota": {
+    "floral_form": 20,
+    "floral_symmetry": 10,
+    "flower_primary_color": 80,
+    "inflorescence_display": 40,
+    "tube_depth_class": 50
+  },
+  "contract": "nhm_adept_bhl_source_package_v1",
+  "evidence_rows": 27095,
+  "promotion_performed": false,
+  "resource_id": "cc636680-abfb-4143-9b99-62dcb562f8da",
+  "source_artifact": "nhm-adept-bhl-2026-datastore",
+  "source_rows": 25200,
+  "source_run_id": "nhm-adept-bhl-2026-20260808",
+  "strict_exclusions": [
+    "flower_architecture_not_floral_form",
+    "reproduction_system_is_sex_system_not_reproductive_assurance",
+    "pollination_kept_outside_strict_axes",
+    "reward_kept_outside_strict_axes",
+    "bract_calyx_pollen_fruit_colour_excluded"
+  ],
+  "trait_rows": {
+    "floral_form": 281,
+    "floral_symmetry": 31,
+    "flower_primary_color": 21712,
+    "inflorescence_display": 1923,
+    "tube_depth_class": 3148
+  },
+  "unique_species": 8694,
+  "unique_species_trait": 11004
+}

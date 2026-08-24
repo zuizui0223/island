@@ -1,0 +1,35 @@
+version: "1.0"
+
+source:
+  name: ferrer_2024_si_database
+  citation: >-
+    Ferrer et al. (2024), A global database of plant self-incompatibility
+    systems, Annals of Botany, mcae056.
+  article_doi: 10.1093/aob/mcae056
+  dataset_url: https://doi.org/10.1093/aob/mcae056
+  attachment_resolver_url: https://oup.silverchair-cdn.com/article-minimal/7666972
+  attachment_filename: mcae056_suppl_supplementary_data.xlsx
+  expected_workbook_sha256: 8ef2f5ac99780ca19a15b847442272457634064577f8a12fbb9710f5521e5899
+  expected_source_rows: 5686
+  license: Oxford Standard Journals Publication Model; research reuse with citation
+
+gbif_reconciliation:
+  endpoint: https://api.gbif.org/v1/species/match
+  minimum_confidence: 95
+  allowed_match_type: EXACT
+  allowed_rank: SPECIES
+  allowed_kingdom: Plantae
+  allowed_status:
+    - SYNONYM
+
+direct_evidence_policy:
+  accept:
+    - reference_supported_SC
+    - phenotype_confirmed_SI
+    - phenotype_confirmed_partial_SI
+  exclude:
+    - self_sterility_without_SI_mechanism
+    - dataset_level_genus_transferred_SI
+    - uncited_classification
+  partial_si_value: mixed_or_variable
+  emit_genus_inference: false

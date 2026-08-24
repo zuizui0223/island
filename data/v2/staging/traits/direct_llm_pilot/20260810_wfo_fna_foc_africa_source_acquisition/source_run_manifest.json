@@ -1,0 +1,55 @@
+{
+  "package_run_id": "wfo-high-yield-plus-fna-foc-africa-20260810",
+  "package_artifact": "wfo-high-yield-plus-fna-foc-africa-source-package-20260810",
+  "fixed_universe_species": 106295,
+  "baseline_formal_run_id": "31350993446",
+  "backbone": {
+    "name": "World Flora Online June 2026 backbone",
+    "file": "_DwC_backbone_R.zip",
+    "bytes": 121660019,
+    "sha256": "ccfc7e3ca85c8b80aa96eb52d4e50e07e1811d28916b544280d8a4f1a043ba72"
+  },
+  "raw_archives": [
+    {
+      "provider": "fna",
+      "url": "https://files.worldfloraonline.org/files/eFloras/FNA/FNA.zip",
+      "file": "FNA.zip",
+      "bytes": 6053461,
+      "sha256": "0757eb55f2e844383d34650ea3aa577d15c2210f3893561b6694559dd9aa02e1",
+      "matched_species_descriptions": 4117
+    },
+    {
+      "provider": "flora_of_china",
+      "url": "https://files.worldfloraonline.org/files/eFloras/Flora_Of_China/Flora_Of_China.zip",
+      "file": "Flora_Of_China.zip",
+      "bytes": 12727110,
+      "sha256": "4c0b89280efdcfd0ef8dc753cca5d63566ddf8c34542b0bb4a78cdce799b63a9",
+      "matched_species_descriptions": 9041
+    },
+    {
+      "provider": "flora_d_afrique",
+      "url": "https://files.worldfloraonline.org/files/Flora%20d%27Afrique/WFO-fdac.zip",
+      "file": "WFO-fdac.zip",
+      "bytes": 3391409,
+      "sha256": "c6c64bb11a078f4d8690622a20f7097e8b121ae28fbc41f4952c192959d39c2e",
+      "matched_species_descriptions": 1661
+    }
+  ],
+  "inspected_but_excluded_archives": [
+    {
+      "provider": "plants_of_nepal",
+      "url": "https://files.worldfloraonline.org/files/Nepal/Plants_of_Nepal.zip",
+      "file": "Plants_of_Nepal.zip",
+      "bytes": 353365,
+      "sha256": "523624187498b1a5f3fa7e1fbe6c3ecb2a87e39f043a43c1f268ecf13db861bd",
+      "reason": "treatments contained distribution, ecology, and use fields but no scalable target floral descriptions"
+    }
+  ],
+  "matched_species_descriptions": 14819,
+  "primary_extracted_evidence_rows": 4502,
+  "final_incremental_candidate_rows": 3972,
+  "identity_contract": "WFO exact accepted or synonym species name, species rank, fixed-universe family consistent",
+  "evidence_contract": "species-direct exact treatment quote; complete normalized state set; source-lineage deduplicated; no family inference; no global fallback",
+  "audit_contract": "accepted_correct / all_reviewed, deterministic provider x trait stratified sample; combined trait-level production gate over 320 reviews",
+  "first_package_manifest": "../20260810_wfo_high_yield_source_acquisition/source_run_manifest.json"
+}

@@ -1,0 +1,60 @@
+{
+  "audit": {
+    "accepted_correct": 9,
+    "cultivar_contamination_rate": 0.0,
+    "precision": 1.0,
+    "reviewed": 9
+  },
+  "combined": {
+    "audit_rows": 785,
+    "evidence_rows": 785,
+    "species": 588,
+    "species_trait": 784
+  },
+  "contract": "reproductive_rule_unlock_individually_reviewed_checkpoint_v1",
+  "created_at_utc": "2026-08-12T08:20:00Z",
+  "files": {
+    "README.md": {
+      "sha256": "dc4106b7351a30320db3271b7a64ed9ca60db1e7a87e37f5172f6cd4022bd229",
+      "size_bytes": 1680
+    },
+    "combined_curated_evidence_20260812.csv": {
+      "sha256": "dfcf8a5e28faca8968493819c93ea1747786da155a6d38ed9394ee770995f152",
+      "size_bytes": 766182
+    },
+    "combined_curated_manual_audit_20260812.csv": {
+      "sha256": "cd130abe7f9e019ecfd6622eb2d622a2d19272fdaa36a3f89e6bf21f05a81bb1",
+      "size_bytes": 693420
+    },
+    "reproductive_rule_unlock_evidence_20260812.csv": {
+      "sha256": "bf1ade6d4cd4ab96d89613d311166381d5deb10193c5089409780756d80ce622",
+      "size_bytes": 11637
+    },
+    "reproductive_rule_unlock_manual_audit_20260812.csv": {
+      "sha256": "3b60902db5f6089d0cd15fa45c699ccbb120be9ea7160ee73bc671afb56aff79",
+      "size_bytes": 10381
+    }
+  },
+  "guardrails": {
+    "cross_trait_substitution": false,
+    "family_inference": false,
+    "genus_inference_emitted_here": false,
+    "global_fallback": false,
+    "n2_formal_inference": false,
+    "rejected_ornithogalum_candidate": true,
+    "search_snippet_evidence": false,
+    "trait_specific_records": true
+  },
+  "new_evidence_rows": 9,
+  "new_species": 6,
+  "new_species_trait": 9,
+  "quality_counts": {
+    "high": 9
+  },
+  "source_lineages": 6,
+  "trait_counts": {
+    "autonomous_selfing_capacity": 3,
+    "mating_system": 4,
+    "self_incompatibility": 2
+  }
+}

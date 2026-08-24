@@ -1,0 +1,55 @@
+{
+  "contract": "merged_reviewed_source_package_v1",
+  "generated_at_utc": "2026-08-11T15:03:00Z",
+  "input_packages": [
+    {
+      "evidence_path": "data/v2/staging/traits/open_web_pilot/combined_next_source_package_20260811/combined_next_evidence_20260811.csv.gz",
+      "evidence_sha256": "11146bc695cf0eaf329179188d1224bcd84c3b10b9d0a24d27803fa5525321a8",
+      "audit_path": "data/v2/staging/traits/open_web_pilot/combined_next_source_package_20260811/combined_next_reviewed_audit_600_20260811.csv",
+      "audit_sha256": "4803b49f758f0ba0aa6a5490a6c0515e2e9635b8800fcbb20d2f9a59d0cbf51c"
+    },
+    {
+      "evidence_path": ".work/florml-colour-recovery-final-20260811/florml_colour_evidence_20260811.csv.gz",
+      "evidence_sha256": "ed32b8df200c74edf717e0341e935550737cfb6539c94da03fd005c725fe1600",
+      "audit_path": ".work/florml-colour-recovery-final-20260811/florml_colour_reviewed_audit_200_20260811.csv",
+      "audit_sha256": "2373dab885959bd3c2de08de16b9cef2ab2b8524d098ebee04ddfe6be9e09ab9"
+    }
+  ],
+  "candidate_evidence_rows": 1524,
+  "audit_rows": 800,
+  "selected_evidence_rows": 1524,
+  "selected_species_trait": 1477,
+  "source_package_gate": {
+    "precision_contract": "accepted_correct/all_reviewed",
+    "reviewed": 800,
+    "accepted_correct": 800,
+    "precision": 1.0,
+    "cultivar_contamination_rate": 0.0,
+    "minimum_reviewed": 200,
+    "minimum_reviewed_per_trait": 10,
+    "minimum_precision": 0.95,
+    "maximum_cultivar_contamination": 0.02,
+    "approval_unit": "trait_name",
+    "overall_precision_gate_applied": false,
+    "package_gate_passed": true,
+    "approved_traits": [
+      "autonomous_selfing_capacity",
+      "cleistogamy",
+      "floral_form",
+      "floral_symmetry",
+      "flower_primary_color",
+      "inflorescence_display",
+      "mating_system",
+      "self_incompatibility"
+    ],
+    "approved_trait_count": 8,
+    "candidate_evidence_rows": 1524,
+    "selected_evidence_rows": 1524,
+    "explicitly_rejected_candidate_ids": 0
+  },
+  "output_hashes": {
+    "combined_source_package_with_florml_20260811_evidence.csv.gz": "e0f492638c0686710476ac70807e9b0c721815bac4f2f2953d152fa6d860c82d",
+    "combined_source_package_with_florml_20260811_audit.csv.gz": "bb3fce19f9098dd51d44529c4ef07054b48243cfeafd927aba076c78bcdb810d",
+    "combined_source_package_with_florml_20260811_trait_audit.csv": "09fba9c9200db0cf6662a2a4bc040034eaade4d3167026be5a7e6c70f2fc6f75"
+  }
+}

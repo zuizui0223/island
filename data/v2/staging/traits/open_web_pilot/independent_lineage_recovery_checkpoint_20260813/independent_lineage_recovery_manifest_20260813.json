@@ -1,0 +1,79 @@
+{
+  "accepted_rows": 20,
+  "combined": {
+    "audit_rows": 1766,
+    "evidence_rows": 1766
+  },
+  "contract": "independent_lineage_recovery_checkpoint_v1",
+  "corrective_rows": {
+    "Lolium_rigidum_cross_species_exclusion": true,
+    "Nephelium_lappaceum_medium_SC_to_high_SI": true
+  },
+  "created_at_utc": "2026-08-13T09:42:00Z",
+  "explicitly_rejected": [
+    "Calamus javensis|flower_size_class|petal_size_not_whole_flower_size",
+    "Cirsium brevistylum|autonomous_selfing_capacity|apomixis_not_excluded",
+    "Durio zibethinus|self_incompatibility|cultivar_specific_variability",
+    "Begonia|autonomous_selfing_capacity|genus_rule_blocked_by_direct_counterexample",
+    "Begonia integerrima|autonomous_selfing_capacity|manual_geitonogamy_not_substituted_for_autonomous_capacity"
+  ],
+  "files": {
+    "combined_curated_evidence_20260813.csv": {
+      "sha256": "bd8398073006138d24f9d60b9f4ec967f4327fff3912ce49c69a657da152bac4",
+      "size_bytes": 2011526
+    },
+    "combined_curated_manual_audit_20260813.csv": {
+      "sha256": "aeb7d6042728cf26da3f4ec8278d760706af93e325a0eeebb6bff1eb1afe8a04",
+      "size_bytes": 1733990
+    },
+    "independent_lineage_recovery_evidence_20260813.csv": {
+      "sha256": "034762e6de4f9b93666ef352f18976421567775da826602fdace09dffa74f75e",
+      "size_bytes": 22035
+    },
+    "independent_lineage_recovery_manual_audit_20260813.csv": {
+      "sha256": "5d8310b26f0464a8d9d1a86cef5b5fe85bc3a8917636a266b728c978a6f39eb5",
+      "size_bytes": 20499
+    }
+  },
+  "guardrails": {
+    "cross_trait_substitution": false,
+    "family_inference": false,
+    "genus_inference_emitted_here": false,
+    "global_fallback": false,
+    "search_snippet_evidence": false,
+    "trait_specific_records": true
+  },
+  "inputs": {
+    "master_csv": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e"
+    },
+    "prior_curated_audit_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\independent_lineage_recovery_checkpoint_20260813\\combined_curated_manual_audit_20260813.csv",
+      "sha256": "aeb7d6042728cf26da3f4ec8278d760706af93e325a0eeebb6bff1eb1afe8a04"
+    },
+    "prior_curated_evidence_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\independent_lineage_recovery_checkpoint_20260813\\combined_curated_evidence_20260813.csv",
+      "sha256": "bd8398073006138d24f9d60b9f4ec967f4327fff3912ce49c69a657da152bac4"
+    }
+  },
+  "quality_counts": {
+    "high": 16,
+    "medium": 4
+  },
+  "source_lineages": 14,
+  "species_trait": 20,
+  "theoretical_incremental_ficus_rule_cells": 634,
+  "theoretical_incremental_visible_rule_axis_cells_upper_bound": 314,
+  "theoretical_incremental_visible_rule_trait_cells": 432,
+  "theoretical_only_not_formal_coverage": true,
+  "theoretical_rule_trait_cells": 2086,
+  "trait_counts": {
+    "autonomous_selfing_capacity": 6,
+    "floral_symmetry": 2,
+    "flower_size_class": 2,
+    "inflorescence_display": 1,
+    "mating_system": 7,
+    "self_incompatibility": 2
+  }
+}

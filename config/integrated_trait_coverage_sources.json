@@ -150,6 +150,14 @@
       "role": "repo_staged_bulk"
     },
     {
+      "source_group": "pladias",
+      "run_id": 30081415812,
+      "artifact_name": "all-master-trait-ledger-30081415812",
+      "source_path": "data/v2/staging/traits/bulk/pladias_czech_flora/trait_candidates.csv.gz",
+      "source_url": "https://pladias.cz",
+      "role": "repo_staged_bulk"
+    },
+    {
       "source_group": "promoted_public_web",
       "run_id": 30081293493,
       "artifact_name": "public-web-traits-combined",

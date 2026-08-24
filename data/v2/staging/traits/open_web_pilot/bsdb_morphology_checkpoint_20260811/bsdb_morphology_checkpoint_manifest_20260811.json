@@ -1,0 +1,49 @@
+{
+  "already_resolved_pairs_researched": false,
+  "contract": "bsdb_morphology_checkpoint_v1",
+  "counts": {
+    "audit_rows": 200,
+    "selected_by_value": {
+      "actinomorphic": 720,
+      "zygomorphic": 157
+    },
+    "selected_evidence_rows": 877,
+    "selected_species": 843,
+    "selected_species_trait": 843,
+    "selection_reasons": {
+      "already_resolved_direct_pair": 317,
+      "family_conflict": 14,
+      "infraspecific_record": 103,
+      "missing_individually_collected_species_source": 790,
+      "not_exact_species_rank": 6,
+      "not_in_strict_island_universe": 1431,
+      "selected": 877,
+      "unsupported_floral_symmetry_state": 71
+    },
+    "source_lineages": 359,
+    "source_rows": 3609
+  },
+  "family_inference": false,
+  "family_trait_source_accepted": false,
+  "genus_trait_source_accepted": false,
+  "global_fallback": false,
+  "input_hashes": {
+    "baseline_direct_csv_sha256": "05aa031d14bb7e2405b2054c028c899e3f13b891a6b8fa27ae195ea16a9063fc",
+    "master_csv_sha256": "21925a4e4d6fc8431e8549b3c3ddff9acdbded0b017e0aa78a5c863147392fe9",
+    "reviewed_audit_csv_sha256": "fd1becf241cbc1564d58797fd5e670527fdefe76e15d59c4d68718df8877c491",
+    "source_csv_sha256": "f935c8150b3d719aba5f62f14335c1a185304155403bf50db1e3ef1393fc55f4"
+  },
+  "manual_audit_required_before_promotion": false,
+  "output_hashes": {
+    "bsdb_morphology_evidence_20260811.csv.gz": "dd421702ad17150dd68ab10da373e5d2bf419a10aae965ab020ff9c496a3921d",
+    "bsdb_morphology_manual_audit_200_20260811.csv": "93a71249a104f27255a86ccb6622479e59e618c1840f9dfb06db2a4238eb8407",
+    "bsdb_morphology_selection_audit_20260811.csv.gz": "fb32fdc47aaa95287c824d09304105b97c87cd3e0c33a7bef54463ea90707ba4"
+  },
+  "source_article_doi": "10.1111/nph.20234",
+  "source_artifact": "Zell_df_12_29_23.csv",
+  "source_commit": "9e87946d1e3121d39e657b702cf9f92ccc10936e",
+  "source_run_id": "dirtyplants-BSdb@9e87946d1e3121d39e657b702cf9f92ccc10936e",
+  "source_url": "https://raw.githubusercontent.com/dirtyplants/BSdb/9e87946d1e3121d39e657b702cf9f92ccc10936e/Zell_df_12_29_23.csv",
+  "species_level_trait_source_required": true,
+  "wind_mapped_to_floral_symmetry": false
+}

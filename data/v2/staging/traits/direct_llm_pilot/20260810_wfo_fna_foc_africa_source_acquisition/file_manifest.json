@@ -1,0 +1,49 @@
+{
+  "files": [
+    {
+      "file": "source_run_manifest.json",
+      "bytes": 2530,
+      "sha256": "ad8e24b57aa64c11043e7cf93f5696079b9f0ad05c93d78e918714351b793b82"
+    },
+    {
+      "file": "wfo_combined_high_yield_evidence.csv.gz",
+      "bytes": 1202661,
+      "sha256": "8bcce476dba7d782e41f04c84ccb206d038460fdbcfbe1abc97a3da4d5f025e9"
+    },
+    {
+      "file": "wfo_combined_high_yield_manual_audit_320.csv",
+      "bytes": 350634,
+      "sha256": "c353b35353d384ef1717501c20bd02c3494b6f9c1ced44a1594a7434e7031f6b"
+    },
+    {
+      "file": "wfo_combined_high_yield_source_package_summary.json",
+      "bytes": 392,
+      "sha256": "065d85e7844e5ccc70797b4d3d13781190d7d3dd0fab1eb985e8cab78c3b7203"
+    },
+    {
+      "file": "wfo_fna_foc_africa_audit_queue_120.csv",
+      "bytes": 113008,
+      "sha256": "0aee8bb766811d5a6dfa06cd413843af84640e61f969d33eec1772944f4828c0"
+    },
+    {
+      "file": "wfo_fna_foc_africa_audit_seed_120.csv",
+      "bytes": 107397,
+      "sha256": "14e27ae679eb6cba13adc0bf7a8a0226fa0fd9a9f0555eba4887162aff3b0331"
+    },
+    {
+      "file": "wfo_fna_foc_africa_extracted_evidence.csv.gz",
+      "bytes": 410350,
+      "sha256": "be81db46af5042c63bebc4b823d03a9f4b670970f947975f0f68061fb2c41fcd"
+    },
+    {
+      "file": "wfo_fna_foc_africa_incremental_evidence.csv.gz",
+      "bytes": 336710,
+      "sha256": "45aae0dcd0b128a0dca483f9ad7819e50df731d4508be64a45fa737fb6c03368"
+    },
+    {
+      "file": "wfo_fna_foc_africa_manual_audit_120.csv",
+      "bytes": 134936,
+      "sha256": "527e0d9b4877c93a54a41134c7c55979a385c21c867edc6c7012a208573fee2d"
+    }
+  ]
+}

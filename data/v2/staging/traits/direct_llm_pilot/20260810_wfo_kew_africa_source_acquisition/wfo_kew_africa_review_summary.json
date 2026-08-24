@@ -1,0 +1,29 @@
+{
+  "contract": "wfo_kew_africa_manual_source_package_audit_v1",
+  "precision_contract": "accepted_correct/all_reviewed",
+  "reviewed": 200,
+  "accepted_correct": 197,
+  "precision": 0.985,
+  "cultivar_contamination_rate": 0.0,
+  "reviewer": "OpenAI Codex source-text holdout review",
+  "reviewed_at_utc": "2026-08-10T00:00:00Z",
+  "deterministic_seed": "wfo-kew-africa-holdout-audit-20260810-v1",
+  "approved_traits": ["floral_form", "flower_primary_color", "flower_size_class", "inflorescence_display"],
+  "selected_evidence_rows": 1485,
+  "selected_species_trait": 1266,
+  "selected_species_axis": 1248,
+  "selected_species": 1078,
+  "by_trait": [
+    {"trait_name": "floral_form", "reviewed": 26, "accepted_correct": 26, "precision": 1.0, "cultivar_contamination_rate": 0.0, "production_approved": true},
+    {"trait_name": "floral_symmetry", "reviewed": 1, "accepted_correct": 1, "precision": 1.0, "cultivar_contamination_rate": 0.0, "production_approved": false},
+    {"trait_name": "flower_primary_color", "reviewed": 99, "accepted_correct": 98, "precision": 0.98989898989899, "cultivar_contamination_rate": 0.0, "production_approved": true},
+    {"trait_name": "flower_size_class", "reviewed": 13, "accepted_correct": 13, "precision": 1.0, "cultivar_contamination_rate": 0.0, "production_approved": true},
+    {"trait_name": "inflorescence_display", "reviewed": 59, "accepted_correct": 57, "precision": 0.9661016949152542, "cultivar_contamination_rate": 0.0, "production_approved": true},
+    {"trait_name": "tube_depth_class", "reviewed": 2, "accepted_correct": 2, "precision": 1.0, "cultivar_contamination_rate": 0.0, "production_approved": false}
+  ],
+  "rejected_candidates": [
+    {"candidate_id": "wfo-africa-83b72ec1f3ed9bfa5b1a09cb", "reason": "uncertain blue value (?blue) cannot be normalized as an observed state"},
+    {"candidate_id": "wfo-africa-d6d9b35ca647fcc42665ed51", "reason": "fruiting-only inflorescence architecture does not directly establish flowering display"},
+    {"candidate_id": "wfo-africa-2f9aacade09d25267b48f479", "reason": "quote includes singly and pairs but normalized value omits the solitary state"}
+  ]
+}

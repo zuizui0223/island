@@ -1,0 +1,56 @@
+{
+  "contract": "merged_reviewed_source_package_v1",
+  "generated_at_utc": "2026-08-12T03:35:17Z",
+  "input_packages": [
+    {
+      "evidence_path": "data/v2/staging/traits/open_web_pilot/combined_florml_size_source_package_20260812/combined_source_package_with_florml_size_20260812_evidence.csv.gz",
+      "evidence_sha256": "137db814caa2dbf71fce8959cf18d0525f8806f62f802abc0feddd626d292037",
+      "audit_path": "data/v2/staging/traits/open_web_pilot/combined_florml_size_source_package_20260812/combined_source_package_with_florml_size_20260812_audit.csv.gz",
+      "audit_sha256": "e10546c17624cf5ee8710c9ce3e9b1f4d0ce63897fb0320f6cc56ac6b63b5a85"
+    },
+    {
+      "evidence_path": "data/v2/staging/traits/open_web_pilot/iospe_orchid_colour_checkpoint_20260812/iospe_orchid_colour_evidence_20260812.csv.gz",
+      "evidence_sha256": "3a56d57687d9277fc2a59e9766977a933cf535bcad9e1ec06b2f40f042afc913",
+      "audit_path": "data/v2/staging/traits/open_web_pilot/iospe_orchid_colour_checkpoint_20260812/iospe_orchid_colour_audit_200_20260812.csv",
+      "audit_sha256": "52c3d2b0cf51bdc6d43461288cd73853f94ec510b637d40cc8256700daa155b0"
+    }
+  ],
+  "candidate_evidence_rows": 2513,
+  "audit_rows": 1200,
+  "selected_evidence_rows": 2505,
+  "selected_species_trait": 2419,
+  "source_package_gate": {
+    "precision_contract": "accepted_correct/all_reviewed",
+    "reviewed": 1200,
+    "accepted_correct": 1192,
+    "precision": 0.9933333333333333,
+    "cultivar_contamination_rate": 0.0,
+    "minimum_reviewed": 200,
+    "minimum_reviewed_per_trait": 10,
+    "minimum_precision": 0.95,
+    "maximum_cultivar_contamination": 0.02,
+    "approval_unit": "trait_name",
+    "overall_precision_gate_applied": false,
+    "package_gate_passed": true,
+    "approved_traits": [
+      "autonomous_selfing_capacity",
+      "cleistogamy",
+      "floral_form",
+      "floral_symmetry",
+      "flower_primary_color",
+      "flower_size_class",
+      "inflorescence_display",
+      "mating_system",
+      "self_incompatibility"
+    ],
+    "approved_trait_count": 9,
+    "candidate_evidence_rows": 2513,
+    "selected_evidence_rows": 2505,
+    "explicitly_rejected_candidate_ids": 8
+  },
+  "output_hashes": {
+    "combined_source_package_with_iospe_20260812_evidence.csv.gz": "5683ccddbb538c42a2b996f3cd30cfc66043bf12cc44005a8fc7caf10ea8ea76",
+    "combined_source_package_with_iospe_20260812_audit.csv.gz": "b4fcf063ee6e1b052db36a8aeb59ff41dbadce924208816a9c6b5df27a270a0e",
+    "combined_source_package_with_iospe_20260812_trait_audit.csv": "3f880144a180808996eac939672c10bd84e343704e4371521d61140e5769762f"
+  }
+}

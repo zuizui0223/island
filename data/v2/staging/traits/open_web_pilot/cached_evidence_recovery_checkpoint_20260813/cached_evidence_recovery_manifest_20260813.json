@@ -1,0 +1,126 @@
+{
+  "audited_rows": 200,
+  "combined_curated_rows": 1866,
+  "contract": "cached_evidence_recovery_checkpoint_v1",
+  "created_at_utc": "2026-08-13T15:10:00Z",
+  "denominator": {
+    "species": 106295,
+    "species_axis": 318885
+  },
+  "guardrails": {
+    "axis_only_genus_join": false,
+    "cross_trait_reproductive_substitution": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "n2_formal_inference": false,
+    "same_trait_direct_conflicts_quarantined": true,
+    "snippet_only_evidence": false,
+    "trait_specific_genus_join_required_downstream": true
+  },
+  "individually_reviewed_rows": 100,
+  "inputs": {
+    "master_csv": {
+      "path": "data/v2/staging/gbif/collected/island_taxa.csv",
+      "sha256": "21925a4e4d6fc8431e8549b3c3ddff9acdbded0b017e0aa78a5c863147392fe9"
+    },
+    "prior_curated_audit_csv": {
+      "path": "data/v2/staging/traits/open_web_pilot/independent_lineage_recovery_checkpoint_20260813/combined_curated_manual_audit_20260813.csv",
+      "rows": 1766,
+      "sha256": "aeb7d6042728cf26da3f4ec8278d760706af93e325a0eeebb6bff1eb1afe8a04"
+    },
+    "prior_curated_evidence_csv": {
+      "path": "data/v2/staging/traits/open_web_pilot/independent_lineage_recovery_checkpoint_20260813/combined_curated_evidence_20260813.csv",
+      "rows": 1766,
+      "sha256": "bd8398073006138d24f9d60b9f4ec967f4327fff3912ce49c69a657da152bac4"
+    },
+    "prior_formal_csv": {
+      "path": ".work/github-31666705636/broad_web_medium_evidence.csv.gz",
+      "rows": 117511,
+      "sha256": "f0ee3fce7765615db445bd497963c932bfb3b88db5dc803c7022f367a4d9f290"
+    },
+    "source_ledgers": [
+      {
+        "path": "data/v2/staging/traits/direct_llm_pilot/20260807_agent_promoted_all_pending/promoted_common_direct_evidence.csv.gz",
+        "rows": 8924,
+        "sha256": "cfa0c5893de4ad3e4a25313c4ac219bd1ff3121edba0955dd035949b077d3d13"
+      },
+      {
+        "path": "data/v2/staging/traits/direct_llm_pilot/20260808_nhm_adept_bhl/nhm_adept_bhl_evidence.csv.gz",
+        "rows": 27095,
+        "sha256": "e392e51671a11438f054d332616a81741bccd6e61c6b000790efef264d36f39a"
+      },
+      {
+        "path": "data/v2/staging/traits/direct_llm_pilot/20260809_sanbi_eflora_source_acquisition/sanbi_eflora_south_africa_evidence.csv.gz",
+        "rows": 4069,
+        "sha256": "49006c1516a32ea8238a4b2915f7949c5f730536de2c381cb9518778b484e5d6"
+      },
+      {
+        "path": "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_fna_foc_africa_source_acquisition/wfo_combined_high_yield_evidence.csv.gz",
+        "rows": 10367,
+        "sha256": "8bcce476dba7d782e41f04c84ccb206d038460fdbcfbe1abc97a3da4d5f025e9"
+      },
+      {
+        "path": "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_fna_foc_africa_source_acquisition/wfo_fna_foc_africa_extracted_evidence.csv.gz",
+        "rows": 4502,
+        "sha256": "be81db46af5042c63bebc4b823d03a9f4b670970f947975f0f68061fb2c41fcd"
+      },
+      {
+        "path": "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_global_six_source_acquisition/wfo_global_six_evidence.csv.gz",
+        "rows": 6939,
+        "sha256": "335ccc68715f698b12c5c4cae1e4eae750c744e8b1c21dd12a6e859317bb0689"
+      },
+      {
+        "path": "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_kew_africa_source_acquisition/wfo_kew_africa_evidence.csv.gz",
+        "rows": 1491,
+        "sha256": "9952b306d7ae6701efed99b8613afbb20c42b7ddca1cd1fc431908870a1b53a1"
+      }
+    ],
+    "strict_coverage_csv": {
+      "path": ".work/github-31667163418/strict_species_axis_coverage.csv.gz",
+      "sha256": "ded09c75bb5a689f657f360a721f12559a181bc834912bc262e2985051999745"
+    }
+  },
+  "outputs": {
+    "cached_evidence_recovery_audit_200_20260813.csv": "87d6d2fee0cd6c9fa0a0f7352ff9f8be1fa2386f450c318f714fb90808f031be",
+    "cached_evidence_recovery_evidence_20260813.csv.gz": "58b91388ad6db6f2311e362a2f7d489f09c1a8f5c70cda39af80072943629dc1",
+    "cached_evidence_recovery_individual_100_20260813.csv": "085e84a95e2eef4431b755d479cd2c93a422ee98304798996f6a73ce9ac9b801",
+    "cached_evidence_recovery_individual_audit_100_20260813.csv": "a44ab84fb3f14297482552af62b23022de835ce36999f63f1bd097165c4ba0f5",
+    "combined_curated_evidence_20260813.csv": "cd0eae299f19a495a4844c4bb95bdca7d150302486477cfdf63f57780520c038",
+    "combined_curated_manual_audit_20260813.csv": "a1532716dca975d473c35cb70ac40195f28d1eb2d735a0562d36f86bd91fde9e"
+  },
+  "provider_counts": {
+    "brazilian_flora_2020": 5,
+    "cdnsciencepub.com": 2,
+    "files.worldfloraonline.org": 126,
+    "flora_d_afrique": 7,
+    "flora_malesiana": 11,
+    "flora_of_china": 51,
+    "flora_of_panama": 2,
+    "fna": 4,
+    "nybg_floraneotropica": 1,
+    "nybg_memoirs": 2,
+    "nzpcn.org.nz": 2,
+    "pladias.cz": 18,
+    "plantnet.rbgsyd.nsw.gov.au": 3,
+    "pmc.ncbi.nlm.nih.gov": 1
+  },
+  "quality_counts": {
+    "high": 233,
+    "medium": 2
+  },
+  "selected_currently_unresolved_species_axis": 229,
+  "selected_evidence_rows": 235,
+  "selected_species_trait": 235,
+  "selection_formal_run_id": "31667163418",
+  "source_package_rows_after_individual_partition": 200,
+  "trait_counts": {
+    "autonomous_selfing_capacity": 1,
+    "floral_form": 6,
+    "floral_symmetry": 2,
+    "flower_primary_color": 114,
+    "flower_size_class": 46,
+    "inflorescence_display": 62,
+    "mating_system": 2,
+    "tube_depth_class": 2
+  }
+}

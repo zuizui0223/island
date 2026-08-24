@@ -1,0 +1,75 @@
+{
+  "checkpoint": "targeted_support2_wave15_checkpoint_20260820",
+  "built_at_utc": "2026-08-20T09:00:00Z",
+  "source_artifacts": [
+    {
+      "source_run_id": "31189690305",
+      "source_artifact_id": "8998390685",
+      "source_artifact_name": "open-web-domain-backfill-31189690305",
+      "accepted_rows": 7
+    },
+    {
+      "source_run_id": "31231041298",
+      "source_artifact_id": "9013948853",
+      "source_artifact_name": "open-web-domain-backfill-31231041298",
+      "accepted_rows": 40
+    },
+    {
+      "source_run_id": "31232466322",
+      "source_artifact_id": "9014408338",
+      "source_artifact_name": "open-web-domain-backfill-31232466322",
+      "accepted_rows": 34
+    },
+    {
+      "source_run_id": "31233181709",
+      "source_artifact_id": "9014569071",
+      "source_artifact_name": "open-web-domain-backfill-31233181709",
+      "accepted_rows": 1
+    },
+    {
+      "source_run_id": "31247162370",
+      "source_artifact_id": "9018965291",
+      "source_artifact_name": "open-web-domain-backfill-31247162370",
+      "accepted_rows": 1
+    }
+  ],
+  "source_artifact_snapshot_sha256": "b4d01a96d644a970d14169ae8183e3b55f3866f77560f033842fb9d820bc4c4f",
+  "accepted_species_trait_rows": 100,
+  "accepted_species": 100,
+  "recorded_queries": 20,
+  "formal_search_api_queries": 0,
+  "search_cost_usd": 0.0,
+  "targeted_support2_rules": [
+    "Stylidium|autonomous_selfing_capacity",
+    "Oncidium|self_incompatibility",
+    "Ouratea|self_incompatibility",
+    "Malus|mating_system",
+    "Pitcairnia|self_incompatibility",
+    "Manilkara|mating_system",
+    "Aletris|inflorescence_display",
+    "Coleataenia|inflorescence_display",
+    "Monotoca|tube_depth_class",
+    "Breonia|flower_primary_color",
+    "Hancea|inflorescence_display",
+    "Pulicaria|floral_form",
+    "Chrysanthemum|floral_form",
+    "Hedychium|floral_symmetry",
+    "Satureja|floral_form",
+    "Pentaphragma|floral_form",
+    "Trichilia|floral_symmetry",
+    "Ferula|inflorescence_display",
+    "Myrceugenia|flower_primary_color",
+    "Stemonoporus|flower_primary_color"
+  ],
+  "targeted_support2_rule_count": 20,
+  "guardrails": {
+    "search_snippet_as_evidence": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "min_species_two_production": false,
+    "cross_trait_substitution": false,
+    "genus_axis_only_join": false,
+    "pollen_vector_or_reward_mixed_into_structure": false
+  },
+  "notes": "Targeted rule counts and queue potentials are acquisition targets only. The formal all-evidence rebuild determines realized direct and Low gains."
+}

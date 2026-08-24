@@ -1,0 +1,53 @@
+{
+  "baseline": {
+    "artifact_id": "9066996051",
+    "direct_cells_sha256": "887ec11c5466bc6afab629be1ce562521dac0d3281652766e809a8ca17e4d6a1",
+    "run_id": "31397350878"
+  },
+  "contract": "curated_bulk_direct_checkpoint_v1",
+  "evidence_rows": 295,
+  "independent_source_agreement": 1,
+  "multi_source_species_trait": 42,
+  "outputs": {
+    "curated_bulk_direct_evidence_20260811.csv": {
+      "bytes": 312878,
+      "sha256": "75c57d1dc66bf28c856bd961d3513132ada30d4ee85ba02340d874d1e189c86a"
+    },
+    "curated_bulk_direct_manual_audit_20260811.csv": {
+      "bytes": 302640,
+      "sha256": "3b9adf730403537660e57a4c466ba8bd4a23c944e3f517a36a42b33ef631e3d8"
+    },
+    "curated_bulk_selection_audit_20260811.csv.gz": {
+      "bytes": 85469,
+      "sha256": "13889850166543560a5fdd8b1386067474905a148d769ef255d51cae0bd9bce3"
+    },
+    "curated_bulk_source_conflicts_20260811.csv": {
+      "bytes": 10727,
+      "sha256": "990482f81a545647487d523f6377a971881843ad4cf3b31c19c77ba03378fd12"
+    }
+  },
+  "reviewed_at_utc": "2026-08-11T00:00:00Z",
+  "reviewer": "Codex structured-source evidence audit",
+  "selected_rows_by_source": {
+    "eol_traitbank_flower_colour": 76,
+    "meyer_2026": 117,
+    "razanajatovo_2016": 102
+  },
+  "selection_reason_counts": {
+    "already_resolved_in_baseline": 5019,
+    "not_exact_accepted_name": 168,
+    "outside_checkpoint_trait_scope": 1328,
+    "selected_exact_direct_unresolved": 295
+  },
+  "source_hashes": {
+    "eol_archive": "a029cef6f771b08c1ad5cb2cd5f5a56a53de6896cee768ebcd7c61f756735072",
+    "eol_candidates": "0e2888a3b90202589512bce2de5125413fff5579554eccd07e03bdd15871c089",
+    "meyer_candidates": "494bb9a6594452c574f1aecbba4a0e965d8f70ef845e0f34cf75e8afcb8e579a",
+    "meyer_source_normalized": "dbc454103faa2d1677586b5b690b8ccc3e6b1a99fb39cdc0b00181703b4c6b56",
+    "razanajatovo_candidates": "b2c998acf3e90ba7f0c4d36a470903019f35740fecd19c411ba480f148aa41ef",
+    "razanajatovo_source_normalized": "e030e1053d0c0b5a73ecc9a4dde3b26ba3fab20f8bb65cd61d01f4883800547b",
+    "razanajatovo_workbook": "cb17009ae65c4f6cb2d28b21239714782600d0904effa77c5635249d28e62fc0"
+  },
+  "unique_species_trait": 253,
+  "unresolved_direct_conflict": 41
+}

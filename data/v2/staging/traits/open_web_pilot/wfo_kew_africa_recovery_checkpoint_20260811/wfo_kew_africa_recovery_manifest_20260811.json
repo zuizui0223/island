@@ -1,0 +1,55 @@
+{
+  "audit_review_complete": true,
+  "audit_rows": 200,
+  "audit_unique_urls": 200,
+  "candidate_rows": 450,
+  "contract": "wfo_kew_africa_recovery_checkpoint_v1",
+  "family_inference": false,
+  "files": [
+    {
+      "path": "wfo_kew_africa_recovery_evidence_20260811.csv.gz",
+      "sha256": "2d5be6eeb02e78a58d37eab56768573a172a792b23cb3e954a68e8fbac1306ab",
+      "size_bytes": 65202
+    },
+    {
+      "path": "wfo_kew_africa_recovery_audit_200_20260811.csv",
+      "sha256": "3125a839e04489c61641ce4a57b420a9a8a43ef77d833fa841150e52358452e9",
+      "size_bytes": 165874
+    },
+    {
+      "path": "wfo_kew_africa_recovery_selection_20260811.csv.gz",
+      "sha256": "82f8e00cc814a6ebab4b1ba8ded84e3f097422cc500db2e4c567c9d27be263f7",
+      "size_bytes": 105227
+    }
+  ],
+  "global_fallback": false,
+  "inputs": {
+    ".work\\github-31440559943-final\\broad_web_medium_evidence.csv.gz": "953839a59cbb5a447d9343d49e8e939bbfc9487196d9839b9c1829e0c3cd44de",
+    ".work\\github-31440559943-final\\direct_species_trait_ledger.csv.gz": "81122532d9e5d8870058a5c20d6ae2e386e61ac46e20427d76bf1ba9bfdc5730",
+    ".work\\next-acquisition-20260810\\canonical_unintegrated_direct_candidates.csv.gz": "7e75fcfa9431ed4621561030bec722f7c8ba0505ff1b76c2a679889163d5990b"
+  },
+  "package_artifact": "wfo-kew-africa-recovery-reviewed-source-package-20260811",
+  "package_run_id": "wfo-kew-africa-recovery-20260811",
+  "prior_formal_artifact": "reviewed-open-web-evidence-31440559943",
+  "prior_formal_run_id": "31440559943",
+  "providers": [
+    "kew_flora_tropical_east_africa",
+    "kew_flora_west_tropical_africa",
+    "kew_flora_zambesiaca_current"
+  ],
+  "quality": "high",
+  "source_artifact": "wfo-kew-africa-official-dwca-20260810",
+  "source_run_id": "wfo-kew-africa-three-floras-20260810",
+  "species": 361,
+  "species_axes": 361,
+  "species_traits": 371,
+  "trait_rows": {
+    "floral_form": 66,
+    "inflorescence_display": 384
+  },
+  "trait_substitution": false,
+  "traits": [
+    "floral_form",
+    "inflorescence_display"
+  ]
+}

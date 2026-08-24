@@ -1,0 +1,8 @@
+trait_name,reviewed,accepted_correct,precision,cultivar_contamination_rate,production_approved
+floral_form,25,25,1.0,0.0,True
+floral_symmetry,1861,1826,0.9811929070392262,0.0,True
+flower_primary_color,25,25,1.0,0.0,True
+flower_size_class,55,55,1.0,0.0,True
+inflorescence_display,45,45,1.0,0.0,True
+self_incompatibility,200,200,1.0,0.0,True
+tube_depth_class,25,25,1.0,0.0,True

@@ -1,0 +1,233 @@
+version: "1.0"
+contract: open_web_species_trait_evidence_v1
+
+denominator:
+  species: 106295
+  axes: 3
+  species_axis: 318885
+
+axis_traits:
+  flower_colour:
+    - flower_primary_color
+  floral_structural_complexity:
+    - floral_form
+    - floral_symmetry
+    - tube_depth_class
+    - flower_size_class
+    - inflorescence_display
+  reproductive_assurance:
+    - self_incompatibility
+    - autonomous_selfing_capacity
+    - mating_system
+    - cleistogamy
+
+non_axis_traits:
+  - reward_type
+  - pollen_vector_mode
+
+quality_precedence:
+  - high
+  - medium
+  - validated_low
+
+source_policy:
+  A:
+    quality_candidate: high
+    accepted_traits: all
+    description: public flora, university, museum, botanic garden, original paper, thesis, or public database
+  B:
+    quality_candidate: medium
+    accepted_traits: all
+    description: specialist regional flora or expert-curated botanical description
+  C:
+    quality_candidate: medium
+    accepted_traits:
+      - flower_primary_color
+      - floral_form
+      - floral_symmetry
+      - tube_depth_class
+      - flower_size_class
+      - inflorescence_display
+    description: nursery or horticultural source; wild-species morphology only
+  D:
+    quality_candidate: ""
+    accepted_traits: []
+    description: discovery only
+
+languages:
+  en:
+    query_labels:
+      flower_primary_color: ["flower colour", "flower color", "corolla colour"]
+      floral_form: ["floral morphology", "flower shape", "corolla shape"]
+      floral_symmetry: ["flower symmetry", "actinomorphic", "zygomorphic"]
+      tube_depth_class: ["corolla tube", "tube depth"]
+      flower_size_class: ["flower size", "corolla length"]
+      inflorescence_display: ["inflorescence", "flower display"]
+      reward_type: ["nectar reward", "floral reward"]
+      pollen_vector_mode: ["pollination", "pollen vector", "wind pollinated"]
+      self_incompatibility: ["self-compatible", "self-incompatible", "self-fertile"]
+      autonomous_selfing_capacity: ["autonomous selfing", "automatic self-pollination", "bagging experiment"]
+      mating_system: ["mating system", "breeding system", "outcrossing", "selfing rate"]
+      cleistogamy: ["cleistogamy", "cleistogamous"]
+  ja:
+    query_labels:
+      flower_primary_color: ["花色", "花冠 色"]
+      floral_form: ["花の形", "花冠 形"]
+      floral_symmetry: ["放射相称花", "左右相称花"]
+      tube_depth_class: ["花冠 筒", "筒部 長さ"]
+      flower_size_class: ["花 大きさ", "花冠 長さ"]
+      inflorescence_display: ["花序", "頭花"]
+      reward_type: ["蜜", "花蜜", "報酬"]
+      pollen_vector_mode: ["受粉", "虫媒", "風媒"]
+      self_incompatibility: ["自家和合性", "自家不和合性"]
+      autonomous_selfing_capacity: ["自動自殖", "自動自家受粉", "袋掛け"]
+      mating_system: ["交配様式", "繁殖様式", "自殖率"]
+      cleistogamy: ["閉鎖花", "閉鎖花受精"]
+  zh:
+    query_labels:
+      flower_primary_color: ["花色", "花冠颜色"]
+      floral_form: ["花形", "花冠形态"]
+      floral_symmetry: ["辐射对称花", "两侧对称花"]
+      tube_depth_class: ["花冠筒", "筒部长度"]
+      flower_size_class: ["花大小", "花冠长度"]
+      inflorescence_display: ["花序"]
+      reward_type: ["花蜜", "花粉奖励"]
+      pollen_vector_mode: ["传粉", "虫媒", "风媒"]
+      self_incompatibility: ["自交亲和", "自交不亲和"]
+      autonomous_selfing_capacity: ["自动自交", "套袋实验"]
+      mating_system: ["交配系统", "繁育系统", "自交率"]
+      cleistogamy: ["闭花受精"]
+  es:
+    query_labels:
+      flower_primary_color: ["color de la flor", "color de la corola"]
+      floral_form: ["forma de la flor", "morfología floral"]
+      floral_symmetry: ["simetría floral", "actinomorfa", "zigomorfa"]
+      tube_depth_class: ["tubo de la corola", "longitud de la corola"]
+      flower_size_class: ["tamaño de la flor", "longitud de la corola"]
+      inflorescence_display: ["inflorescencia"]
+      reward_type: ["néctar", "recompensa floral"]
+      pollen_vector_mode: ["polinización", "anemófila", "entomófila"]
+      self_incompatibility: ["autocompatible", "autoincompatible"]
+      autonomous_selfing_capacity: ["autofecundación autónoma", "embolsado"]
+      mating_system: ["sistema de apareamiento", "sistema reproductivo"]
+      cleistogamy: ["cleistogamia"]
+  pt:
+    query_labels:
+      flower_primary_color: ["cor da flor", "cor da corola"]
+      floral_form: ["forma da flor", "morfologia floral"]
+      floral_symmetry: ["simetria floral", "actinomorfa", "zigomorfa"]
+      tube_depth_class: ["tubo da corola", "comprimento da corola"]
+      flower_size_class: ["tamanho da flor", "comprimento da corola"]
+      inflorescence_display: ["inflorescência"]
+      reward_type: ["néctar", "recompensa floral"]
+      pollen_vector_mode: ["polinização", "anemófila", "entomófila"]
+      self_incompatibility: ["autocompatível", "autoincompatível"]
+      autonomous_selfing_capacity: ["autofecundação autônoma", "ensaio de ensacamento"]
+      mating_system: ["sistema de acasalamento", "sistema reprodutivo"]
+      cleistogamy: ["cleistogamia"]
+  fr:
+    query_labels:
+      flower_primary_color: ["couleur de la fleur", "couleur de la corolle"]
+      floral_form: ["forme de la fleur", "morphologie florale"]
+      floral_symmetry: ["symétrie florale", "actinomorphe", "zygomorphe"]
+      tube_depth_class: ["tube de la corolle", "longueur de la corolle"]
+      flower_size_class: ["taille de la fleur", "longueur de la corolle"]
+      inflorescence_display: ["inflorescence"]
+      reward_type: ["nectar", "récompense florale"]
+      pollen_vector_mode: ["pollinisation", "anémophile", "entomophile"]
+      self_incompatibility: ["autocompatible", "auto-incompatible"]
+      autonomous_selfing_capacity: ["autofécondation autonome", "ensachage"]
+      mating_system: ["système de reproduction", "taux d'autofécondation"]
+      cleistogamy: ["cléistogamie"]
+  de:
+    query_labels:
+      flower_primary_color: ["Blütenfarbe", "Farbe der Krone"]
+      floral_form: ["Blütenform", "Blütenmorphologie"]
+      floral_symmetry: ["Blütensymmetrie", "radiärsymmetrisch", "zygomorph"]
+      tube_depth_class: ["Kronröhre", "Kronlänge"]
+      flower_size_class: ["Blütengröße", "Kronlänge"]
+      inflorescence_display: ["Blütenstand"]
+      reward_type: ["Nektar", "Blütenbelohnung"]
+      pollen_vector_mode: ["Bestäubung", "windbestäubt", "insektenbestäubt"]
+      self_incompatibility: ["selbstkompatibel", "selbstinkompatibel"]
+      autonomous_selfing_capacity: ["autonome Selbstbestäubung", "Eintütungsversuch"]
+      mating_system: ["Paarungssystem", "Fortpflanzungssystem", "Selbstungsrate"]
+      cleistogamy: ["Kleistogamie"]
+  la:
+    query_labels:
+      flower_primary_color: ["flores albae", "flores luteae", "corolla purpurea"]
+      floral_form: ["corolla tubularis", "corolla campanulata", "corolla rotata"]
+      floral_symmetry: ["flores actinomorphae", "flores zygomorphae"]
+      tube_depth_class: ["tubus corollae", "corolla profunde tubulosa"]
+      flower_size_class: ["corolla longa", "flores parvae"]
+      inflorescence_display: ["inflorescentia", "capitulum", "racemus"]
+      reward_type: ["nectarium", "nectar"]
+      pollen_vector_mode: ["anemophila", "entomophila"]
+      self_incompatibility: ["auto-incompatibilis", "auto-compatibilis"]
+      autonomous_selfing_capacity: ["autogamia autonoma"]
+      mating_system: ["systema reproductionis"]
+      cleistogamy: ["cleistogama"]
+
+extraction_terms:
+  flower_primary_color:
+    white: ["white flower", "white corolla", "white", "cream", "creamy", "花は白", "白色の花", "白い花", "花冠は白", "白色花", "白色", "flores albae", "corolla alba", "flores blancas", "flores brancas", "fleurs blanches", "weiße blüten", "白色花冠"]
+    yellow_orange: ["yellow flower", "orange flower", "yellow corolla", "yellow", "yellowish", "orange", "golden", "花は黄色", "花は橙", "黄色の花", "橙色の花", "黄色", "淡黄色", "黄白色", "淡黄白色", "橙色", "flores luteae", "flores amarillas", "flores amarelas", "fleurs jaunes", "gelbe blüten", "黄色花冠"]
+    red_pink: ["red flower", "pink flower", "red corolla", "pink corolla", "red", "pink", "scarlet", "crimson", "rose", "花は赤", "花は紅", "花は桃", "赤色の花", "紅色の花", "桃色の花", "赤色", "紅色", "桃色", "ピンク色", "corolla rubra", "corolla rosea", "flores rojas", "flores rosas", "fleurs rouges", "fleurs roses", "rote blüten", "rosa blüten", "红色花冠", "粉红色花冠"]
+    blue_purple: ["blue flower", "purple flower", "violet flower", "blue corolla", "purple corolla", "blue", "purple", "violet", "lilac", "mauve", "花は青", "花は紫", "青色の花", "紫色の花", "青色", "紫色", "淡紫色", "紅紫色", "紫紅色", "紫赤色", "青紫色", "corolla caerulea", "corolla purpurea", "flores azules", "flores violetas", "fleurs bleues", "fleurs violettes", "blaue blüten", "violette blüten", "蓝色花冠", "紫色花冠"]
+    green_brown_inconspicuous: ["green flower", "brown flower", "inconspicuous flower", "green", "brown", "maroon", "花は緑", "花は褐色", "目立たない花", "緑色", "緑白色", "黄緑色", "褐色", "corolla viridis", "flores verdes", "fleurs verdâtres", "grüne blüten", "绿色花"]
+  floral_form:
+    tubular: ["tubular flower", "tubular corolla", "花冠は筒状", "筒状花", "corolla tubularis", "corola tubular", "corolle tubulaire", "röhrenförmige blüte", "筒状花冠"]
+    bell_campanulate: ["bell-shaped flower", "campanulate corolla", "花冠は鐘形", "鐘形花", "corolla campanulata", "corola campanulada", "corolle campanulée", "glockenförmige blüte", "钟状花冠"]
+    open_radial: ["rotate corolla", "open radial flower", "wheel-shaped flower", "花冠は車形", "corolla rotata", "corola rotácea", "corolle rotacée", "radförmige blüte", "辐状花冠"]
+    funnel_trumpet: ["funnel-shaped flower", "trumpet-shaped flower", "infundibuliform corolla", "花冠は漏斗形", "corolla infundibuliformis", "corola infundibuliforme", "corolle infundibuliforme", "trichterförmige blüte", "漏斗状花冠"]
+    urn_urceolate: ["urn-shaped flower", "urceolate corolla", "花冠は壺形", "corolla urceolata", "corola urceolada", "corolle urcéolée", "urnenförmige blüte", "坛状花冠"]
+    salverform: ["salverform flower", "hypocrateriform corolla", "花冠は高盆形", "corolla hypocrateriformis", "corola hipocrateriforme", "corolle hypocrateriforme", "stieltellerförmige blüte", "高脚碟状花冠"]
+    papilionaceous: ["papilionaceous flower", "pea-shaped flower", "蝶形花", "corolla papilionacea", "corola papilionácea", "corolle papilionacée", "schmetterlingsblüte"]
+    ligulate: ["ligulate flower", "ray flower", "ray floret", "舌状花", "corolla ligulata"]
+    spurred: ["spurred flower", "corolla spur", "距のある花", "花冠に距", "corolla calcarata", "flor espolonada", "fleur éperonnée", "gespornte blüte", "花冠有距"]
+    brush_puff: ["brush-like flower", "puffball flower", "ブラシ状の花", "bottlebrush flower", "花丝形成刷状"]
+  floral_symmetry:
+    actinomorphic: ["actinomorphic", "radially symmetric flower", "放射相称", "辐射对称", "actinomorfa", "actinomorphe", "radiärsymmetrisch", "actinomorpha"]
+    zygomorphic: ["zygomorphic", "bilaterally symmetric flower", "左右相称", "两侧对称", "zigomorfa", "zygomorphe", "zygomorph", "zygomorpha"]
+    asymmetric: ["asymmetric flower", "非相称花", "不对称花", "flor asimétrica", "fleur asymétrique", "asymmetrische blüte"]
+  inflorescence_display:
+    solitary: ["solitary flower", "flowers solitary", "花は単生", "solitaria", "fleur solitaire", "einzelblüte", "花单生"]
+    few_flowered: ["few-flowered", "2-5-flowered", "少数花", "pauciflora", "pauciflore", "wenigblütig", "少花"]
+    raceme_spike_panicle: ["raceme", "racemes", "spike inflorescence", "spike inflorescences", "panicle", "panicles", "総状花序", "穂状花序", "円錐花序", "racemus", "panicula", "racimo", "panicule", "Traube", "Rispe", "总状花序", "圆锥花序"]
+    umbel_corymb: ["umbel", "umbels", "corymb", "corymbs", "散形花序", "房状花序", "umbella", "umbela", "ombelle", "Dolde", "伞形花序"]
+    composite_display: ["capitulum", "capitula", "flower head", "flower heads", "頭花", "頭状花序", "capítulo", "capitule", "Köpfchen", "头状花序"]
+  reward_type:
+    nectar: ["nectar reward", "nectar-producing", "花蜜を分泌", "蜜を分泌", "nectarium", "produce néctar", "produit du nectar", "Nektar produziert", "分泌花蜜"]
+    pollen: ["pollen reward", "pollen as reward", "花粉を報酬", "recompensa de polen", "récompense pollinique", "Pollenbelohnung", "花粉奖励"]
+    rewardless: ["rewardless flower", "no nectar or pollen reward", "無報酬花", "sin recompensa floral", "sans récompense florale", "täuschblume", "无报酬花"]
+  pollen_vector_mode:
+    abiotic_wind: ["wind-pollinated", "wind pollinated", "anemophilous", "風媒花", "anemophila", "anémophile", "windbestäubt", "风媒"]
+    biotic: ["insect-pollinated", "animal-pollinated", "entomophilous", "虫媒花", "entomófila", "entomophile", "insektenbestäubt", "虫媒"]
+    mixed: ["both wind and insect pollinated", "ambophilous", "風媒と虫媒", "ambofilia", "ambophilie", "ambophil"]
+  self_incompatibility:
+    SI: ["self-incompatible", "self incompatible", "自家不和合性", "自交不亲和", "autoincompatible", "auto-incompatible", "selbstinkompatibel", "auto-incompatibilis"]
+    SC: ["self-compatible", "self compatible", "self-fertile", "自家和合性", "自交亲和", "autocompatible", "autocompatível", "selbstkompatibel", "auto-compatibilis"]
+  autonomous_selfing_capacity:
+    autonomous: ["autonomous selfing", "autonomous self-pollination", "automatic self-pollination", "自動自殖", "自動自家受粉", "自动自交", "autofecundación autónoma", "autofécondation autonome", "autonome Selbstbestäubung", "autogamia autonoma"]
+    delayed: ["delayed selfing", "遅延自殖", "延迟自交", "autofecundación tardía", "autofécondation retardée", "verzögerte Selbstung"]
+    facilitated: ["facilitated selfing", "geitonogamous selfing", "隣花受粉", "促进自交", "autofecundación facilitada"]
+    absent: ["no autonomous selfing", "unable to self autonomously", "自動自殖しない", "不能自动自交", "sin autofecundación autónoma", "keine autonome Selbstbestäubung"]
+  mating_system:
+    predominantly_outcrossing: ["predominantly outcrossing", "mainly outcrossing", "他殖性", "异交为主", "predominantemente alógama", "majoritairement allogame", "überwiegend auskreuzend"]
+    mixed_mating: ["mixed mating system", "mixed-mating", "混合交配", "混合交配系统", "sistema de apareamiento mixto", "système de reproduction mixte", "gemischtes Paarungssystem"]
+    predominantly_selfing: ["predominantly selfing", "mainly selfing", "自殖性", "自交为主", "predominantemente autógama", "majoritairement autogame", "überwiegend selbstend"]
+    obligate_selfing: ["obligately selfing", "obligate selfer", "絶対自殖", "专性自交", "autógama obligada", "autogame obligatoire", "obligat selbstend"]
+  cleistogamy:
+    obligate: ["obligately cleistogamous", "obligate cleistogamy", "閉鎖花のみ", "专性闭花受精", "cleistogamia obligada", "cléistogamie obligatoire", "obligate Kleistogamie"]
+    facultative: ["facultatively cleistogamous", "chasmogamous and cleistogamous flowers", "開放花と閉鎖花", "兼有开放花和闭花", "cleistogamia facultativa", "cléistogamie facultative", "fakultative Kleistogamie"]
+    absent: ["not cleistogamous", "no cleistogamous flowers", "閉鎖花をつけない", "无闭花受精", "sin cleistogamia", "sans cléistogamie", "keine Kleistogamie"]
+
+fail_closed:
+  snippet_evidence: false
+  fuzzy_name_acceptance: false
+  family_inference: false
+  global_fallback: false
+  llm_source_free: false
+  self_fertile_to_autonomous_selfing: false
+  genus_page_to_species: false
+  unknown_domain_acceptance: false

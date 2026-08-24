@@ -1,0 +1,61 @@
+{
+  "contract": "reproductive_primary_individually_reviewed_checkpoint_v1",
+  "created_at_utc": "2026-08-12T05:01:40Z",
+  "source_content": {
+    "konno_1999_pdf_sha256": "e76be3b39632141cf94a64269b8ec120a21ca14a3b936fa86bb1500751bc7baf",
+    "paspalum_pmc10298031_fulltext_xml_sha256": "02c6729988f33280cbb770ae4aa00b9c30d76c51d7bf458a021ab323576ffd51",
+    "rhynchospora_pmc10954556_fulltext_xml_sha256": "2bd71f76ce1bffcb1755a576e7e2c7f19a1c6a02aa9b95fea3a3b07b349c0f58"
+  },
+  "new_evidence_rows": 65,
+  "new_audit_rows": 65,
+  "new_species": 60,
+  "new_species_trait": 65,
+  "trait_counts": {
+    "autonomous_selfing_capacity": 59,
+    "mating_system": 2,
+    "self_incompatibility": 4
+  },
+  "quality_counts": {
+    "high": 65
+  },
+  "konno_name_resolution": {
+    "submitted": 60,
+    "selected": 54,
+    "rejected": 6,
+    "synonym_direct": 7
+  },
+  "guardrails": {
+    "genus_trait_join_only": true,
+    "axis_only_join": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "n2_formal_inference": false,
+    "cross_trait_substitution": false
+  },
+  "files": {
+    "reproductive_primary_evidence_20260812.csv": {
+      "sha256": "342cec3fe11efccd42b133f48b80bc872c9e71867cbd3cc6dba43fdfdfe68103",
+      "size_bytes": 77301
+    },
+    "reproductive_primary_manual_audit_20260812.csv": {
+      "sha256": "187dcbd0f4851f978424003c06170738b4b1586dcefeee531e3f7591bc319ca2",
+      "size_bytes": 66292
+    },
+    "combined_curated_evidence_20260812.csv": {
+      "sha256": "d414940f000d29ce8650060516be59bc8cc1751b59a643e89fe1e4ce48644833",
+      "size_bytes": 687548
+    },
+    "combined_curated_manual_audit_20260812.csv": {
+      "sha256": "aff9f857ea6acaa6d8538edc00401128ef652af02f255c195d62b3c7112bf9e6",
+      "size_bytes": 627145
+    },
+    "konno_1999_name_resolution_20260812.csv": {
+      "sha256": "6e837d5d5c16de79fd917170b0c16bdddfa6a6377697de6c66d922bce95c2619",
+      "size_bytes": 11196
+    },
+    "README.md": {
+      "sha256": "9fbfd1b9842b2493ba75e3c2dc4d71f146598e768d2267be4733f0daec0a37ab",
+      "size_bytes": 1187
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "audit_review_complete": true,
+  "audit_rows": 200,
+  "audit_unique_urls": 200,
+  "candidate_rows": 590,
+  "contract": "official_flora_colour_recovery_checkpoint_v1",
+  "family_inference": false,
+  "files": [
+    {
+      "path": "official_flora_colour_evidence_20260811.csv.gz",
+      "sha256": "942d760c6fb804bc5612150385ef96c60fbddcc3655ea06a4c78795220f57666",
+      "size_bytes": 113931
+    },
+    {
+      "path": "official_flora_colour_audit_200_20260811.csv",
+      "sha256": "bcaedd6ca308a2ea008d5bd61cdd2c854ef874a1d3b883fb47a33af231efe520",
+      "size_bytes": 195027
+    },
+    {
+      "path": "official_flora_colour_selection_20260811.csv.gz",
+      "sha256": "3f4a42287aa1f163a1e0b776c825481a224aabed1a1ac98d24a53db4f2a83cea",
+      "size_bytes": 105820
+    }
+  ],
+  "global_fallback": false,
+  "inputs": {
+    ".work\\github-31445281207-final\\broad_web_medium_evidence.csv.gz": "a4043f3f1d732f848b6e9f5aba63e43f682015e5d613eede36106a3751f86516",
+    ".work\\github-31445281207-final\\direct_species_trait_ledger.csv.gz": "dead590849128af494a2cb0b665ebefe35e3074d597ea899cc70227045c78762",
+    ".work\\next-acquisition-20260810\\canonical_unintegrated_direct_candidates.csv.gz": "7e75fcfa9431ed4621561030bec722f7c8ba0505ff1b76c2a679889163d5990b"
+  },
+  "package_artifact": "official-flora-colour-recovery-reviewed-source-package-20260811",
+  "package_run_id": "official-flora-colour-recovery-20260811",
+  "prior_formal_artifact": "reviewed-open-web-evidence-31445281207",
+  "prior_formal_run_id": "31445281207",
+  "provider_rows": {
+    "brazilian_flora_2020": 79,
+    "flora_of_australia_official": 2,
+    "flora_of_panama": 115,
+    "kew_flora_tropical_east_africa": 167,
+    "kew_flora_west_tropical_africa": 2,
+    "kew_flora_zambesiaca_current": 81,
+    "nybg_floraneotropica": 74,
+    "nybg_memoirs": 69,
+    "plantnet_nsw_flora_source_scale": 1
+  },
+  "providers": [
+    "brazilian_flora_2020",
+    "flora_of_australia_official",
+    "flora_of_panama",
+    "kew_flora_tropical_east_africa",
+    "kew_flora_west_tropical_africa",
+    "kew_flora_zambesiaca_current",
+    "nybg_floraneotropica",
+    "nybg_memoirs",
+    "plantnet_nsw_flora_source_scale"
+  ],
+  "quality": "high",
+  "source_artifacts": [
+    "committed-plantnet-nsw-source-package-20260809",
+    "flora-of-australia-public-profile-api",
+    "wfo-global-six-official-dwca-20260810",
+    "wfo-kew-africa-official-dwca-20260810"
+  ],
+  "source_runs": [
+    "flora-of-australia-source-scale-20260809",
+    "plantnet-nsw-source-scale-20260809",
+    "wfo-global-six-floras-20260810",
+    "wfo-kew-africa-three-floras-20260810"
+  ],
+  "species": 539,
+  "species_axes": 539,
+  "species_traits": 539,
+  "trait_substitution": false,
+  "traits": [
+    "flower_primary_color"
+  ]
+}

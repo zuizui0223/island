@@ -1,0 +1,52 @@
+{
+  "already_resolved_pairs_researched": false,
+  "contract": "rodger_2021_autofertility_checkpoint_v1",
+  "counts": {
+    "audit_rows": 200,
+    "audit_strata": 11,
+    "selected_by_value": {
+      "absent": 152,
+      "autonomous": 211
+    },
+    "selected_evidence_rows": 363,
+    "selected_name_match_methods": {
+      "accepted_name_exact": 338,
+      "synonym_exact_two_backbone": 25
+    },
+    "selected_species": 337,
+    "selected_species_trait": 337,
+    "selection_reasons": {
+      "already_resolved_direct_pair": 345,
+      "family_conflict": 18,
+      "not_in_strict_island_universe_or_two_backbone_synonym": 670,
+      "selected": 495
+    },
+    "source_lineages": 206,
+    "source_rows": 1528
+  },
+  "family_inference": false,
+  "global_fallback": false,
+  "input_hashes": {
+    "baseline_direct_csv_sha256": "20f887493145d5d2e250af113f4e9d22e1624aa7f86599108111108081c713ab",
+    "master_csv_sha256": "21925a4e4d6fc8431e8549b3c3ddff9acdbded0b017e0aa78a5c863147392fe9",
+    "source_csv_sha256": "fa745c578f3537933fafedc1d36b4ea266348cd83d7f6cbb231c253b0f348d3f",
+    "synonym_csv_sha256": "5280101f3040f94d8167252be6f501f89f77b9c8c6d6c43c8bd88d1aa9b10b6d"
+  },
+  "mating_system_substitution": false,
+  "output_hashes": {
+    "rodger_2021_autofertility_audit_200_20260811.csv": "74170260233bf7144eb3b10f31ea323fe947982f9465519dddb615627c1dae17",
+    "rodger_2021_autofertility_evidence_20260811.csv.gz": "805949954eec4ff3b0533758ca36ffcfac8f650bfaa4f9d2ca8e1609f93761c1",
+    "rodger_2021_autofertility_selection_20260811.csv.gz": "b9c763a7b228490b58b089e3824ecc2a5e2b2782de71977124ce51cb31ac18bc"
+  },
+  "pollen_supplementation_substitution": false,
+  "pollinator_exclusion_measure_required": true,
+  "quality": "high",
+  "self_compatibility_substitution": false,
+  "source_article_doi": "10.1126/sciadv.abd3524",
+  "source_artifact": "S3_pc_publish.csv",
+  "source_dataset_doi": "10.6084/m9.figshare.14607882.v1",
+  "source_file_sha256": "38ffb9b6438e8e0f683c0f1504ff500c59603b641dcf6936e4e29f232bc66e6a",
+  "source_run_id": "figshare:14607882:v1:file:28041726",
+  "source_url": "https://doi.org/10.6084/m9.figshare.14607882.v1",
+  "trait": "autonomous_selfing_capacity"
+}

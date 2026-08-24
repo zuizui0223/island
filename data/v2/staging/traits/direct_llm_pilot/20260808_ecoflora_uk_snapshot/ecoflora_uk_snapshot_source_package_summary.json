@@ -1,0 +1,64 @@
+{
+  "contract": "ecoflora_archived_source_package_v1",
+  "created_at_utc": "2026-08-08T12:26:04.749920+00:00",
+  "source_repository": "https://github.com/seancanobrien/UK_Flora",
+  "source_commit": "8e524c994086955bf8f95c5a05213acad1cd1677",
+  "source_csv_sha256": "f3f82bcc01024afe29d1b63637ea5b9d46b32dd05dac367fecbdf8959353e0c7",
+  "source_snapshot_rows": 2461,
+  "strict_universe_species": 106295,
+  "full_inventory_evidence_rows": 6088,
+  "full_inventory_species_trait": 6088,
+  "novel_evidence_rows": 1577,
+  "novel_species": 1071,
+  "novel_species_trait": 1577,
+  "evidence_by_trait": {
+    "cleistogamy": 30,
+    "flower_primary_color": 258,
+    "inflorescence_display": 899,
+    "mating_system": 198,
+    "self_incompatibility": 192
+  },
+  "audit_rows": 200,
+  "robots_note": "Original site robots.txt disallows automated crawling; no bulk refetch was performed. Evidence uses the archived snapshot and retains original record URLs.",
+  "quality_reason": "Medium: direct database field/value with stable record ID, but consumed through an archived third-party snapshot rather than a fresh origin crawl.",
+  "audit": {
+    "reviewed": 200,
+    "accepted_correct": 200,
+    "precision": 1.0,
+    "cultivar_contamination_rate": 0.0,
+    "by_trait": {
+      "cleistogamy": 20,
+      "flower_primary_color": 40,
+      "inflorescence_display": 70,
+      "mating_system": 35,
+      "self_incompatibility": 35
+    }
+  },
+  "lightweight_potential_against_run_31254176246": {
+    "new_direct_species_axis": 481,
+    "by_axis": {
+      "floral_structural_complexity": 170,
+      "flower_colour": 252,
+      "reproductive_assurance": 59
+    },
+    "high_occurrence_n_islands_ge_11_species_axis": 300,
+    "high_occurrence_by_axis": {
+      "floral_structural_complexity": 116,
+      "flower_colour": 130,
+      "reproductive_assurance": 54
+    },
+    "high_occurrence_top_families": {
+      "Poaceae": 42,
+      "Cyperaceae": 24,
+      "Asteraceae": 21,
+      "Caprifoliaceae": 19,
+      "Rosaceae": 13,
+      "Brassicaceae": 12,
+      "Apiaceae": 8,
+      "Iridaceae": 8,
+      "Araceae": 8,
+      "Polygonaceae": 7
+    },
+    "note": "Pre-formalization direct unresolved-key join; formal net coverage requires all-evidence rebuild."
+  }
+}

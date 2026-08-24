@@ -1,0 +1,14 @@
+accepted_species,queried_trait,queued_value,observed_statement,decision,decision_reason,source_url,source_lineage,review_status
+Flindersia australis,flower_size_class,large,petal length only,reject,organ measurement is not whole-flower size,,,reviewed_fail_closed
+Satureja hortensis,tube_depth_class,intermediate,whole corolla length only,reject,tube depth was not separately stated,,,reviewed_fail_closed
+Grammatophyllum speciosum,flower_primary_color,yellow_orange,yellow-green and patterned flowers,reject,multistate description does not support queued single state,,,reviewed_fail_closed
+Citronella moorei,flower_primary_color,white,white and red states described,reject,multistate description does not support queued single state,,,reviewed_fail_closed
+Pachira aquatica,inflorescence_display,solitary,solitary or small groups,reject,variable display does not support queued single state,,,reviewed_fail_closed
+Spathelia terminalioides,flower_primary_color,red,source described white flowers,reject,direct contradiction of queued value,,,reviewed_fail_closed
+Sabal palmetto,flower_size_class,very_small,flowers 5-6 mm,reject,measurement contradicts queued size class,https://www.botanybrisbane.com/plants/arecaceae/sabal/sabal-palmetto/,provider-treatment:botanybrisbane:sabal-palmetto,reviewed_fail_closed
+Stenogyne rugosa,flower_primary_color,yellow_orange,multiple flower colours,reject,multistate description does not support queued single state,,,reviewed_fail_closed
+Leontopodium alpinum,flower_primary_color,white,white refers to bracts; corollas are yellow,reject,wrong floral organ,,,reviewed_fail_closed
+Calytrix tetragona,floral_form,funnel,star-shaped flowers,reject,direct contradiction of queued form,,,reviewed_fail_closed
+Chamaecytisus prolifer,flower_primary_color,white,Australian usage may be a misapplied name,reject,strict synonym identity unresolved,,,reviewed_fail_closed
+Orthoceras annulatum,floral_form,tubular,taxon name has homonym ambiguity,reject,strict species identity unresolved,,,reviewed_fail_closed
+Conyza incana,inflorescence_display,composite_display,name usage taxonomically ambiguous,reject,strict species identity unresolved,,,reviewed_fail_closed

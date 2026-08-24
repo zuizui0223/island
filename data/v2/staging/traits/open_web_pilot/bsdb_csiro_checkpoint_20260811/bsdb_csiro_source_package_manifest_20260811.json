@@ -1,0 +1,99 @@
+{
+  "candidate_evidence_rows": 1240,
+  "component_candidate_rows": {
+    "bsdb": 574,
+    "csiro_rainforest": 666
+  },
+  "contract": "bsdb_csiro_combined_reviewed_source_package_v1",
+  "created_at_utc": "2026-08-10T17:50:12Z",
+  "reviewed_rows": 400,
+  "source_package_gate": {
+    "accepted_correct": 400,
+    "approval_unit": "trait_name",
+    "approved_trait_count": 7,
+    "approved_traits": [
+      "floral_form",
+      "floral_symmetry",
+      "flower_primary_color",
+      "flower_size_class",
+      "inflorescence_display",
+      "self_incompatibility",
+      "tube_depth_class"
+    ],
+    "candidate_evidence_rows": 1240,
+    "cultivar_contamination_rate": 0.0,
+    "explicitly_rejected_candidate_ids": 0,
+    "maximum_cultivar_contamination": 0.02,
+    "minimum_precision": 0.95,
+    "minimum_reviewed": 200,
+    "minimum_reviewed_per_trait": 10,
+    "overall_precision_gate_applied": false,
+    "package_gate_passed": true,
+    "precision": 1.0,
+    "precision_contract": "accepted_correct/all_reviewed",
+    "reviewed": 400,
+    "selected_evidence_rows": 1240
+  },
+  "source_packages": [
+    "dirtyplants-BSdb@9e87946d1e3121d39e657b702cf9f92ccc10936e",
+    "csiro-rainforest-plants-source-scale-20260811"
+  ],
+  "trait_audit": [
+    {
+      "accepted_correct": 25,
+      "cultivar_contamination_rate": 0.0,
+      "precision": 1.0,
+      "production_approved": true,
+      "reviewed": 25,
+      "trait_name": "floral_form"
+    },
+    {
+      "accepted_correct": 25,
+      "cultivar_contamination_rate": 0.0,
+      "precision": 1.0,
+      "production_approved": true,
+      "reviewed": 25,
+      "trait_name": "floral_symmetry"
+    },
+    {
+      "accepted_correct": 25,
+      "cultivar_contamination_rate": 0.0,
+      "precision": 1.0,
+      "production_approved": true,
+      "reviewed": 25,
+      "trait_name": "flower_primary_color"
+    },
+    {
+      "accepted_correct": 55,
+      "cultivar_contamination_rate": 0.0,
+      "precision": 1.0,
+      "production_approved": true,
+      "reviewed": 55,
+      "trait_name": "flower_size_class"
+    },
+    {
+      "accepted_correct": 45,
+      "cultivar_contamination_rate": 0.0,
+      "precision": 1.0,
+      "production_approved": true,
+      "reviewed": 45,
+      "trait_name": "inflorescence_display"
+    },
+    {
+      "accepted_correct": 200,
+      "cultivar_contamination_rate": 0.0,
+      "precision": 1.0,
+      "production_approved": true,
+      "reviewed": 200,
+      "trait_name": "self_incompatibility"
+    },
+    {
+      "accepted_correct": 25,
+      "cultivar_contamination_rate": 0.0,
+      "precision": 1.0,
+      "production_approved": true,
+      "reviewed": 25,
+      "trait_name": "tube_depth_class"
+    }
+  ]
+}

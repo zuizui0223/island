@@ -1,0 +1,120 @@
+{
+  "contract": "pngtrees_herbarium_guide_source_package_v1",
+  "generated_at_utc": "2026-08-12T19:15:00Z",
+  "guardrails": {
+    "cross_trait_substitution": false,
+    "family_agreement_required": true,
+    "family_inference": false,
+    "global_fallback": false,
+    "search_snippet_evidence": false,
+    "species_rank_only": true
+  },
+  "input_hashes": {
+    "pngtrees_page_manifest_20260813.csv.gz": "0c7096b29766d1891d3ca13629cb05ac59974be3e72651c43459c167a895ec7c",
+    "pngtrees_trait_candidates_20260813.csv.gz": "407d3ba08c1977728c57980abe09d9119327d06ef34336bd871e6068a717782f"
+  },
+  "inventory": {
+    "accepted_pages": 301,
+    "candidate_rows": 1143,
+    "candidate_species": 301,
+    "pages": 312
+  },
+  "output_hashes": {
+    "pngtrees_source_package_audit_200_20260813.csv": "f7cc00b91b7d1cc36d3c7edbf39b4aa215f67ea41f604c4fd14e2bc2fd5ee2ea",
+    "pngtrees_source_package_evidence_20260813.csv.gz": "fd50124d7190100c92817e71ed0aef4399ad61ac9f5cf0e9b891be5e25dc67a1"
+  },
+  "review": {
+    "by_trait": {
+      "floral_symmetry": 50,
+      "flower_primary_color": 50,
+      "flower_size_class": 50,
+      "inflorescence_display": 50
+    },
+    "rows": 200,
+    "source_package_gate": {
+      "accepted_correct": 200,
+      "approval_unit": "trait_name",
+      "approved_trait_count": 4,
+      "approved_traits": [
+        "floral_symmetry",
+        "flower_primary_color",
+        "flower_size_class",
+        "inflorescence_display"
+      ],
+      "candidate_evidence_rows": 1143,
+      "cultivar_contamination_rate": 0.0,
+      "explicitly_rejected_candidate_ids": 0,
+      "maximum_cultivar_contamination": 0.02,
+      "minimum_precision": 0.95,
+      "minimum_reviewed": 200,
+      "minimum_reviewed_per_trait": 10,
+      "overall_precision_gate_applied": false,
+      "package_gate_passed": true,
+      "precision": 1.0,
+      "precision_contract": "accepted_correct/all_reviewed",
+      "reviewed": 200,
+      "selected_evidence_rows": 1143
+    },
+    "trait_gate": [
+      {
+        "accepted_correct": 50,
+        "cultivar_contamination_rate": 0.0,
+        "precision": 1.0,
+        "production_approved": true,
+        "reviewed": 50,
+        "trait_name": "floral_symmetry"
+      },
+      {
+        "accepted_correct": 50,
+        "cultivar_contamination_rate": 0.0,
+        "precision": 1.0,
+        "production_approved": true,
+        "reviewed": 50,
+        "trait_name": "flower_primary_color"
+      },
+      {
+        "accepted_correct": 50,
+        "cultivar_contamination_rate": 0.0,
+        "precision": 1.0,
+        "production_approved": true,
+        "reviewed": 50,
+        "trait_name": "flower_size_class"
+      },
+      {
+        "accepted_correct": 50,
+        "cultivar_contamination_rate": 0.0,
+        "precision": 1.0,
+        "production_approved": true,
+        "reviewed": 50,
+        "trait_name": "inflorescence_display"
+      }
+    ],
+    "unique_pages": 200
+  },
+  "selected": {
+    "by_trait": {
+      "floral_symmetry": 294,
+      "flower_primary_color": 273,
+      "flower_size_class": 280,
+      "inflorescence_display": 296
+    },
+    "evidence_rows": 1143,
+    "species": 301,
+    "species_axis": 574,
+    "species_trait": 1143
+  },
+  "source": {
+    "authors": [
+      "Barry J. Conn",
+      "Kipiro Q. Damas"
+    ],
+    "independent_page_lineages": false,
+    "index_url": "https://www.pngplants.org/PNGtrees/TreeDescriptions/",
+    "organizations": [
+      "National Herbarium of New South Wales",
+      "Papua New Guinea National Herbarium"
+    ],
+    "quality": "medium",
+    "source_lineage": "provider_compilation:pngtrees:guide-to-trees-of-papua-new-guinea"
+  }
+}

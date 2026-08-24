@@ -1,0 +1,37 @@
+{
+  "checkpoint": "targeted_support2_wave18_checkpoint_20260820",
+  "built_at_utc": "2026-08-20T16:30:00Z",
+  "baseline_formal_run_id": 32339543372,
+  "accepted_evidence_rows": 9,
+  "accepted_species_trait": 9,
+  "accepted_species": 5,
+  "recorded_queries": 9,
+  "formal_search_api_queries": 0,
+  "search_cost_usd": 0.0,
+  "targeted_support2_rules": [
+    "Alternanthera|self_incompatibility",
+    "Echinochloa|self_incompatibility",
+    "Lolium|autonomous_selfing_capacity",
+    "Spathoglottis|autonomous_selfing_capacity"
+  ],
+  "theoretical_rule_cells_touched": 118,
+  "guardrails": {
+    "search_snippet_as_evidence": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "min_species_two_production": false,
+    "cross_trait_substitution": false,
+    "genus_axis_only_join": false,
+    "pollen_vector_or_reward_mixed_into_structure": false,
+    "self_fertility_silently_mapped_to_autonomous_selfing": false,
+    "paywall_or_access_control_bypassed": false,
+    "ambiguous_peperomia_mechanism_promoted": false
+  },
+  "output_sha256": {
+    "evidence": "be56626b7993808c39e03f3b0d2b658d5ea1063c0acef6f7ad6d94d5d1a5b96c",
+    "audit": "ee6c6eaab17fcab00362b52cdeb61ab0599855b4f22ab7c4df792906f0186a9c",
+    "combined_evidence": "64753a25a7e40d5dfbad426c1689c4e87bd96939d31b0c7dda507283963d7ce9",
+    "combined_audit": "8bb554537c24e7357329582e185da3a226b0e40135d8d1ac9e32d90c6fe7da04"
+  },
+  "notes": "The 118 cells are a queue ceiling, not observed coverage gain. Formal all-evidence rebuilding and species/lineage leave-one-out validation determine realized direct and Validated Low changes. Four Peperomia bagging results were retained in the research audit only because the source could not separate autogamy, wind pollination, and agamospermy."
+}

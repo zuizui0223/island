@@ -1,0 +1,134 @@
+name: Acquire regional-flora network trait evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      prior_run_id:
+        description: Latest successful reviewed open-Web evidence run
+        required: true
+        default: "31765847152"
+      prior_artifact_name:
+        description: Exact prior formal artifact name
+        required: true
+        default: "reviewed-open-web-evidence-31765847152"
+      sites:
+        description: Comma-separated regional-flora site keys
+        required: true
+        default: "zambia,mozambique,malawi,botswana,zimbabwe,caprivi,burundi,drcongo,rwanda,angola,kenya,tanzania,uganda"
+      family_id_start:
+        description: First family ID (inclusive)
+        required: true
+        default: "1"
+      family_id_end:
+        description: Last family ID (exclusive)
+        required: true
+        default: "320"
+      max_species_pages:
+        description: Maximum prioritized species pages in this checkpoint
+        required: true
+        default: "5000"
+      min_islands:
+        description: Minimum fixed-master island occurrences per target species
+        required: true
+        default: "11"
+      workers:
+        description: Bounded concurrent requests
+        required: true
+        default: "12"
+      resume_run_id:
+        description: Optional earlier run of this workflow to resume without repeated page tasks
+        required: false
+        default: ""
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: regional-flora-network-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PRIOR_RUN_ID: ${{ inputs.prior_run_id }}
+      PRIOR_ARTIFACT: ${{ inputs.prior_artifact_name }}
+      SITES: ${{ inputs.sites }}
+      FAMILY_ID_START: ${{ inputs.family_id_start }}
+      FAMILY_ID_END: ${{ inputs.family_id_end }}
+      MAX_SPECIES_PAGES: ${{ inputs.max_species_pages }}
+      MIN_ISLANDS: ${{ inputs.min_islands }}
+      WORKERS: ${{ inputs.workers }}
+      RESUME_RUN_ID: ${{ inputs.resume_run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate the acquisition contract
+        run: |
+          ruff check \
+            src/island_v2/regional_flora_network_acquisition.py \
+            tests/test_regional_flora_network_acquisition.py
+          python -m pytest -q tests/test_regional_flora_network_acquisition.py
+      - name: Download the exact latest formal artifact
+        run: |
+          mkdir -p /tmp/prior-formal
+          gh run download "$PRIOR_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "$PRIOR_ARTIFACT" \
+            --dir /tmp/prior-formal
+          test -f /tmp/prior-formal/strict_species_axis_coverage.csv.gz
+          test -f /tmp/prior-formal/direct_species_trait_ledger.csv.gz
+          test -f /tmp/prior-formal/prioritized_unresolved_search_queue.csv.gz
+      - name: Download optional resumable checkpoint
+        if: ${{ inputs.resume_run_id != '' }}
+        run: |
+          mkdir -p /tmp/resume
+          gh run download "$RESUME_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "regional-flora-network-acquisition-$RESUME_RUN_ID" \
+            --dir /tmp/resume
+          test -f /tmp/resume/regional_flora_acquisition_manifest.json
+      - name: Acquire only prioritized unresolved pages
+        run: |
+          mkdir -p outputs/regional_flora_network
+          resume_args=()
+          if [[ -n "$RESUME_RUN_ID" ]]; then
+            resume_args=(--resume-dir /tmp/resume)
+          fi
+          python -m island_v2.regional_flora_network_acquisition \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --strict-coverage-csv /tmp/prior-formal/strict_species_axis_coverage.csv.gz \
+            --direct-ledger-csv /tmp/prior-formal/direct_species_trait_ledger.csv.gz \
+            --rule-queue-csv /tmp/prior-formal/prioritized_unresolved_search_queue.csv.gz \
+            --output-dir outputs/regional_flora_network \
+            --sites "$SITES" \
+            --family-id-start "$FAMILY_ID_START" \
+            --family-id-end "$FAMILY_ID_END" \
+            --max-species-pages "$MAX_SPECIES_PAGES" \
+            --min-islands "$MIN_ISLANDS" \
+            --workers "$WORKERS" \
+            "${resume_args[@]}"
+          jq -e '
+            .fixed_denominator.species == 106295
+            and .fixed_denominator.species_axis == 318885
+            and .guardrails.accepted_name_exact == true
+            and .guardrails.page_family_exact == true
+            and .guardrails.species_direct_only == true
+            and .guardrails.family_inference == false
+            and .guardrails.global_fallback == false
+            and .promotion_status == "not_promoted_pending_individual_review"
+          ' outputs/regional_flora_network/regional_flora_acquisition_manifest.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: regional-flora-network-acquisition-${{ github.run_id }}
+          path: outputs/regional_flora_network
+          if-no-files-found: warn
+          retention-days: 90

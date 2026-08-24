@@ -1,0 +1,807 @@
+name: Review, promote, and recalculate open-Web trait evidence
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/open-web-review-promote.yml"
+      - "data/v2/staging/traits/open_web_pilot/multidomain_manual_audit_*.csv"
+      - "data/v2/staging/traits/open_web_pilot/ncstate_inventory_manual_audit_*.csv"
+      - "data/v2/staging/traits/open_web_pilot/plantnet_inventory_manual_audit_*.csv"
+      - "data/v2/staging/traits/open_web_pilot/high_leverage_species_direct_*.csv"
+      - "data/v2/staging/traits/open_web_pilot/high_leverage_source_manifest_*.json"
+      - "data/v2/staging/traits/open_web_pilot/curated_bulk_*_20260811.csv"
+      - "data/v2/staging/traits/open_web_pilot/curated_bulk_*_20260811.csv.gz"
+      - "data/v2/staging/traits/open_web_pilot/curated_bulk_*_20260811.json"
+      - "data/v2/staging/traits/open_web_pilot/efloras_medium_checkpoint_20260811/**"
+      - "data/v2/staging/traits/open_web_pilot/bsdb_reproductive_checkpoint_20260811/**"
+      - "data/v2/staging/traits/open_web_pilot/bsdb_morphology_checkpoint_20260811/**"
+      - "data/v2/staging/traits/open_web_pilot/bsdb_csiro_checkpoint_20260811/**"
+      - "data/v2/external/traits/wang_2023_symmetry/**"
+      - "data/v2/staging/traits/open_web_pilot/wang_2023_symmetry_checkpoint_20260811/**"
+      - "data/v2/staging/traits/open_web_pilot/bsdb_csiro_wang_checkpoint_20260811/**"
+      - "data/v2/external/traits/rodger_2021_pollinator_contribution/**"
+      - "data/v2/staging/traits/open_web_pilot/rodger_2021_autofertility_checkpoint_20260811/**"
+      - "data/v2/staging/traits/open_web_pilot/wfo_kew_africa_recovery_checkpoint_20260811/**"
+      - "data/v2/staging/traits/open_web_pilot/official_flora_colour_recovery_checkpoint_20260811/**"
+      - "data/v2/staging/traits/open_web_pilot/combined_next_source_package_20260811/**"
+      - "data/v2/staging/traits/open_web_pilot/high_leverage_direct_checkpoint_20260811/**"
+      - "data/v2/staging/traits/open_web_pilot/nparks_near_rule_checkpoint_20260811/**"
+      - "data/v2/staging/traits/open_web_pilot/goal_reproduction_checkpoint_20260811/**"
+      - "data/v2/staging/traits/open_web_pilot/next_acquisition_checkpoint_20260811/**"
+      - "data/v2/staging/traits/open_web_pilot/combined_florml_source_package_20260811/**"
+      - "data/v2/staging/traits/open_web_pilot/florml_size_recovery_checkpoint_20260812/**"
+      - "data/v2/staging/traits/open_web_pilot/combined_florml_size_source_package_20260812/**"
+      - "data/v2/staging/traits/open_web_pilot/iospe_orchid_colour_checkpoint_20260812/**"
+      - "data/v2/staging/traits/open_web_pilot/combined_iospe_source_package_20260812/**"
+      - "data/v2/staging/traits/open_web_pilot/goal_scale_source_package_20260811/**"
+      - "data/v2/staging/traits/open_web_pilot/reproductive_primary_checkpoint_20260812/**"
+      - "data/v2/staging/traits/open_web_pilot/pohnpei_reproductive_checkpoint_20260812/**"
+      - "data/v2/staging/traits/open_web_pilot/reproductive_rule_unlock_checkpoint_20260812/**"
+      - "data/v2/staging/traits/open_web_pilot/rule_unlock_wave2_checkpoint_20260812/**"
+      - "data/v2/staging/traits/open_web_pilot/rule_unlock_wave3_checkpoint_20260813/**"
+      - "data/v2/staging/traits/open_web_pilot/kudo_2022_alpine_reproduction_checkpoint_20260813/**"
+      - "data/v2/staging/traits/open_web_pilot/pngtrees_source_package_20260813/**"
+      - "data/v2/staging/traits/open_web_pilot/morphology_rule_unlock_checkpoint_20260813/**"
+      - "data/v2/staging/traits/open_web_pilot/independent_lineage_recovery_checkpoint_20260813/**"
+      - "data/v2/staging/traits/open_web_pilot/cached_evidence_recovery_checkpoint_20260813/**"
+      - "data/v2/staging/traits/open_web_pilot/reproductive_counterevidence_checkpoint_20260813/**"
+      - "data/v2/staging/traits/open_web_pilot/visible_morphology_rule_checkpoint_20260813/**"
+      - "data/v2/staging/traits/open_web_pilot/reproductive_rule_wave4_checkpoint_20260814/**"
+      - "data/v2/staging/traits/open_web_pilot/reproductive_rule_wave5_checkpoint_20260814/**"
+      - "data/v2/staging/traits/open_web_pilot/visible_morphology_wave6_checkpoint_20260814/**"
+      - "data/v2/staging/traits/open_web_pilot/high_yield_mixed_wave7_checkpoint_20260814/**"
+      - "data/v2/staging/traits/open_web_pilot/high_yield_mixed_wave8_checkpoint_20260814/**"
+      - "data/v2/staging/traits/open_web_pilot/high_yield_mixed_wave9_checkpoint_20260814/**"
+      - "data/v2/staging/traits/open_web_pilot/high_yield_reproductive_wave10_checkpoint_20260814/**"
+      - "data/v2/staging/traits/open_web_pilot/regional_flora_wave11_checkpoint_20260814/**"
+      - "data/v2/staging/traits/open_web_pilot/regional_flora_network_wave12_checkpoint_20260814/**"
+      - "data/v2/staging/traits/open_web_pilot/targeted_support2_wave13_checkpoint_20260814/**"
+      - "data/v2/staging/traits/open_web_pilot/targeted_support2_wave14_checkpoint_20260814/**"
+      - "data/v2/staging/traits/open_web_pilot/targeted_support2_wave15_checkpoint_20260820/**"
+      - "data/v2/staging/traits/open_web_pilot/targeted_support2_wave16_checkpoint_20260820/**"
+      - "data/v2/staging/traits/open_web_pilot/targeted_synonym_wave17_checkpoint_20260820/**"
+      - "data/v2/staging/traits/open_web_pilot/targeted_support2_wave18_checkpoint_20260820/**"
+      - "data/v2/staging/traits/open_web_pilot/targeted_support2_wave19_checkpoint_20260820/**"
+      - "data/v2/staging/traits/open_web_pilot/targeted_support2_wave20_checkpoint_20260821/**"
+      - "data/v2/staging/traits/open_web_pilot/goodwillie_2005_mixed_mating_checkpoint_20260821/**"
+      - "data/v2/staging/traits/open_web_pilot/ferrer_2024_powo_synonym_checkpoint_20260821/**"
+      - "data/v2/staging/traits/open_web_pilot/targeted_dioecy_wave23_checkpoint_20260821/**"
+      - "data/v2/staging/traits/open_web_pilot/targeted_support2_wave24_checkpoint_20260824/**"
+      - "data/v2/staging/traits/open_web_pilot/palmpedia_archive_checkpoint_20260813/**"
+      - "data/v2/external/traits/konno_1999_bagging/**"
+      - "data/v2/external/traits/yomai_2021_pohnpei/**"
+      - "data/v2/external/traits/goodwillie_2005/**"
+      - "data/v2/external/traits/ferrer_2024_two_backbone/**"
+      - "data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_*.csv"
+      - "data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/stratified_trait_audit_*.csv"
+      - "data/v2/staging/traits/direct_llm_pilot/20260808_scale_source_acquisition/**"
+      - "data/v2/staging/traits/direct_llm_pilot/20260809_flora_of_australia_source_acquisition/**"
+      - "data/v2/staging/traits/direct_llm_pilot/20260809_plantnet_nsw_source_acquisition/**"
+      - "data/v2/staging/traits/direct_llm_pilot/20260809_sanbi_eflora_source_acquisition/**"
+      - "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_kew_africa_source_acquisition/**"
+      - "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_global_six_source_acquisition/**"
+      - "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_high_yield_source_acquisition/**"
+      - "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_fna_foc_africa_source_acquisition/**"
+      - "analysis/acquire_flora_of_australia_traits_20260809.py"
+      - "analysis/acquire_plantnet_nsw_traits_20260809.py"
+      - "analysis/acquire_sanbi_eflora_traits_20260809.py"
+      - "analysis/acquire_wfo_kew_africa_traits_20260810.py"
+      - "analysis/acquire_wfo_global_flora_traits_20260810.py"
+      - "analysis/prepare_wfo_high_yield_source_package_20260810.py"
+      - "analysis/prepare_wfo_fna_foc_source_package_20260810.py"
+      - "analysis/acquire_florabase_colours_20260808.py"
+      - "analysis/acquire_ken_fern_reproductive_traits_20260808.py"
+      - "analysis/acquire_kew_grassbase_traits_20260808.py"
+      - "analysis/acquire_pfaf_reproductive_traits_20260808.py"
+      - "analysis/inventory_nhm_adept_traits_2026.py"
+      - "analysis/prepare_nhm_adept_bhl_source_package_20260808.py"
+      - "analysis/prepare_near_rule_source_packages_20260809.py"
+      - "analysis/build_secondary_probabilistic_genus_low_20260809.py"
+      - "analysis/prepare_scale_trait_source_packages_20260808.py"
+      - "analysis/prepare_palmpedia_archive_source_package_20260813.py"
+      - "src/island_v2/open_web_common.py"
+      - "src/island_v2/open_web_finalize.py"
+      - "src/island_v2/curated_bulk_checkpoint.py"
+      - "src/island_v2/efloras_medium_checkpoint.py"
+      - "src/island_v2/bsdb_reproductive_checkpoint.py"
+      - "src/island_v2/bsdb_morphology_checkpoint.py"
+      - "src/island_v2/bsdb_two_backbone_synonym_checkpoint.py"
+      - "src/island_v2/wang_2023_symmetry_checkpoint.py"
+      - "src/island_v2/rodger_2021_autofertility_checkpoint.py"
+      - "src/island_v2/wfo_kew_africa_recovery_checkpoint.py"
+      - "src/island_v2/official_flora_colour_recovery_checkpoint.py"
+      - "src/island_v2/florml_colour_recovery_checkpoint.py"
+      - "src/island_v2/florml_size_recovery_checkpoint.py"
+      - "src/island_v2/high_information_direct_checkpoint.py"
+      - "src/island_v2/merge_reviewed_source_packages.py"
+      - "src/island_v2/iospe_orchid_colour_checkpoint.py"
+      - "src/island_v2/gobotany_completion_checkpoint.py"
+      - "src/island_v2/proteus_trait_checkpoint.py"
+      - "src/island_v2/high_leverage_direct_checkpoint.py"
+      - "src/island_v2/nparks_near_rule_morphology_checkpoint.py"
+      - "src/island_v2/lucid_rainforest_checkpoint.py"
+      - "src/island_v2/pohnpei_reproductive_checkpoint.py"
+      - "src/island_v2/reproductive_rule_unlock_checkpoint.py"
+      - "src/island_v2/rule_unlock_wave2_checkpoint.py"
+      - "src/island_v2/rule_unlock_wave3_checkpoint.py"
+      - "src/island_v2/kudo_2022_alpine_reproduction_checkpoint.py"
+      - "src/island_v2/morphology_rule_unlock_checkpoint.py"
+      - "src/island_v2/independent_lineage_recovery_checkpoint.py"
+      - "src/island_v2/cached_evidence_recovery_checkpoint.py"
+      - "src/island_v2/reproductive_counterevidence_checkpoint.py"
+      - "src/island_v2/visible_morphology_rule_checkpoint.py"
+      - "src/island_v2/reproductive_rule_wave4_checkpoint.py"
+      - "src/island_v2/reproductive_rule_wave5_checkpoint.py"
+      - "src/island_v2/visible_morphology_wave6_checkpoint.py"
+      - "src/island_v2/high_yield_mixed_wave7_checkpoint.py"
+      - "src/island_v2/high_yield_mixed_wave8_checkpoint.py"
+      - "src/island_v2/high_yield_mixed_wave9_checkpoint.py"
+      - "src/island_v2/high_yield_reproductive_wave10_checkpoint.py"
+      - "src/island_v2/regional_flora_wave11_checkpoint.py"
+      - "src/island_v2/open_web_structured_traits.py"
+      - "analysis/acquire_pngtrees_source_package_20260813.py"
+      - "src/island_v2/review_inventory_artifact.py"
+      - "tests/test_curated_bulk_checkpoint.py"
+      - "tests/test_efloras_medium_checkpoint.py"
+      - "tests/test_bsdb_reproductive_checkpoint.py"
+      - "tests/test_bsdb_morphology_checkpoint.py"
+      - "tests/test_wang_2023_symmetry_checkpoint.py"
+      - "tests/test_rodger_2021_autofertility_checkpoint.py"
+      - "tests/test_wfo_kew_africa_recovery_checkpoint.py"
+      - "tests/test_official_flora_colour_recovery_checkpoint.py"
+      - "tests/test_florml_colour_recovery_checkpoint.py"
+      - "tests/test_florml_size_recovery_checkpoint.py"
+      - "tests/test_high_information_direct_checkpoint.py"
+      - "tests/test_gobotany_completion_checkpoint.py"
+      - "tests/test_proteus_trait_checkpoint.py"
+      - "tests/test_high_leverage_direct_checkpoint.py"
+      - "tests/test_nparks_near_rule_morphology_checkpoint.py"
+      - "tests/test_lucid_rainforest_checkpoint.py"
+      - "tests/test_goal_scale_source_package.py"
+      - "tests/test_pohnpei_reproductive_checkpoint.py"
+      - "tests/test_reproductive_rule_unlock_checkpoint.py"
+      - "tests/test_rule_unlock_wave2_checkpoint.py"
+      - "tests/test_rule_unlock_wave3_checkpoint.py"
+      - "tests/test_kudo_2022_alpine_reproduction_checkpoint.py"
+      - "tests/test_morphology_rule_unlock_checkpoint.py"
+      - "tests/test_independent_lineage_recovery_checkpoint.py"
+      - "tests/test_cached_evidence_recovery_checkpoint.py"
+      - "tests/test_reproductive_counterevidence_checkpoint.py"
+      - "tests/test_visible_morphology_rule_checkpoint.py"
+      - "tests/test_reproductive_rule_wave4_checkpoint.py"
+      - "tests/test_reproductive_rule_wave5_checkpoint.py"
+      - "tests/test_visible_morphology_wave6_checkpoint.py"
+      - "tests/test_high_yield_mixed_wave7_checkpoint.py"
+      - "tests/test_high_yield_mixed_wave8_checkpoint.py"
+      - "tests/test_high_yield_mixed_wave9_checkpoint.py"
+      - "tests/test_high_yield_reproductive_wave10_checkpoint.py"
+      - "tests/test_regional_flora_wave11_checkpoint.py"
+      - "tests/test_regional_flora_network_wave12_checkpoint.py"
+      - "tests/test_targeted_support2_wave13_checkpoint.py"
+      - "tests/test_targeted_support2_wave14_checkpoint.py"
+      - "tests/test_targeted_support2_wave15_checkpoint.py"
+      - "src/island_v2/targeted_support2_wave15_checkpoint.py"
+      - "tests/test_targeted_support2_wave16_checkpoint.py"
+      - "src/island_v2/targeted_support2_wave16_checkpoint.py"
+      - "tests/test_targeted_synonym_wave17_checkpoint.py"
+      - "src/island_v2/targeted_synonym_wave17_checkpoint.py"
+      - "tests/test_targeted_support2_wave18_checkpoint.py"
+      - "src/island_v2/targeted_support2_wave18_checkpoint.py"
+      - "tests/test_targeted_support2_wave19_checkpoint.py"
+      - "src/island_v2/targeted_support2_wave19_checkpoint.py"
+      - "tests/test_targeted_support2_wave20_checkpoint.py"
+      - "src/island_v2/targeted_support2_wave20_checkpoint.py"
+      - "tests/test_goodwillie_2005_mixed_mating_checkpoint.py"
+      - "src/island_v2/goodwillie_2005_mixed_mating_checkpoint.py"
+      - "tests/test_ferrer_2024_powo_synonym_checkpoint.py"
+      - "src/island_v2/ferrer_2024_powo_synonym_checkpoint.py"
+      - "tests/test_targeted_dioecy_wave23_checkpoint.py"
+      - "src/island_v2/targeted_dioecy_wave23_checkpoint.py"
+      - "tests/test_targeted_support2_wave24_checkpoint.py"
+      - "src/island_v2/targeted_support2_wave24_checkpoint.py"
+      - "tests/test_open_web_structured_traits.py"
+      - "tests/test_pngtrees_source_package.py"
+      - "tests/test_open_web_common.py"
+      - "tests/test_review_inventory_artifact.py"
+      - "tests/test_scale_trait_source_packages_20260808.py"
+      - "tests/test_flora_of_australia_source_scale.py"
+      - "tests/test_plantnet_nsw_source_scale.py"
+      - "tests/test_sanbi_eflora_source_scale.py"
+      - "tests/test_wfo_kew_africa_source_scale.py"
+      - "tests/test_wfo_global_flora_source_scale.py"
+      - "tests/test_wfo_high_yield_source_package.py"
+      - "tests/test_wfo_fna_foc_source_package.py"
+      - "tests/test_near_rule_source_packages_20260809.py"
+      - "tests/test_secondary_probabilistic_genus_low_20260809.py"
+      - "tests/test_iospe_orchid_colour_checkpoint.py"
+      - "tests/test_palmpedia_archive_source_package.py"
+      - "data/v2/staging/traits/direct_llm_pilot/20260809_near_rule_source_acquisition/**"
+  workflow_dispatch:
+    inputs:
+      baseline_run_id:
+        description: Successful formal integrated-coverage run
+        required: true
+      pilot_run_id:
+        description: Multi-domain acquisition run containing the candidates
+        required: true
+      pilot_artifact_name:
+        description: Exact combined pilot artifact name
+        required: true
+      audit_csv_path:
+        description: Reviewed audit CSV committed on this ref
+        required: true
+      candidate_file_name:
+        description: Candidate CSV inside the exact acquisition artifact
+        required: true
+        default: "open_web_multidomain_candidates.csv"
+      prior_public_web_run_id:
+        description: Previous formal reviewed-Web run to extend
+        required: false
+        default: "32702160934"
+      prior_public_web_artifact_name:
+        description: Artifact containing the previous formal Web ledger
+        required: false
+        default: "reviewed-open-web-evidence-32702160934"
+      prior_public_web_file_name:
+        description: Evidence CSV path inside the previous artifact
+        required: false
+        default: "broad_web_medium_evidence.csv.gz"
+      prior_public_web_supplement_file_name:
+        description: Canonical lineage table used only to repair prior-ledger quality
+        required: false
+        default: "reviewed_source_lineages.csv.gz"
+      curated_evidence_csv_path:
+        description: Individually reviewed species-direct evidence committed on this ref
+        required: false
+        default: "data/v2/staging/traits/open_web_pilot/targeted_support2_wave24_checkpoint_20260824/targeted_support2_wave24_evidence_20260824.csv"
+      curated_audit_csv_path:
+        description: Line-by-line audit for the curated evidence
+        required: false
+        default: "data/v2/staging/traits/open_web_pilot/targeted_support2_wave24_checkpoint_20260824/targeted_support2_wave24_manual_audit_20260824.csv"
+      curated_source_run_id:
+        description: Original acquisition Run ID for the curated checkpoint
+        required: false
+        default: "targeted-support2-wave24-20260824"
+      curated_source_artifact_name:
+        description: Original acquisition artifact for the curated checkpoint
+        required: false
+        default: "targeted-support2-wave24-source-snapshot"
+      source_package_evidence_csv_path:
+        description: Common-schema evidence from an audited source package
+        required: false
+        default: ""
+      source_package_audit_csv_path:
+        description: Deterministic audit sample for the source package
+        required: false
+        default: ""
+      source_package_run_id:
+        description: Original acquisition run or immutable package identifier
+        required: false
+        default: ""
+      source_package_artifact_name:
+        description: Original source-package artifact name
+        required: false
+        default: ""
+      direct_evidence_exclusions_csv_path:
+        description: Reviewed exact-record exclusions committed on this ref
+        required: false
+        default: "data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_20260811.csv"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: open-web-review-promote-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-and-promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BASELINE_RUN_ID: ${{ inputs.baseline_run_id || '31245813999' }}
+      PILOT_RUN_ID: ${{ inputs.pilot_run_id || '30434418380' }}
+      PILOT_ARTIFACT_NAME: >-
+        ${{ inputs.pilot_artifact_name ||
+        'open-web-multidomain-pilot-30434418380' }}
+      PRIOR_PUBLIC_WEB_RUN_ID: ${{ inputs.prior_public_web_run_id || '32702160934' }}
+      PRIOR_PUBLIC_WEB_ARTIFACT: >-
+        ${{ inputs.prior_public_web_artifact_name ||
+        'reviewed-open-web-evidence-32702160934' }}
+      PRIOR_PUBLIC_WEB_FILE_NAME: >-
+        ${{ inputs.prior_public_web_file_name ||
+        'broad_web_medium_evidence.csv.gz' }}
+      PRIOR_PUBLIC_WEB_SUPPLEMENT_FILE_NAME: >-
+        ${{ inputs.prior_public_web_supplement_file_name ||
+        'reviewed_source_lineages.csv.gz' }}
+      AUDIT_CSV_PATH: >-
+        ${{ inputs.audit_csv_path ||
+        'data/v2/staging/traits/open_web_pilot/multidomain_manual_audit_200_30434418380.csv' }}
+      CANDIDATE_FILE_NAME: >-
+        ${{ inputs.candidate_file_name || 'open_web_multidomain_candidates.csv' }}
+      CURATED_EVIDENCE_CSV_PATH: >-
+        ${{ inputs.curated_evidence_csv_path ||
+        'data/v2/staging/traits/open_web_pilot/targeted_support2_wave24_checkpoint_20260824/targeted_support2_wave24_evidence_20260824.csv' }}
+      CURATED_AUDIT_CSV_PATH: >-
+        ${{ inputs.curated_audit_csv_path ||
+        'data/v2/staging/traits/open_web_pilot/targeted_support2_wave24_checkpoint_20260824/targeted_support2_wave24_manual_audit_20260824.csv' }}
+      CURATED_SOURCE_RUN_ID: >-
+        ${{ inputs.curated_source_run_id || 'targeted-support2-wave24-20260824' }}
+      CURATED_SOURCE_ARTIFACT: >-
+        ${{ inputs.curated_source_artifact_name ||
+        'targeted-support2-wave24-source-snapshot' }}
+      SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-
+        ${{ inputs.source_package_evidence_csv_path || '' }}
+      SOURCE_PACKAGE_AUDIT_CSV_PATH: >-
+        ${{ inputs.source_package_audit_csv_path || '' }}
+      SOURCE_PACKAGE_RUN_ID: >-
+        ${{ inputs.source_package_run_id || '' }}
+      SOURCE_PACKAGE_ARTIFACT: >-
+        ${{ inputs.source_package_artifact_name || '' }}
+      DIRECT_EVIDENCE_EXCLUSIONS_CSV_PATH: >-
+        ${{ inputs.direct_evidence_exclusions_csv_path ||
+        'data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_20260811.csv' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate the shared implementation and open-Web adapters
+        run: |
+          ruff check \
+            analysis/acquire_florabase_colours_20260808.py \
+            analysis/acquire_flora_of_australia_traits_20260809.py \
+            analysis/acquire_plantnet_nsw_traits_20260809.py \
+            analysis/acquire_sanbi_eflora_traits_20260809.py \
+            analysis/acquire_wfo_kew_africa_traits_20260810.py \
+            analysis/acquire_wfo_global_flora_traits_20260810.py \
+            analysis/prepare_wfo_high_yield_source_package_20260810.py \
+            analysis/prepare_wfo_fna_foc_source_package_20260810.py \
+            analysis/acquire_ken_fern_reproductive_traits_20260808.py \
+            analysis/acquire_kew_grassbase_traits_20260808.py \
+            analysis/acquire_pfaf_reproductive_traits_20260808.py \
+            analysis/inventory_nhm_adept_traits_2026.py \
+            analysis/prepare_nhm_adept_bhl_source_package_20260808.py \
+            analysis/prepare_near_rule_source_packages_20260809.py \
+            analysis/build_secondary_probabilistic_genus_low_20260809.py \
+            analysis/prepare_scale_trait_source_packages_20260808.py \
+            analysis/prepare_palmpedia_archive_source_package_20260813.py \
+            analysis/acquire_pngtrees_source_package_20260813.py \
+            src/island_v2/open_web_common.py \
+            src/island_v2/open_web_finalize.py \
+            src/island_v2/curated_bulk_checkpoint.py \
+            src/island_v2/efloras_medium_checkpoint.py \
+            src/island_v2/bsdb_reproductive_checkpoint.py \
+            src/island_v2/bsdb_morphology_checkpoint.py \
+            src/island_v2/bsdb_two_backbone_synonym_checkpoint.py \
+            src/island_v2/wang_2023_symmetry_checkpoint.py \
+            src/island_v2/rodger_2021_autofertility_checkpoint.py \
+            src/island_v2/wfo_kew_africa_recovery_checkpoint.py \
+            src/island_v2/official_flora_colour_recovery_checkpoint.py \
+            src/island_v2/florml_colour_recovery_checkpoint.py \
+            src/island_v2/florml_size_recovery_checkpoint.py \
+            src/island_v2/gobotany_completion_checkpoint.py \
+            src/island_v2/proteus_trait_checkpoint.py \
+            src/island_v2/high_leverage_direct_checkpoint.py \
+            src/island_v2/high_information_direct_checkpoint.py \
+            src/island_v2/nparks_near_rule_morphology_checkpoint.py \
+            src/island_v2/merge_reviewed_source_packages.py \
+            src/island_v2/iospe_orchid_colour_checkpoint.py \
+            src/island_v2/lucid_rainforest_checkpoint.py \
+            src/island_v2/pohnpei_reproductive_checkpoint.py \
+            src/island_v2/reproductive_rule_unlock_checkpoint.py \
+            src/island_v2/rule_unlock_wave2_checkpoint.py \
+            src/island_v2/rule_unlock_wave3_checkpoint.py \
+            src/island_v2/kudo_2022_alpine_reproduction_checkpoint.py \
+            src/island_v2/morphology_rule_unlock_checkpoint.py \
+            src/island_v2/independent_lineage_recovery_checkpoint.py \
+            src/island_v2/cached_evidence_recovery_checkpoint.py \
+            src/island_v2/reproductive_counterevidence_checkpoint.py \
+            src/island_v2/visible_morphology_rule_checkpoint.py \
+            src/island_v2/reproductive_rule_wave4_checkpoint.py \
+            src/island_v2/reproductive_rule_wave5_checkpoint.py \
+            src/island_v2/visible_morphology_wave6_checkpoint.py \
+            src/island_v2/high_yield_mixed_wave7_checkpoint.py \
+            src/island_v2/high_yield_mixed_wave8_checkpoint.py \
+            src/island_v2/high_yield_mixed_wave9_checkpoint.py \
+            src/island_v2/high_yield_reproductive_wave10_checkpoint.py \
+            src/island_v2/regional_flora_wave11_checkpoint.py \
+            src/island_v2/targeted_synonym_wave17_checkpoint.py \
+            src/island_v2/targeted_support2_wave18_checkpoint.py \
+            src/island_v2/targeted_support2_wave19_checkpoint.py \
+            src/island_v2/targeted_support2_wave20_checkpoint.py \
+            src/island_v2/goodwillie_2005_mixed_mating_checkpoint.py \
+            src/island_v2/ferrer_2024_powo_synonym_checkpoint.py \
+            src/island_v2/targeted_dioecy_wave23_checkpoint.py \
+            src/island_v2/targeted_support2_wave24_checkpoint.py \
+            src/island_v2/open_web_structured_traits.py \
+            src/island_v2/review_inventory_artifact.py \
+            tests/test_curated_bulk_checkpoint.py \
+            tests/test_efloras_medium_checkpoint.py \
+            tests/test_bsdb_reproductive_checkpoint.py \
+            tests/test_bsdb_morphology_checkpoint.py \
+            tests/test_wang_2023_symmetry_checkpoint.py \
+            tests/test_rodger_2021_autofertility_checkpoint.py \
+            tests/test_wfo_kew_africa_recovery_checkpoint.py \
+            tests/test_official_flora_colour_recovery_checkpoint.py \
+            tests/test_florml_colour_recovery_checkpoint.py \
+            tests/test_florml_size_recovery_checkpoint.py \
+            tests/test_gobotany_completion_checkpoint.py \
+            tests/test_proteus_trait_checkpoint.py \
+            tests/test_high_leverage_direct_checkpoint.py \
+            tests/test_high_information_direct_checkpoint.py \
+            tests/test_nparks_near_rule_morphology_checkpoint.py \
+            tests/test_goal_reproduction_checkpoint.py \
+            tests/test_lucid_rainforest_checkpoint.py \
+            tests/test_goal_scale_source_package.py \
+            tests/test_pohnpei_reproductive_checkpoint.py \
+            tests/test_reproductive_rule_unlock_checkpoint.py \
+            tests/test_rule_unlock_wave2_checkpoint.py \
+            tests/test_rule_unlock_wave3_checkpoint.py \
+            tests/test_kudo_2022_alpine_reproduction_checkpoint.py \
+            tests/test_morphology_rule_unlock_checkpoint.py \
+            tests/test_independent_lineage_recovery_checkpoint.py \
+            tests/test_cached_evidence_recovery_checkpoint.py \
+            tests/test_reproductive_counterevidence_checkpoint.py \
+            tests/test_visible_morphology_rule_checkpoint.py \
+            tests/test_reproductive_rule_wave4_checkpoint.py \
+            tests/test_reproductive_rule_wave5_checkpoint.py \
+            tests/test_visible_morphology_wave6_checkpoint.py \
+            tests/test_high_yield_mixed_wave7_checkpoint.py \
+            tests/test_high_yield_mixed_wave8_checkpoint.py \
+            tests/test_high_yield_mixed_wave9_checkpoint.py \
+            tests/test_high_yield_reproductive_wave10_checkpoint.py \
+            tests/test_regional_flora_wave11_checkpoint.py \
+            tests/test_regional_flora_network_wave12_checkpoint.py \
+            tests/test_targeted_support2_wave13_checkpoint.py \
+            tests/test_targeted_support2_wave14_checkpoint.py \
+            tests/test_targeted_support2_wave15_checkpoint.py \
+            tests/test_targeted_support2_wave16_checkpoint.py \
+            tests/test_targeted_synonym_wave17_checkpoint.py \
+            tests/test_targeted_support2_wave18_checkpoint.py \
+            tests/test_targeted_support2_wave19_checkpoint.py \
+            tests/test_targeted_support2_wave20_checkpoint.py \
+            tests/test_goodwillie_2005_mixed_mating_checkpoint.py \
+            tests/test_ferrer_2024_powo_synonym_checkpoint.py \
+            tests/test_targeted_dioecy_wave23_checkpoint.py \
+            tests/test_targeted_support2_wave24_checkpoint.py \
+            tests/test_open_web_structured_traits.py \
+            tests/test_review_inventory_artifact.py \
+            tests/test_flora_of_australia_source_scale.py \
+            tests/test_plantnet_nsw_source_scale.py \
+            tests/test_sanbi_eflora_source_scale.py \
+            tests/test_wfo_kew_africa_source_scale.py \
+            tests/test_wfo_global_flora_source_scale.py \
+            tests/test_wfo_high_yield_source_package.py \
+            tests/test_wfo_fna_foc_source_package.py \
+            tests/test_open_web_common.py \
+            tests/test_near_rule_source_packages_20260809.py \
+            tests/test_secondary_probabilistic_genus_low_20260809.py \
+            tests/test_scale_trait_source_packages_20260808.py \
+            tests/test_iospe_orchid_colour_checkpoint.py \
+            tests/test_palmpedia_archive_source_package.py \
+            tests/test_pngtrees_source_package.py
+          python -m pytest -q \
+            tests/test_curated_bulk_checkpoint.py \
+            tests/test_efloras_medium_checkpoint.py \
+            tests/test_bsdb_reproductive_checkpoint.py \
+            tests/test_bsdb_morphology_checkpoint.py \
+            tests/test_wang_2023_symmetry_checkpoint.py \
+            tests/test_rodger_2021_autofertility_checkpoint.py \
+            tests/test_wfo_kew_africa_recovery_checkpoint.py \
+            tests/test_official_flora_colour_recovery_checkpoint.py \
+            tests/test_florml_colour_recovery_checkpoint.py \
+            tests/test_florml_size_recovery_checkpoint.py \
+            tests/test_gobotany_completion_checkpoint.py \
+            tests/test_proteus_trait_checkpoint.py \
+            tests/test_high_leverage_direct_checkpoint.py \
+            tests/test_high_information_direct_checkpoint.py \
+            tests/test_nparks_near_rule_morphology_checkpoint.py \
+            tests/test_goal_reproduction_checkpoint.py \
+            tests/test_lucid_rainforest_checkpoint.py \
+            tests/test_goal_scale_source_package.py \
+            tests/test_pohnpei_reproductive_checkpoint.py \
+            tests/test_reproductive_rule_unlock_checkpoint.py \
+            tests/test_rule_unlock_wave2_checkpoint.py \
+            tests/test_rule_unlock_wave3_checkpoint.py \
+            tests/test_kudo_2022_alpine_reproduction_checkpoint.py \
+            tests/test_morphology_rule_unlock_checkpoint.py \
+            tests/test_independent_lineage_recovery_checkpoint.py \
+            tests/test_cached_evidence_recovery_checkpoint.py \
+            tests/test_reproductive_counterevidence_checkpoint.py \
+            tests/test_visible_morphology_rule_checkpoint.py \
+            tests/test_reproductive_rule_wave4_checkpoint.py \
+            tests/test_reproductive_rule_wave5_checkpoint.py \
+            tests/test_visible_morphology_wave6_checkpoint.py \
+            tests/test_high_yield_mixed_wave7_checkpoint.py \
+            tests/test_high_yield_mixed_wave8_checkpoint.py \
+            tests/test_high_yield_mixed_wave9_checkpoint.py \
+            tests/test_high_yield_reproductive_wave10_checkpoint.py \
+            tests/test_regional_flora_wave11_checkpoint.py \
+            tests/test_regional_flora_network_wave12_checkpoint.py \
+            tests/test_targeted_support2_wave13_checkpoint.py \
+            tests/test_targeted_support2_wave14_checkpoint.py \
+            tests/test_targeted_support2_wave15_checkpoint.py \
+            tests/test_targeted_support2_wave16_checkpoint.py \
+            tests/test_targeted_synonym_wave17_checkpoint.py \
+            tests/test_targeted_support2_wave18_checkpoint.py \
+            tests/test_targeted_support2_wave19_checkpoint.py \
+            tests/test_targeted_support2_wave20_checkpoint.py \
+            tests/test_goodwillie_2005_mixed_mating_checkpoint.py \
+            tests/test_ferrer_2024_powo_synonym_checkpoint.py \
+            tests/test_targeted_dioecy_wave23_checkpoint.py \
+            tests/test_targeted_support2_wave24_checkpoint.py \
+            tests/test_open_web_structured_traits.py \
+            tests/test_open_web_common.py \
+            tests/test_review_inventory_artifact.py \
+            tests/test_flora_of_australia_source_scale.py \
+            tests/test_plantnet_nsw_source_scale.py \
+            tests/test_sanbi_eflora_source_scale.py \
+            tests/test_wfo_kew_africa_source_scale.py \
+            tests/test_wfo_global_flora_source_scale.py \
+            tests/test_wfo_high_yield_source_package.py \
+            tests/test_wfo_fna_foc_source_package.py \
+            tests/test_near_rule_source_packages_20260809.py \
+            tests/test_secondary_probabilistic_genus_low_20260809.py \
+            tests/test_scale_trait_source_packages_20260808.py \
+            tests/test_iospe_orchid_colour_checkpoint.py \
+            tests/test_palmpedia_archive_source_package.py \
+            tests/test_pngtrees_source_package.py \
+            tests/test_all_evidence_trait_audit.py
+      - name: Download baseline and the exact acquisition artifact
+        run: |
+          mkdir -p \
+            /tmp/open-web-baseline \
+            /tmp/open-web-pilot \
+            /tmp/open-web-prior
+          gh run download "$BASELINE_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "integrated-trait-coverage-$BASELINE_RUN_ID" \
+            --dir /tmp/open-web-baseline
+          gh run download "$PILOT_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "$PILOT_ARTIFACT_NAME" \
+            --dir /tmp/open-web-pilot
+          gh run download "$PRIOR_PUBLIC_WEB_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "$PRIOR_PUBLIC_WEB_ARTIFACT" \
+            --dir /tmp/open-web-prior
+          test -f "/tmp/open-web-pilot/$CANDIDATE_FILE_NAME"
+          test -f "/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_FILE_NAME"
+          test -f "/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_SUPPLEMENT_FILE_NAME"
+          test -f "$AUDIT_CSV_PATH"
+          test -f "$DIRECT_EVIDENCE_EXCLUSIONS_CSV_PATH"
+          if [[ -n "$CURATED_EVIDENCE_CSV_PATH" ]]; then
+            test -n "$CURATED_AUDIT_CSV_PATH"
+            test -f "$CURATED_EVIDENCE_CSV_PATH"
+            test -f "$CURATED_AUDIT_CSV_PATH"
+          elif [[ -n "$CURATED_AUDIT_CSV_PATH" ]]; then
+            echo "curated audit was supplied without curated evidence" >&2
+            exit 1
+          fi
+          if [[ -n "$SOURCE_PACKAGE_EVIDENCE_CSV_PATH" ]]; then
+            test -n "$SOURCE_PACKAGE_AUDIT_CSV_PATH"
+            test -f "$SOURCE_PACKAGE_EVIDENCE_CSV_PATH"
+            test -f "$SOURCE_PACKAGE_AUDIT_CSV_PATH"
+          elif [[ -n "$SOURCE_PACKAGE_AUDIT_CSV_PATH" ]]; then
+            echo "source-package audit was supplied without evidence" >&2
+            exit 1
+          fi
+      - name: Promote approved domain-trait scopes and recalculate coverage
+        run: |
+          mkdir -p outputs/reviewed_open_web
+          curated_args=()
+          if [[ -n "$CURATED_EVIDENCE_CSV_PATH" ]]; then
+            curated_args=(
+              --curated-evidence-csv "$CURATED_EVIDENCE_CSV_PATH"
+              --curated-audit-csv "$CURATED_AUDIT_CSV_PATH"
+              --curated-source-run-id "$CURATED_SOURCE_RUN_ID"
+              --curated-source-artifact "$CURATED_SOURCE_ARTIFACT"
+            )
+          fi
+          source_package_args=()
+          if [[ -n "$SOURCE_PACKAGE_EVIDENCE_CSV_PATH" ]]; then
+            source_package_args=(
+              --source-package-evidence-csv "$SOURCE_PACKAGE_EVIDENCE_CSV_PATH"
+              --source-package-audit-csv "$SOURCE_PACKAGE_AUDIT_CSV_PATH"
+              --source-package-run-id "$SOURCE_PACKAGE_RUN_ID"
+              --source-package-artifact "$SOURCE_PACKAGE_ARTIFACT"
+            )
+          fi
+          python -m island_v2.open_web_finalize \
+            --baseline-dir /tmp/open-web-baseline \
+            --candidates-csv \
+              "/tmp/open-web-pilot/$CANDIDATE_FILE_NAME" \
+            --audit-csv "$AUDIT_CSV_PATH" \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --output-dir outputs/reviewed_open_web \
+            --source-run-id "$PILOT_RUN_ID" \
+            --source-artifact "$PILOT_ARTIFACT_NAME" \
+            --prior-public-web-csv \
+              "/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_FILE_NAME" \
+            --prior-public-web-supplement-csv \
+              "/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_SUPPLEMENT_FILE_NAME" \
+            --prior-public-web-run-id "$PRIOR_PUBLIC_WEB_RUN_ID" \
+            --prior-public-web-artifact "$PRIOR_PUBLIC_WEB_ARTIFACT" \
+            --direct-evidence-exclusions-csv \
+              "$DIRECT_EVIDENCE_EXCLUSIONS_CSV_PATH" \
+            "${curated_args[@]}" \
+            "${source_package_args[@]}"
+          jq -e '
+            (
+              .promoted_reviewed_evidence_rows == 0
+              or (
+                .audit.pilot_gate_passed == true
+                and .audit.reviewed_pages_or_candidates >= 200
+                and .audit.reviewed_domains >= 5
+                and .audit.precision >= 0.95
+                and .audit.cultivar_contamination_rate <= 0.02
+              )
+            )
+            and .shared_all_evidence.denominator.species == 106295
+            and .shared_all_evidence.denominator.species_axis == 318885
+            and .shared_all_evidence.axis_join_for_inference == false
+            and .shared_all_evidence.family_inference == false
+            and .shared_all_evidence.global_fallback == false
+            and .direct_evidence_exclusions.configured_records >= 1
+            and .direct_evidence_exclusions.matched_rows >= 1
+            and .prior_formal_public_web_evidence_rows > 0
+            and (
+              .shared_all_evidence.prior_formal_public_web_evidence_rows
+              == .prior_formal_public_web_evidence_rows
+            )
+            and (.shared_all_evidence.pilot_validated_low_change.added >= 0)
+            and (.shared_all_evidence.pilot_validated_low_change.invalidated >= 0)
+            and (.shared_all_evidence.pilot_validated_low_change.upgraded_to_direct >= 0)
+            and (
+              .combined_formal_public_web_evidence_rows
+              >= .prior_formal_public_web_evidence_rows
+            )
+            and (
+              .shared_all_evidence.coverage_increment_species_axis
+              == (
+                .shared_all_evidence.coverage_after.filled_species_axis
+                - .shared_all_evidence.coverage_before.filled_species_axis
+              )
+            )
+            and (
+              .shared_all_evidence.coverage_change_species_axis.net_change
+              == .shared_all_evidence.coverage_increment_species_axis
+            )
+          ' outputs/reviewed_open_web/open_web_formalization_summary.json
+          if [[ -n "$SOURCE_PACKAGE_EVIDENCE_CSV_PATH" ]]; then
+            jq -e '
+              .source_package.package_gate_passed == true
+              and .source_package.reviewed >= 200
+              and .source_package.approval_unit == "trait_name"
+              and .source_package.overall_precision_gate_applied == false
+              and .source_package.approved_trait_count > 0
+              and .source_package.cultivar_contamination_rate <= 0.02
+              and .source_package.novelty_rate >= 0.50
+              and .source_package.selected_evidence_rows > 0
+            ' outputs/reviewed_open_web/open_web_formalization_summary.json
+          fi
+          cat outputs/reviewed_open_web/open_web_formalization_summary.json \
+            >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify the Wave 24 support-two checkpoint goals
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          import pandas as pd
+
+          root = Path("outputs/reviewed_open_web")
+          checkpoint = Path(
+              "data/v2/staging/traits/open_web_pilot/"
+              "targeted_support2_wave24_checkpoint_20260824"
+          )
+          summary = json.loads(
+              (root / "open_web_formalization_summary.json").read_text()
+          )
+          source = json.loads(
+              (checkpoint / "source_acquisition_manifest_wave24.json").read_text()
+          )
+          prior_rules = pd.read_csv(
+              root / "prior_trait_specific_genus_rule_audit.csv.gz",
+              dtype=str,
+          ).fillna("")
+          rules = pd.read_csv(
+              root / "trait_specific_genus_rule_audit.csv.gz",
+              dtype=str,
+          ).fillna("")
+
+          def eligible_keys(frame):
+              selected = frame.loc[
+                  frame["setting"].eq("current_min3")
+                  & frame["eligible"].str.casefold().eq("true")
+              ].copy()
+              return set(zip(selected["genus"], selected["trait_name"]))
+
+          before_keys = eligible_keys(prior_rules)
+          after_keys = eligible_keys(rules)
+          targeted = {
+              tuple(value.split("|", 1))
+              for value in source["targeted_support2_rules"]
+          }
+          newly_eligible = after_keys - before_keys
+          targeted_new = sorted(targeted & newly_eligible)
+          shared = summary["shared_all_evidence"]
+          coverage = shared["coverage_after"]
+          reproduction = coverage["by_axis"]["reproductive_assurance"]
+
+          assert source["fixed_integrated_baseline_run_id"] == 31488685866
+          assert source["baseline_formal_run_id"] == 32702160934
+          assert source["accepted_evidence_rows"] == 22
+          assert len(targeted_new) >= 20
+          assert len(after_keys) - len(before_keys) >= 20
+          assert shared["new_direct_species_trait"] >= 21
+          assert shared["new_direct_species_axis"] >= 13
+          assert shared["coverage_change_species_axis"]["loss"] == 0
+          assert shared["coverage_increment_species_axis"] >= 195
+          assert coverage["filled_species_axis"] >= 159443
+          assert reproduction["filled_species"] >= 31889
+          assert coverage["species_by_filled_axis_count"]["0"] <= 14500
+
+          verification = {
+              "contract": "wave24_support2_goal_verification_v1",
+              "fixed_baseline_run_id": 31488685866,
+              "prior_formal_run_id": 32702160934,
+              "prior_eligible_current_min3_rules": len(before_keys),
+              "after_eligible_current_min3_rules": len(after_keys),
+              "eligible_rule_net_change": len(after_keys) - len(before_keys),
+              "targeted_newly_eligible_rules": [
+                  f"{genus}|{trait}" for genus, trait in targeted_new
+              ],
+              "new_direct_species_trait": shared["new_direct_species_trait"],
+              "new_direct_species_axis": shared["new_direct_species_axis"],
+              "coverage_increment_species_axis": shared[
+                  "coverage_increment_species_axis"
+              ],
+              "coverage_after": coverage,
+              "validated_low_change": shared["pilot_validated_low_change"],
+              "guardrails": {
+                  "trait_specific_join": shared["trait_specific_join"],
+                  "axis_join_for_inference": shared["axis_join_for_inference"],
+                  "family_inference": shared["family_inference"],
+                  "global_fallback": shared["global_fallback"],
+              },
+          }
+          (root / "wave24_support2_goal_verification.json").write_text(
+              json.dumps(verification, ensure_ascii=False, indent=2) + "\n"
+          )
+          print(json.dumps(verification, ensure_ascii=False, indent=2))
+          PY
+      - name: Build uncertainty-aware genus Low analysis inputs
+        run: |
+          python analysis/build_secondary_probabilistic_genus_low_20260809.py \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --direct-csv outputs/reviewed_open_web/direct_species_trait_ledger.csv.gz \
+            --rules-csv outputs/reviewed_open_web/trait_specific_genus_rule_audit.csv.gz \
+            --strict-coverage-csv outputs/reviewed_open_web/strict_species_axis_coverage.csv.gz \
+            --strict-low-csv outputs/reviewed_open_web/rebuilt_all_evidence_validated_low.csv.gz \
+            --output-dir outputs/reviewed_open_web
+          jq -e '
+            .denominator.species == 106295
+            and .denominator.species_axis == 318885
+            and .strict_coverage.changed_by_this_artifact == false
+            and .guardrails.trait_specific_join == "genus_x_trait_name"
+            and .guardrails.axis_only_join == false
+            and .guardrails.family_inference == false
+            and .guardrails.global_fallback == false
+            and .guardrails.strict_coverage_modified == false
+            and .relaxed_min3_secondary.additional_species_trait > 0
+            and .relaxed_min3_secondary.potential_new_species_axis > 0
+          ' outputs/reviewed_open_web/secondary_probabilistic_genus_low_summary.json
+          cat outputs/reviewed_open_web/secondary_probabilistic_genus_low_summary.json \
+            >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reviewed-open-web-evidence-${{ github.run_id }}
+          path: outputs/reviewed_open_web/
+          retention-days: 90
+          if-no-files-found: error

@@ -1,0 +1,68 @@
+{
+  "accepted_rows": 9,
+  "blocked_nominal_rules": {
+    "Allium_autonomous": "counterexample lowers dominance below 0.95",
+    "Calanthe_autonomous": "corrected polarity and counterevidence",
+    "Grevillea_mixed_mating": "predominantly-outcrossing counterexample",
+    "Liparis_absent": "direct autonomous counterexample"
+  },
+  "combined": {
+    "audit_rows": 1875,
+    "evidence_rows": 1875
+  },
+  "contract": "reproductive_counterevidence_checkpoint_v1",
+  "created_at_utc": "2026-08-13T13:10:00Z",
+  "files": {
+    "combined_curated_evidence_20260813.csv": {
+      "sha256": "a592a47a77a23c61d1a6545bebb9a97bac6191db94d4a8bcd0ac40f3d24eeba4",
+      "size_bytes": 2120492
+    },
+    "combined_curated_manual_audit_20260813.csv": {
+      "sha256": "88dd94473cd76744b947e8649ed124041adf771a6518ae9a6f029f96d1e0985b",
+      "size_bytes": 1828659
+    },
+    "reproductive_counterevidence_evidence_20260813.csv": {
+      "sha256": "5da8bab557eba7f643abf2d5e9a0d1867897ff04be1c606bd39a9d1bf09d8778",
+      "size_bytes": 11231
+    },
+    "reproductive_counterevidence_manual_audit_20260813.csv": {
+      "sha256": "1fe24489157e36d79fa67e883545b4edd40b553fa7fbdf455ae3aaddad8362e6",
+      "size_bytes": 10565
+    }
+  },
+  "guardrails": {
+    "cross_trait_substitution": false,
+    "family_inference": false,
+    "genus_inference_emitted_here": false,
+    "global_fallback": false,
+    "search_snippet_evidence": false,
+    "trait_specific_records": true
+  },
+  "inputs": {
+    "master_csv": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e"
+    },
+    "prior_curated_audit_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\cached_evidence_recovery_checkpoint_20260813\\combined_curated_manual_audit_20260813.csv",
+      "sha256": "a1532716dca975d473c35cb70ac40195f28d1eb2d735a0562d36f86bd91fde9e"
+    },
+    "prior_curated_evidence_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\cached_evidence_recovery_checkpoint_20260813\\combined_curated_evidence_20260813.csv",
+      "sha256": "cd0eae299f19a495a4844c4bb95bdca7d150302486477cfdf63f57780520c038"
+    }
+  },
+  "positive_and_counterevidence_together": true,
+  "quality_counts": {
+    "high": 5,
+    "medium": 4
+  },
+  "source_lineages": 9,
+  "species_trait": 9,
+  "theoretical_clean_abutilon_rule_cells": 55,
+  "theoretical_only_not_formal_coverage": true,
+  "trait_counts": {
+    "autonomous_selfing_capacity": 7,
+    "mating_system": 2
+  }
+}

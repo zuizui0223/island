@@ -8,12 +8,34 @@ on:
       - "config/trait_ontology.yml"
       - "src/island_v2/integrated_trait_coverage.py"
       - "src/island_v2/all_evidence_trait_audit.py"
+      - "src/island_v2/pladias_traits.py"
+      - "config/pladias_traits.yml"
+      - "src/island_v2/open_web_common.py"
+      - "src/island_v2/open_web_finalize.py"
       - "src/island_v2/validated_low_inference.py"
       - "tests/test_integrated_trait_coverage.py"
       - "tests/test_all_evidence_trait_audit.py"
+      - "tests/test_pladias_traits.py"
       - "tests/test_validated_low_inference.py"
       - "pyproject.toml"
   workflow_dispatch:
+    inputs:
+      latest_public_web_run_id:
+        description: Successful reviewed public-Web evidence run
+        required: true
+        default: "30141880859"
+      latest_public_web_artifact:
+        description: Exact reviewed public-Web artifact name
+        required: true
+        default: "broad-web-medium-full-30141880859"
+      all_master_run_id:
+        description: Successful all-master ledger run containing every structured source package
+        required: true
+        default: "30081415812"
+      all_master_artifact:
+        description: Exact all-master artifact name
+        required: true
+        default: "all-master-trait-ledger-30081415812"
 
 permissions:
   actions: read
@@ -38,9 +60,11 @@ jobs:
           ruff check \
             src/island_v2/all_evidence_trait_audit.py \
             src/island_v2/integrated_trait_coverage.py \
+            src/island_v2/pladias_traits.py \
             src/island_v2/validated_low_inference.py \
             tests/test_all_evidence_trait_audit.py \
             tests/test_integrated_trait_coverage.py \
+            tests/test_pladias_traits.py \
             tests/test_validated_low_inference.py
           pytest -q \
             tests/test_all_evidence_trait_audit.py \
@@ -57,6 +81,10 @@ jobs:
       GH_REPO: ${{ github.repository }}
       INPUT_ROOT: /tmp/integrated-trait-inputs
       OUTPUT_ROOT: /tmp/integrated-trait-coverage
+      LATEST_PUBLIC_WEB_RUN_ID: ${{ inputs.latest_public_web_run_id || '30141880859' }}
+      LATEST_PUBLIC_WEB_ARTIFACT: ${{ inputs.latest_public_web_artifact || 'broad-web-medium-full-30141880859' }}
+      ALL_MASTER_RUN_ID: ${{ inputs.all_master_run_id || '30081415812' }}
+      ALL_MASTER_ARTIFACT: ${{ inputs.all_master_artifact || 'all-master-trait-ledger-30081415812' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -77,6 +105,17 @@ jobs:
           config = json.loads(
               Path("config/integrated_trait_coverage_sources.json").read_text()
           )
+          for entry in config["sources"]:
+              if entry["source_group"] != "latest_public_web":
+                  if entry.get("role") not in {"bulk_materialization", "repo_staged_bulk"}:
+                      continue
+                  entry["run_id"] = int(os.environ["ALL_MASTER_RUN_ID"])
+                  entry["artifact_name"] = os.environ["ALL_MASTER_ARTIFACT"]
+              else:
+                  entry["run_id"] = int(os.environ["LATEST_PUBLIC_WEB_RUN_ID"])
+                  entry["artifact_name"] = os.environ["LATEST_PUBLIC_WEB_ARTIFACT"]
+              entry.pop("artifact_id", None)
+              entry.pop("artifact_digest", None)
           repo = config["repository"]
           resolved = []
           run_cache = {}
@@ -207,11 +246,11 @@ jobs:
           gh run download 30055434111 \
             --name "validated-low-after-targeted-30055434111" \
             --dir "$INPUT_ROOT/validated-low"
-          gh run download 30081415812 \
-            --name "all-master-trait-ledger-30081415812" \
+          gh run download "$ALL_MASTER_RUN_ID" \
+            --name "$ALL_MASTER_ARTIFACT" \
             --dir "$INPUT_ROOT/all-master"
-          gh run download 30141880859 \
-            --name "broad-web-medium-full-30141880859" \
+          gh run download "$LATEST_PUBLIC_WEB_RUN_ID" \
+            --name "$LATEST_PUBLIC_WEB_ARTIFACT" \
             --dir "$INPUT_ROOT/latest-public-web"
 
       - name: Verify artifact-confirmed expanded-wave ranges
@@ -335,6 +374,8 @@ jobs:
             --ontology-yaml config/trait_ontology.yml \
             --angiosperm-scope-yaml config/angiosperm_scope.yml \
             --sensitivity-lock-json config/trait_cascade_artifact_lock.json \
+            --direct-evidence-exclusions-csv \
+              data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_20260811.csv \
             --output-dir "$OUTPUT_ROOT" \
             --expected-species 106295 \
             > "$OUTPUT_ROOT/all_evidence_audit.log"

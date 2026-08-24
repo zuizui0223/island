@@ -1,0 +1,77 @@
+{
+  "accepted_rows": 7,
+  "combined": {
+    "audit_rows": 1936,
+    "evidence_rows": 1936
+  },
+  "contract": "high_yield_trait_specific_support2_checkpoint_v1",
+  "created_at_utc": "2026-08-14T08:45:00Z",
+  "files": {
+    "README.md": {
+      "sha256": "03712424b58e1bc26d7add0637f5b0ed1ba0e5e75e4ff28a4cbf78b7777fe269",
+      "size_bytes": 884
+    },
+    "combined_curated_evidence_20260814.csv": {
+      "sha256": "979f2ae0668342a97384ccaff2c2a343396962ef3a30826eb6bcd1801a3cc525",
+      "size_bytes": 2186798
+    },
+    "combined_curated_manual_audit_20260814.csv": {
+      "sha256": "82ebb966adc2ee5a8b17b3652096a329e44eae0ab6f0b4a73b0d1bd2ae5aaa97",
+      "size_bytes": 1885919
+    },
+    "high_yield_mixed_wave7_evidence_20260814.csv": {
+      "sha256": "92c405d30db1005d406dd09fece2c52871ca88b9457c6934600f3835ad2381fe",
+      "size_bytes": 8579
+    },
+    "high_yield_mixed_wave7_manual_audit_20260814.csv": {
+      "sha256": "ae72947f5a560fc504334005286c3f913fc73d8694accec9542cad6e4fbcb042",
+      "size_bytes": 7170
+    }
+  },
+  "guardrails": {
+    "cross_trait_substitution": false,
+    "family_inference": false,
+    "genus_inference_emitted_here": false,
+    "global_fallback": false,
+    "n2_formal_inference": false,
+    "queue_potential_counted_as_coverage": false,
+    "search_snippet_evidence": false,
+    "trait_specific_records": true
+  },
+  "inputs": {
+    "master_csv": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e"
+    },
+    "prior_curated_audit_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\visible_morphology_wave6_checkpoint_20260814\\combined_curated_manual_audit_20260814.csv",
+      "sha256": "48778f8fe4304b8decf4058bd0b00b4bd6c297ffc5587251aa035c569e4e5b06"
+    },
+    "prior_curated_evidence_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\visible_morphology_wave6_checkpoint_20260814\\combined_curated_evidence_20260814.csv",
+      "sha256": "df89121490453e1b665120359c8037c66e85837568d869cbeb2222050fd13d3b"
+    }
+  },
+  "language_counts": {
+    "en": 4,
+    "es": 1,
+    "fr": 1,
+    "pt": 1
+  },
+  "quality_counts": {
+    "high": 1,
+    "medium": 6
+  },
+  "rule_candidates": 7,
+  "source_lineages": 7,
+  "species_trait": 7,
+  "theoretical_only_not_formal_coverage": true,
+  "theoretical_queue_cells_before_formal_validation": 232,
+  "trait_counts": {
+    "autonomous_selfing_capacity": 1,
+    "floral_symmetry": 2,
+    "flower_primary_color": 1,
+    "mating_system": 1,
+    "self_incompatibility": 2
+  }
+}

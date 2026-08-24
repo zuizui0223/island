@@ -1,0 +1,235 @@
+name: Acquire next non-overlapping Europe PMC support-2 batch
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/acquire-europe-pmc-support2-batch2.yml"
+      - "analysis/fetch_europe_pmc_reproduction_scale_20260807.py"
+      - "analysis/integrate_europe_pmc_reproduction_scale_20260807.py"
+      - "tests/test_source_scale_trait_acquisition_20260807.py"
+  workflow_dispatch:
+    inputs:
+      formal_run_id:
+        description: Formal integrated artifact supplying the fixed universe and queue
+        required: true
+        default: "30440345597"
+      max_tasks:
+        description: Maximum new genus x trait tasks after completed-task exclusion
+        required: true
+        default: "100"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: europe-pmc-support2-batch2-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Lint support-2 acquisition
+        run: |
+          ruff check \
+            analysis/fetch_europe_pmc_reproduction_scale_20260807.py \
+            analysis/integrate_europe_pmc_reproduction_scale_20260807.py \
+            tests/test_source_scale_trait_acquisition_20260807.py
+      - name: Run focused tests
+        run: pytest -q tests/test_source_scale_trait_acquisition_20260807.py
+
+  acquire:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      FORMAL_RUN_ID: ${{ inputs.formal_run_id || '30440345597' }}
+      MAX_TASKS: ${{ inputs.max_tasks || '100' }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -e .
+
+      - name: Download fixed-universe formal artifact
+        run: |
+          mkdir -p /tmp/formal
+          gh run download "$FORMAL_RUN_ID" \
+            --name "integrated-trait-coverage-$FORMAL_RUN_ID" \
+            --dir /tmp/formal
+          test -f /tmp/formal/integrated_evidence_lineage.csv.gz
+          test -f /tmp/formal/prioritized_acquisition_queue.csv.gz
+          test -f /tmp/formal/unresolved_reason_by_species_axis.csv.gz
+
+      - name: Restore fetched search and full-text cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/europe-pmc-batch2-source
+          key: europe-pmc-support2-batch2-${{ runner.os }}-${{ github.sha }}-v1
+
+      - name: Fetch exactly the next unfinished agreeing support-2 tasks
+        run: |
+          python analysis/fetch_europe_pmc_reproduction_scale_20260807.py \
+            --queue /tmp/formal/prioritized_acquisition_queue.csv.gz \
+            --coverage \
+              data/v2/staging/traits/direct_llm_pilot/20260807_europe_pmc_reproduction_integrated/strict_species_axis_coverage.csv.gz \
+            --genus-map /tmp/formal/unresolved_reason_by_species_axis.csv.gz \
+            --current-direct \
+              data/v2/staging/traits/direct_llm_pilot/20260807_europe_pmc_reproduction_integrated/resolved_direct_species_trait.csv.gz \
+            --require-agreement \
+            --completed-query-log \
+              data/v2/staging/traits/direct_llm_pilot/20260807_europe_pmc_reproduction_scale/query_log.csv \
+            --output /tmp/europe-pmc-batch2-source \
+            --top-n 10000 \
+            --max-tasks "$MAX_TASKS" \
+            --delay 0.15 \
+            --workers 8
+
+      - name: Prove this batch does not repeat completed tasks
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import pandas as pd
+
+          old = pd.read_csv(
+              "data/v2/staging/traits/direct_llm_pilot/"
+              "20260807_europe_pmc_reproduction_scale/query_log.csv"
+          )
+          new = pd.read_csv("/tmp/europe-pmc-batch2-source/query_log.csv")
+          old_keys = set(
+              old[["genus", "trait_name"]].itertuples(index=False, name=None)
+          )
+          new_keys = set(
+              new[["genus", "trait_name"]].itertuples(index=False, name=None)
+          )
+          assert not old_keys & new_keys
+          assert len(new_keys) == int(os.environ["MAX_TASKS"])
+          manifest = json.load(
+              open("/tmp/europe-pmc-batch2-source/run_manifest.json")
+          )
+          assert manifest["queries"] == len(new_keys)
+          assert manifest["xml_errors"] in {0, 1}
+          if manifest["xml_errors"]:
+              articles = pd.read_csv(
+                  "/tmp/europe-pmc-batch2-source/article_manifest.csv"
+              )
+              errors = articles.loc[
+                  articles["fetch_status"].eq("error"), "pmcid"
+              ].tolist()
+              assert errors == ["PMC11334263"]
+          assert manifest["query_cost_usd"] == 0.0
+          PY
+
+      - name: Review every candidate and rebuild affected trait-specific rules
+        run: |
+          python analysis/integrate_europe_pmc_reproduction_scale_20260807.py \
+            --candidates \
+              /tmp/europe-pmc-batch2-source/fulltext_reproductive_candidates.csv.gz \
+            --formal-lineage /tmp/formal/integrated_evidence_lineage.csv.gz \
+            --prior-promoted-common \
+              data/v2/staging/traits/direct_llm_pilot/20260807_agent_promoted_all_pending/promoted_common_direct_evidence.csv.gz \
+            --wfo-common \
+              data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/accepted_wfo_common_direct_evidence.csv.gz \
+            --additional-common \
+              data/v2/staging/traits/direct_llm_pilot/20260807_europe_pmc_reproduction_integrated/accepted_common_direct_evidence.csv.gz \
+            --current-direct \
+              data/v2/staging/traits/direct_llm_pilot/20260807_europe_pmc_reproduction_integrated/resolved_direct_species_trait.csv.gz \
+            --current-low \
+              data/v2/staging/traits/direct_llm_pilot/20260807_europe_pmc_reproduction_integrated/rebuilt_all_evidence_validated_low.csv.gz \
+            --current-coverage \
+              data/v2/staging/traits/direct_llm_pilot/20260807_europe_pmc_reproduction_integrated/strict_species_axis_coverage.csv.gz \
+            --master-genus-map \
+              /tmp/formal/unresolved_reason_by_species_axis.csv.gz \
+            --ontology config/trait_ontology.yml \
+            --review-batch 20260808_batch2 \
+            --run-id "europe-pmc-support2-batch2-${GITHUB_RUN_ID}" \
+            --source-artifact "europe-pmc-support2-batch2-${GITHUB_RUN_ID}" \
+            --source-manifest /tmp/europe-pmc-batch2-source/run_manifest.json \
+            --output /tmp/europe-pmc-batch2-integrated
+
+      - name: Independently validate final artifact and record source run
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          import pandas as pd
+
+          root = Path("/tmp/europe-pmc-batch2-integrated")
+          summary = json.loads((root / "integration_summary.json").read_text())
+          assert summary["source"]["candidate_rows"] == 53
+          assert summary["source"]["all_reviewed"] == 53
+          assert summary["source"]["accepted_correct"] == 37
+          assert summary["source"]["promoted_rows"] == 12
+          assert summary["source"]["queries"] == 100
+          assert summary["source"]["query_cost_usd"] == 0.0
+          assert summary["source"]["invalidated_prior_misattributions"] == 5
+          assert summary["direct"]["added_species_trait"] == 5
+          assert summary["direct"]["value_changed_species_trait"] == 3
+          assert summary["validated_low"]["added_species_trait"] == 68
+          assert summary["validated_low"]["invalidated_species_trait"] == 1
+          assert summary["coverage"]["gross_gain"] == 69
+          assert summary["coverage"]["loss"] == 1
+          assert summary["coverage"]["net_change"] == 68
+          assert summary["coverage"]["after"]["filled_species_axis"] == 96317
+          assert summary["coverage"]["after"]["unresolved_species_axis"] == 222568
+          assert summary["verification"]["direct_low_overlap"] == 0
+
+          ledger = pd.read_csv(root / "strict_species_axis_coverage.csv.gz")
+          assert len(ledger) == 318885
+          assert ledger["accepted_species"].nunique() == 106295
+          assert not ledger.duplicated(["accepted_species", "axis"]).any()
+
+          for directory in [
+              Path("/tmp/europe-pmc-batch2-source"),
+              root,
+          ]:
+              failures = []
+              for line in (directory / "file_manifest.sha256").read_text().splitlines():
+                  expected, relative = line.split("  ", 1)
+                  actual = hashlib.sha256((directory / relative).read_bytes()).hexdigest()
+                  if actual != expected:
+                      failures.append(relative)
+              assert not failures, failures
+
+          source_manifest = {
+              "contract": "europe_pmc_support2_batch2_run_manifest_v1",
+              "github_run_id": os.environ["GITHUB_RUN_ID"],
+              "github_sha": os.environ["GITHUB_SHA"],
+              "formal_integrated_run_id": os.environ["FORMAL_RUN_ID"],
+              "previous_completed_source_run_id": "31189690863",
+              "task_range": "next_100_after_completed_30",
+              "fixed_species": 106295,
+              "fixed_species_axis": 318885,
+          }
+          (root / "source_run_manifest.json").write_text(
+              json.dumps(source_manifest, indent=2) + "\n"
+          )
+          PY
+          cat /tmp/europe-pmc-batch2-integrated/integration_summary.json \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: europe-pmc-support2-batch2-${{ github.run_id }}
+          path: |
+            /tmp/europe-pmc-batch2-source/
+            /tmp/europe-pmc-batch2-integrated/
+          retention-days: 90
+          if-no-files-found: error

@@ -1,0 +1,239 @@
+name: Discover regional and specialist plant sites across the open Web
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/open-web-network-discovery-pilot.yml"
+      - "src/island_v2/open_web_network_pilot.py"
+      - "src/island_v2/open_web_network_structured_pilot.py"
+      - "src/island_v2/open_web_structured_traits.py"
+      - "src/island_v2/regional_flora_network_acquisition.py"
+      - "src/island_v2/open_web_evidence.py"
+      - "config/open_web_trait_acquisition.yml"
+      - "config/open_web_domain_registry.yml"
+      - "tests/test_open_web_network_pilot.py"
+      - "tests/test_open_web_structured_traits.py"
+      - "tests/test_regional_flora_network_acquisition.py"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Acquisition lane to run
+        required: true
+        type: choice
+        options:
+          - regional_flora_network
+          - discovery
+        default: regional_flora_network
+      baseline_run_id:
+        description: Successful formal coverage run used as the unresolved baseline
+        required: true
+        default: "30107066525"
+      species_limit:
+        description: Prioritized unresolved species in this bounded pilot
+        required: true
+        default: "120"
+      traits_per_species:
+        description: Highest-information traits queried per species
+        required: true
+        default: "1"
+      max_queries:
+        description: Hard Marginalia public-API request cap
+        required: true
+        default: "100"
+      max_pages:
+        description: Hard source-page fetch cap
+        required: true
+        default: "300"
+      resume_run_id:
+        description: Optional earlier regional-flora run whose completed page URLs must not be fetched again
+        required: false
+        default: ""
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: open-web-network-discovery-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate broad discovery safeguards
+        run: |
+          set +e
+          mkdir -p outputs/open_web_network_validation
+          ruff check \
+            --ignore B008 \
+            src/island_v2/open_web_network_pilot.py \
+            src/island_v2/open_web_network_structured_pilot.py \
+            src/island_v2/open_web_structured_traits.py \
+            src/island_v2/regional_flora_network_acquisition.py \
+            tests/test_open_web_network_pilot.py \
+            tests/test_open_web_structured_traits.py \
+            tests/test_regional_flora_network_acquisition.py \
+            > outputs/open_web_network_validation/ruff.txt 2>&1
+          ruff_status=$?
+          pytest -q \
+            tests/test_open_web_network_pilot.py \
+            tests/test_open_web_structured_traits.py \
+            tests/test_regional_flora_network_acquisition.py \
+            > outputs/open_web_network_validation/pytest.txt 2>&1
+          pytest_status=$?
+          printf '{"ruff_status":%s,"pytest_status":%s}\n' \
+            "$ruff_status" "$pytest_status" \
+            > outputs/open_web_network_validation/status.json
+          cat outputs/open_web_network_validation/ruff.txt
+          cat outputs/open_web_network_validation/pytest.txt
+          test "$ruff_status" -eq 0
+          test "$pytest_status" -eq 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: open-web-network-validation-${{ github.run_id }}
+          path: outputs/open_web_network_validation/
+          if-no-files-found: warn
+          retention-days: 7
+
+  network-pilot:
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'discovery'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BASELINE_RUN_ID: ${{ inputs.baseline_run_id || '30107066525' }}
+      SPECIES_LIMIT: ${{ inputs.species_limit || '120' }}
+      TRAITS_PER_SPECIES: ${{ inputs.traits_per_species || '1' }}
+      MAX_QUERIES: ${{ inputs.max_queries || '100' }}
+      MAX_PAGES: ${{ inputs.max_pages || '300' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - name: Download the formal integrated baseline
+        run: |
+          mkdir -p /tmp/open-web-network-baseline
+          gh run download "$BASELINE_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "integrated-trait-coverage-$BASELINE_RUN_ID" \
+            --dir /tmp/open-web-network-baseline
+          test -f /tmp/open-web-network-baseline/integrated_trait_coverage_summary.json
+          test -f /tmp/open-web-network-baseline/integrated_species_axis_coverage.csv.gz
+          test -f /tmp/open-web-network-baseline/integrated_evidence_lineage.csv.gz
+      - name: Search broadly and fetch exact source pages
+        run: |
+          mkdir -p outputs/open_web_network_pilot
+          python -m island_v2.open_web_network_structured_pilot \
+            --baseline-dir /tmp/open-web-network-baseline \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --output-dir outputs/open_web_network_pilot \
+            --species-limit "$SPECIES_LIMIT" \
+            --traits-per-species "$TRAITS_PER_SPECIES" \
+            --max-queries "$MAX_QUERIES" \
+            --results-per-query 5 \
+            --max-pages "$MAX_PAGES" \
+            --query-pause-seconds 1.25 \
+            --page-pause-seconds 0.35
+          cat outputs/open_web_network_pilot/network_pilot_report.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Assert that no provisional result was auto-promoted
+        run: |
+          jq -e '
+            .accepted_evidence_rows == 0
+            and .automatic_domain_approval == false
+            and .manual_review_required == true
+            and .family_inference == false
+            and .global_fallback == false
+          ' outputs/open_web_network_pilot/network_pilot_report.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: open-web-network-discovery-${{ github.run_id }}
+          path: outputs/open_web_network_pilot/
+          if-no-files-found: error
+          retention-days: 90
+
+  regional-flora-network:
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'regional_flora_network'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PRIOR_RUN_ID: ${{ inputs.baseline_run_id }}
+      MAX_SPECIES_PAGES: ${{ inputs.max_pages }}
+      RESUME_RUN_ID: ${{ inputs.resume_run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - name: Download the exact latest formal artifact
+        run: |
+          mkdir -p /tmp/prior-formal
+          gh run download "$PRIOR_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "reviewed-open-web-evidence-$PRIOR_RUN_ID" \
+            --dir /tmp/prior-formal
+          test -f /tmp/prior-formal/strict_species_axis_coverage.csv.gz
+          test -f /tmp/prior-formal/direct_species_trait_ledger.csv.gz
+          test -f /tmp/prior-formal/prioritized_unresolved_search_queue.csv.gz
+      - name: Download optional resumable checkpoint
+        if: ${{ inputs.resume_run_id != '' }}
+        run: |
+          mkdir -p /tmp/resume
+          gh run download "$RESUME_RUN_ID" \
+            --repo "${{ github.repository }}" \
+            --name "regional-flora-network-acquisition-$RESUME_RUN_ID" \
+            --dir /tmp/resume
+          test -f /tmp/resume/regional_flora_acquisition_manifest.json
+      - name: Acquire prioritized unresolved regional-flora pages
+        run: |
+          mkdir -p outputs/regional_flora_network
+          resume_args=()
+          if [[ -n "$RESUME_RUN_ID" ]]; then
+            resume_args=(--resume-dir /tmp/resume)
+          fi
+          python -m island_v2.regional_flora_network_acquisition \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --strict-coverage-csv /tmp/prior-formal/strict_species_axis_coverage.csv.gz \
+            --direct-ledger-csv /tmp/prior-formal/direct_species_trait_ledger.csv.gz \
+            --rule-queue-csv /tmp/prior-formal/prioritized_unresolved_search_queue.csv.gz \
+            --output-dir outputs/regional_flora_network \
+            --sites zambia,mozambique,malawi,botswana,zimbabwe,caprivi,burundi,drcongo,rwanda,angola,kenya,tanzania,uganda \
+            --family-id-start 1 \
+            --family-id-end 320 \
+            --max-species-pages "$MAX_SPECIES_PAGES" \
+            --min-islands 11 \
+            --workers 12 \
+            "${resume_args[@]}"
+          jq -e '
+            .fixed_denominator.species == 106295
+            and .fixed_denominator.species_axis == 318885
+            and .guardrails.accepted_name_exact == true
+            and .guardrails.page_family_exact == true
+            and .guardrails.species_direct_only == true
+            and .guardrails.family_inference == false
+            and .guardrails.global_fallback == false
+            and .promotion_status == "not_promoted_pending_individual_review"
+          ' outputs/regional_flora_network/regional_flora_acquisition_manifest.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: regional-flora-network-acquisition-${{ github.run_id }}
+          path: outputs/regional_flora_network/
+          if-no-files-found: warn
+          retention-days: 90

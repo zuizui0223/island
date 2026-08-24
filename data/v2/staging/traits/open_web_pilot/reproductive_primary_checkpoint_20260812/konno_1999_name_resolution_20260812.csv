@@ -1,0 +1,61 @@
+submitted_name,accepted_species,family,name_match_method,selection_reason,resolution_method,gbif_usage_key,gbif_accepted_usage_key,gbif_species_key,gbif_confidence,gbif_match_type,gbif_accepted_name,gbif_accepted_rank,wfo_submitted_taxon_id,wfo_accepted_taxon_id,wfo_accepted_name,wfo_accepted_rank,backbone_snapshot
+Picris hieracioides,Picris hieracioides,Asteraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Phtheirospermum japonicum,Phtheirospermum japonicum,Orobanchaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Corydalis speciosa,Corydalis speciosa,Papaveraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Corydalis ochotensis,Corydalis ochotensis,Papaveraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Corydalis incisa,Corydalis incisa,Papaveraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Chelidonium majus,Chelidonium majus,Papaveraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Polygonum sagittatum,Polygonum sagittatum,Polygonaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Polygonum longisetum,Persicaria longiseta,Polygonaceae,synonym_exact_two_backbone,selected,strict_exact_two_backbone_agreement,6391153,4034537,4034537,98,EXACT,Persicaria longiseta,SPECIES,wfo-0001101579,wfo-0001101439,Persicaria longiseta,species,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Erigeron annuus,Erigeron annuus,Asteraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Cardiocrinum cordatum,Cardiocrinum cordatum,Liliaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Solidago virgaurea,Solidago virgaurea,Asteraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Solidago gigantea,Solidago gigantea,Asteraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Solidago altissima,Solidago altissima,Asteraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Senecio cannabifolius,Jacobaea cannabifolia,Asteraceae,synonym_exact_two_backbone,selected,strict_exact_two_backbone_agreement,3107668,5388606,5388606,98,EXACT,Jacobaea cannabifolia,SPECIES,wfo-0000021432,wfo-0000114984,Jacobaea cannabifolia,species,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Rudbeckia laciniata,Rudbeckia laciniata,Asteraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Hieracium umbellatum,Hieracium umbellatum,Asteraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Cirsium kamtschaticum,Cirsium kamtschaticum,Asteraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Aster scaber,Aster scaber,Asteraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Adenophora triphylla,Adenophora triphylla,Campanulaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Patrinia scabiosaefolia,,,,orthographic_variant_not_two_backbone_exact,rejected_fail_closed,7820439,,7820439,91,FUZZY,Patrinia scabiosifolia,SPECIES,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Phryma leptostachya,Phryma leptostachya,Phrymaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Clinopodium chinense,Clinopodium chinense,Lamiaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Gentiana triflora,Gentiana triflora,Gentianaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Lysimachia vulgaris,Lysimachia vulgaris,Primulaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Pyrola japonica,Pyrola japonica,Ericaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Aralia cordata,Aralia cordata,Araliaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Vicia amoena,Vicia amoena,Fabaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Desmodium podocarpum,Desmodium podocarpum,Fabaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Sanguisorba tenuifolia,,,,backbones_disagree_on_accepted_species,rejected_fail_closed,3029717,5370518,5370518,97,EXACT,Poterium tenuifolium,SPECIES,wfo-0000985850,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Agrimonia pilosa,Agrimonia pilosa,Rosaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Sedum purpureum,,,,gbif_resolves_to_infraspecies_rank,rejected_fail_closed,5689019,6441863,2985865,97,EXACT,Hylotelephium telephium telephium,SUBSPECIES,wfo-0000441276,wfo-0000726974,Hylotelephium telephium,species,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Corydalis ambigua,Corydalis ambigua,Papaveraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Thalictrum minus,Thalictrum minus,Ranunculaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Cimicifuga simplex,Actaea simplex,Ranunculaceae,synonym_exact_two_backbone,selected,strict_exact_two_backbone_agreement,3927776,8386523,8386523,97,EXACT,Actaea simplex,SPECIES,wfo-0000604773,wfo-0000519124,Actaea simplex,species,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Anemone flaccida,Anemonastrum flaccidum,Ranunculaceae,synonym_exact_two_backbone,selected,strict_exact_two_backbone_agreement,7277489,10305703,10305703,98,EXACT,Anemonastrum flaccidum,SPECIES,wfo-0000535288,wfo-0001331075,Anemonastrum flaccidum,species,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Adonis ramosa,Adonis ramosa,Ranunculaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Aconitum yesoense,,,,fuzzy_spelling_and_rank_mismatch,rejected_fail_closed,3920862,3921189,7276652,94,FUZZY,Aconitum sachalinense yezoense,SUBSPECIES,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Oreorchis patens,Oreorchis patens,Orchidaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Trillium camschatcense,Trillium camschatcense,Melanthiaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Smilacina japonica,Maianthemum japonicum,Asparagaceae,synonym_exact_two_backbone,selected,strict_exact_two_backbone_agreement,2769426,2769420,2769420,98,EXACT,Maianthemum japonicum,SPECIES,wfo-0000740252,wfo-0000690951,Maianthemum japonicum,species,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Polygonatum odoratum,Polygonatum odoratum,Asparagaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Hosta sieboldii,Hosta sieboldii,Asparagaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Hemerocallis dumortierii,,,,fuzzy_spelling_not_two_backbone_exact,rejected_fail_closed,2781051,,2781051,95,FUZZY,Hemerocallis dumortieri,SPECIES,wfo-1000085848,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Symplocarpus foetidus,Symplocarpus foetidus,Araceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Lonicera gracilipes,Lonicera gracilipes,Caprifoliaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Lonicera chrysantha,Lonicera chrysantha,Caprifoliaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Syringa reticulata,Syringa reticulata,Oleaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Acanthopanax divaricatus,Eleutherococcus divaricatus,Araliaceae,synonym_exact_two_backbone,selected,strict_exact_two_backbone_agreement,3035443,3035440,3035440,98,EXACT,Eleutherococcus divaricatus,SPECIES,wfo-0000267795,wfo-0000948056,Eleutherococcus divaricatus,species,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Acer ginnala,,,,accepted_usage_is_infraspecies_rank,rejected_fail_closed,3189845,4925890,3189843,98,EXACT,Acer tataricum ginnala,SUBSPECIES,wfo-0000514260,wfo-0000515184,Acer tataricum subsp. ginnala,species,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Staphylea bumalda,Staphylea bumalda,Staphyleaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Euonymus sieboldianus,Euonymus hamiltonianus,Celastraceae,synonym_exact_two_backbone,selected,strict_exact_two_backbone_agreement,7265720,7102969,7102969,98,EXACT,Euonymus hamiltonianus,SPECIES,wfo-0000682078,wfo-0000681796,Euonymus hamiltonianus,species,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Euonymus oxyphyllus,Euonymus oxyphyllus,Celastraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Euonymus alatus,Euonymus alatus,Celastraceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Pachysandra terminalis,Pachysandra terminalis,Buxaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Lespedeza bicolor,Lespedeza bicolor,Fabaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Spiraea salicifolia,Spiraea salicifolia,Rosaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Sorbaria sorbifolia,Sorbaria sorbifolia,Rosaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Prunus padus,Prunus padus,Rosaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Prunus maximowiczii,Prunus maximowiczii,Rosaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC
+Malus baccata,Malus baccata,Rosaceae,accepted_name_exact,selected,accepted_name_exact,,,,,,,,,,,,GBIF API 2026-08-12 + WFO Plant List 2026-06 DwC

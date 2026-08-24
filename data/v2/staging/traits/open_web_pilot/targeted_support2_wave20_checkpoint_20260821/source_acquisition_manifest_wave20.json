@@ -1,0 +1,46 @@
+{
+  "checkpoint": "targeted_support2_wave20_checkpoint_20260821",
+  "built_at_utc": "2026-08-21T05:00:00Z",
+  "baseline_formal_run_id": 32347770192,
+  "accepted_evidence_rows": 24,
+  "accepted_species_trait": 24,
+  "accepted_species": 16,
+  "recorded_queries": 22,
+  "formal_search_api_queries": 0,
+  "search_cost_usd": 0.0,
+  "targeted_support2_rules": [
+    "Acridocarpus|inflorescence_display",
+    "Amischotolype|floral_symmetry",
+    "Arytera|flower_primary_color",
+    "Bocquillonia|flower_primary_color",
+    "Cassipourea|floral_symmetry",
+    "Catesbaea|flower_primary_color",
+    "Chrysanthemum|floral_form",
+    "Critonia|floral_form",
+    "Helicteres|self_incompatibility",
+    "Maerua|floral_symmetry",
+    "Patersonia|tube_depth_class",
+    "Paraboea|inflorescence_display",
+    "Scabiosa|flower_size_class",
+    "Schizomeria|flower_primary_color"
+  ],
+  "theoretical_rule_cells_touched": 179,
+  "guardrails": {
+    "search_snippet_as_evidence": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "min_species_two_production": false,
+    "cross_trait_substitution": false,
+    "genus_axis_only_join": false,
+    "pollen_vector_or_reward_mixed_into_structure": false,
+    "self_fertility_silently_mapped_to_autonomous_selfing": false,
+    "cultivar_or_hybrid_transferred_to_wild_species": false
+  },
+  "output_sha256": {
+    "evidence": "34fa8002603ffa956af5343519dbf4ae20548aabab256857154234e4aba15671",
+    "audit": "1875d277ee3953b77f1e572b2b1d10b301fc8f0ba2e29f8e1a389b0833622a29",
+    "combined_evidence": "28b0d999ec315a4f736b9155bcdfd2cf2133879c613c79d90694a9ee70920066",
+    "combined_audit": "ba70a1c39505acca800b0fc0f54ab3246d142c44063e69dcf0c562161ba0a593"
+  },
+  "notes": "The 179 cells are a support-two queue ceiling, not observed coverage gain. Formal all-evidence rebuilding and species/lineage leave-one-out validation determine realized direct and Validated Low changes. The remaining rows preserve additional species-direct traits from the same reviewed treatments without expanding their allowed evidence tier."
+}

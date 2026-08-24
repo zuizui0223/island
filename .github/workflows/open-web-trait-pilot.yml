@@ -1,0 +1,218 @@
+name: Pilot strict open-Web trait acquisition
+
+on:
+  workflow_dispatch:
+    inputs:
+      baseline_run_id:
+        description: Successful integrated-coverage run on main
+        required: true
+        default: "30107066525"
+      pilot_species:
+        description: Number of prioritized unresolved species (300-1000)
+        required: true
+        default: "300"
+      registry_domain:
+        description: Approved registry domain for the credential-free source-page pilot
+        required: true
+        default: "mikawanoyasou.org"
+      registry_max_pages:
+        description: Hard source-page cap for the registry pilot
+        required: true
+        default: "600"
+      max_search_queries:
+        description: Hard official-search request cap; zero is allowed
+        required: true
+        default: "1200"
+      search_backend:
+        description: auto, brave, or google
+        required: true
+        default: "auto"
+      audited_csv_path:
+        description: Optional reviewed 100-page CSV already committed on this ref
+        required: false
+        default: ""
+      synonym_csv_path:
+        description: Optional strict synonym snapshot (two agreeing backbones required)
+        required: false
+        default: ""
+      vernacular_csv_path:
+        description: Optional accepted-species vernacular-name/language table
+        required: false
+        default: ""
+  pull_request:
+    paths:
+      - ".github/workflows/open-web-trait-pilot.yml"
+      - ".github/workflows/open-web-trait-production.yml"
+      - "config/open_web_*.yml"
+      - "src/island_v2/open_web_*.py"
+      - "tests/test_open_web_*.py"
+      - "tests/fixtures/open_web/**"
+      - "docs/open_web_trait_acquisition.md"
+      - "pyproject.toml"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: open-web-trait-pilot-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate open-Web acquisition interfaces
+        run: |
+          ruff check \
+            src/island_v2/open_web_search.py \
+            src/island_v2/open_web_evidence.py \
+            src/island_v2/open_web_pilot.py \
+            tests/test_open_web_search.py \
+            tests/test_open_web_evidence.py \
+            tests/test_open_web_pilot.py
+          ruff format --check \
+            src/island_v2/open_web_search.py \
+            src/island_v2/open_web_evidence.py \
+            src/island_v2/open_web_pilot.py \
+            tests/test_open_web_search.py \
+            tests/test_open_web_evidence.py \
+            tests/test_open_web_pilot.py
+          pytest -q \
+            tests/test_open_web_search.py \
+            tests/test_open_web_evidence.py \
+            tests/test_open_web_pilot.py
+
+  pilot:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BRAVE_SEARCH_API_KEY: ${{ secrets.BRAVE_SEARCH_API_KEY }}
+      GOOGLE_CUSTOM_SEARCH_API_KEY: ${{ secrets.GOOGLE_CUSTOM_SEARCH_API_KEY }}
+      GOOGLE_CUSTOM_SEARCH_CX: ${{ secrets.GOOGLE_CUSTOM_SEARCH_CX }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - name: Download the formal main integrated-coverage artifact
+        run: |
+          mkdir -p /tmp/open-web-baseline
+          gh run download "${{ inputs.baseline_run_id }}" \
+            --repo "${{ github.repository }}" \
+            --name "integrated-trait-coverage-${{ inputs.baseline_run_id }}" \
+            --dir /tmp/open-web-baseline
+          test -f /tmp/open-web-baseline/integrated_trait_coverage_summary.json
+      - name: Recalculate the baseline and build the information-value queue
+        run: |
+          mkdir -p outputs/open_web_pilot
+          island-v2-open-web-pilot audit-baseline \
+            --baseline-dir /tmp/open-web-baseline \
+            --output-dir outputs/open_web_pilot/baseline
+          island-v2-open-web-pilot build-queue \
+            --baseline-dir /tmp/open-web-baseline \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --output-csv outputs/open_web_pilot/prioritized_search_queue.csv \
+            --pilot-species "${{ inputs.pilot_species }}"
+          query_name_args=()
+          if [ -n "${{ inputs.synonym_csv_path }}" ]; then
+            test -f "${{ inputs.synonym_csv_path }}"
+            query_name_args+=(--synonym-csv "${{ inputs.synonym_csv_path }}")
+            cp "${{ inputs.synonym_csv_path }}" outputs/open_web_pilot/strict_synonyms.csv
+          fi
+          if [ -n "${{ inputs.vernacular_csv_path }}" ]; then
+            test -f "${{ inputs.vernacular_csv_path }}"
+            query_name_args+=(--vernacular-csv "${{ inputs.vernacular_csv_path }}")
+            cp "${{ inputs.vernacular_csv_path }}" outputs/open_web_pilot/vernacular_names.csv
+          fi
+          island-v2-open-web-search build-queries \
+            --queue-csv outputs/open_web_pilot/prioritized_search_queue.csv \
+            --output-csv outputs/open_web_pilot/search_tasks.csv \
+            "${query_name_args[@]}"
+      - name: Run official-search discovery when a configured credential exists
+        run: |
+          island-v2-open-web-search discover \
+            --tasks-csv outputs/open_web_pilot/search_tasks.csv \
+            --output-dir outputs/open_web_pilot/official_search \
+            --backend "${{ inputs.search_backend }}" \
+            --max-queries "${{ inputs.max_search_queries }}"
+      - name: Run the approved registry source-page pilot
+        run: |
+          island-v2-open-web-pilot registry-pilot \
+            --baseline-dir /tmp/open-web-baseline \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --output-dir outputs/open_web_pilot/registry \
+            --domain "${{ inputs.registry_domain }}" \
+            --pilot-species "${{ inputs.pilot_species }}" \
+            --max-pages "${{ inputs.registry_max_pages }}" \
+            --audit-pages 100 \
+            --pause-seconds 0.25
+      - name: Apply a committed independent audit when supplied
+        if: inputs.audited_csv_path != ''
+        run: |
+          test -f "${{ inputs.audited_csv_path }}"
+          island-v2-open-web-pilot apply-audit \
+            --baseline-dir /tmp/open-web-baseline \
+            --candidates-csv outputs/open_web_pilot/registry/open_web_evidence_candidates.csv \
+            --audit-csv "${{ inputs.audited_csv_path }}" \
+            --output-dir outputs/open_web_pilot/reviewed
+      - name: Freeze source and run provenance
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import hashlib
+          from pathlib import Path
+
+          provenance_paths = [
+              Path("config/open_web_trait_acquisition.yml"),
+              Path("config/open_web_domain_registry.yml"),
+              Path("outputs/open_web_pilot/prioritized_search_queue.csv"),
+              Path("outputs/open_web_pilot/search_tasks.csv"),
+              Path("outputs/open_web_pilot/strict_synonyms.csv"),
+              Path("outputs/open_web_pilot/vernacular_names.csv"),
+          ]
+          payload = {
+              "contract": "open_web_pilot_source_manifest_v1",
+              "repository": os.environ["GITHUB_REPOSITORY"],
+              "git_sha": os.environ["GITHUB_SHA"],
+              "workflow_run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "baseline_run_id": int("${{ inputs.baseline_run_id }}"),
+              "search_backend": "${{ inputs.search_backend }}",
+              "registry_domain": "${{ inputs.registry_domain }}",
+              "api_keys_persisted": False,
+              "snippets_are_evidence": False,
+              "family_inference": False,
+              "global_fallback": False,
+              "input_files": [
+                  {
+                      "path": str(path),
+                      "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                      "size_bytes": path.stat().st_size,
+                  }
+                  for path in provenance_paths
+                  if path.exists()
+              ],
+          }
+          Path("outputs/open_web_pilot/source_run_manifest.json").write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: open-web-trait-pilot-${{ github.run_id }}
+          path: outputs/open_web_pilot/
+          retention-days: 90
+          if-no-files-found: error

@@ -1,0 +1,60 @@
+{
+  "checkpoint": "targeted_support2_wave24_checkpoint_20260824",
+  "built_at_utc": "2026-08-24T06:00:00Z",
+  "fixed_integrated_baseline_run_id": 31488685866,
+  "baseline_formal_run_id": 32702160934,
+  "accepted_evidence_rows": 22,
+  "accepted_species_trait": 22,
+  "accepted_species": 21,
+  "accepted_source_lineages": 21,
+  "quality_counts": {
+    "high": 15,
+    "medium": 7
+  },
+  "rejected_reviewed_candidates": 13,
+  "recorded_queries": 22,
+  "formal_search_api_queries": 0,
+  "search_cost_usd": 0.0,
+  "targeted_support2_rules": [
+    "Apium|inflorescence_display",
+    "Bahiopsis|flower_primary_color",
+    "Codiaeum|flower_primary_color",
+    "Cosmianthemum|tube_depth_class",
+    "Epithema|tube_depth_class",
+    "Gnidia|inflorescence_display",
+    "Gymnanthes|inflorescence_display",
+    "Hypochaeris|tube_depth_class",
+    "Jurinea|inflorescence_display",
+    "Meistera|inflorescence_display",
+    "Pourthiaea|flower_primary_color",
+    "Reichardia|floral_form",
+    "Robiquetia|inflorescence_display",
+    "Roystonea|inflorescence_display",
+    "Sabal|inflorescence_display",
+    "Sapium|inflorescence_display",
+    "Selenicereus|flower_size_class",
+    "Thottea|flower_size_class",
+    "Trichanthecium|inflorescence_display",
+    "Uncarina|flower_primary_color",
+    "Veronicastrum|floral_form",
+    "Veronicastrum|flower_size_class"
+  ],
+  "theoretical_rule_cells_touched": 203,
+  "guardrails": {
+    "search_snippet_as_evidence": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "min_species_two_production": false,
+    "cross_trait_substitution": false,
+    "genus_axis_only_join": false,
+    "cultivar_or_hybrid_transferred_to_wild_species": false
+  },
+  "output_sha256": {
+    "evidence": "8a1fd0af0e3693b620c2717bfb4c709e147f7bc2c09b6fe796ed2a67e4608e9a",
+    "audit": "fb68871a51bda65864250620fd3aa7467c896640679aa80513301711447b2312",
+    "rejected": "fbcbe5b06700a87d791bab95941d4265a1f37ad572998ef351fc7ffd0fffcc49",
+    "combined_evidence": "e458717dae00515df10f1fce7379fa287d1eb8f97ff4b0a58274e8262c80ca9d",
+    "combined_audit": "08d2a9962d4019d81b0b5149c105a33e25dc022d6f35bcc8cfd82f2cd325b727"
+  },
+  "notes": "Potential cells are a queue ceiling, not observed coverage gain. The shared rebuild must pass dominance, masked-species validation, and independent source-lineage leave-one-out validation. Rejected ambiguous, conflicting, multistate, wrong-organ, or incomplete-trait candidates remain visible and are never promoted."
+}

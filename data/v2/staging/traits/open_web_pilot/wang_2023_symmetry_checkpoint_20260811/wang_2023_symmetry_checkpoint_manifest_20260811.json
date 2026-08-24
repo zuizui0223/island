@@ -1,0 +1,62 @@
+{
+  "contract": "wang_2023_family_validated_species_symmetry_checkpoint_v1",
+  "counts": {
+    "selected_by_value": {
+      "actinomorphic": 16602,
+      "zygomorphic": 11481
+    },
+    "selected_evidence_rows": 28083,
+    "selected_species": 28083,
+    "selection_reasons": {
+      "controversial_family_definition": 12235,
+      "duplicate_source_species": 4,
+      "family_conflict": 1100,
+      "family_precision_below_threshold": 17729,
+      "insufficient_independent_family_audit": 18318,
+      "not_exact_species_rank": 17402,
+      "not_in_strict_island_universe": 185006,
+      "selected_family_validated_species_row": 28083
+    },
+    "source_rows": 279877
+  },
+  "gate": {
+    "accepted_correct": 1601,
+    "approved_families": 38,
+    "controversial_families_excluded": [
+      "Apiaceae",
+      "Asteraceae",
+      "Brassicaceae",
+      "Cyperaceae",
+      "Poaceae"
+    ],
+    "minimum_family_audit": 10,
+    "minimum_family_precision": 0.95,
+    "precision": 0.9786063569682152,
+    "reviewed_species": 1636
+  },
+  "guardrails": {
+    "axis_only_join": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "overlap_counted_as_independent_lineage": false,
+    "quality": "medium",
+    "trait_specific_join": "genus_x_trait_name",
+    "upstream_row_lineage_available": false
+  },
+  "input_hashes": {
+    "baseline_direct": "1fbe9f2763a708edadd92e31553377f57a54a729fa0fe1d6a106680edc756c53",
+    "master": "21925a4e4d6fc8431e8549b3c3ddff9acdbded0b017e0aa78a5c863147392fe9",
+    "source_snapshot": "3bd64313a940a436ff100cb4d721e5efae8b1838cb718f50fbb99a863aa0ca00"
+  },
+  "output_hashes": {
+    "wang_2023_symmetry_evidence_20260811.csv.gz": "9834596fc2bd95d6075faa17a81d64fb3680fb148d02e2c71f58ea45cbb6336d",
+    "wang_2023_symmetry_family_gate_20260811.csv": "9b009b8235a1bf59a258079c0a68b1b072ab23246e1b28168bf31db1195266d1",
+    "wang_2023_symmetry_independent_audit_20260811.csv.gz": "ca5cb8c47878db3fa5b6764cae77ddc2879dbd108751c10ad304715dd9abe14a",
+    "wang_2023_symmetry_selection_audit_20260811.csv.gz": "31470fa2ce324fed4669357fa85508235a7ebc531dd1e56ae6d2f8637854357b"
+  },
+  "source_article_doi": "10.1126/sciadv.adg2555",
+  "source_artifact": "sciadv.adg2555_data_s1_and_s2.zip/adg2555_Data_S2.rdata",
+  "source_dataset_doi": "10.5061/dryad.ghx3ffbrh",
+  "source_rdata_sha256": "c381206d3f99825fc766e66425a123cea055682432e448358727ecf831d5c45b",
+  "source_run_id": "europepmc:PMC10599613:supplementaryFiles:20260811"
+}

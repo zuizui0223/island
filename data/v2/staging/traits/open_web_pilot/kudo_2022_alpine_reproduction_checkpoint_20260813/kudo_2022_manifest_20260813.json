@@ -1,0 +1,85 @@
+{
+  "accepted_rows": 23,
+  "combined": {
+    "audit_rows": 1737,
+    "evidence_rows": 1737
+  },
+  "contract": "kudo_2022_trait_specific_species_table_checkpoint_v1",
+  "created_at_utc": "2026-08-12T17:50:00Z",
+  "files": {
+    "README.md": {
+      "sha256": "64a9c755c8d39d28e28a62ef0935e338af81e72513b605ac451e794171e79cf6",
+      "size_bytes": 1585
+    },
+    "combined_curated_evidence_20260813.csv": {
+      "sha256": "06e9cad357120f878b5967760e5473b8b5d78962f375c35023ef1588f265ac96",
+      "size_bytes": 1981723
+    },
+    "combined_curated_manual_audit_20260813.csv": {
+      "sha256": "e007f2c868403d6b5cc93de24bf80761814d68796b4c80916732c3d6349e6e0b",
+      "size_bytes": 1706479
+    },
+    "kudo_2022_evidence_20260813.csv": {
+      "sha256": "0152469a2eba0592e0639a246e8884da2a1749c639f6a2d4a114591fc3b902a5",
+      "size_bytes": 26759
+    },
+    "kudo_2022_full_table_audit_20260813.csv": {
+      "sha256": "899e79f741d942df429b596322ec5f18e2a44c08ce542e8ffb3df2221673e422",
+      "size_bytes": 9175
+    },
+    "kudo_2022_manual_audit_20260813.csv": {
+      "sha256": "c9e4e5a654fd8bd45f55fab66fe0635c91301d63b7ef6a5b15a5d8ae6d5dad2c",
+      "size_bytes": 21763
+    }
+  },
+  "guardrails": {
+    "cross_trait_substitution": false,
+    "family_conflicts_rejected": true,
+    "family_inference": false,
+    "fuzzy_name_matching": false,
+    "genus_inference_emitted_here": false,
+    "global_fallback": false,
+    "infraspecific_rows_rejected": true,
+    "trait_specific_records": true
+  },
+  "inputs": {
+    "master_csv": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e"
+    },
+    "prior_curated_audit_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\rule_unlock_wave3_checkpoint_20260813\\combined_curated_manual_audit_20260813.csv",
+      "sha256": "ed32e1e9b0dda511ce3355b09a2018c2a457b8b2872af1c9d2e3808a424d917e"
+    },
+    "prior_curated_evidence_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\rule_unlock_wave3_checkpoint_20260813\\combined_curated_evidence_20260813.csv",
+      "sha256": "6cabf48ea4cc4cd0e94a0ce549675acdc2a28f561b6d3fde747a18271b1e8af6"
+    },
+    "synonym_csv": {
+      "path": "data\\v2\\external\\traits\\rodger_2021_pollinator_contribution\\rodger_2021_two_backbone_synonyms_20260811.csv",
+      "sha256": "5280101f3040f94d8167252be6f501f89f77b9c8c6d6c43c8bd88d1aa9b10b6d"
+    }
+  },
+  "new_species": 23,
+  "new_species_trait": 23,
+  "quality_counts": {
+    "high": 23
+  },
+  "rejected_rows": 23,
+  "selection_reasons": {
+    "accepted": 23,
+    "family_conflict_rejected": 2,
+    "no_strict_target_master_match": 7,
+    "no_trait_statement": 5,
+    "rank_below_species_rejected": 8,
+    "source_name_typo_not_fuzzily_matched": 1
+  },
+  "source_lineages": 1,
+  "source_table_rows": 46,
+  "source_table_sha256": "24737a195d4aca322275119f53b949a9adef070edef7c64a176afffe0e0040fe",
+  "trait_counts": {
+    "autonomous_selfing_capacity": 1,
+    "mating_system": 15,
+    "self_incompatibility": 7
+  }
+}

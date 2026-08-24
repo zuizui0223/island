@@ -1,0 +1,50 @@
+{
+  "audit": {
+    "accepted_correct": 39,
+    "cultivar_contamination_rate": 0.0,
+    "precision": 1.0,
+    "reviewed": 39
+  },
+  "contract": "high_information_individually_reviewed_direct_v1",
+  "created_at_utc": "2026-08-12T08:35:00Z",
+  "evidence_rows": 39,
+  "files": {
+    "combined_curated_evidence_20260811.csv": {
+      "sha256": "d534c2833daa92441652c0fc9fc56afc3b230311dbdc6f091606be14ec8cf989",
+      "size_bytes": 610715
+    },
+    "combined_curated_manual_audit_20260811.csv": {
+      "sha256": "884e3672297414be1d65eb3576cdf92b75ee2a3c98dcbc1eabb0c61125726975",
+      "size_bytes": 561258
+    },
+    "high_information_direct_evidence_20260811.csv": {
+      "sha256": "931e6c0f452e740a0f4fb028d779861af3be1a1a6dcc38465a068cde61c935a0",
+      "size_bytes": 45036
+    },
+    "high_information_direct_manual_audit_20260811.csv": {
+      "sha256": "01b25a669c1b6d454f19eb6b2a668f021dca77987b99b0118fb290bc4c6a9894",
+      "size_bytes": 41442
+    }
+  },
+  "guards": {
+    "cross_trait_substitution": false,
+    "family_inference": false,
+    "genus_trait_only": true,
+    "global_fallback": false
+  },
+  "quality_counts": {
+    "high": 35,
+    "medium": 4
+  },
+  "species_trait": 39,
+  "trait_counts": {
+    "autonomous_selfing_capacity": 12,
+    "floral_symmetry": 4,
+    "flower_primary_color": 4,
+    "flower_size_class": 2,
+    "inflorescence_display": 3,
+    "mating_system": 1,
+    "self_incompatibility": 12,
+    "tube_depth_class": 1
+  }
+}

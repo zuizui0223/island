@@ -1,0 +1,193 @@
+{
+  "acquisition_inventory": {
+    "by_provider": {
+      "Flora of Botswana": 2,
+      "Flora of Malawi": 20,
+      "Flora of Mozambique": 13,
+      "Flora of Zambia": 2
+    },
+    "by_trait": {
+      "floral_form": 1,
+      "floral_symmetry": 1,
+      "flower_primary_color": 15,
+      "flower_size_class": 12,
+      "inflorescence_display": 8
+    },
+    "candidate_rows": 37,
+    "candidate_species": 32,
+    "contract": "regional_flora_network_acquisition_v1",
+    "created_at": "2026-08-14T03:50:03Z",
+    "family_id_range": {
+      "end_exclusive": 320,
+      "start": 1
+    },
+    "family_tasks": {
+      "fetch_failed": 389,
+      "success": 887
+    },
+    "fixed_denominator": {
+      "species": 106295,
+      "species_axis": 318885
+    },
+    "fixed_master_exact_inventory_rows": 7163,
+    "guardrails": {
+      "accepted_name_exact": true,
+      "cross_trait_substitution": false,
+      "exact_excerpt_required": true,
+      "family_inference": false,
+      "global_fallback": false,
+      "original_page_required": true,
+      "page_family_exact": true,
+      "species_direct_only": true
+    },
+    "inputs": {
+      "direct_ledger_csv": "/tmp/prior-formal/direct_species_trait_ledger.csv.gz",
+      "master_csv": "data/v2/staging/gbif/collected/island_taxa.csv",
+      "rule_queue_csv": "/tmp/prior-formal/prioritized_unresolved_search_queue.csv.gz",
+      "strict_coverage_csv": "/tmp/prior-formal/strict_species_axis_coverage.csv.gz"
+    },
+    "inventory_rows": 21110,
+    "outputs": {
+      "candidates": {
+        "path": "outputs/regional_flora_network/regional_flora_candidates.csv.gz",
+        "sha256": "1dcb701f711b97ffb6ded5290c8aea4ed3467ee45bbfc92185317c74002fdb72"
+      },
+      "family_audit": {
+        "path": "outputs/regional_flora_network/family_task_audit.csv",
+        "sha256": "293c298f98b159f1d5526e186999226f6d4f4d91f07804f33802f7177149ecb5"
+      },
+      "inventory": {
+        "path": "outputs/regional_flora_network/regional_flora_inventory.csv.gz",
+        "sha256": "5fb646a567d0254ee5dbd96a36a690bed4e7a390791dd2fd50fa86d74b2b7330"
+      },
+      "page_audit": {
+        "path": "outputs/regional_flora_network/page_task_audit.csv.gz",
+        "sha256": "680ca096219165aa3008c87d1ad2fcc414a149d32acb561a31122fcfc5186536"
+      }
+    },
+    "page_tasks": {
+      "candidate_extracted": 32,
+      "description_no_safe_trait_statement": 303,
+      "no_description": 223,
+      "rejected_family_mismatch": 55,
+      "rejected_name_mismatch": 122
+    },
+    "promotion_status": "not_promoted_pending_individual_review",
+    "resume_dir": "",
+    "search_api_cost": 0,
+    "search_api_queries": 0,
+    "selected_species_pages": 735,
+    "sites": [
+      {
+        "country": "Zambia",
+        "domain": "zambiaflora.com",
+        "key": "zambia",
+        "origin": "https://www.zambiaflora.com",
+        "provider": "Flora of Zambia"
+      },
+      {
+        "country": "Mozambique",
+        "domain": "mozambiqueflora.com",
+        "key": "mozambique",
+        "origin": "https://www.mozambiqueflora.com",
+        "provider": "Flora of Mozambique"
+      },
+      {
+        "country": "Malawi",
+        "domain": "malawiflora.com",
+        "key": "malawi",
+        "origin": "https://www.malawiflora.com",
+        "provider": "Flora of Malawi"
+      },
+      {
+        "country": "Botswana",
+        "domain": "botswanaflora.com",
+        "key": "botswana",
+        "origin": "https://www.botswanaflora.com",
+        "provider": "Flora of Botswana"
+      }
+    ]
+  },
+  "by_provider": {
+    "Flora of Botswana": 1,
+    "Flora of Malawi": 18,
+    "Flora of Mozambique": 10,
+    "Flora of Zambia": 2
+  },
+  "by_quality": {
+    "medium": 31
+  },
+  "by_trait": {
+    "floral_form": 1,
+    "floral_symmetry": 1,
+    "flower_primary_color": 14,
+    "flower_size_class": 7,
+    "inflorescence_display": 8
+  },
+  "contract": "regional_flora_network_wave12_checkpoint_v1",
+  "created_at": "2026-08-14T04:05:00Z",
+  "guardrails": {
+    "axis_only_genus_join": false,
+    "family_inference": false,
+    "fixed_master_species_and_family_exact": true,
+    "global_fallback": false,
+    "source_page_and_excerpt_required": true,
+    "species_direct_only": true,
+    "trait_specific_genus_inference_delegated_to_common_rebuild": true
+  },
+  "inputs": {
+    "master": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e"
+    },
+    "prior_audit": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_wave11_checkpoint_20260814\\combined_curated_manual_audit_20260814.csv",
+      "sha256": "d0d9e28b08b114875570c85aec859f160af365cfe23422d7fbcf2c2f4a0716bb"
+    },
+    "prior_evidence": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_wave11_checkpoint_20260814\\combined_curated_evidence_20260814.csv",
+      "sha256": "6b0a871f4c352f97fb759cbebbf5563a75913787fe3c74ec777b6ad27bc5d36a"
+    },
+    "source_snapshot": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_network_wave12_checkpoint_20260814\\regional_flora_network_wave12_source_rows_20260814.csv",
+      "sha256": "77e0542dce0218cbace7d9e3bba6f8b5204df7f0382b9fd3b8eafb2d2a001000"
+    }
+  },
+  "lineages": 26,
+  "outputs": {
+    "audit": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_network_wave12_checkpoint_20260814\\regional_flora_network_wave12_manual_audit_20260814.csv",
+      "rows": 31,
+      "sha256": "f16f68916663e8857db50db6b3875a6290b6470f7965076257ea33f68b41a172"
+    },
+    "combined_audit": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_network_wave12_checkpoint_20260814\\combined_curated_manual_audit_20260814.csv",
+      "rows": 2749,
+      "sha256": "71c029d3028812f914816551a94a7959fc1cd7f360d786a5e7c0330c14f4b4f8"
+    },
+    "combined_evidence": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_network_wave12_checkpoint_20260814\\combined_curated_evidence_20260814.csv",
+      "rows": 2749,
+      "sha256": "d923ff0edaed6f5ea3e460f0b5cb7290508a5fb37123313e53104b4144f52018"
+    },
+    "evidence": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_network_wave12_checkpoint_20260814\\regional_flora_network_wave12_evidence_20260814.csv",
+      "rows": 31,
+      "sha256": "7f1ce984afbfa3eee3ebec9ffb268e4a3d44f72a84d3a4ef34784a76ab62058b"
+    },
+    "source_snapshot": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\regional_flora_network_wave12_checkpoint_20260814\\regional_flora_network_wave12_source_rows_20260814.csv",
+      "rows": 31,
+      "sha256": "77e0542dce0218cbace7d9e3bba6f8b5204df7f0382b9fd3b8eafb2d2a001000"
+    }
+  },
+  "reviewed_species": 26,
+  "reviewed_species_trait_rows": 31,
+  "source_group": "regional_flora_network_wave12_checkpoint_20260814",
+  "wave_audit": {
+    "accepted_correct": 31,
+    "cultivar_contamination_rate": 0.0,
+    "precision": 1.0,
+    "reviewed": 31
+  }
+}

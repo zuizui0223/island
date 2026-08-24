@@ -1,0 +1,151 @@
+name: Production resumable open-Web trait acquisition
+
+on:
+  workflow_dispatch:
+    inputs:
+      pilot_run_id:
+        description: Pilot run containing a >=200-page reviewed formalization
+        required: true
+      pilot_artifact_name:
+        description: Exact reviewed pilot artifact name
+        required: true
+      offset:
+        description: Start row in prioritized species-trait task queue
+        required: true
+        default: "0"
+      limit:
+        description: Maximum task rows in this resumable shard
+        required: true
+        default: "1000"
+      search_backend:
+        description: brave or google
+        required: true
+        default: "brave"
+      max_queries:
+        description: Hard request cap for this shard
+        required: true
+        default: "3000"
+      resume_run_id:
+        description: Optional prior production run whose checkpoint is resumed
+        required: false
+        default: ""
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: open-web-production-${{ github.ref }}-${{ inputs.offset }}-${{ inputs.limit }}
+  cancel-in-progress: false
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BRAVE_SEARCH_API_KEY: ${{ secrets.BRAVE_SEARCH_API_KEY }}
+      GOOGLE_CUSTOM_SEARCH_API_KEY: ${{ secrets.GOOGLE_CUSTOM_SEARCH_API_KEY }}
+      GOOGLE_CUSTOM_SEARCH_CX: ${{ secrets.GOOGLE_CUSTOM_SEARCH_CX }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - name: Download and enforce the audited pilot gate
+        run: |
+          mkdir -p /tmp/open-web-pilot
+          gh run download "${{ inputs.pilot_run_id }}" \
+            --repo "${{ github.repository }}" \
+            --name "${{ inputs.pilot_artifact_name }}" \
+            --dir /tmp/open-web-pilot
+          test -f /tmp/open-web-pilot/open_web_formalization_summary.json
+          jq -e '
+            .audit.pilot_gate_passed == true
+            and .audit.reviewed_pages_or_candidates >= 200
+            and .audit.reviewed_domains >= 5
+            and .audit.precision >= 0.90
+            and .audit.cultivar_contamination_rate <= 0.02
+            and (.production_approved_domain_trait_scopes | length > 0)
+          ' /tmp/open-web-pilot/open_web_formalization_summary.json
+      - name: Require an official-search credential
+        run: |
+          if [ "${{ inputs.search_backend }}" = "brave" ]; then
+            test -n "$BRAVE_SEARCH_API_KEY"
+          elif [ "${{ inputs.search_backend }}" = "google" ]; then
+            test -n "$GOOGLE_CUSTOM_SEARCH_API_KEY"
+            test -n "$GOOGLE_CUSTOM_SEARCH_CX"
+          else
+            echo "production backend must be brave or google" >&2
+            exit 2
+          fi
+      - name: Restore the immutable pilot queue and optional checkpoint
+        run: |
+          mkdir -p outputs/open_web_production
+          mkdir -p /tmp/open-web-prior-runs
+          cp /tmp/open-web-pilot/prioritized_search_queue.csv.gz \
+            outputs/open_web_production/
+          cp /tmp/open-web-pilot/search_tasks.csv outputs/open_web_production/
+          gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow open-web-trait-production.yml \
+            --branch "${{ github.ref_name }}" \
+            --status success \
+            --limit 100 \
+            --json databaseId \
+            --jq '.[].databaseId' \
+            | while read -r run_id; do
+                if [ "$run_id" = "${{ github.run_id }}" ]; then
+                  continue
+                fi
+                mkdir -p "/tmp/open-web-prior-runs/$run_id"
+                gh run download "$run_id" \
+                  --repo "${{ github.repository }}" \
+                  --name "open-web-trait-production-$run_id" \
+                  --dir "/tmp/open-web-prior-runs/$run_id" || true
+              done
+      - name: Select an exact non-overlapping task range
+        run: |
+          python -m island_v2.open_web_checkpoint prepare \
+            --tasks-csv outputs/open_web_production/search_tasks.csv \
+            --output-dir outputs/open_web_production \
+            --offset "${{ inputs.offset }}" \
+            --limit "${{ inputs.limit }}" \
+            --source-run-id "${{ github.run_id }}" \
+            --prior-root /tmp/open-web-prior-runs \
+            --resume-run-id "${{ inputs.resume_run_id }}"
+      - name: Discover official result URLs
+        run: |
+          island-v2-open-web-search discover \
+            --tasks-csv outputs/open_web_production/search_tasks_shard.csv \
+            --output-dir outputs/open_web_production/discovery \
+            --backend "${{ inputs.search_backend }}" \
+            --max-queries "${{ inputs.max_queries }}"
+      - name: Fetch source pages and create review-only evidence
+        run: |
+          identity_args=()
+          if [ -f /tmp/open-web-pilot/strict_synonyms.csv ]; then
+            identity_args+=(--synonym-csv /tmp/open-web-pilot/strict_synonyms.csv)
+          fi
+          island-v2-open-web-evidence extract \
+            --leads-csv outputs/open_web_production/discovery/search_hits.csv \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --output-dir outputs/open_web_production/evidence \
+            "${identity_args[@]}"
+      - name: Freeze completed and remaining task IDs
+        run: |
+          python -m island_v2.open_web_checkpoint finalize \
+            --checkpoint-plan-json \
+              outputs/open_web_production/checkpoint_plan.json \
+            --discovery-report-json \
+              outputs/open_web_production/discovery/search_report.json \
+            --output-json \
+              outputs/open_web_production/checkpoint_manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: open-web-trait-production-${{ github.run_id }}
+          path: outputs/open_web_production/
+          retention-days: 90
+          if-no-files-found: error

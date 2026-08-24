@@ -1,0 +1,187 @@
+{
+  "contract": "wfo_official_bulk_trait_candidate_extraction_v1",
+  "created_at_utc": "2026-08-07T07:48:43.132103Z",
+  "formal_promotion_status": "not_promoted_review_pending",
+  "acquired_descriptions": {
+    "rows": 41105,
+    "species": 18169,
+    "providers": 19
+  },
+  "candidates": {
+    "rows_after_lineage_deduplication": 6696,
+    "lineage_translation_duplicates_removed": 1633,
+    "species": 4483,
+    "species_traits": 6108,
+    "strict_species_axes": 5681,
+    "formal_novel_species_traits_pending_review": 4828,
+    "formal_novel_species_axes_pending_review": 3625,
+    "non_axis_rows": 0
+  },
+  "per_trait": [
+    {
+      "trait_name": "floral_form",
+      "candidate_rows": 247,
+      "species": 243,
+      "providers": 7
+    },
+    {
+      "trait_name": "floral_symmetry",
+      "candidate_rows": 105,
+      "species": 105,
+      "providers": 6
+    },
+    {
+      "trait_name": "flower_primary_color",
+      "candidate_rows": 3117,
+      "species": 2877,
+      "providers": 9
+    },
+    {
+      "trait_name": "flower_size_class",
+      "candidate_rows": 1017,
+      "species": 916,
+      "providers": 9
+    },
+    {
+      "trait_name": "inflorescence_display",
+      "candidate_rows": 2166,
+      "species": 1923,
+      "providers": 17
+    },
+    {
+      "trait_name": "self_incompatibility",
+      "candidate_rows": 10,
+      "species": 10,
+      "providers": 5
+    },
+    {
+      "trait_name": "tube_depth_class",
+      "candidate_rows": 34,
+      "species": 34,
+      "providers": 6
+    }
+  ],
+  "per_provider": [
+    {
+      "provider": "brazilian_flora_2020",
+      "candidate_rows": 2911,
+      "species": 2313,
+      "species_traits": 2836
+    },
+    {
+      "provider": "eflora_thailand",
+      "candidate_rows": 409,
+      "species": 300,
+      "species_traits": 392
+    },
+    {
+      "provider": "flora_d_afrique_centrale",
+      "candidate_rows": 45,
+      "species": 44,
+      "species_traits": 45
+    },
+    {
+      "provider": "flora_helvetica",
+      "candidate_rows": 28,
+      "species": 28,
+      "species_traits": 28
+    },
+    {
+      "provider": "flora_mesoamericana",
+      "candidate_rows": 3,
+      "species": 3,
+      "species_traits": 3
+    },
+    {
+      "provider": "flora_north_america",
+      "candidate_rows": 836,
+      "species": 682,
+      "species_traits": 823
+    },
+    {
+      "provider": "flora_of_australia",
+      "candidate_rows": 3,
+      "species": 2,
+      "species_traits": 2
+    },
+    {
+      "provider": "flora_of_colombia",
+      "candidate_rows": 14,
+      "species": 14,
+      "species_traits": 14
+    },
+    {
+      "provider": "flora_of_nicaragua",
+      "candidate_rows": 18,
+      "species": 14,
+      "species_traits": 18
+    },
+    {
+      "provider": "flora_of_panama",
+      "candidate_rows": 1036,
+      "species": 608,
+      "species_traits": 995
+    },
+    {
+      "provider": "flore_du_gabon",
+      "candidate_rows": 12,
+      "species": 11,
+      "species_traits": 11
+    },
+    {
+      "provider": "manual_plants_costa_rica",
+      "candidate_rows": 3,
+      "species": 3,
+      "species_traits": 3
+    },
+    {
+      "provider": "nybg_brittonia",
+      "candidate_rows": 162,
+      "species": 121,
+      "species_traits": 159
+    },
+    {
+      "provider": "nybg_floraneotropica",
+      "candidate_rows": 543,
+      "species": 323,
+      "species_traits": 517
+    },
+    {
+      "provider": "nybg_memoirs",
+      "candidate_rows": 576,
+      "species": 376,
+      "species_traits": 562
+    },
+    {
+      "provider": "nybg_neflora",
+      "candidate_rows": 7,
+      "species": 7,
+      "species_traits": 7
+    },
+    {
+      "provider": "rhododendron_monograph",
+      "candidate_rows": 72,
+      "species": 67,
+      "species_traits": 71
+    },
+    {
+      "provider": "solanaceae_source",
+      "candidate_rows": 18,
+      "species": 16,
+      "species_traits": 18
+    }
+  ],
+  "query_accounting": {
+    "search_api_queries": 0,
+    "page_requests": 0,
+    "official_archive_downloads": 24,
+    "cost_usd": 0.0
+  },
+  "policy": {
+    "snippets_used": false,
+    "family_inference": false,
+    "global_fallback": false,
+    "pollen_vector_or_reward_mixed_into_strict_axes": false,
+    "manual_review_required_for_promotion": true
+  }
+}

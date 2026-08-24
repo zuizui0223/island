@@ -1,0 +1,138 @@
+{
+  "acquisition_inventory": {
+    "accepted_source_domains": 2,
+    "accepted_source_lineages": 2,
+    "accepted_species_trait_rows": 7,
+    "contract": "targeted_support2_wave14_acquisition_v1",
+    "formal_search_api_queries": 0,
+    "guardrails": {
+      "cross_trait_substitution": false,
+      "family_inference": false,
+      "genus_trait_join_only": true,
+      "global_fallback": false,
+      "search_snippet_as_evidence": false,
+      "species_direct_only": true,
+      "strict_synonym_requires_two_backbones": true
+    },
+    "manual_open_web_queries": 43,
+    "retrieved_at_utc": "2026-08-14T06:10:00Z",
+    "reviewed_candidates": 14,
+    "search_cost_usd": 0.0,
+    "strategy": "independent third-species direct evidence for support=2 genus x individual-trait rules",
+    "withheld_or_rejected": [
+      {
+        "accepted_species": "Orthoceras spp. queue entries",
+        "candidate": "floral symmetry rule unlock",
+        "reason": "fixed-master identity collision includes fossil cephalopod names mislabeled as Orchidaceae; genus inference is unsafe"
+      },
+      {
+        "accepted_species": "Rumicastrum calyptratum",
+        "candidate": "white flower-colour rule unlock",
+        "reason": "species-level pink-flower counterevidence prevents a homogeneous genus rule"
+      },
+      {
+        "accepted_species": "Rhamnus alaternus",
+        "candidate": "predominantly outcrossing rule unlock",
+        "reason": "official descriptions conflict between monoecious and dioecious sexual systems; dioecy was not substituted for mating system"
+      },
+      {
+        "accepted_species": "Ouratea spectabilis",
+        "candidate": "self-incompatibility direct evidence",
+        "reason": "the evidenced species is not in the fixed 106295-species master"
+      },
+      {
+        "accepted_species": "Buxus spp.",
+        "candidate": "self-compatibility rule unlock",
+        "reason": "no third fixed-master species with a controlled, species-direct result was located"
+      },
+      {
+        "accepted_species": "Schoenus spp.",
+        "candidate": "self-compatibility rule unlock",
+        "reason": "no third fixed-master species with species-direct reproductive evidence was located"
+      },
+      {
+        "accepted_species": "Cassipourea elliptica",
+        "candidate": "regular flowers in a World Flora Online treatment",
+        "reason": "the regular-flower sentence is a genus description from a separate provider block; naming C. elliptica elsewhere on the page does not make that sentence species-direct"
+      }
+    ]
+  },
+  "by_provider": {
+    "Federal University of Pernambuco institutional repository": 6,
+    "Plant Species Biology": 1
+  },
+  "by_quality": {
+    "high": 7
+  },
+  "by_trait": {
+    "autonomous_selfing_capacity": 3,
+    "self_incompatibility": 4
+  },
+  "contract": "targeted_support2_wave14_checkpoint_v1",
+  "created_at": "2026-08-14T06:10:00Z",
+  "guardrails": {
+    "axis_only_genus_join": false,
+    "family_inference": false,
+    "fixed_master_species_and_family_exact": true,
+    "global_fallback": false,
+    "optional_strict_synonym_identity_fields_preserved": true,
+    "source_page_and_excerpt_required": true,
+    "species_direct_only": true,
+    "trait_specific_genus_inference_delegated_to_common_rebuild": true
+  },
+  "inputs": {
+    "master": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e"
+    },
+    "prior_audit": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave13_checkpoint_20260814\\combined_curated_manual_audit_20260814.csv",
+      "sha256": "3310cb8f724835ff6a6ebe0ec0fe616d2ac1dd44247c673999af5e57167b4e5b"
+    },
+    "prior_evidence": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave13_checkpoint_20260814\\combined_curated_evidence_20260814.csv",
+      "sha256": "e8b2b48ec8441798805ae48b6c19908a1e23061338a0aaeeb32d5c18dba46d3a"
+    },
+    "source_snapshot": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave14_checkpoint_20260814\\targeted_support2_wave14_source_rows_20260814.csv",
+      "sha256": "534a406c1ee426ce66cc2e382fd3740c4463f6879ce4b34cd18901f469885a47"
+    }
+  },
+  "lineages": 2,
+  "outputs": {
+    "audit": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave14_checkpoint_20260814\\targeted_support2_wave14_manual_audit_20260814.csv",
+      "rows": 7,
+      "sha256": "c8d91d62ee88949bd91cdc69d1fe7591559ddabe1363262e33ddf25627c25f62"
+    },
+    "combined_audit": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave14_checkpoint_20260814\\combined_curated_manual_audit_20260814.csv",
+      "rows": 2758,
+      "sha256": "ea877af35287924775e0fc6ea7b9e17a455691ff9e0acc1899a4ac9716e2ba12"
+    },
+    "combined_evidence": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave14_checkpoint_20260814\\combined_curated_evidence_20260814.csv",
+      "rows": 2758,
+      "sha256": "2fbc392a690e4b2df1c307c15e56e96151fe050b3058c721238390c54c4c8343"
+    },
+    "evidence": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave14_checkpoint_20260814\\targeted_support2_wave14_evidence_20260814.csv",
+      "rows": 7,
+      "sha256": "bf76702aad03d57bae40a9a3d20d1355c942cfb0f30ee57cdea086178f762640"
+    },
+    "source_snapshot": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\targeted_support2_wave14_checkpoint_20260814\\targeted_support2_wave14_source_rows_20260814.csv",
+      "rows": 7,
+      "sha256": "534a406c1ee426ce66cc2e382fd3740c4463f6879ce4b34cd18901f469885a47"
+    }
+  },
+  "reviewed_species": 4,
+  "reviewed_species_trait_rows": 7,
+  "source_group": "targeted_support2_wave14_checkpoint_20260814",
+  "wave_audit": {
+    "accepted_correct": 7,
+    "cultivar_contamination_rate": 0.0,
+    "precision": 1.0,
+    "reviewed": 7
+  }
+}

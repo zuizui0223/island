@@ -1,0 +1,11 @@
+{
+  "combined_candidate_rows": 10367,
+  "combined_reviewed": 320,
+  "incremental_accepted_correct": 116,
+  "incremental_candidate_rows": 3972,
+  "incremental_reviewed": 120,
+  "incremental_species": 3645,
+  "incremental_species_trait": 3920,
+  "source_artifact": "wfo-high-yield-plus-fna-foc-africa-source-package-20260810",
+  "source_run_id": "wfo-high-yield-plus-fna-foc-africa-20260810"
+}

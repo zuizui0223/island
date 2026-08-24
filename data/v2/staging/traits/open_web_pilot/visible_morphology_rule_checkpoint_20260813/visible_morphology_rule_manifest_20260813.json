@@ -1,0 +1,71 @@
+{
+  "accepted_rows": 30,
+  "combined": {
+    "audit_rows": 1905,
+    "evidence_rows": 1905
+  },
+  "contract": "visible_morphology_support2_rule_checkpoint_v3",
+  "created_at_utc": "2026-08-13T15:49:21Z",
+  "explicit_counterevidence": [
+    "Sericolea arfakensis|flower_primary_color|red_pink",
+    "Micromeria imbricata|tube_depth_class|shallow|intermediate",
+    "Capparis arborea|flower_size_class|small"
+  ],
+  "files": {
+    "combined_curated_evidence_20260813.csv": {
+      "sha256": "a656d702c05902a0d87d4b8a7d49962d93171d1da52ac33f942d129f6e970873",
+      "size_bytes": 2151056
+    },
+    "combined_curated_manual_audit_20260813.csv": {
+      "sha256": "485ea7b9b484734af2bdd94ff5ed6516986f2f781363fa24ec8a67bec1ec24f8",
+      "size_bytes": 1855230
+    },
+    "visible_morphology_rule_evidence_20260813.csv": {
+      "sha256": "038f507b5d3c4cd90afb4a93bd056570c2f13414732541aaabf4ab05cb6e2824",
+      "size_bytes": 31032
+    },
+    "visible_morphology_rule_manual_audit_20260813.csv": {
+      "sha256": "ba25fbb2fb8b498af1da71e2716e46dd521676e016f4dacf7352ef404dd06c90",
+      "size_bytes": 26976
+    }
+  },
+  "guardrails": {
+    "cross_trait_substitution": false,
+    "family_inference": false,
+    "genus_inference_emitted_here": false,
+    "global_fallback": false,
+    "search_snippet_evidence": false,
+    "trait_specific_records": true
+  },
+  "inputs": {
+    "master_csv": {
+      "path": "data\\v2\\staging\\gbif\\collected\\island_taxa.csv",
+      "sha256": "c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e"
+    },
+    "prior_curated_audit_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\visible_morphology_rule_checkpoint_20260813\\combined_curated_manual_audit_20260813.csv",
+      "sha256": "485ea7b9b484734af2bdd94ff5ed6516986f2f781363fa24ec8a67bec1ec24f8"
+    },
+    "prior_curated_evidence_csv": {
+      "path": "data\\v2\\staging\\traits\\open_web_pilot\\visible_morphology_rule_checkpoint_20260813\\combined_curated_evidence_20260813.csv",
+      "sha256": "a656d702c05902a0d87d4b8a7d49962d93171d1da52ac33f942d129f6e970873"
+    }
+  },
+  "quality_counts": {
+    "high": 23,
+    "medium": 7
+  },
+  "source_lineages": 24,
+  "species_trait": 30,
+  "theoretical_only_not_formal_coverage": true,
+  "theoretical_rule_cells_before_formal_validation": 443,
+  "trait_counts": {
+    "cleistogamy": 1,
+    "floral_form": 4,
+    "floral_symmetry": 6,
+    "flower_primary_color": 3,
+    "flower_size_class": 3,
+    "inflorescence_display": 10,
+    "tube_depth_class": 3
+  }
+}

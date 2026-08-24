@@ -1,0 +1,4 @@
+row_number,source_record_id,source_scientific_name,source_family,source_genus,source_value,standardized_value,evidence_class,source_citation,evidence_excerpt,source_lineage
+3456,3455,Agalinis acuta,Orobanchaceae,Agalinis,SC,SC,reference_supported_SC,"Neel, 2002","work_species=Agalinis acuta; SI analyses=SC; references=Neel, 2002",citation-set:900b9956a194bc57d1c6e5ae
+4198,4197,Cuphea brachiata,Lythraceae,Cuphea,SC,SC,reference_supported_SC,"Pigozzo et al., 2006","work_species=Cuphea brachiata; SI analyses=SC; references=Pigozzo et al., 2006",citation-set:c7df23f0a5c7771a90444899
+4312,4311,Tibouchina cerastifolia,Melastomataceae,Tibouchina,SC,SC,reference_supported_SC,"Goldenberg and Varassin, 2001","work_species=Tibouchina cerastifolia; SI analyses=SC; references=Goldenberg and Varassin, 2001",citation-set:6e89dc05aa31f979ffc203ce

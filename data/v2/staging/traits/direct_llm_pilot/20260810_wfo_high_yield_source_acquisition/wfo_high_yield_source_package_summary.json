@@ -1,0 +1,18 @@
+{
+  "source_run_id": "wfo-high-yield-official-flora-20260810",
+  "source_artifact": "wfo-high-yield-official-flora-source-package-20260810",
+  "candidate_rows": 6395,
+  "species_traits": 6122,
+  "species_axes": 5136,
+  "species": 4421,
+  "trait_rows": {
+    "floral_form": 712,
+    "flower_primary_color": 1796,
+    "flower_size_class": 926,
+    "inflorescence_display": 2961
+  },
+  "audit_rows": 200,
+  "audit_contract": "accepted_correct / all_reviewed; production by trait",
+  "family_inference": false,
+  "global_fallback": false
+}

@@ -1,0 +1,138 @@
+{
+  "audit_rows": 208,
+  "baseline_resolved_direct_species_trait": 72570,
+  "contract": "near_rule_multi_source_direct_evidence_v1",
+  "created_at_utc": "2026-08-09T04:34:38.781121+00:00",
+  "evidence_rows": 208,
+  "formal_novelty_baseline_species_trait": 80608,
+  "input_files": {
+    ".work\\AMCS203\\3rd Assignment\\3rd Assignment\\data\\doi_10_5061_dryad_1888__v20100821\\NicSolstatus.csv": {
+      "bytes": 7639,
+      "sha256": "d05dc3211352a6f988c155d4328995cbaadadfebdc82ff62d754a79a17a074bf"
+    },
+    ".work\\UK_Flora\\data\\bio_geo\\Database_BioGeo_mating.csv": {
+      "bytes": 225352,
+      "sha256": "94c427b84dc35c12f5f35cea0ee7aded7c96b9de16231f2efd771bc0035a0902"
+    },
+    ".work\\artifact-31233181709\\contract_eligible_novel_candidates.csv": {
+      "bytes": 432146,
+      "sha256": "81ddc972d31bd388e692698fe73ca69f2e7427613df527f518c4b4f10d3076fa"
+    },
+    ".work\\bien-source-inventory-20260808\\bien_target_traits.csv": {
+      "bytes": 3325486,
+      "sha256": "add709e77db2701f029e318f19f331fe88a1c6205ac42ba636033a3e0ca3d53c"
+    },
+    ".work\\github-31290142917\\broad_web_medium_evidence.csv.gz": {
+      "bytes": 2258391,
+      "sha256": "a267619619c89e71c6c4fd79da9e50d33d12eef27a63b4c4c072cb48d507ef8b"
+    },
+    ".work\\github-31290142917\\direct_species_trait_ledger.csv.gz": {
+      "bytes": 1452155,
+      "sha256": "c1563dd2bc2354b8c6d2ae26bde3bd308670115015cfcd50c4d71b22c849a435"
+    },
+    ".work\\github-31290142917\\strict_species_axis_coverage.csv.gz": {
+      "bytes": 2604200,
+      "sha256": "2692c756f38f5c0d0af282c26bcc1fba83a3d5019f544079c57a5b2f4aa34e50"
+    },
+    ".work\\integrated-31245813999\\integrated_evidence_lineage.csv.gz": {
+      "bytes": 6836032,
+      "sha256": "de1628bb0a425eaf53ce137535bbd18f5c809f2949e24b25f86e9b384d881580"
+    },
+    ".work\\next-acquisition-20260808\\europe-pmc-batch2-priority-integrated\\accepted_common_direct_evidence.csv.gz": {
+      "bytes": 6767,
+      "sha256": "fad955fa96c8588ebc0044f51f44cb0d967a89f255d331fff792ebce8ed4a253"
+    },
+    ".work\\plantnet-31247162370\\contract_eligible_novel_candidates.csv": {
+      "bytes": 504554,
+      "sha256": "2bd107e55f0be9f7ba3ea6dfa35bfbda8958972b34d18b82f53537440d1e9ee9"
+    },
+    ".work\\plantnet-31247811264\\contract_eligible_novel_candidates.csv": {
+      "bytes": 415584,
+      "sha256": "255e95aeb11029fbfc227980390b84354c666cd2a23122004429ccc25181dd23"
+    },
+    ".work\\plantnet-31249406427\\contract_eligible_novel_candidates.csv": {
+      "bytes": 347911,
+      "sha256": "01e6781d6b56c0298e7026d998cb1507b421aceeb2b7b7cccc0278bab9d5283f"
+    },
+    ".work\\source-package-sinnott-armstrong-2025\\final_dataset.csv": {
+      "bytes": 118867,
+      "sha256": "a253308785e4cbd0e361b3ca04cdfdae29c523eefa843375cebf8030ee0874af"
+    },
+    "data\\v2\\staging\\gbif\\collected\\island_taxa.csv": {
+      "bytes": 5538726,
+      "sha256": "21925a4e4d6fc8431e8549b3c3ddff9acdbded0b017e0aa78a5c863147392fe9"
+    }
+  },
+  "novel_species_trait": 175,
+  "novelty_rate": 1.0,
+  "output_files": {
+    "near_rule_incremental_evidence.csv.gz": {
+      "sha256": "42df58e81ab4fe50dec5e09702331ced9f77d5ecc99ec38e35be79aff6a554f9"
+    },
+    "near_rule_source_audit.csv": {
+      "sha256": "a54ab602feef0f3d39bb8cf02d8e7d8998cb01d2682cf4f8a7c11b92f43e5fbe"
+    }
+  },
+  "providers": [
+    {
+      "audit_rows": 1,
+      "evidence_rows": 1,
+      "novel_species_trait": 1,
+      "source_provider": "micheneau_etal_2010_primary_article",
+      "species_trait": 1,
+      "traits": [
+        "autonomous_selfing_capacity"
+      ]
+    },
+    {
+      "audit_rows": 206,
+      "evidence_rows": 206,
+      "novel_species_trait": 173,
+      "source_provider": "moeller_etal_2017_dryad",
+      "species_trait": 173,
+      "traits": [
+        "mating_system",
+        "self_incompatibility"
+      ]
+    },
+    {
+      "audit_rows": 1,
+      "evidence_rows": 1,
+      "novel_species_trait": 1,
+      "source_provider": "plantnet_nsw_flora",
+      "species_trait": 1,
+      "traits": [
+        "floral_form"
+      ]
+    }
+  ],
+  "source_access": {
+    "bien": "https://bien.nceas.ucsb.edu/bien/data-and-access/",
+    "europe_pmc": "https://europepmc.org/",
+    "flora_of_peninsular_india": "https://indiaflora-ces.iisc.ac.in/FloraPeninsular/herbsheet.php?cat=7&id=3541",
+    "goldberg_etal_2010_dryad": "https://doi.org/10.5061/dryad.1888",
+    "hartati_etal_2019_primary_article": "https://doi.org/10.1590/0034-737x201966040004",
+    "ide_etal_2020_jstage": "https://doi.org/10.11519/jfsc.131.0_790",
+    "leon_levy_native_plant_preserve": "https://levypreserve.org/plant-listings/pilea-microphylla/",
+    "micheneau_etal_2010_primary_article": "https://doi.org/10.1093/aob/mcp299",
+    "moeller_etal_2017_dryad": "https://doi.org/10.5061/dryad.577q1",
+    "ncsu_extension_plant_toolbox": "https://plants.ces.ncsu.edu/",
+    "plantnet_nsw_flora": "https://plantnet.rbgsyd.nsw.gov.au/",
+    "singapore_nparks_flora_fauna_web": "https://www.nparks.gov.sg/florafaunaweb/",
+    "sinnott_armstrong_2025_dryad": "https://doi.org/10.5061/dryad.r4xgxd2sc",
+    "western_australian_museum": "https://visit.museum.wa.gov.au/goldfields/native-apricot"
+  },
+  "species_trait": 175,
+  "strict_exclusions": [
+    "species absent from the fixed 106295-species master",
+    "species x trait already present in the formal novelty baseline",
+    "cultivar hybrid selection or grex text",
+    "PlantNET non-flower measurements and calyx bract involucral tubes",
+    "NCSU narrative prose outside structured Flower fields",
+    "BIEN records without an attributable original citation",
+    "Moeller source names that are not exact master binomials",
+    "sexual-system-only records and pollen-vector records outside strict axes",
+    "family inference global fallback and n=2 genus inference"
+  ],
+  "strict_universe_species": 106295
+}

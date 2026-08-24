@@ -1,0 +1,101 @@
+{
+  "acquisition": {
+    "archive_host": "web.archive.org",
+    "cdx_archived_wiki_urls": 14761,
+    "credential_free": true,
+    "discovery_backend": "Internet Archive CDX API",
+    "full_page_html_committed": false,
+    "identity_accepted_pages": 498,
+    "identity_failed_pages": 2,
+    "priority_pages_requested": 500,
+    "quote_and_content_hashes_committed": true,
+    "source_domain": "palmpedia.net"
+  },
+  "contract": "palmpedia_archive_source_package_v1",
+  "generated_at_utc": "2026-08-12T16:10:00Z",
+  "input_hashes": {
+    "palmpedia_archive_page_manifest_20260813.csv.gz": "69dfb0b70e3a8ff06ae98433aa59fa5abdfc8094f755121103135319e288d2f7",
+    "palmpedia_archive_trait_candidates_20260813.csv": "0c0737e7eee0b17fd53fa16baa36170c3f65735d65ced45e5da58cc5d84df6f7"
+  },
+  "output_hashes": {
+    "palmpedia_archive_manual_page_audit_200_20260813.csv": "45a2df047a4577467928b76eb52ff9acfa702590e47712294fc0f64a8e4e23ef",
+    "palmpedia_archive_source_package_audit_20260813.csv": "89a138051339da0257d4c4be7156ff6e80749cd8274321727c736aaee86a0b74",
+    "palmpedia_archive_source_package_evidence_20260813.csv.gz": "2391f15296dd42eb0caa74cbd6aecb424d4dbee723513608c45fc43110916687"
+  },
+  "review": {
+    "accepted_candidate_rows": 239,
+    "candidate_pages": 154,
+    "candidate_rows": 243,
+    "manual_page_audit": 200,
+    "page_review_seed": 20260813,
+    "rejected_candidate_rows": 4,
+    "source_package_gate": {
+      "accepted_correct": 239,
+      "approval_unit": "trait_name",
+      "approved_trait_count": 3,
+      "approved_traits": [
+        "flower_primary_color",
+        "flower_size_class",
+        "inflorescence_display"
+      ],
+      "candidate_evidence_rows": 243,
+      "cultivar_contamination_rate": 0.0,
+      "explicitly_rejected_candidate_ids": 4,
+      "maximum_cultivar_contamination": 0.02,
+      "minimum_precision": 0.95,
+      "minimum_reviewed": 200,
+      "minimum_reviewed_per_trait": 10,
+      "overall_precision_gate_applied": false,
+      "package_gate_passed": true,
+      "precision": 0.9835390946502057,
+      "precision_contract": "accepted_correct/all_reviewed",
+      "reviewed": 243,
+      "selected_evidence_rows": 231
+    },
+    "trait_gate": [
+      {
+        "accepted_correct": 8,
+        "cultivar_contamination_rate": 0.0,
+        "precision": 0.8,
+        "production_approved": false,
+        "reviewed": 10,
+        "trait_name": "floral_form"
+      },
+      {
+        "accepted_correct": 86,
+        "cultivar_contamination_rate": 0.0,
+        "precision": 0.9772727272727273,
+        "production_approved": true,
+        "reviewed": 88,
+        "trait_name": "flower_primary_color"
+      },
+      {
+        "accepted_correct": 99,
+        "cultivar_contamination_rate": 0.0,
+        "precision": 1.0,
+        "production_approved": true,
+        "reviewed": 99,
+        "trait_name": "flower_size_class"
+      },
+      {
+        "accepted_correct": 46,
+        "cultivar_contamination_rate": 0.0,
+        "precision": 1.0,
+        "production_approved": true,
+        "reviewed": 46,
+        "trait_name": "inflorescence_display"
+      }
+    ]
+  },
+  "selected": {
+    "by_trait": {
+      "flower_primary_color": 86,
+      "flower_size_class": 99,
+      "inflorescence_display": 46
+    },
+    "evidence_rows": 231,
+    "species": 151,
+    "species_axis": 168,
+    "species_trait": 177
+  }
+}

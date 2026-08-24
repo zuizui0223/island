@@ -1,0 +1,74 @@
+{
+  "audit_quota": {
+    "floral_form": 25,
+    "floral_symmetry": 5,
+    "flower_primary_color": 80,
+    "flower_size_class": 15,
+    "inflorescence_display": 50,
+    "tube_depth_class": 25
+  },
+  "audit_rows": 200,
+  "audit_seed": "wfo-kew-africa-holdout-audit-20260810-v1",
+  "backbone": {
+    "bytes": 121660019,
+    "member": "classification.csv",
+    "sha256": "ccfc7e3ca85c8b80aa96eb52d4e50e07e1811d28916b544280d8a4f1a043ba72"
+  },
+  "contract": "wfo_kew_africa_source_package_v2",
+  "cross_provider_content_rows": 532,
+  "fixed_universe_species": 106295,
+  "generated_at_utc": "2026-08-10T01:38:10.419518Z",
+  "identity": {
+    "ambiguous_wfo_ids_excluded": 4683,
+    "exact_fixed_backbone_rows": 106277,
+    "resolved_fixed_species": 95207,
+    "resolved_wfo_ids": 333723,
+    "strict_synonym_cluster_rows": 232857
+  },
+  "incremental_evidence_rows": 1491,
+  "incremental_species": 1081,
+  "incremental_species_axis": 1252,
+  "incremental_species_trait": 1271,
+  "matched_description_rows": 37779,
+  "matched_species": 3720,
+  "promotion_performed": false,
+  "quality": "high",
+  "source_archives": {
+    "kew_flora_tropical_east_africa": {
+      "archive": "kew_ftea.zip",
+      "bytes": 5401533,
+      "citation": "Flora of Tropical East Africa, Royal Botanic Gardens, Kew, official WFO DwC-A",
+      "sha256": "14e95ad3742225793a667f24e40c166db118dae4917269bb30f78178954f42a6"
+    },
+    "kew_flora_west_tropical_africa": {
+      "archive": "kew_fwta_wfo.zip",
+      "bytes": 888526,
+      "citation": "Flora of West Tropical Africa, Royal Botanic Gardens, Kew, official WFO DwC-A",
+      "sha256": "243cd67ae56196ff61b940949eda102c96a834fd41253b06a370ae802baf843c"
+    },
+    "kew_flora_zambesiaca_current": {
+      "archive": "kew_fz.zip",
+      "bytes": 3960398,
+      "citation": "Flora Zambesiaca, Royal Botanic Gardens, Kew, official WFO DwC-A",
+      "sha256": "5aec2c09934091db2f0fda65314b8b232ff4f291ac4846d8688e6900428c86e2"
+    }
+  },
+  "source_artifact": "wfo-kew-africa-official-dwca-20260810",
+  "source_run_id": "wfo-kew-africa-three-floras-20260810",
+  "strict_exclusions": [
+    "non_species_and_family_conflicting_names",
+    "ambiguous_wfo_identity_clusters",
+    "non_morphology_description_types",
+    "cultivar_and_hybrid_treatments",
+    "existing_direct_species_trait_pairs",
+    "family_and_global_inference"
+  ],
+  "trait_rows": {
+    "floral_form": 47,
+    "floral_symmetry": 1,
+    "flower_primary_color": 918,
+    "flower_size_class": 13,
+    "inflorescence_display": 510,
+    "tube_depth_class": 2
+  }
+}

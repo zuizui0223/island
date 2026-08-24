@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pandas as pd
 
 from island_v2 import all_evidence_trait_audit as audit
+from island_v2.direct_evidence_exclusions import apply_direct_evidence_exclusions
 from island_v2.integrated_trait_coverage import EVIDENCE_COLUMNS
 
 ONTOLOGY = {
@@ -62,6 +64,130 @@ def row(
         "source_file": "test.csv",
         "acceptance_contract": "test",
     }
+
+
+def test_latest_public_web_loader_preserves_original_artifact_provenance(
+    tmp_path: Path,
+) -> None:
+    pd.DataFrame(
+        [
+            {
+                "accepted_species": "Alpha one",
+                "trait_name": "floral_form",
+                "normalized_value": "tubular",
+                "evidence_quality": "medium",
+                "evidence_scope": "species_direct",
+                "source_provider": "prior.example",
+                "source_url": "https://prior.example/alpha",
+                "source_record_id": "alpha",
+                "source_citation": "Prior source",
+                "source_excerpt": "Flowers tubular.",
+                "name_match_method": "accepted_name_exact",
+                "source_lineage": "page:alpha",
+                "inference_rule": "",
+                "source_run_id": "prior-run",
+                "source_artifact": "prior-artifact",
+            }
+        ]
+    ).to_csv(tmp_path / "broad_web_medium_evidence.csv.gz", index=False)
+    manifest = {
+        "sources": [
+            {
+                "source_group": "latest_public_web",
+                "run_id": "wrapper-run",
+                "artifact_name": "wrapper-artifact",
+            }
+        ]
+    }
+    loaded = audit.load_latest_public_web(tmp_path, manifest)
+    assert len(loaded) == 1
+    assert loaded.iloc[0]["source_run_id"] == "prior-run"
+    assert loaded.iloc[0]["source_artifact"] == "prior-artifact"
+
+
+def test_latest_public_web_loader_coalesces_row_level_quality_columns(
+    tmp_path: Path,
+) -> None:
+    pd.DataFrame(
+        [
+            {
+                "accepted_species": "Alpha one",
+                "trait_name": "floral_form",
+                "normalized_value": "tubular",
+                "evidence_quality": "",
+                "quality": "medium",
+                "evidence_scope": "species_direct",
+                "source_lineage": "page:legacy-quality",
+            },
+            {
+                "accepted_species": "Beta two",
+                "trait_name": "floral_symmetry",
+                "normalized_value": "actinomorphic",
+                "evidence_quality": "high",
+                "quality": "",
+                "evidence_scope": "species_direct",
+                "source_lineage": "page:new-evidence-quality",
+            },
+        ]
+    ).to_csv(tmp_path / "broad_web_medium_evidence.csv.gz", index=False)
+
+    loaded = audit.load_latest_public_web(tmp_path, {"sources": []})
+
+    assert len(loaded) == 2
+    assert dict(zip(loaded["accepted_species"], loaded["quality"], strict=True)) == {
+        "Alpha one": "medium",
+        "Beta two": "high",
+    }
+
+
+def test_reviewed_exclusion_prevents_false_conflict_with_corrected_direct_row() -> None:
+    wrong = row(
+        "Calanthe striata",
+        "autonomous_selfing_capacity",
+        "autonomous",
+        "url:https://europepmc.org/article/AGR/IND500728652",
+        quality="high",
+    )
+    corrected = row(
+        "Calanthe striata",
+        "autonomous_selfing_capacity",
+        "absent",
+        "doi:10.3390/horticulturae10101025",
+        quality="high",
+    )
+    exclusions = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Calanthe striata",
+                "trait_name": "autonomous_selfing_capacity",
+                "normalized_value": "autonomous",
+                "source_lineage": "url:https://europepmc.org/article/AGR/IND500728652",
+                "reason": "saved excerpt says neither autogamous nor apogamous",
+                "reviewer": "reviewer",
+                "reviewed_at_utc": "2026-08-13T00:00:00Z",
+            }
+        ]
+    )
+
+    kept, exclusion_audit = apply_direct_evidence_exclusions(
+        pd.DataFrame([wrong, corrected], columns=EVIDENCE_COLUMNS),
+        exclusions,
+    )
+    lineages, _ = audit.dedupe_direct_lineages(kept, ONTOLOGY)
+    resolved, cell_audit = audit.resolve_direct_cells(lineages)
+
+    assert exclusion_audit.iloc[0]["matched_rows"] == 1
+    assert resolved.iloc[0]["normalized_value"] == "absent"
+    assert resolved.iloc[0]["resolution_status"] == "resolved"
+    assert cell_audit.iloc[0]["classification"] == "single_independent_lineage"
+
+
+def test_integrated_workflow_reapplies_reviewed_direct_exclusions() -> None:
+    workflow = Path(".github/workflows/build-integrated-trait-coverage.yml").read_text(
+        encoding="utf-8"
+    )
+    assert "--direct-evidence-exclusions-csv" in workflow
+    assert "direct_evidence_exclusions_20260811.csv" in workflow
 
 
 def test_lineage_dedup_is_trait_specific_not_axis_specific() -> None:
@@ -206,7 +332,13 @@ def test_thresholds_and_application_remain_trait_specific() -> None:
                 "genus": "Gamma",
                 "n_islands": "3",
                 "n_records": "10",
-            }
+            },
+            {
+                "accepted_species": "Gamma",
+                "genus": "Gamma",
+                "n_islands": "3",
+                "n_records": "10",
+            },
         ]
     )
     inferred = audit.apply_genus_rules(
@@ -216,7 +348,60 @@ def test_thresholds_and_application_remain_trait_specific() -> None:
         "current_min2_diagnostic",
     )
     assert len(inferred) == 1
+    assert inferred.iloc[0]["accepted_species"] == "Gamma target"
     assert inferred.iloc[0]["trait_name"] == "floral_symmetry"
+
+
+def test_lineage_loo_removes_every_species_from_the_held_out_lineage() -> None:
+    evidence = pd.DataFrame(
+        [
+            row("Delta one", "self_incompatibility", "SC", "paper:shared"),
+            row("Delta two", "self_incompatibility", "SC", "paper:shared"),
+            row("Delta three", "self_incompatibility", "SC", "paper:independent"),
+        ],
+        columns=EVIDENCE_COLUMNS,
+    )
+    lineages, _ = audit.dedupe_direct_lineages(evidence, ONTOLOGY)
+    cells, _ = audit.resolve_direct_cells(lineages)
+    cells["genus"] = cells["accepted_species"].str.split().str[0]
+    lineages["genus"] = lineages["accepted_species"].str.split().str[0]
+    old_low = pd.DataFrame(
+        columns=["accepted_species", "genus", "axis", "trait_name", "state_set"]
+    )
+
+    rules = audit.build_rule_audit(cells, lineages, old_low)
+    current = rules.loc[rules["setting"].eq("current_min3")].iloc[0]
+
+    assert current["n_direct_species"] == 3
+    assert current["lineage_loo_n"] == 2
+    assert current["lineage_loo_correct"] == 2
+    assert current["lineage_loo_accuracy"] == 1.0
+
+
+def test_lineage_loo_does_not_count_same_paper_species_as_independent_validation() -> None:
+    evidence = pd.DataFrame(
+        [
+            row("Epsilon one", "self_incompatibility", "SC", "paper:shared"),
+            row("Epsilon two", "self_incompatibility", "SC", "paper:shared"),
+            row("Epsilon three", "self_incompatibility", "SI", "paper:independent"),
+        ],
+        columns=EVIDENCE_COLUMNS,
+    )
+    lineages, _ = audit.dedupe_direct_lineages(evidence, ONTOLOGY)
+    cells, _ = audit.resolve_direct_cells(lineages)
+    cells["genus"] = cells["accepted_species"].str.split().str[0]
+    lineages["genus"] = lineages["accepted_species"].str.split().str[0]
+    old_low = pd.DataFrame(
+        columns=["accepted_species", "genus", "axis", "trait_name", "state_set"]
+    )
+
+    rules = audit.build_rule_audit(cells, lineages, old_low)
+    current = rules.loc[rules["setting"].eq("current_min3")].iloc[0]
+
+    assert current["lineage_loo_n"] == 2
+    assert current["lineage_loo_correct"] == 0
+    assert current["lineage_loo_accuracy"] == 0.0
+    assert not bool(current["eligible"])
 
 
 def test_species_axis_coverage_uses_quality_precedence_and_exact_denominator() -> None:
