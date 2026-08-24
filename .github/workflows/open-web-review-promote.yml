@@ -66,6 +66,7 @@ on:
       - "data/v2/staging/traits/open_web_pilot/goodwillie_2005_mixed_mating_checkpoint_20260821/**"
       - "data/v2/staging/traits/open_web_pilot/ferrer_2024_powo_synonym_checkpoint_20260821/**"
       - "data/v2/staging/traits/open_web_pilot/targeted_dioecy_wave23_checkpoint_20260821/**"
+      - "data/v2/staging/traits/open_web_pilot/targeted_support2_wave24_checkpoint_20260824/**"
       - "data/v2/staging/traits/open_web_pilot/palmpedia_archive_checkpoint_20260813/**"
       - "data/v2/external/traits/konno_1999_bagging/**"
       - "data/v2/external/traits/yomai_2021_pohnpei/**"
@@ -196,6 +197,8 @@ on:
       - "src/island_v2/ferrer_2024_powo_synonym_checkpoint.py"
       - "tests/test_targeted_dioecy_wave23_checkpoint.py"
       - "src/island_v2/targeted_dioecy_wave23_checkpoint.py"
+      - "tests/test_targeted_support2_wave24_checkpoint.py"
+      - "src/island_v2/targeted_support2_wave24_checkpoint.py"
       - "tests/test_open_web_structured_traits.py"
       - "tests/test_pngtrees_source_package.py"
       - "tests/test_open_web_common.py"
@@ -234,11 +237,11 @@ on:
       prior_public_web_run_id:
         description: Previous formal reviewed-Web run to extend
         required: false
-        default: "31771437676"
+        default: "32702160934"
       prior_public_web_artifact_name:
         description: Artifact containing the previous formal Web ledger
         required: false
-        default: "reviewed-open-web-evidence-31771437676"
+        default: "reviewed-open-web-evidence-32702160934"
       prior_public_web_file_name:
         description: Evidence CSV path inside the previous artifact
         required: false
@@ -250,19 +253,19 @@ on:
       curated_evidence_csv_path:
         description: Individually reviewed species-direct evidence committed on this ref
         required: false
-        default: "data/v2/staging/traits/open_web_pilot/targeted_dioecy_wave23_checkpoint_20260821/combined_curated_evidence_20260821.csv"
+        default: "data/v2/staging/traits/open_web_pilot/targeted_support2_wave24_checkpoint_20260824/targeted_support2_wave24_evidence_20260824.csv"
       curated_audit_csv_path:
         description: Line-by-line audit for the curated evidence
         required: false
-        default: "data/v2/staging/traits/open_web_pilot/targeted_dioecy_wave23_checkpoint_20260821/combined_curated_manual_audit_20260821.csv"
+        default: "data/v2/staging/traits/open_web_pilot/targeted_support2_wave24_checkpoint_20260824/targeted_support2_wave24_manual_audit_20260824.csv"
       curated_source_run_id:
         description: Original acquisition Run ID for the curated checkpoint
         required: false
-        default: "targeted-dioecy-wave23-20260821"
+        default: "targeted-support2-wave24-20260824"
       curated_source_artifact_name:
         description: Original acquisition artifact for the curated checkpoint
         required: false
-        default: "targeted-dioecy-wave23-source-snapshot"
+        default: "targeted-support2-wave24-source-snapshot"
       source_package_evidence_csv_path:
         description: Common-schema evidence from an audited source package
         required: false
@@ -303,10 +306,10 @@ jobs:
       PILOT_ARTIFACT_NAME: >-
         ${{ inputs.pilot_artifact_name ||
         'open-web-multidomain-pilot-30434418380' }}
-      PRIOR_PUBLIC_WEB_RUN_ID: ${{ inputs.prior_public_web_run_id || '31771437676' }}
+      PRIOR_PUBLIC_WEB_RUN_ID: ${{ inputs.prior_public_web_run_id || '32702160934' }}
       PRIOR_PUBLIC_WEB_ARTIFACT: >-
         ${{ inputs.prior_public_web_artifact_name ||
-        'reviewed-open-web-evidence-31771437676' }}
+        'reviewed-open-web-evidence-32702160934' }}
       PRIOR_PUBLIC_WEB_FILE_NAME: >-
         ${{ inputs.prior_public_web_file_name ||
         'broad_web_medium_evidence.csv.gz' }}
@@ -320,15 +323,15 @@ jobs:
         ${{ inputs.candidate_file_name || 'open_web_multidomain_candidates.csv' }}
       CURATED_EVIDENCE_CSV_PATH: >-
         ${{ inputs.curated_evidence_csv_path ||
-        'data/v2/staging/traits/open_web_pilot/targeted_dioecy_wave23_checkpoint_20260821/combined_curated_evidence_20260821.csv' }}
+        'data/v2/staging/traits/open_web_pilot/targeted_support2_wave24_checkpoint_20260824/targeted_support2_wave24_evidence_20260824.csv' }}
       CURATED_AUDIT_CSV_PATH: >-
         ${{ inputs.curated_audit_csv_path ||
-        'data/v2/staging/traits/open_web_pilot/targeted_dioecy_wave23_checkpoint_20260821/combined_curated_manual_audit_20260821.csv' }}
+        'data/v2/staging/traits/open_web_pilot/targeted_support2_wave24_checkpoint_20260824/targeted_support2_wave24_manual_audit_20260824.csv' }}
       CURATED_SOURCE_RUN_ID: >-
-        ${{ inputs.curated_source_run_id || 'targeted-dioecy-wave23-20260821' }}
+        ${{ inputs.curated_source_run_id || 'targeted-support2-wave24-20260824' }}
       CURATED_SOURCE_ARTIFACT: >-
         ${{ inputs.curated_source_artifact_name ||
-        'targeted-dioecy-wave23-source-snapshot' }}
+        'targeted-support2-wave24-source-snapshot' }}
       SOURCE_PACKAGE_EVIDENCE_CSV_PATH: >-
         ${{ inputs.source_package_evidence_csv_path || '' }}
       SOURCE_PACKAGE_AUDIT_CSV_PATH: >-
@@ -414,6 +417,7 @@ jobs:
             src/island_v2/goodwillie_2005_mixed_mating_checkpoint.py \
             src/island_v2/ferrer_2024_powo_synonym_checkpoint.py \
             src/island_v2/targeted_dioecy_wave23_checkpoint.py \
+            src/island_v2/targeted_support2_wave24_checkpoint.py \
             src/island_v2/open_web_structured_traits.py \
             src/island_v2/review_inventory_artifact.py \
             tests/test_curated_bulk_checkpoint.py \
@@ -464,6 +468,7 @@ jobs:
             tests/test_goodwillie_2005_mixed_mating_checkpoint.py \
             tests/test_ferrer_2024_powo_synonym_checkpoint.py \
             tests/test_targeted_dioecy_wave23_checkpoint.py \
+            tests/test_targeted_support2_wave24_checkpoint.py \
             tests/test_open_web_structured_traits.py \
             tests/test_review_inventory_artifact.py \
             tests/test_flora_of_australia_source_scale.py \
@@ -529,6 +534,7 @@ jobs:
             tests/test_goodwillie_2005_mixed_mating_checkpoint.py \
             tests/test_ferrer_2024_powo_synonym_checkpoint.py \
             tests/test_targeted_dioecy_wave23_checkpoint.py \
+            tests/test_targeted_support2_wave24_checkpoint.py \
             tests/test_open_web_structured_traits.py \
             tests/test_open_web_common.py \
             tests/test_review_inventory_artifact.py \
@@ -681,6 +687,95 @@ jobs:
           fi
           cat outputs/reviewed_open_web/open_web_formalization_summary.json \
             >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify the Wave 24 support-two checkpoint goals
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          import pandas as pd
+
+          root = Path("outputs/reviewed_open_web")
+          checkpoint = Path(
+              "data/v2/staging/traits/open_web_pilot/"
+              "targeted_support2_wave24_checkpoint_20260824"
+          )
+          summary = json.loads(
+              (root / "open_web_formalization_summary.json").read_text()
+          )
+          source = json.loads(
+              (checkpoint / "source_acquisition_manifest_wave24.json").read_text()
+          )
+          prior_rules = pd.read_csv(
+              root / "prior_trait_specific_genus_rule_audit.csv.gz",
+              dtype=str,
+          ).fillna("")
+          rules = pd.read_csv(
+              root / "trait_specific_genus_rule_audit.csv.gz",
+              dtype=str,
+          ).fillna("")
+
+          def eligible_keys(frame):
+              selected = frame.loc[
+                  frame["setting"].eq("current_min3")
+                  & frame["eligible"].str.casefold().eq("true")
+              ].copy()
+              return set(zip(selected["genus"], selected["trait_name"]))
+
+          before_keys = eligible_keys(prior_rules)
+          after_keys = eligible_keys(rules)
+          targeted = {
+              tuple(value.split("|", 1))
+              for value in source["targeted_support2_rules"]
+          }
+          newly_eligible = after_keys - before_keys
+          targeted_new = sorted(targeted & newly_eligible)
+          shared = summary["shared_all_evidence"]
+          coverage = shared["coverage_after"]
+          reproduction = coverage["by_axis"]["reproductive_assurance"]
+
+          assert source["fixed_integrated_baseline_run_id"] == 31488685866
+          assert source["baseline_formal_run_id"] == 32702160934
+          assert source["accepted_evidence_rows"] == 22
+          assert len(targeted_new) >= 20
+          assert len(after_keys) - len(before_keys) >= 20
+          assert shared["new_direct_species_trait"] >= 21
+          assert shared["new_direct_species_axis"] >= 13
+          assert shared["coverage_change_species_axis"]["loss"] == 0
+          assert shared["coverage_increment_species_axis"] >= 195
+          assert coverage["filled_species_axis"] >= 159443
+          assert reproduction["filled_species"] >= 31889
+          assert coverage["species_by_filled_axis_count"]["0"] <= 14500
+
+          verification = {
+              "contract": "wave24_support2_goal_verification_v1",
+              "fixed_baseline_run_id": 31488685866,
+              "prior_formal_run_id": 32702160934,
+              "prior_eligible_current_min3_rules": len(before_keys),
+              "after_eligible_current_min3_rules": len(after_keys),
+              "eligible_rule_net_change": len(after_keys) - len(before_keys),
+              "targeted_newly_eligible_rules": [
+                  f"{genus}|{trait}" for genus, trait in targeted_new
+              ],
+              "new_direct_species_trait": shared["new_direct_species_trait"],
+              "new_direct_species_axis": shared["new_direct_species_axis"],
+              "coverage_increment_species_axis": shared[
+                  "coverage_increment_species_axis"
+              ],
+              "coverage_after": coverage,
+              "validated_low_change": shared["pilot_validated_low_change"],
+              "guardrails": {
+                  "trait_specific_join": shared["trait_specific_join"],
+                  "axis_join_for_inference": shared["axis_join_for_inference"],
+                  "family_inference": shared["family_inference"],
+                  "global_fallback": shared["global_fallback"],
+              },
+          }
+          (root / "wave24_support2_goal_verification.json").write_text(
+              json.dumps(verification, ensure_ascii=False, indent=2) + "\n"
+          )
+          print(json.dumps(verification, ensure_ascii=False, indent=2))
+          PY
       - name: Build uncertainty-aware genus Low analysis inputs
         run: |
           python analysis/build_secondary_probabilistic_genus_low_20260809.py \

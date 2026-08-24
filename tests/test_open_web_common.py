@@ -245,13 +245,13 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "'31245813999'" in workflow
     assert "'30434418380'" in workflow
     assert "open-web-multidomain-pilot-30434418380" in workflow
-    assert "inputs.prior_public_web_run_id || '31771437676'" in workflow
+    assert "inputs.prior_public_web_run_id || '32702160934'" in workflow
     assert (
-        "targeted_dioecy_wave23_checkpoint_20260821/"
-        "combined_curated_evidence_20260821.csv" in workflow
+        "targeted_support2_wave24_checkpoint_20260824/"
+        "targeted_support2_wave24_evidence_20260824.csv" in workflow
     )
     assert "inputs.source_package_evidence_csv_path ||" in workflow
-    assert "reviewed-open-web-evidence-31771437676" in workflow
+    assert "reviewed-open-web-evidence-32702160934" in workflow
     assert "broad_web_medium_evidence.csv.gz" in workflow
     assert "prior_public_web_run_id:" in workflow
     assert "prior_public_web_artifact_name:" in workflow
@@ -270,12 +270,12 @@ def test_review_promotion_can_run_on_pr_with_exact_pinned_artifacts() -> None:
     assert "inputs.source_package_run_id || ''" in workflow
     assert "inputs.source_package_artifact_name ||" in workflow
     assert (
-        "targeted_dioecy_wave23_checkpoint_20260821/"
-        "combined_curated_evidence_20260821.csv" in workflow
+        "targeted_support2_wave24_checkpoint_20260824/"
+        "targeted_support2_wave24_evidence_20260824.csv" in workflow
     )
     assert (
-        "targeted_dioecy_wave23_checkpoint_20260821/"
-        "combined_curated_manual_audit_20260821.csv" in workflow
+        "targeted_support2_wave24_checkpoint_20260824/"
+        "targeted_support2_wave24_manual_audit_20260824.csv" in workflow
     )
     assert "direct_evidence_exclusions_20260811.csv" in workflow
     assert "--direct-evidence-exclusions-csv" in workflow
