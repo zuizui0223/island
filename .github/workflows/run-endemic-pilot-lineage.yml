@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - ".github/workflows/run-endemic-pilot-lineage.yml"
+      - "config/endemic_pilot_lineage.yml"
   workflow_dispatch:
     inputs:
       trait_run_id:
@@ -42,6 +43,7 @@ jobs:
       - name: Validate lineage and null implementation
         run: |
           ruff check \
+            src/island_v2/flora_status_support.py \
             src/island_v2/genus_fixed_trait_null.py \
             src/island_v2/status_stratified_lineage_analysis.py \
             tests/test_genus_fixed_trait_null.py \
@@ -67,14 +69,46 @@ jobs:
           test -s /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz
           test -s /tmp/isolation/results/purpose_shortest_island_data.csv
 
-      - name: Build genus-fixed null without an endemic species-count gate
+      - name: Prefilter the frozen flora to confirmed native endemics only
+        run: |
+          python - <<'PY'
+          import pandas as pd
+
+          flora = pd.read_csv('data/v2/staging/gbif/collected/island_species_occurrences.csv.gz')
+          if 'accepted_species' not in flora.columns and 'species' in flora.columns:
+              flora = flora.rename(columns={'species': 'accepted_species'})
+          status = pd.read_csv('/tmp/status/resolved/resolved_floristic_status_ledger.csv.gz')
+          status = status.loc[
+              status['origin_status'].fillna('').astype(str).str.lower().eq('native')
+              & status['endemic_status'].fillna('').astype(str).str.lower().eq('endemic'),
+              ['island_id', 'accepted_species'],
+          ].drop_duplicates()
+          endemic = flora.merge(
+              status,
+              on=['island_id', 'accepted_species'],
+              how='inner',
+              validate='many_to_one',
+          )
+          if endemic.empty:
+              raise SystemExit('Confirmed endemic flora prefilter produced zero rows')
+          endemic.to_csv('/tmp/island_species_endemic.csv.gz', index=False)
+          print({
+              'full_island_species_rows': int(len(flora)),
+              'confirmed_endemic_rows': int(len(endemic)),
+              'confirmed_endemic_islands': int(endemic['island_id'].nunique()),
+              'confirmed_endemic_species': int(endemic['accepted_species'].nunique()),
+          })
+          PY
+          test -s /tmp/island_species_endemic.csv.gz
+
+      - name: Build pilot-only genus-fixed null
         run: |
           python -m island_v2.genus_fixed_trait_null \
-            --island-species-csv data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
+            --island-species-csv /tmp/island_species_endemic.csv.gz \
             --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
             --direct-evidence-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
             --master-taxa-csv data/v2/staging/gbif/collected/island_taxa.csv \
-            --config-path config/flora_status_support.yml \
+            --config-path config/endemic_pilot_lineage.yml \
             --n-draws "$NULL_DRAWS" \
             --seed 20260824 \
             --min-species-per-island 1 \
@@ -118,25 +152,18 @@ jobs:
           ]
           if tropical_form.empty:
               raise SystemExit('Missing tropical endemic generalized-form support row')
-          support_column = next(
-              (c for c in ['n_islands', 'n_complete_islands', 'n'] if c in tropical_form.columns),
-              None,
-          )
-          if support_column is None:
-              raise SystemExit(
-                  'Cannot identify island-support column in status_stratified_lineage_support.csv: '
-                  f'{list(tropical_form.columns)}'
-              )
-          tropical_form_n = int(tropical_form.iloc[0][support_column])
+          tropical_form_n = int(tropical_form.iloc[0]['n_islands'])
           if tropical_form_n < 30:
               raise SystemExit(
                   f'Wave30 did not reach the declared tropical form pilot boundary: {tropical_form_n}'
               )
 
           payload = {
-              'contract': 'endemic_form_sc_postpilot_lineage_v2',
+              'contract': 'endemic_form_sc_postpilot_lineage_v3',
               'trait_run_id': int(os.environ['TRAIT_RUN_ID']),
               'null_draws': int(os.environ['NULL_DRAWS']),
+              'input_scope': 'confirmed_native_endemic_only',
+              'outcomes': ['generalized_form', 'self_compatibility'],
               'min_species_per_island': 1,
               'pilot_target_islands': 30,
               'confirmatory_target_islands': 50,
