@@ -21,8 +21,8 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       STATUS_RUN_ID: "32559322028"
       STATUS_ARTIFACT: "official-wcvp-corroborated-status-32559322028"
-      TRAIT_RUN_ID: "32694486236"
-      TRAIT_ARTIFACT: "reviewed-open-web-evidence-32694486236"
+      TRAIT_RUN_ID: "32698552866"
+      TRAIT_ARTIFACT: "reviewed-open-web-evidence-32698552866"
       ISOLATION_RUN_ID: "29228212586"
       ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
     steps:
@@ -203,6 +203,6 @@ jobs:
             /tmp/targets/endemic_trait_target_manifest.json
             /tmp/minimum/minimum_endemic_trait_acquisition_queue.csv
             /tmp/minimum/minimum_endemic_trait_acquisition_summary.csv
-            /tmp/minimum/minimum_endemic_trait_acquisition_manifest.json
+            /tmp/minimum/minimum_endemic_acquisition_manifest.json
           if-no-files-found: error
           retention-days: 90
