@@ -1,0 +1,179 @@
+name: Reanalyse endemic form and SC pilot
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/run-endemic-pilot-lineage.yml"
+  workflow_dispatch:
+    inputs:
+      trait_run_id:
+        description: "Formal reviewed-open-web-evidence run to analyse"
+        required: false
+        default: "32702160934"
+      null_draws:
+        description: "Genus-fixed null draws"
+        required: false
+        default: "1000"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TRAIT_RUN_ID: ${{ inputs.trait_run_id || '32702160934' }}
+      NULL_DRAWS: ${{ inputs.null_draws || '1000' }}
+      STATUS_RUN_ID: "32559322028"
+      STATUS_ARTIFACT: "official-wcvp-corroborated-status-32559322028"
+      ISOLATION_RUN_ID: "29228212586"
+      ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate lineage and null implementation
+        run: |
+          ruff check \
+            src/island_v2/genus_fixed_trait_null.py \
+            src/island_v2/status_stratified_lineage_analysis.py \
+            tests/test_genus_fixed_trait_null.py \
+            tests/test_status_stratified_lineage_analysis.py
+          pytest -q \
+            tests/test_genus_fixed_trait_null.py \
+            tests/test_status_stratified_lineage_analysis.py
+
+      - name: Download formal direct traits, status, and covariates
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/traits /tmp/status /tmp/isolation
+          gh run download "$TRAIT_RUN_ID" \
+            -n "reviewed-open-web-evidence-${TRAIT_RUN_ID}" \
+            -D /tmp/traits
+          gh run download "$STATUS_RUN_ID" \
+            -n "$STATUS_ARTIFACT" \
+            -D /tmp/status
+          gh run download "$ISOLATION_RUN_ID" \
+            -n "$ISOLATION_ARTIFACT" \
+            -D /tmp/isolation
+          test -s /tmp/traits/direct_species_trait_ledger.csv.gz
+          test -s /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+
+      - name: Build genus-fixed null without an endemic species-count gate
+        run: |
+          python -m island_v2.genus_fixed_trait_null \
+            --island-species-csv data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
+            --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
+            --direct-evidence-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --master-taxa-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --config-path config/flora_status_support.yml \
+            --n-draws "$NULL_DRAWS" \
+            --seed 20260824 \
+            --min-species-per-island 1 \
+            --output-dir /tmp/null
+          test -s /tmp/null/genus_fixed_null_by_island.csv.gz
+
+      - name: Fit status-stratified residual slopes
+        run: |
+          python -m island_v2.status_stratified_lineage_analysis \
+            --genus-null-csv /tmp/null/genus_fixed_null_by_island.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --output-dir /tmp/lineage
+          test -s /tmp/lineage/status_stratified_lineage_support.csv
+          test -s /tmp/lineage/status_stratified_lineage_isolation.csv
+
+      - name: Freeze pilot-facing checkpoint and enforce stop boundary
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          import pandas as pd
+
+          support = pd.read_csv('/tmp/lineage/status_stratified_lineage_support.csv')
+          isolation = pd.read_csv('/tmp/lineage/status_stratified_lineage_isolation.csv')
+          focus_support = support.loc[
+              support['stratum'].eq('endemic')
+              & support['regime'].isin(['northern_midlatitude','tropical'])
+              & support['outcome'].isin(['generalized_form','self_compatibility'])
+          ].copy()
+          focus_iso = isolation.loc[
+              isolation['stratum'].eq('endemic')
+              & isolation['regime'].isin(['northern_midlatitude','tropical'])
+              & isolation['outcome'].isin(['generalized_form','self_compatibility'])
+          ].copy()
+          focus_support.to_csv('/tmp/lineage/endemic_pilot_support.csv', index=False)
+          focus_iso.to_csv('/tmp/lineage/endemic_pilot_isolation.csv', index=False)
+
+          tropical_form = focus_support.loc[
+              focus_support['regime'].eq('tropical')
+              & focus_support['outcome'].eq('generalized_form')
+          ]
+          if tropical_form.empty:
+              raise SystemExit('Missing tropical endemic generalized-form support row')
+          support_column = next(
+              (c for c in ['n_islands', 'n_complete_islands', 'n'] if c in tropical_form.columns),
+              None,
+          )
+          if support_column is None:
+              raise SystemExit(
+                  'Cannot identify island-support column in status_stratified_lineage_support.csv: '
+                  f'{list(tropical_form.columns)}'
+              )
+          tropical_form_n = int(tropical_form.iloc[0][support_column])
+          if tropical_form_n < 30:
+              raise SystemExit(
+                  f'Wave30 did not reach the declared tropical form pilot boundary: {tropical_form_n}'
+              )
+
+          payload = {
+              'contract': 'endemic_form_sc_postpilot_lineage_v2',
+              'trait_run_id': int(os.environ['TRAIT_RUN_ID']),
+              'null_draws': int(os.environ['NULL_DRAWS']),
+              'min_species_per_island': 1,
+              'pilot_target_islands': 30,
+              'confirmatory_target_islands': 50,
+              'tropical_form_pilot_support': tropical_form_n,
+              'tropical_form_acquisition_decision': 'stop_at_30_and_reanalyse',
+              'support': focus_support.to_dict('records'),
+              'isolation_coefficients': focus_iso.to_dict('records'),
+              'decision_rule': (
+                  'Tropical endemic form acquisition stops at 30 islands. '
+                  'Do not continue toward 50 without a new post-pilot scientific justification. '
+                  'Other below-30 strata remain non-confirmatory.'
+              ),
+          }
+          Path('/tmp/lineage/endemic_pilot_lineage_checkpoint.json').write_text(
+              json.dumps(payload, indent=2) + '\n', encoding='utf-8'
+          )
+          print(focus_support.to_string(index=False))
+          print(focus_iso.to_string(index=False))
+          print(json.dumps({
+              'tropical_form_support': tropical_form_n,
+              'decision': 'stop_at_30_and_reanalyse',
+          }))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: endemic-pilot-lineage-${{ github.run_id }}
+          path: |
+            /tmp/null/genus_fixed_null_manifest.json
+            /tmp/null/genus_fixed_null_audit.csv
+            /tmp/null/genus_fixed_null_by_island.csv.gz
+            /tmp/lineage/status_stratified_lineage_manifest.json
+            /tmp/lineage/status_stratified_lineage_coefficients.csv
+            /tmp/lineage/status_stratified_lineage_support.csv
+            /tmp/lineage/status_stratified_lineage_isolation.csv
+            /tmp/lineage/endemic_pilot_support.csv
+            /tmp/lineage/endemic_pilot_isolation.csv
+            /tmp/lineage/endemic_pilot_lineage_checkpoint.json
+          if-no-files-found: error
+          retention-days: 90
