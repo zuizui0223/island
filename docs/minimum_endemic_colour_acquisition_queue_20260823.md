@@ -1,120 +1,35 @@
-# Minimum endemic-colour acquisition queue — 2026-08-23
+# Minimum endemic-colour acquisition queue — closed 2026-08-24
 
-## Purpose
+## Decision
 
-This checkpoint converts the model-support rule into an explicit stopping queue.
-It does **not** ask how many unresolved species can be filled. It asks which
-species need a new direct flower-colour observation to bring the corrected
-regional-endemic stratum to the 50-island continuation target.
+The targeted endemic-colour campaign is complete and must not be expanded.
 
-Real-data run:
+Latest locked support snapshot: run `32695319042`.
 
-- workflow run: `32614335237`;
-- artifact: `minimum-endemic-acquisition-queue-32614335237`;
-- status: WCVP-corroborated run `32559322028`;
-- direct trait evidence: PR #132 run `32551742699`;
-- covariates: run `29228212586`.
+| regime | endemic-status ceiling | direct-supported colour islands | gap to 50 | decision |
+|---|---:|---:|---:|---|
+| northern mid-latitude | 59 | **50** | 0 | **model ready; stop acquisition** |
+| tropical | 70 | **50** | 0 | **model ready; stop acquisition** |
+| southern extratropical | 13 | 10 | 40 | **status limited** |
 
-Upstream ranking is fixed as:
+The historical 23-species queue was a bounded stopping queue, not a standing acquisition target. Successive reviewed direct-evidence waves closed the northern and tropical gaps. Empty minimum-queue outputs in run `32695319042` are therefore the expected stopping state.
 
-1. unsupported endemic-island gain;
-2. whether the island extends the current supported isolation 5–95% envelope;
-3. GBIF island-record count as a coarse recoverability proxy;
-4. stable species-name tie break.
+## Historical trajectory
 
-The minimum queue then stops as soon as the ranked candidates cover the island
-gap. A queue entry is a **search target only** and never implies a trait value.
+The campaign started from:
 
-## Northern mid-latitude endemic colour
+- northern endemic colour: 31 direct-supported islands, gap 19;
+- tropical endemic colour: 46 direct-supported islands, gap 4.
 
-Current direct support: 31 islands. Status ceiling: 59. Gap to the 50-island
-target: **19 islands**.
+It was intentionally restricted to species that could add currently unsupported islands rather than maximize global species-axis coverage. Reviewed evidence was promoted only through the existing species-direct provenance and ontology gates in PR #132.
 
-The greedy stop rule selects exactly **19 species / 19 new islands**:
+## Frozen stop rule
 
-| order | species | GBIF records | extends current isolation envelope |
-|---:|---|---:|---|
-| 1 | *Rostraria azorica* | 142 | yes |
-| 2 | *Adinandra ryukyuensis* | 66 | yes |
-| 3 | *Odontarrhena lesbiaca* | 38 | yes |
-| 4 | *Cirsium tanegashimense* | 34 | yes |
-| 5 | *Sasa jotanii* | 22 | yes |
-| 6 | *Mammillaria evermanniana* | 18 | yes |
-| 7 | *Centaurea thasia* | 14 | yes |
-| 8 | *Campanula sciathia* | 11 | yes |
-| 9 | *Centaurea xylobasis* | 9 | yes |
-| 10 | *Limonium aphroditae* | 7 | yes |
-| 11 | *Astragalus kawakamii* | 1 | yes |
-| 12 | *Oxytropis kunashiriensis* | 1 | yes |
-| 13 | *Fritillaria rhodia* | 86 | no |
-| 14 | *Cirsium ishizuchiense* | 75 | no |
-| 15 | *Erysimum naxense* | 56 | no |
-| 16 | *Hedysarum sachalinense* | 41 | no |
-| 17 | *Cirsium umezawanum* | 38 | no |
-| 18 | *Limonium retusum* | 29 | no |
-| 19 | *Viola cephalonica* | 20 | no |
+1. Do not acquire additional northern or tropical endemic colour solely to increase coverage.
+2. Do not continue down the old ranked queue after 50 supported islands has been reached.
+3. Do not treat southern endemic colour as a trait-acquisition problem; the current ceiling is floristic-status coverage.
+4. Any future colour acquisition must be justified by a new, explicit analysis-support gap rather than by global missingness.
 
-The first 12 targets preferentially add islands outside the current direct
-colour isolation envelope. This is important because the original failure mode
-was coverage declining along the isolation/endemicity gradient; the queue is not
-allowed to improve only the already well-covered centre.
+## Next analysis boundary
 
-No additional northern endemic-colour species should be searched merely to
-increase global coverage before these 19 targets are resolved or explicitly
-shown unrecoverable.
-
-## Tropical endemic colour
-
-Current binary-colour direct support: 46 islands in the targeting contract.
-Status ceiling: 70. Gap to 50: **4 islands**.
-
-The minimum queue is only **4 species / 4 new islands**:
-
-| order | species | GBIF records | extends current isolation envelope |
-|---:|---|---:|---|
-| 1 | *Dracaena fernaldii* | 60 | yes |
-| 2 | *Ixora mooreensis* | 28 | yes |
-| 3 | *Myrcia stenocarpa* | 28 | yes |
-| 4 | *Myrsine fasciculata* | 25 | yes |
-
-All four selected islands extend the current 5–95% direct-support isolation
-envelope under the upstream ranking. This is therefore a much smaller and more
-valuable acquisition problem than a global tropical-colour campaign.
-
-## What is deliberately not queued
-
-### Endemic floral form and SI/SC
-
-Northern and tropical endemic form / SI-SC remain below the 30-island pilot
-support threshold. They are **recoverability problems first**, not automatic
-50-island acquisition campaigns. The next step is to estimate how many currently
-unsupported islands can actually be unlocked by recoverable direct evidence.
-
-### Southern endemic traits
-
-The corrected endemic-status ceiling is only 13 southern extratropical islands.
-Trait searches cannot solve this ceiling, so southern endemic trait acquisition
-is not queued.
-
-### Bombus occurrence
-
-No Bombus-occurrence campaign is queued to rescue the environmental-hypervolume
-mechanism. The northern lineage-residual checkpoint failed to recover the
-predicted Bombus-deficit pathway.
-
-## Stopping rule
-
-After every accepted direct colour record:
-
-1. rebuild the direct-evidence ledger;
-2. recompute which targeted endemic island has become colour-supported;
-3. remove all remaining species for that island from the active queue;
-4. stop the regional colour campaign immediately when 50 supported islands are
-   reached;
-5. rerun status-aware category and broad-colour analyses before any further
-   acquisition.
-
-If a queued species cannot be recovered from the declared evidence sources, mark
-that target as `unrecoverable_current_sources` and move to the next ranked species
-from the full target artifact. Do not weaken evidence rules to force the queue to
-complete.
+The remaining acquisition question concerns endemic **floral form** and **SI/SC**. These outcomes are handled separately in `docs/endemic_trait_recoverability_pilot_20260824.md` and may only be acquired to the 30-island pilot boundary before reanalysis.
