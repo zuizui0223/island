@@ -139,6 +139,45 @@ floral_organ_terms:
   - petalos
   - perianto
   - inflorescencia
+  # Portuguese
+  - flor
+  - flores
+  - corola
+  - corolas
+  - petala
+  - petalas
+  - perianto
+  - inflorescencia
+  - inflorescencias
+  # Russian. Folding decomposes Cyrillic, so й becomes и and ё becomes е;
+  # these are written in the form matching will actually see.
+  - cvetok
+  - цветок
+  - цветка
+  - цветки
+  - цветков
+  - цветы
+  - венчик
+  - венчика
+  - лепесток
+  - лепестки
+  - лепестков
+  - околоцветник
+  - соцветие
+  - соцветия
+  # Japanese and Chinese. Han forms are shared; kana and the simplified and
+  # traditional variants are listed where they diverge.
+  - 花
+  - 花冠
+  - 花弁
+  - 花瓣
+  - 花被
+  - 小花
+  - 花序
+  - はな
+  # Collector's abbreviation for "flower". The period is handled in
+  # segmentation, so the term itself is bare.
+  - fl
 
 # Organs whose colour must never become flower colour. Checked first: when the
 # nearest organ word is one of these the row is rejected outright, and a tie in
@@ -267,6 +306,75 @@ competing_organ_terms:
   - estigma
   - ovario
   - capsula
+  # Portuguese
+  - fruta
+  - frutas
+  - folha
+  - folhas
+  - semente
+  - sementes
+  - caule
+  - casca
+  - raiz
+  - raizes
+  - bractea
+  - calice
+  - sepala
+  - sepalas
+  - antera
+  - estilete
+  - estigma
+  - ovario
+  - capsula
+  # Russian (folded: й -> и, ё -> е)
+  - плод
+  - плода
+  - плоды
+  - ягода
+  - семя
+  - семена
+  - лист
+  - листа
+  - листья
+  - листьев
+  - стебель
+  - стебля
+  - кора
+  - корень
+  - корни
+  - прицветник
+  - чашечка
+  - чашелистик
+  - пыльник
+  - пыльники
+  - столбик
+  - рыльце
+  - завязь
+  - коробочка
+  # Japanese and Chinese
+  - 果実
+  - 果实
+  - 果實
+  - 果
+  - 液果
+  - 種子
+  - 种子
+  - 葉
+  - 叶
+  - 茎
+  - 樹皮
+  - 树皮
+  - 根
+  - 苞
+  - 萼
+  - 萼片
+  - 葯
+  - 花糸
+  - 花柱
+  - 柱頭
+  - 柱头
+  - 子房
+  - 蒴果
 
 # Phrases that void a statement. A description that declines to state the colour
 # is not an observation of an absent colour.
@@ -290,6 +398,14 @@ negation_markers:
   - "nicht gesehen"
   - "desconocida"
   - "desconocido"
+  - "desconhecida"
+  - "desconhecido"
+  - "неизвестен"
+  - "неизвестна"
+  - "не виден"
+  - "不明"
+  - "未見"
+  - "未见"
   - "?"
 
 
@@ -514,6 +630,119 @@ colour_terms:
   parda: green_brown_inconspicuous
   marron: green_brown_inconspicuous
 
+  # --- Portuguese ---
+  branco: white
+  branca: white
+  brancos: white
+  brancas: white
+  esbranquicado: white
+  creme: white
+  amarelo: yellow_orange
+  amarela: yellow_orange
+  amarelos: yellow_orange
+  amarelas: yellow_orange
+  amarelado: yellow_orange
+  dourado: yellow_orange
+  laranja: yellow_orange
+  vermelho: red_pink
+  vermelha: red_pink
+  vermelhos: red_pink
+  vermelhas: red_pink
+  avermelhado: red_pink
+  escarlate: red_pink
+  rosado: red_pink
+  rosada: red_pink
+  azul: blue_purple
+  azuis: blue_purple
+  azulado: blue_purple
+  roxo: blue_purple
+  roxa: blue_purple
+  violeta: blue_purple
+  lilas: blue_purple
+  verde: green_brown_inconspicuous
+  verdes: green_brown_inconspicuous
+  esverdeado: green_brown_inconspicuous
+  castanho: green_brown_inconspicuous
+  castanha: green_brown_inconspicuous
+  pardo: green_brown_inconspicuous
+
+  # --- Russian (folded: й -> и, ё -> е) ---
+  белыи: white
+  белая: white
+  белые: white
+  беловатыи: white
+  кремовыи: white
+  желтыи: yellow_orange
+  желтая: yellow_orange
+  желтые: yellow_orange
+  желтоватыи: yellow_orange
+  золотистыи: yellow_orange
+  оранжевыи: yellow_orange
+  красныи: red_pink
+  красная: red_pink
+  красные: red_pink
+  красноватыи: red_pink
+  алыи: red_pink
+  розовыи: red_pink
+  розовая: red_pink
+  розовые: red_pink
+  синии: blue_purple
+  синяя: blue_purple
+  синие: blue_purple
+  голубои: blue_purple
+  голубая: blue_purple
+  фиолетовыи: blue_purple
+  фиолетовая: blue_purple
+  пурпурныи: blue_purple
+  лиловыи: blue_purple
+  сиреневыи: blue_purple
+  зеленыи: green_brown_inconspicuous
+  зеленая: green_brown_inconspicuous
+  зеленые: green_brown_inconspicuous
+  зеленоватыи: green_brown_inconspicuous
+  бурыи: green_brown_inconspicuous
+  коричневыи: green_brown_inconspicuous
+
+  # --- Japanese and Chinese ---
+  # Longest-first matching makes the compound forms win over their parts, so
+  # 淡黄色 resolves before 黄色 and 黄. Kana spellings are listed where a source
+  # is likely to use them instead of the character.
+  白色: white
+  白: white
+  淡白色: white
+  乳白色: white
+  クリーム色: white
+  黄色: yellow_orange
+  淡黄色: yellow_orange
+  黄白色: white
+  黄: yellow_orange
+  黄金色: yellow_orange
+  橙色: yellow_orange
+  オレンジ色: yellow_orange
+  赤色: red_pink
+  赤: red_pink
+  紅色: red_pink
+  紅: red_pink
+  淡紅色: red_pink
+  桃色: red_pink
+  ピンク色: red_pink
+  ピンク: red_pink
+  深紅色: red_pink
+  青色: blue_purple
+  青: blue_purple
+  藍色: blue_purple
+  紫色: blue_purple
+  紫: blue_purple
+  淡紫色: blue_purple
+  青紫色: blue_purple
+  すみれ色: blue_purple
+  緑色: green_brown_inconspicuous
+  绿色: green_brown_inconspicuous
+  緑: green_brown_inconspicuous
+  淡緑色: green_brown_inconspicuous
+  褐色: green_brown_inconspicuous
+  茶色: green_brown_inconspicuous
+
 # When a description names colours mapping to different ontology values --
 # "corolla alba demum rosea" -- the species is not given a single primary
 # colour. The row is retained as variable rather than resolved to the first hit.
@@ -527,3 +756,54 @@ required_lineage_fields:
   - license
   - retrieval_date
   - exact_supporting_quote
+
+# The plain / non-plain line the analysis actually models. Declared here rather
+# than imported so acquisition stays free of the analysis dependency chain; a
+# test asserts it still equals the definition in status_category_decomposition.
+plain_colour_values:
+  - white
+  - green_brown_inconspicuous
+
+# Several ontology values written as one hue -- "pale reddish purple" -- is not
+# the same claim as a corolla that changes colour, so it gets its own value. The
+# reviewer's frozen call on exactly that phrase was that the five-value ontology
+# cannot decide it while the binary plain/non-plain class can.
+compound_hue_result: ontology_unresolved
+
+# Words that may sit between two colour words without separating them. English
+# puts its intensity word in front ("pale reddish purple") but Japanese puts it
+# between (紫がかった濃いピンク色 -- "deep pink with a purple tinge"), so the gap
+# rule needs them or it reads one hue as a corolla that changes colour.
+compound_gap_terms:
+  - pale
+  - light
+  - dark
+  - deep
+  - bright
+  - dull
+  - tinged
+  - shading
+  - to
+  - がかった
+  - がかつた
+  - をおびた
+  - を帯びた
+  - っぽい
+  - つぽい
+  - みの
+  - 濃い
+  - 淡い
+  - 薄い
+  - やや
+
+# Periods that abbreviate rather than end a sentence. "fl. pink" is one floral
+# statement; split on that period the colour has no organ in its segment.
+abbreviations:
+  - fl
+  - fr
+  - var
+  - subsp
+  - ssp
+  - cf
+  - aff
+  - sp

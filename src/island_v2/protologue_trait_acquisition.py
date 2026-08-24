@@ -10,18 +10,23 @@ frequently the only floral description anywhere.
 
 Two things separate this module from the other text-mining paths.
 
-Multilingual by requirement, not preference. Protologues are Latin, French,
-German or Spanish far more often than English, and this is exactly where an
-English-only rule set has already been measured to fail: in the WFO rejection
-ledger the one automatically recoverable slice was non-English statements the
-rules never bound. Matching therefore runs over folded text -- lowercased,
-diacritics stripped, ``ss`` for eszett -- against enumerated forms in all four
-languages.
+Multilingual by requirement, not preference. Protologues and the regional
+sources reviewers actually reach for are Latin, French, German, Spanish,
+Portuguese, Russian, Japanese or Chinese far more often than English. This is
+measured, not assumed twice over: in the WFO rejection ledger the one
+automatically recoverable slice was non-English statements the rules never
+bound, and in the first frozen review ledger a third of the rows were Japanese
+sources that an English-and-Latin vocabulary read as having no colour at all.
 
-Word boundaries, not substrings. Label text is a handful of words; protologue
-prose runs for paragraphs, and substring matching over it would read
-``rotundifolia`` as German ``rot`` and ``albacea`` as Latin ``alba``. Those hits
-would outnumber the real ones, so every term here is matched at a boundary.
+Word boundaries where the script has them. Substring matching over protologue
+prose would read ``rotundifolia`` as German ``rot`` and Russian ``белыйцветок``
+as ``белый``. Japanese and Chinese need the opposite, because those scripts do
+not separate words at all, so the guard is chosen per term.
+
+Two levels of answer. The five-value ontology cannot always decide a compound
+hue -- the reviewer's frozen call on "pale reddish purple" was that red-pink
+versus blue-purple is not uniquely resolvable -- but the plain / non-plain class
+the model actually consumes still is. Both are emitted.
 
 Network access is confined to two thin clients, each taking an injected
 ``fetch`` so the extraction and selection logic is exercised without a network.
@@ -85,6 +90,7 @@ def load_config(path: Path) -> dict[str, Any]:
         "latin_adjective_endings",
         "negation_markers",
         "organ_proximity_chars",
+        "plain_colour_values",
         "required_lineage_fields",
     }
     if not isinstance(config, dict) or not required.issubset(config):
@@ -149,18 +155,67 @@ def fold(text: str) -> tuple[str, list[int]]:
     return "".join(folded), origin
 
 
+# Scripts that write words without spaces. A term in one of these is matched as
+# a plain substring, because there is no boundary to anchor to.
+SPACELESS_SCRIPT = re.compile(
+    r"[぀-ヿ㐀-䶿一-鿿豈-﫿가-힯]"
+)
+
+
 def _boundary_spans(text: str, term: str) -> list[tuple[int, int]]:
-    """Every whole-word occurrence of ``term`` in already-folded ``text``."""
+    """Every whole-word occurrence of ``term`` in already-folded ``text``.
+
+    The guard is chosen by the script the term is written in, because the two
+    families need opposite treatment.
+
+    An alphabetic term must not match inside a longer word -- that rule is what
+    stops ``rotundifolia`` being read as German ``rot``. The guard has to cover
+    every letter, not just ASCII: with a Latin-only class, Russian ``белый``
+    matches inside ``белыйцветок`` and Cyrillic loses the protection Latin has.
+
+    A Han, Kana or Hangul term needs the opposite. Those scripts do not separate
+    words, so ``白色`` legitimately sits flush against its neighbours in
+    ``花は白色`` and any boundary guard would reject every real match.
+    """
     if not term:
         return []
-    pattern = re.compile(rf"(?<![a-z0-9]){re.escape(term)}(?![a-z0-9])")
+    if SPACELESS_SCRIPT.search(term):
+        pattern = re.compile(re.escape(term))
+    else:
+        pattern = re.compile(rf"(?<![^\W_]){re.escape(term)}(?![^\W_])", re.UNICODE)
     return [(m.start(), m.end()) for m in pattern.finditer(text)]
 
 
-SENTENCE_DELIMITERS = ".;\n"
+SENTENCE_DELIMITERS = ".;\n。！？"
+
+# A period inside one of these does not end a sentence. Written folded, and
+# without the trailing period, which is what gets masked.
+DEFAULT_ABBREVIATIONS = ("fl", "fr", "var", "subsp", "ssp", "cf", "aff", "sp")
+
+# Reviewers quote with an ellipsis, which is elision rather than a full stop.
+_ELLIPSIS = re.compile(r"\.{2,}|…")
 
 
-def sentence_spans(text: str) -> list[tuple[int, int]]:
+def _mask_non_terminal_periods(text: str, abbreviations: tuple[str, ...]) -> str:
+    """Blank the periods that elide or abbreviate, preserving every offset.
+
+    Both replacements are length-preserving so that the spans this function
+    feeds still index the caller's text.
+    """
+    masked = _ELLIPSIS.sub(lambda m: " " * len(m.group()), text)
+    for abbreviation in abbreviations:
+        masked = re.sub(
+            rf"(?<![^\W_])({re.escape(abbreviation)})\.",
+            r"\1 ",
+            masked,
+            flags=re.UNICODE,
+        )
+    return masked
+
+
+def sentence_spans(
+    text: str, abbreviations: tuple[str, ...] = DEFAULT_ABBREVIATIONS
+) -> list[tuple[int, int]]:
     """Split text into the segments an organ description may not escape.
 
     Botanical descriptions are organised one organ per sentence or
@@ -169,18 +224,26 @@ def sentence_spans(text: str) -> list[tuple[int, int]]:
     brown to the flower, which is the exact failure the WFO ledger measured at
     38.6% of its rejections. A period between them is a wall.
 
-    Splitting on abbreviations ("2 m.") costs evidence rather than correctness,
-    so the conservative boundary is the right one.
+    Two kinds of period are not that wall, and both were measured costing real
+    evidence in the reviewed ledger rather than merely being possible:
+
+    An ellipsis is elision. A reviewer quoting ``petala ... albida`` means one
+    statement, but split on the dots the colour loses its organ and the row is
+    rejected as unanchored.
+
+    An abbreviation's period is part of the word. ``fl. pink`` is a floral
+    colour statement; split on the period, ``pink`` has no organ in its segment.
     """
+    prepared = _mask_non_terminal_periods(text, abbreviations)
     spans: list[tuple[int, int]] = []
     start = 0
-    for index, char in enumerate(text):
+    for index, char in enumerate(prepared):
         if char in SENTENCE_DELIMITERS:
             if index > start:
                 spans.append((start, index))
             start = index + 1
-    if start < len(text):
-        spans.append((start, len(text)))
+    if start < len(prepared):
+        spans.append((start, len(prepared)))
     return spans
 
 
@@ -227,16 +290,62 @@ def _nearest_organ(
 
 def _sentence_around(text: str, start: int, end: int, limit: int = 500) -> str:
     """The verbatim sentence containing an accepted match, capped at ``limit``."""
-    left = max(
-        (text.rfind(mark, 0, start) for mark in (".", ";", "\n")), default=-1
-    )
+    marks = tuple(SENTENCE_DELIMITERS)
+    left = max((text.rfind(mark, 0, start) for mark in marks), default=-1)
     right_candidates = [
         position
-        for position in (text.find(mark, end) for mark in (".", ";", "\n"))
+        for position in (text.find(mark, end) for mark in marks)
         if position != -1
     ]
     right = min(right_candidates) + 1 if right_candidates else len(text)
     return " ".join(text[left + 1 : right].split())[:limit]
+
+
+# Between two colour words, whitespace, hyphens and the declared modifier words
+# mean they qualify one another. Anything else -- a comma, "demum", "or", "and"
+# -- separates statements.
+_COMPOUND_PUNCTUATION = re.compile(r"[\s\-]+")
+
+
+def _is_compound_gap(gap: str, gap_terms: tuple[str, ...]) -> bool:
+    """Whether what sits between two colour words merely qualifies them."""
+    remainder = gap
+    for term in sorted(gap_terms, key=len, reverse=True):
+        remainder = remainder.replace(term, " ")
+    return not _COMPOUND_PUNCTUATION.sub("", remainder)
+
+
+def plain_colour_values(config: dict[str, Any]) -> set[str]:
+    """The ontology values the analysis counts as plain.
+
+    Declared in configuration rather than imported, so that acquisition does not
+    pull in the analysis dependency chain. A test asserts the two agree.
+    """
+    return {str(value) for value in config["plain_colour_values"]}
+
+
+def binary_plain_class(matched_terms: str, config: dict[str, Any]) -> str:
+    """Return "plain", "nonplain" or "unresolved" for the terms that matched.
+
+    This is the level the model actually consumes, and it survives cases the
+    five-value ontology cannot decide. The reviewer's own frozen call on
+    "Corolla pale reddish purple" was that red-pink versus blue-purple is not
+    uniquely resolvable while non-plain is certain, and the same split resolves
+    it here: both candidate values sit on the non-plain side of the line.
+
+    A description straddling the line -- "greenish yellow", plain and non-plain
+    at once -- stays unresolved, which is what the reviewer recorded for it.
+    """
+    if not matched_terms:
+        return "unresolved"
+    colours = expand_colour_terms(config)
+    plain = plain_colour_values(config)
+    sides = {
+        ("plain" if colours[term] in plain else "nonplain")
+        for term in matched_terms.split("+")
+        if term in colours
+    }
+    return sides.pop() if len(sides) == 1 else "unresolved"
 
 
 def extract_floral_colour(
@@ -255,7 +364,9 @@ def extract_floral_colour(
 
     colours = expand_colour_terms(config)
     window = int(config["organ_proximity_chars"])
-    spans = sentence_spans(text)
+    spans = sentence_spans(
+        text, tuple(config.get("abbreviations") or DEFAULT_ABBREVIATIONS)
+    )
 
     # Organ positions are found once for the whole document rather than once per
     # colour word: an OCR'd page against two hundred organ terms and three
@@ -269,8 +380,7 @@ def extract_floral_colour(
             for organ_start, organ_end in _boundary_spans(text, fold(str(raw))[0]):
                 organs.append((organ_start, organ_end, kind))
 
-    values: list[str] = []
-    matched: list[str] = []
+    accepted: list[tuple[tuple[int, int], str, str]] = []
     quote = ""
     saw_colour = False
     saw_competing = False
@@ -286,11 +396,13 @@ def extract_floral_colour(
                 continue
             if kind != "floral":
                 continue
-            value = colours[term]
-            if term not in matched:
-                matched.append(term)
-            if value not in values:
-                values.append(value)
+            # A shorter term inside one already accepted is the same word:
+            # "yellow" inside "yellowish" is not a second colour statement.
+            if any(
+                start <= span[0] and span[1] <= end for (start, end), _, _ in accepted
+            ):
+                continue
+            accepted.append((span, colours[term], term))
             if not quote:
                 quote = _sentence_around(
                     description, origin[span[0]], origin[span[1] - 1] + 1
@@ -298,16 +410,40 @@ def extract_floral_colour(
 
     if not saw_colour:
         return REJECT_NO_COLOUR, "", "", ""
-    if not values:
+    if not accepted:
         return (REJECT_COMPETING if saw_competing else REJECT_NO_ORGAN), "", "", ""
-    if len(values) > 1:
+
+    accepted.sort(key=lambda hit: hit[0])
+    matched = "+".join(sorted(term for _, _, term in accepted))
+    values = list(dict.fromkeys(value for _, value, _ in accepted))
+    if len(values) == 1:
+        return ACCEPTED, values[0], matched, quote
+
+    # Several ontology values. Whether that is one hue or several colours turns
+    # on what sits between the words: "pale reddish purple" is a single hue
+    # written with a modifier, while "alba demum rosea" is a corolla that
+    # changes. Collapsing both to "variable" asserts a variability the first one
+    # does not have, so they are separated here.
+    gap_terms = tuple(
+        fold(str(term))[0] for term in (config.get("compound_gap_terms") or ())
+    )
+    compound = all(
+        _is_compound_gap(text[left[0][1] : right[0][0]], gap_terms)
+        for left, right in zip(accepted, accepted[1:])
+    )
+    if compound:
         return (
             ACCEPTED,
-            str(config.get("multiple_value_result", "multicolored_variable")),
-            "+".join(sorted(matched)),
+            str(config.get("compound_hue_result", "ontology_unresolved")),
+            matched,
             quote,
         )
-    return ACCEPTED, values[0], "+".join(sorted(matched)), quote
+    return (
+        ACCEPTED,
+        str(config.get("multiple_value_result", "multicolored_variable")),
+        matched,
+        quote,
+    )
 
 
 def build_target_queue(
@@ -482,6 +618,7 @@ def acquire(
             "accepted_species": species,
             "trait_name": TRAIT_NAME,
             "normalized_value": "",
+            "binary_plain_class": "unresolved",
             "matched_colour_terms": "",
             "exact_supporting_quote": "",
             "source_url": "",
@@ -512,6 +649,7 @@ def acquire(
 
         outcome, value, matched, quote = extract_floral_colour(page["ocr_text"], config)
         record["normalized_value"] = value
+        record["binary_plain_class"] = binary_plain_class(matched, config)
         record["matched_colour_terms"] = matched
         record["exact_supporting_quote"] = quote
 
@@ -520,6 +658,7 @@ def acquire(
             if missing:
                 outcome = REJECT_MISSING_LINEAGE
                 record["normalized_value"] = ""
+                record["binary_plain_class"] = "unresolved"
         rows.append({**record, "outcome": outcome})
 
     return pd.DataFrame(rows)
@@ -610,12 +749,22 @@ def run(
         "n_species_with_a_candidate": int(candidates["accepted_species"].nunique())
         if len(candidates)
         else 0,
+        "binary_plain_class": {
+            str(k): int(v)
+            for k, v in candidates["binary_plain_class"].value_counts().items()
+        }
+        if len(candidates)
+        else {},
         "interpretation": (
             "Candidates are unreviewed species-direct protologue statements "
             "carrying the verbatim quote and full source lineage. They are not "
             "accepted evidence, and a species without a candidate is unresolved "
             "rather than colourless -- most commonly because no public-domain "
-            "scan of its protologue exists."
+            "scan of its protologue exists. binary_plain_class is the level the "
+            "model consumes and resolves in cases the five-value ontology "
+            "cannot: a compound hue such as \"pale reddish purple\" is "
+            "certainly non-plain even though red-pink versus blue-purple is not "
+            "uniquely decidable."
         ),
     }
     (output_dir / "protologue_acquisition_summary.json").write_text(

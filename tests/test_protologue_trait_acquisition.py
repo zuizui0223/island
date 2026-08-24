@@ -427,3 +427,217 @@ def test_a_nearer_trailing_organ_costs_a_nuance_rather_than_causing_an_error():
     assert outcome == protologue.ACCEPTED
     assert value == "white"
     assert matched == "alba"
+
+
+# --- scripts beyond Latin -----------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("description", "value"),
+    [
+        ("花は白色", "white"),
+        ("花は淡黄色。", "yellow_orange"),
+        ("初夏に紫色の花をたくさん枝先に付ける。", "blue_purple"),
+        ("Flores brancas, perfumadas.", "white"),
+        ("Corola amarela, tubo curto.", "yellow_orange"),
+        ("Цветки белые, душистые.", "white"),
+        ("Венчик синий.", "blue_purple"),
+    ],
+)
+def test_colour_is_read_in_the_added_languages(description, value):
+    outcome, normalized, _, _ = _extract(description)
+    assert outcome == protologue.ACCEPTED, description
+    assert normalized == value
+
+
+def test_a_cyrillic_term_does_not_match_inside_a_longer_word():
+    # The Latin-only boundary class left Cyrillic unguarded, so "белый" matched
+    # inside "белыйцветок" -- the same defect as reading "rot" in
+    # "rotundifolia", which the boundary rule exists to prevent.
+    folded, _ = protologue.fold("белыйцветок")
+    assert protologue._boundary_spans(folded, protologue.fold("белый")[0]) == []
+    folded, _ = protologue.fold("цветки белые")
+    assert protologue._boundary_spans(folded, protologue.fold("белые")[0])
+
+
+def test_a_spaceless_script_still_matches_flush_against_its_neighbours():
+    # Japanese and Chinese do not separate words, so a boundary guard would
+    # reject every real match.
+    folded, _ = protologue.fold("花は白色")
+    assert protologue._boundary_spans(folded, "白色") == [(2, 4)]
+    assert protologue._boundary_spans(folded, "花") == [(0, 1)]
+
+
+def test_a_japanese_full_stop_walls_the_fruit_off_from_the_flower():
+    outcome, value, matched, _ = _extract("花は白色。果実は赤い。")
+    assert outcome == protologue.ACCEPTED
+    assert value == "white"
+    assert "赤" not in matched
+
+
+# --- elision and abbreviation -------------------------------------------
+
+
+def test_an_ellipsis_is_elision_not_a_full_stop():
+    # A reviewer quoting around omitted text still means one statement. Split on
+    # the dots, "albida" loses "petala" and the row is rejected as unanchored.
+    outcome, value, _, _ = _extract("petala ... valde conspicue glandulosi-punctata albida")
+    assert outcome == protologue.ACCEPTED
+    assert value == "white"
+
+
+def test_an_abbreviations_period_does_not_end_the_sentence():
+    outcome, value, _, _ = _extract(
+        "Origanum Vetteri ... Karpathos ... fl. pink, 21 July 1950, Davis 18005"
+    )
+    assert outcome == protologue.ACCEPTED
+    assert value == "red_pink"
+
+
+def test_masking_a_period_does_not_move_any_offset():
+    # The spans feed back into the caller's text, so both substitutions must
+    # preserve length exactly.
+    for text in ("petala ... albida", "fl. pink", "a … b", "sp. nov. fl. alba"):
+        masked = protologue._mask_non_terminal_periods(
+            protologue.fold(text)[0], protologue.DEFAULT_ABBREVIATIONS
+        )
+        assert len(masked) == len(protologue.fold(text)[0]), text
+
+
+# --- compound hue versus genuine variability -----------------------------
+
+
+def test_a_compound_hue_is_not_a_corolla_that_changes_colour():
+    # "pale reddish purple" is one hue written with a modifier. Calling it
+    # variable asserts a change the description does not describe.
+    outcome, value, _, _ = _extract("Corolla pale reddish purple, 17-21 mm long")
+    assert outcome == protologue.ACCEPTED
+    assert value == "ontology_unresolved"
+
+
+def test_a_japanese_modifier_between_the_words_still_reads_as_one_hue():
+    # Japanese puts its intensity word between the colours, where English puts
+    # it in front: 紫がかった濃いピンク色 is "deep pink with a purple tinge".
+    outcome, value, _, _ = _extract("花は紫がかった濃いピンク色")
+    assert outcome == protologue.ACCEPTED
+    assert value == "ontology_unresolved"
+
+
+def test_a_range_marker_still_means_genuine_variability():
+    for description in (
+        "Corolla alba demum rosea.",
+        "Perianth greenish yellow or yellowish green",
+    ):
+        outcome, value, _, _ = _extract(description)
+        assert outcome == protologue.ACCEPTED
+        assert value == "multicolored_variable", description
+
+
+# --- the binary class the model consumes ---------------------------------
+
+
+def test_the_plain_class_matches_the_analysis_definition():
+    # Declared in config so acquisition stays free of the analysis dependency
+    # chain; this is what stops the two drifting apart.
+    import importlib
+
+    analysis = importlib.import_module("island_v2.status_category_decomposition")
+    assert protologue.plain_colour_values(CONFIG) == set(
+        analysis.CATEGORY_SPECS["colour"]["categories"]["plain"]
+    )
+
+
+@pytest.mark.parametrize(
+    ("description", "binary"),
+    [
+        # The six judgements the reviewer recorded in the wave-24 ledger.
+        ("flowers yellowish-cream with greenish tint and pink-brown central veins", "unresolved"),
+        ("花は淡黄色。", "nonplain"),
+        ("purely yellowish-green flowers", "unresolved"),
+        ("Corolla pale reddish purple", "nonplain"),
+        ("Flowers bluish-violet", "nonplain"),
+        ("Perianth greenish yellow or yellowish green", "unresolved"),
+    ],
+)
+def test_the_binary_class_reproduces_the_reviewers_judgements(description, binary):
+    _, _, matched, _ = _extract(description)
+    assert protologue.binary_plain_class(matched, CONFIG) == binary
+
+
+def test_a_compound_hue_keeps_a_usable_binary_class():
+    # The whole point of the second level: the ontology cannot decide red-pink
+    # versus blue-purple, but both sit on the non-plain side of the line, so the
+    # value the model consumes survives.
+    _, value, matched, _ = _extract("Corolla pale reddish purple")
+    assert value == "ontology_unresolved"
+    assert protologue.binary_plain_class(matched, CONFIG) == "nonplain"
+
+
+def test_nothing_matched_leaves_the_binary_class_unresolved():
+    assert protologue.binary_plain_class("", CONFIG) == "unresolved"
+
+
+# --- scored against the frozen review ledger -----------------------------
+
+REVIEW_LEDGER = Path(
+    "data/v2/curation/minimum_endemic_colour_manual_review_20260823.csv"
+)
+
+# Two rows disagree with this ledger by design rather than by defect. Both are
+# compound hues straddling red-pink and blue-purple, and the reviewer's later
+# frozen call on exactly that construction -- "Corolla pale reddish purple" in
+# the wave-24 ledger -- was that the five-value ontology cannot decide it while
+# the binary class certainly can. Resolving them would mean picking a hue the
+# reviewer declined to pick.
+COMPOUND_HUE_ROWS = {"Cirsium umezawanum", "Cirsium tanegashimense"}
+
+# The score this file reached when the added languages, elision handling and
+# compound-hue rule landed. It went 5/12 -> 10/12; the floor guards the gain.
+LEDGER_FLOOR = 10
+
+
+def _score_ledger():
+    import csv
+
+    rows = list(csv.DictReader(REVIEW_LEDGER.open(encoding="utf-8")))
+    correct, wrong = [], []
+    for row in rows:
+        outcome, value, _, _ = _extract(row["source_excerpt"])
+        got = value if outcome == protologue.ACCEPTED else outcome
+        (correct if got == row["normalized_value"].strip() else wrong).append(
+            (row["accepted_species"], row["normalized_value"].strip(), got)
+        )
+    return rows, correct, wrong
+
+
+@pytest.mark.skipif(not REVIEW_LEDGER.exists(), reason="review ledger not present")
+def test_the_extractor_does_not_regress_against_reviewed_evidence():
+    rows, correct, wrong = _score_ledger()
+    assert len(correct) >= LEDGER_FLOOR, (
+        f"scored {len(correct)}/{len(rows)}, below the {LEDGER_FLOOR} floor. "
+        f"Missed: {wrong}"
+    )
+
+
+@pytest.mark.skipif(not REVIEW_LEDGER.exists(), reason="review ledger not present")
+def test_every_remaining_disagreement_is_a_compound_hue():
+    # Pins why the score is not perfect, so a new kind of failure cannot hide
+    # behind the two rows that are deliberate.
+    _, _, wrong = _score_ledger()
+    for species, _, got in wrong:
+        assert species in COMPOUND_HUE_ROWS, f"unexpected miss: {species} -> {got}"
+        assert got == "ontology_unresolved", got
+
+
+@pytest.mark.skipif(not REVIEW_LEDGER.exists(), reason="review ledger not present")
+def test_the_binary_class_resolves_for_every_reviewed_row_with_a_colour():
+    # The ontology fails on two rows; the level the model consumes fails on none.
+    import csv
+
+    for row in csv.DictReader(REVIEW_LEDGER.open(encoding="utf-8")):
+        outcome, _, matched, _ = _extract(row["source_excerpt"])
+        if outcome != protologue.ACCEPTED:
+            continue
+        assert protologue.binary_plain_class(matched, CONFIG) in {"plain", "nonplain"}, (
+            row["accepted_species"]
+        )
