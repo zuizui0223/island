@@ -1,0 +1,185 @@
+name: Promote targeted high-leverage trait wave31
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/promote-targeted-high-leverage-wave31.yml"
+      - "data/v2/staging/traits/open_web_pilot/targeted_high_leverage_wave31_checkpoint_20260824/**"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: promote-targeted-high-leverage-wave31-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-and-promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BASELINE_RUN_ID: "31245813999"
+      PILOT_RUN_ID: "30434418380"
+      PILOT_ARTIFACT_NAME: "open-web-multidomain-pilot-30434418380"
+      PRIOR_PUBLIC_WEB_RUN_ID: "32704117065"
+      PRIOR_PUBLIC_WEB_ARTIFACT: "reviewed-open-web-evidence-32704117065"
+      PRIOR_PUBLIC_WEB_FILE_NAME: "broad_web_medium_evidence.csv.gz"
+      PRIOR_PUBLIC_WEB_SUPPLEMENT_FILE_NAME: "reviewed_source_lineages.csv.gz"
+      AUDIT_CSV_PATH: "data/v2/staging/traits/open_web_pilot/multidomain_manual_audit_200_30434418380.csv"
+      CANDIDATE_FILE_NAME: "open_web_multidomain_candidates.csv"
+      CURATED_EVIDENCE_CSV_PATH: "data/v2/staging/traits/open_web_pilot/targeted_high_leverage_wave31_checkpoint_20260824/curated_evidence_20260824.csv"
+      CURATED_AUDIT_CSV_PATH: "data/v2/staging/traits/open_web_pilot/targeted_high_leverage_wave31_checkpoint_20260824/curated_manual_audit_20260824.csv"
+      DIRECT_EVIDENCE_EXCLUSIONS_CSV_PATH: "data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_20260811.csv"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate focused promotion code
+        run: |
+          ruff check src/island_v2/open_web_common.py src/island_v2/open_web_finalize.py
+          python -m pytest -q tests/test_open_web_common.py
+
+      - name: Download locked inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/open-web-baseline /tmp/open-web-pilot /tmp/open-web-prior
+          gh run download "$BASELINE_RUN_ID" --repo "${{ github.repository }}" --name "integrated-trait-coverage-$BASELINE_RUN_ID" --dir /tmp/open-web-baseline
+          gh run download "$PILOT_RUN_ID" --repo "${{ github.repository }}" --name "$PILOT_ARTIFACT_NAME" --dir /tmp/open-web-pilot
+          gh run download "$PRIOR_PUBLIC_WEB_RUN_ID" --repo "${{ github.repository }}" --name "$PRIOR_PUBLIC_WEB_ARTIFACT" --dir /tmp/open-web-prior
+          test -f "/tmp/open-web-pilot/$CANDIDATE_FILE_NAME"
+          test -f "/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_FILE_NAME"
+          test -f "/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_SUPPLEMENT_FILE_NAME"
+          test -f "$AUDIT_CSV_PATH"
+          test -f "$CURATED_EVIDENCE_CSV_PATH"
+          test -f "$CURATED_AUDIT_CSV_PATH"
+          test -f "$DIRECT_EVIDENCE_EXCLUSIONS_CSV_PATH"
+
+      - name: Validate curated wave31 evidence independently
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          from island_v2.open_web_finalize import validate_individually_reviewed_evidence
+
+          candidates = pd.read_csv(
+              "data/v2/staging/traits/open_web_pilot/targeted_high_leverage_wave31_checkpoint_20260824/curated_evidence_20260824.csv",
+              dtype=str,
+          ).fillna("")
+          audit = pd.read_csv(
+              "data/v2/staging/traits/open_web_pilot/targeted_high_leverage_wave31_checkpoint_20260824/curated_manual_audit_20260824.csv",
+              dtype=str,
+          ).fillna("")
+          master = pd.read_csv("data/v2/staging/gbif/collected/island_taxa.csv", dtype=str).fillna("")
+          validated = validate_individually_reviewed_evidence(
+              candidates, audit, master, Path("config/trait_ontology.yml")
+          )
+          expected = {
+              "Anisotes diversifolius",
+              "Anisotes trisulcus",
+              "Attalea maripa",
+              "Cheirolophus burchardii",
+              "Chrysanthemum japonense",
+              "Coptosperma borbonicum",
+              "Foetidia dracaenoides",
+              "Grona heterophylla",
+              "Melastoma tetramerum",
+              "Pternandra caerulescens",
+              "Sasa nipponica",
+          }
+          assert len(validated) == 20
+          assert set(validated["accepted_species"]) == expected
+          assert not validated.duplicated(["accepted_species", "trait_name"]).any()
+          print({"validated_delta_rows": len(validated), "species": sorted(expected)})
+          PY
+
+      - name: Rebuild formal evidence with wave31 delta
+        run: |
+          set -euo pipefail
+          mkdir -p outputs/reviewed_open_web
+          python -m island_v2.open_web_finalize \
+            --baseline-dir /tmp/open-web-baseline \
+            --candidates-csv "/tmp/open-web-pilot/$CANDIDATE_FILE_NAME" \
+            --audit-csv "$AUDIT_CSV_PATH" \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --output-dir outputs/reviewed_open_web \
+            --source-run-id "$PILOT_RUN_ID" \
+            --source-artifact "$PILOT_ARTIFACT_NAME" \
+            --prior-public-web-csv "/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_FILE_NAME" \
+            --prior-public-web-supplement-csv "/tmp/open-web-prior/$PRIOR_PUBLIC_WEB_SUPPLEMENT_FILE_NAME" \
+            --prior-public-web-run-id "$PRIOR_PUBLIC_WEB_RUN_ID" \
+            --prior-public-web-artifact "$PRIOR_PUBLIC_WEB_ARTIFACT" \
+            --direct-evidence-exclusions-csv "$DIRECT_EVIDENCE_EXCLUSIONS_CSV_PATH" \
+            --curated-evidence-csv "$CURATED_EVIDENCE_CSV_PATH" \
+            --curated-audit-csv "$CURATED_AUDIT_CSV_PATH" \
+            --curated-source-run-id "targeted-high-leverage-wave31-20260824" \
+            --curated-source-artifact "eleven-species-high-leverage-review-20260824"
+
+          jq -e '
+            .prior_formal_public_web_evidence_rows > 0
+            and .combined_formal_public_web_evidence_rows >= .prior_formal_public_web_evidence_rows
+            and .shared_all_evidence.denominator.species == 106295
+            and .shared_all_evidence.denominator.species_axis == 318885
+            and .shared_all_evidence.axis_join_for_inference == false
+            and .shared_all_evidence.family_inference == false
+            and .shared_all_evidence.global_fallback == false
+            and .shared_all_evidence.coverage_change_species_axis.loss == 0
+          ' outputs/reviewed_open_web/open_web_formalization_summary.json
+
+      - name: Verify direct wave31 records
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('outputs/reviewed_open_web')
+          direct = pd.read_csv(root / 'direct_species_trait_ledger.csv.gz').fillna('')
+          curated = pd.read_csv(
+              "data/v2/staging/traits/open_web_pilot/targeted_high_leverage_wave31_checkpoint_20260824/curated_evidence_20260824.csv",
+              dtype=str,
+          ).fillna("")
+          found = {}
+          for row in curated.to_dict("records"):
+              species = row["accepted_species"]
+              trait = row["trait_name"]
+              subset = direct.loc[
+                  direct["accepted_species"].eq(species)
+                  & direct["trait_name"].eq(trait)
+              ]
+              if subset.empty:
+                  raise SystemExit(f"Missing rebuilt direct record: {species} {trait}")
+              expected_states = set(row["normalized_value"].split("|"))
+              observed_states = set(subset.iloc[0]["normalized_value"].split("|"))
+              if expected_states != observed_states:
+                  raise SystemExit(
+                      f"Unexpected rebuilt value for {species} {trait}: "
+                      f"{sorted(observed_states)} != {sorted(expected_states)}"
+                  )
+              found[f"{species}|{trait}"] = sorted(observed_states)
+          assert len(found) == 20
+          summary = json.loads((root / 'open_web_formalization_summary.json').read_text())
+          payload = {
+              'contract': 'targeted_high_leverage_wave31_formal_gain_v1',
+              'prior_formal_run_id': 32704117065,
+              'reviewed_records': found,
+              'coverage_change': summary['shared_all_evidence']['coverage_change_species_axis'],
+          }
+          (root / 'targeted_high_leverage_wave31_gain.json').write_text(
+              json.dumps(payload, indent=2) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(payload, indent=2))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reviewed-open-web-evidence-${{ github.run_id }}
+          path: outputs/reviewed_open_web/
+          retention-days: 90
+          if-no-files-found: error
