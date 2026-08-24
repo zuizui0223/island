@@ -1,6 +1,6 @@
 name: Acquire protologue floral traits
 
-# Default acquisition is now the model-support-driven endemic-colour queue.
+# Default acquisition is the model-support-driven endemic-colour queue.
 # The historical <=3-island tail remains available only when explicitly chosen.
 # Candidate statements are unreviewed and never promoted by this workflow.
 
@@ -21,7 +21,7 @@ on:
       target_queue_run:
         description: "Run carrying minimum-endemic-acquisition-queue artifact"
         required: false
-        default: "32614335237"
+        default: "32684677834"
       limit:
         description: "How many queued species to attempt (0 walks the whole queue)"
         required: false
@@ -67,7 +67,7 @@ jobs:
       BHL_API_KEY: ${{ secrets.BHL_API_KEY }}
       GH_TOKEN: ${{ github.token }}
       TARGET_MODE: ${{ inputs.target_mode || 'minimum_endemic_colour' }}
-      TARGET_QUEUE_RUN: ${{ inputs.target_queue_run || '32614335237' }}
+      TARGET_QUEUE_RUN: ${{ inputs.target_queue_run || '32684677834' }}
       LIMIT: ${{ inputs.limit || '500' }}
       MAX_ISLANDS: ${{ inputs.max_islands || '3' }}
     steps:
