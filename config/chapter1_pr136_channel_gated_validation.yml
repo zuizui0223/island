@@ -1,0 +1,194 @@
+contract: chapter1_pr136_channel_gated_validation_v1
+
+core_hypothesis:
+  text: >-
+    Island isolation does not create a universal floral syndrome; it creates a
+    syndrome only when it removes a pollination channel that the regional flora
+    could otherwise use.
+  chapter1_direct_hypothesis: biogeographically_contingent_island_floral_filtering
+  dissertation_level_hypothesis: channel_gated_island_assembly
+
+primary_question:
+  text: >-
+    Where and under what biogeographic, floristic and channel-exposure contexts
+    does status- and lineage-residual floral/reproductive filtering emerge?
+  exposure: log1p_distance_to_continent_km
+  exposure_interpretation: composite_isolation_connectivity_source_supply_assembly_gradient
+  no_distance_thresholds: true
+
+channel_states:
+  - retained
+  - disrupted
+  - structurally_absent
+  - disrupted_effectively_replaced
+
+channel_state_rules:
+  structurally_absent: >-
+    Source/regional flora lacks the focal channel independently of island trait outcomes.
+    This state is not a deficit.
+  retained: >-
+    Source/regional flora exposes plants to the focal channel and island evidence supports
+    persistence of that channel.
+  disrupted: >-
+    Source/regional flora exposes plants to the focal channel but effort-aware island
+    evidence supports reduced or missing channel availability.
+  disrupted_effectively_replaced: >-
+    Focal source channel is disrupted but an alternative channel supplies comparable
+    effective service. Requires direct service evidence and is not inferred from floral traits.
+
+response:
+  primary: genus_fixed_residual_trait_share
+  definition: observed_direct_trait_share_minus_same_genus_null_expectation
+  floristic_strata:
+    - all_native
+    - native_nonendemic
+    - endemic
+    - introduced_negative_control
+  endemicity_separate_response: true
+
+trait_domains:
+  architecture:
+    axes:
+      - flower_size_class
+      - tube_depth_class
+      - floral_symmetry
+      - floral_form
+    required_for_syndrome_gate: true
+  reproductive_assurance:
+    axes:
+      - self_incompatibility
+      - autonomous_selfing_capacity
+      - mating_system
+    required_for_syndrome_gate: true
+  display_colour:
+    axes:
+      - flower_primary_color
+    required_for_syndrome_gate: false
+    role: secondary
+
+northern_simplification_contrast:
+  positive_states:
+    flower_size_class: [very_small, small]
+    tube_depth_class: [absent_or_open, shallow]
+    floral_symmetry: [actinomorphic]
+    floral_form: [open_radial]
+    self_incompatibility: [SC]
+    autonomous_selfing_capacity: [delayed, autonomous]
+    mating_system: [predominantly_selfing, obligate_selfing]
+  negative_states:
+    flower_size_class: [large, very_large]
+    tube_depth_class: [deep]
+    floral_symmetry: [zygomorphic]
+    floral_form:
+      - tubular
+      - salverform
+      - funnel_trumpet
+      - urn_urceolate
+      - bilabiate
+      - papilionaceous
+      - spurred
+
+analysis_ladder:
+  stage_0_observation_selection:
+    frozen_candidate_islands: 8265
+    missing_island_is_trait_zero: false
+    outcome_blind_selection_model: true
+    sensitivities:
+      - stabilized_ipw
+      - overlap_trim
+      - region_specific_selection
+      - equal_island_information
+      - leave_one_spatial_block
+
+  stage_1_floristic_status:
+    response: endemic_share_of_resolved_native_species
+    model: endemic_share ~ geography + log_area + climate_pc1 + climate_pc2 + climate_pc3 + climate_pc4
+    note: endemicity_is_response_not_nuisance
+
+  stage_2_genus_fixed_residual:
+    model: residual_trait ~ geography + log_area + climate_pc1 + climate_pc2 + climate_pc3 + climate_pc4
+    uncertainty: spatial_block_cluster_robust
+
+  stage_3_H1_universal_syndrome:
+    null: one_coherent_residual_syndrome_across_channel_contexts
+    falsification: regional_or_channel_exposure_heterogeneity
+
+  stage_4_H2a_source_exposure:
+    model: residual_trait_vector ~ geography * source_channel_exposure + log_area + climate_pc1 + climate_pc2 + climate_pc3 + climate_pc4
+    required_contrast: exposed_vs_structurally_absent_vector_difference
+    invalid_shortcut: significant_in_one_group_and_nonsignificant_in_other
+
+  stage_5_H2b_realized_disruption:
+    subset: source_channel_exposure_equals_1
+    deficit_measurement_priority:
+      - direct_functional_interaction_or_effectiveness
+      - effort_aware_occurrence_or_abundance
+      - climatic_compatibility_supporting_opportunity_only
+    deficit_model: channel_deficit ~ geography + climate + area_source_connectivity + observation_effort
+    trait_model: residual_trait_vector ~ channel_deficit + geography + log_area + climate_pc1 + climate_pc2 + climate_pc3 + climate_pc4
+
+  stage_6_H2c_three_state_contrast:
+    required_states:
+      - retained
+      - disrupted
+      - structurally_absent
+    killer_prediction: disrupted_differs_from_both_retained_and_structurally_absent_in_prespecified_multivariate_direction
+
+  stage_7_H3_effective_replacement:
+    requires_direct_replacement_data: true
+    preferred_measure: visitation_times_per_visit_effectiveness
+    model: residual_trait_vector ~ channel_deficit * effective_replacement + geography + log_area + climate
+    prediction: deficit_effect_attenuates_as_effective_replacement_increases
+
+syndrome_promotion_gate:
+  full_vector_nonzero_required: true
+  directional_coherence_required: true
+  required_domains:
+    - architecture
+    - reproductive_assurance
+  colour_alone_can_define_syndrome: false
+  single_atomic_category_can_define_syndrome: false
+
+support_rules:
+  not_promoted_below_islands: 30
+  pilot_min_islands: 30
+  confirmatory_min_islands: 50
+  multiplicity: BH_FDR_within_declared_stratum_channel_regime_trait_domain_family
+  direct_coverage_sensitivity_required: true
+  spatial_block_sensitivity_required: true
+  observation_selection_sensitivity_required: true
+
+focal_first_channel:
+  id: bombus_large_long_tongued
+  role: northern_temperate_natural_experiment
+  source_exposure_must_be_outcome_blind: true
+  climate_compatibility_defines_deficit: false
+  structural_absence_is_deficit: false
+
+falsification_rules:
+  - result: same_coherent_syndrome_in_all_regimes
+    implication: weakens_channel_gated_necessity
+  - result: raw_trait_signal_disappears_after_status_or_genus_control
+    implication: floristic_or_lineage_turnover_sufficient_for_apparent_pattern
+  - result: disrupted_and_structurally_absent_show_same_channel_specific_syndrome
+    implication: focal_channel_loss_not_required
+  - result: source_exposed_channel_disruption_but_residual_trait_vector_null
+    implication: channel_loss_does_not_generate_detectable_assemblage_trait_filtering
+  - result: SC_geography_signal_but_SC_channel_deficit_signal_null
+    implication: baker_or_colonization_assurance_sufficient_without_focal_channel
+  - result: promoted_result_collapses_under_observation_or_coverage_sensitivity
+    implication: downgrade_as_measurement_selection_dependent
+  - result: deficit_effect_attenuates_with_measured_replacement
+    implication: supports_full_channel_gated_replacement_extension
+
+current_post_pr136_outputs:
+  trait_probability: pattern_diagnostic_only_until_linked_to_genus_fixed_residual
+  raw_when_where_response_vector: pattern_diagnostic_only_until_linked_to_genus_fixed_residual
+  all_island_observation_models: primary_observation_gate
+
+claim_ceiling:
+  - no_historical_pollinator_loss_from_geography_alone
+  - no_functional_replacement_from_guild_presence_alone
+  - no_pollinator_identity_from_single_trait
+  - no_causal_floral_evolution
+  - no_assembly_vs_in_situ_partition_without_additional_design
