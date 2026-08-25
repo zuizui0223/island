@@ -107,7 +107,7 @@ jobs:
           PY
       - name: Build outcome-blind curation queue from support only
         run: |
-          python -m island_v2.chapter1_pr136_source_exposure_queue run \
+          python -m island_v2.chapter1_pr136_source_exposure_queue \
             --genus-null-csv /tmp/canonical/null/genus_fixed_null_by_island.csv.gz \
             --applicability-csv /tmp/pr136/applicability/bombus_applicability_by_island.csv \
             --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
