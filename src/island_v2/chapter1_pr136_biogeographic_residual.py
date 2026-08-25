@@ -1,4 +1,4 @@
-"""PR136 primary test: biogeographic contingency of genus-fixed residual traits.
+"""PR136 primary pattern test: biogeographic contingency of genus-fixed residual traits.
 
 The Chapter 1 primary analysis deliberately does *not* put Bombus or any other
 pollinator into the model. It asks first whether geography-associated floral and
@@ -26,7 +26,6 @@ import typer
 import yaml
 
 from island_v2.chapter1_context_analysis import _chi_square_sf_integer_df
-from island_v2.chapter1_pr136_source_exposure import _fit_weighted_clustered_design
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
@@ -49,6 +48,10 @@ def _bh(values: pd.Series) -> pd.Series:
     return out
 
 
+def _normal_two_sided_p(z: float) -> float:
+    return math.erfc(abs(float(z)) / math.sqrt(2.0))
+
+
 def _standardize(values: pd.Series) -> np.ndarray:
     x = pd.to_numeric(values, errors="coerce").to_numpy(float)
     mean = float(np.mean(x))
@@ -64,6 +67,57 @@ def _joint_wald(beta: np.ndarray, covariance: np.ndarray) -> tuple[float, int, f
         return float("nan"), 0, float("nan")
     statistic = float(beta @ np.linalg.pinv(covariance) @ beta)
     return statistic, rank, _chi_square_sf_integer_df(statistic, rank)
+
+
+def _fit_weighted_clustered_design(
+    y: np.ndarray,
+    weights: np.ndarray,
+    design: np.ndarray,
+    names: list[str],
+    clusters: np.ndarray,
+) -> tuple[pd.DataFrame, np.ndarray, dict[str, Any]]:
+    n, p = design.shape
+    unique_clusters = np.unique(clusters)
+    n_clusters = int(len(unique_clusters))
+    if n < max(10, p + 3) or n_clusters < 2:
+        return (
+            pd.DataFrame(),
+            np.empty((0, 0)),
+            {"status": "insufficient_complete_rows", "n_rows": n, "n_clusters": n_clusters},
+        )
+
+    xtwx = design.T @ (weights[:, None] * design)
+    bread = np.linalg.pinv(xtwx)
+    beta = bread @ (design.T @ (weights * y))
+    residual = y - design @ beta
+
+    meat = np.zeros((p, p), dtype=float)
+    for cluster in unique_clusters:
+        mask = clusters == cluster
+        score = design[mask].T @ (weights[mask] * residual[mask])
+        meat += np.outer(score, score)
+    covariance = bread @ meat @ bread
+    if n_clusters > 1 and n > p:
+        covariance *= (n_clusters / (n_clusters - 1.0)) * ((n - 1.0) / (n - p))
+
+    se = np.sqrt(np.clip(np.diag(covariance), 0.0, None))
+    rows: list[dict[str, Any]] = []
+    for name, estimate, stderr in zip(names, beta, se, strict=True):
+        z = float(estimate / stderr) if stderr > 0 else float("nan")
+        rows.append(
+            {
+                "predictor": name,
+                "estimate": float(estimate),
+                "cluster_robust_se": float(stderr),
+                "z_value": z,
+                "p_value": _normal_two_sided_p(z) if math.isfinite(z) else float("nan"),
+            }
+        )
+    return (
+        pd.DataFrame(rows),
+        covariance,
+        {"status": "fit", "n_rows": n, "n_clusters": n_clusters},
+    )
 
 
 def _prepare(
@@ -151,7 +205,7 @@ def _within_context(
 
     names: list[str] = []
     columns: list[np.ndarray] = []
-    isolation_names: list[str] = []
+    geography_names: list[str] = []
     for outcome in outcomes:
         mask = work["outcome"].astype(str).eq(outcome).to_numpy()
         indicator = mask.astype(float)
@@ -167,7 +221,7 @@ def _within_context(
         name = f"outcome[{outcome}]:z_{geography}"
         names.append(name)
         columns.append(vector)
-        isolation_names.append(name)
+        geography_names.append(name)
 
     coefficients, covariance, fit = _fit_weighted_clustered_design(
         work["deviation_observed_minus_null"].to_numpy(float),
@@ -179,8 +233,8 @@ def _within_context(
     if coefficients.empty:
         return coefficients, {**base_result, "status": fit["status"]}
     beta = coefficients.set_index("predictor")["estimate"]
-    indices = [names.index(x) for x in isolation_names]
-    vector = np.array([float(beta[x]) for x in isolation_names])
+    indices = [names.index(x) for x in geography_names]
+    vector = np.array([float(beta[x]) for x in geography_names])
     cov = covariance[np.ix_(indices, indices)]
     statistic, df, p_value = _joint_wald(vector, cov)
     coefficients.insert(0, "context", context_value)
@@ -247,7 +301,7 @@ def _between_contexts(
         return pd.DataFrame(), {**base_result, "status": "not_testable"}
 
     work = work.loc[work["outcome"].astype(str).isin(outcomes)].copy()
-    b = work[context].eq(context_b).to_numpy(float)
+    context_b_indicator = work[context].eq(context_b).to_numpy(float)
     names: list[str] = []
     columns: list[np.ndarray] = []
     interaction_names: list[str] = []
@@ -262,14 +316,14 @@ def _between_contexts(
             names.append(f"outcome[{outcome}]:z_{predictor}")
             columns.append(vector)
         names.append(f"outcome[{outcome}]:context[{context_b}]")
-        columns.append(indicator * b)
+        columns.append(indicator * context_b_indicator)
         geography_vector = np.zeros(len(work), dtype=float)
         geography_vector[mask] = _standardize(work.loc[mask, geography])
         names.append(f"outcome[{outcome}]:z_{geography}")
         columns.append(geography_vector)
         interaction = f"outcome[{outcome}]:z_{geography}:context[{context_b}]"
         names.append(interaction)
-        columns.append(geography_vector * b)
+        columns.append(geography_vector * context_b_indicator)
         interaction_names.append(interaction)
 
     coefficients, covariance, fit = _fit_weighted_clustered_design(
