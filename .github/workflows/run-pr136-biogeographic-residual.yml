@@ -1,0 +1,78 @@
+name: Run PR136 biogeographic residual test
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
+      - "config/chapter1_pr136_biogeographic_residual.yml"
+      - ".github/workflows/run-pr136-biogeographic-residual.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ISOLATION_RUN_ID: "29228212586"
+      ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+      CANONICAL_RUN_ID: "32845980788"
+      CANONICAL_ARTIFACT: "chapter1-when-where-main-32845980788"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Download frozen inputs
+        run: |
+          mkdir -p /tmp/isolation /tmp/canonical
+          gh run download "$ISOLATION_RUN_ID" -n "$ISOLATION_ARTIFACT" -D /tmp/isolation
+          gh run download "$CANONICAL_RUN_ID" -n "$CANONICAL_ARTIFACT" -D /tmp/canonical
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/canonical/null/genus_fixed_null_by_island.csv.gz
+      - name: Run PR136 primary biogeographic residual test
+        run: |
+          python -m island_v2.chapter1_pr136_biogeographic_residual \
+            --genus-null-csv /tmp/canonical/null/genus_fixed_null_by_island.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_pr136_biogeographic_residual.yml \
+            --output-dir /tmp/pr136/biogeographic
+      - name: Write result summary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          out = Path('/tmp/pr136/biogeographic')
+          within = pd.read_csv(out/'biogeographic_residual_within_omnibus.csv')
+          between = pd.read_csv(out/'biogeographic_residual_between_omnibus.csv')
+          with open(Path('/tmp/pr136/biogeographic_summary.md'), 'w') as f:
+              f.write('# PR136 biogeographic residual primary result\n\n')
+              f.write('## Within-region residual filtering\n\n')
+              if within.empty:
+                  f.write('No testable within-region vectors.\n')
+              else:
+                  cols = [c for c in ['stratum','support_tier','context','status','n_retained_outcomes','n_unique_islands','p_value','q_within_stratum_tier','residual_filtering_supported'] if c in within.columns]
+                  f.write(within[cols].to_markdown(index=False))
+                  f.write('\n')
+              f.write('\n## Between-region vector differences\n\n')
+              if between.empty:
+                  f.write('No testable between-region vectors.\n')
+              else:
+                  cols = [c for c in ['stratum','support_tier','context_a','context_b','status','n_retained_outcomes','n_unique_islands','p_value','q_within_stratum_tier','biogeographic_difference_supported'] if c in between.columns]
+                  f.write(between[cols].to_markdown(index=False))
+                  f.write('\n')
+          PY
+          cat /tmp/pr136/biogeographic_summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr136-biogeographic-residual-${{ github.run_id }}
+          path: /tmp/pr136/
+          if-no-files-found: error
+          retention-days: 90
