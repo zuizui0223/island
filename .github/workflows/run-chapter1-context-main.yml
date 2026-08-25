@@ -47,6 +47,8 @@ jobs:
             src/island_v2/chapter1_when_where_sensitivity.py \
             src/island_v2/chapter1_when_where_domain_omnibus.py \
             src/island_v2/chapter1_when_where_block_deletion.py \
+            src/island_v2/chapter1_observation_bias.py \
+            src/island_v2/chapter1_trait_probability.py \
             src/island_v2/flora_status_support.py \
             src/island_v2/genus_fixed_trait_null.py \
             src/island_v2/status_stratified_lineage_analysis.py \
@@ -57,7 +59,9 @@ jobs:
             tests/test_chapter1_when_where_classification.py \
             tests/test_chapter1_when_where_sensitivity.py \
             tests/test_chapter1_when_where_domain_omnibus.py \
-            tests/test_chapter1_when_where_block_deletion.py
+            tests/test_chapter1_when_where_block_deletion.py \
+            tests/test_chapter1_observation_bias.py \
+            tests/test_chapter1_trait_probability.py
           pytest -q \
             tests/test_chapter1_context_workflow.py \
             tests/test_chapter1_multistate_normalization.py \
@@ -66,7 +70,9 @@ jobs:
             tests/test_chapter1_when_where_classification.py \
             tests/test_chapter1_when_where_sensitivity.py \
             tests/test_chapter1_when_where_domain_omnibus.py \
-            tests/test_chapter1_when_where_block_deletion.py
+            tests/test_chapter1_when_where_block_deletion.py \
+            tests/test_chapter1_observation_bias.py \
+            tests/test_chapter1_trait_probability.py
 
       - name: Download locked trait, status, and geographic inputs
         run: |
@@ -96,7 +102,7 @@ jobs:
             --output-dir /tmp/ch1/input
           test -s /tmp/ch1/input/chapter1_trait_composition_long.csv.gz
 
-      - name: Audit required when-where covariates
+      - name: Audit required all-island geographic covariates
         run: |
           python - <<'PY'
           import pandas as pd
@@ -110,9 +116,45 @@ jobs:
           missing=sorted(required-set(d.columns))
           if missing:
               raise SystemExit(f'missing required covariates: {missing}')
+          if d['island_id'].duplicated().any():
+              raise SystemExit('all-island geographic universe has duplicate island_id')
+          print('full_island_universe_n=', d['island_id'].nunique())
           print(d['analysis_regime'].value_counts(dropna=False).to_string())
-          print('zero_distance_n=', int((pd.to_numeric(d['distance_to_continent_km'], errors='coerce') <= 0).sum()))
           PY
+
+      - name: Model observation process across the full island universe
+        run: |
+          python -m island_v2.chapter1_observation_bias \
+            --all-islands-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --island-species-csv data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --config-path config/chapter1_observation_bias.yml \
+            --output-dir /tmp/ch1/observation_bias
+          test -s /tmp/ch1/observation_bias/all_island_observation_support.csv.gz
+          test -s /tmp/ch1/observation_bias/observation_support_by_context.csv
+          test -s /tmp/ch1/observation_bias/observation_selection_coefficients.csv
+          python - <<'PY'
+          import json
+          import pandas as pd
+          m=json.load(open('/tmp/ch1/observation_bias/chapter1_observation_bias_manifest.json'))
+          d=pd.read_csv('/tmp/ch1/observation_bias/all_island_observation_support.csv.gz')
+          if len(d) != m['n_full_islands'] or d['island_id'].nunique() != m['n_full_islands']:
+              raise SystemExit('full-island observation audit dropped or duplicated islands')
+          if bool(d.loc[~d['flora_recorded'], 'direct_trait_any'].any()):
+              raise SystemExit('direct trait evidence cannot appear on a no-flora-record island')
+          print(json.dumps(m, indent=2))
+          PY
+
+      - name: Fit trait-centric probability surfaces
+        run: |
+          python -m island_v2.chapter1_trait_probability \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_trait_probability.yml \
+            --output-dir /tmp/ch1/trait_probability
+          test -s /tmp/ch1/trait_probability/trait_probability_coefficients.csv
+          test -s /tmp/ch1/trait_probability/trait_probability_curves.csv
+          test -s /tmp/ch1/trait_probability/trait_probability_fit_support.csv
 
       - name: Fit atomic M0-M2 diagnostic layer
         run: |
@@ -148,7 +190,7 @@ jobs:
           test -s /tmp/ch1/when_where_domain/when_where_domain_within.csv
           test -s /tmp/ch1/when_where_domain/when_where_domain_between.csv
 
-      - name: Run predeclared when-where robustness scenarios
+      - name: Run all-island distance-gradient robustness scenarios
         run: |
           python -m island_v2.chapter1_when_where_sensitivity \
             --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
@@ -216,6 +258,8 @@ jobs:
           domain_within = pd.read_csv('/tmp/ch1/when_where_domain/when_where_domain_within.csv')
           domain_between = pd.read_csv('/tmp/ch1/when_where_domain/when_where_domain_between.csv')
           block_summary = pd.read_csv('/tmp/ch1/when_where_block/when_where_leave_one_block_summary.csv')
+          obs = json.load(open('/tmp/ch1/observation_bias/chapter1_observation_bias_manifest.json'))
+          trait_prob = json.load(open('/tmp/ch1/trait_probability/chapter1_trait_probability_manifest.json'))
           lineage = pd.read_csv('/tmp/ch1/lineage/status_stratified_lineage_isolation.csv')
           if lineage.empty:
               raise SystemExit('Required M3 lineage safeguard is missing')
@@ -226,12 +270,23 @@ jobs:
           conf_domain_within = domain_within.loc[domain_within['support_tier'].eq('confirmatory')]
           conf_domain_between = domain_between.loc[domain_between['support_tier'].eq('confirmatory')]
           payload = {
-              'contract': 'chapter1_when_where_checkpoint_v5',
-              'primary_question': 'when_and_where_is_isolation_associated_floral_reproductive_filtering_detectable',
+              'contract': 'chapter1_when_where_checkpoint_v6',
+              'primary_question': 'when_and_where_do_trait_probabilities_change_along_geographic_source_pool_gradients',
+              'ecological_estimand': 'P(trait_state | directly_trait_resolved_observed_realised_flora, geography)',
               'primary_where_test': 'within_context_response_vector_joint_wald',
               'primary_between_where_test': 'pairwise_response_vector_difference_joint_wald',
               'when_definition': 'persistence_across_floristic_status_strata_with_testability_audit',
+              'distance_gradient_interpretation': 'dispersal_limitation_plus_mainland_source_pool_accessibility',
+              'all_islands_retained_in_observation_layer': True,
+              'missing_flora_interpreted_as_trait_zero': False,
+              'missing_trait_interpreted_as_trait_zero': False,
               'bombus_primary_predictor': False,
+              'n_full_islands_observation_layer': int(obs['n_full_islands']),
+              'n_no_flora_record_islands': int(obs['n_no_flora_record']),
+              'n_flora_recorded_islands': int(obs['n_flora_recorded']),
+              'n_direct_trait_any_islands': int(obs['n_direct_trait_any']),
+              'n_direct_trait_all_three_islands': int(obs['n_direct_trait_all_three']),
+              'n_confirmatory_trait_probability_curves': int(trait_prob['n_confirmatory_curves']),
               'n_confirmatory_where_tests': int(len(confirmatory_within)),
               'n_confirmatory_supported_where_tests': int(confirmatory_within['where_supported'].fillna(False).sum()),
               'n_confirmatory_between_where_tests': int(len(confirmatory_between)),
@@ -241,7 +296,6 @@ jobs:
               'sensitivity_headline_replications': int(testable_sensitivity['headline_replication'].fillna(False).sum()),
               'sensitivity_headline_testable_opportunities': int(len(testable_sensitivity)),
               'sensitivity_headline_untestable_opportunities': int(len(primary_sensitivity)-len(testable_sensitivity)),
-              'sensitivity_rows': primary_sensitivity.to_dict(orient='records'),
               'domain_confirmatory_within_rows': conf_domain_within.to_dict(orient='records'),
               'domain_confirmatory_between_rows': conf_domain_between.to_dict(orient='records'),
               'leave_one_block_rows': block_summary.to_dict(orient='records'),
@@ -252,9 +306,15 @@ jobs:
           print(json.dumps(payload, indent=2))
           PY
 
-      - name: Summarize frozen when-where results
+      - name: Summarize Chapter 1 results
         run: |
-          echo '## Chapter 1 when / where analysis' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Chapter 1 observation / trait probability / when-where analysis' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Observation process across all islands' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/ch1/observation_bias/observation_support_by_context.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Trait-centric probability curves: first rows' >> "$GITHUB_STEP_SUMMARY"
+          head -40 /tmp/ch1/trait_probability/trait_probability_curves.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### WHERE: within-context response-vector omnibus' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/ch1/when_where/when_where_within_context_omnibus.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
@@ -268,20 +328,19 @@ jobs:
           cat /tmp/ch1/when_where_domain/when_where_domain_within.csv >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/ch1/when_where_domain/when_where_domain_between.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Robustness scenarios' >> "$GITHUB_STEP_SUMMARY"
+          echo '### All-island distance-gradient robustness scenarios' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/ch1/when_where_sensitivity/when_where_sensitivity_summary.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Leave-one-spatial-block leverage sensitivity' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/ch1/when_where_block/when_where_leave_one_block_summary.csv >> "$GITHUB_STEP_SUMMARY"
-          echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Atomic diagnostic layer' >> "$GITHUB_STEP_SUMMARY"
-          head -50 /tmp/ch1/freeze/regional_trait_vector_frozen.csv >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
         with:
           name: chapter1-when-where-main-${{ github.run_id }}
           path: |
             /tmp/ch1/input/
+            /tmp/ch1/observation_bias/
+            /tmp/ch1/trait_probability/
             /tmp/ch1/context/
             /tmp/ch1/when_where/
             /tmp/ch1/when_where_domain/
