@@ -1,0 +1,67 @@
+name: Validate PR136 channel-gated tests
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr136_source_exposure.py"
+      - "src/island_v2/chapter1_pr136_source_exposure_queue.py"
+      - "config/chapter1_pr136_source_exposure.yml"
+      - "config/chapter1_pr136_source_exposure_queue.yml"
+      - "config/chapter1_pr136_channel_gated_validation.yml"
+      - "tests/test_chapter1_pr136_source_exposure.py"
+      - "tests/test_chapter1_pr136_source_exposure_queue.py"
+      - ".github/workflows/validate-pr136-channel-gated.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/island_v2/chapter1_pr136_source_exposure.py"
+      - "src/island_v2/chapter1_pr136_source_exposure_queue.py"
+      - "config/chapter1_pr136_source_exposure.yml"
+      - "config/chapter1_pr136_source_exposure_queue.yml"
+      - "config/chapter1_pr136_channel_gated_validation.yml"
+      - "tests/test_chapter1_pr136_source_exposure.py"
+      - "tests/test_chapter1_pr136_source_exposure_queue.py"
+      - ".github/workflows/validate-pr136-channel-gated.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Ruff
+        run: |
+          ruff check \
+            src/island_v2/chapter1_pr136_source_exposure.py \
+            src/island_v2/chapter1_pr136_source_exposure_queue.py \
+            tests/test_chapter1_pr136_source_exposure.py \
+            tests/test_chapter1_pr136_source_exposure_queue.py
+      - name: PR136 synthetic falsification tests
+        run: |
+          pytest -q \
+            tests/test_chapter1_pr136_source_exposure.py \
+            tests/test_chapter1_pr136_source_exposure_queue.py
+      - name: Parse PR136 contracts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+          for path in [
+              Path('config/chapter1_pr136_channel_gated_validation.yml'),
+              Path('config/chapter1_pr136_source_exposure.yml'),
+              Path('config/chapter1_pr136_source_exposure_queue.yml'),
+          ]:
+              payload = yaml.safe_load(path.read_text())
+              assert isinstance(payload, dict) and payload
+              print(path, 'ok')
+          PY
