@@ -1,0 +1,71 @@
+version: "1.0"
+
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+cluster_column: spatial_block
+canonical_context_column: analysis_regime
+canonical_isolation_column: log_distance_to_continent_km
+
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+
+strata:
+  - all_native
+  - native_nonendemic
+  - endemic
+
+support_tiers:
+  confirmatory: 50
+  pilot: 30
+
+core_latitude_rule:
+  tropical_abs_max: 20.0
+  north_mid_min: 30.0
+  north_mid_max: 60.0
+  north_high_min: 70.0
+  south_mid_min_abs: 30.0
+  south_mid_max_abs: 60.0
+
+scenarios:
+  - name: canonical_log_all
+    context_rule: canonical
+    isolation_form: log1p
+    distance_filter: all
+
+  - name: core_latitudes_log_all
+    context_rule: core_latitudes
+    isolation_form: log1p
+    distance_filter: all
+
+  - name: canonical_sqrt_all
+    context_rule: canonical
+    isolation_form: sqrt
+    distance_filter: all
+
+  - name: canonical_log_positive_distance
+    context_rule: canonical
+    isolation_form: log1p
+    distance_filter: positive_only
+
+  - name: canonical_log_oceanic_50km
+    context_rule: canonical
+    isolation_form: log1p
+    distance_filter: oceanic_50km
+
+interpretation:
+  rule: >-
+    These are robustness checks, not alternative primary analyses. The canonical
+    northern-midlatitude and tropical WHERE signals and their BETWEEN-WHERE vector
+    difference are considered robust only to the extent that they recur under
+    prespecified context, functional-form, and zero-distance sensitivities.
+  insufficient_support: >-
+    Failure to fit a confirmatory sensitivity after stricter filtering is recorded
+    as data-limited and is not automatically treated as biological contradiction.
