@@ -1,8 +1,27 @@
-contract: chapter1_pr136_biogeographic_residual_v1
+contract: chapter1_pr136_biogeographic_residual_v2
 
 primary_question: >-
-  Where and under what biogeographic and floristic contexts does geography-associated
-  floral/reproductive filtering remain after genus composition is represented?
+  Does the classic floral island syndrome emerge along the mainland-distance gradient
+  in northern mid-latitude island floras but weaken, disappear, or take a different
+  multivariate form in tropical and southern island floras after floristic status and
+  genus composition are represented?
+
+pattern_hypotheses:
+  northern_classic_island_syndrome:
+    prediction: >-
+      With increasing mainland distance, northern mid-latitude island floras show a
+      residual shift toward less conspicuous / more generally accessible floral states
+      and greater reproductive assurance.
+    candidate_components:
+      - plain_or_inconspicuous_colour
+      - generalized_or_accessible_floral_architecture
+      - self_compatibility_or_other_reproductive_assurance
+  tropical_southern_counterpattern:
+    prediction: >-
+      The northern classic-syndrome vector is weaker, absent, heterogeneous, or
+      redirected in tropical and southern island floras; conspicuous and specialized
+      floral states may be retained rather than converging on the northern vector.
+    reversed_vector_required: false
 
 geography_column: log_distance_to_continent_km
 geography_interpretation: composite_isolation_connectivity_source_supply_assembly_gradient
@@ -34,8 +53,20 @@ alpha: 0.05
 
 primary_response: observed_direct_trait_share_minus_same_genus_null_expectation
 pollinator_predictors_in_primary_model: false
-bombus_role: deferred_candidate_mechanism_not_primary_predictor
+bombus_role: discussion_candidate_for_northern_pattern_only
+butterfly_role: discussion_candidate_for_tropical_pattern_only
+bird_role: discussion_candidate_for_southern_pattern_only
 pollination_syndrome_role: post_analysis_multivariate_concordance_in_discussion
+
+interpretive_hypotheses_not_primary_predictors:
+  northern:
+    - reduced_pollinator_mediated_selection_on_attraction_after_pollinator_loss
+    - reproductive_assurance_and_Bakers_law
+    - Bombus_or_other_large_bee_channel_loss_as_a_candidate_driver
+  tropical:
+    - butterfly_or_other_mobile_insect_pollination_as_candidate_for_retained_conspicuous_traits
+  southern:
+    - bird_pollination_as_candidate_for_retained_conspicuous_traits
 
 rules:
   - no_distance_thresholds
@@ -44,3 +75,4 @@ rules:
   - between_region_vector_difference_requires_direct_joint_test
   - syndrome_not_declared_from_single_atomic_trait
   - discuss_pollination_syndromes_only_after_residual_vector_is_established
+  - pollination_syndrome_concordance_does_not_establish_pollinator_causation
