@@ -1,27 +1,21 @@
-name: Validate PR136 channel-gated tests
+name: Validate PR136 biogeographic primary
 
 on:
   push:
     branches: [pr136-channel-gated-primary-validation]
     paths:
-      - "src/island_v2/chapter1_pr136_source_exposure.py"
-      - "src/island_v2/chapter1_pr136_source_exposure_queue.py"
-      - "config/chapter1_pr136_source_exposure.yml"
-      - "config/chapter1_pr136_source_exposure_queue.yml"
+      - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
+      - "config/chapter1_pr136_biogeographic_residual.yml"
       - "config/chapter1_pr136_channel_gated_validation.yml"
-      - "tests/test_chapter1_pr136_source_exposure.py"
-      - "tests/test_chapter1_pr136_source_exposure_queue.py"
+      - "tests/test_chapter1_pr136_biogeographic_residual.py"
       - ".github/workflows/validate-pr136-channel-gated.yml"
   pull_request:
     branches: [main]
     paths:
-      - "src/island_v2/chapter1_pr136_source_exposure.py"
-      - "src/island_v2/chapter1_pr136_source_exposure_queue.py"
-      - "config/chapter1_pr136_source_exposure.yml"
-      - "config/chapter1_pr136_source_exposure_queue.yml"
+      - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
+      - "config/chapter1_pr136_biogeographic_residual.yml"
       - "config/chapter1_pr136_channel_gated_validation.yml"
-      - "tests/test_chapter1_pr136_source_exposure.py"
-      - "tests/test_chapter1_pr136_source_exposure_queue.py"
+      - "tests/test_chapter1_pr136_biogeographic_residual.py"
       - ".github/workflows/validate-pr136-channel-gated.yml"
   workflow_dispatch:
 
@@ -42,24 +36,19 @@ jobs:
       - name: Ruff
         run: |
           ruff check \
-            src/island_v2/chapter1_pr136_source_exposure.py \
-            src/island_v2/chapter1_pr136_source_exposure_queue.py \
-            tests/test_chapter1_pr136_source_exposure.py \
-            tests/test_chapter1_pr136_source_exposure_queue.py
-      - name: PR136 synthetic falsification tests
+            src/island_v2/chapter1_pr136_biogeographic_residual.py \
+            tests/test_chapter1_pr136_biogeographic_residual.py
+      - name: PR136 biogeographic falsification tests
         run: |
-          pytest -q \
-            tests/test_chapter1_pr136_source_exposure.py \
-            tests/test_chapter1_pr136_source_exposure_queue.py
-      - name: Parse PR136 contracts
+          pytest -q tests/test_chapter1_pr136_biogeographic_residual.py
+      - name: Parse PR136 primary contracts
         run: |
           python - <<'PY'
           from pathlib import Path
           import yaml
           for path in [
               Path('config/chapter1_pr136_channel_gated_validation.yml'),
-              Path('config/chapter1_pr136_source_exposure.yml'),
-              Path('config/chapter1_pr136_source_exposure_queue.yml'),
+              Path('config/chapter1_pr136_biogeographic_residual.yml'),
           ]:
               payload = yaml.safe_load(path.read_text())
               assert isinstance(payload, dict) and payload
