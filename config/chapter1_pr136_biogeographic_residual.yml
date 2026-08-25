@@ -1,0 +1,46 @@
+contract: chapter1_pr136_biogeographic_residual_v1
+
+primary_question: >-
+  Where and under what biogeographic and floristic contexts does geography-associated
+  floral/reproductive filtering remain after genus composition is represented?
+
+geography_column: log_distance_to_continent_km
+geography_interpretation: composite_isolation_connectivity_source_supply_assembly_gradient
+context_column: analysis_regime
+cluster_column: spatial_block
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+
+strata:
+  - all_native
+  - native_nonendemic
+  - endemic
+
+support_tiers:
+  confirmatory: 50
+  pilot: 30
+minimum_outcomes_per_vector: 2
+alpha: 0.05
+
+primary_response: observed_direct_trait_share_minus_same_genus_null_expectation
+pollinator_predictors_in_primary_model: false
+bombus_role: deferred_candidate_mechanism_not_primary_predictor
+pollination_syndrome_role: post_analysis_multivariate_concordance_in_discussion
+
+rules:
+  - no_distance_thresholds
+  - missing_island_is_not_trait_zero
+  - significant_in_one_region_and_nonsignificant_in_another_is_not_heterogeneity
+  - between_region_vector_difference_requires_direct_joint_test
+  - syndrome_not_declared_from_single_atomic_trait
+  - discuss_pollination_syndromes_only_after_residual_vector_is_established
