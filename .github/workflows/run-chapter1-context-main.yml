@@ -45,6 +45,7 @@ jobs:
             src/island_v2/chapter1_when_where_omnibus.py \
             src/island_v2/chapter1_when_where_classification.py \
             src/island_v2/chapter1_when_where_sensitivity.py \
+            src/island_v2/chapter1_when_where_domain_omnibus.py \
             src/island_v2/flora_status_support.py \
             src/island_v2/genus_fixed_trait_null.py \
             src/island_v2/status_stratified_lineage_analysis.py \
@@ -53,14 +54,16 @@ jobs:
             tests/test_chapter1_trait_vector_freeze.py \
             tests/test_chapter1_when_where_omnibus.py \
             tests/test_chapter1_when_where_classification.py \
-            tests/test_chapter1_when_where_sensitivity.py
+            tests/test_chapter1_when_where_sensitivity.py \
+            tests/test_chapter1_when_where_domain_omnibus.py
           pytest -q \
             tests/test_chapter1_context_workflow.py \
             tests/test_chapter1_multistate_normalization.py \
             tests/test_chapter1_trait_vector_freeze.py \
             tests/test_chapter1_when_where_omnibus.py \
             tests/test_chapter1_when_where_classification.py \
-            tests/test_chapter1_when_where_sensitivity.py
+            tests/test_chapter1_when_where_sensitivity.py \
+            tests/test_chapter1_when_where_domain_omnibus.py
 
       - name: Download locked trait, status, and geographic inputs
         run: |
@@ -132,6 +135,16 @@ jobs:
           test -s /tmp/ch1/when_where/when_where_between_context_omnibus.csv
           test -s /tmp/ch1/when_where/when_where_status_persistence.csv
 
+      - name: Run lower-dimensional trait-domain omnibus sensitivity
+        run: |
+          python -m island_v2.chapter1_when_where_domain_omnibus \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_when_where_omnibus.yml \
+            --output-dir /tmp/ch1/when_where_domain
+          test -s /tmp/ch1/when_where_domain/when_where_domain_within.csv
+          test -s /tmp/ch1/when_where_domain/when_where_domain_between.csv
+
       - name: Run predeclared when-where robustness scenarios
         run: |
           python -m island_v2.chapter1_when_where_sensitivity \
@@ -187,14 +200,19 @@ jobs:
           between = pd.read_csv('/tmp/ch1/when_where/when_where_between_context_omnibus.csv')
           persistence = pd.read_csv('/tmp/ch1/when_where/when_where_status_persistence.csv')
           sensitivity = pd.read_csv('/tmp/ch1/when_where_sensitivity/when_where_sensitivity_summary.csv')
+          domain_within = pd.read_csv('/tmp/ch1/when_where_domain/when_where_domain_within.csv')
+          domain_between = pd.read_csv('/tmp/ch1/when_where_domain/when_where_domain_between.csv')
           lineage = pd.read_csv('/tmp/ch1/lineage/status_stratified_lineage_isolation.csv')
           if lineage.empty:
               raise SystemExit('Required M3 lineage safeguard is missing')
           confirmatory_within = within.loc[within['support_tier'].eq('confirmatory')]
           confirmatory_between = between.loc[between['support_tier'].eq('confirmatory')]
           primary_sensitivity = sensitivity.loc[sensitivity['stratum'].isin(['all_native','native_nonendemic'])]
+          testable_sensitivity = primary_sensitivity.loc[primary_sensitivity['headline_testable'].fillna(False)]
+          conf_domain_within = domain_within.loc[domain_within['support_tier'].eq('confirmatory')]
+          conf_domain_between = domain_between.loc[domain_between['support_tier'].eq('confirmatory')]
           payload = {
-              'contract': 'chapter1_when_where_checkpoint_v3',
+              'contract': 'chapter1_when_where_checkpoint_v4',
               'primary_question': 'when_and_where_is_isolation_associated_floral_reproductive_filtering_detectable',
               'primary_where_test': 'within_context_response_vector_joint_wald',
               'primary_between_where_test': 'pairwise_response_vector_difference_joint_wald',
@@ -206,9 +224,12 @@ jobs:
               'n_confirmatory_supported_between_where_tests': int(confirmatory_between['between_where_supported'].fillna(False).sum()),
               'status_persistence_rows': persistence.to_dict(orient='records'),
               'sensitivity_scenarios': sorted(primary_sensitivity['scenario'].unique().tolist()),
-              'sensitivity_headline_replications': int(primary_sensitivity['headline_replication'].fillna(False).sum()),
-              'sensitivity_headline_replication_opportunities': int(len(primary_sensitivity)),
+              'sensitivity_headline_replications': int(testable_sensitivity['headline_replication'].fillna(False).sum()),
+              'sensitivity_headline_testable_opportunities': int(len(testable_sensitivity)),
+              'sensitivity_headline_untestable_opportunities': int(len(primary_sensitivity)-len(testable_sensitivity)),
               'sensitivity_rows': primary_sensitivity.to_dict(orient='records'),
+              'domain_confirmatory_within_rows': conf_domain_within.to_dict(orient='records'),
+              'domain_confirmatory_between_rows': conf_domain_between.to_dict(orient='records'),
               'lineage_safeguard_present': True,
               'pollination_syndrome_role': 'discussion_only_after_when_where_freeze',
           }
@@ -228,6 +249,10 @@ jobs:
           echo '### WHEN: floristic-status persistence with testability audit' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/ch1/when_where/when_where_status_persistence.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Lower-dimensional trait-domain sensitivity' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/ch1/when_where_domain/when_where_domain_within.csv >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/ch1/when_where_domain/when_where_domain_between.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Robustness scenarios' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/ch1/when_where_sensitivity/when_where_sensitivity_summary.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
@@ -241,6 +266,7 @@ jobs:
             /tmp/ch1/input/
             /tmp/ch1/context/
             /tmp/ch1/when_where/
+            /tmp/ch1/when_where_domain/
             /tmp/ch1/when_where_sensitivity/
             /tmp/ch1/null/
             /tmp/ch1/lineage/
