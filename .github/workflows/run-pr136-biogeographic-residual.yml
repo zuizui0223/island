@@ -1,4 +1,4 @@
-name: Run PR136 biogeographic residual test
+name: Run PR136 biogeographic pattern test
 
 on:
   push:
@@ -37,7 +37,7 @@ jobs:
           gh run download "$CANONICAL_RUN_ID" -n "$CANONICAL_ARTIFACT" -D /tmp/canonical
           test -s /tmp/isolation/results/purpose_shortest_island_data.csv
           test -s /tmp/canonical/null/genus_fixed_null_by_island.csv.gz
-      - name: Run PR136 primary biogeographic residual test
+      - name: Run biogeographic residual pattern test
         run: |
           python -m island_v2.chapter1_pr136_biogeographic_residual \
             --genus-null-csv /tmp/canonical/null/genus_fixed_null_by_island.csv.gz \
@@ -53,7 +53,8 @@ jobs:
           within = pd.read_csv(out/'biogeographic_residual_within_omnibus.csv')
           between = pd.read_csv(out/'biogeographic_residual_between_omnibus.csv')
           with open(Path('/tmp/pr136/biogeographic_summary.md'), 'w') as f:
-              f.write('# PR136 biogeographic residual primary result\n\n')
+              f.write('# PR136 biogeographic residual pattern result\n\n')
+              f.write('Pollinator identity is not used in the primary models.\n\n')
               f.write('## Within-region residual filtering\n\n')
               if within.empty:
                   f.write('No testable within-region vectors.\n')
@@ -72,7 +73,7 @@ jobs:
           cat /tmp/pr136/biogeographic_summary.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
-          name: pr136-biogeographic-residual-${{ github.run_id }}
+          name: pr136-biogeographic-pattern-${{ github.run_id }}
           path: /tmp/pr136/
           if-no-files-found: error
           retention-days: 90
