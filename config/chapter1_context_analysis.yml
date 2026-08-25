@@ -1,7 +1,10 @@
-version: "1.0"
+version: "1.1"
 
-# Canonical Chapter 1 M0-M2 predictors. Floristic status is handled by explicit
-# all-native/native-nonendemic/endemic strata; lineage composition is handled by M3.
+# Canonical Chapter 1 model nesting:
+# M0 = baseline covariates + biogeographic-context main effects
+# M1 = M0 + one universal isolation slope
+# M2 = M1 + isolation x context interactions
+# Thus only M1->M2 tests whether isolation responses are biogeographically contingent.
 baseline_covariates:
   - log_island_area_km2
   - climate_pc1
@@ -15,7 +18,10 @@ reference_context: northern_midlatitude
 cluster_column: spatial_block
 
 min_islands_per_fit: 30
-min_islands_per_context: 8
+# Do not let tiny regional subsets define the primary when/where result.
+# 30 is the predeclared pilot boundary; >=50 is labelled confirmatory in outputs.
+min_islands_per_context: 30
+confirmatory_islands_per_context: 50
 
 status_handling:
   primary_strata: [all_native, native_nonendemic, endemic]
