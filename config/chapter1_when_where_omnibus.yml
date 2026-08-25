@@ -1,0 +1,47 @@
+version: "1.0"
+
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+isolation_column: log_distance_to_continent_km
+context_column: analysis_regime
+cluster_column: spatial_block
+
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+
+strata:
+  - all_native
+  - native_nonendemic
+  - endemic
+
+support_tiers:
+  confirmatory: 50
+  pilot: 30
+
+interpretation:
+  where: >-
+    A context is a supported WHERE only when the joint vector test survives BH
+    correction within the declared floristic-status stratum and support tier.
+  between_where: >-
+    A difference between two contexts is supported only when the pairwise joint
+    interaction-vector test survives BH correction. Significance in one context
+    and nonsignificance in another is not evidence of a difference.
+  when: >-
+    WHEN is operationalized as persistence across floristic-status strata. A signal
+    that remains in native_nonendemic flora is distinguished from a signal confined
+    to endemic or all-native composition. This is a persistence classification, not
+    a formal causal contrast among overlapping strata.
+
+pollinator_boundary:
+  primary_predictors_allowed: false
+  rule: >-
+    Bombus, bird, butterfly, moth and other pollinator labels are excluded from
+    these tests. They may be considered only after the when/where result is frozen.
