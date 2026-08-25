@@ -1,106 +1,136 @@
-# Analysis model ladder M0-M4 (Stage 7). See docs/trait_evidence_design_v2.md.
+# Chapter 1 analysis model ladder.
 #
-# NOTE ON NAMESPACES: these M0-M4 are ANALYSIS MODELS (a hypothesis ladder), NOT the
-# trait evidence layers in config/trait_layers.yml (floral phenotype / reproductive
-# assurance / pollinator function). Do not conflate the two.
+# Primary question:
+#   When and where does island isolation coincide with floral and reproductive
+#   filtering, and is that filtering globally uniform or biogeographically contingent?
 #
-# Gated: no model is fitted or released until accepted taxon scope AND island
-# establishment AND the region-scoped Bombus applicability freeze hold. The outcome is
-# always a floral-phenotype-type proxy, never an assertion of the actual pollinator.
-# reported evidence and proxy stay in separate columns in every model.
-version: "1.0"
+# Bombus / bird / Lepidoptera / other pollinator-syndrome interpretations are
+# downstream discussion or sensitivity layers, not required primary predictors.
+version: "2.0"
 
 baseline_covariates:
-  - geography
-  - source_pool
-  - lineage_composition
   - island_area
-  - isolation
   - climate
-  - establishment
-  - observation_process
+  - floristic_status_endemicity
+  - lineage_source_pool_composition
+  - establishment_reachability_if_represented
+  - observation_evidence_support
 
-# Outcomes are observed flower/reproductive categories, not an inferred
-# pollinator guild. Binary plain/generalized summaries are secondary only.
+primary_exposure:
+  - isolation
+
+primary_effect_modifier:
+  - biogeographic_context
+
+# The context variable must be frozen independently of the floral/reproductive outcomes.
+biogeographic_context_rule: >-
+  Use the most defensible frozen regional/source-pool grouping available in the
+  analysis dataset. Do not define context from trait outcomes or pollinator-syndrome
+  interpretation. Alternative context schemes are sensitivity analyses.
+
 primary_outcomes:
   - multistate_flower_colour_composition
-  - multistate_floral_form_and_symmetry_composition
-  - flower_size_and_access_measurements
-  - reproductive_architecture_and_assurance_composition
+  - multistate_floral_form_composition
+  - floral_symmetry_tube_depth_access_and_size_where_supported
+  - reproductive_compatibility_and_assurance_composition
+
 secondary_summaries:
   - plain_vs_conspicuous
   - generalized_vs_specialized
+  - sc_vs_si
 
-# Reproductive information is intentionally multivariate. Sex expression is a
-# structural state and must not be converted into a realized mating system.
-reproductive_information:
-  architecture_covariates_or_secondary_outcomes:
-    - sex_system
-    - herkogamy
-    - dichogamy
-  compatibility:
-    - self_incompatibility
-  reproductive_assurance_mediators:
-    - autonomous_selfing_capacity
-    - mating_system
-    - cleistogamy
-  non_equivalence_rule: >-
-    Never derive selfing, outcrossing, self-compatibility, or pollen vector from
-    hermaphroditic or monoecious sex expression. Keep dioecy as a reported
-    reproductive-architecture category rather than recoding it as a measured
-    mating-system value.
-
-# Alternative pollination-channel phenotype proxies for the M4 compensation model.
-alternative_functional_replacement_proxies:
-  - open_or_generalist_insect_like
-  - small_bee_or_fly_like
-  - butterfly_or_moth_like
-  - bird_or_butterfly_like_floral_phenotype_proxy
-  - bird_or_bat_like
-  - wind_like
+reproductive_non_equivalence_rule: >-
+  Self-compatibility, autonomous selfing, mating system, sex system and pollen
+  vector are separate domains. Never derive one from another unless a direct
+  source explicitly supplies the relevant state.
 
 models:
   M0:
-    name: baseline
+    name: biogeographic_baseline
     covariates: baseline_covariates
-    outcome: composition of floral-phenotype / reproductive-architecture / reproductive-assurance proxies
-    question: Can the baseline alone explain the proxy composition?
+    outcome: primary_outcomes
+    question: >-
+      How much floral/reproductive composition is explained by area, climate,
+      floristic status, lineage/source-pool structure, establishment/reachability
+      and observation support before isolation is added?
 
   M1:
-    name: bombus_channel_association
-    covariates: baseline_covariates + bombus_channel_state
-    outcome: multistate floral-signal and floral-architecture composition
-    note: Comparison of floral phenotype by Bombus-channel state; NOT confirmation of the real pollinator.
+    name: universal_isolation_baseline
+    covariates: baseline_covariates + isolation
+    outcome: primary_outcomes
+    question: >-
+      Does isolation show one broadly shared floral/reproductive direction after
+      the baseline alternatives are represented?
 
   M2:
-    name: reproductive_assurance_mediated_route
-    path: bombus_channel_state -> compatibility/selfing/assurance (reported OR proxy) -> floral phenotype proxy
-    structural_covariate_or_secondary_outcome: sex_system
-    note: >-
-      Mediation uses compatibility and direct assurance variables. Sex system is
-      analysed separately as reproductive architecture, never as a selfing proxy.
+    name: biogeographic_contingency
+    covariates: baseline_covariates + isolation + biogeographic_context + isolation:biogeographic_context
+    outcome: primary_outcomes
+    status: primary_chapter1_model
+    question: >-
+      Do isolation-associated trait responses differ in magnitude or direction
+      among biogeographic contexts?
 
   M3:
-    name: joint_direct_plus_mediated_route
-    paths:
-      - bombus_channel_state -> floral_phenotype_proxy                                   # direct
-      - bombus_channel_state -> reproductive_assurance (reported/proxy) -> floral_phenotype_proxy  # mediated
-    structural_covariate_or_secondary_outcome: sex_system
-    note: Both paths are carried simultaneously; sex system remains a separate categorical term.
+    name: status_lineage_residual
+    base_model: M2
+    safeguards:
+      - conservative_native_or_endemicity_strata_where_supported
+      - genus_family_or_source_pool_preserving_expectation
+      - clade_stratified_or_phylogenetic_sensitivity_where_feasible
+    outcome: residual_or_conditioned_primary_outcomes
+    question: >-
+      Does a regional isolation-associated trait pattern remain after floristic
+      status and inherited lineage/source-pool composition are constrained?
 
   M4:
-    name: alternative_functional_replacement_compensation
-    main_term: bombus_channel_state x alternative_functional_replacement_proxy   # interaction
-    scope: islands where the Bombus channel is weak, absent, or not applicable
-    status: optional_only_when_direct_interaction_evidence_is_adequate
-    question: >
-      Does the Bombus-like phenotype reduction on Bombus-absent islands weaken,
-      disappear, or reverse because another channel type is present (compensation)?
+    name: category_preserving_decomposition
+    base_model: M2_or_M3
+    outcome: individual_retained_trait_categories
+    question: >-
+      Which observed colour, floral-form and reproductive categories create,
+      oppose or cancel the broad regional trait response?
+
+pollination_syndrome_concordance:
+  stage: after_M0_to_M4_results_are_frozen
+  role: discussion_interpretation_only
+  comparisons:
+    northern_temperate:
+      candidate_literature_contexts:
+        - Bombus_associated
+        - large_or_long_tongued_bee_associated
+    tropical_or_southern:
+      candidate_literature_contexts:
+        - bird_associated
+        - butterfly_or_moth_associated
+        - hawkmoth_associated
+        - alternative_bee_associated
+  rule: >-
+    Compare multivariate observed trait directions with literature-defined
+    syndrome expectations. Do not infer an actual pollinator guild from a floral
+    phenotype and do not use syndrome concordance as an input to the fitted model.
+
+bombus_products:
+  canonical_primary_predictor: false
+  retained_roles:
+    - provenance
+    - descriptive_regional_context
+    - exploratory_diagnostics
+    - sensitivity_analysis
+    - candidate_system_selection_for_mechanistic_followup
+  prohibited_interpretations:
+    - environmental_compatibility_as_realized_occurrence
+    - opportunistic_nondetection_as_historical_loss
+    - occurrence_as_visitation_or_effectiveness
+    - association_as_pollinator_caused_evolution
+  acquisition_rule: >-
+    Do not launch additional Bombus acquisition solely to rescue a weak/null
+    mechanism in Chapter 1.
 
 guardrails:
-  - reported evidence and proxy are separate columns in every model (M0-M4).
-  - a proxy is a candidate phenotype-type outcome from web/DB/literature statements or
-    trait information; it is not real data.
-  - never label a taxon "Bombus-pollinated" from floral or reproductive traits.
-  - pollinator guild is optional direct interaction evidence, never an exhaustively inferred outcome.
-  - gated behind accepted taxon scope, island establishment, and the Bombus applicability freeze.
+  - reported evidence and proxy/inference remain separate in every analysis.
+  - category-preserving outcomes precede composite syndrome summaries.
+  - biogeographic context is frozen independently of trait outcomes.
+  - lineage/source-pool structure is not optional for manuscript-level inference.
+  - pollination-syndrome concordance is interpretation, not a fitted causal variable.
+  - Chapter 1 identifies pattern and boundary conditions; unresolved mechanism is handed to Chapter 2.
