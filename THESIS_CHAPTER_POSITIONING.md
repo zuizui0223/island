@@ -2,109 +2,155 @@
 
 ## Role in the dissertation
 
-This repository is the **Chapter 1 / macroecological boundary-condition** component of the dissertation.
+This repository is the **Chapter 1 / macroecological pattern-and-boundary** component of the dissertation.
 
 The shared dissertation-level question is:
 
 > **How does geographic isolation alter plant reproduction through changes in ecological interactions, and why do those changes produce different floral outcomes across islands and lineages?**
 
-`island` addresses the first half of that question:
+`island` addresses the first step:
 
-> **Where and under what biogeographic conditions does island isolation generate floral and reproductive filtering?**
+> **When and where does island isolation coincide with floral and reproductive filtering, and is that filtering globally uniform or biogeographically contingent?**
 
-The companion repository [`zuizui0223/izu-core`](https://github.com/zuizui0223/izu-core) is Chapter 2 and addresses the mechanistic follow-up: how a changed pollination environment is translated into reproductive and floral responses within lineages and field systems. [`zuizui0223/shimahotarubukuro`](https://github.com/zuizui0223/shimahotarubukuro) is Chapter 3 and supplies a high-resolution within-lineage empirical phenotype for *Campanula microdonta* across the Izu island series.
+The companion repository [`zuizui0223/izu-core`](https://github.com/zuizui0223/izu-core) is Chapter 2 and addresses the mechanistic follow-up: why different pollination environments generate branching, propagation, buffering, or alternative responses. [`zuizui0223/shimahotarubukuro`](https://github.com/zuizui0223/shimahotarubukuro) is Chapter 3 and supplies a directly measured within-lineage floral phenotype for *Campanula microdonta* across the Izu island series.
 
-## Chapter 1 hypothesis: channel-gated island assembly
+## Chapter 1 hypothesis: biogeographically contingent floral island syndrome
 
-The working hypothesis is the **Channel-gated island assembly hypothesis**.
+The working Chapter 1 hypothesis is:
 
-> Island isolation should not generate a universal floral syndrome. Instead, reproductive and floral trait filtering should emerge when isolation disrupts a pollination channel that is regionally available and biologically relevant to the source-pool context. Structural absence of a pollinator guild is therefore not equivalent to its loss. Comparable geographic isolation may produce different floral assemblages depending on whether the relevant channel is retained, disrupted, or not regionally applicable.
+> **Island isolation does not generate one universal floral and reproductive syndrome. Instead, the magnitude and direction of isolation-associated trait filtering differ among biogeographic contexts after floristic status, lineage composition, climate, island geography, source-pool structure and observation support are represented.**
 
-A broader conceptual implication is that pollinator functional groups can differ in their susceptibility to oceanic barriers. Consequently, a classical floral island syndrome should be strongest where isolation removes a regionally available pollination channel, and should weaken, disappear, or take a different phenotypic direction where that channel is structurally absent and other pollination functions can persist.
+The Chapter 1 target is therefore the **pattern and its boundary conditions**, not identification of the pollinator mechanism that produced it.
 
-## Operational test in this repository
+### H1 — universal-syndrome hypothesis
 
-The comparative analysis deliberately separates three Bombus states:
-
-1. **retained** — Bombus is regionally applicable and supported on the island;
-2. **expected-but-deficient** — Bombus is native to the source-region context and the island is environmentally compatible, but island evidence indicates a reduced or missing Bombus channel under adequate observation;
-3. **structurally absent** — Bombus is not native to the relevant source-region context, so absence is not interpreted as channel loss.
-
-The primary Chapter 1 prediction is not `Bombus absent -> island syndrome`. It is:
+A classical universal-syndrome model predicts that comparable isolation produces broadly similar changes in reproductive and floral composition across regions.
 
 ```text
-regionally applicable Bombus channel
-+ island isolation
-+ expected-but-deficient Bombus state
--> increased representation of classical island-syndrome traits
+isolation
++ area + climate + status + lineage/source-pool + observation
+-> trait composition
 ```
 
-The focal response domains are reproductive assurance / self-compatibility and floral generalization, with plain or inconspicuous colour retained as a secondary phenotype rather than a universal endpoint.
+If the same trait direction is recovered across biogeographic contexts after those controls, the universal model remains viable.
 
-## Falsification and counter-pattern
+### H2 — regional-contingency hypothesis
 
-The structurally absent regime is not treated as a failed Bombus projection. It is an explicit falsification condition.
+The primary Chapter 1 test is whether isolation-associated trait vectors differ among biogeographic contexts:
 
-If Bombus absence alone caused the classical syndrome, structurally absent regions should converge on the same reproductive and floral pattern. The alternative prediction is that these regions need not show the same generalization. Existing category-preserving floral traits are therefore used to test whether conspicuous colours and tubular, deep, or otherwise specialized floral forms remain represented.
+```text
+isolation × biogeographic context
++ area + climate + floristic status/endemicity
++ lineage/source-pool structure + observation support
+-> floral and reproductive composition
+```
 
-Such a counter-pattern may be discussed as **consistent with** pollination syndromes associated with birds, Lepidoptera, hawkmoths, other bees, or other alternative functional groups. This repository does **not** infer that those pollinators actually caused the pattern unless independent interaction/effectiveness evidence exists.
+The key prediction is not that one named pollinator explains the difference. It is that **the direction and/or magnitude of floral and reproductive filtering is context dependent**.
+
+### H3 — category-preserving response decomposition
+
+Broad binary summaries are secondary. The main interpretation preserves individual response categories where support permits, including:
+
+- self-incompatibility / self-compatibility and other reproductive-assurance states;
+- open/generalized versus tubular, salverform, bilabiate, spurred and other floral forms;
+- white/inconspicuous, yellow/orange, red/pink, blue/purple and other colour states;
+- tube depth, symmetry, flower size and other directly supported architecture traits.
+
+The purpose is to determine **which trait categories create, oppose or cancel an apparent regional syndrome**, rather than forcing all traits into one island-syndrome score.
+
+## Pollination-syndrome concordance is an interpretation layer
+
+Chapter 1 no longer requires a global Bombus-deficit variable for its primary inference.
+
+If a northern-temperate isolation-associated trait vector resembles patterns historically associated with reduced Bombus / large- or long-tongued-bee pollination in island systems, that correspondence may be discussed as **pollination-syndrome concordance**.
+
+Likewise, if tropical or southern counter-patterns retain conspicuous colours, deep or tubular forms, or other combinations consistent with bird-, Lepidoptera-, hawkmoth- or alternative-bee syndromes, those correspondences may be discussed symmetrically.
+
+These comparisons are deliberately interpretive:
+
+```text
+observed multivariate trait direction
+<-> literature-defined pollination-syndrome expectation
+```
+
+They do **not** establish that the corresponding pollinator guild caused the pattern, was retained on each island, or replaced another guild.
+
+## Status of the Bombus data products
+
+Existing Bombus applicability, environmental-compatibility and occurrence-diagnostic products are retained for provenance, exploratory diagnostics and sensitivity analyses. They are not required to define the Chapter 1 primary model.
+
+In particular:
+
+- climatic compatibility is not realized occurrence or pollination service;
+- opportunistic non-detection is not historical loss;
+- a Bombus record is not equivalent to effective pollination;
+- Bombus absence is not assumed to cause SC, floral generalization or colour change; and
+- weak or null Bombus proxies are not rescued by additional acquisition simply to preserve a preferred mechanism.
+
+This demotion is intentional. The current global data are better suited to identifying **where trait filtering differs** than to identifying **which pollinator mechanism caused that difference**.
 
 ## What Chapter 1 identifies
 
 The primary estimand is **comparative assemblage filtering**, not within-lineage evolutionary causation.
 
-The analysis asks whether floral and reproductive composition differs conditionally across island regimes after accounting for the strongest available alternatives, including:
+The analysis asks whether floral and reproductive composition differs with isolation after accounting for the strongest available alternatives, including:
 
-- island isolation, area, and climate;
+- island area and climate;
 - floristic status / endemicity;
-- source-pool and lineage composition where available;
-- establishment / reachability structure; and
+- source-pool and lineage composition;
+- establishment / reachability structure where represented; and
 - observation and evidence-coverage processes.
 
-The intended inference is therefore:
+The intended inference is:
 
 ```text
 biogeographic filtering first
--> residual interaction-associated filtering second
+-> regional trait-response pattern second
+-> candidate ecological interpretation third
 ```
 
-A Bombus-associated residual pattern is evidence compatible with a channel-gated assembly mechanism. It is not, by itself, evidence that historical Bombus loss caused floral evolution within an extant lineage.
+## Handoff to Chapter 2
+
+Chapter 1 should end with an unresolved mechanistic question rather than answering it with proxy data:
+
+> **Why do the regional trait syndromes differ?**
+
+Candidate explanations include Bombus identity, long-tongued pollinator function, pollinator functional diversity, trait matching, effective pollination service, functional replacement, reproductive assurance, and non-pollination geography/history.
+
+Chapter 2 (`izu-core`) is the appropriate place to distinguish those alternatives because it applies a stricter mechanistic standard and explicitly separates visitor identity, functional exposure, effective service, reproductive dependency and downstream response.
 
 ## Relationship to Chapters 2 and 3
 
-The three chapters answer different levels of the same problem.
-
 | Chapter 1 — `island` | Chapter 2 — `izu-core` | Chapter 3 — `shimahotarubukuro` |
 | --- | --- | --- |
-| global / multi-island comparative scale | Izu / lineage / plant / network scale | one focal lineage across five Izu islands |
-| asks **where and when** filtering appears | asks **how and why** biological responses are generated | asks **what phenotype actually diverges** |
-| identifies boundary conditions for assemblage filtering | identifies reproductive and interaction mechanisms | directly measures multidimensional floral divergence |
-| Bombus is a regional channel indicator / natural experiment | Bombus identity alone is insufficient; effectiveness and dependency must be identified | causal Bombus contrasts are deliberately excluded |
-| output is trait-composition / assemblage association | output is reproductive, pollen-transfer, dependency, and response-mode evidence | output is site-corrected trait differentiation and Pst / pairwise Pst |
-| does not claim within-lineage evolution from cross-sectional composition | separates local reproduction `F(z)` from establishment / reachability `E(z)` | measures phenotype but does not equate Pst with Qst or selection |
+| global / multi-island comparative scale | mechanistic response architecture | one focal lineage across five Izu islands |
+| asks **when and where** different trait syndromes appear | asks **how and why** responses branch | asks **what phenotype actually diverges** |
+| identifies biogeographic boundary conditions | distinguishes candidate mechanisms and response states | directly measures multidimensional floral divergence |
+| pollinator syndromes are discussion-level interpretations | pollinator function is treated mechanistically | causal pollinator contrasts remain outside the morphometric pipeline |
+| output is regional trait-composition response | output is mechanism / branching / propagation / buffering evidence | output is site-corrected trait differentiation and Pst / pairwise Pst |
+| does not infer a pollinator cause from trait composition | does not equate pollinator identity with effectiveness | does not equate Pst with Qst or selection |
 
-The handoff is:
+The thesis-level handoff is:
 
 ```text
-Chapter 1: Geography -> channel regime -> assemblage filtering
+Chapter 1: isolation × biogeographic context -> regional trait syndromes
                          |
                          v
-Chapter 2: channel regime -> plant-specific functional/reproductive response
+Chapter 2: candidate interaction mechanisms -> branching / propagation / buffering
                          |
                          v
 Chapter 3: focal lineage -> realized multidimensional floral divergence
 ```
 
-Chapter 1 establishes whether a pollination-channel boundary is a plausible condition for island floral filtering. Chapter 2 tests why the same broad functional change can yield continuous erosion, threshold reproductive assurance, interaction rewiring, no shared morphology response, or alternative-guild specialization. Chapter 3 then anchors those broader ideas in a directly measured focal phenotype, showing which *C. microdonta* floral axes actually differ among island populations without treating the pattern itself as causal proof.
-
 ## Claim boundary
 
-This repository should not claim that:
+Chapter 1 should not claim that:
 
 - all isolated islands share one floral syndrome;
-- simple Bombus absence is equivalent to Bombus loss;
-- a floral syndrome identifies the pollinator that caused it;
-- bird- or butterfly-like floral traits prove functional replacement; or
+- regional trait differences identify the causal pollinator;
+- Bombus absence is equivalent to Bombus loss or service loss;
+- bird- or butterfly-like floral traits prove functional replacement;
+- a pollination syndrome is a direct observation of pollinator use; or
 - cross-sectional assemblage composition alone demonstrates within-lineage floral evolution.
 
-The Chapter 1 contribution is narrower and stronger: **to identify the biogeographic conditions under which a classical island floral syndrome appears, fails to appear, or takes a different phenotypic direction.**
+The Chapter 1 contribution is narrower and stronger: **to identify when and where floral and reproductive island syndromes emerge, disappear, or change direction, while leaving the causal ecological mechanism for explicit mechanistic testing in Chapter 2.**
