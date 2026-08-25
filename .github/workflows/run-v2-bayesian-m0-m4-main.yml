@@ -1,27 +1,34 @@
-name: run_v2_bayesian_m0_m4_main
+name: legacy_v2_bayesian_bombus_m0_m4
 
+# Historical Bombus-primary analysis retained for reproducibility only.
+# It is NOT the canonical Chapter 1 workflow after the 2026-08-25
+# biogeographically-contingent syndrome redesign.
+#
+# Current primary model contract:
+#   config/analysis_models.yml
+# Current manuscript contract:
+#   docs/manuscript_submission_contract.md
+#
+# Manual dispatch is retained so historical outputs can still be reproduced.
 on:
   workflow_dispatch:
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/run-v2-bayesian-m0-m4-main.yml"
-      - "analysis/v2/run_bayesian_m0_m4_main.R"
-      - "src/island_v2/prepare_v2_bayesian_main_input.py"
-      - "tests/test_prepare_v2_bayesian_main_input.py"
-      - "config/integrated_trait_bombus_artifact_lock.json"
-      - "config/purpose_shortest_artifact_lock.json"
 
 permissions:
   actions: read
   contents: read
 
 jobs:
-  bayesian-main:
+  legacy-bayesian-bombus:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
+
+      - name: State noncanonical boundary
+        run: |
+          echo 'This is a legacy Bombus-primary sensitivity/reproducibility workflow.'
+          echo 'Do not use its M0-M4 labels as the current Chapter 1 manuscript model ladder.'
+          echo 'See config/analysis_models.yml and docs/manuscript_submission_contract.md.'
 
       - uses: actions/setup-python@v5
         with:
@@ -60,7 +67,7 @@ jobs:
           mkdir -p /tmp/covariates
           unzip -q /tmp/covariates.zip -d /tmp/covariates
 
-      - name: Prepare compact island-level Bayesian input
+      - name: Prepare historical compact island-level input
         run: |
           set -euo pipefail
           MASTER=$(find /tmp/integrated -type f -path '*/bombus_join/primary/island_species_trait_bombus_master.csv.gz' -print -quit)
@@ -71,27 +78,17 @@ jobs:
             --master-csv-gz "$MASTER" \
             --island-covariates-csv "$COV" \
             --output-csv data/v2/staging/analysis/bayesian_main/v2_bayesian_main_input.csv
-          python - <<'PY'
-          import pandas as pd
-          p='data/v2/staging/analysis/bayesian_main/v2_bayesian_main_input.csv'
-          d=pd.read_csv(p)
-          assert d['island_id'].is_unique
-          assert len(d)==8265
-          assert (d['color_trials'].fillna(0)>=d['color_plain'].fillna(0)).all()
-          assert (d['form_trials'].fillna(0)>=d['form_open_generalized'].fillna(0)).all()
-          print(d[['analysis_regime','area_km2','distance_to_continent_km','bombus_deficit','color_trials','form_trials','sc_trials']].describe(include='all'))
-          PY
 
-      - name: Install R and precompiled Bayesian packages
+      - name: Install R and Bayesian packages
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             r-base r-cran-brms r-cran-bh r-cran-data.table r-cran-posterior r-cran-loo r-cran-jsonlite r-cran-extradistr
           sudo Rscript -e "install.packages(c('BH', 'StanHeaders'), repos='https://cloud.r-project.org', quiet=TRUE)"
           sudo Rscript -e "install.packages('brms', repos='https://cloud.r-project.org', quiet=TRUE)"
-          Rscript -e "parse(file='analysis/v2/run_bayesian_m0_m4_main.R'); library(BH); stopifnot(nchar(system.file('include', package='BH')) > 0); packageVersion('brms'); packageVersion('extraDistr')"
+          Rscript -e "parse(file='analysis/v2/run_bayesian_m0_m4_main.R')"
 
-      - name: Run Bayesian M0-M4 main analysis
+      - name: Run historical Bombus-primary analysis
         run: |
           set -o pipefail
           mkdir -p data/v2/staging/analysis/bayesian_main/results
@@ -100,26 +97,11 @@ jobs:
             data/v2/staging/analysis/bayesian_main/results \
             2>&1 | tee data/v2/staging/analysis/bayesian_main/results/run.log
 
-      - name: Summarize main results
-        if: success()
-        run: |
-          echo '## Bayesian v2 M0-M4 main analysis' >> "$GITHUB_STEP_SUMMARY"
-          cat data/v2/staging/analysis/bayesian_main/results/analysis_metadata.json >> "$GITHUB_STEP_SUMMARY"
-          echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### M0-M3 summed component LOO-ELPD comparison' >> "$GITHUB_STEP_SUMMARY"
-          cat data/v2/staging/analysis/bayesian_main/results/m0_m3_scenario_comparison_total_elpd.csv >> "$GITHUB_STEP_SUMMARY"
-          echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### M3 indirect effects' >> "$GITHUB_STEP_SUMMARY"
-          cat data/v2/staging/analysis/bayesian_main/results/m3_indirect_effects.csv >> "$GITHUB_STEP_SUMMARY"
-          echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### M4 category-preserving effects' >> "$GITHUB_STEP_SUMMARY"
-          head -40 data/v2/staging/analysis/bayesian_main/results/m4_multinomial_fixed_effects.csv >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Upload Bayesian main-analysis artifact
+      - name: Upload historical artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: v2-bayesian-m0-m4-main-${{ github.run_id }}
+          name: legacy-v2-bayesian-bombus-m0-m4-${{ github.run_id }}
           path: data/v2/staging/analysis/bayesian_main/
           if-no-files-found: error
           retention-days: 90
