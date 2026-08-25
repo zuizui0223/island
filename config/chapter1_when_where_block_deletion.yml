@@ -1,0 +1,26 @@
+version: "1.0"
+
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+isolation_column: log_distance_to_continent_km
+context_column: analysis_regime
+cluster_column: spatial_block
+north_context: northern_midlatitude
+tropical_context: tropical
+confirmatory_min_islands: 50
+
+strata:
+  - all_native
+  - native_nonendemic
+
+interpretation:
+  role: leverage_sensitivity_not_primary_estimator
+  rule: >-
+    Delete each spatial block once and rerun the complete confirmatory north/tropical
+    WHERE and BETWEEN-WHERE tests. A failure caused by loss of response support is
+    recorded as not testable, not as a biological null.
