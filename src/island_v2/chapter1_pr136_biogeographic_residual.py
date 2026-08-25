@@ -1,12 +1,16 @@
 """PR136 primary pattern test: biogeographic contingency of genus-fixed residual traits.
 
 The Chapter 1 primary analysis deliberately does *not* put Bombus or any other
-pollinator into the model. It asks first whether geography-associated floral and
-reproductive filtering remains after floristic status and genus composition are
-represented, and whether that residual response vector differs among
-biogeographic contexts.
+pollinator into the model. It first establishes the pattern: whether the classic
+floral island syndrome strengthens along the mainland-distance gradient in northern
+mid-latitude island floras, and whether tropical and southern island floras show a
+weaker, absent, heterogeneous, or different residual trait vector after floristic
+status and genus composition are represented.
 
-Pollination syndromes are interpreted only after the residual vector is frozen.
+Pollination syndromes are interpreted only after the residual vector is established.
+Bombus absence, butterfly mobility, bird pollination, Baker's law, and reduced need
+for attraction are candidate explanations, not primary predictors.
+
 A significant result in one region and a nonsignificant result in another is not
 evidence of regional heterogeneity; the between-context vector contrast is tested
 directly.
@@ -441,7 +445,7 @@ def run(
     within.to_csv(output_dir / "biogeographic_residual_within_omnibus.csv", index=False)
     between.to_csv(output_dir / "biogeographic_residual_between_omnibus.csv", index=False)
     manifest = {
-        "contract": "chapter1_pr136_biogeographic_residual_v1",
+        "contract": "chapter1_pr136_biogeographic_residual_v2",
         "primary_response": "observed direct trait share minus same-genus null expectation",
         "primary_modifier": config["context_column"],
         "pollinator_predictors_in_primary_model": False,
