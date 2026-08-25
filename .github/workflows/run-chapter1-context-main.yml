@@ -1,4 +1,4 @@
-name: Run Chapter 1 context-dependent main analysis
+name: Run Chapter 1 when-where main analysis
 
 on:
   workflow_dispatch:
@@ -42,16 +42,19 @@ jobs:
             src/island_v2/chapter1_context_input.py \
             src/island_v2/chapter1_context_analysis.py \
             src/island_v2/chapter1_trait_vector_freeze.py \
+            src/island_v2/chapter1_when_where_omnibus.py \
             src/island_v2/flora_status_support.py \
             src/island_v2/genus_fixed_trait_null.py \
             src/island_v2/status_stratified_lineage_analysis.py \
             tests/test_chapter1_context_workflow.py \
             tests/test_chapter1_multistate_normalization.py \
-            tests/test_chapter1_trait_vector_freeze.py
+            tests/test_chapter1_trait_vector_freeze.py \
+            tests/test_chapter1_when_where_omnibus.py
           pytest -q \
             tests/test_chapter1_context_workflow.py \
             tests/test_chapter1_multistate_normalization.py \
-            tests/test_chapter1_trait_vector_freeze.py
+            tests/test_chapter1_trait_vector_freeze.py \
+            tests/test_chapter1_when_where_omnibus.py
 
       - name: Download locked trait, status, and geographic inputs
         run: |
@@ -81,7 +84,7 @@ jobs:
             --output-dir /tmp/ch1/input
           test -s /tmp/ch1/input/chapter1_trait_composition_long.csv.gz
 
-      - name: Audit required context covariates
+      - name: Audit required when-where covariates
         run: |
           python - <<'PY'
           import pandas as pd
@@ -98,7 +101,7 @@ jobs:
           print(d['analysis_regime'].value_counts(dropna=False).to_string())
           PY
 
-      - name: Fit M0-M2 and category-preserving M4
+      - name: Fit atomic M0-M2 diagnostic layer
         run: |
           python -m island_v2.chapter1_context_analysis \
             --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
@@ -107,6 +110,17 @@ jobs:
             --output-dir /tmp/ch1/context
           test -s /tmp/ch1/context/chapter1_model_support.csv
           test -s /tmp/ch1/context/chapter1_context_analysis_manifest.json
+
+      - name: Fit primary when-where response-vector omnibus tests
+        run: |
+          python -m island_v2.chapter1_when_where_omnibus \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_when_where_omnibus.yml \
+            --output-dir /tmp/ch1/when_where
+          test -s /tmp/ch1/when_where/when_where_within_context_omnibus.csv
+          test -s /tmp/ch1/when_where/when_where_between_context_omnibus.csv
+          test -s /tmp/ch1/when_where/when_where_status_persistence.csv
 
       - name: Build genus-fixed M3 lineage residual
         run: |
@@ -129,7 +143,7 @@ jobs:
           test -s /tmp/ch1/lineage/status_stratified_lineage_support.csv
           test -s /tmp/ch1/lineage/status_stratified_lineage_isolation.csv
 
-      - name: Freeze regional trait vectors before syndrome interpretation
+      - name: Freeze atomic trait vectors for interpretation only
         run: |
           python -m island_v2.chapter1_trait_vector_freeze \
             --slopes-csv /tmp/ch1/context/chapter1_context_isolation_slopes.csv \
@@ -138,9 +152,8 @@ jobs:
             --output-dir /tmp/ch1/freeze
           test -s /tmp/ch1/freeze/regional_trait_vector_frozen.csv
           test -s /tmp/ch1/freeze/regional_pattern_classification_frozen.csv
-          test -s /tmp/ch1/freeze/regional_trait_vector_freeze_manifest.json
 
-      - name: Enforce Chapter 1 claim boundary and write checkpoint
+      - name: Enforce Chapter 1 when-where claim boundary and write checkpoint
         run: |
           python - <<'PY'
           import json
@@ -150,53 +163,55 @@ jobs:
           coef = pd.read_csv('/tmp/ch1/context/chapter1_m0_m2_coefficients.csv')
           if not coef.empty and coef['predictor'].astype(str).str.contains('bombus', case=False, regex=False).any():
               raise SystemExit('Bombus predictor leaked into canonical Chapter 1 coefficient table')
-          support = pd.read_csv('/tmp/ch1/context/chapter1_model_support.csv')
-          vector = pd.read_csv('/tmp/ch1/freeze/regional_trait_vector_frozen.csv')
-          patterns = pd.read_csv('/tmp/ch1/freeze/regional_pattern_classification_frozen.csv')
-          lineage = pd.read_csv('/tmp/ch1/freeze/lineage_guardrail_frozen.csv')
-          lineage_present = not lineage.empty
-          if not lineage_present:
+          within = pd.read_csv('/tmp/ch1/when_where/when_where_within_context_omnibus.csv')
+          between = pd.read_csv('/tmp/ch1/when_where/when_where_between_context_omnibus.csv')
+          persistence = pd.read_csv('/tmp/ch1/when_where/when_where_status_persistence.csv')
+          lineage = pd.read_csv('/tmp/ch1/lineage/status_stratified_lineage_isolation.csv')
+          if lineage.empty:
               raise SystemExit('Required M3 lineage safeguard is missing')
+          confirmatory_within = within.loc[within['support_tier'].eq('confirmatory')]
+          confirmatory_between = between.loc[between['support_tier'].eq('confirmatory')]
           payload = {
-              'contract': 'chapter1_context_dependent_checkpoint_v2',
-              'primary_question': 'when_and_where_isolation_associated_trait_filtering_is_biogeographically_contingent',
-              'primary_model': 'M2_isolation_x_biogeographic_context',
-              'trait_category_semantics': 'atomic_presence_for_colour_and_form; mixed_or_variable_for_SC_SI_multistates',
+              'contract': 'chapter1_when_where_checkpoint_v1',
+              'primary_question': 'when_and_where_is_isolation_associated_floral_reproductive_filtering_detectable',
+              'primary_where_test': 'within_context_response_vector_joint_wald',
+              'primary_between_where_test': 'pairwise_response_vector_difference_joint_wald',
+              'when_definition': 'persistence_across_floristic_status_strata',
               'bombus_primary_predictor': False,
-              'pollination_syndrome_concordance': 'discussion_after_atomic_vector_freeze_only',
-              'status_strata_present': sorted(support['stratum'].dropna().astype(str).unique().tolist()),
-              'n_supported_category_models': int((support['status']=='fit').sum()),
-              'n_atomic_context_slope_rows': int(len(vector)),
-              'n_fdr_supported_atomic_slopes': int(vector['fdr_supported'].fillna(False).sum()),
-              'n_regional_pattern_rows': int(len(patterns)),
-              'lineage_safeguard_present': lineage_present,
-              'lineage_safeguard_method': 'genus_composition_preserving_null',
-              'explicit_source_region_assignment_globalized': False,
-              'source_region_assignment_role': 'optional_future_sensitivity_not_required_to_replace_lineage_safeguard',
-              'manuscript_gate': 'analysis_complete_pending_scientific_interpretation_of_frozen_vectors_and_lineage_guardrail',
+              'n_confirmatory_where_tests': int(len(confirmatory_within)),
+              'n_confirmatory_supported_where_tests': int(confirmatory_within['where_supported'].fillna(False).sum()),
+              'n_confirmatory_between_where_tests': int(len(confirmatory_between)),
+              'n_confirmatory_supported_between_where_tests': int(confirmatory_between['between_where_supported'].fillna(False).sum()),
+              'status_persistence_rows': persistence.to_dict(orient='records'),
+              'lineage_safeguard_present': True,
+              'pollination_syndrome_role': 'discussion_only_after_when_where_freeze',
           }
           Path('/tmp/ch1/chapter1_checkpoint.json').write_text(json.dumps(payload, indent=2)+'\n')
           print(json.dumps(payload, indent=2))
           PY
 
-      - name: Summarize frozen results
+      - name: Summarize frozen when-where results
         run: |
-          echo '## Chapter 1 context-dependent analysis' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Frozen atomic regional vectors' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Chapter 1 when / where analysis' >> "$GITHUB_STEP_SUMMARY"
+          echo '### WHERE: within-context response-vector omnibus' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/ch1/when_where/when_where_within_context_omnibus.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### BETWEEN-WHERE: pairwise response-vector differences' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/ch1/when_where/when_where_between_context_omnibus.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### WHEN: floristic-status persistence' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/ch1/when_where/when_where_status_persistence.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Atomic diagnostic layer' >> "$GITHUB_STEP_SUMMARY"
           head -50 /tmp/ch1/freeze/regional_trait_vector_frozen.csv >> "$GITHUB_STEP_SUMMARY"
-          echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Regional pattern classes' >> "$GITHUB_STEP_SUMMARY"
-          head -50 /tmp/ch1/freeze/regional_pattern_classification_frozen.csv >> "$GITHUB_STEP_SUMMARY"
-          echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### M3 lineage guardrail' >> "$GITHUB_STEP_SUMMARY"
-          head -40 /tmp/ch1/freeze/lineage_guardrail_frozen.csv >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: chapter1-context-main-${{ github.run_id }}
+          name: chapter1-when-where-main-${{ github.run_id }}
           path: |
             /tmp/ch1/input/
             /tmp/ch1/context/
+            /tmp/ch1/when_where/
             /tmp/ch1/null/
             /tmp/ch1/lineage/
             /tmp/ch1/freeze/
