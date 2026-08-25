@@ -12,6 +12,7 @@ on:
       - "config/chapter1_context_analysis.yml"
       - "config/flora_status_support.yml"
       - "tests/test_chapter1_context_workflow.py"
+      - "tests/test_chapter1_multistate_normalization.py"
       - ".github/workflows/validate-chapter1-context.yml"
   pull_request:
     branches: [main]
@@ -24,6 +25,7 @@ on:
       - "config/chapter1_context_analysis.yml"
       - "config/flora_status_support.yml"
       - "tests/test_chapter1_context_workflow.py"
+      - "tests/test_chapter1_multistate_normalization.py"
       - ".github/workflows/validate-chapter1-context.yml"
   workflow_dispatch:
 
@@ -50,9 +52,13 @@ jobs:
             src/island_v2/flora_status_support.py \
             src/island_v2/genus_fixed_trait_null.py \
             src/island_v2/status_stratified_lineage_analysis.py \
-            tests/test_chapter1_context_workflow.py
+            tests/test_chapter1_context_workflow.py \
+            tests/test_chapter1_multistate_normalization.py
       - name: Synthetic regression tests
-        run: pytest -q tests/test_chapter1_context_workflow.py
+        run: |
+          pytest -q \
+            tests/test_chapter1_context_workflow.py \
+            tests/test_chapter1_multistate_normalization.py
       - name: Parse frozen configs
         run: |
           python - <<'PY'
