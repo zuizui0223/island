@@ -1,4 +1,4 @@
-contract: canonical_chapter1_biogeographic_filtering_v4
+contract: canonical_chapter1_biogeographic_filtering_v5
 
 chapter_role:
   direct_hypothesis: biogeographically_contingent_island_floral_filtering
@@ -27,6 +27,11 @@ primary_question:
     - Tropical
     - Southern
 
+inference_sequence:
+  - establish_pattern_and_observation_boundary
+  - test_status_lineage_coverage_spatial_and_multiplicity_robustness
+  - compare_only_surviving_multivariate_vector_with_candidate_pollination_mechanisms
+
 direct_hypotheses:
   H1:
     label: universal_syndrome_test
@@ -39,6 +44,10 @@ direct_hypotheses:
     question: do_supported_colour_form_or_reproductive_categories_retain_residual_distance_associations
 
 analysis_order:
+  - stage: island_universe_selection_audit
+    frozen_candidate_islands: 8265
+    current_direct_trait_analysis_islands: 4370
+    rule: missing_islands_are_not_trait_zeros_or_biological_absences
   - stage: floristic_status_response
     estimand: isolation_to_endemic_share_of_resolved_native_species
     note: endemicity_is_a_response_not_a_nuisance_covariate
@@ -71,7 +80,28 @@ baseline_model:
 source_pool:
   required_for_primary_chapter1_estimand: false
   handling: genus_fixed_null_plus_region_and_status_as_observed_structural_controls
+  distance_role: composite_total_gradient_partly_representing_mainland_connectivity_and_source_supply
   claim_ceiling: continent_distance_cannot_be_interpreted_as_pure_isolation_or_source_pool_effect
+
+island_universe_audit:
+  candidate_gshhg_islands: 8265
+  exact_polygon_gbif_record_islands: 4549
+  accepted_species_islands: 4505
+  strict_species_islands: 4453
+  any_resolved_configured_trait_islands: 4370
+  after_covariate_join_islands: 4370
+  corrected_false_label: 83_islands_were_lost_at_trait_resolution_not_covariate_join
+  main_loss_interpretation: no_exact_gbif_record_is_observation_missingness_not_biological_absence
+  regional_retention:
+    Northern: 0.6948
+    Northern_high_latitude: 0.3051
+    Tropical: 0.4962
+    Southern: 0.3789
+  planned_sensitivity:
+    - model_selection_from_region_area_distance_and_climate_without_trait_outcomes
+    - inverse_probability_weighted_pattern_estimates
+    - overlap_trimmed_pattern_estimates
+    - region_specific_selection_sensitivity
 
 trait_scope:
   currently_status_lineage_verified:
@@ -93,6 +123,8 @@ trait_scope:
 pollinator_mechanism_concordance:
   chapter1_analysis_variable: false
   placement: discussion_and_supporting_diagnostics_only
+  chapter1_completion_requires_direct_pollinator_data: false
+  primary_empirical_basis: collected_multivariate_floral_and_reproductive_trait_vector
   northern_candidate: Bombus_or_large_long_tongued_pollinator_function
   tropical_southern_candidates:
     - birds
@@ -106,6 +138,42 @@ pollinator_mechanism_concordance:
     - region_label_identifies_pollinator
     - climatic_compatibility_equals_occurrence_or_deficit
     - trait_concordance_establishes_causation
+
+discussion_trait_vector_rubric:
+  northern_simplification_reproductive_assurance:
+    expected_joint_direction:
+      - more_small_open_shallow_radial_or_generalized_access
+      - more_SC_or_autonomous_selfing_evidence
+      - fewer_large_deep_bilateral_or_specialized_forms
+  bird_channel_retention:
+    inspect_joint_retention:
+      - avian_visible_colour_signal
+      - tubular_or_funnel_architecture
+      - depth_or_robust_size
+      - outcrossing_compatible_reproduction
+  butterfly_channel_retention:
+    inspect_joint_retention:
+      - chromatic_signal
+      - accessible_landing_architecture
+      - intermediate_or_deep_tubular_or_salverform
+  hawkmoth_specialized_moth_retention:
+    inspect_joint_retention:
+      - long_deep_tubular_or_salverform
+      - pale_or_white_signal
+      - outcrossing_compatible_reproduction
+  inference_rule: omnibus_multivariate_pattern_first_then_discussion_concordance
+
+discussion_candidate_mechanisms:
+  northern_formation:
+    condition: coherent_multivariate_simplification_vector_survives_primary_gates
+    candidate: functionally_important_bombus_or_large_long_tongued_channel_lost_without_effective_replacement
+  tropical_southern_nonformation:
+    prediction: northern_vector_weakened_absent_or_heterogeneous_not_obligatorily_reversed
+    candidates:
+      butterflies: chromatic_signal_learning_and_preference
+      hawkmoths_and_specialized_moths: remote_island_colonization_and_long_tube_outcrossing_maintenance
+      birds: persistence_recolonization_or_partial_effective_replacement_and_avian_visible_signals
+  rule: mobility_preference_presence_and_region_labels_do_not_establish_effective_replacement
 
 bombus_hypervolume:
   canonical_chapter1_predictor: false
@@ -147,6 +215,16 @@ current_evidence_verdict:
     - tropical_endemic_SC_null_n27
   pilot_stopped:
     - tropical_endemic_generalized_form_null_n29_complete_case
+
+unresolved_questions:
+  chapter1_completion:
+    - multivariate_syndrome_after_status_lineage_coverage_and_selection
+    - geographic_bias_from_8265_to_4370_observation_selection
+  discussion_or_later_causal_followup:
+    - realized_northern_pollinator_functional_deficit
+    - effective_alternative_guild_replacement
+    - source_pool_connectivity_vs_pollinator_attribution_within_distance_gradient
+    - assembly_filtering_vs_in_situ_evolution
 
 claim_ceiling:
   - no_universal_floral_island_syndrome_recovered

@@ -13,6 +13,9 @@ recovers robust floristic/endemic turnover, a small Northern colour-category
 residual, and broad null results after status and lineage control. The word
 `syndrome` therefore remains a question, not the result.
 
+The order is `pattern -> structural tests -> mechanistic concordance`. Pollinator
+mechanisms do not enter until the pattern has survived the primary gates.
+
 ## Direct hypotheses
 
 1. **H1 — Universal syndrome test.** Test whether a single pooled isolation
@@ -29,7 +32,20 @@ these direct hypotheses. They enter only as symmetric Discussion-level
 candidate mechanisms if a multivariate trait vector survives the primary
 analysis.
 
+Direct pollinator deficit is not a missing Chapter 1 predictor. The primary data
+are the collected floral and reproductive traits; pollination syndromes are the
+Discussion vocabulary used to interpret, but not relabel, the resulting vector.
+
 ## Analysis sequence
+
+### 0. Audit entry from the physical-island universe
+
+The frozen denominator is 8,265 GSHHG candidates; the current direct-trait table
+contains 4,370. Model entry into the observed analysis set from region, area,
+distance, and climate before fitting trait outcomes. Missing islands are not
+trait zeros. Report unweighted, prespecified inverse-probability-weighted, and
+overlap-trimmed sensitivity estimates. See
+[`chapter1_island_universe_attrition.md`](chapter1_island_universe_attrition.md).
 
 ### 1. Floristic status is a response
 
@@ -110,6 +126,11 @@ but no coefficient may be described as a pure isolation or source-pool effect.
 Region, floristic status, and the genus-fixed null represent the currently
 observable structural context.
 
+This is how the source-pool problem enters the mainline: distance can absorb part
+of the mainland-connectivity and source-supply gradient in the total association,
+while status and genus composition expose two important assembly pathways. It
+cannot tell whether the remaining coefficient is caused by pollinator filtering.
+
 ## Trait scope and replaceability
 
 The status/lineage workflow is currently verified for broad plain colour,
@@ -125,6 +146,19 @@ coverage gates are rerun.
 
 This distinction prevents the pre-status Northern flower-size gradient from
 overriding the more diagnostic status/lineage evidence.
+
+### Multivariate trait target
+
+After pending axes enter the status/lineage workflow, report the residual slope
+vector jointly rather than selecting a pollinator label from one coefficient.
+Before inspecting that vector, freeze literature-based contrast directions for
+Northern simplification/reproductive assurance and for bird-, butterfly-, and
+hawkmoth/specialized-moth retention.
+
+Run an omnibus multivariate region-by-distance test first, then report vector
+concordance with those frozen contrasts. The labels belong in Discussion even if
+the statistical contrast is supported. Direct pollinator data are not required
+for this Chapter 1 endpoint.
 
 ## Current evidence hierarchy
 
@@ -156,11 +190,24 @@ Therefore:
 
 ## Discussion and chapter hand-off
 
-If a future Northern multivariate residual vector survives, Discussion may say
-that it is concordant with documented reductions in large/long-tongued
-pollinator function. Contrasting tropical or Southern vectors may be compared
-symmetrically with alternative pollinator-functional expectations. These
-comparisons do not identify a causal channel.
+If a future Northern multivariate residual vector survives, the formation
+candidate is loss of a functionally important Bombus/large long-tongued channel
+without effective replacement. If the same vector is weak or absent in Tropical
+or Southern systems, the non-formation candidates are persistence, recolonization,
+or replacement by birds, butterflies, hawkmoths, or other guilds.
+
+Those guilds must not be collapsed into one story. Specialized moth dispersal
+supports maintenance of long-tube/outcrossing systems; butterfly colour learning
+supports chromatic signalling; bird persistence or recolonization can sustain
+effective vertebrate pollination, and some bird-pollinated lineages converge in
+avian-visible long-wavelength colour space. The predicted contrast is weakened,
+absent, or heterogeneous Northern-type simplification—not a mandatory tropical
+or Southern reversal. These comparisons do not identify a causal channel.
+
+This is the intended Chapter 1 stopping point: a floral-trait pattern plus a
+bounded syndrome-level Discussion. Island-level Bombus deficit or replacement
+data would address causation later; their absence does not force Chapter 1 to
+become a pollinator-distribution study.
 
 Chapter 2 asks why patterns differ using direct pollinator identity, functional
 diversity, effective service, replacement, and reproductive-assurance evidence.
@@ -198,6 +245,15 @@ including null results. It may not claim historical Bombus loss, observed
 pollinator deficit, functional replacement, effective pollination service,
 causal floral evolution, single-trait pollinator identity, or a separation of
 assembly from in-situ evolution.
+
+## Remaining identification problems
+
+The two remaining Chapter 1 targets are multivariate syndrome coherence and
+selection caused by the geographically structured 8,265-to-4,370 observation
+filter. Realized Northern functional deficit, effective alternative-guild
+replacement, source-pool versus pollinator causal attribution, and assembly
+versus in-situ evolution are claim boundaries for Discussion and later work,
+not requirements for finishing the floral-pattern chapter.
 
 The machine-readable contract is `config/canonical_analysis_mainline.yml`; the
 current empirical verdict is fixed in

@@ -22,6 +22,23 @@ Where and under what biogeographic and floristic contexts does isolation leave
 a floral or reproductive compositional signal beyond status and lineage turnover?
 ```
 
+The inference order is fixed:
+
+```text
+1. establish the pattern and its observation boundary
+2. test whether it survives status, lineage, coverage, and spatial controls
+3. only then compare the surviving multivariate vector with pollination mechanisms
+```
+
+Pollination is therefore the explanation layer, not the definition of the
+pattern. A null residual syndrome remains a valid Chapter 1 result.
+
+Chapter 1 does **not** require island-level pollinator abundance, Bombus deficit,
+or replacement data for completion. Its empirical material is the collected
+floral and reproductive trait matrix. Pollination enters by comparing a
+surviving multivariate trait vector with literature-defined syndromes in the
+Discussion, with an explicit concordance-not-causation ceiling.
+
 The safer term is **filtering**, not **syndrome**. A syndrome should be named only
 if multiple prespecified trait axes retain a coherent, coverage-robust direction.
 
@@ -85,15 +102,88 @@ exploratory climatic-opportunity diagnostic and as a recorded falsification: it
 did not recover the predicted Northern pathway after status and genus
 composition were represented.
 
-If a coherent Northern trait vector is eventually recovered, it may be described
-as **concordant with** documented loss of large/long-tongued pollinator function.
-If a tropical or Southern vector is recovered, it may be compared symmetrically
-with bird-, butterfly-, hawkmoth-, fly-, or other-bee expectations. Neither a
-region nor a single floral trait identifies the pollinator channel.
+The Discussion-level candidate explanation is asymmetric but testable:
+
+- **formation candidate in Northern source-exposed systems:** isolation removes
+  or reduces a functionally important Bombus/large long-tongued channel and it is
+  not effectively replaced, favouring assemblages with simpler access and/or
+  reproductive assurance;
+- **non-formation candidate in Tropical/Southern systems:** alternative channels
+  persist, recolonize, or replace more effectively. Specialized pollinating
+  moths can repeatedly colonize remote islands, hawkmoths can maintain long-tube
+  outcrossing systems, and birds can persist or newly enter island pollination
+  networks. Butterfly colour learning and avian colour-space convergence make
+  retention of chromatic signals plausible.
+
+These are not one rule. Butterflies concern visual signals, hawkmoths concern
+long-tube/night-pollination systems, and birds concern effective persistence or
+replacement plus avian-visible signals. The safe prediction is weakening,
+absence, or heterogeneity of a Northern simplification vector—not obligatory
+`showier flowers` or a reversed slope. Primary examples include repeated island
+colonization by specialized *Epicephala* moths
+([Hembry et al. 2011](https://doi.org/10.1098/rsbl.2011.0771)), butterfly
+discrimination and learning of floral colour phases
+([Weiss 1991](https://doi.org/10.1038/354227a0)), partial compensation by
+recent-colonist birds
+([Pattemore & Wilcove 2012](https://doi.org/10.1098/rspb.2011.2036)), and
+convergent long-wavelength floral signals in a subset of Australian
+bird-pollinated taxa
+([Burd et al. 2014](https://doi.org/10.1098/rspb.2013.2862)).
+
+Neither a region nor a single floral trait identifies a pollinator channel.
+
+### Discussion-level trait-vector rubric
+
+These are candidate interpretations, not fitted biological variables or
+one-to-one pollinator assignments.
+
+| Candidate interpretation | Floral/reproductive vector to inspect |
+|---|---|
+| Northern simplification/reproductive assurance after loss of large long-tongued function | more small, open/shallow, radial or generalized-access forms plus SC/autonomous-selfing evidence; fewer large, deep, bilateral/specialized forms |
+| Bird-channel retention | joint retention of red/pink or another avian-visible signal, tubular/funnel architecture, depth/robust size, and outcrossing-compatible reproduction |
+| Butterfly-channel retention | joint retention of chromatic signals with accessible landing architecture and intermediate/deep tubular or salverform flowers |
+| Hawkmoth/specialized-moth retention | long/deep tubular or salverform architecture, often pale/white signal, and outcrossing-compatible reproduction |
+
+No row is supported by colour alone. The current small Northern red/pink decline
+has no matching confirmatory form vector and therefore does not yet enter a
+pollination-syndrome interpretation.
 
 No additional Bombus occurrence campaign is required to rescue Chapter 1.
 Direct occurrence, visitation, trait matching, pollination effectiveness, and
-functional replacement belong to the mechanism chapter.
+functional replacement would strengthen later causal work, but are not Chapter
+1 completion gates.
+
+## Distance and the source-pool problem
+
+Distance to continent partly represents the user's source-pool argument: nearby
+islands are generally more connected to mainland propagule supply, whereas
+increasing distance can change colonist supply, endemism, lineage composition,
+and mutualist arrival. It is therefore useful for the total Chapter 1 pattern.
+
+The same fact sets the claim ceiling. Distance is a composite
+`isolation + connectivity + source-pool turnover + assembly history` gradient;
+it does not isolate pollinator loss. Region, floristic status, and the genus-fixed
+null remove important observable structure, but they do not uniquely partition
+source pool from pollinator filtering. Explicit source-pool reconstruction is
+not required to ask whether a total distance pattern exists; it is required if
+the goal becomes attribution of that pattern to one causal channel.
+
+## Island-universe boundary
+
+The physical candidate universe contains 8,265 GSHHG islands, while the current
+direct-trait analysis contains 4,370. The reduction is now audited explicitly:
+
+- 3,716 islands have no exact-polygon GBIF plant record in the frozen snapshot;
+- 44 have raw records but no retained accepted-species aggregate;
+- 52 have accepted species but none in the strict species universe;
+- 83 have strict flora but no resolved value on any configured direct trait; and
+- the covariate join loses **zero**, not 83, islands.
+
+Retention varies from 69.5% in Northern to 30.5% in Northern high-latitude
+islands and strongly favours larger islands. This observation-selection process
+must be analysed before treating the 4,370 islands as globally representative.
+The full audit is in
+[`chapter1_island_universe_attrition.md`](chapter1_island_universe_attrition.md).
 
 ## Current empirical boundary
 
@@ -118,6 +208,27 @@ Thus Chapter 1 currently establishes a strong **boundary result**: isolation is
 associated most clearly with floristic/endemic-lineage turnover, while a broad
 residual floral syndrome has not been recovered. This is a falsification of the
 simple syndrome claim, not a failed analysis.
+
+## Unresolved questions carried forward
+
+Only question 1 and the observation sensitivity in question 6 are current
+Chapter 1 analysis tasks. Questions 2–5 delimit causal statements and can remain
+as Discussion/future-work questions without blocking the floral-pattern chapter.
+
+1. Does a coherent multivariate trait vector survive status, genus, coverage,
+   multiplicity, and observation-selection sensitivity?
+2. In Northern source-exposed systems, is any surviving vector associated with
+   a realized deficit of Bombus/large long-tongued function rather than climatic
+   opportunity alone?
+3. Where the vector does not form, do birds, butterflies, hawkmoths, or other
+   guilds provide effective replacement measured as visitation times per-visit
+   effectiveness?
+4. How much of the distance pattern is connectivity/source-pool and endemic
+   turnover, and how much remains after those pathways are represented?
+5. Did the pattern arise through colonization/establishment filtering, island
+   persistence, or within-lineage floral evolution?
+6. How sensitive are all answers to the geographically structured
+   8,265-to-4,370 observation filter?
 
 ## Chapter boundaries
 

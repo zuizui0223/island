@@ -9,6 +9,35 @@ Northern colour-category residual. Thus the current Chapter 1 result is best
 described as **context-dependent floristic restructuring with limited residual
 floral filtering**, not as a Northern Bombus-driven syndrome.
 
+The result is presented in that order: establish the compositional pattern
+first, then evaluate pollination as a candidate explanation. The current data do
+not permit the candidate explanation to be promoted to the result.
+
+## Why 8,265 candidate islands become 4,370 analysis islands
+
+The reduction is now set-audited rather than inferred from row counts.
+
+| Stage | Islands | Loss |
+|---|---:|---:|
+| frozen GSHHG/covariate candidates | 8,265 | — |
+| at least one exact-polygon GBIF plant record | 4,549 | 3,716 |
+| at least one accepted-species row | 4,505 | 44 |
+| at least one strict-universe species | 4,453 | 52 |
+| at least one strict species with a resolved configured direct trait | 4,370 | 83 |
+| after covariate join | 4,370 | **0** |
+
+The old `83 lost at covariate join` label is false: all 4,453 strict-flora
+islands occur in the 8,265-island covariate table. Those 83 islands lack a
+resolved configured trait, not covariates. The main loss—3,716 islands—is absence
+of an exact assigned GBIF plant record and cannot be interpreted biologically.
+
+Final retention is geographically structured: Northern 69.5%, Northern high
+latitude 30.5%, Tropical 49.6%, and Southern 37.9%. It also rises from 37.7% in
+the smallest area quartile to 77.9% in the largest. The 4,370-island pattern is
+therefore conditional on observation availability. The detailed audit and
+prespecified correction strategy are in
+[`chapter1_island_universe_attrition.md`](chapter1_island_universe_attrition.md).
+
 ## Primary evidence: status and lineage workflow
 
 The canonical status/lineage results are from the PR #133 workflow verified at
@@ -90,6 +119,32 @@ genus-fixed expectation. It cannot overrule the primary status/lineage result.
 Flower size, tube depth, symmetry, autonomous selfing, and mating system should
 be promoted only after they run through the same structural controls.
 
+## Pollination interpretation after the pattern
+
+The candidate causal reading is deliberately conditional:
+
+- if a coherent Northern simplification vector survives, loss of a dominant
+  Bombus/large long-tongued function without effective replacement is a plausible
+  formation mechanism;
+- if that vector is weak or absent elsewhere, persistence or island colonization
+  by alternative guilds is a plausible non-formation mechanism; and
+- butterflies, hawkmoths, and birds imply different predictions—chromatic
+  signalling, long-tube/outcrossing maintenance, and effective vertebrate
+  replacement, respectively.
+
+The literature supports examples of specialized moths repeatedly colonizing
+remote islands, butterfly learning of floral colour signals, and colonist birds
+partially compensating for lost endemic pollinators. It does not support the
+blanket statements that all butterflies or birds have higher dispersal than
+Bombus, or that Tropical/Southern islands must evolve showier flowers. The safe
+counterprediction is weakening, absence, or heterogeneity of a Northern vector.
+
+This is the intended use of pollination in Chapter 1. The next primary analysis
+is not a Bombus-deficit model; it is the status/lineage-aware joint analysis of
+the already collected size, depth, symmetry, form, colour, compatibility,
+autonomous-selfing, and mating-system axes. Pollinator distributions remain
+Discussion-level causal candidates.
+
 ## Bombus and hypervolume verdict
 
 The climatic hypervolume is retained as a falsified supporting measurement model.
@@ -117,6 +172,20 @@ context and provenance; no occurrence rescue campaign is justified.
 This is a publishable boundary result: much of the apparent island floral
 pattern is structurally tied to which floras and lineages occur, while little
 residual trait filtering remains on current direct evidence.
+
+## What remains unresolved, and how it enters the programme
+
+The first and last rows are Chapter 1 completion work. The intervening causal
+rows set the interpretation ceiling and are not prerequisites for this chapter.
+
+| Unresolved problem | Next identifying evidence or sensitivity |
+|---|---|
+| Is there a multivariate floral syndrome? | move pending size/depth/symmetry/selfing axes through status, genus, FDR, and coverage gates |
+| Is a Northern pattern caused by Bombus-channel loss? | Discussion hypothesis now; direct source exposure and realized functional deficit would be later causal evidence |
+| Why might the pattern fail elsewhere? | Discussion hypothesis now; visitation times per-visit effectiveness would be later causal evidence |
+| What part of distance is source pool/connectivity? | retain distance as the Chapter 1 total gradient; use status/genus controls now and explicit source-pool reconstruction only for mechanism attribution |
+| Assembly filtering or island evolution? | status-aware phylogenetic/population contrasts and measured within-lineage floral divergence |
+| Does incomplete island observation alter where/when? | model 8,265-to-4,370 selection and run frozen IPW/overlap sensitivities by region |
 
 ## Reproducible evidence
 
