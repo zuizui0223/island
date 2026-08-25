@@ -1,93 +1,112 @@
 # Island floral syndrome — v2
 
-This repository supports **Chapter 1 / macroecological pattern-and-boundary analysis** of island floral and reproductive composition.
+This repository supports **Chapter 1 / macroecological when-and-where analysis** of island floral and reproductive filtering.
 
-The current Chapter 1 result no longer supports a headline claim of a universal or confirmatorily biogeographically contingent floral island syndrome. The main contrast is now:
+The current Chapter 1 question is:
 
-> **Does island isolation generate one coherent floral/reproductive syndrome, or does it reorganize particular floral components independently?**
+> **When and where is isolation-associated floral/reproductive filtering detectable, and where does the multivariate response to isolation differ?**
 
-The current frozen evidence favors **component-specific floral reorganization**:
+The primary result is now a **response-vector** result, not a count of significant atomic traits and not a Bombus-deficit model.
 
-> **Isolation is associated with changes in particular floral categories, while broad `generalized + plain + SC` syndrome summaries weaken or disappear after category preservation and lineage control. Strong within-context signals are concentrated in northern mid-latitude islands, but formal joint interaction tests do not yet establish confirmatory regional differences in the isolation effect.**
+> **Isolation-associated filtering is confirmatorily detectable in both northern mid-latitude and tropical island floras, persists in native non-endemic assemblages, and the northern-versus-tropical multivariate isolation-response vectors differ significantly. Current data are insufficient for equivalent confirmatory conclusions in northern high-latitude or southern-extratropical floras.**
 
-See [`docs/chapter1_frozen_result_20260825.md`](docs/chapter1_frozen_result_20260825.md) for the locked result, run IDs, FDR rules and claim boundary, [`docs/chapter1_pollination_syndrome_concordance_20260825.md`](docs/chapter1_pollination_syndrome_concordance_20260825.md) for the post-freeze Discussion-only literature audit, and [`THESIS_CHAPTER_POSITIONING.md`](THESIS_CHAPTER_POSITIONING.md) for the dissertation architecture.
+See:
 
-## Manuscript status
+- [`docs/chapter1_when_where_frozen_result_20260825.md`](docs/chapter1_when_where_frozen_result_20260825.md) — canonical when/where result;
+- [`THESIS_CHAPTER_POSITIONING.md`](THESIS_CHAPTER_POSITIONING.md) — dissertation role and claim boundary;
+- [`docs/chapter1_pollination_syndrome_concordance_20260825.md`](docs/chapter1_pollination_syndrome_concordance_20260825.md) — post-freeze Discussion-only pollination-syndrome audit.
 
-The repository contains substantial development history. For submission, a result is canonical only when it follows the rules in:
+## Canonical result
 
-- [`docs/manuscript_submission_contract.md`](docs/manuscript_submission_contract.md) — submission surface, evidence-tier rules, model safeguards, and archival requirements;
-- [`docs/chapter1_frozen_result_20260825.md`](docs/chapter1_frozen_result_20260825.md) — current scientific result checkpoint;
-- [`docs/chapter1_pollination_syndrome_concordance_20260825.md`](docs/chapter1_pollination_syndrome_concordance_20260825.md) — Discussion-only Bombus / bird / Lepidoptera concordance and mismatch audit;
-- [`docs/v2_pollination_regime_framework.md`](docs/v2_pollination_regime_framework.md) — current scientific framework;
-- [`docs/v2_channel_architecture.md`](docs/v2_channel_architecture.md) — measurement and interpretation guardrails;
-- [`config/bombus_applicability.yml`](config/bombus_applicability.yml) — retained Bombus diagnostic provenance rules.
+Formal workflow run: `32837335384`.
 
-Historical pilots, scouting workflows, alternative model variants, and acquisition experiments are development records, not manuscript methods unless explicitly promoted into the submission contract.
+### WHERE
 
-## Primary reproducible data path
+Confirmatory response-vector tests detect isolation-associated filtering in:
+
+- **northern mid-latitude** islands;
+- **tropical** islands.
+
+The same result is recovered in `all_native` and `native_nonendemic` flora.
+
+### BETWEEN-WHERE
+
+Using 17 atomic responses with confirmatory support in both regions, northern-mid-latitude and tropical isolation-response vectors differ jointly:
+
+- all native: joint Wald χ² = **69.78**, df = 17, q = **2.35e-08**;
+- native non-endemic: joint Wald χ² = **61.02**, df = 17, q = **7.13e-07**.
+
+Thus the current evidence supports **biogeographically structured isolation filtering between northern mid-latitude and tropical island floras**.
+
+### WHEN
+
+The filtering signal persists within **native non-endemic** flora in both northern mid-latitude and tropical contexts. It therefore is not confined to endemic-lineage turnover.
+
+Endemic-only vector tests do not currently meet the confirmatory support requirement, so endemicity is not claimed to be either necessary or irrelevant.
+
+Northern high-latitude and southern-extratropical floras are currently **unresolved confirmatorily**, not demonstrated null regions. At the 30-island pilot threshold, southern-extratropical vectors are nonzero but are supported by only a few atomic responses.
+
+## Canonical analysis surface
+
+The primary implementation is:
+
+- `src/island_v2/chapter1_when_where_omnibus.py`
+- `config/chapter1_when_where_omnibus.yml`
+- `.github/workflows/run-chapter1-context-main.yml`
+
+The inference sequence is:
 
 ```text
-frozen exact island universe
-→ exact point-in-polygon flora assignment
-→ locked direct trait evidence
-→ floristic-status / endemicity support
-→ lineage-preserving safeguard
-→ locked geographic/environmental covariates
-→ context-aware baseline
-→ common isolation effect
-→ formal isolation × context joint test
-→ category-preserving trait decomposition
-→ genus-fixed broad-outcome guardrail
-→ result freeze
-→ pollination-syndrome concordance or mismatch in Discussion
+frozen island universe
+→ direct trait evidence
+→ floristic-status strata
+→ area + climate + isolation + frozen biogeographic context
+→ WHERE: within-context response-vector joint test
+→ BETWEEN-WHERE: pairwise response-vector difference test
+→ WHEN: persistence across floristic-status strata
+→ lineage / genus-composition guardrail
+→ atomic trait decomposition
+→ pollination-syndrome interpretation only after freeze
 ```
 
-The primary analysis does **not** require classifying every island as Bombus retained / lost / absent.
-
-## Current result in one paragraph
-
-The canonical joint-Wald run fitted 43 atomic trait categories. Seventeen within-context isolation slopes survived FDR; 16 met the count component of confirmatory support and all 16 occurred in the northern-midlatitude context. However, only one atomic category showed FDR-supported joint `isolation × context` heterogeneity, and that comparison used only 32 versus 30 islands, so it remains pilot-level. Meanwhile the genus-composition-preserving M3 analysis did not retain confirmatory northern or tropical isolation slopes for the broad `generalized_form`, `plain_colour`, or `self_compatibility` outcomes. The manuscript therefore treats the main result as **trait-component-specific reorganization rather than a coherent classic syndrome or a confirmed region-specific syndrome**.
+Atomic category models remain important, but only to explain **what creates the supported regional vectors** after when/where is established.
 
 ## Evidence tiers
 
-Complete fill is not complete evidence. Trait resolution remains visible in every analysis.
+Complete fill is not complete evidence. Trait resolution remains visible.
 
-- **Confirmatory:** direct source-backed species evidence.
+- **Confirmatory:** direct source-backed species evidence; vector responses require >=50 contributing islands per retained atomic response.
+- **Pilot:** >=30 and <50 islands per retained response.
 - **Secondary robustness:** taxonomic inference at genus/family level.
-- **Sensitivity only:** global fallback.
+- **Sensitivity only:** global fallback or other declared inference layers.
 
-The `sensitivity_all` layer may be useful for stress-testing conclusions, but it is not itself confirmatory evidence.
+## Bombus and pollination-syndrome boundary
 
-## Bombus and other pollinator-syndrome interpretation boundary
+Bombus, bird, butterfly, moth, hawkmoth and other pollinator labels do **not** enter the primary when/where model.
 
-Existing Bombus applicability, environmental-niche and occurrence-diagnostic products remain in the repository for provenance, exploratory diagnostics and sensitivity analyses. They are **not primary predictors for Chapter 1**.
+Existing Bombus applicability, environmental-niche and occurrence-diagnostic products remain provenance-preserving diagnostic/sensitivity products. Climatic compatibility is not realized occurrence; occurrence is not visitation or service; opportunistic non-detection is not historical loss.
 
-The retained environmental-niche estimator measures climatic-environmental compatibility. It is not realized occurrence probability, abundance, visitation rate, pollination service, or evidence of historical loss. Opportunistic non-detection is not treated as proof of absence.
+After the when/where result is frozen, the northern-versus-tropical vector difference may be compared with pollination-syndrome literature for **concordance or mismatch only**. Trait vectors do not identify a causal pollinator guild.
 
-The frozen northern-midlatitude trait vector may be compared with Bombus / large- or long-tongued-bee literature only for **partial concordance or mismatch**. Because the broad `generalized + plain + SC` signal is not recovered after the M3 lineage guardrail, the result must not be described as a demonstrated Bombus-loss syndrome.
+## Lineage guardrail
 
-The post-freeze concordance audit finds only broad conceptual agreement with the idea that island pollinator functional change can reorganize floral architecture. It does **not** recover the Izu-style SC shift or a simple loss-of-specialization axis. Likewise, the present data do not support a bird- or Lepidoptera-mediated tropical/southern counter-syndrome.
+The genus-composition-preserving M3 layer remains mandatory before broad syndrome interpretation. It does not recover a coherent confirmatory `generalized + plain + SC` syndrome in the main northern/tropical strata.
+
+Therefore Chapter 1 can conclude that regional isolation-response vectors differ without naming either vector a classical pollination syndrome.
 
 ## Thesis handoff
 
 ```text
 Chapter 1 — island
-isolation
-→ component-specific floral reorganization
-→ test whether effects are shared or genuinely context dependent
-→ candidate ecological concordance / mismatch
-
+WHEN / WHERE is isolation filtering detectable?
+WHERE do multivariate responses differ?
+        ↓
 Chapter 2 — izu-core
-which interaction states make particular components branch,
-propagate, or buffer?
-
+WHY do those contexts generate different response architectures?
+        ↓
 Chapter 3 — shimahotarubukuro
-focal lineage
-→ realized multidimensional floral divergence
+WHAT phenotype axes actually diverge within one focal lineage?
 ```
-
-Chapter 1 identifies **what parts of the floral/reproductive phenotype reorganize under isolation and where signals are detectable**. It deliberately leaves the question “which interaction mechanism makes those components respond?” for the stricter mechanistic framework of Chapter 2.
 
 ## Repository layout
 
@@ -96,11 +115,9 @@ Chapter 1 identifies **what parts of the floral/reproductive phenotype reorganiz
 - `config/` — frozen contracts, ontology, and artifact locks
 - `data/v2/` — external/staging/curated/template data layers
 - `docs/` — scientific design, data policy, methods, and reproducibility notes
-- `.github/workflows/` — active validation, materialization, and analysis workflows
+- `.github/workflows/` — active validation and canonical analysis workflows
 - `legacy/v1/` — frozen v1 provenance only
 
 ## Reproducibility rule before submission
 
-GitHub Actions artifacts are temporary and are not a permanent supplement. The manuscript release must archive all critical inputs and outputs durably, record checksums, identify one canonical workflow per main analysis, and report attrition from the frozen 8,265-island universe to every fitted model.
-
-GBIF request catchments are retrieval devices only. Final occurrence assignment is always against the original exact island polygons.
+GitHub Actions artifacts are temporary and are not a permanent supplement. The manuscript release must archive all critical inputs and outputs durably with checksums, identify one canonical workflow per main analysis, and report attrition from the frozen 8,265-island universe to every fitted model.
