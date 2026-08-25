@@ -1,0 +1,44 @@
+version: "1.0"
+
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+distance_gradient: log_distance_to_continent_km
+context_column: analysis_regime
+cluster_column: spatial_block
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+strata:
+  - all_native
+  - native_nonendemic
+  - endemic
+
+min_islands_per_curve: 30
+confirmatory_islands_per_curve: 50
+distance_grid_quantiles: [0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95]
+
+interpretation:
+  estimand: >-
+    Probability that a directly trait-resolved species in the realised island flora
+    carries a focal atomic trait state, conditional on island geography and baseline
+    covariates. For example P(SC | realised flora, mainland-distance gradient,
+    area, climate, context).
+  not_evolutionary_origin: >-
+    This is not the probability that SC evolved on the island. Species traits are
+    treated as attributes of the realised flora, so the curve describes assembly /
+    filtering of trait-bearing species along the geographic gradient.
+  source_pool_boundary: >-
+    Mainland distance can represent both dispersal limitation and changing access
+    to a mainland/source species pool. A stronger colonisation-filter test requires
+    an explicit candidate source-pool denominator and asks P(species occurrence |
+    trait, distance, source pool); that is a separate extension.
+  missingness_rule: >-
+    Species or islands without direct trait evidence are unresolved, not trait-zero.
+    Observation-process bias is analysed separately across the full island universe.
