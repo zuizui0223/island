@@ -53,20 +53,17 @@ alpha: 0.05
 
 primary_response: observed_direct_trait_share_minus_same_genus_null_expectation
 pollinator_predictors_in_primary_model: false
-bombus_role: discussion_candidate_for_northern_pattern_only
-butterfly_role: discussion_candidate_for_tropical_pattern_only
-bird_role: discussion_candidate_for_southern_pattern_only
 pollination_syndrome_role: post_analysis_multivariate_concordance_in_discussion
 
 interpretive_hypotheses_not_primary_predictors:
   northern:
     - reduced_pollinator_mediated_selection_on_attraction_after_pollinator_loss
     - reproductive_assurance_and_Bakers_law
-    - Bombus_or_other_large_bee_channel_loss_as_a_candidate_driver
+    - Bombus_absence_as_an_important_candidate_explanation
   tropical:
-    - butterfly_or_other_mobile_insect_pollination_as_candidate_for_retained_conspicuous_traits
+    - butterfly_richness_and_mobility_as_candidate_explanation_for_retained_conspicuous_traits
   southern:
-    - bird_pollination_as_candidate_for_retained_conspicuous_traits
+    - bird_pollination_and_mobility_as_candidate_explanation_for_retained_conspicuous_traits
 
 rules:
   - no_distance_thresholds
