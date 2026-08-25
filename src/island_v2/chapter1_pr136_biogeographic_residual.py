@@ -96,8 +96,8 @@ def _fit_weighted_clustered_design(
     residual = y - design @ beta
 
     meat = np.zeros((p, p), dtype=float)
-    for cluster in unique_clusters:
-        mask = clusters == cluster
+    for cluster_value in unique_clusters:
+        mask = clusters == cluster_value
         score = design[mask].T @ (weights[mask] * residual[mask])
         meat += np.outer(score, score)
     covariance = bread @ meat @ bread
@@ -359,6 +359,26 @@ def _between_contexts(
     }
 
 
+def _add_fdr_columns(
+    table: pd.DataFrame,
+    *,
+    support_flag: str,
+    alpha: float,
+) -> pd.DataFrame:
+    if table.empty:
+        return table
+    result = table.copy()
+    if "p_value" not in result.columns:
+        result["q_within_stratum_tier"] = np.nan
+        result[support_flag] = False
+        return result
+    result["q_within_stratum_tier"] = result.groupby(
+        ["stratum", "support_tier"], group_keys=False
+    )["p_value"].apply(_bh)
+    result[support_flag] = result["q_within_stratum_tier"].le(alpha).fillna(False)
+    return result
+
+
 def run_biogeographic_residual(
     genus_null: pd.DataFrame,
     covariates: pd.DataFrame,
@@ -401,22 +421,17 @@ def run_biogeographic_residual(
                     between_coef.append(coefficients)
                 between_rows.append(result)
 
-    within = pd.DataFrame(within_rows)
-    between = pd.DataFrame(between_rows)
-    if not within.empty:
-        within["q_within_stratum_tier"] = within.groupby(
-            ["stratum", "support_tier"], group_keys=False
-        )["p_value"].apply(_bh)
-        within["residual_filtering_supported"] = within[
-            "q_within_stratum_tier"
-        ].le(float(config.get("alpha", 0.05)))
-    if not between.empty:
-        between["q_within_stratum_tier"] = between.groupby(
-            ["stratum", "support_tier"], group_keys=False
-        )["p_value"].apply(_bh)
-        between["biogeographic_difference_supported"] = between[
-            "q_within_stratum_tier"
-        ].le(float(config.get("alpha", 0.05)))
+    alpha = float(config.get("alpha", 0.05))
+    within = _add_fdr_columns(
+        pd.DataFrame(within_rows),
+        support_flag="residual_filtering_supported",
+        alpha=alpha,
+    )
+    between = _add_fdr_columns(
+        pd.DataFrame(between_rows),
+        support_flag="biogeographic_difference_supported",
+        alpha=alpha,
+    )
 
     return (
         pd.concat(within_coef, ignore_index=True) if within_coef else pd.DataFrame(),
