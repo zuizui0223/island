@@ -1,0 +1,39 @@
+version: "1.0"
+
+# Canonical Chapter 1 M0-M2 predictors. Floristic status is handled by explicit
+# all-native/native-nonendemic/endemic strata; lineage composition is handled by M3.
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+isolation_column: log_distance_to_continent_km
+context_column: analysis_regime
+reference_context: northern_midlatitude
+cluster_column: spatial_block
+
+min_islands_per_fit: 30
+min_islands_per_context: 8
+
+status_handling:
+  primary_strata: [all_native, native_nonendemic, endemic]
+  rule: >-
+    Do not mix introduced or unresolved-status records into the primary native
+    composition response. Compare native-nonendemic and endemic strata explicitly.
+
+lineage_handling:
+  m3_required: true
+  method: genus_composition_preserving_null
+  rule: >-
+    M0-M2 regional patterns are not manuscript-ready until the M3 lineage/status
+    residual layer has been inspected for the same trait domains.
+
+pollinator_boundary:
+  bombus_primary_predictor: false
+  syndrome_concordance_stage: discussion_after_results_freeze
+  rule: >-
+    Bombus, bird, butterfly, moth, hawkmoth and other pollinator-syndrome labels
+    must not enter the Chapter 1 fitted design matrix. They may be compared with
+    frozen multivariate trait directions only as literature-grounded interpretation.
