@@ -1,0 +1,159 @@
+contract: canonical_chapter1_biogeographic_filtering_v4
+
+chapter_role:
+  direct_hypothesis: biogeographically_contingent_island_floral_filtering
+  dissertation_level_hypothesis: channel_gated_island_assembly
+  objective: test_where_isolation_leaves_trait_signals_beyond_status_and_lineage
+  identifies:
+    - isolation_associated_floristic_status_turnover
+    - region_specific_status_stratified_trait_associations
+    - genus_composition_residual_trait_associations
+    - supported_fine_category_turnover
+  does_not_identify:
+    - causal_pollinator_channel
+    - historical_pollinator_loss
+    - functional_deficit_or_replacement
+    - causal_floral_evolution
+    - assembly_vs_in_situ_evolution
+
+primary_question:
+  text: where_and_under_what_biogeographic_and_floristic_contexts_does_residual_floral_filtering_emerge
+  exposure: log1p_distance_to_continent_km
+  exposure_interpretation: composite_isolation_connectivity_and_assembly_gradient
+  effect_modifier: analysis_region_band
+  comparison_bands:
+    - Northern
+    - Northern high latitude
+    - Tropical
+    - Southern
+
+direct_hypotheses:
+  H1:
+    label: universal_syndrome_test
+    question: do_global_plain_generalized_or_SC_associations_share_one_direction
+  H2:
+    label: biogeographic_and_floristic_contingency
+    question: do_distance_associations_differ_by_region_and_floristic_status_after_genus_composition_is_fixed
+  H3:
+    label: category_decomposition
+    question: do_supported_colour_form_or_reproductive_categories_retain_residual_distance_associations
+
+analysis_order:
+  - stage: floristic_status_response
+    estimand: isolation_to_endemic_share_of_resolved_native_species
+    note: endemicity_is_a_response_not_a_nuisance_covariate
+  - stage: status_stratified_trait_response
+    strata:
+      - all_native
+      - native_nonendemic
+      - endemic
+      - introduced_negative_control
+  - stage: genus_fixed_residual
+    response: observed_direct_trait_share_minus_same_genus_null_expectation
+  - stage: fine_category_decomposition
+    multiplicity: BH_FDR_within_stratum_region_and_trait_domain
+    confirmatory_minimum_islands: 50
+  - stage: coverage_sensitivity
+    rule: do_not_promote_signals_that_collapse_at_adequately_supported_direct_coverage
+
+baseline_model:
+  predictors:
+    - standardized_log_distance_to_continent
+    - standardized_log_island_area
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+  uncertainty: frozen_spatial_block_cluster_robust
+  weight: direct_species_trials
+  observation_support_role: eligibility_weighting_and_sensitivity_not_biological_covariate
+
+source_pool:
+  required_for_primary_chapter1_estimand: false
+  handling: genus_fixed_null_plus_region_and_status_as_observed_structural_controls
+  claim_ceiling: continent_distance_cannot_be_interpreted_as_pure_isolation_or_source_pool_effect
+
+trait_scope:
+  currently_status_lineage_verified:
+    broad:
+      - plain_colour
+      - generalized_form
+      - self_compatibility
+    fine_categories:
+      - flower_colour
+      - floral_form
+  pending_status_lineage_integration:
+    - flower_size_class
+    - tube_depth_class
+    - floral_symmetry
+    - autonomous_selfing_capacity
+    - mating_system
+  rule: an_axis_is_not_canonical_until_status_lineage_and_coverage_gates_are_run
+
+pollinator_mechanism_concordance:
+  chapter1_analysis_variable: false
+  placement: discussion_and_supporting_diagnostics_only
+  northern_candidate: Bombus_or_large_long_tongued_pollinator_function
+  tropical_southern_candidates:
+    - birds
+    - butterflies
+    - hawkmoths
+    - other_bees
+    - flies
+  inference_rule: compare_multivariate_trait_vectors_with_literature_expectations
+  prohibited_inference:
+    - single_trait_identifies_pollinator
+    - region_label_identifies_pollinator
+    - climatic_compatibility_equals_occurrence_or_deficit
+    - trait_concordance_establishes_causation
+
+bombus_hypervolume:
+  canonical_chapter1_predictor: false
+  role: exploratory_supporting_climatic_opportunity_diagnostic
+  retained_for_provenance: true
+  status_lineage_checkpoint: predicted_pathway_not_recovered
+  acquisition_decision: no_occurrence_rescue_campaign_for_chapter1
+
+implementation_status:
+  full_status_lineage_evidence_pr: 133
+  full_status_lineage_evidence_head: f9d070440ce42a213507b26f42db43830e19e1b8
+  current_main_postpilot_port_pr: 135
+  current_main_postpilot_port_head: db1863f4057277b7a1d4f712918b22c8bdddc05d
+  postpilot_artifact_run: 32721017664
+  status_lineage_tests: 19_passed
+  canonical_modules:
+    - flora_endemism_analysis.py
+    - status_stratified_lineage_analysis.py
+    - status_category_decomposition.py
+    - status_category_fdr.py
+    - status_category_coverage_sensitivity.py
+  supporting_module:
+    - northern_bombus_residual_analysis.py
+  pre_status_lineage_pipeline_role: secondary_trait_discovery_and_future_axis_input
+
+current_evidence_verdict:
+  robust:
+    - northern_isolation_associated_endemicity_increase
+    - small_northern_all_native_red_pink_residual_decline
+  null_or_not_supported:
+    - broad_plain_generalized_SC_residual_syndrome
+    - confirmatory_floral_form_category_residual
+    - bombus_compatibility_pathway_after_status_and_lineage
+  measurement_sensitive:
+    - tropical_native_nonendemic_red_pink_residual_decline
+  under_supported:
+    - northern_endemic_generalized_form_nominal_positive_n20
+    - northern_endemic_SC_nominal_negative_n12
+    - tropical_endemic_SC_null_n27
+  pilot_stopped:
+    - tropical_endemic_generalized_form_null_n29_complete_case
+
+claim_ceiling:
+  - no_universal_floral_island_syndrome_recovered
+  - no_bombus_absence_loss_or_deficit
+  - no_observed_pollinator_functional_diversity_or_trait_matching
+  - no_pollination_service_or_functional_replacement
+  - no_pollinator_mobility_or_effectiveness
+  - no_causal_evolution
+  - no_assembly_vs_in_situ_partition
+  - no_single_trait_pollination_syndrome_assignment

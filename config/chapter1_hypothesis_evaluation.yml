@@ -1,0 +1,104 @@
+contract: chapter1_hypothesis_evaluation_v1
+
+# This contract preserves the immutable pre-status/lineage opportunity-gate run.
+# It is not the canonical Chapter 1 estimand after the v4 pattern-only pivot.
+analysis_role: supporting_pre_status_lineage_diagnostic
+canonical_successor: config/canonical_analysis_mainline.yml
+promotion_rule: do_not_use_to_override_status_and_genus_fixed_results
+
+fdr_alpha: 0.05
+minimum_islands_per_fit: 30
+coverage_thresholds: [0.0, 0.1, 0.25]
+regions: [Northern, Northern high latitude, Tropical, Southern]
+focal_region: Northern
+falsification_regions: [Tropical, Southern]
+
+# Expected signs are declared only where the refined hypothesis supplies a
+# defensible directional prediction. Unlisted categories remain eligible for
+# regional-heterogeneity tests but not for mechanism-direction scoring.
+directional_predictions:
+  flower_size_class:
+    very_small: 1
+    small: 1
+    large: -1
+    very_large: -1
+  tube_depth_class:
+    absent_or_open: 1
+    shallow: 1
+    deep: -1
+  floral_symmetry:
+    actinomorphic: 1
+    zygomorphic: -1
+  floral_form:
+    open_radial: 1
+    tubular: -1
+    salverform: -1
+    funnel_trumpet: -1
+    urn_urceolate: -1
+    bilabiate: -1
+    papilionaceous: -1
+    spurred: -1
+  self_incompatibility:
+    SC: 1
+    SI: -1
+  autonomous_selfing_capacity:
+    absent: -1
+    delayed: 1
+    autonomous: 1
+  mating_system:
+    predominantly_outcrossing: -1
+    predominantly_selfing: 1
+    obligate_selfing: 1
+
+# Environmental compatibility is not a deficit estimate. Its main-effect sign
+# is therefore not scored as a channel-gating prediction.
+environmental_direction_rule: not_scored_without_isolation_interaction
+
+opportunity_gate:
+  interpretation: recipient_environment_opportunity_not_bombus_deficit
+  primary_predictor: environmental_compatibility_max
+  sensitivity_predictors:
+    - environmental_compatibility_mean
+    - share_environmentally_compatible_species
+  # If physical isolation removes a channel even where the recipient environment
+  # is compatible, the distance slope should strengthen at higher opportunity.
+  # This is a proxy-specific attribution test, not a test of realized deficit.
+  expected_interaction_rule: same_as_distance_prediction
+  focal_endpoints:
+    - trait_name: flower_size_class
+      category: very_small
+      expected_distance_sign: 1
+    - trait_name: flower_size_class
+      category: very_large
+      expected_distance_sign: -1
+    - trait_name: tube_depth_class
+      category: absent_or_open
+      expected_distance_sign: 1
+    - trait_name: tube_depth_class
+      category: deep
+      expected_distance_sign: -1
+
+reproductive_pathway_tests:
+  architecture_endpoints:
+    - trait_name: flower_size_class
+      category: very_small
+      expected_selfing_sign: 1
+    - trait_name: flower_size_class
+      category: very_large
+      expected_selfing_sign: -1
+    - trait_name: tube_depth_class
+      category: absent_or_open
+      expected_selfing_sign: 1
+    - trait_name: tube_depth_class
+      category: deep
+      expected_selfing_sign: -1
+  reproductive_predictors:
+    - predictor_id: self_compatible_share
+      trait_name: self_incompatibility
+      categories: [SC]
+    - predictor_id: autonomous_or_delayed_share
+      trait_name: autonomous_selfing_capacity
+      categories: [autonomous, delayed]
+    - predictor_id: predominantly_or_obligately_selfing_share
+      trait_name: mating_system
+      categories: [predominantly_selfing, obligate_selfing]
