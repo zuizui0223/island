@@ -10,7 +10,7 @@ The current frozen evidence favors **component-specific floral reorganization**:
 
 > **Isolation is associated with changes in particular floral categories, while broad `generalized + plain + SC` syndrome summaries weaken or disappear after category preservation and lineage control. Strong within-context signals are concentrated in northern mid-latitude islands, but formal joint interaction tests do not yet establish confirmatory regional differences in the isolation effect.**
 
-See [`docs/chapter1_frozen_result_20260825.md`](docs/chapter1_frozen_result_20260825.md) for the locked result, run IDs, FDR rules and claim boundary, and [`THESIS_CHAPTER_POSITIONING.md`](THESIS_CHAPTER_POSITIONING.md) for the dissertation architecture.
+See [`docs/chapter1_frozen_result_20260825.md`](docs/chapter1_frozen_result_20260825.md) for the locked result, run IDs, FDR rules and claim boundary, [`docs/chapter1_pollination_syndrome_concordance_20260825.md`](docs/chapter1_pollination_syndrome_concordance_20260825.md) for the post-freeze Discussion-only literature audit, and [`THESIS_CHAPTER_POSITIONING.md`](THESIS_CHAPTER_POSITIONING.md) for the dissertation architecture.
 
 ## Manuscript status
 
@@ -18,6 +18,7 @@ The repository contains substantial development history. For submission, a resul
 
 - [`docs/manuscript_submission_contract.md`](docs/manuscript_submission_contract.md) — submission surface, evidence-tier rules, model safeguards, and archival requirements;
 - [`docs/chapter1_frozen_result_20260825.md`](docs/chapter1_frozen_result_20260825.md) — current scientific result checkpoint;
+- [`docs/chapter1_pollination_syndrome_concordance_20260825.md`](docs/chapter1_pollination_syndrome_concordance_20260825.md) — Discussion-only Bombus / bird / Lepidoptera concordance and mismatch audit;
 - [`docs/v2_pollination_regime_framework.md`](docs/v2_pollination_regime_framework.md) — current scientific framework;
 - [`docs/v2_channel_architecture.md`](docs/v2_channel_architecture.md) — measurement and interpretation guardrails;
 - [`config/bombus_applicability.yml`](config/bombus_applicability.yml) — retained Bombus diagnostic provenance rules.
@@ -66,7 +67,7 @@ The retained environmental-niche estimator measures climatic-environmental compa
 
 The frozen northern-midlatitude trait vector may be compared with Bombus / large- or long-tongued-bee literature only for **partial concordance or mismatch**. Because the broad `generalized + plain + SC` signal is not recovered after the M3 lineage guardrail, the result must not be described as a demonstrated Bombus-loss syndrome.
 
-The same standard applies to bird-, butterfly-, moth- and hawkmoth-associated interpretations. The present data do not support forcing a contrasting tropical/southern pollination syndrome when formal regional heterogeneity is not confirmatorily established.
+The post-freeze concordance audit finds only broad conceptual agreement with the idea that island pollinator functional change can reorganize floral architecture. It does **not** recover the Izu-style SC shift or a simple loss-of-specialization axis. Likewise, the present data do not support a bird- or Lepidoptera-mediated tropical/southern counter-syndrome.
 
 ## Thesis handoff
 
