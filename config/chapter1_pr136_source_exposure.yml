@@ -1,0 +1,53 @@
+version: "1.0"
+
+# PR136 H2a: does the geography-associated residual trait vector depend on whether
+# the focal pollination channel was available to the source/regional flora?
+
+geography_column: log_distance_to_continent_km
+cluster_column: spatial_block
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+strata:
+  - all_native
+  - native_nonendemic
+  - endemic
+
+support_tiers:
+  pilot: 30
+  confirmatory: 50
+
+minimum_outcomes_per_vector: 2
+alpha: 0.05
+
+source_exposure_contract:
+  source_exposed: applicable
+  structurally_absent: structurally_not_applicable
+  unresolved: excluded_fail_closed
+  rule: >-
+    Applicability must be assigned independently of island floral/reproductive
+    outcomes. Structural absence is a falsification regime, never a channel deficit.
+
+primary_response:
+  id: genus_fixed_residual_trait_share
+  definition: observed_direct_trait_share_minus_same_genus_null_expectation
+
+primary_test:
+  model: >-
+    residual trait vector ~ geography * source_channel_exposure +
+    response-specific area and climate effects
+  null: >-
+    all geography x source-channel-exposure interaction coefficients are jointly zero
+  invalid_shortcut: >-
+    significance in the source-exposed regime and nonsignificance in the structurally
+    absent regime is not evidence of contingency without the direct vector contrast.
+
+claim_boundary:
+  source_exposure_is_realized_deficit: false
+  historical_pollinator_loss_identified: false
+  effective_replacement_identified: false
+  role: necessary_condition_test_for_pr136_channel_gated_hypothesis
