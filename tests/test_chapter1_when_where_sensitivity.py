@@ -19,7 +19,7 @@ def _synthetic():
     for context, latitude in [("northern_midlatitude", 42.0), ("tropical", 8.0)]:
         for j in range(65):
             island_id = f"i{idx}"
-            distance = 60.0 + 12.0 * j
+            distance = 12.0 * j
             log_distance = math.log1p(distance)
             covariates.append(
                 {
@@ -57,7 +57,7 @@ def _synthetic():
     return pd.DataFrame(composition), pd.DataFrame(covariates)
 
 
-def test_when_where_sensitivity_preserves_headline_across_predeclared_scenarios():
+def test_when_where_sensitivity_preserves_full_island_universe_and_headline():
     composition, covariates = _synthetic()
     config = {
         "baseline_covariates": [
@@ -69,28 +69,21 @@ def test_when_where_sensitivity_preserves_headline_across_predeclared_scenarios(
         ],
         "cluster_column": "spatial_block",
         "canonical_context_column": "analysis_regime",
-        "canonical_isolation_column": "log_distance_to_continent_km",
+        "canonical_distance_column": "distance_to_continent_km",
+        "canonical_gradient_column": "log_distance_to_continent_km",
         "contexts": ["northern_midlatitude", "tropical"],
         "strata": ["all_native", "native_nonendemic"],
         "support_tiers": {"confirmatory": 50},
-        "core_latitude_rule": {
-            "tropical_abs_max": 20.0,
-            "north_mid_min": 30.0,
-            "north_mid_max": 60.0,
-            "north_high_min": 70.0,
-            "south_mid_min_abs": 30.0,
-            "south_mid_max_abs": 60.0,
-        },
         "scenarios": [
-            {"name": "canonical", "context_rule": "canonical", "isolation_form": "log1p", "distance_filter": "all"},
-            {"name": "core", "context_rule": "core_latitudes", "isolation_form": "log1p", "distance_filter": "all"},
-            {"name": "sqrt", "context_rule": "canonical", "isolation_form": "sqrt", "distance_filter": "all"},
-            {"name": "positive", "context_rule": "canonical", "isolation_form": "log1p", "distance_filter": "positive_only"},
-            {"name": "oceanic50", "context_rule": "canonical", "isolation_form": "log1p", "distance_filter": "oceanic_50km"},
+            {"name": "log1p", "distance_form": "log1p"},
+            {"name": "sqrt", "distance_form": "sqrt"},
+            {"name": "raw", "distance_form": "raw"},
         ],
     }
     _, _, _, summary = run_when_where_sensitivity(composition, covariates, config)
-    assert len(summary) == 10
+    assert len(summary) == 6
+    assert summary["all_islands_retained"].all()
+    assert summary["n_covariate_islands"].eq(covariates["island_id"].nunique()).all()
     assert summary["headline_replication"].all()
     assert summary["north_n_responses"].ge(3).all()
     assert summary["tropical_n_responses"].ge(3).all()
