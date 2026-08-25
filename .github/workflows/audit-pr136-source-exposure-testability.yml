@@ -5,8 +5,10 @@ on:
     branches: [pr136-channel-gated-primary-validation]
     paths:
       - "src/island_v2/chapter1_pr136_source_exposure.py"
+      - "src/island_v2/chapter1_pr136_source_exposure_queue.py"
       - "src/island_v2/bombus_applicability.py"
       - "config/chapter1_pr136_source_exposure.yml"
+      - "config/chapter1_pr136_source_exposure_queue.yml"
       - "config/bombus_applicability.yml"
       - "data/v2/curation/island_source_region_assignments.csv"
       - "data/v2/curation/island_assignment_evidence.csv"
@@ -26,6 +28,8 @@ jobs:
     env:
       ISOLATION_RUN_ID: "29228212586"
       ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+      CANONICAL_RUN_ID: "32845980788"
+      CANONICAL_ARTIFACT: "chapter1-when-where-main-32845980788"
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
@@ -35,13 +39,17 @@ jobs:
           cache: pip
       - name: Install package
         run: pip install -e ".[dev]"
-      - name: Download frozen full-island universe
+      - name: Download frozen full-island universe and genus-fixed support
         run: |
-          mkdir -p /tmp/isolation
+          mkdir -p /tmp/isolation /tmp/canonical
           gh run download "$ISOLATION_RUN_ID" \
             -n "$ISOLATION_ARTIFACT" \
             -D /tmp/isolation
+          gh run download "$CANONICAL_RUN_ID" \
+            -n "$CANONICAL_ARTIFACT" \
+            -D /tmp/canonical
           test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/canonical/null/genus_fixed_null_by_island.csv.gz
       - name: Build outcome-blind source-channel applicability
         run: |
           python -m island_v2.bombus_applicability build \
@@ -97,9 +105,22 @@ jobs:
               f.write(f"- pilot possible before trait overlap: {pilot}\n")
               f.write(f"- confirmatory possible before trait overlap: {confirmatory}\n")
           PY
+      - name: Build outcome-blind curation queue from support only
+        run: |
+          python -m island_v2.chapter1_pr136_source_exposure_queue run \
+            --genus-null-csv /tmp/canonical/null/genus_fixed_null_by_island.csv.gz \
+            --applicability-csv /tmp/pr136/applicability/bombus_applicability_by_island.csv \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_pr136_source_exposure_queue.yml \
+            --output-dir /tmp/pr136/curation_queue
+          test -s /tmp/pr136/curation_queue/source_exposure_curation_queue.csv
+          test -s /tmp/pr136/curation_queue/source_exposure_curation_queue_manifest.json
       - name: Write summary
         run: |
           cat /tmp/pr136/source_exposure_testability.md >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Outcome-blind curation queue' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/pr136/curation_queue/source_exposure_curation_queue_manifest.json >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
           name: pr136-source-exposure-testability-${{ github.run_id }}
@@ -107,5 +128,6 @@ jobs:
             /tmp/pr136/applicability/
             /tmp/pr136/source_exposure_testability.json
             /tmp/pr136/source_exposure_testability.md
+            /tmp/pr136/curation_queue/
           if-no-files-found: error
           retention-days: 90
