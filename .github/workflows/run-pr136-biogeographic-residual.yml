@@ -55,20 +55,21 @@ jobs:
           with open(Path('/tmp/pr136/biogeographic_summary.md'), 'w') as f:
               f.write('# PR136 biogeographic residual pattern result\n\n')
               f.write('Pollinator identity is not used in the primary models.\n\n')
-              f.write('## Within-region residual filtering\n\n')
+              f.write('## Within-region residual filtering\n\n```text\n')
               if within.empty:
                   f.write('No testable within-region vectors.\n')
               else:
                   cols = [c for c in ['stratum','support_tier','context','status','n_retained_outcomes','n_unique_islands','p_value','q_within_stratum_tier','residual_filtering_supported'] if c in within.columns]
-                  f.write(within[cols].to_markdown(index=False))
+                  f.write(within[cols].to_string(index=False))
                   f.write('\n')
-              f.write('\n## Between-region vector differences\n\n')
+              f.write('```\n\n## Between-region vector differences\n\n```text\n')
               if between.empty:
                   f.write('No testable between-region vectors.\n')
               else:
                   cols = [c for c in ['stratum','support_tier','context_a','context_b','status','n_retained_outcomes','n_unique_islands','p_value','q_within_stratum_tier','biogeographic_difference_supported'] if c in between.columns]
-                  f.write(between[cols].to_markdown(index=False))
+                  f.write(between[cols].to_string(index=False))
                   f.write('\n')
+              f.write('```\n')
           PY
           cat /tmp/pr136/biogeographic_summary.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
