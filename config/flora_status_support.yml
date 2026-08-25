@@ -1,0 +1,41 @@
+version: "2.0"
+
+outcomes:
+  flower_colour:
+    trait_names: [flower_primary_color]
+  floral_form:
+    trait_names: [floral_form]
+  self_compatibility:
+    trait_names: [self_incompatibility]
+
+support:
+  min_direct_species_per_island: 1
+  direct_species_sensitivity_thresholds: [1, 3, 5, 10]
+  pilot_min_islands: 30
+  confirmatory_min_islands: 50
+  context_column: analysis_regime
+  isolation_column: distance_to_continent_km
+
+status_contract:
+  required_columns: [island_id, accepted_species, origin_status, endemic_status]
+  origin_status_values: [native, introduced, unresolved]
+  endemic_status_values: [endemic, nonendemic, unresolved]
+  rule: >-
+    Never infer native, introduced, or endemic status from GBIF island occurrence
+    footprint. Conflicting or unavailable status remains unresolved.
+
+binary_outcomes:
+  plain_colour:
+    trait_name: flower_primary_color
+    positive_states: [white, green_brown_inconspicuous]
+    negative_states: [yellow_orange, red_pink, blue_purple]
+  generalized_form:
+    trait_name: floral_form
+    positive_states: [open_radial, brush_puff, composite_head]
+    negative_states:
+      [tubular, bell_campanulate, funnel_trumpet, urn_urceolate, bilabiate,
+       salverform, papilionaceous, spurred]
+  self_compatibility:
+    trait_name: self_incompatibility
+    positive_states: [SC]
+    negative_states: [SI]
