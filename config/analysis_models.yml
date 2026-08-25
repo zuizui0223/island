@@ -1,13 +1,9 @@
-# Chapter 1 analysis model ladder.
+# Chapter 1 analysis model contract.
 #
 # Primary question:
-#   Does island isolation generate one coherent floral/reproductive syndrome,
-#   or does it reorganize particular floral components independently?
-#
-# Regional heterogeneity remains a formal boundary-condition test, but is not the
-# current headline claim unless the joint interaction test survives multiplicity
-# correction with adequate context support.
-version: "3.0"
+#   When and where is isolation-associated floral/reproductive filtering detectable,
+#   and where does the multivariate response to isolation differ?
+version: "4.0"
 
 baseline_covariates:
   - island_area
@@ -18,17 +14,16 @@ baseline_covariates:
   - observation_evidence_support
 
 primary_exposure: isolation
-secondary_effect_modifier: biogeographic_context
+primary_context: biogeographic_context
 
-headline_hypothesis_contrast:
-  H1: coherent_island_syndrome
-  H2: component_specific_floral_reorganization
-  current_frozen_support: H2
-
-biogeographic_context_rule: >-
-  Freeze context independently of floral/reproductive outcomes. Context main effects
-  must be represented before testing isolation so pre-existing regional differences
-  in mean trait composition cannot masquerade as context-dependent isolation effects.
+headline_hypotheses:
+  H1: universal_filtering
+  H2: conditional_biogeographically_structured_filtering
+  H3: floristic_status_persistence
+  current_frozen_support: >-
+    Filtering is confirmatorily detectable in northern_midlatitude and tropical
+    contexts; their multivariate isolation-response vectors differ; both signals
+    persist in native_nonendemic flora.
 
 primary_outcomes:
   - multistate_flower_colour_composition
@@ -36,109 +31,101 @@ primary_outcomes:
   - floral_symmetry_tube_depth_access_and_size_where_supported
   - reproductive_compatibility_and_assurance_composition
 
-secondary_summaries:
-  - plain_vs_conspicuous
-  - generalized_vs_specialized
-  - sc_vs_si
+primary_when_where_tests:
+  WHERE:
+    implementation: chapter1_when_where_omnibus
+    statistic: spatial_block_cluster_robust_joint_wald
+    null: all_supported_atomic_isolation_slopes_equal_zero_within_context
+    multiplicity: BH_across_contexts_within_stratum_and_support_tier
+    question: Which biogeographic contexts show detectable isolation-associated filtering?
 
-reproductive_non_equivalence_rule: >-
-  Self-compatibility, autonomous selfing, mating system, sex system and pollen
-  vector are separate domains. Never derive one from another unless a direct
-  source explicitly supplies the relevant state.
+  BETWEEN_WHERE:
+    implementation: chapter1_when_where_omnibus
+    statistic: spatial_block_cluster_robust_joint_wald
+    null: response_vector_context_A_equals_response_vector_context_B
+    support_rule: same_threshold_required_in_both_contexts
+    multiplicity: BH_across_context_pairs_within_stratum_and_support_tier
+    question: Where do multivariate isolation responses genuinely differ?
 
-models:
-  M0:
-    name: context_aware_baseline
-    covariates: baseline_covariates + biogeographic_context
-    outcome: primary_outcomes
-    question: >-
-      How much composition is explained by baseline structure and context-specific
-      mean composition before isolation is added?
-
-  M1:
-    name: common_isolation_component_effect
-    covariates: baseline_covariates + biogeographic_context + isolation
-    outcome: primary_outcomes
-    comparison: M0_to_M1
-    status: primary_component_reorganization_test
-    question: >-
-      Which atomic floral/reproductive components show an isolation-associated
-      common effect after the context-aware baseline?
-
-  M2:
-    name: biogeographic_slope_heterogeneity
-    covariates: baseline_covariates + biogeographic_context + isolation + isolation:biogeographic_context
-    outcome: primary_outcomes
-    status: secondary_boundary_condition_test
-    comparison: M1_to_M2
-    primary_statistic: cluster_robust_joint_wald_all_interactions
-    multiplicity: BH_across_atomic_states_within_stratum_x_trait
-    question: >-
-      After regional mean composition is already represented, do isolation slopes
-      genuinely differ among contexts?
-
-  M3:
-    name: status_lineage_guardrail
-    safeguards:
-      - conservative_native_or_endemicity_strata_where_supported
-      - genus_composition_preserving_expectation
-      - clade_stratified_or_phylogenetic_sensitivity_where_feasible
-    outcome: broad_syndrome_summaries_and_residuals
-    status: required_guardrail
-    question: >-
-      Do broad generalized/plain/SC-type signals survive inherited lineage structure,
-      or are atomic component effects being hidden by broad syndrome summaries?
-
-  M4:
-    name: category_preserving_decomposition
-    base_model: M1_or_M2_with_M3_guardrail
-    outcome: individual_retained_trait_categories
-    status: primary_interpretation_layer
-    question: >-
-      Which observed colour, floral-form and reproductive categories increase,
-      decrease, oppose or cancel the broad summaries?
+  WHEN:
+    implementation: floristic_status_persistence
+    strata:
+      - all_native
+      - native_nonendemic
+      - endemic
+    rule: >-
+      Persistence in native_nonendemic flora shows that a regional filtering signal
+      is not confined to endemic taxa. Because strata overlap, this is a persistence
+      classification rather than a causal status contrast.
 
 support_policy:
-  primary_context_min_islands: 30
-  confirmatory_context_min_islands: 50
+  excluded_below_islands_per_response: 30
+  pilot_min_islands_per_response: 30
+  confirmatory_min_islands_per_response: 50
   rule: >-
-    Context-specific effects below 30 islands are exploratory. Counts of 30-49 are
-    pilot-level; >=50 meet the count component of confirmatory support. Statistical
-    significance cannot promote a pilot comparison into a confirmatory regional claim.
+    Every retained atomic response must meet the support threshold in the focal
+    context. Pairwise context comparisons require the same threshold in both contexts.
+
+secondary_atomic_models:
+  M0:
+    name: context_aware_atomic_baseline
+    covariates: baseline_covariates + biogeographic_context
+  M1:
+    name: common_atomic_isolation_effect
+    covariates: baseline_covariates + biogeographic_context + isolation
+  M2:
+    name: atomic_context_slope_heterogeneity
+    covariates: baseline_covariates + biogeographic_context + isolation + isolation:biogeographic_context
+  role: >-
+    Atomic M0-M2 models characterize which traits contribute to supported response
+    vectors. Counts of individually significant traits do not define WHERE.
+
+M3_lineage_guardrail:
+  method: genus_composition_preserving_null
+  status: required_before_broad_syndrome_claims
+  broad_outcomes:
+    - generalized_form
+    - plain_colour
+    - self_compatibility
+  current_result: >-
+    These broad outcomes do not form a coherent confirmatory generalized+plain+SC
+    syndrome in the main northern/tropical all_native or native_nonendemic analyses.
+
+M4_category_decomposition:
+  status: secondary_interpretation_after_when_where_freeze
+  rule: >-
+    Preserve atomic colour, floral-form and reproductive categories to explain what
+    makes supported response vectors differ; do not construct the primary test from
+    a composite syndrome score.
 
 current_frozen_result:
-  run_id: 32833362756
-  fitted_atomic_categories: 43
-  context_specific_slope_rows: 95
-  fdr_supported_within_context_slopes: 17
-  confirmatory_count_supported_within_context_slopes: 16
-  location_of_all_confirmatory_count_supported_slopes: northern_midlatitude
-  fdr_supported_joint_contingency_categories: 1
-  confirmatory_joint_contingency_categories: 0
-  sole_joint_fdr_category: endemic_yellow_orange
-  sole_joint_fdr_context_counts: [32, 30]
-  headline_interpretation: component_specific_reorganization_not_confirmed_regional_syndrome
+  run_id: 32837335384
+  artifact_id: 9559224512
+  artifact_digest: sha256:dd8caf37fe830595083c643f871145295a6487883fe065a20a4209f159dd745c
+  confirmatory_where:
+    northern_midlatitude:
+      all_native: true
+      native_nonendemic: true
+    tropical:
+      all_native: true
+      native_nonendemic: true
+    northern_high_latitude: unresolved_support
+    southern_extratropical: unresolved_confirmatorily_pilot_signal_present
+  confirmatory_between_where:
+    northern_midlatitude_vs_tropical:
+      all_native_q: 2.352889e-08
+      native_nonendemic_q: 7.125861e-07
+  when_status:
+    northern_midlatitude: persists_in_native_nonendemic
+    tropical: persists_in_native_nonendemic
 
 pollination_syndrome_concordance:
-  stage: after_M0_to_M4_results_are_frozen
+  stage: after_when_where_result_freeze
   role: discussion_interpretation_only
-  northern_midlatitude:
-    candidate_literature_contexts:
-      - Bombus_associated
-      - large_or_long_tongued_bee_associated
-    rule: >-
-      Compare the frozen component vector for partial concordance or mismatch. Do not
-      call the result a Bombus-loss syndrome when generalized/plain/SC broad outcomes
-      fail the M3 lineage guardrail.
-  tropical_or_southern:
-    candidate_literature_contexts:
-      - bird_associated
-      - butterfly_or_moth_associated
-      - hawkmoth_associated
-      - alternative_bee_associated
-    rule: >-
-      Do not force a counter-syndrome merely because northern slopes are stronger.
-      Require a frozen supported component vector before making concordance claims.
+  rule: >-
+    Compare frozen regional response vectors with literature-defined pollination
+    expectations for concordance or mismatch. Never infer actual pollinator identity,
+    historical loss, or functional replacement from floral phenotype alone.
 
 bombus_products:
   canonical_primary_predictor: false
@@ -148,20 +135,13 @@ bombus_products:
     - exploratory_diagnostics
     - sensitivity_analysis
     - candidate_system_selection_for_mechanistic_followup
-  prohibited_interpretations:
-    - environmental_compatibility_as_realized_occurrence
-    - opportunistic_nondetection_as_historical_loss
-    - occurrence_as_visitation_or_effectiveness
-    - association_as_pollinator_caused_evolution
   acquisition_rule: >-
-    Do not launch additional Bombus acquisition solely to rescue a weak/null
-    mechanism in Chapter 1.
+    Do not launch additional Bombus acquisition solely to rescue a Chapter 1 mechanism.
 
 guardrails:
-  - a significant slope in one context and a nonsignificant slope in another is not evidence of heterogeneity.
-  - regional mean differences cannot count as evidence for isolation x context.
-  - reported evidence and proxy/inference remain separate in every analysis.
-  - category-preserving outcomes precede composite syndrome summaries.
-  - lineage/source-pool structure is not optional for manuscript-level inference.
-  - pollination-syndrome concordance is interpretation, not a fitted causal variable.
-  - Chapter 1 identifies component-specific pattern; unresolved mechanism is handed to Chapter 2.
+  - a significant effect in one context and a nonsignificant effect in another is not evidence of a regional difference.
+  - insufficient support is unresolved, not evidence of no filtering.
+  - atomic significant-trait counts cannot replace response-vector omnibus tests.
+  - category-preserving outcomes precede pollination-syndrome interpretation.
+  - lineage/source-pool safeguards remain required before broad syndrome claims.
+  - Chapter 1 identifies when/where boundary conditions; mechanism is handed to Chapter 2.
