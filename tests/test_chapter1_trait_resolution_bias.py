@@ -42,11 +42,11 @@ def _synthetic():
     cov = []
     idx = 0
     responses = [
-        ("floral_form", "bell", 1.0),
-        ("floral_form", "salver", -0.8),
-        ("flower_primary_color", "red", 0.7),
+        ("floral_form", "bell", 1.15),
+        ("floral_form", "salver", -1.0),
+        ("flower_primary_color", "red", 0.9),
     ]
-    for context, multiplier in [("northern_midlatitude", 1.0), ("tropical", -0.4)]:
+    for context, multiplier in [("northern_midlatitude", 1.0), ("tropical", -0.55)]:
         for j in range(65):
             island_id = f"c{idx}"
             distance = -1.5 + 3.0 * j / 64
@@ -64,12 +64,23 @@ def _synthetic():
                 }
             )
             for stratum in ["all_native", "native_nonendemic"]:
+                coverage_by_trait = {}
                 for trait in ["floral_form", "flower_primary_color"]:
-                    # Coverage itself varies with distance, creating a measured
-                    # observation process that the adjusted model must absorb.
-                    coverage_logit = -0.2 + 0.6 * distance + (0.2 if trait == "floral_form" else 0)
+                    # Coverage is geographically biased but not deterministically
+                    # equal to distance. Independent island-level variation keeps
+                    # the ecological distance effect statistically identifiable.
+                    coverage_logit = (
+                        -0.2
+                        + 0.45 * distance
+                        + (0.2 if trait == "floral_form" else 0)
+                        + rng.normal(0, 0.55)
+                    )
                     total = 100
                     covered = max(1, min(99, int(total / (1 + math.exp(-coverage_logit)))))
+                    observed_coverage_logit = math.log(
+                        (covered + 0.5) / (total - covered + 0.5)
+                    )
+                    coverage_by_trait[trait] = observed_coverage_logit
                     coverage.append(
                         {
                             "island_id": island_id,
@@ -78,13 +89,15 @@ def _synthetic():
                             "n_observed_stratum_species": total,
                             "n_direct_trait_species": covered,
                             "direct_trait_fraction": covered / total,
-                            "coverage_logit_smoothed": math.log(
-                                (covered + 0.5) / (total - covered + 0.5)
-                            ),
+                            "coverage_logit_smoothed": observed_coverage_logit,
                         }
                     )
                 for trait, state, slope in responses:
-                    eta = -0.3 + multiplier * slope * distance + 0.15 * coverage_logit
+                    eta = (
+                        -0.3
+                        + multiplier * slope * distance
+                        + 0.15 * coverage_by_trait[trait]
+                    )
                     p = 1 / (1 + math.exp(-eta))
                     trials = 60
                     comp.append(
