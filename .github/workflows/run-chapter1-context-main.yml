@@ -43,18 +43,21 @@ jobs:
             src/island_v2/chapter1_context_analysis.py \
             src/island_v2/chapter1_trait_vector_freeze.py \
             src/island_v2/chapter1_when_where_omnibus.py \
+            src/island_v2/chapter1_when_where_classification.py \
             src/island_v2/flora_status_support.py \
             src/island_v2/genus_fixed_trait_null.py \
             src/island_v2/status_stratified_lineage_analysis.py \
             tests/test_chapter1_context_workflow.py \
             tests/test_chapter1_multistate_normalization.py \
             tests/test_chapter1_trait_vector_freeze.py \
-            tests/test_chapter1_when_where_omnibus.py
+            tests/test_chapter1_when_where_omnibus.py \
+            tests/test_chapter1_when_where_classification.py
           pytest -q \
             tests/test_chapter1_context_workflow.py \
             tests/test_chapter1_multistate_normalization.py \
             tests/test_chapter1_trait_vector_freeze.py \
-            tests/test_chapter1_when_where_omnibus.py
+            tests/test_chapter1_when_where_omnibus.py \
+            tests/test_chapter1_when_where_classification.py
 
       - name: Download locked trait, status, and geographic inputs
         run: |
@@ -118,6 +121,9 @@ jobs:
             --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
             --config-path config/chapter1_when_where_omnibus.yml \
             --output-dir /tmp/ch1/when_where
+          python -m island_v2.chapter1_when_where_classification \
+            --within-csv /tmp/ch1/when_where/when_where_within_context_omnibus.csv \
+            --output-csv /tmp/ch1/when_where/when_where_status_persistence.csv
           test -s /tmp/ch1/when_where/when_where_within_context_omnibus.csv
           test -s /tmp/ch1/when_where/when_where_between_context_omnibus.csv
           test -s /tmp/ch1/when_where/when_where_status_persistence.csv
@@ -172,11 +178,11 @@ jobs:
           confirmatory_within = within.loc[within['support_tier'].eq('confirmatory')]
           confirmatory_between = between.loc[between['support_tier'].eq('confirmatory')]
           payload = {
-              'contract': 'chapter1_when_where_checkpoint_v1',
+              'contract': 'chapter1_when_where_checkpoint_v2',
               'primary_question': 'when_and_where_is_isolation_associated_floral_reproductive_filtering_detectable',
               'primary_where_test': 'within_context_response_vector_joint_wald',
               'primary_between_where_test': 'pairwise_response_vector_difference_joint_wald',
-              'when_definition': 'persistence_across_floristic_status_strata',
+              'when_definition': 'persistence_across_floristic_status_strata_with_testability_audit',
               'bombus_primary_predictor': False,
               'n_confirmatory_where_tests': int(len(confirmatory_within)),
               'n_confirmatory_supported_where_tests': int(confirmatory_within['where_supported'].fillna(False).sum()),
@@ -199,7 +205,7 @@ jobs:
           echo '### BETWEEN-WHERE: pairwise response-vector differences' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/ch1/when_where/when_where_between_context_omnibus.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### WHEN: floristic-status persistence' >> "$GITHUB_STEP_SUMMARY"
+          echo '### WHEN: floristic-status persistence with testability audit' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/ch1/when_where/when_where_status_persistence.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Atomic diagnostic layer' >> "$GITHUB_STEP_SUMMARY"
