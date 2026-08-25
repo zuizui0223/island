@@ -49,6 +49,8 @@ jobs:
             src/island_v2/chapter1_when_where_block_deletion.py \
             src/island_v2/chapter1_observation_bias.py \
             src/island_v2/chapter1_trait_probability.py \
+            src/island_v2/chapter1_information_weight_sensitivity.py \
+            src/island_v2/chapter1_trait_resolution_bias.py \
             src/island_v2/flora_status_support.py \
             src/island_v2/genus_fixed_trait_null.py \
             src/island_v2/status_stratified_lineage_analysis.py \
@@ -61,7 +63,9 @@ jobs:
             tests/test_chapter1_when_where_domain_omnibus.py \
             tests/test_chapter1_when_where_block_deletion.py \
             tests/test_chapter1_observation_bias.py \
-            tests/test_chapter1_trait_probability.py
+            tests/test_chapter1_trait_probability.py \
+            tests/test_chapter1_information_weight_sensitivity.py \
+            tests/test_chapter1_trait_resolution_bias.py
           pytest -q \
             tests/test_chapter1_context_workflow.py \
             tests/test_chapter1_multistate_normalization.py \
@@ -72,7 +76,9 @@ jobs:
             tests/test_chapter1_when_where_domain_omnibus.py \
             tests/test_chapter1_when_where_block_deletion.py \
             tests/test_chapter1_observation_bias.py \
-            tests/test_chapter1_trait_probability.py
+            tests/test_chapter1_trait_probability.py \
+            tests/test_chapter1_information_weight_sensitivity.py \
+            tests/test_chapter1_trait_resolution_bias.py
 
       - name: Download locked trait, status, and geographic inputs
         run: |
@@ -101,6 +107,8 @@ jobs:
             --direct-evidence-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
             --output-dir /tmp/ch1/input
           test -s /tmp/ch1/input/chapter1_trait_composition_long.csv.gz
+          test -s /tmp/ch1/input/chapter1_status_flora.csv.gz
+          test -s /tmp/ch1/input/chapter1_direct_trait_state_audit.csv.gz
 
       - name: Audit required all-island geographic covariates
         run: |
@@ -155,6 +163,30 @@ jobs:
           test -s /tmp/ch1/trait_probability/trait_probability_coefficients.csv
           test -s /tmp/ch1/trait_probability/trait_probability_curves.csv
           test -s /tmp/ch1/trait_probability/trait_probability_fit_support.csv
+
+      - name: Run information-weight robustness
+        run: |
+          python -m island_v2.chapter1_information_weight_sensitivity \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_information_weight_sensitivity.yml \
+            --output-dir /tmp/ch1/information_weight
+          test -s /tmp/ch1/information_weight/information_weight_headline_summary.csv
+          test -s /tmp/ch1/information_weight/chapter1_information_weight_manifest.json
+
+      - name: Model trait-resolution bias and run coverage-adjusted when-where
+        run: |
+          python -m island_v2.chapter1_trait_resolution_bias \
+            --status-flora-csv /tmp/ch1/input/chapter1_status_flora.csv.gz \
+            --trait-audit-csv /tmp/ch1/input/chapter1_direct_trait_state_audit.csv.gz \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_trait_resolution_bias.yml \
+            --output-dir /tmp/ch1/trait_resolution_bias
+          test -s /tmp/ch1/trait_resolution_bias/trait_resolution_coverage.csv.gz
+          test -s /tmp/ch1/trait_resolution_bias/trait_resolution_selection_coefficients.csv
+          test -s /tmp/ch1/trait_resolution_bias/coverage_adjusted_headline_summary.csv
+          test -s /tmp/ch1/trait_resolution_bias/chapter1_trait_resolution_bias_manifest.json
 
       - name: Fit atomic M0-M2 diagnostic layer
         run: |
@@ -258,19 +290,27 @@ jobs:
           domain_within = pd.read_csv('/tmp/ch1/when_where_domain/when_where_domain_within.csv')
           domain_between = pd.read_csv('/tmp/ch1/when_where_domain/when_where_domain_between.csv')
           block_summary = pd.read_csv('/tmp/ch1/when_where_block/when_where_leave_one_block_summary.csv')
+          info_weight = pd.read_csv('/tmp/ch1/information_weight/information_weight_headline_summary.csv')
+          coverage_adjusted = pd.read_csv('/tmp/ch1/trait_resolution_bias/coverage_adjusted_headline_summary.csv')
           obs = json.load(open('/tmp/ch1/observation_bias/chapter1_observation_bias_manifest.json'))
           trait_prob = json.load(open('/tmp/ch1/trait_probability/chapter1_trait_probability_manifest.json'))
           lineage = pd.read_csv('/tmp/ch1/lineage/status_stratified_lineage_isolation.csv')
           if lineage.empty:
               raise SystemExit('Required M3 lineage safeguard is missing')
+
           confirmatory_within = within.loc[within['support_tier'].eq('confirmatory')]
           confirmatory_between = between.loc[between['support_tier'].eq('confirmatory')]
           primary_sensitivity = sensitivity.loc[sensitivity['stratum'].isin(['all_native','native_nonendemic'])]
           testable_sensitivity = primary_sensitivity.loc[primary_sensitivity['headline_testable'].fillna(False)]
           conf_domain_within = domain_within.loc[domain_within['support_tier'].eq('confirmatory')]
           conf_domain_between = domain_between.loc[domain_between['support_tier'].eq('confirmatory')]
+          iw_testable = info_weight.loc[info_weight['headline_testable'].fillna(False)]
+          ca_testable = coverage_adjusted.copy()
+          iw_all_replicate = bool(len(iw_testable) > 0 and iw_testable['headline_replication'].fillna(False).all())
+          ca_all_replicate = bool(len(ca_testable) > 0 and ca_testable['headline_replication'].fillna(False).all())
+
           payload = {
-              'contract': 'chapter1_when_where_checkpoint_v6',
+              'contract': 'chapter1_when_where_checkpoint_v7_observation_robust',
               'primary_question': 'when_and_where_do_trait_probabilities_change_along_geographic_source_pool_gradients',
               'ecological_estimand': 'P(trait_state | directly_trait_resolved_observed_realised_flora, geography)',
               'primary_where_test': 'within_context_response_vector_joint_wald',
@@ -295,10 +335,14 @@ jobs:
               'sensitivity_scenarios': sorted(primary_sensitivity['scenario'].unique().tolist()),
               'sensitivity_headline_replications': int(testable_sensitivity['headline_replication'].fillna(False).sum()),
               'sensitivity_headline_testable_opportunities': int(len(testable_sensitivity)),
-              'sensitivity_headline_untestable_opportunities': int(len(primary_sensitivity)-len(testable_sensitivity)),
               'domain_confirmatory_within_rows': conf_domain_within.to_dict(orient='records'),
               'domain_confirmatory_between_rows': conf_domain_between.to_dict(orient='records'),
               'leave_one_block_rows': block_summary.to_dict(orient='records'),
+              'information_weight_rows': info_weight.to_dict(orient='records'),
+              'information_weight_all_testable_replications': iw_all_replicate,
+              'coverage_adjusted_rows': coverage_adjusted.to_dict(orient='records'),
+              'coverage_adjusted_all_headline_replications': ca_all_replicate,
+              'observation_robust_headline': bool(iw_all_replicate and ca_all_replicate),
               'lineage_safeguard_present': True,
               'pollination_syndrome_role': 'discussion_only_after_when_where_freeze',
           }
@@ -315,6 +359,15 @@ jobs:
           echo '### Trait-centric probability curves: first rows' >> "$GITHUB_STEP_SUMMARY"
           head -40 /tmp/ch1/trait_probability/trait_probability_curves.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Information-weight robustness' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/ch1/information_weight/information_weight_headline_summary.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Trait-resolution coverage-adjusted headline' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/ch1/trait_resolution_bias/coverage_adjusted_headline_summary.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Trait-resolution support by context' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/ch1/trait_resolution_bias/trait_resolution_support_by_context.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### WHERE: within-context response-vector omnibus' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/ch1/when_where/when_where_within_context_omnibus.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
@@ -323,10 +376,6 @@ jobs:
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### WHEN: floristic-status persistence with testability audit' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/ch1/when_where/when_where_status_persistence.csv >> "$GITHUB_STEP_SUMMARY"
-          echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo '### Lower-dimensional trait-domain sensitivity' >> "$GITHUB_STEP_SUMMARY"
-          cat /tmp/ch1/when_where_domain/when_where_domain_within.csv >> "$GITHUB_STEP_SUMMARY"
-          cat /tmp/ch1/when_where_domain/when_where_domain_between.csv >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### All-island distance-gradient robustness scenarios' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/ch1/when_where_sensitivity/when_where_sensitivity_summary.csv >> "$GITHUB_STEP_SUMMARY"
@@ -341,6 +390,8 @@ jobs:
             /tmp/ch1/input/
             /tmp/ch1/observation_bias/
             /tmp/ch1/trait_probability/
+            /tmp/ch1/information_weight/
+            /tmp/ch1/trait_resolution_bias/
             /tmp/ch1/context/
             /tmp/ch1/when_where/
             /tmp/ch1/when_where_domain/
