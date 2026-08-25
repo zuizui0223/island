@@ -1,114 +1,114 @@
 # Chapter 1 analysis execution surface
 
-## Current canonical model contract
+## Canonical question
 
-The current Chapter 1 hypothesis contrast is **coherent island syndrome vs component-specific floral reorganization**.
+> **When and where is isolation-associated floral/reproductive filtering detectable, and where does the multivariate response to isolation differ?**
 
-Current frozen evidence favors **component-specific reorganization** and does not support a confirmatory claim of biogeographic slope heterogeneity.
+Canonical definitions live in:
 
-Canonical scientific definitions live in:
-
+- `config/chapter1_when_where_omnibus.yml`
 - `config/analysis_models.yml`
-- `docs/chapter1_frozen_result_20260825.md`
-- `docs/v2_pollination_regime_framework.md`
+- `docs/chapter1_when_where_frozen_result_20260825.md`
 - `docs/manuscript_submission_contract.md`
 - `THESIS_CHAPTER_POSITIONING.md`
 
-The canonical model ladder is:
+## Canonical inference hierarchy
 
 ```text
-M0 context-aware baseline
-M1 common isolation component effects          [primary]
-M2 isolation × context joint heterogeneity     [secondary boundary test]
-M3 genus-fixed status / lineage guardrail      [required]
-M4 atomic category-preserving decomposition    [primary interpretation]
+WHERE
+within-context response-vector joint Wald             [primary]
+
+BETWEEN-WHERE
+pairwise response-vector difference joint Wald        [primary]
+
+WHEN
+persistence across floristic-status strata            [primary boundary]
+
+M3
+genus-composition-preserving lineage guardrail        [required]
+
+atomic M0-M4
+category-level decomposition of supported vectors     [secondary]
 ```
 
-Pollination-syndrome comparisons are performed only after M0–M4 results and formal heterogeneity classifications are frozen.
+The primary Chapter 1 result is not defined by counting individually significant traits.
 
-## Current canonical implementation
-
-The active implementation is now on `main`:
+## Active implementation
 
 - `src/island_v2/chapter1_context_input.py`
-  - builds Bombus-free status-aware trait composition;
-  - expands colour/form multistates to atomic category presences;
+  - builds Bombus-free status-aware atomic trait composition;
+  - expands colour/form multistates into atomic presences;
   - retains `SC|SI` once as `mixed_or_variable`;
-  - fails closed on conflicting direct trait records.
+  - fails closed on conflicting direct evidence.
+- `src/island_v2/chapter1_when_where_omnibus.py`
+  - runs within-context response-vector tests;
+  - runs pairwise response-vector difference tests;
+  - uses spatial-block cluster-robust covariance;
+  - applies declared confirmatory/pilot support gates;
+  - classifies floristic-status persistence.
 - `src/island_v2/chapter1_context_analysis.py`
-  - fits nested M0/M1/M2 grouped-binomial models;
-  - uses cluster-robust covariance;
-  - computes context-specific simple slopes;
-  - computes the formal joint Wald test for all `isolation × context` interactions.
+  - retains atomic M0/M1/M2 models for decomposition and diagnostic checks.
 - `src/island_v2/genus_fixed_trait_null.py`
-  - runs the vectorized genus-composition-preserving M3 null.
+  - builds the genus-composition-preserving M3 null.
 - `src/island_v2/status_stratified_lineage_analysis.py`
-  - tests broad residual outcomes by status/context.
+  - evaluates broad lineage-controlled outcomes.
 - `src/island_v2/chapter1_trait_vector_freeze.py`
-  - applies declared FDR rules;
-  - distinguishes within-context slope signals from supported regional heterogeneity;
-  - freezes the component vector before syndrome interpretation.
+  - freezes atomic directions for post-when/where interpretation.
 
-The canonical workflow is `.github/workflows/run-chapter1-context-main.yml`.
+Canonical workflow:
+
+- `.github/workflows/run-chapter1-context-main.yml`
 
 ## Frozen run
 
-Canonical joint-Wald run: `32833362756`.
+Canonical when/where run: `32837335384`.
 
-Key frozen counts:
+### WHERE
 
-- fitted atomic categories: 43
-- context-specific slopes: 95
-- FDR-supported within-context slopes: 17
-- confirmatory-count-supported within-context slopes: 16, all northern-midlatitude
-- FDR-supported joint contingency categories: 1
-- confirmatory joint contingency categories: 0
+Confirmatory filtering is detected in:
 
-See `docs/chapter1_frozen_result_20260825.md` for the scientific interpretation.
+- northern mid-latitude `all_native`;
+- northern mid-latitude `native_nonendemic`;
+- tropical `all_native`;
+- tropical `native_nonendemic`.
 
-## Interpretation rule
+### BETWEEN-WHERE
 
-Do not equate:
+Northern mid-latitude and tropical response vectors differ confirmatorily using 17 common supported atomic responses:
 
-```text
-significant in northern_midlatitude
-+
-nonsignificant in tropical
-```
+- all native: q = `2.352889e-08`;
+- native non-endemic: q = `7.125861e-07`.
 
-with a regional difference.
+### WHEN
 
-Regional heterogeneity requires the formal joint interaction test to survive the declared multiplicity correction and adequate context support.
+Both regional signals persist in native non-endemic flora, so neither is confined to endemic taxa.
 
-The present manuscript-level result is therefore:
+Northern high-latitude and southern-extratropical contexts remain unresolved at the confirmatory tier. Southern extratropical shows a pilot vector signal; northern high-latitude currently lacks enough supported responses even for the declared pilot vector test.
 
-```text
-isolation-associated component-specific floral reorganization
-+
-strong northern-midlatitude within-context signal concentration
-+
-no confirmatory regional heterogeneity
-+
-no confirmatory broad generalized/plain/SC syndrome after M3
-```
+See `docs/chapter1_when_where_frozen_result_20260825.md` for exact response counts, island counts, Wald statistics and claim boundaries.
 
-## Legacy script in this directory
+## Atomic interpretation rule
 
-`run_bayesian_m0_m4_main.R` is a **historical Bombus-primary analysis**. It remains for reproducibility and sensitivity work but is not the current Chapter 1 manuscript workflow.
+Atomic M0–M4 results answer:
 
-The associated GitHub Actions workflow remains manual-only legacy status.
+> **Which trait categories make the confirmed northern-versus-tropical vectors different?**
 
-Do not cite its old M0–M4 labels as the current model ladder.
+They do not answer WHERE by themselves.
+
+The genus-preserving M3 layer still prevents promotion of a broad `generalized + plain + SC` package into a demonstrated classical island syndrome.
+
+## Legacy analysis
+
+`run_bayesian_m0_m4_main.R` is a historical Bombus-primary analysis. It remains for provenance/reproducibility and is not the canonical Chapter 1 workflow.
 
 ## Protected boundaries
 
 The canonical workflow must not:
 
-- require `bombus_deficit` to enter the primary analysis universe;
+- require Bombus or any pollinator label as a primary predictor;
 - infer pollinator guild from flower colour/form;
-- treat opportunistic absence as historical pollinator loss;
-- treat one-region significance as evidence of interaction;
-- collapse all categories to one syndrome index before decomposition;
-- omit status/lineage safeguards from manuscript-level inference;
-- call the current northern trait vector a demonstrated Bombus-loss syndrome;
-- force bird/Lepidoptera counter-syndromes where formal regional contrasts are unsupported.
+- treat opportunistic nondetection as historical loss;
+- define WHERE from counts of individual significant traits;
+- treat one-region significance as evidence of between-region difference;
+- interpret insufficient support as an ecological null;
+- omit lineage safeguards from broad syndrome claims.
