@@ -6,7 +6,9 @@ M2: M1 + isolation x context interactions (primary when/where test).
 
 This nesting is deliberate: M1->M2 tests whether isolation slopes differ among
 contexts without conflating that question with pre-existing regional differences
-in mean trait composition. No pollinator variable enters the primary design.
+in mean trait composition. The primary inferential statistic is a cluster-robust
+joint Wald test that all M2 interaction coefficients equal zero. No pollinator
+variable enters the primary design.
 """
 
 from __future__ import annotations
@@ -32,6 +34,29 @@ def _two_sided_p(z: float) -> float:
     return math.erfc(abs(float(z)) / math.sqrt(2.0))
 
 
+def _chi_square_sf_integer_df(statistic: float, df: int) -> float:
+    """Chi-square survival function for positive integer df without scipy.
+
+    The Chapter 1 context universe is small, but this recurrence is valid for any
+    positive integer df. It evaluates the regularized upper incomplete gamma
+    Q(df/2, statistic/2), starting from Q(1/2,x) or Q(1,x).
+    """
+    if df <= 0 or not math.isfinite(statistic) or statistic < 0:
+        return float("nan")
+    x = statistic / 2.0
+    if df % 2 == 0:
+        s = 1.0
+        q = math.exp(-x)
+    else:
+        s = 0.5
+        q = math.erfc(math.sqrt(x))
+    target = df / 2.0
+    while s < target - 1e-12:
+        q += math.exp(s * math.log(x) - x - math.lgamma(s + 1.0)) if x > 0 else 0.0
+        s += 1.0
+    return float(min(max(q, 0.0), 1.0))
+
+
 def _fit_grouped_binomial_design(
     successes: np.ndarray,
     trials: np.ndarray,
@@ -48,22 +73,22 @@ def _fit_grouped_binomial_design(
     iteration = 0
     for iteration in range(1, max_iter + 1):
         eta = X @ beta
-        p = np.clip(_expit(eta), 1e-8, 1.0 - 1e-8)
-        variance = p * (1.0 - p)
+        probability = np.clip(_expit(eta), 1e-8, 1.0 - 1e-8)
+        variance = probability * (1.0 - probability)
         weights = trials * variance
-        z = eta + (y - p) / variance
+        working_response = eta + (y - probability) / variance
         xtwx = X.T @ (weights[:, None] * X)
-        new_beta = np.linalg.pinv(xtwx) @ (X.T @ (weights * z))
+        new_beta = np.linalg.pinv(xtwx) @ (X.T @ (weights * working_response))
         if float(np.max(np.abs(new_beta - beta))) < tolerance:
             beta = new_beta
             converged = True
             break
         beta = new_beta
 
-    p = np.clip(_expit(X @ beta), 1e-10, 1.0 - 1e-10)
-    weights = trials * p * (1.0 - p)
+    probability = np.clip(_expit(X @ beta), 1e-10, 1.0 - 1e-10)
+    weights = trials * probability * (1.0 - probability)
     bread = np.linalg.pinv(X.T @ (weights[:, None] * X))
-    residual_counts = successes - trials * p
+    residual_counts = successes - trials * probability
     cluster_labels = clusters.astype(str)
     unique_clusters = np.unique(cluster_labels)
     meat = np.zeros((X.shape[1], X.shape[1]), dtype=float)
@@ -77,10 +102,10 @@ def _fit_grouped_binomial_design(
     g = len(unique_clusters)
     if g > 1 and n > k:
         covariance *= (g / (g - 1.0)) * ((n - 1.0) / (n - k))
-    se = np.sqrt(np.clip(np.diag(covariance), 0.0, None))
+    standard_errors = np.sqrt(np.clip(np.diag(covariance), 0.0, None))
 
     rows: list[dict[str, float | str]] = []
-    for name, estimate, stderr in zip(names, beta, se, strict=True):
+    for name, estimate, stderr in zip(names, beta, standard_errors, strict=True):
         z_value = float(estimate / stderr) if stderr > 0 else float("nan")
         rows.append(
             {
@@ -93,7 +118,10 @@ def _fit_grouped_binomial_design(
         )
 
     log_likelihood = float(
-        np.sum(successes * np.log(p) + (trials - successes) * np.log(1.0 - p))
+        np.sum(
+            successes * np.log(probability)
+            + (trials - successes) * np.log(1.0 - probability)
+        )
     )
     return (
         pd.DataFrame(rows),
@@ -193,8 +221,6 @@ def _fit_one_category(
     baseline_names = ["intercept", *[f"z_{p}" for p in baseline]]
     context_names = [f"context[{c}]" for c in contrasts]
     interaction_names = [f"z_isolation:context[{c}]" for c in contrasts]
-    # Context main effects are present before isolation is tested. This makes
-    # M1->M2 the clean test of slope heterogeneity.
     m0_names = [*baseline_names, *context_names]
     m1_names = [*m0_names, f"z_{isolation_column}"]
     m2_names = [*m1_names, *interaction_names]
@@ -230,6 +256,32 @@ def _fit_one_category(
 
     coef_m2, _, cov_m2, names_m2 = fits["M2"]
     beta = coef_m2.set_index("predictor")["estimate_log_odds"]
+
+    # Primary joint test: are all context-specific deviations from the common
+    # isolation slope zero simultaneously? Use the cluster-robust covariance.
+    interaction_indices = [names_m2.index(name) for name in interaction_names]
+    interaction_beta = np.array([float(beta[name]) for name in interaction_names])
+    interaction_cov = cov_m2[np.ix_(interaction_indices, interaction_indices)]
+    joint_df = int(np.linalg.matrix_rank(interaction_cov))
+    if joint_df > 0:
+        joint_stat = float(interaction_beta @ np.linalg.pinv(interaction_cov) @ interaction_beta)
+        joint_p = _chi_square_sf_integer_df(joint_stat, joint_df)
+    else:
+        joint_stat = float("nan")
+        joint_p = float("nan")
+    fit_table["interaction_joint_wald_chisq"] = joint_stat
+    fit_table["interaction_joint_df"] = joint_df
+    fit_table["interaction_joint_p"] = joint_p
+    for table in coefficient_parts:
+        if table["model"].eq("M2").all():
+            table["interaction_joint_wald_chisq"] = joint_stat
+            table["interaction_joint_df"] = joint_df
+            table["interaction_joint_p"] = joint_p
+        else:
+            table["interaction_joint_wald_chisq"] = np.nan
+            table["interaction_joint_df"] = np.nan
+            table["interaction_joint_p"] = np.nan
+
     iso_name = f"z_{isolation_column}"
     iso_idx = names_m2.index(iso_name)
     slope_rows: list[dict[str, Any]] = []
@@ -260,6 +312,9 @@ def _fit_one_category(
                     if n_context >= 30
                     else "exploratory_only"
                 ),
+                "interaction_joint_wald_chisq": joint_stat,
+                "interaction_joint_df": joint_df,
+                "interaction_joint_p": joint_p,
             }
         )
 
@@ -274,6 +329,9 @@ def _fit_one_category(
             "context_counts": {c: int(raw_context_counts.get(c, 0)) for c in eligible_contexts},
             "scaling": scaling,
             "n_islands": int(len(work)),
+            "interaction_joint_wald_chisq": joint_stat,
+            "interaction_joint_df": joint_df,
+            "interaction_joint_p": joint_p,
         },
     )
 
@@ -333,6 +391,9 @@ def fit_chapter1_context_models(
                 "eligible_contexts": "|".join(meta.get("eligible_contexts", [])),
                 "context_counts": json.dumps(meta.get("context_counts", {}), sort_keys=True),
                 "reference_context": meta.get("reference_context", ""),
+                "interaction_joint_wald_chisq": meta.get("interaction_joint_wald_chisq", np.nan),
+                "interaction_joint_df": meta.get("interaction_joint_df", np.nan),
+                "interaction_joint_p": meta.get("interaction_joint_p", np.nan),
             }
         )
         if coef.empty:
@@ -396,13 +457,14 @@ def run(
     support.to_csv(output_dir / "chapter1_model_support.csv", index=False)
     slopes.to_csv(output_dir / "chapter1_m4_category_decomposition.csv", index=False)
     manifest = {
-        "contract": "chapter1_context_dependent_models_v2",
+        "contract": "chapter1_context_dependent_models_v3_joint_wald",
         "model_ladder": [
             "M0_baseline_plus_context_main_effects",
             "M1_M0_plus_universal_isolation",
             "M2_M1_plus_isolation_x_context",
         ],
-        "primary_nested_test": "M1_to_M2 isolates context-specific isolation slopes",
+        "primary_nested_test": "cluster_robust_joint_Wald_of_all_M2_isolation_x_context_terms",
+        "aic_comparison": "supporting_model_fit_diagnostic_only",
         "m3": "separate genus-fixed status/lineage residual layer",
         "m4": "category-preserving decomposition of M2 context slopes",
         "pollinator_primary_predictors": False,
