@@ -4,7 +4,7 @@
 
 This document defines the repository surface that may support the Chapter 1 manuscript. It is intentionally narrower than the full development history.
 
-A result is manuscript-canonical only when it follows this contract, uses a locked input artifact, and produces an auditable output manifest.
+A result is manuscript-canonical only when it follows this contract, uses locked inputs, and produces an auditable output manifest.
 
 ## Canonical scientific question
 
@@ -18,46 +18,59 @@ The manuscript is a global comparative analysis of **pattern and boundary condit
 
 Island isolation should not generate one universal floral and reproductive syndrome. Instead, the magnitude and direction of isolation-associated trait filtering may differ among biogeographic contexts after floristic status, lineage/source-pool composition, climate, geography and observation support are represented.
 
-## Canonical analysis hierarchy
+## Canonical nested analysis hierarchy
 
-1. **M0 — biogeographic baseline**
-   - area, climate, floristic status/endemicity, lineage/source-pool composition, establishment/reachability where represented, and observation/evidence support;
-   - estimates how much trait composition is explained before isolation is added.
+The model ladder must distinguish **regional mean composition differences** from **regional differences in the isolation slope**. A better fit after merely adding a context intercept is not evidence that isolation acts differently among regions.
+
+1. **M0 — context-aware biogeographic baseline**
+   - area, climate, floristic status/endemicity, lineage/source-pool safeguards, establishment/reachability where represented, observation/evidence support, **and biogeographic-context main effects**;
+   - captures baseline and regional mean-composition differences before isolation is added.
 
 2. **M1 — universal isolation baseline**
-   - adds isolation to M0;
-   - tests whether one broadly shared isolation-associated direction remains.
+   - adds one common isolation slope to M0;
+   - `M0 -> M1` tests whether isolation adds information beyond the context-aware baseline.
 
 3. **M2 — biogeographic contingency**
-   - adds `isolation × biogeographic context`;
-   - this is the primary Chapter 1 model;
-   - the context definition must be frozen independently of floral/reproductive outcomes.
+   - adds only `isolation × biogeographic context` interactions to M1;
+   - **`M1 -> M2` is the primary Chapter 1 when/where test**;
+   - context definition must be frozen independently of floral/reproductive outcomes.
 
 4. **M3 — status / lineage residual analysis**
-   - tests M1/M2 within conservative floristic-status subsets and/or against genus/family/source-pool-preserving expectations;
+   - tests broad M1/M2 patterns within conservative floristic-status strata and against a genus-composition-preserving expectation;
    - manuscript-level inference must not treat inherited lineage composition as optional.
 
 5. **M4 — category-preserving decomposition**
-   - retains observed colour, floral-form, architecture and reproductive categories;
-   - identifies which categories create, oppose or cancel a broad regional response;
+   - colour and floral-form multistates are represented as atomic category presences; `SC|SI` is retained once as `mixed_or_variable`;
+   - identifies which categories create, oppose or cancel any broad regional response;
    - composite syndrome scores are secondary only.
+
+## Context-support rule
+
+Small regional subsets cannot define the primary when/where result.
+
+- `<30` islands for a context/category: exploratory only and excluded from the primary M2 fit for that category;
+- `30–49`: pilot-level support;
+- `>=50`: meets the count component of confirmatory support.
+
+All effect tables must retain the actual number of contributing islands. Statistical significance does not override an inadequate context count.
 
 ## Pollination-syndrome interpretation contract
 
-Pollination-syndrome expectations enter only **after M0–M4 results are frozen**.
+Pollination-syndrome expectations enter only **after M0–M4 results and the regional trait vectors are frozen**.
 
 Allowed:
 
 - compare a northern-temperate multivariate trait direction with literature on Bombus / large- or long-tongued-bee associated systems;
 - compare tropical/southern counter-patterns with literature on bird, butterfly, moth, hawkmoth or alternative-bee syndromes;
-- discuss concordance and mismatch explicitly.
+- discuss concordance **and mismatch** explicitly.
 
 Not allowed:
 
 - infer actual pollinator identity from floral phenotype;
 - claim that Bombus loss caused a northern pattern;
 - claim that bird/Lepidoptera replacement caused a contrasting regional pattern;
-- use syndrome concordance as a fitted predictor or as evidence of historical functional replacement.
+- use syndrome concordance as a fitted predictor or as evidence of historical functional replacement;
+- construct a pollinator story when the frozen regional vector does not show the predicted suite of traits.
 
 ## Status of Bombus analyses
 
@@ -97,14 +110,14 @@ A manuscript-canonical global or regional inference must include, or explicitly 
 - spatial dependence among islands; and
 - inherited floristic/lineage or source-pool composition.
 
-A model containing only geography and climate does not satisfy the Chapter 1 safeguard.
+The current primary safeguard may be satisfied by the genus-composition-preserving M3 lineage null; a globally complete source-region assignment is not required merely to duplicate that safeguard. Source-region assignments remain a useful independent sensitivity where defensible.
 
 ### Biogeographic-context definition
 
 The primary context grouping must be:
 
 - frozen before primary outcome interpretation;
-- based on defensible geography/source-pool/biogeographic information;
+- based on defensible geography/biogeographic information;
 - independent of floral/reproductive trait outcomes;
 - accompanied by at least one reasonable sensitivity grouping where feasible.
 
@@ -118,7 +131,7 @@ The isolation response must be predeclared and checked for leverage. The manuscr
 
 ### Outcome support
 
-Each response model may use its maximum defensible support. A common complete-case set is required only for comparisons that mathematically require identical support. Attrition must be reported per equation/outcome.
+Each response model may use its maximum defensible support. A common complete-case set is required only for nested comparisons that mathematically require identical support. M0/M1/M2 for a given category must use identical islands. Attrition is reported per category.
 
 ### Category preservation
 
@@ -140,7 +153,7 @@ A fresh reader should be able to identify from the repository root:
 
 ## Chapter 1 -> Chapter 2 boundary
 
-Chapter 1 may establish that regional floral/reproductive trait syndromes differ. It should not use weak proxy data to decide why.
+Chapter 1 may establish that regional floral/reproductive responses to isolation differ. It should not use weak proxy data to decide why.
 
 The unresolved mechanism is handed to Chapter 2 (`izu-core`), where candidate explanations such as pollinator identity, functional diversity, trait matching, effective service, functional replacement, reproductive assurance and network context are evaluated under a stricter mechanistic standard.
 
