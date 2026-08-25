@@ -2,107 +2,158 @@
 
 ## Status
 
-This document defines the repository surface that may support the manuscript. It is intentionally narrower than the full development history.
+This document defines the repository surface that may support the Chapter 1 manuscript. It is intentionally narrower than the full development history.
 
-The repository contains many historical pilots, acquisition experiments, and alternative analyses. Their existence in git history does not make them part of the manuscript analysis. A result is manuscript-canonical only when it is listed here, uses a locked input artifact, and produces an auditable output manifest.
+A result is manuscript-canonical only when it follows this contract, uses a locked input artifact, and produces an auditable output manifest.
 
 ## Canonical scientific question
 
-The manuscript tests whether island isolation is associated with changes in floral and reproductive composition, with a northern-midlatitude Bombus-channel hypothesis evaluated only where that channel is biologically interpretable.
+> **When and where does island isolation coincide with floral and reproductive filtering, and is that filtering globally uniform or biogeographically contingent?**
 
-The study is a global comparative analysis. It does not identify a historical pollinator-loss event and does not establish causal floral evolution from cross-sectional island data.
+The manuscript is a global comparative analysis of **pattern and boundary conditions**. It does not identify a historical pollinator-loss event and does not establish causal floral evolution from cross-sectional island data.
+
+## Canonical hypothesis
+
+### Biogeographically contingent floral island syndrome
+
+Island isolation should not generate one universal floral and reproductive syndrome. Instead, the magnitude and direction of isolation-associated trait filtering may differ among biogeographic contexts after floristic status, lineage/source-pool composition, climate, geography and observation support are represented.
 
 ## Canonical analysis hierarchy
 
-1. **Global composition analysis**
-   - estimates regime-specific associations between isolation and retained floral/reproductive categories;
-   - does not impose a Bombus mechanism outside its declared applicability domain;
-   - preserves category composition whenever possible.
+1. **M0 — biogeographic baseline**
+   - area, climate, floristic status/endemicity, lineage/source-pool composition, establishment/reachability where represented, and observation/evidence support;
+   - estimates how much trait composition is explained before isolation is added.
 
-2. **Northern-midlatitude Bombus analysis**
-   - uses only an analysis-ready Bombus predictor with explicit provenance;
-   - a global all-species environmental maximum is diagnostic only and cannot be treated as Bombus absence or deficit;
-   - environmental compatibility is not realized occurrence, abundance, visitation, or pollination service.
+2. **M1 — universal isolation baseline**
+   - adds isolation to M0;
+   - tests whether one broadly shared isolation-associated direction remains.
 
-3. **Reproductive-assurance pathway analysis**
-   - is an associational pathway analysis unless a formal causal mediation estimand, assumptions, common analysis support, and response-scale posterior contrast are implemented;
-   - products of coefficients from separate nonlinear models must not be labelled causal indirect effects or total effects.
+3. **M2 — biogeographic contingency**
+   - adds `isolation × biogeographic context`;
+   - this is the primary Chapter 1 model;
+   - the context definition must be frozen independently of floral/reproductive outcomes.
 
-4. **Sensitivity analyses**
-   - expanded genus/family inference and global fallback may be used only as explicitly labelled sensitivity analyses;
-   - results based on `sensitivity_all` are not confirmatory evidence because global fallback values are model-imputed priors rather than species-level observations.
+4. **M3 — status / lineage residual analysis**
+   - tests M1/M2 within conservative floristic-status subsets and/or against genus/family/source-pool-preserving expectations;
+   - manuscript-level inference must not treat inherited lineage composition as optional.
+
+5. **M4 — category-preserving decomposition**
+   - retains observed colour, floral-form, architecture and reproductive categories;
+   - identifies which categories create, oppose or cancel a broad regional response;
+   - composite syndrome scores are secondary only.
+
+## Pollination-syndrome interpretation contract
+
+Pollination-syndrome expectations enter only **after M0–M4 results are frozen**.
+
+Allowed:
+
+- compare a northern-temperate multivariate trait direction with literature on Bombus / large- or long-tongued-bee associated systems;
+- compare tropical/southern counter-patterns with literature on bird, butterfly, moth, hawkmoth or alternative-bee syndromes;
+- discuss concordance and mismatch explicitly.
+
+Not allowed:
+
+- infer actual pollinator identity from floral phenotype;
+- claim that Bombus loss caused a northern pattern;
+- claim that bird/Lepidoptera replacement caused a contrasting regional pattern;
+- use syndrome concordance as a fitted predictor or as evidence of historical functional replacement.
+
+## Status of Bombus analyses
+
+Existing Bombus applicability, environmental-niche, occurrence and channel-score products remain valid provenance-preserving development products, but they are **not canonical primary predictors for Chapter 1**.
+
+They may be used only as:
+
+- descriptive regional context;
+- exploratory diagnostics;
+- declared sensitivity analyses;
+- candidate-system selection for mechanistic follow-up.
+
+They must not be used to:
+
+- define the primary analysis universe;
+- convert climatic compatibility into realized occurrence;
+- convert opportunistic non-detection into historical absence/loss;
+- equate occurrence with visitation, effectiveness or reproductive dependency;
+- rescue a weak/null Chapter 1 pattern by additional mechanism-targeted acquisition.
 
 ## Evidence-tier rule
 
 The manuscript must report trait evidence resolution rather than hide it behind complete fill.
 
-- **Confirmatory:** direct source-backed species evidence, with a separately declared broader direct-evidence track if justified.
+- **Confirmatory:** direct source-backed species evidence, with any broader direct-evidence track declared separately.
 - **Secondary robustness:** taxonomic inference at genus/family level.
-- **Sensitivity only:** global fallback.
+- **Sensitivity only:** global fallback or explicitly labelled inference layers.
 
 Every primary figure/table must state the evidence tier and the number of islands, species, and trait-resolved trials contributing to the estimate.
 
 ## Required model safeguards before submission
-
-### Common support for pathway claims
-
-Any coefficient-product or mediated-path comparison must be estimated on the same island set for all component equations. Equation-specific maximum support may be reported for separate descriptive models, but it cannot be used to construct a single indirect pathway estimand.
-
-### Nonlinear-model mediation
-
-For beta-binomial/logit models, multiplying logit-scale coefficients is not a natural indirect effect on the response scale. A manuscript mediation claim therefore requires posterior simulation or g-computation under declared exposure/mediator contrasts. Otherwise the output must be described as an exploratory coefficient-product pathway index.
 
 ### Spatial and lineage structure
 
 A manuscript-canonical global or regional inference must include, or explicitly test sensitivity to:
 
 - spatial dependence among islands; and
-- inherited floristic/lineage composition or source-pool structure.
+- inherited floristic/lineage or source-pool composition.
 
-A model containing only island geography and climate does not by itself satisfy the source-pool/lineage safeguard defined in `docs/v2_pollination_regime_framework.md`.
+A model containing only geography and climate does not satisfy the Chapter 1 safeguard.
+
+### Biogeographic-context definition
+
+The primary context grouping must be:
+
+- frozen before primary outcome interpretation;
+- based on defensible geography/source-pool/biogeographic information;
+- independent of floral/reproductive trait outcomes;
+- accompanied by at least one reasonable sensitivity grouping where feasible.
 
 ### Isolation functional form
 
-The isolation response must be predeclared and checked for leverage. Raw distance plus a quadratic term can be dominated by a small number of remote islands. The manuscript must report the observed distance distribution and compare the chosen functional form with a prespecified robust alternative such as log-distance or a smooth with constrained complexity.
+The isolation response must be predeclared and checked for leverage. The manuscript must report the observed isolation distribution and compare the chosen functional form with a prespecified robust alternative such as log-distance or a constrained smooth.
 
 ### Zero-distance islands
 
-`distance_to_continent_km <= 0` must be audited as a data/geometry class. Dropping these islands before modelling is acceptable only after reporting their count, geography, and reason for exclusion. They must not disappear silently from the analysis universe.
+`distance_to_continent_km <= 0` or analogous zero-distance classes must be audited rather than silently dropped. Their count, geography and treatment must be reported.
 
-## Bombus environmental-niche contract
+### Outcome support
 
-The retained estimator is the PR #112-style winsorized, standardized, ridge-regularized Mahalanobis ellipsoidal environmental niche model with boundary calibration and extrapolation diagnostics.
+Each response model may use its maximum defensible support. A common complete-case set is required only for comparisons that mathematically require identical support. Attrition must be reported per equation/outcome.
 
-Before manuscript use, the real-data artifact must distinguish two things:
+### Category preservation
 
-1. the frozen species universe used for reproducibility; and
-2. the occurrence records actually used after the declared quality filters and spatial thinning.
-
-Restoring an older canonical artifact is reproducible, but it is not evidence that newly added coordinate-uncertainty, year, or basis-of-record filters were applied. The final manuscript artifact must record counts before and after each filter and a checksum for the exact occurrence table used to fit the model.
+Multistate/category outcomes precede broad binary summaries. A binary result cannot override an opposing or heterogeneous category decomposition.
 
 ## Reproducibility and archival rule
 
-GitHub Actions artifacts with finite retention are not a permanent supplementary archive. Before submission, all manuscript-critical inputs and outputs must be deposited in a durable release/archive (for example a versioned GitHub release plus an external DOI-bearing repository where appropriate), with checksums recorded in the repository.
+Before submission, all manuscript-critical inputs and outputs must be archived durably with checksums.
 
 A fresh reader should be able to identify from the repository root:
 
 - the exact manuscript release/tag;
-- the locked input artifacts and checksums;
+- locked input artifacts and checksums;
 - one canonical command/workflow per main analysis;
 - the software environment;
-- the evidence-tier definition;
-- the attrition table from the frozen island universe to each fitted model; and
+- evidence-tier definitions;
+- attrition from the frozen island universe to every fitted model; and
 - the files used for each manuscript figure and table.
+
+## Chapter 1 -> Chapter 2 boundary
+
+Chapter 1 may establish that regional floral/reproductive trait syndromes differ. It should not use weak proxy data to decide why.
+
+The unresolved mechanism is handed to Chapter 2 (`izu-core`), where candidate explanations such as pollinator identity, functional diversity, trait matching, effective service, functional replacement, reproductive assurance and network context are evaluated under a stricter mechanistic standard.
 
 ## Noncanonical material
 
-The following are development history rather than manuscript methods unless explicitly promoted by a later contract change:
+The following remain development history or sensitivity material unless explicitly promoted by a later contract change:
 
 - trait-source scouting and free-bulk-source pilots;
-- validation-pilot and core-pilot acquisition workflows;
+- validation/core-pilot acquisition workflows;
 - EOL/TraitBank inventory experiments;
-- superseded M0–M4 workflow variants;
+- Bombus-primary M0–M4 pathway variants;
+- Bombus mediation/coefficient-product analyses;
 - old v1/v2 bridge analyses;
-- alternative Bayesian replications superseded by the engine-specific design.
+- superseded Bayesian/INLA variants built around a Bombus-primary confirmatory question.
 
-Historical code may remain in git history, but it should not appear beside canonical workflows in the active submission surface.
+Historical code may remain in git for provenance. It should not be presented beside the current canonical Chapter 1 workflow as if it were still the primary manuscript method.
