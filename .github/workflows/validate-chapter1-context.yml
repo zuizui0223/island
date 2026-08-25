@@ -12,6 +12,7 @@ on:
       - "src/island_v2/chapter1_when_where_sensitivity.py"
       - "src/island_v2/chapter1_when_where_domain_omnibus.py"
       - "src/island_v2/chapter1_when_where_block_deletion.py"
+      - "src/island_v2/chapter1_observation_bias.py"
       - "src/island_v2/flora_status_support.py"
       - "src/island_v2/genus_fixed_trait_null.py"
       - "src/island_v2/status_stratified_lineage_analysis.py"
@@ -19,6 +20,7 @@ on:
       - "config/chapter1_when_where_omnibus.yml"
       - "config/chapter1_when_where_sensitivity.yml"
       - "config/chapter1_when_where_block_deletion.yml"
+      - "config/chapter1_observation_bias.yml"
       - "config/flora_status_support.yml"
       - "tests/test_chapter1_context_workflow.py"
       - "tests/test_chapter1_multistate_normalization.py"
@@ -28,6 +30,7 @@ on:
       - "tests/test_chapter1_when_where_sensitivity.py"
       - "tests/test_chapter1_when_where_domain_omnibus.py"
       - "tests/test_chapter1_when_where_block_deletion.py"
+      - "tests/test_chapter1_observation_bias.py"
       - ".github/workflows/validate-chapter1-context.yml"
   pull_request:
     branches: [main]
@@ -40,6 +43,7 @@ on:
       - "src/island_v2/chapter1_when_where_sensitivity.py"
       - "src/island_v2/chapter1_when_where_domain_omnibus.py"
       - "src/island_v2/chapter1_when_where_block_deletion.py"
+      - "src/island_v2/chapter1_observation_bias.py"
       - "src/island_v2/flora_status_support.py"
       - "src/island_v2/genus_fixed_trait_null.py"
       - "src/island_v2/status_stratified_lineage_analysis.py"
@@ -47,6 +51,7 @@ on:
       - "config/chapter1_when_where_omnibus.yml"
       - "config/chapter1_when_where_sensitivity.yml"
       - "config/chapter1_when_where_block_deletion.yml"
+      - "config/chapter1_observation_bias.yml"
       - "config/flora_status_support.yml"
       - "tests/test_chapter1_context_workflow.py"
       - "tests/test_chapter1_multistate_normalization.py"
@@ -56,6 +61,7 @@ on:
       - "tests/test_chapter1_when_where_sensitivity.py"
       - "tests/test_chapter1_when_where_domain_omnibus.py"
       - "tests/test_chapter1_when_where_block_deletion.py"
+      - "tests/test_chapter1_observation_bias.py"
       - ".github/workflows/validate-chapter1-context.yml"
   workflow_dispatch:
 
@@ -85,6 +91,7 @@ jobs:
             src/island_v2/chapter1_when_where_sensitivity.py \
             src/island_v2/chapter1_when_where_domain_omnibus.py \
             src/island_v2/chapter1_when_where_block_deletion.py \
+            src/island_v2/chapter1_observation_bias.py \
             src/island_v2/flora_status_support.py \
             src/island_v2/genus_fixed_trait_null.py \
             src/island_v2/status_stratified_lineage_analysis.py \
@@ -95,7 +102,8 @@ jobs:
             tests/test_chapter1_when_where_classification.py \
             tests/test_chapter1_when_where_sensitivity.py \
             tests/test_chapter1_when_where_domain_omnibus.py \
-            tests/test_chapter1_when_where_block_deletion.py
+            tests/test_chapter1_when_where_block_deletion.py \
+            tests/test_chapter1_observation_bias.py
       - name: Synthetic regression tests
         run: |
           pytest -q \
@@ -106,7 +114,8 @@ jobs:
             tests/test_chapter1_when_where_classification.py \
             tests/test_chapter1_when_where_sensitivity.py \
             tests/test_chapter1_when_where_domain_omnibus.py \
-            tests/test_chapter1_when_where_block_deletion.py
+            tests/test_chapter1_when_where_block_deletion.py \
+            tests/test_chapter1_observation_bias.py
       - name: Parse frozen configs
         run: |
           python - <<'PY'
@@ -117,6 +126,7 @@ jobs:
               Path('config/chapter1_when_where_omnibus.yml'),
               Path('config/chapter1_when_where_sensitivity.yml'),
               Path('config/chapter1_when_where_block_deletion.yml'),
+              Path('config/chapter1_observation_bias.yml'),
               Path('config/flora_status_support.yml'),
           ]:
               payload = yaml.safe_load(path.read_text())
