@@ -1,0 +1,177 @@
+name: Run Chapter 1 context-dependent main analysis
+
+on:
+  workflow_dispatch:
+    inputs:
+      trait_run_id:
+        description: "Formal reviewed direct-trait run"
+        required: false
+        default: "32702160934"
+      null_draws:
+        description: "Genus-fixed null draws for M3"
+        required: false
+        default: "1000"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  chapter1-main:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TRAIT_RUN_ID: ${{ inputs.trait_run_id || '32702160934' }}
+      NULL_DRAWS: ${{ inputs.null_draws || '1000' }}
+      STATUS_RUN_ID: "32559322028"
+      STATUS_ARTIFACT: "official-wcvp-corroborated-status-32559322028"
+      ISOLATION_RUN_ID: "29228212586"
+      ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install and validate canonical code
+        run: |
+          pip install -e ".[dev]"
+          ruff check \
+            src/island_v2/chapter1_context_input.py \
+            src/island_v2/chapter1_context_analysis.py \
+            src/island_v2/flora_status_support.py \
+            src/island_v2/genus_fixed_trait_null.py \
+            src/island_v2/status_stratified_lineage_analysis.py \
+            tests/test_chapter1_context_workflow.py
+          pytest -q tests/test_chapter1_context_workflow.py
+
+      - name: Download locked trait, status, and geographic inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/traits /tmp/status /tmp/isolation
+          gh run download "$TRAIT_RUN_ID" \
+            -n "reviewed-open-web-evidence-${TRAIT_RUN_ID}" \
+            -D /tmp/traits
+          gh run download "$STATUS_RUN_ID" \
+            -n "$STATUS_ARTIFACT" \
+            -D /tmp/status
+          gh run download "$ISOLATION_RUN_ID" \
+            -n "$ISOLATION_ARTIFACT" \
+            -D /tmp/isolation
+          test -s /tmp/traits/direct_species_trait_ledger.csv.gz
+          test -s /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+          test -s data/v2/staging/gbif/collected/island_species_occurrences.csv.gz
+          test -s data/v2/staging/gbif/collected/island_taxa.csv
+
+      - name: Build Bombus-free status-aware trait composition
+        run: |
+          python -m island_v2.chapter1_context_input \
+            --island-species-csv data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
+            --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
+            --direct-evidence-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --output-dir /tmp/ch1/input
+          test -s /tmp/ch1/input/chapter1_trait_composition_long.csv.gz
+
+      - name: Audit required context covariates
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          p='/tmp/isolation/results/purpose_shortest_island_data.csv'
+          d=pd.read_csv(p)
+          required={
+              'island_id','analysis_regime','spatial_block',
+              'log_distance_to_continent_km','log_island_area_km2',
+              'climate_pc1','climate_pc2','climate_pc3','climate_pc4'
+          }
+          missing=sorted(required-set(d.columns))
+          if missing:
+              raise SystemExit(f'missing required covariates: {missing}')
+          print(d['analysis_regime'].value_counts(dropna=False).to_string())
+          PY
+
+      - name: Fit M0-M2 and category-preserving M4
+        run: |
+          python -m island_v2.chapter1_context_analysis \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_context_analysis.yml \
+            --output-dir /tmp/ch1/context
+          test -s /tmp/ch1/context/chapter1_model_support.csv
+          test -s /tmp/ch1/context/chapter1_context_analysis_manifest.json
+
+      - name: Build genus-fixed M3 lineage residual
+        run: |
+          python -m island_v2.genus_fixed_trait_null \
+            --island-species-csv data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
+            --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
+            --direct-evidence-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --master-taxa-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --config-path config/flora_status_support.yml \
+            --n-draws "$NULL_DRAWS" \
+            --seed 20260825 \
+            --min-species-per-island 1 \
+            --output-dir /tmp/ch1/null
+          python -m island_v2.status_stratified_lineage_analysis \
+            --genus-null-csv /tmp/ch1/null/genus_fixed_null_by_island.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --context-column analysis_regime \
+            --cluster-column spatial_block \
+            --output-dir /tmp/ch1/lineage
+          test -s /tmp/ch1/lineage/status_stratified_lineage_support.csv
+
+      - name: Enforce Chapter 1 claim boundary and write checkpoint
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          coef = pd.read_csv('/tmp/ch1/context/chapter1_m0_m2_coefficients.csv')
+          bad = coef['predictor'].astype(str).str.contains('bombus', case=False, regex=False).any() if not coef.empty else False
+          if bad:
+              raise SystemExit('Bombus predictor leaked into canonical Chapter 1 coefficient table')
+          support = pd.read_csv('/tmp/ch1/context/chapter1_model_support.csv')
+          slopes = pd.read_csv('/tmp/ch1/context/chapter1_context_isolation_slopes.csv')
+          lineage = pd.read_csv('/tmp/ch1/lineage/status_stratified_lineage_isolation.csv')
+          payload = {
+              'contract': 'chapter1_context_dependent_checkpoint_v1',
+              'primary_question': 'when_and_where_isolation_associated_trait_filtering_is_biogeographically_contingent',
+              'primary_model': 'M2_isolation_x_biogeographic_context',
+              'bombus_primary_predictor': False,
+              'pollination_syndrome_concordance': 'discussion_after_result_freeze_only',
+              'status_strata_present': sorted(support['stratum'].dropna().astype(str).unique().tolist()),
+              'n_supported_category_models': int((support['status']=='fit').sum()),
+              'n_context_slope_rows': int(len(slopes)),
+              'n_m3_isolation_rows': int(len(lineage)),
+              'explicit_source_pool_assignment_in_primary_model': False,
+              'manuscript_gate': 'not_complete_until_source_pool_safeguard_is_resolved_or_justified',
+          }
+          Path('/tmp/ch1/chapter1_checkpoint.json').write_text(json.dumps(payload, indent=2)+'\n')
+          print(json.dumps(payload, indent=2))
+          PY
+
+      - name: Summarize results
+        run: |
+          echo '## Chapter 1 context-dependent analysis' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Support' >> "$GITHUB_STEP_SUMMARY"
+          head -30 /tmp/ch1/context/chapter1_model_support.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Context-specific isolation slopes' >> "$GITHUB_STEP_SUMMARY"
+          head -40 /tmp/ch1/context/chapter1_context_isolation_slopes.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### M3 genus-fixed residual isolation' >> "$GITHUB_STEP_SUMMARY"
+          head -40 /tmp/ch1/lineage/status_stratified_lineage_isolation.csv >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-context-main-${{ github.run_id }}
+          path: |
+            /tmp/ch1/input/
+            /tmp/ch1/context/
+            /tmp/ch1/null/
+            /tmp/ch1/lineage/
+            /tmp/ch1/chapter1_checkpoint.json
+          if-no-files-found: error
+          retention-days: 90
