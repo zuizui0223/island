@@ -5,8 +5,8 @@
 #   filtering, and is that filtering globally uniform or biogeographically contingent?
 #
 # Bombus / bird / Lepidoptera / other pollinator-syndrome interpretations are
-# downstream discussion or sensitivity layers, not required primary predictors.
-version: "2.0"
+# downstream discussion layers, not required primary predictors.
+version: "2.1"
 
 baseline_covariates:
   - island_area
@@ -16,17 +16,13 @@ baseline_covariates:
   - establishment_reachability_if_represented
   - observation_evidence_support
 
-primary_exposure:
-  - isolation
+primary_exposure: isolation
+primary_effect_modifier: biogeographic_context
 
-primary_effect_modifier:
-  - biogeographic_context
-
-# The context variable must be frozen independently of the floral/reproductive outcomes.
 biogeographic_context_rule: >-
-  Use the most defensible frozen regional/source-pool grouping available in the
-  analysis dataset. Do not define context from trait outcomes or pollinator-syndrome
-  interpretation. Alternative context schemes are sensitivity analyses.
+  Freeze context independently of floral/reproductive outcomes. Context main effects
+  must be represented before testing isolation so pre-existing regional differences
+  in mean trait composition cannot masquerade as context-dependent isolation effects.
 
 primary_outcomes:
   - multistate_flower_colour_composition
@@ -47,29 +43,30 @@ reproductive_non_equivalence_rule: >-
 models:
   M0:
     name: biogeographic_baseline
-    covariates: baseline_covariates
+    covariates: baseline_covariates + biogeographic_context
     outcome: primary_outcomes
     question: >-
-      How much floral/reproductive composition is explained by area, climate,
-      floristic status, lineage/source-pool structure, establishment/reachability
-      and observation support before isolation is added?
+      How much composition is explained by baseline structure and context-specific
+      mean composition before isolation is added?
 
   M1:
     name: universal_isolation_baseline
-    covariates: baseline_covariates + isolation
+    covariates: baseline_covariates + biogeographic_context + isolation
     outcome: primary_outcomes
+    comparison: M0_to_M1
     question: >-
-      Does isolation show one broadly shared floral/reproductive direction after
-      the baseline alternatives are represented?
+      Does one common isolation slope improve the context-aware baseline?
 
   M2:
     name: biogeographic_contingency
-    covariates: baseline_covariates + isolation + biogeographic_context + isolation:biogeographic_context
+    covariates: baseline_covariates + biogeographic_context + isolation + isolation:biogeographic_context
     outcome: primary_outcomes
-    status: primary_chapter1_model
+    status: primary_chapter1_when_where_test
+    comparison: M1_to_M2
     question: >-
-      Do isolation-associated trait responses differ in magnitude or direction
-      among biogeographic contexts?
+      After regional mean composition is already represented, does allowing the
+      isolation slope to differ among contexts improve the model and yield supported
+      context contrasts?
 
   M3:
     name: status_lineage_residual
@@ -89,7 +86,15 @@ models:
     outcome: individual_retained_trait_categories
     question: >-
       Which observed colour, floral-form and reproductive categories create,
-      oppose or cancel the broad regional trait response?
+      oppose or cancel any supported regional response?
+
+support_policy:
+  primary_context_min_islands: 30
+  confirmatory_context_min_islands: 50
+  rule: >-
+    Context-specific effects below 30 islands are exploratory and cannot define the
+    primary when/where conclusion. Counts of 30-49 are pilot-level; >=50 meet the
+    count component of the confirmatory support rule.
 
 pollination_syndrome_concordance:
   stage: after_M0_to_M4_results_are_frozen
@@ -106,9 +111,9 @@ pollination_syndrome_concordance:
         - hawkmoth_associated
         - alternative_bee_associated
   rule: >-
-    Compare multivariate observed trait directions with literature-defined
-    syndrome expectations. Do not infer an actual pollinator guild from a floral
-    phenotype and do not use syndrome concordance as an input to the fitted model.
+    Compare multivariate observed trait directions with literature-defined syndrome
+    expectations. Do not infer an actual pollinator guild from floral phenotype and
+    do not use syndrome concordance as an input to a fitted model.
 
 bombus_products:
   canonical_primary_predictor: false
@@ -128,6 +133,7 @@ bombus_products:
     mechanism in Chapter 1.
 
 guardrails:
+  - regional mean differences cannot count as evidence for isolation x context.
   - reported evidence and proxy/inference remain separate in every analysis.
   - category-preserving outcomes precede composite syndrome summaries.
   - biogeographic context is frozen independently of trait outcomes.
