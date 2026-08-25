@@ -1,6 +1,10 @@
 name: Run Chapter 1 context-dependent main analysis
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/run-chapter1-context-main.yml"
   workflow_dispatch:
     inputs:
       trait_run_id:
