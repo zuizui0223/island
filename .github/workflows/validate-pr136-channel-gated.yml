@@ -1,4 +1,4 @@
-name: Validate PR136 biogeographic primary
+name: Validate PR136 biogeographic pattern
 
 on:
   push:
@@ -6,7 +6,6 @@ on:
     paths:
       - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
       - "config/chapter1_pr136_biogeographic_residual.yml"
-      - "config/chapter1_pr136_channel_gated_validation.yml"
       - "tests/test_chapter1_pr136_biogeographic_residual.py"
       - ".github/workflows/validate-pr136-channel-gated.yml"
   pull_request:
@@ -14,7 +13,6 @@ on:
     paths:
       - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
       - "config/chapter1_pr136_biogeographic_residual.yml"
-      - "config/chapter1_pr136_channel_gated_validation.yml"
       - "tests/test_chapter1_pr136_biogeographic_residual.py"
       - ".github/workflows/validate-pr136-channel-gated.yml"
   workflow_dispatch:
@@ -39,18 +37,15 @@ jobs:
             src/island_v2/chapter1_pr136_biogeographic_residual.py \
             tests/test_chapter1_pr136_biogeographic_residual.py
       - name: PR136 biogeographic falsification tests
-        run: |
-          pytest -q tests/test_chapter1_pr136_biogeographic_residual.py
-      - name: Parse PR136 primary contracts
+        run: pytest -q tests/test_chapter1_pr136_biogeographic_residual.py
+      - name: Parse PR136 pattern contract
         run: |
           python - <<'PY'
           from pathlib import Path
           import yaml
-          for path in [
-              Path('config/chapter1_pr136_channel_gated_validation.yml'),
-              Path('config/chapter1_pr136_biogeographic_residual.yml'),
-          ]:
-              payload = yaml.safe_load(path.read_text())
-              assert isinstance(payload, dict) and payload
-              print(path, 'ok')
+          path = Path('config/chapter1_pr136_biogeographic_residual.yml')
+          payload = yaml.safe_load(path.read_text())
+          assert isinstance(payload, dict) and payload
+          assert payload['pollinator_predictors_in_primary_model'] is False
+          print(path, 'ok')
           PY
