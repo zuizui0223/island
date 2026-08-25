@@ -1,16 +1,14 @@
-"""Predeclared robustness checks for the Chapter 1 when/where result.
+"""Functional-form robustness checks for the Chapter 1 when/where result.
 
-These checks do not redefine the canonical result. They ask whether the supported
-northern-midlatitude/tropical WHERE and BETWEEN-WHERE conclusions persist when:
+All scenarios retain the full island universe. The focal mainland-distance gradient is
+never thresholded or truncated because the gradient can encode both dispersal
+limitation and accessibility to a mainland/source species pool.
 
-- latitude boundaries are moved inward and buffered;
-- the isolation functional form changes from log1p(distance) to sqrt(distance);
-- zero-distance islands are removed; or
-- only islands at least 50 km from a major continent are retained.
+The checks ask whether the northern-midlatitude/tropical WHERE and BETWEEN-WHERE
+conclusions persist under alternative monotone representations of the same geographic
+gradient: log1p(distance), sqrt(distance), and raw distance.
 
-A sensitivity that cannot meet the declared response-support threshold is recorded
-as not testable, not as a biological contradiction. Pollinator variables never enter
-these scenarios.
+Pollinator variables never enter these scenarios.
 """
 
 from __future__ import annotations
@@ -29,73 +27,31 @@ from island_v2.chapter1_when_where_omnibus import run_when_where_omnibus
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 
-def _core_latitude_context(
-    latitude: pd.Series,
-    *,
-    tropical_abs_max: float,
-    north_mid_min: float,
-    north_mid_max: float,
-    north_high_min: float,
-    south_mid_min_abs: float,
-    south_mid_max_abs: float,
-) -> pd.Series:
-    lat = pd.to_numeric(latitude, errors="coerce")
-    out = pd.Series("unresolved", index=lat.index, dtype="object")
-    out.loc[lat.abs() < tropical_abs_max] = "tropical"
-    out.loc[(lat >= north_mid_min) & (lat < north_mid_max)] = "northern_midlatitude"
-    out.loc[lat >= north_high_min] = "northern_high_latitude"
-    out.loc[
-        (lat <= -south_mid_min_abs) & (lat > -south_mid_max_abs)
-    ] = "southern_extratropical"
-    return out
-
-
 def _scenario_covariates(
     covariates: pd.DataFrame,
     scenario: dict[str, Any],
     config: dict[str, Any],
-) -> tuple[pd.DataFrame, str, str]:
+) -> tuple[pd.DataFrame, str]:
+    """Return the unchanged island universe with an alternative distance transform."""
     work = covariates.copy()
-    distance = pd.to_numeric(work["distance_to_continent_km"], errors="coerce")
+    raw_column = str(config["canonical_distance_column"])
+    raw = pd.to_numeric(work[raw_column], errors="coerce")
+    form = str(scenario.get("distance_form", "log1p"))
 
-    filter_name = str(scenario.get("distance_filter", "all"))
-    if filter_name == "positive_only":
-        work = work.loc[distance > 0].copy()
-    elif filter_name == "oceanic_50km":
-        work = work.loc[distance >= 50].copy()
-    elif filter_name != "all":
-        raise typer.BadParameter(f"unknown distance_filter: {filter_name}")
-
-    context_rule = str(scenario.get("context_rule", "canonical"))
-    if context_rule == "canonical":
-        context_column = str(config["canonical_context_column"])
-    elif context_rule == "core_latitudes":
-        context_column = "sensitivity_context"
-        core = config["core_latitude_rule"]
-        work[context_column] = _core_latitude_context(
-            work["island_latitude"],
-            tropical_abs_max=float(core["tropical_abs_max"]),
-            north_mid_min=float(core["north_mid_min"]),
-            north_mid_max=float(core["north_mid_max"]),
-            north_high_min=float(core["north_high_min"]),
-            south_mid_min_abs=float(core["south_mid_min_abs"]),
-            south_mid_max_abs=float(core["south_mid_max_abs"]),
-        )
+    if form == "log1p":
+        gradient_column = str(config["canonical_gradient_column"])
+    elif form == "sqrt":
+        gradient_column = "sqrt_distance_to_continent_km"
+        work[gradient_column] = np.sqrt(np.clip(raw, 0, None))
+    elif form == "raw":
+        gradient_column = raw_column
     else:
-        raise typer.BadParameter(f"unknown context_rule: {context_rule}")
+        raise typer.BadParameter(f"unknown distance_form: {form}")
 
-    isolation_form = str(scenario.get("isolation_form", "log1p"))
-    if isolation_form == "log1p":
-        isolation_column = str(config["canonical_isolation_column"])
-    elif isolation_form == "sqrt":
-        isolation_column = "sqrt_distance_to_continent_km"
-        work[isolation_column] = np.sqrt(
-            np.clip(pd.to_numeric(work["distance_to_continent_km"], errors="coerce"), 0, None)
-        )
-    else:
-        raise typer.BadParameter(f"unknown isolation_form: {isolation_form}")
-
-    return work, context_column, isolation_column
+    # The scientific contract forbids dropping islands by mainland-distance thresholds.
+    if int(work["island_id"].nunique()) != int(covariates["island_id"].nunique()):
+        raise RuntimeError("distance sensitivity changed the island universe")
+    return work, gradient_column
 
 
 def _supported_flag(
@@ -145,20 +101,19 @@ def run_when_where_sensitivity(
     base_config = {
         "baseline_covariates": [str(x) for x in config["baseline_covariates"]],
         "cluster_column": str(config["cluster_column"]),
+        "context_column": str(config["canonical_context_column"]),
         "contexts": [str(x) for x in config["contexts"]],
         "strata": [str(x) for x in config["strata"]],
         "support_tiers": {str(k): int(v) for k, v in config["support_tiers"].items()},
     }
+    full_n = int(covariates["island_id"].nunique())
 
     for scenario in config["scenarios"]:
         name = str(scenario["name"])
-        scenario_cov, context_column, isolation_column = _scenario_covariates(
-            covariates, scenario, config
-        )
+        scenario_cov, gradient_column = _scenario_covariates(covariates, scenario, config)
         fit_config = {
             **base_config,
-            "isolation_column": isolation_column,
-            "context_column": context_column,
+            "isolation_column": gradient_column,
         }
         within, between, persistence = run_when_where_omnibus(
             composition, scenario_cov, fit_config
@@ -193,14 +148,14 @@ def run_when_where_sensitivity(
             headline_testable = bool(
                 north_testable and tropical_testable and contrast_testable
             )
+            n_covariate_islands = int(scenario_cov["island_id"].nunique())
             summary_rows.append(
                 {
                     "scenario": name,
                     "stratum": stratum,
-                    "context_rule": scenario.get("context_rule", "canonical"),
-                    "isolation_form": scenario.get("isolation_form", "log1p"),
-                    "distance_filter": scenario.get("distance_filter", "all"),
-                    "n_covariate_islands": int(scenario_cov["island_id"].nunique()),
+                    "distance_form": scenario.get("distance_form", "log1p"),
+                    "n_covariate_islands": n_covariate_islands,
+                    "all_islands_retained": n_covariate_islands == full_n,
                     "north_where_testable": north_testable,
                     "north_where_supported": north,
                     "north_n_responses": north_n,
@@ -254,8 +209,13 @@ def run(
     manuscript = summary.loc[summary["stratum"].isin(["all_native", "native_nonendemic"])]
     testable = manuscript.loc[manuscript["headline_testable"].fillna(False)]
     manifest = {
-        "contract": "chapter1_when_where_sensitivity_v2",
+        "contract": "chapter1_when_where_sensitivity_v3_all_islands",
         "scenarios": [str(x["name"]) for x in config["scenarios"]],
+        "distance_thresholds_used": False,
+        "all_islands_required": True,
+        "distance_gradient_interpretation": (
+            "composite geographic axis: dispersal limitation plus mainland/source-pool accessibility"
+        ),
         "n_summary_rows": int(len(summary)),
         "headline_testable_opportunities": int(len(testable)),
         "headline_replications": int(testable["headline_replication"].fillna(False).sum()),
