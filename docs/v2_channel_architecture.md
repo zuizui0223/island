@@ -1,27 +1,31 @@
-# v2: context-dependent island floral syndrome — analysis architecture
+# v2: component-specific island floral reorganization — analysis architecture
 
 ## Status and boundary
 
 `v1-freeze` preserves the exploratory draft and its first complete results. v2 is rebuilt from new data products and new scripts; it must not import v1 scripts, derived trait labels, or v1 model outputs as analysis inputs.
 
-The current scientific scope is defined in [`v2_pollination_regime_framework.md`](v2_pollination_regime_framework.md).
+The current scientific scope is defined in [`v2_pollination_regime_framework.md`](v2_pollination_regime_framework.md), and the current frozen result is in [`chapter1_frozen_result_20260825.md`](chapter1_frozen_result_20260825.md).
 
-The primary Chapter 1 question is now:
+The primary Chapter 1 question is:
 
-> **When and where does island isolation coincide with floral and reproductive filtering, and is that filtering globally uniform or biogeographically contingent?**
+> **Does island isolation generate one coherent floral/reproductive syndrome, or does it reorganize particular floral components independently?**
 
-The architecture therefore prioritizes direct floral/reproductive composition, floristic status, lineage/source-pool structure and geography. Pollinator-channel data are retained as interpretation and sensitivity layers rather than being required to define the primary analysis universe.
+The architecture therefore prioritizes direct floral/reproductive composition, category preservation, floristic status, lineage structure and geography. Biogeographic context is retained as a formal boundary-condition test, not assumed to modify the isolation effect.
 
 ```text
-isolation / geography / source-pool context
+island geography / climate / context mean composition
         ↓
-floristic status / lineage composition / observation process
+floristic status / lineage composition / observation support
         ↓
-regional floral and reproductive trait response
+common isolation-associated atomic component effects
         ↓
-category-preserving decomposition
+formal isolation × context joint test
         ↓
-pollination-syndrome concordance in Discussion
+category-preserving decomposition + genus-fixed broad guardrail
+        ↓
+frozen component vector
+        ↓
+pollination-syndrome concordance or mismatch in Discussion
         ↓
 unresolved mechanism handed to Chapter 2
 ```
@@ -31,18 +35,20 @@ unresolved mechanism handed to Chapter 2
 1. Island geography is the starting context.
 2. Source-pool, floristic status, lineage composition, establishment/reachability and observation process must be considered before ecological interpretation.
 3. Floral signal, architecture and reproductive traits remain multistate or continuous wherever possible.
-4. Binary summaries such as plain/conspicuous, generalized/specialized and SC/SI are secondary summaries.
+4. Binary summaries such as plain/conspicuous, generalized/specialized and SC/SI are secondary.
 5. Wind pollination, self-compatibility, autonomous selfing and pollinator independence remain separate domains.
 6. Existing Bombus applicability, environmental and occurrence diagnostics remain provenance-preserving data products.
 7. The global analysis does not claim within-lineage evolution or historical pollinator causation from cross-sectional composition.
 
 ## What changes
 
-1. Bombus deficit is no longer the primary Chapter 1 explanatory variable.
-2. The primary confirmatory question is `isolation × biogeographic context`.
-3. Regional trait vectors are fixed before any pollination-syndrome interpretation.
-4. Bombus-, bird-, Lepidoptera-, hawkmoth- and other syndrome expectations are compared symmetrically at the interpretation stage.
-5. The mechanistic question — which functional pollination pathway actually generated a regional pattern — is explicitly handed to Chapter 2 (`izu-core`).
+1. Bombus deficit remains outside the primary Chapter 1 explanatory model.
+2. **Component-specific floral reorganization** replaces biogeographic contingency as the headline Chapter 1 hypothesis.
+3. Context main effects are represented before isolation; regional heterogeneity is tested only by formal interaction statistics.
+4. M1 common isolation effects and M4 atomic decomposition are primary evidence; M2 is a secondary boundary-condition test.
+5. M3 genus-preserving broad outcomes test whether an apparent classical syndrome survives inherited lineage composition.
+6. Pollination-syndrome interpretations are allowed only after the trait vector and heterogeneity classification are frozen.
+7. The mechanistic question — why particular phenotype components respond — is handed to Chapter 2 (`izu-core`).
 
 ## Interpretation guardrail borrowed from Campanula/Izu
 
@@ -58,95 +64,104 @@ For Chapter 1 this remains an interpretation guardrail, not a fitted decompositi
 - `E(z)` — arrival, establishment, persistence and reachability conditional on viable reproduction;
 - `W(z)` — observed island-flora membership or trait composition.
 
-The global dataset mainly observes `W`. Therefore an isolation-associated trait pattern may arise from establishment filtering, lineage turnover, ecological interaction filtering, reproductive processes, or observation structure. Chapter 1 should identify the pattern and strongest boundary conditions without pretending to identify `F` from `W` alone.
+The global dataset mainly observes `W`. Therefore an isolation-associated component effect may arise from establishment filtering, lineage turnover, ecological interaction filtering, reproductive processes, or observation structure. Chapter 1 identifies which components change and which broad syndrome claims survive safeguards without pretending to identify `F` from `W` alone.
 
-## Primary model architecture
+## Canonical model architecture
 
-### M0 — biogeographic baseline
+### M0 — context-aware baseline
 
 ```text
-area + climate
-+ floristic status / endemicity
-+ lineage / source-pool composition
-+ establishment / reachability where represented
-+ observation / evidence support
--> reproductive composition
--> floral phenotype composition
+area + climate + biogeographic-context main effects
++ declared status / observation structure
+-> floral and reproductive composition
 ```
 
-### M1 — universal isolation baseline
+M0 absorbs baseline and regional mean differences before isolation is added.
+
+### M1 — common isolation component effects
 
 ```text
-M0 + isolation -> trait composition
+M0 + isolation -> atomic trait composition
 ```
 
-This tests the classical idea that isolation produces one broadly shared direction.
+M1 is part of the primary Chapter 1 evidence. It tests which individual floral/reproductive states vary with isolation after the context-aware baseline.
 
-### M2 — biogeographic contingency
+### M2 — biogeographic slope heterogeneity
 
 ```text
-M0 + isolation × biogeographic context -> trait composition
+M1 + isolation × biogeographic context -> atomic trait composition
 ```
 
-This is the primary Chapter 1 model. A strong result means the same geographic isolation is associated with different trait responses in different biogeographic contexts.
+M2 is a secondary boundary-condition test. A regional difference requires a supported cluster-robust joint Wald test of all interaction terms; `significant in A / nonsignificant in B` is not sufficient.
 
-### M3 — status / lineage residual analysis
+### M3 — status / lineage guardrail
 
-Repeat M1/M2 where possible in conservative native/endemicity strata and against lineage-preserving expectations.
+Broad outcomes are compared with genus-composition-preserving expectations.
 
 ```text
-observed trait composition
+observed broad trait composition
 -
-status / lineage / source-pool expectation
+genus-preserving expectation
 =
-residual trait response
+residual broad response
 ```
+
+The current confirmatory-support northern-midlatitude and tropical M3 results do not retain FDR-supported isolation slopes for `generalized_form`, `plain_colour`, or `self_compatibility` in the main all-native/native-nonendemic strata.
 
 ### M4 — category-preserving decomposition
 
-Analyse retained categories rather than forcing one syndrome score.
+Analyse retained atomic categories rather than forcing one syndrome score.
 
-Key domains include:
+Current repeated northern-midlatitude component signals include:
 
-- reproductive compatibility / assurance states;
-- colour categories;
-- floral form categories;
-- symmetry;
-- tube depth / access;
-- flower size / display;
-- other direct floral architecture evidence.
+- `bell_campanulate` ↑
+- `composite_head` ↑
+- `funnel_trumpet` ↑
+- `spurred` ↑
+- `other_described` ↓
+- `papilionaceous` ↓
+- `salverform` ↓
+- `red_pink` ↓
+
+These changes do not collapse into a coherent demonstrated `generalized + plain + SC` syndrome.
+
+## Current formal regional result
+
+The frozen joint-Wald run (`32833362756`) fitted 43 atomic categories and produced 95 context-specific slopes.
+
+- 17 within-context slopes survive FDR;
+- 16 meet the count component of confirmatory support, all in northern-midlatitude islands;
+- one joint context-heterogeneity category survives FDR (`endemic × yellow_orange`);
+- that comparison is 32 versus 30 islands and therefore pilot-level;
+- **no confirmatory joint regional-heterogeneity result is currently established**.
+
+The architecture must preserve the distinction between a strong within-context signal and a supported between-context difference.
 
 ## Pollination-syndrome concordance
 
-After M0–M4 results are frozen, compare each regional multivariate trait direction against expectations from pollination-syndrome literature.
-
-### Example interpretation structure
+After M0–M4 results are frozen, compare supported component vectors against pollination-syndrome literature.
 
 ```text
-northern-temperate trait vector
+northern-midlatitude component vector
 <-> Bombus / large- or long-tongued-bee literature
-
-contrasting tropical/southern trait vector
-<-> bird / butterfly / hawkmoth / alternative-bee literature
+= partial concordance / mismatch / no coherent syndrome
 ```
 
-The comparison is **concordance**, not pollinator assignment.
+```text
+supported tropical/southern component vector, if present
+<-> bird / butterfly / hawkmoth / alternative-bee literature
+= partial concordance / mismatch
+```
 
-A single trait such as colour must not be used to infer a guild. Interpretation should rely on combinations of direct traits and acknowledge mismatches explicitly.
+A single trait such as colour must not be used to infer a guild. Absence of a northern-like signal is not evidence of an alternative pollinator syndrome.
 
 ## Status of Bombus products
 
-The existing Bombus pipeline remains useful for:
-
-- source-region provenance;
-- environmental-compatibility diagnostics;
-- effort-aware presence / non-detection diagnostics;
-- sensitivity analyses;
-- identifying candidate systems for future direct testing.
+The existing Bombus pipeline remains useful for source-region provenance, environmental-compatibility diagnostics, effort-aware occurrence diagnostics, sensitivity analyses and candidate-system selection.
 
 It is not used to define the primary Chapter 1 model or to turn opportunistic non-detection into historical loss.
 
-### Retained semantic boundaries
+Retained semantic boundaries:
 
 - environmental compatibility != occurrence;
 - occurrence != visitation;
@@ -154,8 +169,6 @@ It is not used to define the primary Chapter 1 model or to turn opportunistic no
 - effective service != reproductive dependency;
 - pollinator absence != historical loss;
 - a floral syndrome != direct pollinator observation.
-
-These distinctions are especially important because the Chapter 1 handoff asks Chapter 2 to discriminate among those layers mechanistically.
 
 ## Trait domains retained without premature binarisation
 
@@ -192,39 +205,42 @@ These distinctions are especially important because the Chapter 1 handoff asks C
 
 ## Analysis sequence
 
-1. Freeze the island universe, biogeographic context definition, trait evidence tiers, status/lineage rules and M0 covariates.
+1. Freeze island universe, context definition, trait evidence tiers, status/lineage rules and baseline covariates.
 2. Build polygon-exact flora and provenance-tracked direct trait evidence.
 3. Produce coverage and attrition audits.
-4. Fit M0.
-5. Fit M1 global isolation baselines.
-6. Fit M2 `isolation × biogeographic context`.
-7. Apply M3 status/lineage/source-pool safeguards.
+4. Fit M0 context-aware baselines.
+5. Fit M1 common isolation effects for atomic categories.
+6. Fit M2 interaction models and joint Wald tests.
+7. Apply M3 genus-preserving broad-outcome guardrails.
 8. Apply M4 category-preserving decomposition.
-9. Freeze regional trait vectors.
-10. Compare those vectors with literature-defined pollination syndromes in Discussion.
-11. Leave unresolved pollinator mechanism to Chapter 2 instead of filling it with weak proxy inference.
+9. Freeze component vectors and formal regional-heterogeneity classifications.
+10. Compare supported vectors with literature-defined pollination syndromes only as concordance/mismatch.
+11. Leave unresolved mechanism to Chapter 2 instead of filling it with weak proxy inference.
 
 ## Required outputs
 
 - attrition from the frozen island universe to every outcome model;
-- region/context-specific isolation slopes;
-- status/lineage-controlled sensitivity results;
+- common isolation atomic effects;
+- context-specific simple slopes;
+- formal joint regional-heterogeneity tests;
+- status/lineage-controlled broad-outcome guardrails;
 - category-preserving colour/form/reproductive outputs;
 - evidence-tier sensitivity analyses;
-- a regional trait-vector summary suitable for syndrome concordance discussion;
+- a frozen component-vector summary suitable for discussion-level syndrome comparison;
 - explicit separation between observed trait results and ecological mechanism interpretation.
 
 ## Thesis handoff
 
 ```text
 Chapter 1 — island
-when / where do different regional trait syndromes appear?
+which floral components reorganize under isolation?
+and is genuine regional heterogeneity supported?
         ↓
 Chapter 2 — izu-core
-which ecological mechanisms generate branching / propagation / buffering?
+which ecological interaction states make responses branch / propagate / buffer?
         ↓
 Chapter 3 — shimahotarubukuro
 which phenotype components actually diverge within one lineage?
 ```
 
-The Chapter 1 contribution is therefore **boundary-condition discovery**, not pollinator causal identification.
+The Chapter 1 contribution is therefore **component-specific pattern discovery with explicit boundary tests**, not pollinator causal identification.
