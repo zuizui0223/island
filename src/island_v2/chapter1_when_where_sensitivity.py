@@ -8,7 +8,9 @@ northern-midlatitude/tropical WHERE and BETWEEN-WHERE conclusions persist when:
 - zero-distance islands are removed; or
 - only islands at least 50 km from a major continent are retained.
 
-Pollinator variables never enter these scenarios.
+A sensitivity that cannot meet the declared response-support threshold is recorded
+as not testable, not as a biological contradiction. Pollinator variables never enter
+these scenarios.
 """
 
 from __future__ import annotations
@@ -104,7 +106,7 @@ def _supported_flag(
     context_a: str | None = None,
     context_b: str | None = None,
     flag: str,
-) -> tuple[bool, int, float]:
+) -> tuple[bool, bool, int, float]:
     subset = table.loc[
         table["stratum"].eq(stratum)
         & table["support_tier"].eq("confirmatory")
@@ -120,9 +122,10 @@ def _supported_flag(
         ]
         subset = pd.concat([direct, reverse], ignore_index=True)
     if subset.empty:
-        return False, 0, float("nan")
+        return False, False, 0, float("nan")
     row = subset.iloc[0]
     return (
+        True,
         bool(row.get(flag, False)),
         int(row.get("n_responses", 0)),
         float(row.get("q_within_stratum_tier", np.nan)),
@@ -168,24 +171,27 @@ def run_when_where_sensitivity(
         persistence_parts.append(persistence)
 
         for stratum in ("all_native", "native_nonendemic"):
-            north, north_n, north_q = _supported_flag(
+            north_testable, north, north_n, north_q = _supported_flag(
                 within,
                 stratum=stratum,
                 context="northern_midlatitude",
                 flag="where_supported",
             )
-            tropical, tropical_n, tropical_q = _supported_flag(
+            tropical_testable, tropical, tropical_n, tropical_q = _supported_flag(
                 within,
                 stratum=stratum,
                 context="tropical",
                 flag="where_supported",
             )
-            contrast, common_n, contrast_q = _supported_flag(
+            contrast_testable, contrast, common_n, contrast_q = _supported_flag(
                 between,
                 stratum=stratum,
                 context_a="northern_midlatitude",
                 context_b="tropical",
                 flag="between_where_supported",
+            )
+            headline_testable = bool(
+                north_testable and tropical_testable and contrast_testable
             )
             summary_rows.append(
                 {
@@ -195,16 +201,22 @@ def run_when_where_sensitivity(
                     "isolation_form": scenario.get("isolation_form", "log1p"),
                     "distance_filter": scenario.get("distance_filter", "all"),
                     "n_covariate_islands": int(scenario_cov["island_id"].nunique()),
+                    "north_where_testable": north_testable,
                     "north_where_supported": north,
                     "north_n_responses": north_n,
                     "north_q": north_q,
+                    "tropical_where_testable": tropical_testable,
                     "tropical_where_supported": tropical,
                     "tropical_n_responses": tropical_n,
                     "tropical_q": tropical_q,
+                    "north_vs_tropical_testable": contrast_testable,
                     "north_vs_tropical_supported": contrast,
                     "common_n_responses": common_n,
                     "north_vs_tropical_q": contrast_q,
-                    "headline_replication": bool(north and tropical and contrast),
+                    "headline_testable": headline_testable,
+                    "headline_replication": bool(
+                        headline_testable and north and tropical and contrast
+                    ),
                 }
             )
 
@@ -240,12 +252,14 @@ def run(
     summary.to_csv(output_dir / "when_where_sensitivity_summary.csv", index=False)
 
     manuscript = summary.loc[summary["stratum"].isin(["all_native", "native_nonendemic"])]
+    testable = manuscript.loc[manuscript["headline_testable"].fillna(False)]
     manifest = {
-        "contract": "chapter1_when_where_sensitivity_v1",
+        "contract": "chapter1_when_where_sensitivity_v2",
         "scenarios": [str(x["name"]) for x in config["scenarios"]],
         "n_summary_rows": int(len(summary)),
-        "headline_replications": int(manuscript["headline_replication"].fillna(False).sum()),
-        "headline_replication_opportunities": int(len(manuscript)),
+        "headline_testable_opportunities": int(len(testable)),
+        "headline_replications": int(testable["headline_replication"].fillna(False).sum()),
+        "headline_untestable_opportunities": int(len(manuscript) - len(testable)),
         "pollinator_predictors": False,
     }
     (output_dir / "chapter1_when_where_sensitivity_manifest.json").write_text(
