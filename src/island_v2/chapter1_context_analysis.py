@@ -1,11 +1,12 @@
-"""Canonical Chapter 1 M0-M2 context-dependent grouped-binomial analysis.
+"""Canonical Chapter 1 context-dependent grouped-binomial analysis.
 
-M0: baseline covariates only.
-M1: M0 + isolation (universal-isolation baseline).
-M2: M1 + biogeographic context + isolation x context (primary Chapter 1 test).
+M0: baseline covariates + biogeographic-context main effects.
+M1: M0 + one universal isolation slope.
+M2: M1 + isolation x context interactions (primary when/where test).
 
-The fitted outcomes are retained trait categories. No Bombus, pollinator occurrence,
-or pollination-syndrome variable is required or admitted as a primary predictor.
+This nesting is deliberate: M1->M2 tests whether isolation slopes differ among
+contexts without conflating that question with pre-existing regional differences
+in mean trait composition. No pollinator variable enters the primary design.
 """
 
 from __future__ import annotations
@@ -63,10 +64,11 @@ def _fit_grouped_binomial_design(
     weights = trials * p * (1.0 - p)
     bread = np.linalg.pinv(X.T @ (weights[:, None] * X))
     residual_counts = successes - trials * p
-    unique_clusters = np.unique(clusters.astype(str))
+    cluster_labels = clusters.astype(str)
+    unique_clusters = np.unique(cluster_labels)
     meat = np.zeros((X.shape[1], X.shape[1]), dtype=float)
     for cluster in unique_clusters:
-        mask = clusters.astype(str) == cluster
+        mask = cluster_labels == cluster
         score = X[mask].T @ residual_counts[mask]
         meat += np.outer(score, score)
     covariance = bread @ meat @ bread
@@ -77,31 +79,35 @@ def _fit_grouped_binomial_design(
         covariance *= (g / (g - 1.0)) * ((n - 1.0) / (n - k))
     se = np.sqrt(np.clip(np.diag(covariance), 0.0, None))
 
-    rows = []
+    rows: list[dict[str, float | str]] = []
     for name, estimate, stderr in zip(names, beta, se, strict=True):
         z_value = float(estimate / stderr) if stderr > 0 else float("nan")
-        rows.append({
-            "predictor": name,
-            "estimate_log_odds": float(estimate),
-            "cluster_robust_se": float(stderr),
-            "z_value": z_value,
-            "p_value": _two_sided_p(z_value) if math.isfinite(z_value) else float("nan"),
-        })
+        rows.append(
+            {
+                "predictor": name,
+                "estimate_log_odds": float(estimate),
+                "cluster_robust_se": float(stderr),
+                "z_value": z_value,
+                "p_value": _two_sided_p(z_value) if math.isfinite(z_value) else float("nan"),
+            }
+        )
 
-    log_likelihood = float(np.sum(
-        successes * np.log(p) + (trials - successes) * np.log(1.0 - p)
-    ))
-    aic = float(-2.0 * log_likelihood + 2.0 * k)
-    fit = {
-        "status": "fit" if converged else "max_iter_reached",
-        "n_islands": int(n),
-        "n_clusters": int(g),
-        "n_parameters": int(k),
-        "iterations": int(iteration),
-        "log_likelihood": log_likelihood,
-        "aic": aic,
-    }
-    return pd.DataFrame(rows), fit, covariance
+    log_likelihood = float(
+        np.sum(successes * np.log(p) + (trials - successes) * np.log(1.0 - p))
+    )
+    return (
+        pd.DataFrame(rows),
+        {
+            "status": "fit" if converged else "max_iter_reached",
+            "n_islands": int(n),
+            "n_clusters": int(g),
+            "n_parameters": int(k),
+            "iterations": int(iteration),
+            "log_likelihood": log_likelihood,
+            "aic": float(-2.0 * log_likelihood + 2.0 * k),
+        },
+        covariance,
+    )
 
 
 def _z(values: pd.Series) -> tuple[np.ndarray, dict[str, float]]:
@@ -124,7 +130,14 @@ def _fit_one_category(
     min_islands: int,
     min_context_islands: int,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, dict[str, Any]]:
-    required = {"successes", "trials", isolation_column, context_column, cluster_column, *baseline}
+    required = {
+        "successes",
+        "trials",
+        isolation_column,
+        context_column,
+        cluster_column,
+        *baseline,
+    }
     missing = required - set(data.columns)
     if missing:
         raise typer.BadParameter(f"Chapter 1 model input missing columns: {sorted(missing)}")
@@ -145,11 +158,14 @@ def _fit_one_category(
     ].copy()
     if len(work) < min_islands:
         return pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), {
-            "status": "below_min_islands", "n_islands": int(len(work))
+            "status": "below_min_islands",
+            "n_islands": int(len(work)),
         }
 
-    context_counts = work[context_column].value_counts()
-    eligible_contexts = sorted(context_counts.loc[context_counts >= min_context_islands].index.astype(str))
+    raw_context_counts = work[context_column].value_counts()
+    eligible_contexts = sorted(
+        raw_context_counts.loc[raw_context_counts >= min_context_islands].index.astype(str)
+    )
     work = work.loc[work[context_column].isin(eligible_contexts)].copy()
     if len(work) < min_islands or len(eligible_contexts) < 2:
         return pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), {
@@ -165,33 +181,35 @@ def _fit_one_category(
     for predictor in baseline + [isolation_column]:
         columns[f"z_{predictor}"], scaling[predictor] = _z(work[predictor])
 
-    contexts = [c for c in eligible_contexts if c != reference_context]
-    for context in contexts:
+    contrasts = [c for c in eligible_contexts if c != reference_context]
+    for context in contrasts:
         dummy = work[context_column].eq(context).astype(float).to_numpy()
         columns[f"context[{context}]"] = dummy
-        columns[f"z_isolation:context[{context}]"] = columns[f"z_{isolation_column}"] * dummy
+        columns[f"z_isolation:context[{context}]"] = (
+            columns[f"z_{isolation_column}"] * dummy
+        )
 
     intercept = np.ones(len(work))
-    m0_names = ["intercept", *[f"z_{p}" for p in baseline]]
+    baseline_names = ["intercept", *[f"z_{p}" for p in baseline]]
+    context_names = [f"context[{c}]" for c in contrasts]
+    interaction_names = [f"z_isolation:context[{c}]" for c in contrasts]
+    # Context main effects are present before isolation is tested. This makes
+    # M1->M2 the clean test of slope heterogeneity.
+    m0_names = [*baseline_names, *context_names]
     m1_names = [*m0_names, f"z_{isolation_column}"]
-    m2_names = [
-        *m1_names,
-        *[f"context[{c}]" for c in contexts],
-        *[f"z_isolation:context[{c}]" for c in contexts],
-    ]
+    m2_names = [*m1_names, *interaction_names]
 
     def matrix(names: list[str]) -> np.ndarray:
-        arrays = []
-        for name in names:
-            arrays.append(intercept if name == "intercept" else columns[name])
-        return np.column_stack(arrays)
+        return np.column_stack(
+            [intercept if name == "intercept" else columns[name] for name in names]
+        )
 
     successes = work["successes"].to_numpy(dtype=float)
     trials = work["trials"].to_numpy(dtype=float)
     clusters = work[cluster_column].to_numpy(dtype=str)
 
-    coefficient_parts = []
-    fit_rows = []
+    coefficient_parts: list[pd.DataFrame] = []
+    fit_rows: list[dict[str, Any]] = []
     fits: dict[str, tuple[pd.DataFrame, dict[str, Any], np.ndarray, list[str]]] = {}
     for model, names in (("M0", m0_names), ("M1", m1_names), ("M2", m2_names)):
         coef, fit, covariance = _fit_grouped_binomial_design(
@@ -203,16 +221,18 @@ def _fit_one_category(
         fits[model] = (coef, fit, covariance, names)
 
     fit_table = pd.DataFrame(fit_rows)
+    m0_aic = float(fit_table.loc[fit_table["model"].eq("M0"), "aic"].iloc[0])
     m1_aic = float(fit_table.loc[fit_table["model"].eq("M1"), "aic"].iloc[0])
     m2_aic = float(fit_table.loc[fit_table["model"].eq("M2"), "aic"].iloc[0])
     fit_table["delta_aic_vs_m1"] = fit_table["aic"] - m1_aic
-    fit_table["m2_improvement_over_m1_aic"] = m1_aic - m2_aic
+    fit_table["universal_isolation_improvement_m0_to_m1"] = m0_aic - m1_aic
+    fit_table["interaction_improvement_m1_to_m2"] = m1_aic - m2_aic
 
     coef_m2, _, cov_m2, names_m2 = fits["M2"]
     beta = coef_m2.set_index("predictor")["estimate_log_odds"]
     iso_name = f"z_{isolation_column}"
     iso_idx = names_m2.index(iso_name)
-    slope_rows = []
+    slope_rows: list[dict[str, Any]] = []
     for context in eligible_contexts:
         estimate = float(beta[iso_name])
         variance = float(cov_m2[iso_idx, iso_idx])
@@ -223,24 +243,39 @@ def _fit_one_category(
             variance += float(cov_m2[j, j] + 2.0 * cov_m2[iso_idx, j])
         stderr = math.sqrt(max(variance, 0.0))
         z_value = estimate / stderr if stderr > 0 else float("nan")
-        slope_rows.append({
-            "context": context,
-            "reference_context": reference_context,
-            "isolation_slope_log_odds_per_sd": estimate,
-            "cluster_robust_se": stderr,
-            "z_value": z_value,
-            "p_value": _two_sided_p(z_value) if math.isfinite(z_value) else float("nan"),
-            "n_context_islands": int(context_counts.get(context, 0)),
-        })
+        n_context = int(raw_context_counts.get(context, 0))
+        slope_rows.append(
+            {
+                "context": context,
+                "reference_context": reference_context,
+                "isolation_slope_log_odds_per_sd": estimate,
+                "cluster_robust_se": stderr,
+                "z_value": z_value,
+                "p_value": _two_sided_p(z_value) if math.isfinite(z_value) else float("nan"),
+                "n_context_islands": n_context,
+                "support_class": (
+                    "confirmatory_count_met"
+                    if n_context >= 50
+                    else "pilot_count_met"
+                    if n_context >= 30
+                    else "exploratory_only"
+                ),
+            }
+        )
 
-    metadata = {
-        "status": "fit",
-        "reference_context": reference_context,
-        "eligible_contexts": eligible_contexts,
-        "scaling": scaling,
-        "n_islands": int(len(work)),
-    }
-    return pd.concat(coefficient_parts, ignore_index=True), fit_table, pd.DataFrame(slope_rows), metadata
+    return (
+        pd.concat(coefficient_parts, ignore_index=True),
+        fit_table,
+        pd.DataFrame(slope_rows),
+        {
+            "status": "fit",
+            "reference_context": reference_context,
+            "eligible_contexts": eligible_contexts,
+            "context_counts": {c: int(raw_context_counts.get(c, 0)) for c in eligible_contexts},
+            "scaling": scaling,
+            "n_islands": int(len(work)),
+        },
+    )
 
 
 def fit_chapter1_context_models(
@@ -248,7 +283,14 @@ def fit_chapter1_context_models(
     covariates: pd.DataFrame,
     config: dict[str, Any],
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    required_comp = {"island_id", "stratum", "trait_name", "trait_state", "successes", "trials"}
+    required_comp = {
+        "island_id",
+        "stratum",
+        "trait_name",
+        "trait_state",
+        "successes",
+        "trials",
+    }
     missing = required_comp - set(composition.columns)
     if missing:
         raise typer.BadParameter(f"composition missing columns: {sorted(missing)}")
@@ -261,13 +303,13 @@ def fit_chapter1_context_models(
     cluster = str(config["cluster_column"])
     reference = str(config["reference_context"])
     min_islands = int(config.get("min_islands_per_fit", 30))
-    min_context = int(config.get("min_islands_per_context", 8))
+    min_context = int(config.get("min_islands_per_context", 30))
 
     joined = composition.merge(covariates, on="island_id", how="left", validate="many_to_one")
-    coefficient_parts = []
-    fit_parts = []
-    slope_parts = []
-    support_rows = []
+    coefficient_parts: list[pd.DataFrame] = []
+    fit_parts: list[pd.DataFrame] = []
+    slope_parts: list[pd.DataFrame] = []
+    support_rows: list[dict[str, Any]] = []
     for (stratum, trait, state), subset in joined.groupby(
         ["stratum", "trait_name", "trait_state"], sort=True
     ):
@@ -281,15 +323,18 @@ def fit_chapter1_context_models(
             min_islands=min_islands,
             min_context_islands=min_context,
         )
-        support_rows.append({
-            "stratum": stratum,
-            "trait_name": trait,
-            "trait_state": state,
-            "status": meta.get("status"),
-            "n_islands": int(meta.get("n_islands", len(subset))),
-            "eligible_contexts": "|".join(meta.get("eligible_contexts", [])),
-            "reference_context": meta.get("reference_context", ""),
-        })
+        support_rows.append(
+            {
+                "stratum": stratum,
+                "trait_name": trait,
+                "trait_state": state,
+                "status": meta.get("status"),
+                "n_islands": int(meta.get("n_islands", len(subset))),
+                "eligible_contexts": "|".join(meta.get("eligible_contexts", [])),
+                "context_counts": json.dumps(meta.get("context_counts", {}), sort_keys=True),
+                "reference_context": meta.get("reference_context", ""),
+            }
+        )
         if coef.empty:
             continue
         for table in (coef, fits, slopes):
@@ -300,24 +345,33 @@ def fit_chapter1_context_models(
         fit_parts.append(fits)
         slope_parts.append(slopes)
 
-    coefficients = pd.concat(coefficient_parts, ignore_index=True) if coefficient_parts else pd.DataFrame()
-    fits = pd.concat(fit_parts, ignore_index=True) if fit_parts else pd.DataFrame()
-    slopes = pd.concat(slope_parts, ignore_index=True) if slope_parts else pd.DataFrame()
-    support = pd.DataFrame(support_rows)
-    return coefficients, fits, slopes, support
+    return (
+        pd.concat(coefficient_parts, ignore_index=True) if coefficient_parts else pd.DataFrame(),
+        pd.concat(fit_parts, ignore_index=True) if fit_parts else pd.DataFrame(),
+        pd.concat(slope_parts, ignore_index=True) if slope_parts else pd.DataFrame(),
+        pd.DataFrame(support_rows),
+    )
 
 
 def _load_config(path: Path) -> dict[str, Any]:
     payload = yaml.safe_load(path.read_text(encoding="utf-8"))
     required = {
-        "baseline_covariates", "isolation_column", "context_column",
-        "cluster_column", "reference_context"
+        "baseline_covariates",
+        "isolation_column",
+        "context_column",
+        "cluster_column",
+        "reference_context",
     }
     if not isinstance(payload, dict) or not required.issubset(payload):
         raise typer.BadParameter(f"config must contain {sorted(required)}")
-    forbidden = {"bombus_deficit", "bombus_channel_state", "bombus_environmental_compatibility"}
+    forbidden = {
+        "bombus_deficit",
+        "bombus_channel_state",
+        "bombus_environmental_compatibility",
+    }
     declared = set(map(str, payload.get("baseline_covariates", []))) | {
-        str(payload.get("isolation_column", "")), str(payload.get("context_column", ""))
+        str(payload.get("isolation_column", "")),
+        str(payload.get("context_column", "")),
     }
     if declared & forbidden:
         raise typer.BadParameter("Bombus predictors are prohibited from canonical Chapter 1 config")
@@ -340,16 +394,24 @@ def run(
     fits.to_csv(output_dir / "chapter1_m0_m2_fit_stats.csv", index=False)
     slopes.to_csv(output_dir / "chapter1_context_isolation_slopes.csv", index=False)
     support.to_csv(output_dir / "chapter1_model_support.csv", index=False)
-    # M4 is the category-preserving view of the same M2 simple slopes.
     slopes.to_csv(output_dir / "chapter1_m4_category_decomposition.csv", index=False)
     manifest = {
-        "contract": "chapter1_context_dependent_models_v1",
-        "model_ladder": ["M0_baseline", "M1_universal_isolation", "M2_isolation_x_context"],
+        "contract": "chapter1_context_dependent_models_v2",
+        "model_ladder": [
+            "M0_baseline_plus_context_main_effects",
+            "M1_M0_plus_universal_isolation",
+            "M2_M1_plus_isolation_x_context",
+        ],
+        "primary_nested_test": "M1_to_M2 isolates context-specific isolation slopes",
         "m3": "separate genus-fixed status/lineage residual layer",
         "m4": "category-preserving decomposition of M2 context slopes",
         "pollinator_primary_predictors": False,
         "config": config,
-        "n_fitted_categories": int(slopes[["stratum", "trait_name", "trait_state"]].drop_duplicates().shape[0]) if not slopes.empty else 0,
+        "n_fitted_categories": (
+            int(slopes[["stratum", "trait_name", "trait_state"]].drop_duplicates().shape[0])
+            if not slopes.empty
+            else 0
+        ),
     }
     (output_dir / "chapter1_context_analysis_manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
