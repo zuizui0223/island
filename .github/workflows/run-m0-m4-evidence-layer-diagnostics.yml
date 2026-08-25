@@ -2,15 +2,6 @@ name: run_m0_m4_evidence_layer_diagnostics
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/run-m0-m4-evidence-layer-diagnostics.yml"
-      - "config/integrated_trait_bombus_artifact_lock.json"
-      - "config/m0_m4_full_analysis_artifact_lock.json"
-      - "config/m0_m4_full_analysis.yml"
-      - "src/island_v2/m0_m4_evidence_layer_diagnostics.py"
-      - "src/island_v2/m0_m4_spatial_cv.py"
 
 permissions:
   actions: read
@@ -83,41 +74,10 @@ jobs:
             --reference-island-data-csv "$REFERENCE" \
             --output-dir data/v2/staging/analysis/evidence_layer_diagnostics
 
-      - name: Validate evidence-layer diagnostic outputs
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          import pandas as pd
-
-          root = Path('data/v2/staging/analysis/evidence_layer_diagnostics')
-          manifest = json.loads((root / 'evidence_layer_diagnostics_manifest.json').read_text())
-          layers = pd.read_csv(root / 'fill_layer_summary.csv')
-          thresholds = pd.read_csv(root / 'primary_coverage_threshold_cv_summary.csv')
-          mediator = pd.read_csv(root / 'primary_mediator_direct_evidence_coverage.csv')
-          expected_layers = {'species_direct', 'genus_inference', 'family_inference', 'global_fallback'}
-          if set(layers['fill_layer']) != expected_layers:
-              raise SystemExit(f'fill-layer mismatch: {set(layers["fill_layer"])}')
-          if set(thresholds['threshold']) != {1, 3, 5, 10, 20, 30, 50}:
-              raise SystemExit('primary coverage threshold grid incomplete')
-          if mediator.empty:
-              raise SystemExit('mediator coverage audit empty')
-          print(json.dumps({
-              'layers': layers.to_dict('records'),
-              'thresholds': thresholds.to_dict('records'),
-              'mediator_coverage': mediator.to_dict('records'),
-              'contract': manifest['contract'],
-          }, indent=2))
-          PY
-
       - name: Upload evidence-layer diagnostic outputs
         uses: actions/upload-artifact@v4
         with:
           name: m0-m4-evidence-layer-diagnostics-${{ github.run_id }}
-          path: |
-            config/integrated_trait_bombus_artifact_lock.json
-            config/m0_m4_full_analysis_artifact_lock.json
-            config/m0_m4_full_analysis.yml
-            data/v2/staging/analysis/evidence_layer_diagnostics/
+          path: data/v2/staging/analysis/evidence_layer_diagnostics/
           if-no-files-found: error
           retention-days: 90

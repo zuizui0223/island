@@ -1,13 +1,42 @@
-version: "1.1"
+version: "2.0"
 default_batch_size: 1000
-max_attempts: 3
+max_attempts: 6
+scope_config_path: config/angiosperm_scope.yml
+expected_species: 106295
 
-# Primary completion has scheduling priority. Optional recovery and scholarly
-# enrichment must not consume the serialized 30-minute Wikimedia campaign lane.
+# Primary objective: obtain direct evidence for all three selfing-syndrome axes.
+# A species remains in the direct-acquisition queue until colour vividness,
+# floral complexity, and reproductive assurance each have at least one direct
+# or synonym-direct source-backed observation. Repeated passes are allowed.
+primary_axes:
+  colour_vividness:
+    target_traits:
+      - flower_primary_color
+  floral_complexity:
+    target_traits:
+      - floral_form
+      - floral_symmetry
+      - tube_depth_class
+      - flower_size_class
+      - inflorescence_display
+  reproductive_assurance:
+    target_traits:
+      - self_incompatibility
+      - autonomous_selfing_capacity
+      - mating_system
+      - cleistogamy
 
-# Free Wikimedia fallback languages for species pages. English is queried first;
-# later languages are tried only for species with no target candidate in the
-# primary pass. Keep this list short enough for the 30-minute scheduled bundle.
+primary_completion:
+  require_all_axes: true
+  accepted_direct_tiers:
+    - species_direct
+    - synonym_direct
+  repeat_until_complete: true
+  max_rounds: 6
+
+# Public and database descriptions are treated identically when they contain a
+# source URL/record ID and an explicit species-level excerpt. Source class does
+# not lower evidence scope.
 wikipedia_languages:
   - en
   - es
@@ -17,20 +46,42 @@ wikipedia_languages:
   - it
 
 task_order:
-  - floral_access_wikimedia
-  - reproductive_wikimedia
-  - reproductive_openalex
-  - alternative_guild_wikimedia
-  - alternative_guild_openalex
+  - colour_wikimedia
+  - complexity_wikimedia
+  - reproduction_wikimedia
+  - reproduction_openalex
 
-# v1.0 marked non-biotic rows not_applicable for floral access. v1.1 makes that
-# task all-species, so those historical terminal gates must be reopened once.
-reopen_not_applicable_tasks:
-  - floral_access_wikimedia
+reopen_not_applicable_tasks: []
 
 tasks:
-  reproductive_wikimedia:
-    phase: reproductive_biology
+  colour_wikimedia:
+    phase: colour_vividness
+    source_kind: wikimedia_web_reported
+    eligibility: all
+    depends_on: []
+    pause_seconds: 0.05
+    max_retries: 4
+    keyword_config: config/global_floral_access_keywords.yml
+    target_traits:
+      - flower_primary_color
+
+  complexity_wikimedia:
+    phase: floral_complexity
+    source_kind: wikimedia_web_reported
+    eligibility: all
+    depends_on: []
+    pause_seconds: 0.05
+    max_retries: 4
+    keyword_config: config/global_floral_access_keywords.yml
+    target_traits:
+      - floral_form
+      - floral_symmetry
+      - tube_depth_class
+      - flower_size_class
+      - inflorescence_display
+
+  reproduction_wikimedia:
+    phase: reproductive_assurance
     source_kind: wikimedia_reported_ecology
     eligibility: all
     depends_on: []
@@ -41,16 +92,14 @@ tasks:
       - autonomous_selfing_capacity
       - mating_system
       - cleistogamy
-      - dichogamy
-      - sex_system
 
-  reproductive_openalex:
-    phase: reproductive_biology
+  reproduction_openalex:
+    phase: reproductive_assurance
     required_for_primary_completion: false
     source_kind: openalex_reported_ecology
     eligibility: all
     depends_on:
-      - reproductive_wikimedia
+      - reproduction_wikimedia
     pause_seconds: 0.25
     per_page: 5
     require_api_key: true
@@ -63,72 +112,14 @@ tasks:
       - autonomous selfing
       - mating system
       - cleistogamy
-      - dichogamy
       - breeding system
     target_traits:
       - self_incompatibility
       - autonomous_selfing_capacity
       - mating_system
       - cleistogamy
-      - dichogamy
-      - sex_system
 
-  floral_access_wikimedia:
-    phase: floral_access
-    source_kind: wikimedia_web_reported
-    eligibility: all
-    depends_on: []
-    pause_seconds: 0.05
-    max_retries: 4
-    keyword_config: config/global_floral_access_keywords.yml
-    target_traits:
-      - floral_symmetry
-      - floral_form
-      - tube_depth_class
-      - flower_size_class
-      - flower_primary_color
-
-  alternative_guild_wikimedia:
-    phase: alternative_pollinator_function
-    required_for_primary_completion: false
-    source_kind: wikimedia_reported_ecology
-    eligibility: machine_biotic_candidate
-    depends_on:
-      - floral_access_wikimedia
-    pause_seconds: 0.05
-    max_retries: 4
-    target_traits:
-      - pollination_functional_guild
-
-  alternative_guild_openalex:
-    phase: alternative_pollinator_function
-    required_for_primary_completion: false
-    source_kind: openalex_reported_ecology
-    eligibility: machine_biotic_candidate
-    depends_on:
-      - alternative_guild_wikimedia
-    pause_seconds: 0.25
-    per_page: 8
-    require_api_key: true
-    max_retries: 3
-    backoff_seconds: 5.0
-    max_backoff_seconds: 60.0
-    query_terms:
-      - pollinated by bees
-      - bumblebee
-      - bird pollination
-      - butterfly pollination
-      - moth pollination
-      - fly pollination
-      - bat pollination
-      - floral visitor
-      - generalist pollinator
-    target_traits:
-      - pollination_functional_guild
-
-# Coarse fail-closed exclusion copied from the validation-pilot scope. Taxonomic
-# review remains authoritative; this only prevents obvious fern/lycophyte/
-# gymnosperm families from entering a floral-syndrome machine campaign.
+# Coarse fail-closed exclusion. Taxonomic review remains authoritative.
 excluded_families:
   - Dryopteridaceae
   - Thelypteridaceae

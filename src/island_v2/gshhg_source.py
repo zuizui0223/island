@@ -18,6 +18,8 @@ from typing import Any
 
 import geopandas as gpd
 import httpx
+import numpy as np
+import pandas as pd
 import typer
 import yaml
 from shapely import make_valid
@@ -92,13 +94,39 @@ def extract_l1(archive: Path, directory: Path, resolution: str) -> Path:
 
 def dissolve_ids(frame: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """Recombine components of each GSHHG landmass before any area filtering."""
+    sibling_name = next(
+        (name for name in ("sibling_id", "SIBLING_ID") if name in frame.columns),
+        None,
+    )
     id_name = next((name for name in ("id", "ID") if name in frame.columns), None)
-    if id_name is None:
+
+    if sibling_name is not None:
+        sibling_ids = pd.to_numeric(frame[sibling_name], errors="coerce")
+        invalid = (
+            sibling_ids.isna()
+            | ~np.isfinite(sibling_ids)
+            | (sibling_ids < 0)
+            | (sibling_ids % 1 != 0)
+            | (sibling_ids > np.iinfo(np.int64).max)
+        )
+        if invalid.any():
+            raise RuntimeError(
+                "GSHHG sibling_id contains missing or invalid landmass linkage keys"
+            )
+        group_keys = sibling_ids.astype("int64").astype(str)
+    elif id_name is not None:
+        source_ids = frame[id_name]
+        group_keys = source_ids.astype("string").str.strip()
+        if source_ids.isna().any() or group_keys.isna().any() or group_keys.eq("").any():
+            raise RuntimeError("GSHHG id contains missing or invalid landmass keys")
+    else:
         frame = frame.copy()
         frame["source_feature_id"] = [str(index) for index in frame.index]
         return frame[["source_feature_id", "geometry"]]
+
+    grouped = frame.assign(_landmass_key=group_keys)
     rows = []
-    for identifier, group in frame.groupby(id_name, dropna=False, sort=True):
+    for identifier, group in grouped.groupby("_landmass_key", sort=True):
         geometry = make_valid(unary_union(group.geometry.tolist()))
         if not geometry.is_empty:
             rows.append({"source_feature_id": str(identifier), "geometry": geometry})

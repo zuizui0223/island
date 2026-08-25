@@ -16,6 +16,12 @@ REQUIRED_TRAIT_COLUMNS = {
     "trait_name",
     "filled_value",
 }
+NON_ANALYSABLE_FILL_TIERS = {"global_fallback", "unresolved_no_evidence"}
+GROUNDED_FILL_TIERS = {
+    "species_direct",
+    "genus_inference",
+    "family_inference",
+}
 
 BOMBUS_COLUMN_ALIASES = {
     "n_candidate_bombus_species": "n_bombus_species_total",
@@ -56,12 +62,61 @@ def normalize_bombus_columns(table: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
+def require_grounded_trait_rows(table: pd.DataFrame) -> pd.DataFrame:
+    """Return only explicitly grounded rows, failing closed without ``fill_tier``.
+
+    Historical integrated artifacts do not have ``analysis_eligible``, but they
+    do retain ``fill_tier``.  Therefore the positive allow-list is the canonical
+    compatibility firewall: unknown tiers, the removed global fallback, and
+    unresolved sentinels can never enter a downstream category count.
+    """
+    if "fill_tier" not in table.columns:
+        raise typer.BadParameter(
+            "trait table lacks fill_tier; grounded analysis cannot be verified"
+        )
+
+    work = table.copy()
+    fill_tier = work["fill_tier"].fillna("").astype(str).str.strip()
+    eligible = fill_tier.isin(GROUNDED_FILL_TIERS)
+    if "analysis_eligible" in work.columns:
+        eligible &= (
+            work["analysis_eligible"]
+            .fillna("")
+            .astype(str)
+            .str.strip()
+            .str.lower()
+            .eq("true")
+        )
+    if "filled_value" in work.columns:
+        filled_value = work["filled_value"].fillna("").astype(str).str.strip()
+        eligible &= filled_value.ne("") & filled_value.str.casefold().ne("unresolved")
+    return work.loc[eligible].copy()
+
+
+def load_trait_rows_for_grounded_analysis(path: Path) -> pd.DataFrame:
+    """Load only the columns needed to filter a potentially large species master."""
+    columns = set(pd.read_csv(path, nrows=0).columns)
+    required = {*REQUIRED_TRAIT_COLUMNS, "fill_tier"}
+    missing = required.difference(columns)
+    if missing:
+        raise typer.BadParameter(
+            f"species master cannot support grounded analysis; missing columns: {sorted(missing)}"
+        )
+    usecols = required | ({"analysis_eligible"} if "analysis_eligible" in columns else set())
+    return pd.read_csv(path, usecols=sorted(usecols), dtype=str).fillna("")
+
+
+def _analysis_eligible_traits(table: pd.DataFrame) -> pd.DataFrame:
+    """Backward-compatible internal name for the grounded firewall."""
+    return require_grounded_trait_rows(table)
+
+
 def aggregate_trait_composition(table: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     missing = REQUIRED_TRAIT_COLUMNS.difference(table.columns)
     if missing:
         raise typer.BadParameter(f"trait table missing columns: {sorted(missing)}")
 
-    work = table.copy()
+    work = _analysis_eligible_traits(table)
     for column in REQUIRED_TRAIT_COLUMNS:
         work[column] = work[column].fillna("").astype(str).str.strip()
     work = work.loc[
@@ -97,7 +152,8 @@ def build_analysis_input(
     bombus_table: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     bombus = normalize_bombus_columns(bombus_table)
-    composition, richness = aggregate_trait_composition(trait_table)
+    analysable_traits = _analysis_eligible_traits(trait_table)
+    composition, richness = aggregate_trait_composition(analysable_traits)
     island_input = bombus.merge(richness, on="island_id", how="left", validate="one_to_one")
     island_input["n_trait_species"] = island_input["n_trait_species"].fillna(0).astype(int)
 
@@ -107,7 +163,7 @@ def build_analysis_input(
         how="left",
         validate="many_to_one",
     )
-    species_master = trait_table.merge(
+    species_master = analysable_traits.merge(
         bombus,
         on="island_id",
         how="left",

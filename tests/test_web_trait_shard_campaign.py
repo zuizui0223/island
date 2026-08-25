@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -7,12 +8,16 @@ import pandas as pd
 import pytest
 import typer
 
+from island_v2 import trait_acquisition_priority as acquisition_priority
 from island_v2.v1_category_traits import OUTPUT_COLUMNS
 from island_v2.web_trait_shard_campaign import (
     PROVIDERS,
+    _atomic_csv_gzip,
     _provider_policy_versions,
     _retryable_errors_by_species,
     _retryable_provider_errors,
+    _select_checkpoint_batch,
+    _validate_priority_audit,
     build_shard_plan,
     reconcile_checkpoint,
     run_shard,
@@ -32,6 +37,37 @@ def _master(path: Path, names: list[str]) -> Path:
         }
     ).to_csv(path, index=False)
     return path
+
+
+def _priority_audit(
+    names: list[str],
+    regions: list[str],
+    *,
+    unresolved: list[int] | None = None,
+) -> pd.DataFrame:
+    rows: list[dict[str, object]] = []
+    unresolved = unresolved or [15] * len(names)
+    for name, region, unresolved_cells in zip(names, regions, unresolved, strict=True):
+        row: dict[str, object] = {
+            column: "unknown" for column in acquisition_priority.PRIORITY_AUDIT_COLUMNS
+        }
+        row.update(
+            {
+                "accepted_species": name,
+                "scheduling_region_category": region,
+                "any_reviewed_NH_temperate": str(
+                    region == "reviewed_nh_temperate"
+                ).lower(),
+                "any_NH_temperate_unreviewed": str(
+                    region == "nh_temperate_unreviewed"
+                ).lower(),
+                "unresolved_trait_cells": unresolved_cells,
+                "potential_genus_rescue_cells": 0,
+                "frozen_species_direct_source": "false",
+            }
+        )
+        rows.append(row)
+    return pd.DataFrame(rows)
 
 
 def _successful_collector(species: list[str], **_: object) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -78,6 +114,111 @@ def test_stable_shards_are_deterministic_and_plan_preserves_denominator() -> Non
     assert len(plan) == 8
     assert plan["n_species"].sum() == 100
     assert set(plan["shard_index"]) == set(range(8))
+
+
+def test_atomic_priority_csv_is_content_deterministic(tmp_path: Path) -> None:
+    frame = pd.DataFrame(
+        {"accepted_species": ["Plantus alpha", "Plantus beta"], "priority": [1, 2]}
+    )
+    first = tmp_path / "first.csv.gz"
+    second = tmp_path / "second.csv.gz"
+    _atomic_csv_gzip(frame, first)
+    _atomic_csv_gzip(frame, second)
+
+    assert hashlib.sha256(first.read_bytes()).digest() == hashlib.sha256(
+        second.read_bytes()
+    ).digest()
+
+
+def test_priority_selection_puts_geography_before_yield_and_checkpoint_status() -> None:
+    names = ["Plantus southern", "Plantus reviewed", "Plantus temperate"]
+    checkpoint = pd.DataFrame(
+        {
+            "species": names,
+            "status": ["pending", "retry", "pending"],
+            "attempts": [0, 2, 0],
+            "updated_at": ["", "2026-07-16T00:00:00Z", ""],
+        }
+    )
+    audit = _priority_audit(
+        names,
+        ["southern_hemisphere", "reviewed_nh_temperate", "nh_temperate_unreviewed"],
+        unresolved=[15, 1, 2],
+    )
+
+    selected = _select_checkpoint_batch(
+        checkpoint,
+        batch_size=3,
+        retry_exhausted=False,
+        priority_audit=audit,
+    )
+
+    assert selected["species"].tolist() == [
+        "Plantus reviewed",
+        "Plantus temperate",
+        "Plantus southern",
+    ]
+
+
+def test_priority_audit_requires_the_exact_master_species_set() -> None:
+    master = pd.DataFrame(
+        {
+            "accepted_species": ["Plantus alpha", "Plantus beta"],
+            "genus": ["Plantus", "Plantus"],
+            "family": ["Exampleaceae", "Exampleaceae"],
+        }
+    )
+    incomplete = _priority_audit(
+        ["Plantus alpha"],
+        ["reviewed_nh_temperate"],
+    )
+
+    with pytest.raises(typer.BadParameter, match="exact campaign denominator"):
+        _validate_priority_audit(incomplete, master, label="test audit")
+
+
+def test_run_shard_consumes_frozen_priority_audit(tmp_path: Path) -> None:
+    names = ["Plantus southern", "Plantus reviewed", "Plantus temperate"]
+    master = _master(tmp_path / "master.csv", names)
+    audit_path = tmp_path / "acquisition_priority.csv.gz"
+    _priority_audit(
+        names,
+        ["southern_hemisphere", "reviewed_nh_temperate", "nh_temperate_unreviewed"],
+        unresolved=[15, 1, 2],
+    ).to_csv(audit_path, index=False, compression="gzip")
+    seen: list[str] = []
+
+    def recording_collector(
+        species: list[str],
+        **_: object,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        seen.extend(species)
+        return _successful_collector(species)
+
+    campaign = tmp_path / "campaign"
+    report = run_shard(
+        master_csv=master,
+        campaign_dir=campaign,
+        scope_config_path=CONFIG,
+        shard_index=0,
+        shard_count=1,
+        batch_size=2,
+        expected_species=0,
+        priority_audit_csv=audit_path,
+        include_wikimedia=False,
+        include_web_descriptions=False,
+        collector=recording_collector,
+    )
+
+    assert seen == ["Plantus reviewed", "Plantus temperate"]
+    assert report["acquisition_priority"]["enabled"] is True
+    packet_priority = pd.read_csv(
+        campaign / "packets" / "batch_000001" / "acquisition_priority.csv",
+        dtype=str,
+    )
+    assert packet_priority["accepted_species"].tolist() == seen
+    manifest = json.loads((campaign / "campaign_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["acquisition_priority"]["sha256"]
 
 
 def test_run_shard_freezes_packet_validates_rows_and_resumes(tmp_path: Path) -> None:

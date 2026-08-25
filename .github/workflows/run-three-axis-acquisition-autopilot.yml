@@ -1,0 +1,391 @@
+name: run_three_axis_acquisition_autopilot
+
+on:
+  push:
+    branches: [codex/direct-evidence-continuation]
+    paths:
+      - ".github/workflows/run-three-axis-acquisition-autopilot.yml"
+      - "src/island_v2/three_axis_acquisition_checkpoint.py"
+      - "src/island_v2/web_trait_shard_campaign.py"
+      - "config/acquisition_rate.yml"
+  workflow_dispatch:
+    inputs:
+      shard_start:
+        description: "First shard index (0-127)"
+        required: false
+        default: "0"
+        type: string
+      shard_end:
+        description: "Last shard index, inclusive (0-127)"
+        required: false
+        default: "127"
+        type: string
+      batch_size:
+        description: "Species advanced per shard and round"
+        required: false
+        default: "100"
+        type: string
+      seed_run_id:
+        description: "Prior complete autopilot/public-web run; blank auto-selects or starts fresh"
+        required: false
+        default: ""
+        type: string
+      round_index:
+        description: "Current bounded direct-acquisition round"
+        required: false
+        default: "0"
+        type: string
+      max_rounds:
+        description: "Maximum automatic direct-acquisition rounds"
+        required: false
+        default: "6"
+        type: string
+      retry_exhausted:
+        description: "Retry providers already marked exhausted"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: three-axis-acquisition-autopilot-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.matrix.outputs.shards }}
+      shard_start: ${{ steps.matrix.outputs.shard_start }}
+      shard_end: ${{ steps.matrix.outputs.shard_end }}
+      batch_size: ${{ steps.matrix.outputs.batch_size }}
+      round_index: ${{ steps.matrix.outputs.round_index }}
+      max_rounds: ${{ steps.matrix.outputs.max_rounds }}
+      retry_exhausted: ${{ steps.matrix.outputs.retry_exhausted }}
+      seed_run_id: ${{ steps.seed.outputs.seed_run_id }}
+      seed_kind: ${{ steps.seed.outputs.seed_kind }}
+    env:
+      SHARD_START: ${{ inputs.shard_start || '0' }}
+      SHARD_END: ${{ inputs.shard_end || '127' }}
+      BATCH_SIZE: ${{ inputs.batch_size || '100' }}
+      ROUND_INDEX: ${{ inputs.round_index || '0' }}
+      MAX_ROUNDS: ${{ inputs.max_rounds || '6' }}
+      RETRY_EXHAUSTED: ${{ inputs.retry_exhausted || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install acquisition package
+        run: pip install -e ".[dev]"
+      - name: Validate focused checkpoint contracts
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            src/island_v2/web_trait_shard_campaign.py \
+            src/island_v2/three_axis_acquisition_checkpoint.py \
+            src/island_v2/selfing_syndrome_collection.py
+          pytest -q tests/test_web_trait_shard_campaign.py tests/test_selfing_syndrome_collection.py
+      - name: Build and freeze acquisition plan
+        run: |
+          set -euo pipefail
+          island-v2-web-trait-shards plan \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --scope-config-path config/angiosperm_scope.yml \
+            --output-dir /tmp/three_axis_plan \
+            --shard-count 128 \
+            --expected-species 106295
+          if ! island-v2-v1-category-search build-web-index \
+            --output-json /tmp/three_axis_plan/web_description_index.json; then
+            test -s /tmp/three_axis_plan/web_description_index.json
+            echo "::warning::Using frozen partial public-description index."
+          fi
+      - name: Build bounded shard matrix
+        id: matrix
+        run: |
+          python - <<'PY'
+          import json, os
+          start = int(os.environ['SHARD_START'])
+          end = int(os.environ['SHARD_END'])
+          batch = int(os.environ['BATCH_SIZE'])
+          round_index = int(os.environ['ROUND_INDEX'])
+          max_rounds = int(os.environ['MAX_ROUNDS'])
+          if not 0 <= start <= end < 128:
+              raise SystemExit('shard range must satisfy 0 <= start <= end < 128')
+          if not 1 <= batch <= 500:
+              raise SystemExit('batch_size must be between 1 and 500')
+          if not 0 <= round_index < max_rounds <= 12:
+              raise SystemExit('round contract must satisfy 0 <= round_index < max_rounds <= 12')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              print(f"shards={json.dumps(list(range(start, end + 1)))}", file=out)
+              print(f"shard_start={start}", file=out)
+              print(f"shard_end={end}", file=out)
+              print(f"batch_size={batch}", file=out)
+              print(f"round_index={round_index}", file=out)
+              print(f"max_rounds={max_rounds}", file=out)
+              print(f"retry_exhausted={os.environ['RETRY_EXHAUSTED'].lower()}", file=out)
+          PY
+      - name: Resolve newest complete durable checkpoint seed
+        id: seed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_SEED_RUN_ID: ${{ inputs.seed_run_id || '' }}
+        run: |
+          set -euo pipefail
+          seed="$REQUESTED_SEED_RUN_ID"
+          kind=""
+
+          count_artifacts() {
+            local run_id="$1"
+            local prefix="$2"
+            gh api --paginate \
+              "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/artifacts?per_page=100" \
+              --jq '.artifacts[] | select(.expired == false) | .name' \
+              | grep -Ec "^${prefix}[0-9]+-${run_id}$" || true
+          }
+
+          if [[ -n "$seed" ]]; then
+            [[ "$seed" =~ ^[0-9]+$ ]]
+            autopilot_count=$(count_artifacts "$seed" "three-axis-shard-")
+            public_count=$(count_artifacts "$seed" "public-web-trait-shard-")
+            if [[ "$autopilot_count" == "128" ]]; then
+              kind="autopilot"
+            elif [[ "$public_count" == "128" ]]; then
+              kind="public_web"
+            else
+              echo "::warning::Requested seed $seed is incomplete or expired; starting fresh."
+              seed=""
+            fi
+          fi
+
+          if [[ -z "$seed" ]]; then
+            while IFS= read -r candidate; do
+              if [[ "$(count_artifacts "$candidate" "three-axis-shard-")" == "128" ]]; then
+                seed="$candidate"
+                kind="autopilot"
+                break
+              fi
+            done < <(gh run list --repo "$GITHUB_REPOSITORY" \
+              --workflow run-three-axis-acquisition-autopilot.yml \
+              --status success --limit 30 --json databaseId --jq '.[].databaseId')
+          fi
+
+          if [[ -z "$seed" ]]; then
+            while IFS= read -r candidate; do
+              if [[ "$(count_artifacts "$candidate" "public-web-trait-shard-")" == "128" ]]; then
+                seed="$candidate"
+                kind="public_web"
+                break
+              fi
+            done < <(gh run list --repo "$GITHUB_REPOSITORY" \
+              --workflow run-public-web-trait-shards.yml \
+              --status success --limit 50 --json databaseId,event \
+              --jq '.[] | select(.event != "pull_request") | .databaseId')
+          fi
+
+          kind="${kind:-fresh}"
+          echo "seed_run_id=$seed" >> "$GITHUB_OUTPUT"
+          echo "seed_kind=$kind" >> "$GITHUB_OUTPUT"
+          echo "Seed checkpoint: ${seed:-none} ($kind)" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: three-axis-plan-${{ github.run_id }}
+          path: /tmp/three_axis_plan/
+          if-no-files-found: error
+          retention-days: 90
+
+  advance:
+    needs: plan
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SHARD_DIR: /tmp/three-axis/shard-${{ matrix.shard }}
+      SEED_RUN_ID: ${{ needs.plan.outputs.seed_run_id }}
+      SEED_KIND: ${{ needs.plan.outputs.seed_kind }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - uses: actions/download-artifact@v4
+        with:
+          name: three-axis-plan-${{ github.run_id }}
+          path: /tmp/three_axis_plan
+      - run: pip install -e ".[dev]"
+      - name: Restore immutable per-shard checkpoint when available
+        if: needs.plan.outputs.seed_kind != 'fresh'
+        run: |
+          set -euo pipefail
+          mkdir -p "$SHARD_DIR"
+          if [[ "$SEED_KIND" == "autopilot" ]]; then
+            artifact="three-axis-shard-${{ matrix.shard }}-$SEED_RUN_ID"
+          else
+            artifact="public-web-trait-shard-${{ matrix.shard }}-$SEED_RUN_ID"
+          fi
+          gh run download "$SEED_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "$artifact" --dir "$SHARD_DIR"
+          test -f "$SHARD_DIR/checkpoint.csv"
+          test -f "$SHARD_DIR/provider_checkpoint.csv"
+      - name: Initialize fresh shard workspace
+        if: needs.plan.outputs.seed_kind == 'fresh'
+        run: mkdir -p "$SHARD_DIR"
+      - name: Advance only unresolved provider/species work
+        env:
+          SHARD_INDEX: ${{ matrix.shard }}
+          BATCH_SIZE: ${{ needs.plan.outputs.batch_size }}
+          RETRY_EXHAUSTED: ${{ needs.plan.outputs.retry_exhausted }}
+        run: |
+          set -euo pipefail
+          EXTRA_ARGS=()
+          if [[ "$RETRY_EXHAUSTED" == "true" ]]; then
+            EXTRA_ARGS+=(--retry-exhausted)
+          fi
+          island-v2-web-trait-shards run \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --scope-config-path config/angiosperm_scope.yml \
+            --campaign-dir "$SHARD_DIR" \
+            --candidate-csv data/v2/staging/traits/global_campaign/machine_candidate_index.csv.gz \
+            --priority-audit-csv /tmp/three_axis_plan/acquisition_priority.csv.gz \
+            --shard-index "$SHARD_INDEX" \
+            --shard-count 128 \
+            --batch-size "$BATCH_SIZE" \
+            --max-attempts 3 \
+            --expected-species 106295 \
+            --web-description-index /tmp/three_axis_plan/web_description_index.json \
+            --pause-seconds 1.0 \
+            --europe-pmc \
+            --no-openalex \
+            --no-world-flora \
+            --migrate-v4 \
+            "${EXTRA_ARGS[@]}"
+      - name: Freeze species-by-axis and provider checkpoints
+        run: |
+          set -euo pipefail
+          python -m island_v2.three_axis_acquisition_checkpoint build \
+            --campaign-dir "$SHARD_DIR" \
+            --output-dir "$SHARD_DIR/three_axis"
+          cat "$SHARD_DIR/three_axis/three_axis_checkpoint_summary.json" >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify checkpoint durability
+        run: |
+          set -euo pipefail
+          test -f "$SHARD_DIR/campaign_manifest.json"
+          test -f "$SHARD_DIR/campaign_status.json"
+          test -f "$SHARD_DIR/checkpoint.csv"
+          test -f "$SHARD_DIR/provider_checkpoint.csv"
+          test -f "$SHARD_DIR/three_axis/three_axis_checkpoint.csv.gz"
+          test -f "$SHARD_DIR/three_axis/three_axis_next_queue.csv.gz"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: three-axis-shard-${{ matrix.shard }}-${{ github.run_id }}
+          path: |
+            ${{ env.SHARD_DIR }}/campaign_manifest.json
+            ${{ env.SHARD_DIR }}/campaign_status.json
+            ${{ env.SHARD_DIR }}/checkpoint.csv
+            ${{ env.SHARD_DIR }}/provider_checkpoint.csv
+            ${{ env.SHARD_DIR }}/packets/
+            ${{ env.SHARD_DIR }}/cumulative/
+            ${{ env.SHARD_DIR }}/three_axis/
+          if-no-files-found: error
+          retention-days: 90
+
+  summarize-and-continue:
+    if: always() && needs.plan.result == 'success' && needs.advance.result == 'success'
+    needs: [plan, advance]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: three-axis-shard-*-${{ github.run_id }}
+          path: /tmp/three_axis_results
+          merge-multiple: false
+      - name: Aggregate actual acquisition progress
+        id: progress
+        env:
+          ROUND_INDEX: ${{ needs.plan.outputs.round_index }}
+          MAX_ROUNDS: ${{ needs.plan.outputs.max_rounds }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          roots = sorted(Path('/tmp/three_axis_results').glob('three-axis-shard-*'))
+          attempted = remaining_provider = all_three = species = 0
+          summaries = 0
+          for root in roots:
+              status_paths = list(root.rglob('campaign_status.json'))
+              axis_paths = list(root.rglob('three_axis_checkpoint_summary.json'))
+              if status_paths:
+                  status = json.loads(status_paths[0].read_text())
+                  attempted += int(status.get('n_species_attempted_this_run', 0))
+              if axis_paths:
+                  axis = json.loads(axis_paths[0].read_text())
+                  summaries += 1
+                  species += int(axis.get('n_species', 0))
+                  all_three += int(axis.get('n_all_three_axes_direct', 0))
+                  remaining_provider += sum(int(v) for v in axis.get('provider_remaining_counts', {}).values())
+          round_index = int(os.environ['ROUND_INDEX'])
+          max_rounds = int(os.environ['MAX_ROUNDS'])
+          should_continue = attempted > 0 and remaining_provider > 0 and round_index + 1 < max_rounds
+          result = {
+              'contract_version': 'three_axis_autopilot_progress_v2',
+              'source_run_id': int(os.environ['GITHUB_RUN_ID']),
+              'round_index': round_index,
+              'max_rounds': max_rounds,
+              'n_shards': summaries,
+              'n_species_checkpointed': species,
+              'n_all_three_axes_direct': all_three,
+              'n_species_attempted_this_round': attempted,
+              'n_provider_tasks_remaining': remaining_provider,
+              'continue': should_continue,
+              'global_fallback_used': False,
+          }
+          Path('/tmp/three_axis_progress.json').write_text(json.dumps(result, indent=2) + '\n')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              print(f'attempted={attempted}', file=out)
+              print(f'remaining={remaining_provider}', file=out)
+              print(f'continue={str(should_continue).lower()}', file=out)
+              print(f'next_round={round_index + 1}', file=out)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              out.write('## Three-axis acquisition progress\n\n```json\n')
+              out.write(json.dumps(result, indent=2))
+              out.write('\n```\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: three-axis-progress-${{ github.run_id }}
+          path: /tmp/three_axis_progress.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Continue from this exact checkpoint set
+        if: steps.progress.outputs.continue == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NEXT_ROUND: ${{ steps.progress.outputs.next_round }}
+        run: |
+          gh workflow run run-three-axis-acquisition-autopilot.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f shard_start=${{ needs.plan.outputs.shard_start }} \
+            -f shard_end=${{ needs.plan.outputs.shard_end }} \
+            -f batch_size=${{ needs.plan.outputs.batch_size }} \
+            -f seed_run_id=${{ github.run_id }} \
+            -f round_index="$NEXT_ROUND" \
+            -f max_rounds=${{ needs.plan.outputs.max_rounds }} \
+            -f retry_exhausted=false
+      - name: Record bounded stopping condition
+        if: steps.progress.outputs.continue != 'true'
+        run: |
+          echo "Autopilot stopped because the round made no progress, no provider work remains, or max rounds was reached." >> "$GITHUB_STEP_SUMMARY"

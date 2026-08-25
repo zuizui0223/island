@@ -14,7 +14,16 @@ import pandas as pd
 import typer
 
 from island_v2.m0_m4_full_analysis import fit_grouped_binomial_clustered
-from island_v2.purpose_shortest_analysis import TROPIC, compute_distance_metrics
+from island_v2.purpose_shortest_analysis import (
+    TROPIC,
+    compute_distance_metrics,
+    replace_trait_richness,
+)
+from island_v2.trait_bombus_analysis import (
+    GROUNDED_FILL_TIERS,
+    load_trait_rows_for_grounded_analysis,
+    require_grounded_trait_rows,
+)
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
@@ -55,6 +64,7 @@ def build_v1_like_animal_counts(species_master: pd.DataFrame) -> pd.DataFrame:
     if missing:
         raise typer.BadParameter(f"species master missing columns: {sorted(missing)}")
 
+    species_master = require_grounded_trait_rows(species_master)
     keep_traits = {"pollination_functional_guild", "flower_primary_color", "floral_form"}
     work = species_master.loc[
         species_master["trait_name"].astype(str).isin(keep_traits),
@@ -120,11 +130,18 @@ def run(
     natural_earth_land_zip: Path = typer.Option(..., exists=True),
     output_dir: Path = typer.Option(...),
 ) -> None:
-    master = pd.read_csv(species_master_csv, low_memory=False)
-    metrics = pd.read_csv(island_metrics_csv)
+    master = load_trait_rows_for_grounded_analysis(species_master_csv)
+    grounded = require_grounded_trait_rows(master)
+    grounded_richness = (
+        grounded.groupby("island_id", sort=True)["accepted_species"]
+        .nunique()
+        .rename("n_trait_species")
+        .reset_index()
+    )
+    metrics = replace_trait_richness(pd.read_csv(island_metrics_csv), grounded_richness)
     covariates = pd.read_csv(covariates_csv)
     distance = compute_distance_metrics(islands_gpkg, natural_earth_land_zip)
-    counts = build_v1_like_animal_counts(master)
+    counts = build_v1_like_animal_counts(grounded)
 
     data = (
         metrics.drop_duplicates("island_id")
@@ -179,7 +196,16 @@ def run(
     ].to_dict("records")
     summary = {
         "contract": "v1_v2_minimal_bridge_v1",
-        "analysis_tier": "sensitivity_all_requested_all_filled_data",
+        "analysis_tier": "sensitivity_all_grounded_available_values",
+        "grounded_input_filter": {
+            "required_fill_tiers": sorted(GROUNDED_FILL_TIERS),
+            "n_species_master_rows": int(len(master)),
+            "n_grounded_rows": int(len(grounded)),
+            "n_excluded_rows": int(len(master) - len(grounded)),
+            "forbidden_rows_after_filter": int(
+                (~grounded["fill_tier"].astype(str).isin(GROUNDED_FILL_TIERS)).sum()
+            ),
+        },
         "scope": "northern_non_tropical_area_ge_20km2_legacy_distance_gt_0",
         "plant_filter": "animal_pollinated_functional_guilds_only",
         "model": "grouped binomial outcome ~ standardized distance + standardized island area",

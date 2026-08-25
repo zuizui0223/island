@@ -15,9 +15,16 @@ def _traits() -> pd.DataFrame:
                 "mating_system",
                 "flower_primary_color",
             ],
-            "filled_value": ["white", "red", "selfing", "outcrossing", "white"],
-            "fill_tier": ["species_direct", "family_inference", "species_direct", "family_inference", "global_fallback"],
+            "filled_value": ["white", "red", "selfing", "outcrossing", "unresolved"],
+            "fill_tier": [
+                "species_direct",
+                "family_inference",
+                "species_direct",
+                "family_inference",
+                "unresolved_no_evidence",
+            ],
             "analysis_tier": ["broad", "broad", "broad", "broad", "sensitivity_all"],
+            "analysis_eligible": ["true", "true", "true", "true", "false"],
         }
     )
 
@@ -60,7 +67,8 @@ def test_build_analysis_input_preserves_regime_traits_and_species_master() -> No
     ]
     assert set(color_a["species_share_within_trait"]) == {0.5}
     assert set(color_a["bombus_regime_set"]) == {"applicable_environment_compatible"}
-    assert len(species_master) == len(_traits())
+    assert len(species_master) == 4
+    assert "unresolved" not in set(species_master["filled_value"])
     assert species_master["bombus_join_status"].eq("both").all()
     assert "fill_tier" in species_master.columns
 

@@ -161,7 +161,7 @@ def test_probabilistic_imputation_returns_pooled_and_comparator_results() -> Non
     assert set(pooled["baseline_spec"]) == {"full", "no_abs_latitude"}
     assert set(comparators["comparator"]) == {
         "expected_probability_counts",
-        "hard_modal_broad_without_global_fallback",
+        "hard_modal_grounded_taxonomic",
     }
     assert np.isfinite(pooled["pooled_estimate_log_odds"]).all()
     assert (pooled["n_imputations"] == 20).all()

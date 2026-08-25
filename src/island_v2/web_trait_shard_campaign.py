@@ -8,17 +8,20 @@ lookup failures remain retryable. A successful zero-hit search is completed as
 
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
 import os
 from collections.abc import Callable, Mapping
 from datetime import UTC, datetime
+from io import TextIOWrapper
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 import typer
 
+from island_v2 import trait_acquisition_priority as acquisition_priority
 from island_v2.angiosperm_scope import classify_scope, load_config as load_scope_config
 from island_v2.v1_category_search import (
     EVIDENCE_COLUMNS,
@@ -37,6 +40,18 @@ CONTRACT_VERSION = "public_web_9col_shards_v6"
 LEGACY_CONTRACT_VERSION = "public_web_9col_shards_v5"
 V4_CONTRACT_VERSION = "public_web_9col_shards_v4"
 PROVIDER_POLICY_VERSION = "public_web_provider_accounting_v1"
+PRIORITY_SCHEDULING_VERSION = "public_web_acquisition_priority_v2"
+PRIORITY_PLAN_FILENAME = "acquisition_priority.csv.gz"
+SCHEDULING_REGION_CATEGORIES = frozenset(
+    {
+        "reviewed_nh_temperate",
+        "nh_temperate_unreviewed",
+        "nh_tropical",
+        "southern_hemisphere",
+        "cross_region",
+        "unclassified",
+    }
+)
 PROVIDERS = (
     "gbif",
     "world_flora",
@@ -94,6 +109,13 @@ PROVIDER_TARGET_FIELDS = {
 }
 ACTIVE_TARGET_FIELDS = frozenset(
     {"flower_color", "flower_shape", "mating_system", "self_incompatibility"}
+)
+ACTIVE_CANONICAL_TARGET_TRAITS = (
+    "flower_primary_color",
+    "floral_form",
+    "floral_symmetry",
+    "self_incompatibility",
+    "mating_system",
 )
 # v4/v5 did not persist provider attempts. These were the production campaign's
 # enabled providers; any provider outside this set remains pending on migration.
@@ -194,6 +216,23 @@ def _atomic_csv(table: pd.DataFrame, path: Path) -> None:
     temporary.replace(path)
 
 
+def _atomic_csv_gzip(table: pd.DataFrame, path: Path) -> None:
+    """Write deterministic gzip CSV without relying on the temporary suffix."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".tmp")
+    with temporary.open("wb") as raw:
+        with gzip.GzipFile(
+            filename="",
+            mode="wb",
+            compresslevel=6,
+            fileobj=raw,
+            mtime=0,
+        ) as compressed:
+            with TextIOWrapper(compressed, encoding="utf-8", newline="") as text_output:
+                table.to_csv(text_output, index=False, lineterminator="\n")
+    temporary.replace(path)
+
+
 def _atomic_json(payload: dict[str, Any], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
@@ -225,6 +264,109 @@ def load_campaign_master(master_csv: Path, scope_config_path: Path) -> pd.DataFr
         .sort_values("accepted_species")
         .reset_index(drop=True)
     )
+
+
+def _validate_priority_audit(
+    audit: pd.DataFrame,
+    master: pd.DataFrame,
+    *,
+    label: str,
+) -> pd.DataFrame:
+    """Fail closed unless a priority audit covers the exact campaign denominator."""
+    frame = audit.copy().astype(object)
+    frame = frame.where(pd.notna(frame), "")
+    required = ["accepted_species", *acquisition_priority.PRIORITY_AUDIT_COLUMNS]
+    missing = set(required).difference(frame.columns)
+    if missing:
+        raise typer.BadParameter(f"{label} missing priority columns: {sorted(missing)}")
+    frame["accepted_species"] = frame["accepted_species"].map(_text)
+    if frame["accepted_species"].eq("").any():
+        raise typer.BadParameter(f"{label} contains blank accepted_species")
+    duplicated = frame["accepted_species"].duplicated(keep=False)
+    if duplicated.any():
+        examples = sorted(frame.loc[duplicated, "accepted_species"].unique())[:5]
+        raise typer.BadParameter(f"{label} contains duplicate species: {examples}")
+
+    expected = set(master["accepted_species"].map(_text))
+    observed = set(frame["accepted_species"])
+    if observed != expected or len(frame) != len(master):
+        raise typer.BadParameter(
+            f"{label} species set differs from the exact campaign denominator: "
+            f"expected={len(expected)}, observed={len(observed)}, "
+            f"missing={sorted(expected - observed)[:5]}, extra={sorted(observed - expected)[:5]}"
+        )
+
+    invalid_regions = sorted(
+        set(frame["scheduling_region_category"]).difference(SCHEDULING_REGION_CATEGORIES)
+    )
+    if invalid_regions:
+        raise typer.BadParameter(
+            f"{label} contains invalid scheduling_region_category values: {invalid_regions}"
+        )
+
+    # Reorder to the immutable master denominator and discard unrelated legacy
+    # columns before the same file is shared by all shard jobs.
+    ordered = master[["accepted_species"]].merge(
+        frame[required],
+        on="accepted_species",
+        how="left",
+        validate="one_to_one",
+    )
+    _, sort_columns = acquisition_priority.add_priority_sort_keys(ordered)
+    if not sort_columns or sort_columns[0] != "_priority_geo":
+        raise typer.BadParameter(
+            f"{label} does not provide geographic priority as the first scheduling key"
+        )
+    return ordered
+
+
+def _build_repository_priority_plan(
+    master: pd.DataFrame,
+    *,
+    master_genus_is_explicit: bool,
+    occurrence_csv: Path,
+    canonical_island_latitudes_csv: Path,
+    island_registry_csv: Path,
+    island_assignments_csv: Path,
+    island_assignment_evidence_csv: Path,
+    source_region_registry_csv: Path,
+    acquisition_config_path: Path,
+    current_cells_csv: Path | None,
+    qualified_genus_glob: str,
+    frozen_packet_glob: str,
+) -> pd.DataFrame:
+    required_paths = {
+        "occurrence": occurrence_csv,
+        "canonical island latitude": canonical_island_latitudes_csv,
+        "reviewed island registry": island_registry_csv,
+        "reviewed island assignment": island_assignments_csv,
+        "reviewed island assignment evidence": island_assignment_evidence_csv,
+        "reviewed source-region registry": source_region_registry_csv,
+        "current source-backed trait coverage config": acquisition_config_path,
+    }
+    if current_cells_csv is not None:
+        required_paths["current trait-cell ledger"] = current_cells_csv
+    missing = [label for label, path in required_paths.items() if not path.is_file()]
+    if missing:
+        raise typer.BadParameter(
+            "cannot build production acquisition priority without required inputs: "
+            + ", ".join(missing)
+        )
+    audit = acquisition_priority.build_repository_priority_audit(
+        master,
+        master_genus_is_explicit=master_genus_is_explicit,
+        occurrence_csv=occurrence_csv,
+        canonical_island_latitudes_csv=canonical_island_latitudes_csv,
+        island_registry_csv=island_registry_csv,
+        island_assignments_csv=island_assignments_csv,
+        island_assignment_evidence_csv=island_assignment_evidence_csv,
+        source_region_registry_csv=source_region_registry_csv,
+        acquisition_config_path=acquisition_config_path,
+        current_cells_csv=current_cells_csv,
+        qualified_genus_glob=qualified_genus_glob,
+        frozen_packet_glob=frozen_packet_glob,
+    )
+    return _validate_priority_audit(audit, master, label="generated acquisition-priority audit")
 
 
 def build_shard_plan(master: pd.DataFrame, shard_count: int) -> pd.DataFrame:
@@ -367,6 +509,61 @@ def reconcile_checkpoint(
         base.loc[interrupted & ~retryable, "status"] = "exhausted"
         base.loc[interrupted, "last_error"] = "interrupted_previous_run"
     return base[CHECKPOINT_COLUMNS].sort_values("species").reset_index(drop=True)
+
+
+def _select_checkpoint_batch(
+    checkpoint: pd.DataFrame,
+    *,
+    batch_size: int,
+    retry_exhausted: bool,
+    priority_audit: pd.DataFrame | None,
+) -> pd.DataFrame:
+    """Select one deterministic shard batch with geography ahead of all other yield keys."""
+    allowed = set(RETRYABLE_STATUSES)
+    if retry_exhausted:
+        allowed.add("exhausted")
+    eligible = checkpoint.loc[checkpoint["status"].isin(allowed)].copy()
+    eligible["_checkpoint_index"] = eligible.index.astype(int)
+
+    priority_sort_columns: list[str] = []
+    if priority_audit is not None:
+        shard_priority = priority_audit.rename(columns={"accepted_species": "species"})
+        eligible = eligible.merge(
+            shard_priority,
+            on="species",
+            how="left",
+            validate="one_to_one",
+        )
+        if eligible["scheduling_region_category"].isna().any():
+            raise typer.BadParameter("priority audit omitted one or more shard species")
+        eligible, priority_sort_columns = acquisition_priority.add_priority_sort_keys(
+            eligible,
+            target_traits=ACTIVE_CANONICAL_TARGET_TRAITS,
+        )
+        if not priority_sort_columns or priority_sort_columns[0] != "_priority_geo":
+            raise typer.BadParameter(
+                "acquisition priority must put geographic scheduling before yield keys"
+            )
+
+    eligible["_status_priority"] = eligible["status"].map(
+        {"pending": 0, "retry": 1, "exhausted": 2}
+    )
+    # Scheduled repair passes still rotate within equal biological priorities.
+    # The exact species name is the final stable tie-breaker across restorations.
+    eligible["_attempts_order"] = pd.to_numeric(
+        eligible["attempts"], errors="coerce"
+    ).fillna(0)
+    eligible["_updated_order"] = eligible["updated_at"].map(_text)
+    return eligible.sort_values(
+        [
+            *priority_sort_columns,
+            "_status_priority",
+            "_attempts_order",
+            "_updated_order",
+            "species",
+        ],
+        kind="mergesort",
+    ).head(batch_size)
 
 
 def reconcile_provider_checkpoint(
@@ -902,6 +1099,7 @@ def run_shard(
     max_attempts: int = 3,
     expected_species: int = 106295,
     candidate_csv: Path | None = None,
+    priority_audit_csv: Path | None = None,
     retry_exhausted: bool = False,
     migrate_v4: bool = False,
     include_gbif: bool = True,
@@ -927,8 +1125,35 @@ def run_shard(
         raise typer.BadParameter(
             f"global campaign denominator changed: expected {expected_species}, got {len(master)}"
         )
+    priority_audit: pd.DataFrame | None = None
+    priority_contract: dict[str, Any] = {
+        "version": PRIORITY_SCHEDULING_VERSION,
+        "enabled": False,
+    }
+    if priority_audit_csv is not None:
+        if not priority_audit_csv.is_file():
+            raise typer.BadParameter(f"priority audit does not exist: {priority_audit_csv}")
+        priority_audit = _validate_priority_audit(
+            pd.read_csv(priority_audit_csv, dtype=str).fillna(""),
+            master,
+            label=str(priority_audit_csv),
+        )
+        priority_contract = {
+            "version": PRIORITY_SCHEDULING_VERSION,
+            "enabled": True,
+            "file": priority_audit_csv.name,
+            "sha256": _file_sha256(priority_audit_csv),
+            "n_species": int(len(priority_audit)),
+            "summary": acquisition_priority.priority_summary(priority_audit),
+        }
     fingerprint = _master_fingerprint(master)
     shard_species = _shard_species(master, shard_index, shard_count)
+    priority_status: dict[str, Any] = dict(priority_contract)
+    if priority_audit is not None:
+        shard_priority = priority_audit.loc[
+            priority_audit["accepted_species"].isin(set(shard_species["accepted_species"]))
+        ].copy()
+        priority_status["shard_summary"] = acquisition_priority.priority_summary(shard_priority)
     campaign_dir.mkdir(parents=True, exist_ok=True)
     cumulative_dir = campaign_dir / "cumulative"
     packet_dir_root = campaign_dir / "packets"
@@ -1001,6 +1226,17 @@ def run_shard(
         and previous_policy not in policy_history
     ):
         policy_history.append(previous_policy)
+    priority_history = previous.get("acquisition_priority_history", [])
+    if not isinstance(priority_history, list):
+        priority_history = []
+    previous_priority = previous.get("acquisition_priority")
+    if (
+        previous.get("contract_version") == CONTRACT_VERSION
+        and isinstance(previous_priority, dict)
+        and previous_priority != priority_contract
+        and previous_priority not in priority_history
+    ):
+        priority_history.append(previous_priority)
     manifest_payload: dict[str, Any] = {
         "contract_version": CONTRACT_VERSION,
         "created_at": previous.get("created_at") or _now(),
@@ -1013,10 +1249,12 @@ def run_shard(
         "n_species_in_shard": len(shard_species),
         "provider_policy": current_policy_manifest,
         "provider_policy_history": policy_history,
+        "acquisition_priority": priority_contract,
+        "acquisition_priority_history": priority_history,
         "enabled_providers": sorted(enabled_providers),
         "source_policy": (
             "free public sources; bulk candidates seed gaps; provider attempts are "
-            "versioned per species; no paid API; island Bombus state is never an input"
+            "versioned per species; no paid API; reviewed geography is scheduling-only"
         ),
     }
     if legacy_contract_version:
@@ -1053,21 +1291,14 @@ def run_shard(
         provider_checkpoint,
         enabled_providers,
     )
-    allowed = set(RETRYABLE_STATUSES)
-    if retry_exhausted:
-        allowed.add("exhausted")
-    eligible = checkpoint.loc[checkpoint["status"].isin(allowed)].copy()
-    eligible["_priority"] = eligible["status"].map({"pending": 0, "retry": 1, "exhausted": 2})
-    # Scheduled repair passes must rotate across exhausted rows. Sorting only by
-    # species would retry the same first ``batch_size`` names forever whenever a
-    # shard had more exhausted rows than the batch bound.
-    eligible["_attempts_order"] = pd.to_numeric(eligible["attempts"], errors="coerce").fillna(0)
-    eligible["_updated_order"] = eligible["updated_at"].map(_text)
-    selected = eligible.sort_values(
-        ["_priority", "_attempts_order", "_updated_order", "species"]
-    ).head(batch_size)
+    selected = _select_checkpoint_batch(
+        checkpoint,
+        batch_size=batch_size,
+        retry_exhausted=retry_exhausted,
+        priority_audit=priority_audit,
+    )
     packet_id = _next_packet_id(checkpoint)
-    selected_indexes = selected.index.tolist()
+    selected_indexes = selected["_checkpoint_index"].astype(int).tolist()
 
     prior_results_path = cumulative_dir / "trait_results.csv"
     prior_results = (
@@ -1090,6 +1321,7 @@ def run_shard(
             packet_id="",
             attempted=0,
         )
+        report["acquisition_priority"] = priority_status
         _atomic_csv(checkpoint, checkpoint_path)
         _atomic_csv(provider_checkpoint, provider_checkpoint_path)
         _atomic_json(report, campaign_dir / "campaign_status.json")
@@ -1137,6 +1369,21 @@ def run_shard(
     packet_dir = packet_dir_root / packet_id
     packet_dir.mkdir(parents=True, exist_ok=False)
     pd.DataFrame({"species": species}).to_csv(packet_dir / "species.csv", index=False)
+    if priority_audit is not None:
+        packet_priority = (
+            pd.DataFrame({"accepted_species": species})
+            .merge(
+                priority_audit,
+                on="accepted_species",
+                how="left",
+                validate="one_to_one",
+            )
+            .reset_index(drop=True)
+        )
+        packet_priority.to_csv(packet_dir / "acquisition_priority.csv", index=False)
+        priority_status["selected_summary"] = acquisition_priority.priority_summary(
+            packet_priority
+        )
     candidates = _candidate_subset(candidate_csv, species)
     seed_evidence = (
         evidence_from_bulk_candidates(candidates)
@@ -1371,6 +1618,7 @@ def run_shard(
     )
     report["packet_manifest"] = str(packet_dir / "packet_manifest.json")
     report["run_id"] = os.environ.get("GITHUB_RUN_ID", "")
+    report["acquisition_priority"] = priority_status
     _atomic_json(report, campaign_dir / "campaign_status.json")
     return report
 
@@ -1382,16 +1630,68 @@ def plan_command(
     scope_config_path: Path = typer.Option(Path("config/angiosperm_scope.yml"), exists=True),
     shard_count: int = typer.Option(128, min=1, max=4096),
     expected_species: int = typer.Option(106295, min=0),
+    priority_occurrence_csv: Path = typer.Option(
+        acquisition_priority.DEFAULT_OCCURRENCE_CSV,
+        exists=True,
+    ),
+    priority_canonical_island_latitudes_csv: Path = typer.Option(
+        acquisition_priority.DEFAULT_CANONICAL_ISLAND_LATITUDES_CSV,
+        exists=True,
+    ),
+    priority_island_registry_csv: Path = typer.Option(
+        acquisition_priority.DEFAULT_ISLAND_REGISTRY_CSV,
+        exists=True,
+    ),
+    priority_island_assignments_csv: Path = typer.Option(
+        acquisition_priority.DEFAULT_ISLAND_ASSIGNMENTS_CSV,
+        exists=True,
+    ),
+    priority_island_assignment_evidence_csv: Path = typer.Option(
+        acquisition_priority.DEFAULT_ISLAND_ASSIGNMENT_EVIDENCE_CSV,
+        exists=True,
+    ),
+    priority_source_region_registry_csv: Path = typer.Option(
+        acquisition_priority.DEFAULT_SOURCE_REGION_REGISTRY_CSV,
+        exists=True,
+    ),
+    priority_acquisition_config_path: Path = typer.Option(
+        acquisition_priority.DEFAULT_ACQUISITION_CONFIG,
+        exists=True,
+    ),
+    priority_current_cells_csv: Path | None = typer.Option(None, exists=True),
+    priority_qualified_genus_glob: str = typer.Option(
+        acquisition_priority.DEFAULT_QUALIFIED_GENUS_GLOB
+    ),
+    priority_frozen_packet_glob: str = typer.Option(
+        acquisition_priority.DEFAULT_FROZEN_PACKET_GLOB
+    ),
 ) -> None:
-    """Validate the denominator and write deterministic shard counts."""
+    """Validate the denominator and freeze one priority audit for every shard."""
+    master_header = pd.read_csv(master_csv, nrows=0)
     master = load_campaign_master(master_csv, scope_config_path)
     if expected_species and len(master) != expected_species:
         raise typer.BadParameter(
             f"global campaign denominator changed: expected {expected_species}, got {len(master)}"
         )
+    priority_audit = _build_repository_priority_plan(
+        master,
+        master_genus_is_explicit="genus" in master_header.columns,
+        occurrence_csv=priority_occurrence_csv,
+        canonical_island_latitudes_csv=priority_canonical_island_latitudes_csv,
+        island_registry_csv=priority_island_registry_csv,
+        island_assignments_csv=priority_island_assignments_csv,
+        island_assignment_evidence_csv=priority_island_assignment_evidence_csv,
+        source_region_registry_csv=priority_source_region_registry_csv,
+        acquisition_config_path=priority_acquisition_config_path,
+        current_cells_csv=priority_current_cells_csv,
+        qualified_genus_glob=priority_qualified_genus_glob,
+        frozen_packet_glob=priority_frozen_packet_glob,
+    )
     shard_plan = build_shard_plan(master, shard_count)
     output_dir.mkdir(parents=True, exist_ok=True)
     shard_plan.to_csv(output_dir / "shard_plan.csv", index=False)
+    priority_path = output_dir / PRIORITY_PLAN_FILENAME
+    _atomic_csv_gzip(priority_audit, priority_path)
     report = {
         "contract_version": CONTRACT_VERSION,
         "provider_policy_version": PROVIDER_POLICY_VERSION,
@@ -1401,6 +1701,14 @@ def plan_command(
         "min_species_per_shard": int(shard_plan["n_species"].min()),
         "max_species_per_shard": int(shard_plan["n_species"].max()),
         "master_fingerprint": _master_fingerprint(master),
+        "acquisition_priority": {
+            "version": PRIORITY_SCHEDULING_VERSION,
+            "file": PRIORITY_PLAN_FILENAME,
+            "sha256": _file_sha256(priority_path),
+            "n_species": int(len(priority_audit)),
+            "columns": list(priority_audit.columns),
+            "summary": acquisition_priority.priority_summary(priority_audit),
+        },
     }
     _atomic_json(report, output_dir / "shard_plan.json")
     typer.echo(json.dumps(report, ensure_ascii=False))
@@ -1417,6 +1725,7 @@ def run_command(
     max_attempts: int = typer.Option(3, min=1, max=10),
     expected_species: int = typer.Option(106295, min=0),
     candidate_csv: Path | None = typer.Option(None, exists=True),
+    priority_audit_csv: Path = typer.Option(..., exists=True),
     retry_exhausted: bool = typer.Option(False),
     migrate_v4: bool = typer.Option(False),
     gbif: bool = typer.Option(True, "--gbif/--no-gbif"),
@@ -1442,6 +1751,7 @@ def run_command(
         max_attempts=max_attempts,
         expected_species=expected_species,
         candidate_csv=candidate_csv,
+        priority_audit_csv=priority_audit_csv,
         retry_exhausted=retry_exhausted,
         migrate_v4=migrate_v4,
         include_gbif=gbif,

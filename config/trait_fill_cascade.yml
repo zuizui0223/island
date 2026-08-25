@@ -1,51 +1,91 @@
-version: "1.0"
+version: "3.1"
 
-# Fill-first cascade. Every master species gets a value for every target trait
-# by descending a source-blind fallback ladder, so unresolved target cells are
-# driven toward zero. Resolution is never hidden: each fill records fill_tier,
-# evidence_scope, and confidence, so low-resolution fills can be separated for
-# sensitivity analysis and never masquerade as accepted direct evidence. Fills
-# live in staging, never in curated. A cascade fill is not a biological absence.
+# Three-axis selfing-syndrome acquisition with a legacy rectangular compatibility
+# ledger. Active collection and primary completion use only colour vividness,
+# floral complexity, and reproductive assurance. The remaining historical cells
+# stay in the matrix so existing materialization and downstream contracts do not
+# break, but they do not consume acquisition priority.
 master_taxa_csv: data/v2/staging/gbif/collected/island_taxa.csv
 species_column: accepted_species
 genus_column: genus
 family_column: family
 trait_ontology_path: config/trait_ontology.yml
-
-# Angiosperm eligibility gate applied BEFORE the cascade. Non-angiosperms
-# (gymnosperms, ferns/lycophytes, fossil lineages) and family-unresolved species
-# are marked out-of-scope and never receive floral/pollination priors. The fill
-# denominator is the angiosperm-eligible flowering-plant universe.
 angiosperm_scope_config: config/angiosperm_scope.yml
 
-# Target flower and reproductive fields. Traits are filled independently; one trait
-# is never derived from another (self-compatibility never fills autonomous
-# selfing).
+axis_definitions:
+  colour_vividness:
+    target_traits:
+      - flower_primary_color
+    interpretation: attraction-strength proxy derived only after preserving reported colour
+  floral_complexity:
+    target_traits:
+      - floral_form
+      - floral_symmetry
+      - tube_depth_class
+      - flower_size_class
+      - inflorescence_display
+    interpretation: structural complexity proxy derived from available morphology evidence
+  reproductive_assurance:
+    target_traits:
+      - self_incompatibility
+      - autonomous_selfing_capacity
+      - mating_system
+      - cleistogamy
+    interpretation: assurance evidence present when any one source-backed reproductive trait exists
+
+primary_completion:
+  require_all_axes: true
+  direct_tiers:
+    - species_direct
+    - synonym_direct
+  repeat_direct_acquisition_before_taxonomic_fallback: true
+  max_direct_rounds: 6
+
+# Compatibility matrix. Only traits referenced by axis_definitions are active
+# acquisition targets; the other five remain passive legacy cells.
 target_traits:
   - flower_primary_color
   - floral_form
   - floral_symmetry
-  - tube_depth_class
-  - flower_size_class
-  - inflorescence_display
-  - reward_type
-  - pollen_vector_mode
-  - sex_system
-  - mating_system
   - self_incompatibility
   - autonomous_selfing_capacity
-  - herkogamy
-  - dichogamy
+  - mating_system
   - cleistogamy
+  - sex_system
+  - pollen_vector_mode
+  - flower_size_class
+  - tube_depth_class
+  - inflorescence_display
+  - reward_type
+  - dichogamy
+  - herkogamy
 
-# Minimum number of direct-evidence congeners/confamilials before an inference
-# tier may fill. Below the genus threshold the family tier is tried; below the
-# family threshold the global fallback fills.
+# Fallback order for every axis trait is fixed:
+# species/synonym direct -> genus -> family -> unresolved.
+# No global fallback tier exists.
 min_genus_support: 1
 min_family_support: 3
+min_family_supporting_genera: 2
+min_genus_consensus: 1.0
+min_family_consensus: 0.8
 
-# Direct-evidence sources unioned before the cascade runs. Order matters only
-# for provenance display; modal value wins regardless of source.
+inference_policies:
+  flower_primary_color: {min_genus_support: 2, min_genus_consensus: 0.8, family_allowed: true}
+  floral_form: {min_genus_support: 2, min_genus_consensus: 0.8, family_allowed: true}
+  floral_symmetry: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: true}
+  self_incompatibility: {min_genus_support: 1, min_genus_consensus: 1.0, family_allowed: true}
+  autonomous_selfing_capacity: {min_genus_support: 2, min_genus_consensus: 1.0, family_allowed: true}
+  mating_system: {min_genus_support: 2, min_genus_consensus: 1.0, family_allowed: true}
+  cleistogamy: {min_genus_support: 2, min_genus_consensus: 1.0, family_allowed: true}
+  flower_size_class: {min_genus_support: 2, min_genus_consensus: 0.8, family_allowed: true}
+  tube_depth_class: {min_genus_support: 2, min_genus_consensus: 0.8, family_allowed: true}
+  inflorescence_display: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: true}
+  sex_system: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: true}
+  pollen_vector_mode: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: true}
+  reward_type: {min_genus_support: 2, min_genus_consensus: 0.9, family_allowed: false}
+  dichogamy: {min_genus_support: 2, min_genus_consensus: 1.0, family_allowed: false}
+  herkogamy: {min_genus_support: 2, min_genus_consensus: 1.0, family_allowed: false}
+
 evidence_sources:
   machine_wave:
     adapter: candidate_index
@@ -53,8 +93,6 @@ evidence_sources:
   durable_allmaster_reported:
     adapter: allmaster_long
     glob: "data/v2/staging/traits/all_master_import/all_species_trait_evidence.csv.gz"
-    # Other source kinds are restored as raw candidate tables or are already in
-    # machine_wave. Restrict this import so duplicate artifacts cannot add votes.
     include_source_kinds:
       - horticulture_site
       - gbif_species_description
@@ -75,12 +113,8 @@ evidence_sources:
     adapter: curated_evidence
     glob: "data/v2/curated/*trait*.csv"
 
-# Optional synonym -> accepted-name map. When present, a species with no direct
-# evidence inherits a synonym's direct evidence before genus inference. Columns:
-# synonym, accepted_species. Absent by default; the tier is simply skipped.
 synonym_map_csv: data/v2/curation/synonym_accepted_map.csv
 
-# Confidence and evidence_scope labels stamped on each fill tier.
 tier_labels:
   species_direct:
     evidence_scope: species_direct
@@ -94,13 +128,8 @@ tier_labels:
   family_inference:
     evidence_scope: family_inference
     confidence: family_inference_very_low
-  global_fallback:
-    evidence_scope: global_fallback
-    confidence: global_fallback_negligible
+  unresolved_no_evidence:
+    evidence_scope: unresolved
+    confidence: unresolved
 
-# Model-only output is deliberately absent from evidence_sources. It may be
-# joined later as an llm_inference value channel, but it must never be promoted
-# to species_direct or used to train genus/family reported-evidence summaries.
-
-# Deterministic benchmark sample size for the per-field coverage report.
 benchmark_sample_size: 100

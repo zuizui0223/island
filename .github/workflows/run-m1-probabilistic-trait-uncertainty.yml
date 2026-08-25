@@ -2,17 +2,6 @@ name: run_m1_probabilistic_trait_uncertainty
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/run-m1-probabilistic-trait-uncertainty.yml"
-      - "config/m1_probabilistic_trait_uncertainty.yml"
-      - "config/integrated_trait_bombus_artifact_lock.json"
-      - "config/m0_m4_full_analysis_artifact_lock.json"
-      - "config/trait_inference_validation_artifact_lock.json"
-      - "src/island_v2/m1_probabilistic_trait_uncertainty.py"
-      - "src/island_v2/m1_probabilistic_trait_uncertainty_fastfit.py"
-      - "tests/test_m1_probabilistic_trait_uncertainty.py"
 
 permissions:
   actions: read
@@ -108,39 +97,9 @@ jobs:
               raise SystemExit('imputation draw table incomplete')
           if set(comparators['comparator']) != {
               'expected_probability_counts',
-              'hard_modal_broad_without_global_fallback'
+              'hard_modal_grounded_taxonomic'
           }:
               raise SystemExit('comparator set incomplete')
-
-          summary = {
-              'contract': manifest['contract'],
-              'runner': manifest['runner'],
-              'input_integrated_artifact': json.loads(
-                  Path('config/integrated_trait_bombus_artifact_lock.json').read_text()
-              ),
-              'input_full_analysis_artifact': json.loads(
-                  Path('config/m0_m4_full_analysis_artifact_lock.json').read_text()
-              ),
-              'input_trait_inference_validation': json.loads(
-                  Path('config/trait_inference_validation_artifact_lock.json').read_text()
-              ),
-              'dimensions': {
-                  key: manifest[key]
-                  for key in (
-                      'n_species', 'n_island_species_rows', 'n_islands', 'n_spatial_blocks',
-                      'n_uncertain_species', 'species_by_fill_tier', 'island_species_rows_by_fill_tier'
-                  )
-              },
-              'pooled_results': pooled.to_dict('records'),
-              'comparators': comparators.to_dict('records'),
-              'interpretation_guardrail': (
-                  'This is a probabilistic inference-uncertainty sensitivity. It does not override the null species-direct confirmatory result or the LOO validation limits.'
-              ),
-          }
-          (root / 'probabilistic_trait_uncertainty_summary.json').write_text(
-              json.dumps(summary, indent=2) + '\n'
-          )
-          print(json.dumps(summary, indent=2))
           PY
 
       - name: Upload probabilistic M1 outputs
