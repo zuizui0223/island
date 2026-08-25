@@ -12,7 +12,7 @@ The shared dissertation-level question is:
 
 > **Where and under what biogeographic conditions does island isolation generate floral and reproductive filtering?**
 
-The companion repository [`zuizui0223/izu-core`](https://github.com/zuizui0223/izu-core) is Chapter 2 and addresses the mechanistic follow-up: how a changed pollination environment is translated into reproductive and floral responses within lineages and field systems.
+The companion repository [`zuizui0223/izu-core`](https://github.com/zuizui0223/izu-core) is Chapter 2 and addresses the mechanistic follow-up: how a changed pollination environment is translated into reproductive and floral responses within lineages and field systems. [`zuizui0223/shimahotarubukuro`](https://github.com/zuizui0223/shimahotarubukuro) is Chapter 3 and supplies a high-resolution within-lineage empirical phenotype for *Campanula microdonta* across the Izu island series.
 
 ## Chapter 1 hypothesis: channel-gated island assembly
 
@@ -70,29 +70,32 @@ biogeographic filtering first
 
 A Bombus-associated residual pattern is evidence compatible with a channel-gated assembly mechanism. It is not, by itself, evidence that historical Bombus loss caused floral evolution within an extant lineage.
 
-## Relationship to Chapter 2 (`izu-core`)
+## Relationship to Chapters 2 and 3
 
-The two chapters answer different levels of the same problem.
+The three chapters answer different levels of the same problem.
 
-| Chapter 1 — `island` | Chapter 2 — `izu-core` |
-| --- | --- |
-| global / multi-island comparative scale | Izu / lineage / plant / network scale |
-| asks **where and when** filtering appears | asks **how and why** biological responses are generated |
-| identifies boundary conditions for assemblage filtering | identifies reproductive and interaction mechanisms |
-| Bombus is a regional channel indicator / natural experiment | Bombus identity alone is insufficient; effectiveness and dependency must be identified |
-| output is trait-composition / assemblage association | output is within-lineage, reproductive, pollen-transfer, dependency, and response-mode evidence |
-| does not claim within-lineage evolution from cross-sectional composition | explicitly separates local reproduction `F(z)` from establishment / reachability `E(z)` |
+| Chapter 1 — `island` | Chapter 2 — `izu-core` | Chapter 3 — `shimahotarubukuro` |
+| --- | --- | --- |
+| global / multi-island comparative scale | Izu / lineage / plant / network scale | one focal lineage across five Izu islands |
+| asks **where and when** filtering appears | asks **how and why** biological responses are generated | asks **what phenotype actually diverges** |
+| identifies boundary conditions for assemblage filtering | identifies reproductive and interaction mechanisms | directly measures multidimensional floral divergence |
+| Bombus is a regional channel indicator / natural experiment | Bombus identity alone is insufficient; effectiveness and dependency must be identified | causal Bombus contrasts are deliberately excluded |
+| output is trait-composition / assemblage association | output is reproductive, pollen-transfer, dependency, and response-mode evidence | output is site-corrected trait differentiation and Pst / pairwise Pst |
+| does not claim within-lineage evolution from cross-sectional composition | separates local reproduction `F(z)` from establishment / reachability `E(z)` | measures phenotype but does not equate Pst with Qst or selection |
 
-The handoff between chapters is therefore:
+The handoff is:
 
 ```text
 Chapter 1: Geography -> channel regime -> assemblage filtering
                          |
                          v
 Chapter 2: channel regime -> plant-specific functional/reproductive response
+                         |
+                         v
+Chapter 3: focal lineage -> realized multidimensional floral divergence
 ```
 
-Chapter 1 establishes whether a pollination-channel boundary is a plausible condition for island floral filtering. Chapter 2 tests why the same broad functional change can yield continuous erosion, threshold reproductive assurance, interaction rewiring, no shared morphology response, or alternative-guild specialization.
+Chapter 1 establishes whether a pollination-channel boundary is a plausible condition for island floral filtering. Chapter 2 tests why the same broad functional change can yield continuous erosion, threshold reproductive assurance, interaction rewiring, no shared morphology response, or alternative-guild specialization. Chapter 3 then anchors those broader ideas in a directly measured focal phenotype, showing which *C. microdonta* floral axes actually differ among island populations without treating the pattern itself as causal proof.
 
 ## Claim boundary
 
