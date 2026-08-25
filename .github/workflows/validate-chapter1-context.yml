@@ -9,17 +9,20 @@ on:
       - "src/island_v2/chapter1_trait_vector_freeze.py"
       - "src/island_v2/chapter1_when_where_omnibus.py"
       - "src/island_v2/chapter1_when_where_classification.py"
+      - "src/island_v2/chapter1_when_where_sensitivity.py"
       - "src/island_v2/flora_status_support.py"
       - "src/island_v2/genus_fixed_trait_null.py"
       - "src/island_v2/status_stratified_lineage_analysis.py"
       - "config/chapter1_context_analysis.yml"
       - "config/chapter1_when_where_omnibus.yml"
+      - "config/chapter1_when_where_sensitivity.yml"
       - "config/flora_status_support.yml"
       - "tests/test_chapter1_context_workflow.py"
       - "tests/test_chapter1_multistate_normalization.py"
       - "tests/test_chapter1_trait_vector_freeze.py"
       - "tests/test_chapter1_when_where_omnibus.py"
       - "tests/test_chapter1_when_where_classification.py"
+      - "tests/test_chapter1_when_where_sensitivity.py"
       - ".github/workflows/validate-chapter1-context.yml"
   pull_request:
     branches: [main]
@@ -29,17 +32,20 @@ on:
       - "src/island_v2/chapter1_trait_vector_freeze.py"
       - "src/island_v2/chapter1_when_where_omnibus.py"
       - "src/island_v2/chapter1_when_where_classification.py"
+      - "src/island_v2/chapter1_when_where_sensitivity.py"
       - "src/island_v2/flora_status_support.py"
       - "src/island_v2/genus_fixed_trait_null.py"
       - "src/island_v2/status_stratified_lineage_analysis.py"
       - "config/chapter1_context_analysis.yml"
       - "config/chapter1_when_where_omnibus.yml"
+      - "config/chapter1_when_where_sensitivity.yml"
       - "config/flora_status_support.yml"
       - "tests/test_chapter1_context_workflow.py"
       - "tests/test_chapter1_multistate_normalization.py"
       - "tests/test_chapter1_trait_vector_freeze.py"
       - "tests/test_chapter1_when_where_omnibus.py"
       - "tests/test_chapter1_when_where_classification.py"
+      - "tests/test_chapter1_when_where_sensitivity.py"
       - ".github/workflows/validate-chapter1-context.yml"
   workflow_dispatch:
 
@@ -66,6 +72,7 @@ jobs:
             src/island_v2/chapter1_trait_vector_freeze.py \
             src/island_v2/chapter1_when_where_omnibus.py \
             src/island_v2/chapter1_when_where_classification.py \
+            src/island_v2/chapter1_when_where_sensitivity.py \
             src/island_v2/flora_status_support.py \
             src/island_v2/genus_fixed_trait_null.py \
             src/island_v2/status_stratified_lineage_analysis.py \
@@ -73,7 +80,8 @@ jobs:
             tests/test_chapter1_multistate_normalization.py \
             tests/test_chapter1_trait_vector_freeze.py \
             tests/test_chapter1_when_where_omnibus.py \
-            tests/test_chapter1_when_where_classification.py
+            tests/test_chapter1_when_where_classification.py \
+            tests/test_chapter1_when_where_sensitivity.py
       - name: Synthetic regression tests
         run: |
           pytest -q \
@@ -81,7 +89,8 @@ jobs:
             tests/test_chapter1_multistate_normalization.py \
             tests/test_chapter1_trait_vector_freeze.py \
             tests/test_chapter1_when_where_omnibus.py \
-            tests/test_chapter1_when_where_classification.py
+            tests/test_chapter1_when_where_classification.py \
+            tests/test_chapter1_when_where_sensitivity.py
       - name: Parse frozen configs
         run: |
           python - <<'PY'
@@ -90,6 +99,7 @@ jobs:
           for path in [
               Path('config/chapter1_context_analysis.yml'),
               Path('config/chapter1_when_where_omnibus.yml'),
+              Path('config/chapter1_when_where_sensitivity.yml'),
               Path('config/flora_status_support.yml'),
           ]:
               payload = yaml.safe_load(path.read_text())
