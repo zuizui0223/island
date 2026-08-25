@@ -1,290 +1,230 @@
-# v2: conditional island floral syndrome  -  channel-audit architecture
+# v2: context-dependent island floral syndrome — analysis architecture
 
 ## Status and boundary
 
-`v1-freeze` preserves the exploratory draft and its first complete results. v2
-is rebuilt from new data products and new scripts; it must not import v1
-scripts, derived trait labels, or v1 model outputs as analysis inputs.
+`v1-freeze` preserves the exploratory draft and its first complete results. v2 is rebuilt from new data products and new scripts; it must not import v1 scripts, derived trait labels, or v1 model outputs as analysis inputs.
 
-The detailed scientific and operational policy is
-[`v2_pollination_regime_framework.md`](v2_pollination_regime_framework.md).
-This architecture is its compact channel-audit companion.
+The current scientific scope is defined in [`v2_pollination_regime_framework.md`](v2_pollination_regime_framework.md).
 
-v2 does **not** ask whether islands globally share one universal
-Bombus-driven white-flower or inconspicuous-flower syndrome. It asks whether,
-where a Bombus-mediated pollination channel is biologically applicable,
-variation in that channel is conditionally associated with pollen-vector mode,
-reproductive assurance, and floral phenotype after source-pool, geography,
-establishment, and observation processes are represented.
+The primary Chapter 1 question is now:
+
+> **When and where does island isolation coincide with floral and reproductive filtering, and is that filtering globally uniform or biogeographically contingent?**
+
+The architecture therefore prioritizes direct floral/reproductive composition, floristic status, lineage/source-pool structure and geography. Pollinator-channel data are retained as interpretation and sensitivity layers rather than being required to define the primary analysis universe.
 
 ```text
-isolation / geography / source pool
-    -> arrivals, establishment, persistence, and recorded flora
-    -> pollination-function regime
-    -> pollen-vector mode and reproductive assurance
-    -> floral-trait composition
+isolation / geography / source-pool context
+        ↓
+floristic status / lineage composition / observation process
+        ↓
+regional floral and reproductive trait response
+        ↓
+category-preserving decomposition
+        ↓
+pollination-syndrome concordance in Discussion
+        ↓
+unresolved mechanism handed to Chapter 2
 ```
 
-The Bombus route is one predeclared, regional mechanism within this broader
-pollination-function framework. It is not assumed to apply where Bombus is
-non-native or biologically irrelevant to the assigned source-region context.
-
-v2 does not adopt the Campanula/Izu project as a second empirical question, and
-it does not turn the global project into a full life-history experiment. It
-borrows only its **channel-identification discipline**: specify what each
-dataset can identify, distinguish direct measurements from proxies, compare
-predeclared competing explanations, and avoid treating a terminal pattern as
-proof of a particular mechanism.
-
-## What stays from v1; what changes in v2
-
-### Retained scientific core
+## What stays from earlier v2
 
 1. Island geography is the starting context.
-2. Bumblebee limitation or environmental mismatch remains a focal pollinator
-   hypothesis where it is ecologically applicable.
-3. Reproductive assurance remains a focal indirect mechanism, distinguished
-   from self-compatibility alone.
-4. Direct Bombus-channel associations and reproductive-assurance-mediated
-   associations are compared explicitly where data allow.
-5. Northern-temperate islands remain the expected strongest confirmatory test
-   region; other regions identify functional replacement, contingency, and the
-   limits of the Bombus hypothesis rather than serving as failed projections.
+2. Source-pool, floristic status, lineage composition, establishment/reachability and observation process must be considered before ecological interpretation.
+3. Floral signal, architecture and reproductive traits remain multistate or continuous wherever possible.
+4. Binary summaries such as plain/conspicuous, generalized/specialized and SC/SI are secondary summaries.
+5. Wind pollination, self-compatibility, autonomous selfing and pollinator independence remain separate domains.
+6. Existing Bombus applicability, environmental and occurrence diagnostics remain provenance-preserving data products.
+7. The global analysis does not claim within-lineage evolution or historical pollinator causation from cross-sectional composition.
 
-### Rebuilt implementation
+## What changes
 
-1. Island floras are rebuilt using polygon-exact occurrence evidence,
-   source-pool information, and observation-process diagnostics.
-2. Whole-flora pollen-vector composition is modelled separately from floral
-   phenotype within animal-pollinated taxa.
-3. The trait database is rebuilt as a source-cited, LLM-assisted evidence
-   system rather than a filled categorical table.
-4. Floral signal, floral architecture, pollen-vector mode, and reproductive
-   traits remain multistate or continuous wherever possible; v1 binary
-   contrasts become secondary summaries.
-5. Geography, establishment/reachability, observation bias, and lineage
-   composition are required alternatives before biological interpretation.
-6. The former PDI is one candidate environmental proxy, not direct evidence of
-   pollinator service.
+1. Bombus deficit is no longer the primary Chapter 1 explanatory variable.
+2. The primary confirmatory question is `isolation × biogeographic context`.
+3. Regional trait vectors are fixed before any pollination-syndrome interpretation.
+4. Bombus-, bird-, Lepidoptera-, hawkmoth- and other syndrome expectations are compared symmetrically at the interpretation stage.
+5. The mechanistic question — which functional pollination pathway actually generated a regional pattern — is explicitly handed to Chapter 2 (`izu-core`).
 
-## Channel-audit lens borrowed from Campanula/Izu
+## Interpretation guardrail borrowed from Campanula/Izu
 
-For a species trait state `z` in an island regime, the Campanula project writes:
+For a trait state `z`, the Campanula programme writes:
 
 ```text
-W(z) = F(z) x E(z)
+W(z) = F(z) × E(z)
 ```
 
-For the global analysis this is **not a new fitted model**. It is an
-interpretation guardrail:
+For Chapter 1 this remains an interpretation guardrail, not a fitted decomposition.
 
-- `F(z)`: local reproductive contribution, including outcrossed and selfed
-  viable seed production and paternal contribution where directly measured;
-- `E(z)`: arrival, establishment, persistence, and reachability conditional on
-  viable seed output;
-- `W(z)`: observed island-flora membership or island trait composition.
+- `F(z)` — local reproductive contribution;
+- `E(z)` — arrival, establishment, persistence and reachability conditional on viable reproduction;
+- `W(z)` — observed island-flora membership or trait composition.
 
-The global dataset mainly observes `W`, through island-by-species occurrence
-evidence. Therefore an association between a pollination-channel indicator and
-a trait must not automatically be called direct pollinator-mediated selection
-on `F`. It may be consistent with direct floral filtering, selfing-mediated
-change, source-pool structure, establishment, or observation bias.
+The global dataset mainly observes `W`. Therefore an isolation-associated trait pattern may arise from establishment filtering, lineage turnover, ecological interaction filtering, reproductive processes, or observation structure. Chapter 1 should identify the pattern and strongest boundary conditions without pretending to identify `F` from `W` alone.
 
-## Island strata and applicability
+## Primary model architecture
 
-The confirmatory Bombus analysis uses a three-way applicability classification
-plus an unresolved state, defined and frozen in
-[`config/bombus_applicability.yml`](../config/bombus_applicability.yml).
-
-- **Core confirmatory set**: `applicability = applicable`, with adequate flora
-  coverage and interpretable Bombus observation diagnostics.
-- **Regional contingency set**: applicable islands used only to investigate
-  heterogeneity, functional replacement, or transportability.
-- **Out-of-domain set**: `structurally_not_applicable`; these islands are not
-  recorded as Bombus-deficit islands.
-- **Unresolved set**: incomplete source-region or evidence information; retained
-  in diagnostics but excluded from confirmatory Bombus inference.
-
-Applicability is defined from source-region native Bombus status and
-biogeographic context, not island climate. Environmental compatibility is a
-subsequent predictor component; using it to define applicability would be
-self-referential.
-
-## Predeclared explanations
-
-### M0: geography / source-pool / establishment / observation baseline
+### M0 — biogeographic baseline
 
 ```text
-source pool + lineage composition + island area + isolation + climate
-+ biogeographic region + establishment/reachability diagnostics
-+ observation-process diagnostics
-    -> pollen-vector composition
-    -> reproductive-assurance composition
-    -> floral phenotype composition
+area + climate
++ floristic status / endemicity
++ lineage / source-pool composition
++ establishment / reachability where represented
++ observation / evidence support
+-> reproductive composition
+-> floral phenotype composition
 ```
 
-M0 is the necessary baseline, not a side analysis. A strong M0 is informative:
-it may show that an apparent pollinator pattern is indistinguishable from
-geography, source-pool structure, establishment, or data generation.
-
-### M1: conditional Bombus-functional route
-
-For Core confirmatory islands and animal-pollinated taxa:
+### M1 — universal isolation baseline
 
 ```text
-M0 covariates
-+ Bombus environmental compatibility
-+ Bombus occurrence evidence
-+ Bombus functional-service proxy
-+ alternative functional replacement where available
-    -> floral-signal and floral-architecture composition
+M0 + isolation -> trait composition
 ```
 
-M1 evaluates whether the Bombus-channel components add explanatory or
-out-of-sample predictive value beyond a climate-flexible M0. It is interpreted
-as trait sorting or as a pattern compatible with pollination-function filtering;
-it is not causal proof without field or lineage evidence.
+This tests the classical idea that isolation produces one broadly shared direction.
 
-### M2: reproductive-assurance-mediated route
+### M2 — biogeographic contingency
 
 ```text
-Bombus-channel state
-    -> reduced reliable outcross service
-    -> reproductive-assurance traits
-    -> floral-signal and floral-architecture composition
+M0 + isolation × biogeographic context -> trait composition
 ```
 
-M2 is evaluated only in an eligible reproductive-assurance subset.
-Self-compatibility alone is not autonomous selfing, and insufficient coverage
-means that the route is not identified, not that it is absent.
+This is the primary Chapter 1 model. A strong result means the same geographic isolation is associated with different trait responses in different biogeographic contexts.
 
-### M3: joint direct-plus-mediated route
+### M3 — status / lineage residual analysis
+
+Repeat M1/M2 where possible in conservative native/endemicity strata and against lineage-preserving expectations.
 
 ```text
-Bombus-channel state
-    -> floral traits
-Bombus-channel state
-    -> reproductive assurance
-    -> floral traits
+observed trait composition
+-
+status / lineage / source-pool expectation
+=
+residual trait response
 ```
 
-M3 is evaluated only when M2 is feasible. It is supported only when the direct
-association remains after the measured reproductive-assurance domain is
-represented, while proxy status and uncertainty are retained.
+### M4 — category-preserving decomposition
 
-### Required alternative explanations
+Analyse retained categories rather than forcing one syndrome score.
+
+Key domains include:
+
+- reproductive compatibility / assurance states;
+- colour categories;
+- floral form categories;
+- symmetry;
+- tube depth / access;
+- flower size / display;
+- other direct floral architecture evidence.
+
+## Pollination-syndrome concordance
+
+After M0–M4 results are frozen, compare each regional multivariate trait direction against expectations from pollination-syndrome literature.
+
+### Example interpretation structure
 
 ```text
-establishment / reachability:
-traits + dispersal + source pool + habitat + persistence
-    -> island-flora composition
+northern-temperate trait vector
+<-> Bombus / large- or long-tongued-bee literature
 
-observation process:
-survey effort + GBIF/data-source structure + spatial coverage + taxonomic coverage
-    -> observed island-flora composition
+contrasting tropical/southern trait vector
+<-> bird / butterfly / hawkmoth / alternative-bee literature
 ```
 
-These are included so that a Bombus-channel explanation is not an artefact of
-colonisation history, extinction, accessible-coast sampling, specimen
-concentration, or database structure.
+The comparison is **concordance**, not pollinator assignment.
+
+A single trait such as colour must not be used to infer a guild. Interpretation should rely on combinations of direct traits and acknowledge mismatches explicitly.
+
+## Status of Bombus products
+
+The existing Bombus pipeline remains useful for:
+
+- source-region provenance;
+- environmental-compatibility diagnostics;
+- effort-aware presence / non-detection diagnostics;
+- sensitivity analyses;
+- identifying candidate systems for future direct testing.
+
+It is not used to define the primary Chapter 1 model or to turn opportunistic non-detection into historical loss.
+
+### Retained semantic boundaries
+
+- environmental compatibility != occurrence;
+- occurrence != visitation;
+- visitation != effective service;
+- effective service != reproductive dependency;
+- pollinator absence != historical loss;
+- a floral syndrome != direct pollinator observation.
+
+These distinctions are especially important because the Chapter 1 handoff asks Chapter 2 to discriminate among those layers mechanistically.
 
 ## Trait domains retained without premature binarisation
 
-### Pollen-vector mode
+### Reproductive domain
 
-- biotic
-- abiotic wind
-- mixed
-- unresolved
-
-Wind pollination, self-compatibility, autonomous selfing, and pollinator
-independence are not interchangeable states and remain separate domains.
+- self-incompatibility status;
+- autonomous-selfing capacity;
+- mating system;
+- herkogamy;
+- dichogamy;
+- cleistogamy;
+- sex system;
+- reproductive-output evidence where directly available.
 
 ### Floral signal
 
-- primary colour: white, green/brown/inconspicuous, yellow/orange, red/pink,
-  blue/purple, multicoloured/variable, unresolved
-- colour variability and patterning where evidence is available
-- nectar guides / contrast only when the source specifies them
+- white / green-brown-inconspicuous / yellow-orange / red-pink / blue-purple / variable;
+- nectar guides or patterning only when directly supported;
+- size / display where measured or directly described.
 
-### Floral architecture and access
+### Floral architecture
 
-- symmetry
-- floral form and openness
-- tube presence and tube-depth class
-- inflorescence display class
-- flower-size measurements or ordinal size class
-- composite head / brush-puff / open radial / tubular / zygomorphic forms
-- reward location and nectar accessibility when directly supported
-
-### Reproductive-assurance domain
-
-- self-incompatibility status
-- autonomous-selfing capacity
-- mating system
-- herkogamy
-- dichogamy
-- cleistogamy
-- sex system
-- pollen limitation, seed set, paternity, and inbreeding-depression evidence
-  where available
-
-Binary `plain/conspicuous`, `generalized/specialized`, and `SC/SI` contrasts
-remain transparent secondary summaries for continuity with v1 and sensitivity
-analyses; they are not sole outcomes and are not direct measures of evolutionary
-reduction.
-
-## Functional availability of Bombus
-
-Within applicable islands, Bombus state is not a binary GBIF-absence variable.
-It has three biological components:
-
-1. `environmental_compatibility`: whether island conditions overlap the
-   environmental envelope of candidate Bombus species from the assigned source
-   region;
-2. `occurrence_evidence`: quality-filtered, effort-aware evidence classified as
-   detected, adequate non-detection, insufficient effort, or unresolved;
-3. `functional_service_proxy`: evidence relevant to activity season, richness,
-   abundance, visitation, or documented functional use when available.
-
-`proxy_quality` is a measurement layer, not a fourth biological component. It
-records whether the preceding values are direct observations, calibrated
-proxies, or unresolved, and is used for gating and sensitivity analysis.
-
-The former PDI is one candidate proxy for environmental compatibility, not
-direct proof of pollinator service.
-
-The non-detection rules are frozen in
-[`config/bombus_observation_diagnostics.yml`](../config/bombus_observation_diagnostics.yml).
-A missing Bombus record is never alone treated as evidence of Bombus absence.
+- open radial;
+- composite head / brush-puff;
+- tubular;
+- funnel / trumpet;
+- salverform;
+- bilabiate;
+- papilionaceous;
+- spurred;
+- symmetry;
+- tube depth;
+- reward accessibility where directly supported.
 
 ## Analysis sequence
 
-1. Freeze applicability, observation rules, trait contrasts, M0 covariates,
-   lineage safeguards, and continuation criteria before outcomes are examined.
-2. Build a polygon-exact, provenance-tracked island-by-species occurrence
-   database, a flora observation-effort table, and a parallel Bombus
-   observation-diagnostic table.
-3. Build a source-cited, LLM-assisted trait evidence database.
-4. Produce the coverage / attrition / identifiability audit before fitting
-   outcome models.
-5. Model whole-flora pollen-vector and reproductive-assurance domains
-   separately from floral phenotype within animal-pollinated taxa.
-6. Compare M0 and M1 in the Core confirmatory set before attempting M2/M3.
-7. Run M2/M3 only in the reproductive-assurance-eligible subset.
-8. Use regional contingency and out-of-domain sets to interpret functional
-   replacement, regional heterogeneity, and the boundary of the mechanism.
-9. Use Campanula/Izu measurements only as complementary evidence for
-   intermediate links that the global dataset cannot itself identify.
+1. Freeze the island universe, biogeographic context definition, trait evidence tiers, status/lineage rules and M0 covariates.
+2. Build polygon-exact flora and provenance-tracked direct trait evidence.
+3. Produce coverage and attrition audits.
+4. Fit M0.
+5. Fit M1 global isolation baselines.
+6. Fit M2 `isolation × biogeographic context`.
+7. Apply M3 status/lineage/source-pool safeguards.
+8. Apply M4 category-preserving decomposition.
+9. Freeze regional trait vectors.
+10. Compare those vectors with literature-defined pollination syndromes in Discussion.
+11. Leave unresolved pollinator mechanism to Chapter 2 instead of filling it with weak proxy inference.
 
 ## Required outputs
 
-- a v1-to-v2 claim table listing each original claim, revised measurement,
-  competing explanations, and allowed interpretation;
-- island-level applicability, observation-process, and attrition diagnostics;
-- trait evidence coverage maps and source-type summaries;
-- whole-flora pollen-vector models before animal-pollinated floral-trait models;
-- domain-specific composition models before any composite syndrome model;
-- lineage/source-pool constrained sensitivity analyses; and
-- a final interpretation that distinguishes comparative compatibility from
-  stronger field-based causal evidence.
+- attrition from the frozen island universe to every outcome model;
+- region/context-specific isolation slopes;
+- status/lineage-controlled sensitivity results;
+- category-preserving colour/form/reproductive outputs;
+- evidence-tier sensitivity analyses;
+- a regional trait-vector summary suitable for syndrome concordance discussion;
+- explicit separation between observed trait results and ecological mechanism interpretation.
+
+## Thesis handoff
+
+```text
+Chapter 1 — island
+when / where do different regional trait syndromes appear?
+        ↓
+Chapter 2 — izu-core
+which ecological mechanisms generate branching / propagation / buffering?
+        ↓
+Chapter 3 — shimahotarubukuro
+which phenotype components actually diverge within one lineage?
+```
+
+The Chapter 1 contribution is therefore **boundary-condition discovery**, not pollinator causal identification.
