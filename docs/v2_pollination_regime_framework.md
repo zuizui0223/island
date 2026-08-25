@@ -1,4 +1,4 @@
-# v2: component-specific island floral reorganization framework
+# v2: when / where island floral filtering framework
 
 ## Status and purpose
 
@@ -6,232 +6,161 @@ This document defines the current Chapter 1 scientific scope.
 
 The primary question is:
 
-> **Does island isolation generate one coherent floral/reproductive syndrome, or does it reorganize particular floral components independently? Where are those component responses detectable, and is regional heterogeneity formally supported?**
+> **When and where is isolation-associated floral/reproductive filtering detectable, and where does the multivariate response to isolation differ?**
 
-The current frozen result is documented in [`chapter1_frozen_result_20260825.md`](chapter1_frozen_result_20260825.md).
+The canonical frozen result is [`chapter1_when_where_frozen_result_20260825.md`](chapter1_when_where_frozen_result_20260825.md).
 
-The primary analysis does not require a global Bombus-deficit variable. Pollination-syndrome literature enters only after plant-trait results are frozen.
+Bombus and other pollinator identities do not enter the primary fitted design. Pollination-syndrome literature is a downstream interpretation layer only.
 
-## Headline hypothesis contrast
+## Hypothesis structure
 
-### H1 — coherent island-syndrome hypothesis
+### H1 — universal filtering
 
-Isolation produces a coordinated floral/reproductive syndrome whose broad components move together and remain after status and lineage safeguards.
+Isolation produces a broadly shared floral/reproductive response vector across island floras.
 
-### H2 — component-specific floral reorganization hypothesis
+### H2 — conditional / biogeographically structured filtering
 
-Isolation changes particular floral components without necessarily producing one coherent syndrome. Broad summaries can cancel, weaken or disappear when multistate categories and inherited lineage composition are preserved.
+Isolation-associated filtering is detectable under some biogeographic/floristic conditions and can be expressed as different multivariate response vectors among contexts.
 
-The current frozen evidence favors **H2 over H1**.
+### H3 — floristic-status persistence
 
-## Secondary boundary test — biogeographic contingency
+A regional filtering response that persists in native non-endemic flora is not confined to endemic-lineage turnover.
 
-Context remains important, but a regional difference is not inferred from significance patterns alone.
+## Primary inference
 
-The formal rule is:
+### WHERE
+
+Within each biogeographic context and floristic-status stratum, all atomic responses meeting the support threshold are modeled jointly. Each response has its own baseline and isolation slope; spatial-block cluster-robust covariance retains dependence among categories and islands.
 
 ```text
-M0 = baseline + context main effects
-M1 = M0 + common isolation slope
-M2 = M1 + isolation × context interactions
+H0: all supported category-specific isolation slopes = 0
 ```
 
-For each atomic category, M2 uses a cluster-robust joint Wald test of all interaction coefficients. Joint p-values are BH-corrected across atomic states within each `stratum × trait` family.
+This is the headline test of whether isolation-associated floral/reproductive filtering is detectable in a context.
 
-A statement such as “north is significant but tropics are not” is **descriptive only** unless the formal interaction test supports heterogeneity.
+### BETWEEN-WHERE
 
-The current frozen run has one FDR-supported joint category (`endemic × yellow_orange`), but it uses only 32 northern-midlatitude versus 30 tropical islands, so it is pilot-level rather than confirmatory.
-
-## Claims allowed by this design
-
-Allowed:
+For two contexts, only atomic responses meeting the same support threshold in both are retained.
 
 ```text
-atomic isolation-associated trait effects
-+ category preservation
-+ status / lineage guardrail
-= evidence for component-specific assemblage reorganization
+H0: isolation-response vector in context A = isolation-response vector in context B
 ```
 
-Also allowed:
+A significant result in one region and a nonsignificant result in another never counts as evidence of regional heterogeneity by itself.
+
+### WHEN
+
+WHERE is repeated in `all_native`, `native_nonendemic`, and `endemic` strata. Persistence in `native_nonendemic` is used as a boundary condition indicating that the signal is not confined to endemic taxa. Because strata overlap, this is not treated as a causal status contrast.
+
+## Support tiers
+
+- fewer than 30 islands per retained atomic response: excluded from the declared vector test;
+- 30–49: pilot;
+- 50 or more: confirmatory count support.
+
+Pairwise regional comparisons require the same threshold in both contexts.
+
+## Current frozen result
+
+Canonical workflow run: `32837335384`.
+
+### Confirmatory WHERE
+
+Filtering is detected in both:
+
+- **northern mid-latitude** island floras;
+- **tropical** island floras.
+
+It persists in `native_nonendemic` assemblages in both contexts.
+
+The confirmatory tests are:
+
+| stratum | context | atomic responses | unique islands | joint Wald χ² | q |
+| --- | --- | ---: | ---: | ---: | ---: |
+| all native | northern mid-latitude | 21 | 240 | 243.36 | 1.76e-39 |
+| all native | tropical | 17 | 136 | 170.24 | 2.52e-27 |
+| native non-endemic | northern mid-latitude | 21 | 240 | 238.86 | 7.43e-39 |
+| native non-endemic | tropical | 17 | 136 | 227.65 | 7.43e-39 |
+
+Northern high-latitude and southern-extratropical contexts do not currently support equivalent confirmatory vector tests. They are **unresolved**, not demonstrated null regions.
+
+At the pilot threshold, southern-extratropical all-native and native-nonendemic vectors are nonzero, but only 5 and 4 atomic responses contribute respectively.
+
+### Confirmatory BETWEEN-WHERE
+
+Northern mid-latitude and tropical vectors differ using 17 responses that meet confirmatory support in both contexts:
+
+- all native: χ² = **69.78**, df = 17, q = **2.35e-08**;
+- native non-endemic: χ² = **61.02**, df = 17, q = **7.13e-07**.
+
+Thus the current evidence supports **biogeographically structured isolation filtering between northern mid-latitude and tropical island floras**.
+
+## Atomic decomposition is secondary
+
+The earlier atomic M0–M4 layer remains useful to answer:
+
+> **What trait components make the supported northern and tropical response vectors different?**
+
+It is not the primary when/where test. Counts of individually significant traits cannot define WHERE.
+
+The genus-composition-preserving M3 layer also shows that broad `generalized_form`, `plain_colour`, and `self_compatibility` outcomes do not combine into one coherent confirmatory classic syndrome in the main northern/tropical strata. Therefore the two supported response vectors should not automatically be named as classical pollination syndromes.
+
+## Pollination-syndrome interpretation
+
+Only after the when/where result is frozen may the northern-versus-tropical vector difference be compared with literature on Bombus / long-tongued bees, birds, Lepidoptera, hawkmoths, or other pollinator functional groups.
+
+Allowed logic:
 
 ```text
-joint interaction FDR + adequate context counts
-= evidence for regional slope heterogeneity
-```
-
-Also allowed in Discussion:
-
-```text
-frozen trait-component direction
-<-> literature-defined pollination-syndrome expectation
-= ecological concordance or mismatch
+frozen response vector
+<-> literature-defined ecological expectation
+= concordance / mismatch / unresolved mechanism
 ```
 
 Not allowed:
 
 ```text
-significant in region A + nonsignificant in region B = regional difference
-Bombus loss caused the northern trait pattern
-bird/Lepidoptera replacement caused a tropical counter-pattern
-floral syndrome = direct pollinator observation
+trait vector -> inferred pollinator guild -> causal historical mechanism
 ```
 
-## Analysis domains
+The same evidential standard applies to every region.
 
-### Reproductive composition
+## Status of Bombus products
 
-Keep reproductive states distinct wherever evidence permits:
+Existing Bombus applicability, climatic-compatibility and occurrence diagnostics remain provenance-preserving descriptive/sensitivity products.
 
-- self-incompatible;
-- self-compatible;
-- autonomous selfing capacity;
-- delayed selfing;
-- cleistogamy;
-- mating system;
-- unresolved.
+Retained semantic boundaries:
 
-SC, autonomous selfing and realized selfing are not interchangeable.
+- environmental compatibility != occurrence;
+- occurrence != visitation;
+- visitation != effective service;
+- effective service != reproductive dependency;
+- nondetection != historical loss;
+- floral phenotype != direct pollinator observation.
 
-### Floral phenotype
-
-Primary outcomes remain category-preserving or continuous where possible:
-
-- flower colour;
-- floral form;
-- symmetry;
-- tube presence / depth;
-- openness / accessibility;
-- flower size;
-- inflorescence display;
-- nectar-guide or pattern evidence where directly supported.
-
-Binary `plain/conspicuous`, `generalized/specialized`, and `SC/SI` contrasts are broad guardrail summaries, not substitutes for atomic outcomes.
-
-## Canonical model ladder
-
-### M0 — context-aware baseline
-
-```text
-area + climate
-+ biogeographic-context main effects
-+ declared status / observation structure
--> floral and reproductive composition
-```
-
-M0 absorbs regional mean-composition differences before isolation is evaluated.
-
-### M1 — common isolation component effects
-
-```text
-M0 + isolation -> atomic trait composition
-```
-
-M1 asks which individual floral/reproductive components change with isolation after the context-aware baseline. These atomic effects are part of the primary Chapter 1 evidence.
-
-### M2 — regional slope heterogeneity
-
-```text
-M1 + isolation × biogeographic context -> atomic trait composition
-```
-
-M2 is a **secondary boundary-condition test**. Its primary statistic is the joint cluster-robust Wald test of all interaction terms for the atomic category.
-
-### M3 — status / lineage guardrail
-
-Broad outcomes are tested against a genus-composition-preserving expectation.
-
-The current confirmatory-support northern-midlatitude and tropical results do not retain FDR-supported isolation slopes for:
-
-- `generalized_form`;
-- `plain_colour`;
-- `self_compatibility`
-
-in the main all-native/native-nonendemic strata.
-
-Therefore those broad summaries cannot be promoted into a demonstrated classical syndrome.
-
-### M4 — category-preserving decomposition
-
-Colour and floral-form multistates are expanded into atomic category presences. `SC|SI` is retained once as `mixed_or_variable` rather than double-counted.
-
-The purpose is to identify which observed categories increase, decrease, oppose or cancel broad summaries.
-
-Current repeated northern-midlatitude signals include positive `bell_campanulate`, `composite_head`, `funnel_trumpet`, and `spurred` states, and negative `other_described`, `papilionaceous`, `salverform`, and `red_pink` states.
-
-## Current result boundary
-
-The canonical joint-Wald run (`32833362756`) yields:
-
-- 43 fitted atomic categories;
-- 95 context-specific slope rows;
-- 17 FDR-supported within-context slopes;
-- 16 slopes meeting the count component of confirmatory support, all in northern-midlatitude islands;
-- 1 FDR-supported joint contingency category, based only on pilot-level 32-versus-30 island support;
-- no confirmatory joint contingency category.
-
-The correct headline is therefore:
-
-> **Isolation-associated floral change is component-specific rather than one coherent classic syndrome; strong northern-midlatitude signals are real within that context, but confirmatory regional slope heterogeneity is not yet established.**
-
-## Pollination-syndrome concordance layer
-
-Pollination syndromes enter **after** M0–M4 results are fixed.
-
-### Northern-midlatitude interpretation
-
-The frozen component vector may be compared with Bombus / large- or long-tongued-bee literature for partial concordance or mismatch.
-
-Because the broad `generalized + plain + SC` signature is not recovered after M3, Chapter 1 must not call the current result a demonstrated Bombus-loss syndrome.
-
-### Tropical / southern interpretation
-
-Bird-, butterfly-, moth-, hawkmoth- or alternative-bee expectations are considered only if supported tropical/southern component vectors exist. The absence of northern-like significance is not itself evidence for an alternative syndrome.
-
-### Symmetry rule
-
-```text
-frozen trait pattern -> syndrome concordance or mismatch -> candidate mechanism
-```
-
-not:
-
-```text
-trait pattern -> inferred pollinator -> causal claim
-```
-
-## Status of Bombus data products
-
-Existing Bombus products are retained for source-region provenance, environmental-compatibility diagnostics, effort-aware occurrence diagnostics, sensitivity analyses and candidate-system selection.
-
-They are not prerequisites for Chapter 1 and cannot turn climate compatibility into occurrence, opportunistic non-detection into historical loss, or occurrence into effective pollination.
-
-No additional Bombus acquisition should be launched solely to rescue a preferred Chapter 1 mechanism.
+Additional Bombus acquisition must not be launched solely to rescue a preferred Chapter 1 mechanism.
 
 ## Analysis sequence
 
-1. Freeze island universe, trait evidence tiers, context definition, support thresholds and baseline covariates.
-2. Build polygon-exact flora and direct-evidence trait products.
-3. Produce attrition and support audits.
-4. Fit M0 context-aware baselines.
-5. Fit M1 common isolation effects for atomic categories.
-6. Fit M2 interaction models and joint Wald tests.
-7. Apply M3 genus-preserving broad-outcome guardrails.
-8. Apply M4 category-preserving decomposition.
-9. Freeze the atomic trait vectors and formal contingency classifications.
-10. Only then compare supported patterns with pollination-syndrome literature.
-11. Hand unresolved component-specific mechanisms to Chapter 2.
+1. Freeze island universe, context definition, trait evidence, status strata, support thresholds and baseline covariates.
+2. Build direct-evidence status-aware atomic trait composition.
+3. Run **WHERE** response-vector omnibus tests.
+4. Run **BETWEEN-WHERE** pairwise response-vector tests.
+5. Classify **WHEN** through floristic-status persistence.
+6. Apply the M3 genus-composition lineage guardrail.
+7. Use atomic M0–M4 decomposition to characterize the supported vectors.
+8. Freeze the when/where result.
+9. Only then perform pollination-syndrome concordance/mismatch discussion.
+10. Hand mechanism to Chapter 2.
 
 ## Chapter 1 -> Chapter 2 handoff
 
 Chapter 1 ends with:
 
-> **Why does isolation reorganize some floral components but not produce one coherent syndrome, and which ecological interaction states determine which components respond?**
+> **Why is isolation-associated floral/reproductive filtering detectable in both northern mid-latitude and tropical island floras, yet expressed as significantly different multivariate response vectors?**
 
-Candidate mechanisms include pollinator identity, large/long-tongued pollinator function, pollinator functional diversity, trait matching, effective pollination service, functional replacement, reproductive assurance, network context and non-pollination geography/history.
-
-Those alternatives belong in Chapter 2 (`izu-core`), where they can be separated mechanistically.
+Chapter 2 (`izu-core`) distinguishes candidate mechanisms such as pollinator identity, functional diversity, trait matching, effective service, reproductive assurance, replacement, network context and geography/history.
 
 ## Final positioning
 
-The Chapter 1 contribution is not a global Bombus-loss test and not a confirmed biogeographic-contingency result. It is a rigorous demonstration that **isolation-associated floral change is better represented as component-specific reorganization than as one coherent floral/reproductive island syndrome**, plus a formal framework for determining when regional heterogeneity is actually supported.
+Chapter 1 is a **when/where boundary-condition test**. Its contribution is to identify where isolation-associated filtering can be detected, under which floristic-status condition it persists, and which regional response vectors demonstrably differ—without using weak pollinator proxies to answer why.
