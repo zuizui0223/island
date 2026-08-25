@@ -1,0 +1,46 @@
+version: "1.0"
+
+weighting_modes:
+  - canonical
+  - cap_100
+  - cap_50
+  - cap_20
+  - equal_island
+
+headline_strata:
+  - all_native
+  - native_nonendemic
+
+omnibus:
+  baseline_covariates:
+    - log_island_area_km2
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+  isolation_column: log_distance_to_continent_km
+  context_column: analysis_regime
+  cluster_column: spatial_block
+  contexts:
+    - northern_midlatitude
+    - northern_high_latitude
+    - tropical
+    - southern_extratropical
+  strata:
+    - all_native
+    - native_nonendemic
+    - endemic
+  support_tiers:
+    confirmatory: 50
+    pilot: 30
+
+interpretation:
+  rule: >-
+    Each sensitivity preserves the observed island-by-trait proportion and changes
+    only its effective binomial trial count. Capped and equal-island weights are
+    robustness pseudo-likelihoods, not biological abundance models.
+  pass_condition: >-
+    The northern-midlatitude WHERE, tropical WHERE, and northern-versus-tropical
+    BETWEEN-WHERE conclusions should remain supported for all-native and native-
+    nonendemic strata under capped and equal-island weighting before the headline
+    result is called robust to unequal trait-resolution information.
