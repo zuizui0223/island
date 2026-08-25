@@ -70,7 +70,14 @@ def _synthetic_context_data():
                 slope = -1.1
             else:
                 slope = 0.1
-            eta = -0.3 + slope * isolation + 0.08 * math.sin(j)
+            # Give contexts different intercepts as well, so the test ensures
+            # M1->M2 is not merely detecting regional mean composition.
+            intercept = {
+                "northern_midlatitude": -0.8,
+                "tropical": 0.5,
+                "southern_extratropical": 1.0,
+            }[context]
+            eta = intercept + slope * isolation + 0.08 * math.sin(j)
             p = 1.0 / (1.0 + math.exp(-eta))
             trials = 120
             successes = int(rng.binomial(trials, p))
@@ -101,7 +108,7 @@ def _synthetic_context_data():
     return pd.DataFrame(rows), pd.DataFrame(cov)
 
 
-def test_m2_recovers_context_dependent_isolation_direction():
+def test_m2_recovers_context_dependent_isolation_direction_with_clean_nesting():
     composition, covariates = _synthetic_context_data()
     config = {
         "baseline_covariates": [
@@ -116,7 +123,7 @@ def test_m2_recovers_context_dependent_isolation_direction():
         "reference_context": "northern_midlatitude",
         "cluster_column": "spatial_block",
         "min_islands_per_fit": 30,
-        "min_islands_per_context": 8,
+        "min_islands_per_context": 30,
     }
     coefficients, fits, slopes, support = fit_chapter1_context_models(
         composition, covariates, config
@@ -124,11 +131,24 @@ def test_m2_recovers_context_dependent_isolation_direction():
     assert not coefficients.empty
     assert set(fits["model"]) == {"M0", "M1", "M2"}
     assert support.iloc[0]["status"] == "fit"
+
+    m0 = set(coefficients.loc[coefficients["model"].eq("M0"), "predictor"])
+    m1 = set(coefficients.loc[coefficients["model"].eq("M1"), "predictor"])
+    m2 = set(coefficients.loc[coefficients["model"].eq("M2"), "predictor"])
+    assert any(x.startswith("context[") for x in m0)
+    assert "z_log_distance_to_continent_km" not in m0
+    assert "z_log_distance_to_continent_km" in m1
+    assert not any(x.startswith("z_isolation:context[") for x in m1)
+    assert any(x.startswith("z_isolation:context[") for x in m2)
+
     north = slopes.loc[slopes["context"].eq("northern_midlatitude")].iloc[0]
     tropical = slopes.loc[slopes["context"].eq("tropical")].iloc[0]
     assert north["isolation_slope_log_odds_per_sd"] > 0
     assert tropical["isolation_slope_log_odds_per_sd"] < 0
+    assert set(slopes["support_class"]) == {"pilot_count_met"}
     assert not coefficients["predictor"].str.contains("bombus", case=False).any()
+    fit_one = fits.set_index("model")
+    assert fit_one.loc["M2", "interaction_improvement_m1_to_m2"] > 0
 
 
 def test_bombus_predictor_is_rejected_from_canonical_config(tmp_path: Path):
@@ -196,7 +216,9 @@ def test_status_lineage_layer_recovers_positive_residual_slope():
             "outcome": ["plain_colour"] * n,
             "stratum": ["native_nonendemic"] * n,
             "observed_n_species": [10 + i % 4 for i in range(n)],
-            "deviation_observed_minus_null": [0.35 * (1 + i / 10) + (i % 3) * 0.01 for i in range(n)],
+            "deviation_observed_minus_null": [
+                0.35 * (1 + i / 10) + (i % 3) * 0.01 for i in range(n)
+            ],
         }
     )
     cov = pd.DataFrame(
@@ -213,7 +235,11 @@ def test_status_lineage_layer_recovers_positive_residual_slope():
         }
     )
     coef, support = fit_status_stratified_lineage_models(
-        null, cov, strata=("native_nonendemic",), pilot_min_islands=30, confirmatory_min_islands=50
+        null,
+        cov,
+        strata=("native_nonendemic",),
+        pilot_min_islands=30,
+        confirmatory_min_islands=50,
     )
     distance = coef.loc[coef["predictor"].eq("log_distance_to_continent_km")].iloc[0]
     assert distance["estimate"] > 0
