@@ -1,0 +1,40 @@
+version: "1.0"
+
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+distance_gradient: log_distance_to_continent_km
+context_column: analysis_regime
+cluster_column: spatial_block
+reference_context: northern_midlatitude
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+
+headline_contexts:
+  - northern_midlatitude
+  - tropical
+headline_strata:
+  - all_native
+  - native_nonendemic
+confirmatory_islands_per_response: 50
+
+interpretation:
+  selection_model: >-
+    Direct-trait resolution is a second-stage evidence process conditional on the
+    opportunistically observed flora. Its geography is audited separately for colour,
+    floral form, and self-incompatibility.
+  adjusted_omnibus: >-
+    The coverage-adjusted sensitivity adds a response-specific smoothed-logit direct-
+    trait fraction to each atomic response model. The north WHERE, tropical WHERE,
+    and north-versus-tropical BETWEEN-WHERE conclusions should persist before the
+    headline is called robust to measured trait-resolution bias.
+  missingness: >-
+    Missing flora or missing trait evidence is never interpreted as biological
+    absence of a trait state.
