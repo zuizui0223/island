@@ -1,0 +1,45 @@
+version: "1.0"
+
+all_island_universe_required: true
+
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+distance_gradient: log_distance_to_continent_km
+context_column: analysis_regime
+cluster_column: spatial_block
+reference_context: northern_midlatitude
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+
+trait_domains:
+  flower_primary_color: flower_primary_color
+  floral_form: floral_form
+  self_incompatibility: self_incompatibility
+
+selection_models:
+  - flora_recorded
+  - direct_trait_any
+  - direct_trait_any_given_flora
+  - direct_trait_all_three_given_flora
+
+interpretation:
+  no_record_rule: >-
+    An island with no flora or trait record is an observation-process zero, not a
+    biological zero for any floral or reproductive trait.
+  distance_rule: >-
+    Mainland distance is interpreted as a composite geographic gradient that may
+    encode dispersal limitation and changing access to a mainland/source species
+    pool. Selection-model coefficients quantify where evidence is available, not
+    causal ecological filtering.
+  use_in_chapter1: >-
+    Observation-bias results are a claim-boundary layer for the WHEN/WHERE analysis.
+    They diagnose whether the geography of direct evidence differs from the full
+    island universe. They do not replace the ecological response-vector model.
