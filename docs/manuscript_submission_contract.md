@@ -158,9 +158,26 @@ The manuscript reports trait evidence resolution rather than hiding it behind co
 
 ## Required safeguards before submission
 
+### Observation process and information weighting
+
+The current grouped-binomial likelihood uses the number of trait-resolved species as information weight. This is statistically efficient only if trait-resolved species behave like an approximately exchangeable sample of the island flora. Because study effort and trait resolution differ strongly among islands, the manuscript-level WHEN/WHERE claim must pass the observation-bias robustness strategy in [`chapter1_observation_bias_strategy_20260825.md`](chapter1_observation_bias_strategy_20260825.md).
+
+Required checks are:
+
+1. raw occurrence multiplicity is collapsed to unique island × species incidence before trait composition is formed;
+2. the existing island observation diagnostics (`n_records`, `n_species`, `n_datasets`, voucher fraction, cultivated fraction, coordinate uncertainty, recency, and reviewed angiosperm coverage where available) are reported and used in a declared inclusion/sensitivity audit;
+3. WHERE and BETWEEN-WHERE are repeated under capped effective-trial and equal-island weighting so a highly trait-resolved island cannot dominate solely through denominator size;
+4. trait-resolution fraction is audited by island × status stratum × trait and its association with isolation/context is reported;
+5. a within-spatial-block / archipelago sensitivity is run so fixed block-level observation intensity cannot explain the isolation slope;
+6. a leave-one-spatial-block-out influence analysis shows whether any single archipelago/block is necessary for the northern, tropical, or north-versus-tropical result.
+
+Hawaii or any other well-studied island is **not** excluded ad hoc. It is treated as an influence stress test under the same predeclared rules as every other block.
+
+Failure of an observation-bias robustness gate downgrades the corresponding WHERE/BETWEEN-WHERE claim; it must not trigger additional mechanism-specific data acquisition to rescue the result.
+
 ### Spatial dependence
 
-The vector tests use the declared spatial-block cluster-robust covariance. Alternative spatial structures remain sensitivity analyses where feasible.
+The vector tests use the declared spatial-block cluster-robust covariance. Cluster-robust uncertainty alone does not remove a block-level confounder, so the observation-bias robustness layer also requires a within-block or equivalent fixed-block sensitivity.
 
 ### Lineage composition
 
@@ -168,11 +185,11 @@ The genus-composition-preserving M3 layer is required before broad syndrome clai
 
 ### Biogeographic-context definition
 
-Context grouping must be frozen independently of floral/reproductive outcomes.
+Context grouping must be frozen independently of floral/reproductive outcomes. Latitude belts are an operational grouping, not a claim that all islands within a belt share one biogeographic history; alternative grouping / core-latitude sensitivity must be reported.
 
 ### Isolation functional form
 
-The isolation response is predeclared as log distance to continent in the current canonical run. The manuscript must report the observed distribution and a prespecified leverage/functional-form sensitivity.
+The isolation response is predeclared as log distance to continent in the current canonical run. The manuscript must report the observed distribution and prespecified leverage/functional-form sensitivities.
 
 ### Zero-distance islands
 
@@ -198,7 +215,7 @@ A fresh reader should be able to identify:
 
 ## Chapter 1 -> Chapter 2 boundary
 
-Chapter 1 establishes:
+Chapter 1 establishes, conditional on the observation-bias robustness gates:
 
 > **Isolation-associated floral/reproductive filtering is detectable in both northern mid-latitude and tropical island floras, persists within native non-endemic assemblages, and is expressed as significantly different multivariate response vectors in those two contexts.**
 
