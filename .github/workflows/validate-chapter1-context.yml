@@ -6,6 +6,7 @@ on:
     paths:
       - "src/island_v2/chapter1_context_input.py"
       - "src/island_v2/chapter1_context_analysis.py"
+      - "src/island_v2/chapter1_trait_vector_freeze.py"
       - "src/island_v2/flora_status_support.py"
       - "src/island_v2/genus_fixed_trait_null.py"
       - "src/island_v2/status_stratified_lineage_analysis.py"
@@ -13,12 +14,14 @@ on:
       - "config/flora_status_support.yml"
       - "tests/test_chapter1_context_workflow.py"
       - "tests/test_chapter1_multistate_normalization.py"
+      - "tests/test_chapter1_trait_vector_freeze.py"
       - ".github/workflows/validate-chapter1-context.yml"
   pull_request:
     branches: [main]
     paths:
       - "src/island_v2/chapter1_context_input.py"
       - "src/island_v2/chapter1_context_analysis.py"
+      - "src/island_v2/chapter1_trait_vector_freeze.py"
       - "src/island_v2/flora_status_support.py"
       - "src/island_v2/genus_fixed_trait_null.py"
       - "src/island_v2/status_stratified_lineage_analysis.py"
@@ -26,6 +29,7 @@ on:
       - "config/flora_status_support.yml"
       - "tests/test_chapter1_context_workflow.py"
       - "tests/test_chapter1_multistate_normalization.py"
+      - "tests/test_chapter1_trait_vector_freeze.py"
       - ".github/workflows/validate-chapter1-context.yml"
   workflow_dispatch:
 
@@ -49,16 +53,19 @@ jobs:
           ruff check \
             src/island_v2/chapter1_context_input.py \
             src/island_v2/chapter1_context_analysis.py \
+            src/island_v2/chapter1_trait_vector_freeze.py \
             src/island_v2/flora_status_support.py \
             src/island_v2/genus_fixed_trait_null.py \
             src/island_v2/status_stratified_lineage_analysis.py \
             tests/test_chapter1_context_workflow.py \
-            tests/test_chapter1_multistate_normalization.py
+            tests/test_chapter1_multistate_normalization.py \
+            tests/test_chapter1_trait_vector_freeze.py
       - name: Synthetic regression tests
         run: |
           pytest -q \
             tests/test_chapter1_context_workflow.py \
-            tests/test_chapter1_multistate_normalization.py
+            tests/test_chapter1_multistate_normalization.py \
+            tests/test_chapter1_trait_vector_freeze.py
       - name: Parse frozen configs
         run: |
           python - <<'PY'
