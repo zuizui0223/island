@@ -1,0 +1,111 @@
+name: Audit PR136 source-exposure testability
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr136_source_exposure.py"
+      - "src/island_v2/bombus_applicability.py"
+      - "config/chapter1_pr136_source_exposure.yml"
+      - "config/bombus_applicability.yml"
+      - "data/v2/curation/island_source_region_assignments.csv"
+      - "data/v2/curation/island_assignment_evidence.csv"
+      - "data/v2/curation/source_region_bombus_registry.csv"
+      - "data/v2/curation/source_region_evidence.csv"
+      - ".github/workflows/audit-pr136-source-exposure-testability.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ISOLATION_RUN_ID: "29228212586"
+      ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Download frozen full-island universe
+        run: |
+          mkdir -p /tmp/isolation
+          gh run download "$ISOLATION_RUN_ID" \
+            -n "$ISOLATION_ARTIFACT" \
+            -D /tmp/isolation
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+      - name: Build outcome-blind source-channel applicability
+        run: |
+          python -m island_v2.bombus_applicability build \
+            --island-manifest-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --island-source-assignment-csv data/v2/curation/island_source_region_assignments.csv \
+            --source-region-registry-csv data/v2/curation/source_region_bombus_registry.csv \
+            --source-region-evidence-csv data/v2/curation/source_region_evidence.csv \
+            --island-assignment-evidence-csv data/v2/curation/island_assignment_evidence.csv \
+            --config-path config/bombus_applicability.yml \
+            --output-dir /tmp/pr136/applicability
+      - name: Audit H2a support ceiling
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          p = '/tmp/pr136/applicability/bombus_applicability_by_island.csv'
+          d = pd.read_csv(p)
+          counts = d['applicability'].fillna('unresolved').value_counts().to_dict()
+          exposed = int(counts.get('applicable', 0))
+          structural = int(counts.get('structurally_not_applicable', 0))
+          unresolved = int(counts.get('unresolved', 0))
+          pilot = min(exposed, structural) >= 30
+          confirmatory = min(exposed, structural) >= 50
+          payload = {
+              'contract': 'pr136_source_exposure_testability_v1',
+              'n_full_islands': int(d['island_id'].nunique()),
+              'n_source_exposed_reviewed': exposed,
+              'n_structurally_absent_reviewed': structural,
+              'n_unresolved': unresolved,
+              'pilot_h2a_possible_before_trait_overlap': pilot,
+              'confirmatory_h2a_possible_before_trait_overlap': confirmatory,
+              'pilot_shortfall_source_exposed': max(0, 30-exposed),
+              'pilot_shortfall_structurally_absent': max(0, 30-structural),
+              'confirmatory_shortfall_source_exposed': max(0, 50-exposed),
+              'confirmatory_shortfall_structurally_absent': max(0, 50-structural),
+              'interpretation': (
+                  'This is an outcome-blind source-exposure support audit. '
+                  'Failure of support is not a null biological result.'
+              ),
+          }
+          Path('/tmp/pr136/source_exposure_testability.json').write_text(
+              json.dumps(payload, indent=2)+'\n'
+          )
+          print(json.dumps(payload, indent=2))
+          with open(Path('/tmp/pr136/source_exposure_testability.md'), 'w') as f:
+              f.write('# PR136 H2a source-exposure testability\n\n')
+              f.write(f"- full islands: {payload['n_full_islands']}\n")
+              f.write(f"- reviewed source-exposed: {exposed}\n")
+              f.write(f"- reviewed structurally absent: {structural}\n")
+              f.write(f"- unresolved: {unresolved}\n")
+              f.write(f"- pilot possible before trait overlap: {pilot}\n")
+              f.write(f"- confirmatory possible before trait overlap: {confirmatory}\n")
+          PY
+      - name: Write summary
+        run: |
+          cat /tmp/pr136/source_exposure_testability.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr136-source-exposure-testability-${{ github.run_id }}
+          path: |
+            /tmp/pr136/applicability/
+            /tmp/pr136/source_exposure_testability.json
+            /tmp/pr136/source_exposure_testability.md
+          if-no-files-found: error
+          retention-days: 90
