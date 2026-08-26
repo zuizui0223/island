@@ -14,6 +14,15 @@ CORE_SYNDROMES = [
     "selfing_syndrome",
 ]
 
+OBSERVATION_COLUMNS = [
+    "island_id",
+    "flora_recorded",
+    "n_flora_species_recorded",
+    "distance_to_continent_km",
+    "area_km2",
+    "spatial_block",
+]
+
 
 def build_realm_replication_queue(
     status_flora: pd.DataFrame,
@@ -30,8 +39,9 @@ def build_realm_replication_queue(
     """Build an outcome-blind queue for a realm that is short of the replication gate.
 
     Ranking uses only flora size, syndrome-score availability, geography, and spatial
-    support. Syndrome values, distance slopes, p-values, and preliminary effect signs
-    are never used.
+    support. Syndrome values, distance slopes, p-values, preliminary effect signs, raw
+    trait outcomes, and pollinator-state variables are neither used nor exposed in the
+    returned curation queue.
     """
     required_status = {
         "island_id",
@@ -41,14 +51,7 @@ def build_realm_replication_queue(
     }
     required_realm = {"island_id", "biogeographic_realm"}
     required_species = {"accepted_species", "syndrome"}
-    required_observation = {
-        "island_id",
-        "flora_recorded",
-        "n_flora_species_recorded",
-        "distance_to_continent_km",
-        "area_km2",
-        "spatial_block",
-    }
+    required_observation = set(OBSERVATION_COLUMNS)
     for name, frame, required in [
         ("status_flora", status_flora, required_status),
         ("realm_assignment", realm_assignment, required_realm),
@@ -108,12 +111,18 @@ def build_realm_replication_queue(
         if optional in realm_assignment.columns:
             realm_cols.append(optional)
 
+    # Critical blinding boundary: only explicitly allowed geography / observation-effort
+    # columns are carried into the review scaffold. The source table also contains trait
+    # outcomes and Bombus-related variables, which must never be visible to curators.
+    observation_blind = observation_support[OBSERVATION_COLUMNS].copy()
+    observation_blind["island_id"] = observation_blind["island_id"].astype(str)
+
     queue = (
         realm_assignment.loc[
             realm_assignment["biogeographic_realm"].eq(target_realm), realm_cols
         ]
         .assign(island_id=lambda d: d["island_id"].astype(str))
-        .merge(observation_support, on="island_id", how="left", suffixes=("_realm", ""))
+        .merge(observation_blind, on="island_id", how="left")
         .merge(coverage, on="island_id", how="left")
     )
     queue = queue.loc[
@@ -186,12 +195,14 @@ def main() -> None:
     queue.to_csv(output, index=False)
 
     manifest = {
-        "contract": "chapter1_pr138_realm_replication_queue_v1",
+        "contract": "chapter1_pr138_realm_replication_queue_v2_blinded",
         "target_realm": args.target_realm,
         "n_candidates": int(len(queue)),
         "ranking_uses_outcome_values": False,
         "ranking_uses_effect_estimates": False,
         "ranking_uses_p_values": False,
+        "queue_exposes_outcome_values": False,
+        "queue_exposes_pollinator_state": False,
         "core_syndromes": CORE_SYNDROMES,
         "min_flora_species": args.min_flora_species,
         "max_flora_species": args.max_flora_species,
