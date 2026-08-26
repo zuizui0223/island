@@ -1,0 +1,112 @@
+name: Run PR138 formal realm sensitivity
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr138_realm_sensitivity.py"
+      - "config/chapter1_pr138_realm_sensitivity.yml"
+      - ".github/workflows/run-pr138-realm-sensitivity.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ISOLATION_RUN_ID: "29228212586"
+      ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+      CANONICAL_RUN_ID: "32845980788"
+      CANONICAL_ARTIFACT: "chapter1-when-where-main-32845980788"
+      TRAIT_RUN_ID: "32702160934"
+      TRAIT_ARTIFACT: "reviewed-open-web-evidence-32702160934"
+      ECOREGION_URL: "https://storage.googleapis.com/teow2016/Ecoregions2017.zip"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Download frozen project inputs
+        run: |
+          mkdir -p /tmp/isolation /tmp/canonical /tmp/traits /tmp/ecoregions
+          gh run download "$ISOLATION_RUN_ID" -n "$ISOLATION_ARTIFACT" -D /tmp/isolation
+          gh run download "$CANONICAL_RUN_ID" -n "$CANONICAL_ARTIFACT" -D /tmp/canonical
+          gh run download "$TRAIT_RUN_ID" -n "$TRAIT_ARTIFACT" -D /tmp/traits
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/traits/direct_species_trait_ledger.csv.gz
+          test -s /tmp/traits/rebuilt_all_evidence_validated_low.csv.gz
+
+      - name: Download RESOLVE Ecoregions 2017
+        run: |
+          curl -L --fail --retry 3 "$ECOREGION_URL" -o /tmp/ecoregions/ecoregions.zip
+          unzip -q /tmp/ecoregions/ecoregions.zip -d /tmp/ecoregions/unpacked
+          find /tmp/ecoregions/unpacked -type f | sort | head -50
+          SHP=$(find /tmp/ecoregions/unpacked -type f -name '*.shp' | head -1)
+          test -n "$SHP"
+          echo "ECOREGION_SHP=$SHP" >> "$GITHUB_ENV"
+
+      - name: Build all-analysis-eligible evidence ladder
+        run: |
+          python -m island_v2.chapter1_pr138_evidence_ladder \
+            --direct-ledger-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --validated-low-csv /tmp/traits/rebuilt_all_evidence_validated_low.csv.gz \
+            --output-dir /tmp/pr138/evidence
+
+      - name: Run formal realm syndrome sensitivity
+        run: |
+          python -m island_v2.chapter1_pr138_realm_sensitivity \
+            --trait-ledger-csv /tmp/pr138/evidence/all_analysis_eligible_trait_ledger.csv.gz \
+            --status-flora-csv /tmp/canonical/input/chapter1_status_flora.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --ecoregions-path "$ECOREGION_SHP" \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --syndrome-config-path config/chapter1_pr138_pollination_syndromes.yml \
+            --realm-config-path config/chapter1_pr138_realm_sensitivity.yml \
+            --output-dir /tmp/pr138/realm
+
+      - name: Summarize realm result
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+          root = Path('/tmp/pr138/realm')
+          assignment = pd.read_csv(root/'island_biogeographic_realm_assignment.csv')
+          slopes = pd.read_csv(root/'realm_syndrome_distance_slopes.csv')
+          within = pd.read_csv(root/'realm_syndrome_within_omnibus.csv')
+          between = pd.read_csv(root/'realm_syndrome_between_omnibus.csv')
+          manifest = json.loads((root/'realm_sensitivity_manifest.json').read_text())
+          out = Path('/tmp/pr138/realm_summary.md')
+          with out.open('w') as f:
+              f.write('# PR138 formal biogeographic-realm sensitivity\n\n')
+              f.write(f"Resolved realms: {manifest['n_islands_realm_resolved']} / {manifest['n_islands_total']} islands. No nearest-realm imputation was used.\n\n")
+              f.write('## Assignment support by realm\n\n```text\n')
+              support = assignment.loc[assignment['biogeographic_realm'].fillna('').ne('')].groupby('biogeographic_realm').size().sort_values(ascending=False)
+              f.write(support.to_string())
+              f.write('\n```\n\n## Syndrome distance slopes\n\n```text\n')
+              f.write(slopes.to_string(index=False) if not slopes.empty else 'No testable realm slopes.')
+              f.write('\n```\n\n## Within-realm omnibus / classic projection\n\n```text\n')
+              cols = [c for c in ['stratum','support_tier','context','status','n_retained_syndromes','n_unique_islands','p_value','q_within_stratum_tier','syndrome_vector_supported','northern_classic_projection','q_classic_projection','classic_projection_supported'] if c in within.columns]
+              f.write(within[cols].to_string(index=False) if not within.empty else 'No testable within-realm vectors.')
+              f.write('\n```\n\n## Between-realm direct vector differences\n\n```text\n')
+              cols = [c for c in ['stratum','support_tier','context_a','context_b','status','n_retained_syndromes','n_unique_islands','p_value','q_within_stratum_tier','regional_syndrome_vector_difference_supported'] if c in between.columns]
+              f.write(between[cols].to_string(index=False) if not between.empty else 'No testable realm contrasts.')
+              f.write('\n```\n')
+          PY
+          cat /tmp/pr138/realm_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-realm-sensitivity-${{ github.run_id }}
+          path: /tmp/pr138/
+          if-no-files-found: error
+          retention-days: 90
