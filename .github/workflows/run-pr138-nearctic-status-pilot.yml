@@ -28,9 +28,11 @@ jobs:
       SNI_URL: "https://cch2.org/portal/checklists/checklist.php?clid=25&pid=0"
       CEDROS_URL: "https://sbbotanicgarden.org/wp-content/uploads/2022/08/Oberbauer-1993_Vegetation_communities_Isla_De_Cedros_Mexico.pdf"
       BLOCK_ISLAND_ZIP_URL: "https://rinhs.org/wp-content/uploads/2024/07/Eco-of-Block-Is-companion-CD.zip"
+      SAINT_PIERRE_URL: "https://www.grandcolombier.com/wp-content/uploads/pdf/190109/flore_spm_le_hors_derniere_version.pdf"
       SNI_ID: "gshhg_2.3.7_h_fa0f3406c02f18b31098"
       CEDROS_ID: "gshhg_2.3.7_h_8814371cac9eab98b9d7"
       BLOCK_ISLAND_ID: "gshhg_2.3.7_h_bc9e67a899b103ee84aa"
+      SAINT_PIERRE_ID: "gshhg_2.3.7_h_de89a65b42c292aa9739"
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
@@ -76,6 +78,9 @@ jobs:
               >> /tmp/status_sources/block_island_columns.txt
           done
           test -s /tmp/status_sources/block_island_columns.txt
+          curl -A "Mozilla/5.0" -L --fail --retry 3 "$SAINT_PIERRE_URL" -o /tmp/status_sources/saint_pierre.pdf
+          pdftotext -layout /tmp/status_sources/saint_pierre.pdf /tmp/status_sources/saint_pierre.txt
+          test -s /tmp/status_sources/saint_pierre.txt
 
       - name: Parse source-backed status ledgers
         run: |
@@ -120,6 +125,23 @@ jobs:
           assert manifest['n_resolved'] >= 140, manifest
           assert manifest['n_native'] >= 100, manifest
           assert manifest['n_introduced'] >= 30, manifest
+          PY
+          python -m island_v2.chapter1_pr138_san_nicolas_status \
+            --pdftotext /tmp/status_sources/saint_pierre.txt \
+            --island-species /tmp/canonical/input/chapter1_status_flora.csv.gz \
+            --island-id "$SAINT_PIERRE_ID" \
+            --source-kind saint_pierre_le_hors \
+            --status-reference "$SAINT_PIERRE_URL" \
+            --output-csv /tmp/pr138/status/saint_pierre_status.csv \
+            --manifest-json /tmp/pr138/status/saint_pierre_status_manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('/tmp/pr138/status/saint_pierre_status_manifest.json').read_text())
+          assert manifest['n_source_species_keys'] == 6, manifest
+          assert manifest['n_resolved'] == 6, manifest
+          assert manifest['n_native'] == 5, manifest
+          assert manifest['n_introduced'] == 1, manifest
           PY
 
       - name: Build updated status-flora sensitivity input

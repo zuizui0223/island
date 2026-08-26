@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 
 from island_v2.chapter1_pr138_san_nicolas_status import (
     build_status_ledger,
@@ -6,6 +7,7 @@ from island_v2.chapter1_pr138_san_nicolas_status import (
     parse_cch2_san_nicolas_html,
     parse_cedros_oberbauer_text,
     parse_nps_san_nicolas_text,
+    parse_saint_pierre_le_hors_text,
 )
 
 
@@ -167,3 +169,46 @@ def test_block_island_parser_reconstructs_abbreviated_genera_and_status():
         parsed.loc["pinus thunbergiana", "status_basis"]
         == "enser_asterisk_naturalized"
     )
+
+
+def test_saint_pierre_parser_requires_origin_and_island_locality_passages():
+    text = """
+    Le genre Eleocharis comprend cinq espèces, toutes indigènes :
+    Eleocharis palustris (L.) R. & S., commun dans les étangs peu profonds
+    des trois îles.
+    Eleocharis uniglumis (Linck.) Schulte, var. halophila Fern.
+    Eleocharis capitata (L.) Brown, var. borealis Svenson.
+    Eleocharis acicularis R. & S., rare bords de l'étang de Savoyard.
+
+    Ranunculus acris L., naturalisée d'Europe. Les suivantes sont indigènes:
+    R. cymbalaria Pursh. R. sceleratus L. R. reptans L.
+    R. flammula L., renoncule flammette ou petite douve, assez rare, Savoyard
+    et Belle Rivière.
+
+    Trois spergulaires indigènes:
+    Spergularia rubra (L.) J. & C. Presl., terrains secs à Savoyard et à
+    l'île aux Marins. S. marina (L.) J. & C. Presl. S. canadensis (Pers.) Don.
+    Ces deux dernières vivent souvent ensemble dans les terrains salés :
+    Pont Boulot, Pointe Blanche, Grand Barachois.
+
+    Bromus mollis (syn. de B. hordeaceus): Saint-Pierre : Occasionnel et
+    introduit, route du Cap à l'Aigle.
+    """
+    parsed = parse_saint_pierre_le_hors_text(text).set_index("species_key")
+
+    assert len(parsed) == 6
+    assert parsed.loc["ranunculus flammula", "origin_status"] == "native"
+    assert parsed.loc["spergularia canadensis", "origin_status"] == "native"
+    assert parsed.loc["bromus hordeaceus", "origin_status"] == "introduced"
+    assert (
+        parsed.loc["bromus hordeaceus", "status_basis"]
+        == "le_hors_introduced_saint_pierre_explicit"
+    )
+
+    missing_locality = text.replace(
+        "R. flammula L., renoncule flammette ou petite douve, assez rare, Savoyard\n"
+        "    et Belle Rivière.",
+        "R. flammula L., renoncule flammette ou petite douve, assez rare.",
+    )
+    with pytest.raises(ValueError, match="Ranunculus flammula"):
+        parse_saint_pierre_le_hors_text(missing_locality)

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import unicodedata
 from difflib import SequenceMatcher
 from html.parser import HTMLParser
 from pathlib import Path
@@ -51,6 +52,63 @@ BLOCK_ISLAND_NON_GENUS_HEADINGS = {
     "MONOCOTYLEDONS",
     "PTERIDOPHYTES",
 }
+LE_HORS_SAINT_PIERRE_RULES = (
+    (
+        "Eleocharis palustris",
+        "native",
+        (
+            r"le genre ?eleocharis comprend cinq especes toutes indigenes"
+            r".{0,300}eleocharis palustris.{0,220}des trois iles"
+        ),
+        "le_hors_native_group_three_islands",
+    ),
+    (
+        "Eleocharis acicularis",
+        "native",
+        (
+            r"le genre ?eleocharis comprend cinq especes toutes indigenes"
+            r".{0,1300}eleocharis acicularis.{0,180}etang de savoyard"
+        ),
+        "le_hors_native_group_saint_pierre_locality",
+    ),
+    (
+        "Ranunculus flammula",
+        "native",
+        (
+            r"ranunculus acris.{0,180}naturalisee d ?europe les suivantes sont "
+            r"indigenes.{0,1600}r flammula l renoncule flammette ou petite "
+            r"douve assez rare savoyard"
+        ),
+        "le_hors_native_group_saint_pierre_locality",
+    ),
+    (
+        "Spergularia rubra",
+        "native",
+        (
+            r"trois spergulaires indigenes.{0,220}spergularia rubra"
+            r".{0,220}savoyard.{0,100}ile aux marins"
+        ),
+        "le_hors_native_group_saint_pierre_locality",
+    ),
+    (
+        "Spergularia canadensis",
+        "native",
+        (
+            r"trois spergulaires indigenes.{0,700}s canadensis"
+            r".{0,260}ces deux dernieres.{0,300}pointe blanche"
+        ),
+        "le_hors_native_group_saint_pierre_locality",
+    ),
+    (
+        "Bromus hordeaceus",
+        "introduced",
+        (
+            r"bromus mollis.{0,100}hordeaceus.{0,180}saint ?pierre "
+            r"occasionnel et introduit"
+        ),
+        "le_hors_introduced_saint_pierre_explicit",
+    ),
+)
 SAN_NICOLAS_STATUS_OVERRIDES = {
     # Table E-1 marks this N1, but footnote 1 explicitly states it is introduced
     # to San Nicolas Island despite being native to California.
@@ -316,6 +374,47 @@ def parse_block_island_enser_text(text: str) -> pd.DataFrame:
     return _collapse_rows(rows)
 
 
+def _normalize_le_hors_text(text: str) -> str:
+    normalized = unicodedata.normalize("NFKD", text)
+    normalized = normalized.encode("ascii", "ignore").decode().casefold()
+    normalized = re.sub(r"(?<=\w)-\s+(?=\w)", "", normalized)
+    normalized = re.sub(r"[^a-z0-9]+", " ", normalized)
+    return " ".join(normalized.split())
+
+
+def parse_saint_pierre_le_hors_text(text: str) -> pd.DataFrame:
+    """Extract only island-applicable origin statements from Le Hors.
+
+    The manuscript reports archipelago-wide totals, but those totals do not license
+    treating every unmarked taxon as native to Saint-Pierre. This parser therefore
+    admits only a fixed set of passages where the source both assigns origin and
+    places the taxon on Saint-Pierre (including named Saint-Pierre localities or all
+    three principal islands). Every required passage must be present so source or
+    extraction drift fails closed.
+    """
+    normalized = _normalize_le_hors_text(text)
+    rows: list[dict[str, str]] = []
+    missing: list[str] = []
+    for source_name, origin, pattern, basis in LE_HORS_SAINT_PIERRE_RULES:
+        if not re.search(pattern, normalized):
+            missing.append(source_name)
+            continue
+        rows.append(
+            {
+                "source_species": source_name,
+                "species_key": species_key(source_name),
+                "origin_status": origin,
+                "status_basis": basis,
+            }
+        )
+    if missing:
+        raise ValueError(
+            "Le Hors Saint-Pierre evidence passages not found: "
+            + ", ".join(missing)
+        )
+    return _collapse_rows(rows)
+
+
 def _name_similarity(source_key: str, target_key: str) -> tuple[float, float]:
     source_parts = source_key.split()
     target_parts = target_key.split()
@@ -468,6 +567,7 @@ def main() -> None:
             "san_nicolas_cch2",
             "cedros_oberbauer",
             "block_island_enser",
+            "saint_pierre_le_hors",
         ],
         required=True,
     )
@@ -493,6 +593,13 @@ def main() -> None:
         parsed = parse_block_island_enser_text(text)
         status_source = "Enser 2002 Vascular Flora of Block Island, Appendix A"
         evidence_prefix = "block-island-enser-2002"
+    elif args.source_kind == "saint_pierre_le_hors":
+        parsed = parse_saint_pierre_le_hors_text(text)
+        status_source = (
+            "Le Hors 1947-1950 Flora of Saint-Pierre and Miquelon, "
+            "island-applicable origin passages"
+        )
+        evidence_prefix = "saint-pierre-le-hors-1950"
     else:
         parsed = parse_cedros_oberbauer_text(text)
         status_source = (
@@ -500,7 +607,7 @@ def main() -> None:
         )
         evidence_prefix = "cedros-oberbauer-1993"
 
-    flora = pd.read_csv(args.island_species)
+    flora = pd.read_csv(args.island_species, low_memory=False)
     ledger = build_status_ledger(
         flora,
         parsed,
