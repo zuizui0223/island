@@ -1,0 +1,75 @@
+contract: chapter1_pr138_biogeographic_pattern_v1
+
+primary_question: >-
+  Does the observed floral island syndrome strengthen with mainland distance in northern
+  mid-latitude island floras, and does that distance-response vector differ from tropical
+  and southern island floras?
+
+geography_column: log_distance_to_continent_km
+geography_interpretation: composite_isolation_connectivity_source_supply_assembly_gradient
+context_column: analysis_regime
+cluster_column: spatial_block
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+
+strata:
+  - all_native
+  - native_nonendemic
+  - endemic
+
+support_tiers:
+  confirmatory: 50
+  pilot: 30
+minimum_outcomes_per_vector: 2
+alpha: 0.05
+
+broad_outcomes:
+  plain_colour:
+    trait_name: flower_primary_color
+    positive_states: [white, green_brown_inconspicuous]
+    negative_states: [yellow_orange, red_pink, blue_purple]
+    northern_classic_direction: 1
+  generalized_form:
+    trait_name: floral_form
+    positive_states: [open_radial, brush_puff, composite_head]
+    negative_states:
+      [tubular, bell_campanulate, funnel_trumpet, urn_urceolate, bilabiate,
+       salverform, papilionaceous, spurred]
+    northern_classic_direction: 1
+  self_compatibility:
+    trait_name: self_incompatibility
+    positive_states: [SC]
+    negative_states: [SI]
+    northern_classic_direction: 1
+
+inferential_layers:
+  primary: observed_native_flora_broad_syndrome_composition
+  secondary: genus_fixed_residual_decomposition
+  discussion: pollination_syndrome_concordance
+
+pollinator_predictors_in_primary_model: false
+bombus_role: discussion_candidate_mechanism_only
+butterfly_role: discussion_candidate_mechanism_only
+bird_role: discussion_candidate_mechanism_only
+
+rules:
+  - all_islands_retained_in_observation_universe
+  - no_distance_thresholds
+  - missing_island_is_not_trait_zero
+  - multistate_species_crossing_positive_and_negative_sets_are_unresolved_for_broad_binary
+  - significant_in_one_region_and_nonsignificant_in_another_is_not_heterogeneity
+  - between_region_vector_difference_requires_direct_joint_test
+  - northern_classic_syndrome_requires_directional_multivariate_projection_not_single_trait_significance
+  - tropical_and_southern_predictions_do_not_require_exact_reversal
+  - genus_fixed_results_decompose_the_observed_pattern_but_do_not_define_whether_an_assemblage_pattern_exists
+  - discuss_pollination_syndromes_only_after_the_biogeographic_pattern_is_established
