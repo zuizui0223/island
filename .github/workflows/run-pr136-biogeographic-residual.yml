@@ -7,9 +7,12 @@ on:
       - "src/island_v2/chapter1_pr138_biogeographic_pattern.py"
       - "src/island_v2/chapter1_pr138_direct_ledger_pattern.py"
       - "src/island_v2/chapter1_pr138_information_weight.py"
+      - "src/island_v2/chapter1_pr138_evidence_ladder.py"
+      - "src/island_v2/chapter1_pr138_syndrome_analysis.py"
       - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
       - "config/chapter1_pr136_biogeographic_pattern.yml"
       - "config/chapter1_pr136_biogeographic_residual.yml"
+      - "config/chapter1_pr138_pollination_syndromes.yml"
       - ".github/workflows/run-pr136-biogeographic-residual.yml"
   workflow_dispatch:
 
@@ -20,7 +23,7 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       ISOLATION_RUN_ID: "29228212586"
       ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
@@ -46,14 +49,39 @@ jobs:
           test -s /tmp/canonical/input/chapter1_status_flora.csv.gz
           test -s /tmp/canonical/null/genus_fixed_null_by_island.csv.gz
           test -s /tmp/traits/direct_species_trait_ledger.csv.gz
-      - name: Run PRIMARY observed eight-axis assemblage syndrome test
+          test -s /tmp/traits/rebuilt_all_evidence_validated_low.csv.gz
+
+      - name: Build all-evidence ladder without duplicate species-trait trials
+        run: |
+          python -m island_v2.chapter1_pr138_evidence_ladder \
+            --direct-ledger-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --validated-low-csv /tmp/traits/rebuilt_all_evidence_validated_low.csv.gz \
+            --output-dir /tmp/pr138/evidence
+
+      - name: Run PRIMARY all-evidence eight-axis assemblage pattern
         run: |
           python -m island_v2.chapter1_pr138_direct_ledger_pattern \
             --status-flora-csv /tmp/canonical/input/chapter1_status_flora.csv.gz \
-            --trait-ledger-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --trait-ledger-csv /tmp/pr138/evidence/all_analysis_eligible_trait_ledger.csv.gz \
             --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
             --config-path config/chapter1_pr136_biogeographic_pattern.yml \
             --output-dir /tmp/pr138/primary
+
+      - name: Run evidence-layer trait-pattern sensitivities
+        run: |
+          python -m island_v2.chapter1_pr138_direct_ledger_pattern \
+            --status-flora-csv /tmp/canonical/input/chapter1_status_flora.csv.gz \
+            --trait-ledger-csv /tmp/pr138/evidence/direct_only_trait_ledger.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --output-dir /tmp/pr138/evidence_sensitivity/direct
+          python -m island_v2.chapter1_pr138_direct_ledger_pattern \
+            --status-flora-csv /tmp/canonical/input/chapter1_status_flora.csv.gz \
+            --trait-ledger-csv /tmp/pr138/evidence/validated_genus_consensus_only_trait_ledger.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --output-dir /tmp/pr138/evidence_sensitivity/genus_consensus
+
       - name: Test information-weight dependence of PRIMARY
         run: |
           python -m island_v2.chapter1_pr138_information_weight \
@@ -61,6 +89,19 @@ jobs:
             --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
             --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
             --output-dir /tmp/pr138/information_weight
+
+      - name: Run PRIMARY multivariate pollination and selfing syndrome scores
+        run: |
+          for mode in all_analysis_eligible direct_only validated_genus_consensus_only; do
+            python -m island_v2.chapter1_pr138_syndrome_analysis \
+              --trait-ledger-csv "/tmp/pr138/evidence/${mode}_trait_ledger.csv.gz" \
+              --status-flora-csv /tmp/canonical/input/chapter1_status_flora.csv.gz \
+              --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+              --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+              --syndrome-config-path config/chapter1_pr138_pollination_syndromes.yml \
+              --output-dir "/tmp/pr138/syndrome/${mode}"
+          done
+
       - name: Run SECONDARY genus-fixed lineage decomposition
         run: |
           python -m island_v2.chapter1_pr136_biogeographic_residual \
@@ -68,6 +109,7 @@ jobs:
             --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
             --config-path config/chapter1_pr136_biogeographic_residual.yml \
             --output-dir /tmp/pr138/secondary
+
       - name: Write result summary
         run: |
           python - <<'PY'
@@ -77,26 +119,43 @@ jobs:
           p_within = pd.read_csv(root/'primary/observed_within_region_omnibus.csv')
           p_between = pd.read_csv(root/'primary/observed_between_region_omnibus.csv')
           p_slopes = pd.read_csv(root/'primary/observed_within_outcome_slopes.csv')
-          support = pd.read_csv(root/'primary/observed_broad_syndrome_support.csv')
+          coverage = pd.read_csv(root/'evidence/evidence_ladder_coverage.csv')
           weight = pd.read_csv(root/'information_weight/pr138_information_weight_summary.csv')
+          syn_within = pd.read_csv(root/'syndrome/all_analysis_eligible/syndrome_within_region_omnibus.csv')
+          syn_between = pd.read_csv(root/'syndrome/all_analysis_eligible/syndrome_between_region_omnibus.csv')
+          syn_slopes = pd.read_csv(root/'syndrome/all_analysis_eligible/syndrome_distance_slopes.csv')
+          direct_syn = pd.read_csv(root/'syndrome/direct_only/syndrome_within_region_omnibus.csv')
+          genus_syn = pd.read_csv(root/'syndrome/validated_genus_consensus_only/syndrome_within_region_omnibus.csv')
           s_within = pd.read_csv(root/'secondary/biogeographic_residual_within_omnibus.csv')
           s_between = pd.read_csv(root/'secondary/biogeographic_residual_between_omnibus.csv')
           with open(root/'biogeographic_summary.md', 'w') as f:
-              f.write('# PR138 pattern-first result\n\n')
-              f.write('PRIMARY = observed eight-axis assemblage syndrome from the locked direct trait ledger. SECONDARY = genus-fixed decomposition. Pollinator identity is not used in either model.\n\n')
-              f.write('## PRIMARY direct-evidence support\n\n```text\n')
-              f.write(support.to_string(index=False))
-              f.write('\n```\n\n## PRIMARY within-region observed syndrome\n\n```text\n')
+              f.write('# PR138 all-evidence pattern + syndrome result\n\n')
+              f.write('PRIMARY A = observed eight-axis trait pattern using direct evidence plus validated genus-consensus gap filling. PRIMARY B = literature-predeclared multivariate pollination/selfing syndrome concordance. SECONDARY = genus-fixed decomposition. Syndrome scores are not observations of pollinator identity.\n\n')
+              f.write('## Evidence expansion coverage\n\n```text\n')
+              f.write(coverage.to_string(index=False))
+              f.write('\n```\n\n## PRIMARY A: observed trait vector\n\n```text\n')
               cols = [c for c in ['stratum','support_tier','context','status','n_retained_outcomes','retained_outcomes','n_unique_islands','p_value','q_joint_within_stratum_tier','observed_vector_supported','classic_projection_estimate','q_classic_projection_within_stratum_tier','classic_direction_supported'] if c in p_within.columns]
-              f.write(p_within[cols].to_string(index=False) if not p_within.empty else 'No testable primary vectors.')
-              f.write('\n```\n\n## PRIMARY broad-outcome slopes\n\n```text\n')
-              f.write(p_slopes.to_string(index=False) if not p_slopes.empty else 'No fitted primary slopes.')
-              f.write('\n```\n\n## PRIMARY north-vs-tropical differences\n\n```text\n')
+              f.write(p_within[cols].to_string(index=False) if not p_within.empty else 'No testable trait vectors.')
+              f.write('\n```\n\n## PRIMARY A: trait slopes\n\n```text\n')
+              f.write(p_slopes.to_string(index=False) if not p_slopes.empty else 'No fitted trait slopes.')
+              f.write('\n```\n\n## PRIMARY A: between-region trait-vector differences\n\n```text\n')
               cols = [c for c in ['stratum','support_tier','context_a','context_b','status','n_retained_outcomes','retained_outcomes','n_unique_islands','p_value','q_joint_within_stratum_tier','biogeographic_difference_supported'] if c in p_between.columns]
-              f.write(p_between[cols].to_string(index=False) if not p_between.empty else 'No testable primary contrasts.')
-              f.write('\n```\n\n## PRIMARY information-weight sensitivity\n\n```text\n')
+              f.write(p_between[cols].to_string(index=False) if not p_between.empty else 'No testable trait-vector contrasts.')
+              f.write('\n```\n\n## PRIMARY A: information-weight sensitivity\n\n```text\n')
               f.write(weight.to_string(index=False))
-              f.write('\n```\n\n## SECONDARY genus-fixed decomposition (legacy three broad axes)\n\n```text\n')
+              f.write('\n```\n\n## PRIMARY B: all-evidence syndrome vector\n\n```text\n')
+              cols = [c for c in ['stratum','support_tier','context','status','n_retained_syndromes','retained_syndromes','n_unique_islands','p_value','q_within_stratum_tier','syndrome_vector_supported','northern_classic_projection','q_classic_projection','classic_projection_supported'] if c in syn_within.columns]
+              f.write(syn_within[cols].to_string(index=False) if not syn_within.empty else 'No testable syndrome vectors.')
+              f.write('\n```\n\n## PRIMARY B: syndrome-specific distance slopes\n\n```text\n')
+              f.write(syn_slopes.to_string(index=False) if not syn_slopes.empty else 'No fitted syndrome slopes.')
+              f.write('\n```\n\n## PRIMARY B: between-region syndrome-vector differences\n\n```text\n')
+              cols = [c for c in ['stratum','support_tier','context_a','context_b','status','n_retained_syndromes','retained_syndromes','n_unique_islands','p_value','q_within_stratum_tier','regional_syndrome_vector_difference_supported'] if c in syn_between.columns]
+              f.write(syn_between[cols].to_string(index=False) if not syn_between.empty else 'No testable syndrome contrasts.')
+              f.write('\n```\n\n## Syndrome evidence-layer sensitivity: direct only\n\n```text\n')
+              f.write(direct_syn[cols[:0]].to_string(index=False) if False else direct_syn.to_string(index=False))
+              f.write('\n```\n\n## Syndrome evidence-layer sensitivity: validated genus consensus only\n\n```text\n')
+              f.write(genus_syn.to_string(index=False))
+              f.write('\n```\n\n## SECONDARY genus-fixed decomposition\n\n```text\n')
               cols = [c for c in ['stratum','support_tier','context','status','n_retained_outcomes','n_unique_islands','p_value','q_within_stratum_tier','residual_filtering_supported'] if c in s_within.columns]
               f.write(s_within[cols].to_string(index=False) if not s_within.empty else 'No testable residual vectors.')
               f.write('\n```\n\n## SECONDARY between-region residual differences\n\n```text\n')
@@ -105,6 +164,7 @@ jobs:
               f.write('\n```\n')
           PY
           cat /tmp/pr138/biogeographic_summary.md >> "$GITHUB_STEP_SUMMARY"
+
       - uses: actions/upload-artifact@v4
         with:
           name: pr138-biogeographic-pattern-${{ github.run_id }}
