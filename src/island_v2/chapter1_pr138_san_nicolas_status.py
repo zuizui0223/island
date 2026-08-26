@@ -80,12 +80,13 @@ def parse_cedros_oberbauer_text(text: str) -> pd.DataFrame:
 
     The source explicitly states that taxa denoted with an asterisk are presumably
     introduced. Unstarred species entries in the annotated island list are therefore
-    treated as native for this status sensitivity. Parsing begins only after Appendix 2
-    so vegetation-community prose cannot create status records.
+    treated as native for this status sensitivity. The paper mentions ``Appendix 2``
+    earlier in the prose, so parsing deliberately starts at the *last* marker, which is
+    the actual annotated checklist heading.
     """
-    marker_index = text.find(CEDROS_START_MARKER)
+    marker_index = text.rfind(CEDROS_START_MARKER)
     if marker_index < 0:
-        marker_index = text.find("Appendix 2")
+        marker_index = text.rfind("Appendix 2")
     if marker_index < 0:
         raise ValueError("Cedros Appendix 2 marker not found")
     appendix = text[marker_index:]
