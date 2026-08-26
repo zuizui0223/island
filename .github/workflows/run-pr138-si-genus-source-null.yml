@@ -1,0 +1,142 @@
+name: Run PR138 SI genus-fixed source-pool null
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr138_si_genus_source_null.py"
+      - "tests/test_chapter1_pr138_si_genus_source_null.py"
+      - ".github/workflows/run-pr138-si-genus-source-null.yml"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FROZEN_RUN_ID: "32980009101"
+      FROZEN_ARTIFACT: "pr138-palearctic-restricted-ipw-32980009101"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate SI genus-fixed source-pool null
+        run: |
+          pytest -q tests/test_chapter1_pr138_si_genus_source_null.py
+          ruff check \
+            src/island_v2/chapter1_pr138_si_genus_source_null.py \
+            tests/test_chapter1_pr138_si_genus_source_null.py
+
+      - name: Download frozen PR138 inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/lineage/input /tmp/lineage/result
+          gh run download "$FROZEN_RUN_ID" -n "$FROZEN_ARTIFACT" -D /tmp/lineage/input
+          test -s /tmp/lineage/input/input/input/realm/evidence/all_analysis_eligible_trait_ledger.csv.gz
+          test -s /tmp/lineage/input/input/input/realm/evidence/direct_only_trait_ledger.csv.gz
+          test -s /tmp/lineage/input/input/input/source/current/syndrome/all_analysis_eligible/species_syndrome_concordance.csv.gz
+          test -s /tmp/lineage/input/input/input/source/current/syndrome/direct_only/species_syndrome_concordance.csv.gz
+          test -s /tmp/lineage/input/input/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/lineage/input/input/input/source/source/gift_native_mainland_flora.csv.gz
+          test -s /tmp/lineage/input/input/input/source/result/island_source_assignments.csv.gz
+          test -s /tmp/lineage/input/input/input/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/lineage/input/input/input/realm/realm/island_biogeographic_realm_assignment.csv
+          test -s /tmp/lineage/input/input/result/outcrossing_restriction_results.csv
+
+      - name: Run genus-fixed source-pool null
+        run: |
+          python -m island_v2.chapter1_pr138_si_genus_source_null \
+            --all-ledger-csv /tmp/lineage/input/input/input/realm/evidence/all_analysis_eligible_trait_ledger.csv.gz \
+            --all-scores-csv /tmp/lineage/input/input/input/source/current/syndrome/all_analysis_eligible/species_syndrome_concordance.csv.gz \
+            --direct-ledger-csv /tmp/lineage/input/input/input/realm/evidence/direct_only_trait_ledger.csv.gz \
+            --direct-scores-csv /tmp/lineage/input/input/input/source/current/syndrome/direct_only/species_syndrome_concordance.csv.gz \
+            --status-flora-csv /tmp/lineage/input/input/canonical/input/chapter1_status_flora.csv.gz \
+            --gift-flora-csv /tmp/lineage/input/input/input/source/source/gift_native_mainland_flora.csv.gz \
+            --source-assignments-csv /tmp/lineage/input/input/input/source/result/island_source_assignments.csv.gz \
+            --covariates-csv /tmp/lineage/input/input/input/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/lineage/input/input/input/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --source-config-path config/chapter1_pr138_source_pool_sensitivity.yml \
+            --output-dir /tmp/lineage/result \
+            --n-draws 1000 \
+            --seed 20260827
+
+      - name: Verify exact-SI estimand reproduction and summarize
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import numpy as np
+          import pandas as pd
+
+          root = Path('/tmp/lineage')
+          result = pd.read_csv(root / 'result/si_genus_source_null_results.csv')
+          audit = pd.read_csv(root / 'result/si_genus_source_null_audit.csv')
+          original = pd.read_csv(root / 'input/input/result/outcrossing_restriction_results.csv')
+
+          original = original.loc[
+              original['restriction'].eq('si_only')
+              & original['context_layer'].eq('biogeographic_realm')
+              & original['context'].eq('Palearctic')
+              & original['support_tier'].eq('confirmatory')
+              & original['stratum'].isin(['all_native', 'native_nonendemic'])
+          ].copy()
+          current = result.loc[result['evidence_mode'].eq('all_analysis_eligible')].copy()
+          check = original.merge(
+              current,
+              on=['source_mode', 'stratum'],
+              how='inner',
+              validate='one_to_one',
+          )
+          if len(check) != 8:
+              raise SystemExit(f'expected 8 estimand-reproduction rows, got {len(check)}')
+          for old, new in [
+              ('distance_estimate', 'observed_distance_estimate'),
+              ('distance_se', 'observed_distance_se'),
+              ('distance_p', 'observed_distance_p'),
+          ]:
+              delta = np.max(np.abs(check[old].to_numpy(float) - check[new].to_numpy(float)))
+              if not np.isfinite(delta) or delta > 1e-10:
+                  raise SystemExit(f'estimand reproduction failed for {old}: max delta={delta}')
+
+          out = root / 'si_genus_source_null_summary.md'
+          with out.open('w') as f:
+              f.write('# PR138 SI genus-fixed + source-pool null\n\n')
+              f.write('Observed all-analysis exact-SI coefficients reproduce the frozen PR138 estimand to <1e-10.\n\n')
+              cols = [
+                  'evidence_mode', 'stratum', 'source_mode', 'n_unique_islands',
+                  'observed_distance_estimate', 'null_distance_mean',
+                  'null_distance_q025', 'null_distance_q975',
+                  'residual_distance_estimate', 'residual_distance_p',
+                  'residual_distance_q', 'empirical_one_sided_p_observed_gt_null',
+                  'empirical_one_sided_q',
+              ]
+              f.write('## Result\n\n```text\n')
+              f.write(result[cols].to_string(index=False))
+              f.write('\n```\n\n## Axis audit\n\n```text\n')
+              f.write(audit.to_string(index=False))
+              f.write('\n```\n\n## Manifest\n\n```json\n')
+              manifest = json.loads(
+                  (root / 'result/si_genus_source_null_manifest.json').read_text()
+              )
+              f.write(json.dumps(manifest, indent=2))
+              f.write('\n```\n')
+          PY
+          cat /tmp/lineage/si_genus_source_null_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-si-genus-source-null-${{ github.run_id }}
+          path: /tmp/lineage/
+          if-no-files-found: error
+          retention-days: 90
