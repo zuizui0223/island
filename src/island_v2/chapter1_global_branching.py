@@ -103,6 +103,7 @@ def _run_context_layer(
     layer_name: str,
     alpha: float,
     branching_config: dict[str, Any],
+    weight_column: str | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     contexts = [str(x) for x in pattern_config["contexts"]]
     strata = [str(x) for x in pattern_config["strata"]]
@@ -126,6 +127,7 @@ def _run_context_layer(
                         threshold=threshold,
                         pattern_config=pattern_config,
                         syndrome_config={},
+                        weight_column=weight_column,
                     )
                     if not slopes.empty:
                         slopes.insert(0, "axis_set", str(axis_set))
@@ -142,6 +144,7 @@ def _run_context_layer(
                         support_tier=tier,
                         threshold=threshold,
                         pattern_config=pattern_config,
+                        weight_column=weight_column,
                     )
                     result["axis_set"] = str(axis_set)
                     result["axis_set_role"] = str(axis_spec["role"])
@@ -273,6 +276,8 @@ def run_global_branching(
     realm_assignment: pd.DataFrame,
     pattern_config: dict[str, Any],
     branching_config: dict[str, Any],
+    *,
+    weight_column: str | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     branch_scores = build_branch_scores(island_scores, branching_config)
     all_slopes: list[pd.DataFrame] = []
@@ -308,6 +313,7 @@ def run_global_branching(
             layer_name=str(layer_name),
             alpha=float(branching_config["alpha"]),
             branching_config=branching_config,
+            weight_column=weight_column,
         )
         all_slopes.append(slopes)
         all_within.append(within)

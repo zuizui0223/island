@@ -36,6 +36,12 @@ This establishes the **when/where plant-side pattern**. It does not identify eff
 pollination service, pollinator loss, attraction relaxation, competition for scarce
 pollinators, or functional replacement.
 
+The subsequent outcome-blind selection sensitivity refines this result. The direct
+northern-midlatitude versus tropical vector difference persists, but the independent broad
+northern accessibility branch loses multivariate support after stabilized IPW. The
+Palearctic accessibility plus reproductive-assurance branch persists. See
+[`chapter1_global_branch_selection_checkpoint_20260826.md`](chapter1_global_branch_selection_checkpoint_20260826.md).
+
 ## Central causal concept
 
 ```text

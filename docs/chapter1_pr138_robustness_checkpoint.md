@@ -193,3 +193,18 @@ assurance, whereas the tropics resolve to reproductive assurance without an axis
 accessibility change. This supports regional plant-response branching, not a universal
 classic syndrome. Direct effective-service, mobility and replacement tests remain assigned
 to Chapter 2 in `izu-core`.
+
+## 8. Outcome-blind observation-selection sensitivity
+
+The full result is recorded in
+[`chapter1_global_branch_selection_checkpoint_20260826.md`](chapter1_global_branch_selection_checkpoint_20260826.md).
+Each primary branch-axis availability model uses the 8,265-island universe and only area,
+climate, distance and context predictors. Branch-score values and fitted ecological results
+are excluded.
+
+The northern-midlatitude versus tropical direct two-axis difference persists under both
+stabilized IPW specifications in all-native and native-nonendemic strata. However, the
+independent broad northern accessibility context vector loses support after weighting. The
+Palearctic accessibility plus reproductive-assurance branch remains supported. The claim is
+therefore narrowed to an observation-robust **regional vector difference** and a robust
+Palearctic realm branch; a general northern accessibility branch is not promoted.

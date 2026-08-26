@@ -4,16 +4,22 @@ on:
   push:
     paths:
       - "src/island_v2/chapter1_global_branching.py"
+      - "src/island_v2/chapter1_global_branch_selection.py"
       - "config/chapter1_global_branching.yml"
+      - "config/chapter1_global_branch_selection.yml"
       - "tests/test_chapter1_global_branching.py"
+      - "tests/test_chapter1_global_branch_selection.py"
       - ".github/workflows/validate-chapter1-global-branching.yml"
       - ".github/workflows/run-chapter1-global-branching.yml"
   pull_request:
     branches: [main]
     paths:
       - "src/island_v2/chapter1_global_branching.py"
+      - "src/island_v2/chapter1_global_branch_selection.py"
       - "config/chapter1_global_branching.yml"
+      - "config/chapter1_global_branch_selection.yml"
       - "tests/test_chapter1_global_branching.py"
+      - "tests/test_chapter1_global_branch_selection.py"
       - ".github/workflows/validate-chapter1-global-branching.yml"
       - ".github/workflows/run-chapter1-global-branching.yml"
   workflow_dispatch:
@@ -32,14 +38,25 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -e ".[dev]"
-      - run: ruff check src/island_v2/chapter1_global_branching.py tests/test_chapter1_global_branching.py
-      - run: pytest -q tests/test_chapter1_global_branching.py
+      - run: >-
+          ruff check
+          src/island_v2/chapter1_global_branching.py
+          src/island_v2/chapter1_global_branch_selection.py
+          tests/test_chapter1_global_branching.py
+          tests/test_chapter1_global_branch_selection.py
+      - run: >-
+          pytest -q
+          tests/test_chapter1_global_branching.py
+          tests/test_chapter1_global_branch_selection.py
       - name: Parse hypothesis contract
         run: |
           python - <<'PY'
           from pathlib import Path
           import yaml
           cfg = yaml.safe_load(Path('config/chapter1_global_branching.yml').read_text())
+          selection = yaml.safe_load(
+              Path('config/chapter1_global_branch_selection.yml').read_text()
+          )
           assert cfg['hypothesis_name'] == 'Dispersal-filtered pollination-service branching hypothesis'
           assert 'analysis_regime' in cfg['context_layers']
           assert 'biogeographic_realm' in cfg['context_layers']
@@ -50,5 +67,8 @@ jobs:
               for axis in cfg['axis_sets']['universal_plant_response']['axes']
           )
           assert 'direct_effective_service_and_replacement_tests_belong_to_izu_core' in cfg['rules']
+          assert selection['selection_model']['uses_branch_score_values'] is False
+          assert selection['selection_model']['uses_effect_estimates'] is False
+          assert selection['selection_model']['uses_p_values'] is False
           print('global branching hypothesis contract: ok')
           PY

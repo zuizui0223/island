@@ -44,6 +44,16 @@ jobs:
             --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
             --branching-config-path config/chapter1_global_branching.yml \
             --output-dir /tmp/global-branching
+      - name: Run outcome-blind observation-selection sensitivity
+        run: |
+          python -m island_v2.chapter1_global_branch_selection \
+            --island-scores-csv /tmp/pathway/syndrome/island_syndrome_scores.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --selection-config-path config/chapter1_global_branch_selection.yml \
+            --output-dir /tmp/global-branch-selection
       - name: Summarize plant-side branches
         run: |
           python - <<'PY'
@@ -59,11 +69,21 @@ jobs:
           text += focus.to_string(index=False)
           text += '\n```\n'
           Path('/tmp/global-branching-summary.md').write_text(text)
+          selection = pd.read_csv(
+              '/tmp/global-branch-selection/branch_selection_headline_summary.csv'
+          )
+          text = '\n## Observation-selection sensitivity\n\n```text\n'
+          text += selection.to_string(index=False)
+          text += '\n```\n'
+          with Path('/tmp/global-branching-summary.md').open('a') as handle:
+              handle.write(text)
           PY
           cat /tmp/global-branching-summary.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
           name: chapter1-global-branching-${{ github.run_id }}
-          path: /tmp/global-branching/
+          path: |
+            /tmp/global-branching/
+            /tmp/global-branch-selection/
           if-no-files-found: error
           retention-days: 90
