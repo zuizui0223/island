@@ -1,0 +1,131 @@
+name: Run PR138 Nearctic replication queue
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr138_realm_replication_queue.py"
+      - "tests/test_chapter1_pr138_realm_replication_queue.py"
+      - ".github/workflows/run-pr138-nearctic-replication-queue.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CANONICAL_RUN_ID: "32845980788"
+      CANONICAL_ARTIFACT: "chapter1-when-where-main-32845980788"
+      REALM_RUN_ID: "32927060210"
+      REALM_ARTIFACT: "pr138-realm-sensitivity-32927060210"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Download locked status/observation and formal-realm inputs
+        run: |
+          mkdir -p /tmp/canonical /tmp/realm /tmp/nearctic
+          gh run download "$CANONICAL_RUN_ID" -n "$CANONICAL_ARTIFACT" -D /tmp/canonical
+          gh run download "$REALM_RUN_ID" -n "$REALM_ARTIFACT" -D /tmp/realm
+          test -s /tmp/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/canonical/observation_bias/all_island_observation_support.csv.gz
+          test -s /tmp/realm/realm/island_biogeographic_realm_assignment.csv
+          test -s /tmp/realm/realm/realm_species_syndrome_concordance.csv.gz
+
+      - name: Build outcome-blind Nearctic status-curation queue
+        run: |
+          python -m island_v2.chapter1_pr138_realm_replication_queue \
+            --status-flora /tmp/canonical/input/chapter1_status_flora.csv.gz \
+            --realm-assignment /tmp/realm/realm/island_biogeographic_realm_assignment.csv \
+            --species-syndrome /tmp/realm/realm/realm_species_syndrome_concordance.csv.gz \
+            --observation-support /tmp/canonical/observation_bias/all_island_observation_support.csv.gz \
+            --target-realm Nearctic \
+            --output-csv /tmp/nearctic/nearctic_status_curation_queue.csv \
+            --manifest-json /tmp/nearctic/nearctic_status_curation_manifest.json
+
+      - name: Build distance-balanced wave 1 without outcome values
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+
+          root = Path('/tmp/nearctic')
+          queue = pd.read_csv(root/'nearctic_status_curation_queue.csv')
+          distance_order = ['0-5', '5-25', '25-100', '100-500', '500+']
+          selected = []
+          used_blocks = set()
+          for distance_bin in distance_order:
+              candidates = queue.loc[queue['distance_bin'].eq(distance_bin)].copy()
+              picks = []
+              # First diversify spatial blocks, preserving the outcome-blind queue rank.
+              for _, row in candidates.sort_values('queue_rank').iterrows():
+                  block = str(row['spatial_block'])
+                  if block not in used_blocks:
+                      picks.append(row)
+                      used_blocks.add(block)
+                  if len(picks) == 3:
+                      break
+              if len(picks) < 3:
+                  already = {str(r['island_id']) for r in picks}
+                  for _, row in candidates.sort_values('queue_rank').iterrows():
+                      if str(row['island_id']) in already:
+                          continue
+                      picks.append(row)
+                      if len(picks) == 3:
+                          break
+              selected.extend(picks)
+          wave = pd.DataFrame(selected)
+          wave.insert(0, 'wave_rank', range(1, len(wave) + 1))
+          wave.to_csv(root/'nearctic_status_curation_wave1.csv', index=False)
+          summary = {
+              'contract': 'chapter1_pr138_nearctic_status_wave1_v1',
+              'selection_uses_outcome_values': False,
+              'selection_uses_effect_estimates': False,
+              'selection_uses_p_values': False,
+              'n_queue_candidates': int(len(queue)),
+              'n_wave1': int(len(wave)),
+              'distance_bins': distance_order,
+              'target_per_distance_bin': 3,
+              'distance_bin_counts': wave['distance_bin'].value_counts().reindex(distance_order, fill_value=0).astype(int).to_dict(),
+              'n_spatial_blocks': int(wave['spatial_block'].nunique()) if not wave.empty else 0,
+          }
+          (root/'nearctic_status_curation_wave1_manifest.json').write_text(json.dumps(summary, indent=2) + '\n')
+          print(json.dumps(summary, indent=2))
+          print(wave[['wave_rank','queue_rank','island_id','distance_bin','spatial_block','n_flora_species_recorded','n_syndromes_meeting_support','min_syndrome_species']].to_string(index=False))
+          PY
+
+      - name: Fail closed if outcome-blind contract is violated
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('/tmp/nearctic')
+          for name in ['nearctic_status_curation_manifest.json', 'nearctic_status_curation_wave1_manifest.json']:
+              obj = json.loads((root/name).read_text())
+              forbidden = [
+                  obj.get('ranking_uses_outcome_values'),
+                  obj.get('ranking_uses_effect_estimates'),
+                  obj.get('ranking_uses_p_values'),
+                  obj.get('selection_uses_outcome_values'),
+                  obj.get('selection_uses_effect_estimates'),
+                  obj.get('selection_uses_p_values'),
+              ]
+              assert not any(x is True for x in forbidden), (name, obj)
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-nearctic-replication-queue-${{ github.run_id }}
+          path: /tmp/nearctic/
+          if-no-files-found: error
+          retention-days: 90
