@@ -9,44 +9,21 @@ import pandas as pd
 
 SCI_RE = re.compile(r"^\s*([A-Z][A-Za-z-]+)\s+([a-z][A-Za-z-]+)\b")
 STATUS_TOKEN_RE = re.compile(r"^(N|E)(?:\d+)?$")
+CEDROS_START_MARKER = "Preliminary Annotated List of Vascular Plants of Isla"
 
 
 def species_key(name: str) -> str:
-    parts = str(name).strip().split()
+    parts = str(name).strip().lstrip("*\"").split()
     if len(parts) < 2:
         return ""
     return f"{parts[0]} {parts[1]}".lower()
 
 
-def parse_nps_san_nicolas_text(text: str) -> pd.DataFrame:
-    """Parse the NPS San Nicolas vascular-plant table.
-
-    The NPS table marks taxa N (native) or E (exotic). We collapse infraspecific
-    checklist names to the species binomial because the locked island master is
-    species-level. If a binomial receives both N and E in the source, it fails closed.
-    """
-    rows: list[dict[str, str]] = []
-    for raw_line in text.splitlines():
-        line = raw_line.strip()
-        match = SCI_RE.match(line)
-        if not match:
-            continue
-        tokens = line.split()
-        statuses = [token for token in tokens[2:] if STATUS_TOKEN_RE.match(token)]
-        if not statuses:
-            continue
-        status_token = statuses[-1][0]
-        source_name = f"{match.group(1)} {match.group(2)}"
-        rows.append(
-            {
-                "source_species": source_name,
-                "species_key": species_key(source_name),
-                "origin_status": "native" if status_token == "N" else "introduced",
-            }
-        )
+def _collapse_rows(rows: list[dict[str, str]]) -> pd.DataFrame:
     if not rows:
-        return pd.DataFrame(columns=["source_species", "species_key", "origin_status", "status_conflict"])
-
+        return pd.DataFrame(
+            columns=["source_species", "species_key", "origin_status", "status_conflict"]
+        )
     frame = pd.DataFrame(rows).drop_duplicates()
     out: list[dict[str, object]] = []
     for key, group in frame.groupby("species_key", sort=True):
@@ -63,28 +40,109 @@ def parse_nps_san_nicolas_text(text: str) -> pd.DataFrame:
     return pd.DataFrame(out)
 
 
+def parse_nps_san_nicolas_text(text: str) -> pd.DataFrame:
+    """Parse NPS San Nicolas Table E-1 where N=native and E=exotic."""
+    rows: list[dict[str, str]] = []
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        match = SCI_RE.match(line)
+        if not match:
+            continue
+        statuses = [token for token in line.split()[2:] if STATUS_TOKEN_RE.match(token)]
+        if not statuses:
+            continue
+        status_token = statuses[-1][0]
+        source_name = f"{match.group(1)} {match.group(2)}"
+        rows.append(
+            {
+                "source_species": source_name,
+                "species_key": species_key(source_name),
+                "origin_status": "native" if status_token == "N" else "introduced",
+            }
+        )
+    return _collapse_rows(rows)
+
+
+def parse_cedros_oberbauer_text(text: str) -> pd.DataFrame:
+    """Parse Oberbauer (1993) Cedros appendix.
+
+    The source explicitly states that taxa denoted with an asterisk are presumably
+    introduced. Unstarred species entries in the annotated island list are therefore
+    treated as native for this status sensitivity. Parsing begins only after the
+    appendix marker so vegetation-community prose cannot create status records.
+    """
+    marker_index = text.find(CEDROS_START_MARKER)
+    if marker_index < 0:
+        # pdftotext line wrapping can insert spaces/newlines into the title.
+        marker_index = text.find("Annotated List of Vascular Plants")
+    if marker_index < 0:
+        raise ValueError("Cedros annotated-list marker not found")
+    appendix = text[marker_index:]
+    rows: list[dict[str, str]] = []
+    for raw_line in appendix.splitlines():
+        stripped = raw_line.strip()
+        introduced = stripped.startswith("*")
+        line = stripped.lstrip("*\"").strip()
+        match = SCI_RE.match(line)
+        if not match:
+            continue
+        source_name = f"{match.group(1)} {match.group(2)}"
+        # Exclude obvious prose false positives; real genus names are not these words.
+        if match.group(1) in {
+            "Endemic",
+            "Found",
+            "Occurs",
+            "Present",
+            "Reported",
+            "Known",
+            "Listed",
+            "Growing",
+            "Grows",
+            "Inhabits",
+            "Widespread",
+        }:
+            continue
+        rows.append(
+            {
+                "source_species": source_name,
+                "species_key": species_key(source_name),
+                "origin_status": "introduced" if introduced else "native",
+            }
+        )
+    return _collapse_rows(rows)
+
+
 def build_status_ledger(
     island_species: pd.DataFrame,
     parsed_status: pd.DataFrame,
     *,
     island_id: str,
+    status_source: str,
     status_reference: str,
+    evidence_prefix: str,
 ) -> pd.DataFrame:
     required = {"island_id", "accepted_species"}
     missing = required.difference(island_species.columns)
     if missing:
         raise ValueError(f"island species missing columns: {sorted(missing)}")
 
-    flora = island_species.loc[island_species["island_id"].astype(str).eq(str(island_id)), ["island_id", "accepted_species"]].drop_duplicates().copy()
+    flora = island_species.loc[
+        island_species["island_id"].astype(str).eq(str(island_id)),
+        ["island_id", "accepted_species"],
+    ].drop_duplicates().copy()
     flora["species_key"] = flora["accepted_species"].map(species_key)
-    source = parsed_status[["species_key", "origin_status", "status_conflict", "source_species"]].copy()
+    source = parsed_status[
+        ["species_key", "origin_status", "status_conflict", "source_species"]
+    ].copy()
     out = flora.merge(source, on="species_key", how="left")
     out["origin_status"] = out["origin_status"].fillna("unresolved")
     out["endemic_status"] = "unresolved"
-    out["status_source"] = "NPS San Nicolas Island Integrated Natural Resources Management Plan 2010, Table E-1"
+    out["status_source"] = status_source
     out["status_reference"] = status_reference
     out["status_evidence_id"] = out.apply(
-        lambda r: f"san-nicolas-2010:{r['species_key']}" if r["origin_status"] != "unresolved" else "",
+        lambda r: f"{evidence_prefix}:{r['species_key']}"
+        if r["origin_status"] != "unresolved"
+        else "",
         axis=1,
     )
     columns = [
@@ -105,19 +163,30 @@ def main() -> None:
     parser.add_argument("--pdftotext", required=True)
     parser.add_argument("--island-species", required=True)
     parser.add_argument("--island-id", required=True)
+    parser.add_argument("--source-kind", choices=["san_nicolas_nps", "cedros_oberbauer"], required=True)
     parser.add_argument("--status-reference", required=True)
     parser.add_argument("--output-csv", required=True)
     parser.add_argument("--manifest-json", required=True)
     args = parser.parse_args()
 
     text = Path(args.pdftotext).read_text(encoding="utf-8", errors="replace")
-    parsed = parse_nps_san_nicolas_text(text)
+    if args.source_kind == "san_nicolas_nps":
+        parsed = parse_nps_san_nicolas_text(text)
+        status_source = "NPS San Nicolas Island Integrated Natural Resources Management Plan 2010, Table E-1"
+        evidence_prefix = "san-nicolas-2010"
+    else:
+        parsed = parse_cedros_oberbauer_text(text)
+        status_source = "Oberbauer 1993 Preliminary Annotated List of Vascular Plants of Isla de Cedros"
+        evidence_prefix = "cedros-oberbauer-1993"
+
     flora = pd.read_csv(args.island_species)
     ledger = build_status_ledger(
         flora,
         parsed,
         island_id=args.island_id,
+        status_source=status_source,
         status_reference=args.status_reference,
+        evidence_prefix=evidence_prefix,
     )
     output = Path(args.output_csv)
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -125,7 +194,8 @@ def main() -> None:
 
     resolved = ledger["origin_status"].ne("unresolved")
     manifest = {
-        "contract": "chapter1_pr138_san_nicolas_status_v1",
+        "contract": "chapter1_pr138_source_backed_island_status_v2",
+        "source_kind": args.source_kind,
         "island_id": args.island_id,
         "n_source_species_keys": int(len(parsed)),
         "n_island_species": int(len(ledger)),
@@ -133,7 +203,7 @@ def main() -> None:
         "n_native": int(ledger["origin_status"].eq("native").sum()),
         "n_introduced": int(ledger["origin_status"].eq("introduced").sum()),
         "n_unresolved": int(ledger["origin_status"].eq("unresolved").sum()),
-        "status_policy": "source-backed N/E only; unmatched or conflicting names remain unresolved",
+        "status_policy": "source-backed island checklist only; unmatched or conflicting names remain unresolved",
         "status_reference": args.status_reference,
     }
     manifest_path = Path(args.manifest_json)
