@@ -43,6 +43,12 @@ def test_queue_is_outcome_blind_and_excludes_already_resolved_islands():
             "distance_to_continent_km": [20.0, 40.0, 60.0],
             "area_km2": [10.0, 20.0, 30.0],
             "spatial_block": ["a", "b", "c"],
+            # These columns deliberately mimic information present in the real source
+            # table. They must never leak into the blinded curation artifact.
+            "plain_color_share": [0.1, 0.9, 0.2],
+            "generalized_form_share": [0.2, 0.8, 0.3],
+            "bombus_channel_state": [0.1, 0.99, 0.2],
+            "environmental_compatibility_max": [0.2, 0.98, 0.3],
         }
     )
 
@@ -61,7 +67,14 @@ def test_queue_is_outcome_blind_and_excludes_already_resolved_islands():
     assert list(queue["island_id"]) == ["candidate"]
     assert queue.loc[0, "n_syndromes_meeting_support"] == 5
     assert queue.loc[0, "min_syndrome_species"] == 2
-    assert "syndrome_concordance" not in queue.columns
-    assert "soft_membership" not in queue.columns
+    forbidden = {
+        "syndrome_concordance",
+        "soft_membership",
+        "plain_color_share",
+        "generalized_form_share",
+        "bombus_channel_state",
+        "environmental_compatibility_max",
+    }
+    assert forbidden.isdisjoint(queue.columns)
     assert not any("effect" in column for column in queue.columns)
     assert not any("p_value" in column for column in queue.columns)
