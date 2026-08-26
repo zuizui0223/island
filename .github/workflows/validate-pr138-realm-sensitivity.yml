@@ -1,0 +1,54 @@
+name: Validate PR138 realm sensitivity
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr138_realm_sensitivity.py"
+      - "config/chapter1_pr138_realm_sensitivity.yml"
+      - "tests/test_chapter1_pr138_realm_sensitivity.py"
+      - ".github/workflows/validate-pr138-realm-sensitivity.yml"
+      - ".github/workflows/run-pr138-realm-sensitivity.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/island_v2/chapter1_pr138_realm_sensitivity.py"
+      - "config/chapter1_pr138_realm_sensitivity.yml"
+      - "tests/test_chapter1_pr138_realm_sensitivity.py"
+      - ".github/workflows/validate-pr138-realm-sensitivity.yml"
+      - ".github/workflows/run-pr138-realm-sensitivity.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Ruff
+        run: |
+          ruff check \
+            src/island_v2/chapter1_pr138_realm_sensitivity.py \
+            tests/test_chapter1_pr138_realm_sensitivity.py
+      - name: Realm assignment falsification tests
+        run: pytest -q tests/test_chapter1_pr138_realm_sensitivity.py
+      - name: Parse realm contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+          cfg = yaml.safe_load(Path('config/chapter1_pr138_realm_sensitivity.yml').read_text())
+          assert cfg['dataset']['license'] == 'CC-BY-4.0'
+          assert 'Nearctic' in cfg['realms'] and 'Palearctic' in cfg['realms']
+          assert 'Neotropical' in cfg['realms'] and 'Afrotropical' in cfg['realms']
+          assert 'no_nearest_realm_imputation' in cfg['rules']
+          print('formal realm sensitivity contract: ok')
+          PY
