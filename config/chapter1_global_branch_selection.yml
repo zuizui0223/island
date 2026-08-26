@@ -1,0 +1,57 @@
+contract: chapter1_global_branch_selection_sensitivity_v1
+
+purpose: >-
+  Test whether the pollinator-name-free Chapter 1 plant-response branches depend on
+  geographically structured availability of trait/syndrome scores across the full
+  8,265-island universe.
+
+primary_axis_set: universal_plant_response
+
+selection_model:
+  endpoint: axis_score_observed
+  uses_branch_score_values: false
+  uses_effect_estimates: false
+  uses_p_values: false
+  include_distance_by_context_interactions: true
+  minimum_observed: 30
+  minimum_unobserved: 30
+
+weight_modes:
+  unweighted:
+    role: exact_primary_analysis_reproduction
+  stabilized_ipw_clip_0_05:
+    role: primary_selection_sensitivity
+    minimum_propensity: 0.05
+    maximum_propensity: 0.95
+    maximum_weight: 20.0
+  stabilized_ipw_clip_0_025:
+    role: wider_selection_sensitivity
+    minimum_propensity: 0.025
+    maximum_propensity: 0.975
+    maximum_weight: 20.0
+
+stabilization:
+  numerator: observed_axis_fraction_within_context
+  normalize_within_axis_stratum_context: true
+  report_effective_sample_size: true
+
+headline_contrasts:
+  analysis_regime:
+    - [northern_midlatitude, tropical]
+  biogeographic_realm:
+    - [Palearctic, Neotropical]
+
+rules:
+  - all_islands_remain_in_the_selection_universe
+  - missing_axis_score_is_an_observation_zero_not_a_trait_zero
+  - propensity_models_are_fit_separately_by_axis_and_floristic_stratum
+  - branch_score_values_never_enter_propensity_models
+  - failure_of_overlap_downgrades_the_branch_claim
+  - ipw_is_a_missing_at_random_sensitivity_not_proof_of_random_observation
+  - source_pool_and_effective_pollination_service_remain_unidentified
+
+claim_ceiling: >-
+  Persistence under stabilized inverse-probability weighting shows that the observed
+  regional plant-response branch is not readily explained by measured geographic,
+  climatic and island-area predictors of axis-score availability. It does not show that
+  unmeasured trait observation is random and does not identify a pollination mechanism.

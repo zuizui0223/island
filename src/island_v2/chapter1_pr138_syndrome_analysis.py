@@ -223,6 +223,7 @@ def _within_context(
     threshold: int,
     pattern_config: dict[str, Any],
     syndrome_config: dict[str, Any],
+    weight_column: str | None = None,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
     geography = str(pattern_config["geography_column"])
     context = str(pattern_config["context_column"])
@@ -261,9 +262,16 @@ def _within_context(
         names.append(slope_name)
         columns.append(z_geo)
         slope_names.append(slope_name)
+    weights = np.ones(len(work), dtype=float)
+    if weight_column is not None:
+        if weight_column not in work.columns:
+            raise typer.BadParameter(f"analysis weight column missing: {weight_column}")
+        weights = pd.to_numeric(work[weight_column], errors="coerce").to_numpy(float)
+        if not np.isfinite(weights).all() or np.any(weights <= 0):
+            raise typer.BadParameter("analysis weights must be finite and positive")
     coefficients, covariance, fit = _fit_weighted_clustered_design(
         work["syndrome_score"].to_numpy(float),
-        np.ones(len(work), dtype=float),
+        weights,
         np.column_stack(columns),
         names,
         work[cluster].to_numpy(str),
@@ -333,6 +341,7 @@ def _between_contexts(
     support_tier: str,
     threshold: int,
     pattern_config: dict[str, Any],
+    weight_column: str | None = None,
 ) -> dict[str, Any]:
     geography = str(pattern_config["geography_column"])
     context = str(pattern_config["context_column"])
@@ -380,9 +389,16 @@ def _between_contexts(
         names.append(interaction)
         columns.append(z_geo * b_indicator)
         interaction_names.append(interaction)
+    weights = np.ones(len(work), dtype=float)
+    if weight_column is not None:
+        if weight_column not in work.columns:
+            raise typer.BadParameter(f"analysis weight column missing: {weight_column}")
+        weights = pd.to_numeric(work[weight_column], errors="coerce").to_numpy(float)
+        if not np.isfinite(weights).all() or np.any(weights <= 0):
+            raise typer.BadParameter("analysis weights must be finite and positive")
     coefficients, covariance, fit = _fit_weighted_clustered_design(
         work["syndrome_score"].to_numpy(float),
-        np.ones(len(work), dtype=float),
+        weights,
         np.column_stack(columns),
         names,
         work[cluster].to_numpy(str),
