@@ -50,9 +50,11 @@ def test_parse_and_build_status_ledger_fail_closed():
     assert set(ledger["endemic_status"]) == {"unresolved"}
 
 
-def test_cedros_parser_uses_only_annotated_list_and_asterisk_status():
+def test_cedros_parser_uses_actual_last_appendix_and_asterisk_status():
     text = """
+    The island supports about 224 species (Appendix 2.).
     Avena barbata appears in vegetation prose before the appendix.
+    Appendix 2.
     Preliminary Annotated List of Vascular Plants of Isla de Cedros, Baja California, Mexico
     Abronia maritima Nutt. ex Wats. Grows on western dunes.
     *Avena fatua L. Found on Cerro de Cedros.
