@@ -10,6 +10,11 @@ import pandas as pd
 SCI_RE = re.compile(r"^\s*([A-Z][A-Za-z-]+)\s+([a-z][A-Za-z-]+)\b")
 STATUS_TOKEN_RE = re.compile(r"^(N|E)(?:\d+)?$")
 CEDROS_START_MARKER = "Preliminary Annotated List of Vascular Plants of Isla"
+SAN_NICOLAS_STATUS_OVERRIDES = {
+    # Table E-1 marks this N1, but footnote 1 explicitly states it is introduced
+    # to San Nicolas Island despite being native to California.
+    "encelia californica": "introduced",
+}
 
 
 def species_key(name: str) -> str:
@@ -41,7 +46,11 @@ def _collapse_rows(rows: list[dict[str, str]]) -> pd.DataFrame:
 
 
 def parse_nps_san_nicolas_text(text: str) -> pd.DataFrame:
-    """Parse NPS San Nicolas Table E-1 where N=native and E=exotic."""
+    """Parse NPS San Nicolas Table E-1 where N=native and E=exotic.
+
+    Source footnotes override table tokens where they explicitly change island origin.
+    This prevents N1 for Encelia californica from being misread as island-native.
+    """
     rows: list[dict[str, str]] = []
     for raw_line in text.splitlines():
         line = raw_line.strip()
@@ -53,11 +62,14 @@ def parse_nps_san_nicolas_text(text: str) -> pd.DataFrame:
             continue
         status_token = statuses[-1][0]
         source_name = f"{match.group(1)} {match.group(2)}"
+        key = species_key(source_name)
+        origin = "native" if status_token == "N" else "introduced"
+        origin = SAN_NICOLAS_STATUS_OVERRIDES.get(key, origin)
         rows.append(
             {
                 "source_species": source_name,
-                "species_key": species_key(source_name),
-                "origin_status": "native" if status_token == "N" else "introduced",
+                "species_key": key,
+                "origin_status": origin,
             }
         )
     return _collapse_rows(rows)
@@ -73,7 +85,6 @@ def parse_cedros_oberbauer_text(text: str) -> pd.DataFrame:
     """
     marker_index = text.find(CEDROS_START_MARKER)
     if marker_index < 0:
-        # pdftotext line wrapping can insert spaces/newlines into the title.
         marker_index = text.find("Annotated List of Vascular Plants")
     if marker_index < 0:
         raise ValueError("Cedros annotated-list marker not found")
@@ -87,7 +98,6 @@ def parse_cedros_oberbauer_text(text: str) -> pd.DataFrame:
         if not match:
             continue
         source_name = f"{match.group(1)} {match.group(2)}"
-        # Exclude obvious prose false positives; real genus names are not these words.
         if match.group(1) in {
             "Endemic",
             "Found",
@@ -163,7 +173,11 @@ def main() -> None:
     parser.add_argument("--pdftotext", required=True)
     parser.add_argument("--island-species", required=True)
     parser.add_argument("--island-id", required=True)
-    parser.add_argument("--source-kind", choices=["san_nicolas_nps", "cedros_oberbauer"], required=True)
+    parser.add_argument(
+        "--source-kind",
+        choices=["san_nicolas_nps", "cedros_oberbauer"],
+        required=True,
+    )
     parser.add_argument("--status-reference", required=True)
     parser.add_argument("--output-csv", required=True)
     parser.add_argument("--manifest-json", required=True)
@@ -172,11 +186,15 @@ def main() -> None:
     text = Path(args.pdftotext).read_text(encoding="utf-8", errors="replace")
     if args.source_kind == "san_nicolas_nps":
         parsed = parse_nps_san_nicolas_text(text)
-        status_source = "NPS San Nicolas Island Integrated Natural Resources Management Plan 2010, Table E-1"
+        status_source = (
+            "NPS San Nicolas Island Integrated Natural Resources Management Plan 2010, Table E-1"
+        )
         evidence_prefix = "san-nicolas-2010"
     else:
         parsed = parse_cedros_oberbauer_text(text)
-        status_source = "Oberbauer 1993 Preliminary Annotated List of Vascular Plants of Isla de Cedros"
+        status_source = (
+            "Oberbauer 1993 Preliminary Annotated List of Vascular Plants of Isla de Cedros"
+        )
         evidence_prefix = "cedros-oberbauer-1993"
 
     flora = pd.read_csv(args.island_species)
@@ -203,7 +221,9 @@ def main() -> None:
         "n_native": int(ledger["origin_status"].eq("native").sum()),
         "n_introduced": int(ledger["origin_status"].eq("introduced").sum()),
         "n_unresolved": int(ledger["origin_status"].eq("unresolved").sum()),
-        "status_policy": "source-backed island checklist only; unmatched or conflicting names remain unresolved",
+        "status_policy": (
+            "source-backed island checklist only; unmatched or conflicting names remain unresolved"
+        ),
         "status_reference": args.status_reference,
     }
     manifest_path = Path(args.manifest_json)
