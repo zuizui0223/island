@@ -6,11 +6,13 @@ on:
     paths:
       - "src/island_v2/chapter1_pr138_biogeographic_pattern.py"
       - "src/island_v2/chapter1_pr138_direct_ledger_pattern.py"
+      - "src/island_v2/chapter1_pr138_information_weight.py"
       - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
       - "config/chapter1_pr136_biogeographic_pattern.yml"
       - "config/chapter1_pr136_biogeographic_residual.yml"
       - "tests/test_chapter1_pr138_biogeographic_pattern.py"
       - "tests/test_chapter1_pr138_direct_ledger_pattern.py"
+      - "tests/test_chapter1_pr138_information_weight.py"
       - "tests/test_chapter1_pr136_biogeographic_residual.py"
       - ".github/workflows/validate-pr136-channel-gated.yml"
   pull_request:
@@ -18,11 +20,13 @@ on:
     paths:
       - "src/island_v2/chapter1_pr138_biogeographic_pattern.py"
       - "src/island_v2/chapter1_pr138_direct_ledger_pattern.py"
+      - "src/island_v2/chapter1_pr138_information_weight.py"
       - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
       - "config/chapter1_pr136_biogeographic_pattern.yml"
       - "config/chapter1_pr136_biogeographic_residual.yml"
       - "tests/test_chapter1_pr138_biogeographic_pattern.py"
       - "tests/test_chapter1_pr138_direct_ledger_pattern.py"
+      - "tests/test_chapter1_pr138_information_weight.py"
       - "tests/test_chapter1_pr136_biogeographic_residual.py"
       - ".github/workflows/validate-pr136-channel-gated.yml"
   workflow_dispatch:
@@ -46,15 +50,18 @@ jobs:
           ruff check \
             src/island_v2/chapter1_pr138_biogeographic_pattern.py \
             src/island_v2/chapter1_pr138_direct_ledger_pattern.py \
+            src/island_v2/chapter1_pr138_information_weight.py \
             src/island_v2/chapter1_pr136_biogeographic_residual.py \
             tests/test_chapter1_pr138_biogeographic_pattern.py \
             tests/test_chapter1_pr138_direct_ledger_pattern.py \
+            tests/test_chapter1_pr138_information_weight.py \
             tests/test_chapter1_pr136_biogeographic_residual.py
       - name: Observed-pattern and decomposition falsification tests
         run: |
           pytest -q \
             tests/test_chapter1_pr138_biogeographic_pattern.py \
             tests/test_chapter1_pr138_direct_ledger_pattern.py \
+            tests/test_chapter1_pr138_information_weight.py \
             tests/test_chapter1_pr136_biogeographic_residual.py
       - name: Parse pattern contracts
         run: |
@@ -67,5 +74,5 @@ jobs:
           assert primary['pollinator_predictors_in_primary_model'] is False
           assert len(primary['broad_outcomes']) == 8
           assert secondary['pollinator_predictors_in_primary_model'] is False
-          print('Eight-axis observed assemblage primary + secondary genus-fixed decomposition: ok')
+          print('Eight-axis observed assemblage primary + weighting sensitivity + secondary decomposition: ok')
           PY
