@@ -45,13 +45,14 @@ jobs:
           test -s /tmp/block/input/input/isolation/results/purpose_shortest_island_data.csv
           test -s /tmp/block/input/input/realm/realm/island_biogeographic_realm_assignment.csv
 
-      - name: Run exhaustive Palearctic block deletion
+      - name: Run exhaustive Palearctic block deletion with IPW
         run: |
           python -m island_v2.chapter1_pr138_palearctic_restricted_block_deletion \
             --adjusted-scores-csv /tmp/block/input/result/outcrossing_restriction_adjusted_scores.csv.gz \
             --covariates-csv /tmp/block/input/input/isolation/results/purpose_shortest_island_data.csv \
             --realm-assignment-csv /tmp/block/input/input/realm/realm/island_biogeographic_realm_assignment.csv \
             --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --selection-config-path config/chapter1_global_branch_selection.yml \
             --output-dir /tmp/block/result
 
       - name: Summarize restricted Palearctic block deletion
@@ -63,24 +64,36 @@ jobs:
 
           root = Path('/tmp/block/result')
           summary = pd.read_csv(root / 'palearctic_restricted_block_deletion_summary.csv')
+          support = pd.read_csv(root / 'palearctic_restricted_block_support.csv')
           influence = pd.read_csv(root / 'palearctic_restricted_block_influence_rank.csv')
           detailed = pd.read_csv(root / 'palearctic_restricted_block_deletion_influence.csv')
           manifest = json.loads((root / 'palearctic_restricted_block_deletion_manifest.json').read_text())
           aegean = detailed.loc[detailed['is_preidentified_aegean'].eq(True)].copy()
+          si = support.loc[support['restriction'].eq('si_only')].copy()
+          si_blocks = (
+              si.groupby(['stratum', 'selection_mode'], as_index=False)
+              .agg(
+                  n_blocks=('deleted_block', 'nunique'),
+                  n_all_positive=('all_positive', 'sum'),
+                  n_all_source_supported=('all_source_modes_supported', 'sum'),
+              )
+          )
           out = Path('/tmp/block/palearctic_restricted_block_deletion_summary.md')
           with out.open('w') as f:
-              f.write('# PR138 restricted Palearctic spatial-block deletion\n\n')
-              f.write('Every Palearctic block is deleted in turn; block selection is outcome-blind.\n\n')
+              f.write('# PR138 restricted Palearctic spatial-block deletion + IPW\n\n')
+              f.write('Every Palearctic block is deleted in turn; block selection is outcome-blind and IPW is recomputed after each deletion.\n\n')
               f.write('## Direction/support summary\n\n```text\n')
               f.write(summary.to_string(index=False))
+              f.write('\n```\n\n## SI-only block persistence\n\n```text\n')
+              f.write(si_blocks.to_string(index=False))
               f.write('\n```\n\n## Top block influence\n\n```text\n')
               f.write(influence.head(20).to_string(index=False))
               f.write('\n```\n\n## Preidentified Aegean deletion\n\n```text\n')
               cols = [
-                  'restriction','source_mode','stratum','distance_estimate',
-                  'distance_q_across_source_modes','full_distance_estimate',
-                  'deletion_delta_estimate','absolute_deletion_delta',
-                  'influence_rank_desc','n_unique_islands'
+                  'restriction','source_mode','stratum','selection_mode',
+                  'distance_estimate','distance_q_across_source_modes',
+                  'full_distance_estimate','deletion_delta_estimate',
+                  'absolute_deletion_delta','influence_rank_desc','n_unique_islands'
               ]
               f.write(aegean[[c for c in cols if c in aegean.columns]].to_string(index=False))
               f.write('\n```\n\n## Manifest\n\n```json\n')
@@ -95,5 +108,3 @@ jobs:
           path: /tmp/block/
           if-no-files-found: error
           retention-days: 90
-
-# Kept explicit so a branch push after workflow creation exercises the full job.
