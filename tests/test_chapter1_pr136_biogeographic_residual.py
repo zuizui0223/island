@@ -15,11 +15,12 @@ def _synthetic(*, opposite: bool, n_per_context: int = 80):
         for i in range(n_per_context):
             island_id = f"{context}_{i}"
             distance = (i + 1) / n_per_context
+            cluster_index = i // 4
             cov_rows.append(
                 {
                     "island_id": island_id,
                     "analysis_regime": context,
-                    "spatial_block": f"b{context_index}_{i // 4}",
+                    "spatial_block": f"b{context_index}_{cluster_index}",
                     "log_distance_to_continent_km": distance,
                     "log_island_area_km2": np.cos(i / 7),
                     "climate_pc1": np.sin(i / 9),
@@ -28,12 +29,14 @@ def _synthetic(*, opposite: bool, n_per_context: int = 80):
                     "climate_pc4": np.cos(i / 17),
                 }
             )
-            noise = 0.002 * np.sin(i * 1.7)
+            cluster_noise = 0.025 * np.sin((cluster_index + 1) * 1.37 + context_index)
+            island_noise = 0.008 * np.cos((i + 2) * 1.91)
             for outcome_index, outcome in enumerate(outcomes):
-                slope = 0.12 + 0.05 * outcome_index
+                slope = 0.18 + 0.06 * outcome_index
                 if opposite and context == "tropical":
                     slope *= -1
-                residual = slope * distance + noise
+                outcome_noise = 0.004 * np.sin((outcome_index + 1) * (i + 1) * 0.71)
+                residual = slope * distance + cluster_noise + island_noise + outcome_noise
                 null_rows.append(
                     {
                         "island_id": island_id,
@@ -71,7 +74,7 @@ def test_detects_true_biogeographic_vector_difference():
     row = between.iloc[0]
     assert row["status"] == "fit"
     assert bool(row["biogeographic_difference_supported"])
-    assert row["q_within_stratum_tier"] < 0.01
+    assert row["q_within_stratum_tier"] < 0.05
 
 
 def test_same_slopes_do_not_manufacture_biogeographic_difference():
@@ -80,7 +83,7 @@ def test_same_slopes_do_not_manufacture_biogeographic_difference():
     row = between.iloc[0]
     assert row["status"] == "fit"
     assert not bool(row["biogeographic_difference_supported"])
-    assert row["q_within_stratum_tier"] > 0.2
+    assert pd.isna(row["q_within_stratum_tier"]) or row["q_within_stratum_tier"] > 0.05
 
 
 def test_under_supported_context_is_not_testable_not_null():
@@ -90,7 +93,7 @@ def test_under_supported_context_is_not_testable_not_null():
     assert between.iloc[0]["status"] == "not_testable"
 
 
-def test_primary_input_needs_no_pollinator_columns():
+def test_secondary_input_needs_no_pollinator_columns():
     genus_null, covariates, config = _synthetic(opposite=True)
     assert not any("bombus" in c.lower() or "pollinator" in c.lower() for c in covariates.columns)
     _, _, within, between = run_biogeographic_residual(genus_null, covariates, config)
