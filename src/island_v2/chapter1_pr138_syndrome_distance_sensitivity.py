@@ -101,7 +101,10 @@ def _headline(
     between: pd.DataFrame,
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    for stratum in ("all_native", "native_nonendemic"):
+    if within.empty or "stratum" not in within.columns:
+        return rows
+    fitted_strata = sorted({str(x) for x in within["stratum"].dropna().unique()})
+    for stratum in fitted_strata:
         north = within.loc[
             within["stratum"].eq(stratum)
             & within["context"].eq("northern_midlatitude")
