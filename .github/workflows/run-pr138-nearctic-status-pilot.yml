@@ -1,0 +1,173 @@
+name: Run PR138 Nearctic status pilot
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr138_san_nicolas_status.py"
+      - "tests/test_chapter1_pr138_san_nicolas_status.py"
+      - ".github/workflows/run-pr138-nearctic-status-pilot.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ISOLATION_RUN_ID: "29228212586"
+      ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+      CANONICAL_RUN_ID: "32845980788"
+      CANONICAL_ARTIFACT: "chapter1-when-where-main-32845980788"
+      TRAIT_RUN_ID: "32702160934"
+      TRAIT_ARTIFACT: "reviewed-open-web-evidence-32702160934"
+      ECOREGION_URL: "https://storage.googleapis.com/teow2016/Ecoregions2017.zip"
+      SNI_URL: "https://www.nps.gov/subjects/islandofthebluedolphins/upload/SNI-Species-List-2010.pdf"
+      CEDROS_URL: "https://sbbotanicgarden.org/wp-content/uploads/2022/08/Oberbauer-1993_Vegetation_communities_Isla_De_Cedros_Mexico.pdf"
+      SNI_ID: "gshhg_2.3.7_h_fa0f3406c02f18b31098"
+      CEDROS_ID: "gshhg_2.3.7_h_8814371cac9eab98b9d7"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Install PDF text extractor
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y poppler-utils
+
+      - name: Download frozen project inputs
+        run: |
+          mkdir -p /tmp/isolation /tmp/canonical /tmp/traits /tmp/ecoregions /tmp/status_sources /tmp/pr138/status
+          gh run download "$ISOLATION_RUN_ID" -n "$ISOLATION_ARTIFACT" -D /tmp/isolation
+          gh run download "$CANONICAL_RUN_ID" -n "$CANONICAL_ARTIFACT" -D /tmp/canonical
+          gh run download "$TRAIT_RUN_ID" -n "$TRAIT_ARTIFACT" -D /tmp/traits
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/traits/direct_species_trait_ledger.csv.gz
+          test -s /tmp/traits/rebuilt_all_evidence_validated_low.csv.gz
+
+      - name: Download source-backed island checklists
+        run: |
+          curl -A "Mozilla/5.0" -L --fail --retry 3 "$SNI_URL" -o /tmp/status_sources/san_nicolas.pdf
+          curl -A "Mozilla/5.0" -L --fail --retry 3 "$CEDROS_URL" -o /tmp/status_sources/cedros.pdf
+          pdftotext -layout /tmp/status_sources/san_nicolas.pdf /tmp/status_sources/san_nicolas.txt
+          pdftotext -layout /tmp/status_sources/cedros.pdf /tmp/status_sources/cedros.txt
+          test -s /tmp/status_sources/san_nicolas.txt
+          test -s /tmp/status_sources/cedros.txt
+
+      - name: Parse San Nicolas and Cedros status ledgers
+        run: |
+          python -m island_v2.chapter1_pr138_san_nicolas_status \
+            --pdftotext /tmp/status_sources/san_nicolas.txt \
+            --island-species /tmp/canonical/input/chapter1_status_flora.csv.gz \
+            --island-id "$SNI_ID" \
+            --source-kind san_nicolas_nps \
+            --status-reference "$SNI_URL" \
+            --output-csv /tmp/pr138/status/san_nicolas_status.csv \
+            --manifest-json /tmp/pr138/status/san_nicolas_status_manifest.json
+          python -m island_v2.chapter1_pr138_san_nicolas_status \
+            --pdftotext /tmp/status_sources/cedros.txt \
+            --island-species /tmp/canonical/input/chapter1_status_flora.csv.gz \
+            --island-id "$CEDROS_ID" \
+            --source-kind cedros_oberbauer \
+            --status-reference "$CEDROS_URL" \
+            --output-csv /tmp/pr138/status/cedros_status.csv \
+            --manifest-json /tmp/pr138/status/cedros_status_manifest.json
+
+      - name: Build updated status-flora sensitivity input
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          base = pd.read_csv('/tmp/canonical/input/chapter1_status_flora.csv.gz')
+          ledgers = pd.concat([
+              pd.read_csv('/tmp/pr138/status/san_nicolas_status.csv'),
+              pd.read_csv('/tmp/pr138/status/cedros_status.csv'),
+          ], ignore_index=True)
+          key = ['island_id','accepted_species']
+          patch = ledgers[key + ['origin_status','endemic_status','status_source','status_reference','status_evidence_id']].copy()
+          out = base.merge(patch, on=key, how='left', suffixes=('', '_pilot'))
+          for col in ['origin_status','endemic_status','status_source','status_reference','status_evidence_id']:
+              pilot = col + '_pilot'
+              if pilot in out.columns:
+                  mask = out[pilot].notna() & out[pilot].astype(str).ne('')
+                  out.loc[mask, col] = out.loc[mask, pilot]
+                  out = out.drop(columns=[pilot])
+          out['status_resolved'] = out['origin_status'].fillna('unresolved').ne('unresolved')
+          def combined(row):
+              if row['origin_status'] == 'introduced': return 'introduced'
+              if row['origin_status'] != 'native': return 'unresolved'
+              if row['endemic_status'] == 'endemic': return 'endemic'
+              if row['endemic_status'] == 'nonendemic': return 'native_nonendemic'
+              return 'native_endemism_unresolved'
+          out['floristic_status'] = out.apply(combined, axis=1)
+          Path('/tmp/pr138/status').mkdir(parents=True, exist_ok=True)
+          out.to_csv('/tmp/pr138/status/chapter1_status_flora_nearctic_pilot.csv.gz', index=False)
+          print(out.loc[out['island_id'].isin(["gshhg_2.3.7_h_fa0f3406c02f18b31098","gshhg_2.3.7_h_8814371cac9eab98b9d7"]), 'origin_status'].value_counts(dropna=False))
+          PY
+
+      - name: Download RESOLVE Ecoregions 2017
+        run: |
+          curl -L --fail --retry 3 "$ECOREGION_URL" -o /tmp/ecoregions/ecoregions.zip
+          unzip -q /tmp/ecoregions/ecoregions.zip -d /tmp/ecoregions/unpacked
+          SHP=$(find /tmp/ecoregions/unpacked -type f -name '*.shp' | head -1)
+          test -n "$SHP"
+          echo "ECOREGION_SHP=$SHP" >> "$GITHUB_ENV"
+
+      - name: Build all-analysis-eligible evidence ladder
+        run: |
+          python -m island_v2.chapter1_pr138_evidence_ladder \
+            --direct-ledger-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --validated-low-csv /tmp/traits/rebuilt_all_evidence_validated_low.csv.gz \
+            --output-dir /tmp/pr138/evidence
+
+      - name: Re-run formal realm sensitivity with two source-backed islands
+        run: |
+          python -m island_v2.chapter1_pr138_realm_sensitivity \
+            --trait-ledger-csv /tmp/pr138/evidence/all_analysis_eligible_trait_ledger.csv.gz \
+            --status-flora-csv /tmp/pr138/status/chapter1_status_flora_nearctic_pilot.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --ecoregions-path "$ECOREGION_SHP" \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --syndrome-config-path config/chapter1_pr138_pollination_syndromes.yml \
+            --realm-config-path config/chapter1_pr138_realm_sensitivity.yml \
+            --output-dir /tmp/pr138/realm
+
+      - name: Write pilot summary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+          root=Path('/tmp/pr138')
+          sni=json.loads((root/'status/san_nicolas_status_manifest.json').read_text())
+          ced=json.loads((root/'status/cedros_status_manifest.json').read_text())
+          within=pd.read_csv(root/'realm/realm_syndrome_within_omnibus.csv')
+          slopes=pd.read_csv(root/'realm/realm_syndrome_distance_slopes.csv')
+          near_w=within.loc[within['context'].eq('Nearctic')]
+          near_s=slopes.loc[slopes['context'].eq('Nearctic')]
+          with (root/'nearctic_status_pilot_summary.md').open('w') as f:
+              f.write('# PR138 source-backed Nearctic status pilot\n\n')
+              f.write('## San Nicolas status extraction\n```json\n'+json.dumps(sni,indent=2)+'\n```\n\n')
+              f.write('## Cedros status extraction\n```json\n'+json.dumps(ced,indent=2)+'\n```\n\n')
+              f.write('## Nearctic within-realm results\n```text\n')
+              f.write(near_w.to_string(index=False) if not near_w.empty else 'Nearctic remains below pilot gate.')
+              f.write('\n```\n\n## Nearctic syndrome slopes\n```text\n')
+              f.write(near_s.to_string(index=False) if not near_s.empty else 'No Nearctic slopes fit.')
+              f.write('\n```\n')
+          PY
+          cat /tmp/pr138/nearctic_status_pilot_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-nearctic-status-pilot-${{ github.run_id }}
+          path: /tmp/pr138/
+          if-no-files-found: error
+          retention-days: 90
