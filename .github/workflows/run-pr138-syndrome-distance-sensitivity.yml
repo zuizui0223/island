@@ -1,5 +1,7 @@
 name: Run PR138 syndrome distance sensitivity
 
+# Frozen-input robustness: raw, sqrt and log1p distance forms are all prespecified and
+# run on the same islands without outcome-dependent thresholds.
 on:
   push:
     branches: [pr136-channel-gated-primary-validation]
