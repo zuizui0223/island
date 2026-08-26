@@ -31,6 +31,10 @@ def run_pr138_information_weight(
     within_parts: list[pd.DataFrame] = []
     between_parts: list[pd.DataFrame] = []
     summary_rows: list[dict[str, Any]] = []
+    configured_strata = {str(x) for x in pattern_config.get("strata", [])}
+    headline_strata = [
+        x for x in ("all_native", "native_nonendemic") if x in configured_strata
+    ]
     for mode in modes:
         weighted = reweight_composition(counts, mode)
         _, _, within, between = run_observed_pattern(weighted, covariates, pattern_config)
@@ -43,7 +47,7 @@ def run_pr138_information_weight(
             between.insert(0, "information_weight_mode", mode)
             between_parts.append(between)
 
-        for stratum in ("all_native", "native_nonendemic"):
+        for stratum in headline_strata:
             w = within.loc[
                 within["stratum"].eq(stratum)
                 & within["support_tier"].eq("confirmatory")
