@@ -115,7 +115,13 @@ def species_key(name: str) -> str:
 def _collapse_rows(rows: list[dict[str, str]]) -> pd.DataFrame:
     if not rows:
         return pd.DataFrame(
-            columns=["source_species", "species_key", "origin_status", "status_conflict"]
+            columns=[
+                "source_species",
+                "species_key",
+                "origin_status",
+                "status_conflict",
+                "status_basis",
+            ]
         )
     frame = pd.DataFrame(rows).drop_duplicates()
     out: list[dict[str, object]] = []
@@ -128,6 +134,9 @@ def _collapse_rows(rows: list[dict[str, str]]) -> pd.DataFrame:
                 "species_key": key,
                 "origin_status": statuses[0] if len(statuses) == 1 else "unresolved",
                 "status_conflict": conflict,
+                "status_basis": "|".join(
+                    sorted(set(group.get("status_basis", pd.Series(dtype=str))))
+                ),
             }
         )
     return pd.DataFrame(out)
@@ -158,6 +167,7 @@ def parse_nps_san_nicolas_text(text: str) -> pd.DataFrame:
                 "source_species": source_name,
                 "species_key": key,
                 "origin_status": origin,
+                "status_basis": f"nps_table_{status_token.lower()}",
             }
         )
     return _collapse_rows(rows)
@@ -166,11 +176,11 @@ def parse_nps_san_nicolas_text(text: str) -> pd.DataFrame:
 def parse_cedros_oberbauer_text(text: str) -> pd.DataFrame:
     """Parse Oberbauer (1993) Cedros Appendix 2.
 
-    The source explicitly states that taxa denoted with an asterisk are presumably
-    introduced. Unstarred species entries in the annotated island list are therefore
-    treated as native for this status sensitivity. The paper mentions ``Appendix 2``
-    earlier in the prose, so parsing deliberately starts at the *last* marker, which is
-    the actual annotated checklist heading.
+    The source says that taxa denoted with an asterisk are *presumably*
+    introduced. That qualified label and every unstarred entry remain unresolved
+    under the strict binary origin contract; the asterisk is retained as an auditable
+    lower-confidence introduction candidate. Parsing starts at the last appendix
+    marker because the paper mentions Appendix 2 earlier in its prose.
     """
     marker_index = text.rfind(CEDROS_START_MARKER)
     if marker_index < 0:
@@ -193,7 +203,12 @@ def parse_cedros_oberbauer_text(text: str) -> pd.DataFrame:
                 {
                     "source_species": source_name,
                     "species_key": species_key(source_name),
-                    "origin_status": "introduced" if match.group(1) else "native",
+                    "origin_status": "unresolved",
+                    "status_basis": (
+                        "presumably_introduced_asterisk"
+                        if match.group(1)
+                        else "unstarred_no_explicit_origin"
+                    ),
                 }
             )
     return _collapse_rows(rows)
@@ -224,15 +239,27 @@ def parse_cch2_san_nicolas_html(html: str) -> pd.DataFrame:
             lower_note = note.lower()
             if "status on island unclear" in lower_note:
                 origin = "unresolved"
-            elif "non-native" in lower_note or "introduc" in lower_note:
+                basis = "island_status_explicitly_unclear"
+            elif "non-native" in lower_note:
                 origin = "introduced"
+                basis = "non_native_explicit"
+            elif "introduc" in lower_note and any(
+                qualifier in lower_note for qualifier in ("possibly", "presumably", "likely")
+            ):
+                origin = "unresolved"
+                basis = "island_introduction_qualified"
+            elif "introduc" in lower_note:
+                origin = "introduced"
+                basis = "island_introduction_explicit"
             else:
                 origin = "native"
+                basis = "unmarked_native_by_checklist_convention"
             rows.append(
                 {
                     "source_species": source_name,
                     "species_key": key,
                     "origin_status": origin,
+                    "status_basis": basis,
                 }
             )
     return _collapse_rows(rows)
@@ -291,6 +318,7 @@ def _map_status_to_flora(
                 "status_conflict": bool(record["status_conflict"]),
                 "source_species": record["source_species"],
                 "name_match_method": method,
+                "status_basis": record.get("status_basis", ""),
             }
         )
 
@@ -302,6 +330,7 @@ def _map_status_to_flora(
                 "status_conflict",
                 "source_species",
                 "name_match_method",
+                "status_basis",
             ]
         )
 
@@ -319,6 +348,7 @@ def _map_status_to_flora(
                 "name_match_method": "|".join(
                     sorted(set(group["name_match_method"]))
                 ),
+                "status_basis": "|".join(sorted(set(group["status_basis"]))),
             }
         )
     return pd.DataFrame(out)
@@ -370,6 +400,7 @@ def build_status_ledger(
         "status_evidence_id",
         "source_species",
         "name_match_method",
+        "status_basis",
     ]
     return out[columns].sort_values("accepted_species").reset_index(drop=True)
 
@@ -437,11 +468,18 @@ def main() -> None:
         "n_fuzzy_name_matches": int(
             ledger["name_match_method"].fillna("").str.contains("ocr_fuzzy_unique").sum()
         ),
+        "n_qualified_introduced_candidates": int(
+            ledger["status_basis"]
+            .fillna("")
+            .str.contains("qualified|presumably_introduced")
+            .sum()
+        ),
         "n_native": int(ledger["origin_status"].eq("native").sum()),
         "n_introduced": int(ledger["origin_status"].eq("introduced").sum()),
         "n_unresolved": int(ledger["origin_status"].eq("unresolved").sum()),
         "status_policy": (
-            "source-backed island checklist only; unmatched or conflicting names remain unresolved"
+            "source-backed island checklist only; qualified introduction labels, "
+            "unmatched names, and conflicts remain unresolved"
         ),
         "status_reference": args.status_reference,
     }

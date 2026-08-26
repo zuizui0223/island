@@ -51,7 +51,7 @@ def test_parse_and_build_status_ledger_fail_closed():
     assert set(ledger["endemic_status"]) == {"unresolved"}
 
 
-def test_cedros_parser_uses_actual_last_appendix_and_asterisk_status():
+def test_cedros_parser_uses_last_appendix_and_preserves_qualified_status():
     text = """
     The island supports about 224 species (Appendix 2.).
     Avena barbata appears in vegetation prose before the appendix.
@@ -62,10 +62,11 @@ def test_cedros_parser_uses_actual_last_appendix_and_asterisk_status():
     Endemic to north facing slopes in northern canyons.
     """
     parsed = parse_cedros_oberbauer_text(text).set_index("species_key")
-    assert parsed.loc["abronia maritima", "origin_status"] == "native"
-    assert parsed.loc["avena fatua", "origin_status"] == "introduced"
-    assert parsed.loc["bromus rubens", "origin_status"] == "introduced"
-    assert parsed.loc["typha latifolia", "origin_status"] == "native"
+    assert parsed.loc["abronia maritima", "origin_status"] == "unresolved"
+    assert parsed.loc["avena fatua", "origin_status"] == "unresolved"
+    assert parsed.loc["avena fatua", "status_basis"] == "presumably_introduced_asterisk"
+    assert parsed.loc["bromus rubens", "origin_status"] == "unresolved"
+    assert parsed.loc["typha latifolia", "origin_status"] == "unresolved"
     assert "endemic to" not in parsed.index
     assert "avena barbata" not in parsed.index
 
@@ -97,8 +98,12 @@ def test_cedros_ocr_match_is_unique_and_fail_closed():
         allow_fuzzy_name_match=True,
     ).set_index("accepted_species")
 
-    assert ledger.loc["Ceanothus verrucosus", "origin_status"] == "introduced"
+    assert ledger.loc["Ceanothus verrucosus", "origin_status"] == "unresolved"
     assert ledger.loc["Ceanothus verrucosus", "name_match_method"] == "ocr_fuzzy_unique"
+    assert (
+        ledger.loc["Ceanothus verrucosus", "status_basis"]
+        == "presumably_introduced_asterisk"
+    )
     assert ledger.loc["Salvia cedrosensis", "origin_status"] == "unresolved"
     assert ledger.loc["Salvia cedronensis", "origin_status"] == "unresolved"
 
@@ -124,6 +129,10 @@ def test_cch2_parser_uses_terminal_taxa_and_island_status_notes():
       <div class="taxon-div"><span class="taxon-span">Plantus tertius</span></div>
       <div class="note-div">Native to CA, status on island unclear</div>
     </div>
+    <div class="taxon-container" id="qualified-introduction">
+      <div class="taxon-div"><span class="taxon-span">Plantus quartus</span></div>
+      <div class="note-div">Native in CA, but possibly introduced to island</div>
+    </div>
     """
     parsed = parse_cch2_san_nicolas_html(html).set_index("species_key")
 
@@ -131,3 +140,5 @@ def test_cch2_parser_uses_terminal_taxa_and_island_status_notes():
     assert bool(parsed.loc["example alpha", "status_conflict"])
     assert parsed.loc["plantus secundus", "origin_status"] == "introduced"
     assert parsed.loc["plantus tertius", "origin_status"] == "unresolved"
+    assert parsed.loc["plantus quartus", "origin_status"] == "unresolved"
+    assert parsed.loc["plantus quartus", "status_basis"] == "island_introduction_qualified"

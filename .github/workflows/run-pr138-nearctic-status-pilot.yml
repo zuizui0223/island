@@ -161,6 +161,19 @@ jobs:
               manifests[path.stem]=json.loads(path.read_text())
           within=pd.read_csv(root/'realm/realm_syndrome_within_omnibus.csv')
           slopes=pd.read_csv(root/'realm/realm_syndrome_distance_slopes.csv')
+          scores=pd.read_csv(root/'realm/realm_island_syndrome_scores.csv.gz')
+          assignments=pd.read_csv(root/'realm/island_biogeographic_realm_assignment.csv')
+          score_realms=scores.merge(
+              assignments[['island_id','biogeographic_realm']], on='island_id', how='left'
+          )
+          near_support=(
+              score_realms.loc[score_realms['biogeographic_realm'].eq('Nearctic')]
+              .groupby(['stratum','syndrome'])['island_id'].nunique()
+              .rename('n_unique_islands').reset_index()
+              .sort_values(
+                  ['stratum','n_unique_islands','syndrome'], ascending=[True,False,True]
+              )
+          )
           near_w=within.loc[within['context'].eq('Nearctic')]
           near_s=slopes.loc[slopes['context'].eq('Nearctic')]
           with (root/'nearctic_status_pilot_summary.md').open('w') as f:
@@ -170,6 +183,8 @@ jobs:
               f.write(near_w.to_string(index=False) if not near_w.empty else 'Nearctic remains below pilot gate.')
               f.write('\n```\n\n## Nearctic syndrome slopes\n```text\n')
               f.write(near_s.to_string(index=False) if not near_s.empty else 'No Nearctic slopes fit.')
+              f.write('\n```\n\n## Nearctic support before thresholding\n```text\n')
+              f.write(near_support.to_string(index=False))
               f.write('\n```\n')
           PY
           cat /tmp/pr138/nearctic_status_pilot_summary.md >> "$GITHUB_STEP_SUMMARY"
