@@ -1,0 +1,62 @@
+contract: chapter1_pr138_gift_source_pool_sensitivity_v1
+
+purpose: >-
+  Test whether the observed biogeographic plant-response branches remain after subtracting
+  an external mainland-flora expectation. This is a source-pool sensitivity, not a causal
+  isolation model and not a replication of Koenig et al. 2021 GDM.
+
+source_data:
+  provider: GIFT 3.2
+  api: https://gift.uni-goettingen.de/api/extended/index3.2.php
+  shape_base: https://gift.uni-goettingen.de/geojson/geojson_smaller3.2
+  entity_class: Mainland
+  suit_geo: 1
+  native_indicated: 1
+  restricted: 0
+  floristic_filter: native
+  taxon_id: 6
+  taxon_name: Angiospermae
+
+primary_axes:
+  - generalized_accessible
+  - selfing_core
+
+source_region_support:
+  minimum_matched_species_per_axis: 20
+  minimum_eligible_source_regions_per_island: 3
+
+source_selection_modes:
+  geo_k5:
+    method: nearest_centroid_equal_weight
+    k: 5
+  geo_k10:
+    method: nearest_centroid_equal_weight
+    k: 10
+  geo_k20:
+    method: nearest_centroid_equal_weight
+    k: 20
+
+geography:
+  distance: haversine_between_island_point_and_GIFT_polygon_centroid
+  caveat: >-
+    Polygon-centroid distance is deliberately labelled a sensitivity proxy. It is not the
+    shortest coastline-to-source distance and must not replace the frozen mainland-distance
+    predictor in the ecological model.
+
+residual_definition: observed_island_axis_score_minus_weighted_mainland_source_expectation
+
+rules:
+  - source_region_selection_never_uses_island_trait_outcomes
+  - source_region_trait_means_use_native_GIFT_checklists_only
+  - current_all_evidence_trait_ledger_scores_mainland_species_with_the_same_trait_templates
+  - missing_source_support_fails_closed
+  - source_pool_residual_is_not_within_lineage_evolution
+  - genus_fixed_null_is_a_separate_lineage_sensitivity
+  - nearest_mainland_distance_is_not_itself_a_source_pool
+  - no_pollinator_identity_is_inferred
+
+claim_ceiling: >-
+  Persistence after this sensitivity means the branch is not readily explained by the
+  trait composition of nearby GIFT mainland floras under the predeclared centroid-neighbour
+  source proxy. It does not identify the historical source population, source-channel
+  availability, pollinator loss, or in-situ evolution.
