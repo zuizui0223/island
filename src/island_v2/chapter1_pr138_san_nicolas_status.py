@@ -39,6 +39,18 @@ CEDROS_PROSE_STARTS = {
 CEDROS_FUZZY_MIN_PART = 0.84
 CEDROS_FUZZY_MIN_MEAN = 0.88
 CEDROS_FUZZY_MIN_MARGIN = 0.06
+BLOCK_ISLAND_GENUS_RE = re.compile(
+    r"^\s*([A-Z][A-Z-]{2,})\s+(?:[A-Z][A-Za-z.]*|[A-Z]\.)\b"
+)
+BLOCK_ISLAND_ENTRY_RE = re.compile(
+    r"^\s*(\*)?([A-Z])\.\s+(?:[Xx]\s+)?([a-z][A-Za-z-]+)\b"
+)
+BLOCK_ISLAND_NON_GENUS_HEADINGS = {
+    "DICOTYLEDONS",
+    "GYMNOSPERMS",
+    "MONOCOTYLEDONS",
+    "PTERIDOPHYTES",
+}
 SAN_NICOLAS_STATUS_OVERRIDES = {
     # Table E-1 marks this N1, but footnote 1 explicitly states it is introduced
     # to San Nicolas Island despite being native to California.
@@ -265,6 +277,45 @@ def parse_cch2_san_nicolas_html(html: str) -> pd.DataFrame:
     return _collapse_rows(rows)
 
 
+def parse_block_island_enser_text(text: str) -> pd.DataFrame:
+    """Parse Enser (2002) Appendix A after column-wise PDF extraction.
+
+    The appendix explicitly defines asterisked taxa as introduced/naturalized and
+    every unstarred taxon as native to Block Island. Scientific names abbreviate the
+    genus, so the parser reconstructs it from the preceding all-caps genus heading.
+    """
+    rows: list[dict[str, str]] = []
+    genus = ""
+    for raw_line in text.splitlines():
+        heading = BLOCK_ISLAND_GENUS_RE.match(raw_line)
+        if heading:
+            candidate = heading.group(1)
+            if (
+                candidate not in BLOCK_ISLAND_NON_GENUS_HEADINGS
+                and not candidate.endswith("ACEAE")
+            ):
+                genus = candidate.title()
+            continue
+        entry = BLOCK_ISLAND_ENTRY_RE.match(raw_line)
+        if not entry or not genus or entry.group(2) != genus[0]:
+            continue
+        source_name = f"{genus} {entry.group(3)}"
+        introduced = bool(entry.group(1))
+        rows.append(
+            {
+                "source_species": source_name,
+                "species_key": species_key(source_name),
+                "origin_status": "introduced" if introduced else "native",
+                "status_basis": (
+                    "enser_asterisk_naturalized"
+                    if introduced
+                    else "enser_unstarred_explicit_native"
+                ),
+            }
+        )
+    return _collapse_rows(rows)
+
+
 def _name_similarity(source_key: str, target_key: str) -> tuple[float, float]:
     source_parts = source_key.split()
     target_parts = target_key.split()
@@ -412,7 +463,12 @@ def main() -> None:
     parser.add_argument("--island-id", required=True)
     parser.add_argument(
         "--source-kind",
-        choices=["san_nicolas_nps", "san_nicolas_cch2", "cedros_oberbauer"],
+        choices=[
+            "san_nicolas_nps",
+            "san_nicolas_cch2",
+            "cedros_oberbauer",
+            "block_island_enser",
+        ],
         required=True,
     )
     parser.add_argument("--status-reference", required=True)
@@ -433,6 +489,10 @@ def main() -> None:
             "CCH2 author-maintained Checklist of the Vascular Flora of San Nicolas Island"
         )
         evidence_prefix = "san-nicolas-cch2-2025"
+    elif args.source_kind == "block_island_enser":
+        parsed = parse_block_island_enser_text(text)
+        status_source = "Enser 2002 Vascular Flora of Block Island, Appendix A"
+        evidence_prefix = "block-island-enser-2002"
     else:
         parsed = parse_cedros_oberbauer_text(text)
         status_source = (

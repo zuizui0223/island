@@ -2,6 +2,7 @@ import pandas as pd
 
 from island_v2.chapter1_pr138_san_nicolas_status import (
     build_status_ledger,
+    parse_block_island_enser_text,
     parse_cch2_san_nicolas_html,
     parse_cedros_oberbauer_text,
     parse_nps_san_nicolas_text,
@@ -142,3 +143,27 @@ def test_cch2_parser_uses_terminal_taxa_and_island_status_notes():
     assert parsed.loc["plantus tertius", "origin_status"] == "unresolved"
     assert parsed.loc["plantus quartus", "origin_status"] == "unresolved"
     assert parsed.loc["plantus quartus", "status_basis"] == "island_introduction_qualified"
+
+
+def test_block_island_parser_reconstructs_abbreviated_genera_and_status():
+    text = """
+    CUPRESSACEAE Cypress Family
+    JUNIPERUS L. Juniper
+    J. virginiana L. var. virginiana. Red Cedar.
+    PINACEAE Pine Family
+    PINUS L. Pine
+    *P. thunbergiana Franco. Japanese Black Pine.
+    MONOCOTYLEDONS
+    ACORACEAE Sweetflag Family
+    ACORUS L. Sweetflag
+    A. calamus L. Sweetflag.
+    """
+    parsed = parse_block_island_enser_text(text).set_index("species_key")
+
+    assert parsed.loc["juniperus virginiana", "origin_status"] == "native"
+    assert parsed.loc["pinus thunbergiana", "origin_status"] == "introduced"
+    assert parsed.loc["acorus calamus", "origin_status"] == "native"
+    assert (
+        parsed.loc["pinus thunbergiana", "status_basis"]
+        == "enser_asterisk_naturalized"
+    )

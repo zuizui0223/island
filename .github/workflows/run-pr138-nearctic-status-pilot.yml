@@ -27,8 +27,10 @@ jobs:
       ECOREGION_URL: "https://storage.googleapis.com/teow2016/Ecoregions2017.zip"
       SNI_URL: "https://cch2.org/portal/checklists/checklist.php?clid=25&pid=0"
       CEDROS_URL: "https://sbbotanicgarden.org/wp-content/uploads/2022/08/Oberbauer-1993_Vegetation_communities_Isla_De_Cedros_Mexico.pdf"
+      BLOCK_ISLAND_ZIP_URL: "https://rinhs.org/wp-content/uploads/2024/07/Eco-of-Block-Is-companion-CD.zip"
       SNI_ID: "gshhg_2.3.7_h_fa0f3406c02f18b31098"
       CEDROS_ID: "gshhg_2.3.7_h_8814371cac9eab98b9d7"
+      BLOCK_ISLAND_ID: "gshhg_2.3.7_h_bc9e67a899b103ee84aa"
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
@@ -60,6 +62,20 @@ jobs:
           test -s /tmp/status_sources/cedros.txt
           curl -A "Mozilla/5.0" -L --fail --retry 3 "$SNI_URL" -o /tmp/status_sources/san_nicolas.html
           test -s /tmp/status_sources/san_nicolas.html
+          curl -A "Mozilla/5.0" -L --fail --retry 3 "$BLOCK_ISLAND_ZIP_URL" -o /tmp/status_sources/block_island.zip
+          unzip -p /tmp/status_sources/block_island.zip \
+            'Chapters/C4_Enser/Chap4_Appendix.pdf' > /tmp/status_sources/block_island_appendix.pdf
+          pdfinfo /tmp/status_sources/block_island_appendix.pdf | grep -q 'Pages:[[:space:]]*17'
+          : > /tmp/status_sources/block_island_columns.txt
+          for page in $(seq 2 17); do
+            pdftotext -f "$page" -l "$page" -layout -x 0 -y 0 -W 306 -H 792 \
+              /tmp/status_sources/block_island_appendix.pdf - \
+              >> /tmp/status_sources/block_island_columns.txt
+            pdftotext -f "$page" -l "$page" -layout -x 306 -y 0 -W 306 -H 792 \
+              /tmp/status_sources/block_island_appendix.pdf - \
+              >> /tmp/status_sources/block_island_columns.txt
+          done
+          test -s /tmp/status_sources/block_island_columns.txt
 
       - name: Parse source-backed status ledgers
         run: |
@@ -87,6 +103,23 @@ jobs:
           assert manifest['n_resolved'] >= 250, manifest
           assert manifest['n_native'] >= 100, manifest
           assert manifest['n_introduced'] >= 100, manifest
+          PY
+          python -m island_v2.chapter1_pr138_san_nicolas_status \
+            --pdftotext /tmp/status_sources/block_island_columns.txt \
+            --island-species /tmp/canonical/input/chapter1_status_flora.csv.gz \
+            --island-id "$BLOCK_ISLAND_ID" \
+            --source-kind block_island_enser \
+            --status-reference "$BLOCK_ISLAND_ZIP_URL" \
+            --output-csv /tmp/pr138/status/block_island_status.csv \
+            --manifest-json /tmp/pr138/status/block_island_status_manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('/tmp/pr138/status/block_island_status_manifest.json').read_text())
+          assert manifest['n_source_species_keys'] >= 600, manifest
+          assert manifest['n_resolved'] >= 140, manifest
+          assert manifest['n_native'] >= 100, manifest
+          assert manifest['n_introduced'] >= 30, manifest
           PY
 
       - name: Build updated status-flora sensitivity input
