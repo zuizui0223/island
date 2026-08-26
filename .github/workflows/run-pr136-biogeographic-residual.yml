@@ -1,10 +1,12 @@
-name: Run PR136 biogeographic pattern test
+name: Run PR138 biogeographic syndrome pattern
 
 on:
   push:
     branches: [pr136-channel-gated-primary-validation]
     paths:
+      - "src/island_v2/chapter1_pr138_biogeographic_pattern.py"
       - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
+      - "config/chapter1_pr136_biogeographic_pattern.yml"
       - "config/chapter1_pr136_biogeographic_residual.yml"
       - ".github/workflows/run-pr136-biogeographic-residual.yml"
   workflow_dispatch:
@@ -36,45 +38,58 @@ jobs:
           gh run download "$ISOLATION_RUN_ID" -n "$ISOLATION_ARTIFACT" -D /tmp/isolation
           gh run download "$CANONICAL_RUN_ID" -n "$CANONICAL_ARTIFACT" -D /tmp/canonical
           test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/canonical/input/chapter1_direct_trait_state_audit.csv.gz
           test -s /tmp/canonical/null/genus_fixed_null_by_island.csv.gz
-      - name: Run biogeographic residual pattern test
+      - name: Run PRIMARY observed assemblage syndrome test
+        run: |
+          python -m island_v2.chapter1_pr138_biogeographic_pattern \
+            --status-flora-csv /tmp/canonical/input/chapter1_status_flora.csv.gz \
+            --state-audit-csv /tmp/canonical/input/chapter1_direct_trait_state_audit.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --output-dir /tmp/pr138/primary
+      - name: Run SECONDARY genus-fixed lineage decomposition
         run: |
           python -m island_v2.chapter1_pr136_biogeographic_residual \
             --genus-null-csv /tmp/canonical/null/genus_fixed_null_by_island.csv.gz \
             --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
             --config-path config/chapter1_pr136_biogeographic_residual.yml \
-            --output-dir /tmp/pr136/biogeographic
+            --output-dir /tmp/pr138/secondary
       - name: Write result summary
         run: |
           python - <<'PY'
           from pathlib import Path
           import pandas as pd
-          out = Path('/tmp/pr136/biogeographic')
-          within = pd.read_csv(out/'biogeographic_residual_within_omnibus.csv')
-          between = pd.read_csv(out/'biogeographic_residual_between_omnibus.csv')
-          with open(Path('/tmp/pr136/biogeographic_summary.md'), 'w') as f:
-              f.write('# PR136 biogeographic residual pattern result\n\n')
-              f.write('Pollinator identity is not used in the primary models.\n\n')
-              f.write('## Within-region residual filtering\n\n```text\n')
-              if within.empty:
-                  f.write('No testable within-region vectors.\n')
-              else:
-                  cols = [c for c in ['stratum','support_tier','context','status','n_retained_outcomes','n_unique_islands','p_value','q_within_stratum_tier','residual_filtering_supported'] if c in within.columns]
-                  f.write(within[cols].to_string(index=False))
-                  f.write('\n')
-              f.write('```\n\n## Between-region vector differences\n\n```text\n')
-              if between.empty:
-                  f.write('No testable between-region vectors.\n')
-              else:
-                  cols = [c for c in ['stratum','support_tier','context_a','context_b','status','n_retained_outcomes','n_unique_islands','p_value','q_within_stratum_tier','biogeographic_difference_supported'] if c in between.columns]
-                  f.write(between[cols].to_string(index=False))
-                  f.write('\n')
-              f.write('```\n')
+          root = Path('/tmp/pr138')
+          p_within = pd.read_csv(root/'primary/observed_within_region_omnibus.csv')
+          p_between = pd.read_csv(root/'primary/observed_between_region_omnibus.csv')
+          p_slopes = pd.read_csv(root/'primary/observed_within_outcome_slopes.csv')
+          s_within = pd.read_csv(root/'secondary/biogeographic_residual_within_omnibus.csv')
+          s_between = pd.read_csv(root/'secondary/biogeographic_residual_between_omnibus.csv')
+          with open(root/'biogeographic_summary.md', 'w') as f:
+              f.write('# PR138 pattern-first result\n\n')
+              f.write('PRIMARY = observed assemblage syndrome. SECONDARY = genus-fixed decomposition. Pollinator identity is not used in either model.\n\n')
+              f.write('## PRIMARY within-region observed syndrome\n\n```text\n')
+              cols = [c for c in ['stratum','support_tier','context','status','n_retained_outcomes','n_unique_islands','p_value','q_joint_within_stratum_tier','observed_vector_supported','classic_projection_estimate','q_classic_projection_within_stratum_tier','classic_direction_supported'] if c in p_within.columns]
+              f.write(p_within[cols].to_string(index=False) if not p_within.empty else 'No testable primary vectors.')
+              f.write('\n```\n\n## PRIMARY broad-outcome slopes\n\n```text\n')
+              f.write(p_slopes.to_string(index=False) if not p_slopes.empty else 'No fitted primary slopes.')
+              f.write('\n```\n\n## PRIMARY between-region differences\n\n```text\n')
+              cols = [c for c in ['stratum','support_tier','context_a','context_b','status','n_retained_outcomes','n_unique_islands','p_value','q_joint_within_stratum_tier','biogeographic_difference_supported'] if c in p_between.columns]
+              f.write(p_between[cols].to_string(index=False) if not p_between.empty else 'No testable primary contrasts.')
+              f.write('\n```\n\n## SECONDARY genus-fixed decomposition\n\n```text\n')
+              cols = [c for c in ['stratum','support_tier','context','status','n_retained_outcomes','n_unique_islands','p_value','q_within_stratum_tier','residual_filtering_supported'] if c in s_within.columns]
+              f.write(s_within[cols].to_string(index=False) if not s_within.empty else 'No testable residual vectors.')
+              f.write('\n```\n\n## SECONDARY between-region residual differences\n\n```text\n')
+              cols = [c for c in ['stratum','support_tier','context_a','context_b','status','n_retained_outcomes','n_unique_islands','p_value','q_within_stratum_tier','biogeographic_difference_supported'] if c in s_between.columns]
+              f.write(s_between[cols].to_string(index=False) if not s_between.empty else 'No testable residual contrasts.')
+              f.write('\n```\n')
           PY
-          cat /tmp/pr136/biogeographic_summary.md >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/pr138/biogeographic_summary.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
-          name: pr136-biogeographic-pattern-${{ github.run_id }}
-          path: /tmp/pr136/
+          name: pr138-biogeographic-pattern-${{ github.run_id }}
+          path: /tmp/pr138/
           if-no-files-found: error
           retention-days: 90
