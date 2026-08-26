@@ -95,3 +95,5 @@ jobs:
           path: /tmp/block/
           if-no-files-found: error
           retention-days: 90
+
+# Kept explicit so a branch push after workflow creation exercises the full job.
