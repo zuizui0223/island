@@ -29,7 +29,7 @@ Of 8,265 islands, 5,583 receive a formal terrestrial-realm assignment without im
 - Oceanian: 158
 - Antarctic: 30
 
-Realm assignment is much broader than current syndrome evidence support. Confirmatory syndrome support is presently concentrated in Palearctic and Neotropical islands; Oceanian is pilot-only. Nearctic has only ~26-28 syndrome-scored islands, just below the 30-island pilot gate, despite many realm-assigned islands.
+Realm assignment is much broader than current syndrome evidence support. Confirmatory syndrome support is presently concentrated in Palearctic and Neotropical islands; Oceanian is pilot-only. The strict source-backed Nearctic rerun (`32938637246`; artifact `pr138-nearctic-status-pilot-32938637246`) resolves 277/355 San Nicolas status rows but admits no binary Cedros statuses from its qualified `presumably introduced` marks. Nearctic all-native support is consequently 29 islands for `butterfly_like`, 28 for `generalized_accessible` and `large_bee_like`, and 27 for the other syndromes. It remains below the 30-island pilot gate despite many realm-assigned islands.
 
 ## Palearctic
 

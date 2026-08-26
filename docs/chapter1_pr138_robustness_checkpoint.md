@@ -130,7 +130,15 @@ Palearctic all-native slopes include:
 
 Neotropical all-native shows a weaker classic-direction projection (+0.0325, q=0.0194), but this disappears in native non-endemics (+0.0175, q=0.0724). Palearctic-vs-Neotropical syndrome vectors differ directly in native non-endemics (q=0.00401), whereas the all-native vector difference is not supported (q=0.192). This indicates a material endemic/floristic-composition contribution to the Neotropical all-native signal.
 
-Nearctic currently has only ~26-28 syndrome-scored islands and therefore does not reach the 30-island pilot gate. Realm-level replication across both northern realms cannot yet be claimed.
+The source-backed Nearctic status pilot was then rerun after an outcome-blind 15-island source inventory ([`chapter1_pr138_nearctic_wave1_source_inventory.md`](chapter1_pr138_nearctic_wave1_source_inventory.md)).
+
+- Run: `32938637246`
+- Artifact: `pr138-nearctic-status-pilot-32938637246`
+- Digest: `sha256:28aff350d4586be8f365682efaa52933a2997d7c20582320859e256e8c0d96ac`
+- San Nicolas: 277/355 status rows resolved from the author-maintained CCH2 checklist (136 unmarked native under the checklist convention, 141 explicit introduced, 78 unresolved).
+- Cedros: 27/338 names matched to the 1993 appendix, but none enter the binary origin analysis because the source says only that starred taxa are *presumably* introduced and does not explicitly classify unstarred taxa as native. Three starred matched taxa are retained as qualified introduction candidates.
+
+After this strict patch, Nearctic all-native support is 29 islands for `butterfly_like`, 28 for `generalized_accessible` and `large_bee_like`, and 27 for each remaining syndrome. No syndrome reaches the 30-island pilot gate, so no Nearctic vector or distance slope is fitted. Realm-level replication across both northern realms remains unresolved, not unsupported; the measured shortfall is now one island for the best-supported axis and two to three for a multivariate syndrome vector.
 
 ## 6. Attraction versus strict selfing-core decomposition
 
