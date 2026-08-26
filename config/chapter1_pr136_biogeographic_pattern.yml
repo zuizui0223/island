@@ -1,9 +1,22 @@
-contract: chapter1_pr138_biogeographic_pattern_v1
+contract: chapter1_pr138_biogeographic_pattern_v2
 
 primary_question: >-
   Does the observed floral island syndrome strengthen with mainland distance in northern
   mid-latitude island floras, and does that distance-response vector differ from tropical
   and southern island floras?
+
+pattern_hypotheses:
+  northern_classic_island_syndrome:
+    prediction: >-
+      With increasing mainland distance, northern mid-latitude island floras show an
+      assemblage-level shift toward less conspicuous / plainer flowers, more generally
+      accessible floral architecture, and greater reproductive assurance.
+  tropical_southern_nonconvergence:
+    prediction: >-
+      Tropical and southern island floras do not have to reverse the northern vector,
+      but they should not converge as strongly on the same classic island-syndrome vector;
+      conspicuous and specialized floral states may instead be retained.
+    reversed_vector_required: false
 
 geography_column: log_distance_to_continent_km
 geography_interpretation: composite_isolation_connectivity_source_supply_assembly_gradient
@@ -33,6 +46,8 @@ support_tiers:
 minimum_outcomes_per_vector: 2
 alpha: 0.05
 
+# Broad contrasts are frozen before looking at their PR138 model coefficients.
+# Boundary / mixed states that do not lie wholly on one side of a contrast fail closed.
 broad_outcomes:
   plain_colour:
     trait_name: flower_primary_color
@@ -50,6 +65,31 @@ broad_outcomes:
     trait_name: self_incompatibility
     positive_states: [SC]
     negative_states: [SI]
+    northern_classic_direction: 1
+  actinomorphic_symmetry:
+    trait_name: floral_symmetry
+    positive_states: [actinomorphic]
+    negative_states: [zygomorphic]
+    northern_classic_direction: 1
+  small_flower:
+    trait_name: flower_size_class
+    positive_states: [very_small, small]
+    negative_states: [large, very_large]
+    northern_classic_direction: 1
+  shallow_open_tube:
+    trait_name: tube_depth_class
+    positive_states: [absent_or_open, shallow]
+    negative_states: [deep]
+    northern_classic_direction: 1
+  selfing_mating_system:
+    trait_name: mating_system
+    positive_states: [predominantly_selfing, obligate_selfing]
+    negative_states: [predominantly_outcrossing]
+    northern_classic_direction: 1
+  autonomous_selfing:
+    trait_name: autonomous_selfing_capacity
+    positive_states: [autonomous, delayed]
+    negative_states: [absent]
     northern_classic_direction: 1
 
 inferential_layers:
