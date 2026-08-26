@@ -1,27 +1,11 @@
-contract: chapter1_pr136_biogeographic_residual_v2
+contract: chapter1_pr138_biogeographic_residual_secondary_v1
 
-primary_question: >-
-  Does the classic floral island syndrome emerge along the mainland-distance gradient
-  in northern mid-latitude island floras but weaken, disappear, or take a different
-  multivariate form in tropical and southern island floras after floristic status and
-  genus composition are represented?
+secondary_question: >-
+  After the observed assemblage-level biogeographic syndrome pattern is estimated,
+  how much of that pattern remains after preserving island occurrence and genus
+  composition under the same-genus null?
 
-pattern_hypotheses:
-  northern_classic_island_syndrome:
-    prediction: >-
-      With increasing mainland distance, northern mid-latitude island floras show a
-      residual shift toward less conspicuous / more generally accessible floral states
-      and greater reproductive assurance.
-    candidate_components:
-      - plain_or_inconspicuous_colour
-      - generalized_or_accessible_floral_architecture
-      - self_compatibility_or_other_reproductive_assurance
-  tropical_southern_counterpattern:
-    prediction: >-
-      The northern classic-syndrome vector is weaker, absent, heterogeneous, or
-      redirected in tropical and southern island floras; conspicuous and specialized
-      floral states may be retained rather than converging on the northern vector.
-    reversed_vector_required: false
+role_in_inference: secondary_lineage_decomposition_not_pattern_definition
 
 geography_column: log_distance_to_continent_km
 geography_interpretation: composite_isolation_connectivity_source_supply_assembly_gradient
@@ -53,23 +37,19 @@ alpha: 0.05
 
 primary_response: observed_direct_trait_share_minus_same_genus_null_expectation
 pollinator_predictors_in_primary_model: false
-pollination_syndrome_role: post_analysis_multivariate_concordance_in_discussion
+pollination_syndrome_role: post_analysis_concordance_only
 
-interpretive_hypotheses_not_primary_predictors:
-  northern:
-    - reduced_pollinator_mediated_selection_on_attraction_after_pollinator_loss
-    - reproductive_assurance_and_Bakers_law
-    - Bombus_absence_as_an_important_candidate_explanation
-  tropical:
-    - butterfly_richness_and_mobility_as_candidate_explanation_for_retained_conspicuous_traits
-  southern:
-    - bird_pollination_and_mobility_as_candidate_explanation_for_retained_conspicuous_traits
+interpretation:
+  residual_signal_present: >-
+    The observed assemblage pattern is not explained solely by genus-composition turnover.
+  residual_signal_absent_after_observed_pattern_present: >-
+    The assemblage-level island syndrome remains a real observed pattern, but its formation
+    is compatible with floristic / lineage assembly rather than a within-genus residual shift.
 
 rules:
+  - never_use_residual_null_to_erase_an_observed_assemblage_pattern
   - no_distance_thresholds
   - missing_island_is_not_trait_zero
   - significant_in_one_region_and_nonsignificant_in_another_is_not_heterogeneity
   - between_region_vector_difference_requires_direct_joint_test
-  - syndrome_not_declared_from_single_atomic_trait
-  - discuss_pollination_syndromes_only_after_residual_vector_is_established
   - pollination_syndrome_concordance_does_not_establish_pollinator_causation
