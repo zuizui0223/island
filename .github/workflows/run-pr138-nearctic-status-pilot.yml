@@ -25,7 +25,7 @@ jobs:
       TRAIT_RUN_ID: "32702160934"
       TRAIT_ARTIFACT: "reviewed-open-web-evidence-32702160934"
       ECOREGION_URL: "https://storage.googleapis.com/teow2016/Ecoregions2017.zip"
-      SNI_URL: "https://www.nps.gov/subjects/islandofthebluedolphins/upload/SNI-Species-List-2010.pdf"
+      SNI_URL: "https://cch2.org/portal/checklists/checklist.php?clid=25&pid=0"
       CEDROS_URL: "https://sbbotanicgarden.org/wp-content/uploads/2022/08/Oberbauer-1993_Vegetation_communities_Isla_De_Cedros_Mexico.pdf"
       SNI_ID: "gshhg_2.3.7_h_fa0f3406c02f18b31098"
       CEDROS_ID: "gshhg_2.3.7_h_8814371cac9eab98b9d7"
@@ -53,19 +53,13 @@ jobs:
           test -s /tmp/traits/direct_species_trait_ledger.csv.gz
           test -s /tmp/traits/rebuilt_all_evidence_validated_low.csv.gz
 
-      - name: Download Cedros source and optionally cache legacy San Nicolas source
+      - name: Download current source-backed island checklists
         run: |
           curl -A "Mozilla/5.0" -L --fail --retry 3 "$CEDROS_URL" -o /tmp/status_sources/cedros.pdf
           pdftotext -layout /tmp/status_sources/cedros.pdf /tmp/status_sources/cedros.txt
           test -s /tmp/status_sources/cedros.txt
-          # The legacy NPS URL is currently stale (404 on Actions). Keep its parser
-          # and source contract, but do not let that external retrieval failure block
-          # the independent Cedros replication test.
-          if curl -A "Mozilla/5.0" -L --fail --retry 1 "$SNI_URL" -o /tmp/status_sources/san_nicolas.pdf; then
-            pdftotext -layout /tmp/status_sources/san_nicolas.pdf /tmp/status_sources/san_nicolas.txt
-          else
-            echo "San Nicolas legacy NPS PDF unavailable; deferring San Nicolas status patch."
-          fi
+          curl -A "Mozilla/5.0" -L --fail --retry 3 "$SNI_URL" -o /tmp/status_sources/san_nicolas.html
+          test -s /tmp/status_sources/san_nicolas.html
 
       - name: Parse source-backed status ledgers
         run: |
@@ -77,16 +71,23 @@ jobs:
             --status-reference "$CEDROS_URL" \
             --output-csv /tmp/pr138/status/cedros_status.csv \
             --manifest-json /tmp/pr138/status/cedros_status_manifest.json
-          if test -s /tmp/status_sources/san_nicolas.txt; then
-            python -m island_v2.chapter1_pr138_san_nicolas_status \
-              --pdftotext /tmp/status_sources/san_nicolas.txt \
-              --island-species /tmp/canonical/input/chapter1_status_flora.csv.gz \
-              --island-id "$SNI_ID" \
-              --source-kind san_nicolas_nps \
-              --status-reference "$SNI_URL" \
-              --output-csv /tmp/pr138/status/san_nicolas_status.csv \
-              --manifest-json /tmp/pr138/status/san_nicolas_status_manifest.json
-          fi
+          python -m island_v2.chapter1_pr138_san_nicolas_status \
+            --pdftotext /tmp/status_sources/san_nicolas.html \
+            --island-species /tmp/canonical/input/chapter1_status_flora.csv.gz \
+            --island-id "$SNI_ID" \
+            --source-kind san_nicolas_cch2 \
+            --status-reference "$SNI_URL" \
+            --output-csv /tmp/pr138/status/san_nicolas_status.csv \
+            --manifest-json /tmp/pr138/status/san_nicolas_status_manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('/tmp/pr138/status/san_nicolas_status_manifest.json').read_text())
+          assert manifest['n_source_species_keys'] >= 320, manifest
+          assert manifest['n_resolved'] >= 250, manifest
+          assert manifest['n_native'] >= 100, manifest
+          assert manifest['n_introduced'] >= 100, manifest
+          PY
 
       - name: Build updated status-flora sensitivity input
         run: |

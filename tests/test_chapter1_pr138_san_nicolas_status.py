@@ -2,6 +2,7 @@ import pandas as pd
 
 from island_v2.chapter1_pr138_san_nicolas_status import (
     build_status_ledger,
+    parse_cch2_san_nicolas_html,
     parse_cedros_oberbauer_text,
     parse_nps_san_nicolas_text,
 )
@@ -56,11 +57,9 @@ def test_cedros_parser_uses_actual_last_appendix_and_asterisk_status():
     Avena barbata appears in vegetation prose before the appendix.
     Appendix 2.
     Preliminary Annotated List of Vascular Plants of Isla de Cedros, Baja California, Mexico
-    Abronia maritima Nutt. ex Wats. Grows on western dunes.
-    *Avena fatua L. Found on Cerro de Cedros.
-    *Bromus rubens L. Found on Cerro de Cedros.
+    Abronia maritima Nutt. ex Wats. Grows on western dunes.  *Avena fatua L. Found on Cerro de Cedros.
+    *Bromus rubens L. Found on Cerro de Cedros. Typha latifolia L. Listed by Moran as occurring.
     Endemic to north facing slopes in northern canyons.
-    Typha latifolia L. Listed by Moran as occurring.
     """
     parsed = parse_cedros_oberbauer_text(text).set_index("species_key")
     assert parsed.loc["abronia maritima", "origin_status"] == "native"
@@ -69,3 +68,66 @@ def test_cedros_parser_uses_actual_last_appendix_and_asterisk_status():
     assert parsed.loc["typha latifolia", "origin_status"] == "native"
     assert "endemic to" not in parsed.index
     assert "avena barbata" not in parsed.index
+
+
+def test_cedros_ocr_match_is_unique_and_fail_closed():
+    text = """
+    Appendix 2.
+    *Ceanothus verrucoslis Nutt. Found on upper slopes.
+    Salvia cedroensis Greene. Known from the island.
+    """
+    parsed = parse_cedros_oberbauer_text(text)
+    flora = pd.DataFrame(
+        {
+            "island_id": ["cedros", "cedros", "cedros"],
+            "accepted_species": [
+                "Ceanothus verrucosus",
+                "Salvia cedrosensis",
+                "Salvia cedronensis",
+            ],
+        }
+    )
+    ledger = build_status_ledger(
+        flora,
+        parsed,
+        island_id="cedros",
+        status_source="Oberbauer 1993",
+        status_reference="https://example.org/cedros.pdf",
+        evidence_prefix="cedros-test",
+        allow_fuzzy_name_match=True,
+    ).set_index("accepted_species")
+
+    assert ledger.loc["Ceanothus verrucosus", "origin_status"] == "introduced"
+    assert ledger.loc["Ceanothus verrucosus", "name_match_method"] == "ocr_fuzzy_unique"
+    assert ledger.loc["Salvia cedrosensis", "origin_status"] == "unresolved"
+    assert ledger.loc["Salvia cedronensis", "origin_status"] == "unresolved"
+
+
+def test_cch2_parser_uses_terminal_taxa_and_island_status_notes():
+    html = """
+    <div class="taxon-container" id="parent">
+      <div class="taxon-div"><span class="taxon-span">Example alpha</span></div>
+    </div>
+    <div class="taxon-container" id="native-child">
+      <div class="taxon-div"><span class="taxon-span">Example alpha var. alpha</span></div>
+      <div class="note-div">Channel Islands endemic; Voucher 1</div>
+    </div>
+    <div class="taxon-container" id="introduced-child">
+      <div class="taxon-div"><span class="taxon-span">Example alpha var. beta</span></div>
+      <div class="note-div">Native in CA, but presumably introduced to island</div>
+    </div>
+    <div class="taxon-container" id="introduced">
+      <div class="taxon-div"><span class="taxon-span">Plantus secundus</span></div>
+      <div class="note-div">Non-native, naturalized; <a>Voucher 2</a></div>
+    </div>
+    <div class="taxon-container" id="unclear">
+      <div class="taxon-div"><span class="taxon-span">Plantus tertius</span></div>
+      <div class="note-div">Native to CA, status on island unclear</div>
+    </div>
+    """
+    parsed = parse_cch2_san_nicolas_html(html).set_index("species_key")
+
+    assert parsed.loc["example alpha", "origin_status"] == "unresolved"
+    assert bool(parsed.loc["example alpha", "status_conflict"])
+    assert parsed.loc["plantus secundus", "origin_status"] == "introduced"
+    assert parsed.loc["plantus tertius", "origin_status"] == "unresolved"
