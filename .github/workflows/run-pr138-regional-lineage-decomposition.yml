@@ -144,3 +144,5 @@ jobs:
           path: /tmp/regional/
           if-no-files-found: error
           retention-days: 90
+
+# Registration push: the workflow is created on the PR branch before this trigger commit.
