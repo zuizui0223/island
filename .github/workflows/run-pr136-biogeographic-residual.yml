@@ -6,6 +6,7 @@ on:
     paths:
       - "src/island_v2/chapter1_pr138_biogeographic_pattern.py"
       - "src/island_v2/chapter1_pr138_direct_ledger_pattern.py"
+      - "src/island_v2/chapter1_pr138_information_weight.py"
       - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
       - "config/chapter1_pr136_biogeographic_pattern.yml"
       - "config/chapter1_pr136_biogeographic_residual.yml"
@@ -53,6 +54,13 @@ jobs:
             --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
             --config-path config/chapter1_pr136_biogeographic_pattern.yml \
             --output-dir /tmp/pr138/primary
+      - name: Test information-weight dependence of PRIMARY
+        run: |
+          python -m island_v2.chapter1_pr138_information_weight \
+            --counts-csv /tmp/pr138/primary/observed_broad_syndrome_counts.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --output-dir /tmp/pr138/information_weight
       - name: Run SECONDARY genus-fixed lineage decomposition
         run: |
           python -m island_v2.chapter1_pr136_biogeographic_residual \
@@ -70,6 +78,7 @@ jobs:
           p_between = pd.read_csv(root/'primary/observed_between_region_omnibus.csv')
           p_slopes = pd.read_csv(root/'primary/observed_within_outcome_slopes.csv')
           support = pd.read_csv(root/'primary/observed_broad_syndrome_support.csv')
+          weight = pd.read_csv(root/'information_weight/pr138_information_weight_summary.csv')
           s_within = pd.read_csv(root/'secondary/biogeographic_residual_within_omnibus.csv')
           s_between = pd.read_csv(root/'secondary/biogeographic_residual_between_omnibus.csv')
           with open(root/'biogeographic_summary.md', 'w') as f:
@@ -82,9 +91,11 @@ jobs:
               f.write(p_within[cols].to_string(index=False) if not p_within.empty else 'No testable primary vectors.')
               f.write('\n```\n\n## PRIMARY broad-outcome slopes\n\n```text\n')
               f.write(p_slopes.to_string(index=False) if not p_slopes.empty else 'No fitted primary slopes.')
-              f.write('\n```\n\n## PRIMARY between-region differences\n\n```text\n')
+              f.write('\n```\n\n## PRIMARY north-vs-tropical differences\n\n```text\n')
               cols = [c for c in ['stratum','support_tier','context_a','context_b','status','n_retained_outcomes','retained_outcomes','n_unique_islands','p_value','q_joint_within_stratum_tier','biogeographic_difference_supported'] if c in p_between.columns]
               f.write(p_between[cols].to_string(index=False) if not p_between.empty else 'No testable primary contrasts.')
+              f.write('\n```\n\n## PRIMARY information-weight sensitivity\n\n```text\n')
+              f.write(weight.to_string(index=False))
               f.write('\n```\n\n## SECONDARY genus-fixed decomposition (legacy three broad axes)\n\n```text\n')
               cols = [c for c in ['stratum','support_tier','context','status','n_retained_outcomes','n_unique_islands','p_value','q_within_stratum_tier','residual_filtering_supported'] if c in s_within.columns]
               f.write(s_within[cols].to_string(index=False) if not s_within.empty else 'No testable residual vectors.')
