@@ -9,6 +9,7 @@ on:
       - "src/island_v2/chapter1_pr138_information_weight.py"
       - "src/island_v2/chapter1_pr138_evidence_ladder.py"
       - "src/island_v2/chapter1_pr138_syndrome_analysis.py"
+      - "src/island_v2/chapter1_pr138_pathway_decomposition.py"
       - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
       - "config/chapter1_pr136_biogeographic_pattern.yml"
       - "config/chapter1_pr136_biogeographic_residual.yml"
@@ -18,6 +19,7 @@ on:
       - "tests/test_chapter1_pr138_information_weight.py"
       - "tests/test_chapter1_pr138_evidence_ladder.py"
       - "tests/test_chapter1_pr138_syndrome_analysis.py"
+      - "tests/test_chapter1_pr138_pathway_decomposition.py"
       - "tests/test_chapter1_pr136_biogeographic_residual.py"
       - ".github/workflows/validate-pr136-channel-gated.yml"
   pull_request:
@@ -28,6 +30,7 @@ on:
       - "src/island_v2/chapter1_pr138_information_weight.py"
       - "src/island_v2/chapter1_pr138_evidence_ladder.py"
       - "src/island_v2/chapter1_pr138_syndrome_analysis.py"
+      - "src/island_v2/chapter1_pr138_pathway_decomposition.py"
       - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
       - "config/chapter1_pr136_biogeographic_pattern.yml"
       - "config/chapter1_pr136_biogeographic_residual.yml"
@@ -37,6 +40,7 @@ on:
       - "tests/test_chapter1_pr138_information_weight.py"
       - "tests/test_chapter1_pr138_evidence_ladder.py"
       - "tests/test_chapter1_pr138_syndrome_analysis.py"
+      - "tests/test_chapter1_pr138_pathway_decomposition.py"
       - "tests/test_chapter1_pr136_biogeographic_residual.py"
       - ".github/workflows/validate-pr136-channel-gated.yml"
   workflow_dispatch:
@@ -63,14 +67,16 @@ jobs:
             src/island_v2/chapter1_pr138_information_weight.py \
             src/island_v2/chapter1_pr138_evidence_ladder.py \
             src/island_v2/chapter1_pr138_syndrome_analysis.py \
+            src/island_v2/chapter1_pr138_pathway_decomposition.py \
             src/island_v2/chapter1_pr136_biogeographic_residual.py \
             tests/test_chapter1_pr138_biogeographic_pattern.py \
             tests/test_chapter1_pr138_direct_ledger_pattern.py \
             tests/test_chapter1_pr138_information_weight.py \
             tests/test_chapter1_pr138_evidence_ladder.py \
             tests/test_chapter1_pr138_syndrome_analysis.py \
+            tests/test_chapter1_pr138_pathway_decomposition.py \
             tests/test_chapter1_pr136_biogeographic_residual.py
-      - name: Pattern, evidence and syndrome falsification tests
+      - name: Pattern, evidence, syndrome and pathway falsification tests
         run: |
           pytest -q \
             tests/test_chapter1_pr138_biogeographic_pattern.py \
@@ -78,6 +84,7 @@ jobs:
             tests/test_chapter1_pr138_information_weight.py \
             tests/test_chapter1_pr138_evidence_ladder.py \
             tests/test_chapter1_pr138_syndrome_analysis.py \
+            tests/test_chapter1_pr138_pathway_decomposition.py \
             tests/test_chapter1_pr136_biogeographic_residual.py
       - name: Parse pattern contracts
         run: |
@@ -91,7 +98,8 @@ jobs:
           assert primary['pollinator_predictors_in_primary_model'] is False
           assert len(primary['broad_outcomes']) == 8
           assert secondary['pollinator_predictors_in_primary_model'] is False
-          assert set(['large_bee_like','butterfly_like','bird_like','generalized_accessible','selfing_syndrome']).issubset(syndrome['syndromes'])
+          assert set(['large_bee_like','butterfly_like','bird_like','generalized_accessible','selfing_syndrome','selfing_core']).issubset(syndrome['syndromes'])
+          assert syndrome['pathway_decomposition']['reproductive_core'] == 'selfing_core'
           assert syndrome['analysis_rules'][-1] == 'causal_pollinator_claims_require_independent_pollinator_data'
-          print('Trait pattern + all-evidence ladder + syndrome concordance + lineage decomposition: ok')
+          print('Trait pattern + syndrome concordance + attraction/selfing decomposition + lineage decomposition: ok')
           PY
