@@ -23,6 +23,15 @@ import typer
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 KEY = ["accepted_species", "trait_name"]
+OUTPUT_COLUMNS = [
+    *KEY,
+    "resolution_status",
+    "normalized_value",
+    "state_set",
+    "evidence_scope",
+    "evidence_quality",
+    "evidence_origin",
+]
 
 
 def _truthy(series: pd.Series) -> pd.Series:
@@ -46,12 +55,13 @@ def _normalize_direct(direct: pd.DataFrame) -> pd.DataFrame:
         & work["normalized_value"].ne("")
     ].copy()
     work = work.drop_duplicates(KEY, keep="first")
+    work["resolution_status"] = "resolved"
     work["state_set"] = work.get("state_set", work["normalized_value"]).fillna("").astype(str)
     work["evidence_scope"] = "species_direct"
     work["evidence_quality"] = work.get("selected_quality", work.get("quality", "medium"))
     work["evidence_quality"] = work["evidence_quality"].fillna("medium").astype(str)
     work["evidence_origin"] = "direct_species_trait_ledger"
-    return work[[*KEY, "normalized_value", "state_set", "evidence_scope", "evidence_quality", "evidence_origin"]]
+    return work[OUTPUT_COLUMNS]
 
 
 def _normalize_validated_low(low: pd.DataFrame) -> pd.DataFrame:
@@ -75,11 +85,14 @@ def _normalize_validated_low(low: pd.DataFrame) -> pd.DataFrame:
         & work["normalized_value"].ne("")
     ].copy()
     work = work.drop_duplicates(KEY, keep="first")
+    # "resolved" here means resolved for this explicit validated-low analysis layer,
+    # not species-direct evidence. evidence_scope/evidence_origin preserve that distinction.
+    work["resolution_status"] = "resolved"
     work["state_set"] = work.get("state_set", work["normalized_value"]).fillna("").astype(str)
     work["evidence_scope"] = work.get("evidence_scope", "genus_consensus").fillna("genus_consensus").astype(str)
     work["evidence_quality"] = work.get("evidence_quality", "low").fillna("low").astype(str)
     work["evidence_origin"] = "validated_genus_consensus"
-    return work[[*KEY, "normalized_value", "state_set", "evidence_scope", "evidence_quality", "evidence_origin"]]
+    return work[OUTPUT_COLUMNS]
 
 
 def build_evidence_ladder(
