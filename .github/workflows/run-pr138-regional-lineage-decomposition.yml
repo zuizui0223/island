@@ -45,7 +45,7 @@ jobs:
           gh run download "$FROZEN_RUN_ID" -n "$FROZEN_ARTIFACT" -D /tmp/regional/frozen
           gh run download "$JOINT_RUN_ID" -n "$JOINT_ARTIFACT" -D /tmp/regional/joint
           test -s /tmp/regional/frozen/input/input/result/source_adjusted_pathway_island_scores.csv.gz
-          test -s /tmp/regional/frozen/input/input/source/current/syndrome/all_analysis_eligible/species_syndrome_concordance.csv.gz
+          test -s /tmp/regional/frozen/input/input/pathway/syndrome/species_syndrome_concordance.csv.gz
           test -s /tmp/regional/frozen/input/canonical/input/chapter1_status_flora.csv.gz
           test -s /tmp/regional/frozen/input/input/source/source/gift_native_mainland_flora.csv.gz
           test -s /tmp/regional/frozen/input/input/source/result/island_source_assignments.csv.gz
@@ -55,11 +55,24 @@ jobs:
           test -s /tmp/regional/joint/result/joint_selection_slopes.csv
           test -s /tmp/regional/joint/result/joint_selection_between_context.csv
 
+      - name: Verify required species-level axes
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          path = '/tmp/regional/frozen/input/input/pathway/syndrome/species_syndrome_concordance.csv.gz'
+          scores = pd.read_csv(path, usecols=['syndrome'])
+          observed = set(scores['syndrome'].astype(str))
+          required = {'generalized_accessible', 'selfing_core'}
+          missing = sorted(required - observed)
+          if missing:
+              raise SystemExit(f'missing required species-level lineage axes: {missing}')
+          PY
+
       - name: Run regional lineage decomposition
         run: |
           python -m island_v2.chapter1_pr138_regional_lineage_decomposition run \
             --source-adjusted-scores-csv /tmp/regional/frozen/input/input/result/source_adjusted_pathway_island_scores.csv.gz \
-            --species-scores-csv /tmp/regional/frozen/input/input/source/current/syndrome/all_analysis_eligible/species_syndrome_concordance.csv.gz \
+            --species-scores-csv /tmp/regional/frozen/input/input/pathway/syndrome/species_syndrome_concordance.csv.gz \
             --status-flora-csv /tmp/regional/frozen/input/canonical/input/chapter1_status_flora.csv.gz \
             --gift-flora-csv /tmp/regional/frozen/input/input/source/source/gift_native_mainland_flora.csv.gz \
             --source-assignments-csv /tmp/regional/frozen/input/input/source/result/island_source_assignments.csv.gz \
