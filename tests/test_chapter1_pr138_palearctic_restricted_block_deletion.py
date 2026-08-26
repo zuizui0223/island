@@ -9,7 +9,7 @@ from island_v2.chapter1_pr138_palearctic_restricted_block_deletion import (
 
 def test_restricted_block_deletion_is_outcome_blind_and_preserves_strong_signal():
     rng = np.random.default_rng(13821)
-    n = 180
+    n = 210
     covariates = []
     realms = []
     scores = []
@@ -31,6 +31,10 @@ def test_restricted_block_deletion_is_outcome_blind_and_preserves_strong_signal(
         realms.append(
             {"island_id": island_id, "biogeographic_realm": "Palearctic"}
         )
+        # Availability is random and therefore outcome-blind, while retaining enough
+        # observed and unobserved islands for the propensity model after any deletion.
+        if rng.random() >= 0.72:
+            continue
         attraction = 0.42 * distance + rng.normal(0, 0.045)
         for source_mode, offset in [("geo_k5", 0.0), ("geo_k10", 0.015)]:
             for syndrome, value in [
@@ -55,11 +59,29 @@ def test_restricted_block_deletion_is_outcome_blind_and_preserves_strong_signal(
         "support_tiers": {"confirmatory": 30},
         "alpha": 0.05,
     }
+    selection = {
+        "selection_model": {"minimum_observed": 30, "minimum_unobserved": 30},
+        "weight_modes": {
+            "unweighted": {},
+            "stabilized_ipw_clip_0_05": {
+                "minimum_propensity": 0.05,
+                "maximum_propensity": 0.95,
+                "maximum_weight": 20.0,
+            },
+            "stabilized_ipw_clip_0_025": {
+                "minimum_propensity": 0.025,
+                "maximum_propensity": 0.975,
+                "maximum_weight": 20.0,
+            },
+        },
+        "stabilization": {"normalize_within_axis_stratum_context": True},
+    }
     outputs = run_palearctic_restricted_block_deletion(
         pd.DataFrame(scores),
         pd.DataFrame(covariates),
         pd.DataFrame(realms),
         pattern,
+        selection,
     )
 
     manifest = outputs["manifest"]
@@ -67,10 +89,12 @@ def test_restricted_block_deletion_is_outcome_blind_and_preserves_strong_signal(
     assert manifest["effect_estimates_used_to_select_blocks"] is False
     assert manifest["p_values_used_to_select_blocks"] is False
     assert manifest["n_palearctic_blocks"] == len(blocks)
+    assert manifest["selection_weights_recomputed_after_each_block_deletion"] is True
 
     result = outputs["results"]
     assert FULL_SENTINEL in set(result["deleted_block"])
     assert set(blocks).issubset(set(result["deleted_block"]))
+    assert set(result["selection_mode"]) == set(selection["weight_modes"])
     fitted_deletions = result.loc[
         ~result["deleted_block"].eq(FULL_SENTINEL) & result["status"].eq("fit")
     ]
@@ -91,9 +115,11 @@ def test_restricted_block_deletion_is_outcome_blind_and_preserves_strong_signal(
     ].all()
 
     summary = outputs["summary"]
-    assert len(summary) == 1
-    assert summary.iloc[0]["restriction"] == "si_only"
-    assert summary.iloc[0]["stratum"] == "all_native"
-    assert int(summary.iloc[0]["n_positive"]) == int(
-        summary.iloc[0]["n_fitted_block_source_scenarios"]
-    )
+    assert set(summary["selection_mode"]) == set(selection["weight_modes"])
+    assert set(summary["restriction"]) == {"si_only"}
+    assert set(summary["stratum"]) == {"all_native"}
+    assert (summary["n_positive"] == summary["n_fitted_block_source_scenarios"]).all()
+
+    support = outputs["block_support"]
+    assert set(support["selection_mode"]) == set(selection["weight_modes"])
+    assert support["all_positive"].all()
