@@ -1,13 +1,9 @@
-"""Template-robustness analysis for PR138 pollination/selfing syndrome scores.
+"""Outcome-blind template robustness for PR138 pollination/selfing syndromes.
 
-The canonical syndrome templates are scientific hypotheses, not observed pollinator
-identities. This module perturbs those templates *without looking at the outcomes* and
-reruns the same biogeographic inference.
-
-To keep the 13 prespecified variants computationally practical, signed trait
-concordances are computed once from the canonical preferred/opposed state sets. The
-variants change only trait inclusion, weights, or the minimum number of informative
-traits; none changes a biological state mapping after outcomes are seen.
+Signed species x syndrome x trait concordances are computed once from the canonical
+preferred/opposed state sets. Prespecified sensitivity variants then change only trait
+inclusion, weights, or the minimum informative-trait requirement. This cache changes
+runtime only, never the biological state mapping or estimand.
 """
 
 from __future__ import annotations
@@ -15,7 +11,6 @@ from __future__ import annotations
 import copy
 import itertools
 import json
-import math
 from pathlib import Path
 from typing import Any
 
@@ -89,21 +84,14 @@ def precompute_trait_concordances(
     trait_ledger: pd.DataFrame,
     canonical_config: dict[str, Any],
 ) -> pd.DataFrame:
-    """Compute species x syndrome x trait concordance once.
-
-    Preferred/opposed state sets are identical across all prespecified sensitivity
-    variants; only weights/inclusion/minimum-support change. This cache therefore
-    changes runtime only, not the scientific estimand.
-    """
     required = {"accepted_species", "trait_name", "normalized_value"}
     missing = required - set(trait_ledger.columns)
     if missing:
         raise typer.BadParameter(f"trait ledger missing columns: {sorted(missing)}")
 
     ledger = trait_ledger[list(required)].copy()
-    ledger["accepted_species"] = ledger["accepted_species"].fillna("").astype(str)
-    ledger["trait_name"] = ledger["trait_name"].fillna("").astype(str)
-    ledger["normalized_value"] = ledger["normalized_value"].fillna("").astype(str)
+    for column in required:
+        ledger[column] = ledger[column].fillna("").astype(str).str.strip()
     ledger = ledger.loc[
         ledger["accepted_species"].ne("") & ledger["trait_name"].ne("")
     ].drop_duplicates(["accepted_species", "trait_name"], keep="first")
@@ -133,6 +121,7 @@ def precompute_trait_concordances(
             parts.append(
                 subset[["accepted_species", "syndrome", "trait_name", "trait_concordance"]]
             )
+
     if not parts:
         return pd.DataFrame(
             columns=["accepted_species", "syndrome", "trait_name", "trait_concordance"]
@@ -144,9 +133,9 @@ def score_variant_from_cache(
     concordance_cache: pd.DataFrame,
     variant_config: dict[str, Any],
 ) -> pd.DataFrame:
-    """Aggregate cached trait concordances into species-level syndrome scores."""
     frames: list[pd.DataFrame] = []
     minimum = int(variant_config["score_definition"]["minimum_informative_traits"])
+
     for syndrome, spec in variant_config["syndromes"].items():
         weight_map = {
             str(trait): float(trait_spec.get("weight", 1.0))
@@ -195,6 +184,7 @@ def score_variant_from_cache(
                 ]
             ]
         )
+
     if not frames:
         return pd.DataFrame(
             columns=[
@@ -216,7 +206,6 @@ def analyze_cached_species_scores(
     pattern_config: dict[str, Any],
     syndrome_config: dict[str, Any],
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Run the same regional inference as the canonical syndrome module."""
     strata = [str(x) for x in pattern_config["strata"]]
     island_scores = build_island_syndrome_scores(status_flora, species_scores, strata)
     data = _prepare(island_scores, covariates, pattern_config)
@@ -257,6 +246,7 @@ def analyze_cached_species_scores(
     slopes = pd.concat(slope_parts, ignore_index=True) if slope_parts else pd.DataFrame()
     within = pd.DataFrame(within_rows)
     between = pd.DataFrame(between_rows)
+
     if "p_value" in within.columns:
         within["q_within_stratum_tier"] = within.groupby(
             ["stratum", "support_tier"], group_keys=False
@@ -319,16 +309,16 @@ def _headline(
                 "variant": variant,
                 "stratum": stratum,
                 "north_testable": bool(not north.empty and north.iloc[0]["status"] == "fit"),
-                "north_classic_projection": float(
-                    north.iloc[0].get("northern_classic_projection", float("nan"))
-                )
-                if not north.empty
-                else float("nan"),
-                "north_classic_q": float(
-                    north.iloc[0].get("q_classic_projection", float("nan"))
-                )
-                if not north.empty
-                else float("nan"),
+                "north_classic_projection": (
+                    float(north.iloc[0].get("northern_classic_projection", float("nan")))
+                    if not north.empty
+                    else float("nan")
+                ),
+                "north_classic_q": (
+                    float(north.iloc[0].get("q_classic_projection", float("nan")))
+                    if not north.empty
+                    else float("nan")
+                ),
                 "north_classic_supported": bool(
                     not north.empty and north.iloc[0].get("classic_projection_supported", False)
                 ),
@@ -342,11 +332,11 @@ def _headline(
                 "tropical_large_bee_slope": slope("tropical", "large_bee_like"),
                 "tropical_generalized_slope": slope("tropical", "generalized_accessible"),
                 "tropical_selfing_slope": slope("tropical", "selfing_syndrome"),
-                "north_tropical_vector_q": float(
-                    b.iloc[0].get("q_within_stratum_tier", float("nan"))
-                )
-                if not b.empty
-                else float("nan"),
+                "north_tropical_vector_q": (
+                    float(b.iloc[0].get("q_within_stratum_tier", float("nan")))
+                    if not b.empty
+                    else float("nan")
+                ),
                 "north_tropical_vector_difference_supported": bool(
                     not b.empty
                     and b.iloc[0].get("regional_syndrome_vector_difference_supported", False)
@@ -411,8 +401,9 @@ def run(
 ) -> None:
     pattern_config = yaml.safe_load(pattern_config_path.read_text(encoding="utf-8"))
     syndrome_config = yaml.safe_load(syndrome_config_path.read_text(encoding="utf-8"))
+    ledger = pd.read_csv(trait_ledger_csv)
     slopes, within, between, headline = run_template_sensitivity(
-        pd.read_csv(trait_ledger_csv),
+        ledger,
         pd.read_csv(status_flora_csv),
         pd.read_csv(covariates_csv),
         pattern_config,
@@ -427,11 +418,9 @@ def run(
         "contract": "chapter1_pr138_syndrome_template_sensitivity_v2_cached",
         "variants": list(build_template_variants(syndrome_config)),
         "outcome_blind_template_perturbations": True,
+        "trait_concordance_cache_reused_across_variants": True,
         "trait_concordance_cache_changes_estimand": False,
         "pollinator_identity_inferred": False,
-        "n_cached_trait_concordances": int(len(precompute_trait_concordances(
-            pd.read_csv(trait_ledger_csv), syndrome_config
-        ))),
     }
     (output_dir / "template_sensitivity_manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
