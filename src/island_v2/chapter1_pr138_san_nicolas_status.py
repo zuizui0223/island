@@ -9,7 +9,7 @@ import pandas as pd
 
 SCI_RE = re.compile(r"^\s*([A-Z][A-Za-z-]+)\s+([a-z][A-Za-z-]+)\b")
 STATUS_TOKEN_RE = re.compile(r"^(N|E)(?:\d+)?$")
-CEDROS_START_MARKER = "Preliminary Annotated List of Vascular Plants of Isla"
+CEDROS_START_MARKER = "Appendix 2."
 SAN_NICOLAS_STATUS_OVERRIDES = {
     # Table E-1 marks this N1, but footnote 1 explicitly states it is introduced
     # to San Nicolas Island despite being native to California.
@@ -76,18 +76,18 @@ def parse_nps_san_nicolas_text(text: str) -> pd.DataFrame:
 
 
 def parse_cedros_oberbauer_text(text: str) -> pd.DataFrame:
-    """Parse Oberbauer (1993) Cedros appendix.
+    """Parse Oberbauer (1993) Cedros Appendix 2.
 
     The source explicitly states that taxa denoted with an asterisk are presumably
     introduced. Unstarred species entries in the annotated island list are therefore
-    treated as native for this status sensitivity. Parsing begins only after the
-    appendix marker so vegetation-community prose cannot create status records.
+    treated as native for this status sensitivity. Parsing begins only after Appendix 2
+    so vegetation-community prose cannot create status records.
     """
     marker_index = text.find(CEDROS_START_MARKER)
     if marker_index < 0:
-        marker_index = text.find("Annotated List of Vascular Plants")
+        marker_index = text.find("Appendix 2")
     if marker_index < 0:
-        raise ValueError("Cedros annotated-list marker not found")
+        raise ValueError("Cedros Appendix 2 marker not found")
     appendix = text[marker_index:]
     rows: list[dict[str, str]] = []
     for raw_line in appendix.splitlines():
@@ -110,6 +110,12 @@ def parse_cedros_oberbauer_text(text: str) -> pd.DataFrame:
             "Grows",
             "Inhabits",
             "Widespread",
+            "Preliminary",
+            "Species",
+            "This",
+            "Isla",
+            "Distribution",
+            "Location",
         }:
             continue
         rows.append(
