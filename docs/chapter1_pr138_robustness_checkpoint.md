@@ -130,16 +130,17 @@ Palearctic all-native slopes include:
 
 Neotropical all-native shows a weaker classic-direction projection (+0.0325, q=0.0194), but this disappears in native non-endemics (+0.0175, q=0.0724). Palearctic-vs-Neotropical syndrome vectors differ directly in native non-endemics (q=0.00401), whereas the all-native vector difference is not supported (q=0.192). This indicates a material endemic/floristic-composition contribution to the Neotropical all-native signal.
 
-The source-backed Nearctic status pilot was then rerun after an outcome-blind 15-island source inventory ([`chapter1_pr138_nearctic_wave1_source_inventory.md`](chapter1_pr138_nearctic_wave1_source_inventory.md)).
+The source-backed Nearctic status pilot was then rerun after an outcome-blind 15-island source inventory ([`chapter1_pr138_nearctic_wave1_source_inventory.md`](chapter1_pr138_nearctic_wave1_source_inventory.md)) and a direct audit of Le Hors's Saint-Pierre flora ([`chapter1_pr138_saint_pierre_source_audit.md`](chapter1_pr138_saint_pierre_source_audit.md)).
 
-- Run: `32939702080`
-- Artifact: `pr138-nearctic-status-pilot-32939702080`
-- Digest: `sha256:2d0f7c7861c8396f17200f5945d97d4f03f54590abd5b89fcac533724cfb5283`
-- San Nicolas: 277/355 status rows resolved from the author-maintained CCH2 checklist (136 unmarked native under the checklist convention, 141 explicit introduced, 78 unresolved).
+- Run: `32942359223`
+- Artifact: `pr138-nearctic-status-pilot-32942359223`
+- Digest: `sha256:26d4653bdbb4b2b59f51d86745e596ca2620acfd911a4bc3604d8b7968aa37f1`
+- San Nicolas: 277/355 status rows resolved from the author-maintained CCH2 checklist (136 native under the source convention, 141 explicit introduced, 78 unresolved).
 - Block Island: 165/286 status rows resolved from the explicitly defined Appendix A convention (105 unstarred native, 60 starred naturalized/not native, 121 unresolved).
-- Cedros: 27/338 names matched to the 1993 appendix, but none enter the binary origin analysis because the source says only that starred taxa are *presumably* introduced and does not explicitly classify unstarred taxa as native. Three starred matched taxa are retained as qualified introduction candidates.
+- Cedros: none of 338 rows enters the binary origin analysis because the source's starred taxa are only *presumably* introduced and it provides no native residual convention.
+- Saint-Pierre: only six exact-name rows enter from Le Hors passages that directly couple origin with target-island occurrence (five native, one introduced); the remaining 305 rows stay unresolved. The archipelago-wide total of 506 indigenous taxa is not used as a residual-island rule.
 
-After this strict patch, Nearctic all-native support is 30 islands for `butterfly_like`, 29 for `generalized_accessible` and `large_bee_like`, and 28 for `bird_like`, `selfing_core`, and `selfing_syndrome`. Thus one syndrome reaches the predeclared 30-island pilot gate, but a one-axis result is not a coherent multivariate syndrome vector and the formal Nearctic result remains `not_testable`; no Nearctic distance slope is fitted. Realm-level replication across both northern realms is therefore unresolved, not unsupported. One additional source-backed island carrying both generalized-accessible and large-bee-like trait support would bring three axes to the pilot gate, if the added island also has those trait scores; the other axes are two islands short. The native-nonendemic set remains lower (27 islands for butterfly/generalized/large-bee and 26 for bird/selfing) because endemism status is still unresolved for the newly admitted rows.
+This addition raises Nearctic all-native support to the predeclared 30-island pilot gate for three axes: `butterfly_like`, `generalized_accessible`, and `large_bee_like`. The joint three-axis vector is now testable but unsupported (31 islands, 10 spatial clusters; chi-square = 3.616, df = 3, p = q = 0.306). The fitted distance slopes are `butterfly_like` +0.0021 (p = 0.985), `generalized_accessible` -0.0236 (p = 0.205), and `large_bee_like` +0.0483 (p = 0.261). None reproduces the Palearctic classic direction with statistical support. This is a pilot-scale multivariate non-replication, not a confirmatory falsification: the 50-island confirmatory gate is unmet, the classic scalar projection is incomplete because the reproductive-assurance axes remain below threshold, and native-nonendemic Nearctic remains untestable (27 islands for butterfly/generalized/large-bee and 26 for bird/selfing).
 
 ## 6. Attraction versus strict selfing-core decomposition
 
@@ -172,7 +173,7 @@ The strongest supported statement is:
 Still unresolved:
 
 - direct causal attribution to Bombus loss or attraction-selection relaxation;
-- replication in the Nearctic (only one syndrome currently reaches the pilot threshold, so the multivariate vector is not testable);
+- confirmatory Nearctic replication and native-nonendemic Nearctic replication; the all-native pilot vector is now testable but does not reproduce the Palearctic direction;
 - confirmatory southern-hemisphere bird-like pattern;
 - why the Aegean/eastern-Mediterranean block contributes strongly to the scalar classic projection.
 

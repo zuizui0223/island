@@ -29,7 +29,7 @@ Of 8,265 islands, 5,583 receive a formal terrestrial-realm assignment without im
 - Oceanian: 158
 - Antarctic: 30
 
-Realm assignment is much broader than current syndrome evidence support. Confirmatory syndrome support is presently concentrated in Palearctic and Neotropical islands; Oceanian is pilot-only. The strict source-backed Nearctic rerun (`32939702080`; artifact `pr138-nearctic-status-pilot-32939702080`; digest `sha256:2d0f7c7861c8396f17200f5945d97d4f03f54590abd5b89fcac533724cfb5283`) resolves 277/355 San Nicolas status rows and 165/286 Block Island rows, but admits no binary Cedros statuses from its qualified `presumably introduced` marks. Nearctic all-native support is consequently 30 islands for `butterfly_like`, 29 for `generalized_accessible` and `large_bee_like`, and 28 for `bird_like`, `selfing_core`, and `selfing_syndrome`. Only `butterfly_like` reaches the 30-island pilot gate. Because a coherent multivariate vector cannot be evaluated from one retained axis, the formal Nearctic result remains `not_testable` and no distance slope is fitted. Native-nonendemic support remains 27 islands for butterfly/generalized/large-bee and 26 for bird/selfing because endemism status is unresolved for the newly admitted rows.
+Realm assignment is much broader than current syndrome evidence support. Confirmatory syndrome support is presently concentrated in Palearctic and Neotropical islands; Oceanian is pilot-only. The strict source-backed Nearctic rerun (`32942359223`; artifact `pr138-nearctic-status-pilot-32942359223`; digest `sha256:26d4653bdbb4b2b59f51d86745e596ca2620acfd911a4bc3604d8b7968aa37f1`) retains the existing San Nicolas and Block Island status ledgers and adds only six direct Le Hors Saint-Pierre assignments (five native, one introduced; 305 unresolved). This raises all-native support to 30 islands for `butterfly_like`, `generalized_accessible`, and `large_bee_like`; `selfing_core` and `selfing_syndrome` remain at 29 and `bird_like` at 28. The resulting three-axis pilot vector is testable but unsupported (31 islands, 10 spatial clusters; chi-square = 3.616, df = 3, p = q = 0.306). Its slopes are +0.0021 for butterfly-like, -0.0236 for generalized accessibility, and +0.0483 for large-bee-like, all unsupported (p >= 0.205) and not in the Palearctic classic direction. This is pilot non-replication, not confirmatory falsification: the 50-island gate, full classic projection, and native-nonendemic Nearctic test remain unavailable.
 
 ## Palearctic
 
@@ -71,11 +71,11 @@ Supported:
 1. The northern classic syndrome is not only a broad-latitude artefact: it is strongly reproduced within the Palearctic.
 2. The signal persists in native non-endemics in the Palearctic.
 3. A weak Neotropical all-native classic-direction signal disappears after endemic species are removed, exposing a direct Palearctic-vs-Neotropical difference.
-4. Realm-level coverage is currently insufficient to claim replication across both major northern realms: one Nearctic axis is pilot-eligible, but the multivariate Nearctic result is not yet testable.
+4. The Nearctic all-native pilot vector is now testable on three axes but does not reproduce the Palearctic direction; confirmatory and native-nonendemic replication remain untestable.
 
 Not supported / not identified:
 
-- universal northern-realm replication;
+- universal northern-realm replication; the available Nearctic pilot is a non-replication rather than positive support;
 - causal Bombus loss;
 - causal butterfly or bird replacement;
 - a universal tropical counter-syndrome across all tropical realms.
