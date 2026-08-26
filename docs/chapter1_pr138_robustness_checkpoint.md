@@ -1,0 +1,170 @@
+# PR138 syndrome robustness checkpoint
+
+Status: **provisional / not frozen**.
+
+This checkpoint records robustness of the pattern-first Chapter 1 result after adding formal pollination/selfing syndrome analysis. It does not identify causal pollinators.
+
+## Headline being stress-tested
+
+Northern mid-latitude island floras shift with mainland distance toward a predeclared classic island-syndrome direction:
+
+`(- large_bee_like + generalized_accessible + selfing_syndrome) / 3`
+
+while tropical island floras do not show the same projection and their complete syndrome response vector differs from the northern vector.
+
+## 1. Evidence-layer and information-weight robustness
+
+Main analysis uses nonduplicated all-analysis-eligible evidence:
+
+- species-direct evidence first;
+- validated genus-consensus evidence only fills species x trait gaps;
+- 132,288 direct rows expand to 247,450 nonduplicated species x trait rows.
+
+Direct-only independently reproduces the northern classic projection. Validated genus-consensus-only is weaker and does not independently recover the northern directional projection.
+
+Changing information weights while holding island trait shares fixed (canonical, cap 100/50/20, equal-island) keeps the northern classic direction positive; equal-island strengthens the north-vs-tropical difference.
+
+## 2. Syndrome-template sensitivity
+
+Run: `32927708306`
+Artifact: `pr138-syndrome-template-sensitivity-32927708306`
+Digest: `sha256:060c94b1131d9b6a1655ed117d36afb70c4f243041b4d9d0ea2dc5606bc97a01`
+
+Thirteen outcome-blind template variants were prespecified:
+
+- canonical;
+- equal weights;
+- no colour;
+- pollination morphology only;
+- drop each syndrome trait in turn;
+- require >=3 informative traits.
+
+All-native:
+
+- northern classic projection supported: **13/13 variants**;
+- north-vs-tropical vector difference supported: **13/13**;
+- `large_bee_like < 0` and `generalized_accessible > 0`: **12/13**.
+
+Native non-endemic:
+
+- northern classic projection supported: **11/13**;
+- north-vs-tropical vector difference supported: **12/13**;
+- attraction-direction signs supported: **12/13**.
+
+The two native-nonendemic variants that lose the classic-projection significance are:
+
+- `drop_floral_form`: projection +0.0302, q=0.0529; regional vector difference remains supported (q=0.000955);
+- `minimum_three_traits`: projection +0.0391, q=0.0689; regional vector difference q=0.0511.
+
+Thus the result is not colour-driven or dependent on a single reproductive trait, but floral form and the stricter >=3-trait requirement are identifiable sensitivity points.
+
+## 3. Distance functional-form sensitivity
+
+Run: `32927708299`
+Artifact: `pr138-syndrome-distance-sensitivity-32927708299`
+Digest: `sha256:4eba14ceec8ed338f3d8c06194a62ce4abf0b86b2ebab4e4ecf4e24eb2ccdca1`
+
+The island set is unchanged and no distance threshold is used.
+
+Across raw, square-root and log1p mainland distance, in both all-native and native-nonendemic strata (**6/6 scenarios**):
+
+- northern classic projection is positive and supported;
+- tropical classic projection is not supported;
+- north-vs-tropical syndrome vector difference is supported;
+- northern `large_bee_like` slope is negative;
+- northern `generalized_accessible` slope is positive.
+
+Example all-native classic projection:
+
+- raw: +0.0626, q=4.35e-11;
+- sqrt: +0.0628, q=3.15e-5;
+- log1p: +0.0443, q=0.00641.
+
+Therefore the headline is not specific to the log-distance transformation.
+
+## 4. Leave-one-spatial-block-out sensitivity
+
+Run: `32927708223`
+Artifact: `pr138-syndrome-block-deletion-32927708223`
+Digest: `sha256:3f94d1b47a5003e3302be6792d55e19db2681733cdbcd866774dbdcbad577b90`
+
+There are 81 eligible spatial blocks. Every block is deleted in turn and the confirmatory FDR family is refit.
+
+For both all-native and native-nonendemic:
+
+- headline is testable: 81/81 deletions;
+- north-vs-tropical vector difference retained: **81/81**;
+- northern attraction direction (`large_bee_like < 0`, `generalized_accessible > 0`) retained: **81/81**;
+- northern classic projection retained: **80/81**.
+
+The single influential deletion is `lat12_lon20`, an Aegean/eastern-Mediterranean block (~35-40 N, 20-30 E; 83 islands in the full geography table). When this block is removed:
+
+- all-native classic projection +0.0244, q=0.2145;
+- native-nonendemic +0.0221, q=0.2303.
+
+However the attraction-direction signs remain correct and the north-vs-tropical vector difference remains strongly supported (q=3.1e-5 all-native; q=5e-6 native-nonendemic).
+
+Therefore no single spatial block is necessary for the regional syndrome-vector difference, but the strength/significance of the scalar classic projection is materially leveraged by the Aegean/eastern-Mediterranean block and must be reported.
+
+## 5. Formal biogeographic-realm sensitivity
+
+Run: `32927060210`
+Artifact: `pr138-realm-sensitivity-32927060210`
+Digest: `sha256:6556a7938a52547ddf7b630a822d743b2ba5ca479589716919441b96dcfa0521`
+
+RESOLVE Ecoregions 2017 realms are assigned by point-in-polygon only, with no nearest-realm imputation. 5,583/8,265 islands receive a formal realm assignment.
+
+Palearctic strongly reproduces the northern classic syndrome:
+
+- all-native projection +0.1027, q=3.46e-6;
+- native-nonendemic +0.1017, q=9.35e-7.
+
+Palearctic all-native slopes include:
+
+- `large_bee_like` -0.1166;
+- `generalized_accessible` +0.1086;
+- `selfing_core` +0.0784;
+- `selfing_syndrome` +0.0828;
+- `bird_like` -0.1376;
+- `butterfly_like` -0.0825.
+
+Neotropical all-native shows a weaker classic-direction projection (+0.0325, q=0.0194), but this disappears in native non-endemics (+0.0175, q=0.0724). Palearctic-vs-Neotropical syndrome vectors differ directly in native non-endemics (q=0.00401), whereas the all-native vector difference is not supported (q=0.192). This indicates a material endemic/floristic-composition contribution to the Neotropical all-native signal.
+
+Nearctic currently has only ~26-28 syndrome-scored islands and therefore does not reach the 30-island pilot gate. Realm-level replication across both northern realms cannot yet be claimed.
+
+## 6. Attraction versus strict selfing-core decomposition
+
+Run: `32922758001`
+Artifact: `pr138-attraction-selfing-32922758001`
+Digest: `sha256:5c573fdd75ebab4b85dd97cd11a064d9764eb3772c8fa37e124236eb841e6770`
+
+Definitions:
+
+- `attraction_shift = (-large_bee_like + generalized_accessible) / 2`;
+- `selfing_core = SC + mating system + autonomous selfing`, excluding flower size.
+
+Northern all-native:
+
+- `selfing_core ~ distance`: +0.0224, p=0.347, unsupported;
+- `attraction_shift ~ distance`: +0.0466, p=0.0133;
+- after selfing-core adjustment, distance remains +0.0471, p=0.0149;
+- conditional selfing-core coefficient on attraction shift: p=0.720.
+
+Native non-endemic gives the same qualitative result (conditional distance +0.0435, p=0.0168).
+
+Thus the northern attraction/accessibility shift is statistically separable from the measured strict reproductive selfing core. This is conditional decomposition, not causal mediation.
+
+## Current scientific boundary
+
+The strongest supported statement is:
+
+> Mainland distance is associated with a biogeographically contingent reorganization of floral/pollination-syndrome composition. In northern mid-latitude, especially Palearctic, island floras shift away from large-bee-compatible architecture and toward generalized accessibility; this floral shift is not reducible to the measured strict selfing core. Tropical floras follow a different syndrome-response vector.
+
+Still unresolved:
+
+- direct causal attribution to Bombus loss or attraction-selection relaxation;
+- replication in the Nearctic (current trait/syndrome coverage below pilot threshold);
+- confirmatory southern-hemisphere bird-like pattern;
+- why the Aegean/eastern-Mediterranean block contributes strongly to the scalar classic projection.
+
+These are the next targets; the PR remains draft and the scientific result is not frozen.
