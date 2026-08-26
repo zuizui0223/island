@@ -15,33 +15,102 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - name: Download published Koenig et al. source-pool archive
+      - name: Retrieve GIFT mainland checklist metadata
         run: |
           set -euo pipefail
-          mkdir -p /tmp/sourcepool/raw /tmp/sourcepool/report
-          curl -L --fail --retry 3 \
-            "https://datadryad.org/api/v2/datasets/doi%3A10.5061%2Fdryad.6wwpzgmwm/download" \
-            -o /tmp/sourcepool/koenig_dryad.zip
-          unzip -q /tmp/sourcepool/koenig_dryad.zip -d /tmp/sourcepool/raw
-          printf 'archive_bytes\t%s\n' "$(stat -c%s /tmp/sourcepool/koenig_dryad.zip)" > /tmp/sourcepool/report/archive_manifest.tsv
-          printf 'source_doi\thttps://doi.org/10.5061/dryad.6wwpzgmwm\n' >> /tmp/sourcepool/report/archive_manifest.tsv
-      - name: Inventory source-pool files without promoting any island outcome
+          mkdir -p /tmp/sourcepool/report
+          API="https://gift.uni-goettingen.de/api/extended/index3.2.php"
+          curl -L --fail --retry 3 "${API}?query=lists" -o /tmp/sourcepool/report/gift_lists_v3.2.json
+          curl -L --fail --retry 3 "${API}?query=taxonomy" -o /tmp/sourcepool/report/gift_taxonomy_v3.2.json
+          test -s /tmp/sourcepool/report/gift_lists_v3.2.json
+          test -s /tmp/sourcepool/report/gift_taxonomy_v3.2.json
+      - name: Audit mainland/native source-pool feasibility without ecological outcomes
         run: |
-          set -euo pipefail
-          cd /tmp/sourcepool/raw
-          find . -type f -printf '%s\t%p\n' | sort -nr > /tmp/sourcepool/report/file_inventory.tsv
-          find . -type f \( -iname '*.csv' -o -iname '*.tsv' -o -iname '*.txt' -o -iname '*.r' -o -iname '*.rmd' -o -iname '*.md' \) \
-            -size -5M -print0 | while IFS= read -r -d '' f; do
-              out="/tmp/sourcepool/report/text_candidates/${f#./}"
-              mkdir -p "$(dirname "$out")"
-              cp "$f" "$out"
-            done
-          printf '# PR138 source-pool feasibility audit\n\n' > /tmp/sourcepool/report/README.md
-          printf 'This artifact inventories the published König et al. (2021) source-pool dataset before any ecological outcome is consulted.\n\n' >> /tmp/sourcepool/report/README.md
-          printf 'Purpose: determine whether published island/mainland identities, source-pool weights, or scripts can be reused for a source-pool-standardized sensitivity.\n\n' >> /tmp/sourcepool/report/README.md
-          printf 'No current island trait score, syndrome coefficient, p-value, or result direction is used in this audit.\n\n' >> /tmp/sourcepool/report/README.md
-          printf 'If the archive lacks reusable island-specific source expectations, the analysis must fail closed rather than substitute nearest-mainland distance or genus-fixed residuals.\n' >> /tmp/sourcepool/report/README.md
-          head -80 /tmp/sourcepool/report/file_inventory.tsv >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY'
+          import json
+          from collections import Counter
+          from pathlib import Path
+
+          root = Path('/tmp/sourcepool/report')
+          lists = json.loads((root/'gift_lists_v3.2.json').read_text())
+          taxonomy = json.loads((root/'gift_taxonomy_v3.2.json').read_text())
+          if isinstance(lists, dict):
+              # Fail closed if the API format has changed unexpectedly.
+              raise SystemExit(f'Unexpected GIFT lists payload keys: {list(lists)[:20]}')
+          if not isinstance(lists, list) or not lists:
+              raise SystemExit('GIFT lists payload is empty or not a list')
+
+          cols = sorted({k for row in lists for k in row})
+          def text(v): return '' if v is None else str(v).strip()
+          def num(v):
+              try: return int(float(v))
+              except Exception: return None
+
+          classes = Counter(text(r.get('entity_class')) for r in lists)
+          units = Counter(text(r.get('entity_unit')) for r in lists)
+          types = Counter(text(r.get('type')) for r in lists)
+          subsets = Counter(text(r.get('subset')) for r in lists)
+
+          candidates = []
+          for r in lists:
+              cls = text(r.get('entity_class')).lower()
+              unit = text(r.get('entity_unit')).lower()
+              geo = text(r.get('geo_entity'))
+              native_indicated = num(r.get('native_indicated'))
+              restricted = num(r.get('restricted'))
+              suit_geo = num(r.get('suit_geo'))
+              # Keep a broad candidate set here; exact mainland eligibility is audited,
+              # not guessed from one undocumented string value.
+              mainland_like = ('mainland' in cls) or ('mainland' in unit)
+              if mainland_like and native_indicated == 1 and restricted in (0, None):
+                  candidates.append({
+                      'list_ID': r.get('list_ID'),
+                      'ref_ID': r.get('ref_ID'),
+                      'entity_ID': r.get('entity_ID'),
+                      'geo_entity': geo,
+                      'entity_class': r.get('entity_class'),
+                      'entity_unit': r.get('entity_unit'),
+                      'suit_geo': r.get('suit_geo'),
+                      'native_indicated': r.get('native_indicated'),
+                      'restricted': r.get('restricted'),
+                      'taxon_ID': r.get('taxon_ID'),
+                      'taxon_name': r.get('taxon_name'),
+                  })
+
+          import csv
+          with (root/'gift_mainland_native_candidate_lists.csv').open('w', newline='') as f:
+              w = csv.DictWriter(f, fieldnames=list(candidates[0]) if candidates else ['list_ID'])
+              w.writeheader(); w.writerows(candidates)
+
+          audit = {
+              'contract': 'pr138_source_pool_feasibility_v1',
+              'data_source': 'GIFT 3.2 public extended API',
+              'api': 'https://gift.uni-goettingen.de/api/extended/index3.2.php',
+              'n_list_rows': len(lists),
+              'n_candidate_mainland_native_lists': len(candidates),
+              'n_candidate_suit_geo_1': sum(num(r.get('suit_geo')) == 1 for r in candidates),
+              'list_columns': cols,
+              'entity_class_counts': dict(classes.most_common()),
+              'entity_unit_counts': dict(units.most_common()),
+              'reference_type_counts': dict(types.most_common()),
+              'subset_counts': dict(subsets.most_common()),
+              'taxonomy_payload_rows': len(taxonomy) if isinstance(taxonomy, list) else None,
+              'outcome_blind': True,
+              'current_island_trait_outcomes_used': False,
+              'claim_boundary': 'Metadata feasibility only; no source pool is assigned to a current island in this audit.'
+          }
+          (root/'source_pool_feasibility.json').write_text(json.dumps(audit, indent=2)+'\n')
+          md = ['# PR138 source-pool feasibility audit', '',
+                f"GIFT list rows: **{len(lists)}**",
+                f"mainland-like, native-indicated, unrestricted candidate lists: **{len(candidates)}**",
+                f"of which `suit_geo=1`: **{audit['n_candidate_suit_geo_1']}**", '',
+                'This audit does not use island trait values, syndrome scores, coefficients, or p-values.',
+                'It only tests whether a defensible external mainland-flora universe exists for the next source-pool-standardized sensitivity.', '',
+                'If mainland geometry/environment metadata cannot be linked outcome-blind to the 8,265 island geography universe, the next analysis fails closed rather than using nearest-mainland distance or genus-fixed residuals as a substitute.', '']
+          (root/'README.md').write_text('\n'.join(md))
+          print(json.dumps(audit, indent=2))
+          PY
+          cat /tmp/sourcepool/report/README.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
           name: pr138-source-pool-feasibility-${{ github.run_id }}
