@@ -5,20 +5,24 @@ on:
     branches: [pr136-channel-gated-primary-validation]
     paths:
       - "src/island_v2/chapter1_pr138_biogeographic_pattern.py"
+      - "src/island_v2/chapter1_pr138_direct_ledger_pattern.py"
       - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
       - "config/chapter1_pr136_biogeographic_pattern.yml"
       - "config/chapter1_pr136_biogeographic_residual.yml"
       - "tests/test_chapter1_pr138_biogeographic_pattern.py"
+      - "tests/test_chapter1_pr138_direct_ledger_pattern.py"
       - "tests/test_chapter1_pr136_biogeographic_residual.py"
       - ".github/workflows/validate-pr136-channel-gated.yml"
   pull_request:
     branches: [main]
     paths:
       - "src/island_v2/chapter1_pr138_biogeographic_pattern.py"
+      - "src/island_v2/chapter1_pr138_direct_ledger_pattern.py"
       - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
       - "config/chapter1_pr136_biogeographic_pattern.yml"
       - "config/chapter1_pr136_biogeographic_residual.yml"
       - "tests/test_chapter1_pr138_biogeographic_pattern.py"
+      - "tests/test_chapter1_pr138_direct_ledger_pattern.py"
       - "tests/test_chapter1_pr136_biogeographic_residual.py"
       - ".github/workflows/validate-pr136-channel-gated.yml"
   workflow_dispatch:
@@ -41,13 +45,16 @@ jobs:
         run: |
           ruff check \
             src/island_v2/chapter1_pr138_biogeographic_pattern.py \
+            src/island_v2/chapter1_pr138_direct_ledger_pattern.py \
             src/island_v2/chapter1_pr136_biogeographic_residual.py \
             tests/test_chapter1_pr138_biogeographic_pattern.py \
+            tests/test_chapter1_pr138_direct_ledger_pattern.py \
             tests/test_chapter1_pr136_biogeographic_residual.py
       - name: Observed-pattern and decomposition falsification tests
         run: |
           pytest -q \
             tests/test_chapter1_pr138_biogeographic_pattern.py \
+            tests/test_chapter1_pr138_direct_ledger_pattern.py \
             tests/test_chapter1_pr136_biogeographic_residual.py
       - name: Parse pattern contracts
         run: |
@@ -58,6 +65,7 @@ jobs:
           secondary = yaml.safe_load(Path('config/chapter1_pr136_biogeographic_residual.yml').read_text())
           assert primary['inferential_layers']['primary'] == 'observed_native_flora_broad_syndrome_composition'
           assert primary['pollinator_predictors_in_primary_model'] is False
+          assert len(primary['broad_outcomes']) == 8
           assert secondary['pollinator_predictors_in_primary_model'] is False
-          print('Primary observed assemblage + secondary genus-fixed decomposition: ok')
+          print('Eight-axis observed assemblage primary + secondary genus-fixed decomposition: ok')
           PY
