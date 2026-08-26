@@ -2,6 +2,10 @@
 
 Status: **lineage influence diagnostic / claim-boundary checkpoint; not a causal genus model**.
 
+Run: `32987896970`  
+Artifact: `pr138-si-genus-influence-32987896970`  
+Digest: `sha256:c8b1673aa775f2ff93c05a4996d0464334183866515b33fec8966de8e47bbcca`
+
 The genus-fixed + source-pool null shows that the exact-SI Palearctic attraction/accessibility slope does not exceed the between-genus expectation. This checkpoint asks whether that assembly-level result is nevertheless driven by one or a few individual genera.
 
 ## Design
