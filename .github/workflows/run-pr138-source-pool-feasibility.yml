@@ -1,0 +1,50 @@
+name: Run PR138 source-pool feasibility audit
+
+on:
+  push:
+    paths:
+      - ".github/workflows/run-pr138-source-pool-feasibility.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download published Koenig et al. source-pool archive
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/sourcepool/raw /tmp/sourcepool/report
+          curl -L --fail --retry 3 \
+            "https://datadryad.org/api/v2/datasets/doi%3A10.5061%2Fdryad.6wwpzgmwm/download" \
+            -o /tmp/sourcepool/koenig_dryad.zip
+          unzip -q /tmp/sourcepool/koenig_dryad.zip -d /tmp/sourcepool/raw
+          printf 'archive_bytes\t%s\n' "$(stat -c%s /tmp/sourcepool/koenig_dryad.zip)" > /tmp/sourcepool/report/archive_manifest.tsv
+          printf 'source_doi\thttps://doi.org/10.5061/dryad.6wwpzgmwm\n' >> /tmp/sourcepool/report/archive_manifest.tsv
+      - name: Inventory source-pool files without promoting any island outcome
+        run: |
+          set -euo pipefail
+          cd /tmp/sourcepool/raw
+          find . -type f -printf '%s\t%p\n' | sort -nr > /tmp/sourcepool/report/file_inventory.tsv
+          find . -type f \( -iname '*.csv' -o -iname '*.tsv' -o -iname '*.txt' -o -iname '*.r' -o -iname '*.rmd' -o -iname '*.md' \) \
+            -size -5M -print0 | while IFS= read -r -d '' f; do
+              out="/tmp/sourcepool/report/text_candidates/${f#./}"
+              mkdir -p "$(dirname "$out")"
+              cp "$f" "$out"
+            done
+          printf '# PR138 source-pool feasibility audit\n\n' > /tmp/sourcepool/report/README.md
+          printf 'This artifact inventories the published König et al. (2021) source-pool dataset before any ecological outcome is consulted.\n\n' >> /tmp/sourcepool/report/README.md
+          printf 'Purpose: determine whether published island/mainland identities, source-pool weights, or scripts can be reused for a source-pool-standardized sensitivity.\n\n' >> /tmp/sourcepool/report/README.md
+          printf 'No current island trait score, syndrome coefficient, p-value, or result direction is used in this audit.\n\n' >> /tmp/sourcepool/report/README.md
+          printf 'If the archive lacks reusable island-specific source expectations, the analysis must fail closed rather than substitute nearest-mainland distance or genus-fixed residuals.\n' >> /tmp/sourcepool/report/README.md
+          head -80 /tmp/sourcepool/report/file_inventory.tsv >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-source-pool-feasibility-${{ github.run_id }}
+          path: /tmp/sourcepool/report/
+          if-no-files-found: error
+          retention-days: 90
