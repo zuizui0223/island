@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import argparse
 import json
-from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
