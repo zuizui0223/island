@@ -18,7 +18,10 @@ def test_within_palearctic_weights_use_availability_not_score_values():
             "spatial_block": [f"b{i // 4}" for i in range(100)],
         }
     )
-    observed = {f"i{i}" for i in range(60)}
+    # Availability must not be deterministically separable by a modeled predictor.
+    # Draw a fixed random subset so this test checks outcome blindness rather than
+    # creating an artificial distance threshold that forces logistic separation.
+    observed = set(rng.choice(universe["island_id"].to_numpy(), size=60, replace=False))
     pattern = {
         "geography_column": "log_distance_to_continent_km",
         "cluster_column": "spatial_block",
