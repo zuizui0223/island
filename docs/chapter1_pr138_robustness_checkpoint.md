@@ -132,13 +132,14 @@ Neotropical all-native shows a weaker classic-direction projection (+0.0325, q=0
 
 The source-backed Nearctic status pilot was then rerun after an outcome-blind 15-island source inventory ([`chapter1_pr138_nearctic_wave1_source_inventory.md`](chapter1_pr138_nearctic_wave1_source_inventory.md)).
 
-- Run: `32938637246`
-- Artifact: `pr138-nearctic-status-pilot-32938637246`
-- Digest: `sha256:28aff350d4586be8f365682efaa52933a2997d7c20582320859e256e8c0d96ac`
+- Run: `32939702080`
+- Artifact: `pr138-nearctic-status-pilot-32939702080`
+- Digest: `sha256:2d0f7c7861c8396f17200f5945d97d4f03f54590abd5b89fcac533724cfb5283`
 - San Nicolas: 277/355 status rows resolved from the author-maintained CCH2 checklist (136 unmarked native under the checklist convention, 141 explicit introduced, 78 unresolved).
+- Block Island: 165/286 status rows resolved from the explicitly defined Appendix A convention (105 unstarred native, 60 starred naturalized/not native, 121 unresolved).
 - Cedros: 27/338 names matched to the 1993 appendix, but none enter the binary origin analysis because the source says only that starred taxa are *presumably* introduced and does not explicitly classify unstarred taxa as native. Three starred matched taxa are retained as qualified introduction candidates.
 
-After this strict patch, Nearctic all-native support is 29 islands for `butterfly_like`, 28 for `generalized_accessible` and `large_bee_like`, and 27 for each remaining syndrome. No syndrome reaches the 30-island pilot gate, so no Nearctic vector or distance slope is fitted. Realm-level replication across both northern realms remains unresolved, not unsupported; the measured shortfall is now one island for the best-supported axis and two to three for a multivariate syndrome vector.
+After this strict patch, Nearctic all-native support is 30 islands for `butterfly_like`, 29 for `generalized_accessible` and `large_bee_like`, and 28 for `bird_like`, `selfing_core`, and `selfing_syndrome`. Thus one syndrome reaches the predeclared 30-island pilot gate, but a one-axis result is not a coherent multivariate syndrome vector and the formal Nearctic result remains `not_testable`; no Nearctic distance slope is fitted. Realm-level replication across both northern realms is therefore unresolved, not unsupported. One additional source-backed island carrying both generalized-accessible and large-bee-like trait support would bring three axes to the pilot gate, if the added island also has those trait scores; the other axes are two islands short. The native-nonendemic set remains lower (27 islands for butterfly/generalized/large-bee and 26 for bird/selfing) because endemism status is still unresolved for the newly admitted rows.
 
 ## 6. Attraction versus strict selfing-core decomposition
 
@@ -171,7 +172,7 @@ The strongest supported statement is:
 Still unresolved:
 
 - direct causal attribution to Bombus loss or attraction-selection relaxation;
-- replication in the Nearctic (current trait/syndrome coverage below pilot threshold);
+- replication in the Nearctic (only one syndrome currently reaches the pilot threshold, so the multivariate vector is not testable);
 - confirmatory southern-hemisphere bird-like pattern;
 - why the Aegean/eastern-Mediterranean block contributes strongly to the scalar classic projection.
 

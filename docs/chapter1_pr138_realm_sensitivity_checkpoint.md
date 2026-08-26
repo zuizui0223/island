@@ -29,7 +29,7 @@ Of 8,265 islands, 5,583 receive a formal terrestrial-realm assignment without im
 - Oceanian: 158
 - Antarctic: 30
 
-Realm assignment is much broader than current syndrome evidence support. Confirmatory syndrome support is presently concentrated in Palearctic and Neotropical islands; Oceanian is pilot-only. The strict source-backed Nearctic rerun (`32938637246`; artifact `pr138-nearctic-status-pilot-32938637246`) resolves 277/355 San Nicolas status rows but admits no binary Cedros statuses from its qualified `presumably introduced` marks. Nearctic all-native support is consequently 29 islands for `butterfly_like`, 28 for `generalized_accessible` and `large_bee_like`, and 27 for the other syndromes. It remains below the 30-island pilot gate despite many realm-assigned islands.
+Realm assignment is much broader than current syndrome evidence support. Confirmatory syndrome support is presently concentrated in Palearctic and Neotropical islands; Oceanian is pilot-only. The strict source-backed Nearctic rerun (`32939702080`; artifact `pr138-nearctic-status-pilot-32939702080`; digest `sha256:2d0f7c7861c8396f17200f5945d97d4f03f54590abd5b89fcac533724cfb5283`) resolves 277/355 San Nicolas status rows and 165/286 Block Island rows, but admits no binary Cedros statuses from its qualified `presumably introduced` marks. Nearctic all-native support is consequently 30 islands for `butterfly_like`, 29 for `generalized_accessible` and `large_bee_like`, and 28 for `bird_like`, `selfing_core`, and `selfing_syndrome`. Only `butterfly_like` reaches the 30-island pilot gate. Because a coherent multivariate vector cannot be evaluated from one retained axis, the formal Nearctic result remains `not_testable` and no distance slope is fitted. Native-nonendemic support remains 27 islands for butterfly/generalized/large-bee and 26 for bird/selfing because endemism status is unresolved for the newly admitted rows.
 
 ## Palearctic
 
@@ -71,7 +71,7 @@ Supported:
 1. The northern classic syndrome is not only a broad-latitude artefact: it is strongly reproduced within the Palearctic.
 2. The signal persists in native non-endemics in the Palearctic.
 3. A weak Neotropical all-native classic-direction signal disappears after endemic species are removed, exposing a direct Palearctic-vs-Neotropical difference.
-4. Realm-level coverage is currently insufficient to claim replication across both major northern realms: Nearctic is not yet pilot-testable.
+4. Realm-level coverage is currently insufficient to claim replication across both major northern realms: one Nearctic axis is pilot-eligible, but the multivariate Nearctic result is not yet testable.
 
 Not supported / not identified:
 
