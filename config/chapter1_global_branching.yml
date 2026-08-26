@@ -1,0 +1,151 @@
+contract: chapter1_global_dispersal_filtered_pollination_service_branching_v1
+
+hypothesis_name: Dispersal-filtered pollination-service branching hypothesis
+
+chapter_scope:
+  chapter_1: >-
+    Identify when and where mainland-distance/source-accessibility gradients are
+    associated with different plant-side floral and reproductive response branches.
+  chapter_2: >-
+    Test the effective-pollination-service mechanism directly in
+    https://github.com/zuizui0223/izu-core.
+
+causal_model: >-
+  Pollination channels available in the source region, island distance/connectivity,
+  and pollinator dispersal and establishment ability jointly determine the effective
+  pollination service remaining on an island. Plants can then branch through reproductive
+  assurance, relaxed attraction/access, reinforced attraction under competition for scarce
+  service, or trait maintenance/redirection under another guild. These are alternative or
+  parallel responses rather than one universal island syndrome.
+
+chapter_1_estimand: >-
+  Region-specific distance slopes of predeclared plant-side response axes, conditional
+  on island area and climate and stratified by floristic status.
+
+branch_axes:
+  accessibility_generalization:
+    components:
+      generalized_accessible: 1.0
+    positive_interpretation: >-
+      Increasingly open, shallow and radially accessible floral architecture. This is
+      compatible with relaxed access filtering but does not by itself measure attraction.
+    negative_interpretation: >-
+      Maintenance or increase of specialized-access architecture. Chapter 1 cannot
+      distinguish competition for scarce service, functional replacement, or other causes.
+  reproductive_assurance:
+    components:
+      selfing_core: 1.0
+    positive_interpretation: >-
+      Increase in strict reproductive-assurance traits, excluding floral-attraction traits.
+  sampled_large_bee_concordance:
+    components:
+      large_bee_like: 1.0
+    positive_interpretation: Increase in sampled large-bee-like trait concordance.
+  sampled_butterfly_concordance:
+    components:
+      butterfly_like: 1.0
+    positive_interpretation: Increase in sampled butterfly-like trait concordance.
+  sampled_bird_concordance:
+    components:
+      bird_like: 1.0
+    positive_interpretation: Increase in sampled bird-like trait concordance.
+
+axis_sets:
+  universal_plant_response:
+    axes:
+      - accessibility_generalization
+      - reproductive_assurance
+    role: primary_when_where_test
+    classify: true
+    interpretation: >-
+      A pollinator-name-free plant response vector. It tests whether accessibility and
+      reproductive assurance branch differently with distance among regions.
+  sampled_guild_concordance:
+    axes:
+      - sampled_large_bee_concordance
+      - sampled_butterfly_concordance
+      - sampled_bird_concordance
+    role: secondary_discussion_concordance
+    classify: false
+    interpretation: >-
+      Non-exhaustive examples used only after the primary pattern is established. The set
+      omits moth, fly, bat, beetle, wasp and other channels and therefore cannot define the
+      universal branching model or identify the realized pollinator guild.
+
+conceptual_response_branches:
+  reproductive_assurance:
+    prediction: SC, autonomous selfing or increased selfing can rise when service is unreliable.
+    chapter_1_status: partially_observed_by_reproductive_assurance_axis
+  relaxed_attraction_or_access:
+    prediction: flowers can become plainer or more generally accessible when attraction returns fall.
+    chapter_1_status: access_observed_but_attraction_intensity_only_partially_observed
+  reinforced_attraction:
+    prediction: competition for scarce pollination service can maintain or strengthen attraction.
+    chapter_1_status: not_uniquely_identifiable_from_current_trait_scores
+  functional_replacement_or_redirection:
+    prediction: another guild can maintain traits or redirect them to another phenotype.
+    chapter_1_status: not_identifiable_without_independent_effective_service_data
+
+regional_side_hypotheses:
+  northern_large_bee_decline:
+    status: discussion_compatibility_only
+    prediction: >-
+      In northern temperate source regions, loss or decline of efficient large bees may make
+      accessibility generalization and reproductive assurance more likely with isolation.
+  mobile_guild_maintenance:
+    status: discussion_compatibility_only
+    prediction: >-
+      High dispersal or establishment ability and strong colour or shape preferences in birds,
+      butterflies, moths or other guilds may maintain or redirect attraction traits.
+
+context_layers:
+  analysis_regime:
+    column: analysis_regime
+    contexts:
+      - northern_midlatitude
+      - northern_high_latitude
+      - tropical
+      - southern_extratropical
+    role: primary_when_where_layer
+  biogeographic_realm:
+    column: biogeographic_realm
+    contexts:
+      - Nearctic
+      - Palearctic
+      - Neotropical
+      - Afrotropical
+      - Indomalayan
+      - Australasian
+      - Oceanian
+      - Antarctic
+    role: formal_where_sensitivity
+
+alpha: 0.05
+multiple_testing:
+  vector_family: context_layer_x_axis_set_x_stratum_x_support_tier
+  axis_family: context_layer_x_axis_set_x_stratum_x_support_tier
+  between_context_family: context_layer_x_axis_set_x_stratum_x_support_tier
+  hierarchical_gate: context_vector_before_axis_branch_label
+
+rules:
+  - syndrome_scores_are_plant_trait_concordance_not_pollinator_observations
+  - the_primary_vector_contains_no_pollinator_name
+  - guild_concordance_templates_are_secondary_non_exhaustive_examples
+  - unmodelled_guilds_are_not_absent_channels
+  - distance_is_a_composite_isolation_connectivity_source_supply_gradient
+  - missing_branch_components_fail_closed
+  - branch_labels_require_a_supported_multivariate_context_vector
+  - selfing_and_attraction_are_parallel_not_serial_by_default
+  - reinforced_attraction_cannot_be_separated_from_redirected_specialization_in_chapter_1
+  - positive_guild_concordance_is_not_functional_replacement
+  - no_pollinator_identity_abundance_visitation_or_effectiveness_enters_chapter_1
+  - direct_effective_service_and_replacement_tests_belong_to_izu_core
+  - significant_in_one_context_and_nonsignificant_in_another_is_not_heterogeneity
+  - context_differences_require_direct_joint_tests
+
+claim_ceiling: >-
+  Chapter 1 can identify biogeographically contingent plant-side response branches that
+  are compatible with the dispersal-filtered pollination-service hypothesis. Guild-labelled
+  syndromes are non-exhaustive discussion concordances, not the main test. Chapter 1 cannot
+  identify historical pollinator loss, effective service, attraction-selection relaxation,
+  competition for scarce service, or functional replacement without independent data.

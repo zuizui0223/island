@@ -178,3 +178,18 @@ Still unresolved:
 - why the Aegean/eastern-Mediterranean block contributes strongly to the scalar classic projection.
 
 These are the next targets; the PR remains draft and the scientific result is not frozen.
+
+## 7. Universal plant-response branching analysis
+
+The pollinator-name-free global branching analysis is recorded in
+[`chapter1_global_branching_checkpoint_20260826.md`](chapter1_global_branching_checkpoint_20260826.md).
+It places the **Dispersal-filtered pollination-service branching hypothesis** above the
+Bombus, bird and Lepidoptera side hypotheses and separates the primary accessibility plus
+reproductive-assurance vector from non-exhaustive guild-syndrome concordances.
+
+All-native northern-midlatitude and tropical vectors differ directly (`q = 3.20e-6`). The
+north resolves to accessibility generalization without supported strict reproductive
+assurance, whereas the tropics resolve to reproductive assurance without an axis-supported
+accessibility change. This supports regional plant-response branching, not a universal
+classic syndrome. Direct effective-service, mobility and replacement tests remain assigned
+to Chapter 2 in `izu-core`.
