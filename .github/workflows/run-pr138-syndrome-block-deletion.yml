@@ -9,6 +9,12 @@ on:
       - "src/island_v2/chapter1_pr138_syndrome_block_deletion.py"
       - "config/chapter1_pr138_pollination_syndromes.yml"
       - ".github/workflows/run-pr138-syndrome-block-deletion.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/island_v2/chapter1_pr138_syndrome_block_deletion.py"
+      - "config/chapter1_pr138_pollination_syndromes.yml"
+      - ".github/workflows/run-pr138-syndrome-block-deletion.yml"
   workflow_dispatch:
 
 permissions:
