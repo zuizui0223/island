@@ -1,5 +1,7 @@
 name: Run PR138 syndrome template sensitivity
 
+# Frozen-input, outcome-blind robustness: perturbations are prespecified and never
+# selected from observed syndrome effect directions.
 on:
   push:
     branches: [pr136-channel-gated-primary-validation]
