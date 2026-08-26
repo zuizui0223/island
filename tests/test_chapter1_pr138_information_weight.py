@@ -8,22 +8,30 @@ def test_information_weight_modes_preserve_testability_and_do_not_invent_differe
     rows = []
     cov = []
     outcomes = ["a", "b", "c"]
-    for context in ["northern_midlatitude", "tropical"]:
-        for i in range(70):
+    rng = np.random.default_rng(138)
+    contexts = ["northern_midlatitude", "tropical"]
+    n_per_context = 120
+    for context in contexts:
+        # Independent cluster noise in each region keeps the same true distance slope
+        # while avoiding the degenerate zero-residual covariance of a deterministic null.
+        cluster_noise = rng.normal(0.0, 0.08, size=n_per_context // 5)
+        for i in range(n_per_context):
             island = f"{context}_{i}"
-            x = -1.0 + 2.0 * i / 69
+            x = -1.0 + 2.0 * i / (n_per_context - 1)
+            block = i // 5
             cov.append(
                 {
                     "island_id": island,
                     "analysis_regime": context,
-                    "spatial_block": f"{context}_{i // 5}",
+                    "spatial_block": f"{context}_{block}",
                     "log_distance_to_continent_km": x,
-                    "log_island_area_km2": np.sin(i),
-                    "climate_pc1": np.cos(i),
+                    "log_island_area_km2": np.sin(i / 7),
+                    "climate_pc1": np.cos(i / 11),
                 }
             )
             for j, outcome in enumerate(outcomes):
-                p = 1 / (1 + np.exp(-(-0.3 + 0.4 * x + 0.02 * j)))
+                linear = -0.3 + 0.4 * x + 0.02 * j + cluster_noise[block]
+                p = 1 / (1 + np.exp(-linear))
                 trials = 10 + (i % 7) * 20
                 rows.append(
                     {
@@ -39,7 +47,7 @@ def test_information_weight_modes_preserve_testability_and_do_not_invent_differe
         "context_column": "analysis_regime",
         "cluster_column": "spatial_block",
         "baseline_covariates": ["log_island_area_km2", "climate_pc1"],
-        "contexts": ["northern_midlatitude", "tropical"],
+        "contexts": contexts,
         "strata": ["all_native"],
         "support_tiers": {"confirmatory": 50},
         "minimum_outcomes_per_vector": 2,
