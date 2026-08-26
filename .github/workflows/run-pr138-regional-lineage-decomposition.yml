@@ -70,7 +70,7 @@ jobs:
 
       - name: Run regional lineage decomposition
         run: |
-          python -m island_v2.chapter1_pr138_regional_lineage_decomposition run \
+          python -m island_v2.chapter1_pr138_regional_lineage_decomposition \
             --source-adjusted-scores-csv /tmp/regional/frozen/input/input/result/source_adjusted_pathway_island_scores.csv.gz \
             --species-scores-csv /tmp/regional/frozen/input/input/pathway/syndrome/species_syndrome_concordance.csv.gz \
             --status-flora-csv /tmp/regional/frozen/input/canonical/input/chapter1_status_flora.csv.gz \
