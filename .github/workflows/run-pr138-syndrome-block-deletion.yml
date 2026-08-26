@@ -1,0 +1,79 @@
+name: Run PR138 syndrome block deletion
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr138_syndrome_block_deletion.py"
+      - "config/chapter1_pr138_pollination_syndromes.yml"
+      - ".github/workflows/run-pr138-syndrome-block-deletion.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ISOLATION_RUN_ID: "29228212586"
+      ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+      CANONICAL_RUN_ID: "32845980788"
+      CANONICAL_ARTIFACT: "chapter1-when-where-main-32845980788"
+      TRAIT_RUN_ID: "32702160934"
+      TRAIT_ARTIFACT: "reviewed-open-web-evidence-32702160934"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Download frozen inputs
+        run: |
+          mkdir -p /tmp/isolation /tmp/canonical /tmp/traits
+          gh run download "$ISOLATION_RUN_ID" -n "$ISOLATION_ARTIFACT" -D /tmp/isolation
+          gh run download "$CANONICAL_RUN_ID" -n "$CANONICAL_ARTIFACT" -D /tmp/canonical
+          gh run download "$TRAIT_RUN_ID" -n "$TRAIT_ARTIFACT" -D /tmp/traits
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/traits/direct_species_trait_ledger.csv.gz
+          test -s /tmp/traits/rebuilt_all_evidence_validated_low.csv.gz
+
+      - name: Build all-evidence ladder
+        run: |
+          python -m island_v2.chapter1_pr138_evidence_ladder \
+            --direct-ledger-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --validated-low-csv /tmp/traits/rebuilt_all_evidence_validated_low.csv.gz \
+            --output-dir /tmp/pr138/evidence
+
+      - name: Build canonical all-evidence syndrome scores
+        run: |
+          python -m island_v2.chapter1_pr138_syndrome_analysis \
+            --trait-ledger-csv /tmp/pr138/evidence/all_analysis_eligible_trait_ledger.csv.gz \
+            --status-flora-csv /tmp/canonical/input/chapter1_status_flora.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --syndrome-config-path config/chapter1_pr138_pollination_syndromes.yml \
+            --output-dir /tmp/pr138/syndrome
+
+      - name: Leave one spatial block out
+        run: |
+          python -m island_v2.chapter1_pr138_syndrome_block_deletion \
+            --island-scores-csv /tmp/pr138/syndrome/island_syndrome_scores.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --syndrome-config-path config/chapter1_pr138_pollination_syndromes.yml \
+            --output-dir /tmp/pr138/block_deletion
+          cat /tmp/pr138/block_deletion/syndrome_leave_one_block_summary.csv >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-syndrome-block-deletion-${{ github.run_id }}
+          path: /tmp/pr138/block_deletion/
+          if-no-files-found: error
+          retention-days: 90
