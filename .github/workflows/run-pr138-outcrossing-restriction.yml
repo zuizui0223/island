@@ -1,0 +1,109 @@
+name: Run PR138 SI and outcrossing restriction sensitivity
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr138_outcrossing_restriction.py"
+      - "tests/test_chapter1_pr138_outcrossing_restriction.py"
+      - ".github/workflows/run-pr138-outcrossing-restriction.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SOURCE_PATHWAY_RUN_ID: "32956197702"
+      SOURCE_PATHWAY_ARTIFACT: "pr138-source-adjusted-pathway-32956197702"
+      CANONICAL_RUN_ID: "32845980788"
+      CANONICAL_ARTIFACT: "chapter1-when-where-main-32845980788"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate reproductive restriction analysis
+        run: |
+          pytest -q tests/test_chapter1_pr138_outcrossing_restriction.py
+          ruff check \
+            src/island_v2/chapter1_pr138_outcrossing_restriction.py \
+            tests/test_chapter1_pr138_outcrossing_restriction.py
+
+      - name: Download frozen all-evidence and status-resolved inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/outcross/input /tmp/outcross/canonical /tmp/outcross/result
+          gh run download "$SOURCE_PATHWAY_RUN_ID" -n "$SOURCE_PATHWAY_ARTIFACT" -D /tmp/outcross/input
+          gh run download "$CANONICAL_RUN_ID" -n "$CANONICAL_ARTIFACT" -D /tmp/outcross/canonical
+          test -s /tmp/outcross/input/pathway/evidence/all_analysis_eligible_trait_ledger.csv.gz
+          test -s /tmp/outcross/input/source/source/gift_native_mainland_flora.csv.gz
+          test -s /tmp/outcross/input/source/result/island_source_assignments.csv.gz
+          test -s /tmp/outcross/input/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/outcross/input/realm/realm/island_biogeographic_realm_assignment.csv
+          test -s /tmp/outcross/canonical/input/chapter1_status_flora.csv.gz
+
+      - name: Recompute source-adjusted attraction response within reproductive subsets
+        run: |
+          python -m island_v2.chapter1_pr138_outcrossing_restriction \
+            --trait-ledger-csv /tmp/outcross/input/pathway/evidence/all_analysis_eligible_trait_ledger.csv.gz \
+            --status-flora-csv /tmp/outcross/canonical/input/chapter1_status_flora.csv.gz \
+            --gift-flora-csv /tmp/outcross/input/source/source/gift_native_mainland_flora.csv.gz \
+            --source-assignments-csv /tmp/outcross/input/source/result/island_source_assignments.csv.gz \
+            --covariates-csv /tmp/outcross/input/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/outcross/input/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --syndrome-config-path config/chapter1_pr138_pollination_syndromes.yml \
+            --source-config-path config/chapter1_pr138_source_pool_sensitivity.yml \
+            --output-dir /tmp/outcross/result
+
+      - name: Summarize restricted attraction response
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+
+          root = Path('/tmp/outcross/result')
+          result = pd.read_csv(root/'outcrossing_restriction_results.csv')
+          audit = pd.read_csv(root/'outcrossing_restriction_audit.csv')
+          manifest = json.loads((root/'outcrossing_restriction_manifest.json').read_text())
+          focus = result.loc[
+              result['support_tier'].eq('confirmatory')
+              & result['stratum'].isin(['all_native','native_nonendemic'])
+              & result['context'].isin([
+                  'northern_midlatitude','tropical','Palearctic','Neotropical'
+              ])
+          ].copy()
+          cols = [
+              'restriction','context_layer','source_mode','stratum','context','status',
+              'n_unique_islands','distance_estimate','distance_se','distance_p','distance_q'
+          ]
+          summary = Path('/tmp/outcross/outcrossing_restriction_summary.md')
+          with summary.open('w') as f:
+              f.write('# PR138 SI / outcrossing-restricted attraction sensitivity\n\n')
+              f.write('The existing all-evidence syndrome definitions are unchanged. Source-pool expectations are recomputed within each reproductive subset before fitting the distance model.\n\n')
+              f.write('## Coverage audit\n\n```text\n')
+              f.write(audit.to_string(index=False))
+              f.write('\n```\n\n## Confirmatory focus\n\n```text\n')
+              f.write(focus[[c for c in cols if c in focus.columns]].to_string(index=False))
+              f.write('\n```\n\n## Manifest\n\n```json\n')
+              f.write(json.dumps(manifest, indent=2))
+              f.write('\n```\n')
+          PY
+          cat /tmp/outcross/outcrossing_restriction_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-outcrossing-restriction-${{ github.run_id }}
+          path: /tmp/outcross/
+          if-no-files-found: error
+          retention-days: 90
