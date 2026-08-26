@@ -1,18 +1,24 @@
-name: Validate PR136 biogeographic pattern
+name: Validate PR138 biogeographic pattern
 
 on:
   push:
     branches: [pr136-channel-gated-primary-validation]
     paths:
+      - "src/island_v2/chapter1_pr138_biogeographic_pattern.py"
       - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
+      - "config/chapter1_pr136_biogeographic_pattern.yml"
       - "config/chapter1_pr136_biogeographic_residual.yml"
+      - "tests/test_chapter1_pr138_biogeographic_pattern.py"
       - "tests/test_chapter1_pr136_biogeographic_residual.py"
       - ".github/workflows/validate-pr136-channel-gated.yml"
   pull_request:
     branches: [main]
     paths:
+      - "src/island_v2/chapter1_pr138_biogeographic_pattern.py"
       - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
+      - "config/chapter1_pr136_biogeographic_pattern.yml"
       - "config/chapter1_pr136_biogeographic_residual.yml"
+      - "tests/test_chapter1_pr138_biogeographic_pattern.py"
       - "tests/test_chapter1_pr136_biogeographic_residual.py"
       - ".github/workflows/validate-pr136-channel-gated.yml"
   workflow_dispatch:
@@ -34,18 +40,24 @@ jobs:
       - name: Ruff
         run: |
           ruff check \
+            src/island_v2/chapter1_pr138_biogeographic_pattern.py \
             src/island_v2/chapter1_pr136_biogeographic_residual.py \
+            tests/test_chapter1_pr138_biogeographic_pattern.py \
             tests/test_chapter1_pr136_biogeographic_residual.py
-      - name: PR136 biogeographic falsification tests
-        run: pytest -q tests/test_chapter1_pr136_biogeographic_residual.py
-      - name: Parse PR136 pattern contract
+      - name: Observed-pattern and decomposition falsification tests
+        run: |
+          pytest -q \
+            tests/test_chapter1_pr138_biogeographic_pattern.py \
+            tests/test_chapter1_pr136_biogeographic_residual.py
+      - name: Parse pattern contracts
         run: |
           python - <<'PY'
           from pathlib import Path
           import yaml
-          path = Path('config/chapter1_pr136_biogeographic_residual.yml')
-          payload = yaml.safe_load(path.read_text())
-          assert isinstance(payload, dict) and payload
-          assert payload['pollinator_predictors_in_primary_model'] is False
-          print(path, 'ok')
+          primary = yaml.safe_load(Path('config/chapter1_pr136_biogeographic_pattern.yml').read_text())
+          secondary = yaml.safe_load(Path('config/chapter1_pr136_biogeographic_residual.yml').read_text())
+          assert primary['inferential_layers']['primary'] == 'observed_native_flora_broad_syndrome_composition'
+          assert primary['pollinator_predictors_in_primary_model'] is False
+          assert secondary['pollinator_predictors_in_primary_model'] is False
+          print('Primary observed assemblage + secondary genus-fixed decomposition: ok')
           PY
