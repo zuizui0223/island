@@ -53,25 +53,22 @@ jobs:
           test -s /tmp/traits/direct_species_trait_ledger.csv.gz
           test -s /tmp/traits/rebuilt_all_evidence_validated_low.csv.gz
 
-      - name: Download source-backed island checklists
+      - name: Download Cedros source and optionally cache legacy San Nicolas source
         run: |
-          curl -A "Mozilla/5.0" -L --fail --retry 3 "$SNI_URL" -o /tmp/status_sources/san_nicolas.pdf
           curl -A "Mozilla/5.0" -L --fail --retry 3 "$CEDROS_URL" -o /tmp/status_sources/cedros.pdf
-          pdftotext -layout /tmp/status_sources/san_nicolas.pdf /tmp/status_sources/san_nicolas.txt
           pdftotext -layout /tmp/status_sources/cedros.pdf /tmp/status_sources/cedros.txt
-          test -s /tmp/status_sources/san_nicolas.txt
           test -s /tmp/status_sources/cedros.txt
+          # The legacy NPS URL is currently stale (404 on Actions). Keep its parser
+          # and source contract, but do not let that external retrieval failure block
+          # the independent Cedros replication test.
+          if curl -A "Mozilla/5.0" -L --fail --retry 1 "$SNI_URL" -o /tmp/status_sources/san_nicolas.pdf; then
+            pdftotext -layout /tmp/status_sources/san_nicolas.pdf /tmp/status_sources/san_nicolas.txt
+          else
+            echo "San Nicolas legacy NPS PDF unavailable; deferring San Nicolas status patch."
+          fi
 
-      - name: Parse San Nicolas and Cedros status ledgers
+      - name: Parse source-backed status ledgers
         run: |
-          python -m island_v2.chapter1_pr138_san_nicolas_status \
-            --pdftotext /tmp/status_sources/san_nicolas.txt \
-            --island-species /tmp/canonical/input/chapter1_status_flora.csv.gz \
-            --island-id "$SNI_ID" \
-            --source-kind san_nicolas_nps \
-            --status-reference "$SNI_URL" \
-            --output-csv /tmp/pr138/status/san_nicolas_status.csv \
-            --manifest-json /tmp/pr138/status/san_nicolas_status_manifest.json
           python -m island_v2.chapter1_pr138_san_nicolas_status \
             --pdftotext /tmp/status_sources/cedros.txt \
             --island-species /tmp/canonical/input/chapter1_status_flora.csv.gz \
@@ -80,6 +77,16 @@ jobs:
             --status-reference "$CEDROS_URL" \
             --output-csv /tmp/pr138/status/cedros_status.csv \
             --manifest-json /tmp/pr138/status/cedros_status_manifest.json
+          if test -s /tmp/status_sources/san_nicolas.txt; then
+            python -m island_v2.chapter1_pr138_san_nicolas_status \
+              --pdftotext /tmp/status_sources/san_nicolas.txt \
+              --island-species /tmp/canonical/input/chapter1_status_flora.csv.gz \
+              --island-id "$SNI_ID" \
+              --source-kind san_nicolas_nps \
+              --status-reference "$SNI_URL" \
+              --output-csv /tmp/pr138/status/san_nicolas_status.csv \
+              --manifest-json /tmp/pr138/status/san_nicolas_status_manifest.json
+          fi
 
       - name: Build updated status-flora sensitivity input
         run: |
@@ -87,10 +94,10 @@ jobs:
           from pathlib import Path
           import pandas as pd
           base = pd.read_csv('/tmp/canonical/input/chapter1_status_flora.csv.gz')
-          ledgers = pd.concat([
-              pd.read_csv('/tmp/pr138/status/san_nicolas_status.csv'),
-              pd.read_csv('/tmp/pr138/status/cedros_status.csv'),
-          ], ignore_index=True)
+          paths = list(Path('/tmp/pr138/status').glob('*_status.csv'))
+          if not paths:
+              raise SystemExit('No source-backed status ledger produced')
+          ledgers = pd.concat([pd.read_csv(p) for p in paths], ignore_index=True)
           key = ['island_id','accepted_species']
           patch = ledgers[key + ['origin_status','endemic_status','status_source','status_reference','status_evidence_id']].copy()
           out = base.merge(patch, on=key, how='left', suffixes=('', '_pilot'))
@@ -108,9 +115,10 @@ jobs:
               if row['endemic_status'] == 'nonendemic': return 'native_nonendemic'
               return 'native_endemism_unresolved'
           out['floristic_status'] = out.apply(combined, axis=1)
-          Path('/tmp/pr138/status').mkdir(parents=True, exist_ok=True)
           out.to_csv('/tmp/pr138/status/chapter1_status_flora_nearctic_pilot.csv.gz', index=False)
-          print(out.loc[out['island_id'].isin(["gshhg_2.3.7_h_fa0f3406c02f18b31098","gshhg_2.3.7_h_8814371cac9eab98b9d7"]), 'origin_status'].value_counts(dropna=False))
+          patched_ids = sorted(ledgers['island_id'].astype(str).unique())
+          print('patched islands:', patched_ids)
+          print(out.loc[out['island_id'].astype(str).isin(patched_ids), 'origin_status'].value_counts(dropna=False))
           PY
 
       - name: Download RESOLVE Ecoregions 2017
@@ -128,7 +136,7 @@ jobs:
             --validated-low-csv /tmp/traits/rebuilt_all_evidence_validated_low.csv.gz \
             --output-dir /tmp/pr138/evidence
 
-      - name: Re-run formal realm sensitivity with two source-backed islands
+      - name: Re-run formal realm sensitivity with source-backed islands
         run: |
           python -m island_v2.chapter1_pr138_realm_sensitivity \
             --trait-ledger-csv /tmp/pr138/evidence/all_analysis_eligible_trait_ledger.csv.gz \
@@ -147,16 +155,16 @@ jobs:
           import json
           import pandas as pd
           root=Path('/tmp/pr138')
-          sni=json.loads((root/'status/san_nicolas_status_manifest.json').read_text())
-          ced=json.loads((root/'status/cedros_status_manifest.json').read_text())
+          manifests={}
+          for path in (root/'status').glob('*_status_manifest.json'):
+              manifests[path.stem]=json.loads(path.read_text())
           within=pd.read_csv(root/'realm/realm_syndrome_within_omnibus.csv')
           slopes=pd.read_csv(root/'realm/realm_syndrome_distance_slopes.csv')
           near_w=within.loc[within['context'].eq('Nearctic')]
           near_s=slopes.loc[slopes['context'].eq('Nearctic')]
           with (root/'nearctic_status_pilot_summary.md').open('w') as f:
               f.write('# PR138 source-backed Nearctic status pilot\n\n')
-              f.write('## San Nicolas status extraction\n```json\n'+json.dumps(sni,indent=2)+'\n```\n\n')
-              f.write('## Cedros status extraction\n```json\n'+json.dumps(ced,indent=2)+'\n```\n\n')
+              f.write('## Status extraction manifests\n```json\n'+json.dumps(manifests,indent=2)+'\n```\n\n')
               f.write('## Nearctic within-realm results\n```text\n')
               f.write(near_w.to_string(index=False) if not near_w.empty else 'Nearctic remains below pilot gate.')
               f.write('\n```\n\n## Nearctic syndrome slopes\n```text\n')
