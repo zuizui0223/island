@@ -20,8 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      SOURCE_RUN_ID: "32954909953"
-      SOURCE_ARTIFACT: "pr138-source-pool-sensitivity-32954909953"
+      ADJUSTED_RUN_ID: "32956197702"
+      ADJUSTED_ARTIFACT: "pr138-source-adjusted-pathway-32956197702"
       ISOLATION_RUN_ID: "29228212586"
       ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
       REALM_RUN_ID: "32927060210"
@@ -48,18 +48,18 @@ jobs:
       - name: Download frozen inputs
         run: |
           set -euo pipefail
-          mkdir -p /tmp/joint/source /tmp/joint/isolation /tmp/joint/realm /tmp/joint/result
-          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/joint/source
+          mkdir -p /tmp/joint/adjusted /tmp/joint/isolation /tmp/joint/realm /tmp/joint/result
+          gh run download "$ADJUSTED_RUN_ID" -n "$ADJUSTED_ARTIFACT" -D /tmp/joint/adjusted
           gh run download "$ISOLATION_RUN_ID" -n "$ISOLATION_ARTIFACT" -D /tmp/joint/isolation
           gh run download "$REALM_RUN_ID" -n "$REALM_ARTIFACT" -D /tmp/joint/realm
-          test -s /tmp/joint/source/result/source_adjusted_island_syndrome_scores.csv.gz
+          test -s /tmp/joint/adjusted/result/source_adjusted_pathway_island_scores.csv.gz
           test -s /tmp/joint/isolation/results/purpose_shortest_island_data.csv
           test -s /tmp/joint/realm/realm/island_biogeographic_realm_assignment.csv
 
       - name: Run joint source-adjusted observation-selection sensitivity
         run: |
           python -m island_v2.chapter1_pr138_source_adjusted_branch_selection \
-            --source-adjusted-scores-csv /tmp/joint/source/result/source_adjusted_island_syndrome_scores.csv.gz \
+            --source-adjusted-scores-csv /tmp/joint/adjusted/result/source_adjusted_pathway_island_scores.csv.gz \
             --covariates-csv /tmp/joint/isolation/results/purpose_shortest_island_data.csv \
             --realm-assignment-csv /tmp/joint/realm/realm/island_biogeographic_realm_assignment.csv \
             --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
@@ -105,7 +105,7 @@ jobs:
           out = Path('/tmp/joint/joint_source_selection_summary.md')
           with out.open('w') as f:
               f.write('# PR138 joint source-pool + observation-selection sensitivity\n\n')
-              f.write('Source-adjusted branch responses are analysed under the frozen unweighted and stabilized-IPW modes. Neither source assignment nor propensity fitting uses island branch-score values.\n\n')
+              f.write('Source-adjusted accessibility and strict selfing-core responses are analysed under the frozen unweighted and stabilized-IPW modes. Neither source assignment nor propensity fitting uses island branch-score values.\n\n')
               f.write('## Headline direct vector contrasts\n\n```text\n')
               f.write(focus_headline.to_string(index=False))
               f.write('\n```\n\n## Context branch states\n\n```text\n')
