@@ -1,5 +1,7 @@
 name: Run PR138 syndrome block deletion
 
+# Frozen-input robustness: every eligible spatial block is deleted in turn; no block
+# is selected from observed effect size or significance.
 on:
   push:
     branches: [pr136-channel-gated-primary-validation]
