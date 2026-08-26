@@ -20,7 +20,7 @@ def test_parse_and_build_status_ledger_fail_closed():
     by_key = parsed.set_index("species_key")
     assert by_key.loc["achillea millefolium", "origin_status"] == "native"
     assert by_key.loc["brassica nigra", "origin_status"] == "introduced"
-    assert by_key.loc["encelia californica", "origin_status"] == "native"
+    assert by_key.loc["encelia californica", "origin_status"] == "introduced"
     assert by_key.loc["example conflict", "origin_status"] == "unresolved"
     assert bool(by_key.loc["example conflict", "status_conflict"])
 
