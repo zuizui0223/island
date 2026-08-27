@@ -188,11 +188,15 @@ Not established:
 The dedicated frozen-input workflow is green:
 
 - workflow: `Run Chapter 1 area capacity moderation`;
-- run: `33066985270`;
-- validated head: `4b2cf87b63758a42a0954a6974dea688a8cde157`;
-- artifact: `chapter1-area-capacity-moderation-33066985270`;
-- artifact id: `9644133497`;
-- digest: `sha256:32d5050a3558f538e0e236452232b75392c8de4f628c18e2d93205e3a9a11f23`.
+- submission-candidate run: `33067239884`;
+- validated head: `6c2d7e267f872dc24983969cb6475ca2a8051975`;
+- artifact: `chapter1-area-capacity-moderation-33067239884`;
+- artifact id: `9644240178`;
+- digest: `sha256:8cbc18dbe8369e1bf04d7e7b8d1cbe88d83ce478790e1d15dedcc2fb7a42d486`.
+
+This later run supersedes the validation-only `33066985270` reference without changing the
+frozen numerical estimands. It is the artifact bound by
+`config/chapter1_submission_freeze_lock.json`.
 
 The frozen-input local run produced 248 coefficient rows, 144 within-context vector
 rows, 104 between-context coefficient rows and 72 between-context vector rows. A

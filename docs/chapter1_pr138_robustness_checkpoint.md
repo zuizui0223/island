@@ -1,6 +1,9 @@
 # PR138 syndrome robustness checkpoint
 
-Status: **provisional / not frozen**.
+Status: **historical PR-level checkpoint; now bound into the Chapter 1 submission-candidate
+freeze** by `config/chapter1_submission_freeze_lock.json`. PR #138 itself remains draft and
+unmerged, so this file must still be read with the submission contract rather than as an
+independent release.
 
 This checkpoint records robustness of the pattern-first Chapter 1 result after formal pollination/selfing syndrome analysis, source-pool adjustment, selection sensitivity, reproductive restriction, spatial leverage analysis, and the exact-SI genus-fixed source-pool null. It does not identify causal pollinators.
 
@@ -136,4 +139,4 @@ This is still a substantive Chapter 1 result: the study identifies where island 
 
 ## Validation state
 
-Core synthetic CI, formal-realm CI, source-pool sensitivity, joint source+IPW sensitivity, continuous selfing interaction, exact reproductive restriction, and the existing within-Palearctic restricted-IPW workflow are green. The exhaustive block-deletion and exact-SI genus-fixed source-pool modules/tests/workflows are committed. Connector-authored commits may not auto-trigger push workflows; the genus-null frozen-input deterministic run completed locally with 1,000 permutations and exact reproduction of the existing SI estimand. PR remains **draft / unmerged / not frozen**.
+Core synthetic CI, formal-realm CI, source-pool sensitivity, joint source+IPW sensitivity, continuous selfing interaction, exact reproductive restriction, and the existing within-Palearctic restricted-IPW workflow are green. The exhaustive block-deletion and exact-SI genus-fixed source-pool modules/tests/workflows are committed. Connector-authored commits may not auto-trigger push workflows; the genus-null frozen-input deterministic run completed locally with 1,000 permutations and exact reproduction of the existing SI estimand. PR remains **draft / unmerged**. Its frozen scientific inputs and outputs are now nested in the submission-candidate artifact locked by `config/chapter1_submission_freeze_lock.json`; durable release archiving remains incomplete.

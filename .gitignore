@@ -1,6 +1,7 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.pytest_tmp_*/
 
 # Regenerable full cascade outputs (rebuild: island-v2-trait-fill-cascade run)
 data/v2/staging/traits/fill_cascade/trait_fills.csv.gz

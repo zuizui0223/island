@@ -1,0 +1,98 @@
+name: Validate Chapter 1 submission freeze
+
+on:
+  push:
+    branches: [ch1-submission-freeze]
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/validate-chapter1-submission-freeze.yml"
+      - "config/chapter1_submission_freeze_lock.json"
+      - "src/island_v2/chapter1_submission_freeze.py"
+      - "tests/test_chapter1_submission_freeze.py"
+      - "manuscript/**"
+      - "docs/manuscript_submission_contract.md"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Validate freeze implementation
+        run: |
+          pytest -q \
+            tests/test_chapter1_submission_freeze.py \
+            tests/test_chapter1_area_capacity_moderation.py
+          ruff check \
+            src/island_v2/chapter1_submission_freeze.py \
+            tests/test_chapter1_submission_freeze.py \
+            src/island_v2/chapter1_area_capacity_moderation.py \
+            tests/test_chapter1_area_capacity_moderation.py
+
+      - name: Verify GitHub artifact metadata and archive digest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          LOCK=config/chapter1_submission_freeze_lock.json
+          ARTIFACT_ID=$(jq -r '.artifact_id' "$LOCK")
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}" \
+            > /tmp/chapter1-artifact-metadata.json
+          test "$(jq -r '.expired' /tmp/chapter1-artifact-metadata.json)" = "false"
+          test "$(jq -r '.name' /tmp/chapter1-artifact-metadata.json)" = \
+            "$(jq -r '.artifact_name' "$LOCK")"
+          test "$(jq -r '.workflow_run.id' /tmp/chapter1-artifact-metadata.json)" = \
+            "$(jq -r '.workflow_run_id' "$LOCK")"
+          test "$(jq -r '.workflow_run.head_sha' /tmp/chapter1-artifact-metadata.json)" = \
+            "$(jq -r '.head_sha' "$LOCK")"
+          test "$(jq -r '.digest' /tmp/chapter1-artifact-metadata.json)" = \
+            "$(jq -r '.artifact_digest' "$LOCK")"
+          test "$(jq -r '.size_in_bytes' /tmp/chapter1-artifact-metadata.json)" = \
+            "$(jq -r '.artifact_size_in_bytes' "$LOCK")"
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            > /tmp/chapter1-submission-artifact.zip
+          EXPECTED=$(jq -r '.artifact_digest' "$LOCK" | sed 's/^sha256://')
+          ACTUAL=$(sha256sum /tmp/chapter1-submission-artifact.zip | awk '{print $1}')
+          test "$ACTUAL" = "$EXPECTED"
+          mkdir -p /tmp/chapter1-submission-artifact
+          unzip -q /tmp/chapter1-submission-artifact.zip \
+            -d /tmp/chapter1-submission-artifact
+
+      - name: Verify frozen scientific result and claim ceiling
+        run: |
+          island-v2-chapter1-submission-freeze \
+            --lock-path config/chapter1_submission_freeze_lock.json \
+            --artifact-root /tmp/chapter1-submission-artifact \
+            --report-path /tmp/chapter1-submission-verification.json
+          cat /tmp/chapter1-submission-verification.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload verification report
+        uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-submission-freeze-verification-${{ github.run_id }}
+          path: |
+            config/chapter1_submission_freeze_lock.json
+            /tmp/chapter1-artifact-metadata.json
+            /tmp/chapter1-submission-verification.json
+          if-no-files-found: error
+          retention-days: 90

@@ -113,6 +113,7 @@ island-v2-interaction-evidence = "island_v2.interaction_evidence:app"
 island-v2-interaction-guild-machine = "island_v2.interaction_guild_machine:app"
 island-v2-hierarchical = "island_v2.hierarchical:app"
 island-v2-validate = "island_v2.validation:app"
+island-v2-chapter1-submission-freeze = "island_v2.chapter1_submission_freeze:main"
 
 [tool.poetry]
 packages = [{ include = "island_v2", from = "src" }]
