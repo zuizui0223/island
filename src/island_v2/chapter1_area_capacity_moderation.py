@@ -43,6 +43,12 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _sha256_text(path: Path) -> str:
+    """Hash tracked config text after canonical newline normalization."""
+    canonical = path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
 def _branch_family(
     island_scores: pd.DataFrame,
     branching_config: dict[str, Any],
@@ -620,8 +626,8 @@ def main() -> None:
             "lineage_scores": _sha256(args.lineage_scores_csv),
             "covariates": _sha256(args.covariates_csv),
             "realm_assignment": _sha256(args.realm_assignment_csv),
-            "branching_config": _sha256(args.branching_config_path),
-            "area_config": _sha256(args.area_config_path),
+            "branching_config": _sha256_text(args.branching_config_path),
+            "area_config": _sha256_text(args.area_config_path),
         },
         "n_coefficient_rows": len(coefficients),
         "n_within_rows": len(within),

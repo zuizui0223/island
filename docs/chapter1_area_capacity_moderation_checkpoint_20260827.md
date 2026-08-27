@@ -188,7 +188,7 @@ Not established:
 The frozen-input local run produced 248 coefficient rows, 144 within-context vector
 rows, 104 between-context coefficient rows and 72 between-context vector rows. A
 clean second run reproduced all five outputs byte-for-byte. Dedicated tests pass
-(`4 passed`), Ruff passes, key uniqueness and hierarchical classification gates pass,
+(`5 passed`), Ruff passes, key uniqueness and hierarchical classification gates pass,
 and all q-values lie in `[0, 1]`.
 
 The dedicated Actions workflow reuses immutable PR138-139 artifact

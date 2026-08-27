@@ -98,7 +98,7 @@ jobs:
               'lineage_scores': '9084dcbd9c3bb3e696c72a76d9010aaba4606b32d6d60074dcad3ea8358bf6a2',
               'covariates': '9aa10f6a9364a42be0a0c6b644581044c57986bdcc06a0bd912ded886469982a',
               'realm_assignment': '35b1207ffbd09cad5f3d62dd64f8b23cc98270d12383038cd88987ea337eb256',
-              'branching_config': '827e8979f60cb73635d7a3d74a8ab3b596d96b5183c5adf5fceb8caea2d4e73f',
+              'branching_config': 'ad01a1cb08cc6120a1c511041d0ecd2db0d6d0d09bfd7b5f8187e25db86bd64c',
               'area_config': '099f035348bad8120f490c3a0b054776d35ba3bd7d76002ea1e85587a7a95bf0',
           }
           if manifest['input_sha256'] != expected_hashes:

@@ -4,6 +4,7 @@ import pandas as pd
 from island_v2.chapter1_area_capacity_moderation import (
     _fit_between,
     _fit_within,
+    _sha256_text,
     build_families,
 )
 
@@ -155,3 +156,11 @@ def test_lineage_family_uses_only_predeclared_scope_and_matching():
     result = families["source_lineage_broad"]
     assert len(result) == 2
     assert set(result["response"]) == {"entry_enrichment", "loading_increment"}
+
+
+def test_config_hash_is_stable_across_line_endings(tmp_path):
+    lf = tmp_path / "lf.yml"
+    crlf = tmp_path / "crlf.yml"
+    lf.write_bytes(b"contract: test\nvalue: 1\n")
+    crlf.write_bytes(b"contract: test\r\nvalue: 1\r\n")
+    assert _sha256_text(lf) == _sha256_text(crlf)
