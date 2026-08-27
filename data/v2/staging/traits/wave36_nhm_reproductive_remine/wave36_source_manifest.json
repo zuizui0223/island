@@ -1,0 +1,93 @@
+{
+  "acquisition": {
+    "cached_reproduction_remine": {
+      "accepted_species_trait": 10,
+      "cached_pages_scanned": 6586,
+      "candidate_excerpts": 28,
+      "new_direct_species_axis": 10,
+      "reviewed_species_trait": 15,
+      "underlying_source_lineages": 5
+    },
+    "nhm": {
+      "combined_records": 16359,
+      "conflict_resolved_direct_species_trait": 24,
+      "dataset_doi": "10.5519/p3dm31kc",
+      "new_direct_species_axis": 23,
+      "request_errors": 0,
+      "review_accepted_species_axis": 27,
+      "review_accepted_species_trait": 28,
+      "source_specific_records": 107,
+      "source_specific_requests": 150,
+      "unresolved_genera_queried": 5802
+    }
+  },
+  "checks": {
+    "accepted_species_exact_or_strict_two_backbone_synonym": true,
+    "baseline_loss_zero": true,
+    "direct_conflicts_excluded": true,
+    "family_inference_absent": true,
+    "genus_axis_trait_join": true,
+    "global_fallback_absent": true,
+    "reward_and_pollen_vector_not_collapsed_into_structure": true,
+    "self_fertile_not_mapped_to_autonomous_selfing": true,
+    "source_lineage_deduplicated": true
+  },
+  "contract": "wave36_nhm_reproductive_remine_source_manifest_v1",
+  "created_at": "2026-08-28",
+  "file_sha256": {
+    "README.md": "66fbe3c1e4e07176cd0dd36e14c4918fa3f22187e5893de593c5717c3f719730",
+    "nhm_name_identity_gate_audit.csv": "be531e5d33f64242a3c3bc52edd7a87477b1e52b151cb01c45e943a6f5e79dfd",
+    "nhm_review_audit.csv.gz": "90eb69a5e9b070dc3cd77981f2e6b0841e4f889781f0d7b161ff4141888bb59a",
+    "nhm_reviewed_direct_evidence.csv.gz": "d5f1e949d76e0afcd323778c67a2767aa3cd30b412a7cc679a01537985327521",
+    "nhm_source_specific_manual_review.csv": "713662db29cedd94c8d8039617980fe73a7143121611abfc0a10e512716eee90",
+    "nhm_source_summary.json": "fa43cc5b9efcbee06fa28bf66a32a61821f81fc3615b647e84c632b57fa76edd",
+    "useful_plants_cached_reproductive_candidate_excerpts.jsonl": "303161b1b787f7f203ea665653fecb8f79ba8e35111b25eeea9ddee5f99a4ace",
+    "useful_plants_remine_direct_evidence.csv.gz": "0eef425a1802457510399fa1e4ed95c026160ea2449d68e04e1d17b1175ac021",
+    "useful_plants_remine_review_audit.csv.gz": "da5a57f4197ef851b829840627e8b1123bcfa45860f6c679e06624b2a53d2863",
+    "useful_plants_remine_summary.json": "63a08d5fe92899621f1b912594a4eef11667f4432d11513653385fd18bceaed9",
+    "useful_plants_reproduction_manual_review.csv": "6696aa34a9e3971461deccb0efb7595d369c07302eef1a842b1a84f8ed2b05f7",
+    "wave36_candidate_validated_low_species_trait.csv.gz": "2bf74b5f49d4030e32dc9cb33196cac58e6c83840bd9b806e706bdeb4d367280",
+    "wave36_prioritized_acquisition_queue.csv.gz": "840166ae420bfacf3c7cd2050723cb3e5cfa7be454d6e373a8df81276912a8bd",
+    "wave36_provider_touched_new_rule_audit.csv.gz": "e15c6792e0b790a90d49020c795a2a184e9f72a1ae85e8af32c0cd66759726b6",
+    "wave36_resolved_direct_species_trait.csv.gz": "d21d1780cbca1edbe12c9b7f6dc093979913bf8c7351b7a1ef9a113727d380fb",
+    "wave36_strict_rebuild_summary.json": "49b083e3f30e61e54a8ffe526ca1e58a0a7b2344bf14e4e606904b6fbb37b0dd",
+    "wave36_threshold_sensitivity_report.json": "e4b8e2962fa5bbe2a8e31a505ea1814315dbbe8d8990f679b13db96c76aa151b",
+    "wave36_threshold_sensitivity_summary.csv": "c83cf4ee40792572739c334ed4c5e1a4304dcb7a5dbc5231c244aa4a6e5412b6",
+    "wave36_touched_source_lineage_conflicts.csv.gz": "abaece45f04062b74fae71c67167ed55e9f50b3d495298a8b2e2a574263085b4",
+    "wave36_unresolved_reason_by_species_axis.csv.gz": "78f03282b97fc11772995da11c259b54da49d1ef29fda00b1c90bab76bede787"
+  },
+  "fixed_denominator": {
+    "axes": 3,
+    "species": 106295,
+    "species_axis": 318885
+  },
+  "formal_inputs": {
+    "wave33": {
+      "artifact_digest": "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1",
+      "artifact_id": 9593698966,
+      "artifact_name": "integrated-trait-coverage-32932103226",
+      "run_id": 32932103226
+    },
+    "wave35": {
+      "artifact_id": 9646562206,
+      "artifact_name": "wave35-trait-coverage-33072865120",
+      "coverage_sha256": "45c754c9797352dad6e03c08cb4003de30599c9980f746c8f6c3a803ebff401e",
+      "run_id": 33072865120
+    }
+  },
+  "strict_rebuild_delta_vs_wave35": {
+    "by_axis": {
+      "floral_structural_complexity": 20,
+      "flower_colour": 9,
+      "reproductive_assurance": 10
+    },
+    "direct_species_axis": 33,
+    "loss_species_axis": 0,
+    "new_eligible_rules": [
+      "Osteomeles x floral_form",
+      "Ulex x tube_depth_class"
+    ],
+    "total_species_axis": 39,
+    "validated_low_species_axis": 6
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "accepted_by_axis": {
+    "floral_structural_complexity": 18,
+    "flower_colour": 9
+  },
+  "accepted_evidence_rows": 29,
+  "accepted_species_axis": 27,
+  "accepted_species_trait": 28,
+  "artifact_sha256": {
+    "nhm_review_audit.csv.gz": "90eb69a5e9b070dc3cd77981f2e6b0841e4f889781f0d7b161ff4141888bb59a",
+    "nhm_reviewed_direct_evidence.csv.gz": "d5f1e949d76e0afcd323778c67a2767aa3cd30b412a7cc679a01537985327521"
+  },
+  "checks": {
+    "exact_structured_excerpt": true,
+    "family_inference_absent": true,
+    "global_fallback_absent": true,
+    "pollination_not_collapsed_into_structure": true,
+    "reward_not_collapsed_into_structure": true,
+    "sex_system_not_collapsed_into_reproductive_assurance": true,
+    "source_lineage_deduplicated": true,
+    "strict_name_gate": true
+  },
+  "contract": "nhm_botanical_description_source_package_v1",
+  "dataset": {
+    "doi": "10.5519/p3dm31kc",
+    "url": "https://data.nhm.ac.uk/id/dataset/angiosperm-functional-traits-extracted-from-botanical-descriptions"
+  },
+  "excluded_by_reason": {},
+  "input_sha256": "713662db29cedd94c8d8039617980fe73a7143121611abfc0a10e512716eee90",
+  "reviewed_rows": 29
+}
