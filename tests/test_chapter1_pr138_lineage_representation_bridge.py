@@ -4,6 +4,7 @@ import pandas as pd
 from island_v2.chapter1_pr138_lineage_representation_bridge import (
     compute_island_enrichment,
     exact_si_species,
+    gift_source_functional_counts,
     source_genus_positions,
 )
 
@@ -85,6 +86,28 @@ def test_source_position_uses_gift_mainland_species_only() -> None:
     assert positions.loc[0, "genus"] == "Alpha"
     assert positions.loc[0, "source_functional_position"] == 1.0
     assert positions.loc[0, "n_source_scored_species"] == 1
+
+
+def test_gift_source_counts_separate_memberships_from_unique_species() -> None:
+    matched = pd.DataFrame(
+        [
+            {"entity_ID": 1, "accepted_species": "Alpha one"},
+            {"entity_ID": 2, "accepted_species": "Alpha one"},
+            {"entity_ID": 2, "accepted_species": "Beta one"},
+            {"entity_ID": 3, "accepted_species": "Gamma one"},
+        ]
+    )
+    functional = pd.DataFrame(
+        [
+            {"accepted_species": "Alpha one"},
+            {"accepted_species": "Beta one"},
+        ]
+    )
+
+    assert gift_source_functional_counts(matched, functional) == {
+        "n_gift_source_functional_memberships": 3,
+        "n_unique_gift_source_functional_species": 2,
+    }
 
 
 def test_exact_si_species_fails_closed_on_exact_state() -> None:

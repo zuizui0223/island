@@ -80,6 +80,34 @@ jobs:
           between = pd.read_csv(root / 'lineage_representation_between_context.csv')
           manifest = json.loads((root / 'lineage_representation_manifest.json').read_text())
 
+          expected_source_counts = {
+              'broad': (128623, 4197),
+              'broad_source_min2': (128623, 4197),
+              'exact_si_all': (15292, 353),
+              'exact_si_direct': (11983, 194),
+          }
+          evidence_manifests = {
+              row['evidence_scope']: row
+              for row in manifest['evidence_manifests']
+          }
+          if set(evidence_manifests) != set(expected_source_counts):
+              raise SystemExit(
+                  f'unexpected evidence manifest scopes: {sorted(evidence_manifests)}'
+              )
+          for scope, (memberships, unique_species) in expected_source_counts.items():
+              row = evidence_manifests[scope]
+              if 'n_gift_source_functional_species' in row:
+                  raise SystemExit(f'{scope}: legacy ambiguous source-species field remains')
+              got = (
+                  row.get('n_gift_source_functional_memberships'),
+                  row.get('n_unique_gift_source_functional_species'),
+              )
+              if got != (memberships, unique_species):
+                  raise SystemExit(
+                      f'{scope}: source-count mismatch: {got} '
+                      f'!= {(memberships, unique_species)}'
+                  )
+
           if len(slopes) != 1152:
               raise SystemExit(f'unexpected slope row count: {len(slopes)}')
           if len(between) != 48:

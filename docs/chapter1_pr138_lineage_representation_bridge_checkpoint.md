@@ -45,7 +45,11 @@ For the exact-SI sensitivities, the corresponding complete-coordinate / matched-
 
 ### Audit note
 
-The first materialized artifact's JSON field named `n_gift_source_functional_species` counts GIFT entity × species memberships rather than unique species. It is **not used in any score, model, gate, or result**. The unique species counts above were independently recomputed from the frozen matched species table and are the values to report. This is a non-scientific audit-label cleanup, not an estimand or result change.
+The first materialized artifact's JSON field named `n_gift_source_functional_species` counted GIFT entity × species memberships rather than unique species. It was **not used in any score, model, gate, or result**. The implementation now reports two explicit fields: `n_gift_source_functional_memberships` and `n_unique_gift_source_functional_species`. A repeated-species unit test protects this distinction. The unique species counts above remain the values to report.
+
+The recorded Actions artifact validates the pre-cleanup head and the unchanged numerical estimands. The label-cleanup head must pass the same frozen-input workflow before the PR leaves draft status.
+
+A local frozen-input rerun after the cleanup reproduced all 24,416 island-score rows exactly, all 1,152 context-slope rows with maximum numerical difference `1.02e-14`, and all 48 between-context rows with maximum numerical difference `1.9e-15`. The manifest core and all non-count fields were identical. This local comparison does not replace the required Actions rerun.
 
 ## Source-availability matching
 

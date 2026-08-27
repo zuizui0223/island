@@ -204,6 +204,31 @@ def source_genus_positions(
     return positions, matched, functional
 
 
+def gift_source_functional_counts(
+    matched_gift: pd.DataFrame,
+    functional_species: pd.DataFrame,
+) -> dict[str, int]:
+    """Separate GIFT entity-species memberships from unique matched species."""
+    required_matched = {"entity_ID", "accepted_species"}
+    required_functional = {"accepted_species"}
+    if missing := required_matched - set(matched_gift.columns):
+        raise ValueError(f"matched GIFT flora missing columns: {sorted(missing)}")
+    if missing := required_functional - set(functional_species.columns):
+        raise ValueError(f"functional species missing columns: {sorted(missing)}")
+
+    eligible = set(functional_species["accepted_species"].dropna().astype(str))
+    memberships = matched_gift.loc[
+        matched_gift["accepted_species"].astype(str).isin(eligible),
+        ["entity_ID", "accepted_species"],
+    ].drop_duplicates(["entity_ID", "accepted_species"])
+    return {
+        "n_gift_source_functional_memberships": len(memberships),
+        "n_unique_gift_source_functional_species": int(
+            memberships["accepted_species"].astype(str).nunique()
+        ),
+    }
+
+
 def broad_source_availability(
     gift_flora: pd.DataFrame, genera: set[str]
 ) -> pd.DataFrame:
@@ -500,20 +525,17 @@ def build_evidence_scores(
                         parts.append(pd.DataFrame(rows))
 
     scores = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+    source_counts = gift_source_functional_counts(matched, functional)
     manifest = {
         "evidence_scope": evidence_scope,
         "restricted_to_exact_si": restricted_to_exact_si,
         "raw_gift_availability": raw_gift_availability,
         "minimum_source_scored_species_per_genus": int(minimum_source_scored_species),
         "minimum_represented_genera": [int(x) for x in minimum_represented_genera],
-        "n_functional_species": int(len(functional)),
-        "n_gift_source_functional_species": int(
-            matched["accepted_species"].astype(str).isin(
-                set(functional["accepted_species"])
-            ).sum()
-        ),
-        "n_source_position_genera": int(len(positions)),
-        "n_source_availability_rows": int(len(availability)),
+        "n_functional_species": len(functional),
+        **source_counts,
+        "n_source_position_genera": len(positions),
+        "n_source_availability_rows": len(availability),
     }
     return scores, manifest
 
@@ -540,7 +562,7 @@ def _fit_clustered(
         return pd.DataFrame(), np.empty((0, 0)), {
             "status": "insufficient_complete_rows",
             "n_rows": int(n),
-            "n_clusters": int(len(unique_clusters)),
+            "n_clusters": len(unique_clusters),
         }
     bread = np.linalg.pinv(X.T @ X)
     beta = bread @ (X.T @ y)
@@ -573,7 +595,7 @@ def _fit_clustered(
     return pd.DataFrame(rows), covariance, {
         "status": "fit",
         "n_rows": int(n),
-        "n_clusters": int(len(unique_clusters)),
+        "n_clusters": len(unique_clusters),
     }
 
 
@@ -629,7 +651,7 @@ def fit_context_slopes(
                         "context": context,
                         "outcome": outcome,
                         "status": "insufficient_complete_rows",
-                        "n_islands": int(len(complete)),
+                        "n_islands": len(complete),
                         "n_clusters": int(
                             complete[cluster].fillna("").astype(str).nunique()
                         ),
