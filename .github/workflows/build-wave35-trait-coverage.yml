@@ -116,6 +116,8 @@ jobs:
           PY
 
       - name: Test source gates and overlay
+        env:
+          PYTHONPATH: src:.
         run: |
           pytest -q \
             tests/test_floraweb_trait_source.py \
