@@ -185,11 +185,25 @@ Not established:
 
 ## Validation state
 
+The dedicated frozen-input workflow is green:
+
+- workflow: `Run Chapter 1 area capacity moderation`;
+- run: `33066985270`;
+- validated head: `4b2cf87b63758a42a0954a6974dea688a8cde157`;
+- artifact: `chapter1-area-capacity-moderation-33066985270`;
+- artifact id: `9644133497`;
+- digest: `sha256:32d5050a3558f538e0e236452232b75392c8de4f628c18e2d93205e3a9a11f23`.
+
 The frozen-input local run produced 248 coefficient rows, 144 within-context vector
 rows, 104 between-context coefficient rows and 72 between-context vector rows. A
 clean second run reproduced all five outputs byte-for-byte. Dedicated tests pass
 (`5 passed`), Ruff passes, key uniqueness and hierarchical classification gates pass,
 and all q-values lie in `[0, 1]`.
+
+Independent comparison of the downloaded Actions artifact with the local run matches
+all non-numeric fields and row keys. Maximum cross-platform numerical differences are
+`1.87e-12` or smaller, and the JSON manifest is semantically identical. Tracked config
+hashes are newline-normalized so Windows and Linux verify the same frozen contract.
 
 The dedicated Actions workflow reuses immutable PR138-139 artifact
 `pr138-lineage-representation-bridge-33064250362` and verifies the frozen input hashes,
