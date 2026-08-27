@@ -1,0 +1,219 @@
+name: Run PR138 lineage representation bridge
+
+on:
+  push:
+    branches: [pr138-lineage-representation-bridge]
+    paths:
+      - "src/island_v2/chapter1_pr138_lineage_representation_bridge.py"
+      - "tests/test_chapter1_pr138_lineage_representation_bridge.py"
+      - "docs/chapter1_pr138_lineage_representation_bridge_checkpoint.md"
+      - ".github/workflows/run-pr138-lineage-representation-bridge.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      FROZEN_RUN_ID: "32980009101"
+      FROZEN_ARTIFACT: "pr138-palearctic-restricted-ipw-32980009101"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate bridge implementation
+        run: |
+          pytest -q tests/test_chapter1_pr138_lineage_representation_bridge.py
+          ruff check \
+            src/island_v2/chapter1_pr138_lineage_representation_bridge.py \
+            tests/test_chapter1_pr138_lineage_representation_bridge.py
+
+      - name: Download frozen PR138 inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/bridge/frozen /tmp/bridge/result
+          gh run download "$FROZEN_RUN_ID" -n "$FROZEN_ARTIFACT" -D /tmp/bridge/frozen
+          test -s /tmp/bridge/frozen/input/input/pathway/syndrome/species_syndrome_concordance.csv.gz
+          test -s /tmp/bridge/frozen/input/input/source/current/syndrome/direct_only/species_syndrome_concordance.csv.gz
+          test -s /tmp/bridge/frozen/input/input/realm/evidence/all_analysis_eligible_trait_ledger.csv.gz
+          test -s /tmp/bridge/frozen/input/input/realm/evidence/direct_only_trait_ledger.csv.gz
+          test -s /tmp/bridge/frozen/input/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/bridge/frozen/input/input/source/source/gift_native_mainland_flora.csv.gz
+          test -s /tmp/bridge/frozen/input/input/source/result/island_source_assignments.csv.gz
+          test -s /tmp/bridge/frozen/input/input/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/bridge/frozen/input/input/realm/realm/island_biogeographic_realm_assignment.csv
+
+      - name: Run lineage representation bridge
+        run: |
+          python -m island_v2.chapter1_pr138_lineage_representation_bridge \
+            --species-scores-csv /tmp/bridge/frozen/input/input/pathway/syndrome/species_syndrome_concordance.csv.gz \
+            --direct-species-scores-csv /tmp/bridge/frozen/input/input/source/current/syndrome/direct_only/species_syndrome_concordance.csv.gz \
+            --trait-ledger-csv /tmp/bridge/frozen/input/input/realm/evidence/all_analysis_eligible_trait_ledger.csv.gz \
+            --direct-trait-ledger-csv /tmp/bridge/frozen/input/input/realm/evidence/direct_only_trait_ledger.csv.gz \
+            --status-flora-csv /tmp/bridge/frozen/input/canonical/input/chapter1_status_flora.csv.gz \
+            --gift-flora-csv /tmp/bridge/frozen/input/input/source/source/gift_native_mainland_flora.csv.gz \
+            --source-assignments-csv /tmp/bridge/frozen/input/input/source/result/island_source_assignments.csv.gz \
+            --covariates-csv /tmp/bridge/frozen/input/input/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/bridge/frozen/input/input/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --source-config-path config/chapter1_pr138_source_pool_sensitivity.yml \
+            --output-dir /tmp/bridge/result
+
+      - name: Verify frozen bridge result
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import numpy as np
+          import pandas as pd
+
+          root = Path('/tmp/bridge/result')
+          slopes = pd.read_csv(root / 'lineage_representation_context_slopes.csv')
+          between = pd.read_csv(root / 'lineage_representation_between_context.csv')
+          manifest = json.loads((root / 'lineage_representation_manifest.json').read_text())
+
+          expected_source_counts = {
+              'broad': (128623, 4197),
+              'broad_source_min2': (128623, 4197),
+              'exact_si_all': (15292, 353),
+              'exact_si_direct': (11983, 194),
+          }
+          evidence_manifests = {
+              row['evidence_scope']: row
+              for row in manifest['evidence_manifests']
+          }
+          if set(evidence_manifests) != set(expected_source_counts):
+              raise SystemExit(
+                  f'unexpected evidence manifest scopes: {sorted(evidence_manifests)}'
+              )
+          for scope, (memberships, unique_species) in expected_source_counts.items():
+              row = evidence_manifests[scope]
+              if 'n_gift_source_functional_species' in row:
+                  raise SystemExit(f'{scope}: legacy ambiguous source-species field remains')
+              got = (
+                  row.get('n_gift_source_functional_memberships'),
+                  row.get('n_unique_gift_source_functional_species'),
+              )
+              if got != (memberships, unique_species):
+                  raise SystemExit(
+                      f'{scope}: source-count mismatch: {got} '
+                      f'!= {(memberships, unique_species)}'
+                  )
+
+          if len(slopes) != 1152:
+              raise SystemExit(f'unexpected slope row count: {len(slopes)}')
+          if len(between) != 48:
+              raise SystemExit(f'unexpected between-context row count: {len(between)}')
+
+          primary = slopes.loc[
+              slopes['evidence_scope'].eq('broad')
+              & slopes['source_matching'].eq('prevalence_richness')
+              & slopes['minimum_represented_genera'].eq(5)
+              & slopes['context_layer'].eq('biogeographic_realm')
+              & slopes['context'].eq('Palearctic')
+              & slopes['outcome'].eq('entry_enrichment')
+          ].copy()
+          expected = {
+              ('all_native', 'geo50_climate10'): 0.0893148368999306,
+              ('all_native', 'geo_k10'): 0.1013933478206385,
+              ('all_native', 'geo_k20'): 0.0815536919698932,
+              ('all_native', 'geo_k5'): 0.0798411769870638,
+              ('native_nonendemic', 'geo50_climate10'): 0.0817145453251639,
+              ('native_nonendemic', 'geo_k10'): 0.0926635067619007,
+              ('native_nonendemic', 'geo_k20'): 0.0741949640910202,
+              ('native_nonendemic', 'geo_k5'): 0.0713744042821712,
+          }
+          got = {
+              (row.stratum, row.source_mode): float(row.distance_slope)
+              for row in primary.itertuples(index=False)
+          }
+          if set(got) != set(expected):
+              raise SystemExit(f'primary key mismatch: {sorted(got)}')
+          max_delta = max(abs(got[key] - value) for key, value in expected.items())
+          if max_delta > 1e-10:
+              raise SystemExit(f'primary coefficient reproduction failed: max delta={max_delta}')
+          if int(primary['positive_supported'].sum()) != 8:
+              raise SystemExit('primary Palearctic genus-entry result is not supported in 8/8 scenarios')
+
+          broad_loading = slopes.loc[
+              slopes['evidence_scope'].eq('broad')
+              & slopes['source_matching'].eq('prevalence_richness')
+              & slopes['minimum_represented_genera'].eq(5)
+              & slopes['context_layer'].eq('biogeographic_realm')
+              & slopes['context'].eq('Palearctic')
+              & slopes['outcome'].eq('loading_increment')
+          ]
+          if int(broad_loading['positive_supported'].sum()) != 0:
+              raise SystemExit('broad primary loading increment unexpectedly becomes headline-supported')
+
+          si_entry = slopes.loc[
+              slopes['evidence_scope'].eq('exact_si_direct')
+              & slopes['source_matching'].eq('prevalence_richness')
+              & slopes['minimum_represented_genera'].eq(3)
+              & slopes['context_layer'].eq('biogeographic_realm')
+              & slopes['context'].eq('Palearctic')
+              & slopes['outcome'].eq('entry_enrichment')
+          ]
+          si_loading = slopes.loc[
+              slopes['evidence_scope'].eq('exact_si_direct')
+              & slopes['source_matching'].eq('prevalence_richness')
+              & slopes['minimum_represented_genera'].eq(3)
+              & slopes['context_layer'].eq('biogeographic_realm')
+              & slopes['context'].eq('Palearctic')
+              & slopes['outcome'].eq('loading_increment')
+          ]
+          if int(si_entry['positive_supported'].sum()) != 1:
+              raise SystemExit('direct exact-SI genus-entry sensitivity changed')
+          if int(si_loading['positive_supported'].sum()) != 7:
+              raise SystemExit('direct exact-SI species-loading sensitivity changed')
+
+          entry_between = between.loc[between['outcome'].eq('entry_enrichment')].copy()
+          by_layer = entry_between.groupby('context_layer')['difference_supported'].sum().to_dict()
+          if by_layer != {'analysis_regime': 8, 'biogeographic_realm': 8}:
+              raise SystemExit(f'primary regional entry contrast changed: {by_layer}')
+          if not entry_between['slope_difference_b_minus_a'].lt(0).all():
+              raise SystemExit('primary regional entry differences no longer have the frozen sign')
+
+          summary = Path('/tmp/bridge/lineage_representation_bridge_summary.md')
+          with summary.open('w') as f:
+              f.write('# PR138 → izu-core lineage representation bridge\n\n')
+              f.write(f'Primary coefficient reproduction max absolute difference: {max_delta:.3g}.\n\n')
+              f.write('## Broad Palearctic genus entry\n\n```text\n')
+              f.write(primary[
+                  ['stratum','source_mode','distance_slope','cluster_robust_se',
+                   'p_value','q_across_source_modes','positive_supported']
+              ].sort_values(['stratum','source_mode']).to_string(index=False))
+              f.write('\n```\n\n')
+              f.write('## Direct exact-SI Palearctic loading\n\n```text\n')
+              f.write(si_loading[
+                  ['stratum','source_mode','distance_slope','cluster_robust_se',
+                   'p_value','q_across_source_modes','positive_supported']
+              ].sort_values(['stratum','source_mode']).to_string(index=False))
+              f.write('\n```\n\n')
+              f.write('## Primary between-context entry tests\n\n```text\n')
+              f.write(entry_between[
+                  ['stratum','source_mode','context_layer','context_a','context_b',
+                   'slope_difference_b_minus_a','p_value','q_across_source_modes',
+                   'difference_supported']
+              ].sort_values(['context_layer','stratum','source_mode']).to_string(index=False))
+              f.write('\n```\n\n## Manifest\n\n```json\n')
+              f.write(json.dumps(manifest, indent=2))
+              f.write('\n```\n')
+          PY
+          cat /tmp/bridge/lineage_representation_bridge_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-lineage-representation-bridge-${{ github.run_id }}
+          path: /tmp/bridge/
+          if-no-files-found: error
+          retention-days: 90
