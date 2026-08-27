@@ -318,6 +318,83 @@ def load_latest_public_web(root: Path, manifest: dict[str, Any]) -> pd.DataFrame
     return pd.DataFrame(rows, columns=EVIDENCE_COLUMNS)
 
 
+def load_reviewed_direct_supplements(paths: tuple[Path, ...]) -> pd.DataFrame:
+    """Load provenance-complete, already-reviewed direct ledgers.
+
+    Supplemental ledgers are repository data products, not pending candidate
+    tables. They must carry their own acceptance contract and complete direct
+    provenance before entering the common conflict and lineage audit.
+    """
+
+    required = {
+        "accepted_species",
+        "trait_name",
+        "normalized_value",
+        "quality",
+        "source_group",
+        "source_provider",
+        "source_url",
+        "source_record_id",
+        "source_citation",
+        "source_excerpt",
+        "evidence_scope",
+        "name_match_method",
+        "source_lineage",
+        "source_run_id",
+        "source_artifact",
+        "acceptance_contract",
+    }
+    rows: list[dict[str, str]] = []
+    for path in paths:
+        frame = pd.read_csv(path, dtype=str).fillna("")
+        missing = required.difference(frame.columns)
+        if missing:
+            raise ValueError(
+                f"reviewed direct supplement {path} missing columns: {sorted(missing)}"
+            )
+        if frame[list(required)].apply(
+            lambda column: column.astype(str).str.strip().eq("").any()
+        ).any():
+            raise ValueError(
+                f"reviewed direct supplement {path} has incomplete provenance"
+            )
+        for record in frame.to_dict("records"):
+            quality = _text(record.get("quality")).casefold()
+            scope = _text(record.get("evidence_scope"))
+            trait = canonical_trait_name(record.get("trait_name"))
+            if (
+                quality not in {"high", "medium"}
+                or scope not in DIRECT_SCOPES
+                or not trait_axis(trait)
+                or _text(record.get("inference_rule"))
+            ):
+                continue
+            rows.append(
+                {
+                    "accepted_species": _text(record.get("accepted_species")),
+                    "axis": trait_axis(trait),
+                    "trait_name": trait,
+                    "normalized_value": _text(record.get("normalized_value")),
+                    "quality": quality,
+                    "source_group": _text(record.get("source_group")),
+                    "source_provider": _text(record.get("source_provider")),
+                    "source_url": _text(record.get("source_url")),
+                    "source_record_id": _text(record.get("source_record_id")),
+                    "source_citation": _text(record.get("source_citation")),
+                    "source_excerpt": _text(record.get("source_excerpt")),
+                    "evidence_scope": scope,
+                    "name_match_method": _text(record.get("name_match_method")),
+                    "source_lineage": _text(record.get("source_lineage")),
+                    "lineage_method": _text(record.get("lineage_method")),
+                    "source_run_id": _text(record.get("source_run_id")),
+                    "source_artifact": _text(record.get("source_artifact")),
+                    "source_file": str(path),
+                    "acceptance_contract": _text(record.get("acceptance_contract")),
+                }
+            )
+    return pd.DataFrame(rows, columns=EVIDENCE_COLUMNS)
+
+
 def direct_evidence_from_integrated(path: Path) -> pd.DataFrame:
     frame = pd.read_csv(path, dtype=str).fillna("")
     frame["quality"] = frame["quality"].str.casefold()
@@ -1696,6 +1773,7 @@ def build_audit(
     sensitivity_lock_json: Path,
     expected_species: int,
     direct_evidence_exclusions_csv: Path | None = None,
+    supplemental_direct_evidence_csvs: tuple[Path, ...] = (),
 ) -> tuple[dict[str, Any], dict[str, pd.DataFrame], dict[str, Any]]:
     started = perf_counter()
 
@@ -1757,7 +1835,12 @@ def build_audit(
 
     base_direct = direct_evidence_from_integrated(integrated_lineage)
     latest_direct = load_latest_public_web(latest_public_web_dir, manifest)
-    raw_direct = pd.concat([base_direct, latest_direct], ignore_index=True).fillna("")
+    supplemental_direct = load_reviewed_direct_supplements(
+        supplemental_direct_evidence_csvs
+    )
+    raw_direct = pd.concat(
+        [base_direct, latest_direct, supplemental_direct], ignore_index=True
+    ).fillna("")
     direct_exclusions = (
         pd.read_csv(direct_evidence_exclusions_csv, dtype=str).fillna("")
         if direct_evidence_exclusions_csv is not None
@@ -2013,6 +2096,15 @@ def build_audit(
                 "configured_records": len(direct_exclusions),
                 "matched_rows": int(direct_exclusion_audit["matched_rows"].sum()),
             },
+            "reviewed_direct_supplements": {
+                "files": len(supplemental_direct_evidence_csvs),
+                "rows": len(supplemental_direct),
+                "species_trait": int(
+                    supplemental_direct[["accepted_species", "trait_name"]]
+                    .drop_duplicates()
+                    .shape[0]
+                ),
+            },
             "upstream_integrated_artifact": {
                 key: int(value)
                 for key, value in integrated_summary.get(
@@ -2135,10 +2227,14 @@ def build_audit(
                 angiosperm_scope_yaml,
                 sensitivity_lock_json,
                 direct_evidence_exclusions_csv,
+                *supplemental_direct_evidence_csvs,
             )
             if path is not None
         },
         "latest_public_web_artifact_dir": str(latest_public_web_dir),
+        "supplemental_direct_evidence_csvs": [
+            str(path) for path in supplemental_direct_evidence_csvs
+        ],
     }
     mark("audit complete")
     return summary, frames, {
@@ -2225,6 +2321,9 @@ def build(
     direct_evidence_exclusions_csv: Annotated[
         Path | None, typer.Option(exists=True, dir_okay=False)
     ] = None,
+    supplemental_direct_evidence_csv: Annotated[
+        list[Path] | None, typer.Option(exists=True, dir_okay=False)
+    ] = None,
     expected_species: Annotated[int, typer.Option(min=1)] = 106_295,
 ) -> None:
     summary, frames, manifests = build_audit(
@@ -2239,6 +2338,9 @@ def build(
         sensitivity_lock_json=sensitivity_lock_json,
         expected_species=expected_species,
         direct_evidence_exclusions_csv=direct_evidence_exclusions_csv,
+        supplemental_direct_evidence_csvs=tuple(
+            supplemental_direct_evidence_csv or []
+        ),
     )
     write_outputs(summary, frames, manifests, output_dir)
     typer.echo(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True))

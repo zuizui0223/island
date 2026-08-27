@@ -392,6 +392,38 @@ jobs:
 
       - name: Rebuild Validated Low and strict all-evidence audit
         run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path(
+              "data/v2/staging/traits/direct_llm_pilot/"
+              "20260808_scale_source_acquisition"
+          )
+          expected = {
+              "scale_source_incremental_evidence.csv.gz": (
+                  "3b9204acecd8b66e1f58dd9ae7165a4b3c43375d8fe2fed5ecf30ea03a55e298"
+              ),
+              "scale_source_manual_audit.csv": (
+                  "b293fb135de9ff9ee06e588f267229137061f3c56a7711c71883130c7bc8997f"
+              ),
+          }
+          for name, digest in expected.items():
+              actual = hashlib.sha256((root / name).read_bytes()).hexdigest()
+              if actual != digest:
+                  raise SystemExit(f"reviewed scale-source hash changed: {name}")
+          audit = json.loads(
+              (root / "scale_source_audit_summary.json").read_text(encoding="utf-8")
+          )
+          if (
+              audit["precision_contract"] != "accepted_correct/all_reviewed"
+              or audit["reviewed"] != 1622
+              or audit["precision"] < 0.90
+              or audit["cultivar_contamination_rate"] > 0.02
+          ):
+              raise SystemExit("reviewed scale-source promotion gate failed")
+          PY
           island-v2-all-evidence-trait-audit \
             --integrated-dir "$OUTPUT_ROOT" \
             --latest-public-web-dir "$INPUT_ROOT/latest-public-web" \
@@ -404,11 +436,19 @@ jobs:
             --sensitivity-lock-json config/trait_cascade_artifact_lock.json \
             --direct-evidence-exclusions-csv \
               data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_20260811.csv \
+            --supplemental-direct-evidence-csv \
+              data/v2/staging/traits/direct_llm_pilot/20260808_scale_source_acquisition/scale_source_incremental_evidence.csv.gz \
             --output-dir "$OUTPUT_ROOT" \
             --expected-species 106295 \
             > "$OUTPUT_ROOT/all_evidence_audit.log"
           cat "$OUTPUT_ROOT/all_evidence_trait_coverage_summary.json" \
             >> "$GITHUB_STEP_SUMMARY"
+          cp \
+            data/v2/staging/traits/direct_llm_pilot/20260808_scale_source_acquisition/scale_source_audit_summary.json \
+            "$OUTPUT_ROOT/reviewed_scale_source_audit_summary.json"
+          cp \
+            data/v2/staging/traits/direct_llm_pilot/20260808_scale_source_acquisition/scale_source_provider_trait_audit_precision.csv \
+            "$OUTPUT_ROOT/reviewed_scale_source_provider_trait_precision.csv"
 
       - name: Compare against the immutable formal baseline
         run: |

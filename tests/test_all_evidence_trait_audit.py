@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from island_v2 import all_evidence_trait_audit as audit
 from island_v2.direct_evidence_exclusions import apply_direct_evidence_exclusions
@@ -138,6 +139,39 @@ def test_latest_public_web_loader_coalesces_row_level_quality_columns(
         "Alpha one": "medium",
         "Beta two": "high",
     }
+
+
+def test_reviewed_direct_supplement_loader_preserves_contract_and_trait(
+    tmp_path: Path,
+) -> None:
+    record = row(
+        "Alpha one",
+        "autonomous_selfing_capacity",
+        '["autonomous"]',
+        "dataset:reviewed",
+        quality="high",
+    )
+    path = tmp_path / "reviewed.csv.gz"
+    pd.DataFrame([record]).to_csv(path, index=False)
+    loaded = audit.load_reviewed_direct_supplements((path,))
+
+    assert len(loaded) == 1
+    assert loaded.iloc[0]["trait_name"] == "autonomous_selfing_capacity"
+    assert loaded.iloc[0]["axis"] == "reproductive_assurance"
+    assert loaded.iloc[0]["acceptance_contract"] == "test"
+    assert loaded.iloc[0]["source_file"] == str(path)
+
+
+def test_reviewed_direct_supplement_loader_rejects_incomplete_provenance(
+    tmp_path: Path,
+) -> None:
+    record = row("Alpha one", "floral_form", "tubular", "dataset:reviewed")
+    record["source_citation"] = ""
+    path = tmp_path / "reviewed.csv.gz"
+    pd.DataFrame([record]).to_csv(path, index=False)
+
+    with pytest.raises(ValueError, match="incomplete provenance"):
+        audit.load_reviewed_direct_supplements((path,))
 
 
 def test_reviewed_exclusion_prevents_false_conflict_with_corrected_direct_row() -> None:
