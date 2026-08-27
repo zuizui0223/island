@@ -7,11 +7,11 @@ Updated: 2026-08-27
 The source-pool lineage-representation bridge is materialized and passes its dedicated frozen-input workflow.
 
 - workflow: `Run PR138 lineage representation bridge`
-- run: `33036371591`
-- validated head: `a0de1a5567787ba9fbedc83bf6b89652ebd5a604`
-- artifact: `pr138-lineage-representation-bridge-33036371591`
-- artifact id: `9632162651`
-- digest: `sha256:32c07675b02b791a7f89b0c62493d281f93f559f42f9d2c86da7c04a26162b0e`
+- run: `33064065609`
+- validated head: `0a44c458e39dffe39de2daee2ffd48857ed1adf9`
+- artifact: `pr138-lineage-representation-bridge-33064065609`
+- artifact id: `9642983894`
+- digest: `sha256:b7c2278a697517ef17aecdd267aa10d66d13299563ad8c0327f169041cfb3211`
 - pytest / Ruff: passed
 - frozen-input analysis: passed
 - frozen numerical verification: passed
@@ -47,9 +47,9 @@ For the exact-SI sensitivities, the corresponding complete-coordinate / matched-
 
 The first materialized artifact's JSON field named `n_gift_source_functional_species` counted GIFT entity × species memberships rather than unique species. It was **not used in any score, model, gate, or result**. The implementation now reports two explicit fields: `n_gift_source_functional_memberships` and `n_unique_gift_source_functional_species`. A repeated-species unit test protects this distinction. The unique species counts above remain the values to report.
 
-The recorded Actions artifact validates the pre-cleanup head and the unchanged numerical estimands. The label-cleanup head must pass the same frozen-input workflow before the PR leaves draft status.
+The current Actions artifact validates the label-cleanup head and the unchanged numerical estimands. It also fails closed if the legacy ambiguous count field reappears or if either the membership or unique-species count changes.
 
-A local frozen-input rerun after the cleanup reproduced all 24,416 island-score rows exactly, all 1,152 context-slope rows with maximum numerical difference `1.02e-14`, and all 48 between-context rows with maximum numerical difference `1.9e-15`. The manifest core and all non-count fields were identical. This local comparison does not replace the required Actions rerun.
+A local frozen-input rerun before the current Actions run reproduced all 24,416 island-score rows exactly, all 1,152 context-slope rows with maximum numerical difference `1.02e-14`, and all 48 between-context rows with maximum numerical difference `1.9e-15`. The manifest core and all non-count fields were identical; the current immutable artifact now independently confirms the corrected contract.
 
 ## Source-availability matching
 

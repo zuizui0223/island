@@ -6,6 +6,7 @@ on:
     paths:
       - "src/island_v2/chapter1_pr138_lineage_representation_bridge.py"
       - "tests/test_chapter1_pr138_lineage_representation_bridge.py"
+      - "docs/chapter1_pr138_lineage_representation_bridge_checkpoint.md"
       - ".github/workflows/run-pr138-lineage-representation-bridge.yml"
   workflow_dispatch:
 
