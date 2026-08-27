@@ -42,6 +42,14 @@ northern accessibility branch loses multivariate support after stabilized IPW. T
 Palearctic accessibility plus reproductive-assurance branch persists. See
 [`chapter1_global_branch_selection_checkpoint_20260826.md`](chapter1_global_branch_selection_checkpoint_20260826.md).
 
+The continuous area-moderation extension now adds a second WHEN condition. The most
+stable result is on the plant source-pool side: source-availability-matched Palearctic
+genus-entry enrichment is more strongly associated with distance on smaller islands in
+all 8/8 source-mode × floristic-stratum scenarios. Species loading has no equally stable
+area law. Neotropical reproductive assurance shows a bounded Baker-compatible
+small-island amplification, while broad-regime plant vectors do not. See
+[`chapter1_area_capacity_moderation_checkpoint_20260827.md`](chapter1_area_capacity_moderation_checkpoint_20260827.md).
+
 ## Central causal concept
 
 ```text
@@ -60,6 +68,20 @@ x pollinator dispersal and establishment ability
 Chapter 1 observes only the right-hand plant responses and the geographic gradient. The
 three upstream terms and the effective-service mediator remain latent. Consequently the
 diagram is the theory being tested for compatibility, not an identified causal path.
+
+The empirically resolved branching structure is now:
+
+```text
+mainland distance/source accessibility x island area/capacity
+|-- plant source-pool filter
+|     |-- source-available genus functional-position entry: supported
+|     |-- additional species loading: area dependence not stable
+|     |-- Baker-compatible reproductive assurance: bounded support
+|     `-- genetic founder effect and drift: not measured
+`-- pollination-channel filter
+      |-- area-dependent regional attraction/access contrast: supported
+      `-- pollinator mobility, persistence and effective service: not measured
+```
 
 ## Predeclared evidence hierarchy
 
