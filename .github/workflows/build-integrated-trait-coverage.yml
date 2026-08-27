@@ -406,7 +406,7 @@ jobs:
                   "3b9204acecd8b66e1f58dd9ae7165a4b3c43375d8fe2fed5ecf30ea03a55e298"
               ),
               "scale_source_manual_audit.csv": (
-                  "b293fb135de9ff9ee06e588f267229137061f3c56a7711c71883130c7bc8997f"
+                  "5280af857b0398cf99a87a2c60a1675450d20e78543b445d1105538c77cea4c3"
               ),
           }
           for name, digest in expected.items():
