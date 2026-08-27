@@ -86,7 +86,26 @@ islands were discarded biologically.
 - direct broad lineage-entry area contrast: 8 supported analysis-regime scenarios and 5
   formal-realm scenarios.
 
-## S5. Robustness displays to retain in Supplement
+## S5. Regional pollination-syndrome concordance
+
+These scores are a post-freeze compatibility audit of sampled floral architectures. They
+do not identify visitor guilds or measure abundance, visitation, pollen delivery,
+reproductive outcome, mobility, establishment, or persistence. Moths, flies, bats,
+beetles, wasps, and other unmodelled channels were not coded as absent.
+
+| region | frozen plant-side pattern | sampled guild-syndrome concordance | bounded interpretation |
+| --- | --- | --- | --- |
+| northern mid-latitude | generalized accessibility increases; strict reproductive assurance is not independently supported in all-native flora | large-bee-like concordance declines (slope = -0.04927, q = 0.0320); bird- and butterfly-like axes do not survive the secondary family | compatible with decreasing representation of architectures associated with large-bodied/deep-access channels; does not identify Bombus loss |
+| Palearctic | accessibility generalization and reproductive assurance increase and remain robust after source and observation-selection sensitivities | large-bee-, bird-, and butterfly-like concordances all decline | broad reorganization away from the sampled specialized/attractive architectures, not a unique Bombus classifier |
+| tropical | reproductive assurance increases; native non-endemics also shift toward specialized access | bird-, butterfly-, and large-bee-like concordances all increase | compatible with maintained or reinforced attractive/specialized architecture; simultaneous increases prevent assignment to one replacement guild |
+| Neotropical | reproductive assurance is the more stable axis; accessibility is selection-sensitive | no sampled guild axis is supported | pollination-channel interpretation remains unresolved |
+| Nearctic | below the confirmatory support threshold; the earlier pilot does not reproduce the Palearctic direction | no confirmatory guild conclusion | unresolved, not a counterexample or null region |
+| southern extratropical | pilot only | bird-like and large-bee-like concordance increase together | not bird-specific and not evidence of functional replacement |
+
+The syndrome family therefore supports a regional contrast in floral architecture but not
+the causal sequence from pollinator dispersal to effective service to plant composition.
+
+## S6. Robustness displays to retain in Supplement
 
 1. information-weight and equal-island result matrix;
 2. trait-resolution coverage and adjusted result matrix;
@@ -99,7 +118,7 @@ islands were discarded biologically.
 9. lineage entry versus loading under broad and exact-SI evidence;
 10. area-moderation within- and between-context gates.
 
-## S6. Preserved negative and unresolved results
+## S7. Preserved negative and unresolved results
 
 - no universal classical island syndrome;
 - no confirmatory northern-high-latitude pattern;
@@ -114,7 +133,7 @@ islands were discarded biologically.
 These outcomes are part of the frozen result and must not be reclassified after later data
 acquisition.
 
-## S7. Reproducibility identifiers
+## S8. Reproducibility identifiers
 
 - lock: `config/chapter1_submission_freeze_lock.json`;
 - workflow run: `33067239884`;

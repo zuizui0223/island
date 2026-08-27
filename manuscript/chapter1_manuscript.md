@@ -206,6 +206,22 @@ accessibility interaction was supported in both strata (q = 0.00780 and 0.0134).
 conditioned a regional difference in accessibility geography without identifying the
 pollinator process that generated it.
 
+### Secondary concordance with sampled pollination syndromes
+
+After the primary plant-side response was frozen, it was compared in a separate secondary
+family with prespecified, non-exhaustive floral-trait templates associated with large bees,
+birds, and butterflies. Northern mid-latitude large-bee-like concordance declined with
+mainland distance (slope = -0.04927, q = 0.0320), in the opposite direction to generalized
+floral accessibility. The formal Palearctic analysis similarly showed declining large-bee-,
+bird-, and butterfly-like concordance. Tropical assemblages showed a different pattern:
+bird-, butterfly-, and large-bee-like scores increased together, while tropical native
+non-endemics also retained a specialized-access direction. Neotropical sampled-guild axes
+were unsupported, Nearctic evidence remained below confirmatory support, and the
+southern-extratropical pilot increased bird- and large-bee-like concordance together.
+Because the guild templates share colour, size, tube, symmetry, and access traits, their
+simultaneous responses are evidence of multivariate floral architecture rather than
+pollinator-identity classification.
+
 ## Discussion
 
 ### Island floral responses are biogeographically contingent
@@ -243,15 +259,24 @@ is insufficient as the sole description. Conversely, the Neotropical area intera
 compatible with reproductive assurance but cannot identify Baker's law, founding events,
 or post-colonisation evolution.
 
-### Pollination syndromes remain a bounded interpretation
+### Floral-trait concordance links the assemblage pattern to candidate service channels
 
-Large-bee-like, bird-like, butterfly-like, and other syndrome scores summarize floral-trait
-concordance, not realized visitor identity or effectiveness. The Palearctic shift away from
-large-bee-like architecture and tropical maintenance of specialized-access traits can be
-compared with hypotheses about differences in guild dispersal, establishment, and
-preference. Yet neither Bombus loss nor bird/Lepidoptera replacement was observed. The
-required causal test must measure visitors, single-visit pollen delivery, reproductive
-outcome, and local persistence independently of floral phenotype.
+The syndrome comparison provides a bounded bridge from plant composition to the proposed
+pollination-service mechanism. In the Palearctic, increasing generalized accessibility and
+declining large-bee-like architecture are compatible with reduced returns to floral forms
+associated with large-bodied or deep-access visitor channels. This interpretation is
+consistent with the local Izu *Campanula* example, in which Bombus absence, smaller flowers,
+and breeding-system change covaried, but it does not show that Bombus loss generated the
+global Palearctic assemblage response. The tropical result is not simply the absence of this
+northern pattern. Simultaneous increases in bird-, butterfly-, and large-bee-like scores,
+together with specialized-access maintenance in native non-endemics, are compatible with
+continued investment in attraction and access under a different service environment.
+However, the same simultaneous increase prevents attribution to bird or butterfly
+replacement: the templates overlap, other guilds are unmodelled, and no visitor abundance,
+single-visit pollen deposition, seed production, mobility, establishment, or persistence
+was measured. The supported asymmetry is therefore between regional floral architectures
+consistent with different candidate service channels, not between directly observed
+pollinator guilds.
 
 ### Island area is a capacity proxy, not a measured mechanism
 
