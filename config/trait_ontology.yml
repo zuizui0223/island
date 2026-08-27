@@ -22,6 +22,7 @@ traits:
       - actinomorphic
       - zygomorphic
       - asymmetric
+      - mixed_or_variable
       - unresolved
 
   floral_form:
@@ -70,6 +71,7 @@ traits:
       - umbel_corymb
       - composite_display
       - brush_puff_display
+      - multistate_variable
       - unresolved
 
   reward_type:

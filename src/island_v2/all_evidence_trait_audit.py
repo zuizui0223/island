@@ -626,6 +626,21 @@ def resolve_direct_cells(
                 classification = "independent_source_agreement"
             else:
                 classification = "single_independent_lineage"
+        elif (
+            trait
+            in {"self_incompatibility", "autonomous_selfing_capacity"}
+            and any(
+                "mixed_or_variable" in json.loads(state_set)
+                for state_set in state_sets
+            )
+        ):
+            # An explicit mixed state is a source-backed biological state that
+            # contains the simpler states reported by other independent
+            # lineages.  Keep it as such rather than manufacturing a conflict
+            # or selecting SC/SI by row order.  Simple SC-versus-SI conflicts
+            # without an explicit mixed observation remain unresolved below.
+            resolved_states = ["mixed_or_variable"]
+            classification = "true_multistate_variable"
         elif trait == "flower_primary_color" or VARIABLE_RE.search(source_text):
             resolved_states = sorted(
                 {

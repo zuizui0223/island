@@ -374,6 +374,24 @@ def test_direct_value_normalization_is_ontology_safe_and_conservative():
     assert cascade._normalize_direct_value("sex_system", "unisexual") == ""
 
 
+def test_direct_value_normalization_accepts_source_backed_json_multistates():
+    assert cascade._normalize_direct_value(
+        "flower_primary_color", '["blue_purple","red_pink"]'
+    ) == "multicolored_variable"
+    assert cascade._normalize_direct_value(
+        "floral_form", '["funnel_trumpet","tubular"]'
+    ) == "other_described"
+    assert cascade._normalize_direct_value(
+        "floral_symmetry", '["actinomorphic","zygomorphic"]'
+    ) == "mixed_or_variable"
+    assert cascade._normalize_direct_value(
+        "inflorescence_display", '["composite_display","umbel_corymb"]'
+    ) == "multistate_variable"
+    assert cascade._normalize_direct_value(
+        "inflorescence_display", '["composite_display","not_in_ontology"]'
+    ) == ""
+
+
 def test_coverage_summary_zero_unknown(tmp_path):
     master = _master()
     config = _config(tmp_path / "m.csv")

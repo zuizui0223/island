@@ -32,7 +32,8 @@ import pandas as pd
 import typer
 import yaml
 
-from island_v2.angiosperm_scope import classify_scope, load_config as load_scope_config
+from island_v2.angiosperm_scope import classify_scope
+from island_v2.angiosperm_scope import load_config as load_scope_config
 from island_v2.search_enabled_llm_campaign import _parse_csv_row as parse_llm_result
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
@@ -129,6 +130,30 @@ def _normalize_direct_value(trait_name: object, value: object) -> str:
     trait = _text(trait_name)
     raw = _text(value)
     folded = raw.casefold()
+    if raw.startswith("["):
+        try:
+            decoded = json.loads(raw)
+        except json.JSONDecodeError:
+            return ""
+        if not isinstance(decoded, list) or not decoded or not all(
+            isinstance(item, str) and _is_present(item) for item in decoded
+        ):
+            return ""
+        states = {_normalize_direct_value(trait, item) for item in decoded}
+        if "" in states:
+            return ""
+        if len(states) == 1:
+            return next(iter(states))
+        # The source ledger retains the exact state set.  The cascade's scalar
+        # channel uses an explicit variable/multistate state rather than
+        # selecting one component by order or treating it as a conflict between
+        # independent sources.
+        return {
+            "flower_primary_color": "multicolored_variable",
+            "floral_form": "other_described",
+            "floral_symmetry": "mixed_or_variable",
+            "inflorescence_display": "multistate_variable",
+        }.get(trait, "")
     if trait == "flower_primary_color":
         if folded in {
             "white",
@@ -177,9 +202,21 @@ def _normalize_direct_value(trait_name: object, value: object) -> str:
             "zygomorphic": "zygomorphic",
             "bilateral": "zygomorphic",
             "asymmetric": "asymmetric",
+            "mixed_or_variable": "mixed_or_variable",
         }
         states = {aliases[token] for token in folded.split("|") if token in aliases}
         return next(iter(states)) if len(states) == 1 else ""
+    if trait == "inflorescence_display":
+        canonical = {
+            "solitary",
+            "few_flowered",
+            "raceme_spike_panicle",
+            "umbel_corymb",
+            "composite_display",
+            "brush_puff_display",
+            "multistate_variable",
+        }
+        return folded if folded in canonical else ""
     if trait == "self_incompatibility":
         return {
             "si": "SI",

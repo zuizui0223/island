@@ -250,6 +250,63 @@ def test_direct_conflicts_are_classified_without_row_order_selection() -> None:
     assert ontology["classification"] == "source_ontology_mismatch"
 
 
+def test_explicit_mixed_reproductive_state_resolves_simple_state_conflicts() -> None:
+    evidence = pd.DataFrame(
+        [
+            row(
+                "Capsicum pubescens",
+                "self_incompatibility",
+                "SI",
+                "paper:si",
+                quality="high",
+            ),
+            row(
+                "Capsicum pubescens",
+                "self_incompatibility",
+                "mixed_or_variable",
+                "dataset:si-sc",
+                quality="high",
+            ),
+            row(
+                "Witheringia solanacea",
+                "self_incompatibility",
+                "SC",
+                "paper:sc",
+                quality="high",
+            ),
+            row(
+                "Witheringia solanacea",
+                "self_incompatibility",
+                "SI",
+                "paper:si",
+                quality="high",
+            ),
+            row(
+                "Witheringia solanacea",
+                "self_incompatibility",
+                "mixed_or_variable",
+                "dataset:si-sc",
+                quality="high",
+            ),
+        ],
+        columns=EVIDENCE_COLUMNS,
+    )
+    lineages, _ = audit.dedupe_direct_lineages(evidence, ONTOLOGY)
+
+    resolved, cell_audit = audit.resolve_direct_cells(lineages)
+
+    assert set(resolved["accepted_species"]) == {
+        "Capsicum pubescens",
+        "Witheringia solanacea",
+    }
+    assert set(resolved["classification"]) == {"true_multistate_variable"}
+    assert set(resolved["normalized_value"]) == {"mixed_or_variable"}
+    assert set(resolved["state_set"].map(json.loads).map(tuple)) == {
+        ("mixed_or_variable",)
+    }
+    assert set(cell_audit["resolution_status"]) == {"resolved"}
+
+
 def test_legacy_colour_aliases_remain_multistate_and_internal_conflicts_are_explicit() -> None:
     states, invalid = audit.normalise_state_set(
         "flower_primary_color",
