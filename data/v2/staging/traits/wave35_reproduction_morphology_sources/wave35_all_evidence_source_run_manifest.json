@@ -1,0 +1,3204 @@
+{
+  "contract": "all_evidence_source_run_manifest_v1",
+  "inputs": {
+    ".work\\integrated-32932103226\\bulk_candidate_acceptance_audit.csv.gz": {
+      "sha256": "0c928ad75b7387cba5849665b913ef0155f4db2971f3f4c05d1501cd691adbf2",
+      "size_bytes": 2008460
+    },
+    ".work\\integrated-32932103226\\integrated_evidence_lineage.csv.gz": {
+      "sha256": "4ecf3b2bb4067aecdafc01a0a3621a94f7332daf5fe34e9c232919a723e5a3e1",
+      "size_bytes": 6634289
+    },
+    ".work\\integrated-32932103226\\integrated_species_axis_coverage.csv.gz": {
+      "sha256": "e1584636061673a14ec29d4fc4eee794da595eb96c709e35564eca92f152e34f",
+      "size_bytes": 1995397
+    },
+    ".work\\integrated-32932103226\\integrated_trait_coverage_summary.json": {
+      "sha256": "257a869d69a1f648745fc544ad6a09089c02249371dee531cedd6c7c19b44dc5",
+      "size_bytes": 145109
+    },
+    ".work\\wave33-bamba-try\\latest-public-web\\broad_web_medium_evidence.csv.gz": {
+      "sha256": "99c5923872b6c699446c3dc90cabd56c94030a56c72aa18da72f7539b3184297",
+      "size_bytes": 13170344
+    },
+    ".work\\wave33-bamba-try\\latest-public-web\\broad_web_medium_pilot_summary.json": {
+      "sha256": "c8aa71365a15106994e000c205cd362f0e7715b65c2ad129637b174333260378",
+      "size_bytes": 1235
+    },
+    ".work\\wave34-floraweb-source-fixed\\floraweb_reviewed_direct_evidence.csv.gz": {
+      "sha256": "38c1efa199ffed817fba1825265ae2040a295f070009e2abc56d6eebf70c7968",
+      "size_bytes": 213332
+    },
+    ".work\\wave35-glopl-2025-source-fixed\\glopl_2025_reviewed_direct_evidence.csv.gz": {
+      "sha256": "80f336c3a98870902542dea5d34a7aaf2e543a684ef3ac295ae0beeeb4997b02",
+      "size_bytes": 79592
+    },
+    ".work\\wave35-useful-plants-source\\useful_plants_reviewed_direct_evidence.csv.gz": {
+      "sha256": "f5b40a4cd4cadb1b06ed9f417f75e5492102a1fa73e7bf322f864e5a967a868e",
+      "size_bytes": 2721
+    },
+    "config\\angiosperm_scope.yml": {
+      "sha256": "1db91cfba546714927e0adc3af126dd475bd3d376213b3f8dd35450278f810b5",
+      "size_bytes": 2329
+    },
+    "config\\trait_cascade_artifact_lock.json": {
+      "sha256": "5d410f55966dff139286ce88a7d82902eef869250c54558621c29bf537573c77",
+      "size_bytes": 1455
+    },
+    "config\\trait_ontology.yml": {
+      "sha256": "022f5f1a63c99d6540d2e64a5f978607ece24a4b0456f0081cbf74123ed5bb12",
+      "size_bytes": 4576
+    },
+    "data\\v2\\staging\\gbif\\collected\\island_species_occurrences.csv.gz": {
+      "sha256": "ae33ad190a3f029bc625525a547b50dee532a0ab4137f98efc3d8f84b6a1216d",
+      "size_bytes": 11173616
+    },
+    "data\\v2\\staging\\gbif\\collected\\island_taxa.csv": {
+      "sha256": "21925a4e4d6fc8431e8549b3c3ddff9acdbded0b017e0aa78a5c863147392fe9",
+      "size_bytes": 5538726
+    },
+    "data\\v2\\staging\\traits\\open_web_pilot\\direct_evidence_exclusions_20260811.csv": {
+      "sha256": "3d5719c8efdb082b6b697073259c039d4fdf7a28c3973460a4ac59ba6cedb84f",
+      "size_bytes": 8399
+    }
+  },
+  "latest_public_web_artifact_dir": ".work\\wave33-bamba-try\\latest-public-web",
+  "source_manifest": {
+    "baseline_pull_requests": [
+      128,
+      130
+    ],
+    "contract": "integrated_trait_coverage_source_manifest_v2",
+    "denominator_species": 106295,
+    "repository": "zuizui0223/island",
+    "resolved_by_workflow_run_id": 32932103226,
+    "resolved_git_sha": "9d6677d4ead4b331e327028fcd1a6d2a59c83e37",
+    "sources": [
+      {
+        "artifact_name": "three-pass-pass1-shard-*-29814502655",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:a9c765d2c3cbda6d1d46c90bf595bd5961af7273478b4533c3be103ad8dfef8c",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488796063,
+            "name": "three-pass-pass1-shard-0-29814502655",
+            "size_in_bytes": 632717
+          },
+          {
+            "digest": "sha256:07fcce9d0672d83fb7063a97c871d996930144940a06f2682871a68d452e87c2",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488798820,
+            "name": "three-pass-pass1-shard-1-29814502655",
+            "size_in_bytes": 779465
+          },
+          {
+            "digest": "sha256:9fa202975e57e41dd06420276119a119e2ce538dd1012a84fa28ace836a0e80c",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488836595,
+            "name": "three-pass-pass1-shard-10-29814502655",
+            "size_in_bytes": 571179
+          },
+          {
+            "digest": "sha256:e4b46498dbe6b50ea23343848f0a0b64cdcbc4eb658daa5c951759988ac56ba0",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489293086,
+            "name": "three-pass-pass1-shard-100-29814502655",
+            "size_in_bytes": 664419
+          },
+          {
+            "digest": "sha256:2200a063e5a99adda90cb63f9dbd6b2be5ea1874082e5e054d9010242e59b41e",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489299799,
+            "name": "three-pass-pass1-shard-101-29814502655",
+            "size_in_bytes": 624842
+          },
+          {
+            "digest": "sha256:24bdd6c991bad1e92648cae0e958ba47b4a8a940bf3c1a60cefb35272b516eb3",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489298543,
+            "name": "three-pass-pass1-shard-102-29814502655",
+            "size_in_bytes": 559725
+          },
+          {
+            "digest": "sha256:e2ec7608c602c2ae69d8dbd19de63661e528fd1ac51e3b0ff3380cdcc44d7eb3",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489311639,
+            "name": "three-pass-pass1-shard-103-29814502655",
+            "size_in_bytes": 695934
+          },
+          {
+            "digest": "sha256:8c1659c9aa4a64c974ebe7c7b843dd93ee73e9463400955469ca255bd734c786",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489314579,
+            "name": "three-pass-pass1-shard-104-29814502655",
+            "size_in_bytes": 648648
+          },
+          {
+            "digest": "sha256:1b13c64a750d6680e449716e5103c7fc63c6795d468cfb241607f306633533fd",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489314684,
+            "name": "three-pass-pass1-shard-105-29814502655",
+            "size_in_bytes": 544306
+          },
+          {
+            "digest": "sha256:7d2be3fce99acdfd998c1ba53fe89ad1438263e82a252d8015b64c6296c3eabf",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489324660,
+            "name": "three-pass-pass1-shard-106-29814502655",
+            "size_in_bytes": 703591
+          },
+          {
+            "digest": "sha256:dc7a6e541d4ed3fb427c545221357b4d2c18030f3613930cb6ef2894d366c170",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489331083,
+            "name": "three-pass-pass1-shard-107-29814502655",
+            "size_in_bytes": 673264
+          },
+          {
+            "digest": "sha256:f37bd820816a7ff43261addfab29bbda085618b885b895de46ec86c67776ea60",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489333144,
+            "name": "three-pass-pass1-shard-108-29814502655",
+            "size_in_bytes": 626683
+          },
+          {
+            "digest": "sha256:9f221d374dcb748abcfe3710cfee3da2e6dbbe4cb369335b1e4cce7ad9136009",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489337178,
+            "name": "three-pass-pass1-shard-109-29814502655",
+            "size_in_bytes": 647918
+          },
+          {
+            "digest": "sha256:3fe33b77884e85602484a6f8593008fa50f8d4041373a154f8c8a51ec02ba524",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488835526,
+            "name": "three-pass-pass1-shard-11-29814502655",
+            "size_in_bytes": 575096
+          },
+          {
+            "digest": "sha256:2979af21e88ad02139a14c6a5076d32b82971bcf64c706e45612fe2c0d9fb288",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489343195,
+            "name": "three-pass-pass1-shard-110-29814502655",
+            "size_in_bytes": 715018
+          },
+          {
+            "digest": "sha256:f490f122d2d642644967bc86c87b862dacada476098b83a166c019871998e38f",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489350337,
+            "name": "three-pass-pass1-shard-111-29814502655",
+            "size_in_bytes": 656970
+          },
+          {
+            "digest": "sha256:efce2224ece7ff05db6ca07fb5e5a88d0f30345af807b7f158c34c914afda596",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489349029,
+            "name": "three-pass-pass1-shard-112-29814502655",
+            "size_in_bytes": 667519
+          },
+          {
+            "digest": "sha256:8f5516f013651bd40d3bebc548da2be9c86db0b38f517342ebd184b878f60b45",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489353855,
+            "name": "three-pass-pass1-shard-113-29814502655",
+            "size_in_bytes": 702794
+          },
+          {
+            "digest": "sha256:9b523ea700ce41bd5648120cbe7597ad0d2d467fd5cfcaca0804adcd7d9bf732",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489360436,
+            "name": "three-pass-pass1-shard-114-29814502655",
+            "size_in_bytes": 760688
+          },
+          {
+            "digest": "sha256:bd996ae88f785c0982b454109722afa2bb15d349d80b2bdc12940c7b97f0df6f",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489365320,
+            "name": "three-pass-pass1-shard-115-29814502655",
+            "size_in_bytes": 621437
+          },
+          {
+            "digest": "sha256:82d3f7996bec08892544ec8f19b6b8ceb8ddd2eb52ac6bba8feaa18c26eb2109",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489370990,
+            "name": "three-pass-pass1-shard-116-29814502655",
+            "size_in_bytes": 804736
+          },
+          {
+            "digest": "sha256:398016ee31760225d5461e36091e2e306adfcfb4c5dd5980b9e391c159d5b647",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489378869,
+            "name": "three-pass-pass1-shard-117-29814502655",
+            "size_in_bytes": 603974
+          },
+          {
+            "digest": "sha256:add2489745606717690f59db2a88bc4b0bad83f100490114b4edb000bdd12558",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489379111,
+            "name": "three-pass-pass1-shard-118-29814502655",
+            "size_in_bytes": 716020
+          },
+          {
+            "digest": "sha256:fad28fa8e3621d34186466e848c8d88e31b61867215f75f99fd9e4405d905912",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489386100,
+            "name": "three-pass-pass1-shard-119-29814502655",
+            "size_in_bytes": 689189
+          },
+          {
+            "digest": "sha256:4c80417d25d10ae72b9f4c44d5d51ac1ad435a851cf9b5a11867fbb5e7077569",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488853980,
+            "name": "three-pass-pass1-shard-12-29814502655",
+            "size_in_bytes": 553078
+          },
+          {
+            "digest": "sha256:cf6b4dfb5f559fd0ec6190cbf12b63741861ee19495a6e3c10f470a21d81e055",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489395086,
+            "name": "three-pass-pass1-shard-120-29814502655",
+            "size_in_bytes": 615262
+          },
+          {
+            "digest": "sha256:45f5d9d0ee472210fb9f0485429c1c03f9533d6a3407ca4f7233122b70bcbb89",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489395609,
+            "name": "three-pass-pass1-shard-121-29814502655",
+            "size_in_bytes": 633639
+          },
+          {
+            "digest": "sha256:5f8174f2d33cc08f9e3d3924beb6afd2035cc477e46fa5f5d7b7025af9033a3d",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489399303,
+            "name": "three-pass-pass1-shard-122-29814502655",
+            "size_in_bytes": 710390
+          },
+          {
+            "digest": "sha256:df34456c24cda30f3ce4207120b8946d951cb5b5b82c0266a072d0eb0166af40",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489406742,
+            "name": "three-pass-pass1-shard-123-29814502655",
+            "size_in_bytes": 642054
+          },
+          {
+            "digest": "sha256:8b55f04fdd90ff6848eb8032800545d73df846ff389b8a9a6e6f105a470a68d6",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489413440,
+            "name": "three-pass-pass1-shard-124-29814502655",
+            "size_in_bytes": 641122
+          },
+          {
+            "digest": "sha256:97c63e39d351e19e57303cb4e045bb2f4223e028e7a0baf62be44933ae4f722e",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489413248,
+            "name": "three-pass-pass1-shard-125-29814502655",
+            "size_in_bytes": 660499
+          },
+          {
+            "digest": "sha256:d6bb269f2535781e1ddcc252d7ccb13491bf3239a85660e651c79f6dbf33b315",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489419641,
+            "name": "three-pass-pass1-shard-126-29814502655",
+            "size_in_bytes": 581154
+          },
+          {
+            "digest": "sha256:e6fc89abcc34c749c378c9ed03e343ae17806e7b7e99ff1e1c347e4515023123",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489435056,
+            "name": "three-pass-pass1-shard-127-29814502655",
+            "size_in_bytes": 690592
+          },
+          {
+            "digest": "sha256:f323e78bffc004a73845ee95daa23625eab5b92b5e784ffc07b122ccc048d235",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488854465,
+            "name": "three-pass-pass1-shard-13-29814502655",
+            "size_in_bytes": 752565
+          },
+          {
+            "digest": "sha256:7f37ee05f566d61a39b69fa48697a406456cf0f50d90177d8a2bdd28d14c78b5",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488855247,
+            "name": "three-pass-pass1-shard-14-29814502655",
+            "size_in_bytes": 648559
+          },
+          {
+            "digest": "sha256:d4a1b992ace13922e4fd56f6ce64a99155c52d0743ea33f3ecd83af0d1c96b50",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488856665,
+            "name": "three-pass-pass1-shard-15-29814502655",
+            "size_in_bytes": 615613
+          },
+          {
+            "digest": "sha256:7195440a388703d238c073c83da0942ae8745dae3bd02e4afc4b46edf884e913",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488868207,
+            "name": "three-pass-pass1-shard-16-29814502655",
+            "size_in_bytes": 660275
+          },
+          {
+            "digest": "sha256:78c79228441233bace36dc21f706947d8a12977fa851d6178d8fb64b3d7aa6e5",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488873791,
+            "name": "three-pass-pass1-shard-17-29814502655",
+            "size_in_bytes": 569739
+          },
+          {
+            "digest": "sha256:1cf97c61a6a54c93347b3f894349d6ab55b9b5d88a5fb9760d42ec421dbe4a29",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488873706,
+            "name": "three-pass-pass1-shard-18-29814502655",
+            "size_in_bytes": 684919
+          },
+          {
+            "digest": "sha256:c14d51d50278c1870309256a7ec2899b226794fddf6110094676c98ef96939d2",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488876212,
+            "name": "three-pass-pass1-shard-19-29814502655",
+            "size_in_bytes": 636100
+          },
+          {
+            "digest": "sha256:f5e9a1eaf6f628aebfb702d3dfdc29ddb29493acd272aa94d11edf57983f5de1",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488796403,
+            "name": "three-pass-pass1-shard-2-29814502655",
+            "size_in_bytes": 648627
+          },
+          {
+            "digest": "sha256:cfdee9708473a602085365c7f89bffa91763ea3b8dec2354b68ffe1191a932ac",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488882978,
+            "name": "three-pass-pass1-shard-20-29814502655",
+            "size_in_bytes": 603706
+          },
+          {
+            "digest": "sha256:a73852df83ef610e9c5e8f2f3bde2f915f245d1268a4506b2ddde8f3b8a8bb3d",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488891117,
+            "name": "three-pass-pass1-shard-21-29814502655",
+            "size_in_bytes": 614778
+          },
+          {
+            "digest": "sha256:d0c30bed0f5569615537e86d5a5400b370a9664a23f37e70d382599cf3ab79e7",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488889805,
+            "name": "three-pass-pass1-shard-22-29814502655",
+            "size_in_bytes": 587496
+          },
+          {
+            "digest": "sha256:d88e608789e6bf60bfc178393fc987172c9911d9349778f9e8b0789e94667460",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488895209,
+            "name": "three-pass-pass1-shard-23-29814502655",
+            "size_in_bytes": 610829
+          },
+          {
+            "digest": "sha256:58c22135525634373cc27f973ea648d4dc78656de37707d6bee8e38389290356",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488902393,
+            "name": "three-pass-pass1-shard-24-29814502655",
+            "size_in_bytes": 651511
+          },
+          {
+            "digest": "sha256:49f730ae4e61a19d60e676dba8ad8843984a0ddc4cc252f04645aeb39ddb5cff",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488905110,
+            "name": "three-pass-pass1-shard-25-29814502655",
+            "size_in_bytes": 585511
+          },
+          {
+            "digest": "sha256:9d7c2a61563f8960d9a12adbe5fc9f76841bea5c972a580f7ebcf6040b9412ab",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488910640,
+            "name": "three-pass-pass1-shard-26-29814502655",
+            "size_in_bytes": 743075
+          },
+          {
+            "digest": "sha256:a6f905a5a1fa0b29262601eb97dc0ee0ed10532f8415125c94a20a5a3ff9832e",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488916082,
+            "name": "three-pass-pass1-shard-27-29814502655",
+            "size_in_bytes": 744678
+          },
+          {
+            "digest": "sha256:3fb559c42c3f5f0f09cd082963b5454466c4bccbf5c0542aaf41a50c3f4d451e",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488916433,
+            "name": "three-pass-pass1-shard-28-29814502655",
+            "size_in_bytes": 693436
+          },
+          {
+            "digest": "sha256:297412743f31f47df535a746dca4928d0b2ec849a05016976111a3e491db92bf",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488922580,
+            "name": "three-pass-pass1-shard-29-29814502655",
+            "size_in_bytes": 757006
+          },
+          {
+            "digest": "sha256:9ba3b319da2c392b8dc094b5af6457be7dfad0c2201a6a7457ba397eb5146927",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488799462,
+            "name": "three-pass-pass1-shard-3-29814502655",
+            "size_in_bytes": 682598
+          },
+          {
+            "digest": "sha256:27158daecd349f32c9e3db3711077745b9421140fb862e2c25958bccaff47179",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488926164,
+            "name": "three-pass-pass1-shard-30-29814502655",
+            "size_in_bytes": 694794
+          },
+          {
+            "digest": "sha256:09db320bf23c62492d056f976b6548dc9a5e28ae855a636071b6eec3acba5c25",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488933888,
+            "name": "three-pass-pass1-shard-31-29814502655",
+            "size_in_bytes": 678689
+          },
+          {
+            "digest": "sha256:bdfd4abaa676f1e9636a819f514797c1442d21ab8127e65b7a884929cae97d08",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488937086,
+            "name": "three-pass-pass1-shard-32-29814502655",
+            "size_in_bytes": 642880
+          },
+          {
+            "digest": "sha256:130c88c24d44e04063a6e5a3defa1b58f25ac444f9811a99968f8ab9fcb498d1",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488949051,
+            "name": "three-pass-pass1-shard-33-29814502655",
+            "size_in_bytes": 614244
+          },
+          {
+            "digest": "sha256:b41ad0fe0454b4910329894600d0278d2df2564d678f4cb9ce2f48494b05d0d6",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488942931,
+            "name": "three-pass-pass1-shard-34-29814502655",
+            "size_in_bytes": 693158
+          },
+          {
+            "digest": "sha256:3e86d892967ccb73e4081f8bf1168613c21ef8e5a47f21fcc3b882233863b2dd",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488952995,
+            "name": "three-pass-pass1-shard-35-29814502655",
+            "size_in_bytes": 706986
+          },
+          {
+            "digest": "sha256:0bb77802080eaafb4e13d84070f75a098781be26576dadd94a80a61aacf94739",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488956362,
+            "name": "three-pass-pass1-shard-36-29814502655",
+            "size_in_bytes": 648978
+          },
+          {
+            "digest": "sha256:b3ffed9e20f14d937a9237bb0e8b1c1f3a047142ec9675d043d4440d8922e61f",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488958524,
+            "name": "three-pass-pass1-shard-37-29814502655",
+            "size_in_bytes": 607399
+          },
+          {
+            "digest": "sha256:276b91a8fdcbfc90349ba9c6a1bb5e702af8da277f18e79cac69fc22d4fd1cc1",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488967931,
+            "name": "three-pass-pass1-shard-38-29814502655",
+            "size_in_bytes": 641338
+          },
+          {
+            "digest": "sha256:615d8307a5a34c1ee4c62ee4085556bdf35078ccc782ed07e8e6693dbf4ae1f7",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488971994,
+            "name": "three-pass-pass1-shard-39-29814502655",
+            "size_in_bytes": 730728
+          },
+          {
+            "digest": "sha256:08744ae8707aaa7ca13a95c2c499a4314af56a72b2b2c296b3446b74dacd88d1",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488812555,
+            "name": "three-pass-pass1-shard-4-29814502655",
+            "size_in_bytes": 586118
+          },
+          {
+            "digest": "sha256:cde4ef8ed63425386c501530f5bcf8f8310d27109ca21e03fcc2fd3f42b5d177",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488975407,
+            "name": "three-pass-pass1-shard-40-29814502655",
+            "size_in_bytes": 643305
+          },
+          {
+            "digest": "sha256:eba41641fc7b4e2a1f74454c9f887be58ab16eee4681ce296e9a3a84c273808e",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488980698,
+            "name": "three-pass-pass1-shard-41-29814502655",
+            "size_in_bytes": 676955
+          },
+          {
+            "digest": "sha256:73b901638b4c53ca24f1e85d1bf93bfacabd98ccd3c8095b2a793a660c1e1e3e",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488982766,
+            "name": "three-pass-pass1-shard-42-29814502655",
+            "size_in_bytes": 645422
+          },
+          {
+            "digest": "sha256:406c8140332724e57d82f499d1a9f556f22e65f9002f3788b193ea1d490a21b4",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488988765,
+            "name": "three-pass-pass1-shard-43-29814502655",
+            "size_in_bytes": 723236
+          },
+          {
+            "digest": "sha256:1ed7ac19b0cb85ac0455130b4d8548e6930118c73e78ca78440dc24d034ea580",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488991516,
+            "name": "three-pass-pass1-shard-44-29814502655",
+            "size_in_bytes": 755433
+          },
+          {
+            "digest": "sha256:797c51041d1ebe07ef8d4de506e3faba709d73731433a307d2da20f9112ae72d",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489176095,
+            "name": "three-pass-pass1-shard-45-29814502655",
+            "size_in_bytes": 639417
+          },
+          {
+            "digest": "sha256:8d90f2f3cd980e21206d545285c8f7a1fb33e6f169fe13779665d7064ca2b19b",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489002045,
+            "name": "three-pass-pass1-shard-46-29814502655",
+            "size_in_bytes": 647223
+          },
+          {
+            "digest": "sha256:be655aaaf779a4ee016d85f0d193d2ef87bea16a9ae5039ef819ed9bfdfb526a",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489009526,
+            "name": "three-pass-pass1-shard-47-29814502655",
+            "size_in_bytes": 732559
+          },
+          {
+            "digest": "sha256:ebe09e64b6b50c8dee9dfde980d1ecdd54bd32a18fb8da3dede0678a6325adac",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489011036,
+            "name": "three-pass-pass1-shard-48-29814502655",
+            "size_in_bytes": 652824
+          },
+          {
+            "digest": "sha256:a3a92ae4e1a8d9e93a44762ca5043c3eaa9047f3cfba0586392e68fee3f615fc",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489029518,
+            "name": "three-pass-pass1-shard-49-29814502655",
+            "size_in_bytes": 658879
+          },
+          {
+            "digest": "sha256:83748ff6b55dd2547ebcdbae723f69487b404f8078a1d8f6c98aa6259af2eb48",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488814479,
+            "name": "three-pass-pass1-shard-5-29814502655",
+            "size_in_bytes": 727232
+          },
+          {
+            "digest": "sha256:d14f5f7db70585f728bad2cd607d4a42090b653d2f3d5ada9f0440ca2ffbb152",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489034859,
+            "name": "three-pass-pass1-shard-50-29814502655",
+            "size_in_bytes": 641011
+          },
+          {
+            "digest": "sha256:0898777ca418a5773dfd253adddacc0c511490db52dfb80b30e2e467cc708a5a",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489040366,
+            "name": "three-pass-pass1-shard-51-29814502655",
+            "size_in_bytes": 641109
+          },
+          {
+            "digest": "sha256:2f75c2e7bb39fce3d36016ece24a73365c188c013987782f37092b5e921b00a9",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489046838,
+            "name": "three-pass-pass1-shard-52-29814502655",
+            "size_in_bytes": 757759
+          },
+          {
+            "digest": "sha256:129822d4145a9e518eb2b99f614ee015f57e58785a56898ed13559073f40f6a5",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489058129,
+            "name": "three-pass-pass1-shard-53-29814502655",
+            "size_in_bytes": 644746
+          },
+          {
+            "digest": "sha256:7081970ae204edc6d913b43f816502d1f5e69f391b512b05f194ffed6a37fbfb",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489069342,
+            "name": "three-pass-pass1-shard-54-29814502655",
+            "size_in_bytes": 635213
+          },
+          {
+            "digest": "sha256:990178c92c5cdbd46b306be4a283c73bea5c0a18170a59f822ecc91481fbd44a",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489063089,
+            "name": "three-pass-pass1-shard-55-29814502655",
+            "size_in_bytes": 660536
+          },
+          {
+            "digest": "sha256:d85e1f5facb32a834ef05b29f6c8239e8a68b782e35434c0c7e7b18ed2ebadf8",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489077293,
+            "name": "three-pass-pass1-shard-56-29814502655",
+            "size_in_bytes": 667811
+          },
+          {
+            "digest": "sha256:edddf1945c12de606de6f1333c582502e8c97019dfa2dca24dfad745d4ef5735",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489085319,
+            "name": "three-pass-pass1-shard-57-29814502655",
+            "size_in_bytes": 620372
+          },
+          {
+            "digest": "sha256:c3bc16512073b9f3aff0c1423d31a4590fb3c57a196ea61b1b68dfcac92381b5",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489086965,
+            "name": "three-pass-pass1-shard-58-29814502655",
+            "size_in_bytes": 739400
+          },
+          {
+            "digest": "sha256:858f89527e23aef30be4b3fa6771cce54ead9b1fba612eb82e5eb4bcaafa9eb2",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489094309,
+            "name": "three-pass-pass1-shard-59-29814502655",
+            "size_in_bytes": 659274
+          },
+          {
+            "digest": "sha256:cf9bd5948223cd2bb29b1b82064961f868b42be51415d9d04d388177fc3cad65",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488817975,
+            "name": "three-pass-pass1-shard-6-29814502655",
+            "size_in_bytes": 641356
+          },
+          {
+            "digest": "sha256:d2bbe5d6f8b52373c5d27b46bd44c271e3213efc0462a7b101f34ccbab0dc21a",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489100166,
+            "name": "three-pass-pass1-shard-60-29814502655",
+            "size_in_bytes": 623370
+          },
+          {
+            "digest": "sha256:2e738d37e18bcf8f0a0c8ff37e7ec2c5fac28ec3732bd3bc18a436785f44277b",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489106990,
+            "name": "three-pass-pass1-shard-61-29814502655",
+            "size_in_bytes": 605367
+          },
+          {
+            "digest": "sha256:2655797952cef5b2f3d777f01c87c5e18a0f41463772177fc6454b6e3580f55d",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489111962,
+            "name": "three-pass-pass1-shard-62-29814502655",
+            "size_in_bytes": 768048
+          },
+          {
+            "digest": "sha256:aa62e95275cab90768bce440793f467137cbd38058fb40db158cf3069a205bba",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489115741,
+            "name": "three-pass-pass1-shard-63-29814502655",
+            "size_in_bytes": 676498
+          },
+          {
+            "digest": "sha256:17e41009e7c1ecfba2e478e0a6b4dda99ac74694250ac3b85a3b82582b7a5ea9",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489122626,
+            "name": "three-pass-pass1-shard-64-29814502655",
+            "size_in_bytes": 711684
+          },
+          {
+            "digest": "sha256:f5a480a49c0f2b0ac9e9b21fafbdf8bcbf12cb2a9985749e4c20d9513368d2df",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489130289,
+            "name": "three-pass-pass1-shard-65-29814502655",
+            "size_in_bytes": 713913
+          },
+          {
+            "digest": "sha256:fd7115086db0d5c64b2450ed96862990ec98c7d873efd7c320eb3ae597416c13",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489133894,
+            "name": "three-pass-pass1-shard-66-29814502655",
+            "size_in_bytes": 629769
+          },
+          {
+            "digest": "sha256:d2fec7e6ea5de5e897b622321b28841f9b1de4ef808c3a8b6454ee629f076014",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489141067,
+            "name": "three-pass-pass1-shard-67-29814502655",
+            "size_in_bytes": 659864
+          },
+          {
+            "digest": "sha256:828adefea287b325878f242815c90e2ac0c0a2f88058253ba88b6118f4bb4a0b",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489150513,
+            "name": "three-pass-pass1-shard-68-29814502655",
+            "size_in_bytes": 634021
+          },
+          {
+            "digest": "sha256:67c21a0824bfa9a4d57d7c5bf5fc4f5a9523a8fe9dcc75b15eb813c60eac87cb",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489154428,
+            "name": "three-pass-pass1-shard-69-29814502655",
+            "size_in_bytes": 678615
+          },
+          {
+            "digest": "sha256:34f1a27d34b99492640442c66244a974149518068e00862ff6898f0afc835a2a",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488820086,
+            "name": "three-pass-pass1-shard-7-29814502655",
+            "size_in_bytes": 743394
+          },
+          {
+            "digest": "sha256:9ca6fbc757fb3db0a3f585c13a6076afe2d75bd236c9e81797c2a7f389d6fa51",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489159444,
+            "name": "three-pass-pass1-shard-70-29814502655",
+            "size_in_bytes": 791507
+          },
+          {
+            "digest": "sha256:4070f082b19b360977faac23ff65a1020af7f9cd7f8dcf15b11e9d17c4219b72",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489168872,
+            "name": "three-pass-pass1-shard-71-29814502655",
+            "size_in_bytes": 608892
+          },
+          {
+            "digest": "sha256:071c28698dd23c5a4796b7b155458c2b49652bc47d53e13254093301c1020dd0",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489170268,
+            "name": "three-pass-pass1-shard-72-29814502655",
+            "size_in_bytes": 687051
+          },
+          {
+            "digest": "sha256:248a7c8461c8b6687a701a516ee05f626b80d4a56b4070bb6d7813d1973eaff3",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489175909,
+            "name": "three-pass-pass1-shard-73-29814502655",
+            "size_in_bytes": 672763
+          },
+          {
+            "digest": "sha256:41b48ad5d7161c0c90bb505cafe8202722d05560e7152174b42bbcd419cbb4e0",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489183854,
+            "name": "three-pass-pass1-shard-74-29814502655",
+            "size_in_bytes": 614764
+          },
+          {
+            "digest": "sha256:55b537ee0181c4f4fcbe76d81f5595a0b3d1384106c05b486b5b2c3a9dadc3e9",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489190485,
+            "name": "three-pass-pass1-shard-75-29814502655",
+            "size_in_bytes": 654184
+          },
+          {
+            "digest": "sha256:a8a83bac2445193803d5e48cf99084b1db3cb804937f3dfeaec50a3551765d30",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489195803,
+            "name": "three-pass-pass1-shard-76-29814502655",
+            "size_in_bytes": 648105
+          },
+          {
+            "digest": "sha256:cc81aa0dbaaa0114da876559891b496067fbb10a4b96e13360e26c297bd741bc",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489193471,
+            "name": "three-pass-pass1-shard-77-29814502655",
+            "size_in_bytes": 736149
+          },
+          {
+            "digest": "sha256:e278a6b816d45dbba8b0be3c1837bcfbcd7a95e315e35725540a23608ee534d7",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489201502,
+            "name": "three-pass-pass1-shard-78-29814502655",
+            "size_in_bytes": 658271
+          },
+          {
+            "digest": "sha256:e9f585e39d24c796036f1986858217a5922733e73fc456f6e21b41b486a15c1b",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489206392,
+            "name": "three-pass-pass1-shard-79-29814502655",
+            "size_in_bytes": 731174
+          },
+          {
+            "digest": "sha256:8a23a6923f662584b9b0d35d3a762974355446bd033ab274a096b70168eba9f9",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488833600,
+            "name": "three-pass-pass1-shard-8-29814502655",
+            "size_in_bytes": 670846
+          },
+          {
+            "digest": "sha256:823d3597468c27adf340990615af3f0b92909c286d4839388c78b797669db3b3",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489212573,
+            "name": "three-pass-pass1-shard-80-29814502655",
+            "size_in_bytes": 711022
+          },
+          {
+            "digest": "sha256:a5b40add87bbbeb02660f2c47b5002f5c7e191e699807251a2381562a3f5a934",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489213378,
+            "name": "three-pass-pass1-shard-81-29814502655",
+            "size_in_bytes": 635129
+          },
+          {
+            "digest": "sha256:80a52eabd83724f498c3b0c0eb43b7623d00c94856a0c275aeb07e643abb2db4",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489222457,
+            "name": "three-pass-pass1-shard-82-29814502655",
+            "size_in_bytes": 707832
+          },
+          {
+            "digest": "sha256:a84ad4ed2aefa293fbc4cf4973253db730bc7b32cc8393646fd9faae3f2203a6",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489224756,
+            "name": "three-pass-pass1-shard-83-29814502655",
+            "size_in_bytes": 620740
+          },
+          {
+            "digest": "sha256:53b067bc7d7e60f002b1ce88077e8e06e36ec318ea3a47c8b35af1ba0a4e16f4",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489226328,
+            "name": "three-pass-pass1-shard-84-29814502655",
+            "size_in_bytes": 654459
+          },
+          {
+            "digest": "sha256:50a81a16db8bd10c8261a5bac4c2ac396adb0140f77d7fb79c36b7a89ae29ead",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489230820,
+            "name": "three-pass-pass1-shard-85-29814502655",
+            "size_in_bytes": 597493
+          },
+          {
+            "digest": "sha256:97f9bc90aabac73adaed31e71d495e74b9a70d6580db06d9b94cab7587dbe431",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489237752,
+            "name": "three-pass-pass1-shard-86-29814502655",
+            "size_in_bytes": 642520
+          },
+          {
+            "digest": "sha256:441700046a7634542260e6296120da352bafd3d4d5daa821a2c2e07fd99a5bf4",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489249717,
+            "name": "three-pass-pass1-shard-87-29814502655",
+            "size_in_bytes": 690154
+          },
+          {
+            "digest": "sha256:d3f4e7f78304f6d54aebc07c0962207b80c4d17073136d03c67666e168004a13",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489245486,
+            "name": "three-pass-pass1-shard-88-29814502655",
+            "size_in_bytes": 662799
+          },
+          {
+            "digest": "sha256:0c80649969c997cafe33a19ea91737efeb66cfbbe852b5de600f8477d3716499",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489246786,
+            "name": "three-pass-pass1-shard-89-29814502655",
+            "size_in_bytes": 632359
+          },
+          {
+            "digest": "sha256:4fff4d785894c530af367036ba3cf9746386567262368d287fd91f45e5bc4f53",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8488834122,
+            "name": "three-pass-pass1-shard-9-29814502655",
+            "size_in_bytes": 628904
+          },
+          {
+            "digest": "sha256:a71c5d16d046f45efe39675be5f8e718fad29d4323fa38052f7e66104de1378b",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489253232,
+            "name": "three-pass-pass1-shard-90-29814502655",
+            "size_in_bytes": 568952
+          },
+          {
+            "digest": "sha256:112d52e916fad8243887f01974c062a3913d8b861a7a0ee4b9c8aeb104cb1819",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489260654,
+            "name": "three-pass-pass1-shard-91-29814502655",
+            "size_in_bytes": 622876
+          },
+          {
+            "digest": "sha256:c572622260024150fbb37b972344b14a01066ac2bf4f364cf021fbbfaed85bd3",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489262288,
+            "name": "three-pass-pass1-shard-92-29814502655",
+            "size_in_bytes": 609490
+          },
+          {
+            "digest": "sha256:bc5b49b259409d49fd9bbd481adeecfbf26f1fe8db2f79c27b1c098bc9c3e37c",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489265361,
+            "name": "three-pass-pass1-shard-93-29814502655",
+            "size_in_bytes": 657719
+          },
+          {
+            "digest": "sha256:dbef936eb74f9635b11ef1198f951a4505564b7b78a60610580512fdb42554c6",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489269079,
+            "name": "three-pass-pass1-shard-94-29814502655",
+            "size_in_bytes": 639220
+          },
+          {
+            "digest": "sha256:dcb06482da650fdc2ef94eac4e800a888bfbe81868824f783f55335be84c34a2",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489276658,
+            "name": "three-pass-pass1-shard-95-29814502655",
+            "size_in_bytes": 664078
+          },
+          {
+            "digest": "sha256:7d3e3e7215505a417c0279db72c387f3fa802853defe9ce18e6eacb29545dcff",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489277497,
+            "name": "three-pass-pass1-shard-96-29814502655",
+            "size_in_bytes": 667194
+          },
+          {
+            "digest": "sha256:ed9958ea1682b411fff6982464f7f116862c0b5b1672cc64c74f47502a6c98cb",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489284990,
+            "name": "three-pass-pass1-shard-97-29814502655",
+            "size_in_bytes": 578556
+          },
+          {
+            "digest": "sha256:5dc51bf3ba345f104c5c87e77f1fc1ec7231128f431cfabac6c8c56873cde294",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489284638,
+            "name": "three-pass-pass1-shard-98-29814502655",
+            "size_in_bytes": 620929
+          },
+          {
+            "digest": "sha256:d48e2868329e30cdc209279f249f42e35cb7824b292ea62c2d6536a7c84abfa4",
+            "expires_at": "2026-10-19T08:29:45Z",
+            "id": 8489297651,
+            "name": "three-pass-pass1-shard-99-29814502655",
+            "size_in_bytes": 696857
+          }
+        ],
+        "role": "baseline_high",
+        "run_conclusion": "success",
+        "run_id": 29814502655,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/29814502655",
+        "source_group": "three_pass_high"
+      },
+      {
+        "artifact_name": "three-pass-pass2-shard-*-29819475348",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:a033f62dc98947b9fac242a932cb04434276886d690ec6b8d8b873098d47bff7",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490727569,
+            "name": "three-pass-pass2-shard-0-29819475348",
+            "size_in_bytes": 36077
+          },
+          {
+            "digest": "sha256:0f1f7f3508924bca74cbc6769b819910508145ec91389a760e41ab99cb468327",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490731184,
+            "name": "three-pass-pass2-shard-1-29819475348",
+            "size_in_bytes": 40019
+          },
+          {
+            "digest": "sha256:d01fa32e4ccbf236a05aee4b1dd2a81949dddbe965bfae813855d41a30142647",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490736418,
+            "name": "three-pass-pass2-shard-10-29819475348",
+            "size_in_bytes": 32385
+          },
+          {
+            "digest": "sha256:3d1740d602c90196903bb0efb70dc93b8b0458c0d1a4fec70de5a8e95dd11744",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490837600,
+            "name": "three-pass-pass2-shard-100-29819475348",
+            "size_in_bytes": 37716
+          },
+          {
+            "digest": "sha256:cc75484ba11d332e64c66b2593b96f352336fab2ff7a80fc118e96a22ef49634",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490840889,
+            "name": "three-pass-pass2-shard-101-29819475348",
+            "size_in_bytes": 35233
+          },
+          {
+            "digest": "sha256:ad44e12c52c2976dc29d32c43ad678d55b1c96f3f9da68cb2cfb952fb12597af",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490840221,
+            "name": "three-pass-pass2-shard-102-29819475348",
+            "size_in_bytes": 33845
+          },
+          {
+            "digest": "sha256:29cbd0845efd5c600eb8c10d2e9a43498c0e68178cafce87807db7f7d7092af3",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490842540,
+            "name": "three-pass-pass2-shard-103-29819475348",
+            "size_in_bytes": 38092
+          },
+          {
+            "digest": "sha256:35657cdb405e090c46a05badde9bab06bd64063c1f63475b8984ec354e75299a",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490840061,
+            "name": "three-pass-pass2-shard-104-29819475348",
+            "size_in_bytes": 39498
+          },
+          {
+            "digest": "sha256:d3c41826144db8db158227f172956789e331ace10f3892e1f10d31806dc26154",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490845245,
+            "name": "three-pass-pass2-shard-105-29819475348",
+            "size_in_bytes": 32096
+          },
+          {
+            "digest": "sha256:1ddf7f8c830cedf85bd64cdebaca31a3d50d88f0e59fbcceb569379bdfa06a2b",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490846924,
+            "name": "three-pass-pass2-shard-106-29819475348",
+            "size_in_bytes": 41530
+          },
+          {
+            "digest": "sha256:194350ecd109402743f159d8b824354153869ad5926e4b5ac70799d112d20854",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490847758,
+            "name": "three-pass-pass2-shard-107-29819475348",
+            "size_in_bytes": 38188
+          },
+          {
+            "digest": "sha256:3f33d33df688c39378f622685305042f2a8a506042a4ebaf8725b4e2418aa02a",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490850442,
+            "name": "three-pass-pass2-shard-108-29819475348",
+            "size_in_bytes": 36764
+          },
+          {
+            "digest": "sha256:2abec594a800401d54fbcf1516271ac17fcc51443a6a6d6471145ee37c6e3568",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490851606,
+            "name": "three-pass-pass2-shard-109-29819475348",
+            "size_in_bytes": 40969
+          },
+          {
+            "digest": "sha256:9460115cafb3a66773529be4e6ae5f7b777fe500345553be48329dde1dfc5fbc",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490737586,
+            "name": "three-pass-pass2-shard-11-29819475348",
+            "size_in_bytes": 35651
+          },
+          {
+            "digest": "sha256:8d7b1d379d4ab77b99441eb6a8b1257355955dece18c20f20611b8868f84ffd4",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490858038,
+            "name": "three-pass-pass2-shard-110-29819475348",
+            "size_in_bytes": 40073
+          },
+          {
+            "digest": "sha256:c33a0ff0dc73f6c22da0db28fef657ca28ba17a7ebb34af93b1cf95b7b33c90c",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490866704,
+            "name": "three-pass-pass2-shard-111-29819475348",
+            "size_in_bytes": 38070
+          },
+          {
+            "digest": "sha256:08f1bf4d22d606b83643c5c2ba8c84de11bd55c7301b1c1bc7f6ed36d5fc4807",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490872595,
+            "name": "three-pass-pass2-shard-112-29819475348",
+            "size_in_bytes": 39895
+          },
+          {
+            "digest": "sha256:36ea47642aee06bf69fefeda783afb33ff546977f1b0ac098fb89ece52445159",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490873826,
+            "name": "three-pass-pass2-shard-113-29819475348",
+            "size_in_bytes": 38512
+          },
+          {
+            "digest": "sha256:bf289b73a3cc3d4696c10633aca390378d7f4212896e588297d8adb7afe9716f",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490876259,
+            "name": "three-pass-pass2-shard-114-29819475348",
+            "size_in_bytes": 44269
+          },
+          {
+            "digest": "sha256:3e98b136525ab864f0b57c5e32f342606d2d10d92675f1cab26d2868fcd4566b",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490876557,
+            "name": "three-pass-pass2-shard-115-29819475348",
+            "size_in_bytes": 37938
+          },
+          {
+            "digest": "sha256:7e85da93dd472f5d231c928c1e8e3ea13a41cab029327e0550de8267caca5296",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490876637,
+            "name": "three-pass-pass2-shard-116-29819475348",
+            "size_in_bytes": 44299
+          },
+          {
+            "digest": "sha256:a2fb9645a723425ac0d14a20c30ee6d5ae21bda66e3a0dde5d77bf04e9f6704c",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490876413,
+            "name": "three-pass-pass2-shard-117-29819475348",
+            "size_in_bytes": 36516
+          },
+          {
+            "digest": "sha256:248355ac4413c00af918738f305a8ca589d8093aeaa7f6a01b16ad5525b055c0",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490879866,
+            "name": "three-pass-pass2-shard-118-29819475348",
+            "size_in_bytes": 42287
+          },
+          {
+            "digest": "sha256:5df4a764eaf580c88687dd065ddc69830ab9181ef9a0406581f9edeb04b532df",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490879157,
+            "name": "three-pass-pass2-shard-119-29819475348",
+            "size_in_bytes": 40234
+          },
+          {
+            "digest": "sha256:f907402b347caf183044b9c30411319a9e7c43f34b7296c673c630e0b43bfc9b",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490735834,
+            "name": "three-pass-pass2-shard-12-29819475348",
+            "size_in_bytes": 34640
+          },
+          {
+            "digest": "sha256:4ed9c3c0a8022724a53e28d1c59f4c1131608522261ee3950387aa13baa11a86",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490880232,
+            "name": "three-pass-pass2-shard-120-29819475348",
+            "size_in_bytes": 35058
+          },
+          {
+            "digest": "sha256:35e21acb48c916ac825304a0181eb8aa9ef654d560c541e73bfe1f5b4225553e",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490883183,
+            "name": "three-pass-pass2-shard-121-29819475348",
+            "size_in_bytes": 36061
+          },
+          {
+            "digest": "sha256:a942766c1182384b657c78d67c4728dae8c4f97666a088da00fb17f01a3e8df4",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490884723,
+            "name": "three-pass-pass2-shard-122-29819475348",
+            "size_in_bytes": 39980
+          },
+          {
+            "digest": "sha256:57a90c5380eb3bb0faea2ee1387826c8cb0f71b473c17d0dda1b1d1b2426bd3b",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490883728,
+            "name": "three-pass-pass2-shard-123-29819475348",
+            "size_in_bytes": 40466
+          },
+          {
+            "digest": "sha256:07fd2793f474f82916461debdb5869e949fc7764d3cf59f7a174f5efa540424b",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490885298,
+            "name": "three-pass-pass2-shard-124-29819475348",
+            "size_in_bytes": 38405
+          },
+          {
+            "digest": "sha256:b8e195a6bf63f1d9ece212d3fedc1d10986df513744d3a85b8d7c2cda0b90805",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490885894,
+            "name": "three-pass-pass2-shard-125-29819475348",
+            "size_in_bytes": 36432
+          },
+          {
+            "digest": "sha256:a656715c46780ddafbf07b4a63035b88ab62ecac0fe9e8d9a059140ca84e4fe7",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490888295,
+            "name": "three-pass-pass2-shard-126-29819475348",
+            "size_in_bytes": 34184
+          },
+          {
+            "digest": "sha256:0401416a1d0d182272ac1b4c05e8122f24499bde433a391880b1a6bdeca7b9b3",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490889943,
+            "name": "three-pass-pass2-shard-127-29819475348",
+            "size_in_bytes": 41760
+          },
+          {
+            "digest": "sha256:fd5439f38deb0f83691e49c482c0252026707b6195987eae517ba5c95677dd17",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490737389,
+            "name": "three-pass-pass2-shard-13-29819475348",
+            "size_in_bytes": 45178
+          },
+          {
+            "digest": "sha256:53048f59eff6c128573452d8e2b12599d57ad37f76e2d5a44bec12745055cdb5",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490739374,
+            "name": "three-pass-pass2-shard-14-29819475348",
+            "size_in_bytes": 37575
+          },
+          {
+            "digest": "sha256:f3e14484608f7f3474adabdb1385f7a0b5895eb4cb69ba74223a3f705a4d5e22",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490743282,
+            "name": "three-pass-pass2-shard-15-29819475348",
+            "size_in_bytes": 38056
+          },
+          {
+            "digest": "sha256:3b981dc8ce31bc316d195c059705f1a2079391ef3416a07015418c80d5bc7867",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490744591,
+            "name": "three-pass-pass2-shard-16-29819475348",
+            "size_in_bytes": 40772
+          },
+          {
+            "digest": "sha256:a30a1e2c1cb5032cd54c08d56388e00e4338024cf7b9ed4c3362ed22a85cb246",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490744676,
+            "name": "three-pass-pass2-shard-17-29819475348",
+            "size_in_bytes": 32469
+          },
+          {
+            "digest": "sha256:cb0542bfcda98116c223cd786afd94a1460dc9de82bfd8d673f812374abace38",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490748555,
+            "name": "three-pass-pass2-shard-18-29819475348",
+            "size_in_bytes": 37753
+          },
+          {
+            "digest": "sha256:fbf49a17b2fb9320a5ad582823a6f6781bf0eb66935c8dbeb29a678438cd63cd",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490750220,
+            "name": "three-pass-pass2-shard-19-29819475348",
+            "size_in_bytes": 35452
+          },
+          {
+            "digest": "sha256:4bd3e79365ca458f5a5731c52cbc26f83e1d7055256cb175deffe389b7abc205",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490728788,
+            "name": "three-pass-pass2-shard-2-29819475348",
+            "size_in_bytes": 35458
+          },
+          {
+            "digest": "sha256:dcd4dc98ec0c41d179dc75cfacf74a0e11d0be99276bd5b2a775bc27456e93a6",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490750812,
+            "name": "three-pass-pass2-shard-20-29819475348",
+            "size_in_bytes": 38486
+          },
+          {
+            "digest": "sha256:2ae0bc35b60b4582a6bdbf59964e78ac08182446e2c3d85354a8bc52afad0c3a",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490751736,
+            "name": "three-pass-pass2-shard-21-29819475348",
+            "size_in_bytes": 37017
+          },
+          {
+            "digest": "sha256:64a37b1f5b1d73945b67a5e829c93d9bf024d3c9379a5abcdc9b2bd5ffee9e88",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490750372,
+            "name": "three-pass-pass2-shard-22-29819475348",
+            "size_in_bytes": 34965
+          },
+          {
+            "digest": "sha256:e00d7e976ac7cf792a500652ddfa5dde5e8816880b21c1f2b3f6150cb5a91632",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490755208,
+            "name": "three-pass-pass2-shard-23-29819475348",
+            "size_in_bytes": 36323
+          },
+          {
+            "digest": "sha256:63c7320e8a501515bff6fee08ba2c6ebf5361b34e80ad2950c5cc2ba3f922217",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490753261,
+            "name": "three-pass-pass2-shard-24-29819475348",
+            "size_in_bytes": 40613
+          },
+          {
+            "digest": "sha256:3a2fc34a85f6c025fd057339f8da8b8bd35a72c55cb64754a8efb00c8291d4cd",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490754806,
+            "name": "three-pass-pass2-shard-25-29819475348",
+            "size_in_bytes": 34881
+          },
+          {
+            "digest": "sha256:7bbbcec10d7e3a5fb03d341d93ce63ba61f345c57f46ae385e5e31f8cd715e12",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490758711,
+            "name": "three-pass-pass2-shard-26-29819475348",
+            "size_in_bytes": 40061
+          },
+          {
+            "digest": "sha256:90e8313d26e56686dd2f59b9702b7cac37a91b538a89c8be0a925cdf62ffd3f3",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490759350,
+            "name": "three-pass-pass2-shard-27-29819475348",
+            "size_in_bytes": 41659
+          },
+          {
+            "digest": "sha256:23cfc3cce6e9a0da2afff726e218b8238dc18d05a3ca9fa16fc7b70aea2b052f",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490759297,
+            "name": "three-pass-pass2-shard-28-29819475348",
+            "size_in_bytes": 40180
+          },
+          {
+            "digest": "sha256:348ed336411f76e06d5a9776753d1eecd61e73855bfe10fb2d12d2763ead16ea",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490759829,
+            "name": "three-pass-pass2-shard-29-29819475348",
+            "size_in_bytes": 41694
+          },
+          {
+            "digest": "sha256:b22a3146c34e51f223ae0ad8b588b07579dc57c2273aa26899c122719d8edd6e",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490727911,
+            "name": "three-pass-pass2-shard-3-29819475348",
+            "size_in_bytes": 36190
+          },
+          {
+            "digest": "sha256:6cd113790d992b5e91cc1230ec67624a30def88af52a32bb171fb0e34c7f00fc",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490760227,
+            "name": "three-pass-pass2-shard-30-29819475348",
+            "size_in_bytes": 39673
+          },
+          {
+            "digest": "sha256:e63f084051e273013805e44534c39c82a5d6df2d75988b82c7b744e14326840c",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490767075,
+            "name": "three-pass-pass2-shard-31-29819475348",
+            "size_in_bytes": 42398
+          },
+          {
+            "digest": "sha256:8f7d2fd7f2040659a858f3f127fb9f4661ac735ab673c1e82636a5e4648e2467",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490767151,
+            "name": "three-pass-pass2-shard-32-29819475348",
+            "size_in_bytes": 36122
+          },
+          {
+            "digest": "sha256:236ffc3d4a73d01ea5c0125aa8a5e9d2c26ac4697561db7833e1cf447728aa43",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490766357,
+            "name": "three-pass-pass2-shard-33-29819475348",
+            "size_in_bytes": 39294
+          },
+          {
+            "digest": "sha256:a700d801e4adb78a091bc892b18ad8c1d48d0367f35579a4d8f2e65796658bbb",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490768709,
+            "name": "three-pass-pass2-shard-34-29819475348",
+            "size_in_bytes": 35934
+          },
+          {
+            "digest": "sha256:43382a8498a04301e52d8a5dc3931030075ab7d4c18d98b41a87ef1907e8afa5",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490769064,
+            "name": "three-pass-pass2-shard-35-29819475348",
+            "size_in_bytes": 37600
+          },
+          {
+            "digest": "sha256:864d07dbd91ce4e17194c4aacf82263e868f3c3ceb12d3f6c1e19703a4bc0571",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490769164,
+            "name": "three-pass-pass2-shard-36-29819475348",
+            "size_in_bytes": 37581
+          },
+          {
+            "digest": "sha256:be5f276dd30ac1aa3f2a81e2cc786dabeaa176c036ff3d3d64ac5fd51e86359d",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490772116,
+            "name": "three-pass-pass2-shard-37-29819475348",
+            "size_in_bytes": 36543
+          },
+          {
+            "digest": "sha256:608073f7fbfb90158318249c3e88944dd37da903fe6c61c9cbde3415b0ef218e",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490769966,
+            "name": "three-pass-pass2-shard-38-29819475348",
+            "size_in_bytes": 36745
+          },
+          {
+            "digest": "sha256:0d81542199f52c2f713b682e535ae8e968a6fd26ad0929e755bd5e7677850ad1",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490775251,
+            "name": "three-pass-pass2-shard-39-29819475348",
+            "size_in_bytes": 40561
+          },
+          {
+            "digest": "sha256:89c5d8ff0eea9246510178c920ec2687e82347f06c6e26d4fdbc0b62896445b2",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490728707,
+            "name": "three-pass-pass2-shard-4-29819475348",
+            "size_in_bytes": 32492
+          },
+          {
+            "digest": "sha256:62d595198e8ff6b07e0eb81ac009e1d99c5f435ad57c1e4cd52ad6000c3a7214",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490775701,
+            "name": "three-pass-pass2-shard-40-29819475348",
+            "size_in_bytes": 36968
+          },
+          {
+            "digest": "sha256:507fe2c405df8972a1efbc7639d877883b029130d909e38538ed762d560411b5",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490775401,
+            "name": "three-pass-pass2-shard-41-29819475348",
+            "size_in_bytes": 40560
+          },
+          {
+            "digest": "sha256:613f64d61ea4c368f500026cba8621b5030f828de2f5108a1878fd2f4f2d78c8",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490775933,
+            "name": "three-pass-pass2-shard-42-29819475348",
+            "size_in_bytes": 36695
+          },
+          {
+            "digest": "sha256:a46e0720a6a17f3cca0c130241550fbe1c30c59893952fe346b2d78663dbe5d1",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490777437,
+            "name": "three-pass-pass2-shard-43-29819475348",
+            "size_in_bytes": 41057
+          },
+          {
+            "digest": "sha256:cd2b0e0ab760efcba8c719e1b8d2c8a3b077770379355e8899b399897a9521ba",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490777786,
+            "name": "three-pass-pass2-shard-44-29819475348",
+            "size_in_bytes": 40565
+          },
+          {
+            "digest": "sha256:d85eae0ede887fd80c75b270909307343f1b633bea73b2764334b8492c895ba2",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490779196,
+            "name": "three-pass-pass2-shard-45-29819475348",
+            "size_in_bytes": 35415
+          },
+          {
+            "digest": "sha256:8e54f757badc37b39bb37a60e0718a9efc2580faab01503665e411331139a229",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490779109,
+            "name": "three-pass-pass2-shard-46-29819475348",
+            "size_in_bytes": 36548
+          },
+          {
+            "digest": "sha256:cf2ecf29c09ed43769dde49399bd80560a2ae66d46e5bc7394aa5531a26fe746",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490782638,
+            "name": "three-pass-pass2-shard-47-29819475348",
+            "size_in_bytes": 37461
+          },
+          {
+            "digest": "sha256:215fbad0571288a873d32b5758bc152470c4a9e25ace14c1731ea6f6a2b120af",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490782921,
+            "name": "three-pass-pass2-shard-48-29819475348",
+            "size_in_bytes": 38515
+          },
+          {
+            "digest": "sha256:28e1ec25758021bb86bd548ca654da99554854bf93af31260d9b2fba2e14cfa6",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490782334,
+            "name": "three-pass-pass2-shard-49-29819475348",
+            "size_in_bytes": 36367
+          },
+          {
+            "digest": "sha256:b8c9d08420993efcf1474e2878100c8693616bd36b5ae7cfb8feed72e4792fa5",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490728605,
+            "name": "three-pass-pass2-shard-5-29819475348",
+            "size_in_bytes": 42045
+          },
+          {
+            "digest": "sha256:95a5928dad382543349d01ae88d4f62fa32c68c8837e0b3550dfccd49a722c42",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490784045,
+            "name": "three-pass-pass2-shard-50-29819475348",
+            "size_in_bytes": 37073
+          },
+          {
+            "digest": "sha256:7150984866599a7183987a2e01d4fb9313f16845e12663677b2ce65fe9b1f66f",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490788768,
+            "name": "three-pass-pass2-shard-51-29819475348",
+            "size_in_bytes": 38079
+          },
+          {
+            "digest": "sha256:bbab3ac1ffe32e23bd7295165e594fc57f573625efdfb340e105efb7de62d1f5",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490789003,
+            "name": "three-pass-pass2-shard-52-29819475348",
+            "size_in_bytes": 43893
+          },
+          {
+            "digest": "sha256:db6a180947ed523edc38867e28b3d254e575d1b5900196c617fc53edaa2772d6",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490789190,
+            "name": "three-pass-pass2-shard-53-29819475348",
+            "size_in_bytes": 37900
+          },
+          {
+            "digest": "sha256:81bb4cb591bbfe4e477355c22daed8362a2a7cec9c6a566db464e66b9c84f032",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490791739,
+            "name": "three-pass-pass2-shard-54-29819475348",
+            "size_in_bytes": 36728
+          },
+          {
+            "digest": "sha256:1e4694b530d2e921ae3e1a4460c601bd6cb33673ff0fb0a997b32e6118ee15c7",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490789464,
+            "name": "three-pass-pass2-shard-55-29819475348",
+            "size_in_bytes": 39254
+          },
+          {
+            "digest": "sha256:a39a82462f657d70f78bef40ddec0fdc411eb24da67a818787d12f7612fdecf0",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490790767,
+            "name": "three-pass-pass2-shard-56-29819475348",
+            "size_in_bytes": 39615
+          },
+          {
+            "digest": "sha256:a4ea9dcbda8a5b7b924a8259e2350125a5c1843b6f2a6e0adedeb592eb4f0743",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490792387,
+            "name": "three-pass-pass2-shard-57-29819475348",
+            "size_in_bytes": 37385
+          },
+          {
+            "digest": "sha256:ea94e65eefde6d8c88a30e60b5b12cea11cd1f020ec2c39edc2a92807f8fca05",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490794662,
+            "name": "three-pass-pass2-shard-58-29819475348",
+            "size_in_bytes": 41021
+          },
+          {
+            "digest": "sha256:490dbe1ab881d8901ec3caef466ba93378fefa918e24b10184448e592bed0b65",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490794770,
+            "name": "three-pass-pass2-shard-59-29819475348",
+            "size_in_bytes": 38927
+          },
+          {
+            "digest": "sha256:d9fd73d8847dc97c77029199dd547be2663c1573f9ec6d073ca867e486be59ab",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490728779,
+            "name": "three-pass-pass2-shard-6-29819475348",
+            "size_in_bytes": 34591
+          },
+          {
+            "digest": "sha256:5f25955d62964688e49d8c9ecf511ef8d624aae42f44febbce11010be72f37b6",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490799284,
+            "name": "three-pass-pass2-shard-60-29819475348",
+            "size_in_bytes": 38092
+          },
+          {
+            "digest": "sha256:d1752ae73b180d448d4323a749caba5ca1d4f93dc5ba40b8a70e3eaf7dffda11",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490796953,
+            "name": "three-pass-pass2-shard-61-29819475348",
+            "size_in_bytes": 36775
+          },
+          {
+            "digest": "sha256:65c6990604e081dba7cd2422b94c1d5be814cf8d36f77728e8dc49e4ac99da6c",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490798425,
+            "name": "three-pass-pass2-shard-62-29819475348",
+            "size_in_bytes": 45202
+          },
+          {
+            "digest": "sha256:9c6f1160000f811dfaa444142c796aaafea73ccaaee7dbed453905bca2ee859e",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490797900,
+            "name": "three-pass-pass2-shard-63-29819475348",
+            "size_in_bytes": 40341
+          },
+          {
+            "digest": "sha256:33b09c76827cfbb4f73c22d7580edcc44a4de886db758bc27838bd9c6a516cfc",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490800018,
+            "name": "three-pass-pass2-shard-64-29819475348",
+            "size_in_bytes": 39975
+          },
+          {
+            "digest": "sha256:f175dfcbc373d4d403cfe09e9530c8419e9dd6c03e106645bbe602834fae4dd3",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490801686,
+            "name": "three-pass-pass2-shard-65-29819475348",
+            "size_in_bytes": 39819
+          },
+          {
+            "digest": "sha256:0d29cc3803a3d17b41e5c0b1d605a0dd427aa173d9bf6a01699910c5b57a9c77",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490802280,
+            "name": "three-pass-pass2-shard-66-29819475348",
+            "size_in_bytes": 37121
+          },
+          {
+            "digest": "sha256:24c81924832e7c81c406c90ba9607039fd24fb7d5db32c1b377a7800506900d1",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490802927,
+            "name": "three-pass-pass2-shard-67-29819475348",
+            "size_in_bytes": 39948
+          },
+          {
+            "digest": "sha256:db28b5feb741b1745bf75a4754d29ff17a6b3e8a84e406729c02aa92d85b4897",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490805618,
+            "name": "three-pass-pass2-shard-68-29819475348",
+            "size_in_bytes": 35951
+          },
+          {
+            "digest": "sha256:7e2670e28d9d4cd26c11f4d47cf9e44374b4a7fae2a66550407e6cf4a68569c4",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490804814,
+            "name": "three-pass-pass2-shard-69-29819475348",
+            "size_in_bytes": 38353
+          },
+          {
+            "digest": "sha256:3da4e5902d6599461cb40d4e4b8fc227438d959d6fe2fb522e5f11fbc14ed925",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490728568,
+            "name": "three-pass-pass2-shard-7-29819475348",
+            "size_in_bytes": 40372
+          },
+          {
+            "digest": "sha256:c5d97acb122b4779e677f57c67e283bfa830767fa7023e8dbd61f163c7ffb8fa",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490806833,
+            "name": "three-pass-pass2-shard-70-29819475348",
+            "size_in_bytes": 45297
+          },
+          {
+            "digest": "sha256:875e09d2222ab958e9f8289de29892fcc07947ef0ba2fa493cb9db8c75ce26ad",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490808086,
+            "name": "three-pass-pass2-shard-71-29819475348",
+            "size_in_bytes": 36862
+          },
+          {
+            "digest": "sha256:e41b57a9ae53b29b2507baecd76d83d2ad15f23c9a425e9294a20f97a98b7abf",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490809444,
+            "name": "three-pass-pass2-shard-72-29819475348",
+            "size_in_bytes": 37982
+          },
+          {
+            "digest": "sha256:54a60f05357fe9bace60add5b8ea7eb8b4431c83e4dbfc2f839fef3a09f65e7d",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490809707,
+            "name": "three-pass-pass2-shard-73-29819475348",
+            "size_in_bytes": 43013
+          },
+          {
+            "digest": "sha256:cd23dd4951e573bef8e31fdf3df50c7e074af13ae146683b3a6f316314d03b23",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490810415,
+            "name": "three-pass-pass2-shard-74-29819475348",
+            "size_in_bytes": 34355
+          },
+          {
+            "digest": "sha256:6898609648a231120afb5cbd6a4062f9cb1a62c31e0b9f3e24d3380462283461",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490811314,
+            "name": "three-pass-pass2-shard-75-29819475348",
+            "size_in_bytes": 37363
+          },
+          {
+            "digest": "sha256:1a0ea76010059e93e27adfd129944fb6f4242b7ec548632939b6406ffe7bf688",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490811853,
+            "name": "three-pass-pass2-shard-76-29819475348",
+            "size_in_bytes": 37541
+          },
+          {
+            "digest": "sha256:b38f1a1c8f75a0834669f58ed914bc6fad1a0fabb6d69a7f16229fa702ccd15b",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490814369,
+            "name": "three-pass-pass2-shard-77-29819475348",
+            "size_in_bytes": 43173
+          },
+          {
+            "digest": "sha256:053e2fd31eab345bb488d850b1574798ced28c3cda6043e968427881a8395b0a",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490813479,
+            "name": "three-pass-pass2-shard-78-29819475348",
+            "size_in_bytes": 37471
+          },
+          {
+            "digest": "sha256:566d58ed813a8b5d44759b65e788b08f60dcb1b7b3ca59379497b658d375b80e",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490815852,
+            "name": "three-pass-pass2-shard-79-29819475348",
+            "size_in_bytes": 42845
+          },
+          {
+            "digest": "sha256:c15d7ffcf80c34c1fb7a65015cf0be18b79d0b1b389cfbb3cc6c5515c3d7a4b9",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490734871,
+            "name": "three-pass-pass2-shard-8-29819475348",
+            "size_in_bytes": 39087
+          },
+          {
+            "digest": "sha256:69590537e418d9db92a0679226b044dc5e8d068a9393b87bf8b7eeebf4789d03",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490816148,
+            "name": "three-pass-pass2-shard-80-29819475348",
+            "size_in_bytes": 39771
+          },
+          {
+            "digest": "sha256:80873e0a9c23a1be79ec05b10c8a8eae7f47e69865676d189a52ae9227c76129",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490816870,
+            "name": "three-pass-pass2-shard-81-29819475348",
+            "size_in_bytes": 38071
+          },
+          {
+            "digest": "sha256:09b42937cd030d1596ff2e0bc4a414247a764a6ce09ab55a508ca8c9cf1bcf5d",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490818641,
+            "name": "three-pass-pass2-shard-82-29819475348",
+            "size_in_bytes": 41030
+          },
+          {
+            "digest": "sha256:cff8882e509f4b351e06050328da18e88acf17fb2a9ec91fd76b1516396fe9ef",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490819714,
+            "name": "three-pass-pass2-shard-83-29819475348",
+            "size_in_bytes": 36565
+          },
+          {
+            "digest": "sha256:2b989e46f20ab769d076abb3cb437532492e800e9b6d367efd4409596bbcfb18",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490821460,
+            "name": "three-pass-pass2-shard-84-29819475348",
+            "size_in_bytes": 36779
+          },
+          {
+            "digest": "sha256:9ebff1b2382552dda5e5a6e7f2ce9d83ab7e78867b65e46ae279c3312f633f23",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490820779,
+            "name": "three-pass-pass2-shard-85-29819475348",
+            "size_in_bytes": 37223
+          },
+          {
+            "digest": "sha256:fa12e24133695c2aa406605f97a8a0caf5f520efbf6268731af75bd9db86733c",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490822032,
+            "name": "three-pass-pass2-shard-86-29819475348",
+            "size_in_bytes": 38650
+          },
+          {
+            "digest": "sha256:e32c99175b49ae705eafac7327fcb01eab55a1e0e29a466390647052c68a45b0",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490823730,
+            "name": "three-pass-pass2-shard-87-29819475348",
+            "size_in_bytes": 37732
+          },
+          {
+            "digest": "sha256:196846d184cf61d8db71277e046894c2cad54c887000d4426bf8d8f015124be0",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490823055,
+            "name": "three-pass-pass2-shard-88-29819475348",
+            "size_in_bytes": 40939
+          },
+          {
+            "digest": "sha256:9e6192fd67bb0ff2435c0f922faa29c41884a31f2910f1e8cbc6fb832db8e9a1",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490824808,
+            "name": "three-pass-pass2-shard-89-29819475348",
+            "size_in_bytes": 34110
+          },
+          {
+            "digest": "sha256:aa5ee435df720910e5874ed6030c4abc3867618422fade698be1cdb6b836801f",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490736233,
+            "name": "three-pass-pass2-shard-9-29819475348",
+            "size_in_bytes": 38488
+          },
+          {
+            "digest": "sha256:eb9fbacd4e4a6c09b5dda9fd1924c08b1ed037f33feb0db31322028820c67af8",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490825639,
+            "name": "three-pass-pass2-shard-90-29819475348",
+            "size_in_bytes": 32223
+          },
+          {
+            "digest": "sha256:294e253ba0bedd78411449c474088761d3e542eea36553098c09be0c7bc992a0",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490826511,
+            "name": "three-pass-pass2-shard-91-29819475348",
+            "size_in_bytes": 37452
+          },
+          {
+            "digest": "sha256:3f630db6a1c6b5765ab90bd8a87b92e002f78ccf58ed7a00fe08a601b9b433f7",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490829879,
+            "name": "three-pass-pass2-shard-92-29819475348",
+            "size_in_bytes": 35470
+          },
+          {
+            "digest": "sha256:d4e06db3a93e36e8301627779dd21eeab7a62ce31e9d862e2df60a17db574d08",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490831170,
+            "name": "three-pass-pass2-shard-93-29819475348",
+            "size_in_bytes": 38526
+          },
+          {
+            "digest": "sha256:1a7f64ad27e8b5e801ee911a44e2518ff79c5e72b1a493bdc2a048745b2ba725",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490829386,
+            "name": "three-pass-pass2-shard-94-29819475348",
+            "size_in_bytes": 36110
+          },
+          {
+            "digest": "sha256:491bcb3ef20eadfc6815557ed62891375b91e5a218c69fb28e61392c1f25182d",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490830963,
+            "name": "three-pass-pass2-shard-95-29819475348",
+            "size_in_bytes": 40381
+          },
+          {
+            "digest": "sha256:b26abaac71e20d2cd17991bcb771b630f0d6d8975eb3121661dac29763407077",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490831760,
+            "name": "three-pass-pass2-shard-96-29819475348",
+            "size_in_bytes": 37917
+          },
+          {
+            "digest": "sha256:4cac91ff8ffd0e568a72df838c3392b447eb08649aafc66495adf94e5b68b9f6",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490832598,
+            "name": "three-pass-pass2-shard-97-29819475348",
+            "size_in_bytes": 35659
+          },
+          {
+            "digest": "sha256:b2a3bc5adc32ae1edfcc6e6a870ca73d72d5244493528bf8ebee4cae34da7a2e",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490835081,
+            "name": "three-pass-pass2-shard-98-29819475348",
+            "size_in_bytes": 38229
+          },
+          {
+            "digest": "sha256:078099dbba73e22625ae6d2041b14d1f21301f2cc3070b770ec79f38301ab253",
+            "expires_at": "2026-10-19T09:44:33Z",
+            "id": 8490834223,
+            "name": "three-pass-pass2-shard-99-29819475348",
+            "size_in_bytes": 40811
+          }
+        ],
+        "role": "baseline_medium",
+        "run_conclusion": "success",
+        "run_id": 29819475348,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/29819475348",
+        "source_group": "three_pass_medium"
+      },
+      {
+        "artifact_name": "three-pass-pass3-shard-*-29840507345",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:7b8c9974fa59e85f51df85da021321d304f33de5336ee5004d847533f111ecc2",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499137058,
+            "name": "three-pass-pass3-shard-0-29840507345",
+            "size_in_bytes": 15634
+          },
+          {
+            "digest": "sha256:6c87e74d072a02cba40c818305db7a151b383af732cc0a38375d0c8fecbea52b",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499137130,
+            "name": "three-pass-pass3-shard-1-29840507345",
+            "size_in_bytes": 15942
+          },
+          {
+            "digest": "sha256:c256107320e0851f4f834e199144c968c5b2d2c5ec463cb6ff92cf1ade733f7d",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499147080,
+            "name": "three-pass-pass3-shard-10-29840507345",
+            "size_in_bytes": 15063
+          },
+          {
+            "digest": "sha256:e01c888b34cf31c7b27b7cc85aa71118d839094b744a0d976065c79998e31e19",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499275345,
+            "name": "three-pass-pass3-shard-100-29840507345",
+            "size_in_bytes": 15523
+          },
+          {
+            "digest": "sha256:7c8e64b347d60b8fbb35d0289803a6e193d383423efdb62a6083055b64f7f126",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499265050,
+            "name": "three-pass-pass3-shard-101-29840507345",
+            "size_in_bytes": 15831
+          },
+          {
+            "digest": "sha256:1f93646d56ecea9ef07c03b3f2706b498812551f970af99750c3a435f85fda7a",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499270154,
+            "name": "three-pass-pass3-shard-102-29840507345",
+            "size_in_bytes": 14950
+          },
+          {
+            "digest": "sha256:e6049e3b6cca956081095e52cf0f691969109f3bfcf2c627a4d0b1b4f34b8d13",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499270255,
+            "name": "three-pass-pass3-shard-103-29840507345",
+            "size_in_bytes": 15497
+          },
+          {
+            "digest": "sha256:27f49a70a0d9197971d35a55ee117b41aba6217f59b53fd2cc331c85d19971ea",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499274679,
+            "name": "three-pass-pass3-shard-104-29840507345",
+            "size_in_bytes": 15178
+          },
+          {
+            "digest": "sha256:c0fd4a16e1df0e4f236d7f38a63731594f8196200ffc73c9824c46d0b28a04c1",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499271153,
+            "name": "three-pass-pass3-shard-105-29840507345",
+            "size_in_bytes": 14825
+          },
+          {
+            "digest": "sha256:c7371cfb687068a8282668a25a040cc32637382766faec157bd25a9c7f7d6c47",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499273366,
+            "name": "three-pass-pass3-shard-106-29840507345",
+            "size_in_bytes": 16093
+          },
+          {
+            "digest": "sha256:f719a459c886eda29c7f9e781d2050321de4643de5c5c1cf8756c4bbb3b4bd16",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499274369,
+            "name": "three-pass-pass3-shard-107-29840507345",
+            "size_in_bytes": 15823
+          },
+          {
+            "digest": "sha256:5924ac8597b0049c5f1b53c5aa8666fa53fe71f707dd91c6bfdeaff826096a08",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499275479,
+            "name": "three-pass-pass3-shard-108-29840507345",
+            "size_in_bytes": 14454
+          },
+          {
+            "digest": "sha256:5eef59e2b591bb204056064d54c6261ced82bba3c0a44d068ea1515a0832e5c8",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499282370,
+            "name": "three-pass-pass3-shard-109-29840507345",
+            "size_in_bytes": 16301
+          },
+          {
+            "digest": "sha256:addc8fc8e868e33d5277f0ecb63772cd17a651e73525c41bf35086606ce21d7d",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499147834,
+            "name": "three-pass-pass3-shard-11-29840507345",
+            "size_in_bytes": 15728
+          },
+          {
+            "digest": "sha256:fecf87d9cfd2d8ceeed4e020b813c219b1bbcf5af7aab4c410b1d42a886dc0bf",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499280946,
+            "name": "three-pass-pass3-shard-110-29840507345",
+            "size_in_bytes": 15237
+          },
+          {
+            "digest": "sha256:0b78bb0b9502d1f1dc500ed7082e691a74b10e05b6bb3d6a38622f7e527635a9",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499282854,
+            "name": "three-pass-pass3-shard-111-29840507345",
+            "size_in_bytes": 16024
+          },
+          {
+            "digest": "sha256:3c3d204e262578507cc44c4f2e95f6548c19b3cb370630d48164099f602c96e5",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499285816,
+            "name": "three-pass-pass3-shard-112-29840507345",
+            "size_in_bytes": 15493
+          },
+          {
+            "digest": "sha256:3f19600ff135265aa12dfc5d306bff07e7ef98c7f7cfda08ef13da25b05b8e20",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499283067,
+            "name": "three-pass-pass3-shard-113-29840507345",
+            "size_in_bytes": 15551
+          },
+          {
+            "digest": "sha256:67d4d6b8eaa2a1ae8dac15706e9f771c459d005a02ef762415f88381d5e3e55e",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499285927,
+            "name": "three-pass-pass3-shard-114-29840507345",
+            "size_in_bytes": 16246
+          },
+          {
+            "digest": "sha256:09599d9561e9c37172af2dc645d6d20fb0c8dfb1f3cced0c4f3affaf5ac727d0",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499284459,
+            "name": "three-pass-pass3-shard-115-29840507345",
+            "size_in_bytes": 15656
+          },
+          {
+            "digest": "sha256:254394a281891ff4bb80a9be0758a662e99e2c884b931e094d6a072d94169bad",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499285010,
+            "name": "three-pass-pass3-shard-116-29840507345",
+            "size_in_bytes": 16675
+          },
+          {
+            "digest": "sha256:fd5f0cafe1cbe1a50d1b1674b8c8b85da5f47cda70f7ee88478fe0dcf7605076",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499292030,
+            "name": "three-pass-pass3-shard-117-29840507345",
+            "size_in_bytes": 14850
+          },
+          {
+            "digest": "sha256:ad327f6f07575a24eb73f80006b7bbea5c62885aa07d75c760a6b3336624051d",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499290442,
+            "name": "three-pass-pass3-shard-118-29840507345",
+            "size_in_bytes": 16438
+          },
+          {
+            "digest": "sha256:9c5f964bc34d86c991d71fe3cac3b9c356879fc64c6e2ead84941fcd7930424f",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499294098,
+            "name": "three-pass-pass3-shard-119-29840507345",
+            "size_in_bytes": 15189
+          },
+          {
+            "digest": "sha256:cc724a2611c4ec2686468146f3dff7454605d0b27b292b6b69b6d8768664a6e5",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499147792,
+            "name": "three-pass-pass3-shard-12-29840507345",
+            "size_in_bytes": 14741
+          },
+          {
+            "digest": "sha256:9494b540cb87a132777572915f8a4d650218f464d2af3883997054f21b76ac67",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499294500,
+            "name": "three-pass-pass3-shard-120-29840507345",
+            "size_in_bytes": 15358
+          },
+          {
+            "digest": "sha256:2289dd7049d0c78cbe96f49b309465cd0f9781cb080446fe1eb3b0f8d72ebd33",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499292830,
+            "name": "three-pass-pass3-shard-121-29840507345",
+            "size_in_bytes": 15623
+          },
+          {
+            "digest": "sha256:1c3e4dee396c49309196652f66dd55e9960dcdcd60fec46816f59dc3fdfb71c4",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499293495,
+            "name": "three-pass-pass3-shard-122-29840507345",
+            "size_in_bytes": 15554
+          },
+          {
+            "digest": "sha256:54cfc16ff4b1b686d1eea3701a94f0c83b2126d9118317c2237c9e18279d656c",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499299325,
+            "name": "three-pass-pass3-shard-123-29840507345",
+            "size_in_bytes": 15219
+          },
+          {
+            "digest": "sha256:0b86b0c513c4cd6b65131719813c50385076f7077bc65640215d3a8a6177bc38",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499298959,
+            "name": "three-pass-pass3-shard-124-29840507345",
+            "size_in_bytes": 15352
+          },
+          {
+            "digest": "sha256:e373349205eb2cdd68a036748c2fc1f45ca375458a0055e55282b08061878811",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499302796,
+            "name": "three-pass-pass3-shard-125-29840507345",
+            "size_in_bytes": 15305
+          },
+          {
+            "digest": "sha256:df12061aad324292eb9d401cef8bbfeb119d99bdf64e317d8bf812500c832048",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499302452,
+            "name": "three-pass-pass3-shard-126-29840507345",
+            "size_in_bytes": 15442
+          },
+          {
+            "digest": "sha256:61fd971c25e4a2ca44d814871f15dd784fce6e029098769e58dde5ec91a63db5",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499303713,
+            "name": "three-pass-pass3-shard-127-29840507345",
+            "size_in_bytes": 15396
+          },
+          {
+            "digest": "sha256:86ab8336c8856650947109f99af49f168d213f621f87e1cb0939d130be2d4f89",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499150046,
+            "name": "three-pass-pass3-shard-13-29840507345",
+            "size_in_bytes": 16235
+          },
+          {
+            "digest": "sha256:8914c470ea424ae3a71db130947d2f5d2cbb6b36fc865c59c45dfc66070c5b39",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499153477,
+            "name": "three-pass-pass3-shard-14-29840507345",
+            "size_in_bytes": 16050
+          },
+          {
+            "digest": "sha256:97669c59632c4c33dec4528de7a3bf44fe91d516aeca534e7029b6f423f4dbff",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499156627,
+            "name": "three-pass-pass3-shard-15-29840507345",
+            "size_in_bytes": 15375
+          },
+          {
+            "digest": "sha256:98eae90495b6425d182b86b8c4b6edec8c8efa6eba63867ad315c1b2bc0ae3bc",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499158547,
+            "name": "three-pass-pass3-shard-16-29840507345",
+            "size_in_bytes": 16571
+          },
+          {
+            "digest": "sha256:07bcb2da1f051318ea9b29e5f5b20b5950d50090091f80c305ae831f75a0e20b",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499155693,
+            "name": "three-pass-pass3-shard-17-29840507345",
+            "size_in_bytes": 15375
+          },
+          {
+            "digest": "sha256:0be00211ed46a52635b77da865bd36e20b45a689b5fcb03f2781081bd928e046",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499158201,
+            "name": "three-pass-pass3-shard-18-29840507345",
+            "size_in_bytes": 15511
+          },
+          {
+            "digest": "sha256:2540b5265a6755cbcaf1c1375f9cec1dfc98726047dc79a2885eb410034ac745",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499158099,
+            "name": "three-pass-pass3-shard-19-29840507345",
+            "size_in_bytes": 16343
+          },
+          {
+            "digest": "sha256:aace021a33c6eb14a49aa647e69eccd37d7b3450d1f2e4f5ba1ab77bdaa25053",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499138233,
+            "name": "three-pass-pass3-shard-2-29840507345",
+            "size_in_bytes": 15101
+          },
+          {
+            "digest": "sha256:73921b4c36a44207d83b8a9c0ae42bbb913cc353dfa09a4be7a5ed51dfcbe887",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499162953,
+            "name": "three-pass-pass3-shard-20-29840507345",
+            "size_in_bytes": 16037
+          },
+          {
+            "digest": "sha256:3cf2bd8fc01e9e230345f821180bdb7b96574b74bd8dd764ac09772543d88b3b",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499162571,
+            "name": "three-pass-pass3-shard-21-29840507345",
+            "size_in_bytes": 15424
+          },
+          {
+            "digest": "sha256:76f54ce1adff405b9eabf411671cfb90014f61eef519b403878dde030bae9781",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499161863,
+            "name": "three-pass-pass3-shard-22-29840507345",
+            "size_in_bytes": 14771
+          },
+          {
+            "digest": "sha256:ab0f908add9727f2a707d2bc8ebe699f96457df57fbb9fa24ceb9a5e164faee0",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499166190,
+            "name": "three-pass-pass3-shard-23-29840507345",
+            "size_in_bytes": 14792
+          },
+          {
+            "digest": "sha256:d3e495946b9ed57f39154c8746c158712f279de056451d5d7d751c3617b50967",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499164854,
+            "name": "three-pass-pass3-shard-24-29840507345",
+            "size_in_bytes": 15966
+          },
+          {
+            "digest": "sha256:01c138fc559a61efbe5d1d45b989715828d88103a4ae4849b338f0b77dc0b160",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499169700,
+            "name": "three-pass-pass3-shard-25-29840507345",
+            "size_in_bytes": 14355
+          },
+          {
+            "digest": "sha256:e3aa5b50dd329ae22e42978d653669b3309b83a56a60e42fcb072e85970b16e2",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499168313,
+            "name": "three-pass-pass3-shard-26-29840507345",
+            "size_in_bytes": 15590
+          },
+          {
+            "digest": "sha256:107d279944a912f334706ce105c957ff5990dd0a2593340ede27b1d56de55c8a",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499169311,
+            "name": "three-pass-pass3-shard-27-29840507345",
+            "size_in_bytes": 15128
+          },
+          {
+            "digest": "sha256:49dbeef97fba004fb0518a9d55fa78d5d1655218467bfcdf06a17de105dd0aae",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499171534,
+            "name": "three-pass-pass3-shard-28-29840507345",
+            "size_in_bytes": 15639
+          },
+          {
+            "digest": "sha256:55c39690ad17ef031d3609eadc068aea244a2fe6ad786c388922306760d4f8cd",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499171929,
+            "name": "three-pass-pass3-shard-29-29840507345",
+            "size_in_bytes": 15529
+          },
+          {
+            "digest": "sha256:025bed7d3845f2db9bd60630324bc3edd7da352b3f5b513c6fee943bf9307d5f",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499140277,
+            "name": "three-pass-pass3-shard-3-29840507345",
+            "size_in_bytes": 16012
+          },
+          {
+            "digest": "sha256:ecd542cc0f274e670d5da4891d8fb361f55b82c83c8d5290067705386f8f7d85",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499173113,
+            "name": "three-pass-pass3-shard-30-29840507345",
+            "size_in_bytes": 15516
+          },
+          {
+            "digest": "sha256:29bcf14099300f6391edc78876a048705e1186f37d69eef210f80bb8ea3c8f4e",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499173295,
+            "name": "three-pass-pass3-shard-31-29840507345",
+            "size_in_bytes": 15823
+          },
+          {
+            "digest": "sha256:ab7a6487262752bbf7df0b870e1dae2129fb00a4c986aad4aeadb9d55114c7eb",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499175118,
+            "name": "three-pass-pass3-shard-32-29840507345",
+            "size_in_bytes": 15915
+          },
+          {
+            "digest": "sha256:f08334e6f9a3e54231fbd493a5105de527c5f5552eb6930ef94800a8308c6e64",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499178153,
+            "name": "three-pass-pass3-shard-33-29840507345",
+            "size_in_bytes": 15448
+          },
+          {
+            "digest": "sha256:eee29cd83064f541e8f7909f51dc4d68ec3d091bd78f969ea5af6756c5078583",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499179777,
+            "name": "three-pass-pass3-shard-34-29840507345",
+            "size_in_bytes": 14971
+          },
+          {
+            "digest": "sha256:12072ed15a74344cccc321fc90e9acf959a7feb9f608de7f018a8347992120a5",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499182248,
+            "name": "three-pass-pass3-shard-35-29840507345",
+            "size_in_bytes": 15455
+          },
+          {
+            "digest": "sha256:972490029a82db4f649fb45ad5a23a06e8cc9f20fb04a7d13f65fe84504730a4",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499184960,
+            "name": "three-pass-pass3-shard-36-29840507345",
+            "size_in_bytes": 15412
+          },
+          {
+            "digest": "sha256:2640d761f7259070e2f7a69020df94ee334cb2ea154d1c396c5dcb73b554016a",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499184109,
+            "name": "three-pass-pass3-shard-37-29840507345",
+            "size_in_bytes": 15103
+          },
+          {
+            "digest": "sha256:fc879f0e0fde613c53ee02fe74d4edc132b708da8050af92277129dda2db03ce",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499185459,
+            "name": "three-pass-pass3-shard-38-29840507345",
+            "size_in_bytes": 15595
+          },
+          {
+            "digest": "sha256:64917aecd46d54aa8882fb0611bc4c4e48dbc055cf5932bdc7259fdfa0924071",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499183375,
+            "name": "three-pass-pass3-shard-39-29840507345",
+            "size_in_bytes": 15535
+          },
+          {
+            "digest": "sha256:0a24e2713d70c66ee44d19c76bac6d2768dfbeeea7b7ae569a97c9ac8d98dcd9",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499138216,
+            "name": "three-pass-pass3-shard-4-29840507345",
+            "size_in_bytes": 14786
+          },
+          {
+            "digest": "sha256:bc35017dc83a1d4b296235c2fa1ecfbd485781248a28ed9b48bc62e4a7290b13",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499190129,
+            "name": "three-pass-pass3-shard-40-29840507345",
+            "size_in_bytes": 15668
+          },
+          {
+            "digest": "sha256:ab664d55f1e8419bf9a3f184497616eb7e1207c3770398ad7a9d02934e972492",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499188345,
+            "name": "three-pass-pass3-shard-41-29840507345",
+            "size_in_bytes": 16201
+          },
+          {
+            "digest": "sha256:1a1c86f71e9703d1b3dfc27770d4d41c94a3c634efedcc25f1254931c47739bf",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499190650,
+            "name": "three-pass-pass3-shard-42-29840507345",
+            "size_in_bytes": 16279
+          },
+          {
+            "digest": "sha256:50537c46a5de8dab62387ed5247c57bb43ddd68433528f8213dd12963f578813",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499195208,
+            "name": "three-pass-pass3-shard-43-29840507345",
+            "size_in_bytes": 15670
+          },
+          {
+            "digest": "sha256:fd4656b6b296260ab5882f59e8d4c15691f1abafbb95d047ced31594f23c2f90",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499192753,
+            "name": "three-pass-pass3-shard-44-29840507345",
+            "size_in_bytes": 16077
+          },
+          {
+            "digest": "sha256:3c47a07f0af3b8913aca0777f706d24ce084479e4f746c18ab7dcb7228fc01e1",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499198095,
+            "name": "three-pass-pass3-shard-45-29840507345",
+            "size_in_bytes": 15689
+          },
+          {
+            "digest": "sha256:1180b6a15461d04ce9e5f3cfd24a4f1d3f9ac004ecbbe18205c4f688ded845ed",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499195185,
+            "name": "three-pass-pass3-shard-46-29840507345",
+            "size_in_bytes": 15544
+          },
+          {
+            "digest": "sha256:210b0d67f3cea3d5164bba9d9e925759cca855665a1945b341de21d9804ddcc9",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499194469,
+            "name": "three-pass-pass3-shard-47-29840507345",
+            "size_in_bytes": 15417
+          },
+          {
+            "digest": "sha256:fd530cb09b8ee00c919d289f9d43287ee740635efc4bbaeddcd90db9939292aa",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499199604,
+            "name": "three-pass-pass3-shard-48-29840507345",
+            "size_in_bytes": 15273
+          },
+          {
+            "digest": "sha256:ca29c8140d72e8381c9fe6f74226e929afb575a55f9a6e06e734197a56c4d725",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499198886,
+            "name": "three-pass-pass3-shard-49-29840507345",
+            "size_in_bytes": 15933
+          },
+          {
+            "digest": "sha256:0148c869dc88749d66804fe4ec2d7aa25715c1de57ba689254533d9ef1b7e5d9",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499142470,
+            "name": "three-pass-pass3-shard-5-29840507345",
+            "size_in_bytes": 15678
+          },
+          {
+            "digest": "sha256:9711d13c09d17908db083a1c6c0850e406d26557386967223e763538bf88d3b8",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499201630,
+            "name": "three-pass-pass3-shard-50-29840507345",
+            "size_in_bytes": 15276
+          },
+          {
+            "digest": "sha256:4160a8ea2873b2c761699d01240153b7761787742cee0c9ac83c832f8f0ffa88",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499201950,
+            "name": "three-pass-pass3-shard-51-29840507345",
+            "size_in_bytes": 15183
+          },
+          {
+            "digest": "sha256:04a08c6e9131186ec3b74ed561d6fbadd10de1a842caea3337509822cf2f0387",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499202828,
+            "name": "three-pass-pass3-shard-52-29840507345",
+            "size_in_bytes": 16029
+          },
+          {
+            "digest": "sha256:55a67ac9535f6e7b99cef3b5815c4fef4158f6d0c9874a46159cc3c1de19d019",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499205519,
+            "name": "three-pass-pass3-shard-53-29840507345",
+            "size_in_bytes": 14568
+          },
+          {
+            "digest": "sha256:3b09b1c475f78c256b43e2f8a6617540ef4cec69dac7424749db6135fa198a1e",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499204412,
+            "name": "three-pass-pass3-shard-54-29840507345",
+            "size_in_bytes": 15543
+          },
+          {
+            "digest": "sha256:962df926b8abcfcf03ed26929c7b008282ba1a08a1825994e5dc9aab2e502471",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499206977,
+            "name": "three-pass-pass3-shard-55-29840507345",
+            "size_in_bytes": 15769
+          },
+          {
+            "digest": "sha256:68f814dc9b5dd6f47a914cc5e531d5c0036eadd5ae9799753d575cd1e0ab73db",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499208548,
+            "name": "three-pass-pass3-shard-56-29840507345",
+            "size_in_bytes": 15280
+          },
+          {
+            "digest": "sha256:a0e49c1f5ae75b6c3d4874b54b62cce6b295990941df18a136ae0a21c089bba9",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499211780,
+            "name": "three-pass-pass3-shard-57-29840507345",
+            "size_in_bytes": 14774
+          },
+          {
+            "digest": "sha256:4906c561ddae208040e0342d94fcfd5dd17bfde106ca0fb57eb95f1fdb01a906",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499213817,
+            "name": "three-pass-pass3-shard-58-29840507345",
+            "size_in_bytes": 15893
+          },
+          {
+            "digest": "sha256:93c96dc92481455452045af2818a52037ab2a5330a006a7a99d5d29dba3cd0e5",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499210818,
+            "name": "three-pass-pass3-shard-59-29840507345",
+            "size_in_bytes": 15062
+          },
+          {
+            "digest": "sha256:e086c4018601f0cbbbb85db4d633391a4f028775e22cce52345c7224786f64a9",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499142894,
+            "name": "three-pass-pass3-shard-6-29840507345",
+            "size_in_bytes": 15137
+          },
+          {
+            "digest": "sha256:98d1944687f7a7747c667140faf9f7541606e1a23dab2368d395589bf541e2f8",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499212831,
+            "name": "three-pass-pass3-shard-60-29840507345",
+            "size_in_bytes": 15417
+          },
+          {
+            "digest": "sha256:e68376ef6bb5f3d15e1da92a36b522ca58e80a02c1e10613c74b3b55991e1dd1",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499215263,
+            "name": "three-pass-pass3-shard-61-29840507345",
+            "size_in_bytes": 15016
+          },
+          {
+            "digest": "sha256:822ed00cef7f612ea4afde287eaf4515d04979c06ef6cb3b3c951021f32164f1",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499217080,
+            "name": "three-pass-pass3-shard-62-29840507345",
+            "size_in_bytes": 16540
+          },
+          {
+            "digest": "sha256:23134727a7ea30c513b280100161ed7004c7fb06678166d2eba63354abbdee99",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499216694,
+            "name": "three-pass-pass3-shard-63-29840507345",
+            "size_in_bytes": 16048
+          },
+          {
+            "digest": "sha256:a0bad847b77fe0ababecb00b38e3c5128d8502214199c84640d8cd9ba6f29914",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499220203,
+            "name": "three-pass-pass3-shard-64-29840507345",
+            "size_in_bytes": 15465
+          },
+          {
+            "digest": "sha256:5a2d5446589a0436e854fca230dc0b33d07cda7bf7db3d2b1df1a7f86e72c957",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499221155,
+            "name": "three-pass-pass3-shard-65-29840507345",
+            "size_in_bytes": 15336
+          },
+          {
+            "digest": "sha256:1806ac654e4e3e9071de32b507223f4cd7b07914910af05e7e6a1d02df9c6c45",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499223243,
+            "name": "three-pass-pass3-shard-66-29840507345",
+            "size_in_bytes": 15035
+          },
+          {
+            "digest": "sha256:99fb4569264d9f5f6a4e89fc792f33565ac601c858fd727aaf0ed8b92adc44ec",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499221507,
+            "name": "three-pass-pass3-shard-67-29840507345",
+            "size_in_bytes": 15942
+          },
+          {
+            "digest": "sha256:681dec8fd5cb5673a5e68daba8b14308695169ebec4dff6d971f1e80bae74eb7",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499225262,
+            "name": "three-pass-pass3-shard-68-29840507345",
+            "size_in_bytes": 14899
+          },
+          {
+            "digest": "sha256:13911784301f983fcdb92e5a321ea11b1fbc966b240f5842aa4cc52b8af6718a",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499227753,
+            "name": "three-pass-pass3-shard-69-29840507345",
+            "size_in_bytes": 15469
+          },
+          {
+            "digest": "sha256:ce8823faebeb22674f8c87923a1364bb9f258c5d6f38f6a0d43f4d4f7bdde670",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499138398,
+            "name": "three-pass-pass3-shard-7-29840507345",
+            "size_in_bytes": 15079
+          },
+          {
+            "digest": "sha256:c0fb3e3cee2f5601ff35c38e80dd388b551667d941772bc5a8b2177fab1a95d9",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499226742,
+            "name": "three-pass-pass3-shard-70-29840507345",
+            "size_in_bytes": 15722
+          },
+          {
+            "digest": "sha256:8f51f37aa4c74d9d82dcf5d0e16ed1a5bd2234aad0afd922e387cb73328460e6",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499228754,
+            "name": "three-pass-pass3-shard-71-29840507345",
+            "size_in_bytes": 15523
+          },
+          {
+            "digest": "sha256:3f052d868911a59db0ae6b1636674d62d0a5cfa3d6093ac7d60465b02ffe682c",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499232655,
+            "name": "three-pass-pass3-shard-72-29840507345",
+            "size_in_bytes": 15441
+          },
+          {
+            "digest": "sha256:2eb11a764e2c2b72a9f4630d0dfd43a83f2fcafdf93c8c2f314f0eefc3f33038",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499230670,
+            "name": "three-pass-pass3-shard-73-29840507345",
+            "size_in_bytes": 16076
+          },
+          {
+            "digest": "sha256:ab1061948fb39e56538dfc320f6b977e0458f1d0f0ccaf1d1ae7d92756274641",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499233565,
+            "name": "three-pass-pass3-shard-74-29840507345",
+            "size_in_bytes": 15359
+          },
+          {
+            "digest": "sha256:ad3ca3441d8ffe5b43df982c8fb50782617732a0a9f5e4e3a657331550983a50",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499236121,
+            "name": "three-pass-pass3-shard-75-29840507345",
+            "size_in_bytes": 15510
+          },
+          {
+            "digest": "sha256:7b0303b66f867e405f63cf8bae9ad0b22f3ed465a353039fef6c03470822a43a",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499236245,
+            "name": "three-pass-pass3-shard-76-29840507345",
+            "size_in_bytes": 15816
+          },
+          {
+            "digest": "sha256:bd8e632ea86c9f760aebbf0d053f6fab78a1fd70a1c32a6e69f6a0614733cc9d",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499237187,
+            "name": "three-pass-pass3-shard-77-29840507345",
+            "size_in_bytes": 15529
+          },
+          {
+            "digest": "sha256:3bb3dca4ff849a3ef2947e654c4f6f81f9f41ccaeeb501270e5cb49c46040c61",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499237099,
+            "name": "three-pass-pass3-shard-78-29840507345",
+            "size_in_bytes": 14703
+          },
+          {
+            "digest": "sha256:7f48d31349d971f0c43e736404403be8ca3b72eda82d785da7c4d74028a86daa",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499238586,
+            "name": "three-pass-pass3-shard-79-29840507345",
+            "size_in_bytes": 15448
+          },
+          {
+            "digest": "sha256:198c5cb80d9d9cca15c6eb7540e268fbaba166d96859f322845b5d9551931fd4",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499151061,
+            "name": "three-pass-pass3-shard-8-29840507345",
+            "size_in_bytes": 15404
+          },
+          {
+            "digest": "sha256:a6e0e9ff3a36cb2cc7d1295fe650ae1c140bc5b41ac2c6bd56ac578f0a86f62b",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499239627,
+            "name": "three-pass-pass3-shard-80-29840507345",
+            "size_in_bytes": 15776
+          },
+          {
+            "digest": "sha256:f65dec8dad3b549407523f7bdec24d676e7a6f7f8350254d2fb638a70e2a4492",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499241823,
+            "name": "three-pass-pass3-shard-81-29840507345",
+            "size_in_bytes": 15749
+          },
+          {
+            "digest": "sha256:85bf6f1af8385bbeeade891b234ca99c09a2097c5d69ecac05d337316be77ddc",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499244551,
+            "name": "three-pass-pass3-shard-82-29840507345",
+            "size_in_bytes": 15660
+          },
+          {
+            "digest": "sha256:014eebc3555b98366beb92461081d6d24923a44e714122a6b1298fe1b45267d9",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499249189,
+            "name": "three-pass-pass3-shard-83-29840507345",
+            "size_in_bytes": 15772
+          },
+          {
+            "digest": "sha256:a61dae23c8aa7e3af06797473a04cd70341d8883cf7e8a36772b526e66def25c",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499246223,
+            "name": "three-pass-pass3-shard-84-29840507345",
+            "size_in_bytes": 15133
+          },
+          {
+            "digest": "sha256:264069e63f1a0d218ccbe9ab869ec480cfd1292b38d672846752d233e64064a6",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499246148,
+            "name": "three-pass-pass3-shard-85-29840507345",
+            "size_in_bytes": 15782
+          },
+          {
+            "digest": "sha256:2547f4594c2fb680b7509e6efdb37876538fb5dc3f2f76511d4b0a68b88b72fe",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499247604,
+            "name": "three-pass-pass3-shard-86-29840507345",
+            "size_in_bytes": 14994
+          },
+          {
+            "digest": "sha256:a413d771db77561729eb89117403e27f904cf1a2b373787ec47ae84eeb86d473",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499247327,
+            "name": "three-pass-pass3-shard-87-29840507345",
+            "size_in_bytes": 15550
+          },
+          {
+            "digest": "sha256:aa8f55fac7a002da3bcde196b4b860dc9bd25dde1017f3a131039a30d918f145",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499248070,
+            "name": "three-pass-pass3-shard-88-29840507345",
+            "size_in_bytes": 15418
+          },
+          {
+            "digest": "sha256:532d29ded139108e13c3fc231e7a35938dcc153e2f9ca930edd8219a77a99066",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499250942,
+            "name": "three-pass-pass3-shard-89-29840507345",
+            "size_in_bytes": 15306
+          },
+          {
+            "digest": "sha256:4f4852db3ea5051c2f997f14100e8f0b38cc52a02b9710b8258bbff4db1d2c80",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499146604,
+            "name": "three-pass-pass3-shard-9-29840507345",
+            "size_in_bytes": 15036
+          },
+          {
+            "digest": "sha256:c1244b200d926424d7c06f85b5aa3a6d0f22d37b9f6021f5d5c3215306b51d53",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499253392,
+            "name": "three-pass-pass3-shard-90-29840507345",
+            "size_in_bytes": 14786
+          },
+          {
+            "digest": "sha256:c9382052f6f8d28cc5ae65ea7360802972a55b26fc28199fd87268e0134dc40a",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499256088,
+            "name": "three-pass-pass3-shard-91-29840507345",
+            "size_in_bytes": 15611
+          },
+          {
+            "digest": "sha256:9ab97af0e691cfb51e18e5f0856df750f1eb735749e1903db7aaed28a06db874",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499254965,
+            "name": "three-pass-pass3-shard-92-29840507345",
+            "size_in_bytes": 15034
+          },
+          {
+            "digest": "sha256:e86d9e7bf24541079b0f0c06772f44fef75cded46e4040cb14611f65238a614d",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499260293,
+            "name": "three-pass-pass3-shard-93-29840507345",
+            "size_in_bytes": 15484
+          },
+          {
+            "digest": "sha256:89a1848470715cf1272b11d6d9adf05a00438e972b202e14953533fc2c1987ee",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499261935,
+            "name": "three-pass-pass3-shard-94-29840507345",
+            "size_in_bytes": 15739
+          },
+          {
+            "digest": "sha256:8f73fc27cfe2fbb74269c3493cd7e0db7b8c7585392724b9a7657bc591da29bc",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499256906,
+            "name": "three-pass-pass3-shard-95-29840507345",
+            "size_in_bytes": 15775
+          },
+          {
+            "digest": "sha256:2f6fcc42f824be10bf7a040b21b0614a18dfca0d40152dff96bdfe8c9040b807",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499260104,
+            "name": "three-pass-pass3-shard-96-29840507345",
+            "size_in_bytes": 15386
+          },
+          {
+            "digest": "sha256:ba0e2d4c9b492e8f7372af5f59ac2ab1121628f6efac7cd0b07b3785b3b2797a",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499260937,
+            "name": "three-pass-pass3-shard-97-29840507345",
+            "size_in_bytes": 15704
+          },
+          {
+            "digest": "sha256:cba3716c40cca607aa3aaebe2e8da51d8a07800c4badf2cd529947141454d4da",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499262466,
+            "name": "three-pass-pass3-shard-98-29840507345",
+            "size_in_bytes": 14921
+          },
+          {
+            "digest": "sha256:0db77322a0abe802a2665e6d39d75d33b05257bd380cfe18c76ce5692b3f4911",
+            "expires_at": "2026-10-19T14:43:54Z",
+            "id": 8499264430,
+            "name": "three-pass-pass3-shard-99-29840507345",
+            "size_in_bytes": 15858
+          }
+        ],
+        "role": "denominator_unresolved",
+        "run_conclusion": "success",
+        "run_id": 29840507345,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/29840507345",
+        "source_group": "three_pass_unresolved"
+      },
+      {
+        "artifact_name": "direct-expanded-trait-pilot-final-29926967923",
+        "range": "[0,2000)",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:afbbafc8b1b65ecbde4f9be78f8770ba050a7b784e6c93b0344c8b8bcf9d35d4",
+            "expires_at": "2026-10-20T14:06:18Z",
+            "id": 8533066456,
+            "name": "direct-expanded-trait-pilot-final-29926967923",
+            "size_in_bytes": 253958
+          }
+        ],
+        "role": "baseline_direct",
+        "run_conclusion": "success",
+        "run_id": 29926967923,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/29926967923",
+        "source_group": "expanded_wave"
+      },
+      {
+        "artifact_name": "direct-expanded-trait-pilot-input-29926967923",
+        "range": "[0,2000)",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:2932ccb2693e44c6ba9eb83089b8f443ceabe53eb314e1304357b9b51f6c1b05",
+            "expires_at": "2026-10-20T14:06:18Z",
+            "id": 8532367779,
+            "name": "direct-expanded-trait-pilot-input-29926967923",
+            "size_in_bytes": 435899
+          }
+        ],
+        "role": "range_verification",
+        "run_conclusion": "success",
+        "run_id": 29926967923,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/29926967923",
+        "source_group": "expanded_wave_input"
+      },
+      {
+        "artifact_name": "direct-expanded-large-final-30076138052",
+        "range": "[2000,4000)",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:4f82c5468fd4fcda618293c0044e67483603de7b6acb0696a6e56783ece873b0",
+            "expires_at": "2026-10-22T07:38:32Z",
+            "id": 8590862147,
+            "name": "direct-expanded-large-final-30076138052",
+            "size_in_bytes": 48790
+          }
+        ],
+        "role": "baseline_direct",
+        "run_conclusion": "success",
+        "run_id": 30076138052,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/30076138052",
+        "source_group": "expanded_wave"
+      },
+      {
+        "artifact_name": "direct-expanded-large-final-29935400807",
+        "range": "[4000,24000)",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:e1a9aa3e7bd607d11618b40213b6a68366fde68533d3e9abf7d21a10a5958984",
+            "expires_at": "2026-10-20T15:52:20Z",
+            "id": 8547195135,
+            "name": "direct-expanded-large-final-29935400807",
+            "size_in_bytes": 613554
+          }
+        ],
+        "role": "baseline_direct",
+        "run_conclusion": "success",
+        "run_id": 29935400807,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/29935400807",
+        "source_group": "expanded_wave"
+      },
+      {
+        "artifact_name": "direct-expanded-large-final-29982714811",
+        "range": "[24000,44000)",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:985785aab9593ea1264edfff6412e97844103de9f5cab32fcaebe29bb65615f1",
+            "expires_at": "2026-10-21T05:38:49Z",
+            "id": 8564641725,
+            "name": "direct-expanded-large-final-29982714811",
+            "size_in_bytes": 570964
+          }
+        ],
+        "role": "baseline_direct",
+        "run_conclusion": "success",
+        "run_id": 29982714811,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/29982714811",
+        "source_group": "expanded_wave"
+      },
+      {
+        "artifact_name": "direct-expanded-large-final-30024100020",
+        "range": "[44000,64000)",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:3f4b6d3f797b03db4fd4a009a7c9bd825dab7ffe06d90b39aa933d5bb8850b75",
+            "expires_at": "2026-10-21T16:12:41Z",
+            "id": 8581294078,
+            "name": "direct-expanded-large-final-30024100020",
+            "size_in_bytes": 597629
+          }
+        ],
+        "role": "baseline_direct",
+        "run_conclusion": "success",
+        "run_id": 30024100020,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/30024100020",
+        "source_group": "expanded_wave"
+      },
+      {
+        "artifact_name": "direct-expanded-large-final-30055434119",
+        "range": "[64000,84000)",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:736ad3a535c26535bd94de308c7dcac754179324b9596634608e20df7e4ad971",
+            "expires_at": "2026-10-22T00:10:54Z",
+            "id": 8589141309,
+            "name": "direct-expanded-large-final-30055434119",
+            "size_in_bytes": 571258
+          }
+        ],
+        "role": "baseline_direct",
+        "run_conclusion": "success",
+        "run_id": 30055434119,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/30055434119",
+        "source_group": "expanded_wave"
+      },
+      {
+        "artifact_name": "direct-expanded-large-final-30076151486",
+        "range": "[84000,107000)",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:bab9959cb7136064c3806801ba462b99c59db2683070faa0aeaf14873f1bf666",
+            "expires_at": "2026-10-22T07:38:48Z",
+            "id": 8601023298,
+            "name": "direct-expanded-large-final-30076151486",
+            "size_in_bytes": 643187
+          }
+        ],
+        "role": "baseline_direct",
+        "run_conclusion": "success",
+        "run_id": 30076151486,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/30076151486",
+        "source_group": "expanded_wave"
+      },
+      {
+        "artifact_name": "targeted-reacquisition-final-30055437912",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:7a20d11fa735bba2e667c75bce7678c10c8e68228ecf3584a1f1f3f589aca15a",
+            "expires_at": "2026-10-22T00:10:59Z",
+            "id": 8582615068,
+            "name": "targeted-reacquisition-final-30055437912",
+            "size_in_bytes": 2954
+          }
+        ],
+        "role": "baseline_direct",
+        "run_conclusion": "success",
+        "run_id": 30055437912,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/30055437912",
+        "source_group": "targeted_reacquisition"
+      },
+      {
+        "artifact_name": "validated-low-after-targeted-30055434111",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:fca99a0628c96587b68266f3b32d87b41a428d297e1248563eb1a7e3ee20b8fb",
+            "expires_at": "2026-10-22T00:10:54Z",
+            "id": 8582638302,
+            "name": "validated-low-after-targeted-30055434111",
+            "size_in_bytes": 3697971
+          }
+        ],
+        "role": "baseline_validated_low",
+        "run_conclusion": "success",
+        "run_id": 30055434111,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/30055434111",
+        "source_group": "validated_low"
+      },
+      {
+        "artifact_name": "all-master-trait-ledger-32922603185",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:9ff3e6c67302fa50d81ecf7c2f4ba0791d0f7bfbcc7074760dc6e8edbb4b0406",
+            "expires_at": "2026-11-24T02:24:28Z",
+            "id": 9592111255,
+            "name": "all-master-trait-ledger-32922603185",
+            "size_in_bytes": 26315597
+          }
+        ],
+        "role": "bulk_materialization",
+        "run_conclusion": "success",
+        "run_id": 32922603185,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/32922603185",
+        "source_group": "all_master_materialization"
+      },
+      {
+        "artifact_id": 8366432868,
+        "artifact_name": "eol-traitbank-bulk-29475141548",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:222a2d531947e8940c024bcc01df71eaf4ecdfdf804925df4b65b35783cb7790",
+            "expires_at": "2026-10-14T05:54:10Z",
+            "id": 8366432868,
+            "name": "eol-traitbank-bulk-29475141548",
+            "size_in_bytes": 9231380
+          }
+        ],
+        "role": "bulk_original_artifact",
+        "run_conclusion": "success",
+        "run_id": 29475141548,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/29475141548",
+        "source_group": "eol_traitbank"
+      },
+      {
+        "artifact_id": 8366283959,
+        "artifact_name": "austraits-all-floral-bulk-29475142172",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:5074b26efe85f043bd54f6ef91bb51bed911228aba7cb26ce6e3514a65b35482",
+            "expires_at": "2026-10-14T05:54:11Z",
+            "id": 8366283959,
+            "name": "austraits-all-floral-bulk-29475142172",
+            "size_in_bytes": 11277432
+          }
+        ],
+        "role": "bulk_original_artifact",
+        "run_conclusion": "success",
+        "run_id": 29475142172,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/29475142172",
+        "source_group": "austraits"
+      },
+      {
+        "artifact_id": 8340405765,
+        "artifact_name": "efloras-all-floras-combined",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:adf0ed8529a22faf37e22873864469e29fc59dd5ece04fa4956926b82055a502",
+            "expires_at": "2026-10-13T10:46:39Z",
+            "id": 8340405765,
+            "name": "efloras-all-floras-combined",
+            "size_in_bytes": 8985654
+          }
+        ],
+        "role": "bulk_original_artifact",
+        "run_conclusion": "success",
+        "run_id": 29409302362,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/29409302362",
+        "source_group": "efloras"
+      },
+      {
+        "artifact_id": 8366279401,
+        "artifact_name": "gift-direct-traits-29475142071",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:94925c807958232fd771bfc9fa468cb2c29c1757cf2ee6fb90e68b4e91964650",
+            "expires_at": "2026-10-14T05:54:11Z",
+            "id": 8366279401,
+            "name": "gift-direct-traits-29475142071",
+            "size_in_bytes": 8394023
+          }
+        ],
+        "role": "bulk_original_artifact",
+        "run_conclusion": "success",
+        "run_id": 29475142071,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/29475142071",
+        "source_group": "gift"
+      },
+      {
+        "artifact_id": 8366271791,
+        "artifact_name": "usda-plants-direct-traits-29475142133",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:3a067b7ed7976173743ec1acfa47348dcc392e6577b42dd6548dfc1a981cf6fe",
+            "expires_at": "2026-10-14T05:54:11Z",
+            "id": 8366271791,
+            "name": "usda-plants-direct-traits-29475142133",
+            "size_in_bytes": 995044
+          }
+        ],
+        "role": "bulk_original_artifact",
+        "run_conclusion": "success",
+        "run_id": 29475142133,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/29475142133",
+        "source_group": "usda_plants"
+      },
+      {
+        "artifact_name": "all-master-trait-ledger-32922603185",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:9ff3e6c67302fa50d81ecf7c2f4ba0791d0f7bfbcc7074760dc6e8edbb4b0406",
+            "expires_at": "2026-11-24T02:24:28Z",
+            "id": 9592111255,
+            "name": "all-master-trait-ledger-32922603185",
+            "size_in_bytes": 26315597
+          }
+        ],
+        "role": "repo_staged_bulk",
+        "run_conclusion": "success",
+        "run_id": 32922603185,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/32922603185",
+        "source_doi": "10.5061/dryad.cc2fqz6hr",
+        "source_group": "meyer_2026",
+        "source_path": "data/v2/staging/traits/bulk/meyer_2026_reproductive_traits/trait_candidates.csv.gz"
+      },
+      {
+        "artifact_name": "all-master-trait-ledger-32922603185",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:9ff3e6c67302fa50d81ecf7c2f4ba0791d0f7bfbcc7074760dc6e8edbb4b0406",
+            "expires_at": "2026-11-24T02:24:28Z",
+            "id": 9592111255,
+            "name": "all-master-trait-ledger-32922603185",
+            "size_in_bytes": 26315597
+          }
+        ],
+        "role": "repo_staged_bulk",
+        "run_conclusion": "success",
+        "run_id": 32922603185,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/32922603185",
+        "source_doi": "10.1038/ncomms13313",
+        "source_group": "razanajatovo_2016",
+        "source_path": "data/v2/staging/traits/bulk/razanajatovo_2016_reproductive_traits/trait_candidates.csv.gz"
+      },
+      {
+        "artifact_name": "all-master-trait-ledger-32922603185",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:9ff3e6c67302fa50d81ecf7c2f4ba0791d0f7bfbcc7074760dc6e8edbb4b0406",
+            "expires_at": "2026-11-24T02:24:28Z",
+            "id": 9592111255,
+            "name": "all-master-trait-ledger-32922603185",
+            "size_in_bytes": 26315597
+          }
+        ],
+        "role": "repo_staged_bulk",
+        "run_conclusion": "success",
+        "run_id": 32922603185,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/32922603185",
+        "source_group": "pladias",
+        "source_path": "data/v2/staging/traits/bulk/pladias_czech_flora/trait_candidates.csv.gz",
+        "source_url": "https://pladias.cz"
+      },
+      {
+        "artifact_digest": "sha256:b10a024454f8099bfc4b516a7e5447724e8e828b7dce973efd364fc767309c1e",
+        "artifact_id": 8591936182,
+        "artifact_name": "public-web-traits-combined",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:b10a024454f8099bfc4b516a7e5447724e8e828b7dce973efd364fc767309c1e",
+            "expires_at": "2026-10-22T09:05:33Z",
+            "id": 8591936182,
+            "name": "public-web-traits-combined",
+            "size_in_bytes": 71880818
+          }
+        ],
+        "role": "promoted_source_backed_web",
+        "run_conclusion": "success",
+        "run_id": 30081293493,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/30081293493",
+        "source_group": "promoted_public_web"
+      },
+      {
+        "artifact_name": "reviewed-open-web-evidence-32710232989",
+        "resolved_artifacts": [
+          {
+            "digest": "sha256:54c2249e829f2df0f8bb970cdf9fe3dc001a1f3dcbf045a76eae5c5e6102806f",
+            "expires_at": "2026-11-22T09:12:14Z",
+            "id": 9514635137,
+            "name": "reviewed-open-web-evidence-32710232989",
+            "size_in_bytes": 47976159
+          }
+        ],
+        "role": "latest_species_direct_web",
+        "run_conclusion": "success",
+        "run_id": 32710232989,
+        "run_status": "completed",
+        "run_url": "https://github.com/zuizui0223/island/actions/runs/32710232989",
+        "source_group": "latest_public_web"
+      }
+    ]
+  },
+  "supplemental_direct_evidence_csvs": [
+    ".work\\wave34-floraweb-source-fixed\\floraweb_reviewed_direct_evidence.csv.gz",
+    ".work\\wave35-glopl-2025-source-fixed\\glopl_2025_reviewed_direct_evidence.csv.gz",
+    ".work\\wave35-useful-plants-source\\useful_plants_reviewed_direct_evidence.csv.gz"
+  ]
+}

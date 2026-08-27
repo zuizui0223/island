@@ -20,7 +20,7 @@ import html
 import json
 import re
 import time
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -59,21 +59,30 @@ def parse_page(species: str, family: str, url: str, payload: bytes) -> dict[str,
     properties = {_visible(key): _visible(value) for key, value in ROW_RE.findall(table)}
     self_fertile = properties.get("Self-fertile", "")
     cultivation = properties.get("Cultivation Status", "")
+    pollinators = properties.get("Pollinators", "")
     identity_exact = matched_name.casefold() == species.casefold()
     family_exact = matched_family.casefold() == family.casefold()
     wild_explicit = bool(re.search(r"\bwild\b", cultivation, re.IGNORECASE))
+    nonsexual_qualified = bool(
+        re.search(r"\b(apomictic|agamosperm\w*|asexual)\b", pollinators, re.IGNORECASE)
+    )
     if not identity_exact:
         status = "identity_mismatch"
     elif not family_exact:
         status = "family_mismatch"
     elif self_fertile.casefold() != "yes":
         status = "not_positive_self_fertile"
+    elif nonsexual_qualified:
+        status = "nonsexual_reproduction_category_error"
     elif not wild_explicit:
         status = "cultivated_or_ornamental_only"
     else:
         status = "accepted_wild_self_fertile"
     excerpt = (
-        f"Self-fertile: {self_fertile}; Cultivation Status: {cultivation}" if self_fertile else ""
+        f"Self-fertile: {self_fertile}; Pollinators: {pollinators}; "
+        f"Cultivation Status: {cultivation}"
+        if self_fertile
+        else ""
     )
     return {
         "accepted_species": species,
@@ -83,8 +92,10 @@ def parse_page(species: str, family: str, url: str, payload: bytes) -> dict[str,
         "identity_exact": identity_exact,
         "family_exact": family_exact,
         "self_fertile_raw": self_fertile,
+        "pollinators_raw": pollinators,
         "cultivation_status": cultivation,
         "wild_explicit": wild_explicit,
+        "nonsexual_qualified": nonsexual_qualified,
         "supporting_excerpt": excerpt,
         "normalized_value": "SC" if status == "accepted_wild_self_fertile" else "",
         "trait_name": "self_incompatibility" if status == "accepted_wild_self_fertile" else "",
@@ -115,7 +126,7 @@ def fetch_one(
         row.update(
             {
                 "http_status": http_status,
-                "retrieved_at_utc": datetime.now(UTC).isoformat(),
+                "retrieved_at_utc": datetime.now(timezone.utc).isoformat(),  # noqa: UP017
                 "from_cache": from_cache,
                 "cache_file": cache_path.name,
                 "error": "",
@@ -131,8 +142,10 @@ def fetch_one(
             "identity_exact": False,
             "family_exact": False,
             "self_fertile_raw": "",
+            "pollinators_raw": "",
             "cultivation_status": "",
             "wild_explicit": False,
+            "nonsexual_qualified": False,
             "supporting_excerpt": "",
             "normalized_value": "",
             "trait_name": "",
@@ -141,7 +154,7 @@ def fetch_one(
             "page_sha256": "",
             "content_fingerprint": "",
             "http_status": "",
-            "retrieved_at_utc": datetime.now(UTC).isoformat(),
+            "retrieved_at_utc": datetime.now(timezone.utc).isoformat(),  # noqa: UP017
             "from_cache": from_cache,
             "cache_file": cache_path.name,
             "error": f"{type(exc).__name__}: {exc}",
@@ -192,7 +205,7 @@ def build(
     accepted.to_csv(output_dir / "ken_fern_self_fertile_candidates.csv.gz", index=False)
     summary: dict[str, object] = {
         "contract": "ken_fern_exact_wild_species_self_fertility_acquisition_v1",
-        "created_at_utc": datetime.now(UTC).isoformat(),
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),  # noqa: UP017
         "queued_pages": len(queue),
         "queued_species": int(queue["accepted_species"].nunique()),
         "fetched_or_cached": int(inventory["http_status"].astype(str).eq("200").sum()),
@@ -206,7 +219,10 @@ def build(
         "accepted_n_islands_sum": int(accepted["n_islands"].sum()),
         "lineage_internal_conflict_species": len(conflicted),
         "status_counts": inventory["status"].value_counts().sort_index().to_dict(),
-        "mapping": "wild species Self-fertile=Yes -> self_incompatibility=SC; never autonomous selfing",
+        "mapping": (
+            "sexually reproducing wild species Self-fertile=Yes -> "
+            "self_incompatibility=SC; never autonomous selfing; apomixis excluded"
+        ),
         "source_lineage_policy": "PFAF, Useful Tropical Plants and Useful Temperate Plants collapse to one Ken Fern species lineage",
         "source_access": {
             "tropical": "https://tropical.theferns.info/",

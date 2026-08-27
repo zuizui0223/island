@@ -1,0 +1,24 @@
+{
+  "accepted_n_islands_sum": 67,
+  "accepted_self_fertile_statements": 3,
+  "accepted_species": 3,
+  "contract": "pfaf_exact_species_self_fertility_acquisition_v1",
+  "created_at_utc": "2026-08-27T11:45:35.856677+00:00",
+  "fetch_errors": 0,
+  "fetched_or_cached": 984,
+  "identity_exact": 984,
+  "mapping": "positive self-fertile -> self_incompatibility=SC; never autonomous selfing",
+  "min_islands": 0,
+  "queue_rows": 984,
+  "robots_sha256": "9783ee71fec9ec7c847d819897c84d5d55604b716fa4b112c03d446f3f393ef3",
+  "robots_url": "https://pfaf.org/robots.txt",
+  "sitemap_sha256": "c71c5f9d741331c31dc6704f4d1bcd996892d98754cc4c3e3d3007059f757b6e",
+  "sitemap_url": "https://pfaf.org/sitemap.xml",
+  "source_access": "public species pages allowed by robots.txt",
+  "status_counts": {
+    "accepted_self_fertile_statement": 3,
+    "negative_self_fertile_not_mapped_to_si": 104,
+    "no_positive_self_fertile_statement": 875,
+    "nonsexual_reproduction_category_error": 2
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "artifact_hashes": {
+    "glopl_2025_extraction_audit.csv.gz": "fa79955dde4114625ad18882b156265b19d96f1abe242ffe43815eabd0692c65",
+    "glopl_2025_independent_trait_evidence.csv.gz": "45cc013018959eb480ff31d78ce9999d50936d5e4cbf5afa6b9647eade6cac06",
+    "glopl_2025_reviewed_direct_evidence.csv.gz": "80f336c3a98870902542dea5d34a7aaf2e543a684ef3ac295ae0beeeb4997b02"
+  },
+  "checks": {
+    "accepted_names_exact_only": true,
+    "family_conflicts_excluded": true,
+    "family_inference_absent": true,
+    "floral_specialisation_not_substituted_for_floral_form": true,
+    "global_fallback_absent": true,
+    "reward_not_in_structure_axis": true,
+    "source_lineage_underlying_not_provider_url": true,
+    "within_source_conflicts_excluded": true
+  },
+  "contract": "glopl_2025_trait_source_package_v1",
+  "created_at": "2026-08-27",
+  "exclusions": {
+    "family_conflict": 139,
+    "not_exact_island_accepted_species": 4336,
+    "not_exact_species_rank": 278,
+    "within_source_direct_conflict": 281
+  },
+  "independent_traits": {
+    "by_trait": {
+      "dichogamy": 185,
+      "floral_specialisation_class": 490,
+      "herkogamy": 147,
+      "heterostyly": 264,
+      "reward_accessibility": 164,
+      "reward_type": 231,
+      "sex_system": 500
+    },
+    "rows": 1981,
+    "species_trait": 1981,
+    "strict_three_axis_included": false
+  },
+  "input": {
+    "master_species": 106295,
+    "source_rows": 2128,
+    "source_species": 826
+  },
+  "source": {
+    "article_doi": "10.1038/s41467-025-61032-5",
+    "artifact": "41467_2025_61032_MOESM7_ESM.xlsx",
+    "sha256": "e6fe5c2d798269c8b41a678d029ccc25dc600e1f0626ed834cf45c494b8a9775",
+    "supplement_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC12216600/supplementaryFiles"
+  },
+  "strict_direct": {
+    "by_trait": {
+      "autonomous_selfing_capacity": 475,
+      "floral_symmetry": 387,
+      "self_incompatibility": 475
+    },
+    "rows": 1337,
+    "species": 502,
+    "species_trait": 1337
+  }
+}

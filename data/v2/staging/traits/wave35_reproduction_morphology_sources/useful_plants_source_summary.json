@@ -1,0 +1,32 @@
+{
+  "artifacts": {
+    "useful_plants_provider_lineage_audit.csv.gz": "760358f795f086366a99d34f588f41671502b011968cab302c3628dfbfb17fb7",
+    "useful_plants_reviewed_direct_evidence.csv.gz": "f5b40a4cd4cadb1b06ed9f417f75e5492102a1fa73e7bf322f864e5a967a868e"
+  },
+  "checks": {
+    "apomixis_excluded": true,
+    "autonomous_selfing_not_inferred": true,
+    "cultivar_only_excluded": true,
+    "family_inference_absent": true,
+    "global_fallback_absent": true,
+    "provider_redistributions_share_lineage": true
+  },
+  "contract": "useful_plants_reproductive_source_package_v1",
+  "excluded": {},
+  "inputs": {
+    ".work\\wave35-ken-fern-production-fixed\\ken_fern_self_fertile_candidates.csv.gz": "94fc6b40a914f5da6d604a5df5fcf8706e24bf7b2562b9a68d213b2f3c387f1c",
+    ".work\\wave35-pfaf-production\\pfaf_self_fertile_candidates.csv.gz": "4deea41da8427ed03b161327c66ea898d2a1c44023d9040f157311f3d5aa743f"
+  },
+  "provider_rows": {
+    "ken_fern": 20,
+    "pfaf": 3
+  },
+  "strict_direct": {
+    "normalized_value": "SC",
+    "quality": "medium",
+    "rows_before_lineage_dedup": 23,
+    "species": 20,
+    "species_trait_after_lineage_dedup": 20,
+    "trait_name": "self_incompatibility"
+  }
+}
