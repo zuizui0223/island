@@ -10,10 +10,13 @@ on:
       - "src/island_v2/chapter1_trait_resolution_mnar.py"
       - "src/island_v2/chapter1_climate_overlap_validation.py"
       - "src/island_v2/chapter1_pollination_architecture_factor.py"
+      - "src/island_v2/chapter1_taxonomic_depth_decomposition.py"
       - "tests/test_chapter1_trait_snapshot.py"
       - "tests/test_chapter1_trait_resolution_mnar.py"
       - "tests/test_chapter1_climate_overlap_validation.py"
       - "tests/test_chapter1_pollination_architecture_factor.py"
+      - "tests/test_chapter1_taxonomic_depth_decomposition.py"
+      - "data/v2/staging/gbif/collected/island_taxa.csv"
       - "docs/chapter1_progressive_analysis_contract.md"
       - ".github/workflows/run-chapter1-progressive-trait-analysis.yml"
   workflow_dispatch:
@@ -72,16 +75,19 @@ jobs:
             tests/test_chapter1_trait_snapshot.py \
             tests/test_chapter1_trait_resolution_mnar.py \
             tests/test_chapter1_climate_overlap_validation.py \
-            tests/test_chapter1_pollination_architecture_factor.py
+            tests/test_chapter1_pollination_architecture_factor.py \
+            tests/test_chapter1_taxonomic_depth_decomposition.py
           ruff check \
             src/island_v2/chapter1_trait_snapshot.py \
             src/island_v2/chapter1_trait_resolution_mnar.py \
             src/island_v2/chapter1_climate_overlap_validation.py \
             src/island_v2/chapter1_pollination_architecture_factor.py \
+            src/island_v2/chapter1_taxonomic_depth_decomposition.py \
             tests/test_chapter1_trait_snapshot.py \
             tests/test_chapter1_trait_resolution_mnar.py \
             tests/test_chapter1_climate_overlap_validation.py \
-            tests/test_chapter1_pollination_architecture_factor.py
+            tests/test_chapter1_pollination_architecture_factor.py \
+            tests/test_chapter1_taxonomic_depth_decomposition.py
           python - <<'PY'
           import yaml
           from pathlib import Path
@@ -345,6 +351,27 @@ jobs:
           test -s /tmp/progressive/architecture/all_analysis_eligible/factor_model.csv
           test -s /tmp/progressive/architecture/direct_only/factor_model.csv
 
+      - name: Run prospective V2 family-to-genus taxonomic-depth decomposition
+        run: |
+          set -euo pipefail
+          python -m island_v2.chapter1_taxonomic_depth_decomposition \
+            --all-species-scores-csv /tmp/progressive/syndrome/all/species_syndrome_concordance.csv.gz \
+            --direct-species-scores-csv /tmp/progressive/syndrome/direct/species_syndrome_concordance.csv.gz \
+            --taxonomy-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --status-flora-csv /tmp/progressive/fixed/canonical/input/chapter1_status_flora.csv.gz \
+            --gift-flora-csv /tmp/progressive/fixed/source/source/gift_native_mainland_flora.csv.gz \
+            --source-assignments-csv /tmp/progressive/fixed/source/result/island_source_assignments.csv.gz \
+            --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/progressive/fixed/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --source-config-path config/chapter1_pr138_source_pool_sensitivity.yml \
+            --explanation-config-path config/chapter1_explanation_gap_validation.yml \
+            --output-dir /tmp/progressive/taxonomic-depth
+          test -s /tmp/progressive/taxonomic-depth/chapter1_v2_taxonomic_depth_manifest.json
+          test -s /tmp/progressive/taxonomic-depth/all_analysis_eligible/classification.csv
+          test -s /tmp/progressive/taxonomic-depth/direct_only/classification.csv
+
       - name: Refit source-adjusted plant branches
         run: |
           set -euo pipefail
@@ -422,6 +449,9 @@ jobs:
           v4_architecture = json.loads(
               (root/'architecture/chapter1_v4_architecture_manifest.json').read_text()
           )
+          v2_taxonomic_depth = json.loads(
+              (root/'taxonomic-depth/chapter1_v2_taxonomic_depth_manifest.json').read_text()
+          )
 
           summary = {
               'contract': 'chapter1_progressive_analysis_v1',
@@ -437,6 +467,7 @@ jobs:
               'V1_climate_overlap_all_analysis': v1_all,
               'V1_climate_overlap_direct_only': v1_direct,
               'V4_source_trained_architecture': v4_architecture,
+              'V2_taxonomic_depth': v2_taxonomic_depth,
               'result_values_are_not_ci_expectations': True,
               'interpretation': 'compare this snapshot prospectively with earlier snapshots; do not fail CI because a biological conclusion changes',
           }
@@ -450,6 +481,7 @@ jobs:
           lines.append('The prospective V5 MNAR grid also executed for all-analysis and direct-only evidence; support loss or sign reversal is a scientific result, not a CI failure.')
           lines.append('The prospective V1 climate-overlap and distance-by-climate tests executed in both evidence scopes; poor overlap or loss of regional support is retained rather than tuned away.')
           lines.append('The prospective V4 source-trained common-factor, template-residual, source-pool and genus decomposition executed in both evidence scopes; unavailable family taxonomy is retained as not evaluable for V2.')
+          lines.append('The prospective V2 source-matched family-to-genus decomposition executed in both evidence scopes using a frozen taxonomy hash and common observed-species support; family labels were grouping variables only.')
           lines.append('')
           lines.append('## Axis coverage')
           lines.append('```text')
