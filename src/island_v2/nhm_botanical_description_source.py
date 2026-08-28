@@ -59,6 +59,7 @@ REVIEW_COLUMNS = (
     "reviewed_at_utc",
 )
 GZIP = {"method": "gzip", "mtime": 0}
+TEXT_SUFFIXES = {".csv", ".json", ".jsonl", ".md", ".toml", ".yml", ".yaml"}
 
 
 def _text(value: object) -> str:
@@ -68,7 +69,10 @@ def _text(value: object) -> str:
 
 
 def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    payload = path.read_bytes()
+    if path.suffix.casefold() in TEXT_SUFFIXES:
+        payload = payload.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return hashlib.sha256(payload).hexdigest()
 
 
 def _record_id(row: dict[str, object]) -> str:

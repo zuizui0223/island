@@ -27,10 +27,14 @@ app = typer.Typer(add_completion=False, no_args_is_help=True)
 EXPECTED_SPECIES = 106_295
 EXPECTED_CELLS = EXPECTED_SPECIES * len(AXES)
 GZIP = {"method": "gzip", "mtime": 0}
+TEXT_SUFFIXES = {".csv", ".json", ".jsonl", ".md", ".toml", ".yml", ".yaml"}
 
 
 def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    payload = path.read_bytes()
+    if path.suffix.casefold() in TEXT_SUFFIXES:
+        payload = payload.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return hashlib.sha256(payload).hexdigest()
 
 
 def _local_validate_universe(frame: pd.DataFrame, *, label: str) -> None:

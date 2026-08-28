@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import pandas as pd
 
-from island_v2.nhm_botanical_description_source import REVIEW_COLUMNS, build_package
+from island_v2.nhm_botanical_description_source import (
+    REVIEW_COLUMNS,
+    _sha256,
+    build_package,
+)
 
 
 def _row(**overrides: str) -> dict[str, str]:
@@ -72,3 +76,11 @@ def test_reward_and_pollination_are_not_strict_structure_traits() -> None:
     evidence, audit = build_package(pd.DataFrame(rows))
     assert evidence.empty
     assert set(audit.package_reason) == {"trait_not_allowed_in_strict_axes"}
+
+
+def test_text_hash_is_stable_across_checkout_line_endings(tmp_path) -> None:
+    lf = tmp_path / "lf.csv"
+    crlf = tmp_path / "crlf.csv"
+    lf.write_bytes(b"a,b\n1,2\n")
+    crlf.write_bytes(b"a,b\r\n1,2\r\n")
+    assert _sha256(lf) == _sha256(crlf)
