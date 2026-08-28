@@ -46,6 +46,39 @@ validations:
           - distance_x_climate_pc3
           - distance_x_climate_pc4
         target_test: residual_distance_x_context_joint_vector
+    frozen_implementation:
+      primary_axis_set: universal_plant_response
+      headline_contrasts:
+        analysis_regime:
+          - [northern_midlatitude, tropical]
+        biogeographic_realm:
+          - [Palearctic, Neotropical]
+      overlap_model:
+        link: binomial_logit
+        weighting: overlap_weights
+        propensity_clip: 1.0e-8
+        normalize_mean_weight_within_context: true
+        minimum_context_islands: 50
+        poor_overlap_if_either:
+          minimum_effective_sample_fraction: 0.25
+          maximum_absolute_weighted_standardized_mean_difference: 0.10
+      distance_x_climate_model:
+        climate_interaction_predictors:
+          - climate_pc1
+          - climate_pc2
+          - climate_pc3
+          - climate_pc4
+        retain_baseline_main_effects: true
+        target: joint_distance_x_context_vector_after_distance_x_climate
+      multiplicity:
+        family: validation_mode_x_axis_set_x_stratum_x_support_tier
+        alpha: 0.05
+      rules:
+        - context_weight_model_uses_complete_island_covariate_universe
+        - context_weight_model_never_uses_trait_availability_or_values
+        - response_support_gates_are_not_lowered_after_weighting
+        - poor_overlap_is_reported_even_if_the_weighted_test_is_significant
+        - validation_support_loss_is_a_scientific_result_not_a_CI_failure
     interpretation:
       survives_both: regional_branching_not_reducible_to_measured_climate_composition
       climate_absorbs_context: reinterpret_H2_as_environment_dependent_branching

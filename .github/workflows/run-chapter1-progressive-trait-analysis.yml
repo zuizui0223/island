@@ -8,8 +8,10 @@ on:
       - "config/chapter1_explanation_gap_validation.yml"
       - "src/island_v2/chapter1_trait_snapshot.py"
       - "src/island_v2/chapter1_trait_resolution_mnar.py"
+      - "src/island_v2/chapter1_climate_overlap_validation.py"
       - "tests/test_chapter1_trait_snapshot.py"
       - "tests/test_chapter1_trait_resolution_mnar.py"
+      - "tests/test_chapter1_climate_overlap_validation.py"
       - "docs/chapter1_progressive_analysis_contract.md"
       - ".github/workflows/run-chapter1-progressive-trait-analysis.yml"
   workflow_dispatch:
@@ -66,12 +68,15 @@ jobs:
         run: |
           pytest -q \
             tests/test_chapter1_trait_snapshot.py \
-            tests/test_chapter1_trait_resolution_mnar.py
+            tests/test_chapter1_trait_resolution_mnar.py \
+            tests/test_chapter1_climate_overlap_validation.py
           ruff check \
             src/island_v2/chapter1_trait_snapshot.py \
             src/island_v2/chapter1_trait_resolution_mnar.py \
+            src/island_v2/chapter1_climate_overlap_validation.py \
             tests/test_chapter1_trait_snapshot.py \
-            tests/test_chapter1_trait_resolution_mnar.py
+            tests/test_chapter1_trait_resolution_mnar.py \
+            tests/test_chapter1_climate_overlap_validation.py
           python - <<'PY'
           import yaml
           from pathlib import Path
@@ -288,6 +293,32 @@ jobs:
           test -s /tmp/progressive/mnar/all/chapter1_trait_resolution_mnar_manifest.json
           test -s /tmp/progressive/mnar/direct/chapter1_trait_resolution_mnar_manifest.json
 
+      - name: Run prospective V1 climate overlap and contingency validation
+        run: |
+          set -euo pipefail
+          python -m island_v2.chapter1_climate_overlap_validation \
+            --island-scores-csv /tmp/progressive/syndrome/all/island_syndrome_scores.csv.gz \
+            --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/progressive/fixed/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --explanation-config-path config/chapter1_explanation_gap_validation.yml \
+            --evidence-scope all_analysis_eligible \
+            --output-dir /tmp/progressive/climate-overlap/all
+          python -m island_v2.chapter1_climate_overlap_validation \
+            --island-scores-csv /tmp/progressive/syndrome/direct/island_syndrome_scores.csv.gz \
+            --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/progressive/fixed/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --explanation-config-path config/chapter1_explanation_gap_validation.yml \
+            --evidence-scope direct_only \
+            --output-dir /tmp/progressive/climate-overlap/direct
+          test -s /tmp/progressive/climate-overlap/all/v1_vector_tests.csv
+          test -s /tmp/progressive/climate-overlap/direct/v1_vector_tests.csv
+          test -s /tmp/progressive/climate-overlap/all/chapter1_v1_climate_overlap_manifest.json
+          test -s /tmp/progressive/climate-overlap/direct/chapter1_v1_climate_overlap_manifest.json
+
       - name: Refit source-adjusted plant branches
         run: |
           set -euo pipefail
@@ -356,6 +387,12 @@ jobs:
           mnar_direct = json.loads(
               (root/'mnar/direct/chapter1_trait_resolution_mnar_manifest.json').read_text()
           )
+          v1_all = json.loads(
+              (root/'climate-overlap/all/chapter1_v1_climate_overlap_manifest.json').read_text()
+          )
+          v1_direct = json.loads(
+              (root/'climate-overlap/direct/chapter1_v1_climate_overlap_manifest.json').read_text()
+          )
 
           summary = {
               'contract': 'chapter1_progressive_analysis_v1',
@@ -368,6 +405,8 @@ jobs:
               'area_coefficient_rows': len(area),
               'V5_MNAR_all_analysis': mnar_all,
               'V5_MNAR_direct_only': mnar_direct,
+              'V1_climate_overlap_all_analysis': v1_all,
+              'V1_climate_overlap_direct_only': v1_direct,
               'result_values_are_not_ci_expectations': True,
               'interpretation': 'compare this snapshot prospectively with earlier snapshots; do not fail CI because a biological conclusion changes',
           }
@@ -379,6 +418,7 @@ jobs:
           lines.append('')
           lines.append('The fixed hypothesis/model contract executed successfully. Biological estimates are allowed to change as trait coverage improves.')
           lines.append('The prospective V5 MNAR grid also executed for all-analysis and direct-only evidence; support loss or sign reversal is a scientific result, not a CI failure.')
+          lines.append('The prospective V1 climate-overlap and distance-by-climate tests executed in both evidence scopes; poor overlap or loss of regional support is retained rather than tuned away.')
           lines.append('')
           lines.append('## Axis coverage')
           lines.append('```text')
