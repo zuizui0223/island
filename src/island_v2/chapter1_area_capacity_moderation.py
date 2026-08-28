@@ -45,7 +45,9 @@ def _sha256(path: Path) -> str:
 
 def _sha256_text(path: Path) -> str:
     """Hash tracked config text after canonical newline normalization."""
-    canonical = path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
+    canonical = (
+        path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
+    )
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
@@ -156,15 +158,20 @@ def _fit_within(
     context_layer: str,
     support_tier: str,
     threshold: int,
+    weight_column: str | None = None,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
     distance = str(area_config["distance_column"])
     area = str(area_config["area_column"])
     cluster = str(area_config["cluster_column"])
     controls = [str(x) for x in area_config["control_columns"]]
     needed = ["response_score", distance, area, cluster, *controls]
-    work = data.loc[
-        data["stratum"].eq(stratum) & data[context_column].eq(context)
-    ].dropna(subset=needed).copy()
+    if weight_column is not None:
+        needed.append(weight_column)
+    work = (
+        data.loc[data["stratum"].eq(stratum) & data[context_column].eq(context)]
+        .dropna(subset=needed)
+        .copy()
+    )
     counts = work.groupby("response")["island_id"].nunique()
     responses = sorted(counts.loc[counts.ge(threshold)].index.astype(str))
     base = {
@@ -210,9 +217,15 @@ def _fit_within(
             "distance_x_area": interaction_name,
         }
 
+    if weight_column is None:
+        weights = np.ones(len(work), dtype=float)
+    else:
+        weights = pd.to_numeric(work[weight_column], errors="coerce").to_numpy(float)
+        if not np.isfinite(weights).all() or np.any(weights <= 0):
+            return pd.DataFrame(), {**base, "status": "invalid_weights"}
     coefficients, covariance, fit = _fit_weighted_clustered_design(
         work["response_score"].to_numpy(float),
-        np.ones(len(work), dtype=float),
+        weights,
         np.column_stack(columns),
         names,
         work[cluster].astype(str).to_numpy(),
@@ -286,12 +299,18 @@ def _fit_between(
     cluster = str(area_config["cluster_column"])
     controls = [str(x) for x in area_config["control_columns"]]
     needed = ["response_score", distance, area, cluster, *controls]
-    work = data.loc[
-        data["stratum"].eq(stratum)
-        & data[context_column].isin([context_a, context_b])
-    ].dropna(subset=needed).copy()
-    counts = work.groupby(["response", context_column])["island_id"].nunique().unstack(
-        fill_value=0
+    work = (
+        data.loc[
+            data["stratum"].eq(stratum)
+            & data[context_column].isin([context_a, context_b])
+        ]
+        .dropna(subset=needed)
+        .copy()
+    )
+    counts = (
+        work.groupby(["response", context_column])["island_id"]
+        .nunique()
+        .unstack(fill_value=0)
     )
     for context in [context_a, context_b]:
         if context not in counts.columns:
@@ -356,9 +375,7 @@ def _fit_between(
                 z_area * b_indicator,
             ]
         )
-        difference_name = (
-            f"response[{response}]:z_distance:z_area:context[{context_b}]"
-        )
+        difference_name = f"response[{response}]:z_distance:z_area:context[{context_b}]"
         names.append(difference_name)
         columns.append(interaction * b_indicator)
         difference_names[response] = difference_name
@@ -428,14 +445,16 @@ def _apply_inference(
         )
     if not coefficients.empty:
         fit_keys = [*family, "context"]
-        coefficients["distance_q"] = coefficients.groupby(
-            family, group_keys=False
-        )["distance_p"].transform(_bh)
+        coefficients["distance_q"] = coefficients.groupby(family, group_keys=False)[
+            "distance_p"
+        ].transform(_bh)
         coefficients["distance_x_area_q"] = coefficients.groupby(
             family, group_keys=False
         )["distance_x_area_p"].transform(_bh)
         gate = within[fit_keys + ["area_moderation_vector_supported"]]
-        coefficients = coefficients.merge(gate, on=fit_keys, how="left", validate="many_to_one")
+        coefficients = coefficients.merge(
+            gate, on=fit_keys, how="left", validate="many_to_one"
+        )
         coefficients["distance_axis_supported"] = coefficients["distance_q"].le(alpha)
         coefficients["interaction_axis_supported"] = coefficients[
             "distance_x_area_q"
@@ -450,18 +469,18 @@ def _apply_inference(
             coefficients["distance_estimate_at_mean_area"]
             * coefficients["distance_x_area_estimate"]
         ).lt(0)
-        coefficients.loc[
-            supported & opposite, "area_moderation_state"
-        ] = "distance_effect_stronger_on_smaller_islands"
-        coefficients.loc[
-            supported & ~opposite, "area_moderation_state"
-        ] = "distance_effect_stronger_on_larger_islands"
+        coefficients.loc[supported & opposite, "area_moderation_state"] = (
+            "distance_effect_stronger_on_smaller_islands"
+        )
+        coefficients.loc[supported & ~opposite, "area_moderation_state"] = (
+            "distance_effect_stronger_on_larger_islands"
+        )
         vector_only = (
             coefficients["area_moderation_vector_supported"].fillna(False) & ~supported
         )
-        coefficients.loc[
-            vector_only, "area_moderation_state"
-        ] = "supported_vector_without_axiswise_amplification"
+        coefficients.loc[vector_only, "area_moderation_state"] = (
+            "supported_vector_without_axiswise_amplification"
+        )
 
     if not between.empty:
         fit = between["status"].eq("fit")
@@ -469,9 +488,9 @@ def _apply_inference(
         between.loc[fit, "q_between_family"] = (
             between.loc[fit].groupby(family, group_keys=False)["p_value"].transform(_bh)
         )
-        between["area_moderation_difference_supported"] = between[
-            "q_between_family"
-        ].le(alpha).fillna(False)
+        between["area_moderation_difference_supported"] = (
+            between["q_between_family"].le(alpha).fillna(False)
+        )
     if not between_coefficients.empty:
         between_coefficients["difference_q"] = between_coefficients.groupby(
             family, group_keys=False
@@ -481,10 +500,9 @@ def _apply_inference(
         between_coefficients = between_coefficients.merge(
             gate, on=keys, how="left", validate="many_to_one"
         )
-        between_coefficients["difference_axis_supported"] = (
-            between_coefficients["area_moderation_difference_supported"].fillna(False)
-            & between_coefficients["difference_q"].le(alpha)
-        )
+        between_coefficients["difference_axis_supported"] = between_coefficients[
+            "area_moderation_difference_supported"
+        ].fillna(False) & between_coefficients["difference_q"].le(alpha)
     return coefficients, within, between_coefficients, between
 
 
@@ -510,9 +528,9 @@ def run_area_capacity_analysis(
         context_column = str(layer_spec["column"])
         layer_covariates = covariates.copy()
         if context_column not in layer_covariates.columns:
-            assignment = realm_assignment[["island_id", context_column]].drop_duplicates(
-                "island_id"
-            )
+            assignment = realm_assignment[
+                ["island_id", context_column]
+            ].drop_duplicates("island_id")
             layer_covariates = layer_covariates.merge(
                 assignment,
                 on="island_id",
@@ -529,7 +547,9 @@ def run_area_capacity_analysis(
                 context_column=context_column,
             )
             for source_mode in prepared["source_mode"].dropna().astype(str).unique():
-                source_data = prepared.loc[prepared["source_mode"].eq(source_mode)].copy()
+                source_data = prepared.loc[
+                    prepared["source_mode"].eq(source_mode)
+                ].copy()
                 for stratum, (support_tier, threshold) in itertools.product(
                     primary_strata, tiers.items()
                 ):
@@ -612,7 +632,9 @@ def main() -> None:
         area_config,
     )
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    coefficients.to_csv(args.output_dir / "area_moderation_coefficients.csv", index=False)
+    coefficients.to_csv(
+        args.output_dir / "area_moderation_coefficients.csv", index=False
+    )
     within.to_csv(args.output_dir / "area_moderation_within_context.csv", index=False)
     between_coefficients.to_csv(
         args.output_dir / "area_moderation_between_coefficients.csv", index=False

@@ -7,9 +7,18 @@ from island_v2.chapter1_taxonomic_depth_decomposition import (
     STAGES,
     build_taxonomic_decomposition,
     classify_depth,
+    file_sha256,
     taxonomic_branching_config,
     validate_taxonomy,
 )
+
+
+def test_taxonomy_hash_is_stable_across_line_endings(tmp_path) -> None:
+    lf = tmp_path / "lf.csv"
+    crlf = tmp_path / "crlf.csv"
+    lf.write_bytes(b"accepted_species,genus,family\nAlpha one,Alpha,A\n")
+    crlf.write_bytes(b"accepted_species,genus,family\r\nAlpha one,Alpha,A\r\n")
+    assert file_sha256(lf) == file_sha256(crlf)
 
 
 def test_taxonomy_hash_and_unique_species_fail_closed() -> None:

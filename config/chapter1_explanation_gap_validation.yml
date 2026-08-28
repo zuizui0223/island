@@ -109,7 +109,7 @@ validations:
         - selfing_core
       taxonomy_input:
         path: data/v2/staging/gbif/collected/island_taxa.csv
-        sha256: 21925a4e4d6fc8431e8549b3c3ddff9acdbded0b017e0aa78a5c863147392fe9
+        sha256_newline_canonicalized: c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e
         required_columns:
           - accepted_species
           - genus

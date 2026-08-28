@@ -3,10 +3,26 @@ import pandas as pd
 
 from island_v2.chapter1_pr138_lineage_representation_bridge import (
     compute_island_enrichment,
+    evidence_definitions,
     exact_si_species,
     gift_source_functional_counts,
     source_genus_positions,
 )
+
+
+def test_broad_direct_scope_reuses_frozen_broad_source_contract() -> None:
+    marker = pd.DataFrame({"accepted_species": ["Alpha one"]})
+    direct = pd.DataFrame({"accepted_species": ["Beta one"]})
+    definitions = evidence_definitions(marker, direct, marker, direct)
+    broad_direct = next(
+        item for item in definitions if item["evidence_scope"] == "broad_direct"
+    )
+    assert broad_direct["species_scores"] is direct
+    assert broad_direct["trait_ledger"] is None
+    assert broad_direct["minimum_source_scored_species"] == 1
+    assert broad_direct["minimum_represented_genera"] == [5]
+    assert broad_direct["restricted_to_exact_si"] is False
+    assert broad_direct["raw_gift_availability"] is True
 
 
 def test_loading_increment_separates_species_loading_from_genus_entry() -> None:

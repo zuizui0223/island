@@ -421,6 +421,23 @@ jobs:
             --area-config-path config/chapter1_area_capacity_moderation.yml \
             --output-dir /tmp/progressive/area
 
+      - name: Run prospective V3 area-support artifact falsification
+        run: |
+          set -euo pipefail
+          python -m island_v2.chapter1_area_support_artifact \
+            --all-island-scores-csv /tmp/progressive/syndrome/all/island_syndrome_scores.csv.gz \
+            --direct-island-scores-csv /tmp/progressive/syndrome/direct/island_syndrome_scores.csv.gz \
+            --lineage-scores-csv /tmp/progressive/lineage/lineage_representation_island_scores.csv.gz \
+            --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/progressive/fixed/realm/realm/island_biogeographic_realm_assignment.csv \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --area-config-path config/chapter1_area_capacity_moderation.yml \
+            --explanation-config-path config/chapter1_explanation_gap_validation.yml \
+            --output-dir /tmp/progressive/area-support
+          test -s /tmp/progressive/area-support/chapter1_v3_area_support_manifest.json
+          test -s /tmp/progressive/area-support/V3_primary_classification.csv
+          test -s /tmp/progressive/area-support/V3_heteroskedastic_null_simulation.csv
+
       - name: Build non-frozen update summary
         run: |
           python - <<'PY'
@@ -452,6 +469,9 @@ jobs:
           v2_taxonomic_depth = json.loads(
               (root/'taxonomic-depth/chapter1_v2_taxonomic_depth_manifest.json').read_text()
           )
+          v3_area_support = json.loads(
+              (root/'area-support/chapter1_v3_area_support_manifest.json').read_text()
+          )
 
           summary = {
               'contract': 'chapter1_progressive_analysis_v1',
@@ -468,6 +488,7 @@ jobs:
               'V1_climate_overlap_direct_only': v1_direct,
               'V4_source_trained_architecture': v4_architecture,
               'V2_taxonomic_depth': v2_taxonomic_depth,
+              'V3_area_support_artifact': v3_area_support,
               'result_values_are_not_ci_expectations': True,
               'interpretation': 'compare this snapshot prospectively with earlier snapshots; do not fail CI because a biological conclusion changes',
           }
@@ -482,6 +503,7 @@ jobs:
           lines.append('The prospective V1 climate-overlap and distance-by-climate tests executed in both evidence scopes; poor overlap or loss of regional support is retained rather than tuned away.')
           lines.append('The prospective V4 source-trained common-factor, template-residual, source-pool and genus decomposition executed in both evidence scopes; unavailable family taxonomy is retained as not evaluable for V2.')
           lines.append('The prospective V2 source-matched family-to-genus decomposition executed in both evidence scopes using a frozen taxonomy hash and common observed-species support; family labels were grouping variables only.')
+          lines.append('The prospective V3 area-support falsification executed equal-island, capped-information, direct-only and outcome-blind common-support fits plus the frozen heteroskedastic null simulation; support was not inserted as a causal control.')
           lines.append('')
           lines.append('## Axis coverage')
           lines.append('```text')

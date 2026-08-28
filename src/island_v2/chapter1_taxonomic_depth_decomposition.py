@@ -32,11 +32,14 @@ STAGES = ("observed_score", "after_family_residual", "after_genus_residual")
 
 
 def file_sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for block in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
+    """Hash a tracked CSV after CRLF/LF canonicalization."""
+
+    canonical = (
+        path.read_text(encoding="utf-8")
+        .replace("\r\n", "\n")
+        .replace("\r", "\n")
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def validate_taxonomy(
@@ -480,7 +483,9 @@ def run_v2(
         "frozen_implementation"
     ]
     taxonomy = validate_taxonomy(
-        taxonomy, str(spec["taxonomy_input"]["sha256"]), taxonomy_sha256
+        taxonomy,
+        str(spec["taxonomy_input"]["sha256_newline_canonicalized"]),
+        taxonomy_sha256,
     )
     axes = [str(x) for x in spec["plant_response_axes"]]
     source_modes = [str(x) for x in source_config["source_assignment"]["primary_modes"]]
@@ -543,7 +548,7 @@ def run_v2(
         }
     manifest = {
         "contract": "chapter1_v2_source_matched_taxonomic_depth_v1",
-        "taxonomy_sha256": taxonomy_sha256,
+        "taxonomy_sha256_newline_canonicalized": taxonomy_sha256,
         "n_taxonomy_species": len(taxonomy),
         "n_family_resolved_taxonomy_species": int(taxonomy["family"].ne("").sum()),
         "plant_response_axes": axes,
