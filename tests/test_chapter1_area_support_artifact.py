@@ -36,7 +36,7 @@ def test_common_support_overlap_uses_support_and_area_not_response() -> None:
                     "island_id": f"i{index}",
                     "response": response,
                     "response_score": score,
-                    "n_response_species": support,
+                    "n_response_species": support + (15 if response == "b" else 0),
                     "area": area,
                 }
             )
@@ -48,6 +48,7 @@ def test_common_support_overlap_uses_support_and_area_not_response() -> None:
     )
     changed = data.copy()
     changed["response_score"] *= -999
+    changed = changed.iloc[::-1].reset_index(drop=True)
     retained_changed, diagnostic_changed = common_support_area_overlap(
         changed,
         area_column="area",

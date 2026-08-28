@@ -169,7 +169,13 @@ def common_support_area_overlap(
     upper_quantile: float = 0.95,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
     islands = (
-        data[["island_id", "n_response_species", area_column]].drop_duplicates("island_id").dropna()
+        data[["island_id", "n_response_species", area_column]]
+        .dropna()
+        .groupby("island_id", as_index=False)
+        .agg(
+            n_response_species=("n_response_species", "min"),
+            **{area_column: (area_column, "first")},
+        )
     )
     if islands.empty:
         return data.iloc[0:0].copy(), {"status": "not_testable_no_support"}
