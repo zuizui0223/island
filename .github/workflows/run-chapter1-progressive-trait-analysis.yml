@@ -1,0 +1,352 @@
+name: Run Chapter 1 progressive trait analysis
+
+on:
+  push:
+    branches: [ch1-progressive-trait-analysis]
+    paths:
+      - "config/chapter1_progressive_analysis.yml"
+      - "src/island_v2/chapter1_trait_snapshot.py"
+      - "tests/test_chapter1_trait_snapshot.py"
+      - "docs/chapter1_progressive_analysis_contract.md"
+      - ".github/workflows/run-chapter1-progressive-trait-analysis.yml"
+  workflow_dispatch:
+    inputs:
+      trait_run_id:
+        description: "Workflow run containing the newest species x axis trait coverage"
+        required: true
+        type: string
+      trait_artifact_name:
+        description: "Artifact name containing the newest species x axis trait coverage"
+        required: true
+        type: string
+      species_axis_relative_path:
+        description: "Relative path inside the artifact; basename fallback is allowed"
+        required: true
+        default: "wave36_species_axis_coverage.csv.gz"
+        type: string
+      previous_run_id:
+        description: "Optional previous trait/snapshot workflow run for transition audit"
+        required: false
+        default: ""
+        type: string
+      previous_artifact_name:
+        description: "Optional previous artifact name"
+        required: false
+        default: ""
+        type: string
+      previous_species_axis_relative_path:
+        description: "Optional previous species x axis path"
+        required: false
+        default: "chapter1_trait_snapshot_species_axis.csv.gz"
+        type: string
+      allow_evidence_revision:
+        description: "Explicitly allow audited evidence loss/value revision"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate progressive snapshot contract
+        run: |
+          pytest -q tests/test_chapter1_trait_snapshot.py
+          ruff check \
+            src/island_v2/chapter1_trait_snapshot.py \
+            tests/test_chapter1_trait_snapshot.py
+          python - <<'PY'
+          import yaml
+          from pathlib import Path
+          contract = yaml.safe_load(Path('config/chapter1_progressive_analysis.yml').read_text())
+          assert contract['contract'] == 'chapter1_progressive_analysis_v1'
+          assert contract['support_gates']['global_trait_fill_fraction_is_not_an_analysis_gate'] is True
+          assert contract['analysis_update_policy']['reestimate_on_every_new_snapshot'] is True
+          assert contract['manuscript_policy']['current_pr141_role'] == 'baseline_snapshot_not_final_data_freeze'
+          PY
+
+  analyse:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      # Fixed geography/status/source infrastructure. These are not trait outcomes.
+      ISOLATION_RUN_ID: "29228212586"
+      ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+      CANONICAL_RUN_ID: "32845980788"
+      CANONICAL_ARTIFACT: "chapter1-when-where-main-32845980788"
+      REALM_RUN_ID: "32927060210"
+      REALM_ARTIFACT: "pr138-realm-sensitivity-32927060210"
+      SOURCE_RUN_ID: "32954909953"
+      SOURCE_ARTIFACT: "pr138-source-pool-sensitivity-32954909953"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Download current trait wave and resolve species-axis file
+        env:
+          TRAIT_RUN_ID: ${{ inputs.trait_run_id }}
+          TRAIT_ARTIFACT: ${{ inputs.trait_artifact_name }}
+          TRAIT_RELATIVE: ${{ inputs.species_axis_relative_path }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/progressive/trait-source
+          gh run download "$TRAIT_RUN_ID" -n "$TRAIT_ARTIFACT" -D /tmp/progressive/trait-source
+          candidate="/tmp/progressive/trait-source/$TRAIT_RELATIVE"
+          if [ ! -s "$candidate" ]; then
+            base=$(basename "$TRAIT_RELATIVE")
+            mapfile -t matches < <(find /tmp/progressive/trait-source -type f -name "$base" -print)
+            test "${#matches[@]}" -eq 1
+            candidate="${matches[0]}"
+          fi
+          test -s "$candidate"
+          echo "CURRENT_SPECIES_AXIS=$candidate" >> "$GITHUB_ENV"
+
+      - name: Optionally download previous trait snapshot
+        env:
+          PREVIOUS_RUN_ID: ${{ inputs.previous_run_id }}
+          PREVIOUS_ARTIFACT: ${{ inputs.previous_artifact_name }}
+          PREVIOUS_RELATIVE: ${{ inputs.previous_species_axis_relative_path }}
+        run: |
+          set -euo pipefail
+          if [ -z "$PREVIOUS_RUN_ID" ]; then
+            echo "PREVIOUS_SPECIES_AXIS=" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          test -n "$PREVIOUS_ARTIFACT"
+          mkdir -p /tmp/progressive/trait-previous
+          gh run download "$PREVIOUS_RUN_ID" -n "$PREVIOUS_ARTIFACT" -D /tmp/progressive/trait-previous
+          candidate="/tmp/progressive/trait-previous/$PREVIOUS_RELATIVE"
+          if [ ! -s "$candidate" ]; then
+            base=$(basename "$PREVIOUS_RELATIVE")
+            mapfile -t matches < <(find /tmp/progressive/trait-previous -type f -name "$base" -print)
+            test "${#matches[@]}" -eq 1
+            candidate="${matches[0]}"
+          fi
+          test -s "$candidate"
+          echo "PREVIOUS_SPECIES_AXIS=$candidate" >> "$GITHUB_ENV"
+
+      - name: Materialize versioned Chapter 1 trait snapshot
+        env:
+          TRAIT_RUN_ID: ${{ inputs.trait_run_id }}
+          TRAIT_ARTIFACT: ${{ inputs.trait_artifact_name }}
+          ALLOW_REVISION: ${{ inputs.allow_evidence_revision }}
+        run: |
+          set -euo pipefail
+          args=(
+            --species-axis-csv "$CURRENT_SPECIES_AXIS"
+            --output-dir /tmp/progressive/snapshot
+            --expected-species 106295
+            --source-run-id "$TRAIT_RUN_ID"
+            --source-artifact-name "$TRAIT_ARTIFACT"
+          )
+          if [ -n "${PREVIOUS_SPECIES_AXIS:-}" ]; then
+            args+=(--previous-species-axis-csv "$PREVIOUS_SPECIES_AXIS")
+          fi
+          if [ "$ALLOW_REVISION" = "true" ]; then
+            args+=(--allow-evidence-revision)
+          fi
+          python -m island_v2.chapter1_trait_snapshot "${args[@]}"
+
+      - name: Download fixed non-trait analysis inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/progressive/fixed/{isolation,canonical,realm,source}
+          gh run download "$ISOLATION_RUN_ID" -n "$ISOLATION_ARTIFACT" -D /tmp/progressive/fixed/isolation
+          gh run download "$CANONICAL_RUN_ID" -n "$CANONICAL_ARTIFACT" -D /tmp/progressive/fixed/canonical
+          gh run download "$REALM_RUN_ID" -n "$REALM_ARTIFACT" -D /tmp/progressive/fixed/realm
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/progressive/fixed/source
+          test -s /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/progressive/fixed/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/progressive/fixed/realm/realm/island_biogeographic_realm_assignment.csv
+          test -s /tmp/progressive/fixed/source/source/gift_native_mainland_flora.csv.gz
+          test -s /tmp/progressive/fixed/source/result/island_source_assignments.csv.gz
+
+      - name: Build atomic-state audits from the current snapshot
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          root = Path('/tmp/progressive/snapshot')
+          for scope, filename in (
+              ('all', 'chapter1_trait_ledger_all_analysis.csv.gz'),
+              ('direct', 'chapter1_trait_ledger_direct_only.csv.gz'),
+          ):
+              x = pd.read_csv(root / filename, dtype=str).fillna('')
+              audit = x[['accepted_species','trait_name','normalized_value']].copy()
+              audit['resolved_for_primary'] = True
+              audit['canonical_signature'] = audit['normalized_value']
+              audit[['accepted_species','trait_name','resolved_for_primary','canonical_signature']].to_csv(
+                  root / f'chapter1_trait_state_audit_{scope}.csv.gz', index=False, compression='gzip'
+              )
+          PY
+
+      - name: Refit atomic WHEN-WHERE vectors on current traits
+        run: |
+          set -euo pipefail
+          for scope in all direct; do
+            python -m island_v2.chapter1_pr138_biogeographic_pattern \
+              --status-flora-csv /tmp/progressive/fixed/canonical/input/chapter1_status_flora.csv.gz \
+              --state-audit-csv /tmp/progressive/snapshot/chapter1_trait_state_audit_${scope}.csv.gz \
+              --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+              --config-path config/chapter1_pr136_biogeographic_pattern.yml \
+              --output-dir /tmp/progressive/atomic/${scope}
+          done
+
+      - name: Rebuild pollinator-name-free plant response scores
+        run: |
+          set -euo pipefail
+          python -m island_v2.chapter1_pr138_syndrome_analysis \
+            --trait-ledger-csv /tmp/progressive/snapshot/chapter1_trait_ledger_all_analysis.csv.gz \
+            --status-flora-csv /tmp/progressive/fixed/canonical/input/chapter1_status_flora.csv.gz \
+            --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --syndrome-config-path config/chapter1_pr138_pollination_syndromes.yml \
+            --output-dir /tmp/progressive/syndrome/all
+          python -m island_v2.chapter1_pr138_syndrome_analysis \
+            --trait-ledger-csv /tmp/progressive/snapshot/chapter1_trait_ledger_direct_only.csv.gz \
+            --status-flora-csv /tmp/progressive/fixed/canonical/input/chapter1_status_flora.csv.gz \
+            --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --syndrome-config-path config/chapter1_pr138_pollination_syndromes.yml \
+            --output-dir /tmp/progressive/syndrome/direct
+
+      - name: Refit biogeographic branching and observation-selection sensitivity
+        run: |
+          set -euo pipefail
+          python -m island_v2.chapter1_global_branching \
+            --island-scores-csv /tmp/progressive/syndrome/all/island_syndrome_scores.csv.gz \
+            --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/progressive/fixed/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --output-dir /tmp/progressive/branching/all
+          python -m island_v2.chapter1_global_branching \
+            --island-scores-csv /tmp/progressive/syndrome/direct/island_syndrome_scores.csv.gz \
+            --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/progressive/fixed/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --output-dir /tmp/progressive/branching/direct
+          python -m island_v2.chapter1_global_branch_selection \
+            --island-scores-csv /tmp/progressive/syndrome/all/island_syndrome_scores.csv.gz \
+            --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/progressive/fixed/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --selection-config-path config/chapter1_global_branch_selection.yml \
+            --output-dir /tmp/progressive/selection
+
+      - name: Refit source-adjusted plant branches
+        run: |
+          set -euo pipefail
+          python -m island_v2.chapter1_pr138_source_adjusted_pathway \
+            --species-scores-csv /tmp/progressive/syndrome/all/species_syndrome_concordance.csv.gz \
+            --island-scores-csv /tmp/progressive/syndrome/all/island_syndrome_scores.csv.gz \
+            --gift-flora-csv /tmp/progressive/fixed/source/source/gift_native_mainland_flora.csv.gz \
+            --source-assignments-csv /tmp/progressive/fixed/source/result/island_source_assignments.csv.gz \
+            --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --source-config-path config/chapter1_pr138_source_pool_sensitivity.yml \
+            --realm-assignment-csv /tmp/progressive/fixed/realm/realm/island_biogeographic_realm_assignment.csv \
+            --output-dir /tmp/progressive/source-adjusted
+          python -m island_v2.chapter1_pr138_source_adjusted_branch_selection \
+            --source-adjusted-scores-csv /tmp/progressive/source-adjusted/source_adjusted_pathway_island_scores.csv.gz \
+            --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/progressive/fixed/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --selection-config-path config/chapter1_global_branch_selection.yml \
+            --output-dir /tmp/progressive/joint-source-selection
+
+      - name: Refit source-matched lineage entry and loading
+        run: |
+          python -m island_v2.chapter1_pr138_lineage_representation_bridge \
+            --species-scores-csv /tmp/progressive/syndrome/all/species_syndrome_concordance.csv.gz \
+            --direct-species-scores-csv /tmp/progressive/syndrome/direct/species_syndrome_concordance.csv.gz \
+            --trait-ledger-csv /tmp/progressive/snapshot/chapter1_trait_ledger_all_analysis.csv.gz \
+            --direct-trait-ledger-csv /tmp/progressive/snapshot/chapter1_trait_ledger_direct_only.csv.gz \
+            --status-flora-csv /tmp/progressive/fixed/canonical/input/chapter1_status_flora.csv.gz \
+            --gift-flora-csv /tmp/progressive/fixed/source/source/gift_native_mainland_flora.csv.gz \
+            --source-assignments-csv /tmp/progressive/fixed/source/result/island_source_assignments.csv.gz \
+            --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/progressive/fixed/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --source-config-path config/chapter1_pr138_source_pool_sensitivity.yml \
+            --output-dir /tmp/progressive/lineage
+
+      - name: Refit continuous area moderation
+        run: |
+          python -m island_v2.chapter1_area_capacity_moderation \
+            --island-scores-csv /tmp/progressive/syndrome/all/island_syndrome_scores.csv.gz \
+            --lineage-scores-csv /tmp/progressive/lineage/lineage_representation_island_scores.csv.gz \
+            --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/progressive/fixed/realm/realm/island_biogeographic_realm_assignment.csv \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --area-config-path config/chapter1_area_capacity_moderation.yml \
+            --output-dir /tmp/progressive/area
+
+      - name: Build non-frozen update summary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+
+          root = Path('/tmp/progressive')
+          manifest = json.loads((root/'snapshot/chapter1_trait_snapshot_manifest.json').read_text())
+          atomic = pd.read_csv(root/'atomic/all/observed_between_region_omnibus.csv')
+          branches = pd.read_csv(root/'joint-source-selection/joint_selection_headline_summary.csv')
+          lineage = pd.read_csv(root/'lineage/lineage_representation_context_slopes.csv')
+          area = pd.read_csv(root/'area/area_moderation_coefficients.csv')
+
+          summary = {
+              'contract': 'chapter1_progressive_analysis_v1',
+              'trait_source_run': manifest['source_workflow_run_id'],
+              'trait_source_artifact': manifest['source_artifact_name'],
+              'coverage': manifest['coverage'],
+              'atomic_between_rows': len(atomic),
+              'joint_source_selection_rows': len(branches),
+              'lineage_context_slope_rows': len(lineage),
+              'area_coefficient_rows': len(area),
+              'result_values_are_not_ci_expectations': True,
+              'interpretation': 'compare this snapshot prospectively with earlier snapshots; do not fail CI because a biological conclusion changes',
+          }
+          (root/'progressive_analysis_manifest.json').write_text(json.dumps(summary, indent=2) + '\n')
+
+          lines = ['# Chapter 1 progressive trait update', '']
+          lines.append(f"Trait source run: `{manifest['source_workflow_run_id']}`")
+          lines.append(f"Global species-axis fill: {manifest['coverage']['global_species_axis_fill_fraction']:.3%} (descriptive only)")
+          lines.append('')
+          lines.append('The fixed hypothesis/model contract executed successfully. Biological estimates are allowed to change as trait coverage improves.')
+          lines.append('')
+          lines.append('## Axis coverage')
+          lines.append('```text')
+          lines.append(pd.read_csv(root/'snapshot/chapter1_trait_snapshot_coverage.csv').to_string(index=False))
+          lines.append('```')
+          Path(root/'progressive_analysis_summary.md').write_text('\n'.join(lines) + '\n')
+          PY
+          cat /tmp/progressive/progressive_analysis_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-progressive-analysis-${{ github.run_id }}
+          path: /tmp/progressive/
+          if-no-files-found: error
+          retention-days: 90
