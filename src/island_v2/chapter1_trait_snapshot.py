@@ -1,13 +1,11 @@
 """Materialize a versioned Chapter 1 trait snapshot from species-by-axis coverage.
 
-The scientific analysis contract is fixed elsewhere.  This module makes the trait
-layer replaceable: every acquisition wave is converted to the same long-form ledgers,
-coverage report, provenance manifest, and (optionally) a transition audit versus the
-previous snapshot.
+The hypothesis/model contract is fixed elsewhere.  This module makes the trait
+layer replaceable: every acquisition wave becomes the same ledgers, coverage report,
+provenance manifest, and optional transition audit.
 
-A global fill percentage is descriptive only.  Analysis eligibility is decided later
-from response-specific island support (pilot >=30; confirmatory >=50), not from a
-species-level completion target.
+Global fill percentage is descriptive only.  Analysis eligibility is response-specific
+(pilot >=30 islands; confirmatory >=50 islands).
 """
 
 from __future__ import annotations
@@ -54,10 +52,10 @@ def _sha256(path: Path) -> str:
 
 
 def _quality(value: object) -> str:
-    value = str(value or "").strip().casefold()
-    if value not in QUALITY_RANK:
-        raise ValueError(f"unknown quality: {value!r}")
-    return "" if value == "unresolved" else value
+    text = str(value or "").strip().casefold()
+    if text not in QUALITY_RANK:
+        raise ValueError(f"unknown quality: {text!r}")
+    return "" if text == "unresolved" else text
 
 
 def _states(value: str, *, label: str) -> list[str]:
@@ -67,8 +65,8 @@ def _states(value: str, *, label: str) -> list[str]:
         raise ValueError(f"{label}: state set is not JSON: {value!r}") from exc
     if not isinstance(parsed, list) or not parsed:
         raise ValueError(f"{label}: state set must be a non-empty JSON list")
-    states = [str(item).strip() for item in parsed if str(item).strip()]
-    if not states or len(states) != len(parsed):
+    states = [str(item).strip() for item in parsed]
+    if any(not state for state in states):
         raise ValueError(f"{label}: state set contains an empty value")
     return sorted(set(states))
 
@@ -91,13 +89,14 @@ def _parse_composition(value: object, *, axis: str, species: str) -> list[dict[s
         if trait_name in seen:
             raise ValueError(f"{species} {axis}: duplicate trait {trait_name}")
         seen.add(trait_name)
-        states = _states(state_text, label=f"{species} {trait_name}")
         rows.append(
             {
                 "accepted_species": species,
                 "axis": axis,
                 "trait_name": trait_name,
-                "normalized_value": "|".join(states),
+                "normalized_value": "|".join(
+                    _states(state_text, label=f"{species} {trait_name}")
+                ),
             }
         )
     return rows
@@ -145,8 +144,6 @@ def validate_species_axis(frame: pd.DataFrame, *, expected_species: int) -> pd.D
     if work.loc[resolved, "source_lineages"].eq("").any():
         raise ValueError("resolved species-axis cell lacks source_lineages")
 
-    # Parse every resolved composition now so downstream analyses never discover
-    # an ontology/cross-axis error after the snapshot has been declared.
     for row in work.loc[resolved].itertuples(index=False):
         parsed = _parse_composition(
             row.trait_composition,
@@ -177,7 +174,9 @@ def materialize_long_ledger(frame: pd.DataFrame, *, direct_only: bool) -> pd.Dat
                     "quality": row.quality,
                     "source_groups": row.source_groups,
                     "source_lineages": row.source_lineages,
-                    "evidence_scope": "direct" if row.quality in DIRECT_QUALITY else "validated_low",
+                    "evidence_scope": (
+                        "direct" if row.quality in DIRECT_QUALITY else "validated_low"
+                    ),
                 }
             )
     columns = [
@@ -201,20 +200,21 @@ def coverage_summary(frame: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, Any]]
     for axis in AXES:
         part = frame.loc[frame["axis"].eq(axis)]
         resolved = part["quality"].ne("")
-        row: dict[str, Any] = {
-            "axis": axis,
-            "denominator_species": int(part["accepted_species"].nunique()),
-            "resolved_species": int(resolved.sum()),
-            "fill_fraction": float(resolved.mean()),
-            "high": int(part["quality"].eq("high").sum()),
-            "medium": int(part["quality"].eq("medium").sum()),
-            "low": int(part["quality"].eq("low").sum()),
-            "unresolved": int(part["quality"].eq("").sum()),
-        }
-        rows.append(row)
+        rows.append(
+            {
+                "axis": axis,
+                "denominator_species": int(part["accepted_species"].nunique()),
+                "resolved_species": int(resolved.sum()),
+                "fill_fraction": float(resolved.mean()),
+                "high": int(part["quality"].eq("high").sum()),
+                "medium": int(part["quality"].eq("medium").sum()),
+                "low": int(part["quality"].eq("low").sum()),
+                "unresolved": int(part["quality"].eq("").sum()),
+            }
+        )
     table = pd.DataFrame(rows)
     resolved_cells = int(frame["quality"].ne("").sum())
-    summary = {
+    return table, {
         "species": int(frame["accepted_species"].nunique()),
         "species_axis_cells": int(len(frame)),
         "resolved_species_axis_cells": resolved_cells,
@@ -222,10 +222,11 @@ def coverage_summary(frame: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, Any]]
         "global_fill_fraction_is_descriptive_not_an_analysis_gate": True,
         "by_axis": {row["axis"]: row for row in rows},
     }
-    return table, summary
 
 
-def transition_audit(previous: pd.DataFrame, current: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, int]]:
+def transition_audit(
+    previous: pd.DataFrame, current: pd.DataFrame
+) -> tuple[pd.DataFrame, dict[str, int]]:
     cols = ["accepted_species", "axis", "quality", "trait_composition"]
     joined = previous[cols].merge(
         current[cols],
@@ -240,17 +241,27 @@ def transition_audit(previous: pd.DataFrame, current: pd.DataFrame) -> tuple[pd.
 
     previous_rank = joined["quality_previous"].map(QUALITY_RANK)
     current_rank = joined["quality_current"].map(QUALITY_RANK)
+    previous_resolved = previous_rank.gt(0)
+    current_resolved = current_rank.gt(0)
+
     joined["transition"] = "unchanged"
-    joined.loc[(previous_rank == 0) & (current_rank > 0), "transition"] = "newly_resolved"
-    joined.loc[(previous_rank > 0) & (current_rank == 0), "transition"] = "became_unresolved"
-    joined.loc[current_rank > previous_rank, "transition"] = "quality_upgrade"
-    joined.loc[(current_rank < previous_rank) & (current_rank > 0), "transition"] = "quality_downgrade"
-    changed_value = (
-        previous_rank.gt(0)
-        & current_rank.gt(0)
-        & joined["trait_composition_previous"].ne(joined["trait_composition_current"])
-    )
-    joined.loc[changed_value, "transition"] = "value_revision"
+    joined.loc[~previous_resolved & current_resolved, "transition"] = "newly_resolved"
+    joined.loc[previous_resolved & ~current_resolved, "transition"] = "became_unresolved"
+    joined.loc[
+        previous_resolved & current_resolved & current_rank.gt(previous_rank),
+        "transition",
+    ] = "quality_upgrade"
+    joined.loc[
+        previous_resolved & current_resolved & current_rank.lt(previous_rank),
+        "transition",
+    ] = "quality_downgrade"
+    joined.loc[
+        previous_resolved
+        & current_resolved
+        & joined["trait_composition_previous"].ne(joined["trait_composition_current"]),
+        "transition",
+    ] = "value_revision"
+
     counts = {
         str(key): int(value)
         for key, value in joined["transition"].value_counts().sort_index().items()
@@ -334,7 +345,9 @@ def build_snapshot(
         "n_direct_only_trait_rows": int(len(direct_ledger)),
         "transition_counts": transition_counts,
         "allow_evidence_revision": bool(allow_evidence_revision),
-        "analysis_eligibility_rule": "response-specific island support; global fill fraction is descriptive only",
+        "analysis_eligibility_rule": (
+            "response-specific island support; global fill fraction is descriptive only"
+        ),
     }
     (output_dir / "chapter1_trait_snapshot_manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n",
