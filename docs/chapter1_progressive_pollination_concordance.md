@@ -16,8 +16,7 @@ They are non-exhaustive floral-architecture templates, not observations or class
 
 The underlying trait templates remain those in `config/chapter1_pr138_pollination_syndromes.yml`. The secondary family is declared in `config/chapter1_global_branching.yml` as `sampled_guild_concordance` and is analysed across both `analysis_regime` and `biogeographic_realm` layers.
 
-BH-FDR is applied within the predeclared
-`context_layer x axis_set x stratum x support_tier` family. Response support remains `<30` not promoted, `30-49` pilot, and `>=50` confirmatory. Direct-only evidence remains a sensitivity. The same sampled-guild scores are also carried into the source-adjusted/joint-source-selection layer in the progressive workflow.
+BH-FDR is applied within the predeclared `context_layer x axis_set x stratum x support_tier` family. Response support remains `<30` not promoted, `30-49` pilot, and `>=50` confirmatory. Direct-only evidence remains a sensitivity. The same sampled-guild scores are also carried into the source-adjusted/joint-source-selection layer in the progressive workflow.
 
 A biological result is allowed to change when trait evidence changes. The templates, FDR family, context definitions and claim ceiling are not allowed to change after inspecting updated results.
 
@@ -37,6 +36,15 @@ The baseline all-native confirmatory pattern is:
 - southern extratropical: pilot only, with bird-like and large-bee-like concordance increasing together.
 
 The simultaneous tropical response of all three templates and the multi-template Palearctic decline demonstrate why these scores must be interpreted as overlapping floral architectures rather than pollinator identities.
+
+## Direct-only sensitivity
+
+Using only species-direct High/Medium evidence, the main architecture contrast is retained:
+
+- northern all-native `large_bee_like` remains negative and FDR-supported; `butterfly_like` is also negative in the direct-only layer, while `bird_like` is not supported;
+- tropical bird-, butterfly- and large-bee-like slopes remain positive and supported in both all-native and native-nonendemic strata.
+
+The exact set of secondary axes can therefore change with evidence tier, but the main north-versus-tropical architecture contrast is not generated solely by validated-Low gap filling.
 
 ## Source-pool sensitivity
 
