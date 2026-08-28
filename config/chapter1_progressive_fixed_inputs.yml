@@ -1,0 +1,52 @@
+contract: chapter1_progressive_fixed_inputs_v1
+repository: zuizui0223/island
+purpose: >-
+  Pin the non-trait inputs used by every progressive Chapter 1 trait snapshot so that
+  later trait upgrades do not silently change geography, floristic status, realm, or
+  source-pool definitions at the same time.
+
+inputs:
+  geography_isolation:
+    workflow_run_id: 29228212586
+    artifact_id: 8270544465
+    artifact_name: purpose-shortest-distance-regime-29228212586
+    artifact_digest: sha256:695f35b97bae07e81b05deab537dd73fa687b2d99e9efdb1cb3babd2fa12dfb6
+    head_sha: c4f0dede08255f7af02ba3e693c22d0ca7330179
+    required_file: results/purpose_shortest_island_data.csv
+    role: frozen_8265_island_geography_area_climate_regime_surface
+
+  status_and_canonical_observation:
+    workflow_run_id: 32845980788
+    artifact_id: 9562465057
+    artifact_name: chapter1-when-where-main-32845980788
+    artifact_digest: sha256:d4cd8ad0eea9cd2bda879af14f54c549e130de365faf1b56bebddad38b24f1c2
+    head_sha: 660036d934045a885fc129fb8209385de080e4b5
+    required_file: input/chapter1_status_flora.csv.gz
+    role: frozen_status_resolved_realised_flora_and_observation_baseline
+
+  biogeographic_realm:
+    workflow_run_id: 32927060210
+    artifact_id: 9591915101
+    artifact_name: pr138-realm-sensitivity-32927060210
+    artifact_digest: sha256:6556a7938a52547ddf7b630a822d743b2ba5ca479589716919441b96dcfa0521
+    head_sha: e0b16f6e0bb498250c173f0aff51633fcf9d2f3b
+    required_file: realm/island_biogeographic_realm_assignment.csv
+    role: frozen_outcome_blind_formal_realm_assignment
+
+  source_pool:
+    workflow_run_id: 32954909953
+    artifact_id: 9601703747
+    artifact_name: pr138-source-pool-sensitivity-32954909953
+    artifact_digest: sha256:51cff9087a40b76655ff043d59aceabf25800a6029ed005a77b8db30e78345d2
+    head_sha: 904221be0e7f533b3a60915a9e5fe24eb33f8317
+    required_files:
+      - source/gift_native_mainland_flora.csv.gz
+      - result/island_source_assignments.csv.gz
+    role: frozen_outcome_blind_candidate_mainland_source_pool
+
+policy:
+  trait_snapshot_is_the_only_routine_mutable_input: true
+  changing_any_fixed_input_requires_new_contract_version: true
+  fixed_input_change_must_not_be_triggered_by_trait_effect_direction_or_p_value: true
+  actions_artifacts_are_temporary: true
+  durable_archive_required_before_long_term_reanalysis: true
