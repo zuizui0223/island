@@ -97,6 +97,24 @@ Promotion requires all of:
 
 Climate suitability alone cannot define realized loss, and structural absence is not a deficit.
 
+## Fixed secondary pollination-syndrome concordance
+
+After the pollinator-name-free primary H2 pattern is estimated, every trait snapshot also reruns one prespecified **secondary** architecture-concordance family:
+
+- `large_bee_like`
+- `butterfly_like`
+- `bird_like`
+
+The templates are fixed in `config/chapter1_pr138_pollination_syndromes.yml`; the test family is fixed as `sampled_guild_concordance` in `config/chapter1_global_branching.yml`. It is evaluated in both broad analysis regimes and formal biogeographic realms, with BH-FDR within the predeclared `context_layer x axis_set x stratum x support_tier` family.
+
+This secondary analysis asks whether the independently estimated plant assemblage response is concordant with sampled floral architectures described for candidate pollination-service channels. It is deliberately non-exhaustive: moths, flies, bats, beetles, wasps and other channels are unmodelled, not absent.
+
+The same family is regenerated on direct-only evidence and is carried through the source-adjusted/joint-source-selection sensitivity. It may strengthen, weaken, reverse or become newly testable as trait coverage improves; the templates and multiplicity family do not change in response to those results.
+
+A positive or negative guild-labelled score is **not** a visitor assignment and cannot establish pollinator abundance, visitation, effective pollen transfer, historical loss, mobility or functional replacement. Any H5 mechanism promotion still requires independent channel evidence.
+
+The PR #141 baseline at HEAD `660bc02bedca8e15548bb913bc69b6b904fb8d89` is documented in `docs/chapter1_progressive_pollination_concordance.md`.
+
 ## Trait coverage is not a global gate
 
 The present matrix being below 60% for some domains is a reason **not to freeze the final result**, but `60%` is not itself an inferential threshold.
@@ -147,13 +165,14 @@ For each new trait snapshot it executes, in this order:
 1. **Snapshot/QC** — exact denominator, ontology, provenance and direct-vs-Low separation.
 2. **Atomic WHEN-WHERE** — status-stratified trait-state response vectors, all-analysis and direct-only.
 3. **Plant response synthesis** — pollinator-name-free accessibility/generalization and reproductive-assurance scores.
-4. **Biogeographic branching** — broad region and formal realm comparisons.
-5. **Observation-selection sensitivity** — same response definitions under the frozen observation contract.
-6. **Source-adjusted response** — fixed GIFT/source-assignment rules, recalculated with the new trait scores.
-7. **Joint source + observation sensitivity**.
-8. **Lineage entry/loading** — source-matched genus representation and within-genus species loading using the new functional positions.
-9. **Continuous distance x area moderation**.
-10. **Snapshot manifest** — coverage and result-table shapes are recorded without asserting that biological coefficients must equal the previous wave.
+4. **Secondary sampled-guild concordance** — fixed large-bee, butterfly and bird architecture templates under the separate secondary family.
+5. **Biogeographic branching** — broad region and formal realm comparisons for the primary and secondary axis sets.
+6. **Observation-selection sensitivity** — same response definitions under the frozen observation contract.
+7. **Source-adjusted response** — fixed GIFT/source-assignment rules, recalculated with the new trait scores.
+8. **Joint source + observation sensitivity** — including the fixed secondary concordance axes where source expectations are evaluable.
+9. **Lineage entry/loading** — source-matched genus representation and within-genus species loading using the new functional positions.
+10. **Continuous distance x area moderation**.
+11. **Snapshot manifest** — coverage and result-table shapes are recorded without asserting that biological coefficients must equal the previous wave.
 
 The workflow deliberately does **not** contain numerical assertions such as “Palearctic must remain significant”.  Such assertions belong only to an immutable historical snapshot validator.  In the progressive workflow, a result changing after better evidence is a result, not a software failure.
 
