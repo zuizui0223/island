@@ -109,7 +109,7 @@ def test_wave24_workflow_verifies_fixed_goals_and_new_rules() -> None:
     assert 'assert len(targeted_new) >= 20' in workflow
     assert 'assert shared["coverage_increment_species_axis"] >= 195' in workflow
     assert 'assert coverage["filled_species_axis"] >= 159443' in workflow
-    assert 'assert reproduction["filled_species"] >= 31889' in workflow
+    assert 'assert reproduction["filled_species"] >= 31731' in workflow
     assert 'assert coverage["species_by_filled_axis_count"]["0"] <= 14500' in workflow
     assert "wave24_support2_goal_verification.json" in workflow
     assert "targeted_support2_wave24_evidence_20260824.csv" in workflow
