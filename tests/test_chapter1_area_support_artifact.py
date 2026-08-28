@@ -21,8 +21,10 @@ def test_capped_information_weights_are_positive_capped_and_mean_one() -> None:
         weighted.groupby("response")["analysis_weight"].mean().to_numpy(),
         1.0,
     )
-    assert weighted.loc[2, "analysis_weight"] == weighted.loc[2, "analysis_weight"]
-    assert weighted.loc[2, "analysis_weight"] < 3.0
+    assert np.isclose(
+        weighted.loc[2, "analysis_weight"],
+        50 / np.mean([1, 25, 50]),
+    )
 
 
 def test_common_support_overlap_uses_support_and_area_not_response() -> None:
