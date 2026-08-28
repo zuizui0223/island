@@ -194,6 +194,70 @@ validations:
       Species richness/support is not inserted as a causal control in the primary model;
       these are measurement-artifact sensitivities only because richness may itself be an
       island-biogeographic mediator.
+    frozen_implementation:
+      primary_target:
+        family: source_lineage_broad
+        response: entry_enrichment
+        context_layer: biogeographic_realm
+        context: Palearctic
+        strata:
+          - all_native
+          - native_nonendemic
+      secondary_target:
+        family: plant_side_branches
+        responses:
+          - accessibility_generalization
+          - reproductive_assurance
+      evidence_scopes:
+        - all_analysis_eligible
+        - direct_only
+      direct_lineage_rule: >-
+        Add a broad direct-only source-matched lineage score using the same GIFT
+        assignments, prevalence-richness matching and minimum five represented genera
+        as the broad all-analysis lineage estimand.
+      weighting_modes:
+        equal_island:
+          weight: 1.0
+        capped_information:
+          support_variable: n_response_species
+          cap_species: 50
+          weight: min_n_response_species_and_50_normalized_to_mean_one
+      support_variables:
+        plant_side_branches:
+          - n_species
+          - mean_informative_traits
+        source_lineage:
+          - n_represented_species
+          - n_represented_genera
+      common_support:
+        split: median_n_response_species_within_analysis_cell
+        low_and_high_support_area_ranges: within_group_area_quantiles_0.05_to_0.95
+        retained_area_range: intersection_of_low_and_high_support_ranges
+        minimum_islands_per_support_half_before_trimming: 30
+        response_values_used_to_define_overlap: false
+        refit_weighting: equal_island
+      heteroskedastic_null_simulation:
+        target: Palearctic_source_lineage_entry_distance_x_area
+        draws: 1000
+        seed: 20260828
+        null_mean_model: response_without_distance_x_area_interaction
+        error_distribution: independent_normal
+        error_variance: residual_RMSE_squared_times_mean_support_over_island_support
+        comparison: two_sided_absolute_interaction_magnitude
+        source_modes: inherit_frozen_PR138_GIFT_modes
+      inference:
+        retain_existing_response_support_tiers: true
+        retain_existing_area_FDR_family: true
+        sensitivity_family_includes_weighting_and_common_support_modes: true
+        simulation_false_positive_threshold: 0.05
+      classification_rule: >-
+        Call small-island amplification robust to measured support only when the equal,
+        capped-information and common-support estimates retain its sign and formal
+        support, direct-only does not contradict it when testable, and the observed
+        magnitude is exceeded in at most five percent of frozen heteroskedastic-null
+        simulations. Otherwise retain area as a precision-sensitive modifier.
+      no_support_variable_as_primary_causal_control: true
+      no_sensitivity_retuning_after_outcomes: true
     interpretation:
       stable: area_capacity_interpretation_strengthened
       precision_sensitive: retain_area_as_measurement_sensitive_modifier_only
