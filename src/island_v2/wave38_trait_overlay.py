@@ -108,6 +108,8 @@ def build_touched_rule_rebuild(
     master_csv: Path,
     ontology_yaml: Path,
     output_dir: Path,
+    source_group: str = SOURCE_GROUP,
+    wave_label: str = "wave38",
 ) -> dict[str, Any]:
     """Rebuild all Wave38-touched genus x trait rules with shared logic."""
     reviewed = pd.read_csv(reviewed_direct_csv, dtype=str).fillna("")
@@ -134,30 +136,30 @@ def build_touched_rule_rebuild(
     master = pd.read_csv(master_csv, dtype=str).fillna("")
     rebuilt_low = apply_genus_rules(master, direct_cells, rules, "current_min3")
     source_touched = direct_cells["source_groups"].map(
-        lambda value: SOURCE_GROUP in _split_pipe(value)
+        lambda value: source_group in _split_pipe(value)
     )
-    wave38_direct = direct_cells.loc[source_touched].copy()
-    if wave38_direct.empty:
-        raise ValueError("Wave38 produced no resolved direct cells")
+    wave_direct = direct_cells.loc[source_touched].copy()
+    if wave_direct.empty:
+        raise ValueError(f"{wave_label} produced no resolved direct cells")
 
     output_dir.mkdir(parents=True, exist_ok=True)
     outputs = {
-        "resolved_direct_species_trait.csv.gz": wave38_direct,
+        "resolved_direct_species_trait.csv.gz": wave_direct,
         "rebuilt_all_evidence_validated_low.csv.gz": rebuilt_low,
         "trait_specific_genus_rule_audit.csv.gz": rules,
-        "wave38_touched_source_lineages.csv.gz": lineages,
-        "wave38_touched_source_lineage_duplicates.csv.gz": duplicates,
-        "wave38_touched_source_lineage_conflicts.csv.gz": conflicts,
+        f"{wave_label}_touched_source_lineages.csv.gz": lineages,
+        f"{wave_label}_touched_source_lineage_duplicates.csv.gz": duplicates,
+        f"{wave_label}_touched_source_lineage_conflicts.csv.gz": conflicts,
     }
     for name, frame in outputs.items():
         _write_gzip_csv(frame, output_dir / name)
     summary = {
-        "contract": "wave38_common_trait_specific_touched_rebuild_v1",
+        "contract": f"{wave_label}_common_trait_specific_touched_rebuild_v1",
         "formal_resolved_cells_reused": len(formal),
         "formal_source_lineages_reconstructed": len(formal_lineages),
         "supplemental_touched_rows": len(supplemental),
         "touched_genus_trait": len(touched_keys),
-        "resolved_wave38_direct_species_trait": len(wave38_direct),
+        f"resolved_{wave_label}_direct_species_trait": len(wave_direct),
         "candidate_low_before_baseline_filter": len(rebuilt_low),
         "checks": {
             "shared_trait_specific_rule_builder": True,
@@ -174,7 +176,7 @@ def build_touched_rule_rebuild(
         },
         "artifact_sha256": {name: _sha256(output_dir / name) for name in outputs},
     }
-    (output_dir / "wave38_touched_rebuild_summary.json").write_text(
+    (output_dir / f"{wave_label}_touched_rebuild_summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
     return summary
