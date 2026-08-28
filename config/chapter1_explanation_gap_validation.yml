@@ -149,6 +149,65 @@ validations:
       Estimate the common architecture axis from mainland/source species only, without
       island distance or island outcomes, orienting the axis to positive mean correlation
       with the three sampled template scores.
+    frozen_implementation:
+      evidence_scopes:
+        - all_analysis_eligible
+        - direct_only
+      sampled_templates:
+        - large_bee_like
+        - butterfly_like
+        - bird_like
+      factor_training_population: >-
+        Unique scored species matched to the frozen eligible GIFT mainland native flora
+        under the existing exact-normalized or unique-binomial contract.
+      complete_case_rule: >-
+        Require all three sampled-template scores. Missing template scores are never
+        imputed and are not coded as zero.
+      standardization:
+        center: mainland_source_species_mean
+        scale: mainland_source_species_population_sd_ddof_0
+      factor_estimator: first_eigenvector_of_source_species_correlation_matrix
+      orientation: positive_sum_of_correlations_with_the_three_sampled_templates
+      minimum_complete_source_species: 50
+      projection_rule: >-
+        Project all complete-case island-flora species using only the frozen source
+        means, scales and loadings; compute each template residual as standardized
+        template score minus its rank-one reconstruction from the shared factor.
+      island_aggregation: unweighted_mean_across_distinct_scored_species
+      strata:
+        - all_native
+        - native_nonendemic
+      context_layers:
+        - analysis_regime
+        - biogeographic_realm
+      response_support_tiers: inherit_chapter1_pattern_config
+      source_adjustment:
+        source_assignment_modes: inherit_frozen_PR138_GIFT_modes
+        minimum_scored_species_per_source_component: 10
+        minimum_source_regions: 3
+        response: island_component_mean_minus_GIFT_source_expectation
+      genus_decomposition:
+        source_position: mean_component_score_among_complete_case_GIFT_source_species
+        source_availability: raw_GIFT_genus_occurrence_and_species_richness
+        primary_matching: prevalence_richness
+        minimum_represented_genera: 5
+        outcomes:
+          - entry_enrichment
+          - loading_increment
+          - beyond_genus_residual
+      family_decomposition_gate: >-
+        Run only with a frozen comprehensive species-to-family mapping that is carried
+        by the formal workflow input contract. If absent, emit
+        not_evaluable_pending_V2_taxonomy_contract; never infer family from traits,
+        genus names, or scattered acquisition tables.
+      multiplicity:
+        observed_and_source_adjusted: >-
+          context_layer x architecture_axis_set x stratum x support_tier, across the
+          shared factor and all three template residuals
+        genus_decomposition: >-
+          evidence_scope x stratum x context_layer x context x outcome, across the
+          four architecture components after the source-mode family is controlled
+        alpha: 0.05
     interpretation:
       common_factor_only: shared_specialized_or_attractive_architecture_not_guild_specific
       guild_residual_remains: candidate_channel_specific_architecture_for_H5_followup
