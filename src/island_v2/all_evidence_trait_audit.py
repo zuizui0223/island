@@ -996,7 +996,13 @@ def apply_genus_rules(
     ].copy()
     if eligible.empty:
         return pd.DataFrame()
-    species = master[["accepted_species", "genus"]].drop_duplicates()
+    species = master[["accepted_species"]].drop_duplicates()
+    # The accepted binomial is the identity contract.  Some historical master
+    # rows retain a pre-reconciliation genus column (for example an accepted
+    # Deyeuxia species paired with Calamagrostis).  Joining on that stale field
+    # applies a rule across genera, so derive the join key from accepted_species
+    # exactly as the direct ledger and rule builder do.
+    species["genus"] = species["accepted_species"].astype(str).str.split().str[0]
     # A genus-only token is not a species identity. Keep such denominator rows
     # unresolved for name/rank repair rather than applying their own genus rule.
     species = species.loc[

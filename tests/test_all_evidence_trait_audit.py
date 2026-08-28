@@ -469,6 +469,40 @@ def test_lineage_loo_removes_every_species_from_the_held_out_lineage() -> None:
     assert current["lineage_loo_accuracy"] == 1.0
 
 
+def test_genus_rules_join_on_accepted_species_genus_not_stale_master_column() -> None:
+    master = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Deyeuxia target",
+                "genus": "Calamagrostis",
+            },
+            {
+                "accepted_species": "Calamagrostis target",
+                "genus": "Deyeuxia",
+            },
+        ]
+    )
+    rules = pd.DataFrame(
+        [
+            {
+                "genus": "Calamagrostis",
+                "axis": "reproductive_assurance",
+                "trait_name": "mating_system",
+                "setting": "current_min3",
+                "eligible": True,
+                "inferred_state_set": '["predominantly_outcrossing"]',
+                "inferred_value": "predominantly_outcrossing",
+            }
+        ]
+    )
+    direct = pd.DataFrame(columns=["accepted_species", "trait_name"])
+
+    inferred = audit.apply_genus_rules(master, direct, rules, "current_min3")
+
+    assert inferred["accepted_species"].tolist() == ["Calamagrostis target"]
+    assert inferred["genus"].tolist() == ["Calamagrostis"]
+
+
 def test_lineage_loo_does_not_count_same_paper_species_as_independent_validation() -> None:
     evidence = pd.DataFrame(
         [
