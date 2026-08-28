@@ -1,0 +1,47 @@
+name: Validate Chapter 1 explanation-gap contract
+
+on:
+  push:
+    branches: [ch1-progressive-trait-analysis]
+    paths:
+      - "config/chapter1_explanation_gap_validation.yml"
+      - "docs/chapter1_explanation_gap_validation_plan.md"
+      - ".github/workflows/validate-chapter1-explanation-gap-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install PyYAML
+      - name: Validate frozen falsification ladder
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          path = Path('config/chapter1_explanation_gap_validation.yml')
+          cfg = yaml.safe_load(path.read_text(encoding='utf-8'))
+          assert cfg['contract'] == 'chapter1_explanation_gap_validation_v1'
+          assert cfg['status'] == 'post_baseline_prospective_falsification'
+          assert 'H1_H5_primary_definitions_unchanged' in cfg['rules']
+          expected = {
+              'V1_H2_environment_vs_biogeography',
+              'V2_H3_taxonomic_depth',
+              'V3_H4_area_support_artifact',
+              'V4_secondary_guild_architecture_decomposition',
+              'V5_trait_resolution_MNAR_tipping_point',
+          }
+          assert set(cfg['validations']) == expected
+          assert cfg['priority_order'][0] == 'V5_trait_resolution_MNAR_tipping_point'
+          assert cfg['not_currently_solvable_with_trait_only_data']['H5_independent_channel_mechanism']['requires']
+          assert Path('docs/chapter1_explanation_gap_validation_plan.md').is_file()
+          print('chapter1 explanation-gap contract: valid')
+          PY
