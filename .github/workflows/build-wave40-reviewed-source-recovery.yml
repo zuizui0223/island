@@ -123,7 +123,7 @@ jobs:
           wave38_direct=$(find /tmp/wave38 -type f -name wave38_reviewed_direct_evidence.csv.gz -print -quit)
           wave38_rules=$(find /tmp/wave38 -type f -name trait_specific_genus_rule_audit.csv.gz -print -quit)
           wave39_direct=$(find /tmp/wave39 -type f -name floraweb_synonym_reviewed_direct_evidence.csv.gz -print -quit)
-          wave39_coverage=$(find /tmp/wave39 -type f -name wave39_species_axis_coverage.csv.gz -print -quit)
+          wave39_coverage=$(find /tmp/wave39 -type f -path '*/wave39-trait-coverage/wave39_species_axis_coverage.csv.gz' -print -quit)
           wave39_rules=$(find /tmp/wave39 -type f -name wave39_new_trait_specific_genus_rule_audit.csv.gz -print -quit)
           for required in "$wave33_resolved" "$public_web_evidence" "$wave37_direct" "$wave37_rules" "$wave38_direct" "$wave38_rules" "$wave39_direct" "$wave39_coverage" "$wave39_rules"; do
             test -n "$required"
