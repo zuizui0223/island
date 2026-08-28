@@ -145,6 +145,12 @@ Every acquisition wave must be materialized as one exact 106,295-species x 3-axi
 - `source_lineages`
 - `quality`
 
+A non-empty source `quality` label is not by itself an analysis-ready trait. A cell is
+materializable only when `trait_composition` and its source provenance are present. The
+snapshot manifest reports both source-reported fill and analysis-usable fill; reported
+Low cells lacking a composition remain unresolved for analysis and are never converted to
+trait zeros or silently inferred.
+
 The materializer produces:
 
 - `chapter1_trait_snapshot_species_axis.csv.gz`

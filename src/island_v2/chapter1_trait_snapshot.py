@@ -134,17 +134,18 @@ def validate_species_axis(frame: pd.DataFrame, *, expected_species: int) -> pd.D
     if any(counts.get(axis) != expected_species for axis in AXES):
         raise ValueError(f"non-exact axis denominator: {counts}")
 
-    resolved = work["quality"].ne("")
-    if work.loc[resolved, "trait_composition"].eq("").any():
-        raise ValueError("resolved species-axis cell lacks trait_composition")
-    if work.loc[~resolved, "trait_composition"].ne("").any():
-        raise ValueError("unresolved species-axis cell contains trait_composition")
-    if work.loc[resolved, "source_groups"].eq("").any():
+    materializable = work["trait_composition"].ne("")
+    direct_claim_without_composition = work["quality"].isin(DIRECT_QUALITY) & ~materializable
+    if direct_claim_without_composition.any():
+        raise ValueError("direct-quality species-axis cell lacks trait_composition")
+    if work.loc[materializable, "quality"].eq("").any():
+        raise ValueError("trait composition lacks an analysis quality")
+    if work.loc[materializable, "source_groups"].eq("").any():
         raise ValueError("resolved species-axis cell lacks source_groups")
-    if work.loc[resolved, "source_lineages"].eq("").any():
+    if work.loc[materializable, "source_lineages"].eq("").any():
         raise ValueError("resolved species-axis cell lacks source_lineages")
 
-    for row in work.loc[resolved].itertuples(index=False):
+    for row in work.loc[materializable].itertuples(index=False):
         parsed = _parse_composition(
             row.trait_composition,
             axis=row.axis,
@@ -162,7 +163,8 @@ def validate_species_axis(frame: pd.DataFrame, *, expected_species: int) -> pd.D
 def materialize_long_ledger(frame: pd.DataFrame, *, direct_only: bool) -> pd.DataFrame:
     allowed = DIRECT_QUALITY if direct_only else ANALYSIS_QUALITY
     rows: list[dict[str, str]] = []
-    for row in frame.loc[frame["quality"].isin(allowed)].itertuples(index=False):
+    eligible = frame["quality"].isin(allowed) & frame["trait_composition"].ne("")
+    for row in frame.loc[eligible].itertuples(index=False):
         for parsed in _parse_composition(
             row.trait_composition,
             axis=row.axis,
@@ -199,26 +201,39 @@ def coverage_summary(frame: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, Any]]
     rows: list[dict[str, Any]] = []
     for axis in AXES:
         part = frame.loc[frame["axis"].eq(axis)]
-        resolved = part["quality"].ne("")
+        source_reported = part["quality"].ne("")
+        resolved = part["trait_composition"].ne("")
+        nonmaterializable_low = part["quality"].eq("low") & ~resolved
         rows.append(
             {
                 "axis": axis,
                 "denominator_species": int(part["accepted_species"].nunique()),
                 "resolved_species": int(resolved.sum()),
                 "fill_fraction": float(resolved.mean()),
+                "source_reported_filled_species": int(source_reported.sum()),
+                "source_reported_fill_fraction": float(source_reported.mean()),
+                "source_reported_low_without_trait_composition": int(
+                    nonmaterializable_low.sum()
+                ),
                 "high": int(part["quality"].eq("high").sum()),
                 "medium": int(part["quality"].eq("medium").sum()),
-                "low": int(part["quality"].eq("low").sum()),
-                "unresolved": int(part["quality"].eq("").sum()),
+                "materializable_low": int((part["quality"].eq("low") & resolved).sum()),
+                "unresolved_for_analysis": int((~resolved).sum()),
             }
         )
     table = pd.DataFrame(rows)
-    resolved_cells = int(frame["quality"].ne("").sum())
+    resolved_cells = int(frame["trait_composition"].ne("").sum())
+    source_reported_cells = int(frame["quality"].ne("").sum())
     return table, {
         "species": int(frame["accepted_species"].nunique()),
-        "species_axis_cells": int(len(frame)),
+        "species_axis_cells": len(frame),
         "resolved_species_axis_cells": resolved_cells,
         "global_species_axis_fill_fraction": resolved_cells / len(frame),
+        "source_reported_filled_species_axis_cells": source_reported_cells,
+        "global_source_reported_fill_fraction": source_reported_cells / len(frame),
+        "source_reported_low_without_trait_composition": int(
+            (frame["quality"].eq("low") & frame["trait_composition"].eq("")).sum()
+        ),
         "global_fill_fraction_is_descriptive_not_an_analysis_gate": True,
         "by_axis": {row["axis"]: row for row in rows},
     }
@@ -241,8 +256,8 @@ def transition_audit(
 
     previous_rank = joined["quality_previous"].map(QUALITY_RANK)
     current_rank = joined["quality_current"].map(QUALITY_RANK)
-    previous_resolved = previous_rank.gt(0)
-    current_resolved = current_rank.gt(0)
+    previous_resolved = previous_rank.gt(0) & joined["trait_composition_previous"].ne("")
+    current_resolved = current_rank.gt(0) & joined["trait_composition_current"].ne("")
 
     joined["transition"] = "unchanged"
     joined.loc[~previous_resolved & current_resolved, "transition"] = "newly_resolved"
@@ -341,8 +356,8 @@ def build_snapshot(
         "expected_species": expected_species,
         "axes": list(AXES),
         "coverage": coverage,
-        "n_all_analysis_trait_rows": int(len(all_ledger)),
-        "n_direct_only_trait_rows": int(len(direct_ledger)),
+        "n_all_analysis_trait_rows": len(all_ledger),
+        "n_direct_only_trait_rows": len(direct_ledger),
         "transition_counts": transition_counts,
         "allow_evidence_revision": bool(allow_evidence_revision),
         "analysis_eligibility_rule": (

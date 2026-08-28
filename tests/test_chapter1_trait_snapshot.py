@@ -107,6 +107,39 @@ def test_validated_low_is_not_direct():
     assert "Beta two" not in set(direct["accepted_species"])
 
 
+def test_reported_low_without_composition_is_retained_but_not_materialized(tmp_path: Path):
+    frame = _frame()
+    mask = frame["accepted_species"].eq("Beta two") & frame["axis"].eq("flower_colour")
+    frame.loc[mask, "quality"] = "low"
+    source = tmp_path / "coverage.csv.gz"
+    frame.to_csv(source, index=False, compression="gzip")
+    out = tmp_path / "snapshot"
+    manifest = build_snapshot(
+        species_axis_csv=source,
+        output_dir=out,
+        expected_species=2,
+        source_run_id="wave",
+        source_artifact_name="wave",
+    )
+    ledger = pd.read_csv(out / "chapter1_trait_ledger_all_analysis.csv.gz")
+    assert not (
+        ledger["accepted_species"].eq("Beta two")
+        & ledger["axis"].eq("flower_colour")
+    ).any()
+    assert manifest["coverage"]["source_reported_low_without_trait_composition"] == 1
+    colour = manifest["coverage"]["by_axis"]["flower_colour"]
+    assert colour["source_reported_filled_species"] == 2
+    assert colour["resolved_species"] == 1
+
+
+def test_direct_quality_without_composition_is_rejected():
+    frame = _frame()
+    mask = frame["accepted_species"].eq("Beta two") & frame["axis"].eq("flower_colour")
+    frame.loc[mask, "quality"] = "medium"
+    with pytest.raises(ValueError, match="direct-quality"):
+        validate_species_axis(frame, expected_species=2)
+
+
 def test_cross_axis_trait_is_rejected():
     frame = _frame()
     mask = frame["accepted_species"].eq("Alpha one") & frame["axis"].eq("flower_colour")
