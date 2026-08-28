@@ -100,6 +100,73 @@ validations:
     family_use_rule: >-
       Family is used only as a taxonomic grouping for sensitivity; it is never used to infer
       missing trait values.
+    frozen_implementation:
+      evidence_scopes:
+        - all_analysis_eligible
+        - direct_only
+      plant_response_axes:
+        - generalized_accessible
+        - selfing_core
+      taxonomy_input:
+        path: data/v2/staging/gbif/collected/island_taxa.csv
+        sha256: 21925a4e4d6fc8431e8549b3c3ddff9acdbded0b017e0aa78a5c863147392fe9
+        required_columns:
+          - accepted_species
+          - genus
+          - family
+        unique_species_required: true
+        nonblank_group_required_for_each_null: true
+      source_training_population: >-
+        Scored species matched to the frozen eligible GIFT mainland native flora under
+        the existing exact-normalized or unique-binomial contract.
+      source_group_position: >-
+        Mean scored-species response within family or genus across unique matched GIFT
+        source species, requiring at least two scored source species per group.
+      source_group_availability: >-
+        Presence of a family or genus in the assigned frozen GIFT source regions,
+        constructed from GIFT species matched to the taxonomy input without using trait
+        scores or island outcomes.
+      common_species_support: >-
+        Within island x source mode x stratum x response, use only distinct observed
+        island species whose family and genus both have eligible source positions and
+        are both present in the assigned source regions. The family and genus nulls
+        therefore use exactly the same observed species.
+      minimum_support:
+        observed_species_per_island_response: 10
+        represented_families: 3
+        represented_genera: 5
+      strata:
+        - all_native
+        - native_nonendemic
+      source_assignment_modes: inherit_frozen_PR138_GIFT_modes
+      decomposition_identity:
+        observed_score: mean_observed_species_response
+        family_expected: species_weighted_mean_of_source_family_positions
+        after_family_residual: observed_score_minus_family_expected
+        genus_expected: species_weighted_mean_of_source_genus_positions
+        family_to_genus_increment: genus_expected_minus_family_expected
+        after_genus_residual: observed_score_minus_genus_expected
+      formal_vector_stages:
+        - observed_score
+        - after_family_residual
+        - after_genus_residual
+      context_layers:
+        - analysis_regime
+        - biogeographic_realm
+      response_support_tiers: inherit_chapter1_pattern_config
+      multiplicity: >-
+        Within evidence scope x source-adjusted taxonomic stage x context layer x
+        stratum x support tier, control the two plant-response axes and contexts, then
+        control the four source modes as one prospective V2 sensitivity family.
+      classification_rule: >-
+        Classify a focal context only when the observed two-axis vector is supported in
+        all four source modes. If the after-family vector is unsupported in every mode,
+        call the pattern compatible with deep-family sorting. If after-family survives
+        all modes but after-genus is unsupported in every mode, call it compatible with
+        genus-level assembly beyond family. If after-genus survives all modes, retain a
+        within-genus or non-taxonomic residual. Mixed source-mode outcomes remain
+        source-definition-sensitive and are not forced into a depth class.
+      no_null_retuning_after_outcomes: true
     interpretation:
       family_null_absorbs: deep_clade_sorting_sufficient
       family_residual_genus_null_absorbs: genus_level_sorting_required
