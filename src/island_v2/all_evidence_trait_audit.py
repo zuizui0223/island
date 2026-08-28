@@ -1515,11 +1515,20 @@ def acquisition_queue(
     rules: pd.DataFrame,
 ) -> pd.DataFrame:
     current = rules.loc[rules["setting"].eq("current_min3")].copy()
+    # Accepted names are authoritative for trait-rule genera.  The master
+    # ``genus`` field can retain a synonym's pre-reconciliation genus.
+    species_context = master[
+        ["accepted_species", "n_islands", "n_records"]
+    ].drop_duplicates("accepted_species")
+    species_context = species_context.copy()
+    species_context["genus"] = (
+        species_context["accepted_species"].astype(str).str.split().str[0]
+    )
     unresolved = coverage.loc[
         ~coverage["quality"].isin(QUALITY_RANK),
         ["accepted_species", "axis"],
     ].merge(
-        master[
+        species_context[
             ["accepted_species", "genus", "n_islands", "n_records"]
         ],
         on="accepted_species",

@@ -181,6 +181,15 @@ def build_tasks(
     support_levels: tuple[int, ...] = (2,),
 ) -> pd.DataFrame:
     queue = pd.read_csv(queue_path, dtype=str).fillna("").head(top_n)
+    # Historical queues search one genus x trait.  Later acquisition waves may
+    # nominate an exact unresolved congener so the same literature backend can
+    # look for genuinely new direct evidence instead of rediscovering the two
+    # species that already support the rule.  Empty values preserve the frozen
+    # Wave37 query and checkpoint contract byte-for-byte at the task level.
+    if "target_species" not in queue:
+        queue["target_species"] = ""
+    if "query_scope" not in queue:
+        queue["query_scope"] = ""
     if current_direct_path is not None:
         direct = pd.read_csv(current_direct_path, dtype=str).fillna("")
         direct = direct.loc[direct["resolution_status"].eq("resolved")].drop_duplicates(
@@ -211,21 +220,26 @@ def build_tasks(
     queue = queue.loc[
         queue["trait_name"].isin(REPRO_TRAITS) & queue["current_support"].isin(allowed_support)
     ].copy()
+    queue["query_name"] = queue["genus"]
+    exact = queue["query_scope"].eq("exact_species") & queue["target_species"].ne("")
+    queue.loc[exact, "query_name"] = queue.loc[exact, "target_species"]
     queue["query"] = [
-        f'("{genus}") AND ({QUERY_TERMS[trait]}) AND OPEN_ACCESS:Y AND IN_EPMC:Y'
-        for genus, trait in zip(queue["genus"], queue["trait_name"], strict=True)
+        f'("{name}") AND ({QUERY_TERMS[trait]}) AND OPEN_ACCESS:Y AND IN_EPMC:Y'
+        for name, trait in zip(queue["query_name"], queue["trait_name"], strict=True)
     ]
-    queue = queue.drop_duplicates(["genus", "trait_name"])
-    completed: set[tuple[str, str]] = set()
+    task_key = ["genus", "trait_name", "query_scope", "target_species"]
+    queue = queue.drop_duplicates(task_key)
+    completed: set[tuple[str, str, str, str]] = set()
     for path in completed_query_logs or []:
-        log = pd.read_csv(
-            path,
-            usecols=["genus", "trait_name"],
-            dtype=str,
-        ).fillna("")
-        completed.update(log[["genus", "trait_name"]].itertuples(index=False, name=None))
+        columns = set(pd.read_csv(path, nrows=0).columns)
+        usecols = [column for column in task_key if column in columns]
+        log = pd.read_csv(path, usecols=usecols, dtype=str).fillna("")
+        for column in task_key:
+            if column not in log:
+                log[column] = ""
+        completed.update(log[task_key].itertuples(index=False, name=None))
     if completed:
-        keys = queue[["genus", "trait_name"]].apply(tuple, axis=1)
+        keys = queue[task_key].apply(tuple, axis=1)
         queue = queue.loc[~keys.isin(completed)].copy()
     if max_tasks is not None:
         queue = queue.head(max_tasks)
@@ -356,12 +370,18 @@ def article_candidates(
     for task in task_rows.itertuples(index=False):
         trait = text(task.trait_name)
         task_genus = text(task.genus)
+        target_species = text(getattr(task, "target_species", ""))
+        query_scope = text(getattr(task, "query_scope", ""))
         task_contexts.append(
             (
                 task,
                 trait,
                 VALUE_PATTERNS[trait],
-                document_genus_binomials(article_text, task_genus),
+                (
+                    [target_species]
+                    if query_scope == "exact_species" and target_species
+                    else document_genus_binomials(article_text, task_genus)
+                ),
             )
         )
     for paragraph_index, paragraph in enumerate(article_paragraphs):
@@ -576,11 +596,15 @@ def main() -> None:
     canonical, by_genus, _ = load_species(args.coverage, args.genus_map)
     query_rows: list[dict[str, Any]] = []
     articles: dict[str, dict[str, Any]] = {}
-    article_tasks: dict[str, set[tuple[str, str]]] = defaultdict(set)
+    task_key = ["genus", "trait_name", "query_scope", "target_species"]
+    article_tasks: dict[str, set[tuple[str, str, str, str]]] = defaultdict(set)
 
     def process_search(task: Any) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         search_key = hashlib.sha256(
-            f"{task.genus}|{task.trait_name}|{task.query}".encode()
+            (
+                f"{task.genus}|{task.trait_name}|{task.query_scope}|"
+                f"{task.target_species}|{task.query}"
+            ).encode()
         ).hexdigest()[:24]
         search_path = search_dir / f"{search_key}.json.gz"
         try:
@@ -619,6 +643,8 @@ def main() -> None:
                 "queue_order": int(task.Index),
                 "genus": task.genus,
                 "trait_name": task.trait_name,
+                "query_scope": task.query_scope,
+                "target_species": task.target_species,
                 "query": task.query,
                 "status": status,
                 "search_cache_status": search_status,
@@ -645,7 +671,9 @@ def main() -> None:
                 if not pmcid:
                     continue
                 articles.setdefault(pmcid, record)
-                article_tasks[pmcid].add((text(query_row["genus"]), text(query_row["trait_name"])))
+                article_tasks[pmcid].add(
+                    tuple(text(query_row[column]) for column in task_key)
+                )
             if completed % 50 == 0:
                 print(f"[europe-pmc-search] {completed}/{len(tasks)} queries", flush=True)
 
@@ -655,7 +683,7 @@ def main() -> None:
 
     manifest_rows: list[dict[str, Any]] = []
     candidate_rows: list[dict[str, str]] = []
-    task_lookup = tasks.set_index(["genus", "trait_name"], drop=False)
+    task_lookup = tasks.set_index(task_key, drop=False)
 
     def process_article(
         pmcid: str,

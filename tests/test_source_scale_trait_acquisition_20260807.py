@@ -251,6 +251,38 @@ def test_support_one_is_only_included_when_explicitly_requested(tmp_path: Path) 
     assert expanded["genus"].tolist() == ["One", "Two"]
 
 
+def test_exact_species_tasks_are_distinct_from_completed_genus_searches(
+    tmp_path: Path,
+) -> None:
+    queue_path = tmp_path / "queue.csv"
+    pd.DataFrame(
+        [
+            {
+                "genus": "Examplea",
+                "trait_name": "self_incompatibility",
+                "current_support": "2",
+                "query_scope": "exact_species",
+                "target_species": "Examplea gamma",
+            }
+        ]
+    ).to_csv(queue_path, index=False)
+    completed_path = tmp_path / "completed.csv"
+    pd.DataFrame(
+        [{"genus": "Examplea", "trait_name": "self_incompatibility"}]
+    ).to_csv(completed_path, index=False)
+
+    tasks = FETCH.build_tasks(
+        queue_path,
+        top_n=10,
+        completed_query_logs=[completed_path],
+    )
+
+    assert len(tasks) == 1
+    assert tasks.iloc[0]["query_scope"] == "exact_species"
+    assert tasks.iloc[0]["target_species"] == "Examplea gamma"
+    assert '("Examplea gamma")' in tasks.iloc[0]["query"]
+
+
 def test_article_resolves_established_binomial_abbreviation() -> None:
     raw = b"""<article><body>
       <p>Examplea alpha is an island herb.</p>
@@ -328,3 +360,38 @@ def test_article_retains_nonmaster_congener_for_backbone_review() -> None:
     assert candidates[0]["in_fixed_master"] == "false"
     assert candidates[0]["rule_support_only"] == "true"
     assert candidates[0]["name_match_method"] == ("source_binomial_exact_pending_two_backbone")
+
+
+def test_exact_species_task_does_not_rediscover_an_existing_congener() -> None:
+    raw = b"""<article><body><p>
+      Examplea alpha is self-compatible, while Examplea gamma is self-incompatible.
+    </p></body></article>"""
+    tasks = pd.DataFrame(
+        [
+            {
+                "genus": "Examplea",
+                "trait_name": "self_incompatibility",
+                "query_scope": "exact_species",
+                "target_species": "Examplea gamma",
+            }
+        ]
+    )
+
+    candidates = FETCH.article_candidates(
+        raw,
+        pmcid="PMC4",
+        title="Example",
+        doi="10.0000/example4",
+        task_rows=tasks,
+        canonical={
+            "examplea alpha": "Examplea alpha",
+            "examplea gamma": "Examplea gamma",
+        },
+        by_genus={"Examplea": ["Examplea alpha", "Examplea gamma"]},
+        article_license="CC BY",
+        retrieved_at="2026-08-28T00:00:00Z",
+    )
+
+    assert [(row["accepted_species"], row["normalized_value"]) for row in candidates] == [
+        ("Examplea gamma", "SI")
+    ]

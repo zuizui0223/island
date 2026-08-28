@@ -642,3 +642,46 @@ def test_acquisition_queue_ranks_cells_unlocked_per_required_acquisition() -> No
     assert queue.iloc[0]["genus"] == "Beta"
     assert queue.iloc[0]["acquisitions_needed_for_min3_dominance"] == 1
     assert queue.iloc[0]["potential_cells_per_acquisition"] == 80
+
+
+def test_acquisition_queue_derives_genus_from_accepted_species() -> None:
+    master = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Accepted alpha",
+                "genus": "StaleSynonymGenus",
+                "n_islands": "3",
+                "n_records": "10",
+            }
+        ]
+    )
+    coverage = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Accepted alpha",
+                "axis": "reproductive_assurance",
+                "quality": "",
+            }
+        ]
+    )
+    rules = pd.DataFrame(
+        [
+            {
+                "setting": "current_min3",
+                "genus": "Accepted",
+                "axis": "reproductive_assurance",
+                "trait_name": "self_incompatibility",
+                "n_direct_species": 2,
+                "dominant_species": 2,
+                "required_dominance": 0.95,
+                "dominance": 1.0,
+                "value_distribution": '{"[\\"SC\\"]":2}',
+            }
+        ]
+    )
+
+    queue = audit.acquisition_queue(master, coverage, rules)
+
+    assert len(queue) == 1
+    assert queue.iloc[0]["genus"] == "Accepted"
+    assert queue.iloc[0]["potential_cells_unlocked"] == 1
