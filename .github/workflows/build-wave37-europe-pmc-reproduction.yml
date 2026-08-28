@@ -1,6 +1,16 @@
 name: Build Wave37 Europe PMC reproduction coverage
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-wave37-europe-pmc-reproduction.yml"
+      - "analysis/fetch_europe_pmc_reproduction_scale_20260807.py"
+      - "src/island_v2/wave37_europe_pmc_checkpoint.py"
+      - "tests/test_source_scale_trait_acquisition_20260807.py"
+      - "tests/test_wave37_europe_pmc_checkpoint.py"
+      - "data/v2/staging/traits/wave37_europe_pmc_reproduction/**"
+      - "pyproject.toml"
   workflow_dispatch:
 
 permissions:
