@@ -1,0 +1,37 @@
+{
+  "contract": "wave37_wfo_gbif_exact_canonical_consensus_v1",
+  "retrieved_at_utc": "2026-08-28T06:30:00Z",
+  "source_name": "Albizia saman",
+  "source_family": "Fabaceae",
+  "accepted_species": "Samanea saman",
+  "wfo": {
+    "classification_version": "2026-06",
+    "parsed_rank": "species",
+    "fuzzy_name_parts": 0,
+    "match": null,
+    "candidates": [
+      {
+        "wfo_id": "wfo-0000185958",
+        "full_name_plain": "Albizia saman (Jacq.) Merr.",
+        "placement": "Code/Plantae/Pteridobiotina/Angiosperms/Fabales/Fabaceae/Caesalpinioideae/Samanea/saman$Albizia/saman"
+      },
+      {
+        "wfo_id": "wfo-0001054150",
+        "full_name_plain": "Albizia saman (Jacq.) F.Muell.",
+        "placement": "Code/Plantae/Pteridobiotina/Angiosperms/Fabales/Fabaceae/Caesalpinioideae/Samanea/saman$Albizia/saman"
+      }
+    ]
+  },
+  "gbif": {
+    "match_type": "EXACT",
+    "rank": "SPECIES",
+    "kingdom": "Plantae",
+    "status": "SYNONYM",
+    "scientific_name": "Albizia saman (Jacq.) Merr.",
+    "accepted_species": "Samanea saman",
+    "accepted_genus": "Samanea",
+    "family": "Fabaceae"
+  },
+  "decision": "accepted_strict_two_backbone_canonical_consensus",
+  "decision_reason": "All exact WFO canonical homonym candidates resolve to Samanea saman and the independent GBIF exact synonym match resolves to the same accepted species and family."
+}

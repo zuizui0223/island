@@ -1,10 +1,10 @@
 """Fetch and screen Europe PMC full text for species-direct reproduction traits.
 
 The acquisition unit is a high-information genus x trait queue entry, not a
-fixed species batch.  Search results are discovery only.  Candidate evidence
-is emitted only from fetched full-text XML with an exact master species name
-and an explicit trait phrase in the same sentence, or in a paragraph that
-contains exactly one master species identity.
+fixed species batch. Search results are discovery only. Candidate evidence is
+emitted only from fetched full-text XML when an exact master species name (or
+an article-resolved abbreviation) and an explicit trait phrase occur in the
+same sentence. Contrastive clauses are separated before attribution.
 """
 
 from __future__ import annotations
@@ -178,6 +178,7 @@ def build_tasks(
     max_tasks: int | None = None,
     current_direct_path: Path | None = None,
     require_agreement: bool = False,
+    support_levels: tuple[int, ...] = (2,),
 ) -> pd.DataFrame:
     queue = pd.read_csv(queue_path, dtype=str).fillna("").head(top_n)
     if current_direct_path is not None:
@@ -185,12 +186,9 @@ def build_tasks(
         direct = direct.loc[direct["resolution_status"].eq("resolved")].drop_duplicates(
             ["accepted_species", "genus", "axis", "trait_name"]
         )
-        current = (
-            direct.groupby(["genus", "axis", "trait_name"], as_index=False)
-            .agg(
-                latest_support=("accepted_species", "nunique"),
-                latest_value_count=("state_set", "nunique"),
-            )
+        current = direct.groupby(["genus", "axis", "trait_name"], as_index=False).agg(
+            latest_support=("accepted_species", "nunique"),
+            latest_value_count=("state_set", "nunique"),
         )
         queue["_queue_order"] = range(len(queue))
         queue = queue.merge(
@@ -207,8 +205,11 @@ def build_tasks(
         )
         if require_agreement:
             queue = queue.loc[queue["latest_value_count"].eq(1)].copy()
+    allowed_support = {str(value) for value in support_levels}
+    if not allowed_support or not allowed_support <= {"1", "2"}:
+        raise ValueError("support_levels must contain only 1 and/or 2")
     queue = queue.loc[
-        queue["trait_name"].isin(REPRO_TRAITS) & queue["current_support"].eq("2")
+        queue["trait_name"].isin(REPRO_TRAITS) & queue["current_support"].isin(allowed_support)
     ].copy()
     queue["query"] = [
         f'("{genus}") AND ({QUERY_TERMS[trait]}) AND OPEN_ACCESS:Y AND IN_EPMC:Y'
@@ -222,9 +223,7 @@ def build_tasks(
             usecols=["genus", "trait_name"],
             dtype=str,
         ).fillna("")
-        completed.update(
-            log[["genus", "trait_name"]].itertuples(index=False, name=None)
-        )
+        completed.update(log[["genus", "trait_name"]].itertuples(index=False, name=None))
     if completed:
         keys = queue[["genus", "trait_name"]].apply(tuple, axis=1)
         queue = queue.loc[~keys.isin(completed)].copy()
@@ -305,6 +304,38 @@ def sentences(value: str) -> list[str]:
     ]
 
 
+def attribution_clauses(value: str) -> list[str]:
+    """Split contrastive clauses that commonly assign different taxa values."""
+
+    return [
+        text(part)
+        for part in re.split(
+            r"\s*;\s*|\s*,?\s+\b(?:whereas|while|but)\b\s+",
+            value,
+            flags=re.IGNORECASE,
+        )
+        if text(part)
+    ]
+
+
+def document_genus_binomials(value: str, genus: str) -> list[str]:
+    """Return explicit source binomials for a queued genus, including non-target taxa."""
+
+    matches = re.finditer(
+        rf"(?<![A-Za-z]){re.escape(genus)}\s+([a-z][a-z-]{{2,}})\b",
+        value,
+        flags=re.IGNORECASE,
+    )
+    excluded = {"species", "spec", "spp", "unknown"}
+    return sorted(
+        {
+            f"{genus} {match.group(1)}"
+            for match in matches
+            if match.group(1).casefold() not in excluded
+        }
+    )
+
+
 def article_candidates(
     raw: bytes,
     *,
@@ -319,83 +350,157 @@ def article_candidates(
 ) -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
     seen: set[tuple[str, str, str, str]] = set()
-    for paragraph_index, paragraph in enumerate(paragraphs(raw)):
-        for task in task_rows.itertuples(index=False):
-            trait = text(task.trait_name)
-            patterns = VALUE_PATTERNS[trait]
+    article_paragraphs = paragraphs(raw)
+    article_text = text(" ".join(article_paragraphs))
+    task_contexts: list[tuple[Any, str, tuple[tuple[str, re.Pattern[str]], ...], list[str]]] = []
+    for task in task_rows.itertuples(index=False):
+        trait = text(task.trait_name)
+        task_genus = text(task.genus)
+        task_contexts.append(
+            (
+                task,
+                trait,
+                VALUE_PATTERNS[trait],
+                document_genus_binomials(article_text, task_genus),
+            )
+        )
+    for paragraph_index, paragraph in enumerate(article_paragraphs):
+        for task, trait, patterns, species_names in task_contexts:
             if not any(pattern.search(paragraph) for _, pattern in patterns):
                 continue
-            species_names = by_genus.get(text(task.genus), [])
-            present = [
-                name
-                for name in species_names
-                if re.search(rf"\b{re.escape(name)}\b", paragraph, re.IGNORECASE)
-            ]
+            present: dict[str, tuple[str, str]] = {}
+            for name in species_names:
+                fixed_master_name = canonical.get(name.casefold(), "")
+                if match := re.search(
+                    rf"\b{re.escape(name)}\b",
+                    paragraph,
+                    re.IGNORECASE,
+                ):
+                    present[name] = (
+                        match.group(0),
+                        (
+                            "accepted_binomial_exact_in_full_text"
+                            if fixed_master_name
+                            else "source_binomial_exact_pending_two_backbone"
+                        ),
+                    )
+                    continue
+                genus, epithet = name.split(maxsplit=1)
+                abbreviation = re.search(
+                    rf"\b{re.escape(genus[0])}\.\s*{re.escape(epithet)}\b",
+                    paragraph,
+                    re.IGNORECASE,
+                )
+                if not abbreviation:
+                    continue
+                full_name_established = bool(
+                    re.search(rf"\b{re.escape(name)}\b", article_text, re.IGNORECASE)
+                )
+                genus_established_here = bool(
+                    re.search(rf"\b{re.escape(genus)}\b", paragraph, re.IGNORECASE)
+                )
+                if full_name_established or genus_established_here:
+                    present[name] = (
+                        abbreviation.group(0),
+                        (
+                            (
+                                "accepted_binomial_established_then_unambiguous_abbreviation"
+                                if fixed_master_name
+                                else "source_binomial_established_then_abbreviation_pending_two_backbone"
+                            )
+                            if full_name_established
+                            else "full_genus_and_unambiguous_abbreviation_in_same_paragraph"
+                        ),
+                    )
             if not present:
                 continue
             paragraph_sentences = sentences(paragraph)
             for value, pattern in patterns:
                 for sentence_index, sentence in enumerate(paragraph_sentences):
-                    match = pattern.search(sentence)
-                    if not match:
-                        continue
-                    same_sentence = [
-                        name
-                        for name in present
-                        if re.search(rf"\b{re.escape(name)}\b", sentence, re.IGNORECASE)
-                    ]
-                    attributed = same_sentence or (present if len(present) == 1 else [])
-                    if not attributed:
-                        continue
-                    excerpt = sentence if same_sentence else paragraph
-                    for matched_name in attributed:
-                        accepted = canonical.get(matched_name.casefold(), "")
-                        if not accepted:
+                    sentence_clauses = attribution_clauses(sentence)
+                    for clause in sentence_clauses:
+                        match = pattern.search(clause)
+                        if not match:
                             continue
-                        lineage = f"doi:{doi}" if doi else f"pmcid:{pmcid}"
-                        key = (accepted, trait, value, lineage)
-                        if key in seen:
-                            continue
-                        seen.add(key)
-                        rows.append(
-                            {
-                                "candidate_id": (
-                                    "EPMC-"
-                                    + hashlib.sha256("|".join(key).encode("utf-8")).hexdigest()[:20]
-                                ),
-                                "accepted_species": accepted,
-                                "genus": text(task.genus),
-                                "trait_name": trait,
-                                "axis": "reproductive_assurance",
-                                "raw_value": value,
-                                "normalized_value": value,
-                                "pmcid": pmcid,
-                                "doi": doi,
-                                "article_title": title,
-                                "source_url": f"https://europepmc.org/articles/{pmcid}",
-                                "fulltext_xml_url": f"{REST}/{pmcid}/fullTextXML",
-                                "exact_supporting_quote": excerpt,
-                                "matched_name": matched_name,
-                                "name_match_method": "accepted_binomial_exact_in_full_text",
-                                "source_lineage": lineage,
-                                "article_license": article_license,
-                                "content_sha256": sha(raw),
-                                "paragraph_index": str(paragraph_index),
-                                "sentence_index": str(sentence_index),
-                                "attribution_method": (
-                                    "same_sentence_exact_species_and_trait"
-                                    if same_sentence
-                                    else "single_exact_species_in_trait_paragraph"
-                                ),
-                                "retrieved_at_utc": retrieved_at,
-                                "review_status": "source_backed_fulltext_review_pending",
-                                "decision_reason": (
-                                    "Exact master species identity and explicit "
-                                    "trait phrase in fetched Europe PMC full text; "
-                                    "experimental context and conflict review required."
-                                ),
-                            }
+                        same_clause = [
+                            name
+                            for name in present
+                            if re.search(
+                                rf"\b{re.escape(present[name][0])}\b",
+                                clause,
+                                re.IGNORECASE,
+                            )
+                        ]
+                        same_sentence = (
+                            [
+                                name
+                                for name in present
+                                if re.search(
+                                    rf"\b{re.escape(present[name][0])}\b",
+                                    sentence,
+                                    re.IGNORECASE,
+                                )
+                            ]
+                            if len(sentence_clauses) == 1
+                            else []
                         )
+                        attributed = same_clause or same_sentence
+                        if not attributed:
+                            continue
+                        excerpt = sentence
+                        for matched_name in attributed:
+                            accepted = canonical.get(matched_name.casefold(), matched_name)
+                            in_fixed_master = matched_name.casefold() in canonical
+                            lineage = f"doi:{doi}" if doi else f"pmcid:{pmcid}"
+                            key = (accepted, trait, value, lineage)
+                            if key in seen:
+                                continue
+                            seen.add(key)
+                            rows.append(
+                                {
+                                    "candidate_id": (
+                                        "EPMC-"
+                                        + hashlib.sha256("|".join(key).encode("utf-8")).hexdigest()[
+                                            :20
+                                        ]
+                                    ),
+                                    "accepted_species": accepted,
+                                    "source_species_name": matched_name,
+                                    "in_fixed_master": str(in_fixed_master).lower(),
+                                    "rule_support_only": str(not in_fixed_master).lower(),
+                                    "genus": text(task.genus),
+                                    "trait_name": trait,
+                                    "axis": "reproductive_assurance",
+                                    "raw_value": value,
+                                    "normalized_value": value,
+                                    "pmcid": pmcid,
+                                    "doi": doi,
+                                    "article_title": title,
+                                    "source_url": f"https://europepmc.org/articles/{pmcid}",
+                                    "fulltext_xml_url": f"{REST}/{pmcid}/fullTextXML",
+                                    "exact_supporting_quote": excerpt,
+                                    "matched_name": present[matched_name][0],
+                                    "name_match_method": present[matched_name][1],
+                                    "source_lineage": lineage,
+                                    "article_license": article_license,
+                                    "content_sha256": sha(raw),
+                                    "paragraph_index": str(paragraph_index),
+                                    "sentence_index": str(sentence_index),
+                                    "attribution_method": (
+                                        "same_clause_exact_species_and_trait"
+                                        if same_clause
+                                        else "same_sentence_exact_species_and_trait"
+                                    ),
+                                    "retrieved_at_utc": retrieved_at,
+                                    "review_status": "source_backed_fulltext_review_pending",
+                                    "decision_reason": (
+                                        "Explicit source binomial and trait phrase in the same "
+                                        "fetched Europe PMC sentence; experimental context, "
+                                        "conflict review, and two-backbone identity review are "
+                                        "required before non-master congeners support a rule."
+                                    ),
+                                }
+                            )
     return rows
 
 
@@ -433,7 +538,24 @@ def main() -> None:
         action="store_true",
         help="Keep only genus x trait tasks whose current species values agree.",
     )
+    parser.add_argument(
+        "--support-level",
+        type=int,
+        action="append",
+        choices=(1, 2),
+        dest="support_levels",
+        help=(
+            "Current direct-species support to search. Repeat for both 1 and 2; "
+            "the default remains support 2 for backward compatibility."
+        ),
+    )
     parser.add_argument("--delay", type=float, default=0.15)
+    parser.add_argument(
+        "--search-workers",
+        type=int,
+        default=1,
+        help="Concurrent official Europe PMC search requests; cached tasks are not resent.",
+    )
     parser.add_argument("--workers", type=int, default=6)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
@@ -449,12 +571,14 @@ def main() -> None:
         args.max_tasks,
         args.current_direct,
         args.require_agreement,
+        tuple(args.support_levels or (2,)),
     )
     canonical, by_genus, _ = load_species(args.coverage, args.genus_map)
     query_rows: list[dict[str, Any]] = []
     articles: dict[str, dict[str, Any]] = {}
     article_tasks: dict[str, set[tuple[str, str]]] = defaultdict(set)
-    for task in tasks.itertuples(index=False):
+
+    def process_search(task: Any) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         search_key = hashlib.sha256(
             f"{task.genus}|{task.trait_name}|{task.query}".encode()
         ).hexdigest()[:24]
@@ -488,8 +612,11 @@ def main() -> None:
                 str(exc),
                 "error",
             )
-        query_rows.append(
+        if search_status == "fetched":
+            time.sleep(args.delay)
+        return (
             {
+                "queue_order": int(task.Index),
                 "genus": task.genus,
                 "trait_name": task.trait_name,
                 "query": task.query,
@@ -500,15 +627,31 @@ def main() -> None:
                 "returned_count": len(records),
                 "cost_usd": 0.0,
                 "error": error,
-            }
+            },
+            records,
         )
-        for record in records:
-            pmcid = text(record.get("pmcid"))
-            if not pmcid:
-                continue
-            articles.setdefault(pmcid, record)
-            article_tasks[pmcid].add((text(task.genus), text(task.trait_name)))
-        time.sleep(args.delay)
+
+    search_workers = max(1, args.search_workers)
+    search_futures = {}
+    indexed_tasks = tasks.reset_index(drop=True).itertuples(index=True)
+    with ThreadPoolExecutor(max_workers=search_workers) as executor:
+        for task in indexed_tasks:
+            search_futures[executor.submit(process_search, task)] = task.Index
+        for completed, future in enumerate(as_completed(search_futures), start=1):
+            query_row, records = future.result()
+            query_rows.append(query_row)
+            for record in records:
+                pmcid = text(record.get("pmcid"))
+                if not pmcid:
+                    continue
+                articles.setdefault(pmcid, record)
+                article_tasks[pmcid].add((text(query_row["genus"]), text(query_row["trait_name"])))
+            if completed % 50 == 0:
+                print(f"[europe-pmc-search] {completed}/{len(tasks)} queries", flush=True)
+
+    query_rows.sort(key=lambda row: int(row["queue_order"]))
+    for row in query_rows:
+        row.pop("queue_order", None)
 
     manifest_rows: list[dict[str, Any]] = []
     candidate_rows: list[dict[str, str]] = []
@@ -648,6 +791,7 @@ def main() -> None:
             else {}
         ),
         "query_cost_usd": 0.0,
+        "search_workers": search_workers,
         "workers": max(1, args.workers),
         "formal_promotion_status": "review_pending",
         "safeguards": {

@@ -142,9 +142,9 @@ def test_completed_query_logs_are_excluded_before_next_batch(tmp_path: Path) -> 
     queue_path = tmp_path / "queue.csv"
     queue.to_csv(queue_path, index=False)
     completed_path = tmp_path / "completed.csv"
-    pd.DataFrame(
-        [{"genus": "Done", "trait_name": "self_incompatibility"}]
-    ).to_csv(completed_path, index=False)
+    pd.DataFrame([{"genus": "Done", "trait_name": "self_incompatibility"}]).to_csv(
+        completed_path, index=False
+    )
 
     tasks = FETCH.build_tasks(
         queue_path,
@@ -225,3 +225,106 @@ def test_latest_direct_support_and_agreement_control_the_next_queue(
     assert tasks[["genus", "trait_name"]].to_dict("records") == [
         {"genus": "Agree", "trait_name": "self_incompatibility"}
     ]
+
+
+def test_support_one_is_only_included_when_explicitly_requested(tmp_path: Path) -> None:
+    queue_path = tmp_path / "queue.csv"
+    pd.DataFrame(
+        [
+            {
+                "genus": "One",
+                "trait_name": "self_incompatibility",
+                "current_support": "1",
+            },
+            {
+                "genus": "Two",
+                "trait_name": "self_incompatibility",
+                "current_support": "2",
+            },
+        ]
+    ).to_csv(queue_path, index=False)
+
+    default = FETCH.build_tasks(queue_path, top_n=10)
+    expanded = FETCH.build_tasks(queue_path, top_n=10, support_levels=(1, 2))
+
+    assert default["genus"].tolist() == ["Two"]
+    assert expanded["genus"].tolist() == ["One", "Two"]
+
+
+def test_article_resolves_established_binomial_abbreviation() -> None:
+    raw = b"""<article><body>
+      <p>Examplea alpha is an island herb.</p>
+      <p>E. alpha is self-compatible, while E. beta is self-incompatible.</p>
+    </body></article>"""
+    tasks = pd.DataFrame([{"genus": "Examplea", "trait_name": "self_incompatibility"}])
+
+    candidates = FETCH.article_candidates(
+        raw,
+        pmcid="PMC1",
+        title="Example",
+        doi="10.0000/example",
+        task_rows=tasks,
+        canonical={
+            "examplea alpha": "Examplea alpha",
+            "examplea beta": "Examplea beta",
+        },
+        by_genus={"Examplea": ["Examplea alpha", "Examplea beta"]},
+        article_license="CC BY",
+        retrieved_at="2026-08-28T00:00:00Z",
+    )
+
+    assert [(row["accepted_species"], row["normalized_value"]) for row in candidates] == [
+        ("Examplea alpha", "SC")
+    ]
+    assert candidates[0]["matched_name"] == "E. alpha"
+    assert (
+        candidates[0]["name_match_method"]
+        == "accepted_binomial_established_then_unambiguous_abbreviation"
+    )
+
+
+def test_article_rejects_cross_sentence_species_trait_bleed() -> None:
+    raw = b"""<article><body><p>
+      Examplea alpha is an island herb. Another plant is self-compatible.
+    </p></body></article>"""
+    tasks = pd.DataFrame([{"genus": "Examplea", "trait_name": "self_incompatibility"}])
+
+    candidates = FETCH.article_candidates(
+        raw,
+        pmcid="PMC2",
+        title="Example",
+        doi="10.0000/example2",
+        task_rows=tasks,
+        canonical={"examplea alpha": "Examplea alpha"},
+        by_genus={"Examplea": ["Examplea alpha"]},
+        article_license="CC BY",
+        retrieved_at="2026-08-28T00:00:00Z",
+    )
+
+    assert candidates == []
+
+
+def test_article_retains_nonmaster_congener_for_backbone_review() -> None:
+    raw = b"""<article><body><p>
+      Examplea gamma is self-incompatible in hand-pollination experiments.
+    </p></body></article>"""
+    tasks = pd.DataFrame([{"genus": "Examplea", "trait_name": "self_incompatibility"}])
+
+    candidates = FETCH.article_candidates(
+        raw,
+        pmcid="PMC3",
+        title="Example",
+        doi="10.0000/example3",
+        task_rows=tasks,
+        canonical={"examplea alpha": "Examplea alpha"},
+        by_genus={"Examplea": ["Examplea alpha"]},
+        article_license="CC BY",
+        retrieved_at="2026-08-28T00:00:00Z",
+    )
+
+    assert len(candidates) == 1
+    assert candidates[0]["accepted_species"] == "Examplea gamma"
+    assert candidates[0]["source_species_name"] == "Examplea gamma"
+    assert candidates[0]["in_fixed_master"] == "false"
+    assert candidates[0]["rule_support_only"] == "true"
+    assert candidates[0]["name_match_method"] == ("source_binomial_exact_pending_two_backbone")

@@ -1,0 +1,45 @@
+candidate_id,review_decision,promote_to_ledger,accepted_species_override,normalized_value_override,quality,evidence_scope,source_lineage_override,review_reason
+EPMC-87c0b4a48c6d7071e0bb,exclude,false,,,,,,Parsed a genus plus author abbreviation as a species and fails the species-rank identity gate
+EPMC-2ba6705224037d75f5a9,exclude_false_closed_conflict,false,,,,,,Partial self-incompatibility is not collapsed to binary SI and conflicts with existing SC evidence
+EPMC-2a3a05e020ca0d28185e,accept_direct,true,Samanea saman,predominantly_outcrossing,medium,synonym_direct,doi:10.1002/ece3.6005,Exact synonym resolves by WFO candidate consensus and GBIF exact match to Samanea saman
+EPMC-d11beb359462bde3395d,accept_existing_not_promoted,false,,,,,,Valid SI statement but the same underlying Europe PMC article is already in the direct ledger
+EPMC-d853dfbc127cf3b7790e,exclude,false,,,,,,The sentence states a research question and does not report the compatibility result
+EPMC-0fa87b928d3a947bbc55,exclude,false,,,,,,Species name occurs only in an EFSA host list and has no self-compatibility statement
+EPMC-78d833c8a1bb7d767680,exclude,false,,,,,,Species name occurs only in an EFSA host list and has no self-compatibility statement
+EPMC-c081edf150955087abb3,exclude,false,,,,,,Self-fertility is limited to the named Milgarra accession and cannot be transferred to the wild species
+EPMC-3436da52e113f3e856a3,exclude,false,,,,,,The source explicitly says compatibility is unknown
+EPMC-26aadb011a5d43742f67,exclude,false,,,,,,The source explicitly says compatibility is unknown
+EPMC-3c78ca768881b15c59cb,accept_existing_not_promoted,false,,,,,,Valid SI statement but the underlying evidence is already represented in the direct ledger
+EPMC-34891d419d8f67266d6e,accept_rule_support_only_not_integrated,false,,,,,,Species-direct SC statement passes WFO and GBIF identity checks but the species is outside the fixed denominator
+EPMC-c65cc5b58d332bb51c8c,exclude,false,,,,,,Species name occurs only in an EFSA host list and has no self-compatibility statement
+EPMC-faae1a490037c3bd44c5,exclude,false,,,,,,Species name occurs only in an EFSA host list and has no self-compatibility statement
+EPMC-85026df93202944c7168,exclude,false,,,,,,Species name occurs only in an EFSA host list and has no self-compatibility statement
+EPMC-b28a01073939121fa027,exclude,false,,,,,,Species name occurs only in an EFSA host list and has no self-compatibility statement
+EPMC-88333f644e7c040f0d80,exclude,false,,,,,,Species name occurs only in an EFSA host list and has no self-compatibility statement
+EPMC-60983b769497278240f2,exclude,false,,,,,,Species name occurs only in an EFSA host list and has no self-compatibility statement
+EPMC-1d5c1aafb9ba0807b365,exclude,false,,,,,,Species name occurs only in an EFSA host list and has no self-compatibility statement
+EPMC-b5d2f7bdddf1c85186a2,exclude,false,,,,,,Machine polarity is wrong and the misspelled source name fails strict two-backbone identity
+EPMC-b804b22bb08fbf7aa75a,accept_direct,true,,,medium,species_direct,doi:10.3389/fpls.2026.1760796,Species-specific statement supports partial self-compatibility without claiming autonomous selfing
+EPMC-8c81fd8f578725ab749b,accept_direct,true,,,high,species_direct,doi:10.1038/s41598-018-32143-5,Original study explicitly states that the species is capable of autonomous selfing
+EPMC-d6c18ab50bc787a3cda6,accept_counterevidence,true,,,medium,species_direct,doi:10.3390/plants11192640,Review statement reports wild self-compatible populations and is retained below conflicting High SI evidence
+EPMC-2602edaf7982d057f0cf,exclude,false,,,,,,Geitonogamous selfing does not establish autonomous selfing capacity
+EPMC-737057615b743fbd7736,superseded_by_manual_correction,false,,,,,,Machine polarity is wrong and the sentence actually supports SI
+EPMC-e941ce1fb462a58cec9b,accept_direct,true,,,medium,species_direct,doi:10.1002/ece3.2867,Peer-reviewed species-specific statement explicitly reports a mixed mating system
+EPMC-fc70af34635ab56a7031,exclude_false_closed_conflict,false,,,,,,Partially self-compatible is not collapsed to binary SC in a sentence that also reports incomplete SI
+EPMC-002519df108d1d4187c5,exclude_false_closed_conflict,false,,,,,,Incomplete SI is not collapsed to binary SI in a sentence that also reports partial SC
+EPMC-61d3fdc7fe33f29a7da5,accept_direct,true,,,medium,species_direct,doi:10.3390/plants11192640,Peer-reviewed species-specific statement explicitly reports self-compatible wild populations
+EPMC-5e48952062b4a7f503ef,superseded_by_manual_correction,false,,,,,,Parser captured the word was as an epithet and conflated two Saussurea species with opposite states
+EPMC-cb9be974fb2ce57ec304,exclude,false,,,,,,Species name occurs only in an EFSA host list and has no self-compatibility statement
+EPMC-922c2ae629002580448f,exclude,false,,,,,,A grouped sentence lists several species and several strategies without unambiguous trait attribution
+EPMC-0d799145c5b8ed8befd4,accept_counterevidence,true,,,medium,species_direct,doi:10.1111/eva.13691,Species-specific statement reports predominant outcrossing and is retained below existing High mixed-mating evidence
+EPMC-fb2e3141ed3f19b123fb,exclude_infraspecific_scope,false,,,,,,The SI statement is limited to subsp. oxysepalum and is not promoted as species-wide direct evidence
+EPMC-bf193369a9e923cdfc56,superseded_by_primary_source,false,,,,,,The secondary statement is replaced by the directly inspected primary Vitex doniana experiment
+EPMC-6086b9117fb50dacd20c,exclude,false,,,,,,Parser captured the word have as an epithet and fails the species-rank identity gate
+EPMC-8f889591acc6ffb7b579,accept_existing_not_promoted,false,,,,,,Bibliographic title duplicates an already represented Vitex negundo source
+EPMC-2dde20a0bbb37f24b4ce,accept_existing_not_promoted,false,,,,,,Correction notice is not an independent source lineage
+EPMC-4e7e8dc62f9bc0a68d43,accept_existing_not_promoted,false,,,,,,Existing ledger already contains this Vitex negundo article and value
+EPMC-bc5944cf18e1b2ccc122,accept_existing_not_promoted,false,,,,,,Existing ledger already contains this Vitex negundo article and value
+EPMC-e35ef1f574ee14eff782,accept_existing_not_promoted,false,,,,,,Existing ledger already contains this Vitex negundo article and value
+EPMC-4e93d77bb66b7f4325bd,accept_direct,true,,,medium,species_direct,doi:10.2112/JCOASTRES-D-13-00117.1,Peer-reviewed statement explicitly attributes mixed mating to the species and lineage is the cited primary study
+EPMC-43048ee8171a9676fbba,exclude_name_backbone_disagreement,false,,,,,,WFO retains Zingiber nudicarpum while GBIF maps it to Zingiber montanum so two-backbone agreement fails
+EPMC-30308e5e862cefcbac23,exclude,false,,,,,,Negation was reversed and the sentence explicitly says autonomous selfing is absent

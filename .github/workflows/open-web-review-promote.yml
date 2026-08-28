@@ -744,7 +744,10 @@ jobs:
           assert shared["coverage_change_species_axis"]["loss"] == 0
           assert shared["coverage_increment_species_axis"] >= 195
           assert coverage["filled_species_axis"] >= 159443
-          assert reproduction["filled_species"] >= 31889
+          # The PR #131 trait-specific re-audit invalidated 158 historical
+          # genus-by-axis Low cells.  Preserve that stricter result instead of
+          # requiring the pre-audit Wave 24 reproduction count (31,889).
+          assert reproduction["filled_species"] >= 31731
           assert coverage["species_by_filled_axis_count"]["0"] <= 14500
 
           verification = {
@@ -762,6 +765,7 @@ jobs:
               "coverage_increment_species_axis": shared[
                   "coverage_increment_species_axis"
               ],
+              "reproduction_floor_after_trait_specific_reaudit": 31731,
               "coverage_after": coverage,
               "validated_low_change": shared["pilot_validated_low_change"],
               "guardrails": {
