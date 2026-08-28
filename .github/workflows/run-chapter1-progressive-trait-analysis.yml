@@ -11,11 +11,17 @@ on:
       - "src/island_v2/chapter1_climate_overlap_validation.py"
       - "src/island_v2/chapter1_pollination_architecture_factor.py"
       - "src/island_v2/chapter1_taxonomic_depth_decomposition.py"
+      - "src/island_v2/chapter1_area_capacity_moderation.py"
+      - "src/island_v2/chapter1_area_support_artifact.py"
+      - "src/island_v2/chapter1_pr138_lineage_representation_bridge.py"
       - "tests/test_chapter1_trait_snapshot.py"
       - "tests/test_chapter1_trait_resolution_mnar.py"
       - "tests/test_chapter1_climate_overlap_validation.py"
       - "tests/test_chapter1_pollination_architecture_factor.py"
       - "tests/test_chapter1_taxonomic_depth_decomposition.py"
+      - "tests/test_chapter1_area_capacity_moderation.py"
+      - "tests/test_chapter1_area_support_artifact.py"
+      - "tests/test_chapter1_pr138_lineage_representation_bridge.py"
       - "data/v2/staging/gbif/collected/island_taxa.csv"
       - "docs/chapter1_progressive_analysis_contract.md"
       - ".github/workflows/run-chapter1-progressive-trait-analysis.yml"
@@ -76,18 +82,27 @@ jobs:
             tests/test_chapter1_trait_resolution_mnar.py \
             tests/test_chapter1_climate_overlap_validation.py \
             tests/test_chapter1_pollination_architecture_factor.py \
-            tests/test_chapter1_taxonomic_depth_decomposition.py
+            tests/test_chapter1_taxonomic_depth_decomposition.py \
+            tests/test_chapter1_area_capacity_moderation.py \
+            tests/test_chapter1_area_support_artifact.py \
+            tests/test_chapter1_pr138_lineage_representation_bridge.py
           ruff check \
             src/island_v2/chapter1_trait_snapshot.py \
             src/island_v2/chapter1_trait_resolution_mnar.py \
             src/island_v2/chapter1_climate_overlap_validation.py \
             src/island_v2/chapter1_pollination_architecture_factor.py \
             src/island_v2/chapter1_taxonomic_depth_decomposition.py \
+            src/island_v2/chapter1_area_capacity_moderation.py \
+            src/island_v2/chapter1_area_support_artifact.py \
+            src/island_v2/chapter1_pr138_lineage_representation_bridge.py \
             tests/test_chapter1_trait_snapshot.py \
             tests/test_chapter1_trait_resolution_mnar.py \
             tests/test_chapter1_climate_overlap_validation.py \
             tests/test_chapter1_pollination_architecture_factor.py \
-            tests/test_chapter1_taxonomic_depth_decomposition.py
+            tests/test_chapter1_taxonomic_depth_decomposition.py \
+            tests/test_chapter1_area_capacity_moderation.py \
+            tests/test_chapter1_area_support_artifact.py \
+            tests/test_chapter1_pr138_lineage_representation_bridge.py
           python - <<'PY'
           import yaml
           from pathlib import Path
