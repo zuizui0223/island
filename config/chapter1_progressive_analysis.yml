@@ -98,6 +98,28 @@ fixed_scientific_components:
   no_family_inference: true
   no_global_fallback: true
 
+secondary_interpretation_families:
+  sampled_guild_concordance:
+    axes:
+      - large_bee_like
+      - butterfly_like
+      - bird_like
+    role: post_primary_nonexhaustive_floral_architecture_concordance
+    rerun_on_every_trait_snapshot: true
+    context_layers:
+      - analysis_regime
+      - biogeographic_realm
+    multiple_testing_family: context_layer_x_axis_set_x_stratum_x_support_tier
+    requires_primary_pattern_first: true
+    direct_only_sensitivity_required: true
+    source_adjusted_sensitivity_required: true
+    unmodelled_guilds_are_not_absent: true
+    interpretation: >-
+      These axes test whether the independently estimated plant assemblage response is
+      concordant with sampled floral architectures associated in the literature with
+      large bees, butterflies or birds. They are not pollinator classifiers and cannot
+      identify realized visitor identity, abundance, effectiveness, loss or replacement.
+
 support_gates:
   global_trait_fill_fraction_is_not_an_analysis_gate: true
   pilot_min_islands_per_response: 30
