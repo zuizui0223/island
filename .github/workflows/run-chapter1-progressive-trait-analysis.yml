@@ -5,8 +5,11 @@ on:
     branches: [ch1-progressive-trait-analysis]
     paths:
       - "config/chapter1_progressive_analysis.yml"
+      - "config/chapter1_explanation_gap_validation.yml"
       - "src/island_v2/chapter1_trait_snapshot.py"
+      - "src/island_v2/chapter1_trait_resolution_mnar.py"
       - "tests/test_chapter1_trait_snapshot.py"
+      - "tests/test_chapter1_trait_resolution_mnar.py"
       - "docs/chapter1_progressive_analysis_contract.md"
       - ".github/workflows/run-chapter1-progressive-trait-analysis.yml"
   workflow_dispatch:
@@ -61,10 +64,14 @@ jobs:
       - run: pip install -e ".[dev]"
       - name: Validate progressive snapshot contract
         run: |
-          pytest -q tests/test_chapter1_trait_snapshot.py
+          pytest -q \
+            tests/test_chapter1_trait_snapshot.py \
+            tests/test_chapter1_trait_resolution_mnar.py
           ruff check \
             src/island_v2/chapter1_trait_snapshot.py \
-            tests/test_chapter1_trait_snapshot.py
+            src/island_v2/chapter1_trait_resolution_mnar.py \
+            tests/test_chapter1_trait_snapshot.py \
+            tests/test_chapter1_trait_resolution_mnar.py
           python - <<'PY'
           import yaml
           from pathlib import Path
@@ -253,6 +260,34 @@ jobs:
             --selection-config-path config/chapter1_global_branch_selection.yml \
             --output-dir /tmp/progressive/selection
 
+      - name: Run prospective V5 trait-resolution MNAR tipping point
+        run: |
+          set -euo pipefail
+          python -m island_v2.chapter1_trait_resolution_mnar \
+            --island-scores-csv /tmp/progressive/syndrome/all/island_syndrome_scores.csv.gz \
+            --status-flora-csv /tmp/progressive/fixed/canonical/input/chapter1_status_flora.csv.gz \
+            --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/progressive/fixed/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --explanation-config-path config/chapter1_explanation_gap_validation.yml \
+            --evidence-scope all_analysis_eligible \
+            --output-dir /tmp/progressive/mnar/all
+          python -m island_v2.chapter1_trait_resolution_mnar \
+            --island-scores-csv /tmp/progressive/syndrome/direct/island_syndrome_scores.csv.gz \
+            --status-flora-csv /tmp/progressive/fixed/canonical/input/chapter1_status_flora.csv.gz \
+            --covariates-csv /tmp/progressive/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/progressive/fixed/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --explanation-config-path config/chapter1_explanation_gap_validation.yml \
+            --evidence-scope direct_only \
+            --output-dir /tmp/progressive/mnar/direct
+          test -s /tmp/progressive/mnar/all/mnar_tipping_points.csv
+          test -s /tmp/progressive/mnar/direct/mnar_tipping_points.csv
+          test -s /tmp/progressive/mnar/all/chapter1_trait_resolution_mnar_manifest.json
+          test -s /tmp/progressive/mnar/direct/chapter1_trait_resolution_mnar_manifest.json
+
       - name: Refit source-adjusted plant branches
         run: |
           set -euo pipefail
@@ -315,6 +350,12 @@ jobs:
           branches = pd.read_csv(root/'joint-source-selection/joint_selection_headline_summary.csv')
           lineage = pd.read_csv(root/'lineage/lineage_representation_context_slopes.csv')
           area = pd.read_csv(root/'area/area_moderation_coefficients.csv')
+          mnar_all = json.loads(
+              (root/'mnar/all/chapter1_trait_resolution_mnar_manifest.json').read_text()
+          )
+          mnar_direct = json.loads(
+              (root/'mnar/direct/chapter1_trait_resolution_mnar_manifest.json').read_text()
+          )
 
           summary = {
               'contract': 'chapter1_progressive_analysis_v1',
@@ -325,6 +366,8 @@ jobs:
               'joint_source_selection_rows': len(branches),
               'lineage_context_slope_rows': len(lineage),
               'area_coefficient_rows': len(area),
+              'V5_MNAR_all_analysis': mnar_all,
+              'V5_MNAR_direct_only': mnar_direct,
               'result_values_are_not_ci_expectations': True,
               'interpretation': 'compare this snapshot prospectively with earlier snapshots; do not fail CI because a biological conclusion changes',
           }
@@ -335,6 +378,7 @@ jobs:
           lines.append(f"Global species-axis fill: {manifest['coverage']['global_species_axis_fill_fraction']:.3%} (descriptive only)")
           lines.append('')
           lines.append('The fixed hypothesis/model contract executed successfully. Biological estimates are allowed to change as trait coverage improves.')
+          lines.append('The prospective V5 MNAR grid also executed for all-analysis and direct-only evidence; support loss or sign reversal is a scientific result, not a CI failure.')
           lines.append('')
           lines.append('## Axis coverage')
           lines.append('```text')

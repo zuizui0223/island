@@ -53,6 +53,15 @@ This matters directly for tropical/Neotropical reproductive-assurance results.
 
 Add a partial-identification / selection-model sensitivity in which unresolved states are allowed to be systematically more or less likely to belong to the focal state than resolved species. The missingness shift is varied on a grid fixed before execution. Record the value at which the sign, multivariate gate or regional contrast changes.
 
+The pre-execution parameter is the odds ratio for being trait-resolved in the focal
+`selfing_core` state versus the non-focal state. The frozen grid is `0.1, 0.2, 1/3,
+0.5, 1, 2, 3, 5, 10`. It is applied as (i) a shared state-dependent mechanism,
+(ii) a symmetric North-versus-Tropical differential, and (iii) a symmetric
+Palearctic-versus-Neotropical differential. OR = 1 must reproduce the observed island
+scores exactly. Regression weights retain the observed number of resolved species, so
+expected completion of unresolved states does not manufacture precision. Deterministic
+all-missing-focal and all-missing-nonfocal bounds are reported separately.
+
 ### What it answers
 
 Instead of saying only “we adjusted for trait-resolution probability,” the manuscript can say either:

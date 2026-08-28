@@ -138,10 +138,59 @@ validations:
       - prespecified_selection_model_delta_grid
       - transition_of_sign_and_support_under_delta
     freeze_before_execution:
-      - delta_grid
-      - affected_trait_families
-      - multiplicity_family
-      - reporting_thresholds
+      selection_parameter: >-
+        Odds ratio for being trait-resolved in the focal latent state versus the
+        non-focal latent state. Values above one mean focal-state species are more
+        likely to be resolved, so unresolved species are expected to be less focal.
+      resolution_odds_ratio_grid:
+        - 0.1
+        - 0.2
+        - 0.3333333333333333
+        - 0.5
+        - 1.0
+        - 2.0
+        - 3.0
+        - 5.0
+        - 10.0
+      affected_syndrome_axes:
+        - selfing_core
+      scenario_families:
+        shared_state_dependent_resolution:
+          context_layer: all_islands
+          contrast_contexts: []
+        north_tropical_differential_resolution:
+          context_layer: analysis_regime
+          contrast_contexts:
+            - northern_midlatitude
+            - tropical
+        palearctic_neotropical_differential_resolution:
+          context_layer: biogeographic_realm
+          contrast_contexts:
+            - Palearctic
+            - Neotropical
+      differential_parameterization: >-
+        For a two-context contrast, half of log(OR) is applied to the first context
+        and minus half to the second, so OR is the focal-versus-nonfocal resolution
+        odds-ratio contrast between contexts. Both OR below and above one are run.
+      partial_identification_bounds:
+        - all_unresolved_nonfocal
+        - all_unresolved_focal
+        - first_context_nonfocal_second_context_focal
+        - first_context_focal_second_context_nonfocal
+      information_rule: >-
+        Adjusted scores use the completed-data expectation, while regression weights
+        retain the number of actually resolved species so imputation does not create
+        artificial precision.
+      multiplicity_family: reuse_frozen_global_branching_FDR_within_each_grid_scenario
+      grid_points_are_ordered_sensitivity_not_separately_selected_hypotheses: true
+      reporting_thresholds:
+        modest_resolution_odds_ratio_interval: [0.6666666666666666, 1.5]
+        moderate_resolution_odds_ratio_interval: [0.3333333333333333, 3.0]
+        support_alpha: 0.05
+      evidence_scopes:
+        - all_analysis_eligible
+        - direct_only
+      baseline_reproduction_rule: OR_1_must_reproduce_unadjusted_scores_and_results
     interpretation:
       large_tipping_point: measured_pattern_robust_to_moderate_MNAR
       small_tipping_point: claim_remains_trait_resolution_sensitive
