@@ -113,6 +113,7 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf wave36-trait-coverage
+          mkdir -p wave36-trait-coverage
           island-v2-wave36-trait-overlay \
             --baseline-csv "$WAVE35_COVERAGE" \
             --input-dir "$SOURCE_DIR" \
