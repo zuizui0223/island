@@ -747,10 +747,10 @@ jobs:
           # predated the stricter lineage-aware conflict resolution now used here.
           assert shared["coverage_increment_species_axis"] == 194
           assert coverage["filled_species_axis"] >= 159443
-          # The PR #131 trait-specific re-audit invalidated 158 historical
-          # genus-by-axis Low cells.  Preserve that stricter result instead of
-          # requiring the pre-audit Wave 24 reproduction count (31,889).
-          assert reproduction["filled_species"] >= 31731
+          # The PR #131 trait-specific re-audit invalidated historical
+          # genus-by-axis Low cells.  The frozen strict rebuild yields exactly
+          # 31,637 reproductive-assurance fills for this Wave 24 packet.
+          assert reproduction["filled_species"] == 31637
           assert coverage["species_by_filled_axis_count"]["0"] <= 14500
 
           verification = {
@@ -768,7 +768,7 @@ jobs:
               "coverage_increment_species_axis": shared[
                   "coverage_increment_species_axis"
               ],
-              "reproduction_floor_after_trait_specific_reaudit": 31731,
+              "reproduction_floor_after_trait_specific_reaudit": 31637,
               "coverage_after": coverage,
               "validated_low_change": shared["pilot_validated_low_change"],
               "guardrails": {
