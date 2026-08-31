@@ -9,6 +9,7 @@ rules are then rebuilt only for touched ``genus x axis x trait_name`` keys.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -51,6 +52,12 @@ EXPECTED_COUNTS = {
 }
 
 
+def _lf_normalized_sha256(path: Path) -> str:
+    """Hash a declared text receipt identically on Windows and Linux."""
+    payload = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return hashlib.sha256(payload).hexdigest()
+
+
 def _eligible(frame: pd.DataFrame) -> pd.Series:
     return frame["eligible"].astype(str).str.casefold().isin({"true", "1"})
 
@@ -65,6 +72,8 @@ def _load_manifest(repo_root: Path, manifest_path: Path) -> dict[str, Any]:
         raise ValueError("Wave49 Wave48 baseline pin changed")
     if manifest.get("fixed_target_species") != EXPECTED_SPECIES:
         raise ValueError("Wave49 fixed denominator changed")
+    if manifest.get("text_receipt_hash_method") != "lf_normalized_sha256":
+        raise ValueError("Wave49 text-receipt hash contract changed")
 
     precision_gate = float(manifest["precision_gate"])
     contamination_ceiling = float(manifest["cultivar_contamination_ceiling"])
@@ -74,13 +83,18 @@ def _load_manifest(repo_root: Path, manifest_path: Path) -> dict[str, Any]:
         if source_id in source_ids:
             raise ValueError(f"duplicate Wave49 source_id: {source_id}")
         source_ids.add(source_id)
-        for path_key, hash_key in (
-            ("evidence_path", "evidence_sha256"),
-            ("review_artifact", "review_sha256"),
+        evidence_path = repo_root / source["evidence_path"]
+        if (
+            not evidence_path.is_file()
+            or _sha256(evidence_path) != source["evidence_sha256"]
         ):
-            path = repo_root / source[path_key]
-            if not path.is_file() or _sha256(path) != source[hash_key]:
-                raise ValueError(f"Wave49 source receipt mismatch: {path}")
+            raise ValueError(f"Wave49 source receipt mismatch: {evidence_path}")
+        review_path = repo_root / source["review_artifact"]
+        if (
+            not review_path.is_file()
+            or _lf_normalized_sha256(review_path) != source["review_sha256"]
+        ):
+            raise ValueError(f"Wave49 source receipt mismatch: {review_path}")
         precision = source.get("review_precision")
         if precision is None:
             if not str(source.get("approval_basis", "")).strip():
@@ -101,7 +115,10 @@ def _load_manifest(repo_root: Path, manifest_path: Path) -> dict[str, Any]:
 
     exclusions = manifest["direct_evidence_exclusions"]
     exclusions_path = repo_root / exclusions["path"]
-    if not exclusions_path.is_file() or _sha256(exclusions_path) != exclusions["sha256"]:
+    if (
+        not exclusions_path.is_file()
+        or _lf_normalized_sha256(exclusions_path) != exclusions["sha256"]
+    ):
         raise ValueError("Wave49 direct-evidence exclusion receipt mismatch")
     return manifest
 
