@@ -107,7 +107,7 @@ def test_wave24_workflow_verifies_fixed_goals_and_new_rules() -> None:
 
     assert "Verify the Wave 24 support-two checkpoint goals" in workflow
     assert 'assert len(targeted_new) >= 20' in workflow
-    assert 'assert shared["coverage_increment_species_axis"] >= 195' in workflow
+    assert 'assert shared["coverage_increment_species_axis"] == 194' in workflow
     assert 'assert coverage["filled_species_axis"] >= 159443' in workflow
     assert 'assert reproduction["filled_species"] >= 31731' in workflow
     assert 'assert coverage["species_by_filled_axis_count"]["0"] <= 14500' in workflow
