@@ -1,0 +1,23 @@
+{
+  "contract": "wave42_wfo_local_gbif_strict_mapping_v1",
+  "input_names": 1671,
+  "live_gbif_queries": 64,
+  "query_cost_usd": 0,
+  "reason_counts": {
+    "accepted_strict_two_backbone_external": 1314,
+    "backbone_family_conflict": 19,
+    "backbones_disagree": 59,
+    "gbif_cache_conflict": 25,
+    "gbif_not_exact": 46,
+    "mapped_into_fixed_target_universe": 54,
+    "wfo_ambiguous_exact_name": 81,
+    "wfo_no_accepted_species_family_route": 26,
+    "wfo_no_exact_species_name": 47
+  },
+  "sha256": {
+    "gbif_snapshot": "4a39cd34a560068fbdafcece819681f1a79395274ec3fca7d036e0a7c7ea9527",
+    "mapping_audit": "a0ad22a353354ea481dcfc1cfac53eaec799318b4c46113fb3281521eba01ee1",
+    "wfo_mapping": "3cbed37c503704e0c94df80f78ff108a282b2bbb1d56bb1b4196da60dade97b2"
+  },
+  "target_species": 106295
+}

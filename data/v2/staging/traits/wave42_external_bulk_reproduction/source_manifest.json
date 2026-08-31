@@ -1,0 +1,63 @@
+{
+  "baseline": {
+    "artifact_digest": "sha256:2c42f30df358c682119d921c4963939a8a2f4f571912cdcacf100068d2b71803",
+    "artifact_id": 9744976429,
+    "artifact_name": "wave41-external-congener-reproduction-33355297355",
+    "run_id": 33355297355
+  },
+  "contract": "wave42_external_bulk_reproduction_source_manifest_v1",
+  "fixed_denominator": {
+    "species": 106295,
+    "species_axis": 318885
+  },
+  "identity_backbones": [
+    {
+      "archive_sha256": "75f1ad1f371978c9e46f3044152c07ed276fe57be9fb9a15b3621b19cf231987",
+      "name": "World Flora Online Plant List",
+      "release": "2026-06"
+    },
+    {
+      "endpoint": "https://api.gbif.org/v1/species/match",
+      "name": "GBIF Backbone Taxonomy",
+      "requirements": "EXACT species Plantae with WFO accepted-name and family agreement"
+    }
+  ],
+  "packet_sha256": {
+    "wave42_external_reproductive_evidence.csv.gz": "4bbb33c28feb6d02a8b3ae04ada91bc3b3acfd0cf12d6964d47e9c417dc332c7",
+    "wave42_external_selection_audit.csv.gz": "a2831bfb648509ed4d2bce28c2e2f70bef609d9d3bd26755196aef29e4f8ac9f",
+    "wave42_gbif_response_snapshot.jsonl.gz": "4a39cd34a560068fbdafcece819681f1a79395274ec3fca7d036e0a7c7ea9527",
+    "wave42_two_backbone_mapping_audit.csv.gz": "a0ad22a353354ea481dcfc1cfac53eaec799318b4c46113fb3281521eba01ee1",
+    "wave42_wfo_2026_06_local_mapping.csv.gz": "3cbed37c503704e0c94df80f78ff108a282b2bbb1d56bb1b4196da60dade97b2"
+  },
+  "query_accounting": {
+    "cost_usd": 0,
+    "local_wfo_names": 1671,
+    "new_gbif_requests": 64,
+    "reused_gbif_responses": 1453
+  },
+  "source_lineage_policy": "wave42-secondary-reproductive-databases:shared-redistribution-guard",
+  "sources": [
+    {
+      "citation": "Ferrer et al. (2024), A global database of plant self-incompatibility systems",
+      "doi": "10.1093/aob/mcae056",
+      "source_artifact": "mcae056_suppl_supplementary_data.xlsx",
+      "source_artifact_sha256": "8ef2f5ac99780ca19a15b847442272457634064577f8a12fbb9710f5521e5899"
+    },
+    {
+      "citation": "Meyer, Galloway & Eckert (2026), Dryad dataset version 4",
+      "doi": "10.5061/dryad.cc2fqz6hr",
+      "source_artifact": "Output_Data_MS.csv"
+    },
+    {
+      "citation": "Razanajatovo et al. (2016), Nature Communications 7:13313",
+      "doi": "10.1038/ncomms13313",
+      "source_artifact": "Razanajatovo_etal_data.csv",
+      "source_sheet_sha256": "e030e1053d0c0b5a73ecc9a4dde3b26ba3fab20f8bb65cd61d01f4883800547b"
+    },
+    {
+      "citation": "Goodwillie, Kalisz & Eckert mixed-mating database",
+      "doi": "10.5061/dryad.292q34fp",
+      "source_artifact": "mixed_mating_outcrossing_rate_database.xls"
+    }
+  ]
+}

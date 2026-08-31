@@ -29,6 +29,9 @@ def build_overlay(
     checkpoint_summary_json: Path,
     output_dir: Path,
     expected_species: int = EXPECTED_SPECIES,
+    wave_label: str = "wave41",
+    baseline_formal_run_id: int = 33155408805,
+    contract: str = "wave41_external_congener_reproduction_lossless_overlay_v1",
 ) -> dict[str, Any]:
     rebuilt_low_path = all_evidence_dir / "rebuilt_all_evidence_validated_low.csv.gz"
     rules_path = all_evidence_dir / "trait_specific_genus_rule_audit.csv.gz"
@@ -57,7 +60,7 @@ def build_overlay(
         checkpoint_summary_json,
     )
     if missing := [str(path) for path in required if not path.is_file()]:
-        raise ValueError(f"Wave41 overlay inputs missing: {missing}")
+        raise ValueError(f"{wave_label} overlay inputs missing: {missing}")
 
     baseline = pd.read_csv(baseline_csv, dtype=str).fillna("")
     _validate_coverage(baseline, expected_species)
@@ -72,7 +75,7 @@ def build_overlay(
         all_evidence_summary_path.read_text(encoding="utf-8")
     )
     if checkpoint_summary["fixed_target_species"] != expected_species:
-        raise ValueError("Wave41 checkpoint denominator mismatch")
+        raise ValueError(f"{wave_label} checkpoint denominator mismatch")
     external_audit = all_evidence_summary["source_lineage_audit"][
         "external_congener_support"
     ]
@@ -128,7 +131,9 @@ def build_overlay(
     for row in _aggregate_low(low).itertuples(index=False):
         key = (row.accepted_species, row.axis)
         if key not in result_records:
-            raise ValueError(f"Wave41 Low evidence is outside fixed universe: {key}")
+            raise ValueError(
+                f"{wave_label} Low evidence is outside fixed universe: {key}"
+            )
         record = result_records[key]
         if str(record["quality"]):
             continue
@@ -172,25 +177,30 @@ def build_overlay(
     ].map(QUALITY_RANK)
     if loss or downgraded.any():
         raise ValueError(
-            f"Wave41 is not lossless: loss={loss}, downgraded={int(downgraded.sum())}"
+            f"{wave_label} is not lossless: loss={loss}, "
+            f"downgraded={int(downgraded.sum())}"
         )
 
     output_dir.mkdir(parents=True, exist_ok=True)
     changes_frame = pd.DataFrame(changes)
     outputs = {
-        "wave41_species_axis_coverage.csv.gz": result,
-        "wave41_new_validated_low_species_trait.csv.gz": low,
-        "wave41_new_trait_specific_genus_rule_audit.csv.gz": new_rules,
-        "wave41_change_audit.csv.gz": changes_frame,
-        "wave41_external_congener_resolved_species_trait.csv.gz": external_cells,
-        "wave41_external_congener_source_conflicts.csv.gz": external_conflicts,
+        f"{wave_label}_species_axis_coverage.csv.gz": result,
+        f"{wave_label}_new_validated_low_species_trait.csv.gz": low,
+        f"{wave_label}_new_trait_specific_genus_rule_audit.csv.gz": new_rules,
+        f"{wave_label}_change_audit.csv.gz": changes_frame,
+        f"{wave_label}_external_congener_resolved_species_trait.csv.gz": (
+            external_cells
+        ),
+        f"{wave_label}_external_congener_source_conflicts.csv.gz": (
+            external_conflicts
+        ),
     }
     for name, frame in outputs.items():
         _write_gzip_csv(frame, output_dir / name)
 
     summary: dict[str, Any] = {
-        "contract": "wave41_external_congener_reproduction_lossless_overlay_v1",
-        "baseline_formal_run_id": 33155408805,
+        "contract": contract,
+        "baseline_formal_run_id": baseline_formal_run_id,
         "fixed_denominator": {
             "species": expected_species,
             "species_axis": expected_species * 3,
@@ -256,7 +266,7 @@ def build_overlay(
     summary["artifact_sha256"] = {
         name: _sha256(output_dir / name) for name in outputs
     }
-    (output_dir / "wave41_coverage_summary.json").write_text(
+    (output_dir / f"{wave_label}_coverage_summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
         newline="\n",
