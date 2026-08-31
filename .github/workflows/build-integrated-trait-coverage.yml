@@ -47,7 +47,7 @@ on:
       latest_public_web_artifact_digest:
         description: Exact SHA-256 digest reported by GitHub for reviewed public-Web artifact
         required: true
-        default: "sha256:54c2245876b3c2aed51d7d5ee23a8dd106ec436607178051d20b748ca2624967"
+        default: "sha256:54c2249e829f2df0f8bb970cdf9fe3dc001a1f3dcbf045a76eae5c5e6102806f"
       all_master_run_id:
         description: Successful all-master ledger run containing every structured source package
         required: true
@@ -107,7 +107,7 @@ jobs:
       LATEST_PUBLIC_WEB_RUN_ID: ${{ inputs.latest_public_web_run_id || '32710232989' }}
       LATEST_PUBLIC_WEB_ARTIFACT: ${{ inputs.latest_public_web_artifact || 'reviewed-open-web-evidence-32710232989' }}
       LATEST_PUBLIC_WEB_ARTIFACT_ID: ${{ inputs.latest_public_web_artifact_id || '9514635137' }}
-      LATEST_PUBLIC_WEB_ARTIFACT_DIGEST: ${{ inputs.latest_public_web_artifact_digest || 'sha256:54c2245876b3c2aed51d7d5ee23a8dd106ec436607178051d20b748ca2624967' }}
+      LATEST_PUBLIC_WEB_ARTIFACT_DIGEST: ${{ inputs.latest_public_web_artifact_digest || 'sha256:54c2249e829f2df0f8bb970cdf9fe3dc001a1f3dcbf045a76eae5c5e6102806f' }}
       ALL_MASTER_RUN_ID: ${{ inputs.all_master_run_id || '30081415812' }}
       ALL_MASTER_ARTIFACT: ${{ inputs.all_master_artifact || 'all-master-trait-ledger-30081415812' }}
     steps:

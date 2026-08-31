@@ -29,7 +29,7 @@ def test_integrated_workflow_pins_formal_wave33_and_latest_public_web() -> None:
         "artifact_name": "reviewed-open-web-evidence-32710232989",
         "artifact_id": 9514635137,
         "artifact_digest": (
-            "sha256:54c2245876b3c2aed51d7d5ee23a8dd106ec436607178051d20b748ca2624967"
+            "sha256:54c2249e829f2df0f8bb970cdf9fe3dc001a1f3dcbf045a76eae5c5e6102806f"
         ),
         "role": "latest_species_direct_web",
     }
