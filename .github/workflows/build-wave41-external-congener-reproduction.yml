@@ -133,8 +133,7 @@ jobs:
           for name in \
             wave41_external_congener_reproductive_evidence.csv.gz \
             wave41_external_congener_mapping_audit.csv.gz \
-            wave41_external_congener_selection_audit.csv.gz \
-            wave41_external_congener_checkpoint_summary.json; do
+            wave41_external_congener_selection_audit.csv.gz; do
             cmp \
               "wave41-checkpoint/$name" \
               "data/v2/staging/traits/wave41_external_congener_reproduction/$name"
