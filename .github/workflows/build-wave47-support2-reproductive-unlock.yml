@@ -1,0 +1,249 @@
+name: Build Wave47 support-2 reproductive unlock
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-wave47-support2-reproductive-unlock.yml"
+      - "src/island_v2/all_evidence_trait_audit.py"
+      - "src/island_v2/wave45_promoted_reproductive_overlay.py"
+      - "src/island_v2/wave47_support2_reproductive_checkpoint.py"
+      - "src/island_v2/wave47_incremental_all_evidence.py"
+      - "src/island_v2/wave47_support2_reproductive_overlay.py"
+      - "tests/test_wave47_support2_reproductive.py"
+      - "data/v2/staging/traits/wave47_support2_reproductive_unlock/**"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: build-wave47-support2-reproductive-unlock-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      WAVE33_RUN_ID: "32932103226"
+      WAVE33_ARTIFACT: "integrated-trait-coverage-32932103226"
+      WAVE33_ARTIFACT_ID: "9593698966"
+      WAVE33_ARTIFACT_DIGEST: "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
+      WAVE46_RUN_ID: "33376311877"
+      WAVE46_ARTIFACT: "wave46-corrected-public-web-recovery-33376311877"
+      WAVE46_ARTIFACT_ID: "9752235530"
+      WAVE46_ARTIFACT_DIGEST: "sha256:305632661afc27f40fe3060c2f8f443ec34e43dd7a8a5e40c4b658226bae031c"
+      SOURCE_URL: "https://www.currentscience.ac.in/Volumes/118/07/1021.pdf"
+      SOURCE_SHA256: "f818ceb4847d921ebab93d66ac529d5f92d3dbd48b32c79adb60facc550efe51"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Verify formal GitHub pins and download Wave46
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(gh run view "$WAVE33_RUN_ID" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+          wave33_metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$WAVE33_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$wave33_metadata")" = "$WAVE33_ARTIFACT"
+          test "$(jq -r .expired <<<"$wave33_metadata")" = false
+          test "$(jq -r .digest <<<"$wave33_metadata")" = "$WAVE33_ARTIFACT_DIGEST"
+
+          test "$(gh run view "$WAVE46_RUN_ID" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+          wave46_metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$WAVE46_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$wave46_metadata")" = "$WAVE46_ARTIFACT"
+          test "$(jq -r .expired <<<"$wave46_metadata")" = false
+          test "$(jq -r .digest <<<"$wave46_metadata")" = "$WAVE46_ARTIFACT_DIGEST"
+          mkdir -p /tmp/wave46
+          gh run download "$WAVE46_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "$WAVE46_ARTIFACT" --dir /tmp/wave46
+
+          wave46_coverage=$(find /tmp/wave46 -type f -path '*/wave46-trait-coverage/wave46_species_axis_coverage.csv.gz' -print -quit)
+          wave46_rules=$(find /tmp/wave46 -type f -path '*/wave46-all-evidence-audit/trait_specific_genus_rule_audit.csv.gz' -print -quit)
+          wave46_direct=$(find /tmp/wave46 -type f -path '*/wave46-all-evidence-audit/resolved_direct_species_trait.csv.gz' -print -quit)
+          wave46_external=$(find /tmp/wave46 -type f -path '*/wave46-all-evidence-audit/external_congener_resolved_species_trait.csv.gz' -print -quit)
+          wave46_conflicts=$(find /tmp/wave46 -type f -path '*/wave46-all-evidence-audit/external_congener_source_lineage_conflicts.csv.gz' -print -quit)
+          wave46_low=$(find /tmp/wave46 -type f -path '*/wave46-all-evidence-audit/rebuilt_all_evidence_validated_low.csv.gz' -print -quit)
+          for required in "$wave46_coverage" "$wave46_rules" "$wave46_direct" "$wave46_external" "$wave46_conflicts" "$wave46_low"; do
+            test -n "$required"
+          done
+          test "$(sha256sum "$wave46_coverage" | cut -d' ' -f1)" = "53d2948781d23e1350a7acfdabb4861e6603e034e5dd74d6eea149748de42b12"
+          test "$(sha256sum "$wave46_rules" | cut -d' ' -f1)" = "8e1d8995492a6e449f81dc526b6df1f4ffe954e1ad9cc1df98d70d80b48d6522"
+          test "$(sha256sum "$wave46_direct" | cut -d' ' -f1)" = "d958e69695ddb7e0a1db67a661032506e921412b660810a197ec2dfa076d3fee"
+          test "$(sha256sum "$wave46_external" | cut -d' ' -f1)" = "b687ddf0eb82f9215ee6e1d415e91845a67fb9d6eb1ba8c91dbc40159f6d432e"
+          test "$(sha256sum "$wave46_conflicts" | cut -d' ' -f1)" = "886f0aa4baf9f4daee6b70abe6f47b3f03e2ccab0ea98f24bd3d4e01ba7839b6"
+          test "$(sha256sum "$wave46_low" | cut -d' ' -f1)" = "295076520a8d9ad55455750b489f6c7209b335b94834366998d499e220e968c1"
+          echo "WAVE46_COVERAGE=$wave46_coverage" >> "$GITHUB_ENV"
+          echo "WAVE46_RULES=$wave46_rules" >> "$GITHUB_ENV"
+          echo "WAVE46_DIRECT=$wave46_direct" >> "$GITHUB_ENV"
+          echo "WAVE46_EXTERNAL=$wave46_external" >> "$GITHUB_ENV"
+          echo "WAVE46_CONFLICTS=$wave46_conflicts" >> "$GITHUB_ENV"
+          echo "WAVE46_LOW=$wave46_low" >> "$GITHUB_ENV"
+
+      - name: Retrieve and lock the original source article
+        run: |
+          set -euo pipefail
+          mkdir -p wave47-source
+          curl -fsSL --retry 3 --retry-all-errors "$SOURCE_URL" -o wave47-source/buxus-wallichiana.pdf
+          test "$(sha256sum wave47-source/buxus-wallichiana.pdf | cut -d' ' -f1)" = "$SOURCE_SHA256"
+
+      - name: Validate source, identity, and reviewed evidence
+        run: |
+          set -euo pipefail
+          mkdir -p wave47-checkpoint/source-packet
+          cp -a data/v2/staging/traits/wave47_support2_reproductive_unlock/. wave47-checkpoint/source-packet/
+          python -m island_v2.wave47_support2_reproductive_checkpoint \
+            --packet-dir wave47-checkpoint/source-packet \
+            --target-coverage-csv "$WAVE46_COVERAGE" \
+            --retrieved-source-file wave47-source/buxus-wallichiana.pdf \
+            --output-dir wave47-checkpoint \
+            --output-json wave47-checkpoint/wave47_checkpoint_validation.json \
+            --expected-species 106295
+
+      - name: Recompute only the touched genus and traits
+        run: |
+          set -euo pipefail
+          python -m island_v2.wave47_incremental_all_evidence \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --ontology-yaml config/trait_ontology.yml \
+            --baseline-coverage-csv "$WAVE46_COVERAGE" \
+            --previous-rule-audit-csv "$WAVE46_RULES" \
+            --previous-resolved-direct-csv "$WAVE46_DIRECT" \
+            --previous-external-resolved-csv "$WAVE46_EXTERNAL" \
+            --previous-external-conflicts-csv "$WAVE46_CONFLICTS" \
+            --previous-rebuilt-low-csv "$WAVE46_LOW" \
+            --new-external-evidence-csv wave47-checkpoint/wave47_external_congener_evidence.csv.gz \
+            --output-dir wave47-all-evidence-audit \
+            --expected-species 106295
+
+      - name: Build lossless formal Wave47 overlay
+        run: |
+          set -euo pipefail
+          python -m island_v2.wave47_support2_reproductive_overlay \
+            --baseline-csv "$WAVE46_COVERAGE" \
+            --previous-rule-audit-csv "$WAVE46_RULES" \
+            --all-evidence-dir wave47-all-evidence-audit \
+            --direct-evidence-csv wave47-checkpoint/wave47_direct_evidence_empty.csv.gz \
+            --external-evidence-csv wave47-checkpoint/wave47_external_congener_evidence.csv.gz \
+            --checkpoint-summary-json wave47-checkpoint/wave47_checkpoint_validation.json \
+            --output-dir wave47-trait-coverage \
+            --expected-species 106295
+
+      - name: Independently verify formal gain and unchanged baseline
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          import pandas as pd
+
+          checkpoint = json.loads(Path("wave47-checkpoint/wave47_checkpoint_validation.json").read_text())
+          audit = json.loads(Path("wave47-all-evidence-audit/all_evidence_trait_coverage_summary.json").read_text())
+          summary = json.loads(Path("wave47-trait-coverage/wave47_coverage_summary.json").read_text())
+          assert checkpoint["formal_wave33_run_id"] == 32932103226
+          assert checkpoint["baseline_formal_run_id"] == 33376311877
+          assert checkpoint["evidence"]["new_external_species_trait"] == 2
+          assert all(checkpoint["checks"].values()), checkpoint["checks"]
+          assert audit["new_eligible_rules"] == ["Buxus x self_incompatibility"]
+          assert audit["new_rule"] == {
+              "dominance": 1.0,
+              "inferred_value": "SC",
+              "lineage_loo_accuracy": 1.0,
+              "n_direct_species": 3,
+              "species_loo_accuracy": 1.0,
+          }
+          assert audit["new_validated_low_species_trait"] == 68
+          assert all(audit["checks"].values()), audit["checks"]
+          assert summary["fixed_denominator"] == {"species": 106295, "species_axis": 318885}
+          assert summary["delta"]["gross_gain_species_axis"] == 68
+          assert summary["delta"]["net_gain_species_axis"] == 68
+          assert summary["delta"]["loss_species_axis"] == 0
+          assert summary["delta"]["by_axis_net_gain"] == {
+              "floral_structural_complexity": 0,
+              "flower_colour": 0,
+              "reproductive_assurance": 68,
+          }
+          assert summary["delta"]["action_counts"] == {"validated_low_fill": 68}
+          assert summary["after"]["filled_species_axis"] == 221438
+          assert summary["after"]["unresolved_species_axis"] == 97447
+          assert summary["after"]["quality_counts"] == {
+              "high": 55551,
+              "medium": 46748,
+              "low": 119139,
+          }
+          assert {
+              axis: values["filled_species"]
+              for axis, values in summary["after"]["by_axis"].items()
+          } == {
+              "floral_structural_complexity": 91577,
+              "flower_colour": 82392,
+              "reproductive_assurance": 47469,
+          }
+          assert summary["after"]["species_by_filled_axis_count"] == {
+              "0": 9458,
+              "1": 14232,
+              "2": 40609,
+              "3": 41996,
+          }
+          assert summary["remaining_to_campaign_target"] == {
+              "floral_structural_complexity": 376,
+              "flower_colour": 2644,
+              "reproductive_assurance": 16308,
+          }
+          assert all(summary["checks"].values()), summary["checks"]
+
+          before = pd.read_csv(os.environ["WAVE46_COVERAGE"], dtype=str).fillna("")
+          after = pd.read_csv("wave47-trait-coverage/wave47_species_axis_coverage.csv.gz", dtype=str).fillna("")
+          keys = ["accepted_species", "axis"]
+          assert len(before) == len(after) == 318885
+          compared = before.merge(after, on=keys, suffixes=("_before", "_after"), validate="one_to_one")
+          gained = compared["quality_before"].eq("") & compared["quality_after"].ne("")
+          assert int(gained.sum()) == 68
+          assert compared.loc[gained, "axis"].eq("reproductive_assurance").all()
+          assert compared.loc[gained, "quality_after"].eq("low").all()
+          assert not (compared["quality_before"].ne("") & compared["quality_after"].eq("")).any()
+          unchanged = ~gained
+          columns = ["quality", "trait_composition", "trait_names", "source_groups", "source_lineages"]
+          for column in columns:
+              assert compared.loc[unchanged, f"{column}_before"].eq(
+                  compared.loc[unchanged, f"{column}_after"]
+              ).all(), column
+          PY
+
+      - name: Run focused tests and lint
+        env:
+          PYTHONPATH: src:.
+        run: |
+          pytest -q \
+            tests/test_wave47_support2_reproductive.py \
+            tests/test_wave45_promoted_reproductive_overlay.py \
+            --basetemp=.pytest-wave47
+          ruff check \
+            src/island_v2/wave47_support2_reproductive_checkpoint.py \
+            src/island_v2/wave47_incremental_all_evidence.py \
+            src/island_v2/wave47_support2_reproductive_overlay.py \
+            tests/test_wave47_support2_reproductive.py
+
+      - name: Upload immutable Wave47 source packet, audit, and coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave47-support2-reproductive-unlock-${{ github.run_id }}
+          path: |
+            wave47-checkpoint/**
+            wave47-all-evidence-audit/**
+            wave47-trait-coverage/**
+          if-no-files-found: error
+          retention-days: 90

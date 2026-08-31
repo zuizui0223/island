@@ -1,0 +1,2 @@
+accepted_species,target_universe_status,family,name_match_method,wfo_match_id,wfo_release,wfo_status,wfo_rank,gbif_usage_key,gbif_status,gbif_rank,gbif_match_type,gbif_confidence,gbif_family,prior_formal_source,identity_decision
+Buxus wallichiana,external_congener_only,Buxaceae,strict_wfo_gbif_two_backbone,wfo-0000576661,2026-06,accepted,species,3988068,ACCEPTED,SPECIES,EXACT,99,Buxaceae,"Frozen WFO angiosperm row 55623 plus live strict GBIF match retrieved 2026-08-31; absent from Run 33376311877 fixed denominator",accepted_external_only
