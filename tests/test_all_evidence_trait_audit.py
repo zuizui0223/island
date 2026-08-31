@@ -174,6 +174,79 @@ def test_reviewed_direct_supplement_loader_rejects_incomplete_provenance(
         audit.load_reviewed_direct_supplements((path,))
 
 
+def test_external_congener_loader_requires_strict_scope_and_two_backbone_gate(
+    tmp_path: Path,
+) -> None:
+    record = row("Alpha outside", "self_incompatibility", "SC", "paper:external")
+    record.update(
+        {
+            "evidence_scope": "external_congener_species_direct",
+            "name_match_method": "strict_wfo_gbif_two_backbone",
+            "acceptance_contract": (
+                "external_congener_species_direct_strict_two_backbone_v1"
+            ),
+        }
+    )
+    path = tmp_path / "external.csv.gz"
+    pd.DataFrame([record]).to_csv(path, index=False)
+
+    loaded = audit.load_external_congener_support((path,))
+
+    assert len(loaded) == 1
+    assert loaded.iloc[0]["accepted_species"] == "Alpha outside"
+    assert loaded.iloc[0]["evidence_scope"] == "external_congener_species_direct"
+
+
+def test_external_congener_support_unlocks_low_without_entering_direct_coverage() -> None:
+    target_evidence = pd.DataFrame(
+        [
+            row("Alpha one", "self_incompatibility", "SC", "paper:one"),
+            row("Alpha two", "self_incompatibility", "SC", "paper:two"),
+        ],
+        columns=EVIDENCE_COLUMNS,
+    )
+    external_record = row(
+        "Alpha outside", "self_incompatibility", "SC", "paper:outside"
+    )
+    external_record.update(
+        {
+            "evidence_scope": "external_congener_species_direct",
+            "name_match_method": "strict_wfo_gbif_two_backbone",
+            "acceptance_contract": (
+                "external_congener_species_direct_strict_two_backbone_v1"
+            ),
+        }
+    )
+    external_evidence = pd.DataFrame([external_record], columns=EVIDENCE_COLUMNS)
+    target_lineages, _ = audit.dedupe_direct_lineages(target_evidence, ONTOLOGY)
+    target_cells, _ = audit.resolve_direct_cells(target_lineages)
+    external_lineages, _ = audit.dedupe_direct_lineages(external_evidence, ONTOLOGY)
+    external_cells, _ = audit.resolve_direct_cells(external_lineages)
+    for frame in (target_cells, target_lineages, external_cells, external_lineages):
+        frame["genus"] = frame["accepted_species"].str.split().str[0]
+    rules = audit.build_rule_audit(
+        pd.concat([target_cells, external_cells], ignore_index=True),
+        pd.concat([target_lineages, external_lineages], ignore_index=True),
+        pd.DataFrame(columns=["genus", "trait_name", "state_set"]),
+    )
+    master = pd.DataFrame(
+        [
+            {"accepted_species": "Alpha one", "genus": "Alpha"},
+            {"accepted_species": "Alpha two", "genus": "Alpha"},
+            {"accepted_species": "Alpha target", "genus": "Alpha"},
+        ]
+    )
+
+    low = audit.apply_genus_rules(master, target_cells, rules, "current_min3")
+    coverage = audit.species_axis_coverage(master, target_cells, low)
+
+    assert low[["accepted_species", "trait_name"]].to_records(index=False).tolist() == [
+        ("Alpha target", "self_incompatibility")
+    ]
+    assert "Alpha outside" not in set(coverage["accepted_species"])
+    assert len(coverage) == 9
+
+
 def test_reviewed_exclusion_prevents_false_conflict_with_corrected_direct_row() -> None:
     wrong = row(
         "Calanthe striata",

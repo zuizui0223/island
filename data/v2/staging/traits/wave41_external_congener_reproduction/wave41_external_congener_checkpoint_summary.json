@@ -1,0 +1,79 @@
+{
+  "checks": {
+    "external_evidence_not_confirmatory_direct": true,
+    "family_inference_absent": true,
+    "fixed_target_excluded_from_external_evidence": true,
+    "global_fallback_absent": true,
+    "trait_substitution_absent": true,
+    "wfo_gbif_species_and_family_agreement_required": true
+  },
+  "contract": "wave41_external_congener_reproduction_checkpoint_v1",
+  "evidence": {
+    "by_trait": {
+      "autonomous_selfing_capacity": 439,
+      "self_incompatibility": 1152
+    },
+    "by_value": {
+      "SC": 569,
+      "SI": 583,
+      "absent": 189,
+      "autonomous": 250
+    },
+    "entered_fixed_target_direct_coverage": 0,
+    "rows": 1591,
+    "source_lineages": 726,
+    "species": 1391,
+    "species_trait": 1541
+  },
+  "fixed_target_species": 106295,
+  "input_sha256": {
+    "angiosperm_scope_yaml": "1db91cfba546714927e0adc3af126dd475bd3d376213b3f8dd35450278f810b5",
+    "bsdb_responses_jsonl": "59396b15743d6ff890f6fa5b71f211527ec827cd7b952aae1c21c63d65eac2e3",
+    "bsdb_source_csv": "f935c8150b3d719aba5f62f14335c1a185304155403bf50db1e3ef1393fc55f4",
+    "master_csv": "21925a4e4d6fc8431e8549b3c3ddff9acdbded0b017e0aa78a5c863147392fe9",
+    "rodger_responses_jsonl": "d8d7c491127ccff7d37a72a3c6fc1e5f01d0ff864736f8205bd2f72fb8e21213",
+    "rodger_source_csv": "fa745c578f3537933fafedc1d36b4ea266348cd83d7f6cbb231c253b0f348d3f"
+  },
+  "mapping_reasons": {
+    "bsdb": {
+      "accepted_strict_two_backbone": 1136,
+      "backbones_disagree": 98,
+      "family_conflict": 7,
+      "gbif_not_exact": 7,
+      "mapped_into_fixed_target_universe": 22,
+      "source_name_not_species_binomial": 4,
+      "wfo_no_unambiguous_exact_match": 127
+    },
+    "rodger_2021": {
+      "accepted_strict_two_backbone": 422,
+      "backbones_disagree": 53,
+      "family_conflict": 19,
+      "gbif_not_exact": 7,
+      "mapped_into_fixed_target_universe": 42,
+      "wfo_no_unambiguous_exact_match": 57
+    }
+  },
+  "output_sha256": {
+    "wave41_external_congener_mapping_audit.csv.gz": "4967dcc4fdd7ebbf33adf1c3c4d0d1e3a8fec6e67ac6abe669a4c1652f4d0ec1",
+    "wave41_external_congener_reproductive_evidence.csv.gz": "0e3e709e18105e81996231580042837a48f62f19c84468bb00d26e8c8cef4514",
+    "wave41_external_congener_selection_audit.csv.gz": "c21d9c1fc02e04c83d5f67f5318a9759dbeda4c9566e46a8c58b296c47a72757"
+  },
+  "queries": {
+    "gbif": 2001,
+    "total": 4002,
+    "wfo": 2001
+  },
+  "query_cost_usd": 0,
+  "selection_reasons": {
+    "bsdb": {
+      "infraspecific_record": 103,
+      "missing_original_source_lineage": 10,
+      "not_strict_external_two_backbone": 2344,
+      "selected": 1152
+    },
+    "rodger_2021": {
+      "not_strict_external_two_backbone": 1019,
+      "selected": 509
+    }
+  }
+}

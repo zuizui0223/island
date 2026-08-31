@@ -395,6 +395,89 @@ def load_reviewed_direct_supplements(paths: tuple[Path, ...]) -> pd.DataFrame:
     return pd.DataFrame(rows, columns=EVIDENCE_COLUMNS)
 
 
+def load_external_congener_support(paths: tuple[Path, ...]) -> pd.DataFrame:
+    """Load strict species-direct evidence used only to train genus rules.
+
+    These rows describe species outside the fixed island denominator.  They may
+    contribute independent species and source-lineage support to a matching
+    genus x trait rule, but they must never enter confirmatory direct coverage.
+    The upstream checkpoint has already required exact WFO and GBIF agreement,
+    species rank, and family agreement.
+    """
+
+    required = {
+        "accepted_species",
+        "trait_name",
+        "normalized_value",
+        "quality",
+        "source_group",
+        "source_provider",
+        "source_url",
+        "source_record_id",
+        "source_citation",
+        "source_excerpt",
+        "evidence_scope",
+        "name_match_method",
+        "source_lineage",
+        "source_run_id",
+        "source_artifact",
+        "acceptance_contract",
+    }
+    rows: list[dict[str, str]] = []
+    for path in paths:
+        frame = pd.read_csv(path, dtype=str).fillna("")
+        missing = required.difference(frame.columns)
+        if missing:
+            raise ValueError(
+                f"external congener support {path} missing columns: {sorted(missing)}"
+            )
+        if frame[list(required)].apply(
+            lambda column: column.astype(str).str.strip().eq("").any()
+        ).any():
+            raise ValueError(f"external congener support {path} has incomplete provenance")
+        for record in frame.to_dict("records"):
+            species = _text(record.get("accepted_species"))
+            trait = canonical_trait_name(record.get("trait_name"))
+            quality = _text(record.get("quality")).casefold()
+            scope = _text(record.get("evidence_scope"))
+            match_method = _text(record.get("name_match_method"))
+            contract = _text(record.get("acceptance_contract"))
+            if (
+                len(species.split()) != 2
+                or quality not in {"high", "medium"}
+                or scope != "external_congener_species_direct"
+                or match_method != "strict_wfo_gbif_two_backbone"
+                or contract != "external_congener_species_direct_strict_two_backbone_v1"
+                or not trait_axis(trait)
+                or _text(record.get("inference_rule"))
+            ):
+                continue
+            rows.append(
+                {
+                    "accepted_species": species,
+                    "axis": trait_axis(trait),
+                    "trait_name": trait,
+                    "normalized_value": _text(record.get("normalized_value")),
+                    "quality": quality,
+                    "source_group": _text(record.get("source_group")),
+                    "source_provider": _text(record.get("source_provider")),
+                    "source_url": _text(record.get("source_url")),
+                    "source_record_id": _text(record.get("source_record_id")),
+                    "source_citation": _text(record.get("source_citation")),
+                    "source_excerpt": _text(record.get("source_excerpt")),
+                    "evidence_scope": scope,
+                    "name_match_method": match_method,
+                    "source_lineage": _text(record.get("source_lineage")),
+                    "lineage_method": _text(record.get("lineage_method")),
+                    "source_run_id": _text(record.get("source_run_id")),
+                    "source_artifact": _text(record.get("source_artifact")),
+                    "source_file": str(path),
+                    "acceptance_contract": contract,
+                }
+            )
+    return pd.DataFrame(rows, columns=EVIDENCE_COLUMNS)
+
+
 def direct_evidence_from_integrated(path: Path) -> pd.DataFrame:
     frame = pd.read_csv(path, dtype=str).fillna("")
     frame["quality"] = frame["quality"].str.casefold()
@@ -1789,6 +1872,7 @@ def build_audit(
     expected_species: int,
     direct_evidence_exclusions_csv: Path | None = None,
     supplemental_direct_evidence_csvs: tuple[Path, ...] = (),
+    external_congener_evidence_csvs: tuple[Path, ...] = (),
 ) -> tuple[dict[str, Any], dict[str, pd.DataFrame], dict[str, Any]]:
     started = perf_counter()
 
@@ -1853,6 +1937,9 @@ def build_audit(
     supplemental_direct = load_reviewed_direct_supplements(
         supplemental_direct_evidence_csvs
     )
+    external_congener_direct = load_external_congener_support(
+        external_congener_evidence_csvs
+    )
     raw_direct = pd.concat(
         [base_direct, latest_direct, supplemental_direct], ignore_index=True
     ).fillna("")
@@ -1879,6 +1966,32 @@ def build_audit(
     direct_cells, cell_audit = resolve_direct_cells(lineages)
     direct_cells["genus"] = direct_cells["accepted_species"].str.split().str[0]
     lineages["genus"] = lineages["accepted_species"].str.split().str[0]
+    if not external_congener_direct.empty:
+        overlap = set(external_congener_direct["accepted_species"]).intersection(
+            master["accepted_species"]
+        )
+        if overlap:
+            raise ValueError(
+                "external congener evidence overlaps fixed target universe: "
+                f"{sorted(overlap)[:5]}"
+            )
+    external_lineages, external_lineage_duplicates = dedupe_direct_lineages(
+        external_congener_direct,
+        ontology,
+    )
+    external_cells, external_cell_audit = resolve_direct_cells(external_lineages)
+    if not external_cells.empty:
+        external_cells["genus"] = external_cells["accepted_species"].str.split().str[0]
+    if not external_lineages.empty:
+        external_lineages["genus"] = external_lineages[
+            "accepted_species"
+        ].str.split().str[0]
+    rule_cells = pd.concat(
+        [direct_cells, external_cells], ignore_index=True, sort=False
+    ).fillna("")
+    rule_lineages = pd.concat(
+        [lineages, external_lineages], ignore_index=True, sort=False
+    ).fillna("")
     mark("direct lineages and conflicts resolved")
 
     old_low, old_rules = load_old_low(
@@ -1886,7 +1999,7 @@ def build_audit(
         validated_low_dir,
         ontology,
     )
-    rules = build_rule_audit(direct_cells, lineages, old_low)
+    rules = build_rule_audit(rule_cells, rule_lineages, old_low)
     rebuilt_low = apply_genus_rules(
         master,
         direct_cells,
@@ -2120,6 +2233,27 @@ def build_audit(
                     .shape[0]
                 ),
             },
+            "external_congener_support": {
+                "files": len(external_congener_evidence_csvs),
+                "rows": len(external_congener_direct),
+                "resolved_species_trait": len(external_cells),
+                "resolved_species": int(
+                    external_cells["accepted_species"].nunique()
+                    if len(external_cells)
+                    else 0
+                ),
+                "lineages_after_trait_specific_dedup": len(external_lineages),
+                "duplicate_rows": len(external_lineage_duplicates),
+                "cell_resolution_classification_counts": {
+                    str(key): int(value)
+                    for key, value in (
+                        external_cell_audit["classification"].value_counts().items()
+                        if "classification" in external_cell_audit.columns
+                        else []
+                    )
+                },
+                "entered_confirmatory_direct_coverage": 0,
+            },
             "upstream_integrated_artifact": {
                 key: int(value)
                 for key, value in integrated_summary.get(
@@ -2220,6 +2354,9 @@ def build_audit(
         "island_coverage": island_coverage,
         "common_islands": common_islands,
         "direct_exclusion_audit": direct_exclusion_audit,
+        "external_congener_support": external_cells,
+        "external_congener_cell_audit": external_cell_audit,
+        "external_congener_lineage_duplicates": external_lineage_duplicates,
     }
     input_manifest = {
         "contract": "all_evidence_source_run_manifest_v1",
@@ -2243,12 +2380,16 @@ def build_audit(
                 sensitivity_lock_json,
                 direct_evidence_exclusions_csv,
                 *supplemental_direct_evidence_csvs,
+                *external_congener_evidence_csvs,
             )
             if path is not None
         },
         "latest_public_web_artifact_dir": str(latest_public_web_dir),
         "supplemental_direct_evidence_csvs": [
             str(path) for path in supplemental_direct_evidence_csvs
+        ],
+        "external_congener_evidence_csvs": [
+            str(path) for path in external_congener_evidence_csvs
         ],
     }
     mark("audit complete")
@@ -2306,6 +2447,13 @@ def write_outputs(
         "analysis_island_endpoint_coverage.csv.gz": "island_coverage",
         "common_reproductive_pathway_islands.csv": "common_islands",
         "direct_evidence_exclusion_audit.csv": "direct_exclusion_audit",
+        "external_congener_resolved_species_trait.csv.gz": "external_congener_support",
+        "external_congener_source_lineage_conflicts.csv.gz": (
+            "external_congener_cell_audit"
+        ),
+        "external_congener_source_lineage_duplicates.csv.gz": (
+            "external_congener_lineage_duplicates"
+        ),
     }
     for name, key in csv_outputs.items():
         frames[key].to_csv(output_dir / name, index=False)
@@ -2339,6 +2487,9 @@ def build(
     supplemental_direct_evidence_csv: Annotated[
         list[Path] | None, typer.Option(exists=True, dir_okay=False)
     ] = None,
+    external_congener_evidence_csv: Annotated[
+        list[Path] | None, typer.Option(exists=True, dir_okay=False)
+    ] = None,
     expected_species: Annotated[int, typer.Option(min=1)] = 106_295,
 ) -> None:
     summary, frames, manifests = build_audit(
@@ -2355,6 +2506,9 @@ def build(
         direct_evidence_exclusions_csv=direct_evidence_exclusions_csv,
         supplemental_direct_evidence_csvs=tuple(
             supplemental_direct_evidence_csv or []
+        ),
+        external_congener_evidence_csvs=tuple(
+            external_congener_evidence_csv or []
         ),
     )
     write_outputs(summary, frames, manifests, output_dir)
