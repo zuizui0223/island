@@ -167,10 +167,10 @@
     },
     {
       "source_group": "latest_public_web",
-      "run_id": 30141880859,
-      "artifact_name": "broad-web-medium-full-30141880859",
-      "artifact_id": 8614792912,
-      "artifact_digest": "sha256:e4059b90ab54334fde9fcb5b160be825131561cb3d0d9dc628e063ecd63fe9b1",
+      "run_id": 32710232989,
+      "artifact_name": "reviewed-open-web-evidence-32710232989",
+      "artifact_id": 9514635137,
+      "artifact_digest": "sha256:54c2245876b3c2aed51d7d5ee23a8dd106ec436607178051d20b748ca2624967",
       "role": "latest_species_direct_web"
     }
   ]

@@ -35,11 +35,19 @@ on:
       latest_public_web_run_id:
         description: Successful reviewed public-Web evidence run
         required: true
-        default: "30141880859"
+        default: "32710232989"
       latest_public_web_artifact:
         description: Exact reviewed public-Web artifact name
         required: true
-        default: "broad-web-medium-full-30141880859"
+        default: "reviewed-open-web-evidence-32710232989"
+      latest_public_web_artifact_id:
+        description: Exact reviewed public-Web artifact ID
+        required: true
+        default: "9514635137"
+      latest_public_web_artifact_digest:
+        description: Exact SHA-256 digest reported by GitHub for reviewed public-Web artifact
+        required: true
+        default: "sha256:54c2245876b3c2aed51d7d5ee23a8dd106ec436607178051d20b748ca2624967"
       all_master_run_id:
         description: Successful all-master ledger run containing every structured source package
         required: true
@@ -96,8 +104,10 @@ jobs:
       BASELINE_INTEGRATED_RUN_ID: ${{ inputs.baseline_integrated_run_id || '32932103226' }}
       BASELINE_INTEGRATED_ARTIFACT: ${{ inputs.baseline_integrated_artifact || 'integrated-trait-coverage-32932103226' }}
       BASELINE_INTEGRATED_DIGEST: ${{ inputs.baseline_integrated_digest || 'sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1' }}
-      LATEST_PUBLIC_WEB_RUN_ID: ${{ inputs.latest_public_web_run_id || '30141880859' }}
-      LATEST_PUBLIC_WEB_ARTIFACT: ${{ inputs.latest_public_web_artifact || 'broad-web-medium-full-30141880859' }}
+      LATEST_PUBLIC_WEB_RUN_ID: ${{ inputs.latest_public_web_run_id || '32710232989' }}
+      LATEST_PUBLIC_WEB_ARTIFACT: ${{ inputs.latest_public_web_artifact || 'reviewed-open-web-evidence-32710232989' }}
+      LATEST_PUBLIC_WEB_ARTIFACT_ID: ${{ inputs.latest_public_web_artifact_id || '9514635137' }}
+      LATEST_PUBLIC_WEB_ARTIFACT_DIGEST: ${{ inputs.latest_public_web_artifact_digest || 'sha256:54c2245876b3c2aed51d7d5ee23a8dd106ec436607178051d20b748ca2624967' }}
       ALL_MASTER_RUN_ID: ${{ inputs.all_master_run_id || '30081415812' }}
       ALL_MASTER_ARTIFACT: ${{ inputs.all_master_artifact || 'all-master-trait-ledger-30081415812' }}
     steps:
@@ -129,8 +139,15 @@ jobs:
               else:
                   entry["run_id"] = int(os.environ["LATEST_PUBLIC_WEB_RUN_ID"])
                   entry["artifact_name"] = os.environ["LATEST_PUBLIC_WEB_ARTIFACT"]
-              entry.pop("artifact_id", None)
-              entry.pop("artifact_digest", None)
+                  entry["artifact_id"] = int(
+                      os.environ["LATEST_PUBLIC_WEB_ARTIFACT_ID"]
+                  )
+                  entry["artifact_digest"] = os.environ[
+                      "LATEST_PUBLIC_WEB_ARTIFACT_DIGEST"
+                  ]
+              if entry["source_group"] != "latest_public_web":
+                  entry.pop("artifact_id", None)
+                  entry.pop("artifact_digest", None)
           repo = config["repository"]
           resolved = []
           run_cache = {}

@@ -1,0 +1,48 @@
+{
+  "contract": "wave46_corrected_public_web_and_primary_reproduction_v1",
+  "created_at_utc": "2026-08-31T00:00:00Z",
+  "fixed_target_species": 106295,
+  "formal_wave33_baseline": {
+    "run_id": 32932103226,
+    "artifact": "integrated-trait-coverage-32932103226",
+    "artifact_id": 9593698966,
+    "artifact_digest": "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
+  },
+  "immediate_wave45_baseline": {
+    "run_id": 33370692122,
+    "artifact": "wave45-promoted-reproductive-evidence-33370692122",
+    "artifact_id": 9750073314,
+    "artifact_digest": "sha256:aea119548f0a01e0df886f0e6f5180210a469e808fd0af116b8476207b6212b7"
+  },
+  "correct_latest_public_web": {
+    "run_id": 32710232989,
+    "artifact": "reviewed-open-web-evidence-32710232989",
+    "artifact_id": 9514635137,
+    "artifact_digest": "sha256:54c2245876b3c2aed51d7d5ee23a8dd106ec436607178051d20b748ca2624967",
+    "evidence_file": "broad_web_medium_evidence.csv.gz",
+    "evidence_rows": 118884
+  },
+  "new_primary_sources": [
+    {
+      "doi": "10.11931/guihaia.gxzw202104043",
+      "title": "Flowering biology and breeding system of Ardisia humilis",
+      "source_url": "https://gxzw.ijournals.cn/gxzwen/article/html/230218",
+      "retrieved_at_utc": "2026-08-31T00:00:00Z",
+      "retrieved_content_sha256": "9007001f95d42198c8cbffe6d0022b63ca53f2dd2b609ceb88cddf7ad25ef7ba",
+      "reviewed_rows": 2
+    }
+  ],
+  "quality_policy": {
+    "direct_primary_article": "high",
+    "source_lineage_deduplicated": true,
+    "direct_conflicts_resolved_or_excluded": true,
+    "search_snippet_is_evidence": false
+  },
+  "inference_policy": {
+    "join_key": "genus x axis x trait_name",
+    "minimum_species": 3,
+    "family_inference": false,
+    "global_fallback": false,
+    "reproductive_traits_interchangeable": false
+  }
+}
