@@ -61,7 +61,7 @@ jobs:
       AUSTRAITS_RUN_ID: "29475142172"
       AUSTRAITS_ARTIFACT: "austraits-all-floral-bulk-29475142172"
       AUSTRAITS_ARTIFACT_ID: "8366283959"
-      AUSTRAITS_ARTIFACT_DIGEST: "sha256:5074b26df5fb76ddc61b73d4b008f82d9ce22b289803cd7a693f9c96be5c0f67"
+      AUSTRAITS_ARTIFACT_DIGEST: "sha256:5074b26efe85f043bd54f6ef91bb51bed911228aba7cb26ce6e3514a65b35482"
     steps:
       - uses: actions/checkout@v4
 

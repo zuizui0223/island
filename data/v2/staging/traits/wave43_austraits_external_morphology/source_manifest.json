@@ -9,7 +9,7 @@
     "release_version": "v7.0.0"
   },
   "upstream_github_artifact": {
-    "artifact_digest": "sha256:5074b26df5fb76ddc61b73d4b008f82d9ce22b289803cd7a693f9c96be5c0f67",
+    "artifact_digest": "sha256:5074b26efe85f043bd54f6ef91bb51bed911228aba7cb26ce6e3514a65b35482",
     "artifact_id": 8366283959,
     "artifact_name": "austraits-all-floral-bulk-29475142172",
     "run_id": 29475142172,
