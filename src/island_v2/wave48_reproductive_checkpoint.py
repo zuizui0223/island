@@ -61,14 +61,36 @@ def validate_packet(
     output_dir: Path,
     output_json: Path,
     expected_species: int = EXPECTED_SPECIES,
+    packet_label: str = "wave48",
+    baseline_formal_run_id: int = BASELINE_WAVE47_RUN_ID,
+    expected_direct_rows: int | None = None,
+    expected_external_rows: int | None = None,
+    expected_review_rows: int | None = None,
+    expected_identity_rows: int | None = None,
+    expected_rejected_rows: int | None = None,
+    contract: str = "wave48_multi_source_reproductive_checkpoint_v1",
+    baseline_check_label: str = "immediate_wave47_baseline_pinned",
 ) -> dict[str, Any]:
+    if not packet_label or any(token in packet_label for token in ("/", "\\")):
+        raise ValueError("packet_label must be a plain filename label")
+    expected_direct_rows = DIRECT_ROWS if expected_direct_rows is None else expected_direct_rows
+    expected_external_rows = (
+        EXTERNAL_ROWS if expected_external_rows is None else expected_external_rows
+    )
+    expected_review_rows = REVIEW_ROWS if expected_review_rows is None else expected_review_rows
+    expected_identity_rows = (
+        IDENTITY_ROWS if expected_identity_rows is None else expected_identity_rows
+    )
+    expected_rejected_rows = (
+        REJECTED_ROWS if expected_rejected_rows is None else expected_rejected_rows
+    )
     paths = {
         "manifest": packet_dir / "source_manifest.json",
-        "direct": packet_dir / "wave48_reviewed_direct_evidence.csv",
-        "external": packet_dir / "wave48_external_congener_evidence.csv",
-        "review": packet_dir / "wave48_source_review_audit.csv",
-        "identity": packet_dir / "wave48_identity_audit.csv",
-        "rejected": packet_dir / "wave48_rejected_candidates.csv",
+        "direct": packet_dir / f"{packet_label}_reviewed_direct_evidence.csv",
+        "external": packet_dir / f"{packet_label}_external_congener_evidence.csv",
+        "review": packet_dir / f"{packet_label}_source_review_audit.csv",
+        "identity": packet_dir / f"{packet_label}_identity_audit.csv",
+        "rejected": packet_dir / f"{packet_label}_rejected_candidates.csv",
         "target_coverage": target_coverage_csv,
     }
     if missing := [str(path) for path in paths.values() if not path.is_file()]:
@@ -93,11 +115,11 @@ def validate_packet(
     _validate_evidence(direct, label="direct")
     _validate_evidence(external, label="external")
     if (
-        len(direct) != DIRECT_ROWS
-        or len(external) != EXTERNAL_ROWS
-        or len(review) != REVIEW_ROWS
-        or len(identity) != IDENTITY_ROWS
-        or len(rejected) != REJECTED_ROWS
+        len(direct) != expected_direct_rows
+        or len(external) != expected_external_rows
+        or len(review) != expected_review_rows
+        or len(identity) != expected_identity_rows
+        or len(rejected) != expected_rejected_rows
     ):
         raise ValueError("Wave48 frozen packet counts changed")
 
@@ -218,7 +240,7 @@ def validate_packet(
     if (
         manifest["fixed_target_species"] != expected_species
         or manifest["formal_wave33_baseline"]["run_id"] != FORMAL_WAVE33_RUN_ID
-        or manifest["immediate_formal_baseline"]["run_id"] != BASELINE_WAVE47_RUN_ID
+        or manifest["immediate_formal_baseline"]["run_id"] != baseline_formal_run_id
         or declared["direct_rows"] != len(direct)
         or declared["external_rows"] != len(external)
         or declared["review_rows"] != len(review)
@@ -234,18 +256,18 @@ def validate_packet(
         raise ValueError("Wave48 source or inference contract changed")
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    direct_path = output_dir / "wave48_reviewed_direct_evidence.csv.gz"
-    external_path = output_dir / "wave48_external_congener_evidence.csv.gz"
-    rejected_path = output_dir / "wave48_rejected_candidates.csv.gz"
+    direct_path = output_dir / f"{packet_label}_reviewed_direct_evidence.csv.gz"
+    external_path = output_dir / f"{packet_label}_external_congener_evidence.csv.gz"
+    rejected_path = output_dir / f"{packet_label}_rejected_candidates.csv.gz"
     _write_gzip_csv(direct, direct_path)
     _write_gzip_csv(external, external_path)
     _write_gzip_csv(rejected, rejected_path)
 
     summary: dict[str, Any] = {
-        "contract": "wave48_multi_source_reproductive_checkpoint_v1",
+        "contract": contract,
         "fixed_target_species": expected_species,
         "formal_wave33_run_id": FORMAL_WAVE33_RUN_ID,
-        "baseline_formal_run_id": BASELINE_WAVE47_RUN_ID,
+        "baseline_formal_run_id": baseline_formal_run_id,
         "evidence": {
             "new_direct_rows": len(direct),
             "new_direct_species": int(direct["accepted_species"].nunique()),
@@ -261,17 +283,22 @@ def validate_packet(
             "identity_rows": len(identity),
             "rejected_rows": len(rejected),
         },
-        "queries": {
-            "formal_search_api_queries": 0,
-            "source_pages_retrieved": len(sources),
-            "query_cost_usd": 0,
-        },
-        "query_cost_usd": 0,
+        "queries": manifest.get(
+            "query_accounting",
+            {
+                "formal_search_api_queries": 0,
+                "source_pages_retrieved": len(sources),
+                "query_cost_usd": 0,
+            },
+        ),
+        "query_cost_usd": float(
+            manifest.get("query_accounting", {}).get("query_cost_usd", 0)
+        ),
         "source_receipts": source_receipts,
         "checks": {
             "fixed_denominator": True,
             "formal_wave33_baseline_pinned": True,
-            "immediate_wave47_baseline_pinned": True,
+            baseline_check_label: True,
             "all_new_rows_reviewed": True,
             "retrieved_sources_verified": True,
             "exact_quote_and_provenance_complete": True,

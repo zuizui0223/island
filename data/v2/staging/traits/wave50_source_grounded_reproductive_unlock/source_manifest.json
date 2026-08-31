@@ -1,0 +1,92 @@
+{
+  "contract": "wave50_source_grounded_reproductive_packet_v1",
+  "created_at_utc": "2026-08-31T00:00:00Z",
+  "fixed_target_species": 106295,
+  "formal_wave33_baseline": {
+    "run_id": 32932103226,
+    "artifact_id": 9593698966,
+    "artifact_name": "integrated-trait-coverage-32932103226",
+    "artifact_digest": "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
+  },
+  "immediate_formal_baseline": {
+    "run_id": 33397671718,
+    "artifact_id": 9759996045,
+    "artifact_name": "wave49-reviewed-gap-recovery-33397671718",
+    "artifact_digest": "sha256:9e450d2350b5a2c62f1157bacc00553b74f9a5dd2d701091bb3cc3465baab90f"
+  },
+  "evidence_counts": {
+    "direct_rows": 5,
+    "external_rows": 0,
+    "review_rows": 5,
+    "identity_rows": 5,
+    "rejected_rows": 9
+  },
+  "selection": {
+    "source_pages_retrieved": 5,
+    "strategy": "third independent species for support2 rules first; then direct unresolved reproductive cells",
+    "accepted_species": 5,
+    "accepted_species_trait": 5,
+    "accepted_species_axis": 5
+  },
+  "query_accounting": {
+    "formal_search_api_queries": 779,
+    "europe_pmc_search_hits": 891,
+    "unique_pmcids": 764,
+    "fulltext_xml_fetched_or_cached": 753,
+    "fulltext_xml_errors": 11,
+    "machine_candidate_rows": 47,
+    "unique_machine_candidate_ids": 42,
+    "source_pages_retrieved": 5,
+    "query_cost_usd": 0.0
+  },
+  "sources": [
+    {
+      "source_id": "mutegi-2016-miscanthus",
+      "retrieval_url": "https://bpb-us-w2.wpmucdn.com/u.osu.edu/dist/1/72774/files/2019/01/2016-Mutegi-et-al-Pop-genetics-of-M-sacchariflorus-reprint-2ndoy8t.pdf",
+      "retrieved_filename": "mutegi_2016.pdf",
+      "retrieved_content_sha256": "490ff1a683a0ea037055f493eba4bc28eb4d8180c77c9f0aa182cad483e34cdc",
+      "source_lineage": "doi:10.1614/ipsm-d-16-00030.1",
+      "reviewed_rows": 1
+    },
+    {
+      "source_id": "blackall-2023-pultenaea",
+      "retrieval_url": "https://flex.flinders.edu.au/file/23309a56-b51a-4574-8305-0eb1fa4ad670/1/BlackallThesis2023_MasterCopy.pdf",
+      "retrieved_filename": "blackall_2023.pdf",
+      "retrieved_content_sha256": "e3d6ee504641aee36ab356d115b78530ae1603ff893316e16b7239487c4968b6",
+      "source_lineage": "flinders-thesis:blackall-2023-pultenaea",
+      "reviewed_rows": 1
+    },
+    {
+      "source_id": "pmc3832510-helichrysum",
+      "retrieval_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC3832510/fullTextXML",
+      "retrieved_filename": "PMC3832510.xml",
+      "retrieved_content_sha256": "8bee8e769ac961fb120c2ad03a870520d2e42b9d1c0eca4fb85485b75d3472c8",
+      "source_lineage": "doi:10.1371/journal.pone.0079043",
+      "reviewed_rows": 1
+    },
+    {
+      "source_id": "pmc7048842-portulaca",
+      "retrieval_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC7048842/fullTextXML",
+      "retrieved_filename": "PMC7048842.xml",
+      "retrieved_content_sha256": "ceb630e55074461892bf96ebd4735ca392a9ad80b2c06b9117cf0ef546bf3c63",
+      "source_lineage": "doi:10.1038/s41598-020-60651-w",
+      "reviewed_rows": 1
+    },
+    {
+      "source_id": "jacquemyn-2005-polystachya",
+      "retrieval_url": "https://www.biw.kuleuven.be/lbh/lbnl/ecology/pdf-files/pdf-art/hans%20j/JBI2005.pdf",
+      "retrieved_filename": "jacquemyn_2005.pdf",
+      "retrieved_content_sha256": "4821aa20302ca818b83ff6e76e0c755f01b872b042e52f8d76a83e67458a77be",
+      "source_lineage": "doi:10.1111/j.1365-2699.2005.01307.x",
+      "reviewed_rows": 1
+    }
+  ],
+  "inference_policy": {
+    "join_key": "genus x axis x trait_name",
+    "minimum_species": 3,
+    "family_inference": false,
+    "global_fallback": false,
+    "reproductive_traits_interchangeable": false,
+    "single_source_lineage_can_unlock_rule": false
+  }
+}

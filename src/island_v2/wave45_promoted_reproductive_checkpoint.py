@@ -50,7 +50,9 @@ def _validate_evidence(frame: pd.DataFrame, *, label: str) -> None:
     if missing := REQUIRED_EVIDENCE_COLUMNS.difference(frame.columns):
         raise ValueError(f"Wave45 {label} evidence is missing columns: {sorted(missing)}")
     required = sorted(REQUIRED_EVIDENCE_COLUMNS)
-    if frame[required].apply(lambda col: col.str.strip().eq("").any()).any():
+    if not frame.empty and frame[required].apply(
+        lambda col: col.str.strip().eq("").any()
+    ).any():
         raise ValueError(f"Wave45 {label} evidence has incomplete provenance")
     if frame["source_record_id"].duplicated().any():
         raise ValueError(f"Wave45 {label} evidence has duplicate record IDs")

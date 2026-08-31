@@ -101,9 +101,27 @@ def build_incremental_audit(
     expected_direct_rows: int = 12,
     expected_external_rows: int = 1,
     expected_new_rule: tuple[str, str, str] = EXPECTED_NEW_RULE,
+    expected_new_rules: frozenset[tuple[str, str, str]] | None = None,
     expected_blocked_rules: frozenset[tuple[str, str, str]] = EXPECTED_BLOCKED_RULES,
     expected_counterexample_rule: tuple[str, str, str] = EXPECTED_COUNTEREXAMPLE_RULE,
+    expected_counterexample_rules: frozenset[tuple[str, str, str]] | None = None,
+    output_label: str = "wave48",
+    contract: str = "wave48_incremental_all_evidence_touched_rule_rebuild_v1",
 ) -> dict[str, Any]:
+    expected_new_rule_set = (
+        frozenset({expected_new_rule})
+        if expected_new_rules is None
+        else frozenset(expected_new_rules)
+    )
+    expected_counterexample_rule_set = (
+        frozenset({expected_counterexample_rule})
+        if expected_counterexample_rules is None
+        else frozenset(expected_counterexample_rules)
+    )
+    if not expected_new_rule_set:
+        raise ValueError("At least one newly eligible rule must be declared")
+    if not output_label or any(token in output_label for token in ("/", "\\")):
+        raise ValueError("output_label must be a plain filename label")
     required = (
         master_csv,
         ontology_yaml,
@@ -160,6 +178,9 @@ def build_incremental_audit(
         new_external_raw, ontology
     )
     new_external_cells, new_external_audit = resolve_direct_cells(new_external_lineages)
+    if expected_external_rows == 0:
+        new_external_cells = previous_external.iloc[0:0].copy()
+        new_external_audit = previous_conflicts.iloc[0:0].copy()
     if len(direct_duplicates) or len(external_duplicates):
         raise ValueError("Wave48 contains duplicate source-lineage evidence")
     if (
@@ -169,7 +190,9 @@ def build_incremental_audit(
         raise ValueError("Wave48 evidence contains an unresolved direct conflict")
     if not new_direct_audit["resolution_status"].eq("resolved").all():
         raise ValueError("Wave48 direct evidence failed resolution")
-    if not new_external_audit["resolution_status"].eq("resolved").all():
+    if not new_external_audit.empty and not new_external_audit[
+        "resolution_status"
+    ].eq("resolved").all():
         raise ValueError("Wave48 external evidence failed resolution")
 
     for frame in (
@@ -260,12 +283,12 @@ def build_incremental_audit(
     current_key_set = set(current_eligible[key_columns].itertuples(index=False, name=None))
     newly_eligible_keys = current_key_set - previous_key_set
     invalidated_keys = previous_key_set - current_key_set
-    if newly_eligible_keys != {expected_new_rule}:
+    if newly_eligible_keys != expected_new_rule_set:
         raise ValueError(f"Wave48 unexpected new rules: {sorted(newly_eligible_keys)}")
     new_rule = current_eligible.loc[
         current_eligible.apply(
             lambda row: tuple(str(row[column]) for column in key_columns)
-            == expected_new_rule,
+            in expected_new_rule_set,
             axis=1,
         )
     ].copy()
@@ -288,13 +311,20 @@ def build_incremental_audit(
         raise ValueError(
             f"Wave48 single-lineage rules were not fail-closed: {blocked_failures}"
         )
-    callicarpa = touched_current_by_key.get(expected_counterexample_rule)
-    if (
-        callicarpa is None
-        or str(callicarpa["eligible"]).casefold() in {"true", "1"}
-        or int(callicarpa["counterexample_species"]) < 1
-    ):
-        raise ValueError("Wave48 Callicarpa counterexample did not block the rule")
+    counterexample_failures = []
+    for key in expected_counterexample_rule_set:
+        row = touched_current_by_key.get(key)
+        if (
+            row is None
+            or str(row["eligible"]).casefold() in {"true", "1"}
+            or int(row["counterexample_species"]) < 1
+        ):
+            counterexample_failures.append(key)
+    if counterexample_failures:
+        raise ValueError(
+            "Wave48 counterexamples did not block the declared rules: "
+            f"{counterexample_failures}"
+        )
 
     rebuilt_low = apply_genus_rules(master, all_cells, new_rule, "current_min3")
     if rebuilt_low.empty or set(rebuilt_low["axis"]) != {"reproductive_assurance"}:
@@ -310,14 +340,27 @@ def build_incremental_audit(
         "trait_specific_genus_rule_audit.csv.gz": rules,
         "external_congener_resolved_species_trait.csv.gz": combined_external,
         "external_congener_source_lineage_conflicts.csv.gz": combined_conflicts,
-        "wave48_direct_source_lineage_resolution_audit.csv.gz": new_direct_audit,
+        f"{output_label}_direct_source_lineage_resolution_audit.csv.gz": new_direct_audit,
     }
     for name, frame in outputs.items():
         _write_gzip_csv(frame, output_dir / name)
 
-    rule_row = new_rule.iloc[0]
+    rule_rows = [
+        {
+            "genus": str(row.genus),
+            "axis": str(row.axis),
+            "trait_name": str(row.trait_name),
+            "n_direct_species": int(row.n_direct_species),
+            "dominance": float(row.dominance),
+            "species_loo_accuracy": float(row.species_loo_accuracy),
+            "lineage_loo_accuracy": float(row.lineage_loo_accuracy),
+            "inferred_value": str(row.inferred_value),
+        }
+        for row in new_rule.sort_values(key_columns).itertuples(index=False)
+    ]
+    rule_row = rule_rows[0]
     summary: dict[str, Any] = {
-        "contract": "wave48_incremental_all_evidence_touched_rule_rebuild_v1",
+        "contract": contract,
         "fixed_target_species": expected_species,
         "touched_genus_axis_trait": [
             " x ".join(key) for key in sorted(touched)
@@ -326,20 +369,24 @@ def build_incremental_audit(
         "new_direct_species_trait": len(new_direct_cells),
         "new_external_rows": len(new_external_raw),
         "new_external_species_trait": len(new_external_cells),
-        "new_eligible_rules": [f"{expected_new_rule[0]} x {expected_new_rule[2]}"],
+        "new_eligible_rules": [
+            f"{key[0]} x {key[2]}" for key in sorted(expected_new_rule_set)
+        ],
         "invalidated_prior_rules": [" x ".join(key) for key in sorted(invalidated_keys)],
         "counterexample_blocked_rules": [
-            f"{expected_counterexample_rule[0]} x {expected_counterexample_rule[2]}"
+            f"{key[0]} x {key[2]}"
+            for key in sorted(expected_counterexample_rule_set)
         ],
         "single_lineage_blocked_rules": [
             " x ".join(key) for key in sorted(expected_blocked_rules)
         ],
+        "new_rules": rule_rows,
         "new_rule": {
-            "n_direct_species": int(rule_row["n_direct_species"]),
-            "dominance": float(rule_row["dominance"]),
-            "species_loo_accuracy": float(rule_row["species_loo_accuracy"]),
-            "lineage_loo_accuracy": float(rule_row["lineage_loo_accuracy"]),
-            "inferred_value": str(rule_row["inferred_value"]),
+            "n_direct_species": rule_row["n_direct_species"],
+            "dominance": rule_row["dominance"],
+            "species_loo_accuracy": rule_row["species_loo_accuracy"],
+            "lineage_loo_accuracy": rule_row["lineage_loo_accuracy"],
+            "inferred_value": rule_row["inferred_value"],
         },
         "new_validated_low_species_trait": len(rebuilt_low),
         "source_lineage_audit": {
@@ -360,11 +407,18 @@ def build_incremental_audit(
             "new_source_lineages_not_previously_ingested": True,
             "external_congener_not_confirmatory_direct": True,
             "trait_specific_genus_join": True,
-            "minimum_species_three": int(rule_row["n_direct_species"]) >= 3,
-            "leave_one_source_lineage_out_passed": float(rule_row["lineage_loo_accuracy"])
-            == 1.0,
+            "minimum_species_three": all(
+                row["n_direct_species"] >= 3 for row in rule_rows
+            ),
+            "leave_one_source_lineage_out_passed": all(
+                row["lineage_loo_accuracy"] == 1.0 for row in rule_rows
+            ),
             "single_source_lineage_rules_rejected": True,
-            "callicarpa_counterexample_retained": True,
+            "counterexamples_retained": True,
+            "callicarpa_counterexample_retained": (
+                expected_counterexample_rule not in expected_counterexample_rule_set
+                or expected_counterexample_rule in touched_current_by_key
+            ),
             "reproductive_traits_not_interchanged": True,
             "family_inference_absent": True,
             "global_fallback_absent": True,
