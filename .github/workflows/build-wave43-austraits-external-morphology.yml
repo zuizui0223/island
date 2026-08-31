@@ -117,7 +117,7 @@ jobs:
           test "$(sha256sum "$wave42_coverage" | cut -d' ' -f1)" = "e769722f35094f0a19a651cc9d4af83bf65dd1e41cb5d377bc2d042aade1d641"
           test "$(sha256sum "$wave42_rules" | cut -d' ' -f1)" = "5b23549ab584e9c9fb3e7aea645e9a55927d4a74129078bfcba95de740147ed5"
           test "$(sha256sum "$wave42_external" | cut -d' ' -f1)" = "4bbb33c28feb6d02a8b3ae04ada91bc3b3acfd0cf12d6964d47e9c417dc332c7"
-          test "$(sha256sum "$austraits_selected" | cut -d' ' -f1)" = "4e3302c68d3c72d5f6082e7a371271c3fb87d6be6acc91a6531d82923cfbc14e"
+          test "$(sha256sum "$austraits_selected" | cut -d' ' -f1)" = "4e3302c6fcfd156cedde63a17826d6085c284a6058076e9e7940f2d1091f74db"
           echo "WAVE33_BASE=$wave33_base" >> "$GITHUB_ENV"
           echo "PUBLIC_WEB_DIR=/tmp/public-web" >> "$GITHUB_ENV"
           echo "WAVE37_DIRECT=$wave37_direct" >> "$GITHUB_ENV"
