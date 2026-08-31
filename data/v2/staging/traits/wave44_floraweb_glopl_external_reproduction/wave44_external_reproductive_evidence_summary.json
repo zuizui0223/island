@@ -1,0 +1,67 @@
+{
+  "contract": "wave44_floraweb_glopl_external_reproduction_evidence_v1",
+  "direct": {
+    "by_provider": {
+      "FloraWeb BfN via taxifydb frozen scrape": 97,
+      "Lin et al. 2025 GloPL Supplementary Data": 46
+    },
+    "by_trait": {
+      "autonomous_selfing_capacity": 57,
+      "cleistogamy": 4,
+      "self_incompatibility": 82
+    },
+    "rows": 143,
+    "species": 80,
+    "species_trait": 132
+  },
+  "external": {
+    "by_provider": {
+      "FloraWeb BfN via taxifydb frozen scrape": 525,
+      "Lin et al. 2025 GloPL Supplementary Data": 425
+    },
+    "by_trait": {
+      "autonomous_selfing_capacity": 439,
+      "cleistogamy": 5,
+      "self_incompatibility": 506
+    },
+    "entered_fixed_target_direct_coverage": 0,
+    "rows": 950,
+    "source_lineages": 950,
+    "species": 518,
+    "species_trait": 948
+  },
+  "fixed_target_species": 106295,
+  "mapping_reason_counts": {
+    "accepted_strict_two_backbone_direct": 85,
+    "accepted_strict_two_backbone_external": 518,
+    "backbone_family_conflict": 9,
+    "backbones_disagree": 73,
+    "gbif_not_exact": 24,
+    "source_wfo_family_conflict": 7,
+    "wfo_ambiguous_exact_name": 57,
+    "wfo_no_accepted_species_family_route": 48,
+    "wfo_no_exact_species_name": 15
+  },
+  "queries": {
+    "historical_cache_conflicts_requeried": 30,
+    "new_queries": 517,
+    "query_cost_usd": 0,
+    "query_failures": 0,
+    "query_success": 517,
+    "reused_responses": 199,
+    "snapshot_rows": 836,
+    "wfo_accepted_names": 716
+  },
+  "query_cost_usd": 0,
+  "selection_reason_counts": {
+    "not_strict_two_backbone": 91,
+    "selected": 1093,
+    "within_source_conflict": 1
+  },
+  "sha256": {
+    "direct": "bce976497834bcf5c6eac73242cb21a76730935affe1b14e28a979c5b11eabd5",
+    "external": "5d4744670032a61c7e1fa68ffdeb3c8f4ca0cef4d0c8f7452938d9e15421e407",
+    "mapping": "85678b32511283e2aa0d0f64e198d9af55423e4cfd2df3d7badd7576bcb251c0",
+    "selection": "bc8ff21bf30aab6583861c1a199a76e31baf6c155c7bd9205df2f59fe3da59b0"
+  }
+}

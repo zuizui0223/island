@@ -1,0 +1,14 @@
+{
+  "contract": "wave44_wfo_2026_06_local_exact_mapping_v1",
+  "input_names": 836,
+  "manifest_sha256": "17e21127c8bb1330dc14a6cdc9ecdc8241fdac21fb004816bd7e0fe1b7c57db3",
+  "output_sha256": "6fb472926154d0fbad786f430261ee2ebcdb55c1fd312a73556ea9344695fcd4",
+  "reason_counts": {
+    "accepted_wfo_2026_06_exact_unique": 716,
+    "wfo_ambiguous_exact_name": 57,
+    "wfo_no_accepted_species_family_route": 48,
+    "wfo_no_exact_species_name": 15
+  },
+  "wfo_release": "2026-06",
+  "wfo_zip_sha256": "75f1ad1f371978c9e46f3044152c07ed276fe57be9fb9a15b3621b19cf231987"
+}
