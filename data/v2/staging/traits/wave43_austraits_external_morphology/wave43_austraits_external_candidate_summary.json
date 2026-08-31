@@ -1,0 +1,13 @@
+{
+  "accepted_species_rank_only": true,
+  "by_trait": {
+    "floral_symmetry": 290,
+    "flower_primary_color": 3252
+  },
+  "contract": "wave43_austraits_external_candidate_manifest_v1",
+  "hybrids_and_infraspecific_names_excluded": true,
+  "selected_source_rows": 3542,
+  "source_names": 2580,
+  "source_species_trait": 2820,
+  "target_exact_names_excluded": true
+}

@@ -1,0 +1,46 @@
+{
+  "contract": "wave43_austraits_external_morphology_evidence_v1",
+  "evidence": {
+    "by_trait": {
+      "floral_symmetry": 228,
+      "flower_primary_color": 2764
+    },
+    "rows": 2992,
+    "source_lineages": 5,
+    "species": 2185,
+    "species_trait": 2378
+  },
+  "fixed_target_species": 106295,
+  "mapping_reason_counts": {
+    "accepted_strict_two_backbone_external": 2188,
+    "backbone_family_conflict": 28,
+    "backbones_disagree": 119,
+    "gbif_not_exact": 17,
+    "mapped_into_fixed_target_universe": 83,
+    "source_wfo_family_conflict": 47,
+    "wfo_ambiguous_exact_name": 31,
+    "wfo_no_accepted_species_family_route": 42,
+    "wfo_no_exact_species_name": 25
+  },
+  "queries": {
+    "historical_cache_conflicts_requeried": 7,
+    "new_queries": 2430,
+    "query_cost_usd": 0,
+    "query_failures": 0,
+    "query_success": 2430,
+    "reused_responses": 52,
+    "snapshot_rows": 2580,
+    "wfo_accepted_names": 2482
+  },
+  "query_cost_usd": 0,
+  "selection_reason_counts": {
+    "not_strict_external_two_backbone": 550,
+    "selected": 2992
+  },
+  "sha256": {
+    "archive": "2995fb9e5eebf9271f9241b5a6c2e2cbb7b45e8eda5ce4db43c14c68f95e2f3f",
+    "evidence": "aaefd815251fc6025a1accfeb643db533037a647fd2efce1c22207240d1b5c79",
+    "mapping": "6550672944a1cba7aafe2eba46b047e364b58f30c729bc15ca5c629fd477f664",
+    "selection": "55577de4b15a6d5e9cba94523211395bbae68ffed211262df2281d013360d9a8"
+  }
+}

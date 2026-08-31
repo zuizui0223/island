@@ -1,0 +1,10 @@
+{
+  "historical_cache_conflicts_requeried": 7,
+  "new_queries": 2430,
+  "query_cost_usd": 0,
+  "query_failures": 0,
+  "query_success": 2430,
+  "reused_responses": 52,
+  "snapshot_rows": 2580,
+  "wfo_accepted_names": 2482
+}

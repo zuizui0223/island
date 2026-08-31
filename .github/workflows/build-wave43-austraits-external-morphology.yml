@@ -1,0 +1,364 @@
+name: Build Wave43 external AusTraits morphology
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-wave43-austraits-external-morphology.yml"
+      - "src/island_v2/all_evidence_trait_audit.py"
+      - "src/island_v2/wave41_external_congener_overlay.py"
+      - "src/island_v2/wave43_austraits_external_checkpoint.py"
+      - "src/island_v2/wave43_austraits_external_overlay.py"
+      - "tests/test_all_evidence_trait_audit.py"
+      - "tests/test_wave41_external_congener_overlay.py"
+      - "tests/test_wave43_austraits_external_checkpoint.py"
+      - "tests/test_wave43_austraits_external_overlay.py"
+      - "data/v2/staging/traits/wave43_austraits_external_morphology/**"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: build-wave43-austraits-external-morphology-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      WAVE33_RUN_ID: "32932103226"
+      WAVE33_ARTIFACT: "integrated-trait-coverage-32932103226"
+      WAVE33_ARTIFACT_ID: "9593698966"
+      WAVE33_ARTIFACT_DIGEST: "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
+      PUBLIC_WEB_RUN_ID: "30141880859"
+      PUBLIC_WEB_ARTIFACT: "broad-web-medium-full-30141880859"
+      PUBLIC_WEB_ARTIFACT_ID: "8614792912"
+      PUBLIC_WEB_ARTIFACT_DIGEST: "sha256:e4059b90ab54334fde9fcb5b160be825131561cb3d0d9dc628e063ecd63fe9b1"
+      WAVE37_RUN_ID: "33143109604"
+      WAVE37_ARTIFACT: "wave37-europe-pmc-reproduction-33143109604"
+      WAVE37_ARTIFACT_ID: "9674790380"
+      WAVE37_ARTIFACT_DIGEST: "sha256:dc1f4820d98b06dd928aee8d6725dcc24de7121bf0fb9917553629970ea64a6d"
+      WAVE38_RUN_ID: "33149235490"
+      WAVE38_ARTIFACT: "wave38-source-locked-llm-33149235490"
+      WAVE38_ARTIFACT_ID: "9677027199"
+      WAVE38_ARTIFACT_DIGEST: "sha256:7a7b322e7ab8a43477245ddb405779b186008850070711bd4d23bc782e81a4de"
+      WAVE39_RUN_ID: "33149998400"
+      WAVE39_ARTIFACT: "wave39-floraweb-synonym-recovery-33149998400"
+      WAVE39_ARTIFACT_ID: "9677327835"
+      WAVE39_ARTIFACT_DIGEST: "sha256:3b6dbd4dbd1143ae79e79ff16990e881f5371dac5671a2c5d732a4cffe5f00d5"
+      WAVE41_RUN_ID: "33355297355"
+      WAVE41_ARTIFACT: "wave41-external-congener-reproduction-33355297355"
+      WAVE41_ARTIFACT_ID: "9744976429"
+      WAVE41_ARTIFACT_DIGEST: "sha256:2c42f30df358c682119d921c4963939a8a2f4f571912cdcacf100068d2b71803"
+      WAVE42_RUN_ID: "33357283159"
+      WAVE42_ARTIFACT: "wave42-external-bulk-reproduction-33357283159"
+      WAVE42_ARTIFACT_ID: "9745623568"
+      WAVE42_ARTIFACT_DIGEST: "sha256:9b70274b169d241b329eb7fc0c660a3b37329822200c63ba2d26675860348e4d"
+      AUSTRAITS_RUN_ID: "29475142172"
+      AUSTRAITS_ARTIFACT: "austraits-all-floral-bulk-29475142172"
+      AUSTRAITS_ARTIFACT_ID: "8366283959"
+      AUSTRAITS_ARTIFACT_DIGEST: "sha256:5074b26df5fb76ddc61b73d4b008f82d9ce22b289803cd7a693f9c96be5c0f67"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Download and verify pinned formal artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for spec in \
+            "$WAVE33_RUN_ID|$WAVE33_ARTIFACT_ID|$WAVE33_ARTIFACT|$WAVE33_ARTIFACT_DIGEST|wave33" \
+            "$PUBLIC_WEB_RUN_ID|$PUBLIC_WEB_ARTIFACT_ID|$PUBLIC_WEB_ARTIFACT|$PUBLIC_WEB_ARTIFACT_DIGEST|public-web" \
+            "$WAVE37_RUN_ID|$WAVE37_ARTIFACT_ID|$WAVE37_ARTIFACT|$WAVE37_ARTIFACT_DIGEST|wave37" \
+            "$WAVE38_RUN_ID|$WAVE38_ARTIFACT_ID|$WAVE38_ARTIFACT|$WAVE38_ARTIFACT_DIGEST|wave38" \
+            "$WAVE39_RUN_ID|$WAVE39_ARTIFACT_ID|$WAVE39_ARTIFACT|$WAVE39_ARTIFACT_DIGEST|wave39" \
+            "$WAVE41_RUN_ID|$WAVE41_ARTIFACT_ID|$WAVE41_ARTIFACT|$WAVE41_ARTIFACT_DIGEST|wave41" \
+            "$WAVE42_RUN_ID|$WAVE42_ARTIFACT_ID|$WAVE42_ARTIFACT|$WAVE42_ARTIFACT_DIGEST|wave42" \
+            "$AUSTRAITS_RUN_ID|$AUSTRAITS_ARTIFACT_ID|$AUSTRAITS_ARTIFACT|$AUSTRAITS_ARTIFACT_DIGEST|austraits"; do
+            IFS='|' read -r run_id artifact_id artifact_name artifact_digest target <<<"$spec"
+            test "$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+            metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id")
+            test "$(jq -r .name <<<"$metadata")" = "$artifact_name"
+            test "$(jq -r .expired <<<"$metadata")" = false
+            test "$(jq -r .digest <<<"$metadata")" = "$artifact_digest"
+            mkdir -p "/tmp/$target"
+            gh run download "$run_id" --repo "$GITHUB_REPOSITORY" --name "$artifact_name" --dir "/tmp/$target"
+          done
+
+          wave33_resolved=$(find /tmp/wave33 -type f -name resolved_direct_species_trait.csv.gz -print -quit)
+          public_web_evidence=$(find /tmp/public-web -type f -name broad_web_medium_evidence.csv.gz -print -quit)
+          wave37_direct=$(find /tmp/wave37 -type f -name wave37_reviewed_direct_evidence.csv.gz -print -quit)
+          wave38_direct=$(find /tmp/wave38 -type f -name wave38_reviewed_direct_evidence.csv.gz -print -quit)
+          wave39_direct=$(find /tmp/wave39 -type f -name floraweb_synonym_reviewed_direct_evidence.csv.gz -print -quit)
+          wave41_external=$(find /tmp/wave41 -type f -name wave41_external_congener_reproductive_evidence.csv.gz -print -quit)
+          wave42_coverage=$(find /tmp/wave42 -type f -path '*/wave42-trait-coverage/wave42_species_axis_coverage.csv.gz' -print -quit)
+          wave42_rules=$(find /tmp/wave42 -type f -path '*/wave42-all-evidence-audit/trait_specific_genus_rule_audit.csv.gz' -print -quit)
+          wave42_external=$(find /tmp/wave42 -type f -name wave42_external_reproductive_evidence.csv.gz -print -quit)
+          austraits_selected=$(find /tmp/austraits -type f -path '*/prepared/selected_traits.csv' -print -quit)
+          for required in "$wave33_resolved" "$public_web_evidence" "$wave37_direct" "$wave38_direct" "$wave39_direct" "$wave41_external" "$wave42_coverage" "$wave42_rules" "$wave42_external" "$austraits_selected"; do
+            test -n "$required"
+          done
+          wave33_base=$(dirname "$wave33_resolved")
+          test -f "$wave33_base/source_run_manifest.json"
+          test -f "$wave33_base/trait_specific_genus_rule_audit.csv.gz"
+          test "$(sha256sum "$wave41_external" | cut -d' ' -f1)" = "0e3e709e18105e81996231580042837a48f62f19c84468bb00d26e8c8cef4514"
+          test "$(sha256sum "$wave42_coverage" | cut -d' ' -f1)" = "e769722f35094f0a19a651cc9d4af83bf65dd1e41cb5d377bc2d042aade1d641"
+          test "$(sha256sum "$wave42_rules" | cut -d' ' -f1)" = "5b23549ab584e9c9fb3e7aea645e9a55927d4a74129078bfcba95de740147ed5"
+          test "$(sha256sum "$wave42_external" | cut -d' ' -f1)" = "4bbb33c28feb6d02a8b3ae04ada91bc3b3acfd0cf12d6964d47e9c417dc332c7"
+          test "$(sha256sum "$austraits_selected" | cut -d' ' -f1)" = "4e3302c68d3c72d5f6082e7a371271c3fb87d6be6acc91a6531d82923cfbc14e"
+          echo "WAVE33_BASE=$wave33_base" >> "$GITHUB_ENV"
+          echo "PUBLIC_WEB_DIR=/tmp/public-web" >> "$GITHUB_ENV"
+          echo "WAVE37_DIRECT=$wave37_direct" >> "$GITHUB_ENV"
+          echo "WAVE38_DIRECT=$wave38_direct" >> "$GITHUB_ENV"
+          echo "WAVE39_DIRECT=$wave39_direct" >> "$GITHUB_ENV"
+          echo "WAVE41_EXTERNAL=$wave41_external" >> "$GITHUB_ENV"
+          echo "WAVE42_COVERAGE=$wave42_coverage" >> "$GITHUB_ENV"
+          echo "WAVE42_RULES=$wave42_rules" >> "$GITHUB_ENV"
+          echo "WAVE42_EXTERNAL=$wave42_external" >> "$GITHUB_ENV"
+
+      - name: Validate the frozen Wave43 identity and evidence checkpoint
+        run: |
+          set -euo pipefail
+          rm -rf wave43-checkpoint
+          mkdir -p wave43-checkpoint
+          cp -a data/v2/staging/traits/wave43_austraits_external_morphology/. wave43-checkpoint/
+          python -m island_v2.wave43_austraits_external_checkpoint \
+            --packet-dir wave43-checkpoint \
+            --target-coverage-csv "$WAVE42_COVERAGE" \
+            --output-json wave43-checkpoint/wave43_checkpoint_validation.json \
+            --expected-species 106295 \
+            > wave43-checkpoint-stdout.json
+
+      - name: Verify exact Wave43 checkpoint counts and hashes
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(
+              Path("wave43-checkpoint/wave43_checkpoint_validation.json").read_text()
+          )
+          assert summary["fixed_target_species"] == 106295
+          assert summary["queries"] == {
+              "historical_cache_conflicts_requeried": 7,
+              "new_queries": 2430,
+              "query_cost_usd": 0,
+              "query_failures": 0,
+              "query_success": 2430,
+              "reused_responses": 52,
+              "snapshot_rows": 2580,
+              "wfo_accepted_names": 2482,
+          }
+          assert summary["query_cost_usd"] == 0
+          assert summary["evidence"] == {
+              "by_trait": {
+                  "floral_symmetry": 228,
+                  "flower_primary_color": 2764,
+              },
+              "entered_fixed_target_direct_coverage": 0,
+              "rows": 2992,
+              "species": 2185,
+              "species_trait": 2378,
+              "underlying_source_lineages": 5,
+          }
+          assert summary["input_sha256"]["evidence"] == "aaefd815251fc6025a1accfeb643db533037a647fd2efce1c22207240d1b5c79"
+          assert summary["input_sha256"]["mapping"] == "6550672944a1cba7aafe2eba46b047e364b58f30c729bc15ca5c629fd477f664"
+          assert summary["input_sha256"]["selection"] == "55577de4b15a6d5e9cba94523211395bbae68ffed211262df2281d013360d9a8"
+          assert all(summary["checks"].values()), summary["checks"]
+          PY
+
+      - name: Rebuild all direct evidence and trait-specific Validated Low
+        run: |
+          set -euo pipefail
+          mkdir -p wave43-empty-low
+          rm -rf wave43-all-evidence-audit
+          python -m island_v2.all_evidence_trait_audit \
+            --integrated-dir "$WAVE33_BASE" \
+            --latest-public-web-dir "$PUBLIC_WEB_DIR" \
+            --validated-low-dir wave43-empty-low \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --island-occurrences-csv data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
+            --source-manifest-json "$WAVE33_BASE/source_run_manifest.json" \
+            --ontology-yaml config/trait_ontology.yml \
+            --angiosperm-scope-yaml config/angiosperm_scope.yml \
+            --sensitivity-lock-json config/trait_cascade_artifact_lock.json \
+            --direct-evidence-exclusions-csv data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_20260811.csv \
+            --output-dir wave43-all-evidence-audit \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/wave35_reproduction_morphology_sources/floraweb_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/wave35_reproduction_morphology_sources/glopl_2025_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/wave35_reproduction_morphology_sources/useful_plants_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/wave36_nhm_reproductive_remine/nhm_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/wave36_nhm_reproductive_remine/useful_plants_remine_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv "$WAVE37_DIRECT" \
+            --supplemental-direct-evidence-csv "$WAVE38_DIRECT" \
+            --supplemental-direct-evidence-csv "$WAVE39_DIRECT" \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/open_web_pilot/goal_scale_source_package_20260811/goal_scale_source_package_20260811_evidence.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/open_web_pilot/efloras_medium_checkpoint_20260811/efloras_medium_evidence_20260811.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/open_web_pilot/pngtrees_source_package_20260813/pngtrees_source_package_evidence_20260813.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/open_web_pilot/iospe_orchid_colour_checkpoint_20260812/iospe_orchid_colour_evidence_20260812.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/open_web_pilot/official_flora_colour_recovery_checkpoint_20260811/official_flora_colour_evidence_20260811.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/open_web_pilot/wfo_kew_africa_recovery_checkpoint_20260811/wfo_kew_africa_recovery_evidence_20260811.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/open_web_pilot/rodger_2021_autofertility_checkpoint_20260811/rodger_2021_autofertility_evidence_20260811.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/open_web_pilot/florml_size_recovery_checkpoint_20260812/florml_size_evidence_20260812.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/open_web_pilot/palmpedia_archive_checkpoint_20260813/palmpedia_archive_source_package_evidence_20260813.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/open_web_pilot/cached_evidence_recovery_checkpoint_20260813/cached_evidence_recovery_evidence_20260813.csv.gz \
+            --external-congener-evidence-csv "$WAVE41_EXTERNAL" \
+            --external-congener-evidence-csv "$WAVE42_EXTERNAL" \
+            --external-congener-evidence-csv wave43-checkpoint/wave43_austraits_external_morphology_evidence.csv.gz \
+            > wave43-all-evidence-audit-stdout.json
+
+      - name: Build lossless formal Wave43 overlay
+        run: |
+          set -euo pipefail
+          rm -rf wave43-trait-coverage
+          python -m island_v2.wave43_austraits_external_overlay \
+            --baseline-csv "$WAVE42_COVERAGE" \
+            --previous-rule-audit-csv "$WAVE42_RULES" \
+            --all-evidence-dir wave43-all-evidence-audit \
+            --external-evidence-csv wave43-checkpoint/wave43_austraits_external_morphology_evidence.csv.gz \
+            --checkpoint-summary-json wave43-checkpoint/wave43_checkpoint_validation.json \
+            --output-dir wave43-trait-coverage \
+            --expected-species 106295 \
+            > wave43-trait-coverage-stdout.json
+
+      - name: Verify exact artifact-backed Wave43 gain
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          import pandas as pd
+
+          audit = json.loads(
+              Path("wave43-all-evidence-audit/all_evidence_trait_coverage_summary.json").read_text()
+          )
+          external = audit["source_lineage_audit"]["external_congener_support"]
+          assert external == {
+              "cell_resolution_classification_counts": {
+                  "independent_source_agreement": 125,
+                  "single_independent_lineage": 5001,
+                  "true_multistate_variable": 58,
+                  "unresolved_direct_conflict": 28,
+              },
+              "duplicate_rows": 945,
+              "entered_confirmatory_direct_coverage": 0,
+              "files": 3,
+              "lineages_after_trait_specific_dedup": 5425,
+              "resolved_species": 4781,
+              "resolved_species_trait": 5184,
+              "rows": 5973,
+          }
+
+          summary = json.loads(
+              Path("wave43-trait-coverage/wave43_coverage_summary.json").read_text()
+          )
+          assert summary["delta"] == {
+              "action_counts": {"validated_low_fill": 36},
+              "by_axis_net_gain": {
+                  "floral_structural_complexity": 28,
+                  "flower_colour": 8,
+                  "reproductive_assurance": 0,
+              },
+              "combined_external_direct_conflicts": 28,
+              "combined_external_evidence_rows": 5973,
+              "combined_external_resolved_species_trait": 5184,
+              "external_evidence_rows": 2992,
+              "gross_gain_species_axis": 36,
+              "loss_species_axis": 0,
+              "net_gain_species_axis": 36,
+              "new_external_input_species_trait": 2378,
+              "new_validated_low_species_trait": 319,
+          }
+          after = summary["after"]
+          assert after["filled_species_axis"] == 220974
+          assert after["unresolved_species_axis"] == 97911
+          assert after["quality_counts"] == {
+              "high": 55531,
+              "medium": 46754,
+              "low": 118689,
+          }
+          assert after["by_axis"]["floral_structural_complexity"]["filled_species"] == 91559
+          assert after["by_axis"]["flower_colour"]["filled_species"] == 82389
+          assert after["by_axis"]["reproductive_assurance"]["filled_species"] == 47026
+          assert after["species_by_filled_axis_count"] == {
+              "0": 9471,
+              "1": 14246,
+              "2": 41006,
+              "3": 41572,
+          }
+          assert summary["baseline_formal_run_id"] == 33357283159
+          assert len(summary["new_eligible_rules"]) == 31
+          assert len(summary["shadow_invalidated_prior_rules"]) == 7
+          assert summary["shadow_changed_prior_rule_states"] == []
+          assert summary["remaining_to_campaign_target"] == {
+              "floral_structural_complexity": 394,
+              "flower_colour": 2647,
+              "reproductive_assurance": 16751,
+          }
+          assert all(summary["checks"].values()), summary["checks"]
+
+          before = pd.read_csv(Path(__import__("os").environ["WAVE42_COVERAGE"]), dtype=str).fillna("")
+          after_frame = pd.read_csv(
+              "wave43-trait-coverage/wave43_species_axis_coverage.csv.gz", dtype=str
+          ).fillna("")
+          keys = ["accepted_species", "axis"]
+          assert len(before) == len(after_frame) == 318885
+          assert not before[keys].duplicated().any()
+          assert not after_frame[keys].duplicated().any()
+          compared = before[keys + ["quality"]].merge(
+              after_frame[keys + ["quality"]],
+              on=keys,
+              suffixes=("_before", "_after"),
+              validate="one_to_one",
+          )
+          assert not (compared["quality_before"].ne("") & compared["quality_after"].eq("")).any()
+          assert int((compared["quality_before"].eq("") & compared["quality_after"].ne("")).sum()) == 36
+          PY
+
+      - name: Run strict-scope, genus-rule, and overlay tests
+        env:
+          PYTHONPATH: src:.
+        run: |
+          pytest -q \
+            tests/test_all_evidence_trait_audit.py \
+            tests/test_wave41_external_congener_overlay.py \
+            tests/test_wave43_austraits_external_checkpoint.py \
+            tests/test_wave43_austraits_external_overlay.py \
+            --basetemp=.pytest-wave43
+          ruff check \
+            src/island_v2/all_evidence_trait_audit.py \
+            src/island_v2/wave41_external_congener_overlay.py \
+            src/island_v2/wave43_austraits_external_checkpoint.py \
+            src/island_v2/wave43_austraits_external_overlay.py \
+            tests/test_all_evidence_trait_audit.py \
+            tests/test_wave41_external_congener_overlay.py \
+            tests/test_wave43_austraits_external_checkpoint.py \
+            tests/test_wave43_austraits_external_overlay.py
+
+      - name: Upload immutable Wave43 checkpoint, audit, and formal coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave43-austraits-external-morphology-${{ github.run_id }}
+          path: |
+            wave43-checkpoint/**
+            wave43-checkpoint-stdout.json
+            wave43-all-evidence-audit/**
+            wave43-all-evidence-audit-stdout.json
+            wave43-trait-coverage/**
+            wave43-trait-coverage-stdout.json
+          if-no-files-found: error
+          retention-days: 90

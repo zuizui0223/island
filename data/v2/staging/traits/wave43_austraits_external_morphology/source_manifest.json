@@ -1,0 +1,35 @@
+{
+  "contract": "wave43_austraits_external_morphology_source_manifest_v1",
+  "source": {
+    "archive_key": "austraits-7.0.0.zip",
+    "archive_sha256": "2995fb9e5eebf9271f9241b5a6c2e2cbb7b45e8eda5ce4db43c14c68f95e2f3f",
+    "archive_size_bytes": 21100078,
+    "archive_url": "https://zenodo.org/api/records/15718081/files/austraits-7.0.0.zip/content",
+    "doi": "10.5281/zenodo.15718081",
+    "release_version": "v7.0.0"
+  },
+  "upstream_github_artifact": {
+    "artifact_digest": "sha256:5074b26df5fb76ddc61b73d4b008f82d9ce22b289803cd7a693f9c96be5c0f67",
+    "artifact_id": 8366283959,
+    "artifact_name": "austraits-all-floral-bulk-29475142172",
+    "run_id": 29475142172,
+    "selected_traits_sha256": "4e3302c68d3c72d5f6082e7a371271c3fb87d6be6acc91a6531d82923cfbc14e"
+  },
+  "identity_gate": {
+    "gbif": "strict exact Plantae species match",
+    "name_policy": "WFO 2026-06 and GBIF accepted species plus family agreement",
+    "target_species_excluded": true,
+    "wfo_release": "2026-06"
+  },
+  "trait_scope": {
+    "excluded_from_strict_axes": [
+      "pollination_syndrome",
+      "pollination_system",
+      "sex_type"
+    ],
+    "included": {
+      "floral_symmetry": "floral_structural_complexity",
+      "flower_primary_color": "flower_colour"
+    }
+  }
+}
