@@ -1,0 +1,12 @@
+accepted_species,target_universe_status,family,name_match_method,wfo_match_id,wfo_release,gbif_usage_key,gbif_family,prior_formal_source,identity_decision
+Angraecum cadetii,in_fixed_106295_species,Orchidaceae,accepted_name_exact,,,,,Run 33362634097 Wave44 fixed coverage denominator,accepted_direct
+Impatiens capensis,in_fixed_106295_species,Balsaminaceae,accepted_name_exact,,,,,Run 33362634097 Wave44 fixed coverage denominator,accepted_direct
+Coelogyne rigida,external_congener_only,Orchidaceae,strict_wfo_gbif_two_backbone,wfo-0000909151,2026-06,8082249,Orchidaceae,Run 33355297355 Wave41 mapping audit,accepted_external_only
+Machaerium macaense,in_fixed_106295_species,Fabaceae,accepted_name_exact,wfo-0000749805,2026-06,7744435,Fabaceae,Run 33362634097 Wave44 fixed coverage denominator,accepted_direct
+Metrosideros polymorpha,in_fixed_106295_species,Myrtaceae,accepted_name_exact,,,,,Run 33362634097 Wave44 fixed coverage denominator,accepted_direct
+Schoenus apogon,in_fixed_106295_species,Cyperaceae,accepted_name_exact,,,,,Run 33362634097 Wave44 fixed coverage denominator,accepted_direct
+Schoenus maschalinus,in_fixed_106295_species,Cyperaceae,accepted_name_exact,,,,,Run 33362634097 Wave44 fixed coverage denominator,accepted_direct
+Schoenus nitens,in_fixed_106295_species,Cyperaceae,accepted_name_exact,,,,,Run 33362634097 Wave44 fixed coverage denominator,accepted_direct
+Schoenus pauciflorus,in_fixed_106295_species,Cyperaceae,accepted_name_exact,,,,,Run 33362634097 Wave44 fixed coverage denominator,accepted_direct
+Eriocaulon carsonii,external_congener_only,Eriocaulaceae,strict_wfo_gbif_two_backbone,wfo-0000409715,2026-06,2690565,Eriocaulaceae,Live WFO 2026-06 and GBIF exact species audit 2026-08-31,accepted_external_only
+Pavonia varians,external_congener_only,Malvaceae,strict_wfo_gbif_two_backbone,wfo-0001249553,2026-06,5617966,Malvaceae,Live WFO 2026-06 and GBIF exact species audit 2026-08-31,accepted_external_only

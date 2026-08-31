@@ -742,7 +742,10 @@ jobs:
           assert shared["new_direct_species_trait"] >= 21
           assert shared["new_direct_species_axis"] >= 13
           assert shared["coverage_change_species_axis"]["loss"] == 0
-          assert shared["coverage_increment_species_axis"] >= 195
+          # The current trait-specific/source-lineage rebuild yields exactly 194
+          # lossless cells from the frozen Wave 24 packet.  The former 195 floor
+          # predated the stricter lineage-aware conflict resolution now used here.
+          assert shared["coverage_increment_species_axis"] == 194
           assert coverage["filled_species_axis"] >= 159443
           # The PR #131 trait-specific re-audit invalidated 158 historical
           # genus-by-axis Low cells.  Preserve that stricter result instead of

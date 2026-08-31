@@ -1,0 +1,99 @@
+{
+  "contract": "wave45_promoted_and_primary_reproductive_sources_v1",
+  "created_at_utc": "2026-08-31T00:00:00Z",
+  "fixed_target_species": 106295,
+  "promoted_reviewed_packet": {
+    "path": "data/v2/staging/traits/direct_llm_pilot/20260809_near_rule_source_acquisition/near_rule_incremental_evidence.csv.gz",
+    "sha256": "42df58e81ab4fe50dec5e09702331ced9f77d5ecc99ec38e35be79aff6a554f9",
+    "rows": 208,
+    "species": 163,
+    "species_trait": 175,
+    "review_audit": "data/v2/staging/traits/direct_llm_pilot/20260809_near_rule_source_acquisition/near_rule_source_audit.csv",
+    "review_contract": "near_rule_multi_source_direct_evidence_v1"
+  },
+  "new_primary_sources": [
+    {
+      "doi": "10.1093/aob/mcp299",
+      "pmcid": "PMC2826249",
+      "title": "Orthoptera, a new order of pollinator",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2826249/",
+      "retrieval_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2826249/?report=xml",
+      "retrieved_at_utc": "2026-08-31T00:00:00Z",
+      "retrieved_content_sha256": "9ed14da9663a6a49b238afbe45dd131193eb0c57e8857b7c5a4a53aea00d4537"
+    },
+    {
+      "doi": "10.1371/journal.pone.0053695",
+      "pmcid": "PMC3538729",
+      "title": "Adding perches for cross-pollination ensures the reproduction of a self-incompatible orchid",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3538729/",
+      "retrieval_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3538729/?report=xml",
+      "retrieved_at_utc": "2026-08-31T00:00:00Z",
+      "retrieved_content_sha256": "4ab428a659c5a684a031601a85b139c37c3199ae702f60e6eeef07180eea7f2f"
+    },
+    {
+      "doi": "10.1371/journal.pone.0302283",
+      "pmcid": "PMC11189253",
+      "title": "Pollination biology of Impatiens capensis Meerb. in non-native range",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11189253/",
+      "retrieval_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11189253/?report=xml",
+      "retrieved_at_utc": "2026-08-31T00:00:00Z",
+      "retrieved_content_sha256": "207951167eedac5ed61271b2b2a813ef0af085945d218aebf07fef7593115828"
+    },
+    {
+      "doi": "10.1111/1365-2664.12027",
+      "title": "Invasive species management restores a plant-pollinator mutualism in Hawaii",
+      "source_url": "https://escholarship.org/content/qt7cq0s4zd/qt7cq0s4zd_noSplash_2f94baaa47fffddcf35cf6d131e4480d.pdf",
+      "retrieval_url": "https://escholarship.org/content/qt7cq0s4zd/qt7cq0s4zd_noSplash_2f94baaa47fffddcf35cf6d131e4480d.pdf",
+      "retrieved_at_utc": "2026-08-31T00:00:00Z",
+      "retrieved_content_sha256": "2e8cfd714727bb06c407a280ae31c30221e59ab1dfc20b5f8813988e8ce9f401"
+    },
+    {
+      "doi": "10.1080/0028825X.2011.607833",
+      "title": "Hybridization amongst New Zealand Schoenus (Cyperaceae)?",
+      "source_url": "https://doi.org/10.1080/0028825X.2011.607833",
+      "retrieval_url": "https://www.researchgate.net/publication/254280807_Hybridization_amongst_New_Zealand_Schoenus_Cyperaceae",
+      "retrieved_at_utc": "2026-08-31T00:00:00Z",
+      "retrieval_contract": "author-deposited full text indexed with exact Table 1 species and self-pollination result; publisher DOI retained as lineage"
+    },
+    {
+      "citation": "Davies (2000), Conservation Biology of the Nationally Endangered Mound Spring Endemic Eriocaulon carsonii",
+      "title": "Conservation Biology of the Nationally Endangered Mound Spring Endemic, Eriocaulon carsonii (Eriocaulaceae)",
+      "source_url": "https://www.researchgate.net/publication/279059723_Conservation_Biology_of_the_Nationally_Endangered_Mound_Spring_Endemic_Eriocaulon_carsonii_Eriocaulaceae",
+      "retrieval_url": "https://www.researchgate.net/publication/279059723_Conservation_Biology_of_the_Nationally_Endangered_Mound_Spring_Endemic_Eriocaulon_carsonii_Eriocaulaceae",
+      "retrieved_at_utc": "2026-08-31T00:00:00Z",
+      "retrieval_contract": "author-deposited report indexed with exact species and self-compatible statement; preliminary evidence retained as Medium"
+    },
+    {
+      "doi": "10.1590/0102-33062020abb0023",
+      "title": "The dark side of the rain: self-pollination setbacks due to water exposure in Pavonia varians",
+      "source_url": "https://www.scielo.br/j/abb/a/nWgMZDzXJ5QCdZv3dS9Swnr/?lang=en",
+      "retrieval_url": "https://www.scielo.br/j/abb/a/nWgMZDzXJ5QCdZv3dS9Swnr/?lang=en",
+      "retrieved_at_utc": "2026-08-31T00:00:00Z",
+      "retrieved_content_sha256": "194c4e3d14e6b3bb70ee1f6f0c0f7aad2f4a8c8c89efeb408179447b198f3527"
+    },
+    {
+      "citation": "Amorim & Bicalho (2022), Machaerium macaense, Lista Vermelha da Flora Brasileira",
+      "title": "CNCFlora species profile: Machaerium macaense",
+      "source_url": "https://proflora.jbrj.gov.br/html/Machaerium%20macaense_2022.html",
+      "retrieval_url": "https://proflora.jbrj.gov.br/html/Machaerium%20macaense_2022.html",
+      "retrieved_at_utc": "2026-08-31T00:00:00Z",
+      "retrieved_content_sha256": "b08905f7086c8f0bfd0edfdce226e4d05c7c8bdbea9e27958e8fa94837cd59d5"
+    }
+  ],
+  "quality_policy": {
+    "direct_primary_article": "high",
+    "published_trait_database": "high",
+    "official_species_profile_without_exposed_underlying_experiment": "medium",
+    "preliminary_research_report": "medium",
+    "external_congener_rows_enter_confirmatory_direct_coverage": false,
+    "source_lineage_deduplicated": true,
+    "direct_conflicts_resolved_or_excluded": true
+  },
+  "inference_policy": {
+    "join_key": "genus x axis x trait_name",
+    "minimum_species": 3,
+    "family_inference": false,
+    "global_fallback": false,
+    "reproductive_traits_interchangeable": false
+  }
+}
