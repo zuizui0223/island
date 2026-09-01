@@ -70,6 +70,7 @@ def validate_packet(
     expected_rejected_rows: int | None = None,
     contract: str = "wave48_multi_source_reproductive_checkpoint_v1",
     baseline_check_label: str = "immediate_wave47_baseline_pinned",
+    allow_completed_direct_axis_enrichment: bool = False,
 ) -> dict[str, Any]:
     if not packet_label or any(token in packet_label for token in ("/", "\\")):
         raise ValueError("packet_label must be a plain filename label")
@@ -103,6 +104,12 @@ def validate_packet(
     required_coverage = {"accepted_species", "axis", "quality"}
     if missing := required_coverage.difference(target.columns):
         raise ValueError(f"Wave48 target coverage missing columns: {sorted(missing)}")
+    if "trait_names" not in target.columns:
+        if allow_completed_direct_axis_enrichment:
+            raise ValueError(
+                "Wave48 completed-axis enrichment requires baseline trait_names"
+            )
+        target["trait_names"] = ""
     target_species = set(target["accepted_species"])
     if len(target) != expected_species * 3 or len(target_species) != expected_species:
         raise ValueError("Wave48 target denominator mismatch")
@@ -140,16 +147,47 @@ def validate_packet(
 
     direct_axes = direct[["accepted_species", "axis"]].drop_duplicates()
     direct_status = direct_axes.merge(
-        target[["accepted_species", "axis", "quality"]],
+        target[["accepted_species", "axis", "quality", "trait_names"]],
         on=["accepted_species", "axis"],
         how="left",
         validate="one_to_one",
     )
-    if direct_status["quality"].ne("").any():
-        duplicate = direct_status.loc[
-            direct_status["quality"].ne(""), ["accepted_species", "axis"]
-        ].to_dict("records")
-        raise ValueError(f"Wave48 tries to reacquire completed cells: {duplicate}")
+    completed = direct_status["quality"].ne("")
+    enriched_completed_axes = 0
+    if completed.any():
+        if not allow_completed_direct_axis_enrichment:
+            duplicate = direct_status.loc[
+                completed, ["accepted_species", "axis"]
+            ].to_dict("records")
+            raise ValueError(f"Wave48 tries to reacquire completed cells: {duplicate}")
+        packet_traits = (
+            direct.groupby(["accepted_species", "axis"])["trait_name"]
+            .agg(lambda values: set(map(str, values)))
+            .to_dict()
+        )
+        invalid: list[dict[str, str]] = []
+        for row in direct_status.loc[completed].itertuples(index=False):
+            # A direct row may replace a Low inference for the same trait.  For
+            # an already-direct Medium/High axis, only a genuinely new trait
+            # may enrich the species-trait ledger.
+            if str(row.quality) == "low":
+                continue
+            existing = {token for token in str(row.trait_names).split("|") if token}
+            incoming = packet_traits[(str(row.accepted_species), str(row.axis))]
+            if existing & incoming:
+                invalid.append(
+                    {
+                        "accepted_species": str(row.accepted_species),
+                        "axis": str(row.axis),
+                        "duplicate_traits": "|".join(sorted(existing & incoming)),
+                    }
+                )
+        if invalid:
+            raise ValueError(
+                "Wave48 tries to re-ingest completed direct species-traits: "
+                f"{invalid}"
+            )
+        enriched_completed_axes = int(completed.sum())
 
     evidence = pd.concat([direct, external], ignore_index=True)
     if set(review["record_id"]) != set(evidence["source_record_id"]):
@@ -312,6 +350,8 @@ def validate_packet(
                 direct[["accepted_species", "trait_name"]].drop_duplicates().shape[0]
             ),
             "new_direct_species_axis": int(direct_axes.shape[0]),
+            "new_direct_unresolved_species_axis": int((~completed).sum()),
+            "completed_direct_axis_enrichments": enriched_completed_axes,
             "new_external_rows": len(external),
             "new_external_species_trait": int(
                 external[["accepted_species", "trait_name"]].drop_duplicates().shape[0]
@@ -349,7 +389,11 @@ def validate_packet(
             "manual_browser_receipts_verified": True,
             "exact_quote_and_provenance_complete": True,
             "content_fingerprints_verified": True,
-            "direct_only_unresolved_cells": True,
+            "direct_cells_or_novel_axis_traits_only": True,
+            "completed_axis_enrichment_trait_specific": bool(
+                not enriched_completed_axes
+                or allow_completed_direct_axis_enrichment
+            ),
             "direct_inside_fixed_target": True,
             "external_outside_fixed_target": True,
             "strict_two_backbone_identity": True,

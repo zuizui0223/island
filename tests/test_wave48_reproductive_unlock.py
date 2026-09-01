@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 import island_v2.wave48_reproductive_checkpoint as checkpoint_module
 import island_v2.wave48_reproductive_overlay as overlay_module
@@ -241,6 +242,39 @@ def test_wave48_checkpoint_verifies_source_quote_and_two_backbone_identity(
     assert summary["evidence"]["new_direct_species_axis"] == 1
     assert summary["checks"]["retrieved_sources_verified"] is True
     assert summary["checks"]["content_fingerprints_verified"] is True
+
+    enriched_target = _coverage(species)
+    enriched = (
+        enriched_target["accepted_species"].eq("Pelargonium alpha")
+        & enriched_target["axis"].eq("reproductive_assurance")
+    )
+    enriched_target.loc[enriched, "quality"] = "high"
+    enriched_target.loc[enriched, "trait_names"] = "mating_system"
+    _write(enriched_target, target)
+    enriched_summary = checkpoint_module.validate_packet(
+        packet_dir=packet,
+        target_coverage_csv=target,
+        retrieved_source_dir=source_dir,
+        output_dir=tmp_path / "enriched-output",
+        output_json=tmp_path / "enriched-output" / "summary.json",
+        expected_species=2,
+        allow_completed_direct_axis_enrichment=True,
+    )
+    assert enriched_summary["evidence"]["new_direct_unresolved_species_axis"] == 0
+    assert enriched_summary["evidence"]["completed_direct_axis_enrichments"] == 1
+
+    enriched_target.loc[enriched, "trait_names"] = "self_incompatibility"
+    _write(enriched_target, target)
+    with pytest.raises(ValueError, match="completed direct species-traits"):
+        checkpoint_module.validate_packet(
+            packet_dir=packet,
+            target_coverage_csv=target,
+            retrieved_source_dir=source_dir,
+            output_dir=tmp_path / "duplicate-output",
+            output_json=tmp_path / "duplicate-output" / "summary.json",
+            expected_species=2,
+            allow_completed_direct_axis_enrichment=True,
+        )
 
 
 def test_wave48_incremental_rebuild_requires_trait_and_independent_lineages(
