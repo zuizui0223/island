@@ -1,0 +1,4 @@
+candidate_id,accepted_species,trait_name,source_url,decision,reason
+wave51-reject-peperomia-galapagensis,Peperomia galapagensis,autonomous_selfing_capacity,https://europepmc.org/articles/PMC3350705,rejected,WFO and POWO accept the name but GBIF treats it as a synonym of Peperomia inaequalifolia; the two-backbone accepted-name identity gate fails.
+wave51-reject-peperomia-pellucida,Peperomia pellucida,autonomous_selfing_capacity,https://www.cabi.org/isc/datasheet/39479,rejected,Self-pollinating or self-fertile wording without a pollinator-exclusion experiment cannot be mapped to autonomous selfing capacity.
+wave51-reject-figueiredo-2007-unspecified,Peperomia spp.,autonomous_selfing_capacity,https://doi.org/10.1055/s-2006-924543,rejected,The accessible abstract states that six remaining species are self-compatible and autogamous but does not identify those species; no species assignment was made.

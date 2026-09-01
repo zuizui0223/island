@@ -212,8 +212,45 @@ def validate_packet(
     ) != len(evidence):
         raise ValueError("Wave48 source manifest row accounting changed")
     source_receipts: dict[str, dict[str, Any]] = {}
+    manual_receipt_sources: list[str] = []
     for source in sources:
         path = retrieved_source_dir / source["retrieved_filename"]
+        if source.get("retrieval_mode") == "manual_browser_pinned":
+            manual = source.get("manual_receipt", {})
+            source_rows = evidence.loc[
+                evidence["source_lineage"].eq(source["source_lineage"])
+            ]
+            quote_fingerprints = sorted(set(source_rows["content_fingerprint"]))
+            declared_fingerprints = sorted(
+                str(value) for value in manual.get("reviewed_quote_fingerprints", [])
+            )
+            digest = str(source.get("retrieved_content_sha256", ""))
+            byte_count = int(manual.get("retrieved_bytes", 0))
+            page_numbers = manual.get("reviewed_page_numbers", [])
+            if (
+                not re.fullmatch(r"[0-9a-f]{64}", digest)
+                or byte_count <= 0
+                or declared_fingerprints != quote_fingerprints
+                or not page_numbers
+                or not all(isinstance(value, int) and value > 0 for value in page_numbers)
+                or not str(manual.get("retrieved_at_utc", "")).endswith("Z")
+                or not str(manual.get("official_catalog_url", "")).startswith("https://")
+                or manual.get("binary_available_in_ci") is not False
+                or path.exists()
+            ):
+                raise ValueError(
+                    f"Wave48 manual browser receipt is incomplete: {source['source_id']}"
+                )
+            source_receipts[source["source_id"]] = {
+                "bytes": byte_count,
+                "sha256": digest,
+                "retrieval_mode": "manual_browser_pinned",
+                "source_binary_present_in_run": False,
+                "reviewed_page_numbers": page_numbers,
+                "reviewed_quote_fingerprints": declared_fingerprints,
+            }
+            manual_receipt_sources.append(source["source_id"])
+            continue
         if not path.is_file():
             raise ValueError(f"Wave48 retrieved source missing: {path}")
         receipt: dict[str, Any] = {"bytes": path.stat().st_size, "sha256": _sha256(path)}
@@ -295,12 +332,21 @@ def validate_packet(
             manifest.get("query_accounting", {}).get("query_cost_usd", 0)
         ),
         "source_receipts": source_receipts,
+        "manual_browser_receipt_sources": manual_receipt_sources,
+        "source_binary_coverage": {
+            "verified_in_run": len(sources) - len(manual_receipt_sources),
+            "manual_receipt_only": len(manual_receipt_sources),
+        },
+        "limitations": {
+            "manual_source_binary_not_in_artifact": manual_receipt_sources,
+        },
         "checks": {
             "fixed_denominator": True,
             "formal_wave33_baseline_pinned": True,
             baseline_check_label: True,
             "all_new_rows_reviewed": True,
             "retrieved_sources_verified": True,
+            "manual_browser_receipts_verified": True,
             "exact_quote_and_provenance_complete": True,
             "content_fingerprints_verified": True,
             "direct_only_unresolved_cells": True,
