@@ -67,38 +67,45 @@ jobs:
           while IFS=$'\t' read -r url filename; do
             curl --location --fail --retry 3 --connect-timeout 30 --max-time 600 --user-agent 'island-trait-audit/1.0' "$url" --output "wave53-source/$filename"
           done
-      - name: Build strict WFO-GBIF identity audit
+      - name: Build pinned-WFO plus live-GBIF identity audit
         run: |
           rm -rf /tmp/wave53-packet
           cp -R data/v2/staging/traits/wave53_support_two_reproductive_unlock /tmp/wave53-packet
           python - <<'PY'
-          import html
           from pathlib import Path
           from urllib.parse import quote
           import pandas as pd
           import requests
+
           packet = Path('/tmp/wave53-packet')
           seeds = pd.read_csv(packet / 'wave53_identity_seed.csv', dtype=str).fillna('')
+          receipt = pd.read_csv(packet / 'wave53_wfo_identity_receipt.csv', dtype=str).fillna('')
+          assert not seeds.duplicated('accepted_species').any()
+          assert not receipt.duplicated('accepted_species').any()
+          assert set(seeds['accepted_species']) == set(receipt['accepted_species'])
+          joined = seeds.merge(receipt, on='accepted_species', suffixes=('_seed', '_receipt'), validate='one_to_one')
+          assert joined['wfo_match_id_seed'].eq(joined['wfo_match_id_receipt']).all()
+          assert joined['wfo_status_seed'].eq(joined['wfo_status_receipt']).all()
+          assert joined['wfo_rank_seed'].eq(joined['wfo_rank_receipt']).all()
+          assert joined['family_seed'].eq(joined['family_receipt']).all()
+          assert joined['wfo_status_receipt'].eq('accepted').all()
+          assert joined['wfo_rank_receipt'].eq('species').all()
+          assert joined['verification_mode'].eq('manual_browser_pinned').all()
+          assert joined['verified_at_utc'].str.endswith('Z').all()
+          assert joined['wfo_verification_url'].str.startswith('https://www.worldfloraonline.org/').all()
+
           rows=[]
           headers={'User-Agent':'island-trait-audit/1.0'}
-          for row in seeds.itertuples(index=False):
-              wfo_url = row.wfo_url.replace('https://www.worldfloraonline.org/', 'https://test.worldfloraonline.org/')
-              wfo = requests.get(wfo_url, headers=headers, timeout=60)
-              wfo.raise_for_status()
-              visible = html.unescape(wfo.text)
-              assert row.accepted_species in visible, (row.accepted_species, 'WFO exact-name mismatch')
-              assert row.family in visible, (row.accepted_species, 'WFO family mismatch')
-              assert row.wfo_match_id in wfo_url
-              assert row.wfo_status == 'accepted' and row.wfo_rank == 'species'
+          for row in joined.itertuples(index=False):
               r=requests.get('https://api.gbif.org/v1/species/match?name='+quote(row.accepted_species),headers=headers,timeout=60)
               r.raise_for_status(); g=r.json()
               assert g.get('matchType')=='EXACT', g
               assert g.get('status')=='ACCEPTED', g
               assert g.get('rank')=='SPECIES', g
               assert int(g.get('confidence',0))>=95, g
-              assert g.get('family')==row.family, g
+              assert g.get('family')==row.family_seed, g
               assert g.get('canonicalName')==row.accepted_species, g
-              rows.append({'accepted_species':row.accepted_species,'target_universe_status':row.target_universe_status,'family':row.family,'name_match_method':row.name_match_method,'wfo_match_id':row.wfo_match_id,'wfo_status':row.wfo_status,'wfo_rank':row.wfo_rank,'gbif_usage_key':str(g['usageKey']),'gbif_status':g['status'],'gbif_rank':g['rank'],'gbif_match_type':g['matchType'],'gbif_confidence':str(g['confidence']),'gbif_family':g['family'],'identity_note':row.identity_note+' WFO exact name/family rechecked via test.worldfloraonline.org.'})
+              rows.append({'accepted_species':row.accepted_species,'target_universe_status':row.target_universe_status,'family':row.family_seed,'name_match_method':row.name_match_method,'wfo_match_id':row.wfo_match_id_seed,'wfo_status':row.wfo_status_seed,'wfo_rank':row.wfo_rank_seed,'gbif_usage_key':str(g['usageKey']),'gbif_status':g['status'],'gbif_rank':g['rank'],'gbif_match_type':g['matchType'],'gbif_confidence':str(g['confidence']),'gbif_family':g['family'],'identity_note':row.identity_note+' WFO identity is manual-browser pinned because the WFO TLS chain is not trusted by the GitHub runner; GBIF identity is rechecked live.'})
           pd.DataFrame(rows).to_csv(packet/'wave53_identity_audit.csv',index=False)
           PY
       - name: Validate packet
