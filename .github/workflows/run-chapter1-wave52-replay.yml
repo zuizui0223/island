@@ -50,16 +50,19 @@ jobs:
           analyse = workflow['jobs']['analyse']
 
           persistent = dict(os.environ)
+          def expr(body):
+              return '$' + '{{ ' + body + ' }}'
+
           replacements = {
-              '${{ github.token }}': persistent.get('GH_TOKEN', ''),
-              '${{ github.run_id }}': persistent['REPLAY_RUN_ID'],
-              '${{ inputs.trait_run_id }}': persistent['REPLAY_TRAIT_RUN_ID'],
-              '${{ inputs.trait_artifact_name }}': persistent['REPLAY_TRAIT_ARTIFACT'],
-              '${{ inputs.species_axis_relative_path }}': persistent['REPLAY_TRAIT_RELATIVE'],
-              '${{ inputs.previous_run_id }}': persistent['REPLAY_PREVIOUS_RUN_ID'],
-              '${{ inputs.previous_artifact_name }}': persistent['REPLAY_PREVIOUS_ARTIFACT'],
-              '${{ inputs.previous_species_axis_relative_path }}': persistent['REPLAY_PREVIOUS_RELATIVE'],
-              '${{ inputs.allow_evidence_revision }}': persistent['REPLAY_ALLOW_REVISION'],
+              expr('github.token'): persistent.get('GH_TOKEN', ''),
+              expr('github.run_id'): persistent['REPLAY_RUN_ID'],
+              expr('inputs.trait_run_id'): persistent['REPLAY_TRAIT_RUN_ID'],
+              expr('inputs.trait_artifact_name'): persistent['REPLAY_TRAIT_ARTIFACT'],
+              expr('inputs.species_axis_relative_path'): persistent['REPLAY_TRAIT_RELATIVE'],
+              expr('inputs.previous_run_id'): persistent['REPLAY_PREVIOUS_RUN_ID'],
+              expr('inputs.previous_artifact_name'): persistent['REPLAY_PREVIOUS_ARTIFACT'],
+              expr('inputs.previous_species_axis_relative_path'): persistent['REPLAY_PREVIOUS_RELATIVE'],
+              expr('inputs.allow_evidence_revision'): persistent['REPLAY_ALLOW_REVISION'],
           }
 
           def resolve(value):
@@ -130,7 +133,7 @@ jobs:
               ingest_env(output_file, outputs)
               if step.get('id'):
                   for out_name, out_value in outputs.items():
-                      token = '${{ steps.%s.outputs.%s }}' % (step['id'], out_name)
+                      token = expr(f"steps.{step['id']}.outputs.{out_name}")
                       step_outputs[token] = out_value
 
           print('Fixed progressive analyse run-block replay completed successfully.')
