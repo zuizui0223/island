@@ -1,0 +1,2 @@
+accepted_species,target_universe_status,family,name_match_method,wfo_match_id,wfo_status,wfo_rank,wfo_url,identity_note
+Schoenoplectiella juncoides,fixed_target,Cyperaceae,strict_wfo_gbif_two_backbone,wfo-0000526517,accepted,species,https://www.worldfloraonline.org/taxon/wfo-0000526517,WFO 2026 accepts Schoenoplectiella juncoides as a species in Cyperaceae; the fixed Wave53 coverage contains the exact accepted name and the formal run regenerates and checks the GBIF exact match.
