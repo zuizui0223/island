@@ -119,6 +119,26 @@ def test_support_gate_fails_closed_without_two_supported_responses():
     assert omnibus["status"] == "not_testable"
 
 
+def test_within_fit_accepts_positive_information_weights():
+    data = _long_family(interactions={"north": -0.4})
+    data["analysis_weight"] = np.where(data["island_id"].str.endswith("0"), 0.5, 1.0)
+    coefficients, omnibus = _fit_within(
+        data,
+        AREA_CONFIG,
+        family="plant",
+        source_mode="not_applicable",
+        stratum="all_native",
+        context="north",
+        context_column="context",
+        context_layer="analysis_regime",
+        support_tier="confirmatory",
+        threshold=50,
+        weight_column="analysis_weight",
+    )
+    assert omnibus["status"] == "fit"
+    assert coefficients["distance_x_area_estimate"].lt(0).all()
+
+
 def test_lineage_family_uses_only_predeclared_scope_and_matching():
     lineage = pd.DataFrame(
         [
@@ -150,9 +170,7 @@ def test_lineage_family_uses_only_predeclared_scope_and_matching():
             }
         }
     }
-    families = build_families(
-        pd.DataFrame(), lineage, {"branch_axes": {}}, area_config
-    )
+    families = build_families(pd.DataFrame(), lineage, {"branch_axes": {}}, area_config)
     result = families["source_lineage_broad"]
     assert len(result) == 2
     assert set(result["response"]) == {"entry_enrichment", "loading_increment"}
