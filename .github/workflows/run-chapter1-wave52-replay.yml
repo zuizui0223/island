@@ -1,0 +1,145 @@
+name: Run Chapter 1 Wave52 fixed-workflow replay
+
+on:
+  push:
+    branches: [ch1-wave52-reanalysis]
+    paths:
+      - ".github/workflows/run-chapter1-wave52-replay.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPLAY_TRAIT_RUN_ID: "33470056127"
+      REPLAY_TRAIT_ARTIFACT: "wave52-support-two-reproductive-unlock-33470056127"
+      REPLAY_TRAIT_RELATIVE: "wave52-trait-coverage/wave52_species_axis_coverage.csv.gz"
+      REPLAY_PREVIOUS_RUN_ID: "33467582475"
+      REPLAY_PREVIOUS_ARTIFACT: "wave51-peperomia-reproductive-unlock-33467582475"
+      REPLAY_PREVIOUS_RELATIVE: "wave51-trait-coverage/wave51_species_axis_coverage.csv.gz"
+      REPLAY_ALLOW_REVISION: "false"
+      REPLAY_RUN_ID: ${{ github.run_id }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Replay fixed progressive analyse run-blocks
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          import subprocess
+          import tempfile
+          from pathlib import Path
+
+          import yaml
+
+          workflow_path = Path('.github/workflows/run-chapter1-progressive-trait-analysis.yml')
+          workflow = yaml.safe_load(workflow_path.read_text())
+          analyse = workflow['jobs']['analyse']
+
+          persistent = dict(os.environ)
+          replacements = {
+              '${{ github.token }}': persistent.get('GH_TOKEN', ''),
+              '${{ github.run_id }}': persistent['REPLAY_RUN_ID'],
+              '${{ inputs.trait_run_id }}': persistent['REPLAY_TRAIT_RUN_ID'],
+              '${{ inputs.trait_artifact_name }}': persistent['REPLAY_TRAIT_ARTIFACT'],
+              '${{ inputs.species_axis_relative_path }}': persistent['REPLAY_TRAIT_RELATIVE'],
+              '${{ inputs.previous_run_id }}': persistent['REPLAY_PREVIOUS_RUN_ID'],
+              '${{ inputs.previous_artifact_name }}': persistent['REPLAY_PREVIOUS_ARTIFACT'],
+              '${{ inputs.previous_species_axis_relative_path }}': persistent['REPLAY_PREVIOUS_RELATIVE'],
+              '${{ inputs.allow_evidence_revision }}': persistent['REPLAY_ALLOW_REVISION'],
+          }
+
+          def resolve(value):
+              text = str(value)
+              for old, new in replacements.items():
+                  text = text.replace(old, new)
+              return text
+
+          for key, value in (analyse.get('env') or {}).items():
+              persistent[str(key)] = resolve(value)
+
+          env_file = Path(tempfile.mkstemp(prefix='wave52-github-env-')[1])
+          output_file = Path(tempfile.mkstemp(prefix='wave52-github-output-')[1])
+          persistent['GITHUB_ENV'] = str(env_file)
+          persistent['GITHUB_OUTPUT'] = str(output_file)
+
+          def ingest_env(path, target):
+              if not path.exists():
+                  return
+              lines = path.read_text().splitlines()
+              i = 0
+              while i < len(lines):
+                  line = lines[i]
+                  if '<<' in line:
+                      name, delim = line.split('<<', 1)
+                      i += 1
+                      values = []
+                      while i < len(lines) and lines[i] != delim:
+                          values.append(lines[i])
+                          i += 1
+                      target[name] = '\n'.join(values)
+                  elif '=' in line:
+                      name, value = line.split('=', 1)
+                      target[name] = value
+                  i += 1
+              path.write_text('')
+
+          step_outputs = {}
+          for index, step in enumerate(analyse.get('steps', []), start=1):
+              if 'run' not in step:
+                  print(f"Skipping action step {index}: {step.get('uses', step.get('name', 'uses'))}")
+                  continue
+
+              name = step.get('name', f'run-{index}')
+              run_env = dict(persistent)
+              for key, value in (step.get('env') or {}).items():
+                  run_env[str(key)] = resolve(value)
+              run_env['GITHUB_ENV'] = str(env_file)
+              run_env['GITHUB_OUTPUT'] = str(output_file)
+
+              script = resolve(step['run'])
+              for output_key, output_value in step_outputs.items():
+                  script = script.replace(output_key, output_value)
+                  for env_key, env_value in list(run_env.items()):
+                      run_env[env_key] = str(env_value).replace(output_key, output_value)
+
+              print(f"::group::{name}", flush=True)
+              subprocess.run(
+                  ['bash', '-euo', 'pipefail', '-c', script],
+                  check=True,
+                  cwd=os.getcwd(),
+                  env=run_env,
+              )
+              print('::endgroup::', flush=True)
+
+              ingest_env(env_file, persistent)
+              outputs = {}
+              ingest_env(output_file, outputs)
+              if step.get('id'):
+                  for out_name, out_value in outputs.items():
+                      token = '${{ steps.%s.outputs.%s }}' % (step['id'], out_name)
+                      step_outputs[token] = out_value
+
+          print('Fixed progressive analyse run-block replay completed successfully.')
+          PY
+
+      - name: Upload Wave52 progressive result
+        uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-progressive-wave52-${{ github.run_id }}
+          path: /tmp/progressive
+          if-no-files-found: error
+          retention-days: 90
