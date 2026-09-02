@@ -23,7 +23,9 @@ jobs:
       REPLAY_PREVIOUS_RUN_ID: "33467582475"
       REPLAY_PREVIOUS_ARTIFACT: "wave51-peperomia-reproductive-unlock-33467582475"
       REPLAY_PREVIOUS_RELATIVE: "wave51-trait-coverage/wave51_species_axis_coverage.csv.gz"
-      REPLAY_ALLOW_REVISION: "false"
+      # Explicitly admitted only after run 33587170733 audited the single
+      # high->high Helichrysum italicum reproductive-assurance enrichment.
+      REPLAY_ALLOW_REVISION: "true"
       REPLAY_RUN_ID: ${{ github.run_id }}
 
     steps:
