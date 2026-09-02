@@ -1,0 +1,82 @@
+name: Audit Chapter 1 Wave51 to Wave52 snapshot transition
+
+on:
+  push:
+    branches: [ch1-wave52-reanalysis]
+    paths:
+      - ".github/workflows/audit-chapter1-wave52-transition.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_RUN: "33470056127"
+      CURRENT_ARTIFACT: "wave52-support-two-reproductive-unlock-33470056127"
+      PREVIOUS_RUN: "33467582475"
+      PREVIOUS_ARTIFACT: "wave51-peperomia-reproductive-unlock-33467582475"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Download formal Wave51 and Wave52 coverage
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wave52-audit/{previous,current,out}
+          gh run download "$PREVIOUS_RUN" -n "$PREVIOUS_ARTIFACT" -D /tmp/wave52-audit/previous
+          gh run download "$CURRENT_RUN" -n "$CURRENT_ARTIFACT" -D /tmp/wave52-audit/current
+          prev=$(find /tmp/wave52-audit/previous -type f -name wave51_species_axis_coverage.csv.gz -print -quit)
+          curr=$(find /tmp/wave52-audit/current -type f -name wave52_species_axis_coverage.csv.gz -print -quit)
+          test -s "$prev"
+          test -s "$curr"
+          echo "PREV=$prev" >> "$GITHUB_ENV"
+          echo "CURR=$curr" >> "$GITHUB_ENV"
+      - name: Audit fail-closed transition classes
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import pandas as pd
+          from island_v2.chapter1_trait_snapshot import validate_species_axis, transition_audit
+
+          prev = validate_species_axis(pd.read_csv(os.environ['PREV'], dtype=str).fillna(''), expected_species=106295)
+          curr = validate_species_axis(pd.read_csv(os.environ['CURR'], dtype=str).fillna(''), expected_species=106295)
+          transition, counts = transition_audit(prev, curr)
+          transition.to_csv('/tmp/wave52-audit/out/wave51_wave52_transition.csv.gz', index=False, compression='gzip')
+          Path('/tmp/wave52-audit/out/transition_counts.json').write_text(json.dumps(counts, indent=2, sort_keys=True))
+          print('TRANSITION_COUNTS=' + json.dumps(counts, sort_keys=True))
+
+          forbidden = transition[transition['transition'].isin(['became_unresolved','quality_downgrade','value_revision'])].copy()
+          print('FORBIDDEN_TOTAL=' + str(len(forbidden)))
+          if len(forbidden):
+              print('FORBIDDEN_BY_CLASS_AXIS=' + forbidden.groupby(['transition','axis']).size().to_json())
+              cols = [
+                  'accepted_species','axis','transition',
+                  'quality_previous','quality_current',
+                  'trait_composition_previous','trait_composition_current',
+                  'trait_names_previous','trait_names_current',
+                  'source_groups_previous','source_groups_current',
+                  'source_lineages_previous','source_lineages_current',
+              ]
+              present = [c for c in cols if c in forbidden.columns]
+              print('FORBIDDEN_ROWS_BEGIN')
+              print(forbidden[present].to_csv(index=False))
+              print('FORBIDDEN_ROWS_END')
+          PY
+      - name: Upload transition audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-wave51-wave52-transition-audit-${{ github.run_id }}
+          path: /tmp/wave52-audit/out
+          if-no-files-found: error
+          retention-days: 90
