@@ -8,6 +8,13 @@ on:
       - "src/island_v2/wave53_incremental_all_evidence.py"
       - "src/island_v2/wave53_reproductive_overlay.py"
       - "data/v2/staging/traits/wave53_support_two_reproductive_unlock/**"
+  pull_request:
+    paths:
+      - ".github/workflows/build-wave53-support-two-reproductive-unlock-v2.yml"
+      - "src/island_v2/wave53_reproductive_checkpoint.py"
+      - "src/island_v2/wave53_incremental_all_evidence.py"
+      - "src/island_v2/wave53_reproductive_overlay.py"
+      - "data/v2/staging/traits/wave53_support_two_reproductive_unlock/**"
   workflow_dispatch:
 
 permissions:
