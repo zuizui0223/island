@@ -1,0 +1,3 @@
+accepted_species,wfo_match_id,wfo_status,wfo_rank,family,wfo_verification_url,verified_at_utc,verification_mode,verification_note
+Gomphrena serrata,wfo-0000706267,accepted,species,Amaranthaceae,https://www.worldfloraonline.org/search?query=Gomphrena+serrata,2026-09-02T06:45:00Z,manual_browser_pinned,"WFO 2026 search returns Gomphrena serrata L. as Accepted Name, Rank Species, Family Amaranthaceae; exact taxon id wfo-0000706267 independently matched to the WFO taxon record."
+Marcgravia longifolia,wfo-0001078320,accepted,species,Marcgraviaceae,https://www.worldfloraonline.org/taxon/wfo-0001078320,2026-09-02T06:45:00Z,manual_browser_pinned,"WFO 2026 taxon page lists Marcgravia longifolia J.F.Macbr. in Marcgraviaceae, with exact taxon id wfo-0001078320."
