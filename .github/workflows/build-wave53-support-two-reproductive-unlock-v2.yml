@@ -125,7 +125,7 @@ jobs:
           s=json.loads(Path('wave53-trait-coverage/wave53_coverage_summary.json').read_text())
           a=json.loads(Path('wave53-all-evidence-audit/all_evidence_trait_coverage_summary.json').read_text())
           assert a['new_eligible_rules']==['Gomphrena x self_incompatibility','Marcgravia x self_incompatibility'], a
-          assert a['new_validated_low_species_trait']==48, a
+          assert a['new_validated_low_species_trait']==49, a
           assert a['invalidated_prior_rules']==[], a
           assert s['delta']['gross_gain_species_axis']==49, s
           assert s['delta']['loss_species_axis']==0, s
