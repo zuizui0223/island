@@ -1,0 +1,3 @@
+accepted_species,target_universe_status,family,name_match_method,wfo_match_id,wfo_status,wfo_rank,wfo_url,identity_note
+Gomphrena serrata,fixed_target,Amaranthaceae,strict_wfo_gbif_two_backbone,wfo-0000706267,accepted,species,https://www.worldfloraonline.org/taxon/wfo-0000706267,WFO 2026 accepts the exact species in Amaranthaceae; GBIF exact match is regenerated and checked in the formal run.
+Marcgravia longifolia,external_congener_only,Marcgraviaceae,strict_wfo_gbif_two_backbone,wfo-0001078320,accepted,species,https://www.worldfloraonline.org/taxon/wfo-0001078320,WFO 2026 accepts the exact species in Marcgraviaceae; it is outside the fixed island target and is training support only. GBIF exact match is regenerated and checked in the formal run.
