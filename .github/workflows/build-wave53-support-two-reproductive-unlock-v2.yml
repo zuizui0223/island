@@ -1,0 +1,132 @@
+name: Build Wave53 support-two reproductive unlock v2
+
+on:
+  push:
+    paths:
+      - ".github/workflows/build-wave53-support-two-reproductive-unlock-v2.yml"
+      - "src/island_v2/wave53_reproductive_checkpoint.py"
+      - "src/island_v2/wave53_incremental_all_evidence.py"
+      - "src/island_v2/wave53_reproductive_overlay.py"
+      - "data/v2/staging/traits/wave53_support_two_reproductive_unlock/**"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  build-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      WAVE52_RUN_ID: "33470056127"
+      WAVE52_ARTIFACT: "wave52-support-two-reproductive-unlock-33470056127"
+      WAVE52_ARTIFACT_ID: "9786227115"
+      WAVE52_ARTIFACT_DIGEST: "sha256:a6dcf159e79a678a35d643e6f72e15afffe979b801d411005d28c286bf079c89"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Focused tests and lint
+        run: |
+          pytest -q tests/test_wave53_support_two_reproductive_unlock.py
+          ruff check src/island_v2/wave53_reproductive_checkpoint.py src/island_v2/wave53_incremental_all_evidence.py src/island_v2/wave53_reproductive_overlay.py tests/test_wave53_support_two_reproductive_unlock.py
+      - name: Download pinned Wave52 artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          meta=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$WAVE52_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$meta")" = "$WAVE52_ARTIFACT"
+          test "$(jq -r .expired <<<"$meta")" = false
+          test "$(jq -r .digest <<<"$meta")" = "$WAVE52_ARTIFACT_DIGEST"
+          test "$(gh run view "$WAVE52_RUN_ID" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+          mkdir -p /tmp/wave52
+          gh run download "$WAVE52_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$WAVE52_ARTIFACT" --dir /tmp/wave52
+          echo "WAVE52_COVERAGE=$(find /tmp/wave52 -type f -path '*/wave52-trait-coverage/wave52_species_axis_coverage.csv.gz' -print -quit)" >> "$GITHUB_ENV"
+          echo "WAVE52_RULES=$(find /tmp/wave52 -type f -path '*/wave52-all-evidence-audit/trait_specific_genus_rule_audit.csv.gz' -print -quit)" >> "$GITHUB_ENV"
+          echo "WAVE52_DIRECT=$(find /tmp/wave52 -type f -path '*/wave52-all-evidence-audit/resolved_direct_species_trait.csv.gz' -print -quit)" >> "$GITHUB_ENV"
+          echo "WAVE52_EXTERNAL=$(find /tmp/wave52 -type f -path '*/wave52-all-evidence-audit/external_congener_resolved_species_trait.csv.gz' -print -quit)" >> "$GITHUB_ENV"
+          echo "WAVE52_CONFLICTS=$(find /tmp/wave52 -type f -path '*/wave52-all-evidence-audit/external_congener_source_lineage_conflicts.csv.gz' -print -quit)" >> "$GITHUB_ENV"
+          echo "WAVE52_LOW=$(find /tmp/wave52 -type f -path '*/wave52-all-evidence-audit/rebuilt_all_evidence_validated_low.csv.gz' -print -quit)" >> "$GITHUB_ENV"
+      - name: Retrieve evidence pages
+        run: |
+          set -euo pipefail
+          mkdir -p wave53-source
+          jq -r '.sources[] | [.retrieval_url, .retrieved_filename] | @tsv' data/v2/staging/traits/wave53_support_two_reproductive_unlock/source_manifest.json |
+          while IFS=$'\t' read -r url filename; do
+            curl --location --fail --retry 3 --connect-timeout 30 --max-time 600 --user-agent 'island-trait-audit/1.0' "$url" --output "wave53-source/$filename"
+          done
+      - name: Build strict WFO-GBIF identity audit
+        run: |
+          rm -rf /tmp/wave53-packet
+          cp -R data/v2/staging/traits/wave53_support_two_reproductive_unlock /tmp/wave53-packet
+          python - <<'PY'
+          import html
+          from pathlib import Path
+          from urllib.parse import quote
+          import pandas as pd
+          import requests
+          packet = Path('/tmp/wave53-packet')
+          seeds = pd.read_csv(packet / 'wave53_identity_seed.csv', dtype=str).fillna('')
+          rows=[]
+          headers={'User-Agent':'island-trait-audit/1.0'}
+          for row in seeds.itertuples(index=False):
+              wfo_url = row.wfo_url.replace('https://www.worldfloraonline.org/', 'https://test.worldfloraonline.org/')
+              wfo = requests.get(wfo_url, headers=headers, timeout=60)
+              wfo.raise_for_status()
+              visible = html.unescape(wfo.text)
+              assert row.accepted_species in visible, (row.accepted_species, 'WFO exact-name mismatch')
+              assert row.family in visible, (row.accepted_species, 'WFO family mismatch')
+              assert row.wfo_match_id in wfo_url
+              assert row.wfo_status == 'accepted' and row.wfo_rank == 'species'
+              r=requests.get('https://api.gbif.org/v1/species/match?name='+quote(row.accepted_species),headers=headers,timeout=60)
+              r.raise_for_status(); g=r.json()
+              assert g.get('matchType')=='EXACT', g
+              assert g.get('status')=='ACCEPTED', g
+              assert g.get('rank')=='SPECIES', g
+              assert int(g.get('confidence',0))>=95, g
+              assert g.get('family')==row.family, g
+              assert g.get('canonicalName')==row.accepted_species, g
+              rows.append({'accepted_species':row.accepted_species,'target_universe_status':row.target_universe_status,'family':row.family,'name_match_method':row.name_match_method,'wfo_match_id':row.wfo_match_id,'wfo_status':row.wfo_status,'wfo_rank':row.wfo_rank,'gbif_usage_key':str(g['usageKey']),'gbif_status':g['status'],'gbif_rank':g['rank'],'gbif_match_type':g['matchType'],'gbif_confidence':str(g['confidence']),'gbif_family':g['family'],'identity_note':row.identity_note+' WFO exact name/family rechecked via test.worldfloraonline.org.'})
+          pd.DataFrame(rows).to_csv(packet/'wave53_identity_audit.csv',index=False)
+          PY
+      - name: Validate packet
+        run: |
+          python -m island_v2.wave53_reproductive_checkpoint --packet-dir /tmp/wave53-packet --target-coverage-csv "$WAVE52_COVERAGE" --retrieved-source-dir wave53-source --output-dir wave53-checkpoint --output-json wave53-checkpoint/wave53_checkpoint_summary.json --expected-species 106295
+      - name: Rebuild touched rules
+        run: |
+          python -m island_v2.wave53_incremental_all_evidence --master-csv data/v2/staging/gbif/collected/island_taxa.csv --ontology-yaml config/trait_ontology.yml --baseline-coverage-csv "$WAVE52_COVERAGE" --previous-rule-audit-csv "$WAVE52_RULES" --previous-resolved-direct-csv "$WAVE52_DIRECT" --previous-external-resolved-csv "$WAVE52_EXTERNAL" --previous-external-conflicts-csv "$WAVE52_CONFLICTS" --previous-rebuilt-low-csv "$WAVE52_LOW" --new-direct-evidence-csv wave53-checkpoint/wave53_reviewed_direct_evidence.csv.gz --new-external-evidence-csv wave53-checkpoint/wave53_external_congener_evidence.csv.gz --output-dir wave53-all-evidence-audit --expected-species 106295
+      - name: Build lossless overlay
+        run: |
+          python -m island_v2.wave53_reproductive_overlay --baseline-csv "$WAVE52_COVERAGE" --previous-rule-audit-csv "$WAVE52_RULES" --all-evidence-dir wave53-all-evidence-audit --direct-evidence-csv wave53-checkpoint/wave53_reviewed_direct_evidence.csv.gz --external-evidence-csv wave53-checkpoint/wave53_external_congener_evidence.csv.gz --checkpoint-summary-json wave53-checkpoint/wave53_checkpoint_summary.json --output-dir wave53-trait-coverage --expected-species 106295
+      - name: Verify exact Wave53 gain
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          s=json.loads(Path('wave53-trait-coverage/wave53_coverage_summary.json').read_text())
+          a=json.loads(Path('wave53-all-evidence-audit/all_evidence_trait_coverage_summary.json').read_text())
+          assert a['new_eligible_rules']==['Gomphrena x self_incompatibility','Marcgravia x self_incompatibility'], a
+          assert a['new_validated_low_species_trait']==48, a
+          assert a['invalidated_prior_rules']==[], a
+          assert s['delta']['gross_gain_species_axis']==49, s
+          assert s['delta']['loss_species_axis']==0, s
+          assert s['delta']['action_counts']=={'direct_fill':1,'validated_low_fill':48}, s
+          assert s['after']['filled_species_axis']==222375, s
+          assert s['after']['by_axis']['reproductive_assurance']['filled_species']==48260, s
+          assert all(s['checks'].values()), s['checks']
+          print(json.dumps({'wave53_gain':49,'filled':222375,'reproduction':48260},indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wave53-support-two-reproductive-unlock-v2-${{ github.run_id }}
+          path: |
+            wave53-checkpoint/
+            wave53-all-evidence-audit/
+            wave53-trait-coverage/
+          retention-days: 90
+          if-no-files-found: error
