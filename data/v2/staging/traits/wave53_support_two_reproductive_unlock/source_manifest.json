@@ -45,7 +45,7 @@
     },
     {
       "source_id": "pmc-marcgravia-longifolia-2025",
-      "retrieval_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC12374130/fullTextXML",
+      "retrieval_url": "https://www.ncbi.nlm.nih.gov/research/bionlp/RESTful/pmcoa.cgi/BioC_xml/PMC12374130/unicode",
       "retrieved_filename": "pmc_marcgravia_longifolia.html",
       "source_lineage": "doi:10.1002/ece3.72050",
       "content_anchor_sha256": "d5384490483b3e1f6cefc4320039c33bf5b0905ab6f474246724279c99ad0d82",
