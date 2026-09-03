@@ -132,6 +132,26 @@ def _normalize_direct_value(trait_name: object, value: object) -> str:
     trait = _text(trait_name)
     raw = _text(value)
     folded = raw.casefold()
+    if trait in {"inflorescence_display"}:
+        if raw.startswith("[") and raw.endswith("]"):
+            try:
+                values = json.loads(raw)
+            except json.JSONDecodeError:
+                return ""
+            if isinstance(values, list):
+                # Inflorescence mode may provide multi-value arrays.
+                # Keep strict single-state ontology entries only.
+                normalized = {_normalize_direct_value(trait, item) for item in values}
+                normalized.discard("")
+                if len(normalized) == 1:
+                    return next(iter(normalized))
+                return ""
+            if isinstance(values, str):
+                raw = values
+                folded = raw.casefold()
+        elif isinstance(value, str):
+            raw = value.replace("|", ",")
+            folded = raw.casefold()
     if trait == "flower_primary_color":
         if folded in {
             "white",

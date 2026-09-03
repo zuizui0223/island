@@ -480,6 +480,12 @@ def test_direct_value_normalization_is_ontology_safe_and_conservative():
     assert cascade._normalize_direct_value("self_incompatibility", "self_compatible") == "SC"
     assert cascade._normalize_direct_value("sex_system", "dioecious|unisexual") == "dioecious"
     assert cascade._normalize_direct_value("sex_system", "unisexual") == ""
+    assert cascade._normalize_direct_value(
+        "inflorescence_display", '["few_flowered","raceme_spike_panicle"]'
+    ) == ""
+    assert cascade._normalize_direct_value("inflorescence_display", "[\"composite_display\"]") == (
+        "composite_display"
+    )
 
 
 def test_coverage_summary_separates_rectangular_presence_from_grounded_fill(tmp_path):
