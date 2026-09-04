@@ -1,0 +1,156 @@
+# PR138 Palearctic reproductive-restriction + selection/leverage checkpoint
+
+Status: **robustness / claim-boundary checkpoint; not a new primary estimand**.
+
+Frozen restricted-IPW run: `32980009101`  
+Artifact: `pr138-palearctic-restricted-ipw-32980009101`  
+Digest: `sha256:668cda94b88a46366b3235440c41d7373f1fdcfbce8099a521c7e625ec2f3c98`
+
+Exhaustive block-deletion implementation:
+`src/island_v2/chapter1_pr138_palearctic_restricted_block_deletion.py`
+
+The exhaustive extension was reproduced deterministically from the same frozen restricted source-adjusted inputs and the same model functions used by the successful restricted-IPW run. Its dedicated Actions workflow is staged separately; no new causal estimand is introduced.
+
+This checkpoint combines four stressors without redefining the response:
+
+1. external GIFT mainland source-pool subtraction;
+2. exact reproductive restrictions (`si_only`, `predominantly_outcrossing`, `si_and_predominantly_outcrossing`);
+3. within-Palearctic outcome-blind observation-selection IPW;
+4. exhaustive leave-one-spatial-block-out deletion across all 77 Palearctic blocks, including the preidentified Aegean/eastern-Mediterranean block `lat12_lon20`.
+
+The response is source-adjusted `attraction_shift = (-large_bee_like + generalized_accessible) / 2`. Propensity models use only score availability plus frozen measured distance, area and climate covariates. Syndrome-score values, fitted ecological effect sizes and p-values do not enter propensity fitting or block selection.
+
+## 1. Full Palearctic realm
+
+All 72 full-Palearctic fits have a positive distance slope.
+
+Across four source definitions × two floristic strata:
+
+| Restriction | Unweighted | IPW 0.05 | IPW 0.025 |
+|---|---:|---:|---:|
+| SI only | 8/8 FDR-supported | 8/8 | 8/8 |
+| Predominantly outcrossing | 8/8 | 4/8 | 0/8 |
+| SI AND predominantly outcrossing | 4/8 | 8/8 | 8/8 |
+
+Effect ranges remain positive:
+
+- SI only: `+0.064 to +0.095` across all selection specifications;
+- predominantly outcrossing: `+0.034 to +0.061`;
+- SI AND predominantly outcrossing: `+0.052 to +0.079`.
+
+The exact SI subset is therefore the strongest restriction for asking whether measured selfing capacity is necessary for the Palearctic floral response. The predominantly-outcrossing-only subset is substantially more sensitive to observation weighting and is not used as the sole mechanistic discriminator.
+
+## 2. Preidentified Aegean deletion + IPW
+
+After deleting `lat12_lon20`, **all 72 fitted slopes remain positive**, but inferential support changes sharply.
+
+Across four source definitions × two floristic strata:
+
+| Restriction | Unweighted | IPW 0.05 | IPW 0.025 |
+|---|---:|---:|---:|
+| SI only | 8/8 FDR-supported | 0/8 | 0/8 |
+| Predominantly outcrossing | 0/8 | 0/8 | 0/8 |
+| SI AND predominantly outcrossing | 8/8 | 0/8 | 0/8 |
+
+The weighted estimates attenuate rather than reverse:
+
+- SI only: unweighted `+0.070 to +0.082`; IPW `+0.017 to +0.037`;
+- predominantly outcrossing: unweighted `+0.042 to +0.055`; IPW `+0.007 to +0.028`;
+- SI AND predominantly outcrossing: unweighted `+0.075 to +0.086`; IPW `+0.013 to +0.041`.
+
+Under IPW, minimum effective-sample fractions are roughly `0.27–0.51`, with realized maximum weights `3.38–6.38` after Aegean deletion.
+
+This establishes a real combined leverage/selection sensitivity, but by itself does not show that the Aegean block creates the underlying positive response.
+
+## 3. Exhaustive 77-block deletion: does one block create the restricted signal?
+
+No. Across the unweighted source-adjusted exact-restriction analysis, **all 1,848/1,848 leave-one-block-out coefficients are positive** (`77 blocks × 3 restrictions × 4 source definitions × 2 strata`).
+
+### Unweighted spatial persistence
+
+| Restriction | Stratum | FDR-supported source/block scenarios | All 77 deletions positive? | All 4 source modes supported in how many blocks? |
+|---|---|---:|---:|---:|
+| SI only | all-native | 308/308 | yes | 77/77 |
+| SI only | native-nonendemic | 308/308 | yes | 77/77 |
+| predominantly outcrossing | all-native | 296/308 | yes | 72/77 |
+| predominantly outcrossing | native-nonendemic | 304/308 | yes | 76/77 |
+| SI AND predominantly outcrossing | all-native | 14/308 | yes | 2/77 |
+| SI AND predominantly outcrossing | native-nonendemic | 302/308 | yes | 74/77 |
+
+The sparse SI+outcrossing all-native subset is therefore directionally stable but inferentially weak. It should not be treated as the decisive restriction.
+
+For the strongest SI-only discriminator, deletion estimates never approach zero closely enough to change sign:
+
+- all-native minimum leave-one-block estimate: `+0.0590`;
+- native-nonendemic minimum: `+0.0501`.
+
+In unweighted coefficient-influence ranking, `lat12_lon20` is influential but not unique: it ranks **2nd of 77** by mean absolute coefficient change; `lat12_lon15` ranks first.
+
+Thus the positive SI-restricted Palearctic response is spatially distributed rather than generated by one block.
+
+## 4. Exhaustive block deletion + recomputed IPW
+
+The sharper result comes from recomputing the outcome-blind propensity model separately after each block deletion.
+
+### SI only
+
+For each floristic stratum and each IPW specification there are `77 blocks × 4 source definitions = 308` scenarios.
+
+| Stratum | Selection mode | Positive | FDR-supported |
+|---|---|---:|---:|
+| all-native | IPW 0.05 | 308/308 | 304/308 |
+| all-native | IPW 0.025 | 308/308 | 304/308 |
+| native-nonendemic | IPW 0.05 | 308/308 | 304/308 |
+| native-nonendemic | IPW 0.025 | 308/308 | 304/308 |
+
+**All 16 unsupported SI-only scenarios are the same deletion: `lat12_lon20`.** They are exactly the four source definitions × two strata × two IPW modes for the preidentified Aegean/eastern-Mediterranean block.
+
+Equivalently, for **each of the other 76/77 block deletions**, SI-only remains FDR-supported under:
+
+- all four source-pool definitions;
+- both primary floristic strata;
+- both IPW specifications.
+
+This changes the interpretation of the Aegean stress: it is a specific interaction between that influential block and observation-selection reweighting, not evidence that the SI-restricted positive effect exists only because of that block.
+
+### SI AND predominantly outcrossing
+
+The intersection subset remains directionally positive in every deletion and is mostly IPW-supported:
+
+- all-native: 300/308 supported under IPW 0.05; 281/308 under IPW 0.025;
+- native-nonendemic: 300/308 under IPW 0.05; 301/308 under IPW 0.025.
+
+Aegean is the largest repeated failure point, but several other blocks also reduce support in this smaller subset. This is consistent with lower support rather than a uniquely Aegean-generated direction.
+
+### Predominantly outcrossing alone
+
+All coefficients remain positive, but this subset is observation-selection sensitive even without relying on one deletion:
+
+- all-native: 269/308 supported under IPW 0.05 but only 7/308 under IPW 0.025;
+- native-nonendemic: 15/308 under IPW 0.05 and 4/308 under IPW 0.025.
+
+Therefore the outcrossing-only subset is useful as a directional sensitivity, not as the strongest inferential basis for rejecting the measured-selfing explanation.
+
+## 5. Updated interpretation
+
+Supported:
+
+1. Source-adjusted Palearctic attraction/accessibility reorganization is positive in exact SI, predominantly-outcrossing, and joint SI+outcrossing subsets.
+2. **Exact SI is the strongest mechanistic discriminator:** the positive effect is retained under every one of the 77 block deletions, and under IPW it remains FDR-supported for every source/stratum combination after 76 of 77 deletions.
+3. Therefore measured selfing ability is not a necessary condition for the Palearctic attraction/accessibility reorganization in the observed assemblage data.
+4. The Aegean/eastern-Mediterranean block is materially influential, but it does not uniquely generate the positive SI-restricted response.
+5. Aegean deletion interacts strongly with observation-selection weighting, causing attenuation without sign reversal.
+
+Not supported:
+
+1. A geographically homogeneous effect size across the Palearctic realm.
+2. Observation-selection invariance of the predominantly-outcrossing-only subset.
+3. Causal attribution to relaxed attraction selection, Bombus loss, realized pollinator identity, in-situ evolution, or causal mediation.
+
+## Updated claim ceiling
+
+The strongest defensible statement is:
+
+> The Palearctic isolation-associated attraction/accessibility shift cannot be reduced to a simple measured-selfing by-product. It remains positive within self-incompatible taxa after external source-pool subtraction, across every Palearctic leave-one-block-out analysis, and under observation-selection weighting for every block deletion except the preidentified Aegean/eastern-Mediterranean block. The Aegean block therefore creates a specific leverage-by-selection sensitivity, but it is not the sole source of the SI-restricted floral response.
+
+The Chapter 1 conclusion remains **biogeographic contingency of floral/reproductive assemblage responses**. The restricted analyses strengthen the statement that the Palearctic floral branch is not merely a measured selfing-syndrome corollary, while retaining the strict boundary that no pollinator-loss or attraction-selection mechanism has yet been causally identified.

@@ -1,0 +1,108 @@
+name: Run PR138 outcrossing selection and Aegean stress
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr138_outcrossing_selection_stress.py"
+      - "tests/test_chapter1_pr138_outcrossing_selection_stress.py"
+      - ".github/workflows/run-pr138-outcrossing-selection-stress.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OUTCROSS_RUN_ID: "32962391754"
+      OUTCROSS_ARTIFACT: "pr138-outcrossing-restriction-32962391754"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate restricted selection stress
+        run: |
+          pytest -q tests/test_chapter1_pr138_outcrossing_selection_stress.py
+          ruff check \
+            src/island_v2/chapter1_pr138_outcrossing_selection_stress.py \
+            tests/test_chapter1_pr138_outcrossing_selection_stress.py
+
+      - name: Download frozen restricted source-adjusted inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/stress/input /tmp/stress/result
+          gh run download "$OUTCROSS_RUN_ID" -n "$OUTCROSS_ARTIFACT" -D /tmp/stress/input
+          test -s /tmp/stress/input/result/outcrossing_restriction_adjusted_scores.csv.gz
+          test -s /tmp/stress/input/input/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/stress/input/input/realm/realm/island_biogeographic_realm_assignment.csv
+
+      - name: Fit IPW and Aegean deletion stress
+        run: |
+          python -m island_v2.chapter1_pr138_outcrossing_selection_stress \
+            --adjusted-scores-csv /tmp/stress/input/result/outcrossing_restriction_adjusted_scores.csv.gz \
+            --covariates-csv /tmp/stress/input/input/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/stress/input/input/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --selection-config-path config/chapter1_global_branch_selection.yml \
+            --output-dir /tmp/stress/result
+
+      - name: Summarize Palearctic mechanistic stress
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+
+          root = Path('/tmp/stress/result')
+          result = pd.read_csv(root/'outcrossing_selection_stress_results.csv')
+          diag = pd.read_csv(root/'outcrossing_selection_stress_diagnostics.csv')
+          manifest = json.loads((root/'outcrossing_selection_stress_manifest.json').read_text())
+          focus = result.loc[
+              result['support_tier'].eq('confirmatory') if 'support_tier' in result.columns else pd.Series(True, index=result.index)
+          ].copy()
+          focus = result.loc[
+              result['stratum'].isin(['all_native','native_nonendemic'])
+              & result['context_layer'].eq('biogeographic_realm')
+              & result['context'].isin(['Palearctic','Nearctic','Neotropical'])
+          ].copy()
+          cols = [
+              'universe_mode','restriction','source_mode','selection_mode','stratum','context',
+              'status','n_unique_islands','distance_estimate','distance_se','distance_p','distance_q',
+              'effective_sample_fraction','weight_max'
+          ]
+          out = Path('/tmp/stress/outcrossing_selection_stress_summary.md')
+          with out.open('w') as f:
+              f.write('# PR138 SI/outcrossing + selection + Aegean stress\n\n')
+              f.write('Source-adjusted restricted attraction scores are unchanged. Propensity weights use only score availability and are refit after the preidentified Aegean block deletion.\n\n')
+              f.write('## Formal-realm focus\n\n```text\n')
+              f.write(focus[[c for c in cols if c in focus.columns]].to_string(index=False))
+              f.write('\n```\n\n## IPW diagnostic extrema\n\n```text\n')
+              d = diag.loc[diag['selection_mode'].ne('unweighted')].copy()
+              if not d.empty:
+                  s = d.groupby(['universe_mode','restriction','selection_mode']).agg(
+                      max_weight=('weight_max','max'),
+                      min_ess_fraction=('effective_sample_fraction','min'),
+                      max_clipped=('n_propensity_clipped','max'),
+                  ).reset_index()
+                  f.write(s.to_string(index=False))
+              f.write('\n```\n\n## Manifest\n\n```json\n')
+              f.write(json.dumps(manifest, indent=2))
+              f.write('\n```\n')
+          PY
+          cat /tmp/stress/outcrossing_selection_stress_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-outcrossing-selection-stress-${{ github.run_id }}
+          path: /tmp/stress/
+          if-no-files-found: error
+          retention-days: 90

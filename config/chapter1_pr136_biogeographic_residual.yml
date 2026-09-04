@@ -1,0 +1,55 @@
+contract: chapter1_pr138_biogeographic_residual_secondary_v1
+
+secondary_question: >-
+  After the observed assemblage-level biogeographic syndrome pattern is estimated,
+  how much of that pattern remains after preserving island occurrence and genus
+  composition under the same-genus null?
+
+role_in_inference: secondary_lineage_decomposition_not_pattern_definition
+
+geography_column: log_distance_to_continent_km
+geography_interpretation: composite_isolation_connectivity_source_supply_assembly_gradient
+context_column: analysis_regime
+cluster_column: spatial_block
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+
+strata:
+  - all_native
+  - native_nonendemic
+  - endemic
+
+support_tiers:
+  confirmatory: 50
+  pilot: 30
+minimum_outcomes_per_vector: 2
+alpha: 0.05
+
+primary_response: observed_direct_trait_share_minus_same_genus_null_expectation
+pollinator_predictors_in_primary_model: false
+pollination_syndrome_role: post_analysis_concordance_only
+
+interpretation:
+  residual_signal_present: >-
+    The observed assemblage pattern is not explained solely by genus-composition turnover.
+  residual_signal_absent_after_observed_pattern_present: >-
+    The assemblage-level island syndrome remains a real observed pattern, but its formation
+    is compatible with floristic / lineage assembly rather than a within-genus residual shift.
+
+rules:
+  - never_use_residual_null_to_erase_an_observed_assemblage_pattern
+  - no_distance_thresholds
+  - missing_island_is_not_trait_zero
+  - significant_in_one_region_and_nonsignificant_in_another_is_not_heterogeneity
+  - between_region_vector_difference_requires_direct_joint_test
+  - pollination_syndrome_concordance_does_not_establish_pollinator_causation

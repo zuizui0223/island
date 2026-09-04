@@ -1,0 +1,96 @@
+name: Run PR138 selfing interaction sensitivity
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr138_selfing_interaction.py"
+      - "tests/test_chapter1_pr138_selfing_interaction.py"
+      - ".github/workflows/run-pr138-selfing-interaction.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      INPUT_RUN_ID: "32956197702"
+      INPUT_ARTIFACT: "pr138-source-adjusted-pathway-32956197702"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate interaction analysis
+        run: |
+          pytest -q tests/test_chapter1_pr138_selfing_interaction.py
+          ruff check \
+            src/island_v2/chapter1_pr138_selfing_interaction.py \
+            tests/test_chapter1_pr138_selfing_interaction.py
+
+      - name: Download frozen source-adjusted inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/interaction/input /tmp/interaction/result
+          gh run download "$INPUT_RUN_ID" -n "$INPUT_ARTIFACT" -D /tmp/interaction/input
+          test -s /tmp/interaction/input/result/source_adjusted_pathway_island_scores.csv.gz
+          test -s /tmp/interaction/input/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/interaction/input/realm/realm/island_biogeographic_realm_assignment.csv
+
+      - name: Fit distance by reproductive-assurance interaction
+        run: |
+          python -m island_v2.chapter1_pr138_selfing_interaction \
+            --source-adjusted-scores-csv /tmp/interaction/input/result/source_adjusted_pathway_island_scores.csv.gz \
+            --covariates-csv /tmp/interaction/input/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/interaction/input/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --output-dir /tmp/interaction/result
+
+      - name: Summarize interaction result
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+
+          root = Path('/tmp/interaction/result')
+          result = pd.read_csv(root/'source_adjusted_selfing_interaction.csv')
+          manifest = json.loads((root/'selfing_interaction_manifest.json').read_text())
+          focus = result.loc[
+              result['support_tier'].eq('confirmatory')
+              & result['stratum'].isin(['all_native','native_nonendemic'])
+              & result['context'].isin([
+                  'northern_midlatitude','tropical','Palearctic','Neotropical'
+              ])
+          ].copy()
+          cols = [
+              'context_layer','source_mode','stratum','context','status','n_unique_islands',
+              'distance_estimate','distance_q','selfing_core_estimate','selfing_core_p',
+              'distance_x_selfing_estimate','distance_x_selfing_p','distance_x_selfing_q'
+          ]
+          summary = Path('/tmp/interaction/selfing_interaction_summary.md')
+          with summary.open('w') as f:
+              f.write('# PR138 distance × reproductive-assurance interaction\n\n')
+              f.write('No selfing threshold is introduced. The continuous strict reproductive-assurance score interacts with distance after external mainland source-pool adjustment.\n\n')
+              f.write('```text\n')
+              f.write(focus[[c for c in cols if c in focus.columns]].to_string(index=False))
+              f.write('\n```\n\n## Manifest\n\n```json\n')
+              f.write(json.dumps(manifest, indent=2))
+              f.write('\n```\n')
+          PY
+          cat /tmp/interaction/selfing_interaction_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-selfing-interaction-${{ github.run_id }}
+          path: /tmp/interaction/
+          if-no-files-found: error
+          retention-days: 90

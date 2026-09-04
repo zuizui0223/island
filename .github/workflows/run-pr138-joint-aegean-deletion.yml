@@ -1,0 +1,175 @@
+name: Run PR138 joint Aegean-block deletion sensitivity
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - ".github/workflows/run-pr138-joint-aegean-deletion.yml"
+      - "src/island_v2/chapter1_pr138_source_adjusted_branch_selection.py"
+      - "src/island_v2/chapter1_global_branch_selection.py"
+      - "src/island_v2/chapter1_global_branching.py"
+      - "config/chapter1_global_branching.yml"
+      - "config/chapter1_global_branch_selection.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ADJUSTED_RUN_ID: "32956197702"
+      ADJUSTED_ARTIFACT: "pr138-source-adjusted-pathway-32956197702"
+      ISOLATION_RUN_ID: "29228212586"
+      ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+      REALM_RUN_ID: "32927060210"
+      REALM_ARTIFACT: "pr138-realm-sensitivity-32927060210"
+      BLOCK_TO_REMOVE: "lat12_lon20"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate joint sensitivity code
+        run: |
+          pytest -q \
+            tests/test_chapter1_pr138_source_adjusted_branch_selection.py \
+            tests/test_chapter1_global_branch_selection.py \
+            tests/test_chapter1_global_branching.py
+
+      - name: Download frozen inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/aegean/adjusted /tmp/aegean/isolation /tmp/aegean/realm /tmp/aegean/input /tmp/aegean/result
+          gh run download "$ADJUSTED_RUN_ID" -n "$ADJUSTED_ARTIFACT" -D /tmp/aegean/adjusted
+          gh run download "$ISOLATION_RUN_ID" -n "$ISOLATION_ARTIFACT" -D /tmp/aegean/isolation
+          gh run download "$REALM_RUN_ID" -n "$REALM_ARTIFACT" -D /tmp/aegean/realm
+          test -s /tmp/aegean/adjusted/result/source_adjusted_pathway_island_scores.csv.gz
+          test -s /tmp/aegean/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/aegean/realm/realm/island_biogeographic_realm_assignment.csv
+
+      - name: Remove the preidentified influential spatial block
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import pandas as pd
+
+          block = os.environ['BLOCK_TO_REMOVE']
+          cov = pd.read_csv('/tmp/aegean/isolation/results/purpose_shortest_island_data.csv')
+          scores = pd.read_csv('/tmp/aegean/adjusted/result/source_adjusted_pathway_island_scores.csv.gz')
+          realm = pd.read_csv('/tmp/aegean/realm/realm/island_biogeographic_realm_assignment.csv')
+          if 'spatial_block' not in cov.columns:
+              raise SystemExit('spatial_block missing from frozen covariates')
+          excluded = set(cov.loc[cov['spatial_block'].astype(str).eq(block), 'island_id'].astype(str))
+          if not excluded:
+              raise SystemExit(f'preidentified block {block} contains no islands')
+          cov['island_id'] = cov['island_id'].astype(str)
+          scores['island_id'] = scores['island_id'].astype(str)
+          realm['island_id'] = realm['island_id'].astype(str)
+          before = {
+              'n_covariate_islands': int(cov['island_id'].nunique()),
+              'n_score_islands': int(scores['island_id'].nunique()),
+          }
+          cov = cov.loc[~cov['island_id'].isin(excluded)].copy()
+          scores = scores.loc[~scores['island_id'].isin(excluded)].copy()
+          realm = realm.loc[~realm['island_id'].isin(excluded)].copy()
+          Path('/tmp/aegean/input').mkdir(parents=True, exist_ok=True)
+          cov.to_csv('/tmp/aegean/input/covariates_without_block.csv', index=False)
+          scores.to_csv('/tmp/aegean/input/source_adjusted_scores_without_block.csv.gz', index=False)
+          realm.to_csv('/tmp/aegean/input/realm_without_block.csv', index=False)
+          audit = {
+              'contract': 'pr138_joint_aegan_block_deletion_v1',
+              'block_removed': block,
+              'n_full_islands_removed': len(excluded),
+              'n_score_islands_removed': before['n_score_islands'] - int(scores['island_id'].nunique()),
+              'n_covariate_islands_after': int(cov['island_id'].nunique()),
+              'outcome_used_to_choose_block_in_this_run': False,
+              'block_reason': 'preidentified influential block from the existing PR138 leave-one-spatial-block diagnostic',
+          }
+          Path('/tmp/aegean/input/block_deletion_audit.json').write_text(json.dumps(audit, indent=2)+'\n')
+          print(json.dumps(audit, indent=2))
+          PY
+
+      - name: Refit joint source-pool plus observation-selection sensitivity
+        run: |
+          python -m island_v2.chapter1_pr138_source_adjusted_branch_selection \
+            --source-adjusted-scores-csv /tmp/aegean/input/source_adjusted_scores_without_block.csv.gz \
+            --covariates-csv /tmp/aegean/input/covariates_without_block.csv \
+            --realm-assignment-csv /tmp/aegean/input/realm_without_block.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --selection-config-path config/chapter1_global_branch_selection.yml \
+            --output-dir /tmp/aegean/result
+
+      - name: Summarize Aegean-deletion result
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+
+          root = Path('/tmp/aegean/result')
+          states = pd.read_csv(root/'joint_selection_states.csv')
+          slopes = pd.read_csv(root/'joint_selection_slopes.csv')
+          headline = pd.read_csv(root/'joint_selection_headline_summary.csv')
+          audit = json.loads(Path('/tmp/aegean/input/block_deletion_audit.json').read_text())
+
+          pal = states.loc[
+              states['context_layer'].eq('biogeographic_realm')
+              & states['context'].eq('Palearctic')
+              & states['stratum'].isin(['all_native','native_nonendemic'])
+              & states['support_tier'].eq('confirmatory')
+          ].copy()
+          pal_slopes = slopes.loc[
+              slopes['context_layer'].eq('biogeographic_realm')
+              & slopes['context'].eq('Palearctic')
+              & slopes['stratum'].isin(['all_native','native_nonendemic'])
+              & slopes['support_tier'].eq('confirmatory')
+              & slopes['syndrome'].isin(['accessibility_generalization','reproductive_assurance'])
+          ].copy()
+          north_trop = headline.loc[
+              headline['context_layer'].eq('analysis_regime')
+              & headline['context_a'].eq('northern_midlatitude')
+              & headline['context_b'].eq('tropical')
+              & headline['stratum'].isin(['all_native','native_nonendemic'])
+          ].copy()
+
+          out = Path('/tmp/aegean/aegean_deletion_summary.md')
+          with out.open('w') as f:
+              f.write('# PR138 joint sensitivity after Aegean/eastern-Mediterranean block deletion\n\n')
+              f.write('```json\n'+json.dumps(audit, indent=2)+'\n```\n\n')
+              f.write('## Palearctic branch states\n\n```text\n')
+              cols = [c for c in [
+                  'source_mode','selection_mode','stratum','plant_side_branch_state',
+                  'q_context_vector_family','accessibility_generalization_slope',
+                  'accessibility_generalization_q','reproductive_assurance_slope',
+                  'reproductive_assurance_q'
+              ] if c in pal.columns]
+              f.write(pal[cols].to_string(index=False))
+              f.write('\n```\n\n## Palearctic axis slopes\n\n```text\n')
+              cols = [c for c in [
+                  'source_mode','selection_mode','stratum','syndrome','distance_slope',
+                  'q_axis_family','n_islands'
+              ] if c in pal_slopes.columns]
+              f.write(pal_slopes[cols].to_string(index=False))
+              f.write('\n```\n\n## North–Tropics direct vector contrast\n\n```text\n')
+              f.write(north_trop.to_string(index=False))
+              f.write('\n```\n')
+          PY
+          cat /tmp/aegean/aegean_deletion_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-joint-aegean-deletion-${{ github.run_id }}
+          path: /tmp/aegean/
+          if-no-files-found: error
+          retention-days: 90

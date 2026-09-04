@@ -1,0 +1,110 @@
+name: Run PR138 restricted Palearctic block deletion
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr138_palearctic_restricted_block_deletion.py"
+      - "tests/test_chapter1_pr138_palearctic_restricted_block_deletion.py"
+      - ".github/workflows/run-pr138-palearctic-restricted-block-deletion.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OUTCROSS_RUN_ID: "32962391754"
+      OUTCROSS_ARTIFACT: "pr138-outcrossing-restriction-32962391754"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate restricted Palearctic block deletion
+        run: |
+          pytest -q tests/test_chapter1_pr138_palearctic_restricted_block_deletion.py
+          ruff check \
+            src/island_v2/chapter1_pr138_palearctic_restricted_block_deletion.py \
+            tests/test_chapter1_pr138_palearctic_restricted_block_deletion.py
+
+      - name: Download frozen restricted source-adjusted inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/block/input /tmp/block/result
+          gh run download "$OUTCROSS_RUN_ID" -n "$OUTCROSS_ARTIFACT" -D /tmp/block/input
+          test -s /tmp/block/input/result/outcrossing_restriction_adjusted_scores.csv.gz
+          test -s /tmp/block/input/input/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/block/input/input/realm/realm/island_biogeographic_realm_assignment.csv
+
+      - name: Run exhaustive Palearctic block deletion with IPW
+        run: |
+          python -m island_v2.chapter1_pr138_palearctic_restricted_block_deletion \
+            --adjusted-scores-csv /tmp/block/input/result/outcrossing_restriction_adjusted_scores.csv.gz \
+            --covariates-csv /tmp/block/input/input/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/block/input/input/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --selection-config-path config/chapter1_global_branch_selection.yml \
+            --output-dir /tmp/block/result
+
+      - name: Summarize restricted Palearctic block deletion
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+
+          root = Path('/tmp/block/result')
+          summary = pd.read_csv(root / 'palearctic_restricted_block_deletion_summary.csv')
+          support = pd.read_csv(root / 'palearctic_restricted_block_support.csv')
+          influence = pd.read_csv(root / 'palearctic_restricted_block_influence_rank.csv')
+          detailed = pd.read_csv(root / 'palearctic_restricted_block_deletion_influence.csv')
+          manifest = json.loads((root / 'palearctic_restricted_block_deletion_manifest.json').read_text())
+          aegean = detailed.loc[detailed['is_preidentified_aegean'].eq(True)].copy()
+          si = support.loc[support['restriction'].eq('si_only')].copy()
+          si_blocks = (
+              si.groupby(['stratum', 'selection_mode'], as_index=False)
+              .agg(
+                  n_blocks=('deleted_block', 'nunique'),
+                  n_all_positive=('all_positive', 'sum'),
+                  n_all_source_supported=('all_source_modes_supported', 'sum'),
+              )
+          )
+          out = Path('/tmp/block/palearctic_restricted_block_deletion_summary.md')
+          with out.open('w') as f:
+              f.write('# PR138 restricted Palearctic spatial-block deletion + IPW\n\n')
+              f.write('Every Palearctic block is deleted in turn; block selection is outcome-blind and IPW is recomputed after each deletion.\n\n')
+              f.write('## Direction/support summary\n\n```text\n')
+              f.write(summary.to_string(index=False))
+              f.write('\n```\n\n## SI-only block persistence\n\n```text\n')
+              f.write(si_blocks.to_string(index=False))
+              f.write('\n```\n\n## Top block influence\n\n```text\n')
+              f.write(influence.head(20).to_string(index=False))
+              f.write('\n```\n\n## Preidentified Aegean deletion\n\n```text\n')
+              cols = [
+                  'restriction','source_mode','stratum','selection_mode',
+                  'distance_estimate','distance_q_across_source_modes',
+                  'full_distance_estimate','deletion_delta_estimate',
+                  'absolute_deletion_delta','influence_rank_desc','n_unique_islands'
+              ]
+              f.write(aegean[[c for c in cols if c in aegean.columns]].to_string(index=False))
+              f.write('\n```\n\n## Manifest\n\n```json\n')
+              f.write(json.dumps(manifest, indent=2))
+              f.write('\n```\n')
+          PY
+          cat /tmp/block/palearctic_restricted_block_deletion_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-palearctic-restricted-block-deletion-${{ github.run_id }}
+          path: /tmp/block/
+          if-no-files-found: error
+          retention-days: 90

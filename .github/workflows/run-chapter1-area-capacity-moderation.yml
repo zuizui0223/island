@@ -1,0 +1,232 @@
+name: Run Chapter 1 area capacity moderation
+
+on:
+  push:
+    branches: [ch1-area-founder-branching]
+    paths:
+      - "config/chapter1_area_capacity_moderation.yml"
+      - "src/island_v2/chapter1_area_capacity_moderation.py"
+      - "tests/test_chapter1_area_capacity_moderation.py"
+      - "docs/chapter1_area_capacity_moderation_checkpoint_20260827.md"
+      - "docs/chapter1_global_branching_checkpoint_20260826.md"
+      - ".github/workflows/run-chapter1-area-capacity-moderation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      FROZEN_RUN_ID: "33064250362"
+      FROZEN_ARTIFACT: "pr138-lineage-representation-bridge-33064250362"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate implementation
+        run: |
+          pytest -q tests/test_chapter1_area_capacity_moderation.py
+          ruff check \
+            src/island_v2/chapter1_area_capacity_moderation.py \
+            tests/test_chapter1_area_capacity_moderation.py
+
+      - name: Download frozen PR138-139 inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/area/frozen /tmp/area/result
+          gh run download "$FROZEN_RUN_ID" -n "$FROZEN_ARTIFACT" -D /tmp/area/frozen
+          test -s /tmp/area/frozen/frozen/input/input/pathway/syndrome/island_syndrome_scores.csv.gz
+          test -s /tmp/area/frozen/result/lineage_representation_island_scores.csv.gz
+          test -s /tmp/area/frozen/frozen/input/input/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/area/frozen/frozen/input/input/realm/realm/island_biogeographic_realm_assignment.csv
+
+      - name: Run continuous area moderation
+        run: |
+          python -m island_v2.chapter1_area_capacity_moderation \
+            --island-scores-csv /tmp/area/frozen/frozen/input/input/pathway/syndrome/island_syndrome_scores.csv.gz \
+            --lineage-scores-csv /tmp/area/frozen/result/lineage_representation_island_scores.csv.gz \
+            --covariates-csv /tmp/area/frozen/frozen/input/input/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/area/frozen/frozen/input/input/realm/realm/island_biogeographic_realm_assignment.csv \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --area-config-path config/chapter1_area_capacity_moderation.yml \
+            --output-dir /tmp/area/result
+
+      - name: Verify frozen numerical result and gates
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import numpy as np
+          import pandas as pd
+
+          root = Path('/tmp/area/result')
+          coefficients = pd.read_csv(root / 'area_moderation_coefficients.csv')
+          within = pd.read_csv(root / 'area_moderation_within_context.csv')
+          between_coefficients = pd.read_csv(
+              root / 'area_moderation_between_coefficients.csv'
+          )
+          between = pd.read_csv(root / 'area_moderation_between_context.csv')
+          manifest = json.loads(
+              (root / 'area_moderation_manifest.json').read_text()
+          )
+
+          expected_rows = (248, 144, 104, 72)
+          got_rows = (
+              len(coefficients), len(within),
+              len(between_coefficients), len(between),
+          )
+          if got_rows != expected_rows:
+              raise SystemExit(f'row-count mismatch: {got_rows} != {expected_rows}')
+          if manifest['contract'] != 'chapter1_area_capacity_moderation_v1':
+              raise SystemExit(f"unexpected contract: {manifest['contract']}")
+          if not manifest['continuous_area_no_threshold']:
+              raise SystemExit('continuous-area contract was not retained')
+          if not manifest['joint_vector_gate_before_axis_classification']:
+              raise SystemExit('joint vector gate was not retained')
+
+          expected_hashes = {
+              'island_scores': '3d0f15e60b6876e450d7d0cfbb43ffd76f854548b9a6f34a883a6b27141c5e65',
+              'lineage_scores': '9084dcbd9c3bb3e696c72a76d9010aaba4606b32d6d60074dcad3ea8358bf6a2',
+              'covariates': '9aa10f6a9364a42be0a0c6b644581044c57986bdcc06a0bd912ded886469982a',
+              'realm_assignment': '35b1207ffbd09cad5f3d62dd64f8b23cc98270d12383038cd88987ea337eb256',
+              'branching_config': 'ad01a1cb08cc6120a1c511041d0ecd2db0d6d0d09bfd7b5f8187e25db86bd64c',
+              'area_config': '099f035348bad8120f490c3a0b054776d35ba3bd7d76002ea1e85587a7a95bf0',
+          }
+          if manifest['input_sha256'] != expected_hashes:
+              raise SystemExit(f"input hash mismatch: {manifest['input_sha256']}")
+
+          confirmatory = coefficients.loc[
+              coefficients['support_tier'].eq('confirmatory')
+          ].copy()
+          pal_entry = confirmatory.loc[
+              confirmatory['family'].eq('source_lineage_broad')
+              & confirmatory['context_layer'].eq('biogeographic_realm')
+              & confirmatory['context'].eq('Palearctic')
+              & confirmatory['response'].eq('entry_enrichment')
+          ].copy()
+          if len(pal_entry) != 8:
+              raise SystemExit(f'unexpected Palearctic entry rows: {len(pal_entry)}')
+          if not pal_entry['area_moderation_state'].eq(
+              'distance_effect_stronger_on_smaller_islands'
+          ).all():
+              raise SystemExit('Palearctic genus-entry result is not smaller-island amplified in 8/8')
+          expected_pal = {
+              ('all_native', 'geo_k10'): (0.0964980698346314, -0.03920052020809818),
+              ('all_native', 'geo_k20'): (0.07705774050885827, -0.03600278403120623),
+              ('all_native', 'geo_k5'): (0.07554211403584524, -0.03442613567132488),
+              ('all_native', 'geo50_climate10'): (0.08376861750342132, -0.04441314388128283),
+              ('native_nonendemic', 'geo_k10'): (0.08790011601367344, -0.03814439053690179),
+              ('native_nonendemic', 'geo_k20'): (0.06979177675144266, -0.035259945355207586),
+              ('native_nonendemic', 'geo_k5'): (0.06721192360227463, -0.03333240900200586),
+              ('native_nonendemic', 'geo50_climate10'): (0.07618202168396561, -0.044303470695333406),
+          }
+          got_pal = {
+              (row.stratum, row.source_mode): (
+                  float(row.distance_estimate_at_mean_area),
+                  float(row.distance_x_area_estimate),
+              )
+              for row in pal_entry.itertuples(index=False)
+          }
+          if set(got_pal) != set(expected_pal):
+              raise SystemExit(f'Palearctic key mismatch: {sorted(got_pal)}')
+          max_pal_delta = max(
+              max(abs(got - expected) for got, expected in zip(got_pal[key], value))
+              for key, value in expected_pal.items()
+          )
+          if max_pal_delta > 1e-10:
+              raise SystemExit(f'Palearctic coefficient mismatch: {max_pal_delta}')
+
+          neo_reproductive = confirmatory.loc[
+              confirmatory['family'].eq('plant_side_branches')
+              & confirmatory['context_layer'].eq('biogeographic_realm')
+              & confirmatory['context'].eq('Neotropical')
+              & confirmatory['response'].eq('reproductive_assurance')
+          ]
+          if len(neo_reproductive) != 2 or not neo_reproductive[
+              'area_moderation_state'
+          ].eq('distance_effect_stronger_on_smaller_islands').all():
+              raise SystemExit('Neotropical reproductive-assurance area result changed')
+
+          plant_regime = confirmatory.loc[
+              confirmatory['family'].eq('plant_side_branches')
+              & confirmatory['context_layer'].eq('analysis_regime')
+          ]
+          if not plant_regime['area_moderation_state'].eq(
+              'no_supported_axis_moderation'
+          ).all():
+              raise SystemExit('broad-regime within-context plant moderation changed')
+
+          confirmatory_between = between_coefficients.loc[
+              between_coefficients['support_tier'].eq('confirmatory')
+          ].copy()
+          plant_access_difference = confirmatory_between.loc[
+              confirmatory_between['family'].eq('plant_side_branches')
+              & confirmatory_between['context_layer'].eq('analysis_regime')
+              & confirmatory_between['response'].eq('accessibility_generalization')
+          ]
+          if len(plant_access_difference) != 2 or not plant_access_difference[
+              'difference_axis_supported'
+          ].all():
+              raise SystemExit('north-tropical accessibility moderation difference changed')
+          expected_differences = {
+              'all_native': 0.1011704277876824,
+              'native_nonendemic': 0.08790100800709114,
+          }
+          for row in plant_access_difference.itertuples(index=False):
+              if not np.isclose(
+                  row.distance_x_area_difference_b_minus_a,
+                  expected_differences[row.stratum],
+                  atol=1e-10,
+                  rtol=0,
+              ):
+                  raise SystemExit(f'plant contrast mismatch for {row.stratum}')
+
+          broad_between = confirmatory_between.loc[
+              confirmatory_between['family'].eq('source_lineage_broad')
+              & confirmatory_between['response'].eq('entry_enrichment')
+          ]
+          by_layer = broad_between.groupby('context_layer')[
+              'difference_axis_supported'
+          ].sum().to_dict()
+          if by_layer != {'analysis_regime': 8, 'biogeographic_realm': 5}:
+              raise SystemExit(f'lineage regional moderation changed: {by_layer}')
+
+          summary = Path('/tmp/area/area_capacity_summary.md')
+          summary.write_text(
+              '# Chapter 1 area/capacity moderation\n\n'
+              f'Exact Palearctic coefficient reproduction max delta: {max_pal_delta:.3g}.\n\n'
+              '## Broad Palearctic genus entry\n\n```text\n'
+              + pal_entry[[
+                  'stratum', 'source_mode', 'distance_estimate_at_mean_area',
+                  'distance_x_area_estimate', 'distance_q',
+                  'distance_x_area_q', 'area_moderation_state',
+              ]].sort_values(['stratum', 'source_mode']).to_string(index=False)
+              + '\n```\n\n## Neotropical reproductive assurance\n\n```text\n'
+              + neo_reproductive[[
+                  'stratum', 'distance_estimate_at_mean_area',
+                  'distance_x_area_estimate',
+                  'distance_slope_at_small_area_z_minus1',
+                  'distance_slope_at_large_area_z_plus1',
+                  'distance_q', 'distance_x_area_q', 'area_moderation_state',
+              ]].sort_values('stratum').to_string(index=False)
+              + '\n```\n',
+              encoding='utf-8',
+          )
+          PY
+          cat /tmp/area/area_capacity_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-area-capacity-moderation-${{ github.run_id }}
+          path: /tmp/area/
+          if-no-files-found: error
+          retention-days: 90

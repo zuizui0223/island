@@ -1,0 +1,119 @@
+name: Run PR138 source-adjusted pathway
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr138_source_adjusted_pathway.py"
+      - ".github/workflows/run-pr138-source-adjusted-pathway.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SOURCE_RUN_ID: "32954909953"
+      SOURCE_ARTIFACT: "pr138-source-pool-sensitivity-32954909953"
+      PATHWAY_RUN_ID: "32922758001"
+      PATHWAY_ARTIFACT: "pr138-attraction-selfing-32922758001"
+      ISOLATION_RUN_ID: "29228212586"
+      ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+      REALM_RUN_ID: "32927060210"
+      REALM_ARTIFACT: "pr138-realm-sensitivity-32927060210"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Run focused source-pool tests
+        run: pytest -q tests/test_chapter1_pr138_source_pool_sensitivity.py
+
+      - name: Download frozen inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/path/source /tmp/path/pathway /tmp/path/isolation /tmp/path/realm /tmp/path/result
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/path/source
+          gh run download "$PATHWAY_RUN_ID" -n "$PATHWAY_ARTIFACT" -D /tmp/path/pathway
+          gh run download "$ISOLATION_RUN_ID" -n "$ISOLATION_ARTIFACT" -D /tmp/path/isolation
+          gh run download "$REALM_RUN_ID" -n "$REALM_ARTIFACT" -D /tmp/path/realm
+          test -s /tmp/path/source/source/gift_native_mainland_flora.csv.gz
+          test -s /tmp/path/source/result/island_source_assignments.csv.gz
+          test -s /tmp/path/pathway/syndrome/species_syndrome_concordance.csv.gz
+          test -s /tmp/path/pathway/syndrome/island_syndrome_scores.csv.gz
+          test -s /tmp/path/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/path/realm/realm/island_biogeographic_realm_assignment.csv
+
+      - name: Run source-adjusted attraction versus selfing decomposition
+        run: |
+          python -m island_v2.chapter1_pr138_source_adjusted_pathway \
+            --species-scores-csv /tmp/path/pathway/syndrome/species_syndrome_concordance.csv.gz \
+            --island-scores-csv /tmp/path/pathway/syndrome/island_syndrome_scores.csv.gz \
+            --gift-flora-csv /tmp/path/source/source/gift_native_mainland_flora.csv.gz \
+            --source-assignments-csv /tmp/path/source/result/island_source_assignments.csv.gz \
+            --covariates-csv /tmp/path/isolation/results/purpose_shortest_island_data.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --source-config-path config/chapter1_pr138_source_pool_sensitivity.yml \
+            --realm-assignment-csv /tmp/path/realm/realm/island_biogeographic_realm_assignment.csv \
+            --output-dir /tmp/path/result
+
+      - name: Summarize source-adjusted pathway
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+
+          root = Path('/tmp/path/result')
+          manifest = json.loads((root/'source_adjusted_pathway_manifest.json').read_text())
+          regime = pd.read_csv(root/'source_adjusted_pathway_regime.csv')
+          realm = pd.read_csv(root/'source_adjusted_pathway_realm.csv')
+          mainland = pd.read_csv(root/'mainland_pathway_syndrome_scores.csv.gz')
+
+          def select(frame, contexts):
+              x = frame.loc[
+                  (frame['stratum'].isin(['all_native','native_nonendemic']))
+                  & (frame['support_tier'] == 'confirmatory')
+                  & frame['context'].isin(contexts)
+              ].copy()
+              cols = [
+                  'source_mode','stratum','context','model','status','n_unique_islands',
+                  'distance_estimate','distance_se','distance_p','distance_q',
+                  'selfing_core_estimate','selfing_core_p'
+              ]
+              return x[[c for c in cols if c in x.columns]]
+
+          summary = Path('/tmp/path/source_adjusted_pathway_summary.md')
+          with summary.open('w') as f:
+              f.write('# PR138 source-adjusted attraction versus selfing decomposition\n\n')
+              f.write('## Mainland syndrome support\n\n```text\n')
+              s = mainland.groupby('syndrome').agg(
+                  n_regions=('entity_ID','nunique'),
+                  n_eligible=('source_score_eligible','sum'),
+                  median_trait_species=('n_trait_scored_species','median'),
+              ).reset_index()
+              f.write(s.to_string(index=False))
+              f.write('\n```\n\n## Broad regions\n\n```text\n')
+              f.write(select(regime, ['northern_midlatitude','tropical']).to_string(index=False))
+              f.write('\n```\n\n## Formal realms\n\n```text\n')
+              f.write(select(realm, ['Palearctic','Neotropical','Nearctic']).to_string(index=False))
+              f.write('\n```\n\n## Manifest\n\n```json\n')
+              f.write(json.dumps(manifest, indent=2))
+              f.write('\n```\n')
+          PY
+          cat /tmp/path/source_adjusted_pathway_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-source-adjusted-pathway-${{ github.run_id }}
+          path: /tmp/path/
+          if-no-files-found: error
+          retention-days: 90

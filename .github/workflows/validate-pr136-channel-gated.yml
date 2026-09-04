@@ -1,0 +1,126 @@
+name: Validate PR138 biogeographic pattern
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr138_biogeographic_pattern.py"
+      - "src/island_v2/chapter1_pr138_direct_ledger_pattern.py"
+      - "src/island_v2/chapter1_pr138_information_weight.py"
+      - "src/island_v2/chapter1_pr138_evidence_ladder.py"
+      - "src/island_v2/chapter1_pr138_syndrome_analysis.py"
+      - "src/island_v2/chapter1_pr138_syndrome_template_sensitivity.py"
+      - "src/island_v2/chapter1_pr138_syndrome_block_deletion.py"
+      - "src/island_v2/chapter1_pr138_syndrome_distance_sensitivity.py"
+      - "src/island_v2/chapter1_pr138_pathway_decomposition.py"
+      - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
+      - "config/chapter1_pr136_biogeographic_pattern.yml"
+      - "config/chapter1_pr136_biogeographic_residual.yml"
+      - "config/chapter1_pr138_pollination_syndromes.yml"
+      - "tests/test_chapter1_pr138_biogeographic_pattern.py"
+      - "tests/test_chapter1_pr138_direct_ledger_pattern.py"
+      - "tests/test_chapter1_pr138_information_weight.py"
+      - "tests/test_chapter1_pr138_evidence_ladder.py"
+      - "tests/test_chapter1_pr138_syndrome_analysis.py"
+      - "tests/test_chapter1_pr138_syndrome_template_sensitivity.py"
+      - "tests/test_chapter1_pr138_syndrome_block_deletion.py"
+      - "tests/test_chapter1_pr138_syndrome_distance_sensitivity.py"
+      - "tests/test_chapter1_pr138_pathway_decomposition.py"
+      - "tests/test_chapter1_pr136_biogeographic_residual.py"
+      - ".github/workflows/validate-pr136-channel-gated.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/island_v2/chapter1_pr138_biogeographic_pattern.py"
+      - "src/island_v2/chapter1_pr138_direct_ledger_pattern.py"
+      - "src/island_v2/chapter1_pr138_information_weight.py"
+      - "src/island_v2/chapter1_pr138_evidence_ladder.py"
+      - "src/island_v2/chapter1_pr138_syndrome_analysis.py"
+      - "src/island_v2/chapter1_pr138_syndrome_template_sensitivity.py"
+      - "src/island_v2/chapter1_pr138_syndrome_block_deletion.py"
+      - "src/island_v2/chapter1_pr138_syndrome_distance_sensitivity.py"
+      - "src/island_v2/chapter1_pr138_pathway_decomposition.py"
+      - "src/island_v2/chapter1_pr136_biogeographic_residual.py"
+      - "config/chapter1_pr136_biogeographic_pattern.yml"
+      - "config/chapter1_pr136_biogeographic_residual.yml"
+      - "config/chapter1_pr138_pollination_syndromes.yml"
+      - "tests/test_chapter1_pr138_biogeographic_pattern.py"
+      - "tests/test_chapter1_pr138_direct_ledger_pattern.py"
+      - "tests/test_chapter1_pr138_information_weight.py"
+      - "tests/test_chapter1_pr138_evidence_ladder.py"
+      - "tests/test_chapter1_pr138_syndrome_analysis.py"
+      - "tests/test_chapter1_pr138_syndrome_template_sensitivity.py"
+      - "tests/test_chapter1_pr138_syndrome_block_deletion.py"
+      - "tests/test_chapter1_pr138_syndrome_distance_sensitivity.py"
+      - "tests/test_chapter1_pr138_pathway_decomposition.py"
+      - "tests/test_chapter1_pr136_biogeographic_residual.py"
+      - ".github/workflows/validate-pr136-channel-gated.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Ruff
+        run: |
+          ruff check \
+            src/island_v2/chapter1_pr138_biogeographic_pattern.py \
+            src/island_v2/chapter1_pr138_direct_ledger_pattern.py \
+            src/island_v2/chapter1_pr138_information_weight.py \
+            src/island_v2/chapter1_pr138_evidence_ladder.py \
+            src/island_v2/chapter1_pr138_syndrome_analysis.py \
+            src/island_v2/chapter1_pr138_syndrome_template_sensitivity.py \
+            src/island_v2/chapter1_pr138_syndrome_block_deletion.py \
+            src/island_v2/chapter1_pr138_syndrome_distance_sensitivity.py \
+            src/island_v2/chapter1_pr138_pathway_decomposition.py \
+            src/island_v2/chapter1_pr136_biogeographic_residual.py \
+            tests/test_chapter1_pr138_biogeographic_pattern.py \
+            tests/test_chapter1_pr138_direct_ledger_pattern.py \
+            tests/test_chapter1_pr138_information_weight.py \
+            tests/test_chapter1_pr138_evidence_ladder.py \
+            tests/test_chapter1_pr138_syndrome_analysis.py \
+            tests/test_chapter1_pr138_syndrome_template_sensitivity.py \
+            tests/test_chapter1_pr138_syndrome_block_deletion.py \
+            tests/test_chapter1_pr138_syndrome_distance_sensitivity.py \
+            tests/test_chapter1_pr138_pathway_decomposition.py \
+            tests/test_chapter1_pr136_biogeographic_residual.py
+      - name: Pattern, evidence, syndrome, template, block, distance and pathway falsification tests
+        run: |
+          pytest -q \
+            tests/test_chapter1_pr138_biogeographic_pattern.py \
+            tests/test_chapter1_pr138_direct_ledger_pattern.py \
+            tests/test_chapter1_pr138_information_weight.py \
+            tests/test_chapter1_pr138_evidence_ladder.py \
+            tests/test_chapter1_pr138_syndrome_analysis.py \
+            tests/test_chapter1_pr138_syndrome_template_sensitivity.py \
+            tests/test_chapter1_pr138_syndrome_block_deletion.py \
+            tests/test_chapter1_pr138_syndrome_distance_sensitivity.py \
+            tests/test_chapter1_pr138_pathway_decomposition.py \
+            tests/test_chapter1_pr136_biogeographic_residual.py
+      - name: Parse pattern contracts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+          primary = yaml.safe_load(Path('config/chapter1_pr136_biogeographic_pattern.yml').read_text())
+          secondary = yaml.safe_load(Path('config/chapter1_pr136_biogeographic_residual.yml').read_text())
+          syndrome = yaml.safe_load(Path('config/chapter1_pr138_pollination_syndromes.yml').read_text())
+          assert primary['inferential_layers']['primary'] == 'observed_native_flora_broad_syndrome_composition'
+          assert primary['pollinator_predictors_in_primary_model'] is False
+          assert len(primary['broad_outcomes']) == 8
+          assert secondary['pollinator_predictors_in_primary_model'] is False
+          assert set(['large_bee_like','butterfly_like','bird_like','generalized_accessible','selfing_syndrome','selfing_core']).issubset(syndrome['syndromes'])
+          assert syndrome['pathway_decomposition']['reproductive_core'] == 'selfing_core'
+          assert syndrome['analysis_rules'][-1] == 'causal_pollinator_claims_require_independent_pollinator_data'
+          print('Trait + syndrome + template + block + distance + pathway + lineage validation: ok')
+          PY
