@@ -1,0 +1,49 @@
+name: Validate TRY trait integration
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/island_v2/try_traits.py"
+      - "src/island_v2/try_trait_integration.py"
+      - "tests/test_try_traits.py"
+      - "tests/test_all_evidence_trait_audit.py"
+      - "docs/TRY_V6_INTEGRATION_20260904.md"
+      - ".github/workflows/validate-try-trait-integration.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/island_v2/try_traits.py"
+      - "src/island_v2/try_trait_integration.py"
+      - "tests/test_try_traits.py"
+      - "tests/test_all_evidence_trait_audit.py"
+      - "docs/TRY_V6_INTEGRATION_20260904.md"
+      - ".github/workflows/validate-try-trait-integration.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package and dev dependencies
+        run: pip install -e ".[dev]"
+      - name: Ruff
+        run: |
+          ruff check \
+            src/island_v2/try_traits.py \
+            src/island_v2/try_trait_integration.py \
+            tests/test_try_traits.py
+      - name: Provider and shared resolver tests
+        run: |
+          pytest -q \
+            tests/test_try_traits.py \
+            tests/test_all_evidence_trait_audit.py
