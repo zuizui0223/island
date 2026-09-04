@@ -1,0 +1,156 @@
+name: Run PR138 SI leave-one-genus influence
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr138_si_genus_influence.py"
+      - "tests/test_chapter1_pr138_si_genus_influence.py"
+      - ".github/workflows/run-pr138-si-genus-influence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FROZEN_RUN_ID: "32980009101"
+      FROZEN_ARTIFACT: "pr138-palearctic-restricted-ipw-32980009101"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate SI leave-one-genus influence audit
+        run: |
+          pytest -q tests/test_chapter1_pr138_si_genus_influence.py
+          ruff check \
+            src/island_v2/chapter1_pr138_si_genus_influence.py \
+            tests/test_chapter1_pr138_si_genus_influence.py
+
+      - name: Download frozen PR138 inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/genus/input /tmp/genus/result
+          gh run download "$FROZEN_RUN_ID" -n "$FROZEN_ARTIFACT" -D /tmp/genus/input
+          test -s /tmp/genus/input/input/input/realm/evidence/all_analysis_eligible_trait_ledger.csv.gz
+          test -s /tmp/genus/input/input/input/realm/evidence/direct_only_trait_ledger.csv.gz
+          test -s /tmp/genus/input/input/input/source/current/syndrome/all_analysis_eligible/species_syndrome_concordance.csv.gz
+          test -s /tmp/genus/input/input/input/source/current/syndrome/direct_only/species_syndrome_concordance.csv.gz
+          test -s /tmp/genus/input/input/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/genus/input/input/input/source/source/gift_native_mainland_flora.csv.gz
+          test -s /tmp/genus/input/input/input/source/result/island_source_assignments.csv.gz
+          test -s /tmp/genus/input/input/input/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/genus/input/input/input/realm/realm/island_biogeographic_realm_assignment.csv
+          test -s /tmp/genus/input/input/result/outcrossing_restriction_results.csv
+
+      - name: Run exhaustive leave-one-genus audit
+        run: |
+          python -m island_v2.chapter1_pr138_si_genus_influence \
+            --all-ledger-csv /tmp/genus/input/input/input/realm/evidence/all_analysis_eligible_trait_ledger.csv.gz \
+            --all-scores-csv /tmp/genus/input/input/input/source/current/syndrome/all_analysis_eligible/species_syndrome_concordance.csv.gz \
+            --direct-ledger-csv /tmp/genus/input/input/input/realm/evidence/direct_only_trait_ledger.csv.gz \
+            --direct-scores-csv /tmp/genus/input/input/input/source/current/syndrome/direct_only/species_syndrome_concordance.csv.gz \
+            --status-flora-csv /tmp/genus/input/input/canonical/input/chapter1_status_flora.csv.gz \
+            --gift-flora-csv /tmp/genus/input/input/input/source/source/gift_native_mainland_flora.csv.gz \
+            --source-assignments-csv /tmp/genus/input/input/input/source/result/island_source_assignments.csv.gz \
+            --covariates-csv /tmp/genus/input/input/input/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/genus/input/input/input/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --source-config-path config/chapter1_pr138_source_pool_sensitivity.yml \
+            --output-dir /tmp/genus/result
+
+      - name: Verify baseline estimand and summarize influence
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import numpy as np
+          import pandas as pd
+
+          root = Path('/tmp/genus')
+          all_results = pd.read_csv(
+              root / 'result/all_analysis_eligible_si_leave_one_genus_results.csv'
+          )
+          direct_results = pd.read_csv(
+              root / 'result/direct_only_si_leave_one_genus_results.csv'
+          )
+          all_rank = pd.read_csv(
+              root / 'result/all_analysis_eligible_si_leave_one_genus_ranking.csv'
+          )
+          direct_rank = pd.read_csv(
+              root / 'result/direct_only_si_leave_one_genus_ranking.csv'
+          )
+          original = pd.read_csv(root / 'input/input/result/outcrossing_restriction_results.csv')
+
+          original = original.loc[
+              original['restriction'].eq('si_only')
+              & original['context_layer'].eq('biogeographic_realm')
+              & original['context'].eq('Palearctic')
+              & original['support_tier'].eq('confirmatory')
+              & original['stratum'].isin(['all_native', 'native_nonendemic'])
+          ].copy()
+          baseline = all_results.loc[all_results['omitted_genus'].eq('__full__')].copy()
+          check = original.merge(
+              baseline,
+              on=['source_mode', 'stratum'],
+              how='inner',
+              validate='one_to_one',
+          )
+          if len(check) != 8:
+              raise SystemExit(f'expected 8 baseline rows, got {len(check)}')
+          delta = np.max(
+              np.abs(check['distance_estimate_x'] - check['distance_estimate_y'])
+          )
+          if not np.isfinite(delta) or delta > 1e-10:
+              raise SystemExit(f'baseline estimand reproduction failed: {delta}')
+
+          all_deletions = all_results.loc[~all_results['omitted_genus'].eq('__full__')]
+          direct_deletions = direct_results.loc[
+              ~direct_results['omitted_genus'].eq('__full__')
+          ]
+          if not (all_deletions['distance_estimate'] > 0).all():
+              raise SystemExit('all-analysis genus omission reversed at least one slope')
+          if not (direct_deletions['distance_estimate'] > 0).all():
+              raise SystemExit('direct-only genus omission reversed at least one slope')
+
+          out = root / 'si_leave_one_genus_summary.md'
+          with out.open('w') as f:
+              f.write('# PR138 exact-SI leave-one-genus influence audit\n\n')
+              f.write(f'Baseline estimand max absolute difference: {delta:.3g}.\n\n')
+              f.write('## All-analysis top influence\n\n```text\n')
+              f.write(all_rank.head(20).to_string(index=False))
+              f.write('\n```\n\n## Direct-only top influence\n\n```text\n')
+              f.write(direct_rank.head(20).to_string(index=False))
+              f.write('\n```\n\n## Direction summary\n\n')
+              f.write(
+                  f"- all-analysis: {len(all_deletions)}/{len(all_deletions)} positive; "
+                  f"minimum slope {all_deletions['distance_estimate'].min():.6f}.\n"
+              )
+              f.write(
+                  f"- direct-only: {len(direct_deletions)}/{len(direct_deletions)} positive; "
+                  f"minimum slope {direct_deletions['distance_estimate'].min():.6f}.\n"
+              )
+              manifests = json.loads(
+                  (root / 'result/si_leave_one_genus_manifest.json').read_text()
+              )
+              f.write('\n## Manifest\n\n```json\n')
+              f.write(json.dumps(manifests, indent=2))
+              f.write('\n```\n')
+          PY
+          cat /tmp/genus/si_leave_one_genus_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-si-genus-influence-${{ github.run_id }}
+          path: /tmp/genus/
+          if-no-files-found: error
+          retention-days: 90

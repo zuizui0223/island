@@ -1,0 +1,35 @@
+contract: chapter1_pr138_realm_sensitivity_v1
+
+dataset:
+  name: RESOLVE Ecoregions 2017
+  url: https://storage.googleapis.com/teow2016/Ecoregions2017.zip
+  license: CC-BY-4.0
+  conceptual_basis: >-
+    Terrestrial ecoregions nested within major biogeographic realms; used only as an
+    independent sensitivity to the broad northern/tropical/southern primary contexts.
+
+realms:
+  - Nearctic
+  - Palearctic
+  - Neotropical
+  - Afrotropical
+  - Indomalayan
+  - Australasian
+  - Oceanian
+  - Antarctic
+
+expected_replication_groups:
+  northern_temperate_realms: [Nearctic, Palearctic]
+  tropical_realms: [Neotropical, Afrotropical, Indomalayan]
+  southern_mobile_pollinator_candidate_realms: [Australasian]
+
+rules:
+  - point_in_polygon_assignment_only
+  - no_nearest_realm_imputation
+  - unresolved_is_not_absence
+  - realm_analysis_is_sensitivity_not_primary_replacement
+  - no_pollinator_identity_used_as_predictor
+  - syndrome_scores_remain_trait_concordance_not_pollinator_observations
+  - support_gates_are_inherited_from_pr138_primary
+  - significant_in_one_realm_and_nonsignificant_in_another_is_not_heterogeneity
+  - realm_vector_differences_require_direct_joint_tests

@@ -1,0 +1,89 @@
+name: Run Chapter 1 global branching analysis
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ISOLATION_RUN_ID: "29228212586"
+      ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+      PATHWAY_RUN_ID: "32922758001"
+      PATHWAY_ARTIFACT: "pr138-attraction-selfing-32922758001"
+      REALM_RUN_ID: "32927060210"
+      REALM_ARTIFACT: "pr138-realm-sensitivity-32927060210"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Download frozen analysis inputs
+        run: |
+          mkdir -p /tmp/isolation /tmp/pathway /tmp/realm
+          gh run download "$ISOLATION_RUN_ID" -n "$ISOLATION_ARTIFACT" -D /tmp/isolation
+          gh run download "$PATHWAY_RUN_ID" -n "$PATHWAY_ARTIFACT" -D /tmp/pathway
+          gh run download "$REALM_RUN_ID" -n "$REALM_ARTIFACT" -D /tmp/realm
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/pathway/syndrome/island_syndrome_scores.csv.gz
+          test -s /tmp/realm/realm/island_biogeographic_realm_assignment.csv
+      - name: Run global when/where branch analysis
+        run: |
+          python -m island_v2.chapter1_global_branching \
+            --island-scores-csv /tmp/pathway/syndrome/island_syndrome_scores.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --output-dir /tmp/global-branching
+      - name: Run outcome-blind observation-selection sensitivity
+        run: |
+          python -m island_v2.chapter1_global_branch_selection \
+            --island-scores-csv /tmp/pathway/syndrome/island_syndrome_scores.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --selection-config-path config/chapter1_global_branch_selection.yml \
+            --output-dir /tmp/global-branch-selection
+      - name: Summarize plant-side branches
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          states = pd.read_csv('/tmp/global-branching/global_plant_side_branch_states.csv')
+          focus = states.loc[
+              states['stratum'].isin(['all_native', 'native_nonendemic'])
+              & states['support_tier'].isin(['confirmatory', 'pilot'])
+          ]
+          text = '# Dispersal-filtered pollination-service branching hypothesis\n\n'
+          text += 'Chapter 1 identifies plant-side when/where branches only; direct effective service belongs to izu-core.\n\n```text\n'
+          text += focus.to_string(index=False)
+          text += '\n```\n'
+          Path('/tmp/global-branching-summary.md').write_text(text)
+          selection = pd.read_csv(
+              '/tmp/global-branch-selection/branch_selection_headline_summary.csv'
+          )
+          text = '\n## Observation-selection sensitivity\n\n```text\n'
+          text += selection.to_string(index=False)
+          text += '\n```\n'
+          with Path('/tmp/global-branching-summary.md').open('a') as handle:
+              handle.write(text)
+          PY
+          cat /tmp/global-branching-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-global-branching-${{ github.run_id }}
+          path: |
+            /tmp/global-branching/
+            /tmp/global-branch-selection/
+          if-no-files-found: error
+          retention-days: 90

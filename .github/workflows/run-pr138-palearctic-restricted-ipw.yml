@@ -1,0 +1,103 @@
+name: Run PR138 within-Palearctic restricted IPW
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr138_palearctic_restricted_ipw.py"
+      - "tests/test_chapter1_pr138_palearctic_restricted_ipw.py"
+      - ".github/workflows/run-pr138-palearctic-restricted-ipw.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OUTCROSS_RUN_ID: "32962391754"
+      OUTCROSS_ARTIFACT: "pr138-outcrossing-restriction-32962391754"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate within-Palearctic selection sensitivity
+        run: |
+          pytest -q tests/test_chapter1_pr138_palearctic_restricted_ipw.py
+          ruff check \
+            src/island_v2/chapter1_pr138_palearctic_restricted_ipw.py \
+            tests/test_chapter1_pr138_palearctic_restricted_ipw.py
+
+      - name: Download frozen restricted source-adjusted inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/pal/input /tmp/pal/result
+          gh run download "$OUTCROSS_RUN_ID" -n "$OUTCROSS_ARTIFACT" -D /tmp/pal/input
+          test -s /tmp/pal/input/result/outcrossing_restriction_adjusted_scores.csv.gz
+          test -s /tmp/pal/input/input/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/pal/input/input/realm/realm/island_biogeographic_realm_assignment.csv
+
+      - name: Fit Palearctic-only IPW with Aegean stress
+        run: |
+          python -m island_v2.chapter1_pr138_palearctic_restricted_ipw \
+            --adjusted-scores-csv /tmp/pal/input/result/outcrossing_restriction_adjusted_scores.csv.gz \
+            --covariates-csv /tmp/pal/input/input/isolation/results/purpose_shortest_island_data.csv \
+            --realm-assignment-csv /tmp/pal/input/input/realm/realm/island_biogeographic_realm_assignment.csv \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --selection-config-path config/chapter1_global_branch_selection.yml \
+            --output-dir /tmp/pal/result
+
+      - name: Summarize Palearctic restricted IPW
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+
+          root = Path('/tmp/pal/result')
+          result = pd.read_csv(root/'palearctic_restricted_ipw_results.csv')
+          diagnostics = pd.read_csv(root/'palearctic_restricted_ipw_diagnostics.csv')
+          fits = pd.read_csv(root/'palearctic_restricted_ipw_selection_fits.csv')
+          manifest = json.loads((root/'palearctic_restricted_ipw_manifest.json').read_text())
+          cols = [
+              'universe_mode','restriction','source_mode','stratum','selection_mode','status',
+              'n_unique_islands','distance_estimate','distance_se','distance_p',
+              'distance_q_across_source_modes','effective_sample_fraction','weight_max'
+          ]
+          out = Path('/tmp/pal/palearctic_restricted_ipw_summary.md')
+          with out.open('w') as f:
+              f.write('# PR138 within-Palearctic restricted IPW + Aegean stress\n\n')
+              f.write('The target population is Palearctic islands. Propensity uses only score availability and the frozen measured distance/area/climate covariates.\n\n')
+              f.write('## Response fits\n\n```text\n')
+              f.write(result[[c for c in cols if c in result.columns]].to_string(index=False))
+              f.write('\n```\n\n## Propensity fit status\n\n```text\n')
+              f.write(fits.to_string(index=False))
+              f.write('\n```\n\n## IPW diagnostic extrema\n\n```text\n')
+              d = diagnostics.loc[diagnostics['selection_mode'].ne('unweighted')]
+              if not d.empty:
+                  s = d.groupby(['universe_mode','restriction','selection_mode']).agg(
+                      max_weight=('weight_max','max'),
+                      min_ess_fraction=('effective_sample_fraction','min'),
+                      max_clipped=('n_propensity_clipped','max'),
+                  ).reset_index()
+                  f.write(s.to_string(index=False))
+              f.write('\n```\n\n## Manifest\n\n```json\n')
+              f.write(json.dumps(manifest, indent=2))
+              f.write('\n```\n')
+          PY
+          cat /tmp/pal/palearctic_restricted_ipw_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-palearctic-restricted-ipw-${{ github.run_id }}
+          path: /tmp/pal/
+          if-no-files-found: error
+          retention-days: 90

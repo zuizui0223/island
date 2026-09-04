@@ -1,0 +1,252 @@
+name: Run PR138 Nearctic status pilot
+
+on:
+  push:
+    branches: [pr136-channel-gated-primary-validation]
+    paths:
+      - "src/island_v2/chapter1_pr138_san_nicolas_status.py"
+      - "tests/test_chapter1_pr138_san_nicolas_status.py"
+      - ".github/workflows/run-pr138-nearctic-status-pilot.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ISOLATION_RUN_ID: "29228212586"
+      ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+      CANONICAL_RUN_ID: "32845980788"
+      CANONICAL_ARTIFACT: "chapter1-when-where-main-32845980788"
+      TRAIT_RUN_ID: "32702160934"
+      TRAIT_ARTIFACT: "reviewed-open-web-evidence-32702160934"
+      ECOREGION_URL: "https://storage.googleapis.com/teow2016/Ecoregions2017.zip"
+      SNI_URL: "https://cch2.org/portal/checklists/checklist.php?clid=25&pid=0"
+      CEDROS_URL: "https://sbbotanicgarden.org/wp-content/uploads/2022/08/Oberbauer-1993_Vegetation_communities_Isla_De_Cedros_Mexico.pdf"
+      BLOCK_ISLAND_ZIP_URL: "https://rinhs.org/wp-content/uploads/2024/07/Eco-of-Block-Is-companion-CD.zip"
+      SAINT_PIERRE_URL: "https://www.grandcolombier.com/wp-content/uploads/pdf/190109/flore_spm_le_hors_derniere_version.pdf"
+      SNI_ID: "gshhg_2.3.7_h_fa0f3406c02f18b31098"
+      CEDROS_ID: "gshhg_2.3.7_h_8814371cac9eab98b9d7"
+      BLOCK_ISLAND_ID: "gshhg_2.3.7_h_bc9e67a899b103ee84aa"
+      SAINT_PIERRE_ID: "gshhg_2.3.7_h_de89a65b42c292aa9739"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Install PDF text extractor
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y poppler-utils
+
+      - name: Download frozen project inputs
+        run: |
+          mkdir -p /tmp/isolation /tmp/canonical /tmp/traits /tmp/ecoregions /tmp/status_sources /tmp/pr138/status
+          gh run download "$ISOLATION_RUN_ID" -n "$ISOLATION_ARTIFACT" -D /tmp/isolation
+          gh run download "$CANONICAL_RUN_ID" -n "$CANONICAL_ARTIFACT" -D /tmp/canonical
+          gh run download "$TRAIT_RUN_ID" -n "$TRAIT_ARTIFACT" -D /tmp/traits
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/traits/direct_species_trait_ledger.csv.gz
+          test -s /tmp/traits/rebuilt_all_evidence_validated_low.csv.gz
+
+      - name: Download current source-backed island checklists
+        run: |
+          curl -A "Mozilla/5.0" -L --fail --retry 3 "$CEDROS_URL" -o /tmp/status_sources/cedros.pdf
+          pdftotext -layout /tmp/status_sources/cedros.pdf /tmp/status_sources/cedros.txt
+          test -s /tmp/status_sources/cedros.txt
+          curl -A "Mozilla/5.0" -L --fail --retry 3 "$SNI_URL" -o /tmp/status_sources/san_nicolas.html
+          test -s /tmp/status_sources/san_nicolas.html
+          curl -A "Mozilla/5.0" -L --fail --retry 3 "$BLOCK_ISLAND_ZIP_URL" -o /tmp/status_sources/block_island.zip
+          unzip -p /tmp/status_sources/block_island.zip \
+            'Chapters/C4_Enser/Chap4_Appendix.pdf' > /tmp/status_sources/block_island_appendix.pdf
+          pdfinfo /tmp/status_sources/block_island_appendix.pdf | grep -q 'Pages:[[:space:]]*17'
+          : > /tmp/status_sources/block_island_columns.txt
+          for page in $(seq 2 17); do
+            pdftotext -f "$page" -l "$page" -layout -x 0 -y 0 -W 306 -H 792 \
+              /tmp/status_sources/block_island_appendix.pdf - \
+              >> /tmp/status_sources/block_island_columns.txt
+            pdftotext -f "$page" -l "$page" -layout -x 306 -y 0 -W 306 -H 792 \
+              /tmp/status_sources/block_island_appendix.pdf - \
+              >> /tmp/status_sources/block_island_columns.txt
+          done
+          test -s /tmp/status_sources/block_island_columns.txt
+          curl -A "Mozilla/5.0" -L --fail --retry 3 "$SAINT_PIERRE_URL" -o /tmp/status_sources/saint_pierre.pdf
+          pdftotext -layout /tmp/status_sources/saint_pierre.pdf /tmp/status_sources/saint_pierre.txt
+          test -s /tmp/status_sources/saint_pierre.txt
+
+      - name: Parse source-backed status ledgers
+        run: |
+          python -m island_v2.chapter1_pr138_san_nicolas_status \
+            --pdftotext /tmp/status_sources/cedros.txt \
+            --island-species /tmp/canonical/input/chapter1_status_flora.csv.gz \
+            --island-id "$CEDROS_ID" \
+            --source-kind cedros_oberbauer \
+            --status-reference "$CEDROS_URL" \
+            --output-csv /tmp/pr138/status/cedros_status.csv \
+            --manifest-json /tmp/pr138/status/cedros_status_manifest.json
+          python -m island_v2.chapter1_pr138_san_nicolas_status \
+            --pdftotext /tmp/status_sources/san_nicolas.html \
+            --island-species /tmp/canonical/input/chapter1_status_flora.csv.gz \
+            --island-id "$SNI_ID" \
+            --source-kind san_nicolas_cch2 \
+            --status-reference "$SNI_URL" \
+            --output-csv /tmp/pr138/status/san_nicolas_status.csv \
+            --manifest-json /tmp/pr138/status/san_nicolas_status_manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('/tmp/pr138/status/san_nicolas_status_manifest.json').read_text())
+          assert manifest['n_source_species_keys'] >= 320, manifest
+          assert manifest['n_resolved'] >= 250, manifest
+          assert manifest['n_native'] >= 100, manifest
+          assert manifest['n_introduced'] >= 100, manifest
+          PY
+          python -m island_v2.chapter1_pr138_san_nicolas_status \
+            --pdftotext /tmp/status_sources/block_island_columns.txt \
+            --island-species /tmp/canonical/input/chapter1_status_flora.csv.gz \
+            --island-id "$BLOCK_ISLAND_ID" \
+            --source-kind block_island_enser \
+            --status-reference "$BLOCK_ISLAND_ZIP_URL" \
+            --output-csv /tmp/pr138/status/block_island_status.csv \
+            --manifest-json /tmp/pr138/status/block_island_status_manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('/tmp/pr138/status/block_island_status_manifest.json').read_text())
+          assert manifest['n_source_species_keys'] >= 600, manifest
+          assert manifest['n_resolved'] >= 140, manifest
+          assert manifest['n_native'] >= 100, manifest
+          assert manifest['n_introduced'] >= 30, manifest
+          PY
+          python -m island_v2.chapter1_pr138_san_nicolas_status \
+            --pdftotext /tmp/status_sources/saint_pierre.txt \
+            --island-species /tmp/canonical/input/chapter1_status_flora.csv.gz \
+            --island-id "$SAINT_PIERRE_ID" \
+            --source-kind saint_pierre_le_hors \
+            --status-reference "$SAINT_PIERRE_URL" \
+            --output-csv /tmp/pr138/status/saint_pierre_status.csv \
+            --manifest-json /tmp/pr138/status/saint_pierre_status_manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path('/tmp/pr138/status/saint_pierre_status_manifest.json').read_text())
+          assert manifest['n_source_species_keys'] == 6, manifest
+          assert manifest['n_resolved'] == 6, manifest
+          assert manifest['n_native'] == 5, manifest
+          assert manifest['n_introduced'] == 1, manifest
+          PY
+
+      - name: Build updated status-flora sensitivity input
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          base = pd.read_csv('/tmp/canonical/input/chapter1_status_flora.csv.gz')
+          paths = list(Path('/tmp/pr138/status').glob('*_status.csv'))
+          if not paths:
+              raise SystemExit('No source-backed status ledger produced')
+          ledgers = pd.concat([pd.read_csv(p) for p in paths], ignore_index=True)
+          key = ['island_id','accepted_species']
+          patch = ledgers[key + ['origin_status','endemic_status','status_source','status_reference','status_evidence_id']].copy()
+          out = base.merge(patch, on=key, how='left', suffixes=('', '_pilot'))
+          for col in ['origin_status','endemic_status','status_source','status_reference','status_evidence_id']:
+              pilot = col + '_pilot'
+              if pilot in out.columns:
+                  mask = out[pilot].notna() & out[pilot].astype(str).ne('')
+                  out.loc[mask, col] = out.loc[mask, pilot]
+                  out = out.drop(columns=[pilot])
+          out['status_resolved'] = out['origin_status'].fillna('unresolved').ne('unresolved')
+          def combined(row):
+              if row['origin_status'] == 'introduced': return 'introduced'
+              if row['origin_status'] != 'native': return 'unresolved'
+              if row['endemic_status'] == 'endemic': return 'endemic'
+              if row['endemic_status'] == 'nonendemic': return 'native_nonendemic'
+              return 'native_endemism_unresolved'
+          out['floristic_status'] = out.apply(combined, axis=1)
+          out.to_csv('/tmp/pr138/status/chapter1_status_flora_nearctic_pilot.csv.gz', index=False)
+          patched_ids = sorted(ledgers['island_id'].astype(str).unique())
+          print('patched islands:', patched_ids)
+          print(out.loc[out['island_id'].astype(str).isin(patched_ids), 'origin_status'].value_counts(dropna=False))
+          PY
+
+      - name: Download RESOLVE Ecoregions 2017
+        run: |
+          curl -L --fail --retry 3 "$ECOREGION_URL" -o /tmp/ecoregions/ecoregions.zip
+          unzip -q /tmp/ecoregions/ecoregions.zip -d /tmp/ecoregions/unpacked
+          SHP=$(find /tmp/ecoregions/unpacked -type f -name '*.shp' | head -1)
+          test -n "$SHP"
+          echo "ECOREGION_SHP=$SHP" >> "$GITHUB_ENV"
+
+      - name: Build all-analysis-eligible evidence ladder
+        run: |
+          python -m island_v2.chapter1_pr138_evidence_ladder \
+            --direct-ledger-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --validated-low-csv /tmp/traits/rebuilt_all_evidence_validated_low.csv.gz \
+            --output-dir /tmp/pr138/evidence
+
+      - name: Re-run formal realm sensitivity with source-backed islands
+        run: |
+          python -m island_v2.chapter1_pr138_realm_sensitivity \
+            --trait-ledger-csv /tmp/pr138/evidence/all_analysis_eligible_trait_ledger.csv.gz \
+            --status-flora-csv /tmp/pr138/status/chapter1_status_flora_nearctic_pilot.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --ecoregions-path "$ECOREGION_SHP" \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --syndrome-config-path config/chapter1_pr138_pollination_syndromes.yml \
+            --realm-config-path config/chapter1_pr138_realm_sensitivity.yml \
+            --output-dir /tmp/pr138/realm
+
+      - name: Write pilot summary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+          root=Path('/tmp/pr138')
+          manifests={}
+          for path in (root/'status').glob('*_status_manifest.json'):
+              manifests[path.stem]=json.loads(path.read_text())
+          within=pd.read_csv(root/'realm/realm_syndrome_within_omnibus.csv')
+          slopes=pd.read_csv(root/'realm/realm_syndrome_distance_slopes.csv')
+          scores=pd.read_csv(root/'realm/realm_island_syndrome_scores.csv.gz')
+          assignments=pd.read_csv(root/'realm/island_biogeographic_realm_assignment.csv')
+          score_realms=scores.merge(
+              assignments[['island_id','biogeographic_realm']], on='island_id', how='left'
+          )
+          near_support=(
+              score_realms.loc[score_realms['biogeographic_realm'].eq('Nearctic')]
+              .groupby(['stratum','syndrome'])['island_id'].nunique()
+              .rename('n_unique_islands').reset_index()
+              .sort_values(
+                  ['stratum','n_unique_islands','syndrome'], ascending=[True,False,True]
+              )
+          )
+          near_w=within.loc[within['context'].eq('Nearctic')]
+          near_s=slopes.loc[slopes['context'].eq('Nearctic')]
+          with (root/'nearctic_status_pilot_summary.md').open('w') as f:
+              f.write('# PR138 source-backed Nearctic status pilot\n\n')
+              f.write('## Status extraction manifests\n```json\n'+json.dumps(manifests,indent=2)+'\n```\n\n')
+              f.write('## Nearctic within-realm results\n```text\n')
+              f.write(near_w.to_string(index=False) if not near_w.empty else 'Nearctic remains below pilot gate.')
+              f.write('\n```\n\n## Nearctic syndrome slopes\n```text\n')
+              f.write(near_s.to_string(index=False) if not near_s.empty else 'No Nearctic slopes fit.')
+              f.write('\n```\n\n## Nearctic support before thresholding\n```text\n')
+              f.write(near_support.to_string(index=False))
+              f.write('\n```\n')
+          PY
+          cat /tmp/pr138/nearctic_status_pilot_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr138-nearctic-status-pilot-${{ github.run_id }}
+          path: /tmp/pr138/
+          if-no-files-found: error
+          retention-days: 90

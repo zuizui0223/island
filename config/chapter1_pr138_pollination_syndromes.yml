@@ -1,0 +1,183 @@
+contract: chapter1_pr138_pollination_syndromes_v2
+
+purpose: >-
+  Define predeclared multivariate floral-syndrome concordance scores for PR138.
+  These scores are trait-combination responses, not direct observations of pollinator identity.
+
+literature_basis:
+  - citation: "Fenster et al. 2004, Annual Review of Ecology, Evolution, and Systematics 35:375-403"
+    doi: "10.1146/annurev.ecolsys.34.011802.132347"
+    role: "functional pollinator groups select on combinations of floral traits"
+  - citation: "Rosas-Guerrero et al. 2014, Ecology Letters 17:388-400"
+    doi: "10.1111/ele.12224"
+    role: "quantitative cross-angiosperm support for multivariate pollination syndromes"
+  - citation: "Dellinger 2020, New Phytologist"
+    doi: "10.1111/nph.16793"
+    role: "modern review emphasizing functional groups, multivariate traits, and limits of hard classification"
+  - citation: "Sicard & Lenhard 2011, Annals of Botany 107:1433-1443"
+    doi: "10.1093/aob/mcr023"
+    role: "selfing syndrome: smaller flowers and reduced herkogamy among recurrent correlated changes"
+  - citation: "Shimizu et al. 2022, Philosophical Transactions B"
+    pmcid: "PMC9149797"
+    role: "selfing syndrome separates reduced pollinator-attraction investment from reproductive selfing mechanisms"
+
+score_definition:
+  type: weighted_trait_concordance
+  range: [-1, 1]
+  soft_membership_transform: "(concordance + 1) / 2"
+  minimum_informative_traits: 2
+  missing_traits: ignored_in_denominator
+  mixed_state_crossing_preferred_and_opposed_sets: unresolved_for_that_trait
+  interpretation: >-
+    Positive values mean that the observed trait combination is more concordant with the
+    predeclared syndrome template. Scores do not identify the realized pollinator.
+
+syndromes:
+  large_bee_like:
+    role: northern_pollination_channel_candidate
+    traits:
+      flower_primary_color:
+        weight: 0.5
+        preferred: [blue_purple, yellow_orange]
+        opposed: [red_pink, green_brown_inconspicuous]
+      floral_form:
+        weight: 1.0
+        preferred: [bell_campanulate, bilabiate, papilionaceous, funnel_trumpet]
+        opposed: [open_radial, composite_head]
+      floral_symmetry:
+        weight: 0.75
+        preferred: [zygomorphic]
+        opposed: [asymmetric]
+      tube_depth_class:
+        weight: 1.0
+        preferred: [intermediate, deep]
+        opposed: [absent_or_open]
+      flower_size_class:
+        weight: 0.25
+        preferred: [medium, large, very_large]
+        opposed: [very_small]
+
+  butterfly_like:
+    role: tropical_mobile_insect_candidate
+    traits:
+      flower_primary_color:
+        weight: 0.5
+        preferred: [red_pink, yellow_orange, blue_purple]
+        opposed: [green_brown_inconspicuous]
+      floral_form:
+        weight: 1.0
+        preferred: [salverform, tubular, spurred, funnel_trumpet]
+        opposed: [urn_urceolate]
+      tube_depth_class:
+        weight: 1.0
+        preferred: [deep]
+        opposed: [absent_or_open]
+      flower_size_class:
+        weight: 0.25
+        preferred: [medium, large, very_large]
+        opposed: [very_small]
+
+  bird_like:
+    role: southern_mobile_vertebrate_candidate
+    traits:
+      flower_primary_color:
+        weight: 0.75
+        preferred: [red_pink, yellow_orange]
+        opposed: [green_brown_inconspicuous]
+      floral_form:
+        weight: 1.0
+        preferred: [tubular, funnel_trumpet, bell_campanulate]
+        opposed: [open_radial]
+      tube_depth_class:
+        weight: 1.0
+        preferred: [deep, intermediate]
+        opposed: [absent_or_open]
+      flower_size_class:
+        weight: 0.5
+        preferred: [large, very_large]
+        opposed: [very_small]
+
+  generalized_accessible:
+    role: pollinator_accessibility_axis
+    traits:
+      floral_form:
+        weight: 1.0
+        preferred: [open_radial, brush_puff, composite_head]
+        opposed: [salverform, tubular, spurred, papilionaceous, bilabiate, urn_urceolate]
+      floral_symmetry:
+        weight: 0.75
+        preferred: [actinomorphic]
+        opposed: [zygomorphic]
+      tube_depth_class:
+        weight: 1.0
+        preferred: [absent_or_open, shallow]
+        opposed: [deep]
+
+  selfing_syndrome:
+    role: reproductive_assurance_plus_floral_reduction_axis
+    traits:
+      self_incompatibility:
+        weight: 1.0
+        preferred: [SC]
+        opposed: [SI]
+      mating_system:
+        weight: 1.0
+        preferred: [predominantly_selfing, obligate_selfing]
+        opposed: [predominantly_outcrossing]
+      autonomous_selfing_capacity:
+        weight: 1.0
+        preferred: [autonomous, delayed]
+        opposed: [absent]
+      flower_size_class:
+        weight: 0.5
+        preferred: [very_small, small]
+        opposed: [large, very_large]
+
+  selfing_core:
+    role: reproductive_mechanism_axis_without_floral_attraction_traits
+    traits:
+      self_incompatibility:
+        weight: 1.0
+        preferred: [SC]
+        opposed: [SI]
+      mating_system:
+        weight: 1.0
+        preferred: [predominantly_selfing, obligate_selfing]
+        opposed: [predominantly_outcrossing]
+      autonomous_selfing_capacity:
+        weight: 1.0
+        preferred: [autonomous, delayed]
+        opposed: [absent]
+
+pathway_decomposition:
+  attraction_shift: "(-large_bee_like + generalized_accessible) / 2"
+  reproductive_core: selfing_core
+  tests:
+    - "selfing_core ~ distance + area + climate"
+    - "attraction_shift ~ distance + area + climate"
+    - "attraction_shift ~ distance + selfing_core + area + climate"
+  interpretation: >-
+    Persistence of the distance effect on attraction_shift after conditioning on selfing_core
+    is evidence that the floral/pollination-syndrome shift is not reducible to the measured
+    reproductive selfing core. This is a conditional decomposition, not causal mediation.
+
+primary_regional_predictions:
+  northern_midlatitude:
+    large_bee_like: negative
+    generalized_accessible: positive
+    selfing_syndrome: positive
+    selfing_core: positive
+  tropical:
+    butterfly_like: nonnegative_or_maintained
+  southern_extratropical:
+    bird_like: nonnegative_or_maintained
+
+analysis_rules:
+  - syndrome_scores_are_responses_not_pollinator_observations
+  - no_single_trait_hard_assignment_to_pollinator
+  - colour_is_downweighted_relative_to_shape_and_tube_depth
+  - selfing_syndrome_is_separate_from_pollination_syndromes
+  - selfing_core_excludes_floral_attraction_traits
+  - conditional_pathway_decomposition_is_not_causal_mediation
+  - region_differences_require_direct_interaction_or_vector_tests
+  - causal_pollinator_claims_require_independent_pollinator_data
