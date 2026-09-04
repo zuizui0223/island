@@ -196,3 +196,53 @@ def test_try_independent_si_conflict_removes_prior_resolved_cell():
     ].iloc[0]
     assert cell["quality"] == ""
     assert result["summary"]["direct"]["removed_species_trait"] == 1
+
+
+def test_try_integration_drops_species_outside_current_strict_universe():
+    formal = pd.DataFrame(columns=EVIDENCE_COLUMNS)
+    direct, low, coverage = current_state(formal)
+    try_common = pd.DataFrame(
+        [
+            evidence(
+                "Alpha beta",
+                "flower_primary_color",
+                "white",
+                "doi:10.1234/in-scope",
+                source_group="try",
+            ),
+            evidence(
+                "Abies outscope",
+                "flower_primary_color",
+                "white",
+                "doi:10.1234/out-of-scope",
+                source_group="try",
+            ),
+        ],
+        columns=EVIDENCE_COLUMNS,
+    )
+
+    result = integration.integrate(
+        try_common=try_common,
+        formal_direct_evidence=formal,
+        additional_common=[],
+        current_direct=direct,
+        current_low=low,
+        current_coverage=coverage,
+        master_genus_map=pd.concat(
+            [
+                master(),
+                pd.DataFrame(
+                    [{"accepted_species": "Abies outscope", "genus": "Abies"}]
+                ),
+            ],
+            ignore_index=True,
+        ),
+        ontology=ONTOLOGY,
+    )
+
+    assert "Abies outscope" not in set(result["direct"]["accepted_species"])
+    assert "Abies outscope" not in set(result["lineages"]["accepted_species"])
+    assert result["summary"]["try"]["input_species"] == 2
+    assert result["summary"]["try"]["species"] == 1
+    assert result["summary"]["try"]["out_of_scope_rows_dropped"] == 1
+    assert result["summary"]["try"]["out_of_scope_species_dropped"] == 1
