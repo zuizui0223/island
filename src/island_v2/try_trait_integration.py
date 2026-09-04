@@ -74,9 +74,10 @@ def build_master(
     genus = genus.loc[genus.genus.ne("")].drop_duplicates("accepted_species", keep="first")
     low_genus = pd.DataFrame(columns=["accepted_species", "genus"])
     if {"accepted_species", "genus"}.issubset(current_low.columns):
-        low_genus = current_low.loc[
-            current_low["genus"].fillna("").ne(""), ["accepted_species", "genus"]
-        ].drop_duplicates("accepted_species", keep="first")
+        low_genus = (
+            current_low.loc[current_low["genus"].fillna("").ne(""), ["accepted_species", "genus"]]
+            .drop_duplicates("accepted_species", keep="first")
+        )
     master = current_coverage[["accepted_species"]].drop_duplicates().copy()
     master = master.merge(
         genus.rename(columns={"genus": "formal_genus"}),
@@ -89,9 +90,7 @@ def build_master(
         how="left",
     )
     master["genus"] = master["formal_genus"].fillna("")
-    master["genus"] = master["genus"].where(
-        master["genus"].ne(""), master["low_genus"].fillna("")
-    )
+    master["genus"] = master["genus"].where(master["genus"].ne(""), master["low_genus"].fillna(""))
     master["genus"] = master["genus"].where(
         master["genus"].ne(""), master["accepted_species"].str.split().str[0]
     )
@@ -111,11 +110,19 @@ def integrate(
 ) -> dict[str, Any]:
     if try_common.empty:
         raise ValueError("TRY common evidence is empty")
+    master = build_master(current_coverage, master_genus_map, current_low)
+    master_species = set(master["accepted_species"])
+    input_try_rows = len(try_common)
+    input_try_species = int(try_common["accepted_species"].nunique())
+    in_scope = try_common["accepted_species"].isin(master_species)
+    out_of_scope_try = try_common.loc[~in_scope].copy()
+    try_common = try_common.loc[in_scope].copy()
+    if try_common.empty:
+        raise ValueError("TRY common evidence has no rows in the current strict coverage universe")
     raw = pd.concat(
         [formal_direct_evidence, *additional_common, try_common],
         ignore_index=True,
     ).fillna("")
-    master = build_master(current_coverage, master_genus_map, current_low)
     genus_map = dict(master.itertuples(index=False, name=None))
 
     lineages, lineage_duplicates = dedupe_direct_lineages(raw, ontology)
@@ -140,63 +147,45 @@ def integrate(
     }
     lineage_mask = [
         (genus, trait) in affected
-        for genus, trait in zip(
-            lineages["genus"], lineages["trait_name"], strict=True
-        )
+        for genus, trait in zip(lineages["genus"], lineages["trait_name"], strict=True)
     ]
     affected_lineages = lineages.loc[lineage_mask].copy()
     recomputed_direct, conflict_audit = resolve_direct_cells(affected_lineages)
-    recomputed_direct["genus"] = recomputed_direct["accepted_species"].map(
-        genus_map
-    ).fillna(recomputed_direct["accepted_species"].str.split().str[0])
+    recomputed_direct["genus"] = recomputed_direct["accepted_species"].map(genus_map).fillna(
+        recomputed_direct["accepted_species"].str.split().str[0]
+    )
 
     existing_direct_mask = [
         (genus, trait) in affected
-        for genus, trait in zip(
-            current_direct["genus"], current_direct["trait_name"], strict=True
-        )
+        for genus, trait in zip(current_direct["genus"], current_direct["trait_name"], strict=True)
     ]
     updated_direct = pd.concat(
         [current_direct.loc[[not x for x in existing_direct_mask]], recomputed_direct],
         ignore_index=True,
     ).fillna("")
-    updated_direct = updated_direct.drop_duplicates(
-        ["accepted_species", "trait_name"], keep="last"
-    )
+    updated_direct = updated_direct.drop_duplicates(["accepted_species", "trait_name"], keep="last")
 
     affected_direct_mask = [
         (genus, trait) in affected
-        for genus, trait in zip(
-            updated_direct["genus"], updated_direct["trait_name"], strict=True
-        )
+        for genus, trait in zip(updated_direct["genus"], updated_direct["trait_name"], strict=True)
     ]
     affected_low_mask = [
         (genus, trait) in affected
-        for genus, trait in zip(
-            current_low["genus"], current_low["trait_name"], strict=True
-        )
+        for genus, trait in zip(current_low["genus"], current_low["trait_name"], strict=True)
     ]
     rules = build_rule_audit(
         updated_direct.loc[affected_direct_mask],
         affected_lineages,
         current_low.loc[affected_low_mask],
     )
-    replacement_low = apply_genus_rules(
-        master, updated_direct, rules, "current_min3"
-    )
+    replacement_low = apply_genus_rules(master, updated_direct, rules, "current_min3")
     updated_low = pd.concat(
         [current_low.loc[[not x for x in affected_low_mask]], replacement_low],
         ignore_index=True,
     ).fillna("")
-    updated_low = updated_low.drop_duplicates(
-        ["accepted_species", "trait_name"], keep="last"
-    )
-    direct_keys = pd.MultiIndex.from_frame(
-        updated_direct[["accepted_species", "trait_name"]]
-    )
-    low_keys = pd.MultiIndex.from_frame(
-        updated_low[["accepted_species", "trait_name"]]
-    )
+    updated_low = updated_low.drop_duplicates(["accepted_species", "trait_name"], keep="last")
+    direct_keys = pd.MultiIndex.from_frame(updated_direct[["accepted_species", "trait_name"]])
+    low_keys = pd.MultiIndex.from_frame(updated_low[["accepted_species", "trait_name"]])
     updated_low = updated_low.loc[~low_keys.isin(direct_keys)].reset_index(drop=True)
     updated_coverage = species_axis_coverage(master, updated_direct, updated_low)
 
@@ -215,6 +204,8 @@ def integrate(
     summary = {
         "contract": CONTRACT,
         "try": {
+            "input_common_rows": input_try_rows,
+            "input_species": input_try_species,
             "common_rows": len(try_common),
             "species": int(try_common.accepted_species.nunique()),
             "species_trait": int(
@@ -222,6 +213,8 @@ def integrate(
                 .drop_duplicates()
                 .shape[0]
             ),
+            "out_of_scope_rows_dropped": int(len(out_of_scope_try)),
+            "out_of_scope_species_dropped": int(out_of_scope_try["accepted_species"].nunique()),
             "by_trait": try_common.groupby("trait_name").size().astype(int).to_dict(),
         },
         "direct": {
@@ -229,11 +222,11 @@ def integrate(
             "after_species_trait": len(after_direct),
             "added_species_trait": len(after_direct - before_direct),
             "removed_species_trait": len(before_direct - after_direct),
-            "conflicted_cells_excluded": int(
-                conflict_audit["resolution_status"].eq("excluded").sum()
-            )
-            if len(conflict_audit)
-            else 0,
+            "conflicted_cells_excluded": (
+                int(conflict_audit["resolution_status"].eq("excluded").sum())
+                if len(conflict_audit)
+                else 0
+            ),
         },
         "validated_low": {
             "before_species_trait": len(before_low),
@@ -307,27 +300,13 @@ def main() -> None:
         master_genus_map=pd.read_csv(args.master_genus_map, dtype=str).fillna(""),
         ontology=load_ontology(args.ontology),
     )
-    write_gz(
-        result["lineages"], args.output / "direct_source_lineages_after_try.csv.gz"
-    )
-    write_gz(
-        result["lineage_duplicates"],
-        args.output / "try_lineage_duplicate_audit.csv.gz",
-    )
-    write_gz(
-        result["direct"], args.output / "strict_species_direct_after_try.csv.gz"
-    )
+    write_gz(result["lineages"], args.output / "direct_source_lineages_after_try.csv.gz")
+    write_gz(result["lineage_duplicates"], args.output / "try_lineage_duplicate_audit.csv.gz")
+    write_gz(result["direct"], args.output / "strict_species_direct_after_try.csv.gz")
     write_gz(result["low"], args.output / "validated_low_after_try.csv.gz")
-    write_gz(
-        result["coverage"],
-        args.output / "strict_species_axis_coverage_after_try.csv.gz",
-    )
-    write_gz(
-        result["rules"], args.output / "affected_genus_rules_after_try.csv.gz"
-    )
-    write_gz(
-        result["conflicts"], args.output / "try_direct_conflict_audit.csv.gz"
-    )
+    write_gz(result["coverage"], args.output / "strict_species_axis_coverage_after_try.csv.gz")
+    write_gz(result["rules"], args.output / "affected_genus_rules_after_try.csv.gz")
+    write_gz(result["conflicts"], args.output / "try_direct_conflict_audit.csv.gz")
     summary = result["summary"]
     summary["input_sha256"] = {
         "try_common": sha256(args.try_common),
