@@ -1,0 +1,26 @@
+{
+  "accepted_n_islands_sum": 146,
+  "accepted_species": 20,
+  "contract": "ken_fern_exact_wild_species_self_fertility_acquisition_v1",
+  "created_at_utc": "2026-08-27T12:14:27.978003+00:00",
+  "fetch_errors": 0,
+  "fetched_or_cached": 5795,
+  "identity_and_family_exact": 5659,
+  "lineage_internal_conflict_species": 0,
+  "mapping": "sexually reproducing wild species Self-fertile=Yes -> self_incompatibility=SC; never autonomous selfing; apomixis excluded",
+  "queued_pages": 5795,
+  "queued_species": 5607,
+  "source_access": {
+    "license": "CC BY-NC-SA 3.0",
+    "robots": "both robots.txt permit all paths",
+    "temperate": "https://temperate.theferns.info/",
+    "tropical": "https://tropical.theferns.info/"
+  },
+  "source_lineage_policy": "PFAF, Useful Tropical Plants and Useful Temperate Plants collapse to one Ken Fern species lineage",
+  "status_counts": {
+    "accepted_wild_self_fertile": 22,
+    "family_mismatch": 136,
+    "nonsexual_reproduction_category_error": 4,
+    "not_positive_self_fertile": 5633
+  }
+}

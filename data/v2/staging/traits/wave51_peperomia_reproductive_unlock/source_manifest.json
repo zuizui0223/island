@@ -1,0 +1,82 @@
+{
+  "contract": "wave51_peperomia_reproductive_packet_v1",
+  "created_at_utc": "2026-09-01T00:00:00Z",
+  "fixed_target_species": 106295,
+  "formal_wave33_baseline": {
+    "run_id": 32932103226,
+    "artifact_id": 9593698966,
+    "artifact_name": "integrated-trait-coverage-32932103226",
+    "artifact_digest": "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
+  },
+  "immediate_formal_baseline": {
+    "run_id": 33406678174,
+    "artifact_id": 9763458702,
+    "artifact_name": "wave50-source-grounded-reproductive-unlock-33406678174",
+    "artifact_digest": "sha256:432107b5da394a5072dc89f19f5857dd8a1faf3c05d1b15f7ca5e9aff399ba4c"
+  },
+  "evidence_counts": {
+    "direct_rows": 4,
+    "external_rows": 2,
+    "review_rows": 6,
+    "identity_rows": 6,
+    "rejected_rows": 3
+  },
+  "selection": {
+    "source_pages_retrieved": 3,
+    "strategy": "third independent source-lineage species for a support-1 Peperomia self-compatibility rule plus direct unresolved autonomous-selfing cells",
+    "accepted_species": 6,
+    "accepted_species_trait": 6,
+    "accepted_species_axis": 6
+  },
+  "query_accounting": {
+    "formal_search_api_queries": 4,
+    "source_pages_retrieved": 3,
+    "query_cost_usd": 0.0
+  },
+  "sources": [
+    {
+      "source_id": "figueiredo-1997-peperaceae-thesis",
+      "retrieval_url": "https://repositorio.unicamp.br/Busca/Download?codigoArquivo=485942&tipoMidia=0",
+      "retrieved_filename": "figueiredo_1997_peperaceae_thesis.pdf",
+      "retrieved_content_sha256": "b2768aa0a0a52ec9d594a634af860854ec894f4f88f3d4480227fc447c67a507",
+      "source_lineage": "doi:10.47749/t/unicamp.1997.114042",
+      "reviewed_rows": 4,
+      "retrieval_mode": "manual_browser_pinned",
+      "manual_receipt": {
+        "retrieved_bytes": 12616989,
+        "retrieved_at_utc": "2026-09-01T00:00:00Z",
+        "official_catalog_url": "https://repositorio.unicamp.br/acervo/detalhe/114042",
+        "binary_available_in_ci": false,
+        "reviewed_page_numbers": [55, 56],
+        "reviewed_quote_fingerprints": [
+          "4438d81321d35a9d9836ff9ddf2b47b34587d699a4a75c3d874752c8da399916",
+          "d8517fc18169e2b350b030029768d052d41ea341aeb97d2a5f9dc73758cf0f05"
+        ]
+      }
+    },
+    {
+      "source_id": "huntington-isi-2017-24",
+      "retrieval_url": "https://media.huntington.org/ISI/ISI2017/2017-24.html",
+      "retrieved_filename": "huntington_campylotropa.html",
+      "source_lineage": "huntington-isi:2017-24",
+      "content_anchor_sha256": "4a340d48bd9c6da7210e90c4f5107df4a17928d432d1b94c254ee43808bccc7d",
+      "reviewed_rows": 1
+    },
+    {
+      "source_id": "huntington-isi-2026-25",
+      "retrieval_url": "https://plantsales.huntington.org/products/isi-2026-peperomia-cactusville",
+      "retrieved_filename": "huntington_asperula.html",
+      "source_lineage": "huntington-isi:2026-25",
+      "content_anchor_sha256": "251ef9ffdb778c41508131b9274b011db60f430796a95d58a3514c1be77ec4a5",
+      "reviewed_rows": 1
+    }
+  ],
+  "inference_policy": {
+    "join_key": "genus x axis x trait_name",
+    "minimum_species": 3,
+    "family_inference": false,
+    "global_fallback": false,
+    "reproductive_traits_interchangeable": false,
+    "single_source_lineage_can_unlock_rule": false
+  }
+}

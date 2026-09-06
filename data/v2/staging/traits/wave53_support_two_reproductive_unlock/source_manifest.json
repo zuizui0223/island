@@ -1,0 +1,64 @@
+{
+  "contract": "wave53_support_two_reproductive_packet_v1",
+  "created_at_utc": "2026-09-02T05:00:00Z",
+  "fixed_target_species": 106295,
+  "formal_wave33_baseline": {
+    "run_id": 32932103226,
+    "artifact_id": 9593698966,
+    "artifact_name": "integrated-trait-coverage-32932103226",
+    "artifact_digest": "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
+  },
+  "immediate_formal_baseline": {
+    "run_id": 33470056127,
+    "artifact_id": 9786227115,
+    "artifact_name": "wave52-support-two-reproductive-unlock-33470056127",
+    "artifact_digest": "sha256:a6dcf159e79a678a35d643e6f72e15afffe979b801d411005d28c286bf079c89"
+  },
+  "evidence_counts": {
+    "direct_rows": 1,
+    "external_rows": 1,
+    "review_rows": 2,
+    "identity_rows": 2,
+    "rejected_rows": 2
+  },
+  "selection": {
+    "source_pages_retrieved": 2,
+    "strategy": "third independent species for two high-yield support-two self-compatibility rules; one fixed-target direct species and one external congener used only for rule training",
+    "accepted_species": 2,
+    "accepted_species_trait": 2,
+    "accepted_species_axis": 1
+  },
+  "query_accounting": {
+    "formal_search_api_queries": 0,
+    "interactive_discovery_queries": 12,
+    "source_pages_retrieved": 2,
+    "query_cost_usd": 0.0
+  },
+  "sources": [
+    {
+      "source_id": "europub-gomphrena-serrata-2017",
+      "retrieval_url": "https://www.europub.co.uk/articles/524542",
+      "retrieved_filename": "europub_gomphrena_serrata.html",
+      "source_lineage": "article:aluri-chappidi-2017-gomphrena-serrata",
+      "content_anchor_sha256": "ed9c6b8bc93f9a64a9d3f87d8eae450f2fc151844981c9d76c65589c84683503",
+      "reviewed_rows": 1
+    },
+    {
+      "source_id": "pmc-marcgravia-longifolia-2025",
+      "retrieval_url": "https://www.ncbi.nlm.nih.gov/research/bionlp/RESTful/pmcoa.cgi/BioC_xml/PMC12374130/unicode",
+      "retrieved_filename": "pmc_marcgravia_longifolia.html",
+      "source_lineage": "doi:10.1002/ece3.72050",
+      "content_anchor_sha256": "d5384490483b3e1f6cefc4320039c33bf5b0905ab6f474246724279c99ad0d82",
+      "reviewed_rows": 1
+    }
+  ],
+  "inference_policy": {
+    "join_key": "genus x axis x trait_name",
+    "minimum_species": 3,
+    "family_inference": false,
+    "global_fallback": false,
+    "reproductive_traits_interchangeable": false,
+    "single_source_lineage_can_unlock_rule": false,
+    "completed_axis_novel_trait_enrichment": false
+  }
+}

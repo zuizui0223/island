@@ -1,0 +1,184 @@
+name: Build Wave36 NHM and reproductive-remine coverage
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-wave36-trait-coverage.yml"
+      - "src/island_v2/nhm_botanical_description_source.py"
+      - "src/island_v2/useful_plants_reproduction_remine.py"
+      - "src/island_v2/wave36_trait_overlay.py"
+      - "tests/test_nhm_botanical_description_source.py"
+      - "tests/test_useful_plants_reproduction_remine.py"
+      - "tests/test_wave36_trait_overlay.py"
+      - "data/v2/staging/traits/wave36_nhm_reproductive_remine/**"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: build-wave36-trait-coverage-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      WAVE35_RUN_ID: "33072865120"
+      WAVE35_ARTIFACT: "wave35-trait-coverage-33072865120"
+      WAVE35_ARTIFACT_ID: "9646562206"
+      WAVE35_ARTIFACT_DIGEST: "sha256:d16b071fa93371a8c31ee6f4bba21702f9cf40c2fc376589b69e3572275bb8a3"
+      WAVE35_COVERAGE_SHA256: "45c754c9797352dad6e03c08cb4003de30599c9980f746c8f6c3a803ebff401e"
+      SOURCE_DIR: "data/v2/staging/traits/wave36_nhm_reproductive_remine"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Regenerate and verify reviewed source packages
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wave36-sources
+          mkdir -p /tmp/wave36-sources/nhm /tmp/wave36-sources/reproduction
+          island-v2-nhm-botanical-descriptions \
+            --review-csv "$SOURCE_DIR/nhm_source_specific_manual_review.csv" \
+            --output-dir /tmp/wave36-sources/nhm
+          island-v2-useful-plants-reproduction-remine \
+            --candidates-jsonl "$SOURCE_DIR/useful_plants_cached_reproductive_candidate_excerpts.jsonl" \
+            --review-csv "$SOURCE_DIR/useful_plants_reproduction_manual_review.csv" \
+            --output-dir /tmp/wave36-sources/reproduction
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          import pandas as pd
+
+          root = Path(os.environ["SOURCE_DIR"])
+          regenerated = Path("/tmp/wave36-sources")
+          pairs = [
+              (regenerated / "nhm/nhm_reviewed_direct_evidence.csv.gz", root / "nhm_reviewed_direct_evidence.csv.gz"),
+              (regenerated / "nhm/nhm_review_audit.csv.gz", root / "nhm_review_audit.csv.gz"),
+              (regenerated / "reproduction/useful_plants_remine_direct_evidence.csv.gz", root / "useful_plants_remine_direct_evidence.csv.gz"),
+              (regenerated / "reproduction/useful_plants_remine_review_audit.csv.gz", root / "useful_plants_remine_review_audit.csv.gz"),
+          ]
+          for observed, expected in pairs:
+              pd.testing.assert_frame_equal(
+                  pd.read_csv(observed, dtype=str).fillna(""),
+                  pd.read_csv(expected, dtype=str).fillna(""),
+                  check_dtype=False,
+              )
+          for relative, expected_name in (
+              ("nhm/nhm_source_summary.json", "nhm_source_summary.json"),
+              ("reproduction/useful_plants_remine_summary.json", "useful_plants_remine_summary.json"),
+          ):
+              observed = json.loads((regenerated / relative).read_text())
+              expected = json.loads((root / expected_name).read_text())
+              for volatile in ("artifact_sha256",):
+                  observed.pop(volatile, None)
+                  expected.pop(volatile, None)
+              assert observed == expected, expected_name
+          PY
+
+      - name: Download and verify pinned Wave35 baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(gh run view "$WAVE35_RUN_ID" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+          artifact_json=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$WAVE35_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$artifact_json")" = "$WAVE35_ARTIFACT"
+          test "$(jq -r .expired <<<"$artifact_json")" = false
+          test "$(jq -r .digest <<<"$artifact_json")" = "$WAVE35_ARTIFACT_DIGEST"
+          rm -rf /tmp/wave35
+          mkdir -p /tmp/wave35
+          gh run download "$WAVE35_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "$WAVE35_ARTIFACT" --dir /tmp/wave35
+          coverage=$(find /tmp/wave35 -type f -name wave35_species_axis_coverage.csv.gz -print -quit)
+          test -n "$coverage"
+          test "$(sha256sum "$coverage" | cut -d' ' -f1)" = "$WAVE35_COVERAGE_SHA256"
+          echo "WAVE35_COVERAGE=$coverage" >> "$GITHUB_ENV"
+
+      - name: Build and validate Wave36 overlay
+        run: |
+          set -euo pipefail
+          rm -rf wave36-trait-coverage
+          mkdir -p wave36-trait-coverage
+          island-v2-wave36-trait-overlay \
+            --baseline-csv "$WAVE35_COVERAGE" \
+            --input-dir "$SOURCE_DIR" \
+            --output-dir wave36-trait-coverage \
+            > wave36-trait-coverage/build_stdout.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(
+              Path("wave36-trait-coverage/wave36_coverage_summary.json")
+              .read_text(encoding="utf-8")
+          )
+          after = summary["wave36_after"]
+          assert summary["formal_wave33_run_id"] == 32932103226
+          assert summary["formal_wave35_run_id"] == 33072865120
+          assert summary["delta"] == {
+              "gross_gain_species_axis": 39,
+              "loss_species_axis": 0,
+              "net_gain_species_axis": 39,
+              "by_axis_net_gain": {
+                  "flower_colour": 9,
+                  "floral_structural_complexity": 20,
+                  "reproductive_assurance": 10,
+              },
+              "action_counts": {
+                  "direct_fill": 33,
+                  "validated_low_fill": 6,
+              },
+          }
+          assert after["filled_species_axis"] == 219733
+          assert after["unresolved_species_axis"] == 99152
+          assert after["quality_counts"] == {
+              "high": 55465,
+              "medium": 46781,
+              "low": 117487,
+          }
+          assert after["by_axis"]["flower_colour"]["filled_species"] == 82380
+          assert after["by_axis"]["floral_structural_complexity"]["filled_species"] == 91447
+          assert after["by_axis"]["reproductive_assurance"]["filled_species"] == 45906
+          assert after["species_by_filled_axis_count"] == {
+              "0": 9516,
+              "1": 14456,
+              "2": 41692,
+              "3": 40631,
+          }
+          assert all(summary["checks"].values()), summary["checks"]
+          PY
+
+      - name: Test Wave36 source gates and overlay
+        env:
+          PYTHONPATH: src:.
+        run: |
+          pytest -q \
+            tests/test_nhm_botanical_description_source.py \
+            tests/test_useful_plants_reproduction_remine.py \
+            tests/test_wave36_trait_overlay.py \
+            --basetemp=.pytest-wave36
+
+      - name: Upload immutable Wave36 evidence and coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave36-trait-coverage-${{ github.run_id }}
+          path: |
+            wave36-trait-coverage/**
+            data/v2/staging/traits/wave36_nhm_reproductive_remine/**
+          if-no-files-found: error
+          retention-days: 90

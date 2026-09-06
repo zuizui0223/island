@@ -20,14 +20,34 @@ on:
       - "pyproject.toml"
   workflow_dispatch:
     inputs:
+      baseline_integrated_run_id:
+        description: Formal integrated-coverage run used for the immutable before/after comparison
+        required: true
+        default: "32932103226"
+      baseline_integrated_artifact:
+        description: Exact baseline integrated-coverage artifact name
+        required: true
+        default: "integrated-trait-coverage-32932103226"
+      baseline_integrated_digest:
+        description: Exact SHA-256 digest reported by GitHub for the baseline artifact
+        required: true
+        default: "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
       latest_public_web_run_id:
         description: Successful reviewed public-Web evidence run
         required: true
-        default: "30141880859"
+        default: "32710232989"
       latest_public_web_artifact:
         description: Exact reviewed public-Web artifact name
         required: true
-        default: "broad-web-medium-full-30141880859"
+        default: "reviewed-open-web-evidence-32710232989"
+      latest_public_web_artifact_id:
+        description: Exact reviewed public-Web artifact ID
+        required: true
+        default: "9514635137"
+      latest_public_web_artifact_digest:
+        description: Exact SHA-256 digest reported by GitHub for reviewed public-Web artifact
+        required: true
+        default: "sha256:54c2249e829f2df0f8bb970cdf9fe3dc001a1f3dcbf045a76eae5c5e6102806f"
       all_master_run_id:
         description: Successful all-master ledger run containing every structured source package
         required: true
@@ -81,8 +101,13 @@ jobs:
       GH_REPO: ${{ github.repository }}
       INPUT_ROOT: /tmp/integrated-trait-inputs
       OUTPUT_ROOT: /tmp/integrated-trait-coverage
-      LATEST_PUBLIC_WEB_RUN_ID: ${{ inputs.latest_public_web_run_id || '30141880859' }}
-      LATEST_PUBLIC_WEB_ARTIFACT: ${{ inputs.latest_public_web_artifact || 'broad-web-medium-full-30141880859' }}
+      BASELINE_INTEGRATED_RUN_ID: ${{ inputs.baseline_integrated_run_id || '32932103226' }}
+      BASELINE_INTEGRATED_ARTIFACT: ${{ inputs.baseline_integrated_artifact || 'integrated-trait-coverage-32932103226' }}
+      BASELINE_INTEGRATED_DIGEST: ${{ inputs.baseline_integrated_digest || 'sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1' }}
+      LATEST_PUBLIC_WEB_RUN_ID: ${{ inputs.latest_public_web_run_id || '32710232989' }}
+      LATEST_PUBLIC_WEB_ARTIFACT: ${{ inputs.latest_public_web_artifact || 'reviewed-open-web-evidence-32710232989' }}
+      LATEST_PUBLIC_WEB_ARTIFACT_ID: ${{ inputs.latest_public_web_artifact_id || '9514635137' }}
+      LATEST_PUBLIC_WEB_ARTIFACT_DIGEST: ${{ inputs.latest_public_web_artifact_digest || 'sha256:54c2249e829f2df0f8bb970cdf9fe3dc001a1f3dcbf045a76eae5c5e6102806f' }}
       ALL_MASTER_RUN_ID: ${{ inputs.all_master_run_id || '30081415812' }}
       ALL_MASTER_ARTIFACT: ${{ inputs.all_master_artifact || 'all-master-trait-ledger-30081415812' }}
     steps:
@@ -114,8 +139,15 @@ jobs:
               else:
                   entry["run_id"] = int(os.environ["LATEST_PUBLIC_WEB_RUN_ID"])
                   entry["artifact_name"] = os.environ["LATEST_PUBLIC_WEB_ARTIFACT"]
-              entry.pop("artifact_id", None)
-              entry.pop("artifact_digest", None)
+                  entry["artifact_id"] = int(
+                      os.environ["LATEST_PUBLIC_WEB_ARTIFACT_ID"]
+                  )
+                  entry["artifact_digest"] = os.environ[
+                      "LATEST_PUBLIC_WEB_ARTIFACT_DIGEST"
+                  ]
+              if entry["source_group"] != "latest_public_web":
+                  entry.pop("artifact_id", None)
+                  entry.pop("artifact_digest", None)
           repo = config["repository"]
           resolved = []
           run_cache = {}
@@ -207,9 +239,22 @@ jobs:
       - name: Download exact aggregation inputs
         run: |
           set -euo pipefail
+          mkdir -p /tmp/baseline-integrated
           mkdir -p "$INPUT_ROOT"/{three-pass-high,three-pass-medium,three-pass-unresolved}
           mkdir -p "$INPUT_ROOT"/{expanded,targeted,validated-low,all-master,pilot-input}
           mkdir -p "$INPUT_ROOT/latest-public-web"
+
+          baseline_artifact_json=$(gh api --paginate \
+            "repos/$GH_REPO/actions/runs/$BASELINE_INTEGRATED_RUN_ID/artifacts?per_page=100" \
+            --jq ".artifacts[] | select(.expired == false and .name == \"$BASELINE_INTEGRATED_ARTIFACT\")")
+          test "$(printf '%s\n' "$baseline_artifact_json" | jq -s 'length')" = "1"
+          test "$(printf '%s\n' "$baseline_artifact_json" | jq -r .digest)" = "$BASELINE_INTEGRATED_DIGEST"
+          test "$(gh run view "$BASELINE_INTEGRATED_RUN_ID" --repo "$GH_REPO" \
+            --json conclusion --jq .conclusion)" = "success"
+          gh run download "$BASELINE_INTEGRATED_RUN_ID" \
+            --name "$BASELINE_INTEGRATED_ARTIFACT" \
+            --dir /tmp/baseline-integrated
+          test -f /tmp/baseline-integrated/strict_species_axis_coverage.csv.gz
 
           gh run download 29814502655 \
             --pattern "three-pass-pass1-shard-*-29814502655" \
@@ -364,6 +409,38 @@ jobs:
 
       - name: Rebuild Validated Low and strict all-evidence audit
         run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path(
+              "data/v2/staging/traits/direct_llm_pilot/"
+              "20260808_scale_source_acquisition"
+          )
+          expected = {
+              "scale_source_incremental_evidence.csv.gz": (
+                  "3b9204acecd8b66e1f58dd9ae7165a4b3c43375d8fe2fed5ecf30ea03a55e298"
+              ),
+              "scale_source_manual_audit.csv": (
+                  "5280af857b0398cf99a87a2c60a1675450d20e78543b445d1105538c77cea4c3"
+              ),
+          }
+          for name, digest in expected.items():
+              actual = hashlib.sha256((root / name).read_bytes()).hexdigest()
+              if actual != digest:
+                  raise SystemExit(f"reviewed scale-source hash changed: {name}")
+          audit = json.loads(
+              (root / "scale_source_audit_summary.json").read_text(encoding="utf-8")
+          )
+          if (
+              audit["precision_contract"] != "accepted_correct/all_reviewed"
+              or audit["reviewed"] != 1622
+              or audit["precision"] < 0.90
+              or audit["cultivar_contamination_rate"] > 0.02
+          ):
+              raise SystemExit("reviewed scale-source promotion gate failed")
+          PY
           island-v2-all-evidence-trait-audit \
             --integrated-dir "$OUTPUT_ROOT" \
             --latest-public-web-dir "$INPUT_ROOT/latest-public-web" \
@@ -376,11 +453,104 @@ jobs:
             --sensitivity-lock-json config/trait_cascade_artifact_lock.json \
             --direct-evidence-exclusions-csv \
               data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_20260811.csv \
+            --supplemental-direct-evidence-csv \
+              data/v2/staging/traits/direct_llm_pilot/20260808_scale_source_acquisition/scale_source_incremental_evidence.csv.gz \
             --output-dir "$OUTPUT_ROOT" \
             --expected-species 106295 \
             > "$OUTPUT_ROOT/all_evidence_audit.log"
           cat "$OUTPUT_ROOT/all_evidence_trait_coverage_summary.json" \
             >> "$GITHUB_STEP_SUMMARY"
+          cp \
+            data/v2/staging/traits/direct_llm_pilot/20260808_scale_source_acquisition/scale_source_audit_summary.json \
+            "$OUTPUT_ROOT/reviewed_scale_source_audit_summary.json"
+          cp \
+            data/v2/staging/traits/direct_llm_pilot/20260808_scale_source_acquisition/scale_source_provider_trait_audit_precision.csv \
+            "$OUTPUT_ROOT/reviewed_scale_source_provider_trait_precision.csv"
+
+      - name: Compare against the immutable formal baseline
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          import pandas as pd
+
+          keys = ["accepted_species", "axis"]
+          before = pd.read_csv(
+              "/tmp/baseline-integrated/strict_species_axis_coverage.csv.gz",
+              dtype=str,
+          ).fillna("")
+          after = pd.read_csv(
+              Path(os.environ["OUTPUT_ROOT"]) / "strict_species_axis_coverage.csv.gz",
+              dtype=str,
+          ).fillna("")
+          for label, frame in {"before": before, "after": after}.items():
+              if len(frame) != 318885 or frame[keys].duplicated().any():
+                  raise SystemExit(f"invalid {label} fixed universe")
+              if frame["accepted_species"].nunique() != 106295:
+                  raise SystemExit(f"invalid {label} species denominator")
+          if set(map(tuple, before[keys].to_numpy())) != set(
+              map(tuple, after[keys].to_numpy())
+          ):
+              raise SystemExit("baseline and rebuilt species-axis universes differ")
+
+          before_filled = before.set_index(keys)["quality"].ne("")
+          after_filled = after.set_index(keys)["quality"].ne("")
+          comparison = {
+              "contract": "formal_integrated_coverage_delta_v1",
+              "baseline": {
+                  "run_id": int(os.environ["BASELINE_INTEGRATED_RUN_ID"]),
+                  "artifact_name": os.environ["BASELINE_INTEGRATED_ARTIFACT"],
+                  "artifact_digest": os.environ["BASELINE_INTEGRATED_DIGEST"],
+                  "filled_species_axis": int(before_filled.sum()),
+              },
+              "candidate": {
+                  "run_id": int(os.environ["GITHUB_RUN_ID"]),
+                  "git_sha": os.environ["GITHUB_SHA"],
+                  "filled_species_axis": int(after_filled.sum()),
+              },
+              "gross_gain": int((~before_filled & after_filled).sum()),
+              "loss": int((before_filled & ~after_filled).sum()),
+              "net_gain": int(after_filled.sum() - before_filled.sum()),
+              "by_axis": {},
+          }
+          for axis in sorted(after["axis"].unique()):
+              mask = after_filled.index.get_level_values("axis") == axis
+              comparison["by_axis"][axis] = {
+                  "gross_gain": int((~before_filled & after_filled & mask).sum()),
+                  "loss": int((before_filled & ~after_filled & mask).sum()),
+                  "net_gain": int((after_filled & mask).sum() - (before_filled & mask).sum()),
+                  "before_filled": int((before_filled & mask).sum()),
+                  "after_filled": int((after_filled & mask).sum()),
+              }
+
+          artifact = json.loads(
+              subprocess.check_output(
+                  [
+                      "gh",
+                      "api",
+                      f"repos/{os.environ['GH_REPO']}/actions/runs/"
+                      f"{os.environ['BASELINE_INTEGRATED_RUN_ID']}/artifacts?per_page=100",
+                  ],
+                  text=True,
+              )
+          )["artifacts"]
+          exact = [
+              item
+              for item in artifact
+              if item["name"] == os.environ["BASELINE_INTEGRATED_ARTIFACT"]
+              and not item["expired"]
+          ]
+          if len(exact) != 1:
+              raise SystemExit("baseline artifact identity is no longer unique")
+          comparison["baseline"]["artifact_id"] = int(exact[0]["id"])
+          output = Path(os.environ["OUTPUT_ROOT"]) / "formal_baseline_comparison.json"
+          output.write_text(json.dumps(comparison, indent=2, sort_keys=True) + "\n")
+          print(json.dumps(comparison, indent=2, sort_keys=True))
+          PY
+          cat "$OUTPUT_ROOT/formal_baseline_comparison.json" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
         with:

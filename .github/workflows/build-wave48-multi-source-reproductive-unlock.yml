@@ -1,0 +1,288 @@
+name: Build Wave48 multi-source reproductive unlock
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-wave48-multi-source-reproductive-unlock.yml"
+      - "src/island_v2/all_evidence_trait_audit.py"
+      - "src/island_v2/wave45_promoted_reproductive_overlay.py"
+      - "src/island_v2/wave48_reproductive_checkpoint.py"
+      - "src/island_v2/wave48_incremental_all_evidence.py"
+      - "src/island_v2/wave48_reproductive_overlay.py"
+      - "tests/test_wave48_reproductive_unlock.py"
+      - "data/v2/staging/traits/wave48_multi_source_reproductive_unlock/**"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: build-wave48-multi-source-reproductive-unlock-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      WAVE33_RUN_ID: "32932103226"
+      WAVE33_ARTIFACT: "integrated-trait-coverage-32932103226"
+      WAVE33_ARTIFACT_ID: "9593698966"
+      WAVE33_ARTIFACT_DIGEST: "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
+      WAVE47_RUN_ID: "33380486845"
+      WAVE47_ARTIFACT: "wave47-support2-reproductive-unlock-33380486845"
+      WAVE47_ARTIFACT_ID: "9753587356"
+      WAVE47_ARTIFACT_DIGEST: "sha256:590c7ae009af28848aeee24fab5b9f0cff61941d0534b4c04d5e2bb91287a3d7"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Verify formal GitHub pins and download Wave47
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(gh run view "$WAVE33_RUN_ID" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+          wave33_metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$WAVE33_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$wave33_metadata")" = "$WAVE33_ARTIFACT"
+          test "$(jq -r .expired <<<"$wave33_metadata")" = false
+          test "$(jq -r .digest <<<"$wave33_metadata")" = "$WAVE33_ARTIFACT_DIGEST"
+
+          test "$(gh run view "$WAVE47_RUN_ID" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+          wave47_metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$WAVE47_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$wave47_metadata")" = "$WAVE47_ARTIFACT"
+          test "$(jq -r .expired <<<"$wave47_metadata")" = false
+          test "$(jq -r .digest <<<"$wave47_metadata")" = "$WAVE47_ARTIFACT_DIGEST"
+          mkdir -p /tmp/wave47
+          gh run download "$WAVE47_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "$WAVE47_ARTIFACT" --dir /tmp/wave47
+
+          wave47_coverage=$(find /tmp/wave47 -type f -path '*/wave47-trait-coverage/wave47_species_axis_coverage.csv.gz' -print -quit)
+          wave47_rules=$(find /tmp/wave47 -type f -path '*/wave47-all-evidence-audit/trait_specific_genus_rule_audit.csv.gz' -print -quit)
+          wave47_direct=$(find /tmp/wave47 -type f -path '*/wave47-all-evidence-audit/resolved_direct_species_trait.csv.gz' -print -quit)
+          wave47_external=$(find /tmp/wave47 -type f -path '*/wave47-all-evidence-audit/external_congener_resolved_species_trait.csv.gz' -print -quit)
+          wave47_conflicts=$(find /tmp/wave47 -type f -path '*/wave47-all-evidence-audit/external_congener_source_lineage_conflicts.csv.gz' -print -quit)
+          wave47_low=$(find /tmp/wave47 -type f -path '*/wave47-all-evidence-audit/rebuilt_all_evidence_validated_low.csv.gz' -print -quit)
+          for required in "$wave47_coverage" "$wave47_rules" "$wave47_direct" "$wave47_external" "$wave47_conflicts" "$wave47_low"; do
+            test -n "$required"
+          done
+          test "$(sha256sum "$wave47_coverage" | cut -d' ' -f1)" = "014ba46af068f92efd7c2a4416815ce7a81c9c0e93027d33797a3a2edabdc528"
+          test "$(sha256sum "$wave47_rules" | cut -d' ' -f1)" = "0965204bf38bac48292ce6ee70352b8bd8bf6cddd929dfb4329fe25f38783923"
+          test "$(sha256sum "$wave47_direct" | cut -d' ' -f1)" = "4d3e74af5842298dc0e78fc0bb225cd7d45a8eed11df903aa2c93ce192cc12ca"
+          test "$(sha256sum "$wave47_external" | cut -d' ' -f1)" = "79776542775de46036ce58f214e59a9780fbe66a7b32a8ae7b83437ddc7e1336"
+          test "$(sha256sum "$wave47_conflicts" | cut -d' ' -f1)" = "784704c1eaf3a8102eed54700638a76466e61f0e0af6c845a51fc092302dfab8"
+          test "$(sha256sum "$wave47_low" | cut -d' ' -f1)" = "9b0bcda14c977b1c40a5407a60b8801f2eff9c91ae6112c94bd86eb34d619055"
+          echo "WAVE47_COVERAGE=$wave47_coverage" >> "$GITHUB_ENV"
+          echo "WAVE47_RULES=$wave47_rules" >> "$GITHUB_ENV"
+          echo "WAVE47_DIRECT=$wave47_direct" >> "$GITHUB_ENV"
+          echo "WAVE47_EXTERNAL=$wave47_external" >> "$GITHUB_ENV"
+          echo "WAVE47_CONFLICTS=$wave47_conflicts" >> "$GITHUB_ENV"
+          echo "WAVE47_LOW=$wave47_low" >> "$GITHUB_ENV"
+
+      - name: Retrieve and lock the four original sources
+        run: |
+          set -euo pipefail
+          mkdir -p wave48-source
+          curl -fsSL --retry 3 --retry-all-errors \
+            -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36" \
+            -e "https://horticulture.oregonstate.edu/" \
+            "https://horticulture.oregonstate.edu/sites/agscid7/files/horticulture/attachments/422.full.pdf" \
+            -o wave48-source/callicarpa-americana.pdf
+          curl -fsSL --retry 3 --retry-all-errors \
+            -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36" \
+            -e "https://scholar.sun.ac.za/" \
+            "https://scholar.sun.ac.za/bitstreams/c99f4d18-b22e-46ec-959f-ed649e2a7144/download" \
+            -o wave48-source/pelargonium-marais-1994.pdf
+          curl -fsSL --retry 3 --retry-all-errors \
+            -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36" \
+            -e "https://revistas.um.es/" \
+            "https://revistas.um.es/analesbio/article/download/analesbio.39.13/281161/1418601" \
+            -o wave48-source/spermacoce-raju-radha-krishna-2017.pdf
+          curl -fsSL --retry 3 --retry-all-errors \
+            -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36" \
+            "https://pmc.ncbi.nlm.nih.gov/articles/PMC1586061/" \
+            -o wave48-source/pmc1586061.html
+          test "$(sha256sum wave48-source/callicarpa-americana.pdf | cut -d' ' -f1)" = "6dfd54da350c33ea7cd7d5001a3da2d90c6d7118b5f71ca3457ec2a966f33202"
+          test "$(sha256sum wave48-source/pelargonium-marais-1994.pdf | cut -d' ' -f1)" = "c1d6948538a7d8d81e327e76d003c50d2b36e5d87f659a5cc339a12d64af67d7"
+          test "$(sha256sum wave48-source/spermacoce-raju-radha-krishna-2017.pdf | cut -d' ' -f1)" = "18c86920287c9057dd98f8c9b990e0e5c1a556b83637972efff8aa6bc03d71ff"
+
+      - name: Validate source, identity, and reviewed evidence
+        run: |
+          set -euo pipefail
+          mkdir -p wave48-checkpoint/source-packet
+          cp -a data/v2/staging/traits/wave48_multi_source_reproductive_unlock/. wave48-checkpoint/source-packet/
+          python -m island_v2.wave48_reproductive_checkpoint \
+            --packet-dir wave48-checkpoint/source-packet \
+            --target-coverage-csv "$WAVE47_COVERAGE" \
+            --retrieved-source-dir wave48-source \
+            --output-dir wave48-checkpoint \
+            --output-json wave48-checkpoint/wave48_checkpoint_validation.json \
+            --expected-species 106295
+
+      - name: Recompute only the touched genus and traits
+        run: |
+          set -euo pipefail
+          python -m island_v2.wave48_incremental_all_evidence \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --ontology-yaml config/trait_ontology.yml \
+            --baseline-coverage-csv "$WAVE47_COVERAGE" \
+            --previous-rule-audit-csv "$WAVE47_RULES" \
+            --previous-resolved-direct-csv "$WAVE47_DIRECT" \
+            --previous-external-resolved-csv "$WAVE47_EXTERNAL" \
+            --previous-external-conflicts-csv "$WAVE47_CONFLICTS" \
+            --previous-rebuilt-low-csv "$WAVE47_LOW" \
+            --new-direct-evidence-csv wave48-checkpoint/wave48_reviewed_direct_evidence.csv.gz \
+            --new-external-evidence-csv wave48-checkpoint/wave48_external_congener_evidence.csv.gz \
+            --output-dir wave48-all-evidence-audit \
+            --expected-species 106295
+
+      - name: Build lossless formal Wave48 overlay
+        run: |
+          set -euo pipefail
+          python -m island_v2.wave48_reproductive_overlay \
+            --baseline-csv "$WAVE47_COVERAGE" \
+            --previous-rule-audit-csv "$WAVE47_RULES" \
+            --all-evidence-dir wave48-all-evidence-audit \
+            --direct-evidence-csv wave48-checkpoint/wave48_reviewed_direct_evidence.csv.gz \
+            --external-evidence-csv wave48-checkpoint/wave48_external_congener_evidence.csv.gz \
+            --checkpoint-summary-json wave48-checkpoint/wave48_checkpoint_validation.json \
+            --output-dir wave48-trait-coverage \
+            --expected-species 106295
+
+      - name: Independently verify formal gain and unchanged baseline
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          import pandas as pd
+
+          checkpoint = json.loads(Path("wave48-checkpoint/wave48_checkpoint_validation.json").read_text())
+          audit = json.loads(Path("wave48-all-evidence-audit/all_evidence_trait_coverage_summary.json").read_text())
+          summary = json.loads(Path("wave48-trait-coverage/wave48_coverage_summary.json").read_text())
+          assert checkpoint["formal_wave33_run_id"] == 32932103226
+          assert checkpoint["baseline_formal_run_id"] == 33380486845
+          assert checkpoint["evidence"] == {
+              "identity_rows": 10,
+              "new_direct_rows": 12,
+              "new_direct_species": 9,
+              "new_direct_species_axis": 9,
+              "new_direct_species_trait": 12,
+              "new_external_rows": 1,
+              "new_external_species_trait": 1,
+              "rejected_rows": 9,
+              "review_rows": 13,
+          }
+          assert all(checkpoint["checks"].values()), checkpoint["checks"]
+          assert audit["new_eligible_rules"] == ["Pelargonium x self_incompatibility"]
+          assert audit["new_rule"] == {
+              "dominance": 1.0,
+              "inferred_value": "SC",
+              "lineage_loo_accuracy": 1.0,
+              "n_direct_species": 4,
+              "species_loo_accuracy": 1.0,
+          }
+          assert audit["new_validated_low_species_trait"] == 52
+          assert audit["invalidated_prior_rules"] == []
+          assert all(audit["checks"].values()), audit["checks"]
+          assert summary["fixed_denominator"] == {"species": 106295, "species_axis": 318885}
+          assert summary["delta"]["gross_gain_species_axis"] == 59
+          assert summary["delta"]["net_gain_species_axis"] == 59
+          assert summary["delta"]["loss_species_axis"] == 0
+          assert summary["delta"]["by_axis_net_gain"] == {
+              "floral_structural_complexity": 0,
+              "flower_colour": 0,
+              "reproductive_assurance": 59,
+          }
+          assert summary["delta"]["action_counts"] == {
+              "direct_fill": 9,
+              "validated_low_fill": 50,
+          }
+          assert summary["after"]["filled_species_axis"] == 221497
+          assert summary["after"]["unresolved_species_axis"] == 97388
+          assert summary["after"]["quality_counts"] == {
+              "high": 55559,
+              "low": 119189,
+              "medium": 46749,
+          }
+          assert {
+              axis: values["filled_species"]
+              for axis, values in summary["after"]["by_axis"].items()
+          } == {
+              "floral_structural_complexity": 91577,
+              "flower_colour": 82392,
+              "reproductive_assurance": 47528,
+          }
+          assert summary["after"]["species_by_filled_axis_count"] == {
+              "0": 9458,
+              "1": 14232,
+              "2": 40550,
+              "3": 42055,
+          }
+          assert summary["remaining_to_campaign_target"] == {
+              "floral_structural_complexity": 376,
+              "flower_colour": 2644,
+              "reproductive_assurance": 16249,
+          }
+          assert all(summary["checks"].values()), summary["checks"]
+
+          before = pd.read_csv(os.environ["WAVE47_COVERAGE"], dtype=str).fillna("")
+          after = pd.read_csv("wave48-trait-coverage/wave48_species_axis_coverage.csv.gz", dtype=str).fillna("")
+          keys = ["accepted_species", "axis"]
+          assert len(before) == len(after) == 318885
+          compared = before.merge(after, on=keys, suffixes=("_before", "_after"), validate="one_to_one")
+          gained = compared["quality_before"].eq("") & compared["quality_after"].ne("")
+          assert int(gained.sum()) == 59
+          assert compared.loc[gained, "axis"].eq("reproductive_assurance").all()
+          assert compared.loc[gained, "quality_after"].value_counts().to_dict() == {
+              "high": 8,
+              "medium": 1,
+              "low": 50,
+          }
+          assert not (compared["quality_before"].ne("") & compared["quality_after"].eq("")).any()
+          unchanged = ~gained
+          columns = ["quality", "trait_composition", "trait_names", "source_groups", "source_lineages"]
+          for column in columns:
+              assert compared.loc[unchanged, f"{column}_before"].eq(
+                  compared.loc[unchanged, f"{column}_after"]
+              ).all(), column
+          PY
+
+      - name: Run focused tests and lint
+        env:
+          PYTHONPATH: src:.
+        run: |
+          pytest -q \
+            tests/test_wave48_reproductive_unlock.py \
+            tests/test_wave47_support2_reproductive.py \
+            tests/test_wave45_promoted_reproductive_overlay.py \
+            --basetemp=.pytest-wave48
+          ruff check \
+            src/island_v2/wave48_reproductive_checkpoint.py \
+            src/island_v2/wave48_incremental_all_evidence.py \
+            src/island_v2/wave48_reproductive_overlay.py \
+            tests/test_wave48_reproductive_unlock.py
+
+      - name: Upload immutable Wave48 sources, audit, and coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave48-multi-source-reproductive-unlock-${{ github.run_id }}
+          path: |
+            wave48-source/**
+            wave48-checkpoint/**
+            wave48-all-evidence-audit/**
+            wave48-trait-coverage/**
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,154 @@
+{
+  "contract": "independent_wave33_secondary_artifact_validation_v1",
+  "formal_baseline_run_id": 32932103226,
+  "formal": {
+    "filled": 160792,
+    "unresolved": 158093,
+    "quality": {
+      "high": 53835,
+      "low": 61018,
+      "medium": 45939
+    },
+    "axes": {
+      "floral_structural_complexity": 86953,
+      "flower_colour": 42215,
+      "reproductive_assurance": 31624
+    },
+    "species_by_filled_axis_count": {
+      "0": 13667,
+      "1": 39863,
+      "2": 37366,
+      "3": 15399
+    }
+  },
+  "current": {
+    "filled": 164561,
+    "unresolved": 154324,
+    "quality": {
+      "high": 53837,
+      "low": 62545,
+      "medium": 48179
+    },
+    "axes": {
+      "floral_structural_complexity": 86953,
+      "flower_colour": 43062,
+      "reproductive_assurance": 34546
+    },
+    "species_by_filled_axis_count": {
+      "0": 13610,
+      "1": 37678,
+      "2": 38138,
+      "3": 16869
+    }
+  },
+  "final": {
+    "filled": 202111,
+    "unresolved": 116774,
+    "quality": {
+      "high": 53837,
+      "low": 100091,
+      "medium": 48183
+    },
+    "axes": {
+      "floral_structural_complexity": 86953,
+      "flower_colour": 69563,
+      "reproductive_assurance": 45595
+    },
+    "species_by_filled_axis_count": {
+      "0": 10462,
+      "1": 20821,
+      "2": 43746,
+      "3": 31266
+    }
+  },
+  "formal_to_final": {
+    "gross_gain": 41319,
+    "loss": 0,
+    "net_gain": 41319,
+    "by_axis": {
+      "floral_structural_complexity": {
+        "gross_gain": 0,
+        "loss": 0,
+        "net_gain": 0
+      },
+      "flower_colour": {
+        "gross_gain": 27348,
+        "loss": 0,
+        "net_gain": 27348
+      },
+      "reproductive_assurance": {
+        "gross_gain": 13971,
+        "loss": 0,
+        "net_gain": 13971
+      }
+    }
+  },
+  "current_to_final": {
+    "gross_gain": 37550,
+    "loss": 0,
+    "net_gain": 37550,
+    "by_axis": {
+      "floral_structural_complexity": {
+        "gross_gain": 0,
+        "loss": 0,
+        "net_gain": 0
+      },
+      "flower_colour": {
+        "gross_gain": 26501,
+        "loss": 0,
+        "net_gain": 26501
+      },
+      "reproductive_assurance": {
+        "gross_gain": 11049,
+        "loss": 0,
+        "net_gain": 11049
+      }
+    }
+  },
+  "direct_adjudication_rows": 4,
+  "validated_low_rows": 37546,
+  "checks": {
+    "formal_rows_318885": true,
+    "formal_species_106295": true,
+    "formal_three_axes": true,
+    "formal_keys_unique": true,
+    "formal_quality_valid": true,
+    "current_rows_318885": true,
+    "current_species_106295": true,
+    "current_three_axes": true,
+    "current_keys_unique": true,
+    "current_quality_valid": true,
+    "final_rows_318885": true,
+    "final_species_106295": true,
+    "final_three_axes": true,
+    "final_keys_unique": true,
+    "final_quality_valid": true,
+    "same_cell_universe": true,
+    "low_keys_unique": true,
+    "direct_keys_unique": true,
+    "direct_and_low_disjoint": true,
+    "direct_was_current_unresolved": true,
+    "direct_was_formal_resolved": true,
+    "direct_is_final_medium_or_high": true,
+    "direct_has_state_sets": true,
+    "direct_has_source_lineages": true,
+    "direct_has_citations": true,
+    "direct_no_family_global": true,
+    "low_was_current_unresolved": true,
+    "low_is_final_low": true,
+    "low_trait_specific": true,
+    "low_source_lineage_present": true,
+    "low_min_species_three": true,
+    "low_species_loo_at_least_point8": true,
+    "low_lineage_loo_at_least_point8": true,
+    "low_no_family_global": true,
+    "formal_loss_zero": true,
+    "target_total_gain_at_least_15000": true,
+    "target_colour_gain_at_least_10000": true,
+    "target_reproduction_gain_at_least_5000": true,
+    "declared_final_summary_matches": true,
+    "declared_formal_delta_matches": true,
+    "output_hashes_match": true,
+    "all_checks_pass": true
+  }
+}

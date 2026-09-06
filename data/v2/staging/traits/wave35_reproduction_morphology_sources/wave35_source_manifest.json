@@ -1,0 +1,111 @@
+{
+  "contract": "wave35_reproduction_morphology_source_manifest_v1",
+  "created_at": "2026-08-27",
+  "fixed_denominator": {
+    "species": 106295,
+    "axes": 3,
+    "species_axis": 318885
+  },
+  "formal_inputs": {
+    "wave33": {
+      "run_id": 32932103226,
+      "artifact_id": 9593698966,
+      "artifact_name": "integrated-trait-coverage-32932103226",
+      "artifact_digest": "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1",
+      "strict_ledger_sha256": "8890ba4a6534ffb1187a4e53211248e6befabc1dcda42c7633ec589299b16587"
+    },
+    "wave34": {
+      "run_id": 33065274749,
+      "artifact_id": 9643466501,
+      "artifact_name": "wave34-secondary-coverage-33065274749",
+      "artifact_digest": "sha256:c3142447baad04ecff93f92d396c723eb528fa941fe31b459a05e8a6a9e0c5e6",
+      "coverage_sha256": "1baba2ecbd170c4f3ef8358c81297b141b0a97c21ad8a1ce107af966210ec80b"
+    }
+  },
+  "sources": {
+    "floraweb_biolflor": {
+      "snapshot_url": "https://github.com/gcol33/taxifydb/releases/download/scrape-snapshots-2026.06/floraweb_raw_2026-06-24.csv",
+      "raw_sha256": "a32b5779b2d7a92284fdfdf0f77ec5a7364283bb9a8f277009d6e29116e12382",
+      "strict_rows": 8013,
+      "strict_species": 2535,
+      "quality": {
+        "high": 7111,
+        "medium": 902
+      }
+    },
+    "glopl_2025": {
+      "doi": "10.1038/s41467-025-61032-5",
+      "supplement_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC12216600/supplementaryFiles",
+      "artifact": "41467_2025_61032_MOESM7_ESM.xlsx",
+      "sha256": "e6fe5c2d798269c8b41a678d029ccc25dc600e1f0626ed834cf45c494b8a9775",
+      "strict_rows": 1337,
+      "strict_species": 502,
+      "quality": "high"
+    },
+    "useful_plants": {
+      "temperate_url": "https://temperate.theferns.info/",
+      "tropical_url": "https://tropical.theferns.info/",
+      "pfaf_url": "https://pfaf.org/",
+      "pages_fetched": 6779,
+      "fetch_errors": 0,
+      "accepted_species_before_lineage_dedup": 23,
+      "accepted_species_trait_after_lineage_dedup": 20,
+      "quality": "medium",
+      "mapping": "wild sexually reproducing self-fertile statement -> self_incompatibility=SC; never autonomous_selfing_capacity",
+      "source_lineage": "Ken Fern species lineage across provider redistributions"
+    }
+  },
+  "all_evidence_resolution": {
+    "resolved_direct_rows_with_new_provider": 7963,
+    "resolved_direct_species_axis_with_new_provider": 4651,
+    "provider_touched_new_genus_trait_rules": 126,
+    "candidate_validated_low_species_trait": 158,
+    "candidate_validated_low_species_axis": 141,
+    "strict_rebuild_old_low_invalidated": 15773
+  },
+  "checks": {
+    "accepted_species_exact": true,
+    "source_lineage_deduplicated": true,
+    "direct_conflicts_excluded": true,
+    "genus_axis_trait_join": true,
+    "family_inference_absent": true,
+    "global_fallback_absent": true,
+    "pollen_vector_and_reward_preserved_as_independent_traits": true,
+    "accepted_genus_exact_for_low_application": true
+  },
+  "file_sha256": {
+    "README.md": "3fc349455007f4577b8588a62bca714c15ba618245f527510468a3846b080a93",
+    "floraweb_extraction_audit.csv.gz": "35c5c3ad4dbd7e71782d814de213761d77703dee79e3814a68ac874d1fa38545",
+    "floraweb_independent_trait_evidence.csv.gz": "406e17db7ce7f4d4204d2c6b2f4b5785fb2175b90452d01d142d0a8d61d7940a",
+    "floraweb_name_match_audit.csv.gz": "a3b09de12450cce1aee75f02fe564ddc3476101df9572a97d28ca52891f40880",
+    "floraweb_reviewed_direct_evidence.csv.gz": "38c1efa199ffed817fba1825265ae2040a295f070009e2abc56d6eebf70c7968",
+    "floraweb_trait_source_summary.json": "e3ae99c30d789f075e62332528be0c69873c780184740d2cfa686da6a9b7a294",
+    "glopl_2025_extraction_audit.csv.gz": "fa79955dde4114625ad18882b156265b19d96f1abe242ffe43815eabd0692c65",
+    "glopl_2025_independent_trait_evidence.csv.gz": "45cc013018959eb480ff31d78ce9999d50936d5e4cbf5afa6b9647eade6cac06",
+    "glopl_2025_reviewed_direct_evidence.csv.gz": "80f336c3a98870902542dea5d34a7aaf2e543a684ef3ac295ae0beeeb4997b02",
+    "glopl_2025_trait_source_summary.json": "4ad8714b0431ce15eba741c53822f6bf16295b6e70721658eeaba8234343cd83",
+    "ken_fern_acquisition_summary.json": "01a33ac5468ecab94f874b677fe40eb34e85c6b5b9c4c9ecc75798b80f4aa9df",
+    "ken_fern_fetch_inventory.csv.gz": "bfadd8a3bbb406b0bd34ae8e140e913a55d60fcec028bfe533cd3fddf26b5bc8",
+    "ken_fern_index_summary.json": "ec0cee6cd04adfb08dc3a2d442b8cddf32891bfb6b9ec017f9bdde5ce1c790a7",
+    "ken_fern_self_fertile_candidates.csv.gz": "94fc6b40a914f5da6d604a5df5fcf8706e24bf7b2562b9a68d213b2f3c387f1c",
+    "ken_fern_species_index.csv.gz": "ddae87f0c980492569ea6f14a01ca4bf670c8a8ec8687d4256d3568c5e20a536",
+    "pfaf_acquisition_summary.json": "fbf94d9f28d98b1876fc25b18bdfb808bf565a6b660e9dcb4e2ba2707fc8ef95",
+    "pfaf_fetch_inventory.csv.gz": "a79fcdb271746e9a7203dd465517599a998b088aaee418a00e7537f0b8ac08cd",
+    "pfaf_self_fertile_candidates.csv.gz": "4deea41da8427ed03b161327c66ea898d2a1c44023d9040f157311f3d5aa743f",
+    "useful_plants_provider_lineage_audit.csv.gz": "760358f795f086366a99d34f588f41671502b011968cab302c3628dfbfb17fb7",
+    "useful_plants_reviewed_direct_evidence.csv.gz": "f5b40a4cd4cadb1b06ed9f417f75e5492102a1fa73e7bf322f864e5a967a868e",
+    "useful_plants_source_summary.json": "9ecb2ef917a2d82cd923a30edf9cb2052835d75b44d75fba23e83d811ba434b6",
+    "wave35_all_evidence_source_run_manifest.json": "aba0cc9b2ffcf1812d7d4799e8efb43473cc3a7e73eb497bdb1f8beda3756408",
+    "wave35_candidate_validated_low_species_trait.csv.gz": "014a58a5a8fbf9c82fc25f6fd39ce6c881081a562ef7d8a067b138a219b03c1a",
+    "wave35_old_low_comparison.csv.gz": "672a316c69c3412eb7ad89c8fac23a02158ac6633cfb9847aab3efd75f131b50",
+    "wave35_provider_touched_new_rule_audit.csv.gz": "b8e0cfd2221c6809113fb50b6ca7ae39b65941aa5fa9f7618cbc75f6ed0fbcfe",
+    "wave35_resolved_direct_species_trait.csv.gz": "a47ad1f32a017c39c5c37d38275f5e308a68e0d6ea311ecaa929dfb5c0e3cc6a",
+    "wave35_source_lineage_conflicts.csv.gz": "44df143423dfdbacab47a82f6fd39569d0af0de122e4d068d04e0b539556cb07",
+    "wave35_source_lineage_duplicates.csv.gz": "fd2ebbff029b6b83a2dd9328ff05b1b1216efbbff1b99b6894a67c84b8c5a973",
+    "wave35_source_marginal_gain.csv": "fed2f614ddd8e639745aec1a046ad57d8935602f3b6267c4c4732f63b0d99987",
+    "wave35_strict_rebuild_summary.json": "1090f475366ca528f4a8015a768411d3d8feb433c89ed17058ea3fda348022d8",
+    "wave35_threshold_sensitivity_report.json": "1f24ce7e47e60f23c2774ad346e960b899ac0a2319532cf7ec50d2f250321fc8",
+    "wave35_threshold_sensitivity_summary.csv": "c27313c1794cafbc70d23fe7ade71a61eccfc56a8d2ab3b61a91dff03c75922e",
+    "wave35_unresolved_reason_by_species_axis.csv.gz": "d8840067481c50f864b8d54b86c3b8d7ae61862e0d1c24c7d877d3358e786bfb"
+  }
+}

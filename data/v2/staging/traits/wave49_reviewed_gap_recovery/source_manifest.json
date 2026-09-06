@@ -1,0 +1,160 @@
+{
+  "contract": "wave49_reviewed_staging_gap_recovery_v1",
+  "formal_wave33_run_id": 32932103226,
+  "baseline_wave48_run_id": 33392166443,
+  "fixed_target_species": 106295,
+  "text_receipt_hash_method": "lf_normalized_sha256",
+  "precision_gate": 0.9,
+  "cultivar_contamination_ceiling": 0.02,
+  "direct_evidence_exclusions": {
+    "path": "data/v2/staging/traits/open_web_pilot/direct_evidence_exclusions_20260811.csv",
+    "sha256": "e2748e34017ebb8d508b82bac4a90c23e96457496ea96e82e27709a3e65a828a"
+  },
+  "sources": [
+    {
+      "source_id": "nhm_adept_bhl",
+      "evidence_path": "data/v2/staging/traits/direct_llm_pilot/20260808_nhm_adept_bhl/nhm_adept_bhl_evidence.csv.gz",
+      "evidence_sha256": "e392e51671a11438f054d332616a81741bccd6e61c6b000790efef264d36f39a",
+      "review_artifact": "data/v2/staging/traits/direct_llm_pilot/20260808_nhm_adept_bhl/nhm_adept_bhl_manual_audit_200.csv",
+      "review_sha256": "b827c88a02546d86df770960538f97a24c61f586d0bac5eaf8c25e1f962eab92",
+      "review_precision": 1.0,
+      "cultivar_contamination_rate": 0.0,
+      "approved_traits": null,
+      "quality_overrides": {}
+    },
+    {
+      "source_id": "wfo_global_six",
+      "evidence_path": "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_global_six_source_acquisition/wfo_global_six_evidence.csv.gz",
+      "evidence_sha256": "335ccc68715f698b12c5c4cae1e4eae750c744e8b1c21dd12a6e859317bb0689",
+      "review_artifact": "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_global_six_source_acquisition/wfo_global_six_review_summary.json",
+      "review_sha256": "5cf47a199b84b9c9856b30fbb8f58bddae5939c4aabbdc7984add8fe32c8e7eb",
+      "review_precision": 0.9142857142857143,
+      "cultivar_contamination_rate": 0.0,
+      "approved_traits": [
+        "floral_form",
+        "floral_symmetry",
+        "flower_primary_color",
+        "flower_size_class",
+        "inflorescence_display"
+      ],
+      "quality_overrides": {
+        "flower_primary_color": "medium"
+      },
+      "excluded_traits": {
+        "tube_depth_class": "manual audit precision 0.65"
+      }
+    },
+    {
+      "source_id": "wfo_combined_high_yield",
+      "evidence_path": "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_fna_foc_africa_source_acquisition/wfo_combined_high_yield_evidence.csv.gz",
+      "evidence_sha256": "8bcce476dba7d782e41f04c84ccb206d038460fdbcfbe1abc97a3da4d5f025e9",
+      "review_artifact": "data/v2/staging/traits/direct_llm_pilot/20260810_wfo_fna_foc_africa_source_acquisition/wfo_combined_high_yield_manual_audit_320.csv",
+      "review_sha256": "c353b35353d384ef1717501c20bd02c3494b6f9c1ced44a1594a7434e7031f6b",
+      "review_precision": 0.975,
+      "cultivar_contamination_rate": 0.0,
+      "approved_traits": [
+        "floral_form",
+        "flower_primary_color",
+        "inflorescence_display"
+      ],
+      "quality_overrides": {},
+      "excluded_traits": {
+        "flower_size_class": "manual audit precision 0.80"
+      }
+    },
+    {
+      "source_id": "sanbi_eflora",
+      "evidence_path": "data/v2/staging/traits/direct_llm_pilot/20260809_sanbi_eflora_source_acquisition/sanbi_eflora_south_africa_evidence.csv.gz",
+      "evidence_sha256": "49006c1516a32ea8238a4b2915f7949c5f730536de2c381cb9518778b484e5d6",
+      "review_artifact": "data/v2/staging/traits/direct_llm_pilot/20260809_sanbi_eflora_source_acquisition/sanbi_eflora_south_africa_review_summary.json",
+      "review_sha256": "4f96940bbc370373d4dbe9c3a0b4d05d019efdf28e6a08c2df010c781135787e",
+      "review_precision": 0.99,
+      "cultivar_contamination_rate": 0.0,
+      "approved_traits": null,
+      "quality_overrides": {}
+    },
+    {
+      "source_id": "wfo_round2_context_gated",
+      "evidence_path": "data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/accepted_wfo_common_direct_evidence.csv.gz",
+      "evidence_sha256": "fdbd8635b2b4447f4123fcf0c57bec1a355b8a1a4f0975af4a43c53f955cff94",
+      "review_artifact": "data/v2/staging/traits/direct_llm_pilot/20260807_wfo_round2_context_gated_integrated/stratified_trait_audit_200_20260808.csv",
+      "review_sha256": "4ae5e07dca281117a7ff673a4b664a622df8e44321c12022da8259cc3de9b38c",
+      "review_precision": 0.9783783783783784,
+      "cultivar_contamination_rate": 0.0,
+      "approved_traits": null,
+      "quality_overrides": {
+        "flower_size_class": "medium"
+      }
+    },
+    {
+      "source_id": "efloras_medium_reaudit",
+      "evidence_path": "data/v2/staging/traits/open_web_pilot/efloras_medium_checkpoint_20260811/efloras_medium_evidence_20260811.csv.gz",
+      "evidence_sha256": "5bed632835be74e47b6391ae240978cbfc605b4299ef5e923424bf2e13ac3adc",
+      "review_artifact": "data/v2/staging/traits/open_web_pilot/efloras_medium_checkpoint_20260811/efloras_medium_manual_audit_200_20260811.csv",
+      "review_sha256": "4c65651678d5210212650f8c913e41ec6d421deeca58aa32fe6e8b0c705720d0",
+      "review_precision": 1.0,
+      "cultivar_contamination_rate": 0.0,
+      "approved_traits": null,
+      "quality_overrides": {}
+    },
+    {
+      "source_id": "floraweb_biolflor_reviewed",
+      "evidence_path": "data/v2/staging/traits/wave35_reproduction_morphology_sources/floraweb_reviewed_direct_evidence.csv.gz",
+      "evidence_sha256": "38c1efa199ffed817fba1825265ae2040a295f070009e2abc56d6eebf70c7968",
+      "review_artifact": "data/v2/staging/traits/wave35_reproduction_morphology_sources/floraweb_trait_source_summary.json",
+      "review_sha256": "e3ae99c30d789f075e62332528be0c69873c780184740d2cfa686da6a9b7a294",
+      "review_precision": null,
+      "cultivar_contamination_rate": 0.0,
+      "approval_basis": "controlled source fields, exact species matching, and fixed source hashes",
+      "approved_traits": null,
+      "quality_overrides": {}
+    },
+    {
+      "source_id": "glopl_2025_reviewed",
+      "evidence_path": "data/v2/staging/traits/wave35_reproduction_morphology_sources/glopl_2025_reviewed_direct_evidence.csv.gz",
+      "evidence_sha256": "80f336c3a98870902542dea5d34a7aaf2e543a684ef3ac295ae0beeeb4997b02",
+      "review_artifact": "data/v2/staging/traits/wave35_reproduction_morphology_sources/glopl_2025_trait_source_summary.json",
+      "review_sha256": "4ad8714b0431ce15eba741c53822f6bf16295b6e70721658eeaba8234343cd83",
+      "review_precision": null,
+      "cultivar_contamination_rate": 0.0,
+      "approval_basis": "peer-reviewed species-trait table, exact identity, and within-source conflicts excluded",
+      "approved_traits": null,
+      "quality_overrides": {}
+    },
+    {
+      "source_id": "goal_scale_reviewed_package",
+      "evidence_path": "data/v2/staging/traits/open_web_pilot/goal_scale_source_package_20260811/goal_scale_source_package_20260811_evidence.csv.gz",
+      "evidence_sha256": "64c98e2f0ca7d84166e06afb9d392c5deb0fa124909a09acf6053d4bde4c293c",
+      "review_artifact": "data/v2/staging/traits/open_web_pilot/goal_scale_source_package_20260811/goal_scale_source_package_20260811_manifest.json",
+      "review_sha256": "c1e8583b7e970a0b9ec0c60c96eea977b2e0dffb13a1097528433cfb7704ae32",
+      "review_precision": 0.9876586741889986,
+      "cultivar_contamination_rate": 0.0,
+      "approved_traits": null,
+      "quality_overrides": {}
+    },
+    {
+      "source_id": "floraweb_two_backbone_synonym",
+      "evidence_path": "data/v2/staging/traits/wave39_floraweb_synonym_recovery/floraweb_synonym_reviewed_direct_evidence.csv.gz",
+      "evidence_sha256": "388779f5c6cabf7d4c31dcd6dd23f78d76f458adfb49270bf1684f494f0dbbe3",
+      "review_artifact": "data/v2/staging/traits/wave39_floraweb_synonym_recovery/floraweb_synonym_source_summary.json",
+      "review_sha256": "d18128766892c65417f998d33cded61c2bc64530426bed2d8a708cc0a81e3b50",
+      "review_precision": null,
+      "cultivar_contamination_rate": 0.0,
+      "approval_basis": "strict WFO and GBIF two-backbone synonym agreement",
+      "approved_traits": null,
+      "quality_overrides": {}
+    },
+    {
+      "source_id": "wave44_two_backbone_synonym",
+      "evidence_path": "data/v2/staging/traits/wave44_floraweb_glopl_external_reproduction/wave44_synonym_direct_reproductive_evidence.csv.gz",
+      "evidence_sha256": "bce976497834bcf5c6eac73242cb21a76730935affe1b14e28a979c5b11eabd5",
+      "review_artifact": "data/v2/staging/traits/wave44_floraweb_glopl_external_reproduction/source_manifest.json",
+      "review_sha256": "1843f3a3313c456a515355f73fc3e869a4e9b24e10c864ef4b36e72afaf5e63e",
+      "review_precision": null,
+      "cultivar_contamination_rate": 0.0,
+      "approval_basis": "strict WFO and GBIF two-backbone synonym agreement",
+      "approved_traits": null,
+      "quality_overrides": {}
+    }
+  ]
+}

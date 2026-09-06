@@ -1,0 +1,49 @@
+{
+  "contract": "wave34_trait_specific_set_valued_frontier_v1",
+  "baseline": "wave33-secondary-low-artifact",
+  "denominator_species": 106295,
+  "min_species": 3,
+  "target_training_recall": 0.9,
+  "min_species_loo_accuracy": 0.8,
+  "min_source_lineage_loo_accuracy": 0.8,
+  "max_states": 3,
+  "trait_specific_join": true,
+  "master_genus_used_for_training_and_targets": true,
+  "family_inference": false,
+  "global_fallback": false,
+  "by_axis": {
+    "flower_colour": {
+      "baseline_filled": 69563,
+      "currently_unresolved": 36732,
+      "eligible_rules": 1868,
+      "additional_candidate_species_trait": 12807,
+      "additional_unique_species_axis": 12807,
+      "counterfactual_filled": 82370
+    },
+    "floral_structural_complexity": {
+      "baseline_filled": 86953,
+      "currently_unresolved": 19342,
+      "eligible_rules": 3714,
+      "additional_candidate_species_trait": 7049,
+      "additional_unique_species_axis": 4387,
+      "counterfactual_filled": 91340
+    },
+    "reproductive_assurance": {
+      "baseline_filled": 45595,
+      "currently_unresolved": 60700,
+      "eligible_rules": 982,
+      "additional_candidate_species_trait": 218,
+      "additional_unique_species_axis": 178,
+      "counterfactual_filled": 45773
+    }
+  },
+  "additional_unique_species_axis_total": 17372,
+  "queue_rows": 6978,
+  "queue_potential_cells_sum_not_deduplicated": 56380,
+  "targets": {
+    "reproductive_assurance": 63777,
+    "flower_colour": 85036,
+    "floral_structural_complexity": 91953
+  },
+  "blank_master_genus_unresolved": 38
+}

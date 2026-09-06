@@ -1,0 +1,60 @@
+{
+  "contract": "wave47_support2_reproductive_unlock_v1",
+  "created_at_utc": "2026-08-31T00:00:00Z",
+  "fixed_target_species": 106295,
+  "formal_wave33_baseline": {
+    "run_id": 32932103226,
+    "artifact": "integrated-trait-coverage-32932103226",
+    "artifact_id": 9593698966,
+    "artifact_digest": "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
+  },
+  "immediate_formal_baseline": {
+    "run_id": 33376311877,
+    "artifact": "wave46-corrected-public-web-recovery-33376311877",
+    "artifact_id": 9752235530,
+    "artifact_digest": "sha256:305632661afc27f40fe3060c2f8f443ec34e43dd7a8a5e40c4b658226bae031c"
+  },
+  "source": {
+    "title": "Selfing in Buxus wallichiana Baill.: a trait or strategy?",
+    "citation": "Sharma E, Bharti U, Bhushan U, Sharma N. 2020. Current Science 118(7):1021-1022.",
+    "source_url": "https://www.currentscience.ac.in/Volumes/118/07/1021.pdf",
+    "retrieved_at_utc": "2026-08-31T00:00:00Z",
+    "retrieved_content_sha256": "f818ceb4847d921ebab93d66ac529d5f92d3dbd48b32c79adb60facc550efe51",
+    "reviewed_rows": 2,
+    "source_lineage": "currentscience:118:7:1021-1022:sharma-et-al-2020"
+  },
+  "identity_gate": {
+    "accepted_species": "Buxus wallichiana",
+    "wfo_match_id": "wfo-0000576661",
+    "wfo_status": "accepted",
+    "wfo_rank": "species",
+    "gbif_usage_key": 3988068,
+    "gbif_status": "ACCEPTED",
+    "gbif_rank": "SPECIES",
+    "gbif_match_type": "EXACT",
+    "gbif_confidence": 99,
+    "family_agreement": "Buxaceae",
+    "outside_fixed_target": true
+  },
+  "selection": {
+    "queue": "formal Wave46 current_min2_diagnostic reproductive rules with actual unresolved fixed-universe cells",
+    "priority": "positive or compatibility states before absence inference",
+    "pre_acquisition_support": "Buxus x self_incompatibility had two agreeing species and 68 formal unresolved Buxus reproductive cells",
+    "formal_search_api_queries": 0,
+    "source_pages_retrieved": 1,
+    "query_cost_usd": 0
+  },
+  "quality_policy": {
+    "primary_article_controlled_pollination": "high",
+    "external_congener_rows_enter_confirmatory_direct_coverage": false,
+    "source_lineage_deduplicated": true,
+    "direct_conflicts_resolved_or_excluded": true
+  },
+  "inference_policy": {
+    "join_key": "genus x axis x trait_name",
+    "minimum_species": 3,
+    "family_inference": false,
+    "global_fallback": false,
+    "reproductive_traits_interchangeable": false
+  }
+}

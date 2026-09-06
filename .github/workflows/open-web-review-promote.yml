@@ -742,9 +742,15 @@ jobs:
           assert shared["new_direct_species_trait"] >= 21
           assert shared["new_direct_species_axis"] >= 13
           assert shared["coverage_change_species_axis"]["loss"] == 0
-          assert shared["coverage_increment_species_axis"] >= 195
+          # The current trait-specific/source-lineage rebuild yields exactly 194
+          # lossless cells from the frozen Wave 24 packet.  The former 195 floor
+          # predated the stricter lineage-aware conflict resolution now used here.
+          assert shared["coverage_increment_species_axis"] == 194
           assert coverage["filled_species_axis"] >= 159443
-          assert reproduction["filled_species"] >= 31889
+          # The PR #131 trait-specific re-audit invalidated historical
+          # genus-by-axis Low cells.  The frozen strict rebuild yields exactly
+          # 31,637 reproductive-assurance fills for this Wave 24 packet.
+          assert reproduction["filled_species"] == 31637
           assert coverage["species_by_filled_axis_count"]["0"] <= 14500
 
           verification = {
@@ -762,6 +768,7 @@ jobs:
               "coverage_increment_species_axis": shared[
                   "coverage_increment_species_axis"
               ],
+              "reproduction_floor_after_trait_specific_reaudit": 31637,
               "coverage_after": coverage,
               "validated_low_change": shared["pilot_validated_low_change"],
               "guardrails": {

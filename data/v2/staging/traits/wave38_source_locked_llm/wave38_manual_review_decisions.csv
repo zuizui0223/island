@@ -1,0 +1,101 @@
+candidate_id,decision,species_identity_correct,value_correct,provenance_complete,cultivar_contamination,decision_reason,reviewer,reviewed_at_utc
+W38-bb985f22c6eb94b93b94b624,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-b75abdbf0db11c9b3d27ee22,accept,true,true,true,false,Cyme is an explicit member of the frozen umbel corymb cyme display class,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-ade5aebb366df7eb27da9c7d,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-da933a046f48ae6f7be6754a,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-37d1d79d2b819ff7e89b816d,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-fc733422e6f86813b7f7f78e,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-ded126a48bcc4b7ee355c7a5,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-cd78ddab65814c9990a532e1,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-2a81b7ba8288a469e0fd2f81,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-d898084df8ee38c1fafe5622,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-47ca69ad4e3e75bde53f2ce0,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-2abc21fa360a2ed60439894e,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-730cc2688562ac8fc8469f90,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-e7fd15a6254b057bcf578ead,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-c449ab4033e1a030f39cc693,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-7198c27ea442cfa2453e6628,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-11a3aee1d2bedf3d26e40a5a,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-114fecb818e434d18ae286a8,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-100e7ffca174716c6b8f5e44,reject,true,false,true,false,Spadix type and solitary display are compatible dimensions and cannot be forced into one conflicting state,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-b7cecc1a5f789b4f3358d448,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-7b7d5a3e95970544c54ec768,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-4a863c0e509e389f95c0aff4,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-01ab71d1685bbb62aa0f49e8,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-61c1c91062c02f13a242aee2,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-99ac4083c6df0a5eb37cebc7,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-acb42888ac45572425a0c808,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-3fd24fb5ed7332ce4adeae50,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-2da02524e73760c3983dfa37,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-809990590ee32a0b9a495fe2,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-ce793afe7940086b019e0490,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-5cf01bf199ddc7cd51059461,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-c3733ba29cea7bd56802bcc8,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-3f0682565299499aafa3eac7,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-3e918d3086154ed7e5110222,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-c60a30801ab3a3c2b2055f02,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-95a94ab39ff76a1d3d06ed4a,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-46719e1d651a2cce5040be09,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-cb772d7de2ca45ea318fd341,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-369abf3732fa110ce576cb4b,accept,true,true,true,false,Exact quote explicitly supports self compatibility for the focal species,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-62911dad245a9bb3d612173e,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-1debb680d4d6162bf267a8ba,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-16804647f04cccda0fdfdd3d,reject,true,false,true,false,Spadix type and solitary display are compatible dimensions and cannot be forced into one conflicting state,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-dab8983c50f6d5bace1c2b13,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-f7a736d90870922b840e9e94,reject,true,false,true,false,Spadix type and solitary display are compatible dimensions and cannot be forced into one conflicting state,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-3723ba9feee46eb14a3c5a4d,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-62ed2331351ebcad3181b053,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-b6e62d624dcaf029f792b02e,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-f932a1950e17a0b30eee23fc,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-61c47e5380b199352adb9e8b,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-6d52fa955a9b58840740679a,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-33b42ac003b4705c5195aa2d,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-4ad70c32ff846f403c3c0b64,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-529cfcb11709d6deb52d7981,reject,true,false,true,false,Component lengths do not unambiguously support the proposed whole flower size class,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-c76cc3f34ba830f6132abf59,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-5e7be17a4a58add1189377af,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-74341f6ad0203cf222362329,reject,true,false,true,false,Spadix type and solitary display are compatible dimensions and cannot be forced into one conflicting state,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-4b586ee10f0c9ba655c97acf,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-0617948e6fdc972bbd3869e6,reject,true,false,true,false,The quote describes an inflorescence head rather than a composite individual flower,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-b3f0da7735b9fe362dfdd1f8,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-5f240db607bc20e60f6357d2,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-b31b3dc1f6a7d3ed138c05bf,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-02b0aecd9c62d620c904e8f2,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-d6b72b7e4f89ca28dee197df,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-f69ec44a2247d503e5b3ef12,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-3eb5ef50bafcd82dd1a52fab,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-939fbb1d6e5cad0d2edfa5c4,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-bbe7adf813681696e8be538e,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-a2dcec4bb3912cb77350d9fb,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-021a618727482d0f37edb9c5,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-5f567c973ceea13cf8bb9c14,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-7b8fc703a2461a56e8e32d7b,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-22c400eb5237c2526d368826,reject,true,false,true,false,Perianth and pistil lengths are organ measurements rather than an explicit whole flower size,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-8685d119b2d428387ad39d46,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-4701c5fd5d3860fd7c2bddae,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-77d0bd099ebaded57d9b6678,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-1cd5693427a034142cba805e,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-66e37e8f2edafb318d22d9a0,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-bf3ce5b2a09ca6e418b1d3e4,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-8990b24a3a5ddd30b4bd68dd,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-642d25aeba649c75bdaf579b,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-9c24eec26ec8a773a7ddceda,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-a198597f647cf277e5e1a6d4,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-3a4df24023beadc471425e36,accept,true,true,true,false,Exact quote explicitly supports self compatibility for the focal species,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-0851e3e6ed8099bb35c25214,reject,true,false,true,false,Spadix type and solitary display are compatible dimensions and cannot be forced into one conflicting state,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-e6f8257cf3421278f4401dbd,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-e655a35686f045f81b459b73,reject,true,false,true,false,The quote describes a globular inflorescence head rather than a composite individual flower,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-4803cccb319b16e73b7c45b3,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-4ff91efe41d2151ba406b3c7,accept,true,true,true,false,Exact quote explicitly supports self compatibility for the focal species,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-42f241d2bf30fd0e8430c3bb,accept,true,true,true,false,Exact quote explicitly supports self compatibility for the focal species,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-604b98bdfb23327eeeffe78a,accept,true,true,true,false,Exact quote explicitly supports self compatibility for the focal species,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-7246c7154018af5b9b9ec8b0,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-e977f6561a34ca834a0d4b9f,reject,true,false,true,false,Quote reports both star and bell forms but the candidate retained only one state,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-f50e9382a1ed44cfd15be3dd,accept,true,true,true,false,Exact quote explicitly supports self compatibility for the focal species,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-563dee44e8104a9d50f2a88c,accept,true,true,true,false,Exact quote explicitly supports self compatibility for the focal species,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-03217ae1a03da26e316c0701,accept,true,true,true,false,Strict synonym redirect and exact quote support self compatibility,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-5f7d47e92387349b6a1f9c6a,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-b936b0492fae0240bb968f92,accept,true,true,true,false,Exact quote explicitly supports self compatibility for the focal species,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-7ead56b76420ebafc46b846e,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-99d5535d2efba24c63e30f1f,accept,true,true,true,false,Exact quote explicitly supports self compatibility for the focal species,codex_manual_source_locked_audit,2026-08-28T00:00:00Z
+W38-c002e4a81666f1c06f9e84b9,accept,true,true,true,false,Exact quote supports the focal species and normalized trait value,codex_manual_source_locked_audit,2026-08-28T00:00:00Z

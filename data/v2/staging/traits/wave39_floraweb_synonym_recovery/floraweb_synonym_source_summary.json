@@ -1,0 +1,73 @@
+{
+  "artifact_hashes": {
+    "floraweb_synonym_conflict_audit.csv.gz": "d3e27a9d9f336045ab5f092a3193316a1978b717f39e6db8c332be261bf15861",
+    "floraweb_synonym_extraction_audit.csv.gz": "f56a158945b3dcd61ea5a7f26276723e61de4faaa1e5d18b5b8f4d3b68c7f7ad",
+    "floraweb_synonym_independent_trait_evidence.csv.gz": "010bffe90480fbff2e5721590a69f6fb5c6b26613c5ec6e6f4b9a0b0b64c1356",
+    "floraweb_synonym_provenance_audit.csv.gz": "7d08ec3ee8d9d5cbed3e8b7eede6a17571dc3e7e789ee25029b156f11aab36b9",
+    "floraweb_synonym_reviewed_direct_evidence.csv.gz": "388779f5c6cabf7d4c31dcd6dd23f78d76f458adfb49270bf1684f494f0dbbe3",
+    "floraweb_two_backbone_mapping_audit.csv.gz": "cf76bd4f4efb06969634c9a1b308592fc85c78134518460ab406d13c19e5048c",
+    "floraweb_two_backbone_responses.jsonl.gz": "2fad5a290ff431600422a7e6c9f3e5c21695375cd7d5d819224b3e2ad1029a89",
+    "floraweb_wfo_local_prefilter.csv.gz": "4bca06d0196155f8e56aa2c6f855227ab95dc4538f8fda6d95f0a8149997387e"
+  },
+  "checks": {
+    "backbone_disagreements_accepted": 0,
+    "existing_exact_floraweb_species_trait_recounted": 0,
+    "family_conflicts_accepted": 0,
+    "family_inference_used": false,
+    "gbif_non_exact_matches_accepted": 0,
+    "global_fallback_used": false,
+    "pollen_vector_in_strict_axis": false,
+    "reward_type_in_strict_axis": false,
+    "wfo_fuzzy_matches_accepted": 0
+  },
+  "contract": "floraweb_biolflor_two_backbone_synonym_source_package_v1",
+  "fixed_species_axis_denominator": 318885,
+  "fixed_universe_species": 106295,
+  "independent_traits": {
+    "by_trait": {
+      "dichogamy": 48,
+      "pollen_vector_mode": 73,
+      "reward_type": 33,
+      "sex_system": 75
+    },
+    "rows": 229,
+    "species_trait": 229,
+    "strict_three_axis_included": false
+  },
+  "mapping": {
+    "by_reason": {
+      "accepted_strict_two_backbone": 207,
+      "backbones_disagree": 48,
+      "family_conflict": 7,
+      "gbif_not_exact": 12,
+      "wfo_no_unambiguous_exact_match": 172
+    },
+    "local_prefilter_candidates": 446,
+    "strict_two_backbone_accepted_names": 207,
+    "strict_two_backbone_accepted_species": 198
+  },
+  "source_run_id": "floraweb-biolflor-two-backbone-synonym-wave39-20260828",
+  "strict_direct": {
+    "by_quality": {
+      "high": 159,
+      "medium": 26
+    },
+    "by_trait": {
+      "autonomous_selfing_capacity": 24,
+      "cleistogamy": 4,
+      "floral_form": 46,
+      "flower_primary_color": 26,
+      "mating_system": 43,
+      "self_incompatibility": 42
+    },
+    "rows": 185,
+    "species": 68,
+    "species_trait": 185
+  },
+  "web_requests": {
+    "gbif": 446,
+    "query_cost_usd": 0,
+    "wfo": 446
+  },
+  "wfo_release": "2026-06"
+}

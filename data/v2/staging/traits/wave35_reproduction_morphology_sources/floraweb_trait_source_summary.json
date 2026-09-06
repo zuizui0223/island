@@ -1,0 +1,65 @@
+{
+  "artifact_hashes": {
+    "floraweb_extraction_audit.csv.gz": "35c5c3ad4dbd7e71782d814de213761d77703dee79e3814a68ac874d1fa38545",
+    "floraweb_independent_trait_evidence.csv.gz": "406e17db7ce7f4d4204d2c6b2f4b5785fb2175b90452d01d142d0a8d61d7940a",
+    "floraweb_name_match_audit.csv.gz": "a3b09de12450cce1aee75f02fe564ddc3476101df9572a97d28ca52891f40880",
+    "floraweb_reviewed_direct_evidence.csv.gz": "38c1efa199ffed817fba1825265ae2040a295f070009e2abc56d6eebf70c7968"
+  },
+  "checks": {
+    "accepted_names_exact_only": true,
+    "family_inference_absent": true,
+    "global_fallback_absent": true,
+    "pollen_vector_not_in_structure_axis": true,
+    "reward_not_in_structure_axis": true,
+    "source_hashes_fixed": true,
+    "source_lineage_underlying_not_provider_url": true
+  },
+  "contract": "floraweb_biolflor_trait_source_package_v1",
+  "independent_traits": {
+    "by_trait": {
+      "dichogamy": 1887,
+      "pollen_vector_mode": 2447,
+      "reward_type": 1501,
+      "sex_system": 2592
+    },
+    "rows": 8427,
+    "species_trait": 8420,
+    "strict_three_axis_included": false
+  },
+  "input": {
+    "master_species": 106295,
+    "raw_rows": 258697,
+    "source_species": 7003
+  },
+  "name_matching": {
+    "exact_species": 4570,
+    "fuzzy_matches_accepted": 0,
+    "unmatched_without_synonym_claim": 2433
+  },
+  "source": {
+    "citation": "FloraWeb. Daten und Informationen zu Wildpflanzen und zur Vegetation Deutschlands. Bundesamt fuer Naturschutz, Bonn. https://www.floraweb.de/ (accessed 2026-06-24); reproductive fields derive from Klotz, Kuehn & Durka (eds) 2002, BIOLFLOR, Schriftenreihe fuer Vegetationskunde 38.",
+    "provenance_sha256": "b6a074c8f9c5e62b053e44c2afdcfb0aff417625820bfb34195c82456943afee",
+    "raw_sha256": "a32b5779b2d7a92284fdfdf0f77ec5a7364283bb9a8f277009d6e29116e12382",
+    "snapshot_access_date": "2026-06-24",
+    "snapshot_release": "scrape-snapshots-2026.06",
+    "snapshot_url": "https://github.com/gcol33/taxifydb/releases/download/scrape-snapshots-2026.06/floraweb_raw_2026-06-24.csv"
+  },
+  "strict_direct": {
+    "by_quality": {
+      "high": 7111,
+      "medium": 902
+    },
+    "by_trait": {
+      "autonomous_selfing_capacity": 1171,
+      "cleistogamy": 76,
+      "floral_form": 1793,
+      "flower_primary_color": 902,
+      "inflorescence_display": 2,
+      "mating_system": 2059,
+      "self_incompatibility": 2010
+    },
+    "rows": 8013,
+    "species": 2535,
+    "species_trait": 8008
+  }
+}

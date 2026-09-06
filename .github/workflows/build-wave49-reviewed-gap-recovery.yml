@@ -1,0 +1,218 @@
+name: Build Wave49 reviewed staging gap recovery
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-wave49-reviewed-gap-recovery.yml"
+      - "src/island_v2/wave49_reviewed_gap_recovery.py"
+      - "src/island_v2/wave49_reviewed_gap_overlay.py"
+      - "tests/test_wave49_reviewed_gap_recovery.py"
+      - "data/v2/staging/traits/wave49_reviewed_gap_recovery/**"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: build-wave49-reviewed-gap-recovery-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      WAVE33_RUN_ID: "32932103226"
+      WAVE33_ARTIFACT: "integrated-trait-coverage-32932103226"
+      WAVE33_ARTIFACT_ID: "9593698966"
+      WAVE33_ARTIFACT_DIGEST: "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
+      WAVE48_RUN_ID: "33392166443"
+      WAVE48_ARTIFACT: "wave48-multi-source-reproductive-unlock-33392166443"
+      WAVE48_ARTIFACT_ID: "9757914046"
+      WAVE48_ARTIFACT_DIGEST: "sha256:255498bf93b21f5f17d93a6b9e82d840db6d0720283b8b5362f4caf21fd0c918"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Verify formal GitHub pins and download Wave48
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(gh run view "$WAVE33_RUN_ID" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+          wave33_metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$WAVE33_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$wave33_metadata")" = "$WAVE33_ARTIFACT"
+          test "$(jq -r .expired <<<"$wave33_metadata")" = false
+          test "$(jq -r .digest <<<"$wave33_metadata")" = "$WAVE33_ARTIFACT_DIGEST"
+
+          test "$(gh run view "$WAVE48_RUN_ID" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+          wave48_metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$WAVE48_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$wave48_metadata")" = "$WAVE48_ARTIFACT"
+          test "$(jq -r .expired <<<"$wave48_metadata")" = false
+          test "$(jq -r .digest <<<"$wave48_metadata")" = "$WAVE48_ARTIFACT_DIGEST"
+          mkdir -p /tmp/wave48
+          gh run download "$WAVE48_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "$WAVE48_ARTIFACT" --dir /tmp/wave48
+
+          wave48_coverage=$(find /tmp/wave48 -type f -path '*/wave48-trait-coverage/wave48_species_axis_coverage.csv.gz' -print -quit)
+          wave48_rules=$(find /tmp/wave48 -type f -path '*/wave48-all-evidence-audit/trait_specific_genus_rule_audit.csv.gz' -print -quit)
+          wave48_direct=$(find /tmp/wave48 -type f -path '*/wave48-all-evidence-audit/resolved_direct_species_trait.csv.gz' -print -quit)
+          wave48_external=$(find /tmp/wave48 -type f -path '*/wave48-all-evidence-audit/external_congener_resolved_species_trait.csv.gz' -print -quit)
+          wave48_conflicts=$(find /tmp/wave48 -type f -path '*/wave48-all-evidence-audit/external_congener_source_lineage_conflicts.csv.gz' -print -quit)
+          wave48_low=$(find /tmp/wave48 -type f -path '*/wave48-all-evidence-audit/rebuilt_all_evidence_validated_low.csv.gz' -print -quit)
+          for required in "$wave48_coverage" "$wave48_rules" "$wave48_direct" "$wave48_external" "$wave48_conflicts" "$wave48_low"; do
+            test -n "$required"
+          done
+          test "$(sha256sum "$wave48_coverage" | cut -d' ' -f1)" = "1782cf65f3f53309382cbb597c01ff3153172cd01b33915590c822968ac41d60"
+          test "$(sha256sum "$wave48_rules" | cut -d' ' -f1)" = "15226e7019a33443d4d68a75605bbc7d565c4ddadea87302f9cce95c3c25217d"
+          test "$(sha256sum "$wave48_direct" | cut -d' ' -f1)" = "d2fedc401b1fe1b6946b4054214da62ca78252511a815a6317d7803e26e6c5a3"
+          test "$(sha256sum "$wave48_external" | cut -d' ' -f1)" = "0217608319b72167ccdf8e7103723b373f6814e6aa443e8a2d1918d6293720f9"
+          test "$(sha256sum "$wave48_conflicts" | cut -d' ' -f1)" = "e4014bad74289e9c0c535c06dbfc8cf216f7ae23a4d173f5888a617ef265f02f"
+          test "$(sha256sum "$wave48_low" | cut -d' ' -f1)" = "c2f61dc92e28cbc6f0e8d8f88b883e55ff351fe68a121cb9407bac546a933731"
+          echo "WAVE48_COVERAGE=$wave48_coverage" >> "$GITHUB_ENV"
+          echo "WAVE48_RULES=$wave48_rules" >> "$GITHUB_ENV"
+          echo "WAVE48_DIRECT=$wave48_direct" >> "$GITHUB_ENV"
+          echo "WAVE48_EXTERNAL=$wave48_external" >> "$GITHUB_ENV"
+          echo "WAVE48_CONFLICTS=$wave48_conflicts" >> "$GITHUB_ENV"
+          echo "WAVE48_LOW=$wave48_low" >> "$GITHUB_ENV"
+
+      - name: Recover only missing reviewed species-trait evidence
+        run: |
+          set -euo pipefail
+          python -m island_v2.wave49_reviewed_gap_recovery \
+            --repo-root . \
+            --manifest data/v2/staging/traits/wave49_reviewed_gap_recovery/source_manifest.json \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --ontology-yaml config/trait_ontology.yml \
+            --baseline-coverage-csv "$WAVE48_COVERAGE" \
+            --previous-rule-audit-csv "$WAVE48_RULES" \
+            --previous-resolved-direct-csv "$WAVE48_DIRECT" \
+            --previous-external-resolved-csv "$WAVE48_EXTERNAL" \
+            --previous-external-conflicts-csv "$WAVE48_CONFLICTS" \
+            --previous-rebuilt-low-csv "$WAVE48_LOW" \
+            --output-dir wave49-all-evidence-audit \
+            --expected-species 106295
+
+      - name: Build lossless formal Wave49 overlay
+        run: |
+          set -euo pipefail
+          python -m island_v2.wave49_reviewed_gap_overlay \
+            --baseline-csv "$WAVE48_COVERAGE" \
+            --previous-rule-audit-csv "$WAVE48_RULES" \
+            --all-evidence-dir wave49-all-evidence-audit \
+            --output-dir wave49-trait-coverage \
+            --expected-species 106295
+
+      - name: Independently verify formal gain and quality contract
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          import pandas as pd
+
+          audit = json.loads(Path("wave49-all-evidence-audit/all_evidence_trait_coverage_summary.json").read_text())
+          summary = json.loads(Path("wave49-trait-coverage/wave49_coverage_summary.json").read_text())
+          assert audit["formal_wave33_run_id"] == 32932103226
+          assert audit["baseline_wave48_run_id"] == 33392166443
+          assert audit["counts"] == {
+              "candidate_rows_before_exclusions": 3466,
+              "duplicate_source_rows": 431,
+              "excluded_species_trait": 707,
+              "invalidated_prior_rules": 10,
+              "new_eligible_rules": 37,
+              "new_validated_low_species_trait": 858,
+              "resolved_species_trait": 1148,
+              "reviewed_rows_after_exclusions": 3435,
+              "source_lineages": 3215,
+          }
+          assert all(audit["checks"].values()), audit["checks"]
+          assert summary["fixed_denominator"] == {"species": 106295, "species_axis": 318885}
+          assert summary["delta"]["gross_gain_species_axis"] == 172
+          assert summary["delta"]["loss_species_axis"] == 0
+          assert summary["delta"]["by_axis_net_gain"] == {
+              "floral_structural_complexity": 36,
+              "flower_colour": 110,
+              "reproductive_assurance": 26,
+          }
+          assert summary["after"]["filled_species_axis"] == 221669
+          assert summary["after"]["unresolved_species_axis"] == 97216
+          assert summary["after"]["quality_counts"] == {
+              "high": 55575,
+              "low": 119062,
+              "medium": 47032,
+          }
+          assert {axis: values["filled_species"] for axis, values in summary["after"]["by_axis"].items()} == {
+              "floral_structural_complexity": 91613,
+              "flower_colour": 82502,
+              "reproductive_assurance": 47554,
+          }
+          assert summary["after"]["species_by_filled_axis_count"] == {
+              "0": 9431,
+              "1": 14155,
+              "2": 40613,
+              "3": 42096,
+          }
+          assert summary["remaining_to_campaign_target"] == {
+              "floral_structural_complexity": 340,
+              "flower_colour": 2534,
+              "reproductive_assurance": 16223,
+          }
+          assert all(summary["checks"].values()), summary["checks"]
+
+          before = pd.read_csv(os.environ["WAVE48_COVERAGE"], dtype=str).fillna("")
+          after = pd.read_csv("wave49-trait-coverage/wave49_species_axis_coverage.csv.gz", dtype=str).fillna("")
+          keys = ["accepted_species", "axis"]
+          compared = before.merge(after, on=keys, suffixes=("_before", "_after"), validate="one_to_one")
+          assert len(compared) == 318885
+          gained = compared["quality_before"].eq("") & compared["quality_after"].ne("")
+          assert int(gained.sum()) == 172
+          assert compared.loc[gained].groupby(["axis", "quality_after"]).size().to_dict() == {
+              ("floral_structural_complexity", "low"): 7,
+              ("floral_structural_complexity", "medium"): 29,
+              ("flower_colour", "high"): 1,
+              ("flower_colour", "medium"): 109,
+              ("reproductive_assurance", "high"): 1,
+              ("reproductive_assurance", "low"): 25,
+          }
+          rank = {"": 0, "low": 1, "medium": 2, "high": 3}
+          assert not (compared["quality_after"].map(rank) < compared["quality_before"].map(rank)).any()
+          upgraded_low = compared["quality_before"].eq("low") & compared["quality_after"].isin(["high", "medium"])
+          assert int(upgraded_low.sum()) == 159
+          PY
+
+      - name: Run focused tests and lint
+        env:
+          PYTHONPATH: src:.
+        run: |
+          pytest -q \
+            tests/test_wave49_reviewed_gap_recovery.py \
+            tests/test_wave48_reproductive_unlock.py \
+            tests/test_wave45_promoted_reproductive_overlay.py \
+            --basetemp=.pytest-wave49
+          ruff check \
+            src/island_v2/wave49_reviewed_gap_recovery.py \
+            src/island_v2/wave49_reviewed_gap_overlay.py \
+            tests/test_wave49_reviewed_gap_recovery.py
+
+      - name: Upload immutable Wave49 audit and coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave49-reviewed-gap-recovery-${{ github.run_id }}
+          path: |
+            wave49-all-evidence-audit/**
+            wave49-trait-coverage/**
+          if-no-files-found: error
+          retention-days: 90

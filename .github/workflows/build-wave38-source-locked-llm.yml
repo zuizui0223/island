@@ -1,0 +1,196 @@
+name: Build Wave38 source-locked extraction coverage
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-wave38-source-locked-llm.yml"
+      - "src/island_v2/wave38_source_locked_llm_checkpoint.py"
+      - "src/island_v2/wave38_trait_overlay.py"
+      - "src/island_v2/all_evidence_trait_audit.py"
+      - "tests/test_wave38_source_locked_llm_checkpoint.py"
+      - "tests/test_all_evidence_trait_audit.py"
+      - "data/v2/staging/traits/wave38_source_locked_llm/**"
+      - "data/v2/staging/traits/llm_evidence_extracted/**"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: build-wave38-source-locked-llm-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  audit-rebuild-overlay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      WAVE33_RUN_ID: "32932103226"
+      WAVE33_ARTIFACT: "integrated-trait-coverage-32932103226"
+      WAVE33_ARTIFACT_ID: "9593698966"
+      WAVE33_ARTIFACT_DIGEST: "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
+      WAVE37_RUN_ID: "33143109604"
+      WAVE37_ARTIFACT: "wave37-europe-pmc-reproduction-33143109604"
+      WAVE37_ARTIFACT_ID: "9674790380"
+      WAVE37_ARTIFACT_DIGEST: "sha256:dc1f4820d98b06dd928aee8d6725dcc24de7121bf0fb9917553629970ea64a6d"
+      SOURCE_DIR: "data/v2/staging/traits/wave38_source_locked_llm"
+      CANDIDATE_ROOT: "data/v2/staging/traits/llm_evidence_extracted"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Download and verify pinned formal artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for run_id in "$WAVE33_RUN_ID" "$WAVE37_RUN_ID"; do
+            test "$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+          done
+          wave33_json=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$WAVE33_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$wave33_json")" = "$WAVE33_ARTIFACT"
+          test "$(jq -r .expired <<<"$wave33_json")" = false
+          test "$(jq -r .digest <<<"$wave33_json")" = "$WAVE33_ARTIFACT_DIGEST"
+          wave37_json=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$WAVE37_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$wave37_json")" = "$WAVE37_ARTIFACT"
+          test "$(jq -r .expired <<<"$wave37_json")" = false
+          test "$(jq -r .digest <<<"$wave37_json")" = "$WAVE37_ARTIFACT_DIGEST"
+          rm -rf /tmp/wave33 /tmp/wave37
+          mkdir -p /tmp/wave33 /tmp/wave37
+          gh run download "$WAVE33_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "$WAVE33_ARTIFACT" --dir /tmp/wave33
+          gh run download "$WAVE37_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "$WAVE37_ARTIFACT" --dir /tmp/wave37
+          wave33_resolved=$(find /tmp/wave33 -type f -name resolved_direct_species_trait.csv.gz -print -quit)
+          wave37_coverage=$(find /tmp/wave37 -type f -name wave37_species_axis_coverage.csv.gz -print -quit)
+          wave37_rules=$(find /tmp/wave37 -type f -name trait_specific_genus_rule_audit.csv.gz -print -quit)
+          wave37_direct=$(find /tmp/wave37 -type f -name wave37_reviewed_direct_evidence.csv.gz -print -quit)
+          test -n "$wave33_resolved"
+          test -n "$wave37_coverage"
+          test -n "$wave37_rules"
+          test -n "$wave37_direct"
+          wave33_base=$(dirname "$wave33_resolved")
+          test -f "$wave33_base/trait_specific_genus_rule_audit.csv.gz"
+          echo "WAVE33_BASE=$wave33_base" >> "$GITHUB_ENV"
+          echo "WAVE37_COVERAGE=$wave37_coverage" >> "$GITHUB_ENV"
+          echo "WAVE37_RULES=$wave37_rules" >> "$GITHUB_ENV"
+          echo "WAVE37_DIRECT=$wave37_direct" >> "$GITHUB_ENV"
+
+      - name: Rebuild the audited source-locked direct ledger
+        run: |
+          set -euo pipefail
+          rm -rf wave38-checkpoint
+          island-v2-wave38-source-locked-llm-checkpoint \
+            --candidate-root "$CANDIDATE_ROOT" \
+            --decisions-csv "$SOURCE_DIR/wave38_manual_review_decisions.csv" \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --output-dir wave38-checkpoint \
+            --source-run-id "$GITHUB_RUN_ID" \
+            --source-artifact "wave38-source-locked-llm-$GITHUB_RUN_ID" \
+            > wave38-checkpoint-stdout.json
+
+      - name: Rebuild every touched genus by trait rule
+        run: |
+          set -euo pipefail
+          rm -rf wave38-touched-rule-rebuild
+          island-v2-wave38-touched-rule-rebuild \
+            --formal-resolved-direct-csv "$WAVE33_BASE/resolved_direct_species_trait.csv.gz" \
+            --reviewed-direct-csv wave38-checkpoint/wave38_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/wave35_reproduction_morphology_sources/floraweb_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/wave35_reproduction_morphology_sources/glopl_2025_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/wave35_reproduction_morphology_sources/useful_plants_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/wave36_nhm_reproductive_remine/nhm_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/wave36_nhm_reproductive_remine/useful_plants_remine_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv "$WAVE37_DIRECT" \
+            --supplemental-direct-evidence-csv wave38-checkpoint/wave38_reviewed_direct_evidence.csv.gz \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --ontology-yaml config/trait_ontology.yml \
+            --output-dir wave38-touched-rule-rebuild \
+            > wave38-touched-rule-rebuild-stdout.json
+
+      - name: Apply and validate the lossless Wave38 overlay
+        run: |
+          set -euo pipefail
+          rm -rf wave38-trait-coverage
+          island-v2-wave38-trait-overlay \
+            --baseline-csv "$WAVE37_COVERAGE" \
+            --all-evidence-dir wave38-touched-rule-rebuild \
+            --reviewed-direct-csv wave38-checkpoint/wave38_reviewed_direct_evidence.csv.gz \
+            --checkpoint-summary-json wave38-checkpoint/wave38_checkpoint_summary.json \
+            --previous-rule-audit-csv "$WAVE33_BASE/trait_specific_genus_rule_audit.csv.gz" \
+            --previous-rule-audit-csv data/v2/staging/traits/wave35_reproduction_morphology_sources/wave35_provider_touched_new_rule_audit.csv.gz \
+            --previous-rule-audit-csv data/v2/staging/traits/wave36_nhm_reproductive_remine/wave36_provider_touched_new_rule_audit.csv.gz \
+            --previous-rule-audit-csv "$WAVE37_RULES" \
+            --output-dir wave38-trait-coverage \
+            --expected-species 106295 \
+            > wave38-trait-coverage-stdout.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(
+              Path("wave38-trait-coverage/wave38_coverage_summary.json")
+              .read_text(encoding="utf-8")
+          )
+          after = summary["wave38_after"]
+          assert summary["formal_wave33_run_id"] == 32932103226
+          assert summary["formal_wave37_run_id"] == 33143109604
+          assert summary["delta"]["gross_gain_species_axis"] == 4
+          assert summary["delta"]["loss_species_axis"] == 0
+          assert summary["delta"]["by_axis_net_gain"] == {
+              "flower_colour": 0,
+              "floral_structural_complexity": 4,
+              "reproductive_assurance": 0,
+          }
+          assert after["filled_species_axis"] == 219853
+          assert after["unresolved_species_axis"] == 99032
+          assert after["quality_counts"] == {
+              "high": 55467,
+              "medium": 46796,
+              "low": 117590,
+          }
+          assert after["by_axis"]["flower_colour"]["filled_species"] == 82380
+          assert after["by_axis"]["floral_structural_complexity"]["filled_species"] == 91451
+          assert after["by_axis"]["reproductive_assurance"]["filled_species"] == 46022
+          assert after["species_by_filled_axis_count"] == {
+              "0": 9516,
+              "1": 14452,
+              "2": 41580,
+              "3": 40747,
+          }
+          assert all(summary["checks"].values()), summary["checks"]
+          PY
+
+      - name: Run the frozen scientific gates
+        env:
+          PYTHONPATH: src:.
+        run: |
+          pytest -q \
+            tests/test_wave38_source_locked_llm_checkpoint.py \
+            tests/test_all_evidence_trait_audit.py \
+            --basetemp=.pytest-wave38
+
+      - name: Upload immutable Wave38 audit and coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave38-source-locked-llm-${{ github.run_id }}
+          path: |
+            wave38-checkpoint/**
+            wave38-checkpoint-stdout.json
+            wave38-touched-rule-rebuild/**
+            wave38-touched-rule-rebuild-stdout.json
+            wave38-trait-coverage/**
+            wave38-trait-coverage-stdout.json
+            data/v2/staging/traits/wave38_source_locked_llm/**
+          if-no-files-found: error
+          retention-days: 90

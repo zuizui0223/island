@@ -1,0 +1,4 @@
+accepted_species,target_universe_status,family,name_match_method,wfo_match_id,wfo_status,wfo_rank,gbif_usage_key,gbif_status,gbif_rank,gbif_match_type,gbif_confidence,gbif_family,identity_note
+Helichrysum italicum,fixed_target,Asteraceae,strict_wfo_gbif_two_backbone,wfo-0000077691,accepted,species,3131614,ACCEPTED,SPECIES,EXACT,98,Asteraceae,Exact accepted WFO and GBIF species matches agree with the fixed target family.
+Mammillaria mammillaris,fixed_target,Cactaceae,strict_wfo_gbif_two_backbone,wfo-0000369283,accepted,species,5626105,ACCEPTED,SPECIES,EXACT,99,Cactaceae,Exact accepted WFO and GBIF species matches agree with the fixed target family.
+Triumfetta annua,fixed_target,Malvaceae,strict_wfo_gbif_two_backbone,wfo-0000457312,accepted,species,4261116,ACCEPTED,SPECIES,EXACT,99,Malvaceae,Exact accepted WFO and GBIF species matches agree with the fixed target family.

@@ -1,0 +1,10 @@
+candidate_id,accepted_species,trait_name,source_url,decision,reason
+wave50-reject-euonymus-coloratus,Euonymus fortunei,mating_system,https://doi.org/10.1002/ece3.72666,rejected,cultivar contamination: all sampled maternal plants were escaped cultivar Coloratus
+wave50-reject-callicarpa-japonica,Callicarpa japonica,self_incompatibility,https://repository.lib.ncsu.edu/items/4d7b2c8c-8617-4d92-a414-2911a1b59a56,rejected,secondary possibly-self-incompatible statement without a controlled species-direct test
+wave50-reject-myriophyllum-aquaticum,Myriophyllum aquaticum,mating_system,https://www.cabi.org/isc/datasheet/34939,rejected,introduced female-only population or risk-assessment ambiguity does not establish a species mating system
+wave50-reject-pouteria-campechiana,Pouteria campechiana,self_incompatibility,https://www.growables.org/information/TropicalFruit/Canistel.htm,rejected,Tier C self-fertile claim is not accepted for reproductive assurance
+wave50-reject-dicliptera-chinensis,Dicliptera chinensis,cleistogamy,https://powo.science.kew.org/,rejected,source statement applies to the genus and is not species-direct
+wave50-reject-rheum-tanguticum,Rheum tanguticum,self_incompatibility,https://europepmc.org/articles/PMC4223855,rejected,direct SI counterevidence is retained for audit but cannot unlock the current SC genus rule
+wave50-reject-mimulus-nasutus,Mimulus nasutus,cleistogamy,https://europepmc.org/articles/PMC7341796,rejected,facultative cleistogamy is counterevidence to the current absent rule and cannot unlock it
+wave50-reject-mutisia-subulata,Mutisia subulata,autonomous_selfing_capacity,https://europepmc.org/articles/PMC7697181,rejected,source describes negligible pollinator-excluded seed set and does not support the machine-normalized autonomous value
+wave50-reject-miscanthus-sc,Miscanthus sacchariflorus,self_incompatibility,https://europepmc.org/articles/PMC11186238,rejected,self-compatible phrase is attributed to neighboring forage-grass examples and conflicts with the species-direct original study

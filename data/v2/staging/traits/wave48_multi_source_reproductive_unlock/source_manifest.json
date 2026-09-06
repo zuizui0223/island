@@ -1,0 +1,94 @@
+{
+  "contract": "wave48_multi_source_reproductive_unlock_v1",
+  "created_at_utc": "2026-08-31T00:00:00Z",
+  "fixed_target_species": 106295,
+  "formal_wave33_baseline": {
+    "run_id": 32932103226,
+    "artifact": "integrated-trait-coverage-32932103226",
+    "artifact_id": 9593698966,
+    "artifact_digest": "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
+  },
+  "immediate_formal_baseline": {
+    "run_id": 33380486845,
+    "artifact": "wave47-support2-reproductive-unlock-33380486845",
+    "artifact_id": 9753587356,
+    "artifact_digest": "sha256:590c7ae009af28848aeee24fab5b9f0cff61941d0534b4c04d5e2bb91287a3d7"
+  },
+  "evidence_counts": {
+    "direct_rows": 12,
+    "direct_species": 9,
+    "direct_species_trait": 12,
+    "direct_species_axis": 9,
+    "external_rows": 1,
+    "external_species_trait": 1,
+    "review_rows": 13,
+    "identity_rows": 10,
+    "rejected_rows": 9
+  },
+  "sources": [
+    {
+      "source_id": "hortsci-49-4-422",
+      "source_url": "https://horticulture.oregonstate.edu/sites/agscid7/files/horticulture/attachments/422.full.pdf",
+      "retrieved_filename": "callicarpa-americana.pdf",
+      "retrieved_content_sha256": "6dfd54da350c33ea7cd7d5001a3da2d90c6d7118b5f71ca3457ec2a966f33202",
+      "source_lineage": "doi:10.21273/hortsci.49.4.422",
+      "reviewed_rows": 1
+    },
+    {
+      "source_id": "hdl-10019.1-58560",
+      "source_url": "https://scholar.sun.ac.za/bitstreams/c99f4d18-b22e-46ec-959f-ed649e2a7144/download",
+      "retrieved_filename": "pelargonium-marais-1994.pdf",
+      "retrieved_content_sha256": "c1d6948538a7d8d81e327e76d003c50d2b36e5d87f659a5cc339a12d64af67d7",
+      "source_lineage": "hdl:10019.1/58560:marais-1994",
+      "reviewed_rows": 2
+    },
+    {
+      "source_id": "analesbio-39-13",
+      "source_url": "https://revistas.um.es/analesbio/article/download/analesbio.39.13/281161/1418601",
+      "retrieved_filename": "spermacoce-raju-radha-krishna-2017.pdf",
+      "retrieved_content_sha256": "18c86920287c9057dd98f8c9b990e0e5c1a556b83637972efff8aa6bc03d71ff",
+      "source_lineage": "doi:10.6018/analesbio.39.13",
+      "reviewed_rows": 3
+    },
+    {
+      "source_id": "pmc1586061",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC1586061/",
+      "retrieved_filename": "pmc1586061.html",
+      "content_anchor_sha256": "0278915e10c9e4a41680ab57963ed4e43acae04a5b1f953190601206f37d4a81",
+      "source_lineage": "doi:10.1104/pp.106.083832",
+      "reviewed_rows": 7
+    }
+  ],
+  "selection": {
+    "queue": "formal Wave47 unresolved reproductive cells plus current_min2 trait-specific genus rules",
+    "priority": "reproductive assurance before colour and structure",
+    "formal_search_api_queries": 0,
+    "source_pages_retrieved": 4,
+    "query_cost_usd": 0
+  },
+  "quality_policy": {
+    "original_articles": "high",
+    "doctoral_thesis_explicit_statement": "medium",
+    "source_lineage_deduplicated": true,
+    "content_fingerprint_recorded": true,
+    "search_snippets_used_as_evidence": false,
+    "direct_conflicts_resolved_or_excluded": true
+  },
+  "inference_policy": {
+    "join_key": "genus x axis x trait_name",
+    "minimum_species": 3,
+    "family_inference": false,
+    "global_fallback": false,
+    "reproductive_traits_interchangeable": false,
+    "single_source_lineage_can_unlock_rule": false
+  },
+  "expected_rule_effects": {
+    "newly_eligible": ["Pelargonium x reproductive_assurance x self_incompatibility"],
+    "blocked_by_counterexample": ["Callicarpa x reproductive_assurance x self_incompatibility"],
+    "lineage_validation_expected_to_fail": [
+      "Spermacoce x reproductive_assurance x autonomous_selfing_capacity",
+      "Torenia x reproductive_assurance x autonomous_selfing_capacity",
+      "Torenia x reproductive_assurance x self_incompatibility"
+    ]
+  }
+}

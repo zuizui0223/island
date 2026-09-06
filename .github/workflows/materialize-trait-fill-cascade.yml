@@ -58,7 +58,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TRIGGER_RUN_ID: ${{ inputs.allmaster_run_id || '' }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          RESOLVE_BRANCH: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.event.repository.default_branch }}
+          # Pull requests validate branch code against the newest durable
+          # source artifact on the default branch.  Feature branches do not
+          # own duplicate acquisition artifacts.
+          RESOLVE_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           set -euo pipefail
           download=/tmp/latest_allmaster

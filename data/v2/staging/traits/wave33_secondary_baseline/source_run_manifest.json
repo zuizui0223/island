@@ -1,0 +1,108 @@
+{
+  "formal_baseline_run_id": 32932103226,
+  "direct_audit": "wave33-ncsu-colour/audit-cumulative-head",
+  "inputs": [
+    {
+      "path": ".work\\integrated-32932103226\\strict_species_axis_coverage.csv.gz",
+      "sha256": "8890ba4a6534ffb1187a4e53211248e6befabc1dcda42c7633ec589299b16587",
+      "bytes": 3272948
+    },
+    {
+      "path": ".work\\wave33-pectis-autogamy\\audit-cumulative-head\\strict_species_axis_coverage.csv.gz",
+      "sha256": "e37c6ce0216abd83d08632e517e92b8d59f5dcbb7a5def663c7ab6da30fa7d36",
+      "bytes": 3350102
+    },
+    {
+      "path": ".work\\wave33-set-valued-colour-low\\set_valued_rule_audit.csv.gz",
+      "sha256": "8cfad5bb89eac3e14b10d8073b1ec3b2a6483577e1bd7999219142c5a307b7c3",
+      "bytes": 641347
+    },
+    {
+      "path": ".work\\wave33-set-valued-colour-low\\secondary_multiple_imputation_colour.csv.gz",
+      "sha256": "f82aad4060dfaaece891e55826fdc8159bd582509a23cc6edf040af0e6b6cbee",
+      "bytes": 4299862
+    },
+    {
+      "path": ".work\\wave33-probabilistic-reproductive-low\\probabilistic_reproductive_rule_audit.csv.gz",
+      "sha256": "0bbe7624ca0e6716f72f06b38ca801288be02b7e3f5c5682dc9bc7644f596f40",
+      "bytes": 146176
+    },
+    {
+      "path": ".work\\wave33-probabilistic-reproductive-low\\secondary_multiple_imputation_reproductive.csv.gz",
+      "sha256": "b2d7617f6d43ad69882a69895e4f7e055b8569f1b52c78aa371a55d683b11765",
+      "bytes": 2806021
+    },
+    {
+      "path": ".work\\wave33-ncsu-colour\\ncsu_flower_colour_evidence.csv.gz",
+      "sha256": "8d4f572565a87758c6597896ae599f26dba282eae3a3716b483f321ffaa79c6e",
+      "bytes": 3597
+    },
+    {
+      "path": ".work\\wave33-wikidata-flower-colour\\wikidata_referenced_colour_evidence.csv.gz",
+      "sha256": "d5b0682c9cfdc783820f36c38f1fe15f7957c14a9132bc5761fbb87b66405cb2",
+      "bytes": 57465
+    },
+    {
+      "path": ".work\\wave33-pectis-autogamy\\pectis_autogamy_evidence.csv",
+      "sha256": "1d403c2fec16c4eefde62847e6d0127360ecd4ea69d8ee2e9bb3818fbd70c8cb",
+      "bytes": 2629
+    },
+    {
+      "path": ".work\\wave33-pectis-autogamy\\pectis_prostrata_mediawiki_revision.json",
+      "sha256": "60db93215e42acb348fb6812ee04e32cec1280ec6039d39835ce78829d504525",
+      "bytes": 1881
+    },
+    {
+      "path": ".work\\wave33-conflict-adjudication\\direct_conflict_adjudication.tsv",
+      "sha256": "4827e7a6efe8bb1ce901c1136f26402a5b671b585b0b7bf881c4da5cdd20ba8f",
+      "bytes": 7892
+    },
+    {
+      "path": ".work\\wave33-conflict-adjudication\\wodkiewicz_gruszczynska_2014_stellaria.pdf",
+      "sha256": "1cfa4ae816b3e9f2da2cdcf51e284e1c1549500446f70f50eb4ed5613e052d52",
+      "bytes": 1254400
+    },
+    {
+      "path": ".work\\wave33-conflict-adjudication\\borketey_la_et_al_2019_vitellaria.pdf",
+      "sha256": "12b81d7762f8db35720beb9f9d3c91834811af1642efff3f612d7c84d379f3e7",
+      "bytes": 380804
+    },
+    {
+      "path": ".work\\glopl-2018\\GloPL.csv",
+      "sha256": "264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de",
+      "bytes": 1160586
+    },
+    {
+      "path": ".work\\all-master-32922603185\\home\\runner\\work\\island\\island\\data\\v2\\staging\\traits\\bulk\\razanajatovo_2016_reproductive_traits\\trait_candidates.csv.gz",
+      "sha256": "b2c998acf3e90ba7f0c4d36a470903019f35740fecd19c411ba480f148aa41ef",
+      "bytes": 39810
+    },
+    {
+      "path": ".work\\all-master-32922603185\\home\\runner\\work\\island\\island\\data\\v2\\staging\\traits\\bulk\\ferrer_2024_si_traits\\trait_candidates.csv.gz",
+      "sha256": "407a08d987400e266b2c44efb4dd42fef17529a3b00ff9a85c944622ffc9570a",
+      "bytes": 143170
+    },
+    {
+      "path": ".work\\wave33-bamba-try\\latest-public-web\\broad_web_medium_evidence.csv.gz",
+      "sha256": "99c5923872b6c699446c3dc90cabd56c94030a56c72aa18da72f7539b3184297",
+      "bytes": 13170344
+    }
+  ],
+  "output_hashes": {
+    "adjudicated_direct_conflict_species_axis.csv.gz": "3c749e18986f307ca4ce3d2ca3a66bebbe670d9a21f6bdba9c2aea1e0b455f0a",
+    "low_candidates_shadowed_by_adjudicated_direct.csv.gz": "1d4f864bdaff49caa395b9a2bcc855a1b372cf25002accf02bd23aa3834a80ce",
+    "validated_probabilistic_genus_low_species_axis.csv.gz": "b62d5ae133c7029ce7a67fb57afa230b18160ea6ea27c9fea5beb14a557b60a1",
+    "secondary_species_axis_coverage.csv.gz": "704e96f6fce6f42c31810ffa423ebaa908a7de48f398bc328958441dd1e9e7a1",
+    "formal_resolved_cells_not_retained.csv.gz": "b78c9c51867cd944ccb6786c8b8865b8613f8a3f18aa888bc848e0c88e85878e"
+  },
+  "counts": {
+    "adjudicated_direct_species_axis": 4,
+    "low_candidates_shadowed_by_adjudicated_direct": 0,
+    "candidate_species_axis": 37546,
+    "by_axis": {
+      "flower_colour": 26501,
+      "reproductive_assurance": 11045
+    },
+    "imputation_required_species_axis": 29130
+  }
+}

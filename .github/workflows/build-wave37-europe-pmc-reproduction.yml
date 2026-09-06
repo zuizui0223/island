@@ -1,0 +1,243 @@
+name: Build Wave37 Europe PMC reproduction coverage
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-wave37-europe-pmc-reproduction.yml"
+      - "analysis/fetch_europe_pmc_reproduction_scale_20260807.py"
+      - "src/island_v2/wave37_europe_pmc_checkpoint.py"
+      - "tests/test_source_scale_trait_acquisition_20260807.py"
+      - "tests/test_wave37_europe_pmc_checkpoint.py"
+      - "data/v2/staging/traits/wave37_europe_pmc_reproduction/**"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: build-wave37-europe-pmc-reproduction-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  acquire-audit-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      WAVE33_RUN_ID: "32932103226"
+      WAVE33_ARTIFACT: "integrated-trait-coverage-32932103226"
+      WAVE33_ARTIFACT_ID: "9593698966"
+      WAVE33_ARTIFACT_DIGEST: "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
+      WAVE36_RUN_ID: "33137984367"
+      WAVE36_ARTIFACT: "wave36-trait-coverage-33137984367"
+      WAVE36_ARTIFACT_ID: "9672774830"
+      WAVE36_ARTIFACT_DIGEST: "sha256:f2d912f663c50716e6809b7deda154c92e2bf7b951139c8c2c69ce933b5f7e8f"
+      WAVE36_COVERAGE_SHA256: "20360b22b5c4c84df2452aaac65672a85ccc31c4d51af2d2e187b5c8990f7590"
+      SOURCE_DIR: "data/v2/staging/traits/wave37_europe_pmc_reproduction"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Download and verify pinned formal Wave33 and Wave36 artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for run_id in "$WAVE33_RUN_ID" "$WAVE36_RUN_ID"; do
+            test "$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+          done
+          wave33_json=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$WAVE33_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$wave33_json")" = "$WAVE33_ARTIFACT"
+          test "$(jq -r .expired <<<"$wave33_json")" = false
+          test "$(jq -r .digest <<<"$wave33_json")" = "$WAVE33_ARTIFACT_DIGEST"
+          wave36_json=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$WAVE36_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$wave36_json")" = "$WAVE36_ARTIFACT"
+          test "$(jq -r .expired <<<"$wave36_json")" = false
+          test "$(jq -r .digest <<<"$wave36_json")" = "$WAVE36_ARTIFACT_DIGEST"
+          rm -rf /tmp/wave33 /tmp/wave36
+          mkdir -p /tmp/wave33 /tmp/wave36
+          gh run download "$WAVE33_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "$WAVE33_ARTIFACT" --dir /tmp/wave33
+          gh run download "$WAVE36_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "$WAVE36_ARTIFACT" --dir /tmp/wave36
+          wave36_coverage=$(find /tmp/wave36 -type f -name wave36_species_axis_coverage.csv.gz -print -quit)
+          test -n "$wave36_coverage"
+          test "$(sha256sum "$wave36_coverage" | cut -d' ' -f1)" = "$WAVE36_COVERAGE_SHA256"
+          wave33_resolved=$(find /tmp/wave33 -type f -name resolved_direct_species_trait.csv.gz -print -quit)
+          test -n "$wave33_resolved"
+          wave33_base=$(dirname "$wave33_resolved")
+          for required in \
+            resolved_direct_species_trait.csv.gz \
+            trait_specific_genus_rule_audit.csv.gz; do
+            test -f "$wave33_base/$required"
+          done
+          echo "WAVE36_COVERAGE=$wave36_coverage" >> "$GITHUB_ENV"
+          echo "WAVE33_BASE=$wave33_base" >> "$GITHUB_ENV"
+
+      - name: Run frozen 500-task Europe PMC full-text acquisition
+        run: |
+          set -euo pipefail
+          rm -rf wave37-acquisition
+          python analysis/fetch_europe_pmc_reproduction_scale_20260807.py \
+            --queue "$SOURCE_DIR/wave37_frozen_top500_queue.csv.gz" \
+            --coverage "$WAVE36_COVERAGE" \
+            --genus-map data/v2/staging/gbif/collected/island_taxa.csv \
+            --output wave37-acquisition \
+            --top-n 500 \
+            --max-tasks 500 \
+            --support-level 1 \
+            --support-level 2 \
+            --delay 0.15 \
+            --search-workers 24 \
+            --workers 24
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(
+              Path("wave37-acquisition/run_manifest.json").read_text(encoding="utf-8")
+          )
+          assert manifest["queue_entries"] == manifest["queries"] == 500
+          assert manifest["xml_errors"] == 0
+          assert manifest["candidate_rows"] == 44
+          assert manifest["query_cost_usd"] == 0.0
+          PY
+
+      - name: Apply frozen candidate review and verify full-text quotes
+        run: |
+          set -euo pipefail
+          rm -rf wave37-checkpoint
+          mkdir -p wave37-checkpoint
+          island-v2-wave37-europe-pmc-checkpoint \
+            --candidate-csv wave37-acquisition/fulltext_reproductive_candidates.csv.gz \
+            --raw-xml-dir wave37-acquisition/raw_xml \
+            --decisions-csv "$SOURCE_DIR/wave37_candidate_review_decisions.csv" \
+            --backbone-json "$SOURCE_DIR/albizia_saman_two_backbone_snapshot.json" \
+            --frozen-queue-csv "$SOURCE_DIR/wave37_frozen_top500_queue.csv.gz" \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --source-run-id "$GITHUB_RUN_ID" \
+            --source-artifact "wave37-europe-pmc-reproduction-$GITHUB_RUN_ID" \
+            --output-dir wave37-checkpoint \
+            --acquisition-manifest-json wave37-acquisition/run_manifest.json \
+            > wave37-checkpoint/build_stdout.json
+
+      - name: Rebuild Wave37-touched rules with the shared trait-specific implementation
+        run: |
+          set -euo pipefail
+          rm -rf wave37-touched-rule-rebuild
+          mkdir -p wave37-touched-rule-rebuild
+          island-v2-wave37-touched-rule-rebuild \
+            --formal-resolved-direct-csv "$WAVE33_BASE/resolved_direct_species_trait.csv.gz" \
+            --checkpoint-dir wave37-checkpoint \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --ontology-yaml config/trait_ontology.yml \
+            --supplemental-direct-evidence-csv \
+              data/v2/staging/traits/wave35_reproduction_morphology_sources/floraweb_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv \
+              data/v2/staging/traits/wave35_reproduction_morphology_sources/glopl_2025_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv \
+              data/v2/staging/traits/wave35_reproduction_morphology_sources/useful_plants_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv \
+              data/v2/staging/traits/wave36_nhm_reproductive_remine/nhm_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv \
+              data/v2/staging/traits/wave36_nhm_reproductive_remine/useful_plants_remine_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv \
+              wave37-checkpoint/wave37_reviewed_direct_evidence.csv.gz \
+            --output-dir wave37-touched-rule-rebuild \
+            > wave37-touched-rule-rebuild/build_stdout.json
+
+      - name: Build and validate lossless Wave37 formal coverage
+        run: |
+          set -euo pipefail
+          rm -rf wave37-trait-coverage
+          mkdir -p wave37-trait-coverage
+          island-v2-wave37-trait-overlay \
+            --baseline-csv "$WAVE36_COVERAGE" \
+            --all-evidence-dir wave37-touched-rule-rebuild \
+            --previous-rule-audit-csv "$WAVE33_BASE/trait_specific_genus_rule_audit.csv.gz" \
+            --checkpoint-dir wave37-checkpoint \
+            --output-dir wave37-trait-coverage \
+            --expected-species 106295 \
+            --formal-wave33-run-id "$WAVE33_RUN_ID" \
+            --formal-wave36-run-id "$WAVE36_RUN_ID" \
+            > wave37-trait-coverage/build_stdout.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(
+              Path("wave37-trait-coverage/wave37_coverage_summary.json")
+              .read_text(encoding="utf-8")
+          )
+          after = summary["wave37_after"]
+          assert summary["formal_wave33_run_id"] == 32932103226
+          assert summary["formal_wave36_run_id"] == 33137984367
+          assert summary["delta"] == {
+              "gross_gain_species_axis": 116,
+              "loss_species_axis": 0,
+              "net_gain_species_axis": 116,
+              "by_axis_net_gain": {
+                  "flower_colour": 0,
+                  "floral_structural_complexity": 0,
+                  "reproductive_assurance": 116,
+              },
+              "action_counts": {
+                  "validated_low_fill": 114,
+                  "direct_enrichment": 3,
+                  "direct_fill": 2,
+                  "direct_upgrade": 1,
+              },
+              "reviewed_direct_species_trait": 11,
+              "resolved_direct_species_trait": 7,
+              "new_validated_low_species_trait": 114,
+          }
+          assert summary["new_eligible_rules"] == ["Vitex x mating_system"]
+          assert after["filled_species_axis"] == 219849
+          assert after["unresolved_species_axis"] == 99036
+          assert after["quality_counts"] == {
+              "high": 55467,
+              "medium": 46781,
+              "low": 117601,
+          }
+          assert after["by_axis"]["flower_colour"]["filled_species"] == 82380
+          assert after["by_axis"]["floral_structural_complexity"]["filled_species"] == 91447
+          assert after["by_axis"]["reproductive_assurance"]["filled_species"] == 46022
+          assert after["species_by_filled_axis_count"] == {
+              "0": 9516,
+              "1": 14456,
+              "2": 41576,
+              "3": 40747,
+          }
+          assert all(summary["checks"].values()), summary["checks"]
+          PY
+
+      - name: Test acquisition, checkpoint, and overlay gates
+        env:
+          PYTHONPATH: src:.
+        run: |
+          pytest -q \
+            tests/test_source_scale_trait_acquisition_20260807.py \
+            tests/test_wave37_europe_pmc_checkpoint.py \
+            --basetemp=.pytest-wave37
+
+      - name: Upload immutable Wave37 acquisition, audit, and coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave37-europe-pmc-reproduction-${{ github.run_id }}
+          path: |
+            wave37-acquisition/**
+            wave37-checkpoint/**
+            wave37-touched-rule-rebuild/**
+            wave37-trait-coverage/**
+            data/v2/staging/traits/wave37_europe_pmc_reproduction/**
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,40 @@
+{
+  "contract": "wave44_floraweb_glopl_external_reproduction_sources_v1",
+  "created_at_utc": "2026-08-31T00:00:00Z",
+  "fixed_target_species": 106295,
+  "sources": [
+    {
+      "provider": "FloraWeb BfN / BIOLFLOR via taxifydb frozen scrape",
+      "source_artifact": "floraweb_raw_2026-06-24.csv",
+      "source_release": "floraweb-taxifydb-2026-06-24",
+      "source_sha256": "a32b5779b2d7a92284fdfdf0f77ec5a7364283bb9a8f277009d6e29116e12382",
+      "source_url": "https://www.floraweb.de/",
+      "quality": "high",
+      "lineage_unit": "underlying accepted species x trait"
+    },
+    {
+      "provider": "Lin et al. 2025 GloPL Supplementary Data",
+      "source_artifact": "41467_2025_61032_MOESM7_ESM.xlsx",
+      "source_release": "Nature Ecology & Evolution 2025 supplementary Source Data Fig. 2",
+      "source_sha256": "e6fe5c2d798269c8b41a678d029ccc25dc600e1f0626ed834cf45c494b8a9775",
+      "source_url": "https://doi.org/10.1038/s41559-025-02784-9",
+      "quality": "high",
+      "lineage_unit": "GloPL/Burns accepted species x trait compilation"
+    }
+  ],
+  "identity_gate": {
+    "wfo_release": "2026-06",
+    "wfo_archive_sha256": "75f1ad1f371978c9e46f3044152c07ed276fe57be9fb9a15b3621b19cf231987",
+    "gbif_match_type": "EXACT",
+    "required_rank": "SPECIES",
+    "required_kingdom": "Plantae",
+    "family_agreement_required": true,
+    "two_backbone_agreement_required": true
+  },
+  "inference_policy": {
+    "join_key": "genus x axis x trait_name",
+    "family_inference": false,
+    "global_fallback": false,
+    "external_congener_rows_enter_direct_coverage": false
+  }
+}

@@ -1,0 +1,51 @@
+name: Diagnose Wave53 source pages
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/diagnose-wave53-source-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve and inspect frozen quotes
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/w53src
+          python - <<'PY'
+          import hashlib, html, json, re, urllib.request
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import csv
+
+          class V(HTMLParser):
+              def __init__(self): super().__init__(); self.p=[]
+              def handle_data(self,d): self.p.append(d)
+          def norm(s):
+              s=' '.join(str(s).split())
+              s=re.sub(r'\s+([,.;:)])',r'\1',s)
+              s=re.sub(r'([(])\s+',r'\1',s)
+              return s
+          root=Path('data/v2/staging/traits/wave53_support_two_reproductive_unlock')
+          manifest=json.loads((root/'source_manifest.json').read_text())
+          with (root/'wave53_source_review_audit.csv').open(newline='',encoding='utf-8') as f:
+              reviews=list(csv.DictReader(f))
+          bylin={r['source_lineage']:r for r in reviews}
+          for src in manifest['sources']:
+              req=urllib.request.Request(src['retrieval_url'],headers={'User-Agent':'island-trait-audit/1.0'})
+              raw=urllib.request.urlopen(req,timeout=60).read()
+              print('SOURCE',src['source_id'],'URL',src['retrieval_url'],'BYTES',len(raw),'SHA256',hashlib.sha256(raw).hexdigest())
+              text=raw.decode('utf-8','replace')
+              p=V(); p.feed(text); visible=norm(html.unescape(' '.join(p.p)))
+              q=norm(bylin[src['source_lineage']]['exact_supporting_quote'])
+              print('QUOTE_PRESENT',q in visible,'QUOTE',repr(q))
+              species=bylin[src['source_lineage']]['accepted_species']
+              pos=visible.casefold().find(species.casefold())
+              print('SPECIES_POS',pos,'SNIPPET',repr(visible[max(pos-200,0):pos+1000] if pos>=0 else visible[:1200]))
+          PY

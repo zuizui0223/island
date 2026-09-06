@@ -1,0 +1,103 @@
+name: Build Wave34 trait-specific secondary coverage
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-wave34-secondary-coverage.yml"
+      - "src/island_v2/secondary_trait_frontier.py"
+      - "tests/test_secondary_trait_frontier.py"
+      - "pyproject.toml"
+      - "data/v2/staging/traits/wave33_secondary_baseline/**"
+      - "data/v2/staging/traits/wave34_trait_specific_frontier/**"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: build-wave34-secondary-coverage-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      FORMAL_RUN_ID: "32932103226"
+      FORMAL_ARTIFACT: "integrated-trait-coverage-32932103226"
+      FORMAL_ARTIFACT_ID: "9593698966"
+      FORMAL_ARTIFACT_DIGEST: "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
+      FORMAL_STRICT_LEDGER_SHA256: "8890ba4a6534ffb1187a4e53211248e6befabc1dcda42c7633ec589299b16587"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Verify pinned formal baseline artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(gh run view "$FORMAL_RUN_ID" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+          artifact_json=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$FORMAL_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$artifact_json")" = "$FORMAL_ARTIFACT"
+          test "$(jq -r .expired <<<"$artifact_json")" = false
+          test "$(jq -r .digest <<<"$artifact_json")" = "$FORMAL_ARTIFACT_DIGEST"
+          rm -rf /tmp/formal-baseline
+          mkdir -p /tmp/formal-baseline
+          gh run download "$FORMAL_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "$FORMAL_ARTIFACT" --dir /tmp/formal-baseline
+          strict=$(find /tmp/formal-baseline -type f -name strict_species_axis_coverage.csv.gz -print -quit)
+          test -n "$strict"
+          test "$(sha256sum "$strict" | cut -d' ' -f1)" = "$FORMAL_STRICT_LEDGER_SHA256"
+
+      - name: Validate frozen Wave33 and materialize additive Wave34 frontier
+        run: |
+          set -euo pipefail
+          mkdir -p wave34-secondary-coverage
+          island-v2-secondary-trait-frontier \
+            --baseline-dir data/v2/staging/traits/wave33_secondary_baseline \
+            --frontier-dir data/v2/staging/traits/wave34_trait_specific_frontier \
+            --output-dir wave34-secondary-coverage \
+            > wave34-secondary-coverage/build_stdout.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(
+              Path("wave34-secondary-coverage/wave34_secondary_coverage_summary.json")
+              .read_text(encoding="utf-8")
+          )
+          assert summary["formal_baseline_run_id"] == 32932103226
+          assert summary["wave33_baseline"]["by_axis"]["flower_colour"]["filled_species"] == 69563
+          assert summary["wave33_baseline"]["by_axis"]["reproductive_assurance"]["filled_species"] == 45595
+          assert summary["wave33_baseline"]["by_axis"]["floral_structural_complexity"]["filled_species"] == 86953
+          assert summary["delta"]["gross_gain_species_axis"] == 17372
+          assert summary["delta"]["loss_species_axis"] == 0
+          assert summary["wave34_secondary"]["by_axis"]["flower_colour"]["filled_species"] == 82370
+          assert summary["wave34_secondary"]["by_axis"]["reproductive_assurance"]["filled_species"] == 45773
+          assert summary["wave34_secondary"]["by_axis"]["floral_structural_complexity"]["filled_species"] == 91340
+          assert all(summary["checks"].values()), summary["checks"]
+          PY
+
+      - name: Test verifier
+        run: pytest -q tests/test_secondary_trait_frontier.py --basetemp=.pytest-wave34-secondary
+
+      - name: Upload immutable Wave33 baseline and Wave34 secondary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave34-secondary-coverage-${{ github.run_id }}
+          path: |
+            wave34-secondary-coverage/**
+            data/v2/staging/traits/wave33_secondary_baseline/**
+            data/v2/staging/traits/wave34_trait_specific_frontier/**
+          if-no-files-found: error
+          retention-days: 90

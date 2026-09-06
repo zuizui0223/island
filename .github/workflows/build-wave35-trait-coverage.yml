@@ -1,0 +1,138 @@
+name: Build Wave35 reproduction and morphology coverage
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-wave35-trait-coverage.yml"
+      - "analysis/acquire_ken_fern_reproductive_traits_20260808.py"
+      - "src/island_v2/floraweb_trait_source.py"
+      - "src/island_v2/glopl_2025_trait_source.py"
+      - "src/island_v2/useful_plants_reproductive_source.py"
+      - "src/island_v2/wave35_trait_overlay.py"
+      - "tests/test_floraweb_trait_source.py"
+      - "tests/test_glopl_2025_trait_source.py"
+      - "tests/test_ken_fern_reproductive_acquisition.py"
+      - "tests/test_useful_plants_reproductive_source.py"
+      - "tests/test_wave35_trait_overlay.py"
+      - "data/v2/staging/traits/wave35_reproduction_morphology_sources/**"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: build-wave35-trait-coverage-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      WAVE34_RUN_ID: "33065274749"
+      WAVE34_ARTIFACT: "wave34-secondary-coverage-33065274749"
+      WAVE34_ARTIFACT_ID: "9643466501"
+      WAVE34_ARTIFACT_DIGEST: "sha256:c3142447baad04ecff93f92d396c723eb528fa941fe31b459a05e8a6a9e0c5e6"
+      WAVE34_COVERAGE_SHA256: "1baba2ecbd170c4f3ef8358c81297b141b0a97c21ad8a1ce107af966210ec80b"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Download and verify pinned Wave34 baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(gh run view "$WAVE34_RUN_ID" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+          artifact_json=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$WAVE34_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$artifact_json")" = "$WAVE34_ARTIFACT"
+          test "$(jq -r .expired <<<"$artifact_json")" = false
+          test "$(jq -r .digest <<<"$artifact_json")" = "$WAVE34_ARTIFACT_DIGEST"
+          rm -rf /tmp/wave34
+          mkdir -p /tmp/wave34
+          gh run download "$WAVE34_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "$WAVE34_ARTIFACT" --dir /tmp/wave34
+          coverage=$(find /tmp/wave34 -type f -name wave34_secondary_species_axis_coverage.csv.gz -print -quit)
+          test -n "$coverage"
+          test "$(sha256sum "$coverage" | cut -d' ' -f1)" = "$WAVE34_COVERAGE_SHA256"
+          echo "WAVE34_COVERAGE=$coverage" >> "$GITHUB_ENV"
+
+      - name: Validate frozen source packages and build Wave35 overlay
+        run: |
+          set -euo pipefail
+          mkdir -p wave35-trait-coverage
+          island-v2-wave35-trait-overlay \
+            --baseline-csv "$WAVE34_COVERAGE" \
+            --input-dir data/v2/staging/traits/wave35_reproduction_morphology_sources \
+            --output-dir wave35-trait-coverage \
+            > wave35-trait-coverage/build_stdout.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(
+              Path("wave35-trait-coverage/wave35_coverage_summary.json")
+              .read_text(encoding="utf-8")
+          )
+          after = summary["wave35_after"]
+          assert summary["formal_wave33_run_id"] == 32932103226
+          assert summary["formal_wave34_run_id"] == 33065274749
+          assert summary["delta"]["gross_gain_species_axis"] == 211
+          assert summary["delta"]["loss_species_axis"] == 0
+          assert summary["delta"]["by_axis_net_gain"] == {
+              "flower_colour": 1,
+              "floral_structural_complexity": 87,
+              "reproductive_assurance": 123,
+          }
+          assert summary["delta"]["action_counts"]["direct_upgrade"] == 1605
+          assert summary["validated_low_audit"]["applied_species_axis"] == 141
+          assert after["filled_species_axis"] == 219694
+          assert after["unresolved_species_axis"] == 99191
+          assert after["quality_counts"] == {
+              "high": 55465,
+              "medium": 46748,
+              "low": 117481,
+          }
+          assert after["by_axis"]["flower_colour"]["filled_species"] == 82371
+          assert after["by_axis"]["floral_structural_complexity"]["filled_species"] == 91427
+          assert after["by_axis"]["reproductive_assurance"]["filled_species"] == 45896
+          assert after["species_by_filled_axis_count"] == {
+              "0": 9524,
+              "1": 14463,
+              "2": 41693,
+              "3": 40615,
+          }
+          assert all(summary["checks"].values()), summary["checks"]
+          PY
+
+      - name: Test source gates and overlay
+        env:
+          PYTHONPATH: src:.
+        run: |
+          pytest -q \
+            tests/test_floraweb_trait_source.py \
+            tests/test_glopl_2025_trait_source.py \
+            tests/test_ken_fern_reproductive_acquisition.py \
+            tests/test_useful_plants_reproductive_source.py \
+            tests/test_wave35_trait_overlay.py \
+            --basetemp=.pytest-wave35
+
+      - name: Upload immutable Wave35 evidence and coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave35-trait-coverage-${{ github.run_id }}
+          path: |
+            wave35-trait-coverage/**
+            data/v2/staging/traits/wave35_reproduction_morphology_sources/**
+          if-no-files-found: error
+          retention-days: 90

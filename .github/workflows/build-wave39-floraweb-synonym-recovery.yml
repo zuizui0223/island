@@ -1,0 +1,278 @@
+name: Build Wave39 FloraWeb synonym recovery coverage
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-wave39-floraweb-synonym-recovery.yml"
+      - "src/island_v2/floraweb_synonym_recovery.py"
+      - "src/island_v2/wave38_trait_overlay.py"
+      - "src/island_v2/wave39_trait_overlay.py"
+      - "src/island_v2/all_evidence_trait_audit.py"
+      - "tests/test_floraweb_synonym_recovery.py"
+      - "tests/test_wave39_trait_overlay.py"
+      - "tests/test_all_evidence_trait_audit.py"
+      - "data/v2/staging/traits/wave39_floraweb_synonym_recovery/**"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: build-wave39-floraweb-synonym-recovery-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify-rebuild-overlay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      WAVE33_RUN_ID: "32932103226"
+      WAVE33_ARTIFACT: "integrated-trait-coverage-32932103226"
+      WAVE33_ARTIFACT_ID: "9593698966"
+      WAVE33_ARTIFACT_DIGEST: "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
+      WAVE37_RUN_ID: "33143109604"
+      WAVE37_ARTIFACT: "wave37-europe-pmc-reproduction-33143109604"
+      WAVE37_ARTIFACT_ID: "9674790380"
+      WAVE37_ARTIFACT_DIGEST: "sha256:dc1f4820d98b06dd928aee8d6725dcc24de7121bf0fb9917553629970ea64a6d"
+      WAVE38_RUN_ID: "33149235490"
+      WAVE38_ARTIFACT: "wave38-source-locked-llm-33149235490"
+      WAVE38_ARTIFACT_ID: "9677027199"
+      WAVE38_ARTIFACT_DIGEST: "sha256:7a7b322e7ab8a43477245ddb405779b186008850070711bd4d23bc782e81a4de"
+      SOURCE_DIR: "data/v2/staging/traits/wave39_floraweb_synonym_recovery"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Verify frozen Wave39 source package
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import gzip
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path("data/v2/staging/traits/wave39_floraweb_synonym_recovery")
+          summary = json.loads((root / "floraweb_synonym_source_summary.json").read_text())
+          for name, expected in summary["artifact_hashes"].items():
+              observed = hashlib.sha256((root / name).read_bytes()).hexdigest()
+              assert observed == expected, (name, observed, expected)
+          assert summary["fixed_universe_species"] == 106295
+          assert summary["fixed_species_axis_denominator"] == 318885
+          assert summary["web_requests"] == {"wfo": 446, "gbif": 446, "query_cost_usd": 0}
+          assert summary["mapping"]["strict_two_backbone_accepted_names"] == 207
+          assert summary["mapping"]["strict_two_backbone_accepted_species"] == 198
+          assert summary["strict_direct"]["species_trait"] == 185
+          assert summary["independent_traits"]["species_trait"] == 229
+          assert not summary["independent_traits"]["strict_three_axis_included"]
+          with gzip.open(root / "floraweb_two_backbone_responses.jsonl.gz", "rt") as handle:
+              assert sum(1 for line in handle if line.strip()) == 446
+          assert all(value in (0, False) for value in summary["checks"].values())
+          PY
+
+      - name: Download and verify pinned formal artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for run_id in "$WAVE33_RUN_ID" "$WAVE37_RUN_ID" "$WAVE38_RUN_ID"; do
+            test "$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+          done
+          for spec in \
+            "$WAVE33_ARTIFACT_ID|$WAVE33_ARTIFACT|$WAVE33_ARTIFACT_DIGEST" \
+            "$WAVE37_ARTIFACT_ID|$WAVE37_ARTIFACT|$WAVE37_ARTIFACT_DIGEST" \
+            "$WAVE38_ARTIFACT_ID|$WAVE38_ARTIFACT|$WAVE38_ARTIFACT_DIGEST"; do
+            IFS='|' read -r artifact_id artifact_name artifact_digest <<<"$spec"
+            metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id")
+            test "$(jq -r .name <<<"$metadata")" = "$artifact_name"
+            test "$(jq -r .expired <<<"$metadata")" = false
+            test "$(jq -r .digest <<<"$metadata")" = "$artifact_digest"
+          done
+          rm -rf /tmp/wave33 /tmp/wave37 /tmp/wave38
+          mkdir -p /tmp/wave33 /tmp/wave37 /tmp/wave38
+          gh run download "$WAVE33_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$WAVE33_ARTIFACT" --dir /tmp/wave33
+          gh run download "$WAVE37_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$WAVE37_ARTIFACT" --dir /tmp/wave37
+          gh run download "$WAVE38_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$WAVE38_ARTIFACT" --dir /tmp/wave38
+          wave33_resolved=$(find /tmp/wave33 -type f -name resolved_direct_species_trait.csv.gz -print -quit)
+          wave37_direct=$(find /tmp/wave37 -type f -name wave37_reviewed_direct_evidence.csv.gz -print -quit)
+          wave37_rules=$(find /tmp/wave37 -type f -name trait_specific_genus_rule_audit.csv.gz -print -quit)
+          wave38_coverage=$(find /tmp/wave38 -type f -name wave38_species_axis_coverage.csv.gz -print -quit)
+          wave38_direct=$(find /tmp/wave38 -type f -name wave38_reviewed_direct_evidence.csv.gz -print -quit)
+          wave38_rules=$(find /tmp/wave38 -type f -name trait_specific_genus_rule_audit.csv.gz -print -quit)
+          for required in "$wave33_resolved" "$wave37_direct" "$wave37_rules" "$wave38_coverage" "$wave38_direct" "$wave38_rules"; do
+            test -n "$required"
+          done
+          wave33_base=$(dirname "$wave33_resolved")
+          test -f "$wave33_base/trait_specific_genus_rule_audit.csv.gz"
+          echo "WAVE33_BASE=$wave33_base" >> "$GITHUB_ENV"
+          echo "WAVE37_DIRECT=$wave37_direct" >> "$GITHUB_ENV"
+          echo "WAVE37_RULES=$wave37_rules" >> "$GITHUB_ENV"
+          echo "WAVE38_COVERAGE=$wave38_coverage" >> "$GITHUB_ENV"
+          echo "WAVE38_DIRECT=$wave38_direct" >> "$GITHUB_ENV"
+          echo "WAVE38_RULES=$wave38_rules" >> "$GITHUB_ENV"
+
+      - name: Rebuild all Wave39-touched trait-specific rules
+        run: |
+          set -euo pipefail
+          rm -rf wave39-touched-rule-rebuild
+          island-v2-wave39-touched-rule-rebuild \
+            --formal-resolved-direct-csv "$WAVE33_BASE/resolved_direct_species_trait.csv.gz" \
+            --reviewed-direct-csv "$SOURCE_DIR/floraweb_synonym_reviewed_direct_evidence.csv.gz" \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/wave35_reproduction_morphology_sources/floraweb_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/wave35_reproduction_morphology_sources/glopl_2025_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/wave35_reproduction_morphology_sources/useful_plants_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/wave36_nhm_reproductive_remine/nhm_reviewed_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv data/v2/staging/traits/wave36_nhm_reproductive_remine/useful_plants_remine_direct_evidence.csv.gz \
+            --supplemental-direct-evidence-csv "$WAVE37_DIRECT" \
+            --supplemental-direct-evidence-csv "$WAVE38_DIRECT" \
+            --supplemental-direct-evidence-csv "$SOURCE_DIR/floraweb_synonym_reviewed_direct_evidence.csv.gz" \
+            --master-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --ontology-yaml config/trait_ontology.yml \
+            --output-dir wave39-touched-rule-rebuild \
+            > wave39-touched-rule-rebuild-stdout.json
+
+      - name: Build the lossless formal Wave39 overlay
+        run: |
+          set -euo pipefail
+          rm -rf wave39-trait-coverage
+          island-v2-wave39-trait-overlay \
+            --mode formal-lossless \
+            --baseline-csv "$WAVE38_COVERAGE" \
+            --all-evidence-dir wave39-touched-rule-rebuild \
+            --reviewed-direct-csv "$SOURCE_DIR/floraweb_synonym_reviewed_direct_evidence.csv.gz" \
+            --checkpoint-summary-json "$SOURCE_DIR/floraweb_synonym_source_summary.json" \
+            --previous-rule-audit-csv "$WAVE33_BASE/trait_specific_genus_rule_audit.csv.gz" \
+            --previous-rule-audit-csv data/v2/staging/traits/wave35_reproduction_morphology_sources/wave35_provider_touched_new_rule_audit.csv.gz \
+            --previous-rule-audit-csv data/v2/staging/traits/wave36_nhm_reproductive_remine/wave36_provider_touched_new_rule_audit.csv.gz \
+            --previous-rule-audit-csv "$WAVE37_RULES" \
+            --previous-rule-audit-csv "$WAVE38_RULES" \
+            --output-dir wave39-trait-coverage \
+            --expected-species 106295 \
+            > wave39-trait-coverage-stdout.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(
+              Path("wave39-trait-coverage/wave39_coverage_summary.json").read_text()
+          )
+          after = summary["after"]
+          assert summary["formal_wave33_run_id"] == 32932103226
+          assert summary["formal_wave38_run_id"] == 33149235490
+          assert summary["delta"] == {
+              "gross_gain_species_axis": 51,
+              "loss_species_axis": 0,
+              "net_gain_species_axis": 51,
+              "by_axis_net_gain": {
+                  "floral_structural_complexity": 1,
+                  "flower_colour": 0,
+                  "reproductive_assurance": 50,
+              },
+              "action_counts": {
+                  "direct_enrichment": 37,
+                  "direct_fill": 1,
+                  "direct_upgrade": 56,
+                  "validated_low_fill": 50,
+              },
+              "reviewed_direct_species_trait": 185,
+              "resolved_direct_species_trait": 160,
+              "new_validated_low_species_trait": 100,
+          }
+          assert summary["new_eligible_rules"] == [
+              "Lactuca x floral_form",
+              "Pilosella x mating_system",
+              "Pilosella x self_incompatibility",
+              "Rubus x autonomous_selfing_capacity",
+          ]
+          assert summary["shadow_invalidated_prior_rules"] == [
+              "Clinopodium x self_incompatibility",
+              "Gypsophila x autonomous_selfing_capacity",
+              "Lysimachia x cleistogamy",
+          ]
+          assert after["filled_species_axis"] == 219904
+          assert after["unresolved_species_axis"] == 98981
+          assert after["quality_counts"] == {"high": 55524, "medium": 46745, "low": 117635}
+          assert after["by_axis"]["flower_colour"]["filled_species"] == 82380
+          assert after["by_axis"]["floral_structural_complexity"]["filled_species"] == 91452
+          assert after["by_axis"]["reproductive_assurance"]["filled_species"] == 46072
+          assert after["species_by_filled_axis_count"] == {
+              "0": 9516,
+              "1": 14451,
+              "2": 41531,
+              "3": 40797,
+          }
+          assert all(summary["checks"].values()), summary["checks"]
+          PY
+
+      - name: Build the strict rebased shadow diagnostic
+        run: |
+          set -euo pipefail
+          rm -rf wave39-rebased-diagnostic
+          island-v2-wave39-trait-overlay \
+            --mode rebased-diagnostic \
+            --baseline-csv "$WAVE38_COVERAGE" \
+            --all-evidence-dir wave39-touched-rule-rebuild \
+            --reviewed-direct-csv "$SOURCE_DIR/floraweb_synonym_reviewed_direct_evidence.csv.gz" \
+            --checkpoint-summary-json "$SOURCE_DIR/floraweb_synonym_source_summary.json" \
+            --previous-rule-audit-csv "$WAVE33_BASE/trait_specific_genus_rule_audit.csv.gz" \
+            --previous-rule-audit-csv data/v2/staging/traits/wave35_reproduction_morphology_sources/wave35_provider_touched_new_rule_audit.csv.gz \
+            --previous-rule-audit-csv data/v2/staging/traits/wave36_nhm_reproductive_remine/wave36_provider_touched_new_rule_audit.csv.gz \
+            --previous-rule-audit-csv "$WAVE37_RULES" \
+            --previous-rule-audit-csv "$WAVE38_RULES" \
+            --output-dir wave39-rebased-diagnostic \
+            --expected-species 106295 \
+            > wave39-rebased-diagnostic-stdout.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(
+              Path("wave39-rebased-diagnostic/wave39_coverage_summary.json").read_text()
+          )
+          assert summary["gain"] == {
+              "gross_filled_species_axis": 51,
+              "gross_unresolved_species_axis": 240,
+              "net_filled_species_axis": -189,
+              "by_axis_net": {
+                  "floral_structural_complexity": 1,
+                  "flower_colour": -118,
+                  "reproductive_assurance": -72,
+              },
+          }
+          assert not summary["checks"]["loss_zero"]
+          PY
+
+      - name: Run identity, lineage, rule, and overlay tests
+        env:
+          PYTHONPATH: src:.
+        run: |
+          pytest -q \
+            tests/test_floraweb_synonym_recovery.py \
+            tests/test_wave39_trait_overlay.py \
+            tests/test_all_evidence_trait_audit.py \
+            --basetemp=.pytest-wave39
+
+      - name: Upload immutable Wave39 source, audits, and coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave39-floraweb-synonym-recovery-${{ github.run_id }}
+          path: |
+            data/v2/staging/traits/wave39_floraweb_synonym_recovery/**
+            wave39-touched-rule-rebuild/**
+            wave39-touched-rule-rebuild-stdout.json
+            wave39-trait-coverage/**
+            wave39-trait-coverage-stdout.json
+            wave39-rebased-diagnostic/**
+            wave39-rebased-diagnostic-stdout.json
+          if-no-files-found: error
+          retention-days: 90

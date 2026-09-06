@@ -1,0 +1,72 @@
+{
+  "contract": "wave52_support_two_reproductive_packet_v1",
+  "created_at_utc": "2026-09-01T00:00:00Z",
+  "fixed_target_species": 106295,
+  "formal_wave33_baseline": {
+    "run_id": 32932103226,
+    "artifact_id": 9593698966,
+    "artifact_name": "integrated-trait-coverage-32932103226",
+    "artifact_digest": "sha256:d6405d520414b802fe75b2e450f45b8e74295f95049f20fb7ce61f57471326d1"
+  },
+  "immediate_formal_baseline": {
+    "run_id": 33467582475,
+    "artifact_id": 9785412422,
+    "artifact_name": "wave51-peperomia-reproductive-unlock-33467582475",
+    "artifact_digest": "sha256:8e7b5da8e92dfefcab78fc99ca7d88555401f53b4435a3b6737b409dfba3eac7"
+  },
+  "evidence_counts": {
+    "direct_rows": 3,
+    "external_rows": 0,
+    "review_rows": 3,
+    "identity_rows": 3,
+    "rejected_rows": 5
+  },
+  "selection": {
+    "source_pages_retrieved": 3,
+    "strategy": "third independent species for three support-two self-compatibility rules, ranked by unresolved congener count",
+    "accepted_species": 3,
+    "accepted_species_trait": 3,
+    "accepted_species_axis": 3
+  },
+  "query_accounting": {
+    "formal_search_api_queries": 0,
+    "interactive_discovery_queries": 28,
+    "source_pages_retrieved": 3,
+    "query_cost_usd": 0.0
+  },
+  "sources": [
+    {
+      "source_id": "french-wikipedia-helichrysum-italicum",
+      "retrieval_url": "https://fr.wikipedia.org/wiki/Helichrysum_italicum",
+      "retrieved_filename": "wikipedia_fr_helichrysum_italicum.html",
+      "source_lineage": "url:https://fr.wikipedia.org/wiki/Helichrysum_italicum",
+      "content_anchor_sha256": "b4cf23efc40d06208f5395ef4f71bc3c431a695001f30861935ad16cee1bb54c",
+      "reviewed_rows": 1
+    },
+    {
+      "source_id": "huntington-isi-2005-04",
+      "retrieval_url": "https://media.huntington.org/ISI/ISI2005/2005-04.html",
+      "retrieved_filename": "huntington_mammillaria_mammillaris.html",
+      "source_lineage": "huntington-isi:2005-04",
+      "content_anchor_sha256": "0bc8419b80aeb8ad4de7e8327da8a9ee314b6af1b34638d439528c5122674440",
+      "reviewed_rows": 1
+    },
+    {
+      "source_id": "sanbi-plantzafrica-triumfetta-annua",
+      "retrieval_url": "https://pza.sanbi.org/triumfetta-annua",
+      "retrieved_filename": "sanbi_triumfetta_annua.html",
+      "source_lineage": "sanbi-plantzafrica:triumfetta-annua:2015-11",
+      "content_anchor_sha256": "8d3d9492c61ae2ee3fe3e43e8b5fb0f2d87e7e8d8083a749cbc6ba4f87fcf4c5",
+      "reviewed_rows": 1
+    }
+  ],
+  "inference_policy": {
+    "join_key": "genus x axis x trait_name",
+    "minimum_species": 3,
+    "family_inference": false,
+    "global_fallback": false,
+    "reproductive_traits_interchangeable": false,
+    "single_source_lineage_can_unlock_rule": false,
+    "completed_axis_novel_trait_enrichment": true
+  }
+}

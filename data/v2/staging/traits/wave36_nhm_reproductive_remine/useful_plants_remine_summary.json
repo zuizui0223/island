@@ -1,0 +1,26 @@
+{
+  "accepted_evidence_rows_before_lineage_dedup": 18,
+  "accepted_source_lineages": 5,
+  "accepted_species_trait_after_lineage_dedup": 10,
+  "artifact_sha256": {
+    "useful_plants_remine_direct_evidence.csv.gz": "0eef425a1802457510399fa1e4ed95c026160ea2449d68e04e1d17b1175ac021",
+    "useful_plants_remine_review_audit.csv.gz": "da5a57f4197ef851b829840627e8b1123bcfa45860f6c679e06624b2a53d2863"
+  },
+  "candidate_excerpt_rows": 28,
+  "checks": {
+    "apomixis_excluded": true,
+    "autonomous_selfing_not_inferred": true,
+    "cultivar_conflict_excluded": true,
+    "family_inference_absent": true,
+    "global_fallback_absent": true,
+    "provider_mirrors_collapsed_by_underlying_citation": true,
+    "self_fertile_no_not_mapped": true
+  },
+  "contract": "useful_plants_reproduction_remine_v1",
+  "excluded_species_trait": 5,
+  "input_sha256": {
+    "useful_plants_cached_reproductive_candidate_excerpts.jsonl": "303161b1b787f7f203ea665653fecb8f79ba8e35111b25eeea9ddee5f99a4ace",
+    "useful_plants_reproduction_manual_review.csv": "6696aa34a9e3971461deccb0efb7595d369c07302eef1a842b1a84f8ed2b05f7"
+  },
+  "reviewed_species_trait": 15
+}

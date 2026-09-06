@@ -1,0 +1,44 @@
+{
+  "by_provider": {
+    "Ferrer et al. 2024 global self-incompatibility database": 650,
+    "Goodwillie, Kalisz & Eckert mixed-mating database": 1,
+    "Meyer, Galloway & Eckert 2026 Dryad synthesis": 669,
+    "Razanajatovo et al. 2016 Nature Communications dataset": 70
+  },
+  "by_trait": {
+    "autonomous_selfing_capacity": 37,
+    "cleistogamy": 1,
+    "self_incompatibility": 1352
+  },
+  "contract": "wave42_external_reproductive_evidence_v1",
+  "evidence_rows": 1390,
+  "evidence_species": 1299,
+  "evidence_species_trait": 1318,
+  "fixed_target_species": 106295,
+  "mapping_accepted_external_names": 1314,
+  "queries": {
+    "local_wfo_2026_06": 1671,
+    "new_gbif": 64,
+    "reused_gbif": 1453,
+    "total_network_requests": 64
+  },
+  "query_accounting": {
+    "aborted_live_wfo_checkpoint_names": 27,
+    "local_wfo_2026_06_names": 1671,
+    "new_gbif_queries": 64,
+    "query_cost_usd": 0,
+    "reused_gbif_responses": 1453
+  },
+  "query_cost_usd": 0,
+  "selection_reasons": {
+    "not_strict_external_two_backbone": 7920,
+    "selected": 1390,
+    "source_family_conflict": 8
+  },
+  "sha256": {
+    "evidence": "4bbb33c28feb6d02a8b3ae04ada91bc3b3acfd0cf12d6964d47e9c417dc332c7",
+    "mapping": "a0ad22a353354ea481dcfc1cfac53eaec799318b4c46113fb3281521eba01ee1",
+    "selection": "a2831bfb648509ed4d2bce28c2e2f70bef609d9d3bd26755196aef29e4f8ac9f"
+  },
+  "source_lineage_policy": "wave42-secondary-reproductive-databases:shared-redistribution-guard"
+}

@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from island_v2 import all_evidence_trait_audit as audit
 from island_v2.direct_evidence_exclusions import apply_direct_evidence_exclusions
@@ -140,6 +141,112 @@ def test_latest_public_web_loader_coalesces_row_level_quality_columns(
     }
 
 
+def test_reviewed_direct_supplement_loader_preserves_contract_and_trait(
+    tmp_path: Path,
+) -> None:
+    record = row(
+        "Alpha one",
+        "autonomous_selfing_capacity",
+        '["autonomous"]',
+        "dataset:reviewed",
+        quality="high",
+    )
+    path = tmp_path / "reviewed.csv.gz"
+    pd.DataFrame([record]).to_csv(path, index=False)
+    loaded = audit.load_reviewed_direct_supplements((path,))
+
+    assert len(loaded) == 1
+    assert loaded.iloc[0]["trait_name"] == "autonomous_selfing_capacity"
+    assert loaded.iloc[0]["axis"] == "reproductive_assurance"
+    assert loaded.iloc[0]["acceptance_contract"] == "test"
+    assert loaded.iloc[0]["source_file"] == str(path)
+
+
+def test_reviewed_direct_supplement_loader_rejects_incomplete_provenance(
+    tmp_path: Path,
+) -> None:
+    record = row("Alpha one", "floral_form", "tubular", "dataset:reviewed")
+    record["source_citation"] = ""
+    path = tmp_path / "reviewed.csv.gz"
+    pd.DataFrame([record]).to_csv(path, index=False)
+
+    with pytest.raises(ValueError, match="incomplete provenance"):
+        audit.load_reviewed_direct_supplements((path,))
+
+
+def test_external_congener_loader_requires_strict_scope_and_two_backbone_gate(
+    tmp_path: Path,
+) -> None:
+    record = row("Alpha outside", "self_incompatibility", "SC", "paper:external")
+    record.update(
+        {
+            "evidence_scope": "external_congener_species_direct",
+            "name_match_method": "strict_wfo_gbif_two_backbone",
+            "acceptance_contract": (
+                "external_congener_species_direct_strict_two_backbone_v1"
+            ),
+        }
+    )
+    path = tmp_path / "external.csv.gz"
+    pd.DataFrame([record]).to_csv(path, index=False)
+
+    loaded = audit.load_external_congener_support((path,))
+
+    assert len(loaded) == 1
+    assert loaded.iloc[0]["accepted_species"] == "Alpha outside"
+    assert loaded.iloc[0]["evidence_scope"] == "external_congener_species_direct"
+
+
+def test_external_congener_support_unlocks_low_without_entering_direct_coverage() -> None:
+    target_evidence = pd.DataFrame(
+        [
+            row("Alpha one", "self_incompatibility", "SC", "paper:one"),
+            row("Alpha two", "self_incompatibility", "SC", "paper:two"),
+        ],
+        columns=EVIDENCE_COLUMNS,
+    )
+    external_record = row(
+        "Alpha outside", "self_incompatibility", "SC", "paper:outside"
+    )
+    external_record.update(
+        {
+            "evidence_scope": "external_congener_species_direct",
+            "name_match_method": "strict_wfo_gbif_two_backbone",
+            "acceptance_contract": (
+                "external_congener_species_direct_strict_two_backbone_v1"
+            ),
+        }
+    )
+    external_evidence = pd.DataFrame([external_record], columns=EVIDENCE_COLUMNS)
+    target_lineages, _ = audit.dedupe_direct_lineages(target_evidence, ONTOLOGY)
+    target_cells, _ = audit.resolve_direct_cells(target_lineages)
+    external_lineages, _ = audit.dedupe_direct_lineages(external_evidence, ONTOLOGY)
+    external_cells, _ = audit.resolve_direct_cells(external_lineages)
+    for frame in (target_cells, target_lineages, external_cells, external_lineages):
+        frame["genus"] = frame["accepted_species"].str.split().str[0]
+    rules = audit.build_rule_audit(
+        pd.concat([target_cells, external_cells], ignore_index=True),
+        pd.concat([target_lineages, external_lineages], ignore_index=True),
+        pd.DataFrame(columns=["genus", "trait_name", "state_set"]),
+    )
+    master = pd.DataFrame(
+        [
+            {"accepted_species": "Alpha one", "genus": "Alpha"},
+            {"accepted_species": "Alpha two", "genus": "Alpha"},
+            {"accepted_species": "Alpha target", "genus": "Alpha"},
+        ]
+    )
+
+    low = audit.apply_genus_rules(master, target_cells, rules, "current_min3")
+    coverage = audit.species_axis_coverage(master, target_cells, low)
+
+    assert low[["accepted_species", "trait_name"]].to_records(index=False).tolist() == [
+        ("Alpha target", "self_incompatibility")
+    ]
+    assert "Alpha outside" not in set(coverage["accepted_species"])
+    assert len(coverage) == 9
+
+
 def test_reviewed_exclusion_prevents_false_conflict_with_corrected_direct_row() -> None:
     wrong = row(
         "Calanthe striata",
@@ -248,6 +355,63 @@ def test_direct_conflicts_are_classified_without_row_order_selection() -> None:
         cell_audit["accepted_species"].eq("Ontology one")
     ].iloc[0]
     assert ontology["classification"] == "source_ontology_mismatch"
+
+
+def test_explicit_mixed_reproductive_state_resolves_simple_state_conflicts() -> None:
+    evidence = pd.DataFrame(
+        [
+            row(
+                "Capsicum pubescens",
+                "self_incompatibility",
+                "SI",
+                "paper:si",
+                quality="high",
+            ),
+            row(
+                "Capsicum pubescens",
+                "self_incompatibility",
+                "mixed_or_variable",
+                "dataset:si-sc",
+                quality="high",
+            ),
+            row(
+                "Witheringia solanacea",
+                "self_incompatibility",
+                "SC",
+                "paper:sc",
+                quality="high",
+            ),
+            row(
+                "Witheringia solanacea",
+                "self_incompatibility",
+                "SI",
+                "paper:si",
+                quality="high",
+            ),
+            row(
+                "Witheringia solanacea",
+                "self_incompatibility",
+                "mixed_or_variable",
+                "dataset:si-sc",
+                quality="high",
+            ),
+        ],
+        columns=EVIDENCE_COLUMNS,
+    )
+    lineages, _ = audit.dedupe_direct_lineages(evidence, ONTOLOGY)
+
+    resolved, cell_audit = audit.resolve_direct_cells(lineages)
+
+    assert set(resolved["accepted_species"]) == {
+        "Capsicum pubescens",
+        "Witheringia solanacea",
+    }
+    assert set(resolved["classification"]) == {"true_multistate_variable"}
+    assert set(resolved["normalized_value"]) == {"mixed_or_variable"}
+    assert set(resolved["state_set"].map(json.loads).map(tuple)) == {
+        ("mixed_or_variable",)
+    }
+    assert set(cell_audit["resolution_status"]) == {"resolved"}
 
 
 def test_legacy_colour_aliases_remain_multistate_and_internal_conflicts_are_explicit() -> None:
@@ -376,6 +540,40 @@ def test_lineage_loo_removes_every_species_from_the_held_out_lineage() -> None:
     assert current["lineage_loo_n"] == 2
     assert current["lineage_loo_correct"] == 2
     assert current["lineage_loo_accuracy"] == 1.0
+
+
+def test_genus_rules_join_on_accepted_species_genus_not_stale_master_column() -> None:
+    master = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Deyeuxia target",
+                "genus": "Calamagrostis",
+            },
+            {
+                "accepted_species": "Calamagrostis target",
+                "genus": "Deyeuxia",
+            },
+        ]
+    )
+    rules = pd.DataFrame(
+        [
+            {
+                "genus": "Calamagrostis",
+                "axis": "reproductive_assurance",
+                "trait_name": "mating_system",
+                "setting": "current_min3",
+                "eligible": True,
+                "inferred_state_set": '["predominantly_outcrossing"]',
+                "inferred_value": "predominantly_outcrossing",
+            }
+        ]
+    )
+    direct = pd.DataFrame(columns=["accepted_species", "trait_name"])
+
+    inferred = audit.apply_genus_rules(master, direct, rules, "current_min3")
+
+    assert inferred["accepted_species"].tolist() == ["Calamagrostis target"]
+    assert inferred["genus"].tolist() == ["Calamagrostis"]
 
 
 def test_lineage_loo_does_not_count_same_paper_species_as_independent_validation() -> None:
@@ -517,3 +715,46 @@ def test_acquisition_queue_ranks_cells_unlocked_per_required_acquisition() -> No
     assert queue.iloc[0]["genus"] == "Beta"
     assert queue.iloc[0]["acquisitions_needed_for_min3_dominance"] == 1
     assert queue.iloc[0]["potential_cells_per_acquisition"] == 80
+
+
+def test_acquisition_queue_derives_genus_from_accepted_species() -> None:
+    master = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Accepted alpha",
+                "genus": "StaleSynonymGenus",
+                "n_islands": "3",
+                "n_records": "10",
+            }
+        ]
+    )
+    coverage = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Accepted alpha",
+                "axis": "reproductive_assurance",
+                "quality": "",
+            }
+        ]
+    )
+    rules = pd.DataFrame(
+        [
+            {
+                "setting": "current_min3",
+                "genus": "Accepted",
+                "axis": "reproductive_assurance",
+                "trait_name": "self_incompatibility",
+                "n_direct_species": 2,
+                "dominant_species": 2,
+                "required_dominance": 0.95,
+                "dominance": 1.0,
+                "value_distribution": '{"[\\"SC\\"]":2}',
+            }
+        ]
+    )
+
+    queue = audit.acquisition_queue(master, coverage, rules)
+
+    assert len(queue) == 1
+    assert queue.iloc[0]["genus"] == "Accepted"
+    assert queue.iloc[0]["potential_cells_unlocked"] == 1

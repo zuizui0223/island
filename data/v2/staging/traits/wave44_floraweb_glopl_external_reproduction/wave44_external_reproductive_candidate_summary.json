@@ -1,0 +1,25 @@
+{
+  "contract": "wave44_floraweb_glopl_external_candidate_manifest_v1",
+  "family_inference_absent": true,
+  "fixed_target_species": 106295,
+  "floraweb": {
+    "by_label": {
+      "Best\u00e4ubung (Pollenvektoren)": 546,
+      "SI-Reaktion": 563
+    },
+    "rows": 1109,
+    "source_names": 554
+  },
+  "global_fallback_absent": true,
+  "glopl": {
+    "by_trait": {
+      "autonomous_selfing_capacity": 600,
+      "self_incompatibility": 595
+    },
+    "rows": 1195,
+    "source_names": 287,
+    "species_trait": 563
+  },
+  "source_names": 836,
+  "target_exact_names_excluded": true
+}
