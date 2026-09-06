@@ -1,0 +1,53 @@
+name: Build Wave55 strict review queue
+
+on:
+  push:
+    branches: [agent/wave55-strict-review]
+    paths:
+      - ".github/workflows/build-wave55-strict-review-queue.yml"
+      - "analysis/build_wave_candidate_review_queue_20260906.py"
+      - "data/v2/staging/traits/global_campaign/waves/wave_00055_reproductive_wikimedia/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-review-queue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Materialize Wave55 machine candidates as unpromoted review queue
+        run: |
+          set -euo pipefail
+          python analysis/build_wave_candidate_review_queue_20260906.py \
+            --input-csv data/v2/staging/traits/global_campaign/waves/wave_00055_reproductive_wikimedia/machine_candidates.csv.gz \
+            --output-dir wave55-strict-review \
+            --wave-id wave_00055_reproductive_wikimedia
+          cat wave55-strict-review/review_queue_summary.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify no automatic promotion
+        run: |
+          python - <<'PY'
+          import csv, json
+          from pathlib import Path
+          root=Path('wave55-strict-review')
+          summary=json.loads((root/'review_queue_summary.json').read_text())
+          with (root/'strict_reproductive_review_queue.csv').open(encoding='utf-8', newline='') as f:
+              rows=list(csv.DictReader(f))
+          assert len(rows)==summary['strict_reproductive_review_candidates']
+          assert all(r['promotion_allowed']=='false' for r in rows)
+          assert all(r['review_status']=='unreviewed_machine_candidate' for r in rows)
+          assert all(r['evidence_scope']=='species_direct' for r in rows)
+          assert all(r['source_url'] and r['source_excerpt'] for r in rows)
+          print(summary)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wave55-strict-review-queue-${{ github.run_id }}
+          path: wave55-strict-review/
+          if-no-files-found: error
+          retention-days: 30
