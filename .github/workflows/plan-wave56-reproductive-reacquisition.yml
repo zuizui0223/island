@@ -59,18 +59,35 @@ jobs:
               ['accepted_species', 'axis'],
           ].drop_duplicates()
 
+          # targeted_acquisition_priority expects raw-evidence style column names.
+          # Wave52's resolved-direct audit is already conflict-resolved, so adapt
+          # quality -> evidence_quality and mark each retained row species-direct.
+          targeted = direct.copy()
+          targeted['evidence_quality'] = targeted['quality']
+          targeted['evidence_scope'] = 'species_direct'
+          targeted = targeted.loc[
+              targeted['accepted_species'].ne('')
+              & targeted['trait_name'].ne('')
+              & targeted['normalized_value'].ne('')
+              & targeted['evidence_quality'].isin({'high', 'medium'})
+          ].copy()
+
           out = Path('/tmp/wave56-input')
           out.mkdir(parents=True, exist_ok=True)
-          direct.to_csv(out / 'wave52_resolved_direct_species_trait.csv.gz', index=False)
+          targeted.to_csv(out / 'wave52_targeted_direct_species_trait.csv.gz', index=False)
           unresolved.to_csv(out / 'wave52_unresolved_reproductive.csv.gz', index=False)
-          print({'wave52_unresolved_reproductive': len(unresolved), 'direct_rows': len(direct)})
+          print({
+              'wave52_unresolved_reproductive': len(unresolved),
+              'resolved_direct_rows': len(direct),
+              'planner_eligible_direct_rows': len(targeted),
+          })
           PY
 
       - name: Build near-threshold reproductive source-expansion plan
         run: |
           set -euo pipefail
           python -m island_v2.targeted_acquisition_priority \
-            --evidence-csv /tmp/wave56-input/wave52_resolved_direct_species_trait.csv.gz \
+            --evidence-csv /tmp/wave56-input/wave52_targeted_direct_species_trait.csv.gz \
             --unresolved-csv /tmp/wave56-input/wave52_unresolved_reproductive.csv.gz \
             --output-dir /tmp/wave56-plan \
             --min-species 3 \
