@@ -1,11 +1,17 @@
 # Broad trait acquisition-rate report
 
+> **Secondary acquisition inventory — not Chapter 1 trait coverage.**
+>
+> The canonical Chapter 1 denominator is 106,295 analysis-applicable species × 3 strict axes = 318,885 species-axis cells. The current working strict checkpoint after TRY adjudication and Wave55 Batch 5 is **222,759 / 318,885 = 69.8556%**. See [`chapter1_trait_coverage_contract.md`](chapter1_trait_coverage_contract.md).
+>
+> Percentages produced below use the separate 115,328-name all-master acquisition inventory and measure candidate/source reach. They must not be reported or compared as Chapter 1 coverage.
+
 ## Why this exists
 
 v2 runs several trait-acquisition channels in parallel — human-reviewed
 curation, the machine wave campaign, bulk source joins, and search-enabled LLM
-extraction — and each writes its own staging output. Until now no single view
-answered the operational question that decides whether the pipeline is working:
+extraction — and each writes its own staging output. This secondary inventory
+answers an operational source-discovery question:
 
 > Of the whole master species universe, what fraction now has a source-backed
 > candidate for each trait, and which channel supplied it?
@@ -13,8 +19,8 @@ answered the operational question that decides whether the pipeline is working:
 `island-v2-acquisition-rate` unions every channel against the frozen master
 species set (`data/v2/staging/gbif/collected/island_taxa.csv`) and reports the
 **broad acquisition rate**: the fraction of the master with a source-backed
-candidate. This is the confirm-instrument for a rate-first workflow — run it,
-land a new source, run it again, and read the delta.
+candidate. This is an upstream acquisition diagnostic, not an analysis-ready
+coverage metric.
 
 ## What "broad" means
 
@@ -26,8 +32,9 @@ land a new source, run it again, and read the delta.
 - A species-trait with only empty/non-committal values (`unknown`, `na`, …)
   does not count as acquired.
 
-The scoreboard is deliberately upstream of adjudication. Quality is enforced
-later, in the curated review track; this report measures reach.
+The scoreboard is deliberately upstream of strict adjudication. A candidate
+changes canonical Chapter 1 coverage only after the strict resolver accepts it
+and it resolves a previously unresolved analysis-axis cell.
 
 ## Run it
 
@@ -55,7 +62,8 @@ Outputs:
 Both ledgers retain all 115,328 master rows. For the 9,033 non-angiosperm or
 family-unresolved rows, angiosperm-only floral and pollination cells are marked
 `not_applicable_taxonomic_scope`; they are not discarded and are not counted as
-failed lookups.
+failed lookups. This population is intentionally broader than the 106,295-species
+strict Chapter 1 analysis universe.
 
 ## Rebuild from production artifacts
 
@@ -68,6 +76,9 @@ candidate files, their SHA-256 digests and counts, GitHub artifact metadata, and
 all rate/ledger tables. Blank optional run IDs create an interim ledger;
 supplying `gift_run_id` and/or `efloras_run_id` adds the corresponding immutable
 artifact without changing the 115,328-species denominator.
+
+This workflow is a source-inventory builder. Its percentages are secondary and
+must not replace the strict Chapter 1 coverage contract.
 
 ## Configuration
 
@@ -87,10 +98,9 @@ declared. A newly landed bulk source (EOL TraitBank, Wikidata, other free bulk
 downloads) appears in the rate as soon as it writes to its staging path in the
 `candidate_long` layout — no code change needed.
 
-## Reading the baseline
+## Reading the inventory
 
-The current checked-in snapshot shows how far the pipeline still has to go and
-is the reason the rate-first workflow exists: the machine wave campaign is the
-only channel with real reach so far, and even flower colour — the single most
-important target — sits far below 1% of the master. Landing bulk sources is the
-lever that moves these numbers, and this report is how each landing is judged.
+Read these rates only as source-discovery diagnostics: low values identify where
+new providers or taxonomic reconciliation may still recover evidence. They are
+not thresholds for Chapter 1 analysis and cannot be compared with the strict
+three-axis percentage.

@@ -1,4 +1,4 @@
-name: materialize_trait_fill_cascade
+name: Secondary exhaustive trait-fill cascade
 
 on:
   pull_request:
@@ -17,6 +17,11 @@ on:
         description: Successful all-master run whose exact artifact must be materialized
         required: false
         type: string
+      run_secondary_inventory:
+        description: Explicitly run the non-canonical exhaustive fill inventory
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   actions: read
@@ -28,6 +33,13 @@ concurrency:
 
 jobs:
   materialize:
+    # This cascade performs genus/family/global fallback and is not Chapter 1
+    # strict coverage. Keep PR validation available, but require an explicit
+    # opt-in for workflow_dispatch so the all-master inventory cannot silently
+    # launch a misleading 100% fill job.
+    if: >-
+      github.event_name == 'pull_request' ||
+      inputs.run_secondary_inventory == true
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:

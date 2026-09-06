@@ -2,6 +2,22 @@
 
 This repository supports **Chapter 1 / macroecological WHEN–WHERE analysis** of floral and reproductive trait filtering across island floras.
 
+## Canonical trait coverage
+
+Chapter 1 has one canonical trait-coverage contract:
+
+- **106,295** analysis-applicable species;
+- **3** strict axes: flower colour, floral structural complexity, reproductive assurance;
+- **318,885** species × axis cells total.
+
+Current working checkpoint after private TRY adjudication and Wave55 Batch 5:
+
+> **222,759 / 318,885 strict cells resolved = 69.8556%**
+
+The separate 115,328-name `all-master` acquisition inventory measures upstream candidate/source reach across a different set of fields and taxa. Its `any-trait broad`, five-field, or similar percentages are **not Chapter 1 coverage** and must not be compared with 69.8556%.
+
+See [`docs/chapter1_trait_coverage_contract.md`](docs/chapter1_trait_coverage_contract.md) for the promotion and reporting rules.
+
 ## Current question
 
 > **When and where do floral/reproductive trait probabilities change along a mainland-distance/source-pool-accessibility gradient, and where do multivariate response vectors differ?**
@@ -29,6 +45,7 @@ See:
 
 - [`docs/chapter1_when_where_frozen_result_20260825.md`](docs/chapter1_when_where_frozen_result_20260825.md) — canonical observation-robust result;
 - [`docs/chapter1_next_acquisition_priority_20260825.md`](docs/chapter1_next_acquisition_priority_20260825.md) — outcome-blind next data-acquisition priorities;
+- [`docs/chapter1_trait_coverage_contract.md`](docs/chapter1_trait_coverage_contract.md) — canonical strict coverage denominator and reporting contract;
 - [`THESIS_CHAPTER_POSITIONING.md`](THESIS_CHAPTER_POSITIONING.md) — dissertation role and claim boundary;
 - [`docs/chapter1_pollination_syndrome_concordance_20260825.md`](docs/chapter1_pollination_syndrome_concordance_20260825.md) — post-freeze Discussion-only pollination-syndrome audit.
 
