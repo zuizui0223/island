@@ -1,0 +1,164 @@
+name: Plan Wave56 reproductive reacquisition
+
+on:
+  push:
+    branches:
+      - agent/reproductive-wave56
+    paths:
+      - ".github/workflows/plan-wave56-reproductive-reacquisition.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: wave56-reproductive-reacquisition-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      WAVE52_RUN_ID: "33470056127"
+      WAVE52_ARTIFACT: "wave52-support-two-reproductive-unlock-33470056127"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Download public Wave52 strict checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wave52
+          gh run download "$WAVE52_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "$WAVE52_ARTIFACT" --dir /tmp/wave52
+          find /tmp/wave52 -type f | sort | head -100
+
+      - name: Reconstruct reproduction-only direct and unresolved inputs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('/tmp/wave52')
+          covs = list(root.glob('**/wave52-trait-coverage/wave52_species_axis_coverage.csv.gz'))
+          directs = list(root.glob('**/wave52-all-evidence-audit/resolved_direct_species_trait.csv.gz'))
+          if len(covs) != 1 or len(directs) != 1:
+              raise SystemExit(f'expected one Wave52 coverage/direct file, found {len(covs)}/{len(directs)}')
+
+          cov = pd.read_csv(covs[0], dtype=str).fillna('')
+          direct = pd.read_csv(directs[0], dtype=str).fillna('')
+          unresolved = cov.loc[
+              cov['axis'].eq('reproductive_assurance') & cov['quality'].eq(''),
+              ['accepted_species', 'axis'],
+          ].drop_duplicates()
+
+          # targeted_acquisition_priority expects raw-evidence style column names.
+          # Wave52's resolved-direct audit is already conflict-resolved, so adapt
+          # quality -> evidence_quality and mark each retained row species-direct.
+          targeted = direct.copy()
+          targeted['evidence_quality'] = targeted['quality']
+          targeted['evidence_scope'] = 'species_direct'
+          targeted = targeted.loc[
+              targeted['accepted_species'].ne('')
+              & targeted['trait_name'].ne('')
+              & targeted['normalized_value'].ne('')
+              & targeted['evidence_quality'].isin({'high', 'medium'})
+          ].copy()
+
+          out = Path('/tmp/wave56-input')
+          out.mkdir(parents=True, exist_ok=True)
+          targeted.to_csv(out / 'wave52_targeted_direct_species_trait.csv.gz', index=False)
+          unresolved.to_csv(out / 'wave52_unresolved_reproductive.csv.gz', index=False)
+          print({
+              'wave52_unresolved_reproductive': len(unresolved),
+              'resolved_direct_rows': len(direct),
+              'planner_eligible_direct_rows': len(targeted),
+          })
+          PY
+
+      - name: Build near-threshold reproductive source-expansion plan
+        run: |
+          set -euo pipefail
+          python -m island_v2.targeted_acquisition_priority \
+            --evidence-csv /tmp/wave56-input/wave52_targeted_direct_species_trait.csv.gz \
+            --unresolved-csv /tmp/wave56-input/wave52_unresolved_reproductive.csv.gz \
+            --output-dir /tmp/wave56-plan \
+            --min-species 3 \
+            --max-target-species-per-genus-axis 2
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          out = Path('/tmp/wave56-plan')
+          tasks = pd.read_csv(out / 'targeted_acquisition_tasks.csv.gz', dtype=str).fillna('')
+          priority = pd.read_csv(out / 'near_threshold_genus_priority.csv.gz', dtype=str).fillna('')
+
+          blocked = {
+              'Sideroxylon', 'Illicium', 'Portulaca', 'Eugenia',
+              'Liparis', 'Melaleuca', 'Callicarpa',
+          }
+          tasks = tasks.loc[
+              tasks['axis'].eq('reproductive_assurance') & ~tasks['genus'].isin(blocked)
+          ].copy()
+          priority = priority.loc[
+              priority['axis'].eq('reproductive_assurance') & ~priority['genus'].isin(blocked)
+          ].copy()
+
+          tasks['priority_rank_num'] = pd.to_numeric(tasks['priority_rank'], errors='coerce')
+          tasks = (
+              tasks.sort_values(['priority_rank_num', 'accepted_species'])
+              .head(300)
+              .drop(columns=['priority_rank_num'])
+              .drop_duplicates(['accepted_species', 'axis'])
+              .reset_index(drop=True)
+          )
+          tasks['acquisition_round'] = 'wave56_reproductive_support2_source_expansion'
+          if tasks.empty:
+              raise SystemExit('Wave56 reproduction-only plan produced no tasks')
+
+          keep_genera = set(tasks['genus'])
+          priority = priority.loc[priority['genus'].isin(keep_genera)].copy()
+          tasks.to_csv(out / 'targeted_acquisition_tasks.csv.gz', index=False)
+          priority.to_csv(out / 'near_threshold_genus_priority.csv.gz', index=False)
+
+          summary = {
+              'contract': 'wave56_reproductive_support2_source_expansion_v1',
+              'scientific_axis': 'reproductive_assurance',
+              'source_checkpoint': 'Wave52 public strict overlay; current private TRY/Wave55 collision audit remains required',
+              'automatic_promotion': False,
+              'blocked_conflicted_genera': sorted(blocked),
+              'target_species_axis_tasks': int(len(tasks)),
+              'target_species': int(tasks['accepted_species'].nunique()),
+              'target_genera': int(tasks['genus'].nunique()),
+              'potential_unresolved_species_axis_upper_bound': int(
+                  pd.to_numeric(priority['unresolved_species_in_genus_axis'], errors='coerce').fillna(0).sum()
+              ),
+              'providers_next': ['europe_pmc', 'openalex', 'world_flora'],
+          }
+          (out / 'targeted_acquisition_summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+          print(json.dumps(summary, indent=2))
+          PY
+          cat /tmp/wave56-plan/targeted_acquisition_summary.json >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: targeted-trait-acquisition-plan-${{ github.run_id }}
+          path: /tmp/wave56-plan/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Dispatch existing expanded-provider reacquisition engine
+        run: |
+          gh workflow run run-targeted-trait-reacquisition.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f plan_run_id="$GITHUB_RUN_ID"
