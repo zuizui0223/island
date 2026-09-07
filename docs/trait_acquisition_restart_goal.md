@@ -20,4 +20,4 @@ Search broadly across public Web and original tables; search snippets are discov
 
 First resume actions: collision-audit existing Wave56-58 reviewed evidence, recompute unresolved genus-by-trait priorities against the restored baseline, inspect multi-species reproductive sources for the leading gaps. Old support-two queue potentials are diagnostic, not current verified gains. Do not launch exhausted whole-universe workflows. Publish a new integrated artifact only after all promoted rows and changes are auditable.
 
-The desktop goal remains an older blocked objective: available goal tools cannot edit its text or resume it. This file records the user-authorized revised working objective without falsely completing the old objective.
+On the user's subsequent explicit goal-setting request, the desktop accepted this replacement objective and returned status `active` (2026-09-07). The older goal was not falsely marked achieved. This document and the registered goal now share the recovered artifact baseline and +1,000 net-cell milestone.
