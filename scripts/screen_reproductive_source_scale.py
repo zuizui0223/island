@@ -25,9 +25,9 @@ SOURCES = [
     {
         "source_id": "goodwillie_kalisz_eckert_2012_dryad",
         "doi": "10.5061/dryad.292q34fp",
-        "status": "candidate",
+        "status": "integrated_control",
         "source_type": "structured_xls",
-        "note": "Mixed-mating outcrossing-rate database; source-scale mating-system candidate.",
+        "note": "Already source-scale processed on 2026-08-21 (469 source rows); retain only as a control.",
     },
     {
         "source_id": "goodwillie_etal_2010_floral_display_dryad",
@@ -184,7 +184,7 @@ def main() -> None:
                 for table in sorted(tables):
                     try:
                         frame = _read_table(table)
-                    except Exception as exc:  # file-specific parse failure remains visible
+                    except Exception as exc:
                         table_rows.append(
                             {
                                 "source_id": source["source_id"],
@@ -218,8 +218,6 @@ def main() -> None:
 
             exact_overlap = relevant_taxa & unresolved
             in_universe = relevant_taxa & universe
-            # Review-time heuristic for structured data only. This is explicitly a planning
-            # estimate: automated extraction plus manual source/identity review of overlaps.
             estimated_minutes = 20.0 + 2.0 * relevant_tables + 0.30 * len(exact_overlap)
             cells_per_hour = (len(exact_overlap) / (estimated_minutes / 60.0)) if exact_overlap else 0.0
             source_rows.append(
