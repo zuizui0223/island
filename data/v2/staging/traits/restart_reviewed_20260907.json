@@ -1,0 +1,22 @@
+[
+  {
+    "record_id": "restart:zhai2010:neolitsea-sericea:mating",
+    "accepted_species": "Neolitsea sericea",
+    "axis": "reproductive_assurance",
+    "trait_name": "mating_system",
+    "normalized_value": "predominantly_outcrossing",
+    "quality": "medium",
+    "source_url": "https://bsapubs.onlinelibrary.wiley.com/doi/10.3732/ajb.1000348",
+    "source_title": "Isolation of compound microsatellite markers for the endangered plant Neolitsea sericea (Lauraceae)",
+    "source_excerpt": "Neolitsea sericea is dioecious, hence an obligate outcrosser, and does not reproduce vegetatively.",
+    "source_lineage": "citation:Chung-Chung-Oh-Epperson-2000-Heredity-85-490-497",
+    "provider_lineage": "doi:10.3732/ajb.1000348",
+    "review_date": "2026-09-07",
+    "reviewer": "Codex-source-review",
+    "review_status": "accepted_direct_statement",
+    "name_match_method": "exact_accepted_species_in_original_body_and_frozen_master",
+    "cultivar_status": "natural_populations",
+    "genus_rule_training_allowed": false,
+    "review_note": "Original publisher full text re-read 2026-09-07. Explicit species-level outcrossing statement; not model inference from dioecy. Conservative existing ontology maps obligate outcrossing to predominantly_outcrossing. Natural-history citation points to Chung et al. 2000; upstream study not independently re-read. Count as one Medium lineage, never as two sources. Existing frozen species-trait and species-axis collisions absent. Genus retraining remains deferred."
+  }
+]

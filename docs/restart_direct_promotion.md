@@ -1,0 +1,11 @@
+# Incremental reviewed direct promotion
+
+This batch uses recovered Run 34093932899 / artifact 10007872352 without changing the historical baseline. The objective remains net +1,000 cells; this is an incremental batch, not completion of that goal or a replacement for all-evidence genus validation.
+
+Original-publisher reread on 2026-09-07 confirms the species-specific outcrossing statement for Neolitsea sericea in Zhai et al. 2010, DOI 10.3732/ajb.1000348. Keep Medium because this is a natural-history statement, not that paper's measured breeding experiment. Its cited natural-history source Chung et al. 2000 is recorded as the lineage; publisher and cited source cannot count as two independent observations. No genus training is authorized from this batch. The frozen baseline has no direct mating_system row and an unresolved reproductive axis for that exact species.
+
+The source record stores exact excerpt, retrieval/review date, reviewer, source URL, identity method, observational scope and original citation lineage. The integrator refuses existing direct trait keys, occupied axes, duplicate claims, missing provenance, cultivar records, genotype-to-species transfer and genus training. Existing cells are compared unchanged. A conservative ontology maps the author's obligate outcrossing statement into the existing predominantly_outcrossing category while retaining the verbatim statement.
+
+Wave58 Cinnamomum verum remains unpromoted: its original PLOS article explicitly studies the named cultivars Sri Gemunu and Sri Wijaya. Those records must not be used to fill a wild-species cell without a separately justified scope. Pouteria campechiana remains rejected for an autonomous-selfing ontology mismatch. Other Wave56-57 records remain pending source/collision admission, not silently accepted from their earlier review label.
+
+The workflow `Integrate reviewed restart evidence` creates the cumulative direct ledger, materialized species-axis table, reviewed-record ledger, per-cell change audit and input/output hash manifest. It does not run a global Web search or restart completed tasks. Genus Low additions, invalidations and upgrades are zero in this narrowly scoped batch; full all-evidence revalidation is explicitly deferred, not claimed completed.
