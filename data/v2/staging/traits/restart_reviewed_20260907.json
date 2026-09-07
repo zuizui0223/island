@@ -44,5 +44,30 @@
     "cultivar_status": "natural_populations",
     "genus_rule_training_allowed": false,
     "review_note": "Original field observations, Table 2. Maroon-red is a red shade. Do not convert P:O-derived autogamy inference into direct reproductive evidence. No whole-flower size category inferred from petal length."
+  },
+  {
+    "record_id": "medinilla-multiflora-2018-self-compatibility",
+    "accepted_species": "Medinilla multiflora",
+    "axis": "reproductive_assurance",
+    "trait_name": "self_incompatibility",
+    "normalized_value": "SC",
+    "state_set": [
+      "SC"
+    ],
+    "quality": "high",
+    "source_url": "https://journals.rbge.org.uk/rbgesib/article/view/251",
+    "source_excerpt": "Medinilla multiflora was found to require pollination but not cross-pollination.",
+    "source_lineage": "doi:10.24823/sibbaldia.2018.251",
+    "source_title": "Pollination, Mating System, Phenology and Characterisation of Medinilla multiflora Merr. (Melastomataceae) on Mt Makiling, Philippines",
+    "source_sha256": "1db3621174fd43c9cf9a182208c2acac8b946d1091925039be07c02c916f5ede",
+    "source_hash_scope": "publisher original article HTML",
+    "retrieval_date": "2026-09-07",
+    "review_date": "2026-09-07",
+    "reviewer": "Codex-original-abstract-review",
+    "review_status": "accepted_direct_statement",
+    "name_match_method": "exact_accepted_species_original_abstract_and_fixed_master",
+    "cultivar_status": "natural_populations",
+    "genus_rule_training_allowed": false,
+    "review_note": "Original study explicitly reports self-compatibility based on exclusion and hand-pollination. Mt Makiling population, Philippines. Species-complex delimitation uncertainty retained; no synonym expansion. SC only; no autonomous-selfing or mixed-mating assignment from this abstract. Formal species-axis was empty."
   }
 ]
