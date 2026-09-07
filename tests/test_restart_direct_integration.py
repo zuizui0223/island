@@ -13,6 +13,8 @@ spec.loader.exec_module(module)
 
 def sample():
     records=json.loads((root/'data/v2/staging/traits/restart_reviewed_20260907.json').read_text())
+    records=[r for r in records if r['accepted_species']=='Neolitsea sericea']
+    assert len(records)==1
     c=pd.DataFrame([dict(accepted_species='Neolitsea sericea',axis='reproductive_assurance',quality='',trait_names='',trait_composition='',source_groups='',source_lineages='')])
     d=pd.DataFrame(columns=['accepted_species','trait_name','quality'])
     o={'traits':{'mating_system':{'domain':'reproductive_assurance','allowed_values':['predominantly_outcrossing']}}}
@@ -26,6 +28,18 @@ def test_new_direct_cell():
     assert after.trait_composition.iloc[0]=='mating_system=["predominantly_outcrossing"]'
     assert c.quality.iloc[0]==''
     assert len(ledger)==len(change)==1
+
+
+def test_all_base_records_have_distinct_species_trait_cells():
+    import yaml
+    records=json.loads((root/'data/v2/staging/traits/restart_reviewed_20260907.json').read_text(encoding='utf-8'))
+    c=pd.DataFrame([dict(accepted_species=r['accepted_species'],axis=r['axis'],quality='',trait_names='',trait_composition='',source_groups='',source_lineages='') for r in records])
+    d=pd.DataFrame(columns=['accepted_species','trait_name','quality'])
+    o=yaml.safe_load((root/'config/trait_ontology.yml').read_text(encoding='utf-8'))
+    after,ledger,change=module.integrate(c,d,records,o)
+    assert len(ledger)==len(change)==len(records)
+    assert not ledger.duplicated(['accepted_species','trait_name']).any()
+    assert after.quality.ne('').all()
 
 
 def test_existing_low_is_not_overwritten():

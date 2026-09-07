@@ -18,5 +18,31 @@
     "cultivar_status": "natural_populations",
     "genus_rule_training_allowed": false,
     "review_note": "Original publisher full text re-read 2026-09-07. Explicit species-level outcrossing statement; not model inference from dioecy. Conservative existing ontology maps obligate outcrossing to predominantly_outcrossing. Natural-history citation points to Chung et al. 2000; upstream study not independently re-read. Count as one Medium lineage, never as two sources. Existing frozen species-trait and species-axis collisions absent. Genus retraining remains deferred."
+  },
+  {
+    "record_id": "pohnpei-2021-astronidium-ponapense-colour",
+    "accepted_species": "Astronidium ponapense",
+    "axis": "flower_colour",
+    "trait_name": "flower_primary_color",
+    "normalized_value": "red_pink",
+    "state_set": [
+      "red_pink"
+    ],
+    "quality": "high",
+    "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8317631/",
+    "source_excerpt": "Maroon-red",
+    "source_lineage": "doi:10.1093/aobpla/plab038",
+    "source_title": "Breeding systems of naturalized versus indigenous species provide support for Baker's law on Pohnpei island",
+    "source_locator": "Table 2, Astronidium ponapense row, Colour column",
+    "source_sha256": "1acaf6d2afdae80bda63b4cb5219a397ac4788bc7343703e0c243b5c01a15030",
+    "source_hash_scope": "Europe PMC fullTextXML",
+    "retrieval_date": "2026-09-07",
+    "review_date": "2026-09-07",
+    "reviewer": "Codex-original-table-context-review",
+    "review_status": "accepted_direct_statement",
+    "name_match_method": "exact_accepted_species_original_table_and_fixed_master",
+    "cultivar_status": "natural_populations",
+    "genus_rule_training_allowed": false,
+    "review_note": "Original field observations, Table 2. Maroon-red is a red shade. Do not convert P:O-derived autogamy inference into direct reproductive evidence. No whole-flower size category inferred from petal length."
   }
 ]
