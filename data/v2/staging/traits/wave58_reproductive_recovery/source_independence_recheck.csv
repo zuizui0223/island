@@ -1,0 +1,4 @@
+accepted_species,trait_name,record_lineage,original_source_independence,reviewer,review_date,reason
+Schoenoplectiella mucronata,self_incompatibility,biolflor:floraweb:accepted-species:1ab892cdedb6a53b17f9aeae:trait:self_incompatibility,unverified,Codex,2026-09-07,Species-keyed provider identifier does not establish original-study independence from the supina record
+Schoenoplectiella supina,self_incompatibility,biolflor:floraweb:accepted-species:83748d973b5fa894b4af8a4d:trait:self_incompatibility,unverified,Codex,2026-09-07,Species-keyed provider identifier does not establish original-study independence from the mucronata record
+Schoenoplectiella juncoides,self_incompatibility,doi:10.1016/j.pestbp.2013.05.013,identified_doi_not_crosschecked_against_provider_originals,Codex,2026-09-07,Original DOI identified but provider source bibliographies are still needed for cross-provider overlap audit
