@@ -62,3 +62,32 @@ def test_reward_never_projects_to_structure():
     o['traits']['reward_type']={'domain':'floral_architecture','allowed_values':['nectar']}
     with pytest.raises(ValueError,match='ontology'):
         module.integrate(c,d,r,o)
+
+
+def correction_sample():
+    receipt=json.loads((root/'data/v2/staging/traits/restart_harrisia_correction_20260907.json').read_text())
+    c=pd.DataFrame([dict(accepted_species='Harrisia portoricensis',axis='reproductive_assurance',quality='high',trait_composition='self_incompatibility=["SC"]')])
+    d=pd.DataFrame([dict(accepted_species='Harrisia portoricensis',trait_name='self_incompatibility',quality='high',normalized_value='SC',source_lineages='url:https://europepmc.org/article/MED/21622342')])
+    d=pd.concat([d,pd.DataFrame([dict(accepted_species='Harrisia portoricensis',trait_name='autonomous_selfing_capacity',quality='medium',normalized_value='absent',source_lineages='doi:10.1038/ncomms13313')])],ignore_index=True)
+    o={'traits':{'self_incompatibility':{'allowed_values':['SC','mixed_or_variable']},'autonomous_selfing_capacity':{'allowed_values':['absent','autonomous']}}}
+    return c,d,receipt,o
+
+
+def test_partial_compatibility_correction_does_not_claim_new_axis():
+    c,d,r,o=correction_sample()
+    after,ledger=module.correct_harrisia(c,d,r,o)
+    assert after.quality.equals(c.quality)
+    assert ledger.set_index('trait_name').normalized_value.to_dict()=={'self_incompatibility':'mixed_or_variable','autonomous_selfing_capacity':'absent'}
+    assert c.trait_composition.iloc[0]=='self_incompatibility=["SC"]'
+    with pytest.raises(ValueError,match='precondition'):
+        module.correct_harrisia(after,ledger,r,o)
+
+
+def test_correction_rejects_changed_source_and_genus_training():
+    c,d,r,o=correction_sample()
+    d.loc[0,'source_lineages']='unrelated'
+    with pytest.raises(ValueError,match='precondition'):
+        module.correct_harrisia(c,d,r,o)
+    r['genus_rule_training_allowed']=True
+    with pytest.raises(ValueError,match='Unapproved'):
+        module.correct_harrisia(c,d,r,o)
