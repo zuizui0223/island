@@ -1,0 +1,64 @@
+name: Acquire Wave57 reproductive literature
+
+on:
+  push:
+    branches: [agent/reproductive-wave57]
+    paths:
+      - .github/workflows/acquire-wave57-reproductive-literature.yml
+      - scripts/acquire_wave57_reproductive.py
+      - tests/test_wave57_reproductive.py
+      - data/v2/staging/traits/wave57_reproductive_recovery/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: wave57-reproductive-literature-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test fail-closed species and evidence gates
+        run: python -m unittest discover -s tests -p test_wave57_reproductive.py -v
+      - name: Download immutable public inputs (not private TRY)
+        run: |
+          set -euo pipefail
+          gh run download 33470056127 --repo "$GITHUB_REPOSITORY" --name wave52-support-two-reproductive-unlock-33470056127 --dir /tmp/wave52
+          gh run download 34029906166 --repo "$GITHUB_REPOSITORY" --name targeted-reacquisition-final-34029906166 --dir /tmp/wave56-final
+          gh run download 34029906166 --repo "$GITHUB_REPOSITORY" --name targeted-reacquisition-input-34029906166 --dir /tmp/wave56-input
+      - name: Audit Wave56 and acquire genus-wide reproductive literature
+        run: |
+          set -euo pipefail
+          COVERAGE=$(find /tmp/wave52 -path '*/wave52-trait-coverage/wave52_species_axis_coverage.csv.gz')
+          PREVIOUS=$(find /tmp/wave56-final -name targeted_new_evidence.csv.gz)
+          PLAN=$(find /tmp/wave56-input -name targeted_acquisition_tasks.csv.gz)
+          test -f "$COVERAGE" && test -f "$PREVIOUS" && test -f "$PLAN"
+          python scripts/acquire_wave57_reproductive.py \
+            --coverage "$COVERAGE" --previous "$PREVIOUS" --plan "$PLAN" \
+            --output artifacts/wave57 --max-genera 40 --acquire
+      - name: Publish audit summary without changing canonical coverage
+        if: always()
+        run: |
+          if test -f artifacts/wave57/wave57_summary.json; then
+            cat artifacts/wave57/wave57_summary.json >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wave57-reproductive-literature-${{ github.run_id }}
+          path: |
+            artifacts/wave57/*.csv
+            artifacts/wave57/wave57_summary.json
+          if-no-files-found: warn
+          retention-days: 90

@@ -1,0 +1,20 @@
+{
+  "contract": "wave57_reproductive_literature_discovery_v1",
+  "baseline": "public Wave52 only; private TRY plus Wave55 collision audit still required",
+  "canonical_net_change_verified": null,
+  "automatic_promotions": 0,
+  "wave56_raw_rows": 94,
+  "wave56_audit": {
+    "off_reproductive_axis": 93,
+    "invalid_species_name": 1
+  },
+  "wave56_invalid_target_rows": 21,
+  "planned_genera": 40,
+  "acquisition_executed": false,
+  "status": "audit_only",
+  "completed_at_utc": "2026-09-07T03:07:45.293444+00:00",
+  "wave56_run_id": 34029906166,
+  "wave56_final_artifact_id": 9989311624,
+  "wave56_final_artifact_sha256": "8c1883b532c12e7289c4e2eb5a5e2872aa3e72344a8c99b10ffeebae944cee09",
+  "wave56_reproductive_candidate_rejection": "Cymbalaria is genus-only; OpenAlex W2769679828 excerpt states an urban-community generalization, not a species reproductive result."
+}
