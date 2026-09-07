@@ -1,0 +1,54 @@
+name: Extract full orchid reproductive source
+
+on:
+  push:
+    branches: [codex/orchid-source-scale]
+    paths:
+      - scripts/extract_orchid_pollination_source.py
+      - .github/workflows/extract-orchid-pollination-source.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_URL: https://zenodo.org/records/7263689/files/Pollination%20List.xlsx?download=1
+      SOURCE_MD5: 5c76d0b0aae942f05b6422f71279bdb1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas openpyxl
+      - name: Download latest formal public restart checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/baseline
+          gh run download 34107096317 --repo "$GITHUB_REPOSITORY" \
+            --name restart-integrated-trait-evidence-34107096317 \
+            --dir /tmp/baseline
+          test -f /tmp/baseline/species_axis_coverage.csv.gz
+      - name: Download complete Zenodo orchid workbook
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 --retry-delay 2 "$SOURCE_URL" -o /tmp/Pollination_List.xlsx
+          echo "$SOURCE_MD5  /tmp/Pollination_List.xlsx" | md5sum -c -
+      - name: Inventory every sheet and retain reproductive rows
+        run: |
+          python scripts/extract_orchid_pollination_source.py \
+            --workbook /tmp/Pollination_List.xlsx \
+            --coverage /tmp/baseline/species_axis_coverage.csv.gz \
+            --output artifacts/orchid-source-scale
+          cat artifacts/orchid-source-scale/orchid_source_scale_summary.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: orchid-source-scale-${{ github.run_id }}
+          path: artifacts/orchid-source-scale/
+          if-no-files-found: error
+          retention-days: 90
