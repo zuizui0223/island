@@ -30,8 +30,8 @@ VALUE_HINT = re.compile(
     r"self.?compat|self.?incompat|autonomous self|automatic self|autopollin|auto.?pollin",
     re.I,
 )
-SOURCE_DOI = "10.5281/zenodo.7263689"
-SOURCE_URL = "https://zenodo.org/records/7263689/files/Pollination%20List.xlsx?download=1"
+SOURCE_DOI = "10.5281/zenodo.14601785"
+SOURCE_URL = "https://zenodo.org/records/14601785/files/Pollination%20List%20Thru%202024.xlsx?download=1"
 
 
 def text(value: object) -> str:
@@ -240,7 +240,7 @@ def main() -> None:
         else 0
     )
     summary = {
-        "contract": "ackerman_orchid_pollination_source_scale_v1",
+        "contract": "ackerman_orchid_pollination_source_scale_v2",
         "source_doi": SOURCE_DOI,
         "source_url": SOURCE_URL,
         "workbook_sha256": sha256(args.workbook),
@@ -252,16 +252,10 @@ def main() -> None:
         "explicit_mapped_review_rows": int(len(mapped)),
         "explicit_mapped_species": int(mapped["accepted_species"].nunique()) if not mapped.empty else 0,
         "exact_unresolved_reproductive_species_overlap": int(unresolved_mapped_species),
-        "mapped_by_trait_value": (
-            mapped.groupby(["trait_name", "normalized_value"]).size().astype(int).to_dict()
-            if not mapped.empty
-            else {}
-        ),
         "formal_gain": 0,
         "promotion_allowed": False,
         "integration_deferred_to_source_batch": True,
     }
-    # JSON cannot serialize tuple keys.
     summary["mapped_by_trait_value"] = {
         f"{trait}:{value}": int(n)
         for (trait, value), n in (
