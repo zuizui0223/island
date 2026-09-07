@@ -1,0 +1,67 @@
+name: Audit Prior Busch reproductive source at source scale
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/extract_prior_busch_source_scale.py
+      - .github/workflows/audit-prior-busch-source-scale.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: prior-busch-source-scale-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      MEYER_SOURCE_COMMIT: 3d57315fe77097fe582025b884917550139801e8
+      CURRENT_INTEGRATION_RUN: '34107096317'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas openpyxl
+
+      - name: Download immutable Meyer input workbook mirror
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 \
+            "https://raw.githubusercontent.com/elenacicada/interesting_flowers/${MEYER_SOURCE_COMMIT}/Input_Data_MS.xlsx" \
+            -o /tmp/Input_Data_MS.xlsx
+          sha256sum /tmp/Input_Data_MS.xlsx
+
+      - name: Download current recoverable public integration checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current
+          gh run download "$CURRENT_INTEGRATION_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "restart-integrated-trait-evidence-${CURRENT_INTEGRATION_RUN}" \
+            --dir /tmp/current
+          find /tmp/current -maxdepth 2 -type f | sort
+
+      - name: Extract complete Prior and Busch block and measure unresolved overlap
+        run: |
+          set -euo pipefail
+          COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          test -n "$COVERAGE"
+          python scripts/extract_prior_busch_source_scale.py \
+            --input-xlsx /tmp/Input_Data_MS.xlsx \
+            --coverage "$COVERAGE" \
+            --output artifacts/prior-busch-source-scale
+          cat artifacts/prior-busch-source-scale/prior_busch_source_scale_summary.json >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prior-busch-source-scale-${{ github.run_id }}
+          path: artifacts/prior-busch-source-scale/
+          if-no-files-found: error
+          retention-days: 90
