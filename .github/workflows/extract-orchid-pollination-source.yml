@@ -5,6 +5,7 @@ on:
     branches: [codex/orchid-source-scale]
     paths:
       - scripts/extract_orchid_pollination_source.py
+      - scripts/extract_orchid_structured_breeding.py
       - scripts/drop_empty_excel_sheets.py
       - .github/workflows/extract-orchid-pollination-source.yml
   workflow_dispatch:
@@ -54,6 +55,13 @@ jobs:
             --coverage /tmp/baseline/species_axis_coverage.csv.gz \
             --output artifacts/orchid-source-scale
           cat artifacts/orchid-source-scale/orchid_source_scale_summary.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Extract source-wide SI SC and mixed-mating fields
+        run: |
+          python scripts/extract_orchid_structured_breeding.py \
+            --workbook /tmp/Pollination_List_Thru_2024_nonempty.xlsx \
+            --coverage /tmp/baseline/species_axis_coverage.csv.gz \
+            --output artifacts/orchid-source-scale
+          cat artifacts/orchid-source-scale/orchid_structured_breeding_summary.json >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
           name: orchid-source-scale-${{ github.run_id }}
