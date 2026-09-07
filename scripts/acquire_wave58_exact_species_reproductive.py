@@ -10,11 +10,11 @@ AXIS='reproductive_assurance'
 BINOMIAL=re.compile(r'^[A-Z][a-z]+ [a-z][a-z-]+$')
 TERMS=re.compile(r'self[ -]?(?:compatib|incompatib|pollinat|fertili)|selfing|autogam|cleistogam|breeding system|mating system|outcross|bagged|bagging',re.I)
 # Conflict blocks plus genera whose Wave52 support-two gaps were already recovered in Waves53-55.
-BLOCKED={'Sideroxylon','Illicium','Portulaca','Eugenia','Liparis','Melaleuca','Callicarpa','Durio','Ourisia','Schoenoplectiella','Spermacoce','Dicliptera','Gomphrena','Marcgravia','Melicytus','Onopordum'}
+BLOCKED={'Sideroxylon','Illicium','Portulaca','Eugenia','Liparis','Melaleuca','Callicarpa','Durio','Ourisia','Schoenoplectiella','Spermacoce','Dicliptera','Gomphrena','Marcgravia','Melicytus','Onopordum','Pouteria','Lindernia'}
 
 
 def get_json(url: str) -> dict:
-    req=Request(url,headers={'User-Agent':'island-wave58/1.3 (https://github.com/zuizui0223/island)'})
+    req=Request(url,headers={'User-Agent':'island-wave58/1.4 (https://github.com/zuizui0223/island)'})
     with urlopen(req,timeout=25) as response: return json.load(response)
 
 
@@ -52,7 +52,7 @@ def main() -> None:
                 for lineage,url,excerpt in papers: rows.append({'accepted_species':species,'axis':AXIS,'source_lineage':lineage,'source_url':url,'source_excerpt':excerpt,'evidence_scope':'unreviewed_species_document','normalized_value':'','evidence_quality':'unreviewed','promotion_allowed':'false','genus_rule_training_allowed':'false','review_status':'needs_fulltext_trait_attribution'})
     cols=['accepted_species','axis','source_lineage','source_url','source_excerpt','evidence_scope','normalized_value','evidence_quality','promotion_allowed','genus_rule_training_allowed','review_status']
     pd.DataFrame(rows,columns=cols).drop_duplicates().sort_values(['accepted_species','source_lineage']).to_csv(a.out/'species_literature_review_queue.csv',index=False); pd.DataFrame(logs).sort_values('accepted_species').to_csv(a.out/'query_audit.csv',index=False)
-    summary={'contract':'wave58_exact_species_reproductive_discovery_v4','validated_support2_genus_trait_pairs':len(pairs),'target_species':len(targets),'workers':a.workers,'blocked_or_already_recovered_genera':sorted(BLOCKED),'acquisition_executed':a.acquire,'query_success':sum(x['status']=='success' for x in logs),'query_errors':sum(x['status']=='error' for x in logs),'unreviewed_document_leads':len(rows),'lead_species':len({x['accepted_species'] for x in rows}),'automatic_promotions':0,'canonical_net_gain_verified':None}
+    summary={'contract':'wave58_exact_species_reproductive_discovery_v5','validated_support2_genus_trait_pairs':len(pairs),'target_species':len(targets),'workers':a.workers,'blocked_or_already_recovered_genera':sorted(BLOCKED),'acquisition_executed':a.acquire,'query_success':sum(x['status']=='success' for x in logs),'query_errors':sum(x['status']=='error' for x in logs),'unreviewed_document_leads':len(rows),'lead_species':len({x['accepted_species'] for x in rows}),'automatic_promotions':0,'canonical_net_gain_verified':None}
     (a.out/'wave58_search_summary.json').write_text(json.dumps(summary,indent=2)+'\n'); print(json.dumps(summary,indent=2))
 
 
