@@ -1,0 +1,2 @@
+record_id,source_species_name,possible_current_or_existing_name,axis,issue,recommended_action,promotion_allowed,genus_rule_training_allowed
+wave58:ourisia-poeppigii:identity,Ourisia poeppigii,Ourisia ruellioides,reproductive_assurance,"1990 breeding-system material and later taxonomic usage may overlap the existing O. ruellioides evidence; treating this as a third independent species could double count biological/source support","resolve voucher/taxonomic identity and source lineage before any Ourisia genus unlock",false,false

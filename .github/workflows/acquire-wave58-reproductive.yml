@@ -1,0 +1,51 @@
+name: Acquire Wave58 reproductive evidence
+
+on:
+  push:
+    branches: [agent/reproductive-wave58]
+    paths:
+      - analysis/build_wave58_schoenoplectiella_unlock.py
+      - scripts/acquire_wave58_exact_species_reproductive.py
+      - data/v2/staging/traits/wave58_reproductive_recovery/**
+      - .github/workflows/acquire-wave58-reproductive.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas
+      - name: Download immutable Wave52 public checkpoint
+        run: gh run download 33470056127 --repo "$GITHUB_REPOSITORY" --name wave52-support-two-reproductive-unlock-33470056127 --dir /tmp/wave52
+      - name: Validate Schoenoplectiella public-baseline unlock
+        run: |
+          COVERAGE=$(find /tmp/wave52 -path '*/wave52-trait-coverage/wave52_species_axis_coverage.csv.gz')
+          DIRECT=$(find /tmp/wave52 -path '*/wave52-all-evidence-audit/resolved_direct_species_trait.csv.gz')
+          python analysis/build_wave58_schoenoplectiella_unlock.py --coverage "$COVERAGE" --direct "$DIRECT" --wave56 data/v2/staging/traits/wave56_reproductive_recovery/reviewed_direct_evidence.csv --out artifacts/wave58/unlock
+      - name: Search exact unresolved species in coherent support-two genera
+        run: |
+          COVERAGE=$(find /tmp/wave52 -path '*/wave52-trait-coverage/wave52_species_axis_coverage.csv.gz')
+          DIRECT=$(find /tmp/wave52 -path '*/wave52-all-evidence-audit/resolved_direct_species_trait.csv.gz')
+          python scripts/acquire_wave58_exact_species_reproductive.py --coverage "$COVERAGE" --direct "$DIRECT" --out artifacts/wave58/search --max-species 160 --acquire
+      - name: Publish summaries
+        if: always()
+        run: |
+          find artifacts/wave58 -name '*.json' -maxdepth 3 -print -exec cat {} \; >> "$GITHUB_STEP_SUMMARY" || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wave58-reproductive-${{ github.run_id }}
+          path: artifacts/wave58/
+          if-no-files-found: warn
+          retention-days: 90
