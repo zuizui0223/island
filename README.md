@@ -10,9 +10,11 @@ Chapter 1 has one canonical trait-coverage contract:
 - **3** strict axes: flower colour, floral structural complexity, reproductive assurance;
 - **318,885** species × axis cells total.
 
-Current working checkpoint after private TRY adjudication and Wave55 Batch 5:
+Historically reported working checkpoint after private TRY adjudication and Wave55 Batch 5 (row-level private checkpoint not yet reproduced):
 
 > **222,759 / 318,885 strict cells resolved = 69.8556%**
+
+The independently recovered public checkpoint is **222,375 / 318,885 = 69.7352%**, from Run [33605098044](https://github.com/zuizui0223/island/actions/runs/33605098044). Its coverage, direct ledger, Low ledger and rule audit are available together and hash-verified. The 384-cell difference is an unreproduced historical increment, not a demonstrated biological loss. See [checkpoint recovery](docs/trait_checkpoint_recovery.md) for restoration and evidence boundaries.
 
 The separate 115,328-name `all-master` acquisition inventory measures upstream candidate/source reach across a different set of fields and taxa. Its `any-trait broad`, five-field, or similar percentages are **not Chapter 1 coverage** and must not be compared with 69.8556%.
 
