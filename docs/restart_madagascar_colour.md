@@ -44,3 +44,25 @@ Sources: Fischer & Rahelivololona (2007), Adansonia 29:269-315;
 Fischer et al. (2020), DOI 10.35535/pfsyst-2020-0008.
 No paid API was invoked for this batch; monetary cost of the browsing
 service is unavailable and must not be reported as measured zero cost.
+
+## Second batch
+
+Five of the 20 candidates above are now reviewed: betsomangae,
+nusbaumeri, ambahatrensis, razanatsoa-charlei and druartii. All retain
+two colour states. Reuse of the PDF required no new Web queries.
+Exact short anchors are checked after declared PDF whitespace and
+line-break normalization. The rendered pages 286 and 306 confirm
+two-column section attribution. Review is by the agent, not a claim
+of independent human audit precision.
+
+Fianarantsoae is held: the Latin diagnosis describes dark-violet sepal
+veins whereas the English description calls them dark red. This might
+be terminology rather than biology, but must not be silently resolved.
+No new Low rules are inferred from these records. Fourteen other taxa
+remain in the source queue plus this one conflict hold.
+
+The tentative earlier page-to-species screen was not authoritative:
+page 306 orange/yellow with red veins belongs to druartii; the lower
+column describing yellow with purple-blackish marks belongs to
+ampokafoensis. Neither statement belongs to rakotomalazana. Only the
+verified druartii statement is admitted in the second batch.
