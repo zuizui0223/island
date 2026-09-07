@@ -35,7 +35,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: python -m pip install pandas openpyxl xlrd
+      - run: python -m pip install pandas openpyxl xlrd tabulate
 
       - name: Download current public restart checkpoint and recovered rule audit
         run: |
@@ -74,7 +74,7 @@ jobs:
           cat artifacts/reproductive-low-audit/reproductive_low_capacity_summary.json >> "$GITHUB_STEP_SUMMARY"
           echo '' >> "$GITHUB_STEP_SUMMARY"
           echo '### Ranked source candidates' >> "$GITHUB_STEP_SUMMARY"
-          python - <<'PY'
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import pandas as pd
           p='artifacts/reproductive-source-scale/reproductive_source_roi.csv'
           x=pd.read_csv(p)
