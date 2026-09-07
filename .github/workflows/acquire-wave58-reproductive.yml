@@ -14,6 +14,10 @@ permissions:
   contents: read
   actions: read
 
+concurrency:
+  group: wave58-reproductive-${{ github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   acquire:
     runs-on: ubuntu-latest
@@ -33,15 +37,15 @@ jobs:
           COVERAGE=$(find /tmp/wave52 -path '*/wave52-trait-coverage/wave52_species_axis_coverage.csv.gz')
           DIRECT=$(find /tmp/wave52 -path '*/wave52-all-evidence-audit/resolved_direct_species_trait.csv.gz')
           python analysis/build_wave58_schoenoplectiella_unlock.py --coverage "$COVERAGE" --direct "$DIRECT" --wave56 data/v2/staging/traits/wave56_reproductive_recovery/reviewed_direct_evidence.csv --out artifacts/wave58/unlock
-      - name: Search exact unresolved species in coherent support-two genera
+      - name: Search exact unresolved species in already-validated support-two genera
         run: |
           COVERAGE=$(find /tmp/wave52 -path '*/wave52-trait-coverage/wave52_species_axis_coverage.csv.gz')
-          DIRECT=$(find /tmp/wave52 -path '*/wave52-all-evidence-audit/resolved_direct_species_trait.csv.gz')
-          python scripts/acquire_wave58_exact_species_reproductive.py --coverage "$COVERAGE" --direct "$DIRECT" --out artifacts/wave58/search --max-species 160 --acquire
+          RULES=$(find /tmp/wave52 -path '*/wave52-all-evidence-audit/trait_specific_genus_rule_audit.csv.gz')
+          python scripts/acquire_wave58_exact_species_reproductive.py --coverage "$COVERAGE" --rules "$RULES" --out artifacts/wave58/search --max-species 160 --workers 8 --acquire
       - name: Publish summaries
         if: always()
         run: |
-          find artifacts/wave58 -name '*.json' -maxdepth 3 -print -exec cat {} \; >> "$GITHUB_STEP_SUMMARY" || true
+          find artifacts/wave58 -maxdepth 3 -name '*.json' -print -exec cat {} \; >> "$GITHUB_STEP_SUMMARY" || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
