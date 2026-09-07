@@ -12,6 +12,7 @@ on:
       - data/v2/staging/traits/restart_madagascar_colour_20260907.json
       - data/v2/staging/traits/restart_madagascar_colour_second_20260907.json
       - data/v2/staging/traits/restart_madagascar_colour_third_20260907.json
+      - data/v2/staging/traits/restart_madagascar_colour_final_20260907.json
       - scripts/prepare_restart_pladias.py
       - .github/workflows/integrate-reviewed-restart.yml
 permissions:
@@ -33,7 +34,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh run download 34093932899 --repo "$GITHUB_REPOSITORY" --name recovered-public-trait-checkpoint-34093932899 --dir /tmp/baseline
-          python scripts/integrate_reviewed_restart.py --baseline /tmp/baseline --records data/v2/staging/traits/restart_reviewed_20260907.json --additional-records data/v2/staging/traits/restart_pladias_reviewed_20260907.json --additional-records data/v2/staging/traits/restart_madagascar_colour_20260907.json --additional-records data/v2/staging/traits/restart_madagascar_colour_second_20260907.json --additional-records data/v2/staging/traits/restart_madagascar_colour_third_20260907.json --harrisia-correction data/v2/staging/traits/restart_harrisia_correction_20260907.json --ontology config/trait_ontology.yml --output artifacts/restart-integrated
+          python scripts/integrate_reviewed_restart.py --baseline /tmp/baseline --records data/v2/staging/traits/restart_reviewed_20260907.json --additional-records data/v2/staging/traits/restart_pladias_reviewed_20260907.json --additional-records data/v2/staging/traits/restart_madagascar_colour_20260907.json --additional-records data/v2/staging/traits/restart_madagascar_colour_second_20260907.json --additional-records data/v2/staging/traits/restart_madagascar_colour_third_20260907.json --additional-records data/v2/staging/traits/restart_madagascar_colour_final_20260907.json --harrisia-correction data/v2/staging/traits/restart_harrisia_correction_20260907.json --ontology config/trait_ontology.yml --output artifacts/restart-integrated
       - uses: actions/upload-artifact@v4
         with:
           name: restart-integrated-trait-evidence-${{ github.run_id }}

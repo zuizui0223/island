@@ -81,3 +81,26 @@ replicated for every species or colour state.
 Remaining unaccepted species: ampokafoensis, ankaranensis, barthlottii,
 mahalevonensis, nomenyae, rapanarivoi and tsingycola, plus fianarantsoae
 held for discordant vein-colour terminology. No gain is claimed for them.
+
+## Final straightforward description batch
+
+Six additional species reviewed: ampokafoensis, ankaranensis,
+barthlottii, nomenyae, rapanarivoi and tsingycola. Petal marks, sepal
+tips and spurs are retained as floral colours; fruit, foliage and bract
+colours are excluded. Pages 274 and 308 were rendered for attribution.
+Ankaranensis includes the yellow petal callus described in its remarks.
+Rapanarivoi retains red sepal tips despite lacking red sepal veins.
+
+The 26 exact-master new taxa in the 2007 source are now partitioned into
+24 reviewed direct colour records and two holds: fianarantsoae (Latin vs
+English vein-colour terminology) and mahalevonensis (brown/red/purple
+category mapping and coloured pubescence require a separately justified
+anatomical rule). Manaharensis from the 2020 source adds one further
+reviewed species. These are unique species-trait records, not independent
+source replicates. No genus training is enabled.
+
+The easy description queue is exhausted for this source. Do not re-search
+these completed species-trait IDs. Comparison taxa outside the 26 new-taxa
+list were not comprehensively screened; their availability is not claimed.
+Next acquisition should target another multi-species source, prioritizing
+reproduction. The +1,000-cell goal is unchanged, not completed by this source.
