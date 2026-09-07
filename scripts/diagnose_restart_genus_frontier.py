@@ -12,6 +12,7 @@ p.add_argument('--recovered-raw',type=Path,required=True)
 p.add_argument('--baseline',type=Path,required=True)
 p.add_argument('--integrated',type=Path,required=True)
 p.add_argument('--output',type=Path,required=True)
+p.add_argument('--all-current-frontier',action='store_true',help='Diagnose all current min3/dominance candidates with unresolved axes; never promotes.')
 a=p.parse_args()
 if a.output.exists():
     raise ValueError('Existing output')
@@ -20,6 +21,19 @@ from island_v2.all_evidence_trait_audit import build_rule_audit, dedupe_direct_l
 
 records=json.loads((a.integrated/'reviewed_source_records.json').read_text(encoding='utf-8'))
 groups={(r['accepted_species'].split()[0],r['trait_name']) for r in records}
+if a.all_current_frontier:
+    all_direct=pd.read_csv(a.integrated/'direct_species_trait_ledger.csv.gz',dtype=str).fillna('')
+    all_direct['genus']=all_direct.accepted_species.str.split().str[0]
+    all_coverage=pd.read_csv(a.integrated/'species_axis_coverage.csv.gz',dtype=str).fillna('')
+    all_coverage['genus']=all_coverage.accepted_species.str.split().str[0]
+    unresolved_groups=set(map(tuple,all_coverage.loc[all_coverage.quality.eq(''),['genus','axis']].to_numpy()))
+    groups=set()
+    thresholds={'flower_colour':.9,'reproductive_assurance':.95,'floral_structural_complexity':.8}
+    for (genus,axis,trait),cells in all_direct.groupby(['genus','axis','trait_name']):
+        if (genus,axis) not in unresolved_groups or cells.accepted_species.nunique()<3:
+            continue
+        if cells.state_set.value_counts().iloc[0]/len(cells)>=thresholds.get(axis,2):
+            groups.add((genus,trait))
 def affected(df):
     df=df.copy()
     df['genus']=df.accepted_species.str.split().str[0]
@@ -64,6 +78,15 @@ for setting in SETTINGS[:2]:
 a.output.mkdir(parents=True)
 rb.to_csv(a.output/'rules_before.csv',index=False)
 ra.to_csv(a.output/'rules_after.csv',index=False)
+queue=ra.loc[ra.setting.eq('current_min3')].copy()
+unresolved_counts=coverage.loc[coverage.quality.eq('')].copy()
+unresolved_counts['genus']=unresolved_counts.accepted_species.str.split().str[0]
+counts=unresolved_counts.groupby(['genus','axis']).size().rename('unresolved_axis_upper_bound').reset_index()
+queue=queue.merge(counts,on=['genus','axis'],validate='many_to_one')
+queue['priority_axis']=queue.axis.map({'reproductive_assurance':0,'flower_colour':1,'floral_structural_complexity':2})
+queue['next_gate']=queue.apply(lambda r:'upstream_receipt_and_conflict_review' if r.eligible else ('independent_original_source_required' if r.lineage_loo_n==0 else 'masked_validation_or_conflict_review'),axis=1)
+queue['promotion_allowed']=False
+queue.sort_values(['priority_axis','unresolved_axis_upper_bound','genus','trait_name'],ascending=[True,False,True,True]).to_csv(a.output/'source_independence_acquisition_queue.csv',index=False)
 pd.concat(frontiers,ignore_index=True).to_csv(a.output/'unpromoted_frontier.csv.gz',index=False) if frontiers else None
 pd.DataFrame(sorted(missing),columns=['accepted_species','trait_name','source_lineage']).to_csv(a.output/'missing_lineage_receipts.csv',index=False)
 report=dict(status='diagnostic_not_promotion',affected_genus_trait_pairs=len(groups),missing_source_lineage_keys=len(missing),settings=summary,
@@ -80,5 +103,7 @@ report['input_sha256']={str(path):hashlib.sha256(path.read_bytes()).hexdigest() 
 report['source_runs']={'baseline':34093932899,'integrated':34096408983}
 report['source_artifacts']={'baseline':10007872352,'integrated':10008766395}
 report['promoted_cells']=0
+report['no_evaluable_lineage_holdout_rules']=int(queue.lineage_loo_n.eq(0).sum())
+report['selection']='all_current_min3_dominance_frontier' if a.all_current_frontier else 'affected_added_records'
 (a.output/'summary.json').write_text(json.dumps(report,indent=2)+'\n')
 print(json.dumps(report,indent=2))

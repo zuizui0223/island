@@ -68,3 +68,45 @@ billing is unavailable, not assumed zero. No snippet was admitted as evidence.
   before downloading or claiming a new bulk dataset.
 
 No additional direct or inferred cells were promoted by this diagnostic/screen.
+
+## Whole-ledger frontier follow-up
+
+The `--all-current-frontier` diagnostic uses all current min-species-3 and
+current-dominance candidates with unresolved axes, instead of only groups
+affected by the 46 new records. It selected 323 genus-trait pairs, representing
+an upper bound of 1,577 distinct unresolved species-axis cells before masked
+validation. All required baseline lineage keys for these groups were recovered.
+
+After the common validation gate: 22 eligible rules, 45 unresolved axis
+candidates, zero promoted cells. 297 of the 323 pairs have no evaluable
+source-lineage holdout; four additional pairs fail other validation criteria.
+This is not evidence that 1,532 cells are biologically unknowable. It identifies
+where additional independent source receipts, not lower dominance thresholds,
+are needed. Mild relaxation within this CURRENT-threshold preselected set
+also gives 45 candidates; this is NOT the complete relaxed-threshold universe.
+
+The exported source-independence acquisition queue keeps genus, axis and
+individual trait, source-holdout counts, current support and value distribution,
+an unresolved-axis upper bound, priority axis and next gate. Bounds from
+different traits within an axis must not be summed. Reproduction precedes
+colour and structure; no candidate is automatically promoted.
+
+Highest current-dominance source-deficit examples include Spermacoce /
+autonomous_selfing_capacity (95 unresolved congener axes) and Castanopsis /
+self_incompatibility (71). The three Castanopsis species currently point to
+one Meyer Dryad compilation lineage; its underlying original studies must be
+reconciled, not relabeled as three independent providers. The Spermacoce
+three-species study was already retrieved, so do not fetch it again.
+
+The latest all-master bulk artifact was also intersected with the current
+unresolved axis table. AusTraits, GIFT, Razanajatovo, USDA, EOL and the already
+promoted Pladias package offer zero remaining exact-name candidate cells in
+that intersection. Ferrer has two pending cells; Meyer two pending cells;
+eFloras one candidate cell. These overlap unresolved source conflicts already
+identified, not five freely adoptable new cells. This check does not claim
+that all possible synonyms, new versions or unmapped source traits are exhausted.
+
+Two further discovery queries examined Castanopsis self-incompatibility and
+Phreatia floral symmetry. Results largely described another genus (Castanea),
+family-level orchid symmetry, or genus-level morphology. None was adopted as
+species-direct evidence. Search billing remains unknown.
