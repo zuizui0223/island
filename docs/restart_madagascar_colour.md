@@ -66,3 +66,18 @@ page 306 orange/yellow with red veins belongs to druartii; the lower
 column describing yellow with purple-blackish marks belongs to
 ampokafoensis. Neither statement belongs to rakotomalazana. Only the
 verified druartii statement is admitted in the second batch.
+
+## Third batch
+
+Seven more species reviewed: georgei-schatzii, nosymangabensis,
+andapensis, messmerae, rakotomalazana, laurentii and guillaumetii.
+Supporting excerpts are short exact anchors, with a paraphrased anatomical
+context and printed page. All anchors in a record must be considered
+together. They are not standalone keyword evidence. Page 298 was rendered
+to check the transition from messmerae to andapensis. No images supplied
+colour measurements. Source lineage is unchanged, not independently
+replicated for every species or colour state.
+
+Remaining unaccepted species: ampokafoensis, ankaranensis, barthlottii,
+mahalevonensis, nomenyae, rapanarivoi and tsingycola, plus fianarantsoae
+held for discordant vein-colour terminology. No gain is claimed for them.
