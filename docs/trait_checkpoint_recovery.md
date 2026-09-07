@@ -22,6 +22,14 @@ python scripts/recover_verified_trait_checkpoint.py --source source-wave53 --out
 
 The output path must not exist. The CLI checks the pinned coverage SHA-256, source-file hashes, fixed denominator, key uniqueness and quality tiers, and saves all public source files alongside `recovery_manifest.json`. The `Recover verified public trait checkpoint` workflow performs the same operation and publishes one artifact. It performs no web acquisition and handles no private TRY rows.
 
+## Restore disconnected Low values
+
+The original coverage labels 37,409 cells as Low without recording their values or supporting lineages (26,380 colour and 11,029 reproduction). All have matching historical records in `data/v2/staging/traits/wave33_secondary_baseline/validated_probabilistic_genus_low_species_axis.csv.gz` at commit `ff8249c6de682eaa70dc5a953c5ed420d85e1f98`. The workflow pins that commit and supplies this file with `--low-sidecar` and its `config/trait_ontology.yml` with `--ontology`.
+
+The materialized coverage reconnects those values without changing any key or quality label. The sidecar's trait names and state sets were independently sorted, with duplicate state sets removed: they must never be zipped by position. Restoration requires a unique ontology-compatible association, otherwise it stops. SC/SI is not interchangeable with autonomous selfing. Tests cover reversed ordering, shared state sets, ambiguity and overwrite protection.
+
+Restored records remain historical secondary probabilistic genus Low, requiring uncertainty propagation; they are not new confirmatory evidence or newly validated genus rules. The output includes the original sidecar, a cell-level restoration audit and `materialized_species_axis_coverage.csv.gz`. The 49-row `rebuilt_all_evidence_validated_low.csv.gz` in Wave53 is an incremental delta, not the complete Low ledger. Using that delta as a complete baseline creates an artificial coverage loss and is not a valid biological comparison.
+
 ## Private reconstruction boundary
 
 The original TRY request was recovered locally and matched against the exact public species universe. It prepared 9,385 source candidate rows for 6,056 species, not 9,385 new filled cells. It remains private. Reconstruction must preserve original-source conflicts and must compare species-trait and species-axis keys before claiming gain. Wave55's public 14-row review queue is not the missing Batch 5 ledger.
