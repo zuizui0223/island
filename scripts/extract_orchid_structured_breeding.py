@@ -1,10 +1,23 @@
 """Extract strict reproductive candidates from the complete Ackerman orchid table.
 
-This second source-scale stage is intentionally schema-specific after the whole
-workbook inventory identified explicit `SI`, `SC`, and `Mixed mating` columns.
-The `autonomous selfing/agagamospermy` field is retained only as a holdout
-because it conflates sexual selfing with apomixis.  Likewise, `evidence for
-selfing` is not substituted for any stricter reproductive trait.
+The whole-source inventory identified explicit `SI`, `SC`, `Mixed mating`,
+`autonomous selfing/agagamospermy`, and `evidence for selfing` columns.  Only
+SI/SC are promoted into the reviewed source-scale packet here.
+
+Ackerman et al. define SI/SC from controlled hand-pollination comparisons:
+self-pollination with 0% fruit set or <5% seed set is SI, otherwise SC.  That
+source-level definition is sufficiently specific for the strict
+`self_incompatibility` ontology when the source row also retains a literature
+reference.  By contrast, the database's `Mixed mating` column means a mixed
+*pollination system* (chasmogamy plus autonomous pollination), not a population-
+genetic mixed-mating estimate, so it is explicitly held out.  The composite
+`autonomous selfing/agagamospermy` field is also held out because it conflates
+sexual autonomous selfing with apomixis; `evidence for selfing` is provenance
+about that composite state and is not substituted for a strict trait.
+
+This script completes one source-scale packet; it does not itself change formal
+coverage.  Candidates remain promotion_allowed=false until the packet is
+combined with other completed source packets in a manual batch integration.
 """
 from __future__ import annotations
 
@@ -19,6 +32,7 @@ import pandas as pd
 AXIS = "reproductive_assurance"
 SOURCE_DOI = "10.5281/zenodo.14601785"
 SOURCE_URL = "https://zenodo.org/records/14601785/files/Pollination%20List%20Thru%202024.xlsx?download=1"
+SOURCE_ARTICLE_URL = "https://academic.oup.com/botlinnean/article/202/3/295/7076252"
 BINOMIAL = re.compile(r"^[A-Z][A-Za-z.-]+ [a-z][A-Za-z.-]+$")
 
 
@@ -66,9 +80,8 @@ def main() -> None:
     if missing:
         raise ValueError(f"orchid source missing structured columns: {sorted(missing)}")
 
-    # The published table prints the genus only on the first row of each genus.
-    # Forward fill is therefore part of reconstructing the source's row key, not
-    # a taxonomic inference.
+    # The source workbook prints the genus only on the first row of each genus.
+    # Forward fill reconstructs the source row key; it is not taxonomic inference.
     genus = source["genus"].map(text).replace("", pd.NA).ffill().fillna("")
     epithet = source["species"].map(text)
     source["source_species_name"] = (genus + " " + epithet).str.strip()
@@ -107,6 +120,7 @@ def main() -> None:
             "source_excel_row": int(row["source_excel_row"]),
             "source_reference_raw": refs,
             "source_url": SOURCE_URL,
+            "source_article_url": SOURCE_ARTICLE_URL,
             "source_lineage": (
                 f"orchid-reference-set:{digest(refs.casefold())}"
                 if refs
@@ -122,39 +136,37 @@ def main() -> None:
         sc = present(row["SC"])
         if si or sc:
             value = "mixed_or_variable" if si and sc else ("SI" if si else "SC")
-            selected.append(
-                {
-                    **base,
-                    "trait_name": "self_incompatibility",
-                    "normalized_value": value,
-                    "quality": "unreviewed",
-                    "source_column": "SI|SC",
-                    "source_raw_value": f"SI={text(row['SI'])}; SC={text(row['SC'])}",
-                    "review_status": (
-                        "structured_direct_with_reference_needs_batch_review"
-                        if refs
-                        else "structured_direct_missing_reference_holdout"
-                    ),
-                }
-            )
-        if present(row["Mixed mating"]):
-            selected.append(
-                {
-                    **base,
-                    "trait_name": "mating_system",
-                    "normalized_value": "mixed_mating",
-                    "quality": "unreviewed",
-                    "source_column": "Mixed mating",
-                    "source_raw_value": text(row["Mixed mating"]),
-                    "review_status": (
-                        "structured_direct_with_reference_needs_batch_review"
-                        if refs
-                        else "structured_direct_missing_reference_holdout"
-                    ),
-                }
-            )
+            if refs:
+                selected.append(
+                    {
+                        **base,
+                        "trait_name": "self_incompatibility",
+                        "normalized_value": value,
+                        "quality": "high",
+                        "source_column": "SI|SC",
+                        "source_raw_value": f"SI={text(row['SI'])}; SC={text(row['SC'])}",
+                        "review_status": "source_methodology_reviewed_reference_backed_strict_direct",
+                        "acceptance_basis": (
+                            "Ackerman et al. species SI/SC scoring is defined from controlled hand-"
+                            "pollination comparisons; exact fixed-universe species; source references retained"
+                        ),
+                    }
+                )
+            else:
+                holdouts.append(
+                    {
+                        **base,
+                        "source_column": "SI|SC",
+                        "source_raw_value": f"SI={text(row['SI'])}; SC={text(row['SC'])}",
+                        "holdout_reason": "strict_si_sc_state_without_row_reference",
+                    }
+                )
 
         for col, reason in (
+            (
+                "Mixed mating",
+                "source_mixed_pollination_system_not_population_genetic_mating_system",
+            ),
             (
                 "autonomous selfing/agagamospermy",
                 "conflates_autonomous_selfing_and_agamospermy_no_strict_mapping",
@@ -179,47 +191,54 @@ def main() -> None:
     candidates.to_csv(
         args.output / "orchid_structured_reproductive_review_queue.csv.gz",
         index=False,
-        compression="gzip",
+        compression={"method": "gzip", "mtime": 0},
     )
     withheld.to_csv(
         args.output / "orchid_reproductive_holdouts.csv.gz",
         index=False,
-        compression="gzip",
+        compression={"method": "gzip", "mtime": 0},
     )
 
     unresolved_candidates = candidates.loc[
         candidates["unresolved_reproductive_before_source"].eq("true")
     ] if not candidates.empty else candidates
-    unresolved_referenced = unresolved_candidates.loc[
-        unresolved_candidates["source_reference_raw"].ne("")
-    ] if not unresolved_candidates.empty else unresolved_candidates
+    unresolved_candidates.to_csv(
+        args.output / "orchid_unresolved_si_sc_batch.csv.gz",
+        index=False,
+        compression={"method": "gzip", "mtime": 0},
+    )
+
     summary = {
-        "contract": "ackerman_orchid_structured_breeding_v1",
+        "contract": "ackerman_orchid_structured_breeding_v2",
         "source_doi": SOURCE_DOI,
+        "source_article_url": SOURCE_ARTICLE_URL,
+        "source_scale_complete": True,
         "source_rows": int(len(source)),
         "fixed_universe_species_rows_after_genus_filldown": matched_rows,
         "structured_rows_outside_exact_fixed_names": unmatched_structured,
-        "strict_candidate_rows": int(len(candidates)),
-        "strict_candidate_species": int(candidates["accepted_species"].nunique()) if not candidates.empty else 0,
-        "unresolved_reproductive_candidate_rows": int(len(unresolved_candidates)),
-        "unresolved_reproductive_candidate_species": int(unresolved_candidates["accepted_species"].nunique()) if not unresolved_candidates.empty else 0,
-        "unresolved_reproductive_candidate_species_with_reference": int(unresolved_referenced["accepted_species"].nunique()) if not unresolved_referenced.empty else 0,
+        "strict_reference_backed_si_sc_rows": int(len(candidates)),
+        "strict_reference_backed_si_sc_species": int(candidates["accepted_species"].nunique()) if not candidates.empty else 0,
+        "unresolved_reproductive_si_sc_rows": int(len(unresolved_candidates)),
+        "unresolved_reproductive_si_sc_species": int(unresolved_candidates["accepted_species"].nunique()) if not unresolved_candidates.empty else 0,
         "holdout_rows": int(len(withheld)),
-        "candidate_counts_by_trait_value": {
-            f"{trait}:{value}": int(n)
-            for (trait, value), n in (
-                candidates.groupby(["trait_name", "normalized_value"]).size().items()
-                if not candidates.empty
-                else []
+        "candidate_counts_by_value": {
+            str(value): int(n)
+            for value, n in (
+                candidates["normalized_value"].value_counts().items()
+                if not candidates.empty else []
             )
         },
-        "unresolved_counts_by_trait_value": {
-            f"{trait}:{value}": int(n)
-            for (trait, value), n in (
-                unresolved_candidates.groupby(["trait_name", "normalized_value"]).size().items()
-                if not unresolved_candidates.empty
-                else []
+        "unresolved_counts_by_value": {
+            str(value): int(n)
+            for value, n in (
+                unresolved_candidates["normalized_value"].value_counts().items()
+                if not unresolved_candidates.empty else []
             )
+        },
+        "excluded_cross_trait_mappings": {
+            "Mixed mating": "held out; mixed pollination system is not strict mating_system",
+            "autonomous selfing/agagamospermy": "held out; autonomous sexual selfing and apomixis conflated",
+            "evidence for selfing": "held out; evidence grade is not a trait state",
         },
         "formal_gain": 0,
         "promotion_allowed": False,
