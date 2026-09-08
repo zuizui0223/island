@@ -1,0 +1,75 @@
+{
+  "contract": "rgfca_island_colour_repeated_exploratory_v1",
+  "status": "exploratory_not_canonical_chapter1_inference",
+  "question": "Does island flower-colour composition become whiter or more muted along the frozen distance-to-continent gradient under repeated equal-depth species resampling?",
+  "input_provenance": {
+    "chapter1_when_where_run_id": 32845980788,
+    "chapter1_artifact_id": 9562465057,
+    "chapter1_artifact_name": "chapter1-when-where-main-32845980788",
+    "chapter1_artifact_digest": "sha256:d4cd8ad0eea9cd2bda879af14f54c549e130de365faf1b56bebddad38b24f1c2",
+    "status_flora_path": "input/chapter1_status_flora.csv.gz",
+    "trait_audit_path": "input/chapter1_direct_trait_state_audit.csv.gz",
+    "isolation_run_id": 29228212586,
+    "isolation_artifact_id": 8270544465,
+    "isolation_artifact_name": "purpose-shortest-distance-regime-29228212586",
+    "isolation_artifact_digest": "sha256:695f35b97bae07e81b05deab537dd73fa687b2d99e9efdb1cb3babd2fa12dfb6",
+    "covariates_path": "results/purpose_shortest_island_data.csv"
+  },
+  "contexts": [
+    "northern_midlatitude",
+    "tropical"
+  ],
+  "strata": [
+    "all_native",
+    "native_nonendemic"
+  ],
+  "outcomes": {
+    "white_present": "resolved species colour signature contains white; may also contain conspicuous states",
+    "muted_only": "all resolved colour states are in {white, green_brown_inconspicuous}",
+    "conspicuous_present": "resolved signature contains at least one of {yellow_orange, red_pink, blue_purple}"
+  },
+  "resampling": {
+    "draws": 1000,
+    "species_per_island": 20,
+    "sampling": "without replacement within each island; island-equal depth and island-equal regression weight",
+    "seed": 20260908,
+    "depth_sensitivity": {
+      "common_eligibility_min_species": 50,
+      "species_per_island_grid": [10, 20, 50],
+      "draws_each": 500
+    }
+  },
+  "model": {
+    "response": "random-realisation island species share",
+    "distance_predictor": "within-context standardized log_distance_to_continent_km",
+    "controls": [
+      "log_island_area_km2",
+      "climate_pc1",
+      "climate_pc2",
+      "climate_pc3",
+      "climate_pc4"
+    ],
+    "coefficient": "OLS proportion-scale beta via Frisch-Waugh-Lovell residualization",
+    "spatial_null": "one paired permutation per realization of the island response vector within spatial_block"
+  },
+  "interpretation_guards": [
+    "resampling quantiles describe stability to equal-depth species resampling; they are not confidence intervals for all plants",
+    "realisations_beta_positive is a reproducibility fraction, not a p-value",
+    "paired block-null dominance fractions are descriptive, not confirmatory permutation p-values",
+    "native_nonendemic persistence supports assemblage/source-pool filtering but does not establish within-lineage evolutionary whitening",
+    "white_present and conspicuous_present can overlap for multistate species; muted_only is the non-overlapping strict muted endpoint",
+    "this lane does not replace the frozen Chapter 1 when/where analysis"
+  ],
+  "input_counts": {
+    "all_native": {
+      "joined_rows": 97250,
+      "distinct_species": 20433,
+      "distinct_islands": 424
+    },
+    "native_nonendemic": {
+      "joined_rows": 89490,
+      "distinct_species": 15497,
+      "distinct_islands": 424
+    }
+  }
+}
