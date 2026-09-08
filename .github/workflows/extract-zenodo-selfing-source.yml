@@ -23,8 +23,7 @@ jobs:
     timeout-minutes: 20
     env:
       GH_TOKEN: ${{ github.token }}
-      CURRENT_RUN_ID: "34107096317"
-      CURRENT_ARTIFACT: "restart-integrated-trait-evidence-34107096317"
+      CURRENT_SOURCE_BATCH_RUN: "34177316926"
       ZENODO_FILE_URL: "https://zenodo.org/records/15288584/files/results_selfing_estimates_per_species.zip?download=1"
     steps:
       - uses: actions/checkout@v4
@@ -33,11 +32,13 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install pandas openpyxl xlrd
 
-      - name: Download current public restart checkpoint
+      - name: Download current public source-batch checkpoint
         run: |
           set -euo pipefail
           mkdir -p /tmp/current
-          gh run download "$CURRENT_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$CURRENT_ARTIFACT" --dir /tmp/current
+          gh run download "$CURRENT_SOURCE_BATCH_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "source-scale-batch-integration-${CURRENT_SOURCE_BATCH_RUN}" \
+            --dir /tmp/current
           CURRENT_COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
           test -n "$CURRENT_COVERAGE" && test -f "$CURRENT_COVERAGE"
           echo "CURRENT_COVERAGE=$CURRENT_COVERAGE" >> "$GITHUB_ENV"
