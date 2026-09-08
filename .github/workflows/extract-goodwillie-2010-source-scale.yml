@@ -59,10 +59,6 @@ jobs:
                   return json.load(r)
           dataset=get(f'{base}/datasets/{doi}')
           open('/tmp/goodwillie2010/dataset.json','w').write(json.dumps(dataset,indent=2))
-
-          # Dryad's dataset record exposes the current public version as a HAL
-          # link such as /api/v2/versions/207850.  versionNumber is not the
-          # internal version id and must not be used as one.
           href=(dataset.get('_links',{}).get('stash:version',{}) or {}).get('href','')
           m=re.search(r'/versions/(\d+)$', href)
           if not m:
@@ -86,7 +82,6 @@ jobs:
               fid=d.get('id')
               if isinstance(name,str) and isinstance(fid,int):
                   allfiles.append((fid,name,d))
-          # File API schemas may encode the id only in the self/download href.
           if not allfiles:
               for d in dicts(files):
                   name=d.get('path') or d.get('filename') or d.get('name')
@@ -127,15 +122,18 @@ jobs:
       - name: Download public files through Dryad UI file stream
         run: |
           set -euo pipefail
+          # Dryad mounts the StashEngine download route at the application root;
+          # /stash/downloads/... is the dataset UI namespace and returns HTML.
           curl -L --fail --retry 3 -A 'Mozilla/5.0 island-source-scale-acquisition/1.0' \
-            "https://datadryad.org/stash/downloads/file_stream/${XLS_FILE_ID}" \
+            "https://datadryad.org/downloads/file_stream/${XLS_FILE_ID}" \
             -o /tmp/goodwillie2010/source.xls
           curl -L --fail --retry 3 -A 'Mozilla/5.0 island-source-scale-acquisition/1.0' \
-            "https://datadryad.org/stash/downloads/file_stream/${README_FILE_ID}" \
+            "https://datadryad.org/downloads/file_stream/${README_FILE_ID}" \
             -o /tmp/goodwillie2010/README.txt
           test -s /tmp/goodwillie2010/source.xls
           test -s /tmp/goodwillie2010/README.txt
-          file /tmp/goodwillie2010/source.xls
+          file /tmp/goodwillie2010/source.xls /tmp/goodwillie2010/README.txt
+          file /tmp/goodwillie2010/source.xls | grep -qiE 'CDF|Composite Document|Microsoft Excel'
           sha256sum /tmp/goodwillie2010/source.xls /tmp/goodwillie2010/README.txt | tee artifacts/goodwillie2010-source-scale/source_sha256.txt
           cp /tmp/goodwillie2010/README.txt artifacts/goodwillie2010-source-scale/source_README.txt
 
