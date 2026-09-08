@@ -7,8 +7,8 @@
     "10.1111/j.1095-8339.2004.00330.x"
   ],
   "source_version": "pinned Meyer workbook sha256:d6f30a8ad728a3b1b3c8ac5a5143fb935ffc64a38ce06708f6f2df4331737647 plus reviewed primary literature",
-  "source_packet_run_id": 34189577885,
-  "source_packet_artifact": "hypochoeris-radicata-si-source-34189577885",
+  "source_packet_run_id": 34189756168,
+  "source_packet_artifact": "hypochoeris-radicata-si-source-34189756168",
   "source_packet_file": "hypochoeris_radicata_unresolved_si_batch.csv.gz",
   "source_scale_complete": true,
   "strict_mapping": "explicit species-level self-incompatibility supported by direct self/cross pollination experiments -> self_incompatibility=SI",
