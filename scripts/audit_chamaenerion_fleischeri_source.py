@@ -1,6 +1,6 @@
 """Audit the Chamaenerion/Epilobium fleischeri reproductive source chain.
 
-Diagnostic only: no promotion.  The audit resolves the exact Meyer workbook row,
+Diagnostic only: no promotion. The audit resolves the exact Meyer workbook row,
 then inspects the Gamba & Muchhala 2020 Dryad dataset and its source/reference
 fields before deciding whether any strict reproductive trait is actually stated.
 """
@@ -10,6 +10,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+from urllib.parse import quote
 
 import pandas as pd
 import requests
@@ -98,8 +99,9 @@ def main() -> None:
     dryad_hits = []
     dryad_error = ""
     try:
+        encoded = quote(f"doi:{GAMBA_DATASET_DOI}", safe="")
         meta = requests.get(
-            f"https://datadryad.org/api/v2/datasets/doi:{GAMBA_DATASET_DOI}",
+            f"https://datadryad.org/api/v2/datasets/{encoded}",
             headers=headers, timeout=30,
         )
         meta.raise_for_status()
@@ -114,6 +116,8 @@ def main() -> None:
             for f in dryad_files:
                 name = text(f.get("path"))
                 href = (f.get("_links", {}).get("stash:download", {}) or {}).get("href") or ""
+                if href.startswith("/"):
+                    href = "https://datadryad.org" + href
                 if not href or not name.casefold().endswith(".csv"):
                     continue
                 rr = requests.get(href, headers=headers, timeout=30)
@@ -126,8 +130,9 @@ def main() -> None:
                     continue
                 hitmask = pd.Series(False, index=df.index)
                 for c in df.columns:
-                    hitmask |= df[c].astype(str).str.replace("_", " ", regex=False).isin(TARGET_LABELS)
-                    hitmask |= df[c].astype(str).str.contains("fleischeri", case=False, na=False)
+                    vals = df[c].astype(str).str.replace("_", " ", regex=False)
+                    hitmask |= vals.isin(TARGET_LABELS)
+                    hitmask |= vals.str.contains("fleischeri", case=False, na=False)
                 if hitmask.any():
                     for idx, row in df.loc[hitmask].iterrows():
                         dryad_hits.append({"file": name, "row": int(idx + 2), **{str(k): text(v) for k, v in row.to_dict().items()}})
@@ -138,7 +143,6 @@ def main() -> None:
     (args.output / "gamba_dryad_files.json").write_text(json.dumps(dryad_files, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     pd.DataFrame(dryad_hits).to_csv(args.output / "gamba_dryad_target_hits.csv", index=False)
 
-    # Fail closed: diagnostic never promotes. Summarize only what is directly present.
     summary = {
         "contract": "chamaenerion_fleischeri_source_chain_diagnostic_v1",
         "meyer_sha256": observed,
