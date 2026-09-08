@@ -7,6 +7,21 @@ on:
         description: "Completed source-scale acquisition batch label"
         required: true
         type: string
+      source_packet_run_id:
+        description: "Optional completed source-scale workflow run ID"
+        required: false
+        default: ""
+        type: string
+      source_packet_artifact:
+        description: "Optional artifact name from source_packet_run_id"
+        required: false
+        default: ""
+        type: string
+      source_packet_file:
+        description: "Optional reviewed packet filename inside artifact"
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: read
@@ -23,7 +38,7 @@ concurrency:
 jobs:
   integrate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -31,14 +46,55 @@ jobs:
           python-version: '3.11'
       - run: pip install pandas pyyaml pytest
       - run: pytest -q tests/test_restart_direct_integration.py
+      - name: Download optional completed source-scale packet
+        if: ${{ inputs.source_packet_run_id != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ inputs.source_packet_run_id }}
+          SOURCE_ARTIFACT: ${{ inputs.source_packet_artifact }}
+          SOURCE_FILE: ${{ inputs.source_packet_file }}
+        run: |
+          set -euo pipefail
+          test -n "$SOURCE_ARTIFACT"
+          test -n "$SOURCE_FILE"
+          mkdir -p /tmp/source-packet
+          gh run download "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "$SOURCE_ARTIFACT" --dir /tmp/source-packet
+          PACKET=$(find /tmp/source-packet -type f -name "$SOURCE_FILE" -print -quit)
+          test -n "$PACKET"
+          python scripts/convert_reviewed_source_packet.py \
+            --input "$PACKET" \
+            --output /tmp/reviewed-source-packet.json \
+            --review-date 2026-09-08 \
+            --reviewer source-scale-methodology-review-20260908
       - name: Restore pinned baseline and integrate reviewed records
         env:
           GH_TOKEN: ${{ github.token }}
           BATCH_LABEL: ${{ inputs.batch_label }}
         run: |
+          set -euo pipefail
           echo "formal_batch=$BATCH_LABEL" >> "$GITHUB_STEP_SUMMARY"
           gh run download 34093932899 --repo "$GITHUB_REPOSITORY" --name recovered-public-trait-checkpoint-34093932899 --dir /tmp/baseline
-          python scripts/integrate_reviewed_restart.py --baseline /tmp/baseline --records data/v2/staging/traits/restart_reviewed_20260907.json --additional-records data/v2/staging/traits/restart_pladias_reviewed_20260907.json --additional-records data/v2/staging/traits/restart_madagascar_colour_20260907.json --additional-records data/v2/staging/traits/restart_madagascar_colour_second_20260907.json --additional-records data/v2/staging/traits/restart_madagascar_colour_third_20260907.json --additional-records data/v2/staging/traits/restart_madagascar_colour_final_20260907.json --additional-records data/v2/staging/traits/restart_kinabalu_20260907.json --additional-records data/v2/staging/traits/restart_reunion_orchids_20260907.json --additional-records data/v2/staging/traits/restart_malaxis_20260907.json --additional-records data/v2/staging/traits/restart_agalmyla_20260907.json --harrisia-correction data/v2/staging/traits/restart_harrisia_correction_20260907.json --ontology config/trait_ontology.yml --output artifacts/restart-integrated
+          EXTRA=()
+          if test -f /tmp/reviewed-source-packet.json; then
+            EXTRA+=(--additional-records /tmp/reviewed-source-packet.json)
+          fi
+          python scripts/integrate_reviewed_restart.py \
+            --baseline /tmp/baseline \
+            --records data/v2/staging/traits/restart_reviewed_20260907.json \
+            --additional-records data/v2/staging/traits/restart_pladias_reviewed_20260907.json \
+            --additional-records data/v2/staging/traits/restart_madagascar_colour_20260907.json \
+            --additional-records data/v2/staging/traits/restart_madagascar_colour_second_20260907.json \
+            --additional-records data/v2/staging/traits/restart_madagascar_colour_third_20260907.json \
+            --additional-records data/v2/staging/traits/restart_madagascar_colour_final_20260907.json \
+            --additional-records data/v2/staging/traits/restart_kinabalu_20260907.json \
+            --additional-records data/v2/staging/traits/restart_reunion_orchids_20260907.json \
+            --additional-records data/v2/staging/traits/restart_malaxis_20260907.json \
+            --additional-records data/v2/staging/traits/restart_agalmyla_20260907.json \
+            "${EXTRA[@]}" \
+            --harrisia-correction data/v2/staging/traits/restart_harrisia_correction_20260907.json \
+            --ontology config/trait_ontology.yml \
+            --output artifacts/restart-integrated
       - name: Preserve unpromoted source queues separately
         run: |
           cp data/v2/staging/traits/restart_orchid_pending_20260907.csv artifacts/restart-integrated/
