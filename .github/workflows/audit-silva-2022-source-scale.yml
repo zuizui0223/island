@@ -99,7 +99,6 @@ jobs:
                   rows.append({'provider':'openalex','query':q,'error':repr(e)})
           with open(out/'bibliographic_candidates.json','w',encoding='utf-8') as f:
               json.dump(rows,f,ensure_ascii=False,indent=2); f.write('\n')
-          # Print only Silva-authored / reproduction-relevant candidates first.
           ranked=[]
           for x in rows:
               s=(x.get('title','')+' '+x.get('author','')).casefold()
@@ -107,6 +106,50 @@ jobs:
               ranked.append((score,x))
           for score,x in sorted(ranked,key=lambda z:(-z[0],z[1].get('title','')))[:40]:
               print(score, json.dumps(x,ensure_ascii=False))
+          PY
+
+      - name: Resolve Silva 2022 from Meyer paper deposited references
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, pathlib, requests
+          out=pathlib.Path('artifacts/silva-2022-source-scale')
+          headers={'User-Agent':'island-source-audit/1.0 (mailto:rachelzhang0223@gmail.com)'}
+          resolved=[]
+          # Crossref-deposited reference list for the Meyer et al. paper.
+          r=requests.get('https://api.crossref.org/works/10.1093/aob/mcaf031',headers=headers,timeout=30)
+          r.raise_for_status()
+          msg=r.json()['message']
+          refs=msg.get('reference',[])
+          for ref in refs:
+              s=' '.join(str(ref.get(k,'')) for k in ['author','article-title','journal-title','DOI','unstructured']).casefold()
+              year=str(ref.get('year',''))
+              if 'silva' in s and year=='2022':
+                  resolved.append({'provider':'crossref_meyer_reference','reference':ref})
+          # OpenAlex graph for the Meyer paper; resolve 2022 referenced works with Silva authors.
+          try:
+              rr=requests.get('https://api.openalex.org/works/https://doi.org/10.1093/aob/mcaf031',headers=headers,timeout=30)
+              rr.raise_for_status()
+              ids=rr.json().get('referenced_works',[])
+              for i in range(0,len(ids),50):
+                  batch='|'.join(x.rsplit('/',1)[-1] for x in ids[i:i+50])
+                  if not batch: continue
+                  q=requests.get('https://api.openalex.org/works',params={'filter':f'openalex_id:{batch}','per-page':50},headers=headers,timeout=30)
+                  q.raise_for_status()
+                  for w in q.json().get('results',[]):
+                      if int(w.get('publication_year') or 0)!=2022: continue
+                      authors=[a.get('author',{}).get('display_name','') for a in w.get('authorships',[])]
+                      if any('silva' in a.casefold() for a in authors):
+                          resolved.append({
+                              'provider':'openalex_meyer_reference','title':w.get('title',''),
+                              'authors':authors,'doi':w.get('doi',''),'openalex':w.get('id',''),
+                              'publication_date':w.get('publication_date','')
+                          })
+          except Exception as e:
+              resolved.append({'provider':'openalex_meyer_reference','error':repr(e)})
+          with open(out/'meyer_reference_silva_2022.json','w',encoding='utf-8') as f:
+              json.dump(resolved,f,ensure_ascii=False,indent=2); f.write('\n')
+          print(json.dumps(resolved,ensure_ascii=False,indent=2))
           PY
 
       - uses: actions/upload-artifact@v4
