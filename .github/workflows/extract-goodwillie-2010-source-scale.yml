@@ -24,6 +24,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       CURRENT_SOURCE_BATCH_RUN: '34180620690'
       DRYAD_DOI_ENCODED: 'doi%3A10.5061%2Fdryad.bn5v3cm5'
+      DRYAD_DOI_UI: 'doi:10.5061/dryad.bn5v3cm5'
       TARGET_XLS: 'floral display for outcrossing rate species.xls'
       TARGET_README: 'README_for_floral display for outcrossing rate species.txt'
     steps:
@@ -47,7 +48,7 @@ jobs:
       - name: Resolve Dryad public file ids from anonymous metadata API
         run: |
           set -euo pipefail
-          mkdir -p /tmp/goodwillie2010 artifacts/goodwillie2010-source-scale
+          mkdir -p /tmp/goodwillie2010 artifacts/goodwillie2010-source-scale/download-diagnostics
           python - <<'PY'
           import json, os, re, urllib.request
           base='https://datadryad.org/api/v2'
@@ -58,7 +59,6 @@ jobs:
               with urllib.request.urlopen(req, timeout=120) as r:
                   return json.load(r)
           dataset=get(f'{base}/datasets/{doi}')
-          open('/tmp/goodwillie2010/dataset.json','w').write(json.dumps(dataset,indent=2))
           href=(dataset.get('_links',{}).get('stash:version',{}) or {}).get('href','')
           m=re.search(r'/versions/(\d+)$', href)
           if not m:
@@ -66,52 +66,29 @@ jobs:
           vid=int(m.group(1))
           version=get(f'{base}/versions/{vid}')
           files=get(f'{base}/versions/{vid}/files?per_page=100')
-          open('/tmp/goodwillie2010/version.json','w').write(json.dumps(version,indent=2))
-          open('/tmp/goodwillie2010/files.json','w').write(json.dumps(files,indent=2))
-
+          open('artifacts/goodwillie2010-source-scale/download-diagnostics/dataset.json','w').write(json.dumps(dataset,indent=2)+'\n')
+          open('artifacts/goodwillie2010-source-scale/download-diagnostics/version.json','w').write(json.dumps(version,indent=2)+'\n')
+          open('artifacts/goodwillie2010-source-scale/download-diagnostics/files.json','w').write(json.dumps(files,indent=2)+'\n')
           def dicts(obj):
               if isinstance(obj, dict):
                   yield obj
                   for v in obj.values(): yield from dicts(v)
               elif isinstance(obj, list):
                   for v in obj: yield from dicts(v)
-
           allfiles=[]
           for d in dicts(files):
               name=d.get('path') or d.get('filename') or d.get('name')
               fid=d.get('id')
               if isinstance(name,str) and isinstance(fid,int):
                   allfiles.append((fid,name,d))
-          if not allfiles:
-              for d in dicts(files):
-                  name=d.get('path') or d.get('filename') or d.get('name')
-                  if not isinstance(name,str):
-                      continue
-                  links=d.get('_links',{}) if isinstance(d.get('_links',{}),dict) else {}
-                  hrefs=[v.get('href','') for v in links.values() if isinstance(v,dict)]
-                  ids=[]
-                  for h in hrefs:
-                      mm=re.search(r'/files/(\d+)(?:/download)?$', str(h))
-                      if mm: ids.append(int(mm.group(1)))
-                  if ids:
-                      allfiles.append((ids[0],name,d))
-          if not allfiles:
-              print(json.dumps(files, indent=2))
-              raise SystemExit('could not resolve Dryad file metadata')
-
           targets={os.environ['TARGET_XLS'].casefold():None, os.environ['TARGET_README'].casefold():None}
-          print('Resolved file candidates:')
           for fid,name,d in allfiles:
               print(fid, name)
               key=name.split('/')[-1].casefold()
-              if key in targets:
-                  targets[key]=(fid,name,d)
+              if key in targets: targets[key]=(fid,name,d)
           missing=[k for k,v in targets.items() if v is None]
-          if missing:
-              print(json.dumps(files, indent=2))
-              raise SystemExit(f'missing target Dryad files: {missing}')
-          x=targets[os.environ['TARGET_XLS'].casefold()]
-          r=targets[os.environ['TARGET_README'].casefold()]
+          if missing: raise SystemExit(f'missing target Dryad files: {missing}')
+          x=targets[os.environ['TARGET_XLS'].casefold()]; r=targets[os.environ['TARGET_README'].casefold()]
           with open('/tmp/goodwillie2010/resolved.env','w') as f:
               f.write(f'DRYAD_VERSION_ID={vid}\nXLS_FILE_ID={x[0]}\nREADME_FILE_ID={r[0]}\n')
           open('artifacts/goodwillie2010-source-scale/dryad_file_metadata.json','w').write(
@@ -119,25 +96,63 @@ jobs:
           PY
           cat /tmp/goodwillie2010/resolved.env >> "$GITHUB_ENV"
 
-      - name: Download public files through Dryad UI file stream
+      - name: Diagnose Dryad download routes and obtain public source when possible
         run: |
           set -euo pipefail
-          # Dryad mounts the StashEngine download route at the application root;
-          # /stash/downloads/... is the dataset UI namespace and returns HTML.
-          curl -L --fail --retry 3 -A 'Mozilla/5.0 island-source-scale-acquisition/1.0' \
-            "https://datadryad.org/downloads/file_stream/${XLS_FILE_ID}" \
-            -o /tmp/goodwillie2010/source.xls
-          curl -L --fail --retry 3 -A 'Mozilla/5.0 island-source-scale-acquisition/1.0' \
-            "https://datadryad.org/downloads/file_stream/${README_FILE_ID}" \
-            -o /tmp/goodwillie2010/README.txt
-          test -s /tmp/goodwillie2010/source.xls
-          test -s /tmp/goodwillie2010/README.txt
-          file /tmp/goodwillie2010/source.xls /tmp/goodwillie2010/README.txt
-          file /tmp/goodwillie2010/source.xls | grep -qiE 'CDF|Composite Document|Microsoft Excel'
-          sha256sum /tmp/goodwillie2010/source.xls /tmp/goodwillie2010/README.txt | tee artifacts/goodwillie2010-source-scale/source_sha256.txt
-          cp /tmp/goodwillie2010/README.txt artifacts/goodwillie2010-source-scale/source_README.txt
+          D=artifacts/goodwillie2010-source-scale/download-diagnostics
+          UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/152 Safari/537.36'
+          LANDING="https://datadryad.org/stash/dataset/${DRYAD_DOI_UI}"
+          curl -sS -L -A "$UA" -c /tmp/goodwillie2010/cookies.txt "$LANDING" -o "$D/landing.html" || true
+
+          diagnose() {
+            label="$1"; url="$2"
+            echo "===== $label ====="
+            curl -sS -L --max-redirs 10 -A "$UA" -b /tmp/goodwillie2010/cookies.txt -c /tmp/goodwillie2010/cookies.txt \
+              -e "$LANDING" -D "$D/${label}.headers" -o "$D/${label}.body" \
+              -w 'final_url=%{url_effective}\nhttp_code=%{http_code}\ncontent_type=%{content_type}\nsize=%{size_download}\n' \
+              "$url" | tee "$D/${label}.curl.txt" || true
+            file "$D/${label}.body" | tee "$D/${label}.file.txt" || true
+            python - "$D/${label}.body" <<'PY' | tee "$D/${label}.preview.txt"
+          import pathlib, re, sys
+          p=pathlib.Path(sys.argv[1]); b=p.read_bytes()[:5000]
+          try: t=b.decode('utf-8','replace')
+          except Exception: t=repr(b[:1000])
+          title=re.search(r'<title[^>]*>(.*?)</title>', t, re.I|re.S)
+          print('title=', re.sub(r'\s+',' ',title.group(1)).strip() if title else '')
+          print(re.sub(r'\s+',' ',t[:1200]))
+          PY
+          }
+
+          diagnose root_stream "https://datadryad.org/downloads/file_stream/${XLS_FILE_ID}"
+          diagnose stash_stream "https://datadryad.org/stash/downloads/file_stream/${XLS_FILE_ID}"
+          diagnose api_download "https://datadryad.org/api/v2/files/${XLS_FILE_ID}/download"
+
+          SOURCE_DOWNLOAD_OK=false
+          for label in root_stream stash_stream api_download; do
+            body="$D/${label}.body"
+            if file "$body" | grep -qiE 'CDF|Composite Document|Microsoft Excel'; then
+              cp "$body" /tmp/goodwillie2010/source.xls
+              echo "SOURCE_DOWNLOAD_ROUTE=$label" >> "$GITHUB_ENV"
+              SOURCE_DOWNLOAD_OK=true
+              break
+            fi
+          done
+          echo "SOURCE_DOWNLOAD_OK=$SOURCE_DOWNLOAD_OK" >> "$GITHUB_ENV"
+          if [ "$SOURCE_DOWNLOAD_OK" = true ]; then
+            # Resolve README through the route that succeeded for the workbook.
+            case "${SOURCE_DOWNLOAD_ROUTE:-}" in
+              root_stream) url="https://datadryad.org/downloads/file_stream/${README_FILE_ID}" ;;
+              stash_stream) url="https://datadryad.org/stash/downloads/file_stream/${README_FILE_ID}" ;;
+              api_download) url="https://datadryad.org/api/v2/files/${README_FILE_ID}/download" ;;
+              *) exit 2 ;;
+            esac
+            curl -sS -L --fail -A "$UA" -b /tmp/goodwillie2010/cookies.txt -e "$LANDING" "$url" -o /tmp/goodwillie2010/README.txt
+            sha256sum /tmp/goodwillie2010/source.xls /tmp/goodwillie2010/README.txt | tee artifacts/goodwillie2010-source-scale/source_sha256.txt
+            cp /tmp/goodwillie2010/README.txt artifacts/goodwillie2010-source-scale/source_README.txt
+          fi
 
       - name: Audit complete workbook against current reproductive gaps
+        if: env.SOURCE_DOWNLOAD_OK == 'true'
         run: |
           set -euo pipefail
           python scripts/extract_goodwillie_2010_source_scale.py \
@@ -148,6 +163,19 @@ jobs:
           cat artifacts/goodwillie2010-source-scale/goodwillie2010_source_scale_summary.json >> "$GITHUB_STEP_SUMMARY"
           echo '### README' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/goodwillie2010/README.txt >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Record unresolved access diagnosis
+        if: env.SOURCE_DOWNLOAD_OK != 'true'
+        run: |
+          cat > artifacts/goodwillie2010-source-scale/access_diagnosis.json <<'JSON'
+          {
+            "formal_gain": 0,
+            "promotion_allowed": false,
+            "status": "download_route_diagnosed_not_yet_resolved",
+            "note": "Dryad metadata and target file ids resolve publicly; three download routes were compared and their status/redirect/body diagnostics are retained in this artifact."
+          }
+          JSON
+          cat artifacts/goodwillie2010-source-scale/access_diagnosis.json >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
         with:
