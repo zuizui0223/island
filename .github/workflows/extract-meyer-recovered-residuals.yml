@@ -1,0 +1,58 @@
+name: Extract Meyer recovered reproductive residuals
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/extract_meyer_recovered_residual_packet.py
+      - .github/workflows/extract-meyer-recovered-residuals.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_SOURCE_BATCH_RUN: '34182799148'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas
+
+      - name: Download current cumulative public checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current
+          gh run download "$CURRENT_SOURCE_BATCH_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "source-scale-batch-integration-${CURRENT_SOURCE_BATCH_RUN}" \
+            --dir /tmp/current
+          CURRENT_COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          CURRENT_DIRECT=$(find /tmp/current -name direct_species_trait_ledger.csv.gz -print -quit)
+          test -n "$CURRENT_COVERAGE" && test -f "$CURRENT_COVERAGE"
+          test -n "$CURRENT_DIRECT" && test -f "$CURRENT_DIRECT"
+          printf 'CURRENT_COVERAGE=%s\nCURRENT_DIRECT=%s\n' "$CURRENT_COVERAGE" "$CURRENT_DIRECT" >> "$GITHUB_ENV"
+
+      - name: Build reviewed current-gap Meyer packet
+        run: |
+          set -euo pipefail
+          python scripts/extract_meyer_recovered_residual_packet.py \
+            --evidence data/v2/staging/traits/open_web_pilot/curated_bulk_direct_evidence_20260811.csv \
+            --manual-audit data/v2/staging/traits/open_web_pilot/curated_bulk_direct_manual_audit_20260811.csv \
+            --coverage "$CURRENT_COVERAGE" \
+            --direct-ledger "$CURRENT_DIRECT" \
+            --output artifacts/meyer-recovered-residuals
+          cat artifacts/meyer-recovered-residuals/summary.json >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: meyer-recovered-residuals-${{ github.run_id }}
+          path: artifacts/meyer-recovered-residuals/
+          if-no-files-found: error
+          retention-days: 90
