@@ -1,0 +1,146 @@
+name: Extract Goodwillie 2010 reproductive source at source scale
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/extract_goodwillie_2010_source_scale.py
+      - .github/workflows/extract-goodwillie-2010-source-scale.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: goodwillie-2010-source-scale-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_SOURCE_BATCH_RUN: '34180620690'
+      DRYAD_DOI_ENCODED: 'doi%3A10.5061%2Fdryad.bn5v3cm5'
+      TARGET_XLS: 'floral display for outcrossing rate species.xls'
+      TARGET_README: 'README_for_floral display for outcrossing rate species.txt'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas xlrd
+
+      - name: Download current cumulative public checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current
+          gh run download "$CURRENT_SOURCE_BATCH_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "source-scale-batch-integration-${CURRENT_SOURCE_BATCH_RUN}" \
+            --dir /tmp/current
+          CURRENT_COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          test -n "$CURRENT_COVERAGE" && test -f "$CURRENT_COVERAGE"
+          echo "CURRENT_COVERAGE=$CURRENT_COVERAGE" >> "$GITHUB_ENV"
+
+      - name: Resolve Dryad public file ids from anonymous metadata API
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/goodwillie2010 artifacts/goodwillie2010-source-scale
+          python - <<'PY'
+          import json, os, urllib.request
+          base='https://datadryad.org/api/v2'
+          doi=os.environ['DRYAD_DOI_ENCODED']
+          ua={'User-Agent':'island-source-scale-acquisition/1.0'}
+          def get(url):
+              req=urllib.request.Request(url, headers=ua)
+              with urllib.request.urlopen(req, timeout=120) as r:
+                  return json.load(r)
+          dataset=get(f'{base}/datasets/{doi}')
+          versions=get(f'{base}/datasets/{doi}/versions?per_page=100')
+          open('/tmp/goodwillie2010/dataset.json','w').write(json.dumps(dataset,indent=2))
+          open('/tmp/goodwillie2010/versions.json','w').write(json.dumps(versions,indent=2))
+
+          def dicts(obj):
+              if isinstance(obj, dict):
+                  yield obj
+                  for v in obj.values(): yield from dicts(v)
+              elif isinstance(obj, list):
+                  for v in obj: yield from dicts(v)
+          version_ids=[]
+          for d in dicts(versions):
+              if 'id' in d and isinstance(d['id'], int):
+                  # version records expose id; de-duplicate conservatively
+                  version_ids.append(d['id'])
+          version_ids=list(dict.fromkeys(version_ids))
+          if not version_ids:
+              raise SystemExit('could not resolve Dryad version id')
+          allfiles=[]
+          for vid in version_ids:
+              try:
+                  payload=get(f'{base}/versions/{vid}/files?per_page=1000')
+              except Exception as e:
+                  print(f'skip version id {vid}: {type(e).__name__}: {e}')
+                  continue
+              open(f'/tmp/goodwillie2010/files_{vid}.json','w').write(json.dumps(payload,indent=2))
+              for d in dicts(payload):
+                  name=d.get('path') or d.get('filename') or d.get('name')
+                  fid=d.get('id')
+                  if isinstance(name,str) and isinstance(fid,int):
+                      allfiles.append((fid,name,vid,d))
+          if not allfiles:
+              raise SystemExit('could not resolve Dryad file metadata')
+          targets={os.environ['TARGET_XLS'].casefold():None, os.environ['TARGET_README'].casefold():None}
+          for fid,name,vid,d in allfiles:
+              key=name.split('/')[-1].casefold()
+              if key in targets:
+                  targets[key]=(fid,name,vid,d)
+          print('Resolved file candidates:')
+          for fid,name,vid,_ in allfiles:
+              print(fid, vid, name)
+          missing=[k for k,v in targets.items() if v is None]
+          if missing:
+              raise SystemExit(f'missing target Dryad files: {missing}')
+          x=targets[os.environ['TARGET_XLS'].casefold()]
+          r=targets[os.environ['TARGET_README'].casefold()]
+          with open('/tmp/goodwillie2010/resolved.env','w') as f:
+              f.write(f'XLS_FILE_ID={x[0]}\nREADME_FILE_ID={r[0]}\n')
+          open('artifacts/goodwillie2010-source-scale/dryad_file_metadata.json','w').write(
+              json.dumps({'xls':x[3],'readme':r[3]},indent=2)+'\n')
+          PY
+          cat /tmp/goodwillie2010/resolved.env >> "$GITHUB_ENV"
+
+      - name: Download public files through Dryad UI file stream
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 -A 'Mozilla/5.0 island-source-scale-acquisition/1.0' \
+            "https://datadryad.org/stash/downloads/file_stream/${XLS_FILE_ID}" \
+            -o /tmp/goodwillie2010/source.xls
+          curl -L --fail --retry 3 -A 'Mozilla/5.0 island-source-scale-acquisition/1.0' \
+            "https://datadryad.org/stash/downloads/file_stream/${README_FILE_ID}" \
+            -o /tmp/goodwillie2010/README.txt
+          test -s /tmp/goodwillie2010/source.xls
+          test -s /tmp/goodwillie2010/README.txt
+          file /tmp/goodwillie2010/source.xls
+          sha256sum /tmp/goodwillie2010/source.xls /tmp/goodwillie2010/README.txt | tee artifacts/goodwillie2010-source-scale/source_sha256.txt
+          cp /tmp/goodwillie2010/README.txt artifacts/goodwillie2010-source-scale/source_README.txt
+
+      - name: Audit complete workbook against current reproductive gaps
+        run: |
+          set -euo pipefail
+          python scripts/extract_goodwillie_2010_source_scale.py \
+            --input-xls /tmp/goodwillie2010/source.xls \
+            --readme /tmp/goodwillie2010/README.txt \
+            --coverage "$CURRENT_COVERAGE" \
+            --output artifacts/goodwillie2010-source-scale
+          cat artifacts/goodwillie2010-source-scale/goodwillie2010_source_scale_summary.json >> "$GITHUB_STEP_SUMMARY"
+          echo '### README' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/goodwillie2010/README.txt >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: goodwillie-2010-source-scale-${{ github.run_id }}
+          path: artifacts/goodwillie2010-source-scale/
+          if-no-files-found: error
+          retention-days: 90
