@@ -27,7 +27,7 @@ SOURCES = [
         "doi": "10.5061/dryad.292q34fp",
         "status": "integrated_control",
         "source_type": "structured_xls",
-        "note": "Already source-scale processed on 2026-08-21 (469 source rows); retain only as a control.",
+        "note": "Source-scale processed; retained only as a control because no strict categorical promotion contract was accepted.",
     },
     {
         "source_id": "goodwillie_etal_2010_floral_display_dryad",
@@ -39,9 +39,9 @@ SOURCES = [
     {
         "source_id": "busch_prior_2021_dryad",
         "doi": "10.5061/dryad.3j9kd51jw",
-        "status": "candidate",
+        "status": "integrated_control",
         "source_type": "structured_csv_xlsx",
-        "note": "Population selfing-rate compilation; species-level aggregation requires later review.",
+        "note": "Source-scale reviewed and formally integrated on 2026-09-08; two current-gap mating-system cells realized.",
     },
     {
         "source_id": "moeller_etal_2017_dryad",
@@ -237,36 +237,56 @@ def main() -> None:
                     })
 
     ranking = pd.DataFrame(source_rows)
+
     def classify(row: pd.Series) -> str:
         if row["status"] != "candidate":
             return "integrated_control"
         if row["access_status"] != "ok":
             return "candidate_access_blocked"
-        return "candidate_high_roi" if int(row["exact_unresolved_reproductive_overlap"]) > 0 else "candidate_no_exact_overlap"
-    ranking["priority_class"] = ranking.apply(classify, axis=1)
-    ranking["sort_overlap"] = pd.to_numeric(ranking["exact_unresolved_reproductive_overlap"], errors="coerce").fillna(-1)
-    ranking["sort_efficiency"] = pd.to_numeric(ranking["expected_cells_per_hour_upper_bound"], errors="coerce").fillna(-1)
-    ranking = ranking.sort_values(["status", "sort_overlap", "sort_efficiency"], ascending=[True, False, False]).drop(columns=["sort_overlap", "sort_efficiency"])
-    ranking.to_csv(args.output / "reproductive_source_roi.csv", index=False)
-    pd.DataFrame(table_rows).to_csv(args.output / "reproductive_source_table_inventory.csv", index=False)
-    pd.DataFrame(overlap_rows, columns=["source_id", "accepted_species", "axis", "status"]).to_csv(
-        args.output / "reproductive_source_unresolved_overlap.csv", index=False
-    )
+        return (
+            "candidate_high_roi"
+            if int(row["exact_unresolved_reproductive_overlap"]) > 0
+            else "candidate_no_exact_overlap"
+        )
 
-    measurable = ranking.loc[(ranking["status"].eq("candidate")) & (ranking["access_status"].eq("ok"))]
+    ranking["priority_class"] = ranking.apply(classify, axis=1)
+    ranking["sort_overlap"] = pd.to_numeric(
+        ranking["exact_unresolved_reproductive_overlap"], errors="coerce"
+    ).fillna(-1)
+    ranking["sort_efficiency"] = pd.to_numeric(
+        ranking["expected_cells_per_hour_upper_bound"], errors="coerce"
+    ).fillna(-1)
+    ranking = ranking.sort_values(
+        ["status", "sort_overlap", "sort_efficiency"], ascending=[True, False, False]
+    ).drop(columns=["sort_overlap", "sort_efficiency"])
+    ranking.to_csv(args.output / "reproductive_source_roi.csv", index=False)
+    pd.DataFrame(table_rows).to_csv(
+        args.output / "reproductive_source_table_inventory.csv", index=False
+    )
+    pd.DataFrame(
+        overlap_rows, columns=["source_id", "accepted_species", "axis", "status"]
+    ).to_csv(args.output / "reproductive_source_unresolved_overlap.csv", index=False)
+
+    measurable = ranking.loc[
+        ranking["status"].eq("candidate") & ranking["access_status"].eq("ok")
+    ]
     summary = {
-        "contract": "reproductive_source_scale_roi_screen_v2",
+        "contract": "reproductive_source_scale_roi_screen_v3",
         "fixed_species": 106295,
         "current_reproductive_unresolved": len(unresolved),
         "sources_screened": len(SOURCES),
         "candidate_sources": sum(s["status"] == "candidate" for s in SOURCES),
-        "candidate_sources_access_blocked": int(((ranking["status"] == "candidate") & (ranking["access_status"] != "ok")).sum()),
+        "candidate_sources_access_blocked": int(
+            ((ranking["status"] == "candidate") & (ranking["access_status"] != "ok")).sum()
+        ),
         "formal_gain": 0,
         "selection_only": True,
         "top_measured_candidate": measurable.iloc[0]["source_id"] if len(measurable) else None,
-        "note": "Unavailable source overlap is NA, never zero. Access-blocked sources must be screened through an alternate public mirror or authenticated retrieval before ROI ranking.",
+        "note": "Unavailable source overlap is NA, never zero. Integrated sources remain controls and cannot be selected again.",
     }
-    (args.output / "reproductive_source_roi_summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    (args.output / "reproductive_source_roi_summary.json").write_text(
+        json.dumps(summary, indent=2) + "\n", encoding="utf-8"
+    )
     print(json.dumps(summary, indent=2))
 
 
