@@ -26,8 +26,8 @@ jobs:
     timeout-minutes: 30
     env:
       GH_TOKEN: ${{ github.token }}
-      CURRENT_RUN_ID: "34107096317"
-      CURRENT_ARTIFACT: "restart-integrated-trait-evidence-34107096317"
+      CURRENT_RUN_ID: "34180620690"
+      CURRENT_ARTIFACT: "source-scale-batch-integration-34180620690"
       RECOVERED_RUN_ID: "34093932899"
       RECOVERED_ARTIFACT: "recovered-public-trait-checkpoint-34093932899"
     steps:
@@ -78,7 +78,7 @@ jobs:
           import pandas as pd
           p='artifacts/reproductive-source-scale/reproductive_source_roi.csv'
           x=pd.read_csv(p)
-          cols=['source_id','status','reproductive_taxa_detected','exact_unresolved_reproductive_overlap','estimated_review_minutes','expected_cells_per_hour_upper_bound','download_status']
+          cols=['source_id','status','reproductive_taxa_detected','exact_unresolved_reproductive_overlap','estimated_review_minutes','expected_cells_per_hour_upper_bound','access_status']
           print(x[cols].to_markdown(index=False))
           PY
 
