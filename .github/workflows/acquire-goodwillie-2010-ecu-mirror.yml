@@ -1,0 +1,74 @@
+name: Acquire Goodwillie 2010 through ECU public mirror
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/acquire_goodwillie2010_ecu_mirror.py
+      - scripts/extract_goodwillie_2010_source_scale.py
+      - .github/workflows/acquire-goodwillie-2010-ecu-mirror.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: goodwillie-2010-ecu-mirror-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  acquire-and-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_SOURCE_BATCH_RUN: '34180620690'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas xlrd
+
+      - name: Download current cumulative public checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current
+          gh run download "$CURRENT_SOURCE_BATCH_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "source-scale-batch-integration-${CURRENT_SOURCE_BATCH_RUN}" \
+            --dir /tmp/current
+          CURRENT_COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          test -n "$CURRENT_COVERAGE" && test -f "$CURRENT_COVERAGE"
+          echo "CURRENT_COVERAGE=$CURRENT_COVERAGE" >> "$GITHUB_ENV"
+
+      - name: Follow DataRecord to hub dataset and acquire exact public bitstreams
+        run: |
+          set -euo pipefail
+          python scripts/acquire_goodwillie2010_ecu_mirror.py \
+            --output artifacts/goodwillie2010-ecu-mirror
+          file artifacts/goodwillie2010-ecu-mirror/goodwillie2010_source.xls
+          sha256sum \
+            artifacts/goodwillie2010-ecu-mirror/goodwillie2010_source.xls \
+            artifacts/goodwillie2010-ecu-mirror/goodwillie2010_README.txt \
+            | tee artifacts/goodwillie2010-ecu-mirror/source_sha256.txt
+
+      - name: Audit complete source against current reproductive gaps
+        run: |
+          set -euo pipefail
+          python scripts/extract_goodwillie_2010_source_scale.py \
+            --input-xls artifacts/goodwillie2010-ecu-mirror/goodwillie2010_source.xls \
+            --readme artifacts/goodwillie2010-ecu-mirror/goodwillie2010_README.txt \
+            --coverage "$CURRENT_COVERAGE" \
+            --output artifacts/goodwillie2010-ecu-mirror/audit
+          cat artifacts/goodwillie2010-ecu-mirror/audit/goodwillie2010_source_scale_summary.json >> "$GITHUB_STEP_SUMMARY"
+          echo '### Source README' >> "$GITHUB_STEP_SUMMARY"
+          cat artifacts/goodwillie2010-ecu-mirror/goodwillie2010_README.txt >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: goodwillie-2010-ecu-mirror-${{ github.run_id }}
+          path: artifacts/goodwillie2010-ecu-mirror/
+          if-no-files-found: error
+          retention-days: 90
