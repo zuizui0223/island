@@ -1,0 +1,37 @@
+name: Audit Rodger within-lineage reproductive conflicts
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/audit_rodger_conflict_semantics.py
+      - .github/workflows/audit-rodger-conflict-semantics.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas
+      - name: Audit target source rows
+        run: |
+          set -euo pipefail
+          python scripts/audit_rodger_conflict_semantics.py \
+            --snapshot data/v2/external/traits/rodger_2021_pollinator_contribution/rodger_2021_pollinator_contribution_snapshot.csv.gz \
+            --evidence data/v2/staging/traits/open_web_pilot/rodger_2021_autofertility_checkpoint_20260811/rodger_2021_autofertility_evidence_20260811.csv.gz \
+            --output artifacts/rodger-conflict-semantics
+          cat artifacts/rodger-conflict-semantics/summary.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rodger-conflict-semantics-${{ github.run_id }}
+          path: artifacts/rodger-conflict-semantics/
+          if-no-files-found: error
+          retention-days: 90
