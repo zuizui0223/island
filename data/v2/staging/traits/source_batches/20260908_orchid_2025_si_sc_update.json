@@ -1,0 +1,27 @@
+{
+  "batch_label": "20260908-orchid-2025-si-sc-update-source-scale",
+  "source": "Ackerman et al. global Orchidaceae reproductive biology database v1.4.0",
+  "source_doi": "10.5281/zenodo.18208949",
+  "source_version": "1.4.0",
+  "source_article_url": "https://academic.oup.com/botlinnean/article/202/3/295/7076252",
+  "source_packet_run_id": 34182712194,
+  "source_packet_artifact": "orchid-2025-source-scale-34182712194",
+  "source_packet_file": "orchid_2025_unresolved_si_sc_batch.csv.gz",
+  "source_scale_complete": true,
+  "strict_mapping": "self_incompatibility only",
+  "expected_source_direct_gain": 3,
+  "expected_total_gain_from_recovered_baseline": 304,
+  "expected_species": [
+    "Habenaria ciliolaris",
+    "Stigmatodactylus sikokianus",
+    "Vanda tessellata"
+  ],
+  "expected_state": "SC",
+  "source_update_note": "Same Ackerman global orchid database lineage and creator set as the reviewed 2024 source, updated through 2025; complete workbook and schema revalidated before batch integration.",
+  "excluded_fields": {
+    "Mixed mating": "mixed pollination system, not strict population-genetic mating_system",
+    "autonomous selfing/agagamospermy": "conflates autonomous sexual selfing and apomixis",
+    "evidence for selfing": "evidence field, not a strict trait state"
+  },
+  "formal_integration_policy": "cumulative replay of all committed source manifests from the pinned recovered baseline"
+}
