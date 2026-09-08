@@ -29,6 +29,8 @@ jobs:
       TARGET_README: 'README_for_floral display for outcrossing rate species.txt'
       PINNED_XLS_FILE_ID: '34605'
       PINNED_README_FILE_ID: '34606'
+      ECU_ITEM_ID: 'bc729ea8-46f7-48c3-b013-af5cb93e9888'
+      ECU_API_BASE: 'https://thescholarship.ecu.edu/server/api'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -97,9 +99,6 @@ jobs:
               int(os.environ['PINNED_XLS_FILE_ID']): os.environ['TARGET_XLS'],
               int(os.environ['PINNED_README_FILE_ID']): os.environ['TARGET_README'],
           }
-          # The ids were independently resolved in prior successful metadata runs.
-          # Revalidate them when the current API exposes ids; if this response omits
-          # ids, retain the metadata snapshot and continue to HTTP route diagnosis.
           if observed:
               for fid,name in expected.items():
                   if fid in observed and observed[fid].casefold()!=name.casefold():
@@ -166,9 +165,99 @@ jobs:
               *) exit 2 ;;
             esac
             curl -sS -L --fail -A "$UA" -b /tmp/goodwillie2010/cookies.txt -e "$LANDING" "$url" -o /tmp/goodwillie2010/README.txt
-            sha256sum /tmp/goodwillie2010/source.xls /tmp/goodwillie2010/README.txt | tee artifacts/goodwillie2010-source-scale/source_sha256.txt
-            cp /tmp/goodwillie2010/README.txt artifacts/goodwillie2010-source-scale/source_README.txt
           fi
+
+      - name: Fallback to ECU ScholarShip DSpace mirror
+        if: env.SOURCE_DOWNLOAD_OK != 'true'
+        run: |
+          set -euo pipefail
+          D=artifacts/goodwillie2010-source-scale/download-diagnostics
+          python - <<'PY'
+          import json, os, urllib.request, urllib.parse
+          base=os.environ['ECU_API_BASE'].rstrip('/')
+          item_id=os.environ['ECU_ITEM_ID']
+          targets={os.environ['TARGET_XLS'].casefold(): 'XLS', os.environ['TARGET_README'].casefold(): 'README'}
+          headers={'User-Agent':'island-source-scale-acquisition/1.0','Accept':'application/hal+json, application/json'}
+
+          def get_json(url):
+              req=urllib.request.Request(url,headers=headers)
+              with urllib.request.urlopen(req,timeout=120) as r:
+                  return json.load(r)
+
+          def embedded(payload,key):
+              obj=payload.get('_embedded',{}) if isinstance(payload,dict) else {}
+              val=obj.get(key,[]) if isinstance(obj,dict) else []
+              return val if isinstance(val,list) else []
+
+          diagnosis={'item_id':item_id,'targets':{},'status':'started'}
+          try:
+              item=get_json(f'{base}/core/items/{item_id}')
+              diagnosis['item']=item
+              bundles_url=((item.get('_links',{}).get('bundles',{}) or {}).get('href')
+                           or f'{base}/core/items/{item_id}/bundles')
+              bundles=get_json(bundles_url + ('&' if '?' in bundles_url else '?') + 'size=100')
+              diagnosis['bundles_url']=bundles_url
+              diagnosis['bundles']=bundles
+              bundle_rows=embedded(bundles,'bundles')
+              ordered=sorted(bundle_rows,key=lambda b: 0 if str(b.get('name','')).casefold()=='original' else 1)
+              found={}
+              bitstream_snapshots=[]
+              for bundle in ordered:
+                  href=((bundle.get('_links',{}).get('bitstreams',{}) or {}).get('href'))
+                  if not href:
+                      uuid=bundle.get('uuid') or bundle.get('id')
+                      if uuid: href=f'{base}/core/bundles/{uuid}/bitstreams'
+                  if not href: continue
+                  payload=get_json(href + ('&' if '?' in href else '?') + 'size=200')
+                  bitstream_snapshots.append({'bundle':bundle.get('name'),'url':href,'payload':payload})
+                  for bit in embedded(payload,'bitstreams'):
+                      name=str(bit.get('name') or '').strip()
+                      key=name.casefold()
+                      if key not in targets or key in found: continue
+                      content=((bit.get('_links',{}).get('content',{}) or {}).get('href'))
+                      uuid=bit.get('uuid') or bit.get('id')
+                      if not content and uuid: content=f'{base}/core/bitstreams/{uuid}/content'
+                      if content:
+                          found[key]={'name':name,'content_url':content,'uuid':uuid,'bundle':bundle.get('name')}
+              diagnosis['bitstreams']=bitstream_snapshots
+              diagnosis['targets']=found
+              missing=[k for k in targets if k not in found]
+              diagnosis['status']='resolved' if not missing else 'missing_targets'
+              diagnosis['missing']=missing
+              with open(f'{D}/ecu_dspace_metadata.json','w',encoding='utf-8') as f:
+                  json.dump(diagnosis,f,ensure_ascii=False,indent=2); f.write('\n')
+              if missing:
+                  raise SystemExit(0)
+              with open('/tmp/goodwillie2010/ecu_urls.env','w',encoding='utf-8') as f:
+                  f.write('ECU_XLS_URL='+found[os.environ['TARGET_XLS'].casefold()]['content_url']+'\n')
+                  f.write('ECU_README_URL='+found[os.environ['TARGET_README'].casefold()]['content_url']+'\n')
+          except Exception as exc:
+              diagnosis['status']='error'
+              diagnosis['error']=f'{type(exc).__name__}: {exc}'
+              with open(f'{D}/ecu_dspace_metadata.json','w',encoding='utf-8') as f:
+                  json.dump(diagnosis,f,ensure_ascii=False,indent=2); f.write('\n')
+          PY
+
+          if [ -f /tmp/goodwillie2010/ecu_urls.env ]; then
+            set -a
+            . /tmp/goodwillie2010/ecu_urls.env
+            set +a
+            curl -sS -L --fail -A 'island-source-scale-acquisition/1.0' "$ECU_XLS_URL" -o /tmp/goodwillie2010/source.xls
+            curl -sS -L --fail -A 'island-source-scale-acquisition/1.0' "$ECU_README_URL" -o /tmp/goodwillie2010/README.txt
+            file /tmp/goodwillie2010/source.xls | tee "$D/ecu_source.file.txt"
+            file /tmp/goodwillie2010/README.txt | tee "$D/ecu_readme.file.txt"
+            if file /tmp/goodwillie2010/source.xls | grep -qiE 'CDF|Composite Document|Microsoft Excel'; then
+              echo 'SOURCE_DOWNLOAD_OK=true' >> "$GITHUB_ENV"
+              echo 'SOURCE_DOWNLOAD_ROUTE=ecu_dspace_mirror' >> "$GITHUB_ENV"
+            fi
+          fi
+
+      - name: Hash acquired source and preserve README
+        if: env.SOURCE_DOWNLOAD_OK == 'true'
+        run: |
+          set -euo pipefail
+          sha256sum /tmp/goodwillie2010/source.xls /tmp/goodwillie2010/README.txt | tee artifacts/goodwillie2010-source-scale/source_sha256.txt
+          cp /tmp/goodwillie2010/README.txt artifacts/goodwillie2010-source-scale/source_README.txt
 
       - name: Audit complete workbook against current reproductive gaps
         if: env.SOURCE_DOWNLOAD_OK == 'true'
@@ -190,8 +279,8 @@ jobs:
           {
             "formal_gain": 0,
             "promotion_allowed": false,
-            "status": "download_route_diagnosed_not_yet_resolved",
-            "note": "Dryad metadata and pinned target file ids are retained; three download routes were compared and status/redirect/body diagnostics are included in this artifact."
+            "status": "dryad_antibot_and_ecu_mirror_unresolved",
+            "note": "Dryad UI is Anubis-gated and API download requires a bearer token. ECU ScholarShip DSpace REST fallback was attempted and its metadata/error diagnosis is preserved."
           }
           JSON
           cat artifacts/goodwillie2010-source-scale/access_diagnosis.json >> "$GITHUB_STEP_SUMMARY"
