@@ -23,7 +23,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       MEYER_SOURCE_COMMIT: 3d57315fe77097fe582025b884917550139801e8
-      CURRENT_INTEGRATION_RUN: '34107096317'
+      CURRENT_SOURCE_BATCH_RUN: '34177316926'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -39,12 +39,12 @@ jobs:
             -o /tmp/Input_Data_MS.xlsx
           sha256sum /tmp/Input_Data_MS.xlsx
 
-      - name: Download current recoverable public integration checkpoint
+      - name: Download current recoverable public source-batch checkpoint
         run: |
           set -euo pipefail
           mkdir -p /tmp/current
-          gh run download "$CURRENT_INTEGRATION_RUN" --repo "$GITHUB_REPOSITORY" \
-            --name "restart-integrated-trait-evidence-${CURRENT_INTEGRATION_RUN}" \
+          gh run download "$CURRENT_SOURCE_BATCH_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "source-scale-batch-integration-${CURRENT_SOURCE_BATCH_RUN}" \
             --dir /tmp/current
           find /tmp/current -maxdepth 2 -type f | sort
 
