@@ -40,7 +40,7 @@ PICO_DOI = "10.1111/j.1095-8339.2004.00330.x"
 MEYER_DOI = "10.5061/dryad.cc2fqz6hr"
 MEYER_REF = "Grossenbacher et al (2017)"
 EXPECTED_MEYER_SHA256 = "d6f30a8ad728a3b1b3c8ac5a5143fb935ffc64a38ce06708f6f2df4331737647"
-REVIEW_STATUS = "primary_experiment_plus_species_compilation_reviewed_strict_direct"
+REVIEW_STATUS = "source_methodology_reviewed_reference_backed_strict_direct"
 
 
 def text(value: object) -> str:
