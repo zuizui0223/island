@@ -1,0 +1,54 @@
+name: Audit Goodwillie reproductive source-scale ROI
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - analysis/audit_goodwillie_source_scale_roi.py
+      - .github/workflows/audit-goodwillie-source-scale-roi.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: goodwillie-source-scale-roi-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_SOURCE_BATCH_RUN: '34177316926'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas
+      - name: Download current public source-batch checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current
+          gh run download "$CURRENT_SOURCE_BATCH_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "source-scale-batch-integration-${CURRENT_SOURCE_BATCH_RUN}" \
+            --dir /tmp/current
+      - name: Audit complete Goodwillie dataset against current reproductive gaps
+        run: |
+          set -euo pipefail
+          COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          test -n "$COVERAGE"
+          python analysis/audit_goodwillie_source_scale_roi.py \
+            --source data/v2/external/traits/goodwillie_2005/mixed_mating_outcrossing_rate_database_normalized.csv \
+            --coverage "$COVERAGE" \
+            --output artifacts/goodwillie-source-scale-roi
+          cat artifacts/goodwillie-source-scale-roi/goodwillie_source_scale_roi_summary.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: goodwillie-source-scale-roi-${{ github.run_id }}
+          path: artifacts/goodwillie-source-scale-roi/
+          if-no-files-found: error
+          retention-days: 90
