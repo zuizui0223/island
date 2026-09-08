@@ -1,0 +1,78 @@
+name: Audit Chamaenerion fleischeri reproductive source chain
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/audit_chamaenerion_fleischeri_source.py
+      - .github/workflows/audit-chamaenerion-fleischeri-source.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_SOURCE_BATCH_RUN: '34189815922'
+      MEYER_COMMIT: '3d57315fe77097fe582025b884917550139801e8'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas openpyxl requests
+
+      - name: Download current checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current
+          gh run download "$CURRENT_SOURCE_BATCH_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "source-scale-batch-integration-${CURRENT_SOURCE_BATCH_RUN}" \
+            --dir /tmp/current
+          CURRENT_COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          CURRENT_DIRECT=$(find /tmp/current -name direct_species_trait_ledger.csv.gz -print -quit)
+          test -n "$CURRENT_COVERAGE" && test -f "$CURRENT_COVERAGE"
+          test -n "$CURRENT_DIRECT" && test -f "$CURRENT_DIRECT"
+          printf 'CURRENT_COVERAGE=%s\nCURRENT_DIRECT=%s\n' "$CURRENT_COVERAGE" "$CURRENT_DIRECT" >> "$GITHUB_ENV"
+
+      - name: Download pinned Meyer workbook
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 \
+            "https://raw.githubusercontent.com/elenacicada/interesting_flowers/${MEYER_COMMIT}/Input_Data_MS.xlsx" \
+            -o /tmp/Input_Data_MS.xlsx
+          echo 'd6f30a8ad728a3b1b3c8ac5a5143fb935ffc64a38ce06708f6f2df4331737647  /tmp/Input_Data_MS.xlsx' | sha256sum -c -
+
+      - name: Audit Meyer to Gamba Dryad source chain
+        run: |
+          set -euo pipefail
+          python scripts/audit_chamaenerion_fleischeri_source.py \
+            --meyer-xlsx /tmp/Input_Data_MS.xlsx \
+            --coverage "$CURRENT_COVERAGE" \
+            --direct-ledger "$CURRENT_DIRECT" \
+            --output artifacts/chamaenerion-fleischeri-source
+          cat artifacts/chamaenerion-fleischeri-source/summary.json >> "$GITHUB_STEP_SUMMARY"
+          echo '### Meyer target rows' >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import pandas as pd
+          p='artifacts/chamaenerion-fleischeri-source/meyer_target_rows.csv'
+          x=pd.read_csv(p,dtype=str).fillna('')
+          keep=[c for c in ['sheet','source_row','genus_species','ref','mating_system','quant','notes','citation'] if c in x.columns]
+          print(x[keep].to_markdown(index=False) if len(x) else 'none')
+          print('\n### Gamba Dryad hits')
+          q='artifacts/chamaenerion-fleischeri-source/gamba_dryad_target_hits.csv'
+          y=pd.read_csv(q,dtype=str).fillna('')
+          print(y.to_markdown(index=False) if len(y) else 'none')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chamaenerion-fleischeri-source-${{ github.run_id }}
+          path: artifacts/chamaenerion-fleischeri-source/
+          if-no-files-found: error
+          retention-days: 90
