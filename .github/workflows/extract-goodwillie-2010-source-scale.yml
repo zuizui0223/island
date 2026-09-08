@@ -49,7 +49,7 @@ jobs:
           set -euo pipefail
           mkdir -p /tmp/goodwillie2010 artifacts/goodwillie2010-source-scale
           python - <<'PY'
-          import json, os, urllib.request
+          import json, os, re, urllib.request
           base='https://datadryad.org/api/v2'
           doi=os.environ['DRYAD_DOI_ENCODED']
           ua={'User-Agent':'island-source-scale-acquisition/1.0'}
@@ -58,9 +58,20 @@ jobs:
               with urllib.request.urlopen(req, timeout=120) as r:
                   return json.load(r)
           dataset=get(f'{base}/datasets/{doi}')
-          versions=get(f'{base}/datasets/{doi}/versions?per_page=100')
           open('/tmp/goodwillie2010/dataset.json','w').write(json.dumps(dataset,indent=2))
-          open('/tmp/goodwillie2010/versions.json','w').write(json.dumps(versions,indent=2))
+
+          # Dryad's dataset record exposes the current public version as a HAL
+          # link such as /api/v2/versions/207850.  versionNumber is not the
+          # internal version id and must not be used as one.
+          href=(dataset.get('_links',{}).get('stash:version',{}) or {}).get('href','')
+          m=re.search(r'/versions/(\d+)$', href)
+          if not m:
+              raise SystemExit(f'could not resolve current Dryad version href: {href!r}')
+          vid=int(m.group(1))
+          version=get(f'{base}/versions/{vid}')
+          files=get(f'{base}/versions/{vid}/files?per_page=100')
+          open('/tmp/goodwillie2010/version.json','w').write(json.dumps(version,indent=2))
+          open('/tmp/goodwillie2010/files.json','w').write(json.dumps(files,indent=2))
 
           def dicts(obj):
               if isinstance(obj, dict):
@@ -68,46 +79,48 @@ jobs:
                   for v in obj.values(): yield from dicts(v)
               elif isinstance(obj, list):
                   for v in obj: yield from dicts(v)
-          version_ids=[]
-          for d in dicts(versions):
-              if 'id' in d and isinstance(d['id'], int):
-                  # version records expose id; de-duplicate conservatively
-                  version_ids.append(d['id'])
-          version_ids=list(dict.fromkeys(version_ids))
-          if not version_ids:
-              raise SystemExit('could not resolve Dryad version id')
+
           allfiles=[]
-          for vid in version_ids:
-              try:
-                  payload=get(f'{base}/versions/{vid}/files?per_page=1000')
-              except Exception as e:
-                  print(f'skip version id {vid}: {type(e).__name__}: {e}')
-                  continue
-              open(f'/tmp/goodwillie2010/files_{vid}.json','w').write(json.dumps(payload,indent=2))
-              for d in dicts(payload):
-                  name=d.get('path') or d.get('filename') or d.get('name')
-                  fid=d.get('id')
-                  if isinstance(name,str) and isinstance(fid,int):
-                      allfiles.append((fid,name,vid,d))
+          for d in dicts(files):
+              name=d.get('path') or d.get('filename') or d.get('name')
+              fid=d.get('id')
+              if isinstance(name,str) and isinstance(fid,int):
+                  allfiles.append((fid,name,d))
+          # File API schemas may encode the id only in the self/download href.
           if not allfiles:
+              for d in dicts(files):
+                  name=d.get('path') or d.get('filename') or d.get('name')
+                  if not isinstance(name,str):
+                      continue
+                  links=d.get('_links',{}) if isinstance(d.get('_links',{}),dict) else {}
+                  hrefs=[v.get('href','') for v in links.values() if isinstance(v,dict)]
+                  ids=[]
+                  for h in hrefs:
+                      mm=re.search(r'/files/(\d+)(?:/download)?$', str(h))
+                      if mm: ids.append(int(mm.group(1)))
+                  if ids:
+                      allfiles.append((ids[0],name,d))
+          if not allfiles:
+              print(json.dumps(files, indent=2))
               raise SystemExit('could not resolve Dryad file metadata')
+
           targets={os.environ['TARGET_XLS'].casefold():None, os.environ['TARGET_README'].casefold():None}
-          for fid,name,vid,d in allfiles:
+          print('Resolved file candidates:')
+          for fid,name,d in allfiles:
+              print(fid, name)
               key=name.split('/')[-1].casefold()
               if key in targets:
-                  targets[key]=(fid,name,vid,d)
-          print('Resolved file candidates:')
-          for fid,name,vid,_ in allfiles:
-              print(fid, vid, name)
+                  targets[key]=(fid,name,d)
           missing=[k for k,v in targets.items() if v is None]
           if missing:
+              print(json.dumps(files, indent=2))
               raise SystemExit(f'missing target Dryad files: {missing}')
           x=targets[os.environ['TARGET_XLS'].casefold()]
           r=targets[os.environ['TARGET_README'].casefold()]
           with open('/tmp/goodwillie2010/resolved.env','w') as f:
-              f.write(f'XLS_FILE_ID={x[0]}\nREADME_FILE_ID={r[0]}\n')
+              f.write(f'DRYAD_VERSION_ID={vid}\nXLS_FILE_ID={x[0]}\nREADME_FILE_ID={r[0]}\n')
           open('artifacts/goodwillie2010-source-scale/dryad_file_metadata.json','w').write(
-              json.dumps({'xls':x[3],'readme':r[3]},indent=2)+'\n')
+              json.dumps({'version_id':vid,'xls':x[2],'readme':r[2]},indent=2)+'\n')
           PY
           cat /tmp/goodwillie2010/resolved.env >> "$GITHUB_ENV"
 
