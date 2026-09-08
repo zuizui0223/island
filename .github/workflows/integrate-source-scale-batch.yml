@@ -1,0 +1,148 @@
+name: Integrate completed source-scale trait batch
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - 'data/v2/staging/traits/source_batches/*.json'
+
+permissions:
+  contents: read
+  actions: read
+
+# This trigger is intentionally coarse: one committed manifest represents one
+# completed multi-species source packet. Evidence-row edits do not trigger this
+# workflow.
+concurrency:
+  group: source-scale-formal-batch
+  cancel-in-progress: false
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas pyyaml pytest
+      - run: pytest -q tests/test_restart_direct_integration.py
+      - name: Resolve exactly one completed batch manifest
+        run: |
+          set -euo pipefail
+          mapfile -t MANIFESTS < <(git diff --name-only HEAD^ HEAD | grep '^data/v2/staging/traits/source_batches/.*\.json$' || true)
+          test "${#MANIFESTS[@]}" -eq 1
+          MANIFEST="${MANIFESTS[0]}"
+          python - "$MANIFEST" <<'PY' >> "$GITHUB_ENV"
+          import json, sys
+          p=sys.argv[1]
+          m=json.load(open(p, encoding='utf-8'))
+          required=['batch_label','source_packet_run_id','source_packet_artifact','source_packet_file','expected_source_direct_gain','expected_total_gain_from_recovered_baseline']
+          missing=[k for k in required if k not in m]
+          if missing: raise SystemExit(f'missing manifest keys: {missing}')
+          print(f"BATCH_MANIFEST={p}")
+          print(f"BATCH_LABEL={m['batch_label']}")
+          print(f"SOURCE_RUN={m['source_packet_run_id']}")
+          print(f"SOURCE_ARTIFACT={m['source_packet_artifact']}")
+          print(f"SOURCE_FILE={m['source_packet_file']}")
+          print(f"EXPECTED_SOURCE_GAIN={m['expected_source_direct_gain']}")
+          print(f"EXPECTED_TOTAL_GAIN={m['expected_total_gain_from_recovered_baseline']}")
+          PY
+      - name: Download pinned recovered checkpoint and completed source packet
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/baseline /tmp/source-packet
+          gh run download 34093932899 --repo "$GITHUB_REPOSITORY" \
+            --name recovered-public-trait-checkpoint-34093932899 --dir /tmp/baseline
+          gh run download "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "$SOURCE_ARTIFACT" --dir /tmp/source-packet
+          PACKET=$(find /tmp/source-packet -type f -name "$SOURCE_FILE" -print -quit)
+          test -n "$PACKET"
+          echo "PACKET=$PACKET" >> "$GITHUB_ENV"
+      - name: Convert reviewed source packet to strict integration contract
+        run: |
+          set -euo pipefail
+          python scripts/convert_reviewed_source_packet.py \
+            --input "$PACKET" \
+            --output /tmp/reviewed-source-packet.json \
+            --review-date 2026-09-08 \
+            --reviewer source-scale-methodology-review-20260908
+          python - <<'PY'
+          import json, os
+          rows=json.load(open('/tmp/reviewed-source-packet.json', encoding='utf-8'))
+          expected=int(os.environ['EXPECTED_SOURCE_GAIN'])
+          assert len(rows)==expected, (len(rows), expected)
+          assert len({(r['accepted_species'],r['trait_name']) for r in rows})==expected
+          print({'reviewed_source_packet_rows':len(rows)})
+          PY
+      - name: Integrate accumulated reviewed restart evidence plus completed source batch
+        run: |
+          set -euo pipefail
+          python scripts/integrate_reviewed_restart.py \
+            --baseline /tmp/baseline \
+            --records data/v2/staging/traits/restart_reviewed_20260907.json \
+            --additional-records data/v2/staging/traits/restart_pladias_reviewed_20260907.json \
+            --additional-records data/v2/staging/traits/restart_madagascar_colour_20260907.json \
+            --additional-records data/v2/staging/traits/restart_madagascar_colour_second_20260907.json \
+            --additional-records data/v2/staging/traits/restart_madagascar_colour_third_20260907.json \
+            --additional-records data/v2/staging/traits/restart_madagascar_colour_final_20260907.json \
+            --additional-records data/v2/staging/traits/restart_kinabalu_20260907.json \
+            --additional-records data/v2/staging/traits/restart_reunion_orchids_20260907.json \
+            --additional-records data/v2/staging/traits/restart_malaxis_20260907.json \
+            --additional-records data/v2/staging/traits/restart_agalmyla_20260907.json \
+            --additional-records /tmp/reviewed-source-packet.json \
+            --harrisia-correction data/v2/staging/traits/restart_harrisia_correction_20260907.json \
+            --ontology config/trait_ontology.yml \
+            --output artifacts/source-batch-integrated
+      - name: Audit strict reproductive Low headroom under unchanged current thresholds
+        run: |
+          set -euo pipefail
+          RULE_AUDIT=$(find /tmp/baseline -name trait_specific_genus_rule_audit.csv.gz -print -quit)
+          test -n "$RULE_AUDIT"
+          python analysis/audit_reproductive_low_headroom.py \
+            --rule-audit "$RULE_AUDIT" \
+            --coverage artifacts/source-batch-integrated/species_axis_coverage.csv.gz \
+            --output artifacts/source-batch-integrated/reproductive-low-headroom
+      - name: Validate batch-level gain and report
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, pandas as pd
+          root='artifacts/source-batch-integrated'
+          summary=json.load(open(root+'/integration_summary.json', encoding='utf-8'))
+          expected=int(os.environ['EXPECTED_TOTAL_GAIN'])
+          if int(summary['gain']) != expected:
+              raise SystemExit(f"batch gain mismatch: {summary['gain']} != {expected}")
+          changes=pd.read_csv(root+'/change_audit.csv.gz', dtype=str).fillna('')
+          source=changes[changes['record_id'].str.startswith('source-packet:')]
+          expected_source=int(os.environ['EXPECTED_SOURCE_GAIN'])
+          if len(source) != expected_source or source['axis'].ne('reproductive_assurance').any():
+              raise SystemExit(f"source packet change mismatch: {len(source)}")
+          coverage=pd.read_csv(root+'/species_axis_coverage.csv.gz', dtype=str).fillna('')
+          rep=coverage[coverage.axis.eq('reproductive_assurance')]
+          report={
+              'batch_label':os.environ['BATCH_LABEL'],
+              'total_gain_from_recovered_baseline':int(summary['gain']),
+              'source_packet_reproductive_gain':len(source),
+              'filled_total':int(coverage.quality.ne('').sum()),
+              'filled_reproductive':int(rep.quality.ne('').sum()),
+              'unresolved_reproductive':int(rep.quality.eq('').sum()),
+          }
+          print(json.dumps(report, indent=2))
+          with open(root+'/source_batch_report.json','w',encoding='utf-8') as f:
+              json.dump(report,f,indent=2); f.write('\n')
+          PY
+          echo "## $BATCH_LABEL" >> "$GITHUB_STEP_SUMMARY"
+          cat artifacts/source-batch-integrated/source_batch_report.json >> "$GITHUB_STEP_SUMMARY"
+          cat artifacts/source-batch-integrated/reproductive-low-headroom/strict_low_headroom_summary.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-scale-batch-integration-${{ github.run_id }}
+          path: artifacts/source-batch-integrated/
+          if-no-files-found: error
+          retention-days: 90
