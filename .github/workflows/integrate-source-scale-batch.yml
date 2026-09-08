@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install pandas pyyaml pytest
-      - run: pytest -q tests/test_restart_direct_integration.py
+      - run: pytest -q tests/test_restart_direct_integration.py tests/test_eulobus_correction.py
 
       - name: Resolve changed manifest and cumulative source-batch plan
         run: |
@@ -167,6 +167,7 @@ jobs:
             --additional-records data/v2/staging/traits/restart_agalmyla_20260907.json \
             --additional-records /tmp/reviewed-source-packets-all.json \
             --harrisia-correction data/v2/staging/traits/restart_harrisia_correction_20260907.json \
+            --eulobus-correction data/v2/staging/traits/restart_eulobus_correction_20260908.json \
             --ontology config/trait_ontology.yml \
             --output artifacts/source-batch-integrated
 
@@ -197,7 +198,23 @@ jobs:
           if len(source) != expected_source:
               raise SystemExit(f"cumulative source packet change mismatch: {len(source)} != {expected_source}")
 
+          corrections=pd.read_csv(root+'/source_correction_audit.csv.gz', dtype=str).fillna('')
+          eulobus=corrections.loc[
+              corrections['accepted_species'].eq('Eulobus californicus')
+              & corrections['trait_name'].eq('self_incompatibility')
+          ]
+          if len(eulobus) != 1 or eulobus.iloc[0]['before_value'] != 'SI' or eulobus.iloc[0]['after_value'] != 'SC':
+              raise SystemExit('Eulobus reviewed SI->SC correction missing from formal output')
+
           coverage=pd.read_csv(root+'/species_axis_coverage.csv.gz', dtype=str).fillna('')
+          direct=pd.read_csv(root+'/direct_species_trait_ledger.csv.gz', dtype=str).fillna('')
+          ed=direct.loc[
+              direct['accepted_species'].eq('Eulobus californicus')
+              & direct['trait_name'].eq('self_incompatibility')
+          ]
+          if len(ed) != 1 or ed.iloc[0]['normalized_value'] != 'SC' or ed.iloc[0]['quality'] != 'high':
+              raise SystemExit('Eulobus corrected direct row is not high-quality SC')
+
           rep=coverage[coverage.axis.eq('reproductive_assurance')]
           report={
               'batch_label':os.environ['BATCH_LABEL'],
@@ -208,6 +225,8 @@ jobs:
               'filled_total':int(coverage.quality.ne('').sum()),
               'filled_reproductive':int(rep.quality.ne('').sum()),
               'unresolved_reproductive':int(rep.quality.eq('').sum()),
+              'corrected_existing_direct_values':int(summary.get('corrected_existing_direct_values',0)),
+              'eulobus_correction':'SI->SC',
           }
           print(json.dumps(report, indent=2))
           with open(root+'/source_batch_report.json','w',encoding='utf-8') as f:
