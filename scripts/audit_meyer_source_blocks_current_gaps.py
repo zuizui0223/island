@@ -1,10 +1,11 @@
 """Rank Meyer et al. source blocks against the current strict reproductive gaps.
 
-Diagnostic only.  This script does not classify or promote any row.  It reads the
+Diagnostic only. This script does not classify or promote any row. It reads the
 pinned public Input_Data_MS.xlsx workbook, inventories each original `ref` block,
 and measures exact-binomial overlap with the current fixed 106,295-species
-reproductive coverage.  Source semantics remain source-specific and must be
-reviewed before any block can become a strict packet.
+reproductive coverage. Raw mating-system labels, quantitative fields, notes, and
+citations are retained so source-specific semantics can be reviewed before any
+block becomes a strict packet.
 """
 from __future__ import annotations
 
@@ -88,14 +89,20 @@ def main() -> None:
             "columns": "|".join(map(str, frame.columns)),
             "has_ref": "ref" in lookup,
             "has_genus_species": "genus_species" in lookup,
+            "has_mating_system": "mating_system" in lookup,
             "has_quant": "quant" in lookup,
             "has_notes": "notes" in lookup,
+            "has_citation": "citation" in lookup,
         })
         if "ref" not in lookup or "genus_species" not in lookup:
             continue
 
         ref_col = lookup["ref"]
         species_col = lookup["genus_species"]
+        mating_col = lookup.get("mating_system")
+        quant_col = lookup.get("quant")
+        notes_col = lookup.get("notes")
+        citation_col = lookup.get("citation")
         work = frame.copy()
         work["_source_row"] = work.index + 2
         work["_ref"] = work[ref_col].map(text)
@@ -110,8 +117,6 @@ def main() -> None:
             exact = group.loc[group["_exact_binomial"]]
             fixed = exact.loc[exact["_in_universe"]]
             gap = fixed.loc[fixed["_current_gap"]]
-            quant_col = lookup.get("quant")
-            notes_col = lookup.get("notes")
             block_rows.append({
                 "sheet": sheet,
                 "ref": ref,
@@ -121,10 +126,14 @@ def main() -> None:
                 "exact_fixed_universe_species": int(fixed["_species"].nunique()),
                 "exact_current_gap_species": int(gap["_species"].nunique()),
                 "current_gap_rows": len(gap),
+                "mating_system_nonempty_rows": int(group[mating_col].map(text).ne("").sum()) if mating_col is not None else 0,
+                "mating_system_examples": _sample(group[mating_col], 12) if mating_col is not None else "",
+                "current_gap_mating_system_examples": _sample(gap[mating_col], 12) if mating_col is not None and len(gap) else "",
                 "quant_nonempty_rows": int(group[quant_col].map(text).ne("").sum()) if quant_col is not None else 0,
                 "quant_numeric_rows": int(pd.to_numeric(group[quant_col], errors="coerce").notna().sum()) if quant_col is not None else 0,
                 "quant_examples": _sample(group[quant_col]) if quant_col is not None else "",
                 "notes_examples": _sample(group[notes_col], 5) if notes_col is not None else "",
+                "citation_examples": _sample(group[citation_col], 5) if citation_col is not None else "",
                 "all_columns": "|".join(map(str, frame.columns)),
                 "formal_gain": 0,
                 "promotion_allowed": False,
@@ -137,8 +146,10 @@ def main() -> None:
                         "ref": ref,
                         "source_row": int(row["_source_row"]),
                         "accepted_species_candidate": species,
+                        "mating_system_raw": text(row.get(mating_col, "")) if mating_col is not None else "",
                         "quant": text(row.get(quant_col, "")) if quant_col is not None else "",
                         "notes": text(row.get(notes_col, "")) if notes_col is not None else "",
+                        "citation": text(row.get(citation_col, "")) if citation_col is not None else "",
                         "self_incompatibility_already_direct": (species, "self_incompatibility") in direct_pairs,
                         "mating_system_already_direct": (species, "mating_system") in direct_pairs,
                         "status": "current_axis_gap_source_row_only_not_evidence",
@@ -158,7 +169,7 @@ def main() -> None:
     gaps.to_csv(args.output / "meyer_current_gap_source_rows.csv", index=False)
 
     summary = {
-        "contract": "meyer_source_block_current_gap_audit_v1",
+        "contract": "meyer_source_block_current_gap_audit_v2",
         "source_repo": SOURCE_REPO,
         "source_commit": SOURCE_COMMIT,
         "source_file": SOURCE_FILE,
@@ -171,7 +182,8 @@ def main() -> None:
         "unique_current_gap_species_seen_any_block": int(gaps["accepted_species_candidate"].nunique()) if len(gaps) else 0,
         "top_blocks": blocks.head(20)[[
             "sheet", "ref", "rows", "exact_fixed_universe_species", "exact_current_gap_species",
-            "current_gap_rows", "quant_numeric_rows", "quant_examples", "notes_examples"
+            "current_gap_rows", "mating_system_examples", "current_gap_mating_system_examples",
+            "quant_numeric_rows", "quant_examples", "notes_examples", "citation_examples"
         ]].to_dict("records") if len(blocks) else [],
         "formal_gain": 0,
         "promotion_allowed": False,
