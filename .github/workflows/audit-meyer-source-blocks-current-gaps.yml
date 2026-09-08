@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 20
     env:
       GH_TOKEN: ${{ github.token }}
-      CURRENT_SOURCE_BATCH_RUN: '34184996347'
+      CURRENT_SOURCE_BATCH_RUN: '34189815922'
       MEYER_COMMIT: '3d57315fe77097fe582025b884917550139801e8'
     steps:
       - uses: actions/checkout@v4
