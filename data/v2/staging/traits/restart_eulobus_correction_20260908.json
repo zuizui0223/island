@@ -1,0 +1,20 @@
+{
+  "accepted_species": "Eulobus californicus",
+  "axis": "reproductive_assurance",
+  "trait_name": "self_incompatibility",
+  "before_value": "SI",
+  "after_value": "SC",
+  "before_lineage": "dataset:dryad.cc2fqz6hr:v4",
+  "source_lineage": "hdl:10088/27111",
+  "source_url": "https://repository.si.edu/items/894bb186-9482-49f0-b0ba-d74736e330d5",
+  "supporting_source_url": "https://sweetgum.nybg.org/science/world-flora/monographs-details/?irn=54380",
+  "source_citation": "Raven, Peter H. 1969. A Revision of the Genus Camissonia (Onagraceae). Contributions from the United States National Herbarium 37:161-396.",
+  "support_basis": "multiple diploid and tetraploid populations were tested by pollen-tube growth and found self-compatible",
+  "taxonomic_note": "Camissonia californica is the synonym used by Raven 1969; the currently accepted analysis name is Eulobus californicus.",
+  "name_match_method": "accepted_name_via_current_synonym_of_camissonia_californica",
+  "review_status": "accepted_source_correction",
+  "review_date": "2026-09-08",
+  "reviewer": "source-scale-methodology-review-20260908",
+  "genus_rule_training_allowed": false,
+  "reason": "The recovered Meyer residual encoded SI, but Raven's species monograph reports direct pollen-tube compatibility tests across multiple diploid and tetraploid populations and classifies the species as self-compatible. The newer Onagraceae monograph likewise lists E. californicus as self-compatible."
+}
