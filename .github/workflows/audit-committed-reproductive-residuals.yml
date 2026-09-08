@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 20
     env:
       GH_TOKEN: ${{ github.token }}
-      CURRENT_SOURCE_BATCH_RUN: '34183943923'
+      CURRENT_SOURCE_BATCH_RUN: '34184996347'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
