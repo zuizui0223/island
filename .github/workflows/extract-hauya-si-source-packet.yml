@@ -1,0 +1,83 @@
+name: Extract reviewed Hauya SI source packet
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/build_hauya_si_source_packet.py
+      - .github/workflows/extract-hauya-si-source-packet.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: hauya-si-source-packet-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_SOURCE_BATCH_RUN: '34183943923'
+      FREYMAN_COMMIT: '6099e27bb238a5e85fb0d8249553e780302e3793'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas
+
+      - name: Download current cumulative public checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current
+          gh run download "$CURRENT_SOURCE_BATCH_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "source-scale-batch-integration-${CURRENT_SOURCE_BATCH_RUN}" \
+            --dir /tmp/current
+          CURRENT_COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          CURRENT_DIRECT=$(find /tmp/current -name direct_species_trait_ledger.csv.gz -print -quit)
+          test -n "$CURRENT_COVERAGE" && test -f "$CURRENT_COVERAGE"
+          test -n "$CURRENT_DIRECT" && test -f "$CURRENT_DIRECT"
+          printf 'CURRENT_COVERAGE=%s\nCURRENT_DIRECT=%s\n' "$CURRENT_COVERAGE" "$CURRENT_DIRECT" >> "$GITHUB_ENV"
+
+      - name: Download pinned Freyman source matrix
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/hauya artifacts/hauya-si-source-packet
+          curl -L --fail --retry 3 \
+            -A 'island-source-scale-acquisition/1.0' \
+            "https://raw.githubusercontent.com/wf8/onagraceae/${FREYMAN_COMMIT}/sse_analyses/data/selfing_data_complete.csv" \
+            -o /tmp/hauya/selfing_data_complete.csv
+          sha256sum /tmp/hauya/selfing_data_complete.csv \
+            | tee artifacts/hauya-si-source-packet/freyman_source_sha256.txt
+
+      - name: Build strict Hauya SI packet
+        run: |
+          set -euo pipefail
+          python scripts/build_hauya_si_source_packet.py \
+            --source-csv /tmp/hauya/selfing_data_complete.csv \
+            --coverage "$CURRENT_COVERAGE" \
+            --direct-ledger "$CURRENT_DIRECT" \
+            --output artifacts/hauya-si-source-packet
+          cat artifacts/hauya-si-source-packet/summary.json >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY'
+          import pandas as pd
+          p='artifacts/hauya-si-source-packet/hauya_unresolved_si_batch.csv.gz'
+          x=pd.read_csv(p,dtype=str).fillna('')
+          assert len(x)==1
+          assert x.iloc[0]['accepted_species']=='Hauya heydeana'
+          assert x.iloc[0]['normalized_value']=='SI'
+          assert x.iloc[0]['trait_name']=='self_incompatibility'
+          print(x.to_string(index=False))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hauya-si-source-packet-${{ github.run_id }}
+          path: artifacts/hauya-si-source-packet/
+          if-no-files-found: error
+          retention-days: 90
