@@ -1,0 +1,17 @@
+{
+  "batch_label": "20260908-justicia-betonica-primary-explicit-sc",
+  "source": "Layek et al. 2022 explicit breeding-system result for Justicia betonica",
+  "source_doi": "10.1111/1442-1984.12380",
+  "source_version": "pinned Meyer workbook sha256:d6f30a8ad728a3b1b3c8ac5a5143fb935ffc64a38ce06708f6f2df4331737647 plus reviewed primary article",
+  "source_packet_run_id": 34191453272,
+  "source_packet_artifact": "justicia-betonica-sc-source-34191453272",
+  "source_packet_file": "justicia_betonica_unresolved_sc_batch.csv.gz",
+  "source_scale_complete": true,
+  "strict_mapping": "original breeding-system article explicitly states species self-compatible -> self_incompatibility=SC",
+  "expected_source_direct_gain": 1,
+  "expected_total_gain_from_recovered_baseline": 313,
+  "expected_species": ["Justicia betonica"],
+  "expected_state": "SC",
+  "source_review_note": "The original Plant Species Biology article (DOI 10.1111/1442-1984.12380) explicitly reports Justicia betonica as self-compatible while separately finding pollinator dependence for fruit and seed set. The pinned Meyer row independently records SC for the exact fixed-universe species. No autonomous-selfing proxy, pollinator-dependence recoding, or higher-taxon inference is used.",
+  "formal_integration_policy": "cumulative replay of all committed source manifests from the pinned recovered baseline; this packet cannot train genus rules"
+}
