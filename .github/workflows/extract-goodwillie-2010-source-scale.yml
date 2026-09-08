@@ -174,6 +174,7 @@ jobs:
           D=artifacts/goodwillie2010-source-scale/download-diagnostics
           python - <<'PY'
           import json, os, urllib.request, urllib.parse
+          D='artifacts/goodwillie2010-source-scale/download-diagnostics'
           base=os.environ['ECU_API_BASE'].rstrip('/')
           item_id=os.environ['ECU_ITEM_ID']
           targets={os.environ['TARGET_XLS'].casefold(): 'XLS', os.environ['TARGET_README'].casefold(): 'README'}
