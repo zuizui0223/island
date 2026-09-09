@@ -1,6 +1,6 @@
 # Chapter 1 literature positioning — 2026-09-09
 
-This note fixes the closest literature comparisons for `docs/chapter1_manuscript_full_v5_20260909.md`. It is a manuscript-writing aid, not a new analysis contract.
+This note fixes the closest literature comparisons for `docs/chapter1_manuscript_full_v7_submission_order_20260909.md`. It is a manuscript-writing aid, not a new analysis contract.
 
 ## Closest empirical and conceptual neighbours
 
