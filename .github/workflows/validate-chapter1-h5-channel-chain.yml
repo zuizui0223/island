@@ -1,0 +1,52 @@
+name: Validate Chapter 1 H5 channel chain
+
+on:
+  push:
+    branches: [ch1-progressive-trait-analysis]
+    paths:
+      - "config/chapter1_h5_channel_chain.yml"
+      - "src/island_v2/chapter1_h5_channel_chain.py"
+      - "tests/test_chapter1_h5_channel_chain.py"
+      - "docs/chapter1_h5_channel_chain_contract.md"
+      - ".github/workflows/validate-chapter1-h5-channel-chain.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate H5 evidence-chain contract
+        run: |
+          pytest -q tests/test_chapter1_h5_channel_chain.py
+          ruff check \
+            src/island_v2/chapter1_h5_channel_chain.py \
+            tests/test_chapter1_h5_channel_chain.py
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          cfg = yaml.safe_load(
+              Path('config/chapter1_h5_channel_chain.yml').read_text(encoding='utf-8')
+          )
+          assert cfg['contract'] == 'chapter1_h5_channel_chain_v1'
+          assert cfg['causal_chain'][:5] == [
+              'source_channel_availability',
+              'island_retention_or_disruption',
+              'realized_visitation',
+              'single_visit_effectiveness',
+              'effective_service',
+          ]
+          assert 'structural_absence_is_not_loss' in cfg['rules']['source']
+          assert 'climatic_compatibility_alone_cannot_define_disruption' in cfg['rules']['retention']
+          assert Path('docs/chapter1_h5_channel_chain_contract.md').is_file()
+          print('Chapter 1 H5 channel-chain contract: valid')
+          PY
