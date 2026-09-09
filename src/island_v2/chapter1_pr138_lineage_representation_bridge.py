@@ -75,9 +75,7 @@ def _bh(values: pd.Series) -> pd.Series:
     order = np.argsort(x)
     ranked = x[order]
     n = len(ranked)
-    adjusted = np.minimum.accumulate(
-        (ranked * n / np.arange(1, n + 1))[::-1]
-    )[::-1]
+    adjusted = np.minimum.accumulate((ranked * n / np.arange(1, n + 1))[::-1])[::-1]
     restored = np.empty(n, dtype=float)
     restored[order] = np.clip(adjusted, 0.0, 1.0)
     out.loc[ok] = restored
@@ -89,10 +87,9 @@ def exact_si_species(trait_ledger: pd.DataFrame) -> set[str]:
     if missing := required - set(trait_ledger.columns):
         raise ValueError(f"trait ledger missing columns: {sorted(missing)}")
     frame = trait_ledger.copy()
-    mask = (
-        frame["trait_name"].fillna("").astype(str).eq("self_incompatibility")
-        & frame["normalized_value"].fillna("").astype(str).eq("SI")
-    )
+    mask = frame["trait_name"].fillna("").astype(str).eq(
+        "self_incompatibility"
+    ) & frame["normalized_value"].fillna("").astype(str).eq("SI")
     return set(frame.loc[mask, "accepted_species"].dropna().astype(str))
 
 
@@ -150,9 +147,7 @@ def match_gift_species(
         lambda x: sorted(set(x))
     )
     binomial = {
-        key: vals[0]
-        for key, vals in binomial_groups.items()
-        if key and len(vals) == 1
+        key: vals[0] for key, vals in binomial_groups.items() if key and len(vals) == 1
     }
 
     names = gift_flora[["work_species"]].drop_duplicates().copy()
@@ -275,9 +270,13 @@ def _representation_count_matrix(
     stratum: str,
     species_filter: set[str] | None,
 ) -> sparse.csr_matrix:
-    work = status_flora.loc[
-        _stratum_mask(status_flora, stratum), ["island_id", "accepted_species"]
-    ].drop_duplicates().copy()
+    work = (
+        status_flora.loc[
+            _stratum_mask(status_flora, stratum), ["island_id", "accepted_species"]
+        ]
+        .drop_duplicates()
+        .copy()
+    )
     if species_filter is not None:
         work = work.loc[
             work["accepted_species"].astype(str).isin(species_filter)
@@ -409,10 +408,14 @@ def _source_assignment_matrix(
     *,
     source_mode: str,
 ) -> sparse.csr_matrix:
-    work = assignments.loc[
-        assignments["source_mode"].astype(str).eq(source_mode),
-        ["island_id", "entity_ID"],
-    ].drop_duplicates().copy()
+    work = (
+        assignments.loc[
+            assignments["source_mode"].astype(str).eq(source_mode),
+            ["island_id", "entity_ID"],
+        ]
+        .drop_duplicates()
+        .copy()
+    )
     work["island_id"] = work["island_id"].astype(str)
     work["entity_ID"] = pd.to_numeric(work["entity_ID"], errors="coerce")
     work = work.dropna(subset=["entity_ID"])
@@ -472,8 +475,16 @@ def build_evidence_scores(
     islands = sorted(covariates["island_id"].astype(str).unique())
     island_index = {island: idx for idx, island in enumerate(islands)}
     entities = sorted(
-        set(pd.to_numeric(assignments["entity_ID"], errors="coerce").dropna().astype(int))
-        | set(pd.to_numeric(availability["entity_ID"], errors="coerce").dropna().astype(int))
+        set(
+            pd.to_numeric(assignments["entity_ID"], errors="coerce")
+            .dropna()
+            .astype(int)
+        )
+        | set(
+            pd.to_numeric(availability["entity_ID"], errors="coerce")
+            .dropna()
+            .astype(int)
+        )
     )
     entity_index = {entity: idx for idx, entity in enumerate(entities)}
     presence, richness = _availability_matrices(availability, entity_index, genus_index)
@@ -495,7 +506,9 @@ def build_evidence_scores(
                 source_mode=source_mode,
             )
             prevalence = (assignment_matrix @ presence).toarray().astype(np.int16)
-            source_richness = (assignment_matrix @ richness).toarray().astype(np.float32)
+            source_richness = (
+                (assignment_matrix @ richness).toarray().astype(np.float32)
+            )
             for matching in SOURCE_MATCHING:
                 for minimum_repr in minimum_represented_genera:
                     rows: list[dict[str, Any]] = []
@@ -559,11 +572,15 @@ def _fit_clustered(
     cluster_labels = clusters.astype(str)
     unique_clusters = np.unique(cluster_labels)
     if n < max(20, p + 3) or len(unique_clusters) < 5:
-        return pd.DataFrame(), np.empty((0, 0)), {
-            "status": "insufficient_complete_rows",
-            "n_rows": int(n),
-            "n_clusters": len(unique_clusters),
-        }
+        return (
+            pd.DataFrame(),
+            np.empty((0, 0)),
+            {
+                "status": "insufficient_complete_rows",
+                "n_rows": int(n),
+                "n_clusters": len(unique_clusters),
+            },
+        )
     bread = np.linalg.pinv(X.T @ X)
     beta = bread @ (X.T @ y)
     residual = y - X @ beta
@@ -592,11 +609,15 @@ def _fit_clustered(
                 "p_value": p_value,
             }
         )
-    return pd.DataFrame(rows), covariance, {
-        "status": "fit",
-        "n_rows": int(n),
-        "n_clusters": len(unique_clusters),
-    }
+    return (
+        pd.DataFrame(rows),
+        covariance,
+        {
+            "status": "fit",
+            "n_rows": int(n),
+            "n_clusters": len(unique_clusters),
+        },
+    )
 
 
 def _covariates_with_realm(
@@ -704,16 +725,14 @@ def fit_context_slopes(
         "context",
         "outcome",
     ]
-    slopes["q_across_source_modes"] = slopes.groupby(
-        q_family, group_keys=False
-    )["p_value"].transform(_bh)
+    slopes["q_across_source_modes"] = slopes.groupby(q_family, group_keys=False)[
+        "p_value"
+    ].transform(_bh)
     slopes["positive_supported"] = (
-        slopes["distance_slope"].gt(0)
-        & slopes["q_across_source_modes"].le(0.05)
+        slopes["distance_slope"].gt(0) & slopes["q_across_source_modes"].le(0.05)
     ).fillna(False)
     slopes["negative_supported"] = (
-        slopes["distance_slope"].lt(0)
-        & slopes["q_across_source_modes"].le(0.05)
+        slopes["distance_slope"].lt(0) & slopes["q_across_source_modes"].le(0.05)
     ).fillna(False)
     return slopes
 
@@ -853,30 +872,24 @@ def fit_between_context_differences(
         "context_layer",
         "outcome",
     ]
-    between["q_across_source_modes"] = between.groupby(
-        q_family, group_keys=False
-    )["p_value"].transform(_bh)
-    between["difference_supported"] = between[
-        "q_across_source_modes"
-    ].le(0.05).fillna(False)
+    between["q_across_source_modes"] = between.groupby(q_family, group_keys=False)[
+        "p_value"
+    ].transform(_bh)
+    between["difference_supported"] = (
+        between["q_across_source_modes"].le(0.05).fillna(False)
+    )
     return between
 
 
-def run(
+def evidence_definitions(
     species_scores: pd.DataFrame,
     direct_species_scores: pd.DataFrame,
     trait_ledger: pd.DataFrame,
     direct_trait_ledger: pd.DataFrame,
-    status_flora: pd.DataFrame,
-    gift_flora: pd.DataFrame,
-    assignments: pd.DataFrame,
-    covariates: pd.DataFrame,
-    realm_assignment: pd.DataFrame,
-    pattern_config: dict[str, Any],
-    source_config: dict[str, Any],
-) -> dict[str, Any]:
-    source_modes = [str(x) for x in source_config["source_assignment"]["primary_modes"]]
-    definitions = [
+) -> list[dict[str, Any]]:
+    """Return the frozen lineage evidence scopes, including broad direct-only."""
+
+    return [
         {
             "evidence_scope": "broad",
             "species_scores": species_scores,
@@ -891,6 +904,15 @@ def run(
             "species_scores": species_scores,
             "trait_ledger": None,
             "minimum_source_scored_species": 2,
+            "minimum_represented_genera": [5],
+            "restricted_to_exact_si": False,
+            "raw_gift_availability": True,
+        },
+        {
+            "evidence_scope": "broad_direct",
+            "species_scores": direct_species_scores,
+            "trait_ledger": None,
+            "minimum_source_scored_species": 1,
             "minimum_represented_genera": [5],
             "restricted_to_exact_si": False,
             "raw_gift_availability": True,
@@ -914,9 +936,29 @@ def run(
             "raw_gift_availability": False,
         },
     ]
-    direct_species = set(
-        direct_species_scores["accepted_species"].dropna().astype(str)
+
+
+def run(
+    species_scores: pd.DataFrame,
+    direct_species_scores: pd.DataFrame,
+    trait_ledger: pd.DataFrame,
+    direct_trait_ledger: pd.DataFrame,
+    status_flora: pd.DataFrame,
+    gift_flora: pd.DataFrame,
+    assignments: pd.DataFrame,
+    covariates: pd.DataFrame,
+    realm_assignment: pd.DataFrame,
+    pattern_config: dict[str, Any],
+    source_config: dict[str, Any],
+) -> dict[str, Any]:
+    source_modes = [str(x) for x in source_config["source_assignment"]["primary_modes"]]
+    definitions = evidence_definitions(
+        species_scores,
+        direct_species_scores,
+        trait_ledger,
+        direct_trait_ledger,
     )
+    direct_species = set(direct_species_scores["accepted_species"].dropna().astype(str))
     all_species = set(species_scores["accepted_species"].dropna().astype(str))
     if not direct_species.issubset(all_species):
         raise ValueError(
@@ -941,9 +983,7 @@ def run(
             minimum_source_scored_species=int(
                 definition["minimum_source_scored_species"]
             ),
-            minimum_represented_genera=list(
-                definition["minimum_represented_genera"]
-            ),
+            minimum_represented_genera=list(definition["minimum_represented_genera"]),
             restricted_to_exact_si=bool(definition["restricted_to_exact_si"]),
             raw_gift_availability=bool(definition["raw_gift_availability"]),
             matched_gift=shared_matched,
@@ -1007,7 +1047,9 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
 
-    pattern_config = yaml.safe_load(args.pattern_config_path.read_text(encoding="utf-8"))
+    pattern_config = yaml.safe_load(
+        args.pattern_config_path.read_text(encoding="utf-8")
+    )
     source_config = yaml.safe_load(args.source_config_path.read_text(encoding="utf-8"))
     outputs = run(
         pd.read_csv(args.species_scores_csv),

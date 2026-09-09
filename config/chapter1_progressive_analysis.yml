@@ -1,0 +1,204 @@
+contract: chapter1_progressive_analysis_v1
+
+purpose: >-
+  Freeze the Chapter 1 scientific hypotheses, estimands, model order, support gates,
+  and claim ceiling while allowing the trait-evidence snapshot to improve over time.
+  Data coverage is versioned; conclusions are regenerated from the same analysis contract.
+
+central_hypothesis:
+  name: source_conditioned_channel_gated_island_assembly
+  text: >-
+    Island isolation does not impose one universal floral island syndrome. Instead,
+    isolation changes which source-available floral and reproductive strategies are
+    represented, and a classic simplification/reproductive-assurance syndrome should
+    be strongest only where a regionally available pollination channel is disrupted
+    and not effectively replaced.
+  observational_boundary: >-
+    Chapter 1 directly identifies biogeographically contingent assemblage filtering and
+    source/lineage representation. Pollination-channel loss is promoted only when an
+    independently measured channel-deficit analysis adds explanatory information beyond
+    source-pool, lineage, area, climate, observation-selection and spatial safeguards.
+
+hypotheses:
+  H1_universal_syndrome:
+    null_or_rival: true
+    prediction: one_coherent_floral_reproductive_response_vector_across_contexts
+    falsification: supported_between_context_vector_heterogeneity
+
+  H2_biogeographic_branching:
+    primary: true
+    prediction: >-
+      isolation-associated response vectors differ among prespecified biogeographic
+      contexts after source-pool and observation-process sensitivities
+    required_tests:
+      - within_context_multivariate_vector
+      - direct_between_context_vector_difference
+      - native_nonendemic_persistence
+
+  H3_source_lineage_assembly:
+    primary: true
+    prediction: >-
+      part of the floral/reproductive response is represented by non-random entry or
+      loading of source-available lineages rather than a uniform within-lineage shift
+    required_tests:
+      - genus_composition_preserving_null
+      - source_matched_genus_entry
+      - within_represented_genus_species_loading
+
+  H4_area_capacity_moderation:
+    primary_extension: true
+    prediction: >-
+      where isolation-associated source filtering is present, its magnitude may be
+      stronger on smaller islands if target size, habitat capacity or persistence
+      opportunity constrain assembly
+    model_form: continuous_distance_x_continuous_area
+    no_discrete_small_large_threshold: true
+
+  H5_channel_gated_residual:
+    mechanistic_extension: true
+    prediction: >-
+      after H2-H4 safeguards, independently measured deficit of a regionally available
+      pollination channel predicts residual floral/reproductive filtering, whereas
+      structural absence of that channel does not
+    promotion_requires:
+      - outcome_blind_source_channel_exposure
+      - effort_aware_or_functional_channel_measurement
+      - retained_vs_disrupted_vs_structurally_absent_contrast
+      - residual_signal_beyond_source_lineage_and_observation_controls
+    prohibited_shortcuts:
+      - infer_pollinator_from_floral_phenotype
+      - treat_climatic_compatibility_as_realized_loss
+      - treat_structural_absence_as_deficit
+
+fixed_scientific_components:
+  island_universe: 8265
+  geography_exposure: log1p_distance_to_continent_km
+  geography_interpretation: composite_isolation_connectivity_source_accessibility_gradient
+  baseline_covariates:
+    - log_area
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+  floristic_strata:
+    - all_native
+    - native_nonendemic
+    - endemic
+  primary_context_layers:
+    - analysis_regime
+    - biogeographic_realm
+  primary_response_families:
+    - atomic_trait_state_vector
+    - accessibility_generalization
+    - reproductive_assurance
+    - source_lineage_entry_loading
+  evidence_precedence:
+    - species_direct_high_medium
+    - trait_specific_validated_low
+  no_family_inference: true
+  no_global_fallback: true
+
+secondary_interpretation_families:
+  sampled_guild_concordance:
+    axes:
+      - large_bee_like
+      - butterfly_like
+      - bird_like
+    role: post_primary_nonexhaustive_floral_architecture_concordance
+    rerun_on_every_trait_snapshot: true
+    context_layers:
+      - analysis_regime
+      - biogeographic_realm
+    multiple_testing_family: context_layer_x_axis_set_x_stratum_x_support_tier
+    requires_primary_pattern_first: true
+    direct_only_sensitivity_required: true
+    source_adjusted_sensitivity_required: true
+    unmodelled_guilds_are_not_absent: true
+    interpretation: >-
+      These axes test whether the independently estimated plant assemblage response is
+      concordant with sampled floral architectures associated in the literature with
+      large bees, butterflies or birds. They are not pollinator classifiers and cannot
+      identify realized visitor identity, abundance, effectiveness, loss or replacement.
+
+support_gates:
+  global_trait_fill_fraction_is_not_an_analysis_gate: true
+  pilot_min_islands_per_response: 30
+  confirmatory_min_islands_per_response: 50
+  under_30_status: not_promoted
+  pairwise_context_rule: same_response_must_meet_same_support_tier_in_both_contexts
+  multiplicity: BH_FDR_within_predeclared_test_family
+  multivariate_gate_precedes_atomic_interpretation: true
+
+mandatory_robustness:
+  - direct_only_evidence
+  - all_analysis_eligible_evidence
+  - equal_island_information
+  - capped_information_weights
+  - trait_resolution_selection_adjustment
+  - outcome_blind_source_pool_sensitivity
+  - alternative_distance_functional_forms
+  - leave_one_spatial_block_out
+  - genus_composition_guardrail
+  - continuous_area_moderation
+
+trait_snapshot_policy:
+  mutable_component: true
+  required_universe_rows_per_axis: 106295
+  axes:
+    - flower_colour
+    - floral_structural_complexity
+    - reproductive_assurance
+  required_columns:
+    - accepted_species
+    - axis
+    - trait_composition
+    - trait_names
+    - source_groups
+    - source_lineages
+    - quality
+  accepted_quality:
+    - high
+    - medium
+    - low
+    - unresolved
+  monotonic_update_rules:
+    - species_axis_denominator_cannot_shrink
+    - existing_high_or_medium_evidence_cannot_be_silently_downgraded
+    - new_low_evidence_cannot_overwrite_direct_evidence
+    - source_lineage_provenance_must_be_retained
+  every_snapshot_must_record:
+    - source_workflow_run_id
+    - source_artifact_name
+    - source_file_sha256
+    - per_axis_fill_rate
+    - per_quality_counts
+    - newly_resolved_species_axis_cells
+    - quality_upgrades
+
+analysis_update_policy:
+  reestimate_on_every_new_snapshot: true
+  model_definitions_may_not_change_after_outcome_inspection: true
+  newly_evaluable_responses_are_allowed: true
+  previously_evaluable_responses_may_change_with_new_evidence: true
+  report_transition_labels:
+    - stable
+    - newly_evaluable
+    - no_longer_supported
+    - direction_changed
+    - precision_changed_only
+    - unresolved
+  later_data_do_not_rewrite_earlier_snapshots: true
+  snapshot_history_is_part_of_reproducibility_record: true
+
+manuscript_policy:
+  submission_freeze_is_selected_only_after_trait_campaign_and_stability_review: true
+  current_pr141_role: baseline_snapshot_not_final_data_freeze
+  later_trait_waves_must_be_reanalysed_under_same_contract: true
+
+claim_ceiling:
+  - no_historical_pollinator_loss_without_direct_channel_evidence
+  - no_pollinator_replacement_from_trait_concordance
+  - no_historical_source_ancestry_from_gift_matching
+  - no_in_situ_evolution_from_cross_sectional_assemblage_data
+  - no_bakers_law_from_self_compatibility_alone
+  - no_global_universal_syndrome_from_one_supported_region
