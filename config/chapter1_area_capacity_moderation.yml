@@ -1,0 +1,114 @@
+contract: chapter1_area_capacity_moderation_v1
+
+question: >-
+  Does island area moderate the distance-associated plant source-pool and
+  floral/reproductive response vectors, after climate adjustment?
+
+distance_column: log_distance_to_continent_km
+area_column: log_island_area_km2
+cluster_column: spatial_block
+control_columns:
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+support_tiers:
+  confirmatory: 50
+  pilot: 30
+
+primary_strata:
+  - all_native
+  - native_nonendemic
+
+families:
+  plant_side_branches:
+    kind: branch_scores
+    responses:
+      - accessibility_generalization
+      - reproductive_assurance
+    interpretation: >-
+      Area moderation of the pollinator-name-free attraction/access and
+      reproductive-assurance response vector.
+  source_lineage_broad:
+    kind: lineage_scores
+    evidence_scope: broad
+    source_matching: prevalence_richness
+    minimum_represented_genera: 5
+    responses:
+      - entry_enrichment
+      - loading_increment
+    interpretation: >-
+      Area moderation of source-availability-matched genus entry and additional
+      species loading among represented genera.
+  source_lineage_exact_si:
+    kind: lineage_scores
+    evidence_scope: exact_si_direct
+    source_matching: prevalence_richness
+    minimum_represented_genera: 3
+    responses:
+      - entry_enrichment
+      - loading_increment
+    role: sensitivity
+    interpretation: >-
+      Exact-SI sensitivity separating genus entry from loading among represented
+      genera without treating self-incompatibility as pollinator absence.
+
+context_layers:
+  analysis_regime:
+    column: analysis_regime
+    contexts:
+      - northern_midlatitude
+      - tropical
+    direct_contrasts:
+      - [northern_midlatitude, tropical]
+  biogeographic_realm:
+    column: biogeographic_realm
+    contexts:
+      - Palearctic
+      - Neotropical
+    direct_contrasts:
+      - [Palearctic, Neotropical]
+
+model: >-
+  response ~ distance + area + distance:area + climate_pc1..4,
+  fitted as a response-specific stacked design with spatial-block cluster-robust
+  covariance. Direct regional tests use the corresponding
+  response:distance:area:context interaction vector.
+
+classification:
+  small_island_amplification: >-
+    The supported distance-by-area coefficient has the opposite sign to the
+    supported distance coefficient evaluated at mean standardized area.
+  large_island_amplification: >-
+    The supported distance-by-area coefficient has the same sign as the
+    supported distance coefficient evaluated at mean standardized area.
+
+multiple_testing:
+  alpha: 0.05
+  within_vector_family: family_x_context_layer_x_stratum_x_support_tier_x_source_mode
+  axis_term_family: family_x_context_layer_x_stratum_x_support_tier_x_source_mode
+  between_vector_family: family_x_context_layer_x_stratum_x_support_tier_x_source_mode
+  hierarchical_gate: joint_vector_before_axis_classification
+
+claim_ceiling:
+  genetic_founder_effect_observed: false
+  pollinator_mobility_observed: false
+  effective_pollination_service_observed: false
+  historical_colonization_probability_identified: false
+  baker_filter_interpretation: >-
+    Reproductive-assurance moderation is Baker-compatible assemblage evidence,
+    not a direct observation of a founding event or post-colonization evolution.
+  area_interpretation: >-
+    Island area is a common capacity proxy for target size, habitat/resource
+    diversity and persistence. It is not a direct measurement of any one process.
+
+rules:
+  - no_area_thresholds
+  - no_distance_thresholds
+  - missing_islands_are_not_zero_scores
+  - require_two_responses_for_vector_test
+  - require_joint_vector_support_before_axis_classification
+  - compare_regions_with_direct_interaction_tests
+  - do_not_infer_genetic_founder_effect_from_assemblage_composition
+  - do_not_infer_pollinator_loss_or_replacement_from_plant_traits

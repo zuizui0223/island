@@ -1,0 +1,439 @@
+contract: chapter1_explanation_gap_validation_v1
+status: post_baseline_prospective_falsification
+purpose: >-
+  Add falsification-oriented validation layers for interpretation gaps revealed by the
+  baseline Chapter 1 result without changing H1-H5, primary estimands, or the historical
+  baseline classification. These tests may weaken or bound interpretations; favorable
+  results do not retroactively redefine the primary hypotheses.
+
+rules:
+  - H1_H5_primary_definitions_unchanged
+  - baseline_PR141_remains_historical_snapshot
+  - outcomes_must_not_define_weights_matches_or_taxonomic_groups
+  - new_tests_run_under_fixed_specs_on_future_trait_snapshots_once_implemented
+  - failure_of_a_validation_reduces_claim_scope_not_software_validity
+  - no_mechanistic_promotion_without_independent_channel_data
+
+validations:
+  V1_H2_environment_vs_biogeography:
+    question: >-
+      Is the supported regional difference in distance-response vectors still present when
+      northern/tropical or realm comparisons are restricted/reweighted to overlapping
+      island climate and area distributions, and after allowing distance effects to vary
+      continuously with the frozen climate PCs?
+    motivation: >-
+      Current H2 models include climate main effects but do not by themselves show that
+      categorical biogeographic branching is more than climate-dependent response
+      heterogeneity.
+    analyses:
+      - name: outcome_blind_context_overlap_weighting
+        balance_predictors:
+          - log_island_area_km2
+          - climate_pc1
+          - climate_pc2
+          - climate_pc3
+          - climate_pc4
+        excludes:
+          - response_scores
+          - trait_states
+          - p_values
+        estimand: weighted_distance_x_context_response_vector_difference
+        positivity: report_effective_sample_fraction_and_weight_extrema
+      - name: distance_x_climate_joint_sensitivity
+        model_extension:
+          - distance_x_climate_pc1
+          - distance_x_climate_pc2
+          - distance_x_climate_pc3
+          - distance_x_climate_pc4
+        target_test: residual_distance_x_context_joint_vector
+    frozen_implementation:
+      primary_axis_set: universal_plant_response
+      headline_contrasts:
+        analysis_regime:
+          - [northern_midlatitude, tropical]
+        biogeographic_realm:
+          - [Palearctic, Neotropical]
+      overlap_model:
+        link: binomial_logit
+        weighting: overlap_weights
+        propensity_clip: 1.0e-8
+        normalize_mean_weight_within_context: true
+        minimum_context_islands: 50
+        poor_overlap_if_either:
+          minimum_effective_sample_fraction: 0.25
+          maximum_absolute_weighted_standardized_mean_difference: 0.10
+      distance_x_climate_model:
+        climate_interaction_predictors:
+          - climate_pc1
+          - climate_pc2
+          - climate_pc3
+          - climate_pc4
+        retain_baseline_main_effects: true
+        target: joint_distance_x_context_vector_after_distance_x_climate
+      multiplicity:
+        family: validation_mode_x_axis_set_x_stratum_x_support_tier
+        alpha: 0.05
+      rules:
+        - context_weight_model_uses_complete_island_covariate_universe
+        - context_weight_model_never_uses_trait_availability_or_values
+        - response_support_gates_are_not_lowered_after_weighting
+        - poor_overlap_is_reported_even_if_the_weighted_test_is_significant
+        - validation_support_loss_is_a_scientific_result_not_a_CI_failure
+    interpretation:
+      survives_both: regional_branching_not_reducible_to_measured_climate_composition
+      climate_absorbs_context: reinterpret_H2_as_environment_dependent_branching
+      poor_overlap: region_comparison_not_transportable_over_shared_climate_support
+
+  V2_H3_taxonomic_depth:
+    question: >-
+      At what taxonomic depth is the lineage-associated floral/reproductive signal generated?
+    motivation: >-
+      The genus-preserving null can absorb much of the Palearctic floral-accessibility
+      response, but that does not distinguish deep family-level sorting from genus-level
+      sorting or residual within-genus structure.
+    analyses:
+      - family_composition_preserving_null
+      - genus_composition_preserving_null
+      - source_matched_family_entry
+      - source_matched_genus_entry
+      - within_genus_species_loading
+    family_use_rule: >-
+      Family is used only as a taxonomic grouping for sensitivity; it is never used to infer
+      missing trait values.
+    frozen_implementation:
+      evidence_scopes:
+        - all_analysis_eligible
+        - direct_only
+      plant_response_axes:
+        - generalized_accessible
+        - selfing_core
+      taxonomy_input:
+        path: data/v2/staging/gbif/collected/island_taxa.csv
+        sha256_newline_canonicalized: c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e
+        required_columns:
+          - accepted_species
+          - genus
+          - family
+        unique_species_required: true
+        nonblank_group_required_for_each_null: true
+      source_training_population: >-
+        Scored species matched to the frozen eligible GIFT mainland native flora under
+        the existing exact-normalized or unique-binomial contract.
+      source_group_position: >-
+        Mean scored-species response within family or genus across unique matched GIFT
+        source species, requiring at least two scored source species per group.
+      source_group_availability: >-
+        Presence of a family or genus in the assigned frozen GIFT source regions,
+        constructed from GIFT species matched to the taxonomy input without using trait
+        scores or island outcomes.
+      common_species_support: >-
+        Within island x source mode x stratum x response, use only distinct observed
+        island species whose family and genus both have eligible source positions and
+        are both present in the assigned source regions. The family and genus nulls
+        therefore use exactly the same observed species.
+      minimum_support:
+        observed_species_per_island_response: 10
+        represented_families: 3
+        represented_genera: 5
+      strata:
+        - all_native
+        - native_nonendemic
+      source_assignment_modes: inherit_frozen_PR138_GIFT_modes
+      decomposition_identity:
+        observed_score: mean_observed_species_response
+        family_expected: species_weighted_mean_of_source_family_positions
+        after_family_residual: observed_score_minus_family_expected
+        genus_expected: species_weighted_mean_of_source_genus_positions
+        family_to_genus_increment: genus_expected_minus_family_expected
+        after_genus_residual: observed_score_minus_genus_expected
+      formal_vector_stages:
+        - observed_score
+        - after_family_residual
+        - after_genus_residual
+      context_layers:
+        - analysis_regime
+        - biogeographic_realm
+      response_support_tiers: inherit_chapter1_pattern_config
+      multiplicity: >-
+        Within evidence scope x source-adjusted taxonomic stage x context layer x
+        stratum x support tier, control the two plant-response axes and contexts, then
+        control the four source modes as one prospective V2 sensitivity family.
+      classification_rule: >-
+        Classify a focal context only when the observed two-axis vector is supported in
+        all four source modes. If the after-family vector is unsupported in every mode,
+        call the pattern compatible with deep-family sorting. If after-family survives
+        all modes but after-genus is unsupported in every mode, call it compatible with
+        genus-level assembly beyond family. If after-genus survives all modes, retain a
+        within-genus or non-taxonomic residual. Mixed source-mode outcomes remain
+        source-definition-sensitive and are not forced into a depth class.
+      no_null_retuning_after_outcomes: true
+    interpretation:
+      family_null_absorbs: deep_clade_sorting_sufficient
+      family_residual_genus_null_absorbs: genus_level_sorting_required
+      genus_residual_remains: within_genus_or_non_taxonomic_filtering_remains
+
+  V3_H4_area_support_artifact:
+    question: >-
+      Is distance x area moderation robust to trait-support and measurement-precision
+      differences among islands rather than being generated by larger islands having more
+      scored species or more stable island means?
+    motivation: >-
+      Area is biologically meaningful, but it is also correlated with species richness and
+      potentially with trait-score precision. The current area interaction needs a direct
+      measurement-support falsification layer.
+    analyses:
+      - equal_island_weight_area_interaction
+      - capped_information_weight_area_interaction
+      - direct_only_area_interaction
+      - response_support_overlap_diagnostic
+      - heteroskedastic_precision_simulation_under_no_true_area_interaction
+    support_variables:
+      - n_species
+      - mean_informative_traits
+    caution: >-
+      Species richness/support is not inserted as a causal control in the primary model;
+      these are measurement-artifact sensitivities only because richness may itself be an
+      island-biogeographic mediator.
+    frozen_implementation:
+      primary_target:
+        family: source_lineage_broad
+        response: entry_enrichment
+        context_layer: biogeographic_realm
+        context: Palearctic
+        strata:
+          - all_native
+          - native_nonendemic
+      secondary_target:
+        family: plant_side_branches
+        responses:
+          - accessibility_generalization
+          - reproductive_assurance
+      evidence_scopes:
+        - all_analysis_eligible
+        - direct_only
+      direct_lineage_rule: >-
+        Add a broad direct-only source-matched lineage score using the same GIFT
+        assignments, prevalence-richness matching and minimum five represented genera
+        as the broad all-analysis lineage estimand.
+      weighting_modes:
+        equal_island:
+          weight: 1.0
+        capped_information:
+          support_variable: n_response_species
+          cap_species: 50
+          weight: min_n_response_species_and_50_normalized_to_mean_one
+      support_variables:
+        plant_side_branches:
+          - n_species
+          - mean_informative_traits
+        source_lineage:
+          - n_represented_species
+          - n_represented_genera
+      common_support:
+        split: median_n_response_species_within_analysis_cell
+        low_and_high_support_area_ranges: within_group_area_quantiles_0.05_to_0.95
+        retained_area_range: intersection_of_low_and_high_support_ranges
+        minimum_islands_per_support_half_before_trimming: 30
+        response_values_used_to_define_overlap: false
+        refit_weighting: equal_island
+      heteroskedastic_null_simulation:
+        target: Palearctic_source_lineage_entry_distance_x_area
+        draws: 1000
+        seed: 20260828
+        null_mean_model: response_without_distance_x_area_interaction
+        error_distribution: independent_normal
+        error_variance: residual_RMSE_squared_times_mean_support_over_island_support
+        comparison: two_sided_absolute_interaction_magnitude
+        source_modes: inherit_frozen_PR138_GIFT_modes
+      inference:
+        retain_existing_response_support_tiers: true
+        retain_existing_area_FDR_family: true
+        sensitivity_family_includes_weighting_and_common_support_modes: true
+        simulation_false_positive_threshold: 0.05
+      classification_rule: >-
+        Call small-island amplification robust to measured support only when the equal,
+        capped-information and common-support estimates retain its sign and formal
+        support, direct-only does not contradict it when testable, and the observed
+        magnitude is exceeded in at most five percent of frozen heteroskedastic-null
+        simulations. Otherwise retain area as a precision-sensitive modifier.
+      no_support_variable_as_primary_causal_control: true
+      no_sensitivity_retuning_after_outcomes: true
+    interpretation:
+      stable: area_capacity_interpretation_strengthened
+      precision_sensitive: retain_area_as_measurement_sensitive_modifier_only
+
+  V4_secondary_guild_architecture_decomposition:
+    question: >-
+      Are the sampled large-bee, butterfly and bird concordance gradients guild-specific,
+      a shared floral-architecture factor, or lineage-composition effects?
+    motivation: >-
+      Tropical simultaneous increase and Palearctic simultaneous decline across all three
+      sampled guild templates show substantial template overlap. Source-pool adjustment
+      does not remove the pattern, but the guild axes have not yet been given their own
+      lineage-depth decomposition.
+    analyses:
+      - sampled_guild_family_and_genus_composition_nulls
+      - sampled_guild_source_matched_entry_loading
+      - outcome_blind_mainland_template_common_factor
+      - island_projection_of_common_and_residual_template_axes
+    common_factor_rule: >-
+      Estimate the common architecture axis from mainland/source species only, without
+      island distance or island outcomes, orienting the axis to positive mean correlation
+      with the three sampled template scores.
+    frozen_implementation:
+      evidence_scopes:
+        - all_analysis_eligible
+        - direct_only
+      sampled_templates:
+        - large_bee_like
+        - butterfly_like
+        - bird_like
+      factor_training_population: >-
+        Unique scored species matched to the frozen eligible GIFT mainland native flora
+        under the existing exact-normalized or unique-binomial contract.
+      complete_case_rule: >-
+        Require all three sampled-template scores. Missing template scores are never
+        imputed and are not coded as zero.
+      standardization:
+        center: mainland_source_species_mean
+        scale: mainland_source_species_population_sd_ddof_0
+      factor_estimator: first_eigenvector_of_source_species_correlation_matrix
+      orientation: positive_sum_of_correlations_with_the_three_sampled_templates
+      minimum_complete_source_species: 50
+      projection_rule: >-
+        Project all complete-case island-flora species using only the frozen source
+        means, scales and loadings; compute each template residual as standardized
+        template score minus its rank-one reconstruction from the shared factor.
+      island_aggregation: unweighted_mean_across_distinct_scored_species
+      strata:
+        - all_native
+        - native_nonendemic
+      context_layers:
+        - analysis_regime
+        - biogeographic_realm
+      response_support_tiers: inherit_chapter1_pattern_config
+      source_adjustment:
+        source_assignment_modes: inherit_frozen_PR138_GIFT_modes
+        minimum_scored_species_per_source_component: 10
+        minimum_source_regions: 3
+        response: island_component_mean_minus_GIFT_source_expectation
+      genus_decomposition:
+        source_position: mean_component_score_among_complete_case_GIFT_source_species
+        source_availability: raw_GIFT_genus_occurrence_and_species_richness
+        primary_matching: prevalence_richness
+        minimum_represented_genera: 5
+        outcomes:
+          - entry_enrichment
+          - loading_increment
+          - beyond_genus_residual
+      family_decomposition_gate: >-
+        Run only with a frozen comprehensive species-to-family mapping that is carried
+        by the formal workflow input contract. If absent, emit
+        not_evaluable_pending_V2_taxonomy_contract; never infer family from traits,
+        genus names, or scattered acquisition tables.
+      multiplicity:
+        observed_and_source_adjusted: >-
+          context_layer x architecture_axis_set x stratum x support_tier, across the
+          shared factor and all three template residuals
+        genus_decomposition: >-
+          evidence_scope x stratum x context_layer x context x outcome, across the
+          four architecture components after the source-mode family is controlled
+        alpha: 0.05
+    interpretation:
+      common_factor_only: shared_specialized_or_attractive_architecture_not_guild_specific
+      guild_residual_remains: candidate_channel_specific_architecture_for_H5_followup
+      genus_null_absorbs: architecture_pattern_is_lineage_assembly_level
+    claim_ceiling:
+      - no_pollinator_identity_from_residual_template_axes
+      - no_functional_replacement_without_independent_effective_service
+
+  V5_trait_resolution_MNAR_tipping_point:
+    question: >-
+      How strong would unmeasured state-dependent trait missingness have to be to overturn
+      H2-H4 conclusions, especially for reproductive assurance where coverage remains the
+      weakest axis?
+    motivation: >-
+      Current trait-resolution weighting handles measured predictors of resolution, but
+      unresolved trait states may still be missing-not-at-random with respect to the
+      unobserved biological state.
+    analyses:
+      - partial_identification_bounds_for_unresolved_trait_states
+      - prespecified_selection_model_delta_grid
+      - transition_of_sign_and_support_under_delta
+    freeze_before_execution:
+      selection_parameter: >-
+        Odds ratio for being trait-resolved in the focal latent state versus the
+        non-focal latent state. Values above one mean focal-state species are more
+        likely to be resolved, so unresolved species are expected to be less focal.
+      resolution_odds_ratio_grid:
+        - 0.1
+        - 0.2
+        - 0.3333333333333333
+        - 0.5
+        - 1.0
+        - 2.0
+        - 3.0
+        - 5.0
+        - 10.0
+      affected_syndrome_axes:
+        - selfing_core
+      scenario_families:
+        shared_state_dependent_resolution:
+          context_layer: all_islands
+          contrast_contexts: []
+        north_tropical_differential_resolution:
+          context_layer: analysis_regime
+          contrast_contexts:
+            - northern_midlatitude
+            - tropical
+        palearctic_neotropical_differential_resolution:
+          context_layer: biogeographic_realm
+          contrast_contexts:
+            - Palearctic
+            - Neotropical
+      differential_parameterization: >-
+        For a two-context contrast, half of log(OR) is applied to the first context
+        and minus half to the second, so OR is the focal-versus-nonfocal resolution
+        odds-ratio contrast between contexts. Both OR below and above one are run.
+      partial_identification_bounds:
+        - all_unresolved_nonfocal
+        - all_unresolved_focal
+        - first_context_nonfocal_second_context_focal
+        - first_context_focal_second_context_nonfocal
+      information_rule: >-
+        Adjusted scores use the completed-data expectation, while regression weights
+        retain the number of actually resolved species so imputation does not create
+        artificial precision.
+      multiplicity_family: reuse_frozen_global_branching_FDR_within_each_grid_scenario
+      grid_points_are_ordered_sensitivity_not_separately_selected_hypotheses: true
+      reporting_thresholds:
+        modest_resolution_odds_ratio_interval: [0.6666666666666666, 1.5]
+        moderate_resolution_odds_ratio_interval: [0.3333333333333333, 3.0]
+        support_alpha: 0.05
+      evidence_scopes:
+        - all_analysis_eligible
+        - direct_only
+      baseline_reproduction_rule: OR_1_must_reproduce_unadjusted_scores_and_results
+    interpretation:
+      large_tipping_point: measured_pattern_robust_to_moderate_MNAR
+      small_tipping_point: claim_remains_trait_resolution_sensitive
+
+not_currently_solvable_with_trait_only_data:
+  H5_independent_channel_mechanism:
+    requires:
+      - source_channel_exposure
+      - retained_disrupted_structurally_absent_state
+      - effort_aware_occurrence_or_abundance
+      - visitation_or_interaction_evidence
+      - per_visit_effectiveness_where_available
+      - residual_test_beyond_H2_H4
+    note: >-
+      Pollination-syndrome concordance, climatic suitability, or floral phenotype cannot
+      substitute for these measurements.
+
+priority_order:
+  - V5_trait_resolution_MNAR_tipping_point
+  - V1_H2_environment_vs_biogeography
+  - V4_secondary_guild_architecture_decomposition
+  - V2_H3_taxonomic_depth
+  - V3_H4_area_support_artifact

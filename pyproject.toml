@@ -22,6 +22,7 @@ dependencies = [
   "PyYAML>=6.0.1",
   "rasterio>=1.4.0",
   "requests>=2.32.0",
+  "scipy>=1.11.0",
   "shapely>=2.0.0",
   "truststore>=0.10.0",
   "typer>=0.12.0",
@@ -112,6 +113,7 @@ island-v2-interaction-evidence = "island_v2.interaction_evidence:app"
 island-v2-interaction-guild-machine = "island_v2.interaction_guild_machine:app"
 island-v2-hierarchical = "island_v2.hierarchical:app"
 island-v2-validate = "island_v2.validation:app"
+island-v2-chapter1-submission-freeze = "island_v2.chapter1_submission_freeze:main"
 
 [tool.poetry]
 packages = [{ include = "island_v2", from = "src" }]

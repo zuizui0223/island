@@ -1,0 +1,81 @@
+contract: chapter1_pr138_source_pool_sensitivity_v1
+
+purpose: >-
+  Test whether PR138 regional island-syndrome distance responses persist after subtracting
+  an external mainland-flora expectation. This is a source-pool sensitivity, not a causal
+  reconstruction of historical colonization.
+
+gift_source_universe:
+  version: "3.2"
+  taxon_name: Tracheophyta
+  entity_class: Mainland
+  suit_geo: true
+  native_indicated: true
+  complete_taxon: true
+  complete_floristic_group: native
+  restricted_allowed: false
+  questionable_occurrences_allowed: false
+  questionable_native_status_allowed: false
+
+species_matching:
+  primary: exact_normalized_species_name
+  fallback: unique_genus_species_binomial_key
+  ambiguous_fallback: fail_closed
+  fuzzy_matching: false
+
+source_region_scores:
+  aggregation: mean_species_syndrome_concordance
+  minimum_trait_scored_species_per_region_syndrome: 10
+  checklist_combination: union_of_eligible_native_lists_within_entity
+
+source_assignment:
+  outcome_blind: true
+  primary_modes:
+    geo_k5:
+      rule: five_nearest_source_region_representative_points
+      k: 5
+    geo_k10:
+      rule: ten_nearest_source_region_representative_points
+      k: 10
+    geo_k20:
+      rule: twenty_nearest_source_region_representative_points
+      k: 20
+    geo50_climate10:
+      rule: ten_climate_nearest_among_fifty_geographically_nearest_source_regions
+      geographic_candidate_k: 50
+      k: 10
+      climate_space: frozen_island_CHELSA_PCs_1_to_4
+  within_selected_sources_weighting: equal
+  no_maximum_distance_cutoff: true
+
+response:
+  definition: island_syndrome_score_minus_external_mainland_source_expectation
+  source_expectation_requires_minimum_source_regions: 3
+  retain_island_species_support: true
+
+analysis_layers:
+  - analysis_regime
+  - biogeographic_realm
+
+strata:
+  - all_native
+  - native_nonendemic
+
+alpha: 0.05
+
+rules:
+  - source_assignment_never_uses_island_trait_outcomes
+  - mainland_source_expectation_uses_the_same_frozen_species_syndrome_scores_as_PR138
+  - genus_fixed_null_is_not_a_source_pool_substitute
+  - source_adjustment_is_a_sensitivity_not_the_primary_observed_assemblage_estimand
+  - no_pollinator_identity_or_abundance_enters_source_assignment
+  - missing_source_expectation_is_missing_not_zero
+  - significant_in_one_region_and_nonsignificant_in_another_is_not_heterogeneity
+  - between_region_difference_requires_direct_vector_test
+  - source_pool_adjustment_does_not_identify_historical_colonization_routes
+
+claim_ceiling: >-
+  Persistence after this adjustment shows that the island syndrome-distance response is not
+  explained by the measured composition of nearby GIFT mainland floras under the prespecified
+  source-region proxies. It does not prove historical source ancestry, in-situ evolution,
+  pollinator loss, or any particular pollination mechanism.

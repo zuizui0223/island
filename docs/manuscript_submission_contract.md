@@ -1,239 +1,206 @@
-# Manuscript submission contract
+# Chapter 1 manuscript submission contract
 
 ## Status
 
-This document defines the repository surface that may support the Chapter 1 manuscript. It is intentionally narrower than the full development history.
+The Chapter 1 analysis is frozen as a **submission candidate** under
+[`config/chapter1_submission_freeze_lock.json`](../config/chapter1_submission_freeze_lock.json).
+The lock points to workflow run `33067239884`, artifact
+`chapter1-area-capacity-moderation-33067239884`, and head
+`6c2d7e267f872dc24983969cb6475ca2a8051975`.
 
-A result is manuscript-canonical only when it follows this contract, uses locked inputs, and produces an auditable output manifest.
+The artifact contains the nested PR #138 pattern/robustness inputs, PR #139
+source-matched lineage-representation outputs, and the continuous area-moderation
+extension. The analysis is frozen, but the current GitHub Actions copy expires on
+2026-11-25. A durable release/deposit and journal-formatted manuscript remain required
+before submission.
 
-The current frozen scientific checkpoint is [`chapter1_when_where_frozen_result_20260825.md`](chapter1_when_where_frozen_result_20260825.md).
+PR #140 and later trait-acquisition products are post-freeze. They do not enter this
+submission candidate unless a prospective update is declared before inspecting revised
+Chapter 1 outcomes.
 
-## Canonical scientific question
+## Canonical question
 
-> **When and where is isolation-associated floral/reproductive filtering detectable, and where does the multivariate response to isolation differ?**
+> **When and where do floral and reproductive assemblage responses emerge along a
+> mainland-distance/source-accessibility gradient, and how are those responses divided
+> between source-pool lineage assembly and plant-side reproductive/accessibility branches?**
 
-The manuscript is a global comparative analysis of **boundary conditions of island filtering**. It does not identify a historical pollinator-loss event and does not establish causal floral evolution from cross-sectional island data.
+This is a global comparative analysis of assemblage composition. It does not identify a
+historical pollinator-loss event, an effective pollination service, or in-situ floral
+evolution from cross-sectional island data.
 
-## Canonical hypothesis structure
-
-### H1 — universal filtering
-
-Isolation produces a broadly shared floral/reproductive response vector across island floras.
-
-### H2 — conditional / biogeographically structured filtering
-
-Isolation-associated filtering is detectable under some biogeographic/floristic conditions, and the multivariate response vector differs among at least some contexts.
-
-### H3 — floristic-status persistence
-
-A supported regional response that remains within native non-endemic assemblages is not confined to endemic-lineage turnover.
-
-## Primary analysis hierarchy
-
-### 1. WHERE — within-context response-vector omnibus
-
-For each biogeographic context and floristic-status stratum, supported atomic floral/reproductive categories are stacked in one grouped-binomial model with category-specific baseline and isolation effects. Spatial-block cluster-robust covariance retains dependence among categories and islands.
-
-Formal null:
+## Theory tested at the observable boundary
 
 ```text
-H0: all category-specific isolation slopes in this context = 0
+mainland distance / source accessibility x island area / capacity
+|
+|-- plant source-pool filter
+|     |-- source-available lineage entry
+|     |-- within-lineage species loading
+|     `-- Baker-compatible reproductive assurance
+|
+`-- pollination-channel filter
+      `-- regional attraction/accessibility response
 ```
 
-BH correction is applied across contexts within each status stratum and support tier.
+Chapter 1 observes geography, area, floristic composition, lineage representation, and
+plant traits. Pollinator arrival, establishment, persistence, visitation, per-visit
+effectiveness, and population maintenance remain latent. The second branch is therefore
+a compatibility interpretation, not an identified causal pathway.
 
-### 2. BETWEEN-WHERE — pairwise response-vector difference
+## Canonical analysis hierarchy
 
-For each pair of contexts, only atomic responses meeting the same support threshold in both regions are retained.
+### 1. Global WHEN / WHERE pattern
 
-Formal null:
+Atomic floral/reproductive states are combined in grouped-binomial response-vector tests.
+The primary within-context null is that every supported geographic slope in the vector is
+zero. The direct between-context null is equality of the two geographic response vectors.
+Responses require at least 50 islands for confirmatory inference; 30-49 islands are pilot
+only.
 
-```text
-H0: isolation-response vector in context A = isolation-response vector in context B
-```
+The frozen result detects nonzero vectors in northern mid-latitude and tropical floras,
+with a direct difference in both `all_native` and `native_nonendemic` strata. Northern
+high-latitude and southern-extratropical floras remain confirmatorily unresolved.
 
-A significant result in one context and a nonsignificant result in another is not evidence of a regional difference.
+### 2. Pollinator-name-free branch synthesis
 
-### 3. WHEN — floristic-status persistence
+Two prespecified plant responses summarize the higher-level branching test:
 
-The WHERE test is repeated for:
+- `accessibility_generalization`;
+- strict `reproductive_assurance`, excluding attraction traits.
 
-- `all_native`
-- `native_nonendemic`
-- `endemic`
+The direct northern-midlatitude versus tropical difference remains supported across all
+24 source-mode x outcome-blind selection-mode x primary-stratum scenarios. The broad
+northern branch is not independently IPW-robust; the clearest positive branch is
+Palearctic. This distinction prevents a latitude proxy from being relabelled as a
+universal northern or Bombus effect.
 
-Persistence in `native_nonendemic` is interpreted as evidence that filtering is not confined to endemic taxa. Because status strata overlap, this is a persistence classification, not a formal causal difference among strata.
+### 3. Observation, support, and spatial safeguards
 
-### 4. M3 lineage guardrail
+- all 8,265 islands remain in the observation-process universe;
+- raw records are collapsed to unique island x species incidence;
+- missing observation support is never coded as trait absence;
+- information-weight, equal-island, trait-resolution, distance-form, and outcome-blind
+  selection sensitivities are retained;
+- spatial-block cluster-robust inference and leave-one-block-out influence tests are
+  retained;
+- status-stratified persistence is descriptive of assemblage strata, not a causal test of
+  endemism.
 
-Broad outcomes are compared against a genus-composition-preserving expectation. Manuscript-level interpretation must not treat inherited lineage composition as optional.
+### 4. Source pool and lineage decomposition
 
-### 5. Atomic decomposition
+GIFT mainland membership and frozen outcome-blind source assignments define candidate
+source availability. Source-availability matching holds the prevalence and source-richness
+class structure fixed.
 
-The existing atomic M0–M4 layer is retained to describe **what creates a supported regional response vector**. It does not define WHERE by counting individually significant traits.
+Three components are kept separate:
 
-## Support rule
+- `entry_enrichment`: which source-available genera are represented;
+- `species_enrichment`: species-weighted lineage functional position;
+- `loading_increment`: extra species weighting after genus entry.
 
-- `<30` islands per atomic response: excluded from declared vector tests;
-- `30–49`: pilot;
-- `>=50`: meets the count component of confirmatory support.
+Broad Palearctic enrichment is predominantly a genus-entry pattern: entry is positive and
+FDR-supported in 8/8 primary source-mode x stratum scenarios, while loading is supported in
+0/8. Exact-SI results shift toward species loading, but the final SI assemblage slope does
+not exceed the genus-fixed source-pool null.
 
-Every vector test reports the number of retained atomic responses, minimum per-response island support, total unique islands, and spatial-cluster count.
+### 5. Continuous area / capacity moderation
 
-## Frozen canonical result
+Area is continuous; there is no small/large island threshold. Models include
+distance, area, distance x area, climate PCs 1-4, and spatial-block cluster-robust
+covariance.
 
-Canonical workflow run: `32837335384`.
+The stable area result is source-pool-side: broad Palearctic genus-entry enrichment is
+more strongly associated with distance on smaller islands in 8/8 scenarios. Species
+loading has no equally stable area law. Neotropical reproductive assurance is
+smaller-island amplified in both primary strata, but uses only 59 response-supported
+islands and 14 spatial blocks and lacks a supported direct Palearctic-Neotropical
+reproductive-assurance interaction difference.
 
-### Confirmatory WHERE
+## Manuscript-level results
 
-Filtering is detected in both northern mid-latitude and tropical contexts.
+The Results main line is:
 
-| stratum | context | responses | islands | joint Wald | q |
-| --- | --- | ---: | ---: | ---: | ---: |
-| all native | northern mid-latitude | 21 | 240 | 243.36 | 1.76e-39 |
-| all native | tropical | 17 | 136 | 170.24 | 2.52e-27 |
-| native non-endemic | northern mid-latitude | 21 | 240 | 238.86 | 7.43e-39 |
-| native non-endemic | tropical | 17 | 136 | 227.65 | 7.43e-39 |
+1. no universal classical floral island syndrome is recovered;
+2. northern-midlatitude and tropical floral/reproductive response vectors are both
+   detectable and differ directly;
+3. the clearest robust positive branch is Palearctic, while Nearctic remains pilot and
+   tropical floras follow a different vector;
+4. much of the floral-accessibility geography is lineage-associated;
+5. source-matched Palearctic lineage representation is mainly a genus-entry response;
+6. smaller island area amplifies this genus-entry response in all eight frozen scenarios.
 
-Northern high-latitude and southern-extratropical contexts do not currently support equivalent confirmatory vector tests and are **unresolved**, not demonstrated null regions.
-
-At the pilot threshold, southern-extratropical all-native and native-nonendemic vectors are nonzero but rely on only 5 and 4 atomic responses.
-
-### Confirmatory BETWEEN-WHERE
-
-Northern mid-latitude and tropical response vectors differ using 17 responses with confirmatory support in both contexts:
-
-- all native: χ² = **69.78**, df = 17, q = **2.35e-08**;
-- native non-endemic: χ² = **61.02**, df = 17, q = **7.13e-07**.
-
-Thus confirmatory biogeographic heterogeneity is established **at the multivariate vector level** between northern mid-latitude and tropical floras.
-
-### WHEN
-
-The filtering signal persists in `native_nonendemic` flora in both confirmatorily supported contexts. Therefore the northern and tropical results are not confined to endemic taxa.
-
-Endemic-only vector inference remains under-supported confirmatorily.
-
-## Atomic-category interpretation rule
-
-Atomic results are secondary decomposition after the vector-level result is frozen.
-
-They may be used to identify which colours, forms, and reproductive states make the northern and tropical vectors differ. They may not replace the omnibus test by counting p-values.
-
-The genus-preserving M3 layer does not recover a coherent confirmatory `generalized + plain + SC` syndrome in the main northern/tropical strata. Therefore a supported regional response vector is not automatically a named classical syndrome.
+The manuscript must not turn individually significant traits into the primary result.
+Atomic states, named syndrome scores, exact-SI restrictions, genus deletion, and template
+sensitivities decompose or stress-test the frozen vector result.
 
 ## Pollination-syndrome interpretation contract
 
-Pollination-syndrome expectations enter only **after the when/where result is frozen**.
+Pollination-syndrome expectations enter only after the plant-side result is frozen.
 
 Allowed:
 
-- compare the confirmed northern-versus-tropical response-vector difference with literature on Bombus / long-tongued bees, birds, Lepidoptera, hawkmoths, or other functional pollinator groups;
-- describe partial concordance, mismatch, or unresolved mechanism;
-- use pollinator evidence to motivate Chapter 2 tests.
+- compare the regional plant response with literature-defined expectations for large
+  bees, birds, Lepidoptera, hawkmoths, or other functional groups;
+- describe concordance, mismatch, and alternative explanations;
+- state that dispersal and establishment differences among pollinator guilds are candidate
+  mechanisms for Chapter 2 or independent field tests.
 
 Not allowed:
 
 - infer actual pollinator identity from floral phenotype;
-- claim that Bombus loss caused the northern vector;
-- claim bird/Lepidoptera replacement caused the tropical vector;
+- claim Bombus loss caused the Palearctic branch;
+- claim bird or Lepidoptera replacement caused a tropical or southern pattern;
 - convert climatic compatibility or opportunistic nondetection into historical loss;
-- use syndrome labels as fitted predictors in the Chapter 1 when/where analysis.
+- describe a syndrome score as measured visitation, pollen delivery, seed set, mobility,
+  establishment, or effective service.
 
-## Status of Bombus analyses
+Bombus niche/hypervolume, applicability, occurrence, and channel-score products remain
+diagnostic or sensitivity products and are outside the primary Chapter 1 model.
 
-Existing Bombus applicability, environmental-niche, occurrence, and channel-score products remain provenance-preserving diagnostic/sensitivity products. They are not canonical primary Chapter 1 predictors.
+## Claim ceiling
 
-Additional Bombus acquisition must not be launched solely to rescue or manufacture a Chapter 1 mechanism.
+Supported:
 
-## Evidence-tier rule
+> **Within opportunistically observed island floras, isolation/source accessibility is
+> associated with biogeographically contingent floral and reproductive assemblage
+> composition. The strongest source-matched area-conditioned result is greater broad
+> Palearctic genus-entry enrichment with distance on smaller islands.**
 
-The manuscript reports trait evidence resolution rather than hiding it behind complete fill.
+Not established:
 
-- **Confirmatory trait evidence:** direct source-backed species evidence.
-- **Pilot vector support:** 30–49 islands per retained atomic response.
-- **Confirmatory vector support:** >=50 islands per retained atomic response.
-- **Secondary robustness:** genus/family inference where declared.
-- **Sensitivity only:** global fallback or other inference layers.
+- pollinator loss, replacement, mobility, persistence, or effective service;
+- genetic founder effects, founder number, drift, or a directly observed Baker process;
+- historical mainland ancestry or colonisation probability;
+- in-situ evolution, differential diversification, or within-lineage causal adaptation;
+- a universal area-dependent floral island syndrome.
 
-## Required safeguards before submission
+## Reproducibility and archival gate
 
-### Observation process and information weighting
+The automated freeze validator must verify:
 
-The current grouped-binomial likelihood uses the number of trait-resolved species as information weight. This is statistically efficient only if trait-resolved species behave like an approximately exchangeable sample of the island flora. Because study effort and trait resolution differ strongly among islands, the manuscript-level WHEN/WHERE claim must pass the observation-bias robustness strategy in [`chapter1_observation_bias_strategy_20260825.md`](chapter1_observation_bias_strategy_20260825.md).
+- GitHub artifact metadata and archive SHA-256;
+- all nested PR #138/#139 inputs required by the area analysis;
+- row counts and unique result keys;
+- q-value bounds and hierarchical vector-before-axis classification;
+- the 8/8 Palearctic genus-entry and bounded Neotropical results;
+- the explicit causal claim ceiling.
 
-Required checks are:
-
-1. raw occurrence multiplicity is collapsed to unique island × species incidence before trait composition is formed;
-2. the existing island observation diagnostics (`n_records`, `n_species`, `n_datasets`, voucher fraction, cultivated fraction, coordinate uncertainty, recency, and reviewed angiosperm coverage where available) are reported and used in a declared inclusion/sensitivity audit;
-3. WHERE and BETWEEN-WHERE are repeated under capped effective-trial and equal-island weighting so a highly trait-resolved island cannot dominate solely through denominator size;
-4. trait-resolution fraction is audited by island × status stratum × trait and its association with isolation/context is reported;
-5. a within-spatial-block / archipelago sensitivity is run so fixed block-level observation intensity cannot explain the isolation slope;
-6. a leave-one-spatial-block-out influence analysis shows whether any single archipelago/block is necessary for the northern, tropical, or north-versus-tropical result.
-
-Hawaii or any other well-studied island is **not** excluded ad hoc. It is treated as an influence stress test under the same predeclared rules as every other block.
-
-Failure of an observation-bias robustness gate downgrades the corresponding WHERE/BETWEEN-WHERE claim; it must not trigger additional mechanism-specific data acquisition to rescue the result.
-
-### Spatial dependence
-
-The vector tests use the declared spatial-block cluster-robust covariance. Cluster-robust uncertainty alone does not remove a block-level confounder, so the observation-bias robustness layer also requires a within-block or equivalent fixed-block sensitivity.
-
-### Lineage composition
-
-The genus-composition-preserving M3 layer is required before broad syndrome claims. A globally complete source-region assignment is not required merely to duplicate this safeguard, although source-region assignments remain useful independent sensitivity analyses.
-
-### Biogeographic-context definition
-
-Context grouping must be frozen independently of floral/reproductive outcomes. Latitude belts are an operational grouping, not a claim that all islands within a belt share one biogeographic history; alternative grouping / core-latitude sensitivity must be reported.
-
-### Isolation functional form
-
-The isolation response is predeclared as log distance to continent in the current canonical run. The manuscript must report the observed distribution and prespecified leverage/functional-form sensitivities.
-
-### Zero-distance islands
-
-Zero or analogous distance classes must be audited and their treatment reported.
-
-### Outcome support
-
-Within a given omnibus test, support rules are applied before fitting. Pairwise context tests use only responses meeting the same support threshold in both contexts.
-
-## Reproducibility and archival rule
-
-Before submission, all manuscript-critical inputs and outputs must be archived durably with checksums.
-
-A fresh reader should be able to identify:
-
-- the manuscript release/tag;
-- locked input artifacts and checksums;
-- the canonical when/where workflow;
-- software environment;
-- support and evidence-tier definitions;
-- attrition from the frozen island universe to each vector test; and
-- files used for every manuscript figure/table.
+Before journal submission, the expiring Actions artifact must be copied to a durable
+release or repository with the same digest, and the manuscript must cite that permanent
+identifier. Figure/table source files must be generated only from the locked artifact.
 
 ## Chapter 1 -> Chapter 2 boundary
 
-Chapter 1 establishes, conditional on the observation-bias robustness gates:
-
-> **Isolation-associated floral/reproductive filtering is detectable in both northern mid-latitude and tropical island floras, persists within native non-endemic assemblages, and is expressed as significantly different multivariate response vectors in those two contexts.**
-
-Chapter 1 does not explain why.
-
-The unresolved question handed to Chapter 2 (`izu-core`) is:
-
-> **Which ecological interaction states make northern mid-latitude and tropical island floras respond differently to isolation?**
-
-Candidate explanations include pollinator identity, functional diversity, trait matching, effective service, functional replacement, reproductive assurance, network context, and non-pollination geography/history.
+Chapter 1 identifies where assemblage branches differ and how source-available lineages are
+represented. Chapter 2 (`izu-core`) asks which directly measured interaction states produce
+those conditional response signs. Its empirical gate requires measurable functional
+position, visitor exposure/effectiveness, and reproductive outcome; Chapter 1 phenotype
+scores alone cannot satisfy that gate.
 
 ## Noncanonical material
 
-The following remain development history or sensitivity material unless explicitly promoted by a later contract change:
-
-- Bombus-primary M0–M4 pathway variants;
-- Bombus mediation/coefficient-product analyses;
-- old v1/v2 bridge analyses;
-- superseded Bayesian/INLA variants built around a Bombus-primary confirmatory question;
-- trait-source scouting and free-bulk-source pilots;
-- old interpretations based only on counts of individually significant atomic slopes.
+- Bombus-primary M0-M4 variants and coefficient-product mediation;
+- climatic suitability or occurrence nondetection treated as realized service;
+- PR #140 and later trait acquisitions unless prospectively promoted;
+- interpretations based only on counts of individually significant atomic slopes;
+- old latitude-only conclusions that do not retain the Palearctic/Nearctic distinction.

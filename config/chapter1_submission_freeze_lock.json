@@ -1,0 +1,57 @@
+{
+  "contract": "chapter1_submission_freeze_lock_v1",
+  "repository": "zuizui0223/island",
+  "workflow_run_id": 33067239884,
+  "artifact_id": 9644240178,
+  "artifact_name": "chapter1-area-capacity-moderation-33067239884",
+  "artifact_digest": "sha256:8cbc18dbe8369e1bf04d7e7b8d1cbe88d83ce478790e1d15dedcc2fb7a42d486",
+  "artifact_size_in_bytes": 68349664,
+  "head_branch": "ch1-area-founder-branching",
+  "head_sha": "6c2d7e267f872dc24983969cb6475ca2a8051975",
+  "created_at": "2026-08-27T11:25:33Z",
+  "expires_at": "2026-11-25T11:24:40Z",
+  "source_pull_requests": [
+    {
+      "number": 138,
+      "head_branch": "pr136-channel-gated-primary-validation",
+      "head_sha": "d0864f61b6d429d1e465bef127c9495c2fafd891",
+      "role": "pattern, syndrome, source-pool, selection, spatial and lineage guardrails"
+    },
+    {
+      "number": 139,
+      "head_branch": "pr138-lineage-representation-bridge",
+      "head_sha": "b18b3e3aa45c454341b2a6ece7a4c097b0318c7d",
+      "role": "source-matched genus-entry and within-genus species-loading decomposition"
+    }
+  ],
+  "frozen_input_policy": {
+    "trait_acquisition_cutoff": "This artifact is the Chapter 1 submission-candidate data freeze.",
+    "post_freeze_pull_requests": [140],
+    "post_freeze_rule": "Later trait acquisition is excluded unless a prospective sensitivity update is declared before inspecting revised Chapter 1 outcomes."
+  },
+  "verified_summary": {
+    "area_moderation_contract": "chapter1_area_capacity_moderation_v1",
+    "n_coefficient_rows": 248,
+    "n_within_rows": 144,
+    "n_between_coefficient_rows": 104,
+    "n_between_rows": 72,
+    "palearctic_broad_entry_smaller_island_scenarios": 8,
+    "palearctic_broad_entry_total_scenarios": 8,
+    "broad_regime_entry_difference_supported_scenarios": 8,
+    "formal_realm_entry_difference_supported_scenarios": 5,
+    "neotropical_reproductive_assurance_smaller_island_strata": 2,
+    "north_tropical_accessibility_difference_supported_strata": 2,
+    "neotropical_reproductive_assurance_min_islands": 59,
+    "neotropical_reproductive_assurance_spatial_blocks": 14
+  },
+  "claim_ceiling": {
+    "genetic_founder_effect_observed": false,
+    "pollinator_mobility_observed": false,
+    "effective_pollination_service_observed": false,
+    "historical_colonization_probability_identified": false,
+    "historical_source_ancestry_identified": false,
+    "in_situ_floral_evolution_identified": false
+  },
+  "status": "submission_candidate_frozen_analysis_not_durably_archived",
+  "notes": "The artifact contains the nested PR138 and PR139 frozen inputs plus the continuous area-moderation outputs. GitHub Actions retention is temporary; durable release or repository archiving remains required before journal submission."
+}

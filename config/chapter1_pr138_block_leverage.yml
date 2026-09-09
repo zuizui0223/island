@@ -1,0 +1,48 @@
+contract: chapter1_pr138_block_leverage_v1
+
+focus_block: lat12_lon20
+focus_reason: >-
+  This block was the only leave-one-block deletion that removed FDR support for the
+  scalar northern classic projection in both all-native and native-nonendemic strata.
+  It is diagnosed, not excluded from the primary analysis.
+
+contexts:
+  focus_primary_context: northern_midlatitude
+  comparison_context: tropical
+
+strata:
+  - all_native
+  - native_nonendemic
+
+metrics:
+  geography:
+    - n_islands
+    - latitude_range
+    - longitude_range
+    - distance_quantiles
+    - distance_sd
+    - island_area_quantiles
+  evidence:
+    - syndrome_axes_per_island
+    - syndrome_species_support_per_island
+  floristics:
+    - native_species_count
+    - endemic_native_fraction
+  influence:
+    - deletion_delta_classic_projection
+    - absolute_influence_rank
+    - block_size_rank
+    - influence_percentile
+    - size_percentile
+  within_block_descriptive:
+    - syndrome_distance_correlation
+    - standardized_unadjusted_slope
+
+rules:
+  - focus_block_remains_in_primary_analysis
+  - no_block_is_removed_based_on_this_diagnostic
+  - no_p_values_for_within_focus_block_descriptive_slopes
+  - compare_focus_with_all_other_northern_blocks
+  - compare_focus_influence_against_all_leave_one_block_deletions
+  - distinguish_sample_size_leverage_from_ecological_contrast
+  - diagnostic_is_provisional_not_a_new_primary_hypothesis
