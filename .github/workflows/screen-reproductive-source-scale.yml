@@ -1,0 +1,92 @@
+name: Screen reproductive source-scale acquisition
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/screen_reproductive_source_scale.py
+      - scripts/audit_reproductive_low_capacity.py
+      - .github/workflows/screen-reproductive-source-scale.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+# This workflow selects sources and audits Low capacity. It never performs
+# formal coverage integration, so it may run automatically without creating
+# micro-batch coverage checkpoints.
+concurrency:
+  group: reproductive-source-scale-screen
+  cancel-in-progress: true
+
+jobs:
+  screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_RUN_ID: "34180620690"
+      CURRENT_ARTIFACT: "source-scale-batch-integration-34180620690"
+      RECOVERED_RUN_ID: "34093932899"
+      RECOVERED_ARTIFACT: "recovered-public-trait-checkpoint-34093932899"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas openpyxl xlrd tabulate
+
+      - name: Download current public restart checkpoint and recovered rule audit
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current /tmp/recovered
+          gh run download "$CURRENT_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$CURRENT_ARTIFACT" --dir /tmp/current
+          gh run download "$RECOVERED_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$RECOVERED_ARTIFACT" --dir /tmp/recovered
+          CURRENT_COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          CURRENT_DIRECT=$(find /tmp/current -name direct_species_trait_ledger.csv.gz -print -quit)
+          RULE_AUDIT=$(find /tmp/recovered -name trait_specific_genus_rule_audit.csv.gz -print -quit)
+          test -n "$CURRENT_COVERAGE" && test -f "$CURRENT_COVERAGE"
+          test -n "$CURRENT_DIRECT" && test -f "$CURRENT_DIRECT"
+          test -n "$RULE_AUDIT" && test -f "$RULE_AUDIT"
+          printf 'CURRENT_COVERAGE=%s\nCURRENT_DIRECT=%s\nRULE_AUDIT=%s\n' "$CURRENT_COVERAGE" "$CURRENT_DIRECT" "$RULE_AUDIT" >> "$GITHUB_ENV"
+
+      - name: Rank structured reproductive sources by exact unresolved overlap
+        run: |
+          python scripts/screen_reproductive_source_scale.py \
+            --coverage "$CURRENT_COVERAGE" \
+            --output artifacts/reproductive-source-scale
+
+      - name: Audit current-threshold reproductive Low capacity
+        run: |
+          python scripts/audit_reproductive_low_capacity.py \
+            --direct "$CURRENT_DIRECT" \
+            --coverage "$CURRENT_COVERAGE" \
+            --baseline-rule-audit "$RULE_AUDIT" \
+            --output artifacts/reproductive-low-audit
+
+      - name: Publish decision summaries
+        run: |
+          echo '## Source-scale ROI' >> "$GITHUB_STEP_SUMMARY"
+          cat artifacts/reproductive-source-scale/reproductive_source_roi_summary.json >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '## Current-threshold Low capacity' >> "$GITHUB_STEP_SUMMARY"
+          cat artifacts/reproductive-low-audit/reproductive_low_capacity_summary.json >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Ranked source candidates' >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import pandas as pd
+          p='artifacts/reproductive-source-scale/reproductive_source_roi.csv'
+          x=pd.read_csv(p)
+          cols=['source_id','status','reproductive_taxa_detected','exact_unresolved_reproductive_overlap','estimated_review_minutes','expected_cells_per_hour_upper_bound','access_status']
+          print(x[cols].to_markdown(index=False))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reproductive-source-scale-screen-${{ github.run_id }}
+          path: |
+            artifacts/reproductive-source-scale/
+            artifacts/reproductive-low-audit/
+          if-no-files-found: error
+          retention-days: 90

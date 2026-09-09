@@ -1,0 +1,69 @@
+name: Audit Zenodo 18208949 orchid pending source ROI
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/audit_orchid_18208949_pending_roi.py
+      - .github/workflows/audit-orchid-18208949-pending-roi.yml
+      - data/v2/staging/traits/restart_orchid_pending_20260907.csv
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: orchid-18208949-roi-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_SOURCE_BATCH_RUN: '34180620690'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas
+
+      - name: Download current cumulative public checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current
+          gh run download "$CURRENT_SOURCE_BATCH_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "source-scale-batch-integration-${CURRENT_SOURCE_BATCH_RUN}" \
+            --dir /tmp/current
+          CURRENT_COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          test -n "$CURRENT_COVERAGE" && test -f "$CURRENT_COVERAGE"
+          echo "CURRENT_COVERAGE=$CURRENT_COVERAGE" >> "$GITHUB_ENV"
+
+      - name: Fetch immutable Zenodo record metadata
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/orchid-18208949-roi
+          curl -L --fail --retry 3 \
+            -A 'island-source-scale-acquisition/1.0' \
+            'https://zenodo.org/api/records/18208949' \
+            -o artifacts/orchid-18208949-roi/zenodo_record_18208949.json
+
+      - name: Measure current-gap SI/SC ROI
+        run: |
+          set -euo pipefail
+          python scripts/audit_orchid_18208949_pending_roi.py \
+            --pending data/v2/staging/traits/restart_orchid_pending_20260907.csv \
+            --coverage "$CURRENT_COVERAGE" \
+            --zenodo-metadata artifacts/orchid-18208949-roi/zenodo_record_18208949.json \
+            --output artifacts/orchid-18208949-roi/audit
+          cat artifacts/orchid-18208949-roi/audit/orchid_18208949_roi_summary.json >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: orchid-18208949-roi-${{ github.run_id }}
+          path: artifacts/orchid-18208949-roi/
+          if-no-files-found: error
+          retention-days: 90

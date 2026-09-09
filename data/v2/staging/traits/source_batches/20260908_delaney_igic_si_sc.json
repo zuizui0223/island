@@ -1,0 +1,21 @@
+{
+  "batch_label": "20260908-delaney-igic-si-sc-source-scale",
+  "source": "Delaney & Igic 2022 Fabaceae species-level breeding-system database",
+  "source_doi": "10.1086/717329",
+  "source_version": "Meyer public mirror Input_Data_MS.xlsx pinned at 3d57315fe77097fe582025b884917550139801e8",
+  "source_packet_run_id": 34186979807,
+  "source_packet_artifact": "delaney-igic-source-scale-34186979807",
+  "source_packet_file": "delaney_igic_unresolved_si_sc_batch.csv.gz",
+  "source_scale_complete": true,
+  "strict_mapping": "literal species-level SC/SI only -> self_incompatibility; DIO/DIC/BSO/D/HET/blanks excluded",
+  "expected_source_direct_gain": 3,
+  "expected_total_gain_from_recovered_baseline": 310,
+  "expected_species": [
+    "Hedysarum spinosissimum",
+    "Pueraria phaseoloides",
+    "Scorpiurus subvillosus"
+  ],
+  "expected_state": "SC",
+  "source_review_note": "The full 1410-row Delaney & Igic block was re-audited against the current public checkpoint. Only three current-gap exact fixed-universe species have unambiguous literal SC states. Bauhinia pauletia is quarantined because the source contains both SI and SC; DIO/DIC/BSO/D/HET and missing states are not mapped. The compilation is treated as one source lineage and cannot train genus rules.",
+  "formal_integration_policy": "cumulative replay of all committed source manifests from the pinned recovered baseline; no cross-packet overwrite or genus-rule training"
+}

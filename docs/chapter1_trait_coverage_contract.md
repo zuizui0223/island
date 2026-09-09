@@ -8,11 +8,13 @@ Chapter 1 uses one scientific trait-coverage denominator:
 - strict analysis axes: **3** (`flower_colour`, `floral_structural_complexity`, `reproductive_assurance`);
 - fixed species × axis denominator: **318,885 cells**.
 
-The current working strict checkpoint after private TRY adjudication and Wave55 Batch 5 is:
+The historically reported working strict checkpoint after private TRY adjudication and Wave55 Batch 5 is (private row-level reconstruction pending):
 
 - resolved strict species × axis cells: **222,759 / 318,885**;
 - strict coverage: **69.8556%**;
 - unresolved strict cells: **96,126**.
+
+For a currently recoverable public row-level checkpoint, use Run 33605098044: **222,375 / 318,885 = 69.7352%**, with **96,510** unresolved. The historical extra 384 cells have not been reproduced; this is not a verified coverage loss. See [recovery instructions and claim boundaries](trait_checkpoint_recovery.md). Both numbers use the same strict denominator; their evidence availability differs.
 
 This is the only percentage that should be described as **Chapter 1 trait coverage** during the continuing acquisition campaign.
 

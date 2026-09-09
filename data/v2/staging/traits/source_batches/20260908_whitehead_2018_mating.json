@@ -1,0 +1,18 @@
+{
+  "batch_label": "20260908-whitehead-2018-mating-source-scale",
+  "source": "Whitehead et al. 2018 Plant Mating Systems Often Vary Widely Among Populations",
+  "source_doi": "10.3389/fevo.2018.00038",
+  "source_dataset_doi": "10.5061/dryad.3c340",
+  "source_version": "repository hash-pinned Whitehead supplementary zip sha256:7067064bf2bc37ade116b33dd3dc710f2938a36fc069265b0628499f887658f8",
+  "source_packet_run_id": 34188627153,
+  "source_packet_artifact": "whitehead-2018-source-scale-34188627153",
+  "source_packet_file": "whitehead_2018_unresolved_mating_batch.csv.gz",
+  "source_scale_complete": true,
+  "strict_mapping": "reuse existing 2026-08-11 Whitehead contract: source-defined species mean_tm <=0.2 predominantly_selfing; 0.2<mean_tm<0.8 mixed_mating; mean_tm>=0.8 predominantly_outcrossing; source pops>=3",
+  "expected_source_direct_gain": 1,
+  "expected_total_gain_from_recovered_baseline": 311,
+  "expected_species": ["Xanthorrhoea johnsonii"],
+  "expected_state": "predominantly_outcrossing",
+  "source_review_note": "The committed hash-pinned Whitehead supplement provides SpeciesTmData_Whitehead_etal.csv with a source-defined mean_tm and pops count. The repository already accepted 23 Whitehead species as high-quality species-direct mating-system records under this exact mapping and tests the source mean against the population table. Xanthorrhoea johnsonii is the sole current fixed-universe reproductive gap with Whitehead mean_tm and pops>=3: mean_tm=0.95125, pops=4, underlying citation set Zalucki:2013.",
+  "formal_integration_policy": "cumulative replay of all committed source manifests from the pinned recovered baseline; this batch cannot train genus rules"
+}

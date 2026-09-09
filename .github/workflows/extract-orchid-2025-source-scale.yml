@@ -1,0 +1,74 @@
+name: Extract Ackerman orchid 2025 SI SC source packet
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/extract_orchid_2025_structured_breeding.py
+      - .github/workflows/extract-orchid-2025-source-scale.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: orchid-2025-source-scale-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_SOURCE_BATCH_RUN: '34180620690'
+      ZENODO_RECORD: '18208949'
+      WORKBOOK_URL: 'https://zenodo.org/api/records/18208949/files/Pollination%20List%20Thru%202025.xlsx/content'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas openpyxl
+
+      - name: Download current cumulative public checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current
+          gh run download "$CURRENT_SOURCE_BATCH_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "source-scale-batch-integration-${CURRENT_SOURCE_BATCH_RUN}" \
+            --dir /tmp/current
+          CURRENT_COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          test -n "$CURRENT_COVERAGE" && test -f "$CURRENT_COVERAGE"
+          echo "CURRENT_COVERAGE=$CURRENT_COVERAGE" >> "$GITHUB_ENV"
+
+      - name: Download complete Zenodo v1.4.0 source and metadata
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/orchid2025 artifacts/orchid-2025-source-scale
+          curl -L --fail --retry 3 -A 'island-source-scale-acquisition/1.0' \
+            "https://zenodo.org/api/records/${ZENODO_RECORD}" \
+            -o /tmp/orchid2025/zenodo_metadata.json
+          curl -L --fail --retry 3 -A 'island-source-scale-acquisition/1.0' \
+            "$WORKBOOK_URL" -o /tmp/orchid2025/Pollination_List_Thru_2025.xlsx
+          sha256sum /tmp/orchid2025/Pollination_List_Thru_2025.xlsx \
+            | tee artifacts/orchid-2025-source-scale/source_sha256.txt
+          cp /tmp/orchid2025/zenodo_metadata.json artifacts/orchid-2025-source-scale/
+
+      - name: Extract strict current-gap SI SC packet
+        run: |
+          set -euo pipefail
+          python scripts/extract_orchid_2025_structured_breeding.py \
+            --workbook /tmp/orchid2025/Pollination_List_Thru_2025.xlsx \
+            --coverage "$CURRENT_COVERAGE" \
+            --zenodo-metadata /tmp/orchid2025/zenodo_metadata.json \
+            --output artifacts/orchid-2025-source-scale
+          cat artifacts/orchid-2025-source-scale/orchid_2025_structured_breeding_summary.json >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: orchid-2025-source-scale-${{ github.run_id }}
+          path: artifacts/orchid-2025-source-scale/
+          if-no-files-found: error
+          retention-days: 90

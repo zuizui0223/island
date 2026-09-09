@@ -1,0 +1,58 @@
+name: Rank Meyer reproductive source blocks
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/rank_meyer_review_source_blocks.py
+      - .github/workflows/rank-meyer-review-source-blocks.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: meyer-review-source-roi-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  rank:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      MEYER_SOURCE_COMMIT: 3d57315fe77097fe582025b884917550139801e8
+      CURRENT_INTEGRATION_RUN: '34107096317'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas openpyxl
+      - name: Download immutable source workbook
+        run: |
+          curl -L --fail --retry 3 \
+            "https://raw.githubusercontent.com/elenacicada/interesting_flowers/${MEYER_SOURCE_COMMIT}/Input_Data_MS.xlsx" \
+            -o /tmp/Input_Data_MS.xlsx
+      - name: Download current public integration checkpoint
+        run: |
+          mkdir -p /tmp/current
+          gh run download "$CURRENT_INTEGRATION_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "restart-integrated-trait-evidence-${CURRENT_INTEGRATION_RUN}" \
+            --dir /tmp/current
+      - name: Rank complete review blocks by unresolved reproductive overlap
+        run: |
+          COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          test -n "$COVERAGE"
+          python scripts/rank_meyer_review_source_blocks.py \
+            --input-xlsx /tmp/Input_Data_MS.xlsx \
+            --coverage "$COVERAGE" \
+            --output artifacts/meyer-review-source-roi
+          cat artifacts/meyer-review-source-roi/meyer_review_source_roi_summary.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: meyer-review-source-roi-${{ github.run_id }}
+          path: artifacts/meyer-review-source-roi/
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,295 @@
+name: Extract Goodwillie 2010 reproductive source at source scale
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/extract_goodwillie_2010_source_scale.py
+      - .github/workflows/extract-goodwillie-2010-source-scale.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: goodwillie-2010-source-scale-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_SOURCE_BATCH_RUN: '34180620690'
+      DRYAD_DOI_ENCODED: 'doi%3A10.5061%2Fdryad.bn5v3cm5'
+      DRYAD_DOI_UI: 'doi:10.5061/dryad.bn5v3cm5'
+      TARGET_XLS: 'floral display for outcrossing rate species.xls'
+      TARGET_README: 'README_for_floral display for outcrossing rate species.txt'
+      PINNED_XLS_FILE_ID: '34605'
+      PINNED_README_FILE_ID: '34606'
+      ECU_ITEM_ID: 'bc729ea8-46f7-48c3-b013-af5cb93e9888'
+      ECU_API_BASE: 'https://thescholarship.ecu.edu/server/api'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas xlrd
+
+      - name: Download current cumulative public checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current
+          gh run download "$CURRENT_SOURCE_BATCH_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "source-scale-batch-integration-${CURRENT_SOURCE_BATCH_RUN}" \
+            --dir /tmp/current
+          CURRENT_COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          test -n "$CURRENT_COVERAGE" && test -f "$CURRENT_COVERAGE"
+          echo "CURRENT_COVERAGE=$CURRENT_COVERAGE" >> "$GITHUB_ENV"
+
+      - name: Resolve and validate Dryad public file metadata
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/goodwillie2010 artifacts/goodwillie2010-source-scale/download-diagnostics
+          python - <<'PY'
+          import json, os, re, urllib.request
+          base='https://datadryad.org/api/v2'
+          doi=os.environ['DRYAD_DOI_ENCODED']
+          ua={'User-Agent':'island-source-scale-acquisition/1.0'}
+          def get(url):
+              req=urllib.request.Request(url, headers=ua)
+              with urllib.request.urlopen(req, timeout=120) as r:
+                  return json.load(r)
+          dataset=get(f'{base}/datasets/{doi}')
+          href=(dataset.get('_links',{}).get('stash:version',{}) or {}).get('href','')
+          m=re.search(r'/versions/(\d+)$', href)
+          if not m:
+              raise SystemExit(f'could not resolve current Dryad version href: {href!r}')
+          vid=int(m.group(1))
+          version=get(f'{base}/versions/{vid}')
+          files=get(f'{base}/versions/{vid}/files?per_page=100')
+          open('artifacts/goodwillie2010-source-scale/download-diagnostics/dataset.json','w').write(json.dumps(dataset,indent=2)+'\n')
+          open('artifacts/goodwillie2010-source-scale/download-diagnostics/version.json','w').write(json.dumps(version,indent=2)+'\n')
+          open('artifacts/goodwillie2010-source-scale/download-diagnostics/files.json','w').write(json.dumps(files,indent=2)+'\n')
+
+          def dicts(obj):
+              if isinstance(obj, dict):
+                  yield obj
+                  for v in obj.values(): yield from dicts(v)
+              elif isinstance(obj, list):
+                  for v in obj: yield from dicts(v)
+
+          observed={}
+          for d in dicts(files):
+              name=d.get('path') or d.get('filename') or d.get('name')
+              fid=d.get('id')
+              if isinstance(fid,str) and fid.isdigit(): fid=int(fid)
+              if isinstance(name,str) and isinstance(fid,int):
+                  observed[fid]=name.split('/')[-1]
+              if isinstance(name,str):
+                  links=d.get('_links',{}) if isinstance(d.get('_links',{}),dict) else {}
+                  for v in links.values():
+                      if not isinstance(v,dict): continue
+                      mm=re.search(r'/files/(\d+)(?:/download)?$', str(v.get('href','')))
+                      if mm: observed.setdefault(int(mm.group(1)), name.split('/')[-1])
+
+          expected={
+              int(os.environ['PINNED_XLS_FILE_ID']): os.environ['TARGET_XLS'],
+              int(os.environ['PINNED_README_FILE_ID']): os.environ['TARGET_README'],
+          }
+          if observed:
+              for fid,name in expected.items():
+                  if fid in observed and observed[fid].casefold()!=name.casefold():
+                      raise SystemExit(f'Dryad file id drift: {fid} -> {observed[fid]!r}, expected {name!r}')
+          print('current_version_id=', vid)
+          print('observed_file_ids=', json.dumps(observed, sort_keys=True))
+          with open('/tmp/goodwillie2010/resolved.env','w') as f:
+              f.write(f'DRYAD_VERSION_ID={vid}\nXLS_FILE_ID={os.environ["PINNED_XLS_FILE_ID"]}\nREADME_FILE_ID={os.environ["PINNED_README_FILE_ID"]}\n')
+          open('artifacts/goodwillie2010-source-scale/dryad_file_metadata.json','w').write(
+              json.dumps({'version_id':vid,'pinned_xls_file_id':int(os.environ['PINNED_XLS_FILE_ID']),
+                          'pinned_readme_file_id':int(os.environ['PINNED_README_FILE_ID']),
+                          'observed_file_ids':observed},indent=2)+'\n')
+          PY
+          cat /tmp/goodwillie2010/resolved.env >> "$GITHUB_ENV"
+
+      - name: Diagnose Dryad download routes and obtain public source when possible
+        run: |
+          set -euo pipefail
+          D=artifacts/goodwillie2010-source-scale/download-diagnostics
+          UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/152 Safari/537.36'
+          LANDING="https://datadryad.org/dataset/${DRYAD_DOI_UI}"
+          curl -sS -L -A "$UA" -c /tmp/goodwillie2010/cookies.txt "$LANDING" -o "$D/landing.html" || true
+
+          diagnose() {
+            label="$1"; url="$2"
+            echo "===== $label ====="
+            curl -sS -L --max-redirs 10 -A "$UA" -b /tmp/goodwillie2010/cookies.txt -c /tmp/goodwillie2010/cookies.txt \
+              -e "$LANDING" -D "$D/${label}.headers" -o "$D/${label}.body" \
+              -w 'final_url=%{url_effective}\nhttp_code=%{http_code}\ncontent_type=%{content_type}\nsize=%{size_download}\n' \
+              "$url" | tee "$D/${label}.curl.txt" || true
+            file "$D/${label}.body" | tee "$D/${label}.file.txt" || true
+            python - "$D/${label}.body" <<'PY' | tee "$D/${label}.preview.txt"
+          import pathlib, re, sys
+          p=pathlib.Path(sys.argv[1]); b=p.read_bytes()[:5000]
+          t=b.decode('utf-8','replace')
+          title=re.search(r'<title[^>]*>(.*?)</title>', t, re.I|re.S)
+          print('title=', re.sub(r'\s+',' ',title.group(1)).strip() if title else '')
+          print(re.sub(r'\s+',' ',t[:1200]))
+          PY
+          }
+
+          diagnose root_stream "https://datadryad.org/downloads/file_stream/${XLS_FILE_ID}"
+          diagnose stash_stream "https://datadryad.org/stash/downloads/file_stream/${XLS_FILE_ID}"
+          diagnose api_download "https://datadryad.org/api/v2/files/${XLS_FILE_ID}/download"
+
+          SOURCE_DOWNLOAD_OK=false
+          SOURCE_DOWNLOAD_ROUTE=''
+          for label in root_stream stash_stream api_download; do
+            body="$D/${label}.body"
+            if file "$body" | grep -qiE 'CDF|Composite Document|Microsoft Excel'; then
+              cp "$body" /tmp/goodwillie2010/source.xls
+              SOURCE_DOWNLOAD_ROUTE="$label"
+              SOURCE_DOWNLOAD_OK=true
+              break
+            fi
+          done
+          echo "SOURCE_DOWNLOAD_ROUTE=$SOURCE_DOWNLOAD_ROUTE" >> "$GITHUB_ENV"
+          echo "SOURCE_DOWNLOAD_OK=$SOURCE_DOWNLOAD_OK" >> "$GITHUB_ENV"
+          if [ "$SOURCE_DOWNLOAD_OK" = true ]; then
+            case "$SOURCE_DOWNLOAD_ROUTE" in
+              root_stream) url="https://datadryad.org/downloads/file_stream/${README_FILE_ID}" ;;
+              stash_stream) url="https://datadryad.org/stash/downloads/file_stream/${README_FILE_ID}" ;;
+              api_download) url="https://datadryad.org/api/v2/files/${README_FILE_ID}/download" ;;
+              *) exit 2 ;;
+            esac
+            curl -sS -L --fail -A "$UA" -b /tmp/goodwillie2010/cookies.txt -e "$LANDING" "$url" -o /tmp/goodwillie2010/README.txt
+          fi
+
+      - name: Fallback to ECU ScholarShip DSpace mirror
+        if: env.SOURCE_DOWNLOAD_OK != 'true'
+        run: |
+          set -euo pipefail
+          D=artifacts/goodwillie2010-source-scale/download-diagnostics
+          python - <<'PY'
+          import json, os, urllib.request, urllib.parse
+          D='artifacts/goodwillie2010-source-scale/download-diagnostics'
+          base=os.environ['ECU_API_BASE'].rstrip('/')
+          item_id=os.environ['ECU_ITEM_ID']
+          targets={os.environ['TARGET_XLS'].casefold(): 'XLS', os.environ['TARGET_README'].casefold(): 'README'}
+          headers={'User-Agent':'island-source-scale-acquisition/1.0','Accept':'application/hal+json, application/json'}
+
+          def get_json(url):
+              req=urllib.request.Request(url,headers=headers)
+              with urllib.request.urlopen(req,timeout=120) as r:
+                  return json.load(r)
+
+          def embedded(payload,key):
+              obj=payload.get('_embedded',{}) if isinstance(payload,dict) else {}
+              val=obj.get(key,[]) if isinstance(obj,dict) else []
+              return val if isinstance(val,list) else []
+
+          diagnosis={'item_id':item_id,'targets':{},'status':'started'}
+          try:
+              item=get_json(f'{base}/core/items/{item_id}')
+              diagnosis['item']=item
+              bundles_url=((item.get('_links',{}).get('bundles',{}) or {}).get('href')
+                           or f'{base}/core/items/{item_id}/bundles')
+              bundles=get_json(bundles_url + ('&' if '?' in bundles_url else '?') + 'size=100')
+              diagnosis['bundles_url']=bundles_url
+              diagnosis['bundles']=bundles
+              bundle_rows=embedded(bundles,'bundles')
+              ordered=sorted(bundle_rows,key=lambda b: 0 if str(b.get('name','')).casefold()=='original' else 1)
+              found={}
+              bitstream_snapshots=[]
+              for bundle in ordered:
+                  href=((bundle.get('_links',{}).get('bitstreams',{}) or {}).get('href'))
+                  if not href:
+                      uuid=bundle.get('uuid') or bundle.get('id')
+                      if uuid: href=f'{base}/core/bundles/{uuid}/bitstreams'
+                  if not href: continue
+                  payload=get_json(href + ('&' if '?' in href else '?') + 'size=200')
+                  bitstream_snapshots.append({'bundle':bundle.get('name'),'url':href,'payload':payload})
+                  for bit in embedded(payload,'bitstreams'):
+                      name=str(bit.get('name') or '').strip()
+                      key=name.casefold()
+                      if key not in targets or key in found: continue
+                      content=((bit.get('_links',{}).get('content',{}) or {}).get('href'))
+                      uuid=bit.get('uuid') or bit.get('id')
+                      if not content and uuid: content=f'{base}/core/bitstreams/{uuid}/content'
+                      if content:
+                          found[key]={'name':name,'content_url':content,'uuid':uuid,'bundle':bundle.get('name')}
+              diagnosis['bitstreams']=bitstream_snapshots
+              diagnosis['targets']=found
+              missing=[k for k in targets if k not in found]
+              diagnosis['status']='resolved' if not missing else 'missing_targets'
+              diagnosis['missing']=missing
+              with open(f'{D}/ecu_dspace_metadata.json','w',encoding='utf-8') as f:
+                  json.dump(diagnosis,f,ensure_ascii=False,indent=2); f.write('\n')
+              if missing:
+                  raise SystemExit(0)
+              with open('/tmp/goodwillie2010/ecu_urls.env','w',encoding='utf-8') as f:
+                  f.write('ECU_XLS_URL='+found[os.environ['TARGET_XLS'].casefold()]['content_url']+'\n')
+                  f.write('ECU_README_URL='+found[os.environ['TARGET_README'].casefold()]['content_url']+'\n')
+          except Exception as exc:
+              diagnosis['status']='error'
+              diagnosis['error']=f'{type(exc).__name__}: {exc}'
+              with open(f'{D}/ecu_dspace_metadata.json','w',encoding='utf-8') as f:
+                  json.dump(diagnosis,f,ensure_ascii=False,indent=2); f.write('\n')
+          PY
+
+          if [ -f /tmp/goodwillie2010/ecu_urls.env ]; then
+            set -a
+            . /tmp/goodwillie2010/ecu_urls.env
+            set +a
+            curl -sS -L --fail -A 'island-source-scale-acquisition/1.0' "$ECU_XLS_URL" -o /tmp/goodwillie2010/source.xls
+            curl -sS -L --fail -A 'island-source-scale-acquisition/1.0' "$ECU_README_URL" -o /tmp/goodwillie2010/README.txt
+            file /tmp/goodwillie2010/source.xls | tee "$D/ecu_source.file.txt"
+            file /tmp/goodwillie2010/README.txt | tee "$D/ecu_readme.file.txt"
+            if file /tmp/goodwillie2010/source.xls | grep -qiE 'CDF|Composite Document|Microsoft Excel'; then
+              echo 'SOURCE_DOWNLOAD_OK=true' >> "$GITHUB_ENV"
+              echo 'SOURCE_DOWNLOAD_ROUTE=ecu_dspace_mirror' >> "$GITHUB_ENV"
+            fi
+          fi
+
+      - name: Hash acquired source and preserve README
+        if: env.SOURCE_DOWNLOAD_OK == 'true'
+        run: |
+          set -euo pipefail
+          sha256sum /tmp/goodwillie2010/source.xls /tmp/goodwillie2010/README.txt | tee artifacts/goodwillie2010-source-scale/source_sha256.txt
+          cp /tmp/goodwillie2010/README.txt artifacts/goodwillie2010-source-scale/source_README.txt
+
+      - name: Audit complete workbook against current reproductive gaps
+        if: env.SOURCE_DOWNLOAD_OK == 'true'
+        run: |
+          set -euo pipefail
+          python scripts/extract_goodwillie_2010_source_scale.py \
+            --input-xls /tmp/goodwillie2010/source.xls \
+            --readme /tmp/goodwillie2010/README.txt \
+            --coverage "$CURRENT_COVERAGE" \
+            --output artifacts/goodwillie2010-source-scale
+          cat artifacts/goodwillie2010-source-scale/goodwillie2010_source_scale_summary.json >> "$GITHUB_STEP_SUMMARY"
+          echo '### README' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/goodwillie2010/README.txt >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Record unresolved access diagnosis
+        if: env.SOURCE_DOWNLOAD_OK != 'true'
+        run: |
+          cat > artifacts/goodwillie2010-source-scale/access_diagnosis.json <<'JSON'
+          {
+            "formal_gain": 0,
+            "promotion_allowed": false,
+            "status": "dryad_antibot_and_ecu_mirror_unresolved",
+            "note": "Dryad UI is Anubis-gated and API download requires a bearer token. ECU ScholarShip DSpace REST fallback was attempted and its metadata/error diagnosis is preserved."
+          }
+          JSON
+          cat artifacts/goodwillie2010-source-scale/access_diagnosis.json >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: goodwillie-2010-source-scale-${{ github.run_id }}
+          path: artifacts/goodwillie2010-source-scale/
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,21 @@
+{
+  "batch_label": "20260908-meyer-recovered-residuals-source-scale",
+  "source": "Meyer, Galloway & Eckert 2026 Dryad v4 recovered public residuals",
+  "source_doi": "10.5061/dryad.cc2fqz6hr",
+  "source_version": "4",
+  "source_packet_run_id": 34183897059,
+  "source_packet_artifact": "meyer-recovered-residuals-34183897059",
+  "source_packet_file": "meyer_recovered_residual_batch.csv.gz",
+  "source_scale_complete": true,
+  "strict_mapping": "mating_system=sc/si -> self_incompatibility=SC/SI only",
+  "expected_source_direct_gain": 2,
+  "expected_total_gain_from_recovered_baseline": 306,
+  "expected_species": [
+    "Eulobus californicus",
+    "Syzygium nervosum"
+  ],
+  "expected_state": "SI",
+  "recovery_note": "These are previously acquired, individually accepted structured-source rows that were absent from the recovered Wave53 public direct ledger; the current checkpoint confirms the reproductive axis is unresolved and the species-trait pair is absent from the current direct ledger.",
+  "manual_audit_contract": "decision=accept; species_identity_correct=true; value_correct=true; provenance_complete=true; cultivar_contamination=false",
+  "formal_integration_policy": "cumulative replay of all committed source manifests from the pinned recovered baseline"
+}

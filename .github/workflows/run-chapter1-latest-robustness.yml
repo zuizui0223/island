@@ -1,0 +1,105 @@
+name: Run Chapter 1 latest-data robustness
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - .github/workflows/run-chapter1-latest-robustness.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  robustness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CORE_RUN_ID: "34210169033"
+      CORE_ARTIFACT: "chapter1-latest-trait-34210169033"
+      ISOLATION_RUN_ID: "29228212586"
+      ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Download latest core analysis and covariates
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ch1 /tmp/isolation
+          gh run download "$CORE_RUN_ID" -n "$CORE_ARTIFACT" -D /tmp/ch1
+          gh run download "$ISOLATION_RUN_ID" -n "$ISOLATION_ARTIFACT" -D /tmp/isolation
+          test -s /tmp/ch1/input/chapter1_trait_composition_long.csv.gz
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+
+      - name: Fit trait-centric probability surfaces
+        run: |
+          python -m island_v2.chapter1_trait_probability \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_trait_probability.yml \
+            --output-dir /tmp/ch1/trait_probability
+
+      - name: Run information-weight robustness
+        run: |
+          python -m island_v2.chapter1_information_weight_sensitivity \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_information_weight_sensitivity.yml \
+            --output-dir /tmp/ch1/information_weight
+
+      - name: Run all-island distance-gradient robustness
+        run: |
+          python -m island_v2.chapter1_when_where_sensitivity \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_when_where_sensitivity.yml \
+            --output-dir /tmp/ch1/when_where_sensitivity
+
+      - name: Run leave-one-spatial-block sensitivity
+        run: |
+          python -m island_v2.chapter1_when_where_block_deletion \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_when_where_block_deletion.yml \
+            --output-dir /tmp/ch1/when_where_block
+
+      - name: Summarize robustness
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          iw=pd.read_csv('/tmp/ch1/information_weight/information_weight_headline_summary.csv')
+          sens=pd.read_csv('/tmp/ch1/when_where_sensitivity/when_where_sensitivity_summary.csv')
+          block=pd.read_csv('/tmp/ch1/when_where_block/when_where_leave_one_block_summary.csv')
+          tp=json.load(open('/tmp/ch1/trait_probability/chapter1_trait_probability_manifest.json'))
+          out={
+            'contract':'chapter1_latest_robustness_v1',
+            'core_run_id':34210169033,
+            'n_confirmatory_trait_probability_curves':int(tp['n_confirmatory_curves']),
+            'information_weight':iw.to_dict(orient='records'),
+            'distance_sensitivity':sens.to_dict(orient='records'),
+            'leave_one_block':block.to_dict(orient='records')
+          }
+          Path('/tmp/ch1/latest_robustness_summary.json').write_text(json.dumps(out,indent=2)+'\n')
+          print(json.dumps(out,indent=2))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-latest-robustness-${{ github.run_id }}
+          path: |
+            /tmp/ch1/trait_probability/
+            /tmp/ch1/information_weight/
+            /tmp/ch1/when_where_sensitivity/
+            /tmp/ch1/when_where_block/
+            /tmp/ch1/latest_robustness_summary.json
+          if-no-files-found: error
+          retention-days: 90

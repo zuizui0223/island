@@ -1,0 +1,20 @@
+{
+  "batch_label": "20260908-prior-busch-mating-source-scale",
+  "source": "Prior & Busch 2021 multilocus outcrossing-rate compilation, complete Prior/Busch block retained in the pinned Meyer input workbook",
+  "source_doi": "10.5061/dryad.3j9kd51jw",
+  "source_article_url": "https://doi.org/10.1002/ajb2.1766",
+  "source_packet_run_id": 34180572213,
+  "source_packet_artifact": "prior-busch-source-scale-34180572213",
+  "source_packet_file": "prior_busch_unresolved_mating_batch.csv.gz",
+  "source_scale_complete": true,
+  "strict_mapping": "population multilocus outcrossing rate tm -> arithmetic species mean tm -> mating_system; tm<0.2 predominantly_selfing, 0.2<=tm<=0.8 mixed_mating, tm>0.8 predominantly_outcrossing",
+  "expected_source_direct_gain": 2,
+  "expected_total_gain_from_recovered_baseline": 301,
+  "methodology_review": {
+    "quant_semantics": "Meyer source notes explicitly state quant = tm for every retained Prior/Busch row",
+    "original_method": "Prior & Busch use multilocus outcrossing rate tm as realized mating-system input, transform 1-tm to selfing rate, and calculate species-level means",
+    "repository_precedent": "The existing Moeller source contract maps the same multilocus outcrossing-rate thresholds to mating_system",
+    "population_variation": "Population tm range and population-state set remain in the audit; classification uses only the source-defined species mean"
+  },
+  "formal_integration_policy": "cumulative replay of all completed source packets from the pinned recovered baseline; no earlier source packet may be dropped"
+}

@@ -1,0 +1,64 @@
+name: Extract Whitehead 2018 residual mating source
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/extract_whitehead_2018_source_scale.py
+      - .github/workflows/extract-whitehead-2018-source-scale.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_SOURCE_BATCH_RUN: '34187097136'
+      SOURCE_ZIP: data/v2/staging/traits/open_web_pilot/goal_reproduction_checkpoint_20260811/whitehead_2018_supplementary_data.zip
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas
+
+      - name: Verify pinned Whitehead source supplement
+        run: |
+          set -euo pipefail
+          test -f "$SOURCE_ZIP"
+          echo '7067064bf2bc37ade116b33dd3dc710f2938a36fc069265b0628499f887658f8  '"$SOURCE_ZIP" | sha256sum -c -
+
+      - name: Download current cumulative public checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current
+          gh run download "$CURRENT_SOURCE_BATCH_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "source-scale-batch-integration-${CURRENT_SOURCE_BATCH_RUN}" \
+            --dir /tmp/current
+          CURRENT_COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          CURRENT_DIRECT=$(find /tmp/current -name direct_species_trait_ledger.csv.gz -print -quit)
+          test -n "$CURRENT_COVERAGE" && test -f "$CURRENT_COVERAGE"
+          test -n "$CURRENT_DIRECT" && test -f "$CURRENT_DIRECT"
+          printf 'CURRENT_COVERAGE=%s\nCURRENT_DIRECT=%s\n' "$CURRENT_COVERAGE" "$CURRENT_DIRECT" >> "$GITHUB_ENV"
+
+      - name: Build strict reviewed Whitehead residual packet
+        run: |
+          set -euo pipefail
+          python scripts/extract_whitehead_2018_source_scale.py \
+            --source-zip "$SOURCE_ZIP" \
+            --coverage "$CURRENT_COVERAGE" \
+            --direct-ledger "$CURRENT_DIRECT" \
+            --output artifacts/whitehead-2018-source-scale
+          cat artifacts/whitehead-2018-source-scale/summary.json >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: whitehead-2018-source-scale-${{ github.run_id }}
+          path: artifacts/whitehead-2018-source-scale/
+          if-no-files-found: error
+          retention-days: 90

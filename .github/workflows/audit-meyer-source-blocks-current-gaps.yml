@@ -1,0 +1,66 @@
+name: Audit Meyer source blocks against current reproductive gaps
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/audit_meyer_source_blocks_current_gaps.py
+      - .github/workflows/audit-meyer-source-blocks-current-gaps.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_SOURCE_BATCH_RUN: '34189815922'
+      MEYER_COMMIT: '3d57315fe77097fe582025b884917550139801e8'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas openpyxl
+
+      - name: Download current public checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current
+          gh run download "$CURRENT_SOURCE_BATCH_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "source-scale-batch-integration-${CURRENT_SOURCE_BATCH_RUN}" \
+            --dir /tmp/current
+          CURRENT_COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          CURRENT_DIRECT=$(find /tmp/current -name direct_species_trait_ledger.csv.gz -print -quit)
+          test -n "$CURRENT_COVERAGE" && test -f "$CURRENT_COVERAGE"
+          test -n "$CURRENT_DIRECT" && test -f "$CURRENT_DIRECT"
+          printf 'CURRENT_COVERAGE=%s\nCURRENT_DIRECT=%s\n' "$CURRENT_COVERAGE" "$CURRENT_DIRECT" >> "$GITHUB_ENV"
+
+      - name: Download pinned Meyer workbook from public GitHub mirror
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 \
+            "https://raw.githubusercontent.com/elenacicada/interesting_flowers/${MEYER_COMMIT}/Input_Data_MS.xlsx" \
+            -o /tmp/Input_Data_MS.xlsx
+          echo 'd6f30a8ad728a3b1b3c8ac5a5143fb935ffc64a38ce06708f6f2df4331737647  /tmp/Input_Data_MS.xlsx' | sha256sum -c -
+
+      - name: Rank source blocks
+        run: |
+          set -euo pipefail
+          python scripts/audit_meyer_source_blocks_current_gaps.py \
+            --input-xlsx /tmp/Input_Data_MS.xlsx \
+            --coverage "$CURRENT_COVERAGE" \
+            --direct-ledger "$CURRENT_DIRECT" \
+            --output artifacts/meyer-source-block-audit
+          cat artifacts/meyer-source-block-audit/summary.json >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: meyer-source-block-audit-${{ github.run_id }}
+          path: artifacts/meyer-source-block-audit/
+          if-no-files-found: error
+          retention-days: 90

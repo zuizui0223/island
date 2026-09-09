@@ -1,0 +1,62 @@
+name: Extract Freyman Hohna reproductive source at source scale
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/extract_freyman_hohna_source_scale.py
+      - .github/workflows/extract-freyman-hohna-source-scale.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: freyman-hohna-source-scale-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_INTEGRATION_RUN: '34107096317'
+      SOURCE_COMMIT: 'master'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas
+      - name: Download immutable public source table
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 \
+            "https://raw.githubusercontent.com/wf8/onagraceae/master/sse_analyses/data/selfing_data_complete.csv" \
+            -o /tmp/selfing_data_complete.csv
+          sha256sum /tmp/selfing_data_complete.csv
+      - name: Download current recoverable public checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current
+          gh run download "$CURRENT_INTEGRATION_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "restart-integrated-trait-evidence-${CURRENT_INTEGRATION_RUN}" \
+            --dir /tmp/current
+      - name: Extract complete source and unresolved direct candidates
+        run: |
+          set -euo pipefail
+          COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          test -n "$COVERAGE"
+          python scripts/extract_freyman_hohna_source_scale.py \
+            --source-csv /tmp/selfing_data_complete.csv \
+            --coverage "$COVERAGE" \
+            --output artifacts/freyman-hohna-source-scale
+          cat artifacts/freyman-hohna-source-scale/freyman_hohna_source_scale_summary.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: freyman-hohna-source-scale-${{ github.run_id }}
+          path: artifacts/freyman-hohna-source-scale/
+          if-no-files-found: error
+          retention-days: 90

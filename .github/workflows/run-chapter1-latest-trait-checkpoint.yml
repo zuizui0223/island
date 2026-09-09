@@ -1,0 +1,173 @@
+name: Run Chapter 1 on latest trait checkpoint
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - .github/workflows/run-chapter1-latest-trait-checkpoint.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  chapter1-latest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TRAIT_RUN_ID: "34191508045"
+      TRAIT_ARTIFACT: "source-scale-batch-integration-34191508045"
+      STATUS_RUN_ID: "32559322028"
+      STATUS_ARTIFACT: "official-wcvp-corroborated-status-32559322028"
+      ISOLATION_RUN_ID: "29228212586"
+      ISOLATION_ARTIFACT: "purpose-shortest-distance-regime-29228212586"
+      NULL_DRAWS: "1000"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install and validate canonical analysis code
+        run: |
+          pip install -e ".[dev]"
+          pytest -q \
+            tests/test_chapter1_context_workflow.py \
+            tests/test_chapter1_multistate_normalization.py \
+            tests/test_chapter1_when_where_omnibus.py \
+            tests/test_chapter1_when_where_classification.py \
+            tests/test_chapter1_when_where_domain_omnibus.py \
+            tests/test_chapter1_observation_bias.py \
+            tests/test_chapter1_trait_resolution_bias.py
+
+      - name: Download latest traits and locked covariates
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/traits /tmp/status /tmp/isolation
+          gh run download "$TRAIT_RUN_ID" -n "$TRAIT_ARTIFACT" -D /tmp/traits
+          gh run download "$STATUS_RUN_ID" -n "$STATUS_ARTIFACT" -D /tmp/status
+          gh run download "$ISOLATION_RUN_ID" -n "$ISOLATION_ARTIFACT" -D /tmp/isolation
+          test -s /tmp/traits/direct_species_trait_ledger.csv.gz
+          test -s /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz
+          test -s /tmp/isolation/results/purpose_shortest_island_data.csv
+
+      - name: Build canonical status-aware atomic trait composition
+        run: |
+          python -m island_v2.chapter1_context_input \
+            --island-species-csv data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
+            --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
+            --direct-evidence-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --output-dir /tmp/ch1/input
+
+      - name: Audit observation process
+        run: |
+          python -m island_v2.chapter1_observation_bias \
+            --all-islands-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --island-species-csv data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --config-path config/chapter1_observation_bias.yml \
+            --output-dir /tmp/ch1/observation_bias
+
+      - name: Fit trait-resolution bias and coverage-adjusted when-where
+        run: |
+          python -m island_v2.chapter1_trait_resolution_bias \
+            --status-flora-csv /tmp/ch1/input/chapter1_status_flora.csv.gz \
+            --trait-audit-csv /tmp/ch1/input/chapter1_direct_trait_state_audit.csv.gz \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_trait_resolution_bias.yml \
+            --output-dir /tmp/ch1/trait_resolution_bias
+
+      - name: Fit atomic M0-M2 diagnostics
+        run: |
+          python -m island_v2.chapter1_context_analysis \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_context_analysis.yml \
+            --output-dir /tmp/ch1/context
+
+      - name: Fit primary when-where response-vector omnibus
+        run: |
+          python -m island_v2.chapter1_when_where_omnibus \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_when_where_omnibus.yml \
+            --output-dir /tmp/ch1/when_where
+          python -m island_v2.chapter1_when_where_classification \
+            --within-csv /tmp/ch1/when_where/when_where_within_context_omnibus.csv \
+            --output-csv /tmp/ch1/when_where/when_where_status_persistence.csv
+
+      - name: Run trait-domain omnibus sensitivity
+        run: |
+          python -m island_v2.chapter1_when_where_domain_omnibus \
+            --composition-csv /tmp/ch1/input/chapter1_trait_composition_long.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_when_where_omnibus.yml \
+            --output-dir /tmp/ch1/when_where_domain
+
+      - name: Build genus-fixed M3 lineage guardrail
+        run: |
+          python -m island_v2.genus_fixed_trait_null \
+            --island-species-csv data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
+            --status-ledger-csv /tmp/status/resolved/resolved_floristic_status_ledger.csv.gz \
+            --direct-evidence-csv /tmp/traits/direct_species_trait_ledger.csv.gz \
+            --master-taxa-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --config-path config/flora_status_support.yml \
+            --n-draws "$NULL_DRAWS" \
+            --seed 20260825 \
+            --min-species-per-island 1 \
+            --output-dir /tmp/ch1/null
+          python -m island_v2.status_stratified_lineage_analysis \
+            --genus-null-csv /tmp/ch1/null/genus_fixed_null_by_island.csv.gz \
+            --covariates-csv /tmp/isolation/results/purpose_shortest_island_data.csv \
+            --context-column analysis_regime \
+            --cluster-column spatial_block \
+            --output-dir /tmp/ch1/lineage
+
+      - name: Freeze atomic trait vectors
+        run: |
+          python -m island_v2.chapter1_trait_vector_freeze \
+            --slopes-csv /tmp/ch1/context/chapter1_context_isolation_slopes.csv \
+            --coefficients-csv /tmp/ch1/context/chapter1_m0_m2_coefficients.csv \
+            --lineage-csv /tmp/ch1/lineage/status_stratified_lineage_isolation.csv \
+            --output-dir /tmp/ch1/freeze
+
+      - name: Write latest-data checkpoint summary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          within=pd.read_csv('/tmp/ch1/when_where/when_where_within_context_omnibus.csv')
+          between=pd.read_csv('/tmp/ch1/when_where/when_where_between_context_omnibus.csv')
+          persistence=pd.read_csv('/tmp/ch1/when_where/when_where_status_persistence.csv')
+          coverage=pd.read_csv('/tmp/ch1/trait_resolution_bias/coverage_adjusted_headline_summary.csv')
+          lineage=pd.read_csv('/tmp/ch1/lineage/status_stratified_lineage_isolation.csv')
+          confw=within[within.support_tier.eq('confirmatory')]
+          confb=between[between.support_tier.eq('confirmatory')]
+          out={
+            'contract':'chapter1_latest_trait_checkpoint_v1',
+            'trait_run_id':34191508045,
+            'filled_trait_cells':222688,
+            'filled_reproductive_cells':48497,
+            'confirmatory_where_tests':int(len(confw)),
+            'confirmatory_where_supported':int(confw.where_supported.fillna(False).sum()),
+            'confirmatory_between_tests':int(len(confb)),
+            'confirmatory_between_supported':int(confb.between_where_supported.fillna(False).sum()),
+            'status_persistence':persistence.to_dict(orient='records'),
+            'coverage_adjusted':coverage.to_dict(orient='records'),
+            'lineage_guardrail_rows':int(len(lineage)),
+          }
+          Path('/tmp/ch1/latest_trait_checkpoint.json').write_text(json.dumps(out,indent=2)+'\n')
+          print(json.dumps(out,indent=2))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-latest-trait-${{ github.run_id }}
+          path: /tmp/ch1/
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,40 @@
+name: Recover verified public trait checkpoint
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/recover_verified_trait_checkpoint.py
+      - tests/test_verified_checkpoint_recovery.py
+      - .github/workflows/recover-verified-trait-checkpoint.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: ff8249c6de682eaa70dc5a953c5ed420d85e1f98
+          path: historical
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas pyyaml pytest
+      - run: pytest -q tests/test_verified_checkpoint_recovery.py
+      - name: Recover immutable public inputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 33605098044 --repo "$GITHUB_REPOSITORY" --name wave53-support-two-reproductive-unlock-v2-33605098044 --dir /tmp/source
+          python scripts/recover_verified_trait_checkpoint.py --source /tmp/source --output artifacts/recovered-checkpoint --low-sidecar historical/data/v2/staging/traits/wave33_secondary_baseline/validated_probabilistic_genus_low_species_axis.csv.gz --ontology historical/config/trait_ontology.yml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: recovered-public-trait-checkpoint-${{ github.run_id }}
+          path: artifacts/recovered-checkpoint/
+          if-no-files-found: error
+          retention-days: 90

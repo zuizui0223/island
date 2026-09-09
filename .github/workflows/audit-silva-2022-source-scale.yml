@@ -1,0 +1,160 @@
+name: Audit Silva 2022 reproductive source at source scale
+
+on:
+  push:
+    branches: [codex/recover-verified-checkpoint]
+    paths:
+      - scripts/audit_silva_2022_source_scale.py
+      - .github/workflows/audit-silva-2022-source-scale.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_SOURCE_BATCH_RUN: '34188688010'
+      MEYER_COMMIT: '3d57315fe77097fe582025b884917550139801e8'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pandas openpyxl requests
+
+      - name: Download current public checkpoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current
+          gh run download "$CURRENT_SOURCE_BATCH_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "source-scale-batch-integration-${CURRENT_SOURCE_BATCH_RUN}" \
+            --dir /tmp/current
+          CURRENT_COVERAGE=$(find /tmp/current -name species_axis_coverage.csv.gz -print -quit)
+          CURRENT_DIRECT=$(find /tmp/current -name direct_species_trait_ledger.csv.gz -print -quit)
+          test -n "$CURRENT_COVERAGE" && test -f "$CURRENT_COVERAGE"
+          test -n "$CURRENT_DIRECT" && test -f "$CURRENT_DIRECT"
+          printf 'CURRENT_COVERAGE=%s\nCURRENT_DIRECT=%s\n' "$CURRENT_COVERAGE" "$CURRENT_DIRECT" >> "$GITHUB_ENV"
+
+      - name: Download pinned Meyer workbook
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 \
+            "https://raw.githubusercontent.com/elenacicada/interesting_flowers/${MEYER_COMMIT}/Input_Data_MS.xlsx" \
+            -o /tmp/Input_Data_MS.xlsx
+          echo 'd6f30a8ad728a3b1b3c8ac5a5143fb935ffc64a38ce06708f6f2df4331737647  /tmp/Input_Data_MS.xlsx' | sha256sum -c -
+
+      - name: Audit complete Silva block and workbook metadata
+        run: |
+          set -euo pipefail
+          python scripts/audit_silva_2022_source_scale.py \
+            --input-xlsx /tmp/Input_Data_MS.xlsx \
+            --coverage "$CURRENT_COVERAGE" \
+            --direct-ledger "$CURRENT_DIRECT" \
+            --output artifacts/silva-2022-source-scale
+          cat artifacts/silva-2022-source-scale/summary.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Search bibliographic APIs for the original Silva 2022 source
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, pathlib, requests
+          out = pathlib.Path('artifacts/silva-2022-source-scale')
+          queries = [
+              'Silva 2022 plant self incompatibility self compatibility breeding system',
+              'Silva 2022 angiosperm mating system self-incompatibility database',
+              'Silva 2022 Nectandra megapotamica reproduction',
+              'Silva 2022 Dinebra decipiens reproduction',
+          ]
+          rows=[]
+          headers={'User-Agent':'island-source-audit/1.0 (mailto:rachelzhang0223@gmail.com)'}
+          for q in queries:
+              try:
+                  r=requests.get('https://api.crossref.org/works', params={'query.bibliographic':q,'rows':15,'filter':'from-pub-date:2021-01-01,until-pub-date:2023-12-31'}, headers=headers, timeout=30)
+                  r.raise_for_status()
+                  for item in r.json().get('message',{}).get('items',[]):
+                      rows.append({
+                          'provider':'crossref','query':q,'title':' | '.join(item.get('title',[])[:1]),
+                          'author':' | '.join(' '.join(filter(None,[a.get('given',''),a.get('family','')])) for a in item.get('author',[])[:8]),
+                          'doi':item.get('DOI',''),'published':str(item.get('published-print') or item.get('published-online') or item.get('issued') or ''),
+                          'container':' | '.join(item.get('container-title',[])[:1]),
+                      })
+              except Exception as e:
+                  rows.append({'provider':'crossref','query':q,'error':repr(e)})
+              try:
+                  r=requests.get('https://api.openalex.org/works', params={'search':q,'per-page':15,'filter':'from_publication_date:2021-01-01,to_publication_date:2023-12-31'}, headers=headers, timeout=30)
+                  r.raise_for_status()
+                  for item in r.json().get('results',[]):
+                      rows.append({
+                          'provider':'openalex','query':q,'title':item.get('title',''),
+                          'author':' | '.join(a.get('author',{}).get('display_name','') for a in item.get('authorships',[])[:8]),
+                          'doi':(item.get('doi') or '').replace('https://doi.org/',''),'published':item.get('publication_date',''),
+                          'container':((item.get('primary_location') or {}).get('source') or {}).get('display_name',''),
+                      })
+              except Exception as e:
+                  rows.append({'provider':'openalex','query':q,'error':repr(e)})
+          with open(out/'bibliographic_candidates.json','w',encoding='utf-8') as f:
+              json.dump(rows,f,ensure_ascii=False,indent=2); f.write('\n')
+          ranked=[]
+          for x in rows:
+              s=(x.get('title','')+' '+x.get('author','')).casefold()
+              score=(3 if 'silva' in s else 0)+(2 if any(k in s for k in ['self-incompat','self incompat','mating','breeding system','reproduct']) else 0)
+              ranked.append((score,x))
+          for score,x in sorted(ranked,key=lambda z:(-z[0],z[1].get('title','')))[:40]:
+              print(score, json.dumps(x,ensure_ascii=False))
+          PY
+
+      - name: Resolve Silva 2022 from Meyer paper deposited references
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, pathlib, requests
+          out=pathlib.Path('artifacts/silva-2022-source-scale')
+          headers={'User-Agent':'island-source-audit/1.0 (mailto:rachelzhang0223@gmail.com)'}
+          resolved=[]
+          # Crossref-deposited reference list for the Meyer et al. paper.
+          r=requests.get('https://api.crossref.org/works/10.1093/aob/mcaf031',headers=headers,timeout=30)
+          r.raise_for_status()
+          msg=r.json()['message']
+          refs=msg.get('reference',[])
+          for ref in refs:
+              s=' '.join(str(ref.get(k,'')) for k in ['author','article-title','journal-title','DOI','unstructured']).casefold()
+              year=str(ref.get('year',''))
+              if 'silva' in s and year=='2022':
+                  resolved.append({'provider':'crossref_meyer_reference','reference':ref})
+          # OpenAlex graph for the Meyer paper; resolve 2022 referenced works with Silva authors.
+          try:
+              rr=requests.get('https://api.openalex.org/works/https://doi.org/10.1093/aob/mcaf031',headers=headers,timeout=30)
+              rr.raise_for_status()
+              ids=rr.json().get('referenced_works',[])
+              for i in range(0,len(ids),50):
+                  batch='|'.join(x.rsplit('/',1)[-1] for x in ids[i:i+50])
+                  if not batch: continue
+                  q=requests.get('https://api.openalex.org/works',params={'filter':f'openalex_id:{batch}','per-page':50},headers=headers,timeout=30)
+                  q.raise_for_status()
+                  for w in q.json().get('results',[]):
+                      if int(w.get('publication_year') or 0)!=2022: continue
+                      authors=[a.get('author',{}).get('display_name','') for a in w.get('authorships',[])]
+                      if any('silva' in a.casefold() for a in authors):
+                          resolved.append({
+                              'provider':'openalex_meyer_reference','title':w.get('title',''),
+                              'authors':authors,'doi':w.get('doi',''),'openalex':w.get('id',''),
+                              'publication_date':w.get('publication_date','')
+                          })
+          except Exception as e:
+              resolved.append({'provider':'openalex_meyer_reference','error':repr(e)})
+          with open(out/'meyer_reference_silva_2022.json','w',encoding='utf-8') as f:
+              json.dump(resolved,f,ensure_ascii=False,indent=2); f.write('\n')
+          print(json.dumps(resolved,ensure_ascii=False,indent=2))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: silva-2022-source-scale-${{ github.run_id }}
+          path: artifacts/silva-2022-source-scale/
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,17 @@
+{
+  "batch_label": "20260908-hauya-si-source-scale",
+  "source": "Hauya heydeana SI from Raven 1979 / Wagner, Hoch & Raven 2007 with pinned Freyman matrix corroboration",
+  "source_doi": "10.1080/0028825X.1979.10432572",
+  "source_version": "Raven 1979 primary review plus frozen Freyman commit 6099e27bb238a5e85fb0d8249553e780302e3793",
+  "source_packet_run_id": 34184951767,
+  "source_packet_artifact": "hauya-si-source-packet-34184951767",
+  "source_packet_file": "hauya_unresolved_si_batch.csv.gz",
+  "source_scale_complete": true,
+  "strict_mapping": "explicit species-level self-incompatibility -> self_incompatibility=SI",
+  "expected_source_direct_gain": 1,
+  "expected_total_gain_from_recovered_baseline": 307,
+  "expected_species": ["Hauya heydeana"],
+  "expected_state": "SI",
+  "source_review_note": "Raven 1979 states that both Hauya species are self-incompatible; Wagner, Hoch & Raven 2007 independently repeats the genus-level two-species statement. The pinned Freyman matrix identifies Hauya heydeana as SI=1. The Freyman matrix is corroboration, not the sole promotion basis.",
+  "formal_integration_policy": "cumulative replay of all committed source manifests from the pinned recovered baseline, with reviewed Eulobus SI->SC correction applied separately and not counted as a gain"
+}

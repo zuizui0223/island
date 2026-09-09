@@ -1,0 +1,19 @@
+{
+  "batch_label": "20260908-orchid-si-sc-source-scale",
+  "source": "Ackerman et al. global Orchidaceae reproductive biology database",
+  "source_doi": "10.5281/zenodo.14601785",
+  "source_article_url": "https://academic.oup.com/botlinnean/article/202/3/295/7076252",
+  "source_packet_run_id": 34177109852,
+  "source_packet_artifact": "orchid-source-scale-34177109852",
+  "source_packet_file": "orchid_unresolved_si_sc_batch.csv.gz",
+  "source_scale_complete": true,
+  "strict_mapping": "self_incompatibility only",
+  "expected_source_direct_gain": 192,
+  "expected_total_gain_from_recovered_baseline": 299,
+  "excluded_fields": {
+    "Mixed mating": "mixed pollination system, not strict population-genetic mating_system",
+    "autonomous selfing/agagamospermy": "conflates autonomous sexual selfing and apomixis",
+    "evidence for selfing": "evidence grade, not a strict trait state"
+  },
+  "formal_integration_policy": "one completed source packet, one batch run; no species/page micro-runs"
+}

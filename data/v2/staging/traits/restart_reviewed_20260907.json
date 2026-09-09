@@ -1,0 +1,73 @@
+[
+  {
+    "record_id": "restart:zhai2010:neolitsea-sericea:mating",
+    "accepted_species": "Neolitsea sericea",
+    "axis": "reproductive_assurance",
+    "trait_name": "mating_system",
+    "normalized_value": "predominantly_outcrossing",
+    "quality": "medium",
+    "source_url": "https://bsapubs.onlinelibrary.wiley.com/doi/10.3732/ajb.1000348",
+    "source_title": "Isolation of compound microsatellite markers for the endangered plant Neolitsea sericea (Lauraceae)",
+    "source_excerpt": "Neolitsea sericea is dioecious, hence an obligate outcrosser, and does not reproduce vegetatively.",
+    "source_lineage": "citation:Chung-Chung-Oh-Epperson-2000-Heredity-85-490-497",
+    "provider_lineage": "doi:10.3732/ajb.1000348",
+    "review_date": "2026-09-07",
+    "reviewer": "Codex-source-review",
+    "review_status": "accepted_direct_statement",
+    "name_match_method": "exact_accepted_species_in_original_body_and_frozen_master",
+    "cultivar_status": "natural_populations",
+    "genus_rule_training_allowed": false,
+    "review_note": "Original publisher full text re-read 2026-09-07. Explicit species-level outcrossing statement; not model inference from dioecy. Conservative existing ontology maps obligate outcrossing to predominantly_outcrossing. Natural-history citation points to Chung et al. 2000; upstream study not independently re-read. Count as one Medium lineage, never as two sources. Existing frozen species-trait and species-axis collisions absent. Genus retraining remains deferred."
+  },
+  {
+    "record_id": "pohnpei-2021-astronidium-ponapense-colour",
+    "accepted_species": "Astronidium ponapense",
+    "axis": "flower_colour",
+    "trait_name": "flower_primary_color",
+    "normalized_value": "red_pink",
+    "state_set": [
+      "red_pink"
+    ],
+    "quality": "high",
+    "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8317631/",
+    "source_excerpt": "Maroon-red",
+    "source_lineage": "doi:10.1093/aobpla/plab038",
+    "source_title": "Breeding systems of naturalized versus indigenous species provide support for Baker's law on Pohnpei island",
+    "source_locator": "Table 2, Astronidium ponapense row, Colour column",
+    "source_sha256": "1acaf6d2afdae80bda63b4cb5219a397ac4788bc7343703e0c243b5c01a15030",
+    "source_hash_scope": "Europe PMC fullTextXML",
+    "retrieval_date": "2026-09-07",
+    "review_date": "2026-09-07",
+    "reviewer": "Codex-original-table-context-review",
+    "review_status": "accepted_direct_statement",
+    "name_match_method": "exact_accepted_species_original_table_and_fixed_master",
+    "cultivar_status": "natural_populations",
+    "genus_rule_training_allowed": false,
+    "review_note": "Original field observations, Table 2. Maroon-red is a red shade. Do not convert P:O-derived autogamy inference into direct reproductive evidence. No whole-flower size category inferred from petal length."
+  },
+  {
+    "record_id": "medinilla-multiflora-2018-self-compatibility",
+    "accepted_species": "Medinilla multiflora",
+    "axis": "reproductive_assurance",
+    "trait_name": "self_incompatibility",
+    "normalized_value": "SC",
+    "state_set": [
+      "SC"
+    ],
+    "quality": "high",
+    "source_url": "https://journals.rbge.org.uk/rbgesib/article/view/251",
+    "source_excerpt": "Medinilla multiflora was found to require pollination but not cross-pollination.",
+    "source_lineage": "doi:10.24823/sibbaldia.2018.251",
+    "source_title": "Pollination, Mating System, Phenology and Characterisation of Medinilla multiflora Merr. (Melastomataceae) on Mt Makiling, Philippines",
+    "source_sha256": "1db3621174fd43c9cf9a182208c2acac8b946d1091925039be07c02c916f5ede",
+    "source_hash_scope": "publisher original article HTML",
+    "retrieval_date": "2026-09-07",
+    "review_date": "2026-09-07",
+    "reviewer": "Codex-original-abstract-review",
+    "review_status": "accepted_direct_statement",
+    "name_match_method": "exact_accepted_species_original_abstract_and_fixed_master",
+    "cultivar_status": "natural_populations",
+    "genus_rule_training_allowed": false,
+    "review_note": "Original study explicitly reports self-compatibility based on exclusion and hand-pollination. Mt Makiling population, Philippines. Species-complex delimitation uncertainty retained; no synonym expansion. SC only; no autonomous-selfing or mixed-mating assignment from this abstract. Formal species-axis was empty."
+  }
+]

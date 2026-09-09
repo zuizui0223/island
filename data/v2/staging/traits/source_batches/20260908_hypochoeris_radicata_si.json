@@ -1,0 +1,21 @@
+{
+  "batch_label": "20260908-hypochoeris-radicata-primary-backed-si",
+  "source": "Grossenbacher et al. 2017 SI compilation backed by Ortiz et al. 2006 and Pico et al. 2004 direct pollination experiments",
+  "source_doi": "10.1111/nph.14534",
+  "primary_source_dois": [
+    "10.3732/ajb.93.2.234",
+    "10.1111/j.1095-8339.2004.00330.x"
+  ],
+  "source_version": "pinned Meyer workbook sha256:d6f30a8ad728a3b1b3c8ac5a5143fb935ffc64a38ce06708f6f2df4331737647 plus reviewed primary literature",
+  "source_packet_run_id": 34189756168,
+  "source_packet_artifact": "hypochoeris-radicata-si-source-34189756168",
+  "source_packet_file": "hypochoeris_radicata_unresolved_si_batch.csv.gz",
+  "source_scale_complete": true,
+  "strict_mapping": "explicit species-level self-incompatibility supported by direct self/cross pollination experiments -> self_incompatibility=SI",
+  "expected_source_direct_gain": 1,
+  "expected_total_gain_from_recovered_baseline": 312,
+  "expected_species": ["Hypochoeris radicata"],
+  "expected_state": "SI",
+  "source_review_note": "The pinned Grossenbacher 2017 block records the exact fixed-universe label Hypochoeris radicata as SI and explicitly excludes conflicting species and among-population breeding-system variation. Primary literature under the standard orthographic form Hypochaeris radicata directly tests compatibility: Ortiz et al. 2006 classifies the species as self-incompatible after experiments on 205 plants across 21 populations, with occasional SC individuals treated as exceptions; Pico et al. 2004 independently finds selfing dramatically reduces seed set. No higher-taxon inference or autonomous-selfing proxy is used.",
+  "formal_integration_policy": "cumulative replay of all committed source manifests from the pinned recovered baseline; this packet cannot train genus rules"
+}
