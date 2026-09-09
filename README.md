@@ -1,133 +1,135 @@
-# Island floral syndrome — v2
+# Island — Chapter 1 paper repository
 
-This repository supports **Chapter 1 / macroecological WHEN–WHERE analysis** of floral and reproductive trait filtering across island floras.
-
-## Current question
-
-> **When and where do floral/reproductive trait probabilities change along a mainland-distance/source-pool-accessibility gradient, and where do multivariate response vectors differ?**
-
-GBIF occurrence data are treated as an **opportunistic, incompletely observed sample of realised island floras**, not a census. No-record islands are retained in a separate observation-process layer and are never treated as biological trait zeros.
-
-Mainland distance is a composite geographic axis that may represent both dispersal limitation and changing accessibility to mainland/source species pools. It is not interpreted as a pure causal isolation treatment.
-
-## Frozen result
-
-Formal observation-robust workflow run: `32845980788`.
-
-> **Within opportunistically observed island floras, floral and reproductive trait probabilities change systematically along the geographic/source-pool gradient in both northern mid-latitude and tropical regions. Their multivariate response vectors differ, and the result persists in native non-endemic assemblages. Current data remain confirmatorily unresolved for northern high-latitude and southern-extratropical floras.**
-
-The headline survives the major observation-bias checks:
-
-- **10/10** headline replications across canonical, capped-100, capped-50, capped-20 and equal-island information weighting × two status strata;
-- **2/2** headline replications after response-specific direct-trait coverage adjustment;
-- **6/6** across log1p, square-root and raw distance representations while retaining the same full island universe;
-- **84/84** leave-one-spatial-block deletions in all-native flora and **84/84** in native-nonendemic flora.
-
-The checkpoint therefore records `observation_robust_headline = true`.
-
-See:
-
-- [`docs/chapter1_when_where_frozen_result_20260825.md`](docs/chapter1_when_where_frozen_result_20260825.md) — canonical observation-robust result;
-- [`docs/chapter1_next_acquisition_priority_20260825.md`](docs/chapter1_next_acquisition_priority_20260825.md) — outcome-blind next data-acquisition priorities;
-- [`THESIS_CHAPTER_POSITIONING.md`](THESIS_CHAPTER_POSITIONING.md) — dissertation role and claim boundary;
-- [`docs/chapter1_pollination_syndrome_concordance_20260825.md`](docs/chapter1_pollination_syndrome_concordance_20260825.md) — post-freeze Discussion-only pollination-syndrome audit.
-
-## Three analysis layers
+This repository contains the **current Chapter 1 / global island-flora analysis**. The paper-facing working tree is intentionally organized around one traceable line:
 
 ```text
-Layer O — observation process
-all 8,265 islands
-→ where is flora recorded?
-→ where is direct trait evidence available?
-
-Layer T — trait-centric ecological surface
-trait-resolved observed flora
-→ P(trait state | geography, area, climate, context)
-
-Layer W — WHEN / WHERE
-→ within-context multivariate response-vector test
-→ between-context response-vector comparison
-→ floristic-status persistence
-→ lineage / genus-composition safeguard
+source data
+  -> reproducible Chapter 1 database
+  -> frozen H1-H5 hypothesis contract
+  -> canonical progressive analysis
+  -> frozen result + canonical manuscript
 ```
 
-### Observation layer
+Development experiments and superseded analyses remain recoverable in git history. **`legacy/v1/` is a separately frozen historical analysis and is not modified by the v2 paper cleanup.**
 
-All **8,265 islands** remain represented:
+## 1. Canonical database
 
-- no flora record: 3,760;
-- flora recorded: 4,505;
-- at least one direct Chapter 1 trait represented: 425;
-- all three core direct-trait domains represented: 405.
+The final Chapter 1 analysis uses a fixed universe of **8,265 islands** and a fixed trait denominator of **106,295 analysis-applicable plant species x 3 axes = 318,885 species-axis cells**.
 
-Observation and trait-resolution probabilities are geographically structured, so they are modelled explicitly rather than assumed ignorable.
+The three analysis axes are:
 
-### Trait-centric layer
+- flower colour;
+- floral structural complexity;
+- reproductive assurance.
 
-The ecological estimand is:
+Core data layers are:
+
+- island geography / area / distance infrastructure derived from the frozen GSHHG-based island universe;
+- GBIF records used as an opportunistic sample of realised island floras, never as a complete census;
+- frozen floristic source/status infrastructure used for native/non-endemic/endemic and source-pool comparisons;
+- species-level trait evidence with provenance and quality labels.
+
+Trait evidence precedence is **species-direct High/Medium first, then trait-specific Validated Low only where direct evidence is absent**. Family inference and global fallback are prohibited in the canonical Chapter 1 contract.
+
+The current database-construction route is documented in [`docs/DATABASE_BUILD.md`](docs/DATABASE_BUILD.md). The authoritative trait-build line is the recovered checkpoint and source-scale integration merged through PR #151, with source manifests retained under `data/v2/staging/traits/source_batches/` and the evidence contract in `docs/chapter1_trait_coverage_contract.md`.
+
+Final trait snapshot used by the paper:
+
+- source run: **34191508045**;
+- artifact: `source-scale-batch-integration-34191508045`;
+- resolved cells: **222,688 / 318,885 = 69.83%**;
+- reproductive-assurance cells: **48,497 / 106,295 = 45.63%**.
+
+Coverage is not itself an analysis gate. Missingness and trait-resolution processes are audited explicitly.
+
+## 2. Frozen hypotheses
+
+There is one canonical scientific contract:
+
+- [`config/chapter1_progressive_analysis.yml`](config/chapter1_progressive_analysis.yml)
+- contract name: `chapter1_progressive_analysis_v1`
+
+The hypothesis order is fixed:
+
+1. **H1 — Universal-syndrome rival:** does one floral/reproductive island syndrome hold across contexts?
+2. **H2 — Biogeographic branching:** do response vectors differ among contexts?
+3. **H3 — Source/lineage assembly:** how much of the response is represented by source-available lineage entry/loading rather than a uniform within-lineage shift?
+4. **H4 — Area/capacity moderation:** does continuous island area modify the isolation-associated filtering?
+5. **H5 — Channel-gated residual mechanism:** only independent pollinator-channel evidence can promote a mechanistic channel-loss claim.
+
+The claim ceiling is part of the same config. Floral architecture cannot be used to infer historical pollinator loss, replacement, source ancestry, or in-situ evolution.
+
+## 3. Canonical analysis pipeline
+
+The single paper-level workflow is:
+
+- [`.github/workflows/run-chapter1-progressive-trait-analysis.yml`](.github/workflows/run-chapter1-progressive-trait-analysis.yml)
+
+It snapshots the current trait ledger and reruns the same predeclared contract. The current implementation uses the Chapter 1 modules for:
+
+- trait snapshot validation;
+- trait-resolution / MNAR sensitivity;
+- climate-overlap validation;
+- pollination-associated architecture factorization;
+- family/genus taxonomic-depth decomposition;
+- area/capacity moderation;
+- source-matched lineage representation.
+
+Detailed routing is in [`docs/PAPER_PIPELINE.md`](docs/PAPER_PIPELINE.md).
+
+Final paper analysis:
+
+- workflow run: **34232450884**;
+- artifact: `chapter1-progressive-analysis-34232450884`;
+- artifact ID: **10058653212**;
+- digest: `sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999`.
+
+## 4. Frozen result and manuscript
+
+The final interpretation and provenance are fixed in:
+
+- [`docs/chapter1_submission_freeze_20260909.md`](docs/chapter1_submission_freeze_20260909.md)
+- [`docs/chapter1_submission_hypothesis_framework_20260909.md`](docs/chapter1_submission_hypothesis_framework_20260909.md)
+- [`docs/chapter1_figure1_hypothesis_tree_spec_20260909.md`](docs/chapter1_figure1_hypothesis_tree_spec_20260909.md)
+- [`docs/chapter1_literature_positioning_20260909.md`](docs/chapter1_literature_positioning_20260909.md)
+- [`docs/chapter1_h3_h5_causal_hierarchy_20260909.md`](docs/chapter1_h3_h5_causal_hierarchy_20260909.md)
+
+The **single canonical manuscript** is:
+
+- [`docs/chapter1_manuscript_full_v7_submission_order_20260909.md`](docs/chapter1_manuscript_full_v7_submission_order_20260909.md)
+
+Headline result:
+
+- H1: one universal floral/reproductive island syndrome is not recovered;
+- H2: source-separation responses branch among biogeographic contexts;
+- H3: the broad Palearctic response is represented at genus-level lineage assembly beyond family composition;
+- H4: area remains a measurement-sensitive modifier rather than a promoted causal result;
+- H5: pollination-channel causation is not identified from the Chapter 1 plant database.
+
+`large_bee_like`, `butterfly_like`, and `bird_like` are secondary floral-architecture concordance scores, **not pollinator classifiers**.
+
+## 5. Repository map
 
 ```text
-P(trait state | directly trait-resolved observed realised flora, geography)
+README.md                              <- start here
+docs/DATABASE_BUILD.md                 <- how the analysis database was built
+docs/PAPER_PIPELINE.md                 <- database -> H1-H5 -> analysis -> manuscript
+config/chapter1_progressive_analysis.yml
+.github/workflows/run-chapter1-progressive-trait-analysis.yml
+src/island_v2/                         <- analysis/data-construction implementation
+data/v2/                               <- current v2 data layers and provenance
+docs/chapter1_*20260909.md             <- final paper framing and freeze
+legacy/v1/                             <- frozen historical v1, preserved intact
 ```
 
-For example, current direct evidence does **not** support a simple “farther islands have more SC species” result: SC distance slopes are weak in both the northern-midlatitude and tropical all-native samples.
+Older PR-specific workflows, superseded August result notes, and baseline manuscript copies have been removed from the current working tree to prevent them from appearing canonical. They remain available in git history.
 
-### WHEN / WHERE layer
+## 6. Legacy v1 preservation
 
-Confirmatory response-vector tests support geographic trait filtering in:
+`legacy/v1/` is intentionally retained as the complete historical v1 analysis, including its R code, data objects, metadata, trait files, artifacts, and migration documentation.
 
-- **northern mid-latitude** floras;
-- **tropical** floras.
+At the start of the paper-tree cleanup, the `legacy/v1` git tree was:
 
-The same result persists in `native_nonendemic` assemblages, and the northern-midlatitude and tropical vectors differ directly in a formal multivariate contrast.
+`8febaeb4e77f1c595f34dd672c95e5926fa58b0a`
 
-Northern high-latitude and southern-extratropical floras are **unresolved confirmatorily**, not demonstrated null regions. Southern extratropical floras have a pilot signal.
-
-## Additional acquisition
-
-Additional data must not be collected to rescue or strengthen the already-supported northern/tropical result.
-
-The next acquisition objective is **regional testability**:
-
-1. expand floristic-status resolution on already flora-recorded **northern high-latitude** and **southern extratropical** islands;
-2. then prioritize direct **floral-form** evidence;
-3. then direct **SI/SC** evidence;
-4. colour is lower priority because current direct coverage is already comparatively high.
-
-This order matters: southern extratropical has 317 flora-recorded islands but only 34 currently entering the native-status trait surface; northern high-latitude has 424 flora-recorded islands but only 12. Trait filling alone cannot close the >=50-island confirmatory gap without first widening status-resolved island coverage.
-
-Acquisition priority must be outcome-blind. Preliminary trait values, effect directions and p-values must not enter the queue.
-
-## Bombus and pollination-syndrome boundary
-
-Bombus, bird, butterfly, moth, hawkmoth and other pollinator labels do **not** enter the primary Chapter 1 design.
-
-They may be compared with the frozen response vectors for Discussion-level concordance or mismatch only. Trait vectors do not identify causal pollinator guilds.
-
-## Thesis handoff
-
-```text
-Chapter 1 — island
-WHEN / WHERE do trait probabilities respond to the geographic/source-pool gradient?
-WHERE do multivariate responses differ?
-        ↓
-Chapter 2 — izu-core
-WHY do those contexts generate different response architectures?
-        ↓
-Chapter 3 — shimahotarubukuro
-WHAT phenotype axes actually diverge within one focal lineage?
-```
-
-## Repository layout
-
-- `src/island_v2/` — reusable v2 data and analysis utilities
-- `analysis/v2/` — statistical analysis scripts and execution notes
-- `config/` — frozen contracts, ontology, and artifact locks
-- `data/v2/` — external/staging/curated/template data layers
-- `docs/` — scientific design, data policy, methods, and reproducibility notes
-- `.github/workflows/` — active validation and canonical analysis workflows
-- `legacy/v1/` — frozen v1 provenance only
-
-## Reproducibility rule
-
-GitHub Actions artifacts are temporary. Before submission, manuscript-critical inputs and outputs must be archived durably with checksums, with one canonical workflow identified for each main analysis and attrition reported from the full 8,265-island universe to every fitted ecological surface.
+The v2 cleanup must not alter this tree. v1 is historical provenance; it is not silently mixed into the Chapter 1 v2 estimand.
