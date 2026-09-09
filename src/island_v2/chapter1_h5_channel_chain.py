@@ -89,7 +89,7 @@ def validate_channel_panel(frame: pd.DataFrame, config: dict[str, Any]) -> pd.Da
         raise ValueError("observation effort must be non-negative")
     if (bouts.dropna() < 0).any():
         raise ValueError("visit_bouts must be non-negative")
-    non_integer_bouts = bouts.dropna().map(float.is_integer).eq(False)
+    non_integer_bouts = bouts.dropna().map(lambda value: float(value).is_integer()).eq(False)
     if non_integer_bouts.any():
         raise ValueError("visit_bouts must be integer-valued")
 
