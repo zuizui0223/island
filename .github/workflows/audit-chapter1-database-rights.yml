@@ -9,6 +9,7 @@ on:
       - "config/chapter1_database_versions/current.yml"
       - "src/island_v2/chapter1_database_release.py"
       - "analysis/recover_florml_rights_provenance.py"
+      - "analysis/recover_validated_low_rights_provenance.py"
   pull_request:
     paths:
       - ".github/workflows/audit-chapter1-database-rights.yml"
@@ -16,6 +17,7 @@ on:
       - "config/chapter1_database_versions/**"
       - "src/island_v2/chapter1_database_release.py"
       - "analysis/recover_florml_rights_provenance.py"
+      - "analysis/recover_validated_low_rights_provenance.py"
 
 permissions:
   contents: read
@@ -28,6 +30,12 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout pinned historical sidecar source
+        uses: actions/checkout@v4
+        with:
+          ref: ff8249c6de682eaa70dc5a953c5ed420d85e1f98
+          path: historical
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -80,6 +88,13 @@ jobs:
             --source-policy config/chapter1_database_release_source_policy.yml \
             --lineage-family-map /tmp/ch1-db-rights/FLORML_LINEAGE_FAMILY_MAP.csv \
             --output-dir /tmp/ch1-db-rights
+      - name: Recover Validated-Low upstream source provenance
+        run: |
+          python analysis/recover_validated_low_rights_provenance.py \
+            --species-axis /tmp/ch1-db-source/species_axis_coverage.csv.gz \
+            --sidecar historical/data/v2/staging/traits/wave33_secondary_baseline/validated_probabilistic_genus_low_species_axis.csv.gz \
+            --lineage-family-map /tmp/ch1-db-rights/FLORML_LINEAGE_FAMILY_MAP.csv \
+            --output-dir /tmp/ch1-db-rights
       - name: Summarize rights audit
         run: |
           python - <<'PY'
@@ -119,6 +134,8 @@ jobs:
           (root/'RIGHTS_AUDIT_SUMMARY.md').write_text('\n'.join(lines) + '\n')
           PY
           cat /tmp/ch1-db-rights/FLORML_PROVENANCE_SUMMARY.md | tee -a "$GITHUB_STEP_SUMMARY"
+          echo >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/ch1-db-rights/VALIDATED_LOW_PROVENANCE_SUMMARY.md | tee -a "$GITHUB_STEP_SUMMARY"
           echo >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/ch1-db-rights/RIGHTS_AUDIT_SUMMARY.md | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
