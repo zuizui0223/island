@@ -2,7 +2,7 @@ name: Audit Chapter 1 database redistribution rights
 
 on:
   push:
-    branches: [feat/chapter1-database-rights-report]
+    branches: [main]
     paths:
       - ".github/workflows/audit-chapter1-database-rights.yml"
       - "config/chapter1_database_release_source_policy.yml"
@@ -72,6 +72,7 @@ jobs:
           root = Path('/tmp/ch1-db-rights')
           inv = pd.read_csv(root/'SOURCE_LICENSE_INVENTORY.csv')
           blockers = pd.read_csv(root/'RELEASE_BLOCKERS.csv')
+          buckets = pd.read_csv(root/'RIGHTS_TRIAGE_BUCKETS.csv')
           manifest = json.loads((root/'RELEASE_MANIFEST.json').read_text())
           lines = [
               '# Chapter 1 Database 1.0 rights audit',
@@ -87,11 +88,20 @@ jobs:
           status = inv.groupby('redistribution_status', dropna=False)['resolved_cell_mentions'].sum().sort_values(ascending=False)
           for key, value in status.items():
               lines.append(f"- {key}: {int(value):,} resolved-cell mentions")
+          lines += ['', '## Rights-review workload by audit bucket', '']
+          for _, row in buckets.iterrows():
+              lines.append(
+                  f"- `{row['audit_bucket']}` — {int(row['blocker_families']):,} families; "
+                  f"{int(row['resolved_cell_mentions']):,} cell mentions; {int(row['exact_lineages']):,} exact lineages"
+              )
           lines += ['', '## Largest unresolved source families', '']
           if len(blockers):
               top = blockers.sort_values('resolved_cell_mentions', ascending=False).head(30)
               for _, row in top.iterrows():
-                  lines.append(f"- `{row['source_family']}` — {int(row['resolved_cell_mentions']):,} cell mentions — {row['redistribution_status']}")
+                  lines.append(
+                      f"- `{row['source_family']}` — {int(row['resolved_cell_mentions']):,} cell mentions — "
+                      f"example: `{row['example_lineage']}`"
+                  )
           (root/'RIGHTS_AUDIT_SUMMARY.md').write_text('\n'.join(lines) + '\n')
           PY
           cat /tmp/ch1-db-rights/RIGHTS_AUDIT_SUMMARY.md | tee -a "$GITHUB_STEP_SUMMARY"
