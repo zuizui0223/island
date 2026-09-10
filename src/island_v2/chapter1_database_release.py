@@ -97,6 +97,24 @@ def source_family(lineage: str) -> str:
     return f"unresolved:{lower or 'empty'}"
 
 
+def audit_bucket(source: str) -> str:
+    """Return a non-binding triage bucket; never use this field to grant rights."""
+    prefix = source.split(":", 1)[0].lower() if source else "unresolved"
+    if prefix in {
+        "database",
+        "dataset",
+        "derived",
+        "domain",
+        "origin",
+        "provider",
+        "provider_compilation",
+        "provider_treatment",
+        "unresolved",
+    }:
+        return prefix
+    return "other"
+
+
 def source_decision(source: str, policy: dict[str, object]) -> tuple[str, str, str]:
     default_status = str(policy.get("default_status", "review_required"))
     default_license = policy.get("default_license")
@@ -146,6 +164,7 @@ def build_inventory(
         family_rows.append(
             {
                 "source_family": family,
+                "audit_bucket": audit_bucket(family),
                 "resolved_cell_mentions": cell_count,
                 "lineage_mentions": family_lineage_mentions[family],
                 "distinct_source_lineages": len(examples),
@@ -165,6 +184,7 @@ def build_inventory(
             {
                 "source_lineage": lineage,
                 "source_family": family,
+                "audit_bucket": audit_bucket(family),
                 "lineage_mentions": count,
                 "redistribution_status": status,
                 "source_license": license_id,
@@ -204,6 +224,18 @@ def build(
     inventory.to_csv(output_dir / "SOURCE_LICENSE_INVENTORY.csv", index=False)
     lineage_details.to_csv(output_dir / "SOURCE_LINEAGE_DETAILS.csv", index=False)
     blockers.to_csv(output_dir / "RELEASE_BLOCKERS.csv", index=False)
+
+    bucket_summary = (
+        blockers.groupby("audit_bucket", dropna=False)
+        .agg(
+            blocker_families=("source_family", "nunique"),
+            resolved_cell_mentions=("resolved_cell_mentions", "sum"),
+            exact_lineages=("distinct_source_lineages", "sum"),
+        )
+        .reset_index()
+        .sort_values("resolved_cell_mentions", ascending=False)
+    )
+    bucket_summary.to_csv(output_dir / "RIGHTS_TRIAGE_BUCKETS.csv", index=False)
 
     release_ready = blockers.empty
     if public and not release_ready:
@@ -263,7 +295,8 @@ def build(
     data_dictionary += "| quality | high, medium, low, or unresolved/blank |\n"
     data_dictionary += (
         "\n`SOURCE_LICENSE_INVENTORY.csv` evaluates normalized source families; "
-        "`SOURCE_LINEAGE_DETAILS.csv` retains the exact lineage tokens behind those families.\n"
+        "`SOURCE_LINEAGE_DETAILS.csv` retains the exact lineage tokens behind those families. "
+        "`RIGHTS_TRIAGE_BUCKETS.csv` is only a workload summary and never grants redistribution rights.\n"
     )
     (output_dir / "DATA_DICTIONARY.md").write_text(data_dictionary, encoding="utf-8")
 
