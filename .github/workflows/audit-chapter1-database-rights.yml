@@ -8,12 +8,14 @@ on:
       - "config/chapter1_database_release_source_policy.yml"
       - "config/chapter1_database_versions/current.yml"
       - "src/island_v2/chapter1_database_release.py"
+      - "analysis/recover_florml_rights_provenance.py"
   pull_request:
     paths:
       - ".github/workflows/audit-chapter1-database-rights.yml"
       - "config/chapter1_database_release_source_policy.yml"
       - "config/chapter1_database_versions/**"
       - "src/island_v2/chapter1_database_release.py"
+      - "analysis/recover_florml_rights_provenance.py"
 
 permissions:
   contents: read
@@ -75,36 +77,32 @@ jobs:
           buckets = pd.read_csv(root/'RIGHTS_TRIAGE_BUCKETS.csv')
           manifest = json.loads((root/'RELEASE_MANIFEST.json').read_text())
           lines = [
-              '# Chapter 1 Database 1.0 rights audit',
-              '',
+              '# Chapter 1 Database 1.0 rights audit', '',
               f"- public release ready: **{manifest['release_ready_for_public_zenodo']}**",
               f"- source families: **{len(inv):,}**",
               f"- blocker families: **{len(blockers):,}**",
-              f"- exact source lineages: **{manifest['distinct_source_lineages']:,}**",
-              '',
-              '## Redistribution status',
-              '',
+              f"- exact source lineages: **{manifest['distinct_source_lineages']:,}**", '',
+              '## Redistribution status', ''
           ]
           status = inv.groupby('redistribution_status', dropna=False)['resolved_cell_mentions'].sum().sort_values(ascending=False)
           for key, value in status.items():
               lines.append(f"- {key}: {int(value):,} resolved-cell mentions")
           lines += ['', '## Rights-review workload by audit bucket', '']
           for _, row in buckets.iterrows():
-              lines.append(
-                  f"- `{row['audit_bucket']}` — {int(row['blocker_families']):,} families; "
-                  f"{int(row['resolved_cell_mentions']):,} cell mentions; {int(row['exact_lineages']):,} exact lineages"
-              )
+              lines.append(f"- `{row['audit_bucket']}` — {int(row['blocker_families']):,} families; {int(row['resolved_cell_mentions']):,} cell mentions; {int(row['exact_lineages']):,} exact lineages")
           lines += ['', '## Largest unresolved source families', '']
           if len(blockers):
-              top = blockers.sort_values('resolved_cell_mentions', ascending=False).head(30)
-              for _, row in top.iterrows():
-                  lines.append(
-                      f"- `{row['source_family']}` — {int(row['resolved_cell_mentions']):,} cell mentions — "
-                      f"example: `{row['example_lineage']}`"
-                  )
+              for _, row in blockers.sort_values('resolved_cell_mentions', ascending=False).head(30).iterrows():
+                  lines.append(f"- `{row['source_family']}` — {int(row['resolved_cell_mentions']):,} cell mentions — example: `{row['example_lineage']}`")
           (root/'RIGHTS_AUDIT_SUMMARY.md').write_text('\n'.join(lines) + '\n')
           PY
           cat /tmp/ch1-db-rights/RIGHTS_AUDIT_SUMMARY.md | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Recover FlorML provider provenance
+        run: |
+          python analysis/recover_florml_rights_provenance.py \
+            --lineage-details /tmp/ch1-db-rights/SOURCE_LINEAGE_DETAILS.csv \
+            --output-dir /tmp/ch1-db-rights
+          cat /tmp/ch1-db-rights/FLORML_PROVENANCE_SUMMARY.md | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
           name: chapter1-database-v1-rights-audit-${{ github.run_id }}
