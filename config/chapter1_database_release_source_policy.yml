@@ -15,6 +15,10 @@ rules:
     status: redistributable
     license: CC-BY-4.0
     note: "The lineage `dataset:bennett2020:glopl_pollinator_dependency` corresponds to pollinator-dependency data accompanying Bennett et al. (2020), Nature Communications 11:3999 (doi:10.1038/s41467-020-17751-y). The article provides Source Data under CC BY 4.0 and identifies the underlying GloPL dataset as Dryad doi:10.5061/dryad.dt437. Retain article, Source Data, and GloPL/Dryad attribution."
+  - pattern: "^provider:bhl$"
+    status: redistributable
+    license: CC-BY-4.0
+    note: "For immutable Database 1.0, `bhl:page:*` lineages were imported through Araujo, Hartley & Brummitt (2026), Angiosperm functional traits extracted from botanical descriptions, Natural History Museum dataset doi:10.5519/p3dm31kc, specifically its BHL-derived trait resource. The NHM dataset is published under Creative Commons Attribution. The BHL page identifier is retained as original-text provenance; this decision licenses redistribution of the NHM-derived structured trait values, not blanket republication of BHL page content."
   - pattern: "^database:usda_plants$"
     status: redistributable
     license: US-PUBLIC-DOMAIN
