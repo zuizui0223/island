@@ -23,7 +23,18 @@ REQUIRED_COLUMNS = {
     "source_lineages",
     "quality",
 }
+RIGHTS_REGISTRY_REQUIRED_COLUMNS = {
+    "source_lineage",
+    "source_family",
+    "provider",
+    "source_url",
+    "dataset_doi",
+    "license",
+    "redistribution_status",
+    "rights_evidence",
+}
 ALLOWED_QUALITY = {"high", "medium", "low", "unresolved", ""}
+ALLOWED_RIGHTS_STATUS = {"redistributable", "review_required", "not_redistributable"}
 CANONICAL_WORKFLOW = "run-chapter1-progressive-trait-analysis.yml"
 
 
@@ -34,6 +45,19 @@ class GitHubArtifactSource(BaseModel):
     artifact_name: str = Field(min_length=1)
     relative_path: str = Field(min_length=1)
     sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+
+class RightsRegistrySpec(BaseModel):
+    """Optional rights-aware provenance registry shipped with a database snapshot.
+
+    Database 1.0 predates this contract and is valid without a registry. New database
+    releases can opt in immediately; Database 2.0+ is expected to do so before the
+    active pointer is advanced.
+    """
+
+    relative_path: str = Field(min_length=1)
+    sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    required_for_public_release: bool = True
 
 
 class PreviousSnapshot(BaseModel):
@@ -57,6 +81,7 @@ class DatabaseSpec(BaseModel):
     resolved_cells: int = Field(ge=0)
     axis_resolved_cells: dict[str, int]
     source: GitHubArtifactSource
+    rights_registry: RightsRegistrySpec | None = None
     previous_snapshot: PreviousSnapshot | None = None
     publication: PublicationRecord = Field(default_factory=PublicationRecord)
 
@@ -90,6 +115,13 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def tokenize_lineages(series: pd.Series) -> set[str]:
+    lineages: set[str] = set()
+    for value in series.fillna("").astype(str):
+        lineages.update(token.strip() for token in value.split("|") if token.strip())
+    return lineages
 
 
 def validate_species_axis(path: Path, manifest: Chapter1DatabaseManifest) -> dict[str, object]:
@@ -153,6 +185,67 @@ def validate_species_axis(path: Path, manifest: Chapter1DatabaseManifest) -> dic
     }
 
 
+def validate_rights_registry(
+    path: Path,
+    manifest: Chapter1DatabaseManifest,
+    species_axis_path: Path | None = None,
+) -> dict[str, object]:
+    spec = manifest.database.rights_registry
+    if spec is None:
+        raise ValueError("database manifest does not declare a rights_registry")
+    if sha256_file(path) != spec.sha256:
+        raise ValueError("rights-registry SHA-256 does not match the database manifest")
+
+    registry = pd.read_csv(path, dtype=str).fillna("")
+    missing = RIGHTS_REGISTRY_REQUIRED_COLUMNS.difference(registry.columns)
+    if missing:
+        raise ValueError(f"rights registry is missing required columns: {sorted(missing)}")
+    if registry["source_lineage"].eq("").any():
+        raise ValueError("rights registry contains blank source_lineage values")
+    if registry["source_lineage"].duplicated().any():
+        raise ValueError("rights registry contains duplicate source_lineage rows")
+
+    statuses = set(registry["redistribution_status"].str.strip().str.lower())
+    invalid = sorted(statuses.difference(ALLOWED_RIGHTS_STATUS))
+    if invalid:
+        raise ValueError(f"unsupported redistribution_status labels: {invalid}")
+
+    if species_axis_path is not None:
+        species_axis = pd.read_csv(species_axis_path, dtype=str).fillna("")
+        resolved = species_axis[
+            species_axis["quality"].str.strip().str.lower().isin({"high", "medium", "low"})
+        ]
+        required_lineages = tokenize_lineages(resolved["source_lineages"])
+        registered_lineages = set(registry["source_lineage"])
+        missing_lineages = sorted(required_lineages.difference(registered_lineages))
+        if missing_lineages:
+            preview = missing_lineages[:10]
+            raise ValueError(
+                f"rights registry does not cover {len(missing_lineages)} resolved source lineages; "
+                f"examples={preview}"
+            )
+
+    redistributable = registry["redistribution_status"].str.lower().eq("redistributable")
+    missing_license = redistributable & registry["license"].eq("")
+    missing_evidence = redistributable & registry["rights_evidence"].eq("")
+    if missing_license.any() or missing_evidence.any():
+        raise ValueError(
+            "redistributable rights-registry rows require both license and rights_evidence"
+        )
+
+    return {
+        "rows": int(len(registry)),
+        "sha256": spec.sha256,
+        "redistributable_rows": int(redistributable.sum()),
+        "review_required_rows": int(
+            registry["redistribution_status"].str.lower().eq("review_required").sum()
+        ),
+        "not_redistributable_rows": int(
+            registry["redistribution_status"].str.lower().eq("not_redistributable").sum()
+        ),
+    }
+
+
 def dispatch_command(
     manifest: Chapter1DatabaseManifest,
     workflow_ref: str = "main",
@@ -194,8 +287,9 @@ def dispatch_command(
 def validate_command(
     manifest_path: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
     species_axis: Path | None = typer.Option(None, "--species-axis", dir_okay=False),
+    rights_registry: Path | None = typer.Option(None, "--rights-registry", dir_okay=False),
 ) -> None:
-    """Validate manifest metadata and, optionally, the materialized species-axis file."""
+    """Validate manifest metadata and optionally materialized database files."""
     manifest = load_manifest(manifest_path)
     report: dict[str, object] = {
         "manifest": str(manifest_path),
@@ -206,6 +300,12 @@ def validate_command(
     }
     if species_axis is not None:
         report["species_axis"] = validate_species_axis(species_axis, manifest)
+    if rights_registry is not None:
+        report["rights_registry"] = validate_rights_registry(
+            rights_registry,
+            manifest,
+            species_axis_path=species_axis,
+        )
     typer.echo(json.dumps(report, indent=2, sort_keys=True))
 
 
