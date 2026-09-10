@@ -40,6 +40,8 @@ Final trait snapshot used by the paper:
 - resolved cells: **222,688 / 318,885 = 69.83%**;
 - reproductive-assurance cells: **48,497 / 106,295 = 45.63%**.
 
+The exact paper database is now also identified as **Database 1.0** through a versioned, SHA-locked manifest. See [`DATABASE_RELEASE.md`](DATABASE_RELEASE.md) for the Zenodo release route and the single database-version entry point. Future Database 2.0+ snapshots can replace the database manifest while retaining the same `chapter1_progressive_analysis_v1` scientific contract.
+
 The older **222,759 / 318,885** private-plus-public checkpoint is retained only as historical provenance because its completed row-level ledger was not independently recoverable. It is not substituted for the final paper snapshot.
 
 ## 2. Frozen hypotheses
@@ -113,9 +115,12 @@ Headline result:
 ```text
 README.md                              <- start here
 docs/DATABASE_BUILD.md                 <- how the analysis database was built
+DATABASE_RELEASE.md                    <- versioned DB / Zenodo / Database 2.0 entry point
 docs/PAPER_PIPELINE.md                 <- database -> H1-H5 -> analysis -> manuscript
 config/chapter1_progressive_analysis.yml
+config/chapter1_database_versions/     <- immutable DB manifests + current pointer
 .github/workflows/run-chapter1-progressive-trait-analysis.yml
+.github/workflows/dispatch-chapter1-from-database-version.yml
 src/island_v2/                         <- current analysis/data-construction implementation
 data/v2/                               <- current v2 data layers and provenance
 docs/chapter1_*20260909.md             <- final paper framing and freeze
