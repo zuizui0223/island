@@ -10,6 +10,7 @@ on:
       - "src/island_v2/chapter1_database_release.py"
       - "analysis/recover_florml_rights_provenance.py"
       - "analysis/recover_validated_low_rights_provenance.py"
+      - "analysis/apply_historical_validated_low_provenance.py"
       - "scripts/recover_verified_trait_checkpoint.py"
       - "tests/test_recover_validated_low_rights_provenance.py"
   pull_request:
@@ -20,6 +21,7 @@ on:
       - "src/island_v2/chapter1_database_release.py"
       - "analysis/recover_florml_rights_provenance.py"
       - "analysis/recover_validated_low_rights_provenance.py"
+      - "analysis/apply_historical_validated_low_provenance.py"
       - "scripts/recover_verified_trait_checkpoint.py"
       - "tests/test_recover_validated_low_rights_provenance.py"
 
@@ -112,6 +114,29 @@ jobs:
               if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
                   raise SystemExit(f'Run329 provenance input checksum mismatch: {name}')
           PY
+      - name: Download and verify immutable historical rule generations
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/historical-low
+          mkdir -p /tmp/historical-low
+          for spec in \
+            "wave34|33065274749|9643466501|wave34-secondary-coverage-33065274749|sha256:c3142447baad04ecff93f92d396c723eb528fa941fe31b459a05e8a6a9e0c5e6" \
+            "wave35|33072865120|9646562206|wave35-trait-coverage-33072865120|sha256:d16b071fa93371a8c31ee6f4bba21702f9cf40c2fc376589b69e3572275bb8a3" \
+            "wave39|33149998400|9677327835|wave39-floraweb-synonym-recovery-33149998400|sha256:3b6dbd4dbd1143ae79e79ff16990e881f5371dac5671a2c5d732a4cffe5f00d5" \
+            "wave40|33155408805|9679520443|wave40-reviewed-source-recovery-33155408805|sha256:a6a9a2ca28abf44d6fc1ef3b3bba07cecce567d203e6e28db6048ad7b523ee0a" \
+            "wave41|33355297355|9744976429|wave41-external-congener-reproduction-33355297355|sha256:2c42f30df358c682119d921c4963939a8a2f4f571912cdcacf100068d2b71803" \
+            "wave42|33357283159|9745623568|wave42-external-bulk-reproduction-33357283159|sha256:9b70274b169d241b329eb7fc0c660a3b37329822200c63ba2d26675860348e4d" \
+            "wave43|33359673472|9746369275|wave43-austraits-external-morphology-33359673472|sha256:b9ee209ecb7483b9d74fdfe177aacbfd5359cbab38d1349684716ac4945c700b"; do
+            IFS='|' read -r label run_id artifact_id artifact_name artifact_digest <<<"$spec"
+            test "$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+            metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id")
+            test "$(jq -r .name <<<"$metadata")" = "$artifact_name"
+            test "$(jq -r .expired <<<"$metadata")" = false
+            test "$(jq -r .digest <<<"$metadata")" = "$artifact_digest"
+            mkdir -p "/tmp/historical-low/$label"
+            gh run download "$run_id" --repo "$GITHUB_REPOSITORY" \
+              --name "$artifact_name" --dir "/tmp/historical-low/$label"
+          done
       - name: Build preliminary rights audit
         run: |
           python -m island_v2.chapter1_database_release \
@@ -143,6 +168,40 @@ jobs:
             --run329-rules /tmp/run329/trait_specific_genus_rule_audit.csv.gz \
             --lineage-family-map /tmp/ch1-db-rights/FLORML_LINEAGE_FAMILY_MAP.csv \
             --output-dir /tmp/ch1-db-rights
+      - name: Complete historical Validated-Low provenance
+        run: |
+          python analysis/apply_historical_validated_low_provenance.py \
+            --audit-dir /tmp/ch1-db-rights \
+            --lineage-family-map /tmp/ch1-db-rights/FLORML_LINEAGE_FAMILY_MAP.csv \
+            --wave34-dir /tmp/historical-low/wave34 \
+            --wave35-dir /tmp/historical-low/wave35 \
+            --wave39-dir /tmp/historical-low/wave39 \
+            --wave40-dir /tmp/historical-low/wave40 \
+            --wave41-dir /tmp/historical-low/wave41 \
+            --wave42-dir /tmp/historical-low/wave42 \
+            --wave43-dir /tmp/historical-low/wave43
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          root = Path('/tmp/ch1-db-rights')
+          summary = json.loads(
+              (root/'VALIDATED_LOW_HISTORICAL_PROVENANCE_SUMMARY.json').read_text()
+          )
+          assert summary['distinct_derived_lineages'] == 3070
+          assert summary['exact_rule_semantics_recovered'] == 3069
+          assert summary['source_provenance_recovered'] == 3070
+          assert summary['semantic_mismatch_rule_lineages'] == 1
+          assert summary['target_cells_with_unresolved_source_provenance'] == 0
+          assert summary['target_cells_with_zero_support'] == 0
+          unmatched = pd.read_csv(root/'VALIDATED_LOW_UNMATCHED_RULES.csv', dtype=str).fillna('')
+          assert len(unmatched) == 1
+          row = unmatched.iloc[0]
+          assert row['derived_lineage'] == 'validated-low:Piptatherum:flower_primary_color:["blue_purple","green_brown_inconspicuous"]'
+          assert row['source_provenance_recovered'].lower() == 'true'
+          assert row['semantic_mismatch_receipt_state_set'] == '["blue_purple"]'
+          assert int(row['support_source_lineage_count']) == 3
+          PY
       - name: Summarize rights audit
         run: |
           python - <<'PY'
@@ -184,6 +243,8 @@ jobs:
           cat /tmp/ch1-db-rights/FLORML_PROVENANCE_SUMMARY.md | tee -a "$GITHUB_STEP_SUMMARY"
           echo >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/ch1-db-rights/VALIDATED_LOW_PROVENANCE_SUMMARY.md | tee -a "$GITHUB_STEP_SUMMARY"
+          echo >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/ch1-db-rights/VALIDATED_LOW_HISTORICAL_PROVENANCE_SUMMARY.md | tee -a "$GITHUB_STEP_SUMMARY"
           echo >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/ch1-db-rights/RIGHTS_AUDIT_SUMMARY.md | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
