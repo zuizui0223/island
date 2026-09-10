@@ -11,6 +11,14 @@ rules:
     status: redistributable
     license: CC-BY-4.0
     note: "AusTraits releases are published under CC BY 4.0; attribution to AusTraits and contributing datasets is required."
+  - pattern: "^database:usda_plants$"
+    status: redistributable
+    license: US-PUBLIC-DOMAIN
+    note: "USDA NRCS PLANTS states that plant information, including distribution maps, lists, and text, is not copyrighted and is free for any use; cite the PLANTS Database. This decision applies to plant data, not separately licensed images."
+  - pattern: "^provider_treatment:brazilian_flora_2020$"
+    status: redistributable
+    license: CC-BY-4.0
+    note: "The Brazilian Flora 2020 dataset published by Jardim Botanico do Rio de Janeiro is licensed CC BY 4.0; retain dataset attribution and provenance."
   - pattern: "^database:pladias$"
     status: review_required
     license: null
