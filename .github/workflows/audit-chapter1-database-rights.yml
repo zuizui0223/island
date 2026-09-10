@@ -10,8 +10,10 @@ on:
       - "src/island_v2/chapter1_database_release.py"
       - "analysis/recover_florml_rights_provenance.py"
       - "analysis/recover_validated_low_rights_provenance.py"
+      - "analysis/recover_historical_validated_low_rights_provenance.py"
       - "scripts/recover_verified_trait_checkpoint.py"
       - "tests/test_recover_validated_low_rights_provenance.py"
+      - "tests/test_recover_historical_validated_low_rights_provenance.py"
   pull_request:
     paths:
       - ".github/workflows/audit-chapter1-database-rights.yml"
@@ -20,8 +22,10 @@ on:
       - "src/island_v2/chapter1_database_release.py"
       - "analysis/recover_florml_rights_provenance.py"
       - "analysis/recover_validated_low_rights_provenance.py"
+      - "analysis/recover_historical_validated_low_rights_provenance.py"
       - "scripts/recover_verified_trait_checkpoint.py"
       - "tests/test_recover_validated_low_rights_provenance.py"
+      - "tests/test_recover_historical_validated_low_rights_provenance.py"
 
 permissions:
   contents: read
@@ -40,7 +44,10 @@ jobs:
           cache: pip
       - run: pip install -e ".[dev]"
       - name: Test rights/provenance reconstruction helpers
-        run: pytest -q tests/test_recover_validated_low_rights_provenance.py
+        run: |
+          pytest -q \
+            tests/test_recover_validated_low_rights_provenance.py \
+            tests/test_recover_historical_validated_low_rights_provenance.py
       - name: Resolve immutable Database 1.0 source
         id: db
         run: |
@@ -112,6 +119,63 @@ jobs:
               if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
                   raise SystemExit(f'Run329 provenance input checksum mismatch: {name}')
           PY
+      - name: Download and verify historical Validated-Low rule sources
+        run: |
+          set -euo pipefail
+          for spec in \
+            "33065274749|9643466501|wave34-secondary-coverage-33065274749|sha256:c3142447baad04ecff93f92d396c723eb528fa941fe31b459a05e8a6a9e0c5e6|wave34" \
+            "33072865120|9646562206|wave35-trait-coverage-33072865120|sha256:d16b071fa93371a8c31ee6f4bba21702f9cf40c2fc376589b69e3572275bb8a3|wave35" \
+            "33149998400|9677327835|wave39-floraweb-synonym-recovery-33149998400|sha256:3b6dbd4dbd1143ae79e79ff16990e881f5371dac5671a2c5d732a4cffe5f00d5|wave39" \
+            "33155408805|9679520443|wave40-reviewed-source-recovery-33155408805|sha256:a6a9a2ca28abf44d6fc1ef3b3bba07cecce567d203e6e28db6048ad7b523ee0a|wave40" \
+            "33355297355|9744976429|wave41-external-congener-reproduction-33355297355|sha256:2c42f30df358c682119d921c4963939a8a2f4f571912cdcacf100068d2b71803|wave41" \
+            "33357283159|9745623568|wave42-external-bulk-reproduction-33357283159|sha256:9b70274b169d241b329eb7fc0c660a3b37329822200c63ba2d26675860348e4d|wave42" \
+            "33359673472|9746369275|wave43-austraits-external-morphology-33359673472|sha256:b9ee209ecb7483b9d74fdfe177aacbfd5359cbab38d1349684716ac4945c700b|wave43"; do
+            IFS='|' read -r run_id artifact_id artifact_name artifact_digest target <<<"$spec"
+            test "$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+            metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id")
+            test "$(jq -r .name <<<"$metadata")" = "$artifact_name"
+            test "$(jq -r .expired <<<"$metadata")" = false
+            test "$(jq -r .digest <<<"$metadata")" = "$artifact_digest"
+            mkdir -p "/tmp/$target"
+            gh run download "$run_id" --repo "$GITHUB_REPOSITORY" \
+              --name "$artifact_name" --dir "/tmp/$target"
+          done
+
+          WAVE34_FRONTIER=$(find /tmp/wave34 -type f -name trait_specific_rule_frontier.csv.gz -print -quit)
+          WAVE33_SECONDARY_LOW=$(find /tmp/wave34 -type f -path '*/wave33_secondary_baseline/validated_probabilistic_genus_low_species_axis.csv.gz' -print -quit)
+          WAVE35_RULES=$(find /tmp/wave35 -type f -name wave35_provider_touched_new_rule_audit.csv.gz -print -quit)
+          WAVE35_COVERAGE=$(find /tmp/wave35 -type f -path '*/wave35-trait-coverage/wave35_species_axis_coverage.csv.gz' -print -quit)
+          WAVE35_DIRECT=$(find /tmp/wave35 -type f -name wave35_resolved_direct_species_trait.csv.gz -print -quit)
+          WAVE39_RULES=$(find /tmp/wave39 -type f -path '*/wave39-touched-rule-rebuild/trait_specific_genus_rule_audit.csv.gz' -print -quit)
+          WAVE39_DIRECT=$(find /tmp/wave39 -type f -path '*/wave39-touched-rule-rebuild/resolved_direct_species_trait.csv.gz' -print -quit)
+          WAVE40_RULES=$(find /tmp/wave40 -type f -path '*/wave40-all-evidence-audit/trait_specific_genus_rule_audit.csv.gz' -print -quit)
+          WAVE40_DIRECT=$(find /tmp/wave40 -type f -path '*/wave40-all-evidence-audit/resolved_direct_species_trait.csv.gz' -print -quit)
+          WAVE41_RULES=$(find /tmp/wave41 -type f -path '*/wave41-all-evidence-audit/trait_specific_genus_rule_audit.csv.gz' -print -quit)
+          WAVE41_DIRECT=$(find /tmp/wave41 -type f -path '*/wave41-all-evidence-audit/resolved_direct_species_trait.csv.gz' -print -quit)
+          WAVE41_EXTERNAL=$(find /tmp/wave41 -type f -path '*/wave41-all-evidence-audit/external_congener_resolved_species_trait.csv.gz' -print -quit)
+          WAVE42_RULES=$(find /tmp/wave42 -type f -path '*/wave42-all-evidence-audit/trait_specific_genus_rule_audit.csv.gz' -print -quit)
+          WAVE42_DIRECT=$(find /tmp/wave42 -type f -path '*/wave42-all-evidence-audit/resolved_direct_species_trait.csv.gz' -print -quit)
+          WAVE42_EXTERNAL=$(find /tmp/wave42 -type f -path '*/wave42-all-evidence-audit/external_congener_resolved_species_trait.csv.gz' -print -quit)
+          WAVE43_RULES=$(find /tmp/wave43 -type f -path '*/wave43-all-evidence-audit/trait_specific_genus_rule_audit.csv.gz' -print -quit)
+          WAVE43_DIRECT=$(find /tmp/wave43 -type f -path '*/wave43-all-evidence-audit/resolved_direct_species_trait.csv.gz' -print -quit)
+          WAVE43_EXTERNAL=$(find /tmp/wave43 -type f -path '*/wave43-all-evidence-audit/external_congener_resolved_species_trait.csv.gz' -print -quit)
+          for required in \
+            "$WAVE34_FRONTIER" "$WAVE33_SECONDARY_LOW" \
+            "$WAVE35_RULES" "$WAVE35_COVERAGE" "$WAVE35_DIRECT" \
+            "$WAVE39_RULES" "$WAVE39_DIRECT" "$WAVE40_RULES" "$WAVE40_DIRECT" \
+            "$WAVE41_RULES" "$WAVE41_DIRECT" "$WAVE41_EXTERNAL" \
+            "$WAVE42_RULES" "$WAVE42_DIRECT" "$WAVE42_EXTERNAL" \
+            "$WAVE43_RULES" "$WAVE43_DIRECT" "$WAVE43_EXTERNAL"; do
+            test -n "$required" && test -f "$required"
+          done
+          for name in \
+            WAVE34_FRONTIER WAVE33_SECONDARY_LOW WAVE35_RULES WAVE35_COVERAGE WAVE35_DIRECT \
+            WAVE39_RULES WAVE39_DIRECT WAVE40_RULES WAVE40_DIRECT \
+            WAVE41_RULES WAVE41_DIRECT WAVE41_EXTERNAL \
+            WAVE42_RULES WAVE42_DIRECT WAVE42_EXTERNAL \
+            WAVE43_RULES WAVE43_DIRECT WAVE43_EXTERNAL; do
+            echo "$name=${!name}" >> "$GITHUB_ENV"
+          done
       - name: Build preliminary rights audit
         run: |
           python -m island_v2.chapter1_database_release \
@@ -143,6 +207,51 @@ jobs:
             --run329-rules /tmp/run329/trait_specific_genus_rule_audit.csv.gz \
             --lineage-family-map /tmp/ch1-db-rights/FLORML_LINEAGE_FAMILY_MAP.csv \
             --output-dir /tmp/ch1-db-rights
+      - name: Recover retained historical Validated-Low rule provenance
+        run: |
+          python analysis/recover_historical_validated_low_rights_provenance.py \
+            --rights-dir /tmp/ch1-db-rights \
+            --lineage-family-map /tmp/ch1-db-rights/FLORML_LINEAGE_FAMILY_MAP.csv \
+            --run329-direct /tmp/run329/resolved_direct_species_trait.csv.gz \
+            --wave34-frontier "$WAVE34_FRONTIER" \
+            --wave33-secondary-low "$WAVE33_SECONDARY_LOW" \
+            --wave35-rules "$WAVE35_RULES" \
+            --wave35-coverage "$WAVE35_COVERAGE" \
+            --wave35-direct "$WAVE35_DIRECT" \
+            --wave39-rules "$WAVE39_RULES" \
+            --wave39-direct "$WAVE39_DIRECT" \
+            --wave40-rules "$WAVE40_RULES" \
+            --wave40-direct "$WAVE40_DIRECT" \
+            --wave41-rules "$WAVE41_RULES" \
+            --wave41-direct "$WAVE41_DIRECT" \
+            --wave41-external "$WAVE41_EXTERNAL" \
+            --wave42-rules "$WAVE42_RULES" \
+            --wave42-direct "$WAVE42_DIRECT" \
+            --wave42-external "$WAVE42_EXTERNAL" \
+            --wave43-rules "$WAVE43_RULES" \
+            --wave43-direct "$WAVE43_DIRECT" \
+            --wave43-external "$WAVE43_EXTERNAL"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          root = Path('/tmp/ch1-db-rights')
+          summary = json.loads((root/'VALIDATED_LOW_PROVENANCE_SUMMARY.json').read_text())
+          assert summary['distinct_derived_lineages'] == 3070
+          assert summary['exact_rule_generations_recovered'] == 3069
+          assert summary['source_provenance_recovered_rule_lineages'] == 3070
+          assert summary['new_historical_exact_rule_recoveries'] == 139
+          assert summary['historical_state_set_mismatch_rules'] == 1
+          assert summary['unresolved_exact_rule_cells'] == 1
+          assert summary['unresolved_source_provenance_cells'] == 0
+          assert summary['zero_support_cells'] == 0
+          mismatch = pd.read_csv(root/'VALIDATED_LOW_SEMANTIC_MISMATCHES.csv')
+          assert len(mismatch) == 1
+          assert mismatch.iloc[0]['derived_lineage'] == (
+              'validated-low:Piptatherum:flower_primary_color:'
+              '["blue_purple","green_brown_inconspicuous"]'
+          )
+          PY
       - name: Summarize rights audit
         run: |
           python - <<'PY'
