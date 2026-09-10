@@ -60,7 +60,7 @@ jobs:
             --species-axis /tmp/ch1-db-source/species_axis_coverage.csv.gz
       - name: Build non-public rights audit candidate
         run: |
-          python -m island_v2.chapter1_database_release build \
+          python -m island_v2.chapter1_database_release \
             --source-dir /tmp/ch1-db-source \
             --manifest config/chapter1_database_versions/v1.0.0.yml \
             --source-policy config/chapter1_database_release_source_policy.yml \
