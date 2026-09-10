@@ -48,12 +48,7 @@ class GitHubArtifactSource(BaseModel):
 
 
 class RightsRegistrySpec(BaseModel):
-    """Optional rights-aware provenance registry shipped with a database snapshot.
-
-    Database 1.0 predates this contract and is valid without a registry. New database
-    releases can opt in immediately; Database 2.0+ is expected to do so before the
-    active pointer is advanced.
-    """
+    """Rights-aware provenance registry shipped with Database 2.x and later."""
 
     relative_path: str = Field(min_length=1)
     sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
@@ -86,7 +81,7 @@ class DatabaseSpec(BaseModel):
     publication: PublicationRecord = Field(default_factory=PublicationRecord)
 
     @model_validator(mode="after")
-    def validate_dimensions(self) -> "DatabaseSpec":
+    def validate_dimensions_and_provenance(self) -> "DatabaseSpec":
         if len(self.axes) != len(set(self.axes)):
             raise ValueError("database.axes must be unique")
         denominator = self.denominator_species * len(self.axes)
@@ -96,6 +91,12 @@ class DatabaseSpec(BaseModel):
             raise ValueError("axis_resolved_cells keys must match axes exactly")
         if sum(self.axis_resolved_cells.values()) != self.resolved_cells:
             raise ValueError("axis_resolved_cells must sum to resolved_cells")
+        try:
+            major = int(self.version.split(".", 1)[0])
+        except ValueError as exc:
+            raise ValueError("database.version must begin with a numeric major version") from exc
+        if major >= 2 and self.rights_registry is None:
+            raise ValueError("Database 2.x and later require a SHA-locked rights_registry")
         return self
 
 
