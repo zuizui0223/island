@@ -43,17 +43,15 @@ def tokenize_lineages(series: pd.Series) -> Counter[str]:
 
 
 def source_family(lineage: str) -> str:
-    """Collapse row-level provenance IDs to a licensable provider/source family.
+    """Collapse row-level provenance IDs to a source family used for rights review.
 
-    The goal is not to erase provenance: the raw lineage is retained separately. The
-    family is only the unit on which redistribution policy is evaluated.
+    Exact lineage strings are retained in a separate audit table. The family is only
+    the unit on which a common redistribution decision can be applied safely.
     """
     token = lineage.strip()
     lower = token.lower()
 
-    if lower.startswith("dataset:dryad."):
-        return "dataset:dryad"
-    if lower.startswith("doi:10.5061/dryad."):
+    if lower.startswith("dataset:dryad.") or lower.startswith("doi:10.5061/dryad."):
         return "dataset:dryad"
     if lower.startswith("origin:austraits:"):
         return "dataset:austraits"
@@ -99,21 +97,31 @@ def source_family(lineage: str) -> str:
     return f"unresolved:{lower or 'empty'}"
 
 
-def source_status(source: str, policy: dict[str, object]) -> tuple[str, str]:
-    default = str(policy.get("default_status", "review_required"))
+def source_decision(source: str, policy: dict[str, object]) -> tuple[str, str, str]:
+    default_status = str(policy.get("default_status", "review_required"))
+    default_license = policy.get("default_license")
     default_note = str(policy.get("default_note", "No redistribution decision recorded."))
     for rule in policy.get("rules", []):
         pattern = str(rule["pattern"])
         if re.search(pattern, source, flags=re.IGNORECASE):
-            return str(rule["status"]), str(rule.get("note", ""))
-    return default, default_note
+            license_id = rule.get("license")
+            return (
+                str(rule["status"]),
+                "" if license_id is None else str(license_id),
+                str(rule.get("note", "")),
+            )
+    return (
+        default_status,
+        "" if default_license is None else str(default_license),
+        default_note,
+    )
 
 
 def build_inventory(
     frame: pd.DataFrame,
     policy: dict[str, object],
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Return family-level policy inventory plus raw-lineage provenance details."""
+    """Return source-family rights inventory and exact-lineage provenance details."""
     lineage_counts = tokenize_lineages(frame["source_lineages"])
     family_lineages: dict[str, set[str]] = defaultdict(set)
     family_lineage_mentions: Counter[str] = Counter()
@@ -133,7 +141,7 @@ def build_inventory(
 
     family_rows: list[dict[str, object]] = []
     for family, cell_count in family_cell_mentions.most_common():
-        status, note = source_status(family, policy)
+        status, license_id, note = source_decision(family, policy)
         examples = sorted(family_lineages[family])
         family_rows.append(
             {
@@ -143,6 +151,7 @@ def build_inventory(
                 "distinct_source_lineages": len(examples),
                 "example_lineage": examples[0] if examples else "",
                 "redistribution_status": status,
+                "source_license": license_id,
                 "policy_note": note,
             }
         )
@@ -151,13 +160,14 @@ def build_inventory(
     lineage_rows: list[dict[str, object]] = []
     for lineage, count in lineage_counts.most_common():
         family = source_family(lineage)
-        status, note = source_status(family, policy)
+        status, license_id, note = source_decision(family, policy)
         lineage_rows.append(
             {
                 "source_lineage": lineage,
                 "source_family": family,
                 "lineage_mentions": count,
                 "redistribution_status": status,
+                "source_license": license_id,
                 "policy_note": note,
             }
         )
@@ -174,7 +184,7 @@ def build(
     public: bool = typer.Option(
         False,
         "--public",
-        help="Require every source family to be explicitly redistributable before copying data files.",
+        help="Require every source family to have explicit redistribution permission and license.",
     ),
 ) -> None:
     manifest = load_manifest(manifest_path)
@@ -185,7 +195,10 @@ def build(
     frame = pd.read_csv(species_axis, dtype=str).fillna("")
     resolved = frame[frame["quality"].str.lower().isin({"high", "medium", "low"})].copy()
     inventory, lineage_details = build_inventory(resolved, policy)
-    blockers = inventory[inventory["redistribution_status"] != "redistributable"].copy()
+    blockers = inventory[
+        (inventory["redistribution_status"] != "redistributable")
+        | inventory["source_license"].eq("")
+    ].copy()
 
     output_dir.mkdir(parents=True, exist_ok=True)
     inventory.to_csv(output_dir / "SOURCE_LICENSE_INVENTORY.csv", index=False)
@@ -195,7 +208,7 @@ def build(
     release_ready = blockers.empty
     if public and not release_ready:
         raise typer.BadParameter(
-            f"public release blocked: {len(blockers)} source families require redistribution review"
+            f"public release blocked: {len(blockers)} source families require rights review"
         )
 
     copied: list[dict[str, object]] = []
@@ -208,8 +221,11 @@ def build(
             shutil.copy2(src, dst)
             copied.append({"file": name, "sha256": sha256_file(dst), "bytes": dst.stat().st_size})
 
+    licenses_observed = sorted(
+        set(inventory.loc[inventory["source_license"].ne(""), "source_license"].astype(str))
+    )
     release_manifest = {
-        "schema_version": 1,
+        "schema_version": 2,
         "database_id": manifest.database.database_id,
         "database_version": manifest.database.version,
         "analysis_contract": manifest.database.analysis_contract,
@@ -223,6 +239,7 @@ def build(
         "license_blocker_count": int(len(blockers)),
         "distinct_source_families": int(len(inventory)),
         "distinct_source_lineages": int(len(lineage_details)),
+        "source_licenses_with_explicit_permission": licenses_observed,
     }
     (output_dir / "RELEASE_MANIFEST.json").write_text(
         json.dumps(release_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
