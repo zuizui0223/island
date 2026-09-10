@@ -1,0 +1,135 @@
+name: Audit Chapter 1 database cell release rights
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/audit-chapter1-database-cell-rights.yml"
+      - "analysis/evaluate_chapter1_database_cell_rights.py"
+      - "config/chapter1_database_release_source_policy.yml"
+      - "config/chapter1_database_versions/**"
+      - "src/island_v2/chapter1_database_release.py"
+      - "tests/test_evaluate_chapter1_database_cell_rights.py"
+  pull_request:
+    paths:
+      - ".github/workflows/audit-chapter1-database-cell-rights.yml"
+      - "analysis/evaluate_chapter1_database_cell_rights.py"
+      - "config/chapter1_database_release_source_policy.yml"
+      - "config/chapter1_database_versions/**"
+      - "src/island_v2/chapter1_database_release.py"
+      - "tests/test_evaluate_chapter1_database_cell_rights.py"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  cell-rights-gate:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PROVENANCE_RUN_ID: "34482428564"
+      PROVENANCE_ARTIFACT_ID: "10154261753"
+      PROVENANCE_ARTIFACT: "chapter1-database-v1-rights-audit-34482428564"
+      PROVENANCE_ARTIFACT_DIGEST: "sha256:5d3e5ea80e1cf9757cc7b3bbb64db2ca67f0b8ecce7f7f52668472511f07ad36"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Test cell-level release gate
+        run: pytest -q tests/test_evaluate_chapter1_database_cell_rights.py
+
+      - name: Resolve immutable Database 1.0 source
+        id: db
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import yaml
+          payload = yaml.safe_load(Path('config/chapter1_database_versions/v1.0.0.yml').read_text())
+          source = payload['database']['source']
+          assert source['kind'] == 'github_artifact'
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f"repository={source['repository']}\n")
+              out.write(f"run_id={source['run_id']}\n")
+              out.write(f"artifact_name={source['artifact_name']}\n")
+          PY
+
+      - name: Download and validate immutable Database 1.0
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/ch1-db-source
+          mkdir -p /tmp/ch1-db-source
+          gh run download "${{ steps.db.outputs.run_id }}" \
+            --repo "${{ steps.db.outputs.repository }}" \
+            --name "${{ steps.db.outputs.artifact_name }}" \
+            --dir /tmp/ch1-db-source
+          python -m island_v2.chapter1_database_manifest validate \
+            --manifest config/chapter1_database_versions/v1.0.0.yml \
+            --species-axis /tmp/ch1-db-source/species_axis_coverage.csv.gz
+
+      - name: Download and verify closed Database 1.0 provenance audit
+        run: |
+          set -euo pipefail
+          metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$PROVENANCE_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$metadata")" = "$PROVENANCE_ARTIFACT"
+          test "$(jq -r .expired <<<"$metadata")" = false
+          test "$(jq -r .digest <<<"$metadata")" = "$PROVENANCE_ARTIFACT_DIGEST"
+          test "$(gh run view "$PROVENANCE_RUN_ID" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+          rm -rf /tmp/ch1-db-provenance
+          mkdir -p /tmp/ch1-db-provenance
+          gh run download "$PROVENANCE_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "$PROVENANCE_ARTIFACT" --dir /tmp/ch1-db-provenance
+          test -f /tmp/ch1-db-provenance/VALIDATED_LOW_PROVENANCE_RECOVERY.csv
+          test -f /tmp/ch1-db-provenance/FLORML_LINEAGE_FAMILY_MAP.csv
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('/tmp/ch1-db-provenance')
+          summary = json.loads(
+              (root/'VALIDATED_LOW_HISTORICAL_PROVENANCE_SUMMARY.json').read_text()
+          )
+          assert summary['distinct_derived_lineages'] == 3070
+          assert summary['exact_rule_semantics_recovered'] == 3069
+          assert summary['source_provenance_recovered'] == 3070
+          assert summary['target_cells_with_unresolved_source_provenance'] == 0
+          PY
+
+      - name: Evaluate every resolved cell against upstream source rights
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/ch1-db-cell-rights
+          python analysis/evaluate_chapter1_database_cell_rights.py \
+            --species-axis /tmp/ch1-db-source/species_axis_coverage.csv.gz \
+            --validated-low-recovery /tmp/ch1-db-provenance/VALIDATED_LOW_PROVENANCE_RECOVERY.csv \
+            --source-policy config/chapter1_database_release_source_policy.yml \
+            --lineage-family-map /tmp/ch1-db-provenance/FLORML_LINEAGE_FAMILY_MAP.csv \
+            --output-dir /tmp/ch1-db-cell-rights
+
+      - name: Enforce Database 1.0 release-gate invariants
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('/tmp/ch1-db-cell-rights')
+          summary = json.loads((root/'FINAL_RELEASE_GATE.json').read_text())
+          assert summary['resolved_cells'] == 222688
+          assert summary['validated_low_cells'] == 65015
+          assert summary['validated_low_cells_with_complete_upstream_source_provenance'] == 65015
+          assert summary['semantic_mismatch_cells'] == 1
+          assert summary['synthetic_validated_low_family_used_as_rights_decision'] is False
+          assert summary['scientific_database_modified'] is False
+          assert summary['rights_granted_by_provenance_recovery'] is False
+          PY
+          cat /tmp/ch1-db-cell-rights/FINAL_RELEASE_GATE.md | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-database-v1-cell-rights-${{ github.run_id }}
+          path: /tmp/ch1-db-cell-rights/
+          if-no-files-found: error
+          retention-days: 90
