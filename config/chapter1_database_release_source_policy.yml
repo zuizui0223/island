@@ -19,6 +19,10 @@ rules:
     status: redistributable
     license: CC-BY-4.0
     note: "For immutable Database 1.0, `bhl:page:*` lineages were imported through Araujo, Hartley & Brummitt (2026), Angiosperm functional traits extracted from botanical descriptions, Natural History Museum dataset doi:10.5519/p3dm31kc, specifically its BHL-derived trait resource. The NHM dataset is published under Creative Commons Attribution. The BHL page identifier is retained as original-text provenance; this decision licenses redistribution of the NHM-derived structured trait values, not blanket republication of BHL page content."
+  - pattern: "^wikidata-p2827:"
+    status: redistributable
+    license: CC0-1.0
+    note: "Wikidata structured data in the main/property namespaces are released under CC0 1.0. This rule applies only to the structured P2827-derived lineage values, not prose from non-data namespaces."
   - pattern: "^database:usda_plants$"
     status: redistributable
     license: US-PUBLIC-DOMAIN
