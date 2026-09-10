@@ -4,8 +4,9 @@ import hashlib
 import json
 import re
 import shutil
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
+from urllib.parse import urlparse
 
 import pandas as pd
 import typer
@@ -31,7 +32,7 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def tokenize_sources(series: pd.Series) -> Counter[str]:
+def tokenize_lineages(series: pd.Series) -> Counter[str]:
     counter: Counter[str] = Counter()
     for value in series.fillna("").astype(str):
         for token in value.split("|"):
@@ -41,29 +42,137 @@ def tokenize_sources(series: pd.Series) -> Counter[str]:
     return counter
 
 
-def source_status(token: str, policy: dict[str, object]) -> tuple[str, str]:
-    default = str(policy.get("default_status", "review_required"))
+def source_family(lineage: str) -> str:
+    """Collapse row-level provenance IDs to a source family used for rights review.
+
+    Exact lineage strings are retained in a separate audit table. The family is only
+    the unit on which a common redistribution decision can be applied safely.
+    """
+    token = lineage.strip()
+    lower = token.lower()
+
+    if lower.startswith("dataset:dryad.") or lower.startswith("doi:10.5061/dryad."):
+        return "dataset:dryad"
+    if lower.startswith("origin:austraits:"):
+        return "dataset:austraits"
+    if lower.startswith("pladias:"):
+        return "database:pladias"
+    if lower.startswith("origin:usda_plants"):
+        return "database:usda_plants"
+    if lower.startswith("bhl:"):
+        return "provider:bhl"
+    if lower.startswith("baseflor:"):
+        return "database:baseflor"
+    if lower.startswith("ecoflora:"):
+        return "database:ecoflora"
+    if lower.startswith("efloras:") or lower.startswith("efloras-treatment:"):
+        return "provider:efloras"
+    if lower.startswith("floraweb:") or lower.startswith("biolflor:floraweb"):
+        return "database:floraweb_biolflor"
+    if lower.startswith("citation:"):
+        return "unresolved:citation_hash"
+    if lower.startswith("validated-low:"):
+        return "derived:validated_low_without_direct_source_lineage"
+    if lower.startswith("url:"):
+        host = urlparse(token[4:]).netloc.lower().removeprefix("www.")
+        return f"domain:{host or 'unknown'}"
+    if lower.startswith("provider_treatment:"):
+        parts = token.split(":")
+        return ":".join(parts[:2]).lower()
+    if lower.startswith("provider_compilation:"):
+        parts = token.split(":")
+        return ":".join(parts[:2]).lower()
+    if lower.startswith("dataset:"):
+        parts = token.split(":")
+        return ":".join(parts[:2]).lower()
+    if lower.startswith("origin:"):
+        parts = token.split(":")
+        return ":".join(parts[:2]).lower()
+    if lower.startswith("doi:"):
+        return "unresolved:other_doi"
+
+    parts = token.split(":")
+    if len(parts) >= 2:
+        return ":".join(parts[:2]).lower()
+    return f"unresolved:{lower or 'empty'}"
+
+
+def source_decision(source: str, policy: dict[str, object]) -> tuple[str, str, str]:
+    default_status = str(policy.get("default_status", "review_required"))
+    default_license = policy.get("default_license")
     default_note = str(policy.get("default_note", "No redistribution decision recorded."))
     for rule in policy.get("rules", []):
         pattern = str(rule["pattern"])
-        if re.search(pattern, token, flags=re.IGNORECASE):
-            return str(rule["status"]), str(rule.get("note", ""))
-    return default, default_note
+        if re.search(pattern, source, flags=re.IGNORECASE):
+            license_id = rule.get("license")
+            return (
+                str(rule["status"]),
+                "" if license_id is None else str(license_id),
+                str(rule.get("note", "")),
+            )
+    return (
+        default_status,
+        "" if default_license is None else str(default_license),
+        default_note,
+    )
 
 
-def build_inventory(frame: pd.DataFrame, policy: dict[str, object]) -> pd.DataFrame:
-    rows: list[dict[str, object]] = []
-    for token, count in tokenize_sources(frame["source_groups"]).most_common():
-        status, note = source_status(token, policy)
-        rows.append(
+def build_inventory(
+    frame: pd.DataFrame,
+    policy: dict[str, object],
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Return source-family rights inventory and exact-lineage provenance details."""
+    lineage_counts = tokenize_lineages(frame["source_lineages"])
+    family_lineages: dict[str, set[str]] = defaultdict(set)
+    family_lineage_mentions: Counter[str] = Counter()
+    for lineage, count in lineage_counts.items():
+        family = source_family(lineage)
+        family_lineages[family].add(lineage)
+        family_lineage_mentions[family] += count
+
+    family_cell_mentions: Counter[str] = Counter()
+    for value in frame["source_lineages"].fillna("").astype(str):
+        families = {
+            source_family(token.strip())
+            for token in value.split("|")
+            if token.strip()
+        }
+        family_cell_mentions.update(families)
+
+    family_rows: list[dict[str, object]] = []
+    for family, cell_count in family_cell_mentions.most_common():
+        status, license_id, note = source_decision(family, policy)
+        examples = sorted(family_lineages[family])
+        family_rows.append(
             {
-                "source_token": token,
-                "resolved_row_mentions": count,
+                "source_family": family,
+                "resolved_cell_mentions": cell_count,
+                "lineage_mentions": family_lineage_mentions[family],
+                "distinct_source_lineages": len(examples),
+                "example_lineage": examples[0] if examples else "",
                 "redistribution_status": status,
+                "source_license": license_id,
                 "policy_note": note,
             }
         )
-    return pd.DataFrame(rows)
+    family_inventory = pd.DataFrame(family_rows)
+
+    lineage_rows: list[dict[str, object]] = []
+    for lineage, count in lineage_counts.most_common():
+        family = source_family(lineage)
+        status, license_id, note = source_decision(family, policy)
+        lineage_rows.append(
+            {
+                "source_lineage": lineage,
+                "source_family": family,
+                "lineage_mentions": count,
+                "redistribution_status": status,
+                "source_license": license_id,
+                "policy_note": note,
+            }
+        )
+    lineage_inventory = pd.DataFrame(lineage_rows)
+    return family_inventory, lineage_inventory
 
 
 @app.command("build")
@@ -75,7 +184,7 @@ def build(
     public: bool = typer.Option(
         False,
         "--public",
-        help="Require every source token to be explicitly redistributable before copying data files.",
+        help="Require every source family to have explicit redistribution permission and license.",
     ),
 ) -> None:
     manifest = load_manifest(manifest_path)
@@ -85,17 +194,21 @@ def build(
 
     frame = pd.read_csv(species_axis, dtype=str).fillna("")
     resolved = frame[frame["quality"].str.lower().isin({"high", "medium", "low"})].copy()
-    inventory = build_inventory(resolved, policy)
-    blockers = inventory[inventory["redistribution_status"] != "redistributable"].copy()
+    inventory, lineage_details = build_inventory(resolved, policy)
+    blockers = inventory[
+        (inventory["redistribution_status"] != "redistributable")
+        | inventory["source_license"].eq("")
+    ].copy()
 
     output_dir.mkdir(parents=True, exist_ok=True)
     inventory.to_csv(output_dir / "SOURCE_LICENSE_INVENTORY.csv", index=False)
+    lineage_details.to_csv(output_dir / "SOURCE_LINEAGE_DETAILS.csv", index=False)
     blockers.to_csv(output_dir / "RELEASE_BLOCKERS.csv", index=False)
 
     release_ready = blockers.empty
     if public and not release_ready:
         raise typer.BadParameter(
-            f"public release blocked: {len(blockers)} source tokens require redistribution review"
+            f"public release blocked: {len(blockers)} source families require rights review"
         )
 
     copied: list[dict[str, object]] = []
@@ -108,8 +221,11 @@ def build(
             shutil.copy2(src, dst)
             copied.append({"file": name, "sha256": sha256_file(dst), "bytes": dst.stat().st_size})
 
+    licenses_observed = sorted(
+        set(inventory.loc[inventory["source_license"].ne(""), "source_license"].astype(str))
+    )
     release_manifest = {
-        "schema_version": 1,
+        "schema_version": 2,
         "database_id": manifest.database.database_id,
         "database_version": manifest.database.version,
         "analysis_contract": manifest.database.analysis_contract,
@@ -121,9 +237,9 @@ def build(
         "public_mode_requested": public,
         "files": copied,
         "license_blocker_count": int(len(blockers)),
-        "distinct_source_lineages": int(
-            resolved["source_lineages"].replace("", pd.NA).nunique(dropna=True)
-        ),
+        "distinct_source_families": int(len(inventory)),
+        "distinct_source_lineages": int(len(lineage_details)),
+        "source_licenses_with_explicit_permission": licenses_observed,
     }
     (output_dir / "RELEASE_MANIFEST.json").write_text(
         json.dumps(release_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
@@ -142,9 +258,13 @@ def build(
         "| trait_composition | normalized composition/value payload used to build analysis traits |\n"
     )
     data_dictionary += "| trait_names | contributing normalized trait names |\n"
-    data_dictionary += "| source_groups | provenance-preserving source-group labels |\n"
-    data_dictionary += "| source_lineages | source-lineage provenance retained through integration |\n"
+    data_dictionary += "| source_groups | acquisition/integration route labels; not a licensing unit |\n"
+    data_dictionary += "| source_lineages | row-level provenance retained through integration |\n"
     data_dictionary += "| quality | high, medium, low, or unresolved/blank |\n"
+    data_dictionary += (
+        "\n`SOURCE_LICENSE_INVENTORY.csv` evaluates normalized source families; "
+        "`SOURCE_LINEAGE_DETAILS.csv` retains the exact lineage tokens behind those families.\n"
+    )
     (output_dir / "DATA_DICTIONARY.md").write_text(data_dictionary, encoding="utf-8")
 
     status = "READY" if release_ready else "BLOCKED_PENDING_SOURCE_LICENSE_REVIEW"

@@ -1,16 +1,29 @@
-schema_version: 1
+schema_version: 2
 default_status: review_required
-default_note: "Redistribution status has not yet been recorded for this source token."
+default_license: null
+default_note: "Redistribution status has not yet been recorded for this normalized source family."
 rules:
-  - pattern: "^try($|[_-])"
+  - pattern: "^dataset:dryad$"
+    status: redistributable
+    license: CC0-1.0
+    note: "Dryad states that published data are released under CC0; retain source DOI/provenance in the release."
+  - pattern: "^dataset:austraits$"
+    status: redistributable
+    license: CC-BY-4.0
+    note: "AusTraits releases are published under CC BY 4.0; attribution to AusTraits and contributing datasets is required."
+  - pattern: "^database:pladias$"
     status: review_required
-    note: "TRY-derived cells require explicit policy review before third-party redistribution."
-  - pattern: "^validated_low_all_evidence$"
+    license: null
+    note: "Pladias data-provider conditions vary and third-party provision is conditional; do not redistribute until the relevant subset permission is documented."
+  - pattern: "^derived:validated_low_without_direct_source_lineage$"
     status: review_required
-    note: "Composite provenance label; resolve contributing source lineages before public redistribution."
-  - pattern: "^wave3[345]_"
+    license: null
+    note: "Derived Validated-Low provenance does not identify a directly licensable upstream source family; resolve before public redistribution."
+  - pattern: "^unresolved:"
     status: review_required
-    note: "Derived validation label; resolve contributing source lineages before public redistribution."
-  - pattern: "^latest_public_web$"
+    license: null
+    note: "The stored lineage is insufficient to assign redistribution rights automatically."
+  - pattern: "^domain:en\\.wikipedia\\.org$"
     status: review_required
-    note: "Composite web-evidence label; individual source terms must be audited."
+    license: CC-BY-SA-4.0
+    note: "Wikipedia content has attribution/share-alike conditions; release-level compatibility and attribution handling must be established first."
