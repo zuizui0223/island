@@ -11,6 +11,10 @@ rules:
     status: redistributable
     license: CC-BY-4.0
     note: "AusTraits releases are published under CC BY 4.0; attribution to AusTraits and contributing datasets is required."
+  - pattern: "^dataset:bennett2020$"
+    status: redistributable
+    license: CC-BY-4.0
+    note: "The lineage `dataset:bennett2020:glopl_pollinator_dependency` corresponds to pollinator-dependency data accompanying Bennett et al. (2020), Nature Communications 11:3999 (doi:10.1038/s41467-020-17751-y). The article provides Source Data under CC BY 4.0 and identifies the underlying GloPL dataset as Dryad doi:10.5061/dryad.dt437. Retain article, Source Data, and GloPL/Dryad attribution."
   - pattern: "^database:usda_plants$"
     status: redistributable
     license: US-PUBLIC-DOMAIN
