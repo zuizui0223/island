@@ -97,13 +97,37 @@ def source_family(lineage: str) -> str:
     return f"unresolved:{lower or 'empty'}"
 
 
-def audit_bucket(source: str) -> str:
-    """Return a non-binding triage bucket; never use this field to grant rights.
+def load_lineage_family_map(path: Path | None) -> dict[str, str]:
+    """Load an audit-only exact-lineage -> source-family override map.
 
-    Known provenance classes retain their short names. Unknown classes expose their
-    actual prefix rather than collapsing into a single ``other`` bucket, so review
-    effort can be prioritized without changing any rights decision.
+    This map changes only the rights-review grouping. It never mutates the scientific
+    Database 1.0 ledger or its stored source_lineages.
     """
+    if path is None:
+        return {}
+    frame = pd.read_csv(path, dtype=str).fillna("")
+    required = {"source_lineage", "source_family"}
+    missing = required.difference(frame.columns)
+    if missing:
+        raise ValueError(f"lineage-family map missing columns: {sorted(missing)}")
+    if frame["source_lineage"].eq("").any() or frame["source_family"].eq("").any():
+        raise ValueError("lineage-family map contains blank source_lineage/source_family")
+    conflicts = frame.groupby("source_lineage")["source_family"].nunique()
+    conflicts = conflicts[conflicts > 1]
+    if not conflicts.empty:
+        raise ValueError(f"lineage-family map has {len(conflicts)} conflicting lineages")
+    deduped = frame.drop_duplicates(["source_lineage", "source_family"])
+    return dict(zip(deduped["source_lineage"], deduped["source_family"], strict=True))
+
+
+def family_for_lineage(lineage: str, overrides: dict[str, str] | None = None) -> str:
+    if overrides and lineage in overrides:
+        return overrides[lineage]
+    return source_family(lineage)
+
+
+def audit_bucket(source: str) -> str:
+    """Return a non-binding triage bucket; never use this field to grant rights."""
     prefix = source.split(":", 1)[0].lower() if source else "unresolved"
     known = {
         "database",
@@ -144,20 +168,22 @@ def source_decision(source: str, policy: dict[str, object]) -> tuple[str, str, s
 def build_inventory(
     frame: pd.DataFrame,
     policy: dict[str, object],
+    lineage_family_overrides: dict[str, str] | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Return source-family rights inventory and exact-lineage provenance details."""
+    overrides = lineage_family_overrides or {}
     lineage_counts = tokenize_lineages(frame["source_lineages"])
     family_lineages: dict[str, set[str]] = defaultdict(set)
     family_lineage_mentions: Counter[str] = Counter()
     for lineage, count in lineage_counts.items():
-        family = source_family(lineage)
+        family = family_for_lineage(lineage, overrides)
         family_lineages[family].add(lineage)
         family_lineage_mentions[family] += count
 
     family_cell_mentions: Counter[str] = Counter()
     for value in frame["source_lineages"].fillna("").astype(str):
         families = {
-            source_family(token.strip())
+            family_for_lineage(token.strip(), overrides)
             for token in value.split("|")
             if token.strip()
         }
@@ -184,7 +210,7 @@ def build_inventory(
 
     lineage_rows: list[dict[str, object]] = []
     for lineage, count in lineage_counts.most_common():
-        family = source_family(lineage)
+        family = family_for_lineage(lineage, overrides)
         status, license_id, note = source_decision(family, policy)
         lineage_rows.append(
             {
@@ -192,6 +218,7 @@ def build_inventory(
                 "source_family": family,
                 "audit_bucket": audit_bucket(family),
                 "lineage_mentions": count,
+                "family_override_applied": lineage in overrides,
                 "redistribution_status": status,
                 "source_license": license_id,
                 "policy_note": note,
@@ -207,6 +234,13 @@ def build(
     manifest_path: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
     source_policy_path: Path = typer.Option(..., "--source-policy", exists=True, dir_okay=False),
     output_dir: Path = typer.Option(..., "--output-dir"),
+    lineage_family_map: Path | None = typer.Option(
+        None,
+        "--lineage-family-map",
+        exists=True,
+        dir_okay=False,
+        help="Audit-only exact source_lineage -> normalized source_family override CSV.",
+    ),
     public: bool = typer.Option(
         False,
         "--public",
@@ -215,12 +249,13 @@ def build(
 ) -> None:
     manifest = load_manifest(manifest_path)
     policy = yaml.safe_load(source_policy_path.read_text(encoding="utf-8")) or {}
+    overrides = load_lineage_family_map(lineage_family_map)
     species_axis = source_dir / "species_axis_coverage.csv.gz"
     validation = validate_species_axis(species_axis, manifest)
 
     frame = pd.read_csv(species_axis, dtype=str).fillna("")
     resolved = frame[frame["quality"].str.lower().isin({"high", "medium", "low"})].copy()
-    inventory, lineage_details = build_inventory(resolved, policy)
+    inventory, lineage_details = build_inventory(resolved, policy, overrides)
     blockers = inventory[
         (inventory["redistribution_status"] != "redistributable")
         | inventory["source_license"].eq("")
@@ -262,6 +297,7 @@ def build(
     licenses_observed = sorted(
         set(inventory.loc[inventory["source_license"].ne(""), "source_license"].astype(str))
     )
+    applied_overrides = int(lineage_details["family_override_applied"].sum())
     release_manifest = {
         "schema_version": 2,
         "database_id": manifest.database.database_id,
@@ -277,6 +313,8 @@ def build(
         "license_blocker_count": int(len(blockers)),
         "distinct_source_families": int(len(inventory)),
         "distinct_source_lineages": int(len(lineage_details)),
+        "lineage_family_override_rows": int(len(overrides)),
+        "lineage_family_overrides_applied": applied_overrides,
         "source_licenses_with_explicit_permission": licenses_observed,
     }
     (output_dir / "RELEASE_MANIFEST.json").write_text(
@@ -302,6 +340,8 @@ def build(
     data_dictionary += (
         "\n`SOURCE_LICENSE_INVENTORY.csv` evaluates normalized source families; "
         "`SOURCE_LINEAGE_DETAILS.csv` retains the exact lineage tokens behind those families. "
+        "When supplied, a lineage-family map changes only audit grouping and is recorded by "
+        "`family_override_applied`; it never changes Database 1.0 source lineage bytes. "
         "`RIGHTS_TRIAGE_BUCKETS.csv` is only a workload summary and never grants redistribution rights.\n"
     )
     (output_dir / "DATA_DICTIONARY.md").write_text(data_dictionary, encoding="utf-8")
