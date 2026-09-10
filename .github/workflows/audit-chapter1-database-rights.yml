@@ -1,0 +1,103 @@
+name: Audit Chapter 1 database redistribution rights
+
+on:
+  push:
+    branches: [feat/chapter1-database-rights-report]
+    paths:
+      - ".github/workflows/audit-chapter1-database-rights.yml"
+      - "config/chapter1_database_release_source_policy.yml"
+      - "config/chapter1_database_versions/current.yml"
+      - "src/island_v2/chapter1_database_release.py"
+  pull_request:
+    paths:
+      - ".github/workflows/audit-chapter1-database-rights.yml"
+      - "config/chapter1_database_release_source_policy.yml"
+      - "config/chapter1_database_versions/**"
+      - "src/island_v2/chapter1_database_release.py"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Resolve immutable Database 1.0 source
+        id: db
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import yaml
+          payload = yaml.safe_load(Path('config/chapter1_database_versions/v1.0.0.yml').read_text())
+          source = payload['database']['source']
+          assert source['kind'] == 'github_artifact'
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f"repository={source['repository']}\n")
+              out.write(f"run_id={source['run_id']}\n")
+              out.write(f"artifact_name={source['artifact_name']}\n")
+          PY
+      - name: Download Database 1.0 source artifact
+        run: |
+          mkdir -p /tmp/ch1-db-source
+          gh run download "${{ steps.db.outputs.run_id }}" \
+            --repo "${{ steps.db.outputs.repository }}" \
+            -n "${{ steps.db.outputs.artifact_name }}" \
+            -D /tmp/ch1-db-source
+      - name: Validate immutable ledger
+        run: |
+          python -m island_v2.chapter1_database_manifest validate \
+            --manifest config/chapter1_database_versions/v1.0.0.yml \
+            --species-axis /tmp/ch1-db-source/species_axis_coverage.csv.gz
+      - name: Build non-public rights audit candidate
+        run: |
+          python -m island_v2.chapter1_database_release build \
+            --source-dir /tmp/ch1-db-source \
+            --manifest config/chapter1_database_versions/v1.0.0.yml \
+            --source-policy config/chapter1_database_release_source_policy.yml \
+            --output-dir /tmp/ch1-db-rights
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          root = Path('/tmp/ch1-db-rights')
+          inv = pd.read_csv(root/'SOURCE_LICENSE_INVENTORY.csv')
+          blockers = pd.read_csv(root/'RELEASE_BLOCKERS.csv')
+          manifest = json.loads((root/'RELEASE_MANIFEST.json').read_text())
+          lines = [
+              '# Chapter 1 Database 1.0 rights audit',
+              '',
+              f"- public release ready: **{manifest['release_ready_for_public_zenodo']}**",
+              f"- source families: **{len(inv):,}**",
+              f"- blocker families: **{len(blockers):,}**",
+              f"- exact source lineages: **{manifest['distinct_source_lineages']:,}**",
+              '',
+              '## Redistribution status',
+              '',
+          ]
+          status = inv.groupby('redistribution_status', dropna=False)['affected_resolved_cells'].sum().sort_values(ascending=False)
+          for key, value in status.items():
+              lines.append(f"- {key}: {int(value):,} affected resolved cells")
+          lines += ['', '## Largest unresolved source families', '']
+          if len(blockers):
+              top = blockers.sort_values('affected_resolved_cells', ascending=False).head(30)
+              for _, row in top.iterrows():
+                  lines.append(f"- `{row['source_family']}` — {int(row['affected_resolved_cells']):,} cells — {row['redistribution_status']}")
+          (root/'RIGHTS_AUDIT_SUMMARY.md').write_text('\n'.join(lines) + '\n')
+          PY
+          cat /tmp/ch1-db-rights/RIGHTS_AUDIT_SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-database-v1-rights-audit-${{ github.run_id }}
+          path: /tmp/ch1-db-rights/
+          if-no-files-found: error
+          retention-days: 90
