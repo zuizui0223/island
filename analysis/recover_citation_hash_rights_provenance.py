@@ -2,8 +2,8 @@
 
 Rights/provenance audit only. This script never changes scientific trait values and
 never grants redistribution rights. It resolves opaque ``citation:*`` provenance
-against immutable reviewed evidence packets, then maps each citation lineage to a
-stable source family suitable for the existing rights policy.
+against the immutable reviewed Public-Web evidence packet, then maps each citation
+lineage to a stable source family suitable for the existing rights policy.
 """
 from __future__ import annotations
 
@@ -45,25 +45,23 @@ def _family(provider: object, url: object) -> str:
     return f"provider:{_slug(p)}"
 
 
-def _load_reviewed(path: Path, label: str) -> pd.DataFrame:
+def _load_reviewed(path: Path) -> pd.DataFrame:
     frame = pd.read_csv(path, dtype=str).fillna("")
     required = {"source_lineage", "source_provider", "source_url", "source_citation"}
     missing = required.difference(frame.columns)
     if missing:
-        raise ValueError(f"{label} missing columns: {sorted(missing)}")
+        raise ValueError(f"reviewed Public-Web ledger missing columns: {sorted(missing)}")
     frame = frame.loc[frame["source_lineage"].str.startswith("citation:")].copy()
     frame["source_family"] = [
         _family(provider, url)
         for provider, url in zip(frame["source_provider"], frame["source_url"], strict=True)
     ]
-    frame["provenance_source"] = label
     return frame
 
 
 def recover(
     species_axis_path: Path,
     public_web_reviewed_path: Path,
-    gift_reviewed_path: Path,
     output_dir: Path,
 ) -> dict[str, object]:
     coverage = pd.read_csv(species_axis_path, dtype=str).fillna("")
@@ -80,34 +78,30 @@ def recover(
     if not target:
         raise ValueError("no citation lineages in Database 1.0")
 
-    frames = [
-        _load_reviewed(public_web_reviewed_path, "reviewed_public_web"),
-        _load_reviewed(gift_reviewed_path, "gift_v3_2_direct"),
-    ]
-    candidates = pd.concat(frames, ignore_index=True, sort=False).fillna("")
-    candidates = candidates.loc[candidates["source_lineage"].isin(target)].copy()
+    reviewed = _load_reviewed(public_web_reviewed_path)
+    reviewed = reviewed.loc[reviewed["source_lineage"].isin(target)].copy()
 
     rows: list[dict[str, object]] = []
     for lineage in target:
-        found = candidates.loc[candidates["source_lineage"].eq(lineage)].copy()
+        found = reviewed.loc[reviewed["source_lineage"].eq(lineage)].copy()
         families = sorted(set(found["source_family"]))
         providers = sorted(set(found["source_provider"]))
         urls = sorted({x for x in found["source_url"] if x})
         citations = sorted({x for x in found["source_citation"] if x})
-        sources = sorted(set(found["provenance_source"]))
+        provenance_source = "reviewed_public_web" if len(found) else ""
 
         if lineage == "citation:Chung-Chung-Oh-Epperson-2000-Heredity-85-490-497":
             families = ["publication:chung_etal_2000_heredity"]
             providers = ["reviewed_manual_literature"]
             urls = ["https://bsapubs.onlinelibrary.wiley.com/doi/10.3732/ajb.1000348"]
             citations = ["Chung et al. (2000), Heredity 85:490-497"]
-            sources = ["committed_reviewed_provenance"]
+            provenance_source = "committed_reviewed_provenance"
         elif lineage == "citation:Fischer-Rahelivololona-2007-Adansonia-29-269-315":
             families = ["publication:fischer_rahelivololona_2007_adansonia"]
             providers = ["MNHN Science Press"]
             urls = ["https://sciencepress.mnhn.fr/sites/default/files/articles/pdf/a2007n2a8.pdf"]
             citations = ["Fischer & Rahelivololona (2007), Adansonia 29(2):269-315"]
-            sources = ["committed_reviewed_provenance"]
+            provenance_source = "committed_reviewed_provenance"
 
         if len(families) > 1:
             raise ValueError(f"citation lineage maps to conflicting source families: {lineage} -> {families}")
@@ -119,7 +113,7 @@ def recover(
                 "source_providers": "|".join(providers),
                 "source_urls": "|".join(urls),
                 "source_citations": " || ".join(citations),
-                "provenance_sources": "|".join(sources),
+                "provenance_source": provenance_source,
             }
         )
 
@@ -130,12 +124,26 @@ def recover(
     result.to_csv(output_dir / "CITATION_LINEAGE_FAMILY_MAP.csv", index=False)
     unresolved.to_csv(output_dir / "CITATION_UNRESOLVED.csv", index=False)
 
+    provider_summary = (
+        result.loc[result["source_provenance_recovered"]]
+        .groupby("source_family", dropna=False)
+        .agg(
+            citation_lineages=("source_lineage", "nunique"),
+            example_lineage=("source_lineage", "first"),
+            example_provider=("source_providers", "first"),
+        )
+        .reset_index()
+        .sort_values(["citation_lineages", "source_family"], ascending=[False, True])
+    )
+    provider_summary.to_csv(output_dir / "CITATION_SOURCE_FAMILY_SUMMARY.csv", index=False)
+
     summary = {
         "contract": "chapter1_database_v1_citation_lineage_provenance_audit_v1",
         "distinct_citation_lineages": int(len(result)),
         "source_provenance_recovered": recovered,
         "source_provenance_recovery_rate": recovered / len(result),
         "unresolved_citation_lineages": int(len(unresolved)),
+        "distinct_recovered_source_families": int(provider_summary["source_family"].nunique()),
         "scientific_database_modified": False,
         "rights_granted": False,
     }
@@ -150,10 +158,9 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--species-axis", type=Path, required=True)
     parser.add_argument("--public-web-reviewed", type=Path, required=True)
-    parser.add_argument("--gift-reviewed", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
-    recover(args.species_axis, args.public_web_reviewed, args.gift_reviewed, args.output_dir)
+    recover(args.species_axis, args.public_web_reviewed, args.output_dir)
 
 
 if __name__ == "__main__":
