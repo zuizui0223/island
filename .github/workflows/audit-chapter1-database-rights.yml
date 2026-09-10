@@ -11,6 +11,7 @@ on:
       - "analysis/recover_florml_rights_provenance.py"
       - "analysis/recover_validated_low_rights_provenance.py"
       - "scripts/recover_verified_trait_checkpoint.py"
+      - "tests/test_recover_validated_low_rights_provenance.py"
   pull_request:
     paths:
       - ".github/workflows/audit-chapter1-database-rights.yml"
@@ -20,6 +21,7 @@ on:
       - "analysis/recover_florml_rights_provenance.py"
       - "analysis/recover_validated_low_rights_provenance.py"
       - "scripts/recover_verified_trait_checkpoint.py"
+      - "tests/test_recover_validated_low_rights_provenance.py"
 
 permissions:
   contents: read
@@ -37,6 +39,8 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -e ".[dev]"
+      - name: Test rights/provenance reconstruction helpers
+        run: pytest -q tests/test_recover_validated_low_rights_provenance.py
       - name: Resolve immutable Database 1.0 source
         id: db
         run: |
@@ -74,6 +78,40 @@ jobs:
           python scripts/recover_verified_trait_checkpoint.py \
             --source /tmp/wave53-source \
             --output /tmp/recovered-wave53
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          root = Path('/tmp/recovered-wave53/public_source/wave53-all-evidence-audit')
+          expected = {
+              'resolved_direct_species_trait.csv.gz': '9a6b0a7bec119e68c8fbe05ceadddb84f97526ec3bbfb6f9d89e3b2fb761db79',
+              'external_congener_resolved_species_trait.csv.gz': 'c2bd31dc41644ac8a3585dd112684cb744f70153566ec5379d86b77e385affd9',
+              'trait_specific_genus_rule_audit.csv.gz': 'd9ea8363f27b341e4b432c2f72c88746127c2d740856d682a826bf21b7fd51a9',
+          }
+          for name, digest in expected.items():
+              path = root / name
+              if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+                  raise SystemExit(f'Wave53 provenance input checksum mismatch: {name}')
+          PY
+      - name: Download and verify Run329 formal rule provenance source
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/run329
+          gh run download 32932103226 --repo "$GITHUB_REPOSITORY" \
+            --name integrated-trait-coverage-32932103226 \
+            --dir /tmp/run329
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          root = Path('/tmp/run329')
+          expected = {
+              'resolved_direct_species_trait.csv.gz': '16658fd88e5de39a0f4a30d53d24cb2fb251572214e4787625056b1a304250ef',
+              'trait_specific_genus_rule_audit.csv.gz': 'd876b67f86fdf10dbda4f899a74e54eeed667b2c638a6652d3c8e18922288825',
+          }
+          for name, digest in expected.items():
+              path = root / name
+              if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+                  raise SystemExit(f'Run329 provenance input checksum mismatch: {name}')
+          PY
       - name: Build preliminary rights audit
         run: |
           python -m island_v2.chapter1_database_release \
@@ -99,7 +137,10 @@ jobs:
           python analysis/recover_validated_low_rights_provenance.py \
             --species-axis /tmp/ch1-db-source/species_axis_coverage.csv.gz \
             --wave53-direct /tmp/recovered-wave53/public_source/wave53-all-evidence-audit/resolved_direct_species_trait.csv.gz \
+            --wave53-external-congener /tmp/recovered-wave53/public_source/wave53-all-evidence-audit/external_congener_resolved_species_trait.csv.gz \
             --wave53-rules /tmp/recovered-wave53/public_source/wave53-all-evidence-audit/trait_specific_genus_rule_audit.csv.gz \
+            --run329-direct /tmp/run329/resolved_direct_species_trait.csv.gz \
+            --run329-rules /tmp/run329/trait_specific_genus_rule_audit.csv.gz \
             --lineage-family-map /tmp/ch1-db-rights/FLORML_LINEAGE_FAMILY_MAP.csv \
             --output-dir /tmp/ch1-db-rights
       - name: Summarize rights audit
