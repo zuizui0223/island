@@ -67,6 +67,8 @@ def recover(
         "support_source_lineages",
         "family_inference",
         "global_fallback",
+        "trait_names",
+        "predicted_state_sets",
     }
     missing = required_sidecar.difference(sidecar.columns)
     if missing:
@@ -113,6 +115,7 @@ def recover(
     rule_cells: Counter[str] = Counter()
     rule_support_families: dict[str, set[str]] = defaultdict(set)
     rule_support_lineages: dict[str, set[str]] = defaultdict(set)
+    rule_family_signatures: dict[str, set[str]] = defaultdict(set)
 
     for row in joined.to_dict("records"):
         supports = _json_list(row.get("support_source_lineages"))
@@ -122,12 +125,14 @@ def recover(
             support_families.add(family)
             family_support_lineages[family].add(lineage)
         family_cell_counts.update(support_families)
+        family_signature = "|".join(sorted(support_families))
 
         derived = _tokens(row.get("derived_lineages"))
         for lineage in derived:
             rule_cells[lineage] += 1
             rule_support_families[lineage].update(support_families)
             rule_support_lineages[lineage].update(supports)
+            rule_family_signatures[lineage].add(family_signature)
 
         recovered_rows.append(
             {
@@ -138,7 +143,7 @@ def recover(
                 "support_source_lineage_count": len(set(supports)),
                 "support_source_lineages": json.dumps(sorted(set(supports))),
                 "support_source_family_count": len(support_families),
-                "support_source_families": "|".join(sorted(support_families)),
+                "support_source_families": family_signature,
                 "trait_names": row.get("trait_names", ""),
                 "predicted_state_sets": row.get("predicted_state_sets", ""),
             }
@@ -162,6 +167,7 @@ def recover(
     for lineage, cell_count in rule_cells.most_common():
         families = sorted(rule_support_families[lineage])
         supports = sorted(rule_support_lineages[lineage])
+        signatures = rule_family_signatures[lineage]
         rule_rows.append(
             {
                 "derived_lineage": lineage,
@@ -170,6 +176,8 @@ def recover(
                 "support_source_families": "|".join(families),
                 "support_source_lineage_count": len(supports),
                 "support_source_lineages": json.dumps(supports),
+                "distinct_cell_family_sets": len(signatures),
+                "family_set_stable_across_cells": len(signatures) == 1,
             }
         )
     rule_summary = pd.DataFrame(rule_rows)
@@ -177,21 +185,7 @@ def recover(
     matched = int(recovery["sidecar_matched"].sum())
     zero_support = int(recovery["support_source_lineage_count"].eq(0).sum())
     multi_family = int(recovery["support_source_family_count"].gt(1).sum())
-    stable_rule_count = 0
-    # A rule is considered family-stable when every target cell carrying it maps to
-    # one identical upstream family set. The union above is retained regardless.
-    for derived_lineage in rule_cells:
-        cell_sets = {
-            value
-            for value in recovery.loc[
-                recovery["derived_lineages"].map(
-                    lambda x, token=derived_lineage: token in _tokens(x)
-                ),
-                "support_source_families",
-            ]
-        }
-        if len(cell_sets) == 1:
-            stable_rule_count += 1
+    stable_rule_count = int(rule_summary["family_set_stable_across_cells"].sum())
 
     output_dir.mkdir(parents=True, exist_ok=True)
     recovery.to_csv(output_dir / "VALIDATED_LOW_PROVENANCE_RECOVERY.csv", index=False)
@@ -208,7 +202,7 @@ def recover(
         "zero_support_cells": zero_support,
         "multi_family_support_cells": multi_family,
         "distinct_derived_lineages": int(len(rule_summary)),
-        "family_stable_derived_lineages": int(stable_rule_count),
+        "family_stable_derived_lineages": stable_rule_count,
         "distinct_support_source_families": int(len(provider_summary)),
         "lineage_family_override_rows_used": int(len(overrides)),
         "scientific_database_modified": False,
