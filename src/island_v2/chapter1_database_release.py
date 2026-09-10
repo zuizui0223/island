@@ -98,9 +98,14 @@ def source_family(lineage: str) -> str:
 
 
 def audit_bucket(source: str) -> str:
-    """Return a non-binding triage bucket; never use this field to grant rights."""
+    """Return a non-binding triage bucket; never use this field to grant rights.
+
+    Known provenance classes retain their short names. Unknown classes expose their
+    actual prefix rather than collapsing into a single ``other`` bucket, so review
+    effort can be prioritized without changing any rights decision.
+    """
     prefix = source.split(":", 1)[0].lower() if source else "unresolved"
-    if prefix in {
+    known = {
         "database",
         "dataset",
         "derived",
@@ -110,9 +115,10 @@ def audit_bucket(source: str) -> str:
         "provider_compilation",
         "provider_treatment",
         "unresolved",
-    }:
+    }
+    if prefix in known:
         return prefix
-    return "other"
+    return f"prefix:{prefix or 'empty'}"
 
 
 def source_decision(source: str, policy: dict[str, object]) -> tuple[str, str, str]:
