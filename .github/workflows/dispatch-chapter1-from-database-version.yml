@@ -1,0 +1,42 @@
+name: Run Chapter 1 from database version
+
+on:
+  workflow_dispatch:
+    inputs:
+      manifest_path:
+        description: "Versioned Chapter 1 database manifest"
+        required: true
+        default: "config/chapter1_database_versions/current.yml"
+        type: string
+      workflow_ref:
+        description: "Git ref containing the frozen analysis workflow"
+        required: true
+        default: "main"
+        type: string
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate selected database version
+        run: >-
+          python -m island_v2.chapter1_database_manifest validate
+          --manifest "${{ inputs.manifest_path }}"
+      - name: Dispatch unchanged canonical Chapter 1 analysis
+        run: >-
+          python -m island_v2.chapter1_database_manifest dispatch
+          --manifest "${{ inputs.manifest_path }}"
+          --ref "${{ inputs.workflow_ref }}"
+          --execute

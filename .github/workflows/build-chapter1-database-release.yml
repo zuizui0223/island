@@ -1,0 +1,84 @@
+name: Build Chapter 1 database release candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      manifest_path:
+        description: "Versioned Chapter 1 database manifest"
+        required: true
+        default: "config/chapter1_database_versions/current.yml"
+        type: string
+      source_policy_path:
+        description: "Redistribution policy audit"
+        required: true
+        default: "config/chapter1_database_release_source_policy.yml"
+        type: string
+      public_release:
+        description: "Fail unless every source token is explicitly redistributable"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Resolve versioned source artifact
+        id: db
+        env:
+          MANIFEST_PATH: ${{ inputs.manifest_path }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import yaml
+          payload = yaml.safe_load(Path(os.environ["MANIFEST_PATH"]).read_text())
+          source = payload["database"]["source"]
+          assert source["kind"] == "github_artifact"
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write(f"repository={source['repository']}\n")
+              out.write(f"run_id={source['run_id']}\n")
+              out.write(f"artifact_name={source['artifact_name']}\n")
+          PY
+      - name: Download immutable database artifact
+        run: |
+          mkdir -p /tmp/chapter1-db-source
+          gh run download "${{ steps.db.outputs.run_id }}" \
+            --repo "${{ steps.db.outputs.repository }}" \
+            -n "${{ steps.db.outputs.artifact_name }}" \
+            -D /tmp/chapter1-db-source
+      - name: Validate database hash and schema
+        run: >-
+          python -m island_v2.chapter1_database_manifest validate
+          --manifest "${{ inputs.manifest_path }}"
+          --species-axis /tmp/chapter1-db-source/species_axis_coverage.csv.gz
+      - name: Build release candidate
+        run: |
+          args=(
+            --source-dir /tmp/chapter1-db-source
+            --manifest "${{ inputs.manifest_path }}"
+            --source-policy "${{ inputs.source_policy_path }}"
+            --output-dir /tmp/chapter1-db-release
+          )
+          if [ "${{ inputs.public_release }}" = "true" ]; then
+            args+=(--public)
+          fi
+          python -m island_v2.chapter1_database_release "${args[@]}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-database-release-candidate-${{ github.run_id }}
+          path: /tmp/chapter1-db-release/
+          if-no-files-found: error
+          retention-days: 90

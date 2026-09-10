@@ -1,0 +1,16 @@
+schema_version: 1
+default_status: review_required
+default_note: "Redistribution status has not yet been recorded for this source token."
+rules:
+  - pattern: "^try($|[_-])"
+    status: review_required
+    note: "TRY-derived cells require explicit policy review before third-party redistribution."
+  - pattern: "^validated_low_all_evidence$"
+    status: review_required
+    note: "Composite provenance label; resolve contributing source lineages before public redistribution."
+  - pattern: "^wave3[345]_"
+    status: review_required
+    note: "Derived validation label; resolve contributing source lineages before public redistribution."
+  - pattern: "^latest_public_web$"
+    status: review_required
+    note: "Composite web-evidence label; individual source terms must be audited."

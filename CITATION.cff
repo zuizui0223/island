@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this analysis pipeline, please cite the archived software release and the versioned Chapter 1 database dataset."
+title: "island: reproducible global island-flora Chapter 1 analysis pipeline"
+type: software
+authors:
+  - family-names: "Zhang"
+    given-names: "Ruiqi"
+repository-code: "https://github.com/zuizui0223/island"
+version: "0.1.0"
