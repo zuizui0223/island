@@ -14,6 +14,23 @@ on:
       - "tests/test_island_plant_database_gbif.py"
       - "data/v2/staging/gbif/collected/island_species_occurrences.csv.gz"
       - "data/v2/staging/gbif/collected/island_taxa.csv"
+      - "data/v2/staging/gbif/collected/collection_status.json"
+      - ".github/workflows/build-island-plant-database-alpha1.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/island_plant_database_v2.yml"
+      - "config/gbif_full_acquisition_v2.json"
+      - "config/island_source_gshhg.yml"
+      - "src/island_v2/island_plant_database.py"
+      - "src/island_v2/island_plant_database_gbif.py"
+      - "src/island_v2/gshhg_source.py"
+      - "src/island_v2/gbif_blocks.py"
+      - "tests/test_island_plant_database.py"
+      - "tests/test_island_plant_database_gbif.py"
+      - "data/v2/staging/gbif/collected/island_species_occurrences.csv.gz"
+      - "data/v2/staging/gbif/collected/island_taxa.csv"
+      - "data/v2/staging/gbif/collected/collection_status.json"
       - ".github/workflows/build-island-plant-database-alpha1.yml"
   workflow_dispatch:
 
@@ -85,6 +102,7 @@ jobs:
             --block-members data/v2/external/gbif/database_alpha1/gbif_block_members.csv \
             --campaign config/gbif_full_acquisition_v2.json \
             --islands data/v2/curated/island_plant_database/alpha1/islands.csv \
+            --collection-status data/v2/staging/gbif/collected/collection_status.json \
             --output-dir data/v2/curated/island_plant_database/alpha1
 
       - name: Validate alpha1 relational bundle
@@ -120,13 +138,16 @@ jobs:
           assert counts['island_taxa'] == 1039757, counts
           assert counts['evidence'] == 1039757, counts
           assert counts['gbif_downloads'] == 103, counts
-          assert counts['islands_with_candidate_records'] == 4549, counts
+          assert counts['islands_with_exact_occurrence_records'] == 4549, counts
+          assert counts['islands_with_species_candidate_records'] == 4505, counts
+          assert counts['islands_with_occurrence_but_no_species_candidate'] == 44, counts
 
           interpretation = manifest['scientific_interpretation']
           assert interpretation['gbif_pair_status'] == 'candidate_not_verified_flora'
           assert interpretation['native_status_inferred'] is False
           assert interpretation['endemic_status_inferred'] is False
           assert interpretation['absence_inferred_from_missing_records'] is False
+          assert interpretation['occurrence_without_species_candidate_is_absence'] is False
 
           assert islands['island_id'].is_unique
           assert len(islands) == 8265
@@ -186,13 +207,17 @@ jobs:
           root = Path('data/v2/curated/island_plant_database/alpha1')
           validation = json.loads((root / 'VALIDATION_REPORT.json').read_text())
           manifest = json.loads((root / 'DATABASE_MANIFEST.json').read_text())
+          counts = manifest['counts']
           print('## Island Plant Database 2.0-alpha1')
           print(f"- islands: {validation['islands']:,}")
           print(f"- provisional taxa: {validation['taxa']:,}")
           print(f"- candidate island x taxon rows: {validation['island_taxa']:,}")
           print(f"- aggregate evidence rows: {validation['evidence']:,}")
-          print(f"- islands with candidate records: {manifest['counts']['islands_with_candidate_records']:,}")
-          print(f"- GBIF downloads in rights ledger: {manifest['counts']['gbif_downloads']:,}")
+          print(f"- islands with exact GBIF occurrence rows: {counts['islands_with_exact_occurrence_records']:,}")
+          print(f"- islands with species-level candidate flora: {counts['islands_with_species_candidate_records']:,}")
+          print(f"- occurrence islands without a species-level candidate: {counts['islands_with_occurrence_but_no_species_candidate']:,}")
+          print(f"- GBIF downloads in rights ledger: {counts['gbif_downloads']:,}")
           print('- GBIF flora membership remains candidate-only; no native/endemic/absence inference.')
+          print('- The 44 occurrence-only islands are unresolved evidence, not absences.')
           print('- GBIF value redistribution remains blocked pending constituent-dataset license audit.')
           PY
