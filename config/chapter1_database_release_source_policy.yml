@@ -1,4 +1,6 @@
 schema_version: 2
+public_release_license: CC-BY-SA-4.0
+public_release_license_note: "The public Database 1.0 compilation uses CC BY-SA 4.0 as a conservative umbrella licence. This does not replace or relicense upstream sources: retain source-specific licences and provenance from SOURCE_LICENSE_INVENTORY.csv and SOURCE_LINEAGE_DETAILS.csv."
 default_status: review_required
 default_license: null
 default_note: "Redistribution status has not yet been recorded for this normalized source family."
@@ -39,6 +41,18 @@ rules:
     status: redistributable
     license: CC-BY
     note: "Database 1.0 Flora of Australia evidence was acquired from the official Flora of Australia ALA profile API and only the species-level Description field was interpreted. The current Flora of Australia collection states that all material is CC-BY unless otherwise stated, and the contributor guidelines state that all Flora content is delivered under a Creative Commons BY licence. The platform does not state a licence version on the collection footer, so this policy deliberately records CC-BY without inventing a version. Retain profile-level citation and attribution."
+  - pattern: "^domain:en\\.wikipedia\\.org$"
+    status: redistributable
+    license: CC-BY-SA-4.0
+    note: "Database 1.0 stores normalized trait facts and exact Wikipedia article URL provenance, not copied Wikipedia prose. Wikimedia text is reusable under CC BY-SA 4.0 and factual contributions may be reused; the public Database 1.0 compilation therefore uses CC BY-SA 4.0 as its umbrella licence and retains article-level attribution/provenance."
+  - pattern: "^domain:gobotany\\.nativeplanttrust\\.org$"
+    status: review_required
+    license: null
+    note: "Go Botany terms do not provide a blanket redistribution licence for reproducing/distributing site content or derivative use. Keep blocked unless written permission or a source-specific permissive licence is documented."
+  - pattern: "^domain:plants\\.ces\\.ncsu\\.edu$"
+    status: review_required
+    license: null
+    note: "NC State copyright guidance does not provide a blanket redistribution licence for Plant Toolbox text/content. Keep blocked unless permission or a source-specific permissive licence is documented."
   - pattern: "^database:pladias$"
     status: review_required
     license: null
@@ -51,7 +65,3 @@ rules:
     status: review_required
     license: null
     note: "The stored lineage is insufficient to assign redistribution rights automatically."
-  - pattern: "^domain:en\\.wikipedia\\.org$"
-    status: review_required
-    license: CC-BY-SA-4.0
-    note: "Wikipedia content has attribution/share-alike conditions; release-level compatibility and attribution handling must be established first."
