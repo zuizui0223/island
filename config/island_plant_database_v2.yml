@@ -73,7 +73,7 @@ canonical_tables:
       establishment_status: [native, introduced, cultivated, transient, unknown]
       endemic_status: [island_endemic, archipelago_endemic, nonendemic, unknown]
 
-  occurrence_evidence:
+  evidence:
     key: [evidence_id]
     required_columns:
       - evidence_id
@@ -95,6 +95,9 @@ canonical_tables:
         - supports_presence
         - supports_establishment
         - supports_native
+        - supports_endemicity
+        - supports_taxonomy
+        - supports_trait
         - supports_rejection
         - context_only
       rights_status: [redistributable, reference_only, review_required]
@@ -126,7 +129,7 @@ release_layers:
     filter: rights_status == redistributable
 
   research_provenance_registry:
-    tables: [occurrence_evidence]
+    tables: [evidence]
     public_rule: identifiers_and_review_decisions_may_be_public_when_reference_safe
     restricted_content_redistributed: false
 
@@ -153,7 +156,7 @@ alpha1_milestone:
     - islands.csv
     - taxa.csv
     - island_taxa.csv
-    - occurrence_evidence.csv
+    - evidence.csv
     - RIGHTS_LEDGER.csv
     - DATABASE_MANIFEST.json
   trait_extension_required: false
