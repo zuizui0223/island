@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "title": "Chapter 1 Database 1.0: rights-filtered global island-flora floral and reproductive trait database",
+    "upload_type": "dataset",
+    "description": "Public, rights-filtered derivative of the immutable Chapter 1 Database 1.0 used by the island project. The scientific database contains 222,688 resolved species-by-axis cells across flower colour, floral structural complexity, and reproductive assurance. This public release contains the 46,274 cells that passed the canonical post-PR172 redistribution-rights gate. Scientific trait values are not modified; blocked and review-required cells are omitted rather than reinterpreted. The release records the immutable source-database SHA-256 and the exact rights-audit run, artifact, and digest in PUBLIC_SUBSET_MANIFEST.json. The compilation is distributed under CC BY-SA 4.0, while row-level provenance and upstream source-specific attribution and licence obligations remain preserved.",
+    "creators": [
+      {
+        "name": "Zhang, Ruiqi"
+      }
+    ],
+    "access_right": "open",
+    "license": "cc-by-sa-4.0",
+    "version": "1.0.0",
+    "language": "eng",
+    "keywords": [
+      "island biogeography",
+      "floral traits",
+      "plant reproductive traits",
+      "pollination",
+      "island flora",
+      "trait database",
+      "flower colour",
+      "floral morphology",
+      "reproductive assurance"
+    ],
+    "related_identifiers": [
+      {
+        "identifier": "https://github.com/zuizui0223/island",
+        "relation": "isDocumentedBy"
+      }
+    ],
+    "notes": "This Zenodo dataset is the public redistribution-safe derivative of immutable Database 1.0. Analyses in the associated project remain pinned to the full immutable Database 1.0; the public subset must not be treated as a replacement analytical denominator."
+  }
+}

@@ -1,0 +1,133 @@
+name: Build Chapter 1 Database 1.0 public subset
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-chapter1-database-public-subset.yml"
+      - "src/island_v2/chapter1_database_public_subset.py"
+      - "tests/test_chapter1_database_public_subset.py"
+      - "config/chapter1_database_versions/v1.0.0.yml"
+  pull_request:
+    paths:
+      - ".github/workflows/build-chapter1-database-public-subset.yml"
+      - "src/island_v2/chapter1_database_public_subset.py"
+      - "tests/test_chapter1_database_public_subset.py"
+      - "config/chapter1_database_versions/v1.0.0.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build-public-subset:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RIGHTS_RUN_ID: "34566271397"
+      RIGHTS_ARTIFACT_ID: "10186293306"
+      RIGHTS_ARTIFACT: "chapter1-database-v1-cell-rights-34566271397"
+      RIGHTS_ARTIFACT_DIGEST: "sha256:6c5f2577e85e95e841b8659427e27c72ce631f59a3da5a335f54f505de5ea32a"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Test public subset builder
+        run: pytest -q tests/test_chapter1_database_public_subset.py
+
+      - name: Resolve immutable Database 1.0 source
+        id: db
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import yaml
+          payload = yaml.safe_load(Path('config/chapter1_database_versions/v1.0.0.yml').read_text())
+          source = payload['database']['source']
+          assert source['kind'] == 'github_artifact'
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f"repository={source['repository']}\n")
+              out.write(f"run_id={source['run_id']}\n")
+              out.write(f"artifact_name={source['artifact_name']}\n")
+              out.write(f"sha256={source['sha256']}\n")
+          PY
+
+      - name: Download and validate immutable Database 1.0
+        run: |
+          rm -rf /tmp/ch1-db-source
+          mkdir -p /tmp/ch1-db-source
+          gh run download "${{ steps.db.outputs.run_id }}" \
+            --repo "${{ steps.db.outputs.repository }}" \
+            --name "${{ steps.db.outputs.artifact_name }}" \
+            --dir /tmp/ch1-db-source
+          python -m island_v2.chapter1_database_manifest validate \
+            --manifest config/chapter1_database_versions/v1.0.0.yml \
+            --species-axis /tmp/ch1-db-source/species_axis_coverage.csv.gz
+
+      - name: Download and verify canonical post-PR172 rights audit
+        run: |
+          set -euo pipefail
+          metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$RIGHTS_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$metadata")" = "$RIGHTS_ARTIFACT"
+          test "$(jq -r .expired <<<"$metadata")" = false
+          test "$(jq -r .digest <<<"$metadata")" = "$RIGHTS_ARTIFACT_DIGEST"
+          test "$(gh run view "$RIGHTS_RUN_ID" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)" = success
+          rm -rf /tmp/ch1-rights
+          mkdir -p /tmp/ch1-rights
+          gh run download "$RIGHTS_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "$RIGHTS_ARTIFACT" --dir /tmp/ch1-rights
+          test -f /tmp/ch1-rights/CELL_RELEASE_RIGHTS.csv.gz
+          test -f /tmp/ch1-rights/FINAL_RELEASE_GATE.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          summary = json.loads(Path('/tmp/ch1-rights/FINAL_RELEASE_GATE.json').read_text())
+          assert summary['resolved_cells'] == 222688
+          assert summary['redistributable_cells'] == 46274
+          assert summary['blocked_cells'] == 176414
+          assert summary['semantic_mismatch_cells'] == 1
+          assert summary['release_ready_for_public_zenodo'] is False
+          PY
+
+      - name: Build rights-filtered public subset
+        run: |
+          rm -rf /tmp/ch1-public-subset
+          python -m island_v2.chapter1_database_public_subset \
+            --source-dir /tmp/ch1-db-source \
+            --cell-rights /tmp/ch1-rights/CELL_RELEASE_RIGHTS.csv.gz \
+            --output-dir /tmp/ch1-public-subset \
+            --rights-run-id "$RIGHTS_RUN_ID" \
+            --rights-artifact-id "$RIGHTS_ARTIFACT_ID" \
+            --rights-artifact-digest "$RIGHTS_ARTIFACT_DIGEST" \
+            --source-database-sha256 "${{ steps.db.outputs.sha256 }}"
+
+      - name: Enforce public subset invariants
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          root = Path('/tmp/ch1-public-subset')
+          manifest = json.loads((root/'PUBLIC_SUBSET_MANIFEST.json').read_text())
+          assert manifest['resolved_cells'] == 222688
+          assert manifest['redistributable_cells'] == 46274
+          assert manifest['blocked_or_review_cells'] == 176414
+          assert manifest['scientific_values_modified'] is False
+          assert manifest['public_release_license'] == 'CC-BY-SA-4.0'
+          frame = pd.read_csv(root/'species_axis_coverage.public.csv.gz', dtype=str)
+          assert len(frame) == 46274
+          assert frame['quality'].str.lower().isin({'high','medium','low'}).all()
+          PY
+          cat /tmp/ch1-public-subset/README.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-database-v1-public-subset-${{ github.run_id }}
+          path: /tmp/ch1-public-subset/
+          if-no-files-found: error
+          retention-days: 90
