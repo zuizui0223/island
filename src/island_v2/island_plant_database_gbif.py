@@ -9,7 +9,10 @@ from typing import Any
 import pandas as pd
 import typer
 
-app = typer.Typer(add_completion=False, help="Build the GBIF candidate-flora layer for Island Plant Database 2.0.")
+app = typer.Typer(
+    add_completion=False,
+    help="Build the GBIF candidate-flora layer for Island Plant Database 2.0.",
+)
 
 PAIR_COLUMNS = {
     "island_id",
@@ -21,6 +24,7 @@ PAIR_COLUMNS = {
 }
 TAXA_COLUMNS = {"accepted_species", "genus", "family", "n_islands", "n_records"}
 BLOCK_MEMBER_COLUMNS = {"block_id", "island_id"}
+GBIF_DOWNLOAD_URL = "https://www.gbif.org/occurrence/download/"
 
 
 def _sha256_file(path: Path) -> str:
@@ -39,6 +43,18 @@ def _require_columns(frame: pd.DataFrame, required: set[str], label: str) -> Non
 
 def _normalise_name(value: object) -> str:
     return " ".join(str(value or "").strip().split())
+
+
+def _pipe_unique(values: pd.Series) -> str:
+    return "|".join(sorted({str(value).strip() for value in values if str(value).strip()}))
+
+
+def _download_urls(download_keys: str) -> str:
+    return "|".join(
+        f"{GBIF_DOWNLOAD_URL}{key}"
+        for key in download_keys.split("|")
+        if key.strip()
+    )
 
 
 def taxon_id_for_name(name: str) -> str:
@@ -84,7 +100,7 @@ def _campaign_downloads(campaign: dict[str, Any]) -> pd.DataFrame:
     table = pd.DataFrame(rows).drop_duplicates()
     if table.empty:
         raise ValueError("campaign contains no succeeded GBIF downloads")
-    conflicting = table.groupby("block_id").size()
+    conflicting = table.groupby("block_id")["download_key"].nunique()
     if (conflicting > 1).any():
         examples = conflicting[conflicting > 1].index.tolist()[:10]
         raise ValueError(f"GBIF block IDs map to multiple downloads: {examples}")
@@ -95,22 +111,49 @@ def build_island_download_map(
     block_members: pd.DataFrame,
     campaign: dict[str, Any],
 ) -> pd.DataFrame:
+    """Map original analysis islands to all GBIF downloads that could support them.
+
+    Dateline-crossing islands can be split into multiple query catchments.  The
+    block-members table therefore carries a query-side ``island_id`` and the
+    original ``analysis_island_id``.  Provenance must collapse on the latter;
+    otherwise a valid 8,265-island universe appears to contain synthetic
+    ``__antimeridian_part*`` islands.
+    """
     _require_columns(block_members, BLOCK_MEMBER_COLUMNS, "GBIF block-members table")
-    if block_members["island_id"].duplicated().any():
-        examples = block_members.loc[block_members["island_id"].duplicated(), "island_id"].head(10).tolist()
-        raise ValueError(f"GBIF block partition contains duplicate island IDs: {examples}")
+    members = block_members.copy().fillna("")
+    if "analysis_island_id" not in members.columns:
+        members["analysis_island_id"] = members["island_id"]
+    if members["analysis_island_id"].astype(str).str.strip().eq("").any():
+        raise ValueError("GBIF block-members table contains blank analysis_island_id values")
+
     downloads = _campaign_downloads(campaign)
-    mapped = block_members[["block_id", "island_id"]].merge(
+    mapped = members[["block_id", "analysis_island_id"]].merge(
         downloads,
         on="block_id",
         how="left",
         validate="many_to_one",
     )
     if mapped[["download_key", "doi"]].isna().any(axis=None):
-        missing = mapped.loc[mapped["download_key"].isna(), "block_id"].drop_duplicates().head(10).tolist()
+        missing = (
+            mapped.loc[mapped["download_key"].isna(), "block_id"]
+            .drop_duplicates()
+            .head(10)
+            .tolist()
+        )
         raise ValueError(f"block-members rows lack a succeeded campaign download mapping: {missing}")
     mapped = mapped.fillna("")
-    return mapped.sort_values("island_id", kind="stable").reset_index(drop=True)
+
+    rows: list[dict[str, str]] = []
+    for island_id, group in mapped.groupby("analysis_island_id", sort=True):
+        rows.append(
+            {
+                "island_id": str(island_id),
+                "block_ids": _pipe_unique(group["block_id"]),
+                "download_keys": _pipe_unique(group["download_key"]),
+                "download_dois": _pipe_unique(group["doi"]),
+            }
+        )
+    return pd.DataFrame(rows).sort_values("island_id", kind="stable").reset_index(drop=True)
 
 
 def _build_taxa(taxa_summary: pd.DataFrame, campaign_id: str) -> pd.DataFrame:
@@ -142,6 +185,26 @@ def _build_taxa(taxa_summary: pd.DataFrame, campaign_id: str) -> pd.DataFrame:
     ).sort_values("accepted_name", kind="stable").reset_index(drop=True)
 
 
+def _build_download_rights(campaign: dict[str, Any]) -> pd.DataFrame:
+    downloads = _campaign_downloads(campaign)[["download_key", "doi"]].drop_duplicates()
+    if downloads["download_key"].duplicated().any():
+        raise ValueError("one GBIF download key is associated with multiple campaign DOIs")
+    return pd.DataFrame(
+        {
+            "object_type": "gbif_download",
+            "object_id": downloads["download_key"],
+            "source_id": downloads["doi"],
+            "source_url": GBIF_DOWNLOAD_URL + downloads["download_key"].astype(str),
+            "source_license": "",
+            "rights_status": "review_required",
+            "rights_evidence": "https://www.gbif.org/terms",
+            "redistributable_value": "false",
+            "redistributable_provenance": "true",
+            "review_status": "pending_constituent_dataset_license_audit",
+        }
+    ).sort_values("object_id", kind="stable").reset_index(drop=True)
+
+
 def build_gbif_candidate_core(
     pair_path: Path,
     taxa_summary_path: Path,
@@ -161,7 +224,7 @@ def build_gbif_candidate_core(
     _require_columns(pairs, PAIR_COLUMNS, "GBIF island-species snapshot")
     _require_columns(islands, {"island_id"}, "Database 2.0 islands")
     if pairs[["island_id", "species"]].duplicated().any():
-        raise ValueError("GBIF island-species snapshot contains duplicate island × species rows")
+        raise ValueError("GBIF island-species snapshot contains duplicate island x species rows")
 
     island_ids = set(islands["island_id"])
     pair_islands = set(pairs["island_id"])
@@ -186,12 +249,7 @@ def build_gbif_candidate_core(
     if missing_taxa:
         raise ValueError(f"GBIF pair snapshot contains species missing from taxa summary: {missing_taxa[:10]}")
     pairs["taxon_id"] = pairs["species"].map(name_to_taxon)
-    pairs = pairs.merge(
-        island_downloads[["island_id", "block_id", "download_key", "doi"]],
-        on="island_id",
-        how="left",
-        validate="many_to_one",
-    )
+    pairs = pairs.merge(island_downloads, on="island_id", how="left", validate="many_to_one")
 
     evidence_ids = [
         evidence_id_for_pair(campaign_id, island_id, taxon_id)
@@ -228,9 +286,9 @@ def build_gbif_candidate_core(
             "island_id": pairs["island_id"],
             "taxon_id": pairs["taxon_id"],
             "source_type": "gbif_download_aggregate",
-            "source_record_id": pairs["download_key"],
-            "source_url": "https://www.gbif.org/occurrence/download/" + pairs["download_key"].astype(str),
-            "dataset_key_or_doi": pairs["doi"],
+            "source_record_id": pairs["download_keys"],
+            "source_url": pairs["download_keys"].map(_download_urls),
+            "dataset_key_or_doi": pairs["download_dois"],
             "basis_of_record": pairs["basis_of_record_set"],
             "event_date": "",
             "coordinate_uncertainty_m": "",
@@ -241,24 +299,11 @@ def build_gbif_candidate_core(
         }
     ).sort_values("evidence_id", kind="stable").reset_index(drop=True)
 
-    download_rights = island_downloads[["download_key", "doi"]].drop_duplicates().copy()
-    download_rights["source_url"] = (
-        "https://www.gbif.org/occurrence/download/" + download_rights["download_key"].astype(str)
+    rights = _build_download_rights(campaign)
+    n_multi_download_islands = int(island_downloads["download_keys"].str.contains(r"\|").sum())
+    max_downloads_per_island = int(
+        island_downloads["download_keys"].map(lambda value: value.count("|") + 1).max()
     )
-    rights = pd.DataFrame(
-        {
-            "object_type": "gbif_download",
-            "object_id": download_rights["download_key"],
-            "source_id": download_rights["doi"],
-            "source_url": download_rights["source_url"],
-            "source_license": "",
-            "rights_status": "review_required",
-            "rights_evidence": "https://www.gbif.org/terms",
-            "redistributable_value": "false",
-            "redistributable_provenance": "true",
-            "review_status": "pending_constituent_dataset_license_audit",
-        }
-    ).sort_values("object_id", kind="stable").reset_index(drop=True)
 
     manifest = {
         "schema_version": 1,
@@ -271,6 +316,7 @@ def build_gbif_candidate_core(
             "native_status_inferred": False,
             "endemic_status_inferred": False,
             "absence_inferred_from_missing_records": False,
+            "taxonomy_status": "provisional_name_identity_pending_backbone_resolution",
         },
         "counts": {
             "islands": int(len(islands)),
@@ -278,6 +324,9 @@ def build_gbif_candidate_core(
             "island_taxa": int(len(island_taxa)),
             "evidence": int(len(evidence)),
             "gbif_downloads": int(len(rights)),
+            "islands_with_candidate_records": int(pairs["island_id"].nunique()),
+            "multi_download_analysis_islands": n_multi_download_islands,
+            "max_downloads_per_analysis_island": max_downloads_per_island,
         },
         "rights": {
             "gbif_candidate_rows_release_status": "review_required",
