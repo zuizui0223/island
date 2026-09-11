@@ -31,6 +31,14 @@ rules:
     status: redistributable
     license: CC-BY-4.0
     note: "The Brazilian Flora 2020 dataset published by Jardim Botanico do Rio de Janeiro is licensed CC BY 4.0; retain dataset attribution and provenance."
+  - pattern: "^provider_treatment:sanbi_eflora_south_africa$"
+    status: redistributable
+    license: CC-BY-4.0
+    note: "Database 1.0 SANBI evidence was acquired from the official e-Flora of South Africa v1.42 Darwin Core Archive. The SANBI IPT identifies South African National Biodiversity Institute as publisher and rights holder and licenses the resource under CC BY 4.0. Retain the e-Flora v1.42 citation and SANBI attribution."
+  - pattern: "^provider_treatment:flora_of_australia$"
+    status: redistributable
+    license: CC-BY
+    note: "Database 1.0 Flora of Australia evidence was acquired from the official Flora of Australia ALA profile API and only the species-level Description field was interpreted. The current Flora of Australia collection states that all material is CC-BY unless otherwise stated, and the contributor guidelines state that all Flora content is delivered under a Creative Commons BY licence. The platform does not state a licence version on the collection footer, so this policy deliberately records CC-BY without inventing a version. Retain profile-level citation and attribution."
   - pattern: "^database:pladias$"
     status: review_required
     license: null
