@@ -17,7 +17,7 @@ Separate five objects:
 1. **islands** — the geographic island universe;
 2. **taxa** — normalized plant names and taxonomy;
 3. **island_taxa** — island × taxon membership/status;
-4. **occurrence_evidence** — auditable evidence supporting an island-taxon statement;
+4. **evidence** — auditable evidence supporting flora, establishment, endemicity, taxonomy, or traits;
 5. **traits** — optional taxon-level or island-population-level trait observations.
 
 This makes the island flora useful even when a particular trait is missing or legally non-redistributable.
@@ -88,22 +88,22 @@ Required fields:
 
 A GBIF hit creates at most a `candidate`. It does not by itself establish native presence, establishment, or biological absence.
 
-### `occurrence_evidence.csv`
+### `evidence.csv`
 
-One row per evidence unit used to support or reject an island-taxon statement.
+One row per evidence unit used anywhere in the database.
 
 Required fields:
 
 - `evidence_id`;
-- `island_id`;
-- `taxon_id`;
-- `source_type` — e.g. `gbif_download`, `specimen`, `checklist`, `flora`, `literature`;
+- `island_id` — nullable for species-wide evidence;
+- `taxon_id` — nullable only for island-only evidence;
+- `source_type` — e.g. `gbif_download`, `specimen`, `checklist`, `flora`, `literature`, `trait_database`;
 - `source_record_id` or `source_url`;
 - `dataset_key_or_doi` — nullable;
 - `basis_of_record` — nullable;
 - `event_date` — nullable;
 - `coordinate_uncertainty_m` — nullable;
-- `evidence_role` — `supports_presence`, `supports_establishment`, `supports_native`, `supports_rejection`, `context_only`;
+- `evidence_role` — `supports_presence`, `supports_establishment`, `supports_native`, `supports_endemicity`, `supports_taxonomy`, `supports_trait`, `supports_rejection`, `context_only`;
 - `source_license`;
 - `rights_status` — `redistributable`, `reference_only`, `review_required`;
 - `review_status`.
@@ -123,7 +123,7 @@ Required fields:
 - `trait_value`;
 - `trait_unit` — nullable;
 - `trait_ontology_version`;
-- `evidence_id`;
+- `evidence_id` — foreign key into the common evidence table;
 - `quality`;
 - `source_license`;
 - `rights_status`;
@@ -154,7 +154,7 @@ Missing rows here mean **trait unavailable for public redistribution**, not plan
 
 ### Layer C — research provenance registry
 
-Contains review state and reference-only provenance needed to reproduce decisions. Restricted source content itself is not redistributed.
+Contains `evidence.csv` review state and reference-only provenance needed to reproduce decisions. Restricted source content itself is not redistributed.
 
 ### Layer D — analysis products
 
@@ -193,7 +193,7 @@ Freeze **Island Plant Database 2.0-alpha1** with no Chapter 1 trait requirement:
 2. collect exact-polygon vascular/angiosperm plant candidates through the existing v2 GBIF workflow;
 3. normalize taxonomy into `taxa.csv`;
 4. aggregate evidence into `island_taxa.csv` while keeping `candidate` distinct from `accepted`;
-5. generate table-level and row-level rights ledgers before any Zenodo release;
+5. materialize `evidence.csv` and row-level rights ledgers before any Zenodo release;
 6. publish the flora core independently of the trait-extension schedule.
 
 Only after alpha1 is frozen should Database 1.0 traits be mapped into the optional `traits.csv` extension.
