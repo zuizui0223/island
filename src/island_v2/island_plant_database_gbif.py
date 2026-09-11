@@ -51,9 +51,7 @@ def _pipe_unique(values: pd.Series) -> str:
 
 def _download_urls(download_keys: str) -> str:
     return "|".join(
-        f"{GBIF_DOWNLOAD_URL}{key}"
-        for key in download_keys.split("|")
-        if key.strip()
+        f"{GBIF_DOWNLOAD_URL}{key}" for key in download_keys.split("|") if key.strip()
     )
 
 
@@ -90,13 +88,7 @@ def _campaign_downloads(campaign: dict[str, Any]) -> pd.DataFrame:
         current = str(entry.get("block_id", "")).strip()
         migrated = str(entry.get("migrated_from_block_id", "")).strip()
         for block_id in {current, migrated} - {""}:
-            rows.append(
-                {
-                    "block_id": block_id,
-                    "download_key": download_key,
-                    "doi": doi,
-                }
-            )
+            rows.append({"block_id": block_id, "download_key": download_key, "doi": doi})
     table = pd.DataFrame(rows).drop_duplicates()
     if table.empty:
         raise ValueError("campaign contains no succeeded GBIF downloads")
@@ -111,14 +103,7 @@ def build_island_download_map(
     block_members: pd.DataFrame,
     campaign: dict[str, Any],
 ) -> pd.DataFrame:
-    """Map original analysis islands to all GBIF downloads that could support them.
-
-    Dateline-crossing islands can be split into multiple query catchments.  The
-    block-members table therefore carries a query-side ``island_id`` and the
-    original ``analysis_island_id``.  Provenance must collapse on the latter;
-    otherwise a valid 8,265-island universe appears to contain synthetic
-    ``__antimeridian_part*`` islands.
-    """
+    """Map original analysis islands to every GBIF download that could support them."""
     _require_columns(block_members, BLOCK_MEMBER_COLUMNS, "GBIF block-members table")
     members = block_members.copy().fillna("")
     if "analysis_island_id" not in members.columns:
@@ -205,18 +190,47 @@ def _build_download_rights(campaign: dict[str, Any]) -> pd.DataFrame:
     ).sort_values("object_id", kind="stable").reset_index(drop=True)
 
 
+def _validate_collection_status(
+    status: dict[str, Any],
+    *,
+    n_pairs: int,
+    n_taxa: int,
+    n_downloads: int,
+) -> int:
+    expected = {
+        "n_island_species_pairs": n_pairs,
+        "n_accepted_species": n_taxa,
+        "n_succeeded_blocks_in_campaign": n_downloads,
+        "n_collected_succeeded_blocks": n_downloads,
+        "n_succeeded_blocks_remaining": 0,
+        "n_failed_blocks": 0,
+    }
+    for key, value in expected.items():
+        if int(status.get(key, -1)) != int(value):
+            raise ValueError(
+                f"GBIF collection status mismatch for {key}: "
+                f"observed={status.get(key)!r} expected={value!r}"
+            )
+    n_occurrence_islands = int(status.get("n_islands_with_records", -1))
+    if n_occurrence_islands < 0:
+        raise ValueError("GBIF collection status lacks n_islands_with_records")
+    return n_occurrence_islands
+
+
 def build_gbif_candidate_core(
     pair_path: Path,
     taxa_summary_path: Path,
     block_members_path: Path,
     campaign_path: Path,
     islands_path: Path,
+    collection_status_path: Path,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict[str, Any]]:
     pairs = pd.read_csv(pair_path, dtype=str).fillna("")
     taxa_summary = pd.read_csv(taxa_summary_path, dtype=str).fillna("")
     block_members = pd.read_csv(block_members_path, dtype=str).fillna("")
     islands = pd.read_csv(islands_path, dtype=str).fillna("")
     campaign = json.loads(campaign_path.read_text(encoding="utf-8"))
+    collection_status = json.loads(collection_status_path.read_text(encoding="utf-8"))
     campaign_id = str(campaign.get("campaign_id", "")).strip()
     if not campaign_id:
         raise ValueError("GBIF campaign has no campaign_id")
@@ -300,6 +314,17 @@ def build_gbif_candidate_core(
     ).sort_values("evidence_id", kind="stable").reset_index(drop=True)
 
     rights = _build_download_rights(campaign)
+    n_occurrence_islands = _validate_collection_status(
+        collection_status,
+        n_pairs=len(island_taxa),
+        n_taxa=len(taxa),
+        n_downloads=len(rights),
+    )
+    n_species_candidate_islands = int(pairs["island_id"].nunique())
+    if n_species_candidate_islands > n_occurrence_islands:
+        raise ValueError("species-candidate island count exceeds raw exact-occurrence island count")
+    n_occurrence_without_species_candidate = n_occurrence_islands - n_species_candidate_islands
+
     n_multi_download_islands = int(island_downloads["download_keys"].str.contains(r"\|").sum())
     max_downloads_per_island = int(
         island_downloads["download_keys"].map(lambda value: value.count("|") + 1).max()
@@ -316,6 +341,7 @@ def build_gbif_candidate_core(
             "native_status_inferred": False,
             "endemic_status_inferred": False,
             "absence_inferred_from_missing_records": False,
+            "occurrence_without_species_candidate_is_absence": False,
             "taxonomy_status": "provisional_name_identity_pending_backbone_resolution",
         },
         "counts": {
@@ -324,7 +350,9 @@ def build_gbif_candidate_core(
             "island_taxa": int(len(island_taxa)),
             "evidence": int(len(evidence)),
             "gbif_downloads": int(len(rights)),
-            "islands_with_candidate_records": int(pairs["island_id"].nunique()),
+            "islands_with_exact_occurrence_records": n_occurrence_islands,
+            "islands_with_species_candidate_records": n_species_candidate_islands,
+            "islands_with_occurrence_but_no_species_candidate": n_occurrence_without_species_candidate,
             "multi_download_analysis_islands": n_multi_download_islands,
             "max_downloads_per_analysis_island": max_downloads_per_island,
         },
@@ -338,6 +366,7 @@ def build_gbif_candidate_core(
             "gbif_taxa_summary_sha256": _sha256_file(taxa_summary_path),
             "gbif_block_members_sha256": _sha256_file(block_members_path),
             "gbif_campaign_sha256": _sha256_file(campaign_path),
+            "gbif_collection_status_sha256": _sha256_file(collection_status_path),
         },
     }
     return taxa, island_taxa, evidence, rights, manifest
@@ -350,6 +379,12 @@ def build_command(
     block_members_path: Path = typer.Option(..., "--block-members", exists=True, dir_okay=False),
     campaign_path: Path = typer.Option(..., "--campaign", exists=True, dir_okay=False),
     islands_path: Path = typer.Option(..., "--islands", exists=True, dir_okay=False),
+    collection_status_path: Path = typer.Option(
+        ...,
+        "--collection-status",
+        exists=True,
+        dir_okay=False,
+    ),
     output_dir: Path = typer.Option(..., "--output-dir"),
 ) -> None:
     taxa, island_taxa, evidence, rights, manifest = build_gbif_candidate_core(
@@ -358,6 +393,7 @@ def build_command(
         block_members_path,
         campaign_path,
         islands_path,
+        collection_status_path,
     )
     output_dir.mkdir(parents=True, exist_ok=True)
     _write_csv_gzip_deterministic(taxa, output_dir / "taxa.csv.gz")
