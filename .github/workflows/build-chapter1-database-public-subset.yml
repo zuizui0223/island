@@ -90,7 +90,7 @@ jobs:
       - name: Build rights-filtered public subset
         run: |
           rm -rf /tmp/ch1-public-subset
-          python -m island_v2.chapter1_database_public_subset build \
+          python -m island_v2.chapter1_database_public_subset \
             --source-dir /tmp/ch1-db-source \
             --cell-rights /tmp/ch1-rights/CELL_RELEASE_RIGHTS.csv.gz \
             --output-dir /tmp/ch1-public-subset \
