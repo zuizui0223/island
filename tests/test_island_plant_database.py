@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
+import geopandas as gpd
 import pandas as pd
 import pytest
+from shapely.geometry import Polygon
 
-from island_v2.island_plant_database import validate_bundle
+from island_v2.island_plant_database import build_islands_core, validate_bundle
 
 
 CONTRACT = Path("config/island_plant_database_v2.yml")
@@ -135,6 +138,39 @@ def _write_bundle(tmp_path: Path, *, with_traits: bool = False) -> Path:
     return bundle
 
 
+def _write_island_source(tmp_path: Path, backend: str) -> tuple[Path, Path]:
+    gpkg = tmp_path / "islands.gpkg"
+    geometry = Polygon([(140.0, 35.0), (140.2, 35.0), (140.2, 35.2), (140.0, 35.2)])
+    frame = gpd.GeoDataFrame(
+        [
+            {
+                "island_id": "gshhg_2.3.7_h_abc",
+                "source_label": "gshhg_2.3.7_h",
+                "parent_feature_id": "42",
+                "part_index": 1,
+                "island_name": "Example Island",
+                "area_km2": 400.0,
+                "geometry_sha256": "legacy-short-hash",
+                "landmass_rule": "5 <= area_km2 <= 7000000",
+            }
+        ],
+        geometry=[geometry],
+        crs=4326,
+    )
+    frame.to_file(gpkg, layer="islands", driver="GPKG")
+    policy = tmp_path / "source_policy.json"
+    policy.write_text(
+        json.dumps(
+            {
+                "source_backend": backend,
+                "source_version": "2.3.7",
+            }
+        ),
+        encoding="utf-8",
+    )
+    return gpkg, policy
+
+
 def test_valid_alpha1_bundle(tmp_path: Path) -> None:
     bundle = _write_bundle(tmp_path, with_traits=True)
     report = validate_bundle(bundle, CONTRACT)
@@ -167,3 +203,24 @@ def test_trait_requires_existing_evidence(tmp_path: Path) -> None:
     frame.to_csv(bundle / "traits.csv", index=False)
     with pytest.raises(ValueError, match="unknown evidence"):
         validate_bundle(bundle, CONTRACT)
+
+
+def test_gshhg_island_export_is_public_and_hash_locked(tmp_path: Path) -> None:
+    gpkg, policy = _write_island_source(tmp_path, "gshhg")
+    frame = build_islands_core(gpkg, policy, CONTRACT)
+    assert len(frame) == 1
+    row = frame.iloc[0]
+    assert row["source_island_id"] == "gshhg_2.3.7_h:42"
+    assert row["geometry_source"] == "GSHHG"
+    assert row["source_license"] == "LGPL-3.0-or-later"
+    assert row["release_status"] == "redistributable"
+    assert len(row["geometry_sha256"]) == 64
+    assert float(row["centroid_lat"]) > 35.0
+    assert float(row["centroid_lon"]) > 140.0
+
+
+def test_natural_earth_fallback_is_marked_public_domain(tmp_path: Path) -> None:
+    gpkg, policy = _write_island_source(tmp_path, "natural_earth_10m_fallback")
+    frame = build_islands_core(gpkg, policy, CONTRACT)
+    assert frame.loc[0, "geometry_source"] == "Natural Earth 10m"
+    assert frame.loc[0, "source_license"] == "PUBLIC-DOMAIN"
