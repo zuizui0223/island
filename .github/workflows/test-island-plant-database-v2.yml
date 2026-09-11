@@ -1,0 +1,52 @@
+name: Test Island Plant Database 2.0 contract
+
+on:
+  pull_request:
+    paths:
+      - "config/island_plant_database_v2.yml"
+      - "docs/ISLAND_PLANT_DATABASE_V2.md"
+      - "data/v2/templates/*_core_template.csv"
+      - "data/v2/templates/island_taxa_template.csv"
+      - "data/v2/templates/evidence_template.csv"
+      - "data/v2/templates/traits_long_template.csv"
+      - "data/v2/templates/database_rights_ledger_template.csv"
+      - "src/island_v2/island_plant_database.py"
+      - "tests/test_island_plant_database.py"
+      - ".github/workflows/test-island-plant-database-v2.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/island_plant_database_v2.yml"
+      - "src/island_v2/island_plant_database.py"
+      - "tests/test_island_plant_database.py"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Test database bundle contract
+        run: pytest -q tests/test_island_plant_database.py
+      - name: Lint database contract implementation
+        run: ruff check src/island_v2/island_plant_database.py tests/test_island_plant_database.py
+      - name: Validate schema contract loads
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from island_v2.island_plant_database import load_contract
+          contract = load_contract(Path('config/island_plant_database_v2.yml'))
+          assert contract['database']['database_id'] == 'global_island_plant_database'
+          assert contract['database']['version'] == '2.0.0-alpha1'
+          assert contract['database']['analysis_independent'] is True
+          assert set(contract['release_layers']['public_flora_core']['tables']) == {
+              'islands', 'taxa', 'island_taxa'
+          }
+          PY
