@@ -104,6 +104,18 @@ def _write_inputs(tmp_path: Path) -> dict[str, Path]:
             },
         ],
     }
+    # Three islands have raw exact occurrence rows, while only isl-a / isl-b
+    # yield species-level candidate rows. The third is deliberately not treated
+    # as an absence.
+    status = {
+        "n_island_species_pairs": 3,
+        "n_accepted_species": 2,
+        "n_succeeded_blocks_in_campaign": 3,
+        "n_collected_succeeded_blocks": 3,
+        "n_succeeded_blocks_remaining": 0,
+        "n_failed_blocks": 0,
+        "n_islands_with_records": 3,
+    }
 
     paths = {
         "pairs": tmp_path / "pairs.csv.gz",
@@ -111,13 +123,26 @@ def _write_inputs(tmp_path: Path) -> dict[str, Path]:
         "members": tmp_path / "members.csv",
         "islands": tmp_path / "islands.csv",
         "campaign": tmp_path / "campaign.json",
+        "status": tmp_path / "collection_status.json",
     }
     pairs.to_csv(paths["pairs"], index=False, compression="gzip")
     taxa.to_csv(paths["taxa"], index=False)
     members.to_csv(paths["members"], index=False)
     islands.to_csv(paths["islands"], index=False)
     paths["campaign"].write_text(json.dumps(campaign), encoding="utf-8")
+    paths["status"].write_text(json.dumps(status), encoding="utf-8")
     return paths
+
+
+def _build(paths: dict[str, Path]):
+    return build_gbif_candidate_core(
+        paths["pairs"],
+        paths["taxa"],
+        paths["members"],
+        paths["campaign"],
+        paths["islands"],
+        paths["status"],
+    )
 
 
 def test_analysis_island_provenance_collapses_antimeridian_parts(tmp_path: Path) -> None:
@@ -136,13 +161,7 @@ def test_analysis_island_provenance_collapses_antimeridian_parts(tmp_path: Path)
 def test_build_candidate_core_keeps_presence_provisional(tmp_path: Path) -> None:
     paths = _write_inputs(tmp_path)
 
-    taxa, island_taxa, evidence, rights, manifest = build_gbif_candidate_core(
-        paths["pairs"],
-        paths["taxa"],
-        paths["members"],
-        paths["campaign"],
-        paths["islands"],
-    )
+    taxa, island_taxa, evidence, rights, manifest = _build(paths)
 
     assert len(taxa) == 2
     assert len(island_taxa) == 3
@@ -154,7 +173,12 @@ def test_build_candidate_core_keeps_presence_provisional(tmp_path: Path) -> None
     assert island_taxa["release_status"].eq("review_required").all()
     assert evidence["rights_status"].eq("review_required").all()
     assert rights["rights_status"].eq("review_required").all()
-    assert manifest["scientific_interpretation"]["absence_inferred_from_missing_records"] is False
+    interpretation = manifest["scientific_interpretation"]
+    assert interpretation["absence_inferred_from_missing_records"] is False
+    assert interpretation["occurrence_without_species_candidate_is_absence"] is False
+    assert manifest["counts"]["islands_with_exact_occurrence_records"] == 3
+    assert manifest["counts"]["islands_with_species_candidate_records"] == 2
+    assert manifest["counts"]["islands_with_occurrence_but_no_species_candidate"] == 1
     assert manifest["counts"]["multi_download_analysis_islands"] == 1
     assert manifest["counts"]["max_downloads_per_analysis_island"] == 2
 
@@ -173,13 +197,17 @@ def test_candidate_core_rejects_unknown_database_island(tmp_path: Path) -> None:
     islands.to_csv(paths["islands"], index=False)
 
     with pytest.raises(ValueError, match="outside Database 2.0"):
-        build_gbif_candidate_core(
-            paths["pairs"],
-            paths["taxa"],
-            paths["members"],
-            paths["campaign"],
-            paths["islands"],
-        )
+        _build(paths)
+
+
+def test_collection_status_mismatch_fails_closed(tmp_path: Path) -> None:
+    paths = _write_inputs(tmp_path)
+    status = json.loads(paths["status"].read_text(encoding="utf-8"))
+    status["n_island_species_pairs"] = 999
+    paths["status"].write_text(json.dumps(status), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="n_island_species_pairs"):
+        _build(paths)
 
 
 def test_block_members_without_analysis_id_remain_backward_compatible(tmp_path: Path) -> None:
