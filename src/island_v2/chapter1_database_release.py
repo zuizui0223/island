@@ -165,6 +165,27 @@ def source_decision(source: str, policy: dict[str, object]) -> tuple[str, str, s
     )
 
 
+def validate_public_release_license(policy: dict[str, object]) -> str:
+    """Require a release licence compatible with any admitted ShareAlike source.
+
+    The source policy remains authoritative per source family. The public release
+    licence is an umbrella for this compilation and never replaces upstream terms.
+    """
+    release_license = str(policy.get("public_release_license", "")).strip()
+    if not release_license:
+        raise ValueError("source policy must declare public_release_license")
+    wiki_status, wiki_license, _ = source_decision("domain:en.wikipedia.org", policy)
+    if (
+        wiki_status == "redistributable"
+        and wiki_license == "CC-BY-SA-4.0"
+        and release_license != "CC-BY-SA-4.0"
+    ):
+        raise ValueError(
+            "Wikipedia redistribution requires public_release_license=CC-BY-SA-4.0"
+        )
+    return release_license
+
+
 def build_inventory(
     frame: pd.DataFrame,
     policy: dict[str, object],
@@ -249,6 +270,7 @@ def build(
 ) -> None:
     manifest = load_manifest(manifest_path)
     policy = yaml.safe_load(source_policy_path.read_text(encoding="utf-8")) or {}
+    release_license = validate_public_release_license(policy)
     overrides = load_lineage_family_map(lineage_family_map)
     species_axis = source_dir / "species_axis_coverage.csv.gz"
     validation = validate_species_axis(species_axis, manifest)
@@ -299,7 +321,7 @@ def build(
     )
     applied_overrides = int(lineage_details["family_override_applied"].sum())
     release_manifest = {
-        "schema_version": 2,
+        "schema_version": 3,
         "database_id": manifest.database.database_id,
         "database_version": manifest.database.version,
         "analysis_contract": manifest.database.analysis_contract,
@@ -309,6 +331,7 @@ def build(
         "validation": validation,
         "release_ready_for_public_zenodo": release_ready,
         "public_mode_requested": public,
+        "public_release_license": release_license,
         "files": copied,
         "license_blocker_count": int(len(blockers)),
         "distinct_source_families": int(len(inventory)),
@@ -320,6 +343,22 @@ def build(
     (output_dir / "RELEASE_MANIFEST.json").write_text(
         json.dumps(release_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
+
+    license_notice = (
+        "# License and attribution notice\n\n"
+        f"The public Chapter 1 Database 1.0 compilation is distributed under **{release_license}** "
+        "to the extent copyright or database rights apply to the compilation.\n\n"
+        "This umbrella licence does **not** replace, broaden, or relicense upstream source terms. "
+        "Source-specific licences, rights decisions, and provenance are retained in "
+        "`SOURCE_LICENSE_INVENTORY.csv` and `SOURCE_LINEAGE_DETAILS.csv`; downstream users must "
+        "preserve the applicable source attribution and licence obligations.\n\n"
+        "Wikipedia-derived rows in Database 1.0 contain normalized trait facts and exact article-URL "
+        "provenance, not copied article prose. Their source family is recorded as CC BY-SA 4.0 and "
+        "the compilation-level CC BY-SA 4.0 licence preserves the ShareAlike boundary.\n\n"
+        "Rows whose source family remains `review_required` are not authorized for public release "
+        "until that source-specific rights gate is closed.\n"
+    )
+    (output_dir / "LICENSE_NOTICE.md").write_text(license_notice, encoding="utf-8")
 
     data_dictionary = "# Chapter 1 database data dictionary\n\n"
     data_dictionary += (
@@ -342,7 +381,9 @@ def build(
         "`SOURCE_LINEAGE_DETAILS.csv` retains the exact lineage tokens behind those families. "
         "When supplied, a lineage-family map changes only audit grouping and is recorded by "
         "`family_override_applied`; it never changes Database 1.0 source lineage bytes. "
-        "`RIGHTS_TRIAGE_BUCKETS.csv` is only a workload summary and never grants redistribution rights.\n"
+        "`RIGHTS_TRIAGE_BUCKETS.csv` is only a workload summary and never grants redistribution rights. "
+        "`LICENSE_NOTICE.md` records the compilation-level public licence while preserving all "
+        "source-specific licence obligations.\n"
     )
     (output_dir / "DATA_DICTIONARY.md").write_text(data_dictionary, encoding="utf-8")
 

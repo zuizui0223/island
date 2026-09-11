@@ -10,6 +10,7 @@ from island_v2.chapter1_database_release import (
     family_for_lineage,
     load_lineage_family_map,
     source_family,
+    validate_public_release_license,
 )
 
 
@@ -52,6 +53,32 @@ def test_release_inventory_is_fail_closed_by_source_family() -> None:
     assert inventory.loc["database:pladias", "source_license"] == ""
     assert len(lineages) == 3
     assert not lineages["family_override_applied"].any()
+
+
+def test_public_release_license_requires_sharealike_for_wikipedia() -> None:
+    policy = {
+        "public_release_license": "CC-BY-4.0",
+        "default_status": "review_required",
+        "default_license": None,
+        "rules": [
+            {
+                "pattern": "^domain:en[.]wikipedia[.]org$",
+                "status": "redistributable",
+                "license": "CC-BY-SA-4.0",
+                "note": "audited",
+            }
+        ],
+    }
+    with pytest.raises(ValueError, match="CC-BY-SA-4.0"):
+        validate_public_release_license(policy)
+
+    policy["public_release_license"] = "CC-BY-SA-4.0"
+    assert validate_public_release_license(policy) == "CC-BY-SA-4.0"
+
+
+def test_public_release_license_is_required() -> None:
+    with pytest.raises(ValueError, match="public_release_license"):
+        validate_public_release_license({"rules": []})
 
 
 def test_lineage_family_override_collapses_hashes_without_granting_rights(tmp_path: Path) -> None:
