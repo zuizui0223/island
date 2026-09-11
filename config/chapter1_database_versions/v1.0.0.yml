@@ -20,7 +20,9 @@ database:
     artifact_name: source-scale-batch-integration-34191508045
     relative_path: species_axis_coverage.csv.gz
     sha256: a6eef8d731b2730a99e388ddd0683d7ac9b2af30d43f1f9569c857f89f664b2a
+  # Publication refers to the rights-filtered public derivative (46,274 cells),
+  # not to redistribution of the full immutable 222,688-cell scientific database.
   publication:
-    release_status: not_deposited
-    zenodo_doi: null
-    zenodo_record_url: null
+    release_status: published
+    zenodo_doi: "10.5281/zenodo.22704973"
+    zenodo_record_url: "https://zenodo.org/record/22704973"
