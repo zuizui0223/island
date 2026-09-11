@@ -4,11 +4,16 @@ Use two records rather than one mixed record.
 
 ## Dataset record
 
-Deposit the output of `chapter1_database_public_subset` as a Zenodo **Dataset**. This record receives the database DOI cited by the paper.
+The Chapter 1 Database 1.0 rights-filtered public derivative has been published as a Zenodo **Dataset**:
 
-The canonical scientific Database 1.0 remains immutable and may contain cells that are not authorized for redistribution. Do **not** upload the full `species_axis_coverage.csv.gz` while its full-database release gate is false. Instead, publish only the rights-filtered derivative produced from the canonical post-PR172 cell-rights audit. The public derivative must satisfy the pinned invariants in the release workflow and must include `PUBLIC_SUBSET_MANIFEST.json` documenting the immutable source database SHA and rights-audit receipt.
+- DOI: `10.5281/zenodo.22704973`
+- Record: `https://zenodo.org/record/22704973`
+- Public derivative: 46,274 of 222,688 resolved species × axis cells
+- Compilation licence: CC BY-SA 4.0
 
-Database 1.0 public subset version 1.0.0 is distributed as a compilation under **CC BY-SA 4.0**, while row-level provenance and upstream source-specific attribution/licence obligations remain preserved.
+The canonical scientific Database 1.0 remains immutable and contains cells that are not authorized for redistribution. The Zenodo DOI therefore identifies the rights-filtered public derivative, not redistribution of the full `species_axis_coverage.csv.gz` analysis database. Omitted cells are omitted for rights reasons and must not be interpreted as biological missingness.
+
+The published package is derived from the canonical merged-main public artifact and retains `PUBLIC_SUBSET_MANIFEST.json`, the immutable source-database SHA, the post-PR172 rights-audit receipt, public cell-level rights rows, source-rights policy, and release notes.
 
 A later Database 2.0 should be a new version of the dataset record so Database 1.0 remains permanently citable.
 
