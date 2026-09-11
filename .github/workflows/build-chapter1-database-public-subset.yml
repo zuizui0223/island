@@ -1,6 +1,13 @@
 name: Build Chapter 1 Database 1.0 public subset
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-chapter1-database-public-subset.yml"
+      - "src/island_v2/chapter1_database_public_subset.py"
+      - "tests/test_chapter1_database_public_subset.py"
+      - "config/chapter1_database_versions/v1.0.0.yml"
   pull_request:
     paths:
       - ".github/workflows/build-chapter1-database-public-subset.yml"
