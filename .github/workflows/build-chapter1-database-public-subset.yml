@@ -33,7 +33,7 @@ jobs:
       - name: Test public subset builder
         run: pytest -q tests/test_chapter1_database_public_subset.py
 
-      - name: Resolve and download immutable Database 1.0
+      - name: Resolve immutable Database 1.0 source
         id: db
         run: |
           python - <<'PY'
@@ -49,6 +49,9 @@ jobs:
               out.write(f"artifact_name={source['artifact_name']}\n")
               out.write(f"sha256={source['sha256']}\n")
           PY
+
+      - name: Download and validate immutable Database 1.0
+        run: |
           rm -rf /tmp/ch1-db-source
           mkdir -p /tmp/ch1-db-source
           gh run download "${{ steps.db.outputs.run_id }}" \
