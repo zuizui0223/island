@@ -62,7 +62,7 @@ def test_public_release_license_requires_sharealike_for_wikipedia() -> None:
         "default_license": None,
         "rules": [
             {
-                "pattern": r"^domain:en\.wikipedia\.org$",
+                "pattern": r"^domain:en\.wikipedia\.org$".replace("\\\\", "\\"),
                 "status": "redistributable",
                 "license": "CC-BY-SA-4.0",
                 "note": "audited",
