@@ -12,8 +12,13 @@ The frozen build target is:
 - 115,328 provisional plant name identities recovered from the completed GBIF campaign;
 - 1,039,757 candidate island x taxon rows;
 - 1,039,757 aggregate evidence rows;
-- 4,549 islands with at least one GBIF-supported candidate taxon;
+- 4,549 islands with at least one exact-assigned GBIF occurrence row;
+- 4,505 islands with at least one species-level candidate-flora row;
+- 44 islands with exact occurrence evidence but no retained species-level candidate row;
 - 103 GBIF occurrence downloads represented in the rights ledger.
+
+The 44-island difference is retained as an explicit coverage state. It is not converted
+to species absence or empty flora.
 
 ## Scientific boundary
 
@@ -24,6 +29,8 @@ established, endemic, or part of a complete checklist.
 Therefore alpha1 freezes all GBIF-derived island x taxon membership as `candidate` and:
 
 - does not infer absence from missing GBIF records;
+- does not infer absence when exact occurrence rows fail to produce a species-level
+  candidate row;
 - does not infer native or introduced status;
 - does not infer endemicity;
 - keeps the occurrence-derived name identity provisional until explicit taxonomy
@@ -63,7 +70,9 @@ The build workflow emits:
 
 `BUILD_RECEIPT.json` records SHA-256 and byte size for every frozen bundle component.
 The CI build fails rather than emitting the artifact if the exact island universe or the
-frozen row counts change.
+frozen row counts change. The same workflow runs after merge to `main`, so the canonical
+alpha1 artifact is built from the merged commit rather than only from a pull-request
+merge ref.
 
 ## Next database upgrades
 
