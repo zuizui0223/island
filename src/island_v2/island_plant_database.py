@@ -1,14 +1,16 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
 
+import geopandas as gpd
 import pandas as pd
 import typer
 import yaml
 
-app = typer.Typer(add_completion=False, help="Validate Island Plant Database bundles.")
+app = typer.Typer(add_completion=False, help="Build and validate Island Plant Database bundles.")
 
 CORE_TABLES = ("islands", "taxa", "island_taxa", "evidence")
 OPTIONAL_TABLES = ("traits",)
@@ -68,7 +70,12 @@ def _validate_table(name: str, frame: pd.DataFrame, spec: dict[str, Any]) -> Non
             raise ValueError(f"{name}.{column} contains unsupported values: {invalid}")
 
 
-def _require_nonnegative_integer(frame: pd.DataFrame, column: str, *, allow_blank: bool) -> None:
+def _require_nonnegative_integer(
+    frame: pd.DataFrame,
+    column: str,
+    *,
+    allow_blank: bool,
+) -> None:
     values = frame[column].astype(str)
     if allow_blank:
         values = values[values.ne("")]
@@ -79,6 +86,76 @@ def _require_nonnegative_integer(frame: pd.DataFrame, column: str, *, allow_blan
     parsed = pd.to_numeric(values, errors="coerce")
     if parsed.isna().any() or (parsed < 0).any() or ((parsed % 1) != 0).any():
         raise ValueError(f"{column} must contain non-negative integers")
+
+
+def _geometry_sha256(geometry: Any) -> str:
+    return hashlib.sha256(geometry.wkb).hexdigest()
+
+
+def build_islands_core(
+    islands_gpkg: Path,
+    source_policy_json: Path,
+    contract_path: Path,
+) -> pd.DataFrame:
+    contract = load_contract(contract_path)
+    frame = gpd.read_file(islands_gpkg, layer="islands")
+    policy = json.loads(source_policy_json.read_text(encoding="utf-8"))
+
+    required = {
+        "island_id",
+        "source_label",
+        "parent_feature_id",
+        "island_name",
+        "area_km2",
+        "geometry",
+    }
+    missing = sorted(required - set(frame.columns))
+    if missing:
+        raise ValueError(f"prepared island geometry missing columns: {missing}")
+    if frame.crs is None:
+        raise ValueError("prepared island geometry has no CRS")
+    if frame["island_id"].duplicated().any():
+        raise ValueError("prepared island geometry has duplicate island_id values")
+
+    backend = str(policy.get("source_backend", ""))
+    if backend == "gshhg":
+        source_license = "LGPL-3.0-or-later"
+        geometry_source = "GSHHG"
+    elif backend == "natural_earth_10m_fallback":
+        source_license = "PUBLIC-DOMAIN"
+        geometry_source = "Natural Earth 10m"
+    else:
+        raise ValueError(f"unsupported island source backend: {backend!r}")
+
+    projected = frame.to_crs(6933)
+    centroids = gpd.GeoSeries(projected.geometry.centroid, crs=6933).to_crs(4326)
+
+    source_labels = frame["source_label"].astype(str)
+    source_feature_ids = frame["parent_feature_id"].astype(str)
+    output = pd.DataFrame(
+        {
+            "island_id": frame["island_id"].astype(str),
+            "source_island_id": source_labels + ":" + source_feature_ids,
+            "island_name": frame["island_name"].fillna("").astype(str),
+            "archipelago": "",
+            "country_or_territory": "",
+            "area_km2": frame["area_km2"].astype(float),
+            "centroid_lat": centroids.y,
+            "centroid_lon": centroids.x,
+            "geometry_source": geometry_source,
+            "geometry_version": source_labels,
+            "geometry_sha256": [_geometry_sha256(value) for value in frame.geometry],
+            "release_status": "redistributable",
+            "source_license": source_license,
+        }
+    ).sort_values("island_id", kind="stable")
+    output = output.reset_index(drop=True)
+    _validate_table("islands", output, contract["canonical_tables"]["islands"])
+    if output["geometry_sha256"].str.fullmatch(r"[0-9a-f]{64}").eq(False).any():
+        raise ValueError("islands.geometry_sha256 must contain full SHA-256 digests")
+    if (output["area_km2"] <= 0).any():
+        raise ValueError("islands.area_km2 must be positive")
+    return output
 
 
 def validate_bundle(bundle_dir: Path, contract_path: Path) -> dict[str, Any]:
@@ -104,7 +181,9 @@ def validate_bundle(bundle_dir: Path, contract_path: Path) -> dict[str, Any]:
 
     island_ids = set(islands["island_id"])
     taxon_ids = set(taxa["taxon_id"])
-    island_taxon_keys = set(zip(island_taxa["island_id"], island_taxa["taxon_id"], strict=True))
+    island_taxon_keys = set(
+        zip(island_taxa["island_id"], island_taxa["taxon_id"], strict=True)
+    )
 
     missing_islands = sorted(set(island_taxa["island_id"]) - island_ids)
     missing_taxa = sorted(set(island_taxa["taxon_id"]) - taxon_ids)
@@ -173,6 +252,29 @@ def validate_bundle(bundle_dir: Path, contract_path: Path) -> dict[str, Any]:
         "rights_ledger_present": rights_path.exists(),
         "valid": True,
     }
+
+
+@app.command("export-islands")
+def export_islands_command(
+    islands_gpkg: Path = typer.Option(..., "--islands-gpkg", exists=True, dir_okay=False),
+    source_policy_json: Path = typer.Option(
+        ...,
+        "--source-policy",
+        exists=True,
+        dir_okay=False,
+    ),
+    output_csv: Path = typer.Option(..., "--output-csv"),
+    contract_path: Path = typer.Option(
+        Path("config/island_plant_database_v2.yml"),
+        "--contract",
+        exists=True,
+        dir_okay=False,
+    ),
+) -> None:
+    frame = build_islands_core(islands_gpkg, source_policy_json, contract_path)
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    frame.to_csv(output_csv, index=False)
+    typer.echo(f"Wrote {len(frame)} Database 2.0 island rows to {output_csv}")
 
 
 @app.command("validate")
