@@ -79,7 +79,7 @@ jobs:
 
       - name: Build candidate flora core from completed GBIF collection
         run: |
-          python -m island_v2.island_plant_database_gbif build \
+          python -m island_v2.island_plant_database_gbif \
             --pairs data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
             --taxa-summary data/v2/staging/gbif/collected/island_taxa.csv \
             --block-members data/v2/external/gbif/database_alpha1/gbif_block_members.csv \
