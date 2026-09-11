@@ -27,6 +27,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - run: python -m pip install pyyaml
       - name: Validate publisher and Zenodo metadata
         run: |
           python -m py_compile scripts/publish_chapter1_dataset_zenodo.py
