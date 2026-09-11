@@ -1,0 +1,159 @@
+schema_version: 1
+database:
+  database_id: global_island_plant_database
+  version: 2.0.0-alpha1
+  primary_object: island_x_taxon
+  purpose: reusable_public_island_flora_database
+  analysis_independent: true
+  immutable_database1_dependency: optional_trait_extension_only
+
+island_universe:
+  source: GSHHG
+  source_version: 2.3.7
+  geometry_level: L1
+  primary_area_threshold_km2: 5
+  sensitivity_thresholds_km2: [1, 20]
+  max_landmass_area_km2: 7000000
+  generated_files:
+    - islands.csv
+    - islands.gpkg
+
+canonical_tables:
+  islands:
+    key: [island_id]
+    required_columns:
+      - island_id
+      - source_island_id
+      - island_name
+      - archipelago
+      - country_or_territory
+      - area_km2
+      - centroid_lat
+      - centroid_lon
+      - geometry_source
+      - geometry_version
+      - geometry_sha256
+      - release_status
+      - source_license
+
+  taxa:
+    key: [taxon_id]
+    required_columns:
+      - taxon_id
+      - accepted_name
+      - authorship
+      - taxonomic_rank
+      - family
+      - genus
+      - backbone_name
+      - backbone_key
+      - backbone_version
+      - taxonomic_status
+      - release_status
+      - source_license
+
+  island_taxa:
+    key: [island_id, taxon_id]
+    required_columns:
+      - island_id
+      - taxon_id
+      - membership_status
+      - establishment_status
+      - endemic_status
+      - first_record_year
+      - last_record_year
+      - occurrence_record_count
+      - specimen_record_count
+      - evidence_count
+      - review_status
+      - release_status
+      - provenance_id
+    controlled_values:
+      membership_status: [candidate, supported, accepted, rejected, unresolved]
+      establishment_status: [native, introduced, cultivated, transient, unknown]
+      endemic_status: [island_endemic, archipelago_endemic, nonendemic, unknown]
+
+  occurrence_evidence:
+    key: [evidence_id]
+    required_columns:
+      - evidence_id
+      - island_id
+      - taxon_id
+      - source_type
+      - source_record_id
+      - source_url
+      - dataset_key_or_doi
+      - basis_of_record
+      - event_date
+      - coordinate_uncertainty_m
+      - evidence_role
+      - source_license
+      - rights_status
+      - review_status
+    controlled_values:
+      evidence_role:
+        - supports_presence
+        - supports_establishment
+        - supports_native
+        - supports_rejection
+        - context_only
+      rights_status: [redistributable, reference_only, review_required]
+
+  traits:
+    key: [trait_record_id]
+    required_columns:
+      - trait_record_id
+      - taxon_id
+      - island_id
+      - trait_name
+      - trait_value
+      - trait_unit
+      - trait_ontology_version
+      - evidence_id
+      - quality
+      - source_license
+      - rights_status
+      - release_status
+
+release_layers:
+  public_flora_core:
+    tables: [islands, taxa, island_taxa]
+    target: maximize_auditable_island_taxon_coverage
+    trait_complete_required: false
+
+  public_trait_extension:
+    tables: [traits]
+    filter: rights_status == redistributable
+
+  research_provenance_registry:
+    tables: [occurrence_evidence]
+    public_rule: identifiers_and_review_decisions_may_be_public_when_reference_safe
+    restricted_content_redistributed: false
+
+  analysis_products:
+    public_database_core: false
+    examples:
+      - chapter1_model_matrices
+      - pollination_syndrome_scores
+      - source_region_assignments
+      - model_derived_predictors
+
+invariants:
+  - missing_occurrence_is_not_absence
+  - occurrence_is_not_native_status
+  - gbif_hit_is_candidate_not_verified_flora
+  - taxonomy_normalization_is_explicit_and_versioned
+  - trait_missingness_is_not_species_absence
+  - source_specific_rights_are_preserved
+  - chapter1_hypotheses_do_not_define_database_membership
+  - database1_is_not_mutated
+
+alpha1_milestone:
+  required_outputs:
+    - islands.csv
+    - taxa.csv
+    - island_taxa.csv
+    - occurrence_evidence.csv
+    - RIGHTS_LEDGER.csv
+    - DATABASE_MANIFEST.json
+  trait_extension_required: false
