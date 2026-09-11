@@ -10,7 +10,9 @@ on:
     branches: [main]
     paths:
       - "config/island_source_gshhg.yml"
+      - "config/island_plant_database_v2.yml"
       - "src/island_v2/gshhg_source.py"
+      - "src/island_v2/island_plant_database.py"
       - "pyproject.toml"
       - ".github/workflows/acquire_gshhg.yml"
 
@@ -29,7 +31,25 @@ jobs:
         run: pip install -e .
       - name: Build public island polygons
         run: island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
-      - name: Upload island geometry and provenance
+      - name: Export Island Plant Database 2.0 islands core
+        run: |
+          python -m island_v2.island_plant_database export-islands \
+            --islands-gpkg data/v2/external/islands/gshhg/prepared/islands_v2.gpkg \
+            --source-policy data/v2/external/islands/gshhg/prepared/source_policy.json \
+            --output-csv data/v2/curated/island_plant_database/alpha1/islands.csv
+          python - <<'PY'
+          import pandas as pd
+          path = 'data/v2/curated/island_plant_database/alpha1/islands.csv'
+          frame = pd.read_csv(path, dtype=str).fillna('')
+          assert len(frame) > 0
+          assert frame['island_id'].is_unique
+          assert frame['geometry_sha256'].str.fullmatch(r'[0-9a-f]{64}').all()
+          assert frame['release_status'].eq('redistributable').all()
+          assert frame['source_license'].isin(
+              {'LGPL-3.0-or-later', 'PUBLIC-DOMAIN'}
+          ).all()
+          PY
+      - name: Upload island geometry and Database 2.0 core
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -38,6 +58,7 @@ jobs:
             data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
             data/v2/external/islands/gshhg/prepared/island_manifest.csv
             data/v2/external/islands/gshhg/prepared/source_policy.json
+            data/v2/curated/island_plant_database/alpha1/islands.csv
           if-no-files-found: warn
           retention-days: 90
       - name: Report source and island-universe diagnostics
@@ -49,14 +70,20 @@ jobs:
           echo '```' >> "$GITHUB_STEP_SUMMARY"
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import geopandas as gpd
+          import pandas as pd
 
           frame = gpd.read_file(
               'data/v2/external/islands/gshhg/prepared/islands_v2.gpkg',
               layer='islands',
           )
+          core = pd.read_csv(
+              'data/v2/curated/island_plant_database/alpha1/islands.csv',
+              dtype=str,
+          )
           areas = frame['area_km2']
           print('## Island-universe diagnostics')
           print(f'- n_islands: {len(frame)}')
+          print(f'- database2_island_rows: {len(core)}')
           print(f'- total_area_km2: {areas.sum():,.1f}')
           print(f'- min_area_km2: {areas.min():,.3f}')
           print(f'- median_area_km2: {areas.median():,.3f}')
