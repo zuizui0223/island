@@ -1,0 +1,125 @@
+contract: chapter1_nee_island_search_acquisition_v1
+parent_contracts:
+  - chapter1_nee_channel_observation_policy_v1
+  - chapter1_nee_channel_taxon_catalog_v1
+  - chapter1_nee_source_proxy_v1
+status: prospective_pre_non_Bombus_island_occurrence
+
+purpose: >-
+  Provide a credential-independent GBIF occurrence/search acquisition path for N1 island
+  observation while preserving the frozen exact-island, background-effort and target-
+  catalog rules. This path is deliberately more conservative than a complete bulk
+  download: an adequate non-detection is allowed only when the bounded Search API scan
+  is demonstrably exhaustive for the frozen background group on that island.
+
+eligibility:
+  source_proxy_mode: geo_k5
+  source_state_required: available
+  rationale: >-
+    Island observation is needed for retained/disrupted projection only where the
+    independently measured primary source proxy is available. Source state does not use
+    island occurrence outcomes or focal plant traits.
+  uses_island_observation_to_select_islands: false
+  uses_focal_plant_traits: false
+  uses_N1_effects: false
+
+island_geometry:
+  provider: frozen_GSHHG_island_universe
+  exact_polygon_required: true
+  multipolygon_query_strategy: exact_component_polygons
+  component_order: area_desc_then_stable_wkt
+  geometry_simplification_allowed: false
+  buffer_expansion_allowed: false
+  representative_point_substitution_allowed: false
+
+search:
+  endpoint: https://api.gbif.org/v1/occurrence/search
+  hasCoordinate: true
+  page_size: 300
+  max_records_examined_per_island_channel: 900
+  request_timeout_seconds: 90
+  retries: 4
+  retry_backoff_seconds: 2
+  record_budget_shared_across_components_and_background_subqueries: true
+  stop_after_first_confirmatory_target_detection: allowed
+  sort_order_assumption: none
+
+background_query_policy:
+  query_order_is_frozen: true
+
+background_queries:
+  bombus:
+    - taxon: Apidae
+      rank: FAMILY
+  non_bombus_bees:
+    - taxon: Andrenidae
+      rank: FAMILY
+    - taxon: Apidae
+      rank: FAMILY
+    - taxon: Colletidae
+      rank: FAMILY
+    - taxon: Halictidae
+      rank: FAMILY
+    - taxon: Megachilidae
+      rank: FAMILY
+    - taxon: Melittidae
+      rank: FAMILY
+    - taxon: Stenotritidae
+      rank: FAMILY
+  lepidoptera:
+    - taxon: Lepidoptera
+      rank: ORDER
+  flower_visiting_birds:
+    - taxon: Aves
+      rank: CLASS
+  diptera:
+    - taxon: Diptera
+      rank: ORDER
+
+record_quality:
+  explicit_occurrenceStatus_ABSENT_excluded: true
+  basisOfRecord_LIVING_SPECIMEN_excluded: true
+  known_captive_or_cultivated_excluded_by_existing_classifier: true
+  duplicate_GBIF_IDs_collapsed: true
+  valid_coordinates_and_year_required_by_existing_classifier: true
+  target_catalog_tier: confirmatory
+  known_introduced_target_excluded_by_existing_classifier: true
+  unknown_establishment_retained_and_flagged: true
+
+completeness:
+  complete_only_if: >-
+    Every frozen background taxon subquery and every exact geometry component reaches
+    GBIF endOfRecords before the shared 900-record island x channel budget is exhausted.
+  incomplete_if:
+    - shared_record_budget_exhausted_before_all_subqueries_complete
+    - any_required_subquery_not_reached_because_budget_was_exhausted
+  api_or_geometry_error_state_without_detection: unresolved
+  truncated_without_target_state: insufficient_effort
+
+observation_projection:
+  detected: >-
+    At least one quality-filtered confirmatory target occurrence is retrieved; detection
+    remains valid even if the broader background scan is incomplete.
+  adequate_non_detection_requires:
+    - zero_quality_filtered_confirmatory_target_occurrences
+    - exhaustive_search_complete
+    - all_existing_primary_background_effort_thresholds_pass
+  insufficient_effort_if:
+    - zero_target_and_complete_but_existing_effort_gate_fails
+    - zero_target_and_search_truncated_by_fixed_budget
+  unresolved_if:
+    - zero_target_and_API_or_geometry_error_prevents_classification
+
+prohibited:
+  - adequate_non_detection_from_a_truncated_search
+  - increase_record_budget_after_channel_results_are_seen
+  - reorder_background_subqueries_after_channel_results_are_seen
+  - geometry_simplification_to_rescue_a_result
+  - infer_absence_from_GBIF_total_count_without_exhaustive_record_scan
+  - use_focal_flower_traits_to_select_islands_or_taxa
+
+claim_boundary: >-
+  This path can establish the same detected state as the bulk path and can establish an
+  adequate non-detection only on islands where the bounded Search API retrieval is
+  exhaustive and the already-frozen effort gate passes. Any truncation makes the path
+  less informative, never more negative.

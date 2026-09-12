@@ -1,0 +1,95 @@
+name: Validate Chapter 1 NEE island Search observation
+
+on:
+  push:
+    branches:
+      - "nee/island-observation-search-fallback"
+    paths:
+      - "config/chapter1_nee_island_search_acquisition.yml"
+      - "src/island_v2/chapter1_nee_island_search_observation.py"
+      - "tests/test_chapter1_nee_island_search_observation.py"
+      - ".github/workflows/validate-chapter1-nee-island-search-observation.yml"
+      - ".github/workflows/run-chapter1-nee-island-search-observations.yml"
+  pull_request:
+    paths:
+      - "config/chapter1_nee_island_search_acquisition.yml"
+      - "src/island_v2/chapter1_nee_island_search_observation.py"
+      - "tests/test_chapter1_nee_island_search_observation.py"
+      - ".github/workflows/validate-chapter1-nee-island-search-observation.yml"
+      - ".github/workflows/run-chapter1-nee-island-search-observations.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-island-search-observation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Test fail-closed Search acquisition and lint
+        run: |
+          pytest -q tests/test_chapter1_nee_island_search_observation.py
+          ruff check \
+            src/island_v2/chapter1_nee_island_search_observation.py \
+            tests/test_chapter1_nee_island_search_observation.py
+          python -m island_v2.chapter1_nee_island_search_observation --help >/dev/null
+      - name: Validate prospective completeness boundary
+        run: |
+          python - <<'PY'
+          import yaml
+          cfg=yaml.safe_load(open('config/chapter1_nee_island_search_acquisition.yml'))
+          assert cfg['eligibility']['source_proxy_mode'] == 'geo_k5'
+          assert cfg['eligibility']['source_state_required'] == 'available'
+          assert cfg['search']['page_size'] == 300
+          assert cfg['search']['max_records_examined_per_island_channel'] == 900
+          assert cfg['search']['record_budget_shared_across_components_and_background_subqueries'] is True
+          assert cfg['island_geometry']['geometry_simplification_allowed'] is False
+          assert cfg['island_geometry']['buffer_expansion_allowed'] is False
+          assert cfg['observation_projection']['adequate_non_detection_requires'][1] == 'exhaustive_search_complete'
+          assert 'adequate_non_detection_from_a_truncated_search' in cfg['prohibited']
+          print('Credential-independent Search path remains fail-closed for non-detection')
+          PY
+      - name: Resolve frozen broad background taxa without opening island occurrences
+        run: |
+          python - <<'PY'
+          import httpx
+          import yaml
+          from island_v2.chapter1_nee_island_search_observation import resolve_background_queries
+          cfg=yaml.safe_load(open('config/chapter1_nee_island_search_acquisition.yml'))
+          with httpx.Client(timeout=90,follow_redirects=True,headers={'User-Agent':'island-v2/nee-island-search-validation'}) as client:
+              resolved={channel:resolve_background_queries(client,channel,cfg) for channel in cfg['background_queries']}
+          assert len(resolved['bombus']) == 1
+          assert len(resolved['non_bombus_bees']) == 7
+          assert len(resolved['lepidoptera']) == 1
+          assert len(resolved['flower_visiting_birds']) == 1
+          assert len(resolved['diptera']) == 1
+          print({channel:[name for name,_ in rows] for channel,rows in resolved.items()})
+          PY
+      - name: Guard production workflow from outcome leakage and credential dependence
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text=Path('.github/workflows/run-chapter1-nee-island-search-observations.yml').read_text()
+          forbidden=[
+              'GBIF_USERNAME',
+              'GBIF_PASSWORD',
+              'OPENAI_API_KEY',
+              'trait_snapshot',
+              'floral_trait',
+              'N1_fitted=true',
+              'fit N1',
+          ]
+          hits=[value for value in forbidden if value in text]
+          assert not hits, f'production Search workflow contains forbidden dependencies: {hits}'
+          assert 'source_proxy_run_id' in text
+          assert 'geo_k5_island_channel_source_availability.csv' in text
+          assert 'island-v2-gshhg build' in text
+          assert '--channel-id "$CHANNEL"' in text
+          assert "adequate_non_detection_requires_exhaustive_search" in text
+          print('Production Search workflow is credential-independent and pre-N1')
+          PY
