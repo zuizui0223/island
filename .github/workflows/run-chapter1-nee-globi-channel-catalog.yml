@@ -1,0 +1,95 @@
+name: Run Chapter 1 NEE GloBI 0.9 channel catalog
+
+on:
+  push:
+    branches:
+      - "nee/double-filter-globi-v09-run"
+    paths:
+      - ".github/workflows/run-chapter1-nee-globi-channel-catalog.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-channel-catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GLOBI_VERSION_DOI: "10.5281/zenodo.20546682"
+      INTERACTIONS_SHA256: "095e57398420d1e0746e61233c796beedcfb8e03bd0c6a732aa17ae62043bd17"
+      REFUTED_SHA256: "674e5b069992ab8a7fe98d76d0b9eb531c90c3ca267f434d14aa44a72ebbf8d6"
+      GLOBI_DIR: /tmp/globi-v09
+      OUT_DIR: /tmp/nee-channel-catalog
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install repository
+        run: pip install -e ".[dev]"
+
+      - name: Download pinned GloBI 0.9 archives
+        run: |
+          set -euo pipefail
+          mkdir -p "$GLOBI_DIR"
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output "$GLOBI_DIR/interactions.tsv.gz" \
+            "https://zenodo.org/records/20546682/files/interactions.tsv.gz?download=1"
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output "$GLOBI_DIR/refuted-interactions.tsv.gz" \
+            "https://zenodo.org/records/20546682/files/refuted-interactions.tsv.gz?download=1"
+          ls -lh "$GLOBI_DIR"
+
+      - name: Verify pre-frozen archive digests
+        run: |
+          set -euo pipefail
+          echo "$INTERACTIONS_SHA256  $GLOBI_DIR/interactions.tsv.gz" | sha256sum --check --strict
+          echo "$REFUTED_SHA256  $GLOBI_DIR/refuted-interactions.tsv.gz" | sha256sum --check --strict
+
+      - name: Build outcome-independent functional channel catalog
+        run: |
+          set -euo pipefail
+          mkdir -p "$OUT_DIR"
+          python -m island_v2.chapter1_nee_channel_catalog_stream build \
+            --interactions-tsv-gz "$GLOBI_DIR/interactions.tsv.gz" \
+            --refuted-tsv-gz "$GLOBI_DIR/refuted-interactions.tsv.gz" \
+            --source-version-doi "$GLOBI_VERSION_DOI" \
+            --output-dir "$OUT_DIR" \
+            --chunksize 200000
+          cat "$OUT_DIR/channel_taxon_catalog_receipt.json"
+
+      - name: Sanity check receipt boundaries
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          receipt = json.loads((Path(os.environ['OUT_DIR']) / 'channel_taxon_catalog_receipt.json').read_text())
+          assert receipt['status'] == 'catalog_built_pre_N1'
+          assert receipt['source_version_doi'] == os.environ['GLOBI_VERSION_DOI']
+          assert receipt['source_sha256'] == os.environ['INTERACTIONS_SHA256']
+          assert receipt['refuted_sha256'] == os.environ['REFUTED_SHA256']
+          assert receipt['digest_check_skipped'] is False
+          assert receipt['uses_focal_plant_traits'] is False
+          assert receipt['N1_fitted'] is False
+          assert {row['channel_id'] for row in receipt['channels']} == {
+              'bombus', 'non_bombus_bees', 'lepidoptera', 'flower_visiting_birds', 'diptera'
+          }
+          print('Pre-N1 catalog receipt boundary verified')
+          PY
+
+      - name: Upload compact catalog receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-nee-globi-v09-channel-catalog
+          path: |
+            /tmp/nee-channel-catalog/channel_taxon_catalog.csv
+            /tmp/nee-channel-catalog/channel_taxon_catalog_confirmatory.csv
+            /tmp/nee-channel-catalog/channel_taxon_catalog_receipt.json
+          if-no-files-found: error
+          retention-days: 90
