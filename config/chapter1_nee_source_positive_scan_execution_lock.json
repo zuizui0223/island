@@ -1,0 +1,55 @@
+{
+  "contract": "chapter1_nee_source_positive_scan_execution_lock_v1",
+  "scientific_contract": "chapter1_nee_source_positive_scan_v1",
+  "canonical_full_scan_run_id": "34704844604",
+  "canonical_execution_layout": "deterministic_10_shard",
+  "canonical_head_sha": "64d8f848196a25c4d33ce44fa984ecfb661331b0",
+  "source_artifact": {
+    "id": "9601703747",
+    "sha256": "51cff9087a40b76655ff043d59aceabf25800a6029ed005a77b8db30e78345d2"
+  },
+  "channel_catalog_artifact": {
+    "id": "10291643834",
+    "sha256": "c946e36cd04cb319fc63a5bde90534c1cf3c7f41480fc672638f85f5b2a89b02"
+  },
+  "sharded_input_artifact": {
+    "id": "10300558673",
+    "sha256": "9f434c2a3a20108df2305bed60403419930c98f0d53c01e9fc167cdc2fd87863"
+  },
+  "source_universe": {
+    "n_unique_entities": 730,
+    "primary_geo_k5_entities": 481,
+    "partition_rule": "sorted_unique_entity_ID_index_mod_10",
+    "n_shards": 10,
+    "entities_per_shard": 73
+  },
+  "entity_channel_rules_unchanged": {
+    "exact_GIFT_geometry": true,
+    "max_records_examined": 900,
+    "confirmatory_catalog_only": true,
+    "no_hit_means": "unresolved",
+    "query_error_without_positive_means": "unresolved",
+    "structural_absence_generated": false
+  },
+  "selection_provenance": {
+    "reason": "replace_serial_execution_bottleneck_before_any_full_channel_completed",
+    "sharded_trigger_commit": "64d8f848196a25c4d33ce44fa984ecfb661331b0",
+    "full_channel_artifacts_available_when_sharded_trigger_created": 0,
+    "uses_source_availability_counts_to_select_execution": false,
+    "uses_island_channel_outcomes_to_select_execution": false,
+    "uses_focal_plant_traits_to_select_execution": false
+  },
+  "noncanonical_serial_run": {
+    "run_id": "34700705549",
+    "role": "transport_diagnostic_only",
+    "may_replace_canonical_entity_states": false,
+    "may_union_positive_hits_with_canonical_run": false,
+    "may_rescue_canonical_unresolved_states": false
+  },
+  "post_run_policy": {
+    "do_not_rerun_entities_to_increase_available_count": true,
+    "do_not_union_equivalent_runs_for_primary_source_state": true,
+    "preserve_API_or_geometry_failures_as_unresolved": true,
+    "sensitivities_cannot_rescue_primary_geo_k5": true
+  }
+}
