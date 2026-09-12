@@ -1,0 +1,47 @@
+contract: chapter1_nee_gbif_background_acquisition_v1
+parent_contract: chapter1_nee_channel_observation_policy_v1
+status: prospective_pre_occurrence
+
+spatial_scope:
+  island_universe: frozen_v2_GSHHG_global_islands
+  exact_island_assignment_required: true
+  acquisition_buffer_m: 2000
+  acquisition_simplify_m: 500
+  block_grid_degrees: 30
+  max_wkt_chars: 120000
+  max_islands_per_block: 125
+
+campaigns:
+  non_bombus_bees:
+    gbif_acquisition_taxon: Hymenoptera
+    gbif_rank: ORDER
+    acquisition_role: broader_proxy_only
+    analytical_background_filter: frozen_seven_bee_families
+  lepidoptera:
+    gbif_acquisition_taxon: Lepidoptera
+    gbif_rank: ORDER
+    acquisition_role: exact_background
+    analytical_background_filter: none
+  flower_visiting_birds:
+    gbif_acquisition_taxon: Aves
+    gbif_rank: CLASS
+    acquisition_role: exact_background
+    analytical_background_filter: none
+  diptera:
+    gbif_acquisition_taxon: Diptera
+    gbif_rank: ORDER
+    acquisition_role: exact_background
+    analytical_background_filter: none
+
+bombus:
+  acquisition_route: existing_global_Apidae_campaign_and_frozen_Bombus_diagnostics
+  not_rerun_in_new_four_channel_campaign: true
+
+rules:
+  - acquisition_taxon_never_defines_functional_target_catalog
+  - non_bombus_Hymenoptera_records_must_be_filtered_to_frozen_seven_bee_families_before_effort
+  - exact_island_assignment_precedes_background_effort
+  - buffer_only_records_are_excluded
+  - no_plant_trait_outcome_is_read
+  - no_N1_model_is_fitted_during_acquisition
+  - acquisition_proxy_cannot_change_after_channel_outcome_inspection

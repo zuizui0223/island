@@ -1,0 +1,6 @@
+contract: chapter1_nee_gbif_background_run_state_v1
+status: prepared_not_started
+acquisition_contract: config/chapter1_nee_gbif_background_acquisition.yml
+start_trigger: data/v2/control/run_nee_gbif_background.trigger
+biological_outcomes_opened: false
+N1_fitted: false
