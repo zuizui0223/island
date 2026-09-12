@@ -1,0 +1,122 @@
+contract: chapter1_nee_n1_model_v1
+parent_contracts:
+  - chapter1_nee_double_filter_v1
+  - chapter1_nee_channel_inputs_v1
+status: prospective_pre_N1_fit
+
+estimand:
+  unit: island_x_channel
+  eligible_rows: source_available_and_channel_state_retained_or_disrupted
+  response:
+    retained: 1
+    disrupted: 0
+  primary_question: >-
+    Do source-available pollination channels have non-exchangeable isolation-retention
+    slopes after island capacity, climate, observation effort and source-region structure
+    are controlled?
+
+channel_gate:
+  allowed_channels:
+    - bombus
+    - non_bombus_bees
+    - lepidoptera
+    - flower_visiting_birds
+    - diptera
+  require_confirmatory_input_tier: true
+  min_confirmatory_channels_for_primary_N1: 3
+  fewer_than_three_confirmatory_channels: N1_not_evaluable_for_NEE_gate
+  reference_channel: bombus
+  if_reference_channel_not_confirmatory: choose_lexicographically_first_confirmatory_channel_and_record
+
+primary_model:
+  family: binomial_logit
+  common_slope_model: >-
+    retained ~ isolation + channel + log_area + climate_pc1 + climate_pc2 + climate_pc3
+    + climate_pc4 + effort_log_records + effort_log_spatial + effort_log_temporal
+    + effort_log_datasets + effort_recency + source_region_fixed_effects
+  heterogeneous_slope_model: >-
+    retained ~ isolation * channel + log_area + climate_pc1 + climate_pc2 + climate_pc3
+    + climate_pc4 + effort_log_records + effort_log_spatial + effort_log_temporal
+    + effort_log_datasets + effort_recency + source_region_fixed_effects
+  isolation_column: log1p_distance_to_continent_km
+  isolation_interpretation: composite_source_separation_connectivity_gradient
+  source_specific_water_gap_role: prespecified_sensitivity_when_available_not_required_to_define_primary
+  cluster_robust_se: spatial_block
+  spatial_block_definition: frozen_10_degree_block_from_chapter1_covariates
+  source_region_fixed_effects:
+    enabled: true
+    drop_reference_level: true
+    levels_with_fewer_than_5_primary_rows: pooled_other_source_region
+  continuous_predictors_standardized_within_analysis_support: true
+  categorical_reference_levels_frozen_from_sorted_labels: true
+
+observation_effort:
+  required_columns:
+    - background_record_count
+    - background_spatial_units
+    - background_temporal_units
+    - distinct_dataset_count
+    - latest_background_year
+  transforms:
+    effort_log_records: log1p_background_record_count
+    effort_log_spatial: log1p_background_spatial_units
+    effort_log_temporal: log1p_background_temporal_units
+    effort_log_datasets: log1p_distinct_dataset_count
+    effort_recency: reference_year_minus_latest_background_year
+  reference_year: 2026
+  missing_effort_on_evaluable_row: hard_stop
+  no_effort_variable_may_use_channel_state_or_plant_outcomes: true
+
+primary_global_test:
+  null: all_channel_isolation_slopes_are_equal
+  method: cluster_robust_joint_Wald_test_of_isolation_x_channel_terms
+  alpha: 0.05
+  degrees_of_freedom: number_of_confirmatory_channels_minus_1
+  report:
+    - Wald_statistic
+    - df
+    - p_value
+    - channel_specific_isolation_slopes
+    - pairwise_slope_differences
+  pairwise_results_are_descriptive_after_global_gate: true
+  no_significance_vs_nonsignificance_comparison_as_heterogeneity_test: true
+
+N1_pass_rule:
+  all_required:
+    - at_least_3_confirmatory_channels
+    - global_channel_x_isolation_Wald_p_lt_0_05
+    - heterogeneous_model_log_likelihood_exceeds_common_slope_model
+    - leave_one_spatial_block_out_does_not_reverse_global_conclusion_in_more_than_20_percent_of_evaluable_deletions
+    - leave_one_source_region_out_does_not_reverse_global_conclusion_in_more_than_20_percent_of_evaluable_deletions
+  no_single_channel_required_to_be_significant: true
+  no_posthoc_channel_relabel_or_substitution: true
+  failure_action: stop_before_N2_and_keep_frozen_Chapter1
+
+robustness:
+  leave_one_spatial_block_out: required
+  leave_one_source_region_out: required
+  confirmatory_catalog_only_primary: true
+  sensitivity_catalog_secondary: true
+  source_specific_water_gap_if_available: required_sensitivity
+  bombus_Apidae_effort_definition_sensitivity: retain_existing_predeclared_sensitivities
+  complete_case_rule: same_rows_for_common_and_heterogeneous_primary_models
+  no_channel_specific_subset_optimization: true
+
+outputs:
+  - N1_model_support.csv
+  - N1_coefficients.csv
+  - N1_channel_slopes.csv
+  - N1_global_heterogeneity_test.json
+  - N1_model_comparison.json
+  - N1_leave_one_spatial_block_out.csv
+  - N1_leave_one_source_region_out.csv
+  - N1_gate_receipt.json
+
+claim_ceiling:
+  pass: independently_measured_pollination_channels_have_different_isolation_retention_curves
+  blocked_even_if_pass:
+    - pollinator_loss_caused_plant_genus_filtering
+    - pollinator_channel_explains_H3
+    - alternative_pollinators_replaced_lost_channel
+  N2_required_for:
+    - channel_retention_x_lineage_dependency_predicts_genus_entry_or_persistence
