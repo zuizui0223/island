@@ -1,0 +1,252 @@
+name: Run Chapter 1 NEE GBIF background campaigns
+
+on:
+  push:
+    branches:
+      - "nee/double-filter-gbif-background-run"
+    paths:
+      - "data/v2/control/run_nee_gbif_background.trigger"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  prepare-islands:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Rebuild frozen global island universe once
+        run: |
+          set -euo pipefail
+          island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
+          test -f data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-nee-island-universe-${{ github.run_id }}
+          path: data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
+          if-no-files-found: error
+          retention-days: 7
+
+  acquire-background:
+    needs: prepare-islands
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - channel: non_bombus_bees
+            taxon: Hymenoptera
+            rank: ORDER
+          - channel: lepidoptera
+            taxon: Lepidoptera
+            rank: ORDER
+          - channel: flower_visiting_birds
+            taxon: Aves
+            rank: CLASS
+          - channel: diptera
+            taxon: Diptera
+            rank: ORDER
+    env:
+      GBIF_USERNAME: ${{ secrets.GBIF_USERNAME }}
+      GBIF_PASSWORD: ${{ secrets.GBIF_PASSWORD }}
+      CHANNEL: ${{ matrix.channel }}
+      TAXON: ${{ matrix.taxon }}
+      TAXON_RANK: ${{ matrix.rank }}
+      ROOT: data/v2/staging/nee_channels/${{ matrix.channel }}
+      ISLANDS: data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - uses: actions/download-artifact@v4
+        with:
+          name: chapter1-nee-island-universe-${{ github.run_id }}
+          path: data/v2/external/islands/gshhg/prepared
+
+      - name: Verify GBIF credentials and frozen acquisition contract
+        run: |
+          set -euo pipefail
+          test -n "${GBIF_USERNAME:-}"
+          test -n "${GBIF_PASSWORD:-}"
+          test -f "$ISLANDS"
+          test -f config/chapter1_nee_gbif_background_acquisition.yml
+
+      - name: Prepare bounded global GBIF blocks
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/campaign"
+          island-v2-gbif-blocks prepare \
+            --islands-gpkg "$ISLANDS" \
+            --output-dir "$ROOT/campaign" \
+            --taxon-name "$TAXON" \
+            --taxon-rank "$TAXON_RANK" \
+            --target-scope "nee_${CHANNEL}_background_acquisition" \
+            --grid-degrees 30 \
+            --max-wkt-chars 120000 \
+            --max-islands-per-block 125 \
+            --query-buffer-m 2000 \
+            --query-simplify-m 500
+
+      - name: Submit all prepared blocks
+        run: |
+          set -euo pipefail
+          MANIFEST="$ROOT/campaign/gbif_block_request_manifest.csv"
+          for i in $(seq 1 6); do
+            island-v2-gbif-flora submit \
+              --request-manifest "$MANIFEST" \
+              --max-requests 100 \
+              --sleep-seconds 0.25
+            if python - "$MANIFEST" <<'PY'
+          import pandas as pd
+          import sys
+          p=sys.argv[1]
+          t=pd.read_csv(p,dtype=str).fillna('')
+          pending=t.request_status.isin(['prepared','submission_failed'])
+          print({'status_counts':t.request_status.value_counts().to_dict(),'n_pending':int(pending.sum())})
+          raise SystemExit(0 if not pending.any() else 10)
+          PY
+            then
+              break
+            else
+              code=$?
+              test "$code" -eq 10 || exit "$code"
+            fi
+          done
+          python - "$MANIFEST" <<'PY'
+          import pandas as pd
+          import sys
+          t=pd.read_csv(sys.argv[1],dtype=str).fillna('')
+          bad=t.loc[~t.request_status.isin(['submitted','running','succeeded'])]
+          if len(bad):
+              raise SystemExit(f"submission incomplete: {bad[['block_id','request_status','error']].head(20).to_dict('records')}")
+          PY
+
+      - name: Poll GBIF downloads until complete
+        run: |
+          set -euo pipefail
+          MANIFEST="$ROOT/campaign/gbif_block_request_manifest.csv"
+          complete=0
+          for i in $(seq 1 120); do
+            island-v2-gbif-flora poll --request-manifest "$MANIFEST"
+            if python - "$MANIFEST" <<'PY'
+          import pandas as pd
+          import sys
+          t=pd.read_csv(sys.argv[1],dtype=str).fillna('')
+          counts=t.request_status.value_counts().to_dict()
+          print(counts)
+          if t.request_status.isin(['killed','cancelled','failed']).any():
+              raise SystemExit(2)
+          raise SystemExit(0 if t.request_status.eq('succeeded').all() else 10)
+          PY
+            then
+              complete=1
+              break
+            else
+              code=$?
+              if [[ "$code" -eq 2 ]]; then exit 2; fi
+              test "$code" -eq 10 || exit "$code"
+            fi
+            sleep 120
+          done
+          test "$complete" -eq 1 || { echo "GBIF polling window exhausted"; exit 1; }
+
+      - name: Convert completed ledger to collector campaign
+        run: |
+          python - "$ROOT" "$CHANNEL" <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          import sys
+          root=Path(sys.argv[1])
+          channel=sys.argv[2]
+          t=pd.read_csv(root/'campaign/gbif_block_request_manifest.csv',dtype=str).fillna('')
+          ledger=[]
+          for row in t.to_dict('records'):
+              ledger.append({
+                  'block_id': row['block_id'],
+                  'request_status': row['request_status'],
+                  'download_key': row['download_key'],
+                  'doi': row.get('doi',''),
+                  'download_link': row.get('download_link',''),
+                  'last_download_link': row.get('download_link',''),
+              })
+          payload={'schema_version':'1.0','campaign_id':f'island-v2-nee-{channel}-background','ledger':ledger}
+          (root/'campaign/channel_campaign.json').write_text(json.dumps(payload,indent=2)+'\n')
+          PY
+
+      - name: Collect exact-island background proxy occurrences
+        run: |
+          set -euo pipefail
+          python -m island_v2.chapter1_nee_gbif_channel_collect \
+            --campaign-json "$ROOT/campaign/channel_campaign.json" \
+            --block-members-csv "$ROOT/campaign/gbif_block_members.csv" \
+            --islands-gpkg "$ISLANDS" \
+            --download-dir "$ROOT/downloads" \
+            --output-dir "$ROOT/collected" \
+            --campaign-taxon-name "$TAXON"
+
+      - name: Apply frozen analytical background definition
+        run: |
+          set -euo pipefail
+          python -m island_v2.chapter1_nee_background_filter \
+            --records-csv "$ROOT/collected/island_channel_background_occurrences.csv.gz" \
+            --channel-id "$CHANNEL" \
+            --output-dir "$ROOT/frozen_background"
+
+      - name: Freeze acquisition-only receipt
+        run: |
+          python - "$ROOT" "$CHANNEL" "$TAXON" "$TAXON_RANK" <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          import sys
+          root=Path(sys.argv[1])
+          channel,taxon,rank=sys.argv[2:]
+          collection=json.loads((root/'collected/channel_collection_status.json').read_text())
+          filtering=json.loads((root/f'frozen_background/{channel}_background_filter_receipt.json').read_text())
+          manifest=pd.read_csv(root/'campaign/gbif_block_request_manifest.csv',dtype=str).fillna('')
+          payload={
+              'contract':'chapter1_nee_gbif_background_acquisition_receipt_v1',
+              'channel_id':channel,
+              'gbif_acquisition_taxon':taxon,
+              'gbif_rank':rank,
+              'n_blocks':int(len(manifest)),
+              'download_keys':sorted(manifest.download_key.loc[manifest.download_key.ne('')].astype(str).unique().tolist()),
+              'collection':collection,
+              'background_filter':filtering,
+              'functional_target_catalog_used':False,
+              'focal_plant_traits_used':False,
+              'N1_fitted':False,
+          }
+          (root/'acquisition_receipt.json').write_text(json.dumps(payload,indent=2)+'\n')
+          print(json.dumps(payload,indent=2))
+          PY
+
+      - name: Upload compact reproducible background product
+        uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-nee-gbif-background-${{ matrix.channel }}-${{ github.run_id }}
+          path: |
+            ${{ env.ROOT }}/campaign/gbif_block_request_manifest.csv
+            ${{ env.ROOT }}/campaign/gbif_block_members.csv
+            ${{ env.ROOT }}/campaign/gbif_block_taxon_resolution.json
+            ${{ env.ROOT }}/campaign/gbif_block_policy.json
+            ${{ env.ROOT }}/collected/channel_collection_manifest.csv
+            ${{ env.ROOT }}/collected/channel_collection_status.json
+            ${{ env.ROOT }}/frozen_background/${{ matrix.channel }}_frozen_background_occurrences.csv.gz
+            ${{ env.ROOT }}/frozen_background/${{ matrix.channel }}_background_filter_receipt.json
+            ${{ env.ROOT }}/acquisition_receipt.json
+          if-no-files-found: error
+          retention-days: 90
