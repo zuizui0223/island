@@ -1,6 +1,0 @@
-chapter1_nee_gbif_background_acquisition_v1
-purpose=prospective_background_only
-channels=non_bombus_bees,lepidoptera,flower_visiting_birds,diptera
-functional_target_catalog_used=false
-focal_plant_traits_used=false
-N1_fitted=false
