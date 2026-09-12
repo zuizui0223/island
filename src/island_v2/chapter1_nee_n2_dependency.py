@@ -1,9 +1,9 @@
 """Prospective validation for N2 lineage functional dependency.
 
 This module validates independently measured plant-lineage x pollination-channel
-functional dependency before any N2 genus-entry outcome is inspected.  It also
+functional dependency before any N2 genus-entry outcome is inspected. It also
 implements the predeclared support gate once source-specific genus dependency and
-N1 channel states exist.  It does not estimate N2 effects.
+N1 channel states exist. It does not estimate N2 effects.
 """
 
 from __future__ import annotations
@@ -41,6 +41,7 @@ GENUS_DEPENDENCY_REQUIRED = {
     "dependency_mean",
     "dependency_sd",
     "n_species_evidenced",
+    "evidence_tiers",
     "primary_dependency_evaluable",
 }
 
@@ -99,6 +100,10 @@ def _bool_series(series: pd.Series) -> pd.Series:
     return text.map(mapping).astype(bool)
 
 
+def _tier_set(value: object) -> set[str]:
+    return {token.strip() for token in str(value).split("|") if token.strip()}
+
+
 def validate_dependency_ledger(
     ledger: pd.DataFrame,
     config: dict[str, Any],
@@ -146,7 +151,9 @@ def validate_dependency_ledger(
         lambda value: any(token in value for token in PROHIBITED_ORIGIN_TOKENS)
     )
     if (candidate_primary & forbidden_rows).any():
-        bad = sorted(work.loc[candidate_primary & forbidden_rows, "evidence_origin"].unique().tolist())
+        bad = sorted(
+            work.loc[candidate_primary & forbidden_rows, "evidence_origin"].unique().tolist()
+        )
         raise ValueError(f"prohibited primary dependency evidence origin: {bad}")
 
     for column in ["dependency_estimate", "dependency_lower", "dependency_upper"]:
@@ -209,7 +216,7 @@ def qualify_n2_support(
     _require(channel_states, CHANNEL_STATE_REQUIRED, "N1 channel states")
 
     dep = genus_dependency.copy()
-    for column in ["source_region_id", "accepted_genus", "channel_id"]:
+    for column in ["source_region_id", "accepted_genus", "channel_id", "evidence_tiers"]:
         dep[column] = _text(dep[column])
     dep["dependency_mean"] = pd.to_numeric(dep["dependency_mean"], errors="coerce")
     dep["dependency_sd"] = pd.to_numeric(dep["dependency_sd"], errors="coerce")
@@ -219,10 +226,27 @@ def qualify_n2_support(
     invalid_channels = sorted(set(dep["channel_id"]).difference(set(config["channels"])))
     if invalid_channels:
         raise ValueError(f"unregistered dependency channels: {invalid_channels}")
+
+    direct_tiers = set(config["dependency_ledger_schema"]["accepted_primary_tiers"])
+    tier_sets = dep["evidence_tiers"].map(_tier_set)
+    tier_ok = tier_sets.map(lambda tiers: bool(tiers) and tiers.issubset(direct_tiers))
+    claimed_evaluable_with_D3 = dep["primary_dependency_evaluable"] & ~tier_ok
+    if claimed_evaluable_with_D3.any():
+        bad = sorted(dep.loc[claimed_evaluable_with_D3, "evidence_tiers"].unique().tolist())
+        raise ValueError(f"D3/non-primary provenance cannot be primary dependency-evaluable: {bad}")
+
+    single_species = dep["n_species_evidenced"].eq(1)
+    exact_single_species = single_species & dep["dependency_sd"].fillna(0).le(0)
+    if (dep["primary_dependency_evaluable"] & exact_single_species).any():
+        raise ValueError("single-species genus dependency must retain non-zero uncertainty")
+
     evaluable = dep.loc[
         dep["primary_dependency_evaluable"]
+        & tier_ok
         & dep["dependency_mean"].between(0.0, 1.0)
+        & dep["dependency_sd"].ge(0.0)
         & dep["dependency_sd"].notna()
+        & dep["n_species_evidenced"].ge(1)
         & dep["accepted_genus"].ne("")
         & dep["source_region_id"].ne("")
     ].copy()
@@ -230,7 +254,11 @@ def qualify_n2_support(
     states = channel_states.copy()
     for column in CHANNEL_STATE_REQUIRED:
         states[column] = _text(states[column])
-    invalid_states = sorted(set(states["channel_state"]).difference({"retained", "disrupted", "unresolved", "structurally_absent"}))
+    invalid_states = sorted(
+        set(states["channel_state"]).difference(
+            {"retained", "disrupted", "unresolved", "structurally_absent"}
+        )
+    )
     if invalid_states:
         raise ValueError(f"invalid channel states: {invalid_states}")
 
@@ -247,7 +275,11 @@ def qualify_n2_support(
         n_genera = int(d["accepted_genus"].nunique())
         n_retained = int(s.loc[s["channel_state"].eq("retained"), "island_id"].nunique())
         n_disrupted = int(s.loc[s["channel_state"].eq("disrupted"), "island_id"].nunique())
-        eligible = n_genera >= min_genera and n_retained >= min_retained and n_disrupted >= min_disrupted
+        eligible = (
+            n_genera >= min_genera
+            and n_retained >= min_retained
+            and n_disrupted >= min_disrupted
+        )
         if eligible:
             eligible_channels.append(channel)
         channel_rows.append(
@@ -260,7 +292,8 @@ def qualify_n2_support(
             }
         )
 
-    total_genera = int(evaluable["accepted_genus"].nunique())
+    primary_support = evaluable.loc[evaluable["channel_id"].isin(eligible_channels)]
+    total_genera = int(primary_support["accepted_genus"].nunique())
     passed = (
         len(eligible_channels) >= int(gate["minimum_confirmatory_channels"])
         and total_genera >= int(gate["minimum_unique_dependency_resolved_genera_total"])
