@@ -1,0 +1,91 @@
+name: Build Island Plant Database 2.0 alpha3 taxonomy triage
+
+on:
+  pull_request:
+    paths:
+      - "src/island_v2/island_plant_database_taxonomy_triage.py"
+      - "tests/test_island_plant_database_taxonomy_triage.py"
+      - ".github/workflows/build-island-plant-database-alpha3-taxonomy-triage.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Test and lint triage logic
+        run: |
+          pytest -q tests/test_island_plant_database_taxonomy_triage.py
+          ruff check \
+            src/island_v2/island_plant_database_taxonomy_triage.py \
+            tests/test_island_plant_database_taxonomy_triage.py
+      - name: Download canonical alpha2 taxonomy artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: island-plant-database-2.0.0-alpha2-taxonomy-34668274725
+          path: data/v2/staging/island_plant_database/alpha2/canonical
+          repository: zuizui0223/island
+          run-id: 34668274725
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build deterministic review triage
+        run: |
+          python -m island_v2.island_plant_database_taxonomy_triage \
+            --review-queue data/v2/staging/island_plant_database/alpha2/canonical/taxonomy_review_queue.csv.gz \
+            --output-dir data/v2/staging/island_plant_database/alpha3/triage
+      - name: Validate empirical triage receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('data/v2/staging/island_plant_database/alpha3/triage')
+          manifest = json.loads((root / 'TRIAGE_MANIFEST.json').read_text())
+          summary = manifest['summary']
+          triage = pd.read_csv(root / 'taxonomy_review_triage.csv.gz', dtype=str).fillna('')
+          second = pd.read_csv(root / 'second_backbone_queue.csv.gz', dtype=str).fillna('')
+          source = pd.read_csv(root / 'source_scope_review_queue.csv.gz', dtype=str).fillna('')
+          kingdom = pd.read_csv(root / 'kingdom_conflict_queue.csv.gz', dtype=str).fillna('')
+
+          assert len(triage) == 3767
+          assert triage['submitted_name'].is_unique
+          assert len(second) == 3436
+          assert len(source) == 303
+          assert len(kingdom) == 28
+          assert summary['n_input_review_rows'] == 3767
+          assert summary['n_second_backbone_eligible'] == 3436
+          assert summary['n_source_scope_review'] == 303
+          assert summary['n_kingdom_conflict_review'] == 28
+          assert summary['triage_class_counts'] == {
+              'colxr_exact_ambiguous_or_misapplied': 7,
+              'colxr_exact_other_review': 1,
+              'colxr_exact_provisionally_accepted': 182,
+              'colxr_exact_target_infraspecific': 489,
+              'colxr_exact_target_non_species': 1,
+              'colxr_higher_rank_only': 459,
+              'colxr_none_ambiguous': 46,
+              'colxr_none_no_match': 1898,
+              'colxr_variant_species_name': 353,
+              'kingdom_conflict_non_plantae': 28,
+              'source_genus_or_higher_rank': 191,
+              'source_infra_or_hybrid': 71,
+              'source_name_not_species_binomial': 41,
+          }
+          assert manifest['scientific_boundary']['taxa_promoted'] == 0
+          assert manifest['scientific_boundary']['taxa_removed'] == 0
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: island-plant-database-2.0.0-alpha3-taxonomy-triage-${{ github.run_id }}
+          path: data/v2/staging/island_plant_database/alpha3/triage/
+          if-no-files-found: error
+          retention-days: 90
