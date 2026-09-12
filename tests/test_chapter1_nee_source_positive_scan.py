@@ -3,11 +3,15 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 import yaml
+from shapely.geometry import MultiPolygon, Polygon
+from shapely import wkt as shapely_wkt
 
 import island_v2.chapter1_nee_source_positive_scan as scan
 from island_v2.chapter1_nee_source_positive_scan import (
+    _component_record_quotas,
     confirmatory_target_keys,
     find_confirmatory_positive,
+    gift_entity_query_wkts,
     normalized_binomial_key,
     scan_entity_channel,
 )
@@ -150,6 +154,107 @@ def test_positive_entity_scan_returns_available(monkeypatch: pytest.MonkeyPatch)
     assert row["source_state"] == "available"
     assert row["review_status"] == "accepted"
     assert row["evidence_id"] == "GBIF:321"
+
+
+def test_component_record_quotas_share_one_entity_channel_budget() -> None:
+    quotas = _component_record_quotas(72, 900)
+    assert len(quotas) == 72
+    assert sum(quotas) == 900
+    assert max(quotas) == 13
+    assert min(quotas) == 12
+    assert quotas[:36] == [13] * 36
+    assert quotas[36:] == [12] * 36
+
+
+def test_multipart_scan_never_exceeds_shared_900_record_budget(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config = _config()
+    calls: list[dict[str, object]] = []
+
+    def fake_get_json(*args, **kwargs):
+        params = dict(kwargs["params"])
+        calls.append(params)
+        limit = int(params["limit"])
+        return {
+            "results": [
+                {
+                    "key": index,
+                    "species": "Irrelevant species",
+                    "family": "Nymphalidae",
+                    "occurrenceStatus": "PRESENT",
+                    "basisOfRecord": "HUMAN_OBSERVATION",
+                    "establishmentMeans": "",
+                }
+                for index in range(limit)
+            ],
+            "endOfRecords": False,
+        }
+
+    monkeypatch.setattr(scan, "_get_json_with_retry", fake_get_json)
+    wkts = [f"POLYGON (({i} 0, {i + 0.1} 0, {i + 0.1} 0.1, {i} 0.1, {i} 0))" for i in range(72)]
+    row = scan_entity_channel(
+        _FakeClient(),
+        entity_id="345",
+        geometry_wkts=wkts,
+        channel_id="lepidoptera",
+        taxon_key="797",
+        target_keys={"danaus plexippus"},
+        config=config,
+    )
+    assert row["source_state"] == "unresolved"
+    assert row["n_records_examined"] == 900
+    assert sum(int(call["limit"]) for call in calls) == 900
+    assert len(calls) == 72
+    assert "multipart_exact_component_query" in row["quality_flags"]
+    assert "structurally_absent" not in row["quality_flags"]
+
+
+def test_component_query_error_remains_unresolved_not_absent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config = _config()
+    call_count = 0
+
+    def fake_get_json(*args, **kwargs):
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            raise RuntimeError("synthetic transport failure")
+        return {"results": [], "endOfRecords": True}
+
+    monkeypatch.setattr(scan, "_get_json_with_retry", fake_get_json)
+    row = scan_entity_channel(
+        _FakeClient(),
+        entity_id="345",
+        geometry_wkts=[
+            "POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))",
+            "POLYGON ((2 0, 3 0, 3 1, 2 1, 2 0))",
+        ],
+        channel_id="lepidoptera",
+        taxon_key="797",
+        target_keys={"danaus plexippus"},
+        config=config,
+    )
+    assert row["source_state"] == "unresolved"
+    assert row["evidence_id"] == ""
+    assert "source_scan_error=RuntimeError" in row["quality_flags"]
+    assert "n_component_query_errors=1" in row["quality_flags"]
+
+
+def test_exact_component_wkts_are_ordered_by_area_without_simplification(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    large = Polygon([(0, 0), (4, 0), (4, 2), (0, 2), (0, 0)])
+    small = Polygon([(10, 0), (11, 0), (11, 1), (10, 1), (10, 0)])
+    geometry = MultiPolygon([small, large])
+    monkeypatch.setattr(scan, "_gift_entity_geometry", lambda *args, **kwargs: geometry)
+
+    wkts = gift_entity_query_wkts(_FakeClient(), "345", _config())
+    recovered = [shapely_wkt.loads(value) for value in wkts]
+    assert [part.area for part in recovered] == [8.0, 1.0]
+    assert recovered[0].equals(large)
+    assert recovered[1].equals(small)
 
 
 def test_no_channel_targets_fails_closed() -> None:
