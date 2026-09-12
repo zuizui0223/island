@@ -1,0 +1,133 @@
+contract: chapter1_nee_channel_observation_policy_v1
+parent_contracts:
+  - chapter1_nee_double_filter_v1
+  - chapter1_nee_channel_inputs_v1
+  - chapter1_nee_channel_taxon_catalog_v1
+status: prospective_pre_channel_occurrence
+
+purpose: >-
+  Define source availability, island detection and adequate non-detection for every
+  N0 pollination channel before non-Bombus island occurrence outcomes are inspected.
+  A missing target record is never biological absence without the frozen background-effort gate.
+
+channels:
+  bombus:
+    target_catalog_rule: genus_Bombus_with_explicit_flower_interaction_or_existing_Bombus_registry
+    background_group: Apidae
+    existing_policy: config/bombus_observation_diagnostics.yml
+  non_bombus_bees:
+    target_catalog_rule: confirmatory_channel_taxon_catalog_excluding_Bombus
+    background_group: seven_extant_bee_families
+    background_taxa:
+      - Andrenidae
+      - Apidae
+      - Colletidae
+      - Halictidae
+      - Megachilidae
+      - Melittidae
+      - Stenotritidae
+  lepidoptera:
+    target_catalog_rule: confirmatory_channel_taxon_catalog
+    background_group: Lepidoptera
+  flower_visiting_birds:
+    target_catalog_rule: confirmatory_channel_taxon_catalog
+    background_group: Aves
+  diptera:
+    target_catalog_rule: confirmatory_channel_taxon_catalog
+    background_group: Diptera
+
+primary_island_effort_gate:
+  min_background_records: 50
+  min_background_spatial_units: 3
+  min_background_temporal_units: 2
+  min_distinct_datasets: 2
+  reference_year: 2026
+  max_years_since_latest_background: 20
+  common_thresholds_across_non_Bombus_channels: true
+  threshold_changes_after_channel_outcome_inspection: prohibited
+
+sensitivity_effort_gates:
+  liberal:
+    min_background_records: 25
+    min_background_spatial_units: 2
+    min_background_temporal_units: 2
+    min_distinct_datasets: 1
+    max_years_since_latest_background: 25
+  strict:
+    min_background_records: 100
+    min_background_spatial_units: 5
+    min_background_temporal_units: 3
+    min_distinct_datasets: 3
+    max_years_since_latest_background: 15
+  role: sensitivity_only_never_promotes_primary_N1
+
+record_quality:
+  exact_island_assignment_required: true
+  valid_coordinates_required: true
+  valid_year_required: true
+  unresolved_target_taxonomy_excluded: true
+  known_captive_or_cultivated_excluded: true
+  duplicate_GBIF_IDs_collapsed: true
+  introduced_status:
+    target_detection_primary: exclude_known_introduced_where_establishment_status_available
+    unknown_establishment: retain_and_flag
+    sensitivity: include_all_non_captive_records
+  historical_detection:
+    target_detection_remains_detection_regardless_of_age: true
+    adequate_non_detection_requires_recent_background_effort: true
+
+island_observation_state:
+  detected: >-
+    At least one quality-filtered exact-island occurrence of a confirmatory functional
+    channel catalog taxon is present. Detection indicates potential partner-channel
+    availability, not realized flower visitation or pollination service on that island.
+  adequate_non_detection: >-
+    Zero quality-filtered target-catalog occurrences and every primary background-effort
+    threshold is met for the frozen broad background group.
+  insufficient_effort: >-
+    Zero target-catalog occurrences but at least one primary effort threshold is not met.
+  unresolved: >-
+    Taxonomy, spatial assignment or source-data quality prevents classification.
+
+source_availability:
+  available_if:
+    - at_least_one_confirmatory_catalog_taxon_has_accepted_source_region_occurrence_or_curated_distribution
+  structurally_absent_if:
+    - accepted_curated_biogeographic_evidence_explicitly_supports_absence_of_the_channel_from_source_region
+  unresolved_if:
+    - no_positive_source_evidence_and_no_explicit_structural_absence_evidence
+  prohibited:
+    - infer_structural_absence_from_zero_GBIF_records
+    - infer_source_state_from_island_records
+    - infer_source_state_from_floral_traits
+  positive_source_detection_requires_effort_gate: false
+  structural_absence_requires_effort_gate: not_sufficient_without_curated_evidence
+
+channel_state_projection:
+  available_plus_detected: retained
+  available_plus_adequate_non_detection: disrupted
+  available_plus_insufficient_effort: unresolved
+  available_plus_unresolved: unresolved
+  structurally_absent: structurally_absent
+  source_unresolved: unresolved
+
+claim_boundary:
+  detected_means: potential_partner_channel_present
+  disrupted_means: source_available_but_adequately_non_detected_under_frozen_observation_policy
+  detected_does_not_mean:
+    - realized_flower_visitation
+    - effective_pollination_service
+    - functional_replacement
+  disrupted_does_not_mean:
+    - historical_extinction_proven
+    - zero_current_abundance
+
+required_audits:
+  - per_channel_target_catalog_taxa
+  - per_channel_background_group_definition
+  - exact_island_record_counts
+  - effort_component_counts
+  - recency
+  - dataset_dispersion
+  - establishment_status_flags
+  - liberal_and_strict_effort_sensitivity
