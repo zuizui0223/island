@@ -1,0 +1,130 @@
+contract: chapter1_nee_channel_taxon_catalog_v1
+parent_contract: chapter1_nee_double_filter_v1
+status: prospective_pre_N1_catalog
+
+source_policy:
+  primary_source: GloBI_versioned_integrated_interactions
+  concept_doi: 10.5281/zenodo.3950589
+  resolved_version_doi: 10.5281/zenodo.20546682
+  version: "0.9"
+  published_date: "2026-06-04"
+  interactions_tsv_sha256: 095e57398420d1e0746e61233c796beedcfb8e03bd0c6a732aa17ae62043bd17
+  refuted_interactions_tsv_sha256: 674e5b069992ab8a7fe98d76d0b9eb531c90c3ca267f434d14aa44a72ebbf8d6
+  resolved_version_doi_required: true
+  input_sha256_required: true
+  live_API_allowed_for_primary: false
+  live_API_allowed_for_feasibility_only: true
+  refuted_interactions_must_be_subtracted: true
+
+accepted_interactions:
+  http://purl.obolibrary.org/obo/RO_0002455:
+    label: pollinates
+    pollinator_side: source
+    plant_side: target
+    strength: pollination
+  http://purl.obolibrary.org/obo/RO_0002456:
+    label: pollinatedBy
+    pollinator_side: target
+    plant_side: source
+    strength: pollination
+  http://purl.obolibrary.org/obo/RO_0002622:
+    label: visitsFlowersOf
+    pollinator_side: source
+    plant_side: target
+    strength: flower_visit
+  http://purl.obolibrary.org/obo/RO_0002623:
+    label: flowersVisitedBy
+    pollinator_side: target
+    plant_side: source
+    strength: flower_visit
+
+plant_side_requirement:
+  kingdom: Plantae
+  unresolved_plant_kingdom_action: holdout
+
+channel_rules:
+  bombus:
+    genus_exact: Bombus
+  non_bombus_bees:
+    families:
+      - Andrenidae
+      - Apidae
+      - Colletidae
+      - Halictidae
+      - Megachilidae
+      - Melittidae
+      - Stenotritidae
+    exclude_genera:
+      - Bombus
+  lepidoptera:
+    order_exact: Lepidoptera
+  flower_visiting_birds:
+    class_exact: Aves
+  diptera:
+    order_exact: Diptera
+
+rank_policy:
+  primary_catalog_requires_species_name: true
+  genus_or_higher_records_are_holdouts: true
+  subspecies_collapsed_to_resolved_species_name: true
+
+qualification:
+  confirmatory_catalog_taxon:
+    any_pollination_claim: true
+    or_min_independent_flower_visit_references: 2
+    min_distinct_plant_taxa_for_visit_route: 2
+  sensitivity_catalog_taxon:
+    min_explicit_flower_interaction_rows: 1
+  confirmatory_catalog_used_for_primary_N1: true
+  sensitivity_catalog_never_promotes_N1_alone: true
+
+independence:
+  focal_island_plant_trait_table_used: false
+  chapter1_flower_colour_used: false
+  chapter1_floral_form_used: false
+  chapter1_pollination_architecture_scores_used: false
+  channel_assignment_uses_pollinator_taxonomy_only_after_explicit_flower_interaction: true
+
+required_columns:
+  - sourceTaxonName
+  - sourceTaxonSpeciesName
+  - sourceTaxonGenusName
+  - sourceTaxonFamilyName
+  - sourceTaxonOrderName
+  - sourceTaxonClassName
+  - sourceTaxonKingdomName
+  - interactionTypeId
+  - interactionTypeName
+  - targetTaxonName
+  - targetTaxonSpeciesName
+  - targetTaxonGenusName
+  - targetTaxonFamilyName
+  - targetTaxonOrderName
+  - targetTaxonClassName
+  - targetTaxonKingdomName
+  - referenceCitation
+  - referenceDoi
+  - referenceUrl
+  - sourceCitation
+  - sourceNamespace
+  - sourceArchiveURI
+  - sourceDOI
+
+catalog_output:
+  key:
+    - channel_id
+    - pollinator_species
+  preserve:
+    - pollinator_genus
+    - pollinator_family
+    - pollinator_order
+    - pollinator_class
+    - n_interaction_rows
+    - n_pollination_rows
+    - n_flower_visit_rows
+    - n_independent_references
+    - n_distinct_plant_taxa
+    - strongest_evidence
+    - catalog_tier
+    - source_version_doi
+    - source_sha256

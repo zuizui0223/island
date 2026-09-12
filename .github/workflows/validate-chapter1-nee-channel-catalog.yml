@@ -1,0 +1,49 @@
+name: Validate Chapter 1 NEE channel catalog
+
+on:
+  push:
+    branches:
+      - "nee/**"
+    paths:
+      - "config/chapter1_nee_channel_taxon_catalog.yml"
+      - "src/island_v2/chapter1_nee_channel_catalog.py"
+      - "tests/test_chapter1_nee_channel_catalog.py"
+      - ".github/workflows/validate-chapter1-nee-channel-catalog.yml"
+  pull_request:
+    paths:
+      - "config/chapter1_nee_channel_taxon_catalog.yml"
+      - "src/island_v2/chapter1_nee_channel_catalog.py"
+      - "tests/test_chapter1_nee_channel_catalog.py"
+      - ".github/workflows/validate-chapter1-nee-channel-catalog.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate functional channel catalog contract
+        run: |
+          pytest -q tests/test_chapter1_nee_channel_catalog.py
+          ruff check \
+            src/island_v2/chapter1_nee_channel_catalog.py \
+            tests/test_chapter1_nee_channel_catalog.py
+          python - <<'PY'
+          from pathlib import Path
+          from island_v2.chapter1_nee_channel_catalog import load_config
+
+          config = load_config(Path('config/chapter1_nee_channel_taxon_catalog.yml'))
+          assert config['source_policy']['live_API_allowed_for_primary'] is False
+          assert config['source_policy']['refuted_interactions_must_be_subtracted'] is True
+          assert config['independence']['focal_island_plant_trait_table_used'] is False
+          assert config['qualification']['confirmatory_catalog_used_for_primary_N1'] is True
+          print('Channel catalog contract validated')
+          PY
