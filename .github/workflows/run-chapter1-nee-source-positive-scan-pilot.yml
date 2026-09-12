@@ -124,7 +124,7 @@ jobs:
             --catalog-csv /tmp/pilot/channel_taxon_catalog.csv \
             --channel-id "$CHANNEL" \
             --output-dir "$OUT_DIR"
-      - name: Assert fail-closed pilot boundary
+      - name: Assert fail-closed pilot boundary and repaired multipart transport
         run: |
           python - <<'PY'
           import json
@@ -143,14 +143,23 @@ jobs:
           assert receipt['uses_focal_plant_traits'] is False
           assert receipt['uses_island_channel_outcomes'] is False
           assert set(states.source_state).issubset({'available','unresolved'})
-          assert receipt['n_geometry_failures'] < 3
-          assert not states.quality_flags.str.contains('source_scan_error=',regex=False).all()
+          assert receipt['n_geometry_failures'] == 0
+          assert receipt['n_query_error_entities'] == 0
+          assert receipt['n_multipart_entities'] >= 1
+          assert not states.quality_flags.str.contains('source_scan_error=',regex=False).any()
+          entity345=states.loc[states.entity_ID.astype(str).eq('345')]
+          assert len(entity345) == 1
+          assert entity345.iloc[0].source_state in {'available','unresolved'}
+          assert 'multipart_exact_component_query' in entity345.iloc[0].quality_flags
           print({
               'channel':channel,
               'available':receipt['n_available'],
               'unresolved':receipt['n_unresolved'],
               'geometry_failures':receipt['n_geometry_failures'],
+              'query_error_entities':receipt['n_query_error_entities'],
+              'multipart_entities':receipt['n_multipart_entities'],
               'records_examined':int(pd.to_numeric(states.n_records_examined).sum()),
+              'entity345_state':entity345.iloc[0].source_state,
           })
           PY
       - uses: actions/upload-artifact@v4
