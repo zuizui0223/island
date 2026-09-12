@@ -1,0 +1,54 @@
+contract: chapter1_nee_n2_dependency_discovery_v1
+parent_contract: chapter1_nee_n2_dependency_v1
+status: prospective_pre_dependency_search
+
+fixed_source_artifact:
+  workflow_run_id: 32954909953
+  artifact_id: 9601703747
+  artifact_name: pr138-source-pool-sensitivity-32954909953
+  artifact_digest: sha256:51cff9087a40b76655ff043d59aceabf25800a6029ed005a77b8db30e78345d2
+  assignment_file: result/island_source_assignments.csv.gz
+  source_flora_file: source/gift_native_mainland_flora.csv.gz
+
+ranking:
+  primary_source_mode: geo_k5
+  source_rank_set: [1, 2, 3, 4, 5]
+  genus_availability_rule: genus_present_in_at_least_one_of_five_selected_source_entities
+  primary_score: n_islands_with_source_available_genus
+  secondary_score: n_selected_mainland_source_entities_containing_genus
+  tie_break: accepted_genus_lexicographic
+  uses_island_realised_flora: false
+  uses_island_genus_entry: false
+  uses_N1_effect_direction: false
+  uses_N2_effect_direction: false
+  uses_focal_flower_traits: false
+  uses_pollination_guild: false
+  uses_GloBI_channel_assignment: false
+
+waves:
+  genera_per_wave: 500
+  start_wave: 1
+  continue_until:
+    - frozen_N2_dependency_support_coverage_gate_passes
+    - source_genus_universe_exhausted
+  continuation_may_use:
+    - D1_D2_dependency_coverage_counts
+    - number_of_dependency_resolved_genera
+  continuation_must_not_use:
+    - N2_genus_entry_effect
+    - channel_retention_x_dependency_effect
+    - p_value_or_effect_direction
+    - floral_trait_response
+  no_posthoc_target_reordering: true
+
+search_scope:
+  every_selected_genus_is_searched_against_all_five_channels: true
+  evidence_contract: config/chapter1_nee_n2_dependency.yml
+  primary_goal: D1_or_D2_quantitative_functional_dependency
+  D3_can_be_recorded_but_does_not_stop_search: true
+
+claim_boundary: >-
+  Discovery waves prioritize genera with the greatest prespecified source-side opportunity
+  for repeated island contrasts. They do not select genera because those genera entered
+  islands, because a pollinator channel shows an effect, or because a floral trait matches
+  a pollination syndrome.
