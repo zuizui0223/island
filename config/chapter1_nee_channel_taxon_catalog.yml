@@ -5,6 +5,11 @@ status: prospective_pre_N1_catalog
 source_policy:
   primary_source: GloBI_versioned_integrated_interactions
   concept_doi: 10.5281/zenodo.3950589
+  resolved_version_doi: 10.5281/zenodo.20546682
+  version: "0.9"
+  published_date: "2026-06-04"
+  interactions_tsv_sha256: 095e57398420d1e0746e61233c796beedcfb8e03bd0c6a732aa17ae62043bd17
+  refuted_interactions_tsv_sha256: 674e5b069992ab8a7fe98d76d0b9eb531c90c3ca267f434d14aa44a72ebbf8d6
   resolved_version_doi_required: true
   input_sha256_required: true
   live_API_allowed_for_primary: false
