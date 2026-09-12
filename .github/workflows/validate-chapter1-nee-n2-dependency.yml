@@ -1,0 +1,54 @@
+name: Validate Chapter 1 NEE N2 dependency
+
+on:
+  push:
+    branches:
+      - "nee/double-filter-n2-dependency-freeze"
+    paths:
+      - "config/chapter1_nee_n2_dependency.yml"
+      - "src/island_v2/chapter1_nee_n2_dependency.py"
+      - "tests/test_chapter1_nee_n2_dependency.py"
+      - ".github/workflows/validate-chapter1-nee-n2-dependency.yml"
+  pull_request:
+    paths:
+      - "config/chapter1_nee_n2_dependency.yml"
+      - "src/island_v2/chapter1_nee_n2_dependency.py"
+      - "tests/test_chapter1_nee_n2_dependency.py"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-n2-dependency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate prospective dependency and support gates
+        run: |
+          pytest -q tests/test_chapter1_nee_n2_dependency.py
+          ruff check \
+            src/island_v2/chapter1_nee_n2_dependency.py \
+            tests/test_chapter1_nee_n2_dependency.py
+          python -m island_v2.chapter1_nee_n2_dependency --help >/dev/null
+          python - <<'PY'
+          from pathlib import Path
+          from island_v2.chapter1_nee_n2_dependency import load_config
+
+          config=load_config(Path('config/chapter1_nee_n2_dependency.yml'))
+          assert config['status'] == 'prospective_pre_N2_dependency'
+          assert config['primary_evidence']['association_only']['D3_interaction_or_visitation_only']['cannot_promote_primary_N2'] is True
+          assert 'LLM_or_web_pollination_guild_label' in config['prohibited_primary_dependency_evidence']
+          assert config['baker_rival']['never_relabel_as_channel_dependency'] is True
+          gate=config['support_qualification_before_N2_fit']
+          assert gate['minimum_confirmatory_channels'] == 3
+          assert gate['minimum_dependency_resolved_genera_per_eligible_channel'] == 30
+          assert gate['minimum_unique_dependency_resolved_genera_total'] == 150
+          assert gate['minimum_islands_with_retained_state_per_eligible_channel'] == 20
+          assert gate['minimum_islands_with_disrupted_state_per_eligible_channel'] == 20
+          print('N2 dependency contract frozen before N2 outcome inspection')
+          PY
