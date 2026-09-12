@@ -13,6 +13,9 @@ permissions:
 
 jobs:
   prepare-islands:
+    if: >-
+      contains(github.event.head_commit.added, 'data/v2/control/run_nee_gbif_background.trigger') ||
+      contains(github.event.head_commit.modified, 'data/v2/control/run_nee_gbif_background.trigger')
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
