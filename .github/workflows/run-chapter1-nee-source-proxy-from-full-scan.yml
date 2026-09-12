@@ -1,0 +1,172 @@
+name: Build Chapter 1 NEE source proxies from full scan
+
+on:
+  push:
+    branches:
+      - "nee/source-positive-scan-run"
+    paths:
+      - "data/v2/control/run_nee_source_proxy_from_full_scan.trigger"
+      - ".github/workflows/run-chapter1-nee-source-proxy-from-full-scan.yml"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  build-source-proxies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      FULL_SCAN_RUN_ID: "34700705549"
+      SOURCE_ARTIFACT_ID: "9601703747"
+      SOURCE_ARTIFACT_SHA256: "51cff9087a40b76655ff043d59aceabf25800a6029ed005a77b8db30e78345d2"
+      GH_TOKEN: ${{ github.token }}
+      ROOT: /tmp/chapter1-nee-source-proxy
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve projection trigger state
+        id: trigger
+        run: |
+          if test -f data/v2/control/run_nee_source_proxy_from_full_scan.trigger; then
+            echo "active=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "active=false" >> "$GITHUB_OUTPUT"
+            echo "Source-proxy projection trigger absent; no-op run."
+          fi
+      - uses: actions/setup-python@v5
+        if: steps.trigger.outputs.active == 'true'
+        with:
+          python-version: "3.11"
+          cache: pip
+      - if: steps.trigger.outputs.active == 'true'
+        run: pip install -e ".[dev]"
+      - name: Download pinned source assignments and five completed full-scan artifacts
+        if: steps.trigger.outputs.active == 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/source" "$ROOT/states" "$ROOT/output"
+
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${SOURCE_ARTIFACT_ID}/zip" \
+            > "$ROOT/source.zip"
+          echo "$SOURCE_ARTIFACT_SHA256  $ROOT/source.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/source.zip" -d "$ROOT/source"
+          test -f "$ROOT/source/result/island_source_assignments.csv.gz"
+
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/runs/${FULL_SCAN_RUN_ID}/artifacts?per_page=100" \
+            > "$ROOT/full_artifacts.json"
+
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          root=Path(os.environ['ROOT'])
+          run_id=os.environ['FULL_SCAN_RUN_ID']
+          payload=json.loads((root/'full_artifacts.json').read_text())
+          artifacts={item['name']:item for item in payload.get('artifacts',[])}
+          channels=['bombus','non_bombus_bees','lepidoptera','flower_visiting_birds','diptera']
+          expected=[f'chapter1-nee-source-positive-scan-full-{c}-{run_id}' for c in channels]
+          missing=[name for name in expected if name not in artifacts]
+          if missing:
+              raise SystemExit(f'full source-scan artifacts incomplete: {missing}')
+          for channel,name in zip(channels,expected,strict=True):
+              artifact_id=str(artifacts[name]['id'])
+              zip_path=root/f'{channel}.zip'
+              out=root/'states'/channel
+              out.mkdir(parents=True,exist_ok=True)
+              with zip_path.open('wb') as handle:
+                  subprocess.run([
+                      'gh','api','-H','Accept: application/vnd.github+json',
+                      f'/repos/{os.environ["GITHUB_REPOSITORY"]}/actions/artifacts/{artifact_id}/zip',
+                  ],check=True,stdout=handle)
+              subprocess.run(['unzip','-q',str(zip_path),'-d',str(out)],check=True)
+              target=out/f'{channel}_source_entity_states.csv'
+              if not target.exists():
+                  raise SystemExit(f'missing state file: {target}')
+          print({'full_scan_run_id':run_id,'n_channel_artifacts':len(expected)})
+          PY
+      - name: Combine entity states and assert complete 730 x 5 grid
+        if: steps.trigger.outputs.active == 'true'
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import pandas as pd
+
+          root=Path(os.environ['ROOT'])
+          channels=['bombus','non_bombus_bees','lepidoptera','flower_visiting_birds','diptera']
+          tables=[]
+          for channel in channels:
+              table=pd.read_csv(root/'states'/channel/f'{channel}_source_entity_states.csv',dtype=str).fillna('')
+              assert len(table) == 730
+              assert table.entity_ID.nunique() == 730
+              assert table.channel_id.nunique() == 1
+              assert table.channel_id.iloc[0] == channel
+              tables.append(table)
+          combined=pd.concat(tables,ignore_index=True)
+          assert len(combined) == 3650
+          assert not combined[['entity_ID','channel_id']].duplicated().any()
+          assert set(combined.source_state).issubset({'available','unresolved'})
+          assert not (combined.source_state == 'structurally_absent').any()
+          combined.to_csv(root/'entity_channel_source_states.csv',index=False)
+          print({
+              'n_rows':len(combined),
+              'n_entities':combined.entity_ID.nunique(),
+              'n_channels':combined.channel_id.nunique(),
+              'available':int((combined.source_state=='available').sum()),
+              'unresolved':int((combined.source_state=='unresolved').sum()),
+          })
+          PY
+      - name: Aggregate all four frozen source modes
+        if: steps.trigger.outputs.active == 'true'
+        run: |
+          set -euo pipefail
+          for mode in geo_k5 geo_k10 geo_k20 geo50_climate10; do
+            python -m island_v2.chapter1_nee_source_proxy aggregate \
+              --assignments-csv "$ROOT/source/result/island_source_assignments.csv.gz" \
+              --entity-states-csv "$ROOT/entity_channel_source_states.csv" \
+              --output-dir "$ROOT/output/$mode" \
+              --source-mode "$mode"
+          done
+      - name: Assert primary and sensitivity projection boundaries
+        if: steps.trigger.outputs.active == 'true'
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import pandas as pd
+
+          root=Path(os.environ['ROOT'])/'output'
+          modes={'geo_k5':5,'geo_k10':10,'geo_k20':20,'geo50_climate10':10}
+          summary={}
+          for mode,k in modes.items():
+              receipt=json.loads((root/mode/f'{mode}_source_proxy_receipt.json').read_text())
+              table=pd.read_csv(root/mode/f'{mode}_island_channel_source_availability.csv',dtype=str).fillna('')
+              audit=pd.read_csv(root/mode/f'{mode}_source_set_audit.csv',dtype=str).fillna('')
+              assert receipt['n_islands'] == 8265
+              assert receipt['n_rows'] == 8265 * 5
+              assert receipt['expected_k'] == k
+              assert receipt['uses_pollinator_retention_outcomes'] is False
+              assert receipt['uses_focal_plant_traits'] is False
+              assert set(table.source_state).issubset({'available','unresolved'})
+              assert not (table.source_state == 'structurally_absent').any()
+              assert pd.to_numeric(audit.n_selected_entities).eq(k).all()
+              summary[mode]={
+                  'available':int((table.source_state=='available').sum()),
+                  'unresolved':int((table.source_state=='unresolved').sum()),
+              }
+          print(summary)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: steps.trigger.outputs.active == 'true'
+        with:
+          name: chapter1-nee-source-proxies-from-full-scan-${{ github.run_id }}
+          path: |
+            /tmp/chapter1-nee-source-proxy/entity_channel_source_states.csv
+            /tmp/chapter1-nee-source-proxy/output
+          if-no-files-found: error
+          retention-days: 90
