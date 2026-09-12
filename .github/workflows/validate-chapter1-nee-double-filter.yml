@@ -1,0 +1,42 @@
+name: Validate Chapter 1 NEE double-filter contract
+
+on:
+  push:
+    branches:
+      - "nee/**"
+    paths:
+      - "config/chapter1_nee_double_filter.yml"
+      - "src/island_v2/chapter1_nee_contract.py"
+      - "tests/test_chapter1_nee_contract.py"
+      - "docs/chapter1_nee_double_filter_contract.md"
+      - ".github/workflows/validate-chapter1-nee-double-filter.yml"
+  pull_request:
+    paths:
+      - "config/chapter1_nee_double_filter.yml"
+      - "src/island_v2/chapter1_nee_contract.py"
+      - "tests/test_chapter1_nee_contract.py"
+      - "docs/chapter1_nee_double_filter_contract.md"
+      - ".github/workflows/validate-chapter1-nee-double-filter.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-n0:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate prospective contract
+        run: |
+          pytest -q tests/test_chapter1_nee_contract.py
+          ruff check src/island_v2/chapter1_nee_contract.py tests/test_chapter1_nee_contract.py
+          python -m island_v2.chapter1_nee_contract validate \
+            --config config/chapter1_nee_double_filter.yml \
+            --output-json /tmp/chapter1_nee_n0_receipt.json
+          cat /tmp/chapter1_nee_n0_receipt.json
