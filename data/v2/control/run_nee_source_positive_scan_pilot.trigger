@@ -1,0 +1,5 @@
+chapter1_nee_source_positive_scan_v1
+purpose=three-source-entity-smoke-only
+entities=345,346,1384
+channels=bombus,non_bombus_bees,lepidoptera,flower_visiting_birds,diptera
+no_hit_means=unresolved
