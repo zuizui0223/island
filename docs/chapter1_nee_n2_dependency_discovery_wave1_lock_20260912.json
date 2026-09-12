@@ -1,0 +1,72 @@
+{
+  "contract": "chapter1_nee_n2_dependency_discovery_wave1_lock_v1",
+  "status": "wave1_reproduced_pre_dependency_search",
+  "source_artifact": {
+    "workflow_run_id": 32954909953,
+    "artifact_id": 9601703747,
+    "artifact_name": "pr138-source-pool-sensitivity-32954909953",
+    "digest": "sha256:51cff9087a40b76655ff043d59aceabf25800a6029ed005a77b8db30e78345d2"
+  },
+  "wave_run": {
+    "workflow_run_id": 34697055885,
+    "head_sha": "d8e271ef8ea6ee58182f696cf86f7f5191547851",
+    "artifact_id": 10299052432,
+    "artifact_name": "chapter1-nee-n2-discovery-wave1-34697055885",
+    "artifact_digest": "sha256:e49e2ee573ab3bb6efbf78cd0e08523cae18653dff0fee455a11de08f22ada35",
+    "artifact_size_in_bytes": 164763
+  },
+  "receipt": {
+    "primary_source_mode": "geo_k5",
+    "n_islands": 8265,
+    "n_selected_mainland_source_entities": 481,
+    "n_search_eligible_genera": 12143,
+    "n_holdout_genus_tokens": 2,
+    "n_waves": 25,
+    "genera_per_wave": 500,
+    "selected_wave": 1,
+    "n_genera_in_selected_wave": 500,
+    "selected_wave_first_global_rank": 1,
+    "selected_wave_last_global_rank": 500
+  },
+  "ranking_anchors": {
+    "rank_1": {
+      "accepted_genus": "Utricularia",
+      "n_islands_with_source_available_genus": 8248,
+      "n_selected_mainland_source_entities_containing_genus": 370
+    },
+    "rank_500": {
+      "accepted_genus": "Hypolepis",
+      "n_islands_with_source_available_genus": 3516,
+      "n_selected_mainland_source_entities_containing_genus": 113
+    },
+    "rank_501": {
+      "accepted_genus": "Terminalia",
+      "n_islands_with_source_available_genus": 3515,
+      "n_selected_mainland_source_entities_containing_genus": 160
+    }
+  },
+  "holdouts": [
+    {
+      "raw_genus_token": "×",
+      "reason": "hybrid_or_nothogenus_marker",
+      "n_species_rows": 117,
+      "n_selected_mainland_source_entities": 22
+    },
+    {
+      "raw_genus_token": "×Cephalorhiza",
+      "reason": "hybrid_or_nothogenus_marker",
+      "n_species_rows": 1,
+      "n_selected_mainland_source_entities": 1
+    }
+  ],
+  "independence": {
+    "uses_island_realised_flora": false,
+    "uses_island_genus_entry": false,
+    "uses_N1_effect_direction": false,
+    "uses_N2_effect_direction": false,
+    "uses_focal_flower_traits": false,
+    "uses_pollination_guild": false,
+    "dependency_evidence_opened": false,
+    "N2_fitted": false
+  }
+}
