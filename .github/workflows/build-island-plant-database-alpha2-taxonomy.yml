@@ -1,0 +1,188 @@
+name: Build Island Plant Database 2.0 alpha2 taxonomy
+
+on:
+  pull_request:
+    paths:
+      - "src/island_v2/island_plant_database_taxonomy.py"
+      - "src/island_v2/island_plant_database_taxonomy_full.py"
+      - "tests/test_island_plant_database_taxonomy.py"
+      - "tests/test_island_plant_database_taxonomy_full.py"
+      - "data/v2/staging/gbif/collected/island_taxa.csv"
+      - ".github/workflows/build-island-plant-database-alpha2-taxonomy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: island-plant-db-alpha2-taxonomy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Test taxonomy normalization and sharding
+        run: |
+          pytest -q \
+            tests/test_island_plant_database_taxonomy.py \
+            tests/test_island_plant_database_taxonomy_full.py
+      - name: Lint taxonomy implementation
+        run: |
+          ruff check \
+            src/island_v2/island_plant_database_taxonomy.py \
+            src/island_v2/island_plant_database_taxonomy_full.py \
+            tests/test_island_plant_database_taxonomy.py \
+            tests/test_island_plant_database_taxonomy_full.py
+      - name: Verify frozen alpha1 taxonomy source
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          from island_v2.island_plant_database_taxonomy import ALPHA1_TAXA_SUMMARY_SHA256, sha256_file
+
+          path = Path('data/v2/staging/gbif/collected/island_taxa.csv')
+          assert sha256_file(path) == ALPHA1_TAXA_SUMMARY_SHA256
+          frame = pd.read_csv(path, dtype=str)
+          assert len(frame) == 115328
+          assert frame['accepted_species'].nunique() == 115328
+          PY
+
+  segment:
+    needs: qualify
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        segment: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - name: Match segment ${{ matrix.segment }} against production COL XR
+        run: |
+          OUT="data/v2/staging/island_plant_database/alpha2/segment_${{ matrix.segment }}"
+          python -m island_v2.island_plant_database_taxonomy_full segment \
+            --source-taxa data/v2/staging/gbif/collected/island_taxa.csv \
+            --output-dir "$OUT" \
+            --segment-index "${{ matrix.segment }}" \
+            --segment-size 10000 \
+            --batch-size 1000
+      - name: Validate segment receipt
+        run: |
+          SEG="${{ matrix.segment }}"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import pandas as pd
+
+          segment = int(os.environ['SEG'])
+          root = Path(f'data/v2/staging/island_plant_database/alpha2/segment_{segment}')
+          manifest = json.loads((root / f'segment_manifest_segment_{segment:02d}.json').read_text())
+          crosswalk = pd.read_csv(root / f'taxonomy_crosswalk_segment_{segment:02d}.csv.gz', dtype=str).fillna('')
+          expected = 10000 if segment < 11 else 5328
+          assert manifest['segment_index'] == segment
+          assert manifest['segment_rows'] == expected
+          assert len(crosswalk) == expected
+          assert crosswalk['submitted_name'].is_unique
+          assert crosswalk['checklist_key'].nunique() == 1
+          assert (
+              manifest['summary']['n_automatic_resolution_candidates']
+              + manifest['summary']['n_review_required']
+              + manifest['summary']['n_unmatched']
+          ) == expected
+          PY
+        env:
+          SEG: ${{ matrix.segment }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: alpha2-taxonomy-segment-${{ matrix.segment }}-${{ github.run_id }}
+          path: data/v2/staging/island_plant_database/alpha2/segment_${{ matrix.segment }}/
+          if-no-files-found: error
+          retention-days: 90
+
+  combine:
+    needs: segment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - name: Download all successful taxonomy segments
+        uses: actions/download-artifact@v4
+        with:
+          pattern: alpha2-taxonomy-segment-*-${{ github.run_id }}
+          path: data/v2/staging/island_plant_database/alpha2/segments
+          merge-multiple: true
+      - name: Combine full 115,328-name crosswalk
+        run: |
+          python -m island_v2.island_plant_database_taxonomy_full combine \
+            --segments-dir data/v2/staging/island_plant_database/alpha2/segments \
+            --output-dir data/v2/staging/island_plant_database/alpha2/full \
+            --expected-segments 12 \
+            --expected-total 115328
+      - name: Validate full alpha2 taxonomy receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('data/v2/staging/island_plant_database/alpha2/full')
+          manifest = json.loads((root / 'TAXONOMY_MANIFEST.json').read_text())
+          crosswalk = pd.read_csv(root / 'taxonomy_crosswalk.csv.gz', dtype=str).fillna('')
+          review = pd.read_csv(root / 'taxonomy_review_queue.csv.gz', dtype=str).fillna('')
+          summary = manifest['summary']
+          assert manifest['version'] == '2.0.0-alpha2-taxonomy'
+          assert manifest['source_database_version'] == '2.0.0-alpha1'
+          assert manifest['scientific_boundary']['alpha1_mutated'] is False
+          assert len(crosswalk) == 115328
+          assert crosswalk['submitted_name'].is_unique
+          assert len(review) == summary['n_review_required'] + summary['n_unmatched']
+          assert (
+              summary['n_automatic_resolution_candidates']
+              + summary['n_review_required']
+              + summary['n_unmatched']
+          ) == 115328
+          assert crosswalk['checklist_key'].nunique() == 1
+          print(json.dumps(summary, sort_keys=True))
+          PY
+      - name: Upload full alpha2 taxonomy crosswalk
+        uses: actions/upload-artifact@v4
+        with:
+          name: island-plant-database-2.0.0-alpha2-taxonomy-${{ github.run_id }}
+          path: data/v2/staging/island_plant_database/alpha2/full/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Summarize full taxonomy build
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          manifest = json.loads(
+              Path('data/v2/staging/island_plant_database/alpha2/full/TAXONOMY_MANIFEST.json').read_text()
+          )
+          summary = manifest['summary']
+          total = summary['n_input']
+          auto = summary['n_automatic_resolution_candidates']
+          print('## Island Plant Database 2.0 alpha2 taxonomy')
+          print(f'- source provisional taxa: {total:,}')
+          print(f'- automatic-resolution candidates: {auto:,} ({auto / total:.1%})')
+          print(f"- review-required: {summary['n_review_required']:,}")
+          print(f"- unmatched: {summary['n_unmatched']:,}")
+          print('- alpha1 remains frozen; this artifact is a separate taxonomy crosswalk layer.')
+          PY
