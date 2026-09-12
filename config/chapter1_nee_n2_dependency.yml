@@ -1,0 +1,199 @@
+contract: chapter1_nee_n2_dependency_v1
+parent_contracts:
+  - chapter1_nee_double_filter_v1
+  - chapter1_nee_source_proxy_v1
+status: prospective_pre_N2_dependency
+
+purpose: >-
+  Define lineage-by-pollination-channel functional dependency independently of island
+  floral outcomes and independently of the focal Chapter 1 floral architecture traits,
+  before channel-retention x dependency effects are inspected.
+
+channels:
+  - bombus
+  - non_bombus_bees
+  - lepidoptera
+  - flower_visiting_birds
+  - diptera
+
+primary_estimand:
+  symbol: D_g_c
+  scale: 0_to_1
+  interpretation: >-
+    Fraction of effective sexual-reproductive pollination service attributable to the
+    named channel for a source-available plant lineage, represented as an uncertainty
+    distribution rather than a deterministic syndrome label.
+  lineage_unit: source_matched_genus
+  source_specific: true
+  uncertainty_must_be_propagated: true
+  one_species_to_entire_genus_hard_imputation: prohibited
+
+primary_evidence:
+  accepted_designs:
+    D1_channel_exclusion_reproductive_output:
+      role: confirmatory
+      requirement: >-
+        Manipulative exclusion/removal of the focal pollinator channel with a matched
+        open or full-service control and a reproductive output such as compatible pollen
+        receipt, fruit set, seed set, viable seed production, or equivalent realized
+        sexual reproduction.
+      preferred_dependency_estimate: attributable_fraction_1_minus_without_over_full
+    D1_channel_specific_effective_service:
+      role: confirmatory
+      requirement: >-
+        Quantitative partition of effective pollination service by visitor channel using
+        visitation combined with visitor-specific effectiveness, pollen transfer,
+        single-visit fruit/seed response, or another direct effectiveness measure.
+      preferred_dependency_estimate: channel_effective_service_share
+    D2_quantitative_repeated_field_function:
+      role: confirmatory_secondary
+      requirement: >-
+        Repeated quantitative field evidence that attributes realized pollen transfer or
+        reproductive contribution to the named channel, with source citation and enough
+        information to place dependency on a 0-1 scale or retain an interval.
+  association_only:
+    D3_interaction_or_visitation_only:
+      role: sensitivity_only
+      examples:
+        - GloBI interaction presence
+        - visitation network edge
+        - visitor frequency without effectiveness or reproductive contribution
+      cannot_promote_primary_N2: true
+
+prohibited_primary_dependency_evidence:
+  - focal_flower_colour
+  - focal_flower_shape
+  - floral_architecture_score
+  - pollination_syndrome_template
+  - LLM_or_web_pollination_guild_label
+  - pollination_notes_without_direct_functional_measurement
+  - island_trait_response
+  - island_genus_entry_or_absence
+  - channel_retention_or_disruption_state
+  - climate_or_geography_as_dependency_proxy
+  - self_compatibility
+  - mating_system
+  - autonomous_selfing
+
+baker_rival:
+  role: separate_competing_mechanism
+  allowed_inputs:
+    - self_compatibility
+    - mating_system
+    - autonomous_selfing_or_reproductive_assurance
+  never_relabel_as_channel_dependency: true
+  primary_N2_must_add_value_beyond_baker_rival: true
+
+dependency_ledger_schema:
+  required_columns:
+    - plant_species
+    - accepted_genus
+    - channel_id
+    - study_id
+    - evidence_design
+    - evidence_tier
+    - dependency_estimate
+    - dependency_lower
+    - dependency_upper
+    - source_citation
+    - source_url
+    - review_status
+    - evidence_origin
+  allowed_review_status:
+    - accepted
+    - pending
+    - rejected
+  accepted_primary_tiers:
+    - D1
+    - D2
+  sensitivity_only_tiers:
+    - D3
+  dependency_estimate_range:
+    min: 0.0
+    max: 1.0
+  missing_quantitative_estimate_action: unresolved_not_zero
+  duplicated_study_species_channel_action: hard_stop
+
+species_to_genus_propagation:
+  method: hierarchical_or_posterior_draw_propagation
+  source_flora_membership_required: true
+  species_evidence_weighting: study_level_not_row_count
+  preserve_between_species_heterogeneity: true
+  preserve_between_study_heterogeneity: true
+  single_species_genus:
+    allowed_with_uncertainty: true
+    point_imputation_as_exact_genus_value: false
+    required_flag: single_species_dependency_evidence
+  source_specific_genus_dependency: >-
+    For each frozen source proxy, dependency is propagated only from evidenced species
+    that are members of the relevant source flora and genus. Evidence from species not
+    present in the source flora does not deterministically define that source lineage.
+
+N2_primary_model:
+  response: source_available_genus_entry_or_persistence
+  family: binomial_logit_cross_classified
+  focal_term: channel_retention_x_lineage_dependency
+  required_covariates:
+    - plant_source_geography
+    - island_area
+    - frozen_climate_covariates
+    - floristic_status
+    - lineage_propensity
+    - baker_rival_terms_when_available
+  random_or_cross_classified_effects:
+    - island
+    - genus
+  primary_identification_contrast: >-
+    Within-island differential sorting: among source-available lineages exposed to the
+    same island context, genera with higher independently measured dependency on a
+    disrupted channel should show lower entry/persistence than comparable genera when
+    that channel is retained.
+  individual_channel_significance_not_primary_gate: true
+  significant_vs_nonsignificant_is_not_heterogeneity: true
+
+support_qualification_before_N2_fit:
+  minimum_confirmatory_channels: 3
+  minimum_dependency_resolved_genera_per_eligible_channel: 30
+  minimum_unique_dependency_resolved_genera_total: 150
+  minimum_islands_with_retained_state_per_eligible_channel: 20
+  minimum_islands_with_disrupted_state_per_eligible_channel: 20
+  require_both_channel_states_within_primary_support: true
+  D3_cannot_satisfy_primary_support: true
+  qualification_failure_action: stop_primary_N2_do_not_relax_after_outcome_inspection
+
+robustness:
+  source_proxy_primary: geo_k5
+  required_source_proxy_sensitivities:
+    - geo_k10
+    - geo_k20
+    - geo50_climate10
+  leave_one_spatial_block_out: required
+  leave_one_source_context_out: required
+  dependency_posterior_or_imputation_draws: required
+  single_species_dependency_evidence_exclusion: required_sensitivity
+  D1_only: required_sensitivity_if_supported
+  baker_rival_comparison: required
+
+N2_gate:
+  primary_effect: channel_retention_x_lineage_dependency
+  alpha: 0.05
+  required:
+    - support_qualification_pass
+    - stable_interaction_direction_across_dependency_uncertainty_draws
+    - added_value_beyond_plant_source_covariates_and_baker_rival
+    - no_single_region_or_source_context_drives_conclusion
+  failure_action: stop_H5a_no_posthoc_dependency_redefinition
+
+claim_boundary:
+  pass_allows: >-
+    Independently measured pollination-channel retention interacts with independently
+    measured lineage functional dependency to predict differential source-matched genus
+    entry/persistence.
+  pass_does_not_prove:
+    - current_realized_pollination_service_on_each_island
+    - within_lineage_evolution_after_colonization
+    - floral_trait_adaptation_caused_by_a_named_pollinator
+  failure_means: >-
+    The prospective H5a lineage-dependency mechanism is not promoted under the frozen
+    evidence and support rules; the existing H3 genus-assembly conclusion remains the
+    Chapter 1 mechanism ceiling.
