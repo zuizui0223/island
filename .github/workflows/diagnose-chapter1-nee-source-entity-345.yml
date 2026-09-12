@@ -21,45 +21,42 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -e ".[dev]"
-      - name: Diagnose GIFT geometry and GBIF search boundary
+      - name: Verify exact component polygons avoid whole-MultiPolygon HTTP 400
         run: |
           python - <<'PY'
-          import json
           import httpx
           from shapely.geometry import shape
           from island_v2.gbif_blocks import canonical_gbif_polygon, resolve_query_taxon, stable_wkt
 
           entity='345'
           gift=f'https://gift.uni-goettingen.de/geojson/geojson_smaller3.2/{entity}.geojson'
-          channels=[
-              ('bombus','Bombus','GENUS'),
-              ('non_bombus_bees','Hymenoptera','ORDER'),
-              ('lepidoptera','Lepidoptera','ORDER'),
-              ('flower_visiting_birds','Aves','CLASS'),
-              ('diptera','Diptera','ORDER'),
-          ]
           with httpx.Client(timeout=90, follow_redirects=True) as client:
               r=client.get(gift)
-              print('GIFT', r.status_code, 'bytes', len(r.content))
               r.raise_for_status()
-              payload=r.json()
-              geom=canonical_gbif_polygon(shape(payload['features'][0]['geometry']))
-              wkt=stable_wkt(geom)
-              print('geometry_type', geom.geom_type)
-              print('wkt_chars', len(wkt))
-              print('bounds', geom.bounds)
-              print('is_valid', geom.is_valid)
-              print('n_parts', len(getattr(geom,'geoms',[])) if hasattr(geom,'geoms') else 1)
-              for channel,taxon,rank in channels:
-                  resolved=resolve_query_taxon(client,taxon,rank,None,None)
-                  key=str(resolved['usage_key'])
-                  params={'taxon_key':key,'geometry':wkt,'has_coordinate':'true','limit':1,'offset':0}
-                  req=client.build_request('GET','https://api.gbif.org/v1/occurrence/search',params=params)
-                  print('\nCHANNEL',channel,'taxon_key',key,'request_url_chars',len(str(req.url)))
-                  try:
-                      resp=client.send(req)
-                      print('status',resp.status_code,'response_bytes',len(resp.content))
-                      print('body_prefix',resp.text[:1000].replace('\n',' '))
-                  except Exception as exc:
-                      print('exception',type(exc).__name__,repr(exc))
+              geom=canonical_gbif_polygon(shape(r.json()['features'][0]['geometry']))
+              whole=stable_wkt(geom)
+              parts=list(geom.geoms) if geom.geom_type == 'MultiPolygon' else [geom]
+              print('whole_wkt_chars',len(whole),'n_parts',len(parts))
+              resolved=resolve_query_taxon(client,'Bombus','GENUS',None,None)
+              key=str(resolved['usage_key'])
+              whole_req=client.build_request(
+                  'GET','https://api.gbif.org/v1/occurrence/search',
+                  params={'taxon_key':key,'geometry':whole,'has_coordinate':'true','limit':1,'offset':0},
+              )
+              whole_resp=client.send(whole_req)
+              print('whole_status',whole_resp.status_code,'whole_url_chars',len(str(whole_req.url)))
+              assert whole_resp.status_code == 400
+
+              statuses=[]
+              for index,part in enumerate(parts[:10],start=1):
+                  wkt=stable_wkt(part)
+                  req=client.build_request(
+                      'GET','https://api.gbif.org/v1/occurrence/search',
+                      params={'taxon_key':key,'geometry':wkt,'has_coordinate':'true','limit':1,'offset':0},
+                  )
+                  resp=client.send(req)
+                  statuses.append(resp.status_code)
+                  print('part',index,'wkt_chars',len(wkt),'url_chars',len(str(req.url)),'status',resp.status_code)
+              assert statuses and all(status == 200 for status in statuses), statuses
+              print('component_query_strategy_validated=true')
           PY
