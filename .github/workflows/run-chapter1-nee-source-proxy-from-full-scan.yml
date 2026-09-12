@@ -17,18 +17,27 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
-      FULL_SCAN_RUN_ID: "34700705549"
       SOURCE_ARTIFACT_ID: "9601703747"
       SOURCE_ARTIFACT_SHA256: "51cff9087a40b76655ff043d59aceabf25800a6029ed005a77b8db30e78345d2"
       GH_TOKEN: ${{ github.token }}
       ROOT: /tmp/chapter1-nee-source-proxy
     steps:
       - uses: actions/checkout@v4
-      - name: Resolve projection trigger state
+      - name: Resolve projection trigger state and pinned full-scan run
         id: trigger
         run: |
-          if test -f data/v2/control/run_nee_source_proxy_from_full_scan.trigger; then
+          set -euo pipefail
+          trigger=data/v2/control/run_nee_source_proxy_from_full_scan.trigger
+          if test -f "$trigger"; then
+            run_id=$(awk -F= '$1=="full_scan_run_id" {print $2}' "$trigger" | tail -n1 | tr -d '[:space:]')
+            if ! [[ "$run_id" =~ ^[0-9]+$ ]]; then
+              echo "trigger must contain full_scan_run_id=<numeric run id>" >&2
+              exit 1
+            fi
             echo "active=true" >> "$GITHUB_OUTPUT"
+            echo "full_scan_run_id=$run_id" >> "$GITHUB_OUTPUT"
+            echo "FULL_SCAN_RUN_ID=$run_id" >> "$GITHUB_ENV"
+            echo "Pinned full source-scan run: $run_id"
           else
             echo "active=false" >> "$GITHUB_OUTPUT"
             echo "Source-proxy projection trigger absent; no-op run."
