@@ -1,0 +1,71 @@
+schema_version: 1
+database:
+  database_id: global_island_plant_database
+  version: "2.0.0-alpha1"
+  version_status: frozen_alpha
+  primary_object: island_x_taxon
+
+scientific_scope:
+  island_universe:
+    source: GSHHG
+    source_version: "2.3.7"
+    minimum_area_km2: 5
+    islands: 8265
+  taxa:
+    provisional_species_name_identities: 115328
+    taxonomy_status: provisional_name_identity_pending_backbone_resolution
+  candidate_flora:
+    island_taxon_rows: 1039757
+    evidence_rows: 1039757
+    islands_with_exact_occurrence_records: 4549
+    islands_with_species_candidate_records: 4505
+    islands_with_occurrence_but_no_species_candidate: 44
+    membership_status: candidate
+    native_status_inferred: false
+    endemic_status_inferred: false
+    absence_inferred_from_missing_records: false
+
+rights:
+  gbif_downloads: 103
+  candidate_value_release_status: review_required
+  redistributable_candidate_values: false
+  reason: pair-level aggregates do not yet retain constituent GBIF dataset licence lineage
+  island_geometry_release_status: redistributable
+
+canonical_build:
+  repository: zuizui0223/island
+  git_sha: 8a6d3e4b984d019ce18f575e58c59ab9bd31cbbf
+  workflow_run_id: 34665438815
+  workflow_run_number: 9
+  artifact_id: 10288721725
+  artifact_name: island-plant-database-2.0.0-alpha1-34665438815
+  artifact_digest: "sha256:3a5af33e60f9eb4156b94f4d5e0f91cf36fc417ee55074af2c042a1378b28a40"
+  artifact_expires_at_utc: "2026-12-11T01:41:36Z"
+  validation_valid: true
+  files:
+    islands.csv:
+      bytes: 1914494
+      sha256: c2d9bb54db34c005c34ea650c37b2cc01cd6d39beb638a7ea8faeaa6d3d4de1b
+    taxa.csv.gz:
+      bytes: 2596010
+      sha256: 6680a2f100f8389c672290185c24cd3dd5cc58681d027e512f6d9ae9719e6055
+    island_taxa.csv.gz:
+      bytes: 32175229
+      sha256: c5b35d6d684eb1d5aee8d78cc4e5664e3d11e7a655ade1d8cafec7abd4401abf
+    evidence.csv.gz:
+      bytes: 47862562
+      sha256: 21e73023b25c5092e7dc7e1af61b9097c7279d1eb81a839571cd3346a5e137bd
+    RIGHTS_LEDGER.csv:
+      bytes: 22708
+      sha256: fe676224195fb9d74e68826ce6ded1d25670fe619e1cbc210db56420971bbf67
+    DATABASE_MANIFEST.json:
+      bytes: 1738
+      sha256: 5e778b435d813b00efec0e8cf1e45a12fb647ed8163177f9f1ec7e762dd7c63e
+    VALIDATION_REPORT.json:
+      bytes: 232
+      sha256: 9302794cbaad5eb9df083b963fd5deaf8a4328cd74388755e8b8690aa5f7d08e
+
+publication:
+  release_status: not_deposited
+  zenodo_doi: null
+  zenodo_record_url: null
