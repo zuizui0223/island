@@ -1,0 +1,204 @@
+contract: chapter1_nee_double_filter_v1
+status: prospective_preoutcome_qualification
+created_from_issue: 184
+
+parent_freeze:
+  analysis_contract: chapter1_progressive_analysis_v1
+  freeze_document: docs/chapter1_submission_freeze_20260909.md
+  frozen_results:
+    - H1
+    - H2
+    - H3
+    - H4
+  reopen_or_rescue_parent_results: false
+  fallback_if_challenge_fails: retain_frozen_chapter1_claim_ceiling
+
+target_synthesis:
+  journal_challenge: Nature_Ecology_and_Evolution
+  causal_chain: >-
+    geographic isolation -> plant-source filter + pollinator-channel filter x lineage
+    dependency -> genus assembly -> emergent floral/reproductive syndrome
+  primary_missing_arrow: >-
+    independently measured pollinator-side geography explaining source-matched genus
+    entry or persistence through independently measured lineage dependency
+
+N0_qualification:
+  locked_before_N1_outcome_inspection: true
+  outcome_blind_channel_selection: true
+  channel_ontology:
+    unit: taxonomic_functional_channel
+    channels:
+      - bombus
+      - non_bombus_bees
+      - lepidoptera
+      - flower_visiting_birds
+      - diptera
+    no_posthoc_channel_addition_after_N1: true
+    exclusion_allowed_only_for_predeclared_data_quality_failure: true
+    excluded_channels_remain_in_qualification_receipt: true
+    floral_syndrome_scores_are_not_channels: true
+
+  source_availability:
+    source_region_must_be_defined_without_focal_plant_outcomes: true
+    states:
+      - available
+      - structurally_absent
+      - unresolved
+    structural_absence_requires_source_region_evidence: true
+    absence_of_island_records_cannot_define_structural_absence: true
+
+  island_channel_state:
+    states:
+      - retained
+      - disrupted
+      - unresolved
+      - structurally_absent
+    retained_requires_source_available: true
+    disrupted_requires_source_available: true
+    disrupted_requires_adequate_observation_effort: true
+    raw_presence_absence_is_insufficient: true
+    climate_compatibility_alone_is_insufficient: true
+    observation_model_must_separate_detection_from_non_detection: true
+
+  channel_evidence:
+    accepted:
+      - georeferenced_occurrence_with_quality_filters
+      - curated_distribution_record
+      - direct_flower_visitation_record
+      - direct_pollination_interaction_record
+    prohibited:
+      - floral_colour_inference
+      - floral_form_inference
+      - pollination_syndrome_reverse_inference
+      - focal_trait_response_inference
+    preserve_fields:
+      - source
+      - citation_or_dataset_id
+      - taxon_identity
+      - coordinates_or_region
+      - date_or_time_window
+      - observation_effort_or_effort_proxy
+      - quality_flag
+
+  lineage_dependency:
+    target: channel_specific_functional_dependency
+    primary_evidence:
+      - single_visit_effectiveness_by_channel
+      - pollen_transfer_or_seed_set_attributed_to_channel
+      - replicated_pollinator_exclusion_or_access_experiment_with_channel_resolution
+      - curated_effective_pollinator_interaction
+    secondary_evidence:
+      - repeated_direct_visitation_with_channel_identity
+      - literature_primary_pollinator_statement
+      - curated_interaction_database_record
+    prohibited_evidence:
+      - flower_colour
+      - floral_form
+      - tube_depth
+      - floral_symmetry
+      - large_bee_like_score
+      - butterfly_like_score
+      - bird_like_score
+      - chapter1_focal_trait_response
+    reproductive_assurance_role: rival_Baker_filter_not_channel_dependency
+    unresolved_dependency_is_not_zero: true
+    evidence_uncertainty_must_be_propagated: true
+
+  independence_checks:
+    channel_state_must_not_use_focal_plant_traits: true
+    lineage_dependency_must_not_use_focal_plant_traits: true
+    lineage_dependency_must_not_be_imputed_from_pollination_syndrome: true
+    chapter1_pollination_architecture_concordance_is_interpretation_only: true
+
+  model_families:
+    plant_only:
+      id: P
+      predictors:
+        - source_flora
+        - plant_geographic_filter
+        - island_area
+        - climate
+        - floristic_status
+        - lineage_baseline_propensity
+    double_filter:
+      id: DP
+      extends: P
+      additional_term: channel_retention_x_lineage_dependency
+    baker_rival:
+      required: true
+      estimand: isolation_x_reproductive_assurance_on_entry
+
+  heldout_prediction:
+    primary_unit: archipelago_id
+    split: leave_one_archipelago_out
+    missing_primary_unit_policy: hard_stop
+    no_random_island_split_as_primary: true
+    leakage_guards:
+      - all_islands_in_archipelago_share_fold
+      - preprocessing_fit_on_training_fold_only
+      - channel_retention_calibration_fit_on_training_or_external_data_only
+      - dependency_evidence_is_external_to_focal_trait_outcome
+    primary_target: source_available_genus_entry
+    primary_metric: mean_log_loss
+    secondary_metrics:
+      - brier_score
+      - assemblage_bray_curtis
+      - trait_response_vector_error
+    trait_vector_is_secondary_downstream_endpoint: true
+
+N1_pollinator_filter:
+  question: do_channels_have_different_source_conditioned_retention_curves
+  model: >-
+    channel_retention ~ isolation x channel + source_availability + area + climate_habitat
+    + observation_effort + region_spatial_structure
+  required_contrasts:
+    - retained_vs_disrupted_among_source_available_channels
+    - disrupted_vs_structurally_absent
+  gate:
+    requires_nonexchangeable_channel_retention: true
+    source_availability_adjusted: true
+    observation_effort_adjusted: true
+    cannot_pass_on_raw_gbif_richness: true
+  failure_action: stop_before_N2_and_keep_frozen_chapter1
+
+N2_channel_dependent_lineage_filter:
+  primary_estimand: >-
+    source_matched_genus_entry_or_persistence ~ channel_retention x lineage_dependency
+    + plant_source_covariates
+  preferred_design:
+    - cross_classified_island_and_lineage_effects
+    - within_island_differential_lineage_loss
+    - source_matched_candidate_set
+  required_rivals:
+    - plant_only_geographic_filter
+    - Baker_colonization_assurance
+  gate:
+    interaction_must_add_stable_information_beyond_plant_only: true
+    must_survive_dependency_evidence_sensitivity: true
+    must_not_depend_on_posthoc_channel_relabeling: true
+  failure_action: terminate_H5a_no_rescue
+
+N3_heldout_double_filter_prediction:
+  compare:
+    baseline: P
+    candidate: DP
+  primary_endpoint: heldout_source_available_genus_entry
+  secondary_endpoint: emergent_floral_reproductive_response_vector
+  gate:
+    DP_must_improve_primary_metric_out_of_sample: true
+    gain_must_not_be_single_archipelago_driven: true
+    gain_must_not_be_single_channel_driven: true
+    trait_vector_cannot_be_used_to_construct_channel_or_dependency: true
+
+routing:
+  N1_N2_N3_robust: NEE_first_submission
+  N1_N2_strong_N3_weak: Ecology_Letters_or_GEB
+  N1_only: frozen_Chapter1_route
+  N2_fail: frozen_H3_genus_assembly_cause_unidentified
+
+explicit_non_goals:
+  - add_Izu_or_Campanula_field_data_to_Chapter1
+  - require_global_seed_set_data
+  - reopen_trait_campaign_for_percentage_targets
+  - infer_pollinator_identity_from_floral_architecture
+  - pursue_H5b_within_lineage_mechanism_in_this_challenge
