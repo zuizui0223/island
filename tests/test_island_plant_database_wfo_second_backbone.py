@@ -122,11 +122,14 @@ def test_exact_and_synonym_rescue_candidates_are_fail_closed(tmp_path: Path, mon
     assert audit["wfo_rescue_candidate"].tolist() == ["true", "true", "false", "false"]
     assert audit.loc[1, "wfo_accepted_name"] == "Beta new"
     assert audit.loc[1, "wfo_colxr_target_concordance"] == "same_target"
+    assert audit.loc[1, "colxr_species_target_for_comparison"] == "Beta new"
     assert summary["n_wfo_rescue_candidates"] == 2
     assert summary["n_manual_review"] == 2
 
 
-def test_different_colxr_target_and_multiple_wfo_targets_do_not_rescue(tmp_path: Path, monkeypatch) -> None:
+def test_different_colxr_species_target_and_multiple_wfo_targets_do_not_rescue(
+    tmp_path: Path, monkeypatch
+) -> None:
     backbone = tmp_path / "wfo.zip"
     _write_backbone(
         backbone,
@@ -180,6 +183,7 @@ def test_different_colxr_target_and_multiple_wfo_targets_do_not_rescue(tmp_path:
     )
     queue = _queue().iloc[:2].copy()
     queue.loc[0, "candidate_accepted_name"] = "Alpha other"
+    queue.loc[0, "candidate_accepted_rank"] = "SPECIES"
     monkeypatch.setattr(wfo, "EXPECTED_QUEUE_ROWS", 2)
     audit, _ = wfo.audit_queue(queue, backbone)
 
@@ -187,3 +191,67 @@ def test_different_colxr_target_and_multiple_wfo_targets_do_not_rescue(tmp_path:
     assert audit.loc[0, "wfo_rescue_candidate"] == "false"
     assert audit.loc[1, "wfo_resolution_status"] == "ambiguous_exact_name_multiple_species_targets"
     assert audit.loc[1, "wfo_unique_accepted_species_targets"] == 2
+
+
+def test_colxr_higher_rank_does_not_create_false_species_conflict(tmp_path: Path, monkeypatch) -> None:
+    backbone = tmp_path / "wfo.zip"
+    _write_backbone(
+        backbone,
+        [
+            {
+                "taxonID": "wfo-1",
+                "scientificName": "Alpha one",
+                "family": "Alphaaceae",
+                "taxonRank": "species",
+                "taxonomicStatus": "Accepted",
+                "acceptedNameUsageID": "",
+                "kingdom": "Plantae",
+            }
+        ],
+    )
+    queue = _queue().iloc[:1].copy()
+    queue.loc[0, "candidate_accepted_name"] = "Alpha"
+    queue.loc[0, "candidate_accepted_rank"] = "GENUS"
+    monkeypatch.setattr(wfo, "EXPECTED_QUEUE_ROWS", 1)
+    audit, _ = wfo.audit_queue(queue, backbone)
+
+    assert audit.loc[0, "wfo_resolution_status"] == "exact_species_rescue_candidate"
+    assert audit.loc[0, "wfo_colxr_target_concordance"] == "no_colxr_species_target"
+    assert audit.loc[0, "colxr_species_target_for_comparison"] == ""
+
+
+def test_colxr_infraspecific_target_is_compared_at_parent_species(tmp_path: Path, monkeypatch) -> None:
+    backbone = tmp_path / "wfo.zip"
+    _write_backbone(
+        backbone,
+        [
+            {
+                "taxonID": "wfo-1",
+                "scientificName": "Alpha old",
+                "family": "Alphaaceae",
+                "taxonRank": "species",
+                "taxonomicStatus": "Synonym",
+                "acceptedNameUsageID": "wfo-2",
+                "kingdom": "Plantae",
+            },
+            {
+                "taxonID": "wfo-2",
+                "scientificName": "Alpha new",
+                "family": "Alphaaceae",
+                "taxonRank": "species",
+                "taxonomicStatus": "Accepted",
+                "acceptedNameUsageID": "",
+                "kingdom": "Plantae",
+            },
+        ],
+    )
+    queue = _queue().iloc[:1].copy()
+    queue.loc[0, "submitted_name"] = "Alpha old"
+    queue.loc[0, "candidate_accepted_name"] = "Alpha new minor"
+    queue.loc[0, "candidate_accepted_rank"] = "SUBSPECIES"
+    monkeypatch.setattr(wfo, "EXPECTED_QUEUE_ROWS", 1)
+    audit, _ = wfo.audit_queue(queue, backbone)
+
+    assert audit.loc[0, "wfo_resolution_status"] == "exact_species_rescue_candidate"
+    assert audit.loc[0, "colxr_species_target_for_comparison"] == "Alpha new"
+    assert audit.loc[0, "wfo_colxr_target_concordance"] == "same_target"
