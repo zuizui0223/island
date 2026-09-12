@@ -85,18 +85,28 @@ jobs:
           assert len(audit) == 3436
           assert audit['submitted_name'].is_unique
           assert len(rescue) + len(unresolved) == 3436
-          assert len(rescue) == summary['n_wfo_rescue_candidates']
-          assert len(unresolved) == summary['n_manual_review']
-          assert summary['n_wfo_rescue_candidates'] + summary['n_manual_review'] == 3436
+          assert len(rescue) == 347
+          assert len(unresolved) == 3089
+          assert summary['n_wfo_rescue_candidates'] == 347
+          assert summary['n_manual_review'] == 3089
+          assert summary['wfo_rows_scanned'] == 1664014
+          assert summary['wfo_resolution_status_counts'] == {
+              'ambiguous_exact_name_multiple_species_targets': 275,
+              'exact_species_colxr_target_conflict': 323,
+              'exact_species_family_conflict': 13,
+              'exact_species_rescue_candidate': 347,
+              'no_exact_accepted_species_concept': 2478,
+          }
           assert rescue['wfo_rescue_candidate'].eq('true').all()
           assert unresolved['wfo_rescue_candidate'].eq('false').all()
           assert manifest['wfo_release'] == '2026-06'
           assert manifest['wfo_doi'] == '10.5281/zenodo.20782718'
+          assert manifest['wfo_archive_md5'] == '0e4486945cd9f7af548ca87eb9a870ed'
+          assert manifest['wfo_archive_sha256'] == 'ccfc7e3ca85c8b80aa96eb52d4e50e07e1811d28916b544280d8a4f1a043ba72'
           assert manifest['wfo_license'] == 'CC0-1.0'
           assert manifest['scientific_boundary']['taxa_promoted'] == 0
           assert manifest['scientific_boundary']['taxa_removed'] == 0
           assert manifest['scientific_boundary']['fuzzy_matching_used'] is False
-          print(json.dumps(summary, sort_keys=True))
           PY
       - uses: actions/upload-artifact@v4
         with:
