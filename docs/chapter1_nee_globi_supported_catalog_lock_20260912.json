@@ -1,0 +1,48 @@
+{
+  "contract": "chapter1_nee_globi_supported_catalog_lock_v1",
+  "status": "catalog_built_pre_N1",
+  "canonical_workflow_run_id": 34673860959,
+  "canonical_head_sha": "c473d9d9dd352317d5e54852c89ef7d012a4c967",
+  "artifact": {
+    "id": 10291643834,
+    "name": "chapter1-nee-globi-v09-supported-catalog-34673860959",
+    "digest": "sha256:c946e36cd04cb319fc63a5bde90534c1cf3c7f41480fc672638f85f5b2a89b02",
+    "size_in_bytes": 1017431
+  },
+  "source": {
+    "concept_doi": "10.5281/zenodo.3950589",
+    "version_doi": "10.5281/zenodo.20546682",
+    "version": "0.9",
+    "published_date": "2026-06-04",
+    "interactions_sha256": "095e57398420d1e0746e61233c796beedcfb8e03bd0c6a732aa17ae62043bd17",
+    "refuted_interactions_sha256": "674e5b069992ab8a7fe98d76d0b9eb531c90c3ca267f434d14aa44a72ebbf8d6"
+  },
+  "provider_semantics": {
+    "interactions_export_argument_type": "SUPPORTS",
+    "refuted_export_argument_type": "REFUTES",
+    "refuted_archive_role": "contradiction_audit_only",
+    "support_refute_cross_subtraction_applied": false
+  },
+  "counts": {
+    "n_input_interaction_rows": 24577183,
+    "n_retained_flower_interaction_rows": 714785,
+    "n_catalog_taxa": 10179,
+    "n_confirmatory_catalog_taxa": 6928,
+    "holdout_counts": {
+      "plant_side_not_resolved_as_Plantae": 1215095,
+      "pollinator_species_unresolved": 43135
+    }
+  },
+  "channels": {
+    "bombus": {"n_catalog_taxa": 171, "n_confirmatory_taxa": 146},
+    "non_bombus_bees": {"n_catalog_taxa": 3346, "n_confirmatory_taxa": 2206},
+    "lepidoptera": {"n_catalog_taxa": 3490, "n_confirmatory_taxa": 2360},
+    "flower_visiting_birds": {"n_catalog_taxa": 559, "n_confirmatory_taxa": 370},
+    "diptera": {"n_catalog_taxa": 2613, "n_confirmatory_taxa": 1846}
+  },
+  "independence": {
+    "uses_focal_plant_traits": false,
+    "N1_fitted": false,
+    "island_channel_outcomes_opened": false
+  }
+}
