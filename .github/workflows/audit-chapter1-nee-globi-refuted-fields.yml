@@ -1,0 +1,85 @@
+name: Audit Chapter 1 NEE GloBI refuted flower provenance fields
+
+on:
+  push:
+    branches:
+      - "nee/double-filter-globi-v09-run"
+    paths:
+      - ".github/workflows/audit-chapter1-nee-globi-refuted-fields.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-refuted-fields:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      REFUTED_SHA256: "674e5b069992ab8a7fe98d76d0b9eb531c90c3ca267f434d14aa44a72ebbf8d6"
+      REFUTED_PATH: /tmp/refuted-interactions.tsv.gz
+      OUT_PATH: /tmp/globi-refuted-fields-audit.json
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download pinned refuted archive
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output "$REFUTED_PATH" \
+            "https://zenodo.org/records/20546682/files/refuted-interactions.tsv.gz?download=1"
+          echo "$REFUTED_SHA256  $REFUTED_PATH" | sha256sum --check --strict
+      - name: Audit provenance and identity-field completeness
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          import pandas as pd
+
+          accepted={
+            'http://purl.obolibrary.org/obo/RO_0002455',
+            'http://purl.obolibrary.org/obo/RO_0002456',
+            'http://purl.obolibrary.org/obo/RO_0002622',
+            'http://purl.obolibrary.org/obo/RO_0002623',
+          }
+          wanted=[
+            'argumentTypeId','argumentTypeName',
+            'sourceTaxonName','sourceTaxonSpeciesName','sourceTaxonId','sourceOccurrenceId',
+            'interactionTypeId','interactionTypeName',
+            'targetTaxonName','targetTaxonSpeciesName','targetTaxonId','targetOccurrenceId',
+            'referenceCitation','referenceDoi','referenceUrl',
+            'sourceCitation','sourceNamespace','sourceArchiveURI','sourceDOI',
+          ]
+          totals={c:0 for c in wanted}
+          values={c:{} for c in ['argumentTypeName','sourceNamespace']}
+          samples=[]
+          n=0
+          for chunk in pd.read_csv(os.environ['REFUTED_PATH'],sep='\t',compression='gzip',dtype=str,
+                                   usecols=lambda c:c in wanted,chunksize=200000,low_memory=False):
+            sub=chunk.loc[chunk['interactionTypeId'].fillna('').isin(accepted)].fillna('')
+            n += len(sub)
+            for c in wanted:
+              if c in sub.columns:
+                totals[c] += int(sub[c].astype(str).str.strip().ne('').sum())
+            for c in values:
+              if c in sub.columns:
+                vc=sub[c].astype(str).value_counts().head(20)
+                for k,v in vc.items(): values[c][str(k)] = values[c].get(str(k),0)+int(v)
+            if len(samples)<5 and not sub.empty:
+              safe_cols=[c for c in ['argumentTypeId','argumentTypeName','sourceTaxonName','interactionTypeId','targetTaxonName','referenceDoi','sourceNamespace','sourceDOI'] if c in sub.columns]
+              samples.extend(sub[safe_cols].head(5-len(samples)).to_dict('records'))
+          payload={
+            'contract':'chapter1_nee_globi_refuted_fields_audit_v1',
+            'n_accepted_refuted_rows':int(n),
+            'nonblank_counts':totals,
+            'top_values':values,
+            'samples':samples,
+          }
+          Path(os.environ['OUT_PATH']).write_text(json.dumps(payload,indent=2)+'\n')
+          print(json.dumps(payload,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-nee-globi-refuted-fields-audit
+          path: /tmp/globi-refuted-fields-audit.json
+          if-no-files-found: error
+          retention-days: 90
