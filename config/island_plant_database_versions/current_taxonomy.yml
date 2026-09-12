@@ -1,0 +1,78 @@
+schema_version: 1
+database:
+  database_id: global_island_plant_database
+  version: "2.0.0-alpha2-taxonomy"
+  version_status: frozen_alpha_layer
+  layer_type: taxonomy_crosswalk
+  base_database_version: "2.0.0-alpha1"
+
+scientific_scope:
+  source_taxa:
+    provisional_species_name_identities: 115328
+    source_database_version: "2.0.0-alpha1"
+    source_taxa_summary_sha256: c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e
+  taxonomy:
+    authority: Catalogue of Life Extended Release
+    checklist_key: 7ddf754f-d193-4cc9-b351-99906754a03b
+    source_license: CC-BY-4.0
+    match_type_counts:
+      EXACT: 112406
+      HIGHERRANK: 466
+      NONE: 2065
+      VARIANT: 391
+    automatic_resolution_candidates: 111561
+    exact_accepted_candidates: 107439
+    exact_synonym_to_accepted_candidates: 4122
+    review_required: 1702
+    unmatched: 2065
+    review_queue_rows: 3767
+  scientific_boundary:
+    alpha1_mutated: false
+    automatic_results_are_candidates: true
+    review_required_results_promoted: false
+    unmatched_results_promoted: false
+    native_status_inferred: false
+    introduced_status_inferred: false
+    establishment_status_inferred: false
+    endemic_status_inferred: false
+    absence_inferred: false
+
+canonical_build:
+  repository: zuizui0223/island
+  git_sha: 20fd40cbdde3a93519c561c19a851cd1a1e1f4a6
+  workflow_run_id: 34668274725
+  workflow_run_number: 2
+  artifact_id: 10289759727
+  artifact_name: island-plant-database-2.0.0-alpha2-taxonomy-34668274725
+  artifact_digest: "sha256:b46d9be4701c561aa2e53a35a5aa694c5bb83ac618e75f087f35a9337b9f961b"
+  artifact_expires_at_utc: "2026-12-11T02:39:41Z"
+  validation_valid: true
+  segment_count: 12
+  metadata_canonical_sha256: 0d37b729825bb849f0e2a45bbc04748a7906176d270f0b48c2994f5912904b3e
+  files:
+    taxonomy_crosswalk.csv.gz:
+      bytes: 3531151
+      sha256: 079d9c27b0ca3aa51f0c7310f43ad4901b07a319d6063eab5a7d62b291bdd9e3
+    taxonomy_review_queue.csv.gz:
+      bytes: 107322
+      sha256: 66669f60d96e9356e3d7e6ad6b803de9a15b60be608443e7694b0eee600828bf
+    gbif_colxr_metadata.json:
+      bytes: 10612
+      sha256: a80dfd4980c0262e7b7d3ac462dcf2a1978744437202f2b0bbd0fbf15fbf8cd9
+    TAXONOMY_MANIFEST.json:
+      bytes: 1425
+      sha256: d534aab496caf9f9ca230548eb7343c8d5205eb7c36a80386a42c04147c55db1
+
+reproducibility_check:
+  independent_pr_build:
+    workflow_run_id: 34667780773
+    artifact_id: 10289900308
+    artifact_name: island-plant-database-2.0.0-alpha2-taxonomy-34667780773
+    artifact_digest: "sha256:b0047b6c43486063d4bed9d292346370fc08cb0b2b7cc00236bf2ede17ff925c"
+  scientific_files_byte_identical_to_canonical: true
+  repeated_live_api_summary_identical: true
+
+publication:
+  release_status: not_deposited
+  zenodo_doi: null
+  zenodo_record_url: null
