@@ -3,7 +3,7 @@ name: Validate Chapter 1 NEE source positive scan
 on:
   push:
     branches:
-      - "nee/double-filter-source-positive-scan"
+      - "nee/source-positive-scan-run"
     paths:
       - "config/chapter1_nee_source_positive_scan.yml"
       - "src/island_v2/chapter1_nee_source_positive_scan.py"
@@ -36,19 +36,49 @@ jobs:
             src/island_v2/chapter1_nee_source_positive_scan.py \
             tests/test_chapter1_nee_source_positive_scan.py
           python -m island_v2.chapter1_nee_source_positive_scan --help >/dev/null
-      - name: Smoke-test frozen GIFT geometry and GBIF taxon resolution only
+      - name: Validate frozen exact-component contract
+        run: |
+          python - <<'PY'
+          import yaml
+
+          config=yaml.safe_load(open('config/chapter1_nee_source_positive_scan.yml'))
+          geometry=config['source_geometry']
+          search=config['GBIF_search']
+          assert geometry['multipolygon_query_strategy'] == 'exact_component_polygons'
+          assert geometry['component_order'] == 'area_desc_then_stable_wkt'
+          assert geometry['geometry_simplification_allowed'] is False
+          assert geometry['component_record_budget_shared_across_entity_channel'] is True
+          assert search['page_size'] == 300
+          assert search['max_pages_per_entity_channel'] == 3
+          assert search['max_records_examined_per_entity_channel'] == 900
+          assert config['no_hit_policy']['state'] == 'unresolved'
+          assert config['no_hit_policy']['never_structurally_absent'] is True
+          print('Exact component source-scan contract validated')
+          PY
+      - name: Smoke-test entity 345 exact component GBIF transport
         run: |
           python - <<'PY'
           import httpx
           import yaml
-          from island_v2.chapter1_nee_source_positive_scan import gift_entity_wkt
+          from island_v2.chapter1_nee_source_positive_scan import gift_entity_query_wkts
           from island_v2.gbif_blocks import resolve_query_taxon
 
           config=yaml.safe_load(open('config/chapter1_nee_source_positive_scan.yml'))
           with httpx.Client(timeout=90,follow_redirects=True,headers={'User-Agent':'island-v2/nee-source-scan-smoke'}) as client:
-              wkt=gift_entity_wkt(client,'12605',config)
-              assert wkt.startswith(('POLYGON','MULTIPOLYGON'))
-              taxon=resolve_query_taxon(client,'Lepidoptera','ORDER',None,None)
-              assert str(taxon.get('usage_key','')).strip()
-          print({'gift_entity':'12605','geometry_ok':True,'gbif_taxon':'Lepidoptera','taxon_key':taxon['usage_key']})
+              wkts=gift_entity_query_wkts(client,'345',config)
+              assert len(wkts) == 72
+              assert all(wkt.startswith('POLYGON') for wkt in wkts)
+              taxon=resolve_query_taxon(client,'Bombus','GENUS',None,None)
+              response=client.get(
+                  config['GBIF_search']['endpoint'],
+                  params={
+                      'taxon_key':str(taxon['usage_key']),
+                      'geometry':wkts[0],
+                      'has_coordinate':'true',
+                      'limit':1,
+                      'offset':0,
+                  },
+              )
+              response.raise_for_status()
+          print({'gift_entity':'345','n_exact_components':len(wkts),'first_component_status':response.status_code})
           PY
