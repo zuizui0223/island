@@ -72,9 +72,11 @@ jobs:
               'max-parallel: 10',
               'sorted_unique_frozen_GSHHG_island_id_index_mod_20',
               'partition_before_source_state_filter',
-              'chapter1-nee-island-search-observation-${{ matrix.channel }}-${{ github.run_id }}',
+              'chapter1-nee-island-search-observation-',
+              'matrix.channel',
+              'github.run_id',
               'max_records_per_island_channel',
-              "assert len(paths) != 20".replace('assert ','') if False else "if len(paths) != 20",
+              'if len(paths) != 20',
           ]
           for token in required:
               assert token in text, token
