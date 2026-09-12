@@ -81,6 +81,15 @@ jobs:
           assert serial['run_id'] == '34700705549'
           assert serial['role'] == 'transport_diagnostic_only'
           assert serial['may_union_positive_hits_with_canonical_run'] is False
+          infra=lock['infrastructure_failure_policy']
+          assert infra['frozen_before_canonical_scan_completed'] is True
+          assert infra['whole_job_retry_allowed_only_if_no_artifact_was_emitted'] is True
+          assert infra['maximum_whole_job_retries'] == 1
+          assert infra['retry_must_use_same_code_and_inputs'] is True
+          assert infra['retry_must_use_same_73_entities'] is True
+          assert infra['retry_must_use_same_900_record_cap'] is True
+          assert infra['partial_output_union_forbidden'] is True
+          assert infra['row_level_retry_for_unresolved_or_query_error_forbidden'] is True
           assert lock['post_run_policy']['do_not_rerun_entities_to_increase_available_count'] is True
           assert lock['post_run_policy']['do_not_union_equivalent_runs_for_primary_source_state'] is True
 
