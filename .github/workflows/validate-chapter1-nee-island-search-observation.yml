@@ -9,12 +9,14 @@ on:
       - "src/island_v2/chapter1_nee_island_search_observation.py"
       - "tests/test_chapter1_nee_island_search_observation.py"
       - ".github/workflows/validate-chapter1-nee-island-search-observation.yml"
+      - ".github/workflows/run-chapter1-nee-island-search-observations.yml"
   pull_request:
     paths:
       - "config/chapter1_nee_island_search_acquisition.yml"
       - "src/island_v2/chapter1_nee_island_search_observation.py"
       - "tests/test_chapter1_nee_island_search_observation.py"
       - ".github/workflows/validate-chapter1-nee-island-search-observation.yml"
+      - ".github/workflows/run-chapter1-nee-island-search-observations.yml"
 
 permissions:
   contents: read
@@ -67,4 +69,27 @@ jobs:
           assert len(resolved['flower_visiting_birds']) == 1
           assert len(resolved['diptera']) == 1
           print({channel:[name for name,_ in rows] for channel,rows in resolved.items()})
+          PY
+      - name: Guard production workflow from outcome leakage and credential dependence
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text=Path('.github/workflows/run-chapter1-nee-island-search-observations.yml').read_text()
+          forbidden=[
+              'GBIF_USERNAME',
+              'GBIF_PASSWORD',
+              'OPENAI_API_KEY',
+              'trait_snapshot',
+              'floral_trait',
+              'N1_fitted=true',
+              'fit N1',
+          ]
+          hits=[value for value in forbidden if value in text]
+          assert not hits, f'production Search workflow contains forbidden dependencies: {hits}'
+          assert 'source_proxy_run_id' in text
+          assert 'geo_k5_island_channel_source_availability.csv' in text
+          assert 'island-v2-gshhg build' in text
+          assert '--channel-id "$CHANNEL"' in text
+          assert "adequate_non_detection_requires_exhaustive_search" in text
+          print('Production Search workflow is credential-independent and pre-N1')
           PY
