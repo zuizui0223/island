@@ -7,15 +7,19 @@ on:
     paths:
       - "src/island_v2/chapter1_nee_gbif_channel_collect.py"
       - "src/island_v2/chapter1_nee_background_filter.py"
+      - "config/chapter1_nee_gbif_background_acquisition.yml"
       - "tests/test_chapter1_nee_gbif_channel_collect.py"
       - "tests/test_chapter1_nee_background_filter.py"
+      - "tests/test_chapter1_nee_gbif_background_acquisition.py"
       - ".github/workflows/validate-chapter1-nee-gbif-channel-collector.yml"
   pull_request:
     paths:
       - "src/island_v2/chapter1_nee_gbif_channel_collect.py"
       - "src/island_v2/chapter1_nee_background_filter.py"
+      - "config/chapter1_nee_gbif_background_acquisition.yml"
       - "tests/test_chapter1_nee_gbif_channel_collect.py"
       - "tests/test_chapter1_nee_background_filter.py"
+      - "tests/test_chapter1_nee_gbif_background_acquisition.py"
       - ".github/workflows/validate-chapter1-nee-gbif-channel-collector.yml"
 
 permissions:
@@ -35,11 +39,13 @@ jobs:
         run: |
           pytest -q \
             tests/test_chapter1_nee_gbif_channel_collect.py \
-            tests/test_chapter1_nee_background_filter.py
+            tests/test_chapter1_nee_background_filter.py \
+            tests/test_chapter1_nee_gbif_background_acquisition.py
           ruff check \
             src/island_v2/chapter1_nee_gbif_channel_collect.py \
             src/island_v2/chapter1_nee_background_filter.py \
             tests/test_chapter1_nee_gbif_channel_collect.py \
-            tests/test_chapter1_nee_background_filter.py
+            tests/test_chapter1_nee_background_filter.py \
+            tests/test_chapter1_nee_gbif_background_acquisition.py
           python -m island_v2.chapter1_nee_gbif_channel_collect --help >/dev/null
           python -m island_v2.chapter1_nee_background_filter --help >/dev/null
