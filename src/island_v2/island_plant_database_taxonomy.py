@@ -1,6 +1,6 @@
 """Versioned taxonomy-normalization layer for Island Plant Database 2.0.
 
-This module never mutates the frozen alpha1 candidate-flora tables.  It matches
+This module never mutates the frozen alpha1 candidate-flora tables. It matches
 provisional species-name identities against GBIF's current v2 matcher using the
 Catalogue of Life Extended Release (COL XR) and emits an auditable crosswalk.
 """
@@ -40,6 +40,7 @@ OUTPUT_COLUMNS = [
     "candidate_accepted_authorship",
     "candidate_accepted_status",
     "candidate_accepted_rank",
+    "accepted_target_basis",
     "candidate_genus",
     "candidate_family",
     "candidate_kingdom",
@@ -101,8 +102,6 @@ def deterministic_pilot(frame: pd.DataFrame, n: int) -> pd.DataFrame:
         raise ValueError("pilot size must be positive")
     if n >= len(frame):
         return frame.copy()
-    # Evenly span the alphabetically stable full table rather than taking an
-    # alphabetically biased prefix.
     positions = [(i * len(frame)) // n for i in range(n)]
     return frame.iloc[positions].reset_index(drop=True)
 
@@ -137,7 +136,8 @@ def normalize_match(
     usage = result.get("usage") or {}
     diagnostics = result.get("diagnostics") or {}
     synonym = bool(result.get("synonym", False))
-    accepted = result.get("acceptedUsage") or (usage if not synonym else {})
+    accepted_usage = result.get("acceptedUsage") or {}
+    accepted = accepted_usage or (usage if not synonym else {})
     match_type = _text(diagnostics.get("matchType")).upper() or "NONE"
     confidence_raw = diagnostics.get("confidence")
     confidence = int(confidence_raw) if confidence_raw is not None else 0
@@ -146,6 +146,14 @@ def normalize_match(
 
     target_rank = _text(accepted.get("rank")).upper()
     target_status = _text(accepted.get("status")).upper()
+    matched_status = _text(usage.get("status")).upper()
+    # In production v2 responses, acceptedUsage for an exact synonym can omit
+    # its own status. The acceptedUsage field is itself the API's pointer to the
+    # accepted concept, so its presence is sufficient only when the matched
+    # usage is explicitly SYNONYM. We retain the raw blank target status.
+    target_is_accepted = target_status == "ACCEPTED" or bool(
+        synonym and accepted_usage and matched_status == "SYNONYM"
+    )
     automatic = bool(
         usage
         and accepted
@@ -154,7 +162,7 @@ def normalize_match(
         and not flags
         and not issues
         and target_rank == "SPECIES"
-        and target_status == "ACCEPTED"
+        and target_is_accepted
         and _classification_value(result, "KINGDOM").casefold() == "plantae"
     )
 
@@ -186,6 +194,7 @@ def normalize_match(
         "candidate_accepted_authorship": _text(accepted.get("authorship")),
         "candidate_accepted_status": _text(accepted.get("status")),
         "candidate_accepted_rank": _text(accepted.get("rank")),
+        "accepted_target_basis": "acceptedUsage" if accepted_usage else ("usage" if accepted else ""),
         "candidate_genus": _classification_value(result, "GENUS"),
         "candidate_family": _classification_value(result, "FAMILY"),
         "candidate_kingdom": _classification_value(result, "KINGDOM"),
@@ -333,8 +342,9 @@ def pilot(
         "source_license": SOURCE_LICENSE,
         "promotion_policy": (
             "No alpha1 taxon is mutated. Only EXACT, confidence>=95, flag-free, "
-            "species-rank Plantae matches to ACCEPTED concepts are automatic-resolution candidates; "
-            "all other matches remain review-required or unmatched."
+            "species-rank Plantae matches to accepted concepts are automatic-resolution candidates; "
+            "for a matched SYNONYM, the v2 acceptedUsage field is the accepted target even when "
+            "its optional status field is absent. All other matches remain review-required or unmatched."
         ),
         "summary": summary,
     }
