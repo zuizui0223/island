@@ -8,6 +8,14 @@ on:
       - "tests/test_island_plant_database_taxonomy.py"
       - "tests/test_island_plant_database_taxonomy_full.py"
       - "data/v2/staging/gbif/collected/island_taxa.csv"
+  push:
+    branches: [main]
+    paths:
+      - "src/island_v2/island_plant_database_taxonomy.py"
+      - "src/island_v2/island_plant_database_taxonomy_full.py"
+      - "tests/test_island_plant_database_taxonomy.py"
+      - "tests/test_island_plant_database_taxonomy_full.py"
+      - "data/v2/staging/gbif/collected/island_taxa.csv"
       - ".github/workflows/build-island-plant-database-alpha2-taxonomy.yml"
   workflow_dispatch:
 
