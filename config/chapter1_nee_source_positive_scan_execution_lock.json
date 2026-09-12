@@ -46,6 +46,22 @@
     "may_union_positive_hits_with_canonical_run": false,
     "may_rescue_canonical_unresolved_states": false
   },
+  "infrastructure_failure_policy": {
+    "frozen_before_canonical_scan_completed": true,
+    "whole_job_retry_allowed_only_if_no_artifact_was_emitted": true,
+    "eligible_failure_classes": [
+      "GitHub_Actions_job_timeout",
+      "runner_infrastructure_failure"
+    ],
+    "maximum_whole_job_retries": 1,
+    "retry_must_use_same_canonical_run_attempt_mechanism": true,
+    "retry_must_use_same_code_and_inputs": true,
+    "retry_must_use_same_73_entities": true,
+    "retry_must_use_same_900_record_cap": true,
+    "partial_output_union_forbidden": true,
+    "row_level_retry_for_unresolved_or_query_error_forbidden": true,
+    "purpose": "permit recovery of a missing artifact from infrastructure failure without selecting or improving biological outcomes"
+  },
   "post_run_policy": {
     "do_not_rerun_entities_to_increase_available_count": true,
     "do_not_union_equivalent_runs_for_primary_source_state": true,
