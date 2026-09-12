@@ -1,0 +1,100 @@
+name: Run Chapter 1 NEE N2 discovery Wave 1
+
+on:
+  push:
+    branches:
+      - "nee/n2-dependency-wave-generator"
+    paths:
+      - "data/v2/control/run_nee_n2_discovery_wave1.trigger"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  build-wave1:
+    if: ${{ hashFiles('data/v2/control/run_nee_n2_discovery_wave1.trigger') != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ARTIFACT_ID: "9601703747"
+      ARTIFACT_SHA256: "51cff9087a40b76655ff043d59aceabf25800a6029ed005a77b8db30e78345d2"
+      INPUT_ZIP: /tmp/pr138-source-pool-sensitivity.zip
+      INPUT_DIR: /tmp/pr138-source-pool-sensitivity
+      OUT_DIR: /tmp/n2-discovery-wave1
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Download exact frozen PR138 source artifact
+        run: |
+          set -euo pipefail
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            > "$INPUT_ZIP"
+          echo "$ARTIFACT_SHA256  $INPUT_ZIP" | sha256sum --check --strict
+          mkdir -p "$INPUT_DIR"
+          unzip -q "$INPUT_ZIP" -d "$INPUT_DIR"
+          test -f "$INPUT_DIR/result/island_source_assignments.csv.gz"
+          test -f "$INPUT_DIR/source/gift_native_mainland_flora.csv.gz"
+      - name: Build outcome-blind ranked genus universe and Wave 1
+        run: |
+          set -euo pipefail
+          python -m island_v2.chapter1_nee_n2_discovery \
+            --source-assignments-csv "$INPUT_DIR/result/island_source_assignments.csv.gz" \
+            --source-flora-csv "$INPUT_DIR/source/gift_native_mainland_flora.csv.gz" \
+            --output-dir "$OUT_DIR" \
+            --wave-number 1
+          cat "$OUT_DIR/n2_dependency_discovery_receipt.json"
+      - name: Assert frozen real-data ranking receipt
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import pandas as pd
+
+          root=Path(os.environ['OUT_DIR'])
+          receipt=json.loads((root/'n2_dependency_discovery_receipt.json').read_text())
+          ranked=pd.read_csv(root/'n2_dependency_discovery_ranked_universe.csv')
+          wave=pd.read_csv(root/'n2_dependency_discovery_wave_001.csv')
+          holdouts=pd.read_csv(root/'n2_dependency_discovery_genus_holdouts.csv')
+
+          assert receipt['status'] == 'ranked_source_opportunity_universe_built_pre_dependency_search'
+          assert receipt['n_islands'] == 8265
+          assert receipt['n_selected_mainland_source_entities'] == 481
+          assert receipt['n_search_eligible_genera'] == 12143
+          assert receipt['n_holdout_genus_tokens'] == 2
+          assert receipt['n_waves'] == 25
+          assert receipt['n_genera_in_selected_wave'] == 500
+          assert receipt['dependency_evidence_opened'] is False
+          assert receipt['uses_island_genus_entry'] is False
+          assert receipt['uses_N1_effect_direction'] is False
+          assert receipt['uses_N2_effect_direction'] is False
+          assert receipt['N2_fitted'] is False
+
+          assert ranked.iloc[0].accepted_genus == 'Utricularia'
+          assert int(ranked.iloc[0].n_islands_with_source_available_genus) == 8248
+          assert ranked.iloc[499].accepted_genus == 'Hypolepis'
+          assert int(ranked.iloc[499].n_islands_with_source_available_genus) == 3516
+          assert ranked.iloc[500].accepted_genus == 'Terminalia'
+          assert int(ranked.iloc[500].n_islands_with_source_available_genus) == 3515
+          assert len(wave) == 500
+          assert set(holdouts.raw_genus_token.astype(str)) == {'×', '×Cephalorhiza'}
+          print('Frozen PR138 source opportunity reproduces deterministic N2 Wave 1')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-nee-n2-discovery-wave1-${{ github.run_id }}
+          path: |
+            /tmp/n2-discovery-wave1/n2_dependency_discovery_ranked_universe.csv
+            /tmp/n2-discovery-wave1/n2_dependency_discovery_wave_001.csv
+            /tmp/n2-discovery-wave1/n2_dependency_discovery_genus_holdouts.csv
+            /tmp/n2-discovery-wave1/n2_dependency_discovery_receipt.json
+          if-no-files-found: error
+          retention-days: 90
