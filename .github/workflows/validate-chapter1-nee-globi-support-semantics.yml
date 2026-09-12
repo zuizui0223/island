@@ -1,0 +1,37 @@
+name: Validate Chapter 1 NEE GloBI support semantics
+
+on:
+  push:
+    branches:
+      - "nee/globi-support-refute-semantics"
+    paths:
+      - "config/chapter1_nee_channel_taxon_catalog.yml"
+      - "src/island_v2/chapter1_nee_channel_catalog_supported.py"
+      - "tests/test_chapter1_nee_globi_support_semantics.py"
+      - ".github/workflows/validate-chapter1-nee-globi-support-semantics.yml"
+  pull_request:
+    paths:
+      - "config/chapter1_nee_channel_taxon_catalog.yml"
+      - "src/island_v2/chapter1_nee_channel_catalog_supported.py"
+      - "tests/test_chapter1_nee_globi_support_semantics.py"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-support-semantics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Test provider SUPPORTS/REFUTES boundary
+        run: |
+          pytest -q tests/test_chapter1_nee_globi_support_semantics.py
+          ruff check \
+            src/island_v2/chapter1_nee_channel_catalog_supported.py \
+            tests/test_chapter1_nee_globi_support_semantics.py
+          python -m island_v2.chapter1_nee_channel_catalog_supported --help >/dev/null
