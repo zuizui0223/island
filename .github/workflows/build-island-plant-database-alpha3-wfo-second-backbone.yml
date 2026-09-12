@@ -1,0 +1,102 @@
+name: Build Island Plant Database 2.0 alpha3 WFO second backbone
+
+on:
+  pull_request:
+    paths:
+      - "src/island_v2/island_plant_database_wfo_second_backbone.py"
+      - "tests/test_island_plant_database_wfo_second_backbone.py"
+      - ".github/workflows/build-island-plant-database-alpha3-wfo-second-backbone.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit-wfo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Test and lint WFO audit logic
+        run: |
+          pytest -q tests/test_island_plant_database_wfo_second_backbone.py
+          ruff check \
+            src/island_v2/island_plant_database_wfo_second_backbone.py \
+            tests/test_island_plant_database_wfo_second_backbone.py
+      - name: Download canonical alpha2 taxonomy artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: island-plant-database-2.0.0-alpha2-taxonomy-34668274725
+          path: data/v2/staging/island_plant_database/alpha2/canonical
+          repository: zuizui0223/island
+          run-id: 34668274725
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Rebuild deterministic alpha3 triage input
+        run: |
+          python -m island_v2.island_plant_database_taxonomy_triage \
+            --review-queue data/v2/staging/island_plant_database/alpha2/canonical/taxonomy_review_queue.csv.gz \
+            --output-dir data/v2/staging/island_plant_database/alpha3/triage
+          python - <<'PY'
+          import pandas as pd
+          path = 'data/v2/staging/island_plant_database/alpha3/triage/second_backbone_queue.csv.gz'
+          frame = pd.read_csv(path, dtype=str).fillna('')
+          assert len(frame) == 3436
+          assert frame['submitted_name'].is_unique
+          assert frame['second_backbone_eligible'].eq('true').all()
+          PY
+      - name: Download WFO Plant List 2026-06 backbone
+        run: |
+          mkdir -p data/v2/external/taxonomy/wfo_2026_06
+          curl -L --fail --retry 5 --retry-all-errors \
+            --connect-timeout 30 --max-time 900 \
+            -A "island-plant-database/2.0 taxonomy-audit" \
+            -o data/v2/external/taxonomy/wfo_2026_06/_DwC_backbone_R.zip \
+            "https://zenodo.org/records/20782718/files/_DwC_backbone_R.zip?download=1"
+          echo "0e4486945cd9f7af548ca87eb9a870ed  data/v2/external/taxonomy/wfo_2026_06/_DwC_backbone_R.zip" | md5sum -c -
+      - name: Run exact-only WFO second-backbone audit
+        run: |
+          python -m island_v2.island_plant_database_wfo_second_backbone \
+            --queue data/v2/staging/island_plant_database/alpha3/triage/second_backbone_queue.csv.gz \
+            --wfo-zip data/v2/external/taxonomy/wfo_2026_06/_DwC_backbone_R.zip \
+            --output-dir data/v2/staging/island_plant_database/alpha3/wfo_second_backbone
+      - name: Validate WFO audit receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('data/v2/staging/island_plant_database/alpha3/wfo_second_backbone')
+          manifest = json.loads((root / 'WFO_SECOND_BACKBONE_MANIFEST.json').read_text())
+          audit = pd.read_csv(root / 'wfo_second_backbone_audit.csv.gz', dtype=str).fillna('')
+          rescue = pd.read_csv(root / 'wfo_rescue_candidates.csv.gz', dtype=str).fillna('')
+          unresolved = pd.read_csv(root / 'wfo_unresolved_queue.csv.gz', dtype=str).fillna('')
+          summary = manifest['summary']
+
+          assert len(audit) == 3436
+          assert audit['submitted_name'].is_unique
+          assert len(rescue) + len(unresolved) == 3436
+          assert len(rescue) == summary['n_wfo_rescue_candidates']
+          assert len(unresolved) == summary['n_manual_review']
+          assert summary['n_wfo_rescue_candidates'] + summary['n_manual_review'] == 3436
+          assert rescue['wfo_rescue_candidate'].eq('true').all()
+          assert unresolved['wfo_rescue_candidate'].eq('false').all()
+          assert manifest['wfo_release'] == '2026-06'
+          assert manifest['wfo_doi'] == '10.5281/zenodo.20782718'
+          assert manifest['wfo_license'] == 'CC0-1.0'
+          assert manifest['scientific_boundary']['taxa_promoted'] == 0
+          assert manifest['scientific_boundary']['taxa_removed'] == 0
+          assert manifest['scientific_boundary']['fuzzy_matching_used'] is False
+          print(json.dumps(summary, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: island-plant-database-2.0.0-alpha3-wfo-second-backbone-${{ github.run_id }}
+          path: data/v2/staging/island_plant_database/alpha3/wfo_second_backbone/
+          if-no-files-found: error
+          retention-days: 90
