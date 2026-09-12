@@ -38,7 +38,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build deterministic review triage
         run: |
-          python -m island_v2.island_plant_database_taxonomy_triage build \
+          python -m island_v2.island_plant_database_taxonomy_triage \
             --review-queue data/v2/staging/island_plant_database/alpha2/canonical/taxonomy_review_queue.csv.gz \
             --output-dir data/v2/staging/island_plant_database/alpha3/triage
       - name: Validate empirical triage receipt
