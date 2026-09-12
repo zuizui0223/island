@@ -1,0 +1,123 @@
+name: Pilot Island Plant Database alpha2 taxonomy
+
+on:
+  pull_request:
+    paths:
+      - "src/island_v2/island_plant_database_taxonomy.py"
+      - "tests/test_island_plant_database_taxonomy.py"
+      - "docs/ISLAND_PLANT_DATABASE_ALPHA2_TAXONOMY.md"
+      - ".github/workflows/pilot-island-plant-database-taxonomy.yml"
+  workflow_dispatch:
+    inputs:
+      pilot_size:
+        description: "Number of evenly spaced provisional taxa to match."
+        required: false
+        default: "512"
+
+permissions:
+  contents: read
+
+jobs:
+  pilot-colxr:
+    runs-on: ubuntu-latest
+    env:
+      SOURCE_TAXA: data/v2/staging/gbif/collected/island_taxa.csv
+      EXPECTED_SOURCE_SHA256: c0586264d9a877b88c26e866264f2c77b20423cd93380a8eebe269582d53352e
+      PILOT_SIZE: ${{ inputs.pilot_size || '512' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Test taxonomy normalization logic
+        run: |
+          pytest -q tests/test_island_plant_database_taxonomy.py
+          ruff check \
+            src/island_v2/island_plant_database_taxonomy.py \
+            tests/test_island_plant_database_taxonomy.py
+
+      - name: Verify frozen alpha1 taxonomy source
+        run: |
+          actual="$(sha256sum "$SOURCE_TAXA" | awk '{print $1}')"
+          test "$actual" = "$EXPECTED_SOURCE_SHA256" || {
+            echo "alpha1 taxonomy source SHA mismatch: $actual" >&2
+            exit 2
+          }
+          python - <<'PY'
+          import pandas as pd
+          path = 'data/v2/staging/gbif/collected/island_taxa.csv'
+          frame = pd.read_csv(path, dtype=str).fillna('')
+          assert len(frame) == 115328, len(frame)
+          assert frame['accepted_species'].is_unique
+          PY
+
+      - name: Match deterministic pilot against current COL XR
+        run: |
+          rm -rf data/v2/curated/island_plant_database/alpha2_taxonomy_pilot
+          python -m island_v2.island_plant_database_taxonomy pilot \
+            --source-taxa "$SOURCE_TAXA" \
+            --output-dir data/v2/curated/island_plant_database/alpha2_taxonomy_pilot \
+            --pilot-size "$PILOT_SIZE" \
+            --batch-size 512 \
+            --expected-source-sha256 "$EXPECTED_SOURCE_SHA256"
+
+      - name: Validate live pilot receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('data/v2/curated/island_plant_database/alpha2_taxonomy_pilot')
+          manifest = json.loads((root / 'TAXONOMY_PILOT_MANIFEST.json').read_text())
+          metadata = json.loads((root / 'gbif_colxr_metadata.json').read_text())
+          crosswalk = pd.read_csv(root / 'taxonomy_crosswalk_pilot.csv', dtype=str).fillna('')
+
+          n = int(manifest['pilot_size'])
+          summary = manifest['summary']
+          assert n == len(crosswalk)
+          assert summary['n_input'] == n
+          assert (
+              summary['n_automatic_resolution_candidates']
+              + summary['n_review_required']
+              + summary['n_unmatched']
+          ) == n
+          assert manifest['source_taxa_total'] == 115328
+          assert manifest['checklist_key'] == '7ddf754f-d193-4cc9-b351-99906754a03b'
+          assert crosswalk['submitted_name'].is_unique
+          assert crosswalk['checklist_key'].eq(manifest['checklist_key']).all()
+          assert crosswalk['source_license'].eq('CC-BY-4.0').all()
+          assert metadata, 'GBIF match metadata response was empty'
+          assert len(list((root / 'raw_batches').glob('batch_*.json'))) >= 1
+          PY
+
+      - name: Upload taxonomy pilot
+        uses: actions/upload-artifact@v4
+        with:
+          name: island-plant-database-alpha2-taxonomy-pilot-${{ github.run_id }}
+          path: data/v2/curated/island_plant_database/alpha2_taxonomy_pilot/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Summarize pilot
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          root = Path('data/v2/curated/island_plant_database/alpha2_taxonomy_pilot')
+          m = json.loads((root / 'TAXONOMY_PILOT_MANIFEST.json').read_text())
+          s = m['summary']
+          print('## Database 2.0 alpha2 taxonomy pilot')
+          print(f"- source provisional taxa: {m['source_taxa_total']:,}")
+          print(f"- pilot taxa: {s['n_input']:,}")
+          print(f"- automatic-resolution candidates: {s['n_automatic_resolution_candidates']:,}")
+          print(f"- review-required: {s['n_review_required']:,}")
+          print(f"- unmatched: {s['n_unmatched']:,}")
+          print(f"- match types: {s['match_type_counts']}")
+          print('- alpha1 was not mutated; this is a versioned candidate crosswalk only.')
+          PY
