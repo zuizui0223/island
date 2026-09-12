@@ -54,7 +54,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$OUT_DIR"
-          python -m island_v2.chapter1_nee_channel_catalog_stream build \
+          python -m island_v2.chapter1_nee_channel_catalog_stream \
             --interactions-tsv-gz "$GLOBI_DIR/interactions.tsv.gz" \
             --refuted-tsv-gz "$GLOBI_DIR/refuted-interactions.tsv.gz" \
             --source-version-doi "$GLOBI_VERSION_DOI" \
