@@ -41,11 +41,32 @@ def _state(entity: str, channel: str, state: str, evidence: str) -> dict:
         "channel_id": channel,
         "source_state": state,
         "evidence_id": evidence if decisive else "",
-        "evidence_type": "positive" if state == "available" else "absence" if state == "structurally_absent" else "",
+        "evidence_type": (
+            "positive"
+            if state == "available"
+            else "absence"
+            if state == "structurally_absent"
+            else ""
+        ),
         "source_citation": f"citation-{evidence}" if decisive else "",
         "source_url": f"https://example.org/{evidence}" if decisive else "",
         "review_status": "accepted" if decisive else "pending",
     }
+
+
+def _set_state(
+    table: pd.DataFrame,
+    entity: str,
+    channel: str,
+    state: str,
+    evidence: str,
+) -> None:
+    """Replace exactly one synthetic entity x channel row without Series index alignment."""
+    mask = table["entity_ID"].eq(entity) & table["channel_id"].eq(channel)
+    assert int(mask.sum()) == 1
+    replacement = _state(entity, channel, state, evidence)
+    for column, value in replacement.items():
+        table.loc[mask, column] = value
 
 
 def _entity_states() -> pd.DataFrame:
@@ -56,12 +77,11 @@ def _entity_states() -> pd.DataFrame:
             rows.append(_state(entity, channel, "unresolved", f"u-{entity}-{channel}"))
     table = pd.DataFrame(rows)
     # i1: one positive Bombus source is enough for source-set availability.
-    mask = table["entity_ID"].eq("e3") & table["channel_id"].eq("bombus")
-    table.loc[mask, :] = pd.Series(_state("e3", "bombus", "available", "p1"))
+    _set_state(table, "e3", "bombus", "available", "p1")
     # i2: all five source entities explicitly lack Bombus -> structural absence.
     for entity in ["e6", "e7", "e8", "e9", "e10"]:
-        mask = table["entity_ID"].eq(entity) & table["channel_id"].eq("bombus")
-        table.loc[mask, :] = pd.Series(_state(entity, "bombus", "structurally_absent", f"a-{entity}"))
+        _set_state(table, entity, "bombus", "structurally_absent", f"a-{entity}")
+    assert not table[["entity_ID", "channel_id"]].duplicated().any()
     return table
 
 
@@ -97,8 +117,7 @@ def test_structural_absence_requires_all_selected_source_entities() -> None:
 
 def test_partial_absence_without_positive_stays_unresolved() -> None:
     states = _entity_states()
-    mask = states["entity_ID"].eq("e1") & states["channel_id"].eq("diptera")
-    states.loc[mask, :] = pd.Series(_state("e1", "diptera", "structurally_absent", "a1"))
+    _set_state(states, "e1", "diptera", "structurally_absent", "a1")
     output, _ = aggregate_source_mode(_assignments(), states, _config(), "geo_k5")
     row = output.loc[output["island_id"].eq("i1") & output["channel_id"].eq("diptera")].iloc[0]
     assert row["source_state"] == "unresolved"
@@ -106,9 +125,10 @@ def test_partial_absence_without_positive_stays_unresolved() -> None:
 
 
 def test_incomplete_source_rank_set_fails_closed() -> None:
-    assignments = _assignments().loc[~(
-        _assignments()["island_id"].eq("i1") & _assignments()["source_rank"].eq(5)
-    )]
+    assignments = _assignments()
+    assignments = assignments.loc[
+        ~(assignments["island_id"].eq("i1") & assignments["source_rank"].eq(5))
+    ]
     with pytest.raises(ValueError, match="incomplete/unexpected"):
         validate_assignments(assignments, _config(), "geo_k5")
 
