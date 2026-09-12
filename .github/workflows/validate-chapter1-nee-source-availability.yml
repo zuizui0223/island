@@ -1,0 +1,38 @@
+name: Validate Chapter 1 NEE source availability
+
+on:
+  push:
+    branches:
+      - "nee/**"
+    paths:
+      - "config/chapter1_nee_source_availability.yml"
+      - "src/island_v2/chapter1_nee_source_availability.py"
+      - "tests/test_chapter1_nee_source_availability.py"
+      - "docs/chapter1_nee_source_availability_contract.md"
+      - ".github/workflows/validate-chapter1-nee-source-availability.yml"
+  pull_request:
+    paths:
+      - "config/chapter1_nee_source_availability.yml"
+      - "src/island_v2/chapter1_nee_source_availability.py"
+      - "tests/test_chapter1_nee_source_availability.py"
+      - "docs/chapter1_nee_source_availability_contract.md"
+      - ".github/workflows/validate-chapter1-nee-source-availability.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-source-availability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate outcome-blind source availability
+        run: |
+          pytest -q tests/test_chapter1_nee_source_availability.py
+          ruff check src/island_v2/chapter1_nee_source_availability.py tests/test_chapter1_nee_source_availability.py
