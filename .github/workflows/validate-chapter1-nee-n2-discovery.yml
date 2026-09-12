@@ -1,0 +1,57 @@
+name: Validate Chapter 1 NEE N2 discovery waves
+
+on:
+  push:
+    branches:
+      - "nee/n2-dependency-wave-generator"
+    paths:
+      - "config/chapter1_nee_n2_dependency_discovery.yml"
+      - "src/island_v2/chapter1_nee_n2_discovery.py"
+      - "tests/test_chapter1_nee_n2_discovery.py"
+      - ".github/workflows/validate-chapter1-nee-n2-discovery.yml"
+  pull_request:
+    paths:
+      - "config/chapter1_nee_n2_dependency_discovery.yml"
+      - "src/island_v2/chapter1_nee_n2_discovery.py"
+      - "tests/test_chapter1_nee_n2_discovery.py"
+      - ".github/workflows/validate-chapter1-nee-n2-discovery.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-n2-discovery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Test source-opportunity ranking and wave partition
+        run: |
+          pytest -q tests/test_chapter1_nee_n2_discovery.py
+          ruff check \
+            src/island_v2/chapter1_nee_n2_discovery.py \
+            tests/test_chapter1_nee_n2_discovery.py
+          python -m island_v2.chapter1_nee_n2_discovery --help >/dev/null
+      - name: Validate prospective boundaries
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+          c=yaml.safe_load(Path('config/chapter1_nee_n2_dependency_discovery.yml').read_text())
+          assert c['status'] == 'prospective_pre_dependency_search'
+          assert c['ranking']['primary_source_mode'] == 'geo_k5'
+          assert c['ranking']['source_rank_set'] == [1,2,3,4,5]
+          assert c['waves']['genera_per_wave'] == 500
+          assert c['ranking']['uses_island_realised_flora'] is False
+          assert c['ranking']['uses_island_genus_entry'] is False
+          assert c['ranking']['uses_N1_effect_direction'] is False
+          assert c['ranking']['uses_N2_effect_direction'] is False
+          assert c['ranking']['uses_focal_flower_traits'] is False
+          assert c['ranking']['uses_pollination_guild'] is False
+          assert c['genus_parsing']['hybrid_or_nothogenus_marker_action'] == 'holdout_not_primary_search'
+          print('N2 discovery ranking remains source-opportunity-only')
+          PY
