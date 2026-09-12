@@ -1,0 +1,12 @@
+chapter1_nee_source_positive_scan_sharded_v1
+source_universe=730_frozen_entities
+partition=sorted_unique_entity_ID_index_mod_10
+n_shards=10
+entities_per_shard=73
+channels=bombus,non_bombus_bees,lepidoptera,flower_visiting_birds,diptera
+same_scanner_contract=chapter1_nee_source_positive_scan_v1
+same_entity_channel_record_cap=900
+no_hit_means=unresolved
+structural_absence_generated=false
+uses_island_channel_outcomes=false
+uses_focal_plant_traits=false
