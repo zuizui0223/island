@@ -62,11 +62,13 @@ def test_exact_accepted_species_is_only_candidate_not_promoted() -> None:
     assert row["resolution_status"] == "exact_accepted_candidate"
     assert row["review_status"] == "automatic_candidate_not_promoted"
     assert row["candidate_accepted_key"] == "COL1"
+    assert row["accepted_target_basis"] == "usage"
     assert row["candidate_kingdom"] == "Plantae"
     assert row["checklist_key"] == COL_XR_CHECKLIST_KEY
 
 
-def test_exact_synonym_maps_to_accepted_candidate() -> None:
+def test_exact_synonym_uses_accepted_usage_even_when_status_is_omitted() -> None:
+    # Production COL XR v2 responses can omit status from acceptedUsage.
     result = {
         "usage": {
             "key": "SYN1",
@@ -81,7 +83,6 @@ def test_exact_synonym_maps_to_accepted_candidate() -> None:
             "canonicalName": "Alpha new",
             "authorship": "Author",
             "rank": "SPECIES",
-            "status": "ACCEPTED",
         },
         "classification": _classification(),
         "diagnostics": {"matchType": "EXACT", "confidence": 100},
@@ -93,6 +94,30 @@ def test_exact_synonym_maps_to_accepted_candidate() -> None:
     assert row["matched_usage_key"] == "SYN1"
     assert row["candidate_accepted_key"] == "ACC1"
     assert row["candidate_accepted_name"] == "Alpha new"
+    assert row["candidate_accepted_status"] == ""
+    assert row["accepted_target_basis"] == "acceptedUsage"
+
+
+def test_synonym_to_non_species_target_stays_review_required() -> None:
+    result = {
+        "usage": {
+            "key": "SYN1",
+            "canonicalName": "Alpha old",
+            "rank": "SPECIES",
+            "status": "SYNONYM",
+        },
+        "acceptedUsage": {
+            "key": "ACC1",
+            "canonicalName": "Alpha new subsp. one",
+            "rank": "SUBSPECIES",
+        },
+        "classification": _classification(),
+        "diagnostics": {"matchType": "EXACT", "confidence": 99},
+        "synonym": True,
+    }
+    row = normalize_match(_row("Alpha old"), result)
+    assert row["automatic_resolution_candidate"] == "false"
+    assert row["resolution_status"] == "review_required"
 
 
 def test_variant_or_low_confidence_stays_review_required() -> None:
