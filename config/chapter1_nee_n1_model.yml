@@ -46,7 +46,7 @@ primary_model:
   source_region_fixed_effects:
     enabled: true
     drop_reference_level: true
-    levels_with_fewer_than_5_primary_rows: pooled_other_source_region
+    levels_with_fewer_than_5_primary_rows: 5
   continuous_predictors_standardized_within_analysis_support: true
   categorical_reference_levels_frozen_from_sorted_labels: true
 
