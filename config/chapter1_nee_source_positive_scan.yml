@@ -1,0 +1,86 @@
+contract: chapter1_nee_source_positive_scan_v1
+parent_contracts:
+  - chapter1_nee_source_proxy_v1
+  - chapter1_nee_channel_taxon_catalog_v1
+status: prospective_pre_source_channel_scan
+
+source_entity_universe:
+  frozen_assignment_artifact_id: 9601703747
+  assignment_file: result/island_source_assignments.csv.gz
+  scan_entities: union_of_all_entities_in_frozen_source_modes
+  primary_N1_consumes: geo_k5
+  rationale: scan_once_outcome_blind_then_reuse_for_prespecified_source_mode_sensitivities
+
+source_geometry:
+  provider: GIFT
+  version: "3.2"
+  geojson_template: "https://gift.uni-goettingen.de/geojson/geojson_smaller3.2/{entity_id}.geojson"
+  use_full_entity_polygon: true
+  representative_point_not_used_for_occurrence_membership: true
+  geometry_failure_state: unresolved
+
+channels:
+  bombus:
+    gbif_acquisition_taxon: Bombus
+    gbif_rank: GENUS
+  non_bombus_bees:
+    gbif_acquisition_taxon: Hymenoptera
+    gbif_rank: ORDER
+    analytical_family_filter:
+      - Andrenidae
+      - Apidae
+      - Colletidae
+      - Halictidae
+      - Megachilidae
+      - Melittidae
+      - Stenotritidae
+  lepidoptera:
+    gbif_acquisition_taxon: Lepidoptera
+    gbif_rank: ORDER
+  flower_visiting_birds:
+    gbif_acquisition_taxon: Aves
+    gbif_rank: CLASS
+  diptera:
+    gbif_acquisition_taxon: Diptera
+    gbif_rank: ORDER
+
+GBIF_search:
+  endpoint: "https://api.gbif.org/v1/occurrence/search"
+  page_size: 300
+  max_pages_per_entity_channel: 3
+  max_records_examined_per_entity_channel: 900
+  hasCoordinate: true
+  request_timeout_seconds: 90
+  retries: 4
+  retry_backoff_seconds: 2
+  stop_after_first_confirmatory_target_hit: true
+
+positive_evidence:
+  target_catalog_tier: confirmatory
+  species_match_rule: normalized_binomial_key
+  require_species_resolved_GBIF_record: true
+  explicit_absent_occurrence_status_rejected: true
+  known_captive_or_cultivated_rejected: true
+  known_introduced_rejected: true
+  unknown_establishment_retained_and_flagged: true
+  accepted_hit_state: available
+  accepted_hit_review_status: accepted
+  evidence_type: GBIF_positive_source_occurrence
+
+no_hit_policy:
+  state: unresolved
+  review_status: pending
+  never_structurally_absent: true
+  reason: capped_search_is_positive_evidence_only
+
+prohibited:
+  - zero_GBIF_hits_as_structural_absence
+  - island_observation_state_in_source_scan
+  - focal_plant_traits_in_source_scan
+  - posthoc_page_limit_change_based_on_channel_result
+  - posthoc_taxon_substitution_based_on_channel_result
+
+claim_boundary: >-
+  A positive scan establishes that at least one independently qualified functional-channel
+  taxon has a quality-filtered GBIF occurrence inside the frozen GIFT source polygon.
+  A no-hit result is unresolved and carries no absence claim.
