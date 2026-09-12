@@ -1,0 +1,45 @@
+contract: chapter1_nee_island_search_execution_v1
+status: prospective_pre_island_channel_observation
+science_contract: chapter1_nee_island_search_acquisition_v1
+
+canonical_execution:
+  layout: deterministic_island_shards
+  n_shards: 20
+  partition_rule: sorted_unique_frozen_GSHHG_island_id_index_mod_20
+  partition_before_source_state_filter: true
+  frozen_island_universe_size: 8265
+  expected_shard_sizes:
+    size_414_shards: 5
+    size_413_shards: 15
+  channels:
+    - bombus
+    - non_bombus_bees
+    - lepidoptera
+    - flower_visiting_birds
+    - diptera
+  max_parallel_jobs: 10
+
+invariants:
+  same_exact_GSHHG_geometry: true
+  same_geo_k5_source_availability: true
+  same_confirmatory_GloBI_catalog: true
+  same_search_record_cap_per_island_channel: 900
+  same_effort_policy: chapter1_nee_channel_observation_policy_v1
+  same_fail_closed_non_detection: true
+  source_availability_does_not_change_partition: true
+  island_observation_outcomes_do_not_change_partition: true
+  N1_effects_do_not_change_partition: true
+  focal_plant_traits_do_not_change_partition: true
+
+aggregation:
+  reassemble_channel_rows_from_all_20_shards: true
+  require_exact_match_to_source_available_island_set_per_channel: true
+  duplicate_island_channel_rows_forbidden: true
+  final_artifact_name_template: chapter1-nee-island-search-observation-{channel}-{run_id}
+
+prohibited:
+  - partition_by_detected_or_nondetected_outcome
+  - partition_by_source_available_counts_after_results_are_seen
+  - rerun_only_negative_or_error_islands_to_improve_detection
+  - union_with_serial_observation_results_to_rescue_coverage
+  - relax_900_record_cap_after_channel_results
