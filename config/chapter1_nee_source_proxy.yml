@@ -1,0 +1,94 @@
+contract: chapter1_nee_source_proxy_v1
+parent_contracts:
+  - chapter1_progressive_fixed_inputs_v1
+  - chapter1_pr138_source_pool_sensitivity_v1
+  - chapter1_nee_source_availability_v1
+status: prospective_pre_pollinator_occurrence
+
+channels:
+  - bombus
+  - non_bombus_bees
+  - lepidoptera
+  - flower_visiting_birds
+  - diptera
+
+fixed_assignment_artifact:
+  workflow_run_id: 32954909953
+  artifact_id: 9601703747
+  artifact_name: pr138-source-pool-sensitivity-32954909953
+  artifact_digest: sha256:51cff9087a40b76655ff043d59aceabf25800a6029ed005a77b8db30e78345d2
+  head_sha: 904221be0e7f533b3a60915a9e5fe24eb33f8317
+  required_file: result/island_source_assignments.csv.gz
+  assignment_outcome_blind: true
+  assignment_uses_pollinator_data: false
+
+primary_source_proxy:
+  source_mode: geo_k5
+  expected_k: 5
+  rule: five_nearest_GIFT_mainland_source_region_representative_points
+  within_selected_sources_weighting: equal
+  source_context_for_model_fixed_effect: rank1_entity_ID
+  source_context_interpretation: nearest_member_of_frozen_five-region_candidate_source_set
+
+sensitivity_source_proxies:
+  geo_k10:
+    expected_k: 10
+    rule: ten_nearest_GIFT_mainland_source_regions
+  geo_k20:
+    expected_k: 20
+    rule: twenty_nearest_GIFT_mainland_source_regions
+  geo50_climate10:
+    expected_k: 10
+    rule: ten_climate_nearest_among_fifty_geographically_nearest_GIFT_mainland_regions
+    climate_space: frozen_CHELSA_PCs_1_to_4
+  role: prespecified_source_definition_sensitivity
+  cannot_replace_failed_primary_after_outcome_inspection: true
+
+source_set_channel_state:
+  entity_state_input:
+    allowed:
+      - available
+      - structurally_absent
+      - unresolved
+    evidence_rules_inherit: chapter1_nee_source_availability_v1
+  available_if: at_least_one_selected_source_entity_is_available
+  structurally_absent_if: every_selected_source_entity_is_explicitly_structurally_absent
+  unresolved_if:
+    - no_selected_source_entity_is_available_and_not_all_are_structurally_absent
+    - expected_source_rank_set_is_incomplete
+  zero_occurrence_cannot_make_structurally_absent: true
+  unresolved_is_not_absent: true
+
+primary_projection:
+  required_assignment_columns:
+    - island_id
+    - source_mode
+    - source_rank
+    - entity_ID
+  require_exact_ranks_1_through_k: true
+  duplicate_island_mode_rank: hard_stop
+  unexpected_rank: hard_stop
+  primary_output_columns:
+    - island_id
+    - source_region_id
+    - channel_id
+    - source_state
+    - evidence_id
+    - evidence_type
+    - source_citation
+    - source_url
+    - review_status
+  source_region_id_definition: rank1_entity_ID
+  evidence_preserves_all_selected_source_entities: true
+
+N1_integration:
+  primary_fit_uses_source_mode: geo_k5
+  source_mode_sensitivities_required_to_be_reported: true
+  source_mode_sensitivities_do_not_rescue_primary_N1: true
+  source_mode_selected_without_channel_retention_outcomes: true
+  source_mode_selected_without_plant_trait_outcomes: true
+
+claim_boundary: >-
+  The source set is an outcome-blind candidate mainland accessibility proxy inherited
+  from the frozen Chapter 1 source-pool sensitivity. It is not a reconstruction of
+  the historical colonization source of either the plant lineage or pollinator.
