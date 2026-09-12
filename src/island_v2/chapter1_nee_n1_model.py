@@ -95,8 +95,9 @@ def qualified_channels(qualification: pd.DataFrame, config: dict[str, Any]) -> l
     eligible = qualification.loc[
         qualification["channel_id"].astype(str).isin(allowed)
         & qualification["support_tier"].astype(str).eq("confirmatory")
-        & qualification["N1_gate_eligible"].map(_as_bool)
-    , "channel_id"].astype(str).drop_duplicates().tolist()
+        & qualification["N1_gate_eligible"].map(_as_bool),
+        "channel_id",
+    ].astype(str).drop_duplicates().tolist()
     return sorted(eligible)
 
 
@@ -162,14 +163,21 @@ def build_primary_frame(
 
     complete_columns = [*CONTINUOUS, "spatial_block", "source_region_id"]
     missing_mask = work[complete_columns].isna().any(axis=1)
-    blank_mask = work[["spatial_block", "source_region_id"]].fillna("").astype(str).eq("").any(axis=1)
+    blank_mask = (
+        work[["spatial_block", "source_region_id"]]
+        .fillna("")
+        .astype(str)
+        .eq("")
+        .any(axis=1)
+    )
     work = work.loc[~missing_mask & ~blank_mask].copy()
     if work.empty:
         raise ValueError("N1 complete-case support is empty")
 
     # Pool sparse source regions without consulting the response.
     min_rows = int(
-        config["primary_model"]["source_region_fixed_effects"]["levels_with_fewer_than_5_primary_rows"]
+        config["primary_model"]["source_region_fixed_effects"]
+        ["levels_with_fewer_than_5_primary_rows"]
     )
     counts = work["source_region_id"].astype(str).value_counts()
     sparse = set(counts.loc[counts < min_rows].index)
@@ -208,7 +216,10 @@ def design_matrix(
     if reference_channel not in channels:
         raise ValueError("reference channel absent from model channels")
     names = ["intercept", *[f"z_{c}" for c in CONTINUOUS]]
-    columns = [np.ones(len(frame)), *[frame[f"z_{c}"].to_numpy(float) for c in CONTINUOUS]]
+    columns = [
+        np.ones(len(frame)),
+        *[frame[f"z_{c}"].to_numpy(float) for c in CONTINUOUS],
+    ]
 
     channel_dummies: list[str] = []
     for channel in sorted(channels):
@@ -222,9 +233,10 @@ def design_matrix(
 
     source_levels = sorted(frame["source_region_model"].astype(str).unique())
     if source_levels:
-        source_reference = source_levels[0]
         for region in source_levels[1:]:
-            columns.append(frame["source_region_model"].astype(str).eq(region).astype(float).to_numpy())
+            columns.append(
+                frame["source_region_model"].astype(str).eq(region).astype(float).to_numpy()
+            )
             names.append(f"source_region[{region}]")
     interaction_names: list[str] = []
     if heterogeneous:
@@ -301,7 +313,9 @@ def fit_clustered_logit(
     }
 
 
-def global_heterogeneity_test(fit: dict[str, Any], interaction_names: list[str]) -> dict[str, Any]:
+def global_heterogeneity_test(
+    fit: dict[str, Any], interaction_names: list[str]
+) -> dict[str, Any]:
     """Joint Wald test of H0: every isolation x channel contrast is zero."""
     if not interaction_names:
         raise ValueError("global heterogeneity test requires interaction terms")
@@ -372,7 +386,9 @@ def fit_n1_primary(
     channels = list(metadata["confirmatory_channels"])
     reference = str(metadata["reference_channel"])
     X0, names0, _ = design_matrix(frame, channels, reference, heterogeneous=False)
-    X1, names1, interactions = design_matrix(frame, channels, reference, heterogeneous=True)
+    X1, names1, interactions = design_matrix(
+        frame, channels, reference, heterogeneous=True
+    )
     common = fit_clustered_logit(frame, X0, names0)
     heterogeneous = fit_clustered_logit(frame, X1, names1)
     global_test = global_heterogeneity_test(heterogeneous, interactions)
@@ -386,7 +402,9 @@ def fit_n1_primary(
     )
     comparison = {
         "common_slope_log_likelihood": float(common["log_likelihood"]),
-        "heterogeneous_slope_log_likelihood": float(heterogeneous["log_likelihood"]),
+        "heterogeneous_slope_log_likelihood": float(
+            heterogeneous["log_likelihood"]
+        ),
         "heterogeneous_minus_common_log_likelihood": float(
             heterogeneous["log_likelihood"] - common["log_likelihood"]
         ),
@@ -394,7 +412,11 @@ def fit_n1_primary(
         "n_rows": int(len(frame)),
         "reference_channel": reference,
     }
-    result_meta = {**metadata, "global_test": global_test, "model_comparison": comparison}
+    result_meta = {
+        **metadata,
+        "global_test": global_test,
+        "model_comparison": comparison,
+    }
     return frame, coefficients, global_test, {"slopes": slopes, **result_meta}
 
 
@@ -410,7 +432,9 @@ def deletion_robustness(
     for level in levels:
         subset = frame.loc[~frame[delete_column].astype(str).eq(level)].copy()
         if len(subset) <= 20 or subset["channel_id"].nunique() < 3:
-            rows.append({"deleted": level, "status": "not_evaluable", "p_value": np.nan})
+            rows.append(
+                {"deleted": level, "status": "not_evaluable", "p_value": np.nan}
+            )
             continue
         try:
             X, names, interactions = design_matrix(
@@ -418,10 +442,17 @@ def deletion_robustness(
             )
             fit = fit_clustered_logit(subset, X, names)
             test = global_heterogeneity_test(fit, interactions)
-            rows.append({"deleted": level, "status": "fitted", "p_value": test["p_value"]})
+            rows.append(
+                {"deleted": level, "status": "fitted", "p_value": test["p_value"]}
+            )
         except Exception as exc:  # noqa: BLE001
             rows.append(
-                {"deleted": level, "status": "fit_failed", "p_value": np.nan, "error": str(exc)}
+                {
+                    "deleted": level,
+                    "status": "fit_failed",
+                    "p_value": np.nan,
+                    "error": str(exc),
+                }
             )
     return pd.DataFrame(rows)
 
@@ -437,7 +468,9 @@ def gate_receipt(
     alpha = float(config["primary_global_test"]["alpha"])
 
     def reversal_fraction(table: pd.DataFrame) -> float:
-        evaluable = table.loc[table["status"].eq("fitted") & table["p_value"].notna()]
+        evaluable = table.loc[
+            table["status"].eq("fitted") & table["p_value"].notna()
+        ]
         if evaluable.empty:
             return 1.0
         return float((evaluable["p_value"] >= alpha).mean())
@@ -445,7 +478,8 @@ def gate_receipt(
     block_reverse = reversal_fraction(block_deletions)
     source_reverse = reversal_fraction(source_deletions)
     pass_gate = (
-        n_channels >= int(config["channel_gate"]["min_confirmatory_channels_for_primary_N1"])
+        n_channels
+        >= int(config["channel_gate"]["min_confirmatory_channels_for_primary_N1"])
         and float(global_test["p_value"]) < alpha
         and float(comparison["heterogeneous_minus_common_log_likelihood"]) > 0
         and block_reverse <= 0.20
@@ -461,20 +495,31 @@ def gate_receipt(
         ),
         "spatial_block_reversal_fraction": block_reverse,
         "source_region_reversal_fraction": source_reverse,
-        "failure_action": "stop_before_N2_and_keep_frozen_Chapter1" if not pass_gate else "N2_may_open",
-        "claim_ceiling": config["claim_ceiling"]["pass"] if pass_gate else "N1_not_promoted",
+        "failure_action": (
+            "stop_before_N2_and_keep_frozen_Chapter1" if not pass_gate else "N2_may_open"
+        ),
+        "claim_ceiling": (
+            config["claim_ceiling"]["pass"] if pass_gate else "N1_not_promoted"
+        ),
     }
 
 
 @app.command("validate-config")
 def validate_config_command(
-    config_path: Path = typer.Option(Path("config/chapter1_nee_n1_model.yml"), exists=True),
+    config_path: Path = typer.Option(
+        Path("config/chapter1_nee_n1_model.yml"), exists=True
+    ),
 ) -> None:
     config = load_config(config_path)
     required = int(config["channel_gate"]["min_confirmatory_channels_for_primary_N1"])
     if required < 3:
-        raise typer.BadParameter("primary N1 must require at least three confirmatory channels")
-    if config["primary_global_test"]["method"] != "cluster_robust_joint_Wald_test_of_isolation_x_channel_terms":
+        raise typer.BadParameter(
+            "primary N1 must require at least three confirmatory channels"
+        )
+    if (
+        config["primary_global_test"]["method"]
+        != "cluster_robust_joint_Wald_test_of_isolation_x_channel_terms"
+    ):
         raise typer.BadParameter("N1 global test must remain the frozen joint Wald test")
     if config["N1_pass_rule"]["no_posthoc_channel_relabel_or_substitution"] is not True:
         raise typer.BadParameter("posthoc channel rescue must remain prohibited")
