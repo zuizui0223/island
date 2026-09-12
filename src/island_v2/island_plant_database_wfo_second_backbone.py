@@ -29,6 +29,7 @@ WFO_EXPECTED_MD5 = "0e4486945cd9f7af548ca87eb9a870ed"
 WFO_MEMBER = "classification.csv"
 WFO_LICENSE = "CC0-1.0"
 EXPECTED_QUEUE_ROWS = 3_436
+INFRA_RANKS = {"SUBSPECIES", "VARIETY", "FORM"}
 
 
 def _text(value: object) -> str:
@@ -127,14 +128,38 @@ def _family_concordance(submitted_family: str, target_family: str) -> str:
     return "match" if submitted.casefold() == target.casefold() else "conflict"
 
 
-def _target_concordance(colxr_name: str, wfo_name: str) -> str:
-    colxr = _key(colxr_name)
-    wfo = _key(wfo_name)
-    if not colxr:
-        return "no_colxr_species_target"
+def _colxr_species_target(colxr_name: str, colxr_rank: str) -> str:
+    """Return the species concept implied by a COL XR target, if identifiable.
+
+    A species-rank target is already directly comparable.  An infraspecific
+    canonical name still carries a parent species concept in its first two
+    botanical name tokens. Higher-rank targets do not identify a species and
+    therefore must not be treated as disagreement with an exact WFO species.
+    """
+    name = _text(colxr_name)
+    rank = _text(colxr_rank).upper()
+    if rank == "SPECIES":
+        return name
+    if rank in INFRA_RANKS and name:
+        tokens = name.split()
+        if (
+            len(tokens) >= 2
+            and tokens[0][:1].isupper()
+            and tokens[1][:1].islower()
+        ):
+            return " ".join(tokens[:2])
+    return ""
+
+
+def _target_concordance(colxr_name: str, colxr_rank: str, wfo_name: str) -> tuple[str, str]:
+    colxr_species = _colxr_species_target(colxr_name, colxr_rank)
+    wfo = _text(wfo_name)
+    if not colxr_species:
+        return "no_colxr_species_target", ""
     if not wfo:
-        return "missing_wfo_target"
-    return "same_target" if colxr == wfo else "different_target"
+        return "missing_wfo_target", colxr_species
+    state = "same_target" if colxr_species.casefold() == wfo.casefold() else "different_target"
+    return state, colxr_species
 
 
 def audit_queue(queue: pd.DataFrame, backbone_zip: Path) -> tuple[pd.DataFrame, dict[str, Any]]:
@@ -186,6 +211,8 @@ def audit_queue(queue: pd.DataFrame, backbone_zip: Path) -> tuple[pd.DataFrame, 
                 concepts[target_id] = target
 
         concept_list = [concepts[key] for key in sorted(concepts)]
+        target_state = ""
+        colxr_species_target = ""
         if len(concept_list) == 0:
             wfo_status = "no_exact_accepted_species_concept"
             target = {}
@@ -195,8 +222,10 @@ def audit_queue(queue: pd.DataFrame, backbone_zip: Path) -> tuple[pd.DataFrame, 
         else:
             target = concept_list[0]
             family_state = _family_concordance(source_family, target.get("family", ""))
-            target_state = _target_concordance(
-                source.get("candidate_accepted_name", ""), target.get("scientific_name", "")
+            target_state, colxr_species_target = _target_concordance(
+                source.get("candidate_accepted_name", ""),
+                source.get("candidate_accepted_rank", ""),
+                target.get("scientific_name", ""),
             )
             if family_state == "conflict":
                 wfo_status = "exact_species_family_conflict"
@@ -209,11 +238,6 @@ def audit_queue(queue: pd.DataFrame, backbone_zip: Path) -> tuple[pd.DataFrame, 
 
         target_name = _text(target.get("scientific_name", "")) if target else ""
         family_state = _family_concordance(source_family, target.get("family", "")) if target else ""
-        target_state = (
-            _target_concordance(source.get("candidate_accepted_name", ""), target_name)
-            if target
-            else ""
-        )
         rescue = wfo_status == "exact_species_rescue_candidate"
         rows.append(
             {
@@ -232,6 +256,7 @@ def audit_queue(queue: pd.DataFrame, backbone_zip: Path) -> tuple[pd.DataFrame, 
                 "wfo_accepted_name": target_name,
                 "wfo_accepted_family": _text(target.get("family", "")) if target else "",
                 "wfo_accepted_rank": _text(target.get("rank", "")) if target else "",
+                "colxr_species_target_for_comparison": colxr_species_target,
                 "wfo_family_concordance": family_state,
                 "wfo_colxr_target_concordance": target_state,
                 "wfo_rescue_candidate": "true" if rescue else "false",
@@ -256,9 +281,10 @@ def audit_queue(queue: pd.DataFrame, backbone_zip: Path) -> tuple[pd.DataFrame, 
 
 
 def write_bundle(queue_path: Path, backbone_zip: Path, output_dir: Path) -> dict[str, Any]:
-    if md5_file(backbone_zip) != WFO_EXPECTED_MD5:
+    actual_md5 = md5_file(backbone_zip)
+    if actual_md5 != WFO_EXPECTED_MD5:
         raise ValueError(
-            f"WFO 2026-06 archive MD5 mismatch: {md5_file(backbone_zip)} != {WFO_EXPECTED_MD5}"
+            f"WFO 2026-06 archive MD5 mismatch: {actual_md5} != {WFO_EXPECTED_MD5}"
         )
     queue = pd.read_csv(queue_path, dtype=str).fillna("")
     audit, summary = audit_queue(queue, backbone_zip)
