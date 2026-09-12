@@ -14,7 +14,18 @@ source_policy:
   input_sha256_required: true
   live_API_allowed_for_primary: false
   live_API_allowed_for_feasibility_only: true
-  refuted_interactions_must_be_subtracted: true
+  source_semantics_revision: GloBI_support_refute_split_v1
+  interactions_export_argument_type: SUPPORTS
+  refuted_export_argument_type: REFUTES
+  refuted_interactions_must_be_subtracted: false
+  refuted_interactions_role: contradiction_audit_only
+  cross_subtraction_across_distinct_argument_edges: prohibited
+  upstream_implementation_evidence:
+    repository: globalbioticinteractions/globalbioticinteractions
+    commit: 6c41a561bc5d8a36a021edc450958cfecb052d4e
+    exporter: eol-globi-neo4j-index-export/src/main/java/org/eol/globi/export/ExportFlatInteractions.java
+    assembly: eol-globi-datasets/src/assembly/tsv.xml
+  correction_timing: before_any_island_channel_retention_or_N1_outcome_was_inspected
 
 accepted_interactions:
   http://purl.obolibrary.org/obo/RO_0002455:

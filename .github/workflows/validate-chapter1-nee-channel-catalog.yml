@@ -41,9 +41,13 @@ jobs:
           from island_v2.chapter1_nee_channel_catalog import load_config
 
           config = load_config(Path('config/chapter1_nee_channel_taxon_catalog.yml'))
-          assert config['source_policy']['live_API_allowed_for_primary'] is False
-          assert config['source_policy']['refuted_interactions_must_be_subtracted'] is True
+          source = config['source_policy']
+          assert source['live_API_allowed_for_primary'] is False
+          assert source['interactions_export_argument_type'] == 'SUPPORTS'
+          assert source['refuted_export_argument_type'] == 'REFUTES'
+          assert source['refuted_interactions_must_be_subtracted'] is False
+          assert source['refuted_interactions_role'] == 'contradiction_audit_only'
           assert config['independence']['focal_island_plant_trait_table_used'] is False
           assert config['qualification']['confirmatory_catalog_used_for_primary_N1'] is True
-          print('Channel catalog contract validated')
+          print('Channel catalog contract validated under GloBI SUPPORTS/REFUTES semantics')
           PY
