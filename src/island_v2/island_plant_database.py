@@ -41,10 +41,21 @@ def load_contract(path: Path) -> dict[str, Any]:
     return payload
 
 
+def _table_path(bundle_dir: Path, name: str, *, required: bool = True) -> Path | None:
+    candidates = [bundle_dir / f"{name}.csv", bundle_dir / f"{name}.csv.gz"]
+    existing = [path for path in candidates if path.exists()]
+    if len(existing) > 1:
+        raise ValueError(f"bundle contains both compressed and uncompressed {name} tables")
+    if existing:
+        return existing[0]
+    if required:
+        raise FileNotFoundError(candidates[0])
+    return None
+
+
 def _read_table(bundle_dir: Path, name: str) -> pd.DataFrame:
-    path = bundle_dir / f"{name}.csv"
-    if not path.exists():
-        raise FileNotFoundError(path)
+    path = _table_path(bundle_dir, name)
+    assert path is not None
     return pd.read_csv(path, dtype=str).fillna("")
 
 
@@ -168,8 +179,8 @@ def validate_bundle(bundle_dir: Path, contract_path: Path) -> dict[str, Any]:
         _validate_table(name, frame, specs[name])
         tables[name] = frame
 
-    traits_path = bundle_dir / "traits.csv"
-    if traits_path.exists():
+    traits_path = _table_path(bundle_dir, "traits", required=False)
+    if traits_path is not None:
         traits = pd.read_csv(traits_path, dtype=str).fillna("")
         _validate_table("traits", traits, specs["traits"])
         tables["traits"] = traits
@@ -213,7 +224,15 @@ def validate_bundle(bundle_dir: Path, contract_path: Path) -> dict[str, Any]:
         - island_taxon_keys
     )
     if unknown_pairs:
-        raise ValueError(f"evidence references unknown island × taxon pairs: {unknown_pairs[:10]}")
+        raise ValueError(f"evidence references unknown island x taxon pairs: {unknown_pairs[:10]}")
+
+    evidence_ids = set(evidence["evidence_id"])
+    provenance_ids = set(island_taxa.loc[island_taxa["provenance_id"].ne(""), "provenance_id"])
+    missing_provenance = sorted(provenance_ids - evidence_ids)
+    if missing_provenance:
+        raise ValueError(
+            f"island_taxa provenance_id references unknown evidence: {missing_provenance[:10]}"
+        )
 
     if "traits" in tables:
         traits = tables["traits"]
@@ -225,7 +244,6 @@ def validate_bundle(bundle_dir: Path, contract_path: Path) -> dict[str, Any]:
             raise ValueError(
                 f"traits reference unknown islands: {sorted(trait_islands - island_ids)[:10]}"
             )
-        evidence_ids = set(evidence["evidence_id"])
         missing_evidence = sorted(set(traits["evidence_id"]) - evidence_ids)
         if missing_evidence:
             raise ValueError(f"traits reference unknown evidence: {missing_evidence[:10]}")

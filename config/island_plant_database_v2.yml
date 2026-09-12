@@ -163,9 +163,9 @@ invariants:
 alpha1_milestone:
   required_outputs:
     - islands.csv
-    - taxa.csv
-    - island_taxa.csv
-    - evidence.csv
+    - taxa.csv.gz
+    - island_taxa.csv.gz
+    - evidence.csv.gz
     - RIGHTS_LEDGER.csv
     - DATABASE_MANIFEST.json
   trait_extension_required: false

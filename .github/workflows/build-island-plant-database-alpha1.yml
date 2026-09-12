@@ -1,0 +1,223 @@
+name: Build Island Plant Database 2.0 alpha1
+
+on:
+  pull_request:
+    paths:
+      - "config/island_plant_database_v2.yml"
+      - "config/gbif_full_acquisition_v2.json"
+      - "config/island_source_gshhg.yml"
+      - "src/island_v2/island_plant_database.py"
+      - "src/island_v2/island_plant_database_gbif.py"
+      - "src/island_v2/gshhg_source.py"
+      - "src/island_v2/gbif_blocks.py"
+      - "tests/test_island_plant_database.py"
+      - "tests/test_island_plant_database_gbif.py"
+      - "data/v2/staging/gbif/collected/island_species_occurrences.csv.gz"
+      - "data/v2/staging/gbif/collected/island_taxa.csv"
+      - "data/v2/staging/gbif/collected/collection_status.json"
+      - ".github/workflows/build-island-plant-database-alpha1.yml"
+  push:
+    branches: [main]
+    paths:
+      - "config/island_plant_database_v2.yml"
+      - "config/gbif_full_acquisition_v2.json"
+      - "config/island_source_gshhg.yml"
+      - "src/island_v2/island_plant_database.py"
+      - "src/island_v2/island_plant_database_gbif.py"
+      - "src/island_v2/gshhg_source.py"
+      - "src/island_v2/gbif_blocks.py"
+      - "tests/test_island_plant_database.py"
+      - "tests/test_island_plant_database_gbif.py"
+      - "data/v2/staging/gbif/collected/island_species_occurrences.csv.gz"
+      - "data/v2/staging/gbif/collected/island_taxa.csv"
+      - "data/v2/staging/gbif/collected/collection_status.json"
+      - ".github/workflows/build-island-plant-database-alpha1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-alpha1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Test Database 2.0 builders
+        run: |
+          pytest -q \
+            tests/test_island_plant_database.py \
+            tests/test_island_plant_database_gbif.py \
+            tests/test_gbif_blocks.py
+
+      - name: Rebuild exact GSHHG island universe
+        run: |
+          island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          policy = json.loads(
+              Path('data/v2/external/islands/gshhg/prepared/source_policy.json').read_text()
+          )
+          assert policy['source_backend'] == 'gshhg', policy
+          assert str(policy['source_version']) == '2.3.7', policy
+          PY
+
+      - name: Export Database 2.0 island core
+        run: |
+          mkdir -p data/v2/curated/island_plant_database/alpha1
+          python -m island_v2.island_plant_database export-islands \
+            --islands-gpkg data/v2/external/islands/gshhg/prepared/islands_v2.gpkg \
+            --source-policy data/v2/external/islands/gshhg/prepared/source_policy.json \
+            --output-csv data/v2/curated/island_plant_database/alpha1/islands.csv
+
+      - name: Regenerate GBIF block membership from the same island universe
+        run: |
+          island-v2-gbif-blocks prepare \
+            --islands-gpkg data/v2/external/islands/gshhg/prepared/islands_v2.gpkg \
+            --output-dir data/v2/external/gbif/database_alpha1 \
+            --taxon-name Tracheophyta \
+            --taxon-rank PHYLUM \
+            --taxon-key 7707728 \
+            --target-scope angiosperms \
+            --grid-degrees 30 \
+            --max-wkt-chars 120000 \
+            --max-islands-per-block 125 \
+            --query-buffer-m 2000 \
+            --query-simplify-m 500
+
+      - name: Build candidate flora core from completed GBIF collection
+        run: |
+          python -m island_v2.island_plant_database_gbif \
+            --pairs data/v2/staging/gbif/collected/island_species_occurrences.csv.gz \
+            --taxa-summary data/v2/staging/gbif/collected/island_taxa.csv \
+            --block-members data/v2/external/gbif/database_alpha1/gbif_block_members.csv \
+            --campaign config/gbif_full_acquisition_v2.json \
+            --islands data/v2/curated/island_plant_database/alpha1/islands.csv \
+            --collection-status data/v2/staging/gbif/collected/collection_status.json \
+            --output-dir data/v2/curated/island_plant_database/alpha1
+
+      - name: Validate alpha1 relational bundle
+        run: |
+          python -m island_v2.island_plant_database validate \
+            --bundle-dir data/v2/curated/island_plant_database/alpha1 \
+            > data/v2/curated/island_plant_database/alpha1/VALIDATION_REPORT.json
+          cat data/v2/curated/island_plant_database/alpha1/VALIDATION_REPORT.json
+
+      - name: Enforce frozen alpha1 counts and scientific boundaries
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('data/v2/curated/island_plant_database/alpha1')
+          validation = json.loads((root / 'VALIDATION_REPORT.json').read_text())
+          manifest = json.loads((root / 'DATABASE_MANIFEST.json').read_text())
+          rights = pd.read_csv(root / 'RIGHTS_LEDGER.csv', dtype=str).fillna('')
+          islands = pd.read_csv(root / 'islands.csv', dtype=str).fillna('')
+
+          assert validation['valid'] is True
+          assert validation['islands'] == 8265, validation
+          assert validation['taxa'] == 115328, validation
+          assert validation['island_taxa'] == 1039757, validation
+          assert validation['evidence'] == 1039757, validation
+          assert validation['rights_ledger_present'] is True
+
+          counts = manifest['counts']
+          assert counts['islands'] == 8265, counts
+          assert counts['taxa'] == 115328, counts
+          assert counts['island_taxa'] == 1039757, counts
+          assert counts['evidence'] == 1039757, counts
+          assert counts['gbif_downloads'] == 103, counts
+          assert counts['islands_with_exact_occurrence_records'] == 4549, counts
+          assert counts['islands_with_species_candidate_records'] == 4505, counts
+          assert counts['islands_with_occurrence_but_no_species_candidate'] == 44, counts
+
+          interpretation = manifest['scientific_interpretation']
+          assert interpretation['gbif_pair_status'] == 'candidate_not_verified_flora'
+          assert interpretation['native_status_inferred'] is False
+          assert interpretation['endemic_status_inferred'] is False
+          assert interpretation['absence_inferred_from_missing_records'] is False
+          assert interpretation['occurrence_without_species_candidate_is_absence'] is False
+
+          assert islands['island_id'].is_unique
+          assert len(islands) == 8265
+          assert islands['release_status'].eq('redistributable').all()
+          assert rights['rights_status'].eq('review_required').all()
+          assert rights['redistributable_value'].str.lower().eq('false').all()
+          PY
+
+      - name: Add build receipt
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path('data/v2/curated/island_plant_database/alpha1')
+          names = [
+              'islands.csv',
+              'taxa.csv.gz',
+              'island_taxa.csv.gz',
+              'evidence.csv.gz',
+              'RIGHTS_LEDGER.csv',
+              'DATABASE_MANIFEST.json',
+              'VALIDATION_REPORT.json',
+          ]
+          files = {}
+          for name in names:
+              path = root / name
+              digest = hashlib.sha256(path.read_bytes()).hexdigest()
+              files[name] = {'sha256': digest, 'bytes': path.stat().st_size}
+          receipt = {
+              'schema_version': 1,
+              'database_id': 'global_island_plant_database',
+              'version': '2.0.0-alpha1',
+              'git_sha': '${{ github.sha }}',
+              'files': files,
+          }
+          (root / 'BUILD_RECEIPT.json').write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          PY
+
+      - name: Upload frozen alpha1 candidate-flora bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: island-plant-database-2.0.0-alpha1-${{ github.run_id }}
+          path: data/v2/curated/island_plant_database/alpha1/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Summarize alpha1 build
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          root = Path('data/v2/curated/island_plant_database/alpha1')
+          validation = json.loads((root / 'VALIDATION_REPORT.json').read_text())
+          manifest = json.loads((root / 'DATABASE_MANIFEST.json').read_text())
+          counts = manifest['counts']
+          print('## Island Plant Database 2.0-alpha1')
+          print(f"- islands: {validation['islands']:,}")
+          print(f"- provisional taxa: {validation['taxa']:,}")
+          print(f"- candidate island x taxon rows: {validation['island_taxa']:,}")
+          print(f"- aggregate evidence rows: {validation['evidence']:,}")
+          print(f"- islands with exact GBIF occurrence rows: {counts['islands_with_exact_occurrence_records']:,}")
+          print(f"- islands with species-level candidate flora: {counts['islands_with_species_candidate_records']:,}")
+          print(f"- occurrence islands without a species-level candidate: {counts['islands_with_occurrence_but_no_species_candidate']:,}")
+          print(f"- GBIF downloads in rights ledger: {counts['gbif_downloads']:,}")
+          print('- GBIF flora membership remains candidate-only; no native/endemic/absence inference.')
+          print('- The 44 occurrence-only islands are unresolved evidence, not absences.')
+          print('- GBIF value redistribution remains blocked pending constituent-dataset license audit.')
+          PY

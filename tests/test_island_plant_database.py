@@ -72,7 +72,7 @@ def _write_bundle(tmp_path: Path, *, with_traits: bool = False) -> Path:
                 "evidence_count": "1",
                 "review_status": "unreviewed",
                 "release_status": "redistributable",
-                "provenance_id": "prov-1",
+                "provenance_id": "ev-1",
             }
         ]
     ).to_csv(bundle / "island_taxa.csv", index=False)
