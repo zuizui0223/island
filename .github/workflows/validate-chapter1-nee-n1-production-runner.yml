@@ -1,0 +1,66 @@
+name: Validate Chapter 1 NEE N1 production runner
+
+on:
+  push:
+    branches:
+      - "nee/double-filter-n1-production-runner"
+    paths:
+      - ".github/workflows/run-chapter1-nee-n1.yml"
+      - ".github/workflows/validate-chapter1-nee-n1-production-runner.yml"
+      - "docs/chapter1_nee_n1_production_runner.md"
+  pull_request:
+    paths:
+      - ".github/workflows/run-chapter1-nee-n1.yml"
+      - ".github/workflows/validate-chapter1-nee-n1-production-runner.yml"
+      - "docs/chapter1_nee_n1_production_runner.md"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-production-n1-runner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Re-run frozen N1 execution tests
+        run: |
+          pytest -q tests/test_chapter1_nee_n1_model.py tests/test_chapter1_nee_n1_run.py
+          python -m island_v2.chapter1_nee_n1_run run --help >/dev/null
+      - name: Guard production N1 workflow boundaries
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text=Path('.github/workflows/run-chapter1-nee-n1.yml').read_text()
+          required=[
+              'qualification_run_id',
+              'chapter1-nee-channel-qualification-',
+              'nee_projected_channel_state.csv',
+              'nee_channel_qualification_receipt.csv',
+              '8270544465',
+              '695f35b97bae07e81b05deab537dd73fa687b2d99e9efdb1cb3babd2fa12dfb6',
+              'purpose_shortest_island_data.csv',
+              'chapter1_nee_n1_run run',
+              'stop_before_N2_and_keep_frozen_Chapter1',
+              'N2 is not triggered automatically',
+          ]
+          missing=[value for value in required if value not in text]
+          assert not missing, f'missing production N1 boundaries: {missing}'
+          forbidden=[
+              'GBIF_USERNAME',
+              'GBIF_PASSWORD',
+              'trait_snapshot',
+              'flower_colour',
+              'floral_form',
+              'reproductive_assurance',
+              'chapter1_nee_n2',
+              'run_nee_n2',
+          ]
+          hits=[value for value in forbidden if value in text]
+          assert not hits, f'production N1 workflow contains prohibited dependencies/actions: {hits}'
+          print('Production N1 workflow is qualification-gated, covariate-pinned, and does not auto-open N2')
+          PY
