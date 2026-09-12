@@ -36,7 +36,7 @@ jobs:
         run: |
           pytest -q tests/test_chapter1_nee_contract.py
           ruff check src/island_v2/chapter1_nee_contract.py tests/test_chapter1_nee_contract.py
-          python -m island_v2.chapter1_nee_contract validate \
+          python -m island_v2.chapter1_nee_contract \
             --config config/chapter1_nee_double_filter.yml \
             --output-json /tmp/chapter1_nee_n0_receipt.json
           cat /tmp/chapter1_nee_n0_receipt.json
