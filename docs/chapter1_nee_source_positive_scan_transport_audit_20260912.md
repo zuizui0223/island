@@ -59,4 +59,22 @@ This change is interpreted only as repair of a query-transport failure. It is no
 
 ## Full scan
 
-Full source positive-scan run `34700705549` was launched only after the repaired 5/5 pilot passed. Its frozen universe is 8,265 islands, 730 unique source entities across all four prespecified source modes, including 481 primary `geo_k5` entities. The five channel scans use the same exact-component strategy and fixed 900-record entity×channel budget. Full results are to be added to this audit from the run artifacts before the branch is merged.
+Full source positive-scan run `34700705549` was launched only after the repaired 5/5 pilot passed. Its frozen universe is 8,265 islands, 730 unique source entities across all four prespecified source modes, including 481 primary `geo_k5` entities. The five channel scans use the same exact-component strategy and fixed 900-record entity×channel budget.
+
+The original full run used one serial 730-entity job per channel with `max-parallel=2`. Before any channel completed and before any full-scan source-state artifact existed, that execution layout was identified as the operational bottleneck. No source availability counts or channel outcomes had been observed from the full run at that point.
+
+A deterministic execution-only sharding was therefore frozen before opening any full result:
+
+- sharded workflow run: `34704844604`;
+- source entity partition rule: sort the 730 frozen unique `entity_ID` values, then assign `index mod 10`;
+- number of shards: 10;
+- entities per shard: exactly 73 in every shard;
+- all five channels use the same partition;
+- each entity×channel is still processed by the unchanged `chapter1_nee_source_positive_scan_v1` scanner;
+- the exact GIFT geometry strategy, confirmatory catalog, establishment filters and 900-record entity×channel cap are unchanged;
+- shard membership uses no source occurrence outcome, island channel outcome, focal plant trait, N1 result or plant assemblage result;
+- after scanning, the ten shard tables are reassembled and hard-checked to exactly 730 unique entity rows before a canonical channel artifact is emitted.
+
+The sharded input artifact is `10300558673`, digest `sha256:9f434c2a3a20108df2305bed60403419930c98f0d53c01e9fc167cdc2fd87863`. Independent inspection confirmed 730 unique entities, zero duplicate entity IDs, and exactly 73 entities in each of the ten shards. Example previously diagnosed entities are separated by the outcome-blind rule (`345` in shard 8; `346` in shard 9).
+
+Full channel results are to be added to this audit from the canonical reassembled run artifacts before the branch is merged.
