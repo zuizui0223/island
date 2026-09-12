@@ -1,0 +1,64 @@
+name: Validate Chapter 1 NEE channel qualification runner
+
+on:
+  push:
+    branches:
+      - "nee/double-filter-n1-qualification-runner"
+    paths:
+      - ".github/workflows/run-chapter1-nee-channel-qualification.yml"
+      - ".github/workflows/validate-chapter1-nee-channel-qualification-runner.yml"
+      - "docs/chapter1_nee_channel_qualification_runner.md"
+  pull_request:
+    paths:
+      - ".github/workflows/run-chapter1-nee-channel-qualification.yml"
+      - ".github/workflows/validate-chapter1-nee-channel-qualification-runner.yml"
+      - "docs/chapter1_nee_channel_qualification_runner.md"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-channel-qualification-runner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Re-run frozen channel-input projection tests
+        run: |
+          pytest -q tests/test_chapter1_nee_contract.py tests/test_chapter1_nee_channel_inputs.py
+          ruff check src/island_v2/chapter1_nee_channel_inputs.py tests/test_chapter1_nee_channel_inputs.py
+          python -m island_v2.chapter1_nee_channel_inputs --help >/dev/null
+          python -m island_v2.chapter1_nee_channel_inputs validate --help >/dev/null
+      - name: Guard qualification workflow boundaries
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text=Path('.github/workflows/run-chapter1-nee-channel-qualification.yml').read_text()
+          required=[
+              'source_proxy_run_id',
+              'island_observation_run_id',
+              'geo_k5_island_channel_source_availability.csv',
+              'chapter1-nee-island-search-observation-',
+              'chapter1_nee_channel_inputs validate',
+              'nee_channel_qualification_receipt.csv',
+          ]
+          missing=[value for value in required if value not in text]
+          assert not missing, f'missing qualification contract surfaces: {missing}'
+          forbidden=[
+              'chapter1_nee_n1_run',
+              'fit_n1_primary',
+              'GBIF_USERNAME',
+              'GBIF_PASSWORD',
+              'trait_snapshot',
+              'flower_colour',
+              'floral_form',
+              'reproductive_assurance',
+          ]
+          hits=[value for value in forbidden if value in text]
+          assert not hits, f'qualification runner contains prohibited dependencies: {hits}'
+          print('Qualification runner remains projection-only and pre-N1')
+          PY
