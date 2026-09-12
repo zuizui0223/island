@@ -8,12 +8,14 @@ on:
       - "config/chapter1_nee_channel_taxon_catalog.yml"
       - "src/island_v2/chapter1_nee_channel_catalog_supported.py"
       - "tests/test_chapter1_nee_globi_support_semantics.py"
+      - ".github/workflows/run-chapter1-nee-globi-supported-catalog.yml"
       - ".github/workflows/validate-chapter1-nee-globi-support-semantics.yml"
   pull_request:
     paths:
       - "config/chapter1_nee_channel_taxon_catalog.yml"
       - "src/island_v2/chapter1_nee_channel_catalog_supported.py"
       - "tests/test_chapter1_nee_globi_support_semantics.py"
+      - ".github/workflows/run-chapter1-nee-globi-supported-catalog.yml"
 
 permissions:
   contents: read
@@ -35,3 +37,19 @@ jobs:
             src/island_v2/chapter1_nee_channel_catalog_supported.py \
             tests/test_chapter1_nee_globi_support_semantics.py
           python -m island_v2.chapter1_nee_channel_catalog_supported --help >/dev/null
+      - name: Validate canonical rerun stays pre-N1
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+          path=Path('.github/workflows/run-chapter1-nee-globi-supported-catalog.yml')
+          assert isinstance(yaml.safe_load(path.read_text()), dict)
+          text=path.read_text()
+          assert 'chapter1_nee_channel_catalog_supported' in text
+          assert "'interactions_export_argument_type'] == 'SUPPORTS'" in text
+          assert "'refuted_export_argument_type'] == 'REFUTES'" in text
+          assert "'support_refute_cross_subtraction_applied'] is False" in text
+          assert "'uses_focal_plant_traits'] is False" in text
+          assert "'N1_fitted'] is False" in text
+          PY
+          test ! -e data/v2/control/run_nee_globi_supported_catalog.trigger
