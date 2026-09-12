@@ -1,0 +1,62 @@
+name: Validate Chapter 1 NEE GBIF background run
+
+on:
+  push:
+    branches:
+      - "nee/double-filter-gbif-background-run"
+    paths:
+      - ".github/workflows/run-chapter1-nee-gbif-background-campaigns.yml"
+      - ".github/workflows/validate-chapter1-nee-gbif-background-run.yml"
+      - "config/chapter1_nee_gbif_background_acquisition.yml"
+      - "src/island_v2/chapter1_nee_gbif_channel_collect.py"
+      - "src/island_v2/chapter1_nee_background_filter.py"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-prepared-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate workflow YAML and frozen contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+          run_path=Path('.github/workflows/run-chapter1-nee-gbif-background-campaigns.yml')
+          config_path=Path('config/chapter1_nee_gbif_background_acquisition.yml')
+          for path in [run_path, config_path]:
+              payload=yaml.safe_load(path.read_text())
+              assert isinstance(payload, dict), path
+          config=yaml.safe_load(config_path.read_text())
+          assert config['status'] == 'prospective_pre_occurrence'
+          assert set(config['campaigns']) == {'non_bombus_bees','lepidoptera','flower_visiting_birds','diptera'}
+          assert config['bombus']['not_rerun_in_new_four_channel_campaign'] is True
+          workflow=run_path.read_text()
+          for forbidden in [
+              'channel_taxon_catalog',
+              'chapter1_nee_channel_observation',
+              'chapter1_nee_n1',
+              'chapter1_manuscript',
+              'trait_snapshot',
+          ]:
+              assert forbidden not in workflow, forbidden
+          for required in [
+              "'functional_target_catalog_used':False",
+              "'focal_plant_traits_used':False",
+              "'N1_fitted':False",
+              'chapter1_nee_gbif_channel_collect',
+              'chapter1_nee_background_filter',
+          ]:
+              assert required in workflow, required
+          print('prepared GBIF background acquisition contract valid and outcome-blind')
+          PY
+          python -m island_v2.chapter1_nee_gbif_channel_collect --help >/dev/null
+          python -m island_v2.chapter1_nee_background_filter --help >/dev/null
+          test ! -e data/v2/control/run_nee_gbif_background.trigger
