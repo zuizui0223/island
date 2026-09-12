@@ -10,6 +10,14 @@ fixed_source_artifact:
   assignment_file: result/island_source_assignments.csv.gz
   source_flora_file: source/gift_native_mainland_flora.csv.gz
 
+genus_parsing:
+  source_field: work_species
+  genus_token_rule: literal_first_whitespace_delimited_token
+  standard_token_pattern: '^[A-Z][A-Za-z-]+$'
+  hybrid_or_nothogenus_marker_action: holdout_not_primary_search
+  nonstandard_token_action: holdout_not_primary_search
+  no_taxonomic_repair_during_ranking: true
+
 ranking:
   primary_source_mode: geo_k5
   source_rank_set: [1, 2, 3, 4, 5]
