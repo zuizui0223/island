@@ -1,0 +1,54 @@
+name: Validate Chapter 1 NEE source positive scan
+
+on:
+  push:
+    branches:
+      - "nee/double-filter-source-positive-scan"
+    paths:
+      - "config/chapter1_nee_source_positive_scan.yml"
+      - "src/island_v2/chapter1_nee_source_positive_scan.py"
+      - "tests/test_chapter1_nee_source_positive_scan.py"
+      - ".github/workflows/validate-chapter1-nee-source-positive-scan.yml"
+  pull_request:
+    paths:
+      - "config/chapter1_nee_source_positive_scan.yml"
+      - "src/island_v2/chapter1_nee_source_positive_scan.py"
+      - "tests/test_chapter1_nee_source_positive_scan.py"
+      - ".github/workflows/validate-chapter1-nee-source-positive-scan.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-source-positive-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Run pure fail-closed tests and lint
+        run: |
+          pytest -q tests/test_chapter1_nee_source_positive_scan.py
+          ruff check \
+            src/island_v2/chapter1_nee_source_positive_scan.py \
+            tests/test_chapter1_nee_source_positive_scan.py
+          python -m island_v2.chapter1_nee_source_positive_scan --help >/dev/null
+      - name: Smoke-test frozen GIFT geometry and GBIF taxon resolution only
+        run: |
+          python - <<'PY'
+          import httpx
+          import yaml
+          from island_v2.chapter1_nee_source_positive_scan import gift_entity_wkt
+          from island_v2.gbif_blocks import resolve_query_taxon
+
+          config=yaml.safe_load(open('config/chapter1_nee_source_positive_scan.yml'))
+          with httpx.Client(timeout=90,follow_redirects=True,headers={'User-Agent':'island-v2/nee-source-scan-smoke'}) as client:
+              wkt=gift_entity_wkt(client,'12605',config)
+              assert wkt.startswith(('POLYGON','MULTIPOLYGON'))
+              taxon=resolve_query_taxon(client,'Lepidoptera','ORDER',None,None)
+              assert str(taxon.get('usage_key','')).strip()
+          print({'gift_entity':'12605','geometry_ok':True,'gbif_taxon':'Lepidoptera','taxon_key':taxon['usage_key']})
+          PY
