@@ -1,0 +1,87 @@
+name: Validate Chapter 1 NEE N1 runner
+
+on:
+  push:
+    branches:
+      - "nee/double-filter-n1-runner"
+    paths:
+      - "src/island_v2/chapter1_nee_n1_run.py"
+      - "tests/test_chapter1_nee_n1_run.py"
+      - ".github/workflows/validate-chapter1-nee-n1-runner.yml"
+      - "docs/chapter1_nee_n1_runner_contract.md"
+  pull_request:
+    paths:
+      - "src/island_v2/chapter1_nee_n1_run.py"
+      - "tests/test_chapter1_nee_n1_run.py"
+      - ".github/workflows/validate-chapter1-nee-n1-runner.yml"
+      - "docs/chapter1_nee_n1_runner_contract.md"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  validate-n1-runner:
+    runs-on: ubuntu-latest
+    env:
+      COVARIATE_ARTIFACT_ID: "8270544465"
+      COVARIATE_ARTIFACT_SHA256: "695f35b97bae07e81b05deab537dd73fa687b2d99e9efdb1cb3babd2fa12dfb6"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Test frozen N1 model plus execution wrapper
+        run: |
+          pytest -q \
+            tests/test_chapter1_nee_n1_model.py \
+            tests/test_chapter1_nee_n1_run.py
+          ruff check \
+            src/island_v2/chapter1_nee_n1_run.py \
+            tests/test_chapter1_nee_n1_run.py
+          python -m island_v2.chapter1_nee_n1_run --help >/dev/null
+          python -m island_v2.chapter1_nee_n1_run run --help >/dev/null
+      - name: Hash-verify canonical Chapter 1 covariate artifact
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/n1-covariates
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${COVARIATE_ARTIFACT_ID}/zip" \
+            > /tmp/n1-covariates.zip
+          echo "$COVARIATE_ARTIFACT_SHA256  /tmp/n1-covariates.zip" | sha256sum --check --strict
+          unzip -q /tmp/n1-covariates.zip -d /tmp/n1-covariates
+          test -s /tmp/n1-covariates/results/purpose_shortest_island_data.csv
+      - name: Audit frozen production covariate adapter
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from island_v2.chapter1_nee_n1_run import prepare_canonical_covariates
+
+          path='/tmp/n1-covariates/results/purpose_shortest_island_data.csv'
+          raw=pd.read_csv(path)
+          cov=prepare_canonical_covariates(raw, expected_islands=8265)
+          assert len(cov) == 8265
+          assert cov.island_id.nunique() == 8265
+          assert cov.spatial_block.nunique() == 291
+          for column in ['climate_pc1','climate_pc2','climate_pc3','climate_pc4']:
+              assert int(cov[column].isna().sum()) == 46
+          print({
+              'n_islands':len(cov),
+              'n_spatial_blocks':int(cov.spatial_block.nunique()),
+              'climate_missing_each':46,
+              'covariate_artifact_id':8270544465,
+          })
+          PY
+      - name: Guard runner from plant-outcome leakage
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text=Path('src/island_v2/chapter1_nee_n1_run.py').read_text().lower()
+          forbidden=['trait_snapshot','flower_colour','floral_form','reproductive_assurance','plant_outcome']
+          hits=[value for value in forbidden if value in text]
+          assert not hits, f'N1 runner reads prohibited plant outcomes: {hits}'
+          print('N1 runner remains channel-state/covariate only')
+          PY
