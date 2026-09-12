@@ -44,6 +44,9 @@ search:
   stop_after_first_confirmatory_target_detection: allowed
   sort_order_assumption: none
 
+background_query_policy:
+  query_order_is_frozen: true
+
 background_queries:
   bombus:
     - taxon: Apidae
@@ -72,7 +75,6 @@ background_queries:
   diptera:
     - taxon: Diptera
       rank: ORDER
-  query_order_is_frozen: true
 
 record_quality:
   explicit_occurrenceStatus_ABSENT_excluded: true
