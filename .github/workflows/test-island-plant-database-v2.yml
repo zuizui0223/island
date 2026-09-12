@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "config/island_plant_database_v2.yml"
+      - "config/island_plant_database_versions/**"
       - "docs/ISLAND_PLANT_DATABASE_V2.md"
       - "data/v2/templates/*_core_template.csv"
       - "data/v2/templates/island_taxa_template.csv"
@@ -12,13 +13,17 @@ on:
       - "data/v2/templates/database_rights_ledger_template.csv"
       - "src/island_v2/island_plant_database.py"
       - "tests/test_island_plant_database.py"
+      - "tests/test_island_plant_database_version_manifest.py"
       - ".github/workflows/test-island-plant-database-v2.yml"
   push:
     branches: [main]
     paths:
       - "config/island_plant_database_v2.yml"
+      - "config/island_plant_database_versions/**"
       - "src/island_v2/island_plant_database.py"
       - "tests/test_island_plant_database.py"
+      - "tests/test_island_plant_database_version_manifest.py"
+      - ".github/workflows/test-island-plant-database-v2.yml"
 
 permissions:
   contents: read
@@ -33,10 +38,17 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -e ".[dev]"
-      - name: Test database bundle contract
-        run: pytest -q tests/test_island_plant_database.py
+      - name: Test database bundle contract and version receipt
+        run: |
+          pytest -q \
+            tests/test_island_plant_database.py \
+            tests/test_island_plant_database_version_manifest.py
       - name: Lint database contract implementation
-        run: ruff check src/island_v2/island_plant_database.py tests/test_island_plant_database.py
+        run: |
+          ruff check \
+            src/island_v2/island_plant_database.py \
+            tests/test_island_plant_database.py \
+            tests/test_island_plant_database_version_manifest.py
       - name: Validate schema contract loads
         run: |
           python - <<'PY'
