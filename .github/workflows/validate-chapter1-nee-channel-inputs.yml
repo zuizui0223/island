@@ -1,0 +1,61 @@
+name: Validate Chapter 1 NEE channel inputs
+
+on:
+  push:
+    branches:
+      - "nee/**"
+    paths:
+      - "config/chapter1_nee_double_filter.yml"
+      - "config/chapter1_nee_channel_inputs.yml"
+      - "src/island_v2/chapter1_nee_contract.py"
+      - "src/island_v2/chapter1_nee_channel_inputs.py"
+      - "tests/test_chapter1_nee_contract.py"
+      - "tests/test_chapter1_nee_channel_inputs.py"
+      - ".github/workflows/validate-chapter1-nee-channel-inputs.yml"
+  pull_request:
+    paths:
+      - "config/chapter1_nee_double_filter.yml"
+      - "config/chapter1_nee_channel_inputs.yml"
+      - "src/island_v2/chapter1_nee_contract.py"
+      - "src/island_v2/chapter1_nee_channel_inputs.py"
+      - "tests/test_chapter1_nee_contract.py"
+      - "tests/test_chapter1_nee_channel_inputs.py"
+      - ".github/workflows/validate-chapter1-nee-channel-inputs.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-channel-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate N0 and N1 input contracts
+        run: |
+          pytest -q \
+            tests/test_chapter1_nee_contract.py \
+            tests/test_chapter1_nee_channel_inputs.py
+          ruff check \
+            src/island_v2/chapter1_nee_contract.py \
+            src/island_v2/chapter1_nee_channel_inputs.py \
+            tests/test_chapter1_nee_contract.py \
+            tests/test_chapter1_nee_channel_inputs.py
+          python -m island_v2.chapter1_nee_contract \
+            --config config/chapter1_nee_double_filter.yml \
+            --output-json /tmp/chapter1_nee_n0_receipt.json
+          python - <<'PY'
+          from pathlib import Path
+          from island_v2.chapter1_nee_channel_inputs import load_config
+
+          config = load_config(Path('config/chapter1_nee_channel_inputs.yml'))
+          assert config['parent_contract'] == 'chapter1_nee_double_filter_v1'
+          assert config['support_tiers']['N1_gate_eligible_tier'] == 'confirmatory'
+          assert config['projection_rules']['island_non_detection_cannot_create_structural_absence'] is True
+          print('N1 input contract validated')
+          PY
