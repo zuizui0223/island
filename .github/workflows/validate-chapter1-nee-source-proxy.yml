@@ -1,0 +1,38 @@
+name: Validate Chapter 1 NEE source proxy
+
+on:
+  push:
+    branches:
+      - "nee/**"
+    paths:
+      - "config/chapter1_nee_source_proxy.yml"
+      - "src/island_v2/chapter1_nee_source_proxy.py"
+      - "tests/test_chapter1_nee_source_proxy.py"
+      - "docs/chapter1_nee_source_proxy_contract.md"
+      - ".github/workflows/validate-chapter1-nee-source-proxy.yml"
+  pull_request:
+    paths:
+      - "config/chapter1_nee_source_proxy.yml"
+      - "src/island_v2/chapter1_nee_source_proxy.py"
+      - "tests/test_chapter1_nee_source_proxy.py"
+      - "docs/chapter1_nee_source_proxy_contract.md"
+      - ".github/workflows/validate-chapter1-nee-source-proxy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-source-proxy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate frozen source-set aggregation
+        run: |
+          pytest -q tests/test_chapter1_nee_source_proxy.py
+          ruff check src/island_v2/chapter1_nee_source_proxy.py tests/test_chapter1_nee_source_proxy.py
