@@ -1,0 +1,7 @@
+chapter1_nee_n2_dependency_discovery_v1
+purpose=source-opportunity-only-wave1
+artifact_id=9601703747
+wave=1
+uses_island_genus_entry=false
+uses_N1_effect_direction=false
+uses_N2_effect_direction=false
