@@ -1,0 +1,6 @@
+chapter1_nee_globi_supported_catalog_v1
+source_version_doi=10.5281/zenodo.20546682
+argument_type=SUPPORTS
+refuted_role=contradiction_audit_only
+uses_focal_plant_traits=false
+N1_fitted=false
