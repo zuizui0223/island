@@ -1,0 +1,91 @@
+name: Validate Chapter 1 NEE sharded island Search execution
+
+on:
+  push:
+    branches:
+      - "nee/island-observation-search-sharded"
+    paths:
+      - "config/chapter1_nee_island_search_execution.yml"
+      - ".github/workflows/run-chapter1-nee-island-search-observations-sharded.yml"
+      - ".github/workflows/validate-chapter1-nee-island-search-sharded.yml"
+      - "src/island_v2/chapter1_nee_island_search_observation.py"
+      - "tests/test_chapter1_nee_island_search_observation.py"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "config/chapter1_nee_island_search_execution.yml"
+      - ".github/workflows/run-chapter1-nee-island-search-observations-sharded.yml"
+      - ".github/workflows/validate-chapter1-nee-island-search-sharded.yml"
+      - "src/island_v2/chapter1_nee_island_search_observation.py"
+      - "tests/test_chapter1_nee_island_search_observation.py"
+
+jobs:
+  validate-sharded-island-search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Run frozen Search tests and lint
+        run: |
+          pytest -q tests/test_chapter1_nee_island_search_observation.py
+          ruff check src/island_v2/chapter1_nee_island_search_observation.py tests/test_chapter1_nee_island_search_observation.py
+      - name: Validate prospective execution contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          cfg=yaml.safe_load(Path('config/chapter1_nee_island_search_execution.yml').read_text())
+          assert cfg['contract'] == 'chapter1_nee_island_search_execution_v1'
+          assert cfg['status'] == 'prospective_pre_island_channel_observation'
+          exe=cfg['canonical_execution']
+          assert exe['layout'] == 'deterministic_island_shards'
+          assert exe['n_shards'] == 20
+          assert exe['partition_rule'] == 'sorted_unique_frozen_GSHHG_island_id_index_mod_20'
+          assert exe['partition_before_source_state_filter'] is True
+          assert exe['frozen_island_universe_size'] == 8265
+          assert exe['expected_shard_sizes']['size_414_shards'] == 5
+          assert exe['expected_shard_sizes']['size_413_shards'] == 15
+          assert exe['max_parallel_jobs'] == 10
+          inv=cfg['invariants']
+          assert inv['same_search_record_cap_per_island_channel'] == 900
+          assert inv['source_availability_does_not_change_partition'] is True
+          assert inv['island_observation_outcomes_do_not_change_partition'] is True
+          assert inv['N1_effects_do_not_change_partition'] is True
+          assert inv['focal_plant_traits_do_not_change_partition'] is True
+          PY
+      - name: Guard production workflow boundaries
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          text=Path('.github/workflows/run-chapter1-nee-island-search-observations-sharded.yml').read_text()
+          required=[
+              'source_proxy_run_id',
+              'N_SHARDS: "20"',
+              'max-parallel: 10',
+              'sorted_unique_frozen_GSHHG_island_id_index_mod_20',
+              'partition_before_source_state_filter',
+              'chapter1-nee-island-search-observation-${{ matrix.channel }}-${{ github.run_id }}',
+              'max_records_per_island_channel',
+              "assert len(paths) != 20".replace('assert ','') if False else "if len(paths) != 20",
+          ]
+          for token in required:
+              assert token in text, token
+          forbidden=[
+              'GBIF_USERNAME',
+              'GBIF_PASSWORD',
+              'chapter1_nee_n1_run',
+              'pollination_guild',
+              'flower_color',
+              'mating_system',
+          ]
+          for token in forbidden:
+              assert token not in text, token
+          PY
