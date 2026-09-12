@@ -5,6 +5,13 @@ parent_contracts:
   - chapter1_nee_source_availability_v1
 status: prospective_pre_pollinator_occurrence
 
+channels:
+  - bombus
+  - non_bombus_bees
+  - lepidoptera
+  - flower_visiting_birds
+  - diptera
+
 fixed_assignment_artifact:
   workflow_run_id: 32954909953
   artifact_id: 9601703747
