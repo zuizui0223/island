@@ -1,0 +1,40 @@
+name: Validate Chapter 1 NEE N1 model freeze
+
+on:
+  push:
+    branches:
+      - "nee/**"
+    paths:
+      - "config/chapter1_nee_n1_model.yml"
+      - "src/island_v2/chapter1_nee_n1_model.py"
+      - "tests/test_chapter1_nee_n1_model.py"
+      - "docs/chapter1_nee_n1_model_contract.md"
+      - ".github/workflows/validate-chapter1-nee-n1-model.yml"
+  pull_request:
+    paths:
+      - "config/chapter1_nee_n1_model.yml"
+      - "src/island_v2/chapter1_nee_n1_model.py"
+      - "tests/test_chapter1_nee_n1_model.py"
+      - "docs/chapter1_nee_n1_model_contract.md"
+      - ".github/workflows/validate-chapter1-nee-n1-model.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-n1-freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate frozen N1 model
+        run: |
+          pytest -q tests/test_chapter1_nee_n1_model.py
+          ruff check src/island_v2/chapter1_nee_n1_model.py tests/test_chapter1_nee_n1_model.py
+          python -m island_v2.chapter1_nee_n1_model \
+            --config-path config/chapter1_nee_n1_model.yml
