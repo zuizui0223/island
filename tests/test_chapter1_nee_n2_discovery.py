@@ -78,15 +78,14 @@ def test_literal_genus_token_holds_out_hybrid_markers() -> None:
 
 def test_ranked_universe_uses_source_opportunity_only_and_is_deterministic() -> None:
     ranked, holdouts, receipt = build_ranked_universe(_assignments(), _flora(), _config())
-    assert ranked.iloc[0]["accepted_genus"] == "Alpha"
-    assert ranked.iloc[0]["n_islands_with_source_available_genus"] == 3
-    assert ranked.iloc[0]["n_selected_mainland_source_entities_containing_genus"] == 2
-    assert ranked.iloc[1]["accepted_genus"] == "Beta"
-    assert ranked.iloc[1]["n_islands_with_source_available_genus"] == 3
-    assert ranked.iloc[1]["n_selected_mainland_source_entities_containing_genus"] == 3
-    # Beta has more source entities, so it must sort before Alpha under the frozen secondary score.
+    # Alpha and Beta are available to the same three islands; Beta wins only because
+    # it occurs in three selected mainland source entities versus two for Alpha.
     assert ranked.iloc[0]["accepted_genus"] == "Beta"
+    assert ranked.iloc[0]["n_islands_with_source_available_genus"] == 3
+    assert ranked.iloc[0]["n_selected_mainland_source_entities_containing_genus"] == 3
     assert ranked.iloc[1]["accepted_genus"] == "Alpha"
+    assert ranked.iloc[1]["n_islands_with_source_available_genus"] == 3
+    assert ranked.iloc[1]["n_selected_mainland_source_entities_containing_genus"] == 2
     assert set(holdouts["raw_genus_token"]) == {"×", "×Cephalorhiza"}
     assert receipt["n_islands"] == 3
     assert receipt["uses_island_genus_entry"] is False
@@ -125,8 +124,6 @@ def test_wave_partition_is_fixed_at_500_and_select_wave_is_pure() -> None:
     assignments = _assignments()
     selected_entities = sorted(set(assignments.loc[assignments.source_mode.eq("geo_k5"), "entity_ID"]))
     for index in range(1001):
-        genus = f"Genus{index:04d}"
-        # Digits are deliberately nonstandard and would be held out, so use alphabetic suffixes instead.
         letters = "".join(chr(65 + ((index // (26 ** p)) % 26)) for p in [2, 1, 0])
         genus = "Genus" + letters
         rows.append({"entity_ID": selected_entities[index % len(selected_entities)], "work_species": f"{genus} species"})
