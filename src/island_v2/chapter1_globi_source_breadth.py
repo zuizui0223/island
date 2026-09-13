@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
@@ -284,7 +283,12 @@ def build_island_breadth_enrichment(
     }
     if missing := required_breadth - set(genus_breadth.columns):
         raise ValueError(f"genus breadth lacks columns: {sorted(missing)}")
-    required_cov = {"island_id", "analysis_regime", *[str(x) for x in config["model"]["predictors"]], str(config["model"]["cluster_column"])}
+    required_cov = {
+        "island_id",
+        "analysis_regime",
+        *[str(x) for x in config["model"]["predictors"]],
+        str(config["model"]["cluster_column"]),
+    }
     if missing := required_cov - set(covariates.columns):
         raise ValueError(f"covariates lack source-breadth columns: {sorted(missing)}")
 
