@@ -1,0 +1,131 @@
+{
+  "contract": "chapter1_nee_island_search_result_lock_v1",
+  "status": "canonical_completed_island_search",
+  "canonical_run": {
+    "workflow_run_id": 34731405488,
+    "head_sha": "e505ae253b696c92b9375a632049b67fd59d4875",
+    "source_proxy_run_id": 34729087812,
+    "prepared_input_artifact_id": 10310100355,
+    "prepared_input_artifact_digest": "sha256:97628cc5dc270fa83b6a7cf28caa2230d27e75cd1ce5323fe822174c6a34f55c",
+    "n_shards_per_channel": 20,
+    "n_channels": 5,
+    "n_scan_shards": 100,
+    "all_scan_shards_success": true,
+    "all_channel_aggregates_success": true,
+    "used_row_level_retry": false,
+    "used_cross_run_union": false
+  },
+  "frozen_inputs": {
+    "island_universe_artifact_id": 8066083419,
+    "island_universe_artifact_digest": "sha256:bee33e14672ec7ff4ed1f7acaea36b32cc6170a45c3d14b2caeb5f43bfaa623b",
+    "island_universe_n": 8265,
+    "source_proxy_artifact_id": 10308673426,
+    "source_proxy_artifact_digest": "sha256:6288c60234a56de19201076394e21709503a7832cf01f8a6abeeec113189cc8d",
+    "channel_catalog_artifact_id": 10291643834,
+    "channel_catalog_artifact_digest": "sha256:c946e36cd04cb319fc63a5bde90534c1cf3c7f41480fc672638f85f5b2a89b02",
+    "max_records_per_island_channel": 900
+  },
+  "channel_results": {
+    "bombus": {
+      "artifact_id": 10313926043,
+      "artifact_digest": "sha256:9d4e800dccc48f98662b59d73a59776607da9286119c9b103762506fa6b828b2",
+      "n_source_available_islands": 7154,
+      "n_detected": 824,
+      "n_adequate_non_detection": 23,
+      "n_insufficient_effort": 5983,
+      "n_unresolved": 324,
+      "n_complete_searches": 6005,
+      "n_truncated_searches": 1,
+      "n_search_errors": 324
+    },
+    "non_bombus_bees": {
+      "artifact_id": 10312514973,
+      "artifact_digest": "sha256:6d939e57f79733867dc66707b4050ccdea4958f0f327f3a89f6e9e3026c5bc3c",
+      "n_source_available_islands": 8186,
+      "n_detected": 1088,
+      "n_adequate_non_detection": 11,
+      "n_insufficient_effort": 6697,
+      "n_unresolved": 390,
+      "n_complete_searches": 6706,
+      "n_truncated_searches": 2,
+      "n_search_errors": 390
+    },
+    "lepidoptera": {
+      "artifact_id": 10314040773,
+      "artifact_digest": "sha256:deff52eb9b3b054a0472a3ad837db6b0b102f0a3c669bdca6b84ecc01a8aa33c",
+      "n_source_available_islands": 8265,
+      "n_detected": 2113,
+      "n_adequate_non_detection": 0,
+      "n_insufficient_effort": 5758,
+      "n_unresolved": 394,
+      "n_complete_searches": 5757,
+      "n_truncated_searches": 1,
+      "n_search_errors": 394
+    },
+    "flower_visiting_birds": {
+      "artifact_id": 10313228947,
+      "artifact_digest": "sha256:a61a0e8a5116e6524038d718140d08bacee094b0d75486c5c9a29690925ae65f",
+      "n_source_available_islands": 8265,
+      "n_detected": 3014,
+      "n_adequate_non_detection": 45,
+      "n_insufficient_effort": 4781,
+      "n_unresolved": 425,
+      "n_complete_searches": 4788,
+      "n_truncated_searches": 38,
+      "n_search_errors": 425
+    },
+    "diptera": {
+      "artifact_id": 10314045819,
+      "artifact_digest": "sha256:127f7701f78109f69b2c189cb8300a6d8d5acedb66b04fc2121b421c1a1c3258",
+      "n_source_available_islands": 8265,
+      "n_detected": 1261,
+      "n_adequate_non_detection": 7,
+      "n_insufficient_effort": 6605,
+      "n_unresolved": 392,
+      "n_complete_searches": 6610,
+      "n_truncated_searches": 2,
+      "n_search_errors": 392
+    }
+  },
+  "fail_closed_audit": {
+    "adequate_non_detection_with_incomplete_search": 0,
+    "truncated_non_detected_rows_not_insufficient_effort": 0,
+    "error_non_detected_rows_not_unresolved": 0,
+    "rows_over_900_record_cap": 0,
+    "duplicate_island_channel_rows": 0
+  },
+  "transport_bias_audit": {
+    "status": "reporting_only_not_used_to_rescue_or_reclassify_rows",
+    "covariate_artifact_id": 8270544465,
+    "covariate_artifact_digest": "sha256:695f35b97bae07e81b05deab537dd73fa687b2d99e9efdb1cb3babd2fa12dfb6",
+    "main_pattern": "search errors are strongly concentrated on large complex island polygons",
+    "channel_error_percent": {
+      "bombus": 4.529,
+      "non_bombus_bees": 4.764,
+      "lepidoptera": 4.767,
+      "flower_visiting_birds": 5.142,
+      "diptera": 4.743
+    },
+    "area_top_decile_error_percent": {
+      "bombus": 43.575,
+      "non_bombus_bees": 45.177,
+      "lepidoptera": 45.466,
+      "flower_visiting_birds": 45.586,
+      "diptera": 45.466
+    },
+    "area_bottom_80_percent_error_percent": {
+      "bombus": 0.0,
+      "non_bombus_bees": 0.046,
+      "lepidoptera": 0.030,
+      "flower_visiting_birds": 0.408,
+      "diptera": 0.0
+    },
+    "claim_limitation": "Search-based N1 inference is conditional on transport-evaluable exact island geometries; transport failures are retained as unresolved and are not rescued, reclassified or excluded post hoc."
+  },
+  "downstream_boundary": {
+    "N1_fitted": false,
+    "N2_opened": false,
+    "qualification_must_use_only_these_five_channel_artifacts": true,
+    "adequate_non_detection_is_not_yet_a_final_N1_disrupted_state_until_frozen_projection_and_qualification": true
+  }
+}
