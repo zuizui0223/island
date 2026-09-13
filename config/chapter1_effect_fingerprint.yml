@@ -36,6 +36,7 @@ taxonomic_attenuation:
   family_retention: after_family_norm / observed_norm
   genus_retention: after_genus_norm / observed_norm
   genus_attenuation: 1 - genus_retention
+  conditional_genus_attenuation: 1 - after_genus_norm / after_family_norm
   inferential_role: descriptive_only
   do_not_compute_ratio_when_observed_norm_below: 1.0e-12
 
@@ -44,6 +45,15 @@ atomic_fingerprint:
     - northern_midlatitude
     - tropical
   support_tier: confirmatory
+  outcome_order:
+    - plain_colour
+    - generalized_form
+    - actinomorphic_symmetry
+    - shallow_open_tube
+    - small_flower
+    - self_compatibility
+    - selfing_mating_system
+    - autonomous_selfing
   outcome_domains:
     flower_colour:
       - plain_colour
@@ -67,11 +77,16 @@ atomic_fingerprint:
     - n_positive_ci
     - n_negative_ci
     - n_uncertain
+  cross_context_geometry:
+    metric: angle_between_eight_component_slope_vectors_degrees
+    interpretation: descriptive_orientation_only
+    no_inferential_threshold: true
 
 rules:
   - all_existing_outcomes_use_the_frozen_northern_classic_positive_direction
   - direct_only_never_overrides_all_analysis
   - vector_attenuation_is_not_percent_causal_mediation
+  - vector_angle_is_not_a_new_heterogeneity_test
   - atomic_fingerprint_is_not_a_new_primary_H2_test
   - no_new_p_values_are_generated
   - no_pollinator_identity_is_inferred
@@ -79,5 +94,5 @@ rules:
 claim_boundary: >-
   This synthesis can quantify how much the already observed response vector is reduced
   across family/genus source-matched stages and can display component-level effect-size
-  fingerprints. It cannot assign causal mediation, in-situ evolution, pollinator loss,
-  or effective service.
+  fingerprints, including descriptive cross-context orientation. It cannot assign causal
+  mediation, in-situ evolution, pollinator loss, or effective service.
