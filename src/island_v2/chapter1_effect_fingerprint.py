@@ -87,7 +87,11 @@ def build_taxonomic_attenuation(root: Path, config: dict[str, Any]) -> tuple[pd.
     group_cols = ["evidence_scope", "source_mode", "stratum"]
     for key, group in long.groupby(group_cols, sort=True):
         meta = dict(zip(group_cols, key, strict=True))
-        rec: dict[str, Any] = {**meta, "context_layer": str(target["context_layer"]), "context": str(target["context"])}
+        rec: dict[str, Any] = {
+            **meta,
+            "context_layer": str(target["context_layer"]),
+            "context": str(target["context"]),
+        }
         complete = True
         for stage in stages:
             part = group.loc[group["stage"].eq(stage)].copy()
@@ -96,10 +100,14 @@ def build_taxonomic_attenuation(root: Path, config: dict[str, Any]) -> tuple[pd.
                 complete = False
                 rec[f"{stage}_vector_norm"] = np.nan
                 continue
-            rec[f"{stage}_vector_norm"] = float(np.linalg.norm(part["distance_slope"].to_numpy(float)))
+            rec[f"{stage}_vector_norm"] = float(
+                np.linalg.norm(part["distance_slope"].to_numpy(float))
+            )
         rec["complete_two_axis_vector"] = bool(complete)
         observed = float(rec.get("observed_score_vector_norm", np.nan))
-        floor = float(config["taxonomic_attenuation"]["do_not_compute_ratio_when_observed_norm_below"])
+        floor = float(
+            config["taxonomic_attenuation"]["do_not_compute_ratio_when_observed_norm_below"]
+        )
         if complete and math.isfinite(observed) and observed > floor:
             family = float(rec["after_family_residual_vector_norm"])
             genus = float(rec["after_genus_residual_vector_norm"])
@@ -107,11 +115,15 @@ def build_taxonomic_attenuation(root: Path, config: dict[str, Any]) -> tuple[pd.
             rec["genus_retention_fraction"] = genus / observed
             rec["family_attenuation_fraction"] = 1.0 - family / observed
             rec["genus_attenuation_fraction"] = 1.0 - genus / observed
+            rec["conditional_genus_attenuation_fraction"] = (
+                1.0 - genus / family if family > floor else np.nan
+            )
         else:
             rec["family_retention_fraction"] = np.nan
             rec["genus_retention_fraction"] = np.nan
             rec["family_attenuation_fraction"] = np.nan
             rec["genus_attenuation_fraction"] = np.nan
+            rec["conditional_genus_attenuation_fraction"] = np.nan
         vector_rows.append(rec)
     vectors = pd.DataFrame(vector_rows)
     return long, vectors
@@ -177,19 +189,80 @@ def build_atomic_fingerprint(root: Path, config: dict[str, Any]) -> tuple[pd.Dat
                 "n_positive_ci": int(directions.eq("positive").sum()),
                 "n_negative_ci": int(directions.eq("negative").sum()),
                 "n_uncertain": int(directions.eq("uncertain").sum()),
-                "median_n_islands": float(pd.to_numeric(group["n_islands"], errors="coerce").median()),
+                "median_n_islands": float(
+                    pd.to_numeric(group["n_islands"], errors="coerce").median()
+                ),
             }
         )
     summary = pd.DataFrame(summary_rows)
     return long, summary
 
 
+def build_cross_context_geometry(long: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
+    order = [str(x) for x in config["atomic_fingerprint"]["outcome_order"]]
+    contexts = [str(x) for x in config["atomic_fingerprint"]["contexts"]]
+    if len(contexts) != 2:
+        raise ValueError("cross-context angle requires exactly two frozen contexts")
+    rows: list[dict[str, Any]] = []
+    for (scope, stratum), group in long.groupby(["evidence_scope", "stratum"], sort=True):
+        vectors: dict[str, np.ndarray] = {}
+        complete = True
+        for context in contexts:
+            part = group.loc[group["context"].astype(str).eq(context)].set_index("outcome")
+            if not set(order).issubset(part.index):
+                complete = False
+                break
+            vectors[context] = np.asarray(
+                [part.loc[outcome, "geography_slope_log_odds_per_response_sd"] for outcome in order],
+                dtype=float,
+            )
+        if not complete or any(not np.isfinite(vector).all() for vector in vectors.values()):
+            rows.append(
+                {
+                    "evidence_scope": scope,
+                    "stratum": stratum,
+                    "context_a": contexts[0],
+                    "context_b": contexts[1],
+                    "n_components": len(order),
+                    "cosine_similarity": np.nan,
+                    "vector_angle_degrees": np.nan,
+                    "complete_vector": False,
+                }
+            )
+            continue
+        a = vectors[contexts[0]]
+        b = vectors[contexts[1]]
+        denom = float(np.linalg.norm(a) * np.linalg.norm(b))
+        cosine = float(np.dot(a, b) / denom) if denom > 0 else np.nan
+        angle = float(np.degrees(np.arccos(np.clip(cosine, -1.0, 1.0)))) if np.isfinite(cosine) else np.nan
+        rows.append(
+            {
+                "evidence_scope": scope,
+                "stratum": stratum,
+                "context_a": contexts[0],
+                "context_b": contexts[1],
+                "n_components": len(order),
+                "cosine_similarity": cosine,
+                "vector_angle_degrees": angle,
+                "complete_vector": True,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 def build_manifest(
     config: dict[str, Any],
     taxonomic_vectors: pd.DataFrame,
     fingerprint_summary: pd.DataFrame,
+    cross_context: pd.DataFrame,
 ) -> dict[str, Any]:
-    attenuation = pd.to_numeric(taxonomic_vectors["genus_attenuation_fraction"], errors="coerce").dropna()
+    attenuation = pd.to_numeric(
+        taxonomic_vectors["genus_attenuation_fraction"], errors="coerce"
+    ).dropna()
+    conditional = pd.to_numeric(
+        taxonomic_vectors["conditional_genus_attenuation_fraction"], errors="coerce"
+    ).dropna()
+    angles = pd.to_numeric(cross_context["vector_angle_degrees"], errors="coerce").dropna()
     return {
         "contract": config["contract"],
         "status": "descriptive_effect_fingerprint_complete",
@@ -200,7 +273,15 @@ def build_manifest(
         "genus_attenuation_fraction_range": (
             [float(attenuation.min()), float(attenuation.max())] if len(attenuation) else []
         ),
-        "genus_attenuation_fraction_median": float(attenuation.median()) if len(attenuation) else None,
+        "genus_attenuation_fraction_median": (
+            float(attenuation.median()) if len(attenuation) else None
+        ),
+        "conditional_genus_attenuation_fraction_range": (
+            [float(conditional.min()), float(conditional.max())] if len(conditional) else []
+        ),
+        "cross_context_angle_degree_range": (
+            [float(angles.min()), float(angles.max())] if len(angles) else []
+        ),
         "n_atomic_domain_summaries": int(len(fingerprint_summary)),
         "new_p_values_generated": False,
         "mechanism_promoted": False,
@@ -212,12 +293,14 @@ def run_synthesis(*, artifact_root: Path, config_path: Path, output_dir: Path) -
     config = load_config(config_path)
     tax_long, tax_vectors = build_taxonomic_attenuation(artifact_root, config)
     fp_long, fp_summary = build_atomic_fingerprint(artifact_root, config)
+    cross_context = build_cross_context_geometry(fp_long, config)
     output_dir.mkdir(parents=True, exist_ok=True)
     tax_long.to_csv(output_dir / "taxonomic_effects_long.csv", index=False)
     tax_vectors.to_csv(output_dir / "taxonomic_vector_attenuation.csv", index=False)
     fp_long.to_csv(output_dir / "atomic_response_fingerprint.csv", index=False)
     fp_summary.to_csv(output_dir / "atomic_domain_fingerprint_summary.csv", index=False)
-    manifest = build_manifest(config, tax_vectors, fp_summary)
+    cross_context.to_csv(output_dir / "atomic_cross_context_vector_geometry.csv", index=False)
+    manifest = build_manifest(config, tax_vectors, fp_summary, cross_context)
     (output_dir / "chapter1_effect_fingerprint_manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
     )
@@ -227,10 +310,21 @@ def run_synthesis(*, artifact_root: Path, config_path: Path, output_dir: Path) -
 @app.command("run")
 def run_command(
     artifact_root: Path = typer.Option(..., exists=True, file_okay=False),
-    config_path: Path = typer.Option(Path("config/chapter1_effect_fingerprint.yml"), exists=True, dir_okay=False),
+    config_path: Path = typer.Option(
+        Path("config/chapter1_effect_fingerprint.yml"), exists=True, dir_okay=False
+    ),
     output_dir: Path = typer.Option(...),
 ) -> None:
-    typer.echo(json.dumps(run_synthesis(artifact_root=artifact_root, config_path=config_path, output_dir=output_dir), indent=2))
+    typer.echo(
+        json.dumps(
+            run_synthesis(
+                artifact_root=artifact_root,
+                config_path=config_path,
+                output_dir=output_dir,
+            ),
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":
