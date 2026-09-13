@@ -77,4 +77,18 @@ A deterministic execution-only sharding was therefore frozen before opening any 
 
 The sharded input artifact is `10300558673`, digest `sha256:9f434c2a3a20108df2305bed60403419930c98f0d53c01e9fc167cdc2fd87863`. Independent inspection confirmed 730 unique entities, zero duplicate entity IDs, and exactly 73 entities in each of the ten shards. Example previously diagnosed entities are separated by the outcome-blind rule (`345` in shard 8; `346` in shard 9).
 
-Full channel results are to be added to this audit from the canonical reassembled run artifacts before the branch is merged.
+## Canonical full-scan result lock
+
+Canonical sharded run `34704844604` completed without a retry. All 50 scan shards and all five channel aggregation jobs completed successfully. Each full channel table contains exactly 730 rows, 730 unique source entities, zero duplicate entity×channel rows, zero structural absences, and zero GIFT geometry failures. Downloaded ZIP SHA-256 values matched the GitHub artifact digests exactly.
+
+| channel | artifact | SHA-256 | available | unresolved | query-error entities | query-error + unresolved | multipart entities | max records examined |
+| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Bombus | `10303941023` | `052db36a257ace02dfa4d4039eeb125477567fd1dad89e356f61433661ccddfe` | 492 | 238 | 39 | 34 | 240 | 48 |
+| non-Bombus bees | `10303419534` | `47f0076e15fceed53b9d7a46c001a01e96bfb3d96d0b7861e0b0094ce4a1719f` | 676 | 54 | 38 | 19 | 240 | 900 |
+| Lepidoptera | `10303921122` | `cc79318a7135cc8322d29606e36058ded1175b1fb1daca30ed10c7340da5ab45` | 712 | 18 | 39 | 13 | 240 | 179 |
+| flower-visiting birds | `10303114973` | `afa31238543aa4bf9718da581612602061e8a66d292e2fa45330f39cbf7074e9` | 710 | 20 | 38 | 11 | 240 | 900 |
+| Diptera | `10303509284` | `301d1c93b563d3fc570c67291114b8ef7f9eea504865a531ab4f569652e2ef11` | 668 | 62 | 38 | 19 | 240 | 900 |
+
+`source_scan_error` is an audit flag, not a biological absence. If another exact component yielded a valid confirmatory positive, the entity may still be `available`; if no positive was established, the entity remains `unresolved`. No failed/error row was promoted to structural absence. The noncanonical serial run must not be unioned with these states and cannot be used to rescue any canonical unresolved entity.
+
+These values are the fixed source-side inputs for the prespecified source-proxy projection. They are not a test of N1 by themselves, and no island retention/disruption outcome was used to choose or modify them.
