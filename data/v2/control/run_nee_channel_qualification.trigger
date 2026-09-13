@@ -1,2 +1,0 @@
-source_proxy_run_id=34729087812
-island_observation_run_id=34731405488
