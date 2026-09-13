@@ -83,6 +83,17 @@ jobs:
           assert audit['observed_rebuild_backend'] == 'natural_earth_10m_fallback'
           assert audit['observed_rebuild_n_islands'] == 4470
           assert audit['repair_changes_science_contract'] is False
+          infra=cfg['infrastructure_failure_policy']
+          assert infra['frozen_before_any_island_observation_opened'] is True
+          assert set(infra['eligible_failure_classes']) == {'GitHub_Actions_job_timeout','runner_infrastructure_failure'}
+          assert infra['whole_shard_retry_allowed_only_if_no_artifact_was_emitted'] is True
+          assert infra['maximum_whole_shard_retries'] == 1
+          assert infra['retry_must_use_same_code_and_inputs'] is True
+          assert infra['retry_must_use_same_channel_and_shard_membership'] is True
+          assert infra['retry_must_use_same_900_record_cap'] is True
+          assert infra['partial_output_union_forbidden'] is True
+          assert infra['row_level_retry_for_negative_error_or_unresolved_forbidden'] is True
+          assert infra['cross_run_positive_union_forbidden'] is True
           inv=cfg['invariants']
           assert inv['same_search_record_cap_per_island_channel'] == 900
           assert inv['source_availability_does_not_change_partition'] is True
