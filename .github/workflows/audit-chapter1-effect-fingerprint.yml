@@ -54,7 +54,7 @@ jobs:
       - name: Build effect-size fingerprint
         run: |
           rm -rf /tmp/effect-fingerprint
-          python -m island_v2.chapter1_effect_fingerprint run \
+          python -m island_v2.chapter1_effect_fingerprint \
             --artifact-root /tmp/pr142-final \
             --config-path config/chapter1_effect_fingerprint.yml \
             --output-dir /tmp/effect-fingerprint
