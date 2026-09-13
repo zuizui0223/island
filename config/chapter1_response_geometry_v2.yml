@@ -1,0 +1,158 @@
+contract: chapter1_response_geometry_identifiability_v2
+status: frozen_after_v1_failure_before_observed_geometry_fit
+
+parent_failure:
+  contract: chapter1_response_geometry_identifiability_v1
+  workflow_run_id: 34764480158
+  artifact_id: 10319724218
+  artifact_name: chapter1-response-geometry-recovery-34764480158
+  artifact_digest: sha256:d0772216dc47495b923617cb699ed1441d419906abe9d13b0a7d1ee99f884928
+  frozen_result: 0_of_12_cross_scope_cells_qualified
+  diagnosed_failure: naive_AICc_false_nonlinear_selection_under_spatial_cluster_structure
+
+pinned_input:
+  workflow_run_id: 34232450884
+  artifact_id: 10058653212
+  artifact_name: chapter1-progressive-analysis-34232450884
+  digest: sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999
+  broad_counts:
+    all_analysis_eligible: atomic/all/observed_broad_syndrome_counts.csv.gz
+    direct_only: atomic/direct/observed_broad_syndrome_counts.csv.gz
+  covariates: fixed/isolation/results/purpose_shortest_island_data.csv
+
+purpose: >-
+  Repair the specific V1 false-nonlinearity problem without inspecting the observed
+  nonlinear response. Calibrate nonlinear evidence from monotonic simulations that
+  preserve the actual island support, grouped trials, covariates and spatial blocks,
+  then validate false-selection and nonlinear-shape recovery on independent simulations.
+
+measurement_domain_representatives:
+  flower_colour:
+    response: plain_colour
+  floral_structural_complexity:
+    response: generalized_form
+  reproductive_assurance:
+    response: self_compatibility
+
+contexts:
+  - northern_midlatitude
+  - tropical
+floristic_strata:
+  - all_native
+  - native_nonendemic
+minimum_islands_per_design_cell: 50
+
+primary_exposure:
+  column: log_distance_to_continent_km
+  interpretation: composite_source_separation_connectivity_gradient
+  standardization: within_response_x_context_x_stratum
+  physical_threshold_claim_allowed: false
+
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+cluster_column: spatial_block
+
+candidate_geometries:
+  G0_flat:
+    family: monotonic_null_family
+  G1_cline:
+    family: monotonic_null_family
+  G2_step:
+    family: nonlinear_family
+    breakpoint_search_quantiles: [0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80]
+    breakpoint_parameter_penalty: 1
+  G3_hinge:
+    family: nonlinear_family
+    breakpoint_search_quantiles: [0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80]
+    breakpoint_parameter_penalty: 1
+  G4_reversal:
+    family: nonlinear_family
+    turning_point_required_between_quantiles: [0.20, 0.80]
+    endpoint_derivatives_must_have_opposite_signs: true
+
+fit_diagnostic:
+  response_transform: empirical_logit_success_plus_half_failure_plus_half
+  fit: weighted_least_squares_weighted_by_grouped_trials
+  information_criterion: AICc
+  nonlinear_evidence_statistic: >-
+    D = AICc(best of G0/G1) - AICc(best of G2/G3/G4); larger positive D favours
+    nonlinear geometry.
+
+calibration:
+  seed: 20260914
+  replicates_per_scenario: 192
+  monotonic_truths:
+    G0_flat:
+      effect_logit_sd: [0.0]
+    G1_cline:
+      effect_logit_sd: [0.25, 0.50, 0.80]
+  cluster_random_intercept_sd: 0.25
+  nonlinear_gate_quantile: 0.95
+  critical_D_rule: >-
+    Within each evidence-scope x response x context x stratum cell, compute the 95th
+    percentile of D separately for every monotonic calibration scenario and use the
+    maximum of those quantiles as that cell's fixed critical_D. This is intentionally
+    more conservative than the 0.90 target error rate so independent validation can
+    still be required to remain <=0.10.
+  observed_response_used: false
+
+validation:
+  seed: 20260915
+  replicates_per_scenario: 192
+  cluster_random_intercept_sd: 0.25
+  monotonic_truths:
+    G0_flat:
+      effect_logit_sd: [0.0]
+    G1_cline:
+      effect_logit_sd: [0.25, 0.50, 0.80]
+  nonlinear_target_effect_logit_sd: 0.50
+  nonlinear_truth_breakpoint_quantiles: [0.35, 0.50, 0.65]
+  generated_nonlinear_shapes:
+    G2_step: level_shift
+    G3_hinge: slope_reduces_to_20_percent_after_breakpoint
+    G4_reversal: symmetric_hump_with_internal_peak
+
+qualification:
+  maximum_validation_false_nonlinear_rate: 0.10
+  minimum_shape_recovery_rate: 0.80
+  maximum_breakpoint_quantile_mae: 0.15
+  shape_specific: true
+  G2_step:
+    recovery_rule: minimum_across_truth_breakpoints
+    breakpoint_rule: maximum_MAE_across_truth_breakpoints
+  G3_hinge:
+    recovery_rule: minimum_across_truth_breakpoints
+    breakpoint_rule: maximum_MAE_across_truth_breakpoints
+  G4_reversal:
+    recovery_rule: overall_recovery
+    breakpoint_rule: turning_point_quantile_MAE
+  cross_scope_rule: >-
+    A nonlinear shape is headline-eligible for a response x context x stratum cell only
+    if the same shape qualifies independently in both all-analysis-eligible and direct-only
+    evidence and both scopes pass the held-out monotonic false-selection gate.
+  failure_rule: >-
+    An unqualified shape remains unidentified in that design cell. It must not be rescued
+    by changing knot ranges, dropping contexts, relaxing the recovery threshold or using
+    only the more favourable evidence scope.
+
+observed_geometry_gate:
+  status: closed_until_v2_recovery_audit
+  observed_geometry_fitted: false
+  forbidden:
+    - inspect_or_report_observed_best_breakpoint
+    - calibrate_critical_D_from_observed_response
+    - choose_shape_specific_threshold_after_observed_fit
+    - interpret_G2_or_G3_as_pollinator_loss
+    - interpret_G4_as_functional_replacement
+    - call_genus_adjusted_residual_in_situ_evolution
+
+future_water_gap:
+  status: not_materialized
+  rule: >-
+    Source-specific water gap or stepping-stone bottleneck crossing requires a separate
+    outcome-blind exposure build, validation and recovery audit before it can replace or
+    supplement the composite mainland-distance exposure.

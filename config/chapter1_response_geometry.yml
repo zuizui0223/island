@@ -1,0 +1,143 @@
+contract: chapter1_response_geometry_identifiability_v1
+status: frozen_before_observed_geometry_fit
+
+purpose: >-
+  Test whether the frozen Chapter 1 design can distinguish flat, smooth-clinal,
+  threshold, slope-change and reversal response geometries before any new nonlinear
+  biological result is inspected. This is a design/recovery audit, not a mechanism test.
+
+pinned_input:
+  workflow_run_id: 34232450884
+  artifact_id: 10058653212
+  artifact_name: chapter1-progressive-analysis-34232450884
+  digest: sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999
+  broad_counts:
+    all_analysis_eligible: atomic/all/observed_broad_syndrome_counts.csv.gz
+    direct_only: atomic/direct/observed_broad_syndrome_counts.csv.gz
+  covariates: fixed/isolation/results/purpose_shortest_island_data.csv
+
+measurement_domain_representatives:
+  flower_colour:
+    response: plain_colour
+    interpretation: directional_colour_composition_contrast_not_attraction_intensity
+  floral_structural_complexity:
+    response: generalized_form
+    interpretation: form_only_accessibility_contrast_not_complete_structural_axis
+  reproductive_assurance:
+    response: self_compatibility
+    interpretation: SC_vs_SI_component_not_complete_reproductive_assurance_axis
+
+contexts:
+  - northern_midlatitude
+  - tropical
+floristic_strata:
+  - all_native
+  - native_nonendemic
+minimum_islands_per_design_cell: 50
+
+primary_exposure:
+  column: log_distance_to_continent_km
+  interpretation: composite_source_separation_connectivity_gradient
+  standardization: within_response_x_context_x_stratum
+  claim_boundary: >-
+    A breakpoint on this exposure is a breakpoint on a composite geographic gradient,
+    not a physical over-water dispersal threshold.
+
+future_physical_exposure:
+  source_specific_water_gap:
+    status: not_materialized_do_not_substitute_post_hoc
+    required_before_use:
+      - outcome_blind_source_assignment
+      - explicit_geometric_definition
+      - fixed_stepping_stone_rule
+      - independent_validation
+      - new_recovery_audit
+
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+cluster_column: spatial_block
+
+candidate_geometries:
+  G0_flat:
+    basis: intercept_only_beyond_baseline_covariates
+  G1_cline:
+    basis: linear_standardized_exposure
+  G2_step:
+    basis: two_level_step
+    breakpoint_search_quantiles: [0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80]
+    breakpoint_parameter_penalty: 1
+  G3_hinge:
+    basis: continuous_piecewise_linear_one_knot
+    breakpoint_search_quantiles: [0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80]
+    breakpoint_parameter_penalty: 1
+  G4_reversal:
+    basis: quadratic_with_internal_turning_point
+    turning_point_required_between_quantiles: [0.20, 0.80]
+    endpoint_derivatives_must_have_opposite_signs: true
+
+selection_diagnostic:
+  response_transform: empirical_logit_success_plus_half_failure_plus_half
+  fit: weighted_least_squares_weighted_by_grouped_trials
+  criterion: AICc
+  strong_selection_delta_AICc: 2.0
+  note: >-
+    This fast design diagnostic approximates grouped-binomial information geometry.
+    It does not replace the final observed-data model, which must retain the Chapter 1
+    clustered/observation safeguards.
+
+simulation:
+  seed: 20260913
+  replicates: 96
+  effect_logit_sd_grid: [0.25, 0.50, 0.80]
+  cluster_random_intercept_sd_grid: [0.0, 0.25]
+  truth_breakpoint_quantiles: [0.35, 0.50, 0.65]
+  generated_shapes:
+    G0_flat: no_exposure_effect
+    G1_cline: linear
+    G2_step: level_shift
+    G3_hinge: slope_reduces_to_20_percent_after_breakpoint
+    G4_reversal: symmetric_hump_with_internal_peak
+  preserve_from_frozen_design:
+    - island_exposure_distribution
+    - grouped_binomial_trials
+    - baseline_covariate_geometry
+    - spatial_block_membership
+    - response_specific_missingness
+  baseline_prevalence: observed_pooled_prevalence_only
+  observed_nonlinear_pattern_used_for_calibration: false
+
+qualification:
+  target_effect_logit_sd: 0.50
+  clustered_stress_sd: 0.25
+  minimum_true_shape_recovery: 0.80
+  maximum_false_nonmonotonic_selection_under_true_cline: 0.10
+  maximum_false_step_or_hinge_selection_under_true_cline: 0.10
+  maximum_breakpoint_quantile_mae_when_shape_recovered: 0.15
+  evidence_scope_rule: >-
+    A geometry cell is headline-eligible only when the qualification rule passes in both
+    all-analysis-eligible and direct-only evidence. One-scope-only identifiability remains
+    a bounded sensitivity result and cannot be selected as the headline.
+  rule: >-
+    Observed nonlinear geometry may be promoted only within design cells that meet the
+    recovery and false-selection criteria. Failure is an identifiability result and must
+    not trigger threshold retuning, context deletion or post-hoc knot restriction.
+
+observed_geometry_gate:
+  status: closed_until_recovery_audit
+  forbidden_before_gate_opens:
+    - report_best_observed_breakpoint
+    - choose_breakpoint_range_from_observed_response
+    - map_G2_or_G3_directly_to_pollinator_loss
+    - map_G4_directly_to_functional_replacement
+    - select_direct_only_when_all_analysis_fails
+    - promote_endemic_geometry_without_confirmatory_support
+
+mechanism_boundary:
+  rule: >-
+    Geometry is descriptive evidence. M0/M1a/M1b/M2/M3 are downstream compatibility
+    interpretations. No geometry uniquely identifies pollinator loss, reproductive-
+    assurance selection, relaxed selection, source assembly or in-situ evolution.

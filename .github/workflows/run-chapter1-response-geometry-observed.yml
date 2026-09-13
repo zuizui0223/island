@@ -1,0 +1,164 @@
+name: Run Chapter 1 observed response geometry
+
+on:
+  push:
+    branches:
+      - ch1/el-hierarchical-depth-audit
+    paths:
+      - "config/chapter1_response_geometry_observed.yml"
+      - "src/island_v2/chapter1_response_geometry_observed.py"
+      - "tests/test_chapter1_response_geometry_observed.py"
+      - ".github/workflows/run-chapter1-response-geometry-observed.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/chapter1_response_geometry_observed.yml"
+      - "src/island_v2/chapter1_response_geometry_observed.py"
+      - "tests/test_chapter1_response_geometry_observed.py"
+      - ".github/workflows/run-chapter1-response-geometry-observed.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: chapter1-observed-geometry-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  observed-geometry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CH1_RUN: "34232450884"
+      CH1_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+      CH1_ARTIFACT_ID: "10058653212"
+      CH1_DIGEST: "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999"
+      V2_RUN: "34764755666"
+      V2_ARTIFACT: "chapter1-response-geometry-v2-34764755666"
+      V2_ARTIFACT_ID: "10320410517"
+      V2_DIGEST: "sha256:1374fa264b9b94eb401a24d108a5a18d4beb6fede04d5622faf81569afc27838"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Test and lint observed geometry implementation
+        run: |
+          pytest -q tests/test_chapter1_response_geometry_observed.py
+          ruff check \
+            src/island_v2/chapter1_response_geometry_observed.py \
+            tests/test_chapter1_response_geometry_observed.py
+
+      - name: Verify frozen Chapter 1 and V2 artifacts
+        run: |
+          set -euo pipefail
+          ch1=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$CH1_RUN/artifacts?per_page=100")
+          test "$(jq -r ".artifacts[] | select(.name == \"$CH1_ARTIFACT\" and .expired == false) | .id" <<<"$ch1")" = "$CH1_ARTIFACT_ID"
+          test "$(jq -r ".artifacts[] | select(.name == \"$CH1_ARTIFACT\" and .expired == false) | .digest" <<<"$ch1")" = "$CH1_DIGEST"
+          v2=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$V2_RUN/artifacts?per_page=100")
+          test "$(jq -r ".artifacts[] | select(.name == \"$V2_ARTIFACT\" and .expired == false) | .id" <<<"$v2")" = "$V2_ARTIFACT_ID"
+          test "$(jq -r ".artifacts[] | select(.name == \"$V2_ARTIFACT\" and .expired == false) | .digest" <<<"$v2")" = "$V2_DIGEST"
+          rm -rf /tmp/ch1-final /tmp/geometry-v2
+          mkdir -p /tmp/ch1-final /tmp/geometry-v2
+          gh run download "$CH1_RUN" --repo "$GITHUB_REPOSITORY" --name "$CH1_ARTIFACT" --dir /tmp/ch1-final
+          gh run download "$V2_RUN" --repo "$GITHUB_REPOSITORY" --name "$V2_ARTIFACT" --dir /tmp/geometry-v2
+          test -s /tmp/geometry-v2/geometry_v2_scope_shape_qualification.csv
+          test -s /tmp/geometry-v2/geometry_v2_cross_scope_shape_qualification.csv
+
+      - name: Run observed geometry exactly once under frozen gate
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/observed-geometry
+          python -m island_v2.chapter1_response_geometry_observed \
+            --all-counts /tmp/ch1-final/atomic/all/observed_broad_syndrome_counts.csv.gz \
+            --direct-counts /tmp/ch1-final/atomic/direct/observed_broad_syndrome_counts.csv.gz \
+            --covariates-csv /tmp/ch1-final/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --v2-scope-qualification-csv /tmp/geometry-v2/geometry_v2_scope_shape_qualification.csv \
+            --v2-cross-qualification-csv /tmp/geometry-v2/geometry_v2_cross_scope_shape_qualification.csv \
+            --observed-config-path config/chapter1_response_geometry_observed.yml \
+            --v2-config-path config/chapter1_response_geometry_v2.yml \
+            --output-dir /tmp/observed-geometry
+
+      - name: Validate frozen observed-output contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('/tmp/observed-geometry')
+          manifest = json.loads((root / 'observed_geometry_manifest.json').read_text())
+          scope = pd.read_csv(root / 'observed_geometry_scope.csv')
+          cross = pd.read_csv(root / 'observed_geometry_cross_scope.csv')
+          assert manifest['contract'] == 'chapter1_response_geometry_observed_v1'
+          assert manifest['status'] == 'observed_geometry_opened_under_frozen_v2_gate'
+          assert manifest['observed_geometry_fitted'] is True
+          assert manifest['mechanism_inferred'] is False
+          assert manifest['physical_water_crossing_threshold_claimed'] is False
+          assert len(scope) == 24
+          assert len(cross) == 12
+          assert set(cross['classification']).issubset({
+              'monotonic_or_unresolved', 'nonlinear_shape_unresolved',
+              'identified_step', 'identified_reversal'
+          })
+          identified = cross[cross['classification'].isin(['identified_step','identified_reversal'])]
+          for row in identified.itertuples(index=False):
+              pair = scope[
+                  (scope.measurement_axis == row.measurement_axis)
+                  & (scope.outcome == row.outcome)
+                  & (scope.context == row.context)
+                  & (scope.stratum == row.stratum)
+              ]
+              assert len(pair) == 2
+              assert pair['robust_fit_status'].eq('fit').all()
+              assert pair['effect_ci95_low'].notna().all()
+              assert pair['effect_ci95_high'].notna().all()
+          print(cross.to_string(index=False))
+          print(json.dumps(manifest, indent=2))
+          PY
+
+      - name: Write biological result summary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('/tmp/observed-geometry')
+          manifest = json.loads((root / 'observed_geometry_manifest.json').read_text())
+          cross = pd.read_csv(root / 'observed_geometry_cross_scope.csv')
+          lines = [
+              '# Chapter 1 observed response geometry', '',
+              f"Classification counts: `{manifest['classification_counts']}`", '',
+              '| axis | context | stratum | classification | shape | q* | all D/crit | direct D/crit |',
+              '|---|---|---|---|---|---:|---:|---:|',
+          ]
+          for row in cross.itertuples(index=False):
+              shape = getattr(row, 'matched_shape', '')
+              q = getattr(row, 'consensus_breakpoint_quantile', float('nan'))
+              lines.append(
+                  f'| {row.measurement_axis} | {row.context} | {row.stratum} | '
+                  f'{row.classification} | {shape} | {q if pd.notna(q) else ""} | '
+                  f'{getattr(row,"all_observed_D",float("nan")):.2f}/{getattr(row,"all_critical_D",float("nan")):.2f} | '
+                  f'{getattr(row,"direct_observed_D",float("nan")):.2f}/{getattr(row,"direct_critical_D",float("nan")):.2f} |'
+              )
+          lines += ['', manifest['claim_boundary']]
+          (root / 'RESULT_SUMMARY.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
+          PY
+          cat /tmp/observed-geometry/RESULT_SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-observed-response-geometry-${{ github.run_id }}
+          path: /tmp/observed-geometry/
+          if-no-files-found: error
+          retention-days: 90

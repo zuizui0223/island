@@ -1,0 +1,107 @@
+{
+  "contract": "chapter1_el_hierarchical_depth_result_lock_v1",
+  "status": "bounded_hierarchical_depth_signal",
+  "scientific_parent_contract": "chapter1_el_hierarchical_depth_audit_v1",
+  "source": {
+    "final_pr142_workflow_run_id": 34232450884,
+    "final_pr142_artifact_id": 10058653212,
+    "final_pr142_artifact_name": "chapter1-progressive-analysis-34232450884",
+    "final_pr142_artifact_digest": "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999"
+  },
+  "execution": {
+    "workflow_run_id": 34763034251,
+    "head_sha": "9fece099978162612d259ccdf18659a75193f429",
+    "artifact_id": 10319522647,
+    "artifact_name": "chapter1-el-hierarchical-depth-34763034251",
+    "artifact_digest": "sha256:2c5fb8ac5dcce158ede148eb580eedf5494e1c181ab07eb38fda4a62270e017d",
+    "tests_passed": 3,
+    "lint_passed": true,
+    "workflow_conclusion": "success"
+  },
+  "test": {
+    "response_family": "shared_architecture_decomposition",
+    "components": [
+      "shared_architecture_factor",
+      "large_bee_like_residual",
+      "butterfly_like_residual",
+      "bird_like_residual"
+    ],
+    "contexts": ["northern_midlatitude", "tropical"],
+    "taxonomic_stage_contrast": "beyond_genus_minus_pre_genus",
+    "source_modes": ["geo_k5", "geo_k10", "geo_k20", "geo50_climate10"],
+    "evidence_scopes": ["all_analysis_eligible", "direct_only"],
+    "floristic_strata": ["all_native", "native_nonendemic"],
+    "minimum_paired_islands_per_component_context": 50,
+    "multiplicity": "BH_FDR_across_four_source_modes_within_evidence_scope_x_stratum",
+    "alpha": 0.05
+  },
+  "support_summary": [
+    {
+      "evidence_scope": "all_analysis_eligible",
+      "stratum": "all_native",
+      "n_source_modes": 4,
+      "n_supported_source_modes": 0,
+      "max_q": 0.15289815849562383
+    },
+    {
+      "evidence_scope": "all_analysis_eligible",
+      "stratum": "native_nonendemic",
+      "n_source_modes": 4,
+      "n_supported_source_modes": 4,
+      "max_q": 0.02166485624643545
+    },
+    {
+      "evidence_scope": "direct_only",
+      "stratum": "all_native",
+      "n_source_modes": 4,
+      "n_supported_source_modes": 3,
+      "max_q": 0.059763252808699395
+    },
+    {
+      "evidence_scope": "direct_only",
+      "stratum": "native_nonendemic",
+      "n_source_modes": 4,
+      "n_supported_source_modes": 4,
+      "max_q": 0.04920910831157119
+    }
+  ],
+  "joint_tests": [
+    {"evidence_scope":"all_analysis_eligible","stratum":"all_native","source_mode":"geo_k5","chisq":5.601916,"df":3,"p":0.132668,"q":0.15289815849562383,"supported":false},
+    {"evidence_scope":"all_analysis_eligible","stratum":"all_native","source_mode":"geo_k10","chisq":6.278938,"df":3,"p":0.098800,"q":0.15289815849562383,"supported":false},
+    {"evidence_scope":"all_analysis_eligible","stratum":"all_native","source_mode":"geo_k20","chisq":5.272479,"df":3,"p":0.152898,"q":0.15289815849562383,"supported":false},
+    {"evidence_scope":"all_analysis_eligible","stratum":"all_native","source_mode":"geo50_climate10","chisq":8.472462,"df":3,"p":0.037193,"q":0.148771,"supported":false},
+    {"evidence_scope":"all_analysis_eligible","stratum":"native_nonendemic","source_mode":"geo_k5","chisq":13.622551,"df":3,"p":0.003467,"q":0.004622,"supported":true},
+    {"evidence_scope":"all_analysis_eligible","stratum":"native_nonendemic","source_mode":"geo_k10","chisq":14.424324,"df":3,"p":0.002381,"q":0.004622,"supported":true},
+    {"evidence_scope":"all_analysis_eligible","stratum":"native_nonendemic","source_mode":"geo_k20","chisq":9.662415,"df":3,"p":0.021665,"q":0.021665,"supported":true},
+    {"evidence_scope":"all_analysis_eligible","stratum":"native_nonendemic","source_mode":"geo50_climate10","chisq":13.680856,"df":3,"p":0.003373,"q":0.004622,"supported":true},
+    {"evidence_scope":"direct_only","stratum":"all_native","source_mode":"geo_k5","chisq":11.908874,"df":3,"p":0.007702,"q":0.010269,"supported":true},
+    {"evidence_scope":"direct_only","stratum":"all_native","source_mode":"geo_k10","chisq":12.116186,"df":3,"p":0.006996,"q":0.010269,"supported":true},
+    {"evidence_scope":"direct_only","stratum":"all_native","source_mode":"geo_k20","chisq":7.415747,"df":3,"p":0.059763,"q":0.059763252808699395,"supported":false},
+    {"evidence_scope":"direct_only","stratum":"all_native","source_mode":"geo50_climate10","chisq":14.575761,"df":3,"p":0.002218,"q":0.008870,"supported":true},
+    {"evidence_scope":"direct_only","stratum":"native_nonendemic","source_mode":"geo_k5","chisq":11.273568,"df":3,"p":0.010335,"q":0.013780,"supported":true},
+    {"evidence_scope":"direct_only","stratum":"native_nonendemic","source_mode":"geo_k10","chisq":12.899557,"df":3,"p":0.004859,"q":0.009718,"supported":true},
+    {"evidence_scope":"direct_only","stratum":"native_nonendemic","source_mode":"geo_k20","chisq":7.850296,"df":3,"p":0.049209,"q":0.04920910831157119,"supported":true},
+    {"evidence_scope":"direct_only","stratum":"native_nonendemic","source_mode":"geo50_climate10","chisq":13.142104,"df":3,"p":0.004339,"q":0.009718,"supported":true}
+  ],
+  "endemicity_boundary": {
+    "tropical_generalized_form_islands": 30,
+    "tropical_plain_colour_islands": 46,
+    "tropical_self_compatibility_islands": 29,
+    "tropical_endemic_when_where_pilot_p": 0.204481,
+    "confirmatory_endemic_contrast": false
+  },
+  "claim_ceiling": {
+    "allowed": "Within widespread native non-endemic assemblages, the change in isolation-associated floral-architecture response after genus adjustment differs between northern-midlatitude and tropical contexts, reproducibly across four source definitions and two evidence scopes.",
+    "not_allowed": [
+      "taxonomic response depth differs universally among all island floras",
+      "endemicity is a temporal proxy identifying in-situ evolution",
+      "a guild-labelled architecture residual identifies the realized pollinator guild",
+      "pollinator-channel loss caused the taxonomic-depth contrast"
+    ]
+  },
+  "publication_interpretation": {
+    "ecology_letters_status": "rational_high_risk_first_submission_with_bounded_general_claim",
+    "global_ecology_and_biogeography_status": "strong_fallback",
+    "note": "This is a matched secondary re-expression of a frozen dataset, not a newly preregistered outcome-blind primary test."
+  }
+}

@@ -1,0 +1,175 @@
+name: Audit Chapter 1 response-geometry power
+
+on:
+  push:
+    branches:
+      - ch1/el-hierarchical-depth-audit
+    paths:
+      - "config/chapter1_response_geometry.yml"
+      - "docs/chapter1_axis_mapping_response_geometry.md"
+      - "src/island_v2/chapter1_response_geometry_power.py"
+      - "tests/test_chapter1_response_geometry_power.py"
+      - ".github/workflows/audit-chapter1-response-geometry-power.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/chapter1_response_geometry.yml"
+      - "docs/chapter1_axis_mapping_response_geometry.md"
+      - "src/island_v2/chapter1_response_geometry_power.py"
+      - "tests/test_chapter1_response_geometry_power.py"
+      - ".github/workflows/audit-chapter1-response-geometry-power.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: chapter1-response-geometry-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  recovery-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PINNED_RUN_ID: "34232450884"
+      PINNED_ARTIFACT_ID: "10058653212"
+      PINNED_ARTIFACT_NAME: "chapter1-progressive-analysis-34232450884"
+      PINNED_ARTIFACT_DIGEST: "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Test and lint geometry audit
+        run: |
+          pytest -q tests/test_chapter1_response_geometry_power.py
+          ruff check \
+            src/island_v2/chapter1_response_geometry_power.py \
+            tests/test_chapter1_response_geometry_power.py
+
+      - name: Verify and download frozen final PR142 artifact
+        run: |
+          set -euo pipefail
+          metadata=$(gh api \
+            "repos/$GITHUB_REPOSITORY/actions/runs/$PINNED_RUN_ID/artifacts?per_page=100")
+          observed_id=$(jq -r \
+            ".artifacts[] | select(.name == \"$PINNED_ARTIFACT_NAME\" and .expired == false) | .id" \
+            <<<"$metadata")
+          observed_digest=$(jq -r \
+            ".artifacts[] | select(.name == \"$PINNED_ARTIFACT_NAME\" and .expired == false) | .digest" \
+            <<<"$metadata")
+          test "$observed_id" = "$PINNED_ARTIFACT_ID"
+          test "$observed_digest" = "$PINNED_ARTIFACT_DIGEST"
+          rm -rf /tmp/pr142-final
+          mkdir -p /tmp/pr142-final
+          gh run download "$PINNED_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name "$PINNED_ARTIFACT_NAME" \
+            --dir /tmp/pr142-final
+          test -s /tmp/pr142-final/atomic/all/observed_broad_syndrome_counts.csv.gz
+          test -s /tmp/pr142-final/atomic/direct/observed_broad_syndrome_counts.csv.gz
+          test -s /tmp/pr142-final/fixed/isolation/results/purpose_shortest_island_data.csv
+
+      - name: Run recovery audit without opening observed geometry
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/geometry-recovery
+          python -m island_v2.chapter1_response_geometry_power \
+            --all-counts /tmp/pr142-final/atomic/all/observed_broad_syndrome_counts.csv.gz \
+            --direct-counts /tmp/pr142-final/atomic/direct/observed_broad_syndrome_counts.csv.gz \
+            --covariates-csv /tmp/pr142-final/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_response_geometry.yml \
+            --output-dir /tmp/geometry-recovery
+
+      - name: Validate fail-closed output contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('/tmp/geometry-recovery')
+          manifest = json.loads((root / 'geometry_recovery_manifest.json').read_text())
+          designs = pd.read_csv(root / 'geometry_design_support.csv')
+          summary = pd.read_csv(root / 'geometry_recovery_summary.csv')
+          scope = pd.read_csv(root / 'geometry_scope_qualification.csv')
+          cross = pd.read_csv(root / 'geometry_cross_scope_qualification.csv')
+
+          assert manifest['contract'] == 'chapter1_response_geometry_identifiability_v1'
+          assert manifest['status'] == 'recovery_audit_complete_observed_geometry_still_closed'
+          assert manifest['observed_geometry_fitted'] is False
+          assert manifest['observed_breakpoint_reported'] is False
+          assert len(designs) == 2 * 3 * 2 * 2
+          assert designs['support_qualified'].all()
+          assert set(summary['truth_shape']) == {
+              'G0_flat', 'G1_cline', 'G2_step', 'G3_hinge', 'G4_reversal'
+          }
+          assert set(scope['evidence_scope']) == {'all_analysis_eligible', 'direct_only'}
+          assert len(cross) == 3 * 2 * 2
+          print(cross.to_string(index=False))
+          print(json.dumps(manifest, indent=2))
+          PY
+
+      - name: Write recovery summary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('/tmp/geometry-recovery')
+          manifest = json.loads((root / 'geometry_recovery_manifest.json').read_text())
+          cross = pd.read_csv(root / 'geometry_cross_scope_qualification.csv')
+          scope = pd.read_csv(root / 'geometry_scope_qualification.csv')
+          lines = [
+              '# Chapter 1 response-geometry recovery audit',
+              '',
+              f"Headline-qualified geometry cells: **{manifest['n_headline_geometry_qualified_cells']} / {manifest['n_cross_scope_cells']}**",
+              '',
+              '| axis | context | stratum | all-analysis | direct-only | headline gate |',
+              '|---|---|---|---|---|---|',
+          ]
+          for row in cross.itertuples(index=False):
+              lines.append(
+                  f'| {row.measurement_axis} | {row.context} | {row.stratum} | '
+                  f'{bool(row.all_analysis_qualified)} | {bool(row.direct_only_qualified)} | '
+                  f'{bool(row.headline_geometry_qualified)} |'
+              )
+          lines += [
+              '',
+              '## Scope-level diagnostics at the frozen target effect',
+              '',
+              '| evidence | axis | context | stratum | min recovery | false nonlinear under cline | max breakpoint MAE | qualified |',
+              '|---|---|---|---|---:|---:|---:|---|',
+          ]
+          for row in scope.itertuples(index=False):
+              lines.append(
+                  f'| {row.evidence_scope} | {row.measurement_axis} | {row.context} | {row.stratum} | '
+                  f'{row.minimum_nonflat_recovery:.3f} | {row.false_nonmonotonic_under_cline:.3f} | '
+                  f'{row.maximum_breakpoint_mae:.3f} | {bool(row.scope_qualified)} |'
+              )
+          lines += [
+              '',
+              manifest['claim_boundary'],
+              '',
+              'No observed nonlinear fit or observed breakpoint is produced by this workflow.',
+          ]
+          (root / 'RESULT_SUMMARY.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
+          PY
+          cat /tmp/geometry-recovery/RESULT_SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-response-geometry-recovery-${{ github.run_id }}
+          path: /tmp/geometry-recovery/
+          if-no-files-found: error
+          retention-days: 90
