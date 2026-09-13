@@ -79,11 +79,11 @@ def _frame(n: int = 80) -> pd.DataFrame:
             "successes": np.full(n, 20),
             "trials": np.full(n, 40),
             "log_distance_to_continent_km": x,
-            "log_island_area_km2": np.sin(x) + x / 10,
-            "climate_pc1": np.cos(x),
-            "climate_pc2": np.sin(x / 2),
-            "climate_pc3": np.cos(x / 2),
-            "climate_pc4": np.linspace(-1, 1, n),
+            "log_island_area_km2": np.log1p(np.arange(n) + 1),
+            "climate_pc1": np.sin(0.73 * x),
+            "climate_pc2": np.cos(1.11 * x),
+            "climate_pc3": np.sin(1.67 * x + 0.3),
+            "climate_pc4": np.cos(2.31 * x - 0.2),
             "spatial_block": [f"b{i // 4}" for i in range(n)],
         }
     )
@@ -132,11 +132,11 @@ def test_full_audit_never_opens_observed_geometry(tmp_path: Path) -> None:
                     "analysis_regime": context,
                     "spatial_block": f"{context}_b{i // 4}",
                     "log_distance_to_continent_km": x,
-                    "log_island_area_km2": np.sin(x) + x / 10,
-                    "climate_pc1": np.cos(x),
-                    "climate_pc2": np.sin(x / 2),
-                    "climate_pc3": np.cos(x / 2),
-                    "climate_pc4": i / 28,
+                    "log_island_area_km2": np.log1p(i + 2),
+                    "climate_pc1": np.sin(0.73 * x),
+                    "climate_pc2": np.cos(1.11 * x),
+                    "climate_pc3": np.sin(1.67 * x + 0.3),
+                    "climate_pc4": np.cos(2.31 * x - 0.2),
                 }
             )
             for stratum in config["floristic_strata"]:
