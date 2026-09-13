@@ -1,0 +1,59 @@
+contract: chapter1_nee_n1_numerical_validity_audit_v1
+status: post_outcome_monotone_numerical_safety_audit
+parent_model_contract: chapter1_nee_n1_model_v1
+
+purpose: >-
+  Determine whether the already-frozen primary N1 common-slope and heterogeneous-slope
+  maximum-likelihood fits are numerically valid enough for their inferential outputs to
+  be promoted. This audit may only block inference; it cannot rescue, replace, relax,
+  reparameterize, or otherwise improve the frozen N1 gate after outcomes are opened.
+
+required_primary_fit_checks:
+  common_slope_converged: true
+  heterogeneous_slope_converged: true
+  finite_coefficients: true
+  finite_cluster_robust_covariance: true
+  finite_cluster_robust_standard_errors: true
+  finite_log_likelihood: true
+
+monotonicity:
+  can_only_block_original_N1_gate: true
+  cannot_turn_original_fail_into_pass: true
+  cannot_change_channel_qualification: true
+  cannot_change_primary_rows: true
+  cannot_change_formula: true
+  cannot_change_source_region_pooling: true
+  cannot_change_optimizer_or_iteration_limit: true
+  cannot_change_standardization: true
+  cannot_change_cluster_definition: true
+  cannot_change_alpha: true
+
+failure:
+  status: N1_numerical_fit_failure
+  failure_action: stop_before_N2_and_keep_frozen_Chapter1
+  claim_ceiling: N1_not_promoted
+  inferential_p_values_promotable: false
+  model_comparison_promotable: false
+
+pass:
+  status: N1_numerically_valid_for_original_gate
+  action: defer_to_original_frozen_N1_gate_without_modification
+  audit_itself_can_promote_N1: false
+
+prohibited:
+  - increase_IRLS_iteration_limit_after_outcomes
+  - relax_convergence_tolerance_after_outcomes
+  - switch_to_penalized_logistic_as_confirmatory_rescue
+  - switch_to_Firth_logistic_as_confirmatory_rescue
+  - switch_to_random_effects_as_confirmatory_rescue
+  - remove_source_region_fixed_effects_as_confirmatory_rescue
+  - drop_disrupted_or_high_leverage_rows_to_obtain_convergence
+  - change_confirmatory_channels_after_fit
+  - reinterpret_nonconverged_Wald_p_value_as_confirmatory_evidence
+
+reporting:
+  record_fit_convergence: true
+  record_iterations: true
+  record_max_absolute_coefficient: true
+  record_finite_checks: true
+  report_nonconverged_inferential_statistics_as_non_promotable: true
