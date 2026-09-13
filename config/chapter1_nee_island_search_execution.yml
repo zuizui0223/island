@@ -42,6 +42,21 @@ pre_outcome_transport_audit:
   repair: reuse_existing_canonical_frozen_GSHHG_artifact
   repair_changes_science_contract: false
 
+infrastructure_failure_policy:
+  frozen_before_any_island_observation_opened: true
+  eligible_failure_classes:
+    - GitHub_Actions_job_timeout
+    - runner_infrastructure_failure
+  whole_shard_retry_allowed_only_if_no_artifact_was_emitted: true
+  maximum_whole_shard_retries: 1
+  retry_must_use_same_code_and_inputs: true
+  retry_must_use_same_channel_and_shard_membership: true
+  retry_must_use_same_900_record_cap: true
+  partial_output_union_forbidden: true
+  row_level_retry_for_negative_error_or_unresolved_forbidden: true
+  cross_run_positive_union_forbidden: true
+  purpose: recover_missing_shard_artifact_without_selecting_or_improving_biological_outcomes
+
 invariants:
   same_exact_GSHHG_geometry: true
   same_geo_k5_source_availability: true
