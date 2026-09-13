@@ -1,0 +1,141 @@
+contract: chapter1_el_hierarchical_depth_audit_v1
+status: frozen_before_new_matched_depth_test
+purpose: >-
+  Decide whether Chapter 1 can support the general claim that the taxonomic depth at
+  which isolation-associated floral/reproductive responses are expressed differs among
+  biogeographic contexts. This contract is a promotion gate, not a rescue analysis.
+
+pinned_evidence:
+  latest_trait_checkpoint:
+    workflow_run_id: 34210169033
+    artifact_id: 10049591876
+    artifact_name: chapter1-latest-trait-34210169033
+    digest: sha256:1301781e5c7420aeb7931fe034970188a2ea4b09e886def64c360aa89fbd6497
+  progressive_wave52:
+    workflow_run_id: 33587356935
+    artifact_id: 9830619059
+    artifact_name: chapter1-progressive-wave52-33587356935
+    digest: sha256:9720586dafc6a46f1a4b1a2c9ad3e28ee5dd12da91e66a4c9c52fe718d5e9ee0
+
+fixed_claim_boundary:
+  primary_current_result: >-
+    Isolation-associated floral/reproductive assemblage responses are biogeographically
+    contingent, and the broad Palearctic primary response is compatible with
+    source-matched genus-level assembly.
+  prohibited_without_new_matched_test:
+    - endemicity is a time axis
+    - endemic versus native-nonendemic separates in-situ evolution from assembly
+    - taxonomic response depth differs among biogeographic contexts
+    - a guild-labelled floral residual identifies the realized pollinator guild
+    - pollinator-channel loss caused genus filtering
+
+endemicity_gate:
+  role: pilot_distribution_history_stratum
+  confirmatory_min_islands_per_response: 50
+  tropical_latest_support:
+    generalized_form_islands: 30
+    plain_colour_islands: 46
+    self_compatibility_islands: 29
+    when_where_pilot_joint_p: 0.204481
+    confirmatory_eligible: false
+  promotion_rule: >-
+    Endemic strata may become a main comparison only after the same response family has
+    >=50 supported islands in every compared context and evidence scope required by the
+    Chapter 1 contract. Until then, endemic results are descriptive or pilot only.
+
+reporting_reexpression:
+  headline_unit: effect_size_with_uncertainty
+  required_fields:
+    - distance_slope
+    - cluster_robust_se
+    - ci95_low
+    - ci95_high
+    - n_islands
+    - source_mode
+    - evidence_scope
+    - floristic_stratum
+    - taxonomic_stage
+  forbidden_headline_shortcut:
+    - supported_mode_vote_counts_alone
+    - significant_in_one_context_nonsignificant_in_another
+  vote_counts_role: audit_only
+
+matched_depth_test:
+  rationale: >-
+    A claim about context-dependent taxonomic depth must compare the same biological
+    response family at the same taxonomic stages. Palearctic primary H2/H3 scores cannot
+    be contrasted with tropical secondary V4 guild-labelled residuals and then relabelled
+    as a taxonomic-depth difference.
+  response_family: shared_architecture_decomposition
+  components:
+    - shared_architecture_factor
+    - large_bee_like_residual
+    - butterfly_like_residual
+    - bird_like_residual
+  interpretation: >-
+    Component names are floral-architecture labels only. They do not assign pollinator
+    identity or effective service.
+  contexts:
+    - northern_midlatitude
+    - tropical
+  context_layer: analysis_regime
+  floristic_strata:
+    - all_native
+    - native_nonendemic
+  evidence_scopes:
+    - all_analysis_eligible
+    - direct_only
+  source_modes:
+    - geo_k5
+    - geo_k10
+    - geo_k20
+    - geo50_climate10
+  taxonomic_stages:
+    - pre_genus
+    - beyond_genus
+  required_new_test: multivariate_context_by_taxonomic_stage_interaction
+  promotion_rule: >-
+    Promote a context-dependent taxonomic-depth headline only if the direct multivariate
+    context x taxonomic-stage interaction is supported under every source mode in
+    native_nonendemic and is directionally concordant in all_native, with no contradiction
+    between all-analysis and direct-only evidence. Otherwise retain context-dependent
+    architecture as a secondary result and route the main paper to GEB.
+
+existing_v4_evidence_boundary:
+  note: >-
+    Existing V4 results already show a robust north-versus-tropical beyond-genus
+    architecture-vector difference in direct-only evidence across all four source modes,
+    and in all-analysis native-nonendemic across all four source modes. This is encouraging
+    but is not itself the required context x taxonomic-stage interaction.
+
+globi_source_side_extension:
+  role: secondary_H3_extension
+  status: definition_must_be_frozen_before_genus_entry_join
+  allowed_input: pinned_GloBI_0_9_supported_flower_interactions
+  outcome_blind_predictor: source_genus_sampled_functional_channel_breadth
+  channels:
+    - bombus
+    - non_bombus_bees
+    - lepidoptera
+    - flower_visiting_birds
+    - diptera
+  safeguards:
+    - never_treat_no_GloBI_record_as_specialization
+    - never_use_raw_partner_count_without_effort_control
+    - require_minimum_independent_reference_support_before_breadth_estimation
+    - retain_reference_count_as_sampling_effort
+    - compute_predictor_without_island_genus_entry_outcomes
+    - D3_association_only_no_mechanism_promotion
+  allowed_claim: >-
+    Source-side sampled interaction breadth predicts isolation-associated representation
+    of source-available plant genera.
+  prohibited_claim: >-
+    Pollinator loss caused the observed genus filtering.
+
+routing:
+  ecology_letters_candidate_requires:
+    - matched_depth_test promotion rule passes
+    - effect-size and uncertainty framing replaces vote-count headline
+    - direct-only versus all-analysis differences are shown rather than selected away
+    - N1 prospective failure remains visible as the mechanistic claim boundary
+  otherwise_primary_target: Global Ecology and Biogeography
