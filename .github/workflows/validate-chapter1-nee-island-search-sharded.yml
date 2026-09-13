@@ -6,21 +6,27 @@ on:
       - "nee/island-observation-search-sharded"
     paths:
       - "config/chapter1_nee_island_search_execution.yml"
+      - "config/chapter1_nee_island_search_transport_audit.yml"
       - "config/island_universe_artifact_lock.json"
       - ".github/workflows/run-chapter1-nee-island-search-observations-sharded.yml"
       - ".github/workflows/validate-chapter1-nee-island-search-sharded.yml"
       - "src/island_v2/chapter1_nee_island_search_observation.py"
+      - "src/island_v2/chapter1_nee_island_search_transport_audit.py"
       - "tests/test_chapter1_nee_island_search_observation.py"
+      - "tests/test_chapter1_nee_island_search_transport_audit.py"
   pull_request:
     branches:
       - main
     paths:
       - "config/chapter1_nee_island_search_execution.yml"
+      - "config/chapter1_nee_island_search_transport_audit.yml"
       - "config/island_universe_artifact_lock.json"
       - ".github/workflows/run-chapter1-nee-island-search-observations-sharded.yml"
       - ".github/workflows/validate-chapter1-nee-island-search-sharded.yml"
       - "src/island_v2/chapter1_nee_island_search_observation.py"
+      - "src/island_v2/chapter1_nee_island_search_transport_audit.py"
       - "tests/test_chapter1_nee_island_search_observation.py"
+      - "tests/test_chapter1_nee_island_search_transport_audit.py"
 
 jobs:
   validate-sharded-island-search:
@@ -35,8 +41,14 @@ jobs:
       - run: pip install -e ".[dev]"
       - name: Run frozen Search tests and lint
         run: |
-          pytest -q tests/test_chapter1_nee_island_search_observation.py
-          ruff check src/island_v2/chapter1_nee_island_search_observation.py tests/test_chapter1_nee_island_search_observation.py
+          pytest -q \
+            tests/test_chapter1_nee_island_search_observation.py \
+            tests/test_chapter1_nee_island_search_transport_audit.py
+          ruff check \
+            src/island_v2/chapter1_nee_island_search_observation.py \
+            src/island_v2/chapter1_nee_island_search_transport_audit.py \
+            tests/test_chapter1_nee_island_search_observation.py \
+            tests/test_chapter1_nee_island_search_transport_audit.py
       - name: Validate prospective execution and frozen island-universe contract
         run: |
           python - <<'PY'
@@ -45,6 +57,7 @@ jobs:
           import yaml
 
           cfg=yaml.safe_load(Path('config/chapter1_nee_island_search_execution.yml').read_text())
+          transport=yaml.safe_load(Path('config/chapter1_nee_island_search_transport_audit.yml').read_text())
           lock=json.loads(Path('config/island_universe_artifact_lock.json').read_text())
           assert cfg['contract'] == 'chapter1_nee_island_search_execution_v1'
           assert cfg['status'] == 'prospective_pre_island_channel_observation'
@@ -77,12 +90,12 @@ jobs:
           assert lock['artifact_digest'] == 'sha256:' + frozen['artifact_sha256']
           assert lock['verified_summary']['n_islands'] == 8265
           assert lock['status'] == 'canonical_frozen_global_island_universe_for_full_analysis'
-          audit=cfg['pre_outcome_transport_audit']
-          assert audit['first_attempt_run_id'] == 34731049099
-          assert audit['island_observations_opened'] == 0
-          assert audit['observed_rebuild_backend'] == 'natural_earth_10m_fallback'
-          assert audit['observed_rebuild_n_islands'] == 4470
-          assert audit['repair_changes_science_contract'] is False
+          pre=cfg['pre_outcome_transport_audit']
+          assert pre['first_attempt_run_id'] == 34731049099
+          assert pre['island_observations_opened'] == 0
+          assert pre['observed_rebuild_backend'] == 'natural_earth_10m_fallback'
+          assert pre['observed_rebuild_n_islands'] == 4470
+          assert pre['repair_changes_science_contract'] is False
           infra=cfg['infrastructure_failure_policy']
           assert infra['frozen_before_any_island_observation_opened'] is True
           assert set(infra['eligible_failure_classes']) == {'GitHub_Actions_job_timeout','runner_infrastructure_failure'}
@@ -102,6 +115,19 @@ jobs:
           assert inv['focal_plant_traits_do_not_change_partition'] is True
           assert inv['canonical_search_must_not_rebuild_island_geometry'] is True
           assert inv['natural_earth_fallback_for_canonical_search_forbidden'] is True
+
+          assert transport['contract'] == 'chapter1_nee_island_search_transport_audit_v1'
+          assert transport['status'] == 'reporting_only_after_canonical_search'
+          assert transport['inputs']['canonical_island_search_run_id'] == 34731405488
+          assert transport['inputs']['frozen_island_universe_artifact_id'] == 8066083419
+          assert transport['inputs']['canonical_covariate_artifact_id'] == 8270544465
+          assert transport['interpretation']['thresholds_are_not_added_post_outcome'] is True
+          assert transport['interpretation']['diagnostics_are_descriptive_not_a_new_exclusion_gate'] is True
+          assert transport['interpretation']['material_transport_imbalance_must_be_reported_as_claim_limitation'] is True
+          assert transport['interpretation']['transport_audit_cannot_promote_or_demote_a_channel'] is True
+          assert transport['interpretation']['transport_audit_cannot_change_N1_pass'] is True
+          assert 'rerun_error_rows' in transport['prohibited']
+          assert 'drop_transport_error_rows_to_improve_model_fit' in transport['prohibited']
           PY
       - name: Guard production workflow boundaries
         run: |
