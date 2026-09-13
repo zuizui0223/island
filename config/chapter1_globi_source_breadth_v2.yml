@@ -1,0 +1,84 @@
+contract: chapter1_globi_source_breadth_v2
+status: frozen_before_any_v1_or_v2_island_outcome_join
+scientific_parent_predictor_contract: chapter1_globi_source_breadth_v1
+role: secondary_H3_D3_association
+
+revision_reason: >-
+  The v1 predictor was still being built from outcome-blind GloBI data when this v2
+  contract was frozen; no island/source/distance join had yet occurred. V2 adds explicit
+  matching on GloBI reference-effort class because minimum-reference thresholds alone do
+  not fully prevent better-studied genera from appearing to have broader channels.
+
+predictor:
+  file: globi_source_genus_breadth.csv
+  frozen_before_outcomes: true
+  breadth_metrics: [sampled_channel_count, effective_channel_number]
+  primary_metric: effective_channel_number
+  reference_effort_bin: floor_log2_n_independent_references
+  no_record_interpretation: missing_not_specialist
+
+sampling_effort_gate:
+  primary_min_independent_references: 3
+  sensitivity_min_independent_references: [2, 5]
+
+source_matching:
+  source_modes: [geo_k5, geo_k10, geo_k20, geo50_climate10]
+  primary_matching: prevalence_richness_effort
+  sensitivity_matching: prevalence_richness
+  minimum_represented_genera: 5
+  strata: [all_native, native_nonendemic]
+  effort_class_definition: floor_log2_n_independent_references
+
+island_enrichment:
+  outcomes: [entry_enrichment, species_enrichment, loading_increment]
+  primary_outcome: entry_enrichment
+  weights:
+    entry_enrichment: n_represented_genera
+    species_enrichment: n_represented_species
+    loading_increment: n_represented_genera
+
+model:
+  response_metrics: [sampled_channel_count, effective_channel_number]
+  predictors:
+    - log_distance_to_continent_km
+    - log_island_area_km2
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+  cluster_column: spatial_block
+  contexts: [northern_midlatitude, tropical]
+  confirmatory_min_islands: 50
+  pilot_min_islands: 30
+  multiple_testing: >-
+    BH within metric x outcome x context x stratum x source-matching family across
+    the four source modes and three frozen minimum-reference thresholds.
+
+primary_prediction:
+  metric: effective_channel_number
+  outcome: entry_enrichment
+  source_matching: prevalence_richness_effort
+  effort_threshold: 3
+  direction: positive_distance_slope
+  promotion_rule: >-
+    Promotion requires positive FDR q<=0.05 slopes under all four source modes at the
+    primary 3-reference threshold using effort-matched source expectations; no sign
+    reversal is allowed under 2- or 5-reference effort thresholds using the same matching,
+    and no sign reversal is allowed in the prevalence+richness sensitivity that omits the
+    effort class. Sensitivity analyses need not themselves be significant.
+
+rules:
+  - predictor_is_identical_for_v1_and_v2_and_is_built_before_island_data
+  - matching_controls_source_prevalence_source_richness_and_reference_effort
+  - raw_partner_species_richness_is_not_used
+  - missing_GloBI_evidence_is_never_zero_breadth
+  - no_effort_or_matching_scheme_is_selected_after_outcomes
+  - v1_island_join_is_superseded_for_inference_even_if_it_finishes
+  - positive_result_is_D3_association_only
+  - N1_is_not_rescued_and_N2_remains_closed
+
+claim_ceiling: >-
+  V2 can test whether source-side documented functional-channel breadth covaries with
+  isolation-associated genus representation after matching source availability and broad
+  GloBI sampling effort. It cannot identify historical pollinator loss, true ecological
+  specialization, effective service, or a causal colonization/extinction mechanism.
