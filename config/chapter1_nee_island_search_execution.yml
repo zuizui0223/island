@@ -18,6 +18,44 @@ canonical_execution:
     - flower_visiting_birds
     - diptera
   max_parallel_jobs: 10
+  island_universe:
+    artifact_lock_path: config/island_universe_artifact_lock.json
+    workflow_run_id: 28659417688
+    artifact_id: 8066083419
+    artifact_name: gbif-three-block-pilot-28659417688
+    artifact_sha256: bee33e14672ec7ff4ed1f7acaea36b32cc6170a45c3d14b2caeb5f43bfaa623b
+    required_source_backend: gshhg
+    source_version: 2.3.7
+    resolution: h
+    minimum_area_km2: 5.0
+    source_file_sha256: 8dbbe7e071e77e9e75f2d639239099ebca8d5c16d6a07df8169729d49f15cf41
+    n_islands: 8265
+    acquisition_policy: download_pinned_artifact_do_not_rebuild_or_fallback
+
+pre_outcome_transport_audit:
+  first_attempt_run_id: 34731049099
+  failure_stage: prepare_search_shards_before_any_scan_job
+  observed_rebuild_backend: natural_earth_10m_fallback
+  observed_rebuild_n_islands: 4470
+  cause: live_GSHHG_acquisition_failed_and_builder_used_recorded_fallback
+  island_observations_opened: 0
+  repair: reuse_existing_canonical_frozen_GSHHG_artifact
+  repair_changes_science_contract: false
+
+infrastructure_failure_policy:
+  frozen_before_any_island_observation_opened: true
+  eligible_failure_classes:
+    - GitHub_Actions_job_timeout
+    - runner_infrastructure_failure
+  whole_shard_retry_allowed_only_if_no_artifact_was_emitted: true
+  maximum_whole_shard_retries: 1
+  retry_must_use_same_code_and_inputs: true
+  retry_must_use_same_channel_and_shard_membership: true
+  retry_must_use_same_900_record_cap: true
+  partial_output_union_forbidden: true
+  row_level_retry_for_negative_error_or_unresolved_forbidden: true
+  cross_run_positive_union_forbidden: true
+  purpose: recover_missing_shard_artifact_without_selecting_or_improving_biological_outcomes
 
 invariants:
   same_exact_GSHHG_geometry: true
@@ -30,6 +68,8 @@ invariants:
   island_observation_outcomes_do_not_change_partition: true
   N1_effects_do_not_change_partition: true
   focal_plant_traits_do_not_change_partition: true
+  canonical_search_must_not_rebuild_island_geometry: true
+  natural_earth_fallback_for_canonical_search_forbidden: true
 
 aggregation:
   reassemble_channel_rows_from_all_20_shards: true
@@ -43,3 +83,5 @@ prohibited:
   - rerun_only_negative_or_error_islands_to_improve_detection
   - union_with_serial_observation_results_to_rescue_coverage
   - relax_900_record_cap_after_channel_results
+  - rebuild_canonical_island_geometry_during_Search_execution
+  - substitute_natural_earth_or_other_fallback_for_frozen_GSHHG_geometry

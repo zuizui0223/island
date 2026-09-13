@@ -1,0 +1,74 @@
+name: Validate Chapter 1 NEE island Search result lock
+
+on:
+  push:
+    branches:
+      - "nee/island-observation-search-sharded"
+    paths:
+      - "config/chapter1_nee_island_search_result_lock.json"
+      - ".github/workflows/validate-chapter1-nee-island-search-result-lock.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "config/chapter1_nee_island_search_result_lock.json"
+      - ".github/workflows/validate-chapter1-nee-island-search-result-lock.yml"
+
+jobs:
+  validate-result-lock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate canonical Search result lock
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p=json.loads(Path('config/chapter1_nee_island_search_result_lock.json').read_text())
+          assert p['contract'] == 'chapter1_nee_island_search_result_lock_v1'
+          assert p['status'] == 'canonical_completed_island_search'
+          run=p['canonical_run']
+          assert run['workflow_run_id'] == 34731405488
+          assert run['head_sha'] == 'e505ae253b696c92b9375a632049b67fd59d4875'
+          assert run['source_proxy_run_id'] == 34729087812
+          assert run['n_scan_shards'] == 100
+          assert run['all_scan_shards_success'] is True
+          assert run['all_channel_aggregates_success'] is True
+          assert run['used_row_level_retry'] is False
+          assert run['used_cross_run_union'] is False
+
+          expected={
+            'bombus': (7154,824,23,5983,324,6005,1,324,10313926043,'sha256:9d4e800dccc48f98662b59d73a59776607da9286119c9b103762506fa6b828b2'),
+            'non_bombus_bees': (8186,1088,11,6697,390,6706,2,390,10312514973,'sha256:6d939e57f79733867dc66707b4050ccdea4958f0f327f3a89f6e9e3026c5bc3c'),
+            'lepidoptera': (8265,2113,0,5758,394,5757,1,394,10314040773,'sha256:deff52eb9b3b054a0472a3ad837db6b0b102f0a3c669bdca6b84ecc01a8aa33c'),
+            'flower_visiting_birds': (8265,3014,45,4781,425,4788,38,425,10313228947,'sha256:a61a0e8a5116e6524038d718140d08bacee094b0d75486c5c9a29690925ae65f'),
+            'diptera': (8265,1261,7,6605,392,6610,2,392,10314045819,'sha256:127f7701f78109f69b2c189cb8300a6d8d5acedb66b04fc2121b421c1a1c3258'),
+          }
+          assert set(p['channel_results']) == set(expected)
+          for channel, values in expected.items():
+              row=p['channel_results'][channel]
+              keys=['n_source_available_islands','n_detected','n_adequate_non_detection','n_insufficient_effort','n_unresolved','n_complete_searches','n_truncated_searches','n_search_errors','artifact_id','artifact_digest']
+              assert tuple(row[k] for k in keys) == values
+              assert row['n_detected'] + row['n_adequate_non_detection'] + row['n_insufficient_effort'] + row['n_unresolved'] == row['n_source_available_islands']
+
+          audit=p['fail_closed_audit']
+          assert all(audit[key] == 0 for key in [
+              'adequate_non_detection_with_incomplete_search',
+              'truncated_non_detected_rows_not_insufficient_effort',
+              'error_non_detected_rows_not_unresolved',
+              'rows_over_900_record_cap',
+              'duplicate_island_channel_rows',
+          ])
+          transport=p['transport_bias_audit']
+          assert transport['status'] == 'reporting_only_not_used_to_rescue_or_reclassify_rows'
+          assert transport['covariate_artifact_id'] == 8270544465
+          assert all(v > 40 for v in transport['area_top_decile_error_percent'].values())
+          assert max(transport['area_bottom_80_percent_error_percent'].values()) < 1
+          assert p['downstream_boundary']['N1_fitted'] is False
+          assert p['downstream_boundary']['N2_opened'] is False
+          PY

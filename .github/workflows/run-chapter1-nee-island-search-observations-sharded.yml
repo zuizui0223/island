@@ -22,6 +22,8 @@ jobs:
     env:
       CATALOG_ARTIFACT_ID: "10291643834"
       CATALOG_ARTIFACT_SHA256: "c946e36cd04cb319fc63a5bde90534c1cf3c7f41480fc672638f85f5b2a89b02"
+      FROZEN_ISLAND_ARTIFACT_ID: "8066083419"
+      FROZEN_ISLAND_ARTIFACT_SHA256: "bee33e14672ec7ff4ed1f7acaea36b32cc6170a45c3d14b2caeb5f43bfaa623b"
       GH_TOKEN: ${{ github.token }}
       ROOT: /tmp/chapter1-nee-island-search-sharded
       N_SHARDS: "20"
@@ -53,17 +55,42 @@ jobs:
           cache: pip
       - if: steps.trigger.outputs.active == 'true'
         run: pip install -e ".[dev]"
-      - name: Rebuild exact frozen GSHHG island universe
+      - name: Download canonical frozen GSHHG island universe
         if: steps.trigger.outputs.active == 'true'
         run: |
           set -euo pipefail
-          island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
-          test -f data/v2/external/islands/gshhg/prepared/islands_v2.gpkg
+          mkdir -p "$ROOT/island-universe" "$ROOT/catalog" "$ROOT/source-proxy" "$ROOT/inputs/shards"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${FROZEN_ISLAND_ARTIFACT_ID}/zip" \
+            > "$ROOT/island-universe.zip"
+          echo "$FROZEN_ISLAND_ARTIFACT_SHA256  $ROOT/island-universe.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/island-universe.zip" -d "$ROOT/island-universe"
+          test -f "$ROOT/island-universe/islands/gshhg/prepared/islands_v2.gpkg"
+          test -f "$ROOT/island-universe/islands/gshhg/prepared/island_manifest.csv"
+          test -f "$ROOT/island-universe/islands/gshhg/prepared/source_policy.json"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import geopandas as gpd
+
+          root=Path(os.environ['ROOT'])/'island-universe'/'islands'/'gshhg'/'prepared'
+          source_policy=json.loads((root/'source_policy.json').read_text())
+          islands=gpd.read_file(root/'islands_v2.gpkg',layer='islands')
+          assert source_policy['source_backend'] == 'gshhg'
+          assert str(source_policy['source_version']) == '2.3.7'
+          assert source_policy['resolution'] == 'h'
+          assert float(source_policy['min_area_km2']) == 5.0
+          assert source_policy['source_file_sha256'] == '8dbbe7e071e77e9e75f2d639239099ebca8d5c16d6a07df8169729d49f15cf41'
+          assert source_policy['n_islands'] == 8265
+          assert len(islands) == 8265
+          assert islands.island_id.astype(str).nunique() == 8265
+          print({'source_backend':source_policy['source_backend'],'n_islands':len(islands)})
+          PY
       - name: Download canonical GloBI channel catalog
         if: steps.trigger.outputs.active == 'true'
         run: |
           set -euo pipefail
-          mkdir -p "$ROOT/catalog" "$ROOT/source-proxy" "$ROOT/inputs/shards"
           gh api -H "Accept: application/vnd.github+json" \
             "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${CATALOG_ARTIFACT_ID}/zip" \
             > "$ROOT/catalog.zip"
@@ -124,9 +151,13 @@ jobs:
           assert not source[['island_id','channel_id']].duplicated().any()
           assert set(source.source_state).issubset({'available','unresolved'})
 
-          islands=gpd.read_file('data/v2/external/islands/gshhg/prepared/islands_v2.gpkg',layer='islands')
+          island_root=root/'island-universe'/'islands'/'gshhg'/'prepared'
+          islands=gpd.read_file(island_root/'islands_v2.gpkg',layer='islands')
+          source_policy=json.loads((island_root/'source_policy.json').read_text())
           gshhg_ids=set(islands.island_id.astype(str))
           source_ids=set(source.island_id.astype(str))
+          assert source_policy['source_backend'] == 'gshhg'
+          assert source_policy['n_islands'] == 8265
           assert len(gshhg_ids) == 8265
           assert gshhg_ids == source_ids
 
@@ -155,6 +186,7 @@ jobs:
           manifest.to_csv(root/'inputs'/'island_shard_manifest.csv',index=False)
           source.to_csv(root/'inputs'/'geo_k5_island_channel_source_availability.csv',index=False)
           (root/'inputs'/'channel_taxon_catalog.csv').write_bytes((root/'catalog'/'channel_taxon_catalog.csv').read_bytes())
+          (root/'inputs'/'islands_v2.gpkg').write_bytes((island_root/'islands_v2.gpkg').read_bytes())
           Path(root/'inputs'/'shard_receipt.json').write_text(json.dumps({
               'contract':'chapter1_nee_island_search_execution_v1',
               'rule':'sorted_unique_frozen_GSHHG_island_id_index_mod_20',
@@ -162,6 +194,9 @@ jobs:
               'n_islands':8265,
               'n_shards':n_shards,
               'islands_per_shard':counts,
+              'frozen_island_artifact_id':os.environ['FROZEN_ISLAND_ARTIFACT_ID'],
+              'frozen_island_artifact_sha256':os.environ['FROZEN_ISLAND_ARTIFACT_SHA256'],
+              'source_backend':'gshhg',
               'uses_source_state_to_assign_shard':False,
               'uses_island_observation_outcomes':False,
               'uses_N1_effects':False,
@@ -169,7 +204,6 @@ jobs:
           },indent=2)+'\n')
           print({'n_islands':8265,'n_shards':n_shards,'islands_per_shard':counts})
           PY
-          cp data/v2/external/islands/gshhg/prepared/islands_v2.gpkg "$ROOT/inputs/islands_v2.gpkg"
       - uses: actions/upload-artifact@v4
         if: steps.trigger.outputs.active == 'true'
         with:

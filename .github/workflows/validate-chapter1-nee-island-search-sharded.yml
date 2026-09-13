@@ -6,19 +6,27 @@ on:
       - "nee/island-observation-search-sharded"
     paths:
       - "config/chapter1_nee_island_search_execution.yml"
+      - "config/chapter1_nee_island_search_transport_audit.yml"
+      - "config/island_universe_artifact_lock.json"
       - ".github/workflows/run-chapter1-nee-island-search-observations-sharded.yml"
       - ".github/workflows/validate-chapter1-nee-island-search-sharded.yml"
       - "src/island_v2/chapter1_nee_island_search_observation.py"
+      - "src/island_v2/chapter1_nee_island_search_transport_audit.py"
       - "tests/test_chapter1_nee_island_search_observation.py"
+      - "tests/test_chapter1_nee_island_search_transport_audit.py"
   pull_request:
     branches:
       - main
     paths:
       - "config/chapter1_nee_island_search_execution.yml"
+      - "config/chapter1_nee_island_search_transport_audit.yml"
+      - "config/island_universe_artifact_lock.json"
       - ".github/workflows/run-chapter1-nee-island-search-observations-sharded.yml"
       - ".github/workflows/validate-chapter1-nee-island-search-sharded.yml"
       - "src/island_v2/chapter1_nee_island_search_observation.py"
+      - "src/island_v2/chapter1_nee_island_search_transport_audit.py"
       - "tests/test_chapter1_nee_island_search_observation.py"
+      - "tests/test_chapter1_nee_island_search_transport_audit.py"
 
 jobs:
   validate-sharded-island-search:
@@ -33,15 +41,24 @@ jobs:
       - run: pip install -e ".[dev]"
       - name: Run frozen Search tests and lint
         run: |
-          pytest -q tests/test_chapter1_nee_island_search_observation.py
-          ruff check src/island_v2/chapter1_nee_island_search_observation.py tests/test_chapter1_nee_island_search_observation.py
-      - name: Validate prospective execution contract
+          pytest -q \
+            tests/test_chapter1_nee_island_search_observation.py \
+            tests/test_chapter1_nee_island_search_transport_audit.py
+          ruff check \
+            src/island_v2/chapter1_nee_island_search_observation.py \
+            src/island_v2/chapter1_nee_island_search_transport_audit.py \
+            tests/test_chapter1_nee_island_search_observation.py \
+            tests/test_chapter1_nee_island_search_transport_audit.py
+      - name: Validate prospective execution and frozen island-universe contract
         run: |
           python - <<'PY'
+          import json
           from pathlib import Path
           import yaml
 
           cfg=yaml.safe_load(Path('config/chapter1_nee_island_search_execution.yml').read_text())
+          transport=yaml.safe_load(Path('config/chapter1_nee_island_search_transport_audit.yml').read_text())
+          lock=json.loads(Path('config/island_universe_artifact_lock.json').read_text())
           assert cfg['contract'] == 'chapter1_nee_island_search_execution_v1'
           assert cfg['status'] == 'prospective_pre_island_channel_observation'
           exe=cfg['canonical_execution']
@@ -53,12 +70,64 @@ jobs:
           assert exe['expected_shard_sizes']['size_414_shards'] == 5
           assert exe['expected_shard_sizes']['size_413_shards'] == 15
           assert exe['max_parallel_jobs'] == 10
+          frozen=exe['island_universe']
+          assert frozen['artifact_lock_path'] == 'config/island_universe_artifact_lock.json'
+          assert frozen['workflow_run_id'] == 28659417688
+          assert frozen['artifact_id'] == 8066083419
+          assert frozen['artifact_name'] == 'gbif-three-block-pilot-28659417688'
+          assert frozen['artifact_sha256'] == 'bee33e14672ec7ff4ed1f7acaea36b32cc6170a45c3d14b2caeb5f43bfaa623b'
+          assert frozen['required_source_backend'] == 'gshhg'
+          assert str(frozen['source_version']) == '2.3.7'
+          assert frozen['resolution'] == 'h'
+          assert float(frozen['minimum_area_km2']) == 5.0
+          assert frozen['source_file_sha256'] == '8dbbe7e071e77e9e75f2d639239099ebca8d5c16d6a07df8169729d49f15cf41'
+          assert frozen['n_islands'] == 8265
+          assert frozen['acquisition_policy'] == 'download_pinned_artifact_do_not_rebuild_or_fallback'
+          assert lock['contract'] == 'island_universe_artifact_lock_v1'
+          assert lock['workflow_run_id'] == frozen['workflow_run_id']
+          assert lock['artifact_id'] == frozen['artifact_id']
+          assert lock['artifact_name'] == frozen['artifact_name']
+          assert lock['artifact_digest'] == 'sha256:' + frozen['artifact_sha256']
+          assert lock['verified_summary']['n_islands'] == 8265
+          assert lock['status'] == 'canonical_frozen_global_island_universe_for_full_analysis'
+          pre=cfg['pre_outcome_transport_audit']
+          assert pre['first_attempt_run_id'] == 34731049099
+          assert pre['island_observations_opened'] == 0
+          assert pre['observed_rebuild_backend'] == 'natural_earth_10m_fallback'
+          assert pre['observed_rebuild_n_islands'] == 4470
+          assert pre['repair_changes_science_contract'] is False
+          infra=cfg['infrastructure_failure_policy']
+          assert infra['frozen_before_any_island_observation_opened'] is True
+          assert set(infra['eligible_failure_classes']) == {'GitHub_Actions_job_timeout','runner_infrastructure_failure'}
+          assert infra['whole_shard_retry_allowed_only_if_no_artifact_was_emitted'] is True
+          assert infra['maximum_whole_shard_retries'] == 1
+          assert infra['retry_must_use_same_code_and_inputs'] is True
+          assert infra['retry_must_use_same_channel_and_shard_membership'] is True
+          assert infra['retry_must_use_same_900_record_cap'] is True
+          assert infra['partial_output_union_forbidden'] is True
+          assert infra['row_level_retry_for_negative_error_or_unresolved_forbidden'] is True
+          assert infra['cross_run_positive_union_forbidden'] is True
           inv=cfg['invariants']
           assert inv['same_search_record_cap_per_island_channel'] == 900
           assert inv['source_availability_does_not_change_partition'] is True
           assert inv['island_observation_outcomes_do_not_change_partition'] is True
           assert inv['N1_effects_do_not_change_partition'] is True
           assert inv['focal_plant_traits_do_not_change_partition'] is True
+          assert inv['canonical_search_must_not_rebuild_island_geometry'] is True
+          assert inv['natural_earth_fallback_for_canonical_search_forbidden'] is True
+
+          assert transport['contract'] == 'chapter1_nee_island_search_transport_audit_v1'
+          assert transport['status'] == 'reporting_only_after_canonical_search'
+          assert transport['inputs']['canonical_island_search_run_id'] == 34731405488
+          assert transport['inputs']['frozen_island_universe_artifact_id'] == 8066083419
+          assert transport['inputs']['canonical_covariate_artifact_id'] == 8270544465
+          assert transport['interpretation']['thresholds_are_not_added_post_outcome'] is True
+          assert transport['interpretation']['diagnostics_are_descriptive_not_a_new_exclusion_gate'] is True
+          assert transport['interpretation']['material_transport_imbalance_must_be_reported_as_claim_limitation'] is True
+          assert transport['interpretation']['transport_audit_cannot_promote_or_demote_a_channel'] is True
+          assert transport['interpretation']['transport_audit_cannot_change_N1_pass'] is True
+          assert 'rerun_error_rows' in transport['prohibited']
+          assert 'drop_transport_error_rows_to_improve_model_fit' in transport['prohibited']
           PY
       - name: Guard production workflow boundaries
         run: |
@@ -77,6 +146,10 @@ jobs:
               'github.run_id',
               'max_records_per_island_channel',
               'if len(paths) != 20',
+              'FROZEN_ISLAND_ARTIFACT_ID: "8066083419"',
+              'FROZEN_ISLAND_ARTIFACT_SHA256: "bee33e14672ec7ff4ed1f7acaea36b32cc6170a45c3d14b2caeb5f43bfaa623b"',
+              'sha256sum --check --strict',
+              "source_policy['source_backend'] == 'gshhg'",
           ]
           for token in required:
               assert token in text, token
@@ -87,6 +160,8 @@ jobs:
               'pollination_guild',
               'flower_color',
               'mating_system',
+              'island-v2-gshhg build',
+              'natural_earth_10m_fallback',
           ]
           for token in forbidden:
               assert token not in text, token
