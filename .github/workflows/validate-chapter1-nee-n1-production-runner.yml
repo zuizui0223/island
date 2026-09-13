@@ -8,11 +8,15 @@ on:
       - ".github/workflows/run-chapter1-nee-n1.yml"
       - ".github/workflows/validate-chapter1-nee-n1-production-runner.yml"
       - "docs/chapter1_nee_n1_production_runner.md"
+      - "docs/chapter1_nee_n1_result_20260913.md"
+      - "config/chapter1_nee_n1_result_lock.json"
   pull_request:
     paths:
       - ".github/workflows/run-chapter1-nee-n1.yml"
       - ".github/workflows/validate-chapter1-nee-n1-production-runner.yml"
       - "docs/chapter1_nee_n1_production_runner.md"
+      - "docs/chapter1_nee_n1_result_20260913.md"
+      - "config/chapter1_nee_n1_result_lock.json"
 
 permissions:
   contents: read
@@ -63,4 +67,40 @@ jobs:
           hits=[value for value in forbidden if value in text]
           assert not hits, f'production N1 workflow contains prohibited dependencies/actions: {hits}'
           print('Production N1 workflow is qualification-gated, covariate-pinned, and does not auto-open N2')
+          PY
+      - name: Validate canonical failed N1 result lock
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          lock=json.loads(Path('config/chapter1_nee_n1_result_lock.json').read_text())
+          assert lock['contract'] == 'chapter1_nee_n1_result_lock_v1'
+          assert lock['status'] == 'canonical_N1_failed_stop_before_N2'
+          assert lock['upstream']['qualification_run_id'] == 34750153702
+          assert lock['upstream']['qualification_artifact_id'] == 10314984302
+          assert lock['n1']['workflow_run_id'] == 34750351009
+          assert lock['n1']['artifact_id'] == 10315671249
+          assert lock['n1']['artifact_digest'] == 'sha256:01d938a1f42b7f64634232a2fcb76c68a60183824684c5f135f567107a4c5d85'
+          assert lock['n1']['n_confirmatory_channels'] == 4
+          assert lock['n1']['confirmatory_channels'] == [
+              'bombus','diptera','flower_visiting_birds','non_bombus_bees'
+          ]
+          assert abs(lock['n1']['global_heterogeneity_test']['p_value'] - 0.6551581817640355) < 1e-15
+          assert abs(lock['n1']['model_comparison']['heterogeneous_minus_common_log_likelihood'] - 2.1160612661845732) < 1e-12
+          assert lock['n1']['spatial_block_deletion']['n_fitted'] == 225
+          assert lock['n1']['spatial_block_deletion']['fraction_p_ge_0_05'] == 1.0
+          assert lock['n1']['source_region_deletion']['n_fitted'] == 217
+          assert lock['n1']['source_region_deletion']['fraction_p_ge_0_05'] == 1.0
+          gate=lock['n1']['gate']
+          assert gate['N1_pass'] is False
+          assert gate['failure_action'] == 'stop_before_N2_and_keep_frozen_Chapter1'
+          assert gate['claim_ceiling'] == 'N1_not_promoted'
+          boundary=lock['interpretation_boundary']
+          assert boundary['N2_may_open'] is False
+          assert boundary['no_posthoc_channel_relabel_or_substitution'] is True
+          assert boundary['no_search_rerun_or_negative_rescue'] is True
+          assert boundary['no_reduced_channel_rescue_model'] is True
+          assert Path('docs/chapter1_nee_n1_result_20260913.md').exists()
+          print('Canonical N1 failure is locked; H5a stops before N2.')
           PY
