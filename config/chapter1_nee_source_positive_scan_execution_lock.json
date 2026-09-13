@@ -62,6 +62,68 @@
     "row_level_retry_for_unresolved_or_query_error_forbidden": true,
     "purpose": "permit recovery of a missing artifact from infrastructure failure without selecting or improving biological outcomes"
   },
+  "canonical_results": {
+    "run_completed_without_retry": true,
+    "all_50_scan_shards_success": true,
+    "all_5_aggregate_jobs_success": true,
+    "all_channels_rows": 730,
+    "all_channels_unique_entities": 730,
+    "all_channels_duplicate_entity_channel_rows": 0,
+    "all_channels_structurally_absent": 0,
+    "all_channels_geometry_failures": 0,
+    "channels": {
+      "bombus": {
+        "artifact_id": "10303941023",
+        "artifact_sha256": "052db36a257ace02dfa4d4039eeb125477567fd1dad89e356f61433661ccddfe",
+        "n_available": 492,
+        "n_unresolved": 238,
+        "n_query_error_entities": 39,
+        "n_query_error_unresolved": 34,
+        "n_multipart_entities": 240,
+        "max_records_examined": 48
+      },
+      "non_bombus_bees": {
+        "artifact_id": "10303419534",
+        "artifact_sha256": "47f0076e15fceed53b9d7a46c001a01e96bfb3d96d0b7861e0b0094ce4a1719f",
+        "n_available": 676,
+        "n_unresolved": 54,
+        "n_query_error_entities": 38,
+        "n_query_error_unresolved": 19,
+        "n_multipart_entities": 240,
+        "max_records_examined": 900
+      },
+      "lepidoptera": {
+        "artifact_id": "10303921122",
+        "artifact_sha256": "cc79318a7135cc8322d29606e36058ded1175b1fb1daca30ed10c7340da5ab45",
+        "n_available": 712,
+        "n_unresolved": 18,
+        "n_query_error_entities": 39,
+        "n_query_error_unresolved": 13,
+        "n_multipart_entities": 240,
+        "max_records_examined": 179
+      },
+      "flower_visiting_birds": {
+        "artifact_id": "10303114973",
+        "artifact_sha256": "afa31238543aa4bf9718da581612602061e8a66d292e2fa45330f39cbf7074e9",
+        "n_available": 710,
+        "n_unresolved": 20,
+        "n_query_error_entities": 38,
+        "n_query_error_unresolved": 11,
+        "n_multipart_entities": 240,
+        "max_records_examined": 900
+      },
+      "diptera": {
+        "artifact_id": "10303509284",
+        "artifact_sha256": "301d1c93b563d3fc570c67291114b8ef7f9eea504865a531ab4f569652e2ef11",
+        "n_available": 668,
+        "n_unresolved": 62,
+        "n_query_error_entities": 38,
+        "n_query_error_unresolved": 19,
+        "n_multipart_entities": 240,
+        "max_records_examined": 900
+      }
+    }
+  },
   "post_run_policy": {
     "do_not_rerun_entities_to_increase_available_count": true,
     "do_not_union_equivalent_runs_for_primary_source_state": true,
