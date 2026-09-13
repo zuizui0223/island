@@ -1,0 +1,164 @@
+name: Run Chapter 1 NEE island Search transport audit
+
+on:
+  push:
+    branches:
+      - "nee/island-observation-search-sharded"
+    paths:
+      - "data/v2/control/run_nee_island_search_transport_audit.trigger"
+      - ".github/workflows/run-chapter1-nee-island-search-transport-audit.yml"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  audit-search-transport:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ROOT: /tmp/chapter1-nee-island-search-transport-audit
+      FROZEN_ISLAND_ARTIFACT_ID: "8066083419"
+      FROZEN_ISLAND_ARTIFACT_SHA256: "bee33e14672ec7ff4ed1f7acaea36b32cc6170a45c3d14b2caeb5f43bfaa623b"
+      COVARIATE_ARTIFACT_ID: "8270544465"
+      COVARIATE_ARTIFACT_SHA256: "695f35b97bae07e81b05deab537dd73fa687b2d99e9efdb1cb3babd2fa12dfb6"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve canonical Search run trigger
+        id: trigger
+        run: |
+          set -euo pipefail
+          trigger=data/v2/control/run_nee_island_search_transport_audit.trigger
+          if ! test -f "$trigger"; then
+            echo "active=false" >> "$GITHUB_OUTPUT"
+            echo "island_observation_run_id=" >> "$GITHUB_OUTPUT"
+            echo "Transport-audit trigger absent; no-op run."
+            exit 0
+          fi
+          run_id=$(awk -F= '$1=="island_observation_run_id" {print $2}' "$trigger" | tail -n1 | tr -d '[:space:]')
+          if ! [[ "$run_id" =~ ^[0-9]+$ ]]; then
+            echo "Invalid or missing island_observation_run_id in $trigger" >&2
+            exit 1
+          fi
+          test "$run_id" = "34731405488" || {
+            echo "Transport audit is frozen to canonical Search run 34731405488, got $run_id" >&2
+            exit 1
+          }
+          echo "active=true" >> "$GITHUB_OUTPUT"
+          echo "island_observation_run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "ISLAND_OBSERVATION_RUN_ID=$run_id" >> "$GITHUB_ENV"
+      - uses: actions/setup-python@v5
+        if: steps.trigger.outputs.active == 'true'
+        with:
+          python-version: "3.11"
+          cache: pip
+      - if: steps.trigger.outputs.active == 'true'
+        run: pip install -e ".[dev]"
+      - name: Download five canonical channel aggregates
+        if: steps.trigger.outputs.active == 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/observations" "$ROOT/islands" "$ROOT/covariates" "$ROOT/output"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/runs/${ISLAND_OBSERVATION_RUN_ID}/artifacts?per_page=100" \
+            > "$ROOT/search_artifacts.json"
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+          import pandas as pd
+
+          root=Path(os.environ['ROOT'])
+          run_id=os.environ['ISLAND_OBSERVATION_RUN_ID']
+          payload=json.loads((root/'search_artifacts.json').read_text())
+          artifacts={item['name']:item for item in payload.get('artifacts',[])}
+          channels=['bombus','non_bombus_bees','lepidoptera','flower_visiting_birds','diptera']
+          tables=[]
+          for channel in channels:
+              name=f'chapter1-nee-island-search-observation-{channel}-{run_id}'
+              if name not in artifacts:
+                  raise SystemExit(f'missing canonical channel aggregate: {name}')
+              artifact_id=str(artifacts[name]['id'])
+              zip_path=root/'observations'/f'{channel}.zip'
+              out=root/'observations'/channel
+              out.mkdir(parents=True,exist_ok=True)
+              with zip_path.open('wb') as handle:
+                  subprocess.run([
+                      'gh','api','-H','Accept: application/vnd.github+json',
+                      f'/repos/{os.environ["GITHUB_REPOSITORY"]}/actions/artifacts/{artifact_id}/zip',
+                  ],check=True,stdout=handle)
+              subprocess.run(['unzip','-q',str(zip_path),'-d',str(out)],check=True)
+              path=out/f'{channel}_island_search_observation.csv'
+              if not path.exists():
+                  raise SystemExit(f'missing observation table: {path}')
+              table=pd.read_csv(path,dtype=str).fillna('')
+              if set(table.channel_id) - {channel}:
+                  raise SystemExit(f'wrong channel rows in {path}')
+              tables.append(table)
+          combined=pd.concat(tables,ignore_index=True)
+          if combined[['island_id','channel_id']].duplicated().any():
+              raise SystemExit('duplicate island x channel rows across canonical aggregates')
+          combined.to_csv(root/'combined_island_observation.csv',index=False)
+          print({'run_id':run_id,'rows':len(combined),'by_channel':combined.groupby('channel_id').size().to_dict()})
+          PY
+      - name: Download frozen island universe
+        if: steps.trigger.outputs.active == 'true'
+        run: |
+          set -euo pipefail
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${FROZEN_ISLAND_ARTIFACT_ID}/zip" \
+            > "$ROOT/islands.zip"
+          echo "$FROZEN_ISLAND_ARTIFACT_SHA256  $ROOT/islands.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/islands.zip" -d "$ROOT/islands"
+          test -s "$ROOT/islands/islands_v2.gpkg"
+      - name: Download canonical Chapter 1 covariates
+        if: steps.trigger.outputs.active == 'true'
+        run: |
+          set -euo pipefail
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${COVARIATE_ARTIFACT_ID}/zip" \
+            > "$ROOT/covariates.zip"
+          echo "$COVARIATE_ARTIFACT_SHA256  $ROOT/covariates.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/covariates.zip" -d "$ROOT/covariates"
+          test -s "$ROOT/covariates/results/purpose_shortest_island_data.csv"
+      - name: Run reporting-only transport audit
+        if: steps.trigger.outputs.active == 'true'
+        run: |
+          set -euo pipefail
+          python -m island_v2.chapter1_nee_island_search_transport_audit run \
+            --observation-csv "$ROOT/combined_island_observation.csv" \
+            --covariates-csv "$ROOT/covariates/results/purpose_shortest_island_data.csv" \
+            --islands-gpkg "$ROOT/islands/islands_v2.gpkg" \
+            --output-dir "$ROOT/output"
+      - name: Assert audit is reporting-only
+        if: steps.trigger.outputs.active == 'true'
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import pandas as pd
+
+          root=Path(os.environ['ROOT'])/'output'
+          summary=pd.read_csv(root/'island_search_transport_channel_summary.csv')
+          deciles=pd.read_csv(root/'island_search_transport_decile_diagnostics.csv')
+          receipt=json.loads((root/'island_search_transport_audit_receipt.json').read_text())
+          assert receipt['contract'] == 'chapter1_nee_island_search_transport_audit_v1'
+          assert receipt['reporting_only'] is True
+          assert receipt['transport_audit_cannot_promote_or_demote_a_channel'] is True
+          assert receipt['transport_audit_cannot_change_N1_pass'] is True
+          assert receipt['rerun_or_recode_permitted'] is False
+          assert len(summary) == 5
+          assert set(summary.channel_id) == {'bombus','non_bombus_bees','lepidoptera','flower_visiting_birds','diptera'}
+          assert set(deciles.diagnostic) == {'exact_polygon_wkt_length','log1p_area_km2','log1p_distance_to_continent_km'}
+          print(summary.to_string(index=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: steps.trigger.outputs.active == 'true'
+        with:
+          name: chapter1-nee-island-search-transport-audit-${{ github.run_id }}
+          path: /tmp/chapter1-nee-island-search-transport-audit/output
+          if-no-files-found: error
+          retention-days: 90

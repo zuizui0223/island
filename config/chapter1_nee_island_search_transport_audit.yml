@@ -1,0 +1,60 @@
+contract: chapter1_nee_island_search_transport_audit_v1
+status: reporting_only_after_canonical_search
+parent_execution_contract: chapter1_nee_island_search_execution_v1
+
+purpose: >-
+  Quantify whether fail-closed Search transport failures or fixed-budget truncation are
+  associated with island geography after the canonical island Search completes. This
+  audit cannot alter observation states, rerun rows, rescue unresolved islands, change
+  qualification thresholds, or change the N1 gate.
+
+inputs:
+  canonical_island_search_run_id: 34731405488
+  frozen_island_universe_artifact_id: 8066083419
+  canonical_covariate_artifact_id: 8270544465
+  channels:
+    - bombus
+    - non_bombus_bees
+    - lepidoptera
+    - flower_visiting_birds
+    - diptera
+
+report_per_channel:
+  - n_source_available
+  - n_detected
+  - n_adequate_non_detection
+  - n_insufficient_effort
+  - n_unresolved
+  - n_search_errors
+  - n_truncated_searches
+  - n_complete_searches
+  - search_error_fraction
+  - truncation_fraction
+
+report_geometry_diagnostics:
+  - exact_polygon_wkt_length
+  - log1p_area_km2
+  - log1p_distance_to_continent_km
+  - search_error_by_wkt_length_decile
+  - search_error_by_area_decile
+  - search_error_by_distance_decile
+  - continuous_difference_in_log_area_error_vs_nonerror
+  - continuous_difference_in_log_distance_error_vs_nonerror
+
+interpretation:
+  thresholds_are_not_added_post_outcome: true
+  diagnostics_are_descriptive_not_a_new_exclusion_gate: true
+  material_transport_imbalance_must_be_reported_as_claim_limitation: true
+  transport_audit_cannot_promote_or_demote_a_channel: true
+  transport_audit_cannot_change_N1_pass: true
+
+prohibited:
+  - rerun_error_rows
+  - rerun_unresolved_rows
+  - increase_record_cap
+  - simplify_geometry
+  - replace_exact_geometry_with_points_or_buffers
+  - union_rows_from_another_search_run
+  - recode_search_error_as_non_detection
+  - drop_transport_error_rows_to_improve_model_fit
+  - choose_a_bias_threshold_after_results_are_seen
