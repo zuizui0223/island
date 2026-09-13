@@ -1,0 +1,47 @@
+contract: chapter1_response_geometry_observed_v1
+status: frozen_before_observed_geometry_fit
+
+pinned_inputs:
+  chapter1_run: 34232450884
+  chapter1_artifact_id: 10058653212
+  chapter1_digest: sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999
+  v2_recovery_run: 34764755666
+  v2_recovery_artifact_id: 10320410517
+  v2_recovery_digest: sha256:1374fa264b9b94eb401a24d108a5a18d4beb6fede04d5622faf81569afc27838
+
+responses:
+  flower_colour: plain_colour
+  floral_structural_complexity: generalized_form
+  reproductive_assurance: self_compatibility
+contexts: [northern_midlatitude, tropical]
+strata: [all_native, native_nonendemic]
+evidence_scopes: [all_analysis_eligible, direct_only]
+
+rules:
+  - use_scope_specific_critical_D_from_v2_without_change
+  - observed_nonlinearity_requires_D_greater_than_critical_D_in_both_scopes
+  - shape_label_requires_same_best_nonlinear_shape_in_both_scopes
+  - shape_label_requires_v2_cross_scope_qualification_for_that_shape
+  - G3_hinge_is_never_identifiable_under_v2_and_cannot_be_promoted
+  - if_nonlinearity_passes_but_shape_rules_fail_report_nonlinear_shape_unresolved
+  - breakpoint_is_reported_only_for_an_identified_G2_step_or_G4_reversal
+  - breakpoint_scope_difference_must_be_at_most_0.15_quantile_for_one_consensus_location
+  - direct_only_cannot_override_all_analysis
+  - no_mechanism_label_is_inferred_from_geometry
+
+candidate_shapes: [G0_flat, G1_cline, G2_step, G3_hinge, G4_reversal]
+primary_exposure: log_distance_to_continent_km
+exposure_interpretation: composite_source_separation_connectivity_gradient
+physical_water_crossing_threshold_claim_allowed: false
+
+output_classes:
+  - monotonic_or_unresolved
+  - nonlinear_shape_unresolved
+  - identified_step
+  - identified_reversal
+
+claim_ceiling: >-
+  This stage may identify the observed geometry of a predeclared broad plant-trait
+  contrast where the V2 recovery audit already demonstrated adequate identifiability.
+  It cannot identify pollinator loss, effective service, relaxed selection, selfing
+  selection, source assembly, or within-lineage evolution from response shape alone.
