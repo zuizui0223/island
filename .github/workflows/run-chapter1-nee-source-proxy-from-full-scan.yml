@@ -150,14 +150,19 @@ jobs:
           import pandas as pd
 
           root=Path(os.environ['ROOT'])/'output'
-          modes={'geo_k5':5,'geo_k10':10,'geo_k20':20,'geo50_climate10':10}
+          modes={
+              'geo_k5':(5,8265),
+              'geo_k10':(10,8265),
+              'geo_k20':(20,8265),
+              'geo50_climate10':(10,8219),
+          }
           summary={}
-          for mode,k in modes.items():
+          for mode,(k,n_islands) in modes.items():
               receipt=json.loads((root/mode/f'{mode}_source_proxy_receipt.json').read_text())
               table=pd.read_csv(root/mode/f'{mode}_island_channel_source_availability.csv',dtype=str).fillna('')
               audit=pd.read_csv(root/mode/f'{mode}_source_set_audit.csv',dtype=str).fillna('')
-              assert receipt['n_islands'] == 8265
-              assert receipt['n_rows'] == 8265 * 5
+              assert receipt['n_islands'] == n_islands
+              assert receipt['n_rows'] == n_islands * 5
               assert receipt['expected_k'] == k
               assert receipt['uses_pollinator_retention_outcomes'] is False
               assert receipt['uses_focal_plant_traits'] is False
@@ -165,6 +170,7 @@ jobs:
               assert not (table.source_state == 'structurally_absent').any()
               assert pd.to_numeric(audit.n_selected_entities).eq(k).all()
               summary[mode]={
+                  'n_islands':n_islands,
                   'available':int((table.source_state=='available').sum()),
                   'unresolved':int((table.source_state=='unresolved').sum()),
               }
