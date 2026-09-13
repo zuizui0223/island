@@ -124,6 +124,59 @@
       }
     }
   },
+  "canonical_source_proxy": {
+    "run_id": "34729087812",
+    "head_sha": "a02a22b7c9a9262bf14dcdda1099ce9ac4828a15",
+    "artifact_id": "10308673426",
+    "artifact_sha256": "6288c60234a56de19201076394e21709503a7832cf01f8a6abeeec113189cc8d",
+    "upstream_full_scan_run_id": "34704844604",
+    "upstream_entity_channel_rows": 3650,
+    "upstream_available": 3258,
+    "upstream_unresolved": 392,
+    "uses_pollinator_retention_outcomes": false,
+    "uses_focal_plant_traits": false,
+    "projection_runs_before_canonical": {
+      "34728914659": "failed_before_projection_output_due_single_command_CLI_wiring",
+      "34729010823": "projection_completed_but_artifact_blocked_by_incorrect_geo50_8265_island_assertion"
+    },
+    "modes": {
+      "geo_k5": {
+        "role": "primary",
+        "n_islands": 8265,
+        "n_rows": 41325,
+        "n_available": 40135,
+        "n_unresolved": 1190,
+        "channels": {
+          "bombus": {"available": 7154, "unresolved": 1111},
+          "non_bombus_bees": {"available": 8186, "unresolved": 79},
+          "lepidoptera": {"available": 8265, "unresolved": 0},
+          "flower_visiting_birds": {"available": 8265, "unresolved": 0},
+          "diptera": {"available": 8265, "unresolved": 0}
+        }
+      },
+      "geo_k10": {
+        "role": "sensitivity",
+        "n_islands": 8265,
+        "n_rows": 41325,
+        "n_available": 40287,
+        "n_unresolved": 1038
+      },
+      "geo_k20": {
+        "role": "sensitivity",
+        "n_islands": 8265,
+        "n_rows": 41325,
+        "n_available": 40621,
+        "n_unresolved": 704
+      },
+      "geo50_climate10": {
+        "role": "sensitivity",
+        "n_islands": 8219,
+        "n_rows": 41095,
+        "n_available": 40503,
+        "n_unresolved": 592
+      }
+    }
+  },
   "post_run_policy": {
     "do_not_rerun_entities_to_increase_available_count": true,
     "do_not_union_equivalent_runs_for_primary_source_state": true,
