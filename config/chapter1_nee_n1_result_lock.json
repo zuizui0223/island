@@ -1,0 +1,111 @@
+{
+  "contract": "chapter1_nee_n1_result_lock_v1",
+  "status": "canonical_N1_failed_stop_before_N2",
+  "repository": "zuizui0223/island",
+  "upstream": {
+    "source_proxy_run_id": 34729087812,
+    "island_search_run_id": 34731405488,
+    "qualification_run_id": 34750153702,
+    "qualification_artifact_id": 10314984302,
+    "qualification_artifact_digest": "sha256:c643b8432e04de0392867028810606f0f60f5a1d45b94bca1e28a1696ffc292d",
+    "canonical_covariate_artifact_id": 8270544465,
+    "canonical_covariate_artifact_digest": "sha256:695f35b97bae07e81b05deab537dd73fa687b2d99e9efdb1cb3babd2fa12dfb6"
+  },
+  "n1": {
+    "workflow_run_id": 34750351009,
+    "artifact_id": 10315671249,
+    "artifact_digest": "sha256:01d938a1f42b7f64634232a2fcb76c68a60183824684c5f135f567107a4c5d85",
+    "head_sha": "f22993a558409b995fea1a2bae4ae4a65186020e",
+    "n_confirmatory_channels": 4,
+    "confirmatory_channels": [
+      "bombus",
+      "diptera",
+      "flower_visiting_birds",
+      "non_bombus_bees"
+    ],
+    "reference_channel": "bombus",
+    "n_rows": 6256,
+    "n_islands": 3150,
+    "n_spatial_blocks": 225,
+    "n_source_regions_raw": 217,
+    "n_source_regions_model": 145,
+    "global_heterogeneity_test": {
+      "Wald_statistic": 1.618695621700901,
+      "df": 3,
+      "p_value": 0.6551581817640355,
+      "interaction_terms": [
+        "z_isolation:channel[diptera]",
+        "z_isolation:channel[flower_visiting_birds]",
+        "z_isolation:channel[non_bombus_bees]"
+      ]
+    },
+    "model_comparison": {
+      "common_slope_log_likelihood": -231.7424820325726,
+      "heterogeneous_slope_log_likelihood": -229.62642076638804,
+      "heterogeneous_minus_common_log_likelihood": 2.1160612661845732,
+      "same_primary_rows": true,
+      "n_rows": 6256,
+      "reference_channel": "bombus"
+    },
+    "channel_slopes": [
+      {
+        "channel_id": "bombus",
+        "is_reference": true,
+        "isolation_slope_log_odds_per_sd": -1.0822854805253677,
+        "cluster_robust_se": 0.4654679196819246
+      },
+      {
+        "channel_id": "diptera",
+        "is_reference": false,
+        "isolation_slope_log_odds_per_sd": -0.7915354384953277,
+        "cluster_robust_se": 0.5798553159384979
+      },
+      {
+        "channel_id": "flower_visiting_birds",
+        "is_reference": false,
+        "isolation_slope_log_odds_per_sd": -0.4925594277457845,
+        "cluster_robust_se": 0.2339236716322333
+      },
+      {
+        "channel_id": "non_bombus_bees",
+        "is_reference": false,
+        "isolation_slope_log_odds_per_sd": -0.1596804055387046,
+        "cluster_robust_se": 0.584484683832147
+      }
+    ],
+    "spatial_block_deletion": {
+      "n_fitted": 225,
+      "n_total": 225,
+      "p_value_min": 0.1271101648618987,
+      "p_value_max": 0.8452858871786121,
+      "fraction_p_ge_0_05": 1.0
+    },
+    "source_region_deletion": {
+      "n_fitted": 217,
+      "n_total": 217,
+      "p_value_min": 0.1255316876974439,
+      "p_value_max": 0.8436612754531925,
+      "fraction_p_ge_0_05": 1.0
+    },
+    "gate": {
+      "contract": "chapter1_nee_n1_model_v1",
+      "N1_pass": false,
+      "n_confirmatory_channels": 4,
+      "global_Wald_p_value": 0.6551581817640355,
+      "heterogeneous_minus_common_log_likelihood": 2.1160612661845732,
+      "spatial_block_reversal_fraction": 1.0,
+      "source_region_reversal_fraction": 1.0,
+      "failure_action": "stop_before_N2_and_keep_frozen_Chapter1",
+      "claim_ceiling": "N1_not_promoted"
+    }
+  },
+  "interpretation_boundary": {
+    "N1_pass": false,
+    "N2_may_open": false,
+    "no_posthoc_channel_relabel_or_substitution": true,
+    "no_search_rerun_or_negative_rescue": true,
+    "no_reduced_channel_rescue_model": true,
+    "transport_evaluable_exact_island_geometry_claim_limit_applies": true,
+    "primary_conclusion": "The frozen prospective N1 test does not support channel-specific isolation retention curves; H5a stops before N2."
+  }
+}
