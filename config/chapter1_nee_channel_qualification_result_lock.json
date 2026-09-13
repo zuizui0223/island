@@ -1,0 +1,89 @@
+{
+  "contract": "chapter1_nee_channel_qualification_result_lock_v1",
+  "status": "canonical_completed_channel_qualification",
+  "workflow_run_id": 34750153702,
+  "artifact_id": 10314984302,
+  "artifact_digest": "sha256:c643b8432e04de0392867028810606f0f60f5a1d45b94bca1e28a1696ffc292d",
+  "source_proxy_run_id": 34729087812,
+  "island_observation_run_id": 34731405488,
+  "n_projected_rows": 41325,
+  "n_channels": 5,
+  "n_N1_gate_eligible_channels": 4,
+  "required_N1_gate_eligible_channels": 3,
+  "channels": {
+    "bombus": {
+      "n_source_available": 7154,
+      "n_source_unresolved": 1111,
+      "n_retained": 824,
+      "n_disrupted": 23,
+      "n_observation_unresolved": 6307,
+      "n_evaluable_source_available": 847,
+      "n_source_regions": 198,
+      "support_tier": "confirmatory",
+      "N1_gate_eligible": true,
+      "exclusion_reason": ""
+    },
+    "non_bombus_bees": {
+      "n_source_available": 8186,
+      "n_source_unresolved": 79,
+      "n_retained": 1088,
+      "n_disrupted": 11,
+      "n_observation_unresolved": 7087,
+      "n_evaluable_source_available": 1099,
+      "n_source_regions": 234,
+      "support_tier": "confirmatory",
+      "N1_gate_eligible": true,
+      "exclusion_reason": ""
+    },
+    "lepidoptera": {
+      "n_source_available": 8265,
+      "n_source_unresolved": 0,
+      "n_retained": 2113,
+      "n_disrupted": 0,
+      "n_observation_unresolved": 6152,
+      "n_evaluable_source_available": 2113,
+      "n_source_regions": 234,
+      "support_tier": "not_qualified",
+      "N1_gate_eligible": false,
+      "exclusion_reason": "insufficient_disrupted"
+    },
+    "flower_visiting_birds": {
+      "n_source_available": 8265,
+      "n_source_unresolved": 0,
+      "n_retained": 3014,
+      "n_disrupted": 45,
+      "n_observation_unresolved": 5206,
+      "n_evaluable_source_available": 3059,
+      "n_source_regions": 234,
+      "support_tier": "confirmatory",
+      "N1_gate_eligible": true,
+      "exclusion_reason": ""
+    },
+    "diptera": {
+      "n_source_available": 8265,
+      "n_source_unresolved": 0,
+      "n_retained": 1261,
+      "n_disrupted": 7,
+      "n_observation_unresolved": 6997,
+      "n_evaluable_source_available": 1268,
+      "n_source_regions": 234,
+      "support_tier": "confirmatory",
+      "N1_gate_eligible": true,
+      "exclusion_reason": ""
+    }
+  },
+  "gate": {
+    "N1_evaluable": true,
+    "confirmatory_channels": [
+      "bombus",
+      "non_bombus_bees",
+      "flower_visiting_birds",
+      "diptera"
+    ],
+    "excluded_channel": "lepidoptera",
+    "excluded_channel_reason": "insufficient_disrupted",
+    "reduced_rescue_model_forbidden": true,
+    "N1_fitted": false,
+    "N2_opened": false
+  }
+}
