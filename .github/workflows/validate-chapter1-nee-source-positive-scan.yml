@@ -3,17 +3,21 @@ name: Validate Chapter 1 NEE source positive scan
 on:
   push:
     branches:
-      - "nee/double-filter-source-positive-scan"
+      - "nee/source-positive-scan-run"
     paths:
       - "config/chapter1_nee_source_positive_scan.yml"
+      - "config/chapter1_nee_source_positive_scan_execution_lock.json"
       - "src/island_v2/chapter1_nee_source_positive_scan.py"
       - "tests/test_chapter1_nee_source_positive_scan.py"
+      - ".github/workflows/run-chapter1-nee-source-positive-scan-sharded.yml"
       - ".github/workflows/validate-chapter1-nee-source-positive-scan.yml"
   pull_request:
     paths:
       - "config/chapter1_nee_source_positive_scan.yml"
+      - "config/chapter1_nee_source_positive_scan_execution_lock.json"
       - "src/island_v2/chapter1_nee_source_positive_scan.py"
       - "tests/test_chapter1_nee_source_positive_scan.py"
+      - ".github/workflows/run-chapter1-nee-source-positive-scan-sharded.yml"
       - ".github/workflows/validate-chapter1-nee-source-positive-scan.yml"
 
 permissions:
@@ -36,19 +40,120 @@ jobs:
             src/island_v2/chapter1_nee_source_positive_scan.py \
             tests/test_chapter1_nee_source_positive_scan.py
           python -m island_v2.chapter1_nee_source_positive_scan --help >/dev/null
-      - name: Smoke-test frozen GIFT geometry and GBIF taxon resolution only
+      - name: Validate frozen exact-component contract
+        run: |
+          python - <<'PY'
+          import yaml
+
+          config=yaml.safe_load(open('config/chapter1_nee_source_positive_scan.yml'))
+          geometry=config['source_geometry']
+          search=config['GBIF_search']
+          assert geometry['multipolygon_query_strategy'] == 'exact_component_polygons'
+          assert geometry['component_order'] == 'area_desc_then_stable_wkt'
+          assert geometry['geometry_simplification_allowed'] is False
+          assert geometry['component_record_budget_shared_across_entity_channel'] is True
+          assert search['page_size'] == 300
+          assert search['max_pages_per_entity_channel'] == 3
+          assert search['max_records_examined_per_entity_channel'] == 900
+          assert config['no_hit_policy']['state'] == 'unresolved'
+          assert config['no_hit_policy']['never_structurally_absent'] is True
+          print('Exact component source-scan contract validated')
+          PY
+      - name: Validate canonical sharded execution and result lock
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          lock=json.loads(Path('config/chapter1_nee_source_positive_scan_execution_lock.json').read_text())
+          assert lock['contract'] == 'chapter1_nee_source_positive_scan_execution_lock_v1'
+          assert lock['canonical_full_scan_run_id'] == '34704844604'
+          assert lock['canonical_execution_layout'] == 'deterministic_10_shard'
+          assert lock['canonical_head_sha'] == '64d8f848196a25c4d33ce44fa984ecfb661331b0'
+          universe=lock['source_universe']
+          assert universe['n_unique_entities'] == 730
+          assert universe['n_shards'] == 10
+          assert universe['entities_per_shard'] == 73
+          assert universe['partition_rule'] == 'sorted_unique_entity_ID_index_mod_10'
+          assert lock['selection_provenance']['full_channel_artifacts_available_when_sharded_trigger_created'] == 0
+          assert lock['selection_provenance']['uses_source_availability_counts_to_select_execution'] is False
+          serial=lock['noncanonical_serial_run']
+          assert serial['run_id'] == '34700705549'
+          assert serial['role'] == 'transport_diagnostic_only'
+          assert serial['may_union_positive_hits_with_canonical_run'] is False
+          infra=lock['infrastructure_failure_policy']
+          assert infra['frozen_before_canonical_scan_completed'] is True
+          assert infra['whole_job_retry_allowed_only_if_no_artifact_was_emitted'] is True
+          assert infra['maximum_whole_job_retries'] == 1
+          assert infra['retry_must_use_same_code_and_inputs'] is True
+          assert infra['retry_must_use_same_73_entities'] is True
+          assert infra['retry_must_use_same_900_record_cap'] is True
+          assert infra['partial_output_union_forbidden'] is True
+          assert infra['row_level_retry_for_unresolved_or_query_error_forbidden'] is True
+          assert lock['post_run_policy']['do_not_rerun_entities_to_increase_available_count'] is True
+          assert lock['post_run_policy']['do_not_union_equivalent_runs_for_primary_source_state'] is True
+
+          results=lock['canonical_results']
+          assert results['run_completed_without_retry'] is True
+          assert results['all_50_scan_shards_success'] is True
+          assert results['all_5_aggregate_jobs_success'] is True
+          assert results['all_channels_rows'] == 730
+          assert results['all_channels_unique_entities'] == 730
+          assert results['all_channels_duplicate_entity_channel_rows'] == 0
+          assert results['all_channels_structurally_absent'] == 0
+          assert results['all_channels_geometry_failures'] == 0
+          expected={
+              'bombus':('10303941023','052db36a257ace02dfa4d4039eeb125477567fd1dad89e356f61433661ccddfe',492,238,39,34,48),
+              'non_bombus_bees':('10303419534','47f0076e15fceed53b9d7a46c001a01e96bfb3d96d0b7861e0b0094ce4a1719f',676,54,38,19,900),
+              'lepidoptera':('10303921122','cc79318a7135cc8322d29606e36058ded1175b1fb1daca30ed10c7340da5ab45',712,18,39,13,179),
+              'flower_visiting_birds':('10303114973','afa31238543aa4bf9718da581612602061e8a66d292e2fa45330f39cbf7074e9',710,20,38,11,900),
+              'diptera':('10303509284','301d1c93b563d3fc570c67291114b8ef7f9eea504865a531ab4f569652e2ef11',668,62,38,19,900),
+          }
+          assert set(results['channels']) == set(expected)
+          for channel,(artifact,digest,available,unresolved,qerr,qerr_unresolved,max_records) in expected.items():
+              row=results['channels'][channel]
+              assert row['artifact_id'] == artifact
+              assert row['artifact_sha256'] == digest
+              assert row['n_available'] == available
+              assert row['n_unresolved'] == unresolved
+              assert row['n_available'] + row['n_unresolved'] == 730
+              assert row['n_query_error_entities'] == qerr
+              assert row['n_query_error_unresolved'] == qerr_unresolved
+              assert row['n_multipart_entities'] == 240
+              assert row['max_records_examined'] == max_records
+
+          workflow=Path('.github/workflows/run-chapter1-nee-source-positive-scan-sharded.yml').read_text()
+          assert 'N_SHARDS: "10"' in workflow
+          assert 'index % n_shards' in workflow
+          assert "assert len(members) == 73" in workflow
+          assert 'max-parallel: 10' in workflow
+          assert "assert len(combined) == 730" in workflow
+          print('Canonical outcome-blind sharded execution and result lock validated')
+          PY
+      - name: Smoke-test entity 345 exact component GBIF transport
         run: |
           python - <<'PY'
           import httpx
           import yaml
-          from island_v2.chapter1_nee_source_positive_scan import gift_entity_wkt
+          from island_v2.chapter1_nee_source_positive_scan import gift_entity_query_wkts
           from island_v2.gbif_blocks import resolve_query_taxon
 
           config=yaml.safe_load(open('config/chapter1_nee_source_positive_scan.yml'))
           with httpx.Client(timeout=90,follow_redirects=True,headers={'User-Agent':'island-v2/nee-source-scan-smoke'}) as client:
-              wkt=gift_entity_wkt(client,'12605',config)
-              assert wkt.startswith(('POLYGON','MULTIPOLYGON'))
-              taxon=resolve_query_taxon(client,'Lepidoptera','ORDER',None,None)
-              assert str(taxon.get('usage_key','')).strip()
-          print({'gift_entity':'12605','geometry_ok':True,'gbif_taxon':'Lepidoptera','taxon_key':taxon['usage_key']})
+              wkts=gift_entity_query_wkts(client,'345',config)
+              assert len(wkts) == 72
+              assert all(wkt.startswith('POLYGON') for wkt in wkts)
+              taxon=resolve_query_taxon(client,'Bombus','GENUS',None,None)
+              response=client.get(
+                  config['GBIF_search']['endpoint'],
+                  params={
+                      'taxon_key':str(taxon['usage_key']),
+                      'geometry':wkts[0],
+                      'has_coordinate':'true',
+                      'limit':1,
+                      'offset':0,
+                  },
+              )
+              response.raise_for_status()
+          print({'gift_entity':'345','n_exact_components':len(wkts),'first_component_status':response.status_code})
           PY

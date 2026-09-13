@@ -1,0 +1,84 @@
+name: Validate Chapter 1 NEE source result lock
+
+on:
+  push:
+    branches:
+      - "nee/source-positive-scan-run"
+    paths:
+      - "config/chapter1_nee_source_positive_scan_execution_lock.json"
+      - ".github/workflows/validate-chapter1-nee-source-result-lock.yml"
+  pull_request:
+    paths:
+      - "config/chapter1_nee_source_positive_scan_execution_lock.json"
+      - ".github/workflows/validate-chapter1-nee-source-result-lock.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-source-result-lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Assert canonical source scan and primary projection lock
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          lock=json.loads(Path('config/chapter1_nee_source_positive_scan_execution_lock.json').read_text())
+          assert lock['canonical_full_scan_run_id'] == '34704844604'
+          results=lock['canonical_results']
+          assert results['all_50_scan_shards_success'] is True
+          assert results['all_5_aggregate_jobs_success'] is True
+          assert results['all_channels_structurally_absent'] == 0
+          expected_source={
+              'bombus':(492,238),
+              'non_bombus_bees':(676,54),
+              'lepidoptera':(712,18),
+              'flower_visiting_birds':(710,20),
+              'diptera':(668,62),
+          }
+          for channel,(available,unresolved) in expected_source.items():
+              row=results['channels'][channel]
+              assert (row['n_available'],row['n_unresolved']) == (available,unresolved)
+              assert available + unresolved == 730
+
+          proxy=lock['canonical_source_proxy']
+          assert proxy['run_id'] == '34729087812'
+          assert proxy['head_sha'] == 'a02a22b7c9a9262bf14dcdda1099ce9ac4828a15'
+          assert proxy['artifact_id'] == '10308673426'
+          assert proxy['artifact_sha256'] == '6288c60234a56de19201076394e21709503a7832cf01f8a6abeeec113189cc8d'
+          assert proxy['upstream_full_scan_run_id'] == '34704844604'
+          assert proxy['uses_pollinator_retention_outcomes'] is False
+          assert proxy['uses_focal_plant_traits'] is False
+          primary=proxy['modes']['geo_k5']
+          assert primary['role'] == 'primary'
+          assert primary['n_islands'] == 8265
+          assert primary['n_rows'] == 41325
+          assert primary['n_available'] == 40135
+          assert primary['n_unresolved'] == 1190
+          expected_primary={
+              'bombus':(7154,1111),
+              'non_bombus_bees':(8186,79),
+              'lepidoptera':(8265,0),
+              'flower_visiting_birds':(8265,0),
+              'diptera':(8265,0),
+          }
+          for channel,(available,unresolved) in expected_primary.items():
+              row=primary['channels'][channel]
+              assert (row['available'],row['unresolved']) == (available,unresolved)
+          assert proxy['modes']['geo_k10']['n_available'] == 40287
+          assert proxy['modes']['geo_k10']['n_unresolved'] == 1038
+          assert proxy['modes']['geo_k20']['n_available'] == 40621
+          assert proxy['modes']['geo_k20']['n_unresolved'] == 704
+          geo50=proxy['modes']['geo50_climate10']
+          assert geo50['n_islands'] == 8219
+          assert geo50['n_rows'] == 41095
+          assert geo50['n_available'] == 40503
+          assert geo50['n_unresolved'] == 592
+          print('Canonical source scan and source-proxy result lock validated')
+          PY

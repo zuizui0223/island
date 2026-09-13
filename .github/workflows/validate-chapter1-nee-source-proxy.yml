@@ -9,6 +9,7 @@ on:
       - "src/island_v2/chapter1_nee_source_proxy.py"
       - "tests/test_chapter1_nee_source_proxy.py"
       - "docs/chapter1_nee_source_proxy_contract.md"
+      - ".github/workflows/run-chapter1-nee-source-proxy-from-full-scan.yml"
       - ".github/workflows/validate-chapter1-nee-source-proxy.yml"
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - "src/island_v2/chapter1_nee_source_proxy.py"
       - "tests/test_chapter1_nee_source_proxy.py"
       - "docs/chapter1_nee_source_proxy_contract.md"
+      - ".github/workflows/run-chapter1-nee-source-proxy-from-full-scan.yml"
       - ".github/workflows/validate-chapter1-nee-source-proxy.yml"
   workflow_dispatch:
 
@@ -36,3 +38,21 @@ jobs:
         run: |
           pytest -q tests/test_chapter1_nee_source_proxy.py
           ruff check src/island_v2/chapter1_nee_source_proxy.py tests/test_chapter1_nee_source_proxy.py
+          python -m island_v2.chapter1_nee_source_proxy --help >/dev/null
+      - name: Guard production projection wiring and frozen source-mode coverage
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          text=Path('.github/workflows/run-chapter1-nee-source-proxy-from-full-scan.yml').read_text()
+          assert 'python -m island_v2.chapter1_nee_source_proxy \\' in text
+          assert 'python -m island_v2.chapter1_nee_source_proxy aggregate' not in text
+          assert "'geo_k5':(5,8265)" in text
+          assert "'geo_k10':(10,8265)" in text
+          assert "'geo_k20':(20,8265)" in text
+          assert "'geo50_climate10':(10,8219)" in text
+          assert 'full_scan_run_id' in text
+          assert 'uses_pollinator_retention_outcomes' in text
+          assert 'uses_focal_plant_traits' in text
+          print('Production source-proxy wiring and frozen source-mode coverage validated')
+          PY

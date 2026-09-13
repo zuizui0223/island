@@ -18,6 +18,14 @@ source_geometry:
   use_full_entity_polygon: true
   representative_point_not_used_for_occurrence_membership: true
   geometry_failure_state: unresolved
+  multipolygon_query_strategy: exact_component_polygons
+  component_order: area_desc_then_stable_wkt
+  geometry_simplification_allowed: false
+  component_record_budget_shared_across_entity_channel: true
+  rationale: >-
+    GBIF Search returned HTTP 400 for a valid 72-part GIFT MultiPolygon while the
+    unchanged component polygons returned HTTP 200. Querying exact components preserves
+    the frozen source geometry and changes only request transport, not biological scope.
 
 channels:
   bombus:
@@ -49,6 +57,11 @@ GBIF_search:
   page_size: 300
   max_pages_per_entity_channel: 3
   max_records_examined_per_entity_channel: 900
+  multipart_budget_rule: >-
+    The same 900-record maximum is divided deterministically across exact component
+    polygons. Each component receives a quota; quotas sum to at most 900. A component
+    quota may use multiple requests of at most 300 records. No-hit or an unqueried
+    component caused by exhaustion of the fixed record budget remains unresolved.
   hasCoordinate: true
   request_timeout_seconds: 90
   retries: 4
@@ -79,6 +92,7 @@ prohibited:
   - focal_plant_traits_in_source_scan
   - posthoc_page_limit_change_based_on_channel_result
   - posthoc_taxon_substitution_based_on_channel_result
+  - geometry_simplification_or_buffer_expansion_to_rescue_query_failures
 
 claim_boundary: >-
   A positive scan establishes that at least one independently qualified functional-channel

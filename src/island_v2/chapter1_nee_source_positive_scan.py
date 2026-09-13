@@ -83,7 +83,10 @@ def confirmatory_target_keys(catalog: pd.DataFrame, channel_id: str) -> set[str]
 
 def _introduced(value: object) -> bool:
     text = _text(value).upper()
-    return any(token in text for token in ("INTRODUCED", "INVASIVE", "ALIEN", "NATURALISED", "NATURALIZED"))
+    return any(
+        token in text
+        for token in ("INTRODUCED", "INVASIVE", "ALIEN", "NATURALISED", "NATURALIZED")
+    )
 
 
 def _captive(record: dict[str, Any]) -> bool:
@@ -115,7 +118,9 @@ def find_confirmatory_positive(
             family = _text(record.get("family"))
             if family not in allowed_families:
                 continue
-        if _explicit_absent(record) or _captive(record) or _introduced(record.get("establishmentMeans")):
+        if _explicit_absent(record) or _captive(record) or _introduced(
+            record.get("establishmentMeans")
+        ):
             continue
         if not _text(record.get("establishmentMeans")):
             flags.append("matched_target_unknown_establishment")
@@ -123,7 +128,7 @@ def find_confirmatory_positive(
     return None, examined, flags
 
 
-def gift_entity_wkt(client: httpx.Client, entity_id: str, config: dict[str, Any]) -> str:
+def _gift_entity_geometry(client: httpx.Client, entity_id: str, config: dict[str, Any]):
     url = str(config["source_geometry"]["geojson_template"]).format(entity_id=entity_id)
     response = client.get(url)
     response.raise_for_status()
@@ -131,8 +136,32 @@ def gift_entity_wkt(client: httpx.Client, entity_id: str, config: dict[str, Any]
     features = payload.get("features", []) if isinstance(payload, dict) else []
     if not features:
         raise ValueError(f"GIFT entity {entity_id} has no geometry feature")
-    geometry = canonical_gbif_polygon(shape(features[0]["geometry"]))
-    return stable_wkt(geometry)
+    return canonical_gbif_polygon(shape(features[0]["geometry"]))
+
+
+def gift_entity_wkt(client: httpx.Client, entity_id: str, config: dict[str, Any]) -> str:
+    """Return the complete frozen GIFT geometry WKT for audit/backward compatibility."""
+    return stable_wkt(_gift_entity_geometry(client, entity_id, config))
+
+
+def gift_entity_query_wkts(
+    client: httpx.Client,
+    entity_id: str,
+    config: dict[str, Any],
+) -> list[str]:
+    """Return exact Polygon queries covering the frozen GIFT geometry without simplification."""
+    geometry = _gift_entity_geometry(client, entity_id, config)
+    if geometry.geom_type == "Polygon":
+        parts = [geometry]
+    elif geometry.geom_type == "MultiPolygon":
+        parts = list(geometry.geoms)
+    else:
+        raise ValueError(f"unsupported GIFT source geometry type: {geometry.geom_type}")
+
+    # Transport order is fixed before source outcomes are opened. Larger exact components
+    # receive any remainder of the shared record budget first; stable WKT breaks area ties.
+    parts.sort(key=lambda part: (-float(part.area), stable_wkt(part)))
+    return [stable_wkt(part) for part in parts]
 
 
 def _get_json_with_retry(
@@ -159,17 +188,37 @@ def _get_json_with_retry(
     raise RuntimeError(f"GBIF source search failed after {retries} attempts: {error}")
 
 
+def _component_record_quotas(n_components: int, max_records: int) -> list[int]:
+    """Divide one entity-channel record budget deterministically across exact components."""
+    if n_components < 1:
+        raise ValueError("source geometry requires at least one query component")
+    if max_records < 1:
+        raise ValueError("max_records must be >= 1")
+    base, remainder = divmod(max_records, n_components)
+    return [base + (1 if index < remainder else 0) for index in range(n_components)]
+
+
 def scan_entity_channel(
     client: httpx.Client,
     *,
     entity_id: str,
-    geometry_wkt: str,
+    geometry_wkt: str | None = None,
+    geometry_wkts: list[str] | None = None,
     channel_id: str,
     taxon_key: str,
     target_keys: set[str],
     config: dict[str, Any],
 ) -> dict[str, Any]:
-    """Scan a capped occurrence window; no-hit and errors remain unresolved."""
+    """Scan a fixed record budget across exact geometry components; no-hit stays unresolved."""
+    if geometry_wkts is None:
+        if geometry_wkt is None:
+            raise ValueError("geometry_wkt or geometry_wkts is required")
+        query_wkts = [geometry_wkt]
+    else:
+        query_wkts = [value for value in geometry_wkts if str(value).strip()]
+        if not query_wkts:
+            raise ValueError("geometry_wkts must contain at least one geometry")
+
     search = config["GBIF_search"]
     channel = config["channels"][channel_id]
     allowed_families = (
@@ -179,26 +228,52 @@ def scan_entity_channel(
     )
     page_size = int(search["page_size"])
     max_pages = int(search["max_pages_per_entity_channel"])
+    declared_max_records = int(search["max_records_examined_per_entity_channel"])
+    record_budget = min(declared_max_records, page_size * max_pages)
+    quotas = _component_record_quotas(len(query_wkts), record_budget)
+
     examined_total = 0
     flags: list[str] = []
-    try:
-        for page in range(max_pages):
-            payload = _get_json_with_retry(
-                client,
-                str(search["endpoint"]),
-                params={
-                    "taxon_key": taxon_key,
-                    "geometry": geometry_wkt,
-                    "has_coordinate": "true",
-                    "limit": page_size,
-                    "offset": page * page_size,
-                },
-                retries=int(search["retries"]),
-                backoff_seconds=float(search["retry_backoff_seconds"]),
-            )
+    if len(query_wkts) > 1:
+        flags.append("multipart_exact_component_query")
+    if any(quota == 0 for quota in quotas):
+        flags.append("geometry_parts_unqueried_due_record_budget")
+
+    query_errors = 0
+    for part_index, (part_wkt, quota) in enumerate(zip(query_wkts, quotas, strict=True), start=1):
+        if quota <= 0:
+            continue
+        offset = 0
+        remaining = quota
+        while remaining > 0:
+            limit = min(page_size, remaining)
+            try:
+                payload = _get_json_with_retry(
+                    client,
+                    str(search["endpoint"]),
+                    params={
+                        "taxon_key": taxon_key,
+                        "geometry": part_wkt,
+                        "has_coordinate": "true",
+                        "limit": limit,
+                        "offset": offset,
+                    },
+                    retries=int(search["retries"]),
+                    backoff_seconds=float(search["retry_backoff_seconds"]),
+                )
+            except Exception as exc:  # noqa: BLE001
+                query_errors += 1
+                flags.append(f"source_scan_error={type(exc).__name__}")
+                flags.append(f"query_error_component={part_index}")
+                break
+
             results = payload.get("results", [])
             if not isinstance(results, list):
-                raise ValueError("GBIF results is not a list")
+                query_errors += 1
+                flags.append("source_scan_error=ValueError")
+                flags.append(f"query_error_component={part_index}")
+                break
+
             hit, examined, hit_flags = find_confirmatory_positive(
                 results, target_keys, allowed_families=allowed_families
             )
@@ -213,39 +288,41 @@ def scan_entity_channel(
                     "source_state": "available",
                     "evidence_id": f"GBIF:{gbif_id}" if gbif_id else f"GBIF_species:{species}",
                     "evidence_type": config["positive_evidence"]["evidence_type"],
-                    "source_citation": f"GBIF occurrence {gbif_id or species} within frozen GIFT 3.2 entity {entity_id}",
-                    "source_url": f"https://www.gbif.org/occurrence/{gbif_id}" if gbif_id else "https://www.gbif.org/",
+                    "source_citation": (
+                        f"GBIF occurrence {gbif_id or species} within frozen GIFT 3.2 entity "
+                        f"{entity_id}"
+                    ),
+                    "source_url": (
+                        f"https://www.gbif.org/occurrence/{gbif_id}"
+                        if gbif_id
+                        else "https://www.gbif.org/"
+                    ),
                     "review_status": "accepted",
                     "quality_flags": "|".join(sorted(set(flags))),
                     "n_records_examined": examined_total,
                 }
-            if bool(payload.get("endOfRecords")) or len(results) < page_size:
+
+            n_results = len(results)
+            if bool(payload.get("endOfRecords")) or n_results < limit:
                 break
-        return {
-            "entity_ID": entity_id,
-            "channel_id": channel_id,
-            "source_state": "unresolved",
-            "evidence_id": "",
-            "evidence_type": "",
-            "source_citation": "",
-            "source_url": "",
-            "review_status": "pending",
-            "quality_flags": "capped_positive_scan_no_confirmatory_hit",
-            "n_records_examined": examined_total,
-        }
-    except Exception as exc:  # noqa: BLE001
-        return {
-            "entity_ID": entity_id,
-            "channel_id": channel_id,
-            "source_state": "unresolved",
-            "evidence_id": "",
-            "evidence_type": "",
-            "source_citation": "",
-            "source_url": "",
-            "review_status": "pending",
-            "quality_flags": f"source_scan_error={type(exc).__name__}",
-            "n_records_examined": examined_total,
-        }
+            offset += limit
+            remaining -= n_results
+
+    if query_errors:
+        flags.append(f"n_component_query_errors={query_errors}")
+    flags.append("capped_positive_scan_no_confirmatory_hit")
+    return {
+        "entity_ID": entity_id,
+        "channel_id": channel_id,
+        "source_state": "unresolved",
+        "evidence_id": "",
+        "evidence_type": "",
+        "source_citation": "",
+        "source_url": "",
+        "review_status": "pending",
+        "quality_flags": "|".join(sorted(set(flags))),
+        "n_records_examined": examined_total,
+    }
 
 
 def scan_channel(
@@ -261,7 +338,11 @@ def scan_channel(
     timeout = float(config["GBIF_search"]["request_timeout_seconds"])
     rows: list[dict[str, Any]] = []
     geometry_failures = 0
-    with httpx.Client(timeout=timeout, follow_redirects=True, headers={"User-Agent": "island-v2/nee-source-positive-scan"}) as client:
+    with httpx.Client(
+        timeout=timeout,
+        follow_redirects=True,
+        headers={"User-Agent": "island-v2/nee-source-positive-scan"},
+    ) as client:
         resolved = resolve_query_taxon(
             client,
             str(channel["gbif_acquisition_taxon"]),
@@ -272,7 +353,7 @@ def scan_channel(
         taxon_key = str(resolved["usage_key"])
         for entity_id in sorted({str(value) for value in entity_ids if str(value).strip()}):
             try:
-                geometry_wkt = gift_entity_wkt(client, entity_id, config)
+                geometry_wkts = gift_entity_query_wkts(client, entity_id, config)
             except Exception as exc:  # noqa: BLE001
                 geometry_failures += 1
                 rows.append(
@@ -294,7 +375,7 @@ def scan_channel(
                 scan_entity_channel(
                     client,
                     entity_id=entity_id,
-                    geometry_wkt=geometry_wkt,
+                    geometry_wkts=geometry_wkts,
                     channel_id=channel_id,
                     taxon_key=taxon_key,
                     target_keys=targets,
@@ -303,6 +384,16 @@ def scan_channel(
             )
     result = pd.DataFrame(rows, columns=OUTPUT_COLUMNS)
     counts = result["source_state"].value_counts().to_dict() if not result.empty else {}
+    query_error_entities = (
+        int(result["quality_flags"].astype(str).str.contains("source_scan_error=", regex=False).sum())
+        if not result.empty
+        else 0
+    )
+    multipart_entities = (
+        int(result["quality_flags"].astype(str).str.contains("multipart_exact_component_query", regex=False).sum())
+        if not result.empty
+        else 0
+    )
     receipt = {
         "contract": config["contract"],
         "channel_id": channel_id,
@@ -311,7 +402,12 @@ def scan_channel(
         "n_unresolved": int(counts.get("unresolved", 0)),
         "n_structurally_absent": 0,
         "n_geometry_failures": int(geometry_failures),
-        "max_records_per_entity_channel": int(config["GBIF_search"]["max_records_examined_per_entity_channel"]),
+        "n_query_error_entities": query_error_entities,
+        "n_multipart_entities": multipart_entities,
+        "multipart_query_strategy": config["source_geometry"]["multipolygon_query_strategy"],
+        "max_records_per_entity_channel": int(
+            config["GBIF_search"]["max_records_examined_per_entity_channel"]
+        ),
         "no_hit_means": "unresolved",
         "uses_focal_plant_traits": False,
         "uses_island_channel_outcomes": False,
@@ -332,7 +428,9 @@ def scan_command(
     if "entity_ID" not in assignments.columns:
         raise typer.BadParameter("source assignments require entity_ID")
     catalog = pd.read_csv(catalog_csv, dtype=str).fillna("")
-    result, receipt = scan_channel(assignments["entity_ID"].tolist(), catalog, channel_id, config)
+    result, receipt = scan_channel(
+        assignments["entity_ID"].tolist(), catalog, channel_id, config
+    )
     output_dir.mkdir(parents=True, exist_ok=True)
     result.to_csv(output_dir / f"{channel_id}_source_entity_states.csv", index=False)
     (output_dir / f"{channel_id}_source_positive_scan_receipt.json").write_text(

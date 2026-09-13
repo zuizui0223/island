@@ -1,0 +1,170 @@
+name: Run Chapter 1 NEE source positive scan pilot
+
+on:
+  push:
+    branches:
+      - "nee/source-positive-scan-run"
+    paths:
+      - ".github/workflows/run-chapter1-nee-source-positive-scan-pilot.yml"
+      - "data/v2/control/run_nee_source_positive_scan_pilot.trigger"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  prepare-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      active: ${{ steps.trigger.outputs.active }}
+    env:
+      SOURCE_ARTIFACT_ID: "9601703747"
+      SOURCE_ARTIFACT_SHA256: "51cff9087a40b76655ff043d59aceabf25800a6029ed005a77b8db30e78345d2"
+      CATALOG_ARTIFACT_ID: "10291643834"
+      CATALOG_ARTIFACT_SHA256: "c946e36cd04cb319fc63a5bde90534c1cf3c7f41480fc672638f85f5b2a89b02"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve trigger state
+        id: trigger
+        run: |
+          if test -f data/v2/control/run_nee_source_positive_scan_pilot.trigger; then
+            echo "active=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "active=false" >> "$GITHUB_OUTPUT"
+            echo "Pilot trigger absent; no-op run."
+          fi
+      - uses: actions/setup-python@v5
+        if: steps.trigger.outputs.active == 'true'
+        with:
+          python-version: "3.11"
+          cache: pip
+      - if: steps.trigger.outputs.active == 'true'
+        run: pip install -e ".[dev]"
+      - name: Download pinned source and canonical channel catalog artifacts
+        if: steps.trigger.outputs.active == 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/source /tmp/catalog /tmp/pilot
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${SOURCE_ARTIFACT_ID}/zip" \
+            > /tmp/source.zip
+          echo "$SOURCE_ARTIFACT_SHA256  /tmp/source.zip" | sha256sum --check --strict
+          unzip -q /tmp/source.zip -d /tmp/source
+
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${CATALOG_ARTIFACT_ID}/zip" \
+            > /tmp/catalog.zip
+          echo "$CATALOG_ARTIFACT_SHA256  /tmp/catalog.zip" | sha256sum --check --strict
+          unzip -q /tmp/catalog.zip -d /tmp/catalog
+
+          test -f /tmp/source/result/island_source_assignments.csv.gz
+          test -f /tmp/catalog/channel_taxon_catalog.csv
+      - name: Freeze three outcome-blind pilot source entities
+        if: steps.trigger.outputs.active == 'true'
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+
+          source=pd.read_csv('/tmp/source/result/island_source_assignments.csv.gz',dtype=str).fillna('')
+          pilot_entities=['345','346','1384']
+          missing=sorted(set(pilot_entities)-set(source.entity_ID.astype(str)))
+          if missing:
+              raise SystemExit(f'pilot entities missing from frozen source universe: {missing}')
+          pilot=source.loc[source.entity_ID.astype(str).isin(pilot_entities)].copy()
+          pilot.to_csv('/tmp/pilot/source_assignments_pilot.csv',index=False)
+          Path('/tmp/pilot/pilot_entities.txt').write_text('\n'.join(pilot_entities)+'\n')
+          print({'pilot_entities':pilot_entities,'n_assignment_rows':len(pilot)})
+          PY
+          cp /tmp/catalog/channel_taxon_catalog.csv /tmp/pilot/channel_taxon_catalog.csv
+      - uses: actions/upload-artifact@v4
+        if: steps.trigger.outputs.active == 'true'
+        with:
+          name: chapter1-nee-source-scan-pilot-inputs-${{ github.run_id }}
+          path: /tmp/pilot
+          if-no-files-found: error
+          retention-days: 7
+
+  scan-pilot:
+    needs: prepare-pilot
+    if: needs.prepare-pilot.outputs.active == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        channel:
+          - bombus
+          - non_bombus_bees
+          - lepidoptera
+          - flower_visiting_birds
+          - diptera
+    env:
+      CHANNEL: ${{ matrix.channel }}
+      OUT_DIR: /tmp/source-scan/${{ matrix.channel }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - uses: actions/download-artifact@v4
+        with:
+          name: chapter1-nee-source-scan-pilot-inputs-${{ github.run_id }}
+          path: /tmp/pilot
+      - name: Run positive-only source scan pilot
+        run: |
+          set -euo pipefail
+          python -m island_v2.chapter1_nee_source_positive_scan \
+            --source-assignments-csv /tmp/pilot/source_assignments_pilot.csv \
+            --catalog-csv /tmp/pilot/channel_taxon_catalog.csv \
+            --channel-id "$CHANNEL" \
+            --output-dir "$OUT_DIR"
+      - name: Assert fail-closed pilot boundary and repaired multipart transport
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import pandas as pd
+
+          channel=os.environ['CHANNEL']
+          root=Path(os.environ['OUT_DIR'])
+          receipt=json.loads((root/f'{channel}_source_positive_scan_receipt.json').read_text())
+          states=pd.read_csv(root/f'{channel}_source_entity_states.csv',dtype=str).fillna('')
+          assert receipt['n_source_entities'] == 3
+          assert receipt['n_structurally_absent'] == 0
+          assert receipt['n_available'] + receipt['n_unresolved'] == 3
+          assert receipt['no_hit_means'] == 'unresolved'
+          assert receipt['uses_focal_plant_traits'] is False
+          assert receipt['uses_island_channel_outcomes'] is False
+          assert set(states.source_state).issubset({'available','unresolved'})
+          assert receipt['n_geometry_failures'] == 0
+          assert receipt['n_query_error_entities'] == 0
+          assert receipt['n_multipart_entities'] >= 1
+          assert not states.quality_flags.str.contains('source_scan_error=',regex=False).any()
+          entity345=states.loc[states.entity_ID.astype(str).eq('345')]
+          assert len(entity345) == 1
+          assert entity345.iloc[0].source_state in {'available','unresolved'}
+          assert 'multipart_exact_component_query' in entity345.iloc[0].quality_flags
+          print({
+              'channel':channel,
+              'available':receipt['n_available'],
+              'unresolved':receipt['n_unresolved'],
+              'geometry_failures':receipt['n_geometry_failures'],
+              'query_error_entities':receipt['n_query_error_entities'],
+              'multipart_entities':receipt['n_multipart_entities'],
+              'records_examined':int(pd.to_numeric(states.n_records_examined).sum()),
+              'entity345_state':entity345.iloc[0].source_state,
+          })
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-nee-source-positive-scan-pilot-${{ matrix.channel }}-${{ github.run_id }}
+          path: /tmp/source-scan/${{ matrix.channel }}
+          if-no-files-found: error
+          retention-days: 30
