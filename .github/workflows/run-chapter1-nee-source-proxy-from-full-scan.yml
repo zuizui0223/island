@@ -134,7 +134,7 @@ jobs:
         run: |
           set -euo pipefail
           for mode in geo_k5 geo_k10 geo_k20 geo50_climate10; do
-            python -m island_v2.chapter1_nee_source_proxy aggregate \
+            python -m island_v2.chapter1_nee_source_proxy \
               --assignments-csv "$ROOT/source/result/island_source_assignments.csv.gz" \
               --entity-states-csv "$ROOT/entity_channel_source_states.csv" \
               --output-dir "$ROOT/output/$mode" \
