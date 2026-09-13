@@ -1,0 +1,106 @@
+contract: chapter1_globi_source_breadth_v1
+status: frozen_before_island_outcome_join
+role: secondary_H3_D3_association
+
+source_policy:
+  inherit_channel_catalog_contract: config/chapter1_nee_channel_taxon_catalog.yml
+  resolved_version_doi: 10.5281/zenodo.20546682
+  interactions_tsv_sha256: 095e57398420d1e0746e61233c796beedcfb8e03bd0c6a732aa17ae62043bd17
+  refuted_interactions_tsv_sha256: 674e5b069992ab8a7fe98d76d0b9eb531c90c3ca267f434d14aa44a72ebbf8d6
+  interactions_export_argument_type: SUPPORTS
+  refuted_export_argument_type: REFUTES
+  support_refute_cross_subtraction: false
+
+plant_matching:
+  taxonomy: data/v2/staging/gbif/collected/island_taxa.csv
+  primary: exact_normalized_accepted_species
+  fallback: unique_binomial_key
+  ambiguous_fallback: fail_closed
+  fuzzy_matching: false
+  unresolved_action: missing_not_zero
+
+functional_channels:
+  - bombus
+  - non_bombus_bees
+  - lepidoptera
+  - flower_visiting_birds
+  - diptera
+
+breadth_estimator:
+  unit: independent_reference_x_functional_channel
+  duplicate_rows_within_reference_channel: collapse
+  genus_reference_count: unique_reference_keys_across_all_channels
+  metrics:
+    sampled_channel_count:
+      definition: number_of_channels_with_at_least_one_independent_reference
+    effective_channel_number:
+      definition: exp_Shannon_of_channel_specific_independent_reference_counts
+  no_record_interpretation: missing_not_specialist
+
+sampling_effort_gate:
+  primary_min_independent_references: 3
+  sensitivity_min_independent_references: [2, 5]
+  threshold_selected_from_outcome: false
+  required_sensitivity_interpretation: >-
+    Direction should be reported across the frozen 2/3/5-reference thresholds rather
+    than selecting the threshold that gives the strongest island result.
+
+source_matching:
+  source_modes: [geo_k5, geo_k10, geo_k20, geo50_climate10]
+  primary_matching: prevalence_richness
+  sensitivity_matching: prevalence_only
+  minimum_represented_genera: 5
+  strata: [all_native, native_nonendemic]
+
+island_enrichment:
+  outcomes:
+    - entry_enrichment
+    - species_enrichment
+    - loading_increment
+  positive_interpretation: >-
+    Island assemblages contain source-available genera with broader sampled functional-
+    channel breadth than expected among source genera matched on availability.
+  negative_interpretation: >-
+    Island assemblages contain source-available genera with narrower sampled functional-
+    channel breadth than expected among source genera matched on availability.
+
+model:
+  response_metrics: [sampled_channel_count, effective_channel_number]
+  predictors:
+    - log_distance_to_continent_km
+    - log_island_area_km2
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+  cluster_column: spatial_block
+  contexts:
+    - northern_midlatitude
+    - tropical
+  confirmatory_min_islands: 50
+  pilot_min_islands: 30
+  multiple_testing: BH_within_metric_x_outcome_x_context_across_source_modes_and_effort_thresholds
+
+primary_prediction:
+  direction: positive_distance_slope_for_entry_enrichment
+  interpretation: >-
+    If interaction dependency contributes to source-lineage filtering, increasingly
+    isolated islands may disproportionately retain or receive source-available genera
+    with broader documented functional-channel breadth.
+  directional_failure_is_reportable: true
+
+rules:
+  - plant_breadth_is_computed_before_any_island_occurrence_or_distance_join
+  - raw_partner_species_richness_is_not_an_estimand
+  - missing_GloBI_evidence_is_never_zero_breadth
+  - breadth_is_sampling_effort_conditioned_not_true_ecological_specialization
+  - no_pollinator_loss_or_effective_service_is_inferred
+  - this_extension_cannot_rescue_N1_or_open_N2
+  - no_effort_threshold_or_source_mode_is_selected_post_hoc
+  - positive_result_is_D3_association_only
+
+claim_ceiling: >-
+  This analysis can test whether independently documented source-side plant interaction
+  breadth covaries with isolation-associated genus representation after source-availability
+  matching. It cannot identify historical pollinator loss, causal dependence, effective
+  service, or the process by which a genus failed to colonize or persist.
