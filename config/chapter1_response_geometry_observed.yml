@@ -34,6 +34,7 @@ rules:
   - shape_label_requires_same_best_nonlinear_shape_in_both_scopes
   - shape_label_requires_v2_cross_scope_qualification_for_that_shape
   - G3_hinge_is_never_identifiable_under_v2_and_cannot_be_promoted
+  - identified_shape_requires_successful_cluster_robust_uncertainty_fit_in_both_scopes
   - if_nonlinearity_passes_but_shape_rules_fail_report_nonlinear_shape_unresolved
   - breakpoint_is_reported_only_for_an_identified_G2_step_or_G4_reversal
   - breakpoint_scope_difference_must_be_at_most_0.15_quantile_for_identified_shape
