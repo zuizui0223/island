@@ -83,7 +83,7 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf /tmp/el-depth-audit
-          python -m island_v2.chapter1_hierarchical_depth_interaction run \
+          python -m island_v2.chapter1_hierarchical_depth_interaction \
             --all-pre-genus-csv /tmp/pr142-final/architecture/all_analysis_eligible/source_adjusted_scores.csv \
             --all-genus-long-csv /tmp/pr142-final/architecture/all_analysis_eligible/genus_long.csv \
             --direct-pre-genus-csv /tmp/pr142-final/architecture/direct_only/source_adjusted_scores.csv \
