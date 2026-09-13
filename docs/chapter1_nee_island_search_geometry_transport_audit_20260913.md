@@ -66,4 +66,24 @@ Corrected Search run `34731405488` was triggered by workflow-repair commit `e505
 
 Its prepare job passed the frozen artifact digest check, GSHHG source-policy checks, exact 8,265-ID equality, and the deterministic 20-shard partition. The prepared input artifact is `10310100355`, digest `sha256:97628cc5dc270fa83b6a7cf28caa2230d27e75cd1ce5323fe822174c6a34f55c`, containing exactly five shards of 414 islands and fifteen shards of 413 islands, with no duplicate island IDs.
 
-Island Search outcomes from this corrected run are not interpreted or recorded in this transport audit; they are to be locked separately after all canonical channel artifacts complete.
+## Completed canonical Search
+
+Run `34731405488` completed successfully: all 100 channel × shard jobs and all five channel aggregates succeeded without a row-level retry or cross-run union.
+
+| channel | source available | detected | adequate non-detection | insufficient effort | unresolved | Search errors | aggregate artifact |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| bombus | 7,154 | 824 | 23 | 5,983 | 324 | 324 | `10313926043` |
+| non_bombus_bees | 8,186 | 1,088 | 11 | 6,697 | 390 | 390 | `10312514973` |
+| lepidoptera | 8,265 | 2,113 | 0 | 5,758 | 394 | 394 | `10314040773` |
+| flower_visiting_birds | 8,265 | 3,014 | 45 | 4,781 | 425 | 425 | `10313228947` |
+| diptera | 8,265 | 1,261 | 7 | 6,605 | 392 | 392 | `10314045819` |
+
+All five aggregate ZIP SHA-256 digests matched GitHub artifact metadata. Across the five completed tables there are zero duplicate island-channel rows, zero rows above the frozen 900-record cap, zero `adequate_non_detection` rows with incomplete Search, and zero non-detected Search-error rows promoted beyond `unresolved`.
+
+The exact run, artifacts, digests, counts and fail-closed checks are frozen in `config/chapter1_nee_island_search_result_lock.json`.
+
+## Transport bias limitation
+
+The Search errors are not spatially random. Using the already frozen Chapter 1 covariate artifact `8270544465` (`sha256:695f35b97bae07e81b05deab537dd73fa687b2d99e9efdb1cb3babd2fa12dfb6`), overall Search-error rates are about 4.5–5.1% by channel, but errors are concentrated on large, geometrically complex islands. In the top decile of island area, channel-specific error rates are approximately 43.6–45.6%; in the bottom 80% they are below 0.5%.
+
+This audit is reporting-only. Search-error islands remain `unresolved`; they are not re-queried, simplified, excluded to improve model fit, or unioned with another run. The transport audit cannot promote or demote a channel and cannot change the frozen N1 gate. Consequently any Search-based N1 inference must be stated as conditional on transport-evaluable exact island geometries.
