@@ -59,7 +59,7 @@ jobs:
           assert config['no_hit_policy']['never_structurally_absent'] is True
           print('Exact component source-scan contract validated')
           PY
-      - name: Validate canonical sharded execution lock
+      - name: Validate canonical sharded execution and result lock
         run: |
           python - <<'PY'
           import json
@@ -93,13 +93,42 @@ jobs:
           assert lock['post_run_policy']['do_not_rerun_entities_to_increase_available_count'] is True
           assert lock['post_run_policy']['do_not_union_equivalent_runs_for_primary_source_state'] is True
 
+          results=lock['canonical_results']
+          assert results['run_completed_without_retry'] is True
+          assert results['all_50_scan_shards_success'] is True
+          assert results['all_5_aggregate_jobs_success'] is True
+          assert results['all_channels_rows'] == 730
+          assert results['all_channels_unique_entities'] == 730
+          assert results['all_channels_duplicate_entity_channel_rows'] == 0
+          assert results['all_channels_structurally_absent'] == 0
+          assert results['all_channels_geometry_failures'] == 0
+          expected={
+              'bombus':('10303941023','052db36a257ace02dfa4d4039eeb125477567fd1dad89e356f61433661ccddfe',492,238,39,34,48),
+              'non_bombus_bees':('10303419534','47f0076e15fceed53b9d7a46c001a01e96bfb3d96d0b7861e0b0094ce4a1719f',676,54,38,19,900),
+              'lepidoptera':('10303921122','cc79318a7135cc8322d29606e36058ded1175b1fb1daca30ed10c7340da5ab45',712,18,39,13,179),
+              'flower_visiting_birds':('10303114973','afa31238543aa4bf9718da581612602061e8a66d292e2fa45330f39cbf7074e9',710,20,38,11,900),
+              'diptera':('10303509284','301d1c93b563d3fc570c67291114b8ef7f9eea504865a531ab4f569652e2ef11',668,62,38,19,900),
+          }
+          assert set(results['channels']) == set(expected)
+          for channel,(artifact,digest,available,unresolved,qerr,qerr_unresolved,max_records) in expected.items():
+              row=results['channels'][channel]
+              assert row['artifact_id'] == artifact
+              assert row['artifact_sha256'] == digest
+              assert row['n_available'] == available
+              assert row['n_unresolved'] == unresolved
+              assert row['n_available'] + row['n_unresolved'] == 730
+              assert row['n_query_error_entities'] == qerr
+              assert row['n_query_error_unresolved'] == qerr_unresolved
+              assert row['n_multipart_entities'] == 240
+              assert row['max_records_examined'] == max_records
+
           workflow=Path('.github/workflows/run-chapter1-nee-source-positive-scan-sharded.yml').read_text()
           assert 'N_SHARDS: "10"' in workflow
           assert 'index % n_shards' in workflow
           assert "assert len(members) == 73" in workflow
           assert 'max-parallel: 10' in workflow
           assert "assert len(combined) == 730" in workflow
-          print('Canonical outcome-blind sharded execution lock validated')
+          print('Canonical outcome-blind sharded execution and result lock validated')
           PY
       - name: Smoke-test entity 345 exact component GBIF transport
         run: |
