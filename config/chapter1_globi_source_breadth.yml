@@ -30,6 +30,8 @@ breadth_estimator:
   unit: independent_reference_x_functional_channel
   duplicate_rows_within_reference_channel: collapse
   genus_reference_count: unique_reference_keys_across_all_channels
+  primary_metric: effective_channel_number
+  sensitivity_metric: sampled_channel_count
   metrics:
     sampled_channel_count:
       definition: number_of_channels_with_at_least_one_independent_reference
@@ -57,6 +59,11 @@ island_enrichment:
     - entry_enrichment
     - species_enrichment
     - loading_increment
+  primary_outcome: entry_enrichment
+  weights:
+    entry_enrichment: n_represented_genera
+    species_enrichment: n_represented_species
+    loading_increment: n_represented_genera
   positive_interpretation: >-
     Island assemblages contain source-available genera with broader sampled functional-
     channel breadth than expected among source genera matched on availability.
@@ -79,10 +86,22 @@ model:
     - tropical
   confirmatory_min_islands: 50
   pilot_min_islands: 30
-  multiple_testing: BH_within_metric_x_outcome_x_context_across_source_modes_and_effort_thresholds
+  multiple_testing: >-
+    BH within metric x outcome x context x stratum x source-matching family across
+    the four source modes and three frozen effort thresholds.
 
 primary_prediction:
-  direction: positive_distance_slope_for_entry_enrichment
+  metric: effective_channel_number
+  outcome: entry_enrichment
+  source_matching: prevalence_richness
+  effort_threshold: 3
+  direction: positive_distance_slope
+  promotion_rule: >-
+    A context x stratum association is called source-mode robust only if the distance
+    slope is positive and FDR q<=0.05 under all four source modes at the frozen primary
+    effort threshold, with no sign reversal under either 2- or 5-reference sensitivity
+    threshold across those same source modes. Sensitivity thresholds need not themselves
+    be significant.
   interpretation: >-
     If interaction dependency contributes to source-lineage filtering, increasingly
     isolated islands may disproportionately retain or receive source-available genera
