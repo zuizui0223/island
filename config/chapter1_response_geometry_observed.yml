@@ -17,6 +17,17 @@ contexts: [northern_midlatitude, tropical]
 strata: [all_native, native_nonendemic]
 evidence_scopes: [all_analysis_eligible, direct_only]
 
+primary_exposure: log_distance_to_continent_km
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+cluster_column: spatial_block
+exposure_interpretation: composite_source_separation_connectivity_gradient
+physical_water_crossing_threshold_claim_allowed: false
+
 rules:
   - use_scope_specific_critical_D_from_v2_without_change
   - observed_nonlinearity_requires_D_greater_than_critical_D_in_both_scopes
@@ -25,15 +36,23 @@ rules:
   - G3_hinge_is_never_identifiable_under_v2_and_cannot_be_promoted
   - if_nonlinearity_passes_but_shape_rules_fail_report_nonlinear_shape_unresolved
   - breakpoint_is_reported_only_for_an_identified_G2_step_or_G4_reversal
-  - breakpoint_scope_difference_must_be_at_most_0.15_quantile_for_one_consensus_location
+  - breakpoint_scope_difference_must_be_at_most_0.15_quantile_for_identified_shape
   - direct_only_cannot_override_all_analysis
   - no_mechanism_label_is_inferred_from_geometry
 
-candidate_shapes: [G0_flat, G1_cline, G2_step, G3_hinge, G4_reversal]
-primary_exposure: log_distance_to_continent_km
-exposure_interpretation: composite_source_separation_connectivity_gradient
-physical_water_crossing_threshold_claim_allowed: false
+uncertainty_reporting:
+  step:
+    estimand: adjusted_step_coefficient_on_empirical_logit_scale
+    uncertainty: spatial_block_cluster_robust_95CI
+  reversal:
+    estimand: adjusted_quadratic_curvature_on_empirical_logit_scale
+    uncertainty: spatial_block_cluster_robust_95CI
+    turning_point_uncertainty: delta_method_from_linear_quadratic_cluster_covariance
+  breakpoint_consensus:
+    maximum_scope_difference_quantile: 0.15
+    report_scope_specific_locations: true
 
+candidate_shapes: [G0_flat, G1_cline, G2_step, G3_hinge, G4_reversal]
 output_classes:
   - monotonic_or_unresolved
   - nonlinear_shape_unresolved
