@@ -77,7 +77,7 @@ jobs:
       - name: Run outcome-blind support and power qualification
         run: |
           rm -rf /tmp/h5c-qualification
-          python -m island_v2.chapter1_h5c_pollination_mode_qualification run \
+          python -m island_v2.chapter1_h5c_pollination_mode_qualification \
             --artifact-root /tmp/h5c-pr142 \
             --gift-prepared-csv /tmp/h5c-gift/gift_prepared_canonical_long.csv.gz \
             --config-path config/chapter1_h5c_pollination_mode_qualification.yml \
