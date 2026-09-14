@@ -1,0 +1,52 @@
+contract: chapter1_h5c_observed_pollination_mode_specificity_v1
+
+qualification_lock: config/chapter1_h5c_qualification_result_lock.json
+
+only_cell:
+  evidence_scope: direct_only
+  stratum: native_nonendemic
+  context_layer: biogeographic_realm
+  context: Palearctic
+  response: generalized_accessible
+  pollination_modes: [abiotic_wind, biotic]
+
+model:
+  response: island_x_mode_mean_syndrome_concordance
+  geography: log_distance_to_continent_km
+  mode_reference: abiotic_wind
+  interaction: z_distance_x_biotic
+  covariates:
+    - log_island_area_km2
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+  cluster: spatial_block
+  weight: n_species
+  inference: cluster_robust_two_sided
+  alpha: 0.05
+
+classification:
+  expected_specificity: >-
+    interaction estimate > 0 and two-sided p <= 0.05: the positive Palearctic
+    accessibility response is stronger in independently documented biotic than
+    wind-pollinated plants.
+  opposite_specificity: >-
+    interaction estimate < 0 and two-sided p <= 0.05: pollination mode matters,
+    but in the opposite direction to the focal pollinator-specificity prediction.
+  no_specificity_support: interaction p > 0.05
+  multiplicity: none_one_and_only_one_qualified_test
+
+rules:
+  - use_only_frozen_qualification_mode_species_file
+  - do_not_refetch_or_reclassify_pollination_mode
+  - do_not_test_any_unqualified_context_or_stratum
+  - do_not_treat_missing_pollination_mode_as_wind
+  - do_not_interpret_mode_interaction_as_historical_pollinator_loss
+  - do_not_reopen_N1_or_N2
+
+claim_ceiling: >-
+  A supported expected interaction is independent pollination-mode specificity evidence:
+  the isolation-associated accessibility response differs in the predicted direction
+  between animal- and wind-pollinated plants. It is not evidence of a named pollinator,
+  historical channel loss, realized visitation, effective service, or causal replacement.
