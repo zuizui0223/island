@@ -40,7 +40,7 @@ jobs:
             tests/test_chapter1_v8_figure1_hierarchical_syndrome.py
       - name: Render Figure 1 from frozen evidence locks
         run: |
-          python -m island_v2.chapter1_v8_figure1_hierarchical_syndrome render \
+          python -m island_v2.chapter1_v8_figure1_hierarchical_syndrome \
             --output-dir "$OUT"
       - name: Assert claim boundary and output completeness
         run: |
