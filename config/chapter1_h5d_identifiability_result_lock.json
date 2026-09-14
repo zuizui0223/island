@@ -1,0 +1,20 @@
+{
+  "contract": "chapter1_h5d_distributed_threshold_identifiability_v1",
+  "status": "qualification_failed_observed_threshold_distribution_closed",
+  "canonical_result": {
+    "workflow_run_id": 34803545574,
+    "artifact_id": 10332671123,
+    "artifact_name": "chapter1-h5d-identifiability-34803545574",
+    "artifact_digest": "sha256:13ea1c3cd0066950d37fa3399f771d41ea2755c9746d02ac18594e224d895539",
+    "summary_sha256": "f4fd3778c4f555d8e05092617b9940042083cdcb4e1f34cfb7a5d06f08b68f4b"
+  },
+  "n_design_cells": 8,
+  "n_qualified_cells": 0,
+  "classification_accuracy_range": [0.7325, 0.7775],
+  "false_distributed_selection_under_smooth_range": [0.19, 0.255],
+  "sigma_recovery_fraction_all_cells": 1.0,
+  "observed_threshold_distribution_opened": false,
+  "failure_action": "keep_H5d_conceptual_and_do_not_open_observed_threshold_distribution",
+  "scientific_boundary": "the design can estimate an apparent threshold-distribution scale but cannot reliably distinguish distributed thresholds from heterogeneous smooth clines",
+  "claim_ceiling": "no observed genus threshold distribution and no causal pollination threshold claim"
+}

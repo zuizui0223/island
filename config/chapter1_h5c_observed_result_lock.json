@@ -1,0 +1,47 @@
+{
+  "contract": "chapter1_h5c_observed_pollination_mode_specificity_v1",
+  "status": "complete_not_supported",
+  "canonical_result": {
+    "workflow_run_id": 34803837463,
+    "artifact_id": 10332871066,
+    "artifact_name": "chapter1-h5c-observed-specificity-34803837463",
+    "artifact_digest": "sha256:fb8927bcf2b6e1c762b3ecbe59c42360faac679cf37b1ad0ed31386631a0f405"
+  },
+  "qualified_cell": {
+    "evidence_scope": "direct_only",
+    "stratum": "native_nonendemic",
+    "context_layer": "biogeographic_realm",
+    "context": "Palearctic",
+    "response": "generalized_accessible"
+  },
+  "classification": "no_pollination_mode_specificity_support",
+  "interaction": {
+    "estimate": 0.06495254330943623,
+    "cluster_robust_se": 0.07920884537933999,
+    "ci95": [-0.09029679363407014, 0.2202018802529426],
+    "p_value": 0.4122068222871858
+  },
+  "mode_specific_slopes": {
+    "abiotic_wind": {
+      "estimate": -0.0539296143673344,
+      "se": 0.07795620858755666,
+      "ci95": [-0.20672378319894544, 0.09886455446427664]
+    },
+    "biotic": {
+      "estimate": 0.011022928942101828,
+      "se": 0.010938850806834197,
+      "ci95": [-0.010417218639293197, 0.03246307652349685]
+    }
+  },
+  "support": {
+    "n_unique_islands": 133,
+    "n_clusters": 23,
+    "n_islands_biotic": 132,
+    "n_islands_wind": 60,
+    "species_support_sum_biotic": 8773,
+    "species_support_sum_wind": 131
+  },
+  "N1_N2_reopened": false,
+  "scientific_consequence": "the independently documented biotic-versus-wind negative-control comparison does not support the predicted pollination-mode specificity of the Palearctic accessibility response in the only prequalified design cell",
+  "claim_ceiling": "no pollinator-specific H5 mechanism promoted; result is a bounded negative specificity test and does not prove pollinators are irrelevant"
+}
