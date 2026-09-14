@@ -9,6 +9,7 @@ source data
   -> canonical progressive analysis
   -> prospective robustness / falsification extensions
   -> court-style evidence ledger
+  -> locked Figures 1-4
   -> canonical v8 manuscript
 ```
 
@@ -118,19 +119,28 @@ Outcome-closed simulation asked whether lineage-specific thresholds can be disti
 
 These results are not mechanism “failures” to be rescued. They define the present global claim boundary.
 
-## 5. Current evidence synthesis and canonical manuscript
+## 5. Current submission surface
 
-Read these first:
+Read these first, in this order:
 
-- [`docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`](docs/chapter1_court_evidence_and_theory_synthesis_20260914.md) — supported claims, adverse evidence, defenses and claim ceilings;
-- [`docs/chapter1_figure1_hierarchical_syndrome_spec_20260914.md`](docs/chapter1_figure1_hierarchical_syndrome_spec_20260914.md) — new Figure 1 inference map;
-- [`docs/chapter1_literature_positioning_20260909.md`](docs/chapter1_literature_positioning_20260909.md) — frozen literature-positioning note.
+1. [`docs/chapter1_submission_freeze_20260915.md`](docs/chapter1_submission_freeze_20260915.md) — current submission state, figure locks and claim ceiling;
+2. [`docs/chapter1_manuscript_full_v8_hierarchical_syndrome_20260914.md`](docs/chapter1_manuscript_full_v8_hierarchical_syndrome_20260914.md) — canonical v8 full manuscript, now synchronized to Figures 1–4;
+3. [`docs/chapter1_v8_submission_figure_sync_20260915.md`](docs/chapter1_v8_submission_figure_sync_20260915.md) — actual rendered panel mapping, final legends and figure-reference contract;
+4. [`docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`](docs/chapter1_court_evidence_and_theory_synthesis_20260914.md) — supported claims, adverse evidence, defenses and claim ceilings;
+5. [`docs/chapter1_literature_positioning_20260909.md`](docs/chapter1_literature_positioning_20260909.md) — frozen literature-positioning note.
 
-The **single canonical working manuscript** is now:
+The **single canonical working manuscript** is:
 
 - [`docs/chapter1_manuscript_full_v8_hierarchical_syndrome_20260914.md`](docs/chapter1_manuscript_full_v8_hierarchical_syndrome_20260914.md)
 
 v7 remains available in git history and as the previous submission-order draft; it is no longer the canonical narrative surface.
+
+### Locked main figures
+
+- **Figure 1:** `config/chapter1_v8_figure1_result_lock.json` — hierarchy-of-assembly inference map;
+- **Figure 2:** `config/chapter1_v8_figure2_result_lock.json` — primary biogeographic branching;
+- **Figure 3:** `config/chapter1_v8_figure3_submission_result_lock.json` — source-matched assembly depth;
+- **Figure 4:** `config/chapter1_v8_figure4_result_lock.json` — falsification and claim boundaries.
 
 ### Current paper-level verdict
 
@@ -177,11 +187,16 @@ docs/PAPER_PIPELINE.md
   <- database -> H1-H5 -> robustness/falsification -> v8
 config/chapter1_progressive_analysis.yml
 config/chapter1_database_versions/
+config/chapter1_v8_figure1_result_lock.json
+config/chapter1_v8_figure2_result_lock.json
+config/chapter1_v8_figure3_submission_result_lock.json
+config/chapter1_v8_figure4_result_lock.json
 .github/workflows/run-chapter1-progressive-trait-analysis.yml
 src/island_v2/
 data/v2/
+docs/chapter1_submission_freeze_20260915.md
+docs/chapter1_v8_submission_figure_sync_20260915.md
 docs/chapter1_court_evidence_and_theory_synthesis_20260914.md
-docs/chapter1_figure1_hierarchical_syndrome_spec_20260914.md
 docs/chapter1_manuscript_full_v8_hierarchical_syndrome_20260914.md
 legacy/v1/
 ```
