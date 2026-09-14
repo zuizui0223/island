@@ -1,0 +1,83 @@
+{
+  "contract": "chapter1_globi_source_breadth_v2_result_lock_v1",
+  "status": "not_promoted",
+  "scientific_parent_contract": "chapter1_globi_source_breadth_v2",
+  "workflow_run_id": 34790842133,
+  "artifact_id": 10328696801,
+  "artifact_name": "chapter1-globi-source-breadth-v2-34790842133",
+  "artifact_digest": "sha256:475dda8b0eef4ce22ad1aa736fa82cc049042d801217c65d52641489288ca254",
+  "predictor_sha256": "9f43ee056f285f8afcf92393170cf615236f7d99bd3d53e65fe998c415361386",
+  "predictor_receipt": {
+    "source_version_doi": "10.5281/zenodo.20546682",
+    "source_sha256": "095e57398420d1e0746e61233c796beedcfb8e03bd0c6a732aa17ae62043bd17",
+    "refuted_sha256": "674e5b069992ab8a7fe98d76d0b9eb531c90c3ca267f434d14aa44a72ebbf8d6",
+    "n_input_archive_rows": 24577183,
+    "n_retained_flower_interaction_rows": 714785,
+    "n_matched_evidence_rows": 524922,
+    "n_unmatched_evidence_rows": 189863,
+    "n_exact_match_rows": 524729,
+    "n_binomial_fallback_rows": 193,
+    "n_genus_breadth_rows": 2228,
+    "island_outcomes_or_distance_loaded_during_predictor_build": false,
+    "no_record_interpretation": "missing_not_specialist"
+  },
+  "analysis_receipt": {
+    "n_island_enrichment_rows": 38260,
+    "n_slope_rows": 576,
+    "primary_promoted_cells": 0,
+    "contexts": ["northern_midlatitude", "tropical"],
+    "strata": ["all_native", "native_nonendemic"],
+    "source_modes": ["geo_k5", "geo_k10", "geo_k20", "geo50_climate10"],
+    "primary_metric": "effective_channel_number",
+    "primary_outcome": "entry_enrichment",
+    "primary_reference_threshold": 3,
+    "primary_matching": "prevalence_richness_plus_reference_effort",
+    "all_four_context_stratum_cells": "not_promoted"
+  },
+  "representative_primary_slopes": [
+    {
+      "context": "northern_midlatitude",
+      "stratum": "all_native",
+      "source_mode": "geo50_climate10",
+      "n_islands": 232,
+      "estimate": 0.0060,
+      "ci_low": -0.0092,
+      "ci_high": 0.0213,
+      "q_value": 0.9710
+    },
+    {
+      "context": "tropical",
+      "stratum": "all_native",
+      "source_mode": "geo50_climate10",
+      "n_islands": 130,
+      "estimate": 0.0077,
+      "ci_low": -0.0052,
+      "ci_high": 0.0207,
+      "q_value": 0.3610
+    },
+    {
+      "context": "northern_midlatitude",
+      "stratum": "native_nonendemic",
+      "source_mode": "geo_k10",
+      "n_islands": 233,
+      "estimate": -0.0067,
+      "ci_low": -0.0140,
+      "ci_high": 0.0006,
+      "q_value": 0.4243
+    },
+    {
+      "context": "tropical",
+      "stratum": "native_nonendemic",
+      "source_mode": "geo_k5",
+      "n_islands": 122,
+      "estimate": -0.0150,
+      "ci_low": -0.0306,
+      "ci_high": 0.0006,
+      "q_value": 0.3568
+    }
+  ],
+  "interpretation": "After matching source availability, source species richness and broad GloBI reference effort, independently documented source-genus functional-channel breadth did not show a robust distance-associated enrichment signal in either northern-midlatitude or tropical island assemblages. This does not imply pollination dependence is irrelevant; it rejects promotion of this sampled-breadth proxy as an explanation for the H3 genus-assembly pattern.",
+  "N1_rescued": false,
+  "N2_opened": false,
+  "claim_ceiling": "D3 association only. The result does not identify true ecological specialization, historical pollinator loss, effective service, colonization failure, extinction or causal interaction dependence."
+}
