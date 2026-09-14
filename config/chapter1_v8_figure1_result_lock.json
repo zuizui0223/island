@@ -1,0 +1,69 @@
+{
+  "contract": "chapter1_v8_figure1_result_lock_v1",
+  "status": "submission_figure_rendered_and_visually_checked",
+  "figure": {
+    "workflow_run_id": 34864791372,
+    "head_sha": "00130a3d43cec9bf75bc82c806fc6b94e1a1789c",
+    "artifact_id": 10356850187,
+    "artifact_name": "chapter1-v8-figure1-34864791372",
+    "artifact_digest": "sha256:2fa70abc0eb456850b81c9a8f9ddc80a7a7e53a7ec4ecb3755c53ff34d0a56df",
+    "png_dimensions_px": [4245, 3040],
+    "outputs": [
+      "chapter1_v8_figure1_hierarchical_syndrome.png",
+      "chapter1_v8_figure1_hierarchical_syndrome.svg",
+      "chapter1_v8_figure1_hierarchical_syndrome.pdf",
+      "chapter1_v8_figure1_manifest.json"
+    ],
+    "output_sha256": {
+      "png": "44c4a8564ed694b5bb481bfa46f98c9829c093d7a4d9b1a0fa1e60a665d40603",
+      "svg": "6c64bd459206f49514506fc0a27160a54118ab3e77d9ae45260fbc99c8027b15",
+      "pdf": "c61484e222701dd311f469174d44fbad5b33197557ffc253d7898a5313024ce4",
+      "manifest": "a663143bf5c667ddbe1908996778b75154da92a651fb4a6f35cff330159b92b4"
+    }
+  },
+  "source_locks": {
+    "figure3": {
+      "workflow_run_id": 34816668470,
+      "artifact_id": 10336875587,
+      "artifact_digest": "sha256:853fd1c590d86341d6302c1da8e998af93b0b5fa3b35c464dd3762378385bd4d"
+    },
+    "figure4": {
+      "workflow_run_id": 34817349228,
+      "artifact_id": 10337380746,
+      "artifact_digest": "sha256:f41a90089ddda1d285186ca441d416d71cf1c276e742a7da917dbb572f39fbb0"
+    },
+    "n1": {
+      "workflow_run_id": 34750351009,
+      "artifact_id": 10315671249,
+      "artifact_digest": "sha256:01d938a1f42b7f64634232a2fcb76c68a60183824684c5f135f567107a4c5d85"
+    }
+  },
+  "frozen_results": {
+    "support_ladder": "4/4 -> 4/4 -> 0/4",
+    "genus_attenuation_pct": [78.8, 85.9],
+    "conditional_family_to_genus_attenuation_pct": [70.6, 79.1],
+    "v6_palearctic_survival": "99/100",
+    "v6_tropical_survival": "35/75",
+    "h4_promoted": "0/16",
+    "geometry_promoted": "0/12",
+    "n1_global_wald_p": 0.6551581817640355,
+    "n1_pass": false,
+    "globi_breadth_promoted": "0/4",
+    "h5c_interaction_estimate": 0.06495254330943623,
+    "h5c_p_value": 0.4122068222871858,
+    "h5d_qualified": "0/8"
+  },
+  "visual_review": {
+    "performed": true,
+    "reviewed_png_from_locked_artifact": true,
+    "major_label_clipping_detected": false,
+    "panel_c_card_overlap_detected": false,
+    "panel_d_bridge_overlap_detected": false,
+    "four_panel_reading_order_clear": true,
+    "submission_layout": "accepted"
+  },
+  "new_biological_models_fitted": false,
+  "new_p_values_generated": false,
+  "n2_opened": false,
+  "claim_boundary": "Figure 1 is an inference map assembled from frozen evidence. Family-to-genus attenuation localizes hierarchical expression but is not causal mediation; failed or non-identified H4, N1, H5c, H5d, response-geometry, and GloBI alternatives cannot be inverted into evidence that those mechanisms are absent. Chapter 2 remains the prospective functional-mechanism test."
+}
