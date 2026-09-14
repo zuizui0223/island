@@ -1,0 +1,97 @@
+name: Run Chapter 1 H5d distributed-threshold identifiability
+
+on:
+  push:
+    branches: ["ch1/h5-specificity"]
+    paths:
+      - "config/chapter1_h5d_distributed_threshold_identifiability.yml"
+      - "src/island_v2/chapter1_h5d_distributed_threshold_identifiability.py"
+      - "tests/test_chapter1_h5d_distributed_threshold_identifiability.py"
+      - "docs/chapter1_h5_specificity_and_distributed_threshold_plan_20260914.md"
+      - ".github/workflows/run-chapter1-h5d-identifiability.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  identify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PINNED_RUN_ID: "34232450884"
+      PINNED_ARTIFACT_NAME: "chapter1-progressive-analysis-34232450884"
+      PINNED_ARTIFACT_ID: "10058653212"
+      PINNED_ARTIFACT_DIGEST: "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Test and lint H5d audit
+        run: |
+          pytest -q tests/test_chapter1_h5d_distributed_threshold_identifiability.py
+          ruff check \
+            src/island_v2/chapter1_h5d_distributed_threshold_identifiability.py \
+            tests/test_chapter1_h5d_distributed_threshold_identifiability.py
+
+      - name: Verify and download frozen PR142 design artifact
+        run: |
+          set -euo pipefail
+          metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$PINNED_RUN_ID/artifacts?per_page=100")
+          observed_id=$(jq -r ".artifacts[] | select(.name == \"$PINNED_ARTIFACT_NAME\" and .expired == false) | .id" <<<"$metadata")
+          observed_digest=$(jq -r ".artifacts[] | select(.name == \"$PINNED_ARTIFACT_NAME\" and .expired == false) | .digest" <<<"$metadata")
+          test "$observed_id" = "$PINNED_ARTIFACT_ID"
+          test "$observed_digest" = "$PINNED_ARTIFACT_DIGEST"
+          rm -rf /tmp/h5d-pr142
+          mkdir -p /tmp/h5d-pr142
+          gh run download "$PINNED_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$PINNED_ARTIFACT_NAME" --dir /tmp/h5d-pr142
+          test -s /tmp/h5d-pr142/taxonomic-depth/all_analysis_eligible/decomposition.csv
+          test -s /tmp/h5d-pr142/fixed/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/h5d-pr142/fixed/realm/realm/island_biogeographic_realm_assignment.csv
+
+      - name: Run outcome-closed H5d identifiability audit
+        run: |
+          rm -rf /tmp/h5d-identifiability
+          python -m island_v2.chapter1_h5d_distributed_threshold_identifiability \
+            --artifact-root /tmp/h5d-pr142 \
+            --config-path config/chapter1_h5d_distributed_threshold_identifiability.yml \
+            --output-dir /tmp/h5d-identifiability
+
+      - name: Enforce observed-outcome closure and summarize
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          root=Path('/tmp/h5d-identifiability')
+          m=json.loads((root/'h5d_identifiability_manifest.json').read_text())
+          s=pd.read_csv(root/'h5d_identifiability_summary.csv')
+          assert m['contract']=='chapter1_h5d_distributed_threshold_identifiability_v1'
+          assert m['observed_threshold_distribution_opened'] is False
+          assert len(s)==8
+          lines=['# H5d distributed-threshold identifiability','',
+                 f"Qualified cells: **{m['n_qualified_cells']}/8**",'',
+                 f"Overall qualified: **{m['overall_qualified']}**",'',
+                 '| stratum | source mode | islands | blocks | accuracy | false distributed under smooth | sigma recovery | qualified |',
+                 '|---|---|---:|---:|---:|---:|---:|---|']
+          for r in s.itertuples(index=False):
+              if r.status!='simulated':
+                  lines.append(f"| {r.stratum} | {r.source_mode} | {r.n_islands} | {r.n_blocks} | -- | -- | -- | False |")
+              else:
+                  lines.append(f"| {r.stratum} | {r.source_mode} | {r.n_islands} | {r.n_blocks} | {r.classification_accuracy:.3f} | {r.false_distributed_selection_under_smooth:.3f} | {r.sigma_recovery_fraction:.3f} | {bool(r.qualified)} |")
+          (root/'RESULT_SUMMARY.md').write_text('\n'.join(lines)+'\n')
+          PY
+          cat /tmp/h5d-identifiability/RESULT_SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h5d-identifiability-${{ github.run_id }}
+          path: /tmp/h5d-identifiability/
+          if-no-files-found: error
+          retention-days: 90
