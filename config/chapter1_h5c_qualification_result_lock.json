@@ -1,0 +1,42 @@
+{
+  "contract": "chapter1_h5c_pollination_mode_specificity_qualification_v1",
+  "status": "qualification_complete_observed_effect_still_closed",
+  "canonical_qualification": {
+    "workflow_run_id": 34803493307,
+    "artifact_id": 10332810251,
+    "artifact_name": "chapter1-h5c-pollination-mode-qualification-34803493307",
+    "artifact_digest": "sha256:074a52323ba835201043a3a5980cc2b2d0ff79878e83bc9be19511ae83a1c0e8",
+    "qualification_csv_sha256": "467112e90686ba495f3fa04a340214605a92fe8daf78a389850f9e2cbc22ef13",
+    "mode_species_sha256": "cddb8bb02feede8fbb45e80bc62cb25384a8899d05312843eef0d56dee57ab65"
+  },
+  "independent_pollination_mode_species": {
+    "total": 5771,
+    "biotic": 4538,
+    "abiotic_wind": 1233
+  },
+  "design_cells": 8,
+  "support_qualified_cells": 4,
+  "fully_qualified_cells": 1,
+  "only_observed_cell_allowed_to_open": {
+    "evidence_scope": "direct_only",
+    "stratum": "native_nonendemic",
+    "context_layer": "biogeographic_realm",
+    "context": "Palearctic",
+    "n_islands_biotic": 132,
+    "n_islands_abiotic_wind": 60,
+    "n_blocks_biotic": 22,
+    "n_blocks_abiotic_wind": 18,
+    "species_support_sum_biotic": 8773,
+    "species_support_sum_abiotic_wind": 131,
+    "type1_error": 0.088,
+    "target_effect_sd": 0.5,
+    "target_recovery": 1.0
+  },
+  "closed_cells_reason": {
+    "all_analysis_palearctic": "support and power adequate but null type-I error 0.124-0.136 exceeds frozen 0.10 ceiling",
+    "direct_all_native_palearctic": "null type-I error 0.124 exceeds frozen 0.10 ceiling",
+    "tropical_all_cells": "wind-pollinated support below frozen island/block gates"
+  },
+  "observed_effect_opened": false,
+  "claim_ceiling": "qualification permits exactly one independent biotic-vs-wind specificity test; it does not identify pollinator loss, effective service, or rescue the failed N1/N2 chain"
+}
