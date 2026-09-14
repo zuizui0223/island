@@ -1,0 +1,48 @@
+{
+  "contract": "chapter1_species_detection_tipping_v1",
+  "status": "complete",
+  "canonical_source": {
+    "workflow_run_id": 34232450884,
+    "artifact_id": 10058653212,
+    "artifact_name": "chapter1-progressive-analysis-34232450884",
+    "artifact_digest": "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999"
+  },
+  "canonical_result": {
+    "workflow_run_id": 34800498716,
+    "artifact_id": 10331282464,
+    "artifact_name": "chapter1-species-detection-tipping-v2-34800498716",
+    "artifact_digest": "sha256:095506a214143a2312bcb1d115644ab21d2d130b7813261019bc386206fd3849",
+    "headline_rows": 2100,
+    "tipping_surface_rows": 300,
+    "maximum_OR_D_1_score_difference": 3.3306690738754696e-16,
+    "hypothetical_species_increase_regression_precision": false
+  },
+  "headline": {
+    "palearctic_accessibility": {
+      "baseline_supported_surfaces": 100,
+      "no_break_on_grid": 99,
+      "break_detected": 1,
+      "distance_dependent_under_survey_surfaces": 80,
+      "breaks_when_OR_C_lt_1": 0
+    },
+    "tropical_accessibility": {
+      "baseline_supported_surfaces": 75,
+      "no_break_on_grid": 35,
+      "break_detected": 40,
+      "not_applicable_surfaces": 25
+    },
+    "north_tropical_vector_difference": {
+      "baseline_supported_surfaces": 75,
+      "no_break_on_grid": 70,
+      "break_detected": 5,
+      "not_applicable_surfaces": 25,
+      "all_breaks_at_distance_completeness_OR": 0.25
+    }
+  },
+  "interpretation": {
+    "palearctic": "specified joint distance-dependent inventory incompleteness plus focal-state under-recording is conservative across all frozen OR_C<1 surfaces",
+    "tropical": "negative accessibility component is materially sensitive to joint isolation-dependent inventory incompleteness and state-dependent recording",
+    "regional_difference": "direct northern-midlatitude versus tropical vector difference is more robust than tropical accessibility alone"
+  },
+  "claim_ceiling": "bounded species-detection sensitivity only; no estimate of true missing species, no proof of inventory completeness, no arbitrary taxon-dependent observation robustness, no H5 or pollinator-mechanism identification"
+}
