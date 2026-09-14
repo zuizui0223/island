@@ -1,0 +1,73 @@
+name: Render Chapter 1 v8 Figure 1
+
+on:
+  push:
+    branches:
+      - "ch1/v8-figure1-hierarchical-syndrome"
+    paths:
+      - "src/island_v2/chapter1_v8_figure1_hierarchical_syndrome.py"
+      - "tests/test_chapter1_v8_figure1_hierarchical_syndrome.py"
+      - ".github/workflows/render-chapter1-v8-figure1.yml"
+      - "config/chapter1_v8_figure3_submission_result_lock.json"
+      - "config/chapter1_v8_figure4_result_lock.json"
+      - "config/chapter1_nee_n1_result_lock.json"
+      - "docs/chapter1_submission_freeze_20260914.md"
+      - "docs/chapter1_v8_maximal_data_integration_20260914.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      OUT: /tmp/chapter1-v8-figure1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install repository with figure dependencies
+        run: pip install -e ".[dev,figures]"
+      - name: Test and lint v8 Figure 1 renderer
+        run: |
+          pytest -q tests/test_chapter1_v8_figure1_hierarchical_syndrome.py
+          ruff check \
+            src/island_v2/chapter1_v8_figure1_hierarchical_syndrome.py \
+            tests/test_chapter1_v8_figure1_hierarchical_syndrome.py
+      - name: Render Figure 1 from frozen evidence locks
+        run: |
+          python -m island_v2.chapter1_v8_figure1_hierarchical_syndrome render \
+            --output-dir "$OUT"
+      - name: Assert claim boundary and output completeness
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root=Path(os.environ['OUT'])
+          manifest=json.loads((root/'chapter1_v8_figure1_manifest.json').read_text())
+          assert manifest['contract'] == 'chapter1_v8_figure1_hierarchical_syndrome_v1'
+          assert manifest['new_biological_models_fitted'] is False
+          assert manifest['new_p_values_generated'] is False
+          assert manifest['n2_opened'] is False
+          frozen=manifest['frozen_results']
+          assert frozen['support_ladder'] == '4/4 -> 4/4 -> 0/4'
+          assert frozen['h4_promoted'] == '0/16'
+          assert frozen['geometry_promoted'] == '0/12'
+          assert frozen['n1_pass'] is False
+          assert frozen['h5d_qualified'] == '0/8'
+          for suffix in ('png','svg','pdf'):
+              path=root/f'chapter1_v8_figure1_hierarchical_syndrome.{suffix}'
+              assert path.is_file() and path.stat().st_size > 0
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-v8-figure1-${{ github.run_id }}
+          path: /tmp/chapter1-v8-figure1
+          if-no-files-found: error
+          retention-days: 90
