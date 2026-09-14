@@ -1,0 +1,39 @@
+contract: chapter1_h5d_distributed_threshold_identifiability_v1
+
+scope:
+  context_layer: biogeographic_realm
+  context: Palearctic
+  syndrome_design_source: taxonomic_depth_decomposition
+  strata: [all_native, native_nonendemic]
+  source_modes: [geo_k5, geo_k10, geo_k20, geo50_climate10]
+  observed_trait_scores_opened: false
+
+simulation:
+  replicates: 200
+  seed: 20260914
+  train_fraction: 0.70
+  latent_genera: 600
+  distributed_threshold_sigma: [0.25, 0.50, 1.00]
+  smooth_cline_midpoint_sigma: 0.50
+  smooth_cline_log_slope_mean: 0.6931471805599453
+  smooth_cline_log_slope_sd: 0.35
+  probability_clip: 0.0001
+
+candidate_models:
+  distributed_threshold: probit_cdf_mu_sigma
+  smooth_cline: logistic_a_b
+  classifier: heldout_binomial_log_likelihood
+
+qualification:
+  minimum_classification_accuracy: 0.80
+  maximum_false_distributed_selection_under_smooth_clines: 0.10
+  maximum_relative_sigma_error: 0.25
+  minimum_sigma_recovery_fraction: 0.80
+  all_source_modes_required: true
+
+failure_action: keep_H5d_conceptual_and_do_not_open_observed_threshold_distribution
+claim_ceiling: >-
+  This audit can establish whether the realized assemblage design can distinguish a
+  distributed lineage-threshold generator from a heterogeneous smooth-cline generator.
+  It cannot demonstrate that pollination causes any threshold, and observed genus-level
+  threshold fitting remains closed unless all qualification gates pass.
