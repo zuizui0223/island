@@ -466,7 +466,7 @@ def render_figure(
     grid = fig.add_gridspec(2, 2, left=0.045, right=0.975, bottom=0.055, top=0.90, hspace=0.27, wspace=0.18)
     _panel_a(fig.add_subplot(grid[0, 0]))
     _panel_b(fig.add_subplot(grid[0, 1]), values)
-    _panel_c(fig.add_subplot(grid[1, 0]))
+    _panel_c(fig.add_subplot(grid[1, 0]), values)
     _panel_d(fig.add_subplot(grid[1, 1]))
 
     fig.suptitle(
