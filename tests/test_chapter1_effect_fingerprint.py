@@ -6,6 +6,18 @@ import yaml
 from island_v2.chapter1_effect_fingerprint import run_synthesis
 
 
+OUTCOMES = [
+    "plain_colour",
+    "generalized_form",
+    "actinomorphic_symmetry",
+    "shallow_open_tube",
+    "small_flower",
+    "self_compatibility",
+    "selfing_mating_system",
+    "autonomous_selfing",
+]
+
+
 def _config() -> dict:
     return {
         "contract": "chapter1_effect_fingerprint_v1",
@@ -28,14 +40,18 @@ def _config() -> dict:
         "atomic_fingerprint": {
             "contexts": ["northern_midlatitude", "tropical"],
             "support_tier": "confirmatory",
+            "outcome_order": OUTCOMES,
             "outcome_domains": {
                 "flower_colour": ["plain_colour"],
                 "floral_structural_complexity": [
-                    "generalized_form", "actinomorphic_symmetry",
-                    "shallow_open_tube", "small_flower",
+                    "generalized_form",
+                    "actinomorphic_symmetry",
+                    "shallow_open_tube",
+                    "small_flower",
                 ],
                 "reproductive_assurance": [
-                    "self_compatibility", "selfing_mating_system",
+                    "self_compatibility",
+                    "selfing_mating_system",
                     "autonomous_selfing",
                 ],
             },
@@ -77,16 +93,12 @@ def _write_taxonomic(root: Path, scope: str) -> None:
 def _write_atomic(root: Path, short_scope: str) -> None:
     out = root / "atomic" / short_scope
     out.mkdir(parents=True, exist_ok=True)
-    outcomes = [
-        "plain_colour", "generalized_form", "actinomorphic_symmetry",
-        "shallow_open_tube", "small_flower", "self_compatibility",
-        "selfing_mating_system", "autonomous_selfing",
-    ]
     rows = []
     for stratum in ("all_native", "native_nonendemic"):
         for context in ("northern_midlatitude", "tropical"):
-            for index, outcome in enumerate(outcomes):
-                slope = 0.05 if index % 2 == 0 else -0.05
+            for index, outcome in enumerate(OUTCOMES):
+                base = 0.05 if index % 2 == 0 else -0.05
+                slope = base if context == "northern_midlatitude" else -base
                 rows.append(
                     {
                         "stratum": stratum,
@@ -121,14 +133,23 @@ def test_effect_fingerprint_builds_attenuation_and_domains(tmp_path: Path) -> No
     attenuation = pd.read_csv(output / "taxonomic_vector_attenuation.csv")
     assert len(attenuation) == 4
     assert attenuation["genus_attenuation_fraction"].between(0.89, 0.91).all()
+    assert attenuation["conditional_genus_attenuation_fraction"].between(0.83, 0.84).all()
 
     fingerprint = pd.read_csv(output / "atomic_response_fingerprint.csv")
     assert set(fingerprint["domain"]) == {
-        "flower_colour", "floral_structural_complexity", "reproductive_assurance"
+        "flower_colour",
+        "floral_structural_complexity",
+        "reproductive_assurance",
     }
     assert set(fingerprint["direction"]) == {"positive", "negative"}
 
     summary = pd.read_csv(output / "atomic_domain_fingerprint_summary.csv")
     assert len(summary) == 2 * 2 * 2 * 3
+
+    geometry = pd.read_csv(output / "atomic_cross_context_vector_geometry.csv")
+    assert len(geometry) == 4
+    assert geometry["complete_vector"].all()
+    assert geometry["vector_angle_degrees"].between(179.9, 180.0).all()
+
     assert manifest["new_p_values_generated"] is False
     assert manifest["mechanism_promoted"] is False
