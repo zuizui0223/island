@@ -1,14 +1,11 @@
 """Render Chapter 1 v8 Figure 1 as an inference map from frozen evidence locks.
 
-This is a presentation-only renderer.  It does not refit biological models, open a new
-outcome, or turn adverse/non-identified results into mechanism support.  Quantitative
-annotations are read from already-frozen Figure 3, Figure 4, and N1 result locks; the
-remaining textual boundaries are checked against the canonical submission freeze.
+Presentation only: no biological model is refit and no adverse or non-identified result
+is converted into mechanism support. Quantitative annotations come from frozen v8 locks.
 """
 from __future__ import annotations
 
 import json
-import textwrap
 from pathlib import Path
 from typing import Any
 
@@ -55,21 +52,20 @@ def load_inputs(
     fig3 = _load_json(figure3_lock, "chapter1_v8_figure3_submission_result_lock_v1")
     fig4 = _load_json(figure4_lock, "chapter1_v8_figure4_result_lock_v1")
     n1 = _load_json(n1_lock, "chapter1_nee_n1_result_lock_v1")
-
     if not submission_freeze.is_file() or not maximal_integration.is_file():
         raise FigureInputError("canonical v8 narrative source is missing")
+
     freeze_text = submission_freeze.read_text(encoding="utf-8")
     maximal_text = maximal_integration.read_text(encoding="utf-8")
-
     f3 = fig3.get("frozen_results", {})
     f4 = fig4.get("frozen_results", {})
-    n1_gate = n1.get("n1", {}).get("gate", {})
+    gate = n1.get("n1", {}).get("gate", {})
 
     if f3.get("support_ladder") != "4/4 -> 4/4 -> 0/4":
         raise FigureInputError("Figure 3 support ladder changed")
-    genus_range = list(f3.get("genus_attenuation_fraction_range", []))
-    conditional_range = list(f3.get("conditional_family_to_genus_attenuation_range", []))
-    if genus_range != [0.788, 0.859] or conditional_range != [0.706, 0.791]:
+    genus = list(f3.get("genus_attenuation_fraction_range", []))
+    conditional = list(f3.get("conditional_family_to_genus_attenuation_range", []))
+    if genus != [0.788, 0.859] or conditional != [0.706, 0.791]:
         raise FigureInputError("Figure 3 attenuation range changed")
 
     expected_f4 = {
@@ -83,24 +79,23 @@ def load_inputs(
             raise FigureInputError(f"Figure 4 frozen result changed: {key}")
 
     h5c_p = float(f4.get("h5c_p_value"))
-    h5c_estimate = float(f4.get("h5c_interaction_estimate"))
+    h5c_est = float(f4.get("h5c_interaction_estimate"))
     if abs(h5c_p - 0.4122068222871858) > 1e-12:
         raise FigureInputError("H5c p-value changed")
-
-    if n1_gate.get("N1_pass") is not False:
+    if gate.get("N1_pass") is not False:
         raise FigureInputError("Figure 1 requires the frozen failed N1 gate")
-    n1_p = float(n1_gate.get("global_Wald_p_value"))
+    n1_p = float(gate.get("global_Wald_p_value"))
     if abs(n1_p - 0.6551581817640355) > 1e-12:
         raise FigureInputError("N1 global p-value changed")
-    if n1_gate.get("failure_action") != "stop_before_N2_and_keep_frozen_Chapter1":
+    if gate.get("failure_action") != "stop_before_N2_and_keep_frozen_Chapter1":
         raise FigureInputError("N1 stop rule changed")
 
-    required_freeze_phrases = [
+    required = [
         "H4 promotion is 0/16",
         "The broad Palearctic primary response survives the finite predeclared MNAR trait-resolution grid",
         "Chapter 2 / `izu-core` is reserved for **how and why functionally**",
     ]
-    for phrase in required_freeze_phrases:
+    for phrase in required:
         if phrase not in freeze_text:
             raise FigureInputError(f"canonical submission freeze no longer contains: {phrase}")
     if "- GloBI breadth: 0/4 promoted." not in maximal_text:
@@ -108,19 +103,19 @@ def load_inputs(
 
     return {
         "support_ladder": f3["support_ladder"],
-        "genus_attenuation_pct": [100 * float(value) for value in genus_range],
-        "family_to_genus_attenuation_pct": [100 * float(value) for value in conditional_range],
+        "genus_attenuation_pct": [100 * float(x) for x in genus],
+        "family_to_genus_attenuation_pct": [100 * float(x) for x in conditional],
         "v6_palearctic_survival": f4["v6_palearctic_survival"],
         "v6_tropical_survival": f4["v6_tropical_survival"],
         "geometry_promoted": f4["geometry_promoted"],
-        "h5c_estimate": h5c_estimate,
+        "h5c_estimate": h5c_est,
         "h5c_p_value": h5c_p,
         "h5d_qualified": f4["h5d_qualified"],
         "h4_promoted": "0/16",
         "globi_breadth_promoted": "0/4",
         "n1_p_value": n1_p,
         "n1_pass": False,
-        "n1_failure_action": n1_gate["failure_action"],
+        "n1_failure_action": gate["failure_action"],
         "source_locks": {
             "figure3": {
                 "workflow_run_id": fig3["workflow_run_id"],
@@ -150,33 +145,22 @@ def _box(
     *,
     facecolor: str = "white",
     edgecolor: str = "0.35",
-    fontsize: float = 8.2,
+    fontsize: float = 8.1,
     weight: str = "normal",
-    align: str = "center",
     linewidth: float = 1.0,
-) -> FancyBboxPatch:
+) -> None:
     x, y = xy
-    patch = FancyBboxPatch(
-        (x, y),
-        width,
-        height,
-        boxstyle="round,pad=0.012,rounding_size=0.012",
-        facecolor=facecolor,
-        edgecolor=edgecolor,
-        linewidth=linewidth,
+    ax.add_patch(
+        FancyBboxPatch(
+            (x, y), width, height,
+            boxstyle="round,pad=0.012,rounding_size=0.012",
+            facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth,
+        )
     )
-    ax.add_patch(patch)
     ax.text(
-        x + width / 2,
-        y + height / 2,
-        text,
-        ha=align,
-        va="center",
-        fontsize=fontsize,
-        fontweight=weight,
-        wrap=True,
+        x + width / 2, y + height / 2, text,
+        ha="center", va="center", fontsize=fontsize, fontweight=weight,
     )
-    return patch
 
 
 def _arrow(
@@ -188,259 +172,135 @@ def _arrow(
     color: str = "0.3",
     linewidth: float = 1.2,
 ) -> None:
-    arrow = FancyArrowPatch(
-        start,
-        end,
-        arrowstyle="-|>",
-        mutation_scale=10,
-        linewidth=linewidth,
-        linestyle="--" if dashed else "-",
-        color=color,
-        shrinkA=2,
-        shrinkB=2,
+    ax.add_patch(
+        FancyArrowPatch(
+            start, end, arrowstyle="-|>", mutation_scale=10,
+            linewidth=linewidth, linestyle="--" if dashed else "-",
+            color=color, shrinkA=2, shrinkB=2,
+        )
     )
-    ax.add_patch(arrow)
 
 
-def _panel_title(ax: plt.Axes, letter: str, title: str) -> None:
+def _setup(ax: plt.Axes, letter: str, title: str) -> None:
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis("off")
     ax.text(
-        0.0,
-        1.02,
-        f"{letter}  {title}",
-        transform=ax.transAxes,
-        ha="left",
-        va="bottom",
-        fontsize=11.2,
-        fontweight="bold",
+        0.0, 1.02, f"{letter}  {title}", transform=ax.transAxes,
+        ha="left", va="bottom", fontsize=11.2, fontweight="bold",
     )
 
 
 def _panel_a(ax: plt.Axes) -> None:
-    _panel_title(ax, "A", "Why can an island floral syndrome appear?")
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.axis("off")
-
-    _box(
-        ax,
-        (0.03, 0.72),
-        0.30,
-        0.18,
-        "SOURCE POOL\nA   B   C   D   E",
-        facecolor="#f5f5f5",
-        weight="bold",
-        fontsize=9,
-    )
-    _box(
-        ax,
-        (0.67, 0.72),
-        0.30,
-        0.18,
-        "REMOTE ISLAND\nA       C       E",
-        facecolor="#f5f5f5",
-        weight="bold",
-        fontsize=9,
-    )
+    _setup(ax, "A", "Why can an island floral syndrome appear?")
+    _box(ax, (0.03, 0.72), 0.30, 0.18, "SOURCE POOL\nA   B   C   D   E", facecolor="#f5f5f5", weight="bold", fontsize=9)
+    _box(ax, (0.67, 0.72), 0.30, 0.18, "REMOTE ISLAND\nA       C       E", facecolor="#f5f5f5", weight="bold", fontsize=9)
     _arrow(ax, (0.34, 0.81), (0.66, 0.81))
     ax.text(0.50, 0.84, "geographic isolation", ha="center", va="bottom", fontsize=8)
 
-    generators = [
-        (
-            0.05,
-            "Repeated within-lineage response",
-            "The same lineage changes phenotype after colonization.",
-        ),
-        (
-            0.36,
-            "Hierarchical lineage sorting",
-            "Lineages differ in persistence, changing assemblage trait composition.",
-        ),
-        (
-            0.67,
-            "Mixed generator",
-            "Membership change and within-lineage response can coexist.",
-        ),
+    cards = [
+        (0.05, "Repeated within-lineage response\n\nThe same lineage changes phenotype\nafter colonization."),
+        (0.36, "Hierarchical lineage sorting\n\nLineages differ in persistence,\nchanging assemblage trait composition."),
+        (0.67, "Mixed generator\n\nMembership change and within-lineage\nresponse can coexist."),
     ]
-    for x, title, body in generators:
-        _box(
-            ax,
-            (x, 0.27),
-            0.28,
-            0.28,
-            f"{title}\n\n{textwrap.fill(body, 34)}",
-            facecolor="#fbfbfb",
-            fontsize=7.9,
-            weight="normal",
-        )
+    for x, text in cards:
+        _box(ax, (x, 0.27), 0.28, 0.28, text, facecolor="#fbfbfb", fontsize=7.8)
     ax.text(
-        0.5,
-        0.11,
+        0.5, 0.11,
         "An assemblage mean alone cannot distinguish adaptation from membership change.",
-        ha="center",
-        fontsize=8.8,
-        fontweight="bold",
+        ha="center", fontsize=8.8, fontweight="bold",
     )
     ax.text(
-        0.5,
-        0.04,
+        0.5, 0.04,
         "Pollinator icons are deliberately absent: Chapter 1 did not identify that causal link.",
-        ha="center",
-        fontsize=7.6,
-        color="0.35",
+        ha="center", fontsize=7.6, color="0.35",
     )
 
 
 def _panel_b(ax: plt.Axes, values: dict[str, Any]) -> None:
-    _panel_title(ax, "B", "The response branches, then collapses at an assembly depth")
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.axis("off")
-
+    _setup(ax, "B", "The response branches, then collapses at an assembly depth")
     _box(ax, (0.05, 0.80), 0.90, 0.12, "ONE UNIVERSAL RESPONSE?  →  NO", facecolor="#f7f7f7", weight="bold", fontsize=9.2)
     _arrow(ax, (0.50, 0.79), (0.50, 0.69))
     _box(
-        ax,
-        (0.05, 0.53),
-        0.90,
-        0.15,
+        ax, (0.05, 0.53), 0.90, 0.15,
         "BIOGEOGRAPHIC BRANCHING\nPalearctic: accessibility/generalization ↑  +  assurance ↑\nTropical: accessibility/generalization ↓  +  assurance ↑",
-        facecolor="#f7f7f7",
-        fontsize=8.4,
-        weight="bold",
+        facecolor="#f7f7f7", fontsize=8.4, weight="bold",
     )
     _arrow(ax, (0.50, 0.52), (0.50, 0.43))
-
     ladder = values["support_ladder"].replace(" -> ", "  →  ")
     g0, g1 = values["genus_attenuation_pct"]
     c0, c1 = values["family_to_genus_attenuation_pct"]
     _box(
-        ax,
-        (0.05, 0.16),
-        0.90,
-        0.26,
+        ax, (0.05, 0.16), 0.90, 0.26,
         (
             "WHERE DOES THE PALEARCTIC RESPONSE LIVE?\n\n"
             f"observed        family-adjusted        genus-adjusted\n{ladder}\n\n"
             f"genus attenuation: {g0:.1f}–{g1:.1f}% of observed vector\n"
             f"family → genus conditional attenuation: {c0:.1f}–{c1:.1f}%"
         ),
-        facecolor="#eef3f8",
-        edgecolor="#496b8a",
-        fontsize=8.5,
-        weight="bold",
-        linewidth=1.2,
+        facecolor="#eef3f8", edgecolor="#496b8a", fontsize=8.5,
+        weight="bold", linewidth=1.2,
     )
     ax.text(
-        0.50,
-        0.08,
-        "ASSEMBLY DEPTH: strongest attenuation at FAMILY → GENUS",
-        ha="center",
-        fontsize=9.2,
-        fontweight="bold",
-        color="#294b69",
+        0.50, 0.08, "ASSEMBLY DEPTH: strongest attenuation at FAMILY → GENUS",
+        ha="center", fontsize=9.2, fontweight="bold", color="#294b69",
     )
 
 
 def _panel_c(ax: plt.Axes, values: dict[str, Any]) -> None:
-    _panel_title(ax, "C", "Cross-examination: what survives, what is not promoted?")
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.axis("off")
-
+    _setup(ax, "C", "Cross-examination: what survives, what is not promoted?")
     cards = [
-        ("Trait missingness (V5)", "Palearctic core survives\nfinite MNAR grid", "#edf4ed"),
-        (
-            "Species-list bias (V6)",
-            f"Palearctic {values['v6_palearctic_survival']}\nTropical {values['v6_tropical_survival']}",
-            "#edf4ed",
-        ),
-        ("Area mechanism (H4)", f"{values['h4_promoted']} promoted", "#f4f1ed"),
-        ("Common nonlinear breakpoint", f"{values['geometry_promoted']} promoted", "#f4f1ed"),
-        ("Channel heterogeneity (N1)", f"p = {values['n1_p_value']:.3f}\nstop before N2", "#f4f1ed"),
-        ("GloBI source breadth", f"{values['globi_breadth_promoted']} promoted", "#f4f1ed"),
-        (
-            "Biotic vs wind specificity",
-            f"β = {values['h5c_estimate']:+.3f}\np = {values['h5c_p_value']:.3f}",
-            "#f4f1ed",
-        ),
-        ("Distributed thresholds", f"{values['h5d_qualified']} design cells qualified", "#f2eef5"),
+        ("Trait missingness\n(V5)", "Palearctic core survives\nfinite MNAR grid", "#edf4ed"),
+        ("Species-list bias\n(V6)", f"Palearctic {values['v6_palearctic_survival']}\nTropical {values['v6_tropical_survival']}", "#edf4ed"),
+        ("Area mechanism\n(H4)", f"{values['h4_promoted']} promoted", "#f4f1ed"),
+        ("Common nonlinear\nbreakpoint", f"{values['geometry_promoted']} promoted", "#f4f1ed"),
+        ("Channel heterogeneity\n(N1)", f"p = {values['n1_p_value']:.3f}\nstop before N2", "#f4f1ed"),
+        ("GloBI source\nbreadth", f"{values['globi_breadth_promoted']} promoted", "#f4f1ed"),
+        ("Biotic vs wind\nspecificity", f"β = {values['h5c_estimate']:+.3f}\np = {values['h5c_p_value']:.3f}", "#f4f1ed"),
+        ("Distributed\nthresholds", f"{values['h5d_qualified']} design cells qualified", "#f2eef5"),
     ]
-    x_positions = [0.03, 0.27, 0.51, 0.75]
-    y_positions = [0.58, 0.28]
-    for index, (title, body, face) in enumerate(cards):
-        row = index // 4
-        col = index % 4
-        x = x_positions[col]
-        y = y_positions[row]
+    xs = [0.03, 0.27, 0.51, 0.75]
+    ys = [0.58, 0.28]
+    for i, (title, body, face) in enumerate(cards):
         _box(
-            ax,
-            (x, y),
-            0.21,
-            0.22,
-            f"{title}\n\n{body}",
-            facecolor=face,
-            fontsize=7.3,
-            weight="normal",
+            ax, (xs[i % 4], ys[i // 4]), 0.21, 0.22,
+            f"{title}\n\n{body}", facecolor=face, fontsize=7.0,
         )
     _box(
-        ax,
-        (0.08, 0.05),
-        0.84,
-        0.13,
-        "STRONG PLANT-SIDE PATTERN; UPSTREAM POLLINATOR MECHANISM REMAINS UNIDENTIFIED",
-        facecolor="#f7f7f7",
-        fontsize=8.7,
-        weight="bold",
+        ax, (0.07, 0.045), 0.86, 0.15,
+        "STRONG PLANT-SIDE PATTERN\nUPSTREAM POLLINATOR MECHANISM REMAINS UNIDENTIFIED",
+        facecolor="#f7f7f7", fontsize=7.8, weight="bold",
     )
 
 
 def _panel_d(ax: plt.Axes) -> None:
-    _panel_title(ax, "D", "Global assembly depth ≠ local response geometry")
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.axis("off")
-
+    _setup(ax, "D", "Global assembly depth ≠ local response geometry")
     _box(
-        ax,
-        (0.04, 0.24),
-        0.39,
-        0.58,
+        ax, (0.04, 0.24), 0.39, 0.58,
         (
             "CHAPTER 1 — GLOBAL\n\n"
-            "many lineages + many island histories\n↓ averaging\n"
-            "smooth / context-dependent assemblage gradient\n\n"
+            "many lineages + many island histories\n↓\naveraging\n↓\n"
+            "smooth / context-dependent\nassemblage gradient\n\n"
             "answers:\nWHERE?\nWHICH COMPONENTS?\nAT WHAT ASSEMBLY DEPTH?"
         ),
-        facecolor="#eef3f8",
-        edgecolor="#496b8a",
-        fontsize=8.3,
-        weight="bold",
+        facecolor="#eef3f8", edgecolor="#496b8a", fontsize=7.9, weight="bold",
     )
     _box(
-        ax,
-        (0.57, 0.24),
-        0.39,
-        0.58,
+        ax, (0.57, 0.24), 0.39, 0.58,
         (
             "CHAPTER 2 — izu-core\n\n"
-            "one deeply resolved island system\n"
-            "interaction state\n↓\neffective service\n↓\nreproductive outcome\n↓\nphenotype\n\n"
-            "compare cline / step / shared breakpoint / channel-specific geometry"
+            "one deeply resolved island system\ninteraction state\n↓\n"
+            "effective service\n↓\nreproductive outcome\n↓\nphenotype\n\n"
+            "compare cline / step / shared breakpoint /\nchannel-specific geometry"
         ),
-        facecolor="#f6f0e8",
-        edgecolor="#9a7244",
-        fontsize=8.1,
-        weight="bold",
+        facecolor="#f6f0e8", edgecolor="#9a7244", fontsize=7.7, weight="bold",
     )
-    _arrow(ax, (0.44, 0.54), (0.56, 0.54), dashed=True, color="0.35", linewidth=1.3)
+    _arrow(ax, (0.44, 0.50), (0.56, 0.50), dashed=True, color="0.35", linewidth=1.3)
     ax.text(
-        0.50,
-        0.15,
-        "A local threshold can average into a smooth global gradient,\nbut Chapter 1 cannot identify that generator against heterogeneous smooth clines.",
-        ha="center",
-        va="center",
-        fontsize=8.0,
-        color="0.30",
+        0.50, 0.13,
+        "A local threshold can average into a smooth global gradient,\n"
+        "but Chapter 1 cannot identify that generator against heterogeneous smooth clines.",
+        ha="center", va="center", fontsize=7.7, color="0.30",
     )
 
 
@@ -463,7 +323,10 @@ def render_figure(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     fig = plt.figure(figsize=(15.0, 10.8), constrained_layout=False)
-    grid = fig.add_gridspec(2, 2, left=0.045, right=0.975, bottom=0.055, top=0.90, hspace=0.27, wspace=0.18)
+    grid = fig.add_gridspec(
+        2, 2, left=0.045, right=0.975, bottom=0.055, top=0.90,
+        hspace=0.27, wspace=0.18,
+    )
     _panel_a(fig.add_subplot(grid[0, 0]))
     _panel_b(fig.add_subplot(grid[0, 1]), values)
     _panel_c(fig.add_subplot(grid[1, 0]), values)
@@ -471,18 +334,12 @@ def render_figure(
 
     fig.suptitle(
         "From an island floral syndrome to a hierarchy-of-assembly test",
-        x=0.05,
-        y=0.975,
-        ha="left",
-        fontsize=16,
-        fontweight="bold",
+        x=0.05, y=0.975, ha="left", fontsize=16, fontweight="bold",
     )
     fig.text(
-        0.05,
-        0.935,
+        0.05, 0.935,
         "Isolation-associated trait composition can arise from repeated lineage response, hierarchical sorting, or both; mechanism is named only after assembly depth and rival explanations are tested.",
-        fontsize=9.2,
-        color="0.32",
+        fontsize=9.2, color="0.32",
     )
 
     basename = "chapter1_v8_figure1_hierarchical_syndrome"
