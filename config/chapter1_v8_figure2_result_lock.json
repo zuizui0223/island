@@ -1,0 +1,38 @@
+{
+  "contract": "chapter1_v8_figure2_result_lock_v1",
+  "status": "rendered_and_visually_checked",
+  "source_primary_analysis": {
+    "workflow_run_id": 34232450884,
+    "artifact_id": 10058653212,
+    "artifact_name": "chapter1-progressive-analysis-34232450884",
+    "artifact_digest": "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999"
+  },
+  "figure": {
+    "workflow_run_id": 34810404509,
+    "artifact_id": 10334412842,
+    "artifact_name": "chapter1-v8-figure2-34810404509",
+    "artifact_digest": "sha256:c177e28ac75a8bccf00e9f0e1a467f2958907ba3c3eae87334a62e5924780675",
+    "png_dimensions_px": [3870, 2644],
+    "outputs": [
+      "chapter1_v8_figure2_biogeographic_branching.png",
+      "chapter1_v8_figure2_biogeographic_branching.svg",
+      "chapter1_v8_figure2_biogeographic_branching.pdf"
+    ]
+  },
+  "panels": {
+    "A": "all-native primary H2 response phase plot: accessibility/generalization x reproductive assurance",
+    "B": "native-nonendemic primary H2 response phase plot",
+    "C": "Palearctic primary-response replication across evidence scope and floristic stratum",
+    "D": "Palearctic floral-architecture distance response after conditioning on selfing_core across four frozen source definitions"
+  },
+  "visual_review": {
+    "performed": true,
+    "major_label_clipping_detected": false,
+    "data_hidden_by_legend": false,
+    "primary_h2_not_conflated_with_atomic_8_component_fingerprint": true,
+    "submission_layout": "accepted"
+  },
+  "new_biological_models_fitted": false,
+  "new_p_values_generated": false,
+  "claim_boundary": "Figure 2 visualizes frozen H2 and pathway-decomposition estimates only. Separate x/y intervals do not constitute a new between-context multivariate test, and the selfing-core-conditioned panel is decomposition rather than causal mediation."
+}

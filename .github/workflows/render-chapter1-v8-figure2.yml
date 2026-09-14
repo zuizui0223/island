@@ -1,0 +1,100 @@
+name: Render Chapter 1 v8 Figure 2 branching
+
+on:
+  push:
+    branches: ["ch1/v8-figure-architecture"]
+    paths:
+      - "src/island_v2/chapter1_v8_figure2_branching.py"
+      - "tests/test_chapter1_v8_figure2_branching.py"
+      - ".github/workflows/render-chapter1-v8-figure2.yml"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  render-v8-figure2:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT_ID: "10058653212"
+      SOURCE_ARTIFACT_NAME: "chapter1-progressive-analysis-34232450884"
+      SOURCE_ARTIFACT_DIGEST: "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install repository with figure dependencies
+        run: pip install -e ".[dev,figures]"
+
+      - name: Test and lint v8 Figure 2 renderer
+        run: |
+          pytest -q tests/test_chapter1_v8_figure2_branching.py
+          ruff check \
+            src/island_v2/chapter1_v8_figure2_branching.py \
+            tests/test_chapter1_v8_figure2_branching.py
+
+      - name: Verify and download frozen PR142 artifact
+        run: |
+          set -euo pipefail
+          metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID/artifacts?per_page=100")
+          observed_id=$(jq -r ".artifacts[] | select(.name == \"$SOURCE_ARTIFACT_NAME\" and .expired == false) | .id" <<<"$metadata")
+          observed_digest=$(jq -r ".artifacts[] | select(.name == \"$SOURCE_ARTIFACT_NAME\" and .expired == false) | .digest" <<<"$metadata")
+          test "$observed_id" = "$SOURCE_ARTIFACT_ID"
+          test "$observed_digest" = "$SOURCE_ARTIFACT_DIGEST"
+          rm -rf /tmp/v8-figure2-input
+          mkdir -p /tmp/v8-figure2-input
+          gh run download "$SOURCE_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name "$SOURCE_ARTIFACT_NAME" \
+            --dir /tmp/v8-figure2-input
+
+      - name: Render v8 Figure 2
+        run: |
+          rm -rf /tmp/v8-figure2
+          python -m island_v2.chapter1_v8_figure2_branching \
+            --artifact-root /tmp/v8-figure2-input \
+            --output-dir /tmp/v8-figure2 \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --source-artifact-id "$SOURCE_ARTIFACT_ID" \
+            --source-artifact-digest "$SOURCE_ARTIFACT_DIGEST"
+
+      - name: Validate outputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from PIL import Image
+
+          root = Path('/tmp/v8-figure2')
+          m = json.loads((root/'chapter1_v8_figure2_manifest.json').read_text())
+          assert m['contract'] == 'chapter1_v8_figure2_biogeographic_branching_v1'
+          assert m['source_workflow_run_id'] == 34232450884
+          assert m['source_artifact_id'] == 10058653212
+          assert m['n_regime_primary_rows'] == 16
+          assert m['n_palearctic_primary_rows'] == 8
+          assert m['n_conditional_pathway_rows'] == 8
+          assert m['new_biological_models_fitted'] is False
+          assert m['new_p_values_generated'] is False
+          png = root/'chapter1_v8_figure2_biogeographic_branching.png'
+          svg = root/'chapter1_v8_figure2_biogeographic_branching.svg'
+          pdf = root/'chapter1_v8_figure2_biogeographic_branching.pdf'
+          for path in (png, svg, pdf):
+              assert path.is_file() and path.stat().st_size > 5_000
+          with Image.open(png) as image:
+              width, height = image.size
+          assert width >= 2800 and height >= 1800
+          print(f'v8 Figure 2 PNG: {width} x {height}')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-v8-figure2-${{ github.run_id }}
+          path: /tmp/v8-figure2/
+          if-no-files-found: error
+          retention-days: 90

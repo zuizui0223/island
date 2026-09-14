@@ -1,0 +1,31 @@
+{
+  "contract": "chapter1_v8_figure3_submission_result_lock_v1",
+  "status": "submission_figure_rendered_and_visually_checked",
+  "workflow_run_id": 34816668470,
+  "artifact_id": 10336875587,
+  "artifact_name": "chapter1-v8-figure3-submission-34816668470",
+  "artifact_digest": "sha256:853fd1c590d86341d6302c1da8e998af93b0b5fa3b35c464dd3762378385bd4d",
+  "source_effect_fingerprint": {
+    "workflow_run_id": 34796763611,
+    "artifact_id": 10330230959,
+    "artifact_digest": "sha256:a2db683b6d46ca09d4eae6d9a3bfcaf85a4f172b5589227958bc388df8edba60"
+  },
+  "source_primary_analysis": {
+    "workflow_run_id": 34232450884,
+    "artifact_id": 10058653212,
+    "artifact_digest": "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999"
+  },
+  "visual_review": {
+    "performed": true,
+    "label_overlap_resolved": true,
+    "major_clipping_detected": false,
+    "submission_layout": "accepted"
+  },
+  "frozen_results": {
+    "family_attenuation_fraction_range": [0.196, 0.334],
+    "genus_attenuation_fraction_range": [0.788, 0.859],
+    "conditional_family_to_genus_attenuation_range": [0.706, 0.791],
+    "support_ladder": "4/4 -> 4/4 -> 0/4"
+  },
+  "claim_boundary": "Figure 3 localizes hierarchical expression of the frozen Palearctic response. Attenuation is not causal mediation and does not prove dispersal alone or absence of within-lineage change."
+}

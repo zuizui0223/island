@@ -1,0 +1,50 @@
+{
+  "contract": "chapter1_v8_figure4_result_lock_v1",
+  "status": "submission_figure_rendered_and_visually_checked",
+  "workflow_run_id": 34817349228,
+  "artifact_id": 10337380746,
+  "artifact_name": "chapter1-v8-figure4-34817349228",
+  "artifact_digest": "sha256:f41a90089ddda1d285186ca441d416d71cf1c276e742a7da917dbb572f39fbb0",
+  "source_artifacts": {
+    "v6_species_detection": {
+      "workflow_run_id": 34800498716,
+      "artifact_id": 10331282464,
+      "artifact_digest": "sha256:095506a214143a2312bcb1d115644ab21d2d130b7813261019bc386206fd3849"
+    },
+    "observed_geometry": {
+      "workflow_run_id": 34765070227,
+      "artifact_id": 10320630085,
+      "artifact_digest": "sha256:5ac34231b0cfa4acc1d536ab798a574a3cbcdd9423b6f0f2995195aab78a2f23"
+    },
+    "h5c_specificity": {
+      "workflow_run_id": 34803837463,
+      "artifact_id": 10332871066,
+      "artifact_digest": "sha256:fb8927bcf2b6e1c762b3ecbe59c42360faac679cf37b1ad0ed31386631a0f405"
+    },
+    "h5d_identifiability": {
+      "workflow_run_id": 34803545574,
+      "artifact_id": 10332671123,
+      "artifact_digest": "sha256:13ea1c3cd0066950d37fa3399f771d41ea2755c9746d02ac18594e224d895539"
+    }
+  },
+  "frozen_results": {
+    "v6_palearctic_survival": "99/100",
+    "v6_north_tropical_vector_survival": "70/75",
+    "v6_tropical_survival": "35/75",
+    "geometry_promoted": "0/12",
+    "h5c_interaction_estimate": 0.06495254330943623,
+    "h5c_interaction_ci": [-0.09029679363407014, 0.2202018802529426],
+    "h5c_p_value": 0.4122068222871858,
+    "h5d_qualified": "0/8"
+  },
+  "visual_review": {
+    "performed": true,
+    "major_label_clipping_detected": false,
+    "panel_overlap_detected": false,
+    "adverse_evidence_legible": true,
+    "submission_layout": "accepted"
+  },
+  "new_biological_models_fitted": false,
+  "new_p_values_generated": false,
+  "claim_boundary": "Figure 4 visualizes frozen robustness, geometry and mechanism-identifiability boundaries. Negative or non-identified results cannot be inverted into evidence that pollinators, local thresholds or other mechanisms do not matter."
+}

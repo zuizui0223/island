@@ -1,0 +1,101 @@
+name: Render Chapter 1 v8 Figure 4 falsification boundaries
+
+on:
+  push:
+    branches: ["ch1/v8-figure-architecture"]
+    paths:
+      - "src/island_v2/chapter1_v8_figure4_falsification_boundaries.py"
+      - "tests/test_chapter1_v8_figure4_falsification_boundaries.py"
+      - ".github/workflows/render-chapter1-v8-figure4.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  render-v8-figure4:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      V6_RUN: "34800498716"
+      V6_ID: "10331282464"
+      V6_NAME: chapter1-species-detection-tipping-v2-34800498716
+      V6_DIGEST: sha256:095506a214143a2312bcb1d115644ab21d2d130b7813261019bc386206fd3849
+      GEOM_RUN: "34765070227"
+      GEOM_ID: "10320630085"
+      GEOM_NAME: chapter1-observed-response-geometry-34765070227
+      GEOM_DIGEST: sha256:5ac34231b0cfa4acc1d536ab798a574a3cbcdd9423b6f0f2995195aab78a2f23
+      H5C_RUN: "34803837463"
+      H5C_ID: "10332871066"
+      H5C_NAME: chapter1-h5c-observed-specificity-34803837463
+      H5C_DIGEST: sha256:fb8927bcf2b6e1c762b3ecbe59c42360faac679cf37b1ad0ed31386631a0f405
+      H5D_RUN: "34803545574"
+      H5D_ID: "10332671123"
+      H5D_NAME: chapter1-h5d-identifiability-34803545574
+      H5D_DIGEST: sha256:13ea1c3cd0066950d37fa3399f771d41ea2755c9746d02ac18594e224d895539
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev,figures]"
+      - name: Test and lint Figure 4
+        run: |
+          pytest -q tests/test_chapter1_v8_figure4_falsification_boundaries.py
+          ruff check src/island_v2/chapter1_v8_figure4_falsification_boundaries.py tests/test_chapter1_v8_figure4_falsification_boundaries.py
+      - name: Verify and download frozen artifacts
+        run: |
+          set -euo pipefail
+          fetch_one () {
+            run=$1; id=$2; name=$3; digest=$4; dir=$5
+            metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run/artifacts?per_page=100")
+            observed_id=$(jq -r ".artifacts[] | select(.name == \"$name\" and .expired == false) | .id" <<<"$metadata")
+            observed_digest=$(jq -r ".artifacts[] | select(.name == \"$name\" and .expired == false) | .digest" <<<"$metadata")
+            test "$observed_id" = "$id"
+            test "$observed_digest" = "$digest"
+            mkdir -p "$dir"
+            gh run download "$run" --repo "$GITHUB_REPOSITORY" --name "$name" --dir "$dir"
+          }
+          rm -rf /tmp/v8fig4
+          fetch_one "$V6_RUN" "$V6_ID" "$V6_NAME" "$V6_DIGEST" /tmp/v8fig4/v6
+          fetch_one "$GEOM_RUN" "$GEOM_ID" "$GEOM_NAME" "$GEOM_DIGEST" /tmp/v8fig4/geom
+          fetch_one "$H5C_RUN" "$H5C_ID" "$H5C_NAME" "$H5C_DIGEST" /tmp/v8fig4/h5c
+          fetch_one "$H5D_RUN" "$H5D_ID" "$H5D_NAME" "$H5D_DIGEST" /tmp/v8fig4/h5d
+          cat > /tmp/v8fig4/sources.json <<JSON
+          {"v6":{"run":$V6_RUN,"artifact":$V6_ID,"digest":"$V6_DIGEST"},"geometry":{"run":$GEOM_RUN,"artifact":$GEOM_ID,"digest":"$GEOM_DIGEST"},"h5c":{"run":$H5C_RUN,"artifact":$H5C_ID,"digest":"$H5C_DIGEST"},"h5d":{"run":$H5D_RUN,"artifact":$H5D_ID,"digest":"$H5D_DIGEST"}}
+          JSON
+      - name: Render Figure 4
+        run: |
+          python -m island_v2.chapter1_v8_figure4_falsification_boundaries \
+            --v6-root /tmp/v8fig4/v6 \
+            --geometry-root /tmp/v8fig4/geom \
+            --h5c-root /tmp/v8fig4/h5c \
+            --h5d-root /tmp/v8fig4/h5d \
+            --output-dir /tmp/v8fig4/out \
+            --source-receipts-json /tmp/v8fig4/sources.json
+      - name: Validate Figure 4 outputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from PIL import Image
+          root=Path('/tmp/v8fig4/out')
+          m=json.loads((root/'chapter1_v8_figure4_manifest.json').read_text())
+          assert m['geometry_cells']==12 and m['geometry_promoted']==0
+          assert m['h5d_cells']==8 and m['h5d_qualified']==0
+          assert abs(m['h5c_p_value']-0.4122068222871858)<1e-12
+          assert m['v6_survival']['Palearctic_accessibility']=={'survived':99,'baseline_supported':100}
+          assert m['v6_survival']['tropical_accessibility']=={'survived':35,'baseline_supported':75}
+          assert m['v6_survival']['north_tropical_vector_difference']=={'survived':70,'baseline_supported':75}
+          png=root/'chapter1_v8_figure4_falsification_boundaries.png'
+          with Image.open(png) as im:
+              w,h=im.size
+          assert w>=3000 and h>=1800
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-v8-figure4-${{ github.run_id }}
+          path: /tmp/v8fig4/out/
+          if-no-files-found: error
+          retention-days: 90
