@@ -1,0 +1,34 @@
+{
+  "contract": "chapter1_v8_figure1_result_lock_v1",
+  "status": "submission_figure_rendered_and_visually_checked",
+  "workflow_run_id": 34862804485,
+  "artifact_id": 10355018602,
+  "artifact_name": "chapter1-v8-figure1-34862804485",
+  "artifact_digest": "sha256:551e5f9738ca0193083232c27ba1abbdccc92e718c9553f175d68c1cde4c5e66",
+  "png_dimensions_px": [4701, 3040],
+  "source_result_locks": [
+    "chapter1_v8_figure2_result_lock_v1",
+    "chapter1_v8_figure3_submission_result_lock_v1",
+    "chapter1_v8_figure4_result_lock_v1"
+  ],
+  "frozen_values_displayed": {
+    "support_ladder": "4/4 -> 4/4 -> 0/4",
+    "genus_attenuation_fraction_range": [0.788, 0.859],
+    "conditional_family_to_genus_attenuation_range": [0.706, 0.791],
+    "v6_palearctic_survival": "99/100",
+    "v6_tropical_survival": "35/75",
+    "geometry_promoted": "0/12",
+    "h5c_p_value": 0.4122068222871858,
+    "h5d_qualified": "0/8"
+  },
+  "visual_review": {
+    "performed": true,
+    "major_label_clipping_detected": false,
+    "panel_overlap_detected": false,
+    "dominant_eye_path": "island question -> rival generators -> context branch -> family-to-genus attenuation -> falsification wall -> local mechanism",
+    "submission_layout": "accepted"
+  },
+  "new_biological_models_fitted": false,
+  "new_p_values_generated": false,
+  "claim_boundary": "Figure 1 is an inference map backed by already frozen Figure 2-4 result locks. It does not identify pollinator causation, prove evolution absent, or infer a common global threshold."
+}

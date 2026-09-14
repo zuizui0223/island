@@ -1,0 +1,67 @@
+name: Render Chapter 1 v8 Figure 1 inference map
+
+on:
+  push:
+    branches: ["ch1/v8-figure1-manuscript-sync"]
+    paths:
+      - "src/island_v2/chapter1_v8_figure1_inference_map.py"
+      - "tests/test_chapter1_v8_figure1_inference_map.py"
+      - "config/chapter1_v8_figure2_result_lock.json"
+      - "config/chapter1_v8_figure3_submission_result_lock.json"
+      - "config/chapter1_v8_figure4_result_lock.json"
+      - ".github/workflows/render-chapter1-v8-figure1.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  render-v8-figure1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev,figures]"
+      - name: Test and lint Figure 1
+        run: |
+          pytest -q tests/test_chapter1_v8_figure1_inference_map.py
+          ruff check src/island_v2/chapter1_v8_figure1_inference_map.py tests/test_chapter1_v8_figure1_inference_map.py
+      - name: Render Figure 1 from frozen result locks
+        run: |
+          rm -rf /tmp/v8fig1
+          python -m island_v2.chapter1_v8_figure1_inference_map \
+            --repo-root . \
+            --output-dir /tmp/v8fig1
+      - name: Validate Figure 1 outputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from PIL import Image
+          root = Path('/tmp/v8fig1')
+          manifest = json.loads((root/'chapter1_v8_figure1_manifest.json').read_text())
+          assert manifest['contract'] == 'chapter1_v8_figure1_inference_map_v1'
+          assert manifest['frozen_support_ladder'] == '4/4 -> 4/4 -> 0/4'
+          assert manifest['v6_palearctic_survival'] == '99/100'
+          assert manifest['v6_tropical_survival'] == '35/75'
+          assert manifest['geometry_promoted'] == '0/12'
+          assert manifest['h5d_qualified'] == '0/8'
+          assert manifest['new_biological_models_fitted'] is False
+          png = root/'chapter1_v8_figure1_hierarchical_syndrome_inference.png'
+          svg = root/'chapter1_v8_figure1_hierarchical_syndrome_inference.svg'
+          pdf = root/'chapter1_v8_figure1_hierarchical_syndrome_inference.pdf'
+          for path in (png, svg, pdf):
+              assert path.is_file() and path.stat().st_size > 5_000
+          with Image.open(png) as image:
+              width, height = image.size
+          assert width >= 3500 and height >= 2200
+          print(f'Figure 1 PNG: {width} x {height}')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-v8-figure1-${{ github.run_id }}
+          path: /tmp/v8fig1/
+          if-no-files-found: error
+          retention-days: 90
