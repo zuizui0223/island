@@ -1,0 +1,145 @@
+contract: chapter1_species_detection_tipping_v1
+status: frozen_before_outcome_execution
+role: post_freeze_falsification_sensitivity
+
+question: >-
+  How strong would trait-state-dependent under-recording of plant species have to be,
+  together with distance-dependent incompleteness of island species lists, to erase or
+  reverse the frozen Chapter 1 plant-side isolation responses?
+
+pinned_input:
+  workflow_run_id: 34232450884
+  artifact_id: 10058653212
+  artifact_name: chapter1-progressive-analysis-34232450884
+  digest: sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999
+
+observation_process_context:
+  existing_endpoint: fixed/canonical/observation_bias/all_island_observation_support.csv.gz
+  existing_model: fixed/canonical/observation_bias/observation_selection_coefficients.csv
+  use_for_calibration: false
+  role: >-
+    Directional diagnostic only. The existing endpoint models whether an island has any
+    recorded flora, not species-list completeness conditional on having a flora. It must
+    therefore not be converted into a species-level detection probability.
+
+estimand:
+  state_recording_odds_ratio: >-
+    OR_D = odds(recorded | positive response state) / odds(recorded | non-positive state).
+    The positive state is the frozen generalized_accessible soft-membership state.
+  completeness: >-
+    C_i is the assumed average probability that a true native species in the focal
+    floristic stratum is represented in the recorded island list. True stratum richness
+    is represented as recorded_stratum_richness / C_i.
+  completeness_distance_model: >-
+    logit(C_i) = logit(C0) + log(OR_C) * z_log_distance, where z_log_distance uses the
+    mean and population SD of log_distance_to_continent_km across the frozen 8,265-island
+    covariate universe. OR_C < 1 means that completeness declines with isolation.
+
+trait_resolution_conditioning:
+  assumption: OR_R_equals_1_for_this_separate_sensitivity
+  interpretation: >-
+    This analysis isolates species-list detection bias. Among recorded flora, the observed
+    syndrome prevalence is treated as representative of recorded species, equivalent to
+    the MAR point of the separately frozen V5 trait-resolution analysis. V5 and V6 are
+    separate one-process-at-a-time falsification tests; this contract does not claim joint
+    robustness to arbitrary trait-resolution and species-detection MNAR.
+
+primary_bias_direction:
+  biological_story: >-
+    More isolated islands can be less completely inventoried, and generalized/accessibility
+    positive-state species can be less likely to be recorded than non-positive species.
+    This is the direction capable of attenuating a positive Palearctic accessibility slope
+    and of creating or exaggerating a negative Tropical accessibility slope.
+  distance_completeness_odds_ratio_grid: [1.0, 0.8, 0.6666666667, 0.5, 0.25]
+  positive_state_recording_odds_ratio_grid: [1.0, 0.8, 0.6666666667, 0.5, 0.3333333333, 0.2, 0.1]
+  median_distance_completeness_grid: [0.5, 0.67, 0.8, 0.9, 0.95]
+  grid_is_ordered_from_no_differential_bias_to_stronger_adversarial_bias: true
+
+affected_response:
+  syndrome: generalized_accessible
+  branch_axis: accessibility_generalization
+  other_primary_axis_left_unchanged: selfing_core
+  reason: >-
+    The concrete observation-bias concern is floral conspicuousness/accessibility-linked
+    recording. Reproductive assurance is retained in the two-axis vector but is not itself
+    assigned a visual-detectability mechanism in the primary V6 sensitivity.
+
+headline_targets:
+  - context_layer: biogeographic_realm
+    context_a: Palearctic
+    context_b: null
+    response: accessibility_generalization
+    expected_observed_direction: positive
+  - context_layer: analysis_regime
+    context_a: tropical
+    context_b: null
+    response: accessibility_generalization
+    expected_observed_direction: negative
+  - context_layer: analysis_regime
+    context_a: northern_midlatitude
+    context_b: tropical
+    response: universal_plant_response_vector_difference
+    expected_observed_direction: direct_difference
+
+strata: [all_native, native_nonendemic]
+evidence_scopes: [all_analysis_eligible, direct_only]
+support_tier: confirmatory
+
+adjustment_rules:
+  recorded_stratum_species_source: fixed/canonical/input/chapter1_status_flora.csv.gz
+  observed_score_source: syndrome/{scope}/island_syndrome_scores.csv.gz
+  recorded_soft_membership: (syndrome_score + 1) / 2
+  estimated_recorded_focal_count: recorded_soft_membership * recorded_stratum_species
+  assumed_true_stratum_species: recorded_stratum_species / C_i
+  completion_model: reuse_binary_selection_odds_identity_from_V5
+  keep_original_n_species_as_regression_information_weight: true
+  do_not_add_precision_for_hypothetical_unrecorded_species: true
+  no_recorded_species_rows_are_not_created_from_zero: true
+
+fitting:
+  reuse_frozen_global_branching_model: true
+  baseline_covariates_unchanged: true
+  spatial_cluster_covariance_unchanged: true
+  fdr_families_unchanged_within_each_sensitivity_scenario: true
+  reduced_execution_scope:
+    axis_set: universal_plant_response
+    analysis_regime_contexts: [northern_midlatitude, tropical]
+    realm_contexts: [Palearctic]
+    strata: [all_native, native_nonendemic]
+    support_tier: confirmatory
+
+tipping_definition:
+  palearctic_accessibility: >-
+    First stronger adversarial OR_D on the frozen ordered grid at which the Palearctic
+    accessibility slope is no longer positive and FDR-supported, conditional on C0 and OR_C.
+  tropical_accessibility: >-
+    First stronger adversarial OR_D on the frozen ordered grid at which the Tropical
+    accessibility slope is no longer negative and FDR-supported, conditional on C0 and OR_C.
+  north_tropical_vector: >-
+    First stronger adversarial OR_D at which the direct northern-midlatitude versus Tropical
+    universal-plant-response vector difference is no longer FDR-supported.
+  no_break_on_grid: report_as_greater_than_strongest_tested_bias
+  sign_change_is_distinguished_from_support_loss: true
+
+baseline_reproduction_checks:
+  or_d_equal_1_must_reproduce_frozen_adjusted_score: tolerance_1e-12
+  or_d_equal_1_must_reproduce_frozen_headline_slopes: tolerance_1e-10
+  any_gain_of_support_is_non_promotional: true
+
+rules:
+  - missing_species_are_not_imputed_as_biological_absence
+  - list_completeness_is_a_sensitivity_parameter_not_an_estimated_truth
+  - the_existing_flora_recorded_model_is_not_species_list_completeness
+  - V6_does_not_replace_or_reinterpret_V5_trait_resolution_MNAR
+  - V5_and_V6_separate_robustness_does_not_prove_joint_MNAR_robustness
+  - correction_direction_must_be_reported_separately_for_Palearctic_and_Tropical
+  - no_pollinator_identity_or_mechanism_is_inferred
+  - no_post_hoc_grid_extension_after_outcome_inspection
+
+claim_ceiling: >-
+  V6 can quantify how much jointly distance-dependent list incompleteness and state-dependent
+  species recording would be required to erase or reverse the frozen accessibility response.
+  It can show that a specified class of observation bias would attenuate, amplify, or fail to
+  overturn a result. It cannot estimate the true number of missing species, prove inventory
+  completeness, identify the actual detection mechanism, or establish robustness to arbitrary
+  joint species-detection and trait-resolution missingness.
