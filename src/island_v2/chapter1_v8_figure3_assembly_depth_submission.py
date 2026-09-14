@@ -19,9 +19,7 @@ from matplotlib.gridspec import GridSpec  # noqa: E402
 
 from island_v2.chapter1_v8_figure3_assembly_depth import (  # noqa: E402
     SCOPES,
-    SCOPE_LABELS,
     STRATA,
-    STRATUM_LABELS,
     _attenuation_panel,
     _axis_stage_panel,
     load_inputs,
