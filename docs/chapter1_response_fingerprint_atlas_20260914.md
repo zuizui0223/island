@@ -4,7 +4,7 @@
 
 The final Chapter 1 dataset is most informative when its outputs are not treated as separate H1–H5 analyses, but as orthogonal dimensions of one isolation-response fingerprint.
 
-The atlas does not create a new hypothesis family. It is a manuscript/figure synthesis of already frozen estimates plus the separately frozen GloBI source-breadth extension.
+The atlas does not create a new hypothesis family. It synthesizes frozen estimates, the post-freeze descriptive effect-size fingerprint, and the separately frozen GloBI source-breadth extension.
 
 ## Fingerprint dimensions
 
@@ -17,7 +17,7 @@ Primary H1/H2 asks whether the pollinator-name-free plant response points in the
 
 This is the primary evidence that one serial universal syndrome is inadequate.
 
-### 2. Component identity
+### 2. Component identity and orientation
 
 The eight frozen atomic contrasts are retained as descriptive component fingerprints:
 
@@ -30,22 +30,35 @@ The strongest cross-evidence atomic fingerprints are not identical between conte
 - Northern-midlatitude: `actinomorphic_symmetry` is positive in both evidence scopes in both primary floristic strata.
 - Tropical native-nonendemic: `plain_colour` and `autonomous_selfing` are positive in both evidence scopes, while none of the four structural-complexity contrasts has a 95% interval excluding zero in either scope.
 
-This layer is descriptive. It does not replace the frozen multivariate H2 family.
+Using the same ordered eight-component vector in both contexts, the descriptive northern-midlatitude–Tropical angle is:
+
+- all-analysis all-native: **95.27°**;
+- all-analysis native-nonendemic: **100.21°**;
+- direct-only all-native: **116.49°**;
+- direct-only native-nonendemic: **99.53°**.
+
+Thus the atomic response is approximately orthogonal to moderately opposed across contexts rather than merely the same syndrome expressed at different strength. This geometry is descriptive and does not replace the frozen multivariate H2 family.
 
 ### 3. Hierarchical/taxonomic expression
 
 Wave52 is canonical. The Palearctic primary vector is retained after family adjustment but not after source-matched genus adjustment.
 
-The effect-size synthesis quantifies this attenuation rather than reporting only `4/4 -> 4/4 -> 0/4`:
+The effect-size synthesis quantifies this attenuation rather than reporting only `4/4 -> 4/4 -> 0/4`.
 
-- all-analysis all-native: 85.8–85.9% vector attenuation after genus adjustment;
+Across all 16 frozen source-mode × evidence-scope × stratum profiles:
+
+- family-stage attenuation from the observed vector is **19.6–33.4%** (median **26.2%**);
+- total attenuation after genus adjustment is **78.8–85.9%** (median **81.3%**);
+- conditional attenuation added by the genus stage after family adjustment is **70.6–79.1% of the family-adjusted remainder** (median **75.7%**).
+
+By evidence scope and stratum, total genus attenuation is:
+
+- all-analysis all-native: 85.8–85.9%;
 - all-analysis native-nonendemic: 82.4–82.5%;
 - direct-only all-native: 78.8–79.1%;
 - direct-only native-nonendemic: 79.9–80.2%.
 
-Across all 16 frozen source-mode × evidence-scope × stratum profiles, genus attenuation is 78.8–85.9%, median 81.3%.
-
-This is descriptive attenuation, not causal mediation.
+The main attenuation therefore occurs at the family-to-genus transition rather than at the family stage. These are descriptive attenuation fractions, not causal mediation proportions.
 
 A matched context × taxonomic-stage audit additionally yields a bounded hierarchical-depth result: the effect of genus adjustment on the same plant-architecture response differs between northern-midlatitude and Tropical contexts robustly in native non-endemics, but weakens in all-native assemblages.
 
@@ -63,25 +76,38 @@ Thus global island data do not support one common nonlinear transition even wher
 
 ### 5. Competing-explanation elimination
 
-Three common explanatory shortcuts were tested rather than assumed.
+Four attractive explanatory shortcuts were evaluated rather than assumed.
 
 - Area/capacity: 0/16 primary classifications pass the heteroskedastic-null mechanism-promotion gate. Apparent small-island amplification remains measurement-sensitive.
 - Universal nonlinear threshold: 0/12 observed geometry cells promote step/reversal.
 - Channel-specific pollinator isolation response: prospective N1 gives W=1.6187, df=3, p=0.65516 and stops before N2 without rescue.
+- Source-side sampled interaction breadth: after source prevalence, source richness and broad GloBI reference-effort matching, 0/4 context × floristic-stratum cells pass the frozen promotion rule.
 
-These are not interchangeable nulls. Together they bound the explanation space around the stronger positive result: biogeographically contingent response direction and hierarchical assembly structure.
+These are not interchangeable nulls. Together they narrow the explanation space around the stronger positive result: biogeographically contingent response direction and hierarchical assembly structure.
 
 ### 6. Source-side interaction dependency
 
-Reserved for `chapter1_globi_source_breadth_v1`.
+The final `chapter1_globi_source_breadth_v2` result is negative under the prespecified promotion rule.
 
-The predictor is constructed before any island outcome/distance join from independent GloBI SUPPORTS flower-interaction evidence. It estimates genus-level sampled functional-channel breadth using independent reference × channel units and never treats no GloBI record as specialization.
+The plant-side predictor was constructed before any island outcome or distance was loaded from the pinned GloBI SUPPORTS archive:
 
-Primary question:
+- raw GloBI archive rows: **24,577,183**;
+- retained explicit flower-interaction rows: **714,785**;
+- plant-matched evidence rows: **524,922**;
+- genus breadth rows: **2,228**.
 
-> Do increasingly isolated islands disproportionately represent source-available genera with broader independently documented functional-channel breadth?
+No GloBI record was treated as specialization. The primary breadth metric was effective functional-channel number based on independent reference × channel evidence. Island expectations were then matched on source prevalence, source species richness and a broad GloBI independent-reference effort class.
 
-This remains a secondary H3 D3 association. It cannot rescue the failed N1 chain or establish pollinator loss.
+Primary result:
+
+- northern-midlatitude / all-native: not promoted;
+- northern-midlatitude / native-nonendemic: not promoted;
+- Tropical / all-native: not promoted;
+- Tropical / native-nonendemic: not promoted.
+
+Representative primary slopes are near zero. For `geo50_climate10`, northern-midlatitude all-native is `0.0060` [−0.0092, 0.0213], q=0.971, and Tropical all-native is `0.0077` [−0.0052, 0.0207], q=0.361.
+
+Therefore the H3 genus-assembly pattern is not simply recovered by this independently documented source-genus interaction-breadth proxy. This does not establish that pollination dependence is irrelevant; it removes this particular sampled-breadth shortcut as a promoted explanation.
 
 ## Figure-ready atlas layout
 
@@ -92,12 +118,30 @@ Rows should be biogeographic contexts and columns should be the biological domai
 3. hierarchical attenuation from observed -> family -> genus;
 4. geometry label (`monotonic_or_unresolved`, or a promoted nonlinear label if one had passed).
 
-A separate lower band should show the competing-explanation gates (area, nonlinear geometry, N1), and the source-side GloBI breadth result once frozen.
+A compact side annotation can show the eight-component vector angle between northern-midlatitude and Tropical contexts.
+
+A separate lower band should show the four explanation gates:
+
+- area/capacity: not promoted;
+- nonlinear step/reversal: not promoted;
+- prospective N1 pollinator-channel heterogeneity: not promoted;
+- effort-matched GloBI source breadth: not promoted.
 
 The key visual message is therefore not simply that different regions have different slopes. It is:
 
-> **Isolation-response fingerprints differ in which components move, how strongly taxonomic composition attenuates the response, and which explanatory models survive explicit falsification.**
+> **Isolation-response fingerprints differ in which components move and where in assemblage hierarchy the response is expressed, while several simple mechanistic shortcuts fail explicit promotion gates.**
+
+## Manuscript use
+
+The atlas should not become six separate Results sections. The manuscript should use it as an integrative figure after the primary H1/H2/H3 sequence:
+
+1. direction/context branching;
+2. effect-size attenuation across taxonomic depth;
+3. component fingerprint and bounded context × depth interaction;
+4. one compact falsification band for area, geometry, N1 and GloBI breadth.
+
+This preserves the primary preregistered inference while extracting substantially more information from the same frozen dataset.
 
 ## Claim ceiling
 
-The atlas is a synthesis of already frozen evidence. It does not convert descriptive component intervals into a new confirmatory family, vector attenuation into causal mediation, beyond-genus residuals into evolution, or source-side interaction breadth into pollinator-loss mechanism.
+The atlas is a synthesis of already frozen evidence. It does not convert descriptive component intervals into a new confirmatory family, vector attenuation into causal mediation, vector angle into a replacement H2 test, beyond-genus residuals into evolution, or source-side interaction breadth into pollinator-loss mechanism.
