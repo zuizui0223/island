@@ -18,7 +18,6 @@ from typing import Any
 
 import pandas as pd
 import typer
-import yaml
 
 from island_v2.chapter1_species_detection_tipping import load_config, run_sensitivity
 
