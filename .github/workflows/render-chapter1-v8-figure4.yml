@@ -19,20 +19,20 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       V6_RUN: "34800498716"
       V6_ID: "10331282464"
-      V6_NAME: "chapter1-species-detection-tipping-v2-34800498716"
-      V6_DIGEST: "sha256:095506a214143a2312bcb1d115644ab21d2d130b7813261019bc386206fd3849"
+      V6_NAME: chapter1-species-detection-tipping-v2-34800498716
+      V6_DIGEST: sha256:095506a214143a2312bcb1d115644ab21d2d130b7813261019bc386206fd3849
       GEOM_RUN: "34765070227"
       GEOM_ID: "10320630085"
-      GEOM_NAME: "chapter1-observed-response-geometry-34765070227"
-      GEOM_DIGEST: "sha256:5ac34231b0cfa4acc1d536ab798a574a3cbcdd9423b6f0f2995195aab78a2f23"
+      GEOM_NAME: chapter1-observed-response-geometry-34765070227
+      GEOM_DIGEST: sha256:5ac34231b0cfa4acc1d536ab798a574a3cbcdd9423b6f0f2995195aab78a2f23
       H5C_RUN: "34803837463"
       H5C_ID: "10332871066"
-      H5C_NAME: "chapter1-h5c-observed-specificity-34803837463"
-      H5C_DIGEST: "sha256:fb8927bcf2b6e1c762b3ecbe59c42360faac679cf37b1ad0ed31386631a0f405"
+      H5C_NAME: chapter1-h5c-observed-specificity-34803837463
+      H5C_DIGEST: sha256:fb8927bcf2b6e1c762b3ecbe59c42360faac679cf37b1ad0ed31386631a0f405
       H5D_RUN: "34803545574"
       H5D_ID: "10332671123"
-      H5D_NAME: "chapter1-h5d-identifiability-34803545574"
-      H5D_DIGEST: "sha256:13ea1c3cd0066950d37fa3399f771d41ea2755c9746d02ac18594e224d895539"
+      H5D_NAME: chapter1-h5d-identifiability-34803545574
+      H5D_DIGEST: sha256:13ea1c3cd0066950d37fa3399f771d41ea2755c9746d02ac18594e224d895539
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -67,7 +67,7 @@ jobs:
           JSON
       - name: Render Figure 4
         run: |
-          python -m island_v2.chapter1_v8_figure4_falsification_boundaries render \
+          python -m island_v2.chapter1_v8_figure4_falsification_boundaries \
             --v6-root /tmp/v8fig4/v6 \
             --geometry-root /tmp/v8fig4/geom \
             --h5c-root /tmp/v8fig4/h5c \
@@ -89,7 +89,8 @@ jobs:
           assert m['v6_survival']['tropical_accessibility']=={'survived':35,'baseline_supported':75}
           assert m['v6_survival']['north_tropical_vector_difference']=={'survived':70,'baseline_supported':75}
           png=root/'chapter1_v8_figure4_falsification_boundaries.png'
-          with Image.open(png) as im: w,h=im.size
+          with Image.open(png) as im:
+              w,h=im.size
           assert w>=3000 and h>=1800
           PY
       - uses: actions/upload-artifact@v4
