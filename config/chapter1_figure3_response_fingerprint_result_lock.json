@@ -1,0 +1,35 @@
+{
+  "contract": "chapter1_figure3_response_fingerprint_result_lock_v1",
+  "status": "submission_figure_rendered_and_visually_checked",
+  "source_effect_fingerprint": {
+    "workflow_run_id": 34796763611,
+    "artifact_id": 10330230959,
+    "artifact_digest": "sha256:a2db683b6d46ca09d4eae6d9a3bfcaf85a4f172b5589227958bc388df8edba60"
+  },
+  "submission_figure": {
+    "workflow_run_id": 34797611290,
+    "artifact_id": 10330267132,
+    "artifact_name": "chapter1-figure3-submission-34797611290",
+    "artifact_digest": "sha256:a4b96c6678a727a816ee18092efde3b838b6beda5e93b616abbe2f7e767a085a",
+    "png_dimensions_px": [4259, 2933],
+    "outputs": [
+      "chapter1_figure3_response_fingerprint_submission.png",
+      "chapter1_figure3_response_fingerprint_submission.svg",
+      "chapter1_figure3_response_fingerprint_submission.pdf"
+    ]
+  },
+  "panels": {
+    "A": "64 frozen atomic effect-size rows across two contexts, two floristic strata and two evidence scopes",
+    "B": "four descriptive northern-midlatitude versus Tropical eight-component vector angles",
+    "C": "16 Palearctic observed-family-genus taxonomic attenuation profiles"
+  },
+  "visual_review": {
+    "performed": true,
+    "heading_overlap_resolved": true,
+    "major_label_clipping_detected": false,
+    "submission_layout": "accepted"
+  },
+  "new_biological_models_fitted": false,
+  "new_p_values_generated": false,
+  "claim_boundary": "The figure visualizes frozen estimates only. Atomic intervals are descriptive decomposition, vector angles are descriptive geometry, and attenuation is not causal mediation. Frozen H1-H3 tests remain the inferential basis."
+}

@@ -1,0 +1,102 @@
+name: Render Chapter 1 Figure 3 response fingerprint
+
+on:
+  push:
+    branches: ["ch1/figure3-response-fingerprint"]
+    paths:
+      - "pyproject.toml"
+      - "src/island_v2/chapter1_figure3_response_fingerprint.py"
+      - "tests/test_chapter1_figure3_response_fingerprint.py"
+      - ".github/workflows/render-chapter1-figure3-response-fingerprint.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  render-figure3:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34796763611"
+      SOURCE_ARTIFACT_ID: "10330230959"
+      SOURCE_ARTIFACT_NAME: "chapter1-effect-fingerprint-34796763611"
+      SOURCE_ARTIFACT_DIGEST: "sha256:a2db683b6d46ca09d4eae6d9a3bfcaf85a4f172b5589227958bc388df8edba60"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install repository with figure dependencies
+        run: pip install -e ".[dev,figures]"
+
+      - name: Test and lint figure renderer
+        run: |
+          pytest -q tests/test_chapter1_figure3_response_fingerprint.py
+          ruff check \
+            src/island_v2/chapter1_figure3_response_fingerprint.py \
+            tests/test_chapter1_figure3_response_fingerprint.py
+
+      - name: Verify and download frozen effect-fingerprint artifact
+        run: |
+          set -euo pipefail
+          metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID/artifacts?per_page=100")
+          observed_id=$(jq -r ".artifacts[] | select(.name == \"$SOURCE_ARTIFACT_NAME\" and .expired == false) | .id" <<<"$metadata")
+          observed_digest=$(jq -r ".artifacts[] | select(.name == \"$SOURCE_ARTIFACT_NAME\" and .expired == false) | .digest" <<<"$metadata")
+          test "$observed_id" = "$SOURCE_ARTIFACT_ID"
+          test "$observed_digest" = "$SOURCE_ARTIFACT_DIGEST"
+          rm -rf /tmp/figure3-input
+          mkdir -p /tmp/figure3-input
+          gh run download "$SOURCE_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name "$SOURCE_ARTIFACT_NAME" \
+            --dir /tmp/figure3-input
+          test -s /tmp/figure3-input/atomic_response_fingerprint.csv
+          test -s /tmp/figure3-input/atomic_cross_context_vector_geometry.csv
+          test -s /tmp/figure3-input/taxonomic_vector_attenuation.csv
+
+      - name: Render Figure 3 from frozen inputs
+        run: |
+          rm -rf /tmp/figure3-output
+          python -m island_v2.chapter1_figure3_response_fingerprint \
+            --input-dir /tmp/figure3-input \
+            --output-dir /tmp/figure3-output \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --source-artifact-id "$SOURCE_ARTIFACT_ID" \
+            --source-artifact-digest "$SOURCE_ARTIFACT_DIGEST"
+
+      - name: Validate rendered files and manifest
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from PIL import Image
+
+          root = Path('/tmp/figure3-output')
+          manifest = json.loads((root/'chapter1_figure3_response_fingerprint_manifest.json').read_text())
+          assert manifest['source_workflow_run_id'] == 34796763611
+          assert manifest['source_artifact_id'] == 10330230959
+          assert manifest['source_artifact_digest'] == 'sha256:a2db683b6d46ca09d4eae6d9a3bfcaf85a4f172b5589227958bc388df8edba60'
+          assert manifest['panel_a']['n_atomic_rows'] == 64
+          assert manifest['panel_b']['n_vector_angle_rows'] == 4
+          assert manifest['panel_c']['n_taxonomic_profiles'] == 16
+          assert manifest['new_biological_models_fitted'] is False
+          assert manifest['new_p_values_generated'] is False
+          png = root/'chapter1_figure3_response_fingerprint.png'
+          svg = root/'chapter1_figure3_response_fingerprint.svg'
+          pdf = root/'chapter1_figure3_response_fingerprint.pdf'
+          for path in (png, svg, pdf):
+              assert path.is_file() and path.stat().st_size > 5_000
+          with Image.open(png) as image:
+              width, height = image.size
+          assert width >= 3000 and height >= 1800
+          print(f'Figure 3 PNG: {width} x {height}')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-figure3-response-fingerprint-${{ github.run_id }}
+          path: /tmp/figure3-output/
+          if-no-files-found: error
+          retention-days: 90
