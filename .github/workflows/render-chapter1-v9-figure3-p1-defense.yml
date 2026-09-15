@@ -1,0 +1,111 @@
+name: Render Chapter 1 v9 Figure 3 P1 defense
+
+on:
+  push:
+    branches: ["ch1/nee-island-first-design"]
+    paths:
+      - "src/island_v2/chapter1_v9_figure3_p1_defense_submission.py"
+      - "tests/test_chapter1_v9_figure3_p1_defense_submission.py"
+      - ".github/workflows/render-chapter1-v9-figure3-p1-defense.yml"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  render-v9-figure3-p1-defense:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      EFFECT_RUN_ID: "34796763611"
+      EFFECT_ARTIFACT_ID: "10330230959"
+      EFFECT_ARTIFACT_NAME: "chapter1-effect-fingerprint-34796763611"
+      EFFECT_ARTIFACT_DIGEST: "sha256:a2db683b6d46ca09d4eae6d9a3bfcaf85a4f172b5589227958bc388df8edba60"
+      PRIMARY_RUN_ID: "34232450884"
+      PRIMARY_ARTIFACT_ID: "10058653212"
+      PRIMARY_ARTIFACT_NAME: "chapter1-progressive-analysis-34232450884"
+      PRIMARY_ARTIFACT_DIGEST: "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999"
+      P1C_RUN_ID: "34941827774"
+      P1C_ARTIFACT_ID: "10385820775"
+      P1C_ARTIFACT_NAME: "chapter1-p1c-matched-genus-null-final-34941827774"
+      P1C_ARTIFACT_DIGEST: "sha256:861d18fe87b9190619f925a2446be5fd4d460b818825578930883257c0a6ed16"
+      P1D_RUN_ID: "34939113182"
+      P1D_ARTIFACT_ID: "10383754545"
+      P1D_ARTIFACT_NAME: "chapter1-p1ab-assembly-depth-34939113182"
+      P1D_ARTIFACT_DIGEST: "sha256:822c69e9a1be4eb2c340391c1fb84dfba91b45b8a765549bb8ad1ec6379ef480"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev,figures]"
+
+      - name: Test and lint renderer
+        run: |
+          pytest -q tests/test_chapter1_v9_figure3_p1_defense_submission.py
+          ruff check src/island_v2/chapter1_v9_figure3_p1_defense_submission.py tests/test_chapter1_v9_figure3_p1_defense_submission.py
+
+      - name: Verify and download four frozen source artifacts
+        run: |
+          set -euo pipefail
+          verify_download () {
+            run_id="$1"; artifact_id="$2"; artifact_name="$3"; artifact_digest="$4"; destination="$5"
+            metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/artifacts?per_page=100")
+            observed_id=$(jq -r ".artifacts[] | select(.name == \"$artifact_name\" and .expired == false) | .id" <<<"$metadata")
+            observed_digest=$(jq -r ".artifacts[] | select(.name == \"$artifact_name\" and .expired == false) | .digest" <<<"$metadata")
+            test "$observed_id" = "$artifact_id"
+            test "$observed_digest" = "$artifact_digest"
+            rm -rf "$destination"; mkdir -p "$destination"
+            gh run download "$run_id" --repo "$GITHUB_REPOSITORY" --name "$artifact_name" --dir "$destination"
+          }
+          verify_download "$EFFECT_RUN_ID" "$EFFECT_ARTIFACT_ID" "$EFFECT_ARTIFACT_NAME" "$EFFECT_ARTIFACT_DIGEST" /tmp/f3-effect
+          verify_download "$PRIMARY_RUN_ID" "$PRIMARY_ARTIFACT_ID" "$PRIMARY_ARTIFACT_NAME" "$PRIMARY_ARTIFACT_DIGEST" /tmp/f3-primary
+          verify_download "$P1C_RUN_ID" "$P1C_ARTIFACT_ID" "$P1C_ARTIFACT_NAME" "$P1C_ARTIFACT_DIGEST" /tmp/f3-p1c
+          verify_download "$P1D_RUN_ID" "$P1D_ARTIFACT_ID" "$P1D_ARTIFACT_NAME" "$P1D_ARTIFACT_DIGEST" /tmp/f3-p1d
+
+      - name: Render P1-defended Figure 3
+        run: |
+          rm -rf /tmp/f3-out
+          python -m island_v2.chapter1_v9_figure3_p1_defense_submission \
+            --effect-root /tmp/f3-effect \
+            --pr142-root /tmp/f3-primary \
+            --p1c-root /tmp/f3-p1c \
+            --p1d-root /tmp/f3-p1d \
+            --output-dir /tmp/f3-out
+
+      - name: Validate frozen result and outputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from PIL import Image
+          root=Path('/tmp/f3-out')
+          m=json.loads((root/'chapter1_v9_figure3_p1_defense_manifest.json').read_text())
+          assert m['contract']=='chapter1_v9_figure3_p1_defense_submission_v1'
+          assert m['p1c']['valid_permutations']==2000
+          assert abs(m['p1c']['observed_statistic']-0.7206615015068383)<1e-12
+          assert abs(m['p1c']['one_sided_p']-0.028985507246376812)<1e-12
+          assert m['p1d']['direct_only_profiles']==8
+          assert m['p1d']['extra_attenuation_ci_above_zero_profiles']==0
+          assert m['new_biological_models_fitted'] is False
+          assert m['permutations_regenerated'] is False
+          png=root/'chapter1_v9_figure3_p1_defense_submission.png'
+          svg=root/'chapter1_v9_figure3_p1_defense_submission.svg'
+          pdf=root/'chapter1_v9_figure3_p1_defense_submission.pdf'
+          for path in (png,svg,pdf):
+              assert path.is_file() and path.stat().st_size>5000
+          with Image.open(png) as im:
+              w,h=im.size
+          assert w>=3000 and h>=1800
+          print(f'P1-defended Figure 3: {w} x {h}')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-v9-figure3-p1-defense-${{ github.run_id }}
+          path: /tmp/f3-out/
+          if-no-files-found: error
+          retention-days: 90
