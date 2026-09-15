@@ -139,7 +139,9 @@ def _draw_heatmap(
 ) -> Any:
     im = ax.imshow(matrix, aspect="auto", vmin=0, vmax=1, origin="lower")
     ax.set_xticks(np.arange(len(xvals)))
-    ax.set_xticklabels([f"{x:g}" for x in xvals], fontsize=7.2)
+    ax.set_xticklabels(
+        [f"{x:g}" for x in xvals], fontsize=7.0, rotation=45, ha="right"
+    )
     ax.set_yticks(np.arange(len(yvals)))
     ax.set_yticklabels([f"{y:g}" for y in yvals], fontsize=7.2)
     ax.set_xlabel("species recording OR_D", fontsize=8)
@@ -212,11 +214,11 @@ def _panel_contexts(
         show_ylabel=False,
     )
     ax_p.text(
-        -0.20,
-        1.15,
-        "B  Same joint bias surface, opposite robustness",
+        -0.18,
+        1.08,
+        "B  Same bias domain, opposite accessibility robustness",
         transform=ax_p.transAxes,
-        fontsize=10.5,
+        fontsize=9.6,
         fontweight="bold",
     )
     return im, {"Palearctic": p[3], "Tropical": t[3]}
