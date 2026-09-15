@@ -1,0 +1,158 @@
+contract: chapter1_p1_assembly_depth_defense_v1
+status: post_baseline_prospective_robustness_extension
+created: 2026-09-15
+
+purpose: >-
+  Test whether the large family-to-genus attenuation of the frozen Palearctic floral
+  island syndrome is precise and specific to biological genus structure rather than
+  sample loss or generic fine-group flexibility. This extension cannot redefine H3,
+  rescue H5, or change historical gates.
+
+pinned_empirical_input:
+  workflow_run_id: 34232450884
+  artifact_id: 10058653212
+  artifact_name: chapter1-progressive-analysis-34232450884
+  digest: sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999
+  required_paths:
+    - taxonomic-depth/all_analysis_eligible/slopes.csv
+    - taxonomic-depth/direct_only/slopes.csv
+
+existing_decomposition_contract:
+  module: src/island_v2/chapter1_taxonomic_depth_decomposition.py
+  axes:
+    - generalized_accessible
+    - selfing_core
+  context_layer: biogeographic_realm
+  context: Palearctic
+  evidence_scopes:
+    - direct_only
+    - all_analysis_eligible
+  primary_evidence_scope: direct_only
+  strata:
+    - all_native
+    - native_nonendemic
+  source_modes:
+    - geo_k5
+    - geo_k10
+    - geo_k20
+    - geo50_climate10
+  stages:
+    - observed_score
+    - after_family_residual
+    - after_genus_residual
+  common_support_property: >-
+    Existing decomposition filters island species to those with both eligible family and
+    genus source positions and availability before constructing all three stages.
+
+p1a_exact_pair_audit:
+  fail_closed: true
+  identity_unit:
+    - island_id
+    - accepted_species
+    - syndrome
+    - stratum
+    - source_mode
+  required_equal_across_stages:
+    - island_species_membership
+    - island_rows
+    - model_covariates
+    - information_weights
+  direct_only_is_primary_safeguard: true
+  all_analysis_role: complementary_not_independent_replication
+  action_on_failure: exclude_profile_and_narrow_claim
+
+p1b_paired_spatial_block_uncertainty:
+  resampling_unit: spatial_block
+  draws: 2000
+  seed: 20260915
+  confidence_interval: percentile_95
+  paired_refit_rule: >-
+    Within each bootstrap draw use the same resampled spatial blocks for observed,
+    family-adjusted and genus-adjusted stages and refit the same frozen model formula.
+  vector_metric: euclidean_norm_of_two_axis_distance_slopes
+  estimands:
+    family_attenuation: 1 - family_norm / observed_norm
+    genus_attenuation: 1 - genus_norm / observed_norm
+    family_to_genus_extra_attenuation: (family_norm - genus_norm) / observed_norm
+    conditional_genus_attenuation: 1 - genus_norm / family_norm
+  zero_floor: 1.0e-12
+  primary_interpretive_safeguard: >-
+    The 95% paired interval for family_to_genus_extra_attenuation must remain above zero
+    in the direct-only profiles used for the headline assembly-depth interpretation.
+  action_if_not_met: >-
+    Replace genus-localized assembly-depth language with a narrower statement that the
+    broad island response is sensitive to taxonomic composition.
+
+p1c_matched_complexity_pseudogenus_null:
+  null_role: post_baseline_specificity_test
+  partitions: 999
+  seed: 20260915
+  partition_definition:
+    unit: species
+    constrain_within: family
+    preserve_exactly:
+      - number_of_genus_groups_within_family
+      - genus_group_size_multiset_within_family
+    prohibited_inputs:
+      - island_distance
+      - island_response_values
+      - p_values
+      - observed_attenuation
+    recompute_for_each_partition:
+      - pseudo_genus_source_group_positions
+      - pseudo_genus_source_availability
+      - island_pseudo_genus_expectation
+      - after_pseudo_genus_residual
+      - frozen_branching_model
+    inherit_existing_rules:
+      - minimum_source_scored_species_per_group
+      - minimum_island_species
+      - minimum_represented_families
+      - minimum_represented_genera
+      - source_assignment_modes
+      - covariates
+      - spatial_block_clustering
+  primary_test_population:
+    evidence_scope: direct_only
+    profiles: 8
+    composition: 4_source_modes_x_2_strata
+  primary_statistic: median_conditional_genus_attenuation_across_8_direct_only_profiles
+  empirical_tail: one_sided_greater_real_than_null
+  empirical_p_formula: (1 + null_statistics_ge_observed) / (1 + 999)
+  alpha: 0.05
+  consistency_report_only:
+    - cell_level_real_percentile_in_null
+    - number_of_8_profiles_real_gt_null_median
+    - all_analysis_complementary_profiles
+  interpretation:
+    passes: >-
+      The family-to-genus attenuation is larger than expected from an arbitrary
+      genus-complexity partition constrained within family, strengthening biological
+      specificity of the assembly-depth localization.
+    fails: >-
+      The attenuation may reflect generic fine-group flexibility; narrow the claim to
+      sensitivity to fine taxonomic composition rather than genus-specific assembly depth.
+  no_partition_retuning_after_results: true
+
+p1d_model_flexibility_audit:
+  require_same_model_formula_across_stages: true
+  require_same_covariates_across_stages: true
+  require_same_spatial_cluster_definition_across_stages: true
+  report_parameter_count_and_row_count_by_stage: true
+  optional_leave_one_spatial_block_out:
+    status: closed_until_separately_frozen
+    may_not_delay_p1a_to_p1c: true
+
+claim_ceiling:
+  - no_causal_mediation_fraction
+  - no_dispersal_only_claim
+  - no_absence_of_within_lineage_evolution
+  - no_pollinator_mechanism_promotion
+  - direct_only_and_all_analysis_are_not_independent_datasets
+  - favourable_P1_results_do_not_reclassify_historical_H3_gate
+
+stop_rules:
+  - if_exact_support_identity_fails_narrow_before_bootstrap_interpretation
+  - if_paired_extra_attenuation_interval_includes_zero_narrow_claim
+  - if_matched_complexity_null_not_rejected_narrow_to_fine_taxonomic_composition
+  - do_not_search_alternative_nulls_after_failure
