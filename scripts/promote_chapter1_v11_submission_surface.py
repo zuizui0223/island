@@ -209,6 +209,8 @@ def write_sync_and_freeze(p3: dict, fig4: dict) -> None:
 
 Canonical manuscript: `{MANUSCRIPT}`
 
+Canonical P3 result lock: `{P3_LOCK}`
+
 ## Figure 4 — P3 joint observation-bias boundaries
 
 Canonical lock: `{FIG4_LOCK}`
