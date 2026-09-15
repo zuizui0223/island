@@ -1,9 +1,8 @@
-"""Qualification gate for the P1c matched-complexity genus null.
+"""Outcome-closed qualification for the P1c matched-complexity genus null.
 
-This module MUST NOT report a pseudo-genus attenuation statistic.  It verifies only
-that (1) a lightweight Palearctic refit reproduces the frozen true-genus slopes,
-(2) one deterministic qualification partition preserves within-family genus
-complexity exactly, and (3) all eight direct-only primary profiles remain fit-able.
+This module reports implementation fidelity and feasibility only.  It never stores
+or prints the pseudo-genus attenuation statistic that will be tested in the final
+2000-permutation null.
 """
 from __future__ import annotations
 
@@ -30,7 +29,7 @@ app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 
 class P1CQualificationError(ValueError):
-    """Raised when a P1c qualification invariant is violated."""
+    """Raised when a frozen P1c qualification invariant fails."""
 
 
 def load_yaml(path: Path) -> dict[str, Any]:
@@ -45,8 +44,7 @@ def make_matched_pseudo_taxonomy(
     *,
     seed: int,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
-    """Randomize species into pseudo-genera within families preserving exact group sizes."""
-
+    """Shuffle species within family while preserving exact genus-size multisets."""
     required = {"accepted_species", "family", "genus"}
     missing = required - set(taxonomy.columns)
     if missing:
@@ -61,46 +59,35 @@ def make_matched_pseudo_taxonomy(
     pseudo = pd.Series("", index=work.index, dtype=object)
     n_families = 0
     n_groups = 0
-    size_mismatch_families: list[str] = []
-
-    for family, family_frame in work.loc[
-        work["family"].ne("") & work["genus"].ne("")
-    ].groupby("family", sort=True):
+    mismatches: list[str] = []
+    eligible = work["family"].ne("") & work["genus"].ne("")
+    for family, family_frame in work.loc[eligible].groupby("family", sort=True):
         n_families += 1
-        original_counts = (
-            family_frame.groupby("genus")["accepted_species"].size().sort_index()
-        )
-        sizes = original_counts.to_numpy(int)
+        sizes = family_frame.groupby("genus").size().sort_index().to_numpy(int)
         indices = family_frame.index.to_numpy(copy=True)
         rng.shuffle(indices)
+        generated: list[int] = []
         offset = 0
-        generated_counts: list[int] = []
         for group_number, size in enumerate(sizes):
             chosen = indices[offset : offset + int(size)]
-            label = f"PSEUDO::{family}::{group_number:05d}"
-            pseudo.loc[chosen] = label
-            generated_counts.append(len(chosen))
+            pseudo.loc[chosen] = f"PSEUDO::{family}::{group_number:05d}"
+            generated.append(len(chosen))
             offset += int(size)
             n_groups += 1
-        if offset != len(indices):
-            raise P1CQualificationError(f"pseudo partition did not consume family {family}")
-        if sorted(generated_counts) != sorted(sizes.tolist()):
-            size_mismatch_families.append(str(family))
+        if offset != len(indices) or sorted(generated) != sorted(sizes.tolist()):
+            mismatches.append(str(family))
 
     out = work.copy()
-    eligible = out["family"].ne("") & out["genus"].ne("")
     out.loc[eligible, "genus"] = pseudo.loc[eligible]
     if out.loc[eligible, "genus"].eq("").any():
         raise P1CQualificationError("eligible species missing pseudo-genus assignment")
-
-    audit = {
+    return out, {
         "seed": int(seed),
         "n_families_randomized": int(n_families),
         "n_pseudo_genera": int(n_groups),
-        "n_size_mismatch_families": int(len(size_mismatch_families)),
-        "group_size_multiset_preserved_all_families": not size_mismatch_families,
+        "n_size_mismatch_families": int(len(mismatches)),
+        "group_size_multiset_preserved_all_families": not mismatches,
     }
-    return out, audit
 
 
 def fit_palearctic_profiles(
@@ -114,8 +101,7 @@ def fit_palearctic_profiles(
     strata: list[str],
     axes: list[str],
 ) -> pd.DataFrame:
-    """Fit only the frozen direct-only Palearctic profiles using the primary estimator."""
-
+    """Use the frozen estimator for only the eight focal Palearctic profiles."""
     required = {"island_id", "syndrome", "stratum", "source_mode", "n_species", stage}
     missing = required - set(decomposition.columns)
     if missing:
@@ -124,8 +110,8 @@ def fit_palearctic_profiles(
     realm_column = "biogeographic_realm"
     cov = covariates.copy()
     if realm_column not in cov.columns:
-        realm_required = {"island_id", realm_column}
-        realm_missing = realm_required - set(realm_assignment.columns)
+        needed = {"island_id", realm_column}
+        realm_missing = needed - set(realm_assignment.columns)
         if realm_missing:
             raise P1CQualificationError(f"realm assignment missing: {sorted(realm_missing)}")
         cov = cov.merge(
@@ -139,7 +125,6 @@ def fit_palearctic_profiles(
     layer_pattern["context_column"] = realm_column
     layer_pattern["contexts"] = ["Palearctic"]
     threshold = int(pattern_config["support_tiers"]["confirmatory"])
-
     rows: list[pd.DataFrame] = []
     for source_mode in source_modes:
         subset = decomposition.loc[
@@ -160,18 +145,15 @@ def fit_palearctic_profiles(
                 pattern_config=layer_pattern,
                 syndrome_config={},
             )
-            if str(result.get("status", "")) != "fit":
+            if str(result.get("status", "")) != "fit" or slopes.empty:
                 continue
-            fitted_axes = set(slopes["syndrome"].astype(str)) if not slopes.empty else set()
-            if fitted_axes != set(axes):
+            if set(slopes["syndrome"].astype(str)) != set(axes):
                 continue
             slopes = slopes.copy()
             slopes.insert(0, "source_mode", source_mode)
             slopes.insert(1, "taxonomic_stage", stage)
             rows.append(slopes)
-    if not rows:
-        return pd.DataFrame()
-    return pd.concat(rows, ignore_index=True)
+    return pd.concat(rows, ignore_index=True) if rows else pd.DataFrame()
 
 
 def compare_to_frozen_slopes(
@@ -193,24 +175,18 @@ def compare_to_frozen_slopes(
     ].copy()
     frozen["raw_axis"] = frozen["syndrome"].astype(str).str.removeprefix(f"{stage}__")
     frozen = frozen.loc[frozen["raw_axis"].isin(axes)].copy()
-
-    rep = reproduced.copy()
-    keys_rep = ["source_mode", "stratum", "syndrome"]
-    keys_frozen = ["source_mode", "stratum", "raw_axis"]
-    if len(rep) != len(source_modes) * len(strata) * len(axes):
-        raise P1CQualificationError("true lightweight fit did not produce all expected slope rows")
-    if len(frozen) != len(rep):
-        raise P1CQualificationError("frozen slope table does not contain expected focal rows")
-
-    joined = rep.merge(
+    expected = len(source_modes) * len(strata) * len(axes)
+    if len(reproduced) != expected or len(frozen) != expected:
+        raise P1CQualificationError("true lightweight fit did not yield expected slope rows")
+    joined = reproduced.merge(
         frozen,
-        left_on=keys_rep,
-        right_on=keys_frozen,
+        left_on=["source_mode", "stratum", "syndrome"],
+        right_on=["source_mode", "stratum", "raw_axis"],
         how="inner",
         suffixes=("_reproduced", "_frozen"),
         validate="one_to_one",
     )
-    if len(joined) != len(rep):
+    if len(joined) != expected:
         raise P1CQualificationError("true reproduced and frozen slope keys do not match")
     difference = np.abs(
         pd.to_numeric(joined["distance_slope_reproduced"])
@@ -239,6 +215,8 @@ def run_qualification(
     explanation = load_yaml(explanation_config_path)
     if p1.get("contract") != "chapter1_p1_assembly_depth_defense_v1":
         raise P1CQualificationError("unexpected P1 contract")
+    if source_config.get("contract") != "chapter1_pr138_source_pool_sensitivity_v1":
+        raise P1CQualificationError("unexpected source-pool contract")
 
     v2_spec = explanation["validations"]["V2_H3_taxonomic_depth"]["frozen_implementation"]
     taxonomy_hash = file_sha256(taxonomy_path)
@@ -247,7 +225,6 @@ def run_qualification(
         str(v2_spec["taxonomy_input"]["sha256_newline_canonicalized"]),
         taxonomy_hash,
     )
-
     direct_scores = pd.read_csv(
         artifact_root / "syndrome/direct/species_syndrome_concordance.csv.gz"
     )
@@ -269,32 +246,29 @@ def run_qualification(
     true_decomposition = pd.read_csv(
         artifact_root / "taxonomic-depth/direct_only/decomposition.csv"
     )
-    frozen_slopes = pd.read_csv(
-        artifact_root / "taxonomic-depth/direct_only/slopes.csv"
-    )
+    frozen_slopes = pd.read_csv(artifact_root / "taxonomic-depth/direct_only/slopes.csv")
 
     primary = p1["primary_context"]
     axes = [str(x) for x in primary["response_axes"]]
     source_modes = [str(x) for x in primary["source_modes"]]
     strata = [str(x) for x in primary["strata"]]
-    qualification = p1["p1c_matched_complexity_genus_null"]["qualification_gate"]
-    tolerance = float(qualification["slope_reproduction_absolute_tolerance"])
+    gate = p1["p1c_matched_complexity_genus_null"]["qualification_gate"]
+    tolerance = float(gate["slope_reproduction_absolute_tolerance"])
 
-    true_checks = []
+    true_checks: list[dict[str, Any]] = []
     for stage in ("after_family_residual", "after_genus_residual"):
-        reproduced = fit_palearctic_profiles(
-            true_decomposition,
-            covariates,
-            realm_assignment,
-            pattern,
-            stage=stage,
-            source_modes=source_modes,
-            strata=strata,
-            axes=axes,
-        )
         true_checks.append(
             compare_to_frozen_slopes(
-                reproduced,
+                fit_palearctic_profiles(
+                    true_decomposition,
+                    covariates,
+                    realm_assignment,
+                    pattern,
+                    stage=stage,
+                    source_modes=source_modes,
+                    strata=strata,
+                    axes=axes,
+                ),
                 frozen_slopes,
                 stage=stage,
                 source_modes=source_modes,
@@ -303,12 +277,12 @@ def run_qualification(
             )
         )
     true_reproduction_pass = all(
-        check["max_absolute_slope_difference"] <= tolerance for check in true_checks
+        item["max_absolute_slope_difference"] <= tolerance for item in true_checks
     )
 
     pseudo_taxonomy, partition_audit = make_matched_pseudo_taxonomy(
         taxonomy,
-        seed=int(qualification["qualification_seed"]),
+        seed=int(gate["qualification_seed"]),
     )
     matched_taxa = match_gift_species(gift_flora, taxonomy[["accepted_species"]])
     positions, availability, _, _ = build_source_group_contract(
@@ -345,34 +319,36 @@ def run_qualification(
         strata=strata,
         axes=axes,
     )
-    expected_rows = len(source_modes) * len(strata) * len(axes)
-    pseudo_fit_pass = len(pseudo_slopes) == expected_rows
-    n_profiles_fit = 0
-    if not pseudo_slopes.empty:
-        n_profiles_fit = int(
-            pseudo_slopes[["source_mode", "stratum"]].drop_duplicates().shape[0]
-        )
-
+    expected_profiles = len(source_modes) * len(strata)
+    expected_slope_rows = expected_profiles * len(axes)
+    n_profiles_fit = (
+        int(pseudo_slopes[["source_mode", "stratum"]].drop_duplicates().shape[0])
+        if not pseudo_slopes.empty
+        else 0
+    )
+    pseudo_fit_pass = len(pseudo_slopes) == expected_slope_rows
     qualified = bool(
         true_reproduction_pass
         and partition_audit["group_size_multiset_preserved_all_families"]
         and pseudo_fit_pass
-        and n_profiles_fit == len(source_modes) * len(strata)
+        and n_profiles_fit == expected_profiles
     )
+
     manifest = {
         "contract": "chapter1_p1c_matched_genus_qualification_v1",
         "source_p1_contract": str(p1["contract"]),
+        "source_pool_contract": str(source_config["contract"]),
         "source_workflow_run_id": int(p1["pinned_primary_artifact"]["workflow_run_id"]),
         "source_artifact_id": int(p1["pinned_primary_artifact"]["artifact_id"]),
         "source_artifact_digest": str(p1["pinned_primary_artifact"]["artifact_digest"]),
         "taxonomy_sha256_newline_canonicalized": taxonomy_hash,
-        "qualification_seed": int(qualification["qualification_seed"]),
+        "qualification_seed": int(gate["qualification_seed"]),
         "true_genus_slope_reproduction": true_checks,
         "true_reproduction_pass": true_reproduction_pass,
         "pseudo_partition_audit": partition_audit,
         "pseudo_decomposition_rows": int(len(pseudo_decomposition)),
         "pseudo_primary_profiles_fit": n_profiles_fit,
-        "pseudo_expected_primary_profiles": int(len(source_modes) * len(strata)),
+        "pseudo_expected_primary_profiles": int(expected_profiles),
         "pseudo_two_axis_slope_rows_fit": int(len(pseudo_slopes)),
         "qualified_for_full_2000_permutation_null": qualified,
         "pseudo_attenuation_reported_or_stored": False,
