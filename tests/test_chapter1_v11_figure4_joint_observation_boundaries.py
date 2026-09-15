@@ -134,3 +134,6 @@ def test_load_inputs_accepts_frozen_joint_and_boundary_shapes(tmp_path: Path) ->
     assert len(loaded["geometry"]) == 12
     assert len(loaded["h5d"]) == 8
     assert loaded["manifest"]["grid_fraction_is_probability"] is False
+
+
+# P3 renderer validation is intentionally driven by frozen artifacts in CI.
