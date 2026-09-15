@@ -1,0 +1,107 @@
+name: Audit Chapter 1 v9 P1-defended submission surface
+
+on:
+  push:
+    branches: ["ch1/nee-island-first-design"]
+    paths:
+      - "README.md"
+      - "docs/PAPER_PIPELINE.md"
+      - "docs/chapter1_manuscript_full_v9_island_first_p1_defended_20260915.md"
+      - "docs/chapter1_submission_freeze_20260915_p1_defended.md"
+      - "docs/chapter1_v9_submission_figure_sync_20260915.md"
+      - "docs/chapter1_p1_final_decision_20260915.md"
+      - "config/chapter1_p1_final_decision_result_lock.json"
+      - "config/chapter1_p1a_paired_support_result_lock.json"
+      - "config/chapter1_p1c_matched_genus_null_result_lock.json"
+      - "config/chapter1_p1d_paired_uncertainty_result_lock.json"
+      - "config/chapter1_v9_figure3_p1_defense_result_lock.json"
+      - "src/island_v2/chapter1_p1*.py"
+      - "src/island_v2/chapter1_v9_figure3_p1_defense_submission.py"
+      - "tests/test_chapter1_p1*.py"
+      - "tests/test_chapter1_v9_figure3_p1_defense_submission.py"
+      - ".github/workflows/audit-chapter1-v9-p1-submission-surface.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-v9-surface:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev,figures]"
+
+      - name: Run P1 and Figure 3 tests
+        run: |
+          pytest -q \
+            tests/test_chapter1_p1_paired_support_audit.py \
+            tests/test_chapter1_p1c_matched_genus_qualification.py \
+            tests/test_chapter1_p1c_matched_genus_null.py \
+            tests/test_chapter1_p1c_matched_genus_aggregate_v2.py \
+            tests/test_chapter1_v9_figure3_p1_defense_submission.py
+
+      - name: Lint P1 and Figure 3 implementation
+        run: |
+          ruff check \
+            src/island_v2/chapter1_p1_paired_support_audit.py \
+            src/island_v2/chapter1_p1c_matched_genus_qualification.py \
+            src/island_v2/chapter1_p1c_matched_genus_null.py \
+            src/island_v2/chapter1_p1c_matched_genus_aggregate_v2.py \
+            src/island_v2/chapter1_v9_figure3_p1_defense_submission.py \
+            tests/test_chapter1_p1_paired_support_audit.py \
+            tests/test_chapter1_p1c_matched_genus_qualification.py \
+            tests/test_chapter1_p1c_matched_genus_null.py \
+            tests/test_chapter1_p1c_matched_genus_aggregate_v2.py \
+            tests/test_chapter1_v9_figure3_p1_defense_submission.py
+
+      - name: Verify lock consistency and claim ceiling
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root=Path('.')
+          final=json.loads((root/'config/chapter1_p1_final_decision_result_lock.json').read_text())
+          p1a=json.loads((root/'config/chapter1_p1a_paired_support_result_lock.json').read_text())
+          p1c=json.loads((root/'config/chapter1_p1c_matched_genus_null_result_lock.json').read_text())
+          p1d=json.loads((root/'config/chapter1_p1d_paired_uncertainty_result_lock.json').read_text())
+          fig3=json.loads((root/'config/chapter1_v9_figure3_p1_defense_result_lock.json').read_text())
+
+          assert p1a['status']=='passed'
+          assert p1c['result']['valid_permutations']==2000
+          assert p1c['result']['null_exceedances_greater_equal_observed']==57
+          assert abs(p1c['result']['one_sided_randomization_p_value']-0.028985507246376812)<1e-15
+          assert p1d['paired_spatial_block_bootstrap']['n_primary_profiles']==8
+          assert p1d['paired_spatial_block_bootstrap']['n_primary_profiles_family_to_genus_extra_ci_above_zero']==0
+          assert final['integrated_inference']['true_genus_boundaries_have_additional_structure'] is True
+          assert final['integrated_inference']['precise_incremental_family_to_genus_attenuation_established'] is False
+          assert fig3['frozen_displayed_results']['p1d_increment_ci_above_zero_profiles']==0
+          assert fig3['visual_review']['adverse_evidence_visually_prominent'] is True
+
+          manuscript=(root/'docs/chapter1_manuscript_full_v9_island_first_p1_defended_20260915.md').read_text()
+          assert 'p=0.02899' in manuscript
+          assert 'all eight 95% intervals' in manuscript
+          assert 'precisely estimated taxonomic breakpoint' in manuscript
+          assert 'genus-structured' in manuscript
+
+          canonical_files=[
+            root/'README.md',
+            root/'docs/PAPER_PIPELINE.md',
+            root/'docs/chapter1_manuscript_full_v9_island_first_p1_defended_20260915.md',
+            root/'docs/chapter1_submission_freeze_20260915_p1_defended.md',
+            root/'docs/chapter1_v9_submission_figure_sync_20260915.md',
+          ]
+          banned='concentrated at the family-to-genus assembly transition'
+          for path in canonical_files:
+              assert banned not in path.read_text(), f'legacy overclaim in {path}'
+
+          readme=(root/'README.md').read_text()
+          assert 'chapter1_manuscript_full_v9_island_first_p1_defended_20260915.md' in readme
+          assert 'chapter1_v9_figure3_p1_defense_result_lock.json' in readme
+          print('v9 P1 submission surface audit passed')
+          PY
