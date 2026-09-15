@@ -24,6 +24,25 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Patch Figure 4 sync template with P3 provenance pointer
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/promote_chapter1_v11_submission_surface.py')
+          text = path.read_text()
+          old = "Canonical manuscript: `{MANUSCRIPT}`\n\n## Figure 4 — P3 joint observation-bias boundaries"
+          new = (
+              "Canonical manuscript: `{MANUSCRIPT}`\n\n"
+              "Canonical P3 result lock: `{P3_LOCK}`\n\n"
+              "## Figure 4 — P3 joint observation-bias boundaries"
+          )
+          if old not in text and new not in text:
+              raise SystemExit('Figure-sync template anchor missing')
+          if old in text:
+              text = text.replace(old, new, 1)
+              path.write_text(text)
+          PY
+
       - name: Promote canonical submission surface
         run: |
           python scripts/promote_chapter1_v11_submission_surface.py
@@ -70,7 +89,8 @@ jobs:
             README.md \
             docs/PAPER_PIPELINE.md \
             docs/chapter1_v11_submission_figure_sync_20260915.md \
-            docs/chapter1_submission_freeze_20260915_p1_p2_p3_defended.md
+            docs/chapter1_submission_freeze_20260915_p1_p2_p3_defended.md \
+            scripts/promote_chapter1_v11_submission_surface.py
           if git diff --cached --quiet; then
             echo "No submission-surface changes to commit"
           else
