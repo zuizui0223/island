@@ -1,0 +1,47 @@
+contract: chapter1_p2_component_nonconcordance_numerical_spec_v1
+status: frozen_before_new_p2_results
+created: 2026-09-15
+parent_contract: chapter1_p2_component_nonconcordance_v1
+
+bootstrap:
+  draws: 2000
+  seed: 20260915
+  resampling_unit: spatial_block
+  confidence_level: 0.95
+  minimum_valid_draws: 1900
+  resample_blocks_globally_with_replacement: true
+  repeated_block_instances_receive_unique_cluster_ids: true
+  standardize_predictors_within_each_bootstrap_sample_using_the_frozen_model_rule: true
+
+same_direction_scalar_null:
+  definition: >-
+    The two context-specific 2D response vectors are positive scalar multiples of one
+    another. In two dimensions this requires a zero determinant/cross-product and a
+    non-negative dot product.
+  determinant: beta_A_accessibility_times_beta_B_reproduction_minus_beta_A_reproduction_times_beta_B_accessibility
+  strong_nonconcordance_if:
+    - percentile_95_interval_for_determinant_excludes_zero
+  opposing_scalar_case_if:
+    - percentile_95_interval_for_dot_product_entirely_below_zero
+  descriptive_angle_degrees: true
+  angle_not_used_as_primary_significance_gate: true
+
+p2a_primary_decision:
+  required_profile: direct_only__native_nonendemic
+  direct_vector_difference_supported_under_frozen_alpha: true
+  common_island_refit_direction_must_match_frozen_h2: true
+  strong_component_nonconcordance_requires_determinant_ci_excludes_zero: true
+  if_determinant_ci_includes_zero: vector_branching_may_remain_but_do_not_claim_noncollinearity
+
+p2b_denominator_sensitivity:
+  primary_readout: direct_only__native_nonendemic
+  executable_if_each_context_has_at_least: 50
+  consistency_requires:
+    - accessibility_difference_direction_matches_p2a
+    - reproductive_difference_direction_matches_p2a
+  no_new_alpha_or_effect_threshold_after_result: true
+
+realm_boundary_reporting:
+  frozen_same_layer_comparison: Palearctic_vs_Neotropical
+  report_existing_all_analysis_and_direct_only_p_values_without_refitting: true
+  if_not_supported: explicitly_state_not_a_formal_supported_direct_realm_difference
