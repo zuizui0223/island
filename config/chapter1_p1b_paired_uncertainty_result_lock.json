@@ -1,0 +1,37 @@
+{
+  "contract": "chapter1_p1b_paired_uncertainty_result_lock_v1",
+  "status": "p1a_pass_p1b_does_not_precisely_localize_family_to_genus_increment",
+  "pre_result_protocol_commit": "39a238c996e395031d4ba94456f826fba489cf78",
+  "implementation_head_sha": "2ad01d86d9803810f00187fcdef43b5f344356ff",
+  "workflow_run_id": 34939113182,
+  "artifact_id": 10383754545,
+  "artifact_name": "chapter1-p1ab-assembly-depth-34939113182",
+  "artifact_digest": "sha256:822c69e9a1be4eb2c340391c1fb84dfba91b45b8a765549bb8ad1ec6379ef480",
+  "source_primary_analysis": {
+    "workflow_run_id": 34232450884,
+    "artifact_id": 10058653212,
+    "artifact_digest": "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999"
+  },
+  "p1a": {
+    "exact_reconstruction_pass": true,
+    "all_analysis_max_abs_difference": 1.110223e-16,
+    "direct_only_max_abs_difference": 1.110223e-16,
+    "common_species_manifest_pass": true,
+    "stage_specific_sample_loss_explanation": false
+  },
+  "p1b": {
+    "resampling_unit": "spatial_block",
+    "draws": 2000,
+    "seed": 20260915,
+    "direct_only_profiles": 8,
+    "direct_only_profiles_family_to_genus_extra_ci_above_zero": 0,
+    "direct_only_observed_genus_attenuation_range": [0.788095, 0.802356],
+    "direct_only_genus_attenuation_ci_low_range": [0.276500, 0.402089],
+    "direct_only_observed_family_to_genus_extra_attenuation_range": [0.502786, 0.546694],
+    "direct_only_family_to_genus_extra_ci_low_range": [-0.209547, -0.119327],
+    "all_analysis_profiles": 8,
+    "all_analysis_profiles_family_to_genus_extra_ci_above_zero": 1
+  },
+  "interpretation": "The frozen H3 decomposition is not explained by stage-specific sample loss, and total genus-adjusted attenuation remains large in the observed direct-only profiles. However, paired spatial-block resampling does not establish a precisely localized positive family-to-genus incremental attenuation: all eight direct-only 95% intervals include zero. The manuscript must therefore distinguish strong taxonomic-composition sensitivity from precise localization of the incremental attenuation at the family-to-genus transition.",
+  "claim_boundary": "This post-baseline robustness result does not change the historical H3 classification, does not test whether true genus boundaries outperform arbitrary matched-complexity partitions, and does not identify dispersal, evolution or pollinator mechanisms. P1c remains the separate genus-specificity test."
+}
