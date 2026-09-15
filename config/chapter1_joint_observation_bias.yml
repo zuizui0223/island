@@ -1,0 +1,117 @@
+contract: chapter1_joint_observation_bias_v1
+status: frozen_before_joint_outcome_execution
+role: post_P1_P2_falsification_sensitivity
+created: 2026-09-15
+
+question: >-
+  Which combinations of trait-state-dependent resolution and island-list observation bias
+  would be required to erase the island-biological conclusions retained after P1 and P2?
+
+pinned_input:
+  workflow_run_id: 34232450884
+  artifact_id: 10058653212
+  artifact_name: chapter1-progressive-analysis-34232450884
+  digest: sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999
+
+parent_contracts:
+  V5_trait_resolution:
+    config: config/chapter1_explanation_gap_validation.yml
+    validation_key: V5_trait_resolution_MNAR_tipping_point
+    affected_syndrome: selfing_core
+    primary_scenario_family: shared_state_dependent_resolution
+    resolution_odds_ratio_grid: [0.1, 0.2, 0.3333333333333333, 0.5, 1.0, 2.0, 3.0, 5.0, 10.0]
+  V6_species_detection:
+    config: config/chapter1_species_detection_tipping.yml
+    affected_syndrome: generalized_accessible
+    median_distance_completeness_grid: [0.5, 0.67, 0.8, 0.9, 0.95]
+    distance_completeness_odds_ratio_grid: [1.0, 0.8, 0.6666666667, 0.5, 0.25]
+    state_recording_odds_ratio_grid: [1.0, 0.8, 0.6666666667, 0.5, 0.3333333333, 0.2, 0.1]
+
+joint_primary_surface:
+  parameterization: >-
+    Apply V5 trait-resolution selection to selfing_core among recorded species, then apply
+    V6 island-list selection to generalized_accessible. The processes act on distinct
+    contracted response components and never create regression precision from hypothetical
+    species or imputed trait states.
+  n_surfaces_per_evidence_scope: 1575
+  evidence_scopes: [all_analysis_eligible, direct_only]
+  strata: [all_native, native_nonendemic]
+  support_tier: confirmatory
+  headline_targets:
+    - Palearctic_accessibility
+    - Palearctic_vector
+    - tropical_accessibility
+    - tropical_vector
+    - north_tropical_vector_difference
+  baseline:
+    trait_resolution_odds_ratio: 1.0
+    state_recording_odds_ratio: 1.0
+    rule: >-
+      For every C0 and OR_C value, OR_R=1 and OR_D=1 must reproduce the frozen headline
+      estimates and q-values because non-differential missingness changes neither response
+      prevalence nor information weights.
+  interpretation: >-
+    The grid is an assumption surface, not a posterior distribution over completeness or
+    missingness parameters. Fractions of robust cells are descriptive geometry of the
+    frozen grid and must never be interpreted as probabilities.
+
+partial_identification_envelope:
+  trait_bound_scenarios:
+    - family: shared_state_dependent_resolution
+      modes: [all_unresolved_nonfocal, all_unresolved_focal]
+    - family: north_tropical_differential_resolution
+      modes:
+        - first_context_nonfocal_second_context_focal
+        - first_context_focal_second_context_nonfocal
+    - family: palearctic_neotropical_differential_resolution
+      modes:
+        - first_context_nonfocal_second_context_focal
+        - first_context_focal_second_context_nonfocal
+  v6_corner_grid:
+    median_distance_completeness: [0.5, 0.95]
+    distance_completeness_odds_ratio: [1.0, 0.25]
+    state_recording_odds_ratio: [1.0, 0.1]
+  n_corner_bound_surfaces_per_evidence_scope: 48
+  meaning: >-
+    This is an assumption-bounded identified-set envelope over deterministic unresolved-trait
+    assignments crossed with the predeclared extreme corners of the V6 sensitivity domain.
+    It is not an estimate of latent truth and does not identify unconstrained occupancy or
+    detection from opportunistic records.
+
+classification:
+  scalar_target_robust_cell: expected_sign_retained_and_FDR_supported
+  vector_target_robust_cell: joint_FDR_supported
+  robust_region: all_cells_in_declared_subset_robust
+  fragile_region: at_least_one_declared_cell_not_robust
+  envelope_sign_identified: scalar_estimate_min_and_max_have_expected_sign
+  envelope_support_identified: all_bound_corner_cells_supported
+  baseline_gain_of_support_is_non_promotional: true
+
+rules:
+  - reproduce_V5_and_V6_separately_before_joint_surface
+  - no_post_hoc_grid_extension_after_joint_outcomes
+  - no_parameter_estimation_from_current_outcomes
+  - no_probability_language_for_grid_cell_fractions
+  - preserve_original_n_species_information_weights
+  - unresolved_trait_states_are_not_biological_zeros
+  - unrecorded_species_are_not_biological_absences
+  - no_pollinator_identity_or_mechanism_is_inferred
+  - joint_favourable_result_cannot_rescue_failed_H5_or_N1
+  - arbitrary_MNAR_and_unconstrained_detection_remain_outside_claim_ceiling
+
+figure4:
+  panel_title: Joint observation-bias surface and partial-identification envelope
+  required_outputs:
+    - joint_surface_classification.csv.gz
+    - joint_robustness_summary.csv
+    - partial_identification_envelope.csv
+    - joint_observation_bias_manifest.json
+
+claim_ceiling: >-
+  P3 may show that the P1/P2 island conclusions remain stable over a prospectively frozen
+  joint observation-bias domain, or may localize combinations under which particular claims
+  fail. It cannot estimate true completeness, establish missing-at-random assumptions,
+  identify a latent biological truth under arbitrary missingness, or promote a pollination
+  mechanism. If the partial-identification envelope crosses the null or loses support, the
+  corresponding claim must be labelled observation-fragile rather than rescued by a fitted
+  latent model.
