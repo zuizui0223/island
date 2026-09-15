@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pandas as pd
 
 from island_v2.chapter1_p1c_matched_genus_qualification import (
