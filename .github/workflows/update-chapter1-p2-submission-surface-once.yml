@@ -1,0 +1,49 @@
+name: Update Chapter 1 P2 submission surface once
+
+on:
+  push:
+    branches: ["ch1/p2-component-nonconcordance"]
+    paths:
+      - "scripts/update_chapter1_p2_submission_surface.py"
+      - ".github/workflows/update-chapter1-p2-submission-surface-once.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ch1/p2-component-nonconcordance
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Update README and paper pipeline
+        run: python scripts/update_chapter1_p2_submission_surface.py
+      - name: Validate canonical pointers
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          r=Path('README.md').read_text()
+          p=Path('docs/PAPER_PIPELINE.md').read_text()
+          assert 'chapter1_manuscript_full_v10_island_first_p1_p2_defended_20260915.md' in r
+          assert 'chapter1_v10_figure2_p2_result_lock.json' in r
+          assert 'p=0.000947' in r
+          assert 'strong geometric non-collinearity is not precisely established' in r
+          assert 'chapter1_p2_component_nonconcordance_result_lock.json' in p
+          assert 'canonical v10 manuscript' in p
+          PY
+      - name: Commit submission surface
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md docs/PAPER_PIPELINE.md
+          if git diff --cached --quiet; then
+            echo "No submission-surface diff"
+          else
+            git commit -m "Promote P2-defended Chapter 1 v10 surface"
+            git push origin HEAD:ch1/p2-component-nonconcordance
+          fi
