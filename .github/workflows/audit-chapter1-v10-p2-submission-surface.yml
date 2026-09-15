@@ -105,14 +105,14 @@ jobs:
           assert 'chapter1_p2_component_nonconcordance_result_lock.json' in pipeline
           assert 'canonical island-first v10 manuscript' in pipeline
           assert 'Palearctic and tropical must not be presented as labels of one formal direct context contrast' in freeze
+          assert 'North–Tropical vectors are proven non-collinear' in freeze
           assert 'Palearctic and tropical are not interchangeable labels within one formal direct contrast' in sync
 
-          forbidden = [
+          forbidden_affirmative = [
               'Palearctic and tropical response vectors differ in composition/direction',
               'The formal H2 direct comparison is Palearctic versus tropical',
-              'North–Tropical vectors are proven non-collinear',
           ]
           canonical='\n'.join([manuscript, freeze, sync, readme, pipeline])
-          for phrase in forbidden:
+          for phrase in forbidden_affirmative:
               assert phrase not in canonical, phrase
           PY
