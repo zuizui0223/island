@@ -1,0 +1,31 @@
+{
+  "contract": "chapter1_v10_figure2_p2_result_lock_v1",
+  "status": "submission_figure_rendered_and_visually_checked",
+  "workflow_run_id": 34946927756,
+  "artifact_id": 10387498515,
+  "artifact_name": "chapter1-v10-figure2-p2-34946927756",
+  "artifact_digest": "sha256:b9391c238b33e1ee4c15d26ea8afbbf8d615c20f5d4018c6a75d1568476427ca",
+  "source_p2_result": {
+    "workflow_run_id": 34945548775,
+    "artifact_id": 10387261614,
+    "artifact_digest": "sha256:f2038c37459986c5b4abc57265fb69026abb34d1c46eb4733acc504588bf2491"
+  },
+  "visual_review": {
+    "performed": true,
+    "major_clipping_detected": false,
+    "panel_overlap_detected": false,
+    "submission_layout": "accepted"
+  },
+  "frozen_results": {
+    "primary_context_layer": "analysis_regime",
+    "formal_contrast": "northern_midlatitude_vs_tropical",
+    "direct_only_native_nonendemic_joint_p": 0.0009472634181526601,
+    "direct_only_native_nonendemic_determinant": 0.007458314809529823,
+    "determinant_95ci": [-0.0031928907390954358, 0.015991277175825883],
+    "angle_degrees": 67.13930734593178,
+    "angle_95ci": [12.271795543282712, 169.17503096421893],
+    "same_species_direct_only_native_nonendemic_p": 0.0051667767759729175,
+    "palearctic_neotropical_all_primary_profiles_supported": false
+  },
+  "claim_boundary": "Figure 2 supports a direct same-layer North-Tropical joint response difference that survives common-island and common-species restrictions. It does not establish precise vector non-collinearity and does not treat Palearctic and tropical as labels of one formal direct contrast."
+}
