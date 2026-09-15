@@ -36,6 +36,7 @@ def _write_scope(root: Path, scope: str) -> None:
         var_name="taxonomic_stage",
         value_name="syndrome_score",
     )
+    long["syndrome"] = long["taxonomic_stage"] + "__" + long["syndrome"]
     long.to_csv(out / "long_scores.csv", index=False)
 
 
