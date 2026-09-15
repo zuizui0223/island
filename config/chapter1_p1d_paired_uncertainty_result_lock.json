@@ -1,0 +1,38 @@
+{
+  "contract": "chapter1_p1d_paired_uncertainty_result_lock_v1",
+  "status": "executable_but_incremental_family_to_genus_attenuation_imprecise",
+  "role_in_parent_contract": "fulfills_p1d_paired_attenuation_uncertainty_with_pre_result_external_extension",
+  "pre_result_protocol_branch": "ch1/nee-bottom-up-p0-p1",
+  "pre_result_protocol_commit": "39a238c996e395031d4ba94456f826fba489cf78",
+  "implementation_head_sha": "2ad01d86d9803810f00187fcdef43b5f344356ff",
+  "workflow_run_id": 34939113182,
+  "artifact_id": 10383754545,
+  "artifact_name": "chapter1-p1ab-assembly-depth-34939113182",
+  "artifact_digest": "sha256:822c69e9a1be4eb2c340391c1fb84dfba91b45b8a765549bb8ad1ec6379ef480",
+  "source_primary_analysis": {
+    "workflow_run_id": 34232450884,
+    "artifact_id": 10058653212,
+    "artifact_digest": "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999"
+  },
+  "reconstruction": {
+    "exact_reconstruction_pass": true,
+    "max_abs_difference_direct_only": 1.110223e-16,
+    "max_abs_difference_all_analysis": 1.110223e-16,
+    "common_species_support_across_stages": true
+  },
+  "paired_spatial_block_bootstrap": {
+    "resampling_unit": "spatial_block",
+    "draws": 2000,
+    "seed": 20260915,
+    "primary_scope": "direct_only",
+    "n_primary_profiles": 8,
+    "n_primary_profiles_family_to_genus_extra_ci_above_zero": 0,
+    "observed_total_genus_attenuation_range": [0.788095, 0.802356],
+    "total_genus_attenuation_ci_lower_bound_range": [0.276500, 0.402089],
+    "observed_family_to_genus_extra_attenuation_range": [0.502786, 0.546694],
+    "family_to_genus_extra_attenuation_ci_lower_bound_range": [-0.209547, -0.119327]
+  },
+  "interpretation": "Stage-specific sample loss is not a viable explanation and the observed total genus-adjusted attenuation remains large. However, paired spatial-block uncertainty does not precisely localize the incremental attenuation at the family-to-genus transition: all eight direct-only 95% intervals for the additional family-to-genus attenuation include zero.",
+  "manuscript_rule": "Do not describe the family-to-genus incremental attenuation as precisely estimated. P1c remains a separate test of whether true genus boundaries outperform arbitrary within-family partitions of matched complexity.",
+  "claim_boundary": "This result does not reclassify historical H3, does not identify causal assembly, and does not determine the P1c matched-complexity outcome."
+}

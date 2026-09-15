@@ -1,0 +1,54 @@
+{
+  "contract": "chapter1_p1_final_decision_result_lock_v1",
+  "status": "genus_specific_taxonomic_structure_supported_but_incremental_depth_imprecise",
+  "decision_date": "2026-09-15",
+  "source_results": {
+    "p1a": {
+      "contract": "chapter1_p1a_paired_support_result_lock_v1",
+      "workflow_run_id": 34935183075,
+      "artifact_id": 10382749051,
+      "artifact_digest": "sha256:4c4689d5d8e0eaca7e3ac66e1e866a48942b2f7220e962f7b1bb7e7ac1d43af2",
+      "status": "passed"
+    },
+    "p1c": {
+      "contract": "chapter1_p1c_matched_genus_null_result_lock_v1",
+      "source_permutation_run_id": 34936193944,
+      "aggregate_workflow_run_id": 34941827774,
+      "aggregate_artifact_id": 10385820775,
+      "aggregate_artifact_digest": "sha256:861d18fe87b9190619f925a2446be5fd4d460b818825578930883257c0a6ed16",
+      "valid_permutations": 2000,
+      "observed_statistic": 0.7206615015068383,
+      "null_median": 0.22433748447169283,
+      "null_exceedances": 57,
+      "one_sided_randomization_p_value": 0.028985507246376812,
+      "status": "true_genus_exceeds_matched_complexity_null"
+    },
+    "p1d": {
+      "contract": "chapter1_p1d_paired_uncertainty_result_lock_v1",
+      "workflow_run_id": 34939113182,
+      "artifact_id": 10383754545,
+      "artifact_digest": "sha256:822c69e9a1be4eb2c340391c1fb84dfba91b45b8a765549bb8ad1ec6379ef480",
+      "bootstrap_draws": 2000,
+      "primary_profiles": 8,
+      "family_to_genus_extra_ci_above_zero_profiles": 0,
+      "status": "executable_but_incremental_family_to_genus_attenuation_imprecise"
+    }
+  },
+  "integrated_inference": {
+    "sample_loss_artifact": "not_supported",
+    "generic_fine_grouping_or_model_flexibility_artifact": "not_supported_by_matched_complexity_null",
+    "true_genus_boundaries_have_additional_structure": true,
+    "precise_incremental_family_to_genus_attenuation_established": false,
+    "causal_assembly_process_identified": false,
+    "within_lineage_evolution_excluded": false,
+    "pollinator_mechanism_identified": false
+  },
+  "publication_claim": "The Palearctic floral-island response is strongly structured by genus-level taxonomic composition: true genus boundaries attenuate the response more than matched arbitrary within-family partitions of identical grouping complexity, while the exact incremental family-to-genus attenuation remains spatially imprecise.",
+  "forbidden_claims": [
+    "the family-to-genus incremental attenuation is precisely estimated",
+    "genus attenuation proves dispersal-only assembly",
+    "within-lineage evolution is absent",
+    "genus is a causal mechanism",
+    "pollinator loss caused the genus-structured response"
+  ]
+}

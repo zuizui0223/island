@@ -1,6 +1,6 @@
 # Chapter 1 paper pipeline
 
-This is the shortest reproducibility map from the database to the current v8 paper.
+This is the shortest reproducibility map from the database to the current **island-first, P1-defended v9 paper**.
 
 ## Pipeline at a glance
 
@@ -28,10 +28,14 @@ This is the shortest reproducibility map from the database to the current v8 pap
 [8] prospectively gated H5 mechanism tests
                     |
                     v
-[9] court-style evidence ledger
+[9] P0 immutable claim reconciliation
                     |
                     v
-[10] canonical v8 manuscript
+[10] P1 assembly-inference defense
+     same support -> matched genus null -> paired spatial uncertainty
+                    |
+                    v
+[11] canonical island-first v9 manuscript
 ```
 
 ## 1. Database inputs
@@ -73,7 +77,9 @@ Test within-context multivariate responses and direct between-context vector dif
 
 ### H3 — source / lineage assembly
 
-Decompose the supported response through taxonomic depth and source-matched lineage representation. The final Palearctic result is retained at the observed stage and after family adjustment but fails the predeclared vector gate after source-matched genus adjustment (`4/4 -> 4/4 -> 0/4`). Genus adjustment attenuates roughly 78.8–85.9% of the observed vector, with most attenuation concentrated at family -> genus.
+Historical H3 decomposes the supported Palearctic response through observed, family-adjusted and source-matched genus-adjusted stages. The predeclared support ladder is `4/4 -> 4/4 -> 0/4`; descriptive total genus attenuation is roughly 78.8–85.9% of the observed vector.
+
+Historical H3 alone is **not** the final v9 assembly claim. P1 later tests whether this genus sensitivity could be caused by sample loss or arbitrary fine grouping and quantifies spatial uncertainty in the family→genus increment.
 
 Implementation includes:
 
@@ -83,11 +89,6 @@ Implementation includes:
 ### H4 — area / capacity moderation
 
 Test continuous distance x continuous area as a modifier and audit whether heteroskedastic measurement can generate apparent moderation. No small/large island cutoff is introduced after outcome inspection.
-
-Implementation:
-
-- `src/island_v2/chapter1_area_capacity_moderation.py`
-- `src/island_v2/chapter1_area_support_artifact.py`
 
 ### H5 — independent mechanism gate
 
@@ -110,15 +111,13 @@ Final primary execution:
 
 ## 5. Validation and observation-bias layers
 
-The explanation-gap sequence is no longer V1-V5 only. It now includes V6 as a separate species-list problem.
-
 ### V1 — climate/common-support validation
 
 Tests whether regional contrasts can be transported over common measured-climate support. Failure to establish climate-independent categorical causation narrows interpretation without erasing H2.
 
 ### V2 — taxonomic-depth decomposition
 
-Localizes the strongest Palearctic response to the family-to-genus assembly transition.
+Historical localization layer only. Its descriptive family→genus contrast is now interpreted through the P1 safeguards below rather than used by itself as a precise taxonomic breakpoint.
 
 ### V3 — area-support falsification
 
@@ -134,66 +133,50 @@ Tests state-dependent trait missingness. The broad Palearctic primary response s
 
 ### V6 — species-detection / list-completeness tipping
 
-Tests a distinct problem: species present on islands but missing from compiled lists.
-
 Canonical V6:
 
 - Run `34800498716`;
 - artifact `10331282464`;
-- baseline OR_D=1 reproduces the frozen H2 outputs;
+- baseline OR_D=1 reproduces frozen H2;
 - Palearctic accessibility survives 99/100 baseline-supported surfaces and all 80/80 remote-under-survey scenarios in the biologically concerning direction;
 - tropical accessibility is more sensitive (40/75 baseline-supported surfaces tip);
-- the North–Tropical vector contrast is more robust than the tropical single-axis result.
+- North–Tropical vector contrast is more robust than the tropical single axis.
 
 V6 is a tipping analysis, not an occupancy estimate and not a claim that true GBIF completeness is known.
 
 ## 6. Calibrated response geometry
 
-Geometry candidates were fixed as flat, cline, step, hinge and reversal. A naive AICc selector failed qualification because clustered true clines were often falsely labelled nonlinear. The calibrated V2 geometry layer therefore estimated a cell-specific critical nonlinear evidence threshold under monotonic truths and validated it on an independent seed.
+Geometry candidates were flat, cline, step, hinge and reversal. A naive AICc selector failed qualification because clustered true clines were often falsely labelled nonlinear. The calibrated geometry layer estimated cell-specific critical nonlinear evidence thresholds and validated them on independent seeds.
 
-Qualification showed that true steps of the target magnitude are detectable in almost all design cells, while hinges are not reliably identifiable. The observed opening then produced 12/12 `monotonic_or_unresolved` broad response cells: zero promoted step, hinge or reversal shapes.
+Observed opening: **12/12 `monotonic_or_unresolved`; zero promoted nonlinear shapes**.
 
-Interpretation: no common global assemblage breakpoint is supported under the frozen contract. This does not rule out local-system or lineage-specific thresholds.
+Interpretation: no common global assemblage breakpoint is supported. Local-system or lineage-specific thresholds remain possible.
 
 ## 7. Prospectively gated H5 extensions
-
-These analyses were added after the primary claim architecture had been frozen. They are allowed to strengthen or constrain H5, not rescue a failed mechanism by moving thresholds.
 
 ### N1 — independent channel heterogeneity
 
 - joint isolation x channel Wald `W=1.6187`, df=3, p=0.65516;
 - not promoted;
-- simulation indicates limited power for modest true heterogeneity, so the result is non-identification rather than evidence of channel equality.
+- limited power for modest true heterogeneity, so non-identification rather than channel equality.
 
 ### Source-side GloBI breadth
 
-Effort-matched sampled source interaction breadth promoted 0/4 context x stratum cells. Sampled partner breadth is therefore not elevated as the missing H3 mechanism.
+Effort-matched sampled source interaction breadth promoted 0/4 context x stratum cells.
 
 ### H5c — independent biotic vs wind specificity
 
-External GIFT `pollen_vector_mode` provides a negative control independent of the response trait architecture.
+External GIFT `pollen_vector_mode` provides a negative control independent of response-trait architecture.
 
-Qualification:
-
-- Run `34803493307`;
-- 5,771 unambiguous mode species;
-- support-qualified 4/8 cells;
-- fully power-qualified 1/8 cell;
-- only direct-only x native-nonendemic x Palearctic was allowed to open.
-
-Observed:
-
-- Run `34803837463`;
+- qualification Run `34803493307`;
+- fully qualified 1/8 cell;
+- observed Run `34803837463`;
 - `distance x biotic` = +0.06495;
 - 95% CI [-0.09030, 0.22020];
 - p=0.41221;
-- classification: `no_pollination_mode_specificity_support`.
-
-This does not prove pollinators do not matter. It prevents pollination mode from being claimed as an independently supported generator of the Palearctic accessibility gradient.
+- `no_pollination_mode_specificity_support`.
 
 ### H5d — distributed lineage-threshold identifiability
-
-Outcome-closed simulations compare a distributed-threshold generator with heterogeneous smooth-cline generators on the realized assemblage design.
 
 - Run `34803545574`;
 - qualified 0/8 cells;
@@ -201,34 +184,94 @@ Outcome-closed simulations compare a distributed-threshold generator with hetero
 - false distributed-threshold selection under smooth clines 0.19–0.255;
 - observed genus-level threshold distributions remain closed.
 
-This is the formal reason the Chapter 1 paper should not infer lineage thresholds from smooth global gradients.
+## 8. P0 — immutable claim reconciliation
 
-## 8. Evidence ledger and claim hierarchy
+Design and ledger:
 
-The manuscript-facing evidence table is:
+- `docs/chapter1_nee_existing_data_design_island_first_20260915.md`
+- `docs/chapter1_p0_claim_ledger_20260915.md`
 
-- `docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`
+P0 verifies exact run/artifact/table/estimand provenance before any P1 extension. Missing evidence is treated as unavailable, not negative.
 
-It deliberately places favourable and adverse evidence together. The strongest claim surviving cross-examination is:
+## 9. P1 — defend the assembly inference
 
-> geographic isolation is associated with reproducible but biogeographically contingent floral/reproductive assemblage change, and the strongest Palearctic syndrome is principally expressed at the family-to-genus assembly transition.
+Canonical integrated decision:
 
-The global upstream pollinator mechanism remains unidentified.
+- `config/chapter1_p1_final_decision_result_lock.json`
+- `docs/chapter1_p1_final_decision_20260915.md`
 
-## 9. Canonical paper surface
+### P1a — exact paired support
+
+- Run `34935183075`;
+- artifact `10382749051`;
+- same focal island–species observations and same `n_species` weights across observed/family/genus stages;
+- stage-specific sample loss is not a viable attenuation explanation.
+
+### P1c — matched-complexity pseudo-genus null
+
+Species are randomized **within family** while preserving the exact real genus-count and genus group-size multiset.
+
+- source permutation Run `34936193944`;
+- 40 shards x 50 = **2,000/2,000 valid permutations**;
+- aggregate-only Run `34941827774` reuses those exact permutations;
+- artifact `10385820775`, digest `861d18fe...`;
+- true-genus median conditional attenuation `0.7206615`;
+- null median `0.2243375`;
+- 57/2,000 null permutations ≥ observed;
+- one-sided randomization **p=0.0289855**;
+- verdict: `true_genus_exceeds_matched_complexity_null`.
+
+This rejects the simple “any equally fine grouping absorbs the signal” explanation.
+
+### P1d — paired spatial-block uncertainty
+
+- Run `34939113182`;
+- artifact `10383754545`;
+- 2,000 paired block bootstrap draws;
+- total genus attenuation remains large;
+- **0/8** direct-only primary profiles have the 95% interval for the additional family→genus attenuation wholly above zero.
+
+Integrated inference:
+
+> **The Palearctic floral-island response is strongly genus-structured beyond matched grouping complexity, while the exact incremental family-to-genus attenuation remains spatially imprecise.**
+
+P1 supports taxonomic localization, not a precisely estimated family→genus breakpoint and not a causal assembly mechanism.
+
+## 10. Locked figures
+
+- Figure 1: `config/chapter1_v8_figure1_result_lock.json`
+- Figure 2: `config/chapter1_v8_figure2_result_lock.json`
+- **Figure 3: `config/chapter1_v9_figure3_p1_defense_result_lock.json`**
+- Figure 4: `config/chapter1_v8_figure4_result_lock.json`
+
+New Figure 3:
+
+- Run `34942779753`;
+- artifact `10386555245`;
+- digest `sha256:93957ed4e12193fd2630aa3c274a99f004af4c8e40a6f63985e46a77c4cdc239`;
+- Panel A: frozen attenuation trajectories;
+- Panel B: true genus versus 2,000 matched pseudo-genus permutations;
+- Panel C: paired spatial-block CIs showing the imprecise increment;
+- Panel D: final claim boundary.
+
+This figure deliberately displays favourable and adverse evidence together.
+
+## 11. Canonical paper surface
 
 Read in this order:
 
-1. `docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`
-2. `docs/chapter1_figure1_hierarchical_syndrome_spec_20260914.md`
-3. `docs/chapter1_literature_positioning_20260909.md`
-4. `docs/chapter1_manuscript_full_v8_hierarchical_syndrome_20260914.md`
+1. `docs/chapter1_submission_freeze_20260915_p1_defended.md`
+2. `docs/chapter1_manuscript_full_v9_island_first_p1_defended_20260915.md`
+3. `docs/chapter1_v9_submission_figure_sync_20260915.md`
+4. `docs/chapter1_p1_final_decision_20260915.md`
+5. `docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`
+6. `docs/chapter1_literature_positioning_20260909.md`
 
-Previous v7 and 2026-09-09 framing documents remain historical development surfaces and git provenance; they no longer define the canonical narrative.
+Previous v8/v7 surfaces remain historical provenance; they do not define the current P1-defended claim ceiling.
 
-## 10. Chapter 1 / Chapter 2 handoff
+## 12. Chapter 1 / Chapter 2 handoff
 
-Chapter 1 identifies response direction, component decoupling, assembly depth and failure of common global mechanisms. It cannot identify the local causal chain.
+Chapter 1 identifies response direction, component decoupling, genus structuring and failure of common global mechanisms. It cannot identify the local causal chain.
 
 Chapter 2 / `izu-core` should resolve:
 
@@ -236,12 +279,10 @@ Chapter 2 / `izu-core` should resolve:
 
 within one biological system and test cline, step, shared-breakpoint and channel-specific response geometries prospectively.
 
-The two chapters therefore answer different levels of the same question:
-
-- **Chapter 1:** where, which components, and at what assembly depth?
+- **Chapter 1:** where, which components, and at what lineage-assembly level is the syndrome represented?
 - **Chapter 2:** how and why functionally within a resolved system?
 
-## 11. Legacy v1 boundary
+## 13. Legacy v1 boundary
 
 `legacy/v1/` is a frozen historical analysis, not a validation stage of the current pipeline. Preserved tree:
 
