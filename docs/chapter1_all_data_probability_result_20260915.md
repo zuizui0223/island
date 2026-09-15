@@ -1,199 +1,92 @@
 # Chapter 1 all-data probability result — 2026-09-15
 
-Status: **exploratory expansion completed; do not replace the frozen v11 submission result yet**.
+Status: **exploratory expansion completed; integrated decision is now in `docs/chapter1_all_data_route_decision_20260915.md`. Frozen v11 remains the canonical native-assembly submission surface.**
 
-## Execution provenance
+## Primary analysis
 
-Primary probability run:
+The expanded route uses a beta-binomial logit model on six atomic island-level trait counts with no arbitrary minimum species-per-island cutoff. The mean model contains distance, island area and climate PC1--PC4, with spatial-block cluster-robust covariance. `all_analysis_eligible` (High + Medium + trait-specific Validated Low) is primary and `direct_only` (High + Medium) is the evidence sensitivity.
 
-- branch: `ch1-all-data-primary`;
-- workflow: `Run Chapter 1 all-data probability analysis`;
-- successful run: **34961775336**;
-- artifact: `chapter1-all-data-probability-34961775336`;
-- artifact ID: **10394245237**;
-- digest: `sha256:af7ad0cc68c5e475fd13cc1be309dbb118f21f84b4a1cb11277da36daa11d87b`;
-- frozen upstream Chapter 1 progressive artifact: run `34232450884`.
+Broad observed-flora North--Tropical result:
 
-All fitted beta-binomial optimizers converged.
+- all-analysis: **3,626 islands / 187 blocks**, p = **0.0007633**;
+- direct-only: **3,569 islands / 187 blocks**, p = **0.004502**.
 
-## Analysis hierarchy
+Matched grouped-binomial sensitivity gives p = **0.001385** and **0.004501**, respectively, so the result is not created by the beta-binomial likelihood.
 
-### Primary probability model
+## Response representation
 
-- beta-binomial logit regression on island-level trait counts;
-- six predeclared atomic outcomes;
-- island-specific denominator = number of species with a resolved value for that outcome;
-- **no arbitrary minimum species-per-island cutoff**;
-- mean model: distance + island area + climate PC1--PC4;
-- spatial-block cluster-robust sandwich covariance;
-- North--Tropical difference = direct joint Wald test of distance x context coefficients.
+The historical species-level two-axis concordance route is weak on the expanded all-observed flora:
 
-### Evidence
+- all-analysis: p = **0.73998**;
+- direct-only: p = **0.06142**.
 
-1. `all_analysis_eligible` = High + Medium + trait-specific Validated Low, primary;
-2. `direct_only` = High + Medium, evidence-quality sensitivity.
+However, projecting the six fitted interaction coefficients onto two predeclared family-level contrasts retains support:
 
-### Flora
+- all-analysis: **p = 0.0016467**;
+- direct-only: **p = 0.0120921**.
 
-1. `all_observed` = broad contemporary observed-flora composition;
-2. `all_native` = status-resolved sensitivity;
-3. `native_nonendemic` = stricter status-resolved sensitivity.
+The two-family subspace retains **78.22%** and **64.82%** of Euclidean signal, respectively; discarded within-family contrasts are not supported. Relaxing the historical per-species `minimum_informative_traits` from 2 to 1 does not rescue the old composite score. A trait-first island-level family refit is also weak. Therefore the primary expanded estimand should remain the **six-atomic multivariate slope vector**, with family summaries derived as coefficient-level contrasts rather than as new species-level concordance scores.
 
-## 1. Expanded all-observed result
+## Floristic-status boundary
 
-### All-analysis evidence
+Source-backed native restriction does not retain the global six-atomic contrast:
 
-Within-context six-outcome vector support:
+- all-native: p = **0.2491** all-analysis / **0.3018** direct;
+- native-nonendemic: p = **0.05097** all-analysis / **0.2079** direct.
 
-- northern mid-latitude: **2,164 islands**, 86 blocks, p = **1.06e-6**;
-- northern high latitude: **409 islands**, 63 blocks, p = **1.10e-6**;
-- tropical: **1,462 islands**, 110 blocks, p = **1.56e-5**;
-- southern extratropical: **299 islands**, 41 blocks, p = **2.09e-13**.
+This is not simply loss of islands: on the same 375 status-supported islands, all observed species retain p = **0.0005607** / **0.0003959**, whereas native species only give p = **0.2491** / **0.3018**.
 
-Formal North--Tropical interaction-vector test:
+An outcome-free status-resolution audit shows that origin-status resolution changes with distance within contexts, but the North--Tropical difference in that status-resolution slope is absent (**p = 0.849**). Thus status uncertainty is not reducible to a simple differential missingness gradient between the two focal contexts.
 
-- **3,626 unique islands**;
-- 187 spatial blocks;
-- chi-square = **23.1011**, df = 6;
-- **p = 0.0007633**.
+## WCVP regional-native compatibility expansion
 
-Thus the broad observed-flora North--Tropical response difference is supported under the beta-binomial model.
+A hash-pinned 2026 WCVP native-range sensitivity was added. Exact accepted WCVP matches exist for **101,101** of the fixed island-flora species, and **100,887** have an extant non-doubtful native TDWG-L3 range.
 
-### High/Medium direct sensitivity
+Unresolved source-status records were upgraded only when the focal island mapped unambiguously to a TDWG-L3 region included in that species' WCVP native range. This is regional-native compatibility, not exact island-native proof.
 
-The formal North--Tropical test uses **3,569 islands**, 187 blocks and remains supported:
+Coverage gain:
 
-- chi-square = **18.8072**, df = 6;
-- **p = 0.004502**.
+- **362,789** unresolved rows upgraded;
+- **2,281** islands receive at least one upgrade;
+- resulting regional-native-compatible flora: **513,320 rows / 2,372 islands**.
 
-The broad observed-flora result is therefore not created solely by Validated-Low trait evidence.
+North--Tropical six-atomic test after this expansion:
 
-## 2. Model-form sensitivity
+- all-analysis: **1,848 analysis islands / 178 blocks**, p = **0.07954**;
+- direct: **1,827 islands / 178 blocks**, p = **0.17472**.
 
-A matched grouped-binomial analysis retained the same six atomic outcomes, island sets, covariates and spatial-block robust inference.
+So greatly expanding native-compatible coverage does not restore the broad observed-flora contrast.
 
-Provenance:
+## WCVP partition diagnostic
 
-- run: **34963020944**;
-- artifact ID: **10393863668**;
-- digest: `sha256:dbd5b20b09659404470c5e706449fe90bb870878aed3fc3716037b7fedcd6507`.
+The broad result is concentrated outside the regional-native-compatible partition.
 
-North--Tropical six-outcome test:
+All-analysis:
 
-- all-analysis: **p = 0.001385**;
-- direct-only: **p = 0.004501**.
-
-The broad result is therefore **not a beta-binomial artefact**.
-
-## 3. Floristic-status restriction changes the biological interpretation
-
-The all-observed result does not transfer cleanly to status-resolved native flora.
-
-All-analysis evidence:
-
-- `all_observed`: **p = 0.000763**;
-- `all_native`: **p = 0.2491**;
-- `native_nonendemic`: **p = 0.05097**.
+- source-backed native: p = **0.24915**;
+- WCVP-compatible unresolved: p = **0.06562**;
+- WCVP-incompatible unresolved: p = **0.002010**;
+- WCVP-unclassifiable unresolved: p = **0.01368**;
+- source-introduced + WCVP-incompatible unresolved: p = **0.001102**.
 
 Direct-only:
 
-- `all_observed`: **p = 0.004502**;
-- `all_native`: **p = 0.3018**;
-- `native_nonendemic`: **p = 0.2079**.
+- source-backed native: p = **0.30184**;
+- WCVP-compatible unresolved: p = **0.35251**;
+- WCVP-incompatible unresolved: p = **0.003065**;
+- WCVP-unclassifiable unresolved: p = **0.002687**;
+- source-introduced + WCVP-incompatible unresolved: p = **0.009484**.
 
-This is not merely loss of islands. On the same 375 status-supported islands:
-
-- all observed species: **p = 0.0005607** all-analysis / **0.0003959** direct;
-- native species only: **p = 0.2491** all-analysis / **0.3018** direct.
-
-Unresolved-status species alone remain informative on that same frame:
-
-- all-analysis: **p = 0.01914**;
-- direct-only: **p = 0.03044**.
-
-Introduced-only data do not satisfy the 50-island-per-outcome six-vector support rule. These diagnostics do not imply `unresolved = introduced`; they show that origin-status uncertainty materially changes the inference.
-
-## 4. Status-resolution observation process
-
-A separate outcome-free audit tested whether origin-status *resolution itself* is geographically structured.
-
-Provenance:
-
-- workflow run: **34963956873**;
-- artifact ID: **10394441857**;
-- digest: `sha256:09d0bd8c7d0d69de8e716ac389e54d544405f837e4642f405ff11277c2921586`.
-
-Raw resolved fractions of observed island-species rows:
-
-- northern mid-latitude: **0.1403**;
-- northern high latitude: **0.0112**;
-- tropical: **0.2206**;
-- southern extratropical: **0.1882**.
-
-Status resolution increases with distance within each fitted regime, but the direct North--Tropical difference in that distance slope is unsupported:
-
-- 3,748 islands / 190 blocks;
-- interaction estimate `+0.0996`;
-- SE `0.5231`;
-- **p = 0.8490**.
-
-Thus the native/all-observed discrepancy cannot be reduced to a simple North--Tropical difference in the distance gradient of status availability. The remaining issue is which unresolved species are actually native, not merely which islands have more status information.
-
-## 5. Response-definition audit: dimensionality is not the main problem
-
-The historical species-level two-axis concordance route (`generalized_accessible + selfing_core`) is weak on the expanded all-observed flora:
-
-- all-analysis: p = **0.73998**, q = **0.88797**;
-- direct-only: p = **0.06142**, q = **0.13094**.
-
-That initially suggested that reducing six traits to two dimensions destroyed the signal. A matched linear-contrast audit of the **same six beta-binomial interaction estimates and their full covariance** rejects that explanation.
-
-Provenance:
-
-- response-compression run: **34964112334**;
-- artifact ID: **10394930700**;
-- digest: `sha256:960802ffc47a2287849693fc37788466c6778beae6388823453bf39eb51782fc`.
-
-### All-analysis evidence
-
-- full six-axis vector: **p = 0.0007633**;
-- two equal-weight family means: **p = 0.0016467**;
-- four within-family contrasts discarded by the two-family projection: **p = 0.5085**;
-- Euclidean signal retained by the two-family subspace: **78.22%**.
-
-### Direct-only
-
-- full six-axis vector: **p = 0.0045020**;
-- two family means: **p = 0.0120921**;
-- discarded within-family contrasts: **p = 0.1438**;
-- retained Euclidean signal: **64.82%**.
-
-Therefore **two-dimensionality itself is not the explanation**. A simple two-family projection of the atomic slopes remains supported. The discrepancy lies in the historical species-level concordance construction and/or its support weighting.
-
-The historical composite route differs because it:
-
-- first creates a multivariate concordance score for each species;
-- requires at least **two informative traits per species**;
-- ignores missing traits in the within-species denominator;
-- averages the resulting species scores within each island;
-- then fits a continuous island-score model.
-
-The atomic probability route instead uses every species resolved for each individual trait outcome and carries the outcome-specific species denominator into the likelihood.
-
-A dedicated support-intersection audit is therefore the next diagnostic; the specific test is `minimum_informative_traits = 2` versus 1 with all other syndrome definitions held fixed.
+These results do **not** establish that every WCVP-incompatible or unclassifiable record is introduced. They establish that the thousands-island observational contrast cannot currently be promoted as a native island-assembly result.
 
 ## Decision
 
-The expanded route now establishes that:
+The all-data route is retained as the broad descriptive layer:
 
-1. a broad contemporary observed-flora North--Tropical response difference is estimable across thousands of islands;
-2. it survives High/Medium-only trait evidence;
-3. it survives matched grouped-binomial model-form sensitivity;
-4. the difference can still be represented by two family-level linear contrasts, so the old composite failure is **not** simply a six-versus-two dimensionality problem;
-5. floristic-status identity remains the main biological claim boundary.
+> **Across thousands of contemporary observed island floras, isolation-associated floral and reproductive composition differs among biogeographic contexts at the six-atomic-trait level.**
 
-The current broad claim is therefore:
+It survives direct-only evidence and model-form sensitivity.
 
-> **Across thousands of observed island floras, isolation-associated floral and reproductive composition differs among biogeographic contexts. This pattern is robust to trait-evidence quality and probability-model form, but its interpretation as native island assembly is limited by unresolved floristic status.**
+For biological inference, however, the current global native-status gate is not passed. Frozen v11 therefore remains the defended native-assembly core, with the Palearctic genus-structured result retained as the strongest lineage-assembly evidence.
 
-Do not promote the all-observed result to native colonisation filtering, in-situ evolution or historical pollinator-driven adaptation. Frozen v11 remains canonical until the status-identity problem and the species-level syndrome-support discrepancy are resolved.
+See `docs/chapter1_all_data_route_decision_20260915.md` for the full claim hierarchy and poster/paper consequences.
