@@ -1,0 +1,31 @@
+name: Fix P2 unused import once
+
+on:
+  push:
+    branches: ["ch1/p2-component-nonconcordance"]
+    paths:
+      - ".github/workflows/fix-p2-unused-import-once.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ch1/p2-component-nonconcordance
+      - name: Remove known unused import only
+        run: |
+          set -euo pipefail
+          sed -i '/^import math$/d' src/island_v2/chapter1_p2_component_nonconcordance.py
+          git diff --check
+          git diff --exit-code --quiet && exit 1 || true
+      - name: Commit exact lint-only repair
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/island_v2/chapter1_p2_component_nonconcordance.py
+          git commit -m "Remove unused P2 math import"
+          git push origin HEAD:ch1/p2-component-nonconcordance
