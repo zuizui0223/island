@@ -1,3 +1,4 @@
+# Re-run from the lint-repaired P2 source; scientific contract unchanged.
 name: Run Chapter 1 P2 component non-concordance
 
 on:
