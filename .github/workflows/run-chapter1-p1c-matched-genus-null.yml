@@ -1,0 +1,142 @@
+name: Run Chapter 1 P1c matched-genus null
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["ch1/nee-island-first-design"]
+    paths:
+      - "config/chapter1_p1_assembly_depth_defense.yml"
+      - "config/chapter1_p1c_qualification_result_lock.json"
+      - "src/island_v2/chapter1_p1c_matched_genus_null.py"
+      - "tests/test_chapter1_p1c_matched_genus_null.py"
+      - ".github/workflows/run-chapter1-p1c-matched-genus-null.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate-code:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: |
+          pytest -q tests/test_chapter1_p1c_matched_genus_null.py tests/test_chapter1_p1c_matched_genus_qualification.py
+          ruff check src/island_v2/chapter1_p1c_matched_genus_null.py src/island_v2/chapter1_p1c_matched_genus_qualification.py tests/test_chapter1_p1c_matched_genus_null.py tests/test_chapter1_p1c_matched_genus_qualification.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import yaml
+          cfg=yaml.safe_load(Path('config/chapter1_p1_assembly_depth_defense.yml').read_text())
+          null=cfg['p1c_matched_complexity_genus_null']
+          assert null['permutations']==2000
+          assert null['execution_shards']==40
+          assert null['permutations_per_shard']==50
+          assert null['execution_shards']*null['permutations_per_shard']==null['permutations']
+          assert null['random_seed']==20260915
+          assert null['permutation_seed_rule']=='master_seed_plus_zero_based_permutation_id'
+          assert null['minimum_valid_permutations']==1900
+          lock=json.loads(Path('config/chapter1_p1c_qualification_result_lock.json').read_text())
+          assert lock['status']=='qualified_for_full_2000_permutation_null'
+          assert lock['qualified_conditions']['pseudo_attenuation_reported_or_stored'] is False
+          PY
+
+  shard:
+    needs: validate-code
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39]
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PINNED_RUN_ID: "34232450884"
+      PINNED_ARTIFACT_ID: "10058653212"
+      PINNED_ARTIFACT_NAME: "chapter1-progressive-analysis-34232450884"
+      PINNED_ARTIFACT_DIGEST: "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - name: Verify and download pinned primary artifact
+        run: |
+          set -euo pipefail
+          metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$PINNED_RUN_ID/artifacts?per_page=100")
+          observed_id=$(jq -r ".artifacts[] | select(.name == \"$PINNED_ARTIFACT_NAME\" and .expired == false) | .id" <<<"$metadata")
+          observed_digest=$(jq -r ".artifacts[] | select(.name == \"$PINNED_ARTIFACT_NAME\" and .expired == false) | .digest" <<<"$metadata")
+          test "$observed_id" = "$PINNED_ARTIFACT_ID"
+          test "$observed_digest" = "$PINNED_ARTIFACT_DIGEST"
+          rm -rf /tmp/p1c-primary /tmp/p1c-shard
+          mkdir -p /tmp/p1c-primary /tmp/p1c-shard
+          gh run download "$PINNED_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$PINNED_ARTIFACT_NAME" --dir /tmp/p1c-primary
+      - name: Run frozen shard
+        run: |
+          python -m island_v2.chapter1_p1c_matched_genus_null run-shard \
+            --artifact-root /tmp/p1c-primary \
+            --taxonomy-path data/v2/staging/gbif/collected/island_taxa.csv \
+            --p1-config-path config/chapter1_p1_assembly_depth_defense.yml \
+            --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
+            --source-config-path config/chapter1_pr138_source_pool_sensitivity.yml \
+            --explanation-config-path config/chapter1_explanation_gap_validation.yml \
+            --shard-id ${{ matrix.shard }} \
+            --output-dir /tmp/p1c-shard
+      - uses: actions/upload-artifact@v4
+        with:
+          name: p1c-null-shard-${{ matrix.shard }}
+          path: /tmp/p1c-shard/
+          if-no-files-found: error
+          retention-days: 90
+
+  aggregate:
+    needs: shard
+    if: ${{ always() && needs.shard.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: p1c-null-shard-*
+          path: /tmp/p1c-all-shards
+          merge-multiple: true
+      - name: Aggregate only after all 2000 frozen permutations finish
+        run: |
+          python -m island_v2.chapter1_p1c_matched_genus_null aggregate \
+            --shard-dir /tmp/p1c-all-shards \
+            --p1-config-path config/chapter1_p1_assembly_depth_defense.yml \
+            --output-dir /tmp/p1c-final
+      - name: Validate final result contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('/tmp/p1c-final/chapter1_p1c_matched_genus_null_result.json').read_text())
+          assert r['permutations_requested']==2000
+          assert r['valid_permutations']<=2000
+          assert r['master_seed']==20260915
+          assert r['seed_rule']=='master_seed_plus_zero_based_permutation_id'
+          if r['valid_permutations'] < 1900:
+              assert r['status']=='NOT_EVALUABLE_insufficient_valid_permutations'
+              assert r['one_sided_randomization_p_value'] is None
+          else:
+              assert r['one_sided_randomization_p_value'] is not None
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-p1c-matched-genus-null-${{ github.run_id }}
+          path: /tmp/p1c-final/
+          if-no-files-found: error
+          retention-days: 90
