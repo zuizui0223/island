@@ -40,6 +40,23 @@ def load_config(path: Path) -> dict[str, Any]:
     return cfg
 
 
+def _normalize_long_score_syndromes(long_scores: pd.DataFrame, scope: str) -> pd.DataFrame:
+    out = long_scores.copy()
+    out["taxonomic_stage"] = out["taxonomic_stage"].astype(str)
+    out["syndrome"] = out["syndrome"].astype(str)
+    unexpected_stages = sorted(set(out["taxonomic_stage"]) - set(STAGES))
+    if unexpected_stages:
+        raise P1AuditError(f"{scope} unexpected taxonomic stages: {unexpected_stages}")
+    for stage in STAGES:
+        mask = out["taxonomic_stage"].eq(stage)
+        prefix = f"{stage}__"
+        invalid = mask & ~out["syndrome"].str.startswith(prefix)
+        if invalid.any():
+            raise P1AuditError(f"{scope} staged syndrome prefix mismatch at {stage}")
+        out.loc[mask, "syndrome"] = out.loc[mask, "syndrome"].str[len(prefix):]
+    return out
+
+
 def audit_scope(root: Path, scope: str, cfg: dict[str, Any]) -> tuple[pd.DataFrame, dict[str, Any]]:
     scope_root = root / "taxonomic-depth" / scope
     decomposition = _read_csv_any(scope_root, "decomposition")
@@ -83,7 +100,15 @@ def audit_scope(root: Path, scope: str, cfg: dict[str, Any]) -> tuple[pd.DataFra
         "n_species",
     ):
         decomposition[column] = pd.to_numeric(decomposition[column], errors="coerce")
-    if decomposition[list(required_decomp - {"island_id", "syndrome", "stratum", "source_mode"})].isna().any().any():
+    numeric_columns = [
+        "observed_score",
+        "family_expected",
+        "genus_expected",
+        "after_family_residual",
+        "after_genus_residual",
+        "n_species",
+    ]
+    if decomposition[numeric_columns].isna().any().any():
         raise P1AuditError(f"{scope} decomposition contains missing retained-stage values")
 
     family_error = np.abs(
@@ -98,11 +123,7 @@ def audit_scope(root: Path, scope: str, cfg: dict[str, Any]) -> tuple[pd.DataFra
     if float(family_error.max()) > tolerance or float(genus_error.max()) > tolerance:
         raise P1AuditError(f"{scope} residual algebra does not reproduce frozen decomposition")
 
-    expected_stages = set(STAGES)
-    long_scores["taxonomic_stage"] = long_scores["taxonomic_stage"].astype(str)
-    if not set(long_scores["taxonomic_stage"]).issubset(expected_stages):
-        unexpected = sorted(set(long_scores["taxonomic_stage"]) - expected_stages)
-        raise P1AuditError(f"{scope} unexpected taxonomic stages: {unexpected}")
+    long_scores = _normalize_long_score_syndromes(long_scores, scope)
 
     key = ["island_id", "syndrome", "stratum", "source_mode"]
     decomp_keys = decomposition[key + ["n_species"]].copy()
