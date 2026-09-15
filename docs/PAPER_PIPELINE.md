@@ -1,6 +1,6 @@
 # Chapter 1 paper pipeline
 
-This is the shortest reproducibility map from the database to the current **island-first, P1-defended v9 paper**.
+This is the shortest reproducibility map from the database to the current **island-first, P1/P2-defended v10 paper**.
 
 ## Pipeline at a glance
 
@@ -35,7 +35,11 @@ This is the shortest reproducibility map from the database to the current **isla
      same support -> matched genus null -> paired spatial uncertainty
                     |
                     v
-[11] canonical island-first v9 manuscript
+[11] P2 component-support defense
+     same islands -> paired blocks -> same species denominator
+                    |
+                    v
+[12] canonical island-first v10 manuscript
 ```
 
 ## 1. Database inputs
@@ -237,10 +241,29 @@ Integrated inference:
 
 P1 supports taxonomic localization, not a precisely estimated family→genus breakpoint and not a causal assembly mechanism.
 
-## 10. Locked figures
+
+## 10. P2 — defend the component/context contrast
+
+Canonical result:
+
+- `config/chapter1_p2_component_nonconcordance_result_lock.json`
+- `docs/chapter1_p2_component_nonconcordance_result_20260915.md`
+
+Formal direct H2 contrast:
+
+- `northern_midlatitude` versus `tropical` within `analysis_regime`;
+- common-island direct-only NNE vector difference `p=0.000947`;
+- 348 common islands, 78 spatial blocks;
+- paired-block determinant interval includes zero, so strong non-collinearity is not established;
+- common-species sensitivity uses 853 direct-only co-observed species and retains the NNE joint vector difference (`p=0.00517`);
+- frozen Palearctic–Neotropical direct tests remain unsupported (`p=0.078–0.396`).
+
+P2 therefore strengthens the same-layer joint branching claim while prohibiting the cross-layer shorthand “Palearctic versus tropical” as a formal direct H2 test.
+
+## 11. Locked figures
 
 - Figure 1: `config/chapter1_v8_figure1_result_lock.json`
-- Figure 2: `config/chapter1_v8_figure2_result_lock.json`
+- **Figure 2: `config/chapter1_v10_figure2_p2_result_lock.json`**
 - **Figure 3: `config/chapter1_v9_figure3_p1_defense_result_lock.json`**
 - Figure 4: `config/chapter1_v8_figure4_result_lock.json`
 
@@ -256,20 +279,21 @@ New Figure 3:
 
 This figure deliberately displays favourable and adverse evidence together.
 
-## 11. Canonical paper surface
+## 12. Canonical paper surface
 
 Read in this order:
 
-1. `docs/chapter1_submission_freeze_20260915_p1_defended.md`
-2. `docs/chapter1_manuscript_full_v9_island_first_p1_defended_20260915.md`
-3. `docs/chapter1_v9_submission_figure_sync_20260915.md`
-4. `docs/chapter1_p1_final_decision_20260915.md`
-5. `docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`
-6. `docs/chapter1_literature_positioning_20260909.md`
+1. `docs/chapter1_submission_freeze_20260915_p1_p2_defended.md`
+2. `docs/chapter1_manuscript_full_v10_island_first_p1_p2_defended_20260915.md`
+3. `docs/chapter1_v10_submission_figure_sync_20260915.md`
+4. `docs/chapter1_p2_component_nonconcordance_result_20260915.md`
+5. `docs/chapter1_p1_final_decision_20260915.md`
+6. `docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`
+7. `docs/chapter1_literature_positioning_20260909.md`
 
-Previous v8/v7 surfaces remain historical provenance; they do not define the current P1-defended claim ceiling.
+Previous v8/v9 surfaces remain historical provenance; they do not define the current P1/P2-defended claim ceiling.
 
-## 12. Chapter 1 / Chapter 2 handoff
+## 13. Chapter 1 / Chapter 2 handoff
 
 Chapter 1 identifies response direction, component decoupling, genus structuring and failure of common global mechanisms. It cannot identify the local causal chain.
 
@@ -282,7 +306,7 @@ within one biological system and test cline, step, shared-breakpoint and channel
 - **Chapter 1:** where, which components, and at what lineage-assembly level is the syndrome represented?
 - **Chapter 2:** how and why functionally within a resolved system?
 
-## 13. Legacy v1 boundary
+## 14. Legacy v1 boundary
 
 `legacy/v1/` is a frozen historical analysis, not a validation stage of the current pipeline. Preserved tree:
 

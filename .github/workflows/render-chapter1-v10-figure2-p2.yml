@@ -1,0 +1,88 @@
+name: Render Chapter 1 v10 Figure 2 P2
+
+on:
+  push:
+    branches: ["ch1/p2-component-nonconcordance"]
+    paths:
+      - "src/island_v2/chapter1_v10_figure2_p2_submission.py"
+      - "tests/test_chapter1_v10_figure2_p2_submission.py"
+      - ".github/workflows/render-chapter1-v10-figure2-p2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34945548775"
+      SOURCE_ARTIFACT_ID: "10387261614"
+      SOURCE_ARTIFACT_NAME: "chapter1-p2-component-nonconcordance-34945548775"
+      SOURCE_ARTIFACT_DIGEST: "sha256:f2038c37459986c5b4abc57265fb69026abb34d1c46eb4733acc504588bf2491"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev,figures]"
+
+      - name: Test and lint renderer
+        run: |
+          pytest -q tests/test_chapter1_v10_figure2_p2_submission.py
+          ruff check src/island_v2/chapter1_v10_figure2_p2_submission.py tests/test_chapter1_v10_figure2_p2_submission.py
+
+      - name: Verify and download frozen P2 artifact
+        run: |
+          set -euo pipefail
+          metadata=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID/artifacts?per_page=100")
+          observed_id=$(jq -r ".artifacts[] | select(.name == \"$SOURCE_ARTIFACT_NAME\" and .expired == false) | .id" <<<"$metadata")
+          observed_digest=$(jq -r ".artifacts[] | select(.name == \"$SOURCE_ARTIFACT_NAME\" and .expired == false) | .digest" <<<"$metadata")
+          test "$observed_id" = "$SOURCE_ARTIFACT_ID"
+          test "$observed_digest" = "$SOURCE_ARTIFACT_DIGEST"
+          rm -rf /tmp/p2-figure-input /tmp/p2-figure-output
+          mkdir -p /tmp/p2-figure-input
+          gh run download "$SOURCE_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$SOURCE_ARTIFACT_NAME" --dir /tmp/p2-figure-input
+
+      - name: Render Figure 2
+        run: |
+          python -m island_v2.chapter1_v10_figure2_p2_submission \
+            --input-dir /tmp/p2-figure-input \
+            --output-dir /tmp/p2-figure-output \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --source-artifact-id "$SOURCE_ARTIFACT_ID" \
+            --source-artifact-digest "$SOURCE_ARTIFACT_DIGEST"
+
+      - name: Validate outputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from PIL import Image
+          root=Path('/tmp/p2-figure-output')
+          m=json.loads((root/'chapter1_v10_figure2_p2_submission_manifest.json').read_text())
+          assert m['contract']=='chapter1_v10_figure2_p2_submission_v1'
+          assert m['source_p2_run_id']==34945548775
+          assert m['source_p2_artifact_id']==10387261614
+          assert m['p2_status']=='vector_branching_retained_but_noncollinearity_not_established'
+          assert m['palearctic_neotropical_used_as_primary_direct_contrast'] is False
+          png=root/'chapter1_v10_figure2_p2_submission.png'
+          svg=root/'chapter1_v10_figure2_p2_submission.svg'
+          pdf=root/'chapter1_v10_figure2_p2_submission.pdf'
+          for path in (png,svg,pdf):
+              assert path.is_file() and path.stat().st_size > 5000
+          with Image.open(png) as image:
+              width,height=image.size
+          assert width >= 2800 and height >= 1800
+          print(width,height)
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-v10-figure2-p2-${{ github.run_id }}
+          path: /tmp/p2-figure-output/
+          if-no-files-found: error
+          retention-days: 90
