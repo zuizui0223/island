@@ -1,0 +1,62 @@
+name: Promote Chapter 1 v11 P3 manuscript
+
+on:
+  push:
+    branches: ["ch1/p3-joint-observation-bias"]
+    paths:
+      - "scripts/promote_chapter1_v11_p3.py"
+      - ".github/workflows/promote-chapter1-v11-p3.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  promote-v11:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ch1/p3-joint-observation-bias
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate v11 from canonical v10
+        run: |
+          python scripts/promote_chapter1_v11_p3.py
+
+      - name: Validate P3 manuscript claim boundaries
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          base = Path('docs/chapter1_manuscript_full_v10_island_first_p1_p2_defended_20260915.md').read_text()
+          v11_path = Path('docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md')
+          text = v11_path.read_text()
+          assert len(text) > len(base)
+          required = [
+              '1,541/1,575',
+              '1,575/1,575',
+              '1,269/1,575',
+              'finite-domain robust but partially identified',
+              'observation-fragile',
+              '## Claim ceiling for v11',
+              'Figure 4 | Joint observation bias separates robust pattern from fragile identification',
+          ]
+          for phrase in required:
+              assert phrase in text, phrase
+          assert '## Full working manuscript v10' not in text
+          assert 'P3 cannot estimate true island-flora completeness' in text
+          PY
+
+      - name: Commit generated v11 manuscript
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md
+          if git diff --cached --quiet; then
+            echo "No v11 manuscript changes to commit"
+          else
+            git commit -m "Promote Chapter 1 v11 with P3 observation bounds [skip ci]"
+            git push origin HEAD:ch1/p3-joint-observation-bias
+          fi
