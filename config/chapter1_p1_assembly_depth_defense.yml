@@ -1,6 +1,7 @@
 contract: chapter1_p1_assembly_depth_defense_v1
 status: post_baseline_prospective_robustness_extension
 created: 2026-09-15
+zero_floor: 1.0e-12
 
 purpose: >-
   Test whether the large family-to-genus attenuation of the frozen Palearctic floral
