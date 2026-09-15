@@ -1,6 +1,6 @@
 # Chapter 1 paper pipeline
 
-This is the shortest reproducibility map from the database to the current **island-first, P1/P2-defended v10 paper**.
+This is the shortest reproducibility map from the database to the current **island-first, P1/P2/P3-defended v11 paper**.
 
 ## Pipeline at a glance
 
@@ -39,7 +39,11 @@ This is the shortest reproducibility map from the database to the current **isla
      same islands -> paired blocks -> same species denominator
                     |
                     v
-[12] canonical island-first v10 manuscript
+[12] P3 joint observation-bias defense
+     V5 reproduction -> V6 reproduction -> joint surface -> partial identification
+                    |
+                    v
+[13] canonical island-first v11 manuscript
 ```
 
 ## 1. Database inputs
@@ -260,12 +264,33 @@ Formal direct H2 contrast:
 
 P2 therefore strengthens the same-layer joint branching claim while prohibiting the cross-layer shorthand “Palearctic versus tropical” as a formal direct H2 test.
 
-## 11. Locked figures
+
+## 11. P3 — jointly bound observation bias
+
+Canonical result:
+
+- `config/chapter1_p3_joint_observation_bias_result_lock.json`
+- `docs/chapter1_p3_joint_observation_bias_checkpoint_20260915.md`
+- Run `34949880409` / artifact `10389197309`.
+
+Execution order was fail-closed: V5 reproduced first, V6 reproduced second, both were reconciled to the frozen PR142 baseline, and only then was the joint surface opened. The finite domain contains 1,575 V5×V6 assumption surfaces per evidence scope and never increases regression precision for hypothetical species.
+
+Primary direct-only native-nonendemic results:
+
+- North–Tropical vector difference: `1541/1575` robust cells;
+- Palearctic accessibility: `1575/1575` robust cells;
+- tropical accessibility: `1269/1575` robust cells.
+
+The deterministic 48-corner partial-identification envelope preserves the positive Palearctic accessibility sign, but support for the formal North–Tropical vector is not identified across every corner and tropical accessibility crosses zero. The resulting labels are **observation-robust core**, **finite-domain robust / partially identified**, and **observation-fragile**, respectively.
+
+Grid fractions are assumption-domain coverage, not probabilities. P3 does not estimate true species-list completeness or arbitrary-MNAR latent truth.
+
+## 12. Locked figures
 
 - Figure 1: `config/chapter1_v8_figure1_result_lock.json`
 - **Figure 2: `config/chapter1_v10_figure2_p2_result_lock.json`**
 - **Figure 3: `config/chapter1_v9_figure3_p1_defense_result_lock.json`**
-- Figure 4: `config/chapter1_v8_figure4_result_lock.json`
+- **Figure 4: `config/chapter1_v11_figure4_result_lock.json`**
 
 New Figure 3:
 
@@ -279,21 +304,22 @@ New Figure 3:
 
 This figure deliberately displays favourable and adverse evidence together.
 
-## 12. Canonical paper surface
+## 13. Canonical paper surface
 
 Read in this order:
 
-1. `docs/chapter1_submission_freeze_20260915_p1_p2_defended.md`
-2. `docs/chapter1_manuscript_full_v10_island_first_p1_p2_defended_20260915.md`
-3. `docs/chapter1_v10_submission_figure_sync_20260915.md`
-4. `docs/chapter1_p2_component_nonconcordance_result_20260915.md`
-5. `docs/chapter1_p1_final_decision_20260915.md`
-6. `docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`
-7. `docs/chapter1_literature_positioning_20260909.md`
+1. `docs/chapter1_submission_freeze_20260915_p1_p2_p3_defended.md`
+2. `docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md`
+3. `docs/chapter1_v11_submission_figure_sync_20260915.md`
+4. `docs/chapter1_p3_joint_observation_bias_checkpoint_20260915.md`
+5. `docs/chapter1_p2_component_nonconcordance_result_20260915.md`
+6. `docs/chapter1_p1_final_decision_20260915.md`
+7. `docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`
+8. `docs/chapter1_literature_positioning_20260909.md`
 
-Previous v8/v9 surfaces remain historical provenance; they do not define the current P1/P2-defended claim ceiling.
+Previous v8/v9/v10 surfaces remain historical provenance; they do not define the current P1/P2/P3-defended claim ceiling.
 
-## 13. Chapter 1 / Chapter 2 handoff
+## 14. Chapter 1 / Chapter 2 handoff
 
 Chapter 1 identifies response direction, component decoupling, genus structuring and failure of common global mechanisms. It cannot identify the local causal chain.
 
@@ -306,7 +332,7 @@ within one biological system and test cline, step, shared-breakpoint and channel
 - **Chapter 1:** where, which components, and at what lineage-assembly level is the syndrome represented?
 - **Chapter 2:** how and why functionally within a resolved system?
 
-## 14. Legacy v1 boundary
+## 15. Legacy v1 boundary
 
 `legacy/v1/` is a frozen historical analysis, not a validation stage of the current pipeline. Preserved tree:
 

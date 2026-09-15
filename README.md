@@ -9,9 +9,10 @@ source data
   -> canonical progressive analysis
   -> prospective robustness / falsification extensions
   -> P0 provenance + P1 assembly defense + P2 component-support defense
+  -> P3 joint observation-bias / partial-identification defense
   -> court-style evidence ledger
   -> locked Figures 1-4
-  -> canonical island-first v10 manuscript
+  -> canonical island-first v11 manuscript
 ```
 
 Development experiments and superseded analyses remain recoverable in git history. **`legacy/v1/` is a separately frozen historical analysis and is preserved intact.**
@@ -183,30 +184,50 @@ Canonical lock:
 
 - [`config/chapter1_p2_component_nonconcordance_result_lock.json`](config/chapter1_p2_component_nonconcordance_result_lock.json)
 
+
+### P3 — joint observation-bias and partial-identification defense
+
+V5 trait-resolution MNAR and V6 species-list detection were first reproduced separately on the pinned PR142 input. Only then were the two processes crossed under a prospectively frozen joint contract.
+
+- canonical P3 run: **34949880409**;
+- artifact: **10389197309**;
+- finite joint surfaces: **1,575 per evidence scope**;
+- primary direct-only native-nonendemic North–Tropical vector: **1,541/1,575** robust cells;
+- Palearctic accessibility, native non-endemics: **1,575/1,575** robust in both evidence scopes;
+- tropical accessibility, native non-endemics: **1,161/1,575** all-analysis and **1,269/1,575** direct-only;
+- deterministic partial-identification envelope preserves the positive Palearctic accessibility sign but does not identify formal North–Tropical support across every corner; tropical accessibility crosses zero.
+
+Grid-cell fractions describe the declared sensitivity domain and are **not probabilities**. P3 estimates neither true flora completeness nor an arbitrary-MNAR latent truth.
+
+Canonical lock:
+
+- [`config/chapter1_p3_joint_observation_bias_result_lock.json`](config/chapter1_p3_joint_observation_bias_result_lock.json)
+
 ## 6. Current submission surface
 
 Read these first, in this order:
 
-1. [`docs/chapter1_submission_freeze_20260915_p1_p2_defended.md`](docs/chapter1_submission_freeze_20260915_p1_p2_defended.md) — current v10 submission state and claim ceiling;
-2. [`docs/chapter1_manuscript_full_v10_island_first_p1_p2_defended_20260915.md`](docs/chapter1_manuscript_full_v10_island_first_p1_p2_defended_20260915.md) — canonical island-first v10 manuscript;
-3. [`docs/chapter1_v10_submission_figure_sync_20260915.md`](docs/chapter1_v10_submission_figure_sync_20260915.md) — final panel mapping and figure-reference contract;
-4. [`docs/chapter1_p2_component_nonconcordance_result_20260915.md`](docs/chapter1_p2_component_nonconcordance_result_20260915.md) — P2 common-support and claim-boundary result;
-5. [`docs/chapter1_p1_final_decision_20260915.md`](docs/chapter1_p1_final_decision_20260915.md) — integrated P1a/P1c/P1d decision;
-6. [`docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`](docs/chapter1_court_evidence_and_theory_synthesis_20260914.md) — historical court-style evidence ledger;
-7. [`docs/chapter1_literature_positioning_20260909.md`](docs/chapter1_literature_positioning_20260909.md) — frozen literature-positioning note.
+1. [`docs/chapter1_submission_freeze_20260915_p1_p2_p3_defended.md`](docs/chapter1_submission_freeze_20260915_p1_p2_p3_defended.md) — current v11 submission state and claim ceiling;
+2. [`docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md`](docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md) — canonical island-first v11 manuscript;
+3. [`docs/chapter1_v11_submission_figure_sync_20260915.md`](docs/chapter1_v11_submission_figure_sync_20260915.md) — final v11 panel mapping and figure-reference contract;
+4. [`docs/chapter1_p3_joint_observation_bias_checkpoint_20260915.md`](docs/chapter1_p3_joint_observation_bias_checkpoint_20260915.md) — P3 finite-grid and partial-identification result;
+5. [`docs/chapter1_p2_component_nonconcordance_result_20260915.md`](docs/chapter1_p2_component_nonconcordance_result_20260915.md) — P2 common-support and claim-boundary result;
+6. [`docs/chapter1_p1_final_decision_20260915.md`](docs/chapter1_p1_final_decision_20260915.md) — integrated P1a/P1c/P1d decision;
+7. [`docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`](docs/chapter1_court_evidence_and_theory_synthesis_20260914.md) — historical court-style evidence ledger;
+8. [`docs/chapter1_literature_positioning_20260909.md`](docs/chapter1_literature_positioning_20260909.md) — frozen literature-positioning note.
 
 The **single canonical working manuscript** is now:
 
-- [`docs/chapter1_manuscript_full_v10_island_first_p1_p2_defended_20260915.md`](docs/chapter1_manuscript_full_v10_island_first_p1_p2_defended_20260915.md)
+- [`docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md`](docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md)
 
-v9 remains available as the previous P1-defended surface. v10 additionally separates the formal North–Tropical H2 contrast from the Palearctic H3/P1 branch and must be used for current quoting.
+v10 remains available as the previous P1/P2-defended surface. v11 additionally localizes joint observation robustness through P3 and must be used for current quoting.
 
 ### Locked main figures
 
 - **Figure 1:** `config/chapter1_v8_figure1_result_lock.json` — hierarchy-of-assembly inference map;
 - **Figure 2:** `config/chapter1_v10_figure2_p2_result_lock.json` — formal same-layer North–Tropical contrast plus P2 common-support defense;
 - **Figure 3:** `config/chapter1_v9_figure3_p1_defense_result_lock.json` — genus-specific matched-null defense plus paired uncertainty;
-- **Figure 4:** `config/chapter1_v8_figure4_result_lock.json` — falsification and claim boundaries.
+- **Figure 4:** `config/chapter1_v11_figure4_result_lock.json` — joint observation-bias robustness, partial identification, and retained mechanism boundaries.
 
 ### Current paper-level verdict
 
@@ -215,14 +236,14 @@ v9 remains available as the previous P1-defended surface. v10 additionally separ
 - **H3/P1:** the Palearctic response is strongly structured by true genus composition; true genera outperform arbitrary within-family partitions of matched complexity (`p=0.02899`), but the exact additional family→genus attenuation is not precisely estimated across spatial blocks;
 - **H4:** area remains a measurement-sensitive modifier rather than a promoted mechanism;
 - **geometry:** no common nonlinear assemblage threshold is promoted;
-- **V5/V6:** the Palearctic core survives strong trait-missingness and specified species-detection challenges, while tropical accessibility is less robust;
+- **P3:** the Palearctic accessibility branch is the observation-robust core; the formal North–Tropical vector is highly finite-domain robust but only partially identified, while tropical accessibility is observation-fragile;
 - **H5:** a global pollinator-specific mechanism is not identified by N1, sampled source breadth, independent biotic-vs-wind specificity, or distributed-threshold tests.
 
 Publication-facing concept:
 
 > **A floral island syndrome can be a genus-structured assemblage syndrome: a visible community-level trait pattern can be carried by non-random lineage composition rather than one repeated organismal response.**
 
-`assembly depth` remains useful as a localization concept, but v10 neither presents the family→genus increment as a perfectly sharp taxonomic breakpoint nor treats Palearctic and tropical as labels of one formal direct contrast.
+`assembly depth` remains useful as a localization concept, but v11 neither presents the family→genus increment as a perfectly sharp taxonomic breakpoint nor treats Palearctic and tropical as labels of one formal direct contrast.
 
 `large_bee_like`, `butterfly_like`, and `bird_like` remain secondary **floral-architecture concordance scores**, not pollinator classifiers.
 
@@ -252,23 +273,24 @@ docs/DATABASE_BUILD.md
 DATABASE_RELEASE.md
   <- versioned DB / Zenodo entry point
 docs/PAPER_PIPELINE.md
-  <- database -> H1-H5 -> robustness/falsification -> P0/P1/P2 -> v10
+  <- database -> H1-H5 -> robustness/falsification -> P0/P1/P2/P3 -> v11
 config/chapter1_progressive_analysis.yml
 config/chapter1_database_versions/
 config/chapter1_p1_final_decision_result_lock.json
 config/chapter1_p2_component_nonconcordance_result_lock.json
+config/chapter1_p3_joint_observation_bias_result_lock.json
 config/chapter1_v8_figure1_result_lock.json
 config/chapter1_v10_figure2_p2_result_lock.json
 config/chapter1_v9_figure3_p1_defense_result_lock.json
-config/chapter1_v8_figure4_result_lock.json
+config/chapter1_v11_figure4_result_lock.json
 .github/workflows/run-chapter1-progressive-trait-analysis.yml
 src/island_v2/
 data/v2/
-docs/chapter1_submission_freeze_20260915_p1_p2_defended.md
-docs/chapter1_v10_submission_figure_sync_20260915.md
+docs/chapter1_submission_freeze_20260915_p1_p2_p3_defended.md
+docs/chapter1_v11_submission_figure_sync_20260915.md
 docs/chapter1_p2_component_nonconcordance_result_20260915.md
 docs/chapter1_p1_final_decision_20260915.md
-docs/chapter1_manuscript_full_v10_island_first_p1_p2_defended_20260915.md
+docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md
 legacy/v1/
 ```
 

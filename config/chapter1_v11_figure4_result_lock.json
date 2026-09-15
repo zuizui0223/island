@@ -1,0 +1,58 @@
+{
+  "contract": "chapter1_v11_figure4_result_lock_v1",
+  "status": "submission_figure_rendered_and_visually_checked",
+  "workflow_run_id": 34959336481,
+  "artifact_id": 10393100040,
+  "artifact_name": "chapter1-v11-figure4-34959336481",
+  "artifact_digest": "sha256:f1a639bc8dd920b4ec08fa488da81ed39bd2ae2f6a48590499ab7f0ad5f8609a",
+  "source_artifacts": {
+    "p3_joint_observation_bias": {
+      "workflow_run_id": 34949880409,
+      "artifact_id": 10389197309,
+      "artifact_digest": "sha256:b5cfe366686f83975dd989275904d2e0ddfbf43be27ffbd503dd05439a5264b2"
+    },
+    "observed_geometry": {
+      "workflow_run_id": 34765070227,
+      "artifact_id": 10320630085,
+      "artifact_digest": "sha256:5ac34231b0cfa4acc1d536ab798a574a3cbcdd9423b6f0f2995195aab78a2f23"
+    },
+    "h5c_specificity": {
+      "workflow_run_id": 34803837463,
+      "artifact_id": 10332871066,
+      "artifact_digest": "sha256:fb8927bcf2b6e1c762b3ecbe59c42360faac679cf37b1ad0ed31386631a0f405"
+    },
+    "h5d_identifiability": {
+      "workflow_run_id": 34803545574,
+      "artifact_id": 10332671123,
+      "artifact_digest": "sha256:13ea1c3cd0066950d37fa3399f771d41ea2755c9746d02ac18594e224d895539"
+    }
+  },
+  "frozen_results": {
+    "formal_north_tropical_direct_native_nonendemic": "1541/1575",
+    "palearctic_accessibility_direct_native_nonendemic": "1575/1575",
+    "tropical_accessibility_direct_native_nonendemic": "1269/1575",
+    "palearctic_accessibility_all_native_nonendemic": "1575/1575",
+    "tropical_accessibility_all_native_nonendemic": "1161/1575",
+    "palearctic_all_envelope": [0.0401554806895935, 0.1380514939187701],
+    "palearctic_direct_envelope": [0.0391620771470579, 0.1428450293629691],
+    "tropical_all_envelope": [-0.0856096135534305, 0.0399218255918019],
+    "tropical_direct_envelope": [-0.0941877476516136, 0.0390887203135506],
+    "formal_context_support_identified_across_all_deterministic_corners": false,
+    "geometry_promoted": "0/12",
+    "h5c_p_value": 0.4122068222871858,
+    "h5d_qualified": "0/8"
+  },
+  "visual_review": {
+    "performed": true,
+    "major_label_clipping_detected": false,
+    "panel_overlap_detected": false,
+    "robust_fragile_regions_legible": true,
+    "formal_context_contrast_legible": true,
+    "partial_identification_boundary_legible": true,
+    "submission_layout": "accepted"
+  },
+  "grid_fraction_is_probability": false,
+  "new_biological_models_fitted": false,
+  "new_p_values_generated": false,
+  "claim_boundary": "Figure 4 distinguishes finite-grid robustness from partial identification. Palearctic accessibility is the observation-robust core; the formal North–Tropical contrast is highly finite-grid robust but not identified across all deterministic corners; tropical accessibility is observation-fragile. No latent true completeness, arbitrary-MNAR truth, response geometry, or pollination mechanism is promoted from P3."
+}
