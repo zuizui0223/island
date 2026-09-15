@@ -4,8 +4,9 @@ from pathlib import Path
 
 
 def replace_once(text: str, old: str, new: str) -> str:
-    if text.count(old) != 1:
-        raise RuntimeError(f"expected exactly one occurrence: {old[:80]!r}, found {text.count(old)}")
+    count = text.count(old)
+    if count != 1:
+        raise RuntimeError(f"expected exactly one occurrence, found {count}: {old[:90]!r}")
     return text.replace(old, new, 1)
 
 
@@ -39,15 +40,72 @@ def update_readme() -> None:
 def update_pipeline() -> None:
     path = Path("docs/PAPER_PIPELINE.md")
     text = path.read_text(encoding="utf-8")
-    text = text.replace("current v9 paper", "current v10 paper", 1)
-    text = text.replace("court-style evidence ledger\n                    |\n                    v\n[10] canonical v9 manuscript", "P0/P1/P2 defense\n                    |\n                    v\n[10] canonical v10 manuscript", 1)
-    old = "The manuscript-facing evidence table is:\n\n- `docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`"
-    new = """The submission-facing defense now includes:\n\n- `docs/chapter1_p0_claim_ledger_20260915.md`\n- `config/chapter1_p1_final_decision_result_lock.json`\n- `config/chapter1_p2_component_nonconcordance_result_lock.json`\n- `docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`"""
-    text = replace_once(text, old, new)
-    text = text.replace("The strongest claim surviving cross-examination is:\n\n> geographic isolation is associated with reproducible but biogeographically contingent floral/reproductive assemblage change, and the strongest Palearctic syndrome is principally expressed at the family-to-genus assembly transition.", "The strongest claim surviving cross-examination is:\n\n> the formal North–Tropical joint plant response differs under common observation support, while the strongest Palearctic within-context syndrome is strongly structured by real genus composition beyond matched arbitrary grouping complexity. The exact vector geometry and the exact family→genus increment remain imprecise.", 1)
-    text = replace_once(text, "## 9. Canonical paper surface", "## 9. Canonical paper surface")
-    text = text.replace("1. `docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`\n2. `docs/chapter1_figure1_hierarchical_syndrome_spec_20260914.md`\n3. `docs/chapter1_literature_positioning_20260909.md`\n4. `docs/chapter1_manuscript_full_v8_hierarchical_syndrome_20260914.md`", "1. `docs/chapter1_submission_freeze_20260915_p1_p2_defended.md`\n2. `docs/chapter1_manuscript_full_v10_island_first_p1_p2_defended_20260915.md`\n3. `docs/chapter1_v10_submission_figure_sync_20260915.md`\n4. `docs/chapter1_p2_component_nonconcordance_result_20260915.md`\n5. `docs/chapter1_p1_final_decision_20260915.md`", 1)
-    text = text.replace("Previous v7 and 2026-09-09 framing documents remain historical development surfaces and git provenance; they no longer define the canonical narrative.", "Previous v8/v9 and 2026-09-09 framing documents remain historical development surfaces and git provenance; they no longer define the canonical narrative.", 1)
+    text = replace_once(text, "current **island-first, P1-defended v9 paper**", "current **island-first, P1/P2-defended v10 paper**")
+    old_flow = """[9] P0 immutable claim reconciliation
+                    |
+                    v
+[10] P1 assembly-inference defense
+     same support -> matched genus null -> paired spatial uncertainty
+                    |
+                    v
+[11] canonical island-first v9 manuscript"""
+    new_flow = """[9] P0 immutable claim reconciliation
+                    |
+                    v
+[10] P1 assembly-inference defense
+     same support -> matched genus null -> paired spatial uncertainty
+                    |
+                    v
+[11] P2 component-support defense
+     same islands -> paired blocks -> same species denominator
+                    |
+                    v
+[12] canonical island-first v10 manuscript"""
+    text = replace_once(text, old_flow, new_flow)
+
+    p2_section = """
+## 10. P2 — defend the component/context contrast
+
+Canonical result:
+
+- `config/chapter1_p2_component_nonconcordance_result_lock.json`
+- `docs/chapter1_p2_component_nonconcordance_result_20260915.md`
+
+Formal direct H2 contrast:
+
+- `northern_midlatitude` versus `tropical` within `analysis_regime`;
+- common-island direct-only NNE vector difference `p=0.000947`;
+- 348 common islands, 78 spatial blocks;
+- paired-block determinant interval includes zero, so strong non-collinearity is not established;
+- common-species sensitivity uses 853 direct-only co-observed species and retains the NNE joint vector difference (`p=0.00517`);
+- frozen Palearctic–Neotropical direct tests remain unsupported (`p=0.078–0.396`).
+
+P2 therefore strengthens the same-layer joint branching claim while prohibiting the cross-layer shorthand “Palearctic versus tropical” as a formal direct H2 test.
+
+"""
+    text = replace_once(text, "## 10. Locked figures\n", p2_section + "## 11. Locked figures\n")
+    text = replace_once(text, "- Figure 2: `config/chapter1_v8_figure2_result_lock.json`", "- **Figure 2: `config/chapter1_v10_figure2_p2_result_lock.json`**")
+    text = replace_once(text, "## 11. Canonical paper surface\n", "## 12. Canonical paper surface\n")
+    old_surface = """1. `docs/chapter1_submission_freeze_20260915_p1_defended.md`
+2. `docs/chapter1_manuscript_full_v9_island_first_p1_defended_20260915.md`
+3. `docs/chapter1_v9_submission_figure_sync_20260915.md`
+4. `docs/chapter1_p1_final_decision_20260915.md`
+5. `docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`
+6. `docs/chapter1_literature_positioning_20260909.md`
+
+Previous v8/v7 surfaces remain historical provenance; they do not define the current P1-defended claim ceiling."""
+    new_surface = """1. `docs/chapter1_submission_freeze_20260915_p1_p2_defended.md`
+2. `docs/chapter1_manuscript_full_v10_island_first_p1_p2_defended_20260915.md`
+3. `docs/chapter1_v10_submission_figure_sync_20260915.md`
+4. `docs/chapter1_p2_component_nonconcordance_result_20260915.md`
+5. `docs/chapter1_p1_final_decision_20260915.md`
+6. `docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`
+7. `docs/chapter1_literature_positioning_20260909.md`
+
+Previous v8/v9 surfaces remain historical provenance; they do not define the current P1/P2-defended claim ceiling."""
+    text = replace_once(text, old_surface, new_surface)
+    text = replace_once(text, "## 12. Chapter 1 / Chapter 2 handoff", "## 13. Chapter 1 / Chapter 2 handoff")
+    text = replace_once(text, "## 13. Legacy v1 boundary", "## 14. Legacy v1 boundary")
     path.write_text(text, encoding="utf-8")
 
 
