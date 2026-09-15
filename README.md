@@ -8,9 +8,10 @@ source data
   -> frozen H1-H5 hypothesis contract
   -> canonical progressive analysis
   -> prospective robustness / falsification extensions
+  -> P0 provenance + P1 assembly-depth defense
   -> court-style evidence ledger
   -> locked Figures 1-4
-  -> canonical v8 manuscript
+  -> canonical island-first v9 manuscript
 ```
 
 Development experiments and superseded analyses remain recoverable in git history. **`legacy/v1/` is a separately frozen historical analysis and is preserved intact.**
@@ -58,7 +59,7 @@ Hypothesis order:
 
 1. **H1 — Universal-syndrome rival:** does one floral/reproductive island syndrome hold across contexts?
 2. **H2 — Biogeographic branching:** do response vectors differ among contexts?
-3. **H3 — Source/lineage assembly:** at what taxonomic depth is a supported response represented?
+3. **H3 — Source/lineage assembly:** how strongly is a supported response represented by taxonomic composition and does a robust beyond-genus response remain?
 4. **H4 — Area/capacity moderation:** does continuous island area modify isolation-associated filtering strongly enough to promote a mechanism?
 5. **H5 — Independent mechanism gate:** a named pollinator mechanism requires independent evidence and cannot be inferred from floral phenotype.
 
@@ -119,34 +120,83 @@ Outcome-closed simulation asked whether lineage-specific thresholds can be disti
 
 These results are not mechanism “failures” to be rescued. They define the present global claim boundary.
 
-## 5. Current submission surface
+## 5. P0/P1 defense of the assembly inference
+
+The NEE-oriented existing-data development plan starts from the island question rather than from a generic macroecological theory:
+
+- [`docs/chapter1_nee_existing_data_design_island_first_20260915.md`](docs/chapter1_nee_existing_data_design_island_first_20260915.md)
+
+### P0 — immutable claim reconciliation
+
+- [`docs/chapter1_p0_claim_ledger_20260915.md`](docs/chapter1_p0_claim_ledger_20260915.md)
+- headline result provenance was reconciled before new P1 modelling.
+
+### P1a — exact paired support
+
+- run **34935183075**;
+- artifact **10382749051**;
+- observed/family/genus stages use the same focal island–species observations and information weights;
+- stage-specific sample loss is not a viable explanation for the frozen attenuation.
+
+### P1c — true genus versus matched-complexity pseudo-genus
+
+Within every family, species were randomly repartitioned while preserving the exact real genus count and genus group-size multiset.
+
+- frozen permutation run: **34936193944**;
+- **2,000/2,000** valid permutations;
+- final aggregate run: **34941827774**;
+- artifact: **10385820775**;
+- true-genus conditional attenuation statistic: **0.72066**;
+- matched pseudo-genus null median: **0.22434**;
+- null ≥ observed: **57/2,000**;
+- one-sided randomization **p=0.02899**;
+- verdict: **true genus boundaries contain attenuation-relevant structure beyond arbitrary fine grouping of identical complexity**.
+
+### P1d — paired spatial-block uncertainty
+
+- run **34939113182**;
+- artifact **10383754545**;
+- 2,000 paired spatial-block bootstrap draws;
+- total genus attenuation remains large;
+- **0/8** direct-only primary profiles have a 95% interval for the *additional family→genus attenuation* entirely above zero.
+
+Integrated decision:
+
+> **The Palearctic floral-island response is strongly genus-structured, but the exact incremental family-to-genus attenuation is spatially imprecise.**
+
+Canonical lock:
+
+- [`config/chapter1_p1_final_decision_result_lock.json`](config/chapter1_p1_final_decision_result_lock.json)
+
+## 6. Current submission surface
 
 Read these first, in this order:
 
-1. [`docs/chapter1_submission_freeze_20260915.md`](docs/chapter1_submission_freeze_20260915.md) — current submission state, figure locks and claim ceiling;
-2. [`docs/chapter1_manuscript_full_v8_hierarchical_syndrome_20260914.md`](docs/chapter1_manuscript_full_v8_hierarchical_syndrome_20260914.md) — canonical v8 full manuscript, now synchronized to Figures 1–4;
-3. [`docs/chapter1_v8_submission_figure_sync_20260915.md`](docs/chapter1_v8_submission_figure_sync_20260915.md) — actual rendered panel mapping, final legends and figure-reference contract;
-4. [`docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`](docs/chapter1_court_evidence_and_theory_synthesis_20260914.md) — supported claims, adverse evidence, defenses and claim ceilings;
-5. [`docs/chapter1_literature_positioning_20260909.md`](docs/chapter1_literature_positioning_20260909.md) — frozen literature-positioning note.
+1. [`docs/chapter1_submission_freeze_20260915_p1_defended.md`](docs/chapter1_submission_freeze_20260915_p1_defended.md) — current v9 submission state and claim ceiling;
+2. [`docs/chapter1_manuscript_full_v9_island_first_p1_defended_20260915.md`](docs/chapter1_manuscript_full_v9_island_first_p1_defended_20260915.md) — canonical island-first v9 manuscript;
+3. [`docs/chapter1_v9_submission_figure_sync_20260915.md`](docs/chapter1_v9_submission_figure_sync_20260915.md) — final panel mapping and figure-reference contract;
+4. [`docs/chapter1_p1_final_decision_20260915.md`](docs/chapter1_p1_final_decision_20260915.md) — integrated P1a/P1c/P1d decision;
+5. [`docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`](docs/chapter1_court_evidence_and_theory_synthesis_20260914.md) — historical court-style evidence ledger;
+6. [`docs/chapter1_literature_positioning_20260909.md`](docs/chapter1_literature_positioning_20260909.md) — frozen literature-positioning note.
 
-The **single canonical working manuscript** is:
+The **single canonical working manuscript** is now:
 
-- [`docs/chapter1_manuscript_full_v8_hierarchical_syndrome_20260914.md`](docs/chapter1_manuscript_full_v8_hierarchical_syndrome_20260914.md)
+- [`docs/chapter1_manuscript_full_v9_island_first_p1_defended_20260915.md`](docs/chapter1_manuscript_full_v9_island_first_p1_defended_20260915.md)
 
-v7 remains available in git history and as the previous submission-order draft; it is no longer the canonical narrative surface.
+v8 remains available as the previous submission surface and should not be used to quote the family→genus increment without the P1d caveat.
 
 ### Locked main figures
 
 - **Figure 1:** `config/chapter1_v8_figure1_result_lock.json` — hierarchy-of-assembly inference map;
 - **Figure 2:** `config/chapter1_v8_figure2_result_lock.json` — primary biogeographic branching;
-- **Figure 3:** `config/chapter1_v8_figure3_submission_result_lock.json` — source-matched assembly depth;
+- **Figure 3:** `config/chapter1_v9_figure3_p1_defense_result_lock.json` — genus-specific matched-null defense plus paired uncertainty;
 - **Figure 4:** `config/chapter1_v8_figure4_result_lock.json` — falsification and claim boundaries.
 
 ### Current paper-level verdict
 
 - **H1:** one universal floral/reproductive island syndrome is not recovered;
 - **H2:** source-separation responses branch among biogeographic contexts and trait components can decouple;
-- **H3:** the strongest Palearctic response is concentrated at the family-to-genus assembly transition; genus adjustment attenuates roughly **78.8–85.9%** of the observed vector;
+- **H3/P1:** the Palearctic response is strongly structured by true genus composition; true genera outperform arbitrary within-family partitions of matched complexity (`p=0.02899`), but the exact additional family→genus attenuation is not precisely estimated across spatial blocks;
 - **H4:** area remains a measurement-sensitive modifier rather than a promoted mechanism;
 - **geometry:** no common nonlinear assemblage threshold is promoted;
 - **V5/V6:** the Palearctic core survives strong trait-missingness and specified species-detection challenges, while tropical accessibility is less robust;
@@ -154,18 +204,20 @@ v7 remains available in git history and as the previous submission-order draft; 
 
 Publication-facing concept:
 
-> **A floral island syndrome can be a hierarchically assembled phenotypic syndrome: a visible community-level trait pattern whose direction and assembly depth depend on biogeographic context.**
+> **A floral island syndrome can be a genus-structured assemblage syndrome: a visible community-level trait pattern can be carried by non-random lineage composition rather than one repeated organismal response.**
+
+`assembly depth` remains useful as a localization concept, but v9 does not present the family→genus increment as a perfectly sharp taxonomic breakpoint.
 
 `large_bee_like`, `butterfly_like`, and `bird_like` remain secondary **floral-architecture concordance scores**, not pollinator classifiers.
 
-## 6. Chapter 1 / Chapter 2 division of labour
+## 7. Chapter 1 / Chapter 2 division of labour
 
 Chapter 1 answers:
 
 - where isolation-associated responses occur;
 - which floral/reproductive components move;
 - whether directions differ among contexts;
-- at what taxonomic depth the strongest syndrome is expressed;
+- how strongly the strongest syndrome is represented in non-random genus composition;
 - which simple global explanations survive explicit falsification.
 
 Chapter 2 (`izu-core`) is the mechanistic-resolution layer. It can measure the within-system chain:
@@ -174,7 +226,7 @@ Chapter 2 (`izu-core`) is the mechanistic-resolution layer. It can measure the w
 
 and test cline versus threshold-like response geometry directly. The H5d non-identifiability result is the reason this local resolution is necessary; Chapter 1 should not retrofit a threshold mechanism from global assemblage averages.
 
-## 7. Repository map
+## 8. Repository map
 
 ```text
 README.md
@@ -184,24 +236,25 @@ docs/DATABASE_BUILD.md
 DATABASE_RELEASE.md
   <- versioned DB / Zenodo entry point
 docs/PAPER_PIPELINE.md
-  <- database -> H1-H5 -> robustness/falsification -> v8
+  <- database -> H1-H5 -> robustness/falsification -> P0/P1 -> v9
 config/chapter1_progressive_analysis.yml
 config/chapter1_database_versions/
+config/chapter1_p1_final_decision_result_lock.json
 config/chapter1_v8_figure1_result_lock.json
 config/chapter1_v8_figure2_result_lock.json
-config/chapter1_v8_figure3_submission_result_lock.json
+config/chapter1_v9_figure3_p1_defense_result_lock.json
 config/chapter1_v8_figure4_result_lock.json
 .github/workflows/run-chapter1-progressive-trait-analysis.yml
 src/island_v2/
 data/v2/
-docs/chapter1_submission_freeze_20260915.md
-docs/chapter1_v8_submission_figure_sync_20260915.md
-docs/chapter1_court_evidence_and_theory_synthesis_20260914.md
-docs/chapter1_manuscript_full_v8_hierarchical_syndrome_20260914.md
+docs/chapter1_submission_freeze_20260915_p1_defended.md
+docs/chapter1_v9_submission_figure_sync_20260915.md
+docs/chapter1_p1_final_decision_20260915.md
+docs/chapter1_manuscript_full_v9_island_first_p1_defended_20260915.md
 legacy/v1/
 ```
 
-## 8. Legacy v1 preservation
+## 9. Legacy v1 preservation
 
 `legacy/v1/` is retained as the complete historical v1 analysis. The preserved tree is:
 
