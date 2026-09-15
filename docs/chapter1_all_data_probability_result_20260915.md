@@ -107,14 +107,61 @@ Introduced-only data do not meet the frozen 50-island-per-outcome support rule a
 
 These diagnostics do **not** establish that unresolved records are introduced, nor that introduction causes the broad branch. They show that the expanded all-observed result is partly carried by records whose native status is unresolved and therefore cannot currently be promoted as a native island-assembly result.
 
+## Model-form sensitivity: the probability result is not a beta-binomial artefact
+
+A matched sensitivity was run with the repository's existing grouped-binomial logit model, keeping the **same six atomic outcomes, same island sets, same covariates and same spatial-block robust inference** as the beta-binomial analysis.
+
+Provenance:
+
+- workflow: `Run Chapter 1 all-data model-form sensitivity`;
+- run: **34963020944**;
+- artifact: `chapter1-all-data-model-form-34963020944`;
+- artifact ID: **10393863668**;
+- digest: `sha256:dbd5b20b09659404470c5e706449fe90bb870878aed3fc3716037b7fedcd6507`.
+
+Formal all-observed North--Tropical six-outcome test:
+
+- all-analysis evidence: **3,626 islands**, 187 blocks, chi-square = **21.6768**, df = 6, **p = 0.001385**;
+- direct-only evidence: **3,569 islands**, 187 blocks, chi-square = **18.8079**, df = 6, **p = 0.004501**.
+
+These closely reproduce the beta-binomial decision. The broad all-observed difference is therefore **not created by the beta-binomial likelihood**.
+
+## Response-definition audit: six atomic outcomes and the two composite axes are not interchangeable
+
+The all-observed branch was also rerun through the existing two-axis composite route (`accessibility_generalization` + `reproductive_assurance`) using the same final trait snapshot.
+
+Provenance:
+
+- workflow: `Run Chapter 1 all-data primary candidate`;
+- run: **34962433803**;
+- artifact: `chapter1-all-data-primary-34962433803`;
+- artifact ID: **10393997800**;
+- digest: `sha256:b6295be7d4bce20f7ca3dddeb4a58106a647635023c6e7ab8fda025108470ff1`.
+
+For the **two composite axes**, the all-observed North--Tropical vector difference is not supported:
+
+- all-analysis evidence: **3,253 islands**, 184 blocks, p = **0.73998**, BH q = **0.88797**;
+- direct-only evidence: **3,173 islands**, 183 blocks, p = **0.06142**, BH q = **0.13094**.
+
+By contrast, the matched six-atomic probability vector remains supported under both beta-binomial and grouped-binomial models.
+
+This isolates the source of the discrepancy: **response compression, not probability-model choice**. Collapsing multiple floral and reproductive traits into two composite scores discards a detectable part of the North--Tropical multivariate difference.
+
+The all-observed atomic difference is concentrated in a subset of components rather than a clean reversal of one two-dimensional syndrome. In the beta-binomial all-analysis comparison, the larger Tropical-minus-Northern distance responses are strongest for actinomorphic symmetry, selfing mating system and autonomous selfing, with generalized form near the single-axis boundary; shallow/open tube contributes little. Direct-only evidence gives the clearest differences for generalized form and autonomous selfing.
+
+Therefore the expanded route should not be described as evidence that the old two-axis syndrome simply becomes stronger with more islands. It supports a more specific statement:
+
+> **Across thousands of observed island floras, isolation-associated floral and reproductive composition differs among biogeographic contexts at the multivariate atomic-trait level, but that heterogeneity is partly lost when compressed into the current two composite axes.**
+
 ## Decision
 
-The beta-binomial expansion is useful and should be retained because it establishes three things:
+The all-data probability expansion is useful and should be retained because it establishes four things:
 
 1. the available global data support a broad contemporary observed-flora response pattern across thousands of islands;
 2. that pattern survives restriction from all-analysis evidence to High/Medium direct trait evidence;
-3. the native-flora inference is the present bottleneck, not raw trait coverage or sample size alone.
+3. the six-outcome result survives replacement of beta-binomial by the matched grouped-binomial model, so model family is not driving the conclusion;
+4. the native-flora inference and the choice of response representation are the present bottlenecks, not raw trait coverage or sample size alone.
 
-However, the broad result must currently be described as **observed island-flora composition**, not as defended native colonisation filtering or in-situ floral evolution.
+However, the broad result must currently be described as **observed island-flora composition**, not as defended native colonisation filtering or in-situ floral evolution. It also should not be collapsed back into the old two-axis syndrome without acknowledging that the compression removes supported multivariate structure.
 
-The frozen v10 Chapter 1 result therefore remains canonical until the floristic-status problem is addressed. The next gate is to improve or explicitly model status uncertainty, then rerun the beta-binomial hierarchy before deciding whether the expanded route can replace the frozen native-status analysis.
+The frozen v10 Chapter 1 result therefore remains canonical until the floristic-status problem and response-representation decision are addressed. The next gate is to improve or explicitly model status uncertainty and decide whether the paper should promote the six-atomic response geometry or retain the two-axis compression as a secondary summary.
