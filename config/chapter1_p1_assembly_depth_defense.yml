@@ -61,6 +61,20 @@ p1c_matched_complexity_genus_null:
     Is true genus membership more informative for family-to-genus attenuation
     than an arbitrary fine partition with the same family structure and genus
     complexity?
+  qualification_gate:
+    required_before_full_null: true
+    qualification_seed: 2026091501
+    qualification_seed_is_not_part_of_final_null: true
+    inspect_or_store_null_attenuation_during_qualification: false
+    requirements:
+      - lightweight_true_genus_fit_reproduces_frozen_direct_only_Palearctic_slopes
+      - one_pseudo_genus_partition_preserves_within_family_group_size_multisets
+      - one_pseudo_genus_partition_produces_two_axis_fits_for_all_eight_primary_profiles
+    slope_reproduction_absolute_tolerance: 1.0e-10
+    failure_action: >-
+      Stop P1c and diagnose implementation/feasibility. Do not alter the null
+      complexity, support thresholds, primary scope or biological endpoint to
+      obtain qualification.
   randomization_unit: accepted_species
   randomization_scope: within_family
   preserve_exactly:
@@ -84,6 +98,7 @@ p1c_matched_complexity_genus_null:
     - two_axis_vector_norms
     - conditional_family_to_pseudo_genus_attenuation
   permutations: 2000
+  minimum_valid_permutations: 1900
   random_seed: 20260915
   primary_statistic: >-
     median conditional family-to-genus attenuation across the eight direct-only
@@ -95,6 +110,11 @@ p1c_matched_complexity_genus_null:
   randomization_p_value: one_sided_greater_equal_observed
   primary_pass_rule:
     max_randomization_p_value: 0.05
+  invalid_permutation_rule: >-
+    A permutation is invalid if any of the eight primary Palearctic source-mode x
+    stratum profiles cannot fit both frozen response axes under the unchanged
+    support rule. If fewer than 1900 of 2000 permutations are valid, the matched
+    null is NOT_EVALUABLE; do not change the randomization to recover it.
   interpretation_if_pass: >-
     True genus boundaries attenuate the frozen Palearctic vector more than
     matched arbitrary within-family partitions of equal complexity. This
