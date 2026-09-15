@@ -96,6 +96,35 @@ def load_inputs(
     }
 
 
+def _primary_surface_matrix(
+    surface: pd.DataFrame,
+    target: str,
+    *,
+    scope: str = "direct_only",
+    stratum: str = "native_nonendemic",
+) -> tuple[np.ndarray, list[float], list[float]]:
+    sub = surface.loc[
+        surface["evidence_scope"].astype(str).eq(scope)
+        & surface["target"].astype(str).eq(target)
+        & surface["stratum"].astype(str).eq(stratum)
+    ].copy()
+    if sub.empty:
+        raise FigureInputError(f"no joint cells for {target}")
+    sub["robust_numeric"] = sub["robust_cell"].astype(bool).astype(float)
+    table = sub.pivot_table(
+        index="trait_resolution_odds_ratio",
+        columns="state_recording_odds_ratio",
+        values="robust_numeric",
+        aggfunc="mean",
+    ).sort_index()
+    table = table.reindex(sorted(table.columns), axis=1)
+    return (
+        table.to_numpy(float),
+        [float(x) for x in table.index],
+        [float(x) for x in table.columns],
+    )
+
+
 def _robust_matrix(
     surface: pd.DataFrame,
     *,
@@ -110,21 +139,14 @@ def _robust_matrix(
     ].copy()
     if len(sub) != 1575:
         raise FigureInputError(f"{target} expected 1575 cells, found {len(sub)}")
-    sub["robust_numeric"] = sub["robust_cell"].astype(bool).astype(float)
-    table = sub.pivot_table(
-        index="trait_resolution_odds_ratio",
-        columns="state_recording_odds_ratio",
-        values="robust_numeric",
-        aggfunc="mean",
-    ).sort_index()
-    table = table.reindex(sorted(table.columns, reverse=True), axis=1)
-    robust = int(sub["robust_cell"].astype(bool).sum())
-    return (
-        table.to_numpy(float),
-        [float(x) for x in table.columns],
-        [float(x) for x in table.index],
-        (robust, len(sub)),
+    matrix, ors_r, ors_d = _primary_surface_matrix(
+        surface, target, scope=scope, stratum=stratum
     )
+    order = np.argsort(np.asarray(ors_d, dtype=float))[::-1]
+    matrix = matrix[:, order]
+    xvals = [ors_d[index] for index in order]
+    robust = int(sub["robust_cell"].astype(bool).sum())
+    return matrix, xvals, ors_r, (robust, len(sub))
 
 
 def _draw_heatmap(
