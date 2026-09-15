@@ -48,6 +48,12 @@ hypotheses:
       comparisons test distance:area:context interactions.
     primary_estimand: distance_by_area_interaction_vector
     between_context_estimand: distance_by_area_by_context_interaction_vector
+    conditional_interpretation: >-
+      If the predeclared North-Tropical three-way interaction is supported, evaluate the
+      conditional North-Tropical distance-response difference at standardized log-area
+      values -1, 0, and +1 only. These are symmetric one-SD interpretation points, not
+      searched thresholds.
+    conditional_area_z_values: [-1.0, 0.0, 1.0]
     directional_classification:
       small_island_amplification: >-
         After a supported joint moderation test, the distance-by-area interaction vector
@@ -57,6 +63,10 @@ hypotheses:
         After a supported joint moderation test, the distance-by-area interaction vector
         projects in the same direction as the fitted distance-response vector.
       unresolved: joint_moderation_not_supported_or_projection_zero
+    multiplicity: >-
+      Apply BH-FDR across the four within-context H3 joint tests within each floristic
+      stratum and evidence scope. The single predeclared North-Tropical three-way test
+      needs no pairwise multiplicity correction.
     no_area_thresholds: true
 
   H4_hierarchical_native_assembly:
@@ -121,5 +131,6 @@ rules:
   - missing_trait_is_not_trait_zero
   - H1_global_test_precedes_pairwise_H2_interpretation
   - H3_joint_vector_test_precedes_directional_area_classification
+  - H3_conditional_area_points_are_fixed_not_searched
   - H4_requires_native_status_gate
   - H5_requires_independent_mechanism_evidence
