@@ -1,0 +1,72 @@
+name: Aggregate Chapter 1 P1c frozen matched-genus null
+
+on:
+  push:
+    branches: ["ch1/nee-island-first-design"]
+    paths:
+      - "src/island_v2/chapter1_p1c_matched_genus_aggregate_v2.py"
+      - "tests/test_chapter1_p1c_matched_genus_aggregate_v2.py"
+      - ".github/workflows/aggregate-chapter1-p1c-matched-genus-null.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  aggregate-existing-2000:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Test and lint aggregate-only repair
+        run: |
+          pytest -q tests/test_chapter1_p1c_matched_genus_aggregate_v2.py
+          ruff check src/island_v2/chapter1_p1c_matched_genus_aggregate_v2.py tests/test_chapter1_p1c_matched_genus_aggregate_v2.py
+      - name: Download the 40 immutable shard artifacts from the completed permutation run
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 34936193944
+          pattern: p1c-null-shard-*
+          path: /tmp/p1c-all-shards
+      - name: Verify exactly 40 shard outputs and aggregate without regenerating permutations
+        run: |
+          set -euo pipefail
+          test "$(find /tmp/p1c-all-shards -type f -name 'p1c_null_shard_*.csv.gz' | wc -l)" -eq 40
+          test "$(find /tmp/p1c-all-shards -type f -name 'p1c_null_shard_*_manifest.json' | wc -l)" -eq 40
+          python -m island_v2.chapter1_p1c_matched_genus_aggregate_v2 aggregate \
+            --shard-dir /tmp/p1c-all-shards \
+            --p1-config-path config/chapter1_p1_assembly_depth_defense.yml \
+            --output-dir /tmp/p1c-final \
+            --source-run-id 34936193944 \
+            --observed-tolerance 1e-12
+      - name: Validate immutable schedule and final contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result=json.loads(Path('/tmp/p1c-final/chapter1_p1c_matched_genus_null_result.json').read_text())
+          assert result['source_permutation_run_id'] == 34936193944
+          assert result['permutations_regenerated'] is False
+          assert result['permutations_requested'] == 2000
+          assert result['valid_permutations'] <= 2000
+          assert result['master_seed'] == 20260915
+          assert result['observed_statistic_spread_across_shards'] <= 1e-12
+          if result['valid_permutations'] < 1900:
+              assert result['status'] == 'NOT_EVALUABLE_insufficient_valid_permutations'
+              assert result['one_sided_randomization_p_value'] is None
+          else:
+              assert result['one_sided_randomization_p_value'] is not None
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-p1c-matched-genus-null-final-${{ github.run_id }}
+          path: /tmp/p1c-final/
+          if-no-files-found: error
+          retention-days: 90
