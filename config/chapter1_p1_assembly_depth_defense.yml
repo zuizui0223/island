@@ -1,0 +1,157 @@
+contract: chapter1_p1_assembly_depth_defense_v1
+status: post_baseline_robustness_design_frozen_before_new_p1_results
+created: '2026-09-15'
+
+purpose: >-
+  Defend or narrow the existing Palearctic family-to-genus attenuation result.
+  This contract cannot alter any frozen H2/H3 threshold, rescue a failed H5 gate,
+  or replace the current submission result locks.
+
+pinned_primary_artifact:
+  workflow_run_id: 34232450884
+  artifact_id: 10058653212
+  artifact_name: chapter1-progressive-analysis-34232450884
+  artifact_digest: sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999
+
+primary_context:
+  context_layer: biogeographic_realm
+  context: Palearctic
+  evidence_scope: direct_only
+  strata:
+    - all_native
+    - native_nonendemic
+  source_modes:
+    - geo_k5
+    - geo_k10
+    - geo_k20
+    - geo50_climate10
+  response_axes:
+    - generalized_accessible
+    - selfing_core
+
+p1a_exact_paired_support:
+  required: true
+  invariant: >-
+    observed_score, after_family_residual and after_genus_residual must be
+    evaluated on the same decomposition rows generated from the same observed
+    island species. No stage-specific island or species deletion is permitted.
+  structural_source:
+    module: src/island_v2/chapter1_taxonomic_depth_decomposition.py
+    manifest_field: family_and_genus_nulls_use_common_observed_species
+    expected_value: true
+  checks:
+    - no_missing_stage_value_within_retained_decomposition_row
+    - identical_island_axis_rows_across_three_stages_before_model_fit
+    - identical_n_species_information_weight_across_three_stages
+    - report_rows_islands_species_by_scope_stratum_source_mode_axis
+  failure_action: narrow_claim_to_composition_sensitivity
+
+p1b_direct_only_safeguard:
+  primary_evidence_scope: direct_only
+  complementary_scope: all_analysis_eligible
+  rule: >-
+    Direct-only determines whether the assembly-depth defense passes. The
+    all-analysis scope may show consistency but is not independent replication.
+  failure_action: narrow_claim_and_do_not_switch_primary_scope
+
+p1c_matched_complexity_genus_null:
+  tier: post_baseline_robustness_extension
+  observed_result_open_before_design: false
+  null_question: >-
+    Is true genus membership more informative for family-to-genus attenuation
+    than an arbitrary fine partition with the same family structure and genus
+    complexity?
+  randomization_unit: accepted_species
+  randomization_scope: within_family
+  preserve_exactly:
+    - family_membership
+    - number_of_pseudo_genera_per_family
+    - multiset_of_genus_group_sizes_within_family
+    - species_scores
+    - island_memberships
+    - source_assignments
+    - evidence_scope
+    - floristic_stratum
+    - source_mode
+    - support_thresholds
+    - regression_and_multiple_testing_contract
+  recompute_after_randomization:
+    - pseudo_genus_source_group_positions
+    - pseudo_genus_source_availability
+    - pseudo_genus_expected_island_scores
+    - after_pseudo_genus_residual
+    - isolation_slopes
+    - two_axis_vector_norms
+    - conditional_family_to_pseudo_genus_attenuation
+  permutations: 2000
+  random_seed: 20260915
+  primary_statistic: >-
+    median conditional family-to-genus attenuation across the eight direct-only
+    source-mode x stratum profiles.
+  secondary_statistics:
+    - median_conditional_attenuation_all_native
+    - median_conditional_attenuation_native_nonendemic
+    - minimum_conditional_attenuation_across_eight_profiles
+  randomization_p_value: one_sided_greater_equal_observed
+  primary_pass_rule:
+    max_randomization_p_value: 0.05
+  interpretation_if_pass: >-
+    True genus boundaries attenuate the frozen Palearctic vector more than
+    matched arbitrary within-family partitions of equal complexity. This
+    strengthens taxonomic localization but remains non-causal.
+  interpretation_if_fail: >-
+    The observed genus attenuation is not distinguishable from a generic
+    fine-grouping/model-flexibility effect under this matched null; downgrade
+    assembly-depth language to composition sensitivity.
+  prohibited_rescue:
+    - changing_permutation_seed_after_result
+    - reducing_or_increasing_group_complexity_to_improve_support
+    - switching_to_all_analysis_as_primary
+    - selecting_only_favourable_source_modes_or_strata
+
+p1d_paired_attenuation_uncertainty:
+  tier: post_baseline_robustness_extension
+  status: design_pending_block_identity_audit
+  requirement_before_execution: >-
+    A frozen spatial block identifier or reproducible block-construction rule
+    already used by the primary models must be recoverable from immutable inputs.
+  target_estimands:
+    - family_attenuation_fraction
+    - genus_attenuation_fraction
+    - conditional_family_to_genus_attenuation_fraction
+  resampling_principle: paired_spatial_block_resampling
+  preserve_within_resample:
+    - common_observed_species_support_across_stages
+    - same_resampled_islands_across_observed_family_genus_stages
+    - source_mode
+    - evidence_scope
+    - stratum
+  minimum_resamples_if_executable: 2000
+  interval: percentile_95
+  failure_action: >-
+    If a defensible existing spatial block identity cannot be recovered, do not
+    invent a new post hoc geography solely to obtain an interval. Report the
+    existing attenuation descriptively and rely on the matched-complexity null.
+
+p1e_model_flexibility_negative_control:
+  tier: post_baseline_robustness_extension
+  status: conditional_on_p1c_implementation
+  requirement: >-
+    Use the same matched pseudo-genus partitions from P1c. No new favourable
+    endpoint may be selected.
+  question: >-
+    Does generic fine grouping absorb a comparable fraction of the response even
+    when group labels have no taxonomic meaning beyond preserved complexity?
+
+claim_decision:
+  strong_claim_if_all_required_defenses_pass: >-
+    The floral island syndrome has a measurable taxonomic assembly depth, with
+    the strongest Palearctic attenuation localized at the family-to-genus transition.
+  narrow_claim_if_p1a_or_p1c_fails: >-
+    The Palearctic floral island response is strongly sensitive to taxonomic
+    composition, but a genus-specific assembly depth is not established.
+  never_claim:
+    - genus_attenuation_proves_dispersal
+    - genus_attenuation_excludes_within_lineage_evolution
+    - matched_null_identifies_pollinator_mechanism
+    - attenuation_is_causal_mediation
