@@ -17,17 +17,9 @@ primary_context:
   context_layer: biogeographic_realm
   context: Palearctic
   evidence_scope: direct_only
-  strata:
-    - all_native
-    - native_nonendemic
-  source_modes:
-    - geo_k5
-    - geo_k10
-    - geo_k20
-    - geo50_climate10
-  response_axes:
-    - generalized_accessible
-    - selfing_core
+  strata: [all_native, native_nonendemic]
+  source_modes: [geo_k5, geo_k10, geo_k20, geo50_climate10]
+  response_axes: [generalized_accessible, selfing_core]
 
 p1a_exact_paired_support:
   required: true
@@ -98,8 +90,12 @@ p1c_matched_complexity_genus_null:
     - two_axis_vector_norms
     - conditional_family_to_pseudo_genus_attenuation
   permutations: 2000
+  permutation_ids: zero_based_0_through_1999
   minimum_valid_permutations: 1900
   random_seed: 20260915
+  permutation_seed_rule: master_seed_plus_zero_based_permutation_id
+  execution_shards: 40
+  permutations_per_shard: 50
   primary_statistic: >-
     median conditional family-to-genus attenuation across the eight direct-only
     source-mode x stratum profiles.
