@@ -40,7 +40,7 @@ jobs:
           set -euo pipefail
           test "$(find /tmp/p1c-all-shards -type f -name 'p1c_null_shard_*.csv.gz' | wc -l)" -eq 40
           test "$(find /tmp/p1c-all-shards -type f -name 'p1c_null_shard_*_manifest.json' | wc -l)" -eq 40
-          python -m island_v2.chapter1_p1c_matched_genus_aggregate_v2 aggregate \
+          python -m island_v2.chapter1_p1c_matched_genus_aggregate_v2 \
             --shard-dir /tmp/p1c-all-shards \
             --p1-config-path config/chapter1_p1_assembly_depth_defense.yml \
             --output-dir /tmp/p1c-final \
