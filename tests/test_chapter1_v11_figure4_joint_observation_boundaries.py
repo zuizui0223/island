@@ -53,7 +53,9 @@ def test_load_inputs_accepts_frozen_joint_and_boundary_shapes(tmp_path: Path) ->
     for path in (joint, geom, h5c, h5d):
         path.mkdir()
 
-    _joint_surface().to_csv(joint / "joint_surface_classification.csv.gz", index=False, compression="gzip")
+    _joint_surface().to_csv(
+        joint / "joint_surface_classification.csv.gz", index=False, compression="gzip"
+    )
     pd.DataFrame(
         [
             {
@@ -86,11 +88,14 @@ def test_load_inputs_accepts_frozen_joint_and_boundary_shapes(tmp_path: Path) ->
                 "envelope_robust": robust,
             }
         )
-    pd.DataFrame(envelope_rows).to_csv(joint / "partial_identification_envelope.csv", index=False)
+    pd.DataFrame(envelope_rows).to_csv(
+        joint / "partial_identification_envelope.csv", index=False
+    )
     (joint / "joint_observation_bias_manifest.json").write_text(
         json.dumps(
             {
                 "contract": "chapter1_joint_observation_bias_v1",
+                "n_primary_parameter_surfaces_per_scope": 1575,
                 "grid_fraction_is_probability": False,
             }
         )
