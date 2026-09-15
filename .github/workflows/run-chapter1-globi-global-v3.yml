@@ -54,7 +54,7 @@ jobs:
 
       - name: Run four-context global GloBI extension
         run: |
-          python -m island_v2.chapter1_globi_global_v3 run \
+          python -m island_v2.chapter1_globi_global_v3 \
             --genus-breadth-csv /tmp/globi-global/globi/globi-breadth-predictor/globi_source_genus_breadth.csv \
             --gift-flora-csv /tmp/globi-global/primary/fixed/source/source/gift_native_mainland_flora.csv.gz \
             --assignments-csv /tmp/globi-global/primary/fixed/source/result/island_source_assignments.csv.gz \
