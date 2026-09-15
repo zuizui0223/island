@@ -66,7 +66,7 @@ jobs:
         run: |
           rm -rf /tmp/v5-reproduction
           mkdir -p /tmp/v5-reproduction/all /tmp/v5-reproduction/direct
-          python -m island_v2.chapter1_trait_resolution_mnar run \
+          python -m island_v2.chapter1_trait_resolution_mnar \
             --island-scores-csv /tmp/pr142-final/syndrome/all/island_syndrome_scores.csv.gz \
             --status-flora-csv /tmp/pr142-final/fixed/canonical/input/chapter1_status_flora.csv.gz \
             --covariates-csv /tmp/pr142-final/fixed/isolation/results/purpose_shortest_island_data.csv \
@@ -76,7 +76,7 @@ jobs:
             --explanation-config-path config/chapter1_explanation_gap_validation.yml \
             --output-dir /tmp/v5-reproduction/all \
             --evidence-scope all_analysis_eligible
-          python -m island_v2.chapter1_trait_resolution_mnar run \
+          python -m island_v2.chapter1_trait_resolution_mnar \
             --island-scores-csv /tmp/pr142-final/syndrome/direct/island_syndrome_scores.csv.gz \
             --status-flora-csv /tmp/pr142-final/fixed/canonical/input/chapter1_status_flora.csv.gz \
             --covariates-csv /tmp/pr142-final/fixed/isolation/results/purpose_shortest_island_data.csv \
@@ -90,7 +90,7 @@ jobs:
       - name: Reproduce V6 separately on frozen PR142 input
         run: |
           rm -rf /tmp/v6-reproduction
-          python -m island_v2.chapter1_species_detection_tipping_runner run \
+          python -m island_v2.chapter1_species_detection_tipping_runner \
             --artifact-root /tmp/pr142-final \
             --config-path config/chapter1_species_detection_tipping.yml \
             --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
@@ -150,7 +150,7 @@ jobs:
       - name: Run frozen joint observation-bias surface and envelope
         run: |
           rm -rf /tmp/joint-observation-bias
-          python -m island_v2.chapter1_joint_observation_bias run \
+          python -m island_v2.chapter1_joint_observation_bias \
             --artifact-root /tmp/pr142-final \
             --config-path config/chapter1_joint_observation_bias.yml \
             --pattern-config-path config/chapter1_pr136_biogeographic_pattern.yml \
