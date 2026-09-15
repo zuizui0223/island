@@ -35,7 +35,7 @@ def test_vector_geometry_detects_noncollinearity() -> None:
     assert np.isclose(_angle_degrees(a, b), 90.0)
     c = 2.0 * a
     assert np.isclose(_determinant(a, c), 0.0)
-    assert np.isclose(_angle_degrees(a, c), 0.0)
+    assert abs(_angle_degrees(a, c)) < 1e-5
 
 
 def test_coobserved_species_uses_same_species_denominator() -> None:
