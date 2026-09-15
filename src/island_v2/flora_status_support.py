@@ -3,6 +3,11 @@
 Floristic status and trait evidence are separate evidence layers. Status is never
 inferred from GBIF occurrence footprint. Missing or conflicting status remains
 unresolved and is kept visible in downstream attrition reports.
+
+The ``all_observed`` stratum is deliberately different: it retains every observed
+island x species record regardless of native/introduced/status resolution. This is
+used only for the broad all-data assemblage analysis. Status-resolved strata remain
+available as sensitivity / interpretation layers.
 """
 
 from __future__ import annotations
@@ -21,7 +26,14 @@ app = typer.Typer(add_completion=False, no_args_is_help=True)
 DIRECT_SCOPES = {"species_direct", "synonym_direct"}
 ORIGIN_VALUES = {"native", "introduced", "unresolved"}
 ENDEMISM_VALUES = {"endemic", "nonendemic", "unresolved"}
-STRATA = ("all_native", "native_nonendemic", "endemic", "introduced", "unresolved")
+STRATA = (
+    "all_observed",
+    "all_native",
+    "native_nonendemic",
+    "endemic",
+    "introduced",
+    "unresolved",
+)
 
 
 def _text(series: pd.Series) -> pd.Series:
@@ -111,6 +123,8 @@ def attach_floristic_status(island_species: pd.DataFrame, status_ledger: pd.Data
 
 
 def stratum_mask(frame: pd.DataFrame, stratum: str) -> pd.Series:
+    if stratum == "all_observed":
+        return pd.Series(True, index=frame.index, dtype=bool)
     if stratum == "all_native":
         return frame["origin_status"].eq("native")
     if stratum == "native_nonendemic":
@@ -209,12 +223,13 @@ def run(
     status_flora.to_csv(output_dir / "island_species_floristic_status.csv.gz", index=False)
     support.to_csv(output_dir / "direct_trait_support_by_island.csv.gz", index=False)
     manifest = {
-        "contract": "flora_status_support_v2",
-        "status_policy": "source-backed only; unresolved/conflicting status fails closed",
+        "contract": "flora_status_support_v3_all_observed",
+        "status_policy": "source-backed status; all_observed explicitly ignores status for broad assemblage analysis",
         "n_island_species_rows": int(len(status_flora)),
         "n_status_resolved_rows": int(status_flora["status_resolved"].sum()),
         "n_status_conflicts": int(status_flora["status_conflict"].sum()),
         "outcomes": sorted(direct),
+        "strata": list(STRATA),
     }
     (output_dir / "flora_status_support_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     typer.echo(json.dumps(manifest, indent=2))
