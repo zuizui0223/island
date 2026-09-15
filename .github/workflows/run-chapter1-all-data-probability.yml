@@ -84,15 +84,16 @@ jobs:
               root = Path("/tmp/results") / scope
               within = pd.read_csv(root / "beta_binomial_within_omnibus.csv")
               between = pd.read_csv(root / "beta_binomial_between_omnibus.csv")
-              lines += [f"## {scope}", "", "### Within-context omnibus", ""]
-              lines.append(within.to_markdown(index=False))
-              lines += ["", "### North-Tropical direct contrast", ""]
-              lines.append(between.to_markdown(index=False))
-              lines.append("")
+              lines += [f"## {scope}", "", "### Within-context omnibus", "", "```csv"]
+              lines.append(within.to_csv(index=False).strip())
+              lines += ["```", "", "### North-Tropical direct contrast", "", "```csv"]
+              lines.append(between.to_csv(index=False).strip())
+              lines += ["```", ""]
           Path("/tmp/results/summary.md").write_text("\n".join(lines), encoding="utf-8")
           PY
           cat /tmp/results/summary.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: chapter1-all-data-probability-${{ github.run_id }}
           path: /tmp/results
