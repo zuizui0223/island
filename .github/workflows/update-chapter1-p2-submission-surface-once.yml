@@ -34,7 +34,7 @@ jobs:
           assert 'p=0.000947' in r
           assert 'strong geometric non-collinearity is not precisely established' in r
           assert 'chapter1_p2_component_nonconcordance_result_lock.json' in p
-          assert 'canonical v10 manuscript' in p
+          assert 'canonical island-first v10 manuscript' in p
           PY
       - name: Commit submission surface
         run: |
