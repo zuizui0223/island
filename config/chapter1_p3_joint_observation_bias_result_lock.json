@@ -1,0 +1,94 @@
+{
+  "contract": "chapter1_p3_joint_observation_bias_result_lock_v1",
+  "status": "complete_and_validated",
+  "workflow_run_id": 34949880409,
+  "artifact_id": 10389197309,
+  "artifact_name": "chapter1-joint-observation-bias-34949880409",
+  "artifact_digest": "sha256:b5cfe366686f83975dd989275904d2e0ddfbf43be27ffbd503dd05439a5264b2",
+  "parent_reproduction": {
+    "V5": true,
+    "V6": true
+  },
+  "surface_contract": {
+    "surfaces_per_evidence_scope": 1575,
+    "partial_identification_surfaces_per_evidence_scope": 48,
+    "maximum_no_differential_score_difference": 3.3306690738754696e-16,
+    "grid_fraction_is_probability": false,
+    "imputed_precision_increase": false
+  },
+  "headline": {
+    "formal_P2_direct_only_native_nonendemic": {
+      "robust_cells": 1541,
+      "fit_cells": 1575,
+      "robust_fraction": 0.9784126984126984
+    },
+    "palearctic_accessibility_direct_only_native_nonendemic": {
+      "robust_cells": 1575,
+      "fit_cells": 1575,
+      "robust_fraction": 1.0,
+      "estimate_min": 0.0391620771470579,
+      "estimate_max": 0.1428450293629691
+    },
+    "palearctic_accessibility_all_analysis_native_nonendemic": {
+      "robust_cells": 1575,
+      "fit_cells": 1575,
+      "robust_fraction": 1.0,
+      "estimate_min": 0.0401554806895935,
+      "estimate_max": 0.1380514939187701
+    },
+    "tropical_accessibility_direct_only_native_nonendemic": {
+      "robust_cells": 1269,
+      "fit_cells": 1575,
+      "robust_fraction": 0.8057142857142857,
+      "estimate_min": -0.094349633888246,
+      "estimate_max": 0.0414627762509656
+    },
+    "tropical_accessibility_all_analysis_native_nonendemic": {
+      "robust_cells": 1161,
+      "fit_cells": 1575,
+      "robust_fraction": 0.7371428571428571,
+      "estimate_min": -0.0856096135534305,
+      "estimate_max": 0.0421757843083912
+    }
+  },
+  "partial_identification": {
+    "palearctic_accessibility_all_analysis_native_nonendemic": {
+      "n_corner_cells": 48,
+      "estimate_lower": 0.0401554806895935,
+      "estimate_upper": 0.1380514939187701,
+      "expected_sign_identified": true,
+      "support_identified": true,
+      "envelope_robust": true
+    },
+    "palearctic_accessibility_direct_only_native_nonendemic": {
+      "n_corner_cells": 48,
+      "estimate_lower": 0.0391620771470579,
+      "estimate_upper": 0.1428450293629691,
+      "expected_sign_identified": true,
+      "support_identified": false,
+      "envelope_robust": false
+    },
+    "tropical_accessibility_all_analysis_native_nonendemic": {
+      "n_corner_cells": 48,
+      "estimate_lower": -0.0856096135534305,
+      "estimate_upper": 0.0399218255918019,
+      "expected_sign_identified": false,
+      "support_identified": false,
+      "envelope_robust": false
+    },
+    "tropical_accessibility_direct_only_native_nonendemic": {
+      "n_corner_cells": 48,
+      "estimate_lower": -0.0941877476516136,
+      "estimate_upper": 0.0390887203135506,
+      "expected_sign_identified": false,
+      "support_identified": false,
+      "envelope_robust": false
+    },
+    "formal_P2_direct_only_native_nonendemic": {
+      "n_corner_cells": 48,
+      "support_identified": false,
+      "envelope_robust": false
+    }
+  },
+  "claim_boundary": "Finite-grid robustness and partial-identification are distinct. The formal direct-only native-nonendemic North–Tropical vector difference is robust in 1541/1575 predeclared joint finite-grid cells, but it is not identified across the deterministic partial-identification envelope. Palearctic accessibility is the most observation-robust branch: 1575/1575 direct-only native-nonendemic finite-grid cells are robust and its sign remains positive across the direct-only envelope, although FDR support is not identified across every direct-only corner. Tropical accessibility is observation-fragile: finite-grid robustness is 1269/1575 in direct-only native non-endemics and its partial-identification interval crosses zero. Grid fractions are not probabilities, and no latent true completeness or pollinator mechanism is identified."
+}
