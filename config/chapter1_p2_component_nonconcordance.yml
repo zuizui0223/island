@@ -1,0 +1,113 @@
+contract: chapter1_p2_component_nonconcordance_v1
+status: frozen_before_new_p2_results
+created: 2026-09-15
+branch: ch1/p2-component-nonconcordance
+parent_main_sha: c238e3ba0b4b09c448b7d5a044eedcb2f96ece86
+
+purpose: >-
+  Test whether the classic floral-island response behaves as one coupled syndrome,
+  using the already-frozen primary H2 responses without inferring regional differences
+  from separate significance tests or from context layers that are not directly comparable.
+
+source_primary_analysis:
+  workflow_run_id: 34232450884
+  artifact_id: 10058653212
+  artifact_name: chapter1-progressive-analysis-34232450884
+  artifact_digest: sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999
+
+primary_context:
+  context_layer: analysis_regime
+  context_a: northern_midlatitude
+  context_b: tropical
+  rationale: >-
+    This is the frozen same-layer H2 direct comparison. Palearctic is a separate
+    biogeographic_realm context and must not be treated as the context_a label of this
+    direct North-Tropical contrast.
+
+primary_axes:
+  source_species_scores:
+    accessibility_generalization: generalized_accessible
+    reproductive_assurance: selfing_core
+  display_names:
+    - accessibility_generalization
+    - reproductive_assurance
+  disjoint_trait_definitions_required: true
+  named_pollinator_templates_excluded: true
+  flower_colour_excluded_from_primary_vector: true
+
+scopes:
+  - all_analysis_eligible
+  - direct_only
+strata:
+  - all_native
+  - native_nonendemic
+support_tier: confirmatory
+minimum_islands_per_axis_per_context: 50
+
+p2a_common_island_support:
+  role: primary_post_baseline_robustness
+  rule: >-
+    Within each scope, stratum and context, restrict both axes to the intersection of
+    islands having finite scores for both primary axes. Refit both axes on exactly the
+    same island set and use the frozen covariates, distance exposure, spatial blocks and
+    estimator. Do not select islands by outcome sign or significance.
+  information_weights: original_axis_specific_n_species
+  same_island_denominator_across_axes: true
+  same_species_denominator_across_axes: false
+  direct_between_context_vector_test_required: true
+  retain_full_slope_covariance: true
+  paired_spatial_block_bootstrap:
+    enabled: true
+    draws: 2000
+    seed: 20260915
+    outputs:
+      - component_slopes_by_context
+      - context_difference_vector
+      - covariance_matrix
+      - vector_angle
+      - angle_interval
+      - component_difference_intervals
+
+p2b_coobserved_species_sensitivity:
+  role: stronger_denominator_sensitivity_not_primary_estimand
+  rule: >-
+    Restrict species to those with finite species-level scores for both generalized_accessible
+    and selfing_core within the same evidence scope. Rebuild both island axes using the exact
+    same co-observed species set within each island and floristic stratum, then repeat the
+    same-layer North-Tropical vector comparison. This changes the estimand and is therefore
+    a labelled sensitivity analysis, not a replacement for frozen H2.
+  same_species_denominator_across_axes: true
+  same_island_denominator_across_axes: true
+  minimum_species_per_island_per_axis: 2
+  minimum_islands_per_context: 50
+  no_trait_imputation: true
+  no_family_or_genus_imputation: true
+  direct_between_context_vector_test_required: true
+
+p2c_realm_boundary_audit:
+  role: claim_boundary_only
+  rule: >-
+    Report the frozen Palearctic-Neotropical same-layer direct vector tests separately.
+    Do not relabel analysis-regime tropical as a Palearctic counterpart and do not use
+    cross-layer significance patterns as a formal between-context test.
+  no_new_model_required: true
+
+promotion_logic:
+  strong_component_nonconcordance_support_requires:
+    - p2a_direct_between_context_vector_supported_in_direct_only_native_nonendemic
+    - p2a_joint_vector_direction_not_explainable_by_one_scalar_same_direction_response
+    - p2a_common_island_result_direction_consistent_with_frozen_h2
+  denominator_robustness_strengthened_if:
+    - p2b_executable
+    - p2b_between_context_vector_direction_consistent_with_p2a
+  if_p2b_underpowered: retain_p2a_and_report_species_denominator_limitation
+  if_p2a_fails: narrow_h2_branching_claim_to_frozen_original_estimand
+  if_realm_direct_test_not_supported: do_not_claim_palearctic_vs_neotropical_direct_difference
+
+forbidden_claims:
+  - infer_context_difference_from_significant_in_one_and_not_the_other
+  - call_Palearctic_and_tropical_a_same_layer_direct_contrast
+  - count_colour_or_named_pollinator_templates_as_independent_primary_components
+  - interpret_component_decoupling_as_temporal_asynchrony
+  - interpret_selfing_core_as_realized_selfing_rate
+  - interpret_accessibility_generalization_as_observed_pollinator_identity
