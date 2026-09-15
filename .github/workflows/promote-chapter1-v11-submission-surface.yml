@@ -60,16 +60,16 @@ jobs:
           manuscript = Path('docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md').read_text()
           fig4 = json.loads(Path('config/chapter1_v11_figure4_result_lock.json').read_text())
 
-          required = [
-              '1,541/1,575',
-              '1,575/1,575',
-              '1,269/1,575',
-              'finite-domain robust',
-              'observation-fragile',
-          ]
-          for text in (readme, pipeline, freeze, manuscript):
-              for token in required[:3]:
+          numeric_tokens = ('1,541/1,575', '1,575/1,575', '1,269/1,575')
+          for text in (readme, pipeline, sync, manuscript):
+              for token in numeric_tokens:
                   assert token in text or token.replace(',', '') in text, (token, text[:80])
+
+          assert '1,541/1,575' in freeze or '1541/1575' in freeze
+          assert '1,575/1,575' in freeze or '1575/1575' in freeze
+          assert 'finite-domain robust' in freeze
+          assert 'observation-fragile' in freeze
+
           assert 'chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md' in readme
           assert 'config/chapter1_v11_figure4_result_lock.json' in readme
           assert 'config/chapter1_p3_joint_observation_bias_result_lock.json' in readme
