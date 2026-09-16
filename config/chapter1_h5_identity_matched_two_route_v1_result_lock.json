@@ -1,0 +1,40 @@
+{
+  "contract": "chapter1_h5_identity_matched_two_route_v1_result_lock",
+  "analysis_contract": "chapter1_h5_identity_matched_two_route_v1",
+  "repository": "zuizui0223/island",
+  "workflow_run_id": 35053988220,
+  "artifact_id": 10430156411,
+  "artifact_name": "chapter1-h5-identity-matched-two-route-35053988220",
+  "artifact_digest": "sha256:9f845fbb1b61e862e5b9956c43d132322304f93c82ad47c538828afa7105ec30",
+  "head_sha": "c1161e11bb7892cbddbde6465230b78b542106b9",
+  "status": "completed_posthoc_identity_aware_diagnostic",
+  "direct_primary": {
+    "route_A_reproductive_assurance": {
+      "northern_midlatitude": {"estimate": 0.0673459397940043, "p": 0.3563123102708676, "q": 0.3563123102708676},
+      "tropical": {"estimate": 0.2198271134255722, "p": 0.0152834516531134, "q": 0.0611338066124538}
+    },
+    "route_B_identity_matched_architecture_conditioned_on_selfing_core": {
+      "northern_midlatitude": {"estimate": 0.0646922120592241, "p": 0.1250813044265283, "q": 0.1667750725687043},
+      "tropical": {"estimate": -0.1382012056202377, "p": 0.1215287171074707, "q": 0.1667750725687043}
+    }
+  },
+  "all_analysis_sensitivity": {
+    "route_A_reproductive_assurance": {
+      "northern_midlatitude": {"estimate": -0.0020715260449901, "p": 0.955466058541412},
+      "tropical": {"estimate": 0.0739630044436099, "p": 0.5416185907901099}
+    },
+    "route_B_identity_matched_architecture_conditioned_on_selfing_core": {
+      "northern_midlatitude": {"estimate": 0.0468680760566389, "p": 0.2976068279260042},
+      "tropical": {"estimate": -0.1206572138386941, "p": 0.1624028825330718}
+    }
+  },
+  "decision": {
+    "classification": "identity_aware_suggestive_not_promoted",
+    "primary_four_test_fdr_passed": false,
+    "direct_tropical_route_A_nominal_only": true,
+    "direct_tropical_route_B_direction_matches_prediction_but_is_unsupported": true,
+    "all_analysis_sensitivity_reproduces_route_A_support": false,
+    "mechanism_promoted": false
+  },
+  "claim_boundary": "The identity-aware stacked analysis controls channel x context identity and equalizes island weight. It suggests a direct-only tropical association between strict channel disruption and reproductive assurance, and a negative but unsupported tropical matched-architecture response. Neither survives the prespecified four-test FDR family or all-analysis sensitivity; the analysis is post hoc and does not identify pollinator causation."
+}
