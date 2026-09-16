@@ -125,15 +125,79 @@ Show the supported beta-binomial distance×area patterns together with equal-isl
 
 This panel must not be drawn as the causal bridge from global H2 to native H3B.
 
-## Figure 4 — H5 pollination: consistency without mechanism identification
+## Figure 4 — H5: two plant pathways, then an independent upstream falsification wall
 
-### Plant-side consistency
+Figure 4 should distinguish what is supported on the plant side from what is not identified upstream. Do not draw `pollinator decline -> plant response` as a solid causal arrow.
+
+### Panel A — two partially separable plant response components
+
+Show two branches from isolation/source separation:
+
+1. reproductive assurance / `selfing_core`;
+2. pollination-associated floral architecture / `attraction_shift`.
+
+Use the Palearctic conditional decomposition as the key separation evidence:
+
+- attraction/access response remains positive after conditioning on `selfing_core` across four frozen source definitions;
+- all-native conditional distance estimates approximately 0.091–0.101, q=0.0079–0.034.
+
+Add the tropical counterexample to a compulsory serial selfing-syndrome model:
+
+- reproductive assurance increases while accessibility/generalization declines in direct all-native data.
+
+Panel claim:
+
+> reproductive assurance and floral architecture are partially separable plant response components; `isolation -> selfing -> floral simplification` is not an obligatory serial pathway.
+
+Do not label the floral branch `direct pollinator selection`; the upstream driver is not identified.
+
+### Panel B — syndrome consistency without visitor identity
 
 - Northern direct large-bee-like concordance decreases with isolation;
 - Tropical butterfly-like concordance increases with isolation;
-- named-template common architecture factor explains >86% of covariance, prohibiting visitor-identity interpretation.
+- tropical warm-colour × tubular architecture is strongly enriched relative to northern mid-latitudes;
+- named-template common architecture factor explains >86% of covariance.
 
-### Independent interaction cross-examination
+Panel claim: the regional floral responses are compatible with different pollination-associated architectures, but named templates do not identify realized visitor guilds.
+
+### Panel C — exact-island Bombus upstream bridge fails identification
+
+Use the canonical independent exact-island Bombus Search, not floral phenotype, to test the upstream arrow.
+
+Canonical Bombus state counts among 7,154 source-available islands:
+
+- detected/retained: 824;
+- adequate non-detection/disrupted: 23;
+- insufficient effort: 5,983;
+- unresolved: 324.
+
+Show the primary-context overlap matrix prominently:
+
+| context | retained | disrupted |
+|---|---:|---:|
+| northern mid-latitude | 751 | **5** |
+| tropical | **5** | 17 |
+
+Frozen overlap gate: >=10 of each state in both contexts. **0/2 contexts pass.**
+
+Beside it, show adjusted direct-evidence estimates only as diagnostics:
+
+- `selfing_core`: beta(disrupted)=+0.047, p=0.722;
+- `attraction_shift`: +0.047, p=0.292;
+- `attraction_shift | selfing_core`: +0.038, p=0.231.
+
+Post-genus residual checks are also unsupported:
+
+- `generalized_form`: p=0.197;
+- `self_compatibility`: p=0.428.
+
+Panel claim:
+
+> canonical occurrence data do not identify Bombus disruption as the upstream cause; reliable retained/disrupted states have inadequate within-context overlap, and adjusted associations are unsupported.
+
+This is an identifiability failure plus negative adjusted evidence, not evidence that Bombus is irrelevant.
+
+### Panel D — broader independent cross-examination
 
 Global GloBI extension:
 
@@ -148,11 +212,13 @@ Other frozen checks:
 - H5c biotic vs wind: p = 0.41221;
 - H5d distributed threshold: 0/8 qualified.
 
-Claim: floral responses are compatible with altered pollination-associated architecture, but no single independent global pollinator mechanism is identified.
+Figure-4 synthesis:
+
+> The data support two partially separable plant-side response components and regional pollination-syndrome consistency, but neither coarse interaction structure nor strict exact-island Bombus occurrence evidence identifies pollinator decline as the upstream cause.
 
 ## One-sentence synthesis
 
-> **Global contemporary island floras show context-dependent floral and reproductive responses that are not erased by source-free genus residualization, whereas the narrower native Palearctic response loses support after source-matched genus adjustment; area is measurement-sensitive and independent pollination data do not identify one universal mechanism.**
+> **Global contemporary island floras show context-dependent floral and reproductive responses that are not erased by source-free genus residualization, whereas the narrower native Palearctic response loses support after source-matched genus adjustment; reproductive assurance and floral architecture are partially separable, but current independent interaction and exact-island Bombus data do not identify pollinator decline as their upstream cause.**
 
 ## Forbidden shortcuts
 
@@ -164,4 +230,7 @@ Do not write:
 - unresolved/non-native-status records are introduced species;
 - area proves island capacity or founder filtering;
 - butterfly-like/bird-like/large-bee-like scores identify realized visitors;
-- GloBI non-promotion means pollinators are irrelevant.
+- Bombus detection is effective pollination service or abundance;
+- Bombus adequate non-detection proves historical extinction;
+- the Bombus bridge proves pollinator decline causes selfing or floral change;
+- failure of the Bombus/GloBI gates means pollinators are irrelevant.
