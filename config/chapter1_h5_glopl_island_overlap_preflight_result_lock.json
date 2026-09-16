@@ -1,0 +1,60 @@
+{
+  "contract": "chapter1_h5_glopl_island_overlap_preflight_result_lock_v1",
+  "status": "completed_gate_passed",
+  "design_freeze_commit": "66dc2c4e701b68a8250c712bcedffdbbefd26741",
+  "workflow_run_id": 35085378171,
+  "artifact_id": 10442126584,
+  "artifact_digest": "sha256:5ab7aecfbeb4fac2db26bcdc13edd4b47e953b1d1e6f35255330a0b2f70fe041",
+  "source": {
+    "repository": "idiv-biodiversity/pollen-limitation-data-descriptor",
+    "git_commit": "abbe193770981b2c61713e75a0f01e004bdded8e",
+    "file": "Output/GloPL.csv",
+    "sha256": "264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de"
+  },
+  "outcome_blind": true,
+  "forbidden_outcome_columns_materialized": false,
+  "island_universe": {
+    "n_islands": 8265,
+    "source": "GSHHG 2.3.7 h",
+    "minimum_area_km2": 5.0
+  },
+  "global_overlap": {
+    "n_rows_total": 2969,
+    "n_rows_valid_coordinates": 2969,
+    "n_unique_coordinate_sites": 1248,
+    "n_rows_within_any_frozen_island": 485,
+    "n_unique_sites_within_any_frozen_island": 197,
+    "n_unique_islands_with_GloPL": 37,
+    "n_unique_studies_within_any_frozen_island": 103,
+    "n_unique_species_within_any_frozen_island": 212,
+    "boundary_only_match_count": 0,
+    "multi_polygon_match_count": 0
+  },
+  "primary_contexts": {
+    "northern_midlatitude": {
+      "n_rows": 289,
+      "n_sites": 94,
+      "n_islands": 15,
+      "n_studies": 55,
+      "n_species": 136,
+      "gate_pass": true
+    },
+    "tropical": {
+      "n_rows": 44,
+      "n_sites": 32,
+      "n_islands": 14,
+      "n_studies": 23,
+      "n_species": 33,
+      "gate_pass": true
+    }
+  },
+  "frozen_gate": {
+    "minimum_unique_islands_per_primary_context": 10,
+    "minimum_unique_studies_per_primary_context": 5,
+    "both_primary_contexts_must_pass": true
+  },
+  "admitted": true,
+  "effect_size_analysis_allowed": true,
+  "classification": "GloPL_exact_island_overlap_gate_passed",
+  "claim_ceiling": "This gate establishes only sufficient exact-island geographic and publication/study overlap for a separately frozen pollen-limitation analysis. It does not show pollen limitation, pollinator decline, causal selection, or an isolation effect."
+}
