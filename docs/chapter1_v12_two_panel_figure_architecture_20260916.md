@@ -2,7 +2,7 @@
 
 ## Decision
 
-The main result is not one H1→H5 causal ladder. The manuscript/figure surface is organized as two nested evidence layers, with the taxonomic-depth contrast shown explicitly side-by-side.
+The main result is not one H1→H5 causal ladder. The manuscript/figure surface is organized as two nested evidence layers, with taxonomic depth and mechanism shown as separate dimensions.
 
 The numbering is fixed as:
 
@@ -35,7 +35,7 @@ Do not claim native assembly from this panel.
 
 Show immediately why the broad response cannot be read as a native-assembly result.
 
-On the same 375 islands:
+On the same 375 status-supported islands:
 
 - all observed species: p = 0.0005607 all evidence / 0.0003959 direct;
 - native species only: p = 0.2491 / 0.3018.
@@ -70,22 +70,20 @@ Then show the equal-island decomposition:
 - all evidence: after-family p = 0.01043; after-genus p = 0.01150;
 - direct: after-family p = 0.02497; after-genus p = 0.004593.
 
-Do not headline the point attenuation percentages because paired-block intervals are broad. If attenuation is shown, display interval uncertainty explicitly.
+Do not headline point attenuation percentages because paired-block intervals are broad.
 
 Key retained post-genus components:
 
-- generalized_form: p = 0.00363 all / 0.00327 direct;
-- self_compatibility: p = 0.0212 all / 0.00768 direct.
+- `generalized_form`: p = 0.00363 all / 0.00327 direct;
+- `self_compatibility`: p = 0.0212 all / 0.00768 direct.
 
 Preferred wording: **not erased by source-free genus residualization**.
-
-Avoid using `below genus` as shorthand in the panel title because that can be misread as a within-lineage evolutionary claim.
 
 Claim: broad context dependence is not simply a raw family/genus-composition effect and is not the same signal as the defended native genus-assembly result.
 
 ### Panel B — H3B defended Palearctic native response collapses after source-matched genus adjustment
 
-Use the same three-stage visual grammar as Panel A:
+Use the same three-stage visual grammar:
 
 1. observed;
 2. family-adjusted;
@@ -104,7 +102,7 @@ Do not use this panel as the explanation of Figure 1.
 
 ### Panel C — explicit comparison statement
 
-Put a compact comparison strip or bracket under Panels A and B:
+Put a compact comparison strip under Panels A and B:
 
 - **all-observed / broad H2:** residual vector remains supported after source-free genus residualization;
 - **defended native / Palearctic:** response loses support after source-matched genus adjustment.
@@ -113,25 +111,25 @@ Caption statement:
 
 > Taxonomy matters in both layers, but it matters at different depths and under different inferential conditions. The broad contemporary-flora response is not explained by the defended native genus-assembly result.
 
-This panel is the visual reason the manuscript needs two evidence layers rather than one causal ladder.
-
 ## Figure 3 — H4 area moderation is secondary and measurement-sensitive
 
 Place area after H3 rather than between H2 and taxonomic decomposition.
 
-Show the supported beta-binomial distance×area patterns together with equal-island/common-support guardrails. The interpretation remains:
+Show the supported beta-binomial distance×area patterns together with equal-island/common-support guardrails.
 
-> area is a measurement-sensitive modifier, not established evidence for island capacity, founder filtering, or pollinator-population persistence.
+Interpretation:
 
-This panel must not be drawn as the causal bridge from global H2 to native H3B.
+> area is a measurement-sensitive modifier. Smaller-island amplification is biologically compatible with stronger founder effects, demographic stochasticity, extinction risk or pollinator-population instability, but area is not a direct measure of any of those mechanisms and the signal is information-weight sensitive.
 
-## Figure 4 — H5: two plant pathways, then progressively stricter upstream tests
+Do not draw area as the causal bridge from global H2 to native H3B.
 
-Figure 4 should distinguish what is supported on the plant side from what remains unidentified upstream. Do not draw `pollinator decline -> plant response` as a solid causal arrow.
+## Figure 4 — H5: a common pollination-service pressure, divergent plant translation
+
+Figure 4 should now have a positive mechanistic result at its center: **experimental pollen limitation increases with geographic isolation globally.** The unresolved question is not whether any pollination-related pressure covaries with isolation, but how that pressure is translated into the context-dependent plant response.
 
 ### Panel A — two partially separable plant response components
 
-Show two branches from isolation/source separation:
+Show two branches of the plant response:
 
 1. reproductive assurance / `selfing_core`;
 2. pollination-associated floral architecture / attraction-accessibility.
@@ -139,126 +137,131 @@ Show two branches from isolation/source separation:
 Use the Palearctic conditional decomposition as the key separation evidence:
 
 - attraction/access response remains positive after conditioning on `selfing_core` across four frozen source definitions;
-- all-native conditional distance estimates approximately 0.091–0.101, q=0.0079–0.034.
+- all-native conditional distance estimates approximately 0.091–0.101, q = 0.0079–0.034.
 
-Add the tropical counterexample to a compulsory serial selfing-syndrome model:
+Add the tropical counterexample to a compulsory selfing-syndrome chain:
 
 - reproductive assurance increases while accessibility/generalization declines in direct all-native data.
 
+Include syndrome consistency as biological annotation rather than visitor identification:
+
+- Northern large-bee-like architecture declines with isolation;
+- Tropical butterfly-like architecture increases;
+- named-template covariance is >86% shared architecture.
+
 Panel claim:
 
-> reproductive assurance and floral architecture are partially separable plant response components; `isolation -> selfing -> floral simplification` is not an obligatory serial pathway.
+> reproductive assurance and floral architecture are partially separable plant responses; `isolation -> selfing -> floral simplification` is not an obligatory serial pathway, and named syndrome scores do not identify realized visitors.
 
-Do not label the floral branch `direct pollinator selection`; the upstream driver is not identified.
+### Panel B — independent experimental pollen limitation increases with isolation
 
-### Panel B — syndrome consistency without visitor identity
+This is the principal positive H5 panel.
 
-- Northern direct large-bee-like concordance decreases with isolation;
-- Tropical butterfly-like concordance increases with isolation;
-- tropical warm-colour × tubular architecture is strongly enriched relative to northern mid-latitudes;
-- named-template common architecture factor explains >86% of covariance.
+Full georeferenced GloPL frame:
 
-Panel claim: the regional floral responses are compatible with different pollination-associated architectures, but named templates do not identify realized visitor guilds.
+- 2,969 experiments;
+- 1,248 sites;
+- 919 publications;
+- global standardized distance slope = **+0.07937**;
+- frozen one-sided positive p = **0.01772**.
 
-### Panel C — total channel attrition vs identity-aware disruption
+Visual: plot publication/site-adjusted pollen-limitation effect against standardized distance, with the global fitted slope and uncertainty.
 
-This panel should explicitly compare two upstream models rather than stopping at the pooled null.
+Add a small inset for the post-hoc shape audit, clearly labelled post hoc:
 
-#### C1. Pooled five-channel attrition
+- mainland→offshore step: +0.13745, p = 0.1084;
+- within-offshore slope: +0.19983, p = 0.01110;
+- offshore-only slope: +0.23545, p = 0.005865, 260 sites / 158 publications.
 
-Pool strict exact-island states for Bombus, non-Bombus bees, Lepidoptera, flower-visiting birds and Diptera. Retained and disrupted states use the same frozen effort gate.
+Panel claim:
 
-Primary exposure: any documented disruption among at least two evaluable channels.
+> experimental pollen limitation is a supported general correlate of geographic isolation. This is service limitation, not direct evidence of pollinator abundance decline, visitation decline or historical pollinator loss.
 
-Support:
+### Panel C — the common pressure does not explain H2 branching through the two predeclared bridges
 
-| context | islands | disrupted | no documented disruption |
-|---|---:|---:|---:|
-| northern mid-latitude | 303 | **15** | 288 |
-| tropical | 99 | **21** | 78 |
+Split this panel into C1 regional branching and C2 trait buffering.
 
-Route A (`selfing_core`):
+#### C1. North–Tropical service branching
 
-- North: beta = -0.0113, p=0.738;
-- Tropical: beta = +0.0588, p=0.536.
+Frozen full-scale pair model:
 
-Route B (`generalized_accessible | selfing_core`):
+- North slope = +0.06170, one-sided p = 0.1073;
+- Tropical−North distance interaction = **+0.14300**;
+- predeclared negative-interaction p = 0.9119;
+- Tropical slope = +0.20470.
 
-- North: beta = -0.00496, p=0.834;
-- Tropical: beta = -0.00863, p=0.897.
+Visual label: **service gradient does not reproduce plant H2 branching**.
 
-Four-test FDR q ≈ **0.897**.
+The point-estimated tropical pollen-limitation gradient is stronger, not weaker. Therefore the North–Tropical plant contrast cannot be explained simply by stronger isolation-associated pollen limitation in the North.
 
-Visual label: **total functional-channel attrition — not supported**.
+#### C2. Species-matched functional buffering
 
-#### C2. Identity-aware channel stacking
+Route A — reproductive assurance:
 
-Now keep island × channel rows rather than collapsing all visitor guilds. Give each island equal total weight and absorb channel × context identity with fixed effects.
+- self compatibility: interaction +0.0351, buffering p = 0.6790, opposite prediction;
+- selfing mating system: non-evaluable;
+- autonomous selfing: interaction −0.0736, p = 0.1543, compatible direction but unsupported;
+- frozen family rule: **0/3 supported**.
 
-Route A uses all five channels and predicts higher `selfing_core` with disruption:
+Route B — atomic generally accessible floral architecture:
 
-- North: beta = +0.06735, p=0.356, q=0.356;
-- Tropical: beta = **+0.21983, p=0.0153, q=0.0611**.
+- `generalized_form`: interaction −0.06674, p = 0.2441; compatible direction but sensitivity sign reversal;
+- `actinomorphic_symmetry`: interaction +0.03496, p = 0.6690, opposite prediction;
+- `shallow_open_tube`: non-evaluable;
+- frozen family rule: **0/3 supported**.
 
-Route B uses predeclared channel-matched architectures and conditions on `selfing_core`:
+Panel claim:
 
-- Bombus -> large-bee-like;
-- Lepidoptera -> butterfly-like;
-- flower-visiting birds -> bird-like.
+> pollen limitation is a supported upstream ecological pressure, but current exact species-matched data do not establish either reproductive-assurance buffering or atomic floral-architecture buffering as the functional bridge to H2.
 
-Results:
+### Panel D — H3 tells us where the missing translation may occur
 
-- North: beta = +0.06469, p=0.125, q=0.1668;
-- Tropical: beta = **-0.13820, p=0.1215, q=0.1668**.
+Use H3 and the remaining interaction evidence to close the figure.
 
-The tropical Route A effect is nominal/direct-only and disappears in all-analysis sensitivity. The tropical Route B sign matches the identity-specific prediction but is unsupported in both evidence scopes.
+Show two downstream destinations from the common GloPL pressure, with **dashed arrows**:
 
-Visual label: **identity-aware turnover — suggestive tropical pattern, not promoted**.
+- **broad contemporary H3A:** context contrast remains after source-free genus residualization;
+- **native Palearctic H3B:** response is strongly genus-structured.
 
-Panel-C claim:
+Alongside, show the independent constraints:
 
-> a simple count of lost pollinator channels is too coarse. Preserving functional identity reveals a possible tropical reproductive-assurance signal and the expected direction of matched floral change, but neither survives the full inferential gate.
+- GloBI context heterogeneity: 3/4 source definitions, not robustly promoted;
+- individual exact-island channel overlap: 0/5 adequate in both primary contexts;
+- pooled five-channel attrition: estimable but unsupported;
+- strict northern same-island identity effect: structurally non-identifiable.
 
-### Panel D — remaining falsification wall and the unmeasured quantity
+Visual label for the missing middle:
 
-Use a compact cross-examination strip:
+`service limitation -> lineage/trait translation ?`
 
-- individual-channel overlap: **0/5** channels have adequate retained/disrupted overlap in both primary contexts;
-- Bombus-only bridge: overlap failure + unsupported adjusted associations;
-- GloBI global context heterogeneity: 3/4 source definitions, not robustly promoted;
-- GloBI distance×area heterogeneity: 0/4;
-- N1 channel heterogeneity: p = 0.65516;
-- H5c biotic vs wind: p = 0.41221;
-- H5d distributed threshold: 0/8 qualified.
+Candidate modifiers below the dashed arrow:
 
-Beside the strip, show the remaining unmeasured target:
+`pollinator identity/turnover | compensation | genus/species sorting | within-lineage response | demographic filtering | introduced flora`
 
-`pollination-service limitation = abundance × visitation × pollen delivery × effectiveness`
+Panel-D claim:
 
-with modifiers:
+> the same broad pollination-service pressure can coexist with different plant-response geometries and different taxonomic depths. Current data localize the downstream response but do not identify the biological transformation linking pollen limitation to H2.
 
-`functional identity / turnover | compensation among channels | lineage assembly | local selection`
+## Figure-4 synthesis
 
-Figure-4 synthesis:
+> **Geographic isolation is associated with increasing experimental pollen limitation globally, but that common ecological pressure is translated into different floral and reproductive outcomes across biogeographic contexts. Neither North–Tropical service branching nor the two predeclared species-level buffering routes explain H2. H3 further shows that the downstream response is represented differently in the broad contemporary flora and the defended native Palearctic flora.**
 
-> The data support two partially separable plant-side response components and regional pollination-syndrome consistency. Total channel attrition does not explain them. Identity-aware disruption gives a suggestive tropical signal but still does not identify causation. The remaining mechanistic target is effective pollination-service limitation, not coarse channel presence alone.
+## One-sentence manuscript synthesis
 
-## One-sentence synthesis
-
-> **Global contemporary island floras show context-dependent floral and reproductive responses that are not erased by source-free genus residualization, whereas the narrower native Palearctic response loses support after source-matched genus adjustment; reproductive assurance and floral architecture are partially separable, total pollinator-channel attrition is unsupported, and identity-aware disruption is suggestive in the tropics but does not yet identify pollination-service limitation as the common upstream cause.**
+> **Global contemporary island floras do not express one floral island syndrome: geographic isolation is associated with increasing pollen limitation, yet floral and reproductive responses branch among biogeographic contexts and are represented at different taxonomic depths, with the broad contemporary response surviving raw-genus residualization while the defended native Palearctic response is strongly genus-structured.**
 
 ## Forbidden shortcuts
 
 Do not write:
 
 - the global H2 response is explained by native genus assembly;
-- all-observed H3A residual proves within-lineage evolution;
-- post-genus residual means a process literally operating below the genus level;
-- unresolved/non-native-status records are introduced species;
-- area proves island capacity or founder filtering;
-- butterfly-like/bird-like/large-bee-like scores identify realized visitors;
-- channel detection is effective pollination service or abundance;
-- adequate non-detection proves historical extinction or temporal decline;
-- the pooled or identity-aware bridge proves pollinator decline causes selfing or floral change;
-- the nominal tropical identity-aware result is confirmatory evidence;
-- failure of pooled-channel/GloBI gates means pollinators are irrelevant.
+- H3A post-genus residual proves within-lineage evolution;
+- area proves founder effects or island capacity;
+- syndrome labels identify realized pollinator guilds;
+- the global GloPL slope proves pollinator abundance/visitation decline;
+- the global GloPL slope is a causal island effect;
+- GloPL mediates H2;
+- post-hoc offshore shape evidence is confirmatory;
+- failed reproductive-assurance or floral-architecture buffering means those traits are irrelevant;
+- support-limited trait contrasts are biological nulls;
+- H3B genus structure proves pollinator filtering.
