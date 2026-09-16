@@ -30,8 +30,11 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-      - run: pip install -e ".[dev]"
+      - run: pip install -e ".[dev,figures]"
       - name: Run full repository test suite
+        env:
+          PYTHONPATH: .:src
+          MPLBACKEND: Agg
         run: pytest -q
       - name: Ruff v13 code
         run: ruff check src/island_v2/chapter1_v13_*.py tests/test_chapter1_v13_*.py scripts/promote_chapter1_v13_submission_surface.py
