@@ -1,0 +1,117 @@
+{
+  "contract": "chapter1_all_data_route_result_lock_v1",
+  "date": "2026-09-15",
+  "status": "exploratory_additive_not_canonical_replacement",
+  "canonical_native_submission_surface": "v11",
+  "primary_estimand": "six_atomic_multivariate_distance_response_vector",
+  "evidence_hierarchy": {
+    "primary": "all_analysis_eligible",
+    "sensitivity": "direct_only"
+  },
+  "broad_observed_flora": {
+    "beta_binomial_run": 34961775336,
+    "artifact_id": 10394245237,
+    "all_analysis": {
+      "n_islands": 3626,
+      "n_spatial_blocks": 187,
+      "p_north_tropical": 0.0007633
+    },
+    "direct_only": {
+      "n_islands": 3569,
+      "n_spatial_blocks": 187,
+      "p_north_tropical": 0.004502
+    }
+  },
+  "model_form_sensitivity": {
+    "run": 34963020944,
+    "artifact_id": 10393863668,
+    "grouped_binomial_p_all_analysis": 0.001385,
+    "grouped_binomial_p_direct_only": 0.004501,
+    "verdict": "broad_observed_result_not_beta_binomial_artifact"
+  },
+  "response_representation": {
+    "compression_run": 34964112334,
+    "compression_artifact_id": 10394930700,
+    "all_analysis": {
+      "p_full_six_axis": 0.0007633,
+      "p_two_family_coefficient_projection": 0.0016467,
+      "p_discarded_within_family_contrasts": 0.5085,
+      "euclidean_fraction_retained": 0.7822
+    },
+    "direct_only": {
+      "p_full_six_axis": 0.004502,
+      "p_two_family_coefficient_projection": 0.0120921,
+      "p_discarded_within_family_contrasts": 0.1438,
+      "euclidean_fraction_retained": 0.6482
+    },
+    "support_intersection_run": 34964326934,
+    "support_intersection_artifact_id": 10394368256,
+    "min_informative_traits_2": {
+      "p_all_analysis": 0.739976,
+      "p_direct_only": 0.061423
+    },
+    "min_informative_traits_1": {
+      "p_all_analysis": 0.501973,
+      "p_direct_only": 0.851194
+    },
+    "trait_first_family_run": 34964919955,
+    "trait_first_family_artifact_id": 10394986981,
+    "available_components": {
+      "p_all_analysis": 0.507647,
+      "p_direct_only": 0.259466
+    },
+    "complete_three_components": {
+      "p_all_analysis": 0.110723,
+      "p_direct_only": 0.063741
+    },
+    "decision": "six_atomic_vector_primary_family_summaries_as_coefficient_level_contrasts_historical_species_concordance_secondary"
+  },
+  "status_resolution_audit": {
+    "run": 34963956873,
+    "artifact_id": 10394441857,
+    "north_tropical_status_resolution_slope_difference_p": 0.849,
+    "verdict": "status_availability_is_geographically_structured_but_not_by_a_simple_north_tropical_difference_in_resolution_slope"
+  },
+  "wcvp_regional_native_compatibility": {
+    "run": 34968461262,
+    "artifact_id": 10396382401,
+    "wcvp_exact_accepted_species": 101101,
+    "wcvp_species_with_native_range": 100887,
+    "upgraded_unresolved_rows": 362789,
+    "islands_with_upgrade": 2281,
+    "regional_native_rows": 513320,
+    "regional_native_islands": 2372,
+    "all_analysis": {
+      "n_analysis_islands": 1848,
+      "n_spatial_blocks": 178,
+      "p_north_tropical": 0.079541
+    },
+    "direct_only": {
+      "n_analysis_islands": 1827,
+      "n_spatial_blocks": 178,
+      "p_north_tropical": 0.174715
+    }
+  },
+  "wcvp_partition_diagnostic": {
+    "all_analysis": {
+      "p_source_native": 0.249146,
+      "p_wcvp_compatible_unresolved": 0.065619,
+      "p_wcvp_incompatible_unresolved": 0.00201,
+      "p_wcvp_unclassifiable_unresolved": 0.013676,
+      "p_regionally_incompatible_or_introduced": 0.001102
+    },
+    "direct_only": {
+      "p_source_native": 0.301844,
+      "p_wcvp_compatible_unresolved": 0.352507,
+      "p_wcvp_incompatible_unresolved": 0.003065,
+      "p_wcvp_unclassifiable_unresolved": 0.002687,
+      "p_regionally_incompatible_or_introduced": 0.009484
+    },
+    "claim_boundary": "wcvp_incompatible_or_unclassifiable_records_are_not_assumed_introduced"
+  },
+  "promoted_claims": {
+    "broad_observational": "Across thousands of contemporary observed island floras, isolation-associated floral and reproductive composition differs among biogeographic contexts at the six-atomic-trait level.",
+    "native_global": "not_promoted",
+    "defended_native_core": "frozen_v11_palearctic_genus_structured_assembly_result"
+  }
+}

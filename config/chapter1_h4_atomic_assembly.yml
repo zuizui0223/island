@@ -1,0 +1,69 @@
+contract: chapter1_h4_atomic_assembly_v1
+
+question: >-
+  For native island-flora responses that show area-dependent isolation effects in H3,
+  how much of the six-atomic response and its distance-by-area moderation is represented
+  by source-matched family and genus composition?
+
+primary_evidence_scope: direct_only
+sensitivity_evidence_scope: all_analysis_eligible
+primary_stratum: native_nonendemic
+sensitivity_strata: [all_native]
+contexts: [northern_midlatitude, tropical]
+
+atomic_outcomes:
+  - generalized_form
+  - actinomorphic_symmetry
+  - shallow_open_tube
+  - self_compatibility
+  - selfing_mating_system
+  - autonomous_selfing
+
+source_group_training:
+  minimum_scored_species_per_group: 2
+  source_modes: inherit_chapter1_pr138_source_pool_sensitivity
+
+minimum_support:
+  observed_species_per_island_response: 10
+  represented_families: 3
+  represented_genera: 5
+  islands_per_context_outcome: 30
+
+stages:
+  - observed_score
+  - after_family_residual
+  - after_genus_residual
+
+model: >-
+  Equal-island-weight stacked linear model for each source mode x stratum x context x
+  taxonomic stage: atomic_stage_score ~ distance + area + distance:area + climate_pc1..4,
+  with outcome-specific coefficients and spatial-block cluster-robust covariance.
+
+primary_estimand: distance_by_area_vector
+secondary_estimand: distance_vector_at_mean_standardized_area
+
+classification:
+  observed_not_supported: >-
+    The H3 moderation vector is not supported on the source-matched common-species frame.
+  compatible_with_family_or_deeper_sorting: >-
+    Observed moderation is supported but the after-family residual is not.
+  compatible_with_genus_level_assembly_beyond_family: >-
+    Observed and after-family moderation are supported but the after-genus residual is not.
+  residual_below_genus_retained: >-
+    The after-genus moderation vector remains supported.
+  source_definition_sensitive: >-
+    Stage classification differs among frozen source assignment modes.
+
+claim_ceiling:
+  taxonomic_depth_is_causal_mechanism: false
+  area_is_direct_capacity_measure: false
+  genus_structure_implies_in_situ_evolution: false
+  genus_structure_identifies_pollinator_mechanism: false
+
+rules:
+  - family_and_genus_stages_use_same_observed_species
+  - family_is_grouping_not_trait_imputation
+  - source_availability_is_outcome_blind
+  - equal_island_weight_primary_for_area_support_guardrail
+  - no_area_threshold_search
+  - H4_interpreted_only_after_H3_native_status_gate

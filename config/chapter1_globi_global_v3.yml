@@ -1,0 +1,88 @@
+contract: chapter1_globi_global_v3
+status: frozen_before_global_globi_outcome_inspection
+purpose: >-
+  Extend the independent GloBI source-genus breadth test from the previous northern-
+  midlatitude/tropical native frame to the same four analysis regimes used by the
+  redesigned all-data H1-H3 ladder. The all-observed layer is the broad primary test;
+  source-backed native strata remain biological-assembly sensitivities.
+
+predictor:
+  source_contract: chapter1_globi_source_breadth_v2
+  metric: effective_channel_number
+  primary_min_independent_references: 3
+  sensitivity_min_independent_references: [2, 5]
+  no_record_interpretation: missing_not_specialist
+
+source_matching:
+  source_modes: [geo_k5, geo_k10, geo_k20, geo50_climate10]
+  primary: prevalence_richness_effort
+  sensitivity: prevalence_richness
+  minimum_represented_genera: 5
+
+flora_scopes:
+  primary: all_observed
+  sensitivities: [all_native, native_nonendemic]
+
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+reference_context: northern_midlatitude
+primary_pair: [northern_midlatitude, tropical]
+
+model:
+  response: entry_enrichment
+  equal_island_weight: true
+  distance: log_distance_to_continent_km
+  area: log_island_area_km2
+  controls: [climate_pc1, climate_pc2, climate_pc3, climate_pc4]
+  cluster: spatial_block
+  within_context: >-
+    entry_enrichment ~ distance + area + distance:area + climate_pc1..4.
+  global_context_test: >-
+    Fit all four contexts jointly, allowing context-specific climate, area and distance
+    slopes. Joint Wald tests evaluate context heterogeneity of distance and of
+    distance:area interactions relative to the predeclared reference context.
+  pairwise_test: >-
+    Repeat a direct northern-midlatitude versus tropical interaction model with
+    context-specific climate, area and distance terms.
+
+support:
+  confirmatory_min_islands_per_context: 50
+  alpha: 0.05
+
+multiple_testing: >-
+  At the primary three-reference threshold and effort-matched source expectation,
+  BH-FDR is applied across the four frozen source modes separately for each flora scope
+  and each inferential family: within-context distance, within-context distance:area,
+  global distance heterogeneity, global distance:area heterogeneity, and the direct
+  northern-midlatitude/tropical contrasts.
+
+promotion_rules:
+  global_distance_context_heterogeneity: >-
+    Promote only if the four-context distance-heterogeneity joint test is FDR-supported
+    in all four source modes at the primary threshold and matching scheme. Otherwise
+    classify as source-definition-sensitive even if several source modes are supported.
+  global_area_context_heterogeneity: >-
+    Promote only if the four-context distance:area heterogeneity test is FDR-supported
+    in all four source modes.
+  within_context_breadth_filter: >-
+    No biological direction is preassigned for any of the four contexts in this global
+    extension. Report two-sided slopes; do not select a context after inspection.
+
+claim_ceiling:
+  all_observed_is_native_assembly: false
+  globi_breadth_is_true_specialization: false
+  historical_pollinator_loss_identified: false
+  effective_pollination_service_identified: false
+  causal_pollinator_filter_identified: false
+
+rules:
+  - predictor_is_frozen_before_this_global_extension
+  - all_four_contexts_are_tested_even_if_only_some_are_supported
+  - no_context_is_selected_after_outcome_inspection
+  - all_observed_is_broad_composition_not_native_assembly
+  - source_modes_are_a_robustness_family_not_alternative_results_to_cherry_pick
+  - equal_island_weight_is_primary
+  - missing_GloBI_evidence_is_never_zero_breadth

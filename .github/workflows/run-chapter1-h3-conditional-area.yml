@@ -1,0 +1,78 @@
+name: Run Chapter 1 H3 conditional area contrasts
+
+on:
+  push:
+    branches: [ch1-all-data-primary]
+    paths:
+      - "config/chapter1_hypothesis_ladder_v2.yml"
+      - "src/island_v2/chapter1_h3_conditional_area.py"
+      - "tests/test_chapter1_h3_conditional_area.py"
+      - ".github/workflows/run-chapter1-h3-conditional-area.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate fixed-area interpretation
+        run: |
+          pytest -q tests/test_chapter1_h3_conditional_area.py
+          ruff check src/island_v2/chapter1_h3_conditional_area.py tests/test_chapter1_h3_conditional_area.py
+      - name: Download frozen Chapter 1 inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ch1-h3
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/ch1-h3
+          test -s /tmp/ch1-h3/fixed/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/ch1-h3/fixed/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/ch1-h3/snapshot/chapter1_trait_state_audit_all.csv.gz
+          test -s /tmp/ch1-h3/snapshot/chapter1_trait_state_audit_direct.csv.gz
+      - name: Run all-analysis fixed-area contrasts
+        run: |
+          python -m island_v2.chapter1_h3_conditional_area \
+            --status-flora-csv /tmp/ch1-h3/fixed/canonical/input/chapter1_status_flora.csv.gz \
+            --state-audit-csv /tmp/ch1-h3/snapshot/chapter1_trait_state_audit_all.csv.gz \
+            --covariates-csv /tmp/ch1-h3/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --probability-config-path config/chapter1_all_data_probability.yml \
+            --ladder-config-path config/chapter1_hypothesis_ladder_v2.yml \
+            --evidence-scope all_analysis_eligible \
+            --output-dir /tmp/results/all
+      - name: Run direct fixed-area contrasts
+        run: |
+          python -m island_v2.chapter1_h3_conditional_area \
+            --status-flora-csv /tmp/ch1-h3/fixed/canonical/input/chapter1_status_flora.csv.gz \
+            --state-audit-csv /tmp/ch1-h3/snapshot/chapter1_trait_state_audit_direct.csv.gz \
+            --covariates-csv /tmp/ch1-h3/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --probability-config-path config/chapter1_all_data_probability.yml \
+            --ladder-config-path config/chapter1_hypothesis_ladder_v2.yml \
+            --evidence-scope direct_only \
+            --output-dir /tmp/results/direct
+      - name: Write summary
+        run: |
+          echo '# H3 conditional North-Tropical contrasts at fixed z(log area)' >> "$GITHUB_STEP_SUMMARY"
+          echo '## all-analysis' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/results/all/h3_conditional_area_omnibus.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '## direct-only' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/results/direct/h3_conditional_area_omnibus.csv >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-h3-conditional-area-${{ github.run_id }}
+          path: /tmp/results
+          if-no-files-found: error
+          retention-days: 30

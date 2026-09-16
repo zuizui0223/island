@@ -1,0 +1,109 @@
+contract: chapter1_h5_pollination_triangulation_v2
+status: frozen_before_new_globi_area_outcome_inspection
+purpose: >-
+  Test whether pollination-associated plant architecture is biologically consistent with
+  the redesigned H1-H4 ladder, then require independent interaction evidence before any
+  pollinator mechanism is promoted. Plant-side syndrome concordance is a consistency
+  layer, not mechanism identification.
+
+plant_side_consistency:
+  primary_evidence_scope: direct_only
+  sensitivity_evidence_scope: all_analysis_eligible
+  strata: [all_native, native_nonendemic]
+  context_layer: analysis_regime
+  predictions:
+    northern_midlatitude:
+      sampled_large_bee_concordance: negative
+      sampled_butterfly_concordance: no_primary_prediction
+      sampled_bird_concordance: no_primary_prediction
+    tropical:
+      sampled_butterfly_concordance: nonnegative
+      sampled_bird_concordance: no_primary_prediction
+      sampled_large_bee_concordance: no_primary_prediction
+  identity_specificity_guardrail:
+    architecture_factor_variance_fraction_ceiling: 0.80
+    rule: >-
+      If the source-trained common architecture factor explains more than 80% of the
+      three named-template covariance in either evidence scope, named templates cannot
+      be promoted as realized pollinator identities even when their signs match a
+      biological prediction.
+
+independent_globi_area_bridge:
+  question: >-
+    Are genera with broader independently documented source-side flower-interaction
+    channels preferentially represented with increasing isolation, especially on small
+    islands where the redesigned H3 area-conditioned response is strongest?
+  input_contract: chapter1_globi_source_breadth_v2
+  response_metric: effective_channel_number
+  response_outcome: entry_enrichment
+  primary_min_independent_references: 3
+  sensitivity_min_independent_references: [2, 5]
+  primary_source_matching: prevalence_richness_effort
+  sensitivity_source_matching: prevalence_richness
+  source_modes: [geo_k5, geo_k10, geo_k20, geo50_climate10]
+  strata: [all_native, native_nonendemic]
+  contexts: [northern_midlatitude, tropical]
+  model: >-
+    entry_enrichment ~ distance + area + distance:area + climate_pc1..4,
+    fitted with equal island weight and spatial-block cluster-robust covariance.
+  primary_northern_prediction:
+    distance_by_area: negative
+    interpretation: >-
+      Broader-channel genera should become more enriched with isolation more strongly on
+      small than large islands if a simple pollination-generalist filter contributes to
+      the H3 small-island pattern.
+  between_context_test: >-
+    Fit a direct northern-midlatitude versus tropical distance:area:context interaction
+    with context-specific main, climate, distance, and area terms. This is a direct
+    heterogeneity test, not a required sign-reversal claim.
+  support:
+    minimum_islands: 50
+    alpha: 0.05
+  promotion_rule: >-
+    Promote the simple source-breadth mechanism only if the northern primary
+    distance-by-area coefficient is negative and FDR-supported in all four frozen source
+    modes in both native strata, with the same negative sign at reference thresholds 2,
+    3 and 5. Failure is evidence against this specific breadth proxy, not against
+    pollination as a whole.
+
+independent_existing_checks:
+  N1_channel_heterogeneity:
+    statistic: 1.6187
+    df: 3
+    p_value: 0.65516
+    status: not_promoted
+  H5c_biotic_vs_wind:
+    distance_by_biotic: 0.0649525
+    ci_low: -0.0902968
+    ci_high: 0.2202019
+    p_value: 0.4122068
+    status: not_promoted
+  H5d_distributed_threshold:
+    qualified_cells: 0
+    planned_cells: 8
+    status: not_identified
+  original_globi_distance_only:
+    promoted_cells: 0
+    planned_context_stratum_cells: 4
+    workflow_run_id: 34790842133
+    artifact_id: 10328696801
+    status: not_promoted
+
+integrated_decision:
+  levels:
+    - plant_architecture_consistency
+    - pollinator_identity_specificity
+    - independent_source_interaction_breadth
+    - independent_pollination_mode_specificity
+    - independent_channel_heterogeneity
+  promote_global_pollinator_mechanism_only_if: >-
+    Plant-side consistency is accompanied by at least one prospectively qualified,
+    independently measured pollination test that survives its frozen robustness gate.
+  otherwise: pollination_plausible_but_not_identified
+
+claim_ceiling:
+  syndrome_template_is_pollinator_observation: false
+  globi_breadth_is_true_specialization: false
+  absence_of_independent_support_means_pollinators_irrelevant: false
+  historical_pollinator_loss_identified: false
+  effective_pollination_service_identified: false

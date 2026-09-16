@@ -1,0 +1,66 @@
+{
+  "contract": "chapter1_globi_global_v3_result_lock_v1",
+  "status": "completed_not_promoted",
+  "scientific_parent_contract": "chapter1_globi_global_v3",
+  "workflow_run_id": 34979722831,
+  "artifact_id": 10401900158,
+  "artifact_name": "chapter1-globi-global-v3-34979722831",
+  "artifact_digest": "sha256:c821eebc056cf7aeaad35e24682137f5eb9a50edad2247923428e68db241f1cf",
+  "predictor_sha256": "9f43ee056f285f8afcf92393170cf615236f7d99bd3d53e65fe998c415361386",
+  "primary_flora_scope": "all_observed",
+  "n_primary_all_observed_islands": 3252,
+  "contexts": [
+    "northern_midlatitude",
+    "northern_high_latitude",
+    "tropical",
+    "southern_extratropical"
+  ],
+  "primary_reference_threshold": 3,
+  "primary_source_matching": "prevalence_richness_effort",
+  "source_modes": ["geo_k5", "geo_k10", "geo_k20", "geo50_climate10"],
+  "primary_classification": {
+    "distance_heterogeneity": {
+      "n_source_modes_expected": 4,
+      "n_source_modes_supported": 3,
+      "classification": "source_definition_sensitive_context_heterogeneity"
+    },
+    "area_heterogeneity": {
+      "n_source_modes_expected": 4,
+      "n_source_modes_supported": 0,
+      "classification": "global_context_heterogeneity_not_supported"
+    }
+  },
+  "four_context_distance_heterogeneity": [
+    {"source_mode": "geo50_climate10", "p_value": 0.033822, "q_value": 0.045096},
+    {"source_mode": "geo_k10", "p_value": 0.059979, "q_value": 0.059979},
+    {"source_mode": "geo_k20", "p_value": 0.032073, "q_value": 0.045096},
+    {"source_mode": "geo_k5", "p_value": 0.013421, "q_value": 0.045096}
+  ],
+  "north_tropical_distance_contrast_q": {
+    "geo50_climate10": 0.020559,
+    "geo_k10": 0.055483,
+    "geo_k20": 0.020221,
+    "geo_k5": 0.097531
+  },
+  "area_heterogeneity_supported_source_modes": 0,
+  "descriptive_context_pattern": {
+    "northern_midlatitude": "weak_positive_not_fdr_supported",
+    "northern_high_latitude": "mixed_near_zero",
+    "tropical": "negative_near_fdr_threshold_not_promoted",
+    "southern_extratropical": "positive_one_of_four_source_modes_fdr_supported"
+  },
+  "native_sensitivity": {
+    "northern_midlatitude": "confirmatory_support_but_no_robust_distance_signal",
+    "tropical": "confirmatory_support_but_no_robust_distance_signal",
+    "northern_high_latitude": "below_confirmatory_support",
+    "southern_extratropical": "below_confirmatory_support"
+  },
+  "interpretation": "Independent GloBI interaction breadth shows suggestive but source-definition-sensitive biogeographic heterogeneity across the global island flora, while no robust universal breadth filter or area-conditioned pollinator mechanism is identified.",
+  "claim_ceiling": {
+    "all_observed_is_native_assembly": false,
+    "globi_breadth_is_true_specialization": false,
+    "historical_pollinator_loss_identified": false,
+    "effective_pollination_service_identified": false,
+    "causal_pollinator_filter_identified": false
+  }
+}

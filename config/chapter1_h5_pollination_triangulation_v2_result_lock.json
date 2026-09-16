@@ -1,0 +1,41 @@
+{
+  "contract": "chapter1_h5_pollination_triangulation_v2_result_lock_v1",
+  "status": "completed_not_promoted",
+  "workflow_run_id": 34977453917,
+  "artifact_id": 10399424739,
+  "artifact_name": "chapter1-h5-pollination-triangulation-v2-34977453917",
+  "artifact_digest": "sha256:86c17147942d34e400b0d4eb1ac5ca0c0467d0ed6a947a9ca294a05195157b9a",
+  "plant_side": {
+    "direct_prediction_pairs_supported": "2/2",
+    "northern_large_bee_all_native": {"slope": -0.043167287132635, "q": 0.0287108511630972},
+    "northern_large_bee_native_nonendemic": {"slope": -0.0454425333478805, "q": 0.0257912428218236},
+    "tropical_butterfly_all_native": {"slope": 0.0576466242001377, "q": 0.0120385396319277},
+    "tropical_butterfly_native_nonendemic": {"slope": 0.0681731564071581, "q": 0.0046489715625727}
+  },
+  "identity_specificity": {
+    "common_architecture_fraction_all": 0.8694377184973049,
+    "common_architecture_fraction_direct": 0.8643705024390916,
+    "ceiling": 0.8,
+    "named_pollinator_identity_promotable": false
+  },
+  "new_globi_area_bridge": {
+    "all_native_promoted": false,
+    "native_nonendemic_promoted": false,
+    "primary_prediction": "negative distance_by_area for northern effective-channel-number entry enrichment",
+    "source_definition_sign_stable": false,
+    "representative_native_nonendemic": {
+      "geo50_climate10": -0.001602,
+      "geo_k10": 0.009546,
+      "geo_k20": 0.004254,
+      "geo_k5": 0.011589
+    }
+  },
+  "frozen_independent_checks": {
+    "original_globi_distance_only_promoted_cells": "0/4",
+    "N1_channel_heterogeneity_p": 0.65516,
+    "H5c_distance_by_biotic_p": 0.4122068,
+    "H5d_qualified_cells": "0/8"
+  },
+  "verdict": "pollination_plausible_but_not_identified",
+  "claim": "Plant-side floral responses are consistent with pollination-associated architecture, but named syndrome labels do not identify realized pollinators and the current independent interaction tests do not support one global pollinator-filter mechanism."
+}

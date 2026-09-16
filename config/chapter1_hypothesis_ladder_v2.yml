@@ -1,0 +1,136 @@
+contract: chapter1_hypothesis_ladder_v2
+
+purpose: >-
+  Reorder the Chapter 1 hypothesis ladder so that questions requiring only observed
+  island-flora composition are tested before questions that require defensible native
+  status, source pools, or independent mechanism data. H1-H3 use the maximum
+  trait-evaluable observed-flora layer; H4-H5 are conditional downstream gates.
+
+primary_data_layer:
+  flora_scope: all_observed
+  evidence_scope: all_analysis_eligible
+  evidence_sensitivity: direct_only
+  response: six_atomic_trait_probability_vector
+  model_family: beta_binomial_logit
+
+hypotheses:
+  H1_universal_response:
+    question: >-
+      Does increasing source separation generate one common multivariate floral and
+      reproductive response vector across biogeographic contexts?
+    estimand: global_distance_by_context_interaction_vector
+    null: distance_response_vector_is_equal_across_all_predeclared_contexts
+    rejection_rule: joint_distance_by_context_wald_p_below_alpha
+    interpretation_if_rejected: >-
+      A single universal floral island response is not an adequate description of the
+      observed island-flora data.
+
+  H2_biogeographic_branching:
+    question: >-
+      If the universal response is rejected, which predeclared biogeographic contexts
+      differ in their isolation-associated response vectors?
+    primary_contrast: [northern_midlatitude, tropical]
+    exact_reversal_required: false
+    estimand: distance_by_context_interaction_vector
+    safeguards:
+      - direct_high_medium_evidence_sensitivity
+      - grouped_binomial_model_form_sensitivity
+      - spatial_block_cluster_robust_covariance
+
+  H3_island_capacity_moderation:
+    question: >-
+      Does continuous island area change the strength or direction of the
+      isolation-associated multivariate response within contexts, and does that
+      moderation itself differ among contexts?
+    model: >-
+      outcome ~ distance + area + distance:area + climate_pc1..4, with beta-binomial
+      likelihood and spatial-block cluster-robust covariance; direct regional
+      comparisons test distance:area:context interactions.
+    primary_estimand: distance_by_area_interaction_vector
+    between_context_estimand: distance_by_area_by_context_interaction_vector
+    conditional_interpretation: >-
+      If the predeclared North-Tropical three-way interaction is supported, evaluate the
+      conditional North-Tropical distance-response difference at standardized log-area
+      values -1, 0, and +1 only. These are symmetric one-SD interpretation points, not
+      searched thresholds.
+    conditional_area_z_values: [-1.0, 0.0, 1.0]
+    directional_classification:
+      small_island_amplification: >-
+        After a supported joint moderation test, the distance-by-area interaction vector
+        projects opposite to the fitted distance-response vector, so increasing area
+        attenuates the isolation-associated response.
+      large_island_amplification: >-
+        After a supported joint moderation test, the distance-by-area interaction vector
+        projects in the same direction as the fitted distance-response vector.
+      unresolved: joint_moderation_not_supported_or_projection_zero
+    multiplicity: >-
+      Apply BH-FDR across the four within-context H3 joint tests within each floristic
+      stratum and evidence scope. The single predeclared North-Tropical three-way test
+      needs no pairwise multiplicity correction.
+    no_area_thresholds: true
+
+  H4_hierarchical_native_assembly:
+    gate: >-
+      Evaluate only for a response/context that remains defensible after native-status
+      restriction or an explicitly labelled native-compatibility sensitivity.
+    question: >-
+      At what taxonomic depth is the defended native response represented: broad family
+      composition, true genus composition, or a residual below genus?
+    estimands:
+      - observed_response
+      - family_adjusted_response
+      - source_matched_genus_adjusted_response
+      - true_genus_vs_matched_pseudogenus_attenuation
+    current_focal_system: Palearctic
+    rule: >-
+      Do not use the all-observed North-Tropical contrast as evidence for native assembly
+      when the native-status gate is not passed.
+
+  H5_independent_mechanism_gate:
+    gate: h4_defended_native_pattern_or_independent_external_test
+    question: >-
+      Does independent evidence identify a pollination, source-supply, threshold, or
+      other mechanism that explains the defended pattern beyond geography, island
+      capacity, and lineage assembly?
+    rule: >-
+      Floral phenotype or syndrome concordance alone cannot identify realized pollinator
+      identity, historical pollinator loss, or causal colonization mechanism.
+
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+
+primary_between_contexts:
+  - [northern_midlatitude, tropical]
+
+area_column: log_island_area_km2
+geography_column: log_distance_to_continent_km
+context_column: analysis_regime
+cluster_column: spatial_block
+control_columns:
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+minimum_islands_per_outcome: 50
+minimum_outcomes_per_vector: 2
+alpha: 0.05
+
+claim_ceiling:
+  all_observed_means_native_assembly: false
+  area_is_direct_capacity_measure: false
+  pollinator_identity_from_traits: false
+  historical_colonization_identified: false
+  in_situ_evolution_identified: false
+
+rules:
+  - no_arbitrary_minimum_species_per_island_cutoff
+  - missing_trait_is_not_trait_zero
+  - H1_global_test_precedes_pairwise_H2_interpretation
+  - H3_joint_vector_test_precedes_directional_area_classification
+  - H3_conditional_area_points_are_fixed_not_searched
+  - H4_requires_native_status_gate
+  - H5_requires_independent_mechanism_evidence
