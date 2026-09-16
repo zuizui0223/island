@@ -1,0 +1,78 @@
+{
+  "contract": "chapter1_h3_observed_taxonomic_depth_result_lock_v1",
+  "status": "completed",
+  "workflow_run_id": 35043562731,
+  "artifact_id": 10426327347,
+  "artifact_name": "chapter1-h3-observed-taxonomic-depth-35043562731",
+  "artifact_digest": "sha256:05c23e93a7954b76399efae1df494f0fc9a78e58a09e1166e1a971b0a391562d",
+  "architecture_contract": "chapter1_hypothesis_architecture_v3",
+  "numbering_lock": {
+    "H3": "taxonomic_representation_depth",
+    "H4": "area_moderation"
+  },
+  "common_support_h2_gate": {
+    "all_analysis_eligible": {
+      "n_islands": 3560,
+      "n_clusters": 187,
+      "p_value": 0.00008392638821217608,
+      "passed": true
+    },
+    "direct_only": {
+      "n_islands": 3487,
+      "n_clusters": 187,
+      "p_value": 0.00012108775398066638,
+      "passed": true
+    }
+  },
+  "source_free_equal_island_decomposition": {
+    "all_analysis_eligible": {
+      "observed_p": 0.0545193,
+      "after_family_p": 0.0104325,
+      "after_genus_p": 0.0114966,
+      "observed_vector_norm": 0.0538678,
+      "after_family_vector_norm": 0.0528107,
+      "after_genus_vector_norm": 0.0299314,
+      "family_attenuation": 0.0196222,
+      "genus_attenuation": 0.4443532,
+      "genus_attenuation_bootstrap_median": 0.44168,
+      "genus_attenuation_bootstrap_ci_low": -0.023568,
+      "genus_attenuation_bootstrap_ci_high": 0.685742
+    },
+    "direct_only": {
+      "observed_p": 0.232471,
+      "after_family_p": 0.0249701,
+      "after_genus_p": 0.00459346,
+      "observed_vector_norm": 0.0525676,
+      "after_family_vector_norm": 0.0502064,
+      "after_genus_vector_norm": 0.0480198,
+      "family_attenuation": 0.0449176,
+      "genus_attenuation": 0.0865128,
+      "genus_attenuation_bootstrap_median": 0.140204,
+      "genus_attenuation_bootstrap_ci_low": -0.941175,
+      "genus_attenuation_bootstrap_ci_high": 0.589351
+    }
+  },
+  "post_genus_retained_components": {
+    "all_analysis_eligible": {
+      "generalized_form_p": 0.00362547,
+      "self_compatibility_p": 0.0211703
+    },
+    "direct_only": {
+      "generalized_form_p": 0.00327377,
+      "self_compatibility_p": 0.00768078
+    }
+  },
+  "integrated_classification": "broad_H2_not_erased_by_source_free_genus_residualization",
+  "comparison_to_native_v11": {
+    "native_palearctic_stage_pattern": "4/4 -> 4/4 -> 0/4",
+    "native_genus_attenuation_range": [0.788, 0.859],
+    "matched_pseudogenus_randomization_p": 0.0289855,
+    "interpretation": "broad all-observed and defended native responses have different taxonomic behavior and must remain separate inferential panels"
+  },
+  "claim_ceiling": {
+    "broad_signal_is_native_assembly": false,
+    "same_taxonomic_pattern_means_same_cause": false,
+    "taxonomic_residual_identifies_introduction_or_evolution": false,
+    "pollinator_mechanism_identified": false
+  }
+}
