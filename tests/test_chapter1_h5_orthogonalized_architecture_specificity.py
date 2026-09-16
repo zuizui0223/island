@@ -4,6 +4,7 @@ import pandas as pd
 import yaml
 
 from island_v2.chapter1_h5_orthogonalized_architecture_specificity import (
+    filter_island_component_support,
     focused_configs,
     integrate_scope_decisions,
     summarize_scope,
@@ -17,6 +18,18 @@ def _config() -> dict:
             encoding="utf-8",
         )
     )
+
+
+def test_filter_island_component_support_enforces_species_per_island_threshold() -> None:
+    rows = pd.DataFrame(
+        [
+            {"island_id": "a", "syndrome": "shared_architecture_factor", "n_species": 49},
+            {"island_id": "b", "syndrome": "shared_architecture_factor", "n_species": 50},
+            {"island_id": "c", "syndrome": "large_bee_like_residual", "n_species": 80},
+        ]
+    )
+    out = filter_island_component_support(rows, _config())
+    assert set(out["island_id"]) == {"b", "c"}
 
 
 def test_focused_configs_use_only_all_observed_north_tropical_and_two_decomposition_families() -> None:
