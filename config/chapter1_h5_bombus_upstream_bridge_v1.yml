@@ -1,0 +1,89 @@
+contract: chapter1_h5_bombus_upstream_bridge_v1
+status: posthoc_independent_falsification_frozen_before_joint_model_opening
+purpose: >-
+  Cross-examine the proposed upstream Bombus-channel route using the canonical
+  outcome-blind exact-island GBIF Search evidence that was collected independently
+  of Chapter 1 floral/reproductive outcomes. This is a post-hoc mechanistic bridge,
+  not a prospective causal confirmation.
+
+independent_bombus_input:
+  search_run_id: 34731405488
+  bombus_artifact_id: 10313926043
+  state_policy: chapter1_nee_channel_observation_policy_v1
+  source_available_islands: 7154
+  allowed_states: [retained, disrupted]
+  projection:
+    detected: retained
+    adequate_non_detection: disrupted
+    insufficient_effort: missing
+    unresolved: missing
+  rules:
+    - missing_or_insufficient_effort_is_never_bombus_absence
+    - detected_means_potential_channel_presence_not_effective_service
+    - disrupted_means_source_available_and_adequately_non_detected_not_historical_extinction
+    - channel_record_count_is_not_used_as_abundance_because_search_may_stop_after_detection
+
+plant_input:
+  all_data_run_id: 34962433803
+  primary_evidence_scope: direct_only
+  sensitivity_evidence_scope: all_analysis_eligible
+  flora_scope: all_observed
+  primary_components:
+    reproductive_assurance: selfing_core
+    attraction_shift: "(-large_bee_like + generalized_accessible) / 2"
+  conditional_model: >-
+    attraction_shift ~ Bombus_disrupted + selfing_core + context + distance + area + climate_pc1..4
+
+models:
+  island_weight: equal
+  context_column: analysis_regime
+  cluster_column: spatial_block
+  controls:
+    - log_distance_to_continent_km
+    - log_island_area_km2
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+  primary_contexts:
+    - northern_midlatitude
+    - tropical
+  global_contexts:
+    - northern_midlatitude
+    - northern_high_latitude
+    - tropical
+    - southern_extratropical
+  covariance: spatial_block_cluster_robust
+
+support_and_overlap:
+  global_min_retained: 20
+  global_min_disrupted: 20
+  context_min_each_state_for_confirmatory_interpretation: 10
+  require_two_contexts_meet_context_overlap_gate: true
+  if_overlap_gate_fails: >-
+    Joint coefficients are diagnostic only and cannot promote Bombus disruption as an
+    upstream mechanism, even if a p-value is small.
+
+secondary_taxonomic_check:
+  h3_run_id: 35043562731
+  evidence_scope: direct_only
+  outcomes: [generalized_form, self_compatibility]
+  stage: after_genus_residual
+  interpretation: >-
+    Association with a source-free genus residual would show that an occurrence-side
+    Bombus correlate is not exhausted by raw genus composition; it still would not prove
+    within-lineage evolution or direct selection.
+
+claim_ceiling:
+  causal_pollinator_decline_proven: false
+  historical_bombus_loss_proven: false
+  direct_pollinator_selection_proven: false
+  effective_pollination_service_measured: false
+  posthoc_bridge_can_promote_H5: false
+
+predeclared_interpretation:
+  parallel_pathway_consistency_requires: >-
+    Bombus disruption should be positively associated with selfing_core and with
+    attraction_shift, and the attraction association should remain after conditioning
+    on selfing_core, with adequate overlap. Failure of either association or of the
+    overlap gate leaves the upstream Bombus arrow unidentified.
