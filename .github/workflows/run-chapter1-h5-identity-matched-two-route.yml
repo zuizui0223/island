@@ -92,7 +92,7 @@ jobs:
 
       - name: Run direct High-Medium primary diagnostic
         run: |
-          python -m island_v2.chapter1_h5_identity_matched_two_route run \
+          python -m island_v2.chapter1_h5_identity_matched_two_route \
             --syndrome-scores-csv "$ROOT/all-data/syndrome/direct/island_syndrome_scores.csv.gz" \
             --channel-observations-csv "$ROOT/channels/five_channel_observations.csv" \
             --covariates-csv "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv" \
@@ -102,7 +102,7 @@ jobs:
 
       - name: Run all-analysis evidence sensitivity
         run: |
-          python -m island_v2.chapter1_h5_identity_matched_two_route run \
+          python -m island_v2.chapter1_h5_identity_matched_two_route \
             --syndrome-scores-csv "$ROOT/all-data/syndrome/all/island_syndrome_scores.csv.gz" \
             --channel-observations-csv "$ROOT/channels/five_channel_observations.csv" \
             --covariates-csv "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv" \
