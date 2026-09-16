@@ -1,0 +1,39 @@
+contract: chapter1_h5_channel_state_overlap_audit_v1
+status: reporting_only_posthoc_identifiability_audit
+purpose: >-
+  Quantify whether the canonical exact-island retained/disrupted observations provide
+  enough within-context overlap to identify a channel-disruption mechanism for the same
+  northern-midlatitude versus tropical contrast used in Chapter 1. This audit uses no
+  focal plant outcome and cannot promote a mechanism.
+
+channels:
+  - bombus
+  - non_bombus_bees
+  - lepidoptera
+  - flower_visiting_birds
+  - diptera
+
+state_projection:
+  detected: retained
+  adequate_non_detection: disrupted
+  insufficient_effort: missing
+  unresolved: missing
+
+primary_contexts: [northern_midlatitude, tropical]
+context_column: analysis_regime
+primary_overlap_reference: 10
+report_counts_without_reclassification: true
+
+rules:
+  - no_focal_plant_traits_enter_audit
+  - no_N1_effects_enter_audit
+  - missing_or_insufficient_effort_is_never_absence
+  - no_effort_threshold_is_relaxed_after_inspection
+  - source_available_channel_tables_are_used_as_frozen
+  - overlap_failure_is_identifiability_failure_not_evidence_of_no_pollinator_effect
+
+claim_ceiling: >-
+  The audit can establish whether the current strict exact-island occurrence evidence has
+  enough retained/disrupted overlap in the primary contexts to support a channel-state
+  mechanism analysis. It cannot estimate effective service, historical loss, abundance,
+  or causal selection on floral traits.
