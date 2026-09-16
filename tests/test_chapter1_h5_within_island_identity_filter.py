@@ -89,9 +89,11 @@ def test_within_island_matched_disruption_recovers_negative_effects() -> None:
     assert matched.loc["tropical", "estimate"] < -0.2
     primary = omnibus.loc[omnibus["mapping"].eq("matched")].iloc[0]
     assert bool(primary["support_passed"])
+    assert bool(primary["estimable"])
     assert primary["joint_df"] == 2
     assert primary["joint_p_value"] < 0.05
     assert decision["n_eligible_mixed_islands"] == 48
+    assert decision["estimability_gate_passed"]
     assert audit["eligible_mixed_island"].sum() == 48
 
 
@@ -106,8 +108,36 @@ def test_support_gate_fails_when_too_few_mixed_islands() -> None:
     )
     matched = omnibus.loc[omnibus["mapping"].eq("matched")].iloc[0]
     assert not bool(matched["support_passed"])
+    assert not bool(matched["estimable"])
     assert pd.isna(matched["joint_p_value"])
     assert not decision["support_gate_passed"]
+    assert not decision["estimability_gate_passed"]
+    assert models.loc[models["mapping"].eq("matched"), "estimate"].isna().all()
+
+
+def test_estimability_gate_fails_when_disruption_is_confounded_with_channel_identity() -> None:
+    scores, observations, covariates = _synthetic(n_per_context=12)
+    observations = observations.copy()
+    observations["observation_state"] = np.where(
+        observations["channel_id"].eq("bombus"),
+        "adequate_non_detection",
+        "detected",
+    )
+
+    models, omnibus, _, decision = run_analysis(
+        scores,
+        observations,
+        covariates,
+        _config(),
+        evidence_scope="all_analysis_eligible",
+    )
+    matched = omnibus.loc[omnibus["mapping"].eq("matched")].iloc[0]
+
+    assert bool(matched["support_passed"])
+    assert not bool(matched["estimable"])
+    assert matched["target_rank_increment"] == 0
+    assert pd.isna(matched["joint_p_value"])
+    assert not decision["estimability_gate_passed"]
     assert models.loc[models["mapping"].eq("matched"), "estimate"].isna().all()
 
 
