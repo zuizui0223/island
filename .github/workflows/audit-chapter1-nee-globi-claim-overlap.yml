@@ -1,0 +1,168 @@
+name: Audit Chapter 1 NEE GloBI supported-refuted claim overlap
+
+on:
+  push:
+    branches:
+      - "nee/double-filter-globi-v09-run"
+    paths:
+      - ".github/workflows/audit-chapter1-nee-globi-claim-overlap.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-claim-overlap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      INTERACTIONS_SHA256: "095e57398420d1e0746e61233c796beedcfb8e03bd0c6a732aa17ae62043bd17"
+      REFUTED_SHA256: "674e5b069992ab8a7fe98d76d0b9eb531c90c3ca267f434d14aa44a72ebbf8d6"
+      GLOBI_DIR: /tmp/globi-claim-overlap
+      OUT_PATH: /tmp/globi-claim-overlap-audit.json
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download and verify pinned GloBI 0.9 archives
+        run: |
+          set -euo pipefail
+          mkdir -p "$GLOBI_DIR"
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output "$GLOBI_DIR/interactions.tsv.gz" \
+            "https://zenodo.org/records/20546682/files/interactions.tsv.gz?download=1"
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output "$GLOBI_DIR/refuted-interactions.tsv.gz" \
+            "https://zenodo.org/records/20546682/files/refuted-interactions.tsv.gz?download=1"
+          echo "$INTERACTIONS_SHA256  $GLOBI_DIR/interactions.tsv.gz" | sha256sum --check --strict
+          echo "$REFUTED_SHA256  $GLOBI_DIR/refuted-interactions.tsv.gz" | sha256sum --check --strict
+
+      - name: Compare predeclared claim identity levels
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import pandas as pd
+
+          accepted = {
+              'http://purl.obolibrary.org/obo/RO_0002455',
+              'http://purl.obolibrary.org/obo/RO_0002456',
+              'http://purl.obolibrary.org/obo/RO_0002622',
+              'http://purl.obolibrary.org/obo/RO_0002623',
+          }
+          base = Path(os.environ['GLOBI_DIR'])
+          required = [
+              'sourceTaxonName','sourceTaxonSpeciesName','sourceTaxonId','sourceOccurrenceId',
+              'interactionTypeId',
+              'targetTaxonName','targetTaxonSpeciesName','targetTaxonId','targetOccurrenceId',
+              'referenceCitation','referenceDoi','referenceUrl',
+              'sourceCitation','sourceNamespace','sourceArchiveURI','sourceDOI',
+          ]
+
+          def txt(v):
+              if v is None or pd.isna(v): return ''
+              return ' '.join(str(v).split())
+
+          def refkey(row):
+              doi=txt(row.get('referenceDoi'))
+              if doi: return 'doi:'+doi.lower()
+              citation=txt(row.get('referenceCitation'))
+              if citation: return 'citation:'+citation
+              url=txt(row.get('referenceUrl'))
+              if url: return 'url:'+url
+              sdoi=txt(row.get('sourceDOI'))
+              if sdoi: return 'source_doi:'+sdoi.lower()
+              archive=txt(row.get('sourceArchiveURI'))
+              if archive: return 'archive:'+archive
+              ns=txt(row.get('sourceNamespace')); sc=txt(row.get('sourceCitation'))
+              return ('source:'+ns+'|'+sc) if (ns or sc) else ''
+
+          def key(row, level):
+              interaction=txt(row.get('interactionTypeId'))
+              if level == 'name_pair_reference':
+                  parts=[txt(row.get('sourceTaxonName')),interaction,txt(row.get('targetTaxonName')),refkey(row)]
+              elif level == 'name_pair':
+                  parts=[txt(row.get('sourceTaxonName')),interaction,txt(row.get('targetTaxonName'))]
+              elif level == 'species_pair':
+                  parts=[txt(row.get('sourceTaxonSpeciesName')) or txt(row.get('sourceTaxonName')),interaction,
+                         txt(row.get('targetTaxonSpeciesName')) or txt(row.get('targetTaxonName'))]
+              elif level == 'taxon_id_pair':
+                  parts=[txt(row.get('sourceTaxonId')),interaction,txt(row.get('targetTaxonId'))]
+                  if not parts[0] or not parts[2]: return ''
+              elif level == 'occurrence_pair':
+                  parts=[txt(row.get('sourceOccurrenceId')),interaction,txt(row.get('targetOccurrenceId'))]
+                  if not parts[0] or not parts[2]: return ''
+              else:
+                  raise ValueError(level)
+              if not all(parts): return ''
+              return hashlib.sha256('\x1f'.join(parts).encode()).hexdigest()
+
+          levels=['name_pair_reference','name_pair','species_pair','taxon_id_pair','occurrence_pair']
+          refuted={level:set() for level in levels}
+          refuted_rows=0
+          refuted_samples=[]
+          for chunk in pd.read_csv(base/'refuted-interactions.tsv.gz',sep='\t',compression='gzip',dtype=str,
+                                   usecols=lambda c:c in required,chunksize=200000,low_memory=False):
+              sub=chunk.loc[chunk['interactionTypeId'].fillna('').isin(accepted)].fillna('')
+              refuted_rows += len(sub)
+              if len(refuted_samples) < 10 and not sub.empty:
+                  cols=[c for c in required if c in sub.columns]
+                  refuted_samples.extend(sub[cols].head(10-len(refuted_samples)).to_dict('records'))
+              for row in sub.to_dict('records'):
+                  for level in levels:
+                      k=key(row,level)
+                      if k: refuted[level].add(k)
+
+          supported_rows=0
+          overlap_rows={level:0 for level in levels}
+          overlap_distinct={level:set() for level in levels}
+          supported_keys={level:set() for level in levels}
+          for chunk in pd.read_csv(base/'interactions.tsv.gz',sep='\t',compression='gzip',dtype=str,
+                                   usecols=lambda c:c in required,chunksize=200000,low_memory=False):
+              sub=chunk.loc[chunk['interactionTypeId'].fillna('').isin(accepted)].fillna('')
+              supported_rows += len(sub)
+              for row in sub.to_dict('records'):
+                  for level in levels:
+                      k=key(row,level)
+                      if not k: continue
+                      supported_keys[level].add(k)
+                      if k in refuted[level]:
+                          overlap_rows[level] += 1
+                          overlap_distinct[level].add(k)
+
+          payload={
+              'contract':'chapter1_nee_globi_supported_refuted_overlap_audit_v1',
+              'interaction_sha256':os.environ['INTERACTIONS_SHA256'],
+              'refuted_sha256':os.environ['REFUTED_SHA256'],
+              'accepted_interaction_ids':sorted(accepted),
+              'n_refuted_accepted_rows':int(refuted_rows),
+              'n_supported_accepted_rows':int(supported_rows),
+              'identity_levels':{
+                  level:{
+                      'n_refuted_distinct_keys':len(refuted[level]),
+                      'n_supported_distinct_keys':len(supported_keys[level]),
+                      'n_supported_rows_overlapping_refuted':int(overlap_rows[level]),
+                      'n_distinct_overlapping_keys':len(overlap_distinct[level]),
+                  }
+                  for level in levels
+              },
+              'refuted_sample_rows':refuted_samples,
+              'interpretation_rule':(
+                  'audit only; no identity level is selected by this workflow. '
+                  'A later code change must prefer the most specific identity with demonstrable overlap '
+                  'and must not use plant outcomes or N1 results.'
+              ),
+              'uses_focal_plant_traits':False,
+              'N1_fitted':False,
+          }
+          Path(os.environ['OUT_PATH']).write_text(json.dumps(payload,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps({k:v for k,v in payload.items() if k!='refuted_sample_rows'},indent=2))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-nee-globi-supported-refuted-overlap-audit
+          path: /tmp/globi-claim-overlap-audit.json
+          if-no-files-found: error
+          retention-days: 90

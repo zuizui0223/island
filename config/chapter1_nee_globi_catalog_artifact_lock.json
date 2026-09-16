@@ -1,0 +1,49 @@
+{
+  "contract": "chapter1_nee_globi_catalog_artifact_lock_v1",
+  "status": "successful_catalog_receipt_locked",
+  "source": {
+    "name": "GloBI interpreted interactions",
+    "version": "0.9",
+    "version_doi": "10.5281/zenodo.20546682",
+    "published_date": "2026-06-04",
+    "interactions_sha256": "095e57398420d1e0746e61233c796beedcfb8e03bd0c6a732aa17ae62043bd17",
+    "refuted_interactions_sha256": "674e5b069992ab8a7fe98d76d0b9eb531c90c3ca267f434d14aa44a72ebbf8d6"
+  },
+  "workflow": {
+    "run_id": 34670344484,
+    "job_id": 103490407048,
+    "head_sha": "16bd62e59845509ca846679f0ed63a850c6d9447",
+    "conclusion": "success"
+  },
+  "artifact": {
+    "artifact_id": 10290669482,
+    "artifact_name": "chapter1-nee-globi-v09-channel-catalog",
+    "artifact_digest": "sha256:66a8cca0780fb9e71918d671b293805ecd0e5dea7456205e7d6300e7ba326ebc",
+    "retention_days": 90,
+    "durability_note": "Actions artifact is temporary; this lock and the catalog receipt are durable provenance, while long-term archival remains required."
+  },
+  "receipt": {
+    "n_input_interaction_rows": 24577183,
+    "n_retained_flower_interaction_rows": 714785,
+    "n_catalog_taxa": 10179,
+    "n_confirmatory_catalog_taxa": 6928,
+    "n_refuted_flower_interactions_removed": 0,
+    "channels": [
+      {"channel_id": "bombus", "n_catalog_taxa": 171, "n_confirmatory_taxa": 146},
+      {"channel_id": "non_bombus_bees", "n_catalog_taxa": 3346, "n_confirmatory_taxa": 2206},
+      {"channel_id": "lepidoptera", "n_catalog_taxa": 3490, "n_confirmatory_taxa": 2360},
+      {"channel_id": "flower_visiting_birds", "n_catalog_taxa": 559, "n_confirmatory_taxa": 370},
+      {"channel_id": "diptera", "n_catalog_taxa": 2613, "n_confirmatory_taxa": 1846}
+    ],
+    "holdout_counts": {
+      "plant_side_not_resolved_as_Plantae": 1215095,
+      "pollinator_species_unresolved": 43135
+    }
+  },
+  "boundaries": {
+    "uses_focal_plant_traits": false,
+    "N1_fitted": false,
+    "refuted_zero_requires_separate_audit": true,
+    "catalog_counts_cannot_promote_N1_without_source_and_island_observation_support": true
+  }
+}

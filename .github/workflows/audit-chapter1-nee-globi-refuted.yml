@@ -1,0 +1,84 @@
+name: Audit Chapter 1 NEE GloBI refuted interactions
+
+on:
+  push:
+    branches:
+      - "nee/double-filter-globi-v09-run"
+    paths:
+      - ".github/workflows/audit-chapter1-nee-globi-refuted.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-refuted-flower-interactions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      REFUTED_SHA256: "674e5b069992ab8a7fe98d76d0b9eb531c90c3ca267f434d14aa44a72ebbf8d6"
+      REFUTED_PATH: /tmp/refuted-interactions.tsv.gz
+      OUT_PATH: /tmp/globi-refuted-flower-audit.json
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download pinned GloBI 0.9 refuted archive only
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output "$REFUTED_PATH" \
+            "https://zenodo.org/records/20546682/files/refuted-interactions.tsv.gz?download=1"
+          echo "$REFUTED_SHA256  $REFUTED_PATH" | sha256sum --check --strict
+
+      - name: Count accepted flower-interaction IDs in refuted archive
+        run: |
+          python - <<'PY'
+          import csv
+          import gzip
+          import json
+          import os
+          from collections import Counter
+          from pathlib import Path
+
+          accepted = {
+              'http://purl.obolibrary.org/obo/RO_0002455': 'pollinates',
+              'http://purl.obolibrary.org/obo/RO_0002456': 'pollinatedBy',
+              'http://purl.obolibrary.org/obo/RO_0002622': 'visitsFlowersOf',
+              'http://purl.obolibrary.org/obo/RO_0002623': 'flowersVisitedBy',
+          }
+          counts = Counter()
+          total = 0
+          with gzip.open(os.environ['REFUTED_PATH'], 'rt', encoding='utf-8', errors='replace', newline='') as handle:
+              reader = csv.DictReader(handle, delimiter='\t')
+              if 'interactionTypeId' not in (reader.fieldnames or []):
+                  raise SystemExit('refuted archive missing interactionTypeId')
+              for row in reader:
+                  total += 1
+                  interaction_id = (row.get('interactionTypeId') or '').strip()
+                  if interaction_id in accepted:
+                      counts[interaction_id] += 1
+          payload = {
+              'contract': 'chapter1_nee_globi_refuted_audit_v1',
+              'refuted_sha256': os.environ['REFUTED_SHA256'],
+              'n_refuted_rows_total': total,
+              'accepted_flower_interaction_counts': {
+                  interaction_id: {
+                      'label': label,
+                      'n_rows': counts.get(interaction_id, 0),
+                  }
+                  for interaction_id, label in accepted.items()
+              },
+              'n_refuted_rows_with_accepted_flower_interaction_id': sum(counts.values()),
+              'catalog_removed_zero_expected_if_this_is_zero': sum(counts.values()) == 0,
+          }
+          Path(os.environ['OUT_PATH']).write_text(json.dumps(payload, indent=2) + '\n', encoding='utf-8')
+          print(json.dumps(payload, indent=2))
+          PY
+
+      - name: Upload compact audit receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-nee-globi-refuted-audit
+          path: /tmp/globi-refuted-flower-audit.json
+          if-no-files-found: error
+          retention-days: 90
