@@ -1,5 +1,5 @@
 {
-  "contract": "chapter1_v12_two_panel_result_lock_v2",
+  "contract": "chapter1_v12_two_panel_result_lock_v3",
   "status": "exploratory_branch_integrated",
   "architecture": {
     "H1": "universal_response_rival",
@@ -24,6 +24,7 @@
       "all_evidence_p": 0.0114966,
       "direct_p": 0.00459346
     },
+    "retained_components": ["generalized_form", "self_compatibility"],
     "classification": "broad_H2_not_erased_by_source_free_genus_residualization"
   },
   "panel_C_H3B_defended_native": {
@@ -52,6 +53,8 @@
   "H5": {
     "plant_side": {
       "two_partially_separable_response_components": true,
+      "route_A": "reproductive_assurance",
+      "route_B": "pollination_associated_floral_architecture",
       "obligatory_selfing_then_floral_simplification_rejected": true,
       "named_template_identity_specificity_passed": false,
       "shared_named_architecture_variance_fraction_gt": 0.86
@@ -111,10 +114,29 @@
     },
     "classification": "two_plant_routes_supported_upstream_pollination_service_limitation_not_identified"
   },
+  "H3_H5_relationship": {
+    "H3_question": "where_is_the_response_taxonomically_represented",
+    "H5_question": "which_biological_mechanism_if_any_explains_the_response",
+    "broad_contemporary": {
+      "H3": "context_difference_not_erased_by_source_free_genus_residualization",
+      "H5_implication": "pollination_cannot_explain_panel_A_merely_as_between_genus_sorting; any real mechanism must also account_for_residual_context_structure",
+      "within_lineage_evolution_identified": false
+    },
+    "defended_native_palearctic": {
+      "H3": "response_strongly_genus_structured",
+      "H5_implication": "if_pollination_contributes_it_is_compatible_with_an_assembly_mediated_route_but_pollination_is_not_identified_as_the_upstream_generator",
+      "pollinator_filtering_identified": false
+    },
+    "solid_causal_arrow_H5_to_H3_allowed": false,
+    "preferred_visual_connection": "dashed_candidate_arrow_pollination_service_or_identity_filter"
+  },
   "headline": "Global contemporary island-flora context dependence is not erased by source-free genus residualization, whereas the defended native Palearctic response is strongly genus-structured; two plant-side response components are supported but their common upstream pollination-service mechanism is not identified.",
   "claim_ceiling": {
     "global_H2_explained_by_native_H3B": false,
     "H3A_residual_proves_within_lineage_evolution": false,
+    "H5_explains_H3B": false,
+    "genus_structuring_proves_pollinator_filtering": false,
+    "two_H5_routes_are_two_proven_causal_pathways": false,
     "area_is_capacity_mechanism": false,
     "pollinator_identity_identified_from_syndrome": false,
     "temporal_pollinator_decline_measured": false,
