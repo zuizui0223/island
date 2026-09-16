@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import pytest
+import typer
 import yaml
 
-from island_v2.chapter1_h5_within_island_identity_filter import run_analysis
+from island_v2.chapter1_h5_within_island_identity_filter import prepare_rows, run_analysis
 
 
 def _config() -> dict:
@@ -107,3 +109,25 @@ def test_support_gate_fails_when_too_few_mixed_islands() -> None:
     assert pd.isna(matched["joint_p_value"])
     assert not decision["support_gate_passed"]
     assert models.loc[models["mapping"].eq("matched"), "estimate"].isna().all()
+
+
+def test_prepare_rows_rejects_conflicting_island_context_or_block_assignments() -> None:
+    scores, observations, covariates = _synthetic(n_per_context=10)
+    duplicated = pd.concat(
+        [
+            covariates,
+            pd.DataFrame(
+                [
+                    {
+                        "island_id": "northern_midlatitude_0",
+                        "analysis_regime": "tropical",
+                        "spatial_block": "conflicting_block",
+                    }
+                ]
+            ),
+        ],
+        ignore_index=True,
+    )
+
+    with pytest.raises(typer.BadParameter, match="conflicting covariate rows"):
+        prepare_rows(scores, observations, duplicated, _config())
