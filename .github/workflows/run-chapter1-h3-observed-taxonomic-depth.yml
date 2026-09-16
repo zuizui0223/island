@@ -7,6 +7,7 @@ on:
       - "config/chapter1_hypothesis_architecture_v3.yml"
       - "config/chapter1_h3_observed_taxonomic_depth.yml"
       - "src/island_v2/chapter1_h3_observed_taxonomic_depth.py"
+      - "src/island_v2/chapter1_h3_common_support_h2_gate.py"
       - "tests/test_chapter1_h3_observed_taxonomic_depth.py"
       - ".github/workflows/run-chapter1-h3-observed-taxonomic-depth.yml"
   workflow_dispatch:
@@ -36,6 +37,7 @@ jobs:
           pytest -q tests/test_chapter1_h3_observed_taxonomic_depth.py
           ruff check --ignore F401 \
             src/island_v2/chapter1_h3_observed_taxonomic_depth.py \
+            src/island_v2/chapter1_h3_common_support_h2_gate.py \
             tests/test_chapter1_h3_observed_taxonomic_depth.py
 
       - name: Download frozen Chapter 1 inputs
@@ -72,13 +74,29 @@ jobs:
             --evidence-scope direct_only \
             --output-dir /tmp/results/direct
 
+      - name: Refit original H2 model on exact H3 common support
+        run: |
+          for scope in all direct; do
+            evidence=all_analysis_eligible
+            if [ "$scope" = direct ]; then evidence=direct_only; fi
+            python -m island_v2.chapter1_h3_common_support_h2_gate \
+              --island-scores-csv /tmp/results/$scope/h3_island_stage_scores.csv.gz \
+              --covariates-csv /tmp/ch1-h3/fixed/isolation/results/purpose_shortest_island_data.csv \
+              --probability-config-path config/chapter1_all_data_probability.yml \
+              --depth-config-path config/chapter1_h3_observed_taxonomic_depth.yml \
+              --evidence-scope "$evidence" \
+              --output-dir /tmp/results/$scope/common-support-h2
+          done
+
       - name: Write summary
         run: |
           echo '# H3A broad observed-flora taxonomic depth' >> "$GITHUB_STEP_SUMMARY"
           echo '## all-analysis primary' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/results/all/RESULT_SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/results/all/common-support-h2/h3_common_support_h2_gate.json >> "$GITHUB_STEP_SUMMARY"
           echo '## direct High/Medium sensitivity' >> "$GITHUB_STEP_SUMMARY"
           cat /tmp/results/direct/RESULT_SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/results/direct/common-support-h2/h3_common_support_h2_gate.json >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
         if: always()
