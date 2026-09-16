@@ -1,0 +1,172 @@
+{
+  "contract": "chapter1_v13_functional_bridge_result_lock_v1",
+  "date": "2026-09-17",
+  "status": "reproduced_and_locked",
+  "inferential_role": "posthoc_functional_triangulation",
+  "design_contract": "config/chapter1_v13_functional_bridge_v1.yml",
+  "workflow_run_id": 35141624253,
+  "workflow_job_id": 104947270671,
+  "head_sha": "1df459cbadf8118475124c077c0062cc4ac5ae53",
+  "artifact_id": 10465048981,
+  "artifact_name": "chapter1-v13-functional-bridge-35141624253",
+  "artifact_digest": "sha256:50b6ca693ec989690854a9e9aadb5cd8a672b5fbcf3ff84e5aabbab06a6abc8e",
+  "parent_artifacts": {
+    "reproductive_assurance": {
+      "workflow_run_id": 35093274622,
+      "artifact_id": 10444749163,
+      "artifact_digest": "sha256:317221b0315137d2cfc0591d9f6f146c6956106d50d8a5b1dc782096bab55da9"
+    },
+    "floral_architecture": {
+      "workflow_run_id": 35094588521,
+      "artifact_id": 10445189257,
+      "artifact_digest": "sha256:ef81551d41cc747b07e927b9a5c4f13eaf0fc013a5cf8ac3fb1a5491aadec8c4"
+    }
+  },
+  "manifest": {
+    "n_result_rows": 22,
+    "n_primary_traits_evaluable": 4,
+    "n_primary_traits_negative_directional_p_le_0_05": 3,
+    "historical_pollen_limitation_selected_traits": false,
+    "trait_mediates_isolation_effect": false,
+    "failed_parent_moderation_tests_reclassified": false
+  },
+  "traits": {
+    "self_compatibility": {
+      "family": "reproductive_assurance",
+      "primary": {
+        "estimate": -0.117727,
+        "se": 0.082515,
+        "two_sided_p": 0.1536551,
+        "one_sided_negative_p": 0.07682757,
+        "n_cells": 769,
+        "n_publications": 429,
+        "n_sites": 591,
+        "n_species": 499
+      },
+      "supplemental_only": {
+        "estimate": -0.037990,
+        "one_sided_negative_p": 0.3258880
+      },
+      "no_zero_constant": {
+        "estimate": -0.121010,
+        "one_sided_negative_p": 0.07608236
+      },
+      "within_publication": {"evaluable": false, "reason": "design_not_full_rank"},
+      "within_publication_site": {"evaluable": false, "reason": "design_not_full_rank"},
+      "classification": "directionally_compatible_but_imprecise"
+    },
+    "autonomous_selfing": {
+      "family": "reproductive_assurance",
+      "primary": {
+        "estimate": -0.446724,
+        "se": 0.080253,
+        "two_sided_p": 2.600385e-08,
+        "one_sided_negative_p": 1.300193e-08,
+        "n_cells": 865,
+        "n_publications": 469,
+        "n_sites": 640,
+        "n_species": 558
+      },
+      "supplemental_only": {
+        "estimate": -0.303724,
+        "one_sided_negative_p": 2.688585e-06
+      },
+      "no_zero_constant": {
+        "estimate": -0.454798,
+        "one_sided_negative_p": 9.184762e-09
+      },
+      "within_publication": {
+        "estimate": -0.306034,
+        "se": 0.140590,
+        "two_sided_p": 0.02949689,
+        "one_sided_negative_p": 0.01474845,
+        "n_fixed_effect_groups": 30
+      },
+      "within_publication_site": {
+        "estimate": -0.186358,
+        "se": 0.107673,
+        "two_sided_p": 0.08349056,
+        "one_sided_negative_p": 0.04174528,
+        "n_fixed_effect_groups": 36
+      },
+      "classification": "strong_posthoc_functional_compatibility_reproduced_across_global_and_within_group_checks"
+    },
+    "selfing_mating_system": {
+      "family": "reproductive_assurance",
+      "evaluable": false,
+      "reason": "parent_support_gate_failed"
+    },
+    "generalized_form": {
+      "family": "floral_architecture",
+      "primary": {
+        "estimate": -0.184104,
+        "se": 0.091799,
+        "two_sided_p": 0.04490723,
+        "one_sided_negative_p": 0.02245362,
+        "n_cells": 426,
+        "n_publications": 246,
+        "n_sites": 348,
+        "n_species": 246
+      },
+      "supplemental_only": {
+        "estimate": -0.113540,
+        "one_sided_negative_p": 0.1240155
+      },
+      "no_zero_constant": {
+        "estimate": -0.165775,
+        "one_sided_negative_p": 0.04541844
+      },
+      "within_publication": {"evaluable": false, "reason": "insufficient_rows_or_clusters", "n_fixed_effect_groups": 7},
+      "within_publication_site": {"evaluable": false, "reason": "insufficient_rows_or_clusters", "n_fixed_effect_groups": 9},
+      "classification": "primary_directional_association_supported_but_sensitivity_and_within_study_support_incomplete"
+    },
+    "actinomorphic_symmetry": {
+      "family": "floral_architecture",
+      "primary": {
+        "estimate": -0.381194,
+        "se": 0.086995,
+        "two_sided_p": 1.177103e-05,
+        "one_sided_negative_p": 5.885514e-06,
+        "n_cells": 937,
+        "n_publications": 479,
+        "n_sites": 669,
+        "n_species": 582
+      },
+      "supplemental_only": {
+        "estimate": -0.169098,
+        "one_sided_negative_p": 0.02270071
+      },
+      "no_zero_constant": {
+        "estimate": -0.377765,
+        "one_sided_negative_p": 1.222394e-05
+      },
+      "within_publication": {
+        "estimate": -0.121902,
+        "two_sided_p": 0.5077104,
+        "one_sided_negative_p": 0.2538552,
+        "n_fixed_effect_groups": 16
+      },
+      "within_publication_site": {
+        "estimate": -0.097121,
+        "two_sided_p": 0.6287935,
+        "one_sided_negative_p": 0.3143967,
+        "n_fixed_effect_groups": 24
+      },
+      "classification": "global_association_and_global_sensitivities_supported_but_within_study_precision_insufficient"
+    },
+    "shallow_open_tube": {
+      "family": "floral_architecture",
+      "evaluable": false,
+      "reason": "parent_support_gate_failed"
+    }
+  },
+  "integrated_classification": "functional_compatibility_strongest_for_autonomous_selfing_with_additional_global_architecture_concordance",
+  "claim_ceiling": {
+    "current_PL_association_with_frozen_trait_states": true,
+    "historical_pollen_limitation_selected_traits": false,
+    "trait_mediates_isolation_effect": false,
+    "parent_distance_by_trait_moderation_routes_promoted": false,
+    "pollinator_abundance_decline_identified": false,
+    "causal_trait_evolution_identified": false
+  }
+}
