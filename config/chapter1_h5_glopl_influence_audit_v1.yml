@@ -1,0 +1,66 @@
+contract: chapter1_h5_glopl_influence_audit_v1
+status: posthoc_robustness_audit_frozen_after_primary_result
+inferential_role: influence_and_precision_diagnostic_not_signal_hunting
+
+parent_result:
+  result_lock: config/chapter1_h5_glopl_pollen_limitation_result_lock.json
+  workflow_run_id: 35086524129
+  artifact_id: 10442910503
+  artifact_digest: sha256:5d39d3658100edabcbb9a7f6b5e6d7130ffc7d32e643e7900fcebfbd137efaa0
+  primary_file: primary_publication_island_cells.csv
+  frozen_primary_north_slope: 0.37622504482393726
+  frozen_primary_interaction: -0.031133203061145236
+
+purpose: >-
+  Determine whether the positive but unsupported northern GloPL distance coefficient or
+  the near-zero North-Tropical interaction is dominated by a single island or a single
+  publication. This audit cannot rescue statistical support and does not change the
+  frozen primary model or alpha gate.
+
+leave_one_out:
+  units: [island_id, study_key]
+  refit_model: exact_frozen_primary_design
+  publication_weight_rule: recompute_total_weight_one_among_remaining_publication_island_cells
+  minimum_evaluable_fraction: 1.0
+
+reported_diagnostics:
+  - number_of_refits
+  - evaluable_fraction
+  - north_slope_min
+  - north_slope_max
+  - north_slope_sign_positive_fraction
+  - max_absolute_north_slope_delta_from_full
+  - interaction_min
+  - interaction_max
+  - interaction_sign_negative_fraction
+  - max_absolute_interaction_delta_from_full
+  - most_influential_removed_unit_for_north_slope
+  - most_influential_removed_unit_for_interaction
+
+classification_rules:
+  northern_direction_diffuse: >-
+    all island-deletion and publication-deletion refits are evaluable and every northern
+    distance coefficient remains positive.
+  northern_direction_influence_fragile: >-
+    any valid leave-one-out refit changes the northern coefficient to zero or negative,
+    or any required refit is not evaluable.
+  context_interaction_sign_diffuse: >-
+    all required refits are evaluable and every interaction remains negative.
+  context_interaction_sign_fragile: >-
+    any valid refit changes the interaction to zero or positive, or any required refit
+    is not evaluable.
+
+rules:
+  - do_not_retest_or_reclassify_parent_p_values
+  - do_not_change_predictors_weights_or_support_thresholds
+  - do_not_search_subsets_for_significance
+  - no_new_effect_size_filters
+  - no_species_trait_matching
+  - audit_is_posthoc_and_descriptive
+  - parent_classification_remains_pollen_limitation_gradient_not_supported
+
+claim_ceiling: >-
+  A stable positive leave-one-out northern coefficient would mean only that the positive
+  point estimate is not driven by one island or publication. It would remain unsupported
+  under the frozen primary directional test and would not establish pollination-service
+  limitation, pollinator decline, or mediation of the floral response.
