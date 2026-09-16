@@ -125,7 +125,7 @@ Show the supported beta-binomial distance×area patterns together with equal-isl
 
 This panel must not be drawn as the causal bridge from global H2 to native H3B.
 
-## Figure 4 — H5: two plant pathways, then an independent upstream falsification wall
+## Figure 4 — H5: two plant pathways, then a pooled pollinator-disruption falsification wall
 
 Figure 4 should distinguish what is supported on the plant side from what is not identified upstream. Do not draw `pollinator decline -> plant response` as a solid causal arrow.
 
@@ -134,7 +134,7 @@ Figure 4 should distinguish what is supported on the plant side from what is not
 Show two branches from isolation/source separation:
 
 1. reproductive assurance / `selfing_core`;
-2. pollination-associated floral architecture / `attraction_shift`.
+2. pollination-associated floral architecture / attraction-accessibility.
 
 Use the Palearctic conditional decomposition as the key separation evidence:
 
@@ -160,65 +160,72 @@ Do not label the floral branch `direct pollinator selection`; the upstream drive
 
 Panel claim: the regional floral responses are compatible with different pollination-associated architectures, but named templates do not identify realized visitor guilds.
 
-### Panel C — exact-island Bombus upstream bridge fails identification
+### Panel C — pooled five-channel source-to-island disruption test
 
-Use the canonical independent exact-island Bombus Search, not floral phenotype, to test the upstream arrow.
+This is now the principal upstream falsification panel. Pool the exact-island Search states for:
 
-Canonical Bombus state counts among 7,154 source-available islands:
+- Bombus;
+- non-Bombus bees;
+- Lepidoptera;
+- flower-visiting birds;
+- Diptera.
 
-- detected/retained: 824;
-- adequate non-detection/disrupted: 23;
-- insufficient effort: 5,983;
-- unresolved: 324.
+A disrupted channel must be source-available and have an effort-qualified adequate non-detection. A retained channel enters the comparison only if the same frozen effort gate is satisfied, so the retained-versus-disrupted contrast is survey-effort symmetric.
 
-Show the primary-context overlap matrix prominently:
+Primary exposure: any documented disruption among at least two evaluable channels.
 
-| context | retained | disrupted |
-|---|---:|---:|
-| northern mid-latitude | 751 | **5** |
-| tropical | **5** | 17 |
+Primary support:
 
-Frozen overlap gate: >=10 of each state in both contexts. **0/2 contexts pass.**
+| context | islands | disrupted | no documented disruption |
+|---|---:|---:|---:|
+| northern mid-latitude | 303 | **15** | 288 |
+| tropical | 99 | **21** | 78 |
 
-Beside it, show adjusted direct-evidence estimates only as diagnostics:
+Unlike every individual channel, the pooled exposure passes the reference overlap gate in both primary contexts.
 
-- `selfing_core`: beta(disrupted)=+0.047, p=0.722;
-- `attraction_shift`: +0.047, p=0.292;
-- `attraction_shift | selfing_core`: +0.038, p=0.231.
+Plot the two primary route estimates side by side:
 
-Post-genus residual checks are also unsupported:
+**Route A — reproductive assurance (`selfing_core`)**
 
-- `generalized_form`: p=0.197;
-- `self_compatibility`: p=0.428.
+- northern mid-latitude: beta = -0.0113, p=0.738;
+- tropical: beta = +0.0588, p=0.536.
+
+**Route B — generalized accessibility conditional on `selfing_core`**
+
+- northern mid-latitude: beta = -0.00496, p=0.834;
+- tropical: beta = -0.00863, p=0.897.
+
+Four-test FDR q ≈ **0.897**.
 
 Panel claim:
 
-> canonical occurrence data do not identify Bombus disruption as the upstream cause; reliable retained/disrupted states have inadequate within-context overlap, and adjusted associations are unsupported.
+> pooling all major functional channels makes the broad upstream hypothesis estimable, but a simple global mechanism in which pollinator-channel disruption drives both reproductive assurance and a selfing-independent floral-accessibility shift is not supported.
 
-This is an identifiability failure plus negative adjusted evidence, not evidence that Bombus is irrelevant.
+Label the exposure **functional-channel disruption / reduced pollination opportunity**, not literal temporal pollinator decline.
 
-### Panel D — broader independent cross-examination
+### Panel D — why the mechanism still remains open rather than disproven
 
-Global GloBI extension:
+Use a compact cross-examination strip:
 
-- 3,252 islands across all four contexts;
-- 3/4 source definitions support four-context breadth-slope heterogeneity, but the fourth misses the frozen FDR gate;
-- global distance×area heterogeneity: 0/4 supported;
-- classification: source-definition-sensitive context heterogeneity, not a promoted global mechanism.
-
-Other frozen checks:
-
+- individual-channel overlap: **0/5** channels have adequate retained/disrupted overlap in both primary contexts;
+- Bombus-only bridge: overlap failure + unsupported adjusted associations;
+- GloBI global context heterogeneity: 3/4 source definitions, not robustly promoted;
+- GloBI distance×area heterogeneity: 0/4;
 - N1 channel heterogeneity: p = 0.65516;
 - H5c biotic vs wind: p = 0.41221;
 - H5d distributed threshold: 0/8 qualified.
 
+Beside the strip, show the remaining unmeasured quantities:
+
+`abundance | visitation frequency | pollen delivery | single-visit effectiveness | functional compensation | local selection`
+
 Figure-4 synthesis:
 
-> The data support two partially separable plant-side response components and regional pollination-syndrome consistency, but neither coarse interaction structure nor strict exact-island Bombus occurrence evidence identifies pollinator decline as the upstream cause.
+> The data support two partially separable plant-side response components and regional pollination-syndrome consistency. A pooled five-channel occurrence test is strong enough to evaluate a simple overall channel-loss model, but does not support it; the remaining mechanism likely depends on service intensity, channel identity/turnover, compensation, or local selection rather than coarse channel presence alone.
 
 ## One-sentence synthesis
 
-> **Global contemporary island floras show context-dependent floral and reproductive responses that are not erased by source-free genus residualization, whereas the narrower native Palearctic response loses support after source-matched genus adjustment; reproductive assurance and floral architecture are partially separable, but current independent interaction and exact-island Bombus data do not identify pollinator decline as their upstream cause.**
+> **Global contemporary island floras show context-dependent floral and reproductive responses that are not erased by source-free genus residualization, whereas the narrower native Palearctic response loses support after source-matched genus adjustment; reproductive assurance and floral architecture are partially separable, but a pooled five-channel exact-island test does not support simple pollinator-channel disruption as their common upstream cause.**
 
 ## Forbidden shortcuts
 
@@ -230,7 +237,7 @@ Do not write:
 - unresolved/non-native-status records are introduced species;
 - area proves island capacity or founder filtering;
 - butterfly-like/bird-like/large-bee-like scores identify realized visitors;
-- Bombus detection is effective pollination service or abundance;
-- Bombus adequate non-detection proves historical extinction;
-- the Bombus bridge proves pollinator decline causes selfing or floral change;
-- failure of the Bombus/GloBI gates means pollinators are irrelevant.
+- channel detection is effective pollination service or abundance;
+- adequate non-detection proves historical extinction or temporal decline;
+- the pooled channel bridge proves pollinator decline causes selfing or floral change;
+- failure of pooled-channel/GloBI gates means pollinators are irrelevant.
