@@ -1,0 +1,87 @@
+name: Run Chapter 1 H5 GloPL global distance
+
+on:
+  push:
+    branches: [ch1-all-data-primary]
+    paths:
+      - "config/chapter1_h5_glopl_global_distance_v1.yml"
+      - "src/island_v2/chapter1_h5_glopl_global_distance.py"
+      - "tests/test_chapter1_h5_glopl_global_distance.py"
+      - ".github/workflows/run-chapter1-h5-glopl-global-distance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ROOT: /tmp/ch1-h5-glopl-global-distance
+      GLOPL_URL: https://raw.githubusercontent.com/idiv-biodiversity/pollen-limitation-data-descriptor/abbe193770981b2c61713e75a0f01e004bdded8e/Output/GloPL.csv
+      GLOPL_SHA256: 264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de
+      LAND_URL: https://raw.githubusercontent.com/nvkelso/natural-earth-vector/ca96624a56bd078437bca8184e78163e5039ad19/geojson/ne_110m_land.geojson
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate frozen global-distance implementation
+        run: |
+          pytest -q tests/test_chapter1_h5_glopl_global_distance.py
+          ruff check \
+            src/island_v2/chapter1_h5_glopl_global_distance.py \
+            tests/test_chapter1_h5_glopl_global_distance.py
+
+      - name: Download pinned GloPL and pinned Natural Earth geography
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/input" "$ROOT/preflight" "$ROOT/out"
+          curl --fail --location --retry 3 -o "$ROOT/input/GloPL.csv" "$GLOPL_URL"
+          echo "$GLOPL_SHA256  $ROOT/input/GloPL.csv" | sha256sum --check --strict
+          curl --fail --location --retry 3 -o "$ROOT/input/ne_110m_land.geojson" "$LAND_URL"
+          test -s "$ROOT/input/ne_110m_land.geojson"
+          sha256sum "$ROOT/input/ne_110m_land.geojson" | tee "$ROOT/input/NATURAL_EARTH_SHA256.txt"
+
+      - name: Run outcome-blind all-site geography support preflight
+        run: |
+          python -m island_v2.chapter1_h5_glopl_global_distance preflight \
+            --glopl-csv "$ROOT/input/GloPL.csv" \
+            --land-geojson "$ROOT/input/ne_110m_land.geojson" \
+            --config-path config/chapter1_h5_glopl_global_distance_v1.yml \
+            --output-dir "$ROOT/preflight"
+          cat "$ROOT/preflight/PREFLIGHT_SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['ROOT'])
+          result = json.loads((root / 'preflight' / 'PREFLIGHT.json').read_text())
+          if not result['decision']['global_gradient_admitted']:
+              raise SystemExit('Frozen global GloPL support gate failed')
+          if not result['decision']['north_tropical_pair_admitted']:
+              raise SystemExit('Frozen North-Tropical GloPL support gate failed')
+          PY
+
+      - name: Run frozen all-site pollen-limitation models
+        run: |
+          python -m island_v2.chapter1_h5_glopl_global_distance analyse \
+            --glopl-csv "$ROOT/input/GloPL.csv" \
+            --preflight-csv "$ROOT/preflight/GLOBAL_SITE_PREFLIGHT.csv.gz" \
+            --preflight-json "$ROOT/preflight/PREFLIGHT.json" \
+            --config-path config/chapter1_h5_glopl_global_distance_v1.yml \
+            --output-dir "$ROOT/out"
+          cat "$ROOT/out/RESULT_SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h5-glopl-global-distance-${{ github.run_id }}
+          path: |
+            /tmp/ch1-h5-glopl-global-distance/preflight
+            /tmp/ch1-h5-glopl-global-distance/out
+            /tmp/ch1-h5-glopl-global-distance/input/NATURAL_EARTH_SHA256.txt
+          if-no-files-found: error
+          retention-days: 30
