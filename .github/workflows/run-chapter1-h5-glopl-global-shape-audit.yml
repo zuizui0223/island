@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
+      GH_TOKEN: ${{ github.token }}
       ROOT: /tmp/ch1-h5-glopl-global-shape
       PARENT_ARTIFACT_ID: "10444156159"
       PARENT_ARTIFACT_SHA256: "f11046d441fba6cdc3a2842a5a19fdc0bed3661b9ce258625eb93acc879ce623"
