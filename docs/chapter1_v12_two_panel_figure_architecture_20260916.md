@@ -125,9 +125,9 @@ Show the supported beta-binomial distance×area patterns together with equal-isl
 
 This panel must not be drawn as the causal bridge from global H2 to native H3B.
 
-## Figure 4 — H5: two plant pathways, then a pooled pollinator-disruption falsification wall
+## Figure 4 — H5: two plant pathways, then progressively stricter upstream tests
 
-Figure 4 should distinguish what is supported on the plant side from what is not identified upstream. Do not draw `pollinator decline -> plant response` as a solid causal arrow.
+Figure 4 should distinguish what is supported on the plant side from what remains unidentified upstream. Do not draw `pollinator decline -> plant response` as a solid causal arrow.
 
 ### Panel A — two partially separable plant response components
 
@@ -160,50 +160,66 @@ Do not label the floral branch `direct pollinator selection`; the upstream drive
 
 Panel claim: the regional floral responses are compatible with different pollination-associated architectures, but named templates do not identify realized visitor guilds.
 
-### Panel C — pooled five-channel source-to-island disruption test
+### Panel C — total channel attrition vs identity-aware disruption
 
-This is now the principal upstream falsification panel. Pool the exact-island Search states for:
+This panel should explicitly compare two upstream models rather than stopping at the pooled null.
 
-- Bombus;
-- non-Bombus bees;
-- Lepidoptera;
-- flower-visiting birds;
-- Diptera.
+#### C1. Pooled five-channel attrition
 
-A disrupted channel must be source-available and have an effort-qualified adequate non-detection. A retained channel enters the comparison only if the same frozen effort gate is satisfied, so the retained-versus-disrupted contrast is survey-effort symmetric.
+Pool strict exact-island states for Bombus, non-Bombus bees, Lepidoptera, flower-visiting birds and Diptera. Retained and disrupted states use the same frozen effort gate.
 
 Primary exposure: any documented disruption among at least two evaluable channels.
 
-Primary support:
+Support:
 
 | context | islands | disrupted | no documented disruption |
 |---|---:|---:|---:|
 | northern mid-latitude | 303 | **15** | 288 |
 | tropical | 99 | **21** | 78 |
 
-Unlike every individual channel, the pooled exposure passes the reference overlap gate in both primary contexts.
+Route A (`selfing_core`):
 
-Plot the two primary route estimates side by side:
+- North: beta = -0.0113, p=0.738;
+- Tropical: beta = +0.0588, p=0.536.
 
-**Route A — reproductive assurance (`selfing_core`)**
+Route B (`generalized_accessible | selfing_core`):
 
-- northern mid-latitude: beta = -0.0113, p=0.738;
-- tropical: beta = +0.0588, p=0.536.
-
-**Route B — generalized accessibility conditional on `selfing_core`**
-
-- northern mid-latitude: beta = -0.00496, p=0.834;
-- tropical: beta = -0.00863, p=0.897.
+- North: beta = -0.00496, p=0.834;
+- Tropical: beta = -0.00863, p=0.897.
 
 Four-test FDR q ≈ **0.897**.
 
-Panel claim:
+Visual label: **total functional-channel attrition — not supported**.
 
-> pooling all major functional channels makes the broad upstream hypothesis estimable, but a simple global mechanism in which pollinator-channel disruption drives both reproductive assurance and a selfing-independent floral-accessibility shift is not supported.
+#### C2. Identity-aware channel stacking
 
-Label the exposure **functional-channel disruption / reduced pollination opportunity**, not literal temporal pollinator decline.
+Now keep island × channel rows rather than collapsing all visitor guilds. Give each island equal total weight and absorb channel × context identity with fixed effects.
 
-### Panel D — why the mechanism still remains open rather than disproven
+Route A uses all five channels and predicts higher `selfing_core` with disruption:
+
+- North: beta = +0.06735, p=0.356, q=0.356;
+- Tropical: beta = **+0.21983, p=0.0153, q=0.0611**.
+
+Route B uses predeclared channel-matched architectures and conditions on `selfing_core`:
+
+- Bombus -> large-bee-like;
+- Lepidoptera -> butterfly-like;
+- flower-visiting birds -> bird-like.
+
+Results:
+
+- North: beta = +0.06469, p=0.125, q=0.1668;
+- Tropical: beta = **-0.13820, p=0.1215, q=0.1668**.
+
+The tropical Route A effect is nominal/direct-only and disappears in all-analysis sensitivity. The tropical Route B sign matches the identity-specific prediction but is unsupported in both evidence scopes.
+
+Visual label: **identity-aware turnover — suggestive tropical pattern, not promoted**.
+
+Panel-C claim:
+
+> a simple count of lost pollinator channels is too coarse. Preserving functional identity reveals a possible tropical reproductive-assurance signal and the expected direction of matched floral change, but neither survives the full inferential gate.
+
+### Panel D — remaining falsification wall and the unmeasured quantity
 
 Use a compact cross-examination strip:
 
@@ -215,17 +231,21 @@ Use a compact cross-examination strip:
 - H5c biotic vs wind: p = 0.41221;
 - H5d distributed threshold: 0/8 qualified.
 
-Beside the strip, show the remaining unmeasured quantities:
+Beside the strip, show the remaining unmeasured target:
 
-`abundance | visitation frequency | pollen delivery | single-visit effectiveness | functional compensation | local selection`
+`pollination-service limitation = abundance × visitation × pollen delivery × effectiveness`
+
+with modifiers:
+
+`functional identity / turnover | compensation among channels | lineage assembly | local selection`
 
 Figure-4 synthesis:
 
-> The data support two partially separable plant-side response components and regional pollination-syndrome consistency. A pooled five-channel occurrence test is strong enough to evaluate a simple overall channel-loss model, but does not support it; the remaining mechanism likely depends on service intensity, channel identity/turnover, compensation, or local selection rather than coarse channel presence alone.
+> The data support two partially separable plant-side response components and regional pollination-syndrome consistency. Total channel attrition does not explain them. Identity-aware disruption gives a suggestive tropical signal but still does not identify causation. The remaining mechanistic target is effective pollination-service limitation, not coarse channel presence alone.
 
 ## One-sentence synthesis
 
-> **Global contemporary island floras show context-dependent floral and reproductive responses that are not erased by source-free genus residualization, whereas the narrower native Palearctic response loses support after source-matched genus adjustment; reproductive assurance and floral architecture are partially separable, but a pooled five-channel exact-island test does not support simple pollinator-channel disruption as their common upstream cause.**
+> **Global contemporary island floras show context-dependent floral and reproductive responses that are not erased by source-free genus residualization, whereas the narrower native Palearctic response loses support after source-matched genus adjustment; reproductive assurance and floral architecture are partially separable, total pollinator-channel attrition is unsupported, and identity-aware disruption is suggestive in the tropics but does not yet identify pollination-service limitation as the common upstream cause.**
 
 ## Forbidden shortcuts
 
@@ -239,5 +259,6 @@ Do not write:
 - butterfly-like/bird-like/large-bee-like scores identify realized visitors;
 - channel detection is effective pollination service or abundance;
 - adequate non-detection proves historical extinction or temporal decline;
-- the pooled channel bridge proves pollinator decline causes selfing or floral change;
+- the pooled or identity-aware bridge proves pollinator decline causes selfing or floral change;
+- the nominal tropical identity-aware result is confirmatory evidence;
 - failure of pooled-channel/GloBI gates means pollinators are irrelevant.
