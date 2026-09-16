@@ -1,11 +1,9 @@
-contract: chapter1_progressive_analysis_v2_all_observed_primary
+contract: chapter1_progressive_analysis_v1
 
 purpose: >-
   Freeze the Chapter 1 scientific hypotheses, estimands, model order, support gates,
   and claim ceiling while allowing the trait-evidence snapshot to improve over time.
-  The broad global primary analysis uses all observed island floras with all analysis-
-  eligible trait evidence. Direct High/Medium evidence and status-resolved native floras
-  are sensitivity layers rather than hidden prerequisites for entering the primary model.
+  Data coverage is versioned; conclusions are regenerated from the same analysis contract.
 
 central_hypothesis:
   name: source_conditioned_channel_gated_island_assembly
@@ -31,17 +29,16 @@ hypotheses:
     primary: true
     prediction: >-
       isolation-associated response vectors differ among prespecified biogeographic
-      contexts after observation-process and evidence-quality sensitivities
+      contexts after source-pool and observation-process sensitivities
     required_tests:
-      - all_observed_within_context_multivariate_vector
-      - all_observed_direct_between_context_vector_difference
-      - direct_high_medium_persistence
-      - native_status_persistence
+      - within_context_multivariate_vector
+      - direct_between_context_vector_difference
+      - native_nonendemic_persistence
 
   H3_source_lineage_assembly:
     primary: true
     prediction: >-
-      part of a supported floral/reproductive response is represented by non-random entry or
+      part of the floral/reproductive response is represented by non-random entry or
       loading of source-available lineages rather than a uniform within-lineage shift
     required_tests:
       - genus_composition_preserving_null
@@ -84,18 +81,9 @@ fixed_scientific_components:
     - climate_pc3
     - climate_pc4
   floristic_strata:
-    - all_observed
     - all_native
     - native_nonendemic
     - endemic
-  floristic_stratum_roles:
-    all_observed: primary_global_assemblage
-    all_native: sensitivity
-    native_nonendemic: sensitivity
-    endemic: secondary_sensitivity
-  evidence_scope_roles:
-    all_analysis_eligible: primary
-    direct_only: sensitivity
   primary_context_layers:
     - analysis_regime
     - biogeographic_realm
@@ -134,7 +122,6 @@ secondary_interpretation_families:
 
 support_gates:
   global_trait_fill_fraction_is_not_an_analysis_gate: true
-  minimum_species_per_island_is_not_a_primary_gate: true
   pilot_min_islands_per_response: 30
   confirmatory_min_islands_per_response: 50
   under_30_status: not_promoted
@@ -142,17 +129,9 @@ support_gates:
   multiplicity: BH_FDR_within_predeclared_test_family
   multivariate_gate_precedes_atomic_interpretation: true
 
-primary_model_policy:
-  all_observed_primary_first: true
-  probability_model_for_atomic_counts: grouped_binomial_logit_with_cluster_robust_spatial_block_se
-  composite_branch_model: weighted_linear_model_with_cluster_robust_spatial_block_se
-  beta_binomial_upgrade_role: planned_overdispersion_sensitivity_until_calibrated
-  naive_model_role: diagnostic_only_when_required
-  no_posthoc_species_count_cutoff: true
-
 mandatory_robustness:
   - direct_only_evidence
-  - native_status_restriction
+  - all_analysis_eligible_evidence
   - equal_island_information
   - capped_information_weights
   - trait_resolution_selection_adjustment
@@ -213,7 +192,7 @@ analysis_update_policy:
 
 manuscript_policy:
   submission_freeze_is_selected_only_after_trait_campaign_and_stability_review: true
-  current_role: all_observed_primary_candidate_not_submission_freeze
+  current_pr141_role: baseline_snapshot_not_final_data_freeze
   later_trait_waves_must_be_reanalysed_under_same_contract: true
 
 claim_ceiling:
@@ -223,4 +202,3 @@ claim_ceiling:
   - no_in_situ_evolution_from_cross_sectional_assemblage_data
   - no_bakers_law_from_self_compatibility_alone
   - no_global_universal_syndrome_from_one_supported_region
-  - no_native_flora_claim_from_all_observed_primary_without_native_sensitivity
