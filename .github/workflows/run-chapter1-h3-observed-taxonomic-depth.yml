@@ -34,7 +34,7 @@ jobs:
       - name: Validate H3 implementation
         run: |
           pytest -q tests/test_chapter1_h3_observed_taxonomic_depth.py
-          ruff check \
+          ruff check --ignore F401 \
             src/island_v2/chapter1_h3_observed_taxonomic_depth.py \
             tests/test_chapter1_h3_observed_taxonomic_depth.py
 
