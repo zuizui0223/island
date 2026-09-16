@@ -1,5 +1,5 @@
 {
-  "contract": "chapter1_v12_two_panel_result_lock_v1",
+  "contract": "chapter1_v12_two_panel_result_lock_v2",
   "status": "exploratory_branch_integrated",
   "architecture": {
     "H1": "universal_response_rival",
@@ -24,7 +24,7 @@
       "all_evidence_p": 0.0114966,
       "direct_p": 0.00459346
     },
-    "classification": "broad_H2_persists_below_raw_genus_composition"
+    "classification": "broad_H2_not_erased_by_source_free_genus_residualization"
   },
   "panel_C_H3B_defended_native": {
     "scope": "Palearctic_native",
@@ -46,24 +46,81 @@
     }
   },
   "H4": {
-    "classification": "measurement_sensitive_modifier",
+    "classification": "measurement_information_weight_sensitive_modifier",
     "causal_capacity_promoted": false
   },
   "H5": {
-    "global_GloBI_n_islands": 3252,
-    "global_GloBI_context_heterogeneity_supported_source_modes": "3/4",
-    "global_GloBI_area_heterogeneity_supported_source_modes": "0/4",
-    "N1_p": 0.65516,
-    "H5c_p": 0.41221,
-    "H5d_qualified": "0/8",
-    "classification": "pollination_architecture_consistent_but_no_single_global_mechanism_identified"
+    "plant_side": {
+      "two_partially_separable_response_components": true,
+      "obligatory_selfing_then_floral_simplification_rejected": true,
+      "named_template_identity_specificity_passed": false,
+      "shared_named_architecture_variance_fraction_gt": 0.86
+    },
+    "global_GloBI": {
+      "n_islands": 3252,
+      "context_heterogeneity_supported_source_modes": "3/4",
+      "area_heterogeneity_supported_source_modes": "0/4",
+      "classification": "source_definition_sensitive_context_heterogeneity_not_mechanism"
+    },
+    "single_channel": {
+      "channels": ["bombus", "non_bombus_bees", "lepidoptera", "flower_visiting_birds", "diptera"],
+      "channels_with_reference_overlap_in_both_primary_contexts": "0/5",
+      "bombus_bridge_run": 35049673581,
+      "bombus_bridge_artifact": 10428646713,
+      "classification": "single_channel_global_retained_disrupted_mechanism_not_identified"
+    },
+    "pooled_five_channel_two_route": {
+      "workflow_run_id": 35051029608,
+      "artifact_id": 10429046082,
+      "artifact_digest": "sha256:ec56ad97899bc90774c05fd08c7384bebc853c703a4fed4746f2741aa2b0f065",
+      "primary_support": {
+        "northern_midlatitude": {"n_islands": 303, "n_disrupted": 15, "n_no_documented_disruption": 288},
+        "tropical": {"n_islands": 99, "n_disrupted": 21, "n_no_documented_disruption": 78}
+      },
+      "route_A_selfing_core": {
+        "northern_midlatitude": {"estimate": -0.0113, "p_value": 0.738},
+        "tropical": {"estimate": 0.0588, "p_value": 0.536}
+      },
+      "route_B_accessibility_conditional_on_selfing": {
+        "northern_midlatitude": {"estimate": -0.00496, "p_value": 0.834},
+        "tropical": {"estimate": -0.00863, "p_value": 0.897}
+      },
+      "primary_family_fdr_q_approx": 0.897,
+      "classification": "simple_total_channel_attrition_two_route_mechanism_not_supported"
+    },
+    "identity_aware_two_route": {
+      "workflow_run_id": 35053988220,
+      "artifact_id": 10430156411,
+      "artifact_digest": "sha256:9f845fbb1b61e862e5b9956c43d132322304f93c82ad47c538828afa7105ec30",
+      "direct": {
+        "route_A_northern_midlatitude": {"estimate": 0.06734594, "p_value": 0.35631231, "q_value": 0.35631231},
+        "route_A_tropical": {"estimate": 0.21982711, "p_value": 0.01528345, "q_value": 0.06113381},
+        "route_B_northern_midlatitude": {"estimate": 0.06469221, "p_value": 0.12508130, "q_value": 0.16677507},
+        "route_B_tropical": {"estimate": -0.13820121, "p_value": 0.12152872, "q_value": 0.16677507}
+      },
+      "all_analysis_tropical": {
+        "route_A": {"estimate": 0.07396300, "p_value": 0.54161859},
+        "route_B": {"estimate": -0.12065721, "p_value": 0.16240288}
+      },
+      "classification": "suggestive_tropical_identity_aware_pattern_not_promoted"
+    },
+    "other_independent_checks": {
+      "N1_p": 0.65516,
+      "H5c_p": 0.41221,
+      "H5d_qualified": "0/8"
+    },
+    "classification": "two_plant_routes_supported_upstream_pollination_service_limitation_not_identified"
   },
-  "headline": "Global contemporary island-flora context dependence persists below raw genus composition, whereas the defended native Palearctic response is strongly genus-structured.",
+  "headline": "Global contemporary island-flora context dependence is not erased by source-free genus residualization, whereas the defended native Palearctic response is strongly genus-structured; two plant-side response components are supported but their common upstream pollination-service mechanism is not identified.",
   "claim_ceiling": {
     "global_H2_explained_by_native_H3B": false,
     "H3A_residual_proves_within_lineage_evolution": false,
     "area_is_capacity_mechanism": false,
-    "pollinator_identity_identified": false,
+    "pollinator_identity_identified_from_syndrome": false,
+    "temporal_pollinator_decline_measured": false,
+    "channel_detection_equals_effective_service": false,
+    "adequate_non_detection_equals_historical_extinction": false,
+    "identity_aware_tropical_nominal_result_is_confirmatory": false,
     "global_pollinator_mechanism_identified": false
   }
 }
