@@ -1,0 +1,95 @@
+name: Run Chapter 1 H5 GloPL reproductive-assurance moderation
+
+on:
+  push:
+    branches: [ch1-all-data-primary]
+    paths:
+      - "config/chapter1_h5_glopl_reproductive_assurance_moderation_v1.yml"
+      - "src/island_v2/chapter1_h5_glopl_reproductive_assurance_moderation.py"
+      - "tests/test_chapter1_h5_glopl_reproductive_assurance_moderation.py"
+      - ".github/workflows/run-chapter1-h5-glopl-reproductive-assurance-moderation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ROOT: /tmp/ch1-h5-glopl-ra-moderation
+      GLOPL_URL: https://raw.githubusercontent.com/idiv-biodiversity/pollen-limitation-data-descriptor/abbe193770981b2c61713e75a0f01e004bdded8e/Output/GloPL.csv
+      GLOPL_SHA256: 264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de
+      LAND_URL: https://raw.githubusercontent.com/nvkelso/natural-earth-vector/ca96624a56bd078437bca8184e78163e5039ad19/geojson/ne_110m_land.geojson
+      TRAIT_ARTIFACT_ID: "10042377593"
+      TRAIT_ARTIFACT_SHA256: "5e9c887e093c42eb720f3abd2dc85701ce123fb7fe888c916dc4098ac898ccdd"
+      PARENT_ARTIFACT_ID: "10444156159"
+      PARENT_ARTIFACT_SHA256: "f11046d441fba6cdc3a2842a5a19fdc0bed3661b9ce258625eb93acc879ce623"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate reproductive-assurance moderation implementation
+        run: |
+          pytest -q tests/test_chapter1_h5_glopl_reproductive_assurance_moderation.py
+          ruff check \
+            src/island_v2/chapter1_h5_glopl_reproductive_assurance_moderation.py \
+            tests/test_chapter1_h5_glopl_reproductive_assurance_moderation.py
+
+      - name: Download frozen inputs
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/input" "$ROOT/preflight" "$ROOT/out" "$ROOT/traits" "$ROOT/parent"
+          curl --fail --location --retry 3 -o "$ROOT/input/GloPL.csv" "$GLOPL_URL"
+          echo "$GLOPL_SHA256  $ROOT/input/GloPL.csv" | sha256sum --check --strict
+          curl --fail --location --retry 3 -o "$ROOT/input/ne_110m_land.geojson" "$LAND_URL"
+          test -s "$ROOT/input/ne_110m_land.geojson"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${TRAIT_ARTIFACT_ID}/zip" \
+            > "$ROOT/traits.zip"
+          echo "$TRAIT_ARTIFACT_SHA256  $ROOT/traits.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/traits.zip" -d "$ROOT/traits"
+          test -s "$ROOT/traits/direct_species_trait_ledger.csv.gz"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${PARENT_ARTIFACT_ID}/zip" \
+            > "$ROOT/parent.zip"
+          echo "$PARENT_ARTIFACT_SHA256  $ROOT/parent.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/parent.zip" -d "$ROOT/parent"
+          test -s "$ROOT/parent/out/RESULT.json"
+
+      - name: Run outcome-blind trait-overlap preflight
+        run: |
+          python -m island_v2.chapter1_h5_glopl_reproductive_assurance_moderation preflight \
+            --glopl-csv "$ROOT/input/GloPL.csv" \
+            --trait-ledger "$ROOT/traits/direct_species_trait_ledger.csv.gz" \
+            --land-geojson "$ROOT/input/ne_110m_land.geojson" \
+            --parent-result-json "$ROOT/parent/out/RESULT.json" \
+            --config-path config/chapter1_h5_glopl_reproductive_assurance_moderation_v1.yml \
+            --output-dir "$ROOT/preflight"
+          cat "$ROOT/preflight/PREFLIGHT_SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run frozen moderation models
+        run: |
+          python -m island_v2.chapter1_h5_glopl_reproductive_assurance_moderation analyse \
+            --glopl-csv "$ROOT/input/GloPL.csv" \
+            --preflight-csv "$ROOT/preflight/TRAIT_OVERLAP_PREFLIGHT.csv.gz" \
+            --preflight-json "$ROOT/preflight/PREFLIGHT.json" \
+            --config-path config/chapter1_h5_glopl_reproductive_assurance_moderation_v1.yml \
+            --output-dir "$ROOT/out"
+          cat "$ROOT/out/RESULT_SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h5-glopl-ra-moderation-${{ github.run_id }}
+          path: |
+            /tmp/ch1-h5-glopl-ra-moderation/preflight
+            /tmp/ch1-h5-glopl-ra-moderation/out
+          if-no-files-found: error
+          retention-days: 30
