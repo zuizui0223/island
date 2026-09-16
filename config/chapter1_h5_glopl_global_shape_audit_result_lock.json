@@ -1,0 +1,75 @@
+{
+  "contract": "chapter1_h5_glopl_global_shape_audit_result_lock_v1",
+  "status": "completed_within_offshore_gradient_present_posthoc",
+  "scientific_parent_contract": "chapter1_h5_glopl_global_shape_audit_v1",
+  "inferential_role": "posthoc_shape_diagnostic_not_confirmatory",
+  "design_freeze_commit": "6af5cf57b49cff9d3f39bfc2704d76c824260e19",
+  "validation": {
+    "red_workflow_run_id": 35091097307,
+    "red_reason": "module_absent_before_implementation",
+    "first_green_code_run_id": 35091255907,
+    "workflow_plumbing_failure_run_id": 35091255907,
+    "workflow_plumbing_failure_reason": "GH_TOKEN_missing_for_parent_artifact_download_after_13_tests_and_ruff_passed",
+    "canonical_green_workflow_run_id": 35091385147,
+    "canonical_job_id": 104778266125,
+    "tests": "13_passed",
+    "ruff": "passed"
+  },
+  "provenance": {
+    "workflow_run_id": 35091385147,
+    "artifact_id": 10444198356,
+    "artifact_name": "chapter1-h5-glopl-global-shape-audit-35091385147",
+    "artifact_digest": "sha256:ee7700a03dcbe9b0d6184195c482e3ec7915a5e7a9e8f1c6a85d0e4fe2de8e44",
+    "parent_workflow_run_id": 35090599662,
+    "parent_artifact_id": 10444156159,
+    "parent_artifact_digest": "sha256:f11046d441fba6cdc3a2842a5a19fdc0bed3661b9ce258625eb93acc879ce623"
+  },
+  "parent_result": {
+    "global_distance_slope": 0.07936837202478536,
+    "one_sided_positive_p": 0.017717416961124742,
+    "classification": "global_pollen_limitation_gradient_supported_context_specificity_not_established",
+    "promotion_immutable": true
+  },
+  "support": {
+    "n_cells": 1408,
+    "n_mainland_cells": 1126,
+    "n_offshore_cells": 282,
+    "n_mainland_sites": 988,
+    "n_offshore_sites": 260,
+    "n_publications": 919,
+    "n_offshore_publications": 158,
+    "parent_weights_reused_without_renormalization": true
+  },
+  "two_part_global": {
+    "offshore_step": 0.13744959605556847,
+    "offshore_step_se": 0.08562456505774298,
+    "offshore_step_two_sided_p": 0.10843683764828543,
+    "within_offshore_slope": 0.19983007839214245,
+    "within_offshore_slope_se": 0.07869001175984146,
+    "within_offshore_slope_two_sided_p": 0.011102397758905305
+  },
+  "offshore_only": {
+    "distance_slope": 0.2354525254306174,
+    "distance_slope_se": 0.08545574448239203,
+    "distance_slope_two_sided_p": 0.005864607647539939,
+    "n_cells": 282,
+    "n_sites": 260,
+    "n_publications": 158
+  },
+  "decision": {
+    "shape_classification": "within_offshore_gradient_present",
+    "mainland_to_offshore_step_supported": false,
+    "two_part_within_offshore_gradient_supported_posthoc": true,
+    "offshore_only_gradient_supported_posthoc": true,
+    "can_change_parent_promotion": false
+  },
+  "interpretation": "The supported parent all-site GloPL distance association is not explained solely by a mainland-versus-offshore level step. In the frozen post-hoc decomposition, the adjusted mainland-to-average-offshore step is imprecise, whereas both the two-part within-offshore slope and the offshore-only slope are positive and supported. This is descriptive post-hoc evidence that pollen limitation continues to increase across the offshore distance gradient, not merely upon crossing from a seeded major continent to an offshore site.",
+  "claim_ceiling": {
+    "posthoc_shape_is_confirmatory": false,
+    "shape_audit_changes_parent_p_value": false,
+    "shape_audit_changes_parent_promotion": false,
+    "within_offshore_gradient_is_causal_island_effect": false,
+    "within_offshore_gradient_identifies_pollinator_decline": false,
+    "within_offshore_gradient_proves_H2_mediation": false
+  }
+}

@@ -1,0 +1,150 @@
+contract: chapter1_h5_orthogonalized_architecture_specificity_v1
+status: frozen_before_outcome_inspection
+purpose: >-
+  Re-evaluate the current all-observed North-versus-Tropical H2 contrast after separating
+  the three sampled pollination-associated floral templates into a source-trained shared
+  architecture factor and template-specific residuals. The test asks whether the
+  biogeographic distance-response difference remains in identity-specific plant-trait
+  geometry once the dominant shared floral-architecture dimension is removed.
+
+inferential_role: secondary_H5_specificity_falsification_not_pollinator_identity_test
+
+evidence_hierarchy:
+  primary: all_analysis_eligible
+  sensitivity: direct_only
+
+flora_scope:
+  primary: all_observed
+  status_resolved_native_strata_enter_primary_test: false
+
+frozen_inputs:
+  all_data_primary_artifact_id: 10393997800
+  canonical_flora:
+    workflow_run_id: 32845980788
+    artifact_id: 9562465057
+    artifact_digest: sha256:d4cd8ad0eea9cd2bda879af14f54c549e130de365faf1b56bebddad38b24f1c2
+  isolation_covariates:
+    workflow_run_id: 29228212586
+    artifact_id: 8270544465
+    artifact_digest: sha256:695f35b97bae07e81b05deab537dd73fa687b2d99e9efdb1cb3babd2fa12dfb6
+  realm_assignment:
+    workflow_run_id: 32927060210
+    artifact_id: 9591915101
+    artifact_digest: sha256:6556a7938a52547ddf7b630a822d743b2ba5ca479589716919441b96dcfa0521
+  source_training_flora:
+    workflow_run_id: 32954909953
+    artifact_id: 9601703747
+    artifact_digest: sha256:51cff9087a40b76655ff043d59aceabf25800a6029ed005a77b8db30e78345d2
+
+sampled_templates:
+  - large_bee_like
+  - butterfly_like
+  - bird_like
+
+factor_training:
+  method: source_trained_complete_case_PCA1
+  source_pool: frozen_GIFT_mainland_native_flora
+  fit_separately_by_evidence_scope: true
+  standardization: source_mean_and_population_sd
+  orientation: sum_of_source_factor_template_correlations_positive
+  minimum_complete_source_species: 50
+  missing_template_imputation: false
+  forbidden_training_inputs:
+    - island_id
+    - island_status
+    - island_distance
+    - island_area
+    - climate
+    - analysis_regime
+    - biogeographic_realm
+    - island_outcomes
+    - pollinator_occurrence
+
+projected_components:
+  shared:
+    - shared_architecture_factor
+  identity_specific_residuals:
+    - large_bee_like_residual
+    - butterfly_like_residual
+    - bird_like_residual
+  interpretation: >-
+    Residual labels denote plant-trait contrasts relative to the source-trained shared
+    architecture factor. They are not measurements of the named pollinator guilds.
+
+island_aggregation:
+  unit: island_x_component
+  statistic: mean_projected_species_component
+  stratum: all_observed
+  minimum_scored_species_per_component: 50
+  no_imputation: true
+
+model:
+  geography_predictor: log_distance_to_continent_km
+  context_column: analysis_regime
+  contexts:
+    - northern_midlatitude
+    - tropical
+  controls:
+    - log_island_area_km2
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+  cluster_column: spatial_block
+  covariance: spatial_block_cluster_robust
+  island_weighting: equal_island_within_component
+
+primary_tests:
+  identity_specific_H2:
+    response_family: three_template_specific_residuals
+    contrast: northern_midlatitude_vs_tropical_distance_slope_vector
+    required_retained_components: 3
+    joint_df_target: 3
+    alpha: 0.05
+  shared_architecture_H2:
+    response_family: shared_architecture_factor
+    contrast: northern_midlatitude_vs_tropical_distance_slope_difference
+    role: decomposition_context_not_identity_specificity_gate
+    alpha: 0.05
+
+promotion_rule:
+  robust_identity_specific_structure_requires:
+    - all_analysis_identity_specific_joint_p_le_0_05
+    - direct_only_identity_specific_joint_p_le_0_05
+    - all_three_residual_components_retained_in_both_scopes
+  primary_only_or_direct_only_support: not_promoted
+  shared_factor_support_alone: not_identity_specific
+  causal_promotion: prohibited
+
+falsification_interpretation:
+  if_identity_specific_vector_not_supported: >-
+    The sampled syndrome alignment is adequately explained at this resolution by shared
+    floral architecture and does not provide robust evidence for guild-specific phenotype
+    geometry in the current all-observed H2 contrast.
+  if_identity_specific_vector_supported_in_both_scopes: >-
+    The current all-observed H2 contrast contains plant-trait geometry beyond the dominant
+    shared floral-architecture factor. This supports architecture specificity only; it does
+    not identify realized visitors, effective service, historical loss, or causal selection.
+
+rules:
+  - design_frozen_before_current_outcome_inspection
+  - reuse_existing_v4_source_trained_factor_definition
+  - all_analysis_eligible_is_primary
+  - direct_only_is_sensitivity
+  - all_observed_is_the_only_primary_flora_stratum
+  - no_posthoc_template_selection
+  - all_three_residual_axes_required_for_primary_joint_test
+  - no_directional_story_is_declared_for_individual_residuals_before_result_inspection
+  - shared_factor_and_residual_tests_are_reported_separately
+  - residual_label_is_not_realized_pollinator_identity
+  - no_pollinator_occurrence_or_service_data_enter_factor_fit_or_H2_model
+  - missing_or_low_support_components_fail_closed
+
+claim_ceiling:
+  realized_pollinator_identity_identified: false
+  pollinator_abundance_identified: false
+  visitation_identified: false
+  effective_pollination_service_identified: false
+  historical_pollinator_loss_identified: false
+  causal_pollinator_selection_identified: false
+  residual_structure_proves_within_lineage_evolution: false

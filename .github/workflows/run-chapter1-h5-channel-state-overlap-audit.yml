@@ -1,0 +1,78 @@
+name: Run Chapter 1 H5 channel-state overlap audit
+
+on:
+  push:
+    branches: [ch1-all-data-primary]
+    paths:
+      - "config/chapter1_h5_channel_state_overlap_audit_v1.yml"
+      - "src/island_v2/chapter1_h5_channel_state_overlap_audit.py"
+      - "tests/test_chapter1_h5_channel_state_overlap_audit.py"
+      - ".github/workflows/run-chapter1-h5-channel-state-overlap-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PROGRESSIVE_ARTIFACT_ID: "10058653212"
+      BOMBUS_ARTIFACT_ID: "10313926043"
+      NON_BOMBUS_BEES_ARTIFACT_ID: "10312514973"
+      LEPIDOPTERA_ARTIFACT_ID: "10314040773"
+      BIRDS_ARTIFACT_ID: "10313228947"
+      DIPTERA_ARTIFACT_ID: "10314045819"
+      ROOT: /tmp/ch1-h5-channel-overlap
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate audit
+        run: |
+          pytest -q tests/test_chapter1_h5_channel_state_overlap_audit.py
+          ruff check src/island_v2/chapter1_h5_channel_state_overlap_audit.py tests/test_chapter1_h5_channel_state_overlap_audit.py
+      - name: Download frozen inputs
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/progressive" "$ROOT/bombus" "$ROOT/non_bombus_bees" "$ROOT/lepidoptera" "$ROOT/flower_visiting_birds" "$ROOT/diptera" "$ROOT/out"
+          for spec in \
+            "progressive:$PROGRESSIVE_ARTIFACT_ID" \
+            "bombus:$BOMBUS_ARTIFACT_ID" \
+            "non_bombus_bees:$NON_BOMBUS_BEES_ARTIFACT_ID" \
+            "lepidoptera:$LEPIDOPTERA_ARTIFACT_ID" \
+            "flower_visiting_birds:$BIRDS_ARTIFACT_ID" \
+            "diptera:$DIPTERA_ARTIFACT_ID"; do
+            name=${spec%%:*}; id=${spec##*:}
+            gh api -H "Accept: application/vnd.github+json" "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}/zip" > "$ROOT/${name}.zip"
+            unzip -q "$ROOT/${name}.zip" -d "$ROOT/${name}"
+          done
+          test -s "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv"
+          for ch in bombus non_bombus_bees lepidoptera flower_visiting_birds diptera; do
+            test -s "$ROOT/$ch/${ch}_island_search_observation.csv"
+          done
+      - name: Run overlap audit
+        run: |
+          python -m island_v2.chapter1_h5_channel_state_overlap_audit \
+            --bombus-csv "$ROOT/bombus/bombus_island_search_observation.csv" \
+            --non-bombus-bees-csv "$ROOT/non_bombus_bees/non_bombus_bees_island_search_observation.csv" \
+            --lepidoptera-csv "$ROOT/lepidoptera/lepidoptera_island_search_observation.csv" \
+            --flower-visiting-birds-csv "$ROOT/flower_visiting_birds/flower_visiting_birds_island_search_observation.csv" \
+            --diptera-csv "$ROOT/diptera/diptera_island_search_observation.csv" \
+            --covariates-csv "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv" \
+            --config-path config/chapter1_h5_channel_state_overlap_audit_v1.yml \
+            --output-dir "$ROOT/out"
+      - name: Write summary
+        run: cat "$ROOT/out/RESULT_SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h5-channel-state-overlap-${{ github.run_id }}
+          path: /tmp/ch1-h5-channel-overlap/out
+          if-no-files-found: error
+          retention-days: 30

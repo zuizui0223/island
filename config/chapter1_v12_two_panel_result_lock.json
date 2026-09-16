@@ -1,0 +1,272 @@
+{
+  "contract": "chapter1_v12_two_panel_result_lock_v7",
+  "status": "exploratory_branch_integrated",
+  "architecture": {
+    "H1": "universal_response_rival",
+    "H2": "biogeographic_branching",
+    "H3": "taxonomic_representation_depth",
+    "H4": "area_moderation",
+    "H5": "independent_mechanism_gate"
+  },
+  "panel_A_global_contemporary_flora": {
+    "north_tropical_all_evidence": {"n_islands": 3626, "n_blocks": 187, "p_value": 0.0007633},
+    "north_tropical_direct": {"n_islands": 3569, "n_blocks": 187, "p_value": 0.004502},
+    "claim": "context_dependent_contemporary_observed_flora_response"
+  },
+  "panel_B_H3A_broad_taxonomic_depth": {
+    "workflow_run_id": 35043562731,
+    "artifact_id": 10426327347,
+    "common_support_H2_gate": {
+      "all_evidence": {"n_islands": 3560, "n_blocks": 187, "p_value": 0.00008392638821217608},
+      "direct": {"n_islands": 3487, "n_blocks": 187, "p_value": 0.00012108775398066638}
+    },
+    "equal_island_after_genus": {
+      "all_evidence_p": 0.0114966,
+      "direct_p": 0.00459346
+    },
+    "retained_components": ["generalized_form", "self_compatibility"],
+    "classification": "broad_H2_not_erased_by_source_free_genus_residualization"
+  },
+  "panel_C_H3B_defended_native": {
+    "scope": "Palearctic_native",
+    "stage_support": "4/4 -> 4/4 -> 0/4",
+    "matched_pseudogenus_p": 0.0289855,
+    "classification": "strong_genus_structuring_of_defended_native_response"
+  },
+  "panel_D_status_gate": {
+    "same_375_islands": {
+      "all_observed_all_p": 0.0005607,
+      "all_observed_direct_p": 0.0003959,
+      "native_all_p": 0.2491,
+      "native_direct_p": 0.3018
+    },
+    "WCVP_native_compatible": {
+      "n_islands": 2372,
+      "all_p": 0.07954,
+      "direct_p": 0.17472
+    }
+  },
+  "H4": {
+    "classification": "measurement_information_weight_sensitive_modifier",
+    "causal_capacity_promoted": false
+  },
+  "H5": {
+    "plant_side": {
+      "two_partially_separable_response_components": true,
+      "route_A": "reproductive_assurance",
+      "route_B": "pollination_associated_floral_architecture",
+      "obligatory_selfing_then_floral_simplification_rejected": true,
+      "named_template_identity_specificity_passed": false,
+      "shared_named_architecture_variance_fraction_gt": 0.86
+    },
+    "experimental_pollen_limitation": {
+      "extension_lock": "config/chapter1_v12_h5_glopl_extension_result_lock.json",
+      "full_global_distance": {
+        "workflow_run_id": 35090599662,
+        "artifact_id": 10444156159,
+        "artifact_digest": "sha256:f11046d441fba6cdc3a2842a5a19fdc0bed3661b9ce258625eb93acc879ce623",
+        "n_effect_rows": 2969,
+        "n_sites": 1248,
+        "n_publications": 919,
+        "global_distance_estimate": 0.07936837202478536,
+        "global_distance_se": 0.037734195473258715,
+        "global_two_sided_p": 0.035434833922249484,
+        "global_one_sided_positive_p": 0.017717416961124742,
+        "classification": "global_pollen_limitation_gradient_supported_context_specificity_not_established"
+      },
+      "posthoc_shape_audit": {
+        "workflow_run_id": 35091385147,
+        "artifact_id": 10444198356,
+        "mainland_to_offshore_step": {"estimate": 0.13744959605556847, "two_sided_p": 0.10843683764828543},
+        "within_offshore_gradient": {"estimate": 0.19983007839214245, "two_sided_p": 0.011102397758905305},
+        "offshore_only_gradient": {"estimate": 0.2354525254306174, "two_sided_p": 0.005864607647539939, "n_sites": 260, "n_publications": 158},
+        "inferential_role": "posthoc_shape_diagnostic_not_confirmatory"
+      },
+      "north_tropical_branching": {
+        "northern_slope": 0.06169826065135164,
+        "northern_one_sided_positive_p": 0.10733349604071943,
+        "tropical_minus_northern_interaction": 0.14300456037322357,
+        "interaction_one_sided_negative_p": 0.9119297714373724,
+        "tropical_slope": 0.2047028210245752,
+        "direction_matches_predeclared_H5_branching": false
+      },
+      "route_A_reproductive_assurance_buffering": {
+        "workflow_run_id": 35093274622,
+        "artifact_id": 10444749163,
+        "n_overlap_species": 642,
+        "self_compatibility": {"interaction": 0.035064056107324146, "one_sided_buffering_p": 0.6790180842383049, "supported": false},
+        "selfing_mating_system": {"evaluable": false},
+        "autonomous_selfing": {"interaction": -0.0735809658586229, "one_sided_buffering_p": 0.15431461244216577, "supported": false},
+        "supported_trait_count": 0,
+        "family_supported": false,
+        "classification": "reproductive_assurance_buffering_not_supported"
+      },
+      "route_B_floral_architecture_buffering": {
+        "workflow_run_id": 35094588521,
+        "artifact_id": 10445189257,
+        "artifact_digest": "sha256:ef81551d41cc747b07e927b9a5c4f13eaf0fc013a5cf8ac3fb1a5491aadec8c4",
+        "n_overlap_species": 624,
+        "generalized_form": {"interaction": -0.06673944706967289, "one_sided_buffering_p": 0.24412372917763994, "supported": false},
+        "actinomorphic_symmetry": {"interaction": 0.03495559888701383, "one_sided_buffering_p": 0.6689835087162318, "supported": false},
+        "shallow_open_tube": {"evaluable": false},
+        "supported_trait_count": 0,
+        "family_supported": false,
+        "classification": "floral_architecture_buffering_not_supported"
+      },
+      "integrated_classification": "general_isolation_associated_pollen_limitation_supported_but_context_specific_translation_to_H2_not_identified"
+    },
+    "orthogonalized_named_architecture": {
+      "frozen_v1_result_lock": "config/chapter1_h5_orthogonalized_architecture_specificity_v1_result_lock.json",
+      "v1_classification": "frozen_v1_structurally_non_evaluable",
+      "structural_correction_role": "posthoc_not_confirmatory",
+      "workflow_run_id": 35065912097,
+      "artifact_id": 10433982600,
+      "artifact_digest": "sha256:a1b259d7657757704d3437701e93b2a9f3daa88366ca4dc95f6d4fb1f938ac59",
+      "source_pca1_variance_fraction": {
+        "all_analysis": 0.8694377184973049,
+        "direct": 0.8643705024390916
+      },
+      "rank2_residual_H2": {
+        "all_analysis": {"n_islands": 154, "n_blocks": 57, "chisq": 0.9746650852234515, "df": 2, "p_value": 0.6142627304442022},
+        "direct": {"n_islands": 144, "n_blocks": 54, "chisq": 2.3825788917058217, "df": 2, "p_value": 0.3038292400205934}
+      },
+      "shared_factor_H2_interaction": {
+        "all_analysis": {"north_n": 82, "tropical_n": 72, "n_blocks": 57, "p_value": 0.4324071949073908},
+        "direct": {"north_n": 75, "tropical_n": 69, "n_blocks": 54, "p_value": 0.278200442144608}
+      },
+      "classification": "no_robust_named_architecture_H2_after_structural_correction",
+      "common_support_adjudication": {
+        "result_lock": "config/chapter1_h5_architecture_common_support_h2_v1_result_lock.json",
+        "design_freeze_commit": "45a913c574ad251629a082d6c7d8cf17c2bb2594",
+        "workflow_run_id": 35083454858,
+        "artifact_id": 10440734711,
+        "artifact_digest": "sha256:60f76fd6a09195943730b64bfea2a6188205444851f8c73da6632cdb7767b64b",
+        "all_analysis_six_atomic_H2": {"n_islands": 154, "n_blocks": 57, "chisq": 12.998850708387842, "df": 6, "p_value": 0.04305420136849223},
+        "direct_six_atomic_H2": {"n_islands": 144, "n_blocks": 54, "chisq": 7.563250632968277, "df": 6, "p_value": 0.27187743084993254},
+        "classification": "common_support_H2_not_robust_across_evidence_scopes",
+        "architecture_null_informative_about_primary_H2_representation": false
+      },
+      "pollinator_identity_promoted": false,
+      "causal_pollinator_mechanism_promoted": false
+    },
+    "global_GloBI": {
+      "n_islands": 3252,
+      "context_heterogeneity_supported_source_modes": "3/4",
+      "area_heterogeneity_supported_source_modes": "0/4",
+      "classification": "source_definition_sensitive_context_heterogeneity_not_mechanism"
+    },
+    "single_channel": {
+      "channels": ["bombus", "non_bombus_bees", "lepidoptera", "flower_visiting_birds", "diptera"],
+      "channels_with_reference_overlap_in_both_primary_contexts": "0/5",
+      "bombus_bridge_run": 35049673581,
+      "bombus_bridge_artifact": 10428646713,
+      "classification": "single_channel_global_retained_disrupted_mechanism_not_identified"
+    },
+    "pooled_five_channel_two_route": {
+      "workflow_run_id": 35051029608,
+      "artifact_id": 10429046082,
+      "artifact_digest": "sha256:ec56ad97899bc90774c05fd08c7384bebc853c703a4fed4746f2741aa2b0f065",
+      "primary_support": {
+        "northern_midlatitude": {"n_islands": 303, "n_disrupted": 15, "n_no_documented_disruption": 288},
+        "tropical": {"n_islands": 99, "n_disrupted": 21, "n_no_documented_disruption": 78}
+      },
+      "route_A_selfing_core": {
+        "northern_midlatitude": {"estimate": -0.0113, "p_value": 0.738},
+        "tropical": {"estimate": 0.0588, "p_value": 0.536}
+      },
+      "route_B_accessibility_conditional_on_selfing": {
+        "northern_midlatitude": {"estimate": -0.00496, "p_value": 0.834},
+        "tropical": {"estimate": -0.00863, "p_value": 0.897}
+      },
+      "primary_family_fdr_q_approx": 0.897,
+      "classification": "simple_total_channel_attrition_two_route_mechanism_not_supported"
+    },
+    "identity_aware_two_route": {
+      "workflow_run_id": 35053988220,
+      "artifact_id": 10430156411,
+      "artifact_digest": "sha256:9f845fbb1b61e862e5b9956c43d132322304f93c82ad47c538828afa7105ec30",
+      "direct": {
+        "route_A_northern_midlatitude": {"estimate": 0.06734594, "p_value": 0.35631231, "q_value": 0.35631231},
+        "route_A_tropical": {"estimate": 0.21982711, "p_value": 0.01528345, "q_value": 0.06113381},
+        "route_B_northern_midlatitude": {"estimate": 0.06469221, "p_value": 0.12508130, "q_value": 0.16677507},
+        "route_B_tropical": {"estimate": -0.13820121, "p_value": 0.12152872, "q_value": 0.16677507}
+      },
+      "all_analysis_tropical": {
+        "route_A": {"estimate": 0.07396300, "p_value": 0.54161859},
+        "route_B": {"estimate": -0.12065721, "p_value": 0.16240288}
+      },
+      "classification": "suggestive_tropical_identity_aware_pattern_not_promoted"
+    },
+    "within_island_identity_filter": {
+      "design_freeze_commit": "576b15ba88eb4ceea2e14786a56b13220d79b06d",
+      "workflow_run_id": 35062545145,
+      "artifact_id": 10433495032,
+      "artifact_digest": "sha256:0499c2141c59cee05c7a94220947b3cddcdf943f98ff75163a57fc316303d76d",
+      "primary_scope": "all_analysis_eligible",
+      "sensitivity_scope": "direct_only",
+      "mixed_islands": {"northern_midlatitude": 5, "tropical": 17},
+      "frozen_minimum_mixed_islands_per_context": 10,
+      "support_passed": false,
+      "nuisance_rank": 26,
+      "full_design_rank": 27,
+      "target_rank_increment": 1,
+      "required_target_rank_increment": 2,
+      "context_estimable": {"northern_midlatitude": false, "tropical": true},
+      "joint_estimable": false,
+      "classification": "strict_within_island_identity_filter_not_identifiable_under_current_exact_island_support"
+    },
+    "other_independent_checks": {
+      "N1_p": 0.65516,
+      "H5c_p": 0.41221,
+      "H5d_qualified": "0/8"
+    },
+    "classification": "global_pollen_limitation_pressure_supported_but_context_specific_trait_and_assembly_translation_not_identified"
+  },
+  "H3_H5_relationship": {
+    "H3_question": "where_is_the_response_taxonomically_represented",
+    "H5_question": "which_ecological_pressure_or_mechanism_explains_the_response",
+    "supported_common_pressure": "experimental_pollen_limitation_increases_with_geographic_isolation_globally",
+    "central_synthesis": "common_pressure_divergent_biogeographic_translation_different_taxonomic_depth",
+    "broad_contemporary": {
+      "H3": "context_difference_not_erased_by_source_free_genus_residualization",
+      "H5_implication": "GloPL supports a general isolation-associated service pressure, but service branching does not reproduce H2 and the two predeclared species-level buffering families fail promotion; Panel A therefore requires context-specific translation beyond simple raw-genus sorting or measured trait buffering.",
+      "within_lineage_evolution_identified": false
+    },
+    "defended_native_palearctic": {
+      "H3": "response_strongly_genus_structured",
+      "H5_implication": "If the supported general pollen-limitation pressure contributes to the Palearctic response, an assembly-mediated lineage filter is biologically compatible, but pollination is not identified as the generator of the genus structure.",
+      "pollinator_filtering_identified": false
+    },
+    "solid_causal_arrow_H5_to_H3_allowed": false,
+    "preferred_visual_connection": "dashed_candidate_arrow_service_limitation_to_lineage_or_trait_translation"
+  },
+  "headline": "Geographic isolation is associated with increasing experimental pollen limitation globally, but island floral and reproductive responses branch among biogeographic contexts and are represented at different taxonomic depths: the broad contemporary response is not erased by source-free genus residualization, whereas the defended native Palearctic response is strongly genus-structured. The missing step is the biological translation from a common service pressure to these divergent trait and assembly outcomes.",
+  "claim_ceiling": {
+    "global_H2_explained_by_native_H3B": false,
+    "H3A_residual_proves_within_lineage_evolution": false,
+    "H5_explains_H3B": false,
+    "genus_structuring_proves_pollinator_filtering": false,
+    "two_H5_routes_are_two_proven_causal_pathways": false,
+    "area_is_capacity_mechanism": false,
+    "pollinator_identity_identified_from_syndrome": false,
+    "raw_named_syndrome_concordance_is_identity_specific_H2": false,
+    "orthogonalized_named_architecture_null_proves_H2_outside_syndrome_geometry": false,
+    "orthogonalized_named_architecture_null_proves_pollinators_irrelevant": false,
+    "posthoc_architecture_structural_correction_is_confirmatory": false,
+    "posthoc_architecture_common_support_gate_is_confirmatory": false,
+    "restricted_support_H2_failure_erases_full_data_H2": false,
+    "temporal_pollinator_decline_measured": false,
+    "channel_detection_equals_effective_service": false,
+    "adequate_non_detection_equals_historical_extinction": false,
+    "identity_aware_tropical_nominal_result_is_confirmatory": false,
+    "within_island_nonidentifiability_is_no_effect_evidence": false,
+    "lowering_within_island_support_threshold_recovers_northern_identity_effect": false,
+    "global_GloPL_gradient_is_causal_island_effect": false,
+    "global_GloPL_gradient_identifies_pollinator_abundance_decline": false,
+    "global_GloPL_gradient_identifies_visitation_decline": false,
+    "global_GloPL_gradient_proves_H2_mediation": false,
+    "posthoc_offshore_gradient_is_confirmatory": false,
+    "unsupported_GloPL_trait_buffering_means_traits_are_irrelevant": false,
+    "global_pollinator_mechanism_identified": false
+  }
+}

@@ -1,0 +1,97 @@
+name: Run Chapter 1 H5 Bombus upstream bridge
+
+on:
+  push:
+    branches: [ch1-all-data-primary]
+    paths:
+      - "config/chapter1_h5_bombus_upstream_bridge_v1.yml"
+      - "src/island_v2/chapter1_h5_bombus_upstream_bridge.py"
+      - "tests/test_chapter1_h5_bombus_upstream_bridge.py"
+      - ".github/workflows/run-chapter1-h5-bombus-upstream-bridge.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ALL_DATA_ARTIFACT_ID: "10393997800"
+      PROGRESSIVE_ARTIFACT_ID: "10058653212"
+      H3_ARTIFACT_ID: "10426327347"
+      BOMBUS_ARTIFACT_ID: "10313926043"
+      ROOT: /tmp/ch1-h5-bombus-upstream
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate bridge implementation
+        run: |
+          pytest -q tests/test_chapter1_h5_bombus_upstream_bridge.py
+          ruff check \
+            src/island_v2/chapter1_h5_bombus_upstream_bridge.py \
+            tests/test_chapter1_h5_bombus_upstream_bridge.py
+
+      - name: Download frozen independent and plant inputs
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/all-data" "$ROOT/progressive" "$ROOT/h3" "$ROOT/bombus" "$ROOT/out"
+          for spec in \
+            "all-data:$ALL_DATA_ARTIFACT_ID" \
+            "progressive:$PROGRESSIVE_ARTIFACT_ID" \
+            "h3:$H3_ARTIFACT_ID" \
+            "bombus:$BOMBUS_ARTIFACT_ID"; do
+            name=${spec%%:*}; id=${spec##*:}
+            gh api -H "Accept: application/vnd.github+json" \
+              "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}/zip" > "$ROOT/${name}.zip"
+            unzip -q "$ROOT/${name}.zip" -d "$ROOT/${name}"
+          done
+          test -s "$ROOT/all-data/syndrome/direct/island_syndrome_scores.csv.gz"
+          test -s "$ROOT/all-data/syndrome/all/island_syndrome_scores.csv.gz"
+          test -s "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv"
+          test -s "$ROOT/h3/direct/h3_island_stage_scores.csv.gz"
+          test -s "$ROOT/h3/all/h3_island_stage_scores.csv.gz"
+          test -s "$ROOT/bombus/bombus_island_search_observation.csv"
+
+      - name: Run direct High-Medium primary bridge
+        run: |
+          python -m island_v2.chapter1_h5_bombus_upstream_bridge \
+            --syndrome-scores-csv "$ROOT/all-data/syndrome/direct/island_syndrome_scores.csv.gz" \
+            --bombus-observations-csv "$ROOT/bombus/bombus_island_search_observation.csv" \
+            --covariates-csv "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv" \
+            --h3-scores-csv "$ROOT/h3/direct/h3_island_stage_scores.csv.gz" \
+            --config-path config/chapter1_h5_bombus_upstream_bridge_v1.yml \
+            --evidence-scope direct_only \
+            --output-dir "$ROOT/out/direct"
+
+      - name: Run all-analysis evidence sensitivity
+        run: |
+          python -m island_v2.chapter1_h5_bombus_upstream_bridge \
+            --syndrome-scores-csv "$ROOT/all-data/syndrome/all/island_syndrome_scores.csv.gz" \
+            --bombus-observations-csv "$ROOT/bombus/bombus_island_search_observation.csv" \
+            --covariates-csv "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv" \
+            --h3-scores-csv "$ROOT/h3/all/h3_island_stage_scores.csv.gz" \
+            --config-path config/chapter1_h5_bombus_upstream_bridge_v1.yml \
+            --evidence-scope all_analysis_eligible \
+            --output-dir "$ROOT/out/all"
+
+      - name: Write summary
+        run: |
+          cat "$ROOT/out/direct/RESULT_SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
+          printf '\n' >> "$GITHUB_STEP_SUMMARY"
+          cat "$ROOT/out/all/RESULT_SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h5-bombus-upstream-bridge-${{ github.run_id }}
+          path: /tmp/ch1-h5-bombus-upstream/out
+          if-no-files-found: error
+          retention-days: 30

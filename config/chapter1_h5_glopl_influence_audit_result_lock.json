@@ -1,0 +1,54 @@
+{
+  "contract": "chapter1_h5_glopl_influence_audit_result_lock_v1",
+  "status": "completed_posthoc_influence_audit",
+  "design_freeze_commit": "178f24992d92acdb0b2514a5ecfed46493d564cb",
+  "workflow_run_id": 35087172092,
+  "artifact_id": 10442468913,
+  "artifact_digest": "sha256:6c94b5cf8bb1378fdcb8cfc28a58dc71f4b98bbc89185aa4ffa4154dde4288dd",
+  "parent": {
+    "result_lock": "config/chapter1_h5_glopl_pollen_limitation_result_lock.json",
+    "workflow_run_id": 35086524129,
+    "artifact_id": 10442910503,
+    "classification": "pollen_limitation_gradient_not_supported",
+    "full_northern_distance_slope": 0.376225044823936,
+    "full_interaction_tropical_minus_northern": -0.031133203061144112
+  },
+  "leave_one_island": {
+    "n_refits": 28,
+    "n_evaluable": 28,
+    "evaluable_fraction": 1.0,
+    "north_slope_min": 0.04273080271974697,
+    "north_slope_max": 0.5653156202271375,
+    "north_slope_sign_positive_fraction": 1.0,
+    "max_absolute_north_slope_delta_from_full": 0.333494242104189,
+    "interaction_min": -0.4092789151962358,
+    "interaction_max": 0.14802995295635005,
+    "interaction_sign_negative_fraction": 0.7142857142857143,
+    "max_absolute_interaction_delta_from_full": 0.37814571213509174,
+    "most_influential_removed_unit_for_north_slope": "gshhg_2.3.7_h_011d8b3dfa0ab6a9edd6",
+    "most_influential_removed_unit_for_interaction": "gshhg_2.3.7_h_7242317396d6bf8bc7ba"
+  },
+  "leave_one_publication": {
+    "n_refits": 77,
+    "n_evaluable": 77,
+    "evaluable_fraction": 1.0,
+    "north_slope_min": 0.17233693404453693,
+    "north_slope_max": 0.5456507823926382,
+    "north_slope_sign_positive_fraction": 1.0,
+    "max_absolute_north_slope_delta_from_full": 0.20388811077939906,
+    "interaction_min": -0.2435186145410564,
+    "interaction_max": 0.14802995295635005,
+    "interaction_sign_negative_fraction": 0.9090909090909091,
+    "max_absolute_interaction_delta_from_full": 0.21238541147991227,
+    "most_influential_removed_unit_for_north_slope": "doi:10.1080/00288250809509762",
+    "most_influential_removed_unit_for_interaction": "doi:10.1080/00288250809509762"
+  },
+  "decision": {
+    "northern_direction": "northern_direction_diffuse",
+    "context_interaction": "context_interaction_sign_fragile",
+    "parent_classification": "pollen_limitation_gradient_not_supported",
+    "can_promote_parent_result": false
+  },
+  "interpretation": "The positive northern GloPL isolation coefficient is not driven by any single island or publication: all 105 leave-one-out refits retain a positive coefficient. This supports describing the point-estimate direction as diffuse rather than single-unit-driven, but it does not change the frozen non-supporting primary p-value. The North-Tropical interaction is influence-fragile and changes sign under some island and publication deletions.",
+  "claim_ceiling": "Influence stability is not statistical support. The parent pollen-limitation gradient remains unsupported and this audit does not establish pollination-service limitation, pollinator decline, context-specificity, or mediation of the floral response."
+}

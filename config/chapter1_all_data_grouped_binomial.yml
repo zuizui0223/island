@@ -1,0 +1,76 @@
+contract: chapter1_all_data_grouped_binomial_sensitivity_v1
+
+purpose: >-
+  Model-form sensitivity for the all-data probability route. Use the exact same six
+  atomic outcomes, evidence scopes, flora strata, covariates, contexts and support gates
+  as chapter1_all_data_probability.yml, but fit the repository's existing grouped-binomial
+  logit model with spatial-block cluster-robust covariance. This isolates model family
+  from response-definition changes.
+
+geography_column: log_distance_to_continent_km
+context_column: analysis_regime
+cluster_column: spatial_block
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+
+strata:
+  - all_observed
+  - all_native
+  - native_nonendemic
+
+support_tiers:
+  confirmatory: 50
+minimum_outcomes_per_vector: 2
+alpha: 0.05
+
+broad_outcomes:
+  generalized_form:
+    trait_name: floral_form
+    positive_states: [open_radial, brush_puff, composite_head]
+    negative_states:
+      [tubular, bell_campanulate, funnel_trumpet, urn_urceolate, bilabiate,
+       salverform, papilionaceous, spurred]
+    northern_classic_direction: 1
+  actinomorphic_symmetry:
+    trait_name: floral_symmetry
+    positive_states: [actinomorphic]
+    negative_states: [zygomorphic]
+    northern_classic_direction: 1
+  shallow_open_tube:
+    trait_name: tube_depth_class
+    positive_states: [absent_or_open, shallow]
+    negative_states: [deep]
+    northern_classic_direction: 1
+  self_compatibility:
+    trait_name: self_incompatibility
+    positive_states: [SC]
+    negative_states: [SI]
+    northern_classic_direction: 1
+  selfing_mating_system:
+    trait_name: mating_system
+    positive_states: [predominantly_selfing, obligate_selfing]
+    negative_states: [predominantly_outcrossing]
+    northern_classic_direction: 1
+  autonomous_selfing:
+    trait_name: autonomous_selfing_capacity
+    positive_states: [autonomous, delayed]
+    negative_states: [absent]
+    northern_classic_direction: 1
+
+rules:
+  - exact_same_six_atomic_outcomes_as_beta_binomial_primary
+  - exact_same_flora_and_evidence_scopes
+  - no_arbitrary_minimum_species_per_island_cutoff
+  - grouped_binomial_is_model_form_sensitivity_not_primary
+  - spatial_block_cluster_robust_sandwich_covariance
+  - north_tropical_difference_requires_direct_joint_test

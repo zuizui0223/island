@@ -1,0 +1,167 @@
+name: Run Chapter 1 H5 identity-matched two-route diagnostic
+
+on:
+  push:
+    branches: [ch1-all-data-primary]
+    paths:
+      - "config/chapter1_h5_identity_matched_two_route_v1.yml"
+      - "src/island_v2/chapter1_h5_identity_matched_two_route.py"
+      - "tests/test_chapter1_h5_identity_matched_two_route.py"
+      - ".github/workflows/run-chapter1-h5-identity-matched-two-route.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ALL_DATA_ARTIFACT_ID: "10393997800"
+      PROGRESSIVE_ARTIFACT_ID: "10058653212"
+      BOMBUS_ARTIFACT_ID: "10313926043"
+      NON_BOMBUS_ARTIFACT_ID: "10312514973"
+      LEPIDOPTERA_ARTIFACT_ID: "10314040773"
+      BIRDS_ARTIFACT_ID: "10313228947"
+      DIPTERA_ARTIFACT_ID: "10314045819"
+      ROOT: /tmp/ch1-h5-identity-matched
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate implementation
+        run: |
+          pytest -q tests/test_chapter1_h5_identity_matched_two_route.py
+          ruff check src/island_v2/chapter1_h5_identity_matched_two_route.py tests/test_chapter1_h5_identity_matched_two_route.py
+
+      - name: Download frozen inputs
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/all-data" "$ROOT/progressive" "$ROOT/channels" "$ROOT/out"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ALL_DATA_ARTIFACT_ID}/zip" > "$ROOT/all-data.zip"
+          unzip -q "$ROOT/all-data.zip" -d "$ROOT/all-data"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${PROGRESSIVE_ARTIFACT_ID}/zip" > "$ROOT/progressive.zip"
+          unzip -q "$ROOT/progressive.zip" -d "$ROOT/progressive"
+          for spec in \
+            "bombus:$BOMBUS_ARTIFACT_ID" \
+            "non_bombus_bees:$NON_BOMBUS_ARTIFACT_ID" \
+            "lepidoptera:$LEPIDOPTERA_ARTIFACT_ID" \
+            "flower_visiting_birds:$BIRDS_ARTIFACT_ID" \
+            "diptera:$DIPTERA_ARTIFACT_ID"; do
+            name=${spec%%:*}; id=${spec##*:}
+            mkdir -p "$ROOT/channels/$name"
+            gh api -H "Accept: application/vnd.github+json" \
+              "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}/zip" > "$ROOT/channels/$name.zip"
+            unzip -q "$ROOT/channels/$name.zip" -d "$ROOT/channels/$name"
+          done
+          test -s "$ROOT/all-data/syndrome/direct/island_syndrome_scores.csv.gz"
+          test -s "$ROOT/all-data/syndrome/all/island_syndrome_scores.csv.gz"
+          test -s "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv"
+
+      - name: Assemble frozen five-channel table
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import pandas as pd
+          root=Path(os.environ['ROOT'])/'channels'
+          frames=[]
+          for channel in ['bombus','non_bombus_bees','lepidoptera','flower_visiting_birds','diptera']:
+              matches=list((root/channel).rglob(f'{channel}_island_search_observation.csv'))
+              if len(matches) != 1:
+                  raise SystemExit(f'expected one observation table for {channel}, found {matches}')
+              table=pd.read_csv(matches[0])
+              if set(table.channel_id.astype(str)) != {channel}:
+                  raise SystemExit(f'channel mismatch for {channel}')
+              frames.append(table)
+          out=pd.concat(frames,ignore_index=True)
+          if out.duplicated(['island_id','channel_id']).any():
+              raise SystemExit('duplicate island-channel rows')
+          out.to_csv(root/'five_channel_observations.csv',index=False)
+          print({'rows':len(out),'islands':out.island_id.nunique(),'channels':out.channel_id.value_counts().to_dict()})
+          PY
+
+      - name: Run direct High-Medium primary diagnostic
+        run: |
+          python -m island_v2.chapter1_h5_identity_matched_two_route \
+            --syndrome-scores-csv "$ROOT/all-data/syndrome/direct/island_syndrome_scores.csv.gz" \
+            --channel-observations-csv "$ROOT/channels/five_channel_observations.csv" \
+            --covariates-csv "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv" \
+            --config-path config/chapter1_h5_identity_matched_two_route_v1.yml \
+            --evidence-scope direct_only \
+            --output-dir "$ROOT/out/direct"
+
+      - name: Run all-analysis evidence sensitivity
+        run: |
+          python -m island_v2.chapter1_h5_identity_matched_two_route \
+            --syndrome-scores-csv "$ROOT/all-data/syndrome/all/island_syndrome_scores.csv.gz" \
+            --channel-observations-csv "$ROOT/channels/five_channel_observations.csv" \
+            --covariates-csv "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv" \
+            --config-path config/chapter1_h5_identity_matched_two_route_v1.yml \
+            --evidence-scope all_analysis_eligible \
+            --output-dir "$ROOT/out/all"
+
+      - name: Integrate decision
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          import pandas as pd
+          root=Path(os.environ['ROOT'])/'out'
+          direct=pd.read_csv(root/'direct'/'identity_matched_two_route_models.csv')
+          broad=pd.read_csv(root/'all'/'identity_matched_two_route_models.csv')
+          def row(df, route, context):
+              x=df[(df.route==route)&(df.context==context)].iloc[0]
+              return {'estimate':float(x.estimate),'p':float(x.p_value),'q':float(x.q_value_primary_family)}
+          payload={
+              'contract':'chapter1_h5_identity_matched_two_route_v1',
+              'status':'posthoc_identity_aware_diagnostic_completed',
+              'direct':{
+                  'route_A_northern':row(direct,'A_reproductive_assurance','northern_midlatitude'),
+                  'route_A_tropical':row(direct,'A_reproductive_assurance','tropical'),
+                  'route_B_northern':row(direct,'B_identity_matched_architecture','northern_midlatitude'),
+                  'route_B_tropical':row(direct,'B_identity_matched_architecture','tropical'),
+              },
+              'all_analysis':{
+                  'route_A_northern':row(broad,'A_reproductive_assurance','northern_midlatitude'),
+                  'route_A_tropical':row(broad,'A_reproductive_assurance','tropical'),
+                  'route_B_northern':row(broad,'B_identity_matched_architecture','northern_midlatitude'),
+                  'route_B_tropical':row(broad,'B_identity_matched_architecture','tropical'),
+              },
+              'mechanism_promoted':False,
+              'classification':'identity_aware_suggestive_not_promoted',
+          }
+          (root/'identity_matched_integrated_decision.json').write_text(json.dumps(payload,indent=2)+'\n')
+          d=payload['direct']; a=payload['all_analysis']
+          lines=[
+              '# Identity-aware pollinator two-route integrated decision','',
+              f"- Direct Route A North: beta={d['route_A_northern']['estimate']:.6g}, p={d['route_A_northern']['p']:.6g}, q={d['route_A_northern']['q']:.6g}",
+              f"- Direct Route A Tropical: beta={d['route_A_tropical']['estimate']:.6g}, p={d['route_A_tropical']['p']:.6g}, q={d['route_A_tropical']['q']:.6g}",
+              f"- Direct Route B North: beta={d['route_B_northern']['estimate']:.6g}, p={d['route_B_northern']['p']:.6g}, q={d['route_B_northern']['q']:.6g}",
+              f"- Direct Route B Tropical: beta={d['route_B_tropical']['estimate']:.6g}, p={d['route_B_tropical']['p']:.6g}, q={d['route_B_tropical']['q']:.6g}",
+              '',
+              f"- All-analysis Route A Tropical sensitivity: beta={a['route_A_tropical']['estimate']:.6g}, p={a['route_A_tropical']['p']:.6g}",
+              f"- All-analysis Route B Tropical sensitivity: beta={a['route_B_tropical']['estimate']:.6g}, p={a['route_B_tropical']['p']:.6g}",
+              '',
+              '**Decision:** identity-aware channel stacking removes the pooled-channel interchangeability assumption. A direct-only tropical reproductive-assurance association may be nominally suggestive, but the four-test FDR family and all-analysis sensitivity do not promote it. Channel-matched floral architecture is directionally compatible with disruption in the tropics but unsupported. No upstream pollinator-causal mechanism is identified.'
+          ]
+          (root/'IDENTITY_MATCHED_INTEGRATED_SUMMARY.md').write_text('\n'.join(lines)+'\n')
+          print('\n'.join(lines))
+          PY
+          cat "$ROOT/out/IDENTITY_MATCHED_INTEGRATED_SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h5-identity-matched-two-route-${{ github.run_id }}
+          path: /tmp/ch1-h5-identity-matched/out
+          if-no-files-found: error
+          retention-days: 30

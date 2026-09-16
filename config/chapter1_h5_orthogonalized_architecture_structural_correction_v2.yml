@@ -1,0 +1,104 @@
+contract: chapter1_h5_orthogonalized_architecture_structural_correction_v2
+status: posthoc_structural_correction_after_v1_rank_audit
+parent_design_contract: chapter1_h5_orthogonalized_architecture_specificity_v1
+parent_design_freeze_commit: 93f6acfc89fa40af3f3bf3a331f56d660dd47481
+parent_result_lock: config/chapter1_h5_orthogonalized_architecture_specificity_v1_result_lock.json
+
+purpose: >-
+  Correct two structural defects discovered while executing the frozen v1 analysis without
+  changing its biological question, evidence hierarchy, flora scope, source-trained factor,
+  per-island support gate, covariates, contexts, or claim ceiling. First, three template
+  residual labels after removing one shared factor span at most two independent dimensions,
+  so the residual Wald family must have rank two rather than three. Second, the existing
+  multivariate helper refuses a one-response family, so the shared factor requires a
+  dedicated scalar cluster-robust North-versus-Tropical distance-by-context model.
+
+inferential_role: posthoc_structural_correction_not_confirmatory
+
+unchanged_from_v1:
+  evidence_hierarchy:
+    primary: all_analysis_eligible
+    sensitivity: direct_only
+  flora_scope: all_observed
+  sampled_templates:
+    - large_bee_like
+    - butterfly_like
+    - bird_like
+  factor_training: source_trained_complete_case_PCA1
+  minimum_complete_source_species: 50
+  minimum_scored_species_per_island_component: 50
+  contexts:
+    - northern_midlatitude
+    - tropical
+  geography_predictor: log_distance_to_continent_km
+  controls:
+    - log_island_area_km2
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+  cluster_column: spatial_block
+  covariance: spatial_block_cluster_robust
+  no_imputation: true
+
+residual_family_correction:
+  labels:
+    - large_bee_like_residual
+    - butterfly_like_residual
+    - bird_like_residual
+  required_labels_present: 3
+  intrinsic_dimension: 2
+  derivation: three_template_dimensions_minus_one_source_trained_shared_factor
+  required_joint_wald_df: 2
+  minimum_islands_per_context: 50
+  alpha: 0.05
+
+shared_factor_correction:
+  response: shared_architecture_factor
+  model: scalar_cluster_robust_linear_model
+  terms:
+    - intercept
+    - z_log_island_area_km2
+    - z_climate_pc1
+    - z_climate_pc2
+    - z_climate_pc3
+    - z_climate_pc4
+    - context_tropical
+    - z_log_distance_to_continent_km
+    - z_log_distance_to_continent_km_by_context_tropical
+  standardization: pooled_within_analysis_sample_population_sd
+  primary_parameter: z_log_distance_to_continent_km_by_context_tropical
+  minimum_islands_per_context: 50
+  alpha: 0.05
+
+reporting_rule:
+  robust_residual_H2: all_analysis_and_direct_p_le_0_05
+  robust_shared_H2: all_analysis_and_direct_p_le_0_05
+  all_only_or_direct_only: scope_sensitive_not_promoted
+  individual_residual_slopes: descriptive_with_FDR_only
+  no_single_axis_posthoc_selection: true
+
+rules:
+  - v1_contract_is_not_rewritten
+  - v1_df3_failure_is_preserved_as_a_design_failure
+  - v1_first_successful_run_35064902445_is_not_used_because_per_island_support_was_not_enforced
+  - corrected_support_run_35065455839_is_the_parent_data_geometry_audit
+  - n_species_per_island_component_must_be_at_least_50_before_any_model
+  - all_three_residual_labels_must_be_present_even_though_their_intrinsic_rank_is_two
+  - shared_factor_uses_a_dedicated_scalar_model_not_the_multivariate_helper
+  - all_analysis_eligible_is_primary
+  - direct_only_is_sensitivity
+  - all_observed_is_the_only_flora_scope
+  - residual_labels_are_plant_trait_contrasts_not_realized_pollinator_identities
+  - no_pollinator_occurrence_or_service_data_enter_this_analysis
+  - no_causal_promotion
+
+claim_ceiling:
+  confirmatory_specificity_test: false
+  realized_pollinator_identity_identified: false
+  pollinator_abundance_identified: false
+  visitation_identified: false
+  effective_pollination_service_identified: false
+  historical_pollinator_loss_identified: false
+  causal_pollinator_selection_identified: false
+  residual_structure_proves_within_lineage_evolution: false

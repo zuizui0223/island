@@ -1,0 +1,130 @@
+name: Run Chapter 1 H5 multichannel two-route bridge
+
+on:
+  push:
+    branches: [ch1-all-data-primary]
+    paths:
+      - "config/chapter1_h5_multichannel_two_route_v1.yml"
+      - "src/island_v2/chapter1_h5_multichannel_two_route.py"
+      - "tests/test_chapter1_h5_multichannel_two_route.py"
+      - ".github/workflows/run-chapter1-h5-multichannel-two-route.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ALL_DATA_ARTIFACT_ID: "10393997800"
+      PROGRESSIVE_ARTIFACT_ID: "10058653212"
+      BOMBUS_ARTIFACT_ID: "10313926043"
+      NON_BOMBUS_ARTIFACT_ID: "10312514973"
+      LEPIDOPTERA_ARTIFACT_ID: "10314040773"
+      BIRDS_ARTIFACT_ID: "10313228947"
+      DIPTERA_ARTIFACT_ID: "10314045819"
+      ROOT: /tmp/ch1-h5-multichannel-two-route
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate implementation
+        run: |
+          pytest -q tests/test_chapter1_h5_multichannel_two_route.py
+          ruff check src/island_v2/chapter1_h5_multichannel_two_route.py tests/test_chapter1_h5_multichannel_two_route.py
+
+      - name: Download frozen inputs
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/all-data" "$ROOT/progressive" "$ROOT/channels" "$ROOT/out"
+          for spec in \
+            "all-data:$ALL_DATA_ARTIFACT_ID" \
+            "progressive:$PROGRESSIVE_ARTIFACT_ID" \
+            "bombus:$BOMBUS_ARTIFACT_ID" \
+            "non_bombus_bees:$NON_BOMBUS_ARTIFACT_ID" \
+            "lepidoptera:$LEPIDOPTERA_ARTIFACT_ID" \
+            "flower_visiting_birds:$BIRDS_ARTIFACT_ID" \
+            "diptera:$DIPTERA_ARTIFACT_ID"; do
+            name=${spec%%:*}; id=${spec##*:}
+            mkdir -p "$ROOT/$name"
+            gh api -H "Accept: application/vnd.github+json" \
+              "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}/zip" > "$ROOT/${name}.zip"
+            unzip -q "$ROOT/${name}.zip" -d "$ROOT/$name"
+          done
+          test -s "$ROOT/all-data/syndrome/direct/island_syndrome_scores.csv.gz"
+          test -s "$ROOT/all-data/syndrome/all/island_syndrome_scores.csv.gz"
+          test -s "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv"
+
+      - name: Assemble frozen five-channel long table
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import os
+          import pandas as pd
+          root=Path(os.environ['ROOT'])
+          specs={
+            'bombus': root/'bombus'/'bombus_island_search_observation.csv',
+            'non_bombus_bees': root/'non_bombus_bees'/'non_bombus_bees_island_search_observation.csv',
+            'lepidoptera': root/'lepidoptera'/'lepidoptera_island_search_observation.csv',
+            'flower_visiting_birds': root/'flower_visiting_birds'/'flower_visiting_birds_island_search_observation.csv',
+            'diptera': root/'diptera'/'diptera_island_search_observation.csv',
+          }
+          frames=[]
+          for channel,path in specs.items():
+              if not path.exists():
+                  matches=list((root/channel).rglob(f'{channel}_island_search_observation.csv'))
+                  if len(matches)!=1:
+                      raise SystemExit(f'expected one {channel} table, found {matches}')
+                  path=matches[0]
+              table=pd.read_csv(path)
+              if not table['channel_id'].astype(str).eq(channel).all():
+                  raise SystemExit(f'channel mismatch for {channel}')
+              frames.append(table)
+          long=pd.concat(frames,ignore_index=True)
+          if long.duplicated(['island_id','channel_id']).any():
+              raise SystemExit('duplicate island-channel rows')
+          out=root/'channels'/'five_channel_search_observations.csv.gz'
+          long.to_csv(out,index=False,compression='gzip')
+          print({'rows':len(long),'islands':long.island_id.nunique(),'channels':long.channel_id.value_counts().to_dict()})
+          PY
+
+      - name: Run direct High-Medium primary bridge
+        run: |
+          python -m island_v2.chapter1_h5_multichannel_two_route \
+            --syndrome-scores-csv "$ROOT/all-data/syndrome/direct/island_syndrome_scores.csv.gz" \
+            --channel-observations-csv "$ROOT/channels/five_channel_search_observations.csv.gz" \
+            --covariates-csv "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv" \
+            --config-path config/chapter1_h5_multichannel_two_route_v1.yml \
+            --evidence-scope direct_only \
+            --output-dir "$ROOT/out/direct"
+
+      - name: Run all-analysis evidence sensitivity
+        run: |
+          python -m island_v2.chapter1_h5_multichannel_two_route \
+            --syndrome-scores-csv "$ROOT/all-data/syndrome/all/island_syndrome_scores.csv.gz" \
+            --channel-observations-csv "$ROOT/channels/five_channel_search_observations.csv.gz" \
+            --covariates-csv "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv" \
+            --config-path config/chapter1_h5_multichannel_two_route_v1.yml \
+            --evidence-scope all_analysis_eligible \
+            --output-dir "$ROOT/out/all"
+
+      - name: Write summary
+        run: |
+          cat "$ROOT/out/direct/RESULT_SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
+          printf '\n' >> "$GITHUB_STEP_SUMMARY"
+          cat "$ROOT/out/all/RESULT_SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h5-multichannel-two-route-${{ github.run_id }}
+          path: /tmp/ch1-h5-multichannel-two-route/out
+          if-no-files-found: error
+          retention-days: 30

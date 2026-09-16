@@ -1,0 +1,75 @@
+contract: chapter1_h5_glopl_global_shape_audit_v1
+status: frozen_posthoc_after_parent_global_result
+inferential_role: posthoc_shape_diagnostic_not_confirmatory
+
+parent:
+  result_lock: config/chapter1_h5_glopl_global_distance_result_lock.json
+  workflow_run_id: 35090599662
+  artifact_id: 10444156159
+  artifact_digest: sha256:f11046d441fba6cdc3a2842a5a19fdc0bed3661b9ce258625eb93acc879ce623
+  parent_classification: global_pollen_limitation_gradient_supported_context_specificity_not_established
+  parent_global_slope: 0.07936837202478536
+  parent_one_sided_p: 0.017717416961124742
+
+question: >-
+  Is the supported parent continuous-distance coefficient primarily a mainland-versus-
+  offshore level shift, or is there also a positive continuous pollen-limitation gradient
+  among positive-distance offshore sites?
+
+input:
+  file: out/PRIMARY_MEASUREMENT_CELLS.csv.gz
+  unit: frozen_parent_publication_x_site_x_measurement_cell
+  reuse_parent_weights: true
+  reuse_parent_outcomes: true
+  no_new_outcome_filtering: true
+
+shape_definition:
+  mainland: log1p_distance_to_major_continent_km == 0
+  offshore: log1p_distance_to_major_continent_km > 0
+  offshore_distance_axis: >-
+    Standardize log1p distance using only positive-distance parent cells; set the centered
+    standardized offshore-distance term to zero for mainland cells. The offshore indicator
+    then measures the adjusted mainland-to-average-offshore level shift, while the
+    offshore-distance coefficient measures the within-offshore distance slope.
+
+models:
+  two_part_global: >-
+    PL ~ context_intercepts + offshore_indicator + offshore_distance_z +
+    frozen_measurement_fixed_effects, using the parent analysis_weight and publication cluster.
+  offshore_only: >-
+    Restrict only for this diagnostic model to positive-distance parent cells and fit
+    PL ~ context_intercepts + offshore_distance_z + frozen_measurement_fixed_effects,
+    using the parent publication weights without renormalizing them.
+
+reported_tests:
+  - mainland_to_average_offshore_step_two_sided
+  - within_offshore_distance_slope_two_sided
+  - offshore_only_distance_slope_two_sided
+
+classification_rules:
+  no_parent_promotion_change: true
+  step_dominated: >-
+    Descriptive label only if the two-part offshore step has p <= 0.05 while both
+    within-offshore slope tests have p > 0.05.
+  within_offshore_gradient_present: >-
+    Descriptive label only if the two-part within-offshore slope and offshore-only slope
+    are both positive with two-sided p <= 0.05.
+  mixed_or_unresolved: all_other_cases
+
+rules:
+  - parent_model_and_parent_p_value_are_immutable
+  - parent_supported_classification_cannot_be_upgraded_or_downgraded_by_this_audit
+  - no_new_distance_thresholds
+  - no_quantile_bins
+  - no_context_selection_after_parent_result
+  - no_publication_or_site_deletion_for_signal_improvement
+  - parent_analysis_weights_are_reused_without_renormalization
+  - measurement_fixed_effects_match_parent_variables
+  - publication_cluster_is_reused
+
+claim_ceiling: >-
+  This audit can describe whether the parent distance association resembles an offshore
+  level shift, a within-offshore distance gradient, or an unresolved mixture. It cannot
+  convert the post-hoc decomposition into confirmatory evidence, cannot change the parent
+  p-value or promotion status, and cannot identify pollinator decline, causal island
+  effects, or mediation of the Chapter 1 plant H2 response.

@@ -1,0 +1,202 @@
+name: Run Chapter 1 H5 within-island identity filter
+
+on:
+  push:
+    branches: [ch1-all-data-primary]
+    paths:
+      - "config/chapter1_h5_within_island_identity_filter_v1.yml"
+      - "src/island_v2/chapter1_h5_within_island_identity_filter.py"
+      - "tests/test_chapter1_h5_within_island_identity_filter.py"
+      - ".github/workflows/run-chapter1-h5-within-island-identity-filter.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ALL_DATA_ARTIFACT_ID: "10393997800"
+      PROGRESSIVE_ARTIFACT_ID: "10058653212"
+      BOMBUS_ARTIFACT_ID: "10313926043"
+      LEPIDOPTERA_ARTIFACT_ID: "10314040773"
+      BIRDS_ARTIFACT_ID: "10313228947"
+      ROOT: /tmp/ch1-h5-within-island
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate implementation
+        run: |
+          pytest -q tests/test_chapter1_h5_within_island_identity_filter.py
+          ruff check src/island_v2/chapter1_h5_within_island_identity_filter.py tests/test_chapter1_h5_within_island_identity_filter.py
+
+      - name: Download frozen inputs
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/all-data" "$ROOT/progressive" "$ROOT/channels" "$ROOT/out"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ALL_DATA_ARTIFACT_ID}/zip" > "$ROOT/all-data.zip"
+          unzip -q "$ROOT/all-data.zip" -d "$ROOT/all-data"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${PROGRESSIVE_ARTIFACT_ID}/zip" > "$ROOT/progressive.zip"
+          unzip -q "$ROOT/progressive.zip" -d "$ROOT/progressive"
+          for spec in \
+            "bombus:$BOMBUS_ARTIFACT_ID" \
+            "lepidoptera:$LEPIDOPTERA_ARTIFACT_ID" \
+            "flower_visiting_birds:$BIRDS_ARTIFACT_ID"; do
+            name=${spec%%:*}; id=${spec##*:}
+            mkdir -p "$ROOT/channels/$name"
+            gh api -H "Accept: application/vnd.github+json" \
+              "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}/zip" > "$ROOT/channels/$name.zip"
+            unzip -q "$ROOT/channels/$name.zip" -d "$ROOT/channels/$name"
+          done
+          test -s "$ROOT/all-data/syndrome/direct/island_syndrome_scores.csv.gz"
+          test -s "$ROOT/all-data/syndrome/all/island_syndrome_scores.csv.gz"
+          test -s "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv"
+
+      - name: Assemble frozen matched-channel table
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import pandas as pd
+          root=Path(os.environ['ROOT'])/'channels'
+          frames=[]
+          for channel in ['bombus','lepidoptera','flower_visiting_birds']:
+              matches=list((root/channel).rglob(f'{channel}_island_search_observation.csv'))
+              if len(matches) != 1:
+                  raise SystemExit(f'expected one observation table for {channel}, found {matches}')
+              table=pd.read_csv(matches[0])
+              if set(table.channel_id.astype(str)) != {channel}:
+                  raise SystemExit(f'channel mismatch for {channel}')
+              frames.append(table)
+          out=pd.concat(frames,ignore_index=True)
+          if out.duplicated(['island_id','channel_id']).any():
+              raise SystemExit('duplicate island-channel rows')
+          out.to_csv(root/'matched_channel_observations.csv',index=False)
+          print({'rows':len(out),'islands':out.island_id.nunique(),'channels':out.channel_id.value_counts().to_dict()})
+          PY
+
+      - name: Run all-analysis primary
+        run: |
+          python -m island_v2.chapter1_h5_within_island_identity_filter \
+            --syndrome-scores-csv "$ROOT/all-data/syndrome/all/island_syndrome_scores.csv.gz" \
+            --channel-observations-csv "$ROOT/channels/matched_channel_observations.csv" \
+            --covariates-csv "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv" \
+            --config-path config/chapter1_h5_within_island_identity_filter_v1.yml \
+            --evidence-scope all_analysis_eligible \
+            --output-dir "$ROOT/out/all"
+
+      - name: Run Direct sensitivity
+        run: |
+          python -m island_v2.chapter1_h5_within_island_identity_filter \
+            --syndrome-scores-csv "$ROOT/all-data/syndrome/direct/island_syndrome_scores.csv.gz" \
+            --channel-observations-csv "$ROOT/channels/matched_channel_observations.csv" \
+            --covariates-csv "$ROOT/progressive/fixed/isolation/results/purpose_shortest_island_data.csv" \
+            --config-path config/chapter1_h5_within_island_identity_filter_v1.yml \
+            --evidence-scope direct_only \
+            --output-dir "$ROOT/out/direct"
+
+      - name: Integrate frozen decision
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          import pandas as pd
+          root=Path(os.environ['ROOT'])/'out'
+          all_models=pd.read_csv(root/'all'/'within_island_identity_models.csv')
+          all_omnibus=pd.read_csv(root/'all'/'within_island_identity_omnibus.csv')
+          direct_models=pd.read_csv(root/'direct'/'within_island_identity_models.csv')
+          direct_omnibus=pd.read_csv(root/'direct'/'within_island_identity_omnibus.csv')
+          all_dec=json.loads((root/'all'/'within_island_identity_decision.json').read_text())
+          direct_dec=json.loads((root/'direct'/'within_island_identity_decision.json').read_text())
+
+          def matched_omnibus(df):
+              return df.loc[df.mapping.eq('matched')].iloc[0]
+          def estimates(df):
+              part=df.loc[df.mapping.eq('matched')]
+              return {str(r.context):float(r.estimate) if pd.notna(r.estimate) else None for r in part.itertuples()}
+          def mapping_summary(models, omnibus):
+              out={}
+              for mapping in ['matched','rotation_1','rotation_2']:
+                  om=omnibus.loc[omnibus.mapping.eq(mapping)].iloc[0]
+                  part=models.loc[models.mapping.eq(mapping)]
+                  out[mapping]={
+                      'support_passed':bool(om.support_passed),
+                      'estimable':bool(om.estimable),
+                      'target_rank_increment':int(om.target_rank_increment),
+                      'nuisance_rank':int(om.nuisance_rank),
+                      'full_design_rank':int(om.full_design_rank),
+                      'joint_df':int(om.joint_df),
+                      'joint_p_value':float(om.joint_p_value) if pd.notna(om.joint_p_value) else None,
+                      'effect_norm':float(om.effect_norm) if pd.notna(om.effect_norm) else None,
+                      'mixed_islands_by_context':{str(r.context):int(r.n_mixed_islands) for r in part.itertuples()},
+                      'context_estimable':{str(r.context):bool(r.estimable) for r in part.itertuples()},
+                      'context_estimates':{str(r.context):float(r.estimate) if pd.notna(r.estimate) else None for r in part.itertuples()},
+                  }
+              return out
+
+          a=matched_omnibus(all_omnibus); d=matched_omnibus(direct_omnibus)
+          ae=estimates(all_models); de=estimates(direct_models)
+          contexts=['northern_midlatitude','tropical']
+          association_supported=(
+              bool(a.support_passed)
+              and bool(a.estimable)
+              and bool(d.support_passed)
+              and bool(d.estimable)
+              and pd.notna(a.joint_p_value)
+              and float(a.joint_p_value) <= 0.05
+              and all(ae.get(c) is not None and ae[c] <= 0 for c in contexts)
+              and all(de.get(c) is not None and de[c] <= 0 for c in contexts)
+          )
+          payload={
+              'contract':'chapter1_h5_within_island_identity_filter_v1',
+              'status':'completed_not_identifiable' if not (bool(a.support_passed) and bool(a.estimable)) else 'completed',
+              'primary_scope':'all_analysis_eligible',
+              'sensitivity_scope':'direct_only',
+              'all_analysis':mapping_summary(all_models,all_omnibus),
+              'direct':mapping_summary(direct_models,direct_omnibus),
+              'all_analysis_eligible_mixed_islands':all_dec['n_eligible_mixed_islands'],
+              'direct_eligible_mixed_islands':direct_dec['n_eligible_mixed_islands'],
+              'association_supported_under_frozen_gate':bool(association_supported),
+              'causal_promotion':False,
+              'maximum_claim':'identity-preserving within-island association only' if association_supported else 'strict within-island identity effect not identifiable under current exact-island support',
+          }
+          (root/'within_island_identity_integrated_decision.json').write_text(json.dumps(payload,indent=2)+'\n')
+          m=payload['all_analysis']['matched']
+          lines=[
+              '# H5 within-island identity filter integrated decision','',
+              f"- all-analysis eligible mixed islands: {payload['all_analysis_eligible_mixed_islands']}",
+              f"- Direct eligible mixed islands: {payload['direct_eligible_mixed_islands']}",
+              f"- mixed islands by context: {m['mixed_islands_by_context']}",
+              f"- matched support gate: {m['support_passed']}",
+              f"- matched estimability gate: {m['estimable']}",
+              f"- target rank increment: {m['target_rank_increment']} / 2 required",
+              f"- context estimable: {m['context_estimable']}",
+              f"- all-analysis matched joint p: {m['joint_p_value']}",
+              f"- all-analysis matched effects: {m['context_estimates']}",
+              '',
+              f"**Frozen-gate association supported:** {association_supported}",
+              '',
+              'This test removes island-level confounding by island fixed effects but does not identify effective service, historical loss, or causal pollinator selection. Failure of support or design-rank gates is an identifiability result, not evidence for no pollinator effect.'
+          ]
+          (root/'WITHIN_ISLAND_IDENTITY_INTEGRATED_SUMMARY.md').write_text('\n'.join(lines)+'\n')
+          print('\n'.join(lines))
+          PY
+          cat "$ROOT/out/WITHIN_ISLAND_IDENTITY_INTEGRATED_SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h5-within-island-identity-filter-${{ github.run_id }}
+          path: /tmp/ch1-h5-within-island/out
+          if-no-files-found: error
+          retention-days: 30

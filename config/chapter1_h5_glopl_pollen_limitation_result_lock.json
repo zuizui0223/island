@@ -1,0 +1,105 @@
+{
+  "contract": "chapter1_h5_glopl_pollen_limitation_result_lock_v1",
+  "status": "completed_not_supported",
+  "design_freeze_commit": "0f7479c3607f86333c8d904a4786c0b938912b0b",
+  "final_implementation_commit": "eab4b93b696767d4aee0b7f54f94a8a598d194ca",
+  "workflow_run_id": 35086524129,
+  "artifact_id": 10442910503,
+  "artifact_digest": "sha256:5d39d3658100edabcbb9a7f6b5e6d7130ffc7d32e643e7900fcebfbd137efaa0",
+  "source": {
+    "repository": "idiv-biodiversity/pollen-limitation-data-descriptor",
+    "git_commit": "abbe193770981b2c61713e75a0f01e004bdded8e",
+    "file": "Output/GloPL.csv",
+    "sha256": "264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de"
+  },
+  "preflight": {
+    "result_lock": "config/chapter1_h5_glopl_island_overlap_preflight_result_lock.json",
+    "workflow_run_id": 35085378171,
+    "artifact_id": 10442126584,
+    "artifact_digest": "sha256:5ab7aecfbeb4fac2db26bcdc13edd4b47e953b1d1e6f35255330a0b2f70fe041",
+    "classification": "GloPL_exact_island_overlap_gate_passed"
+  },
+  "response": {
+    "column": "PL_Effect_Size",
+    "interpretation": "published GloPL master log response ratio of hand-pollen treatment versus natural reproductive output; positive values indicate stronger experimental pollen limitation",
+    "not_equivalent_to": [
+      "pollinator_abundance_decline",
+      "visitation_rate_decline",
+      "visitor_identity",
+      "historical_pollinator_extinction",
+      "causal_floral_selection_gradient"
+    ]
+  },
+  "analysis_support": {
+    "n_exact_island_finite_effect_rows": 262,
+    "n_publication_island_cells": 80,
+    "northern_midlatitude_cells": 56,
+    "tropical_cells": 24,
+    "n_unique_islands": 28,
+    "n_publications": 77,
+    "n_spatial_blocks": 25
+  },
+  "primary": {
+    "northern_distance_slope": 0.37622504482393726,
+    "northern_distance_slope_se": 0.32147000749339133,
+    "northern_95pct_normal_ci": [-0.25385616986310977, 1.0063062595109842],
+    "northern_two_sided_p": 0.2418693811313376,
+    "northern_one_sided_positive_p": 0.1209346905656688,
+    "tropical_minus_northern_interaction": -0.031133203061145236,
+    "interaction_se": 0.29327318635556066,
+    "interaction_95pct_normal_ci": [-0.6059486483180441, 0.5436822421957537],
+    "interaction_two_sided_p": 0.9154572422295331,
+    "interaction_one_sided_negative_p": 0.45772862111476653,
+    "tropical_distance_slope": 0.345091841762792,
+    "tropical_distance_slope_se": 0.48569945878416787,
+    "tropical_95pct_normal_ci": [-0.6068790974541769, 1.297062780979761],
+    "tropical_two_sided_p": 0.47739109806450025
+  },
+  "sensitivities": {
+    "supplemental_only": {
+      "n_cells": 50,
+      "northern_midlatitude_cells": 38,
+      "tropical_cells": 12,
+      "n_islands": 17,
+      "n_publications": 48,
+      "n_blocks": 17,
+      "northern_distance_slope": 0.4318162561647292,
+      "northern_one_sided_positive_p": 0.14982789402927557,
+      "tropical_minus_northern_interaction": 0.3006067911930989,
+      "interaction_one_sided_negative_p": 0.7215154701980468,
+      "interaction_sign_matches_primary_prediction": false
+    },
+    "no_zero_constant": {
+      "n_cells": 77,
+      "northern_midlatitude_cells": 55,
+      "tropical_cells": 22,
+      "n_islands": 27,
+      "n_publications": 74,
+      "n_blocks": 25,
+      "northern_distance_slope": 0.32313879164489734,
+      "northern_one_sided_positive_p": 0.16526938345239084,
+      "tropical_minus_northern_interaction": -0.0893041406151113,
+      "interaction_one_sided_negative_p": 0.3868373816219859
+    },
+    "equal_island": {
+      "n_islands": 28,
+      "northern_midlatitude_islands": 14,
+      "tropical_islands": 14,
+      "northern_distance_slope": 0.7472794462448997,
+      "northern_one_sided_positive_p": 0.12160679392619958,
+      "tropical_minus_northern_interaction": -0.22836883696846005,
+      "interaction_one_sided_negative_p": 0.34395990223411366,
+      "interaction_two_sided_p": 0.6879198044682273
+    }
+  },
+  "decision": {
+    "classification": "pollen_limitation_gradient_not_supported",
+    "north_service_gradient_supported": false,
+    "context_specific_service_gradient_supported": false,
+    "sensitivity_direction_consistent": false,
+    "full_mechanism_promotion": false,
+    "global_pollinator_causal_mechanism_identified": false
+  },
+  "interpretation": "Northern point estimates are positive in the primary and all three prespecified sensitivities, but the frozen northern directional test is unsupported. The primary North-Tropical interaction is near zero and unsupported, and the supplemental-only sensitivity reverses the predicted interaction sign. Independent experimental pollen-limitation data therefore do not recover the proposed context-specific isolation gradient under the frozen model.",
+  "claim_ceiling": "This result does not show that pollinators are irrelevant or that islands lack pollen limitation. It shows that the available exact-island GloPL experiments do not support the frozen isolation-associated, North-versus-Tropical pollen-limitation gradient. GloPL is experimental pollen-supplementation evidence, not a direct measure of pollinator abundance decline, visitation decline, historical extinction, or mediation of the Chapter 1 plant-trait response."
+}

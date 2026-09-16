@@ -1,0 +1,37 @@
+{
+  "contract": "chapter1_h5_multichannel_two_route_v1_result_lock",
+  "parent_contract": "chapter1_h5_multichannel_two_route_v1",
+  "status": "completed_not_promoted",
+  "workflow_run_id": 35051029608,
+  "artifact_id": 10429046082,
+  "artifact_name": "chapter1-h5-multichannel-two-route-35051029608",
+  "artifact_digest": "sha256:ec56ad97899bc90774c05fd08c7384bebc853c703a4fed4746f2741aa2b0f065",
+  "primary": {
+    "evidence_scope": "direct_only",
+    "flora_scope": "all_observed",
+    "min_evaluable_channels": 2,
+    "symmetric_effort_gate": true,
+    "primary_contexts": ["northern_midlatitude", "tropical"],
+    "state_support": {
+      "northern_midlatitude": {"n": 303, "disrupted": 15, "no_documented_disruption": 288},
+      "tropical": {"n": 99, "disrupted": 21, "no_documented_disruption": 78}
+    },
+    "overlap_gate_passed": true,
+    "tests": {
+      "northern_midlatitude_selfing_core": {"estimate": -0.011317, "se": 0.033825, "p": 0.737957, "q": 0.897045},
+      "northern_midlatitude_generalized_accessible_given_selfing_core": {"estimate": -0.004959, "se": 0.023706, "p": 0.834307, "q": 0.897045},
+      "tropical_selfing_core": {"estimate": 0.058758, "se": 0.094844, "p": 0.535573, "q": 0.897045},
+      "tropical_generalized_accessible_given_selfing_core": {"estimate": -0.008632, "se": 0.066714, "p": 0.897045, "q": 0.897045}
+    },
+    "two_route_directional_requirement_passed": false,
+    "four_primary_tests_fdr_supported": false,
+    "simple_global_pollinator_disruption_two_route_promoted": false,
+    "classification": "simple_global_two_route_not_supported"
+  },
+  "important_sensitivity": {
+    "tropical_min1_selfing_core": {"estimate": 0.189509, "p": 0.025688},
+    "tropical_min3_selfing_core": {"estimate": 0.179939, "p": 0.002125},
+    "interpretation": "Tropical reproductive-assurance association appears in some evaluable-channel thresholds, but the primary min-2 analysis is unsupported and the conditional floral-accessibility route is not supported; this is threshold-sensitive suggestive evidence only."
+  },
+  "claim_boundary": "The exposure is conservative source-to-island functional-channel disruption among five functional channels. It is not temporal pollinator decline, abundance decline, historical extinction, visitation loss, or effective-service loss."
+}

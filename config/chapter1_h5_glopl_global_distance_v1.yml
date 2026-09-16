@@ -1,0 +1,149 @@
+contract: chapter1_h5_glopl_global_distance_v1
+status: frozen_before_global_distance_outcome_merge
+inferential_role: prospective_global_extension_after_exact_island_subset_result
+
+question: >-
+  Across all georeferenced GloPL pollen-supplementation experiments, does experimental
+  pollen limitation increase with geographic separation from the six seeded major
+  continental landmasses, and does that isolation gradient differ among the same four
+  biogeographic latitude regimes used by Chapter 1 and GloBI?
+
+source:
+  repository: idiv-biodiversity/pollen-limitation-data-descriptor
+  git_commit: abbe193770981b2c61713e75a0f01e004bdded8e
+  file: Output/GloPL.csv
+  raw_url: https://raw.githubusercontent.com/idiv-biodiversity/pollen-limitation-data-descriptor/abbe193770981b2c61713e75a0f01e004bdded8e/Output/GloPL.csv
+  sha256: 264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de
+
+geography:
+  source_repository: nvkelso/natural-earth-vector
+  git_commit: ca96624a56bd078437bca8184e78163e5039ad19
+  file: geojson/ne_110m_land.geojson
+  raw_url: https://raw.githubusercontent.com/nvkelso/natural-earth-vector/ca96624a56bd078437bca8184e78163e5039ad19/geojson/ne_110m_land.geojson
+  crs_for_distance: EPSG:3857
+  continent_seeds:
+    africa: [20.0, 0.0]
+    eurasia: [80.0, 50.0]
+    north_america: [-100.0, 40.0]
+    south_america: [-60.0, -15.0]
+    australia: [135.0, -25.0]
+    antarctica: [0.0, -80.0]
+  exposure: log1p_distance_to_seeded_major_continent_km
+  mainland_definition: point_distance_to_selected_continent_union_equals_zero
+  rule: >-
+    Use the exact six-seed major-continent selection already used by
+    island_v2.purpose_shortest_analysis. Do not classify points outside the frozen 8265-island
+    universe as mainland by default.
+
+preflight:
+  allowed_columns: [Latitude, Longitude, DOI, Author, Year]
+  forbidden_columns:
+    - PL_Effect_Size
+    - PL_Effect_Size_Type1
+    - PL_Effect_Size_Type2
+    - Constant_added
+  site_key: exact_numeric_latitude_longitude
+  study_key_primary: DOI
+  study_key_fallback: Author_plus_Year
+  support_gates:
+    global_min_unique_sites: 200
+    global_min_unique_studies: 100
+    north_tropical_min_unique_sites_per_context: 50
+    north_tropical_min_unique_studies_per_context: 20
+    four_context_min_unique_sites_per_context: 30
+    four_context_min_unique_studies_per_context: 10
+  threshold_relaxation_after_preflight: false
+
+contexts:
+  tropical_abs_lat_lt: 23.4366
+  northern_high_lat_ge: 66.5634
+  levels:
+    - northern_midlatitude
+    - northern_high_latitude
+    - tropical
+    - southern_extratropical
+  reference: northern_midlatitude
+  primary_pair: [northern_midlatitude, tropical]
+
+analysis:
+  effect_column: PL_Effect_Size
+  effect_definition: log_treatment_over_natural_master_GloPL_effect
+  columns_read_after_preflight_pass:
+    - PL_Effect_Size
+    - PL_Effect_Size_Type1
+    - PL_Effect_Size_Type2
+    - Constant_added
+    - Level_of_Supplementation
+  unit: publication_x_coordinate_x_measurement_cell
+  measurement_cell:
+    - PL_Effect_Size_Type1
+    - PL_Effect_Size_Type2
+    - Constant_added
+    - Level_of_Supplementation
+  duplicate_cell_summary: arithmetic_mean
+  publication_total_weight: 1.0
+  primary_cluster: publication
+  measurement_fixed_effects:
+    - PL_Effect_Size_Type1
+    - PL_Effect_Size_Type2
+    - Constant_added
+    - Level_of_Supplementation
+
+models:
+  global_gradient: >-
+    PL ~ z_log1p_distance_to_major_continent + context_intercepts + measurement_fixed_effects.
+    Primary directional test: global distance coefficient > 0.
+  context_gradient: >-
+    PL ~ context * z_log1p_distance_to_major_continent + measurement_fixed_effects.
+    Report all four context-specific slopes and a joint Wald test of distance-slope heterogeneity.
+  north_tropical_pair: >-
+    Restrict to northern_midlatitude and tropical. Test northern distance slope > 0 and
+    tropical-minus-northern distance interaction < 0 separately.
+
+support_after_effect_availability:
+  minimum_cells_for_global_fit: 100
+  minimum_publications_for_global_fit: 50
+  minimum_cells_per_primary_pair_context: 30
+  minimum_publications_per_primary_pair_context: 15
+  minimum_cells_per_four_context: 20
+  minimum_publications_per_four_context: 8
+
+sensitivities:
+  supplemental_only:
+    rule: PL_Effect_Size_Type2 == Sup
+  no_zero_constant:
+    rule: Constant_added is false
+  exact_island_subset_reference:
+    result_lock: config/chapter1_h5_glopl_pollen_limitation_result_lock.json
+    role: area_and_climate_adjusted_strict_subset_not_reused_for_global_fit
+
+promotion_rules:
+  global_gradient: >-
+    Supported only if the frozen primary one-sided positive test is p <= 0.05 and the
+    global slope remains positive in both supplemental-only and no-zero-constant sensitivities.
+  north_tropical_specificity: >-
+    Supported only if the frozen northern one-sided positive test and the tropical-minus-
+    northern one-sided negative interaction are each p <= 0.05 and both directions are
+    retained in both frozen sensitivities.
+  four_context_heterogeneity: >-
+    Supported only if the joint context-by-distance Wald p <= 0.05 and the preflight
+    four-context support gate passed before outcome columns were read.
+
+rules:
+  - geography_and_support_preflight_must_run_before_effect_columns_are_read
+  - source_sha_must_match_before_outcomes_are_read
+  - no_posthoc_distance_thresholds
+  - no_near_vs_remote_bins_in_primary_analysis
+  - no_support_threshold_relaxation_after_results
+  - all_valid_georeferenced_GloPL_sites_enter_preflight
+  - mainland_distance_zero_is_part_of_continuous_exposure_not_a_control_selected_afterward
+  - exact_island_result_remains_a_separate_stricter_subset
+  - global_model_does_not_claim_area_or_climate_adjustment
+
+claim_ceiling: >-
+  A supported all-site gradient would show that experimental pollen limitation covaries
+  with distance from the seeded major continental landmasses across the global GloPL
+  sampling frame. It would not by itself identify pollinator abundance decline, visitation
+  decline, historical island colonization, floral selection, mediation of Chapter 1 H2,
+  or a causal island effect. The global model does not include island area or climate because
+  those quantities are not defined or harmonized for all mainland and island experiment sites.

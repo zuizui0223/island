@@ -1,0 +1,107 @@
+contract: chapter1_h5_within_island_identity_filter_v1
+status: frozen_before_outcome_inspection
+purpose: >-
+  Test whether, within the same island, strict effort-qualified disruption of a
+  pollinator functional channel is associated with lower representation of the
+  predeclared floral architecture matched to that channel. This removes all
+  island-level confounding by design while preserving channel identity.
+
+inferential_role: confirmatory_association_test_not_causal_pollinator_test
+
+evidence_hierarchy:
+  primary: all_analysis_eligible
+  sensitivity: direct_only
+
+flora_scope: all_observed
+
+matched_channels:
+  bombus: large_bee_like
+  lepidoptera: butterfly_like
+  flower_visiting_birds: bird_like
+
+excluded_channels:
+  non_bombus_bees: no_equally_specific_predeclared_named_floral_template
+  diptera: no_equally_specific_predeclared_named_floral_template
+
+strict_channel_state:
+  retained: detected_with_symmetric_effort_gate
+  disrupted: source_available_adequate_non_detection
+  missing:
+    - insufficient_effort
+    - unresolved
+  symmetric_effort_gate:
+    min_background_records: 50
+    min_background_spatial_units: 3
+    min_background_temporal_units: 2
+    min_distinct_datasets: 2
+    reference_year: 2026
+    max_years_since_latest_background: 20
+
+eligibility:
+  primary_contexts: [northern_midlatitude, tropical]
+  context_column: analysis_regime
+  cluster_column: spatial_block
+  minimum_evaluable_matched_channels_per_island: 2
+  require_both_retained_and_disrupted_within_island: true
+  minimum_mixed_islands_per_context: 10
+
+primary_model:
+  unit: island_x_matched_channel
+  response: channel_matched_named_syndrome_score
+  predictor: disrupted_channel_state
+  fixed_effects:
+    - island_id
+    - channel_by_context
+  context_specific_disruption_coefficients: true
+  equal_total_weight_per_island: true
+  cluster_robust_covariance: spatial_block
+  island_level_covariates: absorbed_by_island_fixed_effects
+  primary_test: joint_two_df_northern_midlatitude_and_tropical_disruption_coefficients
+  directional_prediction:
+    northern_midlatitude: negative_or_zero
+    tropical: negative_or_zero
+
+falsification_mappings:
+  rotation_1:
+    bombus: butterfly_like
+    lepidoptera: bird_like
+    flower_visiting_birds: large_bee_like
+  rotation_2:
+    bombus: bird_like
+    lepidoptera: large_bee_like
+    flower_visiting_birds: butterfly_like
+  role: >-
+    Deterministic mismatch controls. They are reported to assess identity specificity
+    but do not replace the frozen primary matched mapping.
+
+primary_decision:
+  alpha: 0.05
+  support_gate_must_pass_in_both_contexts: true
+  all_analysis_joint_p_must_be_le: 0.05
+  all_analysis_both_context_coefficients_must_be_nonpositive: true
+  direct_only_both_context_coefficients_must_be_nonpositive: true
+  causal_promotion: prohibited
+  maximum_promotable_claim: >-
+    An identity-preserving within-island association between strict channel occurrence
+    state and channel-matched floral architecture is supported across the predeclared
+    North/Tropical contexts.
+
+rules:
+  - config_is_frozen_before_running_focal_outcomes
+  - all_analysis_eligible_is_primary_and_direct_only_is_sensitivity
+  - no_channel_state_threshold_is_relaxed_after_result_inspection
+  - missing_or_insufficient_effort_is_never_absence
+  - island_fixed_effects_absorb_distance_area_climate_status_and_selfing_level_shared_across_channel_rows
+  - channel_by_context_fixed_effects_control_static_template_and_channel_differences
+  - mismatch_rotations_are_fixed_before_result_inspection
+  - no_single_channel_posthoc_selection
+  - no_effective_service_claim_from_occurrence_state
+
+claim_ceiling:
+  temporal_pollinator_decline_identified: false
+  historical_extinction_identified: false
+  abundance_decline_identified: false
+  visitation_decline_identified: false
+  effective_pollination_service_identified: false
+  causal_pollinator_selection_identified: false
+  within_lineage_evolution_identified: false

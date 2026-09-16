@@ -1,0 +1,80 @@
+name: Run Chapter 1 H4 between-context assembly depth
+
+on:
+  push:
+    branches: [ch1-all-data-primary]
+    paths:
+      - "src/island_v2/chapter1_h4_between_assembly.py"
+      - ".github/workflows/run-chapter1-h4-between-assembly.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Validate H4 between implementation
+        run: ruff check src/island_v2/chapter1_h4_between_assembly.py
+      - name: Download frozen inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ch1-h4b
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/ch1-h4b
+      - name: Run direct H4 between primary
+        run: |
+          python -m island_v2.chapter1_h4_between_assembly \
+            --state-audit-csv /tmp/ch1-h4b/snapshot/chapter1_trait_state_audit_direct.csv.gz \
+            --taxonomy-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --status-flora-csv /tmp/ch1-h4b/fixed/canonical/input/chapter1_status_flora.csv.gz \
+            --gift-flora-csv /tmp/ch1-h4b/fixed/source/source/gift_native_mainland_flora.csv.gz \
+            --source-assignments-csv /tmp/ch1-h4b/fixed/source/result/island_source_assignments.csv.gz \
+            --covariates-csv /tmp/ch1-h4b/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --probability-config-path config/chapter1_all_data_probability.yml \
+            --ladder-config-path config/chapter1_hypothesis_ladder_v2.yml \
+            --h4-config-path config/chapter1_h4_atomic_assembly.yml \
+            --source-config-path config/chapter1_pr138_source_pool_sensitivity.yml \
+            --evidence-scope direct_only \
+            --output-dir /tmp/results/direct
+      - name: Run all-analysis H4 between sensitivity
+        run: |
+          python -m island_v2.chapter1_h4_between_assembly \
+            --state-audit-csv /tmp/ch1-h4b/snapshot/chapter1_trait_state_audit_all.csv.gz \
+            --taxonomy-csv data/v2/staging/gbif/collected/island_taxa.csv \
+            --status-flora-csv /tmp/ch1-h4b/fixed/canonical/input/chapter1_status_flora.csv.gz \
+            --gift-flora-csv /tmp/ch1-h4b/fixed/source/source/gift_native_mainland_flora.csv.gz \
+            --source-assignments-csv /tmp/ch1-h4b/fixed/source/result/island_source_assignments.csv.gz \
+            --covariates-csv /tmp/ch1-h4b/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --probability-config-path config/chapter1_all_data_probability.yml \
+            --ladder-config-path config/chapter1_hypothesis_ladder_v2.yml \
+            --h4-config-path config/chapter1_h4_atomic_assembly.yml \
+            --source-config-path config/chapter1_pr138_source_pool_sensitivity.yml \
+            --evidence-scope all_analysis_eligible \
+            --output-dir /tmp/results/all
+      - name: Write summary
+        run: |
+          echo '# H4 taxonomic depth of North-Tropical area moderation difference' >> "$GITHUB_STEP_SUMMARY"
+          echo '## direct primary' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/results/direct/h4_between_depth_classification.csv >> "$GITHUB_STEP_SUMMARY"
+          echo '## all-analysis sensitivity' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/results/all/h4_between_depth_classification.csv >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-h4-between-assembly-${{ github.run_id }}
+          path: /tmp/results
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,88 @@
+{
+  "contract": "chapter1_h5_architecture_common_support_h2_v1_result_lock",
+  "status": "completed_posthoc_common_support_adjudication",
+  "design_freeze_commit": "45a913c574ad251629a082d6c7d8cf17c2bb2594",
+  "workflow_run_id": 35083454858,
+  "workflow_head_sha": "2c2d3a54c45647e55d70bb46a0b9f58e2990814c",
+  "artifact_id": 10440734711,
+  "artifact_name": "chapter1-h5-architecture-common-support-35083454858",
+  "artifact_digest": "sha256:60f76fd6a09195943730b64bfea2a6188205444851f8c73da6632cdb7767b64b",
+  "validation": {
+    "tests_passed": 4,
+    "ruff_passed": true,
+    "red_run": 35083140904,
+    "green_run": 35083454858
+  },
+  "support_contract": {
+    "flora_scope": "all_observed",
+    "contexts": ["northern_midlatitude", "tropical"],
+    "complete_named_templates": ["large_bee_like", "butterfly_like", "bird_like"],
+    "minimum_complete_template_species_per_island": 50,
+    "required_atomic_outcomes": [
+      "generalized_form",
+      "actinomorphic_symmetry",
+      "shallow_open_tube",
+      "self_compatibility",
+      "selfing_mating_system",
+      "autonomous_selfing"
+    ],
+    "minimum_islands_per_context_per_outcome": 50
+  },
+  "all_analysis": {
+    "n_complete_template_species_global": 2072,
+    "n_strict_support_islands_before_atomic_complete_case": 155,
+    "support_islands_by_context": {"northern_midlatitude": 82, "tropical": 73},
+    "n_restricted_flora_rows": 14716,
+    "n_restricted_species": 1651,
+    "n_retained_atomic_outcomes": 6,
+    "n_atomic_H2_islands": 154,
+    "n_clusters": 57,
+    "joint_chisq": 12.998850708387842,
+    "joint_df": 6,
+    "joint_p": 0.04305420136849223,
+    "descriptive_component_slope_differences_tropical_minus_north": {
+      "actinomorphic_symmetry": {"estimate": 0.134541, "p_value": 0.061748},
+      "autonomous_selfing": {"estimate": 0.252847, "p_value": 0.005070},
+      "generalized_form": {"estimate": 0.224704, "p_value": 0.006475},
+      "self_compatibility": {"estimate": 0.086854, "p_value": 0.098578},
+      "selfing_mating_system": {"estimate": 0.059789, "p_value": 0.589380},
+      "shallow_open_tube": {"estimate": 0.108102, "p_value": 0.580928}
+    }
+  },
+  "direct_only": {
+    "n_complete_template_species_global": 1453,
+    "n_strict_support_islands_before_atomic_complete_case": 145,
+    "support_islands_by_context": {"northern_midlatitude": 75, "tropical": 70},
+    "n_restricted_flora_rows": 13143,
+    "n_restricted_species": 1126,
+    "n_retained_atomic_outcomes": 6,
+    "n_atomic_H2_islands": 144,
+    "n_clusters": 54,
+    "joint_chisq": 7.563250632968277,
+    "joint_df": 6,
+    "joint_p": 0.27187743084993254,
+    "descriptive_component_slope_differences_tropical_minus_north": {
+      "actinomorphic_symmetry": {"estimate": 0.079668, "p_value": 0.205116},
+      "autonomous_selfing": {"estimate": 0.150887, "p_value": 0.041701},
+      "generalized_form": {"estimate": 0.193946, "p_value": 0.021216},
+      "self_compatibility": {"estimate": 0.078807, "p_value": 0.122597},
+      "selfing_mating_system": {"estimate": -0.094540, "p_value": 0.372857},
+      "shallow_open_tube": {"estimate": 0.053820, "p_value": 0.783236}
+    }
+  },
+  "decision": {
+    "all_analysis_common_support_H2_supported": true,
+    "direct_common_support_H2_supported": false,
+    "architecture_null_informative_about_H2_representation": false,
+    "classification": "common_support_H2_not_robust_across_evidence_scopes"
+  },
+  "interpretation": "The strict complete-template support retains a nominal six-atomic North-Tropical H2 in all-analysis evidence but not in Direct evidence. Therefore the null shared/residual named-architecture tests cannot be promoted as evidence that the broad H2 signal lies outside named pollination-syndrome geometry; the architecture analysis is support-limited with respect to the primary H2 estimand.",
+  "claim_ceiling": {
+    "full_data_H2_erased": false,
+    "named_architecture_excluded_as_H2_representation": false,
+    "pollinator_identity_excluded": false,
+    "pollinators_irrelevant": false,
+    "posthoc_common_support_gate_is_confirmatory": false,
+    "pollination_service_mechanism_identified": false
+  }
+}

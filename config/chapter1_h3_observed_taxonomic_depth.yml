@@ -1,0 +1,86 @@
+contract: chapter1_h3_observed_taxonomic_depth_v1
+status: frozen_before_result_inspection
+purpose: >-
+  Fill the missing all-observed H2 x taxonomic-depth cell. Test whether the same broad
+  six-atomic North-Tropical response is represented primarily among families, among
+  genera within families, or below genus, without applying a native source pool to
+  introduced or unresolved-status records.
+
+evidence_scopes:
+  primary: all_analysis_eligible
+  sensitivity: direct_only
+
+flora_scope: all_observed
+atomic_outcomes:
+  - generalized_form
+  - actinomorphic_symmetry
+  - shallow_open_tube
+  - self_compatibility
+  - selfing_mating_system
+  - autonomous_selfing
+
+contexts: [northern_midlatitude, tropical]
+context_column: analysis_regime
+cluster_column: spatial_block
+distance_column: log_distance_to_continent_km
+controls:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+species_taxonomic_expectation:
+  taxonomy_levels: [family, genus]
+  estimator: leave_one_species_out_mean
+  minimum_scored_species_per_group_including_focal: 2
+  source_pool_used: false
+  island_occurrence_used_to_train_expectation: false
+  common_species_support_across_stages: true
+  rule: >-
+    A species contributes only when its family and genus both contain at least one other
+    scored species for that atomic outcome. The focal species is excluded from both
+    taxonomic means. Family and genus therefore never fill a missing trait.
+
+stages:
+  observed_score: mean_binary_atomic_state_on_common_species_support
+  after_family_residual: mean_species_state_minus_LOO_family_mean
+  after_genus_residual: mean_species_state_minus_LOO_genus_mean
+
+island_model:
+  family: clustered_linear_probability_decomposition
+  island_weight_primary: equal
+  response_specific_species_cutoff: none
+  minimum_islands_per_context_outcome: 50
+  minimum_outcomes_per_vector: 2
+  pairwise_test: direct_northern_midlatitude_vs_tropical_distance_by_context_vector
+  standardization: within_outcome_pairwise_analysis_frame
+  covariance: spatial_block_cluster_robust
+
+attenuation:
+  vector_norm: euclidean_norm_of_six_distance_by_context_coefficients
+  family_attenuation: 1_minus_family_norm_over_observed_norm
+  genus_attenuation: 1_minus_genus_norm_over_observed_norm
+  bootstrap:
+    enabled: true
+    unit: spatial_block
+    paired_across_stages: true
+    draws: 300
+    seed: 20260916
+
+interpretation_gate:
+  alpha: 0.05
+  rules:
+    - >-
+      If observed_score is not supported on the exact common taxonomic support, do not
+      interpret disappearance at family or genus as taxonomic attenuation of H2.
+    - >-
+      If observed_score remains supported, after_family remains supported, and
+      after_genus is unsupported, classify as compatible_with_genus_structuring.
+    - >-
+      If after_family is unsupported, classify as compatible_with_family_or_deeper_structure.
+    - >-
+      If after_genus remains supported, classify as below_genus_or_non_taxonomic_residual_retained.
+    - >-
+      Classification describes representation depth only and does not identify native
+      assembly, introduction, historical source filtering or pollinator causation.

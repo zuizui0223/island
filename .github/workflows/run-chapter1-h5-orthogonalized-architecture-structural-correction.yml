@@ -1,0 +1,91 @@
+name: Run Chapter 1 H5 orthogonalized architecture structural correction
+
+on:
+  push:
+    branches: [ch1-all-data-primary]
+    paths:
+      - "config/chapter1_all_data_biogeographic_pattern.yml"
+      - "config/chapter1_h5_orthogonalized_architecture_structural_correction_v2.yml"
+      - "src/island_v2/chapter1_h5_orthogonalized_architecture_structural_correction.py"
+      - "tests/test_chapter1_h5_orthogonalized_architecture_structural_correction.py"
+      - ".github/workflows/run-chapter1-h5-orthogonalized-architecture-structural-correction.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ALL_DATA_ARTIFACT_ID: "10393997800"
+      CANONICAL_ARTIFACT_ID: "9562465057"
+      ISOLATION_ARTIFACT_ID: "8270544465"
+      REALM_ARTIFACT_ID: "9591915101"
+      SOURCE_ARTIFACT_ID: "9601703747"
+      ROOT: /tmp/ch1-h5-orthogonalized-structural-correction
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate structural correction
+        run: |
+          pytest -q \
+            tests/test_chapter1_h5_orthogonalized_architecture_structural_correction.py \
+            tests/test_chapter1_h5_orthogonalized_architecture_specificity.py \
+            tests/test_chapter1_pollination_architecture_factor.py
+          ruff check \
+            src/island_v2/chapter1_h5_orthogonalized_architecture_structural_correction.py \
+            tests/test_chapter1_h5_orthogonalized_architecture_structural_correction.py
+
+      - name: Download frozen inputs
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT"/{all-data,canonical,isolation,realm,source,out}
+          for spec in \
+            "all-data:$ALL_DATA_ARTIFACT_ID" \
+            "canonical:$CANONICAL_ARTIFACT_ID" \
+            "isolation:$ISOLATION_ARTIFACT_ID" \
+            "realm:$REALM_ARTIFACT_ID" \
+            "source:$SOURCE_ARTIFACT_ID"; do
+            name=${spec%%:*}; id=${spec##*:}
+            gh api -H "Accept: application/vnd.github+json" \
+              "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}/zip" > "$ROOT/$name.zip"
+            unzip -q "$ROOT/$name.zip" -d "$ROOT/$name"
+          done
+          test -s "$ROOT/all-data/syndrome/all/species_syndrome_concordance.csv.gz"
+          test -s "$ROOT/all-data/syndrome/direct/species_syndrome_concordance.csv.gz"
+          test -s "$ROOT/canonical/input/chapter1_status_flora.csv.gz"
+          test -s "$ROOT/isolation/results/purpose_shortest_island_data.csv"
+          test -s "$ROOT/realm/realm/island_biogeographic_realm_assignment.csv"
+          test -s "$ROOT/source/source/gift_native_mainland_flora.csv.gz"
+
+      - name: Run posthoc structural correction
+        run: |
+          python -m island_v2.chapter1_h5_orthogonalized_architecture_structural_correction \
+            --all-species-scores-csv "$ROOT/all-data/syndrome/all/species_syndrome_concordance.csv.gz" \
+            --direct-species-scores-csv "$ROOT/all-data/syndrome/direct/species_syndrome_concordance.csv.gz" \
+            --status-flora-csv "$ROOT/canonical/input/chapter1_status_flora.csv.gz" \
+            --gift-flora-csv "$ROOT/source/source/gift_native_mainland_flora.csv.gz" \
+            --covariates-csv "$ROOT/isolation/results/purpose_shortest_island_data.csv" \
+            --realm-assignment-csv "$ROOT/realm/realm/island_biogeographic_realm_assignment.csv" \
+            --pattern-config-path config/chapter1_all_data_biogeographic_pattern.yml \
+            --branching-config-path config/chapter1_global_branching.yml \
+            --v1-config-path config/chapter1_h5_orthogonalized_architecture_specificity_v1.yml \
+            --config-path config/chapter1_h5_orthogonalized_architecture_structural_correction_v2.yml \
+            --output-dir "$ROOT/out"
+          cat "$ROOT/out/RESULT_SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h5-orthogonalized-structural-correction-${{ github.run_id }}
+          path: /tmp/ch1-h5-orthogonalized-structural-correction/out
+          if-no-files-found: error
+          retention-days: 30

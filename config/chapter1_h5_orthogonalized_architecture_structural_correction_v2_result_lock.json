@@ -1,0 +1,96 @@
+{
+  "contract": "chapter1_h5_orthogonalized_architecture_structural_correction_v2_result_lock",
+  "status": "completed_posthoc_structural_correction",
+  "workflow_run_id": 35065912097,
+  "workflow_head_sha": "dcc46e8a5e0439819d083fd7098cbbe055d60875",
+  "artifact_id": 10433982600,
+  "artifact_name": "chapter1-h5-orthogonalized-structural-correction-35065912097",
+  "artifact_digest": "sha256:a1b259d7657757704d3437701e93b2a9f3daa88366ca4dc95f6d4fb1f938ac59",
+  "design_history": {
+    "v1_contract": "chapter1_h5_orthogonalized_architecture_specificity_v1",
+    "v1_result_lock": "config/chapter1_h5_orthogonalized_architecture_specificity_v1_result_lock.json",
+    "v1_failure": "The frozen v1 required a three-degree-of-freedom test for three residual labels even though removing one shared PCA factor from three template dimensions leaves a residual subspace of maximum rank two; the generic multivariate helper also could not test the one-dimensional shared factor.",
+    "v2_role": "posthoc_structural_correction_not_confirmatory_replacement"
+  },
+  "frozen_support_preserved": {
+    "flora_scope": "all_observed",
+    "primary_evidence_scope": "all_analysis_eligible",
+    "sensitivity_evidence_scope": "direct_only",
+    "contexts": ["northern_midlatitude", "tropical"],
+    "minimum_scored_species_per_island_component": 50,
+    "baseline_covariates": ["log_island_area_km2", "climate_pc1", "climate_pc2", "climate_pc3", "climate_pc4"],
+    "cluster_column": "spatial_block"
+  },
+  "source_trained_architecture": {
+    "templates": ["large_bee_like", "butterfly_like", "bird_like"],
+    "all_analysis_pca1_variance_fraction": 0.8694377184973049,
+    "direct_pca1_variance_fraction": 0.8643705024390916,
+    "interpretation": "Most covariance among the three named templates lies on one shared plant-architecture dimension."
+  },
+  "all_analysis": {
+    "residual_rank2_H2": {
+      "evaluable": true,
+      "n_unique_islands": 154,
+      "n_clusters": 57,
+      "joint_chisq": 0.9746650852234515,
+      "joint_df": 2,
+      "p_value": 0.6142627304442022,
+      "retained_labels": ["bird_like_residual", "butterfly_like_residual", "large_bee_like_residual"]
+    },
+    "shared_factor_H2": {
+      "evaluable": true,
+      "northern_midlatitude_n_islands": 82,
+      "tropical_n_islands": 72,
+      "n_unique_islands": 154,
+      "n_clusters": 57,
+      "distance_by_tropical_estimate": 0.03938802197160721,
+      "distance_by_tropical_se": 0.05017076897495921,
+      "distance_by_tropical_p": 0.4324071949073908,
+      "northern_distance_slope": 0.032234596934010325,
+      "northern_distance_slope_p": 0.43525390949385223,
+      "tropical_distance_slope": 0.07162261890561752,
+      "tropical_distance_slope_p": 0.025102641464309048
+    }
+  },
+  "direct_only": {
+    "residual_rank2_H2": {
+      "evaluable": true,
+      "n_unique_islands": 144,
+      "n_clusters": 54,
+      "joint_chisq": 2.3825788917058217,
+      "joint_df": 2,
+      "p_value": 0.3038292400205934,
+      "retained_labels": ["bird_like_residual", "butterfly_like_residual", "large_bee_like_residual"]
+    },
+    "shared_factor_H2": {
+      "evaluable": true,
+      "northern_midlatitude_n_islands": 75,
+      "tropical_n_islands": 69,
+      "n_unique_islands": 144,
+      "n_clusters": 54,
+      "distance_by_tropical_estimate": 0.051396967611991896,
+      "distance_by_tropical_se": 0.04739796518907776,
+      "distance_by_tropical_p": 0.278200442144608,
+      "northern_distance_slope": 0.03110242239152953,
+      "northern_distance_slope_p": 0.44483744895448096,
+      "tropical_distance_slope": 0.08249939000352143,
+      "tropical_distance_slope_p": 0.007935201802337227
+    }
+  },
+  "decision": {
+    "robust_identity_specific_residual_H2": false,
+    "robust_shared_architecture_H2": false,
+    "classification": "no_robust_named_architecture_H2_after_structural_correction",
+    "confirmatory_specificity_test": false,
+    "pollinator_identity_promoted": false,
+    "causal_pollinator_mechanism_promoted": false
+  },
+  "maximum_claim": "After preserving the frozen per-island support gate and correcting the residual rank and one-dimensional shared-factor interface, the all-observed North-Tropical H2 contrast is not robustly carried by either the dominant shared named-architecture factor or the rank-two template-specific residual subspace across all-analysis and Direct evidence scopes.",
+  "claim_ceiling": {
+    "raw_named_syndrome_slopes_identify_realized_pollinator_identity": false,
+    "absence_of_named_architecture_H2_proves_pollinators_irrelevant": false,
+    "shared_factor_null_proves_no_pollination_associated_floral_response": false,
+    "residual_rank2_null_proves_no_identity_specific_selection": false,
+    "posthoc_structural_correction_is_confirmatory": false
+  }
+}

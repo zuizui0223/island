@@ -1,0 +1,80 @@
+contract: chapter1_h5_identity_matched_two_route_v1
+status: posthoc_identity_aware_diagnostic
+purpose: >-
+  Test the broader pollinator-disruption two-route hypothesis without assuming that all
+  functional channels are interchangeable. Route A asks whether disruption of any
+  effort-qualified source-available pollination channel is associated with reproductive
+  assurance after controlling channel identity and biogeographic context. Route B asks
+  whether disruption is associated with lower concordance to the predeclared floral
+  syndrome matched to that channel, after conditioning on selfing_core.
+
+claim_boundary:
+  - disruption means source-available plus strict effort-qualified adequate non-detection
+  - retained means detected plus the same symmetric effort gate
+  - this is not temporal abundance decline, visitation decline, service loss, or historical extinction
+  - channel identity is controlled by channel x context fixed effects
+  - this diagnostic is post hoc and cannot promote pollinator causation
+
+channels:
+  - bombus
+  - non_bombus_bees
+  - lepidoptera
+  - flower_visiting_birds
+  - diptera
+
+identity_matched_architecture:
+  bombus: large_bee_like
+  lepidoptera: butterfly_like
+  flower_visiting_birds: bird_like
+  excluded_from_identity_matched_route_B:
+    - non_bombus_bees
+    - diptera
+  exclusion_reason: no equally specific predeclared named floral template was frozen for these channels
+
+symmetric_effort_gate:
+  min_background_records: 50
+  min_background_spatial_units: 3
+  min_background_temporal_units: 2
+  min_distinct_datasets: 2
+  reference_year: 2026
+  max_years_since_latest_background: 20
+
+models:
+  primary_contexts: [northern_midlatitude, tropical]
+  context_column: analysis_regime
+  cluster_column: spatial_block
+  controls:
+    - log_distance_to_continent_km
+    - log_island_area_km2
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+  flora_scope: all_observed
+  equal_island_weight_across_channel_rows: true
+  channel_by_context_fixed_effects: true
+
+routes:
+  A_reproductive_assurance:
+    response: selfing_core
+    channel_rows: all_five_channels
+    predicted_disruption_direction: positive
+  B_identity_matched_architecture:
+    response: channel_matched_named_syndrome
+    condition_on: selfing_core
+    channel_rows: identity_matched_architecture_only
+    predicted_disruption_direction: negative
+
+primary_decision:
+  evidence_scope: direct_only
+  tests:
+    - route_A_northern_midlatitude
+    - route_A_tropical
+    - route_B_northern_midlatitude
+    - route_B_tropical
+  fdr_alpha: 0.05
+  causal_promotion: prohibited_posthoc
+  interpretation: >-
+    A nominal association in one context is suggestive only unless the primary FDR family
+    and all-analysis sensitivity are coherent. Route B support would require a negative
+    matched-architecture coefficient after conditioning on selfing_core.

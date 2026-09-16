@@ -1,0 +1,93 @@
+name: Run Chapter 1 H5 pollination triangulation v2
+
+on:
+  push:
+    branches: [ch1-all-data-primary]
+    paths:
+      - "config/chapter1_h5_pollination_triangulation_v2.yml"
+      - "src/island_v2/chapter1_h5_globi_area_bridge.py"
+      - "src/island_v2/chapter1_h5_pollination_triangulation.py"
+      - "tests/test_chapter1_h5_globi_area_bridge.py"
+      - "tests/test_chapter1_h5_pollination_triangulation.py"
+      - ".github/workflows/run-chapter1-h5-pollination-triangulation-v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PRIMARY_RUN_ID: "34232450884"
+      PRIMARY_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+      GLOBI_RUN_ID: "34790842133"
+      GLOBI_ARTIFACT: "chapter1-globi-source-breadth-v2-34790842133"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate redesigned H5
+        run: |
+          pytest -q \
+            tests/test_chapter1_h5_globi_area_bridge.py \
+            tests/test_chapter1_h5_pollination_triangulation.py
+          ruff check \
+            src/island_v2/chapter1_h5_globi_area_bridge.py \
+            src/island_v2/chapter1_h5_pollination_triangulation.py \
+            tests/test_chapter1_h5_globi_area_bridge.py \
+            tests/test_chapter1_h5_pollination_triangulation.py
+
+      - name: Download frozen plant and GloBI inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/h5/primary /tmp/h5/globi /tmp/h5/out
+          gh run download "$PRIMARY_RUN_ID" -n "$PRIMARY_ARTIFACT" -D /tmp/h5/primary
+          gh run download "$GLOBI_RUN_ID" -n "$GLOBI_ARTIFACT" -D /tmp/h5/globi
+          test -s /tmp/h5/primary/fixed/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/h5/primary/branching/all/global_branch_distance_slopes.csv
+          test -s /tmp/h5/primary/branching/direct/global_branch_distance_slopes.csv
+          test -s /tmp/h5/primary/architecture/all_analysis_eligible/factor_model.csv
+          test -s /tmp/h5/primary/architecture/direct_only/factor_model.csv
+          test -s /tmp/h5/globi/globi-breadth-v2/globi_source_breadth_v2_island_enrichment.csv.gz
+
+      - name: Run new GloBI distance-by-area bridge
+        run: |
+          python -m island_v2.chapter1_h5_globi_area_bridge \
+            --enrichment-csv /tmp/h5/globi/globi-breadth-v2/globi_source_breadth_v2_island_enrichment.csv.gz \
+            --covariates-csv /tmp/h5/primary/fixed/isolation/results/purpose_shortest_island_data.csv \
+            --config-path config/chapter1_h5_pollination_triangulation_v2.yml \
+            --output-dir /tmp/h5/out/globi-area
+          test -s /tmp/h5/out/globi-area/h5_globi_area_primary_classification.csv
+
+      - name: Integrate syndrome consistency and independent evidence
+        run: |
+          python -m island_v2.chapter1_h5_pollination_triangulation \
+            --all-branch-slopes-csv /tmp/h5/primary/branching/all/global_branch_distance_slopes.csv \
+            --direct-branch-slopes-csv /tmp/h5/primary/branching/direct/global_branch_distance_slopes.csv \
+            --all-factor-csv /tmp/h5/primary/architecture/all_analysis_eligible/factor_model.csv \
+            --direct-factor-csv /tmp/h5/primary/architecture/direct_only/factor_model.csv \
+            --globi-classification-csv /tmp/h5/out/globi-area/h5_globi_area_primary_classification.csv \
+            --config-path config/chapter1_h5_pollination_triangulation_v2.yml \
+            --output-dir /tmp/h5/out/integrated
+          test -s /tmp/h5/out/integrated/h5_pollination_triangulation_decision.json
+
+      - name: Write summary
+        run: |
+          cat /tmp/h5/out/integrated/H5_RESULT_SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+          printf '\n## New GloBI area bridge\n\n' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/h5/out/globi-area/h5_globi_area_primary_classification.csv >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h5-pollination-triangulation-v2-${{ github.run_id }}
+          path: /tmp/h5/out
+          if-no-files-found: error
+          retention-days: 30

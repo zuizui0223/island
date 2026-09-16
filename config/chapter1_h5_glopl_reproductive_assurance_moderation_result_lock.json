@@ -1,0 +1,171 @@
+{
+  "contract": "chapter1_h5_glopl_reproductive_assurance_moderation_result_lock_v1",
+  "status": "completed_reproductive_assurance_buffering_not_supported",
+  "scientific_parent_contract": "chapter1_h5_glopl_reproductive_assurance_moderation_v1",
+  "design_freeze_commit": "baf5b7994171e31c01d91e9a4c936408bc4db6cf",
+  "validation": {
+    "red_workflow_run_id": 35092739041,
+    "red_reason": "module_absent_before_implementation",
+    "first_implementation_run_id": 35093049349,
+    "first_implementation_result": "5_tests_passed_then_ruff_unused_import_only",
+    "canonical_green_workflow_run_id": 35093274622,
+    "canonical_job_id": 104784426051,
+    "tests": "5_passed",
+    "ruff": "passed",
+    "all_frozen_input_hash_checks": "passed",
+    "outcome_blind_preflight": "passed_before_effect_read",
+    "analysis": "passed",
+    "artifact_upload": "passed"
+  },
+  "provenance": {
+    "workflow_run_id": 35093274622,
+    "artifact_id": 10444749163,
+    "artifact_name": "chapter1-h5-glopl-ra-moderation-35093274622",
+    "artifact_digest": "sha256:317221b0315137d2cfc0591d9f6f146c6956106d50d8a5b1dc782096bab55da9",
+    "glopl_sha256": "264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de",
+    "trait_snapshot_workflow_run_id": 34191508045,
+    "trait_snapshot_artifact_id": 10042377593,
+    "trait_snapshot_artifact_digest": "sha256:5e9c887e093c42eb720f3abd2dc85701ce123fb7fe888c916dc4098ac898ccdd",
+    "direct_trait_ledger_sha256": "7e86170218814abe2845da9a0282aecfdc930819b9d0c439bae8df4a0679c577",
+    "global_GloPL_parent_run_id": 35090599662,
+    "global_GloPL_parent_artifact_id": 10444156159,
+    "global_GloPL_parent_artifact_digest": "sha256:f11046d441fba6cdc3a2842a5a19fdc0bed3661b9ce258625eb93acc879ce623"
+  },
+  "outcome_blind_preflight": {
+    "n_glopl_rows": 2969,
+    "n_trait_assignments": 11150,
+    "n_overlap_rows": 3229,
+    "n_overlap_species": 642,
+    "forbidden_outcome_columns_materialized": false,
+    "admitted_traits": [
+      "self_compatibility",
+      "autonomous_selfing"
+    ],
+    "self_compatibility": {
+      "n_matched_species": 499,
+      "unprotected_SI": {
+        "n_species": 220,
+        "n_sites": 267,
+        "n_publications": 199,
+        "n_offshore_sites": 75
+      },
+      "protected_SC": {
+        "n_species": 279,
+        "n_sites": 348,
+        "n_publications": 250,
+        "n_offshore_sites": 106
+      },
+      "global_admitted": true,
+      "north_tropical_context_diagnostic_admitted": true
+    },
+    "selfing_mating_system": {
+      "n_matched_species": 106,
+      "unprotected_predominantly_outcrossing": {
+        "n_species": 95,
+        "n_sites": 172,
+        "n_publications": 125,
+        "n_offshore_sites": 40
+      },
+      "protected_predominantly_or_obligate_selfing": {
+        "n_species": 11,
+        "n_sites": 14,
+        "n_publications": 11,
+        "n_offshore_sites": 1
+      },
+      "global_admitted": false,
+      "north_tropical_context_diagnostic_admitted": false,
+      "failure_reason": "protected_selfing_class_failed_frozen_global_support_gate"
+    },
+    "autonomous_selfing": {
+      "n_matched_species": 558,
+      "unprotected_absent": {
+        "n_species": 418,
+        "n_sites": 504,
+        "n_publications": 379,
+        "n_offshore_sites": 130
+      },
+      "protected_autonomous_or_delayed": {
+        "n_species": 140,
+        "n_sites": 176,
+        "n_publications": 120,
+        "n_offshore_sites": 77
+      },
+      "global_admitted": true,
+      "north_tropical_context_diagnostic_admitted": true
+    }
+  },
+  "analysis": {
+    "n_finite_matched_effect_rows": 2782,
+    "distance_standardization_reused_from_parent": true,
+    "publication_total_weight": 1.0,
+    "cluster": "publication",
+    "self_compatibility": {
+      "n_cells": 769,
+      "n_publications": 429,
+      "n_sites": 591,
+      "n_species": 499,
+      "unprotected_distance_slope": 0.03616753271189076,
+      "protected_distance_slope": 0.0712315888192149,
+      "distance_by_trait_interaction": 0.035064056107324146,
+      "interaction_se": 0.07541390415358049,
+      "interaction_two_sided_p": 0.6419638315233902,
+      "interaction_one_sided_negative_p": 0.6790180842383049,
+      "supplemental_only_interaction": 0.10503697072078758,
+      "no_zero_constant_interaction": 0.03885204289526179,
+      "supported": false,
+      "interpretation": "The point estimate is opposite the predeclared buffering prediction in the primary model and both sensitivities."
+    },
+    "selfing_mating_system": {
+      "evaluable": false,
+      "reason": "preflight_support_failed"
+    },
+    "autonomous_selfing": {
+      "n_cells": 865,
+      "n_publications": 469,
+      "n_sites": 640,
+      "n_species": 558,
+      "unprotected_distance_slope": 0.11750347532062741,
+      "protected_distance_slope": 0.043922509462004516,
+      "distance_by_trait_interaction": -0.0735809658586229,
+      "interaction_se": 0.07227264684525188,
+      "interaction_two_sided_p": 0.30862922488433153,
+      "interaction_one_sided_negative_p": 0.15431461244216577,
+      "supplemental_only_interaction": -0.026798538031909763,
+      "no_zero_constant_interaction": -0.06814845838607836,
+      "sensitivity_direction_retained": true,
+      "supported": false,
+      "interpretation": "The point estimate and both frozen sensitivities are directionally compatible with buffering, but the frozen primary directional test is not supported."
+    }
+  },
+  "secondary_context_diagnostics": {
+    "self_compatibility": {
+      "northern_distance_by_trait_interaction": 0.03415586282005073,
+      "tropical_distance_by_trait_interaction": -0.025002453027354363,
+      "tropical_minus_northern_buffering_interaction": -0.059158315847405094,
+      "interaction_two_sided_p": 0.7693291743235712
+    },
+    "autonomous_selfing": {
+      "northern_distance_by_trait_interaction": -0.10129260469940433,
+      "tropical_distance_by_trait_interaction": -0.05568687038757937,
+      "tropical_minus_northern_buffering_interaction": 0.045605734311824964,
+      "interaction_two_sided_p": 0.8033780836054316
+    },
+    "role": "secondary_descriptive_diagnostics_cannot_rescue_global_route"
+  },
+  "decision": {
+    "supported_trait_count": 0,
+    "route_A_family_supported": false,
+    "classification": "reproductive_assurance_buffering_not_supported",
+    "causal_mediation_identified": false
+  },
+  "interpretation": "The full-scale GloPL data do not support the predeclared functional-buffering bridge from experimental pollen limitation to the Chapter 1 reproductive-assurance response. Self compatibility shows no buffering and has a point estimate in the opposite direction; autonomous selfing shows the expected buffering direction consistently across frozen sensitivities but remains statistically unsupported; the explicit selfing-mating-system contrast is not evaluable because the protected selfing class has only 11 matched species and one offshore site. This does not show that reproductive assurance is unrelated to island isolation, nor does it test evolutionary acquisition of those traits. It shows that current matched GloPL experiments do not establish reduced isolation-associated pollen limitation among species carrying these reproductive-assurance states.",
+  "claim_ceiling": {
+    "null_means_reproductive_assurance_irrelevant": false,
+    "moderation_identifies_evolution_of_selfing": false,
+    "moderation_identifies_selection_by_pollen_limitation": false,
+    "moderation_proves_H2_mediation": false,
+    "moderation_identifies_pollinator_decline": false,
+    "selfing_mating_system_preflight_failure_is_biological_negative": false,
+    "autonomous_selfing_directional_consistency_is_statistical_support": false
+  }
+}
