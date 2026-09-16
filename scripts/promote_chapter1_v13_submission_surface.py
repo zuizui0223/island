@@ -33,9 +33,9 @@ def require_inputs() -> dict:
     lock = json.loads(LOCK.read_text(encoding="utf-8"))
     if lock.get("contract") != "chapter1_v13_unified_island_syndrome_result_lock_v1":
         raise ValueError("unexpected v13 paper lock")
-    if lock.get("paper_status") != "submission_surface_candidate":
-        raise ValueError("v13 paper lock is not a submission-surface candidate")
-    if lock.get("H4_functional_bridge", {}).get("inferential_role") != "posthoc_functional_triangulation":
+    if lock.get("status") != "submission_candidate_architecture_frozen":
+        raise ValueError("v13 paper lock is not the frozen submission candidate")
+    if lock.get("architecture", {}).get("H4") != "posthoc_functional_triangulation":
         raise ValueError("v13 functional bridge must remain post-hoc")
     return lock
 
