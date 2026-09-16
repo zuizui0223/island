@@ -1,0 +1,108 @@
+{
+  "contract": "chapter1_h5_glopl_global_distance_result_lock_v1",
+  "status": "completed_global_gradient_supported_context_specificity_not_established",
+  "scientific_parent_contract": "chapter1_h5_glopl_global_distance_v1",
+  "design_freeze_commit": "6f570b3aa97b66a8012f55953fdf8c1dd4aba953",
+  "validation": {
+    "red_workflow_run_id": 35090344592,
+    "red_reason": "module_absent_before_implementation",
+    "canonical_green_workflow_run_id": 35090599662,
+    "canonical_job_id": 104775735096,
+    "tests": "8_passed",
+    "ruff": "passed"
+  },
+  "provenance": {
+    "workflow_run_id": 35090599662,
+    "artifact_id": 10444156159,
+    "artifact_name": "chapter1-h5-glopl-global-distance-35090599662",
+    "artifact_digest": "sha256:f11046d441fba6cdc3a2842a5a19fdc0bed3661b9ce258625eb93acc879ce623",
+    "glopl_source_sha256": "264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de",
+    "natural_earth_commit": "ca96624a56bd078437bca8184e78163e5039ad19",
+    "natural_earth_sha256": "9e0729ee253ca7d7a5c4ae9395fb1902264c5377c52e224d13dd85010e2835d9"
+  },
+  "outcome_blind_preflight": {
+    "n_rows_total": 2969,
+    "n_rows_valid_coordinates": 2969,
+    "n_unique_sites": 1248,
+    "n_unique_studies": 919,
+    "n_zero_distance_sites": 988,
+    "n_positive_distance_sites": 260,
+    "by_context": {
+      "northern_midlatitude": {"n_rows": 1956, "n_sites": 737, "n_studies": 526, "n_zero_distance_sites": 609, "n_positive_distance_sites": 128},
+      "northern_high_latitude": {"n_rows": 0, "n_sites": 0, "n_studies": 0, "n_zero_distance_sites": 0, "n_positive_distance_sites": 0},
+      "tropical": {"n_rows": 512, "n_sites": 263, "n_studies": 252, "n_zero_distance_sites": 218, "n_positive_distance_sites": 45},
+      "southern_extratropical": {"n_rows": 501, "n_sites": 248, "n_studies": 146, "n_zero_distance_sites": 161, "n_positive_distance_sites": 87}
+    },
+    "global_gradient_admitted": true,
+    "north_tropical_pair_admitted": true,
+    "four_context_heterogeneity_admitted": false,
+    "four_context_failure_reason": "no_northern_high_latitude_GloPL_sites"
+  },
+  "analysis_support": {
+    "n_finite_effect_rows": 2969,
+    "n_measurement_cells": 1408,
+    "n_unique_sites": 1248,
+    "n_publications": 919,
+    "publication_total_weight": 1.0,
+    "cluster": "publication",
+    "distance_exposure": "z_log1p_distance_to_seeded_major_continent_km"
+  },
+  "primary_global_gradient": {
+    "distance_slope": 0.07936837202478536,
+    "se": 0.037734195473258715,
+    "two_sided_p": 0.035434833922249484,
+    "one_sided_positive_p": 0.017717416961124742,
+    "classification_under_frozen_rule": "supported"
+  },
+  "north_tropical_pair": {
+    "n_cells": 1132,
+    "n_publications": 776,
+    "n_sites": 1000,
+    "northern_distance_slope": 0.06169826065135164,
+    "northern_one_sided_positive_p": 0.10733349604071943,
+    "tropical_minus_northern_interaction": 0.14300456037322357,
+    "interaction_one_sided_negative_p": 0.9119297714373724,
+    "tropical_distance_slope": 0.2047028210245752,
+    "classification": "north_tropical_specificity_not_supported_opposite_interaction_direction"
+  },
+  "sensitivities": {
+    "supplemental_only": {
+      "n_cells": 828,
+      "n_sites": 736,
+      "n_publications": 470,
+      "global_distance_slope": 0.033492000998867164,
+      "global_one_sided_positive_p": 0.21486922139193637,
+      "northern_distance_slope": -0.004018619253760768,
+      "tropical_minus_northern_interaction": 0.31351351546221595,
+      "note": "global direction remains positive but is imprecise; North direction flips and the N-T interaction is opposite the predeclared mechanism prediction"
+    },
+    "no_zero_constant": {
+      "n_cells": 1375,
+      "n_sites": 1238,
+      "n_publications": 912,
+      "global_distance_slope": 0.0778855394138497,
+      "global_one_sided_positive_p": 0.02095424838556391,
+      "northern_distance_slope": 0.06159856508215257,
+      "tropical_minus_northern_interaction": 0.14378104984538362
+    }
+  },
+  "decision": {
+    "global_gradient_supported_under_frozen_rule": true,
+    "global_gradient_independently_supported_in_supplemental_only_sensitivity": false,
+    "north_tropical_specificity_supported": false,
+    "four_context_heterogeneity_evaluable": false,
+    "causal_pollination_mechanism_identified": false,
+    "classification": "global_pollen_limitation_gradient_supported_context_specificity_not_established"
+  },
+  "interpretation": "Across the full georeferenced GloPL sampling frame, experimental pollen limitation increases with distance from the seeded major continental landmasses under the frozen primary model, and both frozen sensitivities retain a positive global direction. However, the supplemental-only sensitivity is not independently supported, the predeclared northern-midlatitude versus tropical service-gradient prediction is not supported and points in the opposite interaction direction, and the four-context comparison is structurally unavailable because GloPL contains no northern-high-latitude sites under the frozen latitude definition. This supports a broad isolation-associated pollen-limitation association, not the context-specific common upstream mechanism proposed for the Chapter 1 plant H2 response.",
+  "next_diagnostic": "posthoc_shape_audit_mainland_step_vs_within_offshore_distance_gradient",
+  "claim_ceiling": {
+    "global_association_is_causal_island_effect": false,
+    "global_association_identifies_pollinator_abundance_decline": false,
+    "global_association_identifies_visitation_decline": false,
+    "global_association_proves_H2_mediation": false,
+    "global_association_proves_context_specific_pollination_mechanism": false,
+    "supplemental_only_direction_is_independent_statistical_support": false,
+    "four_context_null_is_biological_negative": false
+  }
+}
