@@ -1,6 +1,6 @@
 {
-  "contract": "chapter1_v12_h5_glopl_extension_result_lock_v3",
-  "status": "integrated_exact_island_full_global_and_reproductive_assurance_GloPL_extensions",
+  "contract": "chapter1_v12_h5_glopl_extension_result_lock_v4",
+  "status": "integrated_exact_island_full_global_and_two_functional_GloPL_routes",
   "parent_lock": "config/chapter1_v12_two_panel_result_lock.json",
   "parent_contract": "chapter1_v12_two_panel_result_lock_v6",
   "H5_extension": {
@@ -105,6 +105,53 @@
       "route_A_family_supported": false,
       "classification": "reproductive_assurance_buffering_not_supported"
     },
+    "GloPL_floral_architecture_moderation": {
+      "result_lock": "config/chapter1_h5_glopl_floral_architecture_moderation_result_lock.json",
+      "design_freeze_commit": "4f478c76b4ac0ed963a0b7d0ae92a8b143e72283",
+      "red_workflow_run_id": 35094224454,
+      "workflow_run_id": 35094588521,
+      "artifact_id": 10445189257,
+      "artifact_digest": "sha256:ef81551d41cc747b07e927b9a5c4f13eaf0fc013a5cf8ac3fb1a5491aadec8c4",
+      "outcome_blind_overlap": {
+        "n_overlap_species": 624,
+        "generalized_form_matched_species": 246,
+        "actinomorphic_symmetry_matched_species": 582,
+        "shallow_open_tube_matched_species": 52,
+        "admitted_traits": ["generalized_form", "actinomorphic_symmetry"]
+      },
+      "generalized_form": {
+        "restricted_distance_slope": 0.07409021706772223,
+        "accessible_distance_slope": 0.007350769998049345,
+        "distance_by_architecture_interaction": -0.06673944706967289,
+        "one_sided_buffering_p": 0.24412372917763994,
+        "supplemental_only_interaction": 0.06454826860904515,
+        "no_zero_constant_interaction": -0.07564730888910198,
+        "supported": false,
+        "sensitivity_direction_retained": false
+      },
+      "actinomorphic_symmetry": {
+        "restricted_distance_slope": 0.08517595158759661,
+        "accessible_distance_slope": 0.12013155047461044,
+        "distance_by_architecture_interaction": 0.03495559888701383,
+        "one_sided_buffering_p": 0.6689835087162318,
+        "supplemental_only_interaction": -0.013744929846950166,
+        "no_zero_constant_interaction": 0.0398907054129954,
+        "context_tropical_minus_northern_interaction": 0.0789081027423025,
+        "context_two_sided_p": 0.7130385353416473,
+        "supported": false,
+        "sensitivity_direction_retained": false
+      },
+      "shallow_open_tube": {
+        "evaluable": false,
+        "matched_species": 52,
+        "restricted_offshore_sites": 4,
+        "accessible_offshore_sites": 7,
+        "reason": "frozen_preflight_support_failed"
+      },
+      "supported_trait_count": 0,
+      "route_B_family_supported": false,
+      "classification": "floral_architecture_buffering_not_supported"
+    },
     "GloPL_exact_island_influence_audit": {
       "result_lock": "config/chapter1_h5_glopl_influence_audit_result_lock.json",
       "workflow_run_id": 35087172092,
@@ -113,8 +160,9 @@
       "context_interaction": "context_interaction_sign_fragile"
     }
   },
-  "updated_H5_classification": "two_plant_routes_supported_general_global_isolation_pollen_limitation_association_supported_but_reproductive_assurance_functional_buffering_not_supported_and_predeclared_north_tropical_service_branching_not_supported_named_architecture_support_limited_exact_island_identity_nonidentifiable",
-  "updated_H5_statement": "Across the full georeferenced GloPL sampling frame, experimental pollen limitation increases with distance from the seeded major continental landmasses, and a post-hoc shape audit indicates that the association continues within offshore sites. However, this broad service gradient does not reproduce the predeclared northern-midlatitude versus tropical branching, and exact species-matched reproductive-assurance moderation does not establish a functional buffering bridge: self compatibility is opposite the buffering prediction, autonomous selfing is directionally compatible but unsupported, and the explicit selfing-mating contrast is under-supported. Thus general isolation-associated pollen limitation is supported, but neither its context-specific branching nor a reproductive-assurance functional bridge identifies the common upstream mechanism for Chapter 1 H2.",
+  "updated_H5_classification": "general_global_isolation_pollen_limitation_association_supported_but_north_tropical_service_branching_not_supported_and_neither_reproductive_assurance_nor_atomic_floral_architecture_functional_buffering_bridges_to_H2",
+  "updated_H5_statement": "Across the full georeferenced GloPL sampling frame, experimental pollen limitation increases with distance from the seeded major continental landmasses, and the post-hoc shape audit indicates that this association continues among sampled offshore sites. However, the predeclared northern-midlatitude versus tropical service-gradient branching is not supported. Exact species-matched functional moderation also fails to establish either proposed bridge to the plant response: reproductive-assurance buffering is 0/3 under the frozen family rule, and atomic generally accessible floral-architecture buffering is 0/3 under its frozen family rule, with one support-limited contrast in each family. Thus pollination-service limitation is a supported general correlate of geographic isolation, but current public data do not identify it as the context-specific common upstream generator of Chapter 1 H2 or connect it to H2 through either predeclared trait-buffering route.",
+  "stop_rule": "Do not continue post-hoc GloPL trait-moderation signal hunting after both predeclared functional families failed promotion. Remaining H5 uncertainty concerns region-specific pollinator-community composition, assembly history, or unmeasured service dimensions rather than another unfrozen trait interaction.",
   "claim_ceiling": {
     "global_GloPL_gradient_is_causal_island_effect": false,
     "global_GloPL_gradient_identifies_pollinator_abundance_decline": false,
@@ -125,10 +173,13 @@
     "full_global_association_proves_north_tropical_mechanism": false,
     "reproductive_assurance_moderation_proves_trait_evolution": false,
     "reproductive_assurance_moderation_proves_H2_mediation": false,
-    "selfing_mating_support_failure_is_biological_negative": false,
-    "autonomous_selfing_direction_is_statistical_support": false,
+    "floral_architecture_moderation_proves_trait_evolution": false,
+    "floral_architecture_moderation_proves_H2_mediation": false,
+    "unsupported_trait_buffering_means_traits_are_irrelevant": false,
+    "support_limited_trait_contrasts_are_biological_negatives": false,
+    "atomic_architecture_identifies_named_pollinator": false,
     "four_context_failure_is_biological_negative": false,
     "global_pollinator_mechanism_identified": false
   },
-  "current_H5_integration_doc": "docs/chapter1_h5_pollination_global_integration_v4_20260916.md"
+  "current_H5_integration_doc": "docs/chapter1_h5_pollination_global_integration_v5_20260916.md"
 }
