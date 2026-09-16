@@ -245,7 +245,7 @@ Across thousands of contemporary island floras, increasing geographic separation
 
 The global syndrome is not equivalent to one global assembly process. Broad contemporary-flora context dependence remains after source-free genus residualization, whereas a defended native Palearctic response is strongly structured by source-matched genus composition. Regional differences and lineage assembly therefore modify how a common response is realized rather than determining whether the response exists.
 
-These results support a unified pollination-constraint hypothesis while preserving a strict causal boundary. They show convergence among geography, experimental reproductive limitation and functional trait states, but they do not prove that historical pollen limitation caused the observed trait evolution. The next decisive step is longitudinal or lineage-resolved evidence linking pollination service, reproductive success and trait change through time.
+These results support a unified pollination-constraint hypothesis while preserving a strict causal boundary. They show convergence among geography, experimental reproductive limitation and functional trait states, but they do not identify historical pollen limitation as the cause of the observed trait evolution. The next decisive step is longitudinal or lineage-resolved evidence linking pollination service, reproductive success and trait change through time.
 
 ---
 
