@@ -1,0 +1,137 @@
+{
+  "contract": "chapter1_h5_within_island_identity_filter_result_lock_v1",
+  "status": "completed_not_identifiable",
+  "design_contract": "chapter1_h5_within_island_identity_filter_v1",
+  "design_freeze_commit": "576b15ba88eb4ceea2e14786a56b13220d79b06d",
+  "workflow_run_id": 35062545145,
+  "workflow_head_sha": "3d18156ea1b910fdda16336944038a21afb9f25e",
+  "artifact_id": 10433495032,
+  "artifact_name": "chapter1-h5-within-island-identity-filter-35062545145",
+  "artifact_digest": "sha256:0499c2141c59cee05c7a94220947b3cddcdf943f98ff75163a57fc316303d76d",
+  "validation": {
+    "tests_passed": 4,
+    "ruff_passed": true,
+    "covariate_conflict_red_run": 35061682393,
+    "estimability_guard_red_run": 35062222553,
+    "final_green_run": 35062545145
+  },
+  "scope": {
+    "primary": "all_analysis_eligible",
+    "sensitivity": "direct_only",
+    "contexts": [
+      "northern_midlatitude",
+      "tropical"
+    ],
+    "matched_channels": {
+      "bombus": "large_bee_like",
+      "lepidoptera": "butterfly_like",
+      "flower_visiting_birds": "bird_like"
+    }
+  },
+  "frozen_support_gate": {
+    "minimum_evaluable_matched_channels_per_island": 2,
+    "requires_retained_and_disrupted_within_same_island": true,
+    "minimum_mixed_islands_per_context": 10
+  },
+  "support": {
+    "all_analysis_eligible": {
+      "n_eligible_mixed_islands": 22,
+      "northern_midlatitude": {
+        "n_mixed_islands": 5,
+        "n_channel_rows": 13,
+        "n_clusters": 5,
+        "support_passed": false
+      },
+      "tropical": {
+        "n_mixed_islands": 17,
+        "n_channel_rows": 40,
+        "n_clusters": 9,
+        "support_passed": true
+      }
+    },
+    "direct_only": {
+      "n_eligible_mixed_islands": 22,
+      "northern_midlatitude": {
+        "n_mixed_islands": 5,
+        "support_passed": false
+      },
+      "tropical": {
+        "n_mixed_islands": 17,
+        "support_passed": true
+      }
+    }
+  },
+  "design_rank": {
+    "all_analysis_eligible": {
+      "nuisance_rank": 26,
+      "full_design_rank": 27,
+      "target_rank_increment": 1,
+      "required_target_rank_increment": 2,
+      "joint_estimable": false,
+      "context_estimable": {
+        "northern_midlatitude": false,
+        "tropical": true
+      }
+    },
+    "direct_only": {
+      "nuisance_rank": 26,
+      "full_design_rank": 27,
+      "target_rank_increment": 1,
+      "required_target_rank_increment": 2,
+      "joint_estimable": false,
+      "context_estimable": {
+        "northern_midlatitude": false,
+        "tropical": true
+      }
+    }
+  },
+  "state_identity_diagnosis": {
+    "northern_midlatitude": {
+      "mixed_islands": 5,
+      "bombus_disrupted": 5,
+      "bombus_retained": 0,
+      "lepidoptera_retained": 5,
+      "lepidoptera_disrupted": 0,
+      "flower_visiting_birds_retained": 3,
+      "flower_visiting_birds_disrupted": 0,
+      "interpretation": "disruption is completely absorbed by channel identity after island and channel-by-context fixed effects"
+    },
+    "tropical": {
+      "mixed_islands": 17,
+      "bombus_disrupted": 16,
+      "bombus_retained": 0,
+      "lepidoptera_retained": 17,
+      "lepidoptera_disrupted": 0,
+      "flower_visiting_birds_retained": 6,
+      "flower_visiting_birds_disrupted": 1,
+      "interpretation": "one bird-disrupted island breaks exact channel-state confounding, so the tropical target adds one design-rank dimension"
+    }
+  },
+  "primary_result": {
+    "matched_joint_df": 0,
+    "matched_joint_p_value": null,
+    "northern_midlatitude_estimate": null,
+    "tropical_estimate": null,
+    "association_supported_under_frozen_gate": false
+  },
+  "falsification_rotations": {
+    "rotation_1": {
+      "target_rank_increment": 1,
+      "joint_estimable": false
+    },
+    "rotation_2": {
+      "target_rank_increment": 1,
+      "joint_estimable": false
+    }
+  },
+  "classification": "strict_within_island_identity_filter_not_identifiable_under_current_exact_island_support",
+  "causal_promotion": false,
+  "claim": "The strict exact-island data cannot identify a two-context within-island channel-specific disruption effect. Northern support is below the frozen overlap threshold and the northern disruption target is structurally confounded with channel identity after island and channel-by-context fixed effects. This is an identifiability failure, not evidence that pollinator effects are absent.",
+  "claim_ceiling": {
+    "lowering_the_mixed_island_threshold_would_resolve_northern_identifiability": false,
+    "non_identifiability_is_evidence_of_no_pollinator_effect": false,
+    "occurrence_state_equals_effective_pollination_service": false,
+    "historical_pollinator_loss_identified": false,
+    "causal_pollinator_selection_identified": false
+  }
+}
