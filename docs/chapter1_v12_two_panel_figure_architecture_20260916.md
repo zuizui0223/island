@@ -2,7 +2,7 @@
 
 ## Decision
 
-The main result is no longer presented as one H1→H5 causal ladder. The manuscript/figure surface is organized as two nested evidence panels plus two cross-examination panels.
+The main result is not one H1→H5 causal ladder. The manuscript/figure surface is organized as two nested evidence layers, with the taxonomic-depth contrast shown explicitly side-by-side.
 
 The numbering is fixed as:
 
@@ -31,9 +31,29 @@ Claim: contemporary observed island floras show biogeographically contingent flo
 
 Do not claim native assembly from this panel.
 
-### Panel B — H3A: broad response persists below raw genus composition
+### Panel B — floristic-status defensibility gate
 
-Show three points/segments for the North–Tropical vector on the exact common taxonomic support:
+Show immediately why the broad response cannot be read as a native-assembly result.
+
+On the same 375 islands:
+
+- all observed species: p = 0.0005607 all evidence / 0.0003959 direct;
+- native species only: p = 0.2491 / 0.3018.
+
+Expanded WCVP regional-native-compatible sensitivity:
+
+- 2,372 islands total;
+- North–Tropical p = 0.07954 all / 0.17472 direct.
+
+Claim: the global contemporary-flora response is broader than the portion currently defensible as native assembly.
+
+## Figure 2 — H3 taxonomic-depth contrast: the two panels behave differently
+
+This is the critical comparison figure. Put H3A and H3B on the same page, on the same visual grammar, so that the asymmetry is visible without reading the caption.
+
+### Panel A — H3A broad all-observed response is not erased by source-free genus residualization
+
+Show three aligned stages for the North–Tropical vector on the exact common taxonomic support:
 
 1. observed;
 2. after source-free LOO family residualization;
@@ -57,11 +77,19 @@ Key retained post-genus components:
 - generalized_form: p = 0.00363 all / 0.00327 direct;
 - self_compatibility: p = 0.0212 all / 0.00768 direct.
 
-Claim: broad context dependence is not erased by raw family/genus composition and therefore is not simply the defended native genus-assembly signal.
+Preferred wording: **not erased by source-free genus residualization**.
 
-## Figure 2 — Defended native assembly is a different taxonomic layer
+Avoid using `below genus` as shorthand in the panel title because that can be misread as a within-lineage evolutionary claim.
 
-### Panel C — H3B: source-matched Palearctic native response
+Claim: broad context dependence is not simply a raw family/genus-composition effect and is not the same signal as the defended native genus-assembly result.
+
+### Panel B — H3B defended Palearctic native response collapses after source-matched genus adjustment
+
+Use the same three-stage visual grammar as Panel A:
+
+1. observed;
+2. family-adjusted;
+3. source-matched genus-adjusted.
 
 Retain frozen v11/P1 evidence:
 
@@ -72,23 +100,20 @@ Retain frozen v11/P1 evidence:
 
 Claim: the defended Palearctic native response is strongly genus-structured beyond arbitrary grouping complexity.
 
-Do not use this panel as the explanation of Figure 1 Panel A/B.
+Do not use this panel as the explanation of Figure 1.
 
-### Panel D — floristic-status defensibility gate
+### Panel C — explicit comparison statement
 
-Show why Panels A/B and C cannot be collapsed.
+Put a compact comparison strip or bracket under Panels A and B:
 
-On the same 375 islands:
+- **all-observed / broad H2:** residual vector remains supported after source-free genus residualization;
+- **defended native / Palearctic:** response loses support after source-matched genus adjustment.
 
-- all observed species: p = 0.0005607 all evidence / 0.0003959 direct;
-- native species only: p = 0.2491 / 0.3018.
+Caption statement:
 
-Expanded WCVP regional-native-compatible sensitivity:
+> Taxonomy matters in both layers, but it matters at different depths and under different inferential conditions. The broad contemporary-flora response is not explained by the defended native genus-assembly result.
 
-- 2,372 islands total;
-- North–Tropical p = 0.07954 all / 0.17472 direct.
-
-Claim: the global contemporary-flora response is broader than the portion currently defensible as native assembly.
+This panel is the visual reason the manuscript needs two evidence layers rather than one causal ladder.
 
 ## Figure 3 — H4 area moderation is secondary and measurement-sensitive
 
@@ -127,7 +152,7 @@ Claim: floral responses are compatible with altered pollination-associated archi
 
 ## One-sentence synthesis
 
-> **Global contemporary island floras show context-dependent floral and reproductive responses that persist below raw genus composition, whereas the narrower native Palearctic response is strongly genus-structured; area is measurement-sensitive and independent pollination data do not identify one universal mechanism.**
+> **Global contemporary island floras show context-dependent floral and reproductive responses that are not erased by source-free genus residualization, whereas the narrower native Palearctic response loses support after source-matched genus adjustment; area is measurement-sensitive and independent pollination data do not identify one universal mechanism.**
 
 ## Forbidden shortcuts
 
@@ -135,6 +160,7 @@ Do not write:
 
 - the global H2 response is explained by native genus assembly;
 - all-observed H3A residual proves within-lineage evolution;
+- post-genus residual means a process literally operating below the genus level;
 - unresolved/non-native-status records are introduced species;
 - area proves island capacity or founder filtering;
 - butterfly-like/bird-like/large-bee-like scores identify realized visitors;
