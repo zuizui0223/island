@@ -1,5 +1,5 @@
 {
-  "contract": "chapter1_v12_two_panel_result_lock_v4",
+  "contract": "chapter1_v12_two_panel_result_lock_v5",
   "status": "exploratory_branch_integrated",
   "architecture": {
     "H1": "universal_response_rival",
@@ -58,6 +58,30 @@
       "obligatory_selfing_then_floral_simplification_rejected": true,
       "named_template_identity_specificity_passed": false,
       "shared_named_architecture_variance_fraction_gt": 0.86
+    },
+    "orthogonalized_named_architecture": {
+      "frozen_v1_result_lock": "config/chapter1_h5_orthogonalized_architecture_specificity_v1_result_lock.json",
+      "v1_classification": "frozen_v1_structurally_non_evaluable",
+      "structural_correction_role": "posthoc_not_confirmatory",
+      "workflow_run_id": 35065912097,
+      "artifact_id": 10433982600,
+      "artifact_digest": "sha256:a1b259d7657757704d3437701e93b2a9f3daa88366ca4dc95f6d4fb1f938ac59",
+      "source_pca1_variance_fraction": {
+        "all_analysis": 0.8694377184973049,
+        "direct": 0.8643705024390916
+      },
+      "rank2_residual_H2": {
+        "all_analysis": {"n_islands": 154, "n_blocks": 57, "chisq": 0.9746650852234515, "df": 2, "p_value": 0.6142627304442022},
+        "direct": {"n_islands": 144, "n_blocks": 54, "chisq": 2.3825788917058217, "df": 2, "p_value": 0.3038292400205934}
+      },
+      "shared_factor_H2_interaction": {
+        "all_analysis": {"north_n": 82, "tropical_n": 72, "n_blocks": 57, "p_value": 0.4324071949073908},
+        "direct": {"north_n": 75, "tropical_n": 69, "n_blocks": 54, "p_value": 0.278200442144608}
+      },
+      "classification": "no_robust_named_architecture_H2_after_structural_correction",
+      "interpretation": "The broad North-Tropical H2 signal is not robustly reproduced by either the dominant shared named-architecture factor or the rank-two template-specific residual subspace under the strict per-island component-support gate.",
+      "pollinator_identity_promoted": false,
+      "causal_pollinator_mechanism_promoted": false
     },
     "global_GloBI": {
       "n_islands": 3252,
@@ -137,14 +161,14 @@
       "H5c_p": 0.41221,
       "H5d_qualified": "0/8"
     },
-    "classification": "two_plant_routes_supported_upstream_pollination_service_limitation_not_identified_exact_island_identity_test_nonidentifiable"
+    "classification": "two_plant_routes_supported_named_architecture_H2_not_robust_upstream_pollination_service_limitation_not_identified_exact_island_identity_test_nonidentifiable"
   },
   "H3_H5_relationship": {
     "H3_question": "where_is_the_response_taxonomically_represented",
     "H5_question": "which_biological_mechanism_if_any_explains_the_response",
     "broad_contemporary": {
       "H3": "context_difference_not_erased_by_source_free_genus_residualization",
-      "H5_implication": "pollination_cannot_explain_panel_A_merely_as_between_genus_sorting; any real mechanism must also account_for_residual_context_structure",
+      "H5_implication": "pollination_cannot_explain_panel_A_merely_as_between_genus_sorting; the sampled named syndrome templates also do not robustly reproduce H2 after shared-versus-residual decomposition, so any real pollination mechanism must be sought in independent service variation rather than syndrome labels alone",
       "within_lineage_evolution_identified": false
     },
     "defended_native_palearctic": {
@@ -155,7 +179,7 @@
     "solid_causal_arrow_H5_to_H3_allowed": false,
     "preferred_visual_connection": "dashed_candidate_arrow_pollination_service_or_identity_filter"
   },
-  "headline": "Global contemporary island-flora context dependence is not erased by source-free genus residualization, whereas the defended native Palearctic response is strongly genus-structured; two plant-side response components are supported, but the common upstream pollination-service mechanism is not identified and the strict same-island identity test is structurally non-identifiable in the northern context.",
+  "headline": "Global contemporary island-flora context dependence is not erased by source-free genus residualization, whereas the defended native Palearctic response is strongly genus-structured; reproductive assurance and floral architecture remain partially separable, but named syndrome architecture does not robustly reproduce the North-Tropical H2 contrast, the common upstream pollination-service mechanism is not identified, and the strict same-island identity test is structurally non-identifiable in the northern context.",
   "claim_ceiling": {
     "global_H2_explained_by_native_H3B": false,
     "H3A_residual_proves_within_lineage_evolution": false,
@@ -164,6 +188,9 @@
     "two_H5_routes_are_two_proven_causal_pathways": false,
     "area_is_capacity_mechanism": false,
     "pollinator_identity_identified_from_syndrome": false,
+    "raw_named_syndrome_concordance_is_identity_specific_H2": false,
+    "orthogonalized_named_architecture_null_proves_pollinators_irrelevant": false,
+    "posthoc_architecture_structural_correction_is_confirmatory": false,
     "temporal_pollinator_decline_measured": false,
     "channel_detection_equals_effective_service": false,
     "adequate_non_detection_equals_historical_extinction": false,
