@@ -1,0 +1,96 @@
+{
+  "contract": "chapter1_h5_orthogonalized_architecture_specificity_v1_result_lock",
+  "status": "completed_structurally_non_evaluable",
+  "design_contract": "chapter1_h5_orthogonalized_architecture_specificity_v1",
+  "design_freeze_commit": "93f6acfc89fa40af3f3bf3a331f56d660dd47481",
+  "final_corrected_support_run_id": 35065455839,
+  "workflow_head_sha": "de7ffa03e46dd037d49b8d3854a1988d65c499c1",
+  "artifact_id": 10433802472,
+  "artifact_name": "chapter1-h5-orthogonalized-architecture-35065455839",
+  "artifact_digest": "sha256:7bffc23f9ad48ef80799aa35e37278ccbd774715c3d213a49fa5935c2ee8c0d8",
+  "superseded_run": {
+    "workflow_run_id": 35064902445,
+    "artifact_id": 10434210411,
+    "reason": "The first successful implementation mapped the frozen minimum_scored_species_per_component=50 to the existing helper's minimum-islands threshold instead of filtering island-component rows to n_species>=50 before modelling. Its H2 p-values are not valid for the frozen v1 contract."
+  },
+  "validation_history": {
+    "initial_module_red_run": 35064421221,
+    "per_island_support_red_run": 35065323106,
+    "final_corrected_support_green_run": 35065455839
+  },
+  "source_factor": {
+    "all_analysis_eligible": {
+      "variance_fraction_pca1": 0.8694377184973049,
+      "n_complete_scored_species": 2072,
+      "n_complete_gift_source_species": 1379
+    },
+    "direct_only": {
+      "variance_fraction_pca1": 0.8643705024390916,
+      "n_complete_scored_species": 1453,
+      "n_complete_gift_source_species": 1178
+    },
+    "interpretation": "More than 86% of the variance among the three sampled named floral templates lies on one source-trained shared architecture axis in both evidence scopes."
+  },
+  "frozen_per_island_support_gate": {
+    "minimum_scored_species_per_component": 50,
+    "all_analysis_eligible": {
+      "north_islands": 82,
+      "tropical_islands": 72,
+      "north_tropical_unique_islands": 154,
+      "n_clusters": 57
+    },
+    "direct_only": {
+      "north_islands": 75,
+      "tropical_islands": 69,
+      "north_tropical_unique_islands": 144,
+      "n_clusters": 54
+    }
+  },
+  "identity_specific_residual_family": {
+    "labels": [
+      "large_bee_like_residual",
+      "butterfly_like_residual",
+      "bird_like_residual"
+    ],
+    "frozen_required_joint_df": 3,
+    "observed_covariance_rank": 2,
+    "intrinsic_maximum_rank_after_removing_one_factor_from_three_templates": 2,
+    "v1_primary_test_evaluable": false,
+    "rank2_descriptive_H2": {
+      "all_analysis_eligible": {
+        "chisq": 0.9746650852234515,
+        "df": 2,
+        "p_value": 0.6142627304442022
+      },
+      "direct_only": {
+        "chisq": 2.3825788917058217,
+        "df": 2,
+        "p_value": 0.3038292400205934
+      }
+    },
+    "individual_axis_fdr_supported": {
+      "all_analysis_eligible": "0/6 context_x_residual slopes",
+      "direct_only": "0/6 context_x_residual slopes"
+    },
+    "interpretation": "The v1 df=3 gate is mathematically incompatible with the residual space produced by subtracting one shared factor from three template dimensions. The rank-2 p-values are recorded as descriptive diagnostics only and do not retroactively repair the frozen v1 test."
+  },
+  "shared_architecture_family": {
+    "n_axes": 1,
+    "v1_multivariate_helper_status": "not_testable",
+    "reason": "The reused PR138 multivariate helper intentionally requires at least two response axes and therefore cannot test a one-dimensional shared factor. This is an implementation-interface limitation, not a biological null."
+  },
+  "classification": "frozen_v1_structurally_non_evaluable",
+  "robust_identity_specific_structure_promoted": false,
+  "pollinator_identity_promoted": false,
+  "causal_pollinator_mechanism_promoted": false,
+  "next_allowed_analysis": "posthoc_structural_correction_with_rank2_residual_wald_and_dedicated_scalar_shared_factor_model",
+  "claim": "The frozen v1 specificity test cannot be interpreted as designed: its three residual labels span only a two-dimensional residual subspace, while its shared one-dimensional factor cannot be evaluated by the reused multivariate helper. Correct per-island support leaves adequate North/Tropical sample counts, and the observed rank-2 residual diagnostic is unsupported in both evidence scopes, but a separate post-hoc structural correction is required for a valid formal decomposition test.",
+  "claim_ceiling": {
+    "v1_non_evaluability_is_evidence_of_no_specificity": false,
+    "rank2_descriptive_p_values_are_confirmatory": false,
+    "shared_helper_not_testable_is_biological_null": false,
+    "residual_labels_identify_realized_pollinators": false,
+    "pollinator_service_identified": false,
+    "causal_selection_identified": false
+  }
+}
