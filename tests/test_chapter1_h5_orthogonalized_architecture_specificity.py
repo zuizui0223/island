@@ -115,7 +115,16 @@ def test_summarize_scope_requires_all_three_residual_components() -> None:
         between,
         slopes,
         evidence_scope="all_analysis_eligible",
-        factor_audit={"variance_fraction": 0.86, "n_complete_gift_source_species": 900},
+        factor_audit={
+            "variance_fraction": 0.86,
+            "n_complete_scored_species": 1200,
+            "n_complete_gift_source_species": 900,
+            "source_factor_residual_covariances": {
+                "large_bee_like_residual": 0.0,
+                "butterfly_like_residual": 0.0,
+                "bird_like_residual": 0.0,
+            },
+        },
         config=_config(),
     )
 
