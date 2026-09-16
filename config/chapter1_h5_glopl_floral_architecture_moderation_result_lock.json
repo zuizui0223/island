@@ -1,0 +1,131 @@
+{
+  "contract": "chapter1_h5_glopl_floral_architecture_moderation_result_lock_v1",
+  "status": "completed_floral_architecture_buffering_not_supported",
+  "scientific_parent_contract": "chapter1_h5_glopl_floral_architecture_moderation_v1",
+  "design_freeze_commit": "4f478c76b4ac0ed963a0b7d0ae92a8b143e72283",
+  "validation": {
+    "red_workflow_run_id": 35094224454,
+    "red_reason": "module_absent_before_implementation",
+    "canonical_green_workflow_run_id": 35094588521,
+    "canonical_job_id": 104788690975,
+    "tests": "6_passed",
+    "ruff": "passed"
+  },
+  "provenance": {
+    "workflow_run_id": 35094588521,
+    "artifact_id": 10445189257,
+    "artifact_name": "chapter1-h5-glopl-architecture-moderation-35094588521",
+    "artifact_digest": "sha256:ef81551d41cc747b07e927b9a5c4f13eaf0fc013a5cf8ac3fb1a5491aadec8c4",
+    "head_sha": "b71632985b269455a7cc04a9e7170ecfdd249821",
+    "glopl_source_sha256": "264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de",
+    "trait_ledger_sha256": "7e86170218814abe2845da9a0282aecfdc930819b9d0c439bae8df4a0679c577",
+    "trait_snapshot_artifact_id": 10042377593,
+    "trait_snapshot_artifact_digest": "sha256:5e9c887e093c42eb720f3abd2dc85701ce123fb7fe888c916dc4098ac898ccdd",
+    "global_GloPL_parent_artifact_id": 10444156159,
+    "global_GloPL_parent_artifact_digest": "sha256:f11046d441fba6cdc3a2842a5a19fdc0bed3661b9ce258625eb93acc879ce623"
+  },
+  "outcome_blind_preflight": {
+    "n_glopl_rows": 2969,
+    "n_trait_assignments": 44161,
+    "n_overlap_rows": 2633,
+    "n_overlap_species": 624,
+    "forbidden_outcome_columns_materialized": false,
+    "admitted_traits": ["generalized_form", "actinomorphic_symmetry"],
+    "generalized_form": {
+      "n_matched_species": 246,
+      "restricted": {"n_species": 169, "n_sites": 245, "n_publications": 174, "n_offshore_sites": 56},
+      "accessible": {"n_species": 77, "n_sites": 114, "n_publications": 79, "n_offshore_sites": 24},
+      "global_admitted": true,
+      "north_tropical_context_diagnostic_admitted": false,
+      "context_failure_note": "tropical accessible support = 5 species, 8 sites, 5 publications, 1 offshore site"
+    },
+    "actinomorphic_symmetry": {
+      "n_matched_species": 582,
+      "restricted": {"n_species": 213, "n_sites": 263, "n_publications": 180, "n_offshore_sites": 89},
+      "accessible": {"n_species": 369, "n_sites": 434, "n_publications": 315, "n_offshore_sites": 117},
+      "global_admitted": true,
+      "north_tropical_context_diagnostic_admitted": true
+    },
+    "shallow_open_tube": {
+      "n_matched_species": 52,
+      "restricted": {"n_species": 34, "n_sites": 41, "n_publications": 33, "n_offshore_sites": 4},
+      "accessible": {"n_species": 18, "n_sites": 22, "n_publications": 15, "n_offshore_sites": 7},
+      "global_admitted": false,
+      "north_tropical_context_diagnostic_admitted": false,
+      "failure_role": "support_failure_not_biological_negative"
+    }
+  },
+  "analysis": {
+    "n_finite_matched_effect_rows": 2485,
+    "publication_total_weight": 1.0,
+    "primary_cluster": "publication",
+    "generalized_form": {
+      "primary": {
+        "restricted_distance_slope": 0.07409021706772223,
+        "accessible_distance_slope": 0.007350769998049345,
+        "distance_by_architecture_interaction": -0.06673944706967289,
+        "interaction_se": 0.09629136986069581,
+        "interaction_two_sided_p": 0.4882474583552799,
+        "interaction_one_sided_negative_p": 0.24412372917763994,
+        "n_cells": 426,
+        "n_publications": 246,
+        "n_sites": 348,
+        "n_species": 246
+      },
+      "sensitivities": {
+        "supplemental_only_interaction": 0.06454826860904515,
+        "no_zero_constant_interaction": -0.07564730888910198
+      },
+      "supported": false,
+      "sensitivity_direction_retained": false,
+      "interpretation": "primary point estimate is in the buffering direction but is imprecise and reverses sign in the supplemental-only sensitivity"
+    },
+    "actinomorphic_symmetry": {
+      "primary": {
+        "restricted_distance_slope": 0.08517595158759661,
+        "accessible_distance_slope": 0.12013155047461044,
+        "distance_by_architecture_interaction": 0.03495559888701383,
+        "interaction_se": 0.07997015410662453,
+        "interaction_two_sided_p": 0.6620329825675364,
+        "interaction_one_sided_negative_p": 0.6689835087162318,
+        "n_cells": 937,
+        "n_publications": 479,
+        "n_sites": 669,
+        "n_species": 582
+      },
+      "sensitivities": {
+        "supplemental_only_interaction": -0.013744929846950166,
+        "no_zero_constant_interaction": 0.0398907054129954
+      },
+      "context_diagnostic": {
+        "northern_interaction": 0.04180579725621622,
+        "tropical_interaction": 0.12071389999851873,
+        "tropical_minus_northern": 0.0789081027423025,
+        "two_sided_p": 0.7130385353416473
+      },
+      "supported": false,
+      "sensitivity_direction_retained": false,
+      "interpretation": "primary and no-zero-constant interactions are opposite the buffering prediction; context diagnostic is unsupported"
+    },
+    "shallow_open_tube": {
+      "evaluable": false,
+      "reason": "preflight_support_failed"
+    }
+  },
+  "decision": {
+    "supported_trait_count": 0,
+    "route_B_family_supported": false,
+    "classification": "floral_architecture_buffering_not_supported",
+    "causal_mediation_identified": false
+  },
+  "interpretation": "The supported full-scale isolation-associated GloPL pollen-limitation gradient is not robustly buffered by the three predeclared atomic generally accessible floral-architecture contrasts. Generalized form points toward buffering in the primary fit but is imprecise and sign-unstable under the supplemental-only sensitivity; actinomorphy does not buffer the gradient in the primary fit; shallow/open tube depth is support-limited. This does not negate local floral adaptation or pollinator-mediated selection and does not identify mediation of the Chapter 1 plant response.",
+  "claim_ceiling": {
+    "unsupported_buffering_means_floral_architecture_irrelevant": false,
+    "support_failure_is_biological_negative": false,
+    "trait_moderation_identifies_trait_evolution": false,
+    "trait_moderation_identifies_causal_selection": false,
+    "trait_moderation_proves_H2_mediation": false,
+    "atomic_architecture_identifies_named_pollinator": false,
+    "parent_global_GloPL_gradient_remains_supported": true
+  }
+}
