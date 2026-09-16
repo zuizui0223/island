@@ -21,11 +21,7 @@ import typer
 import yaml
 
 from island_v2.chapter1_global_branching import run_global_branching
-from island_v2.chapter1_pollination_architecture_factor import (
-    RESIDUAL_NAMES,
-    SHARED_FACTOR,
-    fit_and_project_source_factor,
-)
+from island_v2.chapter1_pollination_architecture_factor import fit_and_project_source_factor
 from island_v2.chapter1_pr138_syndrome_analysis import build_island_syndrome_scores
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
