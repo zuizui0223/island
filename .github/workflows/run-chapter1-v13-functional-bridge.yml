@@ -60,7 +60,7 @@ jobs:
 
       - name: Run frozen post-hoc functional triangulation
         run: |
-          python -m island_v2.chapter1_v13_functional_bridge analyse \
+          python -m island_v2.chapter1_v13_functional_bridge \
             --reproductive-assurance-rows "$ROOT/ra/out/MATCHED_EFFECT_ROWS.csv.gz" \
             --floral-architecture-rows "$ROOT/architecture/out/MATCHED_EFFECT_ROWS.csv.gz" \
             --config-path config/chapter1_v13_functional_bridge_v1.yml \
