@@ -1,60 +1,93 @@
 {
-  "contract": "chapter1_v12_h5_glopl_extension_result_lock_v1",
-  "status": "integrated_extension_to_chapter1_v12_two_panel_result_lock_v6",
+  "contract": "chapter1_v12_h5_glopl_extension_result_lock_v2",
+  "status": "integrated_exact_island_and_full_global_GloPL_extensions",
   "parent_lock": "config/chapter1_v12_two_panel_result_lock.json",
   "parent_contract": "chapter1_v12_two_panel_result_lock_v6",
   "H5_extension": {
-    "GloPL_preflight": {
+    "GloPL_exact_island_preflight": {
       "result_lock": "config/chapter1_h5_glopl_island_overlap_preflight_result_lock.json",
       "workflow_run_id": 35085378171,
       "artifact_id": 10442126584,
-      "artifact_digest": "sha256:5ab7aecfbeb4fac2db26bcdc13edd4b47e953b1d1e6f35255330a0b2f70fe041",
       "northern_midlatitude": {"n_islands": 15, "n_studies": 55},
       "tropical": {"n_islands": 14, "n_studies": 23},
       "classification": "GloPL_exact_island_overlap_gate_passed"
     },
-    "GloPL_pollen_limitation": {
+    "GloPL_exact_island_adjusted": {
       "result_lock": "config/chapter1_h5_glopl_pollen_limitation_result_lock.json",
-      "design_freeze_commit": "0f7479c3607f86333c8d904a4786c0b938912b0b",
       "workflow_run_id": 35086524129,
       "artifact_id": 10442910503,
-      "artifact_digest": "sha256:5d39d3658100edabcbb9a7f6b5e6d7130ffc7d32e643e7900fcebfbd137efaa0",
       "support": {"n_effect_rows": 262, "n_publication_island_cells": 80, "n_islands": 28, "n_publications": 77, "n_blocks": 25},
       "northern_distance_slope": {"estimate": 0.37622504482393726, "one_sided_positive_p": 0.1209346905656688},
       "tropical_minus_northern_interaction": {"estimate": -0.031133203061145236, "one_sided_negative_p": 0.45772862111476653},
-      "sensitivity_summary": {
-        "supplemental_only_north": 0.4318162561647292,
-        "supplemental_only_interaction": 0.3006067911930989,
-        "no_zero_constant_north": 0.32313879164489734,
-        "no_zero_constant_interaction": -0.0893041406151113,
-        "equal_island_north": 0.7472794462448997,
-        "equal_island_interaction": -0.22836883696846005
-      },
-      "classification": "pollen_limitation_gradient_not_supported"
+      "classification": "pollen_limitation_gradient_not_supported",
+      "role": "strict_exact_island_area_and_climate_adjusted_subset"
     },
-    "GloPL_influence_audit": {
+    "GloPL_full_global_distance": {
+      "result_lock": "config/chapter1_h5_glopl_global_distance_result_lock.json",
+      "design_freeze_commit": "6f570b3aa97b66a8012f55953fdf8c1dd4aba953",
+      "workflow_run_id": 35090599662,
+      "artifact_id": 10444156159,
+      "artifact_digest": "sha256:f11046d441fba6cdc3a2842a5a19fdc0bed3661b9ce258625eb93acc879ce623",
+      "preflight": {
+        "n_rows": 2969,
+        "n_sites": 1248,
+        "n_studies": 919,
+        "n_mainland_sites": 988,
+        "n_offshore_sites": 260,
+        "northern_midlatitude_sites": 737,
+        "tropical_sites": 263,
+        "southern_extratropical_sites": 248,
+        "northern_high_latitude_sites": 0
+      },
+      "analysis": {"n_effect_rows": 2969, "n_measurement_cells": 1408, "n_sites": 1248, "n_publications": 919},
+      "global_gradient": {"estimate": 0.07936837202478536, "se": 0.037734195473258715, "two_sided_p": 0.035434833922249484, "one_sided_positive_p": 0.017717416961124742},
+      "sensitivities": {
+        "supplemental_only": {"estimate": 0.033492000998867164, "one_sided_positive_p": 0.21486922139193637, "direction_positive": true},
+        "no_zero_constant": {"estimate": 0.0778855394138497, "one_sided_positive_p": 0.02095424838556391, "direction_positive": true}
+      },
+      "north_tropical_pair": {
+        "northern_slope": 0.06169826065135164,
+        "northern_one_sided_positive_p": 0.10733349604071943,
+        "tropical_minus_northern_interaction": 0.14300456037322357,
+        "interaction_one_sided_negative_p": 0.9119297714373724,
+        "tropical_slope": 0.2047028210245752,
+        "direction_matches_predeclared_H5_branching": false
+      },
+      "four_context_evaluable": false,
+      "classification": "global_pollen_limitation_gradient_supported_context_specificity_not_established"
+    },
+    "GloPL_full_global_shape_audit": {
+      "result_lock": "config/chapter1_h5_glopl_global_shape_audit_result_lock.json",
+      "inferential_role": "posthoc_shape_diagnostic_not_confirmatory",
+      "workflow_run_id": 35091385147,
+      "artifact_id": 10444198356,
+      "artifact_digest": "sha256:ee7700a03dcbe9b0d6184195c482e3ec7915a5e7a9e8f1c6a85d0e4fe2de8e44",
+      "mainland_to_average_offshore_step": {"estimate": 0.13744959605556847, "two_sided_p": 0.10843683764828543},
+      "two_part_within_offshore_gradient": {"estimate": 0.19983007839214245, "two_sided_p": 0.011102397758905305},
+      "offshore_only_gradient": {"estimate": 0.2354525254306174, "two_sided_p": 0.005864607647539939, "n_sites": 260, "n_publications": 158},
+      "classification": "within_offshore_gradient_present",
+      "can_change_parent_promotion": false
+    },
+    "GloPL_exact_island_influence_audit": {
       "result_lock": "config/chapter1_h5_glopl_influence_audit_result_lock.json",
-      "design_freeze_commit": "178f24992d92acdb0b2514a5ecfed46493d564cb",
       "workflow_run_id": 35087172092,
       "artifact_id": 10442468913,
-      "artifact_digest": "sha256:6c94b5cf8bb1378fdcb8cfc28a58dc71f4b98bbc89185aa4ffa4154dde4288dd",
-      "leave_one_island": {"n_refits": 28, "north_positive_fraction": 1.0, "north_range": [0.04273080271974697, 0.5653156202271375], "interaction_negative_fraction": 0.7142857142857143},
-      "leave_one_publication": {"n_refits": 77, "north_positive_fraction": 1.0, "north_range": [0.17233693404453693, 0.5456507823926382], "interaction_negative_fraction": 0.9090909090909091},
-      "northern_direction": "northern_direction_diffuse",
-      "context_interaction": "context_interaction_sign_fragile",
-      "parent_result_promoted": false
+      "northern_direction": "northern_direction_diffuse_but_parent_unsupported",
+      "context_interaction": "context_interaction_sign_fragile"
     }
   },
-  "updated_H5_classification": "two_plant_routes_supported_named_architecture_test_support_limited_independent_experimental_pollen_limitation_gradient_not_supported_upstream_pollination_service_limitation_not_identified_exact_island_identity_test_nonidentifiable",
-  "updated_H5_statement": "Island isolation is associated with partially separable reproductive-assurance and floral-architecture responses, but current independent global evidence does not support increasing experimental pollen limitation with isolation as their common upstream generator. The northern GloPL coefficient is positive and leave-one-out directionally diffuse, but remains unsupported under the frozen primary test; the North-Tropical interaction is unsupported and influence-fragile.",
+  "updated_H5_classification": "two_plant_routes_supported_general_global_isolation_pollen_limitation_association_supported_but_predeclared_north_tropical_service_branching_not_supported_named_architecture_support_limited_exact_island_identity_nonidentifiable",
+  "updated_H5_statement": "Across the full georeferenced GloPL sampling frame, experimental pollen limitation increases with distance from the seeded major continental landmasses under the frozen global model, and a post-hoc shape audit indicates that the association continues within offshore sites rather than being only a mainland-versus-offshore level shift. However, the predeclared northern-midlatitude versus tropical service-gradient prediction is not supported and the tropical gradient is point-estimated as stronger, not weaker. The strict exact-island area-and-climate-adjusted subset remains imprecise and unsupported. Thus a broad isolation-associated pollen-limitation relationship is supported, but it does not identify the context-specific common upstream mechanism for the Chapter 1 floral/reproductive H2 branching.",
   "claim_ceiling": {
-    "GloPL_null_means_pollinators_irrelevant": false,
-    "GloPL_effect_equals_pollinator_abundance_decline": false,
-    "positive_diffuse_north_coefficient_is_statistical_support": false,
-    "GloPL_identifies_historical_pollinator_loss": false,
-    "GloPL_identifies_floral_selection_gradient": false,
-    "GloPL_mediates_six_atomic_H2": false,
+    "global_GloPL_gradient_is_causal_island_effect": false,
+    "global_GloPL_gradient_identifies_pollinator_abundance_decline": false,
+    "global_GloPL_gradient_identifies_visitation_decline": false,
+    "global_GloPL_gradient_proves_H2_mediation": false,
+    "posthoc_offshore_gradient_is_confirmatory": false,
+    "exact_island_null_erases_full_global_association": false,
+    "full_global_association_proves_north_tropical_mechanism": false,
+    "four_context_failure_is_biological_negative": false,
     "global_pollinator_mechanism_identified": false
   },
-  "current_H5_integration_doc": "docs/chapter1_h5_pollination_global_integration_v2_20260916.md"
+  "current_H5_integration_doc": "docs/chapter1_h5_pollination_global_integration_v3_20260916.md"
 }
