@@ -1,0 +1,90 @@
+contract: chapter1_hypothesis_architecture_v3
+status: frozen_before_observed_taxonomic_depth_outcome_inspection
+purpose: >-
+  Replace the misleading single-ladder reading with a nested two-panel architecture.
+  H1-H2 establish the broad contemporary observed-flora pattern. H3 asks where that
+  same broad response is taxonomically represented before comparing it with the
+  separately defended native assembly result. H4 tests area moderation as a modifier,
+  not as a required bridge. H5 requires independent mechanism evidence.
+
+panels:
+  A_global_contemporary_flora:
+    flora_scope: all_observed
+    evidence_primary: all_analysis_eligible
+    evidence_sensitivity: direct_only
+    response: six_atomic_trait_probability_vector
+    interpretation: contemporary_observed_flora_composition
+  B_defended_native_assembly:
+    flora_scope: source_backed_native
+    response: defended_native_response
+    interpretation: native_assembly_only_where_status_and_source_gates_pass
+
+hypotheses:
+  H1_universal_response:
+    question: >-
+      Does increasing island separation generate one common multivariate floral and
+      reproductive response vector across the four predeclared biogeographic contexts?
+    primary_layer: A_global_contemporary_flora
+    null: equal_distance_response_vectors_across_contexts
+
+  H2_biogeographic_branching:
+    question: >-
+      If one universal response is inadequate, how does the six-trait isolation-response
+      vector differ among contexts?
+    primary_layer: A_global_contemporary_flora
+    primary_contrast: [northern_midlatitude, tropical]
+    exact_reversal_required: false
+
+  H3_taxonomic_representation_depth:
+    question: >-
+      At what taxonomic depth is a supported isolation-response vector represented?
+    H3A_broad_observational:
+      target: same_all_observed_H2_response
+      method: source_free_leave_one_species_out_taxonomic_residualization
+      stages: [observed_score, after_family_residual, after_genus_residual]
+      rule: >-
+        Family and genus expectations are estimated from the fixed scored species pool,
+        never from source-pool assignment. The same island-species observations must be
+        used at all three stages. This test can identify taxonomic representation depth,
+        not native assembly or a colonisation mechanism.
+      gate: >-
+        The observed-score stage on common taxonomic support must reproduce the H2
+        contrast before attenuation is interpreted.
+    H3B_defended_native:
+      target: separately_defended_native_response
+      method: frozen_v11_source_matched_family_genus_decomposition
+      rule: >-
+        H3B is not allowed to explain H2 unless H3A establishes structural continuity.
+        Similar taxonomic attenuation across H3A and H3B is structural consistency, not
+        proof of a shared causal mechanism.
+
+  H4_area_moderation:
+    question: >-
+      Does continuous island area modify the isolation-associated response, and does
+      that moderation differ among contexts?
+    role: modifier_not_required_bridge
+    claim_ceiling: measurement_sensitive_unless_support_guardrails_pass
+
+  H5_independent_mechanism_gate:
+    question: >-
+      Do independent interaction data identify a pollination or other mechanism for a
+      defended pattern beyond geography, taxonomy and area?
+    rule: >-
+      Pollination-syndrome concordance is a biological-consistency layer only. Mechanism
+      promotion requires independent interaction evidence that survives its frozen
+      robustness gate.
+
+numbering_lock:
+  H3: taxonomic_representation_depth
+  H4: area_moderation
+  note: >-
+    chapter1_hypothesis_ladder_v2 used the opposite H3/H4 numbering and is historical
+    provenance only after this freeze.
+
+claim_ceiling:
+  all_observed_means_native_assembly: false
+  taxonomic_attenuation_identifies_cause: false
+  matching_H3A_H3B_proves_same_mechanism: false
+  area_is_direct_capacity_measure: false
+  pollinator_identity_from_traits: false
+  historical_pollinator_loss_identified: false
