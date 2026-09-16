@@ -1,0 +1,69 @@
+{
+  "contract": "chapter1_v12_two_panel_result_lock_v1",
+  "status": "exploratory_branch_integrated",
+  "architecture": {
+    "H1": "universal_response_rival",
+    "H2": "biogeographic_branching",
+    "H3": "taxonomic_representation_depth",
+    "H4": "area_moderation",
+    "H5": "independent_mechanism_gate"
+  },
+  "panel_A_global_contemporary_flora": {
+    "north_tropical_all_evidence": {"n_islands": 3626, "n_blocks": 187, "p_value": 0.0007633},
+    "north_tropical_direct": {"n_islands": 3569, "n_blocks": 187, "p_value": 0.004502},
+    "claim": "context_dependent_contemporary_observed_flora_response"
+  },
+  "panel_B_H3A_broad_taxonomic_depth": {
+    "workflow_run_id": 35043562731,
+    "artifact_id": 10426327347,
+    "common_support_H2_gate": {
+      "all_evidence": {"n_islands": 3560, "n_blocks": 187, "p_value": 0.00008392638821217608},
+      "direct": {"n_islands": 3487, "n_blocks": 187, "p_value": 0.00012108775398066638}
+    },
+    "equal_island_after_genus": {
+      "all_evidence_p": 0.0114966,
+      "direct_p": 0.00459346
+    },
+    "classification": "broad_H2_persists_below_raw_genus_composition"
+  },
+  "panel_C_H3B_defended_native": {
+    "scope": "Palearctic_native",
+    "stage_support": "4/4 -> 4/4 -> 0/4",
+    "matched_pseudogenus_p": 0.0289855,
+    "classification": "strong_genus_structuring_of_defended_native_response"
+  },
+  "panel_D_status_gate": {
+    "same_375_islands": {
+      "all_observed_all_p": 0.0005607,
+      "all_observed_direct_p": 0.0003959,
+      "native_all_p": 0.2491,
+      "native_direct_p": 0.3018
+    },
+    "WCVP_native_compatible": {
+      "n_islands": 2372,
+      "all_p": 0.07954,
+      "direct_p": 0.17472
+    }
+  },
+  "H4": {
+    "classification": "measurement_sensitive_modifier",
+    "causal_capacity_promoted": false
+  },
+  "H5": {
+    "global_GloBI_n_islands": 3252,
+    "global_GloBI_context_heterogeneity_supported_source_modes": "3/4",
+    "global_GloBI_area_heterogeneity_supported_source_modes": "0/4",
+    "N1_p": 0.65516,
+    "H5c_p": 0.41221,
+    "H5d_qualified": "0/8",
+    "classification": "pollination_architecture_consistent_but_no_single_global_mechanism_identified"
+  },
+  "headline": "Global contemporary island-flora context dependence persists below raw genus composition, whereas the defended native Palearctic response is strongly genus-structured.",
+  "claim_ceiling": {
+    "global_H2_explained_by_native_H3B": false,
+    "H3A_residual_proves_within_lineage_evolution": false,
+    "area_is_capacity_mechanism": false,
+    "pollinator_identity_identified": false,
+    "global_pollinator_mechanism_identified": false
+  }
+}
