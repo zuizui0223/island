@@ -1,0 +1,163 @@
+contract: chapter1_h5_glopl_floral_architecture_moderation_v1
+status: frozen_before_trait_overlap_and_effect_inspection
+inferential_role: confirmatory_functional_moderation_test_not_causal_mediation
+
+question: >-
+  Does species-level generally accessible floral architecture buffer the increase in
+  experimental pollen limitation with distance from the six seeded major continental
+  landmasses in the full georeferenced GloPL sampling frame?
+
+sources:
+  glopl:
+    repository: idiv-biodiversity/pollen-limitation-data-descriptor
+    git_commit: abbe193770981b2c61713e75a0f01e004bdded8e
+    file: Output/GloPL.csv
+    sha256: 264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de
+  trait_snapshot:
+    workflow_run_id: 34191508045
+    artifact_id: 10042377593
+    artifact_name: source-scale-batch-integration-34191508045
+    artifact_digest: sha256:5e9c887e093c42eb720f3abd2dc85701ce123fb7fe888c916dc4098ac898ccdd
+    ledger_file: direct_species_trait_ledger.csv.gz
+    evidence_scope: species_direct_high_medium_only
+  geography:
+    parent_contract: chapter1_h5_glopl_global_distance_v1
+    natural_earth_commit: ca96624a56bd078437bca8184e78163e5039ad19
+    natural_earth_file: geojson/ne_110m_land.geojson
+    exposure: log1p_distance_to_seeded_major_continent_km
+    distance_parent_result_lock: config/chapter1_h5_glopl_global_distance_result_lock.json
+
+species_matching:
+  glopl_column: Species_accepted_names
+  trait_column: accepted_species
+  normalization:
+    - replace_underscores_with_spaces
+    - strip_leading_trailing_whitespace
+    - collapse_internal_whitespace
+    - unicode_casefold
+  fuzzy_matching: false
+  genus_fallback: false
+  synonym_expansion: false
+
+preflight:
+  glopl_allowed_columns:
+    - Species_accepted_names
+    - Latitude
+    - Longitude
+    - DOI
+    - Author
+    - Year
+  glopl_forbidden_columns:
+    - PL_Effect_Size
+    - PL_Effect_Size_Type1
+    - PL_Effect_Size_Type2
+    - Constant_added
+    - Level_of_Supplementation
+  trait_allowed_columns:
+    - accepted_species
+    - axis
+    - trait_name
+    - normalized_value
+    - resolution_status
+    - quality
+  support_gates:
+    global_min_matched_species_per_trait: 50
+    global_min_publications_per_class: 30
+    global_min_sites_per_class: 50
+    global_min_offshore_sites_per_class: 15
+    context_min_publications_per_class: 15
+    context_min_sites_per_class: 20
+    context_min_offshore_sites_per_class: 5
+  threshold_relaxation_after_preflight: false
+
+trait_recodes:
+  generalized_form:
+    source_trait: floral_form
+    protected_states: [open_radial, brush_puff, composite_head]
+    unprotected_states: [tubular, bell_campanulate, funnel_trumpet, urn_urceolate, bilabiate, salverform, papilionaceous, spurred]
+    excluded_states: all_other_or_mixed_states
+  actinomorphic_symmetry:
+    source_trait: floral_symmetry
+    protected_states: [actinomorphic]
+    unprotected_states: [zygomorphic]
+    excluded_states: [asymmetric, mixed_or_variable]
+  shallow_open_tube:
+    source_trait: tube_depth_class
+    protected_states: [absent_or_open, shallow]
+    unprotected_states: [deep]
+    excluded_states: [intermediate, mixed_or_variable]
+
+analysis:
+  effect_column: PL_Effect_Size
+  effect_definition: log_treatment_over_natural_master_GloPL_effect
+  unit: publication_x_site_x_species_x_measurement_cell
+  measurement_cell:
+    - PL_Effect_Size_Type1
+    - PL_Effect_Size_Type2
+    - Constant_added
+    - Level_of_Supplementation
+  duplicate_cell_summary: arithmetic_mean
+  publication_total_weight: 1.0
+  primary_cluster: publication
+  measurement_fixed_effects:
+    - PL_Effect_Size_Type1
+    - PL_Effect_Size_Type2
+    - Constant_added
+    - Level_of_Supplementation
+  context_intercepts:
+    - northern_midlatitude
+    - tropical
+    - southern_extratropical
+  trait_coding:
+    specialized_or_restricted: 0
+    generally_accessible: 1
+
+models:
+  global_trait_moderation: >-
+    For each frozen floral-architecture contrast separately, fit
+    PL ~ z_log1p_distance_to_major_continent * accessible_architecture
+    + context_intercepts + measurement_fixed_effects.
+    The predeclared buffering prediction is distance-by-architecture interaction < 0.
+  context_diagnostic: >-
+    Only if the frozen context support gate passes for that trait, fit the corresponding
+    distance-by-architecture-by-context model for northern_midlatitude and tropical.
+    This is secondary and cannot rescue a failed global moderation test.
+
+sensitivities:
+  supplemental_only:
+    rule: PL_Effect_Size_Type2 == Sup
+  no_zero_constant:
+    rule: Constant_added is false
+
+promotion_rules:
+  global_buffering: >-
+    An architecture contrast is supported only if the frozen primary one-sided negative
+    distance-by-architecture interaction is p <= 0.05, the specialized/restricted distance
+    slope is positive, and the interaction remains negative in both frozen sensitivities.
+  route_B_family: >-
+    The floral-architecture buffering route is promoted only if at least two of the three
+    independently frozen atomic contrasts satisfy the global_buffering rule. One supported
+    contrast is reported as trait-specific evidence only.
+  context_specificity: >-
+    Context diagnostics are descriptive secondary evidence and cannot promote Route B if
+    the route_B_family rule fails.
+
+rules:
+  - preflight_must_not_read_GloPL_effect_columns
+  - trait_overlap_and_support_must_be_frozen_before_effect_columns_are_read
+  - exact_species_matching_only
+  - no_synonym_rescue_after_overlap_is_seen
+  - no_state_recoding_changes_after_overlap_or_outcome_inspection
+  - no_support_threshold_relaxation_after_preflight
+  - each_atomic_architecture_trait_is_tested_separately
+  - publication_total_weight_remains_one_after_species_expansion
+  - global_parent_distance_result_is_not_reestimated_or_reclassified_by_this_test
+  - named_pollination_syndrome_scores_are_not_used
+
+claim_ceiling: >-
+  A supported moderation effect would show that the distance-associated increase in
+  experimental pollen limitation differs between species with and without a predeclared
+  generally accessible floral-architecture state. It would not establish that island
+  isolation evolved floral architecture, that pollen limitation causally selected the
+  architecture, that architecture mediates Chapter 1 H2, or that any named pollinator
+  identity or abundance decline is the causal exposure.
