@@ -72,7 +72,15 @@ def prepare_rows(
     required_cov = {"island_id", context_column, cluster_column}
     if missing := required_cov - set(covariates.columns):
         raise typer.BadParameter(f"covariates missing columns: {sorted(missing)}")
-    cov = covariates[list(required_cov)].drop_duplicates("island_id")
+
+    cov = covariates[["island_id", context_column, cluster_column]].copy()
+    multiplicity = cov.groupby("island_id", dropna=False)[[context_column, cluster_column]].nunique(dropna=False)
+    conflicts = multiplicity.gt(1).any(axis=1)
+    if bool(conflicts.any()):
+        examples = [str(x) for x in conflicts.index[conflicts][:5]]
+        raise typer.BadParameter(f"conflicting covariate rows for island_id: {examples}")
+    cov = cov.drop_duplicates("island_id")
+
     data = strict.merge(cov, on="island_id", how="left").merge(plant, on="island_id", how="inner")
     data = data.loc[data[context_column].astype(str).isin(contexts)].copy()
     data = data.loc[data[cluster_column].fillna("").astype(str).ne("")].copy()
