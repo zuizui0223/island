@@ -223,8 +223,10 @@ def run(
     status_flora.to_csv(output_dir / "island_species_floristic_status.csv.gz", index=False)
     support.to_csv(output_dir / "direct_trait_support_by_island.csv.gz", index=False)
     manifest = {
-        "contract": "flora_status_support_v3_all_observed",
-        "status_policy": "source-backed status; all_observed explicitly ignores status for broad assemblage analysis",
+        "contract": "flora_status_support_v2",
+        "status_policy": "source-backed only; unresolved/conflicting status fails closed",
+        "extensions": ["all_observed_stratum_v1"],
+        "extension_policy": "all_observed explicitly ignores status for broad assemblage analysis",
         "n_island_species_rows": int(len(status_flora)),
         "n_status_resolved_rows": int(status_flora["status_resolved"].sum()),
         "n_status_conflicts": int(status_flora["status_conflict"].sum()),
