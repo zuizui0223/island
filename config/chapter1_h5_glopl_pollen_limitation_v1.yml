@@ -1,0 +1,135 @@
+contract: chapter1_h5_glopl_pollen_limitation_v1
+status: frozen_before_GloPL_effect_size_inspection
+inferential_role: independent_experimental_pollen_limitation_cross_sectional_H5_gate
+
+question: >-
+  Among GloPL experiments that fall strictly within the frozen island polygons, does
+  experimental pollen limitation increase with mainland isolation in northern
+  mid-latitude islands, and is that distance gradient weaker in tropical islands?
+
+preflight_dependency:
+  result_lock: config/chapter1_h5_glopl_island_overlap_preflight_result_lock.json
+  design_freeze_commit: 66dc2c4e701b68a8250c712bcedffdbbefd26741
+  workflow_run_id: 35085378171
+  artifact_id: 10442126584
+  artifact_digest: sha256:5ab7aecfbeb4fac2db26bcdc13edd4b47e953b1d1e6f35255330a0b2f70fe041
+  admitted: true
+  exact_island_match_file: GLOPL_METADATA_ISLAND_MATCH.csv.gz
+
+source:
+  repository: idiv-biodiversity/pollen-limitation-data-descriptor
+  git_commit: abbe193770981b2c61713e75a0f01e004bdded8e
+  file: Output/GloPL.csv
+  sha256: 264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de
+
+response:
+  column: PL_Effect_Size
+  definition: published_GloPL_master_log_response_ratio
+  interpretation: >-
+    log(hand-outcross pollen treatment / natural pollination reproductive output), so
+    positive values indicate a supplementation advantage and therefore stronger pollen
+    limitation at the measured reproductive-output endpoint.
+  master_endpoint_priority: [SPP, SPFL, SPFR, FS, SO]
+  treatment_priority: supplemental_unbagged_then_bagged_outcross
+  zero_rule: GloPL_lnR_add_0.5_only_when_either_mean_is_zero
+
+columns_allowed_after_freeze:
+  - PL_Effect_Size
+  - PL_Effect_Size_Type1
+  - PL_Effect_Size_Type2
+  - Constant_added
+  - Level_of_Supplementation
+
+analysis_scope:
+  island_match: strict_primary_within_only
+  contexts: [northern_midlatitude, tropical]
+  exclude_boundary_only: true
+  exclude_multi_polygon: true
+  finite_effect_size_required: true
+  publication_key: preflight_study_key_DOI_then_Author_Year
+
+primary_unit:
+  aggregation: publication_x_island_mean_effect_size
+  rationale: >-
+    Multiple GloPL rows from one publication on one island are not treated as independent
+    island-level evidence. First average finite master effects within publication x island.
+  publication_weight: inverse_number_of_retained_island_cells_in_publication
+  publication_total_weight: 1
+
+model:
+  family: weighted_linear_meta_regression_with_cluster_robust_covariance
+  response: publication_island_mean_PL_Effect_Size
+  predictors:
+    - intercept
+    - tropical_context_indicator
+    - z_log_distance_to_continent_km
+    - z_log_distance_to_continent_km_x_tropical
+    - z_log_island_area_km2
+    - z_climate_pc1
+    - z_climate_pc2
+    - z_climate_pc3
+    - z_climate_pc4
+  standardization: combined_primary_context_analysis_rows_before_publication_island_aggregation
+  cluster: spatial_block
+  minimum_clusters: 10
+  minimum_publication_island_cells_per_context: 10
+
+primary_estimands:
+  northern_distance_slope:
+    expected_sign: positive
+    test: one_sided_positive
+  tropical_distance_slope:
+    expected_sign: unspecified
+    test: two_sided_descriptive
+  tropical_minus_northern_distance_interaction:
+    expected_sign: negative
+    test: one_sided_negative
+  interaction_two_sided:
+    test: two_sided
+
+sensitivities:
+  supplemental_only:
+    filter: PL_Effect_Size_Type2 == Sup
+    role: removes_bagging_manipulation_from_pollen_supplementation_contrast
+  no_zero_constant:
+    filter: Constant_added != TRUE
+    role: checks_dependence_on_0.5_zero_correction
+  equal_island:
+    aggregation: island_mean_of_publication_island_effects
+    weights: equal_island
+    model_predictors:
+      - intercept
+      - tropical_context_indicator
+      - z_log_distance_to_continent_km
+      - z_log_distance_to_continent_km_x_tropical
+      - z_log_island_area_km2
+      - z_climate_pc1
+      - z_climate_pc2
+      - z_climate_pc3
+      - z_climate_pc4
+    covariance: HC3
+
+alpha: 0.05
+
+classification_rules:
+  - north_service_gradient_supported_requires_primary_northern_one_sided_p_le_alpha
+  - context_specific_service_gradient_requires_north_service_gradient_and_primary_interaction_one_sided_negative_p_le_alpha
+  - full_mechanism_promotion_requires_primary_context_specific_service_gradient_and_directional_consistency_in_supplemental_only_and_no_zero_constant
+  - sensitivities_need_not_be_individually_significant_but_must_preserve_required_signs
+  - equal_island_is_influence_guardrail_not_a_power_equivalent_replication
+
+rules:
+  - preflight_thresholds_are_not_reopened
+  - exact_island_membership_is_reused_from_preflight_row_id
+  - source_sha256_must_match_before_effect_columns_are_read
+  - effect_size_values_must_not_be_read_before_this_contract_commit
+  - do_not_call_GloPL_effect_pollinator_abundance_or_pollinator_decline
+  - pollen_limitation_is_an_experimental_reproductive_output_response_not_a_direct_visitation_measure
+  - cross_sectional_distance_association_is_not_causal_selection_gradient
+  - no_species_trait_matching_until_this_service_gradient_gate_is_evaluated
+
+claim_ceiling: >-
+  A supported isolation gradient would show that experimental pollen limitation covaries
+  with island isolation in the specified context after measured area and climate controls.
+  It would not by itself identify pollinator abundance decline, visitor identity, historical
+  extinction, causal floral selection, or mediation of the Chapter 1 plant-trait H2 response.
