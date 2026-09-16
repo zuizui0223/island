@@ -40,7 +40,7 @@ def test_prepare_rows_reuses_exact_preflight_row_id_and_primary_contexts() -> No
     )
     matched = pd.DataFrame(
         {
-            "row_id": [0, 1, 2, 3],
+            "row_id": ["0", "1", "2", "3"],
             "island_id": ["n1", "t1", pd.NA, "n1"],
             "study_key": ["doi:a", "doi:b", "doi:c", "doi:a"],
             "boundary_only_match": [False, False, False, False],
