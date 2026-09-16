@@ -1,5 +1,5 @@
 {
-  "contract": "chapter1_v12_two_panel_result_lock_v3",
+  "contract": "chapter1_v12_two_panel_result_lock_v4",
   "status": "exploratory_branch_integrated",
   "architecture": {
     "H1": "universal_response_rival",
@@ -107,12 +107,37 @@
       },
       "classification": "suggestive_tropical_identity_aware_pattern_not_promoted"
     },
+    "within_island_identity_filter": {
+      "design_freeze_commit": "576b15ba88eb4ceea2e14786a56b13220d79b06d",
+      "workflow_run_id": 35062545145,
+      "artifact_id": 10433495032,
+      "artifact_digest": "sha256:0499c2141c59cee05c7a94220947b3cddcdf943f98ff75163a57fc316303d76d",
+      "primary_scope": "all_analysis_eligible",
+      "sensitivity_scope": "direct_only",
+      "mixed_islands": {
+        "northern_midlatitude": 5,
+        "tropical": 17
+      },
+      "frozen_minimum_mixed_islands_per_context": 10,
+      "support_passed": false,
+      "nuisance_rank": 26,
+      "full_design_rank": 27,
+      "target_rank_increment": 1,
+      "required_target_rank_increment": 2,
+      "context_estimable": {
+        "northern_midlatitude": false,
+        "tropical": true
+      },
+      "joint_estimable": false,
+      "classification": "strict_within_island_identity_filter_not_identifiable_under_current_exact_island_support",
+      "interpretation": "The northern identity-specific disruption target is structurally confounded with channel identity after island and channel-by-context fixed effects; lowering the support threshold cannot recover the missing design-rank dimension."
+    },
     "other_independent_checks": {
       "N1_p": 0.65516,
       "H5c_p": 0.41221,
       "H5d_qualified": "0/8"
     },
-    "classification": "two_plant_routes_supported_upstream_pollination_service_limitation_not_identified"
+    "classification": "two_plant_routes_supported_upstream_pollination_service_limitation_not_identified_exact_island_identity_test_nonidentifiable"
   },
   "H3_H5_relationship": {
     "H3_question": "where_is_the_response_taxonomically_represented",
@@ -130,7 +155,7 @@
     "solid_causal_arrow_H5_to_H3_allowed": false,
     "preferred_visual_connection": "dashed_candidate_arrow_pollination_service_or_identity_filter"
   },
-  "headline": "Global contemporary island-flora context dependence is not erased by source-free genus residualization, whereas the defended native Palearctic response is strongly genus-structured; two plant-side response components are supported but their common upstream pollination-service mechanism is not identified.",
+  "headline": "Global contemporary island-flora context dependence is not erased by source-free genus residualization, whereas the defended native Palearctic response is strongly genus-structured; two plant-side response components are supported, but the common upstream pollination-service mechanism is not identified and the strict same-island identity test is structurally non-identifiable in the northern context.",
   "claim_ceiling": {
     "global_H2_explained_by_native_H3B": false,
     "H3A_residual_proves_within_lineage_evolution": false,
@@ -143,6 +168,8 @@
     "channel_detection_equals_effective_service": false,
     "adequate_non_detection_equals_historical_extinction": false,
     "identity_aware_tropical_nominal_result_is_confirmatory": false,
+    "within_island_nonidentifiability_is_no_effect_evidence": false,
+    "lowering_within_island_support_threshold_recovers_northern_identity_effect": false,
     "global_pollinator_mechanism_identified": false
   }
 }
