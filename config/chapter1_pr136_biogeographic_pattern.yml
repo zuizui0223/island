@@ -1,9 +1,9 @@
-contract: chapter1_pr138_biogeographic_pattern_v3_all_observed_primary
+contract: chapter1_pr138_biogeographic_pattern_v2
 
 primary_question: >-
   Does the observed floral island syndrome strengthen with mainland distance in northern
   mid-latitude island floras, and does that distance-response vector differ from tropical
-  and southern island floras when all observed island floras are used first?
+  and southern island floras?
 
 pattern_hypotheses:
   northern_classic_island_syndrome:
@@ -35,20 +35,10 @@ contexts:
   - tropical
   - southern_extratropical
 
-# Analysis order is explicit. all_observed is the broad global primary stratum.
-# Status-resolved strata test whether the result persists when introduced/unresolved
-# occurrences are excluded; they are not allowed to redefine the primary estimand.
 strata:
-  - all_observed
   - all_native
   - native_nonendemic
   - endemic
-
-stratum_roles:
-  all_observed: primary_global_assemblage
-  all_native: floristic_status_sensitivity
-  native_nonendemic: floristic_status_sensitivity
-  endemic: secondary_descriptive_sensitivity
 
 support_tiers:
   confirmatory: 50
@@ -56,7 +46,7 @@ support_tiers:
 minimum_outcomes_per_vector: 2
 alpha: 0.05
 
-# Broad contrasts are frozen before looking at their model coefficients.
+# Broad contrasts are frozen before looking at their PR138 model coefficients.
 # Boundary / mixed states that do not lie wholly on one side of a contrast fail closed.
 broad_outcomes:
   plain_colour:
@@ -103,9 +93,7 @@ broad_outcomes:
     northern_classic_direction: 1
 
 inferential_layers:
-  primary: observed_all_flora_broad_syndrome_composition
-  evidence_sensitivity: direct_high_medium_only
-  floristic_status_sensitivity: status_resolved_native_strata
+  primary: observed_native_flora_broad_syndrome_composition
   secondary: genus_fixed_residual_decomposition
   discussion: pollination_syndrome_concordance
 
@@ -115,10 +103,6 @@ butterfly_role: discussion_candidate_mechanism_only
 bird_role: discussion_candidate_mechanism_only
 
 rules:
-  - all_observed_is_primary_global_stratum
-  - all_analysis_eligible_is_primary_trait_evidence_scope
-  - direct_only_is_evidence_sensitivity_not_primary
-  - native_status_strata_are_sensitivity_layers
   - all_islands_retained_in_observation_universe
   - no_distance_thresholds
   - missing_island_is_not_trait_zero
