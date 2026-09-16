@@ -1,0 +1,68 @@
+name: Run Chapter 1 H5 GloPL global shape audit
+
+on:
+  push:
+    branches: [ch1-all-data-primary]
+    paths:
+      - "config/chapter1_h5_glopl_global_shape_audit_v1.yml"
+      - "src/island_v2/chapter1_h5_glopl_global_shape_audit.py"
+      - "tests/test_chapter1_h5_glopl_global_shape_audit.py"
+      - ".github/workflows/run-chapter1-h5-glopl-global-shape-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ROOT: /tmp/ch1-h5-glopl-global-shape
+      PARENT_ARTIFACT_ID: "10444156159"
+      PARENT_ARTIFACT_SHA256: "f11046d441fba6cdc3a2842a5a19fdc0bed3661b9ce258625eb93acc879ce623"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate posthoc shape audit implementation
+        run: |
+          pytest -q \
+            tests/test_chapter1_h5_glopl_global_shape_audit.py \
+            tests/test_chapter1_h5_glopl_global_distance.py
+          ruff check \
+            src/island_v2/chapter1_h5_glopl_global_shape_audit.py \
+            tests/test_chapter1_h5_glopl_global_shape_audit.py
+
+      - name: Download frozen parent result
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/parent" "$ROOT/out"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${PARENT_ARTIFACT_ID}/zip" \
+            > "$ROOT/parent.zip"
+          echo "$PARENT_ARTIFACT_SHA256  $ROOT/parent.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/parent.zip" -d "$ROOT/parent"
+          test -s "$ROOT/parent/out/PRIMARY_MEASUREMENT_CELLS.csv.gz"
+          test -s "$ROOT/parent/out/RESULT.json"
+
+      - name: Run frozen posthoc shape decomposition
+        run: |
+          python -m island_v2.chapter1_h5_glopl_global_shape_audit \
+            --cells-csv "$ROOT/parent/out/PRIMARY_MEASUREMENT_CELLS.csv.gz" \
+            --parent-result-json "$ROOT/parent/out/RESULT.json" \
+            --config-path config/chapter1_h5_glopl_global_shape_audit_v1.yml \
+            --output-dir "$ROOT/out"
+          cat "$ROOT/out/RESULT_SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h5-glopl-global-shape-audit-${{ github.run_id }}
+          path: /tmp/ch1-h5-glopl-global-shape/out
+          if-no-files-found: error
+          retention-days: 30
