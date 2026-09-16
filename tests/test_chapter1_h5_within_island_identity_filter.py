@@ -97,7 +97,7 @@ def test_within_island_matched_disruption_recovers_negative_effects() -> None:
     assert audit["eligible_mixed_island"].sum() == 48
 
 
-def test_support_gate_fails_when_too_few_mixed_islands() -> None:
+def test_support_gate_and_estimability_gate_are_separate() -> None:
     scores, observations, covariates = _synthetic(n_per_context=6)
     models, omnibus, _, decision = run_analysis(
         scores,
@@ -108,10 +108,11 @@ def test_support_gate_fails_when_too_few_mixed_islands() -> None:
     )
     matched = omnibus.loc[omnibus["mapping"].eq("matched")].iloc[0]
     assert not bool(matched["support_passed"])
-    assert not bool(matched["estimable"])
+    assert bool(matched["estimable"])
+    assert matched["target_rank_increment"] == 2
     assert pd.isna(matched["joint_p_value"])
     assert not decision["support_gate_passed"]
-    assert not decision["estimability_gate_passed"]
+    assert decision["estimability_gate_passed"]
     assert models.loc[models["mapping"].eq("matched"), "estimate"].isna().all()
 
 
