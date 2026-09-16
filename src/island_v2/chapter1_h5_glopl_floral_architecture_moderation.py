@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Any
 
 import geopandas as gpd
-import numpy as np
 import pandas as pd
 import typer
 import yaml
