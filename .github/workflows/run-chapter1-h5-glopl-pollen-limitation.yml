@@ -1,0 +1,85 @@
+name: Run Chapter 1 H5 GloPL pollen-limitation gate
+
+on:
+  push:
+    branches: [ch1-all-data-primary]
+    paths:
+      - "config/chapter1_h5_glopl_pollen_limitation_v1.yml"
+      - "src/island_v2/chapter1_h5_glopl_pollen_limitation.py"
+      - "tests/test_chapter1_h5_glopl_pollen_limitation.py"
+      - ".github/workflows/run-chapter1-h5-glopl-pollen-limitation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PREFLIGHT_ARTIFACT_ID: "10442126584"
+      PREFLIGHT_ARTIFACT_SHA256: "5ab7aecfbeb4fac2db26bcdc13edd4b47e953b1d1e6f35255330a0b2f70fe041"
+      CONTEXT_ARTIFACT_ID: "8270544465"
+      CONTEXT_ARTIFACT_SHA256: "695f35b97bae07e81b05deab537dd73fa687b2d99e9efdb1cb3babd2fa12dfb6"
+      GLOPL_URL: "https://raw.githubusercontent.com/idiv-biodiversity/pollen-limitation-data-descriptor/abbe193770981b2c61713e75a0f01e004bdded8e/Output/GloPL.csv"
+      GLOPL_SHA256: "264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de"
+      ROOT: /tmp/ch1-h5-glopl-pollen-limitation
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate frozen GloPL model implementation
+        run: |
+          pytest -q tests/test_chapter1_h5_glopl_pollen_limitation.py
+          ruff check \
+            src/island_v2/chapter1_h5_glopl_pollen_limitation.py \
+            tests/test_chapter1_h5_glopl_pollen_limitation.py
+
+      - name: Download frozen preflight and island covariates
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/preflight" "$ROOT/context" "$ROOT/input" "$ROOT/out"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${PREFLIGHT_ARTIFACT_ID}/zip" \
+            > "$ROOT/preflight.zip"
+          echo "$PREFLIGHT_ARTIFACT_SHA256  $ROOT/preflight.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/preflight.zip" -d "$ROOT/preflight"
+          test -s "$ROOT/preflight/GLOPL_METADATA_ISLAND_MATCH.csv.gz"
+          test -s "$ROOT/preflight/PREFLIGHT_RECEIPT.json"
+
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${CONTEXT_ARTIFACT_ID}/zip" \
+            > "$ROOT/context.zip"
+          echo "$CONTEXT_ARTIFACT_SHA256  $ROOT/context.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/context.zip" -d "$ROOT/context"
+          test -s "$ROOT/context/results/purpose_shortest_island_data.csv"
+
+      - name: Download and hash-lock GloPL before effect columns are read
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --output "$ROOT/input/GloPL.csv" "$GLOPL_URL"
+          echo "$GLOPL_SHA256  $ROOT/input/GloPL.csv" | sha256sum --check --strict
+
+      - name: Run frozen GloPL pollen-limitation analysis
+        run: |
+          python -m island_v2.chapter1_h5_glopl_pollen_limitation \
+            --glopl-csv "$ROOT/input/GloPL.csv" \
+            --preflight-match-csv "$ROOT/preflight/GLOPL_METADATA_ISLAND_MATCH.csv.gz" \
+            --covariates-csv "$ROOT/context/results/purpose_shortest_island_data.csv" \
+            --config-path config/chapter1_h5_glopl_pollen_limitation_v1.yml \
+            --output-dir "$ROOT/out"
+          cat "$ROOT/out/RESULT_SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h5-glopl-pollen-limitation-${{ github.run_id }}
+          path: /tmp/ch1-h5-glopl-pollen-limitation/out
+          if-no-files-found: error
+          retention-days: 30
