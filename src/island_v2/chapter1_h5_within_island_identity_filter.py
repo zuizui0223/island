@@ -135,18 +135,23 @@ def _fit_mapping(
 
     counts = data.groupby(context_column)["island_id"].nunique().to_dict()
     support_passed = all(int(counts.get(context, 0)) >= minimum for context in contexts)
-    if not support_passed:
+    work = data.copy()
+
+    if work.empty:
         empty = pd.DataFrame(
             [
                 {
                     "mapping": mapping_name,
                     "context": context,
-                    "n_mixed_islands": int(counts.get(context, 0)),
+                    "n_channel_rows": 0,
+                    "n_mixed_islands": 0,
+                    "n_clusters": 0,
                     "estimate": np.nan,
                     "cluster_robust_se": np.nan,
                     "z_value": np.nan,
                     "p_value": np.nan,
                     "support_passed": False,
+                    "estimable": False,
                 }
                 for context in contexts
             ]
@@ -154,35 +159,84 @@ def _fit_mapping(
         return empty, {
             "mapping": mapping_name,
             "support_passed": False,
+            "estimable": False,
+            "target_rank_increment": 0,
+            "nuisance_rank": 0,
+            "full_design_rank": 0,
             "joint_df": 0,
             "joint_wald_chisq": np.nan,
             "joint_p_value": np.nan,
+            "effect_norm": np.nan,
         }
 
-    work = data.copy()
-    y = _response_for_mapping(work, mapping)
     island_levels = sorted(work["island_id"].astype(str).unique())
     cell = work[context_column].astype(str) + "::" + work["channel_id"].astype(str)
     cell_levels = sorted(cell.unique())
 
-    parts: list[np.ndarray] = []
-    names: list[str] = []
+    nuisance_parts: list[np.ndarray] = []
+    nuisance_names: list[str] = []
     for island in island_levels:
-        parts.append(work["island_id"].astype(str).eq(island).to_numpy(float))
-        names.append(f"island[{island}]")
+        nuisance_parts.append(work["island_id"].astype(str).eq(island).to_numpy(float))
+        nuisance_names.append(f"island[{island}]")
     for level in cell_levels[1:]:
-        parts.append(cell.eq(level).to_numpy(float))
-        names.append(f"cell[{level}]")
+        nuisance_parts.append(cell.eq(level).to_numpy(float))
+        nuisance_names.append(f"cell[{level}]")
+
+    target_parts: list[np.ndarray] = []
     targets: list[str] = []
     for context in contexts:
-        name = f"disrupted[{context}]"
-        parts.append(
+        target_parts.append(
             work["disrupted"].to_numpy(float)
             * work[context_column].astype(str).eq(context).to_numpy(float)
         )
-        names.append(name)
-        targets.append(name)
+        targets.append(f"disrupted[{context}]")
 
+    nuisance = np.column_stack(nuisance_parts)
+    target_matrix = np.column_stack(target_parts)
+    nuisance_rank = int(np.linalg.matrix_rank(nuisance))
+    full_design_rank = int(np.linalg.matrix_rank(np.column_stack([nuisance, target_matrix])))
+    target_rank_increment = full_design_rank - nuisance_rank
+    context_estimable = {
+        context: int(np.linalg.matrix_rank(np.column_stack([nuisance, target_parts[index]]))) > nuisance_rank
+        for index, context in enumerate(contexts)
+    }
+    estimable = target_rank_increment == len(contexts) and all(context_estimable.values())
+
+    if not support_passed or not estimable:
+        empty_rows = []
+        for context in contexts:
+            part = work.loc[work[context_column].astype(str).eq(context)]
+            empty_rows.append(
+                {
+                    "mapping": mapping_name,
+                    "context": context,
+                    "n_channel_rows": int(len(part)),
+                    "n_mixed_islands": int(part["island_id"].nunique()),
+                    "n_clusters": int(part[cluster_column].nunique()),
+                    "estimate": np.nan,
+                    "cluster_robust_se": np.nan,
+                    "z_value": np.nan,
+                    "p_value": np.nan,
+                    "support_passed": bool(support_passed),
+                    "estimable": bool(context_estimable[context]),
+                }
+            )
+        return pd.DataFrame(empty_rows), {
+            "mapping": mapping_name,
+            "support_passed": bool(support_passed),
+            "estimable": bool(estimable),
+            "target_rank_increment": int(target_rank_increment),
+            "nuisance_rank": int(nuisance_rank),
+            "full_design_rank": int(full_design_rank),
+            "joint_df": 0,
+            "joint_wald_chisq": np.nan,
+            "joint_p_value": np.nan,
+            "effect_norm": np.nan,
+        }
+
+    y = _response_for_mapping(work, mapping)
+    parts = [*nuisance_parts, *target_parts]
+    names = [*nuisance_names, *targets]
     X = np.column_stack(parts)
     island_n = work.groupby("island_id").size()
     weights = work["island_id"].map(lambda x: 1.0 / float(island_n.loc[x])).to_numpy(float)
@@ -230,17 +284,26 @@ def _fit_mapping(
                 "z_value": z_value,
                 "p_value": _normal_two_sided_p(z_value),
                 "support_passed": True,
+                "estimable": True,
             }
         )
 
     target_cov = covariance[np.ix_(indices, indices)]
     joint_rank = int(np.linalg.matrix_rank(target_cov))
     vector = np.asarray(estimates, dtype=float)
-    joint = float(vector @ np.linalg.pinv(target_cov) @ vector) if joint_rank > 0 else float("nan")
-    joint_p = _chi_square_sf_integer_df(joint, joint_rank) if joint_rank > 0 else float("nan")
+    if joint_rank == len(contexts):
+        joint = float(vector @ np.linalg.pinv(target_cov) @ vector)
+        joint_p = _chi_square_sf_integer_df(joint, joint_rank)
+    else:
+        joint = float("nan")
+        joint_p = float("nan")
     return pd.DataFrame(rows), {
         "mapping": mapping_name,
         "support_passed": True,
+        "estimable": True,
+        "target_rank_increment": int(target_rank_increment),
+        "nuisance_rank": int(nuisance_rank),
+        "full_design_rank": int(full_design_rank),
         "joint_df": joint_rank,
         "joint_wald_chisq": joint,
         "joint_p_value": joint_p,
@@ -284,6 +347,8 @@ def run_analysis(
         "evidence_scope": evidence_scope,
         "n_eligible_mixed_islands": int(data["island_id"].nunique()),
         "support_gate_passed": bool(matched_omnibus["support_passed"]),
+        "estimability_gate_passed": bool(matched_omnibus["estimable"]),
+        "target_rank_increment": int(matched_omnibus["target_rank_increment"]),
         "matched_joint_p_value": float(matched_omnibus["joint_p_value"])
         if pd.notna(matched_omnibus["joint_p_value"])
         else None,
@@ -322,12 +387,17 @@ def run(
     )
     lines = [f"# Within-island identity filter — {evidence_scope}", ""]
     for row in omnibus.itertuples():
-        lines.append(
-            f"- {row.mapping}: support={row.support_passed}, chi2={row.joint_wald_chisq:.6g}, "
-            f"df={int(row.joint_df)}, p={row.joint_p_value:.6g}"
-            if pd.notna(row.joint_p_value)
-            else f"- {row.mapping}: support={row.support_passed}, not testable"
+        prefix = (
+            f"- {row.mapping}: support={row.support_passed}, estimable={row.estimable}, "
+            f"rank_increment={int(row.target_rank_increment)}"
         )
+        if pd.notna(row.joint_p_value):
+            lines.append(
+                f"{prefix}, chi2={row.joint_wald_chisq:.6g}, df={int(row.joint_df)}, "
+                f"p={row.joint_p_value:.6g}"
+            )
+        else:
+            lines.append(f"{prefix}, not testable")
     lines.extend([
         "",
         "Island fixed effects absorb all island-level covariates; occurrence state is not effective service.",
