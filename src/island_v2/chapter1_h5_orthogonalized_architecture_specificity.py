@@ -38,6 +38,20 @@ def load_config(path: Path) -> dict[str, Any]:
     return config
 
 
+def filter_island_component_support(
+    island_scores: pd.DataFrame,
+    config: dict[str, Any],
+) -> pd.DataFrame:
+    """Apply the frozen species-per-island support gate before H2 modelling."""
+
+    if "n_species" not in island_scores.columns:
+        raise typer.BadParameter("island component table missing n_species")
+    threshold = int(config["island_aggregation"]["minimum_scored_species_per_component"])
+    out = island_scores.copy()
+    out["n_species"] = pd.to_numeric(out["n_species"], errors="coerce")
+    return out.loc[out["n_species"].ge(threshold)].copy()
+
+
 def focused_configs(
     pattern_config: dict[str, Any],
     branching_config: dict[str, Any],
@@ -305,6 +319,7 @@ def run_scope(
         projected,
         [str(config["flora_scope"]["primary"])],
     )
+    island_scores = filter_island_component_support(island_scores, config)
     focused_pattern, focused_branching = focused_configs(
         pattern_config, branching_config, config
     )
