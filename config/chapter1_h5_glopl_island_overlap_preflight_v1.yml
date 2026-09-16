@@ -1,0 +1,115 @@
+contract: chapter1_h5_glopl_island_overlap_preflight_v1
+status: frozen_before_GloPL_coordinate_overlap_inspection
+inferential_role: outcome_blind_service_dataset_coverage_preflight
+
+question: >-
+  Does the public GloPL pollen-limitation experiment database contain enough independent
+  exact-island coverage in both northern-midlatitude and tropical contexts to justify a
+  separately frozen H5 pollination-service analysis?
+
+source:
+  repository: idiv-biodiversity/pollen-limitation-data-descriptor
+  git_commit: abbe193770981b2c61713e75a0f01e004bdded8e
+  file: Output/GloPL.csv
+  raw_url: https://raw.githubusercontent.com/idiv-biodiversity/pollen-limitation-data-descriptor/abbe193770981b2c61713e75a0f01e004bdded8e/Output/GloPL.csv
+  repository_statement: Output/GloPL.csv_is_identical_to_Dryad_upload
+  sha256: record_on_first_preflight_run_then_pin_before_any_effect_size_analysis
+
+allowed_columns:
+  - Latitude
+  - Longitude
+  - DOI
+  - Author
+  - Year
+  - Species_accepted_names
+forbidden_outcome_columns:
+  - PL_Effect_Size
+  - PL_Effect_Size_Type1
+  - PL_Effect_Size_Type2
+  - Natural_N_FS
+  - Natural_X_FS
+  - Natural_SD_FS
+  - Sup_N_FS
+  - Sup_X_FS
+  - Sup_SD_FS
+  - Bagout_N_FS
+  - Bagout_X_FS
+  - Bagout_SD_FS
+
+study_key:
+  primary: DOI
+  fallback: Author_plus_Year
+  rule: >-
+    Normalize nonblank DOI text; when DOI is blank, use Author + '|' + Year. Never use
+    pollen-limitation values or treatment outcomes to define study identity.
+
+island_universe:
+  artifact_id: 8066083419
+  artifact_zip_sha256: bee33e14672ec7ff4ed1f7acaea36b32cc6170a45c3d14b2caeb5f43bfaa623b
+  source_backend: gshhg
+  source_version: 2.3.7
+  resolution: h
+  minimum_area_km2: 5.0
+  n_islands: 8265
+  geometry_file: islands/gshhg/prepared/islands_v2.gpkg
+  geometry_layer: islands
+  source_file_sha256: 8dbbe7e071e77e9e75f2d639239099ebca8d5c16d6a07df8169729d49f15cf41
+
+context_source:
+  artifact_id: 8270544465
+  file: results/purpose_shortest_island_data.csv
+  context_column: analysis_regime
+  primary_contexts:
+    - northern_midlatitude
+    - tropical
+
+spatial_matching:
+  crs: EPSG:4326
+  primary_predicate: within
+  boundary_sensitivity_predicate: intersects
+  primary_requires_unique_polygon_match: true
+  coordinate_validity:
+    latitude_min: -90
+    latitude_max: 90
+    longitude_min: -180
+    longitude_max: 180
+  duplicate_site_definition: exact_numeric_latitude_longitude
+
+preflight_outputs:
+  - source_file_sha256
+  - n_rows_total
+  - n_rows_valid_coordinates
+  - n_unique_coordinate_sites
+  - n_rows_within_any_frozen_island
+  - n_unique_sites_within_any_frozen_island
+  - n_unique_islands_with_GloPL
+  - n_unique_studies_within_any_frozen_island
+  - n_unique_species_within_any_frozen_island
+  - counts_by_analysis_regime
+  - boundary_only_match_count
+  - multi_polygon_match_count
+
+admission_gate:
+  minimum_unique_islands_per_primary_context: 10
+  minimum_unique_studies_per_primary_context: 5
+  both_primary_contexts_must_pass: true
+  effect_size_analysis_allowed_if_gate_fails: false
+  threshold_relaxation_after_overlap_result: false
+
+rules:
+  - preflight_must_read_only_allowed_columns
+  - pollen_limitation_effect_sizes_are_forbidden_in_preflight
+  - treatment_outcomes_are_forbidden_in_preflight
+  - coordinate_overlap_is_not_pollination_service_evidence
+  - one_study_with_multiple_rows_counts_once_for_study_gate
+  - multiple_rows_at_one_coordinate_count_once_for_site_gate
+  - missing_or_invalid_coordinates_are_unmatched_not_zero
+  - points_outside_frozen_islands_are_not_continental_controls_for_this_preflight
+  - within_is_primary_and_boundary_intersects_is_sensitivity_only
+  - no_effect_size_model_is_designed_or_run_until_admission_gate_is_evaluated
+
+claim_ceiling: >-
+  Passing this preflight means only that GloPL has enough exact-island geographic and
+  study overlap to justify a separately frozen pollen-limitation H5 analysis. It does
+  not itself show pollen limitation, pollinator decline, causal selection, or any
+  relationship between island isolation and reproductive output.
