@@ -1,0 +1,67 @@
+contract: chapter1_h5_architecture_common_support_h2_v1
+status: frozen_before_common_support_atomic_outcome_inspection
+inferential_role: posthoc_adjudication_of_orthogonalized_architecture_null
+
+question: >-
+  Does the six-atomic all-observed North-Tropical H2 contrast remain testable and
+  supported on exactly the species and island support used by the strict
+  orthogonalized named-architecture analysis?
+
+primary_scope: all_analysis_eligible
+sensitivity_scope: direct_only
+flora_scope: all_observed
+contexts:
+  - northern_midlatitude
+  - tropical
+
+named_template_complete_case_basis:
+  - large_bee_like
+  - butterfly_like
+  - bird_like
+minimum_complete_template_species_per_island: 50
+
+atomic_outcomes:
+  - generalized_form
+  - actinomorphic_symmetry
+  - shallow_open_tube
+  - self_compatibility
+  - selfing_mating_system
+  - autonomous_selfing
+required_atomic_outcomes: 6
+minimum_islands_per_context_per_outcome: 50
+alpha: 0.05
+
+model:
+  family: grouped_binomial_logit
+  geography_column: log_distance_to_continent_km
+  context_column: analysis_regime
+  cluster_column: spatial_block
+  baseline_covariates:
+    - log_island_area_km2
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+  direct_test: north_tropical_distance_by_context_joint_wald
+
+support_contract:
+  species: >-
+    In each evidence scope, retain only species with complete scores for all three
+    named templates used by the source-trained architecture decomposition.
+  islands: >-
+    Retain only islands that passed the orthogonalized architecture per-island gate
+    of at least 50 complete-case species; then restrict to the two primary contexts.
+  no_support_substitution: true
+  no_threshold_relaxation_after_result: true
+
+promotion_rule: >-
+  The architecture null may be interpreted as informative about representation of H2
+  in named-template geometry only if all six atomic outcomes are retained and the
+  North-Tropical joint H2 p-value is <=0.05 in both all-analysis and Direct evidence.
+  Otherwise the architecture result is support-limited with respect to broad H2.
+
+claim_ceiling:
+  - This is a post-hoc common-support adjudication, not a new confirmatory H2 discovery.
+  - Failure of common-support H2 does not erase the full-data H2 result.
+  - Persistence of common-support H2 does not prove that pollination is irrelevant.
+  - The test does not observe pollinator identity, abundance, visitation, pollen delivery or historical loss.
