@@ -136,8 +136,8 @@ Previous v8/v9/v10/v11/v12 surfaces remain historical provenance and continue to
 def update_manuscript(text: str) -> str:
     return replace_once(
         text,
-        "This does not establish that historical pollen limitation caused the observed trait evolution.",
-        "This does not identify historical pollen limitation as the cause of the observed trait evolution.",
+        "they do not prove that historical pollen limitation caused the observed trait evolution.",
+        "they do not identify historical pollen limitation as the cause of the observed trait evolution.",
     )
 
 
