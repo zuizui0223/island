@@ -132,9 +132,15 @@ jobs:
                   part=models.loc[models.mapping.eq(mapping)]
                   out[mapping]={
                       'support_passed':bool(om.support_passed),
+                      'estimable':bool(om.estimable),
+                      'target_rank_increment':int(om.target_rank_increment),
+                      'nuisance_rank':int(om.nuisance_rank),
+                      'full_design_rank':int(om.full_design_rank),
                       'joint_df':int(om.joint_df),
                       'joint_p_value':float(om.joint_p_value) if pd.notna(om.joint_p_value) else None,
-                      'effect_norm':float(om.effect_norm) if 'effect_norm' in omnibus.columns and pd.notna(om.effect_norm) else None,
+                      'effect_norm':float(om.effect_norm) if pd.notna(om.effect_norm) else None,
+                      'mixed_islands_by_context':{str(r.context):int(r.n_mixed_islands) for r in part.itertuples()},
+                      'context_estimable':{str(r.context):bool(r.estimable) for r in part.itertuples()},
                       'context_estimates':{str(r.context):float(r.estimate) if pd.notna(r.estimate) else None for r in part.itertuples()},
                   }
               return out
@@ -144,7 +150,9 @@ jobs:
           contexts=['northern_midlatitude','tropical']
           association_supported=(
               bool(a.support_passed)
+              and bool(a.estimable)
               and bool(d.support_passed)
+              and bool(d.estimable)
               and pd.notna(a.joint_p_value)
               and float(a.joint_p_value) <= 0.05
               and all(ae.get(c) is not None and ae[c] <= 0 for c in contexts)
@@ -152,7 +160,7 @@ jobs:
           )
           payload={
               'contract':'chapter1_h5_within_island_identity_filter_v1',
-              'status':'completed',
+              'status':'completed_not_identifiable' if not (bool(a.support_passed) and bool(a.estimable)) else 'completed',
               'primary_scope':'all_analysis_eligible',
               'sensitivity_scope':'direct_only',
               'all_analysis':mapping_summary(all_models,all_omnibus),
@@ -161,22 +169,25 @@ jobs:
               'direct_eligible_mixed_islands':direct_dec['n_eligible_mixed_islands'],
               'association_supported_under_frozen_gate':bool(association_supported),
               'causal_promotion':False,
-              'maximum_claim':'identity-preserving within-island association only' if association_supported else 'within-island identity filter not promoted',
+              'maximum_claim':'identity-preserving within-island association only' if association_supported else 'strict within-island identity effect not identifiable under current exact-island support',
           }
           (root/'within_island_identity_integrated_decision.json').write_text(json.dumps(payload,indent=2)+'\n')
+          m=payload['all_analysis']['matched']
           lines=[
               '# H5 within-island identity filter integrated decision','',
               f"- all-analysis eligible mixed islands: {payload['all_analysis_eligible_mixed_islands']}",
               f"- Direct eligible mixed islands: {payload['direct_eligible_mixed_islands']}",
-              f"- all-analysis matched joint p: {payload['all_analysis']['matched']['joint_p_value']}",
-              f"- all-analysis matched effects: {payload['all_analysis']['matched']['context_estimates']}",
-              f"- Direct matched effects: {payload['direct']['matched']['context_estimates']}",
-              f"- rotation 1 joint p: {payload['all_analysis']['rotation_1']['joint_p_value']}",
-              f"- rotation 2 joint p: {payload['all_analysis']['rotation_2']['joint_p_value']}",
+              f"- mixed islands by context: {m['mixed_islands_by_context']}",
+              f"- matched support gate: {m['support_passed']}",
+              f"- matched estimability gate: {m['estimable']}",
+              f"- target rank increment: {m['target_rank_increment']} / 2 required",
+              f"- context estimable: {m['context_estimable']}",
+              f"- all-analysis matched joint p: {m['joint_p_value']}",
+              f"- all-analysis matched effects: {m['context_estimates']}",
               '',
               f"**Frozen-gate association supported:** {association_supported}",
               '',
-              'This test removes island-level confounding by island fixed effects but does not identify effective service, historical loss, or causal pollinator selection.'
+              'This test removes island-level confounding by island fixed effects but does not identify effective service, historical loss, or causal pollinator selection. Failure of support or design-rank gates is an identifiability result, not evidence for no pollinator effect.'
           ]
           (root/'WITHIN_ISLAND_IDENTITY_INTEGRATED_SUMMARY.md').write_text('\n'.join(lines)+'\n')
           print('\n'.join(lines))
