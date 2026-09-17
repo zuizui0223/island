@@ -61,7 +61,7 @@ jobs:
           set -euo pipefail
           for scope in all direct; do
             mkdir -p /tmp/raw-colour/results/$scope
-            python -m island_v2.chapter1_v13_raw_colour_audit run \
+            python -m island_v2.chapter1_v13_raw_colour_audit \
               --species-axis-csv /tmp/raw-colour/trait/species_axis_coverage.csv.gz \
               --status-flora-csv /tmp/raw-colour/canonical/input/chapter1_status_flora.csv.gz \
               --island-scores-csv /tmp/raw-colour/all-data/syndrome/$scope/island_syndrome_scores.csv.gz \
