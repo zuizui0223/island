@@ -1,0 +1,112 @@
+contract: chapter1_v13_functional_bridge_v1
+status: frozen_posthoc_before_reproduction_run
+inferential_role: posthoc_functional_triangulation
+created: '2026-09-17'
+
+purpose: >-
+  Reproduce, without changing any existing Route A/B trait recoding or exact-species
+  overlap, whether predeclared reproductive-assurance and generally accessible floral
+  states are associated with lower current experimental pollen limitation. This layer
+  was designed after the frozen distance-by-trait moderation routes were inspected and
+  therefore cannot be relabelled confirmatory.
+
+parents:
+  reproductive_assurance:
+    workflow_run_id: 35093274622
+    artifact_id: 10444749163
+    artifact_name: chapter1-h5-glopl-ra-moderation-35093274622
+    artifact_digest: sha256:317221b0315137d2cfc0591d9f6f146c6956106d50d8a5b1dc782096bab55da9
+    head_sha: 67342baec74935a9b74495ccf5efb996542828af
+    required_contract: chapter1_h5_glopl_reproductive_assurance_moderation_v1
+    matched_rows_file: out/MATCHED_EFFECT_ROWS.csv.gz
+  floral_architecture:
+    workflow_run_id: 35094588521
+    artifact_id: 10445189257
+    artifact_name: chapter1-h5-glopl-architecture-moderation-35094588521
+    artifact_digest: sha256:ef81551d41cc747b07e927b9a5c4f13eaf0fc013a5cf8ac3fb1a5491aadec8c4
+    head_sha: b71632985b269455a7cc04a9e7170ecfdd249821
+    required_contract: chapter1_h5_glopl_floral_architecture_moderation_v1
+    matched_rows_file: out/MATCHED_EFFECT_ROWS.csv.gz
+
+upstream_sources:
+  glopl:
+    repository: idiv-biodiversity/pollen-limitation-data-descriptor
+    git_commit: abbe193770981b2c61713e75a0f01e004bdded8e
+    file: Output/GloPL.csv
+    sha256: 264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de
+  trait_snapshot:
+    workflow_run_id: 34191508045
+    artifact_id: 10042377593
+    artifact_digest: sha256:5e9c887e093c42eb720f3abd2dc85701ce123fb7fe888c916dc4098ac898ccdd
+    ledger_file: direct_species_trait_ledger.csv.gz
+    evidence_scope: species_direct_high_medium_only
+
+analysis:
+  response: PL_Effect_Size
+  primary_model: PL ~ trait_state + z_distance + context_intercepts + measurement_fixed_effects
+  unit: publication_x_site_x_species_x_measurement_cell
+  duplicate_cell_summary: arithmetic_mean
+  publication_total_weight: 1.0
+  cluster: study_key
+  context_reference: northern_midlatitude
+  context_order:
+    - northern_midlatitude
+    - northern_high_latitude
+    - tropical
+    - southern_extratropical
+  measurement_fixed_effects:
+    - PL_Effect_Size_Type1
+    - PL_Effect_Size_Type2
+    - Constant_added
+    - Level_of_Supplementation
+  directional_prediction: trait_state_negative
+  p_value_role:
+    primary_two_sided: descriptive_posthoc
+    one_sided_negative: directional_posthoc
+
+traits:
+  reproductive_assurance:
+    evaluable:
+      - self_compatibility
+      - autonomous_selfing
+    support_failed_parent_traits:
+      - selfing_mating_system
+    protected_state_interpretation: reproductive_assurance_present
+  floral_architecture:
+    evaluable:
+      - generalized_form
+      - actinomorphic_symmetry
+    support_failed_parent_traits:
+      - shallow_open_tube
+    protected_state_interpretation: generally_accessible_architecture
+
+sensitivities:
+  supplemental_only:
+    rule: PL_Effect_Size_Type2 == Sup
+  no_zero_constant:
+    rule: Constant_added_bool == false
+  within_publication:
+    fixed_effect_groups: [study_key]
+    require_both_trait_states_per_group: true
+  within_publication_site:
+    fixed_effect_groups: [study_key, site_key]
+    require_both_trait_states_per_group: true
+
+rules:
+  - exact_parent_matched_rows_only
+  - no_trait_recoding_changes
+  - no_synonym_or_genus_fallback
+  - no_support_threshold_relaxation
+  - publication_total_weight_equals_one_per_trait_analysis
+  - publication_cluster_robust_covariance
+  - within_group_models_use_only_groups_with_both_trait_states
+  - posthoc_functional_triangulation_never_confirmatory
+  - failed_parent_moderation_tests_remain_failed
+  - current_trait_PL_association_is_not_historical_selection
+  - no_pollinator_abundance_or_visitation_decline_inferred
+
+claim_ceiling:
+  historical_pollen_limitation_selected_traits: false
+  trait_mediates_isolation_effect: false
+  pollinator_abundance_decline_identified: false
+  functional_association_with_current_PL_allowed_if_reproduced: true

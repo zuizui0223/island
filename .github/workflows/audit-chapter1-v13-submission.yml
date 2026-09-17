@@ -1,0 +1,78 @@
+name: Audit Chapter 1 v13 submission
+
+on:
+  push:
+    branches: [ch1-v13-unified-island-syndrome]
+    paths:
+      - "config/chapter1_v13_*.json"
+      - "config/chapter1_v13_*.yml"
+      - "src/island_v2/chapter1_v13_*.py"
+      - "tests/test_chapter1_v13_*.py"
+      - "docs/chapter1_*v13*.md"
+      - "docs/chapter1_unified_hypothesis_20260917.md"
+      - "README.md"
+      - "docs/PAPER_PIPELINE.md"
+      - ".github/workflows/audit-chapter1-v13-submission.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev,figures]"
+      - name: Verify known CLI failures already exist on main
+        env:
+          PYTHONPATH: .:src
+          MPLBACKEND: Agg
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          git worktree add /tmp/island-main-baseline origin/main
+          pushd /tmp/island-main-baseline
+          set +e
+          PYTHONPATH=.:src MPLBACKEND=Agg pytest -q \
+            tests/test_official_search_discovery.py::test_cli_requires_hard_budget_and_help_never_renders_secret_values \
+            tests/test_openai_batch_llm.py::test_cli_requires_max_usd_and_never_reads_an_api_key \
+            > /tmp/chapter1-v13-main-baseline.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/chapter1-v13-main-baseline.log
+          popd
+          git worktree remove /tmp/island-main-baseline
+          if [ "$status" -eq 0 ]; then
+            echo "Expected baseline CLI failures no longer reproduce on main; remove the temporary deselections." >&2
+            exit 1
+          fi
+          grep -q "2 failed" /tmp/chapter1-v13-main-baseline.log
+          grep -q "test_cli_requires_hard_budget_and_help_never_renders_secret_values" /tmp/chapter1-v13-main-baseline.log
+          grep -q "test_cli_requires_max_usd_and_never_reads_an_api_key" /tmp/chapter1-v13-main-baseline.log
+      - name: Run repository suite with only main-baseline failures deselected
+        env:
+          PYTHONPATH: .:src
+          MPLBACKEND: Agg
+        run: |
+          pytest -q \
+            --deselect tests/test_official_search_discovery.py::test_cli_requires_hard_budget_and_help_never_renders_secret_values \
+            --deselect tests/test_openai_batch_llm.py::test_cli_requires_max_usd_and_never_reads_an_api_key
+      - name: Ruff v13 code
+        run: ruff check src/island_v2/chapter1_v13_*.py tests/test_chapter1_v13_*.py scripts/promote_chapter1_v13_submission_surface.py
+      - name: Ensure historical v11/v12 submission files are not modified
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          git diff --name-only origin/main...HEAD > /tmp/chapter1-v13-diff.txt
+          if grep -E '(^docs/chapter1_manuscript_full_v11_|^config/chapter1_v12_|^docs/chapter1_v11_)' /tmp/chapter1-v13-diff.txt; then
+            echo 'Historical v11/v12 submission provenance was modified' >&2
+            exit 1
+          fi

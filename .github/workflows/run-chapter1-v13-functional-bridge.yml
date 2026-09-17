@@ -1,0 +1,75 @@
+name: Run Chapter 1 v13 functional bridge
+
+on:
+  push:
+    branches: [ch1-v13-unified-island-syndrome]
+    paths:
+      - "config/chapter1_v13_functional_bridge_v1.yml"
+      - "src/island_v2/chapter1_v13_functional_bridge.py"
+      - "tests/test_chapter1_v13_functional_bridge.py"
+      - ".github/workflows/run-chapter1-v13-functional-bridge.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ROOT: /tmp/chapter1-v13-functional-bridge
+      RA_ARTIFACT_ID: "10444749163"
+      RA_ARTIFACT_SHA256: "317221b0315137d2cfc0591d9f6f146c6956106d50d8a5b1dc782096bab55da9"
+      ARCH_ARTIFACT_ID: "10445189257"
+      ARCH_ARTIFACT_SHA256: "ef81551d41cc747b07e927b9a5c4f13eaf0fc013a5cf8ac3fb1a5491aadec8c4"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate v13 functional bridge implementation
+        run: |
+          pytest -q tests/test_chapter1_v13_functional_bridge.py
+          ruff check \
+            src/island_v2/chapter1_v13_functional_bridge.py \
+            tests/test_chapter1_v13_functional_bridge.py
+
+      - name: Download frozen Route A and B artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/ra" "$ROOT/architecture" "$ROOT/out"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${RA_ARTIFACT_ID}/zip" \
+            > "$ROOT/ra.zip"
+          echo "$RA_ARTIFACT_SHA256  $ROOT/ra.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/ra.zip" -d "$ROOT/ra"
+          test -s "$ROOT/ra/out/MATCHED_EFFECT_ROWS.csv.gz"
+
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARCH_ARTIFACT_ID}/zip" \
+            > "$ROOT/architecture.zip"
+          echo "$ARCH_ARTIFACT_SHA256  $ROOT/architecture.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/architecture.zip" -d "$ROOT/architecture"
+          test -s "$ROOT/architecture/out/MATCHED_EFFECT_ROWS.csv.gz"
+
+      - name: Run frozen post-hoc functional triangulation
+        run: |
+          python -m island_v2.chapter1_v13_functional_bridge \
+            --reproductive-assurance-rows "$ROOT/ra/out/MATCHED_EFFECT_ROWS.csv.gz" \
+            --floral-architecture-rows "$ROOT/architecture/out/MATCHED_EFFECT_ROWS.csv.gz" \
+            --config-path config/chapter1_v13_functional_bridge_v1.yml \
+            --output-dir "$ROOT/out"
+          cat "$ROOT/out/functional_bridge_summary.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-v13-functional-bridge-${{ github.run_id }}
+          path: /tmp/chapter1-v13-functional-bridge/out
+          if-no-files-found: error
+          retention-days: 30

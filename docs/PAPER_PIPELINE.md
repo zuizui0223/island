@@ -1,6 +1,6 @@
 # Chapter 1 paper pipeline
 
-This is the shortest reproducibility map from the database to the current **island-first, P1/P2/P3-defended v11 paper**.
+This is the shortest reproducibility map from the database to the current **v13 unified global island-syndrome paper**, with v11/v12 retained as historical defended provenance.
 
 ## Pipeline at a glance
 
@@ -43,7 +43,10 @@ This is the shortest reproducibility map from the database to the current **isla
      V5 reproduction -> V6 reproduction -> joint surface -> partial identification
                     |
                     v
-[13] canonical island-first v11 manuscript
+[13] historical island-first v11 defended manuscript
+                    |
+                    v
+[14] v13 global syndrome + GloPL + functional bridge synthesis
 ```
 
 ## 1. Database inputs
@@ -306,18 +309,33 @@ This figure deliberately displays favourable and adverse evidence together.
 
 ## 13. Canonical paper surface
 
-Read in this order:
 
-1. `docs/chapter1_submission_freeze_20260915_p1_p2_p3_defended.md`
-2. `docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md`
-3. `docs/chapter1_v11_submission_figure_sync_20260915.md`
-4. `docs/chapter1_p3_joint_observation_bias_checkpoint_20260915.md`
-5. `docs/chapter1_p2_component_nonconcordance_result_20260915.md`
-6. `docs/chapter1_p1_final_decision_20260915.md`
-7. `docs/chapter1_court_evidence_and_theory_synthesis_20260914.md`
-8. `docs/chapter1_literature_positioning_20260909.md`
+The current publication-facing surface is **v13**. Read in this order:
 
-Previous v8/v9/v10 surfaces remain historical provenance; they do not define the current P1/P2/P3-defended claim ceiling.
+1. `docs/chapter1_manuscript_full_v13_global_pollination_constraint_20260917.md`
+2. `config/chapter1_v13_unified_island_syndrome_result_lock.json`
+3. `docs/chapter1_v13_submission_figure_sync_20260917.md`
+4. `config/chapter1_v13_functional_bridge_result_lock.json`
+5. `docs/chapter1_unified_hypothesis_20260917.md`
+6. `docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md` — historical defended manuscript
+
+The v13 paper does **not** retroactively redefine the original progressive H1–H5 contract. Instead it synthesizes already-frozen and newly versioned evidence into a publication-facing hierarchy:
+
+- H1: recurrent global classic-island direction with regional modification;
+- H2: full-global experimental pollen-limitation gradient;
+- H3: partially separable reproductive-assurance and floral-accessibility pathways;
+- H4: explicitly post-hoc exact-species functional triangulation;
+- H5: flora-layer-specific taxonomic realization.
+
+Canonical new v13 functional-bridge run:
+
+- run `35141624253`;
+- artifact `10465048981`;
+- digest `sha256:50b6ca693ec989690854a9e9aadb5cd8a672b5fbcf3ff84e5aabbab06a6abc8e`.
+
+The frozen Route A/B distance-by-trait moderation failures remain negative results. v13 does not relabel them as support; it asks a distinct post-hoc functional question about current pollen-limitation levels under the already-frozen exact-species trait states.
+
+Previous v8/v9/v10/v11/v12 surfaces remain historical provenance and continue to define the chronology of claim defense.
 
 ## 14. Chapter 1 / Chapter 2 handoff
 

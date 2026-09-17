@@ -1,0 +1,192 @@
+{
+  "contract": "chapter1_v13_unified_island_syndrome_result_lock_v1",
+  "date": "2026-09-17",
+  "status": "submission_candidate_architecture_frozen",
+  "parents": {
+    "all_data": {
+      "file": "config/chapter1_all_data_route_result_lock.json",
+      "contract": "chapter1_all_data_route_result_lock_v2"
+    },
+    "v12_two_panel": {
+      "file": "config/chapter1_v12_two_panel_result_lock.json",
+      "contract": "chapter1_v12_two_panel_result_lock_v7"
+    },
+    "v12_glopl": {
+      "file": "config/chapter1_v12_h5_glopl_extension_result_lock.json",
+      "contract": "chapter1_v12_h5_glopl_extension_result_lock_v4"
+    },
+    "functional_bridge": {
+      "file": "config/chapter1_v13_functional_bridge_result_lock.json",
+      "contract": "chapter1_v13_functional_bridge_result_lock_v1",
+      "workflow_run_id": 35141624253,
+      "artifact_id": 10465048981,
+      "artifact_digest": "sha256:50b6ca693ec989690854a9e9aadb5cd8a672b5fbcf3ff84e5aabbab06a6abc8e"
+    }
+  },
+  "architecture": {
+    "H1": "global_recurrent_island_syndrome",
+    "H2": "global_pollination_constraint",
+    "H3": "dual_plant_response_pathways",
+    "H4": "posthoc_functional_triangulation",
+    "H5": "taxonomic_realization"
+  },
+  "H1_global_recurrent_island_syndrome": {
+    "estimand": "six_atomic_multivariate_distance_response_vector_with_common_positive_classic_direction",
+    "equal_context_vectors_required": false,
+    "regional_deviations_allowed": true,
+    "all_analysis": {
+      "northern_midlatitude": {"n_islands": 2164, "n_blocks": 86, "joint_p": 1.062731e-06, "descriptive_mean_classic_slope": 0.019511, "n_positive_atomic_slopes": 5, "n_negative_atomic_slopes": 1},
+      "northern_high_latitude": {"n_islands": 409, "n_blocks": 63, "joint_p": 1.102261e-06, "descriptive_mean_classic_slope": 0.125626, "n_positive_atomic_slopes": 6, "n_negative_atomic_slopes": 0},
+      "tropical": {"n_islands": 1462, "n_blocks": 110, "joint_p": 1.559509e-05, "descriptive_mean_classic_slope": 0.132403, "n_positive_atomic_slopes": 6, "n_negative_atomic_slopes": 0},
+      "southern_extratropical": {"n_islands": 299, "n_blocks": 41, "joint_p": 2.091488e-13, "descriptive_mean_classic_slope": 0.083210, "n_positive_atomic_slopes": 5, "n_negative_atomic_slopes": 1}
+    },
+    "direct_only": {
+      "northern_midlatitude": {"n_islands": 2137, "n_blocks": 86, "joint_p": 0.002309023, "descriptive_mean_classic_slope": 0.022822, "n_positive_atomic_slopes": 6, "n_negative_atomic_slopes": 0},
+      "northern_high_latitude": {"n_islands": 400, "n_blocks": 63, "joint_p": 1.791105e-09, "descriptive_mean_classic_slope": 0.129944, "n_positive_atomic_slopes": 6, "n_negative_atomic_slopes": 0},
+      "tropical": {"n_islands": 1432, "n_blocks": 110, "joint_p": 2.832318e-05, "descriptive_mean_classic_slope": 0.111256, "n_positive_atomic_slopes": 5, "n_negative_atomic_slopes": 1},
+      "southern_extratropical": {"n_islands": 287, "n_blocks": 41, "joint_p": 1.135877e-20, "descriptive_mean_classic_slope": 0.077874, "n_positive_atomic_slopes": 5, "n_negative_atomic_slopes": 1}
+    },
+    "regional_modifier": {
+      "north_tropical_joint_difference_all_analysis_p": 0.0007633,
+      "north_tropical_joint_difference_direct_p": 0.004502,
+      "interpretation": "contexts_differ_in_strength_and_component_allocation_around_a_recurrent_classic_direction"
+    },
+    "classification": "recurrent_global_classic_direction_with_biogeographic_modification_not_equal_vectors"
+  },
+  "H2_global_pollination_constraint": {
+    "source": "GloPL_full_global_distance",
+    "workflow_run_id": 35090599662,
+    "artifact_id": 10444156159,
+    "artifact_digest": "sha256:f11046d441fba6cdc3a2842a5a19fdc0bed3661b9ce258625eb93acc879ce623",
+    "n_effect_rows": 2969,
+    "n_sites": 1248,
+    "n_publications": 919,
+    "global_distance": {"estimate": 0.07936837202478536, "se": 0.037734195473258715, "two_sided_p": 0.035434833922249484, "one_sided_positive_p": 0.017717416961124742},
+    "sensitivities": {
+      "supplemental_only": {"estimate": 0.033492000998867164, "direction_positive": true},
+      "no_zero_constant": {"estimate": 0.0778855394138497, "one_sided_positive_p": 0.02095424838556391, "direction_positive": true}
+    },
+    "posthoc_offshore_shape": {
+      "within_offshore_estimate": 0.19983007839214245,
+      "within_offshore_two_sided_p": 0.011102397758905305,
+      "offshore_only_estimate": 0.2354525254306174,
+      "offshore_only_two_sided_p": 0.005864607647539939,
+      "inferential_role": "posthoc_shape_diagnostic_not_confirmatory"
+    },
+    "classification": "global_isolation_associated_experimental_pollen_limitation_supported"
+  },
+  "H3_dual_plant_response_pathways": {
+    "reproductive_assurance": {
+      "all_analysis_descriptive_family_mean_slopes": {
+        "northern_midlatitude": 0.019034,
+        "northern_high_latitude": 0.072950,
+        "tropical": 0.183773,
+        "southern_extratropical": 0.148961
+      },
+      "direct_only_descriptive_family_mean_slopes": {
+        "northern_midlatitude": 0.029825,
+        "northern_high_latitude": 0.100321,
+        "tropical": 0.130870,
+        "southern_extratropical": 0.096703
+      }
+    },
+    "generalized_accessibility": {
+      "all_analysis_descriptive_family_mean_slopes": {
+        "northern_midlatitude": 0.019988,
+        "northern_high_latitude": 0.178303,
+        "tropical": 0.081034,
+        "southern_extratropical": 0.017459
+      },
+      "direct_only_descriptive_family_mean_slopes": {
+        "northern_midlatitude": 0.015820,
+        "northern_high_latitude": 0.159568,
+        "tropical": 0.091643,
+        "southern_extratropical": 0.059045
+      }
+    },
+    "pathway_relation": {
+      "obligatory_isolation_to_selfing_to_floral_simplification": false,
+      "two_partially_separable_components": true,
+      "interpretation": "reproductive_assurance_and_accessibility_generalization_recur_in_same_global_direction_but_need_not_form_one_obligatory_sequence"
+    },
+    "classification": "two_partially_independent_global_plant_response_pathways"
+  },
+  "H4_functional_bridge": {
+    "inferential_role": "posthoc_functional_triangulation",
+    "workflow_run_id": 35141624253,
+    "artifact_id": 10465048981,
+    "artifact_digest": "sha256:50b6ca693ec989690854a9e9aadb5cd8a672b5fbcf3ff84e5aabbab06a6abc8e",
+    "historical_selection_identified": false,
+    "strongest_reproductive_assurance_bridge": {
+      "trait": "autonomous_selfing",
+      "primary_estimate": -0.446724,
+      "primary_two_sided_p": 2.600385e-08,
+      "supplemental_only_estimate": -0.303724,
+      "no_zero_constant_estimate": -0.454798,
+      "within_publication_estimate": -0.306034,
+      "within_publication_two_sided_p": 0.02949689,
+      "within_publication_site_estimate": -0.186358,
+      "within_publication_site_one_sided_negative_p": 0.04174528
+    },
+    "architecture_concordance": {
+      "actinomorphic_symmetry": {"primary_estimate": -0.381194, "primary_two_sided_p": 1.177103e-05, "supplemental_only_directional_p": 0.02270071, "no_zero_constant_directional_p": 1.222394e-05, "within_study_supported": false},
+      "generalized_form": {"primary_estimate": -0.184104, "primary_two_sided_p": 0.04490723, "supplemental_only_directional_p": 0.1240155, "no_zero_constant_directional_p": 0.04541844, "within_study_evaluable": false}
+    },
+    "self_compatibility": {"primary_estimate": -0.117727, "primary_two_sided_p": 0.1536551, "classification": "directionally_compatible_but_imprecise"},
+    "parent_distance_by_trait_moderation": {
+      "reproductive_assurance_family_supported": false,
+      "floral_architecture_family_supported": false,
+      "reclassified_by_v13": false
+    },
+    "classification": "posthoc_functional_compatibility_strongest_for_autonomous_selfing_with_additional_global_architecture_concordance"
+  },
+  "H5_taxonomic_realization": {
+    "broad_all_observed_H3A": {
+      "common_support_gate_all_analysis_p": 0.00008392638821217608,
+      "common_support_gate_direct_p": 0.00012108775398066638,
+      "after_source_free_genus_equal_island_all_p": 0.0114966,
+      "after_source_free_genus_equal_island_direct_p": 0.00459346,
+      "classification": "broad_H2_not_erased_by_source_free_genus_residualization"
+    },
+    "defended_native_H3B": {
+      "scope": "Palearctic_native",
+      "stage_support": "4/4 -> 4/4 -> 0/4",
+      "matched_pseudogenus_p": 0.0289855,
+      "classification": "strong_genus_structuring_of_defended_native_response"
+    },
+    "flora_status_boundary": {
+      "same_375_islands": {
+        "all_observed_all_p": 0.0005607,
+        "all_observed_direct_p": 0.0003959,
+        "source_backed_native_all_p": 0.2491,
+        "source_backed_native_direct_p": 0.3018
+      },
+      "WCVP_regional_native_compatible": {
+        "n_islands": 2372,
+        "all_p": 0.07954,
+        "direct_p": 0.17472
+      }
+    },
+    "causal_mediation_identified": false,
+    "classification": "taxonomic_realization_differs_between_broad_contemporary_and_defended_native_layers"
+  },
+  "supplementary": {
+    "GloBI_role": "non_promoted_sampling_sensitive_context_evidence",
+    "GloBI_n_islands": 3252,
+    "GloBI_context_heterogeneity_source_modes": "3/4",
+    "named_pollinator_identity_promoted": false,
+    "regional_deviations_role": "modifier_not_definition_of_syndrome_presence"
+  },
+  "integrated_statement": "Geographic isolation is associated with a recurrent global floral and reproductive island-syndrome direction and independently with increasing experimental pollen limitation. The plant response contains partially separable reproductive-assurance and floral-accessibility pathways. Post-hoc functional triangulation shows the clearest current-pollen-limitation compatibility for autonomous selfing, with additional global architecture concordance. Taxonomic structure determines how the response is represented across flora layers but does not identify its cause.",
+  "claim_ceiling": {
+    "historical_pollen_limitation_selected_traits": false,
+    "pollen_limitation_mediates_global_syndrome": false,
+    "GloBI_identifies_pollinator_mechanism": false,
+    "all_observed_equals_native_assembly": false,
+    "taxonomic_attenuation_identifies_cause": false,
+    "equal_response_vectors_across_regions": false,
+    "pollinator_abundance_decline_identified": false,
+    "named_pollinator_loss_identified": false,
+    "within_lineage_evolution_identified": false
+  }
+}
