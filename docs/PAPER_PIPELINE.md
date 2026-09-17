@@ -12,28 +12,29 @@ provenance-preserving plant trait evidence
                     v
 frozen 8,265-island / 106,295-species database
                     |
-                    +------------------------------+
-                    |                              |
-                    v                              v
-six-atomic plant isolation responses      full-global GloPL distance analysis
-                    |                              |
-                    +---------------+--------------+
-                                    |
-                                    v
-                         v13 H1–H4 synthesis
-                                    |
-                    +---------------+---------------+
-                    |                               |
-                    v                               v
-      unified v13 result lock           post-hoc functional bridge lock
-                    |                               |
-                    +---------------+---------------+
-                                    |
-                                    v
-                     manuscript + 3 main figures
-                                    |
-                                    v
-                         v13 submission audit
+          +---------+----------------------+----------------------+
+          |                                |                      |
+          v                                v                      v
+six-atomic plant isolation        raw colour + coupling     full-global GloPL
+responses (frozen H1 core)        extension (H3 display)    distance analysis
+          |                                |                      |
+          +----------------+---------------+----------------------+
+                           |
+                           v
+                upgraded v13 H1–H4 synthesis
+                           |
+          +----------------+----------------+
+          |                                 |
+          v                                 v
+unified v13 result lock          post-hoc functional bridge lock
+          |                                 |
+          +----------------+----------------+
+                           |
+                           v
+                 manuscript + 3 main figures
+                           |
+                           v
+                    v13 submission audit
 ```
 
 ## 1. Frozen database
@@ -46,11 +47,11 @@ Paper-level fixed quantities:
 - source run **34191508045**;
 - resolved cells **222,688 / 318,885 = 69.83%**.
 
-The raw database axes are flower colour, floral structural complexity and reproductive assurance. They are evidence-coverage axes; the v13 biological responses are derived frozen floral/reproductive states.
+The raw database axes are flower colour, floral structural complexity and reproductive assurance. They are evidence-coverage axes; the v13 biological responses are derived frozen floral/reproductive states plus the reproduced raw-colour extension.
 
 Database build details: `docs/DATABASE_BUILD.md`.
 
-## 2. H1 — recurrent global island syndrome
+## 2. H1 — recurrent global functional island syndrome
 
 The plant-side parent evidence uses six identically oriented responses:
 
@@ -63,6 +64,8 @@ The plant-side parent evidence uses six identically oriented responses:
 
 All four predeclared geographic strata retain supported multivariate isolation responses in both evidence scopes. The arithmetic mean of the six classic-oriented slopes is positive in every stratum. The strata are used as replication of recurrence, not as a current between-stratum comparison.
 
+These six responses remain the frozen confirmatory H1 core. The later raw-colour analyses do not become a seventh H1 atomic trait.
+
 Canonical synthesis: `config/chapter1_v13_unified_island_syndrome_result_lock.json`.
 
 ## 3. H2 — global pollination constraint
@@ -71,14 +74,36 @@ The independent GloPL layer contains **2,969 experiments, 1,248 sites and 919 pu
 
 This is direct evidence that pollen limitation increases with geographic separation in the sampled global experiment database. It does not identify which component of pollination service generated the limitation.
 
-## 4. H3 — two plant response pathways
+## 4. H3 — three partially separable plant-response modules
 
-The six plant responses are summarized into two biological families:
+### H3a Reproductive assurance
 
-- **reproductive assurance:** self-compatibility, selfing mating system, autonomous selfing;
-- **floral accessibility/generalization:** generalized form, actinomorphy, shallow/open tube.
+The frozen recurrent core includes self-compatibility, selfing mating system and autonomous selfing. The family mean is positive across all four geographic replication strata in both evidence scopes.
 
-Both family means are positive across all four geographic replication strata in both evidence scopes. Frozen conditional analyses support treating them as partially separable components rather than one obligatory causal sequence.
+### H3b Floral accessibility/generalization
+
+The frozen recurrent core also includes generalized form, actinomorphy and shallow/open tube. The family mean is positive across all four strata in both evidence scopes, although individual atomic traits do not move uniformly.
+
+### H3c Pollinator-facing display reorganization
+
+PR #233 added a reproduced raw-trait extension using five reported flower-colour states plus raw floral form and tube-depth architecture. The extension asks two stronger questions than a single syndrome score:
+
+1. does raw colour composition change with isolation after `selfing_core` adjustment?;
+2. among species retaining a focal colour, does the conditional probability of a prespecified architecture change with isolation?
+
+Main reproduced outcomes:
+
+- northern mid-latitude: robust `red_pink` decline in both evidence scopes;
+- northern high latitude: replicated decline of `blue_purple` coupling to butterfly-associated form and intermediate/deep large-bee-associated tube architecture;
+- tropical Direct evidence: `yellow_orange × deep butterfly-associated tube` increases with isolation;
+- southern extratropical: mixed yellow/orange restructuring rather than a coherent named syndrome.
+
+The biological synthesis is therefore **recurrent but non-uniform response**: reproductive assurance and accessibility/generalization form a recurrent global functional core, while pollinator-facing display composition and colour–architecture coupling can be reorganized in context-dependent ways.
+
+Reproduced audits:
+
+- `docs/chapter1_v13_raw_colour_audit_20260917.md`
+- `docs/chapter1_v13_raw_colour_coupling_audit_20260917.md`
 
 ## 5. H4 — post-hoc functional triangulation
 
@@ -103,9 +128,11 @@ Read in this order:
 3. `docs/chapter1_v13_submission_figure_sync_20260917.md`
 4. `config/chapter1_v13_functional_bridge_result_lock.json`
 5. `docs/chapter1_unified_hypothesis_20260917.md`
-6. `docs/chapter1_submission_freeze_v13_20260917.md`
+6. `docs/chapter1_v13_raw_colour_audit_20260917.md`
+7. `docs/chapter1_v13_raw_colour_coupling_audit_20260917.md`
+8. `docs/chapter1_submission_freeze_v13_20260917.md`
 
-The figure contract contains **three main figures**. Evidence roles are kept explicit: frozen primary/confirmatory parent results, frozen sensitivity/robustness, descriptive synthesis and post-hoc functional triangulation are not interchangeable.
+The figure contract still contains **three main figures**. Evidence roles remain explicit: frozen primary/confirmatory parent results, frozen sensitivity/robustness, reproduced extended H3 evidence, descriptive synthesis and post-hoc functional triangulation are not interchangeable.
 
 ## 7. Active audit contract
 
@@ -114,29 +141,44 @@ Current validation:
 - `tests/test_chapter1_v13_submission_lock.py`
 - `tests/test_chapter1_v13_submission_surface.py`
 - `tests/test_chapter1_v13_functional_bridge.py`
+- `tests/test_chapter1_v13_raw_colour_audit.py`
+- `tests/test_chapter1_v13_colour_architecture_audit.py`
+- `tests/test_chapter1_v13_raw_colour_coupling_audit.py`
 - `.github/workflows/audit-chapter1-v13-submission.yml`
+- `.github/workflows/run-chapter1-v13-raw-colour-audit.yml`
 
-The workflow runs on changes targeting `main`, executes the repository suite with only the two documented main-baseline CLI failures temporarily deselected, lints v13 code/tests and guards historical frozen provenance from accidental modification.
+The workflows run on changes targeting `main`, execute the repository suite with the documented exclusions where applicable, lint v13 code/tests and guard frozen historical provenance from accidental modification.
 
 ## 8. Claim ceiling
 
-Allowed conclusion: the three evidence layers converge on a recurrent global floral/reproductive island syndrome that is aligned with increasing experimental pollen limitation and expressed through partially separable reproductive-assurance and floral-accessibility strategies.
+Allowed conclusion: the evidence layers converge on a recurrent global **functional** floral/reproductive island syndrome aligned with increasing experimental pollen limitation. The recurrent core is expressed through partially separable reproductive-assurance and floral-accessibility strategies, while raw pollinator-facing display contains additional context-dependent isolation responses not reducible to measured reproductive assurance.
 
 Not identified by v13:
 
 - historical causal mediation from pollen limitation to trait evolution;
 - a global decline in pollinator abundance with isolation;
 - loss of a named pollinator guild;
-- equal response vectors across geographic strata;
+- flower colour as a unique identifier of realized pollinator identity;
+- reduced attraction investment, pigment concentration, animal-visual contrast or UV signalling as directly measured quantities;
+- equal detailed phenotype vectors across geographic strata;
 - within-lineage evolutionary change as opposed to assemblage composition.
 
 ## 9. Chapter 1 / Chapter 2 handoff
 
-Chapter 1 establishes recurrence, the pollen-limitation gradient, and functional compatibility. Chapter 2 (`izu-core`) can test the mechanistic sequence within a resolved biological system:
+Chapter 1 establishes two levels simultaneously:
 
-`interaction state -> effective service -> reproductive outcome -> phenotype`
+1. **what recurs:** a functional island-syndrome core plus a global pollen-limitation gradient;
+2. **what does not have to recur identically:** the detailed pollinator-facing display response.
 
-This is where causal ordering among pollination service, pollen limitation, reproductive assurance and floral accessibility can be tested prospectively.
+Chapter 2 (`izu-core`) takes the next question: why can a broad ecological constraint recur while response trajectories and determinant rankings differ among systems? Its transportability framework treats receiving functional state, interaction regime and nonlinear response geometry as reasons that one ranking or response pathway need not transport unchanged across ecological contexts.
+
+Programme-level bridge:
+
+`Ch1: recurrent functional core + context-dependent display`
+
+`-> Ch2: state/context/response geometry -> non-uniform response branches and determinant rankings`
+
+This is a conceptual handoff, not a claim that Chapter 2 theory causally validates the Chapter 1 geographic associations.
 
 ## 10. Legacy boundary
 
