@@ -1,4 +1,4 @@
-"""Fail-closed validator for the Chapter 1 v13 unified submission lock."""
+"""Fail-closed validator for the Chapter 1 v13 global-only submission lock."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 
-CONTRACT = "chapter1_v13_unified_island_syndrome_result_lock_v1"
+CONTRACT = "chapter1_v13_unified_island_syndrome_result_lock_v2"
 EXPECTED_PARENTS = {
     "all_data": "chapter1_all_data_route_result_lock_v2",
     "v12_two_panel": "chapter1_v12_two_panel_result_lock_v7",
@@ -20,14 +20,13 @@ EXPECTED_ARCHITECTURE = {
     "H2": "global_pollination_constraint",
     "H3": "dual_plant_response_pathways",
     "H4": "posthoc_functional_triangulation",
-    "H5": "taxonomic_realization",
 }
 FALSE_CLAIMS = (
     "historical_pollen_limitation_selected_traits",
     "pollen_limitation_mediates_global_syndrome",
     "GloBI_identifies_pollinator_mechanism",
-    "all_observed_equals_native_assembly",
-    "taxonomic_attenuation_identifies_cause",
+    "equal_response_vectors_across_regions",
+    "between_region_difference_is_primary_claim",
 )
 
 
@@ -38,7 +37,7 @@ def _require_mapping(value: object, label: str) -> dict[str, Any]:
 
 
 def validate_v13_lock(lock: dict[str, Any]) -> dict[str, Any]:
-    """Validate provenance, architecture, inferential role, and claim ceilings."""
+    """Validate provenance, H1-H4 architecture, evidence role, and claim ceilings."""
 
     if lock.get("contract") != CONTRACT:
         raise ValueError("unexpected v13 submission-lock contract")
@@ -57,7 +56,13 @@ def validate_v13_lock(lock: dict[str, Any]) -> dict[str, Any]:
 
     architecture = _require_mapping(lock.get("architecture"), "architecture")
     if architecture != EXPECTED_ARCHITECTURE:
-        raise ValueError("v13 H1-H5 architecture changed")
+        raise ValueError("v13 H1-H4 architecture changed")
+    if "H5" in architecture or "H5_taxonomic_realization" in lock:
+        raise ValueError("v13 H1-H4 architecture must not reintroduce H5")
+
+    h1 = _require_mapping(lock.get("H1_global_recurrent_island_syndrome"), "H1_global_recurrent_island_syndrome")
+    if h1.get("between_region_contrasts_used_in_submission") is not False:
+        raise ValueError("between-region contrasts are not part of the global-only submission claim")
 
     h4 = _require_mapping(lock.get("H4_functional_bridge"), "H4_functional_bridge")
     if h4.get("inferential_role") != "posthoc_functional_triangulation":
@@ -78,17 +83,14 @@ def validate_v13_lock(lock: dict[str, Any]) -> dict[str, Any]:
                 raise ValueError("GloBI mechanism promotion is prohibited")
             if claim.startswith("historical"):
                 raise ValueError("historical pollen-limitation selection is not identified")
+            if claim.startswith("between_region"):
+                raise ValueError("between-region differences are not a primary submission claim")
             raise ValueError(f"claim ceiling was raised: {claim}")
 
-    h5 = lock.get("H5_taxonomic_realization")
-    if h5 is not None:
-        h5 = _require_mapping(h5, "H5_taxonomic_realization")
-        if h5.get("causal_mediation_identified") is not False:
-            raise ValueError("taxonomic realization cannot be relabelled causal mediation")
-
     return {
-        "contract": "chapter1_v13_submission_lock_verification_v1",
+        "contract": "chapter1_v13_submission_lock_verification_v2",
         "verified": True,
+        "architecture": "H1-H4_global_only",
         "functional_bridge_artifact_id": int(artifact_id),
         "functional_bridge_artifact_digest": digest,
         "inferential_role": str(h4["inferential_role"]),
