@@ -1,6 +1,6 @@
 # Chapter 1 v13 submission freeze — global-only revision — 2026-09-17
 
-Status: review candidate.
+Status: review candidate; global-only H1–H4 surface synchronized.
 
 ## Canonical publication surface
 
