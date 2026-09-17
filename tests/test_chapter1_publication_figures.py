@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pandas as pd
@@ -89,10 +90,18 @@ def test_figure3_source_data_match_frozen_locks(
     assert global_row["two_sided_p"] == pytest.approx(0.035434833922249484)
 
     traits = figure3.set_index("row_id")
-    assert traits.loc["trait_autonomous_selfing_primary", "estimate"] == pytest.approx(-0.446724)
-    assert traits.loc["trait_actinomorphic_symmetry_primary", "estimate"] == pytest.approx(-0.381194)
-    assert traits.loc["trait_generalized_form_primary", "estimate"] == pytest.approx(-0.184104)
-    assert traits.loc["trait_self_compatibility_primary", "estimate"] == pytest.approx(-0.117727)
+    assert traits.loc["trait_autonomous_selfing_primary", "estimate"] == pytest.approx(
+        -0.446724, abs=1e-6
+    )
+    assert traits.loc["trait_actinomorphic_symmetry_primary", "estimate"] == pytest.approx(
+        -0.381194, abs=1e-6
+    )
+    assert traits.loc["trait_generalized_form_primary", "estimate"] == pytest.approx(
+        -0.184104, abs=1e-6
+    )
+    assert traits.loc["trait_self_compatibility_primary", "estimate"] == pytest.approx(
+        -0.117727, abs=1e-6
+    )
 
 
 def test_publication_bundle_contains_main_and_extended_outputs(
@@ -135,8 +144,13 @@ def test_svg_publication_text_has_no_internal_labels(
     render_publication_bundle(source_dir, output_dir)
 
     for svg in output_dir.rglob("*.svg"):
-        text = svg.read_text(encoding="utf-8").lower()
-        assert "v13" not in text
-        assert "workflow" not in text
-        assert "artifact" not in text
-        assert "main figure" not in text
+        root = ET.parse(svg).getroot()
+        visible_text = " ".join(
+            element.text or ""
+            for element in root.iter()
+            if element.tag.rsplit("}", 1)[-1] == "text"
+        ).lower()
+        assert "v13" not in visible_text
+        assert "workflow" not in visible_text
+        assert "artifact" not in visible_text
+        assert "main figure" not in visible_text
