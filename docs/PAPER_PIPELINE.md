@@ -184,7 +184,7 @@ This is a conceptual handoff, not a claim that Chapter 2 theory causally validat
 
 ## 10. Legacy boundary
 
-The active package no longer exposes the retired Palearctic-centred, Bombus-mechanism, PR138, old-H5 or pre-v13 submission implementations. Representative historical files are retained under `legacy/chapter1-pre-v13/`, while the complete retired implementation remains exactly recoverable from the pre-cleanup Git commit recorded in `legacy/chapter1-pre-v13/ARCHIVE_MANIFEST.md`.
+The active package no longer exposes retired pre-v13 publication or mechanism implementations. Representative historical files are retained under `legacy/chapter1-pre-v13/`, while the complete retired implementation remains exactly recoverable from the pre-cleanup Git commit recorded in `legacy/chapter1-pre-v13/ARCHIVE_MANIFEST.md`.
 
 The active `config/` directory deliberately retains the frozen parent result locks required by `config/chapter1_v13_unified_island_syndrome_result_lock.json`. They are result provenance, not competing active hypotheses.
 
