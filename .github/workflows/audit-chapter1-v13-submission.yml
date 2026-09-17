@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -37,7 +37,7 @@ jobs:
           MPLBACKEND: Agg
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=1 origin main
+          git fetch --no-tags origin main:refs/remotes/origin/main
           git worktree add /tmp/island-main-baseline origin/main
           pushd /tmp/island-main-baseline
           set +e
@@ -49,6 +49,7 @@ jobs:
           set -e
           cat /tmp/chapter1-v13-main-baseline.log
           popd
+          git worktree remove /tmp/island-main-baseline
           if [ "$status" -eq 0 ]; then
             echo "Expected baseline CLI failures no longer reproduce on main; remove the temporary deselections." >&2
             exit 1
@@ -69,8 +70,9 @@ jobs:
       - name: Ensure historical v11/v12 submission files are not modified
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=1 origin main
-          if git diff --name-only origin/main...HEAD | grep -E '(^docs/chapter1_manuscript_full_v11_|^config/chapter1_v12_|^docs/chapter1_v11_)'; then
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          git diff --name-only origin/main...HEAD > /tmp/chapter1-v13-diff.txt
+          if grep -E '(^docs/chapter1_manuscript_full_v11_|^config/chapter1_v12_|^docs/chapter1_v11_)' /tmp/chapter1-v13-diff.txt; then
             echo 'Historical v11/v12 submission provenance was modified' >&2
             exit 1
           fi
