@@ -50,6 +50,21 @@ def test_pipeline_promotes_global_only_v13() -> None:
         assert phrase not in current
 
 
+def test_current_handoff_is_global_only() -> None:
+    readme = README.read_text(encoding="utf-8")
+    pipeline = PIPELINE.read_text(encoding="utf-8")
+    sections = (
+        _section(readme, "## 7. Chapter 1 / Chapter 2 division of labour", "## 8. Repository map"),
+        _section(pipeline, "## 14. Chapter 1 / Chapter 2 handoff", "## 15. Legacy v1 boundary"),
+    )
+    for section in sections:
+        for phrase in ("genus structuring", "lineage-assembly", "H5d", "at what lineage-assembly level"):
+            assert phrase not in section
+        assert "pollen limitation" in section.casefold()
+        assert "reproductive assurance" in section.casefold()
+        assert "floral accessibility" in section.casefold()
+
+
 def test_manuscript_contains_locked_global_headlines() -> None:
     manuscript = MANUSCRIPT.read_text(encoding="utf-8")
     lock = json.loads(LOCK.read_text(encoding="utf-8"))
