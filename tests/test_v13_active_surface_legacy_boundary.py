@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -65,6 +66,17 @@ def test_retired_pre_v13_branches_are_not_on_active_surface() -> None:
     assert not sorted(set(offenders)), "retired pre-v13 files remain active: " + ", ".join(
         sorted(set(offenders))
     )
+
+
+def test_active_workflows_reference_existing_python_files() -> None:
+    reference_pattern = re.compile(r"(?:src/island_v2|tests)/[A-Za-z0-9_./-]+\\.py")
+    offenders: list[str] = []
+    for workflow in sorted((ROOT / ".github" / "workflows").glob("*.y*ml")):
+        text = workflow.read_text(encoding="utf-8")
+        for relative in sorted(set(reference_pattern.findall(text))):
+            if not (ROOT / relative).is_file():
+                offenders.append(f"{workflow.relative_to(ROOT)} -> {relative}")
+    assert not offenders, "active workflows reference missing Python files: " + "; ".join(offenders)
 
 
 def test_archive_manifest_exists() -> None:
