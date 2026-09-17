@@ -206,51 +206,48 @@ Canonical lock:
 
 ## 6. Current submission surface
 
-
-The current publication-facing surface is **v13**. It is a new synthesis layer and does not rewrite the frozen v11/v12 provenance.
+The current publication-facing surface is **v13 global-only**, organized as **H1–H4**. This revision keeps the merged v13 evidence but removes assembly-depth and between-stratum branches from the submission spine. Frozen v11/v12 files remain historical provenance.
 
 Read these first, in this order:
 
-1. [`docs/chapter1_manuscript_full_v13_global_pollination_constraint_20260917.md`](docs/chapter1_manuscript_full_v13_global_pollination_constraint_20260917.md) — current v13 full manuscript;
-2. [`config/chapter1_v13_unified_island_syndrome_result_lock.json`](config/chapter1_v13_unified_island_syndrome_result_lock.json) — paper-level H1–H5 result and claim-ceiling lock;
-3. [`docs/chapter1_v13_submission_figure_sync_20260917.md`](docs/chapter1_v13_submission_figure_sync_20260917.md) — v13 Figure 1–4 evidence-role contract;
+1. [`docs/chapter1_manuscript_full_v13_global_pollination_constraint_20260917.md`](docs/chapter1_manuscript_full_v13_global_pollination_constraint_20260917.md) — current global-only v13 manuscript;
+2. [`config/chapter1_v13_unified_island_syndrome_result_lock.json`](config/chapter1_v13_unified_island_syndrome_result_lock.json) — H1–H4 result and claim-ceiling lock;
+3. [`docs/chapter1_v13_submission_figure_sync_20260917.md`](docs/chapter1_v13_submission_figure_sync_20260917.md) — three-main-figure evidence-role contract;
 4. [`config/chapter1_v13_functional_bridge_result_lock.json`](config/chapter1_v13_functional_bridge_result_lock.json) — post-hoc exact-species GloPL functional triangulation;
-5. [`docs/chapter1_unified_hypothesis_20260917.md`](docs/chapter1_unified_hypothesis_20260917.md) — unified biological hypothesis and evidence map.
+5. [`docs/chapter1_unified_hypothesis_20260917.md`](docs/chapter1_unified_hypothesis_20260917.md) — global-only biological hypothesis and evidence map.
 
 Historical defended surface retained unchanged:
 
-- [`docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md`](docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md) — historical v11 island-first P1/P2/P3-defended manuscript;
-- `config/chapter1_v12_two_panel_result_lock.json` and `config/chapter1_v12_h5_glopl_extension_result_lock.json` — historical v12 integration locks.
+- [`docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md`](docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md) — historical defended manuscript;
+- `config/chapter1_v12_two_panel_result_lock.json` and `config/chapter1_v12_h5_glopl_extension_result_lock.json` — historical integration locks.
 
 ### Current v13 paper-level verdict
 
-- **H1 — recurrent global island syndrome:** all four broad contemporary-flora contexts show supported multivariate isolation responses and a positive descriptive classic-island direction; exact regional response vectors are not assumed equal;
+- **H1 — recurrent global island syndrome:** all four geographic replication strata show supported multivariate isolation responses and a positive descriptive classic-island direction in both evidence scopes; no between-stratum comparison is promoted in the current submission;
 - **H2 — global pollination constraint:** full-global GloPL shows increasing experimental pollen limitation with geographic separation (`beta=+0.07937`, one-sided `p=0.01772`);
-- **H3 — dual plant pathways:** reproductive assurance and generalized/accessibility architecture are treated as partially separable response families rather than one obligatory selfing-to-simplification sequence;
-- **H4 — functional bridge:** exact-species GloPL triangulation is explicitly **post-hoc**; autonomous selfing is the strongest reproducible link to lower current pollen limitation, while architecture evidence is weaker and heterogeneous;
-- **H5 — taxonomic realization:** the broad all-observed response survives source-free genus residualization, whereas the defended native Palearctic response is strongly genus-structured (`4/4 -> 4/4 -> 0/4`; matched pseudo-genus `p=0.02899`).
+- **H3 — dual plant pathways:** reproductive assurance and generalized/accessibility architecture are partially separable response families rather than one obligatory selfing-to-simplification sequence;
+- **H4 — functional bridge:** exact-species GloPL triangulation is explicitly **post-hoc**; autonomous selfing is the strongest reproducible link to lower current pollen limitation, while architecture evidence is weaker.
 
 Publication-facing concept:
 
-> **Geographic isolation is associated with a recurrent floral/reproductive island-syndrome direction and with stronger experimental pollen limitation. The syndrome is expressed through partially separable reproductive-assurance and floral-accessibility pathways, while taxonomic assembly determines how that shared pattern is realized across flora layers.**
+> **Geographic isolation is associated globally with stronger experimental pollen limitation and with a recurrent floral/reproductive island-syndrome direction expressed through partially separable reproductive-assurance and floral-accessibility pathways.**
 
-The v13 synthesis is triangulation, not historical causal mediation. It does not claim that pollen limitation evolved the observed traits, that pollinator abundance globally declines with isolation, or that GloBI identifies the causal mechanism.
+The v13 synthesis is triangulation, not historical causal mediation. It does not claim that pollen limitation caused the observed trait evolution, that pollinator abundance globally declines with isolation, or that GloBI identifies the causal mechanism.
 
 ## 7. Chapter 1 / Chapter 2 division of labour
 
-Chapter 1 answers:
+Chapter 1 answers the global questions:
 
-- where isolation-associated responses occur;
-- which floral/reproductive components move;
-- whether directions differ among contexts;
-- how strongly the strongest syndrome is represented in non-random genus composition;
-- which simple global explanations survive explicit falsification.
+- whether a recurrent floral/reproductive island-syndrome direction appears across geographically distinct island floras;
+- whether experimental pollen limitation increases with geographic isolation;
+- whether reproductive assurance and floral accessibility/generalization provide partially separable plant responses;
+- whether frozen functional trait states are compatible with lower current pollen limitation.
 
 Chapter 2 (`izu-core`) is the mechanistic-resolution layer. It can measure the within-system chain:
 
 `interaction state -> effective service -> reproductive outcome -> phenotype`
 
-and test cline versus threshold-like response geometry directly. The H5d non-identifiability result is the reason this local resolution is necessary; Chapter 1 should not retrofit a threshold mechanism from global assemblage averages.
+and test whether local changes in pollen limitation actually precede selection on reproductive assurance or floral accessibility. Chapter 1 establishes the global pattern and functional compatibility; Chapter 2 can test the causal sequence within a resolved biological system.
 
 ## 8. Repository map
 

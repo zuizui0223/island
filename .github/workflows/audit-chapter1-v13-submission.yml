@@ -2,7 +2,7 @@ name: Audit Chapter 1 v13 submission
 
 on:
   push:
-    branches: [ch1-v13-unified-island-syndrome]
+    branches: [ch1-v13-global-only]
     paths:
       - "config/chapter1_v13_*.json"
       - "config/chapter1_v13_*.yml"
