@@ -353,11 +353,11 @@ def _materialize_glopl_and_bridge(
     bridge["row_id"] = "trait_" + bridge["trait"].astype(str) + "_" + bridge["analysis"].astype(str)
     bridge["section"] = "functional_bridge"
     bridge["label"] = bridge["trait"].astype(str).str.replace("_", " ")
-    bridge["estimate"] = pd.to_numeric(bridge["trait_state_estimate"], errors="coerce")
-    bridge["se"] = pd.to_numeric(bridge["trait_state_se"], errors="coerce")
-    bridge["two_sided_p"] = pd.to_numeric(bridge["trait_state_two_sided_p"], errors="coerce")
+    bridge["estimate"] = pd.to_numeric(bridge["estimate"], errors="coerce")
+    bridge["se"] = pd.to_numeric(bridge["se"], errors="coerce")
+    bridge["two_sided_p"] = pd.to_numeric(bridge["two_sided_p"], errors="coerce")
     bridge["one_sided_p"] = pd.to_numeric(
-        bridge["trait_state_one_sided_negative_p"], errors="coerce"
+        bridge["one_sided_negative_p"], errors="coerce"
     )
     bridge = _ci_frame(bridge, "estimate", "se")
 
