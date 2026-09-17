@@ -47,7 +47,7 @@ Final trait snapshot:
 
 Database construction is documented in [`docs/DATABASE_BUILD.md`](docs/DATABASE_BUILD.md), and the versioned release route is in [`DATABASE_RELEASE.md`](DATABASE_RELEASE.md).
 
-The frozen parent **result locks required by v13 remain active** so the submission contract can validate their exact contracts. Retired Palearctic-, Bombus-, PR138- and old-submission implementation branches are no longer importable active code or workflows; their historical provenance is indexed under [`legacy/chapter1-pre-v13/`](legacy/chapter1-pre-v13/) and is recoverable from the pre-cleanup Git commit recorded there.
+The frozen parent **result locks required by v13 remain active** so the submission contract can validate their exact contracts. Retired pre-v13 publication and mechanism implementations are no longer importable active code or workflows; their historical provenance is indexed under [`legacy/chapter1-pre-v13/`](legacy/chapter1-pre-v13/) and is recoverable from the pre-cleanup Git commit recorded there.
 
 ## 5. Evidence roles and claim ceiling
 
@@ -118,6 +118,6 @@ legacy/v1/
 
 The pre-v13 publication and mechanism branches are archived/indexed under [`legacy/chapter1-pre-v13/`](legacy/chapter1-pre-v13/). Representative historical files are physically retained there with their former relative paths; the complete retired implementation is exactly recoverable from the pre-cleanup commit recorded in [`legacy/chapter1-pre-v13/ARCHIVE_MANIFEST.md`](legacy/chapter1-pre-v13/ARCHIVE_MANIFEST.md).
 
-The active root intentionally retains only the v13 publication surface, shared data/trait/geography infrastructure, and frozen parent result locks required by the v13 contract. Retired Palearctic-, Bombus-, PR138-, old-H5 and pre-v13 submission implementations must not re-enter the active package without explicitly reopening the publication architecture.
+The active root intentionally retains only the v13 publication surface, shared data/trait/geography infrastructure, and frozen parent result locks required by the v13 contract. Retired pre-v13 implementations must not re-enter the active package without explicitly reopening the publication architecture.
 
 `legacy/v1/` remains the separately frozen historical v1 analysis.
