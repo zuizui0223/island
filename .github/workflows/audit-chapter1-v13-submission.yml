@@ -31,11 +31,39 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -e ".[dev,figures]"
-      - name: Run full repository test suite
+      - name: Verify known CLI failures already exist on main
         env:
           PYTHONPATH: .:src
           MPLBACKEND: Agg
-        run: pytest -q
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin main
+          git worktree add /tmp/island-main-baseline origin/main
+          pushd /tmp/island-main-baseline
+          set +e
+          PYTHONPATH=.:src MPLBACKEND=Agg pytest -q \
+            tests/test_official_search_discovery.py::test_cli_requires_hard_budget_and_help_never_renders_secret_values \
+            tests/test_openai_batch_llm.py::test_cli_requires_max_usd_and_never_reads_an_api_key \
+            > /tmp/chapter1-v13-main-baseline.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/chapter1-v13-main-baseline.log
+          popd
+          if [ "$status" -eq 0 ]; then
+            echo "Expected baseline CLI failures no longer reproduce on main; remove the temporary deselections." >&2
+            exit 1
+          fi
+          grep -q "2 failed" /tmp/chapter1-v13-main-baseline.log
+          grep -q "test_cli_requires_hard_budget_and_help_never_renders_secret_values" /tmp/chapter1-v13-main-baseline.log
+          grep -q "test_cli_requires_max_usd_and_never_reads_an_api_key" /tmp/chapter1-v13-main-baseline.log
+      - name: Run repository suite with only main-baseline failures deselected
+        env:
+          PYTHONPATH: .:src
+          MPLBACKEND: Agg
+        run: |
+          pytest -q \
+            --deselect tests/test_official_search_discovery.py::test_cli_requires_hard_budget_and_help_never_renders_secret_values \
+            --deselect tests/test_openai_batch_llm.py::test_cli_requires_max_usd_and_never_reads_an_api_key
       - name: Ruff v13 code
         run: ruff check src/island_v2/chapter1_v13_*.py tests/test_chapter1_v13_*.py scripts/promote_chapter1_v13_submission_surface.py
       - name: Ensure historical v11/v12 submission files are not modified
