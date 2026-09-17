@@ -2,7 +2,7 @@ name: Promote Chapter 1 v13 submission surface
 
 on:
   push:
-    branches: [ch1-v13-unified-island-syndrome]
+    branches: [ch1-v13-global-only]
     paths:
       - "scripts/promote_chapter1_v13_submission_surface.py"
       - ".github/workflows/promote-chapter1-v13-submission-surface.yml"
@@ -24,7 +24,7 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -e ".[dev]"
-      - name: Promote v13 entry points
+      - name: Promote v13 global-only entry points
         run: python scripts/promote_chapter1_v13_submission_surface.py
       - name: Verify promoted surface before commit
         run: |
@@ -37,12 +37,12 @@ jobs:
       - name: Commit promoted submission surface
         run: |
           set -euo pipefail
-          if git diff --quiet -- README.md docs/PAPER_PIPELINE.md docs/chapter1_manuscript_full_v13_global_pollination_constraint_20260917.md; then
+          if git diff --quiet -- README.md docs/PAPER_PIPELINE.md; then
             echo "Submission surface already promoted"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md docs/PAPER_PIPELINE.md docs/chapter1_manuscript_full_v13_global_pollination_constraint_20260917.md
-          git commit -m "docs: promote Chapter 1 v13 submission surface"
-          git push origin HEAD:ch1-v13-unified-island-syndrome
+          git add README.md docs/PAPER_PIPELINE.md
+          git commit -m "docs: promote Chapter 1 v13 global-only surface"
+          git push origin HEAD:ch1-v13-global-only
