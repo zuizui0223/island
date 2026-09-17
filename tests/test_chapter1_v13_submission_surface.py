@@ -17,52 +17,58 @@ V13_MANUSCRIPT = "docs/chapter1_manuscript_full_v13_global_pollination_constrain
 V13_LOCK = "config/chapter1_v13_unified_island_syndrome_result_lock.json"
 V13_FIGURES = "docs/chapter1_v13_submission_figure_sync_20260917.md"
 V11_MANUSCRIPT = "docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md"
+LEGACY_DIR = "legacy/chapter1-pre-v13/"
 
 
-def _section(text: str, start: str, end: str) -> str:
-    a = text.index(start)
-    b = text.index(end, a)
-    return text[a:b]
-
-
-def test_readme_promotes_global_only_v13_and_retains_v11_as_historical() -> None:
+def test_readme_is_v13_only_and_points_pre_v13_to_legacy() -> None:
     text = README.read_text(encoding="utf-8")
     assert V13_MANUSCRIPT in text
     assert V13_LOCK in text
     assert V13_FIGURES in text
-    assert V11_MANUSCRIPT in text
-    assert text.index(V13_MANUSCRIPT) < text.index(V11_MANUSCRIPT)
-    current = _section(text, "## 6. Current submission surface", "## 7. Chapter 1 / Chapter 2 division of labour")
-    assert "H1–H4" in current or "H1-H4" in current
-    for phrase in ("H5 — taxonomic realization", "Palearctic", "North–Tropical", "regional modification", "Figure 1–4"):
-        assert phrase not in current
+    assert LEGACY_DIR in text
+    assert V11_MANUSCRIPT not in text
+    assert "H1–H4" in text or "H1-H4" in text
+    for phrase in (
+        "frozen H1-H5 hypothesis contract",
+        "P1 assembly",
+        "P2 component",
+        "P3 joint",
+        "chapter1_v10_figure2_p2_result_lock.json",
+        "North–Tropical",
+        "Palearctic",
+    ):
+        assert phrase not in text
 
 
-def test_pipeline_promotes_global_only_v13() -> None:
+def test_pipeline_is_v13_only_and_points_pre_v13_to_legacy() -> None:
     text = PIPELINE.read_text(encoding="utf-8")
     assert V13_MANUSCRIPT in text
     assert V13_LOCK in text
     assert V13_FIGURES in text
-    assert V11_MANUSCRIPT in text
-    current = _section(text, "## 13. Canonical paper surface", "## 14. Chapter 1 / Chapter 2 handoff")
-    assert "H1–H4" in current or "H1-H4" in current
-    for phrase in ("H5: flora-layer-specific taxonomic realization", "North–Tropical", "Palearctic", "regional modification"):
-        assert phrase not in current
+    assert LEGACY_DIR in text
+    assert V11_MANUSCRIPT not in text
+    assert "H1–H4" in text or "H1-H4" in text
+    for phrase in (
+        "H1-H5 scientific contract",
+        "P1 assembly-inference defense",
+        "P2 component-support defense",
+        "P3 joint observation-bias defense",
+        "chapter1_v10_figure2_p2_result_lock.json",
+        "North–Tropical",
+        "Palearctic",
+    ):
+        assert phrase not in text
 
 
 def test_current_handoff_is_global_only() -> None:
-    readme = README.read_text(encoding="utf-8")
-    pipeline = PIPELINE.read_text(encoding="utf-8")
-    sections = (
-        _section(readme, "## 7. Chapter 1 / Chapter 2 division of labour", "## 8. Repository map"),
-        _section(pipeline, "## 14. Chapter 1 / Chapter 2 handoff", "## 15. Legacy v1 boundary"),
-    )
-    for section in sections:
-        for phrase in ("genus structuring", "lineage-assembly", "H5d", "at what lineage-assembly level"):
-            assert phrase not in section
-        assert "pollen limitation" in section.casefold()
-        assert "reproductive assurance" in section.casefold()
-        assert "floral accessibility" in section.casefold()
+    readme = README.read_text(encoding="utf-8").casefold()
+    pipeline = PIPELINE.read_text(encoding="utf-8").casefold()
+    for text in (readme, pipeline):
+        for phrase in ("genus structuring", "lineage-assembly", "h5d", "at what lineage-assembly level"):
+            assert phrase not in text
+        assert "pollen limitation" in text
+        assert "reproductive assurance" in text
+        assert "floral accessibility" in text
 
 
 def test_manuscript_contains_locked_global_headlines() -> None:
