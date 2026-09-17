@@ -69,7 +69,7 @@ def test_retired_pre_v13_branches_are_not_on_active_surface() -> None:
 
 
 def test_active_workflows_reference_existing_python_files() -> None:
-    reference_pattern = re.compile(r"(?:src/island_v2|tests)/[A-Za-z0-9_./-]+\\.py")
+    reference_pattern = re.compile(r"(?:src/island_v2|tests)/[A-Za-z0-9_./-]+\.py")
     offenders: list[str] = []
     for workflow in sorted((ROOT / ".github" / "workflows").glob("*.y*ml")):
         text = workflow.read_text(encoding="utf-8")
