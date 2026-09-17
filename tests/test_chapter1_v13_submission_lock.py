@@ -12,7 +12,7 @@ LOCK = Path("config/chapter1_v13_unified_island_syndrome_result_lock.json")
 
 def _valid_lock() -> dict:
     return {
-        "contract": "chapter1_v13_unified_island_syndrome_result_lock_v1",
+        "contract": "chapter1_v13_unified_island_syndrome_result_lock_v2",
         "parents": {
             "all_data": {"contract": "chapter1_all_data_route_result_lock_v2"},
             "v12_two_panel": {"contract": "chapter1_v12_two_panel_result_lock_v7"},
@@ -28,7 +28,9 @@ def _valid_lock() -> dict:
             "H2": "global_pollination_constraint",
             "H3": "dual_plant_response_pathways",
             "H4": "posthoc_functional_triangulation",
-            "H5": "taxonomic_realization",
+        },
+        "H1_global_recurrent_island_syndrome": {
+            "between_region_contrasts_used_in_submission": False,
         },
         "H4_functional_bridge": {
             "inferential_role": "posthoc_functional_triangulation",
@@ -40,8 +42,8 @@ def _valid_lock() -> dict:
             "historical_pollen_limitation_selected_traits": False,
             "pollen_limitation_mediates_global_syndrome": False,
             "GloBI_identifies_pollinator_mechanism": False,
-            "all_observed_equals_native_assembly": False,
-            "taxonomic_attenuation_identifies_cause": False,
+            "equal_response_vectors_across_regions": False,
+            "between_region_difference_is_primary_claim": False,
         },
     }
 
@@ -49,6 +51,20 @@ def _valid_lock() -> dict:
 def test_valid_lock_passes() -> None:
     report = validate_v13_lock(_valid_lock())
     assert report["verified"] is True
+
+
+def test_h5_reintroduction_fails() -> None:
+    lock = _valid_lock()
+    lock["architecture"]["H5"] = "taxonomic_realization"
+    with pytest.raises(ValueError, match="H1-H4"):
+        validate_v13_lock(lock)
+
+
+def test_between_region_promotion_fails() -> None:
+    lock = _valid_lock()
+    lock["H1_global_recurrent_island_syndrome"]["between_region_contrasts_used_in_submission"] = True
+    with pytest.raises(ValueError, match="between-region"):
+        validate_v13_lock(lock)
 
 
 def test_confirmatory_relabel_fails() -> None:
