@@ -2,7 +2,7 @@ name: Audit Chapter 1 v13 submission
 
 on:
   push:
-    branches: [ch1-v13-global-only]
+    branches: [ch1-v13-global-only, chore/chapter1-v13-legacy-boundary]
     paths:
       - "config/chapter1_v13_*.json"
       - "config/chapter1_v13_*.yml"
