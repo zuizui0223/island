@@ -40,6 +40,7 @@ RETIRED_CLI_TARGET_TOKENS = (
     "island_v2.m1_m3_bombus",
     "island_v2.chapter1_h5_bombus",
     "island_v2.chapter1_pr138_palearctic",
+    "island_v2.chapter1_submission_freeze",
 )
 
 
