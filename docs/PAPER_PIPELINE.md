@@ -341,16 +341,16 @@ Previous v8/v9/v10/v11/v12 surfaces remain historical provenance and continue to
 
 ## 14. Chapter 1 / Chapter 2 handoff
 
-Chapter 1 identifies response direction, component decoupling, genus structuring and failure of common global mechanisms. It cannot identify the local causal chain.
+Chapter 1 identifies a recurrent global island-syndrome direction, an independent global pollen-limitation gradient, two partially separable plant-response pathways, and post-hoc functional compatibility between frozen trait states and current pollen limitation. It cannot identify the historical causal sequence.
 
 Chapter 2 / `izu-core` should resolve:
 
 `interaction state -> effective service -> reproductive outcome -> phenotype`
 
-within one biological system and test cline, step, shared-breakpoint and channel-specific response geometries prospectively.
+within one biological system and test prospectively whether changes in pollination service and pollen limitation precede changes in reproductive assurance or floral accessibility.
 
-- **Chapter 1:** where, which components, and at what lineage-assembly level is the syndrome represented?
-- **Chapter 2:** how and why functionally within a resolved system?
+- **Chapter 1:** does the global pattern recur, what plant strategies express it, and is it functionally compatible with pollen limitation?
+- **Chapter 2:** how and why does the causal sequence operate within a resolved system?
 
 ## 15. Legacy v1 boundary
 

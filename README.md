@@ -236,19 +236,18 @@ The v13 synthesis is triangulation, not historical causal mediation. It does not
 
 ## 7. Chapter 1 / Chapter 2 division of labour
 
-Chapter 1 answers:
+Chapter 1 answers the global questions:
 
-- where isolation-associated responses occur;
-- which floral/reproductive components move;
-- whether directions differ among contexts;
-- how strongly the strongest syndrome is represented in non-random genus composition;
-- which simple global explanations survive explicit falsification.
+- whether a recurrent floral/reproductive island-syndrome direction appears across geographically distinct island floras;
+- whether experimental pollen limitation increases with geographic isolation;
+- whether reproductive assurance and floral accessibility/generalization provide partially separable plant responses;
+- whether frozen functional trait states are compatible with lower current pollen limitation.
 
 Chapter 2 (`izu-core`) is the mechanistic-resolution layer. It can measure the within-system chain:
 
 `interaction state -> effective service -> reproductive outcome -> phenotype`
 
-and test cline versus threshold-like response geometry directly. The H5d non-identifiability result is the reason this local resolution is necessary; Chapter 1 should not retrofit a threshold mechanism from global assemblage averages.
+and test whether local changes in pollen limitation actually precede selection on reproductive assurance or floral accessibility. Chapter 1 establishes the global pattern and functional compatibility; Chapter 2 can test the causal sequence within a resolved biological system.
 
 ## 8. Repository map
 
