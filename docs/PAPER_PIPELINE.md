@@ -1,6 +1,6 @@
 # Chapter 1 v13 paper pipeline
 
-This document is the shortest reproducibility map for the **current v13 global-only H1–H4 submission**. Pre-v13 hypothesis ladders and defended submission surfaces are historical provenance and are archived from the active paper interface under `legacy/chapter1-pre-v13/`.
+This document is the shortest reproducibility map for the **current v13 global-only H1–H4 submission**. Pre-v13 hypothesis ladders, mechanism branches and defended submission surfaces are historical provenance and are archived/indexed from the active paper interface under `legacy/chapter1-pre-v13/`.
 
 ## Pipeline at a glance
 
@@ -144,10 +144,12 @@ Current validation:
 - `tests/test_chapter1_v13_raw_colour_audit.py`
 - `tests/test_chapter1_v13_colour_architecture_audit.py`
 - `tests/test_chapter1_v13_raw_colour_coupling_audit.py`
+- `tests/test_chapter1_v13_legacy_boundary.py`
+- `tests/test_v13_active_surface_legacy_boundary.py`
 - `.github/workflows/audit-chapter1-v13-submission.yml`
 - `.github/workflows/run-chapter1-v13-raw-colour-audit.yml`
 
-The workflows run on changes targeting `main`, execute the repository suite with the documented exclusions where applicable, lint v13 code/tests and guard frozen historical provenance from accidental modification.
+The workflows execute the repository suite with the documented exclusions where applicable, lint v13 code/tests, guard the active/legacy boundary and preserve the frozen parent result-lock provenance required by v13.
 
 ## 8. Claim ceiling
 
@@ -182,8 +184,8 @@ This is a conceptual handoff, not a claim that Chapter 2 theory causally validat
 
 ## 10. Legacy boundary
 
-The prior publication-facing README, paper-pipeline narrative and retired pre-v13 submission-surface audit are preserved under `legacy/chapter1-pre-v13/`.
+The active package no longer exposes the retired Palearctic-centred, Bombus-mechanism, PR138, old-H5 or pre-v13 submission implementations. Representative historical files are retained under `legacy/chapter1-pre-v13/`, while the complete retired implementation remains exactly recoverable from the pre-cleanup Git commit recorded in `legacy/chapter1-pre-v13/ARCHIVE_MANIFEST.md`.
 
-Historical analysis implementations and frozen parent result files remain in their original code/config locations when v13 reproducibility depends on them. Their presence is provenance, not an active competing paper claim.
+The active `config/` directory deliberately retains the frozen parent result locks required by `config/chapter1_v13_unified_island_syndrome_result_lock.json`. They are result provenance, not competing active hypotheses.
 
 `legacy/v1/` remains a separate frozen historical analysis.
