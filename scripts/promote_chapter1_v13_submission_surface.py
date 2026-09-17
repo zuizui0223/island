@@ -47,7 +47,7 @@ def require_inputs() -> dict:
 
 
 def update_readme(text: str) -> str:
-    section = """
+    surface = """
 The current publication-facing surface is **v13 global-only**, organized as **H1–H4**. This revision keeps the merged v13 evidence but removes assembly-depth and between-stratum branches from the submission spine. Frozen v11/v12 files remain historical provenance.
 
 Read these first, in this order:
@@ -76,16 +76,36 @@ Publication-facing concept:
 
 The v13 synthesis is triangulation, not historical causal mediation. It does not claim that pollen limitation caused the observed trait evolution, that pollinator abundance globally declines with isolation, or that GloBI identifies the causal mechanism.
 """
-    return replace_section(
+    handoff = """
+Chapter 1 answers the global questions:
+
+- whether a recurrent floral/reproductive island-syndrome direction appears across geographically distinct island floras;
+- whether experimental pollen limitation increases with geographic isolation;
+- whether reproductive assurance and floral accessibility/generalization provide partially separable plant responses;
+- whether frozen functional trait states are compatible with lower current pollen limitation.
+
+Chapter 2 (`izu-core`) is the mechanistic-resolution layer. It can measure the within-system chain:
+
+`interaction state -> effective service -> reproductive outcome -> phenotype`
+
+and test whether local changes in pollen limitation actually precede selection on reproductive assurance or floral accessibility. Chapter 1 establishes the global pattern and functional compatibility; Chapter 2 can test the causal sequence within a resolved biological system.
+"""
+    text = replace_section(
         text,
         "## 6. Current submission surface\n",
         "## 7. Chapter 1 / Chapter 2 division of labour\n",
-        section,
+        surface,
+    )
+    return replace_section(
+        text,
+        "## 7. Chapter 1 / Chapter 2 division of labour\n",
+        "## 8. Repository map\n",
+        handoff,
     )
 
 
 def update_pipeline(text: str) -> str:
-    section = """
+    surface = """
 The current publication-facing surface is **v13 global-only**, with an **H1–H4** scientific spine. Historical v11/v12 surfaces remain immutable provenance.
 
 Read in this order:
@@ -116,11 +136,29 @@ The frozen Route A/B distance-by-trait moderation failures remain negative resul
 
 Previous v8/v9/v10/v11/v12 surfaces remain historical provenance and continue to document the chronology of claim defense.
 """
-    return replace_section(
+    handoff = """
+Chapter 1 identifies a recurrent global island-syndrome direction, an independent global pollen-limitation gradient, two partially separable plant-response pathways, and post-hoc functional compatibility between frozen trait states and current pollen limitation. It cannot identify the historical causal sequence.
+
+Chapter 2 / `izu-core` should resolve:
+
+`interaction state -> effective service -> reproductive outcome -> phenotype`
+
+within one biological system and test prospectively whether changes in pollination service and pollen limitation precede changes in reproductive assurance or floral accessibility.
+
+- **Chapter 1:** does the global pattern recur, what plant strategies express it, and is it functionally compatible with pollen limitation?
+- **Chapter 2:** how and why does the causal sequence operate within a resolved system?
+"""
+    text = replace_section(
         text,
         "## 13. Canonical paper surface\n",
         "## 14. Chapter 1 / Chapter 2 handoff\n",
-        section,
+        surface,
+    )
+    return replace_section(
+        text,
+        "## 14. Chapter 1 / Chapter 2 handoff\n",
+        "## 15. Legacy v1 boundary\n",
+        handoff,
     )
 
 
