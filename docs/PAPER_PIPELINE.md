@@ -309,8 +309,9 @@ This figure deliberately displays favourable and adverse evidence together.
 
 ## 13. Canonical paper surface
 
+The current publication-facing surface is **v13 global-only**, with an **H1–H4** scientific spine. Historical v11/v12 surfaces remain immutable provenance.
 
-The current publication-facing surface is **v13**. Read in this order:
+Read in this order:
 
 1. `docs/chapter1_manuscript_full_v13_global_pollination_constraint_20260917.md`
 2. `config/chapter1_v13_unified_island_syndrome_result_lock.json`
@@ -319,23 +320,24 @@ The current publication-facing surface is **v13**. Read in this order:
 5. `docs/chapter1_unified_hypothesis_20260917.md`
 6. `docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md` — historical defended manuscript
 
-The v13 paper does **not** retroactively redefine the original progressive H1–H5 contract. Instead it synthesizes already-frozen and newly versioned evidence into a publication-facing hierarchy:
+The current publication-facing hierarchy is:
 
-- H1: recurrent global classic-island direction with regional modification;
+- H1: recurrent global classic-island direction across four geographic replication strata;
 - H2: full-global experimental pollen-limitation gradient;
 - H3: partially separable reproductive-assurance and floral-accessibility pathways;
-- H4: explicitly post-hoc exact-species functional triangulation;
-- H5: flora-layer-specific taxonomic realization.
+- H4: explicitly post-hoc exact-species functional triangulation.
 
-Canonical new v13 functional-bridge run:
+The four geographic strata are used to demonstrate recurrence of the global direction. Between-stratum differences are not part of the current submission spine.
+
+Canonical v13 functional-bridge run:
 
 - run `35141624253`;
 - artifact `10465048981`;
 - digest `sha256:50b6ca693ec989690854a9e9aadb5cd8a672b5fbcf3ff84e5aabbab06a6abc8e`.
 
-The frozen Route A/B distance-by-trait moderation failures remain negative results. v13 does not relabel them as support; it asks a distinct post-hoc functional question about current pollen-limitation levels under the already-frozen exact-species trait states.
+The frozen Route A/B distance-by-trait moderation failures remain negative results. v13 does not relabel them as support. GloBI remains supplementary sampling-sensitive evidence.
 
-Previous v8/v9/v10/v11/v12 surfaces remain historical provenance and continue to define the chronology of claim defense.
+Previous v8/v9/v10/v11/v12 surfaces remain historical provenance and continue to document the chronology of claim defense.
 
 ## 14. Chapter 1 / Chapter 2 handoff
 
