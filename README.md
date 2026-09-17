@@ -47,7 +47,7 @@ Final trait snapshot:
 
 Database construction is documented in [`docs/DATABASE_BUILD.md`](docs/DATABASE_BUILD.md), and the versioned release route is in [`DATABASE_RELEASE.md`](DATABASE_RELEASE.md).
 
-Older analyses that generated frozen parent evidence remain in their original code/config locations so the v13 evidence chain stays reproducible. Their historical hypotheses are not active publication claims.
+The frozen parent **result locks required by v13 remain active** so the submission contract can validate their exact contracts. Retired Palearctic-, Bombus-, PR138- and old-submission implementation branches are no longer importable active code or workflows; their historical provenance is indexed under [`legacy/chapter1-pre-v13/`](legacy/chapter1-pre-v13/) and is recoverable from the pre-cleanup Git commit recorded there.
 
 ## 5. Evidence roles and claim ceiling
 
@@ -70,10 +70,12 @@ The current submission contract is enforced by:
 - [`tests/test_chapter1_v13_raw_colour_audit.py`](tests/test_chapter1_v13_raw_colour_audit.py);
 - [`tests/test_chapter1_v13_colour_architecture_audit.py`](tests/test_chapter1_v13_colour_architecture_audit.py);
 - [`tests/test_chapter1_v13_raw_colour_coupling_audit.py`](tests/test_chapter1_v13_raw_colour_coupling_audit.py);
+- [`tests/test_chapter1_v13_legacy_boundary.py`](tests/test_chapter1_v13_legacy_boundary.py);
+- [`tests/test_v13_active_surface_legacy_boundary.py`](tests/test_v13_active_surface_legacy_boundary.py);
 - [`.github/workflows/audit-chapter1-v13-submission.yml`](.github/workflows/audit-chapter1-v13-submission.yml);
 - [`.github/workflows/run-chapter1-v13-raw-colour-audit.yml`](.github/workflows/run-chapter1-v13-raw-colour-audit.yml).
 
-The audits run for changes targeting `main` and check the repository suite, v13 linting, the v13-only paper surface and preservation of frozen historical provenance.
+The audits run for changes targeting `main` and check the repository suite, v13 linting, the v13-only paper surface, the legacy boundary and preservation of frozen historical provenance.
 
 ## 7. Chapter 1 / Chapter 2 handoff
 
@@ -114,6 +116,8 @@ legacy/v1/
 
 ## 9. Legacy boundary
 
-The pre-v13 publication surface is archived under [`legacy/chapter1-pre-v13/`](legacy/chapter1-pre-v13/). That directory preserves the previous README/pipeline state and the retired submission-surface audit that conflicted with v13. Historical analysis code and frozen parent result files remain where needed for reproducibility, but they are not the active paper interface.
+The pre-v13 publication and mechanism branches are archived/indexed under [`legacy/chapter1-pre-v13/`](legacy/chapter1-pre-v13/). Representative historical files are physically retained there with their former relative paths; the complete retired implementation is exactly recoverable from the pre-cleanup commit recorded in [`legacy/chapter1-pre-v13/ARCHIVE_MANIFEST.md`](legacy/chapter1-pre-v13/ARCHIVE_MANIFEST.md).
+
+The active root intentionally retains only the v13 publication surface, shared data/trait/geography infrastructure, and frozen parent result locks required by the v13 contract. Retired Palearctic-, Bombus-, PR138-, old-H5 and pre-v13 submission implementations must not re-enter the active package without explicitly reopening the publication architecture.
 
 `legacy/v1/` remains the separately frozen historical v1 analysis.
