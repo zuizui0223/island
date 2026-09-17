@@ -17,6 +17,7 @@ CONTEXT_COLORS = base.CONTEXT_COLORS
 CONTEXT_MARKERS = base.CONTEXT_MARKERS
 TRAIT_ORDER = base.TRAIT_ORDER
 TRAIT_LABELS = base.TRAIT_LABELS
+SCOPE_LABELS = base.SCOPE_LABELS
 FIGURE_WIDTH_IN = base.FIGURE_WIDTH_IN
 
 
@@ -75,11 +76,165 @@ def _forest_atomic_clean(
     )
 
 
+def _figure2_clean(source_dir: Path, output_dir: Path) -> list[Path]:
+    atomic = pd.read_csv(source_dir / "figure2_atomic_coefficients.csv")
+    omnibus = pd.read_csv(source_dir / "figure2_omnibus_support.csv")
+    summaries = pd.read_csv(source_dir / "figure2_descriptive_summaries.csv")
+    max_abs = float(np.nanmax(np.abs(atomic[["ci_low", "ci_high"]].to_numpy())))
+    xlim = (-max_abs * 1.08, max_abs * 1.08)
+
+    fig, axes = base.plt.subplots(2, 2, figsize=(FIGURE_WIDTH_IN, 5.65))
+    ax_a, ax_b, ax_c, ax_d = axes.ravel()
+    _forest_atomic_clean(ax_a, atomic, omnibus, "all_analysis", xlim)
+    _forest_atomic_clean(ax_b, atomic, omnibus, "direct_only", xlim)
+    ax_a.set_title("Primary evidence", loc="left", fontweight="bold")
+    ax_b.set_title("Direct-only sensitivity", loc="left", fontweight="bold")
+    base._panel_label(ax_a, "a")
+    base._panel_label(ax_b, "b")
+    ax_b.set_yticklabels([])
+
+    handles = [
+        base.Line2D(
+            [0],
+            [0],
+            marker=CONTEXT_MARKERS[c],
+            linestyle="",
+            color=CONTEXT_COLORS[c],
+            label=CONTEXT_LABELS[c],
+            markersize=3.5,
+        )
+        for c in CONTEXT_ORDER
+    ]
+    fig.legend(
+        handles=handles,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.992),
+        ncol=4,
+        frameon=False,
+        columnspacing=0.9,
+        handletextpad=0.3,
+    )
+
+    classic = summaries.loc[summaries["summary"].eq("classic_orientation")].copy()
+    y = np.arange(len(CONTEXT_ORDER))[::-1]
+    for scope, marker, fill in (
+        ("all_analysis", "o", True),
+        ("direct_only", "s", False),
+    ):
+        part = classic.loc[classic["evidence_scope"].eq(scope)].set_index("context")
+        vals = [part.loc[c, "estimate"] for c in CONTEXT_ORDER]
+        ax_c.scatter(
+            vals,
+            y,
+            marker=marker,
+            s=22,
+            facecolors="#0072B2" if fill else "white",
+            edgecolors="#0072B2",
+            linewidths=0.7,
+            label=SCOPE_LABELS[scope],
+        )
+    ax_c.axvline(0, color="#777777", lw=0.5, ls="--")
+    ax_c.set_yticks(y, [CONTEXT_LABELS[c] for c in CONTEXT_ORDER])
+    ax_c.set_xlabel("Descriptive mean classic-island direction")
+    ax_c.set_title("Recurrent syndrome orientation", loc="left", fontweight="bold")
+    ax_c.legend(frameon=False, loc="lower right")
+    ax_c.spines[["top", "right", "left"]].set_visible(False)
+    ax_c.grid(axis="x", color="#e6e6e6", lw=0.35)
+    base._panel_label(ax_c, "c")
+
+    family = summaries.loc[
+        summaries["summary"].isin(["reproductive_assurance", "floral_accessibility"])
+    ].copy()
+    positions = {c: i for i, c in enumerate(CONTEXT_ORDER[::-1])}
+    for summary_name, color, offset in (
+        ("reproductive_assurance", "#0072B2", -0.12),
+        ("floral_accessibility", "#E69F00", 0.12),
+    ):
+        for scope, marker, open_marker in (
+            ("all_analysis", "o", False),
+            ("direct_only", "s", True),
+        ):
+            part = family.loc[
+                (family["summary"].eq(summary_name))
+                & (family["evidence_scope"].eq(scope))
+            ]
+            xs = part["estimate"].to_numpy(dtype=float)
+            ys = np.array([positions[c] + offset for c in part["context"]])
+            ax_d.scatter(
+                xs,
+                ys,
+                marker=marker,
+                s=19,
+                facecolors="white" if open_marker else color,
+                edgecolors=color,
+                linewidths=0.7,
+            )
+    ax_d.axvline(0, color="#777777", lw=0.5, ls="--")
+    ax_d.set_yticks(range(4), [CONTEXT_LABELS[c] for c in CONTEXT_ORDER[::-1]])
+    ax_d.set_xlabel("Descriptive family mean isolation effect")
+    ax_d.set_title("Two positive response families", loc="left", fontweight="bold")
+    ax_d.spines[["top", "right", "left"]].set_visible(False)
+    ax_d.grid(axis="x", color="#e6e6e6", lw=0.35)
+    family_handles = [
+        base.Line2D(
+            [0],
+            [0],
+            marker="o",
+            linestyle="",
+            color="#0072B2",
+            label="Reproductive assurance",
+            markersize=3.5,
+        ),
+        base.Line2D(
+            [0],
+            [0],
+            marker="o",
+            linestyle="",
+            color="#E69F00",
+            label="Floral accessibility / generalization",
+            markersize=3.5,
+        ),
+        base.Line2D(
+            [0],
+            [0],
+            marker="o",
+            linestyle="",
+            markerfacecolor="#555555",
+            markeredgecolor="#555555",
+            color="#555555",
+            label="Primary",
+            markersize=3.5,
+        ),
+        base.Line2D(
+            [0],
+            [0],
+            marker="s",
+            linestyle="",
+            markerfacecolor="white",
+            markeredgecolor="#555555",
+            color="#555555",
+            label="Direct-only",
+            markersize=3.5,
+        ),
+    ]
+    ax_d.legend(handles=family_handles, frameon=False, loc="lower right", fontsize=4.9)
+    base._panel_label(ax_d, "d")
+
+    fig.subplots_adjust(
+        left=0.17,
+        right=0.99,
+        top=0.91,
+        bottom=0.10,
+        wspace=0.23,
+        hspace=0.53,
+    )
+    return base._save(fig, output_dir / "main", "figure2_recurrent_plant_response")
+
+
 def _extended1_clean(source_dir: Path, output_dir: Path) -> list[Path]:
     atomic = pd.read_csv(source_dir / "figure2_atomic_coefficients.csv")
     fig, axes = base.plt.subplots(1, 2, figsize=(FIGURE_WIDTH_IN, 3.45), sharey=True)
     vmax = float(pd.to_numeric(atomic["n_islands"], errors="coerce").max())
-    image = None
     for ax, scope, title in zip(
         axes,
         ("all_analysis", "direct_only"),
@@ -90,7 +245,7 @@ def _extended1_clean(source_dir: Path, output_dir: Path) -> list[Path]:
         pivot = data.pivot(index="outcome", columns="context", values="n_islands").reindex(
             index=TRAIT_ORDER, columns=CONTEXT_ORDER
         )
-        image = ax.imshow(pivot.to_numpy(), cmap="Greys", aspect="auto", vmin=0, vmax=vmax)
+        ax.imshow(pivot.to_numpy(), cmap="Greys", aspect="auto", vmin=0, vmax=vmax)
         for yi in range(len(TRAIT_ORDER)):
             for xi in range(len(CONTEXT_ORDER)):
                 value = float(pivot.iloc[yi, xi])
@@ -112,17 +267,18 @@ def _extended1_clean(source_dir: Path, output_dir: Path) -> list[Path]:
         )
         ax.set_yticks(range(6), [TRAIT_LABELS[t] for t in TRAIT_ORDER])
         ax.set_title(title, loc="left", fontweight="bold")
-    if image is not None:
-        fig.colorbar(
-            image,
-            ax=axes.tolist(),
-            fraction=0.026,
-            pad=0.025,
-            label="Analysis islands",
-        )
     base._panel_label(axes[0], "a")
     base._panel_label(axes[1], "b")
-    fig.subplots_adjust(left=0.20, right=0.92, top=0.93, bottom=0.22, wspace=0.12)
+    fig.text(
+        0.98,
+        0.955,
+        "Cell labels give analysis-island counts; darker shading indicates larger support.",
+        ha="right",
+        va="top",
+        fontsize=4.4,
+        color="#555555",
+    )
+    fig.subplots_adjust(left=0.20, right=0.98, top=0.90, bottom=0.22, wspace=0.12)
     return base._save(
         fig,
         output_dir / "extended_data",
@@ -242,10 +398,9 @@ def _extended4_clean(source_dir: Path, output_dir: Path) -> list[Path]:
 
 def render_publication_bundle(source_dir: Path, output_dir: Path) -> list[Path]:
     base._style()
-    base._forest_atomic = _forest_atomic_clean
     outputs: list[Path] = []
     outputs.extend(base._figure1(source_dir, output_dir))
-    outputs.extend(base._figure2(source_dir, output_dir))
+    outputs.extend(_figure2_clean(source_dir, output_dir))
     outputs.extend(base._figure3(source_dir, output_dir))
     outputs.extend(_extended1_clean(source_dir, output_dir))
     outputs.extend(base._extended2(source_dir, output_dir))
