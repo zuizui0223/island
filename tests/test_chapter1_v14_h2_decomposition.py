@@ -53,7 +53,6 @@ def test_clustered_ols_recovers_positive_distance_after_selfing():
     assert result["coefficients"]["z_distance"]["estimate"] > 0
 
 
-
 def test_run_decomposition_fits_continuous_and_plain_colour_routes():
     n = 72
     distance = np.linspace(-1.5, 1.5, n)
