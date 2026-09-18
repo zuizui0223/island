@@ -1,0 +1,122 @@
+contract: chapter1_v14_all_data_probability_v1
+
+purpose: >-
+  Refit the broad observed-flora island-syndrome response under the v14 H1 definition.
+  The v14 response contains seven identically oriented atomic states spanning three
+  biological domains: reproductive assurance, colour dulling, and floral
+  accessibility/generalization. v13 inputs and evidence hierarchy remain frozen.
+
+model_family: beta_binomial_logit
+alpha: 0.05
+max_iter: 1000
+minimum_islands_per_outcome: 50
+minimum_outcomes_per_vector: 2
+
+geography_column: log_distance_to_continent_km
+context_column: analysis_regime
+cluster_column: spatial_block
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+
+between_contexts:
+  - [northern_midlatitude, tropical]
+
+strata:
+  - all_observed
+  - all_native
+  - native_nonendemic
+
+flora_roles:
+  broad_primary: all_observed
+  status_sensitivities: [all_native, native_nonendemic]
+
+evidence_roles:
+  primary: all_analysis_eligible
+  direct_sensitivity: direct_only
+
+model_outcomes:
+  - self_compatibility
+  - selfing_mating_system
+  - autonomous_selfing
+  - plain_colour
+  - generalized_form
+  - actinomorphic_symmetry
+  - shallow_open_tube
+
+response_families:
+  reproductive_assurance:
+    - self_compatibility
+    - selfing_mating_system
+    - autonomous_selfing
+  colour_dulling:
+    - plain_colour
+  accessibility_generalization:
+    - generalized_form
+    - actinomorphic_symmetry
+    - shallow_open_tube
+
+broad_outcomes:
+  self_compatibility:
+    trait_name: self_incompatibility
+    positive_states: [SC]
+    negative_states: [SI]
+  selfing_mating_system:
+    trait_name: mating_system
+    positive_states: [predominantly_selfing, obligate_selfing]
+    negative_states: [predominantly_outcrossing]
+  autonomous_selfing:
+    trait_name: autonomous_selfing_capacity
+    positive_states: [autonomous, delayed]
+    negative_states: [absent]
+  plain_colour:
+    trait_name: flower_primary_color
+    positive_states: [white, green_brown_inconspicuous]
+    negative_states: [yellow_orange, red_pink, blue_purple]
+  generalized_form:
+    trait_name: floral_form
+    positive_states: [open_radial, brush_puff, composite_head]
+    negative_states:
+      [tubular, bell_campanulate, funnel_trumpet, urn_urceolate, bilabiate,
+       salverform, papilionaceous, spurred]
+  actinomorphic_symmetry:
+    trait_name: floral_symmetry
+    positive_states: [actinomorphic]
+    negative_states: [zygomorphic]
+  shallow_open_tube:
+    trait_name: tube_depth_class
+    positive_states: [absent_or_open, shallow]
+    negative_states: [deep]
+
+descriptive_domain_summary:
+  method: >-
+    Arithmetic mean of fitted standardized isolation coefficients within each
+    biological domain; no new p-value is assigned to the mean.
+  equal_domain_orientation: >-
+    If one orientation number is shown, take the arithmetic mean of the three domain
+    means, not the arithmetic mean of all seven atomic coefficients.
+
+rules:
+  - v14_is_a_new_reanalysis_not_a_retroactive_change_to_v13
+  - no_arbitrary_minimum_species_per_island_cutoff
+  - trials_equal_number_of_trait_resolved_species_for_that_outcome
+  - all_analysis_eligible_is_primary
+  - direct_only_is_evidence_sensitivity
+  - all_observed_is_broad_composition_not_native_evolution
+  - native_status_sensitivities_are_reported_separately
+  - beta_binomial_overdispersion_is_estimated_per_outcome
+  - spatial_block_cluster_robust_sandwich_covariance
+  - missing_trait_is_not_trait_zero
+  - plain_colour_is_composition_contrast_not_attraction_intensity
+  - seven_response_joint_wald_is_formal_H1_test
+  - domain_means_are_descriptive_without_new_p_values
+  - no_pollinator_identity_in_H1_model
