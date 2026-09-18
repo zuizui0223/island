@@ -114,9 +114,12 @@ discovery analysis:
   support gate reached only 9 matched species for each co-primary family, below the
   frozen 30-species/10-publication threshold, so it stopped before outcome unblinding
   and is not evaluable;
-- a separately frozen PolLimCrop agricultural-domain transportability test. It is an
-  independent outcome domain, but cannot rescue the support-limited wild validation or
-  make the wild-flora discovery confirmatory.
+- a separately frozen PolLimCrop agricultural-domain transportability audit. It also
+  stopped at the outcome-blind support gate: H4a had 36 matched species but 9 state-0
+  species versus a minimum of 10; H4b had 42 matched species but 6 low-score species
+  versus a minimum of 8. No crop outcome was opened. It is an independent outcome
+  domain, but cannot rescue the support-limited wild validation or make the wild-flora
+  discovery confirmatory.
 
 The prospectively frozen co-primary functional predictions remain:
 autonomous selfing -> lower current pollen limitation, and greater equal-weight
@@ -155,3 +158,12 @@ context dependent and does not define one globally directional functional predic
 The v14 reordering does not identify historical trait evolution, mediation by pollen
 limitation, temporal pollinator decline, direct selection by a named pollinator, or
 realized pollinator identity from floral syndrome scores.
+
+
+### Post-freeze validation status
+
+Both prospectively specified H4 validation routes are now closed at outcome-blind
+support gates. Neither route unblinded a prospective pollen-limitation outcome.
+
+Integrated lock:
+`config/chapter1_h4_prospective_validation_summary_lock.json`.
