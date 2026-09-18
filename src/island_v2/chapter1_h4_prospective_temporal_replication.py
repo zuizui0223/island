@@ -268,6 +268,25 @@ def _verify_unblinding_lock(
         raise typer.BadParameter("support lock contract mismatch")
     if lock.get("outcome_status") != "unopened":
         raise typer.BadParameter("support lock must record outcome_status=unopened")
+    support_counts = lock.get("support_counts", {})
+    evaluable = [
+        name
+        for name in (
+            "H4a_reproductive_assurance",
+            "H4b_accessibility_generalization",
+        )
+        if bool(support_counts.get(name, {}).get("evaluable"))
+    ]
+    recorded = [str(x) for x in lock.get("evaluable_primary_hypotheses", [])]
+    if sorted(recorded) != sorted(evaluable):
+        raise typer.BadParameter(
+            "support lock evaluable-primary list is inconsistent with frozen support counts"
+        )
+    if not evaluable:
+        raise typer.BadParameter(
+            "no primary hypothesis passed the frozen support gate; "
+            "outcome file must remain unopened"
+        )
     frozen_commit = str(lock.get("frozen_commit", ""))
     if not frozen_commit or frozen_commit == PLACEHOLDER_COMMIT:
         raise typer.BadParameter(
