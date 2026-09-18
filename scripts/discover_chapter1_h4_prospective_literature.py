@@ -49,33 +49,45 @@ def _doi(value: object) -> str:
 def discover_openalex(max_per_query: int) -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
     for query in QUERIES:
-        url = (
-            "https://api.openalex.org/works?"
-            + urllib.parse.urlencode(
-                {
-                    "search": query,
-                    "filter": (
-                        f"from_publication_date:{START},"
-                        f"to_publication_date:{END},type:article"
-                    ),
-                    "per-page": min(max_per_query, 100),
-                }
+        cursor = "*"
+        collected = 0
+        while collected < max_per_query:
+            page_size = min(100, max_per_query - collected)
+            url = (
+                "https://api.openalex.org/works?"
+                + urllib.parse.urlencode(
+                    {
+                        "search": query,
+                        "filter": (
+                            f"from_publication_date:{START},"
+                            f"to_publication_date:{END},type:article"
+                        ),
+                        "per-page": page_size,
+                        "cursor": cursor,
+                    }
+                )
             )
-        )
-        payload = _get_json(url)
-        for item in payload.get("results", [])[:max_per_query]:
-            rows.append(
-                {
-                    "source_database": "OpenAlex",
-                    "source_record_id": str(item.get("id", "")),
-                    "doi": _doi(item.get("doi")),
-                    "title": str(item.get("title", "") or ""),
-                    "publication_date": str(item.get("publication_date", "") or ""),
-                    "publication_year": str(item.get("publication_year", "") or ""),
-                    "query_family": query,
-                }
-            )
-        time.sleep(0.2)
+            payload = _get_json(url)
+            page = payload.get("results", [])
+            if not page:
+                break
+            for item in page:
+                rows.append(
+                    {
+                        "source_database": "OpenAlex",
+                        "source_record_id": str(item.get("id", "")),
+                        "doi": _doi(item.get("doi")),
+                        "title": str(item.get("title", "") or ""),
+                        "publication_date": str(item.get("publication_date", "") or ""),
+                        "publication_year": str(item.get("publication_year", "") or ""),
+                        "query_family": query,
+                    }
+                )
+            collected += len(page)
+            cursor = str(payload.get("meta", {}).get("next_cursor", "") or "")
+            if not cursor:
+                break
+            time.sleep(0.2)
     return rows
 
 
@@ -94,33 +106,46 @@ def _crossref_date(item: dict) -> str:
 def discover_crossref(max_per_query: int) -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
     for query in QUERIES:
-        params = urllib.parse.urlencode(
-            {
-                "query.bibliographic": query,
-                "filter": (
-                    f"from-pub-date:{START},until-pub-date:{END},"
-                    "type:journal-article"
-                ),
-                "rows": min(max_per_query, 100),
-                "select": "DOI,title,published,published-print,published-online,issued",
-            }
-        )
-        payload = _get_json("https://api.crossref.org/works?" + params)
-        for item in payload.get("message", {}).get("items", [])[:max_per_query]:
-            title_values = item.get("title") or [""]
-            date = _crossref_date(item)
-            rows.append(
+        cursor = "*"
+        collected = 0
+        while collected < max_per_query:
+            page_size = min(100, max_per_query - collected)
+            params = urllib.parse.urlencode(
                 {
-                    "source_database": "Crossref",
-                    "source_record_id": _doi(item.get("DOI")),
-                    "doi": _doi(item.get("DOI")),
-                    "title": str(title_values[0] if title_values else ""),
-                    "publication_date": date,
-                    "publication_year": date[:4] if date else "",
-                    "query_family": query,
+                    "query.bibliographic": query,
+                    "filter": (
+                        f"from-pub-date:{START},until-pub-date:{END},"
+                        "type:journal-article"
+                    ),
+                    "rows": page_size,
+                    "cursor": cursor,
+                    "select": "DOI,title,published,published-print,published-online,issued",
                 }
             )
-        time.sleep(0.2)
+            payload = _get_json("https://api.crossref.org/works?" + params)
+            message = payload.get("message", {})
+            page = message.get("items", [])
+            if not page:
+                break
+            for item in page:
+                title_values = item.get("title") or [""]
+                date = _crossref_date(item)
+                rows.append(
+                    {
+                        "source_database": "Crossref",
+                        "source_record_id": _doi(item.get("DOI")),
+                        "doi": _doi(item.get("DOI")),
+                        "title": str(title_values[0] if title_values else ""),
+                        "publication_date": date,
+                        "publication_year": date[:4] if date else "",
+                        "query_family": query,
+                    }
+                )
+            collected += len(page)
+            cursor = str(message.get("next-cursor", "") or "")
+            if not cursor:
+                break
+            time.sleep(0.2)
     return rows
 
 
