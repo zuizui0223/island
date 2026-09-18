@@ -1,0 +1,41 @@
+{
+  "contract": "chapter1_h4_prospective_trait_state_lock_v1",
+  "date": "2026-09-18",
+  "inferential_role": "outcome_blind_frozen_trait_state_materialization",
+  "parent_trait_artifact": {
+    "workflow_run_id": 34191508045,
+    "artifact_id": 10042377593,
+    "artifact_digest": "sha256:5e9c887e093c42eb720f3abd2dc85701ce123fb7fe888c916dc4098ac898ccdd",
+    "ledger_file": "direct_species_trait_ledger.csv.gz",
+    "evidence_scope": "species_direct_high_medium_only"
+  },
+  "materialization": {
+    "workflow_run_id": 35295055944,
+    "artifact_id": 10527906374,
+    "artifact_digest": "sha256:a3e96eaf78dcd98196a7e017a12191ac2d817b9d9ec39362f9e65604c06b4d08",
+    "file": "prospective_h4_frozen_trait_states.csv",
+    "file_sha256": "e288f846ac2da62b52f3d644b370985ab7655fa38ba0221d75012886653a9372"
+  },
+  "counts": {
+    "species_rows": 38674,
+    "autonomous_selfing_nonmissing": 2170,
+    "autonomous_selfing_state_1": 1386,
+    "autonomous_selfing_state_0": 784,
+    "generalized_form_nonmissing": 9141,
+    "generalized_form_state_1": 2781,
+    "generalized_form_state_0": 6360,
+    "actinomorphic_symmetry_nonmissing": 32455,
+    "actinomorphic_symmetry_state_1": 19826,
+    "actinomorphic_symmetry_state_0": 12629,
+    "shallow_open_tube_nonmissing": 2565,
+    "shallow_open_tube_state_1": 1587,
+    "shallow_open_tube_state_0": 978
+  },
+  "rules": {
+    "exact_parent_recodes_reused": true,
+    "outcome_columns_read": false,
+    "fuzzy_matching": false,
+    "genus_fallback": false,
+    "recoding_changes_after_methods_or_outcome_inspection": false
+  }
+}
