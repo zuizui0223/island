@@ -23,5 +23,6 @@ def test_v14_preflight_lock_matches_reordered_architecture():
             value["equal_domain_orientation"] > 0
             for value in lock["H1"][scope].values()
         )
-    assert lock["H2"]["named_pollination_architecture"]["robust_named_identity_specific_effect"] is False
+    named = lock["H2"]["named_pollination_architecture"]
+    assert named["robust_named_identity_specific_effect"] is False
     assert lock["claim_ceiling"]["pollen_limitation_mediates_global_syndrome"] is False
