@@ -76,11 +76,12 @@ jobs:
             tests/test_chapter1_v14_h2_decomposition.py \
             tests/test_chapter1_v14_contract.py \
             tests/test_chapter1_v14_preflight_lock.py \
-            tests/test_chapter1_v14_h4_family_bridge.py \
             tests/test_chapter1_v14_h4_family_bridge.py
           ruff check \
             src/island_v2/chapter1_v14_h2_decomposition.py \
+            src/island_v2/chapter1_v14_h4_family_bridge.py \
             tests/test_chapter1_v14_h2_decomposition.py \
+            tests/test_chapter1_v14_h4_family_bridge.py \
             tests/test_chapter1_v14_contract.py \
             tests/test_chapter1_v14_preflight_lock.py
 
