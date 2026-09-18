@@ -1,0 +1,323 @@
+{
+  "contract": "chapter1_v14_preflight_result_lock_v1",
+  "date": "2026-09-18",
+  "status": "local_reproduction_pending_ci_promotion",
+  "canonical": false,
+  "parents": {
+    "progressive_analysis": {
+      "workflow_run_id": 34232450884,
+      "artifact_id": 10058653212,
+      "artifact_digest": "sha256:b7d7f357d9d4d93062abc4671f27434725f6e0da07c48c1c574c2b601c64f999"
+    },
+    "all_data_scores": {
+      "workflow_run_id": 35100991898,
+      "artifact_id": 10447959173,
+      "artifact_digest": "sha256:2152201aba5e5b02342c7d9d27eaf833b73c2d6405337f9aee1acbdd91af0844"
+    },
+    "global_pollen_limitation": {
+      "workflow_run_id": 35090599662,
+      "artifact_id": 10444156159,
+      "artifact_digest": "sha256:f11046d441fba6cdc3a2842a5a19fdc0bed3661b9ce258625eb93acc879ce623"
+    },
+    "functional_bridge": {
+      "workflow_run_id": 35141624253,
+      "artifact_id": 10465048981,
+      "artifact_digest": "sha256:50b6ca693ec989690854a9e9aadb5cd8a672b5fbcf3ff84e5aabbab06a6abc8e"
+    }
+  },
+  "architecture": {
+    "H1": "seven_response_global_island_syndrome",
+    "H2": "selfing_vs_pollinator_facing_floral_decomposition",
+    "H3": "independent_global_pollen_limitation",
+    "H4": "posthoc_functional_bridge"
+  },
+  "H1": {
+    "model": "beta_binomial_logit",
+    "formal_estimand": "seven_atomic_multivariate_distance_response",
+    "descriptive_summary": "equal_weight_three_domain_orientation",
+    "all_analysis": {
+      "northern_midlatitude": {
+        "joint_p": 0.0000017726892032971558,
+        "joint_q": 0.0000023635856043962077,
+        "equal_domain_orientation": 0.012982572117807359,
+        "colour_dulling": -0.0000739787975571932,
+        "reproductive_assurance": 0.019033537809988836,
+        "accessibility_generalization": 0.019988157340990433
+      },
+      "northern_high_latitude": {
+        "joint_p": 0.0000026079039971533515,
+        "joint_q": 0.0000026079039971533515,
+        "equal_domain_orientation": 0.0900327965718285,
+        "colour_dulling": 0.018846018517548115,
+        "reproductive_assurance": 0.0729497900702823,
+        "accessibility_generalization": 0.17830258112765507
+      },
+      "tropical": {
+        "joint_p": 1.887836456923609e-7,
+        "joint_q": 3.775672913847218e-7,
+        "equal_domain_orientation": 0.10050810076616434,
+        "colour_dulling": 0.036717786367302115,
+        "reproductive_assurance": 0.18377270354465805,
+        "accessibility_generalization": 0.08103381238653284
+      },
+      "southern_extratropical": {
+        "joint_p": 4.007376851190056e-13,
+        "joint_q": 1.6029507404760223e-12,
+        "equal_domain_orientation": 0.08240189447957162,
+        "colour_dulling": 0.08078610536334052,
+        "reproductive_assurance": 0.1489607209639322,
+        "accessibility_generalization": 0.017458857111442128
+      }
+    },
+    "direct_only": {
+      "northern_midlatitude": {
+        "joint_p": 0.00460566023942329,
+        "joint_q": 0.00460566023942329,
+        "equal_domain_orientation": 0.015934466274355425,
+        "colour_dulling": 0.0021585732905597186,
+        "reproductive_assurance": 0.02982507169246584,
+        "accessibility_generalization": 0.015819753840040727
+      },
+      "northern_high_latitude": {
+        "joint_p": 4.989547480629248e-9,
+        "joint_q": 9.979094961258496e-9,
+        "equal_domain_orientation": 0.092492716300925,
+        "colour_dulling": 0.017589229477235346,
+        "reproductive_assurance": 0.10032056013396355,
+        "accessibility_generalization": 0.1595683592915761
+      },
+      "tropical": {
+        "joint_p": 0.000004424647418306259,
+        "joint_q": 0.000005899529891075012,
+        "equal_domain_orientation": 0.08536880944199098,
+        "colour_dulling": 0.033593733398996815,
+        "reproductive_assurance": 0.1308696067979825,
+        "accessibility_generalization": 0.09164308812899356
+      },
+      "southern_extratropical": {
+        "joint_p": 2.72519361502714e-24,
+        "joint_q": 1.090077446010856e-23,
+        "equal_domain_orientation": 0.08550346779673945,
+        "colour_dulling": 0.10076314454369058,
+        "reproductive_assurance": 0.09670267791105545,
+        "accessibility_generalization": 0.0590445809354723
+      }
+    },
+    "classification": "seven_response_joint_vector_supported_in_all_four_contexts_both_scopes; equal_domain_orientation_positive_in_all_four_contexts_both_scopes; colour_dulling_not_uniform_in_northern_midlatitude"
+  },
+  "H2": {
+    "inferential_role": "conditional_decomposition_not_causal_mediation",
+    "all_analysis": {
+      "northern_midlatitude": {
+        "selfing_core": {
+          "beta": 0.010458730613126778,
+          "p": 0.35403551523326354
+        },
+        "generalized_accessible_given_selfing": {
+          "beta": 0.021425531868105585,
+          "p": 0.08332326532798884,
+          "q": 0.13331722452478215
+        },
+        "plain_colour_given_selfing": {
+          "beta": -0.002618548950378946,
+          "p": 0.8939205358481762,
+          "q": 0.8939205358481762
+        },
+        "attraction_shift_given_selfing": {
+          "beta": 0.011541832181015128,
+          "p": 0.20792115652215085
+        }
+      },
+      "northern_high_latitude": {
+        "selfing_core": {
+          "beta": 0.04834566801958409,
+          "p": 0.07944909436275359
+        },
+        "generalized_accessible_given_selfing": {
+          "beta": 0.12476399338829586,
+          "p": 0.00036046017063109167,
+          "q": 0.0014418406825243667
+        },
+        "plain_colour_given_selfing": {
+          "beta": -0.006133126515572265,
+          "p": 0.7493902146994847,
+          "q": 0.8564454682279824
+        },
+        "attraction_shift_given_selfing": {
+          "beta": 0.09899618444972412,
+          "p": 0.004107182374969387
+        }
+      },
+      "tropical": {
+        "selfing_core": {
+          "beta": 0.06209827793170262,
+          "p": 0.0332036
+        },
+        "generalized_accessible_given_selfing": {
+          "beta": 0.0732812098873794,
+          "p": 0.00185196,
+          "q": 0.00493856
+        },
+        "plain_colour_given_selfing": {
+          "beta": 0.06107107173863004,
+          "p": 0.025049605853123682,
+          "q": 0.050099211706247364
+        },
+        "attraction_shift_given_selfing": {
+          "beta": 0.0425017,
+          "p": 0.00526912
+        }
+      },
+      "southern_extratropical": {
+        "selfing_core": {
+          "beta": 0.10231903682511187,
+          "p": 0.020182214627357486
+        },
+        "generalized_accessible_given_selfing": {
+          "beta": 0.05357198162097365,
+          "p": 0.10851591170472413,
+          "q": 0.1446878822729655
+        },
+        "plain_colour_given_selfing": {
+          "beta": 0.08034460076751718,
+          "p": 0.00011546590491219538,
+          "q": 0.000923727239297563
+        },
+        "attraction_shift_given_selfing": {
+          "beta": 0.05272642079527606,
+          "p": 0.10700412849771926
+        }
+      }
+    },
+    "direct_only": {
+      "northern_midlatitude": {
+        "selfing_core": {
+          "beta": 0.02521231589731997,
+          "p": 0.07032760280643449
+        },
+        "generalized_accessible_given_selfing": {
+          "beta": 0.016773798630102886,
+          "p": 0.13529628643055203,
+          "q": 0.27059257286110405
+        },
+        "plain_colour_given_selfing": {
+          "beta": -0.000008557394861181944,
+          "p": 0.999683561605426,
+          "q": 0.999683561605426
+        },
+        "attraction_shift_given_selfing": {
+          "beta": 0.012438686607749775,
+          "p": 0.1830938187362882
+        }
+      },
+      "northern_high_latitude": {
+        "selfing_core": {
+          "beta": 0.06166108138454135,
+          "p": 0.03472756829612607
+        },
+        "generalized_accessible_given_selfing": {
+          "beta": 0.1202351671917426,
+          "p": 0.0020159000334022815,
+          "q": 0.008063600133609126
+        },
+        "plain_colour_given_selfing": {
+          "beta": -0.0014657399250531677,
+          "p": 0.9309650447015023,
+          "q": 0.999683561605426
+        },
+        "attraction_shift_given_selfing": {
+          "beta": 0.07606615394883776,
+          "p": 0.04391960850701471
+        }
+      },
+      "tropical": {
+        "selfing_core": {
+          "beta": 0.11520039298129477,
+          "p": 0.0006358086980802318
+        },
+        "generalized_accessible_given_selfing": {
+          "beta": 0.061123998604132854,
+          "p": 0.018791975444908498,
+          "q": 0.05011193451975599
+        },
+        "plain_colour_given_selfing": {
+          "beta": 0.014449253406799433,
+          "p": 0.6388843726744909,
+          "q": 0.8518458302326546
+        },
+        "attraction_shift_given_selfing": {
+          "beta": 0.03485826049171546,
+          "p": 0.025822611925201026
+        }
+      },
+      "southern_extratropical": {
+        "selfing_core": {
+          "beta": 0.1561148331917151,
+          "p": 0.00252088778876328
+        },
+        "generalized_accessible_given_selfing": {
+          "beta": 0.04063055310006456,
+          "p": 0.25233501370053185,
+          "q": 0.40373602192085095
+        },
+        "plain_colour_given_selfing": {
+          "beta": 0.09371907809597188,
+          "p": 3.7499507982981997e-7,
+          "q": 0.0000029999606386385597
+        },
+        "attraction_shift_given_selfing": {
+          "beta": 0.036674877645721735,
+          "p": 0.18887041995372233
+        }
+      }
+    },
+    "named_pollination_architecture": {
+      "robust_named_identity_specific_effect": false,
+      "all_analysis_large_bee_beta_signs": "negative_4_of_4_but_individually_unsupported",
+      "butterfly_like": "mixed_or_unsupported_after_selfing_adjustment",
+      "bird_like": "mixed_or_unsupported_after_selfing_adjustment",
+      "shared_factor": "unsupported_after_selfing_adjustment"
+    },
+    "classification": "reproductive_assurance_increases_with_isolation; accessibility_shift_persists_after_selfing_adjustment; colour_independence_is_context_specific; named_pollination_syndrome_not_identified"
+  },
+  "H3": {
+    "source": "frozen_v13_H2_global_pollen_limitation",
+    "estimate": 0.07936837202478536,
+    "se": 0.037734195473258715,
+    "two_sided_p": 0.035434833922249484,
+    "one_sided_positive_p": 0.017717416961124742,
+    "n_effect_rows": 2969,
+    "n_sites": 1248,
+    "n_publications": 919,
+    "classification": "global_isolation_associated_experimental_pollen_limitation_supported"
+  },
+  "H4": {
+    "source": "frozen_v13_functional_bridge",
+    "inferential_role": "posthoc_functional_triangulation",
+    "strongest_bridge": {
+      "trait": "autonomous_selfing",
+      "estimate": -0.446724,
+      "two_sided_p": 2.600385e-8
+    },
+    "architecture_concordance": {
+      "actinomorphic_symmetry": {
+        "estimate": -0.381194,
+        "two_sided_p": 0.00001177103
+      },
+      "generalized_form": {
+        "estimate": -0.184104,
+        "two_sided_p": 0.04490723
+      }
+    },
+    "historical_selection_identified": false
+  },
+  "claim_ceiling": {
+    "pending_ci_means_canonical": false,
+    "historical_pollen_limitation_selected_traits": false,
+    "pollen_limitation_mediates_global_syndrome": false,
+    "H2_conditional_decomposition_is_causal_mediation": false,
+    "H2_named_pollination_syndrome_identified": false,
+    "pollinator_abundance_decline_identified": false,
+    "within_lineage_evolution_identified": false
+  }
+}
