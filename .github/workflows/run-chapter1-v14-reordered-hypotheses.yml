@@ -16,6 +16,7 @@ on:
       - "config/chapter1_v14_preflight_result_lock.json"
       - ".github/workflows/run-chapter1-v14-reordered-hypotheses.yml"
       - "docs/chapter1_v14_hypothesis_reorder_20260918.md"
+      - "docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md"
       - "docs/chapter1_v14_preflight_results_20260918.md"
       - "docs/PAPER_PIPELINE.md"
       - "README.md"
