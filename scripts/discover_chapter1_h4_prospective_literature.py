@@ -127,6 +127,9 @@ def discover_crossref(max_per_query: int) -> list[dict[str, str]]:
 def deduplicate(rows: list[dict[str, str]]) -> list[dict[str, str]]:
     chosen: dict[str, dict[str, str]] = {}
     for row in rows:
+        date = row["publication_date"].strip()
+        if not date or date < START or date > END:
+            continue
         doi = row["doi"].strip()
         key = (
             f"doi:{doi}"
@@ -138,27 +141,27 @@ def deduplicate(rows: list[dict[str, str]]) -> list[dict[str, str]]:
             chosen[key] = dict(row)
             continue
         sources = sorted(
-            set(
-                filter(
-                    None,
-                    [
-                        current.get("source_database", ""),
-                        row.get("source_database", ""),
-                    ],
+            {
+                token
+                for value in (
+                    current.get("source_database", ""),
+                    row.get("source_database", ""),
                 )
-            )
+                for token in str(value).split("|")
+                if token
+            }
         )
         current["source_database"] = "|".join(sources)
         queries = sorted(
-            set(
-                filter(
-                    None,
-                    [
-                        current.get("query_family", ""),
-                        row.get("query_family", ""),
-                    ],
+            {
+                token
+                for value in (
+                    current.get("query_family", ""),
+                    row.get("query_family", ""),
                 )
-            )
+                for token in str(value).split("|")
+                if token
+            }
         )
         current["query_family"] = "|".join(queries)
     return sorted(
