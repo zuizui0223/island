@@ -26,6 +26,9 @@ on:
       - "tests/test_chapter1_v14_h4_family_bridge.py"
       - "config/chapter1_v14_preflight_result_lock.json"
       - "tests/test_chapter1_v14_canonical_surface.py"
+      - "tests/test_chapter1_v14_h4_validation_addendum.py"
+      - "docs/chapter1_h4_prospective_validation_summary_20260918.md"
+      - "config/chapter1_h4_prospective_validation_summary_lock.json"
       - "docs/chapter1_submission_freeze_v14_20260918.md"
       - "config/chapter1_v14_canonical_result_lock.json"
       - ".github/workflows/run-chapter1-v14-reordered-hypotheses.yml"
@@ -90,7 +93,8 @@ jobs:
             tests/test_chapter1_v14_h4_family_bridge.py \
             tests/test_chapter1_v14_h4_exact_h2_score_bridge.py \
             tests/test_chapter1_v14_submission_promotion.py \
-            tests/test_chapter1_v14_canonical_surface.py
+            tests/test_chapter1_v14_canonical_surface.py \
+            tests/test_chapter1_v14_h4_validation_addendum.py
           ruff check \
             src/island_v2/chapter1_v14_h2_decomposition.py \
             src/island_v2/chapter1_v14_h4_family_bridge.py \
@@ -101,6 +105,7 @@ jobs:
             tests/test_chapter1_v14_h4_exact_h2_score_bridge.py \
             tests/test_chapter1_v14_submission_promotion.py \
             tests/test_chapter1_v14_canonical_surface.py \
+            tests/test_chapter1_v14_h4_validation_addendum.py \
             tests/test_chapter1_v14_contract.py \
             tests/test_chapter1_v14_preflight_lock.py
 

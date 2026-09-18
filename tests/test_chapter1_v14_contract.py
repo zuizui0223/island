@@ -90,6 +90,16 @@ def test_v14_H4_separates_discovery_validation_and_transportability():
     assert wild["outcomes_unblinded_for_primary_test"] is False
     crop = layers["pollimcrop_independent_domain"]
     assert crop["outcome_domain_independent_of_v13_GloPL"] is True
+    assert crop["status"] == "support_gate_not_met_not_evaluable"
+    assert crop["admitted_hypotheses"] == []
+    assert crop["outcome_extraction_authorized"] is False
+    assert crop["outcomes_read"] is False
+    assert crop["H4a_support"]["species_state_0"] == 9
+    assert crop["H4a_support"]["required_min_species_per_state"] == 10
+    assert crop["H4b_support"]["low_score_species"] == 6
+    assert crop["H4b_support"]["required_min_low_score_species"] == 8
+    assert config["claim_ceiling"]["prospective_crop_transportability_supported"] is False
+    assert config["claim_ceiling"]["any_prospective_outcome_unblinded"] is False
     assert config["colour_bridge"]["primary_global_test"] is False
 
 

@@ -122,15 +122,22 @@ same direction. This is sensitivity evidence, not the primary H2-to-H4 bridge.
 
 #### Prospective validation layers
 
-PR #236 remains separate:
+PR #236 is now a merged post-freeze prospective-validation audit:
 
 - the prospectively frozen post-2015 wild-plant temporal test stopped before outcome
   unblinding because frozen support thresholds were not met (9 matched species for
   each co-primary family versus a 30-species minimum);
-- this is support insufficiency, not a biological null;
-- the separately frozen PolLimCrop test is an independent agricultural-domain
-  transportability analysis and cannot rescue the wild support failure or make the
-  post-hoc wild discovery confirmatory.
+- the independently frozen PolLimCrop transportability audit also stopped before
+  outcome unblinding: H4a had 36 matched species but only 9 state-0 species
+  (minimum 10), and H4b had 42 matched species but only 6 low-score species
+  (minimum 8);
+- both decisions record `outcome_extraction_authorized=false` and no prospective
+  pollen-limitation outcome was read;
+- both are support insufficiency, not biological nulls;
+- neither route rescues the other or makes the post-hoc wild discovery confirmatory.
+
+Integrated post-freeze decision:
+`config/chapter1_h4_prospective_validation_summary_lock.json`.
 
 No global primary colour-to-pollen-limitation bridge is promoted because the H1/H2
 colour response is context dependent and does not define one globally directional
@@ -155,7 +162,7 @@ v14 must not claim:
 - a universal bee, butterfly or bird mechanism;
 - global pollinator abundance or visitation decline;
 - historical trait selection by pollen limitation;
-- that the support-limited prospective wild test is a biological null;
+- that either support-limited prospective validation route is a biological null;
 - within-lineage evolution rather than assemblage composition.
 
 ## Canonical files
@@ -173,3 +180,23 @@ Read in this order:
 
 The v13 manuscript, result locks and submission freeze remain unchanged parent
 provenance below this surface.
+
+
+## Post-freeze H4 validation addendum — 2026-09-18
+
+The canonical v14 result lock remains unchanged. After the core v14 reproduction was
+frozen, two prospectively specified H4 validation routes were completed through their
+outcome-blind support gates.
+
+The wild temporal route was not evaluable because the post-2015 cohort was too sparse.
+The PolLimCrop route had adequate total overlap but failed predeclared balance/tail
+requirements. In both cases outcome extraction remained unauthorized and no prospective
+pollen-limitation outcome was opened.
+
+This addendum strengthens the evidence boundary rather than the inferential status of
+H4: the outcome-level H4 evidence remains post-hoc discovery/triangulation and has not
+received an evaluable prospective replication.
+
+Canonical post-freeze audit:
+- `config/chapter1_h4_prospective_validation_summary_lock.json`;
+- `docs/chapter1_h4_prospective_validation_summary_20260918.md`.

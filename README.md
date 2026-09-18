@@ -6,7 +6,7 @@
 > 1. **H1 — global floral/reproductive island syndrome:** reproductive assurance + plain colour + accessible/generalized floral structure.
 > 2. **H2 — floral-shift decomposition:** selfing-syndrome/reproductive-assurance route versus selfing-adjusted pollinator-facing colour/accessibility route, with pollination-syndrome concordance tested from raw colour × raw form/tube coupling rather than weighted guild scores.
 > 3. **H3 — independent global pollen limitation:** the frozen GloPL isolation analysis, formerly v13 H2.
-> 4. **H4 — tiered functional bridge:** the v13 atomic-trait discovery is retained; v14 adds a literal exact-H2-species-score bridge (`selfing_core`, `generalized_accessible`), keeps atomic family reconstruction as a sensitivity, and PR #236 supplies separate prospective validation layers.
+> 4. **H4 — tiered functional bridge:** the v13 atomic-trait discovery is retained; v14 adds a literal exact-H2-species-score bridge (`selfing_core`, `generalized_accessible`) and atomic reconstruction sensitivity. Two prospectively frozen validation routes (post-2015 wild and PolLimCrop) both stopped at outcome-blind support gates, so H4 remains post-hoc rather than prospectively replicated.
 >
 > H1 is refit as a seven-response beta-binomial multivariate analysis. H2 explicitly
 > conditions colour and accessibility responses on selfing_core. The detailed design
@@ -18,6 +18,8 @@
 > H4 evidence roles: [config/chapter1_v14_h4_evidence_hierarchy.yml](config/chapter1_v14_h4_evidence_hierarchy.yml)
 > H4 exact H2-score bridge: [config/chapter1_v14_h4_exact_h2_score_bridge.yml](config/chapter1_v14_h4_exact_h2_score_bridge.yml)
 > H4 atomic reconstruction sensitivity: [config/chapter1_v14_h4_family_bridge.yml](config/chapter1_v14_h4_family_bridge.yml)
+> H4 prospective validation boundary: [config/chapter1_h4_prospective_validation_summary_lock.json](config/chapter1_h4_prospective_validation_summary_lock.json)
+> H4 prospective validation audit: [docs/chapter1_h4_prospective_validation_summary_20260918.md](docs/chapter1_h4_prospective_validation_summary_20260918.md)
 >
 > Canonical result lock: [config/chapter1_v14_canonical_result_lock.json](config/chapter1_v14_canonical_result_lock.json)
 > Submission freeze: [docs/chapter1_submission_freeze_v14_20260918.md](docs/chapter1_submission_freeze_v14_20260918.md)

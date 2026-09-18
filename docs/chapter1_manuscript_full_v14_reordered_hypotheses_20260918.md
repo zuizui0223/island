@@ -12,7 +12,7 @@ H2 separated two non-exclusive plant responses. Reproductive assurance (`selfing
 
 Independent experimental evidence then supported H3. Across 2,969 GloPL experiments from 1,248 sites and 919 publications, pollen limitation increased with distance from major continental landmasses (standardized slope `0.0794 ± 0.0377`; two-sided `p=0.0354`, one-sided positive `p=0.0177`). In H4, autonomous selfing remained the strongest atomic post-hoc bridge (`β=-0.4467`, `p=2.60×10^-8`). More directly, the literal H2 species scores were both associated with lower current pollen limitation: `selfing_core` (`β=-0.2971`, `p=0.0041`) and `generalized_accessible` (`β=-0.2960`, `p=0.0222`).
 
-Together, these results support a recurrent global island-syndrome direction containing reproductive, colour and structural components, but they do not support one compulsory serial pathway from isolation to selfing and only then to floral simplification. The strongest selfing-independent signal lies in floral accessibility rather than a named pollination syndrome. Pollen limitation provides an independent ecological-pressure pattern and current trait–pollen-limitation associations provide functional triangulation, while historical causal mediation remains unproven.
+Together, these results support a recurrent global island-syndrome direction containing reproductive, colour and structural components, but they do not support one compulsory serial pathway from isolation to selfing and only then to floral simplification. The strongest selfing-independent signal lies in floral accessibility rather than a named pollination syndrome. Pollen limitation provides an independent ecological-pressure pattern and current trait–pollen-limitation associations provide functional triangulation, while historical causal mediation remains unproven. Both prospective validation routes were support-limited before outcome unblinding, so the functional bridge remains post-hoc rather than prospectively replicated.
 
 **Keywords:** island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; pollination syndrome; GloPL
 
@@ -120,7 +120,7 @@ The earlier Route A/B moderation tests remain separate. They asked whether trait
 
 The v14 evidence hierarchy adds two validation layers without changing the inferential label of this discovery. First, PR #236 prospectively froze a post-2015 wild-plant temporal replication with two co-primary predictions: autonomous selfing should predict lower current pollen limitation, and an equal-weight accessibility/generalization score (generalized form + actinomorphy + shallow/open tube) should predict lower current pollen limitation. Outcome-blind support screening reached only 9 matched species for each co-primary family, below the frozen minimum of 30 species and 10 publications, so the wild temporal test stopped before outcome unblinding. This is a support failure, not a biological null.
 
-Second, the same two directions were frozen for an independent PolLimCrop agricultural-domain transportability test. That analysis is support-gated and separate from the wild temporal attempt; it cannot convert the v13 discovery into a confirmatory wild-plant result or establish historical mediation. Because the H1/H2 colour response is context dependent, v14 does not add a global primary colour-to-pollen-limitation bridge.
+Second, the same two directions were frozen for an independent PolLimCrop agricultural-domain transportability test. Outcome-blind metadata screening found adequate total overlap but insufficient prespecified balance: H4a matched 36 species across 109 publications but only 9 species in autonomous-selfing state 0 (minimum 10), while H4b matched 42 species across 141 publications with score SD 0.353 but only 6 low-score species (minimum 8). Neither co-primary test was admitted, outcome extraction was not authorized, and row-level crop pollen-limitation outcomes remained unread. This is a second support failure, not a crop-domain biological null. Because the H1/H2 colour response is context dependent, v14 does not add a global primary colour-to-pollen-limitation bridge.
 
 ### Supplementary pollination evidence
 
@@ -128,7 +128,7 @@ Named `large_bee_like`, `butterfly_like` and `bird_like` scores are multivariate
 
 ### Evidence roles and claim ceiling
 
-The original plant and GloPL global-distance models retain their frozen inferential roles. The v13 exact-species H4 remains explicitly **post-hoc discovery**. The prospectively frozen post-2015 wild-plant validation remains separate and stopped before outcome unblinding because its support gate was not met; it therefore neither confirms nor biologically rejects H4. The independently frozen PolLimCrop analysis is a secondary cross-domain transportability test and cannot reclassify the wild discovery. No layer is interpreted as proving historical mediation from pollen limitation to trait evolution.
+The original plant and GloPL global-distance models retain their frozen inferential roles. The v13 exact-species H4 remains explicitly **post-hoc discovery**. Both prospective validation routes remain separate and stopped before outcome unblinding because their frozen support gates were not met: the post-2015 wild cohort was sparse overall, while PolLimCrop had adequate total overlap but insufficient state/tail balance. Neither route confirms nor biologically rejects H4, and neither can reclassify the wild discovery. No layer is interpreted as proving historical mediation from pollen limitation to trait evolution.
 
 ---
 
@@ -176,7 +176,7 @@ The independent atomic-reconstruction sensitivity was concordant. Reconstructed 
 
 These results do not overturn the negative moderation results. The predeclared Route A/B analyses asked whether reproductive-assurance or accessibility states weakened the *increase of pollen limitation with isolation*; neither family met its promotion rule. H4 instead establishes functional association with the level of current pollen limitation, strongest for autonomous selfing.
 
-The prospective validation layer does not yet upgrade that inference. The post-2015 wild-plant temporal replication stopped at its outcome-blind support gate: both co-primary families had only 9 matched species, below the frozen requirement of 30 species and 10 publications, so pollen-limitation outcomes were not opened for the primary validation. This is not evidence against either prediction. A separate PolLimCrop cross-domain test remains support-gated and cannot rescue the wild temporal support failure.
+The prospective validation layer does not upgrade that inference. The post-2015 wild-plant temporal replication stopped at its outcome-blind support gate: both co-primary families had only 9 matched species, below the frozen requirement of 30 species and 10 publications, so pollen-limitation outcomes were not opened for the primary validation. The independent PolLimCrop cross-domain audit also stopped before outcome unblinding. H4a had 36 matched crop species but only 9 state-0 species against a frozen minimum of 10; H4b had 42 matched species but only 6 low-score species against a minimum of 8. No prospective outcome was unblinded in either route. These are support/design failures, not evidence against the biological predictions.
 
 ### Supplementary interaction evidence does not change the mechanism claim
 
@@ -264,7 +264,7 @@ Independent pollen-supplementation experiments show that pollen limitation also 
 
 **Figure 3 | H2 plant-side decomposition and raw pollination-syndrome concordance.** Reproductive assurance (`selfing_core`) is shown alongside selfing-adjusted isolation coefficients for `generalized_accessible` and `plain_colour`. Accessibility remains positive in all four strata after selfing adjustment. A second panel shows the five-colour joint response and FDR-supported `P(raw architecture | raw colour)` effects: northern-high-latitude blue/purple loses specialized/deep architecture, tropical Direct yellow/orange gains a deep-tube component, and southern yellow/orange shows mixed restructuring. These are raw trait concordances, not realized pollinator identities.
 
-**Figure 4 | Independent pollen limitation and the tiered functional bridge.** The full GloPL global-distance model shows increasing pollen limitation with geographic separation across 2,969 experiments, 1,248 sites and 919 publications. The discovery panel shows autonomous selfing together with the literal H2 species-score bridges: `selfing_core` (`β=-0.29706, p=0.00411`) and `generalized_accessible` (`β=-0.29601, p=0.0222`). Atomic family reconstructions are shown as concordant sensitivities. A separate prospective post-2015 wild-plant replication is shown as support-limited and stopped before outcome unblinding (9 matched species for each co-primary family versus a 30-species gate). The independently frozen PolLimCrop transportability test is displayed separately and cannot reclassify the wild discovery.
+**Figure 4 | Independent pollen limitation and the tiered functional bridge.** The full GloPL global-distance model shows increasing pollen limitation with geographic separation across 2,969 experiments, 1,248 sites and 919 publications. The discovery panel shows autonomous selfing together with the literal H2 species-score bridges: `selfing_core` (`β=-0.29706, p=0.00411`) and `generalized_accessible` (`β=-0.29601, p=0.0222`). Atomic family reconstructions are shown as concordant sensitivities. Two prospective validation panels are shown as support-limited before outcome unblinding: the post-2015 wild cohort failed total support, while PolLimCrop had adequate total overlap but insufficient state/tail balance (H4a state 0: 9 < 10 species; H4b low-score: 6 < 8 species). Neither prospective outcome was opened, so neither route reclassifies the post-hoc discovery.
 
 ---
 
@@ -305,6 +305,8 @@ Zell, A. N. et al. 2025. Island colonization in flowering plants is determined b
 - v14 reproduction run: `35314955780`;
 - v14 reproduction artifact: `10535020072`;
 - v14 reproduction digest: `sha256:4665e68341cea35bfb16c33afeb30ccf2705b5a47982f81e409e8507204be811`;
+- post-freeze H4 prospective validation summary: `config/chapter1_h4_prospective_validation_summary_lock.json`;
+- post-freeze H4 validation audit: `docs/chapter1_h4_prospective_validation_summary_20260918.md`;
 
 - v14 hypothesis architecture: `config/chapter1_v14_hypothesis_architecture.yml`;
 - v14 H1 probability config: `config/chapter1_v14_all_data_probability.yml`;
