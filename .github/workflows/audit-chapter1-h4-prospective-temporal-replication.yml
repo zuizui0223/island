@@ -43,6 +43,7 @@ jobs:
           pytest -q \
             tests/test_chapter1_h4_prospective_temporal_replication.py \
             tests/test_chapter1_h4_prospective_methods_preflight.py \
+            tests/test_chapter1_h4_prospective_validation_summary.py \
             tests/test_chapter1_h4_prospective_validation_summary.py
       - name: Ruff prospective implementation
         run: |
