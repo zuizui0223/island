@@ -124,9 +124,6 @@ No global primary colour-to-pollen-limitation bridge is promoted because the H1/
 colour response is context dependent and does not define one globally directional
 functional prediction.
 
-Post-canonical prospective audit lock:
-`config/chapter1_h4_prospective_validation_summary_lock.json`.
-
 ## Supplementary prospective validation audit
 
 The post-2015 wild-plant and PolLimCrop attempts are retained as a **non-promoted
