@@ -1,0 +1,62 @@
+contract: chapter1_v14_h4_family_bridge_v1
+date: 2026-09-18
+status: posthoc_family_aligned_discovery
+inferential_role: posthoc_family_aligned_functional_triangulation
+
+purpose: >-
+  Align the H4 discovery layer directly with the two H2 plant-response families by
+  constructing frozen species-level family scores from the existing Route A/B
+  preflight trait states, then testing whether higher family scores are associated
+  with lower current GloPL pollen limitation.
+
+parents:
+  reproductive_assurance:
+    workflow_run_id: 35093274622
+    artifact_id: 10444749163
+    artifact_name: chapter1-h5-glopl-ra-moderation-35093274622
+    artifact_digest: sha256:317221b0315137d2cfc0591d9f6f146c6956106d50d8a5b1dc782096bab55da9
+  floral_architecture:
+    workflow_run_id: 35094588521
+    artifact_id: 10445189257
+    artifact_name: chapter1-h5-glopl-architecture-moderation-35094588521
+    artifact_digest: sha256:ef81551d41cc747b07e927b9a5c4f13eaf0fc013a5cf8ac3fb1a5491aadec8c4
+
+analysis:
+  publication_total_weight: 1.0
+  minimum_nonmissing_components_per_species: 2
+  primary_model: >-
+    PL ~ family_score + z_distance + context_intercepts + measurement_fixed_effects
+  covariance: publication_cluster_robust
+  sensitivities:
+    - supplemental_only
+    - no_zero_constant
+
+families:
+  reproductive_assurance:
+    score_name: reproductive_assurance_score
+    parent: reproductive_assurance
+    components:
+      - self_compatibility
+      - selfing_mating_system
+      - autonomous_selfing
+  accessibility_generalization:
+    score_name: accessibility_generalization_score
+    parent: floral_architecture
+    components:
+      - generalized_form
+      - actinomorphic_symmetry
+      - shallow_open_tube
+
+rules:
+  - family_score_is_mean_of_available_frozen_binary_components
+  - require_at_least_two_components
+  - no_trait_recoding
+  - no_synonym_or_genus_fallback
+  - family_bridge_is_posthoc_discovery_not_prospective_validation
+  - prospective_validation_roles_remain_in_PR236
+  - colour_is_not_forced_into_H4
+
+claim_ceiling:
+  historical_selection_identified: false
+  mediation_identified: false
+  prospective_replication: false
