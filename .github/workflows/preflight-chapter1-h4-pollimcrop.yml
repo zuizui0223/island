@@ -14,7 +14,7 @@ on:
       - "config/chapter1_h4_pollimcrop_response_mapping_v1.yml"
       - "src/island_v2/chapter1_h4_pollimcrop_transportability.py"
       - "tests/test_chapter1_h4_pollimcrop_transportability_analysis.py"
-      - ".github/workflows/preflight-chapter1-h4-pollimcrop.yml"
+      - "scripts/freeze_chapter1_h4_pollimcrop_preflight_result.py"\n      - "tests/test_chapter1_h4_pollimcrop_preflight_freeze.py"\n      - ".github/workflows/preflight-chapter1-h4-pollimcrop.yml"
   workflow_dispatch:
 
 permissions:
@@ -42,12 +42,15 @@ jobs:
         run: |
           pytest -q \
             tests/test_chapter1_h4_pollimcrop_transportability.py \
-            tests/test_chapter1_h4_pollimcrop_transportability_analysis.py
+            tests/test_chapter1_h4_pollimcrop_transportability_analysis.py \
+            tests/test_chapter1_h4_pollimcrop_preflight_freeze.py
           ruff check \
             scripts/preflight_chapter1_h4_pollimcrop_transportability.py \
             src/island_v2/chapter1_h4_pollimcrop_transportability.py \
+            scripts/freeze_chapter1_h4_pollimcrop_preflight_result.py \
             tests/test_chapter1_h4_pollimcrop_transportability.py \
-            tests/test_chapter1_h4_pollimcrop_transportability_analysis.py
+            tests/test_chapter1_h4_pollimcrop_transportability_analysis.py \
+            tests/test_chapter1_h4_pollimcrop_preflight_freeze.py
 
       - name: Download frozen v13 trait states
         run: |
