@@ -91,6 +91,14 @@ Measurement sensitivities used supplemental effects only and excluded effects re
 
 The earlier Route A/B moderation tests remain separate. They asked whether trait state changed the *slope* of pollen limitation with isolation and were not supported under their frozen family rules. v13 does not reclassify those failures.
 
+### Prospective post-2015 temporal validation audit
+
+After the post-hoc H4 discovery, but before reading any new post-2015 validation outcomes, we froze a separate temporal-replication protocol. The validation sampling frame was restricted to publications dated 2016-01-01 through 2026-09-18 and was assembled from bibliographic metadata without using abstracts, Results text, reproductive-output values or pollen-limitation effect sizes. Frozen species-direct trait states were matched exactly; synonym rescue, genus fallback and post-support trait recoding were prohibited.
+
+Two co-primary predictions were fixed in advance. H4a predicted lower current pollen limitation in species with autonomous selfing. H4b predicted lower current pollen limitation with a three-component accessibility/generalization score combining generalized form, actinomorphic symmetry and shallow/open tube depth; shallow/open tube was retained despite its weaker v13 recurrence and could not be dropped after support inspection. Each co-primary test had a one-sided alpha of 0.025.
+
+Outcome-blind support gates were also fixed before validation outcomes. H4a required at least 30 matched species, 10 species per autonomous-selfing state, 10 publications and 5 publications per state. H4b required at least 30 matched species, 10 publications, accessibility-score SD >=0.10, and at least 8 species in each low- and high-score tail. If a gate failed, the corresponding validation outcomes were not authorized to be opened or analysed. This prospective audit is separate from the v13 H1-H4 result lock and cannot relabel the original H4 analysis as confirmatory.
+
 ### Supplementary pollination evidence
 
 Named `large_bee_like`, `butterfly_like` and `bird_like` scores are multivariate floral-architecture concordances, not realized pollinator identities. Their substantial shared variance supports interpretation at the architecture level. GloBI functional-channel breadth is retained only as supplementary evidence because documented interactions depend strongly on study effort and source definition. Neither evidence family identifies global pollinator loss.
@@ -132,6 +140,12 @@ The reproduced post-hoc functional analysis yielded four evaluable frozen trait 
 Self-compatibility pointed in the same direction but was imprecise (`β=-0.11773`, two-sided `p=0.154`). Floral architecture provided weaker but concordant evidence. Actinomorphic species had lower pollen limitation in the primary model (`β=-0.38119`, `p=1.18×10^-5`) and both global measurement sensitivities retained negative direction. Generalized floral form was also negative in the primary model (`β=-0.18410`, `p=0.0449`) but was less stable across sensitivities and sparsely represented in within-study contrasts.
 
 These results do not overturn the negative moderation results. The predeclared Route A/B analyses asked whether reproductive-assurance or accessibility states weakened the *increase of pollen limitation with isolation*; neither family met its promotion rule. H4 instead establishes functional association with the level of current pollen limitation, strongest for autonomous selfing.
+
+### Prospective temporal validation stopped at the outcome-blind support gate
+
+The prospectively specified post-2015 wild-plant replication did not reach its minimum support requirements. Even under the most permissive predeclared core-design diagnostic ceiling, H4a contained 9 matched species across 6 publications (autonomous-selfing state 0: 7 species; state 1: 2), and H4b contained 9 matched species across 4 publications. Both were below the frozen minima of 30 matched species and 10 publications, with additional state- or score-balance requirements also unmet.
+
+Accordingly, neither co-primary validation test was evaluable and the post-2015 primary pollen-limitation outcomes remained unopened. Thresholds were not relaxed and no substitute trait definition was introduced. This is a prospective **support insufficiency**, not evidence for absence of either biological association, and it does not change the post-hoc inferential role of H4.
 
 ### Supplementary interaction evidence does not change the mechanism claim
 
@@ -184,6 +198,8 @@ GloBI is similarly supplementary. Documented interaction breadth depends on stud
 ### Limits of causal inference
 
 The main limitation is temporal. The data triangulate three contemporaneous relationships: isolation with island-flora composition, isolation with experimental pollen limitation and trait state with current pollen limitation. They do not directly observe the historical sequence from pollination constraint through selection to trait evolution. The word “aligns” in the title is deliberate.
+
+We therefore attempted a genuinely prospective temporal replication after H4 was discovered: the predictions, trait definitions, multiplicity rule and support thresholds were fixed before post-2015 validation outcomes. That audit stopped before outcome unblinding because the independent wild-plant cohort did not meet the frozen support gates. This strengthens the transparency of the evidence boundary but does not provide a confirmatory replication, and the failure to reach support is not a biological null.
 
 The primary flora response describes contemporary observed composition and should not be interpreted automatically as historical native colonization. Trait coverage is incomplete, and some key GloPL trait contrasts remain support-limited. Selfing mating system and shallow/open tube depth could not be evaluated in the functional bridge, while architecture within-study contrasts were sparse.
 
