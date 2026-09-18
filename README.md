@@ -1,6 +1,6 @@
-# Island — Chapter 1 v14 candidate reanalysis
+# Island — Chapter 1 v14 paper repository
 
-> **PR #237 reorganizes the publication logic without rewriting v13 provenance.**
+> **The current publication-facing surface is Chapter 1 v14. v13 is retained unchanged as parent provenance.**
 > The v14 analysis order is now:
 >
 > 1. **H1 — global floral/reproductive island syndrome:** reproductive assurance + plain colour + accessible/generalized floral structure.
@@ -14,19 +14,19 @@
 > and the frozen-input preflight results are in
 > [docs/chapter1_v14_preflight_results_20260918.md](docs/chapter1_v14_preflight_results_20260918.md).
 >
-> v14 manuscript candidate: [docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md](docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md)
+> v14 manuscript: [docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md](docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md)
 > H4 evidence roles: [config/chapter1_v14_h4_evidence_hierarchy.yml](config/chapter1_v14_h4_evidence_hierarchy.yml)
 > H4 exact H2-score bridge: [config/chapter1_v14_h4_exact_h2_score_bridge.yml](config/chapter1_v14_h4_exact_h2_score_bridge.yml)
 > H4 atomic reconstruction sensitivity: [config/chapter1_v14_h4_family_bridge.yml](config/chapter1_v14_h4_family_bridge.yml)
 >
-> **v13 remains immutable historical/submission provenance until the v14 CI artifact is
-> reproduced and locked.**
+> Canonical result lock: [config/chapter1_v14_canonical_result_lock.json](config/chapter1_v14_canonical_result_lock.json)
+> Submission freeze: [docs/chapter1_submission_freeze_v14_20260918.md](docs/chapter1_submission_freeze_v14_20260918.md)
 
 ---
 
 ## Frozen v13 parent paper surface
 
-This repository's **current publication-facing surface is Chapter 1 v13**. The active paper remains a global-only **H1–H4** synthesis. Earlier Chapter 1 hypothesis ladders, defended submission states and submission-surface audits are historical provenance, not the current scientific spine.
+At the v13 freeze, the repository's publication-facing surface was Chapter 1 v13. That frozen parent remains a global-only **H1–H4** synthesis. Earlier Chapter 1 hypothesis ladders, defended submission states and submission-surface audits are historical provenance, not the current scientific spine.
 
 ## 1. Current scientific claim
 
