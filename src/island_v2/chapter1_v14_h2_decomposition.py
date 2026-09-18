@@ -237,7 +237,14 @@ def run_decomposition(
     continuous = plant.merge(
         covariates[needed_cov].drop_duplicates("island_id"), on="island_id", how="left"
     )
-    numeric_columns = [\n        geography,\n        *baseline,\n        "selfing_core",\n        "generalized_accessible",\n        "attraction_shift",\n    ]\n    for column in numeric_columns:
+    numeric_columns = [
+        geography,
+        *baseline,
+        "selfing_core",
+        "generalized_accessible",
+        "attraction_shift",
+    ]
+    for column in numeric_columns:
         continuous[column] = pd.to_numeric(continuous[column], errors="coerce")
     continuous[context] = continuous[context].fillna("").astype(str)
     continuous[cluster] = continuous[cluster].fillna("").astype(str)
