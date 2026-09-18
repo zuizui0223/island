@@ -23,13 +23,13 @@ CONFIG = yaml.safe_load(
 
 def test_metadata_reader_does_not_read_outcome_columns() -> None:
     csv_bytes = (
-        "line;article_code;species;country;PL_effectsize;SUP_FS_mean;OBS_FS_mean\n"
-        "1;Study_2020_10.1/x;Malus domestica;Spain;0,9;0,8;0,2\n"
-    ).encode()
+        '"line;article_code;species;country;PL_effect_size;FS_SUP_m;FS_NAT_m"\n'
+        '"1;Study_2020_10.1/x;Malus domestica;Spain;0,9;0,8;0,2"\n'
+    ).encode("latin-1")
     frame, schema = MODULE.metadata_only_frame(csv_bytes, CONFIG)
-    assert "PL_effectsize" in schema
-    assert "PL_effectsize" not in frame.columns
-    assert "SUP_FS_mean" not in frame.columns
+    assert "PL_effect_size" in schema
+    assert "PL_effect_size" not in frame.columns
+    assert "FS_SUP_m" not in frame.columns
     assert frame.loc[0, "species"] == "Malus domestica"
 
 
@@ -56,6 +56,6 @@ def test_response_mapping_is_frozen_and_uses_same_csv_locale() -> None:
         Path("config/chapter1_h4_pollimcrop_response_mapping_v1.yml")
     )
     assert mapping["status"] == "frozen_before_row_level_PolLimCrop_outcome_read"
-    assert mapping["source_method_basis"]["response_column"] == "PL_effectsize"
+    assert mapping["source_method_basis"]["response_column"] == "PL_effect_size"
     assert mapping["source_method_basis"]["csv_format"] == CONFIG["source"]["csv_format"]
 
