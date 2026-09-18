@@ -49,6 +49,8 @@ jobs:
       SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
       ALL_DATA_RUN_ID: "35100991898"
       ALL_DATA_ARTIFACT: "chapter1-all-data-primary-35100991898"
+      ALL_DATA_ARTIFACT_ID: "10447959173"
+      ALL_DATA_DIGEST: "sha256:2152201aba5e5b02342c7d9d27eaf833b73c2d6405337f9aee1acbdd91af0844"
       RAW_COLOUR_RUN_ID: "35210281545"
       RAW_COLOUR_ARTIFACT_ID: "10491539130"
       RAW_COLOUR_DIGEST: "sha256:d30ebbda7f1613373a39a9df9577e1b34cc32cddcd5c39b87719cd512972e263"
@@ -104,6 +106,7 @@ jobs:
           test -s /tmp/v14/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
           test -s /tmp/v14/all-data/syndrome/all/island_syndrome_scores.csv.gz
           test -s /tmp/v14/all-data/syndrome/direct/island_syndrome_scores.csv.gz
+          test -s /tmp/v14/all-data/syndrome/direct/species_syndrome_concordance.csv.gz
 
       - name: Download frozen H4 parent artifacts
         run: |
@@ -127,6 +130,10 @@ jobs:
       - name: Verify frozen raw H2 provenance
         run: |
           set -euo pipefail
+          all_data_digest=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ALL_DATA_ARTIFACT_ID" --jq '.digest')
+          all_data_run=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ALL_DATA_ARTIFACT_ID" --jq '.workflow_run.id')
+          test "$all_data_digest" = "$ALL_DATA_DIGEST"
+          test "$all_data_run" = "$ALL_DATA_RUN_ID"
           colour_digest=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$RAW_COLOUR_ARTIFACT_ID" --jq '.digest')
           coupling_digest=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$RAW_COUPLING_ARTIFACT_ID" --jq '.digest')
           test "$colour_digest" = "$RAW_COLOUR_DIGEST"
