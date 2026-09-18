@@ -111,28 +111,27 @@ hypotheses:
       atomic_family_reconstruction_sensitivity:
         role: posthoc_atomic_family_reconstruction_sensitivity
         config: config/chapter1_v14_h4_family_bridge.yml
-      prospective_wild_temporal_replication:
-        role: prospectively_frozen_validation_attempt
-        status: support_gate_not_met_not_evaluable
-        outcomes_unblinded: false
-        source_pr: 236
-      independent_crop_domain:
-        role: prospectively_frozen_transportability_test
-        status: support_gate_not_met_not_evaluable
-        support_lock: config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json
-        validation_summary_lock: config/chapter1_h4_prospective_validation_summary_lock.json
-        outcomes_unblinded: false
-        admitted_hypotheses: []
-        H4a_failed_gate: state_0_species_9_lt_10
-        H4b_failed_gate: low_score_species_6_lt_8
-        can_rescue_wild_temporal_failure: false
-    co_primary_functional_predictions:
-      reproductive_assurance: autonomous_selfing_predicts_lower_current_pollen_limitation
-      accessibility_generalization: equal_weight_accessibility_score_predicts_lower_current_pollen_limitation
     colour_bridge_role: >-
       No global primary colour-to-pollen-limitation bridge is promoted because the H1/H2
       colour response is context dependent and has no single globally predicted direction.
     historical_mediation_identified: false
+
+prospective_validation_audit:
+  role: supplementary_nonpromoted_validation_audit
+  part_of_H4_result: false
+  source_pr: 236
+  summary_lock: config/chapter1_h4_prospective_validation_summary_lock.json
+  wild_temporal:
+    status: support_gate_not_met_not_evaluable
+    outcomes_unblinded: false
+  pollimcrop:
+    status: support_gate_not_met_not_evaluable
+    outcomes_unblinded: false
+    admitted_hypotheses: []
+  interpretation: >-
+    These prospectively frozen attempts document the confirmatory evidence boundary.
+    They are not promoted into H4, do not change the H4 discovery result, and are
+    reported only as a supplementary validation audit.
 
 analysis_order:
   - H1_global_island_syndrome
@@ -156,4 +155,5 @@ rules:
   - H1_colour_is_directional_composition_contrast_not_visual_conspicuousness_measurement
   - H2_primary_conditional_tests_use_selfing_core_without_floral_attraction_traits
   - H3_is_independent_experimental_pressure_not_mediator_proof
-  - H4_v13_discovery_remains_posthoc_while_validation_layers_keep_their_own_roles
+  - H4_result_ends_at_posthoc_functional_bridge
+  - prospective_validation_audit_is_supplementary_and_not_promoted_into_H4
