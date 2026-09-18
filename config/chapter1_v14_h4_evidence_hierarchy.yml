@@ -29,6 +29,31 @@ evidence_layers:
       two_sided_p: 2.600385e-08
     interpretation: discovery_not_confirmatory_validation
 
+  v14_H2_family_aligned_discovery:
+    role: posthoc_family_aligned_functional_triangulation
+    config: config/chapter1_v14_h4_family_bridge.yml
+    local_reproduction_lock: config/chapter1_v14_h4_family_bridge_preflight_result_lock.json
+    reproductive_assurance:
+      score: H2_exact_selfing_core_equivalent
+      beta: -0.3125493709156215
+      two_sided_p: 0.0022214702949586752
+      supplemental_only_two_sided_p: 0.14783151183776336
+      no_zero_constant_two_sided_p: 0.0022886371211373775
+    accessibility_generalization:
+      score: H2_exact_weighted_generalized_accessible
+      beta: -0.32932085948526735
+      two_sided_p: 0.005145682811813261
+      supplemental_only_two_sided_p: 0.036709300338101124
+      no_zero_constant_two_sided_p: 0.013368489636637889
+    equal_weight_H4b_sensitivity:
+      beta: -0.32508511465279266
+      two_sided_p: 0.006356184144918508
+    interpretation: >-
+      Both H2 response families point toward lower current pollen limitation in the
+      post-hoc discovery layer. Accessibility/generalization is robust to both frozen
+      measurement sensitivities. This improves H2-to-H4 alignment but is not prospective
+      validation.
+
   prospective_post2015_wild:
     role: prospectively_frozen_temporal_validation_attempt
     source_pr: 236
