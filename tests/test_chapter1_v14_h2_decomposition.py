@@ -62,11 +62,11 @@ def test_run_decomposition_fits_continuous_and_plain_colour_routes():
             "log_distance_to_continent_km": distance,
             "analysis_regime": ["test_context"] * n,
             "spatial_block": [f"b{i // 6}" for i in range(n)],
-            "log_island_area_km2": np.linspace(-0.8, 0.8, n),
-            "climate_pc1": np.sin(np.linspace(0.0, 4.0, n)),
-            "climate_pc2": np.cos(np.linspace(0.0, 4.0, n)),
-            "climate_pc3": np.linspace(0.5, -0.5, n),
-            "climate_pc4": np.sin(np.linspace(0.0, 7.0, n)),
+            "log_island_area_km2": 0.4 * np.sin(np.linspace(0.0, 9.0, n)),
+            "climate_pc1": np.cos(np.linspace(0.0, 5.0, n)),
+            "climate_pc2": np.sin(np.linspace(0.0, 8.0, n)),
+            "climate_pc3": np.cos(np.linspace(0.0, 11.0, n)),
+            "climate_pc4": np.sin(np.linspace(0.0, 13.0, n)),
         }
     )
     selfing = 0.35 * distance + 0.1 * np.sin(np.linspace(0.0, 5.0, n))
