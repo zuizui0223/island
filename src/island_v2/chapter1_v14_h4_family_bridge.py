@@ -29,7 +29,7 @@ def load_config(path: Path) -> dict[str, Any]:
     value = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict) or value.get("contract") != CONTRACT:
         raise typer.BadParameter("unexpected v14 H4 family-bridge contract")
-    if value.get("inferential_role") != "posthoc_family_aligned_functional_triangulation":
+    if value.get("inferential_role") != "posthoc_atomic_family_reconstruction_sensitivity":
         raise typer.BadParameter("v14 family bridge must remain post-hoc")
     return value
 
