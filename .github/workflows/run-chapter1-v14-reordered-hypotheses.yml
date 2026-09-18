@@ -296,11 +296,11 @@ jobs:
               ],
               "H4_evidence_hierarchy": h4_config,
               "H4_exact_H2_score_bridge_results": json.loads(
-                  h4_exact.to_json(orient="records")
+                  h4_exact.to_json(orient="records", double_precision=15)
               ),
               "H4_exact_H2_score_bridge_manifest": h4_exact_manifest,
               "H4_atomic_reconstruction_results": json.loads(
-                  h4_family.to_json(orient="records")
+                  h4_family.to_json(orient="records", double_precision=15)
               ),
               "H4_atomic_reconstruction_manifest": h4_family_manifest,
           }
@@ -334,13 +334,13 @@ jobs:
                   .rename(columns={"mean_slope": "equal_domain_orientation"})
               )
               result["scopes"][scope] = {
-                  "H1_all_observed_omnibus": json.loads(o.to_json(orient="records")),
-                  "H1_family_means": json.loads(family.to_json(orient="records")),
+                  "H1_all_observed_omnibus": json.loads(o.to_json(orient="records", double_precision=15)),
+                  "H1_family_means": json.loads(family.to_json(orient="records", double_precision=15)),
                   "H1_equal_domain_orientation": json.loads(
-                      orientation.to_json(orient="records")
+                      orientation.to_json(orient="records", double_precision=15)
                   ),
                   "H2_summary": h2_summary,
-                  "H2_models": json.loads(h2.to_json(orient="records")),
+                  "H2_models": json.loads(h2.to_json(orient="records", double_precision=15)),
               }
 
               lines += [f"## {scope}", "", "### H1 seven-response omnibus", "", "CSV:"]
