@@ -29,30 +29,47 @@ evidence_layers:
       two_sided_p: 2.600385e-08
     interpretation: discovery_not_confirmatory_validation
 
-  v14_H2_family_aligned_discovery:
-    role: posthoc_family_aligned_functional_triangulation
+  v14_exact_H2_score_discovery:
+    role: posthoc_exact_H2_score_functional_triangulation
+    config: config/chapter1_v14_h4_exact_h2_score_bridge.yml
+    local_reproduction_lock: config/chapter1_v14_h4_exact_h2_score_bridge_preflight_result_lock.json
+    reproductive_assurance:
+      score: exact_Direct_only_selfing_core_soft_membership
+      beta: -0.29706162790382573
+      two_sided_p: 0.004114773773355803
+      supplemental_only_two_sided_p: 0.29202063091584557
+      no_zero_constant_two_sided_p: 0.0043776344227836
+    accessibility_generalization:
+      score: exact_Direct_only_generalized_accessible_soft_membership
+      beta: -0.2960123452279311
+      two_sided_p: 0.022162544686764193
+      supplemental_only_two_sided_p: 0.03842197114842902
+      no_zero_constant_two_sided_p: 0.06489600366952121
+      no_zero_constant_one_sided_negative_p: 0.032448001834760605
+    interpretation: >-
+      The exact H2 species-level scores used in Chapter 1 are negatively associated
+      with current GloPL pollen limitation in the post-hoc discovery layer. This is the
+      primary family-aligned H2-to-H4 bridge.
+
+  v14_atomic_reconstruction_sensitivity:
+    role: posthoc_atomic_family_reconstruction_sensitivity
     config: config/chapter1_v14_h4_family_bridge.yml
     local_reproduction_lock: config/chapter1_v14_h4_family_bridge_preflight_result_lock.json
     reproductive_assurance:
-      score: H2_exact_selfing_core_equivalent
       beta: -0.3125493709156215
       two_sided_p: 0.0022214702949586752
-      supplemental_only_two_sided_p: 0.14783151183776336
-      no_zero_constant_two_sided_p: 0.0022886371211373775
-    accessibility_generalization:
-      score: H2_exact_weighted_generalized_accessible
+    H2_weighted_accessibility_reconstruction:
       beta: -0.32932085948526735
       two_sided_p: 0.005145682811813261
       supplemental_only_two_sided_p: 0.036709300338101124
       no_zero_constant_two_sided_p: 0.013368489636637889
-    equal_weight_H4b_sensitivity:
+    equal_weight_H4b_reconstruction:
       beta: -0.32508511465279266
       two_sided_p: 0.006356184144918508
     interpretation: >-
-      Both H2 response families point toward lower current pollen limitation in the
-      post-hoc discovery layer. Accessibility/generalization is robust to both frozen
-      measurement sensitivities. This improves H2-to-H4 alignment but is not prospective
-      validation.
+      Reconstructing comparable family scores directly from the frozen H4 parent atomic
+      states gives concordant results, but these scores are a sensitivity rather than
+      the literal H2 species scores.
 
   prospective_post2015_wild:
     role: prospectively_frozen_temporal_validation_attempt
