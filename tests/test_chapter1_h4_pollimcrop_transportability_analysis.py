@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 
 import numpy as np
@@ -12,6 +13,7 @@ from island_v2.chapter1_h4_pollimcrop_transportability import (
     aggregate_analysis_cells,
     exact_binomial,
     fit_two_way_clustered_trait,
+    read_outcome_rows,
     require_support_before_outcome_read,
     run_transportability,
 )
@@ -75,6 +77,36 @@ def test_no_support_refuses_before_outcome_read() -> None:
     }
     with pytest.raises(Exception, match="outcome values must remain unread"):
         require_support_before_outcome_read(preflight)
+
+
+def test_outcome_reader_uses_frozen_semicolon_comma_locale(tmp_path: Path) -> None:
+    path = tmp_path / "pollimcrop.csv"
+    path.write_text(
+        "article_code;species;continent;country;locality;experiment_year;"
+        "supplement_type;scale;crop_part;PL_effectsize\n"
+        "study_a;Malus domestica;Europe;Spain;site;2020;H;flower;fruit;0,42\n"
+        "study_b;Prunus avium;Europe;Spain;site;2021;H;flower;fruit;9,99\n",
+        encoding="utf-8-sig",
+    )
+    preflight = {
+        "support": {
+            "H4a_reproductive_assurance": {"evaluable": True},
+            "H4b_accessibility_generalization": {"evaluable": False},
+        },
+        "figshare": {"csv_sha256": hashlib.sha256(path.read_bytes()).hexdigest()},
+        "source_format": {
+            "delimiter": ";",
+            "decimal_mark": ",",
+            "encoding": "utf-8-sig",
+        },
+    }
+    rows = read_outcome_rows(
+        path,
+        preflight,
+        allowed_species={"Malus domestica"},
+    )
+    assert rows["accepted_species"].tolist() == ["Malus domestica"]
+    assert rows["PL_effectsize"].tolist() == pytest.approx([0.42])
 
 
 def test_two_way_cluster_fit_recovers_negative_trait_effect() -> None:
