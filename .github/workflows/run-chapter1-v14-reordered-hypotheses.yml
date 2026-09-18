@@ -11,11 +11,18 @@ on:
       - "tests/test_chapter1_v14_contract.py"
       - ".github/workflows/run-chapter1-v14-reordered-hypotheses.yml"
       - "docs/chapter1_v14_hypothesis_reorder_20260918.md"
+      - "docs/chapter1_v14_preflight_results_20260918.md"
+      - "docs/PAPER_PIPELINE.md"
+      - "README.md"
   workflow_dispatch:
 
 permissions:
   contents: read
   actions: read
+
+concurrency:
+  group: chapter1-v14-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   analyse:
