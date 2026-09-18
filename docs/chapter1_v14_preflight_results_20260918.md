@@ -162,8 +162,12 @@ PR #236 adds two validation layers without relabelling that discovery:
    frozen minimum of 30 species and 10 publications, so the test stopped before outcome
    unblinding and is **not evaluable**, not a biological null;
 2. an independent PolLimCrop agricultural-domain transportability test with frozen
-   response mapping and support gates; this is still separate/pending and cannot rescue
-   the wild temporal support failure or make v13 H4 confirmatory for wild floras.
+   response mapping and support gates. Its outcome-blind support gate also failed:
+   H4a reached 36 species / 109 publications but had only 9 state-0 species versus
+   the frozen minimum of 10; H4b reached 42 species / 141 publications but had only
+   6 low-score species versus the frozen minimum of 8. No crop hypothesis was
+   admitted, outcome extraction remained unauthorized, and row-level PL outcomes
+   remained unopened. This is support insufficiency, not a transportability null.
 
 The v14 discovery layer now aligns **literally** to the two species-level H2 scores used by Chapter 1.
 
