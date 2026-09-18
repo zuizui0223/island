@@ -1,0 +1,142 @@
+{
+  "contract": "chapter1_h4_prospective_temporal_support_decision_lock_v1",
+  "date": "2026-09-18",
+  "status": "outcome_blind_support_gate_not_met",
+  "inferential_role": "prospective_temporal_replication_support_decision",
+  "parent_protocol": {
+    "file": "config/chapter1_h4_prospective_temporal_replication_v1.yml",
+    "first_freeze_commit": "26f406806af8a67b392bfa1a4c924a1768e10f6e"
+  },
+  "sampling_frame": {
+    "file": "config/chapter1_h4_prospective_literature_sampling_frame_lock.json",
+    "n_deduplicated_records": 2984,
+    "artifact_id": 10527672011,
+    "artifact_digest": "sha256:80b549d883ec1b43d03232a00609c8711c3171f1bafc5424acdc7ff1dfd77a60"
+  },
+  "trait_states": {
+    "file": "config/chapter1_h4_prospective_trait_state_lock.json",
+    "n_species_rows": 38674,
+    "artifact_id": 10527906374,
+    "artifact_digest": "sha256:a3e96eaf78dcd98196a7e017a12191ac2d817b9d9ec39362f9e65604c06b4d08",
+    "csv_sha256": "e288f846ac2da62b52f3d644b370985ab7655fa38ba0221d75012886653a9372"
+  },
+  "methods_v2_outcome_blind_evidence": {
+    "contract": "config/chapter1_h4_prospective_methods_preflight_v2.yml",
+    "workflow_run_id": 35298839722,
+    "head_sha": "d1e97ca58b346a0cc8770cae852364f5dc8c64f4",
+    "artifact_id": 10528494919,
+    "artifact_digest": "sha256:a595ec093c5342108333343166423ee33fc0394ea6c3fb20b3b40708b613634b",
+    "n_frozen_metadata_records": 2984,
+    "n_frozen_records_with_oa_pmc_match": 139,
+    "n_target_species_records": 29,
+    "candidate_status_counts": {
+      "design_candidate_auto": 4,
+      "design_candidate_field_unresolved": 2,
+      "design_candidate_conflict_unresolved": 1,
+      "excluded_by_conservative_environment_flag": 2,
+      "not_design_candidate": 118,
+      "methods_section_unresolved": 12
+    },
+    "outcomes_read": false
+  },
+  "frozen_support_thresholds": {
+    "H4a_reproductive_assurance": {
+      "minimum_matched_species_total": 30,
+      "minimum_species_per_state": 10,
+      "minimum_publications_total": 10,
+      "minimum_publications_per_state": 5
+    },
+    "H4b_accessibility_generalization": {
+      "minimum_matched_species_total": 30,
+      "minimum_publications_total": 10,
+      "minimum_score_sd": 0.1,
+      "minimum_low_score_species": 8,
+      "minimum_high_score_species": 8
+    }
+  },
+  "outcome_blind_support_tiers_before_exposure_exclusion": {
+    "automatic_only": {
+      "n_publications": 4,
+      "n_target_species": 10,
+      "H4a": {
+        "matched_species": 5,
+        "state_0_species": 4,
+        "state_1_species": 1,
+        "publications": 3,
+        "state_0_publications": 2,
+        "state_1_publications": 1,
+        "evaluable": false
+      },
+      "H4b": {
+        "matched_species": 7,
+        "publications": 2,
+        "score_sd": 0.3194382825,
+        "low_score_species": 1,
+        "high_score_species": 2,
+        "evaluable": false
+      }
+    },
+    "automatic_plus_field_unresolved": {
+      "n_publications": 6,
+      "n_target_species": 13,
+      "H4a": {
+        "matched_species": 8,
+        "state_0_species": 7,
+        "state_1_species": 1,
+        "publications": 5,
+        "state_0_publications": 4,
+        "state_1_publications": 1,
+        "evaluable": false
+      },
+      "H4b": {
+        "matched_species": 8,
+        "publications": 3,
+        "score_sd": 0.2997394702,
+        "low_score_species": 1,
+        "high_score_species": 2,
+        "evaluable": false
+      }
+    },
+    "all_core_design_diagnostic_ceiling": {
+      "n_publications": 7,
+      "n_target_species": 14,
+      "H4a": {
+        "matched_species": 9,
+        "state_0_species": 7,
+        "state_1_species": 2,
+        "publications": 6,
+        "state_0_publications": 4,
+        "state_1_publications": 2,
+        "evaluable": false
+      },
+      "H4b": {
+        "matched_species": 9,
+        "publications": 4,
+        "score_sd": 0.3333333333,
+        "low_score_species": 2,
+        "high_score_species": 2,
+        "evaluable": false
+      }
+    }
+  },
+  "prospective_blinding_exclusion": {
+    "file": "config/chapter1_h4_prospective_outcome_exposure_exclusion_lock_v1.yml",
+    "effect_on_support": "monotone_removal_only",
+    "invariance": "Because both co-primary support gates already fail under the pre-exclusion all-core diagnostic ceiling, outcome-exposure exclusions cannot convert either failure to a pass."
+  },
+  "decision": {
+    "H4a_reproductive_assurance": "support_gate_not_met_not_evaluable",
+    "H4b_accessibility_generalization": "support_gate_not_met_not_evaluable",
+    "post2015_wild_temporal_replication": "stop_before_outcome_unblinding",
+    "outcome_extraction_authorized": false,
+    "threshold_relaxation_authorized": false,
+    "interpretation": "The post-2015 wild-plant temporal cohort is too sparse under the prospectively frozen support rules. This is a design-support failure, not a biological null."
+  },
+  "claim_ceiling": {
+    "existing_v13_H4_remains_posthoc": true,
+    "temporal_replication_supported": false,
+    "temporal_replication_failed_biologically": false,
+    "support_insufficient": true,
+    "post2015_outcomes_remain_unopened_for_primary_analysis": true
+  }
+}
