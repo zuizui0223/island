@@ -17,13 +17,17 @@ while leaving frozen v13 GloPL and functional-bridge estimates intact.
           v
     H4  tiered functional bridge
         individual-trait discovery
-        + H2-family-aligned discovery
+        + literal H2 species-score discovery
+        + atomic reconstruction sensitivity
         + prospective validation layers
 
 H1 is now a seven-response beta-binomial multivariate test. H2 uses selfing_core as
 the reproductive mechanism covariate and tests plain_colour and
-generalized_accessible conditionally. Named bee/butterfly/bird architecture scores and
-attraction_shift remain secondary concordance/decomposition surfaces.
+generalized_accessible conditionally. Pollination-syndrome concordance is carried by
+the frozen raw five-colour and raw colour-conditioned form/tube analyses; weighted
+bee/butterfly/bird scores are historical secondary summaries only. H4 first bridges
+the literal Direct-only H2 species scores to GloPL; atomic family reconstruction is a
+separate post-hoc sensitivity.
 
 See:
 - docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md
@@ -31,6 +35,8 @@ See:
 - config/chapter1_v14_all_data_probability.yml
 - config/chapter1_v14_h2_decomposition.yml
 - config/chapter1_v14_h4_evidence_hierarchy.yml
+- config/chapter1_v14_h4_exact_h2_score_bridge.yml
+- config/chapter1_v14_h4_exact_h2_score_bridge_preflight_result_lock.json
 - config/chapter1_v14_h4_family_bridge.yml
 - config/chapter1_v14_h4_family_bridge_preflight_result_lock.json
 - docs/chapter1_v14_hypothesis_reorder_20260918.md
