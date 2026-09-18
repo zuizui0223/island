@@ -1,0 +1,143 @@
+# Retrigger after committed support-failure lock; no scientific protocol change.
+name: Run Chapter 1 H4 PolLimCrop transportability
+
+on:
+  push:
+    branches: [feature/h4-prospective-temporal-replication]
+    paths:
+      - "config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json"
+      - ".github/workflows/run-chapter1-h4-pollimcrop-transportability.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TRAIT_ARTIFACT_ID: "10527906374"
+      TRAIT_ARTIFACT_SHA256: "a3e96eaf78dcd98196a7e017a12191ac2d817b9d9ec39362f9e65604c06b4d08"
+      ROOT: /tmp/chapter1-h4-pollimcrop-analysis
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate frozen analysis and result-lock implementation
+        run: |
+          pytest -q \
+            tests/test_chapter1_h4_pollimcrop_transportability_analysis.py \
+            tests/test_chapter1_h4_pollimcrop_result_freeze.py
+          ruff check \
+            src/island_v2/chapter1_h4_pollimcrop_transportability.py \
+            scripts/download_chapter1_h4_pollimcrop_locked_dataset.py \
+            scripts/freeze_chapter1_h4_pollimcrop_result.py \
+            tests/test_chapter1_h4_pollimcrop_transportability_analysis.py \
+            tests/test_chapter1_h4_pollimcrop_result_freeze.py
+
+      - id: support_gate
+        name: Verify committed support gate before any outcome parse
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          p = Path("config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json")
+          x = json.loads(p.read_text())
+          assert x["contract"] == "chapter1_h4_pollimcrop_transportability_preflight_v1"
+          assert x["lock_contract"] == "chapter1_h4_pollimcrop_transportability_preflight_result_lock_v1"
+          assert x["outcomes_read"] is False
+          admitted = list(x["decision"]["admitted_hypotheses"])
+          support = x["support"]
+          assert admitted == [
+              name for name in (
+                  "H4a_reproductive_assurance",
+                  "H4b_accessibility_generalization",
+              )
+              if bool(support[name].get("evaluable"))
+          ]
+          authorized = bool(x["decision"]["outcome_extraction_authorized"])
+          assert authorized == bool(admitted)
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"authorized={'true' if authorized else 'false'}\n")
+              handle.write("admitted=" + ",".join(admitted) + "\n")
+          print("admitted hypotheses:", admitted)
+          if not authorized:
+              print("No frozen PolLimCrop hypothesis passed support. Outcome bytes remain unopened.")
+          PY
+
+      - name: Download frozen v13 trait states
+        if: steps.support_gate.outputs.authorized == 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/traits" "$ROOT/source" "$ROOT/out"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${TRAIT_ARTIFACT_ID}/zip" \
+            > "$ROOT/traits.zip"
+          echo "$TRAIT_ARTIFACT_SHA256  $ROOT/traits.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/traits.zip" -d "$ROOT/traits"
+          test -s "$ROOT/traits/prospective_h4_frozen_trait_states.csv"
+
+      - name: Materialize exact locked PolLimCrop CSV bytes
+        if: steps.support_gate.outputs.authorized == 'true'
+        run: |
+          python scripts/download_chapter1_h4_pollimcrop_locked_dataset.py \
+            --preflight-result-lock config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json \
+            --preflight-config config/chapter1_h4_pollimcrop_transportability_preflight_v1.yml \
+            --output-csv "$ROOT/source/pollimcrop.csv"
+
+      - name: Run only support-admitted co-primary outcome tests
+        if: steps.support_gate.outputs.authorized == 'true'
+        run: |
+          python -m island_v2.chapter1_h4_pollimcrop_transportability analyse \
+            --dataset-csv "$ROOT/source/pollimcrop.csv" \
+            --preflight-json config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json \
+            --trait-states-csv "$ROOT/traits/prospective_h4_frozen_trait_states.csv" \
+            --parent-contract-path config/chapter1_h4_prospective_temporal_replication_v1.yml \
+            --response-mapping-path config/chapter1_h4_pollimcrop_response_mapping_v1.yml \
+            --output-dir "$ROOT/out"
+          cat "$ROOT/out/RESULT.json" >> "$GITHUB_STEP_SUMMARY"
+
+      - id: upload_result
+        if: steps.support_gate.outputs.authorized == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h4-pollimcrop-transportability-${{ github.run_id }}
+          path: /tmp/chapter1-h4-pollimcrop-analysis/out
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Freeze and commit PolLimCrop transportability result
+        if: steps.support_gate.outputs.authorized == 'true'
+        env:
+          ARTIFACT_ID: ${{ steps.upload_result.outputs.artifact-id }}
+          ARTIFACT_DIGEST: ${{ steps.upload_result.outputs.artifact-digest }}
+        run: |
+          set -euo pipefail
+          LOCK=config/chapter1_h4_pollimcrop_transportability_result_lock.json
+          python scripts/freeze_chapter1_h4_pollimcrop_result.py \
+            --result-json "$ROOT/out/RESULT.json" \
+            --preflight-lock-path config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json \
+            --response-mapping-path config/chapter1_h4_pollimcrop_response_mapping_v1.yml \
+            --workflow-run-id "$GITHUB_RUN_ID" \
+            --workflow-head-sha "$GITHUB_SHA" \
+            --artifact-id "$ARTIFACT_ID" \
+            --artifact-digest "$ARTIFACT_DIGEST" \
+            --output-json "$LOCK"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$LOCK"
+          if git diff --cached --quiet; then
+            echo "Result lock unchanged."
+          else
+            git commit -m "lock: freeze PolLimCrop transportability result"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
