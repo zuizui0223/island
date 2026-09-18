@@ -101,6 +101,11 @@ def test_manuscript_reports_prospective_h4_support_stop_without_relabelling() ->
     assert ceiling["support_insufficient"] is True
     assert ceiling["post2015_outcomes_remain_unopened_for_primary_analysis"] is True
 
+    freeze = FREEZE.read_text(encoding="utf-8").casefold()
+    assert "post-freeze prospective h4 audit" in freeze
+    assert "support insufficiency, not a biological null" in freeze
+    assert "post-2015 primary outcomes remain unopened" in freeze
+
 
 def test_current_submission_surface_has_no_regional_or_taxonomic_branch() -> None:
     files = (MANUSCRIPT, FIGURE_SYNC, HYPOTHESIS, FREEZE)
