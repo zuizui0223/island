@@ -18,7 +18,9 @@ source_method_basis:
     encoding: latin-1
     encoding_basis: >-
       Outcome-blind source-byte correction after the locked CSV failed UTF-8 decoding
-      on byte 0xF1 before any PolLimCrop outcome values were parsed.
+      on byte 0xF1 before any PolLimCrop outcome values were parsed. Latin-1
+      preserves the single-byte Western text while leaving ASCII scientific names
+      and numeric fields unchanged.
     basis: official_PolLimCrop_R_code_sep_semicolon_dec_comma
   published_definition: ln_hand_pollination_over_natural_pollination
   direction: positive_means_stronger_pollen_limitation
