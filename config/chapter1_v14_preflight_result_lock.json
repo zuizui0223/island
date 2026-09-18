@@ -411,8 +411,8 @@
         "H2_syndrome": "selfing_core",
         "estimate": -0.29706162790382573,
         "two_sided_p": 0.004114773773355803,
-        "supplemental_only_two_sided_p": 0.29202063091584557,
-        "no_zero_constant_two_sided_p": 0.0043776344227836,
+        "supplemental_only_two_sided_p": 0.3132511023834126,
+        "no_zero_constant_two_sided_p": 0.00402610677021115,
         "n_species": 455,
         "n_publications": 409
       },
@@ -421,12 +421,12 @@
         "estimate": -0.2960123452279311,
         "two_sided_p": 0.022162544686764193,
         "supplemental_only_two_sided_p": 0.03842197114842902,
-        "no_zero_constant_two_sided_p": 0.06489600366952121,
-        "no_zero_constant_one_sided_negative_p": 0.032448001834760605,
+        "no_zero_constant_two_sided_p": 0.019718960134721204,
+        "no_zero_constant_one_sided_negative_p": 0.009859480067360602,
         "n_species": 143,
         "n_publications": 143
       },
-      "classification": "both_exact_H2_species_scores_negative_and_supported_in_primary_GloPL_bridge"
+      "classification": "both_exact_H2_species_scores_negative_and_supported_in_primary_GloPL_bridge; generalized_accessible_supported_in_both_measurement_sensitivities"
     },
     "atomic_reconstruction_sensitivity": {
       "source_lock": "config/chapter1_v14_h4_family_bridge_preflight_result_lock.json",
