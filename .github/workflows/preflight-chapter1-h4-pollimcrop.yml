@@ -20,7 +20,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 jobs:
@@ -77,9 +77,36 @@ jobs:
           mv "$ROOT/out/file_manifest.sha256.tmp" "$ROOT/out/file_manifest.sha256"
           cat "$ROOT/out/PREFLIGHT.json"
 
-      - uses: actions/upload-artifact@v4
+      - id: upload_preflight
+        uses: actions/upload-artifact@v4
         with:
           name: chapter1-h4-pollimcrop-preflight-${{ github.run_id }}
           path: /tmp/chapter1-h4-pollimcrop/out
           if-no-files-found: error
           retention-days: 30
+
+      - name: Freeze and commit outcome-blind support decision
+        env:
+          ARTIFACT_ID: ${{ steps.upload_preflight.outputs.artifact-id }}
+          ARTIFACT_DIGEST: ${{ steps.upload_preflight.outputs.artifact-digest }}
+        run: |
+          set -euo pipefail
+          LOCK=config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json
+          python scripts/freeze_chapter1_h4_pollimcrop_preflight_result.py freeze \
+            --preflight-json "$ROOT/out/PREFLIGHT.json" \
+            --preflight-config-path config/chapter1_h4_pollimcrop_transportability_preflight_v1.yml \
+            --response-mapping-path config/chapter1_h4_pollimcrop_response_mapping_v1.yml \
+            --workflow-run-id "$GITHUB_RUN_ID" \
+            --workflow-head-sha "$GITHUB_SHA" \
+            --artifact-id "$ARTIFACT_ID" \
+            --artifact-digest "$ARTIFACT_DIGEST" \
+            --output-json "$LOCK"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$LOCK"
+          if git diff --cached --quiet; then
+            echo "Support-result lock unchanged."
+          else
+            git commit -m "lock: freeze PolLimCrop outcome-blind support decision"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
