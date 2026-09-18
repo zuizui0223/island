@@ -124,3 +124,26 @@ temporal replication**.
 It still would not establish that historical pollen limitation caused the global island
 syndrome, statistically mediated isolation effects, reduced pollinator abundance, or
 caused within-lineage floral evolution.
+
+## Outcome-blind support result
+
+The final post-2015 wild-plant sampling frame did **not** meet the frozen support gates.
+No primary validation outcome was opened to make this decision.
+
+At the predeclared all-core diagnostic ceiling:
+
+- **H4a:** 9 matched species across 6 publications; autonomous-selfing state 0 = 7
+  species and state 1 = 2;
+- **H4b:** 9 matched species across 4 publications; low-score = 2 and high-score = 2.
+
+Both co-primary tests therefore stop as `support_gate_not_met_not_evaluable`. The frozen
+minimum remains 30 matched species and 10 publications, with the additional state/score
+balance requirements above. Thresholds are not relaxed and the post-2015 wild-plant PL
+outcomes remain unopened for the primary replication.
+
+Canonical decision lock:
+`config/chapter1_h4_prospective_temporal_support_decision_lock.json`.
+
+This result means that a genuinely prospective temporal replication was attempted and
+failed at the **design/support stage**, not that either biological prediction was
+rejected.
