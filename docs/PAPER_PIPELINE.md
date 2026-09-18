@@ -15,7 +15,10 @@ while leaving frozen v13 GloPL and functional-bridge estimates intact.
     H3  independent pollen-limitation gradient (GloPL)
           |
           v
-    H4  exact-species functional bridge
+    H4  tiered functional bridge
+        individual-trait discovery
+        + H2-family-aligned discovery
+        + prospective validation layers
 
 H1 is now a seven-response beta-binomial multivariate test. H2 uses selfing_core as
 the reproductive mechanism covariate and tests plain_colour and
@@ -28,6 +31,8 @@ See:
 - config/chapter1_v14_all_data_probability.yml
 - config/chapter1_v14_h2_decomposition.yml
 - config/chapter1_v14_h4_evidence_hierarchy.yml
+- config/chapter1_v14_h4_family_bridge.yml
+- config/chapter1_v14_h4_family_bridge_preflight_result_lock.json
 - docs/chapter1_v14_hypothesis_reorder_20260918.md
 - docs/chapter1_v14_preflight_results_20260918.md
 
