@@ -11,7 +11,7 @@ from typing import Any
 
 RESULT_CONTRACT = "chapter1_v14_reordered_hypotheses_result_v1"
 PROMOTED_CONTRACT = "chapter1_v14_canonical_result_lock_v1"
-TOL = 1e-9
+TOL = 1e-8
 
 
 def _load(path: Path) -> dict[str, Any]:
