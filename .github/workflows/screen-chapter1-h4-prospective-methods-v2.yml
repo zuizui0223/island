@@ -7,6 +7,14 @@ concurrency:
 on:
   push:
     branches: [feature/h4-prospective-temporal-replication]
+    paths:
+      - "config/chapter1_h4_prospective_methods_preflight_v2.yml"
+      - "config/chapter1_h4_prospective_outcome_exposure_exclusion_lock_v1.yml"
+      - "scripts/screen_chapter1_h4_prospective_methods_v2.py"
+      - "tests/test_chapter1_h4_prospective_methods_v2.py"
+      - "scripts/audit_chapter1_h4_methods_v2_support.py"
+      - "tests/test_chapter1_h4_methods_v2_support.py"
+      - ".github/workflows/screen-chapter1-h4-prospective-methods-v2.yml"
   workflow_dispatch:
 
 permissions:
