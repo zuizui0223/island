@@ -1,0 +1,134 @@
+contract: chapter1_h4_pollimcrop_transportability_preflight_v1
+status: frozen_before_PolLimCrop_outcome_read
+inferential_role: secondary_external_domain_transportability_preflight
+created: '2026-09-18'
+parent_contract: config/chapter1_h4_prospective_temporal_replication_v1.yml
+
+purpose: >-
+  Test whether the two frozen v13 H4 predictions are transportable to an independent
+  agricultural pollen-supplementation domain. This is a secondary falsification test,
+  not a replacement for the support-limited post-2015 wild-plant temporal replication.
+
+source:
+  name: PolLimCrop
+  descriptor_doi: 10.1038/s41597-023-02797-6
+  figshare_collection_doi: 10.6084/m9.figshare.c.6640595.v1
+  figshare_collection_id: 6640595
+  expected_scope:
+    studies: 294
+    experiments: 1169
+    crop_species: 108
+    countries: 62
+  source_file_sha256: record_on_first_outcome_blind_preflight_then_pin
+  dataset_csv_sha256: record_on_first_outcome_blind_preflight_then_pin
+
+role_boundary:
+  wild_plant_primary_replication_repaired_by_this_test: false
+  crop_transportability_is_secondary: true
+  different_ecological_domain_explicit: true
+  existing_v13_H4_remains_posthoc: true
+
+frozen_predictions:
+  H4a_reproductive_assurance:
+    predictor: autonomous_selfing
+    coding: frozen_v13_binary_0_1
+    prediction: negative_current_PL_association
+    one_sided_alpha: 0.025
+  H4b_accessibility_generalization:
+    predictor: accessibility_generalization_score
+    components:
+      generalized_form: 1.0
+      actinomorphic_symmetry: 1.0
+      shallow_open_tube: 1.0
+    score: arithmetic_mean_of_available_binary_components
+    minimum_nonmissing_components_per_species: 2
+    prediction: negative_current_PL_association
+    one_sided_alpha: 0.025
+
+trait_snapshot:
+  source: frozen_v13_high_medium_direct_trait_states
+  parent_workflow_run_id: 34191508045
+  parent_artifact_id: 10042377593
+  parent_artifact_digest: sha256:5e9c887e093c42eb720f3abd2dc85701ce123fb7fe888c916dc4098ac898ccdd
+  materialized_trait_file_sha256: e288f846ac2da62b52f3d644b370985ab7655fa38ba0221d75012886653a9372
+  matching: exact_binomial_only
+  synonym_fallback: false
+  genus_fallback: false
+
+outcome_blind_preflight:
+  allowed_dataset_columns:
+    - line
+    - record_unicode
+    - article_code
+    - DOI_citation
+    - species
+    - crop_name
+    - family
+    - plant_acession
+    - plant_accession
+    - crop_part
+    - continent
+    - country
+    - locality
+    - latitude;longitude
+    - precision
+    - experiment_year
+    - scale
+    - supplement_type
+    - factors
+  prohibited_column_name_regex:
+    - '(?i)PL'
+    - '(?i)effect'
+    - '(?i)SUP'
+    - '(?i)OBS'
+    - '(?i)BAG'
+    - '(?i)fruit.?set'
+    - '(?i)seed.?set'
+    - '(?i)seed.?number'
+    - '(?i)fruit.?weight'
+    - '(?i)seed.?weight'
+    - '(?i)mean'
+    - '(?i)sd'
+    - '(?i)sample'
+  schema_names_may_be_inspected: true
+  outcome_values_may_not_be_read: true
+  source_bytes_may_be_downloaded_for_hashing: true
+
+support_gates:
+  H4a_reproductive_assurance:
+    minimum_matched_species_total: 30
+    minimum_species_per_state: 10
+    minimum_publications_total: 10
+    minimum_publications_per_state: 5
+  H4b_accessibility_generalization:
+    minimum_matched_species_total: 30
+    minimum_publications_total: 10
+    minimum_score_sd: 0.10
+    minimum_low_score_species: 8
+    low_score_max: 0.3333333333
+    minimum_high_score_species: 8
+    high_score_min: 0.6666666667
+
+response_freeze:
+  outcome_scale_before_preflight: not_opened
+  preferred_harmonized_response: log_supplemented_over_natural_reproductive_output
+  fallback_if_harmonized_raw_endpoint_not_identifiable_from_schema: dataset_provided_PL_metric
+  final_response_mapping_must_be_versioned_and_committed_after_schema_only_audit_before_values_are_read: true
+
+rules:
+  - PolLimCrop_cannot_rescue_failed_wild_temporal_support_gate
+  - no_crop_outcome_values_before_support_and_response_schema_lock
+  - exact_frozen_trait_match_only
+  - H4a_and_H4b_definitions_cannot_change
+  - support_thresholds_cannot_change
+  - shallow_open_tube_cannot_be_dropped
+  - crop_domain_difference_must_be_reported
+  - a_failed_transportability_test_is_retained
+  - outcome_analysis_requires_a_separate_committed_response_mapping_lock
+
+claim_ceiling:
+  cross_domain_current_PL_trait_association_if_supported: true
+  wild_plant_temporal_replication: false
+  historical_pollen_limitation_selected_traits: false
+  pollen_limitation_mediates_global_island_syndrome: false
+  causal_trait_evolution_identified: false
