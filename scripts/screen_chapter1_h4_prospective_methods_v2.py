@@ -141,6 +141,31 @@ def _target_species(
     return [], "unresolved", broad_matches
 
 
+def _load_exclusion_lock(path: Path) -> dict[str, Any]:
+    value = yaml.safe_load(path.read_text(encoding="utf-8"))
+    expected = "chapter1_h4_prospective_outcome_exposure_exclusion_lock_v1"
+    if not isinstance(value, dict) or value.get("contract") != expected:
+        raise typer.BadParameter("unexpected H4 outcome-exposure exclusion lock")
+    return value
+
+
+def _apply_exposure_exclusions(
+    metadata: pd.DataFrame,
+    exclusion_lock: dict[str, Any],
+) -> tuple[pd.DataFrame, int]:
+    keys = exclusion_lock["exclusion_keys"]
+    excluded_doi = {v1._normalise_doi(value) for value in keys.get("doi", [])}
+    excluded_titles = {
+        str(value).strip().casefold() for value in keys.get("title_exact", [])
+    }
+    doi_hit = metadata["doi"].astype(str).map(v1._normalise_doi).isin(excluded_doi)
+    title_hit = (
+        metadata["title"].fillna("").astype(str).str.strip().str.casefold().isin(excluded_titles)
+    )
+    remove = doi_hit | title_hit
+    return metadata.loc[~remove].copy().reset_index(drop=True), int(remove.sum())
+
+
 def _normalise_frame(metadata: pd.DataFrame) -> pd.DataFrame:
     required = {
         "source_database",
@@ -341,10 +366,13 @@ def run(
     metadata_csv: Path = typer.Option(..., exists=True, dir_okay=False),
     trait_states_csv: Path = typer.Option(..., exists=True, dir_okay=False),
     config_path: Path = typer.Option(..., exists=True, dir_okay=False),
+    exclusion_lock_path: Path = typer.Option(..., exists=True, dir_okay=False),
     output_csv: Path = typer.Option(...),
 ) -> None:
     config = load_config(config_path)
     metadata = _normalise_frame(pd.read_csv(metadata_csv))
+    exclusion_lock = _load_exclusion_lock(exclusion_lock_path)
+    metadata, n_exposure_excluded = _apply_exposure_exclusions(metadata, exclusion_lock)
     traits = pd.read_csv(trait_states_csv)
     lookup = v1._species_lookup(traits)
 
@@ -401,7 +429,8 @@ def run(
         else {}
     )
     summary = {
-        "n_frozen_metadata_records": int(len(metadata)),
+        "n_frozen_metadata_records_after_exposure_exclusion": int(len(metadata)),
+        "n_outcome_exposure_excluded_records": int(n_exposure_excluded),
         "n_frozen_records_with_oa_pmc_match": int(len(eligible)),
         "candidate_status_counts": {str(k): int(v) for k, v in counts.items()},
         "n_target_species_records": int(
