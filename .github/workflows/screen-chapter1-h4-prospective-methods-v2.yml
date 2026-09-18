@@ -8,6 +8,8 @@ on:
       - "config/chapter1_h4_prospective_methods_preflight_v2.yml"
       - "scripts/screen_chapter1_h4_prospective_methods_v2.py"
       - "tests/test_chapter1_h4_prospective_methods_v2.py"
+      - "scripts/audit_chapter1_h4_methods_v2_support.py"
+      - "tests/test_chapter1_h4_methods_v2_support.py"
       - ".github/workflows/screen-chapter1-h4-prospective-methods-v2.yml"
   workflow_dispatch:
 
@@ -36,8 +38,12 @@ jobs:
 
       - name: Validate v2 outcome-blind screen
         run: |
-          pytest -q tests/test_chapter1_h4_prospective_methods_v2.py
-          ruff check scripts/screen_chapter1_h4_prospective_methods_v2.py tests/test_chapter1_h4_prospective_methods_v2.py
+          pytest -q tests/test_chapter1_h4_prospective_methods_v2.py tests/test_chapter1_h4_methods_v2_support.py
+          ruff check \
+            scripts/screen_chapter1_h4_prospective_methods_v2.py \
+            scripts/audit_chapter1_h4_methods_v2_support.py \
+            tests/test_chapter1_h4_prospective_methods_v2.py \
+            tests/test_chapter1_h4_methods_v2_support.py
 
       - name: Download frozen outcome-blind artifacts
         run: |
@@ -63,9 +69,20 @@ jobs:
             --config-path config/chapter1_h4_prospective_methods_preflight_v2.yml \
             --output-csv "$ROOT/out/methods_v2_screen.csv"
 
+      - name: Audit frozen H4 support without outcomes
+        run: |
+          python scripts/audit_chapter1_h4_methods_v2_support.py \
+            --methods-csv "$ROOT/out/methods_v2_screen.csv" \
+            --trait-states-csv "$ROOT/traits/prospective_h4_frozen_trait_states.csv" \
+            --contract-path config/chapter1_h4_prospective_temporal_replication_v1.yml \
+            --output-json "$ROOT/out/methods_v2_support_audit.json"
+
       - name: Hash v2 outcome-blind output
         run: |
-          sha256sum "$ROOT/out/methods_v2_screen.csv" > "$ROOT/out/file_manifest.sha256"
+          sha256sum \
+            "$ROOT/out/methods_v2_screen.csv" \
+            "$ROOT/out/methods_v2_support_audit.json" \
+            > "$ROOT/out/file_manifest.sha256"
 
       - uses: actions/upload-artifact@v4
         with:
