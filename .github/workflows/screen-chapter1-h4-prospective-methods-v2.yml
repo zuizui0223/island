@@ -1,6 +1,8 @@
 name: Screen Chapter 1 H4 prospective Methods v2
 
 on:
+  push:
+    branches: [feature/h4-prospective-temporal-replication]
   pull_request:
     paths:
       - "config/chapter1_h4_prospective_methods_preflight_v2.yml"
