@@ -168,15 +168,50 @@ def _normalise_frame(metadata: pd.DataFrame) -> pd.DataFrame:
     return work.reset_index(drop=True)
 
 
-def _europe_pmc_map(config: dict[str, Any]) -> dict[str, dict[str, str]]:
-    """Discover OA PMC mirrors, then intersect by DOI with the frozen frame."""
+def _europe_pmc_map(
+    metadata: pd.DataFrame,
+    config: dict[str, Any],
+) -> dict[str, dict[str, str]]:
+    """Resolve OA PMC mirrors only for DOI records already in the frozen frame."""
 
-    records = v1.discover_europe_pmc(config)
+    source = config["source"]["Europe_PMC"]
+    dois = sorted({value for value in metadata["doi"].astype(str) if value})
     out: dict[str, dict[str, str]] = {}
-    for record in records:
-        doi = v1._normalise_doi(record.get("doi"))
-        if doi and doi not in out:
-            out[doi] = record
+    batch_size = 30
+    for start in range(0, len(dois), batch_size):
+        batch = dois[start : start + batch_size]
+        doi_query = " OR ".join(f'DOI:"{doi}"' for doi in batch)
+        query = (
+            "(" + doi_query + ")"
+            + f" AND FIRST_PDATE:[{source['date_start']} TO {source['date_end']}]"
+            + " AND OPEN_ACCESS:Y"
+        )
+        params = urllib.parse.urlencode(
+            {
+                "query": query,
+                "format": "json",
+                "resultType": "lite",
+                "pageSize": 1000,
+            }
+        )
+        payload = v1._get_json(
+            "https://www.ebi.ac.uk/europepmc/webservices/rest/search?" + params
+        )
+        for item in payload.get("resultList", {}).get("result", []):
+            doi = v1._normalise_doi(item.get("doi"))
+            pmcid = str(item.get("pmcid", "") or "").strip()
+            if doi in batch and pmcid and doi not in out:
+                out[doi] = {
+                    "doi": doi,
+                    "pmcid": pmcid,
+                    "publication_date": str(
+                        item.get("firstPublicationDate")
+                        or item.get("journalInfo", {}).get("printPublicationDate")
+                        or ""
+                    ),
+                    "title": str(item.get("title", "") or ""),
+                }
+        time.sleep(0.10)
     return out
 
 
@@ -313,7 +348,7 @@ def run(
     traits = pd.read_csv(trait_states_csv)
     lookup = v1._species_lookup(traits)
 
-    pmc_map = _europe_pmc_map(config)
+    pmc_map = _europe_pmc_map(metadata, config)
     eligible = metadata.loc[
         metadata["doi"].ne("") & metadata["doi"].isin(pmc_map)
     ].copy()
