@@ -107,6 +107,7 @@ def build_result_lock(
             else "outcome_blind_support_gate_not_met"
         ),
         "inferential_role": "secondary_external_domain_transportability_support_decision",
+        "outcomes_read": False,
         "workflow": {
             "run_id": int(workflow_run_id),
             "head_sha": str(workflow_head_sha),
