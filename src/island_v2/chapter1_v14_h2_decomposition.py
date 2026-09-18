@@ -99,8 +99,12 @@ def _clustered_ols(
     cluster_column: str,
 ) -> dict[str, Any]:
     required = [response, *predictors, cluster_column]
-    work = data.dropna(subset=required).copy()
-    work = work.loc[work[cluster_column].astype(str).ne("")].copy()
+    work = data[required].copy()
+    for column in [response, *predictors]:
+        work[column] = pd.to_numeric(work[column], errors="coerce")
+    work[cluster_column] = work[cluster_column].fillna("").astype(str)
+    work = work.dropna(subset=[response, *predictors])
+    work = work.loc[work[cluster_column].ne("")].copy()
     if len(work) < 20:
         return {"status": "not_testable", "n_islands": int(len(work))}
     names = ["intercept"]
@@ -243,6 +247,10 @@ def run_decomposition(
         "selfing_core",
         "generalized_accessible",
         "attraction_shift",
+        "large_bee_like",
+        "butterfly_like",
+        "bird_like",
+        "shared_named_architecture",
     ]
     for column in numeric_columns:
         continuous[column] = pd.to_numeric(continuous[column], errors="coerce")
