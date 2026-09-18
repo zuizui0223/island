@@ -99,6 +99,11 @@ def _selected_sections(
                 text = _safe_section_text(sec, hard_exclude=hard_exclude)
                 if text:
                     selected.append((title, text))
+                # Keep scanning nested allowed sections so a specific
+                # "Study species" / "Study system" heading remains visible
+                # for target-species resolution. Hard-excluded Results/
+                # Discussion sections are still skipped at their own boundary.
+                walk(sec)
                 continue
             walk(sec)
 
