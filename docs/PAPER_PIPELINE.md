@@ -1,6 +1,56 @@
-# Chapter 1 v13 paper pipeline
+# Chapter 1 v14 paper pipeline
 
-This document is the shortest reproducibility map for the **current v13 global-only H1–H4 submission**. Pre-v13 hypothesis ladders, mechanism branches and defended submission surfaces are historical provenance and are archived/indexed from the active paper interface under `legacy/chapter1-pre-v13/`.
+The canonical v14 surface changes the **question order and H1/H2 analysis surface**
+while leaving frozen v13 GloPL and functional-bridge estimates intact.
+
+    H1  island syndrome
+        reproductive assurance + plain colour + accessible/generalized structure
+          |
+          v
+    H2  floral decomposition
+        selfing route vs selfing-adjusted pollinator-facing route
+        + raw colour x raw form/tube concordance
+          |
+          v
+    H3  independent pollen-limitation gradient (GloPL)
+          |
+          v
+    H4  tiered functional bridge
+        individual-trait discovery
+        + literal H2 species-score discovery
+        + atomic reconstruction sensitivity
+        + prospective validation layers
+
+H1 is now a seven-response beta-binomial multivariate test. H2 uses selfing_core as
+the reproductive mechanism covariate and tests plain_colour and
+generalized_accessible conditionally. Pollination-syndrome concordance is carried by
+the frozen raw five-colour and raw colour-conditioned form/tube analyses; weighted
+bee/butterfly/bird scores are historical secondary summaries only. H4 first bridges
+the literal Direct-only H2 species scores to GloPL; atomic family reconstruction is a
+separate post-hoc sensitivity.
+
+See:
+- docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md
+- config/chapter1_v14_canonical_result_lock.json
+- docs/chapter1_submission_freeze_v14_20260918.md
+- config/chapter1_v14_hypothesis_architecture.yml
+- config/chapter1_v14_all_data_probability.yml
+- config/chapter1_v14_h2_decomposition.yml
+- config/chapter1_v14_h4_evidence_hierarchy.yml
+- config/chapter1_v14_h4_exact_h2_score_bridge.yml
+- config/chapter1_v14_h4_exact_h2_score_bridge_preflight_result_lock.json
+- config/chapter1_v14_h4_family_bridge.yml
+- config/chapter1_v14_h4_family_bridge_preflight_result_lock.json
+- docs/chapter1_v14_hypothesis_reorder_20260918.md
+- docs/chapter1_v14_preflight_results_20260918.md
+
+The v13 pipeline below remains immutable parent provenance.
+
+---
+
+## Frozen v13 parent paper pipeline
+
+This parent section is the shortest reproducibility map for the frozen **v13 global-only H1–H4 submission**. Pre-v13 hypothesis ladders, mechanism branches and defended submission surfaces are historical provenance and are archived/indexed from the active paper interface under `legacy/chapter1-pre-v13/`.
 
 ## Pipeline at a glance
 

@@ -1,6 +1,32 @@
-# Island — Chapter 1 v13 paper repository
+# Island — Chapter 1 v14 paper repository
 
-This repository's **current publication-facing surface is Chapter 1 v13**. The active paper remains a global-only **H1–H4** synthesis. Earlier Chapter 1 hypothesis ladders, defended submission states and submission-surface audits are historical provenance, not the current scientific spine.
+> **The current publication-facing surface is Chapter 1 v14. v13 is retained unchanged as parent provenance.**
+> The v14 analysis order is now:
+>
+> 1. **H1 — global floral/reproductive island syndrome:** reproductive assurance + plain colour + accessible/generalized floral structure.
+> 2. **H2 — floral-shift decomposition:** selfing-syndrome/reproductive-assurance route versus selfing-adjusted pollinator-facing colour/accessibility route, with pollination-syndrome concordance tested from raw colour × raw form/tube coupling rather than weighted guild scores.
+> 3. **H3 — independent global pollen limitation:** the frozen GloPL isolation analysis, formerly v13 H2.
+> 4. **H4 — tiered functional bridge:** the v13 atomic-trait discovery is retained; v14 adds a literal exact-H2-species-score bridge (`selfing_core`, `generalized_accessible`), keeps atomic family reconstruction as a sensitivity, and PR #236 supplies separate prospective validation layers.
+>
+> H1 is refit as a seven-response beta-binomial multivariate analysis. H2 explicitly
+> conditions colour and accessibility responses on selfing_core. The detailed design
+> is in [docs/chapter1_v14_hypothesis_reorder_20260918.md](docs/chapter1_v14_hypothesis_reorder_20260918.md)
+> and the frozen-input preflight results are in
+> [docs/chapter1_v14_preflight_results_20260918.md](docs/chapter1_v14_preflight_results_20260918.md).
+>
+> v14 manuscript: [docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md](docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md)
+> H4 evidence roles: [config/chapter1_v14_h4_evidence_hierarchy.yml](config/chapter1_v14_h4_evidence_hierarchy.yml)
+> H4 exact H2-score bridge: [config/chapter1_v14_h4_exact_h2_score_bridge.yml](config/chapter1_v14_h4_exact_h2_score_bridge.yml)
+> H4 atomic reconstruction sensitivity: [config/chapter1_v14_h4_family_bridge.yml](config/chapter1_v14_h4_family_bridge.yml)
+>
+> Canonical result lock: [config/chapter1_v14_canonical_result_lock.json](config/chapter1_v14_canonical_result_lock.json)
+> Submission freeze: [docs/chapter1_submission_freeze_v14_20260918.md](docs/chapter1_submission_freeze_v14_20260918.md)
+
+---
+
+## Frozen v13 parent paper surface
+
+At the v13 freeze, the repository's publication-facing surface was Chapter 1 v13. That frozen parent remains a global-only **H1–H4** synthesis. Earlier Chapter 1 hypothesis ladders, defended submission states and submission-surface audits are historical provenance, not the current scientific spine.
 
 ## 1. Current scientific claim
 

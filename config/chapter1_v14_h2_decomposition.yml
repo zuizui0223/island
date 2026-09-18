@@ -1,0 +1,92 @@
+contract: chapter1_v14_h2_decomposition_v1
+
+purpose: >-
+  Decompose the floral portion of the v14 H1 island syndrome into a measured
+  reproductive-assurance route and a selfing-adjusted pollinator-facing route.
+  This is conditional decomposition, not causal mediation.
+
+geography_column: log_distance_to_continent_km
+context_column: analysis_regime
+cluster_column: spatial_block
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+
+primary_stratum: all_observed
+minimum_islands: 50
+alpha: 0.05
+
+continuous_models:
+  selfing_core:
+    response: selfing_core
+    condition_on_selfing_core: false
+    role: H2a_reproductive_assurance
+  generalized_accessible:
+    response: generalized_accessible
+    condition_on_selfing_core: true
+    role: H2b_accessibility_conditional_on_selfing
+
+count_models:
+  plain_colour:
+    response: plain_colour
+    condition_on_selfing_core: true
+    role: H2b_colour_dulling_conditional_on_selfing
+    model_family: beta_binomial_logit
+
+primary_H2b_family:
+  - plain_colour
+  - generalized_accessible
+multiplicity: >-
+  BH-FDR across the eight primary H2b context-by-response distance tests within
+  each evidence scope. Raw colour and raw colour-architecture concordance use their
+  already frozen within-context FDR families and cannot rescue failed primary H2b
+  endpoints.
+
+raw_pollination_syndrome_concordance:
+  evidence_source:
+    raw_colour_run: 35210281545
+    raw_colour_artifact: 10491539130
+    raw_colour_digest: sha256:d30ebbda7f1613373a39a9df9577e1b34cc32cddcd5c39b87719cd512972e263
+    raw_colour_architecture_run: 35216672430
+    raw_colour_architecture_artifact: 10495522252
+    raw_colour_architecture_digest: sha256:8200c982d9a275c3d7db5fc25fa762f08428d51fa637a42c8312b067fdcbe377
+  estimands:
+    - raw_five_colour_composition_conditional_on_selfing_core
+    - raw_colour_x_raw_architecture_joint_prevalence
+    - raw_architecture_given_raw_colour_conditional_on_selfing_core
+  role: primary_pollination_syndrome_concordance_layer
+  named_weighted_scores_role: historical_secondary_only_not_v14_H2_evidence
+
+definitions:
+  selfing_core: >-
+    reproductive mechanism score using self-incompatibility, mating system and
+    autonomous-selfing capacity only; it excludes floral attraction/display traits.
+
+interpretation:
+  H2a: >-
+    A positive selfing_core isolation slope is consistent with increasing
+    reproductive assurance.
+  H2b: >-
+    A positive isolation coefficient for plain_colour or generalized_accessible
+    after selfing_core adjustment means that the floral shift is not reducible to
+    the measured reproductive selfing core. It is not proof of direct pollinator
+    selection, realized pollinator identity, or causal mediation.
+
+rules:
+  - same_frozen_covariates_as_H1
+  - same_spatial_block_cluster_robust_uncertainty
+  - plain_colour_uses_H1_binary_count_definition
+  - continuous_scores_use_equal_island_weight
+  - missing_score_is_not_zero
+  - conditional_decomposition_is_not_mediation
+  - raw_colour_and_raw_architecture_define_pollination_syndrome_concordance
+  - weighted_named_pollination_scores_do_not_define_v14_H2

@@ -1,0 +1,152 @@
+{
+  "contract": "chapter1_v14_h4_family_bridge_preflight_result_lock_v1",
+  "date": "2026-09-18",
+  "status": "ci_observed_values_pending_full_v14_pass",
+  "canonical": false,
+  "inferential_role": "posthoc_atomic_family_reconstruction_sensitivity",
+  "parent_artifacts": {
+    "reproductive_assurance": {
+      "workflow_run_id": 35093274622,
+      "artifact_id": 10444749163,
+      "artifact_digest": "sha256:317221b0315137d2cfc0591d9f6f146c6956106d50d8a5b1dc782096bab55da9"
+    },
+    "floral_architecture": {
+      "workflow_run_id": 35094588521,
+      "artifact_id": 10445189257,
+      "artifact_digest": "sha256:ef81551d41cc747b07e927b9a5c4f13eaf0fc013a5cf8ac3fb1a5491aadec8c4"
+    }
+  },
+  "families": {
+    "reproductive_assurance": {
+      "support": {
+        "n_score_species": 470,
+        "n_three_component_species": 51,
+        "score_mean": 0.3698581560283688,
+        "score_sd": 0.390180015098583,
+        "n_low_score_le_one_third": 233,
+        "n_high_score_ge_two_thirds": 104
+      },
+      "primary": {
+        "estimate": -0.3125493709156215,
+        "se": 0.10217685565987752,
+        "two_sided_p": 0.0022214702949586752,
+        "one_sided_negative_p": 0.0011107351474793376,
+        "n_cells": 739,
+        "n_species": 470,
+        "n_publications": 417,
+        "n_sites": 572
+      },
+      "supplemental_only": {
+        "estimate": -0.12836065232167349,
+        "se": 0.09101487975888242,
+        "two_sided_p": 0.15844344144599906,
+        "one_sided_negative_p": 0.07922172072299953,
+        "n_cells": 496,
+        "n_species": 291,
+        "n_publications": 244,
+        "n_sites": 372
+      },
+      "no_zero_constant": {
+        "estimate": -0.3139092280379485,
+        "se": 0.10281080073246768,
+        "two_sided_p": 0.002263614766062006,
+        "one_sided_negative_p": 0.001131807383031003,
+        "n_cells": 726,
+        "n_species": 466,
+        "n_publications": 415,
+        "n_sites": 569
+      },
+      "classification": "primary_and_no_zero_supported; supplemental_only_direction_negative_but_not_supported"
+    },
+    "accessibility_generalization": {
+      "support": {
+        "n_score_species": 228,
+        "n_three_component_species": 28,
+        "score_mean": 0.45124174071542494,
+        "score_sd": 0.38890294260236385,
+        "n_low_score_le_one_third": 84,
+        "n_high_score_ge_two_thirds": 62
+      },
+      "primary": {
+        "estimate": -0.32932085948526735,
+        "se": 0.11770836225394427,
+        "two_sided_p": 0.005145682811813261,
+        "one_sided_negative_p": 0.0025728414059066305,
+        "n_cells": 403,
+        "n_species": 228,
+        "n_publications": 232,
+        "n_sites": 329
+      },
+      "supplemental_only": {
+        "estimate": -0.2500342674398511,
+        "se": 0.11967628846228133,
+        "two_sided_p": 0.036684787324208254,
+        "one_sided_negative_p": 0.018342393662104127,
+        "n_cells": 297,
+        "n_species": 155,
+        "n_publications": 150,
+        "n_sites": 237
+      },
+      "no_zero_constant": {
+        "estimate": -0.33998158364630227,
+        "se": 0.11683735273445779,
+        "two_sided_p": 0.003615783662185665,
+        "one_sided_negative_p": 0.0018078918310928324,
+        "n_cells": 393,
+        "n_species": 223,
+        "n_publications": 230,
+        "n_sites": 326
+      },
+      "classification": "H2_exact_weighted_accessibility_score_supported_in_primary_and_both_measurement_sensitivities"
+    },
+    "accessibility_equal_weight_sensitivity": {
+      "support": {
+        "n_score_species": 228,
+        "n_three_component_species": 28,
+        "score_mean": 0.4729532163742689,
+        "score_sd": 0.38811825830807795,
+        "n_low_score_le_one_third": 86,
+        "n_high_score_ge_two_thirds": 71
+      },
+      "primary": {
+        "estimate": -0.32508511465279266,
+        "se": 0.11913039153714822,
+        "two_sided_p": 0.006356184144918508,
+        "one_sided_negative_p": 0.003178092072459254,
+        "n_cells": 403,
+        "n_species": 228,
+        "n_publications": 232,
+        "n_sites": 329
+      },
+      "supplemental_only": {
+        "estimate": -0.25178463904863096,
+        "se": 0.11965307846505994,
+        "two_sided_p": 0.035353257966321515,
+        "one_sided_negative_p": 0.017676628983160757,
+        "n_cells": 297,
+        "n_species": 155,
+        "n_publications": 150,
+        "n_sites": 237
+      },
+      "no_zero_constant": {
+        "estimate": -0.33607778079801115,
+        "se": 0.1184078280725174,
+        "two_sided_p": 0.004535352161787067,
+        "one_sided_negative_p": 0.0022676760808935333,
+        "n_cells": 393,
+        "n_species": 223,
+        "n_publications": 230,
+        "n_sites": 326
+      },
+      "classification": "prospective_H4b_equal_weight_definition_gives_same_posthoc_discovery_direction"
+    }
+  },
+  "integrated_classification": "atomic_family_reconstruction_is_concordant_with_exact_H2_score_bridge; H2_weighted_accessibility_reconstruction_is_supported_in_primary_and_both_measurement_sensitivities; equal_weight_prospective_H4b_definition_is_concordant",
+  "claim_ceiling": {
+    "posthoc_discovery": true,
+    "prospective_replication": false,
+    "historical_selection_identified": false,
+    "mediation_identified": false,
+    "colour_bridge_promoted": false
+  }
+}

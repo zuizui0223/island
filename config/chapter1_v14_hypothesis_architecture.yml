@@ -1,0 +1,153 @@
+contract: chapter1_v14_hypothesis_architecture_v1
+status: frozen_before_v14_refit
+date: 2026-09-18
+
+purpose: >-
+  Reorder Chapter 1 into a question-first H1-H4 sequence while preserving v13 as
+  immutable provenance. H1 asks whether the floral/reproductive island syndrome
+  recurs; H2 decomposes the floral part into reproductive-selfing versus
+  pollinator-facing components; H3 tests the independent pollen-limitation pressure;
+  H4 asks whether syndrome traits are functionally associated with current pollen
+  limitation.
+
+provenance:
+  parent_submission_surface: v13
+  parent_result_lock: config/chapter1_v13_unified_island_syndrome_result_lock.json
+  v13_is_not_rewritten: true
+  colour_promotion_role: >-
+    plain_colour was defined and analysed before v14, but its promotion into the H1
+    syndrome family occurs after those results existed; v14 therefore labels this a
+    transparent promoted reanalysis rather than retroactive preregistration.
+
+hypotheses:
+  H1_global_island_syndrome:
+    question: >-
+      Does increasing island isolation correspond to a recurrent floral/reproductive
+      island-syndrome direction?
+    primary_response_vector:
+      reproductive_assurance:
+        - self_compatibility
+        - selfing_mating_system
+        - autonomous_selfing
+      colour_dulling:
+        - plain_colour
+      accessibility_generalization:
+        - generalized_form
+        - actinomorphic_symmetry
+        - shallow_open_tube
+    formal_test: seven_response_multivariate_wald_within_each_predeclared_geographic_replication_stratum
+    descriptive_summary: >-
+      Report the three biological domains separately. If a single descriptive
+      orientation is shown, average domain means rather than all seven atomic
+      coefficients so the 3+1+3 domain sizes do not determine biological weights.
+    colour_interpretation: >-
+      plain_colour is a prespecified colour-composition contrast
+      (white/green-brown-inconspicuous versus yellow-orange/red-pink/blue-purple),
+      not measured attraction intensity and not pollinator identity.
+
+  H2_floral_shift_decomposition:
+    question: >-
+      Is the floral part of H1 reducible to a selfing-syndrome pathway, or do
+      pollinator-facing colour/accessibility shifts remain after measured
+      reproductive assurance is conditioned on?
+    H2a_selfing_syndrome_route:
+      response: selfing_core
+      model: selfing_core ~ isolation + area + climate
+      interpretation: reproductive_assurance_response
+    H2b_pollinator_facing_route:
+      primary_conditional_responses:
+        - plain_colour
+        - generalized_accessible
+      models:
+        - plain_colour ~ isolation + selfing_core + area + climate
+        - generalized_accessible ~ isolation + selfing_core + area + climate
+      primary_pollination_syndrome_concordance:
+        - raw_five_colour_composition_conditional_on_selfing_core
+        - raw_colour_x_raw_architecture_joint_prevalence
+        - raw_architecture_given_raw_colour_conditional_on_selfing_core
+      weighted_named_scores_role: historical_secondary_only_not_v14_H2_evidence
+      interpretation: >-
+        Persistence of isolation associations after selfing_core adjustment means
+        floral reorganization is not reducible to the measured selfing core. Pollination-
+        syndrome concordance is evaluated from reported colour, floral form and tube-depth
+        states and their conditional coupling, not from a weighted guild score. These
+        analyses do not identify direct pollinator selection, realized pollinator
+        identity, or causal mediation.
+
+  H3_global_pollen_limitation:
+    question: >-
+      Is the proposed upstream ecological pressure independently observed: does
+      experimental pollen limitation increase with geographic isolation?
+    data: GloPL
+    estimand: standardized_distance_coefficient
+    statistical_model: >-
+      effect_size ~ standardized_log_distance + broad_region_intercepts +
+      measurement_conditions; publication-total weights normalized to one and
+      publication-cluster-robust covariance.
+    provenance: existing_v13_H2_result_relabelled_without_refitting
+
+  H4_functional_bridge:
+    question: >-
+      Are the two mechanistically interpretable H2 response families functionally
+      associated with lower current experimental pollen limitation?
+    evidence_hierarchy:
+      atomic_trait_discovery:
+        data: exact_species_trait_x_GloPL_matches
+        role: posthoc_functional_triangulation
+        provenance: existing_v13_H4_result
+      exact_H2_species_score_discovery:
+        data: exact_Direct_only_H2_species_scores_x_GloPL_matches
+        role: posthoc_exact_H2_score_functional_triangulation
+        config: config/chapter1_v14_h4_exact_h2_score_bridge.yml
+        reproduction_lock: config/chapter1_v14_h4_exact_h2_score_bridge_preflight_result_lock.json
+        reproductive_assurance:
+          H2_syndrome: selfing_core
+          beta: -0.29706162790382573
+          two_sided_p: 0.004114773773355803
+        accessibility_generalization:
+          H2_syndrome: generalized_accessible
+          beta: -0.2960123452279311
+          two_sided_p: 0.022162544686764193
+      atomic_family_reconstruction_sensitivity:
+        role: posthoc_atomic_family_reconstruction_sensitivity
+        config: config/chapter1_v14_h4_family_bridge.yml
+      prospective_wild_temporal_replication:
+        role: prospectively_frozen_validation_attempt
+        status: support_gate_not_met_not_evaluable
+        outcomes_unblinded: false
+        source_pr: 236
+      independent_crop_domain:
+        role: prospectively_frozen_transportability_test
+        status: pending_support_gated_execution_in_PR236
+        can_rescue_wild_temporal_failure: false
+    co_primary_functional_predictions:
+      reproductive_assurance: autonomous_selfing_predicts_lower_current_pollen_limitation
+      accessibility_generalization: equal_weight_accessibility_score_predicts_lower_current_pollen_limitation
+    colour_bridge_role: >-
+      No global primary colour-to-pollen-limitation bridge is promoted because the H1/H2
+      colour response is context dependent and has no single globally predicted direction.
+    historical_mediation_identified: false
+
+analysis_order:
+  - H1_global_island_syndrome
+  - H2_floral_shift_decomposition
+  - H3_global_pollen_limitation
+  - H4_functional_bridge
+
+claim_ceiling:
+  historical_pollen_limitation_selected_traits: false
+  pollen_limitation_mediates_global_syndrome: false
+  conditional_H2_is_causal_mediation: false
+  H2_pollinator_facing_residual_proves_direct_pollinator_selection: false
+  flower_colour_measures_attraction_intensity: false
+  pollination_syndrome_identifies_realized_pollinator: false
+  pollinator_abundance_decline_identified: false
+  within_lineage_evolution_identified: false
+
+rules:
+  - preserve_v13_result_locks_unchanged
+  - missing_trait_is_not_trait_zero
+  - H1_colour_is_directional_composition_contrast_not_visual_conspicuousness_measurement
+  - H2_primary_conditional_tests_use_selfing_core_without_floral_attraction_traits
+  - H3_is_independent_experimental_pressure_not_mediator_proof
+  - H4_v13_discovery_remains_posthoc_while_validation_layers_keep_their_own_roles

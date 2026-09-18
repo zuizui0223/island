@@ -1,0 +1,407 @@
+name: Run Chapter 1 v14 reordered hypotheses
+
+on:
+  push:
+    branches:
+      - "feature/chapter1-v14-reordered-hypotheses"
+  pull_request:
+    paths:
+      - "config/chapter1_v14_hypothesis_architecture.yml"
+      - "config/chapter1_v14_all_data_probability.yml"
+      - "config/chapter1_v14_h2_decomposition.yml"
+      - "config/chapter1_v14_h4_evidence_hierarchy.yml"
+      - "config/chapter1_v14_h4_family_bridge.yml"
+      - "config/chapter1_v14_h4_family_bridge_preflight_result_lock.json"
+      - "tests/test_chapter1_v14_h4_exact_h2_score_bridge.py"
+      - "tests/test_chapter1_v14_submission_promotion.py"
+      - "src/island_v2/chapter1_v14_submission_promotion.py"
+      - "src/island_v2/chapter1_v14_h4_exact_h2_score_bridge.py"
+      - "config/chapter1_v14_h4_exact_h2_score_bridge_preflight_result_lock.json"
+      - "config/chapter1_v14_h4_exact_h2_score_bridge.yml"
+      - "src/island_v2/chapter1_v14_h2_decomposition.py"
+      - "src/island_v2/chapter1_v14_h4_family_bridge.py"
+      - "tests/test_chapter1_v14_h2_decomposition.py"
+      - "tests/test_chapter1_v14_contract.py"
+      - "tests/test_chapter1_v14_preflight_lock.py"
+      - "tests/test_chapter1_v14_h4_family_bridge.py"
+      - "config/chapter1_v14_preflight_result_lock.json"
+      - "tests/test_chapter1_v14_canonical_surface.py"
+      - "docs/chapter1_submission_freeze_v14_20260918.md"
+      - "config/chapter1_v14_canonical_result_lock.json"
+      - ".github/workflows/run-chapter1-v14-reordered-hypotheses.yml"
+      - "docs/chapter1_v14_hypothesis_reorder_20260918.md"
+      - "docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md"
+      - "docs/chapter1_v14_preflight_results_20260918.md"
+      - "docs/PAPER_PIPELINE.md"
+      - "README.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: chapter1-v14-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+      ALL_DATA_RUN_ID: "35100991898"
+      ALL_DATA_ARTIFACT: "chapter1-all-data-primary-35100991898"
+      ALL_DATA_ARTIFACT_ID: "10447959173"
+      ALL_DATA_DIGEST: "sha256:2152201aba5e5b02342c7d9d27eaf833b73c2d6405337f9aee1acbdd91af0844"
+      RAW_COLOUR_RUN_ID: "35210281545"
+      RAW_COLOUR_ARTIFACT_ID: "10491539130"
+      RAW_COLOUR_DIGEST: "sha256:d30ebbda7f1613373a39a9df9577e1b34cc32cddcd5c39b87719cd512972e263"
+      RAW_COUPLING_RUN_ID: "35216672430"
+      RAW_COUPLING_ARTIFACT_ID: "10495522252"
+      RAW_COUPLING_DIGEST: "sha256:8200c982d9a275c3d7db5fc25fa762f08428d51fa637a42c8312b067fdcbe377"
+      H4_RA_RUN_ID: "35093274622"
+      H4_RA_ARTIFACT: "chapter1-h5-glopl-ra-moderation-35093274622"
+      H4_RA_ARTIFACT_ID: "10444749163"
+      H4_RA_DIGEST: "sha256:317221b0315137d2cfc0591d9f6f146c6956106d50d8a5b1dc782096bab55da9"
+      H4_ARCH_RUN_ID: "35094588521"
+      H4_ARCH_ARTIFACT: "chapter1-h5-glopl-architecture-moderation-35094588521"
+      H4_ARCH_ARTIFACT_ID: "10445189257"
+      H4_ARCH_DIGEST: "sha256:ef81551d41cc747b07e927b9a5c4f13eaf0fc013a5cf8ac3fb1a5491aadec8c4"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install and validate v14 code
+        run: |
+          pip install -e ".[dev]"
+          pytest -q \
+            tests/test_chapter1_all_data_probability.py \
+            tests/test_chapter1_v14_h2_decomposition.py \
+            tests/test_chapter1_v14_contract.py \
+            tests/test_chapter1_v14_preflight_lock.py \
+            tests/test_chapter1_v14_h4_family_bridge.py \
+            tests/test_chapter1_v14_h4_exact_h2_score_bridge.py \
+            tests/test_chapter1_v14_submission_promotion.py \
+            tests/test_chapter1_v14_canonical_surface.py
+          ruff check \
+            src/island_v2/chapter1_v14_h2_decomposition.py \
+            src/island_v2/chapter1_v14_h4_family_bridge.py \
+            src/island_v2/chapter1_v14_h4_exact_h2_score_bridge.py \
+            src/island_v2/chapter1_v14_submission_promotion.py \
+            tests/test_chapter1_v14_h2_decomposition.py \
+            tests/test_chapter1_v14_h4_family_bridge.py \
+            tests/test_chapter1_v14_h4_exact_h2_score_bridge.py \
+            tests/test_chapter1_v14_submission_promotion.py \
+            tests/test_chapter1_v14_canonical_surface.py \
+            tests/test_chapter1_v14_contract.py \
+            tests/test_chapter1_v14_preflight_lock.py
+
+      - name: Download frozen v13-era inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/v14/source /tmp/v14/all-data
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/v14/source
+          gh run download "$ALL_DATA_RUN_ID" -n "$ALL_DATA_ARTIFACT" -D /tmp/v14/all-data
+          test -s /tmp/v14/source/fixed/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/v14/source/fixed/isolation/results/purpose_shortest_island_data.csv
+          test -s /tmp/v14/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+          test -s /tmp/v14/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+          test -s /tmp/v14/all-data/syndrome/all/island_syndrome_scores.csv.gz
+          test -s /tmp/v14/all-data/syndrome/direct/island_syndrome_scores.csv.gz
+          test -s /tmp/v14/all-data/syndrome/direct/species_syndrome_concordance.csv.gz
+
+      - name: Download frozen H4 parent artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/v14/h4-ra /tmp/v14/h4-arch
+          gh run download "$H4_RA_RUN_ID" -n "$H4_RA_ARTIFACT" -D /tmp/v14/h4-ra
+          gh run download "$H4_ARCH_RUN_ID" -n "$H4_ARCH_ARTIFACT" -D /tmp/v14/h4-arch
+          test -s /tmp/v14/h4-ra/preflight/TRAIT_OVERLAP_PREFLIGHT.csv.gz
+          test -s /tmp/v14/h4-ra/out/MATCHED_EFFECT_ROWS.csv.gz
+          test -s /tmp/v14/h4-arch/preflight/TRAIT_OVERLAP_PREFLIGHT.csv.gz
+          test -s /tmp/v14/h4-arch/out/MATCHED_EFFECT_ROWS.csv.gz
+
+      - name: Verify frozen H4 parent provenance
+        run: |
+          set -euo pipefail
+          ra_digest=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$H4_RA_ARTIFACT_ID" --jq '.digest')
+          arch_digest=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$H4_ARCH_ARTIFACT_ID" --jq '.digest')
+          test "$ra_digest" = "$H4_RA_DIGEST"
+          test "$arch_digest" = "$H4_ARCH_DIGEST"
+
+      - name: Verify frozen raw H2 provenance
+        run: |
+          set -euo pipefail
+          all_data_digest=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ALL_DATA_ARTIFACT_ID" --jq '.digest')
+          all_data_run=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ALL_DATA_ARTIFACT_ID" --jq '.workflow_run.id')
+          test "$all_data_digest" = "$ALL_DATA_DIGEST"
+          test "$all_data_run" = "$ALL_DATA_RUN_ID"
+          colour_digest=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$RAW_COLOUR_ARTIFACT_ID" --jq '.digest')
+          coupling_digest=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$RAW_COUPLING_ARTIFACT_ID" --jq '.digest')
+          test "$colour_digest" = "$RAW_COLOUR_DIGEST"
+          test "$coupling_digest" = "$RAW_COUPLING_DIGEST"
+          colour_run=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$RAW_COLOUR_ARTIFACT_ID" --jq '.workflow_run.id')
+          coupling_run=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$RAW_COUPLING_ARTIFACT_ID" --jq '.workflow_run.id')
+          test "$colour_run" = "$RAW_COLOUR_RUN_ID"
+          test "$coupling_run" = "$RAW_COUPLING_RUN_ID"
+
+      - name: Refit H1 with seven atomic responses
+        run: |
+          set -euo pipefail
+          for scope in all direct; do
+            if [ "$scope" = "all" ]; then
+              audit=/tmp/v14/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+              evidence=all_analysis_eligible
+            else
+              audit=/tmp/v14/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+              evidence=direct_only
+            fi
+            mkdir -p /tmp/v14/results/$scope/h1
+            python -m island_v2.chapter1_all_data_probability \
+              --status-flora-csv /tmp/v14/source/fixed/canonical/input/chapter1_status_flora.csv.gz \
+              --state-audit-csv "$audit" \
+              --covariates-csv /tmp/v14/source/fixed/isolation/results/purpose_shortest_island_data.csv \
+              --config-path config/chapter1_v14_all_data_probability.yml \
+              --evidence-scope "$evidence" \
+              --output-dir /tmp/v14/results/$scope/h1
+          done
+
+      - name: Run H2 selfing-versus-floral decomposition
+        run: |
+          set -euo pipefail
+          for scope in all direct; do
+            if [ "$scope" = "all" ]; then
+              evidence=all_analysis_eligible
+            else
+              evidence=direct_only
+            fi
+            mkdir -p /tmp/v14/results/$scope/h2
+            python -m island_v2.chapter1_v14_h2_decomposition \
+              --counts-csv /tmp/v14/results/$scope/h1/all_data_probability_counts.csv.gz \
+              --syndrome-scores-csv /tmp/v14/all-data/syndrome/$scope/island_syndrome_scores.csv.gz \
+              --covariates-csv /tmp/v14/source/fixed/isolation/results/purpose_shortest_island_data.csv \
+              --config-path config/chapter1_v14_h2_decomposition.yml \
+              --evidence-scope "$evidence" \
+              --output-dir /tmp/v14/results/$scope/h2
+          done
+
+      - name: Run exact H2-score functional bridge
+        run: |
+          mkdir -p /tmp/v14/results/h4-exact
+          python -m island_v2.chapter1_v14_h4_exact_h2_score_bridge \
+            --h2-species-scores-csv /tmp/v14/all-data/syndrome/direct/species_syndrome_concordance.csv.gz \
+            --reproductive-effect-rows-csv /tmp/v14/h4-ra/out/MATCHED_EFFECT_ROWS.csv.gz \
+            --architecture-effect-rows-csv /tmp/v14/h4-arch/out/MATCHED_EFFECT_ROWS.csv.gz \
+            --config-path config/chapter1_v14_h4_exact_h2_score_bridge.yml \
+            --output-dir /tmp/v14/results/h4-exact
+
+      - name: Validate exact H2-score bridge against frozen reproduction
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          observed = pd.read_csv(
+              "/tmp/v14/results/h4-exact/h4_exact_h2_score_bridge_results.csv"
+          )
+          expected = json.loads(
+              Path(
+                  "config/chapter1_v14_h4_exact_h2_score_bridge_preflight_result_lock.json"
+              ).read_text()
+          )
+          for family, payload in expected["families"].items():
+              for analysis in ("primary", "supplemental_only", "no_zero_constant"):
+                  row = observed.loc[
+                      observed["family"].eq(family)
+                      & observed["analysis"].eq(analysis)
+                  ].iloc[0]
+                  target = payload[analysis]
+                  assert abs(float(row["estimate"]) - float(target["estimate"])) < 1e-10
+                  assert abs(float(row["se"]) - float(target["se"])) < 1e-10
+                  assert int(row["n_species"]) == int(target["n_species"])
+                  assert int(row["n_publications"]) == int(target["n_publications"])
+          PY
+
+      - name: Run H4 atomic-reconstruction sensitivity
+        run: |
+          mkdir -p /tmp/v14/results/h4-family
+          python -m island_v2.chapter1_v14_h4_family_bridge \
+            --reproductive-preflight-csv /tmp/v14/h4-ra/preflight/TRAIT_OVERLAP_PREFLIGHT.csv.gz \
+            --reproductive-effect-rows-csv /tmp/v14/h4-ra/out/MATCHED_EFFECT_ROWS.csv.gz \
+            --architecture-preflight-csv /tmp/v14/h4-arch/preflight/TRAIT_OVERLAP_PREFLIGHT.csv.gz \
+            --architecture-effect-rows-csv /tmp/v14/h4-arch/out/MATCHED_EFFECT_ROWS.csv.gz \
+            --config-path config/chapter1_v14_h4_family_bridge.yml \
+            --output-dir /tmp/v14/results/h4-family
+
+      - name: Validate H4 atomic reconstruction against frozen reproduction
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          observed = pd.read_csv("/tmp/v14/results/h4-family/h4_family_bridge_results.csv")
+          expected = json.loads(
+              Path("config/chapter1_v14_h4_family_bridge_preflight_result_lock.json")
+              .read_text()
+          )
+          for family, payload in expected["families"].items():
+              for analysis in ("primary", "supplemental_only", "no_zero_constant"):
+                  row = observed.loc[
+                      observed["family"].eq(family)
+                      & observed["analysis"].eq(analysis)
+                  ].iloc[0]
+                  target = payload[analysis]
+                  assert abs(float(row["estimate"]) - float(target["estimate"])) < 1e-10
+                  assert abs(float(row["se"]) - float(target["se"])) < 1e-10
+                  assert int(row["n_species"]) == int(target["n_species"])
+                  assert int(row["n_publications"]) == int(target["n_publications"])
+          PY
+
+      - name: Assemble v14 result summary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+          import yaml
+
+          root = Path("/tmp/v14/results")
+          config = yaml.safe_load(Path("config/chapter1_v14_all_data_probability.yml").read_text())
+          h2_config = yaml.safe_load(Path("config/chapter1_v14_h2_decomposition.yml").read_text())
+          h4_config = yaml.safe_load(Path("config/chapter1_v14_h4_evidence_hierarchy.yml").read_text())
+          h4_exact = pd.read_csv(
+              root / "h4-exact" / "h4_exact_h2_score_bridge_results.csv"
+          )
+          h4_exact_manifest = json.loads(
+              (root / "h4-exact" / "h4_exact_h2_score_bridge_manifest.json").read_text()
+          )
+          h4_family = pd.read_csv(
+              root / "h4-family" / "h4_family_bridge_results.csv"
+          )
+          h4_family_manifest = json.loads(
+              (root / "h4-family" / "h4_family_bridge_manifest.json").read_text()
+          )
+          families = config["response_families"]
+          lines = ["# Chapter 1 v14 reordered-hypothesis refit", ""]
+          result = {
+              "contract": "chapter1_v14_reordered_hypotheses_result_v1",
+              "scopes": {},
+              "H2_raw_pollination_syndrome_concordance": h2_config[
+                  "raw_pollination_syndrome_concordance"
+              ],
+              "H4_evidence_hierarchy": h4_config,
+              "H4_exact_H2_score_bridge_results": json.loads(
+                  h4_exact.to_json(orient="records", double_precision=15)
+              ),
+              "H4_exact_H2_score_bridge_manifest": h4_exact_manifest,
+              "H4_atomic_reconstruction_results": json.loads(
+                  h4_family.to_json(orient="records", double_precision=15)
+              ),
+              "H4_atomic_reconstruction_manifest": h4_family_manifest,
+          }
+
+          for scope in ("all", "direct"):
+              slopes = pd.read_csv(root / scope / "h1" / "beta_binomial_within_slopes.csv")
+              omnibus = pd.read_csv(root / scope / "h1" / "beta_binomial_within_omnibus.csv")
+              h2 = pd.read_csv(root / scope / "h2" / "h2_decomposition_models.csv")
+              h2_summary = json.loads(
+                  (root / scope / "h2" / "h2_decomposition_summary.json").read_text()
+              )
+              s = slopes.loc[slopes["stratum"].eq("all_observed")].copy()
+              o = omnibus.loc[omnibus["stratum"].eq("all_observed")].copy()
+              family_rows = []
+              for context in config["contexts"]:
+                  part = s.loc[s["context"].eq(context)]
+                  for family, members in families.items():
+                      vals = part.loc[part["outcome"].isin(members), "geography_slope_log_odds"]
+                      family_rows.append(
+                          {
+                              "context": context,
+                              "family": family,
+                              "mean_slope": float(vals.mean()) if len(vals) else None,
+                              "n_atomic": int(len(vals)),
+                          }
+                      )
+              family = pd.DataFrame(family_rows)
+              orientation = (
+                  family.groupby("context", as_index=False)["mean_slope"]
+                  .mean()
+                  .rename(columns={"mean_slope": "equal_domain_orientation"})
+              )
+              result["scopes"][scope] = {
+                  "H1_all_observed_omnibus": json.loads(o.to_json(orient="records", double_precision=15)),
+                  "H1_family_means": json.loads(family.to_json(orient="records", double_precision=15)),
+                  "H1_equal_domain_orientation": json.loads(
+                      orientation.to_json(orient="records", double_precision=15)
+                  ),
+                  "H2_summary": h2_summary,
+                  "H2_models": json.loads(h2.to_json(orient="records", double_precision=15)),
+              }
+
+              lines += [f"## {scope}", "", "### H1 seven-response omnibus", "", "CSV:"]
+              lines.append(
+                  o[
+                      [
+                          "context",
+                          "n_retained_outcomes",
+                          "retained_outcomes",
+                          "joint_wald_chisq",
+                          "joint_df",
+                          "p_value",
+                          "q_value",
+                          "vector_supported",
+                      ]
+                  ].to_csv(index=False).strip()
+              )
+              lines += ["", "### H1 three-domain descriptive means", "", "CSV:"]
+              lines.append(family.to_csv(index=False).strip())
+              lines += ["", "### H1 equal-domain descriptive orientation", "", "CSV:"]
+              lines.append(orientation.to_csv(index=False).strip())
+              lines += ["", "### H2 conditional decomposition", "", "CSV:"]
+              show = [
+                  "context",
+                  "response",
+                  "analysis_role",
+                  "model_family",
+                  "n_islands",
+                  "distance_estimate",
+                  "distance_p",
+                  "primary_H2b_q",
+              ]
+              lines.append(h2[show].to_csv(index=False).strip())
+              lines += [""]
+
+          Path("/tmp/v14/results/chapter1_v14_result_summary.json").write_text(
+              json.dumps(result, indent=2, allow_nan=False, default=str) + "\n"
+          )
+          Path("/tmp/v14/results/RESULT_SUMMARY.md").write_text("\n".join(lines) + "\n")
+          PY
+          cat /tmp/v14/results/RESULT_SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify full v14 result surface
+        run: |
+          python -m island_v2.chapter1_v14_submission_promotion verify \
+            --result-summary /tmp/v14/results/chapter1_v14_result_summary.json \
+            --preflight-lock config/chapter1_v14_preflight_result_lock.json \
+            --exact-bridge-lock config/chapter1_v14_h4_exact_h2_score_bridge_preflight_result_lock.json \
+            --reconstruction-lock config/chapter1_v14_h4_family_bridge_preflight_result_lock.json \
+            --report /tmp/v14/results/v14_reproduction_verification.json
+          cat /tmp/v14/results/v14_reproduction_verification.json >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-v14-reordered-hypotheses-${{ github.run_id }}
+          path: /tmp/v14/results
+          if-no-files-found: error
+          retention-days: 30
