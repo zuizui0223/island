@@ -33,7 +33,6 @@ def test_v14_H1_probability_contains_seven_atoms_and_three_domains():
     }
 
 
-
 def test_v14_manuscript_has_reordered_hypothesis_sections():
     text = Path(
         "docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md"
