@@ -46,10 +46,10 @@ def test_v14_manuscript_has_reordered_hypothesis_sections():
     assert methods == sorted(methods)
     assert text.count("### H4: post-hoc functional triangulation") == 1
     h4_result_heading = (
-        "### H4: the functional bridge has a post-hoc discovery layer "
-        "and support-gated validation layers"
+        "### H4: H2 response scores are associated with lower current pollen limitation"
     )
     assert text.count(h4_result_heading) == 1
+    assert "### Supplementary prospective validation audit" in text
     assert "## Claim ceiling for v14" in text
     assert "## Claim ceiling for v13" not in text
     assert "seven-response" in text
@@ -67,42 +67,26 @@ def test_v14_H2_uses_raw_trait_concordance_not_weighted_guild_scores():
     assert "raw_architecture_given_raw_colour_conditional_on_selfing_core" in raw["estimands"]
 
 
-def test_v14_H4_separates_discovery_validation_and_transportability():
+def test_v14_H4_keeps_validation_audit_outside_result():
     config = yaml.safe_load(
         Path("config/chapter1_v14_h4_evidence_hierarchy.yml").read_text(encoding="utf-8")
     )
     layers = config["evidence_layers"]
-    assert (
-        layers["v13_exact_species_discovery"]["role"]
-        == "posthoc_functional_triangulation"
-    )
+    assert set(layers) == {
+        "v13_exact_species_discovery",
+        "v14_exact_H2_score_discovery",
+        "v14_atomic_reconstruction_sensitivity",
+    }
     exact = layers["v14_exact_H2_score_discovery"]
-    assert exact["role"] == "posthoc_exact_H2_score_functional_triangulation"
     assert exact["reproductive_assurance"]["two_sided_p"] < 0.05
     assert exact["accessibility_generalization"]["two_sided_p"] < 0.05
-    reconstruction = layers["v14_atomic_reconstruction_sensitivity"]
-    assert (
-        reconstruction["role"]
-        == "posthoc_atomic_family_reconstruction_sensitivity"
-    )
-    wild = layers["prospective_post2015_wild"]
-    assert wild["status"] == "support_gate_not_met_not_evaluable"
-    assert wild["outcomes_unblinded_for_primary_test"] is False
-    crop = layers["pollimcrop_independent_domain"]
-    assert crop["outcome_domain_independent_of_v13_GloPL"] is True
-    assert crop["status"] == "support_gate_not_met_not_evaluable"
-    assert crop["outcomes_unblinded_for_primary_test"] is False
-    assert crop["admitted_hypotheses"] == []
-    assert crop["H4a_support"]["state_0_species"] == 9
-    assert crop["H4a_support"]["required_min_per_state"] == 10
-    assert crop["H4b_support"]["low_score_species"] == 6
-    assert crop["H4b_support"]["required_min_low_score_species"] == 8
-    assert (
-        crop["validation_summary_lock"]
-        == "config/chapter1_h4_prospective_validation_summary_lock.json"
-    )
-    assert config["colour_bridge"]["primary_global_test"] is False
 
+    audit = config["validation_audit"]
+    assert audit["part_of_H4_result"] is False
+    assert audit["role"] == "supplementary_nonpromoted_validation_audit"
+    assert audit["wild_temporal"]["outcomes_unblinded"] is False
+    assert audit["pollimcrop"]["outcomes_unblinded"] is False
+    assert audit["pollimcrop"]["admitted_hypotheses"] == []
 
 def test_v14_H4_exact_bridge_uses_literal_H2_species_scores():
     config = yaml.safe_load(
