@@ -14,6 +14,8 @@
 > and the frozen-input preflight results are in
 > [docs/chapter1_v14_preflight_results_20260918.md](docs/chapter1_v14_preflight_results_20260918.md).
 >
+> v14 manuscript candidate: [docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md](docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md)
+>
 > **v13 remains immutable historical/submission provenance until the v14 CI artifact is
 > reproduced and locked.**
 
