@@ -9,6 +9,7 @@ while leaving frozen v13 GloPL and functional-bridge estimates intact.
           v
     H2  floral decomposition
         selfing route vs selfing-adjusted pollinator-facing route
+        + raw colour x raw form/tube concordance
           |
           v
     H3  independent pollen-limitation gradient (GloPL)
@@ -26,6 +27,7 @@ See:
 - config/chapter1_v14_hypothesis_architecture.yml
 - config/chapter1_v14_all_data_probability.yml
 - config/chapter1_v14_h2_decomposition.yml
+- config/chapter1_v14_h4_evidence_hierarchy.yml
 - docs/chapter1_v14_hypothesis_reorder_20260918.md
 - docs/chapter1_v14_preflight_results_20260918.md
 
