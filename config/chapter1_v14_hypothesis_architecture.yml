@@ -61,16 +61,17 @@ hypotheses:
       models:
         - plain_colour ~ isolation + selfing_core + area + climate
         - generalized_accessible ~ isolation + selfing_core + area + climate
-      secondary_responses:
-        - attraction_shift
-        - raw_five_colour_composition
-        - colour_conditioned_architecture
-        - sampled_pollination_associated_architecture_concordance
-      attraction_shift_definition: (-large_bee_like + generalized_accessible) / 2
+      primary_pollination_syndrome_concordance:
+        - raw_five_colour_composition_conditional_on_selfing_core
+        - raw_colour_x_raw_architecture_joint_prevalence
+        - raw_architecture_given_raw_colour_conditional_on_selfing_core
+      weighted_named_scores_role: historical_secondary_only_not_v14_H2_evidence
       interpretation: >-
         Persistence of isolation associations after selfing_core adjustment means
-        floral reorganization is not reducible to the measured selfing core. It does
-        not by itself identify direct pollinator selection, realized pollinator
+        floral reorganization is not reducible to the measured selfing core. Pollination-
+        syndrome concordance is evaluated from reported colour, floral form and tube-depth
+        states and their conditional coupling, not from a weighted guild score. These
+        analyses do not identify direct pollinator selection, realized pollinator
         identity, or causal mediation.
 
   H3_global_pollen_limitation:
@@ -87,11 +88,28 @@ hypotheses:
 
   H4_functional_bridge:
     question: >-
-      Are H1/H2 syndrome trait states associated with lower current experimental
-      pollen limitation after distance, geography and measurement adjustment?
-    data: exact_species_trait_x_GloPL_matches
-    role: posthoc_functional_triangulation
-    provenance: existing_v13_H4_result
+      Are the two mechanistically interpretable H2 response families functionally
+      associated with lower current experimental pollen limitation?
+    evidence_hierarchy:
+      discovery:
+        data: exact_species_trait_x_GloPL_matches
+        role: posthoc_functional_triangulation
+        provenance: existing_v13_H4_result
+      prospective_wild_temporal_replication:
+        role: prospectively_frozen_validation_attempt
+        status: support_gate_not_met_not_evaluable
+        outcomes_unblinded: false
+        source_pr: 236
+      independent_crop_domain:
+        role: prospectively_frozen_transportability_test
+        status: pending_support_gated_execution_in_PR236
+        can_rescue_wild_temporal_failure: false
+    co_primary_functional_predictions:
+      reproductive_assurance: autonomous_selfing_predicts_lower_current_pollen_limitation
+      accessibility_generalization: equal_weight_accessibility_score_predicts_lower_current_pollen_limitation
+    colour_bridge_role: >-
+      No global primary colour-to-pollen-limitation bridge is promoted because the H1/H2
+      colour response is context dependent and has no single globally predicted direction.
     historical_mediation_identified: false
 
 analysis_order:
