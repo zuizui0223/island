@@ -47,6 +47,7 @@ def _cells(effect: float = -0.6, n_publications: int = 24) -> pd.DataFrame:
                             0.5
                             + 0.03 * (i % 10)
                             + effect * state
+                            + 0.015 * (((i + 2 * state) % 5) - 2)
                             + 0.002 * replicate
                         ),
                         "autonomous_selfing": state,
