@@ -73,12 +73,21 @@ def build_plant_scores(scores: pd.DataFrame, stratum: str) -> pd.DataFrame:
     wide = part.pivot_table(
         index="island_id", columns="syndrome", values="syndrome_score", aggfunc="first"
     )
-    needed = {"selfing_core", "generalized_accessible", "large_bee_like"}
+    needed = {
+        "selfing_core",
+        "generalized_accessible",
+        "large_bee_like",
+        "butterfly_like",
+        "bird_like",
+    }
     if missing := needed - set(wide.columns):
         raise typer.BadParameter(f"syndrome score table lacks required axes: {sorted(missing)}")
     wide["attraction_shift"] = (
         -wide["large_bee_like"] + wide["generalized_accessible"]
     ) / 2.0
+    wide["shared_named_architecture"] = wide[
+        ["large_bee_like", "butterfly_like", "bird_like"]
+    ].mean(axis=1, skipna=False)
     return wide.reset_index()
 
 
@@ -240,6 +249,26 @@ def run_decomposition(
             ("selfing_core", False, "H2a_reproductive_assurance"),
             ("generalized_accessible", True, "H2b_accessibility_conditional_on_selfing"),
             ("attraction_shift", True, "H2b_secondary_attraction_shift"),
+            (
+                "large_bee_like",
+                True,
+                "H2b_secondary_pollination_architecture_concordance",
+            ),
+            (
+                "butterfly_like",
+                True,
+                "H2b_secondary_pollination_architecture_concordance",
+            ),
+            (
+                "bird_like",
+                True,
+                "H2b_secondary_pollination_architecture_concordance",
+            ),
+            (
+                "shared_named_architecture",
+                True,
+                "H2b_secondary_shared_architecture",
+            ),
         ):
             predictors = [geography, *baseline]
             if conditional:
