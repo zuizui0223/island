@@ -14,11 +14,22 @@ source:
   descriptor_doi: 10.1038/s41597-023-02797-6
   figshare_collection_doi: 10.6084/m9.figshare.c.6640595.v1
   figshare_collection_id: 6640595
-  expected_scope:
+  published_descriptor_scope:
     studies: 294
     experiments: 1169
     crop_species: 108
     countries: 62
+  expected_scope:
+    studies: 293
+    experiments: 1168
+    crop_species: 106
+    countries: 62
+  scope_basis: >-
+    Outcome-blind inspection of the sole primary CSV candidate in Figshare collection
+    6640595 (article 24625299, file 43269153, 1PUB_PolLimCrop_dataset.csv) found
+    1168 data rows, 293 nonblank article codes and 106 species. The published Data
+    Descriptor reports 1169/294/108. The exact locked source bytes are used here and
+    the discrepancy is retained rather than silently forcing descriptor counts.
   source_file_sha256: record_on_first_outcome_blind_preflight_then_pin
   dataset_csv_sha256: record_on_first_outcome_blind_preflight_then_pin
   csv_format:
@@ -69,20 +80,20 @@ trait_snapshot:
 outcome_blind_preflight:
   allowed_dataset_columns:
     - line
-    - unicode
+    - record_unicode
     - article_code
     - DOI_citation
     - species
     - crop_name
     - family
-    - plant accession
-    - crop part
+    - plant_accession
+    - crop_part
     - continent
     - country
     - locality
     - latitude;longitude
     - precision
-    - year_of_the_experiment
+    - experiment_year
     - scale
     - supplement_type
     - factors
