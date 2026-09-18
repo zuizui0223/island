@@ -1,0 +1,150 @@
+contract: chapter1_h4_prospective_methods_preflight_v2
+status: frozen_before_v2_methods_screen_run
+inferential_role: outcome_blind_methods_eligibility_screen
+created: '2026-09-18'
+parent_contract: config/chapter1_h4_prospective_temporal_replication_v1.yml
+supersedes_for_final_cohort: config/chapter1_h4_prospective_methods_preflight_v1.yml
+
+amendment_reason: >-
+  The v1 outcome-blind pilot showed that scanning every binomial in broad Methods text can
+  capture non-target vegetation/comparison species, and that requiring explicit coordinates
+  conflates biological design eligibility with geographic metadata completeness. No
+  reproductive outcomes, pollen-limitation values, Results sections or effect directions
+  were inspected. V2 separates target-species resolution, experimental-design eligibility,
+  and later geography resolution before any outcome unblinding.
+
+source:
+  Europe_PMC:
+    date_start: '2016-01-01'
+    date_end: '2026-09-18'
+    open_access_required: true
+    query_terms:
+      - pollen limitation
+      - pollen supplementation
+      - hand pollination
+      - supplemental pollination
+      - pollen addition
+
+section_policy:
+  methods_include_regex:
+    - method
+    - material
+    - study site
+    - study system
+    - study species
+    - focal species
+    - plant species
+    - field site
+    - experimental
+    - experiment
+  hard_exclude_regex:
+    - result
+    - discussion
+    - conclusion
+  target_species_section_regex:
+    - study species
+    - focal species
+    - plant species
+    - study system
+    - study organism
+    - species and site
+    - study site and species
+
+target_species_resolution:
+  accepted_sources_in_order:
+    - exact_binomial_in_article_title
+    - exact_binomial_in_target_species_section
+  exact_frozen_binomial_match_only: true
+  broad_methods_binomial_match_is_diagnostic_only: true
+  fuzzy_matching: false
+  genus_fallback: false
+  title_match_has_priority: true
+  multiple_title_species_allowed: true
+  multiple_target_section_species_allowed: true
+  no_target_species_resolved_means_unresolved: true
+
+design_flags:
+  supplementation_terms:
+    - pollen supplement
+    - supplemental pollin
+    - hand pollin
+    - pollen addition
+    - hand cross
+    - cross-pollin
+  natural_control_terms:
+    - natural pollin
+    - open pollin
+    - open-pollin
+    - unmanipulated
+    - control flower
+    - control plant
+  field_terms:
+    - natural population
+    - wild population
+    - field site
+    - study population
+    - in the field
+    - field experiment
+    - natural habitat
+  exclusion_terms:
+    - crop
+    - cultivar
+    - orchard
+    - greenhouse
+    - glasshouse
+
+design_candidate_rule:
+  requires:
+    - target_species_resolved
+    - supplementation_term
+    - natural_control_term
+  field_rule: >-
+    Field evidence is preferred but absence of a frozen field term does not automatically
+    exclude a record; it produces field_status_unresolved for blinded design review.
+  exclusion_rule: >-
+    An exclusion term does not automatically exclude when field evidence is also present.
+    Such records are unresolved for blinded design review. Automatic exclusion is allowed
+    only when exclusion terms are present and field evidence is absent.
+  coordinates_not_required_for_design_candidate: true
+  role: outcome_blind_design_candidate_not_analysis_ready
+
+geography:
+  explicit_coordinate_pairs_are_captured_if_present: true
+  explicit_coordinates_not_required_for_design_candidate: true
+  named_locality_geocoding_in_v2_methods_screen: false
+  geography_resolution_is_separate_outcome_blind_stage: true
+  final_analysis_requires_frozen_site_key_analysis_regime_z_distance_before_unblinding: true
+
+outputs:
+  methods_text_materialized: false
+  results_text_materialized: false
+  abstracts_materialized: false
+  effect_sizes_materialized: false
+  allowed:
+    - doi
+    - pmcid
+    - publication_date
+    - title
+    - methods_section_sha256
+    - target_species
+    - target_species_source
+    - broad_methods_species_diagnostic
+    - coordinate_pairs
+    - design_flags
+    - field_status
+    - exclusion_status
+    - candidate_status
+
+rules:
+  - no_results_or_discussion_sections_written_or_hashed_into_target_species_resolution
+  - no_abstract_text_used
+  - no_reproductive_output_values_written
+  - no_pollen_limitation_effect_written
+  - v1_automatic_candidate_counts_are_not_support_counts
+  - v2_amendment_is_frozen_before_any_outcome_unblinding
+  - target_species_must_come_from_title_or_frozen_target_species_section
+  - broad_methods_species_cannot_enter_trait_support
+  - geography_missingness_cannot_exclude_design_candidate
+  - geography_must_be_frozen_before_outcome_analysis
+  - this_screen_does_not_change_H4a_or_H4b_definitions
+  - this_screen_does_not_change_primary_support_thresholds
