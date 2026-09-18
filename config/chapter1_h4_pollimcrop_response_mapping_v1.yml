@@ -7,6 +7,10 @@ parent_preflight: config/chapter1_h4_pollimcrop_transportability_preflight_v1.ym
 source_method_basis:
   descriptor_doi: 10.1038/s41597-023-02797-6
   response_column: PL_effectsize
+  csv_format:
+    delimiter: ';'
+    decimal_mark: ','
+    encoding: utf-8-sig
   published_definition: ln_hand_pollination_over_natural_pollination
   direction: positive_means_stronger_pollen_limitation
   note: >-
