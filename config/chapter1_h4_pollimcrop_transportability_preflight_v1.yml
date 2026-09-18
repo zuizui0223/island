@@ -69,21 +69,20 @@ trait_snapshot:
 outcome_blind_preflight:
   allowed_dataset_columns:
     - line
-    - record_unicode
+    - unicode
     - article_code
     - DOI_citation
     - species
     - crop_name
     - family
-    - plant_acession
-    - plant_accession
-    - crop_part
+    - plant accession
+    - crop part
     - continent
     - country
     - locality
     - latitude;longitude
     - precision
-    - experiment_year
+    - year_of_the_experiment
     - scale
     - supplement_type
     - factors
