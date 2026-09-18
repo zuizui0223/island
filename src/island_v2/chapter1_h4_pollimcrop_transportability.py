@@ -69,10 +69,31 @@ def load_mapping(path: Path) -> dict[str, Any]:
 def load_preflight(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
     expected = "chapter1_h4_pollimcrop_transportability_preflight_v1"
+    lock_contract = "chapter1_h4_pollimcrop_transportability_preflight_result_lock_v1"
     if not isinstance(value, dict) or value.get("contract") != expected:
         raise typer.BadParameter("unexpected PolLimCrop preflight result")
-    if bool(value.get("outcomes_read")):
-        raise typer.BadParameter("preflight must be outcome-blind")
+    if value.get("lock_contract") != lock_contract:
+        raise typer.BadParameter(
+            "PolLimCrop outcome analysis requires the committed support-result lock"
+        )
+    if value.get("outcomes_read") is not False:
+        raise typer.BadParameter("preflight result lock must remain outcome-blind")
+    support = value.get("support", {})
+    admitted = [
+        name
+        for name in HYPOTHESES
+        if bool(support.get(name, {}).get("evaluable"))
+    ]
+    decision = value.get("decision", {})
+    recorded = [str(x) for x in decision.get("admitted_hypotheses", [])]
+    if recorded != admitted:
+        raise typer.BadParameter(
+            "PolLimCrop support-result lock admission list is inconsistent"
+        )
+    if bool(decision.get("outcome_extraction_authorized")) != bool(admitted):
+        raise typer.BadParameter(
+            "PolLimCrop support-result lock authorization is inconsistent"
+        )
     return value
 
 
