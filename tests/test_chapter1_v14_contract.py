@@ -72,7 +72,19 @@ def test_v14_H4_separates_discovery_validation_and_transportability():
         Path("config/chapter1_v14_h4_evidence_hierarchy.yml").read_text(encoding="utf-8")
     )
     layers = config["evidence_layers"]
-    assert layers["v13_exact_species_discovery"]["role"] == "posthoc_functional_triangulation"
+    assert (
+        layers["v13_exact_species_discovery"]["role"]
+        == "posthoc_functional_triangulation"
+    )
+    exact = layers["v14_exact_H2_score_discovery"]
+    assert exact["role"] == "posthoc_exact_H2_score_functional_triangulation"
+    assert exact["reproductive_assurance"]["two_sided_p"] < 0.05
+    assert exact["accessibility_generalization"]["two_sided_p"] < 0.05
+    reconstruction = layers["v14_atomic_reconstruction_sensitivity"]
+    assert (
+        reconstruction["role"]
+        == "posthoc_atomic_family_reconstruction_sensitivity"
+    )
     wild = layers["prospective_post2015_wild"]
     assert wild["status"] == "support_gate_not_met_not_evaluable"
     assert wild["outcomes_unblinded_for_primary_test"] is False
