@@ -38,6 +38,22 @@ continuous_models:
     response: attraction_shift
     condition_on_selfing_core: true
     role: H2b_secondary_attraction_shift
+  large_bee_like:
+    response: large_bee_like
+    condition_on_selfing_core: true
+    role: H2b_secondary_pollination_architecture_concordance
+  butterfly_like:
+    response: butterfly_like
+    condition_on_selfing_core: true
+    role: H2b_secondary_pollination_architecture_concordance
+  bird_like:
+    response: bird_like
+    condition_on_selfing_core: true
+    role: H2b_secondary_pollination_architecture_concordance
+  shared_named_architecture:
+    response: shared_named_architecture
+    condition_on_selfing_core: true
+    role: H2b_secondary_shared_architecture
 
 count_models:
   plain_colour:
