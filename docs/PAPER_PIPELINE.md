@@ -119,6 +119,30 @@ Autonomous selfing is the strongest bridge (`beta=-0.44672`, two-sided `p=2.60e-
 
 Canonical lock: `config/chapter1_v13_functional_bridge_result_lock.json`.
 
+### Prospective validation audit — frozen after H4 discovery, before validation outcomes
+
+The repository also contains a **separate prospective validation attempt**. It does not
+change the inferential label of H4. The post-2015 wild-plant protocol was frozen before
+validation outcomes were opened, retaining two co-primary predictions: autonomous
+selfing -> lower current pollen limitation and a frozen floral-accessibility score ->
+lower current pollen limitation.
+
+The outcome-blind support gate did not admit either test. Even the most permissive
+predeclared diagnostic ceiling reached only **9 H4a species across 6 publications** and
+**9 H4b species across 4 publications**, below the frozen minima of 30 species and 10
+publications. The primary post-2015 outcomes therefore remain unopened. This is
+**support insufficiency, not a biological null**.
+
+Canonical prospective audit:
+
+- protocol: `config/chapter1_h4_prospective_temporal_replication_v1.yml`;
+- support decision: `config/chapter1_h4_prospective_temporal_support_decision_lock.json`;
+- evidence-role audit: `docs/chapter1_h4_external_evidence_audit_20260918.md`.
+
+A separately frozen PolLimCrop analysis is a secondary crop-domain transportability
+check only. It cannot rescue the wild temporal support failure or relabel v13 H4 as
+confirmatory.
+
 ## 6. Canonical paper outputs
 
 Read in this order:
