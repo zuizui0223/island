@@ -283,11 +283,17 @@ def run(
     selected = discover_dataset_file(config)
     payload = _get_bytes(selected["download_url"])
     csv_bytes, csv_member = extract_dataset_csv(payload, selected["name"])
+    source_encoding = str(config["source"]["csv_format"]["encoding"])
+    header_preview = csv_bytes.splitlines()[0].decode(
+        source_encoding,
+        errors="replace",
+    )
     typer.echo(
         json.dumps(
             {
                 "outcome_blind_source_file": selected["name"],
                 "outcome_blind_csv_member": csv_member,
+                "outcome_blind_header_preview": header_preview,
             },
             indent=2,
         )
