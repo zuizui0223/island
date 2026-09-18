@@ -6,12 +6,11 @@ parent_preflight: config/chapter1_h4_pollimcrop_transportability_preflight_v1.ym
 
 source_method_basis:
   descriptor_doi: 10.1038/s41597-023-02797-6
-  response_column: PL_effectsize
+  response_column: PL_effect_size
   response_column_name_basis: >-
-    The published Methods text explicitly identifies the dataset column as
-    PL_effectsize. A later Data Records prose passage renders PL_effect_size;
-    the frozen parser follows the explicit Methods column token and will fail
-    rather than silently rename the field if the downloaded schema disagrees.
+    Outcome-blind schema audit of the locked Figshare CSV found the actual column
+    token PL_effect_size. This resolves the Methods/Data Records naming discrepancy
+    before any row-level outcome values were parsed.
   csv_format:
     delimiter: ';'
     decimal_mark: ','
@@ -21,6 +20,7 @@ source_method_basis:
       on byte 0xF1 before any PolLimCrop outcome values were parsed. Latin-1
       preserves the single-byte Western text while leaving ASCII scientific names
       and numeric fields unchanged.
+    outer_record_wrapping: full_row_double_quoted_csv_field
     basis: official_PolLimCrop_R_code_sep_semicolon_dec_comma
   published_definition: ln_hand_pollination_over_natural_pollination
   direction: positive_means_stronger_pollen_limitation
