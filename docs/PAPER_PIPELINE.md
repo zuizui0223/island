@@ -1,6 +1,6 @@
-# Chapter 1 v14 candidate pipeline
+# Chapter 1 v14 paper pipeline
 
-The v14 candidate in PR #237 changes the **question order and H1/H2 analysis surface**
+The canonical v14 surface changes the **question order and H1/H2 analysis surface**
 while leaving frozen v13 GloPL and functional-bridge estimates intact.
 
     H1  island syndrome
@@ -31,6 +31,8 @@ separate post-hoc sensitivity.
 
 See:
 - docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md
+- config/chapter1_v14_canonical_result_lock.json
+- docs/chapter1_submission_freeze_v14_20260918.md
 - config/chapter1_v14_hypothesis_architecture.yml
 - config/chapter1_v14_all_data_probability.yml
 - config/chapter1_v14_h2_decomposition.yml
@@ -42,14 +44,13 @@ See:
 - docs/chapter1_v14_hypothesis_reorder_20260918.md
 - docs/chapter1_v14_preflight_results_20260918.md
 
-The v13 pipeline below remains the immutable parent provenance until v14 CI results
-are reproduced and locked.
+The v13 pipeline below remains immutable parent provenance.
 
 ---
 
 ## Frozen v13 parent paper pipeline
 
-This document is the shortest reproducibility map for the **current v13 global-only H1–H4 submission**. Pre-v13 hypothesis ladders, mechanism branches and defended submission surfaces are historical provenance and are archived/indexed from the active paper interface under `legacy/chapter1-pre-v13/`.
+This parent section is the shortest reproducibility map for the frozen **v13 global-only H1–H4 submission**. Pre-v13 hypothesis ladders, mechanism branches and defended submission surfaces are historical provenance and are archived/indexed from the active paper interface under `legacy/chapter1-pre-v13/`.
 
 ## Pipeline at a glance
 
