@@ -165,24 +165,29 @@ PR #236 adds two validation layers without relabelling that discovery:
    response mapping and support gates; this is still separate/pending and cannot rescue
    the wild temporal support failure or make v13 H4 confirmatory for wild floras.
 
-The v14 discovery layer now also aligns directly to the two H2 family scores.
+The v14 discovery layer now aligns **literally** to the two species-level H2 scores used by Chapter 1.
 
-- **H2-equivalent reproductive assurance:** at least two of self-compatibility,
-  selfing mating system and autonomous selfing; 470 species, 417 publications,
-  739 cells. Family-score coefficient `beta=-0.31255`, two-sided `p=0.00222`.
-  The no-zero sensitivity remains supported (`beta=-0.31726, p=0.00229`), while
-  supplemental-only remains negative but not supported (`beta=-0.13138, p=0.148`).
-- **H2-exact accessibility/generalization:** generalized form weight 1.0,
-  actinomorphy 0.75 and shallow/open tube 1.0, requiring at least two components;
-  228 species, 232 publications, 403 cells. `beta=-0.32932, p=0.00515`;
-  supplemental-only `beta=-0.24989, p=0.0367`; no-zero
-  `beta=-0.30663, p=0.0134`.
-- The equal-weight accessibility definition subsequently frozen for prospective H4b
-  gives almost the same post-hoc discovery result (`beta=-0.32509, p=0.00636`).
+- **Exact Direct-only `selfing_core`:** 455 GloPL species, 409 publications,
+  734 cells. `beta=-0.29706`, two-sided `p=0.00411`. The no-zero sensitivity
+  remains supported (`beta=-0.29990, p=0.00438`), while supplemental-only remains
+  negative but not supported (`beta=-0.09863, p=0.292`).
+- **Exact Direct-only `generalized_accessible`:** 143 GloPL species, 143
+  publications, 259 cells. `beta=-0.29601, p=0.0222`; supplemental-only
+  `beta=-0.30329, p=0.0384`; no-zero remains negative
+  (`beta=-0.26494`, two-sided `p=0.0649`, one-sided negative `p=0.0324`).
 
-Thus the **same two broad H2 response families that increase with isolation are
-associated with lower current pollen limitation in the post-hoc GloPL discovery layer**.
-Accessibility/generalization is the more measurement-robust family bridge.
+A separate atomic reconstruction sensitivity is concordant rather than identical to
+these literal H2 scores:
+
+- reconstructed reproductive assurance: `beta=-0.31255, p=0.00222`;
+- H2-weighted reconstructed accessibility: `beta=-0.32932, p=0.00515`, supported
+  in both measurement sensitivities;
+- equal-weight accessibility matching the prospectively frozen H4b definition:
+  `beta=-0.32509, p=0.00636`.
+
+Thus the **actual H2 species scores that increase with isolation are associated with
+lower current pollen limitation in the post-hoc GloPL discovery layer**. The atomic
+reconstruction gives the same biological direction but remains a sensitivity.
 
 The prospective validation predictions remain separately frozen:
 
@@ -206,8 +211,9 @@ The reordering is empirically coherent:
    broad positive tendency in three contexts, with a particularly strong
    selfing-independent signal in the southern extratropical stratum.
 5. **H3 and H4 remain logically downstream:** H3 independently tests whether pollen
-   limitation increases with isolation; H4 tests trait–pollen-limitation functional
-   compatibility.
+   limitation increases with isolation; H4 shows that the literal H2 `selfing_core`
+   and `generalized_accessible` species scores both point toward lower current pollen
+   limitation, while prospective validation remains a separate support-gated layer.
 
 The conditional H2 models do not prove causal mediation or direct pollinator
 selection. They reject the narrower explanation that the measured selfing core alone
