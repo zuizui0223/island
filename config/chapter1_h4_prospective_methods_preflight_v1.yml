@@ -1,0 +1,111 @@
+contract: chapter1_h4_prospective_methods_preflight_v1
+status: frozen_before_methods_screen_run
+inferential_role: outcome_blind_methods_eligibility_screen
+created: '2026-09-18'
+parent_contract: config/chapter1_h4_prospective_temporal_replication_v1.yml
+
+purpose: >-
+  Identify a conservative subset of post-2015 open-access wild-angiosperm pollen-
+  supplementation experiments using bibliographic metadata and Methods sections only.
+  No Results, Discussion, abstract effect direction, reproductive-output values or
+  derived pollen-limitation effects may be materialized.
+
+source:
+  Europe_PMC:
+    date_start: '2016-01-01'
+    date_end: '2026-09-18'
+    open_access_required: true
+    query_terms:
+      - pollen limitation
+      - pollen supplementation
+      - hand pollination
+      - supplemental pollination
+      - pollen addition
+
+methods_section_titles:
+  include_regex:
+    - method
+    - material
+    - study site
+    - study system
+    - study species
+    - field site
+    - experimental
+  exclude_regex:
+    - result
+    - discussion
+    - conclusion
+
+design_flags:
+  supplementation_terms:
+    - pollen supplement
+    - supplemental pollin
+    - hand pollin
+    - pollen addition
+    - hand cross
+    - cross-pollin
+  natural_control_terms:
+    - natural pollin
+    - open pollin
+    - open-pollin
+    - unmanipulated
+    - control flower
+    - control plant
+  field_terms:
+    - natural population
+    - wild population
+    - field site
+    - study population
+    - in the field
+  exclusion_flags:
+    - crop
+    - cultivar
+    - orchard
+    - greenhouse
+    - glasshouse
+
+species_matching:
+  source: frozen_v13_high_medium_direct_trait_states
+  exact_binomial_only: true
+  fuzzy_matching: false
+  genus_fallback: false
+
+coordinate_gate:
+  explicit_decimal_degree_pair_required_for_auto_admission: true
+  named_locality_without_coordinates: unresolved_not_excluded
+  geocoding_before_support_lock: false
+
+automatic_candidate_rule:
+  requires:
+    - at_least_one_exact_frozen_species_match
+    - supplementation_term
+    - natural_control_term
+    - field_term
+    - explicit_coordinate_pair
+    - no_exclusion_flag
+  role: conservative_methods_candidate_not_final_inclusion
+
+outputs:
+  methods_text_materialized: false
+  results_text_materialized: false
+  abstracts_materialized: false
+  effect_sizes_materialized: false
+  allowed:
+    - doi
+    - pmcid
+    - publication_date
+    - title
+    - methods_section_sha256
+    - matched_species
+    - coordinate_pairs
+    - design_flags
+    - candidate_status
+
+rules:
+  - no_results_or_discussion_sections_written
+  - no_reproductive_output_values_written
+  - no_pollen_limitation_effect_written
+  - automatic_exclusion_is_conservative
+  - unresolved_records_remain_available_for_blinded_manual_methods_review
+  - this_screen_does_not_change_H4a_or_H4b_definitions
+  - this_screen_does_not_change_support_thresholds

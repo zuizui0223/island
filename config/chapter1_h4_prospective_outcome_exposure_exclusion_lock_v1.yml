@@ -1,0 +1,50 @@
+contract: chapter1_h4_prospective_outcome_exposure_exclusion_lock_v1
+status: frozen_before_any_post2015_primary_outcome_analysis
+created: '2026-09-18'
+inferential_role: prospective_blinding_integrity_exclusion
+parent_contract: config/chapter1_h4_prospective_temporal_replication_v1.yml
+
+reason: >-
+  During external source-availability reconnaissance after the H4 predictions had already
+  been frozen, public search-result or repository pages exposed outcome direction for a
+  small number of post-2015 pollen-limitation studies. To preserve a strict prospective
+  primary temporal replication, any such publication is excluded mechanically before
+  support locking or outcome extraction, irrespective of whether its result is concordant
+  or discordant with H4a/H4b.
+
+exclusion_keys:
+  doi:
+    - 10.1098/rsbl.2016.0253
+    - 10.1002/ece3.6884
+    - 10.1002/ajb2.16080
+    - 10.1371/journal.pone.0224056
+    - 10.1111/1365-2435.12633
+    - 10.1111/1440-1703.12314
+    - 10.1002/njb.04816
+  title_exact:
+    - Distinct effects of pollinator dependence and self-incompatibility on pollen limitation in South African biodiversity hotspots
+    - Pollinator dependence but no pollen limitation for eight plants occurring north of the Arctic Circle
+    - Pollen limitation of native plant reproduction in an urban landscape
+    - Patterns of pollen and resource limitation of fruit production in Vaccinium uliginosum and V. vitis-idaea in Interior Alaska
+    - Non-invasive naturalized alien plants were not more pollen-limited than invasive aliens and natives in a common garden
+    - Outcrossing syndrome in alpine plants: Implications for flowering phenology and pollination success
+    - Pollen limitation of Vaccinium myrtillus along an elevational gradient
+    - A primary study of breeding system of Ziziphus jujuba var. spinosa
+    - Pollen limitation in the endangered Chinese endemic species Sinocalycanthus chinensis.
+
+additional_conservative_rule: >-
+  If a frozen sampling-frame record can be unambiguously linked to any listed title even
+  when DOI is missing, exclude it. No replacement study is added specifically because an
+  exposed study was removed.
+
+rules:
+  - exclusions_are_based_on_information_exposure_not_result_direction
+  - exclusions_apply_before_support_counts_are_finalized
+  - exclusion_list_cannot_shrink_after_primary_outcome_analysis_begins
+  - exposed_studies_may_be_reported_only_as_nonconfirmatory_context
+  - support_thresholds_remain_unchanged
+  - no_excluded_study_can_rescue_a_failed_support_gate
+
+claim_boundary:
+  strict_prospective_primary_may_use_only_unexposed_records: true
+  exposed_records_can_enter_primary: false

@@ -1,0 +1,93 @@
+name: Screen Chapter 1 H4 prospective Methods
+
+concurrency:
+  group: h4-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TRAIT_ARTIFACT_ID: "10042377593"
+      TRAIT_ARTIFACT_SHA256: "5e9c887e093c42eb720f3abd2dc85701ce123fb7fe888c916dc4098ac898ccdd"
+      ROOT: /tmp/chapter1-h4-methods
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Materialize frozen trait states
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/source" "$ROOT/out"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${TRAIT_ARTIFACT_ID}/zip" \
+            > "$ROOT/trait.zip"
+          echo "$TRAIT_ARTIFACT_SHA256  $ROOT/trait.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/trait.zip" -d "$ROOT/source"
+          LEDGER="$(find "$ROOT/source" -name direct_species_trait_ledger.csv.gz -print -quit)"
+          test -n "$LEDGER"
+          python scripts/build_chapter1_h4_prospective_trait_states.py \
+            --ledger-csv "$LEDGER" \
+            --output-csv "$ROOT/out/prospective_h4_frozen_trait_states.csv"
+      - name: Screen Europe PMC Methods only
+        run: |
+          python scripts/screen_chapter1_h4_prospective_methods.py \
+            --trait-states-csv "$ROOT/out/prospective_h4_frozen_trait_states.csv" \
+            --config-path config/chapter1_h4_prospective_methods_preflight_v1.yml \
+            --output-csv "$ROOT/out/prospective_h4_methods_screen.csv"
+          python - <<'PY'
+          import pandas as pd
+          p = "/tmp/chapter1-h4-methods/out/prospective_h4_methods_screen.csv"
+          x = pd.read_csv(p)
+          print("records", len(x))
+          print(x["candidate_status"].value_counts(dropna=False).to_string())
+          print("matched-species records", x["matched_species"].fillna("").ne("").sum())
+          print("coordinate records", x["coordinate_pairs_json"].fillna("[]").ne("[]").sum())
+          PY
+      - name: Build frozen-geography support metadata
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 5 --retry-delay 2 \
+            "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/ca96624a56bd078437bca8184e78163e5039ad19/geojson/ne_110m_land.geojson" \
+            -o "$ROOT/ne_110m_land.geojson"
+          echo "9e0729ee253ca7d7a5c4ae9395fb1902264c5377c52e224d13dd85010e2835d9  $ROOT/ne_110m_land.geojson" \
+            | sha256sum --check --strict
+          python scripts/build_chapter1_h4_prospective_support_metadata.py \
+            --methods-csv "$ROOT/out/prospective_h4_methods_screen.csv" \
+            --trait-states-csv "$ROOT/out/prospective_h4_frozen_trait_states.csv" \
+            --land-geojson "$ROOT/ne_110m_land.geojson" \
+            --output-csv "$ROOT/out/prospective_h4_support_metadata.csv"
+
+      - name: Generate support lock template without outcomes
+        run: |
+          python -m island_v2.chapter1_h4_prospective_temporal_replication preflight \
+            --metadata-csv "$ROOT/out/prospective_h4_support_metadata.csv" \
+            --trait-states-csv "$ROOT/out/prospective_h4_frozen_trait_states.csv" \
+            --config-path config/chapter1_h4_prospective_temporal_replication_v1.yml \
+            --output-dir "$ROOT/out/support_lock"
+
+      - name: Hash outcome-blind outputs
+        run: |
+          sha256sum "$ROOT/out/prospective_h4_frozen_trait_states.csv" \
+            "$ROOT/out/prospective_h4_methods_screen.csv" \
+            "$ROOT/out/prospective_h4_support_metadata.csv" \
+            "$ROOT/out/support_lock/SUPPORT_LOCK_TEMPLATE.json" \
+            > "$ROOT/out/OUTCOME_BLIND_SHA256.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h4-methods-preflight-${{ github.run_id }}
+          path: /tmp/chapter1-h4-methods/out
+          if-no-files-found: error
+          retention-days: 90
