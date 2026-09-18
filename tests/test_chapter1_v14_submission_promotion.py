@@ -60,3 +60,10 @@ def test_promote_requires_full_sha_and_digest():
             ci_artifact_digest="sha256:" + "a" * 64,
             head_sha="short",
         )
+
+
+
+def test_reproduction_tolerance_allows_sub_eight_decimal_noise():
+    from island_v2.chapter1_v14_submission_promotion import _close
+
+    _close(0.123456789, 0.123456795, label="tiny numerical drift")
