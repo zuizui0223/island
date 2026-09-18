@@ -37,15 +37,15 @@ evidence_layers:
       score: exact_Direct_only_selfing_core_soft_membership
       beta: -0.29706162790382573
       two_sided_p: 0.004114773773355803
-      supplemental_only_two_sided_p: 0.29202063091584557
-      no_zero_constant_two_sided_p: 0.0043776344227836
+      supplemental_only_two_sided_p: 0.3132511023834126
+      no_zero_constant_two_sided_p: 0.00402610677021115
     accessibility_generalization:
       score: exact_Direct_only_generalized_accessible_soft_membership
       beta: -0.2960123452279311
       two_sided_p: 0.022162544686764193
       supplemental_only_two_sided_p: 0.03842197114842902
-      no_zero_constant_two_sided_p: 0.06489600366952121
-      no_zero_constant_one_sided_negative_p: 0.032448001834760605
+      no_zero_constant_two_sided_p: 0.019718960134721204
+      no_zero_constant_one_sided_negative_p: 0.009859480067360602
     interpretation: >-
       The exact H2 species-level scores used in Chapter 1 are negatively associated
       with current GloPL pollen limitation in the post-hoc discovery layer. This is the
