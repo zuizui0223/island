@@ -136,22 +136,66 @@ def discover_europe_pmc(config: dict[str, Any]) -> list[dict[str, str]]:
     return sorted(dedup.values(), key=lambda row: (row["publication_date"], row["pmcid"]))
 
 
+def _section_title(sec: ET.Element) -> str:
+    title_node = sec.find("title")
+    return " ".join(title_node.itertext()).strip() if title_node is not None else ""
+
+
+def _collect_allowed_section_text(
+    node: ET.Element,
+    *,
+    exclude: list[re.Pattern[str]],
+) -> list[str]:
+    if node.tag == "sec":
+        title = _section_title(node)
+        if title and any(pattern.search(title) for pattern in exclude):
+            return []
+
+    pieces: list[str] = []
+    if node.text and node.text.strip():
+        pieces.append(node.text.strip())
+    for child in node:
+        if child.tag == "sec":
+            pieces.extend(_collect_allowed_section_text(child, exclude=exclude))
+        else:
+            pieces.extend(
+                part.strip()
+                for part in child.itertext()
+                if part and part.strip()
+            )
+        if child.tail and child.tail.strip():
+            pieces.append(child.tail.strip())
+    return pieces
+
+
 def _section_texts(root: ET.Element, config: dict[str, Any]) -> list[str]:
-    include = [re.compile(pattern, re.IGNORECASE) for pattern in config["methods_section_titles"]["include_regex"]]
-    exclude = [re.compile(pattern, re.IGNORECASE) for pattern in config["methods_section_titles"]["exclude_regex"]]
+    include = [
+        re.compile(pattern, re.IGNORECASE)
+        for pattern in config["methods_section_titles"]["include_regex"]
+    ]
+    exclude = [
+        re.compile(pattern, re.IGNORECASE)
+        for pattern in config["methods_section_titles"]["exclude_regex"]
+    ]
+
     selected: list[str] = []
-    for sec in root.iter("sec"):
-        title_node = sec.find("title")
-        title = " ".join(title_node.itertext()).strip() if title_node is not None else ""
-        if not title:
-            continue
-        if any(pattern.search(title) for pattern in exclude):
-            continue
-        if not any(pattern.search(title) for pattern in include):
-            continue
-        text = " ".join(part.strip() for part in sec.itertext() if part and part.strip())
-        if text:
-            selected.append(text)
+
+    def walk(node: ET.Element) -> None:
+        for sec in node.findall("sec"):
+            title = _section_title(sec)
+            if title and any(pattern.search(title) for pattern in exclude):
+                continue
+            if title and any(pattern.search(title) for pattern in include):
+                text = " ".join(
+                    _collect_allowed_section_text(sec, exclude=exclude)
+                ).strip()
+                if text:
+                    selected.append(text)
+                continue
+            walk(sec)
+
+    body = root.find(".//body")
+    walk(body if body is not None else root)
     return selected
 
 
