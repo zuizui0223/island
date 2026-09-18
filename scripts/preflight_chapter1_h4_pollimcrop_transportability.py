@@ -144,14 +144,35 @@ def extract_dataset_csv(payload: bytes, file_name: str) -> tuple[bytes, str]:
 
 
 def metadata_only_frame(csv_bytes: bytes, config: dict[str, Any]) -> tuple[pd.DataFrame, list[str]]:
-    header = pd.read_csv(io.BytesIO(csv_bytes), nrows=0)
+    csv_format = config["source"]["csv_format"]
+    delimiter = str(csv_format["delimiter"])
+    decimal_mark = str(csv_format["decimal_mark"])
+    encoding = str(csv_format["encoding"])
+    header = pd.read_csv(
+        io.BytesIO(csv_bytes),
+        nrows=0,
+        sep=delimiter,
+        encoding=encoding,
+    )
     columns = [str(x) for x in header.columns]
-    allowed = {str(x) for x in config["outcome_blind_preflight"]["allowed_dataset_columns"]}
+    allowed = {
+        str(x)
+        for x in config["outcome_blind_preflight"]["allowed_dataset_columns"]
+    }
     required = {"species", "article_code"}
     if missing := required - set(columns):
-        raise typer.BadParameter(f"PolLimCrop schema missing required metadata: {sorted(missing)}")
+        raise typer.BadParameter(
+            f"PolLimCrop schema missing required metadata: {sorted(missing)}"
+        )
     selected = [column for column in columns if column in allowed]
-    frame = pd.read_csv(io.BytesIO(csv_bytes), usecols=selected).fillna("")
+    frame = pd.read_csv(
+        io.BytesIO(csv_bytes),
+        usecols=selected,
+        sep=delimiter,
+        decimal=decimal_mark,
+        encoding=encoding,
+        dtype=str,
+    ).fillna("")
     return frame, columns
 
 
@@ -231,6 +252,11 @@ def run(
         "inferential_role": "secondary_external_domain_transportability_preflight",
         "outcomes_read": False,
         "wild_temporal_replication_repaired": False,
+        "source_format": {
+            "delimiter": str(config["source"]["csv_format"]["delimiter"]),
+            "decimal_mark": str(config["source"]["csv_format"]["decimal_mark"]),
+            "encoding": str(config["source"]["csv_format"]["encoding"]),
+        },
         "figshare": {
             "collection_id": int(config["source"]["figshare_collection_id"]),
             "article_id": selected["article_id"],
