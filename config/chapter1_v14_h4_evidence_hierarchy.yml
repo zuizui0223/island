@@ -61,8 +61,8 @@ evidence_layers:
     H2_weighted_accessibility_reconstruction:
       beta: -0.32932085948526735
       two_sided_p: 0.005145682811813261
-      supplemental_only_two_sided_p: 0.036709300338101124
-      no_zero_constant_two_sided_p: 0.013368489636637889
+      supplemental_only_two_sided_p: 0.036684787324208254
+      no_zero_constant_two_sided_p: 0.003615783662185665
     equal_weight_H4b_reconstruction:
       beta: -0.32508511465279266
       two_sided_p: 0.006356184144918508
