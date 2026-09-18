@@ -23,6 +23,13 @@ def test_v14_preflight_lock_matches_reordered_architecture():
             value["equal_domain_orientation"] > 0
             for value in lock["H1"][scope].values()
         )
-    named = lock["H2"]["named_pollination_architecture"]
-    assert named["robust_named_identity_specific_effect"] is False
+    raw = lock["H2"]["raw_colour_and_architecture"]
+    assert raw["role"] == "raw_state_pollination_syndrome_concordance_not_weighted_score"
+    assert (
+        raw["colour_conditioned_architecture"]["northern_high_latitude"]
+        ["blue_purple_butterfly_form_given_colour"]["direct_q"]
+        < 0.05
+    )
+    assert lock["H4"]["prospective_wild_temporal_replication"]["outcomes_opened"] is False
+    assert lock["H4"]["colour_bridge"]["promoted"] is False
     assert lock["claim_ceiling"]["pollen_limitation_mediates_global_syndrome"] is False
