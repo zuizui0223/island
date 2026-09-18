@@ -30,6 +30,7 @@ source:
       on byte 0xF1 before any PolLimCrop outcome values were parsed. Latin-1
       preserves the single-byte Western text while leaving ASCII scientific names
       and numeric fields unchanged.
+    outer_record_wrapping: full_row_double_quoted_csv_field
     basis: official_PolLimCrop_R_code_sep_semicolon_dec_comma
 
 role_boundary:
