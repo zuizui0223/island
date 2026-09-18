@@ -171,7 +171,7 @@ def read_outcome_rows(
     delimiter = str(source_format.get("delimiter", ""))
     decimal_mark = str(source_format.get("decimal_mark", ""))
     encoding = str(source_format.get("encoding", ""))
-    if delimiter != ";" or decimal_mark != "," or encoding != "utf-8-sig":
+    if delimiter != ";" or decimal_mark != "," or encoding != "latin-1":
         raise typer.BadParameter("unexpected frozen PolLimCrop CSV format")
 
     def parse_number(value: object) -> float:
