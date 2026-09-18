@@ -3,7 +3,7 @@
   "date": "2026-09-18",
   "status": "local_parent_artifact_reproduction_pending_ci",
   "canonical": false,
-  "inferential_role": "posthoc_family_aligned_functional_triangulation",
+  "inferential_role": "posthoc_atomic_family_reconstruction_sensitivity",
   "parent_artifacts": {
     "reproductive_assurance": {
       "workflow_run_id": 35093274622,
@@ -141,7 +141,7 @@
       "classification": "prospective_H4b_equal_weight_definition_gives_same_posthoc_discovery_direction"
     }
   },
-  "integrated_classification": "H2_exact_reproductive_assurance_and_weighted_accessibility_scores_are_both_negative_in_primary_GloPL_bridge; weighted_accessibility_is_supported_in_both_measurement_sensitivities; reproductive_assurance_is_weaker_in_supplemental_only; equal_weight_prospective_H4b_definition_is_concordant",
+  "integrated_classification": "atomic_family_reconstruction_is_concordant_with_exact_H2_score_bridge; H2_weighted_accessibility_reconstruction_is_supported_in_primary_and_both_measurement_sensitivities; equal_weight_prospective_H4b_definition_is_concordant",
   "claim_ceiling": {
     "posthoc_discovery": true,
     "prospective_replication": false,
