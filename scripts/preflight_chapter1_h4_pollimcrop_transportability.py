@@ -201,7 +201,8 @@ def metadata_only_frame(csv_bytes: bytes, config: dict[str, Any]) -> tuple[pd.Da
     required = {"species", "article_code"}
     if missing := required - set(columns):
         raise typer.BadParameter(
-            f"PolLimCrop schema missing required metadata: {sorted(missing)}"
+            "PolLimCrop schema missing required metadata: "
+            f"{sorted(missing)}; observed columns={columns}"
         )
     selected = [column for column in columns if column in allowed]
     frame = pd.read_csv(
@@ -282,6 +283,15 @@ def run(
     selected = discover_dataset_file(config)
     payload = _get_bytes(selected["download_url"])
     csv_bytes, csv_member = extract_dataset_csv(payload, selected["name"])
+    typer.echo(
+        json.dumps(
+            {
+                "outcome_blind_source_file": selected["name"],
+                "outcome_blind_csv_member": csv_member,
+            },
+            indent=2,
+        )
+    )
     metadata, schema = metadata_only_frame(csv_bytes, config)
     observed_scope = validate_expected_scope(metadata, config)
     config_format = config["source"]["csv_format"]
