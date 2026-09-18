@@ -35,20 +35,42 @@ families:
   reproductive_assurance:
     score_name: reproductive_assurance_score
     parent: reproductive_assurance
+    role: H2_exact_family_score
     components:
       - self_compatibility
       - selfing_mating_system
       - autonomous_selfing
+    weights:
+      self_compatibility: 1.0
+      selfing_mating_system: 1.0
+      autonomous_selfing: 1.0
   accessibility_generalization:
-    score_name: accessibility_generalization_score
+    score_name: generalized_accessible_score
     parent: floral_architecture
+    role: H2_exact_family_score
     components:
       - generalized_form
       - actinomorphic_symmetry
       - shallow_open_tube
+    weights:
+      generalized_form: 1.0
+      actinomorphic_symmetry: 0.75
+      shallow_open_tube: 1.0
+  accessibility_equal_weight_sensitivity:
+    score_name: accessibility_equal_weight_score
+    parent: floral_architecture
+    role: prospective_H4b_definition_sensitivity
+    components:
+      - generalized_form
+      - actinomorphic_symmetry
+      - shallow_open_tube
+    weights:
+      generalized_form: 1.0
+      actinomorphic_symmetry: 1.0
+      shallow_open_tube: 1.0
 
 rules:
-  - family_score_is_mean_of_available_frozen_binary_components
+  - family_score_is_weighted_mean_of_available_frozen_binary_components
   - require_at_least_two_components
   - no_trait_recoding
   - no_synonym_or_genus_fallback
