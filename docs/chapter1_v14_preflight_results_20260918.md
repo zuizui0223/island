@@ -90,6 +90,19 @@ The secondary attraction_shift coefficient is also positive in all four contexts
 both evidence scopes, with the clearest support in northern high-latitude and tropical
 islands.
 
+### Named pollination-architecture concordance after conditioning on selfing_core
+
+The broader large-bee-like, butterfly-like and bird-like scores do **not** retain
+statistically clear isolation coefficients after selfing_core adjustment. Large-bee-like
+is negative in all four all-analysis contexts, but none of those coefficients is
+individually supported; butterfly-like and bird-like are mixed. The shared named
+architecture factor is likewise unsupported.
+
+Therefore H2 separates two claims: (i) the accessibility/attraction architecture shift
+is not reducible to selfing alone; (ii) attribution of that residual to a particular
+named pollination syndrome or direct pollinator-selection mechanism remains unsupported
+at this broad scale.
+
 ### H2b colour after conditioning on selfing_core
 
 Plain colour is more heterogeneous after selfing adjustment.
