@@ -39,6 +39,24 @@ v13 may state association, global recurrence, partial pathway separation and fun
 
 v13 must not state that pollen limitation historically caused trait evolution, that pollen limitation statistically mediates the global syndrome, that pollinator abundance or visitation globally declines with isolation, that GloBI proves a causal mechanism, that response vectors are identical across geographic strata, that a between-stratum difference is a primary submission result, or that post-hoc functional triangulation is confirmatory.
 
+
+## Post-freeze prospective H4 audit — 2026-09-18
+
+This audit does **not** modify the frozen v13 H1–H4 result lock and does not relabel H4 as confirmatory.
+
+After the post-hoc H4 discovery, a temporally independent 2016–2026 wild-plant validation protocol was frozen before validation outcomes were opened. Its two co-primary predictions and support thresholds were fixed in advance.
+
+The outcome-blind support decision is frozen in `config/chapter1_h4_prospective_temporal_support_decision_lock.json`:
+
+- H4a autonomous selfing: diagnostic ceiling **9 matched species / 6 publications**;
+- H4b accessibility/generalization: diagnostic ceiling **9 matched species / 4 publications**;
+- frozen minimum for each co-primary test: **30 matched species / 10 publications**, plus the predeclared state/score-balance rules;
+- both support gates failed before outcome unblinding;
+- post-2015 primary outcomes remain unopened;
+- threshold relaxation and substitute trait definitions are not authorized.
+
+This is **support insufficiency, not a biological null**. The current submission may report the prospective audit as a transparent failed admission gate, but the inferential role of the v13 functional bridge remains `posthoc_functional_triangulation`.
+
 ## Submission gate
 
 Promotion to review-ready requires a fresh branch-head audit that passes:
