@@ -56,9 +56,16 @@ Primary conditional tests:
 - plain_colour ~ isolation + selfing_core + area + climate
 - generalized_accessible ~ isolation + selfing_core + area + climate
 
-Secondary tests retain attraction_shift, the five raw colour states,
-colour-conditioned floral architecture, and sampled bee/butterfly/bird-associated
-floral-architecture concordance.
+Pollination-syndrome concordance is evaluated from the observed trait states rather
+than a weighted guild score. The retained hierarchy is:
+
+1. five raw colour states after selfing_core adjustment;
+2. raw colour × raw form/tube joint prevalence;
+3. raw architecture conditional on raw colour and selfing_core.
+
+Predeclared bee/butterfly/bird associations are labels for particular raw form/tube
+combinations used to interpret concordance. The historical weighted
+large_bee_like/butterfly_like/bird_like scores do not define v14 H2 evidence.
 
 If the isolation coefficient persists after conditioning on selfing_core, the
 floral response is **not reducible to the measured selfing core**. This is not
@@ -76,13 +83,26 @@ publication-cluster-robust covariance.
 This establishes an independent ecological-pressure pattern. It does not establish
 that pollen limitation mediated H1 or H2.
 
-## H4 — Functional bridge
+## H4 — Functional bridge as an evidence hierarchy
 
-H4 remains the exact-species GloPL trait-state comparison.
+The v13 exact-species GloPL comparison remains the **post-hoc discovery layer**. It
+asks whether mechanistically interpretable H2 states are associated with lower current
+pollen limitation after distance, geographic and measurement adjustment.
 
-It asks whether island-syndrome states are associated with lower **current** pollen
-limitation after distance, geographic and measurement adjustment. It remains
-post-hoc functional triangulation, not historical mediation.
+PR #236 adds two validation layers without relabelling the discovery:
+
+- a prospectively frozen post-2015 wild-plant temporal replication. Its outcome-blind
+  support gate reached only 9 matched species for each co-primary family, below the
+  frozen 30-species/10-publication threshold, so it stopped before outcome unblinding
+  and is not evaluable;
+- a separately frozen PolLimCrop agricultural-domain transportability test. It is an
+  independent outcome domain, but cannot rescue the support-limited wild validation or
+  make the v13 wild-flora discovery confirmatory.
+
+The two co-primary functional predictions are aligned to the H2 pathways:
+autonomous selfing -> lower current pollen limitation, and greater
+accessibility/generalization -> lower current pollen limitation. No global primary
+colour bridge is imposed because the colour response is context dependent.
 
 ## Analysis flow
 
@@ -103,7 +123,9 @@ post-hoc functional triangulation, not historical mediation.
                              |
                              v
     H4  DO THE TWO SIDES FUNCTIONALLY CONNECT?
-              trait state <-> current pollen limitation
+              post-hoc discovery
+                     +
+          prospective support-gated validation
 
 ## Claim ceiling
 
