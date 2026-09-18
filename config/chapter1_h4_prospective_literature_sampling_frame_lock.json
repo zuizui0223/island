@@ -1,0 +1,41 @@
+{
+  "contract": "chapter1_h4_prospective_literature_sampling_frame_lock_v1",
+  "date": "2026-09-18",
+  "inferential_role": "outcome_blind_literature_sampling_frame",
+  "parent_protocol_commit": "26f406806af8a67b392bfa1a4c924a1768e10f6e",
+  "publication_window": {
+    "start": "2016-01-01",
+    "end": "2026-09-18"
+  },
+  "providers": [
+    "OpenAlex",
+    "Crossref"
+  ],
+  "query_families": [
+    "plant pollen limitation",
+    "plant pollen supplementation",
+    "plant hand pollination fruit set",
+    "wild plant supplemental pollination",
+    "plant pollen addition reproductive success"
+  ],
+  "maximum_records_per_provider_per_query": 500,
+  "deduplication": "normalized_DOI_else_casefolded_title_plus_publication_year",
+  "client_side_date_cutoff_enforced": true,
+  "artifact": {
+    "workflow_run_id": 35295213427,
+    "artifact_id": 10527672011,
+    "artifact_digest": "sha256:80b549d883ec1b43d03232a00609c8711c3171f1bafc5424acdc7ff1dfd77a60",
+    "file": "post2015_h4_metadata_candidates.csv",
+    "n_candidates": 2984,
+    "observed_date_min": "2016-01-01",
+    "observed_date_max": "2026-08-01"
+  },
+  "restrictions": {
+    "abstracts_used_for_sampling": false,
+    "full_text_results_used_for_sampling": false,
+    "reproductive_output_values_used_for_sampling": false,
+    "pollen_limitation_effects_used_for_sampling": false,
+    "search_terms_may_expand_after_outcome_unblinding": false,
+    "search_depth_may_expand_after_outcome_unblinding": false
+  }
+}
