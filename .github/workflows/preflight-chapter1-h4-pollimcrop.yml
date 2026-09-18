@@ -66,6 +66,7 @@ jobs:
             --trait-states-csv "$ROOT/traits/prospective_h4_frozen_trait_states.csv" \
             --parent-contract-path config/chapter1_h4_prospective_temporal_replication_v1.yml \
             --config-path config/chapter1_h4_pollimcrop_transportability_preflight_v1.yml \
+            --response-mapping-path config/chapter1_h4_pollimcrop_response_mapping_v1.yml \
             --output-dir "$ROOT/out"
           sha256sum "$ROOT/out/"* > "$ROOT/out/file_manifest.sha256.tmp"
           mv "$ROOT/out/file_manifest.sha256.tmp" "$ROOT/out/file_manifest.sha256"
