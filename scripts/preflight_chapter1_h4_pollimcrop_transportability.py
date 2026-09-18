@@ -6,6 +6,8 @@ import hashlib
 import io
 import json
 import re
+import time
+import urllib.error
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -26,22 +28,39 @@ app = typer.Typer(add_completion=False, no_args_is_help=True)
 CONTRACT = "chapter1_h4_pollimcrop_transportability_preflight_v1"
 
 
-def _get_json(url: str) -> Any:
+def _request_bytes(url: str, *, timeout: int) -> bytes:
     request = urllib.request.Request(
         url,
         headers={"User-Agent": "island-h4-pollimcrop-preflight/1.0"},
     )
-    with urllib.request.urlopen(request, timeout=60) as response:  # noqa: S310
-        return json.loads(response.read().decode("utf-8"))
+    retryable = {429, 500, 502, 503, 504}
+    for attempt in range(7):
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310
+                return response.read()
+        except urllib.error.HTTPError as exc:
+            if exc.code not in retryable or attempt == 6:
+                raise
+            retry_after = exc.headers.get("Retry-After")
+            delay = (
+                float(retry_after)
+                if retry_after and retry_after.isdigit()
+                else min(30.0, 2.0**attempt)
+            )
+            time.sleep(delay)
+        except urllib.error.URLError:
+            if attempt == 6:
+                raise
+            time.sleep(min(30.0, 2.0**attempt))
+    raise RuntimeError("unreachable PolLimCrop download retry loop")
+
+
+def _get_json(url: str) -> Any:
+    return json.loads(_request_bytes(url, timeout=60).decode("utf-8"))
 
 
 def _get_bytes(url: str) -> bytes:
-    request = urllib.request.Request(
-        url,
-        headers={"User-Agent": "island-h4-pollimcrop-preflight/1.0"},
-    )
-    with urllib.request.urlopen(request, timeout=120) as response:  # noqa: S310
-        return response.read()
+    return _request_bytes(url, timeout=120)
 
 
 def _sha256_bytes(value: bytes) -> str:
