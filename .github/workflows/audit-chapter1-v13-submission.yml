@@ -1,5 +1,9 @@
 name: Audit Chapter 1 v13 submission
 
+concurrency:
+  group: v13-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main]
