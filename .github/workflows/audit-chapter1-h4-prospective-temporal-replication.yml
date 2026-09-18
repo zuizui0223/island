@@ -9,18 +9,18 @@ on:
     branches: [feature/h4-prospective-temporal-replication]
     paths:
       - "config/chapter1_h4_prospective_temporal_replication_v1.yml"
+      - "config/chapter1_h4_prospective_temporal_support_decision_lock.json"
+      - "config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json"
+      - "config/chapter1_h4_prospective_validation_summary_lock.json"
       - "src/island_v2/chapter1_h4_prospective_temporal_replication.py"
       - "tests/test_chapter1_h4_prospective_temporal_replication.py"
       - "tests/test_chapter1_h4_prospective_methods_preflight.py"
+      - "tests/test_chapter1_h4_prospective_validation_summary.py"
       - "scripts/screen_chapter1_h4_prospective_methods.py"
       - "scripts/build_chapter1_h4_prospective_support_metadata.py"
       - "config/chapter1_h4_prospective_methods_preflight_v1.yml"
       - "docs/chapter1_h4_prospective_temporal_replication_20260918.md"
-      - "config/chapter1_h4_prospective_validation_summary_lock.json"
-      - "config/chapter1_h4_prospective_temporal_support_decision_lock.json"
-      - "config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json"
       - "docs/chapter1_h4_prospective_validation_summary_20260918.md"
-      - "tests/test_chapter1_h4_prospective_validation_summary.py"
       - ".github/workflows/audit-chapter1-h4-prospective-temporal-replication.yml"
   workflow_dispatch:
 
@@ -43,7 +43,6 @@ jobs:
           pytest -q \
             tests/test_chapter1_h4_prospective_temporal_replication.py \
             tests/test_chapter1_h4_prospective_methods_preflight.py \
-            tests/test_chapter1_h4_prospective_validation_summary.py \
             tests/test_chapter1_h4_prospective_validation_summary.py
       - name: Ruff prospective implementation
         run: |
@@ -54,4 +53,5 @@ jobs:
             scripts/discover_chapter1_h4_prospective_literature.py \
             scripts/build_chapter1_h4_prospective_trait_states.py \
             tests/test_chapter1_h4_prospective_temporal_replication.py \
-            tests/test_chapter1_h4_prospective_methods_preflight.py
+            tests/test_chapter1_h4_prospective_methods_preflight.py \
+            tests/test_chapter1_h4_prospective_validation_summary.py
