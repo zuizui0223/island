@@ -1,0 +1,54 @@
+name: Build Chapter 1 H4 frozen trait states
+
+concurrency:
+  group: h4-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TRAIT_ARTIFACT_ID: "10042377593"
+      TRAIT_ARTIFACT_SHA256: "5e9c887e093c42eb720f3abd2dc85701ce123fb7fe888c916dc4098ac898ccdd"
+      ROOT: /tmp/chapter1-h4-prospective-traits
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Download frozen v13 trait artifact
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/source" "$ROOT/out"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${TRAIT_ARTIFACT_ID}/zip" \
+            > "$ROOT/trait.zip"
+          echo "$TRAIT_ARTIFACT_SHA256  $ROOT/trait.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/trait.zip" -d "$ROOT/source"
+          LEDGER="$(find "$ROOT/source" -name direct_species_trait_ledger.csv.gz -print -quit)"
+          test -n "$LEDGER"
+          echo "LEDGER=$LEDGER" >> "$GITHUB_ENV"
+      - name: Build exact frozen states
+        run: |
+          python scripts/build_chapter1_h4_prospective_trait_states.py \
+            --ledger-csv "$LEDGER" \
+            --output-csv "$ROOT/out/prospective_h4_frozen_trait_states.csv"
+          sha256sum "$ROOT/out/prospective_h4_frozen_trait_states.csv" \
+            > "$ROOT/out/prospective_h4_frozen_trait_states.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h4-frozen-trait-states-${{ github.run_id }}
+          path: /tmp/chapter1-h4-prospective-traits/out
+          if-no-files-found: error
+          retention-days: 90
