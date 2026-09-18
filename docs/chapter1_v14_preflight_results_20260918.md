@@ -161,9 +161,11 @@ PR #236 adds two validation layers without relabelling that discovery:
    support gate reached only 9 matched species for each co-primary family, below the
    frozen minimum of 30 species and 10 publications, so the test stopped before outcome
    unblinding and is **not evaluable**, not a biological null;
-2. an independent PolLimCrop agricultural-domain transportability test with frozen
-   response mapping and support gates; this is still separate/pending and cannot rescue
-   the wild temporal support failure or make v13 H4 confirmatory for wild floras.
+2. an independent PolLimCrop agricultural-domain transportability audit with frozen
+   response mapping and support gates. It is now also support-limited before outcome
+   unblinding: H4a matched 36 species / 109 publications but had 9 state-0 species
+   (minimum 10), while H4b matched 42 species / 141 publications with score SD 0.353
+   but had 6 low-score species (minimum 8). No crop outcome was opened.
 
 The v14 discovery layer now aligns **literally** to the two species-level H2 scores used by Chapter 1.
 
@@ -218,3 +220,11 @@ The reordering is empirically coherent:
 The conditional H2 models do not prove causal mediation or direct pollinator
 selection. They reject the narrower explanation that the measured selfing core alone
 accounts for the full floral-architecture response.
+
+
+## Post-freeze H4 prospective validation audit
+
+The completed wild and crop support decisions are summarized in
+`config/chapter1_h4_prospective_validation_summary_lock.json`. Both validation routes
+remain non-evaluable because their frozen support gates were not met; no prospective
+pollen-limitation outcome was unblinded.
