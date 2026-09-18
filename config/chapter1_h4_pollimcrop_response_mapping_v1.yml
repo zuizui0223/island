@@ -1,0 +1,123 @@
+contract: chapter1_h4_pollimcrop_response_mapping_v1
+status: frozen_before_row_level_PolLimCrop_outcome_read
+inferential_role: secondary_external_domain_transportability_analysis_mapping
+created: '2026-09-18'
+parent_preflight: config/chapter1_h4_pollimcrop_transportability_preflight_v1.yml
+
+source_method_basis:
+  descriptor_doi: 10.1038/s41597-023-02797-6
+  response_column: PL_effect_size
+  response_column_name_basis: >-
+    Outcome-blind schema audit of the locked Figshare CSV found the actual column
+    token PL_effect_size. This resolves the Methods/Data Records naming discrepancy
+    before any row-level outcome values were parsed.
+  csv_format:
+    delimiter: ';'
+    decimal_mark: ','
+    encoding: latin-1
+    encoding_basis: >-
+      Outcome-blind source-byte correction after the locked CSV failed UTF-8 decoding
+      on byte 0xF1 before any PolLimCrop outcome values were parsed. Latin-1
+      preserves the single-byte Western text while leaving ASCII scientific names
+      and numeric fields unchanged.
+    outer_record_wrapping: full_row_double_quoted_csv_field
+    basis: official_PolLimCrop_R_code_sep_semicolon_dec_comma
+  published_definition: ln_hand_pollination_over_natural_pollination
+  direction: positive_means_stronger_pollen_limitation
+  note: >-
+    The Scientific Data descriptor defines PL_effectsize as ln(hand pollination /
+    natural pollination), matching the direction and scale used by GloPL. The dataset
+    provides raw treatment values but the frozen primary analysis uses the published
+    PL_effectsize column to avoid post-unblinding endpoint selection.
+
+eligibility:
+  require_preflight_support_gate_for_each_hypothesis: true
+  run_only_hypotheses_marked_evaluable_in_frozen_preflight: true
+  failed_support_hypothesis_outcomes_must_not_be_inspected_for_primary_test: true
+  exact_frozen_species_match_only: true
+
+analysis_unit:
+  grain:
+    - article_code
+    - species
+    - continent
+    - country
+    - locality
+    - experiment_year
+    - supplement_type
+    - scale
+    - crop_part
+  duplicate_cell_summary: arithmetic_mean_PL_effectsize
+  publication_total_weight: 1.0
+  repeated_species_dependency: two_way_cluster_publication_and_species
+
+primary_model:
+  family: weighted_linear_regression
+  response: PL_effectsize
+  predictors:
+    - frozen_trait_predictor
+    - z_experiment_year
+    - continent_fixed_effects
+    - supplement_type_fixed_effects
+    - scale_fixed_effects
+    - crop_part_fixed_effects
+  covariance: two_way_cluster_robust_article_code_and_species
+  trait_test: one_sided_negative
+  alpha_per_coprimary_hypothesis: 0.025
+
+H4a_reproductive_assurance:
+  predictor: autonomous_selfing
+  coding: frozen_v13_binary_0_1
+  expected_coefficient: negative
+
+H4b_accessibility_generalization:
+  predictor: accessibility_generalization_score
+  components:
+    generalized_form: 1.0
+    actinomorphic_symmetry: 1.0
+    shallow_open_tube: 1.0
+  minimum_nonmissing_components_per_species: 2
+  expected_coefficient: negative
+
+secondary_sensitivities:
+  - equal_publication_species_cell_weight
+  - no_effect_size_constant_if_schema_allows_exact_filter
+  - country_fixed_effects_if_rank_and_support_allow
+  - one_record_per_article_species_mean
+  - atomic_trait_coefficients_descriptive_only
+
+multiplicity:
+  primary: two_coprimary_tests_each_one_sided_alpha_0_025
+  secondary: not_allowed_to_rescue_failed_primary
+
+known_preanalysis_information:
+  row_level_trait_outcome_join_seen: false
+  row_level_PL_effectsize_values_read_for_this_project: false
+  public_descriptor_aggregate_PL_summary_seen_after_H4_predictions_frozen: true
+  aggregate_summary_used_to_change_prediction_or_model: false
+
+rules:
+  - response_mapping_cannot_change_after_row_level_outcome_read
+  - use_published_PL_effectsize_not_choose_best_raw_endpoint
+  - do_not_truncate_negative_PL_effectsize_to_zero
+  - publication_total_weight_equals_one
+  - two_way_cluster_structure_is_primary
+  - H4a_and_H4b_support_failures_are_not_reanalysed
+  - crop_result_cannot_reclassify_wild_temporal_support_failure
+  - crop_result_cannot_make_existing_v13_H4_confirmatory_for_wild_flora
+  - discordant_crop_result_is_retained
+
+claim_ceiling:
+  if_supported: >-
+    The frozen trait-to-current-pollen-limitation prediction is transportable to an
+    independent agricultural pollen-supplementation domain after adjustment for study
+    design, geography and experiment year.
+  if_not_supported: >-
+    The trait-to-pollen-limitation association does not transport cleanly to the crop
+    domain under the frozen model.
+  never_claim:
+    - wild_plant_temporal_replication
+    - historical_selection
+    - mediation_of_global_island_syndrome
+    - pollinator_abundance_decline
+    - causal_trait_evolution
