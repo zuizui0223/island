@@ -1,0 +1,72 @@
+name: Preflight Chapter 1 H4 PolLimCrop transportability
+
+on:
+  push:
+    branches: [feature/h4-prospective-temporal-replication]
+    paths:
+      - "config/chapter1_h4_pollimcrop_transportability_preflight_v1.yml"
+      - "scripts/preflight_chapter1_h4_pollimcrop_transportability.py"
+      - "tests/test_chapter1_h4_pollimcrop_transportability.py"
+      - ".github/workflows/preflight-chapter1-h4-pollimcrop.yml"
+  pull_request:
+    paths:
+      - "config/chapter1_h4_pollimcrop_transportability_preflight_v1.yml"
+      - "scripts/preflight_chapter1_h4_pollimcrop_transportability.py"
+      - "tests/test_chapter1_h4_pollimcrop_transportability.py"
+      - ".github/workflows/preflight-chapter1-h4-pollimcrop.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TRAIT_ARTIFACT_ID: "10527906374"
+      TRAIT_ARTIFACT_SHA256: "a3e96eaf78dcd98196a7e017a12191ac2d817b9d9ec39362f9e65604c06b4d08"
+      ROOT: /tmp/chapter1-h4-pollimcrop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Test outcome-blind reader
+        run: |
+          pytest -q tests/test_chapter1_h4_pollimcrop_transportability.py
+          ruff check scripts/preflight_chapter1_h4_pollimcrop_transportability.py tests/test_chapter1_h4_pollimcrop_transportability.py
+
+      - name: Download frozen v13 trait states
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/traits" "$ROOT/out"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${TRAIT_ARTIFACT_ID}/zip" \
+            > "$ROOT/traits.zip"
+          echo "$TRAIT_ARTIFACT_SHA256  $ROOT/traits.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/traits.zip" -d "$ROOT/traits"
+          test -s "$ROOT/traits/prospective_h4_frozen_trait_states.csv"
+
+      - name: Run PolLimCrop metadata-only preflight
+        run: |
+          python scripts/preflight_chapter1_h4_pollimcrop_transportability.py \
+            --trait-states-csv "$ROOT/traits/prospective_h4_frozen_trait_states.csv" \
+            --parent-contract-path config/chapter1_h4_prospective_temporal_replication_v1.yml \
+            --config-path config/chapter1_h4_pollimcrop_transportability_preflight_v1.yml \
+            --output-dir "$ROOT/out"
+          sha256sum "$ROOT/out/"* > "$ROOT/out/file_manifest.sha256.tmp"
+          mv "$ROOT/out/file_manifest.sha256.tmp" "$ROOT/out/file_manifest.sha256"
+          cat "$ROOT/out/PREFLIGHT.json"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h4-pollimcrop-preflight-${{ github.run_id }}
+          path: /tmp/chapter1-h4-pollimcrop/out
+          if-no-files-found: error
+          retention-days: 30
