@@ -8,6 +8,7 @@ import pytest
 import yaml
 
 from island_v2.chapter1_h4_pollimcrop_transportability import (
+    admitted_species_for_outcome_read,
     aggregate_analysis_cells,
     exact_binomial,
     fit_two_way_clustered_trait,
@@ -117,3 +118,29 @@ def test_run_transportability_does_not_use_failed_hypothesis() -> None:
         "reason": "frozen_preflight_support_gate_failed",
         "outcomes_used": False,
     }
+
+
+def test_outcome_species_union_uses_only_supported_hypotheses() -> None:
+    traits = pd.DataFrame(
+        {
+            "accepted_species": ["Species one", "Species two", "Species three"],
+            "autonomous_selfing": [1, np.nan, 0],
+            "generalized_form": [np.nan, 1, 0],
+            "actinomorphic_symmetry": [np.nan, 1, 0],
+            "shallow_open_tube": [np.nan, 1, 0],
+        }
+    )
+    parent = yaml.safe_load(
+        Path("config/chapter1_h4_prospective_temporal_replication_v1.yml").read_text(
+            encoding="utf-8"
+        )
+    )
+    preflight = {
+        "support": {
+            "H4a_reproductive_assurance": {"evaluable": True},
+            "H4b_accessibility_generalization": {"evaluable": False},
+        }
+    }
+    allowed = admitted_species_for_outcome_read(traits, parent, preflight)
+    assert allowed == {"Species one", "Species three"}
+    assert "Species two" not in allowed
