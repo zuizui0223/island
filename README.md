@@ -19,6 +19,13 @@ The four geographic strata remain replication strata for recurrence of the funct
 
 The raw-colour extension does **not** retroactively become a seventh confirmatory H1 atomic trait. It upgrades the biological interpretation of H3 while preserving the frozen H1–H4 result lock.
 
+**Prospective H4 audit:** after the post-hoc H4 discovery, a temporally independent
+2016–2026 wild-plant replication was frozen before validation outcomes. Its predeclared
+support gates were not met (diagnostic ceiling: H4a 9 species / 6 publications; H4b 9
+species / 4 publications), so those validation outcomes remain unopened. This is a
+support/design limitation, not a biological null, and H4 remains post-hoc. See
+`config/chapter1_h4_prospective_temporal_support_decision_lock.json`.
+
 ## 3. Canonical v13 paper surface
 
 Read these first, in this order:
