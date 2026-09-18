@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 
 import pytest
-import yaml
 
 
 SCRIPT = Path("scripts/freeze_chapter1_h4_pollimcrop_result.py")
