@@ -1,0 +1,40 @@
+name: Discover Chapter 1 H4 prospective literature metadata
+
+on:
+  pull_request:
+    paths:
+      - "scripts/discover_chapter1_h4_prospective_literature.py"
+      - ".github/workflows/discover-chapter1-h4-prospective-literature.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install typer pandas
+      - name: Retrieve metadata only
+        run: |
+          python scripts/discover_chapter1_h4_prospective_literature.py \
+            --output-csv /tmp/post2015_h4_metadata_candidates.csv \
+            --max-per-query 100
+          python - <<'PY'
+          import pandas as pd
+          p = "/tmp/post2015_h4_metadata_candidates.csv"
+          x = pd.read_csv(p)
+          print(f"metadata candidates: {len(x)}")
+          print(x[["source_database","doi","title","publication_date"]].head(20).to_string(index=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h4-post2015-metadata-${{ github.run_id }}
+          path: /tmp/post2015_h4_metadata_candidates.csv
+          if-no-files-found: error
+          retention-days: 30
