@@ -41,6 +41,12 @@ jobs:
       SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
       ALL_DATA_RUN_ID: "35100991898"
       ALL_DATA_ARTIFACT: "chapter1-all-data-primary-35100991898"
+      RAW_COLOUR_RUN_ID: "35210281545"
+      RAW_COLOUR_ARTIFACT_ID: "10491539130"
+      RAW_COLOUR_DIGEST: "sha256:d30ebbda7f1613373a39a9df9577e1b34cc32cddcd5c39b87719cd512972e263"
+      RAW_COUPLING_RUN_ID: "35216672430"
+      RAW_COUPLING_ARTIFACT_ID: "10495522252"
+      RAW_COUPLING_DIGEST: "sha256:8200c982d9a275c3d7db5fc25fa762f08428d51fa637a42c8312b067fdcbe377"
 
     steps:
       - uses: actions/checkout@v4
@@ -76,6 +82,18 @@ jobs:
           test -s /tmp/v14/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
           test -s /tmp/v14/all-data/syndrome/all/island_syndrome_scores.csv.gz
           test -s /tmp/v14/all-data/syndrome/direct/island_syndrome_scores.csv.gz
+
+      - name: Verify frozen raw H2 provenance
+        run: |
+          set -euo pipefail
+          colour_digest=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$RAW_COLOUR_ARTIFACT_ID" --jq '.digest')
+          coupling_digest=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$RAW_COUPLING_ARTIFACT_ID" --jq '.digest')
+          test "$colour_digest" = "$RAW_COLOUR_DIGEST"
+          test "$coupling_digest" = "$RAW_COUPLING_DIGEST"
+          colour_run=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$RAW_COLOUR_ARTIFACT_ID" --jq '.workflow_run.id')
+          coupling_run=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$RAW_COUPLING_ARTIFACT_ID" --jq '.workflow_run.id')
+          test "$colour_run" = "$RAW_COLOUR_RUN_ID"
+          test "$coupling_run" = "$RAW_COUPLING_RUN_ID"
 
       - name: Refit H1 with seven atomic responses
         run: |
@@ -127,9 +145,18 @@ jobs:
 
           root = Path("/tmp/v14/results")
           config = yaml.safe_load(Path("config/chapter1_v14_all_data_probability.yml").read_text())
+          h2_config = yaml.safe_load(Path("config/chapter1_v14_h2_decomposition.yml").read_text())
+          h4_config = yaml.safe_load(Path("config/chapter1_v14_h4_evidence_hierarchy.yml").read_text())
           families = config["response_families"]
           lines = ["# Chapter 1 v14 reordered-hypothesis refit", ""]
-          result = {"contract": "chapter1_v14_reordered_hypotheses_result_v1", "scopes": {}}
+          result = {
+              "contract": "chapter1_v14_reordered_hypotheses_result_v1",
+              "scopes": {},
+              "H2_raw_pollination_syndrome_concordance": h2_config[
+                  "raw_pollination_syndrome_concordance"
+              ],
+              "H4_evidence_hierarchy": h4_config,
+          }
 
           for scope in ("all", "direct"):
               slopes = pd.read_csv(root / scope / "h1" / "beta_binomial_within_slopes.csv")
