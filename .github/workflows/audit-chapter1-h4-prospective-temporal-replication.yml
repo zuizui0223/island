@@ -6,6 +6,9 @@ on:
       - "config/chapter1_h4_prospective_temporal_replication_v1.yml"
       - "src/island_v2/chapter1_h4_prospective_temporal_replication.py"
       - "tests/test_chapter1_h4_prospective_temporal_replication.py"
+      - "tests/test_chapter1_h4_prospective_methods_preflight.py"
+      - "scripts/screen_chapter1_h4_prospective_methods.py"
+      - "config/chapter1_h4_prospective_methods_preflight_v1.yml"
       - "docs/chapter1_h4_prospective_temporal_replication_20260918.md"
       - ".github/workflows/audit-chapter1-h4-prospective-temporal-replication.yml"
   workflow_dispatch:
@@ -25,9 +28,16 @@ jobs:
           cache: pip
       - run: pip install -e ".[dev]"
       - name: Test prospective outcome-blind gate
-        run: pytest -q tests/test_chapter1_h4_prospective_temporal_replication.py
+        run: |
+          pytest -q \
+            tests/test_chapter1_h4_prospective_temporal_replication.py \
+            tests/test_chapter1_h4_prospective_methods_preflight.py
       - name: Ruff prospective implementation
         run: |
           ruff check \
             src/island_v2/chapter1_h4_prospective_temporal_replication.py \
-            tests/test_chapter1_h4_prospective_temporal_replication.py
+            scripts/screen_chapter1_h4_prospective_methods.py \
+            scripts/discover_chapter1_h4_prospective_literature.py \
+            scripts/build_chapter1_h4_prospective_trait_states.py \
+            tests/test_chapter1_h4_prospective_temporal_replication.py \
+            tests/test_chapter1_h4_prospective_methods_preflight.py
