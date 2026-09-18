@@ -170,11 +170,11 @@ The v14 discovery layer now aligns **literally** to the two species-level H2 sco
 - **Exact Direct-only `selfing_core`:** 455 GloPL species, 409 publications,
   734 cells. `beta=-0.29706`, two-sided `p=0.00411`. The no-zero sensitivity
   remains supported (`beta=-0.29990, p=0.00438`), while supplemental-only remains
-  negative but not supported (`beta=-0.09863, p=0.292`).
+  negative but not supported (`beta=-0.09462, p=0.313`).
 - **Exact Direct-only `generalized_accessible`:** 143 GloPL species, 143
   publications, 259 cells. `beta=-0.29601, p=0.0222`; supplemental-only
   `beta=-0.30329, p=0.0384`; no-zero remains negative
-  (`beta=-0.26494`, two-sided `p=0.0649`, one-sided negative `p=0.0324`).
+  (`beta=-0.30399`, two-sided `p=0.0197`, one-sided negative `p=0.00986`).
 
 A separate atomic reconstruction sensitivity is concordant rather than identical to
 these literal H2 scores:
