@@ -18,6 +18,7 @@
 > H4 evidence roles: [config/chapter1_v14_h4_evidence_hierarchy.yml](config/chapter1_v14_h4_evidence_hierarchy.yml)
 > H4 exact H2-score bridge: [config/chapter1_v14_h4_exact_h2_score_bridge.yml](config/chapter1_v14_h4_exact_h2_score_bridge.yml)
 > H4 atomic reconstruction sensitivity: [config/chapter1_v14_h4_family_bridge.yml](config/chapter1_v14_h4_family_bridge.yml)
+> prospective H4 validation summary: [config/chapter1_h4_prospective_validation_summary_lock.json](config/chapter1_h4_prospective_validation_summary_lock.json) — both wild-temporal and PolLimCrop routes stopped at outcome-blind support gates; no prospective outcome was opened.
 >
 > Canonical result lock: [config/chapter1_v14_canonical_result_lock.json](config/chapter1_v14_canonical_result_lock.json)
 > Submission freeze: [docs/chapter1_submission_freeze_v14_20260918.md](docs/chapter1_submission_freeze_v14_20260918.md)

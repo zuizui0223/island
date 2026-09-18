@@ -114,9 +114,12 @@ discovery analysis:
   support gate reached only 9 matched species for each co-primary family, below the
   frozen 30-species/10-publication threshold, so it stopped before outcome unblinding
   and is not evaluable;
-- a separately frozen PolLimCrop agricultural-domain transportability test. It is an
-  independent outcome domain, but cannot rescue the support-limited wild validation or
-  make the wild-flora discovery confirmatory.
+- a separately frozen PolLimCrop agricultural-domain transportability test. Its
+  outcome-blind support gate also stopped before outcome unblinding: H4a missed only
+  the state-0 species minimum (9 < 10), and H4b missed only the low-score species
+  minimum (6 < 8). No crop hypothesis was admitted. The crop domain therefore remains
+  support-limited and cannot rescue the wild validation or make the wild-flora
+  discovery confirmatory.
 
 The prospectively frozen co-primary functional predictions remain:
 autonomous selfing -> lower current pollen limitation, and greater equal-weight

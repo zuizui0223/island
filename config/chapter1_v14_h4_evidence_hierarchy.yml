@@ -1,6 +1,6 @@
 contract: chapter1_v14_h4_evidence_hierarchy_v1
 date: 2026-09-18
-status: v14_candidate_evidence_roles
+status: v14_evidence_roles_with_completed_prospective_support_audit
 
 question: >-
   Are the mechanistically interpretable H2 response families associated with lower
@@ -92,7 +92,27 @@ evidence_layers:
     source_pr: 236
     dataset: PolLimCrop
     outcome_domain_independent_of_v13_GloPL: true
-    status: pending_support_gated_execution
+    status: support_gate_not_met_not_evaluable
+    support_lock: config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json
+    validation_summary_lock: config/chapter1_h4_prospective_validation_summary_lock.json
+    H4a_support:
+      matched_species: 36
+      publications: 109
+      state_0_species: 9
+      state_1_species: 27
+      failed_gate: state_0_species
+      required_min_per_state: 10
+    H4b_support:
+      matched_species: 42
+      publications: 141
+      score_sd: 0.35306311777040034
+      low_score_species: 6
+      high_score_species: 17
+      failed_gate: low_score_species
+      required_min_low_score_species: 8
+    outcomes_unblinded_for_primary_test: false
+    admitted_hypotheses: []
+    interpretation: support_failure_not_transportability_null
     can_rescue_wild_temporal_support_failure: false
     can_make_v13_wild_discovery_confirmatory: false
 
