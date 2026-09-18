@@ -62,6 +62,47 @@
       "support": {
         "n_score_species": 228,
         "n_three_component_species": 28,
+        "score_mean": 0.45124174071542494,
+        "score_sd": 0.38890294260236385,
+        "n_low_score_le_one_third": 84,
+        "n_high_score_ge_two_thirds": 62
+      },
+      "primary": {
+        "estimate": -0.32932085948526735,
+        "se": 0.11770836225394427,
+        "two_sided_p": 0.005145682811813261,
+        "one_sided_negative_p": 0.0025728414059066305,
+        "n_cells": 403,
+        "n_species": 228,
+        "n_publications": 232,
+        "n_sites": 329
+      },
+      "supplemental_only": {
+        "estimate": -0.24989031372235265,
+        "se": 0.11962298207821447,
+        "two_sided_p": 0.036709300338101124,
+        "one_sided_negative_p": 0.018354650169050562,
+        "n_cells": 297,
+        "n_species": 155,
+        "n_publications": 150,
+        "n_sites": 237
+      },
+      "no_zero_constant": {
+        "estimate": -0.3066322176423776,
+        "se": 0.12395195447820043,
+        "two_sided_p": 0.013368489636637889,
+        "one_sided_negative_p": 0.0066842448183189445,
+        "n_cells": 393,
+        "n_species": 223,
+        "n_publications": 230,
+        "n_sites": 326
+      },
+      "classification": "H2_exact_weighted_accessibility_score_supported_in_primary_and_both_measurement_sensitivities"
+    },
+    "accessibility_equal_weight_sensitivity": {
+      "support": {
+        "n_score_species": 228,
+        "n_three_component_species": 28,
         "score_mean": 0.4729532163742689,
         "score_sd": 0.38811825830807795,
         "n_low_score_le_one_third": 86,
@@ -97,10 +138,10 @@
         "n_publications": 230,
         "n_sites": 326
       },
-      "classification": "primary_and_both_measurement_sensitivities_supported"
+      "classification": "prospective_H4b_equal_weight_definition_gives_same_posthoc_discovery_direction"
     }
   },
-  "integrated_classification": "both_H2_family_scores_are_negative_in_primary_GloPL_bridge; accessibility_generalization_is_robust_across_both_measurement_sensitivities; reproductive_assurance_is_less_stable_in_supplemental_only",
+  "integrated_classification": "H2_exact_reproductive_assurance_and_weighted_accessibility_scores_are_both_negative_in_primary_GloPL_bridge; weighted_accessibility_is_supported_in_both_measurement_sensitivities; reproductive_assurance_is_weaker_in_supplemental_only; equal_weight_prospective_H4b_definition_is_concordant",
   "claim_ceiling": {
     "posthoc_discovery": true,
     "prospective_replication": false,
