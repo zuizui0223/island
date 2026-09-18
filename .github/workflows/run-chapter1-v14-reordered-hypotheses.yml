@@ -144,11 +144,13 @@ jobs:
                   .rename(columns={"mean_slope": "equal_domain_orientation"})
               )
               result["scopes"][scope] = {
-                  "H1_all_observed_omnibus": o.to_dict(orient="records"),
-                  "H1_family_means": family.to_dict(orient="records"),
-                  "H1_equal_domain_orientation": orientation.to_dict(orient="records"),
+                  "H1_all_observed_omnibus": json.loads(o.to_json(orient="records")),
+                  "H1_family_means": json.loads(family.to_json(orient="records")),
+                  "H1_equal_domain_orientation": json.loads(
+                      orientation.to_json(orient="records")
+                  ),
                   "H2_summary": h2_summary,
-                  "H2_models": h2.to_dict(orient="records"),
+                  "H2_models": json.loads(h2.to_json(orient="records")),
               }
 
               lines += [f"## {scope}", "", "### H1 seven-response omnibus", "", "CSV:"]
