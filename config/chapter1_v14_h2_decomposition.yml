@@ -47,8 +47,9 @@ primary_H2b_family:
   - generalized_accessible
 multiplicity: >-
   BH-FDR across the eight primary H2b context-by-response distance tests within
-  each evidence scope. attraction_shift is secondary and is not used to rescue
-  either primary endpoint.
+  each evidence scope. Raw colour and raw colour-architecture concordance use their
+  already frozen within-context FDR families and cannot rescue failed primary H2b
+  endpoints.
 
 raw_pollination_syndrome_concordance:
   evidence_source:
