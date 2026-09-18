@@ -52,3 +52,29 @@ def test_v14_manuscript_has_reordered_hypothesis_sections():
     assert "## Claim ceiling for v13" not in text
     assert "seven-response" in text
     assert "plain_colour" in text
+
+
+
+def test_v14_H2_uses_raw_trait_concordance_not_weighted_guild_scores():
+    config = yaml.safe_load(
+        Path("config/chapter1_v14_h2_decomposition.yml").read_text(encoding="utf-8")
+    )
+    raw = config["raw_pollination_syndrome_concordance"]
+    assert raw["role"] == "primary_pollination_syndrome_concordance_layer"
+    assert raw["named_weighted_scores_role"].startswith("historical_secondary")
+    assert "large_bee_like" not in config["continuous_models"]
+    assert "raw_architecture_given_raw_colour_conditional_on_selfing_core" in raw["estimands"]
+
+
+def test_v14_H4_separates_discovery_validation_and_transportability():
+    config = yaml.safe_load(
+        Path("config/chapter1_v14_h4_evidence_hierarchy.yml").read_text(encoding="utf-8")
+    )
+    layers = config["evidence_layers"]
+    assert layers["v13_exact_species_discovery"]["role"] == "posthoc_functional_triangulation"
+    wild = layers["prospective_post2015_wild"]
+    assert wild["status"] == "support_gate_not_met_not_evaluable"
+    assert wild["outcomes_unblinded_for_primary_test"] is False
+    crop = layers["pollimcrop_independent_domain"]
+    assert crop["outcome_domain_independent_of_v13_GloPL"] is True
+    assert config["colour_bridge"]["primary_global_test"] is False
