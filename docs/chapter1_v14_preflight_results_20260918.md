@@ -165,7 +165,26 @@ PR #236 adds two validation layers without relabelling that discovery:
    response mapping and support gates; this is still separate/pending and cannot rescue
    the wild temporal support failure or make v13 H4 confirmatory for wild floras.
 
-The two mechanistically interpretable H4 predictions align with H2:
+The v14 discovery layer now also aligns directly to the two H2 family scores.
+
+- **H2-equivalent reproductive assurance:** at least two of self-compatibility,
+  selfing mating system and autonomous selfing; 470 species, 417 publications,
+  739 cells. Family-score coefficient `beta=-0.31255`, two-sided `p=0.00222`.
+  The no-zero sensitivity remains supported (`beta=-0.31726, p=0.00229`), while
+  supplemental-only remains negative but not supported (`beta=-0.13138, p=0.148`).
+- **H2-exact accessibility/generalization:** generalized form weight 1.0,
+  actinomorphy 0.75 and shallow/open tube 1.0, requiring at least two components;
+  228 species, 232 publications, 403 cells. `beta=-0.32932, p=0.00515`;
+  supplemental-only `beta=-0.24989, p=0.0367`; no-zero
+  `beta=-0.30663, p=0.0134`.
+- The equal-weight accessibility definition subsequently frozen for prospective H4b
+  gives almost the same post-hoc discovery result (`beta=-0.32509, p=0.00636`).
+
+Thus the **same two broad H2 response families that increase with isolation are
+associated with lower current pollen limitation in the post-hoc GloPL discovery layer**.
+Accessibility/generalization is the more measurement-robust family bridge.
+
+The prospective validation predictions remain separately frozen:
 
 - H4a: autonomous selfing -> lower current pollen limitation;
 - H4b: higher equal-weight accessibility/generalization
