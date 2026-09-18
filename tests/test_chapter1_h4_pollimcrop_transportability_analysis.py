@@ -144,10 +144,10 @@ def test_no_support_refuses_before_outcome_read() -> None:
 def test_outcome_reader_uses_frozen_semicolon_comma_locale(tmp_path: Path) -> None:
     path = tmp_path / "pollimcrop.csv"
     path.write_text(
-        "article_code;species;continent;country;locality;experiment_year;"
-        "supplement_type;scale;crop_part;PL_effectsize\n"
-        "study_a;Malus domestica;Europe;Spain;site;2020;H;flower;fruit;0,42\n"
-        "study_b;Prunus avium;Europe;Spain;site;2021;H;flower;fruit;9,99\n",
+        '"article_code;species;continent;country;locality;year_of_the_experiment;'
+        'supplement_type;scale;crop part;PL_effect_size"\n'
+        '"study_a;Malus domestica;Europe;Spain;site;2020;H;flower;fruit;0,42"\n'
+        '"study_b;Prunus avium;Europe;Spain;site;2021;H;flower;fruit;9,99"\n',
         encoding="latin-1",
     )
     preflight = {
@@ -160,7 +160,9 @@ def test_outcome_reader_uses_frozen_semicolon_comma_locale(tmp_path: Path) -> No
             "delimiter": ";",
             "decimal_mark": ",",
             "encoding": "latin-1",
+            "outer_record_wrapping": "full_row_double_quoted_csv_field",
         },
+        "response_mapping": {"response_column": "PL_effect_size"},
     }
     rows = read_outcome_rows(
         path,
