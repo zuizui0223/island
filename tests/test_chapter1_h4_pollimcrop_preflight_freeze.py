@@ -27,9 +27,9 @@ def _base_preflight() -> dict:
             "outcome_values_read": False,
         },
         "validated_expected_scope": {
-            "studies": 294,
-            "experiments": 1169,
-            "crop_species": 108,
+            "studies": 293,
+            "experiments": 1168,
+            "crop_species": 106,
             "countries": 62,
         },
         "source_format": {
@@ -99,6 +99,6 @@ def test_freezer_rejects_response_mapping_hash_mismatch() -> None:
 
 def test_freezer_rejects_scope_mismatch() -> None:
     preflight = _base_preflight()
-    preflight["validated_expected_scope"]["crop_species"] = 107
+    preflight["validated_expected_scope"]["crop_species"] = 105
     with pytest.raises(Exception, match="validated scope mismatch"):
         _freeze(preflight)
