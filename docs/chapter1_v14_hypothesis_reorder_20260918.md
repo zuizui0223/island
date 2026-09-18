@@ -83,9 +83,9 @@ publication-cluster-robust covariance.
 This establishes an independent ecological-pressure pattern. It does not establish
 that pollen limitation mediated H1 or H2.
 
-## H4 — Functional bridge as an evidence hierarchy
+## H4 — Functional bridge
 
-H4 now separates **discovery alignment** from **prospective validation**.
+H4 is a **post-hoc functional bridge**. Prospective validation is not part of the H4 result.
 
 The v13 exact-species atomic-trait comparison remains the original post-hoc discovery
 layer. Autonomous selfing remains its strongest individual bridge.
@@ -107,26 +107,15 @@ H2 scores. The reconstruction produces the same biological direction, including 
 equal-weight accessibility definition that matches the prospectively frozen H4b
 prediction.
 
-PR #236 then provides two validation layers without relabelling either post-hoc
-discovery analysis:
-
-- a prospectively frozen post-2015 wild-plant temporal replication. Its outcome-blind
-  support gate reached only 9 matched species for each co-primary family, below the
-  frozen 30-species/10-publication threshold, so it stopped before outcome unblinding
-  and is not evaluable;
-- a separately frozen PolLimCrop agricultural-domain transportability test. Its
-  outcome-blind support gate also stopped before outcome unblinding: H4a missed only
-  the state-0 species minimum (9 < 10), and H4b missed only the low-score species
-  minimum (6 < 8). No crop hypothesis was admitted. The crop domain therefore remains
-  support-limited and cannot rescue the wild validation or make the wild-flora
-  discovery confirmatory.
-
-The prospectively frozen co-primary functional predictions remain:
-autonomous selfing -> lower current pollen limitation, and greater equal-weight
-accessibility/generalization -> lower current pollen limitation.
-
 No global primary colour bridge is imposed because the H1/H2 colour response is
 context dependent and does not define one globally directional functional prediction.
+
+## Supplementary validation audit — not part of H4
+
+PR #236 prospectively froze a post-2015 wild-plant route and an independent PolLimCrop
+route. Both stopped at outcome-blind support gates before pollen-limitation outcomes
+were opened. These audits are retained only to document that confirmatory evidence is
+still unavailable. They do not enter, upgrade, or downgrade H4.
 
 ## Analysis flow
 
@@ -150,8 +139,6 @@ context dependent and does not define one globally directional functional predic
        literal H2 score -> current pollen limitation
                      +
        atomic reconstruction sensitivity
-                     +
-          prospective support-gated validation
 
 ## Claim ceiling
 
