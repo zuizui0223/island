@@ -1,6 +1,9 @@
 name: Run Chapter 1 v14 reordered hypotheses
 
 on:
+  push:
+    branches:
+      - "feature/chapter1-v14-reordered-hypotheses"
   pull_request:
     paths:
       - "config/chapter1_v14_hypothesis_architecture.yml"
