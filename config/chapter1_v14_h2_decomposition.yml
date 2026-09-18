@@ -34,26 +34,6 @@ continuous_models:
     response: generalized_accessible
     condition_on_selfing_core: true
     role: H2b_accessibility_conditional_on_selfing
-  attraction_shift:
-    response: attraction_shift
-    condition_on_selfing_core: true
-    role: H2b_secondary_attraction_shift
-  large_bee_like:
-    response: large_bee_like
-    condition_on_selfing_core: true
-    role: H2b_secondary_pollination_architecture_concordance
-  butterfly_like:
-    response: butterfly_like
-    condition_on_selfing_core: true
-    role: H2b_secondary_pollination_architecture_concordance
-  bird_like:
-    response: bird_like
-    condition_on_selfing_core: true
-    role: H2b_secondary_pollination_architecture_concordance
-  shared_named_architecture:
-    response: shared_named_architecture
-    condition_on_selfing_core: true
-    role: H2b_secondary_shared_architecture
 
 count_models:
   plain_colour:
@@ -70,8 +50,22 @@ multiplicity: >-
   each evidence scope. attraction_shift is secondary and is not used to rescue
   either primary endpoint.
 
+raw_pollination_syndrome_concordance:
+  evidence_source:
+    raw_colour_run: 35210281545
+    raw_colour_artifact: 10491539130
+    raw_colour_digest: sha256:d30ebbda7f1613373a39a9df9577e1b34cc32cddcd5c39b87719cd512972e263
+    raw_colour_architecture_run: 35216672430
+    raw_colour_architecture_artifact: 10495522252
+    raw_colour_architecture_digest: sha256:8200c982d9a275c3d7db5fc25fa762f08428d51fa637a42c8312b067fdcbe377
+  estimands:
+    - raw_five_colour_composition_conditional_on_selfing_core
+    - raw_colour_x_raw_architecture_joint_prevalence
+    - raw_architecture_given_raw_colour_conditional_on_selfing_core
+  role: primary_pollination_syndrome_concordance_layer
+  named_weighted_scores_role: historical_secondary_only_not_v14_H2_evidence
+
 definitions:
-  attraction_shift: (-large_bee_like + generalized_accessible) / 2
   selfing_core: >-
     reproductive mechanism score using self-incompatibility, mating system and
     autonomous-selfing capacity only; it excludes floral attraction/display traits.
@@ -93,4 +87,5 @@ rules:
   - continuous_scores_use_equal_island_weight
   - missing_score_is_not_zero
   - conditional_decomposition_is_not_mediation
-  - named_pollination_architectures_are_secondary_concordance_only
+  - raw_colour_and_raw_architecture_define_pollination_syndrome_concordance
+  - weighted_named_pollination_scores_do_not_define_v14_H2
