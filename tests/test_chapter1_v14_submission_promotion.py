@@ -67,3 +67,12 @@ def test_reproduction_tolerance_allows_sub_eight_decimal_noise():
     from island_v2.chapter1_v14_submission_promotion import _close
 
     _close(0.123456789, 0.123456795, label="tiny numerical drift")
+
+
+
+def test_probability_tolerance_stays_far_below_decision_scale():
+    from island_v2.chapter1_v14_submission_promotion import P_TOL, VALUE_TOL
+
+    assert VALUE_TOL == 1e-6
+    assert P_TOL == 1e-5
+    assert P_TOL < 0.001
