@@ -78,3 +78,19 @@ def test_v14_H4_separates_discovery_validation_and_transportability():
     crop = layers["pollimcrop_independent_domain"]
     assert crop["outcome_domain_independent_of_v13_GloPL"] is True
     assert config["colour_bridge"]["primary_global_test"] is False
+
+
+
+def test_v14_H4_family_bridge_uses_H2_exact_accessibility_weights():
+    config = yaml.safe_load(
+        Path("config/chapter1_v14_h4_family_bridge.yml").read_text(encoding="utf-8")
+    )
+    access = config["families"]["accessibility_generalization"]
+    assert access["role"] == "H2_exact_family_score"
+    assert access["weights"] == {
+        "generalized_form": 1.0,
+        "actinomorphic_symmetry": 0.75,
+        "shallow_open_tube": 1.0,
+    }
+    sensitivity = config["families"]["accessibility_equal_weight_sensitivity"]
+    assert sensitivity["role"] == "prospective_H4b_definition_sensitivity"
