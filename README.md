@@ -21,7 +21,7 @@
 
 ---
 
-# Island — Chapter 1 v13 paper repository
+## Frozen v13 parent paper surface
 
 This repository's **current publication-facing surface is Chapter 1 v13**. The active paper remains a global-only **H1–H4** synthesis. Earlier Chapter 1 hypothesis ladders, defended submission states and submission-surface audits are historical provenance, not the current scientific spine.
 
