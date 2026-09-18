@@ -156,6 +156,22 @@ def discover_dataset_file(config: dict[str, Any]) -> dict[str, Any]:
     if not candidates:
         raise typer.BadParameter("no downloadable Figshare files found")
     candidates.sort(key=lambda x: (-int(x["score"]), str(x["name"])))
+    typer.echo(
+        json.dumps(
+            {
+                "outcome_blind_figshare_candidates": [
+                    {
+                        "article_id": item["article_id"],
+                        "file_id": item["file_id"],
+                        "name": item["name"],
+                        "score": item["score"],
+                    }
+                    for item in candidates[:20]
+                ]
+            },
+            indent=2,
+        )
+    )
     return candidates[0]
 
 
