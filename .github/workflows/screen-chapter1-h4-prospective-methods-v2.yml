@@ -1,0 +1,97 @@
+name: Screen Chapter 1 H4 prospective Methods v2
+
+concurrency:
+  group: h4-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [feature/h4-prospective-temporal-replication]
+    paths:
+      - "config/chapter1_h4_prospective_methods_preflight_v2.yml"
+      - "config/chapter1_h4_prospective_outcome_exposure_exclusion_lock_v1.yml"
+      - "scripts/screen_chapter1_h4_prospective_methods_v2.py"
+      - "tests/test_chapter1_h4_prospective_methods_v2.py"
+      - "scripts/audit_chapter1_h4_methods_v2_support.py"
+      - "tests/test_chapter1_h4_methods_v2_support.py"
+      - ".github/workflows/screen-chapter1-h4-prospective-methods-v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      META_ARTIFACT_ID: "10527672011"
+      META_ARTIFACT_SHA256: "80b549d883ec1b43d03232a00609c8711c3171f1bafc5424acdc7ff1dfd77a60"
+      TRAIT_ARTIFACT_ID: "10527906374"
+      TRAIT_ARTIFACT_SHA256: "a3e96eaf78dcd98196a7e017a12191ac2d817b9d9ec39362f9e65604c06b4d08"
+      ROOT: /tmp/chapter1-h4-methods-v2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate v2 outcome-blind screen
+        run: |
+          pytest -q tests/test_chapter1_h4_prospective_methods_v2.py tests/test_chapter1_h4_methods_v2_support.py
+          ruff check \
+            scripts/screen_chapter1_h4_prospective_methods_v2.py \
+            scripts/audit_chapter1_h4_methods_v2_support.py \
+            tests/test_chapter1_h4_prospective_methods_v2.py \
+            tests/test_chapter1_h4_methods_v2_support.py
+
+      - name: Download frozen outcome-blind artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT/meta" "$ROOT/traits" "$ROOT/out"
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${META_ARTIFACT_ID}/zip" \
+            > "$ROOT/meta.zip"
+          echo "$META_ARTIFACT_SHA256  $ROOT/meta.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/meta.zip" -d "$ROOT/meta"
+
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${TRAIT_ARTIFACT_ID}/zip" \
+            > "$ROOT/traits.zip"
+          echo "$TRAIT_ARTIFACT_SHA256  $ROOT/traits.zip" | sha256sum --check --strict
+          unzip -q "$ROOT/traits.zip" -d "$ROOT/traits"
+
+      - name: Run final-cohort Methods v2 screen
+        run: |
+          python scripts/screen_chapter1_h4_prospective_methods_v2.py \
+            --metadata-csv "$ROOT/meta/post2015_h4_metadata_candidates.csv" \
+            --trait-states-csv "$ROOT/traits/prospective_h4_frozen_trait_states.csv" \
+            --config-path config/chapter1_h4_prospective_methods_preflight_v2.yml \
+            --exclusion-lock-path config/chapter1_h4_prospective_outcome_exposure_exclusion_lock_v1.yml \
+            --output-csv "$ROOT/out/methods_v2_screen.csv"
+
+      - name: Audit frozen H4 support without outcomes
+        run: |
+          python scripts/audit_chapter1_h4_methods_v2_support.py \
+            --methods-csv "$ROOT/out/methods_v2_screen.csv" \
+            --trait-states-csv "$ROOT/traits/prospective_h4_frozen_trait_states.csv" \
+            --contract-path config/chapter1_h4_prospective_temporal_replication_v1.yml \
+            --output-json "$ROOT/out/methods_v2_support_audit.json"
+
+      - name: Hash v2 outcome-blind output
+        run: |
+          sha256sum \
+            "$ROOT/out/methods_v2_screen.csv" \
+            "$ROOT/out/methods_v2_support_audit.json" \
+            > "$ROOT/out/file_manifest.sha256"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-h4-methods-v2-${{ github.run_id }}
+          path: /tmp/chapter1-h4-methods-v2/out
+          if-no-files-found: error
+          retention-days: 30
