@@ -34,7 +34,7 @@ are reproduced and locked.
 
 ---
 
-# Chapter 1 v13 paper pipeline
+## Frozen v13 parent paper pipeline
 
 This document is the shortest reproducibility map for the **current v13 global-only H1–H4 submission**. Pre-v13 hypothesis ladders, mechanism branches and defended submission surfaces are historical provenance and are archived/indexed from the active paper interface under `legacy/chapter1-pre-v13/`.
 
