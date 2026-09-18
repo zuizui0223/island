@@ -24,20 +24,20 @@
         "n_sites": 575
       },
       "supplemental_only": {
-        "estimate": -0.09862706898183135,
-        "se": 0.09360077714040721,
-        "two_sided_p": 0.29202063091584557,
-        "one_sided_negative_p": 0.14601031545792278,
+        "estimate": -0.09462457192808754,
+        "se": 0.09383414173262819,
+        "two_sided_p": 0.3132511023834126,
+        "one_sided_negative_p": 0.1566255511917063,
         "n_cells": 501,
         "n_species": 283,
         "n_publications": 241,
         "n_sites": 379
       },
       "no_zero_constant": {
-        "estimate": -0.29989775185111844,
-        "se": 0.10524261619423536,
-        "two_sided_p": 0.0043776344227836,
-        "one_sided_negative_p": 0.0021888172113918,
+        "estimate": -0.29968042317843296,
+        "se": 0.10419647689584303,
+        "two_sided_p": 0.00402610677021115,
+        "one_sided_negative_p": 0.002013053385105575,
         "n_cells": 723,
         "n_species": 453,
         "n_publications": 408,
@@ -68,20 +68,20 @@
         "n_sites": 156
       },
       "no_zero_constant": {
-        "estimate": -0.26494151197683363,
-        "se": 0.14352397958003207,
-        "two_sided_p": 0.06489600366952121,
-        "one_sided_negative_p": 0.032448001834760605,
+        "estimate": -0.30398621030524003,
+        "se": 0.1303736994371067,
+        "two_sided_p": 0.019718960134721204,
+        "one_sided_negative_p": 0.009859480067360602,
         "n_cells": 255,
         "n_species": 142,
         "n_publications": 142,
         "n_sites": 208
       },
-      "classification": "exact_H2_generalized_accessible_bridge_supported_primary_and_supplemental_two_sided; no_zero_retains_negative_direction_and_one_sided_support"
+      "classification": "exact_H2_generalized_accessible_bridge_supported_primary_and_both_measurement_sensitivities"
     }
   },
   "reconstruction_sensitivity_lock": "config/chapter1_v14_h4_family_bridge_preflight_result_lock.json",
-  "integrated_classification": "both_exact_H2_species_scores_are_negative_and_supported_in_primary_GloPL_bridge; accessibility_generalization_remains_negative_in_both_measurement_sensitivities; reconstructed_atomic_family_scores_are_concordant",
+  "integrated_classification": "both_exact_H2_species_scores_are_negative_and_supported_in_primary_GloPL_bridge; generalized_accessible_is_supported_in_both_measurement_sensitivities; selfing_core_is_supported_in_no_zero_and_negative_but_not_supported_in_supplemental_only; reconstructed_atomic_family_scores_are_concordant",
   "claim_ceiling": {
     "posthoc_discovery": true,
     "prospective_replication": false,
