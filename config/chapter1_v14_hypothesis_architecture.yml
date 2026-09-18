@@ -118,7 +118,13 @@ hypotheses:
         source_pr: 236
       independent_crop_domain:
         role: prospectively_frozen_transportability_test
-        status: pending_support_gated_execution_in_PR236
+        status: support_gate_not_met_not_evaluable
+        support_lock: config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json
+        validation_summary_lock: config/chapter1_h4_prospective_validation_summary_lock.json
+        outcomes_unblinded: false
+        admitted_hypotheses: []
+        H4a_failed_gate: state_0_species_9_lt_10
+        H4b_failed_gate: low_score_species_6_lt_8
         can_rescue_wild_temporal_failure: false
     co_primary_functional_predictions:
       reproductive_assurance: autonomous_selfing_predicts_lower_current_pollen_limitation
