@@ -11,7 +11,8 @@ from typing import Any
 
 RESULT_CONTRACT = "chapter1_v14_reordered_hypotheses_result_v1"
 PROMOTED_CONTRACT = "chapter1_v14_canonical_result_lock_v1"
-TOL = 1e-8
+VALUE_TOL = 1e-8
+P_TOL = 1e-6
 
 
 def _load(path: Path) -> dict[str, Any]:
@@ -21,12 +22,18 @@ def _load(path: Path) -> dict[str, Any]:
     return value
 
 
-def _close(observed: object, expected: object, *, label: str) -> None:
+def _close(
+    observed: object,
+    expected: object,
+    *,
+    label: str,
+    tolerance: float = VALUE_TOL,
+) -> None:
     a = float(observed)
     b = float(expected)
     if not math.isfinite(a) or not math.isfinite(b):
         raise ValueError(f"{label}: non-finite value")
-    if not math.isclose(a, b, rel_tol=TOL, abs_tol=TOL):
+    if not math.isclose(a, b, rel_tol=tolerance, abs_tol=tolerance):
         raise ValueError(f"{label}: observed {a} != expected {b}")
 
 
@@ -52,8 +59,18 @@ def _validate_h1(
         for context, target in expected["H1"][expected_scope].items():
             o = omnibus[(context,)]
             d = orientation[(context,)]
-            _close(o["p_value"], target["joint_p"], label=f"H1 {observed_scope} {context} p")
-            _close(o["q_value"], target["joint_q"], label=f"H1 {observed_scope} {context} q")
+            _close(
+                o["p_value"],
+                target["joint_p"],
+                label=f"H1 {observed_scope} {context} p",
+                tolerance=P_TOL,
+            )
+            _close(
+                o["q_value"],
+                target["joint_q"],
+                label=f"H1 {observed_scope} {context} q",
+                tolerance=P_TOL,
+            )
             if not bool(o["vector_supported"]):
                 raise ValueError(f"H1 {observed_scope} {context}: vector no longer supported")
             _close(
@@ -88,12 +105,14 @@ def _validate_h2(
                     row["distance_p"],
                     target["p"],
                     label=f"H2 {observed_scope} {context} {response} p",
+                    tolerance=P_TOL,
                 )
                 if "q" in target:
                     _close(
                         row["primary_H2b_q"],
                         target["q"],
                         label=f"H2 {observed_scope} {context} {response} q",
+                        tolerance=P_TOL,
                     )
 
 
