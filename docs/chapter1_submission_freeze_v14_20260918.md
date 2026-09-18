@@ -129,12 +129,21 @@ PR #236 remains separate:
   each co-primary family versus a 30-species minimum);
 - this is support insufficiency, not a biological null;
 - the separately frozen PolLimCrop test is an independent agricultural-domain
-  transportability analysis and cannot rescue the wild support failure or make the
-  post-hoc wild discovery confirmatory.
+  transportability attempt whose outcome-blind support gate also failed: H4a had
+  36 matched species / 109 publications but 9 state-0 species versus the required 10;
+  H4b had 42 matched species / 141 publications but 6 low-score species versus the
+  required 8;
+- no PolLimCrop hypothesis was admitted, crop outcomes remained unopened, and this is
+  support insufficiency rather than a transportability null;
+- neither prospective route can rescue the other or make the post-hoc wild discovery
+  confirmatory.
 
 No global primary colour-to-pollen-limitation bridge is promoted because the H1/H2
 colour response is context dependent and does not define one globally directional
 functional prediction.
+
+Post-canonical prospective audit lock:
+`config/chapter1_h4_prospective_validation_summary_lock.json`.
 
 ## Claim ceiling
 
