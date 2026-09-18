@@ -6,7 +6,7 @@
 > 1. **H1 — global floral/reproductive island syndrome:** reproductive assurance + plain colour + accessible/generalized floral structure.
 > 2. **H2 — floral-shift decomposition:** selfing-syndrome/reproductive-assurance route versus selfing-adjusted pollinator-facing colour/accessibility route, with pollination-syndrome concordance tested from raw colour × raw form/tube coupling rather than weighted guild scores.
 > 3. **H3 — independent global pollen limitation:** the frozen GloPL isolation analysis, formerly v13 H2.
-> 4. **H4 — functional bridge:** the v13 exact-species post-hoc discovery is retained, v14 adds H2-family-aligned post-hoc bridges, and PR #236 supplies separate prospective validation layers.
+> 4. **H4 — tiered functional bridge:** the v13 atomic-trait discovery is retained; v14 adds a literal exact-H2-species-score bridge (`selfing_core`, `generalized_accessible`), keeps atomic family reconstruction as a sensitivity, and PR #236 supplies separate prospective validation layers.
 >
 > H1 is refit as a seven-response beta-binomial multivariate analysis. H2 explicitly
 > conditions colour and accessibility responses on selfing_core. The detailed design
@@ -16,7 +16,8 @@
 >
 > v14 manuscript candidate: [docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md](docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md)
 > H4 evidence roles: [config/chapter1_v14_h4_evidence_hierarchy.yml](config/chapter1_v14_h4_evidence_hierarchy.yml)
-> H4 family bridge: [config/chapter1_v14_h4_family_bridge.yml](config/chapter1_v14_h4_family_bridge.yml)
+> H4 exact H2-score bridge: [config/chapter1_v14_h4_exact_h2_score_bridge.yml](config/chapter1_v14_h4_exact_h2_score_bridge.yml)
+> H4 atomic reconstruction sensitivity: [config/chapter1_v14_h4_family_bridge.yml](config/chapter1_v14_h4_family_bridge.yml)
 >
 > **v13 remains immutable historical/submission provenance until the v14 CI artifact is
 > reproduced and locked.**
