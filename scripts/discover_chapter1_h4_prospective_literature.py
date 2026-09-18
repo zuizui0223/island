@@ -10,6 +10,7 @@ from __future__ import annotations
 import csv
 import json
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -32,10 +33,22 @@ END = "2026-09-18"
 def _get_json(url: str) -> dict:
     request = urllib.request.Request(
         url,
-        headers={"User-Agent": "island-h4-prospective-metadata/1.0"},
+        headers={
+            "User-Agent": "island-h4-prospective-metadata/1.0",
+            "mailto": "metadata-only",
+        },
     )
-    with urllib.request.urlopen(request, timeout=60) as response:  # noqa: S310
-        return json.loads(response.read().decode("utf-8"))
+    for attempt in range(7):
+        try:
+            with urllib.request.urlopen(request, timeout=60) as response:  # noqa: S310
+                return json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            if exc.code != 429 or attempt == 6:
+                raise
+            retry_after = exc.headers.get("Retry-After")
+            delay = float(retry_after) if retry_after and retry_after.isdigit() else min(30.0, 2.0 ** attempt)
+            time.sleep(delay)
+    raise RuntimeError("unreachable metadata retry loop")
 
 
 def _doi(value: object) -> str:
@@ -87,7 +100,7 @@ def discover_openalex(max_per_query: int) -> list[dict[str, str]]:
             cursor = str(payload.get("meta", {}).get("next_cursor", "") or "")
             if not cursor:
                 break
-            time.sleep(0.2)
+            time.sleep(0.5)
     return rows
 
 
