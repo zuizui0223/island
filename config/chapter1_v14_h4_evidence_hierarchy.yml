@@ -69,15 +69,12 @@ colour_bridge:
 
 rules:
   - keep_v13_discovery_posthoc
-  - support_failure_is_not_biological_null
-  - external_domain_transportability_is_not_wild_temporal_replication
   - H4_does_not_establish_historical_mediation
   - do_not_add_global_colour_bridge_without_directional_functional_prediction
 
 claim_ceiling:
   historical_pollen_limitation_selected_traits: false
   pollen_limitation_mediates_global_syndrome: false
-  prospective_wild_replication_supported: false
   named_pollinator_mechanism_identified: false
 
 validation_audit:
@@ -91,6 +88,11 @@ validation_audit:
     status: support_gate_not_met_not_evaluable
     outcomes_unblinded: false
     admitted_hypotheses: []
+  rules:
+    - support_failure_is_not_biological_null
+    - external_domain_transportability_is_not_wild_temporal_replication
+    - threshold_relaxation_not_authorized
+  prospective_wild_replication_supported: false
   interpretation: >-
     The prospective attempts are retained for transparency about the confirmatory
     evidence boundary. They do not alter, promote, downgrade, or enter the H4 result.
