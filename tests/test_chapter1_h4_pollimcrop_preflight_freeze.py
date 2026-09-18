@@ -76,6 +76,7 @@ def test_freezer_authorizes_only_support_admitted_hypothesis() -> None:
         "H4b_accessibility_generalization"
     ]
     assert result["decision"]["outcome_extraction_authorized"] is True
+    assert result["outcomes_read"] is False
     assert result["blinding"]["preflight_outcomes_read"] is False
 
 
