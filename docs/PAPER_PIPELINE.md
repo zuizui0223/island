@@ -15,20 +15,23 @@ while leaving frozen v13 GloPL and functional-bridge estimates intact.
     H3  independent pollen-limitation gradient (GloPL)
           |
           v
-    H4  tiered functional bridge
+    H4  post-hoc functional bridge
         individual-trait discovery
         + literal H2 species-score discovery
         + atomic reconstruction sensitivity
-        + prospective validation layers
-          (wild + PolLimCrop both support-limited before outcome unblinding)
+
+    Supplementary validation audit
+        wild + PolLimCrop support-limited before outcome unblinding
+        (not part of H4 result)
 
 H1 is now a seven-response beta-binomial multivariate test. H2 uses selfing_core as
 the reproductive mechanism covariate and tests plain_colour and
 generalized_accessible conditionally. Pollination-syndrome concordance is carried by
 the frozen raw five-colour and raw colour-conditioned form/tube analyses; weighted
-bee/butterfly/bird scores are historical secondary summaries only. H4 first bridges
-the literal Direct-only H2 species scores to GloPL; atomic family reconstruction is a
-separate post-hoc sensitivity.
+bee/butterfly/bird scores are historical secondary summaries only. H4 bridges the
+literal Direct-only H2 species scores to GloPL, with atomic family reconstruction as a
+post-hoc sensitivity. The prospective wild and PolLimCrop work is retained only as a
+supplementary validation audit and does not enter the H4 result.
 
 See:
 - docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md
