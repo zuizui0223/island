@@ -1,3 +1,4 @@
+# Support-lock retrigger after single-writer cleanup; no scientific protocol change.
 
 concurrency:
   group: h4-pollimcrop-v2-${{ github.ref }}
