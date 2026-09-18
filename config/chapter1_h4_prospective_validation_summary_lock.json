@@ -1,0 +1,96 @@
+{
+  "contract": "chapter1_h4_prospective_validation_summary_lock_v1",
+  "date": "2026-09-18",
+  "status": "prospective_validation_support_gates_not_met",
+  "inferential_role": "prospective_validation_support_audit",
+  "wild_temporal": {
+    "source_lock": "config/chapter1_h4_prospective_temporal_support_decision_lock.json",
+    "status": "support_gate_not_met_not_evaluable",
+    "H4a_reproductive_assurance": {
+      "matched_species": 9,
+      "publications": 6,
+      "state_0_species": 7,
+      "state_1_species": 2,
+      "required_min_species_total": 30,
+      "required_min_species_per_state": 10,
+      "required_min_publications_total": 10
+    },
+    "H4b_accessibility_generalization": {
+      "matched_species": 9,
+      "publications": 4,
+      "score_sd": 0.3333333333,
+      "low_score_species": 2,
+      "high_score_species": 2,
+      "required_min_species_total": 30,
+      "required_min_publications_total": 10,
+      "required_min_low_score_species": 8,
+      "required_min_high_score_species": 8
+    },
+    "outcome_extraction_authorized": false,
+    "outcomes_read": false,
+    "interpretation": "support_insufficiency_not_biological_null"
+  },
+  "crop_transportability": {
+    "source_lock": "config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json",
+    "workflow_run_id": 35321086066,
+    "preflight_artifact_id": 10537266362,
+    "status": "support_gate_not_met_not_evaluable",
+    "source_scope": {
+      "locked_csv_experiments": 1168,
+      "locked_csv_studies": 293,
+      "locked_csv_crop_species": 106,
+      "locked_csv_countries": 62,
+      "published_descriptor_experiments": 1169,
+      "published_descriptor_studies": 294,
+      "published_descriptor_crop_species": 108,
+      "published_descriptor_countries": 62,
+      "source_scope_discrepancy_retained": true
+    },
+    "H4a_reproductive_assurance": {
+      "matched_species_total": 36,
+      "publications_total": 109,
+      "species_state_0": 9,
+      "species_state_1": 27,
+      "required_min_species_total": 30,
+      "required_min_species_per_state": 10,
+      "required_min_publications_total": 10,
+      "failed_gate": "species_state_0"
+    },
+    "H4b_accessibility_generalization": {
+      "matched_species_total": 42,
+      "publications_total": 141,
+      "score_sd": 0.35306311777040034,
+      "low_score_species": 6,
+      "high_score_species": 17,
+      "required_min_species_total": 30,
+      "required_min_publications_total": 10,
+      "required_min_score_sd": 0.1,
+      "required_min_low_score_species": 8,
+      "required_min_high_score_species": 8,
+      "failed_gate": "low_score_species"
+    },
+    "admitted_hypotheses": [],
+    "outcome_extraction_authorized": false,
+    "outcomes_read": false,
+    "transportability_workflow_run_id": 35321319394,
+    "transportability_workflow_conclusion": "success_support_gate_only",
+    "interpretation": "support_insufficiency_not_transportability_null"
+  },
+  "integrated_decision": {
+    "confirmatory_wild_replication_available": false,
+    "independent_crop_transportability_test_evaluable": false,
+    "any_prospective_outcome_unblinded": false,
+    "threshold_relaxation_authorized": false,
+    "existing_posthoc_H4_discovery_reclassified_as_confirmatory": false,
+    "biological_null_inferred": false,
+    "interpretation": "Both prospective validation routes stopped at predeclared outcome-blind support gates. This defines the evidence boundary; it does not test the biological effect direction."
+  },
+  "claim_ceiling": {
+    "may_report_two_support_limited_validation_attempts": true,
+    "may_report_outcomes_remained_unopened": true,
+    "may_call_either_support_failure_a_biological_null": false,
+    "may_call_existing_H4_confirmatory": false,
+    "may_claim_historical_selection": false,
+    "may_claim_mediation": false
+  }
+}
