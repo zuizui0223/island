@@ -40,6 +40,7 @@ def build_family_scores(
     components: list[str],
     score_name: str,
     minimum_components: int,
+    weights: dict[str, float] | None = None,
 ) -> pd.DataFrame:
     required = {"species_key", "trait", "trait_state"}
     if missing := required - set(preflight_rows.columns):
@@ -66,7 +67,19 @@ def build_family_scores(
         .reindex(columns=components)
     )
     wide["n_components"] = wide[components].notna().sum(axis=1)
-    wide[score_name] = wide[components].mean(axis=1, skipna=True)
+    score_weights = {
+        component: float((weights or {}).get(component, 1.0))
+        for component in components
+    }
+    numerator = sum(
+        wide[component].fillna(0.0) * score_weights[component]
+        for component in components
+    )
+    denominator = sum(
+        wide[component].notna().astype(float) * score_weights[component]
+        for component in components
+    )
+    wide[score_name] = numerator / denominator
     wide = wide.loc[wide["n_components"].ge(int(minimum_components))].copy()
     return wide.reset_index()
 
@@ -202,6 +215,10 @@ def analyse_family(
         components=components,
         score_name=score_name,
         minimum_components=minimum_components,
+        weights={
+            str(k): float(v)
+            for k, v in family_config.get("weights", {}).items()
+        },
     )
     outcomes = unique_effect_rows(matched_effect_rows)
     cells = aggregate_family_cells(
@@ -234,6 +251,11 @@ def analyse_family(
         "family": family,
         "score_name": score_name,
         "components": components,
+        "weights": {
+            str(k): float(v)
+            for k, v in family_config.get("weights", {}).items()
+        },
+        "role": str(family_config.get("role", "family_score")),
         "minimum_components": minimum_components,
         "n_score_species": int(len(scores)),
         "n_three_component_species": int(scores["n_components"].eq(len(components)).sum()),
