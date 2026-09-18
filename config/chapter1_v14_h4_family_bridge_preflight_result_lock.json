@@ -1,0 +1,111 @@
+{
+  "contract": "chapter1_v14_h4_family_bridge_preflight_result_lock_v1",
+  "date": "2026-09-18",
+  "status": "local_parent_artifact_reproduction_pending_ci",
+  "canonical": false,
+  "inferential_role": "posthoc_family_aligned_functional_triangulation",
+  "parent_artifacts": {
+    "reproductive_assurance": {
+      "workflow_run_id": 35093274622,
+      "artifact_id": 10444749163,
+      "artifact_digest": "sha256:317221b0315137d2cfc0591d9f6f146c6956106d50d8a5b1dc782096bab55da9"
+    },
+    "floral_architecture": {
+      "workflow_run_id": 35094588521,
+      "artifact_id": 10445189257,
+      "artifact_digest": "sha256:ef81551d41cc747b07e927b9a5c4f13eaf0fc013a5cf8ac3fb1a5491aadec8c4"
+    }
+  },
+  "families": {
+    "reproductive_assurance": {
+      "support": {
+        "n_score_species": 470,
+        "n_three_component_species": 51,
+        "score_mean": 0.3698581560283688,
+        "score_sd": 0.390180015098583,
+        "n_low_score_le_one_third": 233,
+        "n_high_score_ge_two_thirds": 104
+      },
+      "primary": {
+        "estimate": -0.3125493709156215,
+        "se": 0.10217685565987752,
+        "two_sided_p": 0.0022214702949586752,
+        "one_sided_negative_p": 0.0011107351474793376,
+        "n_cells": 739,
+        "n_species": 470,
+        "n_publications": 417,
+        "n_sites": 572
+      },
+      "supplemental_only": {
+        "estimate": -0.1313800277732678,
+        "se": 0.09078011227866617,
+        "two_sided_p": 0.14783151183776336,
+        "one_sided_negative_p": 0.07391575591888168,
+        "n_cells": 496,
+        "n_species": 291,
+        "n_publications": 244,
+        "n_sites": 372
+      },
+      "no_zero_constant": {
+        "estimate": -0.3172642359131965,
+        "se": 0.10402206113101034,
+        "two_sided_p": 0.0022886371211373775,
+        "one_sided_negative_p": 0.0011443185605686888,
+        "n_cells": 726,
+        "n_species": 466,
+        "n_publications": 415,
+        "n_sites": 569
+      },
+      "classification": "primary_and_no_zero_supported; supplemental_only_direction_negative_but_not_supported"
+    },
+    "accessibility_generalization": {
+      "support": {
+        "n_score_species": 228,
+        "n_three_component_species": 28,
+        "score_mean": 0.4729532163742689,
+        "score_sd": 0.38811825830807795,
+        "n_low_score_le_one_third": 86,
+        "n_high_score_ge_two_thirds": 71
+      },
+      "primary": {
+        "estimate": -0.32508511465279266,
+        "se": 0.11913039153714822,
+        "two_sided_p": 0.006356184144918508,
+        "one_sided_negative_p": 0.003178092072459254,
+        "n_cells": 403,
+        "n_species": 228,
+        "n_publications": 232,
+        "n_sites": 329
+      },
+      "supplemental_only": {
+        "estimate": -0.25181959717073654,
+        "se": 0.1195909346424118,
+        "two_sided_p": 0.035232624952764226,
+        "one_sided_negative_p": 0.017616312476382113,
+        "n_cells": 297,
+        "n_species": 155,
+        "n_publications": 150,
+        "n_sites": 237
+      },
+      "no_zero_constant": {
+        "estimate": -0.30250152973233124,
+        "se": 0.12520038068372977,
+        "two_sided_p": 0.015686069514792657,
+        "one_sided_negative_p": 0.007843034757396328,
+        "n_cells": 393,
+        "n_species": 223,
+        "n_publications": 230,
+        "n_sites": 326
+      },
+      "classification": "primary_and_both_measurement_sensitivities_supported"
+    }
+  },
+  "integrated_classification": "both_H2_family_scores_are_negative_in_primary_GloPL_bridge; accessibility_generalization_is_robust_across_both_measurement_sensitivities; reproductive_assurance_is_less_stable_in_supplemental_only",
+  "claim_ceiling": {
+    "posthoc_discovery": true,
+    "prospective_replication": false,
+    "historical_selection_identified": false,
+    "mediation_identified": false,
+    "colour_bridge_promoted": false
+  }
+}
