@@ -5,7 +5,8 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  pull_request:
+  push:
+    branches: [feature/h4-prospective-temporal-replication]
     paths:
       - "scripts/discover_chapter1_h4_prospective_literature.py"
       - ".github/workflows/discover-chapter1-h4-prospective-literature.yml"

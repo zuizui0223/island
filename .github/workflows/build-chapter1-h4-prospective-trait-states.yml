@@ -5,7 +5,8 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  pull_request:
+  push:
+    branches: [feature/h4-prospective-temporal-replication]
     paths:
       - "scripts/build_chapter1_h4_prospective_trait_states.py"
       - ".github/workflows/build-chapter1-h4-prospective-trait-states.yml"

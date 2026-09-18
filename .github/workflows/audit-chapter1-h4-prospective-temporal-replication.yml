@@ -5,7 +5,8 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  pull_request:
+  push:
+    branches: [feature/h4-prospective-temporal-replication]
     paths:
       - "config/chapter1_h4_prospective_temporal_replication_v1.yml"
       - "src/island_v2/chapter1_h4_prospective_temporal_replication.py"

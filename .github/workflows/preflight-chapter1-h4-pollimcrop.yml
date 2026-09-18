@@ -15,15 +15,6 @@ on:
       - "src/island_v2/chapter1_h4_pollimcrop_transportability.py"
       - "tests/test_chapter1_h4_pollimcrop_transportability_analysis.py"
       - ".github/workflows/preflight-chapter1-h4-pollimcrop.yml"
-  pull_request:
-    paths:
-      - "config/chapter1_h4_pollimcrop_transportability_preflight_v1.yml"
-      - "scripts/preflight_chapter1_h4_pollimcrop_transportability.py"
-      - "tests/test_chapter1_h4_pollimcrop_transportability.py"
-      - "config/chapter1_h4_pollimcrop_response_mapping_v1.yml"
-      - "src/island_v2/chapter1_h4_pollimcrop_transportability.py"
-      - "tests/test_chapter1_h4_pollimcrop_transportability_analysis.py"
-      - ".github/workflows/preflight-chapter1-h4-pollimcrop.yml"
   workflow_dispatch:
 
 permissions:

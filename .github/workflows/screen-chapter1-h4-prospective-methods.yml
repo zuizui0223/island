@@ -5,7 +5,8 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  pull_request:
+  push:
+    branches: [feature/h4-prospective-temporal-replication]
     paths:
       - "config/chapter1_h4_prospective_methods_preflight_v1.yml"
       - "scripts/screen_chapter1_h4_prospective_methods.py"

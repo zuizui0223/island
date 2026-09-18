@@ -5,7 +5,8 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  pull_request:
+  push:
+    branches: [feature/h4-prospective-temporal-replication]
     paths:
       - "scripts/pilot_chapter1_h4_title_strict_methods.py"
       - ".github/workflows/pilot-chapter1-h4-title-strict-methods.yml"
