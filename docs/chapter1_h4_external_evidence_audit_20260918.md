@@ -77,7 +77,35 @@ but they were not prospectively selected as the present validation cohort and ma
 historically with studies later incorporated into GloPL. They therefore remain
 **prior/external concordance**, not the new confirmatory replication.
 
-### 3.3 PolLimCrop — independent outcome domain
+### 3.3 Post-GloPL wild-plant extension — independent literature search, but support ceiling too small
+
+Rosenheim et al. (2024, *Ecology and Evolution*, DOI 10.1002/ece3.10911) is the
+most relevant published wild-plant extension located in this audit. The authors began
+from GloPL and independently extended the literature search from the end of the GloPL
+review through 26 February 2021, excluded crop plants, and restricted the analysis to
+whole-plant pollen supplementation.
+
+Crucially, the published article states that the **entire** comparative dataset contains
+only **41 populations from 18 species**. The frozen prospective H4 gate requires at least
+30 matched species before H4a or H4b outcomes may be opened. Therefore even the impossible
+best case in which every Rosenheim species had complete frozen H4 trait data would still
+fail the species-support gate.
+
+This source is consequently classified **outcome-blind support-ineligible by published
+sample-size upper bound** for the present confirmatory test. Its supplementary Data S1 is
+not needed for admission and is not opened for the prospective H4 analysis. Published
+article-level results are treated only as external literature context, not as our
+prospective validation result.
+
+### 3.4 2025 global threatened-plant meta-analysis — GloPL reuse, not an independent outcome cohort
+
+The 2025 *Nature Communications* analysis (DOI 10.1038/s41467-025-61032-5) explicitly
+uses the GloPL database accessed in 2019 (2,969 source experiments before its own
+filtering). Its 2,633 analysed experiments therefore do not provide a temporally
+independent pollen-limitation outcome cohort for v13 H4. It remains published
+corroboration of trait–pollen-limitation relationships, not prospective replication.
+
+### 3.5 PolLimCrop — independent outcome domain
 
 PolLimCrop (Siopa et al. 2023, Scientific Data,
 DOI 10.1038/s41597-023-02797-6) contains a distinct agricultural
