@@ -11,6 +11,7 @@ v13 H4 discovery confirmatory for wild floras.
 
 from __future__ import annotations
 
+import csv
 import hashlib
 import json
 import math
@@ -106,13 +107,34 @@ def exact_binomial(value: object) -> str:
     return f"{genus} {epithet}"
 
 
+def admitted_species_for_outcome_read(
+    trait_states: pd.DataFrame,
+    parent_contract: dict[str, Any],
+    preflight: dict[str, Any],
+) -> set[str]:
+    """Return only species belonging to hypotheses that passed frozen support gates."""
+
+    admitted = require_support_before_outcome_read(preflight)
+    frozen = prepare_frozen_trait_states(trait_states, parent_contract)
+    mask = pd.Series(False, index=frozen.index)
+    if "H4a_reproductive_assurance" in admitted:
+        mask |= frozen["autonomous_selfing"].notna()
+    if "H4b_accessibility_generalization" in admitted:
+        mask |= frozen["accessibility_generalization_score"].notna()
+    return set(frozen.loc[mask, "accepted_species"].astype(str))
+
+
 def read_outcome_rows(
     dataset_csv: Path,
     preflight: dict[str, Any],
+    *,
+    allowed_species: set[str],
 ) -> pd.DataFrame:
-    """Read PL_effectsize only after support admission and source-hash verification."""
+    """Parse PL_effectsize only for species admitted by frozen support gates."""
 
     require_support_before_outcome_read(preflight)
+    if not allowed_species:
+        raise typer.BadParameter("no admitted frozen species available for outcome read")
     expected_sha = str(preflight.get("figshare", {}).get("csv_sha256", ""))
     if not expected_sha:
         raise typer.BadParameter("preflight is missing the frozen PolLimCrop CSV SHA-256")
@@ -122,23 +144,40 @@ def read_outcome_rows(
             f"PolLimCrop CSV SHA-256 mismatch: expected {expected_sha}, observed {observed_sha}"
         )
 
-    header = pd.read_csv(dataset_csv, nrows=0)
     required = set(GRAIN) | {"PL_effectsize"}
-    if missing := required - set(header.columns):
-        raise typer.BadParameter(f"PolLimCrop outcome schema missing columns: {sorted(missing)}")
-    rows = pd.read_csv(dataset_csv, usecols=list(required)).fillna("")
-    rows["PL_effectsize"] = pd.to_numeric(rows["PL_effectsize"], errors="coerce")
-    rows["experiment_year"] = pd.to_numeric(rows["experiment_year"], errors="coerce")
-    rows = rows.loc[
-        np.isfinite(rows["PL_effectsize"].to_numpy(float))
-        & np.isfinite(rows["experiment_year"].to_numpy(float))
-    ].copy()
-    rows["accepted_species"] = rows["species"].map(exact_binomial)
-    rows = rows.loc[
-        rows["accepted_species"].ne("")
-        & rows["article_code"].astype(str).str.strip().ne("")
-    ].copy()
-    return rows.reset_index(drop=True)
+    selected: list[dict[str, Any]] = []
+    with dataset_csv.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        fieldnames = set(reader.fieldnames or [])
+        if missing := required - fieldnames:
+            raise typer.BadParameter(
+                f"PolLimCrop outcome schema missing columns: {sorted(missing)}"
+            )
+        for raw in reader:
+            accepted_species = exact_binomial(raw.get("species", ""))
+            if accepted_species not in allowed_species:
+                # Crucially, do not access or convert PL_effectsize for a species
+                # belonging only to a support-failed co-primary hypothesis.
+                continue
+            try:
+                effect = float(str(raw.get("PL_effectsize", "")).strip())
+                experiment_year = float(str(raw.get("experiment_year", "")).strip())
+            except ValueError:
+                continue
+            if not np.isfinite(effect) or not np.isfinite(experiment_year):
+                continue
+            article_code = str(raw.get("article_code", "")).strip()
+            if not article_code:
+                continue
+            row = {column: raw.get(column, "") for column in GRAIN}
+            row["PL_effectsize"] = effect
+            row["experiment_year"] = experiment_year
+            row["accepted_species"] = accepted_species
+            selected.append(row)
+    return pd.DataFrame(
+        selected,
+        columns=[*GRAIN, "PL_effectsize", "accepted_species"],
+    )
 
 
 def attach_frozen_traits(
@@ -411,8 +450,17 @@ def analyse(
     if not isinstance(parent, dict):
         raise typer.BadParameter("invalid parent H4 contract")
     trait_states = pd.read_csv(trait_states_csv)
+    allowed_species = admitted_species_for_outcome_read(
+        trait_states,
+        parent,
+        preflight,
+    )
 
-    rows = read_outcome_rows(dataset_csv, preflight)
+    rows = read_outcome_rows(
+        dataset_csv,
+        preflight,
+        allowed_species=allowed_species,
+    )
     rows = attach_frozen_traits(rows, trait_states, parent)
     cells = aggregate_analysis_cells(rows)
     result = run_transportability(cells, preflight, mapping)
