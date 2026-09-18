@@ -74,6 +74,45 @@ def load_config(path: Path) -> dict[str, Any]:
     return value
 
 
+def load_response_mapping(path: Path) -> dict[str, Any]:
+    value = yaml.safe_load(path.read_text(encoding="utf-8"))
+    expected = "chapter1_h4_pollimcrop_response_mapping_v1"
+    if not isinstance(value, dict) or value.get("contract") != expected:
+        raise typer.BadParameter("unexpected PolLimCrop response-mapping contract")
+    if value.get("status") != "frozen_before_row_level_PolLimCrop_outcome_read":
+        raise typer.BadParameter("PolLimCrop response mapping is not frozen")
+    return value
+
+
+def validate_expected_scope(
+    metadata: pd.DataFrame,
+    config: dict[str, Any],
+) -> dict[str, int]:
+    expected = config["source"]["expected_scope"]
+    observed = {
+        "experiments": int(len(metadata)),
+        "studies": int(
+            metadata["article_code"].astype(str).str.strip().replace("", np.nan).nunique()
+        ),
+        "crop_species": int(
+            metadata["species"].astype(str).str.strip().replace("", np.nan).nunique()
+        ),
+        "countries": int(
+            metadata["country"].astype(str).str.strip().replace("", np.nan).nunique()
+        ),
+    }
+    mismatches = {
+        key: (int(expected[key]), observed[key])
+        for key in observed
+        if observed[key] != int(expected[key])
+    }
+    if mismatches:
+        raise typer.BadParameter(
+            f"PolLimCrop metadata scope mismatch: {mismatches}"
+        )
+    return observed
+
+
 def discover_dataset_file(config: dict[str, Any]) -> dict[str, Any]:
     collection_id = int(config["source"]["figshare_collection_id"])
     articles = _get_json(
@@ -234,14 +273,24 @@ def run(
     trait_states_csv: Path = typer.Option(..., exists=True, dir_okay=False),
     parent_contract_path: Path = typer.Option(..., exists=True, dir_okay=False),
     config_path: Path = typer.Option(..., exists=True, dir_okay=False),
+    response_mapping_path: Path = typer.Option(..., exists=True, dir_okay=False),
     output_dir: Path = typer.Option(...),
 ) -> None:
     config = load_config(config_path)
+    mapping = load_response_mapping(response_mapping_path)
     parent = yaml.safe_load(parent_contract_path.read_text(encoding="utf-8"))
     selected = discover_dataset_file(config)
     payload = _get_bytes(selected["download_url"])
     csv_bytes, csv_member = extract_dataset_csv(payload, selected["name"])
     metadata, schema = metadata_only_frame(csv_bytes, config)
+    observed_scope = validate_expected_scope(metadata, config)
+    config_format = config["source"]["csv_format"]
+    mapping_format = mapping["source_method_basis"]["csv_format"]
+    for key in ("delimiter", "decimal_mark", "encoding"):
+        if str(mapping_format[key]) != str(config_format[key]):
+            raise typer.BadParameter(
+                f"PolLimCrop response mapping disagrees with frozen source format: {key}"
+            )
     traits = pd.read_csv(trait_states_csv)
     matched = build_trait_overlap(metadata, traits, parent)
     support = support_summary(matched, config)
@@ -272,11 +321,19 @@ def run(
         "n_metadata_species": int(
             metadata["species"].astype(str).replace("", np.nan).nunique(dropna=True)
         ),
+        "validated_expected_scope": observed_scope,
         "n_exact_binomial_rows": int(matched["accepted_species"].ne("").sum()),
         "n_exact_binomial_species": int(len(species)),
         "n_studies": int(matched["study_key"].nunique()),
         "support": support,
-        "response_mapping_status": "not_frozen_no_outcome_values_read",
+        "response_mapping": {
+            "file": str(response_mapping_path),
+            "sha256": hashlib.sha256(response_mapping_path.read_bytes()).hexdigest(),
+            "contract": str(mapping["contract"]),
+            "status": str(mapping["status"]),
+            "response_column": str(mapping["source_method_basis"]["response_column"]),
+            "outcome_values_read": False,
+        },
     }
     output_dir.mkdir(parents=True, exist_ok=True)
     metadata.to_csv(output_dir / "pollimcrop_metadata_only.csv", index=False)
