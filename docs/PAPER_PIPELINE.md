@@ -22,6 +22,7 @@ generalized_accessible conditionally. Named bee/butterfly/bird architecture scor
 attraction_shift remain secondary concordance/decomposition surfaces.
 
 See:
+- docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md
 - config/chapter1_v14_hypothesis_architecture.yml
 - config/chapter1_v14_all_data_probability.yml
 - config/chapter1_v14_h2_decomposition.yml
