@@ -271,14 +271,76 @@
         }
       }
     },
-    "named_pollination_architecture": {
-      "robust_named_identity_specific_effect": false,
-      "all_analysis_large_bee_beta_signs": "negative_4_of_4_but_individually_unsupported",
-      "butterfly_like": "mixed_or_unsupported_after_selfing_adjustment",
-      "bird_like": "mixed_or_unsupported_after_selfing_adjustment",
-      "shared_factor": "unsupported_after_selfing_adjustment"
-    },
-    "classification": "reproductive_assurance_increases_with_isolation; accessibility_shift_persists_after_selfing_adjustment; colour_independence_is_context_specific; named_pollination_syndrome_not_identified"
+    "classification": "reproductive_assurance_increases_with_isolation; accessibility_shift_persists_after_selfing_adjustment; raw_colour_and_colour_architecture_coupling_show_context_specific_pollinator_facing_reorganization; named_pollinator_identity_not_identified",
+    "raw_colour_and_architecture": {
+      "source": {
+        "raw_colour_run": 35210281545,
+        "raw_colour_artifact": 10491539130,
+        "raw_colour_digest": "sha256:d30ebbda7f1613373a39a9df9577e1b34cc32cddcd5c39b87719cd512972e263",
+        "raw_colour_architecture_run": 35216672430,
+        "raw_colour_architecture_artifact": 10495522252,
+        "raw_colour_architecture_digest": "sha256:8200c982d9a275c3d7db5fc25fa762f08428d51fa637a42c8312b067fdcbe377"
+      },
+      "conditional_five_colour_joint": {
+        "northern_midlatitude": {
+          "all_p": 0.0000314,
+          "direct_p": 3.38e-7
+        },
+        "northern_high_latitude": {
+          "all_p": 0.111,
+          "direct_p": 0.289
+        },
+        "tropical": {
+          "all_p": 0.0000027,
+          "direct_p": 0.000349
+        },
+        "southern_extratropical": {
+          "all_p": 0.00121,
+          "direct_p": 1.23e-9
+        }
+      },
+      "replicated_or_supported_colour_components": {
+        "northern_midlatitude": "red_pink_declines_in_both_scopes; green_brown_inconspicuous_positive_all",
+        "tropical": "white_and_green_brown_positive_all; yellow_orange_positive_direct; component_pattern_scope_dependent",
+        "southern_extratropical": "white_positive_direct; joint_colour_vector_supported",
+        "northern_high_latitude": "five_colour_joint_not_supported"
+      },
+      "colour_conditioned_architecture": {
+        "northern_midlatitude": "no_FDR_supported_named_raw_architecture_coupling",
+        "northern_high_latitude": {
+          "blue_purple_butterfly_form_given_colour": {
+            "all_beta": -0.20186,
+            "all_q": 0.00144,
+            "direct_beta": -0.19967,
+            "direct_q": 0.000681
+          },
+          "blue_purple_large_bee_deep_tube_given_colour": {
+            "all_beta": -0.25505,
+            "all_q": 0.00144,
+            "direct_beta": -0.24724,
+            "direct_q": 0.000266
+          }
+        },
+        "tropical": {
+          "yellow_orange_butterfly_deep_tube_given_colour_direct": {
+            "beta": 0.11703,
+            "q": 0.0355
+          }
+        },
+        "southern_extratropical": {
+          "yellow_orange_bird_form_given_colour_all": {
+            "beta": -0.12495,
+            "q": 0.0129
+          },
+          "yellow_orange_intermediate_deep_tube_given_colour_all": {
+            "beta": 0.19238,
+            "q": 0.0129
+          },
+          "interpretation": "mixed_architecture_restructuring_not_one_named_syndrome"
+        }
+      },
+      "role": "raw_state_pollination_syndrome_concordance_not_weighted_score"
+    }
   },
   "H3": {
     "source": "frozen_v13_H2_global_pollen_limitation",
@@ -292,22 +354,54 @@
     "classification": "global_isolation_associated_experimental_pollen_limitation_supported"
   },
   "H4": {
-    "source": "frozen_v13_functional_bridge",
-    "inferential_role": "posthoc_functional_triangulation",
-    "strongest_bridge": {
-      "trait": "autonomous_selfing",
-      "estimate": -0.446724,
-      "two_sided_p": 2.600385e-8
-    },
-    "architecture_concordance": {
-      "actinomorphic_symmetry": {
-        "estimate": -0.381194,
-        "two_sided_p": 0.00001177103
+    "source": "tiered_functional_bridge_evidence",
+    "discovery": {
+      "source": "frozen_v13_functional_bridge",
+      "inferential_role": "posthoc_functional_triangulation",
+      "strongest_bridge": {
+        "trait": "autonomous_selfing",
+        "estimate": -0.446724,
+        "two_sided_p": 2.600385e-8
       },
-      "generalized_form": {
-        "estimate": -0.184104,
-        "two_sided_p": 0.04490723
+      "architecture_concordance": {
+        "actinomorphic_symmetry": {
+          "estimate": -0.381194,
+          "two_sided_p": 0.00001177103
+        },
+        "generalized_form": {
+          "estimate": -0.184104,
+          "two_sided_p": 0.04490723
+        }
       }
+    },
+    "prospective_wild_temporal_replication": {
+      "source_pr": 236,
+      "status": "support_gate_not_met_not_evaluable",
+      "H4a_support_ceiling": {
+        "matched_species": 9,
+        "publications": 6
+      },
+      "H4b_support_ceiling": {
+        "matched_species": 9,
+        "publications": 4
+      },
+      "required_min_species": 30,
+      "required_min_publications": 10,
+      "outcomes_opened": false,
+      "interpretation": "support_failure_not_biological_null"
+    },
+    "independent_crop_domain": {
+      "source_pr": 236,
+      "dataset": "PolLimCrop",
+      "role": "prospectively_frozen_secondary_transportability",
+      "status": "pending_support_gated_execution",
+      "H4a": "autonomous_selfing_predicts_lower_current_pollen_limitation",
+      "H4b": "equal_weight_generalized_form_actinomorphy_shallow_open_score_predicts_lower_current_pollen_limitation",
+      "can_reclassify_v13_discovery_as_confirmatory_wild": false
+    },
+    "colour_bridge": {
+      "promoted": false,
+      "reason": "context_dependent_colour_response_has_no_single_global_functional_prediction"
     },
     "historical_selection_identified": false
   },
@@ -318,6 +412,8 @@
     "H2_conditional_decomposition_is_causal_mediation": false,
     "H2_named_pollination_syndrome_identified": false,
     "pollinator_abundance_decline_identified": false,
-    "within_lineage_evolution_identified": false
+    "within_lineage_evolution_identified": false,
+    "H4_existing_discovery_is_confirmatory_wild": false,
+    "H4_wild_temporal_replication_biological_null": false
   }
 }
