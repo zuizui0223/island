@@ -131,10 +131,16 @@ remains governed only by the frozen support gate and response-mapping contracts.
 | post-2015 wild temporal cohort | Yes | Yes | support insufficient; outcomes remain unopened |
 | Burns 2019 / Nat Commun 2025 | No / substantially overlapping | No | published corroboration |
 | Wolowski 2014 / Larson & Barrett 2000 | partly external, possible historical overlap | No | prior biological concordance |
+| Rosenheim 2024 post-GloPL wild extension | partly; extends search through 2021 | Admission rule frozen here; outcomes not used for admission | published upper bound is only 18 species, so support-ineligible before supplement opening |
 | PolLimCrop row-level test | **Yes** | **Yes, before row-level outcome read** | secondary cross-domain transportability if support gate passes |
 | PNAS 2026 PolLimCrop aggregate result | Yes | No (published externally) | independent published corroboration of H4a only |
 
 ## 5. Manuscript claim ceiling
+
+The independent-wild source audit also found no published post-GloPL extension large
+enough to meet the frozen 30-species admission threshold without reopening the search
+design. Rosenheim et al. (2024) has a published maximum of 18 species, so its supplement
+cannot qualify the co-primary test even under complete trait coverage.
 
 The strongest safe wording before a successful support-admitted PolLimCrop row-level test is:
 
