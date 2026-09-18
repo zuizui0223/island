@@ -16,6 +16,7 @@ source_method_basis:
     delimiter: ';'
     decimal_mark: ','
     encoding: utf-8-sig
+    basis: official_PolLimCrop_R_code_sep_semicolon_dec_comma
   published_definition: ln_hand_pollination_over_natural_pollination
   direction: positive_means_stronger_pollen_limitation
   note: >-
