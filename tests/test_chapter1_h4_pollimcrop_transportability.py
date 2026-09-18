@@ -3,6 +3,8 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 
+import pandas as pd
+import pytest
 import yaml
 
 
@@ -36,3 +38,24 @@ def test_exact_binomial_is_strict() -> None:
     assert MODULE.exact_binomial("Malus domestica Borkh.") == ""
     assert MODULE.exact_binomial("malus domestica") == ""
     assert MODULE.exact_binomial("Malus") == ""
+
+def test_wrong_dataset_scope_is_rejected_before_support() -> None:
+    metadata = pd.DataFrame(
+        {
+            "article_code": ["study_a"],
+            "species": ["Malus domestica"],
+            "country": ["Spain"],
+        }
+    )
+    with pytest.raises(Exception, match="metadata scope mismatch"):
+        MODULE.validate_expected_scope(metadata, CONFIG)
+
+
+def test_response_mapping_is_frozen_and_uses_same_csv_locale() -> None:
+    mapping = MODULE.load_response_mapping(
+        Path("config/chapter1_h4_pollimcrop_response_mapping_v1.yml")
+    )
+    assert mapping["status"] == "frozen_before_row_level_PolLimCrop_outcome_read"
+    assert mapping["source_method_basis"]["response_column"] == "PL_effectsize"
+    assert mapping["source_method_basis"]["csv_format"] == CONFIG["source"]["csv_format"]
+
