@@ -21,6 +21,11 @@ source:
     countries: 62
   source_file_sha256: record_on_first_outcome_blind_preflight_then_pin
   dataset_csv_sha256: record_on_first_outcome_blind_preflight_then_pin
+  csv_format:
+    delimiter: ';'
+    decimal_mark: ','
+    encoding: utf-8-sig
+    basis: official_PolLimCrop_R_code_sep_semicolon_dec_comma
 
 role_boundary:
   wild_plant_primary_replication_repaired_by_this_test: false
