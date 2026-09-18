@@ -1,0 +1,105 @@
+{
+  "contract": "chapter1_h4_pollimcrop_transportability_preflight_v1",
+  "lock_contract": "chapter1_h4_pollimcrop_transportability_preflight_result_lock_v1",
+  "date": "2026-09-18",
+  "status": "outcome_blind_support_gate_not_met",
+  "inferential_role": "secondary_external_domain_transportability_support_decision",
+  "outcomes_read": false,
+  "workflow": {
+    "run_id": 35321086066,
+    "head_sha": "702ccc5e66ba5f607cac0ce7a0761fa7c114155b",
+    "artifact_id": 10537266362,
+    "artifact_digest": "91b19413a020530d8f7c479b58458c0bb7d76d456dcad8d19f76eeba602ba1bd"
+  },
+  "frozen_inputs": {
+    "preflight_config": "config/chapter1_h4_pollimcrop_transportability_preflight_v1.yml",
+    "preflight_config_sha256": "12b363087bc0d4ace3bfe854ccb0d7952083836cdd1e5e34a896d8e5fed8c18e",
+    "response_mapping": "config/chapter1_h4_pollimcrop_response_mapping_v1.yml",
+    "response_mapping_sha256": "99350c4d4029a0e17e500c09bc42fa4ddd5af744c1929c647474d0bac37f9d6f",
+    "response_column": "PL_effect_size"
+  },
+  "source_format": {
+    "delimiter": ";",
+    "decimal_mark": ",",
+    "encoding": "latin-1",
+    "outer_record_wrapping": "full_row_double_quoted_csv_field"
+  },
+  "figshare": {
+    "collection_id": 6640595,
+    "article_id": 24625299,
+    "file_id": 43269153,
+    "file_name": "1PUB_PolLimCrop_dataset.csv",
+    "file_sha256": "ed8408dd3881176ce2b28436a8d652edd947c0a1f8afe039e857e72ca8ab6e4f",
+    "csv_member": "1PUB_PolLimCrop_dataset.csv",
+    "csv_sha256": "ed8408dd3881176ce2b28436a8d652edd947c0a1f8afe039e857e72ca8ab6e4f"
+  },
+  "validated_expected_scope": {
+    "experiments": 1168,
+    "studies": 293,
+    "crop_species": 106,
+    "countries": 62
+  },
+  "metadata_columns_read": [
+    "line",
+    "record_unicode",
+    "article_code",
+    "DOI_citation",
+    "species",
+    "crop_name",
+    "family",
+    "plant_accession",
+    "crop_part",
+    "continent",
+    "country",
+    "locality",
+    "latitude;longitude",
+    "precision",
+    "experiment_year",
+    "scale",
+    "supplement_type",
+    "factors"
+  ],
+  "support": {
+    "H4a_reproductive_assurance": {
+      "evaluable": false,
+      "matched_species_total": 36,
+      "publications_total": 109,
+      "species_state_0": 9,
+      "species_state_1": 27,
+      "publications_state_0": 32,
+      "publications_state_1": 79
+    },
+    "H4b_accessibility_generalization": {
+      "evaluable": false,
+      "matched_species_total": 42,
+      "publications_total": 141,
+      "score_sd": 0.35306311777040034,
+      "low_score_species": 6,
+      "high_score_species": 17
+    }
+  },
+  "decision": {
+    "admitted_hypotheses": [],
+    "support_failed_hypotheses": [
+      "H4a_reproductive_assurance",
+      "H4b_accessibility_generalization"
+    ],
+    "outcome_extraction_authorized": false,
+    "outcomes_may_be_read_only_for_admitted_hypotheses": true,
+    "threshold_relaxation_authorized": false,
+    "wild_temporal_replication_repaired": false
+  },
+  "blinding": {
+    "preflight_outcomes_read": false,
+    "row_level_PL_effectsize_read_before_lock": false,
+    "support_thresholds_changed": false,
+    "trait_definitions_changed": false
+  },
+  "claim_ceiling": {
+    "cross_domain_current_PL_trait_association_if_supported": true,
+    "wild_plant_temporal_replication": false,
+    "historical_pollen_limitation_selected_traits": false,
+    "pollen_limitation_mediates_global_island_syndrome": false,
+    "causal_trait_evolution_identified": false
+  }
+}
