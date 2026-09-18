@@ -8,6 +8,7 @@ on:
       - "tests/test_chapter1_h4_prospective_temporal_replication.py"
       - "tests/test_chapter1_h4_prospective_methods_preflight.py"
       - "scripts/screen_chapter1_h4_prospective_methods.py"
+      - "scripts/build_chapter1_h4_prospective_support_metadata.py"
       - "config/chapter1_h4_prospective_methods_preflight_v1.yml"
       - "docs/chapter1_h4_prospective_temporal_replication_20260918.md"
       - ".github/workflows/audit-chapter1-h4-prospective-temporal-replication.yml"
@@ -37,6 +38,7 @@ jobs:
           ruff check \
             src/island_v2/chapter1_h4_prospective_temporal_replication.py \
             scripts/screen_chapter1_h4_prospective_methods.py \
+            scripts/build_chapter1_h4_prospective_support_metadata.py \
             scripts/discover_chapter1_h4_prospective_literature.py \
             scripts/build_chapter1_h4_prospective_trait_states.py \
             tests/test_chapter1_h4_prospective_temporal_replication.py \
