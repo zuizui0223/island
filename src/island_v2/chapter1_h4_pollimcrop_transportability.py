@@ -280,6 +280,13 @@ def fit_two_way_clustered_trait(
     if part.empty or part[predictor].nunique() < 2:
         return {"evaluable": False, "reason": "predictor_support_not_estimable"}
 
+    # The frozen mapping assigns each publication total weight 1.0 for each
+    # co-primary trait analysis. Recompute after predictor-specific filtering.
+    retained_per_publication = (
+        part.groupby("article_code")["accepted_species"].transform("size").astype(float)
+    )
+    part["analysis_weight"] = 1.0 / retained_per_publication
+
     X, names = _full_rank_design(part, predictor)
     y = pd.to_numeric(part["PL_effectsize"], errors="coerce").to_numpy(float)
     w = pd.to_numeric(part["analysis_weight"], errors="coerce").to_numpy(float)
@@ -359,7 +366,7 @@ def run_transportability(
             continue
         predictor = predictors[name]
         fit = fit_two_way_clustered_trait(cells, predictor)
-        alpha = float(mapping["multiplicity"]["primary"].split("alpha_")[-1]) if False else 0.025
+        alpha = float(mapping["primary_model"]["alpha_per_coprimary_hypothesis"])
         supported = bool(
             fit.get("evaluable")
             and float(fit.get("estimate", float("nan"))) < 0
