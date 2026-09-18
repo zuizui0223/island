@@ -1,6 +1,6 @@
 contract: chapter1_v14_h4_evidence_hierarchy_v1
 date: 2026-09-18
-status: v14_candidate_evidence_roles
+status: v14_canonical_plus_postfreeze_validation_audit
 
 question: >-
   Are the mechanistically interpretable H2 response families associated with lower
@@ -90,9 +90,42 @@ evidence_layers:
   pollimcrop_independent_domain:
     role: prospectively_frozen_secondary_transportability
     source_pr: 236
+    source_lock: config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json
+    validation_summary_lock: config/chapter1_h4_prospective_validation_summary_lock.json
     dataset: PolLimCrop
     outcome_domain_independent_of_v13_GloPL: true
-    status: pending_support_gated_execution
+    status: support_gate_not_met_not_evaluable
+    source_scope:
+      locked_csv_experiments: 1168
+      locked_csv_studies: 293
+      locked_csv_crop_species: 106
+      locked_csv_countries: 62
+      published_descriptor_experiments: 1169
+      published_descriptor_studies: 294
+      published_descriptor_crop_species: 108
+      published_descriptor_countries: 62
+      source_scope_discrepancy_retained: true
+    H4a_support:
+      matched_species_total: 36
+      publications_total: 109
+      species_state_0: 9
+      species_state_1: 27
+      required_min_species_per_state: 10
+      failed_gate: species_state_0
+    H4b_support:
+      matched_species_total: 42
+      publications_total: 141
+      score_sd: 0.35306311777040034
+      low_score_species: 6
+      high_score_species: 17
+      required_min_low_score_species: 8
+      failed_gate: low_score_species
+    admitted_hypotheses: []
+    outcome_extraction_authorized: false
+    outcomes_read: false
+    verification_workflow_run_id: 35321319394
+    verification_workflow_conclusion: success_support_gate_only
+    interpretation: support_failure_not_biological_null
     can_rescue_wild_temporal_support_failure: false
     can_make_v13_wild_discovery_confirmatory: false
 
@@ -114,4 +147,7 @@ claim_ceiling:
   historical_pollen_limitation_selected_traits: false
   pollen_limitation_mediates_global_syndrome: false
   prospective_wild_replication_supported: false
+  prospective_crop_transportability_supported: false
+  any_prospective_outcome_unblinded: false
+  support_failure_is_biological_null: false
   named_pollinator_mechanism_identified: false
