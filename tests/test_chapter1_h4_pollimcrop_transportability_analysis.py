@@ -148,7 +148,7 @@ def test_outcome_reader_uses_frozen_semicolon_comma_locale(tmp_path: Path) -> No
         "supplement_type;scale;crop_part;PL_effectsize\n"
         "study_a;Malus domestica;Europe;Spain;site;2020;H;flower;fruit;0,42\n"
         "study_b;Prunus avium;Europe;Spain;site;2021;H;flower;fruit;9,99\n",
-        encoding="utf-8-sig",
+        encoding="latin-1",
     )
     preflight = {
         "support": {
@@ -159,7 +159,7 @@ def test_outcome_reader_uses_frozen_semicolon_comma_locale(tmp_path: Path) -> No
         "source_format": {
             "delimiter": ";",
             "decimal_mark": ",",
-            "encoding": "utf-8-sig",
+            "encoding": "latin-1",
         },
     }
     rows = read_outcome_rows(
