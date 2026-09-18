@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
+import json
 from pathlib import Path
 
 import numpy as np
@@ -13,6 +15,7 @@ from island_v2.chapter1_h4_pollimcrop_transportability import (
     aggregate_analysis_cells,
     exact_binomial,
     fit_two_way_clustered_trait,
+    load_preflight,
     read_outcome_rows,
     require_support_before_outcome_read,
     run_transportability,
@@ -24,6 +27,16 @@ MAPPING = yaml.safe_load(
         encoding="utf-8"
     )
 )
+
+
+DOWNLOADER_SCRIPT = Path("scripts/download_chapter1_h4_pollimcrop_locked_dataset.py")
+DOWNLOADER_SPEC = importlib.util.spec_from_file_location(
+    "h4_pollimcrop_locked_downloader",
+    DOWNLOADER_SCRIPT,
+)
+assert DOWNLOADER_SPEC is not None and DOWNLOADER_SPEC.loader is not None
+DOWNLOADER = importlib.util.module_from_spec(DOWNLOADER_SPEC)
+DOWNLOADER_SPEC.loader.exec_module(DOWNLOADER)
 
 
 def _cells(effect: float = -0.6, n_publications: int = 24) -> pd.DataFrame:
@@ -66,6 +79,55 @@ def test_exact_binomial_is_strict() -> None:
     assert exact_binomial("Malus domestica Borkh.") == ""
     assert exact_binomial("malus domestica") == ""
     assert exact_binomial("Malus") == ""
+
+
+def _committed_support_lock() -> dict:
+    return {
+        "contract": "chapter1_h4_pollimcrop_transportability_preflight_v1",
+        "lock_contract": (
+            "chapter1_h4_pollimcrop_transportability_preflight_result_lock_v1"
+        ),
+        "outcomes_read": False,
+        "support": {
+            "H4a_reproductive_assurance": {"evaluable": True},
+            "H4b_accessibility_generalization": {"evaluable": False},
+        },
+        "decision": {
+            "admitted_hypotheses": ["H4a_reproductive_assurance"],
+            "support_failed_hypotheses": ["H4b_accessibility_generalization"],
+            "outcome_extraction_authorized": True,
+        },
+    }
+
+
+def test_load_preflight_requires_committed_support_result_lock(tmp_path: Path) -> None:
+    value = _committed_support_lock()
+    value.pop("lock_contract")
+    path = tmp_path / "raw_preflight.json"
+    path.write_text(json.dumps(value), encoding="utf-8")
+    with pytest.raises(Exception, match="requires the committed support-result lock"):
+        load_preflight(path)
+
+
+def test_load_preflight_accepts_consistent_committed_support_lock(tmp_path: Path) -> None:
+    path = tmp_path / "support_lock.json"
+    path.write_text(json.dumps(_committed_support_lock()), encoding="utf-8")
+    got = load_preflight(path)
+    assert got["decision"]["admitted_hypotheses"] == ["H4a_reproductive_assurance"]
+
+
+def test_downloader_requires_committed_support_result_lock() -> None:
+    value = _committed_support_lock()
+    value.pop("lock_contract")
+    with pytest.raises(Exception, match="committed support-result lock"):
+        DOWNLOADER.validate_support_lock(value)
+
+
+def test_downloader_rejects_inconsistent_admission_list() -> None:
+    value = _committed_support_lock()
+    value["decision"]["admitted_hypotheses"] = ["H4b_accessibility_generalization"]
+    with pytest.raises(Exception, match="admission list is inconsistent"):
+        DOWNLOADER.validate_support_lock(value)
 
 
 def test_no_support_refuses_before_outcome_read() -> None:

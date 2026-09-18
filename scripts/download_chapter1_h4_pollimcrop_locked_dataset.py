@@ -34,6 +34,52 @@ def _sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
 
+HYPOTHESES = (
+    "H4a_reproductive_assurance",
+    "H4b_accessibility_generalization",
+)
+
+
+def validate_support_lock(lock: dict) -> list[str]:
+    expected_contract = "chapter1_h4_pollimcrop_transportability_preflight_v1"
+    expected_lock_contract = (
+        "chapter1_h4_pollimcrop_transportability_preflight_result_lock_v1"
+    )
+    if lock.get("contract") != expected_contract:
+        raise typer.BadParameter(
+            "unexpected PolLimCrop preflight result-lock contract"
+        )
+    if lock.get("lock_contract") != expected_lock_contract:
+        raise typer.BadParameter(
+            "PolLimCrop dataset access requires the committed support-result lock"
+        )
+    if lock.get("outcomes_read") is not False:
+        raise typer.BadParameter(
+            "preflight result lock must record outcomes_read=false"
+        )
+
+    support = lock.get("support", {})
+    admitted = [
+        name for name in HYPOTHESES if bool(support.get(name, {}).get("evaluable"))
+    ]
+    decision = lock.get("decision", {})
+    recorded = [str(x) for x in decision.get("admitted_hypotheses", [])]
+    if recorded != admitted:
+        raise typer.BadParameter(
+            "PolLimCrop support-result lock admission list is inconsistent"
+        )
+    authorized = bool(decision.get("outcome_extraction_authorized"))
+    if authorized != bool(admitted):
+        raise typer.BadParameter(
+            "PolLimCrop support-result lock authorization is inconsistent"
+        )
+    if not admitted:
+        raise typer.BadParameter(
+            "no co-primary hypothesis passed frozen PolLimCrop support gate"
+        )
+    return admitted
+
+
 @app.command("run")
 def run(
     preflight_result_lock: Path = typer.Option(..., exists=True, dir_okay=False),
@@ -41,17 +87,9 @@ def run(
     output_csv: Path = typer.Option(...),
 ) -> None:
     lock = json.loads(preflight_result_lock.read_text(encoding="utf-8"))
-    expected_contract = "chapter1_h4_pollimcrop_transportability_preflight_v1"
-    if lock.get("contract") != expected_contract:
-        raise typer.BadParameter("unexpected PolLimCrop preflight result-lock contract")
-    if lock.get("outcomes_read") is not False:
-        raise typer.BadParameter("preflight result lock must record outcomes_read=false")
-    support = lock.get("support", {})
-    if not any(bool(value.get("evaluable")) for value in support.values()):
-        raise typer.BadParameter(
-            "no co-primary hypothesis passed frozen PolLimCrop support gate"
-        )
+    validate_support_lock(lock)
 
+    expected_contract = "chapter1_h4_pollimcrop_transportability_preflight_v1"
     config = yaml.safe_load(preflight_config.read_text(encoding="utf-8"))
     if not isinstance(config, dict) or config.get("contract") != expected_contract:
         raise typer.BadParameter("unexpected PolLimCrop preflight config")
