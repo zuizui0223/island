@@ -91,10 +91,26 @@ hypotheses:
       Are the two mechanistically interpretable H2 response families functionally
       associated with lower current experimental pollen limitation?
     evidence_hierarchy:
-      discovery:
+      atomic_trait_discovery:
         data: exact_species_trait_x_GloPL_matches
         role: posthoc_functional_triangulation
         provenance: existing_v13_H4_result
+      exact_H2_species_score_discovery:
+        data: exact_Direct_only_H2_species_scores_x_GloPL_matches
+        role: posthoc_exact_H2_score_functional_triangulation
+        config: config/chapter1_v14_h4_exact_h2_score_bridge.yml
+        reproduction_lock: config/chapter1_v14_h4_exact_h2_score_bridge_preflight_result_lock.json
+        reproductive_assurance:
+          H2_syndrome: selfing_core
+          beta: -0.29706162790382573
+          two_sided_p: 0.004114773773355803
+        accessibility_generalization:
+          H2_syndrome: generalized_accessible
+          beta: -0.2960123452279311
+          two_sided_p: 0.022162544686764193
+      atomic_family_reconstruction_sensitivity:
+        role: posthoc_atomic_family_reconstruction_sensitivity
+        config: config/chapter1_v14_h4_family_bridge.yml
       prospective_wild_temporal_replication:
         role: prospectively_frozen_validation_attempt
         status: support_gate_not_met_not_evaluable
