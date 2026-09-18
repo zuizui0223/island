@@ -85,11 +85,30 @@ that pollen limitation mediated H1 or H2.
 
 ## H4 — Functional bridge as an evidence hierarchy
 
-The v13 exact-species GloPL comparison remains the **post-hoc discovery layer**. It
-asks whether mechanistically interpretable H2 states are associated with lower current
-pollen limitation after distance, geographic and measurement adjustment.
+H4 now separates **discovery alignment** from **prospective validation**.
 
-PR #236 adds two validation layers without relabelling the discovery:
+The v13 exact-species atomic-trait comparison remains the original post-hoc discovery
+layer. Autonomous selfing remains its strongest individual bridge.
+
+v14 adds a more direct post-hoc H2-to-H4 test by using the **literal Direct-only
+species-level H2 scores** already used by Chapter 1, with no score reconstruction:
+
+- exact `selfing_core`: `beta=-0.29706`, two-sided `p=0.00411`;
+- exact `generalized_accessible`: `beta=-0.29601`, two-sided `p=0.0222`.
+
+Both H2 scores that increase with island isolation therefore point toward lower current
+GloPL pollen limitation in the primary post-hoc bridge. The accessibility result also
+remains supported in the supplemental-only subset and retains the predicted negative
+direction in the no-zero sensitivity.
+
+A separate atomic-family reconstruction is retained only as sensitivity because its
+species-level scores are concordant with, but not numerically identical to, the literal
+H2 scores. The reconstruction produces the same biological direction, including an
+equal-weight accessibility definition that matches the prospectively frozen H4b
+prediction.
+
+PR #236 then provides two validation layers without relabelling either post-hoc
+discovery analysis:
 
 - a prospectively frozen post-2015 wild-plant temporal replication. Its outcome-blind
   support gate reached only 9 matched species for each co-primary family, below the
@@ -97,12 +116,14 @@ PR #236 adds two validation layers without relabelling the discovery:
   and is not evaluable;
 - a separately frozen PolLimCrop agricultural-domain transportability test. It is an
   independent outcome domain, but cannot rescue the support-limited wild validation or
-  make the v13 wild-flora discovery confirmatory.
+  make the wild-flora discovery confirmatory.
 
-The two co-primary functional predictions are aligned to the H2 pathways:
-autonomous selfing -> lower current pollen limitation, and greater
-accessibility/generalization -> lower current pollen limitation. No global primary
-colour bridge is imposed because the colour response is context dependent.
+The prospectively frozen co-primary functional predictions remain:
+autonomous selfing -> lower current pollen limitation, and greater equal-weight
+accessibility/generalization -> lower current pollen limitation.
+
+No global primary colour bridge is imposed because the H1/H2 colour response is
+context dependent and does not define one globally directional functional prediction.
 
 ## Analysis flow
 
@@ -123,7 +144,9 @@ colour bridge is imposed because the colour response is context dependent.
                              |
                              v
     H4  DO THE TWO SIDES FUNCTIONALLY CONNECT?
-              post-hoc discovery
+       literal H2 score -> current pollen limitation
+                     +
+       atomic reconstruction sensitivity
                      +
           prospective support-gated validation
 
