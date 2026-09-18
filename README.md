@@ -1,3 +1,24 @@
+# Island — Chapter 1 v14 candidate reanalysis
+
+> **PR #237 reorganizes the publication logic without rewriting v13 provenance.**
+> The v14 analysis order is now:
+>
+> 1. **H1 — global floral/reproductive island syndrome:** reproductive assurance + plain colour + accessible/generalized floral structure.
+> 2. **H2 — floral-shift decomposition:** selfing-syndrome/reproductive-assurance route versus selfing-adjusted pollinator-facing colour/accessibility route.
+> 3. **H3 — independent global pollen limitation:** the frozen GloPL isolation analysis, formerly v13 H2.
+> 4. **H4 — functional bridge:** exact-species trait × GloPL triangulation, unchanged in role.
+>
+> H1 is refit as a seven-response beta-binomial multivariate analysis. H2 explicitly
+> conditions colour and accessibility responses on selfing_core. The detailed design
+> is in [docs/chapter1_v14_hypothesis_reorder_20260918.md](docs/chapter1_v14_hypothesis_reorder_20260918.md)
+> and the frozen-input preflight results are in
+> [docs/chapter1_v14_preflight_results_20260918.md](docs/chapter1_v14_preflight_results_20260918.md).
+>
+> **v13 remains immutable historical/submission provenance until the v14 CI artifact is
+> reproduced and locked.**
+
+---
+
 # Island — Chapter 1 v13 paper repository
 
 This repository's **current publication-facing surface is Chapter 1 v13**. The active paper remains a global-only **H1–H4** synthesis. Earlier Chapter 1 hypothesis ladders, defended submission states and submission-surface audits are historical provenance, not the current scientific spine.
