@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import io
 import json
 import math
 import re
@@ -47,6 +48,12 @@ GRAIN = (
     "crop_part",
 )
 ADJUSTMENT_CATEGORIES = ("continent", "supplement_type", "scale", "crop_part")
+RAW_COLUMN_ALIASES = {
+    "unicode": "record_unicode",
+    "plant accession": "plant_accession",
+    "crop part": "crop_part",
+    "year_of_the_experiment": "experiment_year",
+}
 
 
 def _sha256(path: Path) -> str:
@@ -145,13 +152,37 @@ def admitted_species_for_outcome_read(
     return set(frozen.loc[mask, "accepted_species"].astype(str))
 
 
+def _unwrap_outer_record_text(
+    dataset_csv: Path,
+    *,
+    encoding: str,
+    wrapper: str,
+) -> str:
+    text = dataset_csv.read_bytes().decode(encoding)
+    if wrapper == "none":
+        return text
+    if wrapper != "full_row_double_quoted_csv_field":
+        raise typer.BadParameter(f"unexpected frozen PolLimCrop row wrapper: {wrapper}")
+    reader = csv.reader(io.StringIO(text), delimiter=",", quotechar='"')
+    records: list[str] = []
+    for row in reader:
+        if not row:
+            continue
+        if len(row) != 1:
+            raise typer.BadParameter(
+                "PolLimCrop outer wrapper did not decode to one field per record"
+            )
+        records.append(row[0])
+    return "\n".join(records) + ("\n" if records else "")
+
+
 def read_outcome_rows(
     dataset_csv: Path,
     preflight: dict[str, Any],
     *,
     allowed_species: set[str],
 ) -> pd.DataFrame:
-    """Parse PL_effectsize only for species admitted by frozen support gates."""
+    """Parse the frozen PL response only for species admitted by support gates."""
 
     require_support_before_outcome_read(preflight)
     if not allowed_species:
@@ -165,14 +196,40 @@ def read_outcome_rows(
             f"PolLimCrop CSV SHA-256 mismatch: expected {expected_sha}, observed {observed_sha}"
         )
 
-    required = set(GRAIN) | {"PL_effectsize"}
-    selected: list[dict[str, Any]] = []
     source_format = preflight.get("source_format", {})
     delimiter = str(source_format.get("delimiter", ""))
     decimal_mark = str(source_format.get("decimal_mark", ""))
     encoding = str(source_format.get("encoding", ""))
-    if delimiter != ";" or decimal_mark != "," or encoding != "latin-1":
+    wrapper = str(source_format.get("outer_record_wrapping", ""))
+    if (
+        delimiter != ";"
+        or decimal_mark != ","
+        or encoding != "latin-1"
+        or wrapper != "full_row_double_quoted_csv_field"
+    ):
         raise typer.BadParameter("unexpected frozen PolLimCrop CSV format")
+
+    response_column = str(
+        preflight.get("response_mapping", {}).get("response_column", "")
+    )
+    if response_column != "PL_effect_size":
+        raise typer.BadParameter("unexpected frozen PolLimCrop response column")
+
+    normalized = _unwrap_outer_record_text(
+        dataset_csv,
+        encoding=encoding,
+        wrapper=wrapper,
+    )
+    reader = csv.DictReader(io.StringIO(normalized), delimiter=delimiter)
+    raw_fieldnames = [str(x) for x in (reader.fieldnames or [])]
+    canonical_fieldnames = {
+        RAW_COLUMN_ALIASES.get(column, column) for column in raw_fieldnames
+    }
+    required = set(GRAIN) | {response_column}
+    if missing := required - canonical_fieldnames:
+        raise typer.BadParameter(
+            f"PolLimCrop outcome schema missing columns: {sorted(missing)}"
+        )
 
     def parse_number(value: object) -> float:
         text = str(value or "").strip()
@@ -180,33 +237,32 @@ def read_outcome_rows(
             text = text.replace(decimal_mark, ".")
         return float(text)
 
-    with dataset_csv.open("r", encoding=encoding, newline="") as handle:
-        reader = csv.DictReader(handle, delimiter=delimiter)
-        fieldnames = set(reader.fieldnames or [])
-        if missing := required - fieldnames:
-            raise typer.BadParameter(
-                f"PolLimCrop outcome schema missing columns: {sorted(missing)}"
-            )
-        for raw in reader:
-            accepted_species = exact_binomial(raw.get("species", ""))
-            if accepted_species not in allowed_species:
-                # Do not access PL_effectsize for support-failed species.
-                continue
-            try:
-                effect = parse_number(raw.get("PL_effectsize", ""))
-                experiment_year = parse_number(raw.get("experiment_year", ""))
-            except ValueError:
-                continue
-            if not np.isfinite(effect) or not np.isfinite(experiment_year):
-                continue
-            article_code = str(raw.get("article_code", "")).strip()
-            if not article_code:
-                continue
-            row = {column: raw.get(column, "") for column in GRAIN}
-            row["PL_effectsize"] = effect
-            row["experiment_year"] = experiment_year
-            row["accepted_species"] = accepted_species
-            selected.append(row)
+    selected: list[dict[str, Any]] = []
+    for raw in reader:
+        canonical = {
+            RAW_COLUMN_ALIASES.get(str(key), str(key)): value
+            for key, value in raw.items()
+            if key is not None
+        }
+        accepted_species = exact_binomial(canonical.get("species", ""))
+        if accepted_species not in allowed_species:
+            # Do not access the outcome field for support-failed species.
+            continue
+        try:
+            effect = parse_number(canonical.get(response_column, ""))
+            experiment_year = parse_number(canonical.get("experiment_year", ""))
+        except ValueError:
+            continue
+        if not np.isfinite(effect) or not np.isfinite(experiment_year):
+            continue
+        article_code = str(canonical.get("article_code", "")).strip()
+        if not article_code:
+            continue
+        row = {column: canonical.get(column, "") for column in GRAIN}
+        row["PL_effectsize"] = effect
+        row["experiment_year"] = experiment_year
+        row["accepted_species"] = accepted_species
+        selected.append(row)
     return pd.DataFrame(
         selected,
         columns=[*GRAIN, "PL_effectsize", "accepted_species"],
