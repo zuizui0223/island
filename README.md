@@ -6,7 +6,7 @@
 > 1. **H1 — global floral/reproductive island syndrome:** reproductive assurance + plain colour + accessible/generalized floral structure.
 > 2. **H2 — floral-shift decomposition:** selfing-syndrome/reproductive-assurance route versus selfing-adjusted pollinator-facing colour/accessibility route, with pollination-syndrome concordance tested from raw colour × raw form/tube coupling rather than weighted guild scores.
 > 3. **H3 — independent global pollen limitation:** the frozen GloPL isolation analysis, formerly v13 H2.
-> 4. **H4 — tiered functional bridge:** the v13 atomic-trait discovery is retained; v14 adds a literal exact-H2-species-score bridge (`selfing_core`, `generalized_accessible`), keeps atomic family reconstruction as a sensitivity, and PR #236 supplies separate prospective validation layers.
+> 4. **H4 — post-hoc functional bridge:** the v13 atomic-trait discovery is retained; v14 adds the literal exact-H2-species-score bridge (`selfing_core`, `generalized_accessible`) and keeps atomic family reconstruction as a sensitivity.
 >
 > H1 is refit as a seven-response beta-binomial multivariate analysis. H2 explicitly
 > conditions colour and accessibility responses on selfing_core. The detailed design
@@ -18,7 +18,7 @@
 > H4 evidence roles: [config/chapter1_v14_h4_evidence_hierarchy.yml](config/chapter1_v14_h4_evidence_hierarchy.yml)
 > H4 exact H2-score bridge: [config/chapter1_v14_h4_exact_h2_score_bridge.yml](config/chapter1_v14_h4_exact_h2_score_bridge.yml)
 > H4 atomic reconstruction sensitivity: [config/chapter1_v14_h4_family_bridge.yml](config/chapter1_v14_h4_family_bridge.yml)
-> prospective H4 validation summary: [config/chapter1_h4_prospective_validation_summary_lock.json](config/chapter1_h4_prospective_validation_summary_lock.json) — both wild-temporal and PolLimCrop routes stopped at outcome-blind support gates; no prospective outcome was opened.
+> supplementary validation audit: [config/chapter1_h4_prospective_validation_summary_lock.json](config/chapter1_h4_prospective_validation_summary_lock.json) — retained for transparency only; it is not part of the H4 result.
 >
 > Canonical result lock: [config/chapter1_v14_canonical_result_lock.json](config/chapter1_v14_canonical_result_lock.json)
 > Submission freeze: [docs/chapter1_submission_freeze_v14_20260918.md](docs/chapter1_submission_freeze_v14_20260918.md)

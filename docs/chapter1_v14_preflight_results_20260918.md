@@ -155,20 +155,6 @@ post-hoc. Its strongest association is autonomous selfing
 (`beta=-0.446724, p=2.60e-8`), with weaker global architecture concordance for
 actinomorphy and generalized form.
 
-PR #236 adds two validation layers without relabelling that discovery:
-
-1. a prospectively frozen post-2015 wild-plant temporal replication; the outcome-blind
-   support gate reached only 9 matched species for each co-primary family, below the
-   frozen minimum of 30 species and 10 publications, so the test stopped before outcome
-   unblinding and is **not evaluable**, not a biological null;
-2. an independent PolLimCrop agricultural-domain transportability test with frozen
-   response mapping and support gates. Its outcome-blind support gate also failed:
-   H4a reached 36 species / 109 publications but had only 9 state-0 species versus
-   the frozen minimum of 10; H4b reached 42 species / 141 publications but had only
-   6 low-score species versus the frozen minimum of 8. No crop hypothesis was
-   admitted, outcome extraction remained unauthorized, and row-level PL outcomes
-   remained unopened. This is support insufficiency, not a transportability null.
-
 The v14 discovery layer now aligns **literally** to the two species-level H2 scores used by Chapter 1.
 
 - **Exact Direct-only `selfing_core`:** 455 GloPL species, 409 publications,
@@ -193,12 +179,6 @@ Thus the **actual H2 species scores that increase with isolation are associated 
 lower current pollen limitation in the post-hoc GloPL discovery layer**. The atomic
 reconstruction gives the same biological direction but remains a sensitivity.
 
-The prospective validation predictions remain separately frozen:
-
-- H4a: autonomous selfing -> lower current pollen limitation;
-- H4b: higher equal-weight accessibility/generalization
-  (generalized form + actinomorphy + shallow/open tube) -> lower current pollen limitation.
-
 A global primary colour bridge is **not** added because H1/H2 colour responses are
 context dependent and do not define one globally predicted functional direction.
 
@@ -217,8 +197,16 @@ The reordering is empirically coherent:
 5. **H3 and H4 remain logically downstream:** H3 independently tests whether pollen
    limitation increases with isolation; H4 shows that the literal H2 `selfing_core`
    and `generalized_accessible` species scores both point toward lower current pollen
-   limitation, while prospective validation remains a separate support-gated layer.
+   limitation.
 
 The conditional H2 models do not prove causal mediation or direct pollinator
 selection. They reject the narrower explanation that the measured selfing core alone
 accounts for the full floral-architecture response.
+
+
+## Supplementary prospective validation audit
+
+The post-2015 wild and PolLimCrop routes are retained outside H4 as a transparency
+audit. Both stopped at frozen support gates before outcome unblinding. No prospective
+outcome was analysed, and these support limitations do not alter the H4 discovery
+classification.

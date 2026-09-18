@@ -1,23 +1,11 @@
 contract: chapter1_v14_h4_evidence_hierarchy_v1
 date: 2026-09-18
-status: v14_evidence_roles_with_completed_prospective_support_audit
+status: v14_H4_posthoc_functional_bridge
 
 question: >-
   Are the mechanistically interpretable H2 response families associated with lower
   current experimental pollen limitation, and how independently has that association
   been tested?
-
-co_primary_functional_predictions:
-  H4a_reproductive_assurance:
-    predictor: autonomous_selfing
-    prediction: lower_current_pollen_limitation
-  H4b_accessibility_generalization:
-    predictor: equal_weight_accessibility_generalization
-    components:
-      - generalized_form
-      - actinomorphic_symmetry
-      - shallow_open_tube
-    prediction: lower_current_pollen_limitation
 
 evidence_layers:
   v13_exact_species_discovery:
@@ -71,50 +59,6 @@ evidence_layers:
       states gives concordant results, but these scores are a sensitivity rather than
       the literal H2 species scores.
 
-  prospective_post2015_wild:
-    role: prospectively_frozen_temporal_validation_attempt
-    source_pr: 236
-    status: support_gate_not_met_not_evaluable
-    H4a_support_ceiling:
-      matched_species: 9
-      publications: 6
-    H4b_support_ceiling:
-      matched_species: 9
-      publications: 4
-    frozen_minimum:
-      matched_species: 30
-      publications: 10
-    outcomes_unblinded_for_primary_test: false
-    interpretation: support_failure_not_biological_null
-
-  pollimcrop_independent_domain:
-    role: prospectively_frozen_secondary_transportability
-    source_pr: 236
-    dataset: PolLimCrop
-    outcome_domain_independent_of_v13_GloPL: true
-    status: support_gate_not_met_not_evaluable
-    support_lock: config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json
-    validation_summary_lock: config/chapter1_h4_prospective_validation_summary_lock.json
-    H4a_support:
-      matched_species: 36
-      publications: 109
-      state_0_species: 9
-      state_1_species: 27
-      failed_gate: state_0_species
-      required_min_per_state: 10
-    H4b_support:
-      matched_species: 42
-      publications: 141
-      score_sd: 0.35306311777040034
-      low_score_species: 6
-      high_score_species: 17
-      failed_gate: low_score_species
-      required_min_low_score_species: 8
-    outcomes_unblinded_for_primary_test: false
-    admitted_hypotheses: []
-    interpretation: support_failure_not_transportability_null
-    can_rescue_wild_temporal_support_failure: false
-    can_make_v13_wild_discovery_confirmatory: false
 
 colour_bridge:
   primary_global_test: false
@@ -125,13 +69,30 @@ colour_bridge:
 
 rules:
   - keep_v13_discovery_posthoc
-  - support_failure_is_not_biological_null
-  - external_domain_transportability_is_not_wild_temporal_replication
   - H4_does_not_establish_historical_mediation
   - do_not_add_global_colour_bridge_without_directional_functional_prediction
 
 claim_ceiling:
   historical_pollen_limitation_selected_traits: false
   pollen_limitation_mediates_global_syndrome: false
-  prospective_wild_replication_supported: false
   named_pollinator_mechanism_identified: false
+
+validation_audit:
+  role: supplementary_nonpromoted_validation_audit
+  part_of_H4_result: false
+  summary_lock: config/chapter1_h4_prospective_validation_summary_lock.json
+  wild_temporal:
+    status: support_gate_not_met_not_evaluable
+    outcomes_unblinded: false
+  pollimcrop:
+    status: support_gate_not_met_not_evaluable
+    outcomes_unblinded: false
+    admitted_hypotheses: []
+  rules:
+    - support_failure_is_not_biological_null
+    - external_domain_transportability_is_not_wild_temporal_replication
+    - threshold_relaxation_not_authorized
+  prospective_wild_replication_supported: false
+  interpretation: >-
+    The prospective attempts are retained for transparency about the confirmatory
+    evidence boundary. They do not alter, promote, downgrade, or enter the H4 result.
