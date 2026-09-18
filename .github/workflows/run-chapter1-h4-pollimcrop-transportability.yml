@@ -1,3 +1,4 @@
+# Retrigger after committed support-failure lock; no scientific protocol change.
 name: Run Chapter 1 H4 PolLimCrop transportability
 
 on:
