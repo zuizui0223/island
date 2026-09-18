@@ -39,7 +39,7 @@ def _metadata(n: int = 40) -> pd.DataFrame:
                 "study_key": f"p{i // 2:03d}",
                 "site_key": f"site{i:03d}",
                 "accepted_species": f"Species {i:03d}",
-                "analysis_regime": "tropical" if i % 2 else "northern_midlatitude",
+                "analysis_regime": "tropical" if (i // 2) % 2 else "northern_midlatitude",
                 "z_distance": (i - n / 2) / 10.0,
             }
         )
