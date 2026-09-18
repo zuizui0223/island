@@ -14,6 +14,8 @@ def test_build_plant_scores_creates_attraction_shift():
         "selfing_core": 0.4,
         "generalized_accessible": 0.6,
         "large_bee_like": -0.2,
+        "butterfly_like": 0.1,
+        "bird_like": -0.1,
     }
     for syndrome, value in values.items():
         rows.append(
@@ -72,14 +74,18 @@ def test_run_decomposition_fits_continuous_and_plain_colour_routes():
     selfing = 0.35 * distance + 0.1 * np.sin(np.linspace(0.0, 5.0, n))
     accessible = 0.45 * distance + 0.2 * selfing
     large_bee = -0.25 * distance
+    butterfly = 0.05 * distance
+    bird = 0.02 * distance
     score_rows = []
-    for island_id, s, a, b in zip(
-        island_ids, selfing, accessible, large_bee, strict=True
+    for island_id, s, a, b, bf, bd in zip(
+        island_ids, selfing, accessible, large_bee, butterfly, bird, strict=True
     ):
         for syndrome, value in (
             ("selfing_core", s),
             ("generalized_accessible", a),
             ("large_bee_like", b),
+            ("butterfly_like", bf),
+            ("bird_like", bd),
         ):
             score_rows.append(
                 {
@@ -129,6 +135,10 @@ def test_run_decomposition_fits_continuous_and_plain_colour_routes():
         "selfing_core",
         "generalized_accessible",
         "attraction_shift",
+        "large_bee_like",
+        "butterfly_like",
+        "bird_like",
+        "shared_named_architecture",
         "plain_colour",
     }
     assert results["status"].eq("fit").all()
