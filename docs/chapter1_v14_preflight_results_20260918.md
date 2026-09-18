@@ -90,34 +90,89 @@ The secondary attraction_shift coefficient is also positive in all four contexts
 both evidence scopes, with the clearest support in northern high-latitude and tropical
 islands.
 
-### Named pollination-architecture concordance after conditioning on selfing_core
+### Raw colour × raw architecture concordance after conditioning on selfing_core
 
-The broader large-bee-like, butterfly-like and bird-like scores do **not** retain
-statistically clear isolation coefficients after selfing_core adjustment. Large-bee-like
-is negative in all four all-analysis contexts, but none of those coefficients is
-individually supported; butterfly-like and bird-like are mixed. The shared named
-architecture factor is likewise unsupported.
+The v14 pollination-syndrome concordance layer does **not** use the weighted
+`large_bee_like / butterfly_like / bird_like` scores as its primary evidence. It
+reuses the reproduced v13 raw-state analyses.
 
-Therefore H2 separates two claims: (i) the accessibility/attraction architecture shift
-is not reducible to selfing alone; (ii) attribution of that residual to a particular
-named pollination syndrome or direct pollinator-selection mechanism remains unsupported
-at this broad scale.
+Raw five-colour composition remains associated with isolation after conditioning on
+`selfing_core` in three of four contexts:
 
-### H2b colour after conditioning on selfing_core
+| context | all-analysis joint p | Direct joint p |
+|---|---:|---:|
+| northern mid-latitude | 3.14e-5 | 3.38e-7 |
+| northern high latitude | 0.111 | 0.289 |
+| tropical | 2.70e-6 | 3.49e-4 |
+| southern extratropical | 0.00121 | 1.23e-9 |
 
-Plain colour is more heterogeneous after selfing adjustment.
+The strongest replicated raw-colour component in northern mid-latitudes is a decline
+in `red_pink`, not simply an increase in white. Tropical and southern colour
+composition also changes, but the component pattern differs among contexts and evidence
+scopes.
 
-All-analysis-eligible:
+The stronger syndrome-concordance test conditions architecture on the raw colour itself:
+`P(raw architecture | raw colour, architecture resolved)`. This removes changes in
+the marginal frequency of the focal colour.
 
-| context | conditional distance beta | p | primary-H2b q |
-|---|---:|---:|---:|
-| northern mid-latitude | -0.0026 | 0.894 | 0.894 |
-| northern high-latitude | -0.0061 | 0.749 | 0.856 |
-| tropical | +0.0611 | 0.0251 | 0.0501 |
-| southern extratropical | +0.0803 | 0.000115 | 0.000924 |
+Replicated/supporting results include:
 
-Direct-only retains a strong positive southern extratropical effect
-(beta=+0.0937, p=3.75e-7, q=3.00e-6), while the other contexts are not supported.
+- northern high latitude: among `blue_purple` species,
+  `butterfly_form_given_colour` declines in both scopes
+  (all `beta=-0.20186, q=0.00144`; Direct `beta=-0.19967, q=0.000681`);
+- northern high latitude: `blue_purple × intermediate/deep large-bee-associated tube`
+  declines in both scopes (all `beta=-0.25505, q=0.00144`; Direct
+  `beta=-0.24724, q=0.000266`);
+- tropical Direct evidence: `yellow_orange × deep-tube butterfly-associated
+  architecture` increases (`beta=+0.11703, q=0.0355`);
+- southern extratropical all-analysis: yellow/orange bird-associated form declines
+  while intermediate/deep tube representation increases (both `q=0.0129`), a mixed
+  restructuring rather than one coherent named syndrome;
+- northern mid-latitude: no colour-conditioned named architecture survives the FDR
+  family, despite the replicated raw `red_pink` decline.
+
+The correct H2 interpretation is therefore **context-specific raw display–architecture
+reorganization**, not a weighted pollinator-score effect and not realized pollinator
+identity.
+
+## H3/H4 status under v14
+
+### H3 — unchanged analysis, renumbered role
+
+H3 is the frozen full-global GloPL distance analysis that was v13 H2. The statistical
+model and result do not change under v14: standardized isolation coefficient
+`beta=+0.07937`, SE `0.03773`, two-sided `p=0.03543`, one-sided positive
+`p=0.01772` across 2,969 effects, 1,248 sites and 919 publications.
+
+The change is conceptual placement: H3 now follows the plant-side H2 decomposition and
+serves as independent evidence that the proposed ecological pressure itself increases
+with isolation.
+
+### H4 — evidence hierarchy updated, not simply unchanged
+
+The v13 exact-species bridge remains the discovery layer and remains explicitly
+post-hoc. Its strongest association is autonomous selfing
+(`beta=-0.446724, p=2.60e-8`), with weaker global architecture concordance for
+actinomorphy and generalized form.
+
+PR #236 adds two validation layers without relabelling that discovery:
+
+1. a prospectively frozen post-2015 wild-plant temporal replication; the outcome-blind
+   support gate reached only 9 matched species for each co-primary family, below the
+   frozen minimum of 30 species and 10 publications, so the test stopped before outcome
+   unblinding and is **not evaluable**, not a biological null;
+2. an independent PolLimCrop agricultural-domain transportability test with frozen
+   response mapping and support gates; this is still separate/pending and cannot rescue
+   the wild temporal support failure or make v13 H4 confirmatory for wild floras.
+
+The two mechanistically interpretable H4 predictions align with H2:
+
+- H4a: autonomous selfing -> lower current pollen limitation;
+- H4b: higher equal-weight accessibility/generalization
+  (generalized form + actinomorphy + shallow/open tube) -> lower current pollen limitation.
+
+A global primary colour bridge is **not** added because H1/H2 colour responses are
+context dependent and do not define one globally predicted functional direction.
 
 ## Interpretation
 
