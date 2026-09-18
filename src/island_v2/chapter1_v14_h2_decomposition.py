@@ -234,7 +234,6 @@ def run_decomposition(
         *baseline,
         "selfing_core",
         "generalized_accessible",
-
     ]
     for column in numeric_columns:
         continuous[column] = pd.to_numeric(continuous[column], errors="coerce")
