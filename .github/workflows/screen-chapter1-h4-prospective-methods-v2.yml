@@ -6,6 +6,7 @@ on:
   pull_request:
     paths:
       - "config/chapter1_h4_prospective_methods_preflight_v2.yml"
+      - "config/chapter1_h4_prospective_outcome_exposure_exclusion_lock_v1.yml"
       - "scripts/screen_chapter1_h4_prospective_methods_v2.py"
       - "tests/test_chapter1_h4_prospective_methods_v2.py"
       - "scripts/audit_chapter1_h4_methods_v2_support.py"
@@ -67,6 +68,7 @@ jobs:
             --metadata-csv "$ROOT/meta/post2015_h4_metadata_candidates.csv" \
             --trait-states-csv "$ROOT/traits/prospective_h4_frozen_trait_states.csv" \
             --config-path config/chapter1_h4_prospective_methods_preflight_v2.yml \
+            --exclusion-lock-path config/chapter1_h4_prospective_outcome_exposure_exclusion_lock_v1.yml \
             --output-csv "$ROOT/out/methods_v2_screen.csv"
 
       - name: Audit frozen H4 support without outcomes
