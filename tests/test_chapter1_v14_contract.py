@@ -46,7 +46,7 @@ def test_v14_manuscript_has_reordered_hypothesis_sections():
     assert methods == sorted(methods)
     assert text.count("### H4: post-hoc functional triangulation") == 1
     assert text.count(
-        "### H4: current pollen limitation is lower in key island-syndrome trait states"
+        "### H4: the functional bridge has a post-hoc discovery layer and support-gated validation layers"
     ) == 1
     assert "## Claim ceiling for v14" in text
     assert "## Claim ceiling for v13" not in text
@@ -81,16 +81,35 @@ def test_v14_H4_separates_discovery_validation_and_transportability():
 
 
 
-def test_v14_H4_family_bridge_uses_H2_exact_accessibility_weights():
+def test_v14_H4_exact_bridge_uses_literal_H2_species_scores():
+    config = yaml.safe_load(
+        Path("config/chapter1_v14_h4_exact_h2_score_bridge.yml").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert config["H2_score_source"]["score_column"] == "soft_membership"
+    assert (
+        config["families"]["reproductive_assurance"]["H2_syndrome"]
+        == "selfing_core"
+    )
+    assert (
+        config["families"]["accessibility_generalization"]["H2_syndrome"]
+        == "generalized_accessible"
+    )
+
+
+def test_v14_H4_atomic_reconstruction_is_sensitivity_only():
     config = yaml.safe_load(
         Path("config/chapter1_v14_h4_family_bridge.yml").read_text(encoding="utf-8")
     )
+    assert (
+        config["inferential_role"]
+        == "posthoc_atomic_family_reconstruction_sensitivity"
+    )
     access = config["families"]["accessibility_generalization"]
-    assert access["role"] == "H2_exact_family_score"
+    assert access["role"] == "atomic_reconstruction_sensitivity"
     assert access["weights"] == {
         "generalized_form": 1.0,
         "actinomorphic_symmetry": 0.75,
         "shallow_open_tube": 1.0,
     }
-    sensitivity = config["families"]["accessibility_equal_weight_sensitivity"]
-    assert sensitivity["role"] == "prospective_H4b_definition_sensitivity"
