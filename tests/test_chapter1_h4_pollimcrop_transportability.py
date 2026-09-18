@@ -21,8 +21,8 @@ CONFIG = yaml.safe_load(
 
 def test_metadata_reader_does_not_read_outcome_columns() -> None:
     csv_bytes = (
-        "line,article_code,species,country,PL_effectsize,SUP_FS_mean,OBS_FS_mean\n"
-        "1,Study_2020_10.1/x,Malus domestica,Spain,0.9,0.8,0.2\n"
+        "line;article_code;species;country;PL_effectsize;SUP_FS_mean;OBS_FS_mean\n"
+        "1;Study_2020_10.1/x;Malus domestica;Spain;0,9;0,8;0,2\n"
     ).encode()
     frame, schema = MODULE.metadata_only_frame(csv_bytes, CONFIG)
     assert "PL_effectsize" in schema
