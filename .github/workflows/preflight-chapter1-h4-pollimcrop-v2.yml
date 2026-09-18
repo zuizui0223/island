@@ -99,7 +99,7 @@ jobs:
         run: |
           set -euo pipefail
           LOCK=config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json
-          python scripts/freeze_chapter1_h4_pollimcrop_preflight_result.py freeze \
+          python scripts/freeze_chapter1_h4_pollimcrop_preflight_result.py \
             --preflight-json "$ROOT/preflight/PREFLIGHT.json" \
             --preflight-config-path config/chapter1_h4_pollimcrop_transportability_preflight_v1.yml \
             --response-mapping-path config/chapter1_h4_pollimcrop_response_mapping_v1.yml \
@@ -161,7 +161,7 @@ jobs:
       - name: Materialize exact locked PolLimCrop CSV bytes
         if: steps.support_lock.outputs.authorized == 'true'
         run: |
-          python scripts/download_chapter1_h4_pollimcrop_locked_dataset.py run \
+          python scripts/download_chapter1_h4_pollimcrop_locked_dataset.py \
             --preflight-result-lock config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json \
             --preflight-config config/chapter1_h4_pollimcrop_transportability_preflight_v1.yml \
             --output-csv "$ROOT/source/pollimcrop.csv"
@@ -195,7 +195,7 @@ jobs:
         run: |
           set -euo pipefail
           LOCK=config/chapter1_h4_pollimcrop_transportability_result_lock.json
-          python scripts/freeze_chapter1_h4_pollimcrop_result.py freeze \
+          python scripts/freeze_chapter1_h4_pollimcrop_result.py \
             --result-json "$ROOT/result/RESULT.json" \
             --preflight-lock-path config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json \
             --response-mapping-path config/chapter1_h4_pollimcrop_response_mapping_v1.yml \
