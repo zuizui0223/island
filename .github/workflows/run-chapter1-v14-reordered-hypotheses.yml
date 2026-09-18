@@ -9,6 +9,7 @@ on:
       - "config/chapter1_v14_hypothesis_architecture.yml"
       - "config/chapter1_v14_all_data_probability.yml"
       - "config/chapter1_v14_h2_decomposition.yml"
+      - "config/chapter1_v14_h4_evidence_hierarchy.yml"
       - "src/island_v2/chapter1_v14_h2_decomposition.py"
       - "tests/test_chapter1_v14_h2_decomposition.py"
       - "tests/test_chapter1_v14_contract.py"
