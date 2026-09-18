@@ -1,6 +1,6 @@
 # A recurrent global floral island syndrome separates selfing and pollinator-facing floral responses under increasing pollen limitation
 
-## Full working manuscript v14 candidate — reordered H1–H4 analysis — 2026-09-18
+## Full working manuscript v14 — canonical reordered H1–H4 analysis — 2026-09-18
 
 ### Abstract
 
@@ -299,6 +299,12 @@ Zell, A. N. et al. 2025. Island colonization in flowering plants is determined b
 ---
 
 ## Reproducibility anchors
+
+- v14 canonical result lock: `config/chapter1_v14_canonical_result_lock.json`;
+- v14 submission freeze: `docs/chapter1_submission_freeze_v14_20260918.md`;
+- v14 reproduction run: `35314955780`;
+- v14 reproduction artifact: `10535020072`;
+- v14 reproduction digest: `sha256:4665e68341cea35bfb16c33afeb30ccf2705b5a47982f81e409e8507204be811`;
 
 - v14 hypothesis architecture: `config/chapter1_v14_hypothesis_architecture.yml`;
 - v14 H1 probability config: `config/chapter1_v14_all_data_probability.yml`;
