@@ -242,7 +242,7 @@ def analyse_family(
                 "family": family,
                 "score_name": score_name,
                 "analysis": analysis,
-                "inferential_role": "posthoc_family_aligned_functional_triangulation",
+                "inferential_role": "posthoc_atomic_family_reconstruction_sensitivity",
                 **fit_global_family_score(part, score_name=score_name),
             }
         )
@@ -297,7 +297,7 @@ def run_family_bridge(
     frame = pd.DataFrame(results)
     manifest = {
         "contract": CONTRACT,
-        "inferential_role": "posthoc_family_aligned_functional_triangulation",
+        "inferential_role": "posthoc_atomic_family_reconstruction_sensitivity",
         "support": support,
         "all_primary_estimates_negative": bool(
             frame.loc[frame["analysis"].eq("primary"), "estimate"].lt(0).all()
