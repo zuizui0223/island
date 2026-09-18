@@ -377,7 +377,7 @@ jobs:
               lines += [""]
 
           Path("/tmp/v14/results/chapter1_v14_result_summary.json").write_text(
-              json.dumps(result, indent=2, allow_nan=False) + "\n"
+              json.dumps(result, indent=2, allow_nan=False, default=str) + "\n"
           )
           Path("/tmp/v14/results/RESULT_SUMMARY.md").write_text("\n".join(lines) + "\n")
           PY
