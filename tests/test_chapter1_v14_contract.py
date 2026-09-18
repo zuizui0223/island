@@ -45,14 +45,15 @@ def test_v14_manuscript_has_reordered_hypothesis_sections():
     ]
     assert methods == sorted(methods)
     assert text.count("### H4: post-hoc functional triangulation") == 1
-    assert text.count(
-        "### H4: the functional bridge has a post-hoc discovery layer and support-gated validation layers"
-    ) == 1
+    h4_result_heading = (
+        "### H4: the functional bridge has a post-hoc discovery layer "
+        "and support-gated validation layers"
+    )
+    assert text.count(h4_result_heading) == 1
     assert "## Claim ceiling for v14" in text
     assert "## Claim ceiling for v13" not in text
     assert "seven-response" in text
     assert "plain_colour" in text
-
 
 
 def test_v14_H2_uses_raw_trait_concordance_not_weighted_guild_scores():
@@ -78,7 +79,6 @@ def test_v14_H4_separates_discovery_validation_and_transportability():
     crop = layers["pollimcrop_independent_domain"]
     assert crop["outcome_domain_independent_of_v13_GloPL"] is True
     assert config["colour_bridge"]["primary_global_test"] is False
-
 
 
 def test_v14_H4_exact_bridge_uses_literal_H2_species_scores():
