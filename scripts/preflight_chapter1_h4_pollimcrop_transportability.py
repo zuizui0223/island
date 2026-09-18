@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import csv
 import hashlib
 import io
 import json
@@ -182,38 +183,84 @@ def extract_dataset_csv(payload: bytes, file_name: str) -> tuple[bytes, str]:
         return archive.read(chosen), chosen
 
 
-def metadata_only_frame(csv_bytes: bytes, config: dict[str, Any]) -> tuple[pd.DataFrame, list[str]]:
+RAW_COLUMN_ALIASES = {
+    "unicode": "record_unicode",
+    "plant accession": "plant_accession",
+    "crop part": "crop_part",
+    "year_of_the_experiment": "experiment_year",
+}
+
+
+def _unwrap_outer_record_layer(
+    csv_bytes: bytes,
+    *,
+    encoding: str,
+    wrapper: str,
+) -> str:
+    text = csv_bytes.decode(encoding)
+    if wrapper == "none":
+        return text
+    if wrapper != "full_row_double_quoted_csv_field":
+        raise typer.BadParameter(f"unexpected PolLimCrop row wrapper: {wrapper}")
+    reader = csv.reader(io.StringIO(text), delimiter=",", quotechar='"')
+    records: list[str] = []
+    for row in reader:
+        if not row:
+            continue
+        if len(row) != 1:
+            raise typer.BadParameter(
+                "PolLimCrop outer wrapper did not decode to one field per record"
+            )
+        records.append(row[0])
+    return "\n".join(records) + ("\n" if records else "")
+
+
+def metadata_only_frame(
+    csv_bytes: bytes,
+    config: dict[str, Any],
+) -> tuple[pd.DataFrame, list[str]]:
     csv_format = config["source"]["csv_format"]
     delimiter = str(csv_format["delimiter"])
     decimal_mark = str(csv_format["decimal_mark"])
     encoding = str(csv_format["encoding"])
+    wrapper = str(csv_format.get("outer_record_wrapping", "none"))
+    normalized = _unwrap_outer_record_layer(
+        csv_bytes,
+        encoding=encoding,
+        wrapper=wrapper,
+    )
     header = pd.read_csv(
-        io.BytesIO(csv_bytes),
+        io.StringIO(normalized),
         nrows=0,
         sep=delimiter,
-        encoding=encoding,
     )
-    columns = [str(x) for x in header.columns]
+    raw_columns = [str(x) for x in header.columns]
+    canonical = {
+        column: RAW_COLUMN_ALIASES.get(column, column)
+        for column in raw_columns
+    }
+    canonical_columns = [canonical[column] for column in raw_columns]
     allowed = {
         str(x)
         for x in config["outcome_blind_preflight"]["allowed_dataset_columns"]
     }
     required = {"species", "article_code"}
-    if missing := required - set(columns):
+    if missing := required - set(canonical_columns):
         raise typer.BadParameter(
             "PolLimCrop schema missing required metadata: "
-            f"{sorted(missing)}; observed columns={columns}"
+            f"{sorted(missing)}; observed columns={raw_columns}"
         )
-    selected = [column for column in columns if column in allowed]
+    selected_raw = [
+        column for column in raw_columns if canonical[column] in allowed
+    ]
     frame = pd.read_csv(
-        io.BytesIO(csv_bytes),
-        usecols=selected,
+        io.StringIO(normalized),
+        usecols=selected_raw,
         sep=delimiter,
         decimal=decimal_mark,
-        encoding=encoding,
         dtype=str,
-    ).fillna("")
-    return frame, columns
+    ).rename(columns=canonical).fillna("")
+    return frame, raw_columns
 
 
 def exact_binomial(value: object) -> str:
@@ -302,7 +349,12 @@ def run(
     observed_scope = validate_expected_scope(metadata, config)
     config_format = config["source"]["csv_format"]
     mapping_format = mapping["source_method_basis"]["csv_format"]
-    for key in ("delimiter", "decimal_mark", "encoding"):
+    for key in (
+        "delimiter",
+        "decimal_mark",
+        "encoding",
+        "outer_record_wrapping",
+    ):
         if str(mapping_format[key]) != str(config_format[key]):
             raise typer.BadParameter(
                 f"PolLimCrop response mapping disagrees with frozen source format: {key}"
@@ -321,6 +373,9 @@ def run(
             "delimiter": str(config["source"]["csv_format"]["delimiter"]),
             "decimal_mark": str(config["source"]["csv_format"]["decimal_mark"]),
             "encoding": str(config["source"]["csv_format"]["encoding"]),
+            "outer_record_wrapping": str(
+                config["source"]["csv_format"]["outer_record_wrapping"]
+            ),
         },
         "figshare": {
             "collection_id": int(config["source"]["figshare_collection_id"]),
