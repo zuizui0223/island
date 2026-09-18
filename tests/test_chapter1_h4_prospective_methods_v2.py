@@ -122,3 +122,30 @@ def test_normalise_frame_does_not_expand_sampling_frame() -> None:
     out = v2._normalise_frame(frame)
     assert len(out) == 2
     assert out.loc[0, "doi"] == "10.1/a"
+
+
+def test_outcome_exposure_exclusions_are_mechanical() -> None:
+    frame = pd.DataFrame(
+        {
+            "source_database": ["OpenAlex", "OpenAlex"],
+            "source_record_id": ["a", "b"],
+            "doi": ["10.1002/ece3.6884", "10.0000/keep"],
+            "title": [
+                "Pollinator dependence but no pollen limitation for eight plants occurring north of the Arctic Circle",
+                "Unexposed study",
+            ],
+            "publication_date": ["2020-01-01", "2021-01-01"],
+            "publication_year": ["2020", "2021"],
+            "query_family": ["pollen limitation", "pollen limitation"],
+        }
+    )
+    frame = v2._normalise_frame(frame)
+    lock = {
+        "exclusion_keys": {
+            "doi": ["10.1002/ece3.6884"],
+            "title_exact": [],
+        }
+    }
+    kept, removed = v2._apply_exposure_exclusions(frame, lock)
+    assert removed == 1
+    assert kept["doi"].tolist() == ["10.0000/keep"]
