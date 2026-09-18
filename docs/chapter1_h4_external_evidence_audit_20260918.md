@@ -63,7 +63,7 @@ outcome replication of v13.
 
 ### 3.2 Older regional/comparative analyses — prior external biological support
 
-Wolowski et al. (2014, PLoS ONE, DOI 10.1371/journal.pone.0091238) analysed 126 Atlantic
+Wolowski et al. (2014, PLoS ONE, DOI 10.1371/journal.pone.0089498) analysed 126 Atlantic
 Forest species and found higher pollen limitation in phenotypic/ecological specialists;
 actinomorphic and more generalized plants had lower pollen limitation than specialized
 counterparts.
