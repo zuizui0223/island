@@ -1,5 +1,9 @@
 name: Screen Chapter 1 H4 prospective Methods
 
+concurrency:
+  group: h4-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   pull_request:
     paths:

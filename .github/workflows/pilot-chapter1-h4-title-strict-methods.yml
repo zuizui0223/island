@@ -1,5 +1,9 @@
 name: Pilot Chapter 1 H4 strict-title Methods support
 
+concurrency:
+  group: h4-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   pull_request:
     paths:

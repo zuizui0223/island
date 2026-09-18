@@ -1,5 +1,9 @@
 name: Audit Chapter 1 H4 prospective temporal replication
 
+concurrency:
+  group: h4-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   pull_request:
     paths:

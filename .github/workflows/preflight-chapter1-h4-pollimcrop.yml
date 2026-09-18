@@ -1,5 +1,9 @@
 name: Preflight Chapter 1 H4 PolLimCrop transportability
 
+concurrency:
+  group: h4-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [feature/h4-prospective-temporal-replication]
