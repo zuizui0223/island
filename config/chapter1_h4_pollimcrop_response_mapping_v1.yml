@@ -7,6 +7,11 @@ parent_preflight: config/chapter1_h4_pollimcrop_transportability_preflight_v1.ym
 source_method_basis:
   descriptor_doi: 10.1038/s41597-023-02797-6
   response_column: PL_effectsize
+  response_column_name_basis: >-
+    The published Methods text explicitly identifies the dataset column as
+    PL_effectsize. A later Data Records prose passage renders PL_effect_size;
+    the frozen parser follows the explicit Methods column token and will fail
+    rather than silently rename the field if the downloaded schema disagrees.
   csv_format:
     delimiter: ';'
     decimal_mark: ','
