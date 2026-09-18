@@ -12,6 +12,7 @@ import hashlib
 import json
 import re
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -52,8 +53,21 @@ def _get(url: str) -> bytes:
         url,
         headers={"User-Agent": "island-h4-methods-preflight/1.0"},
     )
-    with urllib.request.urlopen(request, timeout=60) as response:  # noqa: S310
-        return response.read()
+    for attempt in range(7):
+        try:
+            with urllib.request.urlopen(request, timeout=60) as response:  # noqa: S310
+                return response.read()
+        except urllib.error.HTTPError as exc:
+            if exc.code not in {429, 500, 502, 503, 504} or attempt == 6:
+                raise
+            retry_after = exc.headers.get("Retry-After")
+            delay = (
+                float(retry_after)
+                if retry_after and retry_after.isdigit()
+                else min(30.0, 2.0 ** attempt)
+            )
+            time.sleep(delay)
+    raise RuntimeError("unreachable Methods retry loop")
 
 
 def _get_json(url: str) -> dict[str, Any]:
@@ -286,7 +300,7 @@ def run(
         rows.append(screen_record(record, lookup=lookup, config=config))
         if index % 25 == 0:
             typer.echo(f"screened {index}/{len(records)}")
-        time.sleep(0.08)
+        time.sleep(0.20)
 
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     fields = [
