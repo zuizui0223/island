@@ -164,3 +164,46 @@ If the frozen PolLimCrop row-level analysis is support-admitted and passes, add 
 
 That still does not repair the support-limited wild temporal replication or identify
 historical mediation.
+
+
+## PolLimCrop outcome-blind support decision
+
+The independently frozen crop-domain transportability preflight reached a support
+decision without opening row-level pollen-limitation outcomes.
+
+Frozen lock:
+`config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json`.
+
+### H4a — autonomous selfing
+
+Outcome-blind support contained 36 matched species across 109 publications.
+
+- autonomous-selfing state 0: 9 species / 32 publications;
+- state 1: 27 species / 79 publications.
+
+The frozen gate required at least 30 species total, 10 species per state, 10
+publications total and 5 publications per state. All conditions passed except the
+state-0 species minimum: **9 < 10**.
+
+### H4b — accessibility/generalization
+
+Outcome-blind support contained 42 matched species across 141 publications.
+
+- accessibility-score SD: 0.353;
+- low-score species: 6;
+- high-score species: 17.
+
+The frozen gate required at least 30 species, 10 publications, score SD >=0.10 and
+at least 8 species in each low/high tail. All conditions passed except the low-score
+minimum: **6 < 8**.
+
+### Decision
+
+No co-primary hypothesis was admitted. Outcome extraction remained unauthorized,
+`PL_effect_size` values remained unread, and no crop transportability result lock
+was created. The downstream transportability workflow verified the committed support
+lock and skipped data materialization and outcome analysis.
+
+This is **support insufficiency, not a crop-domain biological null**. It neither
+repairs the support-limited wild temporal replication nor weakens the existing
+post-hoc functional bridge.
