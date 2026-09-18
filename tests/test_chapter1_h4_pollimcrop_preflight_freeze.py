@@ -23,7 +23,7 @@ def _base_preflight() -> dict:
         "outcomes_read": False,
         "response_mapping": {
             "sha256": mapping_sha,
-            "response_column": "PL_effectsize",
+            "response_column": "PL_effect_size",
             "outcome_values_read": False,
         },
         "validated_expected_scope": {
