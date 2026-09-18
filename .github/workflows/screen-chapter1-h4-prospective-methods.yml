@@ -6,6 +6,9 @@ on:
       - "config/chapter1_h4_prospective_methods_preflight_v1.yml"
       - "scripts/screen_chapter1_h4_prospective_methods.py"
       - "scripts/build_chapter1_h4_prospective_trait_states.py"
+      - "scripts/build_chapter1_h4_prospective_support_metadata.py"
+      - "src/island_v2/chapter1_h4_prospective_temporal_replication.py"
+      - "config/chapter1_h4_prospective_temporal_replication_v1.yml"
       - ".github/workflows/screen-chapter1-h4-prospective-methods.yml"
   workflow_dispatch:
 
@@ -58,10 +61,34 @@ jobs:
           print("matched-species records", x["matched_species"].fillna("").ne("").sum())
           print("coordinate records", x["coordinate_pairs_json"].fillna("[]").ne("[]").sum())
           PY
+      - name: Build frozen-geography support metadata
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 5 --retry-delay 2 \
+            "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/ca96624a56bd078437bca8184e78163e5039ad19/geojson/ne_110m_land.geojson" \
+            -o "$ROOT/ne_110m_land.geojson"
+          echo "9e0729ee253ca7d7a5c4ae9395fb1902264c5377c52e224d13dd85010e2835d9  $ROOT/ne_110m_land.geojson" \
+            | sha256sum --check --strict
+          python scripts/build_chapter1_h4_prospective_support_metadata.py \
+            --methods-csv "$ROOT/out/prospective_h4_methods_screen.csv" \
+            --trait-states-csv "$ROOT/out/prospective_h4_frozen_trait_states.csv" \
+            --land-geojson "$ROOT/ne_110m_land.geojson" \
+            --output-csv "$ROOT/out/prospective_h4_support_metadata.csv"
+
+      - name: Generate support lock template without outcomes
+        run: |
+          python -m island_v2.chapter1_h4_prospective_temporal_replication preflight \
+            --metadata-csv "$ROOT/out/prospective_h4_support_metadata.csv" \
+            --trait-states-csv "$ROOT/out/prospective_h4_frozen_trait_states.csv" \
+            --config-path config/chapter1_h4_prospective_temporal_replication_v1.yml \
+            --output-dir "$ROOT/out/support_lock"
+
       - name: Hash outcome-blind outputs
         run: |
           sha256sum "$ROOT/out/prospective_h4_frozen_trait_states.csv" \
             "$ROOT/out/prospective_h4_methods_screen.csv" \
+            "$ROOT/out/prospective_h4_support_metadata.csv" \
+            "$ROOT/out/support_lock/SUPPORT_LOCK_TEMPLATE.json" \
             > "$ROOT/out/OUTCOME_BLIND_SHA256.txt"
       - uses: actions/upload-artifact@v4
         with:
