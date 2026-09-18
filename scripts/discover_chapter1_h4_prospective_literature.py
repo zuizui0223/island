@@ -198,7 +198,7 @@ def deduplicate(rows: list[dict[str, str]]) -> list[dict[str, str]]:
 @app.command("run")
 def run(
     output_csv: Path = typer.Option(...),
-    max_per_query: int = typer.Option(100, min=1, max=100),
+    max_per_query: int = typer.Option(500, min=1, max=500),
 ) -> None:
     rows = deduplicate(
         discover_openalex(max_per_query) + discover_crossref(max_per_query)
