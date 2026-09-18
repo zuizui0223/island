@@ -19,7 +19,8 @@ while leaving frozen v13 GloPL and functional-bridge estimates intact.
         individual-trait discovery
         + literal H2 species-score discovery
         + atomic reconstruction sensitivity
-        + prospective validation layers
+        + prospective validation audit
+          (wild + crop both support-limited; outcomes unopened)
 
 H1 is now a seven-response beta-binomial multivariate test. H2 uses selfing_core as
 the reproductive mechanism covariate and tests plain_colour and
@@ -43,6 +44,8 @@ See:
 - config/chapter1_v14_h4_family_bridge_preflight_result_lock.json
 - docs/chapter1_v14_hypothesis_reorder_20260918.md
 - docs/chapter1_v14_preflight_results_20260918.md
+- config/chapter1_h4_prospective_validation_summary_lock.json
+- docs/chapter1_h4_prospective_validation_summary_20260918.md
 
 The v13 pipeline below remains immutable parent provenance.
 
