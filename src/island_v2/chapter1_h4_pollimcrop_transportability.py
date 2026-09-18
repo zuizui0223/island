@@ -146,8 +146,21 @@ def read_outcome_rows(
 
     required = set(GRAIN) | {"PL_effectsize"}
     selected: list[dict[str, Any]] = []
-    with dataset_csv.open("r", encoding="utf-8-sig", newline="") as handle:
-        reader = csv.DictReader(handle)
+    source_format = preflight.get("source_format", {})
+    delimiter = str(source_format.get("delimiter", ""))
+    decimal_mark = str(source_format.get("decimal_mark", ""))
+    encoding = str(source_format.get("encoding", ""))
+    if delimiter != ";" or decimal_mark != "," or encoding != "utf-8-sig":
+        raise typer.BadParameter("unexpected frozen PolLimCrop CSV format")
+
+    def parse_number(value: object) -> float:
+        text = str(value or "").strip()
+        if decimal_mark != ".":
+            text = text.replace(decimal_mark, ".")
+        return float(text)
+
+    with dataset_csv.open("r", encoding=encoding, newline="") as handle:
+        reader = csv.DictReader(handle, delimiter=delimiter)
         fieldnames = set(reader.fieldnames or [])
         if missing := required - fieldnames:
             raise typer.BadParameter(
@@ -156,12 +169,11 @@ def read_outcome_rows(
         for raw in reader:
             accepted_species = exact_binomial(raw.get("species", ""))
             if accepted_species not in allowed_species:
-                # Crucially, do not access or convert PL_effectsize for a species
-                # belonging only to a support-failed co-primary hypothesis.
+                # Do not access PL_effectsize for support-failed species.
                 continue
             try:
-                effect = float(str(raw.get("PL_effectsize", "")).strip())
-                experiment_year = float(str(raw.get("experiment_year", "")).strip())
+                effect = parse_number(raw.get("PL_effectsize", ""))
+                experiment_year = parse_number(raw.get("experiment_year", ""))
             except ValueError:
                 continue
             if not np.isfinite(effect) or not np.isfinite(experiment_year):
