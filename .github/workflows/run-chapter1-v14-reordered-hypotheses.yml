@@ -12,6 +12,10 @@ on:
       - "config/chapter1_v14_h4_evidence_hierarchy.yml"
       - "config/chapter1_v14_h4_family_bridge.yml"
       - "config/chapter1_v14_h4_family_bridge_preflight_result_lock.json"
+      - "tests/test_chapter1_v14_h4_exact_h2_score_bridge.py"
+      - "src/island_v2/chapter1_v14_h4_exact_h2_score_bridge.py"
+      - "config/chapter1_v14_h4_exact_h2_score_bridge_preflight_result_lock.json"
+      - "config/chapter1_v14_h4_exact_h2_score_bridge.yml"
       - "src/island_v2/chapter1_v14_h2_decomposition.py"
       - "src/island_v2/chapter1_v14_h4_family_bridge.py"
       - "tests/test_chapter1_v14_h2_decomposition.py"
@@ -76,12 +80,15 @@ jobs:
             tests/test_chapter1_v14_h2_decomposition.py \
             tests/test_chapter1_v14_contract.py \
             tests/test_chapter1_v14_preflight_lock.py \
-            tests/test_chapter1_v14_h4_family_bridge.py
+            tests/test_chapter1_v14_h4_family_bridge.py \
+            tests/test_chapter1_v14_h4_exact_h2_score_bridge.py
           ruff check \
             src/island_v2/chapter1_v14_h2_decomposition.py \
             src/island_v2/chapter1_v14_h4_family_bridge.py \
+            src/island_v2/chapter1_v14_h4_exact_h2_score_bridge.py \
             tests/test_chapter1_v14_h2_decomposition.py \
             tests/test_chapter1_v14_h4_family_bridge.py \
+            tests/test_chapter1_v14_h4_exact_h2_score_bridge.py \
             tests/test_chapter1_v14_contract.py \
             tests/test_chapter1_v14_preflight_lock.py
 
@@ -169,7 +176,45 @@ jobs:
               --output-dir /tmp/v14/results/$scope/h2
           done
 
-      - name: Run H4 family-aligned bridge
+      - name: Run exact H2-score functional bridge
+        run: |
+          mkdir -p /tmp/v14/results/h4-exact
+          python -m island_v2.chapter1_v14_h4_exact_h2_score_bridge \
+            --h2-species-scores-csv /tmp/v14/all-data/syndrome/direct/species_syndrome_concordance.csv.gz \
+            --reproductive-effect-rows-csv /tmp/v14/h4-ra/out/MATCHED_EFFECT_ROWS.csv.gz \
+            --architecture-effect-rows-csv /tmp/v14/h4-arch/out/MATCHED_EFFECT_ROWS.csv.gz \
+            --config-path config/chapter1_v14_h4_exact_h2_score_bridge.yml \
+            --output-dir /tmp/v14/results/h4-exact
+
+      - name: Validate exact H2-score bridge against frozen reproduction
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          observed = pd.read_csv(
+              "/tmp/v14/results/h4-exact/h4_exact_h2_score_bridge_results.csv"
+          )
+          expected = json.loads(
+              Path(
+                  "config/chapter1_v14_h4_exact_h2_score_bridge_preflight_result_lock.json"
+              ).read_text()
+          )
+          for family, payload in expected["families"].items():
+              for analysis in ("primary", "supplemental_only", "no_zero_constant"):
+                  row = observed.loc[
+                      observed["family"].eq(family)
+                      & observed["analysis"].eq(analysis)
+                  ].iloc[0]
+                  target = payload[analysis]
+                  assert abs(float(row["estimate"]) - float(target["estimate"])) < 1e-10
+                  assert abs(float(row["se"]) - float(target["se"])) < 1e-10
+                  assert int(row["n_species"]) == int(target["n_species"])
+                  assert int(row["n_publications"]) == int(target["n_publications"])
+          PY
+
+      - name: Run H4 atomic-reconstruction sensitivity
         run: |
           mkdir -p /tmp/v14/results/h4-family
           python -m island_v2.chapter1_v14_h4_family_bridge \
@@ -180,7 +225,7 @@ jobs:
             --config-path config/chapter1_v14_h4_family_bridge.yml \
             --output-dir /tmp/v14/results/h4-family
 
-      - name: Validate H4 family bridge against frozen reproduction
+      - name: Validate H4 atomic reconstruction against frozen reproduction
         run: |
           python - <<'PY'
           import json
@@ -217,6 +262,12 @@ jobs:
           config = yaml.safe_load(Path("config/chapter1_v14_all_data_probability.yml").read_text())
           h2_config = yaml.safe_load(Path("config/chapter1_v14_h2_decomposition.yml").read_text())
           h4_config = yaml.safe_load(Path("config/chapter1_v14_h4_evidence_hierarchy.yml").read_text())
+          h4_exact = pd.read_csv(
+              root / "h4-exact" / "h4_exact_h2_score_bridge_results.csv"
+          )
+          h4_exact_manifest = json.loads(
+              (root / "h4-exact" / "h4_exact_h2_score_bridge_manifest.json").read_text()
+          )
           h4_family = pd.read_csv(
               root / "h4-family" / "h4_family_bridge_results.csv"
           )
@@ -232,10 +283,14 @@ jobs:
                   "raw_pollination_syndrome_concordance"
               ],
               "H4_evidence_hierarchy": h4_config,
-              "H4_family_bridge_results": json.loads(
+              "H4_exact_H2_score_bridge_results": json.loads(
+                  h4_exact.to_json(orient="records")
+              ),
+              "H4_exact_H2_score_bridge_manifest": h4_exact_manifest,
+              "H4_atomic_reconstruction_results": json.loads(
                   h4_family.to_json(orient="records")
               ),
-              "H4_family_bridge_manifest": h4_family_manifest,
+              "H4_atomic_reconstruction_manifest": h4_family_manifest,
           }
 
           for scope in ("all", "direct"):
