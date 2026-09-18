@@ -13,6 +13,8 @@ on:
       - "config/chapter1_v14_h4_family_bridge.yml"
       - "config/chapter1_v14_h4_family_bridge_preflight_result_lock.json"
       - "tests/test_chapter1_v14_h4_exact_h2_score_bridge.py"
+      - "tests/test_chapter1_v14_submission_promotion.py"
+      - "src/island_v2/chapter1_v14_submission_promotion.py"
       - "src/island_v2/chapter1_v14_h4_exact_h2_score_bridge.py"
       - "config/chapter1_v14_h4_exact_h2_score_bridge_preflight_result_lock.json"
       - "config/chapter1_v14_h4_exact_h2_score_bridge.yml"
@@ -83,14 +85,17 @@ jobs:
             tests/test_chapter1_v14_contract.py \
             tests/test_chapter1_v14_preflight_lock.py \
             tests/test_chapter1_v14_h4_family_bridge.py \
-            tests/test_chapter1_v14_h4_exact_h2_score_bridge.py
+            tests/test_chapter1_v14_h4_exact_h2_score_bridge.py \
+            tests/test_chapter1_v14_submission_promotion.py
           ruff check \
             src/island_v2/chapter1_v14_h2_decomposition.py \
             src/island_v2/chapter1_v14_h4_family_bridge.py \
             src/island_v2/chapter1_v14_h4_exact_h2_score_bridge.py \
+            src/island_v2/chapter1_v14_submission_promotion.py \
             tests/test_chapter1_v14_h2_decomposition.py \
             tests/test_chapter1_v14_h4_family_bridge.py \
             tests/test_chapter1_v14_h4_exact_h2_score_bridge.py \
+            tests/test_chapter1_v14_submission_promotion.py \
             tests/test_chapter1_v14_contract.py \
             tests/test_chapter1_v14_preflight_lock.py
 
@@ -377,6 +382,16 @@ jobs:
           Path("/tmp/v14/results/RESULT_SUMMARY.md").write_text("\n".join(lines) + "\n")
           PY
           cat /tmp/v14/results/RESULT_SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify full v14 result surface
+        run: |
+          python -m island_v2.chapter1_v14_submission_promotion verify \
+            --result-summary /tmp/v14/results/chapter1_v14_result_summary.json \
+            --preflight-lock config/chapter1_v14_preflight_result_lock.json \
+            --exact-bridge-lock config/chapter1_v14_h4_exact_h2_score_bridge_preflight_result_lock.json \
+            --reconstruction-lock config/chapter1_v14_h4_family_bridge_preflight_result_lock.json \
+            --report /tmp/v14/results/v14_reproduction_verification.json
+          cat /tmp/v14/results/v14_reproduction_verification.json >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
         if: always()
