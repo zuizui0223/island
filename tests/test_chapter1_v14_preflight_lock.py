@@ -12,7 +12,7 @@ def test_v14_preflight_lock_matches_reordered_architecture():
         "H1": "seven_response_global_island_syndrome",
         "H2": "selfing_vs_pollinator_facing_floral_decomposition",
         "H3": "independent_global_pollen_limitation",
-        "H4": "posthoc_functional_bridge",
+        "H4": "tiered_functional_bridge_with_posthoc_discovery_and_support_gated_validation",
     }
     for scope in ("all_analysis", "direct_only"):
         assert all(
@@ -32,9 +32,10 @@ def test_v14_preflight_lock_matches_reordered_architecture():
     )
     assert lock["H4"]["prospective_wild_temporal_replication"]["outcomes_opened"] is False
     assert lock["H4"]["colour_bridge"]["promoted"] is False
-    family = lock["H4"]["family_aligned_discovery"]
-    assert family["reproductive_assurance"]["estimate"] < 0
-    assert family["accessibility_generalization"]["estimate"] < 0
-    assert family["accessibility_generalization"]["supplemental_only_two_sided_p"] < 0.05
-    assert family["accessibility_generalization"]["no_zero_constant_two_sided_p"] < 0.05
+    exact = lock["H4"]["exact_H2_score_discovery"]
+    assert exact["reproductive_assurance"]["estimate"] < 0
+    assert exact["accessibility_generalization"]["estimate"] < 0
+    assert exact["accessibility_generalization"]["supplemental_only_two_sided_p"] < 0.05
+    reconstruction = lock["H4"]["atomic_reconstruction_sensitivity"]
+    assert reconstruction["accessibility_generalization"]["estimate"] < 0
     assert lock["claim_ceiling"]["pollen_limitation_mediates_global_syndrome"] is False
