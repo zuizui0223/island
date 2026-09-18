@@ -354,7 +354,7 @@
     "classification": "global_isolation_associated_experimental_pollen_limitation_supported"
   },
   "H4": {
-    "source": "tiered_functional_bridge_evidence_with_family_alignment",
+    "source": "tiered_functional_bridge_evidence_with_exact_H2_score_alignment",
     "discovery": {
       "source": "frozen_v13_functional_bridge",
       "inferential_role": "posthoc_functional_triangulation",
@@ -404,9 +404,33 @@
       "reason": "context_dependent_colour_response_has_no_single_global_functional_prediction"
     },
     "historical_selection_identified": false,
-    "family_aligned_discovery": {
+    "exact_H2_score_discovery": {
+      "source_lock": "config/chapter1_v14_h4_exact_h2_score_bridge_preflight_result_lock.json",
+      "inferential_role": "posthoc_exact_H2_score_functional_triangulation",
+      "reproductive_assurance": {
+        "H2_syndrome": "selfing_core",
+        "estimate": -0.29706162790382573,
+        "two_sided_p": 0.004114773773355803,
+        "supplemental_only_two_sided_p": 0.29202063091584557,
+        "no_zero_constant_two_sided_p": 0.0043776344227836,
+        "n_species": 455,
+        "n_publications": 409
+      },
+      "accessibility_generalization": {
+        "H2_syndrome": "generalized_accessible",
+        "estimate": -0.2960123452279311,
+        "two_sided_p": 0.022162544686764193,
+        "supplemental_only_two_sided_p": 0.03842197114842902,
+        "no_zero_constant_two_sided_p": 0.06489600366952121,
+        "no_zero_constant_one_sided_negative_p": 0.032448001834760605,
+        "n_species": 143,
+        "n_publications": 143
+      },
+      "classification": "both_exact_H2_species_scores_negative_and_supported_in_primary_GloPL_bridge"
+    },
+    "atomic_reconstruction_sensitivity": {
       "source_lock": "config/chapter1_v14_h4_family_bridge_preflight_result_lock.json",
-      "inferential_role": "posthoc_family_aligned_functional_triangulation",
+      "inferential_role": "posthoc_atomic_family_reconstruction_sensitivity",
       "reproductive_assurance": {
         "estimate": -0.3125493709156215,
         "two_sided_p": 0.0022214702949586752,
