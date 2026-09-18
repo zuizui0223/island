@@ -146,6 +146,42 @@ def test_analysis_refuses_uncommitted_support_lock(tmp_path: Path) -> None:
         )
 
 
+def test_committed_zero_support_lock_refuses_before_outcome_unblinding(
+    tmp_path: Path,
+) -> None:
+    metadata_path = tmp_path / "metadata.csv"
+    traits_path = tmp_path / "traits.csv"
+    config_path = tmp_path / "config.yml"
+    metadata = validate_metadata_outcome_blind(_metadata(), _config())
+    traits = prepare_frozen_trait_states(_traits(), _config())
+    matched = match_metadata_to_traits(metadata, traits)
+
+    metadata.to_csv(metadata_path, index=False)
+    _traits().to_csv(traits_path, index=False)
+    config_path.write_text(CONFIG_PATH.read_text(encoding="utf-8"), encoding="utf-8")
+    lock = build_support_lock(
+        metadata_path,
+        traits_path,
+        config_path,
+        metadata,
+        traits,
+        matched,
+        _config(),
+    )
+    lock["frozen_commit"] = "abc123"
+    for result in lock["support_counts"].values():
+        result["evaluable"] = False
+    lock["evaluable_primary_hypotheses"] = []
+
+    with pytest.raises(Exception, match="outcome file must remain unopened"):
+        _verify_unblinding_lock(
+            lock,
+            metadata_path=metadata_path,
+            trait_states_path=traits_path,
+            config_path=config_path,
+        )
+
+
 def test_primary_replication_recovers_negative_effects() -> None:
     metadata = validate_metadata_outcome_blind(_metadata(80), _config())
     traits = prepare_frozen_trait_states(_traits(80), _config())
