@@ -2,16 +2,22 @@
 
 Dear Editor,
 
-Please consider our manuscript, **“A recurrent global floral island syndrome separates reproductive assurance from pollinator-facing floral reorganization under increasing pollen limitation,”** for publication.
+Please consider our manuscript, **“A recurrent global floral island syndrome separates reproductive assurance from pollinator-facing floral reorganization under increasing pollen limitation,”** for publication in [JOURNAL].
 
-Island plants are often expected to become increasingly self-reliant as geographic isolation increases, but this expectation leaves unresolved whether floral simplification is merely a downstream consequence of selfing or whether pollinator-facing floral traits respond independently. We address this problem by combining a global island flora and trait database spanning 8,265 islands and 106,295 angiosperm species with the independent GloPL database of pollen-supplementation experiments.
+Island plants are often expected to become increasingly self-reliant as geographic isolation increases, but it remains unclear whether reproductive assurance and floral simplification form one recurrent global syndrome, whether floral change is simply a consequence of selfing, and whether the same trait states are functionally associated with reduced pollen limitation.
 
-We show that a seven-response floral/reproductive island-syndrome vector recurs across four geographic regions. Reproductive assurance increases with isolation, but generalized floral accessibility remains associated with isolation after measured selfing is conditioned on, indicating that floral change is not statistically reducible to a selfing syndrome alone. Raw flower-colour composition and colour–architecture coupling also reorganize with isolation, but in context-dependent directions. Independently, experimental pollen limitation increases with geographic isolation. Finally, the same species-level reproductive-assurance and floral-accessibility scores that increase with isolation are associated with lower current pollen limitation in exact-species functional comparisons.
+We assembled a global island plant database spanning **8,265 islands and 106,295 angiosperm species**, with **222,688 resolved species-by-trait cells**, and combined it with the independent GloPL pollen-supplementation database. The study makes four linked contributions. First, a seven-response floral/reproductive island-syndrome vector recurs across four predeclared geographic regions. Second, generalized floral accessibility remains positively associated with isolation after conditioning on reproductive assurance, showing that the floral response is not reducible to selfing alone. Third, experimental pollen limitation independently increases with geographic isolation. Fourth, the literal species-level H2 reproductive-assurance and floral-accessibility scores are each associated with lower current pollen limitation in exact-species GloPL overlap.
 
-The study therefore connects a recurrent island-syndrome pattern to an independently measured ecological pressure and to functional trait–pollen-limitation associations, while explicitly separating these results from claims of historical causal mediation. We believe this combination of global comparative data, experimental pollen-limitation evidence and pathway decomposition will be of broad interest to researchers studying island biogeography, plant reproductive evolution and plant–pollinator interactions.
+The main conceptual advance is therefore not simply that island plants self more. Rather, **a recurrent functional island syndrome contains partially separable reproductive-assurance and pollinator-facing floral responses, while detailed colour–architecture reorganization remains context dependent**. This distinction connects classic reproductive-assurance theory, floral specialization and global island biogeography.
 
-This manuscript is not under consideration elsewhere. [AUTHOR-SUPPLIED DECLARATIONS TO BE COMPLETED.]
+We are careful not to infer historical mediation, global pollinator decline, or one universal named pollination syndrome from these cross-sectional data. The manuscript instead combines pattern, conditional pathway decomposition, independent experimental pressure and post-hoc functional triangulation at an explicit claim ceiling.
+
+All authors have approved the manuscript and its submission to [JOURNAL]. [INSERT journal-required declarations on originality, conflicts, data/code availability, funding and corresponding-author details.]
+
+Thank you for your consideration.
 
 Sincerely,
 
-[AUTHOR NAME / CORRESPONDING AUTHOR DETAILS]
+[CORRESPONDING AUTHOR]
+[AFFILIATION]
+[EMAIL]
