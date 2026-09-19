@@ -22,7 +22,7 @@ Distinguishing these routes is important because superficially similar island ph
 
 A second problem is that floral-trait patterns alone cannot demonstrate that pollination actually becomes more limiting with isolation. Direct evidence requires experiments that compare natural reproduction with reproduction after supplemental pollen addition. Pollen limitation provides such an outcome: if supplemental pollen increases seed or fruit production, then natural pollen receipt constrains reproduction. A global increase in pollen limitation with island isolation would therefore provide an independent ecological counterpart to a plant-side island syndrome, without requiring a claim that pollinator abundance itself has been measured.
 
-Here we combine a global island plant-trait database with the independent GloPL pollen-supplementation database to test four linked hypotheses. **H1** asks whether geographic isolation is associated with a recurrent floral/reproductive island syndrome spanning reproductive assurance, flower colour and floral accessibility. **H2** asks whether floral change is reducible to a selfing-syndrome pathway or whether pollinator-facing colour and accessibility responses remain after measured reproductive assurance is conditioned on. **H3** tests whether experimental pollen limitation independently increases with geographic isolation. **H4** asks whether the same species-level reproductive-assurance and accessibility scores used in H2 are associated with lower current pollen limitation. Together, these analyses distinguish global recurrence, pathway decomposition, ecological pressure and functional compatibility.
+The inferential structure is summarized in Figure 3. Here we combine a global island plant-trait database with the independent GloPL pollen-supplementation database to test four linked hypotheses. **H1** asks whether geographic isolation is associated with a recurrent floral/reproductive island syndrome spanning reproductive assurance, flower colour and floral accessibility. **H2** asks whether floral change is reducible to a selfing-syndrome pathway or whether pollinator-facing colour and accessibility responses remain after measured reproductive assurance is conditioned on. **H3** tests whether experimental pollen limitation independently increases with geographic isolation. **H4** asks whether the same species-level reproductive-assurance and accessibility scores used in H2 are associated with lower current pollen limitation. Together, these analyses distinguish global recurrence, pathway decomposition, ecological pressure and functional compatibility.
 
 ## Materials and Methods
 
@@ -32,7 +32,7 @@ We constructed a fixed global island universe of 8,265 islands using GSHHG-based
 
 Trait evidence was assembled source by source from floras, monographs, public trait resources and primary literature. Every accepted record retained source provenance. Species-direct high- and medium-confidence evidence had priority, while validated lower-confidence evidence was used only where direct evidence was unavailable. Missing trait information was retained as missing rather than converted to trait absence, and family-level inference was not used as a general fill rule.
 
-The final frozen snapshot contained 222,688 resolved cells of 318,885 possible species-by-axis cells (69.83%) across three raw evidence axes: flower colour, floral structural complexity and reproductive assurance. The broad all-analysis-eligible evidence scope was used as the primary plant analysis, with species-direct high/medium evidence retained as a Direct-only sensitivity.
+The final frozen snapshot contained 222,688 resolved cells of 318,885 possible species-by-axis cells (69.83%) across three raw evidence axes: flower colour, floral structural complexity and reproductive assurance. The geographic and data scope of the study is summarized in Figure 1, and the database-construction and analysis workflow in Figure 2. The broad all-analysis-eligible evidence scope was used as the primary plant analysis, with species-direct high/medium evidence retained as a Direct-only sensitivity.
 
 ### Geographic isolation and covariates
 
@@ -102,7 +102,7 @@ We also retained atomic-trait and reconstructed-family sensitivities. Because th
 
 The seven-response isolation vector was supported in all four geographic strata in the primary all-analysis scope and in the Direct-only sensitivity. Joint false-discovery-rate adjusted q-values were 2.36 × 10^-6 in northern mid-latitudes, 2.61 × 10^-6 in northern high latitudes, 3.78 × 10^-7 in the tropics and 1.60 × 10^-12 in southern extratropical islands. Direct-only evidence retained joint support in all four strata.
 
-The equal-weight three-domain orientation was positive in every region. Reproductive assurance showed positive mean isolation responses in all four strata, as did floral accessibility/generalization. The colour component was less uniform: the plain-colour coefficient was approximately zero in northern mid-latitudes but positive in northern high-latitude, tropical and southern extratropical strata. Thus the global signal is a recurrent multivariate syndrome direction rather than an identical response of every component in every region.
+The equal-weight three-domain orientation was positive in every region. Reproductive assurance showed positive mean isolation responses in all four strata, as did floral accessibility/generalization. The colour component was less uniform: the plain-colour coefficient was approximately zero in northern mid-latitudes but positive in northern high-latitude, tropical and southern extratropical strata. Thus the global signal is a recurrent multivariate syndrome direction rather than an identical response of every component in every region (Figure 4).
 
 ### H2: floral accessibility persists beyond measured selfing
 
@@ -112,7 +112,7 @@ However, the floral response was not absorbed by reproductive assurance. After c
 
 Selfing-adjusted colour responses were more heterogeneous. The raw five-colour vector changed with isolation in northern mid-latitude, tropical and southern extratropical floras, but not in northern high latitudes. Northern mid-latitudes showed a replicated decline in red/pink flowers. In northern high latitudes, where the overall five-colour vector was not supported, blue/purple flowers nevertheless showed a replicated decline in specialized/deep architecture. Tropical Direct evidence instead showed increased yellow/orange coupling to a deep-tube component, while southern extratropical flowers showed mixed yellow/orange restructuring.
 
-These results reject a compulsory model in which all floral change is only a downstream consequence of selfing. Floral accessibility forms an additional response dimension, while colour and architecture reorganize in context-dependent ways.
+These results reject a compulsory model in which all floral change is only a downstream consequence of selfing. Floral accessibility forms an additional response dimension, while colour and architecture reorganize in context-dependent ways (Figure 5).
 
 ### H3: pollen limitation increases with isolation
 
@@ -128,7 +128,7 @@ The direct H2-to-H4 bridge gave the same overall interpretation. The literal Dir
 
 The literal Direct-only `generalized_accessible` score matched 143 GloPL species across 143 publications. Higher accessibility was associated with lower current pollen limitation (beta = -0.29601, SE = 0.12940, p = 0.02216). The association remained negative and supported in both the supplemental-only and no-zero-constant sensitivities.
 
-Thus the same two response families that increase with island isolation are associated, in exact-species overlap, with lower current pollen limitation. This functional alignment does not establish that historical pollen limitation caused the observed trait distributions.
+Thus the same two response families that increase with island isolation are associated, in exact-species overlap, with lower current pollen limitation (Figure 6). This functional alignment does not establish that historical pollen limitation caused the observed trait distributions.
 
 ## Discussion
 
