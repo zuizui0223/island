@@ -1,0 +1,154 @@
+{
+  "status": "pass",
+  "metric": "great-circle boundary distance on mean-radius sphere, radius 6371.0088 km; not WGS84 ellipsoid",
+  "analytic_tests": "crossing, endpoint, dateline, spherical-cap pruning vs exhaustive search for long and short arcs",
+  "independent_numerical_cases": [
+    {
+      "case": 0,
+      "analytic_km": 0.0,
+      "independent_numeric_km": 3.443072449225872e-10,
+      "split_difference_km": 0.0
+    },
+    {
+      "case": 1,
+      "analytic_km": 411.29868401319294,
+      "independent_numeric_km": 411.29868401507207,
+      "split_difference_km": 1.1937117960769683e-12
+    },
+    {
+      "case": 2,
+      "analytic_km": 0.0,
+      "independent_numeric_km": 4.170888923021935e-09,
+      "split_difference_km": 0.0
+    },
+    {
+      "case": 3,
+      "analytic_km": 0.0,
+      "independent_numeric_km": 4.854934091197419e-09,
+      "split_difference_km": 0.0
+    },
+    {
+      "case": 4,
+      "analytic_km": 49.77481213719864,
+      "independent_numeric_km": 49.77481213738636,
+      "split_difference_km": 9.471534667682135e-12
+    },
+    {
+      "case": 5,
+      "analytic_km": 229.7641774169008,
+      "independent_numeric_km": 229.76417742428788,
+      "split_difference_km": 0.0
+    },
+    {
+      "case": 6,
+      "analytic_km": 49.54692346205217,
+      "independent_numeric_km": 49.5469234633476,
+      "split_difference_km": 4.511946372076636e-12
+    },
+    {
+      "case": 7,
+      "analytic_km": 251.08347996888025,
+      "independent_numeric_km": 251.08347996951753,
+      "split_difference_km": 4.831690603168681e-12
+    },
+    {
+      "case": 8,
+      "analytic_km": 359.62633254186994,
+      "independent_numeric_km": 359.62633255317775,
+      "split_difference_km": 0.0
+    },
+    {
+      "case": 9,
+      "analytic_km": 382.21717612743873,
+      "independent_numeric_km": 382.2171761291967,
+      "split_difference_km": 3.410605131648481e-12
+    },
+    {
+      "case": 10,
+      "analytic_km": 196.08971997155072,
+      "independent_numeric_km": 196.08971997256705,
+      "split_difference_km": 3.694822225952521e-13
+    },
+    {
+      "case": 11,
+      "analytic_km": 123.9768872103939,
+      "independent_numeric_km": 123.97688721229136,
+      "split_difference_km": 4.405364961712621e-13
+    },
+    {
+      "case": 12,
+      "analytic_km": 74.89759436596722,
+      "independent_numeric_km": 74.89759436667286,
+      "split_difference_km": 0.0
+    },
+    {
+      "case": 13,
+      "analytic_km": 311.62731845763864,
+      "independent_numeric_km": 311.62731845874333,
+      "split_difference_km": 2.2737367544323206e-13
+    },
+    {
+      "case": 14,
+      "analytic_km": 0.0,
+      "independent_numeric_km": 3.770940187822333e-09,
+      "split_difference_km": 0.0
+    },
+    {
+      "case": 15,
+      "analytic_km": 275.86873473153463,
+      "independent_numeric_km": 275.86873473198307,
+      "split_difference_km": 0.0
+    },
+    {
+      "case": 16,
+      "analytic_km": 63.097076047524524,
+      "independent_numeric_km": 63.09707604755451,
+      "split_difference_km": 1.6342482922482304e-13
+    },
+    {
+      "case": 17,
+      "analytic_km": 27.67169838547358,
+      "independent_numeric_km": 27.671698385602628,
+      "split_difference_km": 2.0250467969162855e-12
+    },
+    {
+      "case": 18,
+      "analytic_km": 293.1808200499083,
+      "independent_numeric_km": 293.1808200565738,
+      "split_difference_km": 7.389644451905042e-13
+    },
+    {
+      "case": 19,
+      "analytic_km": 0.0,
+      "independent_numeric_km": 3.9073359587079415e-09,
+      "split_difference_km": 0.0
+    },
+    {
+      "case": 20,
+      "analytic_km": 177.02220007592783,
+      "independent_numeric_km": 177.02220007705222,
+      "split_difference_km": 5.343281372915953e-12
+    },
+    {
+      "case": 21,
+      "analytic_km": 170.237498681723,
+      "independent_numeric_km": 170.2374986818911,
+      "split_difference_km": 2.842170943040401e-14
+    },
+    {
+      "case": 22,
+      "analytic_km": 0.0,
+      "independent_numeric_km": 9.42848109884372e-10,
+      "split_difference_km": 0.0
+    },
+    {
+      "case": 23,
+      "analytic_km": 11.651135304762926,
+      "independent_numeric_km": 11.65113530527497,
+      "split_difference_km": 7.336353746723034e-13
+    }
+  ],
+  "max_numeric_difference_km": 1.1307804470561678e-08,
+  "tolerance_km": 2e-05,
+  "claim_limit": "Algorithm validation only; real coastline topology and cohort validation are separate gates."
+}

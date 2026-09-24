@@ -1,0 +1,10 @@
+{
+  "status": "geometry_gate_passed_before_trait_fit",
+  "metric": "Minimum great-circle arc-to-arc distance on a mean-radius sphere (6371.0088 km), GSHHG 2.3.7 high resolution; not WGS84 ellipsoid",
+  "retained_universe": 8264,
+  "excluded_mainland_component": "gshhg_2.3.7_h_8b13189234b949ee1ff6",
+  "distance_zero_count": 0,
+  "validation": "analytic boundary minimization, candidate pruning compared with exhaustive evaluation; independently optimized 24 cases; no unresolved boundary intersections in retained cohort",
+  "distance_csv_sha256": "a0489e0a9a8dccf1edf5f8f936c06c8dbe228df6b3d75fc5aceb14351371394e",
+  "limitations": "Spherical Earth approximation and underlying shoreline measurement accuracy remain. Post-hoc correction; no claim of a new confirmatory analysis."
+}

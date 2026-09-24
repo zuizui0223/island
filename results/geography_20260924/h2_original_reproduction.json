@@ -1,0 +1,14 @@
+[
+  {
+    "scope": "all",
+    "rows": 12,
+    "max_coefficient_difference": 9.555792355314674e-11,
+    "n_matched": true
+  },
+  {
+    "scope": "direct",
+    "rows": 12,
+    "max_coefficient_difference": 7.800704526772506e-14,
+    "n_matched": true
+  }
+]

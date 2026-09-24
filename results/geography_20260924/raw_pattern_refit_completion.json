@@ -1,0 +1,50 @@
+[
+  {
+    "scope": "all",
+    "result": "raw_colour_model_results.csv",
+    "original_reproduced": true,
+    "rows": 80
+  },
+  {
+    "scope": "all",
+    "result": "raw_colour_joint_omnibus.csv",
+    "original_reproduced": true,
+    "rows": 16
+  },
+  {
+    "scope": "all",
+    "result": "raw_colour_architecture_model_results.csv",
+    "original_reproduced": true,
+    "rows": 112
+  },
+  {
+    "scope": "all",
+    "result": "raw_colour_conditioned_architecture_model_results.csv",
+    "original_reproduced": true,
+    "rows": 224
+  },
+  {
+    "scope": "direct",
+    "result": "raw_colour_model_results.csv",
+    "original_reproduced": true,
+    "rows": 80
+  },
+  {
+    "scope": "direct",
+    "result": "raw_colour_joint_omnibus.csv",
+    "original_reproduced": true,
+    "rows": 16
+  },
+  {
+    "scope": "direct",
+    "result": "raw_colour_architecture_model_results.csv",
+    "original_reproduced": true,
+    "rows": 112
+  },
+  {
+    "scope": "direct",
+    "result": "raw_colour_conditioned_architecture_model_results.csv",
+    "original_reproduced": true,
+    "rows": 224
+  }
+]

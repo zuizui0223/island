@@ -1,0 +1,2 @@
+island_id,source_label,parent_feature_id,part_index,island_name,area_km2,geometry_sha256,landmass_rule,exclusion_reason
+gshhg_2.3.7_h_8b13189234b949ee1ff6,gshhg_2.3.7_h,0-W,1,,111517.50009645721,8b13189234b949ee1ff6,5.0 <= area_km2 <= 7000000.0,"Exact source geometry 0-W is a split component of continental sibling 0, Eurasia; not an island."

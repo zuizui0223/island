@@ -1,0 +1,21 @@
+name: Corrected submission geography
+on:
+  push:
+    branches: [main, 'fix/geography-distance-*']
+    paths: ['src/island_v2/gshhg_source.py', 'src/island_v2/spherical_coast_distance.py', 'src/island_v2/corrected_submission.py', 'scripts/geography_correction/**', 'results/geography_20260924/**', 'config/chapter1_submission_current.json', 'tests/test_gshhg.py', 'tests/test_spherical_coast_distance.py', 'tests/test_corrected_submission.py', '.github/workflows/corrected-submission-geography.yml']
+  pull_request:
+    paths: ['src/island_v2/gshhg_source.py', 'src/island_v2/spherical_coast_distance.py', 'src/island_v2/corrected_submission.py', 'scripts/geography_correction/**', 'results/geography_20260924/**', 'config/chapter1_submission_current.json', 'tests/test_gshhg.py', 'tests/test_spherical_coast_distance.py', 'tests/test_corrected_submission.py', '.github/workflows/corrected-submission-geography.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install -e . pytest ruff
+      - run: ruff check src/island_v2/gshhg_source.py src/island_v2/spherical_coast_distance.py src/island_v2/corrected_submission.py scripts/geography_correction tests/test_gshhg.py tests/test_spherical_coast_distance.py tests/test_corrected_submission.py
+      - run: pytest tests/test_gshhg.py tests/test_spherical_coast_distance.py tests/test_corrected_submission.py -q

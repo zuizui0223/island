@@ -1,0 +1,10 @@
+{
+  "contract": "chapter1_v13_functional_bridge_v1",
+  "inferential_role": "posthoc_functional_triangulation",
+  "n_result_rows": 22,
+  "n_primary_traits_evaluable": 4,
+  "n_primary_traits_negative_directional_p_le_0_05": 3,
+  "historical_pollen_limitation_selected_traits": false,
+  "trait_mediates_isolation_effect": false,
+  "failed_parent_moderation_tests_reclassified": false
+}

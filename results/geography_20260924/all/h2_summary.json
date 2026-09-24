@@ -1,0 +1,8 @@
+{
+  "contract": "chapter1_v14_h2_decomposition_v1",
+  "evidence_scope": "all_analysis_eligible",
+  "interpretation": "Conditional H2b persistence means the floral response is not reducible to measured selfing_core; it is not causal mediation or direct-selection proof.",
+  "n_contexts_selfing_core_positive": 4,
+  "n_contexts_plain_colour_positive_after_selfing": 3,
+  "n_contexts_accessibility_positive_after_selfing": 4
+}

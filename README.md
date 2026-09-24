@@ -1,6 +1,16 @@
-# Island — Chapter 1 v14 paper repository
+# Island — Chapter 1 corrected submission baseline
 
-> **The current publication-facing surface is Chapter 1 v14. v13 is retained unchanged as parent provenance.**
+> **The current submission baseline uses corrected GSHHG coastline distances (24 September 2026).**
+> All 1,113 spurious H1 zero distances have been recomputed as positive distances; one Eurasian continental fragment is excluded. The retained universe is 8,264 units and the broad H1 union is 4,379.
+>
+> Start with the [corrected submission methods and results](docs/chapter1_corrected_submission_20260924.md), the [current submission contract](config/chapter1_submission_current.json), and the [complete corrected tables](results/geography_20260924/).
+> H1/H2, raw colour/architecture, H3 and H4 all use the corrected exposure. Weakened and opposite-sign results are retained. Historical v14 locks are preserved, not selected as the primary analysis.
+>
+> [Replay instructions](scripts/geography_correction/README.md) explain locked inputs, geometry and model replication. Fast CI does not substitute for model replay.
+
+## Superseded v14 surface (provenance)
+
+> **Historical v14 publication surface, superseded on 24 September 2026. v13 and v14 remain parent provenance.**
 > The v14 analysis order is now:
 >
 > 1. **H1 — global floral/reproductive island syndrome:** reproductive assurance + plain colour + accessible/generalized floral structure.

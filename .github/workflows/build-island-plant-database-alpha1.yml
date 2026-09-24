@@ -36,6 +36,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   build-alpha1:
@@ -57,16 +58,28 @@ jobs:
             tests/test_island_plant_database_gbif.py \
             tests/test_gbif_blocks.py
 
-      - name: Rebuild exact GSHHG island universe
+      # alpha1 is a frozen historical database, not the corrected submission cohort.
+      # Rebuilding it with the repaired sibling rule would invalidate its fixed IDs/counts.
+      - name: Restore hash-locked historical alpha1 island universe
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          island-v2-gshhg build --output-dir data/v2/external/islands/gshhg
+          gh api repos/zuizui0223/island/actions/artifacts/8066083419/zip > /tmp/alpha1-islands.zip
           python - <<'PY'
+          import hashlib
           import json
           from pathlib import Path
+          import zipfile
 
-          policy = json.loads(
-              Path('data/v2/external/islands/gshhg/prepared/source_policy.json').read_text()
-          )
+          archive = Path('/tmp/alpha1-islands.zip')
+          expected = 'bee33e14672ec7ff4ed1f7acaea36b32cc6170a45c3d14b2caeb5f43bfaa623b'
+          assert hashlib.sha256(archive.read_bytes()).hexdigest() == expected
+          with zipfile.ZipFile(archive) as zipped:
+              for filename in ('islands_v2.gpkg', 'island_manifest.csv', 'source_policy.json'):
+                  target = Path('data/v2/external/islands/gshhg/prepared') / filename
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  target.write_bytes(zipped.read('islands/gshhg/prepared/' + filename))
+          policy = json.loads(Path('data/v2/external/islands/gshhg/prepared/source_policy.json').read_text())
           assert policy['source_backend'] == 'gshhg', policy
           assert str(policy['source_version']) == '2.3.7', policy
           PY

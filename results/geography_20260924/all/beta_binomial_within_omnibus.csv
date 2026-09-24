@@ -1,0 +1,13 @@
+stratum,context,status,n_retained_outcomes,retained_outcomes,n_unique_islands,n_clusters,joint_wald_chisq,joint_df,p_value,all_optimizers_converged,q_value,vector_supported
+all_observed,northern_midlatitude,fit,7,self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry|shallow_open_tube,2173.0,86.0,59.862506333637505,7.0,1.608047137972247e-10,True,3.216094275944494e-10,True
+all_observed,northern_high_latitude,fit,7,self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry|shallow_open_tube,411.0,63.0,33.19710812535247,7.0,2.432905133271475e-05,True,2.432905133271475e-05,True
+all_observed,tropical,fit,7,self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry|shallow_open_tube,1493.0,111.0,43.53979452858487,7.0,2.6234352568226125e-07,True,3.497913675763483e-07,True
+all_observed,southern_extratropical,fit,7,self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry|shallow_open_tube,302.0,41.0,101.14408203035455,7.0,6.260503363414834e-19,True,2.5042013453659336e-18,True
+all_native,northern_midlatitude,fit,7,self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry|shallow_open_tube,239.0,36.0,35.31993249811328,7.0,9.737507108582213e-06,True,1.9475014217164425e-05,True
+all_native,northern_high_latitude,not_testable,0,,,,,,,,,False
+all_native,tropical,fit,7,self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry|shallow_open_tube,136.0,46.0,9.698383701573444,7.0,0.2063197578226709,True,0.2063197578226709,False
+all_native,southern_extratropical,not_testable,0,,,,,,,,,False
+native_nonendemic,northern_midlatitude,fit,7,self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry|shallow_open_tube,239.0,36.0,39.126049705082686,7.0,1.8491808081864985e-06,True,3.698361616372997e-06,True
+native_nonendemic,northern_high_latitude,not_testable,0,,,,,,,,,False
+native_nonendemic,tropical,fit,7,self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry|shallow_open_tube,136.0,46.0,32.761078439655364,7.0,2.9331970602176892e-05,True,2.9331970602176892e-05,True
+native_nonendemic,southern_extratropical,not_testable,0,,,,,,,,,False

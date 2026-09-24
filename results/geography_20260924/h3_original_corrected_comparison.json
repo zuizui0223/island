@@ -1,0 +1,106 @@
+{
+  "original": {
+    "global_gradient": {
+      "evaluable": true,
+      "distance_slope": 0.07936837202478468,
+      "distance_slope_se": 0.03773419547325879,
+      "two_sided_p": 0.03543483392225144,
+      "one_sided_positive_p": 0.01771741696112572,
+      "n_cells": 1408,
+      "n_publications": 919,
+      "n_sites": 1248
+    },
+    "sensitivities": {
+      "supplemental_only": {
+        "evaluable": true,
+        "distance_slope": 0.03349200099886658,
+        "distance_slope_se": 0.0424143029415297,
+        "two_sided_p": 0.42973844278387924,
+        "one_sided_positive_p": 0.21486922139193962,
+        "n_cells": 828,
+        "n_publications": 470,
+        "n_sites": 736
+      },
+      "no_zero_constant": {
+        "evaluable": true,
+        "distance_slope": 0.07788553941384915,
+        "distance_slope_se": 0.03828375983386772,
+        "two_sided_p": 0.04190849677112899,
+        "one_sided_positive_p": 0.020954248385564495,
+        "n_cells": 1375,
+        "n_publications": 912,
+        "n_sites": 1238
+      }
+    },
+    "distance_standardization": {
+      "mean": 1.1074920173877423,
+      "sd": 2.4207834708622444
+    }
+  },
+  "corrected": {
+    "global_gradient": {
+      "evaluable": true,
+      "distance_slope": 0.09191043596699681,
+      "distance_slope_se": 0.0380631415253924,
+      "two_sided_p": 0.015748892218473337,
+      "one_sided_positive_p": 0.007874446109236669,
+      "n_cells": 1408,
+      "n_publications": 919,
+      "n_sites": 1248
+    },
+    "sensitivities": {
+      "supplemental_only": {
+        "evaluable": true,
+        "distance_slope": 0.044100329724046275,
+        "distance_slope_se": 0.043512686044820684,
+        "two_sided_p": 0.31081895583394054,
+        "one_sided_positive_p": 0.15540947791697027,
+        "n_cells": 828,
+        "n_publications": 470,
+        "n_sites": 736
+      },
+      "no_zero_constant": {
+        "evaluable": true,
+        "distance_slope": 0.09089412017277562,
+        "distance_slope_se": 0.038652513711873566,
+        "two_sided_p": 0.018694334732954124,
+        "one_sided_positive_p": 0.009347167366477062,
+        "n_cells": 1375,
+        "n_publications": 912,
+        "n_sites": 1238
+      }
+    },
+    "distance_standardization": {
+      "mean": 1.0336192482458344,
+      "sd": 2.3354963860020934
+    }
+  },
+  "H4_corrected_manifest": {
+    "contract": "chapter1_v14_h4_exact_h2_score_bridge_v1",
+    "inferential_role": "posthoc_exact_H2_score_functional_triangulation",
+    "support": {
+      "reproductive_assurance": {
+        "family": "reproductive_assurance",
+        "H2_syndrome": "selfing_core",
+        "score_name": "selfing_core_score",
+        "n_H2_score_species": 2651,
+        "n_matched_species": 455,
+        "n_matched_publications": 409,
+        "n_matched_sites": 575
+      },
+      "accessibility_generalization": {
+        "family": "accessibility_generalization",
+        "H2_syndrome": "generalized_accessible",
+        "score_name": "generalized_accessible_score",
+        "n_H2_score_species": 3389,
+        "n_matched_species": 143,
+        "n_matched_publications": 143,
+        "n_matched_sites": 210
+      }
+    },
+    "all_primary_estimates_negative": true,
+    "historical_selection_identified": false,
+    "mediation_identified": false,
+    "prospective_replication": false
+  }
+}
