@@ -46,3 +46,5 @@ These are explicitly post-hoc functional associations: no causal mediation, pros
 - Parent model/method text: [`chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md`](chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md). Its uncorrected geographic estimates and result claims are superseded by this correction; it must not be submitted unchanged.
 
 A full model replay is distinct from fast CI, which checks code, hashes, population invariants and current-surface consistency. Green CI alone is not a scientific replication claim.
+
+The alpha1 database workflow remains a historical reproduction lane with its original 8,265-unit contract. It restores the exact hash-locked island artifact rather than rebuilding old identifiers with the repaired acquisition rule. This does not select alpha1 geography for the corrected submission.
