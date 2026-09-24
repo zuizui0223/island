@@ -9,7 +9,7 @@
 - [x] H4 corrected exact-score and atomic estimates integrated
 - [x] Main figure captions updated
 - [x] Journal-neutral cover-letter draft updated
-- [ ] Regenerate final Main Figures 1–6 from `results/geography_20260924/`
+- [x] Regenerate final Main Figures 1–6 from the PR #242 corrected baseline
 - [x] Replace poster panels/slides that showed uncorrected v14 values with corrected H1–H4 panels and the 8,264-unit / 1,248-site maps
 
 ## Still journal-specific
