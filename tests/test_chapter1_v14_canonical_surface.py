@@ -31,18 +31,21 @@ def test_v14_canonical_lock_has_verified_ci_provenance():
     assert verification["H4_atomic_reconstruction_reproduced"] is True
 
 
-def test_v14_is_publication_facing_and_v13_is_parent_provenance():
+def test_corrected_submission_is_current_and_v14_v13_are_parent_provenance():
     readme = README.read_text(encoding="utf-8")
     pipeline = PIPELINE.read_text(encoding="utf-8")
     manuscript = MANUSCRIPT.read_text(encoding="utf-8")
     freeze = FREEZE.read_text(encoding="utf-8")
 
-    assert readme.startswith("# Island — Chapter 1 v14 paper repository")
-    assert "current publication-facing surface is Chapter 1 v14" in readme
+    assert readme.startswith("# Island — Chapter 1 corrected submission baseline")
+    assert "current submission baseline uses corrected GSHHG" in readme
+    assert "Superseded v14 surface (provenance)" in readme
+    current = json.loads((ROOT / "config/chapter1_submission_current.json").read_text())
+    assert current["supersedes"] == str(LOCK.relative_to(ROOT)).replace("\\", "/")
     assert "Frozen v13 parent paper surface" in readme
     assert "Chapter 1 v14 candidate reanalysis" not in readme
 
-    assert pipeline.startswith("# Chapter 1 v14 paper pipeline")
+    assert pipeline.startswith("# Current submission pipeline — corrected geography")
     assert "Frozen v13 parent paper pipeline" in pipeline
     assert "Chapter 1 v14 candidate pipeline" not in pipeline
 
