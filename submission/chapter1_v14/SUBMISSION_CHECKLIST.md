@@ -1,15 +1,16 @@
 # Submission checklist
 
 ## Scientific package
-- [x] Clean v14 manuscript draft
-- [x] Figure 1: global geographic/data scope
-- [x] Figure 2: database construction and analytical workflow
-- [x] Figure 3: inferential structure / working hypothesis
-- [x] Figure 4: H1 recurrent syndrome
-- [x] Figure 5: H2 pathway decomposition
-- [x] Figure 6: H3/H4 ecological pressure and functional bridge
-- [x] Main figure captions
-- [x] Journal-neutral cover-letter draft
+- [x] Corrected geography baseline merged in PR #242
+- [x] Clean manuscript updated to the corrected 8,264-unit analysis universe
+- [x] H1 corrected joint and atomic results integrated
+- [x] H2 corrected decomposition and tropical Direct-only FDR boundary integrated
+- [x] H3 corrected GloPL estimate integrated
+- [x] H4 corrected exact-score and atomic estimates integrated
+- [x] Main figure captions updated
+- [x] Journal-neutral cover-letter draft updated
+- [ ] Regenerate final Main Figures 1–6 from `results/geography_20260924/`
+- [ ] Replace any poster panels or slides that still show uncorrected v14 values
 
 ## Still journal-specific
 - [ ] Choose target journal
@@ -31,5 +32,8 @@ The submission must not state or imply that:
 - H2 is a causal mediation analysis;
 - a global decline in pollinator abundance or visitation has been demonstrated;
 - raw flower colour uniquely identifies a realized pollinator guild;
+- the seven H1 traits all change positively in every region;
+- tropical Direct-only H2 accessibility is FDR-supported after geography correction;
 - current assemblage patterns distinguish species sorting from within-lineage evolution;
-- support-limited prospective validation audits are biological null results.
+- the corrected coastline-distance analysis is a new prospective confirmation;
+- support-limited prospective H4 validation audits are biological null results.
