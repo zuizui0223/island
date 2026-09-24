@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 LOCK = ROOT / "config/chapter1_v14_canonical_result_lock.json"
 README = ROOT / "README.md"
