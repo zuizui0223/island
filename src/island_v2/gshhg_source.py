@@ -14,10 +14,12 @@ import json
 import zipfile
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 import geopandas as gpd
 import httpx
+import numpy as np
+import pandas as pd
 import typer
 import yaml
 from shapely import make_valid
@@ -92,7 +94,14 @@ def extract_l1(archive: Path, directory: Path, resolution: str) -> Path:
 
 def dissolve_ids(frame: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """Recombine components of each GSHHG landmass before any area filtering."""
-    id_name = next((name for name in ("id", "ID") if name in frame.columns), None)
+    sibling = next((name for name in ("sibling_id", "SIBLING_ID") if name in frame), None)
+    id_name = sibling or next((name for name in ("id", "ID") if name in frame), None)
+    if sibling is not None:
+        identifiers = pd.to_numeric(frame[sibling], errors="coerce")
+        if not (np.isfinite(identifiers) & (identifiers >= 0) & (identifiers % 1 == 0)).all():
+            raise ValueError("GSHHG sibling linkage must contain finite non-negative integer IDs")
+        frame = frame.copy()
+        frame[sibling] = identifiers.astype("int64")
     if id_name is None:
         frame = frame.copy()
         frame["source_feature_id"] = [str(index) for index in frame.index]
@@ -129,10 +138,11 @@ def make_island_units(
     units = units.loc[units.geometry.notna() & ~units.geometry.is_empty].copy()
     units["area_km2"] = units.to_crs(6933).area / 1_000_000
     units = units.loc[
-        (units["area_km2"] >= min_area_km2)
-        & (units["area_km2"] <= mainland_area_threshold_km2)
+        (units["area_km2"] >= min_area_km2) & (units["area_km2"] <= mainland_area_threshold_km2)
     ].copy()
-    units["island_id"] = [f"{source_label}_{geometry_hash(geometry)}" for geometry in units.geometry]
+    units["island_id"] = [
+        f"{source_label}_{geometry_hash(geometry)}" for geometry in units.geometry
+    ]
     if units["island_id"].duplicated().any():
         raise RuntimeError("Geometry-derived island IDs are not unique")
     units["source_label"] = source_label
@@ -140,9 +150,7 @@ def make_island_units(
     units["part_index"] = 1
     units["island_name"] = ""
     units["geometry_sha256"] = [geometry_hash(geometry) for geometry in units.geometry]
-    units["landmass_rule"] = (
-        f"{min_area_km2} <= area_km2 <= {mainland_area_threshold_km2}"
-    )
+    units["landmass_rule"] = f"{min_area_km2} <= area_km2 <= {mainland_area_threshold_km2}"
     columns = [
         "island_id",
         "source_label",
@@ -218,8 +226,8 @@ def build_from_natural_earth(
 
 @app.command()
 def build(
-    config_path: Path = typer.Option(Path("config/island_source_gshhg.yml")),
-    output_dir: Path = typer.Option(Path("data/v2/external/islands/gshhg")),
+    config_path: Annotated[Path, typer.Option()] = Path("config/island_source_gshhg.yml"),
+    output_dir: Annotated[Path, typer.Option()] = Path("data/v2/external/islands/gshhg"),
     source_url: str | None = typer.Option(
         None,
         help="Optional GSHHG archive URL override; retained in source_policy.json.",
@@ -263,9 +271,7 @@ def build(
         "natural_earth_fallback_url": NATURAL_EARTH_LAND_URL,
         "n_islands": len(islands),
     }
-    (prepared / "source_policy.json").write_text(
-        json.dumps(policy, indent=2), encoding="utf-8"
-    )
+    (prepared / "source_policy.json").write_text(json.dumps(policy, indent=2), encoding="utf-8")
     typer.echo(f"Prepared {len(islands)} exact island polygons using {backend}")
 
 

@@ -1,3 +1,9 @@
+# Current submission pipeline — corrected geography, 24 September 2026
+
+The primary submission surface is selected by [`../config/chapter1_submission_current.json`](../config/chapter1_submission_current.json). Use the [corrected methods/results](chapter1_corrected_submission_20260924.md) and [replay runner](../scripts/geography_correction/README.md). H1/H2, raw-pattern, H3 and H4 results all use corrected exposure; v14 result locks below are superseded provenance.
+
+## Historical v14 pipeline
+
 # Chapter 1 v14 paper pipeline
 
 The canonical v14 surface changes the **question order and H1/H2 analysis surface**

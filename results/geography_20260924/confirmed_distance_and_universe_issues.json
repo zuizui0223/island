@@ -1,0 +1,26 @@
+{
+  "status": "confirmed_geometry_issues_no_corrected_trait_inference",
+  "H1_union": 4380,
+  "old_zero_count": 1113,
+  "old_zeros_intersecting_matching_GSHHG_continents": 0,
+  "matching_source_intersections_H1": 1,
+  "misclassified_mainland_component": {
+    "island_id": "gshhg_2.3.7_h_8b13189234b949ee1ff6",
+    "parent_feature_id": "0-W",
+    "sibling_id": 0,
+    "equals_raw_GSHHG_component": true,
+    "longitude_bounds": [
+      -180,
+      -169.640889
+    ],
+    "latitude_bounds": [
+      64.236194,
+      68.993778
+    ],
+    "area_km2": 111517.500096,
+    "old_projected_distance_km": 200.775583
+  },
+  "source_archive_sha256": "8dbbe7e071e77e9e75f2d639239099ebca8d5c16d6a07df8169729d49f15cf41",
+  "source_matches_original_archive": true,
+  "decision_pending": "User asked whether to expand poster task to corrected exposure, universe correction and inferential reanalysis. No source artifacts or model coefficients replaced."
+}

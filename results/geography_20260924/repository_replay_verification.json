@@ -1,0 +1,428 @@
+{
+  "status": "pass",
+  "absolute_tolerance": 1e-06,
+  "relative_tolerance": 1e-05,
+  "tables": [
+    {
+      "file": "corrected_geography_covariates.csv",
+      "rows": 8264,
+      "numeric_columns_checked": [
+        "n_bombus_species_total",
+        "n_bombus_species_scored",
+        "n_bombus_species_unscored",
+        "n_environmentally_compatible_species",
+        "share_environmentally_compatible_species",
+        "environmental_compatibility_max",
+        "environmental_compatibility_mean",
+        "environmental_extrapolation_share",
+        "n_trait_species",
+        "area_km2",
+        "log_island_area_km2",
+        "island_latitude",
+        "island_longitude",
+        "abs_latitude",
+        "climate_pc1",
+        "climate_pc2",
+        "climate_pc3",
+        "climate_pc4",
+        "distance_to_continent_km",
+        "log_distance_to_continent_km",
+        "legacy_v1_all_land_distance_km",
+        "legacy_v1_log_all_land_distance_km",
+        "bombus_channel_state",
+        "plain_color_trials",
+        "plain_color_successes",
+        "plain_color_share",
+        "conspicuous_color_trials",
+        "conspicuous_color_successes",
+        "conspicuous_color_share",
+        "generalized_form_trials",
+        "generalized_form_successes",
+        "generalized_form_share",
+        "wind_mixed_trials",
+        "wind_mixed_successes",
+        "wind_mixed_share",
+        "showy_alternative_guild_trials",
+        "showy_alternative_guild_successes",
+        "showy_alternative_guild_share",
+        "other_bee_guild_trials",
+        "other_bee_guild_successes",
+        "other_bee_guild_share",
+        "generalist_insect_guild_trials",
+        "generalist_insect_guild_successes",
+        "generalist_insect_guild_share",
+        "spherical_coast_distance_km",
+        "original_projected_distance_km"
+      ]
+    },
+    {
+      "file": "glopl_corrected_site_distances.csv",
+      "rows": 1248,
+      "numeric_columns_checked": [
+        "latitude",
+        "longitude",
+        "spherical_distance_km"
+      ]
+    },
+    {
+      "file": "h2_original_reproduced_all.csv",
+      "rows": 12,
+      "numeric_columns_checked": [
+        "n_islands",
+        "n_clusters",
+        "distance_estimate",
+        "distance_se",
+        "distance_p",
+        "selfing_core_estimate",
+        "selfing_core_se",
+        "selfing_core_p",
+        "kappa",
+        "primary_H2b_q"
+      ]
+    },
+    {
+      "file": "h2_original_reproduced_direct.csv",
+      "rows": 12,
+      "numeric_columns_checked": [
+        "n_islands",
+        "n_clusters",
+        "distance_estimate",
+        "distance_se",
+        "distance_p",
+        "selfing_core_estimate",
+        "selfing_core_se",
+        "selfing_core_p",
+        "kappa",
+        "primary_H2b_q"
+      ]
+    },
+    {
+      "file": "h4_atomic_corrected.csv",
+      "rows": 22,
+      "numeric_columns_checked": [
+        "trait_state_estimate",
+        "trait_state_se",
+        "trait_state_z",
+        "trait_state_two_sided_p",
+        "trait_state_one_sided_negative_p",
+        "n_cells",
+        "n_publications",
+        "n_sites",
+        "n_species",
+        "n",
+        "p",
+        "n_clusters",
+        "n_fixed_effect_groups"
+      ]
+    },
+    {
+      "file": "h4_atomic_original_reproduced.csv",
+      "rows": 22,
+      "numeric_columns_checked": [
+        "trait_state_estimate",
+        "trait_state_se",
+        "trait_state_z",
+        "trait_state_two_sided_p",
+        "trait_state_one_sided_negative_p",
+        "n_cells",
+        "n_publications",
+        "n_sites",
+        "n_species",
+        "n",
+        "p",
+        "n_clusters",
+        "n_fixed_effect_groups"
+      ]
+    },
+    {
+      "file": "h4_exact_corrected.csv",
+      "rows": 6,
+      "numeric_columns_checked": [
+        "estimate",
+        "se",
+        "z",
+        "two_sided_p",
+        "one_sided_negative_p",
+        "n_cells",
+        "n_publications",
+        "n_sites",
+        "n_species"
+      ]
+    },
+    {
+      "file": "h4_exact_original_reproduced.csv",
+      "rows": 6,
+      "numeric_columns_checked": [
+        "estimate",
+        "se",
+        "z",
+        "two_sided_p",
+        "one_sided_negative_p",
+        "n_cells",
+        "n_publications",
+        "n_sites",
+        "n_species"
+      ]
+    },
+    {
+      "file": "all/beta_binomial_between_omnibus.csv",
+      "rows": 3,
+      "numeric_columns_checked": [
+        "n_retained_outcomes",
+        "n_unique_islands",
+        "n_clusters",
+        "joint_wald_chisq",
+        "joint_df",
+        "p_value",
+        "q_value"
+      ]
+    },
+    {
+      "file": "all/beta_binomial_between_slopes.csv",
+      "rows": 21,
+      "numeric_columns_checked": [
+        "n_islands_context_a",
+        "n_islands_context_b",
+        "kappa",
+        "slope_difference_b_minus_a",
+        "cluster_robust_se",
+        "p_value"
+      ]
+    },
+    {
+      "file": "all/beta_binomial_within_omnibus.csv",
+      "rows": 12,
+      "numeric_columns_checked": [
+        "n_retained_outcomes",
+        "n_unique_islands",
+        "n_clusters",
+        "joint_wald_chisq",
+        "joint_df",
+        "p_value",
+        "q_value"
+      ]
+    },
+    {
+      "file": "all/beta_binomial_within_slopes.csv",
+      "rows": 56,
+      "numeric_columns_checked": [
+        "n_islands",
+        "n_species_trials",
+        "kappa",
+        "geography_slope_log_odds",
+        "cluster_robust_se",
+        "p_value"
+      ]
+    },
+    {
+      "file": "all/h2_decomposition_models.csv",
+      "rows": 12,
+      "numeric_columns_checked": [
+        "n_islands",
+        "n_clusters",
+        "distance_estimate",
+        "distance_se",
+        "distance_p",
+        "selfing_core_estimate",
+        "selfing_core_se",
+        "selfing_core_p",
+        "kappa",
+        "primary_H2b_q"
+      ]
+    },
+    {
+      "file": "all/raw_patterns/raw_colour_architecture_model_results.csv",
+      "rows": 112,
+      "numeric_columns_checked": [
+        "threshold",
+        "n_unique_islands",
+        "n_clusters",
+        "median_trials",
+        "distance_estimate",
+        "distance_se",
+        "distance_p",
+        "selfing_core_estimate",
+        "selfing_core_se",
+        "selfing_core_p",
+        "distance_q"
+      ]
+    },
+    {
+      "file": "all/raw_patterns/raw_colour_conditioned_architecture_model_results.csv",
+      "rows": 224,
+      "numeric_columns_checked": [
+        "threshold",
+        "n_unique_islands",
+        "n_clusters",
+        "median_trials",
+        "distance_estimate",
+        "distance_se",
+        "distance_p",
+        "selfing_core_estimate",
+        "selfing_core_se",
+        "selfing_core_p",
+        "distance_q"
+      ]
+    },
+    {
+      "file": "all/raw_patterns/raw_colour_joint_omnibus.csv",
+      "rows": 16,
+      "numeric_columns_checked": [
+        "threshold",
+        "n_retained_colours",
+        "n_unique_islands",
+        "n_clusters",
+        "wald_chisq",
+        "df",
+        "p_value"
+      ]
+    },
+    {
+      "file": "all/raw_patterns/raw_colour_model_results.csv",
+      "rows": 80,
+      "numeric_columns_checked": [
+        "threshold",
+        "n_unique_islands",
+        "n_clusters",
+        "median_trials",
+        "distance_estimate",
+        "distance_se",
+        "distance_p",
+        "selfing_core_estimate",
+        "selfing_core_se",
+        "selfing_core_p",
+        "distance_q"
+      ]
+    },
+    {
+      "file": "direct/beta_binomial_between_omnibus.csv",
+      "rows": 3,
+      "numeric_columns_checked": [
+        "n_retained_outcomes",
+        "n_unique_islands",
+        "n_clusters",
+        "joint_wald_chisq",
+        "joint_df",
+        "p_value",
+        "q_value"
+      ]
+    },
+    {
+      "file": "direct/beta_binomial_between_slopes.csv",
+      "rows": 21,
+      "numeric_columns_checked": [
+        "n_islands_context_a",
+        "n_islands_context_b",
+        "kappa",
+        "slope_difference_b_minus_a",
+        "cluster_robust_se",
+        "p_value"
+      ]
+    },
+    {
+      "file": "direct/beta_binomial_within_omnibus.csv",
+      "rows": 12,
+      "numeric_columns_checked": [
+        "n_retained_outcomes",
+        "n_unique_islands",
+        "n_clusters",
+        "joint_wald_chisq",
+        "joint_df",
+        "p_value",
+        "q_value"
+      ]
+    },
+    {
+      "file": "direct/beta_binomial_within_slopes.csv",
+      "rows": 56,
+      "numeric_columns_checked": [
+        "n_islands",
+        "n_species_trials",
+        "kappa",
+        "geography_slope_log_odds",
+        "cluster_robust_se",
+        "p_value"
+      ]
+    },
+    {
+      "file": "direct/h2_decomposition_models.csv",
+      "rows": 12,
+      "numeric_columns_checked": [
+        "n_islands",
+        "n_clusters",
+        "distance_estimate",
+        "distance_se",
+        "distance_p",
+        "selfing_core_estimate",
+        "selfing_core_se",
+        "selfing_core_p",
+        "kappa",
+        "primary_H2b_q"
+      ]
+    },
+    {
+      "file": "direct/raw_patterns/raw_colour_architecture_model_results.csv",
+      "rows": 112,
+      "numeric_columns_checked": [
+        "threshold",
+        "n_unique_islands",
+        "n_clusters",
+        "median_trials",
+        "distance_estimate",
+        "distance_se",
+        "distance_p",
+        "selfing_core_estimate",
+        "selfing_core_se",
+        "selfing_core_p",
+        "distance_q"
+      ]
+    },
+    {
+      "file": "direct/raw_patterns/raw_colour_conditioned_architecture_model_results.csv",
+      "rows": 224,
+      "numeric_columns_checked": [
+        "threshold",
+        "n_unique_islands",
+        "n_clusters",
+        "median_trials",
+        "distance_estimate",
+        "distance_se",
+        "distance_p",
+        "selfing_core_estimate",
+        "selfing_core_se",
+        "selfing_core_p",
+        "distance_q"
+      ]
+    },
+    {
+      "file": "direct/raw_patterns/raw_colour_joint_omnibus.csv",
+      "rows": 16,
+      "numeric_columns_checked": [
+        "threshold",
+        "n_retained_colours",
+        "n_unique_islands",
+        "n_clusters",
+        "wald_chisq",
+        "df",
+        "p_value"
+      ]
+    },
+    {
+      "file": "direct/raw_patterns/raw_colour_model_results.csv",
+      "rows": 80,
+      "numeric_columns_checked": [
+        "threshold",
+        "n_unique_islands",
+        "n_clusters",
+        "median_trials",
+        "distance_estimate",
+        "distance_se",
+        "distance_p",
+        "selfing_core_estimate",
+        "selfing_core_se",
+        "selfing_core_p",
+        "distance_q"
+      ]
+    }
+  ]
+}

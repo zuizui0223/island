@@ -1,9 +1,35 @@
 import geopandas as gpd
+import pytest
 from shapely.geometry import MultiPolygon, Polygon
 from typer.main import get_command
 from typer.testing import CliRunner
 
-from island_v2.gshhg_source import app, make_island_units, natural_earth_parts
+from island_v2.gshhg_source import app, dissolve_ids, make_island_units, natural_earth_parts
+
+
+def test_sibling_fragments_are_recombined_before_mainland_filter():
+    from shapely.geometry import box
+
+    source = gpd.GeoDataFrame(
+        {"id": ["0-E", "0-W", "1"], "sibling_id": [0, 0, 1]},
+        geometry=[box(0, 0, 2, 2), box(4, 0, 5, 1), box(8, 0, 8.1, 0.1)],
+        crs=4326,
+    )
+    combined = dissolve_ids(source)
+    assert len(combined) == 2
+    result = make_island_units(combined, "test", 1, 50_000)
+    assert result.parent_feature_id.tolist() == ["1"]
+
+
+@pytest.mark.parametrize("link", [None, -1, 0.5, "invalid"])
+def test_invalid_sibling_linkage_is_rejected(link):
+    from shapely.geometry import box
+
+    source = gpd.GeoDataFrame(
+        {"id": ["0-W"], "sibling_id": [link]}, geometry=[box(0, 0, 1, 1)], crs=4326
+    )
+    with pytest.raises(ValueError, match="sibling"):
+        dissolve_ids(source)
 
 
 def test_gshhg_multipolygon_landmass_is_not_split():

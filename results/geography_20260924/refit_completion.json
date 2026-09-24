@@ -1,0 +1,14 @@
+{
+  "status": "completed",
+  "scopes": [
+    "all",
+    "direct"
+  ],
+  "H1_strata": [
+    "all_observed",
+    "all_native",
+    "native_nonendemic"
+  ],
+  "model_specs_unchanged": true,
+  "no_results_selected_out": true
+}
