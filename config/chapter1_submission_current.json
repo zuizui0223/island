@@ -93,5 +93,9 @@
     "results/geography_20260924/refit_completion.json": "6a229222ec42ecb0fa97f97131ddd1351d5c5d97444d29cf5df37152b6c1a4fe",
     "results/geography_20260924/repository_replay_verification.json": "6ddc17a04c9e609bc38b8ab29520468e77ac56b992c0fc0c91df62eb6e03e38e",
     "results/geography_20260924/spherical_geometry_validation.json": "320b77fe3432e3ac01df34fcff897ea1be29f6b0f583d0aaa6edb23e8ddccdaf"
-  }
+  },
+  "submission_package": "submission/chapter1_current",
+  "manuscript": "submission/chapter1_current/MANUSCRIPT.md",
+  "figure_captions": "submission/chapter1_current/FIGURE_CAPTIONS.md",
+  "history_index": "docs/CHAPTER1_HISTORY.md"
 }
