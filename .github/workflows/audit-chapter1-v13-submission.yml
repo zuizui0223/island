@@ -1,32 +1,6 @@
-name: Audit Chapter 1 v13 submission
+name: Historical replay — Chapter 1 v13 submission audit
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "config/chapter1_v13_*.json"
-      - "config/chapter1_v13_*.yml"
-      - "src/island_v2/chapter1_v13_*.py"
-      - "tests/test_chapter1_v13_*.py"
-      - "docs/chapter1_*v13*.md"
-      - "docs/chapter1_unified_hypothesis_20260917.md"
-      - "README.md"
-      - "docs/PAPER_PIPELINE.md"
-      - "legacy/chapter1-pre-v13/**"
-      - ".github/workflows/audit-chapter1-v13-submission.yml"
-  pull_request:
-    branches: [main]
-    paths:
-      - "config/chapter1_v13_*.json"
-      - "config/chapter1_v13_*.yml"
-      - "src/island_v2/chapter1_v13_*.py"
-      - "tests/test_chapter1_v13_*.py"
-      - "docs/chapter1_*v13*.md"
-      - "docs/chapter1_unified_hypothesis_20260917.md"
-      - "README.md"
-      - "docs/PAPER_PIPELINE.md"
-      - "legacy/chapter1-pre-v13/**"
-      - ".github/workflows/audit-chapter1-v13-submission.yml"
   workflow_dispatch:
 
 permissions:
