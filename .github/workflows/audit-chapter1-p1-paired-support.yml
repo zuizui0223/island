@@ -1,13 +1,7 @@
-name: Audit Chapter 1 P1 paired support
+name: Historical replay — Audit Chapter 1 P1 paired support
 
 on:
-  push:
-    branches: ["ch1/nee-island-first-design"]
-    paths:
-      - "config/chapter1_p1_assembly_depth_defense.yml"
-      - "src/island_v2/chapter1_p1_paired_support_audit.py"
-      - "tests/test_chapter1_p1_paired_support_audit.py"
-      - ".github/workflows/audit-chapter1-p1-paired-support.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
