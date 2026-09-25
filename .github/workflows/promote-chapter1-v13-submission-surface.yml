@@ -1,11 +1,6 @@
-name: Promote Chapter 1 v13 submission surface
+name: Historical replay — Promote Chapter 1 v13 submission surface
 
 on:
-  push:
-    branches: [ch1-v13-global-only]
-    paths:
-      - "scripts/promote_chapter1_v13_submission_surface.py"
-      - ".github/workflows/promote-chapter1-v13-submission-surface.yml"
   workflow_dispatch:
 
 permissions:
