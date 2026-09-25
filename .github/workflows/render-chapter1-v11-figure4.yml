@@ -1,12 +1,7 @@
-name: Render Chapter 1 v11 Figure 4 joint observation boundaries
+name: Historical replay — Render Chapter 1 v11 Figure 4 joint observation boundaries
 
 on:
-  push:
-    branches: ["ch1/p3-joint-observation-bias"]
-    paths:
-      - "src/island_v2/chapter1_v11_figure4_joint_observation_boundaries.py"
-      - "tests/test_chapter1_v11_figure4_joint_observation_boundaries.py"
-      - ".github/workflows/render-chapter1-v11-figure4.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
