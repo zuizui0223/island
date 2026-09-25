@@ -1,3 +1,5 @@
+> **SUPERSEDED SUBMISSION FREEZE.** This freeze remains historical provenance for the reproduced v14 surface. The current submission baseline is selected by `config/chapter1_submission_current.json` and documented in `docs/chapter1_corrected_submission_20260924.md`.
+
 # Chapter 1 v14 submission freeze — 2026-09-18
 
 Status: **canonical v14 reproduced analysis surface**.

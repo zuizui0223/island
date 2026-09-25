@@ -1,3 +1,5 @@
+> **SUPERSEDED FOR SUBMISSION (24 September 2026).** This document preserves the reproduced uncorrected v14 surface. Use `submission/chapter1_current/MANUSCRIPT.md` and `config/chapter1_submission_current.json` for the current corrected submission. Do not submit this file unchanged.
+
 # A recurrent global floral island syndrome separates selfing and pollinator-facing floral responses under increasing pollen limitation
 
 ## Full working manuscript v14 — canonical reordered H1–H4 analysis — 2026-09-18
