@@ -1,3 +1,8 @@
+# HISTORICAL / SUPERSEDED CONFIG
+# Retained for exact replay of the pre-v13 branching/concordance program only.
+# Do not use this file to select the current Chapter 1 analysis.
+# Current selector: config/chapter1_submission_current.json
+
 contract: chapter1_global_dispersal_filtered_pollination_service_branching_v1
 
 hypothesis_name: Dispersal-filtered pollination-service branching hypothesis
