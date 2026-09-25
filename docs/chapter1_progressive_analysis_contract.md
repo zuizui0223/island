@@ -1,3 +1,5 @@
+> **HISTORICAL / SUPERSEDED — pre-v13 progressive branching program.** This document describes a pre-corrected Chapter 1 design and is retained only for provenance/replay. It is **not** a current scientific or submission contract. Use `config/chapter1_submission_current.json`, `submission/chapter1_current/MANUSCRIPT.md`, and `docs/PAPER_PIPELINE.md` for the current H1–H4 surface.
+
 # Chapter 1 progressive analysis contract
 
 ## Decision

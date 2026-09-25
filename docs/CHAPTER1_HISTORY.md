@@ -41,3 +41,15 @@ This keeps old model/figure reproduction available without allowing retired publ
 
 
 The manual-only boundary also covers the retired effect-fingerprint / P1 paired-support audits and the pre-v13 Figure 3 renderers. These remain reproducible but cannot reactivate from historical branch pushes.
+
+## Superseded scientific-design documents still retained on main
+
+These files remain in place because historical runners or provenance documents reference their paths, but they are **not active scientific contracts**:
+
+- `docs/chapter1_progressive_analysis_contract.md` — old universal-vs-branching H1–H5 ladder;
+- `docs/chapter1_explanation_gap_validation_plan.md` — old prospective falsification plan for that ladder;
+- `docs/chapter1_progressive_pollination_concordance.md` — old sampled guild-architecture concordance layer;
+- `config/chapter1_global_branching.yml` — old branching configuration;
+- `.github/workflows/validate-chapter1-explanation-gap-contract.yml` — historical replay only, now manual-only.
+
+The current scientific hierarchy is the corrected H1–H4 surface selected by `config/chapter1_submission_current.json`.

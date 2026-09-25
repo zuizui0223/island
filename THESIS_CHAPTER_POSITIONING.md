@@ -1,192 +1,162 @@
 # Thesis positioning — Chapter 1
 
+> **Current scientific surface: corrected geography baseline (24 September 2026).**
+> Machine-readable selector: `config/chapter1_submission_current.json`.
+> Older WHEN/WHERE, branching, lineage-first and Bombus-centered Chapter 1 designs are historical provenance, not the current paper claim.
+
 ## Role in the dissertation
 
-This repository is the **Chapter 1 / macroecological WHEN–WHERE** component of the dissertation.
+This repository is the **Chapter 1 macroecological evidence layer** of the dissertation.
 
-Chapter 1 asks:
+Chapter 1 now asks:
 
-> **When and where do floral/reproductive trait probabilities change along a mainland-distance/source-pool-accessibility gradient, and where do multivariate response vectors differ?**
+> **Does geographic isolation repeatedly reorganize floral/reproductive function across island floras, is that response separable into reproductive-assurance and pollinator-facing accessibility components, and is the same geographic gradient independently associated with stronger pollen limitation?**
 
-The chapter establishes boundary conditions. It does not identify the ecological mechanism producing them.
+The chapter establishes a global pattern, an independent ecological-pressure correlate, and post-hoc functional compatibility. It does **not** identify the historical causal mechanism that generated the contemporary assemblages.
 
-## Data interpretation
+## Current corrected baseline
 
-GBIF records are not treated as a complete island-flora census or assumed to be a simple random sample. They are treated as an opportunistic, incompletely observed sample of realised floras.
+- analysis universe: **8,264 island units**;
+- broad H1 union: **4,379 islands**;
+- plant species: **106,295**;
+- resolved trait cells: **222,688 / 318,885 = 69.83%**;
+- GloPL: **2,969 experiments / 1,248 sites / 919 publications**;
+- geographic exposure: source-matched GSHHG 2.3.7 coastline separation.
 
-The analysis therefore separates:
+The 24 September 2026 geography correction repaired 1,113 spurious island zero distances and excluded one continental split component. It is the primary measurement baseline, but remains a post-hoc measurement correction rather than prospective confirmation.
 
-1. **observation process** — where flora and direct trait evidence are visible;
-2. **trait-centric ecological surface** — `P(trait state | directly trait-resolved observed flora, geography)`;
-3. **WHEN / WHERE response-vector inference** — where those trait probabilities jointly vary and where regional vectors differ.
+## Current H1–H4 scientific spine
 
-An unrecorded island/species is never coded as biological trait absence.
+### H1 — recurrent multivariate island response
 
-Mainland distance is a composite geographic gradient that may represent both dispersal limitation and changing mainland/source-pool accessibility. Chapter 1 does not call it a pure causal isolation treatment.
+The seven-response floral/reproductive isolation vector is jointly supported in all four predeclared geographic strata in both evidence scopes.
 
-## Hypotheses
+The result is **recurrent, not uniform**. Individual traits can be weak or move in the opposite direction; in particular, southern shallow/open tube is negative in the corrected analysis.
 
-### H1 — common geographic filtering
+### H2 — two partially separable plant-response components
 
-> Floral/reproductive trait probabilities change systematically along the geographic/source-pool gradient in multiple island contexts.
+Reproductive assurance is separated from additional floral responses.
 
-### H2 — context-dependent response vector
+After conditioning on measured reproductive assurance, generalized/accessibility responses remain positive in all four primary strata and are FDR-supported in northern high latitudes and the tropics. Tropical Direct-only accessibility is nominally positive but not FDR-supported (`q=0.1196`).
 
-> The multivariate trait-probability response to the same geographic gradient differs among biogeographic contexts.
-
-This is tested directly with a vector contrast; significance in one region and nonsignificance in another is not sufficient evidence of heterogeneity.
-
-### H3 — floristic-status persistence
-
-> If the geographic response is not confined to endemic-lineage turnover, it should persist within native non-endemic assemblages.
-
-This is a persistence condition, not a causal contrast among overlapping status strata.
-
-### H4 — observation-robustness condition
-
-> A manuscript-level WHEN/WHERE result must persist when measured observation and trait-resolution structure is prevented from dominating inference.
-
-Required robustness layers include equal/capped island information weighting, response-specific trait-resolution coverage adjustment, all-island observation modelling, alternative distance transformations on the same island universe, and leave-one-spatial-block influence analysis.
-
-## Frozen observation-robust result
-
-Canonical run: `32845980788`.
-
-### WHERE
-
-Confirmatory multivariate geographic filtering is supported in:
-
-- **northern mid-latitude** island floras;
-- **tropical** island floras.
-
-The result occurs in both `all_native` and `native_nonendemic` assemblages.
-
-### BETWEEN-WHERE
-
-Northern-midlatitude and tropical response vectors differ directly in the confirmatory multivariate comparison.
-
-Canonical species-count weighting:
-
-- all native: q = **2.35e-08**;
-- native non-endemic: q = **7.13e-07**.
-
-### Observation robustness
-
-The complete headline is reproduced:
-
-- **10/10** times across five information-weight schemes × two status strata, including equal-island weighting;
-- **2/2** status strata after response-specific direct-trait coverage adjustment;
-- **6/6** across log1p, square-root and raw distance forms while retaining the full island universe;
-- **84/84** leave-one-block runs for all-native and **84/84** for native-nonendemic assemblages.
-
-The canonical checkpoint records:
+Therefore floral reorganization is not reducible to a compulsory serial pathway of:
 
 ```text
-observation_robust_headline = true
+isolation -> selfing -> floral simplification
 ```
 
-This does not prove missingness is random. It shows that the headline is not readily explained by measured trait-resolution coverage, unequal information weighting, one distance transform, or one spatial block.
+The supported interpretation is a **partially separable reproductive-assurance route plus an additional pollinator-facing accessibility route**. H2 is conditional decomposition, not causal mediation.
 
-## Trait-centric interpretation
+### H3 — independent ecological-pressure correlate
 
-Atomic trait models are read as conditional probabilities, for example:
+Independent GloPL pollen-supplementation experiments show increasing pollen limitation with corrected geographic isolation:
 
 ```text
-P(SC | directly trait-resolved observed flora, geography)
+beta = 0.09191
+SE   = 0.03806
+p    = 0.01575
 ```
 
-Current direct evidence does **not** show a clear positive distance-gradient slope for SC in either the northern-midlatitude or tropical all-native sample. Therefore the Chapter 1 result is not a simple Baker-rule result.
+This is evidence for an isolation-associated **pollination-service constraint**, not proof of a global decline in pollinator abundance or visitation.
 
-Post-freeze decomposition indicates that floral architecture contributes strongly to the north-versus-tropical vector difference, while SI/SC contributes more weakly.
+### H4 — functional compatibility
 
-## Current geographic boundary
+In exact-species post-hoc triangulation, the two H2 trait families are associated with lower current pollen limitation:
 
-| context | confirmatory status |
-| --- | --- |
-| northern mid-latitude | supported |
-| tropical | supported |
-| southern extratropical | pilot signal; confirmatory unresolved |
-| northern high-latitude | unresolved / not confirmatorily testable |
+- reproductive assurance: `beta=-0.29830`, `p=0.00396`;
+- generalized accessibility: `beta=-0.29566`, `p=0.02187`.
 
-Under-support is not interpreted as a biological null.
+These associations are functionally compatible with reduced dependence on external pollen delivery. They do not establish that historical pollen limitation mediated the contemporary island trait pattern.
 
-## Next data acquisition
+## What Chapter 1 no longer claims
 
-Additional acquisition must not be used to rescue the northern/tropical result.
+The current paper is **not** organized around:
 
-The next goal is to expand regional testability. The current bottleneck is:
+- rejection of a universal syndrome in favour of North-vs-Tropical branching;
+- a Palearctic-only floral architecture result;
+- source/lineage decomposition as the main paper spine;
+- Bombus loss as a global or primary Chapter 1 mechanism;
+- pollination-syndrome scores as realized visitor identities;
+- within-lineage evolution rather than assemblage filtering.
+
+Those analyses remain useful provenance and sensitivity history, but they are not the current submission-level result hierarchy.
+
+## Current inferential hierarchy
 
 ```text
-flora recorded
-→ floristic status resolved
-→ direct trait evidence resolved
-→ enough islands per atomic response
+geographic isolation
+      |
+      +--> recurrent multivariate floral/reproductive response (H1)
+      |        |
+      |        +--> reproductive assurance
+      |        |
+      |        +--> additional accessibility/generalization response (H2)
+      |
+      +--> stronger experimental pollen limitation (H3)
+
+H2 trait states
+      |
+      +--> lower current pollen limitation in exact-species overlap (H4)
 ```
 
-Southern extratropical has 317 flora-recorded islands but only 34 entering the current native-status trait surface. Northern high-latitude has 424 flora-recorded islands but only 12.
-
-Therefore the outcome-blind acquisition order is:
-
-1. floristic-status resolution on already recorded southern/high-latitude floras;
-2. direct floral-form evidence;
-3. direct SI/SC evidence;
-4. colour only where it materially increases island-level testability.
-
-See [`docs/chapter1_next_acquisition_priority_20260825.md`](docs/chapter1_next_acquisition_priority_20260825.md).
-
-## Stronger source-pool extension
-
-Where a candidate source pool can be declared independently of island trait outcomes, a secondary stronger test can ask:
+The dashed historical causal bridge remains unresolved:
 
 ```text
-P(species occurs on island | trait, candidate source pool, geography)
+past isolation-associated pollination constraint
+      -> selection / sorting / persistence
+      -> contemporary island trait composition
 ```
 
-This is distinct from the primary opportunistic-flora composition estimand and should be restricted to defensible source-pool systems.
+Chapter 1 does not claim this sequence has been directly identified.
 
-## Pollination-syndrome boundary
+## Handoff to Chapter 2 — `izu-core`
 
-Bombus, bird, butterfly, moth, hawkmoth and other pollinator labels do not enter Chapter 1 fitted models.
+Chapter 1 ends at the macroecological claim ceiling:
 
-Allowed only after the WHEN/WHERE freeze:
+> **Isolation is repeatedly associated with a functional shift toward reproductive assurance and floral accessibility, and with stronger pollen limitation, but the causal route from interaction change to plant response remains unresolved.**
+
+Chapter 2 asks the mechanism question directly:
+
+> **How do changes in realized pollination channels alter effective pollen transfer, reproductive success and plant-specific floral responses, and why do species respond differently to the same deterioration in pollination service?**
+
+The dissertation handoff is therefore:
 
 ```text
-frozen regional response vectors
-→ literature-defined concordance / mismatch
+Chapter 1 — GLOBAL PATTERN + ECOLOGICAL PRESSURE + FUNCTIONAL COMPATIBILITY
+                |
+                v
+Chapter 2 — REALIZED CHANNELS + EFFECTIVE SERVICE + PLANT-SPECIFIC MECHANISM
 ```
 
-Not allowed:
+Bombus can remain a concrete local interaction mechanism in Chapter 2 where independently measured visitation/effectiveness supports it. It is not inferred from Chapter 1 floral architecture.
 
-```text
-trait vector → inferred pollinator guild → causal mechanism
-```
+## Claim ceiling
 
-## Handoff to Chapter 2
+Chapter 1 may claim:
 
-Chapter 1 ends with:
+- recurrent multivariate floral/reproductive response to geographic isolation;
+- partially separable reproductive-assurance and accessibility components;
+- increasing experimental pollen limitation with geographic isolation;
+- exact-species functional compatibility between the two response families and lower current pollen limitation.
 
-> **Why does the same mainland-distance/source-pool-accessibility gradient produce detectable floral/reproductive filtering in both northern mid-latitude and tropical island floras, yet generate different multivariate response vectors?**
+Chapter 1 must not claim:
 
-Chapter 2 (`izu-core`) distinguishes candidate mechanisms such as pollinator function, functional diversity, trait matching, effective service, reproductive assurance, functional replacement, network context and non-pollination geography/history.
+- historical causal mediation from pollen limitation to trait evolution;
+- global pollinator abundance or visitation decline;
+- one universal named pollinator mechanism;
+- uniform positive change in every floral trait;
+- realized pollinator identity from flower colour or syndrome templates;
+- species sorting versus within-lineage evolution as already identified;
+- the corrected geography analysis as prospective confirmation.
 
-## Relationship to Chapters 2 and 3
+## Sources of truth
 
-| Chapter 1 — `island` | Chapter 2 — `izu-core` | Chapter 3 — `shimahotarubukuro` |
-| --- | --- | --- |
-| global opportunistically observed island floras | mechanistic response architecture | focal lineage across Izu islands |
-| asks **WHEN / WHERE** | asks **WHY / HOW** | asks **WHAT phenotype** |
-| models observation and trait-probability surfaces | distinguishes candidate interaction mechanisms | measures multidimensional phenotypic divergence |
-| output: supported/unresolved boundary conditions | output: branching / propagation / buffering | output: phenotype differentiation |
+Use, in order:
 
-## Claim boundary
+1. `config/chapter1_submission_current.json`
+2. `submission/chapter1_current/MANUSCRIPT.md`
+3. `docs/chapter1_corrected_submission_20260924.md`
+4. `results/geography_20260924/`
+5. `docs/PAPER_PIPELINE.md`
 
-Chapter 1 must not claim that:
-
-- no record means absence;
-- mainland distance is a pure causal isolation treatment;
-- southern/high-latitude floras are null merely because current confirmatory support is insufficient;
-- SC necessarily increases with distance;
-- response vectors identify pollinator guilds;
-- cross-sectional assemblage filtering demonstrates within-lineage evolution.
-
-The Chapter 1 contribution is to identify **where and under what floristic/observation conditions trait probabilities respond to a geographic/source-pool gradient, and which contexts show demonstrably different multivariate responses.**
+Historical design documents are indexed in `docs/CHAPTER1_HISTORY.md`.

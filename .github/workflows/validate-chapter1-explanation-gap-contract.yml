@@ -1,12 +1,6 @@
-name: Validate Chapter 1 explanation-gap contract
+name: Historical replay — Chapter 1 explanation-gap contract
 
 on:
-  push:
-    branches: [ch1-progressive-trait-analysis]
-    paths:
-      - "config/chapter1_explanation_gap_validation.yml"
-      - "docs/chapter1_explanation_gap_validation_plan.md"
-      - ".github/workflows/validate-chapter1-explanation-gap-contract.yml"
   workflow_dispatch:
 
 permissions:
