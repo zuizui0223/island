@@ -25,3 +25,16 @@ Archived under `legacy/chapter1-pre-v13/`.
 
 ## Alpha1 database
 The alpha1 bundle retains its original 8,265-unit contract for exact historical database replay. It is not the corrected 8,264-unit Chapter 1 analysis universe.
+
+
+## Historical workflow boundary
+
+Superseded publication-surface workflows for v8–v14 are retained only for explicit historical replay. They are **manual-only** (`workflow_dispatch`) and must not run on push, pull request or schedule.
+
+The guard is:
+- `tests/test_chapter1_historical_workflows_manual_only.py`
+
+The active automatic Chapter 1 submission check is:
+- `.github/workflows/corrected-submission-geography.yml`
+
+This keeps old model/figure reproduction available without allowing retired publication surfaces to repromote themselves.
