@@ -1,16 +1,6 @@
-name: Run Chapter 1 v13 raw flower-colour audit
+name: Historical replay — Chapter 1 v13 raw-colour audit
 
 on:
-  pull_request:
-    paths:
-      - "src/island_v2/chapter1_v13_raw_colour_audit.py"
-      - "src/island_v2/chapter1_v13_colour_architecture_audit.py"
-      - "src/island_v2/chapter1_v13_raw_colour_coupling_audit.py"
-      - "tests/test_chapter1_v13_raw_colour_audit.py"
-      - "tests/test_chapter1_v13_colour_architecture_audit.py"
-      - "tests/test_chapter1_v13_raw_colour_coupling_audit.py"
-      - ".github/workflows/run-chapter1-v13-raw-colour-audit.yml"
-      - "docs/chapter1_v13_raw_colour_audit_20260917.md"
   workflow_dispatch:
 
 permissions:
