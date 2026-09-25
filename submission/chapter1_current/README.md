@@ -44,6 +44,10 @@ It must not claim:
 
 Prospective H4 validation audits remain outside the H4 result.
 
-## Next package work
+## Figure status
 
-Regenerate final vector figures and poster panels from `results/geography_20260924/`, then apply journal-specific formatting, reference normalization and final author metadata after the target journal is fixed.
+Main Figures 1–6 and the poster workflow were regenerated on 25 September 2026 from the corrected PR #242 result surface. The repository keeps the source tables and captions as the scientific source of truth; exported PDF/PNG/PPTX files are submission artifacts rather than inferential inputs.
+
+## Remaining work
+
+Only journal-specific packaging remains: target-journal formatting, reference style, final author metadata, declarations and Supplementary Information assembly.
