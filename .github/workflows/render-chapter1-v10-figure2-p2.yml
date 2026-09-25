@@ -1,12 +1,6 @@
-name: Render Chapter 1 v10 Figure 2 P2
+name: Historical replay — Render Chapter 1 v10 Figure 2 P2
 
 on:
-  push:
-    branches: ["ch1/p2-component-nonconcordance"]
-    paths:
-      - "src/island_v2/chapter1_v10_figure2_p2_submission.py"
-      - "tests/test_chapter1_v10_figure2_p2_submission.py"
-      - ".github/workflows/render-chapter1-v10-figure2-p2.yml"
   workflow_dispatch:
 
 permissions:
