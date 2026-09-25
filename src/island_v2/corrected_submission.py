@@ -68,7 +68,7 @@ def compare_csv_table(
 
     return {
         "file": observed_path.as_posix(),
-        "rows": int(len(observed)),
+        "rows": len(observed),
         "numeric_columns_checked": numeric_columns,
     }
 
