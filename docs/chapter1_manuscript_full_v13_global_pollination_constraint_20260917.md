@@ -1,3 +1,5 @@
+> **SUPERSEDED FOR SUBMISSION — historical v13 provenance only.** The active manuscript is `submission/chapter1_current/MANUSCRIPT.md`, selected by `config/chapter1_submission_current.json`. Values below use the superseded 8,265-unit / pre-correction geography and must not be submitted unchanged.
+
 # A recurrent global floral island syndrome aligns with pollen limitation through two trait pathways
 
 ## Full working manuscript v13 — global-only submission draft — 2026-09-17
