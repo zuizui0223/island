@@ -1,14 +1,7 @@
-name: Promote Chapter 1 v11 submission surface
+name: Historical replay — Promote Chapter 1 v11 submission surface
 
 on:
-  push:
-    branches: ["ch1/p3-joint-observation-bias"]
-    paths:
-      - "config/chapter1_v11_figure4_result_lock.json"
-      - "config/chapter1_p3_joint_observation_bias_result_lock.json"
-      - "docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md"
-      - "scripts/promote_chapter1_v11_submission_surface.py"
-      - ".github/workflows/promote-chapter1-v11-submission-surface.yml"
+  workflow_dispatch:
 
 permissions:
   contents: write

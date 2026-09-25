@@ -1,13 +1,6 @@
-name: Render Chapter 1 v9 Figure 3 P1 defense
+name: Historical replay — Render Chapter 1 v9 Figure 3 P1 defense
 
 on:
-  push:
-    branches: ["ch1/nee-island-first-design"]
-    paths:
-      - "src/island_v2/chapter1_v9_figure3_p1_defense_submission.py"
-      - "tests/test_chapter1_v9_figure3_p1_defense_submission.py"
-      - ".github/workflows/render-chapter1-v9-figure3-p1-defense.yml"
-      - "pyproject.toml"
   workflow_dispatch:
 
 permissions:

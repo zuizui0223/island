@@ -1,14 +1,6 @@
-name: Render Chapter 1 v8 Figure 3 submission
+name: Historical replay — Render Chapter 1 v8 Figure 3 submission
 
 on:
-  push:
-    branches: ["ch1/v8-figure-architecture"]
-    paths:
-      - "src/island_v2/chapter1_v8_figure3_assembly_depth.py"
-      - "src/island_v2/chapter1_v8_figure3_assembly_depth_submission.py"
-      - "tests/test_chapter1_v8_figure3_assembly_depth.py"
-      - ".github/workflows/render-chapter1-v8-figure3-submission.yml"
-      - "pyproject.toml"
   workflow_dispatch:
 
 permissions:

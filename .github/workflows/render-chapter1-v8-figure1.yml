@@ -1,15 +1,7 @@
-name: Render Chapter 1 v8 Figure 1 inference map
+name: Historical replay — Render Chapter 1 v8 Figure 1 inference map
 
 on:
-  push:
-    branches: ["ch1/v8-figure1-manuscript-sync"]
-    paths:
-      - "src/island_v2/chapter1_v8_figure1_inference_map.py"
-      - "tests/test_chapter1_v8_figure1_inference_map.py"
-      - "config/chapter1_v8_figure2_result_lock.json"
-      - "config/chapter1_v8_figure3_submission_result_lock.json"
-      - "config/chapter1_v8_figure4_result_lock.json"
-      - ".github/workflows/render-chapter1-v8-figure1.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read

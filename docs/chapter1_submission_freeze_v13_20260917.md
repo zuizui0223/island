@@ -1,3 +1,5 @@
+> **SUPERSEDED SUBMISSION FREEZE — historical v13 provenance only.** The active freeze/selection is `config/chapter1_submission_current.json`; current results use the corrected 8,264-unit geography baseline.
+
 # Chapter 1 v13 submission freeze — global-only revision — 2026-09-17
 
 Status: review candidate; global-only H1–H4 surface synchronized.

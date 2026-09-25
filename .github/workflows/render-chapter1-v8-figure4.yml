@@ -1,12 +1,7 @@
-name: Render Chapter 1 v8 Figure 4 falsification boundaries
+name: Historical replay — Render Chapter 1 v8 Figure 4 falsification boundaries
 
 on:
-  push:
-    branches: ["ch1/v8-figure-architecture"]
-    paths:
-      - "src/island_v2/chapter1_v8_figure4_falsification_boundaries.py"
-      - "tests/test_chapter1_v8_figure4_falsification_boundaries.py"
-      - ".github/workflows/render-chapter1-v8-figure4.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
