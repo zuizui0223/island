@@ -90,6 +90,8 @@ The reproduced v14 surface is retained for audit and historical replay only:
 
 It must not be used as the current submission result surface.
 
+Superseded v8–v14 publication/promotion/render workflows are retained as **manual-only historical replay**; `tests/test_chapter1_historical_workflows_manual_only.py` prevents automatic push/PR/schedule triggers from being reintroduced.
+
 ## Frozen v13 parent paper surface
 
 v13 remains immutable parent provenance beneath v14. Pre-v13 publication branches are archived under `legacy/chapter1-pre-v13/`.
