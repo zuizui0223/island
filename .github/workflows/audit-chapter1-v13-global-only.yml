@@ -1,17 +1,6 @@
-name: Audit Chapter 1 v13 global-only submission
+name: Historical replay — Chapter 1 v13 global-only audit
 
 on:
-  push:
-    branches: [ch1-v13-global-only]
-    paths:
-      - "config/chapter1_v13_*.json"
-      - "src/island_v2/chapter1_v13_*.py"
-      - "tests/test_chapter1_v13_*.py"
-      - "docs/chapter1_*v13*.md"
-      - "docs/chapter1_unified_hypothesis_20260917.md"
-      - "README.md"
-      - "docs/PAPER_PIPELINE.md"
-      - ".github/workflows/audit-chapter1-v13-global-only.yml"
   workflow_dispatch:
 
 permissions:
