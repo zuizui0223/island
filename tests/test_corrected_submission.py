@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from island_v2.corrected_submission import verify_files
+from island_v2.corrected_submission import compare_csv_table, verify_files
 
 
 def test_hash_gate_rejects_changed_or_missing_inputs(tmp_path):
@@ -22,6 +22,30 @@ def test_hash_gate_rejects_changed_or_missing_inputs(tmp_path):
 def test_hash_gate_rejects_path_escape(tmp_path):
     with pytest.raises(ValueError, match="outside"):
         verify_files(tmp_path, {"../file": "x"})
+
+
+
+def test_replay_table_comparison_accepts_numeric_tolerance_and_rejects_content_changes(tmp_path):
+    expected = tmp_path / "expected.csv"
+    observed = tmp_path / "observed.csv"
+    expected.write_text("id,value,label\na,1.0,x\nb,2.0,y\n", encoding="utf-8")
+    observed.write_text("id,value,label\na,1.0000001,x\nb,2.0,y\n", encoding="utf-8")
+    report = compare_csv_table(observed, expected)
+    assert report["rows"] == 2
+    assert report["numeric_columns_checked"] == ["value"]
+
+    observed.write_text("id,value,label\na,1.0,x\nb,2.0,z\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="categorical mismatch"):
+        compare_csv_table(observed, expected)
+
+
+def test_replay_table_comparison_rejects_numeric_drift(tmp_path):
+    expected = tmp_path / "expected.csv"
+    observed = tmp_path / "observed.csv"
+    expected.write_text("value\n1.0\n", encoding="utf-8")
+    observed.write_text("value\n1.1\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="numeric mismatch"):
+        compare_csv_table(observed, expected)
 
 
 def test_current_submission_selects_complete_corrected_results():
