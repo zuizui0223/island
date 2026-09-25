@@ -1,13 +1,7 @@
-name: Audit Chapter 1 effect fingerprint
+name: Historical replay — Audit Chapter 1 effect fingerprint
 
 on:
-  push:
-    branches: ["ch1/fingerprint-and-globi-breadth"]
-    paths:
-      - "config/chapter1_effect_fingerprint.yml"
-      - "src/island_v2/chapter1_effect_fingerprint.py"
-      - "tests/test_chapter1_effect_fingerprint.py"
-      - ".github/workflows/audit-chapter1-effect-fingerprint.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read

@@ -1,14 +1,7 @@
-name: Render Chapter 1 Figure 3 submission layout
+name: Historical replay — Render Chapter 1 Figure 3 submission layout
 
 on:
-  push:
-    branches: ["ch1/figure3-response-fingerprint"]
-    paths:
-      - "src/island_v2/chapter1_figure3_response_fingerprint.py"
-      - "src/island_v2/chapter1_figure3_response_fingerprint_submission.py"
-      - "tests/test_chapter1_figure3_response_fingerprint.py"
-      - "pyproject.toml"
-      - ".github/workflows/render-chapter1-figure3-submission.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
