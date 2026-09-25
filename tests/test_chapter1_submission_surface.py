@@ -9,6 +9,8 @@ PIPELINE = ROOT / "docs/PAPER_PIPELINE.md"
 DATABASE = ROOT / "docs/DATABASE_BUILD.md"
 V14_MANUSCRIPT = ROOT / "docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md"
 V14_FREEZE = ROOT / "docs/chapter1_submission_freeze_v14_20260918.md"
+V13_MANUSCRIPT = ROOT / "docs/chapter1_manuscript_full_v13_global_pollination_constraint_20260917.md"
+V13_FREEZE = ROOT / "docs/chapter1_submission_freeze_v13_20260917.md"
 
 
 def test_v14_lock_is_preserved_as_verified_historical_provenance():
@@ -48,9 +50,13 @@ def test_historical_surfaces_are_explicitly_marked_and_not_current():
     manuscript = V14_MANUSCRIPT.read_text(encoding="utf-8")
     freeze = V14_FREEZE.read_text(encoding="utf-8")
     database = DATABASE.read_text(encoding="utf-8")
+    v13_manuscript = V13_MANUSCRIPT.read_text(encoding="utf-8")
+    v13_freeze = V13_FREEZE.read_text(encoding="utf-8")
 
     assert manuscript.startswith("> **SUPERSEDED FOR SUBMISSION")
     assert "submission/chapter1_current/MANUSCRIPT.md" in manuscript
     assert freeze.startswith("> **SUPERSEDED SUBMISSION FREEZE")
+    assert v13_manuscript.startswith("> **SUPERSEDED FOR SUBMISSION")
+    assert v13_freeze.startswith("> **SUPERSEDED SUBMISSION FREEZE")
     assert "8,264 = current corrected Chapter 1 analysis universe" in database
     assert "8,265 = historical alpha1 / frozen provenance universe" in database
