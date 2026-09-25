@@ -32,10 +32,12 @@ def point_arc(p, a, b):
     norm = np.linalg.norm(n, axis=-1)
     n = n / np.maximum(norm[..., None], 1e-300)
     q = p - n * np.sum(p * n, axis=-1)[..., None]
-    q = q / np.maximum(np.linalg.norm(q, axis=-1)[..., None], 1e-300)
+    q_norm = np.linalg.norm(q, axis=-1)
+    q = q / np.maximum(q_norm[..., None], 1e-300)
     ab = angle(a, b)
     ends = np.minimum(angle(p, a), angle(p, b))
-    return np.where((norm > 1e-14) & on_arc(q, a, b, ab), np.minimum(ends, angle(p, q)), ends)
+    interior = (norm > 1e-14) & (q_norm > 1e-14) & on_arc(q, a, b, ab)
+    return np.where(interior, np.minimum(ends, angle(p, q)), ends)
 
 
 def segment_distance(a, b, c, d):
