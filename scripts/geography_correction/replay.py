@@ -8,7 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from island_v2.corrected_submission import verify_files
+from island_v2.corrected_submission import verify_files, verify_replay_tables
 
 
 def main():
@@ -55,8 +55,41 @@ def main():
         subprocess.run(
             [sys.executable, str(Path(__file__).parent / (stage + ".py"))], env=env, check=True
         )
+    replay_tables = [
+        "corrected_geography_covariates.csv",
+        "glopl_corrected_site_distances.csv",
+        "h2_original_reproduced_all.csv",
+        "h2_original_reproduced_direct.csv",
+        "h4_atomic_corrected.csv",
+        "h4_atomic_original_reproduced.csv",
+        "h4_exact_corrected.csv",
+        "h4_exact_original_reproduced.csv",
+        "all/beta_binomial_between_omnibus.csv",
+        "all/beta_binomial_between_slopes.csv",
+        "all/beta_binomial_within_omnibus.csv",
+        "all/beta_binomial_within_slopes.csv",
+        "all/h2_decomposition_models.csv",
+        "all/raw_patterns/raw_colour_architecture_model_results.csv",
+        "all/raw_patterns/raw_colour_conditioned_architecture_model_results.csv",
+        "all/raw_patterns/raw_colour_joint_omnibus.csv",
+        "all/raw_patterns/raw_colour_model_results.csv",
+        "direct/beta_binomial_between_omnibus.csv",
+        "direct/beta_binomial_between_slopes.csv",
+        "direct/beta_binomial_within_omnibus.csv",
+        "direct/beta_binomial_within_slopes.csv",
+        "direct/h2_decomposition_models.csv",
+        "direct/raw_patterns/raw_colour_architecture_model_results.csv",
+        "direct/raw_patterns/raw_colour_conditioned_architecture_model_results.csv",
+        "direct/raw_patterns/raw_colour_joint_omnibus.csv",
+        "direct/raw_patterns/raw_colour_model_results.csv",
+    ]
+    verification = verify_replay_tables(out, geometry, replay_tables)
+    (out / "repository_replay_verification.json").write_text(
+        json.dumps(verification, indent=2) + "\n",
+        encoding="utf8",
+    )
     (out / "REPLAY_COMPLETE.json").write_text(
-        json.dumps({"status": "all_stages_completed", "contract": contract["contract"]}, indent=2)
+        json.dumps({"status": "all_stages_completed_and_verified", "contract": contract["contract"]}, indent=2)
         + "\n",
         encoding="utf8",
     )
