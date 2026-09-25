@@ -12,6 +12,7 @@
 4. [Corrected result tables](results/geography_20260924/)
 5. [Replay instructions](scripts/geography_correction/README.md)
 6. [Compact paper pipeline](docs/PAPER_PIPELINE.md)
+7. [Historical / superseded surface index](docs/CHAPTER1_HISTORY.md)
 
 ## Current baseline
 
