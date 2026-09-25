@@ -3,11 +3,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 HISTORICAL_WORKFLOWS = [
+    ".github/workflows/audit-chapter1-effect-fingerprint.yml",
+    ".github/workflows/audit-chapter1-p1-paired-support.yml",
     ".github/workflows/audit-chapter1-v13-global-only.yml",
     ".github/workflows/audit-chapter1-v13-submission.yml",
     ".github/workflows/promote-chapter1-v11-p3.yml",
     ".github/workflows/promote-chapter1-v11-submission-surface.yml",
     ".github/workflows/promote-chapter1-v13-submission-surface.yml",
+    ".github/workflows/render-chapter1-figure3-response-fingerprint.yml",
+    ".github/workflows/render-chapter1-figure3-submission.yml",
     ".github/workflows/render-chapter1-v10-figure2-p2.yml",
     ".github/workflows/render-chapter1-v11-figure4.yml",
     ".github/workflows/render-chapter1-v8-figure1.yml",
