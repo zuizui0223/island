@@ -34,6 +34,13 @@ def test_index_matches_exhaustive_for_long_and_short_arcs():
             assert index.distance(c, d) == pytest.approx(brute, abs=1e-7)
 
 
+
+def test_exact_great_circle_normal_does_not_collapse_to_zero_distance():
+    index = CoastIndex(xyz([[0, 0]]), xyz([[10, 0]]))
+    north_pole = np.array([[0.0, 0.0, 1.0]])
+    assert index.distance(north_pole, north_pole) == pytest.approx(np.pi * R / 2, abs=1e-8)
+
+
 def test_nearshore_gap_is_positive_and_mainland_point_zero():
     land = box(0, 0, 1, 1)
     index = CoastIndex(*geometry_segments(land))
