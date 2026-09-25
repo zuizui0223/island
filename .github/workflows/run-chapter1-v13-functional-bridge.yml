@@ -1,13 +1,6 @@
-name: Run Chapter 1 v13 functional bridge
+name: Historical replay — Run Chapter 1 v13 functional bridge
 
 on:
-  push:
-    branches: [ch1-v13-unified-island-syndrome]
-    paths:
-      - "config/chapter1_v13_functional_bridge_v1.yml"
-      - "src/island_v2/chapter1_v13_functional_bridge.py"
-      - "tests/test_chapter1_v13_functional_bridge.py"
-      - ".github/workflows/run-chapter1-v13-functional-bridge.yml"
   workflow_dispatch:
 
 permissions:
