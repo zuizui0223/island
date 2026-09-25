@@ -1,13 +1,7 @@
-name: Render Chapter 1 Figure 3 response fingerprint
+name: Historical replay — Render Chapter 1 Figure 3 response fingerprint
 
 on:
-  push:
-    branches: ["ch1/figure3-response-fingerprint"]
-    paths:
-      - "pyproject.toml"
-      - "src/island_v2/chapter1_figure3_response_fingerprint.py"
-      - "tests/test_chapter1_figure3_response_fingerprint.py"
-      - ".github/workflows/render-chapter1-figure3-response-fingerprint.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
