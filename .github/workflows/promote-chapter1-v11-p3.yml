@@ -1,11 +1,7 @@
-name: Promote Chapter 1 v11 P3 manuscript
+name: Historical replay — Promote Chapter 1 v11 P3 manuscript
 
 on:
-  push:
-    branches: ["ch1/p3-joint-observation-bias"]
-    paths:
-      - "scripts/promote_chapter1_v11_p3.py"
-      - ".github/workflows/promote-chapter1-v11-p3.yml"
+  workflow_dispatch:
 
 permissions:
   contents: write
