@@ -57,7 +57,7 @@ jobs:
             tests/test_chapter1_v14_h4_family_bridge.py \
             tests/test_chapter1_v14_h4_exact_h2_score_bridge.py \
             tests/test_chapter1_v14_submission_promotion.py \
-            tests/test_chapter1_v14_canonical_surface.py
+            tests/test_chapter1_submission_surface.py
           ruff check \
             src/island_v2/chapter1_v14_h2_decomposition.py \
             src/island_v2/chapter1_v14_h4_family_bridge.py \
@@ -67,7 +67,7 @@ jobs:
             tests/test_chapter1_v14_h4_family_bridge.py \
             tests/test_chapter1_v14_h4_exact_h2_score_bridge.py \
             tests/test_chapter1_v14_submission_promotion.py \
-            tests/test_chapter1_v14_canonical_surface.py \
+            tests/test_chapter1_submission_surface.py \
             tests/test_chapter1_v14_contract.py \
             tests/test_chapter1_v14_preflight_lock.py
 
