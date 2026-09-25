@@ -23,6 +23,6 @@ Main figure sequence:
 5. H2 conditional pathway decomposition
 6. H3 pollen-limitation pressure and H4 functional bridge
 
-All result panels should be regenerated from the corrected tables under `results/geography_20260924/`. PNG files are review copies; PDF/SVG files should be treated as submission masters.
+Main Figures 1–6 were regenerated from the corrected tables under `results/geography_20260924/` on 25 September 2026. Exported PNG/PDF/PPTX files are delivery artifacts; the committed corrected tables remain the scientific source of truth.
 
 The package is submission-facing but not yet journal-formatted. The next irreversible choice is the target journal.
