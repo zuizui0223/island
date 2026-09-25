@@ -38,3 +38,6 @@ The active automatic Chapter 1 submission check is:
 - `.github/workflows/corrected-submission-geography.yml`
 
 This keeps old model/figure reproduction available without allowing retired publication surfaces to repromote themselves.
+
+
+The manual-only boundary also covers the retired effect-fingerprint / P1 paired-support audits and the pre-v13 Figure 3 renderers. These remain reproducible but cannot reactivate from historical branch pushes.
