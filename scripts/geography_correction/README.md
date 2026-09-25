@@ -9,7 +9,7 @@ $env:PYTHONPATH='src'
 python scripts/geography_correction/replay.py --sources C:/path/to/extracted-sources --output C:/path/to/new-replay
 ```
 
-`--verify-only` checks hashes without running models. The output must be new or empty. The runner checks every external file in `config/chapter1_corrected_input_files_20260924.json` and all committed corrected-result hashes, reproduces old H2/H3/exact-H4/raw-pattern results, then runs corrected H1 (all three strata), H2, H3 sensitivities, exact/atomic H4 and raw patterns in both evidence scopes. Numerical platform differences are expected at floating-point tolerance. A completed stage receipt is not a claim that every hypothesis is supported.
+`--verify-only` checks hashes without running models. The output must be new or empty. The runner checks every external file in `config/chapter1_corrected_input_files_20260924.json` and all committed corrected-result hashes, reproduces old H2/H3/exact-H4/raw-pattern results, then runs corrected H1 (all three strata), H2, H3 sensitivities, exact/atomic H4 and raw patterns in both evidence scopes. After all stages finish, the runner compares 26 primary regenerated CSV tables against the frozen corrected tables (absolute tolerance 1e-6, relative tolerance 1e-5) and fails on row, column, categorical or numerical drift. Numerical platform differences within that tolerance are accepted. A completed-and-verified receipt is not a claim that every hypothesis is supported.
 
 ## Input sources and layout
 

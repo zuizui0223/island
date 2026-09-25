@@ -1,4 +1,9 @@
-name: Historical replay — Chapter 1 v14 reordered hypotheses\n\non:\n  workflow_dispatch:\n\npermissions:
+name: Historical replay — Chapter 1 v14 reordered hypotheses
+
+on:
+  workflow_dispatch:
+
+permissions:
   contents: read
   actions: read
 
