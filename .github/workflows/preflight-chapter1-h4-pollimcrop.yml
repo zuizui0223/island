@@ -1,4 +1,6 @@
-# Retrigger 2026-09-18 after Chapter 1 v14 merge; no scientific protocol change.\nname: Preflight Chapter 1 H4 PolLimCrop transportability
+name: Historical replay — Preflight Chapter 1 H4 PolLimCrop transportability
+
+# Legacy pre-v14 operational preflight retained for manual diagnostics only.
 
 concurrency:
   # Operational v2 group: isolate this run from the stale pre-v14 queue.
