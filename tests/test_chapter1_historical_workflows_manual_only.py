@@ -48,6 +48,22 @@ HISTORICAL_WORKFLOWS = [
     ".github/workflows/run-chapter1-v14-reordered-hypotheses.yml",
     ".github/workflows/run-chapter1-wcvp-native-compatibility.yml",
     ".github/workflows/validate-chapter1-explanation-gap-contract.yml",
+    ".github/workflows/audit-chapter1-response-geometry-power.yml",
+    ".github/workflows/audit-chapter1-response-geometry-v2.yml",
+    ".github/workflows/run-chapter1-response-geometry-observed.yml",
+    ".github/workflows/audit-chapter1-h4-prospective-temporal-replication.yml",
+    ".github/workflows/preflight-chapter1-h4-pollimcrop-v2.yml",
+    ".github/workflows/run-chapter1-h4-pollimcrop-transportability.yml",
+    ".github/workflows/screen-chapter1-h4-prospective-methods-v2.yml",
+    ".github/workflows/run-chapter1-h5c-observed-specificity.yml",
+    ".github/workflows/run-chapter1-h5c-pollination-mode-qualification.yml",
+    ".github/workflows/run-chapter1-h5d-identifiability.yml",
+    ".github/workflows/run-chapter1-nee-channel-qualification.yml",
+    ".github/workflows/run-chapter1-nee-globi-supported-catalog.yml",
+    ".github/workflows/run-chapter1-nee-n1.yml",
+    ".github/workflows/run-chapter1-nee-n2-discovery-wave1.yml",
+    ".github/workflows/run-chapter1-nee-source-positive-scan-full.yml",
+    ".github/workflows/run-chapter1-nee-source-positive-scan-pilot.yml",
 ]
 
 
