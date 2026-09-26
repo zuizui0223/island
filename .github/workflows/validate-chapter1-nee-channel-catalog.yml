@@ -1,22 +1,7 @@
-name: Validate Chapter 1 NEE channel catalog
+name: Historical replay — Validate Chapter 1 NEE channel catalog
 
 on:
-  push:
-    branches:
-      - "nee/**"
-    paths:
-      - "config/chapter1_nee_channel_taxon_catalog.yml"
-      - "src/island_v2/chapter1_nee_channel_catalog.py"
-      - "tests/test_chapter1_nee_channel_catalog.py"
-      - ".github/workflows/validate-chapter1-nee-channel-catalog.yml"
-  pull_request:
-    paths:
-      - "config/chapter1_nee_channel_taxon_catalog.yml"
-      - "src/island_v2/chapter1_nee_channel_catalog.py"
-      - "tests/test_chapter1_nee_channel_catalog.py"
-      - ".github/workflows/validate-chapter1-nee-channel-catalog.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
 
