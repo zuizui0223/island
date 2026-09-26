@@ -1,3 +1,5 @@
+> **HISTORICAL / SUPERSEDED — pre-corrected Chapter 1 surface.** Retained for provenance/replay only. The current submission is selected by `config/chapter1_submission_current.json`; use `submission/chapter1_current/MANUSCRIPT.md` and `docs/PAPER_PIPELINE.md` for current results.
+
 # Chapter 1 submission freeze — P1/P2 defended — 2026-09-15
 
 Status: current submission-facing freeze after P0/P1/P2 existing-data defense. Historical v8/v9 surfaces remain in git and must not override this claim ceiling.
