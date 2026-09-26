@@ -29,6 +29,12 @@ HISTORICAL_WORKING_DOCS = [
     ROOT / "docs/chapter1_manuscript_full_v10_island_first_p1_p2_defended_20260915.md",
     ROOT / "docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md",
     ROOT / "docs/chapter1_latest_trait_reanalysis_20260908.md",
+    ROOT / "docs/chapter1_submission_freeze_20260909.md",
+    ROOT / "docs/chapter1_submission_freeze_20260915_p1_p2_p3_defended.md",
+    ROOT / "docs/chapter1_v8_submission_figure_sync_20260915.md",
+    ROOT / "docs/chapter1_v10_submission_figure_sync_20260915.md",
+    ROOT / "docs/chapter1_v11_submission_figure_sync_20260915.md",
+    ROOT / "docs/chapter1_v13_submission_figure_sync_20260917.md",
 ]
 
 
