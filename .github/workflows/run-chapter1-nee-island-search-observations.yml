@@ -1,13 +1,7 @@
-name: Run Chapter 1 NEE island Search observations
+name: Historical replay — Run Chapter 1 NEE island Search observations
 
 on:
-  push:
-    branches:
-      - "nee/island-observation-search-fallback"
-    paths:
-      - "data/v2/control/run_nee_island_search_observations.trigger"
-      - ".github/workflows/run-chapter1-nee-island-search-observations.yml"
-
+  workflow_dispatch:
 permissions:
   actions: read
   contents: read
