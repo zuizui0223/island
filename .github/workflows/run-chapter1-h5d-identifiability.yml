@@ -1,16 +1,7 @@
-name: Run Chapter 1 H5d distributed-threshold identifiability
+name: Historical replay — Run Chapter 1 H5d distributed-threshold identifiability
 
 on:
-  push:
-    branches: ["ch1/h5-specificity"]
-    paths:
-      - "config/chapter1_h5d_distributed_threshold_identifiability.yml"
-      - "src/island_v2/chapter1_h5d_distributed_threshold_identifiability.py"
-      - "tests/test_chapter1_h5d_distributed_threshold_identifiability.py"
-      - "docs/chapter1_h5_specificity_and_distributed_threshold_plan_20260914.md"
-      - ".github/workflows/run-chapter1-h5d-identifiability.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read
