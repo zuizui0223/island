@@ -1,13 +1,7 @@
-name: Run Chapter 1 H3 grouped-binomial sensitivity
+name: Historical replay — Run Chapter 1 H3 grouped-binomial sensitivity
 
 on:
-  push:
-    branches: [ch1-all-data-primary]
-    paths:
-      - "src/island_v2/chapter1_h3_grouped_sensitivity.py"
-      - ".github/workflows/run-chapter1-h3-grouped-sensitivity.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read

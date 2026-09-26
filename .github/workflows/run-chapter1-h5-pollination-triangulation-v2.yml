@@ -1,17 +1,7 @@
-name: Run Chapter 1 H5 pollination triangulation v2
+name: Historical replay — Run Chapter 1 H5 pollination triangulation v2
 
 on:
-  push:
-    branches: [ch1-all-data-primary]
-    paths:
-      - "config/chapter1_h5_pollination_triangulation_v2.yml"
-      - "src/island_v2/chapter1_h5_globi_area_bridge.py"
-      - "src/island_v2/chapter1_h5_pollination_triangulation.py"
-      - "tests/test_chapter1_h5_globi_area_bridge.py"
-      - "tests/test_chapter1_h5_pollination_triangulation.py"
-      - ".github/workflows/run-chapter1-h5-pollination-triangulation-v2.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read

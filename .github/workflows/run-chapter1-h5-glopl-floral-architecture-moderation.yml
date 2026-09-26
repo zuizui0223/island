@@ -1,15 +1,7 @@
-name: Run Chapter 1 H5 GloPL floral-architecture moderation
+name: Historical replay — Run Chapter 1 H5 GloPL floral-architecture moderation
 
 on:
-  push:
-    branches: [ch1-all-data-primary]
-    paths:
-      - "config/chapter1_h5_glopl_floral_architecture_moderation_v1.yml"
-      - "src/island_v2/chapter1_h5_glopl_floral_architecture_moderation.py"
-      - "tests/test_chapter1_h5_glopl_floral_architecture_moderation.py"
-      - ".github/workflows/run-chapter1-h5-glopl-floral-architecture-moderation.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read

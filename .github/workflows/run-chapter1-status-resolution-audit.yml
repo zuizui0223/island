@@ -1,14 +1,7 @@
-name: Run Chapter 1 floristic-status resolution audit
+name: Historical replay — Run Chapter 1 floristic-status resolution audit
 
 on:
-  push:
-    branches: [ch1-all-data-primary]
-    paths:
-      - "src/island_v2/chapter1_status_resolution_process.py"
-      - "tests/test_chapter1_status_resolution_process.py"
-      - ".github/workflows/run-chapter1-status-resolution-audit.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read

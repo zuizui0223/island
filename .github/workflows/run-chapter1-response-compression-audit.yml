@@ -1,14 +1,7 @@
-name: Run Chapter 1 response compression audit
+name: Historical replay — Run Chapter 1 response compression audit
 
 on:
-  push:
-    branches: [ch1-all-data-primary]
-    paths:
-      - "src/island_v2/chapter1_response_compression_audit.py"
-      - "tests/test_chapter1_response_compression_audit.py"
-      - ".github/workflows/run-chapter1-response-compression-audit.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read

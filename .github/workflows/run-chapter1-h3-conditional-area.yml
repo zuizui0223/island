@@ -1,15 +1,7 @@
-name: Run Chapter 1 H3 conditional area contrasts
+name: Historical replay — Run Chapter 1 H3 conditional area contrasts
 
 on:
-  push:
-    branches: [ch1-all-data-primary]
-    paths:
-      - "config/chapter1_hypothesis_ladder_v2.yml"
-      - "src/island_v2/chapter1_h3_conditional_area.py"
-      - "tests/test_chapter1_h3_conditional_area.py"
-      - ".github/workflows/run-chapter1-h3-conditional-area.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read

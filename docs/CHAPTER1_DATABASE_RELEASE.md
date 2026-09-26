@@ -1,3 +1,5 @@
+> **HISTORICAL DATABASE-PIPELINE NOTE.** This document preserves the pre-corrected database-version/analysis-dispatch design. Database provenance remains useful, but the referenced progressive H1–H5 contract is not the current Chapter 1 paper contract. The current analysis selector is `config/chapter1_submission_current.json`.
+
 # Chapter 1 database release and version-swap contract
 
 This document separates three objects that must not be conflated:

@@ -1,3 +1,5 @@
+> **Historical execution note.** These manifests preserve immutable trait-database snapshots. They must not be read as selecting the current scientific analysis; the corrected Chapter 1 submission is selected by `config/chapter1_submission_current.json`.
+
 # Chapter 1 database versions
 
 Each YAML file identifies one immutable species × trait-axis database snapshot.

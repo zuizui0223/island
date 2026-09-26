@@ -1,3 +1,5 @@
+> **HISTORICAL / SUPERSEDED EXECUTION SURFACE.** This README documents the pre-corrected WHEN/WHERE Chapter 1 analysis. It is retained for replay/provenance and is **not** the current paper pipeline. Use `config/chapter1_submission_current.json`, `submission/chapter1_current/MANUSCRIPT.md`, and `docs/PAPER_PIPELINE.md` for the corrected H1–H4 submission surface.
+
 # Chapter 1 analysis execution surface
 
 ## Canonical question

@@ -1,15 +1,7 @@
-name: Run Chapter 1 H5 channel-state overlap audit
+name: Historical replay — Run Chapter 1 H5 channel-state overlap audit
 
 on:
-  push:
-    branches: [ch1-all-data-primary]
-    paths:
-      - "config/chapter1_h5_channel_state_overlap_audit_v1.yml"
-      - "src/island_v2/chapter1_h5_channel_state_overlap_audit.py"
-      - "tests/test_chapter1_h5_channel_state_overlap_audit.py"
-      - ".github/workflows/run-chapter1-h5-channel-state-overlap-audit.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read

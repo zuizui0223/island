@@ -1,12 +1,7 @@
-name: Run Chapter 1 on latest trait checkpoint
+name: Historical replay — Run Chapter 1 on latest trait checkpoint
 
 on:
-  push:
-    branches: [codex/recover-verified-checkpoint]
-    paths:
-      - .github/workflows/run-chapter1-latest-trait-checkpoint.yml
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read

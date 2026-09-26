@@ -1,3 +1,7 @@
+# HISTORICAL / SUPERSEDED ANALYSIS CONTRACT
+# Retained for replay of the pre-v13 progressive H1-H5 program only.
+# Current Chapter 1 selector: config/chapter1_submission_current.json
+
 contract: chapter1_progressive_analysis_v1
 
 purpose: >-

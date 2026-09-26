@@ -1,17 +1,7 @@
-name: Run Chapter 1 WCVP regional-native compatibility
+name: Historical replay — Run Chapter 1 WCVP regional-native compatibility
 
 on:
-  push:
-    branches: [ch1-all-data-primary]
-    paths:
-      - "scripts/export_wcvp_native_ranges.py"
-      - "src/island_v2/chapter1_wcvp_native_compatibility.py"
-      - "src/island_v2/chapter1_wcvp_partition_diagnostic.py"
-      - "tests/test_chapter1_wcvp_native_compatibility.py"
-      - "tests/test_chapter1_wcvp_partition_diagnostic.py"
-      - ".github/workflows/run-chapter1-wcvp-native-compatibility.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read

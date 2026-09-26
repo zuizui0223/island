@@ -1,13 +1,7 @@
-name: Run Chapter 1 H3 support guardrail
+name: Historical replay — Run Chapter 1 H3 support guardrail
 
 on:
-  push:
-    branches: [ch1-all-data-primary]
-    paths:
-      - "src/island_v2/chapter1_h3_support_guardrail.py"
-      - ".github/workflows/run-chapter1-h3-support-guardrail.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read

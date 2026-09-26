@@ -1,15 +1,7 @@
-name: Run Chapter 1 H5 GloPL pollen-limitation gate
+name: Historical replay — Run Chapter 1 H5 GloPL pollen-limitation gate
 
 on:
-  push:
-    branches: [ch1-all-data-primary]
-    paths:
-      - "config/chapter1_h5_glopl_pollen_limitation_v1.yml"
-      - "src/island_v2/chapter1_h5_glopl_pollen_limitation.py"
-      - "tests/test_chapter1_h5_glopl_pollen_limitation.py"
-      - ".github/workflows/run-chapter1-h5-glopl-pollen-limitation.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read
