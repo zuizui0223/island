@@ -1,21 +1,21 @@
-> **Historical execution note.** These manifests preserve immutable trait-database snapshots. They must not be read as selecting the current scientific analysis; the corrected Chapter 1 submission is selected by `config/chapter1_submission_current.json`.
+> **Historical/provenance pointer.** These manifests identify immutable trait-database snapshots. They do not select the current Chapter 1 scientific analysis; use `config/chapter1_submission_current.json` for the corrected paper surface.
 
 # Chapter 1 database versions
 
 Each YAML file identifies one immutable species × trait-axis database snapshot.
 
-- `v1.0.0.yml` is the database used for the frozen Chapter 1 paper analysis.
-- `current.yml` is the active execution pointer and initially has identical content.
+- `v1.0.0.yml` identifies the frozen Database 1.0 snapshot.
+- `current.yml` is retained as the legacy database-version pointer used by database tooling. It is **not** the current paper-analysis pointer.
 
-When Database 2.0 is ready, add `v2.0.0.yml`; never rewrite `v1.0.0.yml`. Update `current.yml` only after the new ledger passes schema/hash validation.
+Never rewrite an old version manifest. A future Database 2.0 should be added as a new version with its own hashes and dimensions.
 
-Changing the database manifest must not change `config/chapter1_progressive_analysis.yml`.
+Changing a database pointer must not silently reactivate or redefine the superseded progressive H1–H5 analysis contracts.
 
 ## Rights-aware provenance for Database 2.0+
 
-Database 1.0 predates the release-rights contract, so its source rights are being reconstructed conservatively after the fact. New database versions should instead ship a SHA-locked `rights_registry` alongside the species-axis ledger.
+New database versions should ship a SHA-locked `rights_registry` alongside the species-axis ledger.
 
-The registry contains one row per exact `source_lineage` and must record:
+The registry should record, for every exact `source_lineage`:
 
 - normalized source family;
 - provider;
@@ -34,6 +34,6 @@ rights_registry:
   required_for_public_release: true
 ```
 
-Validation then checks both the registry hash and that every source lineage used by every resolved species-axis cell is represented. A lineage missing from the registry is a hard failure. Rows marked `redistributable` must have both an explicit license and rights evidence.
+Validation must fail if a lineage used by a resolved species-axis cell is missing from the registry. Rows marked `redistributable` require both an explicit license and rights evidence.
 
-This changes publication provenance, not the scientific H1-H5 analysis contract.
+This is a data-provenance/release rule, not a scientific H1–H4 model definition.
