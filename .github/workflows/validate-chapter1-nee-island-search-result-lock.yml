@@ -1,19 +1,7 @@
-name: Validate Chapter 1 NEE island Search result lock
+name: Historical replay — Validate Chapter 1 NEE island Search result lock
 
 on:
-  push:
-    branches:
-      - "nee/island-observation-search-sharded"
-    paths:
-      - "config/chapter1_nee_island_search_result_lock.json"
-      - ".github/workflows/validate-chapter1-nee-island-search-result-lock.yml"
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "config/chapter1_nee_island_search_result_lock.json"
-      - ".github/workflows/validate-chapter1-nee-island-search-result-lock.yml"
-
+  workflow_dispatch:
 jobs:
   validate-result-lock:
     runs-on: ubuntu-latest
