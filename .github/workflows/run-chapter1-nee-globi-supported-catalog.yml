@@ -1,12 +1,7 @@
-name: Run Chapter 1 NEE GloBI 0.9 supported catalog
+name: Historical replay — Run Chapter 1 NEE GloBI 0.9 supported catalog
 
 on:
-  push:
-    branches:
-      - "nee/globi-support-refute-semantics"
-    paths:
-      - "data/v2/control/run_nee_globi_supported_catalog.trigger"
-
+  workflow_dispatch:
 permissions:
   contents: read
 
