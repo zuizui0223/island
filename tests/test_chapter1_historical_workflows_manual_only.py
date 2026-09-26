@@ -52,6 +52,7 @@ HISTORICAL_WORKFLOWS = [
     ".github/workflows/audit-chapter1-response-geometry-v2.yml",
     ".github/workflows/run-chapter1-response-geometry-observed.yml",
     ".github/workflows/audit-chapter1-h4-prospective-temporal-replication.yml",
+    ".github/workflows/preflight-chapter1-h4-pollimcrop.yml",
     ".github/workflows/preflight-chapter1-h4-pollimcrop-v2.yml",
     ".github/workflows/run-chapter1-h4-pollimcrop-transportability.yml",
     ".github/workflows/screen-chapter1-h4-prospective-methods-v2.yml",
