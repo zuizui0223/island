@@ -53,3 +53,19 @@ These files remain in place because historical runners or provenance documents r
 - `.github/workflows/validate-chapter1-explanation-gap-contract.yml` — historical replay only, now manual-only.
 
 The current scientific hierarchy is the corrected H1–H4 surface selected by `config/chapter1_submission_current.json`.
+
+## Retired automatic Chapter 1 analysis workflows
+
+The pre-corrected all-data / H3 / H5 analysis workflows that previously reacted to pushes on `ch1-all-data-primary`, together with the old latest-trait / robustness checkpoint workflows, are now **manual-only historical replay**. The current automatic Chapter 1 check remains `.github/workflows/corrected-submission-geography.yml`.
+
+The manual-only invariant is enforced by `tests/test_chapter1_historical_workflows_manual_only.py`, which now covers these retired analysis workflows in addition to the earlier v8–v14 publication/render workflows.
+
+The following active-looking paths are also explicitly historical and must not be used to select the present paper analysis:
+
+- `analysis/v2/README.md`;
+- `config/chapter1_progressive_analysis.yml`;
+- `config/chapter1_all_data_progressive_analysis.yml`;
+- `docs/CHAPTER1_DATABASE_RELEASE.md` when it refers to the progressive H1–H5 dispatcher;
+- `config/chapter1_database_versions/README.md` as an execution selector.
+
+Trait-database manifests remain valid provenance objects; they simply no longer select the scientific analysis contract. The current selector is `config/chapter1_submission_current.json`.
