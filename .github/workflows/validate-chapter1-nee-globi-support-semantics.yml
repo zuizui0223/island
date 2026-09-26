@@ -51,5 +51,8 @@ jobs:
           assert "'support_refute_cross_subtraction_applied'] is False" in text
           assert "'uses_focal_plant_traits'] is False" in text
           assert "'N1_fitted'] is False" in text
+          assert text.startswith("name: Historical replay —")
+          before_permissions = text.split("\npermissions:", 1)[0]
+          on_block = before_permissions.split("\non:\n", 1)[1].strip()
+          assert on_block == "workflow_dispatch:"
           PY
-          test ! -e data/v2/control/run_nee_globi_supported_catalog.trigger

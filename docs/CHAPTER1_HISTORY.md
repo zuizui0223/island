@@ -95,3 +95,14 @@ Additional retained submission-freeze / figure-sync documents are also historica
 - `docs/chapter1_v10_submission_figure_sync_20260915.md`;
 - `docs/chapter1_v11_submission_figure_sync_20260915.md`;
 - `docs/chapter1_v13_submission_figure_sync_20260917.md`.
+
+## Final retired analysis runners
+
+The following pre-corrected scientific runners are also manual-only historical replay. They no longer react to branch pushes or pull requests:
+
+- response-geometry power / calibrated / observed runners;
+- support-limited H4 prospective temporal and PolLimCrop runners;
+- H5c/H5d specificity and identifiability runners;
+- NEE channel qualification, GloBI supported-catalog, N1/N2 discovery and source-positive-scan runners.
+
+Their implementation and frozen artifacts remain available for provenance. Validator-only workflows may still run on relevant code changes; they test retained historical code but do not select or publish the current Chapter 1 result surface.

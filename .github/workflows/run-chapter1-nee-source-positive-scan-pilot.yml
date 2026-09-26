@@ -1,12 +1,7 @@
-name: Run Chapter 1 NEE source positive scan pilot
+name: Historical replay — Run Chapter 1 NEE source positive scan pilot
 
 on:
-  push:
-    branches:
-      - "nee/source-positive-scan-run"
-    paths:
-      - ".github/workflows/run-chapter1-nee-source-positive-scan-pilot.yml"
-      - "data/v2/control/run_nee_source_positive_scan_pilot.trigger"
+  workflow_dispatch:
 
 permissions:
   actions: read

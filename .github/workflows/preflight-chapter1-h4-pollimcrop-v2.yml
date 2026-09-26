@@ -1,3 +1,4 @@
+name: Historical replay — Preflight Chapter 1 H4 PolLimCrop v2
 # Support-lock retrigger after single-writer cleanup; no scientific protocol change.
 
 concurrency:
@@ -5,21 +6,6 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push:
-    branches: [feature/h4-prospective-temporal-replication]
-    paths:
-      - "config/chapter1_h4_pollimcrop_transportability_preflight_v1.yml"
-      - "config/chapter1_h4_pollimcrop_response_mapping_v1.yml"
-      - "scripts/preflight_chapter1_h4_pollimcrop_transportability.py"
-      - "scripts/freeze_chapter1_h4_pollimcrop_preflight_result.py"
-      - "scripts/download_chapter1_h4_pollimcrop_locked_dataset.py"
-      - "scripts/freeze_chapter1_h4_pollimcrop_result.py"
-      - "src/island_v2/chapter1_h4_pollimcrop_transportability.py"
-      - "tests/test_chapter1_h4_pollimcrop_transportability.py"
-      - "tests/test_chapter1_h4_pollimcrop_transportability_analysis.py"
-      - "tests/test_chapter1_h4_pollimcrop_preflight_freeze.py"
-      - "tests/test_chapter1_h4_pollimcrop_result_freeze.py"
-      - ".github/workflows/preflight-chapter1-h4-pollimcrop-v2.yml"
   workflow_dispatch:
 
 permissions:

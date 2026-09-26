@@ -1,12 +1,7 @@
+name: Historical replay — Run Chapter 1 H4 PolLimCrop transportability
 # Retrigger after committed support-failure lock; no scientific protocol change.
-name: Run Chapter 1 H4 PolLimCrop transportability
 
 on:
-  push:
-    branches: [feature/h4-prospective-temporal-replication]
-    paths:
-      - "config/chapter1_h4_pollimcrop_transportability_preflight_result_lock.json"
-      - ".github/workflows/run-chapter1-h4-pollimcrop-transportability.yml"
   workflow_dispatch:
 
 permissions:
