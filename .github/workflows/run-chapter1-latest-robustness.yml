@@ -1,12 +1,7 @@
-name: Run Chapter 1 latest-data robustness
+name: Historical replay — Run Chapter 1 latest-data robustness
 
 on:
-  push:
-    branches: [codex/recover-verified-checkpoint]
-    paths:
-      - .github/workflows/run-chapter1-latest-robustness.yml
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read
