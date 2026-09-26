@@ -1,23 +1,7 @@
-name: Audit Chapter 1 response-geometry V2
+name: Historical replay — Audit Chapter 1 response-geometry V2
 
 on:
-  push:
-    branches:
-      - ch1/el-hierarchical-depth-audit
-    paths:
-      - "config/chapter1_response_geometry_v2.yml"
-      - "src/island_v2/chapter1_response_geometry_calibrated.py"
-      - "tests/test_chapter1_response_geometry_calibrated.py"
-      - ".github/workflows/audit-chapter1-response-geometry-v2.yml"
-  pull_request:
-    branches: [main]
-    paths:
-      - "config/chapter1_response_geometry_v2.yml"
-      - "src/island_v2/chapter1_response_geometry_calibrated.py"
-      - "tests/test_chapter1_response_geometry_calibrated.py"
-      - ".github/workflows/audit-chapter1-response-geometry-v2.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read
