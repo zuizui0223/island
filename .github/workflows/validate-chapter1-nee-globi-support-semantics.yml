@@ -1,22 +1,7 @@
-name: Validate Chapter 1 NEE GloBI support semantics
+name: Historical replay — Validate Chapter 1 NEE GloBI support semantics
 
 on:
-  push:
-    branches:
-      - "nee/globi-support-refute-semantics"
-    paths:
-      - "config/chapter1_nee_channel_taxon_catalog.yml"
-      - "src/island_v2/chapter1_nee_channel_catalog_supported.py"
-      - "tests/test_chapter1_nee_globi_support_semantics.py"
-      - ".github/workflows/run-chapter1-nee-globi-supported-catalog.yml"
-      - ".github/workflows/validate-chapter1-nee-globi-support-semantics.yml"
-  pull_request:
-    paths:
-      - "config/chapter1_nee_channel_taxon_catalog.yml"
-      - "src/island_v2/chapter1_nee_channel_catalog_supported.py"
-      - "tests/test_chapter1_nee_globi_support_semantics.py"
-      - ".github/workflows/run-chapter1-nee-globi-supported-catalog.yml"
-
+  workflow_dispatch:
 permissions:
   contents: read
 
