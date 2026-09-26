@@ -1,16 +1,7 @@
-name: Validate Chapter 1 NEE GBIF background run
+name: Historical replay — Validate Chapter 1 NEE GBIF background run
 
 on:
-  push:
-    branches:
-      - "nee/double-filter-gbif-background-run"
-    paths:
-      - ".github/workflows/run-chapter1-nee-gbif-background-campaigns.yml"
-      - ".github/workflows/validate-chapter1-nee-gbif-background-run.yml"
-      - "config/chapter1_nee_gbif_background_acquisition.yml"
-      - "src/island_v2/chapter1_nee_gbif_channel_collect.py"
-      - "src/island_v2/chapter1_nee_background_filter.py"
-
+  workflow_dispatch:
 permissions:
   contents: read
 
