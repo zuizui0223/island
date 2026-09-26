@@ -1,12 +1,7 @@
-name: Run Chapter 1 NEE GBIF background campaigns
+name: Historical replay — Run Chapter 1 NEE GBIF background campaigns
 
 on:
-  push:
-    branches:
-      - "nee/double-filter-gbif-background-run"
-    paths:
-      - "data/v2/control/run_nee_gbif_background.trigger"
-
+  workflow_dispatch:
 permissions:
   actions: read
   contents: read
