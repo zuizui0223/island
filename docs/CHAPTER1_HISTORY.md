@@ -69,3 +69,20 @@ The following active-looking paths are also explicitly historical and must not b
 - `config/chapter1_database_versions/README.md` as an execution selector.
 
 Trait-database manifests remain valid provenance objects; they simply no longer select the scientific analysis contract. The current selector is `config/chapter1_submission_current.json`.
+
+## Retained pre-corrected working manuscripts and freezes
+
+These files remain on their original paths because historical runners, figure locks and provenance notes reference them. They are **not current submission documents** and now carry an explicit historical banner:
+
+- `docs/chapter1_manuscript_full_v7_submission_order_20260909.md`;
+- `docs/chapter1_manuscript_v8_reframing_20260913.md`;
+- `docs/chapter1_manuscript_full_v8_hierarchical_syndrome_20260914.md`;
+- `docs/chapter1_manuscript_full_v9_island_first_p1_defended_20260915.md`;
+- `docs/chapter1_v9_submission_figure_sync_20260915.md`;
+- `docs/chapter1_submission_freeze_20260915_p1_defended.md`;
+- `docs/chapter1_manuscript_full_v10_island_first_p1_p2_defended_20260915.md`;
+- `docs/chapter1_submission_freeze_20260915_p1_p2_defended.md`;
+- `docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md`;
+- `docs/chapter1_latest_trait_reanalysis_20260908.md`.
+
+Historical numerical values in those documents, including the old 8,265-unit geography, are retained intentionally as provenance. The present paper uses the corrected 8,264-unit surface selected by `config/chapter1_submission_current.json`.
