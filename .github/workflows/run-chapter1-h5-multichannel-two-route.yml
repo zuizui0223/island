@@ -1,15 +1,7 @@
-name: Run Chapter 1 H5 multichannel two-route bridge
+name: Historical replay — Run Chapter 1 H5 multichannel two-route bridge
 
 on:
-  push:
-    branches: [ch1-all-data-primary]
-    paths:
-      - "config/chapter1_h5_multichannel_two_route_v1.yml"
-      - "src/island_v2/chapter1_h5_multichannel_two_route.py"
-      - "tests/test_chapter1_h5_multichannel_two_route.py"
-      - ".github/workflows/run-chapter1-h5-multichannel-two-route.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read
