@@ -117,3 +117,15 @@ Historical execution documentation no longer advertises removed or superseded wo
 - `data/v2/README.md` states that retained Bombus/pollinator assets do not define the current H1–H4 mechanism.
 
 The only current Chapter 1 scientific selector remains `config/chapter1_submission_current.json`.
+
+## Retired NEE acquisition/result runners
+
+The remaining NEE **result-generating** runners are also manual-only historical replay:
+
+- GBIF background campaign runner;
+- source-proxy-from-full-scan runner;
+- island Search observation runner and sharded variant;
+- island Search transport audit runner;
+- sharded source-positive-scan runner.
+
+NEE validator workflows remain branch-triggered where useful because they only validate retained historical contracts/implementations. They do not execute or promote a current Chapter 1 scientific result.
