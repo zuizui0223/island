@@ -106,3 +106,14 @@ The following pre-corrected scientific runners are also manual-only historical r
 - NEE channel qualification, GloBI supported-catalog, N1/N2 discovery and source-positive-scan runners.
 
 Their implementation and frozen artifacts remain available for provenance. Validator-only workflows may still run on relevant code changes; they test retained historical code but do not select or publish the current Chapter 1 result surface.
+
+## Stale canonical-label cleanup
+
+Historical execution documentation no longer advertises removed or superseded workflows as current/canonical routes. In particular:
+
+- `analysis/v2/README.md` is explicitly a historical WHEN/WHERE surface and no longer points to a canonical workflow;
+- `docs/CHAPTER1_DATABASE_RELEASE.md` treats database manifests as provenance identities, not scientific selectors;
+- `config/chapter1_database_versions/README.md` distinguishes the legacy database pointer from the paper-analysis selector;
+- `data/v2/README.md` states that retained Bombus/pollinator assets do not define the current H1–H4 mechanism.
+
+The only current Chapter 1 scientific selector remains `config/chapter1_submission_current.json`.
