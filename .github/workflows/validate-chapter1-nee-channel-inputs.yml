@@ -1,28 +1,7 @@
-name: Validate Chapter 1 NEE channel inputs
+name: Historical replay — Validate Chapter 1 NEE channel inputs
 
 on:
-  push:
-    branches:
-      - "nee/**"
-    paths:
-      - "config/chapter1_nee_double_filter.yml"
-      - "config/chapter1_nee_channel_inputs.yml"
-      - "src/island_v2/chapter1_nee_contract.py"
-      - "src/island_v2/chapter1_nee_channel_inputs.py"
-      - "tests/test_chapter1_nee_contract.py"
-      - "tests/test_chapter1_nee_channel_inputs.py"
-      - ".github/workflows/validate-chapter1-nee-channel-inputs.yml"
-  pull_request:
-    paths:
-      - "config/chapter1_nee_double_filter.yml"
-      - "config/chapter1_nee_channel_inputs.yml"
-      - "src/island_v2/chapter1_nee_contract.py"
-      - "src/island_v2/chapter1_nee_channel_inputs.py"
-      - "tests/test_chapter1_nee_contract.py"
-      - "tests/test_chapter1_nee_channel_inputs.py"
-      - ".github/workflows/validate-chapter1-nee-channel-inputs.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
 
