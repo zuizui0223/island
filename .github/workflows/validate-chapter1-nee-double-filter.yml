@@ -1,24 +1,7 @@
-name: Validate Chapter 1 NEE double-filter contract
+name: Historical replay — Validate Chapter 1 NEE double-filter contract
 
 on:
-  push:
-    branches:
-      - "nee/**"
-    paths:
-      - "config/chapter1_nee_double_filter.yml"
-      - "src/island_v2/chapter1_nee_contract.py"
-      - "tests/test_chapter1_nee_contract.py"
-      - "docs/chapter1_nee_double_filter_contract.md"
-      - ".github/workflows/validate-chapter1-nee-double-filter.yml"
-  pull_request:
-    paths:
-      - "config/chapter1_nee_double_filter.yml"
-      - "src/island_v2/chapter1_nee_contract.py"
-      - "tests/test_chapter1_nee_contract.py"
-      - "docs/chapter1_nee_double_filter_contract.md"
-      - ".github/workflows/validate-chapter1-nee-double-filter.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
 
