@@ -1,12 +1,7 @@
-name: Run Chapter 1 NEE N2 discovery Wave 1
+name: Historical replay — Run Chapter 1 NEE N2 discovery Wave 1
 
 on:
-  push:
-    branches:
-      - "nee/n2-dependency-wave-generator"
-    paths:
-      - "data/v2/control/run_nee_n2_discovery_wave1.trigger"
-      - ".github/workflows/run-chapter1-nee-n2-discovery-wave1.yml"
+  workflow_dispatch:
 
 permissions:
   actions: read
