@@ -18,6 +18,25 @@ V14_FREEZE = ROOT / "docs/chapter1_submission_freeze_v14_20260918.md"
 V13_MANUSCRIPT = ROOT / "docs/chapter1_manuscript_full_v13_global_pollination_constraint_20260917.md"
 V13_FREEZE = ROOT / "docs/chapter1_submission_freeze_v13_20260917.md"
 
+HISTORICAL_WORKING_DOCS = [
+    ROOT / "docs/chapter1_v9_submission_figure_sync_20260915.md",
+    ROOT / "docs/chapter1_submission_freeze_20260915_p1_defended.md",
+    ROOT / "docs/chapter1_submission_freeze_20260915_p1_p2_defended.md",
+    ROOT / "docs/chapter1_manuscript_v8_reframing_20260913.md",
+    ROOT / "docs/chapter1_manuscript_full_v7_submission_order_20260909.md",
+    ROOT / "docs/chapter1_manuscript_full_v8_hierarchical_syndrome_20260914.md",
+    ROOT / "docs/chapter1_manuscript_full_v9_island_first_p1_defended_20260915.md",
+    ROOT / "docs/chapter1_manuscript_full_v10_island_first_p1_p2_defended_20260915.md",
+    ROOT / "docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md",
+    ROOT / "docs/chapter1_latest_trait_reanalysis_20260908.md",
+    ROOT / "docs/chapter1_submission_freeze_20260909.md",
+    ROOT / "docs/chapter1_submission_freeze_20260915_p1_p2_p3_defended.md",
+    ROOT / "docs/chapter1_v8_submission_figure_sync_20260915.md",
+    ROOT / "docs/chapter1_v10_submission_figure_sync_20260915.md",
+    ROOT / "docs/chapter1_v11_submission_figure_sync_20260915.md",
+    ROOT / "docs/chapter1_v13_submission_figure_sync_20260917.md",
+]
+
 
 def test_v14_lock_is_preserved_as_verified_historical_provenance():
     lock = json.loads(V14_LOCK.read_text(encoding="utf-8"))
@@ -81,3 +100,11 @@ def test_current_scientific_guidance_matches_corrected_h1_h4_surface():
         prefix = path.read_text(encoding="utf-8")[:600].lower()
         assert "historical" in prefix, path
         assert "chapter1_submission_current.json" in prefix, path
+
+
+def test_pre_corrected_working_documents_are_visibly_historical():
+    for path in HISTORICAL_WORKING_DOCS:
+        text = path.read_text(encoding="utf-8")
+        assert text.startswith("> **HISTORICAL / SUPERSEDED"), path
+        assert "config/chapter1_submission_current.json" in text[:700], path
+        assert "submission/chapter1_current/MANUSCRIPT.md" in text[:700], path

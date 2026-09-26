@@ -1,3 +1,5 @@
+> **HISTORICAL / SUPERSEDED — pre-corrected Chapter 1 surface.** Retained for provenance/replay only. The current submission is selected by `config/chapter1_submission_current.json`; use `submission/chapter1_current/MANUSCRIPT.md` and `docs/PAPER_PIPELINE.md` for current results.
+
 # The island floral syndrome is not one syndrome: source-distance filtering, lineage assembly, and biogeographic decoupling of reproductive assurance and floral architecture
 
 ## Full working manuscript v7 — submission-order draft — 2026-09-09

@@ -1,3 +1,5 @@
+> **HISTORICAL / SUPERSEDED — pre-corrected Chapter 1 surface.** Retained for provenance/replay only. The current submission is selected by `config/chapter1_submission_current.json`; use `submission/chapter1_current/MANUSCRIPT.md` and `docs/PAPER_PIPELINE.md` for current results.
+
 # Chapter 1 v8 submission figure synchronization — 2026-09-15
 
 This document is the manuscript-facing synchronization layer for the **actual rendered and locked main Figures 1–4**. It supersedes earlier figure-layout sketches when those sketches differ from the final rendered panel arrangement. It does not change any biological estimate.

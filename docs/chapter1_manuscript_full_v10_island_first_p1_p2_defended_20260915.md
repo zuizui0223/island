@@ -1,3 +1,5 @@
+> **HISTORICAL / SUPERSEDED — pre-corrected Chapter 1 surface.** Retained for provenance/replay only. The current submission is selected by `config/chapter1_submission_current.json`; use `submission/chapter1_current/MANUSCRIPT.md` and `docs/PAPER_PIPELINE.md` for current results.
+
 # A floral island syndrome can emerge from hierarchical lineage assembly: biogeographic contingency across 8,265 islands
 
 ## Full working manuscript v10 — island-first, P1/P2-defended draft — 2026-09-15
