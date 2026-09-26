@@ -47,6 +47,7 @@ HISTORICAL_WORKFLOWS = [
     ".github/workflows/run-chapter1-v13-raw-colour-audit.yml",
     ".github/workflows/run-chapter1-v14-reordered-hypotheses.yml",
     ".github/workflows/run-chapter1-wcvp-native-compatibility.yml",
+    ".github/workflows/validate-chapter1-explanation-gap-contract.yml",
 ]
 
 
