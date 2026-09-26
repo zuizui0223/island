@@ -7,6 +7,12 @@ CURRENT = ROOT / "config/chapter1_submission_current.json"
 README = ROOT / "README.md"
 PIPELINE = ROOT / "docs/PAPER_PIPELINE.md"
 DATABASE = ROOT / "docs/DATABASE_BUILD.md"
+THESIS = ROOT / "THESIS_CHAPTER_POSITIONING.md"
+ANALYSIS_V2 = ROOT / "analysis/v2/README.md"
+PROGRESSIVE_CONFIG = ROOT / "config/chapter1_progressive_analysis.yml"
+ALL_DATA_PROGRESSIVE_CONFIG = ROOT / "config/chapter1_all_data_progressive_analysis.yml"
+DATABASE_RELEASE = ROOT / "docs/CHAPTER1_DATABASE_RELEASE.md"
+DATABASE_VERSIONS = ROOT / "config/chapter1_database_versions/README.md"
 V14_MANUSCRIPT = ROOT / "docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md"
 V14_FREEZE = ROOT / "docs/chapter1_submission_freeze_v14_20260918.md"
 V13_MANUSCRIPT = ROOT / "docs/chapter1_manuscript_full_v13_global_pollination_constraint_20260917.md"
@@ -60,3 +66,18 @@ def test_historical_surfaces_are_explicitly_marked_and_not_current():
     assert v13_freeze.startswith("> **SUPERSEDED SUBMISSION FREEZE")
     assert "8,264 = current corrected Chapter 1 analysis universe" in database
     assert "8,265 = historical alpha1 / frozen provenance universe" in database
+
+
+def test_current_scientific_guidance_matches_corrected_h1_h4_surface():
+    thesis = THESIS.read_text(encoding="utf-8")
+    assert "Current scientific surface: corrected geography baseline" in thesis
+    assert "### H1 — recurrent multivariate island response" in thesis
+    assert "### H2 — two partially separable plant-response components" in thesis
+    assert "### H3 — independent ecological-pressure correlate" in thesis
+    assert "### H4 — functional compatibility" in thesis
+    assert "What Chapter 1 no longer claims" in thesis
+
+    for path in [ANALYSIS_V2, PROGRESSIVE_CONFIG, ALL_DATA_PROGRESSIVE_CONFIG, DATABASE_RELEASE, DATABASE_VERSIONS]:
+        prefix = path.read_text(encoding="utf-8")[:600].lower()
+        assert "historical" in prefix, path
+        assert "chapter1_submission_current.json" in prefix, path
