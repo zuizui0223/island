@@ -1,13 +1,7 @@
-name: Build Chapter 1 NEE source proxies from full scan
+name: Historical replay — Build Chapter 1 NEE source proxies from full scan
 
 on:
-  push:
-    branches:
-      - "nee/source-positive-scan-run"
-    paths:
-      - "data/v2/control/run_nee_source_proxy_from_full_scan.trigger"
-      - ".github/workflows/run-chapter1-nee-source-proxy-from-full-scan.yml"
-
+  workflow_dispatch:
 permissions:
   actions: read
   contents: read
