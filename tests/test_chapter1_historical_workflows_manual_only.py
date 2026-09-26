@@ -64,6 +64,12 @@ HISTORICAL_WORKFLOWS = [
     ".github/workflows/run-chapter1-nee-n2-discovery-wave1.yml",
     ".github/workflows/run-chapter1-nee-source-positive-scan-full.yml",
     ".github/workflows/run-chapter1-nee-source-positive-scan-pilot.yml",
+    ".github/workflows/run-chapter1-nee-gbif-background-campaigns.yml",
+    ".github/workflows/run-chapter1-nee-source-proxy-from-full-scan.yml",
+    ".github/workflows/run-chapter1-nee-island-search-transport-audit.yml",
+    ".github/workflows/run-chapter1-nee-island-search-observations.yml",
+    ".github/workflows/run-chapter1-nee-source-positive-scan-sharded.yml",
+    ".github/workflows/run-chapter1-nee-island-search-observations-sharded.yml",
 ]
 
 
