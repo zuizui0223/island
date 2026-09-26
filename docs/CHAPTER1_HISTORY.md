@@ -86,3 +86,12 @@ These files remain on their original paths because historical runners, figure lo
 - `docs/chapter1_latest_trait_reanalysis_20260908.md`.
 
 Historical numerical values in those documents, including the old 8,265-unit geography, are retained intentionally as provenance. The present paper uses the corrected 8,264-unit surface selected by `config/chapter1_submission_current.json`.
+
+Additional retained submission-freeze / figure-sync documents are also historical and bannered:
+
+- `docs/chapter1_submission_freeze_20260909.md`;
+- `docs/chapter1_submission_freeze_20260915_p1_p2_p3_defended.md`;
+- `docs/chapter1_v8_submission_figure_sync_20260915.md`;
+- `docs/chapter1_v10_submission_figure_sync_20260915.md`;
+- `docs/chapter1_v11_submission_figure_sync_20260915.md`;
+- `docs/chapter1_v13_submission_figure_sync_20260917.md`.
