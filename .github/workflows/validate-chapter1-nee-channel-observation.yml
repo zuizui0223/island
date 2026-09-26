@@ -1,24 +1,7 @@
-name: Validate Chapter 1 NEE channel observation policy
+name: Historical replay — Validate Chapter 1 NEE channel observation policy
 
 on:
-  push:
-    branches:
-      - "nee/**"
-    paths:
-      - "config/chapter1_nee_channel_observation_policy.yml"
-      - "src/island_v2/chapter1_nee_channel_observation.py"
-      - "tests/test_chapter1_nee_channel_observation.py"
-      - "docs/chapter1_nee_channel_observation_contract.md"
-      - ".github/workflows/validate-chapter1-nee-channel-observation.yml"
-  pull_request:
-    paths:
-      - "config/chapter1_nee_channel_observation_policy.yml"
-      - "src/island_v2/chapter1_nee_channel_observation.py"
-      - "tests/test_chapter1_nee_channel_observation.py"
-      - "docs/chapter1_nee_channel_observation_contract.md"
-      - ".github/workflows/validate-chapter1-nee-channel-observation.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
 
