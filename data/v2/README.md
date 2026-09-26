@@ -1,3 +1,5 @@
+> **Data-layer scope.** This directory preserves both current trait/flora inputs and older auxiliary pollinator/Bombus evidence products. The presence of Bombus registries or occurrence diagnostics here does **not** make Bombus a predictor or mechanism in the current corrected Chapter 1 H1–H4 analysis. Current scientific selection is defined by `config/chapter1_submission_current.json`.
+
 # v2 data layout
 
 v2 begins with new, traceable data products and does not use v1 derived tables as analysis inputs.
