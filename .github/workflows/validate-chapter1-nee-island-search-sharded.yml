@@ -1,33 +1,7 @@
-name: Validate Chapter 1 NEE sharded island Search execution
+name: Historical replay — Validate Chapter 1 NEE sharded island Search execution
 
 on:
-  push:
-    branches:
-      - "nee/island-observation-search-sharded"
-    paths:
-      - "config/chapter1_nee_island_search_execution.yml"
-      - "config/chapter1_nee_island_search_transport_audit.yml"
-      - "config/island_universe_artifact_lock.json"
-      - ".github/workflows/run-chapter1-nee-island-search-observations-sharded.yml"
-      - ".github/workflows/validate-chapter1-nee-island-search-sharded.yml"
-      - "src/island_v2/chapter1_nee_island_search_observation.py"
-      - "src/island_v2/chapter1_nee_island_search_transport_audit.py"
-      - "tests/test_chapter1_nee_island_search_observation.py"
-      - "tests/test_chapter1_nee_island_search_transport_audit.py"
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "config/chapter1_nee_island_search_execution.yml"
-      - "config/chapter1_nee_island_search_transport_audit.yml"
-      - "config/island_universe_artifact_lock.json"
-      - ".github/workflows/run-chapter1-nee-island-search-observations-sharded.yml"
-      - ".github/workflows/validate-chapter1-nee-island-search-sharded.yml"
-      - "src/island_v2/chapter1_nee_island_search_observation.py"
-      - "src/island_v2/chapter1_nee_island_search_transport_audit.py"
-      - "tests/test_chapter1_nee_island_search_observation.py"
-      - "tests/test_chapter1_nee_island_search_transport_audit.py"
-
+  workflow_dispatch:
 jobs:
   validate-sharded-island-search:
     runs-on: ubuntu-latest
