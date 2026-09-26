@@ -101,7 +101,7 @@ Additional retained submission-freeze / figure-sync documents are also historica
 The following pre-corrected scientific runners are also manual-only historical replay. They no longer react to branch pushes or pull requests:
 
 - response-geometry power / calibrated / observed runners;
-- support-limited H4 prospective temporal and PolLimCrop runners;
+- support-limited H4 prospective temporal and PolLimCrop runners, including the legacy v1 PolLimCrop preflight;
 - H5c/H5d specificity and identifiability runners;
 - NEE channel qualification, GloBI supported-catalog, N1/N2 discovery and source-positive-scan runners.
 
