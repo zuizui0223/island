@@ -1,19 +1,7 @@
-name: Validate Chapter 1 NEE channel qualification runner
+name: Historical replay — Validate Chapter 1 NEE channel qualification runner
 
 on:
-  push:
-    branches:
-      - "nee/double-filter-n1-qualification-runner"
-    paths:
-      - ".github/workflows/run-chapter1-nee-channel-qualification.yml"
-      - ".github/workflows/validate-chapter1-nee-channel-qualification-runner.yml"
-      - "docs/chapter1_nee_channel_qualification_runner.md"
-  pull_request:
-    paths:
-      - ".github/workflows/run-chapter1-nee-channel-qualification.yml"
-      - ".github/workflows/validate-chapter1-nee-channel-qualification-runner.yml"
-      - "docs/chapter1_nee_channel_qualification_runner.md"
-
+  workflow_dispatch:
 permissions:
   contents: read
 
