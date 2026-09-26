@@ -13,6 +13,7 @@ PROGRESSIVE_CONFIG = ROOT / "config/chapter1_progressive_analysis.yml"
 ALL_DATA_PROGRESSIVE_CONFIG = ROOT / "config/chapter1_all_data_progressive_analysis.yml"
 DATABASE_RELEASE = ROOT / "docs/CHAPTER1_DATABASE_RELEASE.md"
 DATABASE_VERSIONS = ROOT / "config/chapter1_database_versions/README.md"
+DATA_V2 = ROOT / "data/v2/README.md"
 V14_MANUSCRIPT = ROOT / "docs/chapter1_manuscript_full_v14_reordered_hypotheses_20260918.md"
 V14_FREEZE = ROOT / "docs/chapter1_submission_freeze_v14_20260918.md"
 V13_MANUSCRIPT = ROOT / "docs/chapter1_manuscript_full_v13_global_pollination_constraint_20260917.md"
@@ -100,6 +101,28 @@ def test_current_scientific_guidance_matches_corrected_h1_h4_surface():
         prefix = path.read_text(encoding="utf-8")[:600].lower()
         assert "historical" in prefix, path
         assert "chapter1_submission_current.json" in prefix, path
+
+
+def test_historical_execution_docs_do_not_present_stale_canonical_routes():
+    analysis = ANALYSIS_V2.read_text(encoding="utf-8")
+    database_release = DATABASE_RELEASE.read_text(encoding="utf-8")
+    database_versions = DATABASE_VERSIONS.read_text(encoding="utf-8")
+    data_v2 = DATA_V2.read_text(encoding="utf-8")
+
+    assert "Canonical workflow:" not in analysis
+    assert "run-chapter1-context-main.yml" not in analysis
+    assert "There is **no active canonical Chapter 1 workflow selected from this directory**" in analysis
+
+    assert "The analysis contract remains:" not in database_release
+    assert "run-chapter1-progressive-trait-analysis.yml" not in database_release
+    assert "config/chapter1_submission_current.json" in database_release
+
+    assert "active execution pointer" not in database_versions
+    assert "legacy database-version pointer" in database_versions
+    assert "config/chapter1_submission_current.json" in database_versions
+
+    assert "does **not** make Bombus a predictor or mechanism" in data_v2
+    assert "config/chapter1_submission_current.json" in data_v2[:800]
 
 
 def test_pre_corrected_working_documents_are_visibly_historical():
