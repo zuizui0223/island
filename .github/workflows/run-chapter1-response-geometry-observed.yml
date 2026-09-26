@@ -1,23 +1,7 @@
-name: Run Chapter 1 observed response geometry
+name: Historical replay — Run Chapter 1 observed response geometry
 
 on:
-  push:
-    branches:
-      - ch1/el-hierarchical-depth-audit
-    paths:
-      - "config/chapter1_response_geometry_observed.yml"
-      - "src/island_v2/chapter1_response_geometry_observed.py"
-      - "tests/test_chapter1_response_geometry_observed.py"
-      - ".github/workflows/run-chapter1-response-geometry-observed.yml"
-  pull_request:
-    branches: [main]
-    paths:
-      - "config/chapter1_response_geometry_observed.yml"
-      - "src/island_v2/chapter1_response_geometry_observed.py"
-      - "tests/test_chapter1_response_geometry_observed.py"
-      - ".github/workflows/run-chapter1-response-geometry-observed.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read
