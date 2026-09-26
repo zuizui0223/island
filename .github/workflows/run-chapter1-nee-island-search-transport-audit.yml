@@ -1,13 +1,7 @@
-name: Run Chapter 1 NEE island Search transport audit
+name: Historical replay — Run Chapter 1 NEE island Search transport audit
 
 on:
-  push:
-    branches:
-      - "nee/island-observation-search-sharded"
-    paths:
-      - "data/v2/control/run_nee_island_search_transport_audit.trigger"
-      - ".github/workflows/run-chapter1-nee-island-search-transport-audit.yml"
-
+  workflow_dispatch:
 permissions:
   actions: read
   contents: read
