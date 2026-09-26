@@ -1,27 +1,7 @@
-name: Validate Chapter 1 NEE GBIF channel collector
+name: Historical replay — Validate Chapter 1 NEE GBIF channel collector
 
 on:
-  push:
-    branches:
-      - "nee/double-filter-gbif-collector"
-    paths:
-      - "src/island_v2/chapter1_nee_gbif_channel_collect.py"
-      - "src/island_v2/chapter1_nee_background_filter.py"
-      - "config/chapter1_nee_gbif_background_acquisition.yml"
-      - "tests/test_chapter1_nee_gbif_channel_collect.py"
-      - "tests/test_chapter1_nee_background_filter.py"
-      - "tests/test_chapter1_nee_gbif_background_acquisition.py"
-      - ".github/workflows/validate-chapter1-nee-gbif-channel-collector.yml"
-  pull_request:
-    paths:
-      - "src/island_v2/chapter1_nee_gbif_channel_collect.py"
-      - "src/island_v2/chapter1_nee_background_filter.py"
-      - "config/chapter1_nee_gbif_background_acquisition.yml"
-      - "tests/test_chapter1_nee_gbif_channel_collect.py"
-      - "tests/test_chapter1_nee_background_filter.py"
-      - "tests/test_chapter1_nee_gbif_background_acquisition.py"
-      - ".github/workflows/validate-chapter1-nee-gbif-channel-collector.yml"
-
+  workflow_dispatch:
 permissions:
   contents: read
 
