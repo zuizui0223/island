@@ -1,15 +1,7 @@
-name: Run Chapter 1 H5 within-island identity filter
+name: Historical replay — Run Chapter 1 H5 within-island identity filter
 
 on:
-  push:
-    branches: [ch1-all-data-primary]
-    paths:
-      - "config/chapter1_h5_within_island_identity_filter_v1.yml"
-      - "src/island_v2/chapter1_h5_within_island_identity_filter.py"
-      - "tests/test_chapter1_h5_within_island_identity_filter.py"
-      - ".github/workflows/run-chapter1-h5-within-island-identity-filter.yml"
   workflow_dispatch:
-
 permissions:
   contents: read
   actions: read
