@@ -1,3 +1,5 @@
+> **HISTORICAL / SUPERSEDED — pre-corrected Chapter 1 surface.** Retained for provenance/replay only. The current submission is selected by `config/chapter1_submission_current.json`; use `submission/chapter1_current/MANUSCRIPT.md` and `docs/PAPER_PIPELINE.md` for current results.
+
 # Chapter 1 v11 submission figure sync — 2026-09-15
 
 Canonical manuscript: `docs/chapter1_manuscript_full_v11_island_first_p1_p2_p3_defended_20260915.md`
