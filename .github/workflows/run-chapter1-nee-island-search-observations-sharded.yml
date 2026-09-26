@@ -1,13 +1,7 @@
-name: Run Chapter 1 NEE sharded island Search observations
+name: Historical replay — Run Chapter 1 NEE sharded island Search observations
 
 on:
-  push:
-    branches:
-      - "nee/island-observation-search-sharded"
-    paths:
-      - "data/v2/control/run_nee_island_search_observations_sharded.trigger"
-      - ".github/workflows/run-chapter1-nee-island-search-observations-sharded.yml"
-
+  workflow_dispatch:
 permissions:
   actions: read
   contents: read
