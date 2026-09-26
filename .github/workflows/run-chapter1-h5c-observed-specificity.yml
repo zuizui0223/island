@@ -1,14 +1,6 @@
-name: Run Chapter 1 H5c observed specificity
+name: Historical replay — Run Chapter 1 H5c observed specificity
 
 on:
-  push:
-    branches: ["ch1/h5-specificity"]
-    paths:
-      - "config/chapter1_h5c_qualification_result_lock.json"
-      - "config/chapter1_h5c_observed_specificity.yml"
-      - "src/island_v2/chapter1_h5c_observed_specificity.py"
-      - "tests/test_chapter1_h5c_observed_specificity.py"
-      - ".github/workflows/run-chapter1-h5c-observed-specificity.yml"
   workflow_dispatch:
 
 permissions:
