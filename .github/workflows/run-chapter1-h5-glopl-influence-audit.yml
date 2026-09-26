@@ -1,15 +1,7 @@
-name: Run Chapter 1 H5 GloPL influence audit
+name: Historical replay — Run Chapter 1 H5 GloPL influence audit
 
 on:
-  push:
-    branches: [ch1-all-data-primary]
-    paths:
-      - "config/chapter1_h5_glopl_influence_audit_v1.yml"
-      - "src/island_v2/chapter1_h5_glopl_influence_audit.py"
-      - "tests/test_chapter1_h5_glopl_influence_audit.py"
-      - ".github/workflows/run-chapter1-h5-glopl-influence-audit.yml"
   workflow_dispatch:
-
 permissions:
   actions: read
   contents: read
