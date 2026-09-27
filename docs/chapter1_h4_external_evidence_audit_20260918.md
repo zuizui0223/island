@@ -1,3 +1,5 @@
+> **HISTORICAL / SUPERSEDED — pre-corrected H4 external-evidence audit.** Retained for provenance/replay only. The current Chapter 1 scientific selector is `config/chapter1_submission_current.json`; use `submission/chapter1_current/MANUSCRIPT.md` and `docs/PAPER_PIPELINE.md` for current results.
+
 # Chapter 1 H4 external evidence audit — 2026-09-18
 
 ## Purpose
@@ -13,7 +15,7 @@ The goal is to strengthen triangulation without retroactively calling the v13 H4
 
 ## 1. Locked v13 discovery remains post-hoc
 
-The current Chapter 1 v13 functional bridge was designed after the earlier
+The then-current Chapter 1 v13 functional bridge was designed after the earlier
 `distance × trait` moderation results had been inspected. Its inferential role remains
 `posthoc_functional_triangulation`.
 
