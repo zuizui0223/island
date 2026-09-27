@@ -13,6 +13,8 @@ Current package:
 - `figures/Figure3_constraint_response_triangle.svg` — source artwork for the constraint–response triangle.
 - `SUPPLEMENT_PLAN.md` — Supplementary Information structure.
 - `GRAPHICAL_ABSTRACT_BRIEF.md` — graphical-abstract concept.
+- `GRAPHICAL_ABSTRACT_SHORT_TEXT.md` — graphical-abstract short text.
+- `GEB_FALLBACK.md` — structured-abstract and double-anonymous fallback conversion.
 - `SUBMISSION_CHECKLIST.md` — completion checklist and claim boundary.
 
 Primary scientific source of truth:
