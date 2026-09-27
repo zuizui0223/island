@@ -25,7 +25,8 @@
 - [ ] Finalize Data Accessibility with archive DOI(s); rights-aware draft prepared
 - [ ] Add ORCID identifiers
 - [ ] Reformat references to journal style
-- [ ] Assemble Supplementary Information from `SUPPLEMENT_PLAN.md`
+- [x] Assemble source-backed Supplementary Information draft from `SUPPLEMENT_PLAN.md`
+- [ ] Render final SI tables/figures and compile submission-ready SI file
 - [x] Check graphical-abstract requirement; brief and <=500-character short text prepared
 - [x] Prepare GEB structured-abstract/double-anonymous fallback conversion
 
@@ -59,4 +60,4 @@ The submission must not state or imply that:
 - [ ] Add funding, acknowledgements and conflict-of-interest declaration
 - [ ] Mint/finalize permanent archive DOI(s)
 - [ ] Final reference-style pass
-- [ ] Build SI tables/figures and final supplementary PDF
+- [ ] Render SI tables/figures and final supplementary PDF
