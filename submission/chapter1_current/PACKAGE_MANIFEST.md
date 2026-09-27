@@ -1,9 +1,15 @@
-# Chapter 1 submission package — corrected geography baseline
+# Chapter 1 submission package — Ecology Letters first shot
 
 Current package:
 - `MANUSCRIPT.md` — clean submission-facing article draft updated to PR #242 corrected geography.
 - `FIGURE_CAPTIONS.md` — captions for Main Figures 1–6 using corrected estimates.
-- `COVER_LETTER_DRAFT.md` — journal-neutral cover letter.
+- `COVER_LETTER_DRAFT.md` — Ecology Letters first-shot cover letter.
+- `ECOLOGY_LETTERS_TARGET.md` — target-journal scope, constraints and fallback logic.
+- `NOVELTY_STATEMENT.md` — editorial novelty statement.
+- `TITLE_PAGE_TEMPLATE.md` — required title-page fields and current counts.
+- `DATA_ACCESSIBILITY_DRAFT.md` — rights-aware data-accessibility language.
+- `SUPPLEMENT_PLAN.md` — Supplementary Information structure.
+- `GRAPHICAL_ABSTRACT_BRIEF.md` — graphical-abstract concept.
 - `SUBMISSION_CHECKLIST.md` — completion checklist and claim boundary.
 
 Primary scientific source of truth:
@@ -25,4 +31,4 @@ Main figure sequence:
 
 Main Figures 1–6 were regenerated from the corrected tables under `results/geography_20260924/` on 25 September 2026. Exported PNG/PDF/PPTX files are delivery artifacts; the committed corrected tables remain the scientific source of truth.
 
-The package is submission-facing but not yet journal-formatted. The next irreversible choice is the target journal.
+The first-shot target is Ecology Letters. The current manuscript is within the Letter limits (main text <5,000 words; 6 display items; abstract <150 words). Global Ecology and Biogeography is the fallback if editorial rejection is based on generality/novelty rather than scientific validity.
