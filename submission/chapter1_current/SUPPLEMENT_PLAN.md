@@ -1,3 +1,5 @@
+> **Implementation status:** Submission-facing S1–S7 text is assembled in `SUPPLEMENTARY_INFORMATION.md`. Deterministic Tables S1, S2a, S2b, S3, S5, S6a and S6b are generated under `supplement/`. Table S4 is intentionally the complete raw-pattern CSV family. Remaining work is rendering supplementary figures and final journal packaging.
+
 # Supplementary Information plan — Ecology Letters first shot
 
 The main paper should remain conceptual and compact. Technical audit detail, exhaustive coefficients and provenance belong here rather than in the main narrative.
@@ -77,13 +79,14 @@ The main paper should remain conceptual and compact. Technical audit detail, exh
 
 ## Supplementary tables
 
-- Table S1: island-region sample counts and geography summary;
-- Table S2: H1 all coefficients and joint tests;
-- Table S3: H2 score models;
-- Table S4: H2 raw colour/architecture models;
-- Table S5: H3 models and sensitivities;
-- Table S6: H4 score models and atomic sensitivities;
-- Table S7: data/provenance/rights inventory.
+- Table S1: deterministic data/geography summary;
+- Table S2a: complete H1 atomic coefficients;
+- Table S2b: H1 joint tests;
+- Table S3: complete H2 conditional decomposition;
+- Table S4: complete corrected raw-colour/architecture CSV family (not duplicated into one oversized table);
+- Table S5: H3 primary and sensitivity models;
+- Table S6a: H4 exact H2-score bridge;
+- Table S6b: H4 atomic sensitivities.
 
 ## Supplementary figures
 
