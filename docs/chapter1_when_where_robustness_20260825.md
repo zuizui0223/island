@@ -4,9 +4,9 @@
 
 ## Purpose
 
-This checkpoint tests whether the canonical Chapter 1 when/where result depends on the original latitude grouping, log-distance functional form, zero-distance islands, or inclusion of weakly oceanic islands.
+This checkpoint tested whether the then-canonical Chapter 1 WHEN/WHERE result depends on the original latitude grouping, log-distance functional form, zero-distance islands, or inclusion of weakly oceanic islands.
 
-The canonical headline is:
+The then-canonical headline was:
 
 > isolation-associated floral/reproductive filtering is detectable in northern mid-latitude and tropical island floras, persists in native non-endemic assemblages, and the northern-versus-tropical multivariate isolation-response vectors differ.
 
