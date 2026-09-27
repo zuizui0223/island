@@ -183,6 +183,14 @@ def test_h1_direct_northern_high_convergence_audit_closes_warning() -> None:
     assert six["joint_vector"]["all_optimizers_converged"] is True
     assert six["joint_vector"]["q_value"] < 0.05
 
+    independent = audit["independent_multistart_confirmation"]
+    assert independent["status"] == "pass"
+    assert independent["all_multistart_fits_successful"] is True
+    assert independent["seven_response"]["p_value"] < 0.05
+    assert independent["six_response_drop_warned_component"]["p_value"] < 0.05
+    assert independent["max_abs_retry_minus_frozen_slope"] < 1e-4
+    assert independent["artifact_id"] == 10930986676
+
     manuscript = MANUSCRIPT.read_text(encoding="utf-8")
     assert "2.93 × 10^-6" in manuscript
     assert "1.43 × 10^-8" in manuscript
