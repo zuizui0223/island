@@ -59,6 +59,7 @@ The submission must not state or imply that:
 - [ ] Fill author order, affiliations, author emails and corresponding-author postal details
 - [ ] Confirm authorship-contribution wording
 - [ ] Add funding, acknowledgements and conflict-of-interest declaration
-- [ ] Mint/finalize permanent archive DOI(s)
+- [x] Public rights-filtered trait subset DOI fixed — `10.5281/zenodo.22704973`
+- [ ] Mint/finalize submission code + corrected derived-results archive DOI(s)
 - [ ] Final reference-style pass
 - [ ] Render SI tables/figures and final supplementary PDF
