@@ -244,7 +244,7 @@ The unobserved historical edge is:
 
 `past isolation-associated pollen limitation -> selection / sorting / persistence -> present trait composition`
 
-The current data do not distinguish species sorting, differential colonization/persistence and within-lineage evolutionary change.
+The current analysis does not distinguish species sorting, differential colonization/persistence and within-lineage evolutionary change.
 
 A separate prospective H4 validation effort stopped at the support gate before outcome unblinding because the prespecified minimum sample/publication requirements were not met. It is a design/support result, not a biological null and is not used to promote or refute H4.
 
