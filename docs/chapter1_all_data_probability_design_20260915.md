@@ -1,10 +1,12 @@
+> **HISTORICAL / SUPERSEDED — pre-corrected all-data probability design.** Retained for provenance/replay only. The current Chapter 1 scientific selector is `config/chapter1_submission_current.json`; use `submission/chapter1_current/MANUSCRIPT.md` and `docs/PAPER_PIPELINE.md` for current results.
+
 # Chapter 1 all-data probability model upgrade — 2026-09-15
 
 Status: **exploratory model upgrade; not yet a replacement for the frozen v10 submission surface**.
 
 ## Motivation
 
-The current Chapter 1 database starts from 8,265 geographic islands and 4,505 islands with observed GBIF floras. The frozen v10 analysis then becomes much smaller because formal floristic-status strata (`all_native`, `native_nonendemic`, `endemic`) are fail-closed. This is scientifically conservative, but it mixes two separate restrictions:
+The then-current Chapter 1 database started from 8,265 geographic islands and 4,505 islands with observed GBIF floras. The frozen v10 analysis then becomes much smaller because formal floristic-status strata (`all_native`, `native_nonendemic`, `endemic`) are fail-closed. This is scientifically conservative, but it mixes two separate restrictions:
 
 1. trait-evidence quality;
 2. floristic-status resolution.
