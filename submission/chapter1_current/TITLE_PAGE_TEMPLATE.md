@@ -44,7 +44,7 @@
 
 ## Data accessibility statement
 
-**EL submission blocker:** replace this section only after `ECOLOGY_LETTERS_DATA_GATE.md` is closed. The exact submission code, corrected derived result tables and redistribution-authorized trait subset can be archived, but the full frozen trait ledger contains third-party source material with heterogeneous redistribution rights and cannot currently be redistributed wholesale. Do not submit to Ecology Letters with the public subset presented as the complete analysis input.
+**EL submission blocker:** replace this section only after `ECOLOGY_LETTERS_DATA_GATE.md` is closed. The rights-filtered trait subset is already published at Zenodo (DOI `10.5281/zenodo.22704973`), but it contains only 46,274 redistribution-authorized cells and is not the complete 222,688-cell scientific analysis ledger. The exact submission code and corrected derived result tables still require a permanent submission archive, and the remaining third-party trait-data restrictions require rights closure or an explicit editorial exception.
 
 ## Conflict of interest
 
