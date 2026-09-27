@@ -26,8 +26,9 @@
 - [ ] Finalize Data Accessibility with archive DOI(s); rights-aware draft prepared
 - [ ] Add ORCID identifiers
 - [ ] Reformat references to journal style
-- [x] Assemble source-backed Supplementary Information draft from `SUPPLEMENT_PLAN.md`
-- [ ] Render final SI tables/figures and compile submission-ready SI file
+- [x] Assemble submission-facing Supplementary Information S1–S7
+- [x] Generate deterministic Tables S1–S6 from corrected outputs
+- [ ] Render final SI figures and compile journal-ready SI file
 - [x] Check graphical-abstract requirement; brief and <=500-character short text prepared
 - [x] Prepare GEB structured-abstract/double-anonymous fallback conversion
 
@@ -62,4 +63,4 @@ The submission must not state or imply that:
 - [x] Public rights-filtered trait subset DOI fixed — `10.5281/zenodo.22704973`
 - [ ] Mint/finalize submission code + corrected derived-results archive DOI(s)
 - [ ] Final reference-style pass
-- [ ] Render SI tables/figures and final supplementary PDF
+- [ ] Render SI figures and final supplementary PDF
