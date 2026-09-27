@@ -1,4 +1,6 @@
-# Retrigger 2026-09-18 after Chapter 1 v14 merge; no scientific protocol change.\nname: Preflight Chapter 1 H4 PolLimCrop transportability
+name: Historical replay — Preflight Chapter 1 H4 PolLimCrop transportability
+
+# Legacy pre-v14 operational preflight retained for manual diagnostics only.
 
 concurrency:
   # Operational v2 group: isolate this run from the stale pre-v14 queue.
@@ -6,9 +8,9 @@ concurrency:
   group: h4-pollimcrop-preflight-v2-${{ github.sha }}
   cancel-in-progress: false
 
+# Legacy operational path retained for manual diagnostics only.
+# No branch/pull-request/schedule trigger is allowed.
 on:
-  # Legacy operational path retained for manual diagnostics only.
-  # The v2 workflow owns branch-push support-lock freezing.
   workflow_dispatch:
 
 permissions:
