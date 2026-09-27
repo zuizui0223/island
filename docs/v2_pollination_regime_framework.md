@@ -1,3 +1,5 @@
+> **HISTORICAL / SUPERSEDED — pre-corrected WHEN/WHERE framework.** Retained for provenance/replay only. The current Chapter 1 scientific selector is `config/chapter1_submission_current.json`; use `submission/chapter1_current/MANUSCRIPT.md` and `docs/PAPER_PIPELINE.md` for current results.
+
 # v2: when / where island floral filtering framework
 
 ## Status and purpose
