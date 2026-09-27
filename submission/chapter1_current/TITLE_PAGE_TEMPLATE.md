@@ -44,7 +44,7 @@
 
 ## Data accessibility statement
 
-The exact submission code, corrected derived result tables and redistribution-authorized trait subset will be archived in permanent repositories before submission. The full frozen trait ledger contains third-party source material with heterogeneous redistribution rights and therefore cannot be redistributed wholesale; a machine-readable provenance/rights manifest and the immutable database SHA identify the complete analysis input. Replace this draft with archive DOI(s) before submission.
+**EL submission blocker:** replace this section only after `ECOLOGY_LETTERS_DATA_GATE.md` is closed. The exact submission code, corrected derived result tables and redistribution-authorized trait subset can be archived, but the full frozen trait ledger contains third-party source material with heterogeneous redistribution rights and cannot currently be redistributed wholesale. Do not submit to Ecology Letters with the public subset presented as the complete analysis input.
 
 ## Conflict of interest
 
