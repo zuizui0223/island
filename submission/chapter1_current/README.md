@@ -17,7 +17,9 @@ This directory is the clean submission-facing package for Chapter 1. The scienti
 - `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md` — pre-submission editor inquiry for that gate.
 - `figures/Figure3_constraint_response_triangle.svg` — publication-facing conceptual Figure 3 source.
 - `SUPPLEMENT_PLAN.md` — Supplementary Information assembly map.
-- `SUPPLEMENTARY_INFORMATION_DRAFT.md` — source-backed SI draft mapped to corrected CSV/JSON outputs.
+- `SUPPLEMENTARY_INFORMATION_DRAFT.md` — internal source map for SI assembly.
+- `SUPPLEMENTARY_INFORMATION.md` — submission-facing S1–S7 text bound to deterministic tables and corrected outputs.
+- `supplement/` — deterministic supplementary tables and hash manifest.
 - `GRAPHICAL_ABSTRACT_BRIEF.md` — constraint–response triangle concept.
 - `GRAPHICAL_ABSTRACT_SHORT_TEXT.md` — <=500-character graphical-abstract text draft.
 - `GEB_FALLBACK.md` — ready-to-convert GEB structured-abstract/double-anonymous fallback.
@@ -62,4 +64,4 @@ Main Figures 1–6 and the poster workflow were regenerated on 25 September 2026
 
 ## Remaining work
 
-Ecology Letters remains the first-shot target **only after the data-policy gate is closed**. The scientific narrative and format fit a Letter. Remaining blockers are: EL data-policy clearance or rights closure, final author metadata, permanent archive DOI(s), funding/acknowledgements/conflicts/contributions, final reference styling and assembly of the planned Supplementary Information.
+Ecology Letters remains the first-shot target **only after the data-policy gate is closed**. The scientific narrative and format fit a Letter. Remaining blockers are: EL data-policy clearance or rights closure, final author metadata, permanent archive DOI(s), funding/acknowledgements/conflicts/contributions, final reference styling and rendering/packaging of the assembled Supplementary Information.

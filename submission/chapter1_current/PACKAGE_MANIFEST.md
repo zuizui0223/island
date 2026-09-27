@@ -12,7 +12,10 @@ Current package:
 - `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md` — draft pre-submission editorial inquiry.
 - `figures/Figure3_constraint_response_triangle.svg` — source artwork for the constraint–response triangle.
 - `SUPPLEMENT_PLAN.md` — Supplementary Information structure.
-- `SUPPLEMENTARY_INFORMATION_DRAFT.md` — assembled SI draft with exact corrected output sources.
+- `SUPPLEMENTARY_INFORMATION_DRAFT.md` — internal SI source map.
+- `SUPPLEMENTARY_INFORMATION.md` — submission-facing S1–S7 text.
+- `supplement/SUPPLEMENT_TABLES_MANIFEST.json` — deterministic table/source hash manifest.
+- `supplement/Table_S1_data_summary.csv` through `Table_S6b_H4_atomic.csv` — generated SI tables.
 - `GRAPHICAL_ABSTRACT_BRIEF.md` — graphical-abstract concept.
 - `GRAPHICAL_ABSTRACT_SHORT_TEXT.md` — graphical-abstract short text.
 - `GEB_FALLBACK.md` — structured-abstract and double-anonymous fallback conversion.
@@ -37,4 +40,4 @@ Main figure sequence:
 
 Main Figures 1–6 were regenerated from the corrected tables under `results/geography_20260924/` on 25 September 2026. Exported PNG/PDF/PPTX files are delivery artifacts; the committed corrected tables remain the scientific source of truth.
 
-The first-shot target is Ecology Letters **conditional on closing the data-policy gate**. The manuscript is within the Letter limits (main text <5,000 words; 6 display items; abstract <150 words). If third-party redistribution restrictions cannot be cleared or accepted by the EL editors, switch before submission to Global Ecology and Biogeography, whose policy explicitly permits editorial exceptions for legal data-sharing restrictions.
+The first-shot target is Ecology Letters **conditional on closing the data-policy gate**. The SI text and deterministic tables are assembled; remaining SI work is graphical rendering and final journal packaging. The manuscript is within the Letter limits (main text <5,000 words; 6 display items; abstract <150 words). If third-party redistribution restrictions cannot be cleared or accepted by the EL editors, switch before submission to Global Ecology and Biogeography, whose policy explicitly permits editorial exceptions for legal data-sharing restrictions.
