@@ -8,9 +8,9 @@ concurrency:
   group: h4-pollimcrop-preflight-v2-${{ github.sha }}
   cancel-in-progress: false
 
+# Legacy operational path retained for manual diagnostics only.
+# No branch/pull-request/schedule trigger is allowed.
 on:
-  # Legacy operational path retained for manual diagnostics only.
-  # The v2 workflow owns branch-push support-lock freezing.
   workflow_dispatch:
 
 permissions:
