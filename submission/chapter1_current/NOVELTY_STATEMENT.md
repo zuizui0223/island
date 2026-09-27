@@ -11,6 +11,10 @@
 - Floral traits can form selfing and pollination syndromes.
 - Pollen limitation varies globally with ecological context.
 
+## Conceptual synthesis
+
+The three independent associations form a **constraint–response triangle**: isolation tracks both a recurrent plant response and stronger pollen limitation, while the island-associated response traits themselves track lower current pollen limitation. The missing historical edge—past pollen limitation to selection/sorting to present trait composition—remains explicitly unresolved.
+
 ## What this study adds
 
 1. **Global recurrence across independent regions.**  
