@@ -1,6 +1,6 @@
 # Chapter 1 submission package — corrected geography draft
 
-Status: **Ecology Letters first-shot draft; Global Ecology and Biogeography fallback**.
+Status: **Ecology Letters first-shot draft conditional on data-policy clearance; Global Ecology and Biogeography fallback if that gate cannot be closed**.
 
 This directory is the clean submission-facing package for Chapter 1. The scientific baseline is now the corrected geography merged in PR #242 and selected by `config/chapter1_submission_current.json`. The older v14 result lock is retained only as superseded provenance.
 
@@ -13,6 +13,9 @@ This directory is the clean submission-facing package for Chapter 1. The scienti
 - `NOVELTY_STATEMENT.md` — concise conceptual novelty statement.
 - `TITLE_PAGE_TEMPLATE.md` — Ecology Letters title-page requirements and current counts.
 - `DATA_ACCESSIBILITY_DRAFT.md` — rights-aware data/code availability wording.
+- `ECOLOGY_LETTERS_DATA_GATE.md` — hard submission gate created by third-party redistribution restrictions.
+- `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md` — pre-submission editor inquiry for that gate.
+- `figures/Figure3_constraint_response_triangle.svg` — publication-facing conceptual Figure 3 source.
 - `SUPPLEMENT_PLAN.md` — Supplementary Information assembly map.
 - `GRAPHICAL_ABSTRACT_BRIEF.md` — constraint–response triangle concept.
 - `SUBMISSION_CHECKLIST.md` — remaining journal-specific work and claim boundary.
@@ -56,4 +59,4 @@ Main Figures 1–6 and the poster workflow were regenerated on 25 September 2026
 
 ## Remaining work
 
-Ecology Letters is the first-shot target. The scientific narrative and format now fit a Letter; remaining blocking items are final author metadata, permanent archive DOI(s), funding/acknowledgements/conflicts/contributions, final reference styling and assembly of the planned Supplementary Information.
+Ecology Letters remains the first-shot target **only after the data-policy gate is closed**. The scientific narrative and format fit a Letter. Remaining blockers are: EL data-policy clearance or rights closure, final author metadata, permanent archive DOI(s), funding/acknowledgements/conflicts/contributions, final reference styling and assembly of the planned Supplementary Information.
