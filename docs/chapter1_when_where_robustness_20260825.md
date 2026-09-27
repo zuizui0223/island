@@ -1,3 +1,5 @@
+> **HISTORICAL / SUPERSEDED — pre-corrected WHEN/WHERE robustness checkpoint.** Retained for provenance/replay only. The current Chapter 1 scientific selector is `config/chapter1_submission_current.json`; use `submission/chapter1_current/MANUSCRIPT.md` and `docs/PAPER_PIPELINE.md` for current results.
+
 # Chapter 1 when / where robustness — 2026-08-25
 
 ## Purpose
