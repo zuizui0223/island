@@ -133,3 +133,7 @@ NEE validator workflows remain branch-triggered where useful because they only v
 ## Dynamic workflow guard
 
 The historical-runner CI no longer relies only on a hand-maintained filename list. It also scans every `run-chapter1-*.yml`, `render-chapter1-*.yml`, `promote-chapter1-*.yml`, and retained H4 preflight/screen workflow and requires the exact historical/manual-only contract. This makes a newly added Chapter 1 result runner fail closed unless the repository explicitly redefines the current scientific surface.
+
+## Retired database-to-analysis dispatcher
+
+The versioned trait-database manifests remain active provenance/release objects, but they no longer select or launch scientific analyses. The old `chapter1_database_manifest dispatch` path now fails closed, and `.github/workflows/dispatch-chapter1-from-database-version.yml` is retained only as a manual historical validation surface. This removes the final executable reference to the deleted `run-chapter1-progressive-trait-analysis.yml` workflow.
