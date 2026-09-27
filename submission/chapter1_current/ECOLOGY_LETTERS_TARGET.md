@@ -1,4 +1,4 @@
-# Ecology Letters first-shot target
+# Ecology Letters first-shot target — conditional on data-policy clearance
 
 Checked: 27 September 2026.
 
@@ -41,6 +41,12 @@ For a **Letter**:
 Official source:
 - https://onlinelibrary.wiley.com/page/journal/14610248/homepage/forauthors.html
 
+## Data-policy submission gate
+
+Ecology Letters requires the analysed raw data (or exact subset used), metadata, code and derived products to be accessible to editors/reviewers at submission and permanently archived before publication. The full Chapter 1 trait ledger is not presently wholly redistributable. Therefore EL submission is conditional on closing `ECOLOGY_LETTERS_DATA_GATE.md`; the rights-filtered 46,274-cell public subset must not be represented as the complete 222,688-cell analysis input.
+
+A pre-submission inquiry is drafted in `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md`.
+
 ## Current package fit
 
 - Article type: **Letter**
@@ -79,4 +85,4 @@ Do not spend cover-letter space on the history of the repository or old H1–H5 
 
 ## Fallback
 
-If *Ecology Letters* rejects on breadth/novelty rather than scientific validity, the same scientific package is strongly aligned with *Global Ecology and Biogeography*, whose scope explicitly prioritizes broad-scale macroecological patterns and conceptual conclusions.
+If the EL data-policy gate cannot be closed, switch to *Global Ecology and Biogeography* before submission rather than submitting a non-compliant EL archive. GEB is also scientifically well aligned with the paper and explicitly allows editorial exceptions where data sharing conflicts with legal requirements, provided the restrictions are justified.

@@ -1,3 +1,4 @@
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -11,6 +12,12 @@ NOVELTY = PACKAGE / "NOVELTY_STATEMENT.md"
 DATA_ACCESS = PACKAGE / "DATA_ACCESSIBILITY_DRAFT.md"
 SUPPLEMENT = PACKAGE / "SUPPLEMENT_PLAN.md"
 GRAPHICAL = PACKAGE / "GRAPHICAL_ABSTRACT_BRIEF.md"
+DATA_GATE = PACKAGE / "ECOLOGY_LETTERS_DATA_GATE.md"
+DATA_INQUIRY = PACKAGE / "ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md"
+FIGURE3 = PACKAGE / "figures" / "Figure3_constraint_response_triangle.svg"
+GRAPHICAL_SHORT = PACKAGE / "GRAPHICAL_ABSTRACT_SHORT_TEXT.md"
+GEB_FALLBACK = PACKAGE / "GEB_FALLBACK.md"
+SI_DRAFT = PACKAGE / "SUPPLEMENTARY_INFORMATION_DRAFT.md"
 
 
 def _words(text: str) -> int:
@@ -58,7 +65,7 @@ def test_ecology_letters_title_page_metadata() -> None:
 
 
 def test_ecology_letters_supporting_submission_files_exist() -> None:
-    for path in [TARGET, NOVELTY, DATA_ACCESS, SUPPLEMENT, GRAPHICAL]:
+    for path in [TARGET, NOVELTY, DATA_ACCESS, SUPPLEMENT, GRAPHICAL, DATA_GATE, DATA_INQUIRY, FIGURE3, GRAPHICAL_SHORT, GEB_FALLBACK, SI_DRAFT]:
         assert path.is_file(), path
         assert path.read_text(encoding="utf-8").strip(), path
 
@@ -74,3 +81,84 @@ def test_ecology_letters_supporting_submission_files_exist() -> None:
     data_access = DATA_ACCESS.read_text(encoding="utf-8")
     assert "cannot be redistributed wholesale" in data_access
     assert "46,274" in data_access
+
+
+def test_ecology_letters_data_policy_gate_is_fail_closed() -> None:
+    gate = DATA_GATE.read_text(encoding="utf-8")
+    data_access = DATA_ACCESS.read_text(encoding="utf-8")
+    target = TARGET.read_text(encoding="utf-8")
+
+    assert "222,688" in gate
+    assert "46,274" in gate
+    assert "176,414" in gate
+    assert "Do not submit to Ecology Letters while this gate is unresolved." in gate
+    assert "Not submission-ready for Ecology Letters" in data_access
+    assert "conditional on data-policy clearance" in target.lower()
+
+
+def test_constraint_response_triangle_matches_current_inference() -> None:
+    tree = ET.parse(FIGURE3)
+    assert tree.getroot().tag.endswith("svg")
+    svg = FIGURE3.read_text(encoding="utf-8")
+
+    for label in (
+        "Geographic isolation",
+        "Plant response (H1–H2)",
+        "Pollen limitation (H3)",
+        "H4: β &lt; 0",
+        "Historical causal edge not identified",
+        "not a mediation model",
+    ):
+        assert label in svg
+
+
+def test_graphical_abstract_short_text_and_geb_fallback() -> None:
+    short = GRAPHICAL_SHORT.read_text(encoding="utf-8")
+    body = short.split("\n\n", 1)[1].strip()
+    assert len(body) <= 500
+
+    geb = GEB_FALLBACK.read_text(encoding="utf-8")
+    for heading in (
+        "**Aim:**",
+        "**Location:**",
+        "**Time period:**",
+        "**Major taxa studied:**",
+        "**Methods:**",
+        "**Results:**",
+        "**Main conclusions:**",
+    ):
+        assert heading in geb
+    assert "double anonymous" in geb.lower()
+    assert "legal requirements" in geb
+
+
+def test_supplementary_information_draft_is_bound_to_corrected_outputs() -> None:
+    text = SI_DRAFT.read_text(encoding="utf-8")
+    required = [
+        "corrected 8,264-unit",
+        "results/geography_20260924/all/beta_binomial_within_slopes.csv",
+        "results/geography_20260924/direct/h2_decomposition_models.csv",
+        "results/geography_20260924/h3_original_corrected_comparison.json",
+        "results/geography_20260924/h4_exact_corrected.csv",
+        "ECOLOGY_LETTERS_DATA_GATE.md",
+    ]
+    for marker in required:
+        assert marker in text
+
+
+def test_ecology_letters_reference_list_and_glopl_data_citation() -> None:
+    manuscript = MANUSCRIPT.read_text(encoding="utf-8")
+    title_page = TITLE_PAGE.read_text(encoding="utf-8")
+    refs = manuscript.split("## References", 1)[1]
+
+    entries = [
+        line
+        for line in refs.splitlines()
+        if line.strip() and line[0].isalpha() and "(" in line and ")." in line
+    ]
+    assert len(entries) == 16
+    assert "**References:** 16" in title_page
+    assert "Bennett et al. 2018a,b" in manuscript
+    assert "10.5061/dryad.dt437" in refs
+    assert "Bennett, J.M., Steets, J.A., Burns, J.H., Durka, W., Vamosi, J.C., Arceo-Gómez, G. et al. (2018a)." in refs
+    assert "Fenster, C.B., Armbruster, W.S., Wilson, P., Dudash, M.R. & Thomson, J.D. (2004)." in refs

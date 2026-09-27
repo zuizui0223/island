@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="720" viewBox="0 0 1000 720">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#111"/>
+    </marker>
+    <marker id="arrowOpen" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#fff" stroke="#555" stroke-width="1"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1000" height="720" fill="white"/>
+
+  <text x="500" y="48" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">Constraint–response triangle</text>
+  <text x="500" y="78" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16">Three observed associations; historical mediation remains unresolved</text>
+
+  <rect x="365" y="112" rx="20" ry="20" width="270" height="90" fill="white" stroke="#111" stroke-width="2.5"/>
+  <text x="500" y="150" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">Geographic isolation</text>
+  <text x="500" y="177" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15">source separation / connectivity gradient</text>
+
+  <rect x="85" y="385" rx="20" ry="20" width="350" height="150" fill="white" stroke="#111" stroke-width="2.5"/>
+  <text x="260" y="420" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700">Plant response (H1–H2)</text>
+  <text x="260" y="455" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18">Reproductive assurance</text>
+  <text x="260" y="485" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18">Floral accessibility</text>
+  <text x="260" y="515" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14">recurrent function; regional phenotype</text>
+
+  <rect x="565" y="385" rx="20" ry="20" width="350" height="150" fill="white" stroke="#111" stroke-width="2.5"/>
+  <text x="740" y="420" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700">Pollen limitation (H3)</text>
+  <text x="740" y="455" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18">Experimental pollen supplementation</text>
+  <text x="740" y="485" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18">β = +0.0919</text>
+  <text x="740" y="515" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14">stronger constraint with isolation</text>
+
+  <line x1="430" y1="202" x2="300" y2="382" stroke="#111" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="335" y="285" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700">H1–H2</text>
+  <text x="335" y="307" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13">recurrent multivariate response</text>
+
+  <line x1="570" y1="202" x2="700" y2="382" stroke="#111" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="665" y="285" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700">H3</text>
+  <text x="665" y="307" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13">independent experimental outcome</text>
+
+  <line x1="437" y1="452" x2="562" y2="452" stroke="#111" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="500" y="423" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700">H4: β &lt; 0</text>
+  <text x="500" y="478" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13">response trait states associate with</text>
+  <text x="500" y="496" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13">lower current pollen limitation</text>
+
+  <path d="M690 540 C625 655, 375 655, 310 540" fill="none" stroke="#666" stroke-width="2.5" stroke-dasharray="9 8" marker-end="url(#arrowOpen)"/>
+  <text x="500" y="620" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">Historical causal edge not identified</text>
+  <text x="500" y="645" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14">past pollen limitation → selection / sorting / persistence → present traits</text>
+
+  <text x="500" y="692" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13">Solid edges are fitted associations, not a mediation model.</text>
+</svg>

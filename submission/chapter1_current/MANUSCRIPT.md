@@ -14,7 +14,7 @@ Baker's law formalized one solution: colonists capable of uniparental reproducti
 
 Floral phenotype can respond along a second axis. Greater selfing is often accompanied by a selfing syndrome involving reduced or reorganized floral investment (Sicard & Lenhard 2011). Yet floral form, symmetry, tube depth and colour also mediate access and effectiveness of animal pollen vectors, and combinations of these traits often predict functional pollinator groups better than any single character (Fenster et al. 2004; Rosas-Guerrero et al. 2014). An accessible flower could therefore become common because selfing relaxes the value of specialized attraction, or because broader visitor access remains advantageous even in plants that do not shift mating system. These alternatives make a key distinction: a floral island syndrome could be a single serial pathway from isolation to selfing to floral change, or a multicomponent response in which reproductive assurance and pollinator-facing architecture are only partly coupled.
 
-Trait distributions alone cannot reveal whether natural pollen delivery actually becomes more constraining with isolation. Pollen-supplementation experiments provide an independent outcome by comparing natural reproduction with reproduction after added pollen. Pollen limitation integrates pollen quantity, quality, mate availability and pollinator service, and can influence both demography and selection on floral traits (Ashman et al. 2004; Knight et al. 2005; Harder & Aizen 2010). The GloPL synthesis makes this outcome available globally (Bennett et al. 2018), and global analyses already show that pollen limitation varies systematically with ecological context and pollinator dependence (Bennett et al. 2020). Linking island trait patterns to this experimental outcome can therefore test whether an inferred island syndrome is functionally aligned with reduced dependence on external pollen delivery, without claiming that pollinator abundance itself has been measured.
+Trait distributions alone cannot reveal whether natural pollen delivery actually becomes more constraining with isolation. Pollen-supplementation experiments provide an independent outcome by comparing natural reproduction with reproduction after added pollen. Pollen limitation integrates pollen quantity, quality, mate availability and pollinator service, and can influence both demography and selection on floral traits (Ashman et al. 2004; Harder & Aizen 2010; Knight et al. 2005). The GloPL synthesis makes this outcome available globally (Bennett et al. 2018a,b), and global analyses already show that pollen limitation varies systematically with ecological context and pollinator dependence (Bennett et al. 2020). Linking island trait patterns to this experimental outcome can therefore test whether an inferred island syndrome is functionally aligned with reduced dependence on external pollen delivery, without claiming that pollinator abundance itself has been measured.
 
 Here we combine a global island plant-trait database with independent pollen-supplementation data to ask whether island reproductive change forms one serial syndrome or a recurrent but internally separable response. **H1** tests whether geographic isolation is associated with a recurring multivariate floral/reproductive response across four geographic regions. **H2** asks whether floral accessibility and colour responses remain after measured reproductive assurance is conditioned on. **H3** tests whether experimental pollen limitation independently increases with isolation. **H4** asks whether the same species-level reproductive-assurance and accessibility states enriched with isolation are associated with lower current pollen limitation. Together, these analyses test a constraint–response triangle linking geographic isolation, contemporary pollen limitation and plant reproductive strategy while keeping historical causation explicitly unresolved.
 
@@ -78,7 +78,7 @@ To avoid assigning plants to named pollinator syndromes from a single composite 
 
 ### H3: experimental pollen limitation
 
-We used the version-pinned GloPL database of pollen-supplementation experiments. Pollen limitation was represented by the log response ratio of reproduction after supplemental pollen addition to reproduction under natural pollen receipt; positive values therefore indicate that reproduction increases when pollen is added.
+We used the version-pinned GloPL database of pollen-supplementation experiments (Bennett et al. 2018a,b). Pollen limitation was represented by the log response ratio of reproduction after supplemental pollen addition to reproduction under natural pollen receipt; positive values therefore indicate that reproduction increases when pollen is added.
 
 The analysis contained 2,969 experimental rows, 1,408 measurement cells, 1,248 sites and 919 publications. Duplicate measurements were aggregated at the publication-by-coordinate-by-measurement level. Each publication contributed total analysis weight one. The primary model related pollen limitation to standardized corrected log geographic distance while controlling for broad geographic context and experimental measurement conditions. Uncertainty was estimated with publication-cluster-robust covariance.
 
@@ -148,7 +148,7 @@ This pattern rejects a compulsory serial interpretation in which isolation first
 
 The GloPL analysis supplies an ecological layer that is independent of the island trait database. Experimental pollen limitation increases with geographic isolation even after the corrected geography is used. This result matters because pollen limitation is a reproductive outcome rather than a floral proxy. It captures shortfalls in successful pollen receipt arising from pollen quantity, quality, mate availability and pollinator service (Ashman et al. 2004; Knight et al. 2005). It therefore supports an isolation-associated constraint on pollen delivery without requiring a claim of global pollinator decline.
 
-The effect is modest and not equally strong under every measurement sensitivity, but its direction aligns with a large literature showing that pollen limitation responds to ecological context and can shape floral adaptation (Harder & Aizen 2010; Bennett et al. 2020). The independent H3 result changes the interpretation of H1–H2: the island trait gradient occurs along a geographic axis that is also associated with experimentally measured reproductive constraint.
+The effect is modest and not equally strong under every measurement sensitivity, but its direction aligns with a large literature showing that pollen limitation responds to ecological context and can shape floral adaptation (Bennett et al. 2020; Harder & Aizen 2010). The independent H3 result changes the interpretation of H1–H2: the island trait gradient occurs along a geographic axis that is also associated with experimentally measured reproductive constraint.
 
 ### A constraint–response triangle, with one causal edge still missing
 
@@ -176,32 +176,34 @@ Global island floras show a recurrent reproductive response to geographic isolat
 
 ## References
 
-Abe, T. 2006. Threatened pollination systems in native flora of the Ogasawara (Bonin) Islands. *Annals of Botany* 98:317–334.
+Abe, T. (2006). Threatened pollination systems in native flora of the Ogasawara (Bonin) Islands. *Ann. Bot.*, 98, 317–334.
 
-Ashman, T.-L. et al. 2004. Pollen limitation of plant reproduction: ecological and evolutionary causes and consequences. *Ecology* 85:2408–2421.
+Ashman, T.-L., Knight, T.M., Steets, J.A., Amarasekare, P., Burd, M., Campbell, D.R. et al. (2004). Pollen limitation of plant reproduction: ecological and evolutionary causes and consequences. *Ecology*, 85, 2408–2421.
 
-Baker, H. G. 1955. Self-compatibility and establishment after long-distance dispersal. *Evolution* 9:347–349.
+Baker, H.G. (1955). Self-compatibility and establishment after ‘long-distance’ dispersal. *Evolution*, 9, 347–349.
 
-Bennett, J. M. et al. 2018. GloPL, a global data base on pollen limitation of plant reproduction. *Scientific Data* 5:180249.
+Bennett, J.M., Steets, J.A., Burns, J.H., Durka, W., Vamosi, J.C., Arceo-Gómez, G. et al. (2018a). Data from: GloPL, a global data base on pollen limitation of plant reproduction. Dryad Digital Repository. Available at: https://doi.org/10.5061/dryad.dt437.
 
-Bennett, J. M. et al. 2020. Land use and pollinator dependency drives global patterns of pollen limitation in the Anthropocene. *Nature Communications* 11:3999.
+Bennett, J.M., Steets, J.A., Burns, J.H., Durka, W., Vamosi, J.C., Arceo-Gómez, G. et al. (2018b). GloPL, a global data base on pollen limitation of plant reproduction. *Sci. Data*, 5, 180249.
 
-Cheptou, P.-O. 2012. Clarifying Baker's Law. *Annals of Botany* 109:633–641.
+Bennett, J.M., Steets, J.A., Burns, J.H., Burkle, L.A., Vamosi, J.C., Wolowski, M. et al. (2020). Land use and pollinator dependency drives global patterns of pollen limitation in the Anthropocene. *Nat. Commun.*, 11, 3999.
 
-Fenster, C. B. et al. 2004. Pollination syndromes and floral specialization. *Annual Review of Ecology, Evolution, and Systematics* 35:375–403.
+Cheptou, P.-O. (2012). Clarifying Baker's Law. *Ann. Bot.*, 109, 633–641.
 
-Grossenbacher, D. L. et al. 2017. Self-compatibility is over-represented on islands. *New Phytologist* 215:469–478.
+Fenster, C.B., Armbruster, W.S., Wilson, P., Dudash, M.R. & Thomson, J.D. (2004). Pollination syndromes and floral specialization. *Annu. Rev. Ecol. Evol. Syst.*, 35, 375–403.
 
-Harder, L. D. & Aizen, M. A. 2010. Floral adaptation and diversification under pollen limitation. *Philosophical Transactions of the Royal Society B* 365:529–543.
+Grossenbacher, D.L., Brandvain, Y., Auld, J.R., Burd, M., Cheptou, P.-O., Conner, J.K. et al. (2017). Self-compatibility is over-represented on islands. *New Phytol.*, 215, 469–478.
 
-Hetherington-Rauth, M. C. & Johnson, M. T. J. 2020. Floral trait evolution of angiosperms on Pacific islands. *The American Naturalist* 196:87–100.
+Harder, L.D. & Aizen, M.A. (2010). Floral adaptation and diversification under pollen limitation. *Philos. Trans. R. Soc. B*, 365, 529–543.
 
-Knight, T. M. et al. 2005. Pollen limitation of plant reproduction: pattern and process. *Annual Review of Ecology, Evolution, and Systematics* 36:467–497.
+Hetherington-Rauth, M.C. & Johnson, M.T.J. (2020). Floral trait evolution of angiosperms on Pacific islands. *Am. Nat.*, 196, 87–100.
 
-Pannell, J. R. et al. 2015. The scope of Baker's law. *New Phytologist* 208:656–667.
+Knight, T.M., Steets, J.A., Vamosi, J.C., Mazer, S.J., Burd, M., Campbell, D.R. et al. (2005). Pollen limitation of plant reproduction: pattern and process. *Annu. Rev. Ecol. Evol. Syst.*, 36, 467–497.
 
-Rosas-Guerrero, V. et al. 2014. A quantitative review of pollination syndromes: do floral traits predict effective pollinators? *Ecology Letters* 17:388–400.
+Pannell, J.R., Auld, J.R., Brandvain, Y., Burd, M., Busch, J.W., Cheptou, P.-O. et al. (2015). The scope of Baker's law. *New Phytol.*, 208, 656–667.
 
-Schrader, J., Wright, I. J., Kreft, H. & Westoby, M. 2021. A roadmap to plant functional island biogeography. *Biological Reviews* 96:2851–2870.
+Rosas-Guerrero, V., Aguilar, R., Martén-Rodríguez, S., Ashworth, L., Lopezaraiza-Mikel, M., Bastida, J.M. et al. (2014). A quantitative review of pollination syndromes: do floral traits predict effective pollinators? *Ecol. Lett.*, 17, 388–400.
 
-Sicard, A. & Lenhard, M. 2011. The selfing syndrome: a model for studying the genetic and evolutionary basis of morphological adaptation in plants. *Annals of Botany* 107:1433–1443.
+Schrader, J., Wright, I.J., Kreft, H. & Westoby, M. (2021). A roadmap to plant functional island biogeography. *Biol. Rev.*, 96, 2851–2870.
+
+Sicard, A. & Lenhard, M. (2011). The selfing syndrome: a model for studying the genetic and evolutionary basis of morphological adaptation in plants. *Ann. Bot.*, 107, 1433–1443.

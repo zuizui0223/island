@@ -20,11 +20,15 @@
 - [ ] Add funding and acknowledgements
 - [ ] Add conflict-of-interest statement
 - [ ] Add author-contribution statement
+- [ ] **Close Ecology Letters data-policy gate**: rights closure or explicit editorial exception
+- [ ] Send/resolve pre-submission data-policy inquiry before EL submission
 - [ ] Finalize Data Accessibility with archive DOI(s); rights-aware draft prepared
 - [ ] Add ORCID identifiers
 - [ ] Reformat references to journal style
-- [ ] Assemble Supplementary Information from `SUPPLEMENT_PLAN.md`
-- [x] Check graphical-abstract requirement; brief prepared in `GRAPHICAL_ABSTRACT_BRIEF.md`
+- [x] Assemble source-backed Supplementary Information draft from `SUPPLEMENT_PLAN.md`
+- [ ] Render final SI tables/figures and compile submission-ready SI file
+- [x] Check graphical-abstract requirement; brief and <=500-character short text prepared
+- [x] Prepare GEB structured-abstract/double-anonymous fallback conversion
 
 ## Claim boundary to preserve
 The submission must not state or imply that:
@@ -50,9 +54,10 @@ The submission must not state or imply that:
 - [x] Novelty statement prepared
 - [x] Running-title candidate prepared (<45 characters)
 - [x] Constraint–response triangle defined for Figure 3 / graphical abstract
+- [x] Publication-facing Figure 3 SVG source added
 - [ ] Fill author order, affiliations, author emails and corresponding-author postal details
 - [ ] Confirm authorship-contribution wording
 - [ ] Add funding, acknowledgements and conflict-of-interest declaration
 - [ ] Mint/finalize permanent archive DOI(s)
 - [ ] Final reference-style pass
-- [ ] Build SI tables/figures and final supplementary PDF
+- [ ] Render SI tables/figures and final supplementary PDF

@@ -1,4 +1,8 @@
-# Data accessibility draft — Ecology Letters
+# Data accessibility draft — Ecology Letters conditional version
+
+## Status
+
+**Not submission-ready for Ecology Letters until `ECOLOGY_LETTERS_DATA_GATE.md` is closed.** The wording below records the truthful current state; it is not a substitute for the journal's requirement that the analysed data/subset be accessible to reviewers and archived appropriately.
 
 ## Submission-facing draft
 
@@ -23,3 +27,8 @@ Do **not** state that the rights-filtered public trait subset is the exact analy
 - resolved scientific cells: 222,688;
 - currently redistribution-authorized public cells: 46,274;
 - current paper selector: `config/chapter1_submission_current.json`.
+
+
+## GEB fallback wording if EL clearance fails
+
+Global Ecology and Biogeography explicitly permits editorial exceptions where sharing conflicts with legal requirements. For a GEB submission, retain the same public code/derived products/provenance package, describe the third-party restrictions explicitly, and request the legal-restriction exception rather than implying full public redistribution.
