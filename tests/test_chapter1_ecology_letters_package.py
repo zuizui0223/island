@@ -14,6 +14,8 @@ GRAPHICAL = PACKAGE / "GRAPHICAL_ABSTRACT_BRIEF.md"
 DATA_GATE = PACKAGE / "ECOLOGY_LETTERS_DATA_GATE.md"
 DATA_INQUIRY = PACKAGE / "ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md"
 FIGURE3 = PACKAGE / "figures" / "Figure3_constraint_response_triangle.svg"
+GRAPHICAL_SHORT = PACKAGE / "GRAPHICAL_ABSTRACT_SHORT_TEXT.md"
+GEB_FALLBACK = PACKAGE / "GEB_FALLBACK.md"
 
 
 def _words(text: str) -> int:
@@ -61,7 +63,7 @@ def test_ecology_letters_title_page_metadata() -> None:
 
 
 def test_ecology_letters_supporting_submission_files_exist() -> None:
-    for path in [TARGET, NOVELTY, DATA_ACCESS, SUPPLEMENT, GRAPHICAL, DATA_GATE, DATA_INQUIRY, FIGURE3]:
+    for path in [TARGET, NOVELTY, DATA_ACCESS, SUPPLEMENT, GRAPHICAL, DATA_GATE, DATA_INQUIRY, FIGURE3, GRAPHICAL_SHORT, GEB_FALLBACK]:
         assert path.is_file(), path
         assert path.read_text(encoding="utf-8").strip(), path
 
@@ -104,3 +106,23 @@ def test_constraint_response_triangle_matches_current_inference() -> None:
         "not a mediation model",
     ):
         assert label in svg
+
+
+def test_graphical_abstract_short_text_and_geb_fallback() -> None:
+    short = GRAPHICAL_SHORT.read_text(encoding="utf-8")
+    body = short.split("\n\n", 1)[1].strip()
+    assert len(body) <= 500
+
+    geb = GEB_FALLBACK.read_text(encoding="utf-8")
+    for heading in (
+        "**Aim:**",
+        "**Location:**",
+        "**Time period:**",
+        "**Major taxa studied:**",
+        "**Methods:**",
+        "**Results:**",
+        "**Main conclusions:**",
+    ):
+        assert heading in geb
+    assert "double anonymous" in geb.lower()
+    assert "legal requirements" in geb
