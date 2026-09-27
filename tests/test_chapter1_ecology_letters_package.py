@@ -159,12 +159,16 @@ def test_ecology_letters_reference_list_and_glopl_data_citation() -> None:
         for line in refs.splitlines()
         if line.strip() and line[0].isalpha() and "(" in line and ")." in line
     ]
-    assert len(entries) == 16
-    assert "**References:** 16" in title_page
+    assert len(entries) == 18
+    assert "**References:** 18" in title_page
     assert "Bennett et al. 2018a,b" in manuscript
     assert "10.5061/dryad.dt437" in refs
     assert "Bennett, J.M., Steets, J.A., Burns, J.H., Durka, W., Vamosi, J.C., Arceo-Gómez, G. et al. (2018a)." in refs
     assert "Fenster, C.B., Armbruster, W.S., Wilson, P., Dudash, M.R. & Thomson, J.D. (2004)." in refs
+
+    assert "Zell et al. 2025" in manuscript
+    assert "Dawson-Glass & Hargreaves 2022" in manuscript
+    assert "10.1111/nph.20234" not in manuscript  # journal style omits DOI for article refs
 
 
 def test_h1_direct_northern_high_convergence_audit_closes_warning() -> None:
