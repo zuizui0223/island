@@ -14,6 +14,7 @@ This directory is the clean submission-facing package for Chapter 1. The scienti
 - `TITLE_PAGE_TEMPLATE.md` — Ecology Letters title-page requirements and current counts.
 - `DATA_ACCESSIBILITY_DRAFT.md` — rights-aware data/code availability wording.
 - `SUPPLEMENT_PLAN.md` — Supplementary Information assembly map.
+- `SUPPLEMENTARY_INFORMATION.md` — assembled S1–S7 supplementary text, key tables and machine-readable data manifest.
 - `GRAPHICAL_ABSTRACT_BRIEF.md` — constraint–response triangle concept.
 - `SUBMISSION_CHECKLIST.md` — remaining journal-specific work and claim boundary.
 - `PACKAGE_MANIFEST.md` — package contents and source-of-truth pointers.
@@ -56,4 +57,4 @@ Main Figures 1–6 and the poster workflow were regenerated on 25 September 2026
 
 ## Remaining work
 
-Ecology Letters is the first-shot target. The scientific narrative and format now fit a Letter; remaining blocking items are final author metadata, permanent archive DOI(s), funding/acknowledgements/conflicts/contributions, final reference styling and assembly of the planned Supplementary Information.
+Ecology Letters is the first-shot target. The scientific narrative and format now fit a Letter; remaining blocking items are final author metadata, permanent archive DOI(s), funding/acknowledgements/conflicts/contributions, final reference styling, final author metadata/declarations, permanent archive DOI(s), and rendering/packaging of the assembled Supplementary Information.
