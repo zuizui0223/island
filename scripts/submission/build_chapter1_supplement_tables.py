@@ -7,7 +7,6 @@ from pathlib import Path
 
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RESULTS = ROOT / "results" / "geography_20260924"
 DEFAULT_OUTPUT = ROOT / "submission" / "chapter1_current" / "supplement"
@@ -227,7 +226,7 @@ def write_tables(results: Path, output: Path) -> dict[str, object]:
         path = output / name
         frame.to_csv(path, index=False, float_format="%.12g")
         output_meta[name] = {
-            "rows": int(len(frame)),
+            "rows": len(frame),
             "columns": list(frame.columns),
             "sha256": _sha256(path),
         }
