@@ -152,3 +152,7 @@ The following retained documents now carry explicit historical banners because t
 - `docs/chapter1_when_where_robustness_20260825.md`.
 
 The historical analysis README also points its old manuscript contract reference to the archived path under `legacy/chapter1-pre-v13/` rather than to a nonexistent active-document path.
+
+## Legacy-current wording cleanup
+
+Historical documents are now required not only to carry a visible superseded banner but also to avoid self-identifying inside their body as the current Chapter 1 scientific surface. The cleanup covers the old all-data probability design, Ecology Letters upgrade audit, H4 external-evidence audit, Wave52/V1/V5 checkpoints, H3–H5 framework, submission hypothesis framework and WHEN/WHERE result/robustness notes. Search snippets should therefore read as stage-specific or then-current provenance rather than as present-day guidance.
