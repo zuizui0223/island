@@ -1,19 +1,16 @@
 from __future__ import annotations
 
+import argparse
 import json
-import math
 from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import typer
 import yaml
 from scipy.optimize import minimize
 
 from island_v2 import chapter1_all_data_probability as h1
-
-app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 TARGET_STRATUM = "all_observed"
 TARGET_CONTEXT = "northern_high_latitude"
@@ -102,8 +99,7 @@ def _target_design(
 
 def _extract_target(slopes: pd.DataFrame) -> dict[str, object]:
     row = slopes.loc[
-        slopes["stratum"].eq(TARGET_STRATUM)
-        & slopes["context"].eq(TARGET_CONTEXT)
+        slopes["context"].eq(TARGET_CONTEXT)
         & slopes["outcome"].eq(TARGET_OUTCOME)
     ].iloc[0]
     return {
@@ -118,10 +114,7 @@ def _extract_target(slopes: pd.DataFrame) -> dict[str, object]:
 
 
 def _extract_omnibus(omnibus: pd.DataFrame) -> dict[str, object]:
-    row = omnibus.loc[
-        omnibus["stratum"].eq(TARGET_STRATUM)
-        & omnibus["context"].eq(TARGET_CONTEXT)
-    ].iloc[0]
+    row = omnibus.loc[omnibus["context"].eq(TARGET_CONTEXT)].iloc[0]
     return {
         "n_retained_outcomes": int(row["n_retained_outcomes"]),
         "retained_outcomes": str(row["retained_outcomes"]),
@@ -134,27 +127,58 @@ def _extract_omnibus(omnibus: pd.DataFrame) -> dict[str, object]:
     }
 
 
-@app.command()
-def main(
-    counts_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    covariates_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    config_path: Path = typer.Option(..., exists=True, dir_okay=False),
-    frozen_slopes_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    frozen_omnibus_csv: Path = typer.Option(..., exists=True, dir_okay=False),
-    output: Path = typer.Option(...),
-) -> None:
-    counts = pd.read_csv(counts_csv)
-    covariates = pd.read_csv(covariates_csv)
-    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+def _run_all_observed(
+    data: pd.DataFrame,
+    config: dict[str, object],
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    threshold = int(config["minimum_islands_per_outcome"])
+    slope_parts: list[pd.DataFrame] = []
+    omnibus_rows: list[dict[str, object]] = []
+    for context_value in [str(x) for x in config["contexts"]]:
+        slopes, result = h1._fit_within(
+            data,
+            stratum=TARGET_STRATUM,
+            context_value=context_value,
+            threshold=threshold,
+            config=config,
+        )
+        if not slopes.empty:
+            slope_parts.append(slopes)
+        omnibus_rows.append(result)
+    all_slopes = pd.concat(slope_parts, ignore_index=True)
+    omnibus = pd.DataFrame(omnibus_rows)
+    omnibus["q_value"] = h1._bh(omnibus["p_value"])
+    omnibus["vector_supported"] = (
+        omnibus["q_value"].le(float(config["alpha"])).fillna(False)
+    )
+    return all_slopes, omnibus
 
-    frozen_slopes = pd.read_csv(frozen_slopes_csv)
-    frozen_omnibus = pd.read_csv(frozen_omnibus_csv)
-    frozen_target = _extract_target(frozen_slopes)
-    frozen_joint = _extract_omnibus(frozen_omnibus)
 
-    default_tables = h1.run_probability_analysis(counts, covariates, config)
-    default_target = _extract_target(default_tables[0])
-    default_joint = _extract_omnibus(default_tables[2])
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--counts-csv", type=Path, required=True)
+    parser.add_argument("--covariates-csv", type=Path, required=True)
+    parser.add_argument("--config-path", type=Path, required=True)
+    parser.add_argument("--frozen-slopes-csv", type=Path, required=True)
+    parser.add_argument("--frozen-omnibus-csv", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = _parse_args()
+    counts = pd.read_csv(args.counts_csv)
+    covariates = pd.read_csv(args.covariates_csv)
+    config = yaml.safe_load(args.config_path.read_text(encoding="utf-8"))
+
+    frozen_slopes = pd.read_csv(args.frozen_slopes_csv)
+    frozen_omnibus = pd.read_csv(args.frozen_omnibus_csv)
+    frozen_target = _extract_target(
+        frozen_slopes.loc[frozen_slopes["stratum"].eq(TARGET_STRATUM)]
+    )
+    frozen_joint = _extract_omnibus(
+        frozen_omnibus.loc[frozen_omnibus["stratum"].eq(TARGET_STRATUM)]
+    )
 
     prepared = h1._prepare(counts, covariates, config)
     target_work, target_design, target_names = _target_design(prepared, config)
@@ -176,7 +200,6 @@ def main(
     geo_idx = retry_fit["names"].index(geo_name)
     retry_estimate = float(np.asarray(retry_fit["theta"])[geo_idx])
 
-    # Re-run the seven-response vector with a fail-then-retry fitter.
     original_fitter = h1._fit_single_beta_binomial
 
     def robust_fitter(
@@ -189,35 +212,31 @@ def main(
     ) -> dict[str, object]:
         first = original_fitter(y, n, design, names, max_iter=max_iter)
         if bool(first["success"]):
-            first["retry_used"] = False
             return first
-        second = _retry_fit(
+        return _retry_fit(
             y,
             n,
             design,
             names,
             initial_theta=np.asarray(first["theta"], dtype=float),
         )
-        second["retry_used"] = True
-        second["first_message"] = str(first["message"])
-        return second
 
     h1._fit_single_beta_binomial = robust_fitter
     try:
-        robust_tables = h1.run_probability_analysis(counts, covariates, config)
+        robust_slopes, robust_omnibus = _run_all_observed(prepared, config)
     finally:
         h1._fit_single_beta_binomial = original_fitter
 
-    robust_target = _extract_target(robust_tables[0])
-    robust_joint = _extract_omnibus(robust_tables[2])
+    robust_target = _extract_target(robust_slopes)
+    robust_joint = _extract_omnibus(robust_omnibus)
 
-    # Fully converged sensitivity that removes only the warned component.
     six_config = deepcopy(config)
     six_config["model_outcomes"] = [
         x for x in config["model_outcomes"] if x != TARGET_OUTCOME
     ]
-    six_tables = h1.run_probability_analysis(counts, covariates, six_config)
-    six_joint = _extract_omnibus(six_tables[2])
+    six_slopes, six_omnibus = _run_all_observed(prepared, six_config)
+    del six_slopes
+    six_joint = _extract_omnibus(six_omnibus)
 
     estimate_delta = abs(robust_target["estimate"] - frozen_target["estimate"])
     retry_delta = abs(retry_estimate - frozen_target["estimate"])
@@ -243,10 +262,9 @@ def main(
             "target_fit": frozen_target,
             "joint_vector": frozen_joint,
         },
-        "default_replay": {
-            "target_fit": default_target,
-            "joint_vector": default_joint,
-            "target_optimizer_message": str(default_fit["message"]),
+        "default_target_optimizer": {
+            "success": bool(default_fit["success"]),
+            "message": str(default_fit["message"]),
         },
         "enhanced_retry": {
             "success": bool(retry_fit["success"]),
@@ -275,12 +293,11 @@ def main(
             ),
         },
     }
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(report, indent=2), encoding="utf-8")
-    typer.echo(json.dumps(report, indent=2))
-    if not audit_pass:
-        raise typer.Exit(code=2)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    print(json.dumps(report, indent=2))
+    return 0 if audit_pass else 2
 
 
 if __name__ == "__main__":
-    app()
+    raise SystemExit(main())
