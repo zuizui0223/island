@@ -4,7 +4,7 @@
 
 ## Status and purpose
 
-This document defines the current Chapter 1 scientific scope.
+This document defined the then-current Chapter 1 scientific scope.
 
 The primary question is:
 
@@ -62,7 +62,7 @@ WHERE is repeated in `all_native`, `native_nonendemic`, and `endemic` strata. Pe
 
 Pairwise regional comparisons require the same threshold in both contexts.
 
-## Current frozen result
+## Then-current frozen result
 
 Canonical workflow run: `32837335384`.
 
