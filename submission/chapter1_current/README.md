@@ -18,6 +18,8 @@ This directory is the clean submission-facing package for Chapter 1. The scienti
 - `figures/Figure3_constraint_response_triangle.svg` — publication-facing conceptual Figure 3 source.
 - `SUPPLEMENT_PLAN.md` — Supplementary Information assembly map.
 - `GRAPHICAL_ABSTRACT_BRIEF.md` — constraint–response triangle concept.
+- `GRAPHICAL_ABSTRACT_SHORT_TEXT.md` — <=500-character graphical-abstract text draft.
+- `GEB_FALLBACK.md` — ready-to-convert GEB structured-abstract/double-anonymous fallback.
 - `SUBMISSION_CHECKLIST.md` — remaining journal-specific work and claim boundary.
 - `PACKAGE_MANIFEST.md` — package contents and source-of-truth pointers.
 
