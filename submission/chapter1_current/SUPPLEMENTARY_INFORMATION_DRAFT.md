@@ -122,7 +122,7 @@ Results:
 - fully converged seven-response replay: q = 3.793 × 10^-8;
 - fully converged six-response sensitivity excluding shallow/open tube: q = 1.430 × 10^-8.
 
-Thus the Direct-only northern-high-latitude H1 conclusion is numerically stable and does not depend on the warned component.
+Thus the Direct-only northern-high-latitude H1 conclusion is numerically stable and does not depend on the warned component. An independent Python 3.11 multistart audit (workflow run `36316367290`, artifact `10930986676`) reached the same conclusion: all multistart fits succeeded, the seven-response test gave P = 1.898 × 10^-8, the six-response sensitivity gave P = 7.154 × 10^-9, and the maximum slope deviation from the frozen solution was 2.85 × 10^-6.
 
 **Table S2:** complete H1 coefficient, SE, P and FDR-adjusted q table.
 
