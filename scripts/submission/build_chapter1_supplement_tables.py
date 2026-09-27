@@ -19,6 +19,8 @@ SOURCE_FILES = [
     "all/h2_decomposition_models.csv",
     "direct/h2_decomposition_models.csv",
     "h3_original_corrected_comparison.json",
+    "h3_corrected_effect_rows.csv.gz",
+    "h3_corrected_measurement_cells.csv.gz",
     "h4_exact_corrected.csv",
     "h4_atomic_corrected.csv",
 ]
@@ -38,6 +40,55 @@ def _clean_float(frame: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
         if column in out.columns:
             out[column] = pd.to_numeric(out[column], errors="coerce")
     return out
+
+
+def build_s1_summary(results: Path) -> pd.DataFrame:
+    repo_root = results.parents[1]
+    db = yaml.safe_load(
+        (repo_root / "config/chapter1_database_versions/v1.0.0.yml").read_text(
+            encoding="utf-8"
+        )
+    )["database"]
+    selector = json.loads(
+        (repo_root / "config/chapter1_submission_current.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    h3 = json.loads(
+        (results / "h3_original_corrected_comparison.json").read_text(encoding="utf-8")
+    )["corrected"]["global_gradient"]
+    effect_rows = pd.read_csv(results / "h3_corrected_effect_rows.csv.gz")
+    measurement_cells = pd.read_csv(results / "h3_corrected_measurement_cells.csv.gz")
+
+    denominator_species = int(db["denominator_species"])
+    axes = list(db["axes"])
+    rows = [
+        ("geography", "analysis_universe", selector["population"]["universe"], "island_units", "config/chapter1_submission_current.json"),
+        ("geography", "broad_H1_union", selector["population"]["broad_H1_union"], "island_units", "config/chapter1_submission_current.json"),
+        ("traits", "accepted_angiosperm_species", denominator_species, "species", "config/chapter1_database_versions/v1.0.0.yml"),
+        ("traits", "possible_species_axis_cells", denominator_species * len(axes), "species_axis_cells", "config/chapter1_database_versions/v1.0.0.yml"),
+        ("traits", "resolved_species_axis_cells", db["resolved_cells"], "species_axis_cells", "config/chapter1_database_versions/v1.0.0.yml"),
+    ]
+    for axis in axes:
+        rows.append(
+            (
+                "traits",
+                f"resolved_{axis}_cells",
+                db["axis_resolved_cells"][axis],
+                "species_axis_cells",
+                "config/chapter1_database_versions/v1.0.0.yml",
+            )
+        )
+    rows.extend(
+        [
+            ("GloPL", "effect_rows", len(effect_rows), "experimental_rows", "results/geography_20260924/h3_corrected_effect_rows.csv.gz"),
+            ("GloPL", "measurement_cells", len(measurement_cells), "measurement_cells", "results/geography_20260924/h3_corrected_measurement_cells.csv.gz"),
+            ("GloPL", "sites", h3["n_sites"], "sites", "results/geography_20260924/h3_original_corrected_comparison.json"),
+            ("GloPL", "publications", h3["n_publications"], "publications", "results/geography_20260924/h3_original_corrected_comparison.json"),
+            ("GloPL", "true_continental_zero_sites", selector["population"]["true_continental_site_zeros"], "sites", "config/chapter1_submission_current.json"),
+        ]
+    )
+    return pd.DataFrame(rows, columns=["section", "metric", "value", "unit", "source"])
 
 
 def build_h1_atomic(results: Path) -> pd.DataFrame:
@@ -214,6 +265,7 @@ def build_h4_atomic(results: Path) -> pd.DataFrame:
 def write_tables(results: Path, output: Path) -> dict[str, object]:
     output.mkdir(parents=True, exist_ok=True)
     tables = {
+        "Table_S1_data_summary.csv": build_s1_summary(results),
         "Table_S2a_H1_atomic.csv": build_h1_atomic(results),
         "Table_S2b_H1_joint.csv": build_h1_joint(results),
         "Table_S3_H2_decomposition.csv": build_h2(results),
@@ -231,10 +283,13 @@ def write_tables(results: Path, output: Path) -> dict[str, object]:
             "sha256": _sha256(path),
         }
 
-    source_meta = {
-        rel: _sha256(results / rel)
-        for rel in SOURCE_FILES
-    }
+    source_meta = {rel: _sha256(results / rel) for rel in SOURCE_FILES}
+    repo_root = results.parents[1]
+    for rel in (
+        "config/chapter1_database_versions/v1.0.0.yml",
+        "config/chapter1_submission_current.json",
+    ):
+        source_meta[rel] = _sha256(repo_root / rel)
     manifest = {
         "contract": "chapter1_submission_supplement_tables_v1",
         "scientific_surface": "corrected_geography_20260924",
