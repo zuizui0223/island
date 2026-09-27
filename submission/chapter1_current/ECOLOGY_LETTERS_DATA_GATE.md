@@ -28,6 +28,10 @@ Ecology Letters remains the first-shot target only if **one** of the following i
 
 Do not submit to Ecology Letters while this gate is unresolved.
 
+## What is already archived
+
+The rights-filtered public derivative is published at Zenodo: **DOI `10.5281/zenodo.22704973`** (46,274 cells). This resolves citation of the public derivative but does not close the EL gate because the paper analyses use the 222,688-cell frozen scientific ledger.
+
 ## What can be archived now
 
 Publicly archivable now:

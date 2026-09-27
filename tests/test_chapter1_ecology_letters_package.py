@@ -82,6 +82,7 @@ def test_ecology_letters_supporting_submission_files_exist() -> None:
     data_access = DATA_ACCESS.read_text(encoding="utf-8")
     assert "cannot be redistributed wholesale" in data_access
     assert "46,274" in data_access
+    assert "10.5281/zenodo.22704973" in data_access
 
 
 def test_ecology_letters_data_policy_gate_is_fail_closed() -> None:
@@ -92,6 +93,7 @@ def test_ecology_letters_data_policy_gate_is_fail_closed() -> None:
     assert "222,688" in gate
     assert "46,274" in gate
     assert "176,414" in gate
+    assert "10.5281/zenodo.22704973" in gate
     assert "Do not submit to Ecology Letters while this gate is unresolved." in gate
     assert "Not submission-ready for Ecology Letters" in data_access
     assert "conditional on data-policy clearance" in target.lower()
