@@ -6,18 +6,21 @@
 
 ## Submission-facing draft
 
-The exact analysis code, corrected geography outputs, model-ready derived result tables and the redistribution-authorized trait subset will be archived in permanent public repositories before submission, with DOI(s) cited here. The full frozen Chapter 1 trait ledger cannot be redistributed wholesale because it integrates third-party source material with heterogeneous reuse terms. Its exact scientific identity is preserved by an immutable SHA-256 digest and machine-readable source/provenance records. A rights-filtered public subset contains only cells explicitly authorized for redistribution; omission from that subset reflects redistribution rights rather than biological missingness or scientific exclusion.
+The rights-filtered Chapter 1 Database 1.0 public derivative is already archived at Zenodo (DOI: `10.5281/zenodo.22704973`). It contains 46,274 redistribution-authorized cells and is explicitly not the complete scientific analysis ledger. The exact analysis code, corrected geography outputs and model-ready derived result tables still require a submission-specific permanent archive before submission. The full frozen Chapter 1 trait ledger cannot be redistributed wholesale because it integrates third-party source material with heterogeneous reuse terms. Its exact scientific identity is preserved by an immutable SHA-256 digest and machine-readable source/provenance records. A rights-filtered public subset contains only cells explicitly authorized for redistribution; omission from that subset reflects redistribution rights rather than biological missingness or scientific exclusion.
 
 The GloPL pollen-limitation data are from Bennett et al. (2018) and are version-pinned in the analysis provenance. GBIF occurrence inputs and GSHHG geography are likewise referenced through their source/version receipts.
 
 ## Before submission
 
-Replace this section with permanent archive DOI(s) for:
+Before submission, add permanent archive DOI(s) for:
 
-1. exact code commit / software archive;
+1. exact submission code commit / software archive;
 2. corrected derived H1–H4 result tables and geography receipts;
-3. redistribution-authorized Chapter 1 trait subset;
-4. machine-readable provenance/rights manifest identifying restricted source lineages.
+3. machine-readable submission provenance/rights manifest identifying restricted source lineages.
+
+Already resolved:
+
+- rights-filtered Chapter 1 trait subset: Zenodo DOI `10.5281/zenodo.22704973`.
 
 Do **not** state that the rights-filtered public trait subset is the exact analysis database.
 
@@ -32,3 +35,8 @@ Do **not** state that the rights-filtered public trait subset is the exact analy
 ## GEB fallback wording if EL clearance fails
 
 Global Ecology and Biogeography explicitly permits editorial exceptions where sharing conflicts with legal requirements. For a GEB submission, retain the same public code/derived products/provenance package, describe the third-party restrictions explicitly, and request the legal-restriction exception rather than implying full public redistribution.
+
+
+## Existing permanent dataset citation
+
+Chapter 1 Database 1.0 rights-filtered public derivative. Zenodo. DOI: `10.5281/zenodo.22704973`. This deposit contains 46,274 of the 222,688 resolved scientific cells and must be described as a rights-filtered derivative rather than the complete analysis ledger.
