@@ -8,6 +8,9 @@ Current package:
 - `NOVELTY_STATEMENT.md` — editorial novelty statement.
 - `TITLE_PAGE_TEMPLATE.md` — required title-page fields and current counts.
 - `DATA_ACCESSIBILITY_DRAFT.md` — rights-aware data-accessibility language.
+- `ECOLOGY_LETTERS_DATA_GATE.md` — EL submission-policy gate for incomplete trait-ledger redistribution rights.
+- `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md` — draft pre-submission editorial inquiry.
+- `figures/Figure3_constraint_response_triangle.svg` — source artwork for the constraint–response triangle.
 - `SUPPLEMENT_PLAN.md` — Supplementary Information structure.
 - `GRAPHICAL_ABSTRACT_BRIEF.md` — graphical-abstract concept.
 - `SUBMISSION_CHECKLIST.md` — completion checklist and claim boundary.
@@ -24,11 +27,11 @@ Superseded provenance:
 Main figure sequence:
 1. Global geographic and data scope
 2. Database construction and analytical workflow
-3. Inferential structure / working hypothesis
+3. Constraint–response triangle / inferential boundary
 4. H1 recurrent multivariate response
 5. H2 conditional pathway decomposition
 6. H3 pollen-limitation pressure and H4 functional bridge
 
 Main Figures 1–6 were regenerated from the corrected tables under `results/geography_20260924/` on 25 September 2026. Exported PNG/PDF/PPTX files are delivery artifacts; the committed corrected tables remain the scientific source of truth.
 
-The first-shot target is Ecology Letters. The current manuscript is within the Letter limits (main text <5,000 words; 6 display items; abstract <150 words). Global Ecology and Biogeography is the fallback if editorial rejection is based on generality/novelty rather than scientific validity.
+The first-shot target is Ecology Letters **conditional on closing the data-policy gate**. The manuscript is within the Letter limits (main text <5,000 words; 6 display items; abstract <150 words). If third-party redistribution restrictions cannot be cleared or accepted by the EL editors, switch before submission to Global Ecology and Biogeography, whose policy explicitly permits editorial exceptions for legal data-sharing restrictions.
