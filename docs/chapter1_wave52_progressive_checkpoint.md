@@ -1,3 +1,5 @@
+> **HISTORICAL / SUPERSEDED — pre-corrected Wave52 progressive checkpoint.** Retained for provenance/replay only. The current Chapter 1 scientific selector is `config/chapter1_submission_current.json`; use `submission/chapter1_current/MANUSCRIPT.md` and `docs/PAPER_PIPELINE.md` for current results.
+
 # Chapter 1 Wave52 progressive reanalysis checkpoint
 
 ## Decision

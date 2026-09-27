@@ -11,7 +11,7 @@ The retained definitions are:
 - `config/chapter1_when_where_omnibus.yml`;
 - `config/analysis_models.yml`;
 - `docs/chapter1_when_where_frozen_result_20260825.md`;
-- `docs/manuscript_submission_contract.md`.
+- `legacy/chapter1-pre-v13/docs/manuscript_submission_contract.md`.
 
 These files describe an earlier analysis stage. They do not override the current corrected submission selector.
 

@@ -37,6 +37,14 @@ HISTORICAL_WORKING_DOCS = [
     ROOT / "docs/chapter1_v10_submission_figure_sync_20260915.md",
     ROOT / "docs/chapter1_v11_submission_figure_sync_20260915.md",
     ROOT / "docs/chapter1_v13_submission_figure_sync_20260917.md",
+    ROOT / "docs/chapter1_wave52_progressive_checkpoint.md",
+    ROOT / "docs/chapter1_v1_climate_overlap_checkpoint.md",
+    ROOT / "docs/chapter1_v5_mnar_tipping_point_checkpoint.md",
+    ROOT / "docs/chapter1_h3_h5_causal_hierarchy_20260909.md",
+    ROOT / "docs/chapter1_submission_hypothesis_framework_20260909.md",
+    ROOT / "docs/v2_pollination_regime_framework.md",
+    ROOT / "docs/chapter1_when_where_frozen_result_20260825.md",
+    ROOT / "docs/chapter1_when_where_robustness_20260825.md",
 ]
 
 

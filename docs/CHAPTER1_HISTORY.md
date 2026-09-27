@@ -137,3 +137,18 @@ The historical-runner CI no longer relies only on a hand-maintained filename lis
 ## Retired database-to-analysis dispatcher
 
 The versioned trait-database manifests remain active provenance/release objects, but they no longer select or launch scientific analyses. The old `chapter1_database_manifest dispatch` path now fails closed, and `.github/workflows/dispatch-chapter1-from-database-version.yml` is retained only as a manual historical validation surface. This removes the final executable reference to the deleted `run-chapter1-progressive-trait-analysis.yml` workflow.
+
+## Remaining pre-corrected checkpoints and frameworks
+
+The following retained documents now carry explicit historical banners because their body text uses the old WHEN/WHERE, regional-branching or H1–H5 framing and could otherwise be mistaken for the current paper:
+
+- `docs/chapter1_wave52_progressive_checkpoint.md`;
+- `docs/chapter1_v1_climate_overlap_checkpoint.md`;
+- `docs/chapter1_v5_mnar_tipping_point_checkpoint.md`;
+- `docs/chapter1_h3_h5_causal_hierarchy_20260909.md`;
+- `docs/chapter1_submission_hypothesis_framework_20260909.md`;
+- `docs/v2_pollination_regime_framework.md`;
+- `docs/chapter1_when_where_frozen_result_20260825.md`;
+- `docs/chapter1_when_where_robustness_20260825.md`.
+
+The historical analysis README also points its old manuscript contract reference to the archived path under `legacy/chapter1-pre-v13/` rather than to a nonexistent active-document path.

@@ -1,3 +1,5 @@
+> **HISTORICAL / SUPERSEDED — pre-corrected H3–H5 causal hierarchy.** Retained for provenance/replay only. The current Chapter 1 scientific selector is `config/chapter1_submission_current.json`; use `submission/chapter1_current/MANUSCRIPT.md` and `docs/PAPER_PIPELINE.md` for current results.
+
 # Chapter 1 H3–H5 causal hierarchy — 2026-09-09
 
 ## Why this clarification is needed
