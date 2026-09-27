@@ -194,6 +194,8 @@ Grossenbacher, D. L. et al. 2017. Self-compatibility is over-represented on isla
 
 Harder, L. D. & Aizen, M. A. 2010. Floral adaptation and diversification under pollen limitation. *Philosophical Transactions of the Royal Society B* 365:529–543.
 
+Hetherington-Rauth, M. C. & Johnson, M. T. J. 2020. Floral trait evolution of angiosperms on Pacific islands. *The American Naturalist* 196:87–100.
+
 Knight, T. M. et al. 2005. Pollen limitation of plant reproduction: pattern and process. *Annual Review of Ecology, Evolution, and Systematics* 36:467–497.
 
 Pannell, J. R. et al. 2015. The scope of Baker's law. *New Phytologist* 208:656–667.
