@@ -196,9 +196,9 @@ The multivariate result is not one classic island syndrome.
 
 Atomic/domain results explain what makes the already-supported regional vectors different; they do not replace the primary vector-level WHEN/WHERE test.
 
-## Current Chapter 1 conclusion
+## Then-current Chapter 1 conclusion
 
-> **Within opportunistically observed island floras, floral and reproductive trait probabilities change systematically along a mainland-distance/source-pool-accessibility gradient in both northern mid-latitude and tropical regions. The multivariate response vectors differ between those regions, persist in native non-endemic assemblages, and remain supported after equal-island weighting, explicit trait-resolution coverage adjustment, alternative full-universe distance transformations, and deletion of every single spatial block in turn. Current data do not support equivalent confirmatory conclusions for northern high-latitude or southern-extratropical floras.**
+> **Within opportunistically observed island floras, floral and reproductive trait probabilities change systematically along a mainland-distance/source-pool-accessibility gradient in both northern mid-latitude and tropical regions. The multivariate response vectors differ between those regions, persist in native non-endemic assemblages, and remain supported after equal-island weighting, explicit trait-resolution coverage adjustment, alternative full-universe distance transformations, and deletion of every single spatial block in turn. The then-current data did not support equivalent confirmatory conclusions for northern high-latitude or southern-extratropical floras.**
 
 This is a WHEN/WHERE conclusion. It does not identify the causal ecological mechanism and it does not distinguish dispersal limitation from changing source-pool accessibility.
 
