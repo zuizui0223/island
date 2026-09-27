@@ -1,0 +1,50 @@
+name: Audit corrected H1 Direct convergence
+
+on:
+  push:
+    branches:
+      - paper/h1-direct-convergence-audit-20260927
+    paths:
+      - "scripts/geography_correction/audit_h1_direct_convergence.py"
+      - ".github/workflows/audit-corrected-h1-direct-convergence.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - name: Materialize exact frozen H1 inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ch1-sources/v14-artifact /tmp/ch1-sources/progressive-input
+
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/10535020072/zip" > /tmp/v14.zip
+          unzip -q /tmp/v14.zip -d /tmp/ch1-sources/v14-artifact
+
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/10058653212/zip" > /tmp/progressive.zip
+          unzip -q /tmp/progressive.zip -d /tmp/ch1-sources/progressive-input
+
+          git show 8f36b62fae99fe5bbb227768ca330b0bfd267e78:config/chapter1_v14_all_data_probability.yml             > /tmp/ch1-sources/island--chapter1_v14_all_data_probability.yml
+
+          find /tmp/ch1-sources -maxdepth 5 -type f | sort | head -100
+      - name: Run northern-high Direct optimizer audit
+        run: |
+          python scripts/geography_correction/audit_h1_direct_convergence.py             --sources /tmp/ch1-sources             --geometry results/geography_20260924             --output /tmp/h1-direct-audit
+      - uses: actions/upload-artifact@v4
+        with:
+          name: corrected-h1-direct-convergence-audit
+          path: /tmp/h1-direct-audit
+          if-no-files-found: error
