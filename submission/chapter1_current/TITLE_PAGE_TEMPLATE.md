@@ -26,11 +26,11 @@
 
 **Keywords:** island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; flower colour; pollination
 
-**Abstract word count:** [FINAL COUNT; must be <=150]
+**Abstract word count:** 138 [recount after final copy-edit; must remain <=150]
 
-**Main-text word count:** [FINAL COUNT; must be <=5000]
+**Main-text word count:** 3,432 [current branch count; recount before submission; must remain <=5,000]
 
-**References:** [FINAL COUNT]
+**References:** 13
 
 **Figures:** 6
 
@@ -44,7 +44,7 @@
 
 ## Data accessibility statement
 
-Code and analysis provenance are available at the project repository. Before submission, archive the exact submission code/data surface in a permanent repository and replace this sentence with the DOI(s).
+The exact submission code, corrected derived result tables and redistribution-authorized trait subset will be archived in permanent repositories before submission. The full frozen trait ledger contains third-party source material with heterogeneous redistribution rights and therefore cannot be redistributed wholesale; a machine-readable provenance/rights manifest and the immutable database SHA identify the complete analysis input. Replace this draft with archive DOI(s) before submission.
 
 ## Conflict of interest
 
