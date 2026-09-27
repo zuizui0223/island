@@ -14,6 +14,7 @@ RESULTS = ROOT / "results" / "geography_20260924"
 COMMITTED = ROOT / "submission" / "chapter1_current" / "supplement"
 
 OUTPUTS = [
+    "Table_S1_data_summary.csv",
     "Table_S2a_H1_atomic.csv",
     "Table_S2b_H1_joint.csv",
     "Table_S3_H2_decomposition.csv",
@@ -48,6 +49,7 @@ def test_supplement_table_shapes_and_primary_values() -> None:
     assert manifest["scientific_surface"] == "corrected_geography_20260924"
 
     expected_rows = {
+        "Table_S1_data_summary.csv": 13,
         "Table_S2a_H1_atomic.csv": 112,
         "Table_S2b_H1_joint.csv": 24,
         "Table_S3_H2_decomposition.csv": 24,
@@ -57,6 +59,16 @@ def test_supplement_table_shapes_and_primary_values() -> None:
     }
     for name, rows in expected_rows.items():
         assert manifest["outputs"][name]["rows"] == rows
+
+    s1 = pd.read_csv(COMMITTED / "Table_S1_data_summary.csv")
+    values = dict(zip(s1["metric"], s1["value"], strict=True))
+    assert int(values["analysis_universe"]) == 8264
+    assert int(values["broad_H1_union"]) == 4379
+    assert int(values["accepted_angiosperm_species"]) == 106295
+    assert int(values["resolved_species_axis_cells"]) == 222688
+    assert int(values["effect_rows"]) == 2969
+    assert int(values["sites"]) == 1248
+    assert int(values["publications"]) == 919
 
     h3 = pd.read_csv(COMMITTED / "Table_S5_H3_pollen_limitation.csv")
     primary_h3 = h3.loc[h3["analysis"].eq("primary")].iloc[0]
