@@ -18,4 +18,7 @@ jobs:
           python-version: '3.13'
       - run: pip install -e . pytest ruff
       - run: ruff check src/island_v2/gshhg_source.py src/island_v2/spherical_coast_distance.py src/island_v2/corrected_submission.py scripts/geography_correction tests/test_gshhg.py tests/test_spherical_coast_distance.py tests/test_corrected_submission.py tests/test_chapter1_submission_surface.py tests/test_chapter1_historical_workflows_manual_only.py tests/test_chapter1_ecology_letters_package.py
-      - run: pytest tests/test_gshhg.py tests/test_spherical_coast_distance.py tests/test_corrected_submission.py tests/test_chapter1_submission_surface.py tests/test_chapter1_historical_workflows_manual_only.py tests/test_chapter1_ecology_letters_package.py -q
+      - name: Run corrected submission tests
+        run: pytest tests/test_gshhg.py tests/test_spherical_coast_distance.py tests/test_corrected_submission.py tests/test_chapter1_submission_surface.py tests/test_chapter1_historical_workflows_manual_only.py -q
+      - name: Guard Ecology Letters package
+        run: pytest tests/test_chapter1_ecology_letters_package.py -q
