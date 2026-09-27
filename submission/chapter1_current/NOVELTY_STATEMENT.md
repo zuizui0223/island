@@ -11,6 +11,10 @@
 - Floral traits can form selfing and pollination syndromes.
 - Pollen limitation varies globally with ecological context.
 
+## Conceptual synthesis
+
+The study closes a **constraint–response triangle** across independent evidence layers: isolation is associated with stronger pollen limitation, isolation is associated with recurrent reproductive-assurance and accessibility responses, and those response states are associated with lower current pollen limitation. The missing historical causal edge remains explicitly unresolved.
+
 ## What this study adds
 
 1. **Global recurrence across independent regions.**  
