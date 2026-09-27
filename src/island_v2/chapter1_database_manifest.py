@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import shlex
-import subprocess
 from pathlib import Path
 from typing import Literal
 
@@ -12,7 +10,7 @@ import typer
 import yaml
 from pydantic import BaseModel, Field, model_validator
 
-app = typer.Typer(help="Validate and dispatch versioned Chapter 1 database snapshots.")
+app = typer.Typer(help="Validate versioned Chapter 1 database snapshots and provenance.")
 
 REQUIRED_COLUMNS = {
     "accepted_species",
@@ -35,7 +33,6 @@ RIGHTS_REGISTRY_REQUIRED_COLUMNS = {
 }
 ALLOWED_QUALITY = {"high", "medium", "low", "unresolved", ""}
 ALLOWED_RIGHTS_STATUS = {"redistributable", "review_required", "not_redistributable"}
-CANONICAL_WORKFLOW = "run-chapter1-progressive-trait-analysis.yml"
 
 
 class GitHubArtifactSource(BaseModel):
@@ -251,37 +248,13 @@ def dispatch_command(
     manifest: Chapter1DatabaseManifest,
     workflow_ref: str = "main",
 ) -> list[str]:
-    db = manifest.database
-    src = db.source
-    cmd = [
-        "gh",
-        "workflow",
-        "run",
-        CANONICAL_WORKFLOW,
-        "--repo",
-        src.repository,
-        "--ref",
-        workflow_ref,
-        "-f",
-        f"trait_run_id={src.run_id}",
-        "-f",
-        f"trait_artifact_name={src.artifact_name}",
-        "-f",
-        f"species_axis_relative_path={src.relative_path}",
-    ]
-    if db.previous_snapshot is not None:
-        prev = db.previous_snapshot
-        cmd.extend(
-            [
-                "-f",
-                f"previous_run_id={prev.run_id}",
-                "-f",
-                f"previous_artifact_name={prev.artifact_name}",
-                "-f",
-                f"previous_species_axis_relative_path={prev.relative_path}",
-            ]
-        )
-    return cmd
+    """Fail closed: database manifests no longer select a scientific analysis workflow."""
+    del manifest, workflow_ref
+    raise RuntimeError(
+        "Chapter 1 database manifests are provenance-only and no longer dispatch "
+        "scientific analyses. Use config/chapter1_submission_current.json for the "
+        "current corrected H1-H4 analysis surface."
+    )
 
 
 @app.command("validate")
@@ -314,18 +287,15 @@ def validate_command(
 def dispatch_command_cli(
     manifest_path: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
     workflow_ref: str = typer.Option("main", "--ref"),
-    execute: bool = typer.Option(False, "--execute", help="Actually dispatch via the GitHub CLI."),
+    execute: bool = typer.Option(False, "--execute"),
 ) -> None:
-    """Dispatch the frozen Chapter 1 workflow using only the selected database manifest."""
+    """Reject the retired database-to-analysis dispatch path."""
     manifest = load_manifest(manifest_path)
-    if manifest.database.analysis_contract != "chapter1_progressive_analysis_v1":
-        raise typer.BadParameter(
-            "manifest analysis_contract is not chapter1_progressive_analysis_v1"
-        )
-    cmd = dispatch_command(manifest, workflow_ref=workflow_ref)
-    typer.echo(shlex.join(cmd))
-    if execute:
-        subprocess.run(cmd, check=True)
+    del workflow_ref, execute
+    try:
+        dispatch_command(manifest)
+    except RuntimeError as exc:
+        raise typer.BadParameter(str(exc)) from exc
 
 
 if __name__ == "__main__":
