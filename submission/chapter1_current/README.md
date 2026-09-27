@@ -1,6 +1,6 @@
 # Chapter 1 submission package — corrected geography draft
 
-Status: **active journal-neutral submission draft**.
+Status: **Ecology Letters first-shot draft; Global Ecology and Biogeography fallback**.
 
 This directory is the clean submission-facing package for Chapter 1. The scientific baseline is now the corrected geography merged in PR #242 and selected by `config/chapter1_submission_current.json`. The older v14 result lock is retained only as superseded provenance.
 
@@ -8,7 +8,13 @@ This directory is the clean submission-facing package for Chapter 1. The scienti
 
 - `MANUSCRIPT.md` — clean submission draft updated to the corrected geography baseline.
 - `FIGURE_CAPTIONS.md` — captions for Main Figures 1–6 using corrected H1–H4 estimates.
-- `COVER_LETTER_DRAFT.md` — journal-neutral cover letter.
+- `COVER_LETTER_DRAFT.md` — Ecology Letters first-shot cover letter.
+- `ECOLOGY_LETTERS_TARGET.md` — current journal fit, limits and editorial positioning.
+- `NOVELTY_STATEMENT.md` — concise conceptual novelty statement.
+- `TITLE_PAGE_TEMPLATE.md` — Ecology Letters title-page requirements and current counts.
+- `DATA_ACCESSIBILITY_DRAFT.md` — rights-aware data/code availability wording.
+- `SUPPLEMENT_PLAN.md` — Supplementary Information assembly map.
+- `GRAPHICAL_ABSTRACT_BRIEF.md` — constraint–response triangle concept.
 - `SUBMISSION_CHECKLIST.md` — remaining journal-specific work and claim boundary.
 - `PACKAGE_MANIFEST.md` — package contents and source-of-truth pointers.
 
@@ -50,4 +56,4 @@ Main Figures 1–6 and the poster workflow were regenerated on 25 September 2026
 
 ## Remaining work
 
-Only journal-specific packaging remains: target-journal formatting, reference style, final author metadata, declarations and Supplementary Information assembly.
+Ecology Letters is the first-shot target. The scientific narrative and format now fit a Letter; remaining blocking items are final author metadata, permanent archive DOI(s), funding/acknowledgements/conflicts/contributions, final reference styling and assembly of the planned Supplementary Information.

@@ -6,8 +6,8 @@
 ## Figure 2 | Database construction and analytical workflow
 GSHHG geography, GBIF island floras and source-audited trait evidence were integrated into the global island trait database spanning reproductive assurance, flower colour and floral structure. H1 and H2 form the island-trait workflow. H3 uses independent GloPL pollen-supplementation experiments, and H4 links the H2 species scores to GloPL through exact species matching.
 
-## Figure 3 | Inferential structure
-Geographic isolation is tested directly against the floral/reproductive island response (H1) and experimental pollen limitation (H3). H2 decomposes the floral response into reproductive assurance and residual floral responses after reproductive-assurance adjustment. Dashed arrows denote hypothesized historical causal links; these are not directly identified. H4 tests whether island-associated H2 trait states are associated with lower current pollen limitation.
+## Figure 3 | Constraint–response triangle and inferential boundary
+Geographic isolation is associated with the recurrent floral/reproductive response (H1/H2) and, independently, with experimental pollen limitation (H3). H4 tests whether the island-associated reproductive-assurance and accessibility states are associated with lower current pollen limitation in exact-species overlap. Together these three associations form the constraint–response triangle used to interpret the study. The dashed historical edge from past pollen limitation through selection, sorting or persistence to present-day trait composition is not directly identified.
 
 ## Figure 4 | H1: recurrent multivariate response with region-dependent expression
 (A) Corrected isolation coefficients for the seven atomic H1 responses in the primary all-analysis scope. The seven-response vector is jointly supported in all four regions, but individual responses are not uniformly positive; the southern shallow/open-tube coefficient is negative. (B) Descriptive means for the reproductive-assurance, colour and accessibility/generalization domains. (C) Joint multivariate q-values in the all-analysis and Direct-only scopes.
