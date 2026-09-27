@@ -1,4 +1,4 @@
-name: Run Chapter 1 from database version
+name: Historical replay — Validate Chapter 1 database version (analysis dispatch retired)
 
 on:
   workflow_dispatch:
@@ -8,21 +8,13 @@ on:
         required: true
         default: "config/chapter1_database_versions/current.yml"
         type: string
-      workflow_ref:
-        description: "Git ref containing the frozen analysis workflow"
-        required: true
-        default: "main"
-        type: string
 
 permissions:
   contents: read
-  actions: write
 
 jobs:
-  dispatch:
+  validate:
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -34,9 +26,12 @@ jobs:
         run: >-
           python -m island_v2.chapter1_database_manifest validate
           --manifest "${{ inputs.manifest_path }}"
-      - name: Dispatch unchanged canonical Chapter 1 analysis
-        run: >-
-          python -m island_v2.chapter1_database_manifest dispatch
-          --manifest "${{ inputs.manifest_path }}"
-          --ref "${{ inputs.workflow_ref }}"
-          --execute
+      - name: Confirm analysis dispatch is retired
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('src/island_v2/chapter1_database_manifest.py').read_text()
+          assert 'run-chapter1-progressive-trait-analysis.yml' not in text
+          assert 'database manifests are provenance-only' in text
+          print('Database manifest validation is active; scientific analysis dispatch is retired.')
+          PY
