@@ -9,7 +9,7 @@ The database layer preserves **data identity, validation, rights auditing and re
 - Database 1.0 manifest: `config/chapter1_database_versions/v1.0.0.yml`
 - Legacy database pointer: `config/chapter1_database_versions/current.yml`
 - Manifest validator: `python -m island_v2.chapter1_database_manifest validate`
-- Historical database-dispatch workflow path: `.github/workflows/dispatch-chapter1-from-database-version.yml` — validation only; scientific dispatch retired
+- Historical database-dispatch workflow path: `.github/workflows/dispatch-chapter1-from-database-version.yml` — validation only; scientific analysis dispatch is retired
 - Zenodo candidate builder: `.github/workflows/build-chapter1-database-release.yml`
 - Redistribution-rights audit: `docs/CHAPTER1_DATABASE_RIGHTS_AUDIT.md`
 
