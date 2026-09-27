@@ -9,6 +9,7 @@ Current package:
 - `TITLE_PAGE_TEMPLATE.md` — required title-page fields and current counts.
 - `DATA_ACCESSIBILITY_DRAFT.md` — rights-aware data-accessibility language.
 - `SUPPLEMENT_PLAN.md` — Supplementary Information structure.
+- `SUPPLEMENTARY_INFORMATION.md` — assembled S1–S7 text with Tables S1–S6 and Supplementary Data manifest.
 - `GRAPHICAL_ABSTRACT_BRIEF.md` — graphical-abstract concept.
 - `SUBMISSION_CHECKLIST.md` — completion checklist and claim boundary.
 
