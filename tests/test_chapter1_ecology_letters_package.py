@@ -11,6 +11,9 @@ NOVELTY = PACKAGE / "NOVELTY_STATEMENT.md"
 DATA_ACCESS = PACKAGE / "DATA_ACCESSIBILITY_DRAFT.md"
 SUPPLEMENT = PACKAGE / "SUPPLEMENT_PLAN.md"
 GRAPHICAL = PACKAGE / "GRAPHICAL_ABSTRACT_BRIEF.md"
+DATA_GATE = PACKAGE / "ECOLOGY_LETTERS_DATA_GATE.md"
+DATA_INQUIRY = PACKAGE / "ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md"
+FIGURE3 = PACKAGE / "figures" / "Figure3_constraint_response_triangle.svg"
 
 
 def _words(text: str) -> int:
@@ -58,7 +61,7 @@ def test_ecology_letters_title_page_metadata() -> None:
 
 
 def test_ecology_letters_supporting_submission_files_exist() -> None:
-    for path in [TARGET, NOVELTY, DATA_ACCESS, SUPPLEMENT, GRAPHICAL]:
+    for path in [TARGET, NOVELTY, DATA_ACCESS, SUPPLEMENT, GRAPHICAL, DATA_GATE, DATA_INQUIRY, FIGURE3]:
         assert path.is_file(), path
         assert path.read_text(encoding="utf-8").strip(), path
 
@@ -74,3 +77,30 @@ def test_ecology_letters_supporting_submission_files_exist() -> None:
     data_access = DATA_ACCESS.read_text(encoding="utf-8")
     assert "cannot be redistributed wholesale" in data_access
     assert "46,274" in data_access
+
+
+def test_ecology_letters_data_policy_gate_is_fail_closed() -> None:
+    gate = DATA_GATE.read_text(encoding="utf-8")
+    data_access = DATA_ACCESS.read_text(encoding="utf-8")
+    target = TARGET.read_text(encoding="utf-8")
+
+    assert "222,688" in gate
+    assert "46,274" in gate
+    assert "176,414" in gate
+    assert "Do not submit to Ecology Letters while this gate is unresolved." in gate
+    assert "Not submission-ready for Ecology Letters" in data_access
+    assert "conditional on data-policy clearance" in target.lower()
+
+
+def test_constraint_response_triangle_matches_current_inference() -> None:
+    svg = FIGURE3.read_text(encoding="utf-8")
+
+    for label in (
+        "Geographic isolation",
+        "Plant response (H1–H2)",
+        "Pollen limitation (H3)",
+        "H4: β &lt; 0",
+        "Historical causal edge not identified",
+        "not a mediation model",
+    ):
+        assert label in svg
