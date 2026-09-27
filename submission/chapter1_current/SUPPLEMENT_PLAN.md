@@ -1,3 +1,5 @@
+> **Implementation status:** S1–S7 text and Tables S1–S6 are assembled in `SUPPLEMENTARY_INFORMATION.md`. Remaining work is rendering the planned supplementary figures and final journal packaging.
+
 # Supplementary Information plan — Ecology Letters first shot
 
 The main paper should remain conceptual and compact. Technical audit detail, exhaustive coefficients and provenance belong here rather than in the main narrative.
