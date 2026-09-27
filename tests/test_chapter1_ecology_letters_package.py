@@ -1,4 +1,5 @@
 from pathlib import Path
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / "submission" / "chapter1_current"
@@ -96,6 +97,8 @@ def test_ecology_letters_data_policy_gate_is_fail_closed() -> None:
 
 
 def test_constraint_response_triangle_matches_current_inference() -> None:
+    tree = ET.parse(FIGURE3)
+    assert tree.getroot().tag.endswith("svg")
     svg = FIGURE3.read_text(encoding="utf-8")
 
     for label in (
