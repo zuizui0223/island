@@ -101,7 +101,7 @@ Additional retained submission-freeze / figure-sync documents are also historica
 The following pre-corrected scientific runners are also manual-only historical replay. They no longer react to branch pushes or pull requests:
 
 - response-geometry power / calibrated / observed runners;
-- support-limited H4 prospective temporal and PolLimCrop runners, including the legacy v1 PolLimCrop preflight;
+- support-limited H4 prospective temporal, Methods-screening and PolLimCrop runners, including the legacy v1 PolLimCrop preflight;
 - H5c/H5d specificity and identifiability runners;
 - NEE channel qualification, GloBI supported-catalog, N1/N2 discovery and source-positive-scan runners.
 
@@ -129,3 +129,7 @@ The remaining NEE **result-generating** runners are also manual-only historical 
 - sharded source-positive-scan runner.
 
 NEE validator workflows remain branch-triggered where useful because they only validate retained historical contracts/implementations. They do not execute or promote a current Chapter 1 scientific result.
+
+## Dynamic workflow guard
+
+The historical-runner CI no longer relies only on a hand-maintained filename list. It also scans every `run-chapter1-*.yml`, `render-chapter1-*.yml`, `promote-chapter1-*.yml`, and retained H4 preflight/screen workflow and requires the exact historical/manual-only contract. This makes a newly added Chapter 1 result runner fail closed unless the repository explicitly redefines the current scientific surface.

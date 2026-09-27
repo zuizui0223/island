@@ -55,6 +55,7 @@ HISTORICAL_WORKFLOWS = [
     ".github/workflows/preflight-chapter1-h4-pollimcrop.yml",
     ".github/workflows/preflight-chapter1-h4-pollimcrop-v2.yml",
     ".github/workflows/run-chapter1-h4-pollimcrop-transportability.yml",
+    ".github/workflows/screen-chapter1-h4-prospective-methods.yml",
     ".github/workflows/screen-chapter1-h4-prospective-methods-v2.yml",
     ".github/workflows/run-chapter1-h5c-observed-specificity.yml",
     ".github/workflows/run-chapter1-h5c-pollination-mode-qualification.yml",
@@ -79,11 +80,31 @@ def _on_block(text: str) -> str:
     return before_permissions.split("\non:\n", 1)[1].strip()
 
 
+def _assert_manual_historical(path: Path) -> None:
+    relative = str(path.relative_to(ROOT))
+    text = path.read_text(encoding="utf-8")
+    assert text.startswith("name: Historical replay —"), relative
+    assert _on_block(text) == "workflow_dispatch:", relative
+    assert "\n  push:" not in text.split("\npermissions:", 1)[0], relative
+    assert "\n  pull_request:" not in text.split("\npermissions:", 1)[0], relative
+    assert "\n  schedule:" not in text.split("\npermissions:", 1)[0], relative
+
+
 def test_superseded_publication_workflows_are_manual_only() -> None:
     for relative in HISTORICAL_WORKFLOWS:
-        text = (ROOT / relative).read_text(encoding="utf-8")
-        assert text.startswith("name: Historical replay —"), relative
-        assert _on_block(text) == "workflow_dispatch:", relative
-        assert "\n  push:" not in text.split("\npermissions:", 1)[0], relative
-        assert "\n  pull_request:" not in text.split("\npermissions:", 1)[0], relative
-        assert "\n  schedule:" not in text.split("\npermissions:", 1)[0], relative
+        _assert_manual_historical(ROOT / relative)
+
+
+def test_all_chapter1_result_runner_names_fail_closed_to_historical_replay() -> None:
+    workflow_dir = ROOT / ".github" / "workflows"
+    patterns = [
+        "run-chapter1-*.yml",
+        "render-chapter1-*.yml",
+        "promote-chapter1-*.yml",
+        "preflight-chapter1-h4-*.yml",
+        "screen-chapter1-h4-*.yml",
+    ]
+    discovered = sorted({path for pattern in patterns for path in workflow_dir.glob(pattern)})
+    assert discovered
+    for path in discovered:
+        _assert_manual_historical(path)
