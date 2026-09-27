@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This is the paper-facing hypothesis framework for the current Chapter 1 manuscript. It preserves the frozen PR142 analysis contract while clarifying the causal hierarchy implied by the double-geographic-filter interpretation.
+This was the paper-facing hypothesis framework for the then-current Chapter 1 manuscript. It preserves the frozen PR142 analysis contract while clarifying the causal hierarchy implied by the double-geographic-filter interpretation.
 
 The paper should present H1–H5 as a sequence of increasingly specific ecological questions:
 
