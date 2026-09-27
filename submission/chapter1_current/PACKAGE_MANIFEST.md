@@ -12,6 +12,7 @@ Current package:
 - `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md` — draft pre-submission editorial inquiry.
 - `figures/Figure3_constraint_response_triangle.svg` — source artwork for the constraint–response triangle.
 - `SUPPLEMENT_PLAN.md` — Supplementary Information structure.
+- `SUPPLEMENTARY_INFORMATION_DRAFT.md` — assembled SI draft with exact corrected output sources.
 - `GRAPHICAL_ABSTRACT_BRIEF.md` — graphical-abstract concept.
 - `GRAPHICAL_ABSTRACT_SHORT_TEXT.md` — graphical-abstract short text.
 - `GEB_FALLBACK.md` — structured-abstract and double-anonymous fallback conversion.
