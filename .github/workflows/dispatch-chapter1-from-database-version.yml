@@ -2,12 +2,6 @@ name: Historical replay — Validate Chapter 1 database version (analysis dispat
 
 on:
   workflow_dispatch:
-    inputs:
-      manifest_path:
-        description: "Versioned Chapter 1 database manifest"
-        required: true
-        default: "config/chapter1_database_versions/current.yml"
-        type: string
 
 permissions:
   contents: read
@@ -22,16 +16,16 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -e ".[dev]"
-      - name: Validate selected database version
+      - name: Validate frozen Database 1.0 manifest
         run: >-
           python -m island_v2.chapter1_database_manifest validate
-          --manifest "${{ inputs.manifest_path }}"
-      - name: Confirm analysis dispatch is retired
+          --manifest config/chapter1_database_versions/current.yml
+      - name: Confirm scientific analysis dispatch is retired
         run: |
           python - <<'PY'
           from pathlib import Path
           text = Path('src/island_v2/chapter1_database_manifest.py').read_text()
           assert 'run-chapter1-progressive-trait-analysis.yml' not in text
           assert 'database manifests are provenance-only' in text
-          print('Database manifest validation is active; scientific analysis dispatch is retired.')
+          print('Database manifest validation remains available; scientific analysis dispatch is retired.')
           PY
