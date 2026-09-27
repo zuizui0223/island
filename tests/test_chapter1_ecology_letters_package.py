@@ -18,6 +18,7 @@ FIGURE3 = PACKAGE / "figures" / "Figure3_constraint_response_triangle.svg"
 GRAPHICAL_SHORT = PACKAGE / "GRAPHICAL_ABSTRACT_SHORT_TEXT.md"
 GEB_FALLBACK = PACKAGE / "GEB_FALLBACK.md"
 SI_DRAFT = PACKAGE / "SUPPLEMENTARY_INFORMATION_DRAFT.md"
+H1_CONVERGENCE_AUDIT = ROOT / "results" / "geography_20260924" / "h1_direct_northern_high_convergence_audit.json"
 
 
 def _words(text: str) -> int:
@@ -162,3 +163,34 @@ def test_ecology_letters_reference_list_and_glopl_data_citation() -> None:
     assert "10.5061/dryad.dt437" in refs
     assert "Bennett, J.M., Steets, J.A., Burns, J.H., Durka, W., Vamosi, J.C., Arceo-Gómez, G. et al. (2018a)." in refs
     assert "Fenster, C.B., Armbruster, W.S., Wilson, P., Dudash, M.R. & Thomson, J.D. (2004)." in refs
+
+
+def test_h1_direct_northern_high_convergence_audit_closes_warning() -> None:
+    import json
+
+    audit = json.loads(H1_CONVERGENCE_AUDIT.read_text(encoding="utf-8"))
+    decision = audit["decision"]
+    retry = audit["enhanced_retry"]
+    robust = audit["robust_seven_response_replay"]
+    six = audit["six_response_sensitivity"]
+
+    assert decision["audit_pass"] is True
+    assert retry["success"] is True
+    assert retry["absolute_delta_from_frozen"] < 1e-4
+    assert robust["target_fit"]["optimizer_success"] is True
+    assert robust["joint_vector"]["all_optimizers_converged"] is True
+    assert robust["joint_vector"]["q_value"] < 0.05
+    assert six["joint_vector"]["all_optimizers_converged"] is True
+    assert six["joint_vector"]["q_value"] < 0.05
+
+    independent = audit["independent_multistart_confirmation"]
+    assert independent["status"] == "pass"
+    assert independent["all_multistart_fits_successful"] is True
+    assert independent["seven_response"]["p_value"] < 0.05
+    assert independent["six_response_drop_warned_component"]["p_value"] < 0.05
+    assert independent["max_abs_retry_minus_frozen_slope"] < 1e-4
+    assert independent["artifact_id"] == 10930986676
+
+    manuscript = MANUSCRIPT.read_text(encoding="utf-8")
+    assert "2.93 × 10^-6" in manuscript
+    assert "1.43 × 10^-8" in manuscript

@@ -1,0 +1,116 @@
+{
+  "contract": "chapter1_h1_direct_northern_high_optimizer_audit_v1",
+  "provenance": {
+    "v14_workflow_run_id": 35314955780,
+    "v14_artifact_id": 10535020072,
+    "v14_artifact_name": "chapter1-v14-reordered-hypotheses-35314955780",
+    "v14_artifact_digest": "sha256:4665e68341cea35bfb16c33afeb30ccf2705b5a47982f81e409e8507204be811",
+    "source_counts_path": "v14-artifact/direct/h1/all_data_probability_counts.csv.gz",
+    "corrected_covariates_path": "results/geography_20260924/corrected_geography_covariates.csv",
+    "model_config_path": "config/chapter1_v14_all_data_probability.yml",
+    "scipy_version": "1.18.1",
+    "workflow_run_id": 36317303737,
+    "workflow_job_id": 108614331827
+  },
+  "target": {
+    "stratum": "all_observed",
+    "context": "northern_high_latitude",
+    "outcome": "shallow_open_tube"
+  },
+  "frozen_corrected": {
+    "target_fit": {
+      "estimate": 0.3544813651007559,
+      "se": 0.1771125359848227,
+      "p_value": 0.045344233104951,
+      "optimizer_success": false,
+      "n_islands": 200,
+      "n_species_trials": 1653,
+      "kappa": 162754.79141900392
+    },
+    "joint_vector": {
+      "n_retained_outcomes": 7,
+      "retained_outcomes": "self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry|shallow_open_tube",
+      "joint_wald_chisq": 49.39692411132649,
+      "joint_df": 7,
+      "p_value": 1.89684889647556e-8,
+      "q_value": 3.793697792951119e-8,
+      "all_optimizers_converged": false,
+      "vector_supported": true
+    }
+  },
+  "default_target_optimizer": {
+    "success": true,
+    "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH"
+  },
+  "enhanced_retry": {
+    "success": true,
+    "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+    "gradient_norm": 0.0008216384262513138,
+    "n_iterations": 3,
+    "n_function_evals": 72,
+    "target_estimate": 0.35447843816965763,
+    "absolute_delta_from_frozen": 0.0000029269310982682484
+  },
+  "robust_seven_response_replay": {
+    "target_fit": {
+      "estimate": 0.3544784381696413,
+      "se": 0.17711035997542748,
+      "p_value": 0.04534336485174302,
+      "optimizer_success": true,
+      "n_islands": 200,
+      "n_species_trials": 1653,
+      "kappa": 162754.79141900392
+    },
+    "joint_vector": {
+      "n_retained_outcomes": 7,
+      "retained_outcomes": "self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry|shallow_open_tube",
+      "joint_wald_chisq": 49.397115769027465,
+      "joint_df": 7,
+      "p_value": 1.8966847731292864e-8,
+      "q_value": 3.793369546258573e-8,
+      "all_optimizers_converged": true,
+      "vector_supported": true
+    },
+    "absolute_target_estimate_delta_from_frozen": 0.000002926931114588527
+  },
+  "six_response_sensitivity": {
+    "excluded_outcome": "shallow_open_tube",
+    "joint_vector": {
+      "n_retained_outcomes": 6,
+      "retained_outcomes": "self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry",
+      "joint_wald_chisq": 49.0911865876798,
+      "joint_df": 6,
+      "p_value": 7.149098257870325e-9,
+      "q_value": 1.429819651574065e-8,
+      "all_optimizers_converged": true,
+      "vector_supported": true
+    }
+  },
+  "decision": {
+    "audit_pass": true,
+    "criterion": "enhanced target retry converges; robust seven-response replay converges and remains FDR-supported; six-response sensitivity converges and remains FDR-supported; target estimate drift <1e-4"
+  },
+  "independent_multistart_confirmation": {
+    "status": "pass",
+    "workflow_run_id": 36316367290,
+    "workflow_job_id": 108611725037,
+    "artifact_id": 10930986676,
+    "artifact_name": "corrected-h1-direct-convergence-audit",
+    "artifact_zip_sha256": "1202d6a287681487ed282fa313d42713b431314d4d7828913653f54dd1583400",
+    "runtime": "Python 3.11.16",
+    "seven_response": {
+      "joint_wald_chisq": 49.395615647093535,
+      "joint_df": 7,
+      "p_value": 1.8979697589715728e-8
+    },
+    "six_response_drop_warned_component": {
+      "excluded_outcome": "shallow_open_tube",
+      "joint_wald_chisq": 49.08972013048751,
+      "joint_df": 6,
+      "p_value": 7.1539320391701856e-9
+    },
+    "all_multistart_fits_successful": true,
+    "max_abs_retry_minus_frozen_slope": 0.0000028492440638516747,
+    "claim_boundary": "Independent numerical confirmation only; the six-response result is a sensitivity, not a replacement H1 estimand."
+  }
+}

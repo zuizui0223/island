@@ -104,6 +104,26 @@ Original-versus-corrected comparisons:
 
 The main claim is multivariate recurrence across four geographic strata. Individual atomic coefficients are retained to show that recurrence does not imply uniform positivity.
 
+### S3.3 Northern-high-latitude Direct-only optimizer audit
+
+The frozen corrected Direct-only northern-high-latitude table marked the shallow/open-tube component as `optimizer_success=false`, while the seven-response joint test remained FDR-supported. Because `vector_supported` in the historical runner was based on q-value and did not itself require every optimizer flag to be true, we performed a dedicated numerical audit rather than treating the flag as cosmetic.
+
+Audit source:
+
+- `results/geography_20260924/h1_direct_northern_high_convergence_audit.json`
+- `scripts/geography_correction/audit_h1_direct_convergence.py`
+
+Results:
+
+- frozen shallow/open-tube estimate: 0.3544814;
+- enhanced re-fit estimate: 0.3544784;
+- absolute change: 2.93 × 10^-6;
+- enhanced re-fit: converged;
+- fully converged seven-response replay: q = 3.793 × 10^-8;
+- fully converged six-response sensitivity excluding shallow/open tube: q = 1.430 × 10^-8.
+
+Thus the Direct-only northern-high-latitude H1 conclusion is numerically stable and does not depend on the warned component. An independent Python 3.11 multistart audit (workflow run `36316367290`, artifact `10930986676`) reached the same conclusion: all multistart fits succeeded, the seven-response test gave P = 1.898 × 10^-8, the six-response sensitivity gave P = 7.154 × 10^-9, and the maximum slope deviation from the frozen solution was 2.85 × 10^-6.
+
 **Table S2:** complete H1 coefficient, SE, P and FDR-adjusted q table.
 
 **Figure S3:** Direct-only H1 coefficient forest plot beside the primary all-analysis result.

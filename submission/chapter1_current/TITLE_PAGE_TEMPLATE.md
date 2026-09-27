@@ -28,7 +28,7 @@
 
 **Abstract word count:** 138 [recount after final copy-edit; must remain <=150]
 
-**Main-text word count:** 3,511 [current branch count; recount before submission; must remain <=5,000]
+**Main-text word count:** 3,601 [current branch count; recount before submission; must remain <=5,000]
 
 **References:** 16
 

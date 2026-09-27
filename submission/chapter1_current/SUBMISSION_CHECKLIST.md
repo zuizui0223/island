@@ -4,6 +4,7 @@
 - [x] Corrected geography baseline merged in PR #242
 - [x] Clean manuscript updated to the corrected 8,264-unit analysis universe
 - [x] H1 corrected joint and atomic results integrated
+- [x] H1 Direct-only northern-high optimizer audit closed by converged re-fit + six-response sensitivity
 - [x] H2 corrected decomposition and tropical Direct-only FDR boundary integrated
 - [x] H3 corrected GloPL estimate integrated
 - [x] H4 corrected exact-score and atomic estimates integrated
