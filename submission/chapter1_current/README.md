@@ -17,6 +17,7 @@ This directory is the clean submission-facing package for Chapter 1. The scienti
 - `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md` — pre-submission editor inquiry for that gate.
 - `figures/Figure3_constraint_response_triangle.svg` — publication-facing conceptual Figure 3 source.
 - `SUPPLEMENT_PLAN.md` — Supplementary Information assembly map.
+- `SUPPLEMENTARY_INFORMATION_DRAFT.md` — source-backed SI draft mapped to corrected CSV/JSON outputs.
 - `GRAPHICAL_ABSTRACT_BRIEF.md` — constraint–response triangle concept.
 - `GRAPHICAL_ABSTRACT_SHORT_TEXT.md` — <=500-character graphical-abstract text draft.
 - `GEB_FALLBACK.md` — ready-to-convert GEB structured-abstract/double-anonymous fallback.
