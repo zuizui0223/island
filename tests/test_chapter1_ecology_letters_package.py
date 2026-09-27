@@ -16,6 +16,7 @@ DATA_INQUIRY = PACKAGE / "ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md"
 FIGURE3 = PACKAGE / "figures" / "Figure3_constraint_response_triangle.svg"
 GRAPHICAL_SHORT = PACKAGE / "GRAPHICAL_ABSTRACT_SHORT_TEXT.md"
 GEB_FALLBACK = PACKAGE / "GEB_FALLBACK.md"
+SI_DRAFT = PACKAGE / "SUPPLEMENTARY_INFORMATION_DRAFT.md"
 
 
 def _words(text: str) -> int:
@@ -63,7 +64,7 @@ def test_ecology_letters_title_page_metadata() -> None:
 
 
 def test_ecology_letters_supporting_submission_files_exist() -> None:
-    for path in [TARGET, NOVELTY, DATA_ACCESS, SUPPLEMENT, GRAPHICAL, DATA_GATE, DATA_INQUIRY, FIGURE3, GRAPHICAL_SHORT, GEB_FALLBACK]:
+    for path in [TARGET, NOVELTY, DATA_ACCESS, SUPPLEMENT, GRAPHICAL, DATA_GATE, DATA_INQUIRY, FIGURE3, GRAPHICAL_SHORT, GEB_FALLBACK, SI_DRAFT]:
         assert path.is_file(), path
         assert path.read_text(encoding="utf-8").strip(), path
 
@@ -126,3 +127,17 @@ def test_graphical_abstract_short_text_and_geb_fallback() -> None:
         assert heading in geb
     assert "double anonymous" in geb.lower()
     assert "legal requirements" in geb
+
+
+def test_supplementary_information_draft_is_bound_to_corrected_outputs() -> None:
+    text = SI_DRAFT.read_text(encoding="utf-8")
+    required = [
+        "corrected 8,264-unit",
+        "results/geography_20260924/all/beta_binomial_within_slopes.csv",
+        "results/geography_20260924/direct/h2_decomposition_models.csv",
+        "results/geography_20260924/h3_original_corrected_comparison.json",
+        "results/geography_20260924/h4_exact_corrected.csv",
+        "ECOLOGY_LETTERS_DATA_GATE.md",
+    ]
+    for marker in required:
+        assert marker in text
