@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RESULTS = ROOT / "results" / "geography_20260924"
