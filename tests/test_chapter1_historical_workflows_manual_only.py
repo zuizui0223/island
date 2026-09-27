@@ -48,6 +48,7 @@ HISTORICAL_WORKFLOWS = [
     ".github/workflows/run-chapter1-v14-reordered-hypotheses.yml",
     ".github/workflows/run-chapter1-wcvp-native-compatibility.yml",
     ".github/workflows/validate-chapter1-explanation-gap-contract.yml",
+    ".github/workflows/dispatch-chapter1-from-database-version.yml",
     ".github/workflows/audit-chapter1-response-geometry-power.yml",
     ".github/workflows/audit-chapter1-response-geometry-v2.yml",
     ".github/workflows/run-chapter1-response-geometry-observed.yml",
@@ -101,6 +102,7 @@ def test_all_chapter1_result_runner_names_fail_closed_to_historical_replay() -> 
         "run-chapter1-*.yml",
         "render-chapter1-*.yml",
         "promote-chapter1-*.yml",
+        "dispatch-chapter1-*.yml",
         "preflight-chapter1-h4-*.yml",
         "screen-chapter1-h4-*.yml",
     ]
