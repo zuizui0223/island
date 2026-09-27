@@ -45,7 +45,7 @@ python -m island_v2.chapter1_database_manifest validate \
   --manifest config/chapter1_database_versions/current.yml
 ```
 
-Historical dispatcher code may remain for replay, but it must not be described as the current or canonical Chapter 1 analysis route. The former progressive H1–H5 contracts and their runners are superseded scientific provenance.
+The former database-to-analysis dispatcher is now fail-closed. The retained `dispatch` CLI and `.github/workflows/dispatch-chapter1-from-database-version.yml` validate/identify historical provenance only and do not launch a scientific workflow. The former progressive H1–H5 contracts and runners are superseded scientific provenance.
 
 ## 3. Future Database 2.0+
 

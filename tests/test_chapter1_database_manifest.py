@@ -9,7 +9,6 @@ import pytest
 import yaml
 
 from island_v2.chapter1_database_manifest import (
-    CANONICAL_WORKFLOW,
     Chapter1DatabaseManifest,
     dispatch_command,
     load_manifest,
@@ -30,7 +29,7 @@ def test_current_manifest_is_bound_to_frozen_contract() -> None:
     assert db.rights_registry is None
 
 
-def test_database_version_swap_changes_data_source_not_analysis_contract() -> None:
+def test_database_version_swap_preserves_historical_contract_but_cannot_dispatch() -> None:
     payload = yaml.safe_load(Path("config/chapter1_database_versions/current.yml").read_text())
     v1 = Chapter1DatabaseManifest.model_validate(payload)
     v2_payload = copy.deepcopy(payload)
@@ -45,13 +44,10 @@ def test_database_version_swap_changes_data_source_not_analysis_contract() -> No
     }
     v2 = Chapter1DatabaseManifest.model_validate(v2_payload)
 
-    v1_cmd = dispatch_command(v1)
-    v2_cmd = dispatch_command(v2)
     assert v1.database.analysis_contract == v2.database.analysis_contract
-    assert v1_cmd[3] == CANONICAL_WORKFLOW
-    assert v2_cmd[3] == CANONICAL_WORKFLOW
-    assert "trait_run_id=34191508045" in v1_cmd
-    assert "trait_run_id=999999" in v2_cmd
+    for manifest in (v1, v2):
+        with pytest.raises(RuntimeError, match="provenance-only"):
+            dispatch_command(manifest)
 
 
 def test_database2_manifest_fails_without_rights_registry() -> None:
