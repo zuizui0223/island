@@ -30,7 +30,7 @@
 
 **Main-text word count:** 3,432 [current branch count; recount before submission; must remain <=5,000]
 
-**References:** 13
+**References:** 15
 
 **Figures:** 6
 
