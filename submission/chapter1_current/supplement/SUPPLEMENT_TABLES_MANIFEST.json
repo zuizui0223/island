@@ -5,6 +5,17 @@
     "Table_S4": "Full raw colour and colour-by-architecture results remain in results/geography_20260924/{all,direct}/raw_patterns/ rather than being duplicated into one very large submission CSV."
   },
   "outputs": {
+    "Table_S1_data_summary.csv": {
+      "columns": [
+        "section",
+        "metric",
+        "value",
+        "unit",
+        "source"
+      ],
+      "rows": 13,
+      "sha256": "ca1970e97598a5d0948d1bda2bca97589f18e74c200f7560e00f1f77b9ce6bdf"
+    },
     "Table_S2a_H1_atomic.csv": {
       "columns": [
         "evidence_scope",
@@ -128,9 +139,13 @@
     "all/beta_binomial_within_omnibus.csv": "baa3e4a23eba1e00b6909b8de47716a7f2c5b222c8a398888f7b31fd1837e5dc",
     "all/beta_binomial_within_slopes.csv": "23a46ddfec97c19d92b6fa69f4b9de0dc48edf742927a4bf0ed5306a0bad3100",
     "all/h2_decomposition_models.csv": "d0400df3cf0a5711e996798b31356ad1aaf3da3aebd9003ece6cc0450faf32e2",
+    "config/chapter1_database_versions/v1.0.0.yml": "7371b1b76ee8781298fbd8170befc47b59c6fa7270a8cc47afca783254140763",
+    "config/chapter1_submission_current.json": "325033d52a30a3be9f0366c66038ae24cd461451947ee4186e9ee1ba9100a3b4",
     "direct/beta_binomial_within_omnibus.csv": "6cde085c3bda5261401644ce1dfba02346518a078f09b08c075abca0e639e273",
     "direct/beta_binomial_within_slopes.csv": "220771cfce21dfcdf2ec6eed481a0758e3e8fcaa7b0014530e082bc42e2a27b8",
     "direct/h2_decomposition_models.csv": "3bb3a40a45d9505a43da312210b895766c60374c16c00e510b127542e9ec13d9",
+    "h3_corrected_effect_rows.csv.gz": "f375b0c394cb2de8df991a6ef6107fde33a8cef909a379520f1c820ecb465d1c",
+    "h3_corrected_measurement_cells.csv.gz": "84cc86c98fe72ea458a71517379c8933be53338809ff034883fcc5d4c2af41cb",
     "h3_original_corrected_comparison.json": "e92a3bbdc7d095bca9cfb6d0592f0612a61175c0b189e734696205fe6b2f816c",
     "h4_atomic_corrected.csv": "dda900d6a6691d2ae5196111a0f6102be0bc2cdade1cb9ad79369d5c649effa9",
     "h4_exact_corrected.csv": "ed0b7dda5a7c58d6eb018f23dcdcc7fd32b268f99a990eb2deeaac5fb7057252"

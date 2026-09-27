@@ -1,0 +1,14 @@
+section,metric,value,unit,source
+geography,analysis_universe,8264,island_units,config/chapter1_submission_current.json
+geography,broad_H1_union,4379,island_units,config/chapter1_submission_current.json
+traits,accepted_angiosperm_species,106295,species,config/chapter1_database_versions/v1.0.0.yml
+traits,possible_species_axis_cells,318885,species_axis_cells,config/chapter1_database_versions/v1.0.0.yml
+traits,resolved_species_axis_cells,222688,species_axis_cells,config/chapter1_database_versions/v1.0.0.yml
+traits,resolved_flower_colour_cells,82556,species_axis_cells,config/chapter1_database_versions/v1.0.0.yml
+traits,resolved_floral_structural_complexity_cells,91635,species_axis_cells,config/chapter1_database_versions/v1.0.0.yml
+traits,resolved_reproductive_assurance_cells,48497,species_axis_cells,config/chapter1_database_versions/v1.0.0.yml
+GloPL,effect_rows,2969,experimental_rows,results/geography_20260924/h3_corrected_effect_rows.csv.gz
+GloPL,measurement_cells,1408,measurement_cells,results/geography_20260924/h3_corrected_measurement_cells.csv.gz
+GloPL,sites,1248,sites,results/geography_20260924/h3_original_corrected_comparison.json
+GloPL,publications,919,publications,results/geography_20260924/h3_original_corrected_comparison.json
+GloPL,true_continental_zero_sites,996,sites,config/chapter1_submission_current.json
