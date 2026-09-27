@@ -45,6 +45,9 @@ HISTORICAL_WORKING_DOCS = [
     ROOT / "docs/v2_pollination_regime_framework.md",
     ROOT / "docs/chapter1_when_where_frozen_result_20260825.md",
     ROOT / "docs/chapter1_when_where_robustness_20260825.md",
+    ROOT / "docs/chapter1_all_data_probability_design_20260915.md",
+    ROOT / "docs/chapter1_el_upgrade_audit_20260913.md",
+    ROOT / "docs/chapter1_h4_external_evidence_audit_20260918.md",
 ]
 
 
@@ -137,6 +140,22 @@ def test_historical_execution_docs_do_not_present_stale_canonical_routes():
 
     assert "does **not** make Bombus a predictor or mechanism" in data_v2
     assert "config/chapter1_submission_current.json" in data_v2[:800]
+
+
+def test_historical_docs_do_not_self_identify_as_current_scientific_surface():
+    forbidden = [
+        "defines the current Chapter 1 scientific scope",
+        "framework for the current Chapter 1 manuscript",
+        "## Current Chapter 1 ceiling",
+        "## Current Chapter 1 conclusion",
+        "The current Chapter 1 is strong enough",
+        "The current Chapter 1 database starts from",
+        "The current Chapter 1 v13 functional bridge",
+    ]
+    for path in HISTORICAL_WORKING_DOCS:
+        text = path.read_text(encoding="utf-8")
+        for phrase in forbidden:
+            assert phrase not in text, (path, phrase)
 
 
 def test_pre_corrected_working_documents_are_visibly_historical():

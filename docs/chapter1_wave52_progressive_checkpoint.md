@@ -210,9 +210,9 @@ Therefore the ecological statement remains one of region-specific floral archite
 not pollinator identity. Exact named-template membership is trait-snapshot-sensitive
 and should remain secondary.
 
-## Current Chapter 1 ceiling after Wave52
+## Wave52-era Chapter 1 ceiling
 
-The strongest current statement is:
+The strongest statement at that stage was:
 
 > Island isolation is associated with region-specific floral/reproductive assemblage
 > structure rather than one universal syndrome. The broad Palearctic gradient is

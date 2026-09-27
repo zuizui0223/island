@@ -1,10 +1,12 @@
+> **HISTORICAL / SUPERSEDED — pre-corrected Ecology Letters upgrade audit.** Retained for provenance/replay only. The current Chapter 1 scientific selector is `config/chapter1_submission_current.json`; use `submission/chapter1_current/MANUSCRIPT.md` and `docs/PAPER_PIPELINE.md` for current results.
+
 # Chapter 1 Ecology Letters upgrade audit — 2026-09-13
 
 ## Decision
 
-The current Chapter 1 is strong enough for a **GEB-level macroecological paper** without further mechanism rescue. An Ecology Letters submission becomes reasonable only if one additional matched analysis supports a more general claim: the taxonomic depth at which isolation-associated floral architecture is expressed differs among biogeographic contexts.
+At that stage, Chapter 1 was strong enough for a **GEB-level macroecological paper** without further mechanism rescue. An Ecology Letters submission becomes reasonable only if one additional matched analysis supports a more general claim: the taxonomic depth at which isolation-associated floral architecture is expressed differs among biogeographic contexts.
 
-The current evidence does **not** yet justify that sentence as a headline. It does justify running the matched test.
+The then-current evidence did **not** yet justify that sentence as a headline. It does justify running the matched test.
 
 ## 1. Endemic versus native-nonendemic cannot yet be promoted to the main axis
 
