@@ -26,7 +26,8 @@
 - [ ] Add ORCID identifiers
 - [ ] Reformat references to journal style
 - [ ] Assemble Supplementary Information from `SUPPLEMENT_PLAN.md`
-- [x] Check graphical-abstract requirement; brief prepared in `GRAPHICAL_ABSTRACT_BRIEF.md`
+- [x] Check graphical-abstract requirement; brief and <=500-character short text prepared
+- [x] Prepare GEB structured-abstract/double-anonymous fallback conversion
 
 ## Claim boundary to preserve
 The submission must not state or imply that:
