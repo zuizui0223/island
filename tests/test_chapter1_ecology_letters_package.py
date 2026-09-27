@@ -1,5 +1,5 @@
-from pathlib import Path
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / "submission" / "chapter1_current"
