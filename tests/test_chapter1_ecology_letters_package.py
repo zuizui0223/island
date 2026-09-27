@@ -144,3 +144,21 @@ def test_supplementary_information_draft_is_bound_to_corrected_outputs() -> None
     ]
     for marker in required:
         assert marker in text
+
+
+def test_ecology_letters_reference_list_and_glopl_data_citation() -> None:
+    manuscript = MANUSCRIPT.read_text(encoding="utf-8")
+    title_page = TITLE_PAGE.read_text(encoding="utf-8")
+    refs = manuscript.split("## References", 1)[1]
+
+    entries = [
+        line
+        for line in refs.splitlines()
+        if line.strip() and line[0].isalpha() and "(" in line and ")." in line
+    ]
+    assert len(entries) == 16
+    assert "**References:** 16" in title_page
+    assert "Bennett et al. 2018a,b" in manuscript
+    assert "10.5061/dryad.dt437" in refs
+    assert "Bennett, J.M., Steets, J.A., Burns, J.H., Durka, W., Vamosi, J.C., Arceo-Gómez, G. et al. (2018a)." in refs
+    assert "Fenster, C.B., Armbruster, W.S., Wilson, P., Dudash, M.R. & Thomson, J.D. (2004)." in refs
