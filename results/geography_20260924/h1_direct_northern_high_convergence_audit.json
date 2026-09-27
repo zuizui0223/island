@@ -89,5 +89,28 @@
   "decision": {
     "audit_pass": true,
     "criterion": "enhanced target retry converges; robust seven-response replay converges and remains FDR-supported; six-response sensitivity converges and remains FDR-supported; target estimate drift <1e-4"
+  },
+  "independent_multistart_confirmation": {
+    "status": "pass",
+    "workflow_run_id": 36316367290,
+    "workflow_job_id": 108611725037,
+    "artifact_id": 10930986676,
+    "artifact_name": "corrected-h1-direct-convergence-audit",
+    "artifact_zip_sha256": "1202d6a287681487ed282fa313d42713b431314d4d7828913653f54dd1583400",
+    "runtime": "Python 3.11.16",
+    "seven_response": {
+      "joint_wald_chisq": 49.395615647093535,
+      "joint_df": 7,
+      "p_value": 1.8979697589715728e-8
+    },
+    "six_response_drop_warned_component": {
+      "excluded_outcome": "shallow_open_tube",
+      "joint_wald_chisq": 49.08972013048751,
+      "joint_df": 6,
+      "p_value": 7.1539320391701856e-9
+    },
+    "all_multistart_fits_successful": true,
+    "max_abs_retry_minus_frozen_slope": 0.0000028492440638516747,
+    "claim_boundary": "Independent numerical confirmation only; the six-response result is a sensitivity, not a replacement H1 estimand."
   }
 }
