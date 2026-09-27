@@ -24,15 +24,17 @@ jobs:
         with:
           python-version: "3.13"
       - run: pip install pandas ruff
-      - name: Validate builder
-        run: ruff check scripts/submission/build_chapter1_supplement_tables.py
+      - name: Normalize and validate builder
+        run: |
+          ruff check --fix scripts/submission/build_chapter1_supplement_tables.py
+          ruff check scripts/submission/build_chapter1_supplement_tables.py
       - name: Build supplement tables
         run: python scripts/submission/build_chapter1_supplement_tables.py
       - name: Commit generated supplement tables
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add submission/chapter1_current/supplement/
+          git add scripts/submission/build_chapter1_supplement_tables.py submission/chapter1_current/supplement/
           if git diff --cached --quiet; then
             echo "No generated changes"
             exit 0
