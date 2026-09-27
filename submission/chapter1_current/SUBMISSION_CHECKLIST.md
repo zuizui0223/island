@@ -61,6 +61,7 @@ The submission must not state or imply that:
 - [ ] Confirm authorship-contribution wording
 - [ ] Add funding, acknowledgements and conflict-of-interest declaration
 - [x] Public rights-filtered trait subset DOI fixed — `10.5281/zenodo.22704973`
-- [ ] Mint/finalize submission code + corrected derived-results archive DOI(s)
+- [x] Prepare submission code + corrected derived-results archive metadata and inclusion boundary
+- [ ] Freeze final submission commit/tag and mint software/results DOI
 - [ ] Final reference-style pass
 - [ ] Render SI figures and final supplementary PDF
