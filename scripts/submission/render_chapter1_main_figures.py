@@ -265,6 +265,95 @@ def figure2(root: Path, out: Path) -> None:
     _save(fig, out, "Figure2_analytical_workflow")
 
 
+
+def figure3(root: Path, out: Path) -> None:
+    del root
+    fig, ax = plt.subplots(figsize=(9.5, 6.8))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis("off")
+
+    _box(
+        ax,
+        0.36,
+        0.76,
+        0.28,
+        0.12,
+        "Geographic isolation",
+        "source separation / connectivity gradient",
+    )
+    _box(
+        ax,
+        0.06,
+        0.38,
+        0.34,
+        0.18,
+        "Plant response (H1–H2)",
+        "reproductive assurance\n+ floral accessibility",
+    )
+    _box(
+        ax,
+        0.60,
+        0.38,
+        0.34,
+        0.18,
+        "Pollen limitation (H3)",
+        "experimental pollen supplementation\nβ = +0.0919",
+    )
+
+    for start, end, label in (
+        ((0.43, 0.76), (0.28, 0.56), "H1–H2"),
+        ((0.57, 0.76), (0.72, 0.56), "H3"),
+        ((0.40, 0.47), (0.60, 0.47), "H4: β < 0"),
+    ):
+        ax.annotate("", xy=end, xytext=start, arrowprops={"arrowstyle": "->", "lw": 1.8})
+        mx = (start[0] + end[0]) / 2
+        my = (start[1] + end[1]) / 2
+        ax.text(mx, my + 0.035, label, ha="center", va="center", fontweight="bold")
+
+    ax.annotate(
+        "",
+        xy=(0.27, 0.38),
+        xytext=(0.73, 0.38),
+        arrowprops={"arrowstyle": "->", "lw": 1.4, "linestyle": "--"},
+    )
+    ax.text(
+        0.50,
+        0.30,
+        "Historical causal edge not identified",
+        ha="center",
+        va="center",
+        fontweight="bold",
+    )
+    ax.text(
+        0.50,
+        0.255,
+        "past pollen limitation → selection / sorting / persistence → present traits",
+        ha="center",
+        va="center",
+        fontsize=8.5,
+    )
+    ax.text(
+        0.50,
+        0.12,
+        "Solid edges are fitted associations, not a mediation model.",
+        ha="center",
+        va="center",
+        fontsize=9,
+    )
+    ax.text(
+        0.50,
+        0.95,
+        "Figure 3 | Constraint–response triangle and inferential boundary",
+        ha="center",
+        va="center",
+        fontsize=13,
+        fontweight="bold",
+    )
+    _save(fig, out, "Figure3_constraint_response_triangle")
+
+
+
 def figure4(root: Path, out: Path) -> None:
     slopes = pd.read_csv(root / "results/geography_20260924/all/beta_binomial_within_slopes.csv")
     omnibus = pd.read_csv(root / "results/geography_20260924/all/beta_binomial_within_omnibus.csv")
@@ -383,16 +472,7 @@ def figure6(root: Path, out: Path) -> None:
     _save(fig, out, "Figure6_H3_H4_functional_bridge")
 
 
-def _check_existing_figure3(out: Path) -> None:
-    path = out / "Figure3_constraint_response_triangle.svg"
-    if not path.is_file():
-        raise FileNotFoundError(path)
-    if not ET.parse(path).getroot().tag.endswith("svg"):
-        raise ValueError("Figure 3 is not a valid SVG")
-
-
 def build_manifest(out: Path) -> None:
-    _check_existing_figure3(out)
     expected = {
         1: "Figure1_global_scope_corrected",
         2: "Figure2_analytical_workflow",
@@ -408,14 +488,16 @@ def build_manifest(out: Path) -> None:
             raise FileNotFoundError(svg)
         ET.parse(svg)
         pdf = out / f"{stem}.pdf"
+        if not pdf.is_file():
+            raise FileNotFoundError(pdf)
         records.append(
             {
                 "figure": number,
                 "stem": stem,
                 "svg": svg.name,
                 "svg_bytes": svg.stat().st_size,
-                "pdf": pdf.name if pdf.exists() else None,
-                "pdf_bytes": pdf.stat().st_size if pdf.exists() else None,
+                "pdf": pdf.name,
+                "pdf_bytes": pdf.stat().st_size,
             }
         )
     (out / "FIGURE_MANIFEST.json").write_text(
@@ -445,6 +527,7 @@ def main() -> None:
     _style()
     figure1(root, out)
     figure2(root, out)
+    figure3(root, out)
     figure4(root, out)
     figure5(root, out)
     figure6(root, out)
