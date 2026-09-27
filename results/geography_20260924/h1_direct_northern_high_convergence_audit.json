@@ -1,5 +1,17 @@
 {
   "contract": "chapter1_h1_direct_northern_high_optimizer_audit_v1",
+  "provenance": {
+    "v14_workflow_run_id": 35314955780,
+    "v14_artifact_id": 10535020072,
+    "v14_artifact_name": "chapter1-v14-reordered-hypotheses-35314955780",
+    "v14_artifact_digest": "sha256:4665e68341cea35bfb16c33afeb30ccf2705b5a47982f81e409e8507204be811",
+    "source_counts_path": "v14-artifact/direct/h1/all_data_probability_counts.csv.gz",
+    "corrected_covariates_path": "results/geography_20260924/corrected_geography_covariates.csv",
+    "model_config_path": "config/chapter1_v14_all_data_probability.yml",
+    "scipy_version": "1.18.1",
+    "workflow_run_id": 36317303737,
+    "workflow_job_id": 108614331827
+  },
   "target": {
     "stratum": "all_observed",
     "context": "northern_high_latitude",
@@ -20,8 +32,8 @@
       "retained_outcomes": "self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry|shallow_open_tube",
       "joint_wald_chisq": 49.39692411132649,
       "joint_df": 7,
-      "p_value": 1.89684889647556e-08,
-      "q_value": 3.793697792951119e-08,
+      "p_value": 1.89684889647556e-8,
+      "q_value": 3.793697792951119e-8,
       "all_optimizers_converged": false,
       "vector_supported": true
     }
@@ -37,7 +49,7 @@
     "n_iterations": 3,
     "n_function_evals": 72,
     "target_estimate": 0.35447843816965763,
-    "absolute_delta_from_frozen": 2.9269310982682484e-06
+    "absolute_delta_from_frozen": 0.0000029269310982682484
   },
   "robust_seven_response_replay": {
     "target_fit": {
@@ -54,12 +66,12 @@
       "retained_outcomes": "self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry|shallow_open_tube",
       "joint_wald_chisq": 49.397115769027465,
       "joint_df": 7,
-      "p_value": 1.8966847731292864e-08,
-      "q_value": 3.793369546258573e-08,
+      "p_value": 1.8966847731292864e-8,
+      "q_value": 3.793369546258573e-8,
       "all_optimizers_converged": true,
       "vector_supported": true
     },
-    "absolute_target_estimate_delta_from_frozen": 2.926931114588527e-06
+    "absolute_target_estimate_delta_from_frozen": 0.000002926931114588527
   },
   "six_response_sensitivity": {
     "excluded_outcome": "shallow_open_tube",
@@ -68,8 +80,8 @@
       "retained_outcomes": "self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry",
       "joint_wald_chisq": 49.0911865876798,
       "joint_df": 6,
-      "p_value": 7.149098257870325e-09,
-      "q_value": 1.429819651574065e-08,
+      "p_value": 7.149098257870325e-9,
+      "q_value": 1.429819651574065e-8,
       "all_optimizers_converged": true,
       "vector_supported": true
     }
