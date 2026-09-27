@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import scipy
 import yaml
 from scipy.optimize import minimize
 
@@ -253,6 +254,16 @@ def main() -> int:
 
     report = {
         "contract": "chapter1_h1_direct_northern_high_optimizer_audit_v1",
+        "provenance": {
+            "v14_workflow_run_id": 35314955780,
+            "v14_artifact_id": 10535020072,
+            "v14_artifact_name": "chapter1-v14-reordered-hypotheses-35314955780",
+            "v14_artifact_digest": "sha256:4665e68341cea35bfb16c33afeb30ccf2705b5a47982f81e409e8507204be811",
+            "source_counts_path": str(args.counts_csv),
+            "corrected_covariates_path": str(args.covariates_csv),
+            "model_config_path": str(args.config_path),
+            "scipy_version": scipy.__version__,
+        },
         "target": {
             "stratum": TARGET_STRATUM,
             "context": TARGET_CONTEXT,
