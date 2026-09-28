@@ -62,10 +62,12 @@ Current full scientific trait ledger:
 Before Ecology Letters submission, either:
 
 1. close rights for the analysis-used trait cells; or
-2. obtain an explicit editorial exception confirming that the proposed reviewer-access/reconstruction plan is sufficient.
+2. obtain explicit written editorial clearance confirming that the third-party licensing restriction and proposed reviewer-access/reconstruction plan are acceptable.
 
 Prepared inquiry:
 - `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md`
+- To: `ecolets2@cefe.cnrs.fr`
+- Cc: `ecolets@cefe.cnrs.fr`
 
 Do not submit to Ecology Letters before this gate is closed.
 

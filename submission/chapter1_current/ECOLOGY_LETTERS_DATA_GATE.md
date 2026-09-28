@@ -24,9 +24,9 @@ The 46,274-cell rights-filtered public subset is therefore **not** the complete 
 Ecology Letters remains the first-shot target only if **one** of the following is closed before submission:
 
 1. **Rights closure:** the analysis-used trait cells can be archived under valid redistribution permissions; or
-2. **Editorial exception:** Ecology Letters explicitly confirms that the third-party legal/licensing restrictions can be handled through an approved exception and that the proposed reviewer-access/reconstruction package is sufficient.
+2. **Explicit editorial clearance:** Ecology Letters confirms in writing that the third-party legal/licensing restrictions can be handled through an exception or alternative reviewer-access/reconstruction arrangement acceptable for review and data-editor reproducibility.
 
-Do not submit to Ecology Letters while this gate is unresolved.
+The public author guidelines do not explicitly guarantee an exception for third-party licensing restrictions; published examples concern sensitive information. **Do not submit to Ecology Letters while this gate is unresolved.**
 
 ## What is already archived
 
@@ -55,6 +55,11 @@ Therefore:
 
 Official GEB source:
 - https://onlinelibrary.wiley.com/page/journal/14668238/homepage/forauthors.html
+
+## Official inquiry contact
+
+- Data/code repository questions: `ecolets2@cefe.cnrs.fr`
+- Ecology Letters Editorial Office / Managing Editor: `ecolets@cefe.cnrs.fr`
 
 ## Immediate next action
 

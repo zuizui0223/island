@@ -98,6 +98,13 @@ def test_ecology_letters_data_policy_gate_is_fail_closed() -> None:
     assert "Not submission-ready for Ecology Letters" in data_access
     assert "conditional on data-policy clearance" in target.lower()
 
+    inquiry = DATA_INQUIRY.read_text(encoding="utf-8")
+    assert "ecolets2@cefe.cnrs.fr" in inquiry
+    assert "ecolets@cefe.cnrs.fr" in inquiry
+    assert "do not explicitly state whether third-party legal/licensing restrictions qualify" in inquiry
+
+    assert "do not explicitly guarantee an exception for third-party licensing restrictions" in gate.lower()
+
 
 def test_constraint_response_triangle_matches_current_inference() -> None:
     tree = ET.parse(FIGURE3)
