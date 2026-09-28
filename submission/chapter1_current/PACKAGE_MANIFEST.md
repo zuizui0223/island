@@ -23,6 +23,7 @@ Current package:
 - `GRAPHICAL_ABSTRACT_SHORT_TEXT.md` — graphical-abstract short text.
 - `GEB_FALLBACK.md` — structured-abstract and double-anonymous fallback conversion.
 - `SUBMISSION_CHECKLIST.md` — completion checklist and claim boundary.
+- `SUBMISSION_READINESS.md` — final current-state gate for submission.
 
 Primary scientific source of truth:
 - `config/chapter1_submission_current.json`
