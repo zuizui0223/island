@@ -10,12 +10,15 @@ Current package:
 - `DATA_ACCESSIBILITY_DRAFT.md` — rights-aware data-accessibility language.
 - `ECOLOGY_LETTERS_DATA_GATE.md` — EL submission-policy gate for incomplete trait-ledger redistribution rights.
 - `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md` — draft pre-submission editorial inquiry.
-- `figures/Figure3_constraint_response_triangle.svg` — source artwork for the constraint–response triangle.
+- `figures/FIGURE_MANIFEST.json` — complete Main Figures 1–6 package manifest.
+- `figures/Figure1_global_scope_corrected.*` through `Figure6_H3_H4_functional_bridge.*` — Main Figures 1–6 in SVG/PDF.
 - `SUPPLEMENT_PLAN.md` — Supplementary Information structure.
 - `SUPPLEMENTARY_INFORMATION_DRAFT.md` — internal SI source map.
 - `SUPPLEMENTARY_INFORMATION.md` — submission-facing S1–S7 text.
 - `supplement/SUPPLEMENT_TABLES_MANIFEST.json` — deterministic table/source hash manifest.
 - `supplement/Table_S1_data_summary.csv` through `Table_S6b_H4_atomic.csv` — generated SI tables.
+- `supplement/figures/FIGURE_MANIFEST.json` — Supplementary Figure S1–S7 package manifest.
+- `supplement/figures/Figure_S1_*` through `Figure_S7_*` — Supplementary Figures S1–S7 in SVG/PDF.
 - `GRAPHICAL_ABSTRACT_BRIEF.md` — graphical-abstract concept.
 - `GRAPHICAL_ABSTRACT_SHORT_TEXT.md` — graphical-abstract short text.
 - `GEB_FALLBACK.md` — structured-abstract and double-anonymous fallback conversion.
@@ -38,6 +41,6 @@ Main figure sequence:
 5. H2 conditional pathway decomposition
 6. H3 pollen-limitation pressure and H4 functional bridge
 
-Main Figures 1–6 were regenerated from the corrected tables under `results/geography_20260924/` on 25 September 2026. Exported PNG/PDF/PPTX files are delivery artifacts; the committed corrected tables remain the scientific source of truth.
+Main Figures 1–6 are committed in SVG/PDF and bound to the corrected tables under `results/geography_20260924/` by deterministic renderer + CI. Supplementary Figures S1–S7 are likewise committed and guarded. The committed corrected tables remain the inferential source of truth.
 
-The first-shot target is Ecology Letters **conditional on closing the data-policy gate**. The SI text and deterministic tables are assembled; remaining SI work is graphical rendering and final journal packaging. The manuscript is within the Letter limits (main text <5,000 words; 6 display items; abstract <150 words). If third-party redistribution restrictions cannot be cleared or accepted by the EL editors, switch before submission to Global Ecology and Biogeography, whose policy explicitly permits editorial exceptions for legal data-sharing restrictions.
+The first-shot target is Ecology Letters **conditional on closing the data-policy gate**. SI text, deterministic tables and Supplementary Figures S1–S7 are assembled; only final journal-file compilation remains after metadata freeze. The manuscript is within the Letter limits (main text <5,000 words; 6 display items; abstract <150 words). If third-party redistribution restrictions cannot be cleared or accepted by the EL editors, switch before submission to Global Ecology and Biogeography, whose policy explicitly permits editorial exceptions for legal data-sharing restrictions.
