@@ -33,5 +33,5 @@
       "scheme": "doi"
     }
   ],
-  "notes": "DRAFT METADATA ONLY. Do not publish until the final submission commit/tag is frozen and the user explicitly approves external release."
+  "notes": "DRAFT METADATA ONLY. No software/results DOI has been minted. Do not publish until the final submission commit/tag is frozen and external release is explicitly approved."
 }
