@@ -25,6 +25,7 @@ This directory is the clean submission-facing package for Chapter 1. The scienti
 - `GRAPHICAL_ABSTRACT_SHORT_TEXT.md` — <=500-character graphical-abstract text draft.
 - `GEB_FALLBACK.md` — ready-to-convert GEB structured-abstract/double-anonymous fallback.
 - `SUBMISSION_CHECKLIST.md` — remaining journal-specific work and claim boundary.
+- `SUBMISSION_READINESS.md` — current complete/blocked submission state and final external-input gates.
 - `PACKAGE_MANIFEST.md` — package contents and source-of-truth pointers.
 
 ## Current baseline
