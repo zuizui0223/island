@@ -8,8 +8,9 @@
 
 - Baker's law predicts enrichment of uniparental reproductive capacity during colonization.
 - Self-compatible species can be over-represented on islands.
+- Breeding system, lifespan and floral symmetry/generalization can jointly predict the probability that a species colonizes islands.
 - Floral traits can form selfing and pollination syndromes.
-- Pollen limitation varies globally with ecological context.
+- Pollen limitation varies globally with ecological context, but prior global GloPL work found little general increase towards species' range edges.
 
 ## Conceptual synthesis
 
@@ -17,8 +18,8 @@ The three independent associations form a **constraint–response triangle**: is
 
 ## What this study adds
 
-1. **Global recurrence across independent regions.**  
-   A seven-trait floral–reproductive isolation response is jointly supported in four predeclared geographic regions and in both trait-evidence scopes, despite non-uniform atomic responses.
+1. **A different biogeographic question from island occurrence.**  
+   Prior global work asks which species successfully occur on islands. Here, among already assembled island floras, increasing source isolation repeatedly reorganizes a seven-trait floral–reproductive response across four predeclared geographic regions and both trait-evidence scopes, despite non-uniform atomic responses.
 
 2. **A competing model is rejected.**  
    The data do not support an obligatory serial model in which floral change is only a downstream consequence of reproductive assurance. Selfing-adjusted accessibility remains positive in all four regions and is FDR-supported in northern high latitudes and the tropics.
