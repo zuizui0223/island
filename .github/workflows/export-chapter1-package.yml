@@ -1,0 +1,27 @@
+name: Export Chapter 1 submission package
+
+on:
+  push:
+    branches:
+      - export/chapter1-package-20260928
+    paths:
+      - ".github/workflows/export-chapter1-package.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Package current submission
+        run: |
+          zip -r chapter1_current.zip submission/chapter1_current
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chapter1-current-package
+          path: chapter1_current.zip
+          if-no-files-found: error
