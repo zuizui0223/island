@@ -22,3 +22,15 @@ A later Database 2.0 should be a new version of the dataset record so Database 1
 The GitHub repository may separately be enabled in Zenodo's GitHub integration. Repository releases are the software citation surface. `CITATION.cff` supplies repository citation metadata.
 
 The dataset DOI and software DOI should be cross-linked after both records exist.
+
+
+## Chapter 1 submission software/results record
+
+A draft, unpublished submission-specific software/results record is prepared in:
+
+- `zenodo/CHAPTER1_SUBMISSION_RELEASE.md`
+- `zenodo/chapter1_submission_zenodo_metadata.json`
+
+This candidate is deliberately separate from the Database 1.0 trait-subset DOI. It is intended to archive the exact submission code, corrected derived results, receipts, SI tables and figures after the submission commit is frozen. It must not include the restricted 222,688-cell full trait ledger.
+
+No release/tag or Zenodo publication should occur until the freeze gate in `CHAPTER1_SUBMISSION_RELEASE.md` is satisfied and external publication is explicitly approved.

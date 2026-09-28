@@ -1,0 +1,37 @@
+{
+  "title": "island: Chapter 1 corrected submission code and derived results",
+  "upload_type": "software",
+  "description": "Reproducible code, corrected geographic exposure receipts, aggregate H1-H4 result tables, deterministic supplementary tables, and submission-facing materials for the Chapter 1 manuscript 'A recurrent global floral island syndrome extends beyond the selfing syndrome'. This archive does not redistribute the complete third-party trait ledger. The rights-filtered trait derivative is separately archived at DOI 10.5281/zenodo.22704973.",
+  "creators": [
+    {
+      "name": "Zhang, Ruiqi"
+    }
+  ],
+  "keywords": [
+    "island biogeography",
+    "pollination",
+    "pollen limitation",
+    "reproductive assurance",
+    "floral traits",
+    "macroecology"
+  ],
+  "license": "MIT",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/zuizui0223/island",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "10.5281/zenodo.22704973",
+      "relation": "references",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.5061/dryad.dt437",
+      "relation": "references",
+      "scheme": "doi"
+    }
+  ],
+  "notes": "DRAFT METADATA ONLY. Do not publish until the final submission commit/tag is frozen and the user explicitly approves external release."
+}
