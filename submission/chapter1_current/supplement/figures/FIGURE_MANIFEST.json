@@ -1,0 +1,67 @@
+{
+  "contract": "chapter1_supplement_figures_v1",
+  "n_figures": 7,
+  "formats": [
+    "svg",
+    "pdf"
+  ],
+  "files": [
+    {
+      "file": "Figure_S1_corrected_distance_distribution.pdf",
+      "bytes": 19963
+    },
+    {
+      "file": "Figure_S1_corrected_distance_distribution.svg",
+      "bytes": 59479
+    },
+    {
+      "file": "Figure_S2_H1_direct_forest.pdf",
+      "bytes": 23431
+    },
+    {
+      "file": "Figure_S2_H1_direct_forest.svg",
+      "bytes": 84422
+    },
+    {
+      "file": "Figure_S3_H2_raw_colour_matrix.pdf",
+      "bytes": 30015
+    },
+    {
+      "file": "Figure_S3_H2_raw_colour_matrix.svg",
+      "bytes": 64882
+    },
+    {
+      "file": "Figure_S4_H2_colour_conditioned_architecture.pdf",
+      "bytes": 39164
+    },
+    {
+      "file": "Figure_S4_H2_colour_conditioned_architecture.svg",
+      "bytes": 121230
+    },
+    {
+      "file": "Figure_S5_H3_sensitivity_forest.pdf",
+      "bytes": 14642
+    },
+    {
+      "file": "Figure_S5_H3_sensitivity_forest.svg",
+      "bytes": 31093
+    },
+    {
+      "file": "Figure_S6_H4_atomic_forest.pdf",
+      "bytes": 17265
+    },
+    {
+      "file": "Figure_S6_H4_atomic_forest.svg",
+      "bytes": 41277
+    },
+    {
+      "file": "Figure_S7_evidence_scope_support.pdf",
+      "bytes": 33874
+    },
+    {
+      "file": "Figure_S7_evidence_scope_support.svg",
+      "bytes": 77288
+    }
+  ],
+  "source_surface": "corrected_geography_20260924"
+}
