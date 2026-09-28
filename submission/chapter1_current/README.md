@@ -15,15 +15,17 @@ This directory is the clean submission-facing package for Chapter 1. The scienti
 - `DATA_ACCESSIBILITY_DRAFT.md` — rights-aware data/code availability wording.
 - `ECOLOGY_LETTERS_DATA_GATE.md` — hard submission gate created by third-party redistribution restrictions.
 - `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md` — pre-submission editor inquiry for that gate.
-- `figures/Figure3_constraint_response_triangle.svg` — publication-facing conceptual Figure 3 source.
+- `figures/` — complete Main Figures 1–6 in SVG/PDF plus `FIGURE_MANIFEST.json` and deterministic renderer.
 - `SUPPLEMENT_PLAN.md` — Supplementary Information assembly map.
 - `SUPPLEMENTARY_INFORMATION_DRAFT.md` — internal source map for SI assembly.
 - `SUPPLEMENTARY_INFORMATION.md` — submission-facing S1–S7 text bound to deterministic tables and corrected outputs.
 - `supplement/` — deterministic supplementary tables and hash manifest.
+- `supplement/figures/` — Supplementary Figures S1–S7 in SVG/PDF plus figure manifest.
 - `GRAPHICAL_ABSTRACT_BRIEF.md` — constraint–response triangle concept.
 - `GRAPHICAL_ABSTRACT_SHORT_TEXT.md` — <=500-character graphical-abstract text draft.
 - `GEB_FALLBACK.md` — ready-to-convert GEB structured-abstract/double-anonymous fallback.
 - `SUBMISSION_CHECKLIST.md` — remaining journal-specific work and claim boundary.
+- `SUBMISSION_READINESS.md` — current complete/blocked submission state and final external-input gates.
 - `PACKAGE_MANIFEST.md` — package contents and source-of-truth pointers.
 
 ## Current baseline
@@ -60,8 +62,8 @@ Prospective H4 validation audits remain outside the H4 result.
 
 ## Figure status
 
-Main Figures 1–6 and the poster workflow were regenerated on 25 September 2026 from the corrected PR #242 result surface. The repository keeps the source tables and captions as the scientific source of truth; exported PDF/PNG/PPTX files are submission artifacts rather than inferential inputs.
+Main Figures 1–6 are committed under `figures/` in SVG/PDF and are reproducible from the corrected result surface with `scripts/submission/render_chapter1_main_figures.py`. Supplementary Figures S1–S7 are committed under `supplement/figures/` and are reproducible with `scripts/submission/render_chapter1_supplement_figures.py`. CI validates both figure manifests and file integrity.
 
 ## Remaining work
 
-Ecology Letters remains the first-shot target **only after the data-policy gate is closed**. The scientific narrative and format fit a Letter. Remaining blockers are: EL data-policy clearance or rights closure, final author metadata, permanent archive DOI(s), funding/acknowledgements/conflicts/contributions, final reference styling and rendering/packaging of the assembled Supplementary Information.
+Ecology Letters remains the first-shot target **only after the data-policy gate is closed**. The scientific narrative, references, main figures, SI text/tables and SI figures are assembled. Remaining blockers are: EL data-policy clearance or rights closure; final author/corresponding-author/ORCID metadata; funding, acknowledgements, conflicts and author contributions; freezing the final submission commit/tag and minting the software/results DOI; and compiling the final journal-ready manuscript/SI files.
