@@ -1,0 +1,54 @@
+{
+  "contract": "chapter1_main_figures_corrected_v1",
+  "source_surface": "corrected_geography_20260924",
+  "figures": [
+    {
+      "figure": 1,
+      "stem": "Figure1_global_scope_corrected",
+      "svg": "Figure1_global_scope_corrected.svg",
+      "svg_bytes": 1528144,
+      "pdf": "Figure1_global_scope_corrected.pdf",
+      "pdf_bytes": 173696
+    },
+    {
+      "figure": 2,
+      "stem": "Figure2_analytical_workflow",
+      "svg": "Figure2_analytical_workflow.svg",
+      "svg_bytes": 74155,
+      "pdf": "Figure2_analytical_workflow.pdf",
+      "pdf_bytes": 30308
+    },
+    {
+      "figure": 3,
+      "stem": "Figure3_constraint_response_triangle",
+      "svg": "Figure3_constraint_response_triangle.svg",
+      "svg_bytes": 67131,
+      "pdf": "Figure3_constraint_response_triangle.pdf",
+      "pdf_bytes": 28953
+    },
+    {
+      "figure": 4,
+      "stem": "Figure4_H1_recurrent_multivariate_response",
+      "svg": "Figure4_H1_recurrent_multivariate_response.svg",
+      "svg_bytes": 89499,
+      "pdf": "Figure4_H1_recurrent_multivariate_response.pdf",
+      "pdf_bytes": 25175
+    },
+    {
+      "figure": 5,
+      "stem": "Figure5_H2_conditional_decomposition",
+      "svg": "Figure5_H2_conditional_decomposition.svg",
+      "svg_bytes": 79659,
+      "pdf": "Figure5_H2_conditional_decomposition.pdf",
+      "pdf_bytes": 21207
+    },
+    {
+      "figure": 6,
+      "stem": "Figure6_H3_H4_functional_bridge",
+      "svg": "Figure6_H3_H4_functional_bridge.svg",
+      "svg_bytes": 71527,
+      "pdf": "Figure6_H3_H4_functional_bridge.pdf",
+      "pdf_bytes": 21153
+    }
+  ]
+}
