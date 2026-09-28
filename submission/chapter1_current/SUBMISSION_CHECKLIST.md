@@ -9,7 +9,7 @@
 - [x] H3 corrected GloPL estimate integrated
 - [x] H4 corrected exact-score and atomic estimates integrated
 - [x] Main figure captions updated
-- [x] Journal-neutral cover-letter draft updated
+- [x] Ecology Letters-targeted cover-letter draft updated
 - [x] Regenerate final Main Figures 1–6 from the PR #242 corrected baseline
 - [x] Replace poster panels/slides that showed uncorrected v14 values with corrected H1–H4 panels and the 8,264-unit / 1,248-site maps
 
@@ -25,10 +25,11 @@
 - [ ] Send/resolve pre-submission data-policy inquiry before EL submission
 - [ ] Finalize Data Accessibility with archive DOI(s); rights-aware draft prepared
 - [ ] Add ORCID identifiers
-- [ ] Reformat references to journal style
+- [x] Reformat references to Ecology Letters style (18 references)
 - [x] Assemble submission-facing Supplementary Information S1–S7
 - [x] Generate deterministic Tables S1–S6 from corrected outputs
-- [ ] Render final SI figures and compile journal-ready SI file
+- [x] Render SI Figures S1–S7 in SVG/PDF
+- [ ] Compile final journal-ready manuscript/SI submission files
 - [x] Check graphical-abstract requirement; brief and <=500-character short text prepared
 - [x] Prepare GEB structured-abstract/double-anonymous fallback conversion
 
@@ -51,17 +52,19 @@ The submission must not state or imply that:
 - [x] Abstract reduced below 150 words
 - [x] Main text remains below 5,000 words
 - [x] Main display items remain at 6
+- [x] Main Figures 1–6 committed in SVG/PDF with manifest + CI guard
 - [x] Reference base expanded beyond the original six-paper skeleton
 - [x] Cover letter rewritten around novelty/general ecology rather than database size
 - [x] Novelty statement prepared
 - [x] Running-title candidate prepared (<45 characters)
 - [x] Constraint–response triangle defined for Figure 3 / graphical abstract
-- [x] Publication-facing Figure 3 SVG source added
+- [x] Publication-facing Figure 3 SVG/PDF source added
 - [ ] Fill author order, affiliations, author emails and corresponding-author postal details
 - [ ] Confirm authorship-contribution wording
 - [ ] Add funding, acknowledgements and conflict-of-interest declaration
 - [x] Public rights-filtered trait subset DOI fixed — `10.5281/zenodo.22704973`
 - [x] Prepare submission code + corrected derived-results archive metadata and inclusion boundary
 - [ ] Freeze final submission commit/tag and mint software/results DOI
-- [ ] Final reference-style pass
-- [ ] Render SI figures and final supplementary PDF
+- [x] Final reference-style pass
+- [x] Render SI Figures S1–S7 in SVG/PDF
+- [ ] Compile final supplementary PDF after submission metadata freeze
