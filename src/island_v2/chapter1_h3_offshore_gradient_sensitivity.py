@@ -161,3 +161,4 @@ def run(
 
 if __name__ == "__main__":
     app()
+# rerun-marker: 2026-10-03 latest-head persistence retry
