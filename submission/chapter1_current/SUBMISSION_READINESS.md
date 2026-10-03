@@ -23,7 +23,7 @@ Fallback: **Global Ecology and Biogeography** if the third-party trait-data rest
 ### Manuscript package
 
 - title and 140-word abstract;
-- main text 4,938 words;
+- main text 4,977 words;
 - 18 references in Ecology Letters style;
 - novelty positioned against recent island-colonization and range-edge literature;
 - Ecology Letters cover letter;
