@@ -350,3 +350,65 @@ def test_repository_config_does_not_order_colour_or_inflorescence():
     )
     assert "flower_primary_color" in descriptive
     assert "inflorescence_display" in descriptive
+
+
+def test_pairwise_common_support_does_not_require_third_domain():
+    cfg = _config()
+    cfg["common_support_sets"] = {
+        "common_assurance_accessibility": [
+            "reproductive_assurance",
+            "accessibility_specialization",
+        ]
+    }
+    flora = pd.DataFrame(
+        {
+            "island_id": ["1", "1"],
+            "accepted_species": ["A one", "B two"],
+            "floristic_status": ["", ""],
+            "origin_status": ["", ""],
+        }
+    )
+    scores = pd.DataFrame(
+        [
+            {
+                "accepted_species": "A one",
+                "response": "reproductive_assurance",
+                "domain": "x",
+                "role": "x",
+                "score": 0.8,
+            },
+            {
+                "accepted_species": "A one",
+                "response": "accessibility_specialization",
+                "domain": "x",
+                "role": "x",
+                "score": 0.7,
+            },
+            {
+                "accepted_species": "B two",
+                "response": "reproductive_assurance",
+                "domain": "x",
+                "role": "x",
+                "score": 0.2,
+            },
+            {
+                "accepted_species": "B two",
+                "response": "accessibility_specialization",
+                "domain": "x",
+                "role": "x",
+                "score": 0.3,
+            },
+        ]
+    )
+    out = build_island_scores(
+        flora,
+        scores,
+        cfg,
+        flora_scope="all_observed",
+        support_mode="common_assurance_accessibility",
+    )
+    assert set(out["response"]) == {
+        "reproductive_assurance",
+        "accessibility_specialization",
+    }
+    assert set(out["n_scored_species"]) == {2}
