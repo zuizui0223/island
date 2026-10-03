@@ -1,0 +1,176 @@
+name: Final reviewer-robust H1-H2 inference
+
+on:
+  push:
+    branches:
+      - analysis/h1-h4-final-reviewer-robust
+    paths:
+      - "src/island_v2/chapter1_final_reviewer_robust.py"
+      - "config/chapter1_final_reviewer_robust.yml"
+      - "tests/test_chapter1_final_reviewer_robust.py"
+      - ".github/workflows/run-chapter1-final-reviewer-robust.yml"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: chapter1-final-reviewer-robust-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+      ALL_DATA_RUN_ID: "35100991898"
+      ALL_DATA_ARTIFACT: "chapter1-all-data-primary-35100991898"
+      ALL_DATA_ARTIFACT_ID: "10447959173"
+      ALL_DATA_DIGEST: "sha256:2152201aba5e5b02342c7d9d27eaf833b73c2d6405337f9aee1acbdd91af0844"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install and validate
+        run: |
+          pip install -e ".[dev]"
+          pytest -q tests/test_chapter1_final_reviewer_robust.py
+          ruff check             src/island_v2/chapter1_final_reviewer_robust.py             tests/test_chapter1_final_reviewer_robust.py
+
+      - name: Download frozen plant inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/final/source /tmp/final/all-data /tmp/final/results
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/final/source
+          gh run download "$ALL_DATA_RUN_ID" -n "$ALL_DATA_ARTIFACT" -D /tmp/final/all-data
+
+          test -s /tmp/final/source/fixed/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/final/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+          test -s /tmp/final/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+          test -s /tmp/final/all-data/syndrome/all/island_syndrome_scores.csv.gz
+          test -s /tmp/final/all-data/syndrome/direct/island_syndrome_scores.csv.gz
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+
+      - name: Verify all-data artifact provenance
+        run: |
+          set -euo pipefail
+          digest=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ALL_DATA_ARTIFACT_ID" --jq '.digest')
+          run=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ALL_DATA_ARTIFACT_ID" --jq '.workflow_run.id')
+          test "$digest" = "$ALL_DATA_DIGEST"
+          test "$run" = "$ALL_DATA_RUN_ID"
+
+      - name: Run reviewer-robust all-analysis and Direct-only inference
+        run: |
+          set -euo pipefail
+          for scope in all direct; do
+            if [ "$scope" = "all" ]; then
+              audit=/tmp/final/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+              evidence=all_analysis_eligible
+            else
+              audit=/tmp/final/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+              evidence=direct_only
+            fi
+            mkdir -p "/tmp/final/results/$scope"
+            python -m island_v2.chapter1_final_reviewer_robust               --status-flora-csv /tmp/final/source/fixed/canonical/input/chapter1_status_flora.csv.gz               --state-audit-csv "$audit"               --syndrome-scores-csv "/tmp/final/all-data/syndrome/$scope/island_syndrome_scores.csv.gz"               --covariates-csv results/geography_20260924/corrected_geography_covariates.csv               --v14-h1-config-path config/chapter1_v14_all_data_probability.yml               --config-path config/chapter1_final_reviewer_robust.yml               --evidence-scope "$evidence"               --output-dir "/tmp/final/results/$scope"
+          done
+
+      - name: Assemble compact reviewer report
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+
+          root=Path("/tmp/final/results")
+          blocks=[]
+          h2s=[]
+          for scope in ("all","direct"):
+              h1=pd.read_csv(root/scope/"h1_directional_cluster_jackknife.csv")
+              h1=h1.loc[
+                  h1["stratum"].eq("all_observed")
+                  & h1["contrast"].isin([
+                      "classic_equal_domain",
+                      "reproductive_assurance",
+                      "colour_dulling",
+                      "accessibility_generalization",
+                  ])
+              ].copy()
+              blocks.append(h1)
+              h2s.append(pd.read_csv(root/scope/"h2_cluster_jackknife.csv"))
+
+          H1=pd.concat(blocks,ignore_index=True)
+          H2=pd.concat(h2s,ignore_index=True)
+          H1.to_csv(root/"H1_FINAL.csv",index=False)
+          H2.to_csv(root/"H2_FINAL.csv",index=False)
+
+          cols=[
+              "evidence_scope","context","contrast","estimate","jackknife_se",
+              "df","p_one_sided_positive","holm_p_one_sided_within_contrast",
+              "n_clusters_union","effective_cluster_count",
+              "loo_nonpositive_fraction","directional_supported"
+          ]
+          print("\n=== H1 directional equal-domain + domains ===")
+          print(H1[cols].to_string(index=False))
+
+          h2cols=[
+              "evidence_scope","context","analysis_role","estimate","jackknife_se",
+              "df","p_one_sided_positive","holm_p_one_sided_within_pathway",
+              "n_clusters","effective_cluster_count","loo_nonpositive_fraction",
+              "directional_supported"
+          ]
+          print("\n=== H2 finite-cluster pathways ===")
+          print(H2[h2cols].to_string(index=False))
+
+          primary=H1.loc[H1["contrast"].eq("classic_equal_domain")]
+          report={
+              "contract":"chapter1_final_reviewer_robust_v1",
+              "H1_all_analysis_all_four_positive": bool(
+                  primary.loc[primary["evidence_scope"].eq("all_analysis_eligible"),"estimate"].gt(0).all()
+              ),
+              "H1_all_analysis_all_four_holm_supported": bool(
+                  primary.loc[primary["evidence_scope"].eq("all_analysis_eligible"),"directional_supported"].all()
+              ),
+              "H1_direct_all_four_positive": bool(
+                  primary.loc[primary["evidence_scope"].eq("direct_only"),"estimate"].gt(0).all()
+              ),
+              "H1_direct_all_four_holm_supported": bool(
+                  primary.loc[primary["evidence_scope"].eq("direct_only"),"directional_supported"].all()
+              ),
+              "interpretation":"H1 is assemblage-scale directional recurrence; H2 is conditional decomposition, not mediation; H3/H4 remain unchanged claim-bounded layers."
+          }
+          (root/"FINAL_REPORT.json").write_text(json.dumps(report,indent=2)+"\n")
+          print("\n",json.dumps(report,indent=2))
+          PY
+
+          {
+            echo "## Reviewer-robust final inference"
+            echo
+            echo "### H1"
+            cat /tmp/final/results/H1_FINAL.csv
+            echo
+            echo "### H2"
+            cat /tmp/final/results/H2_FINAL.csv
+            echo
+            echo "### Report"
+            cat /tmp/final/results/FINAL_REPORT.json
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-final-reviewer-robust-${{ github.run_id }}
+          path: /tmp/final/results
+          if-no-files-found: error
+          retention-days: 30

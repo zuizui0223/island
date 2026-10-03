@@ -58,20 +58,19 @@ Source of truth:
 
 ## H1 — Pattern
 
-Data: island trait prevalences.
+Data: the original 222,688 resolved species×axis cells.
 
 Method:
-`trait prevalence ~ isolation + island area + climate PC1-PC4`
+`raw state prevalence ~ isolation + island area + climate PC1-PC4`
 
-Model: beta-binomial GLMs with spatial-block cluster-robust covariance. H1 is interpreted across reproductive assurance, colour composition and accessibility/generalization; formal inference is a seven-indicator joint Wald test spanning those three domains within four predeclared regions.
+Model: beta-binomial GLMs with spatial-block cluster-robust covariance. Raw reported states are fitted with trait-specific denominators and tested jointly within each of the three original measurement axes. Missing component traits are not zeros and complete cases are not required.
 
-Corrected joint q-values:
-- N mid: `3.216e-10`;
-- N high: `2.433e-5`;
-- Tropical: `3.498e-7`;
-- S extra: `2.504e-18`.
+Current result:
+- reproductive assurance: supported in **4/4 regions** in all-analysis and Direct-only;
+- floral structural complexity: supported in **4/4 regions** in both evidence scopes;
+- flower colour: supported in **3/4 broad regions** in both evidence scopes; northern high latitude is unsupported.
 
-Joint support establishes recurrence across the three-domain response system; atomic indicators diagnose regional realization and do not imply that every component is positive.
+Regional-native-compatible floras retain reproductive and structural responses in 4/4 regions. Status-by-isolation tests show that incompatible/introduced floras generally follow different raw-state vectors. The seven binary indicators are secondary directional decomposition only.
 
 ## H2 — Conditional decomposition
 

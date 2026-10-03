@@ -1,4 +1,4 @@
-> **Implementation status:** Submission-facing S1–S7 text is assembled in `SUPPLEMENTARY_INFORMATION.md`. Deterministic Tables S1, S2a, S2b, S3, S5, S6a and S6b are generated under `supplement/`. Table S4 is intentionally the complete raw-pattern CSV family. Remaining work is rendering supplementary figures and final journal packaging.
+> **Implementation status:** Submission-facing S1–S7 text is assembled in `SUPPLEMENTARY_INFORMATION.md`. Deterministic Tables S1, S2a–S2h, S3, S5, S6a and S6b are generated under `supplement/`. Table S4 is intentionally the complete raw-pattern CSV family. Remaining work is final journal packaging.
 
 # Supplementary Information plan — Ecology Letters first shot
 
@@ -29,13 +29,14 @@ The main paper should remain conceptual and compact. Technical audit detail, exh
 
 ## Appendix S3 — H1 full results
 
-- seven atomic responses;
-- all four geographic strata;
-- all-analysis and Direct-only;
-- native/native-nonendemic sensitivities where applicable;
-- full coefficient/SE/p/q tables;
-- explicit opposite-sign and null rows;
-- multivariate Wald details.
+- primary three-axis raw-state models using the original species×axis cells;
+- formal cell-retention and ontology-repair audit;
+- all four geographic strata and both evidence scopes;
+- source-native, WCVP regional-native-compatible and complementary status partitions;
+- native-compatible versus incompatible/introduced status-by-isolation vector tests;
+- strict source-native versus source-introduced tropical comparison;
+- TDWG Level-3 resolution sensitivity;
+- secondary seven-indicator directional decomposition and taxonomic-depth diagnostics.
 
 ## Appendix S4 — H2 full decomposition
 
@@ -80,8 +81,12 @@ The main paper should remain conceptual and compact. Technical audit detail, exh
 ## Supplementary tables
 
 - Table S1: deterministic data/geography summary;
-- Table S2a: complete H1 atomic coefficients;
-- Table S2b: H1 joint tests;
+- Table S2a: secondary seven-indicator H1 atomic coefficients;
+- Table S2b: secondary seven-indicator joint tests;
+- Table S2e: descriptive seven-indicator domain orientation;
+- Table S2f: primary raw three-axis H1;
+- Table S2g: floristic-origin response-vector contrasts;
+- Table S2h: species×axis ontology and formal-cell audit;
 - Table S3: complete H2 conditional decomposition;
 - Table S4: complete corrected raw-colour/architecture CSV family (not duplicated into one oversized table);
 - Table S5: H3 primary and sensitivity models;

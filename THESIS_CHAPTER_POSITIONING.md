@@ -27,11 +27,11 @@ The 24 September 2026 geography correction repaired 1,113 spurious island zero d
 
 ## Current H1–H4 scientific spine
 
-### H1 — recurrent multivariate island response
+### H1 — recurrent raw-axis island response
 
-The current H1 is a recurrent response across three biological domains: **reproductive assurance, colour composition and floral accessibility/generalization**. Formal inference uses seven pre-oriented atomic indicators spanning those domains, and the joint vector is supported in all four predeclared geographic strata in both evidence scopes.
+The current H1 uses the original species×axis cells directly. **Reproductive assurance** and **floral structural complexity** are isolation-associated in all four predeclared geographic strata and both evidence scopes; **flower-colour composition** is supported in three of four broad regions and is therefore geographically contingent.
 
-The result is **recurrent at the domain level, not a seven-trait checklist**. Atomic indicators diagnose regional realization and can be weak or move in the opposite direction; southern shallow/open tube is negative in the corrected analysis.
+The former seven binary indicators are now a secondary directional decomposition, not the primary response definition. Floristic-origin analyses show that regional-native-compatible floras retain the recurrent reproductive and structural responses, whereas incompatible/introduced floras generally follow different raw-state response vectors.
 
 ### H2 — two partially separable plant-response components
 
@@ -86,7 +86,8 @@ Those analyses remain useful provenance and sensitivity history, but they are no
 ```text
 geographic isolation
       |
-      +--> recurrent three-domain floral/reproductive response (H1)
+      +--> recurrent reproductive + structural reorganization (H1)
+      |        +--> colour response is geographically contingent
       |        |
       |        +--> reproductive assurance
       |        |

@@ -13,7 +13,7 @@ Fallback: **Global Ecology and Biogeography** if the third-party trait-data rest
 ### Science
 
 - corrected 8,264-island geographic baseline;
-- H1 recurrent three-domain floral/reproductive result, formally tested by seven atomic indicators;
+- H1 raw three-axis result: reproductive assurance and floral structure recur in 4/4 regions; colour is geographically contingent;
 - H1 Direct-only northern-high optimizer warning independently closed;
 - H2 reproductive-assurance / accessibility conditional decomposition;
 - H3 independent GloPL pollen-limitation gradient;
@@ -22,8 +22,8 @@ Fallback: **Global Ecology and Biogeography** if the third-party trait-data rest
 
 ### Manuscript package
 
-- title and 138-word abstract;
-- main text ~3,803 words;
+- title and 140-word abstract;
+- main text 4,977 words;
 - 18 references in Ecology Letters style;
 - novelty positioned against recent island-colonization and range-edge literature;
 - Ecology Letters cover letter;
@@ -36,7 +36,7 @@ Fallback: **Global Ecology and Biogeography** if the third-party trait-data rest
 - Main Figures 1–6 committed in SVG/PDF;
 - main-figure manifest and deterministic renderer;
 - Supplementary Information S1–S7 assembled;
-- deterministic Tables S1, S2a, S2b, S3, S5, S6a, S6b;
+- deterministic Tables S1, S2a–S2h, S3, S5, S6a and S6b;
 - Supplementary Figures S1–S7 committed in SVG/PDF;
 - SI figure manifest and deterministic renderer;
 - CI verifies figure files, manifests, current corrected values and inferential boundaries.
@@ -115,4 +115,4 @@ After metadata and DOI freeze:
 
 ## Current scientific claim in one sentence
 
-**Geographic isolation is associated with stronger pollen limitation and with a recurrent floral–reproductive response that is not reducible to a serial selfing syndrome: reproductive assurance and pollinator-facing accessibility form partially separable components, while detailed floral trajectories remain geographically contingent.**
+**Geographic isolation repeatedly reorganizes reproductive assurance and floral structure across island floras while colour remains more contingent; these recurrent domains persist in regional-native-compatible floras, are not reproduced as the same vector by introduced/incompatible floras, and occur along a gradient of increasing experimental pollen limitation.**

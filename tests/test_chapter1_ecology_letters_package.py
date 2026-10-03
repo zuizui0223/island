@@ -20,6 +20,9 @@ GEB_FALLBACK = PACKAGE / "GEB_FALLBACK.md"
 SI_DRAFT = PACKAGE / "SUPPLEMENTARY_INFORMATION_DRAFT.md"
 H1_CONVERGENCE_AUDIT = ROOT / "results" / "geography_20260924" / "h1_direct_northern_high_convergence_audit.json"
 H1_DOMAIN_TABLE = PACKAGE / "supplement" / "Table_S2e_H1_domain_descriptive.csv"
+H1_RAW_AXIS_TABLE = PACKAGE / "supplement" / "Table_S2f_H1_three_axis_primary.csv"
+H1_ORIGIN_TABLE = PACKAGE / "supplement" / "Table_S2g_H1_floristic_origin.csv"
+H1_AXIS_AUDIT = PACKAGE / "supplement" / "Table_S2h_H1_axis_cell_audit.csv"
 
 
 def _words(text: str) -> int:
@@ -45,30 +48,53 @@ def test_ecology_letters_letter_limits_and_title_sync() -> None:
     assert title in TITLE_PAGE.read_text(encoding="utf-8")
 
 
-def test_h1_is_framed_as_three_domains_with_atomic_indicators() -> None:
+def test_h1_uses_original_three_axis_cells_as_primary_response() -> None:
+    import pandas as pd
+
     manuscript = MANUSCRIPT.read_text(encoding="utf-8")
     captions = CAPTIONS.read_text(encoding="utf-8")
     novelty = NOVELTY.read_text(encoding="utf-8")
 
-    for text in (manuscript, captions, novelty):
-        assert "reproductive assurance" in text
-        assert "colour composition" in text
-        assert "accessibility/generalization" in text
-
+    assert "222,688 resolved cells" in manuscript
+    assert "three formal response blocks" in manuscript
     assert "seven-trait floral–reproductive response" not in manuscript
-    assert "H1 is not a complete 106,295 × 7 matrix" in manuscript
-    assert H1_DOMAIN_TABLE.is_file()
+    assert "secondary seven-indicator" in captions.lower()
+    assert "reproductive assurance" in novelty
+    assert "floral structure" in novelty
 
-    import pandas as pd
+    for path in (H1_RAW_AXIS_TABLE, H1_ORIGIN_TABLE, H1_AXIS_AUDIT):
+        assert path.is_file(), path
 
-    table = pd.read_csv(H1_DOMAIN_TABLE)
-    assert set(table["domain"]) == {
+    primary = pd.read_csv(H1_RAW_AXIS_TABLE)
+    assert set(primary["axis"]) == {
         "reproductive_assurance",
-        "colour_composition",
-        "accessibility_generalization",
+        "floral_structural_complexity",
+        "flower_colour",
     }
-    assert set(table["evidence_scope"]) == {"all_analysis_eligible", "direct_only"}
-    assert table["inferential_status"].eq("descriptive_only_no_domain_p_value").all()
+    broad = primary.loc[primary["flora_scope"].eq("all_observed")]
+    recurrent = broad.loc[
+        broad["axis"].isin(
+            ["reproductive_assurance", "floral_structural_complexity"]
+        )
+    ]
+    assert recurrent["axis_supported"].all()
+    colour = broad.loc[broad["axis"].eq("flower_colour")]
+    assert int(colour["axis_supported"].sum()) == 6
+
+    origin = pd.read_csv(H1_ORIGIN_TABLE)
+    strict = origin.loc[
+        origin["contrast"].eq("strict_known_origin")
+        & origin["axis"].eq("reproductive_assurance")
+    ]
+    assert strict["status_vectors_differ"].all()
+    assert (strict["cosine_similarity"] < 0).all()
+
+    audit = pd.read_csv(H1_AXIS_AUDIT)
+    all_analysis = audit.loc[
+        audit["evidence_scope"].eq("all_analysis_eligible")
+    ]
+    assert int(all_analysis["resolved_axis_cells"].sum()) == 222688
+    assert int(all_analysis["ontology_valid_axis_cells"].sum()) == 222688
 
 
 def test_title_page_word_counts_match_manuscript() -> None:
