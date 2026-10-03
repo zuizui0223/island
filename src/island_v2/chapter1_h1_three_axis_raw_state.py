@@ -544,7 +544,48 @@ def _axis_fit(
                 .max()
             )
         slopes, omnibus = retry_slopes, retry_omnibus
+    failed_outcomes: list[str] = []
+    drop_failed: dict[str, Any] = {
+        "drop_failed_n_retained_outcomes": float("nan"),
+        "drop_failed_p_value": float("nan"),
+        "drop_failed_all_optimizers_converged": float("nan"),
+    }
     if not slopes.empty:
+        failed_outcomes = slopes.loc[
+            ~slopes["optimizer_success"].astype(bool),
+            "outcome",
+        ].astype(str).tolist()
+        if failed_outcomes:
+            robust_outcomes = [
+                outcome for outcome in eligible if outcome not in failed_outcomes
+            ]
+            if len(robust_outcomes) >= int(model["minimum_states_per_axis_test"]):
+                robust_cfg = dict(base_cfg)
+                robust_cfg["max_iter"] = int(
+                    model.get("retry_max_iter", model["max_iter"])
+                )
+                robust_cfg["model_outcomes"] = robust_outcomes
+                _, robust_omnibus = _fit_within(
+                    prepared,
+                    stratum=flora_scope,
+                    context_value=context_value,
+                    threshold=int(model["minimum_islands_per_state"]),
+                    config=robust_cfg,
+                )
+                drop_failed = {
+                    "drop_failed_n_retained_outcomes": int(
+                        robust_omnibus.get("n_retained_outcomes", 0)
+                    ),
+                    "drop_failed_p_value": float(
+                        robust_omnibus.get("p_value", float("nan"))
+                    ),
+                    "drop_failed_all_optimizers_converged": bool(
+                        robust_omnibus.get(
+                            "all_optimizers_converged",
+                            False,
+                        )
+                    ),
+                }
         slopes.insert(0, "axis", axis)
         slopes.insert(0, "flora_scope", flora_scope)
         slopes.insert(0, "evidence_scope", evidence_scope)
@@ -555,6 +596,9 @@ def _axis_fit(
         "initial_all_optimizers_converged": initial_converged,
         "retry_used": retry_used,
         "max_abs_retry_slope_delta": max_abs_retry_delta,
+        "n_failed_outcomes": len(failed_outcomes),
+        "failed_outcomes": "|".join(failed_outcomes),
+        **drop_failed,
         **omnibus,
     }
     return slopes, omnibus, support
@@ -1053,6 +1097,19 @@ def run_three_axis_analysis(
         omnibus["axis_supported"] = (
             omnibus["q_value"].le(float(model["alpha"])).fillna(False)
         )
+        if "drop_failed_p_value" in omnibus.columns:
+            omnibus["drop_failed_q_value"] = (
+                omnibus.groupby(
+                    ["evidence_scope", "flora_scope"],
+                    group_keys=False,
+                )["drop_failed_p_value"]
+                .transform(_bh)
+            )
+            omnibus["drop_failed_axis_supported"] = (
+                omnibus["drop_failed_q_value"]
+                .le(float(model["alpha"]))
+                .fillna(False)
+            )
 
     status_omnibus_frame = pd.DataFrame(status_omnibus)
     if not status_omnibus_frame.empty and "p_value" in status_omnibus_frame.columns:
