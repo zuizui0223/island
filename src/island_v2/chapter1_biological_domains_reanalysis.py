@@ -671,6 +671,9 @@ def run_h2(
                     "response": response,
                     "condition_on": "|".join(conditions),
                     "analysis_role": str(model["role"]),
+                    "primary_posthoc": bool(
+                        model.get("primary_posthoc", False)
+                    ),
                     "context": context,
                     **result,
                 }
@@ -678,7 +681,10 @@ def run_h2(
             counter += 1
     out = pd.DataFrame(rows)
     if not out.empty:
-        fit = out["status"].eq("fit")
+        fit = (
+            out["status"].eq("fit")
+            & out["primary_posthoc"].astype(bool)
+        )
         out["q_two_sided_posthoc_family"] = np.nan
         out.loc[fit, "q_two_sided_posthoc_family"] = _bh(
             out.loc[fit, "p_two_sided"]
@@ -960,13 +966,21 @@ def run_h4(
                         "posthoc_exact_species_functional_triangulation"
                         if response
                         in config["GloPL"]["h4_primary_posthoc_responses"]
-                        else "exploratory_signal_display_functional_association"
+                        else "frozen_H4_reproduction_benchmark"
                     ),
                     **fit,
                 }
             )
     out = pd.DataFrame(rows)
-    primary = out["analysis"].eq("primary") & out["status"].eq("fit")
+    primary_responses = {
+        str(x)
+        for x in config["GloPL"]["h4_primary_posthoc_responses"]
+    }
+    primary = (
+        out["analysis"].eq("primary")
+        & out["status"].eq("fit")
+        & out["response"].astype(str).isin(primary_responses)
+    )
     out["q_two_sided_primary_family"] = np.nan
     out.loc[primary, "q_two_sided_primary_family"] = _bh(
         out.loc[primary, "p_two_sided_finite_publication"]
