@@ -62,6 +62,7 @@ jobs:
           test -s results/geography_20260924/corrected_geography_covariates.csv
           test -s results/geography_20260924/glopl_corrected_site_distances.csv
           test -s results/geography_20260924/h3_original_corrected_comparison.json
+          test -s results/h3_offshore_gradient_20261003/h3_offshore_gradient_summary.json
 
       - name: Download pinned GloPL
         run: |
@@ -81,6 +82,7 @@ jobs:
             --raw-axis-config-path config/chapter1_h1_three_axis_raw_state.yml \
             --config-path config/chapter1_biological_domains_reanalysis.yml \
             --h3-json results/geography_20260924/h3_original_corrected_comparison.json \
+            --h3-offshore-json results/h3_offshore_gradient_20261003/h3_offshore_gradient_summary.json \
             --output-dir /tmp/domain/out
 
       - name: Assemble reviewer-facing summary
@@ -96,6 +98,7 @@ jobs:
           h1r=pd.read_csv(root/"H1_regional.csv")
           h2=pd.read_csv(root/"H2_conditional.csv")
           h4=pd.read_csv(root/"H4_exact_species.csv")
+          signal=pd.read_csv(root/"signal_display_state_regional.csv")
           h3=json.loads((root/"H3_summary.json").read_text())
 
           primary=h1.loc[
@@ -117,6 +120,44 @@ jobs:
               & h1r["support_mode"].eq("trait_specific")
               & h1r["analysis_layer"].eq("observed")
           ].copy()
+          h2_primary=h2.loc[h2["primary_posthoc"].astype(bool)].copy()
+          h4_primary=h4.loc[
+              h4["analysis"].eq("primary")
+              & h4["response"].isin([
+                  "reproductive_assurance",
+                  "accessibility_specialization",
+                  "flower_size_reduction",
+              ])
+          ].copy()
+          h4_benchmark=h4.loc[
+              h4["analysis"].eq("primary")
+              & h4["response"].isin([
+                  "reproductive_assurance_core",
+                  "accessibility_specialization",
+              ])
+          ].copy()
+          signal_supported=signal.loc[
+              signal["q_two_sided_within_trait_region"].le(0.05)
+          ].copy()
+
+          reviewer={
+              "support": support.to_dict(orient="records"),
+              "H1_primary": primary.to_dict(orient="records"),
+              "H1_common_species": common.to_dict(orient="records"),
+              "H1_genus_LOO": genus.to_dict(orient="records"),
+              "strict_provenance_regional": provenance.to_dict(orient="records"),
+              "signal_display_supported_states": signal_supported.to_dict(orient="records"),
+              "H2_primary": h2_primary.to_dict(orient="records"),
+              "H2_supported_q_le_0_05": h2_primary.loc[
+                  h2_primary["q_two_sided_posthoc_family"].le(0.05)
+              ].to_dict(orient="records"),
+              "H3": h3,
+              "H4_benchmark_reproduction": h4_benchmark.to_dict(orient="records"),
+              "H4_primary_posthoc": h4_primary.to_dict(orient="records"),
+          }
+          (root/"REVIEWER_SUMMARY.json").write_text(
+              json.dumps(reviewer,indent=2,default=str)+"\n"
+          )
 
           print("=== SPECIES SCORE SUPPORT ===")
           print(support.to_string(index=False))
@@ -128,29 +169,19 @@ jobs:
           print(genus.to_string(index=False))
           print("\n=== STRICT PROVENANCE REGIONAL DIAGNOSTICS ===")
           print(provenance.to_string(index=False))
-          print("\n=== H2 CONDITIONAL ===")
-          print(h2.to_string(index=False))
+          print("\n=== SIGNAL/DISPLAY SUPPORTED RAW STATES ===")
+          print(signal_supported.to_string(index=False))
+          print("\n=== H2 PRIMARY CONDITIONAL ===")
+          print(h2_primary.to_string(index=False))
           print("\n=== H3 ===")
           print(json.dumps(h3,indent=2))
-          print("\n=== H4 EXACT SPECIES ===")
-          print(h4.to_string(index=False))
-
-          {
-              "support": support.to_dict(orient="records"),
-              "H1_primary": primary.to_dict(orient="records"),
-              "H1_common_species": common.to_dict(orient="records"),
-              "H1_genus_LOO": genus.to_dict(orient="records"),
-              "H2_supported": h2.loc[
-                  h2["q_two_sided_posthoc_family"].le(0.05)
-              ].to_dict(orient="records"),
-              "H3": h3,
-              "H4_primary": h4.loc[h4["analysis"].eq("primary")].to_dict(orient="records"),
-          }
-          Path("/tmp/domain/out/REVIEWER_SUMMARY.json").write_text(
-              json.dumps(_,indent=2,default=str) if False else ""
-          )
+          print("\n=== H4 BENCHMARK ===")
+          print(h4_benchmark.to_string(index=False))
+          print("\n=== H4 PRIMARY POSTHOC ===")
+          print(h4_primary.to_string(index=False))
           PY
 
+          {
           {
             echo "## Biological-domain reanalysis"
             echo
@@ -165,6 +196,12 @@ jobs:
             echo
             echo "### H4 exact species"
             cat /tmp/domain/out/H4_exact_species.csv
+            echo
+            echo "### Signal/display statewise results"
+            cat /tmp/domain/out/signal_display_state_regional.csv
+            echo
+            echo "### Reviewer summary"
+            cat /tmp/domain/out/REVIEWER_SUMMARY.json
           } >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
