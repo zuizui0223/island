@@ -143,6 +143,12 @@ jobs:
           signal_supported=signal.loc[
               signal["q_two_sided_within_trait_region"].le(0.05)
           ].copy()
+          signal_global_supported=signal.loc[
+              signal["q_two_sided_global_signal_family"].le(0.05)
+          ].copy()
+          coverage_supported=coverage.loc[
+              coverage["q_two_sided_within_scope"].le(0.05)
+          ].copy()
 
           reviewer={
               "support": support.to_dict(orient="records"),
@@ -200,8 +206,20 @@ jobs:
             echo "### H1 primary"
             cat /tmp/domain/out/H1_global_synthesis.csv
             echo
+            echo "### H1 coverage-adjusted sensitivity"
+            cat /tmp/domain/out/H1_coverage_adjusted_global.csv
+            echo
+            echo "### H1 minimum-species threshold sensitivity"
+            cat /tmp/domain/out/H1_minimum_species_threshold_sensitivity.csv
+            echo
+            echo "### Trait coverage gradients"
+            cat /tmp/domain/out/trait_coverage_gradient.csv
+            echo
             echo "### H2 conditional"
             cat /tmp/domain/out/H2_conditional.csv
+            echo
+            echo "### H2 global synthesis"
+            cat /tmp/domain/out/H2_global_synthesis.csv
             echo
             echo "### H2 global synthesis"
             cat /tmp/domain/out/H2_global_synthesis.csv
