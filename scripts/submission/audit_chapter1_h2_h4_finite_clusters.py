@@ -133,6 +133,29 @@ def audit_h3(path: Path) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def audit_h3_offshore(path: Path) -> pd.DataFrame:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    rows: list[dict[str, object]] = []
+    for analysis, key in [
+        ("offshore_continuous_gradient", "offshore_continuous_gradient"),
+        ("mainland_vs_offshore_indicator", "mainland_vs_offshore_indicator"),
+    ]:
+        result = payload[key]
+        rows.append(
+            {
+                "hypothesis": "H3_offshore_sensitivity",
+                "analysis": analysis,
+                **_t_audit(
+                    float(result["estimate"]),
+                    float(result["se"]),
+                    int(result["n_publications"]),
+                    alternative="positive",
+                ),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 def audit_h4(path: Path) -> pd.DataFrame:
     frame = pd.read_csv(path)
     rows: list[dict[str, object]] = []
@@ -158,6 +181,7 @@ def run(
     h2_all_csv: Path = typer.Option(..., exists=True),
     h2_direct_csv: Path = typer.Option(..., exists=True),
     h3_json: Path = typer.Option(..., exists=True),
+    h3_offshore_json: Path = typer.Option(..., exists=True),
     h4_csv: Path = typer.Option(..., exists=True),
     output_dir: Path = typer.Option(...),
 ) -> None:
@@ -170,9 +194,14 @@ def run(
         ignore_index=True,
     )
     h3 = audit_h3(h3_json)
+    h3_offshore = audit_h3_offshore(h3_offshore_json)
     h4 = audit_h4(h4_csv)
     h2.to_csv(output_dir / "h2_finite_cluster_audit.csv", index=False)
     h3.to_csv(output_dir / "h3_finite_cluster_audit.csv", index=False)
+    h3_offshore.to_csv(
+        output_dir / "h3_offshore_finite_cluster_audit.csv",
+        index=False,
+    )
     h4.to_csv(output_dir / "h4_finite_cluster_audit.csv", index=False)
 
     h2b = h2.loc[
@@ -198,6 +227,18 @@ def run(
         ),
         "H3_primary_directional_p_t": float(
             h3.loc[h3["analysis"].eq("primary"), "directional_p_t"].iloc[0]
+        ),
+        "H3_offshore_two_sided_p_t": float(
+            h3_offshore.loc[
+                h3_offshore["analysis"].eq("offshore_continuous_gradient"),
+                "two_sided_p_t",
+            ].iloc[0]
+        ),
+        "H3_offshore_directional_p_t": float(
+            h3_offshore.loc[
+                h3_offshore["analysis"].eq("offshore_continuous_gradient"),
+                "directional_p_t",
+            ].iloc[0]
         ),
         "H4_primary_two_sided_p_t": {
             str(row.family): float(row.two_sided_p_t)
