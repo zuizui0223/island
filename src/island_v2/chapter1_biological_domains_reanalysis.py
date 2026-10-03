@@ -778,6 +778,88 @@ def run_h2(
 
 
 
+
+def synthesize_h2_across_regions(
+    h2: pd.DataFrame,
+    config: dict[str, Any],
+) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+    contexts = [str(x) for x in config["contexts"]]
+    alpha = float(config["alpha"])
+    group_cols = [
+        "evidence_scope",
+        "support_mode",
+        "response",
+        "condition_on",
+        "analysis_role",
+        "primary_posthoc",
+    ]
+    fitted = h2.loc[h2["status"].eq("fit")].copy()
+    for keys, part in fitted.groupby(group_cols, dropna=False):
+        (
+            evidence_scope,
+            support_mode,
+            response,
+            condition_on,
+            analysis_role,
+            primary_posthoc,
+        ) = keys
+        meta_input = part.rename(
+            columns={"se": "cluster_robust_se"}
+        )
+        synthesis = synthesize_regions(
+            meta_input,
+            contexts=contexts,
+            alpha=alpha,
+        )
+        strict = part.set_index("context").reindex(contexts)
+        if (
+            len(strict) == len(contexts)
+            and strict["p_one_sided_positive"].notna().all()
+            and strict["p_wild_positive"].notna().all()
+        ):
+            iut_t = float(strict["p_one_sided_positive"].max())
+            iut_wild = float(strict["p_wild_positive"].max())
+            all_positive = bool(strict["estimate"].gt(0).all())
+        else:
+            iut_t = float("nan")
+            iut_wild = float("nan")
+            all_positive = False
+        rows.append(
+            {
+                "evidence_scope": evidence_scope,
+                "support_mode": support_mode,
+                "response": response,
+                "condition_on": condition_on,
+                "analysis_role": analysis_role,
+                "primary_posthoc": bool(primary_posthoc),
+                "strict_iut_p_t": iut_t,
+                "strict_iut_p_wild": iut_wild,
+                "strict_four_region_supported": bool(
+                    all_positive
+                    and math.isfinite(iut_t)
+                    and math.isfinite(iut_wild)
+                    and iut_t <= alpha
+                    and iut_wild <= alpha
+                ),
+                **synthesis,
+            }
+        )
+    out = pd.DataFrame(rows)
+    if out.empty:
+        return out
+    out["H2_global_q_primary_two"] = np.nan
+    for (scope, support_mode), idxs in out.loc[
+        out["primary_posthoc"].astype(bool)
+        & out["status"].eq("fit")
+    ].groupby(
+        ["evidence_scope", "support_mode"]
+    ).groups.items():
+        out.loc[idxs, "H2_global_q_primary_two"] = _bh(
+            out.loc[idxs, "H1a_one_sided_p"]
+        )
+    return out
+
 def run_threshold_sensitivity(
     status_flora: pd.DataFrame,
     species_scores: pd.DataFrame,
