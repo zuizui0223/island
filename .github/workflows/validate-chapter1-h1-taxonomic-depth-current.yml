@@ -1,0 +1,119 @@
+name: Validate current H1 taxonomic-depth audit
+
+on:
+  push:
+    branches:
+      - analysis/h1-taxonomic-depth-current
+    paths:
+      - "src/island_v2/chapter1_h1_taxonomic_depth_current.py"
+      - "config/chapter1_h1_taxonomic_depth_current.yml"
+      - ".github/workflows/validate-chapter1-h1-taxonomic-depth-current.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+      STATUS_RUN_ID: "32559322028"
+      STATUS_ARTIFACT: "official-wcvp-corroborated-status-32559322028"
+      WCVP_RUN_ID: "37089905542"
+      WCVP_ARTIFACT: "chapter1-wcvp-native-corrected-37089905542"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -e ".[dev]"
+
+      - name: Validate implementation
+        run: |
+          python -m py_compile src/island_v2/chapter1_h1_taxonomic_depth_current.py
+          ruff check src/island_v2/chapter1_h1_taxonomic_depth_current.py
+
+      - name: Download frozen inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/depth/source /tmp/depth/status /tmp/depth/wcvp /tmp/depth/results
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/depth/source
+          gh run download "$STATUS_RUN_ID" -n "$STATUS_ARTIFACT" -D /tmp/depth/status
+          gh run download "$WCVP_RUN_ID" -n "$WCVP_ARTIFACT" -D /tmp/depth/wcvp
+          test -s /tmp/depth/source/fixed/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/depth/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+          test -s /tmp/depth/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+          test -s /tmp/depth/status/resolved/island_tdwg_l3_mapping.csv
+          test -s /tmp/depth/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz
+          test -s data/v2/staging/gbif/collected/island_taxa.csv
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+
+      - name: Rebuild frozen WCVP regional-native-compatible flora
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          from island_v2.chapter1_wcvp_native_compatibility import build_regional_native_compatible_flora
+
+          flora = pd.read_csv("/tmp/depth/source/fixed/canonical/input/chapter1_status_flora.csv.gz")
+          ranges = pd.read_csv("/tmp/depth/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz")
+          mapping = pd.read_csv("/tmp/depth/status/resolved/island_tdwg_l3_mapping.csv")
+          upgraded, audit = build_regional_native_compatible_flora(flora, ranges, mapping)
+          native = upgraded.loc[upgraded["origin_status"].astype(str).eq("native")].copy()
+          native.to_csv("/tmp/depth/regional_native_flora.csv.gz", index=False, compression="gzip")
+          Path("/tmp/depth/regional_native_audit.json").write_text(json.dumps(audit, indent=2))
+          assert audit["n_wcvp_compatible_upgrades"] == 362789
+          assert audit["n_regional_native_rows"] == 513320
+          print(json.dumps(audit, indent=2))
+          PY
+
+      - name: Run all-observed all-analysis depth audit
+        run: |
+          python -m island_v2.chapter1_h1_taxonomic_depth_current             --state-audit-csv /tmp/depth/source/snapshot/chapter1_trait_state_audit_all.csv.gz             --taxonomy-csv data/v2/staging/gbif/collected/island_taxa.csv             --status-flora-csv /tmp/depth/source/fixed/canonical/input/chapter1_status_flora.csv.gz             --covariates-csv results/geography_20260924/corrected_geography_covariates.csv             --probability-config-path config/chapter1_v14_all_data_probability.yml             --depth-config-path config/chapter1_h1_taxonomic_depth_current.yml             --evidence-scope all_analysis_eligible             --flora-scope all_observed             --output-dir /tmp/depth/results/all_observed_all
+
+      - name: Run all-observed Direct-only depth audit
+        run: |
+          python -m island_v2.chapter1_h1_taxonomic_depth_current             --state-audit-csv /tmp/depth/source/snapshot/chapter1_trait_state_audit_direct.csv.gz             --taxonomy-csv data/v2/staging/gbif/collected/island_taxa.csv             --status-flora-csv /tmp/depth/source/fixed/canonical/input/chapter1_status_flora.csv.gz             --covariates-csv results/geography_20260924/corrected_geography_covariates.csv             --probability-config-path config/chapter1_v14_all_data_probability.yml             --depth-config-path config/chapter1_h1_taxonomic_depth_current.yml             --evidence-scope direct_only             --flora-scope all_observed             --output-dir /tmp/depth/results/all_observed_direct
+
+      - name: Run regional-native all-analysis depth audit
+        run: |
+          python -m island_v2.chapter1_h1_taxonomic_depth_current             --state-audit-csv /tmp/depth/source/snapshot/chapter1_trait_state_audit_all.csv.gz             --taxonomy-csv data/v2/staging/gbif/collected/island_taxa.csv             --status-flora-csv /tmp/depth/regional_native_flora.csv.gz             --covariates-csv results/geography_20260924/corrected_geography_covariates.csv             --probability-config-path config/chapter1_v14_all_data_probability.yml             --depth-config-path config/chapter1_h1_taxonomic_depth_current.yml             --evidence-scope all_analysis_eligible             --flora-scope regional_native_compatible             --output-dir /tmp/depth/results/regional_native_all
+
+      - name: Run regional-native Direct-only depth audit
+        run: |
+          python -m island_v2.chapter1_h1_taxonomic_depth_current             --state-audit-csv /tmp/depth/source/snapshot/chapter1_trait_state_audit_direct.csv.gz             --taxonomy-csv data/v2/staging/gbif/collected/island_taxa.csv             --status-flora-csv /tmp/depth/regional_native_flora.csv.gz             --covariates-csv results/geography_20260924/corrected_geography_covariates.csv             --probability-config-path config/chapter1_v14_all_data_probability.yml             --depth-config-path config/chapter1_h1_taxonomic_depth_current.yml             --evidence-scope direct_only             --flora-scope regional_native_compatible             --output-dir /tmp/depth/results/regional_native_direct
+
+      - name: Summarize classifications
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          rows=[]
+          for p in sorted(Path("/tmp/depth/results").glob("*/classification.csv")):
+              x=pd.read_csv(p)
+              x.insert(0,"analysis",p.parent.name)
+              rows.append(x)
+          out=pd.concat(rows,ignore_index=True)
+          out.to_csv("/tmp/depth/results/classification_summary.csv",index=False)
+          print(out.to_string(index=False))
+          PY
+          cat /tmp/depth/results/classification_summary.csv >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-h1-taxonomic-depth-current-${{ github.run_id }}
+          path: |
+            /tmp/depth/results
+            /tmp/depth/regional_native_audit.json
+          if-no-files-found: error
+          retention-days: 30
