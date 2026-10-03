@@ -1,5 +1,7 @@
 # H1 three-axis raw-state reanalysis — 2026-10-03
 
+> **Inference status after final reviewer audit (2026-10-03):** the raw-state three-axis models are retained as a descriptive decomposition of measurement-domain reorganization and provenance differences. Their high-dimensional cluster-Wald omnibus p-values are **not used for headline H1 inference**, because finite-cluster calibration is poor when the number of jointly tested states is large relative to the number of spatial blocks. Final directional H1 inference is frozen in `config/chapter1_h1_final_directional_result_lock.json`. The raw slopes, state composition, cosine similarities and support audits remain useful descriptive evidence.
+
 ## Purpose
 
 This analysis returns H1 to the original Chapter 1 measurement design: **106,295 species × three biological axes** rather than treating seven binary contrasts as seven complete traits.
@@ -12,7 +14,7 @@ The frozen database contains 318,885 possible species×axis cells and **222,688 
 
 Every resolved cell contributes through whatever ontology-valid component states are observed. Missing component traits are not set to zero, complete cases are not required, and raw multistate memberships are retained.
 
-Formal inference fits trait-specific state prevalences with their own denominators and tests the full raw-state isolation-response vector within each biological axis and geographic region.
+Trait-specific state prevalences are fitted with their own denominators. The full raw-state isolation-response vectors are retained for descriptive decomposition and sensitivity auditing; their high-dimensional omnibus p-values are no longer treated as confirmatory H1 evidence.
 
 ## Frozen inputs and validation
 
@@ -56,7 +58,7 @@ Thus all **222,688 resolved species×axis cells** remain ontology-valid. After t
 
 *One raw-state optimizer flag persists in each marked primary axis test. Removing the failed state entirely yields a fully converged axis test with the same decision: southern all-analysis structure remains supported (drop-failed q < 1e-300) and northern-high Direct reproductive assurance remains supported (drop-failed q = 2.41e-28).
 
-**Primary conclusion:** reproductive assurance and floral structure are recurrent isolation-associated response domains in all four regions and both evidence scopes. Colour composition is geographically contingent, with no supported broad northern-high-latitude axis response.
+**Descriptive conclusion:** reproductive-assurance and floral-structure compositions show substantial isolation-associated reorganization across regions, whereas colour composition is more geographically contingent. This statement is descriptive; formal H1 support is determined by the one-degree-of-freedom pre-oriented directional score and its regional synthesis.
 
 ## Raw-state interpretation
 
