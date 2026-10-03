@@ -262,6 +262,66 @@ Reproducibility surface:
 - scripts/geography_correction/replay_corrected_lineage_entry_loading.py
 - validation workflow run 37097462474; artifact 11264653941; digest sha256:afc980240819a0ce11fe8269fb7ec71d89e001184481dd1f0970e55de37625fb
 
+## S3.5 Literal additive decomposition of the current H1
+
+The historical scalar bridge in S3.4 is not the current seven-response H1 estimand. We
+therefore rebuilt the source-matched decomposition using the literal current H1 binary
+state separately for each atomic outcome. An initial v1 current-H1 bridge still inherited
+the historical all-island-species weighting inside genera; because current H1 is defined
+only on trait-resolved species for each outcome, that version is not used for scientific
+interpretation.
+
+The final v2 analysis uses only trait-resolved, source-candidate, source-genus-scored
+native non-endemic species and enforces the exact identity
+
+`raw H1 mean = source expectation + genus-entry enrichment + within-genus loading + within-genus trait residual`.
+
+The row-level identity passed to machine precision in both evidence scopes (maximum
+absolute error 1.11 × 10^-16). Regressing each additive component on corrected
+isolation, island area and climate PC1–PC4 with spatial-block cluster-robust covariance
+also closed exactly: maximum slope identity error was 6.59 × 10^-17 across 28
+all-analysis atomic identities and 1.04 × 10^-16 across 24 Direct-only identities.
+
+The result is an antagonistic hierarchy rather than a serial assembly route:
+
+| Component | All-analysis mean slope across source modes | All-analysis max q | Direct-only mean slope across source modes | Direct-only max q |
+| --- | ---: | ---: | ---: | ---: |
+| Raw H1 mean | -0.00358 to -0.00180 | 0.000219 | -0.00724 to -0.00559 | 0.000798 |
+| Source-availability-matched expectation | +0.00637 to +0.01019 | 0.799 | +0.00702 to +0.00798 | 0.495 |
+| Genus-entry enrichment | -0.01392 to -0.01013 | 0.01287 | -0.01649 to -0.01467 | 0.07951 |
+| Within-genus loading | -0.000245 to +0.00170 | 0.01470 | -0.000663 to -0.000028 | 0.340 |
+| Within-genus trait residual | -0.000025 to +0.00116 | 0.05726 | +0.00132 to +0.00286 | 0.02048 |
+
+The restricted raw H1 vector is jointly nonzero in every source mode but its oriented
+mean is negative, so this source-evaluable strict native-nonendemic subset cannot be
+treated as a miniature version of the globally recurrent H1 direction. Source
+expectations are directionally positive but are not 4/4 FDR-supported. Genus entry is
+negative in every source mode and is 4/4 FDR-supported only in the all-analysis scope.
+Additional within-genus loading has no stable positive direction.
+
+The only 4/4 positive Direct-only component is the within-genus trait residual. Its
+joint vector is FDR-supported in all four source modes (maximum q = 0.02048). Autonomous
+selfing is the strongest positive atomic residual (beta = +0.0267 to +0.0310 across
+source modes; P = 0.0035–0.0049). Actinomorphy and generalized form also point positive,
+whereas plain colour, self-compatibility and shallow/open tube point negative in this
+restricted frame.
+
+Thus current H1 is not generated here by preferential entry of more H1-like source
+genera. Instead, source expectations, realized genus entry and finer-grained species
+trait composition oppose one another. The positive Direct-only within-genus residual
+does not demonstrate within-lineage evolution: it can still arise from within-genus
+species sorting, persistence, unmeasured source structure or genuine evolutionary
+change. Because the restricted raw vector itself differs in orientation from the broad
+global H1, this decomposition is retained as a mechanistic boundary rather than promoted
+as the generator of global recurrence.
+
+Reproducibility surface:
+
+- results/current_h1_source_lineage_decomposition_v2_20261003/
+- config/chapter1_current_h1_source_lineage_decomposition_v2.yml
+- src/island_v2/chapter1_current_h1_source_lineage_decomposition_v2.py
+- validation workflow run 37101224737; artifact 11266406362; digest sha256:57e5c4319a47eb0c2f55c01ee17c9afc2085f62142e7cc91bc014dafbcfdae70
+
 ---
 
 # Appendix S4. H2 conditional decomposition and raw floral patterns
