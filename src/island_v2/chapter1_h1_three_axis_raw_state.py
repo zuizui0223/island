@@ -154,6 +154,34 @@ def build_valid_state_ledger(
     return ledger, audit
 
 
+def formal_state_support(
+    ledger: pd.DataFrame,
+    *,
+    minimum_unique_species: int,
+    evidence_scope: str,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    support = (
+        ledger.groupby(["axis", "trait_name", "state"], as_index=False)
+        .agg(n_unique_species=("accepted_species", "nunique"))
+    )
+    support["minimum_unique_species"] = int(minimum_unique_species)
+    support["eligible_for_formal_axis_test"] = support["n_unique_species"].ge(
+        int(minimum_unique_species)
+    )
+    support.insert(0, "evidence_scope", evidence_scope)
+    eligible = support.loc[
+        support["eligible_for_formal_axis_test"],
+        ["axis", "trait_name", "state"],
+    ]
+    filtered = ledger.merge(
+        eligible,
+        on=["axis", "trait_name", "state"],
+        how="inner",
+        validate="many_to_one",
+    )
+    return filtered, support
+
+
 def flora_scopes(
     status_flora: pd.DataFrame,
     wcvp_ranges: pd.DataFrame,
@@ -689,6 +717,7 @@ def run_three_axis_analysis(
     all_support: list[pd.DataFrame] = []
     all_cell_audits: list[pd.DataFrame] = []
     all_flora_coverage: list[pd.DataFrame] = []
+    all_global_state_support: list[pd.DataFrame] = []
     count_parts: list[pd.DataFrame] = []
     status_slopes: list[pd.DataFrame] = []
     status_omnibus: list[dict[str, Any]] = []
@@ -840,6 +869,9 @@ def run_three_axis_analysis(
         "status_vector_similarity": similarity,
         "cell_coverage_audit": pd.concat(all_cell_audits, ignore_index=True),
         "flora_coverage": pd.concat(all_flora_coverage, ignore_index=True),
+        "global_state_support": pd.concat(
+            all_global_state_support, ignore_index=True
+        ),
         "counts": (
             pd.concat(count_parts, ignore_index=True)
             if count_parts
@@ -890,6 +922,9 @@ def run(
         output_dir / "cell_coverage_audit.csv", index=False
     )
     out["flora_coverage"].to_csv(output_dir / "flora_coverage.csv", index=False)
+    out["global_state_support"].to_csv(
+        output_dir / "global_state_support.csv", index=False
+    )
     out["counts"].to_csv(
         output_dir / "axis_state_counts.csv.gz",
         index=False,
@@ -907,6 +942,12 @@ def run(
                 "resolved_axis_cells",
             ]
             .sum()
+        ),
+        "minimum_unique_species_per_state": int(
+            config["model"]["minimum_unique_species_per_state"]
+        ),
+        "n_formal_states": int(
+            out["global_state_support"]["eligible_for_formal_axis_test"].sum()
         ),
         "ontology_valid_species_axis_cells": int(
             out["cell_coverage_audit"]
