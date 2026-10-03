@@ -1,0 +1,9 @@
+evidence_scope,context,n_islands,q_value,vector_supported,optimizer_note
+all_analysis_eligible,northern_midlatitude,818,3.4575416714121828e-06,true,all_converged
+all_analysis_eligible,northern_high_latitude,163,0.02048485844224219,true,all_converged
+all_analysis_eligible,tropical,745,0.011032352026086725,true,all_converged
+all_analysis_eligible,southern_extratropical,132,0.011810451633300046,true,all_converged
+direct_only,northern_midlatitude,814,0.00012827626877399902,true,all_converged
+direct_only,northern_high_latitude,162,0.0021016470291145787,true,persistent_actinomorphic_optimizer_warning_numerically_stable
+direct_only,tropical,736,0.033553869162836585,true,all_converged
+direct_only,southern_extratropical,129,0.043037998701370095,true,all_converged
