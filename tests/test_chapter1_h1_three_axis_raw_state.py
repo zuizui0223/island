@@ -153,15 +153,16 @@ def test_ambiguous_invalid_state_is_not_silently_reassigned():
                 "axis": "reproductive_assurance",
                 "trait_composition": (
                     'self_incompatibility=["absent"]|'
-                    'autonomous_selfing_capacity=["mixed_or_variable"]'
+                    'autonomous_selfing_capacity=["absent"]|'
+                    'cleistogamy=["mixed_or_variable"]'
                 ),
                 "quality": "high",
             }
         ]
     )
     config = _config()
-    config["axes"]["reproductive_assurance"]["traits"].append(
-        "autonomous_selfing_capacity"
+    config["axes"]["reproductive_assurance"]["traits"].extend(
+        ["autonomous_selfing_capacity", "cleistogamy"]
     )
     ontology = _ontology()
     ontology["traits"]["self_incompatibility"]["allowed_values"].append(
@@ -170,16 +171,19 @@ def test_ambiguous_invalid_state_is_not_silently_reassigned():
     ontology["traits"]["autonomous_selfing_capacity"] = {
         "allowed_values": ["absent", "mixed_or_variable", "unresolved"]
     }
+    ontology["traits"]["cleistogamy"] = {
+        "allowed_values": ["absent", "facultative", "obligate", "unresolved"]
+    }
     ledger, audit = build_valid_state_ledger(
         cells,
         ontology,
         config,
         evidence_scope="all_analysis_eligible",
     )
-    # The invalid cross-field state is dropped; the already-valid current-trait
-    # state is retained. No cross-field guess is made.
+    # Two bijections are possible for the invalid entries. The already-valid
+    # autonomous=absent state is retained, but no cross-field guess is made.
     assert set(zip(ledger["trait_name"], ledger["state"], strict=False)) == {
-        ("autonomous_selfing_capacity", "mixed_or_variable")
+        ("autonomous_selfing_capacity", "absent")
     }
     row = audit.loc[
         audit["axis"].eq("reproductive_assurance")
