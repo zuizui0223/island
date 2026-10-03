@@ -1,5 +1,20 @@
 contract: chapter1_h1_final_directional_v1
 
+design_provenance:
+  pre_result_question: >-
+    The approved 2026-09-17 v13 design explicitly asked whether there is a positive
+    global common component in the isolation response toward the predeclared classic
+    island-syndrome direction, while allowing regional coefficients to differ.
+  source: docs/superpowers/specs/2026-09-17-chapter1-v13-unified-island-syndrome-design.md
+  v14_extension: >-
+    v14 retained the directional reproductive-assurance and accessibility indicators
+    and added plain colour as a third equal-weight domain. The present audit changes
+    the reference distribution and reduces the multivariate directional estimand to
+    its prespecified scalar contrast; it does not add a result-selected trait state.
+  anti_harking_rule: >-
+    H1a global-average direction, H1b regional heterogeneity, and the stricter
+    four-region intersection-union recurrence statement must be reported together.
+
 purpose: >-
   Final confirmatory H1 inference for the classic floral/reproductive island-syndrome
   direction. Keep the frozen v14 seven pre-oriented indicators, average indicators
