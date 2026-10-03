@@ -1,0 +1,86 @@
+{
+  "contract": "chapter1_corrected_trait_moderation_replay_lock_v1",
+  "date": "2026-10-03",
+  "inferential_role": "measurement_repair_replay_of_frozen_20260916_moderation_tests",
+  "provenance": {
+    "validation_workflow_run_id": 37094533233,
+    "validation_artifact_id": 11263028661,
+    "validation_artifact_digest": "sha256:5ee64a95d8dd40536b0e7f5af181afbdf3d06db105792bc35ab2bbe61f35e838",
+    "reproductive_assurance_parent": {
+      "workflow_run_id": 35093274622,
+      "artifact_id": 10444749163
+    },
+    "floral_architecture_parent": {
+      "workflow_run_id": 35094588521,
+      "artifact_id": 10445189257
+    },
+    "corrected_geography": "results/geography_20260924/glopl_corrected_site_distances.csv",
+    "corrected_distance_standardization": {
+      "mean": 1.0336192482458344,
+      "sd": 2.3354963860020934
+    }
+  },
+  "reproduction_gate": {
+    "status": "pass",
+    "max_absolute_difference": 3.930189507173054e-14
+  },
+  "corrected_results": {
+    "reproductive_assurance": {
+      "self_compatibility": {
+        "interaction": 0.044440932835980385,
+        "se": 0.07413582735191598,
+        "two_sided_p": 0.5488709444404637,
+        "one_sided_buffering_p": 0.7255645277797682,
+        "supplemental_only_interaction": 0.09318596612789198,
+        "no_zero_constant_interaction": 0.04738799861207919,
+        "supported": false
+      },
+      "selfing_mating_system": {
+        "evaluable": false,
+        "reason": "frozen_preflight_support_failed"
+      },
+      "autonomous_selfing": {
+        "interaction": -0.08328904687076286,
+        "se": 0.07236634131605156,
+        "two_sided_p": 0.24975845539635844,
+        "one_sided_buffering_p": 0.12487922769817922,
+        "supplemental_only_interaction": -0.03759487865208387,
+        "no_zero_constant_interaction": -0.07771006951509966,
+        "supported": false
+      },
+      "family_supported": false
+    },
+    "floral_architecture": {
+      "generalized_form": {
+        "interaction": -0.05204220461231113,
+        "se": 0.09589099989764446,
+        "two_sided_p": 0.5873208699825989,
+        "one_sided_buffering_p": 0.29366043499129946,
+        "supplemental_only_interaction": 0.0870772413420353,
+        "no_zero_constant_interaction": -0.06101884975346187,
+        "supported": false
+      },
+      "actinomorphic_symmetry": {
+        "interaction": 0.03412732067325583,
+        "se": 0.07960904659573127,
+        "two_sided_p": 0.6681514127564538,
+        "one_sided_buffering_p": 0.6659242936217731,
+        "supplemental_only_interaction": -0.001722303190122676,
+        "no_zero_constant_interaction": 0.03564414751676319,
+        "supported": false
+      },
+      "shallow_open_tube": {
+        "evaluable": false,
+        "reason": "frozen_preflight_support_failed"
+      },
+      "family_supported": false
+    }
+  },
+  "interpretation": "Correcting geographic exposure does not rescue the predeclared trait-buffering route. H4 remains functional compatibility evidence, not evidence that the trait states flatten the isolation-pollen-limitation gradient or mediate historical adaptation.",
+  "claim_ceiling": {
+    "historical_mediation_identified": false,
+    "trait_buffering_established": false,
+    "null_buffering_means_traits_irrelevant": false,
+    "h4_average_functional_association_remains_separate": true
+  }
+}
