@@ -7,6 +7,7 @@ from island_v2.chapter1_h1_final_directional import (
     _wild_signflip_p,
     intersection_union_summary,
     meta_directional_summary,
+    synthesize_regions,
     validate_score_weights,
 )
 
