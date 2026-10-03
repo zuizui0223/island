@@ -77,6 +77,16 @@ jobs:
             python -m island_v2.chapter1_h1_final_directional               --status-flora-csv /tmp/h1-final/source/fixed/canonical/input/chapter1_status_flora.csv.gz               --state-audit-csv "$audit"               --covariates-csv results/geography_20260924/corrected_geography_covariates.csv               --config-path config/chapter1_h1_final_directional.yml               --evidence-scope "$evidence"               --output-dir /tmp/h1-final/results/$scope
           done
 
+      - name: Audit H2-H4 with finite-cluster reference distributions
+        run: |
+          mkdir -p /tmp/h1-final/results/inference-audit
+          python -m island_v2.chapter1_final_inference_audit \
+            --h2-all-csv results/geography_20260924/all/h2_decomposition_models.csv \
+            --h2-direct-csv results/geography_20260924/direct/h2_decomposition_models.csv \
+            --h3-json results/geography_20260924/h3_original_corrected_comparison.json \
+            --h4-csv results/geography_20260924/h4_exact_corrected.csv \
+            --output-dir /tmp/h1-final/results/inference-audit
+
       - name: Audit H2-H4 with finite-cluster t references
         run: |
           python scripts/submission/audit_chapter1_h2_h4_finite_clusters.py \
@@ -187,6 +197,11 @@ jobs:
           print(pd.DataFrame(leaveout_metas).to_string(index=False))
           print("\n=== WEIGHTING SENSITIVITY ===")
           print(weight_summary.to_string(index=False))
+          print("\n=== H2-H4 FINITE-CLUSTER DECISION AUDIT ===")
+          decision=json.loads(
+              (root/"inference-audit"/"h2_h4_final_decision_summary.json").read_text()
+          )
+          print(json.dumps(decision,indent=2))
           print("\n=== LEGACY HIGH-DIMENSIONAL WALD (REFERENCE ONLY) ===")
           print(legacy[[
               "scope","context","n_clusters","joint_df","p_value","q_value"
@@ -221,6 +236,9 @@ jobs:
             echo
             echo "## H1a global average and H1b heterogeneity"
             cat /tmp/h1-final/results/global_directional_synthesis.csv
+            echo
+            echo "## H2-H4 finite-cluster decision audit"
+            cat /tmp/h1-final/results/inference-audit/h2_h4_final_decision_summary.json
             echo
             echo "## Legacy joint Wald retained as reference only"
             cat /tmp/h1-final/results/legacy_joint_wald_reference.csv
