@@ -1,6 +1,6 @@
 contract: chapter1_current_h1_source_lineage_entry_v1
-status: frozen_before_result_inspection
-inferential_role: current_H1_source_matched_lineage_representation_decomposition
+status: superseded_for_current_H1_interpretation_by_v2_alignment_repair
+inferential_role: historical_v1_alignment_audit_not_current_scientific_result
 
 purpose: >-
   Decompose the current seven-response tropical H1 in strict source-backed native
