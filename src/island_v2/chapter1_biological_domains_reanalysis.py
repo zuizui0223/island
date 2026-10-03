@@ -116,11 +116,13 @@ def response_specs(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
             },
         }
     signal = config["domains"]["signal_display"]
-    for response, item in signal["components"].items():
+    for response, item in signal["directional_component"].items():
         specs[str(response)] = {
             "domain": "signal_display",
             "role": str(item["role"]),
-            "minimum_components": 1,
+            "minimum_components": int(
+                item.get("minimum_components_per_species", 1)
+            ),
             "components": {
                 str(item["source_trait"]): {
                     str(k): float(v)
@@ -567,7 +569,7 @@ def run_h1(
             synthesis["H1a_one_sided_p"]
         )
         core = synthesis["response"].isin(
-            [str(x) for x in config["primary_responses"]]
+            [str(x) for x in config["primary_posthoc_H1_responses"]]
         )
         synthesis["H1a_q_core_two"] = np.nan
         synthesis.loc[core, "H1a_q_core_two"] = _bh(
@@ -828,8 +830,7 @@ def run_h4(
     config: dict[str, Any],
 ) -> pd.DataFrame:
     responses = [
-        *[str(x) for x in config["GloPL"]["h4_primary_responses"]],
-        *[str(x) for x in config["GloPL"]["h4_exploratory_responses"]],
+        *[str(x) for x in config["GloPL"]["h4_primary_posthoc_responses"]],
     ]
     rows: list[dict[str, Any]] = []
     for response in responses:
@@ -874,7 +875,7 @@ def run_h4(
                     "role": (
                         "posthoc_exact_species_functional_triangulation"
                         if response
-                        in config["GloPL"]["h4_primary_responses"]
+                        in config["GloPL"]["h4_primary_posthoc_responses"]
                         else "exploratory_signal_display_functional_association"
                     ),
                     **fit,
@@ -911,7 +912,7 @@ def build_signal_state_species_scores(
     )
     traits = {
         str(x)
-        for x in config["domains"]["signal_display"]["descriptive_state_traits"]
+        for x in config["domains"]["signal_display"]["raw_state_traits"]
     }
     ledger = ledger.loc[
         ledger["trait_name"].astype(str).isin(traits)
