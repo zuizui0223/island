@@ -294,6 +294,7 @@ def build_island_scores(
     *,
     flora_scope: str,
     support_mode: str,
+    minimum_species: int | None = None,
 ) -> pd.DataFrame:
     mask = _flora_scope_mask(status_flora, flora_scope)
     flora = status_flora.loc[
@@ -345,11 +346,15 @@ def build_island_scores(
             n_scored_species=("accepted_species", "nunique"),
         )
     )
+    threshold = (
+        int(config["minimum_species_per_island_score"])
+        if minimum_species is None
+        else int(minimum_species)
+    )
     out = out.loc[
-        out["n_scored_species"].ge(
-            int(config["minimum_species_per_island_score"])
-        )
+        out["n_scored_species"].ge(threshold)
     ].copy()
+    out["minimum_species_per_island_score"] = threshold
     out["flora_scope"] = flora_scope
     out["support_mode"] = support_mode
     return out
