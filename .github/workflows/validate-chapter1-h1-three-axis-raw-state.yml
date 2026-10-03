@@ -122,6 +122,7 @@ jobs:
                   "source_native",
                   "regional_native_compatible",
                   "regionally_incompatible_or_introduced",
+                  "wcvp_unclassifiable_unresolved",
                   "source_introduced",
               ])
           ].copy()
