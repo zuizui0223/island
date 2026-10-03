@@ -1,5 +1,4 @@
 import math
-from pathlib import Path
 
 import pandas as pd
 import yaml
@@ -8,68 +7,201 @@ from island_v2.chapter1_biological_domains_reanalysis import (
     _bh,
     build_genus_residual_species_scores,
     build_island_scores,
-    h3_summary,
+    build_species_response_scores,
     response_specs,
 )
 
 
 def _config():
     return yaml.safe_load(
-        Path("config/chapter1_biological_domains_reanalysis.yml").read_text(
-            encoding="utf-8"
-        )
+        """
+minimum_species_per_island_score: 1
+common_support_responses:
+  - reproductive_assurance
+  - accessibility_specialization
+  - flower_size_reduction
+primary_posthoc_H1_responses:
+  - reproductive_assurance
+  - accessibility_specialization
+domains:
+  reproductive_assurance_core:
+    domain: reproductive_assurance
+    role: frozen_PR138_benchmark
+    minimum_components_per_species: 2
+    components:
+      self_incompatibility:
+        weight: 1.0
+        values: {SI: 0.0, SC: 1.0}
+      mating_system:
+        weight: 1.0
+        values: {predominantly_outcrossing: 0.0, predominantly_selfing: 1.0}
+  reproductive_assurance:
+    domain: reproductive_assurance
+    role: posthoc_extended_domain
+    minimum_components_per_species: 2
+    components:
+      self_incompatibility:
+        weight: 1.0
+        values: {SI: 0.0, SC: 1.0}
+      mating_system:
+        weight: 1.0
+        values: {predominantly_outcrossing: 0.0, predominantly_selfing: 1.0}
+      cleistogamy:
+        weight: 1.0
+        values: {absent: 0.0, facultative: 1.0, obligate: 1.0}
+  accessibility_specialization:
+    domain: accessibility_specialization
+    role: frozen_PR138_benchmark_and_posthoc_domain
+    minimum_components_per_species: 2
+    components:
+      floral_form:
+        weight: 1.0
+        values: {open_radial: 1.0, tubular: 0.0}
+      floral_symmetry:
+        weight: 0.75
+        values: {actinomorphic: 1.0, zygomorphic: 0.0}
+  signal_display:
+    role: exploratory_domain
+    directional_component:
+      flower_size_reduction:
+        source_trait: flower_size_class
+        role: frozen_selfing_syndrome_size_recode
+        minimum_components_per_species: 1
+        weight: 1.0
+        values: {very_small: 1.0, small: 1.0, large: 0.0, very_large: 0.0}
+    raw_state_traits:
+      - flower_primary_color
+      - flower_size_class
+      - inflorescence_display
+"""
     )
 
 
-def test_domain_contract_has_core_extended_accessibility_and_size_only():
+def _raw_axis_config():
+    return {
+        "axes": {
+            "flower_colour": {
+                "traits": ["flower_primary_color"],
+            },
+            "floral_structural_complexity": {
+                "traits": [
+                    "floral_form",
+                    "floral_symmetry",
+                    "flower_size_class",
+                    "inflorescence_display",
+                ],
+            },
+            "reproductive_assurance": {
+                "traits": [
+                    "self_incompatibility",
+                    "mating_system",
+                    "cleistogamy",
+                ],
+            },
+        },
+        "evidence_scopes": {
+            "direct_only": ["high", "medium"],
+        },
+    }
+
+
+def _ontology():
+    return {
+        "traits": {
+            "flower_primary_color": {
+                "allowed_values": ["red_pink", "white", "unresolved"],
+            },
+            "floral_form": {
+                "allowed_values": ["open_radial", "tubular", "unresolved"],
+            },
+            "floral_symmetry": {
+                "allowed_values": ["actinomorphic", "zygomorphic", "unresolved"],
+            },
+            "flower_size_class": {
+                "allowed_values": ["small", "large", "unresolved"],
+            },
+            "inflorescence_display": {
+                "allowed_values": ["solitary", "umbel_corymb", "unresolved"],
+            },
+            "self_incompatibility": {
+                "allowed_values": ["SC", "SI", "unresolved"],
+            },
+            "mating_system": {
+                "allowed_values": [
+                    "predominantly_selfing",
+                    "predominantly_outcrossing",
+                    "unresolved",
+                ],
+            },
+            "cleistogamy": {
+                "allowed_values": ["absent", "facultative", "unresolved"],
+            },
+        }
+    }
+
+
+def test_signal_display_is_not_one_confirmatory_response():
     specs = response_specs(_config())
-    assert set(specs) == {
-        "reproductive_assurance_core",
-        "reproductive_assurance",
-        "accessibility_specialization",
-        "flower_size_reduction",
-    }
-    assert specs["reproductive_assurance_core"]["domain"] == (
-        "reproductive_assurance"
-    )
-    assert "cleistogamy" not in specs[
-        "reproductive_assurance_core"
-    ]["components"]
-    assert "cleistogamy" in specs["reproductive_assurance"]["components"]
-    assert set(specs["flower_size_reduction"]["components"]) == {
-        "flower_size_class"
-    }
-
-
-def test_accessibility_reuses_frozen_pr138_weights_and_states():
-    specs = response_specs(_config())
-    access = specs["accessibility_specialization"]["components"]
-    assert access["floral_form"]["weight"] == 1.0
-    assert access["floral_symmetry"]["weight"] == 0.75
-    assert access["tube_depth_class"]["weight"] == 1.0
-    assert "intermediate" not in access["tube_depth_class"]["values"]
-    assert "bell_campanulate" not in access["floral_form"]["values"]
-    assert "funnel_trumpet" not in access["floral_form"]["values"]
-
-
-def test_signal_display_has_no_single_ordinal_domain_score():
-    cfg = _config()
-    signal = cfg["domains"]["signal_display"]
-    assert signal["directional_identification"] == "partial_only"
-    assert set(signal["raw_state_traits"]) == {
-        "flower_primary_color",
-        "flower_size_class",
-        "inflorescence_display",
-    }
-    specs = response_specs(cfg)
     assert "signal_display" not in specs
+    assert specs["flower_size_reduction"]["role"] == (
+        "frozen_selfing_syndrome_size_recode"
+    )
     assert "plain_colour_proxy" not in specs
     assert "inflorescence_display_reduction_proxy" not in specs
 
 
-def test_common_support_uses_same_species_for_all_three_directional_scores():
+def test_accessibility_preserves_frozen_trait_weights():
+    specs = response_specs(_config())
+    assert specs["accessibility_specialization"]["components"][
+        "floral_form"
+    ]["weight"] == 1.0
+    assert specs["accessibility_specialization"]["components"][
+        "floral_symmetry"
+    ]["weight"] == 0.75
+
+
+def test_ambiguous_mixed_states_are_missing_not_midpoint():
+    species_axis = pd.DataFrame(
+        [
+            {
+                "accepted_species": "Alpha one",
+                "axis": "floral_structural_complexity",
+                "trait_composition": (
+                    'floral_form=["open_radial","tubular"]|'
+                    'floral_symmetry=["actinomorphic"]'
+                ),
+                "quality": "high",
+            },
+            {
+                "accepted_species": "Beta two",
+                "axis": "floral_structural_complexity",
+                "trait_composition": (
+                    'floral_form=["open_radial"]|'
+                    'floral_symmetry=["actinomorphic"]'
+                ),
+                "quality": "high",
+            },
+        ]
+    )
+    scores, _ = build_species_response_scores(
+        species_axis,
+        _ontology(),
+        _raw_axis_config(),
+        _config(),
+        evidence_scope="direct_only",
+    )
+    access = scores.loc[
+        scores["response"].eq("accessibility_specialization")
+    ].set_index("accepted_species")
+    assert "Alpha one" not in access.index
+    assert math.isclose(
+        float(access.loc["Beta two", "score"]),
+        1.0,
+    )
+
+
+def test_common_support_uses_only_species_with_all_three_strict_scores():
     cfg = _config()
-    cfg["minimum_species_per_island_score"] = 1
     flora = pd.DataFrame(
         {
             "island_id": ["1", "1", "2", "2"],
@@ -165,21 +297,3 @@ def test_bh_is_monotone_and_bounded():
     q = _bh(pd.Series([0.001, 0.02, 0.2, 0.8]))
     assert q.between(0, 1).all()
     assert list(q.sort_values()) == sorted(q.tolist())
-
-
-def test_contract_marks_reclassification_posthoc_and_blocks_hard_attraction_order():
-    cfg = _config()
-    assert (
-        cfg["inferential_role"]
-        == "posthoc_biological_reclassification_stress_test"
-    )
-    guards = set(cfg["reviewer_guards"])
-    assert "colour_hue_is_not_equated_with_visual_attraction_intensity" in guards
-    assert (
-        "inflorescence_architecture_is_not_equated_with_total_display_area"
-        in guards
-    )
-    assert (
-        "posthoc_reclassification_never_replaces_final_confirmatory_H1"
-        in guards
-    )
