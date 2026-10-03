@@ -73,6 +73,39 @@ def validate_score_weights(config: dict[str, Any]) -> dict[str, float]:
     return weights
 
 
+def validate_sensitivity_weights(
+    config: dict[str, Any],
+) -> dict[str, dict[str, float]]:
+    schemes = config["directional_score"].get(
+        "weight_sensitivities", {}
+    )
+    expected = set(str(x) for x in config["model_outcomes"])
+    out: dict[str, dict[str, float]] = {}
+    for name, mapping in schemes.items():
+        weights = {
+            str(k): float(v) for k, v in mapping.items()
+        }
+        if set(weights) != expected:
+            raise typer.BadParameter(
+                f"weight sensitivity {name} does not match model outcomes"
+            )
+        if any(v < 0 for v in weights.values()):
+            raise typer.BadParameter(
+                f"weight sensitivity {name} contains negative weights"
+            )
+        if not math.isclose(
+            sum(weights.values()),
+            1.0,
+            rel_tol=0.0,
+            abs_tol=1e-12,
+        ):
+            raise typer.BadParameter(
+                f"weight sensitivity {name} must sum to 1"
+            )
+        out[str(name)] = weights
+    return out
+
+
 def _stack_cluster_influences(
     fits: list[dict[str, Any]],
     clusters: list[np.ndarray],
@@ -524,6 +557,7 @@ def run_final_directional_h1(
     evidence_scope: str,
 ) -> dict[str, pd.DataFrame | dict[str, Any]]:
     weights = validate_score_weights(config)
+    sensitivity_weights = validate_sensitivity_weights(config)
     counts = build_broad_counts(status_flora, state_audit, config)
     prepared = _prepare(counts, covariates, config)
     rows: list[dict[str, Any]] = []
@@ -617,6 +651,71 @@ def run_final_directional_h1(
     leaveout_meta["stratum"] = primary_stratum
     leaveout_meta["sensitivity"] = "drop_top_variance_cluster"
 
+    weight_parts: list[pd.DataFrame] = []
+    weight_summaries: list[dict[str, Any]] = []
+    for scheme_index, (scheme, scheme_weights) in enumerate(
+        sensitivity_weights.items()
+    ):
+        scheme_rows: list[dict[str, Any]] = []
+        for context_index, context_value in enumerate(contexts):
+            row, _ = _fit_directional_score(
+                prepared,
+                stratum=primary_stratum,
+                context_value=context_value,
+                config=config,
+                weights=scheme_weights,
+                seed=base_seed + 2000 + 100 * scheme_index + context_index,
+            )
+            row["evidence_scope"] = evidence_scope
+            row["weight_scheme"] = scheme
+            scheme_rows.append(row)
+        scheme_frame = pd.DataFrame(scheme_rows)
+        weight_parts.append(scheme_frame)
+        scheme_iut = intersection_union_summary(
+            scheme_frame,
+            contexts=contexts,
+            alpha=float(config["alpha"]),
+        )
+        scheme_meta = meta_directional_summary(
+            scheme_frame,
+            contexts=contexts,
+            alpha=float(config["alpha"]),
+        )
+        weight_summaries.append(
+            {
+                "evidence_scope": evidence_scope,
+                "weight_scheme": scheme,
+                "strict_recurrence_supported": bool(
+                    scheme_iut.get(
+                        "recurrent_robust_supported", False
+                    )
+                ),
+                "strict_iut_p_t": scheme_iut.get(
+                    "iut_p_one_sided_t", float("nan")
+                ),
+                "strict_iut_p_wild": scheme_iut.get(
+                    "iut_p_one_sided_wild", float("nan")
+                ),
+                "global_average_estimate": scheme_meta.get(
+                    "random_effects_estimate", float("nan")
+                ),
+                "global_average_p_one_sided": scheme_meta.get(
+                    "random_effects_p_one_sided", float("nan")
+                ),
+                "global_average_supported": bool(
+                    scheme_meta.get(
+                        "positive_global_average_supported", False
+                    )
+                ),
+                "i2": scheme_meta.get("i2", float("nan")),
+            }
+        )
+    weight_sensitivity = (
+        pd.concat(weight_parts, ignore_index=True)
+        if weight_parts
+        else pd.DataFrame()
+    )
+
     return {
         "results": results,
         "components": (
@@ -630,6 +729,10 @@ def run_final_directional_h1(
         "top_cluster_sensitivity": leaveout,
         "top_cluster_iut": leaveout_iut,
         "top_cluster_meta": leaveout_meta,
+        "weight_sensitivity": weight_sensitivity,
+        "weight_sensitivity_summary": pd.DataFrame(
+            weight_summaries
+        ),
     }
 
 
@@ -670,6 +773,14 @@ def run(
         output_dir / "top_cluster_leaveout_results.csv",
         index=False,
     )
+    result["weight_sensitivity"].to_csv(
+        output_dir / "weight_sensitivity_results.csv",
+        index=False,
+    )
+    result["weight_sensitivity_summary"].to_csv(
+        output_dir / "weight_sensitivity_summary.csv",
+        index=False,
+    )
     (output_dir / "directional_score_iut.json").write_text(
         json.dumps(result["iut"], indent=2) + "\n",
         encoding="utf-8",
@@ -693,6 +804,10 @@ def run(
                 "primary_meta": result["meta"],
                 "top_cluster_leaveout_iut": result["top_cluster_iut"],
                 "top_cluster_leaveout_meta": result["top_cluster_meta"],
+                "weight_sensitivity_summary": (
+                    result["weight_sensitivity_summary"]
+                    .to_dict(orient="records")
+                ),
             },
             indent=2,
         )
