@@ -309,7 +309,7 @@ def test_repository_config_reuses_frozen_pr138_directional_states():
     selfing = frozen["syndromes"]["selfing_core"]["traits"]
     assurance = config["domains"]["reproductive_assurance"]["components"]
     for trait, spec in selfing.items():
-        mapping = assurance[trait]
+        mapping = assurance[trait]["values"]
         assert set(mapping) == set(spec["preferred"]) | set(spec["opposed"])
         assert all(mapping[state] == 1.0 for state in spec["preferred"])
         assert all(mapping[state] == 0.0 for state in spec["opposed"])
@@ -317,7 +317,7 @@ def test_repository_config_reuses_frozen_pr138_directional_states():
     access = frozen["syndromes"]["generalized_accessible"]["traits"]
     observed = config["domains"]["accessibility_specialization"]["components"]
     for trait, spec in access.items():
-        mapping = observed[trait]
+        mapping = observed[trait]["values"]
         assert set(mapping) == set(spec["preferred"]) | set(spec["opposed"])
         assert all(mapping[state] == 1.0 for state in spec["preferred"])
         assert all(mapping[state] == 0.0 for state in spec["opposed"])
@@ -325,7 +325,7 @@ def test_repository_config_reuses_frozen_pr138_directional_states():
     frozen_size = frozen["syndromes"]["selfing_syndrome"]["traits"][
         "flower_size_class"
     ]
-    observed_size = config["domains"]["signal_display"]["components"][
+    observed_size = config["domains"]["signal_display"]["directional_component"][
         "flower_size_reduction"
     ]["values"]
     assert set(observed_size) == set(frozen_size["preferred"]) | set(
@@ -343,10 +343,10 @@ def test_repository_config_does_not_order_colour_or_inflorescence():
     config = yaml.safe_load(
         open("config/chapter1_biological_domains_reanalysis.yml", encoding="utf-8")
     )
-    components = config["domains"]["signal_display"]["components"]
+    components = config["domains"]["signal_display"]["directional_component"]
     assert set(components) == {"flower_size_reduction"}
     descriptive = set(
-        config["domains"]["signal_display"]["descriptive_state_traits"]
+        config["domains"]["signal_display"]["raw_state_traits"]
     )
     assert "flower_primary_color" in descriptive
     assert "inflorescence_display" in descriptive
