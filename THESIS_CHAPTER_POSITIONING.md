@@ -29,9 +29,9 @@ The 24 September 2026 geography correction repaired 1,113 spurious island zero d
 
 ### H1 — recurrent multivariate island response
 
-The seven-response floral/reproductive isolation vector is jointly supported in all four predeclared geographic strata in both evidence scopes.
+The current H1 is a recurrent response across three biological domains: **reproductive assurance, colour composition and floral accessibility/generalization**. Formal inference uses seven pre-oriented atomic indicators spanning those domains, and the joint vector is supported in all four predeclared geographic strata in both evidence scopes.
 
-The result is **recurrent, not uniform**. Individual traits can be weak or move in the opposite direction; in particular, southern shallow/open tube is negative in the corrected analysis.
+The result is **recurrent at the domain level, not a seven-trait checklist**. Atomic indicators diagnose regional realization and can be weak or move in the opposite direction; southern shallow/open tube is negative in the corrected analysis.
 
 ### H2 — two partially separable plant-response components
 
@@ -86,7 +86,7 @@ Those analyses remain useful provenance and sensitivity history, but they are no
 ```text
 geographic isolation
       |
-      +--> recurrent multivariate floral/reproductive response (H1)
+      +--> recurrent three-domain floral/reproductive response (H1)
       |        |
       |        +--> reproductive assurance
       |        |
