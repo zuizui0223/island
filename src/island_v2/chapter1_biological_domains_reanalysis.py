@@ -120,42 +120,33 @@ def response_specs(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
                 str(trait): {
                     "weight": float(component["weight"]),
                     "values": {
-                        str(k): float(v)
-                        for k, v in component["values"].items()
+                        str(state): float(value)
+                        for state, value in component["values"].items()
                     },
                 }
                 for trait, component in item["components"].items()
             },
         }
 
-    size = config["domains"]["signal_display"][
-        "directional_component"
-    ]["flower_size_reduction"]
-    specs["flower_size_reduction"] = {
-        "domain": "signal_display",
-        "role": str(size["role"]),
-        "minimum_components": int(
-            size["minimum_components_per_species"]
-        ),
-        "components": {
-            str(size["source_trait"]): {
-                "weight": float(size["weight"]),
-                "values": {
-                    str(k): float(v)
-                    for k, v in size["values"].items()
-                },
-            }
-        },
-    }
+    signal = config["domains"]["signal_display"]
+    for response, item in signal["directional_component"].items():
+        specs[str(response)] = {
+            "domain": "signal_display",
+            "role": str(item["role"]),
+            "minimum_components": int(
+                item.get("minimum_components_per_species", 1)
+            ),
+            "components": {
+                str(item["source_trait"]): {
+                    "weight": float(item.get("weight", 1.0)),
+                    "values": {
+                        str(state): float(value)
+                        for state, value in item["values"].items()
+                    },
+                }
+            },
+        }
     return specs
-
-
-def _unambiguous_trait_score(values: pd.Series) -> float:
-    finite = pd.to_numeric(values, errors="coerce").dropna().unique()
-    if len(finite) != 1:
-        return float("nan")
-    return float(finite[0])
-
 
 def build_species_response_scores(
     species_axis: pd.DataFrame,
@@ -165,70 +156,97 @@ def build_species_response_scores(
     *,
     evidence_scope: str,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    ledger, coverage = build_valid_state_ledger(
+    ledger, _coverage = build_valid_state_ledger(
         species_axis,
         ontology,
         raw_axis_config,
         evidence_scope=evidence_scope,
     )
     specs = response_specs(config)
-    rows: list[pd.DataFrame] = []
+    rows: list[dict[str, Any]] = []
+
     for response, spec in specs.items():
+        component_rows: list[pd.DataFrame] = []
         for trait, component in spec["components"].items():
             mapping = component["values"]
+            weight = float(component["weight"])
             part = ledger.loc[
                 ledger["trait_name"].astype(str).eq(trait),
-                ["accepted_species", "trait_name", "state"],
+                ["accepted_species", "state"],
             ].copy()
             if part.empty:
                 continue
-            part["state_score"] = part["state"].map(mapping)
-            part = part.dropna(subset=["state_score"])
-            if part.empty:
-                continue
-            trait_score = (
-                part.groupby(
-                    ["accepted_species", "trait_name"],
-                    as_index=False,
+
+            scored_rows: list[dict[str, Any]] = []
+            for accepted_species, states_frame in part.groupby(
+                "accepted_species",
+                sort=False,
+            ):
+                states = {
+                    str(value)
+                    for value in states_frame["state"].tolist()
+                    if str(value)
+                }
+                # Match the frozen PR138 ambiguity rule: a trait contributes
+                # only when every reported state is interpretable and all
+                # interpreted states lie on the same side of the contrast.
+                if not states or not states.issubset(set(mapping)):
+                    continue
+                values = {float(mapping[state]) for state in states}
+                if len(values) != 1:
+                    continue
+                scored_rows.append(
+                    {
+                        "accepted_species": str(accepted_species),
+                        "trait_name": str(trait),
+                        "trait_score": float(next(iter(values))),
+                        "trait_weight": weight,
+                    }
                 )
-                .agg(trait_score=("state_score", _unambiguous_trait_score))
-                .dropna(subset=["trait_score"])
+            if scored_rows:
+                component_rows.append(pd.DataFrame(scored_rows))
+
+        if not component_rows:
+            continue
+        component = pd.concat(component_rows, ignore_index=True)
+        component["weighted_score"] = (
+            component["trait_score"] * component["trait_weight"]
+        )
+        grouped = (
+            component.groupby("accepted_species", as_index=False)
+            .agg(
+                weighted_sum=("weighted_score", "sum"),
+                weight_sum=("trait_weight", "sum"),
+                n_components=("trait_name", "nunique"),
             )
-            trait_score["trait_weight"] = float(component["weight"])
-            trait_score["response"] = response
-            trait_score["domain"] = spec["domain"]
-            trait_score["role"] = spec["role"]
-            rows.append(trait_score)
+        )
+        grouped = grouped.loc[
+            grouped["n_components"].ge(int(spec["minimum_components"]))
+            & grouped["weight_sum"].gt(0)
+        ].copy()
+        grouped["score"] = (
+            grouped["weighted_sum"] / grouped["weight_sum"]
+        )
+        grouped["response"] = response
+        grouped["domain"] = spec["domain"]
+        grouped["role"] = spec["role"]
+        rows.extend(
+            grouped[
+                [
+                    "accepted_species",
+                    "response",
+                    "domain",
+                    "role",
+                    "score",
+                    "n_components",
+                ]
+            ].to_dict(orient="records")
+        )
 
-    if not rows:
+    grouped = pd.DataFrame(rows)
+    if grouped.empty:
         raise typer.BadParameter("no species response scores could be built")
-    trait_scores = pd.concat(rows, ignore_index=True)
-
-    trait_scores["weighted_score"] = (
-        trait_scores["trait_score"] * trait_scores["trait_weight"]
-    )
-    grouped = (
-        trait_scores.groupby(
-            ["accepted_species", "response", "domain", "role"],
-            as_index=False,
-        )
-        .agg(
-            weighted_sum=("weighted_score", "sum"),
-            total_weight=("trait_weight", "sum"),
-            n_components=("trait_name", "nunique"),
-        )
-    )
-    grouped["score"] = grouped["weighted_sum"] / grouped["total_weight"]
-    minima = {
-        response: int(spec["minimum_components"])
-        for response, spec in specs.items()
-    }
-    grouped["minimum_components"] = grouped["response"].map(minima)
-    grouped = grouped.loc[
-        grouped["n_components"].ge(grouped["minimum_components"])
-    ].copy()
     grouped["evidence_scope"] = evidence_scope
-    grouped = grouped.drop(columns=["weighted_sum", "total_weight"])
 
     support = (
         grouped.groupby(["response", "domain", "role"], as_index=False)
@@ -240,9 +258,8 @@ def build_species_response_scores(
         )
     )
     support.insert(0, "evidence_scope", evidence_scope)
-    coverage = coverage.copy()
-    coverage["evidence_scope"] = evidence_scope
     return grouped, support
+
 def _flora_scope_mask(status_flora: pd.DataFrame, scope: str) -> pd.Series:
     if scope == "all_observed":
         return pd.Series(True, index=status_flora.index)
