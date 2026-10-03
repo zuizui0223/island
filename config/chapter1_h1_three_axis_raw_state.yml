@@ -42,6 +42,7 @@ model:
     [log_island_area_km2, climate_pc1, climate_pc2, climate_pc3, climate_pc4]
   contexts:
     [northern_midlatitude, northern_high_latitude, tropical, southern_extratropical]
+  minimum_unique_species_per_state: 10
   minimum_islands_per_state: 50
   minimum_positive_islands_per_state: 10
   minimum_negative_islands_per_state: 10
@@ -73,6 +74,7 @@ rules:
   - no_species_level_pre_averaging
   - raw_multistate_membership_is_retained
   - state_prevalence_models_keep_trait_specific_denominators
+  - formal_state_tests_require_at_least_10_unique_species_per_evidence_scope
   - inferential_states_require_at_least_30_unique_species_with_that_state
   - three_axes_are_primary_response_blocks
   - state_models_are_measurement_components_not_separate_headline_traits
