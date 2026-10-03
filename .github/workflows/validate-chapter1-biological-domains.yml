@@ -182,7 +182,6 @@ jobs:
           PY
 
           {
-          {
             echo "## Biological-domain reanalysis"
             echo
             echo "### H1 primary"
