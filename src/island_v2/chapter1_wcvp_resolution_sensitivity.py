@@ -176,28 +176,61 @@ def run_resolution_adjusted_h1(
     wcvp_ranges: pd.DataFrame,
     island_tdwg: pd.DataFrame,
     config: dict[str, Any],
-) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
+) -> tuple[
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    dict[str, Any],
+]:
     upgraded, audit = build_regional_native_compatible_flora(
         status_flora,
         wcvp_ranges,
         island_tdwg,
     )
     native = upgraded.loc[upgraded["origin_status"].astype(str).eq("native")].copy()
-    cfg = dict(config)
-    cfg["strata"] = ["all_observed"]
-    counts = build_broad_counts(native, state_audit, cfg)
+
+    complete_islands = set(
+        covariates.loc[
+            pd.to_numeric(
+                covariates["log_tdwg_l3_area_km2"], errors="coerce"
+            ).notna(),
+            "island_id",
+        ].astype(str)
+    )
+    native_complete = native.loc[
+        native["island_id"].astype(str).isin(complete_islands)
+    ].copy()
+
+    base_cfg = dict(config)
+    base_cfg["strata"] = ["all_observed"]
+    counts = build_broad_counts(native_complete, state_audit, base_cfg)
     counts["stratum"] = "regional_native_compatible"
-    cfg["strata"] = ["regional_native_compatible"]
-    baseline = [str(x) for x in cfg["baseline_covariates"]]
-    if "log_tdwg_l3_area_km2" not in baseline:
-        baseline.append("log_tdwg_l3_area_km2")
-    cfg["baseline_covariates"] = baseline
-    within_slopes, _, within, _ = run_probability_analysis(
+    base_cfg["strata"] = ["regional_native_compatible"]
+
+    matched_slopes, _, matched_within, _ = run_probability_analysis(
         counts,
         covariates,
-        cfg,
+        base_cfg,
     )
-    return within_slopes, within, audit
+
+    adjusted_cfg = dict(base_cfg)
+    baseline = [str(x) for x in adjusted_cfg["baseline_covariates"]]
+    if "log_tdwg_l3_area_km2" not in baseline:
+        baseline.append("log_tdwg_l3_area_km2")
+    adjusted_cfg["baseline_covariates"] = baseline
+    adjusted_slopes, _, adjusted_within, _ = run_probability_analysis(
+        counts,
+        covariates,
+        adjusted_cfg,
+    )
+    return (
+        matched_slopes,
+        matched_within,
+        adjusted_slopes,
+        adjusted_within,
+        audit,
+    )
 
 
 @app.command()
@@ -218,7 +251,13 @@ def main(
         pd.read_csv(island_tdwg_csv),
         areas,
     )
-    slopes, omnibus, audit = run_resolution_adjusted_h1(
+    (
+        matched_slopes,
+        matched_omnibus,
+        adjusted_slopes,
+        adjusted_omnibus,
+        audit,
+    ) = run_resolution_adjusted_h1(
         pd.read_csv(status_flora_csv),
         pd.read_csv(state_audit_csv),
         covariates,
@@ -227,19 +266,40 @@ def main(
         yaml.safe_load(config_path.read_text(encoding="utf-8")),
     )
     output_dir.mkdir(parents=True, exist_ok=True)
-    for frame in (slopes, omnibus, correlation):
+    for frame in (
+        matched_slopes,
+        matched_omnibus,
+        adjusted_slopes,
+        adjusted_omnibus,
+        correlation,
+    ):
         if not frame.empty:
             frame.insert(0, "evidence_scope", evidence_scope)
     areas.to_csv(output_dir / "tdwg_l3_area.csv", index=False)
     correlation.to_csv(output_dir / "resolution_distance_audit.csv", index=False)
-    slopes.to_csv(output_dir / "resolution_adjusted_within_slopes.csv", index=False)
-    omnibus.to_csv(output_dir / "resolution_adjusted_within_omnibus.csv", index=False)
+    matched_slopes.to_csv(
+        output_dir / "resolution_matched_baseline_within_slopes.csv",
+        index=False,
+    )
+    matched_omnibus.to_csv(
+        output_dir / "resolution_matched_baseline_within_omnibus.csv",
+        index=False,
+    )
+    adjusted_slopes.to_csv(
+        output_dir / "resolution_adjusted_within_slopes.csv",
+        index=False,
+    )
+    adjusted_omnibus.to_csv(
+        output_dir / "resolution_adjusted_within_omnibus.csv",
+        index=False,
+    )
     pd.DataFrame([{"evidence_scope": evidence_scope, **audit}]).to_csv(
         output_dir / "regional_native_coverage.csv",
         index=False,
     )
     typer.echo(correlation.to_csv(index=False))
-    typer.echo(omnibus.to_csv(index=False))
+    typer.echo(matched_omnibus.to_csv(index=False))
+    typer.echo(adjusted_omnibus.to_csv(index=False))
 
 
 if __name__ == "__main__":
