@@ -30,6 +30,7 @@ import numpy as np
 import pandas as pd
 import typer
 import yaml
+from scipy import sparse
 
 from island_v2.chapter1_all_data_probability import (
     _bh,
@@ -222,59 +223,55 @@ def build_island_genus_counts(
     )
 
 
-def _richness_bin(value: float) -> int:
-    if value <= 1:
-        return 0
-    if value <= 2:
-        return 1
-    if value <= 4:
-        return 2
-    if value <= 8:
-        return 3
-    return 4
+def _richness_bins_array(values: np.ndarray) -> np.ndarray:
+    bins = np.zeros_like(values, dtype=np.int8)
+    bins[(values > 1) & (values <= 2)] = 1
+    bins[(values > 2) & (values <= 4)] = 2
+    bins[(values > 4) & (values <= 8)] = 3
+    bins[values > 8] = 4
+    return bins
 
 
-def compute_island_enrichment(
-    source_candidates: pd.DataFrame,
-    island_counts: pd.DataFrame,
+def compute_island_enrichment_arrays(
+    prevalence: np.ndarray,
+    source_richness: np.ndarray,
+    island_species_counts: np.ndarray,
+    positions: np.ndarray,
     *,
     minimum_represented_genera: int,
 ) -> dict[str, float | int] | None:
-    work = source_candidates.merge(
-        island_counts[["genus", "n_island_species"]],
-        on="genus",
-        how="left",
-        validate="one_to_one",
-    )
-    work["n_island_species"] = (
-        pd.to_numeric(work["n_island_species"], errors="coerce").fillna(0).astype(int)
-    )
-    represented = work["n_island_species"].gt(0)
+    candidate = prevalence > 0
+    counts = island_species_counts.astype(float).copy()
+    counts[~candidate] = 0.0
+    represented = counts > 0
     n_represented = int(represented.sum())
-    n_species = int(work.loc[represented, "n_island_species"].sum())
+    n_species = int(counts.sum())
     if n_represented < int(minimum_represented_genera) or n_species <= 0:
         return None
 
-    observed_entry = float(work.loc[represented, "source_h1_position"].mean())
-    observed_species = float(
-        np.average(
-            work.loc[represented, "source_h1_position"].to_numpy(float),
-            weights=work.loc[represented, "n_island_species"].to_numpy(float),
-        )
-    )
+    observed_entry = float(np.mean(positions[represented]))
+    observed_species = float(np.sum(positions * counts) / n_species)
+    richness_bins = _richness_bins_array(source_richness)
 
-    work["richness_bin"] = work["source_species_richness"].map(_richness_bin)
     expected_entry_sum = 0.0
     expected_species_sum = 0.0
-    for _, group in work.groupby(["source_prevalence", "richness_bin"], sort=False):
-        represented_group = group["n_island_species"].gt(0)
-        n_genus = int(represented_group.sum())
-        n_species_group = int(group.loc[represented_group, "n_island_species"].sum())
-        if n_genus == 0 and n_species_group == 0:
+    classes = np.unique(
+        np.column_stack([prevalence[candidate], richness_bins[candidate]]),
+        axis=0,
+    )
+    for source_prevalence, richness_bin in classes:
+        class_mask = (
+            candidate
+            & (prevalence == source_prevalence)
+            & (richness_bins == richness_bin)
+        )
+        represented_genera = int(np.sum(represented & class_mask))
+        represented_species = int(np.sum(counts[class_mask]))
+        if represented_genera == 0 and represented_species == 0:
             continue
-        class_mean = float(group["source_h1_position"].mean())
-        expected_entry_sum += n_genus * class_mean
-        expected_species_sum += n_species_group * class_mean
+        class_mean = float(np.mean(positions[class_mask]))
+        expected_entry_sum += represented_genera * class_mean
+        expected_species_sum += represented_species * class_mean
 
     expected_entry = expected_entry_sum / n_represented
     expected_species = expected_species_sum / n_species
@@ -283,7 +280,7 @@ def compute_island_enrichment(
     return {
         "n_represented_genera": n_represented,
         "n_represented_species": n_species,
-        "n_candidate_genera": int(len(work)),
+        "n_candidate_genera": int(candidate.sum()),
         "observed_entry_mean": observed_entry,
         "expected_entry_mean": expected_entry,
         "entry_enrichment": entry,
@@ -292,6 +289,91 @@ def compute_island_enrichment(
         "species_enrichment": species,
         "loading_increment": species - entry,
     }
+
+
+def _matrix_inputs(
+    *,
+    positions: pd.DataFrame,
+    source_availability: pd.DataFrame,
+    island_counts: pd.DataFrame,
+    assignments: pd.DataFrame,
+    tropical_islands: set[str],
+) -> tuple[
+    list[str],
+    dict[str, int],
+    np.ndarray,
+    dict[str, tuple[np.ndarray, np.ndarray]],
+]:
+    genera = sorted(positions["genus"].dropna().astype(str).unique())
+    genus_index = {genus: idx for idx, genus in enumerate(genera)}
+    islands = sorted(str(x) for x in tropical_islands)
+    island_index = {island: idx for idx, island in enumerate(islands)}
+
+    avail = source_availability.loc[
+        source_availability["genus"].astype(str).isin(genus_index)
+    ].copy()
+    avail["entity_ID"] = pd.to_numeric(avail["entity_ID"], errors="coerce")
+    avail = avail.dropna(subset=["entity_ID"])
+    avail["entity_ID"] = avail["entity_ID"].astype(int)
+
+    assign = assignments.loc[
+        assignments["source_mode"].astype(str).isin(SOURCE_MODES)
+        & assignments["island_id"].astype(str).isin(island_index),
+        ["island_id", "source_mode", "entity_ID"],
+    ].drop_duplicates().copy()
+    assign["island_id"] = assign["island_id"].astype(str)
+    assign["entity_ID"] = pd.to_numeric(assign["entity_ID"], errors="coerce")
+    assign = assign.dropna(subset=["entity_ID"])
+    assign["entity_ID"] = assign["entity_ID"].astype(int)
+
+    entities = sorted(set(avail["entity_ID"]) | set(assign["entity_ID"]))
+    entity_index = {entity: idx for idx, entity in enumerate(entities)}
+
+    arows = avail["entity_ID"].map(entity_index).to_numpy(int)
+    acols = avail["genus"].astype(str).map(genus_index).to_numpy(int)
+    presence = sparse.csr_matrix(
+        (np.ones(len(avail), dtype=float), (arows, acols)),
+        shape=(len(entity_index), len(genus_index)),
+    )
+    richness = sparse.csr_matrix(
+        (
+            pd.to_numeric(avail["source_species_richness"], errors="coerce")
+            .fillna(0)
+            .to_numpy(float),
+            (arows, acols),
+        ),
+        shape=presence.shape,
+    )
+
+    counts = island_counts.loc[
+        island_counts["island_id"].astype(str).isin(island_index)
+        & island_counts["genus"].astype(str).isin(genus_index)
+    ].copy()
+    crows = counts["island_id"].astype(str).map(island_index).to_numpy(int)
+    ccols = counts["genus"].astype(str).map(genus_index).to_numpy(int)
+    count_matrix = sparse.csr_matrix(
+        (
+            pd.to_numeric(counts["n_island_species"], errors="coerce")
+            .fillna(0)
+            .to_numpy(float),
+            (crows, ccols),
+        ),
+        shape=(len(island_index), len(genus_index)),
+    ).toarray()
+
+    mode_matrices: dict[str, tuple[np.ndarray, np.ndarray]] = {}
+    for source_mode in SOURCE_MODES:
+        mode = assign.loc[assign["source_mode"].astype(str).eq(source_mode)].copy()
+        rows = mode["island_id"].map(island_index).to_numpy(int)
+        cols = mode["entity_ID"].map(entity_index).to_numpy(int)
+        matrix = sparse.csr_matrix(
+            (np.ones(len(mode), dtype=float), (rows, cols)),
+            shape=(len(island_index), len(entity_index)),
+        )
+        prevalence = (matrix @ presence).toarray().astype(np.int16)
+        source_richness = (matrix @ richness).toarray().astype(np.float32)
+        mode_matrices[source_mode] = (prevalence, source_richness)
+    return islands, genus_index, count_matrix, mode_matrices
 
 
 def build_island_scores(
@@ -305,64 +387,35 @@ def build_island_scores(
     evidence_scope: str,
     minimum_represented_genera: int,
 ) -> pd.DataFrame:
-    assignment = assignments[["island_id", "source_mode", "entity_ID"]].copy()
-    assignment["island_id"] = assignment["island_id"].astype(str)
-    assignment = assignment.loc[
-        assignment["island_id"].isin(tropical_islands)
-        & assignment["source_mode"].astype(str).isin(SOURCE_MODES)
-    ].drop_duplicates()
+    islands, genus_index, count_matrix, mode_matrices = _matrix_inputs(
+        positions=positions,
+        source_availability=source_availability,
+        island_counts=island_counts,
+        assignments=assignments,
+        tropical_islands=tropical_islands,
+    )
 
     parts: list[pd.DataFrame] = []
     for outcome in sorted(states["outcome"].astype(str).unique()):
         pos = positions.loc[positions["outcome"].astype(str).eq(outcome)].copy()
+        pos = pos.loc[pos["genus"].astype(str).isin(genus_index)]
         if pos.empty:
             continue
-        genera = set(pos["genus"].astype(str))
-        avail = source_availability.loc[
-            source_availability["genus"].astype(str).isin(genera)
-        ].copy()
-        counts = island_counts.loc[island_counts["genus"].astype(str).isin(genera)].copy()
+        pos = pos.drop_duplicates("genus").copy()
+        pos["genus_idx"] = pos["genus"].astype(str).map(genus_index)
+        pos = pos.sort_values("genus_idx")
+        indices = pos["genus_idx"].to_numpy(int)
+        position_array = pos["source_h1_position"].to_numpy(float)
 
         for source_mode in SOURCE_MODES:
-            assigned = assignment.loc[
-                assignment["source_mode"].astype(str).eq(source_mode),
-                ["island_id", "entity_ID"],
-            ].copy()
-            candidate = assigned.merge(
-                avail,
-                on="entity_ID",
-                how="inner",
-                validate="many_to_many",
-            )
-            if candidate.empty:
-                continue
-            candidate = candidate.groupby(["island_id", "genus"], as_index=False).agg(
-                source_prevalence=("entity_ID", "nunique"),
-                source_species_richness=("source_species_richness", "sum"),
-            )
-            candidate = candidate.merge(
-                pos[["genus", "source_h1_position", "n_source_scored_species"]],
-                on="genus",
-                how="inner",
-                validate="many_to_one",
-            )
-
+            prevalence_full, richness_full = mode_matrices[source_mode]
             rows: list[dict[str, Any]] = []
-            for island_id, frame in candidate.groupby("island_id", sort=False):
-                island_genus_counts = counts.loc[
-                    counts["island_id"].astype(str).eq(str(island_id)),
-                    ["genus", "n_island_species"],
-                ]
-                result = compute_island_enrichment(
-                    frame[
-                        [
-                            "genus",
-                            "source_prevalence",
-                            "source_species_richness",
-                            "source_h1_position",
-                        ]
-                    ],
-                    island_genus_counts,
+            for island_idx, island_id in enumerate(islands):
+                result = compute_island_enrichment_arrays(
+                    prevalence_full[island_idx, indices],
+                    richness_full[island_idx, indices],
+                    count_matrix[island_idx, indices],
+                    position_array,
                     minimum_represented_genera=minimum_represented_genera,
                 )
                 if result is None:
@@ -379,7 +432,6 @@ def build_island_scores(
             if rows:
                 parts.append(pd.DataFrame(rows))
     return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
-
 
 def build_parent_counts(
     *,
