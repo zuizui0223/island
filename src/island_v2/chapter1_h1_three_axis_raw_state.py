@@ -981,9 +981,6 @@ def run_three_axis_analysis(
             else pd.DataFrame()
         ),
         "flora_coverage": pd.concat(all_flora_coverage, ignore_index=True),
-        "global_state_support": pd.concat(
-            all_global_state_support, ignore_index=True
-        ),
         "counts": (
             pd.concat(count_parts, ignore_index=True)
             if count_parts
