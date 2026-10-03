@@ -37,6 +37,11 @@ import typer
 import yaml
 from scipy.stats import t as student_t
 
+from island_v2.chapter1_all_data_probability import (
+    _assemble_cluster_covariance,
+    _fit_single_beta_binomial,
+    _standardize,
+)
 from island_v2.chapter1_final_inference_audit import (
     finite_cluster_two_sided_p,
 )
@@ -406,6 +411,37 @@ def _wild_signflip_p(
             size=(n, len(influences)),
         )
         t_star = (signs @ influences) / se
+        exceed += int(np.count_nonzero(t_star >= observed))
+        done += n
+    return float((exceed + 1.0) / (replications + 1.0))
+
+
+def _wild_signflip_two_sided_p(
+    estimate: float,
+    se: float,
+    influences: np.ndarray,
+    *,
+    replications: int,
+    seed: int,
+) -> float:
+    if (
+        not math.isfinite(estimate)
+        or not math.isfinite(se)
+        or se <= 0
+        or len(influences) < 2
+    ):
+        return float("nan")
+    rng = np.random.default_rng(seed)
+    observed = abs(estimate / se)
+    exceed = 0
+    done = 0
+    while done < replications:
+        n = min(2000, replications - done)
+        signs = rng.choice(
+            np.array([-1.0, 1.0]),
+            size=(n, len(influences)),
+        )
+        t_star = np.abs((signs @ influences) / se)
         exceed += int(np.count_nonzero(t_star >= observed))
         done += n
     return float((exceed + 1.0) / (replications + 1.0))
@@ -1086,6 +1122,12 @@ def run_signal_state_models(
     *,
     evidence_scope: str,
 ) -> pd.DataFrame:
+    """Fit state-specific beta-binomial isolation responses for signal/display.
+
+    The numerator is the number of trait-resolved island species carrying a focal
+    state; the denominator is the number of island species resolved for that trait.
+    Each state is a scalar test. No high-dimensional omnibus inference is used.
+    """
     species_scores = build_signal_state_species_scores(
         species_axis,
         ontology,
@@ -1104,23 +1146,143 @@ def run_signal_state_models(
         flora_scope="all_observed",
         support_mode="trait_specific",
     )
-    regional, _ = run_h1(
-        island,
-        covariates,
-        config,
-        evidence_scope=evidence_scope,
-        flora_scope="all_observed",
-        support_mode="trait_specific",
-        analysis_layer="descriptive_signal_state",
+    geography = str(config["geography_column"])
+    context_col = str(config["context_column"])
+    cluster_col = str(config["cluster_column"])
+    baseline = [str(x) for x in config["baseline_covariates"]]
+    cov_cols = [
+        "island_id",
+        geography,
+        context_col,
+        cluster_col,
+        *baseline,
+    ]
+    work = island.merge(
+        covariates[cov_cols].drop_duplicates("island_id"),
+        on="island_id",
+        how="left",
+        validate="many_to_one",
     )
-    if regional.empty:
-        return regional
-    split = regional["response"].astype(str).str.split("::", n=1, expand=True)
-    regional["trait_name"] = split[0]
-    regional["state"] = split[1]
+    rows: list[dict[str, Any]] = []
+    counter = 0
+    for response in sorted(work["response"].astype(str).unique()):
+        trait, state = response.split("::", 1)
+        for context in config["contexts"]:
+            part = work.loc[
+                work["response"].astype(str).eq(response)
+                & work[context_col].astype(str).eq(str(context))
+            ].copy()
+            n_islands = int(part["island_id"].nunique())
+            row: dict[str, Any] = {
+                "evidence_scope": evidence_scope,
+                "flora_scope": "all_observed",
+                "support_mode": "trait_specific",
+                "analysis_layer": "descriptive_signal_state_beta_binomial",
+                "response": response,
+                "trait_name": trait,
+                "state": state,
+                "context": str(context),
+                "n_islands": n_islands,
+            }
+            if n_islands < int(config["minimum_islands"]):
+                row["status"] = "not_testable"
+                rows.append(row)
+                continue
+            part["trials"] = pd.to_numeric(
+                part["n_scored_species"],
+                errors="coerce",
+            )
+            part["successes"] = np.rint(
+                pd.to_numeric(part["island_score"], errors="coerce")
+                * part["trials"]
+            )
+            numeric = ["successes", "trials", geography, *baseline]
+            for column in numeric:
+                part[column] = pd.to_numeric(part[column], errors="coerce")
+            part = part.dropna(subset=[*numeric, cluster_col])
+            part = part.loc[
+                part["trials"].gt(0)
+                & part["successes"].ge(0)
+                & part["successes"].le(part["trials"])
+            ].copy()
+            if part["island_id"].nunique() < int(config["minimum_islands"]):
+                row["status"] = "not_testable"
+                rows.append(row)
+                continue
+
+            columns = [np.ones(len(part), dtype=float)]
+            names = ["intercept"]
+            for predictor in baseline:
+                columns.append(_standardize(part[predictor]))
+                names.append(f"z_{predictor}")
+            columns.append(_standardize(part[geography]))
+            target_name = f"z_{geography}"
+            names.append(target_name)
+            fit = _fit_single_beta_binomial(
+                part["successes"].to_numpy(float),
+                part["trials"].to_numpy(float),
+                np.column_stack(columns),
+                names,
+                max_iter=1500,
+            )
+            covariance, assembled_names, theta = _assemble_cluster_covariance(
+                [fit],
+                [part[cluster_col].astype(str).to_numpy()],
+            )
+            target_index = assembled_names.index(target_name)
+            estimate = float(theta[target_index])
+            se = float(
+                math.sqrt(
+                    max(float(covariance[target_index, target_index]), 0.0)
+                )
+            )
+            labels = part[cluster_col].astype(str).to_numpy()
+            unique = np.unique(labels)
+            g = int(len(unique))
+            cluster_influences: list[float] = []
+            for label in unique:
+                score = fit["score"][labels == label].sum(axis=0)
+                cluster_influences.append(
+                    float(fit["bread"][target_index] @ score)
+                )
+            correction = 1.0
+            n = len(part)
+            k = len(fit["names"])
+            if g > 1 and n > k:
+                correction = (g / (g - 1.0)) * ((n - 1.0) / (n - k))
+            influences = (
+                np.asarray(cluster_influences, dtype=float)
+                * math.sqrt(correction)
+            )
+            row.update(
+                status="fit",
+                estimate=estimate,
+                se=se,
+                df=g - 1,
+                p_two_sided=finite_cluster_two_sided_p(
+                    estimate,
+                    se,
+                    g,
+                ),
+                p_wild_two_sided=_wild_signflip_two_sided_p(
+                    estimate,
+                    se,
+                    influences,
+                    replications=int(config["wild_cluster_replications"]),
+                    seed=int(config["wild_cluster_seed"]) + 10000 + counter,
+                ),
+                n_islands=int(part["island_id"].nunique()),
+                n_clusters=g,
+                optimizer_success=bool(fit["success"]),
+                kappa=float(fit["kappa"]),
+            )
+            rows.append(row)
+            counter += 1
+
+    regional = pd.DataFrame(rows)
     regional["q_two_sided_within_trait_region"] = np.nan
-    fit = regional["status"].eq("fit")
-    groups = regional.loc[fit].groupby(
+    fit_mask = regional["status"].eq("fit")
+    groups = regional.loc[fit_mask].groupby(
         ["evidence_scope", "context", "trait_name"]
     ).groups
     for idx in groups.values():
