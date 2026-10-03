@@ -413,107 +413,56 @@ def meta_directional_summary(
     contexts: list[str],
     alpha: float,
 ) -> dict[str, Any]:
-    """Random-effects summary of the four predeclared regional directional scores.
-
-    The regional estimates are based on disjoint geographic strata. A
-    DerSimonian-Laird tau-squared estimate is paired with a modified
-    Knapp-Hartung variance inflation (never below the conventional random-effects
-    variance) and a t reference with k-1 degrees of freedom. This summary asks
-    whether there is a positive global average directional component while
-    explicitly quantifying between-region heterogeneity. It is not a substitute
-    for the stricter intersection-union recurrence test.
-    """
-    fit = results.loc[
-        results["status"].eq("fit")
-        & results["context"].isin(contexts)
-    ].copy()
-    if len(fit) != len(contexts) or set(fit["context"]) != set(contexts):
-        return {
-            "status": "not_testable",
-            "n_required_contexts": len(contexts),
-            "n_fitted_contexts": int(len(fit)),
-        }
-    y = pd.to_numeric(fit["estimate"], errors="coerce").to_numpy(float)
-    se = pd.to_numeric(
-        fit["cluster_robust_se"], errors="coerce"
-    ).to_numpy(float)
-    if (
-        not np.isfinite(y).all()
-        or not np.isfinite(se).all()
-        or np.any(se <= 0)
-    ):
-        return {
-            "status": "not_testable",
-            "reason": "nonfinite_regional_estimate_or_se",
-        }
-    k = len(y)
-    w = 1.0 / np.square(se)
-    fixed = float(np.sum(w * y) / np.sum(w))
-    fixed_se = float(math.sqrt(1.0 / np.sum(w)))
-    q = float(np.sum(w * np.square(y - fixed)))
-    q_df = int(k - 1)
-    c_value = float(np.sum(w) - np.sum(np.square(w)) / np.sum(w))
-    tau2 = float(max(0.0, (q - q_df) / c_value)) if c_value > 0 else 0.0
-    wr = 1.0 / (np.square(se) + tau2)
-    random_estimate = float(np.sum(wr * y) / np.sum(wr))
-    hk_scale = float(
-        np.sum(wr * np.square(y - random_estimate)) / q_df
-    ) if q_df > 0 else float("nan")
-    modified_hk_scale = float(max(1.0, hk_scale))
-    random_se = float(
-        math.sqrt(modified_hk_scale / np.sum(wr))
+    """Compatibility view of the authoritative Paule-Mandel/mKH synthesis."""
+    value = synthesize_regions(
+        results,
+        contexts=contexts,
+        alpha=alpha,
     )
-    t_value = (
-        float(random_estimate / random_se)
-        if random_se > 0
-        else float("nan")
-    )
-    p_one = (
-        float(student_t.sf(t_value, df=q_df))
-        if q_df > 0 and math.isfinite(t_value)
-        else float("nan")
-    )
-    p_two = (
-        float(2.0 * student_t.sf(abs(t_value), df=q_df))
-        if q_df > 0 and math.isfinite(t_value)
-        else float("nan")
-    )
-    i2 = (
-        float(max(0.0, (q - q_df) / q))
-        if q > 0
-        else 0.0
-    )
-    heterogeneity_p = (
-        float(chi2.sf(q, q_df))
-        if q_df > 0 and math.isfinite(q)
-        else float("nan")
-    )
+    if value.get("status") != "fit":
+        return value
     return {
         "status": "fit",
-        "n_contexts": int(k),
-        "all_context_estimates_positive": bool(np.all(y > 0)),
-        "fixed_effect_estimate": fixed,
-        "fixed_effect_se": fixed_se,
-        "cochran_q": q,
-        "heterogeneity_df": q_df,
-        "heterogeneity_p": heterogeneity_p,
-        "i2": i2,
-        "tau2_dl": tau2,
-        "random_effects_estimate": random_estimate,
-        "modified_knapp_hartung_se": random_se,
-        "modified_knapp_hartung_scale": modified_hk_scale,
-        "random_effects_t": t_value,
-        "random_effects_p_one_sided": p_one,
-        "random_effects_p_two_sided": p_two,
+        "n_contexts": int(value["n_regions"]),
+        "all_context_estimates_positive": bool(
+            value["all_region_estimates_positive"]
+        ),
+        "fixed_effect_estimate": float(
+            value["fixed_inverse_variance_mean"]
+        ),
+        "cochran_q": float(value["heterogeneity_Q"]),
+        "heterogeneity_df": int(value["heterogeneity_df"]),
+        "heterogeneity_p": float(value["heterogeneity_p"]),
+        "i2": float(value["I2"]),
+        "tau2_paule_mandel": float(value["paule_mandel_tau2"]),
+        "random_effects_estimate": float(
+            value["random_effects_mean"]
+        ),
+        "modified_knapp_hartung_se": float(
+            value["modified_hartung_knapp_se"]
+        ),
+        "random_effects_t": float(
+            value["modified_hartung_knapp_t"]
+        ),
+        "random_effects_p_one_sided": float(
+            value["H1a_one_sided_p"]
+        ),
+        "random_effects_p_two_sided": float(
+            value["H1a_two_sided_p"]
+        ),
         "positive_global_average_supported": bool(
-            random_estimate > 0 and p_one <= alpha
+            value["H1a_global_average_supported"]
+        ),
+        "regional_heterogeneity_supported": bool(
+            value["H1b_regional_heterogeneity_supported"]
         ),
         "interpretation": (
-            "positive global average component with explicit regional heterogeneity; "
-            "not evidence that every region independently supports the syndrome"
+            "positive global-average classic-island direction estimated with "
+            "Paule-Mandel heterogeneity and modified Hartung-Knapp inference; "
+            "regional heterogeneity is tested separately and strict four-region "
+            "recurrence remains a distinct intersection-union claim"
         ),
     }
-
 
 def synthesize_regions(
     results: pd.DataFrame,
@@ -934,7 +883,7 @@ def run_final_directional_h1(
                     )
                 ),
                 "i2": scheme_synthesis.get("I2", float("nan")),
-                "legacy_dl_global_average_p_one_sided": scheme_meta.get(
+                "global_average_p_one_sided_meta_view": scheme_meta.get(
                     "random_effects_p_one_sided", float("nan")
                 ),
             }
