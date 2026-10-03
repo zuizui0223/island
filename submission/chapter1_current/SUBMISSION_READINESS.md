@@ -13,7 +13,7 @@ Fallback: **Global Ecology and Biogeography** if the third-party trait-data rest
 ### Science
 
 - corrected 8,264-island geographic baseline;
-- H1 recurrent seven-response multivariate result;
+- H1 recurrent three-domain floral/reproductive result, formally tested by seven atomic indicators;
 - H1 Direct-only northern-high optimizer warning independently closed;
 - H2 reproductive-assurance / accessibility conditional decomposition;
 - H3 independent GloPL pollen-limitation gradient;
