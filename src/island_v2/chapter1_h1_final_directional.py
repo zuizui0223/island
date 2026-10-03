@@ -799,6 +799,13 @@ def run_final_directional_h1(
     )
     synthesis["evidence_scope"] = evidence_scope
     synthesis["stratum"] = primary_stratum
+    synthesis = synthesize_regions(
+        primary,
+        contexts=contexts,
+        alpha=float(config["alpha"]),
+    )
+    synthesis["evidence_scope"] = evidence_scope
+    synthesis["stratum"] = primary_stratum
 
     cluster_column = str(config["cluster_column"])
     context_column = str(config["context_column"])
@@ -1011,6 +1018,10 @@ def run(
     )
     (output_dir / "directional_score_meta.json").write_text(
         json.dumps(result["meta"], indent=2) + "\n",
+        encoding="utf-8",
+    )
+    (output_dir / "directional_score_synthesis.json").write_text(
+        json.dumps(result["synthesis"], indent=2) + "\n",
         encoding="utf-8",
     )
     (output_dir / "directional_score_synthesis.json").write_text(
