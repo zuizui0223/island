@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 jobs:
@@ -150,6 +150,37 @@ jobs:
             echo
             cat /tmp/results/direct/regional_native_within_omnibus.csv
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Persist validation results on branch
+        if: success()
+        run: |
+          set -euo pipefail
+          target=results/wcvp_native_corrected_20261003
+          rm -rf "$target"
+          mkdir -p "$target/all" "$target/direct"
+          cp /tmp/results/validation_summary.json "$target/"
+          cp /tmp/ch1-wcvp/wcvp_sha256.txt "$target/"
+          cp /tmp/ch1-wcvp/ranges/wcvp_native_range_manifest.json "$target/"
+          cp /tmp/results/all/*.csv "$target/all/"
+          cp /tmp/results/direct/*.csv "$target/direct/"
+          cat > "$target/README.md" <<'EOF'
+          # WCVP regional-native sensitivity on corrected geography
+
+          This surface replays Chapter 1 H1 using the 24 September 2026 corrected
+          spherical-coastline geography and a conservative regional-native sensitivity.
+          Unresolved island-species rows are upgraded only when the focal island maps
+          unambiguously to a TDWG Level-3 unit that WCVP lists in the accepted species'
+          native range. Source-backed introduced rows are never overwritten.
+
+          The analysis is a status sensitivity, not a claim of exact island-level nativeness.
+          Raw WCVP bulk bytes are not committed; the exact SHA256 and extraction manifest
+          are retained here.
+          EOF
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$target"
+          git commit -m "Persist corrected WCVP native sensitivity results"
+          git push
 
       - uses: actions/upload-artifact@v4
         if: always()
