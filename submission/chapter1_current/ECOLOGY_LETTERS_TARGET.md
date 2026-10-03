@@ -53,8 +53,8 @@ A pre-submission inquiry is drafted in `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md`.
 - Main figures: **6**
 - Tables: **0**
 - Text boxes: **0**
-- Main text: **recount required after final H1 revision**
-- Abstract: **recount required after final H1 revision**
+- Main text: **~4,672 / 5,000 words** by repository Markdown count
+- Abstract: **128 / 150 words**
 - Running-title candidate: **Heterogeneous floral island syndrome**
 - Keywords: island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; flower colour; pollination
 
