@@ -46,8 +46,19 @@ model:
   minimum_positive_islands_per_state: 10
   minimum_negative_islands_per_state: 10
   minimum_states_per_axis_test: 2
+  minimum_unique_species_per_state: 30
   alpha: 0.05
   max_iter: 1500
+  retry_max_iter: 5000
+
+status_contrast:
+  reference: regional_native_compatible
+  comparison: regionally_incompatible_or_introduced
+  interpretation: >-
+    Test whether the isolation-associated raw-state response vector differs between
+    regional-native-compatible and complementary incompatible/introduced flora within
+    the same geographic region. This is a provenance-specificity test, not a causal
+    introduction effect.
 
 multiple_testing:
   primary_family: axis_by_region_within_each_evidence_and_flora_scope
@@ -62,6 +73,7 @@ rules:
   - no_species_level_pre_averaging
   - raw_multistate_membership_is_retained
   - state_prevalence_models_keep_trait_specific_denominators
+  - inferential_states_require_at_least_30_unique_species_with_that_state
   - three_axes_are_primary_response_blocks
   - state_models_are_measurement_components_not_separate_headline_traits
   - all_observed_is_contemporary_flora_not_native_evolution
