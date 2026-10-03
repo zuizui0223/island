@@ -279,7 +279,92 @@
           "southern_extratropical": 2.46915410662282e-10
         }
       },
-      "interpretation_ceiling": "This sensitivity shows that substantial isolation-associated seven-indicator response structure remains in a large flora compatible with WCVP regional native ranges. It is not a native-only replication of the final one-dimensional H1 and does not identify assembly versus within-lineage evolution."
+      "interpretation_ceiling": "The large WCVP regional-native-compatible flora reproduces the final H1's global-average directional tendency and regional heterogeneity under the same finite-cluster one-dimensional inference, while strict four-region recurrence remains unsupported. This is a provenance sensitivity, not a native-only historical or within-lineage causal analysis.",
+      "directional_finite_cluster_replay": {
+        "workflow_run_id": 37157566167,
+        "artifact_id": 11286910115,
+        "artifact_sha256": "ee7fc98fbc1db65f5e3677565d45bc83df6800002d9c11f3fa268719cbedbbd6",
+        "method": "same frozen seven-indicator one-dimensional H1 score, finite-cluster t(G-1), Rademacher sign-flip, Paule-Mandel plus modified Hartung-Knapp synthesis",
+        "all_analysis_eligible": {
+          "regional": {
+            "northern_midlatitude": {
+              "estimate": 0.009103,
+              "finite_cluster_p_one_sided": 0.354991,
+              "wild_p_one_sided": 0.3517
+            },
+            "northern_high_latitude": {
+              "estimate": 0.129121,
+              "finite_cluster_p_one_sided": 0.006973,
+              "wild_p_one_sided": 0.0001
+            },
+            "tropical": {
+              "estimate": 0.065593,
+              "finite_cluster_p_one_sided": 0.000868,
+              "wild_p_one_sided": 0.0004
+            },
+            "southern_extratropical": {
+              "estimate": 0.140281,
+              "finite_cluster_p_one_sided": 0.000919,
+              "wild_p_one_sided": 0.0001
+            }
+          },
+          "H1a": {
+            "estimate": 0.07635682584522287,
+            "se_modified_hk": 0.030230392588890244,
+            "p_one_sided": 0.04286850314870501,
+            "supported": true
+          },
+          "H1b": {
+            "heterogeneity_p": 0.01901694905849237,
+            "I2": 0.6984193625833636
+          },
+          "strict_four_region": {
+            "supported": false,
+            "iut_p_t": 0.35499086873971797,
+            "iut_p_wild": 0.3517
+          }
+        },
+        "direct_only": {
+          "regional": {
+            "northern_midlatitude": {
+              "estimate": 0.016456,
+              "finite_cluster_p_one_sided": 0.266744,
+              "wild_p_one_sided": 0.2684
+            },
+            "northern_high_latitude": {
+              "estimate": 0.132334,
+              "finite_cluster_p_one_sided": 0.005592,
+              "wild_p_one_sided": 0.0001
+            },
+            "tropical": {
+              "estimate": 0.089893,
+              "finite_cluster_p_one_sided": 0.000172,
+              "wild_p_one_sided": 0.0001
+            },
+            "southern_extratropical": {
+              "estimate": 0.13856,
+              "finite_cluster_p_one_sided": 0.000377,
+              "wild_p_one_sided": 0.0001
+            }
+          },
+          "H1a": {
+            "estimate": 0.08710224274253325,
+            "se_modified_hk": 0.028437291692158206,
+            "p_one_sided": 0.027432594437225743,
+            "supported": true
+          },
+          "H1b": {
+            "heterogeneity_p": 0.024114825820096157,
+            "I2": 0.6817834129140727
+          },
+          "strict_four_region": {
+            "supported": false,
+            "iut_p_t": 0.26674360001784503,
+            "iut_p_wild": 0.2684
+          }
+        },
+        "interpretation": "The WCVP regional-native-compatible provenance sensitivity reproduces the same inferential pattern as the all-observed final H1: all four regional point estimates are positive, the global-average directional tendency is supported, regional heterogeneity is substantial, and strict four-region recurrence fails because northern mid-latitudes are weak."
+      }
     },
     "post_freeze_exploration_excluded_from_submission_decisions": [
       "post-hoc biological-domain reclassification PR #286",
