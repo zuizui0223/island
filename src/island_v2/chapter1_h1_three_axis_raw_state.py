@@ -15,6 +15,7 @@ species cannot be treated as a separate methodological problem.
 """
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 from typing import Any
@@ -35,6 +36,10 @@ from island_v2.chapter1_all_data_probability import (
     _standardize,
 )
 from island_v2.chapter1_wcvp_partition_diagnostic import classify_wcvp_partitions
+from island_v2.chapter1_wcvp_resolution_sensitivity import (
+    build_resolution_covariates,
+    tdwg_l3_areas,
+)
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
