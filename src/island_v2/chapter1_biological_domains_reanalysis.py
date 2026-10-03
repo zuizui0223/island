@@ -2279,13 +2279,10 @@ def run(
 
         common_sets: dict[str, pd.DataFrame] = {}
         for support_mode in [
-            *[
-                str(x)
-                for x in config.get(
-                    "common_support_sets", {}
-                )
-            ],
-            "common_species",
+            str(x)
+            for x in config.get(
+                "common_support_sets", {}
+            )
         ]:
             common_scores = build_island_scores(
                 status_flora,
