@@ -1020,6 +1020,162 @@ def run_trait_coverage_gradient(
         )
     return out
 
+def run_coverage_adjusted_h1(
+    status_flora: pd.DataFrame,
+    species_scores: pd.DataFrame,
+    covariates: pd.DataFrame,
+    config: dict[str, Any],
+    *,
+    evidence_scope: str,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Sensitivity: condition the domain score on its observed trait coverage.
+
+    Coverage fraction is not a biological mediator and this model does not replace H1.
+    It asks whether the isolation coefficient survives adjustment for the fraction of
+    the recorded island flora that can contribute to the focal response.
+    """
+    island = build_island_scores(
+        status_flora,
+        species_scores,
+        config,
+        flora_scope="all_observed",
+        support_mode="trait_specific",
+    )
+    coverage = build_trait_coverage_table(
+        status_flora,
+        species_scores,
+    )
+    work = island.merge(
+        coverage[
+            [
+                "island_id",
+                "response",
+                "coverage_fraction",
+                "n_flora_species",
+            ]
+        ],
+        on=["island_id", "response"],
+        how="left",
+        validate="one_to_one",
+    )
+    geography = str(config["geography_column"])
+    context_col = str(config["context_column"])
+    cluster_col = str(config["cluster_column"])
+    baseline = [str(x) for x in config["baseline_covariates"]]
+    cov_cols = [
+        "island_id",
+        geography,
+        context_col,
+        cluster_col,
+        *baseline,
+    ]
+    work = work.merge(
+        covariates[cov_cols].drop_duplicates("island_id"),
+        on="island_id",
+        how="left",
+        validate="many_to_one",
+    )
+
+    rows: list[dict[str, Any]] = []
+    counter = 0
+    for response in sorted(work["response"].astype(str).unique()):
+        for context in [str(x) for x in config["contexts"]]:
+            part = work.loc[
+                work["response"].astype(str).eq(response)
+                & work[context_col].astype(str).eq(context)
+            ].copy()
+            result = fit_clustered_score(
+                part,
+                response_column="island_score",
+                predictors=[
+                    geography,
+                    "coverage_fraction",
+                    *baseline,
+                ],
+                target_predictor=geography,
+                cluster_column=cluster_col,
+                replications=int(config["wild_cluster_replications"]),
+                seed=int(config["wild_cluster_seed"]) + 12000 + counter,
+            )
+            rows.append(
+                {
+                    "evidence_scope": evidence_scope,
+                    "flora_scope": "all_observed",
+                    "support_mode": "trait_specific",
+                    "analysis_layer": "coverage_fraction_adjusted",
+                    "response": response,
+                    "context": context,
+                    **result,
+                }
+            )
+            counter += 1
+    regional = pd.DataFrame(rows)
+
+    synth_rows: list[dict[str, Any]] = []
+    alpha = float(config["alpha"])
+    contexts = [str(x) for x in config["contexts"]]
+    for response, part in regional.loc[
+        regional["status"].eq("fit")
+    ].groupby("response"):
+        meta_input = part.rename(
+            columns={"se": "cluster_robust_se"}
+        )
+        synthesis = synthesize_regions(
+            meta_input,
+            contexts=contexts,
+            alpha=alpha,
+        )
+        strict = part.set_index("context").reindex(contexts)
+        strict_complete = (
+            len(strict) == len(contexts)
+            and strict["p_one_sided_positive"].notna().all()
+            and strict["p_wild_positive"].notna().all()
+        )
+        if strict_complete:
+            iut_t = float(strict["p_one_sided_positive"].max())
+            iut_wild = float(strict["p_wild_positive"].max())
+            all_positive = bool(strict["estimate"].gt(0).all())
+        else:
+            iut_t = float("nan")
+            iut_wild = float("nan")
+            all_positive = False
+        synth_rows.append(
+            {
+                "evidence_scope": evidence_scope,
+                "flora_scope": "all_observed",
+                "support_mode": "trait_specific",
+                "analysis_layer": "coverage_fraction_adjusted",
+                "response": str(response),
+                "strict_iut_p_t": iut_t,
+                "strict_iut_p_wild": iut_wild,
+                "strict_four_region_supported": bool(
+                    all_positive
+                    and math.isfinite(iut_t)
+                    and math.isfinite(iut_wild)
+                    and iut_t <= alpha
+                    and iut_wild <= alpha
+                ),
+                **synthesis,
+            }
+        )
+    synthesis = pd.DataFrame(synth_rows)
+    if not synthesis.empty and "H1a_one_sided_p" in synthesis:
+        synthesis["H1a_q_all_responses"] = _bh(
+            synthesis["H1a_one_sided_p"]
+        )
+        primary = synthesis["response"].isin(
+            [
+                str(x)
+                for x in config["primary_posthoc_H1_responses"]
+            ]
+        )
+        synthesis["H1a_q_core_two"] = np.nan
+        synthesis.loc[primary, "H1a_q_core_two"] = _bh(
+            synthesis.loc[primary, "H1a_one_sided_p"]
+        )
+    return regional, synthesis
+
+
 def prepare_glopl_rows(
     glopl_csv: Path,
     corrected_site_distances: Path,
@@ -1564,6 +1720,13 @@ def run_signal_state_models(
         regional.loc[idx, "q_two_sided_within_trait_region"] = _bh(
             regional.loc[idx, "p_two_sided"]
         )
+    regional["q_two_sided_global_signal_family"] = np.nan
+    for _, idx in regional.loc[fit_mask].groupby(
+        "evidence_scope"
+    ).groups.items():
+        regional.loc[idx, "q_two_sided_global_signal_family"] = _bh(
+            regional.loc[idx, "p_two_sided"]
+        )
     return regional
 
 
@@ -1686,6 +1849,8 @@ def run(
     all_signal_states: list[pd.DataFrame] = []
     all_threshold_sensitivity: list[pd.DataFrame] = []
     all_coverage_gradients: list[pd.DataFrame] = []
+    all_coverage_adjusted_regional: list[pd.DataFrame] = []
+    all_coverage_adjusted_synthesis: list[pd.DataFrame] = []
     support_parts: list[pd.DataFrame] = []
     species_scores_by_scope: dict[str, pd.DataFrame] = {}
 
@@ -1767,6 +1932,15 @@ def run(
                 evidence_scope=str(evidence_scope),
             )
         )
+        coverage_regional, coverage_synthesis = run_coverage_adjusted_h1(
+            status_flora,
+            species_scores,
+            covariates,
+            config,
+            evidence_scope=str(evidence_scope),
+        )
+        all_coverage_adjusted_regional.append(coverage_regional)
+        all_coverage_adjusted_synthesis.append(coverage_synthesis)
         all_signal_states.append(
             run_signal_state_models(
                 species_axis,
@@ -1887,6 +2061,18 @@ def run(
         [x for x in all_coverage_gradients if not x.empty],
         ignore_index=True,
     ) if any(not x.empty for x in all_coverage_gradients) else pd.DataFrame()
+    coverage_adjusted_regional = pd.concat(
+        [x for x in all_coverage_adjusted_regional if not x.empty],
+        ignore_index=True,
+    ) if any(
+        not x.empty for x in all_coverage_adjusted_regional
+    ) else pd.DataFrame()
+    coverage_adjusted_synthesis = pd.concat(
+        [x for x in all_coverage_adjusted_synthesis if not x.empty],
+        ignore_index=True,
+    ) if any(
+        not x.empty for x in all_coverage_adjusted_synthesis
+    ) else pd.DataFrame()
 
     glopl_rows = prepare_glopl_rows(
         glopl_csv,
@@ -1920,6 +2106,14 @@ def run(
     )
     coverage_gradients.to_csv(
         output_dir / "trait_coverage_gradient.csv",
+        index=False,
+    )
+    coverage_adjusted_regional.to_csv(
+        output_dir / "H1_coverage_adjusted_regional.csv",
+        index=False,
+    )
+    coverage_adjusted_synthesis.to_csv(
+        output_dir / "H1_coverage_adjusted_global.csv",
         index=False,
     )
     h4.to_csv(output_dir / "H4_exact_species.csv", index=False)
