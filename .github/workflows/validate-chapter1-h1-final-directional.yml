@@ -342,6 +342,7 @@ jobs:
             --raw-axis-config-path config/chapter1_h1_three_axis_raw_state.yml \
             --config-path config/chapter1_biological_domains_reanalysis.yml \
             --h3-json results/geography_20260924/h3_original_corrected_comparison.json \
+            --h3-offshore-json results/h3_offshore_gradient_20261003/h3_offshore_gradient_summary.json \
             --output-dir /tmp/domain/out
 
       - name: Print compact result surface
