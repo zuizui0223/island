@@ -1,6 +1,4 @@
 import pandas as pd
-import pytest
-
 from island_v2.chapter1_final_inference_audit import (
     audit_h2,
     audit_h3,
