@@ -26,7 +26,8 @@ import numpy as np
 import pandas as pd
 import typer
 import yaml
-from scipy.stats import t as student_t
+from scipy.optimize import brentq
+from scipy.stats import chi2, t as student_t
 
 from island_v2.chapter1_all_data_probability import (
     _fit_single_beta_binomial,
@@ -505,6 +506,135 @@ def meta_directional_summary(
             "positive global average component with explicit regional heterogeneity; "
             "not evidence that every region independently supports the syndrome"
         ),
+    }
+
+
+def synthesize_regions(
+    results: pd.DataFrame,
+    *,
+    contexts: list[str],
+    alpha: float,
+) -> dict[str, Any]:
+    """Synthesize the four prespecified regional H1 effects.
+
+    H1a is the average classic-island direction across the four replication strata.
+    H1b is heterogeneity among those regional effects.  The random-effects summary uses
+    a Paule-Mandel between-region variance and a modified Hartung-Knapp standard error
+    with k-1 degrees of freedom, which is intentionally conservative for k=4.
+    """
+    fit = results.loc[
+        results["status"].eq("fit")
+        & results["context"].isin(contexts)
+    ].copy()
+    if len(fit) != len(contexts) or set(fit["context"]) != set(contexts):
+        return {
+            "status": "not_testable",
+            "n_required_contexts": len(contexts),
+            "n_fitted_contexts": int(len(fit)),
+        }
+    fit = fit.set_index("context").loc[contexts].reset_index()
+    y = pd.to_numeric(fit["estimate"], errors="coerce").to_numpy(float)
+    se = pd.to_numeric(
+        fit["cluster_robust_se"], errors="coerce"
+    ).to_numpy(float)
+    if (
+        not np.isfinite(y).all()
+        or not np.isfinite(se).all()
+        or np.any(se <= 0)
+    ):
+        return {
+            "status": "not_testable",
+            "reason": "nonfinite_regional_estimate_or_se",
+        }
+    variance = np.square(se)
+    k = len(y)
+    df = k - 1
+
+    fixed_weights = 1.0 / variance
+    fixed_mean = float(
+        np.sum(fixed_weights * y) / np.sum(fixed_weights)
+    )
+    q_stat = float(
+        np.sum(fixed_weights * np.square(y - fixed_mean))
+    )
+    q_p = float(chi2.sf(q_stat, df))
+    i2 = float(max(0.0, (q_stat - df) / q_stat)) if q_stat > 0 else 0.0
+
+    def q_at_tau(tau2: float) -> float:
+        weights = 1.0 / (variance + float(tau2))
+        mean = float(np.sum(weights * y) / np.sum(weights))
+        return float(np.sum(weights * np.square(y - mean)))
+
+    if q_stat <= df:
+        tau2 = 0.0
+    else:
+        upper = max(float(np.var(y, ddof=1)), float(np.max(variance)), 1e-8)
+        while q_at_tau(upper) > df and upper < 1e6:
+            upper *= 4.0
+        if q_at_tau(upper) > df:
+            tau2 = upper
+        else:
+            tau2 = float(
+                brentq(
+                    lambda value: q_at_tau(value) - df,
+                    0.0,
+                    upper,
+                )
+            )
+
+    random_weights = 1.0 / (variance + tau2)
+    random_mean = float(
+        np.sum(random_weights * y) / np.sum(random_weights)
+    )
+    hk_scale = float(
+        np.sum(
+            random_weights * np.square(y - random_mean)
+        )
+        / df
+    )
+    modified_hk_scale = max(1.0, hk_scale)
+    random_se = float(
+        math.sqrt(modified_hk_scale / np.sum(random_weights))
+    )
+    t_value = (
+        float(random_mean / random_se)
+        if random_se > 0
+        else float("nan")
+    )
+    p_one = (
+        float(student_t.sf(t_value, df=df))
+        if math.isfinite(t_value)
+        else float("nan")
+    )
+    p_two = (
+        float(2.0 * student_t.sf(abs(t_value), df=df))
+        if math.isfinite(t_value)
+        else float("nan")
+    )
+
+    equal_region_mean = float(np.mean(y))
+    return {
+        "status": "fit",
+        "n_regions": int(k),
+        "contexts": "|".join(contexts),
+        "all_region_estimates_positive": bool(np.all(y > 0)),
+        "equal_region_mean": equal_region_mean,
+        "fixed_inverse_variance_mean": fixed_mean,
+        "heterogeneity_Q": q_stat,
+        "heterogeneity_df": int(df),
+        "heterogeneity_p": q_p,
+        "I2": i2,
+        "paule_mandel_tau2": tau2,
+        "random_effects_mean": random_mean,
+        "modified_hartung_knapp_se": random_se,
+        "modified_hartung_knapp_t": t_value,
+        "modified_hartung_knapp_df": int(df),
+        "H1a_one_sided_p": p_one,
+        "H1a_two_sided_p": p_two,
+        "H1a_global_average_supported": bool(
+            random_mean > 0 and p_one <= alpha
+        ),
+        "H1b_regional_heterogeneity_supported": bool(q_p <= alpha),
     }
 
 
