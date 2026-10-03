@@ -117,7 +117,7 @@ jobs:
           ].copy()
           common=h1.loc[
               h1["flora_scope"].eq("all_observed")
-              & h1["support_mode"].eq("common_species")
+              & h1["support_mode"].astype(str).str.startswith("common_")
               & h1["analysis_layer"].eq("observed")
           ].copy()
           genus=h1.loc[
