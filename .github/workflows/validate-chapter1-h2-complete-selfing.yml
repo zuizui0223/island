@@ -7,12 +7,12 @@ on:
     branches:
       - analysis/wcvp-native-corrected
     paths:
-      - ".github/workflows/run-chapter1-h2-complete-selfing.yml"
+      - ".github/workflows/validate-chapter1-h2-complete-selfing.yml"
       - "src/island_v2/chapter1_h2_complete_selfing_sensitivity.py"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   actions: read
 
 jobs:
@@ -79,20 +79,6 @@ jobs:
           if not gate: raise SystemExit("reconstructed Direct baseline does not match official corrected H2")
           PY
 
-      - name: Persist sensitivity results
-        run: |
-          set -euo pipefail
-          target=results/h2_complete_selfing_corrected_20261003
-          rm -rf "$target"
-          mkdir -p "$target"
-          cp /tmp/h2/results/* "$target/"
-          printf "%s\n" "# H2 complete-selfing Direct-only sensitivity" "" "All three reproductive selfing_core components are required for the complete mediator score." "Models use the corrected 24 September 2026 geography." "This is a missing-component reliability sensitivity, not a formal errors-in-variables correction." > "$target/README.md"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$target"
-          git commit -m "Persist H2 complete-selfing sensitivity"
-          git pull --rebase origin "$GITHUB_REF_NAME"
-          git push origin "HEAD:$GITHUB_REF_NAME"
 
       - uses: actions/upload-artifact@v4
         if: always()
