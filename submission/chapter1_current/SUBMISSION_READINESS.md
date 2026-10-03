@@ -115,4 +115,4 @@ After metadata and DOI freeze:
 
 ## Current scientific claim in one sentence
 
-**Geographic isolation is associated with stronger pollen limitation and with a recurrent floral–reproductive response that is not reducible to a serial selfing syndrome: reproductive assurance and pollinator-facing accessibility form partially separable components, while detailed floral trajectories remain geographically contingent.**
+**Geographic isolation repeatedly reorganizes reproductive assurance and floral structure across island floras while colour remains more contingent; these recurrent domains persist in regional-native-compatible floras, are not reproduced as the same vector by introduced/incompatible floras, and occur along a gradient of increasing experimental pollen limitation.**
