@@ -1,0 +1,126 @@
+name: Replay final directional H1 on WCVP native-compatible flora
+
+on:
+  push:
+    branches:
+      - analysis/wcvp-final-directional-replay
+    paths:
+      - "src/island_v2/chapter1_wcvp_final_directional_h1.py"
+      - "tests/test_chapter1_wcvp_final_directional_h1.py"
+      - ".github/workflows/validate-chapter1-wcvp-final-directional.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+      WCVP_RUN_ID: "37090147140"
+      WCVP_ARTIFACT: "chapter1-wcvp-native-corrected-37090147140"
+      STATUS_RUN_ID: "32559322028"
+      STATUS_ARTIFACT: "official-wcvp-corroborated-status-32559322028"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install and validate
+        run: |
+          pip install -e ".[dev]"
+          pytest -q tests/test_chapter1_wcvp_final_directional_h1.py
+          ruff check             src/island_v2/chapter1_wcvp_final_directional_h1.py             tests/test_chapter1_wcvp_final_directional_h1.py
+
+      - name: Download exact frozen inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wcvp-dir/source /tmp/wcvp-dir/wcvp /tmp/wcvp-dir/status
+          mkdir -p /tmp/wcvp-dir/all /tmp/wcvp-dir/direct
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/wcvp-dir/source
+          gh run download "$WCVP_RUN_ID" -n "$WCVP_ARTIFACT" -D /tmp/wcvp-dir/wcvp
+          gh run download "$STATUS_RUN_ID" -n "$STATUS_ARTIFACT" -D /tmp/wcvp-dir/status
+
+          test -s /tmp/wcvp-dir/source/fixed/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/wcvp-dir/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+          test -s /tmp/wcvp-dir/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+          test -s /tmp/wcvp-dir/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz
+          test -s /tmp/wcvp-dir/status/resolved/island_tdwg_l3_mapping.csv
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+
+      - name: Replay final H1 all-analysis
+        run: |
+          python -m island_v2.chapter1_wcvp_final_directional_h1             --status-flora-csv /tmp/wcvp-dir/source/fixed/canonical/input/chapter1_status_flora.csv.gz             --state-audit-csv /tmp/wcvp-dir/source/snapshot/chapter1_trait_state_audit_all.csv.gz             --covariates-csv results/geography_20260924/corrected_geography_covariates.csv             --wcvp-ranges-csv /tmp/wcvp-dir/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz             --island-tdwg-csv /tmp/wcvp-dir/status/resolved/island_tdwg_l3_mapping.csv             --config-path config/chapter1_h1_final_directional.yml             --evidence-scope all_analysis_eligible             --output-dir /tmp/wcvp-dir/all
+
+      - name: Replay final H1 Direct-only
+        run: |
+          python -m island_v2.chapter1_wcvp_final_directional_h1             --status-flora-csv /tmp/wcvp-dir/source/fixed/canonical/input/chapter1_status_flora.csv.gz             --state-audit-csv /tmp/wcvp-dir/source/snapshot/chapter1_trait_state_audit_direct.csv.gz             --covariates-csv results/geography_20260924/corrected_geography_covariates.csv             --wcvp-ranges-csv /tmp/wcvp-dir/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz             --island-tdwg-csv /tmp/wcvp-dir/status/resolved/island_tdwg_l3_mapping.csv             --config-path config/chapter1_h1_final_directional.yml             --evidence-scope direct_only             --output-dir /tmp/wcvp-dir/direct
+
+      - name: Summarize finite-cluster directional replay
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          summary=[]
+          regional=[]
+          for scope in ("all","direct"):
+              root=Path("/tmp/wcvp-dir")/scope
+              reg=pd.read_csv(root/"directional_score_results.csv")
+              syn=json.loads((root/"directional_score_synthesis.json").read_text())
+              iut=json.loads((root/"directional_score_iut.json").read_text())
+              reg.insert(0,"scope",scope)
+              regional.append(reg)
+              summary.append({
+                  "scope":scope,
+                  "global_mean":syn.get("random_effects_mean"),
+                  "global_se_mkh":syn.get("modified_hartung_knapp_se"),
+                  "global_p_one_sided":syn.get("H1a_one_sided_p"),
+                  "heterogeneity_Q":syn.get("heterogeneity_Q"),
+                  "heterogeneity_p":syn.get("heterogeneity_p"),
+                  "I2":syn.get("I2"),
+                  "strict_iut_p_t":iut.get("iut_p_one_sided_t"),
+                  "strict_iut_p_wild":iut.get("iut_p_one_sided_wild"),
+                  "strict_recurrence":iut.get("recurrent_robust_supported"),
+              })
+
+          out=pd.DataFrame(summary)
+          regs=pd.concat(regional,ignore_index=True)
+          out.to_csv("/tmp/wcvp-dir/final_directional_summary.csv",index=False)
+          regs.to_csv("/tmp/wcvp-dir/final_directional_regional.csv",index=False)
+          print("=== GLOBAL ===")
+          print(out.to_string(index=False))
+          print("\n=== REGIONAL ===")
+          print(regs[
+              [
+                  "scope","context","estimate","cluster_robust_se",
+                  "p_one_sided_t","p_one_sided_wild","n_unique_islands",
+                  "n_clusters","effective_clusters","max_cluster_variance_share"
+              ]
+          ].to_string(index=False))
+          PY
+          {
+            echo "## Final directional H1 replay on WCVP regional-native-compatible flora"
+            echo
+            cat /tmp/wcvp-dir/final_directional_summary.csv
+            echo
+            cat /tmp/wcvp-dir/final_directional_regional.csv
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-wcvp-final-directional-${{ github.run_id }}
+          path: /tmp/wcvp-dir
+          if-no-files-found: error
+          retention-days: 30
