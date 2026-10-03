@@ -847,21 +847,37 @@ def run_h4(
                 cells["PL_Effect_Size_Type2"].astype(str).eq("Sup")
             ].copy(),
             "no_zero_constant": cells.loc[
-                ~cells["Constant_added"].astype(str).str.strip().str.casefold().isin(
-                    {"true", "1", "yes", "y", "t"}
-                )
+                ~cells["Constant_added"]
+                .astype(str)
+                .str.strip()
+                .str.casefold()
+                .isin({"true", "1", "yes", "y", "t"})
             ].copy(),
         }.items():
+            support_ok = (
+                part["species_key"].nunique()
+                >= int(config["GloPL"]["minimum_matched_species"])
+            )
+            fit = (
+                _fit_h4_score(part)
+                if support_ok
+                else {
+                    "status": "not_testable",
+                    "reason": "minimum_matched_species_failed",
+                    "n_species": int(part["species_key"].nunique()),
+                }
+            )
             rows.append(
                 {
                     "response": response,
                     "analysis": analysis,
                     "role": (
                         "posthoc_exact_species_functional_triangulation"
-                        if response in config["GloPL"]["h4_primary_responses"]
+                        if response
+                        in config["GloPL"]["h4_primary_responses"]
                         else "exploratory_signal_display_functional_association"
                     ),
-                    **_fit_h4_score(part),
+                    **fit,
                 }
             )
     out = pd.DataFrame(rows)
@@ -957,6 +973,7 @@ def run(
     species_axis = pd.read_csv(species_axis_csv, dtype=str).fillna("")
     status_flora = pd.read_csv(status_flora_csv, dtype=str).fillna("")
     covariates = pd.read_csv(covariates_csv)
+    covariates["island_id"] = covariates["island_id"].astype(str)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     all_regional: list[pd.DataFrame] = []
