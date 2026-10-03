@@ -1823,6 +1823,7 @@ def run(
     regional = pd.concat(all_regional, ignore_index=True)
     synthesis = pd.concat(all_synthesis, ignore_index=True)
     h2 = pd.concat(all_h2, ignore_index=True)
+    h2_global = synthesize_h2_across_regions(h2, config)
     signal_states = pd.concat(
         [x for x in all_signal_states if not x.empty],
         ignore_index=True,
@@ -1855,6 +1856,10 @@ def run(
     regional.to_csv(output_dir / "H1_regional.csv", index=False)
     synthesis.to_csv(output_dir / "H1_global_synthesis.csv", index=False)
     h2.to_csv(output_dir / "H2_conditional.csv", index=False)
+    h2_global.to_csv(
+        output_dir / "H2_global_synthesis.csv",
+        index=False,
+    )
     signal_states.to_csv(
         output_dir / "signal_display_state_regional.csv",
         index=False,
