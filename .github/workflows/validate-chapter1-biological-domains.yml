@@ -100,6 +100,7 @@ jobs:
           h2=pd.read_csv(root/"H2_conditional.csv")
           h2g=pd.read_csv(root/"H2_global_synthesis.csv")
           h4=pd.read_csv(root/"H4_exact_species.csv")
+          h4_conditional=pd.read_csv(root/"H4_conditional_exact_species.csv")
           signal=pd.read_csv(root/"signal_display_state_regional.csv")
           threshold=pd.read_csv(root/"H1_minimum_species_threshold_sensitivity.csv")
           coverage=pd.read_csv(root/"trait_coverage_gradient.csv")
@@ -168,6 +169,8 @@ jobs:
               "H3": h3,
               "H4_benchmark_reproduction": h4_benchmark.to_dict(orient="records"),
               "H4_primary_posthoc": h4_primary.to_dict(orient="records"),
+              "H4_conditional_exact_species":
+                  h4_conditional.to_dict(orient="records"),
           }
           (root/"REVIEWER_SUMMARY.json").write_text(
               json.dumps(reviewer,indent=2,default=str)+"\n"
@@ -199,6 +202,8 @@ jobs:
           print(h4_benchmark.to_string(index=False))
           print("\n=== H4 PRIMARY POSTHOC ===")
           print(h4_primary.to_string(index=False))
+          print("\n=== H4 CONDITIONAL EXACT-SPECIES ===")
+          print(h4_conditional.to_string(index=False))
           PY
 
           {
@@ -227,6 +232,9 @@ jobs:
             echo
             echo "### H4 exact species"
             cat /tmp/domain/out/H4_exact_species.csv
+            echo
+            echo "### H4 conditional exact species"
+            cat /tmp/domain/out/H4_conditional_exact_species.csv
             echo
             echo "### Signal/display statewise results"
             cat /tmp/domain/out/signal_display_state_regional.csv
