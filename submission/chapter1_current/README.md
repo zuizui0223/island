@@ -35,23 +35,25 @@ This directory is the clean submission-facing package for Chapter 1. The scienti
 - corrected distance: minimum minor-great-circle arc separation to source-matched GSHHG 2.3.7 continental coastlines on a mean-radius sphere;
 - 1,113 formerly spurious island zero distances are now positive;
 - 996 true continental GloPL site zeros remain zero;
-- H1/H2/raw colour/architecture/H3/exact H4/atomic H4 outputs are selected from `results/geography_20260924/`.
+- corrected geography inputs remain under `results/geography_20260924/`; final reviewer-audited H1–H4 inference summaries are frozen under `results/h1_final_directional_20261003/`.
 
 ## Scientific spine
 
-1. **H1 — pattern:** isolation is associated with a recurrent multivariate floral/reproductive response across four regions, but individual traits are not uniformly positive.
-2. **H2 — decomposition:** reproductive assurance increases, while floral accessibility remains associated with isolation after reproductive-assurance adjustment in the primary analysis; detailed colour × architecture responses are context dependent.
-3. **H3 — pressure:** experimental pollen limitation increases with corrected geographic isolation (beta = 0.0919, p = 0.0157).
-4. **H4 — function:** the literal H2 reproductive-assurance and generalized-accessibility scores are associated with lower current pollen limitation in exact-species post-hoc functional triangulation.
+1. **H1a/H1b — directional pattern:** the predeclared classic island-syndrome direction has a positive global-average isolation response (all-analysis random-effects estimate 0.0691, one-sided P = 0.0256; Direct-only 0.0635, P = 0.0238), but regional heterogeneity is strong. A stricter four-region recurrence criterion fails because northern mid-latitudes are weak.
+2. **H2 — decomposition:** measured reproductive assurance does not absorb every floral-access association. Finite-cluster FDR support is concentrated in northern high latitudes and the primary tropical analysis; detailed colour × architecture responses remain context dependent.
+3. **H3 — pressure:** experimental pollen limitation increases with corrected geographic isolation (β = 0.0919, finite-publication P = 0.01594), and the positive gradient remains among offshore sites alone (β = 0.2203, P = 0.02459).
+4. **H4 — function:** the literal H2 reproductive-assurance and generalized-accessibility scores are associated with lower current pollen limitation in exact-species post-hoc functional triangulation (P = 0.00417 and 0.02334).
 
 ## Submission boundary
 
-The manuscript may claim pattern, conditional decomposition, an independent pollen-limitation gradient and post-hoc functional compatibility.
+The manuscript may claim a positive global-average directional tendency with regional heterogeneity, conditional decomposition, an independent pollen-limitation gradient and post-hoc functional compatibility.
 
 It must not claim:
 - causal mediation from pollen limitation to trait evolution;
 - a globally observed decline in pollinator abundance or visitation;
 - a universal named bee/butterfly/bird mechanism;
+- a universal regional island-syndrome rule or individual support in all four regions;
+- use of direction-free raw-state omnibus significance to rescue a failed directional H1 prediction;
 - uniform positive change in all seven H1 traits;
 - that the tropical Direct-only H2 accessibility result is FDR-supported;
 - that colour is a global H4 functional bridge;
