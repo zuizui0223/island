@@ -155,7 +155,7 @@ We asked whether the current H1 vector is represented primarily by family/genus 
 
 A beta-binomial common-support gate was fitted before interpreting residualization. H1 remained FDR-supported on this exact taxonomically eligible species set in all four regions in each of four surfaces: all-observed and WCVP regional-native-compatible floras, each under all-analysis and Direct-only trait evidence.
 
-The most reproducible result was tropical. The seven-response vector remained supported after genus residualization in every surface:
+Across the four broad and WCVP regional-native-compatible surfaces, the tropical seven-response vector remained supported after genus residualization:
 
 | Flora / evidence | Post-genus q |
 | --- | ---: |
@@ -166,7 +166,7 @@ The most reproducible result was tropical. The seven-response vector remained su
 
 Self-compatibility remained positive and individually supported after genus residualization in all four surfaces (P = 0.00293, 0.00355, 9.93 × 10^-5 and 7.09 × 10^-5). Plain colour and generalized form were also supported post-genus in both regional-native-compatible surfaces.
 
-Paired 300-draw spatial-block bootstrap quantified attenuation uncertainty. In the tropical all-analysis scopes, the additional family-to-genus attenuation was positive: median 0.458, 95% interval 0.212–0.662 in all-observed flora and median 0.341, interval 0.150–0.552 in regional-native-compatible flora. Direct-only intervals crossed zero. Thus genus composition contributes to the tropical vector, but does not exhaust it.
+Paired 300-draw spatial-block bootstrap quantified attenuation uncertainty. In the tropical all-analysis scopes, the additional family-to-genus attenuation was positive: median 0.458, 95% interval 0.212–0.662 in all-observed flora and median 0.341, interval 0.150–0.552 in regional-native-compatible flora. Direct-only intervals crossed zero. Thus genus composition contributes to the tropical vector in these broad surfaces, but does not exhaust it. Section S3.3 tests whether that conclusion is stable to exact floristic-status provenance.
 
 Northern high latitudes showed substantial family-level attenuation: the family attenuation interval excluded zero in all-observed all-analysis (0.300–0.702), all-observed Direct-only (0.181–0.573) and regional-native-compatible all-analysis (0.156–0.670); the regional-native-compatible Direct-only lower bound was -0.0019. The incremental family-to-genus attenuation crossed zero in every northern-high surface, so a sharp genus breakpoint is not identified.
 
@@ -180,6 +180,39 @@ Reproducibility surface:
 - src/island_v2/chapter1_h1_taxonomic_depth_current.py
 - config/chapter1_h1_taxonomic_depth_current.yml
 - validation workflow run 37095612710; artifact 11264117016; digest sha256:d2b46479d6eb40457157490b667660bf9728361faae0ab7321ec1cc8d6d1db5b
+
+## S3.3 Tropical floristic-status provenance diagnostic
+
+The broad/WCVP tropical below-genus result was further partitioned by floristic-status provenance. This diagnostic uses the same current H1 taxonomic-depth implementation but disables the already-completed bootstrap because the purpose is support localization, not a second attenuation-uncertainty analysis.
+
+Four non-overlapping provenance groups were examined:
+
+- source-backed native non-endemics: 118,429 island-by-species rows, 425 islands, 26,200 species;
+- source-backed endemics: 17,444 rows, 143 islands, 17,429 species;
+- source-backed native records with unresolved endemism: 14,658 rows, 380 islands, 8,469 species;
+- records originally unresolved for origin but upgraded by WCVP regional-native compatibility: 362,789 rows, 2,281 islands, 60,117 species.
+
+The tropical results were:
+
+| Status provenance / evidence | Parent common-support H1 q | Post-genus q | Interpretation |
+| --- | ---: | ---: | --- |
+| Native non-endemic / all-analysis | 0.003758 | 0.1177 | compatible with genus structuring |
+| Native non-endemic / Direct-only | 1.85 × 10^-5 | 0.0754 | compatible with genus structuring |
+| Endemic / all-analysis | 0.7246 | 0.2114 | parent H1 not reproduced |
+| Endemic / Direct-only | not testable | not testable | one retained outcome |
+| Source-native, endemism unresolved / all-analysis | 0.01266 | 0.000648 | below-genus residual retained |
+| Source-native, endemism unresolved / Direct-only | 0.3600 | 0.00202 | parent beta-binomial H1 gate fails; no depth inference |
+| WCVP-upgraded origin-unresolved / all-analysis | 9.88 × 10^-6 | 0.00215 | below-genus residual retained |
+| WCVP-upgraded origin-unresolved / Direct-only | 0.002415 | 0.000603 | below-genus residual retained |
+
+Thus the strict source-backed native-nonendemic tropical H1 is strongly supported before genus adjustment but is not supported after genus residualization. The source-backed endemic subset cannot adjudicate a finer-grained response because its parent H1 is unsupported or not testable. The most stable below-genus residual instead occurs in the large WCVP-upgraded group whose exact focal-island origin status remains unresolved.
+
+This changes the interpretation of S3.2. The tropical residual cannot be promoted as evidence of repeated native within-lineage evolution. It is a status-provenance-sensitive finer-than-genus component of the broad contemporary/regional-native-compatible flora. Within-genus species sorting, regional source-pool structure, imperfect focal-island status assignment, persistence filtering and genuine evolutionary change remain unresolved alternatives.
+
+Reproducibility surface:
+
+- results/tropical_status_depth_20261003/
+- validation workflow run 37096771148; artifact 11264951254
 
 ---
 
