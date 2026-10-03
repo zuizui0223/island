@@ -1,4 +1,5 @@
 name: Validate Chapter 1 H3 offshore-gradient sensitivity
+# trigger-after-lint-fix
 
 on:
   push:
@@ -47,7 +48,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$target"
           git commit -m "Persist H3 offshore-gradient robustness results"
-          git push
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
 
       - uses: actions/upload-artifact@v4
         if: always()
