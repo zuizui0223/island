@@ -73,7 +73,8 @@ Paper-level synthesis separates:
 
 Current result:
 - H1a supported: all-analysis mean 0.0691, one-sided p=0.0256; Direct-only mean 0.0635, p=0.0238;
-- H1b supported: I2=0.819 / 0.685;
+- H1b supported in the primary sandwich analysis: I2=0.819 / 0.685; an exact delete-cluster stress test retains all-analysis heterogeneity (p=0.00789, I2=0.747) but not Direct-only heterogeneity (p=0.131, I2=0.467);
+- H1a itself survives the exact delete-cluster stress test (one-sided p=0.0331 / 0.0302);
 - strict four-region recurrence unsupported because northern mid-latitudes are weak (IUT p=0.134 / 0.106).
 
 The three raw measurement axes remain a descriptive phenotype/provenance audit. Their high-dimensional direction-free omnibus tests are not confirmatory evidence for the classic island-syndrome direction and cannot rescue a failed H1 directional endpoint.
