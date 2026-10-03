@@ -1,13 +1,6 @@
 name: Validate direct current H1 source-lineage decomposition
 
 on:
-  push:
-    branches:
-      - analysis/current-h1-source-lineage-entry
-    paths:
-      - "src/island_v2/chapter1_current_h1_source_lineage_entry.py"
-      - "config/chapter1_current_h1_source_lineage_entry.yml"
-      - ".github/workflows/validate-chapter1-current-h1-source-lineage-entry.yml"
   workflow_dispatch:
 
 permissions:
