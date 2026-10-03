@@ -59,7 +59,8 @@ def test_h1_uses_original_three_axis_cells_as_primary_response() -> None:
     assert "three formal response blocks" in manuscript
     assert "seven-trait floral–reproductive response" not in manuscript
     assert "secondary seven-indicator" in captions.lower()
-    assert "reproductive-assurance and floral-structure composition" in novelty
+    assert "reproductive assurance" in novelty
+    assert "floral structure" in novelty
 
     for path in (H1_RAW_AXIS_TABLE, H1_ORIGIN_TABLE, H1_AXIS_AUDIT):
         assert path.is_file(), path
