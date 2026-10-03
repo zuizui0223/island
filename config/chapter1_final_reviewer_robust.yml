@@ -1,0 +1,93 @@
+contract: chapter1_final_reviewer_robust_v1
+
+purpose: >-
+  Final reviewer-robust re-estimation of the already-frozen Chapter 1 H1 and H2
+  biological contrasts. The analysis replaces high-dimensional direction-free Wald
+  support with scalar directional tests along the pre-existing classic-island
+  orientation, and uses delete-one-spatial-cluster jackknife uncertainty.
+
+geography_column: log_distance_to_continent_km
+context_column: analysis_regime
+cluster_column: spatial_block
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+
+alpha: 0.05
+max_iter: 1500
+minimum_islands: 50
+minimum_positive_islands: 10
+minimum_negative_islands: 10
+
+h1:
+  strata:
+    - all_observed
+    - all_native
+    - native_nonendemic
+  outcomes:
+    - self_compatibility
+    - selfing_mating_system
+    - autonomous_selfing
+    - plain_colour
+    - generalized_form
+    - actinomorphic_symmetry
+    - shallow_open_tube
+  contrasts:
+    # This was already the v14 descriptive equal-domain orientation:
+    # each of the three biological domains receives 1/3 total weight.
+    classic_equal_domain:
+      self_compatibility: 0.1111111111111111
+      selfing_mating_system: 0.1111111111111111
+      autonomous_selfing: 0.1111111111111111
+      plain_colour: 0.3333333333333333
+      generalized_form: 0.1111111111111111
+      actinomorphic_symmetry: 0.1111111111111111
+      shallow_open_tube: 0.1111111111111111
+    reproductive_assurance:
+      self_compatibility: 0.3333333333333333
+      selfing_mating_system: 0.3333333333333333
+      autonomous_selfing: 0.3333333333333333
+    colour_dulling:
+      plain_colour: 1.0
+    accessibility_generalization:
+      generalized_form: 0.3333333333333333
+      actinomorphic_symmetry: 0.3333333333333333
+      shallow_open_tube: 0.3333333333333333
+
+h2:
+  stratum: all_observed
+  minimum_clusters: 20
+
+multiple_testing:
+  h1_primary: Holm across four predeclared geographic contexts within each evidence/stratum/contrast
+  h2: Holm across four predeclared contexts separately within each pathway
+
+rules:
+  - positive_H1_coefficients_are_the_predeclared_classic_island_direction
+  - no_new_raw_state_signs_are_declared_after_seeing_results
+  - all_seven_frozen_H1_outcomes_are_required_for_the_primary_equal_domain_projection
+  - raw_state_three_axis_omnibus_is_descriptive_not_confirmatory
+  - leave_one_spatial_cluster_out_refits_use_full_sample_predictor_scaling
+  - t_reference_df_is_number_of_successful_jackknife_clusters_minus_one
+  - all_analysis_eligible_is_primary_and_direct_only_is_evidence_sensitivity
+  - H2_is_conditional_decomposition_not_causal_mediation
+  - H3_and_H4_are_not_reclassified_by_this_analysis
+
+claim_boundary: >-
+  H1 estimates an assemblage-scale directional floral/reproductive island syndrome
+  in contemporary island floras. It does not identify within-lineage evolution.
+  H2 asks whether the accessibility association is statistically absorbed by measured
+  reproductive assurance; persistence is not proof of direct pollinator selection.
+  H3 remains an independent association between isolation and experimental pollen
+  limitation. H4 remains post-hoc exact-species functional triangulation. The
+  historical edge from past pollination limitation through selection, sorting or
+  persistence to present-day trait composition is not identified.
