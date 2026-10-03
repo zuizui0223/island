@@ -1,0 +1,86 @@
+name: Render three-axis Figure 4
+
+on:
+  push:
+    branches:
+      - analysis/h1-three-axis-raw-state
+    paths:
+      - "scripts/submission/render_chapter1_main_figures.py"
+      - ".github/workflows/render-chapter1-three-axis-figure4.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -e ".[figures]"
+
+      - name: Render Figure 4 deterministically
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/ch1-main-figures
+          python scripts/submission/render_chapter1_main_figures.py             --root .             --output-dir /tmp/ch1-main-figures
+
+          cp /tmp/ch1-main-figures/Figure4_H1_recurrent_multivariate_response.svg             submission/chapter1_current/figures/
+          cp /tmp/ch1-main-figures/Figure4_H1_recurrent_multivariate_response.pdf             submission/chapter1_current/figures/
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path("submission/chapter1_current/figures")
+          manifest=root/"FIGURE_MANIFEST.json"
+          data=json.loads(manifest.read_text())
+          for item in data["figures"]:
+              if int(item["figure"]) == 4:
+                  svg=root/item["svg"]
+                  pdf=root/item["pdf"]
+                  item["svg_bytes"]=svg.stat().st_size
+                  item["pdf_bytes"]=pdf.stat().st_size
+          manifest.write_text(json.dumps(data,indent=2)+"\n",encoding="utf-8")
+          PY
+
+      - name: Validate figure package
+        run: |
+          pytest -q tests/test_chapter1_figure_packages.py
+          python - <<'PY'
+          from pathlib import Path
+          from xml.etree import ElementTree as ET
+          p=Path("submission/chapter1_current/figures/Figure4_H1_recurrent_multivariate_response.svg")
+          ET.parse(p)
+          text=p.read_text(encoding="utf-8")
+          required=[
+              "three raw measurement axes and floristic-origin divergence",
+              "Reproductive assurance",
+              "Floral structure",
+              "Flower colour",
+              "Tropical known-origin contrast",
+          ]
+          for marker in required:
+              assert marker in text, marker
+          PY
+
+      - name: Commit rendered Figure 4
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add             submission/chapter1_current/figures/Figure4_H1_recurrent_multivariate_response.svg             submission/chapter1_current/figures/Figure4_H1_recurrent_multivariate_response.pdf             submission/chapter1_current/figures/FIGURE_MANIFEST.json
+          if git diff --cached --quiet; then
+            echo "No figure changes"
+            exit 0
+          fi
+          git commit -m "Render three-axis H1 Figure 4"
+          git push origin HEAD:analysis/h1-three-axis-raw-state
