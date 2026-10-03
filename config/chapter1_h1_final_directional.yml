@@ -80,6 +80,23 @@ directional_score:
   wild_cluster_replications: 9999
   wild_cluster_seed: 20261003
   global_recurrence_test: intersection_union_max_regional_p
+  weight_sensitivities:
+    equal_indicator:
+      self_compatibility: 0.14285714285714285
+      selfing_mating_system: 0.14285714285714285
+      autonomous_selfing: 0.14285714285714285
+      plain_colour: 0.14285714285714285
+      generalized_form: 0.14285714285714285
+      actinomorphic_symmetry: 0.14285714285714285
+      shallow_open_tube: 0.14285714285714285
+    core_two_domain:
+      self_compatibility: 0.16666666666666666
+      selfing_mating_system: 0.16666666666666666
+      autonomous_selfing: 0.16666666666666666
+      plain_colour: 0.0
+      generalized_form: 0.16666666666666666
+      actinomorphic_symmetry: 0.16666666666666666
+      shallow_open_tube: 0.16666666666666666
 
 broad_outcomes:
   self_compatibility:
@@ -125,6 +142,7 @@ rules:
   - all_observed_is_contemporary_flora_not_native_evolution
   - native_status_results_are_sensitivities_not_four_region_confirmatory_replication
   - raw_state_three_axis_results_are_descriptive_reorganization_evidence
+  - equal_indicator_and_core_two_domain_weights_are_predeclared_sensitivities
   - no_pollinator_identity_is_inferred_from_H1
 
 claim_ceiling: >-
