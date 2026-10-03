@@ -33,7 +33,7 @@ jobs:
       ALL_DATA_RUN_ID: "35100991898"
       ALL_DATA_ARTIFACT: "chapter1-all-data-primary-35100991898"
       ALL_DATA_ARTIFACT_ID: "10447959173"
-      ALL_DATA_DIGEST: "sha256:2152201aba5e5b02342c7d9d27eaf833b73c2b6405337f9aee1acbdd91af0844"
+      ALL_DATA_DIGEST: "sha256:2152201aba5e5b02342c7d9d27eaf833b73c2d6405337f9aee1acbdd91af0844"
 
     steps:
       - uses: actions/checkout@v4
