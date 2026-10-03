@@ -90,7 +90,8 @@
         "H1a_estimate": 0.087862,
         "p_one_sided": 0.053259,
         "supported": false
-      }
+      },
+      "regional_note": "All four leaveout regional point estimates remain positive; northern mid-latitude remains unsupported. Direct-only H1a becomes borderline at one-sided p=0.0533."
     },
     "weighting_sensitivity": {
       "all_analysis_equal_indicator": {
@@ -118,7 +119,93 @@
     "obsolete_for_headline_inference": [
       "seven-response high-dimensional cluster-Wald p-values",
       "three-axis raw-state high-dimensional omnibus p-values"
-    ]
+    ],
+    "regional_results": {
+      "all_analysis_eligible": [
+        {
+          "context": "northern_midlatitude",
+          "estimate": 0.016066,
+          "cluster_robust_se": 0.014437,
+          "p_one_sided_t": 0.1344658,
+          "p_one_sided_wild": 0.1452,
+          "n_clusters": 86,
+          "effective_clusters": 6.59424,
+          "max_cluster_variance_share": 0.243855
+        },
+        {
+          "context": "northern_high_latitude",
+          "estimate": 0.113687,
+          "cluster_robust_se": 0.038256,
+          "p_one_sided_t": 0.002105384,
+          "p_one_sided_wild": 0.0001,
+          "n_clusters": 63,
+          "effective_clusters": 1.504335,
+          "max_cluster_variance_share": 0.808881
+        },
+        {
+          "context": "tropical",
+          "estimate": 0.097847,
+          "cluster_robust_se": 0.016516,
+          "p_one_sided_t": 1.825112e-8,
+          "p_one_sided_wild": 0.0001,
+          "n_clusters": 111,
+          "effective_clusters": 10.661218,
+          "max_cluster_variance_share": 0.248443
+        },
+        {
+          "context": "southern_extratropical",
+          "estimate": 0.069754,
+          "cluster_robust_se": 0.026825,
+          "p_one_sided_t": 0.006493882,
+          "p_one_sided_wild": 0.0013,
+          "n_clusters": 41,
+          "effective_clusters": 4.270923,
+          "max_cluster_variance_share": 0.423186
+        }
+      ],
+      "direct_only": [
+        {
+          "context": "northern_midlatitude",
+          "estimate": 0.019347,
+          "cluster_robust_se": 0.015402,
+          "p_one_sided_t": 0.1062462,
+          "p_one_sided_wild": 0.119,
+          "n_clusters": 86,
+          "effective_clusters": 6.1047,
+          "max_cluster_variance_share": 0.305356
+        },
+        {
+          "context": "northern_high_latitude",
+          "estimate": 0.115299,
+          "cluster_robust_se": 0.039681,
+          "p_one_sided_t": 0.002537594,
+          "p_one_sided_wild": 0.0001,
+          "n_clusters": 63,
+          "effective_clusters": 1.394527,
+          "max_cluster_variance_share": 0.842582
+        },
+        {
+          "context": "tropical",
+          "estimate": 0.081605,
+          "cluster_robust_se": 0.02092,
+          "p_one_sided_t": 0.00008308933,
+          "p_one_sided_wild": 0.0001,
+          "n_clusters": 110,
+          "effective_clusters": 8.460178,
+          "max_cluster_variance_share": 0.294286
+        },
+        {
+          "context": "southern_extratropical",
+          "estimate": 0.069625,
+          "cluster_robust_se": 0.025697,
+          "p_one_sided_t": 0.004936352,
+          "p_one_sided_wild": 0.0019,
+          "n_clusters": 41,
+          "effective_clusters": 7.250471,
+          "max_cluster_variance_share": 0.27753
+        }
+      ]
+    }
   },
   "H2": {
     "finite_cluster_reference": "spatial-block cluster robust SE with t(G-1), same frozen BH family",
