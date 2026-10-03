@@ -16,6 +16,7 @@ species cannot be treated as a separate methodological problem.
 from __future__ import annotations
 
 import copy
+import itertools
 import json
 from pathlib import Path
 from typing import Any
@@ -47,27 +48,100 @@ app = typer.Typer(add_completion=False, no_args_is_help=True)
 def _parse_composition(
     text: object,
     *,
+    expected_axis: str,
     trait_to_axis: dict[str, str],
     allowed: dict[str, set[str]],
-) -> list[tuple[str, str, str]]:
-    rows: list[tuple[str, str, str]] = []
+) -> tuple[list[tuple[str, str, str]], str, int]:
+    entries: list[tuple[str, tuple[str, ...]]] = []
     for item in str(text or "").split("|"):
         trait, sep, raw_states = item.partition("=")
         trait = trait.strip()
-        if not sep or trait not in trait_to_axis:
+        if (
+            not sep
+            or trait not in trait_to_axis
+            or trait_to_axis[trait] != expected_axis
+        ):
             continue
         try:
-            states = json.loads(raw_states)
+            parsed = json.loads(raw_states)
         except json.JSONDecodeError:
             continue
-        if not isinstance(states, list):
+        if not isinstance(parsed, list):
             continue
-        for state in states:
-            state = str(state).strip()
-            if state and state != "unresolved" and state in allowed.get(trait, set()):
-                rows.append((trait_to_axis[trait], trait, state))
-    return sorted(set(rows))
+        states = tuple(
+            sorted(
+                {
+                    str(state).strip()
+                    for state in parsed
+                    if str(state).strip()
+                    and str(state).strip() != "unresolved"
+                }
+            )
+        )
+        if states:
+            entries.append((trait, states))
 
+    if not entries:
+        return [], "no_materializable_state", 0
+
+    as_reported = all(
+        set(states).issubset(allowed.get(trait, set()))
+        for trait, states in entries
+    )
+    assignments: tuple[str, ...] | None = None
+    status = "as_reported"
+    if as_reported:
+        assignments = tuple(trait for trait, _ in entries)
+    else:
+        # Some frozen cells contain a within-axis permutation of trait labels:
+        # e.g. floral_symmetry=[raceme_spike_panicle] paired with
+        # inflorescence_display=[zygomorphic].  Repair only when the state sets
+        # admit exactly one bijection onto the trait slots already declared in
+        # that same cell.  This uses no species, geography or outcome information.
+        present_traits = tuple(trait for trait, _ in entries)
+        candidates: list[list[str]] = []
+        for _, states in entries:
+            candidates.append(
+                [
+                    trait
+                    for trait in present_traits
+                    if set(states).issubset(allowed.get(trait, set()))
+                ]
+            )
+        solutions: list[tuple[str, ...]] = []
+        if all(candidates):
+            for candidate in itertools.product(*candidates):
+                if len(set(candidate)) != len(candidate):
+                    continue
+                solutions.append(tuple(candidate))
+                if len(solutions) > 1:
+                    break
+        if len(solutions) == 1:
+            assignments = solutions[0]
+            status = "ontology_unique_bijection_repair"
+        else:
+            status = "partially_unresolved"
+            assignments = tuple(
+                trait
+                if set(states).issubset(allowed.get(trait, set()))
+                else ""
+                for trait, states in entries
+            )
+
+    rows: list[tuple[str, str, str]] = []
+    reassigned_state_memberships = 0
+    for (reported_trait, states), assigned_trait in zip(
+        entries,
+        assignments,
+        strict=True,
+    ):
+        if not assigned_trait:
+            continue
+        if assigned_trait != reported_trait:
+            reassigned_state_memberships += len(states)
+        for state in states:
+            rows.append((expected_axis, assigned_trait, state))
+    return sorted(set(rows)), status, reassigned_state_memberships
 
 def build_valid_state_ledger(
     species_axis: pd.DataFrame,
@@ -108,8 +182,9 @@ def build_valid_state_ledger(
     state_rows: list[dict[str, str]] = []
     coverage_rows: list[dict[str, Any]] = []
     for row in work.itertuples(index=False):
-        valid = _parse_composition(
+        valid, repair_status, reassigned_memberships = _parse_composition(
             row.trait_composition,
+            expected_axis=str(row.axis),
             trait_to_axis=trait_to_axis,
             allowed=allowed,
         )
@@ -129,6 +204,11 @@ def build_valid_state_ledger(
                 "has_valid_component_state": bool(valid),
                 "n_valid_state_memberships": len(valid),
                 "n_valid_component_traits": len({trait for _, trait, _ in valid}),
+                "repair_status": repair_status,
+                "ontology_repaired_axis_cell": (
+                    repair_status == "ontology_unique_bijection_repair"
+                ),
+                "n_reassigned_state_memberships": reassigned_memberships,
             }
         )
 
@@ -145,6 +225,11 @@ def build_valid_state_ledger(
             ontology_invalid_only_axis_cells=(
                 "has_valid_component_state",
                 lambda x: int((~x.astype(bool)).sum()),
+            ),
+            ontology_repaired_axis_cells=("ontology_repaired_axis_cell", "sum"),
+            n_reassigned_state_memberships=(
+                "n_reassigned_state_memberships",
+                "sum",
             ),
             n_valid_state_memberships=("n_valid_state_memberships", "sum"),
             n_valid_component_trait_records=("n_valid_component_traits", "sum"),
