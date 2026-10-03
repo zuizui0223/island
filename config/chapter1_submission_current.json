@@ -28,7 +28,10 @@
     "joint trait significance does not imply uniform positive trait responses",
     "H3 supplemental-only result remains unsupported",
     "H4 remains post-hoc association, not causal mediation",
-    "shoreline positional accuracy is not numerical distance precision"
+    "shoreline positional accuracy is not numerical distance precision",
+    "strict four-region classic-syndrome recurrence is unsupported",
+    "final H1 claim is a positive global-average tendency with regional heterogeneity, not a universal trait checklist",
+    "high-dimensional direction-free Wald tests are reference/descriptive only for final H1 inference"
   ],
   "files": {
     "results/geography_20260924/all/beta_binomial_between_omnibus.csv": "e9366885d36ad12ab78c4bc49f38b32e9dd6722bb7121a428c9011045ab0dfb4",
@@ -97,5 +100,17 @@
   "submission_package": "submission/chapter1_current",
   "manuscript": "submission/chapter1_current/MANUSCRIPT.md",
   "figure_captions": "submission/chapter1_current/FIGURE_CAPTIONS.md",
-  "history_index": "docs/CHAPTER1_HISTORY.md"
+  "history_index": "docs/CHAPTER1_HISTORY.md",
+  "final_H1_inference": {
+    "date": "2026-10-03",
+    "results_directory": "results/h1_final_directional_20261003",
+    "validation_run_id": 37124405765,
+    "artifact_id": 11274313934,
+    "artifact_digest": "sha256:05389ffe438876c11527ecb8b6be7c43ac3f45b14fa343970826e142e36dab5b",
+    "formal_estimand": "seven frozen pre-oriented indicators, equal total weight across reproductive assurance, colour dulling, and accessibility/generalization",
+    "regional_inference": "finite-cluster t with G-1 df plus Rademacher wild-cluster sign-flip sensitivity",
+    "H1a_global_synthesis": "Paule-Mandel random effects with modified Hartung-Knapp inference",
+    "H1b_heterogeneity": "Cochran Q and I2",
+    "strict_four_region_recurrence_supported": false
+  }
 }

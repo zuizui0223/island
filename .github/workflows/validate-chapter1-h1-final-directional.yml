@@ -4,12 +4,17 @@ on:
   push:
     branches:
       - analysis/h1-final-directional-inference
+      - analysis/h1-final-sync-resolved
     paths:
       - "config/chapter1_h1_final_directional.yml"
       - "src/island_v2/chapter1_h1_final_directional.py"
       - "tests/test_chapter1_h1_final_directional.py"
       - "src/island_v2/chapter1_final_inference_audit.py"
       - "tests/test_chapter1_final_inference_audit.py"
+      - "config/chapter1_h1_final_directional_result_lock.json"
+      - "scripts/submission/render_chapter1_main_figures.py"
+      - "submission/chapter1_current/FIGURE_CAPTIONS.md"
+      - "submission/chapter1_current/MANUSCRIPT.md"
       - ".github/workflows/validate-chapter1-h1-final-directional.yml"
   pull_request:
     branches:
@@ -21,6 +26,12 @@ on:
       - "tests/test_chapter1_h1_final_directional.py"
       - "src/island_v2/chapter1_final_inference_audit.py"
       - "tests/test_chapter1_final_inference_audit.py"
+      - "config/chapter1_h1_final_directional_result_lock.json"
+      - "scripts/submission/render_chapter1_main_figures.py"
+      - "submission/chapter1_current/FIGURE_CAPTIONS.md"
+      - "submission/chapter1_current/MANUSCRIPT.md"
+      - "submission/chapter1_current/SUBMISSION_READINESS.md"
+      - "results/h1_three_axis_raw_state_20261003/README.md"
       - ".github/workflows/validate-chapter1-h1-final-directional.yml"
   workflow_dispatch:
 
@@ -92,6 +103,20 @@ jobs:
             --h3-offshore-json results/h3_offshore_gradient_20261003/h3_offshore_gradient_summary.json \
             --h4-csv results/geography_20260924/h4_exact_corrected.csv \
             --output-dir /tmp/h1-final/results/inference-audit
+
+
+      - name: Render final main figures
+        run: |
+          pip install matplotlib
+          mkdir -p /tmp/h1-final/rendered-main
+          python scripts/submission/render_chapter1_main_figures.py \
+            --root . \
+            --output-dir /tmp/h1-final/rendered-main
+          test -s /tmp/h1-final/rendered-main/Figure4_H1_recurrent_multivariate_response.svg
+          test -s /tmp/h1-final/rendered-main/Figure4_H1_recurrent_multivariate_response.pdf
+          test -s /tmp/h1-final/rendered-main/Figure5_H2_conditional_decomposition.svg
+          test -s /tmp/h1-final/rendered-main/Figure5_H2_conditional_decomposition.pdf
+          cp -r /tmp/h1-final/rendered-main /tmp/h1-final/results/rendered-main
 
       - name: Assemble reviewer-facing inference audit
         run: |
