@@ -702,6 +702,105 @@ def _status_vector_similarity(slopes: pd.DataFrame, config: dict[str, Any]) -> p
     return pd.DataFrame(rows)
 
 
+def run_tdwg_resolution_sensitivity(
+    counts: pd.DataFrame,
+    covariates: pd.DataFrame,
+    config: dict[str, Any],
+) -> dict[str, pd.DataFrame]:
+    target_scope = "regional_native_compatible"
+    complete_islands = set(
+        covariates.loc[
+            pd.to_numeric(
+                covariates["log_tdwg_l3_area_km2"], errors="coerce"
+            ).notna(),
+            "island_id",
+        ].astype(str)
+    )
+    slope_parts: list[pd.DataFrame] = []
+    omnibus_rows: list[dict[str, Any]] = []
+    support_parts: list[pd.DataFrame] = []
+
+    for evidence_scope in config["evidence_scopes"]:
+        scope_counts = counts.loc[
+            counts["evidence_scope"].eq(evidence_scope)
+            & counts["stratum"].eq(target_scope)
+            & counts["island_id"].astype(str).isin(complete_islands)
+        ].copy()
+        if scope_counts.empty:
+            continue
+        for variant in ("matched_baseline", "l3_area_adjusted"):
+            cfg = copy.deepcopy(config)
+            if variant == "l3_area_adjusted":
+                baseline = [
+                    str(x) for x in cfg["model"]["baseline_covariates"]
+                ]
+                if "log_tdwg_l3_area_km2" not in baseline:
+                    baseline.append("log_tdwg_l3_area_km2")
+                cfg["model"]["baseline_covariates"] = baseline
+
+            model = cfg["model"]
+            fit_cfg = {
+                "geography_column": str(model["geography_column"]),
+                "context_column": str(model["context_column"]),
+                "cluster_column": str(model["cluster_column"]),
+                "baseline_covariates": [
+                    str(x) for x in model["baseline_covariates"]
+                ],
+            }
+            prepared = _prepare(
+                scope_counts.drop(columns="evidence_scope"),
+                covariates,
+                fit_cfg,
+            )
+            for axis in cfg["axes"]:
+                for context_value in model["contexts"]:
+                    slopes, omnibus, support = _axis_fit(
+                        prepared,
+                        scope_counts,
+                        cfg,
+                        evidence_scope=evidence_scope,
+                        flora_scope=target_scope,
+                        axis=str(axis),
+                        context_value=str(context_value),
+                    )
+                    if not slopes.empty:
+                        slopes.insert(2, "resolution_variant", variant)
+                        slope_parts.append(slopes)
+                    omnibus["resolution_variant"] = variant
+                    omnibus_rows.append(omnibus)
+                    if not support.empty:
+                        support.insert(2, "resolution_variant", variant)
+                        support_parts.append(support)
+
+    omnibus = pd.DataFrame(omnibus_rows)
+    if not omnibus.empty and "p_value" in omnibus.columns:
+        omnibus["q_value"] = (
+            omnibus.groupby(
+                ["evidence_scope", "resolution_variant"],
+                group_keys=False,
+            )["p_value"]
+            .transform(_bh)
+        )
+        omnibus["axis_supported"] = (
+            omnibus["q_value"]
+            .le(float(config["model"]["alpha"]))
+            .fillna(False)
+        )
+    return {
+        "slopes": (
+            pd.concat(slope_parts, ignore_index=True)
+            if slope_parts
+            else pd.DataFrame()
+        ),
+        "omnibus": omnibus,
+        "support": (
+            pd.concat(support_parts, ignore_index=True)
+            if support_parts
+            else pd.DataFrame()
+        ),
+    }
+
+
 def run_three_axis_analysis(
     species_axis: pd.DataFrame,
     status_flora: pd.DataFrame,
