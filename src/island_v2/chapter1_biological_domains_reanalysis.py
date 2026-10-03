@@ -857,14 +857,65 @@ def _fit_h4_score(cells: pd.DataFrame) -> dict[str, Any]:
     }
 
 
+def validate_h4_benchmarks(
+    h4: pd.DataFrame,
+    config: dict[str, Any],
+) -> None:
+    expected = config["GloPL"]["benchmark_expected_corrected_results"]
+    tolerance = float(expected["tolerance"])
+    response_map = {
+        "reproductive_assurance_core": "reproductive_assurance_core",
+        "accessibility_specialization": "accessibility_specialization",
+    }
+    primary = h4.loc[h4["analysis"].eq("primary")].set_index("response")
+    for key, response in response_map.items():
+        target = expected[key]
+        if response not in primary.index:
+            raise typer.BadParameter(
+                f"H4 benchmark response missing: {response}"
+            )
+        row = primary.loc[response]
+        if str(row["status"]) != "fit":
+            raise typer.BadParameter(
+                f"H4 benchmark response not fit: {response}"
+            )
+        for field in ("estimate", "se"):
+            observed = float(row[field])
+            wanted = float(target[field])
+            if abs(observed - wanted) > tolerance:
+                raise typer.BadParameter(
+                    f"H4 benchmark drift for {response} {field}: "
+                    f"observed={observed}, expected={wanted}"
+                )
+        for field in ("n_species", "n_publications"):
+            if int(row[field]) != int(target[field]):
+                raise typer.BadParameter(
+                    f"H4 benchmark drift for {response} {field}: "
+                    f"observed={int(row[field])}, expected={int(target[field])}"
+                )
+
+
 def run_h4(
     glopl_rows: pd.DataFrame,
     direct_species_scores: pd.DataFrame,
     config: dict[str, Any],
 ) -> pd.DataFrame:
-    responses = [
-        *[str(x) for x in config["GloPL"]["h4_primary_posthoc_responses"]],
-    ]
+    responses = list(
+        dict.fromkeys(
+            [
+                *[
+                    str(x)
+                    for x in config["GloPL"]["benchmark_responses"]
+                ],
+                *[
+                    str(x)
+                    for x in config["GloPL"][
+                        "h4_primary_posthoc_responses"
+                    ]
+                ],
+            ]
+        )
+    )
     rows: list[dict[str, Any]] = []
     for response in responses:
         cells = _h4_cells(
@@ -1274,6 +1325,7 @@ def run(
         species_scores_by_scope["direct_only"],
         config,
     )
+    validate_h4_benchmarks(h4, config)
     h3 = h3_summary(h3_json)
     summary = summarize(synthesis, h2, h3, h4)
 
