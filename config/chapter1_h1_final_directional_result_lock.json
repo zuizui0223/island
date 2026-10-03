@@ -1,0 +1,162 @@
+{
+  "contract": "chapter1_h1_final_directional_result_lock_v1",
+  "date": "2026-10-03",
+  "status": "completed_reviewer_robust_inference_audit",
+  "branch": "analysis/h1-final-directional-inference",
+  "head_sha": "973253c4f533cf18416caf8039121d6c8be54fa0",
+  "workflow_run_id": 37124478924,
+  "artifact_id": 11273709274,
+  "artifact_name": "chapter1-h1-final-directional-37124478924",
+  "artifact_sha256": "1bc919e4ea007635d480b99db7015309d38c964680ef133cc7d1b879ad2e6abb",
+  "H1": {
+    "primary_estimand": "equal-weight mean of three frozen v14 biological-domain means from seven pre-oriented indicators",
+    "regional_all_analysis": [
+      {
+        "context": "northern_midlatitude",
+        "estimate": 0.016066,
+        "p_one_sided_t": 0.1344658,
+        "p_one_sided_wild": 0.1452
+      },
+      {
+        "context": "northern_high_latitude",
+        "estimate": 0.113687,
+        "p_one_sided_t": 0.00210538,
+        "p_one_sided_wild": 0.0001
+      },
+      {
+        "context": "tropical",
+        "estimate": 0.097847,
+        "p_one_sided_t": 1.825112e-8,
+        "p_one_sided_wild": 0.0001
+      },
+      {
+        "context": "southern_extratropical",
+        "estimate": 0.069754,
+        "p_one_sided_t": 0.00649388,
+        "p_one_sided_wild": 0.0013
+      }
+    ],
+    "strict_four_region_recurrence": {
+      "all_analysis": {
+        "supported": false,
+        "iut_p_t": 0.1344658,
+        "iut_p_wild": 0.1452
+      },
+      "direct_only": {
+        "supported": false,
+        "iut_p_t": 0.1062462,
+        "iut_p_wild": 0.119
+      }
+    },
+    "H1a_global_average": {
+      "all_analysis": {
+        "estimate": 0.069056,
+        "se_modified_hk": 0.021913,
+        "p_one_sided": 0.025604,
+        "p_two_sided": 0.051209,
+        "supported_directional": true
+      },
+      "direct_only": {
+        "estimate": 0.063489,
+        "se_modified_hk": 0.019567,
+        "p_one_sided": 0.023841,
+        "p_two_sided": 0.047682,
+        "supported_directional": true
+      }
+    },
+    "H1b_regional_heterogeneity": {
+      "all_analysis": {
+        "Q": 16.567993,
+        "df": 3,
+        "p": 0.000867,
+        "I2": 0.818928,
+        "tau2_paule_mandel": 0.001362
+      },
+      "direct_only": {
+        "Q": 9.511318,
+        "df": 3,
+        "p": 0.023211,
+        "I2": 0.684586,
+        "tau2_paule_mandel": 0.000932
+      }
+    },
+    "top_variance_cluster_leaveout": {
+      "all_analysis": {
+        "H1a_estimate": 0.092912,
+        "p_one_sided": 0.043827,
+        "supported": true
+      },
+      "direct_only": {
+        "H1a_estimate": 0.087862,
+        "p_one_sided": 0.053259,
+        "supported": false
+      }
+    },
+    "weighting_sensitivity": {
+      "all_analysis_equal_indicator": {
+        "estimate": 0.078371,
+        "p_one_sided": 0.028842,
+        "supported": true
+      },
+      "all_analysis_core_two_domain": {
+        "estimate": 0.085159,
+        "p_one_sided": 0.031623,
+        "supported": true
+      },
+      "direct_only_equal_indicator": {
+        "estimate": 0.070223,
+        "p_one_sided": 0.027705,
+        "supported": true
+      },
+      "direct_only_core_two_domain": {
+        "estimate": 0.075444,
+        "p_one_sided": 0.031666,
+        "supported": true
+      }
+    },
+    "interpretation": "A positive global-average classic-island direction is supported under the predeclared positive alternative, but strict four-region individual support is not. Regional heterogeneity is substantial. The all-analysis global average survives deletion of the single largest variance-contributing block; the Direct-only version becomes borderline.",
+    "obsolete_for_headline_inference": [
+      "seven-response high-dimensional cluster-Wald p-values",
+      "three-axis raw-state high-dimensional omnibus p-values"
+    ]
+  },
+  "H2": {
+    "finite_cluster_reference": "spatial-block cluster robust SE with t(G-1), same frozen BH family",
+    "supported_primary_cells": [
+      "all_analysis_eligible|northern_high_latitude|generalized_accessible",
+      "all_analysis_eligible|tropical|generalized_accessible",
+      "all_analysis_eligible|southern_extratropical|plain_colour",
+      "direct_only|northern_high_latitude|generalized_accessible",
+      "direct_only|southern_extratropical|plain_colour"
+    ],
+    "interpretation": "Conditional decomposition only; accessibility is not universally supported after reproductive-assurance adjustment."
+  },
+  "H3": {
+    "estimate": 0.09191043596699681,
+    "finite_publication_t_two_sided_p": 0.01594350716910782,
+    "offshore_sensitivity": {
+      "estimate": 0.22031466445594622,
+      "p_two_sided": 0.02459200453249381
+    },
+    "interpretation": "Independent isolation-associated pollen-limitation correlate; not historical mediation."
+  },
+  "H4": {
+    "reproductive_assurance": {
+      "estimate": -0.2983005681547416,
+      "p_two_sided": 0.004166318114023793
+    },
+    "accessibility_generalization": {
+      "estimate": -0.295659590051078,
+      "p_two_sided": 0.0233429161772711
+    },
+    "interpretation": "Post-hoc exact-species functional triangulation only."
+  },
+  "claim_boundary": {
+    "no_universal_checklist": true,
+    "no_strict_four_region_recurrence_claim": true,
+    "no_named_pollinator_mechanism": true,
+    "no_historical_causal_mediation": true,
+    "no_within_lineage_evolution_claim": true,
+    "corrected_geography_is_posthoc_measurement_repair": true
+  }
+}
