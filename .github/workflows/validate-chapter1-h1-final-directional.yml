@@ -85,6 +85,7 @@ jobs:
             --h2-all-csv results/geography_20260924/all/h2_decomposition_models.csv \
             --h2-direct-csv results/geography_20260924/direct/h2_decomposition_models.csv \
             --h3-json results/geography_20260924/h3_original_corrected_comparison.json \
+            --h3-offshore-json results/h3_offshore_gradient_20261003/h3_offshore_gradient_summary.json \
             --h4-csv results/geography_20260924/h4_exact_corrected.csv \
             --output-dir /tmp/h1-final/results/inference-audit
 
