@@ -100,6 +100,7 @@ jobs:
           leaveouts=[]
           leaveout_iuts=[]
           leaveout_metas=[]
+          weight_summaries=[]
           for scope in ("all","direct"):
               d=pd.read_csv(root/scope/"directional_score_results.csv")
               d=d.loc[d["stratum"].eq("all_observed")].copy()
@@ -120,6 +121,9 @@ jobs:
               lom=json.loads((root/scope/"top_cluster_leaveout_meta.json").read_text())
               lom["scope"]=scope
               leaveout_metas.append(lom)
+              ws=pd.read_csv(root/scope/"weight_sensitivity_summary.csv")
+              ws.insert(0,"scope",scope)
+              weight_summaries.append(ws)
 
           score=pd.concat(rows,ignore_index=True)
           score.to_csv(root/"primary_directional_score_results.csv",index=False)
@@ -132,6 +136,10 @@ jobs:
           )
           pd.DataFrame(leaveout_metas).to_csv(
               root/"top_cluster_leaveout_meta.csv",index=False
+          )
+          weight_summary=pd.concat(weight_summaries,ignore_index=True)
+          weight_summary.to_csv(
+              root/"weight_sensitivity_summary.csv",index=False
           )
 
           legacy_all=pd.read_csv(
@@ -176,6 +184,8 @@ jobs:
           print(pd.DataFrame(leaveout_iuts).to_string(index=False))
           print("\n=== DROP TOP VARIANCE CLUSTER META ===")
           print(pd.DataFrame(leaveout_metas).to_string(index=False))
+          print("\n=== WEIGHTING SENSITIVITY ===")
+          print(weight_summary.to_string(index=False))
           print("\n=== LEGACY HIGH-DIMENSIONAL WALD (REFERENCE ONLY) ===")
           print(legacy[[
               "scope","context","n_clusters","joint_df","p_value","q_value"
@@ -201,6 +211,9 @@ jobs:
             echo
             echo "## Top variance-cluster leaveout meta"
             cat /tmp/h1-final/results/top_cluster_leaveout_meta.csv
+            echo
+            echo "## Weighting sensitivity"
+            cat /tmp/h1-final/results/weight_sensitivity_summary.csv
             echo
             echo "## H2-H4 finite-cluster audit"
             cat /tmp/h1-final/results/finite-cluster-audit/h2_h4_finite_cluster_summary.json
