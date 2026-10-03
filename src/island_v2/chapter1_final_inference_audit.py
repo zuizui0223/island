@@ -158,6 +158,40 @@ def audit_h3(payload: dict[str, Any]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+
+def audit_h3_offshore(payload: dict[str, Any]) -> pd.DataFrame:
+    """Audit the post-hoc offshore-only gradient with publication-cluster t inference."""
+    rows: list[dict[str, Any]] = []
+    for analysis in (
+        "offshore_continuous_gradient",
+        "mainland_vs_offshore_indicator",
+    ):
+        item = payload[analysis]
+        estimate = float(item["estimate"])
+        se = float(item["se"])
+        clusters = int(item["n_publications"])
+        rows.append(
+            {
+                "analysis": analysis,
+                "estimate": estimate,
+                "se": se,
+                "n_publications": clusters,
+                "asymptotic_two_sided_p": float(item["two_sided_p"]),
+                "finite_publication_t_two_sided_p":
+                    finite_cluster_two_sided_p(
+                        estimate, se, clusters
+                    ),
+                "finite_publication_t_one_sided_positive_p":
+                    finite_cluster_one_sided_p(
+                        estimate,
+                        se,
+                        clusters,
+                        alternative="positive",
+                    ),
+            }
+        )
+    return pd.DataFrame(rows)
+
 def audit_h4(frame: pd.DataFrame) -> pd.DataFrame:
     required = {
         "family",
@@ -209,6 +243,7 @@ def final_decision_summary(
     h2_all: pd.DataFrame,
     h2_direct: pd.DataFrame,
     h3: pd.DataFrame,
+    h3_offshore: pd.DataFrame,
     h4: pd.DataFrame,
 ) -> dict[str, Any]:
     h2 = pd.concat([h2_all, h2_direct], ignore_index=True)
@@ -218,6 +253,9 @@ def final_decision_summary(
         )
     ].copy()
     h3_primary = h3.loc[h3["analysis"].eq("primary")].iloc[0]
+    h3_offshore_primary = h3_offshore.loc[
+        h3_offshore["analysis"].eq("offshore_continuous_gradient")
+    ].iloc[0]
     h4_primary = h4.loc[h4["analysis"].eq("primary")].copy()
     return {
         "H2": {
@@ -251,6 +289,20 @@ def final_decision_summary(
             "claim_boundary":
                 "independent ecological-pressure correlate, not historical mediation",
         },
+        "H3_offshore_sensitivity": {
+            "estimate": float(h3_offshore_primary["estimate"]),
+            "finite_publication_t_two_sided_p": float(
+                h3_offshore_primary["finite_publication_t_two_sided_p"]
+            ),
+            "supported": bool(
+                h3_offshore_primary["estimate"] > 0
+                and h3_offshore_primary[
+                    "finite_publication_t_two_sided_p"
+                ] <= 0.05
+            ),
+            "claim_boundary":
+                "post-hoc robustness: within-offshore gradient, not causation",
+        },
         "H4": {
             "families": {
                 str(row["family"]): {
@@ -276,6 +328,7 @@ def run(
     h2_all_csv: Path = typer.Option(..., exists=True),
     h2_direct_csv: Path = typer.Option(..., exists=True),
     h3_json: Path = typer.Option(..., exists=True),
+    h3_offshore_json: Path = typer.Option(..., exists=True),
     h4_csv: Path = typer.Option(..., exists=True),
     output_dir: Path = typer.Option(...),
 ) -> None:
@@ -284,11 +337,15 @@ def run(
     h3 = audit_h3(
         json.loads(h3_json.read_text(encoding="utf-8"))
     )
+    h3_offshore = audit_h3_offshore(
+        json.loads(h3_offshore_json.read_text(encoding="utf-8"))
+    )
     h4 = audit_h4(pd.read_csv(h4_csv))
     summary = final_decision_summary(
         h2_all,
         h2_direct,
         h3,
+        h3_offshore,
         h4,
     )
 
@@ -303,6 +360,10 @@ def run(
     )
     h3.to_csv(
         output_dir / "h3_finite_publication_audit.csv",
+        index=False,
+    )
+    h3_offshore.to_csv(
+        output_dir / "h3_offshore_finite_publication_audit.csv",
         index=False,
     )
     h4.to_csv(
