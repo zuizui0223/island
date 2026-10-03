@@ -432,6 +432,243 @@ def _axis_fit(
     return slopes, omnibus, support
 
 
+def _fit_status_contrast(
+    prepared: pd.DataFrame,
+    counts: pd.DataFrame,
+    config: dict[str, Any],
+    *,
+    evidence_scope: str,
+    axis: str,
+    context_value: str,
+) -> tuple[pd.DataFrame, dict[str, Any], pd.DataFrame]:
+    model = config["model"]
+    status_cfg = config["status_contrast"]
+    reference = str(status_cfg["reference"])
+    comparison = str(status_cfg["comparison"])
+    context = str(model["context_column"])
+    geography = str(model["geography_column"])
+    cluster = str(model["cluster_column"])
+    baseline = [str(x) for x in model["baseline_covariates"]]
+
+    axis_outcomes = counts.loc[counts["axis"].eq(axis), "outcome"].drop_duplicates()
+    work = prepared.loc[
+        prepared["stratum"].isin([reference, comparison])
+        & prepared[context].eq(context_value)
+        & prepared["outcome"].isin(axis_outcomes)
+    ].copy()
+
+    support_rows: list[dict[str, Any]] = []
+    eligible: list[str] = []
+    for outcome, out in work.groupby("outcome", sort=False):
+        ok = True
+        row: dict[str, Any] = {
+            "evidence_scope": evidence_scope,
+            "axis": axis,
+            "context": context_value,
+            "outcome": str(outcome),
+        }
+        for scope in (reference, comparison):
+            piece = out.loc[out["stratum"].eq(scope)]
+            n_islands = int(piece["island_id"].nunique())
+            positive = int(
+                piece.loc[piece["successes"].gt(0), "island_id"].nunique()
+            )
+            negative = int(
+                piece.loc[
+                    piece["successes"].lt(piece["trials"]), "island_id"
+                ].nunique()
+            )
+            state_species = (
+                int(
+                    pd.to_numeric(
+                        piece["state_unique_species_global"], errors="coerce"
+                    ).max()
+                )
+                if not piece.empty
+                else 0
+            )
+            row[f"{scope}_n_islands"] = n_islands
+            row[f"{scope}_positive_islands"] = positive
+            row[f"{scope}_negative_islands"] = negative
+            row[f"{scope}_state_unique_species_global"] = state_species
+            ok = ok and (
+                n_islands >= int(model["minimum_islands_per_state"])
+                and positive >= int(model["minimum_positive_islands_per_state"])
+                and negative >= int(model["minimum_negative_islands_per_state"])
+                and state_species >= int(model["minimum_unique_species_per_state"])
+            )
+        row["eligible"] = ok
+        support_rows.append(row)
+        if ok:
+            eligible.append(str(outcome))
+
+    support = pd.DataFrame(support_rows)
+    if len(eligible) < int(model["minimum_states_per_axis_test"]):
+        return pd.DataFrame(), {
+            "evidence_scope": evidence_scope,
+            "axis": axis,
+            "context": context_value,
+            "reference": reference,
+            "comparison": comparison,
+            "status": "not_testable",
+            "n_retained_outcomes": len(eligible),
+            "retained_outcomes": "|".join(eligible),
+        }, support
+
+    fits: list[dict[str, Any]] = []
+    cluster_parts: list[np.ndarray] = []
+    interaction_indices: list[int] = []
+    rows: list[dict[str, Any]] = []
+    offset = 0
+    for outcome in eligible:
+        part = work.loc[work["outcome"].eq(outcome)].copy()
+        comparison_indicator = part["stratum"].eq(comparison).to_numpy(float)
+        columns = [np.ones(len(part), dtype=float), comparison_indicator]
+        names = [f"{outcome}:intercept", f"{outcome}:status[{comparison}]"]
+        for predictor in baseline:
+            z = _standardize(part[predictor])
+            columns.extend([z, z * comparison_indicator])
+            names.extend(
+                [
+                    f"{outcome}:z_{predictor}",
+                    f"{outcome}:z_{predictor}:status[{comparison}]",
+                ]
+            )
+        z_geo = _standardize(part[geography])
+        interaction_name = (
+            f"{outcome}:z_{geography}:status[{comparison}]"
+        )
+        columns.extend([z_geo, z_geo * comparison_indicator])
+        names.extend([f"{outcome}:z_{geography}", interaction_name])
+        fit = _fit_single_beta_binomial(
+            part["successes"].to_numpy(float),
+            part["trials"].to_numpy(float),
+            np.column_stack(columns),
+            names,
+            max_iter=int(model.get("retry_max_iter", model["max_iter"])),
+        )
+        fits.append(fit)
+        cluster_parts.append(part[cluster].astype(str).to_numpy())
+        interaction_indices.append(offset + names.index(interaction_name))
+        rows.append(
+            {
+                "evidence_scope": evidence_scope,
+                "axis": axis,
+                "context": context_value,
+                "reference": reference,
+                "comparison": comparison,
+                "outcome": outcome,
+                "n_islands_reference": int(
+                    part.loc[
+                        part["stratum"].eq(reference), "island_id"
+                    ].nunique()
+                ),
+                "n_islands_comparison": int(
+                    part.loc[
+                        part["stratum"].eq(comparison), "island_id"
+                    ].nunique()
+                ),
+                "kappa": float(fit["kappa"]),
+                "optimizer_success": bool(fit["success"]),
+            }
+        )
+        offset += len(fit["names"])
+
+    covariance, _, theta = _assemble_cluster_covariance(fits, cluster_parts)
+    vector = theta[interaction_indices]
+    vector_cov = covariance[np.ix_(interaction_indices, interaction_indices)]
+    vector_se = np.sqrt(np.clip(np.diag(vector_cov), 0.0, None))
+    for row, estimate, stderr in zip(rows, vector, vector_se, strict=True):
+        z = float(estimate / stderr) if stderr > 0 else float("nan")
+        row.update(
+            {
+                "slope_difference_comparison_minus_reference": float(estimate),
+                "cluster_robust_se": float(stderr),
+                "p_value": _normal_two_sided_p(z),
+            }
+        )
+
+    rank = int(np.linalg.matrix_rank(vector_cov))
+    statistic = (
+        float(vector @ np.linalg.pinv(vector_cov) @ vector)
+        if rank > 0
+        else float("nan")
+    )
+    omnibus = {
+        "evidence_scope": evidence_scope,
+        "axis": axis,
+        "context": context_value,
+        "reference": reference,
+        "comparison": comparison,
+        "status": "fit",
+        "n_retained_outcomes": len(eligible),
+        "retained_outcomes": "|".join(eligible),
+        "n_unique_islands": int(work["island_id"].nunique()),
+        "n_clusters": int(work[cluster].nunique()),
+        "joint_wald_chisq": statistic,
+        "joint_df": rank,
+        "p_value": _chi_square_sf_integer_df(statistic, rank),
+        "all_optimizers_converged": all(bool(f["success"]) for f in fits),
+    }
+    return pd.DataFrame(rows), omnibus, support
+
+
+def _status_vector_similarity(slopes: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
+    status_cfg = config["status_contrast"]
+    reference = str(status_cfg["reference"])
+    comparison = str(status_cfg["comparison"])
+    rows: list[dict[str, Any]] = []
+    for evidence_scope in config["evidence_scopes"]:
+        for axis in config["axes"]:
+            for context_value in config["model"]["contexts"]:
+                ref = slopes.loc[
+                    slopes["evidence_scope"].eq(evidence_scope)
+                    & slopes["flora_scope"].eq(reference)
+                    & slopes["axis"].eq(axis)
+                    & slopes["context"].eq(context_value),
+                    ["outcome", "geography_slope_log_odds"],
+                ]
+                comp = slopes.loc[
+                    slopes["evidence_scope"].eq(evidence_scope)
+                    & slopes["flora_scope"].eq(comparison)
+                    & slopes["axis"].eq(axis)
+                    & slopes["context"].eq(context_value),
+                    ["outcome", "geography_slope_log_odds"],
+                ]
+                paired = ref.merge(
+                    comp,
+                    on="outcome",
+                    suffixes=("_reference", "_comparison"),
+                    validate="one_to_one",
+                )
+                if len(paired) < 2:
+                    continue
+                x = paired["geography_slope_log_odds_reference"].to_numpy(float)
+                y = paired["geography_slope_log_odds_comparison"].to_numpy(float)
+                norm = float(np.linalg.norm(x) * np.linalg.norm(y))
+                cosine = float(np.dot(x, y) / norm) if norm > 0 else float("nan")
+                correlation = (
+                    float(np.corrcoef(x, y)[0, 1])
+                    if len(paired) >= 3
+                    else float("nan")
+                )
+                sign_concordance = float(np.mean(np.sign(x) == np.sign(y)))
+                rows.append(
+                    {
+                        "evidence_scope": evidence_scope,
+                        "axis": axis,
+                        "context": context_value,
+                        "reference": reference,
+                        "comparison": comparison,
+                        "n_common_states": int(len(paired)),
+                        "cosine_similarity": cosine,
+                        "pearson_correlation": correlation,
+                        "sign_concordance": sign_concordance,
+                    }
+                )
+    return pd.DataFrame(rows)
+
+
 def run_three_axis_analysis(
     species_axis: pd.DataFrame,
     status_flora: pd.DataFrame,
