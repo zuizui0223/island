@@ -31,7 +31,6 @@ from scipy import sparse
 from island_v2.chapter1_all_data_probability import _bh
 from island_v2.chapter1_current_h1_source_lineage_entry import (
     SOURCE_MODES,
-    _genus,
     build_outcome_states,
     build_raw_source_availability,
     build_source_genus_positions,
