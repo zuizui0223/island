@@ -154,11 +154,11 @@ jobs:
 
           status=pd.read_csv(out/"status_contrast_omnibus.csv")
           status_cols=[
-              "evidence_scope","axis","context","status","n_retained_outcomes",
-              "p_value","q_value","status_vectors_differ",
-              "all_optimizers_converged",
+              "contrast","evidence_scope","axis","context","status",
+              "n_retained_outcomes","p_value","q_value",
+              "status_vectors_differ","all_optimizers_converged",
           ]
-          print("\n=== native-compatible vs incompatible/introduced slope-vector test ===")
+          print("\n=== floristic-status slope-vector tests ===")
           print(status[status_cols].to_string(index=False))
 
           similarity=pd.read_csv(out/"status_vector_similarity.csv")
@@ -183,7 +183,7 @@ jobs:
             echo "### Support summary"
             cat /tmp/axis3/results/axis_support_summary.csv
             echo
-            echo "### Native-compatible vs incompatible/introduced vector test"
+            echo "### Floristic-status vector tests"
             cat /tmp/axis3/results/status_contrast_omnibus.csv
             echo
             echo "### TDWG Level-3 resolution sensitivity"
