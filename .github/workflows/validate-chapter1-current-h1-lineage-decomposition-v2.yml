@@ -1,0 +1,84 @@
+name: Validate literal additive current H1 lineage decomposition v2
+
+on:
+  push:
+    branches:
+      - analysis/current-h1-source-lineage-entry
+    paths:
+      - "src/island_v2/chapter1_current_h1_source_lineage_decomposition_v2.py"
+      - "config/chapter1_current_h1_source_lineage_decomposition_v2.yml"
+      - ".github/workflows/validate-chapter1-current-h1-lineage-decomposition-v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -e ".[dev]"
+
+      - name: Validate v2 implementation
+        run: |
+          python -m py_compile src/island_v2/chapter1_current_h1_source_lineage_decomposition_v2.py
+          ruff check src/island_v2/chapter1_current_h1_source_lineage_decomposition_v2.py
+
+      - name: Download frozen source-pool inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current_h1_v2/source /tmp/current_h1_v2/result
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/current_h1_v2/source
+          test -s /tmp/current_h1_v2/source/fixed/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/current_h1_v2/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+          test -s /tmp/current_h1_v2/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+          test -s /tmp/current_h1_v2/source/fixed/source/source/gift_native_mainland_flora.csv.gz
+          test -s /tmp/current_h1_v2/source/fixed/source/result/island_source_assignments.csv.gz
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+
+      - name: Run literal additive decomposition
+        run: |
+          python -m island_v2.chapter1_current_h1_source_lineage_decomposition_v2             --state-audit-all-csv /tmp/current_h1_v2/source/snapshot/chapter1_trait_state_audit_all.csv.gz             --state-audit-direct-csv /tmp/current_h1_v2/source/snapshot/chapter1_trait_state_audit_direct.csv.gz             --status-flora-csv /tmp/current_h1_v2/source/fixed/canonical/input/chapter1_status_flora.csv.gz             --gift-flora-csv /tmp/current_h1_v2/source/fixed/source/source/gift_native_mainland_flora.csv.gz             --source-assignments-csv /tmp/current_h1_v2/source/fixed/source/result/island_source_assignments.csv.gz             --corrected-covariates-csv results/geography_20260924/corrected_geography_covariates.csv             --probability-config-path config/chapter1_v14_all_data_probability.yml             --analysis-config-path config/chapter1_current_h1_source_lineage_decomposition_v2.yml             --output-dir /tmp/current_h1_v2/result
+
+      - name: Require additive closure
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result=json.loads(Path("/tmp/current_h1_v2/result/RESULT.json").read_text())
+          for scope, summary in result["scope_summaries"].items():
+              assert summary["row_identity_gate"]["status"] == "pass", (scope, summary["row_identity_gate"])
+              assert summary["slope_identity_gate"]["status"] == "pass", (scope, summary["slope_identity_gate"])
+              assert summary["all_identity_gates_pass"], scope
+              print(scope, summary["row_identity_gate"], summary["slope_identity_gate"])
+          PY
+
+      - name: Show component result
+        run: |
+          cat /tmp/current_h1_v2/result/component_summary.csv
+          cat /tmp/current_h1_v2/result/RESULT.json >> "$GITHUB_STEP_SUMMARY"
+          echo "### All-analysis omnibus" >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/current_h1_v2/result/all_analysis_eligible/omnibus.csv >> "$GITHUB_STEP_SUMMARY"
+          echo "### Direct-only omnibus" >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/current_h1_v2/result/direct_only/omnibus.csv >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-current-h1-lineage-decomposition-v2-${{ github.run_id }}
+          path: /tmp/current_h1_v2/result
+          if-no-files-found: error
+          retention-days: 30
