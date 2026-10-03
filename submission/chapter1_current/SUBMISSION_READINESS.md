@@ -24,8 +24,8 @@ Fallback: **Global Ecology and Biogeography** if the third-party trait-data rest
 
 ### Manuscript package
 
-- title and abstract revised for the final H1a/H1b claim; recount pending;
-- main-text recount pending after final inferential revision;
+- title and 128-word abstract revised for the final H1a/H1b claim;
+- main text ~4,672 words by repository Markdown count; final formatted recount pending;
 - 18 references in Ecology Letters style;
 - novelty positioned against recent island-colonization and range-edge literature;
 - Ecology Letters cover letter;
