@@ -869,6 +869,18 @@ def run(
     out["axis_slopes"].to_csv(output_dir / "axis_state_slopes.csv", index=False)
     out["axis_omnibus"].to_csv(output_dir / "axis_omnibus.csv", index=False)
     out["state_support"].to_csv(output_dir / "state_support.csv", index=False)
+    out["status_contrast_slopes"].to_csv(
+        output_dir / "status_contrast_state_slopes.csv", index=False
+    )
+    out["status_contrast_omnibus"].to_csv(
+        output_dir / "status_contrast_omnibus.csv", index=False
+    )
+    out["status_contrast_support"].to_csv(
+        output_dir / "status_contrast_support.csv", index=False
+    )
+    out["status_vector_similarity"].to_csv(
+        output_dir / "status_vector_similarity.csv", index=False
+    )
     out["cell_coverage_audit"].to_csv(
         output_dir / "cell_coverage_audit.csv", index=False
     )
