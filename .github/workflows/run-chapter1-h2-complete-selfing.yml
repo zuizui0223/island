@@ -88,23 +88,16 @@ jobs:
           rm -rf "$target"
           mkdir -p "$target"
           cp /tmp/h2/results/* "$target/"
-          python - <<'PY'
-          from pathlib import Path
-          Path("results/h2_complete_selfing_corrected_20261003/README.md").write_text(
-              """# H2 complete-selfing Direct-only sensitivity
-
-This sensitivity rebuilds selfing_core from Direct-only evidence and requires all three
-reproductive components (self-incompatibility/compatibility, mating system, and autonomous
-selfing capacity) to be observed and informative for every species contributing to the
-complete mediator score. generalized_accessible retains the preregistered minimum-two-trait
-definition. Models use the 24 September 2026 corrected geography.
-
-The direct_min2_baseline_reconstruction rows must reproduce the official Direct-only
-H2 generalized-accessibility estimates before the complete-three-component rows are interpreted.
-This is a missing-component reliability sensitivity, not a formal errors-in-variables correction.
-"""
-          )
-          PY
+          printf "%s\\n" \
+            "# H2 complete-selfing Direct-only sensitivity" \
+            "" \
+            "This sensitivity requires all three reproductive selfing_core components to be observed and informative." \
+            "generalized_accessible retains the preregistered minimum-two-trait definition." \
+            "Models use the 24 September 2026 corrected geography." \
+            "" \
+            "The reconstructed Direct baseline must match official corrected H2 before interpretation." \
+            "This is a missing-component reliability sensitivity, not a formal errors-in-variables correction." \
+            > "$target/README.md"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$target"
