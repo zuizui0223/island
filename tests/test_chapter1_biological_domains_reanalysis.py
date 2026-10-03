@@ -297,3 +297,56 @@ def test_bh_is_monotone_and_bounded():
     q = _bh(pd.Series([0.001, 0.02, 0.2, 0.8]))
     assert q.between(0, 1).all()
     assert list(q.sort_values()) == sorted(q.tolist())
+
+
+def test_repository_config_reuses_frozen_pr138_directional_states():
+    config = yaml.safe_load(
+        open("config/chapter1_biological_domains_reanalysis.yml", encoding="utf-8")
+    )
+    frozen = yaml.safe_load(
+        open("config/chapter1_pr138_pollination_syndromes.yml", encoding="utf-8")
+    )
+    selfing = frozen["syndromes"]["selfing_core"]["traits"]
+    assurance = config["domains"]["reproductive_assurance"]["components"]
+    for trait, spec in selfing.items():
+        mapping = assurance[trait]
+        assert set(mapping) == set(spec["preferred"]) | set(spec["opposed"])
+        assert all(mapping[state] == 1.0 for state in spec["preferred"])
+        assert all(mapping[state] == 0.0 for state in spec["opposed"])
+
+    access = frozen["syndromes"]["generalized_accessible"]["traits"]
+    observed = config["domains"]["accessibility_specialization"]["components"]
+    for trait, spec in access.items():
+        mapping = observed[trait]
+        assert set(mapping) == set(spec["preferred"]) | set(spec["opposed"])
+        assert all(mapping[state] == 1.0 for state in spec["preferred"])
+        assert all(mapping[state] == 0.0 for state in spec["opposed"])
+
+    frozen_size = frozen["syndromes"]["selfing_syndrome"]["traits"][
+        "flower_size_class"
+    ]
+    observed_size = config["domains"]["signal_display"]["components"][
+        "flower_size_reduction"
+    ]["values"]
+    assert set(observed_size) == set(frozen_size["preferred"]) | set(
+        frozen_size["opposed"]
+    )
+    assert all(
+        observed_size[state] == 1.0 for state in frozen_size["preferred"]
+    )
+    assert all(
+        observed_size[state] == 0.0 for state in frozen_size["opposed"]
+    )
+
+
+def test_repository_config_does_not_order_colour_or_inflorescence():
+    config = yaml.safe_load(
+        open("config/chapter1_biological_domains_reanalysis.yml", encoding="utf-8")
+    )
+    components = config["domains"]["signal_display"]["components"]
+    assert set(components) == {"flower_size_reduction"}
+    descriptive = set(
+        config["domains"]["signal_display"]["descriptive_state_traits"]
+    )
+    assert "flower_primary_color" in descriptive
+    assert "inflorescence_display" in descriptive
