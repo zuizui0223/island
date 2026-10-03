@@ -315,7 +315,7 @@ def _fit_directional_score(
     p_wild = _wild_signflip_p(
         estimate,
         se,
-        influences,
+        influences * math.sqrt(correction),
         replications=int(
             config["directional_score"]["wild_cluster_replications"]
         ),
