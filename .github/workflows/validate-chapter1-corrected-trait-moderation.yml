@@ -1,0 +1,74 @@
+name: Validate corrected Chapter 1 trait moderation replay
+
+on:
+  push:
+    branches:
+      - analysis/corrected-moderation-replay
+    paths:
+      - "scripts/geography_correction/replay_corrected_trait_moderation.py"
+      - ".github/workflows/validate-chapter1-corrected-trait-moderation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RA_RUN_ID: "35093274622"
+      RA_ARTIFACT: "chapter1-h5-glopl-ra-moderation-35093274622"
+      FA_RUN_ID: "35094588521"
+      FA_ARTIFACT: "chapter1-h5-glopl-architecture-moderation-35094588521"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -e ".[dev]"
+
+      - name: Validate replay implementation
+        run: |
+          python -m py_compile scripts/geography_correction/replay_corrected_trait_moderation.py
+          ruff check scripts/geography_correction/replay_corrected_trait_moderation.py
+
+      - name: Download frozen moderation artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/replay/ra /tmp/replay/fa /tmp/replay/result
+          gh run download "$RA_RUN_ID" -n "$RA_ARTIFACT" -D /tmp/replay/ra
+          gh run download "$FA_RUN_ID" -n "$FA_ARTIFACT" -D /tmp/replay/fa
+          test -s /tmp/replay/ra/out/MATCHED_EFFECT_ROWS.csv.gz
+          test -s /tmp/replay/fa/out/MATCHED_EFFECT_ROWS.csv.gz
+
+      - name: Replay frozen moderation on corrected geography
+        run: |
+          python scripts/geography_correction/replay_corrected_trait_moderation.py \
+            --ra-rows-csv /tmp/replay/ra/out/MATCHED_EFFECT_ROWS.csv.gz \
+            --fa-rows-csv /tmp/replay/fa/out/MATCHED_EFFECT_ROWS.csv.gz \
+            --corrected-site-distances-csv results/geography_20260924/glopl_corrected_site_distances.csv \
+            --h3-comparison-json results/geography_20260924/h3_original_corrected_comparison.json \
+            --ra-config-path config/chapter1_h5_glopl_reproductive_assurance_moderation_v1.yml \
+            --fa-config-path config/chapter1_h5_glopl_floral_architecture_moderation_v1.yml \
+            --ra-result-lock-path config/chapter1_h5_glopl_reproductive_assurance_moderation_result_lock.json \
+            --fa-result-lock-path config/chapter1_h5_glopl_floral_architecture_moderation_result_lock.json \
+            --output-dir /tmp/replay/result
+
+      - name: Show corrected moderation summary
+        run: |
+          cat /tmp/replay/result/corrected_moderation_summary.csv
+          cat /tmp/replay/result/RESULT.json >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: corrected-trait-moderation-replay-${{ github.run_id }}
+          path: /tmp/replay/result
+          if-no-files-found: error
+          retention-days: 30

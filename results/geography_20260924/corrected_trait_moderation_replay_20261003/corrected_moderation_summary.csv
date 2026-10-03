@@ -1,0 +1,7 @@
+family,trait,evaluable,original_interaction,corrected_interaction,corrected_interaction_se,corrected_two_sided_p,corrected_one_sided_buffering_p,corrected_supplemental_only_interaction,corrected_no_zero_constant_interaction,supported_under_frozen_rule,reason
+reproductive_assurance,self_compatibility,True,0.03506405610732563,0.044440932835980385,0.07413582735191598,0.5488709444404637,0.7255645277797682,0.09318596612789198,0.04738799861207919,False,
+reproductive_assurance,selfing_mating_system,False,,,,,,,,,frozen_preflight_support_failed
+reproductive_assurance,autonomous_selfing,True,-0.07358096585862291,-0.08328904687076286,0.07236634131605156,0.24975845539635844,0.12487922769817922,-0.03759487865208387,-0.07771006951509966,False,
+floral_architecture,generalized_form,True,-0.06673944706967305,-0.05204220461231113,0.09589099989764446,0.5873208699825989,0.29366043499129946,0.0870772413420353,-0.06101884975346187,False,
+floral_architecture,actinomorphic_symmetry,True,0.03495559888701008,0.03412732067325583,0.07960904659573127,0.6681514127564538,0.6659242936217731,-0.001722303190122676,0.03564414751676319,False,
+floral_architecture,shallow_open_tube,False,,,,,,,,,frozen_preflight_support_failed
