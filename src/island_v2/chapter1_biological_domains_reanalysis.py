@@ -1472,6 +1472,285 @@ def run_h4(
     return out
 
 
+def _h4_multiscore_cells(
+    glopl_rows: pd.DataFrame,
+    species_scores: pd.DataFrame,
+    *,
+    responses: list[str],
+    publication_total_weight: float,
+) -> pd.DataFrame:
+    part = species_scores.loc[
+        species_scores["response"].astype(str).isin(responses),
+        ["accepted_species", "response", "score"],
+    ].copy()
+    conflicts = (
+        part.groupby(["accepted_species", "response"])["score"]
+        .nunique()
+        .gt(1)
+    )
+    if bool(conflicts.any()):
+        raise typer.BadParameter(
+            "conflicting species scores in conditional H4"
+        )
+    wide = part.pivot_table(
+        index="accepted_species",
+        columns="response",
+        values="score",
+        aggfunc="first",
+    ).reset_index()
+    if any(response not in wide.columns for response in responses):
+        return pd.DataFrame()
+    wide = wide.dropna(subset=responses).copy()
+    wide["species_key"] = wide["accepted_species"].map(
+        normalize_species_name
+    )
+    wide = wide.dropna(subset=["species_key"])
+    joined = glopl_rows.merge(
+        wide[["species_key", *responses]],
+        on="species_key",
+        how="inner",
+        validate="many_to_one",
+    )
+    if joined.empty:
+        return pd.DataFrame()
+    group_cols = [
+        "study_key",
+        "site_key",
+        "species_key",
+        "analysis_regime",
+        "z_distance",
+        *responses,
+        *MEASUREMENT_COLUMNS,
+    ]
+    cells = (
+        joined.groupby(group_cols, as_index=False, dropna=False)
+        .agg(
+            PL_Effect_Size=("PL_Effect_Size", "mean"),
+            n_effect_rows=("PL_Effect_Size", "size"),
+        )
+        .reset_index(drop=True)
+    )
+    counts = (
+        cells.groupby("study_key")["site_key"]
+        .transform("size")
+        .astype(float)
+    )
+    cells["analysis_weight"] = publication_total_weight / counts
+    return cells
+
+
+def _fit_h4_multiscore(
+    cells: pd.DataFrame,
+    *,
+    responses: list[str],
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    if cells.empty:
+        return {"status": "not_testable", "reason": "no_common_species"}, []
+    distance = pd.to_numeric(
+        cells["z_distance"], errors="coerce"
+    ).to_numpy(float)
+    score_vectors = [
+        pd.to_numeric(cells[name], errors="coerce").to_numpy(float)
+        for name in responses
+    ]
+    context_cols, context_names, _ = _context_dummies(cells)
+    measure_cols, measure_names = _measurement_dummies(cells)
+    X = np.column_stack(
+        [
+            np.ones(len(cells), dtype=float),
+            *context_cols,
+            distance,
+            *score_vectors,
+            *measure_cols,
+        ]
+    )
+    names = [
+        "intercept",
+        *context_names,
+        "z_distance",
+        *responses,
+        *measure_names,
+    ]
+    fit = _clustered_wls(cells, X, names)
+    if not fit.get("evaluable"):
+        return {
+            "status": "not_testable",
+            "reason": fit.get("reason", ""),
+            "n_species": int(cells["species_key"].nunique()),
+            "n_publications": int(cells["study_key"].nunique()),
+        }, []
+
+    g = int(fit["n_publications"])
+    rows: list[dict[str, Any]] = []
+    for response in responses:
+        idx = fit["names"].index(response)
+        estimate = float(fit["beta"][idx])
+        se = float(fit["se"][idx])
+        t_value = estimate / se if se > 0 else float("nan")
+        rows.append(
+            {
+                "target_response": response,
+                "estimate": estimate,
+                "se": se,
+                "df": g - 1,
+                "p_two_sided_finite_publication": (
+                    float(
+                        2.0
+                        * student_t.sf(
+                            abs(t_value),
+                            df=g - 1,
+                        )
+                    )
+                    if g > 1 and math.isfinite(t_value)
+                    else float("nan")
+                ),
+                "p_one_sided_negative_finite_publication": (
+                    float(
+                        student_t.cdf(
+                            t_value,
+                            df=g - 1,
+                        )
+                    )
+                    if g > 1 and math.isfinite(t_value)
+                    else float("nan")
+                ),
+                "n_cells": int(fit["n_cells"]),
+                "n_publications": g,
+                "n_sites": int(fit["n_sites"]),
+                "n_species": int(cells["species_key"].nunique()),
+            }
+        )
+    return {"status": "fit"}, rows
+
+
+def run_h4_conditional(
+    glopl_rows: pd.DataFrame,
+    direct_species_scores: pd.DataFrame,
+    config: dict[str, Any],
+) -> pd.DataFrame:
+    model_specs = {
+        "accessibility_given_assurance": [
+            "reproductive_assurance",
+            "accessibility_specialization",
+        ],
+        "size_given_assurance": [
+            "reproductive_assurance",
+            "flower_size_reduction",
+        ],
+        "all_three_domains": [
+            "reproductive_assurance",
+            "accessibility_specialization",
+            "flower_size_reduction",
+        ],
+    }
+    rows: list[dict[str, Any]] = []
+    minimum = int(config["GloPL"]["minimum_matched_species"])
+    for model_name, responses in model_specs.items():
+        cells = _h4_multiscore_cells(
+            glopl_rows,
+            direct_species_scores,
+            responses=responses,
+            publication_total_weight=float(
+                config["GloPL"]["publication_total_weight"]
+            ),
+        )
+        for analysis, data in {
+            "primary": cells,
+            "supplemental_only": (
+                cells.loc[
+                    cells["PL_Effect_Size_Type2"].astype(str).eq("Sup")
+                ].copy()
+                if not cells.empty
+                else cells
+            ),
+            "no_zero_constant": (
+                cells.loc[
+                    ~cells["Constant_added"]
+                    .astype(str)
+                    .str.strip()
+                    .str.casefold()
+                    .isin({"true", "1", "yes", "y", "t"})
+                ].copy()
+                if not cells.empty
+                else cells
+            ),
+        }.items():
+            n_species = (
+                int(data["species_key"].nunique())
+                if not data.empty
+                else 0
+            )
+            if n_species < minimum:
+                rows.append(
+                    {
+                        "model": model_name,
+                        "analysis": analysis,
+                        "conditioned_responses": "|".join(responses),
+                        "target_response": "",
+                        "status": "not_testable",
+                        "reason": "minimum_matched_species_failed",
+                        "n_species": n_species,
+                        "n_publications": (
+                            int(data["study_key"].nunique())
+                            if not data.empty
+                            else 0
+                        ),
+                    }
+                )
+                continue
+            status, fitted = _fit_h4_multiscore(
+                data,
+                responses=responses,
+            )
+            if status["status"] != "fit":
+                rows.append(
+                    {
+                        "model": model_name,
+                        "analysis": analysis,
+                        "conditioned_responses": "|".join(responses),
+                        "target_response": "",
+                        **status,
+                    }
+                )
+                continue
+            targets = (
+                ["accessibility_specialization"]
+                if model_name == "accessibility_given_assurance"
+                else ["flower_size_reduction"]
+                if model_name == "size_given_assurance"
+                else responses
+            )
+            for fitted_row in fitted:
+                if fitted_row["target_response"] not in targets:
+                    continue
+                rows.append(
+                    {
+                        "model": model_name,
+                        "analysis": analysis,
+                        "conditioned_responses": "|".join(responses),
+                        "status": "fit",
+                        **fitted_row,
+                    }
+                )
+    out = pd.DataFrame(rows)
+    if not out.empty:
+        primary = (
+            out["analysis"].eq("primary")
+            & out["status"].eq("fit")
+        )
+        out["q_two_sided_primary_conditional_family"] = np.nan
+        out.loc[
+            primary,
+            "q_two_sided_primary_conditional_family",
+        ] = _bh(
+            out.loc[
+                primary,
+                "p_two_sided_finite_publication",
+            ]
+        )
+    return out
+
+
 def build_signal_state_species_scores(
     species_axis: pd.DataFrame,
     ontology: dict[str, Any],
@@ -2085,6 +2364,11 @@ def run(
         config,
     )
     validate_h4_benchmarks(h4, config)
+    h4_conditional = run_h4_conditional(
+        glopl_rows,
+        species_scores_by_scope["direct_only"],
+        config,
+    )
     h3 = h3_summary(h3_json, h3_offshore_json)
     summary = summarize(synthesis, h2, h3, h4)
 
@@ -2117,6 +2401,10 @@ def run(
         index=False,
     )
     h4.to_csv(output_dir / "H4_exact_species.csv", index=False)
+    h4_conditional.to_csv(
+        output_dir / "H4_conditional_exact_species.csv",
+        index=False,
+    )
     (output_dir / "H3_summary.json").write_text(
         json.dumps(h3, indent=2) + "\n",
         encoding="utf-8",
