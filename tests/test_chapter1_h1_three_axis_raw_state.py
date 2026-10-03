@@ -104,6 +104,84 @@ def test_multistate_is_retained_and_cross_field_state_is_filtered():
     assert int(audit["ontology_invalid_only_axis_cells"].sum()) == 0
 
 
+def test_unique_within_axis_trait_permutation_is_recovered():
+    cells = pd.DataFrame(
+        [
+            {
+                "accepted_species": "A one",
+                "axis": "floral_structural_complexity",
+                "trait_composition": (
+                    'floral_symmetry=["raceme_spike_panicle"]|'
+                    'inflorescence_display=["zygomorphic"]'
+                ),
+                "quality": "low",
+            }
+        ]
+    )
+    config = _config()
+    config["axes"]["floral_structural_complexity"]["traits"].append(
+        "inflorescence_display"
+    )
+    ontology = _ontology()
+    ontology["traits"]["inflorescence_display"] = {
+        "allowed_values": ["raceme_spike_panicle", "unresolved"]
+    }
+    ledger, audit = build_valid_state_ledger(
+        cells,
+        ontology,
+        config,
+        evidence_scope="all_analysis_eligible",
+    )
+    got = set(zip(ledger["trait_name"], ledger["state"], strict=False))
+    assert got == {
+        ("inflorescence_display", "raceme_spike_panicle"),
+        ("floral_symmetry", "zygomorphic"),
+    }
+    row = audit.loc[
+        audit["axis"].eq("floral_structural_complexity")
+    ].iloc[0]
+    assert int(row["ontology_repaired_axis_cells"]) == 1
+    assert int(row["n_reassigned_state_memberships"]) == 2
+    assert int(row["ontology_invalid_only_axis_cells"]) == 0
+
+
+def test_ambiguous_invalid_state_is_not_silently_reassigned():
+    cells = pd.DataFrame(
+        [
+            {
+                "accepted_species": "A one",
+                "axis": "reproductive_assurance",
+                "trait_composition": (
+                    'self_incompatibility=["absent"]|'
+                    'autonomous_selfing_capacity=["mixed_or_variable"]'
+                ),
+                "quality": "high",
+            }
+        ]
+    )
+    config = _config()
+    ontology = _ontology()
+    ontology["traits"]["self_incompatibility"]["allowed_values"].append(
+        "mixed_or_variable"
+    )
+    ontology["traits"]["autonomous_selfing_capacity"] = {
+        "allowed_values": ["absent", "mixed_or_variable", "unresolved"]
+    }
+    ledger, audit = build_valid_state_ledger(
+        cells,
+        ontology,
+        config,
+        evidence_scope="all_analysis_eligible",
+    )
+    # Two target assignments are possible, so no cross-field guess is made.
+    assert ledger.empty
+    row = audit.loc[
+        audit["axis"].eq("reproductive_assurance")
+    ].iloc[0]
+    assert int(row["ontology_repaired_axis_cells"]) == 0
+    assert int(row["ontology_invalid_only_axis_cells"]) == 1
+
+
 def test_axis_state_counts_use_trait_specific_denominators():
     cells = pd.DataFrame(
         [
