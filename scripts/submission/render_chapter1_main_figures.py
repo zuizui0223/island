@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.patches import FancyBboxPatch
+from scipy.stats import t as student_t
 
 REGIONS = [
     "northern_midlatitude",
@@ -365,81 +366,141 @@ def _q_label(value: float) -> str:
 
 
 def figure4(root: Path, out: Path) -> None:
-    scores = pd.read_csv(
-        root / "results/h1_final_directional_20261003/primary_directional_score_results.csv"
-    )
-    synthesis = pd.read_csv(
-        root / "results/h1_final_directional_20261003/global_region_synthesis.csv"
+    lock = json.loads(
+        (root / "config/chapter1_h1_final_directional_result_lock.json").read_text(
+            encoding="utf-8"
+        )
     )
     origin = pd.read_csv(
         root
         / "submission/chapter1_current/supplement/Table_S2g_H1_floristic_origin.csv"
     )
 
-    fig, panels = plt.subplots(2, 2, figsize=(12.4, 8.2))
-    region_y = np.arange(len(REGIONS))
-    region_labels = [REGION_LABELS[r] for r in REGIONS]
+    fig, axes = plt.subplots(
+        1,
+        4,
+        figsize=(14.8, 5.3),
+        gridspec_kw={"width_ratios": [1.45, 1.0, 1.2, 1.25]},
+    )
 
-    for ax, scope, title in (
-        (panels[0, 0], "all", "A | All-analysis directional score"),
-        (panels[0, 1], "direct", "B | Direct-only directional score"),
-    ):
-        part = scores.loc[scores["scope"].eq(scope)].set_index("context").loc[REGIONS]
-        est = part["estimate"].astype(float).to_numpy()
-        se = part["cluster_robust_se"].astype(float).to_numpy()
-        ax.errorbar(est, region_y, xerr=1.96 * se, fmt="o", capsize=3)
-        ax.axvline(0, linewidth=0.8)
-        ax.set_yticks(region_y, region_labels)
-        ax.invert_yaxis()
-        ax.set_xlabel("Predeclared island-syndrome directional score")
-        ax.set_title(title)
-        ax.grid(axis="x", linewidth=0.3, alpha=0.4)
+    # A | Regional directional score
+    ax = axes[0]
+    y = np.arange(len(REGIONS))
+    offsets = {
+        "all_analysis_eligible": -0.10,
+        "direct_only": 0.10,
+    }
+    markers = {
+        "all_analysis_eligible": "o",
+        "direct_only": "s",
+    }
+    labels = {
+        "all_analysis_eligible": "All",
+        "direct_only": "Direct",
+    }
+    for scope in ("all_analysis_eligible", "direct_only"):
+        rows = {
+            row["context"]: row
+            for row in lock["H1"]["regional_results"][scope]
+        }
         for yi, region in enumerate(REGIONS):
-            row = part.loc[region]
-            p_t = float(row["p_one_sided_t"])
-            p_wild = float(row["p_one_sided_wild"])
-            supported = str(row["robust_supported"]).strip().lower() == "true"
-            label = f"p={p_t:.3g}; wild={p_wild:.3g}"
-            if not supported:
-                label += "  n.s."
-            ax.annotate(
-                label,
-                (est[yi], yi),
-                xytext=(6, -11),
-                textcoords="offset points",
-                fontsize=7,
-                ha="left",
+            row = rows[region]
+            estimate = float(row["estimate"])
+            se = float(row["cluster_robust_se"])
+            df = int(row["n_clusters"]) - 1
+            critical = float(student_t.ppf(0.975, df=df))
+            supported = float(row["p_one_sided_t"]) <= 0.05
+            yy = yi + offsets[scope]
+            ax.errorbar(
+                estimate,
+                yy,
+                xerr=critical * se,
+                fmt=markers[scope],
+                capsize=3,
+                label=labels[scope] if yi == 0 else None,
             )
-
-    ax = panels[1, 0]
-    syn = synthesis.set_index("scope").loc[["all", "direct"]]
-    y = np.arange(2)
-    est = syn["random_effects_mean"].astype(float).to_numpy()
-    se = syn["modified_hartung_knapp_se"].astype(float).to_numpy()
-    tcrit = 3.182446305284263  # 97.5% quantile, df=3
-    ax.errorbar(est, y, xerr=tcrit * se, fmt="o", capsize=3)
+            if not supported:
+                ax.scatter(
+                    estimate,
+                    yy,
+                    s=55,
+                    marker=markers[scope],
+                    facecolors="none",
+                )
     ax.axvline(0, linewidth=0.8)
-    ax.set_yticks(y, ["All-analysis", "Direct-only"])
+    ax.set_yticks(y, [REGION_LABELS[r] for r in REGIONS])
     ax.invert_yaxis()
-    ax.set_xlabel("Random-effects global-average directional score")
-    ax.set_title("C | H1a global average and H1b heterogeneity")
+    ax.set_xlabel("Classic-island directional score")
+    ax.set_title("A | Regional direction")
+    ax.legend(frameon=False)
     ax.grid(axis="x", linewidth=0.3, alpha=0.4)
-    for yi, scope in enumerate(["all", "direct"]):
-        row = syn.loc[scope]
-        ax.annotate(
-            (
-                f"H1a one-sided p={float(row['H1a_one_sided_p']):.3g}\n"
-                f"H1b Q p={float(row['heterogeneity_p']):.3g}; "
-                f"I²={float(row['I2']):.2f}"
-            ),
-            (est[yi], yi),
-            xytext=(8, -12),
-            textcoords="offset points",
-            fontsize=7,
-            ha="left",
-        )
 
-    ax = panels[1, 1]
+    # B | Global-average H1a + H1b heterogeneity
+    ax = axes[1]
+    h1a = lock["H1"]["H1a_global_average"]
+    h1b = lock["H1"]["H1b_regional_heterogeneity"]
+    rows = [
+        ("All", h1a["all_analysis"], h1b["all_analysis"]),
+        ("Direct", h1a["direct_only"], h1b["direct_only"]),
+    ]
+    yy = np.arange(2)
+    for yi, (label, mean, het) in enumerate(rows):
+        estimate = float(mean["estimate"])
+        se = float(mean["se_modified_hk"])
+        critical = float(student_t.ppf(0.975, df=3))
+        ax.errorbar(estimate, yi, xerr=critical * se, fmt="o", capsize=3)
+        ax.annotate(
+            f"p+={float(mean['p_one_sided']):.3f}\nI²={float(het['I2']):.2f}",
+            (estimate, yi),
+            xytext=(6, 0),
+            textcoords="offset points",
+            ha="left",
+            va="center",
+            fontsize=7.5,
+        )
+    ax.axvline(0, linewidth=0.8)
+    ax.set_yticks(yy, ["All", "Direct"])
+    ax.invert_yaxis()
+    ax.set_xlabel("Random-effects mean")
+    ax.set_title("B | H1a mean + H1b heterogeneity")
+    ax.grid(axis="x", linewidth=0.3, alpha=0.4)
+
+    # C | Sensitivity of global-average directional P
+    ax = axes[2]
+    sens = lock["H1"]["weighting_sensitivity"]
+    top = lock["H1"]["top_variance_cluster_leaveout"]
+    categories = [
+        "Primary",
+        "Drop top block",
+        "Equal indicator",
+        "Two-domain core",
+    ]
+    all_p = [
+        float(h1a["all_analysis"]["p_one_sided"]),
+        float(top["all_analysis"]["p_one_sided"]),
+        float(sens["all_analysis_equal_indicator"]["p_one_sided"]),
+        float(sens["all_analysis_core_two_domain"]["p_one_sided"]),
+    ]
+    direct_p = [
+        float(h1a["direct_only"]["p_one_sided"]),
+        float(top["direct_only"]["p_one_sided"]),
+        float(sens["direct_only_equal_indicator"]["p_one_sided"]),
+        float(sens["direct_only_core_two_domain"]["p_one_sided"]),
+    ]
+    yy = np.arange(len(categories))
+    ax.scatter(all_p, yy - 0.08, marker="o", label="All")
+    ax.scatter(direct_p, yy + 0.08, marker="s", label="Direct")
+    ax.axvline(0.05, linewidth=0.8, linestyle="--")
+    ax.set_yticks(yy, categories)
+    ax.invert_yaxis()
+    ax.set_xlim(0, max(0.06, max(all_p + direct_p) * 1.12))
+    ax.set_xlabel("One-sided global-average P")
+    ax.set_title("C | Inference sensitivity")
+    ax.legend(frameon=False)
+    ax.grid(axis="x", linewidth=0.3, alpha=0.4)
+
+    # D | Descriptive tropical native-introduced vector similarity
+    ax = axes[3]
     axes_order = [
         "reproductive_assurance",
         "floral_structural_complexity",
@@ -454,60 +515,92 @@ def figure4(root: Path, out: Path) -> None:
         origin["contrast"].eq("strict_known_origin")
         & origin["context"].eq("tropical")
     ].copy()
-    y_offsets = {
-        "all_analysis_eligible": -0.08,
-        "direct_only": 0.08,
-    }
-    for scope, marker, label in (
-        ("all_analysis_eligible", "o", "All"),
-        ("direct_only", "s", "Direct"),
+    y = np.arange(len(axes_order))
+    for scope, marker, label, offset in (
+        ("all_analysis_eligible", "o", "All", -0.08),
+        ("direct_only", "s", "Direct", 0.08),
     ):
         scoped = strict.loc[strict["evidence_scope"].eq(scope)].set_index("axis")
-        for yi, axis in enumerate(axes_order):
-            row = scoped.loc[axis]
-            cosine = float(row["cosine_similarity"])
-            supported = (
-                str(row["status_vectors_differ"]).strip().lower() == "true"
-            )
-            yy = yi + y_offsets[scope]
-            kwargs = {"s": 70, "marker": marker}
-            if not supported:
-                kwargs["facecolors"] = "none"
+        for yi, axis_name in enumerate(axes_order):
+            cosine = float(scoped.loc[axis_name, "cosine_similarity"])
             ax.scatter(
                 cosine,
-                yy,
+                yi + offset,
+                s=60,
+                marker=marker,
                 label=label if yi == 0 else None,
-                **kwargs,
             )
     ax.axvline(0, linewidth=0.8)
     ax.set_xlim(-1.05, 1.05)
-    ax.set_yticks(np.arange(len(axes_order)), [axis_labels[a] for a in axes_order])
+    ax.set_yticks(y, [axis_labels[a] for a in axes_order])
     ax.invert_yaxis()
-    ax.set_xlabel("Native–introduced raw-state vector cosine")
-    ax.set_title("D | Tropical known-origin descriptive audit")
-    ax.grid(axis="x", linewidth=0.3, alpha=0.35)
-    ax.legend(frameon=False, loc="upper center", ncol=2)
+    ax.set_xlabel("Native-introduced cosine")
+    ax.set_title("D | Tropical provenance divergence")
+    ax.legend(frameon=False)
+    ax.grid(axis="x", linewidth=0.3, alpha=0.4)
 
     fig.suptitle(
-        "Figure 4 | H1: global directional tendency with regional heterogeneity",
-        y=1.01,
+        "Figure 4 | H1: global island-syndrome tendency and regional heterogeneity",
+        y=1.02,
     )
     fig.tight_layout()
     _save(fig, out, "Figure4_H1_recurrent_multivariate_response")
 
 def figure5(root: Path, out: Path) -> None:
     h2 = pd.read_csv(
-        root / "results/h1_final_directional_20261003/h2_all_finite_cluster_audit.csv"
+        root / "results/geography_20260924/all/h2_decomposition_models.csv"
+    ).copy()
+    fit = h2["status"].astype(str).eq("fit")
+    primary = fit & h2["response"].isin(
+        ["generalized_accessible", "plain_colour"]
     )
+    h2["distance_p_finite_cluster_t"] = np.nan
+    for idx in h2.index[fit]:
+        estimate = float(h2.loc[idx, "distance_estimate"])
+        se = float(h2.loc[idx, "distance_se"])
+        df = int(h2.loc[idx, "n_clusters"]) - 1
+        h2.loc[idx, "distance_p_finite_cluster_t"] = float(
+            2.0 * student_t.sf(abs(estimate / se), df=df)
+        )
+    p = h2.loc[primary, "distance_p_finite_cluster_t"].to_numpy(float)
+    order = np.argsort(p)
+    ranked = p[order]
+    n = len(ranked)
+    adj = np.minimum.accumulate(
+        (ranked * n / np.arange(1, n + 1))[::-1]
+    )[::-1]
+    restored = np.empty(n, dtype=float)
+    restored[order] = np.clip(adj, 0.0, 1.0)
+    h2.loc[primary, "primary_H2b_q_finite_cluster_t"] = restored
+
     responses = ["selfing_core", "generalized_accessible", "plain_colour"]
-    labels = ["Reproductive assurance", "Accessibility | assurance", "Plain colour | assurance"]
+    labels = [
+        "Reproductive assurance",
+        "Accessibility | assurance",
+        "Plain colour | assurance",
+    ]
     fig, axes = plt.subplots(1, 4, figsize=(13.0, 4.3), sharey=True)
     y = np.arange(len(responses))
     for ax, region in zip(axes, REGIONS, strict=True):
         part = h2.loc[h2["context"].eq(region)].set_index("response")
-        est = np.array([float(part.loc[r, "distance_estimate"]) for r in responses])
-        se = np.array([float(part.loc[r, "distance_se"]) for r in responses])
-        ax.errorbar(est, y, xerr=1.96 * se, fmt="o", capsize=3)
+        est = np.array(
+            [float(part.loc[r, "distance_estimate"]) for r in responses]
+        )
+        se = np.array(
+            [float(part.loc[r, "distance_se"]) for r in responses]
+        )
+        crit = np.array(
+            [
+                float(
+                    student_t.ppf(
+                        0.975,
+                        df=int(part.loc[r, "n_clusters"]) - 1,
+                    )
+                )
+                for r in responses
+            ]
+        )
+        ax.errorbar(est, y, xerr=crit * se, fmt="o", capsize=3)
         ax.axvline(0, linewidth=0.8)
         access_q = float(
             part.loc[
@@ -516,24 +609,24 @@ def figure5(root: Path, out: Path) -> None:
             ]
         )
         ax.set_title(
-            f"{REGION_LABELS[region]}\nfinite-cluster accessibility q={access_q:.3g}"
+            f"{REGION_LABELS[region]}\naccessibility q={access_q:.3g}"
         )
         ax.set_xlabel("Isolation coefficient")
         ax.grid(axis="x", linewidth=0.3, alpha=0.4)
     axes[0].set_yticks(y, labels)
     axes[0].invert_yaxis()
-    fig.suptitle("Figure 5 | H2: reproductive assurance and additional floral response", y=1.02)
+    fig.suptitle(
+        "Figure 5 | H2: reproductive assurance and additional floral response",
+        y=1.02,
+    )
     fig.tight_layout()
     _save(fig, out, "Figure5_H2_conditional_decomposition")
 
-
 def figure6(root: Path, out: Path) -> None:
     h3 = pd.read_csv(
-        root / "results/h1_final_directional_20261003/h3_finite_publication_audit.csv"
+        root / "submission/chapter1_current/supplement/Table_S5_H3_pollen_limitation.csv"
     )
-    h4 = pd.read_csv(
-        root / "results/h1_final_directional_20261003/h4_finite_publication_audit.csv"
-    )
+    h4 = pd.read_csv(root / "results/geography_20260924/h4_exact_corrected.csv")
     atomic = pd.read_csv(root / "results/geography_20260924/h4_atomic_corrected.csv")
 
     fig, axes = plt.subplots(1, 3, figsize=(12.6, 4.6))
