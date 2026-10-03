@@ -95,13 +95,19 @@ pathways and colour was a context-dependent display component.
 
 ## H1b — regional heterogeneity
 
-Regional heterogeneity is strong rather than incidental:
+Regional heterogeneity is clear in the primary sandwich-based analysis:
 
 - all-analysis: Q = 16.57, df = 3, p = 0.000867, I² = 0.819;
 - Direct-only: Q = 9.51, df = 3, p = 0.0232, I² = 0.685.
 
-The appropriate interpretation is therefore **a positive global-average island-syndrome
-direction with heterogeneous regional realization**, not a universal phenotype.
+An exact delete-one-spatial-cluster jackknife stress test preserved H1a but made H1b less invariant. Re-synthesizing the regional point estimates with exact jackknife SEs gave:
+
+- H1a all-analysis: mean = 0.06352, SE = 0.02243, one-sided p = 0.03305;
+- H1a Direct-only: mean = 0.05481, SE = 0.01862, one-sided p = 0.03018;
+- H1b all-analysis: Q = 11.86, p = 0.00789, I² = 0.747;
+- H1b Direct-only: Q = 5.63, p = 0.131, I² = 0.467.
+
+Several northern-high leave-one-cluster refits failed numerically, so the exact jackknife is a conservative stress test rather than the sole primary estimator. The appropriate interpretation is therefore **a positive global-average island-syndrome direction with regionally variable realization**, while formal evidence for heterogeneity is strongest in all-analysis and not invariant to every evidence scope/uncertainty estimator.
 
 ## Influence sensitivity
 
@@ -153,6 +159,8 @@ FDR-supported H2b cells are:
 
 Direct-only tropical accessibility remains positive but not FDR-supported
 (q = 0.1267).  H2 therefore remains a conditional decomposition, not causal mediation.
+
+A separate exact delete-one-spatial-cluster jackknife of the continuous H2 pathways preserves the same core pattern under one-sided Holm correction: all-analysis accessibility is supported in northern high latitudes (adjusted p = 0.00326) and the tropics (0.0181); Direct-only accessibility is supported in northern high latitudes (0.0144) but not in the tropics (0.0985).
 
 ## H3 finite-publication audit
 
@@ -208,3 +216,11 @@ The manuscript must not claim:
 Existing lineage/source, floristic-origin, trait-missingness and species-list
 incompleteness audits remain important boundary analyses.  They should constrain
 interpretation rather than be presented as causal identification.
+
+
+## Exact-jackknife sensitivity provenance
+
+- workflow run: **37122292456**
+- artifact: **11273547268**
+- artifact digest: `sha256:52329a2fbe68520417693d2572510958adf1a93d02fc06cafd39768ed0b2ad34`
+- caveat: several northern-high leave-one-cluster model refits failed numerically, so successful-refit jackknife summaries are stress-test evidence rather than a replacement for the primary finite-cluster sandwich/sign-flip analysis.
