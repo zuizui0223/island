@@ -40,51 +40,47 @@ evidence_scopes:
 domains:
   reproductive_assurance:
     role: primary_directional
+    source_definition: config/chapter1_pr138_pollination_syndromes.yml::selfing_core
     minimum_components_per_species: 2
     components:
       self_incompatibility:
         SI: 0.0
         SC: 1.0
-        mixed_or_variable: 0.5
       mating_system:
         predominantly_outcrossing: 0.0
-        mixed_mating: 0.5
         predominantly_selfing: 1.0
         obligate_selfing: 1.0
       autonomous_selfing_capacity:
         absent: 0.0
-        facilitated: 0.5
         delayed: 1.0
         autonomous: 1.0
-        mixed_or_variable: 0.5
-      cleistogamy:
-        absent: 0.0
-        facultative: 1.0
-        obligate: 1.0
+    excluded_but_related:
+      cleistogamy: >-
+        Biologically relevant to assurance but excluded from the primary directional
+        score because it was not part of the frozen PR138 selfing_core. It may be
+        described separately but cannot improve the primary score post hoc.
 
   accessibility_specialization:
     role: primary_directional
+    source_definition: config/chapter1_pr138_pollination_syndromes.yml::generalized_accessible
     minimum_components_per_species: 2
     components:
       floral_form:
         open_radial: 1.0
         brush_puff: 1.0
         composite_head: 1.0
-        bell_campanulate: 0.0
-        tubular: 0.0
         salverform: 0.0
-        funnel_trumpet: 0.0
-        urn_urceolate: 0.0
+        tubular: 0.0
+        spurred: 0.0
         papilionaceous: 0.0
         bilabiate: 0.0
-        spurred: 0.0
+        urn_urceolate: 0.0
       floral_symmetry:
         actinomorphic: 1.0
         zygomorphic: 0.0
       tube_depth_class:
         absent_or_open: 1.0
         shallow: 1.0
-        intermediate: 0.5
         deep: 0.0
 
   signal_display:
@@ -97,40 +93,23 @@ domains:
     components:
       flower_size_reduction:
         source_trait: flower_size_class
+        source_definition: config/chapter1_pr138_pollination_syndromes.yml::selfing_syndrome.flower_size_class
         role: strict_directional_proxy
         values:
           very_small: 1.0
-          small: 0.75
-          medium: 0.5
-          large: 0.25
+          small: 1.0
+          large: 0.0
           very_large: 0.0
-      plain_colour_proxy:
-        source_trait: flower_primary_color
-        role: legacy_compositional_proxy_not_attraction_intensity
-        values:
-          white: 1.0
-          green_brown_inconspicuous: 1.0
-          yellow_orange: 0.0
-          red_pink: 0.0
-          blue_purple: 0.0
-      inflorescence_display_reduction_proxy:
-        source_trait: inflorescence_display
-        role: exploratory_aggregation_proxy
-        values:
-          solitary: 1.0
-          few_flowered: 0.75
-          raceme_spike_panicle: 0.25
-          umbel_corymb: 0.25
-          composite_display: 0.0
-          brush_puff_display: 0.0
+    descriptive_state_traits:
+      - flower_primary_color
+      - flower_size_class
+      - inflorescence_display
 
 primary_responses:
   - reproductive_assurance
   - accessibility_specialization
 secondary_signal_display_responses:
   - flower_size_reduction
-  - plain_colour_proxy
-  - inflorescence_display_reduction_proxy
 
 common_support_responses:
   - reproductive_assurance
@@ -144,15 +123,12 @@ H2_models:
   - response: flower_size_reduction
     condition_on: [reproductive_assurance]
     role: size_reduction_beyond_assurance
+  - response: accessibility_specialization
+    condition_on: [reproductive_assurance, flower_size_reduction]
+    role: accessibility_beyond_assurance_and_size
   - response: flower_size_reduction
     condition_on: [reproductive_assurance, accessibility_specialization]
     role: size_reduction_beyond_assurance_and_accessibility
-  - response: plain_colour_proxy
-    condition_on: [reproductive_assurance, accessibility_specialization]
-    role: colour_proxy_beyond_core
-  - response: inflorescence_display_reduction_proxy
-    condition_on: [reproductive_assurance, accessibility_specialization]
-    role: display_proxy_beyond_core
 
 H3_source:
   file: results/geography_20260924/h3_original_corrected_comparison.json
@@ -171,9 +147,7 @@ GloPL:
     - reproductive_assurance
     - accessibility_specialization
     - flower_size_reduction
-  h4_exploratory_responses:
-    - plain_colour_proxy
-    - inflorescence_display_reduction_proxy
+  h4_exploratory_responses: []
 
 reviewer_guards:
   - posthoc_reclassification_never_replaces_final_confirmatory_H1
