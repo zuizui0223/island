@@ -90,8 +90,6 @@ def _stratum_mask(frame: pd.DataFrame, stratum: str) -> pd.Series:
         return pd.Series(True, index=frame.index)
     if stratum == "all_native":
         return frame["origin_status"].astype(str).eq("native")
-    if stratum == "all_introduced":
-        return frame["origin_status"].astype(str).eq("introduced")
     if stratum == "native_nonendemic":
         return frame["floristic_status"].astype(str).eq("native_nonendemic")
     if stratum == "endemic":
