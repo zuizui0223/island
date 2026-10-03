@@ -1,0 +1,30 @@
+{
+  "contract": "chapter1_h3_offshore_gradient_sensitivity_v1",
+  "offshore_definition": "corrected log1p distance > 0",
+  "offshore_continuous_gradient": {
+    "evaluable": true,
+    "estimate": 0.22031466445594622,
+    "se": 0.09704023863178114,
+    "two_sided_p": 0.023186756274183012,
+    "n_cells": 276,
+    "n_publications": 153,
+    "n_sites": 252
+  },
+  "mainland_vs_offshore_indicator": {
+    "evaluable": true,
+    "estimate": 0.12742675793850874,
+    "se": 0.08713706951402336,
+    "two_sided_p": 0.14363946357047241,
+    "n_cells": 1408,
+    "n_publications": 919,
+    "n_sites": 1248
+  },
+  "jackknife": {
+    "n_deletions": 153,
+    "all_estimates_positive": true,
+    "worst_two_sided_p": 0.0489207023083277,
+    "min_estimate": 0.17850049633097795,
+    "max_estimate": 0.2693001512832439
+  },
+  "interpretation": "The offshore-only model tests whether the global H3 result is more than a mainland/offshore step. The binary model asks whether the step alone explains the pattern. These are post-hoc robustness analyses and do not establish causation."
+}

@@ -1,0 +1,8 @@
+evidence_scope,stratum,context_a,context_b,outcome,n_islands_context_a,n_islands_context_b,kappa,optimizer_success,slope_difference_b_minus_a,cluster_robust_se,p_value
+direct_only,regional_native_compatible,northern_midlatitude,tropical,self_compatibility,951,705,82.02919906517485,True,0.05207246600577816,0.07201671980212275,0.4696425400170913
+direct_only,regional_native_compatible,northern_midlatitude,tropical,selfing_mating_system,898,330,510.9490501873304,True,0.044744609085890466,0.0910644116337225,0.6231780640823154
+direct_only,regional_native_compatible,northern_midlatitude,tropical,autonomous_selfing,925,724,66.9575839714637,True,0.09179965397384196,0.07274272510971945,0.20695702325565438
+direct_only,regional_native_compatible,northern_midlatitude,tropical,plain_colour,957,815,113.51012064819817,True,0.12430707471042138,0.04959029464638841,0.012187046735553786
+direct_only,regional_native_compatible,northern_midlatitude,tropical,generalized_form,910,657,131.5077912891822,True,-0.010258587742882136,0.07636380848264472,0.8931350321416711
+direct_only,regional_native_compatible,northern_midlatitude,tropical,actinomorphic_symmetry,954,809,63.03326790210862,True,0.08074245394029521,0.062485132748073824,0.1962925161070605
+direct_only,regional_native_compatible,northern_midlatitude,tropical,shallow_open_tube,856,627,109.91148082876809,True,0.040630199432264466,0.12063598659291302,0.7362676784007172

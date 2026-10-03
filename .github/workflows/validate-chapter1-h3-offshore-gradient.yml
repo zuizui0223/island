@@ -1,0 +1,46 @@
+name: Validate Chapter 1 H3 offshore-gradient sensitivity
+# trigger-after-lint-fix
+
+on:
+  push:
+    branches:
+      - analysis/wcvp-native-corrected
+    paths:
+      - ".github/workflows/validate-chapter1-h3-offshore-gradient.yml"
+      - "src/island_v2/chapter1_h3_offshore_gradient_sensitivity.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: Validate implementation
+        run: |
+          python -m py_compile src/island_v2/chapter1_h3_offshore_gradient_sensitivity.py
+          ruff check src/island_v2/chapter1_h3_offshore_gradient_sensitivity.py
+
+      - name: Run H3 robustness analysis
+        run: |
+          python -m island_v2.chapter1_h3_offshore_gradient_sensitivity \
+            --measurement-cells-csv results/geography_20260924/h3_corrected_measurement_cells.csv.gz \
+            --output-dir /tmp/h3
+
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-h3-offshore-gradient-${{ github.run_id }}
+          path: /tmp/h3
+          if-no-files-found: error
+          retention-days: 30

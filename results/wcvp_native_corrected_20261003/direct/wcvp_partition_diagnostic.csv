@@ -1,0 +1,8 @@
+evidence_scope,partition,n_flora_rows,n_islands,status,n_analysis_islands,n_clusters,n_retained_outcomes,p_value
+direct_only,source_native,150531,425,fit,375.0,82.0,7,0.3954607921555501
+direct_only,source_introduced,19442,129,not_testable,,,0,
+direct_only,wcvp_compatible_unresolved,362789,2281,fit,1759.0,176.0,7,0.03915742402662622
+direct_only,wcvp_incompatible_unresolved,179791,1878,fit,1531.0,169.0,7,0.009120563503568884
+direct_only,wcvp_unclassifiable_unresolved,327204,3932,fit,3097.0,180.0,7,0.031985121696119584
+direct_only,regional_native_compatible,513320,2372,fit,1841.0,178.0,7,0.09093802837304196
+direct_only,regionally_incompatible_or_introduced,199233,1902,fit,1550.0,171.0,7,0.017360863367458186

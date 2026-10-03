@@ -1,0 +1,63 @@
+{
+  "context": "northern_high_latitude",
+  "max_iter_retry": 5000,
+  "original_omnibus": {
+    "evidence_scope": "all_analysis_eligible",
+    "stratum": "regional_native_compatible",
+    "context": "northern_high_latitude",
+    "status": "fit",
+    "n_retained_outcomes": 7,
+    "retained_outcomes": "self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry|shallow_open_tube",
+    "n_unique_islands": 279,
+    "n_clusters": 58,
+    "joint_wald_chisq": 14.43530759905576,
+    "joint_df": 7,
+    "p_value": 0.0439590055328605,
+    "all_optimizers_converged": true,
+    "q_value": 0.0439590055328605,
+    "vector_supported": true
+  },
+  "retry_omnibus": {
+    "evidence_scope": "all_analysis_eligible",
+    "stratum": "regional_native_compatible",
+    "context": "northern_high_latitude",
+    "status": "fit",
+    "n_retained_outcomes": 7,
+    "retained_outcomes": "self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry|shallow_open_tube",
+    "n_unique_islands": 279,
+    "n_clusters": 58,
+    "joint_wald_chisq": 14.43530759905576,
+    "joint_df": 7,
+    "p_value": 0.0439590055328605,
+    "all_optimizers_converged": true,
+    "q_value": 0.0439590055328605,
+    "vector_supported": true
+  },
+  "original_generalized_form": {
+    "evidence_scope": "all_analysis_eligible",
+    "stratum": "regional_native_compatible",
+    "context": "northern_high_latitude",
+    "outcome": "generalized_form",
+    "n_islands": 234,
+    "n_species_trials": 8865,
+    "kappa": 162754.79141900392,
+    "optimizer_success": true,
+    "geography_slope_log_odds": 0.0627572093591972,
+    "cluster_robust_se": 0.0323680018965351,
+    "p_value": 0.052517690848448
+  },
+  "retry_generalized_form": {
+    "evidence_scope": "all_analysis_eligible",
+    "stratum": "regional_native_compatible",
+    "context": "northern_high_latitude",
+    "outcome": "generalized_form",
+    "n_islands": 234,
+    "n_species_trials": 8865,
+    "kappa": 162754.79141900392,
+    "optimizer_success": true,
+    "geography_slope_log_odds": 0.0627572093591972,
+    "cluster_robust_se": 0.0323680018965351,
+    "p_value": 0.052517690848448
+  },
+  "absolute_slope_change": 0.0
+}

@@ -184,7 +184,28 @@ Selfing-adjusted accessibility estimates:
 
 All eight estimates are positive. FDR support is region dependent. In the primary scope it is strongest in northern high latitudes and the tropics. Tropical Direct-only remains nominally positive but is not FDR-supported.
 
-## S4.1 Raw colour and colour × architecture results
+## S4.1 Complete-three-component selfing sensitivity
+
+To test whether incomplete measurement of `selfing_core` creates the residual accessibility association, a stricter Direct-only mediator was rebuilt using only species with all three reproductive components observed and informative: self-incompatibility/compatibility, mating system and autonomous-selfing capacity. The complete score was available for 564 species and yielded island-level scores on 2,610 islands before covariate filtering.
+
+Machine-readable results:
+
+- results/h2_complete_selfing_corrected_20261003/h2_complete_selfing_sensitivity.csv
+- results/h2_complete_selfing_corrected_20261003/h2_complete_selfing_sensitivity_summary.json
+- results/h2_complete_selfing_corrected_20261003/baseline_reconstruction_gate.json
+
+The baseline Direct-only score was independently reconstructed to machine precision before applying the complete-three-component restriction.
+
+| Region | Complete-score islands | β isolation | SE | P | q |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Northern mid-latitude | 1,725 | 0.02296 | 0.01107 | 0.03812 | 0.05082 |
+| Northern high latitude | 221 | 0.08508 | 0.03433 | 0.01321 | 0.03759 |
+| Tropical | 438 | 0.05058 | 0.02153 | 0.01880 | 0.03759 |
+| Southern extratropical | 157 | 0.03487 | 0.03165 | 0.27060 | 0.27060 |
+
+All four coefficients remain positive. FDR support persists in northern high latitudes and the tropics, and northern mid-latitudes lie immediately above the 0.05 FDR threshold. This weakens a missing-component explanation for H2 but is not a formal errors-in-variables correction.
+
+## S4.2 Raw colour and colour × architecture results
 
 Raw colour, joint colour × architecture and architecture conditional on colour are retained in full rather than compressed into a very large static table.
 
@@ -225,6 +246,24 @@ Machine-readable table:
 | No-zero-constant | 0.09089 | 0.03865 | 0.01869 | 1,375 | 912 | 1,238 |
 
 The primary and no-zero-constant models support a positive isolation association. Supplemental-only remains positive but unsupported. H3 is an isolation-associated pollen-delivery constraint, not direct evidence of declining pollinator abundance or visitation.
+
+### Table S5b. Offshore-gradient robustness
+
+Because 996 of 1,248 GloPL sites are true continental zero-distance sites, we tested whether H3 reduces to a mainland/offshore step.
+
+| Analysis | β | SE | Two-sided P | Cells | Publications | Sites |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Offshore continuous gradient | 0.22031 | 0.09704 | 0.02319 | 276 | 153 | 252 |
+| Mainland vs offshore indicator | 0.12743 | 0.08714 | 0.14364 | 1,408 | 919 | 1,248 |
+
+A leave-one-publication-out jackknife of the offshore gradient retained positive estimates in all 153 deletions. The minimum coefficient was 0.17850, the maximum was 0.26930 and the weakest two-sided P value was 0.04892.
+
+Machine-readable results:
+
+- results/h3_offshore_gradient_20261003/h3_offshore_gradient_summary.json
+- results/h3_offshore_gradient_20261003/h3_offshore_leave_one_publication.csv
+
+These are post-hoc robustness analyses. They show that the positive H3 association persists within offshore sites and is not captured by a binary mainland/offshore contrast, but they do not establish causation.
 
 Primary source files:
 

@@ -1,0 +1,10 @@
+{
+  "contract": "chapter1_h2_complete_selfing_sensitivity_v1",
+  "interpretation": "Direct-only sensitivity requiring all three selfing_core components to be observed for every contributing mediator species. This addresses missing-component attenuation but is not a formal errors-in-variables correction.",
+  "n_direct_species_selfing_min2": 2651,
+  "n_direct_species_selfing_complete3": 564,
+  "n_direct_species_accessibility_min2": 3389,
+  "n_islands_selfing_complete3": 2610,
+  "n_islands_accessibility": 3503,
+  "score_scale": "raw weighted concordance [-1, 1], matching official island_syndrome_scores"
+}

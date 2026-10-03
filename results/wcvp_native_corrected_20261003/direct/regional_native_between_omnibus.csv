@@ -1,0 +1,2 @@
+evidence_scope,stratum,context_a,context_b,status,n_retained_outcomes,retained_outcomes,n_unique_islands,n_clusters,joint_wald_chisq,joint_df,p_value,all_optimizers_converged,q_value,difference_supported
+direct_only,regional_native_compatible,northern_midlatitude,tropical,fit,7,self_compatibility|selfing_mating_system|autonomous_selfing|plain_colour|generalized_form|actinomorphic_symmetry|shallow_open_tube,1841,178,12.305879387907263,7,0.09093802837304196,True,0.09093802837304196,False
