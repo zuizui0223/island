@@ -389,9 +389,9 @@ def figure4(root: Path, out: Path) -> None:
     fig, panels = plt.subplots(
         1,
         5,
-        figsize=(15.5, 5.4),
+        figsize=(15.5, 5.6),
         sharey=True,
-        gridspec_kw={"width_ratios": [1, 1, 1, 1, 1.35]},
+        gridspec_kw={"width_ratios": [1, 1, 1, 1, 1.45]},
     )
     y = np.arange(len(axes_order))
 
@@ -407,13 +407,15 @@ def figure4(root: Path, out: Path) -> None:
                 supported = str(row["axis_supported"]).strip().lower() == "true"
                 marker = "o" if supported else "x"
                 ax.scatter(x, yi, s=75, marker=marker)
+                dy = 10 if yi == len(axes_order) - 1 else -15
+                va = "bottom" if dy > 0 else "top"
                 ax.annotate(
                     f"q={_q_label(float(row['q_value']))}",
                     (x, yi),
-                    xytext=(0, -14),
+                    xytext=(0, dy),
                     textcoords="offset points",
                     ha="center",
-                    va="top",
+                    va=va,
                     fontsize=7,
                 )
         ax.set_xlim(-0.45, 1.45)
@@ -423,13 +425,17 @@ def figure4(root: Path, out: Path) -> None:
         ax.grid(axis="y", linewidth=0.3, alpha=0.35)
 
     panels[0].set_yticks(y, [axis_labels[a] for a in axes_order])
-    panels[0].invert_yaxis()
+    panels[0].set_ylim(len(axes_order) - 0.35, -0.45)
 
     ax = panels[4]
     strict = origin.loc[
         origin["contrast"].eq("strict_known_origin")
         & origin["context"].eq("tropical")
     ].copy()
+    y_offsets = {
+        "all_analysis_eligible": -0.08,
+        "direct_only": 0.08,
+    }
     for scope, marker, label in (
         ("all_analysis_eligible", "o", "All"),
         ("direct_only", "s", "Direct"),
@@ -438,24 +444,34 @@ def figure4(root: Path, out: Path) -> None:
         for yi, axis in enumerate(axes_order):
             row = scoped.loc[axis]
             cosine = float(row["cosine_similarity"])
-            supported = str(row["status_vectors_differ"]).strip().lower() == "true"
+            supported = (
+                str(row["status_vectors_differ"]).strip().lower() == "true"
+            )
+            yy = yi + y_offsets[scope]
             if supported:
-                ax.scatter(cosine, yi, s=75, marker=marker, label=label if yi == 0 else None)
+                ax.scatter(
+                    cosine,
+                    yy,
+                    s=70,
+                    marker=marker,
+                    label=label if yi == 0 else None,
+                )
             else:
                 ax.scatter(
                     cosine,
-                    yi,
-                    s=75,
+                    yy,
+                    s=70,
                     marker=marker,
                     facecolors="none",
                     label=label if yi == 0 else None,
                 )
+            dx = 7 if cosine < 0.65 else -7
             ax.annotate(
                 f"q={_q_label(float(row['q_value']))}",
-                (cosine, yi),
-                xytext=(0, -14 if scope == "all_analysis_eligible" else 8),
+                (cosine, yy),
+                xytext=(dx, 0),
                 textcoords="offset points",
-                ha="center",
+                ha="left" if dx > 0 else "right",
                 va="center",
                 fontsize=7,
             )
@@ -464,7 +480,7 @@ def figure4(root: Path, out: Path) -> None:
     ax.set_xlabel("Native–introduced vector cosine")
     ax.set_title("Tropical known-origin contrast")
     ax.grid(axis="x", linewidth=0.3, alpha=0.35)
-    ax.legend(frameon=False, loc="lower right")
+    ax.legend(frameon=False, loc="upper center", ncol=2)
 
     fig.suptitle(
         "Figure 4 | H1: three raw measurement axes and floristic-origin divergence",
