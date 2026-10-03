@@ -155,3 +155,45 @@ def test_meta_summary_can_support_global_average_when_strict_recurrence_fails():
     assert strict["recurrent_robust_supported"] is False
     assert pooled["positive_global_average_supported"] is True
     assert pooled["i2"] > 0.5
+
+
+def test_region_synthesis_separates_global_average_from_heterogeneity():
+    contexts = ["north_mid", "north_high", "tropical", "south"]
+    frame = pd.DataFrame(
+        {
+            "status": ["fit"] * 4,
+            "context": contexts,
+            "estimate": [0.016, 0.114, 0.098, 0.070],
+            "cluster_robust_se": [0.0144, 0.0383, 0.0165, 0.0268],
+        }
+    )
+    result = synthesize_regions(
+        frame,
+        contexts=contexts,
+        alpha=0.05,
+    )
+    assert result["status"] == "fit"
+    assert result["all_region_estimates_positive"] is True
+    assert result["H1a_global_average_supported"] is True
+    assert result["H1b_regional_heterogeneity_supported"] is True
+    assert result["H1a_one_sided_p"] < 0.05
+    assert result["heterogeneity_p"] < 0.05
+
+
+def test_region_synthesis_does_not_require_each_region_individually_significant():
+    contexts = ["north_mid", "north_high", "tropical", "south"]
+    frame = pd.DataFrame(
+        {
+            "status": ["fit"] * 4,
+            "context": contexts,
+            "estimate": [0.01, 0.04, 0.03, 0.02],
+            "cluster_robust_se": [0.03, 0.03, 0.03, 0.03],
+        }
+    )
+    result = synthesize_regions(
+        frame,
+        contexts=contexts,
+        alpha=0.05,
+    )
+    assert result["all_region_estimates_positive"] is True
+    assert result["H1b_regional_heterogeneity_supported"] is False
