@@ -354,27 +354,122 @@ def figure3(root: Path, out: Path) -> None:
 
 
 
-def figure4(root: Path, out: Path) -> None:
-    slopes = pd.read_csv(root / "results/geography_20260924/all/beta_binomial_within_slopes.csv")
-    omnibus = pd.read_csv(root / "results/geography_20260924/all/beta_binomial_within_omnibus.csv")
-    slopes = slopes.loc[slopes["stratum"].eq("all_observed")].copy()
-    omnibus = omnibus.loc[omnibus["stratum"].eq("all_observed")].set_index("context")
+def _q_label(value: float) -> str:
+    if not np.isfinite(value):
+        return "NA"
+    if value <= 0:
+        return "<1e-300"
+    if value < 1e-3:
+        return f"{value:.1e}"
+    return f"{value:.3f}"
 
-    fig, axes = plt.subplots(1, 4, figsize=(13.2, 5.3), sharey=True)
-    y = np.arange(len(H1_OUTCOMES))
-    for ax, region in zip(axes, REGIONS, strict=True):
-        part = slopes.loc[slopes["context"].eq(region)].set_index("outcome")
-        est = np.array([float(part.loc[o, "geography_slope_log_odds"]) for o in H1_OUTCOMES])
-        se = np.array([float(part.loc[o, "cluster_robust_se"]) for o in H1_OUTCOMES])
-        ax.errorbar(est, y, xerr=1.96 * se, fmt="o", capsize=2)
-        ax.axvline(0, linewidth=0.8)
-        q = float(omnibus.loc[region, "q_value"])
-        ax.set_title(f"{REGION_LABELS[region]}\njoint q={q:.2g}")
-        ax.set_xlabel("Isolation coefficient")
-        ax.grid(axis="x", linewidth=0.3, alpha=0.4)
-    axes[0].set_yticks(y, [H1_LABELS[o] for o in H1_OUTCOMES])
-    axes[0].invert_yaxis()
-    fig.suptitle("Figure 4 | H1: recurrent multivariate response with regional expression", y=1.02)
+
+def figure4(root: Path, out: Path) -> None:
+    primary = pd.read_csv(
+        root
+        / "submission/chapter1_current/supplement/Table_S2f_H1_three_axis_primary.csv"
+    )
+    origin = pd.read_csv(
+        root
+        / "submission/chapter1_current/supplement/Table_S2g_H1_floristic_origin.csv"
+    )
+    axes_order = [
+        "reproductive_assurance",
+        "floral_structural_complexity",
+        "flower_colour",
+    ]
+    axis_labels = {
+        "reproductive_assurance": "Reproductive assurance",
+        "floral_structural_complexity": "Floral structure",
+        "flower_colour": "Flower colour",
+    }
+    scope_order = ["all_analysis_eligible", "direct_only"]
+    scope_labels = ["All", "Direct"]
+
+    fig, panels = plt.subplots(
+        1,
+        5,
+        figsize=(15.5, 5.4),
+        sharey=True,
+        gridspec_kw={"width_ratios": [1, 1, 1, 1, 1.35]},
+    )
+    y = np.arange(len(axes_order))
+
+    for ax, region in zip(panels[:4], REGIONS, strict=True):
+        part = primary.loc[
+            primary["flora_scope"].eq("all_observed")
+            & primary["context"].eq(region)
+        ].copy()
+        for x, scope in enumerate(scope_order):
+            scoped = part.loc[part["evidence_scope"].eq(scope)].set_index("axis")
+            for yi, axis in enumerate(axes_order):
+                row = scoped.loc[axis]
+                supported = str(row["axis_supported"]).strip().lower() == "true"
+                marker = "o" if supported else "x"
+                ax.scatter(x, yi, s=75, marker=marker)
+                ax.annotate(
+                    f"q={_q_label(float(row['q_value']))}",
+                    (x, yi),
+                    xytext=(0, -14),
+                    textcoords="offset points",
+                    ha="center",
+                    va="top",
+                    fontsize=7,
+                )
+        ax.set_xlim(-0.45, 1.45)
+        ax.set_xticks([0, 1], scope_labels)
+        ax.set_title(REGION_LABELS[region])
+        ax.set_xlabel("Evidence scope")
+        ax.grid(axis="y", linewidth=0.3, alpha=0.35)
+
+    panels[0].set_yticks(y, [axis_labels[a] for a in axes_order])
+    panels[0].invert_yaxis()
+
+    ax = panels[4]
+    strict = origin.loc[
+        origin["contrast"].eq("strict_known_origin")
+        & origin["context"].eq("tropical")
+    ].copy()
+    for scope, marker, label in (
+        ("all_analysis_eligible", "o", "All"),
+        ("direct_only", "s", "Direct"),
+    ):
+        scoped = strict.loc[strict["evidence_scope"].eq(scope)].set_index("axis")
+        for yi, axis in enumerate(axes_order):
+            row = scoped.loc[axis]
+            cosine = float(row["cosine_similarity"])
+            supported = str(row["status_vectors_differ"]).strip().lower() == "true"
+            if supported:
+                ax.scatter(cosine, yi, s=75, marker=marker, label=label if yi == 0 else None)
+            else:
+                ax.scatter(
+                    cosine,
+                    yi,
+                    s=75,
+                    marker=marker,
+                    facecolors="none",
+                    label=label if yi == 0 else None,
+                )
+            ax.annotate(
+                f"q={_q_label(float(row['q_value']))}",
+                (cosine, yi),
+                xytext=(0, -14 if scope == "all_analysis_eligible" else 8),
+                textcoords="offset points",
+                ha="center",
+                va="center",
+                fontsize=7,
+            )
+    ax.axvline(0, linewidth=0.8)
+    ax.set_xlim(-1.05, 1.05)
+    ax.set_xlabel("Native–introduced vector cosine")
+    ax.set_title("Tropical known-origin contrast")
+    ax.grid(axis="x", linewidth=0.3, alpha=0.35)
+    ax.legend(frameon=False, loc="lower right")
+
+    fig.suptitle(
+        "Figure 4 | H1: three raw measurement axes and floristic-origin divergence",
+        y=1.02,
+    )
     fig.tight_layout()
     _save(fig, out, "Figure4_H1_recurrent_multivariate_response")
 
