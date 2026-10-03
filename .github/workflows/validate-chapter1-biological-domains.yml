@@ -100,6 +100,8 @@ jobs:
           h2=pd.read_csv(root/"H2_conditional.csv")
           h4=pd.read_csv(root/"H4_exact_species.csv")
           signal=pd.read_csv(root/"signal_display_state_regional.csv")
+          threshold=pd.read_csv(root/"H1_minimum_species_threshold_sensitivity.csv")
+          coverage=pd.read_csv(root/"trait_coverage_gradient.csv")
           h3=json.loads((root/"H3_summary.json").read_text())
 
           primary=h1.loc[
@@ -148,6 +150,8 @@ jobs:
               "H1_genus_LOO": genus.to_dict(orient="records"),
               "strict_provenance_regional": provenance.to_dict(orient="records"),
               "signal_display_supported_states": signal_supported.to_dict(orient="records"),
+              "H1_minimum_species_threshold_sensitivity": threshold.to_dict(orient="records"),
+              "trait_coverage_gradient": coverage.to_dict(orient="records"),
               "H2_primary": h2_primary.to_dict(orient="records"),
               "H2_supported_q_le_0_05": h2_primary.loc[
                   h2_primary["q_two_sided_posthoc_family"].le(0.05)
@@ -172,6 +176,10 @@ jobs:
           print(provenance.to_string(index=False))
           print("\n=== SIGNAL/DISPLAY SUPPORTED RAW STATES ===")
           print(signal_supported.to_string(index=False))
+          print("\n=== H1 3/10/20 SPECIES THRESHOLD SENSITIVITY ===")
+          print(threshold.to_string(index=False))
+          print("\n=== TRAIT COVERAGE GRADIENT ===")
+          print(coverage.to_string(index=False))
           print("\n=== H2 PRIMARY CONDITIONAL ===")
           print(h2_primary.to_string(index=False))
           print("\n=== H3 ===")
@@ -199,6 +207,12 @@ jobs:
             echo
             echo "### Signal/display statewise results"
             cat /tmp/domain/out/signal_display_state_regional.csv
+            echo
+            echo "### H1 minimum-species threshold sensitivity"
+            cat /tmp/domain/out/H1_minimum_species_threshold_sensitivity.csv
+            echo
+            echo "### Trait coverage gradient"
+            cat /tmp/domain/out/trait_coverage_gradient.csv
             echo
             echo "### Reviewer summary"
             cat /tmp/domain/out/REVIEWER_SUMMARY.json
