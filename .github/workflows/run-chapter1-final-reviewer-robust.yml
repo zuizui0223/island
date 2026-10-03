@@ -9,6 +9,9 @@ on:
       - "config/chapter1_final_reviewer_robust.yml"
       - "tests/test_chapter1_final_reviewer_robust.py"
       - ".github/workflows/run-chapter1-final-reviewer-robust.yml"
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
