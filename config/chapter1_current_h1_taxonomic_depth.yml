@@ -1,0 +1,83 @@
+contract: chapter1_current_h1_taxonomic_depth_v1
+status: prospective_measurement_localization_after_current_h1_freeze
+purpose: >-
+  Localize the taxonomic representation depth of the current seven-response H1 without
+  changing the H1 response definition. Test whether the recurrent within-region isolation
+  vectors remain after subtracting leave-one-species-out family and genus expectations on
+  exactly the same taxonomically supported species.
+
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+
+atomic_outcomes:
+  - self_compatibility
+  - selfing_mating_system
+  - autonomous_selfing
+  - plain_colour
+  - generalized_form
+  - actinomorphic_symmetry
+  - shallow_open_tube
+
+flora_scopes:
+  - all_observed
+  - regional_native_compatible
+
+evidence_scopes:
+  - all_analysis_eligible
+  - direct_only
+
+context_column: analysis_regime
+cluster_column: spatial_block
+distance_column: log_distance_to_continent_km
+controls:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+species_taxonomic_expectation:
+  taxonomy_levels: [family, genus]
+  estimator: leave_one_species_out_mean
+  minimum_scored_species_per_group_including_focal: 2
+  source_pool_used: false
+  island_occurrence_used_to_train_expectation: false
+  common_species_support_across_stages: true
+
+island_model:
+  family: clustered_linear_probability_decomposition
+  minimum_islands_per_context_outcome: 50
+  minimum_outcomes_per_vector: 2
+  covariance: spatial_block_cluster_robust
+  standardization: within_context_outcome_analysis_frame
+
+common_support_gate:
+  model: current_H1_beta_binomial
+  config: config/chapter1_v14_all_data_probability.yml
+  requirement: >-
+    Interpret taxonomic attenuation only for a context in which the current H1 beta-binomial
+    joint vector remains FDR-supported after restriction to the species eligible for both
+    family and genus LOO expectations.
+
+multiplicity:
+  family: four_contexts_within_each_stage_flora_scope_and_evidence_scope
+  method: benjamini_hochberg
+  alpha: 0.05
+
+attenuation:
+  vector_norm: euclidean_norm_of_seven_standardized_isolation_coefficients
+  family_attenuation: 1_minus_family_norm_over_observed_norm
+  genus_attenuation: 1_minus_genus_norm_over_observed_norm
+  orientation:
+    cosine_to_observed: true
+    projection_fraction_on_observed: true
+
+interpretation:
+  - taxonomic_depth_is_representation_depth_not_causal_process
+  - post_genus_residual_does_not_prove_within_lineage_evolution
+  - disappearance_after_genus_residualization_does_not_prove_colonization_filtering
+  - all_observed_and_regional_native_compatible_are_separate_scopes
+  - no_new_trait_definition_or_pollinator_identity_test
