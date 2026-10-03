@@ -153,6 +153,21 @@ common_support_responses:
   - accessibility_specialization
   - flower_size_reduction
 
+common_support_sets:
+  common_assurance_accessibility:
+    - reproductive_assurance
+    - accessibility_specialization
+  common_assurance_size:
+    - reproductive_assurance
+    - flower_size_reduction
+  common_accessibility_size:
+    - accessibility_specialization
+    - flower_size_reduction
+  common_three_domains:
+    - reproductive_assurance
+    - accessibility_specialization
+    - flower_size_reduction
+
 H2_models:
   - response: accessibility_specialization
     condition_on: [reproductive_assurance]
@@ -227,6 +242,7 @@ reviewer_guards:
   - mixed_or_ambiguous_states_are_not_forced_to_midpoint_scores
   - missing_component_is_not_zero
   - trait_specific_and_common_species_support_are_both_reported
+  - pairwise_common_species_support_is_reported_before_three_domain_complete_case_interpretation
   - island_score_minimum_species_3_10_20_sensitivity_is_reported
   - response_specific_trait_coverage_gradient_is_reported
   - coverage_fraction_adjusted_H1_sensitivity_is_reported
