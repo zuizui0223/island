@@ -1,0 +1,58 @@
+contract: chapter1_h1_taxonomic_depth_current_v1
+status: measurement_aligned_representation_depth_audit
+purpose: >-
+  Test the taxonomic representation depth of the current seven-response H1 within each
+  of the four geographic regions on the corrected 24 September 2026 geography. The
+  analysis asks whether the isolation-associated vector remains after leave-one-species-out
+  family and genus expectations are removed on exactly the same species support.
+atomic_outcomes:
+  - self_compatibility
+  - selfing_mating_system
+  - autonomous_selfing
+  - plain_colour
+  - generalized_form
+  - actinomorphic_symmetry
+  - shallow_open_tube
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+context_column: analysis_regime
+cluster_column: spatial_block
+distance_column: log_distance_to_continent_km
+controls:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+species_taxonomic_expectation:
+  taxonomy_levels: [family, genus]
+  estimator: leave_one_species_out_mean
+  minimum_scored_species_per_group_including_focal: 2
+  source_pool_used: false
+  island_occurrence_used_to_train_expectation: false
+  common_species_support_across_stages: true
+island_model:
+  family: clustered_linear_probability_decomposition
+  island_weight_primary: equal
+  minimum_islands_per_context_outcome: 50
+  minimum_outcomes_per_vector: 2
+  covariance: spatial_block_cluster_robust
+multiplicity:
+  within_stage_contexts: BH_FDR
+  alpha: 0.05
+attenuation_bootstrap:
+  enabled: true
+  unit: spatial_block
+  paired_across_stages: true
+  draws: 300
+  seed: 20261003
+rules:
+  - common_support_beta_binomial_H1_gate_precedes_taxonomic_interpretation
+  - same_species_support_used_for_observed_family_and_genus_stages
+  - taxonomy_never_imputes_missing_trait_states
+  - no_source_pool_is_used_in_taxonomic_expectations
+  - representation_depth_does_not_identify_colonization_evolution_or_pollinator_cause
+  - all_observed_and_regional_native_compatible_are_separate_flora_scopes

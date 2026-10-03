@@ -149,6 +149,38 @@ An independent Python 3.11 multistart confirmation also passed. All multistart f
 
 The six-response result is a sensitivity only and does not replace the predeclared seven-response H1 estimand.
 
+## S3.2 Current seven-response taxonomic representation depth
+
+We asked whether the current H1 vector is represented primarily by family/genus composition or whether a finer-grained residual remains. For each atomic outcome, scored species were retained only when both their family and genus contained at least one other scored species. Family and genus expectations were leave-one-species-out means from the fixed scored species pool. Taxonomy therefore never filled missing traits. The same island-species observations were used at observed, family-residual and genus-residual stages.
+
+A beta-binomial common-support gate was fitted before interpreting residualization. H1 remained FDR-supported on this exact taxonomically eligible species set in all four regions in each of four surfaces: all-observed and WCVP regional-native-compatible floras, each under all-analysis and Direct-only trait evidence.
+
+The most reproducible result was tropical. The seven-response vector remained supported after genus residualization in every surface:
+
+| Flora / evidence | Post-genus q |
+| --- | ---: |
+| All-observed, all-analysis | 0.00733 |
+| All-observed, Direct-only | 0.00559 |
+| Regional-native-compatible, all-analysis | 0.00144 |
+| Regional-native-compatible, Direct-only | 0.000311 |
+
+Self-compatibility remained positive and individually supported after genus residualization in all four surfaces (P = 0.00293, 0.00355, 9.93 × 10^-5 and 7.09 × 10^-5). Plain colour and generalized form were also supported post-genus in both regional-native-compatible surfaces.
+
+Paired 300-draw spatial-block bootstrap quantified attenuation uncertainty. In the tropical all-analysis scopes, the additional family-to-genus attenuation was positive: median 0.458, 95% interval 0.212–0.662 in all-observed flora and median 0.341, interval 0.150–0.552 in regional-native-compatible flora. Direct-only intervals crossed zero. Thus genus composition contributes to the tropical vector, but does not exhaust it.
+
+Northern high latitudes showed substantial family-level attenuation: the family attenuation interval excluded zero in all-observed all-analysis (0.300–0.702), all-observed Direct-only (0.181–0.573) and regional-native-compatible all-analysis (0.156–0.670); the regional-native-compatible Direct-only lower bound was -0.0019. The incremental family-to-genus attenuation crossed zero in every northern-high surface, so a sharp genus breakpoint is not identified.
+
+Northern mid-latitude depth was model/evidence sensitive because the equal-island observed stage did not reproduce the H1 vector in two of four surfaces. Southern extratropical depth was floristic-status sensitive: genus residuals remained supported in all-observed flora but not in regional-native-compatible flora, while the paired attenuation intervals did not establish a precise native family/genus breakpoint.
+
+This audit localizes taxonomic representation depth only. Persistence after genus residualization does not prove within-lineage evolution; it can reflect within-genus species sorting, unmeasured source composition, persistence filters, introductions in the broad observed flora, or genuine evolutionary change. Conversely, attenuation after family/genus adjustment does not prove dispersal or colonization filtering.
+
+Reproducibility surface:
+
+- results/h1_taxonomic_depth_current_20261003/
+- src/island_v2/chapter1_h1_taxonomic_depth_current.py
+- config/chapter1_h1_taxonomic_depth_current.yml
+- validation workflow run 37095612710; artifact 11264117016; digest sha256:d2b46479d6eb40457157490b667660bf9728361faae0ab7321ec1cc8d6d1db5b
+
 ---
 
 # Appendix S4. H2 conditional decomposition and raw floral patterns
