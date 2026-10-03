@@ -219,6 +219,9 @@ jobs:
             echo "## H2-H4 finite-cluster audit"
             cat /tmp/h1-final/results/finite-cluster-audit/h2_h4_finite_cluster_summary.json
             echo
+            echo "## H1a global average and H1b heterogeneity"
+            cat /tmp/h1-final/results/global_directional_synthesis.csv
+            echo
             echo "## Legacy joint Wald retained as reference only"
             cat /tmp/h1-final/results/legacy_joint_wald_reference.csv
           } >> "$GITHUB_STEP_SUMMARY"
