@@ -28,7 +28,7 @@
 
 **Abstract word count:** 140 [recount after final copy-edit; must remain <=150]
 
-**Main-text word count:** 4,938 [Introduction through Conclusion; excludes abstract, acknowledgements, references and figure/table legends; must remain <=5,000]
+**Main-text word count:** 4,977 [Introduction through Conclusion; excludes abstract, acknowledgements, references and figure/table legends; must remain <=5,000]
 
 **References:** 18
 
