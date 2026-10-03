@@ -30,7 +30,7 @@ The geography repair is a post-hoc measurement correction selected as the primar
 ## Current H1–H4 result spine
 
 ### H1 — Pattern
-A response spanning reproductive assurance, colour composition and floral accessibility/generalization is recurrent across all four geographic strata in both evidence scopes. Formal H1 inference uses seven pre-oriented atomic indicators spanning those three domains; the indicators diagnose regional realization rather than seven complete trait axes. Southern shallow/open tube is negative in the corrected analysis.
+The primary H1 now uses the original **species × three measurement axes** directly. Reproductive-assurance and floral-structural composition change with isolation in all four geographic strata and both evidence scopes; flower-colour composition is supported in three of four broad regions and is therefore geographically contingent. The former seven pre-oriented indicators are retained only as a directional decomposition. Regional-native-compatible floras retain the recurrent reproductive and structural responses, while incompatible/introduced floras generally follow different raw-state vectors.
 
 ### H2 — Conditional decomposition
 Reproductive assurance is separated from additional floral responses. Primary selfing-adjusted accessibility is FDR-supported in northern high latitudes and the tropics. Tropical Direct-only accessibility is nominally positive but **not** FDR-supported (`q=0.1196`). Colour and colour × architecture responses remain region dependent.
