@@ -365,14 +365,81 @@ def _q_label(value: float) -> str:
 
 
 def figure4(root: Path, out: Path) -> None:
-    primary = pd.read_csv(
-        root
-        / "submission/chapter1_current/supplement/Table_S2f_H1_three_axis_primary.csv"
+    scores = pd.read_csv(
+        root / "results/h1_final_directional_20261003/primary_directional_score_results.csv"
+    )
+    synthesis = pd.read_csv(
+        root / "results/h1_final_directional_20261003/global_region_synthesis.csv"
     )
     origin = pd.read_csv(
         root
         / "submission/chapter1_current/supplement/Table_S2g_H1_floristic_origin.csv"
     )
+
+    fig, panels = plt.subplots(2, 2, figsize=(12.4, 8.2))
+    region_y = np.arange(len(REGIONS))
+    region_labels = [REGION_LABELS[r] for r in REGIONS]
+
+    for ax, scope, title in (
+        (panels[0, 0], "all", "A | All-analysis directional score"),
+        (panels[0, 1], "direct", "B | Direct-only directional score"),
+    ):
+        part = scores.loc[scores["scope"].eq(scope)].set_index("context").loc[REGIONS]
+        est = part["estimate"].astype(float).to_numpy()
+        se = part["cluster_robust_se"].astype(float).to_numpy()
+        ax.errorbar(est, region_y, xerr=1.96 * se, fmt="o", capsize=3)
+        ax.axvline(0, linewidth=0.8)
+        ax.set_yticks(region_y, region_labels)
+        ax.invert_yaxis()
+        ax.set_xlabel("Predeclared island-syndrome directional score")
+        ax.set_title(title)
+        ax.grid(axis="x", linewidth=0.3, alpha=0.4)
+        for yi, region in enumerate(REGIONS):
+            row = part.loc[region]
+            p_t = float(row["p_one_sided_t"])
+            p_wild = float(row["p_one_sided_wild"])
+            supported = str(row["robust_supported"]).strip().lower() == "true"
+            label = f"p={p_t:.3g}; wild={p_wild:.3g}"
+            if not supported:
+                label += "  n.s."
+            ax.annotate(
+                label,
+                (est[yi], yi),
+                xytext=(6, -11),
+                textcoords="offset points",
+                fontsize=7,
+                ha="left",
+            )
+
+    ax = panels[1, 0]
+    syn = synthesis.set_index("scope").loc[["all", "direct"]]
+    y = np.arange(2)
+    est = syn["random_effects_mean"].astype(float).to_numpy()
+    se = syn["modified_hartung_knapp_se"].astype(float).to_numpy()
+    tcrit = 3.182446305284263  # 97.5% quantile, df=3
+    ax.errorbar(est, y, xerr=tcrit * se, fmt="o", capsize=3)
+    ax.axvline(0, linewidth=0.8)
+    ax.set_yticks(y, ["All-analysis", "Direct-only"])
+    ax.invert_yaxis()
+    ax.set_xlabel("Random-effects global-average directional score")
+    ax.set_title("C | H1a global average and H1b heterogeneity")
+    ax.grid(axis="x", linewidth=0.3, alpha=0.4)
+    for yi, scope in enumerate(["all", "direct"]):
+        row = syn.loc[scope]
+        ax.annotate(
+            (
+                f"H1a one-sided p={float(row['H1a_one_sided_p']):.3g}\n"
+                f"H1b Q p={float(row['heterogeneity_p']):.3g}; "
+                f"I²={float(row['I2']):.2f}"
+            ),
+            (est[yi], yi),
+            xytext=(8, -12),
+            textcoords="offset points",
+            fontsize=7,
+            ha="left",
+        )
+
+    ax = panels[1, 1]
     axes_order = [
         "reproductive_assurance",
         "floral_structural_complexity",
@@ -383,51 +450,6 @@ def figure4(root: Path, out: Path) -> None:
         "floral_structural_complexity": "Floral structure",
         "flower_colour": "Flower colour",
     }
-    scope_order = ["all_analysis_eligible", "direct_only"]
-    scope_labels = ["All", "Direct"]
-
-    fig, panels = plt.subplots(
-        1,
-        5,
-        figsize=(15.5, 5.6),
-        sharey=True,
-        gridspec_kw={"width_ratios": [1, 1, 1, 1, 1.45]},
-    )
-    y = np.arange(len(axes_order))
-
-    for ax, region in zip(panels[:4], REGIONS, strict=True):
-        part = primary.loc[
-            primary["flora_scope"].eq("all_observed")
-            & primary["context"].eq(region)
-        ].copy()
-        for x, scope in enumerate(scope_order):
-            scoped = part.loc[part["evidence_scope"].eq(scope)].set_index("axis")
-            for yi, axis in enumerate(axes_order):
-                row = scoped.loc[axis]
-                supported = str(row["axis_supported"]).strip().lower() == "true"
-                marker = "o" if supported else "x"
-                ax.scatter(x, yi, s=75, marker=marker)
-                dy = 10 if yi == len(axes_order) - 1 else -15
-                va = "bottom" if dy > 0 else "top"
-                ax.annotate(
-                    f"q={_q_label(float(row['q_value']))}",
-                    (x, yi),
-                    xytext=(0, dy),
-                    textcoords="offset points",
-                    ha="center",
-                    va=va,
-                    fontsize=7,
-                )
-        ax.set_xlim(-0.45, 1.45)
-        ax.set_xticks([0, 1], scope_labels)
-        ax.set_title(REGION_LABELS[region])
-        ax.set_xlabel("Evidence scope")
-        ax.grid(axis="y", linewidth=0.3, alpha=0.35)
-
-    panels[0].set_yticks(y, [axis_labels[a] for a in axes_order])
-    panels[0].set_ylim(len(axes_order) - 0.35, -0.45)
-
-    ax = panels[4]
     strict = origin.loc[
         origin["contrast"].eq("strict_known_origin")
         & origin["context"].eq("tropical")
@@ -448,50 +470,35 @@ def figure4(root: Path, out: Path) -> None:
                 str(row["status_vectors_differ"]).strip().lower() == "true"
             )
             yy = yi + y_offsets[scope]
-            if supported:
-                ax.scatter(
-                    cosine,
-                    yy,
-                    s=70,
-                    marker=marker,
-                    label=label if yi == 0 else None,
-                )
-            else:
-                ax.scatter(
-                    cosine,
-                    yy,
-                    s=70,
-                    marker=marker,
-                    facecolors="none",
-                    label=label if yi == 0 else None,
-                )
-            dx = 7 if cosine < 0.65 else -7
-            ax.annotate(
-                f"q={_q_label(float(row['q_value']))}",
-                (cosine, yy),
-                xytext=(dx, 0),
-                textcoords="offset points",
-                ha="left" if dx > 0 else "right",
-                va="center",
-                fontsize=7,
+            kwargs = {"s": 70, "marker": marker}
+            if not supported:
+                kwargs["facecolors"] = "none"
+            ax.scatter(
+                cosine,
+                yy,
+                label=label if yi == 0 else None,
+                **kwargs,
             )
     ax.axvline(0, linewidth=0.8)
     ax.set_xlim(-1.05, 1.05)
-    ax.set_xlabel("Native–introduced vector cosine")
-    ax.set_title("Tropical known-origin contrast")
+    ax.set_yticks(np.arange(len(axes_order)), [axis_labels[a] for a in axes_order])
+    ax.invert_yaxis()
+    ax.set_xlabel("Native–introduced raw-state vector cosine")
+    ax.set_title("D | Tropical known-origin descriptive audit")
     ax.grid(axis="x", linewidth=0.3, alpha=0.35)
     ax.legend(frameon=False, loc="upper center", ncol=2)
 
     fig.suptitle(
-        "Figure 4 | H1: three raw measurement axes and floristic-origin divergence",
-        y=1.02,
+        "Figure 4 | H1: global directional tendency with regional heterogeneity",
+        y=1.01,
     )
     fig.tight_layout()
     _save(fig, out, "Figure4_H1_recurrent_multivariate_response")
 
-
 def figure5(root: Path, out: Path) -> None:
-    h2 = pd.read_csv(root / "results/geography_20260924/all/h2_decomposition_models.csv")
+    h2 = pd.read_csv(
+        root / "results/h1_final_directional_20261003/h2_all_finite_cluster_audit.csv"
+    )
     responses = ["selfing_core", "generalized_accessible", "plain_colour"]
     labels = ["Reproductive assurance", "Accessibility | assurance", "Plain colour | assurance"]
     fig, axes = plt.subplots(1, 4, figsize=(13.0, 4.3), sharey=True)
@@ -502,8 +509,15 @@ def figure5(root: Path, out: Path) -> None:
         se = np.array([float(part.loc[r, "distance_se"]) for r in responses])
         ax.errorbar(est, y, xerr=1.96 * se, fmt="o", capsize=3)
         ax.axvline(0, linewidth=0.8)
-        access_q = float(part.loc["generalized_accessible", "primary_H2b_q"])
-        ax.set_title(f"{REGION_LABELS[region]}\naccessibility q={access_q:.3g}")
+        access_q = float(
+            part.loc[
+                "generalized_accessible",
+                "primary_H2b_q_finite_cluster_t",
+            ]
+        )
+        ax.set_title(
+            f"{REGION_LABELS[region]}\nfinite-cluster accessibility q={access_q:.3g}"
+        )
         ax.set_xlabel("Isolation coefficient")
         ax.grid(axis="x", linewidth=0.3, alpha=0.4)
     axes[0].set_yticks(y, labels)
@@ -515,9 +529,11 @@ def figure5(root: Path, out: Path) -> None:
 
 def figure6(root: Path, out: Path) -> None:
     h3 = pd.read_csv(
-        root / "submission/chapter1_current/supplement/Table_S5_H3_pollen_limitation.csv"
+        root / "results/h1_final_directional_20261003/h3_finite_publication_audit.csv"
     )
-    h4 = pd.read_csv(root / "results/geography_20260924/h4_exact_corrected.csv")
+    h4 = pd.read_csv(
+        root / "results/h1_final_directional_20261003/h4_finite_publication_audit.csv"
+    )
     atomic = pd.read_csv(root / "results/geography_20260924/h4_atomic_corrected.csv")
 
     fig, axes = plt.subplots(1, 3, figsize=(12.6, 4.6))
