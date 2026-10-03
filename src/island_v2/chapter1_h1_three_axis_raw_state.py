@@ -1064,9 +1064,6 @@ def run(
         output_dir / "global_state_support.csv", index=False
     )
     out["flora_coverage"].to_csv(output_dir / "flora_coverage.csv", index=False)
-    out["global_state_support"].to_csv(
-        output_dir / "global_state_support.csv", index=False
-    )
     out["counts"].to_csv(
         output_dir / "axis_state_counts.csv.gz",
         index=False,
