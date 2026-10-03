@@ -1,7 +1,4 @@
 {
-  "workflow_run": 37124478924,
-  "artifact_id": 11273709274,
-  "artifact_digest": "sha256:1bc919e4ea007635d480b99db7015309d38c964680ef133cc7d1b879ad2e6abb",
   "H2": {
     "n_primary_H2b_tests": 16,
     "n_finite_cluster_FDR_supported": 5,
@@ -17,27 +14,23 @@
   "H3": {
     "estimate": 0.09191043596699681,
     "finite_publication_t_two_sided_p": 0.01594350716910782,
-    "supported": true,
-    "claim_boundary": "independent ecological-pressure correlate, not historical mediation"
+    "supported": true
   },
   "H3_offshore_sensitivity": {
     "estimate": 0.22031466445594622,
     "finite_publication_t_two_sided_p": 0.02459200453249381,
-    "supported": true,
-    "claim_boundary": "post-hoc robustness: within-offshore gradient, not causation"
+    "supported": true
   },
   "H4": {
-    "families": {
-      "reproductive_assurance": {
-        "estimate": -0.2983005681547416,
-        "finite_publication_t_two_sided_p": 0.004166318114023793,
-        "supported": true
-      },
-      "accessibility_generalization": {
-        "estimate": -0.295659590051078,
-        "finite_publication_t_two_sided_p": 0.0233429161772711,
-        "supported": true
-      }
+    "reproductive_assurance": {
+      "estimate": -0.2983005681547416,
+      "finite_publication_t_two_sided_p": 0.004166318114023793,
+      "supported": true
+    },
+    "accessibility_generalization": {
+      "estimate": -0.295659590051078,
+      "finite_publication_t_two_sided_p": 0.0233429161772711,
+      "supported": true
     },
     "claim_boundary": "post-hoc exact-species functional triangulation only"
   }
