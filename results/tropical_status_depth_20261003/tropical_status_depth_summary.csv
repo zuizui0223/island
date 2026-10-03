@@ -2,7 +2,7 @@ analysis,context,common_support_H1_q,post_genus_q,n_post_genus_outcomes,n_post_g
 native_nonendemic_all,tropical,0.003758055864863534,0.1177407,7,136,compatible_with_genus_level_structuring
 native_nonendemic_direct,tropical,0.00001854467495441133,0.07539298,7,136,compatible_with_genus_level_structuring
 endemic_all,tropical,0.7245708876798733,0.2114055,2,62,common_support_H1_not_supported
-endemic_direct,tropical,, ,1,,not_testable
+endemic_direct,tropical,,,1,,not_testable
 source_unresolved_all,tropical,0.012655095287514512,0.0006483732,6,128,below_genus_or_non_taxonomic_residual_retained
 source_unresolved_direct,tropical,0.360018581142459,0.002023396,5,122,common_support_H1_not_supported
 wcvp_upgraded_all,tropical,0.000009880713602565651,0.002147480,7,838,below_genus_or_non_taxonomic_residual_retained
