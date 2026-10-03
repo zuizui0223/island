@@ -19,11 +19,21 @@ import json
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 import typer
 import yaml
 
-from island_v2.chapter1_all_data_probability import _bh, _fit_within, _prepare
+from island_v2.chapter1_all_data_probability import (
+    _assemble_cluster_covariance,
+    _bh,
+    _chi_square_sf_integer_df,
+    _fit_single_beta_binomial,
+    _fit_within,
+    _normal_two_sided_p,
+    _prepare,
+    _standardize,
+)
 from island_v2.chapter1_wcvp_partition_diagnostic import classify_wcvp_partitions
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
