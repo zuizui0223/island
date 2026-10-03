@@ -1,0 +1,206 @@
+contract: chapter1_h1_final_directional_v1
+
+design_provenance:
+  pre_result_question: >-
+    The approved 2026-09-17 v13 design explicitly asked whether there is a positive
+    global common component in the isolation response toward the predeclared classic
+    island-syndrome direction, while allowing regional coefficients to differ.
+  source: docs/superpowers/specs/2026-09-17-chapter1-v13-unified-island-syndrome-design.md
+  v14_extension: >-
+    v14 retained the directional reproductive-assurance and accessibility indicators
+    and added plain colour as a third equal-weight domain. The present audit changes
+    the reference distribution and reduces the multivariate directional estimand to
+    its prespecified scalar contrast; it does not add a result-selected trait state.
+  anti_harking_rule: >-
+    H1a global-average direction, H1b regional heterogeneity, and the stricter
+    four-region intersection-union recurrence statement must be reported together.
+
+purpose: >-
+  Floristic-origin sensitivity replay of the frozen seven-trait H1. The all-observed
+  result remains the confirmatory reference; source-backed native and source-backed
+  introduced records are compared only as sensitivity strata.
+
+parent_confirmatory_config: config/chapter1_h1_final_directional.yml
+origin_sensitivity_only: true
+
+confirmatory_parent_purpose: >-
+  Final confirmatory H1 inference for the classic floral/reproductive island-syndrome
+  direction. Keep the frozen v14 seven pre-oriented indicators, average indicators
+  within the three biological domains, and weight the three domain means equally.
+  This is a one-degree-of-freedom directional estimand. The later three-axis raw-state
+  analysis remains a descriptive measurement-domain reorganization audit and does not
+  replace this confirmatory estimand.
+
+model_family: beta_binomial_logit
+alpha: 0.05
+max_iter: 1500
+retry_max_iter: 5000
+minimum_islands_per_outcome: 50
+
+geography_column: log_distance_to_continent_km
+context_column: analysis_regime
+cluster_column: spatial_block
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+
+strata:
+  - all_observed
+  - all_native
+  - all_introduced
+
+flora_roles:
+  broad_primary: all_observed
+  status_sensitivities: [all_native, all_introduced]
+
+evidence_roles:
+  primary: all_analysis_eligible
+  direct_sensitivity: direct_only
+
+model_outcomes:
+  - self_compatibility
+  - selfing_mating_system
+  - autonomous_selfing
+  - plain_colour
+  - generalized_form
+  - actinomorphic_symmetry
+  - shallow_open_tube
+
+response_families:
+  reproductive_assurance:
+    - self_compatibility
+    - selfing_mating_system
+    - autonomous_selfing
+  colour_dulling:
+    - plain_colour
+  accessibility_generalization:
+    - generalized_form
+    - actinomorphic_symmetry
+    - shallow_open_tube
+
+directional_score:
+  definition: equal_weight_domain_mean_of_preoriented_v14_indicators
+  outcome_weights:
+    self_compatibility: 0.1111111111111111
+    selfing_mating_system: 0.1111111111111111
+    autonomous_selfing: 0.1111111111111111
+    plain_colour: 0.3333333333333333
+    generalized_form: 0.1111111111111111
+    actinomorphic_symmetry: 0.1111111111111111
+    shallow_open_tube: 0.1111111111111111
+  alternative: positive
+  primary_inference: finite_cluster_t_G_minus_1
+  small_cluster_sensitivity: linearized_rademacher_sign_flip
+  wild_cluster_replications: 9999
+  wild_cluster_seed: 20261003
+  global_recurrence_test: intersection_union_max_regional_p
+  weight_sensitivities:
+    equal_indicator:
+      self_compatibility: 0.14285714285714285
+      selfing_mating_system: 0.14285714285714285
+      autonomous_selfing: 0.14285714285714285
+      plain_colour: 0.14285714285714285
+      generalized_form: 0.14285714285714285
+      actinomorphic_symmetry: 0.14285714285714285
+      shallow_open_tube: 0.14285714285714285
+    core_two_domain:
+      self_compatibility: 0.16666666666666666
+      selfing_mating_system: 0.16666666666666666
+      autonomous_selfing: 0.16666666666666666
+      plain_colour: 0.0
+      generalized_form: 0.16666666666666666
+      actinomorphic_symmetry: 0.16666666666666666
+      shallow_open_tube: 0.16666666666666666
+
+
+global_synthesis:
+  provenance: >-
+    The approved pre-result v13 design defined H1 as a positive global common
+    component and explicitly allowed regional coefficients to differ in magnitude.
+    The later v14 configuration froze the seven positive orientations and the
+    equal-domain orientation rule. H1a/H1b therefore reuse frozen biological
+    definitions; they are not chosen from the raw-state results.
+  H1a_global_average:
+    question: >-
+      Is the average directional response positive across the four predeclared
+      geographic replication strata while allowing between-region heterogeneity?
+    between_region_variance: paule_mandel
+    inference: modified_hartung_knapp
+    df: 3
+    alternative: positive
+    report_two_sided_p_also: true
+  H1b_regional_heterogeneity:
+    test: cochran_q
+    report: [p_value, I2, tau2]
+  strict_four_region_recurrence:
+    role: stronger_sensitivity_not_definition_of_H1a
+    method: intersection_union_max_regional_one_sided_p
+  interpretation_rule: >-
+    A supported H1a with supported H1b is a positive global-average tendency with
+    regional modulation. It must not be described as independent syndrome support
+    in every region when the intersection-union test fails.
+
+broad_outcomes:
+  self_compatibility:
+    trait_name: self_incompatibility
+    positive_states: [SC]
+    negative_states: [SI]
+  selfing_mating_system:
+    trait_name: mating_system
+    positive_states: [predominantly_selfing, obligate_selfing]
+    negative_states: [predominantly_outcrossing]
+  autonomous_selfing:
+    trait_name: autonomous_selfing_capacity
+    positive_states: [autonomous, delayed]
+    negative_states: [absent]
+  plain_colour:
+    trait_name: flower_primary_color
+    positive_states: [white, green_brown_inconspicuous]
+    negative_states: [yellow_orange, red_pink, blue_purple]
+  generalized_form:
+    trait_name: floral_form
+    positive_states: [open_radial, brush_puff, composite_head]
+    negative_states:
+      [tubular, bell_campanulate, funnel_trumpet, urn_urceolate, bilabiate,
+       salverform, papilionaceous, spurred]
+  actinomorphic_symmetry:
+    trait_name: floral_symmetry
+    positive_states: [actinomorphic]
+    negative_states: [zygomorphic]
+  shallow_open_tube:
+    trait_name: tube_depth_class
+    positive_states: [absent_or_open, shallow]
+    negative_states: [deep]
+
+rules:
+  - confirmatory_H1_estimand_is_frozen_v14_direction_not_raw_state_omnibus
+  - three_biological_domains_receive_equal_total_weight
+  - no_posthoc_addition_of_flower_size_or_inflorescence_display_to_confirmatory_score
+  - all_seven_preoriented_indicators_required_for_a_testable_score
+  - one_sided_positive_test_matches_predeclared_classic_direction
+  - finite_cluster_t_uses_G_minus_1_degrees_of_freedom
+  - wild_cluster_sign_flip_is_reported_as_small_cluster_sensitivity
+  - global_recurrence_is_an_intersection_union_claim_across_four_regions
+  - all_observed_is_contemporary_flora_not_native_evolution
+  - native_status_results_are_sensitivities_not_four_region_confirmatory_replication
+  - introduced_status_results_are_sensitivities_not_four_region_confirmatory_replication
+  - source_backed_introduced_is_not_equivalent_to_all_non_native_or_unresolved_records
+  - raw_state_three_axis_results_are_descriptive_reorganization_evidence
+  - equal_indicator_and_core_two_domain_weights_are_predeclared_sensitivities
+  - no_pollinator_identity_is_inferred_from_H1
+
+claim_ceiling: >-
+  A positive recurrent directional score supports a repeated assemblage shift toward the
+  predeclared classic island-syndrome direction across the three biological domains. It
+  does not imply that every component moves positively, that the full raw-state
+  composition is simplified, that pollinator loss is the causal driver, or that the
+  observed pattern reflects within-lineage evolution rather than assembly and persistence.
