@@ -30,27 +30,27 @@ The geography repair is a post-hoc measurement correction selected as the primar
 
 ## Current H1–H4 result spine
 
-### H1a/H1b — Directional tendency and heterogeneity
-The confirmatory H1 uses the frozen seven pre-oriented indicators as a one-dimensional score with equal total weight across reproductive assurance, colour dulling and accessibility/generalization. All four regional point estimates are positive, but strict four-region recurrence is unsupported because northern mid-latitudes are weak (IUT p=0.134 all-analysis; 0.106 Direct-only).
+### H1a — global-average directional tendency
+The final confirmatory H1 uses the seven frozen pre-oriented v14 indicators collapsed to a one-dimensional equal-domain contrast with finite-cluster inference. All four regional point estimates are positive. A Paule-Mandel random-effects synthesis with modified Hartung-Knapp uncertainty supports a positive average direction (all-analysis mean = **0.0691**, one-sided p = **0.0256**; Direct-only mean = **0.0635**, p = **0.0238**). The all-analysis two-sided p value is 0.0512, so the evidence is described as a directional tendency rather than a universal law.
 
-Allowing regional effects to differ, the global-average direction is positive under Paule-Mandel random effects with modified Hartung-Knapp inference:
-- all-analysis: mean=0.0691, one-sided p=0.0256;
-- Direct-only: mean=0.0635, p=0.0238.
-
-Regional heterogeneity is strong (I2=0.819 / 0.685). The three-axis raw-state analysis is retained as descriptive phenotype/provenance detail, not as confirmatory H1.
+### H1b — regional heterogeneity
+Regional magnitude is strongly heterogeneous (I² = **0.819** all-analysis; **0.685** Direct-only). The stricter four-region recurrence claim fails because northern mid-latitudes are weak (intersection-union p = **0.134 / 0.106**). Raw three-axis and floristic-origin analyses are descriptive phenotype/provenance audits and cannot rescue a failed directional endpoint.
 
 ### H2 — Conditional decomposition
-Measured reproductive assurance does not statistically absorb all floral accessibility change. After finite-spatial-block inference and the same frozen FDR family, support is concentrated in northern-high accessibility, tropical all-analysis accessibility and southern plain-colour responses. Tropical Direct-only accessibility remains non-FDR.
+Reproductive assurance is separated from additional floral responses. With finite-cluster t references and the same frozen BH family, selfing-adjusted accessibility is FDR-supported in northern high latitudes (q = **0.00243**) and tropical all-analysis (q = **0.01913**). Tropical Direct-only accessibility remains positive but is **not** FDR-supported (q = **0.1267**). Colour and colour × architecture responses remain region dependent.
 
 ### H3 — Ecological pressure
-Experimental pollen limitation increases with corrected geographic isolation: beta=0.09191, SE=0.03806, finite-publication two-sided p=0.01594. The offshore-only robustness gradient also remains positive (p=0.02459).
+Experimental pollen limitation increases with corrected geographic isolation:
+`beta=0.09191`, `SE=0.03806`, finite-publication two-sided `p=0.01594`. The post-hoc offshore-only continuous gradient also remains positive (`p=0.02459`).
 
 ### H4 — Functional compatibility
 Exact-species post-hoc functional triangulation links both H2 trait families to lower current pollen limitation:
-- reproductive assurance: beta=-0.29830, finite-publication p=0.00417;
-- generalized accessibility: beta=-0.29566, finite-publication p=0.02334.
+
+- reproductive assurance: `beta=-0.29830`, finite-publication `p=0.00417`;
+- generalized accessibility: `beta=-0.29566`, finite-publication `p=0.02334`.
 
 H4 remains an association, not causal mediation.
+
 ## Database
 
 The trait database denominator remains **106,295 species × 3 raw axes = 318,885 species-axis cells**:
