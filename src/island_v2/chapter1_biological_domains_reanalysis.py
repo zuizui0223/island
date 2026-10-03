@@ -639,11 +639,26 @@ def run_h1(
         meta_input = part.rename(
             columns={"se": "cluster_robust_se"}
         )
+        contexts = [str(x) for x in config["contexts"]]
         synthesis = synthesize_regions(
             meta_input,
-            contexts=[str(x) for x in config["contexts"]],
+            contexts=contexts,
             alpha=alpha,
         )
+        strict = part.set_index("context").reindex(contexts)
+        strict_complete = (
+            len(strict) == len(contexts)
+            and strict["p_one_sided_positive"].notna().all()
+            and strict["p_wild_positive"].notna().all()
+        )
+        if strict_complete:
+            iut_t = float(strict["p_one_sided_positive"].max())
+            iut_wild = float(strict["p_wild_positive"].max())
+            all_positive = bool(strict["estimate"].gt(0).all())
+        else:
+            iut_t = float("nan")
+            iut_wild = float("nan")
+            all_positive = False
         synth_rows.append(
             {
                 "evidence_scope": evidence_scope,
@@ -651,6 +666,18 @@ def run_h1(
                 "support_mode": support_mode,
                 "analysis_layer": analysis_layer,
                 "response": str(response),
+                "strict_iut_p_t": iut_t,
+                "strict_iut_p_wild": iut_wild,
+                "strict_four_region_supported_t": bool(
+                    all_positive
+                    and math.isfinite(iut_t)
+                    and iut_t <= alpha
+                ),
+                "strict_four_region_supported_wild": bool(
+                    all_positive
+                    and math.isfinite(iut_wild)
+                    and iut_wild <= alpha
+                ),
                 **synthesis,
             }
         )
