@@ -5,7 +5,7 @@ on:
     branches:
       - analysis/wcvp-native-corrected
     paths:
-      - ".github/workflows/run-chapter1-h3-offshore-gradient.yml"
+      - ".github/workflows/run-chapter1-h3-offshore-gradient.yml"\n      - "src/island_v2/chapter1_h3_offshore_gradient_sensitivity.py"
   workflow_dispatch:
 
 permissions:
