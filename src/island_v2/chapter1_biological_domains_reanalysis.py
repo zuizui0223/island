@@ -1698,7 +1698,57 @@ def run(
             evidence_scope=str(evidence_scope),
         )
         species_scores_by_scope[str(evidence_scope)] = species_scores
-        support_parts.append(support)
+
+        overlap_wide = species_scores.pivot_table(
+            index="accepted_species",
+            columns="response",
+            values="score",
+            aggfunc="first",
+        )
+        overlap_specs = {
+            "common_assurance_accessibility": [
+                "reproductive_assurance",
+                "accessibility_specialization",
+            ],
+            "common_assurance_size": [
+                "reproductive_assurance",
+                "flower_size_reduction",
+            ],
+            "common_accessibility_size": [
+                "accessibility_specialization",
+                "flower_size_reduction",
+            ],
+            "common_three_domain_species": [
+                "reproductive_assurance",
+                "accessibility_specialization",
+                "flower_size_reduction",
+            ],
+        }
+        overlap_rows: list[dict[str, Any]] = []
+        for label, required in overlap_specs.items():
+            count = (
+                int(overlap_wide.dropna(subset=required).shape[0])
+                if all(name in overlap_wide.columns for name in required)
+                else 0
+            )
+            overlap_rows.append(
+                {
+                    "evidence_scope": str(evidence_scope),
+                    "response": label,
+                    "domain": "support_overlap",
+                    "role": "reviewer_support_diagnostic",
+                    "n_species": count,
+                    "mean_score": float("nan"),
+                    "sd_score": float("nan"),
+                    "median_components": float("nan"),
+                }
+            )
+        support_parts.append(
+            pd.concat(
+                [support, pd.DataFrame(overlap_rows)],
+                ignore_index=True,
+            )
+        )
         all_threshold_sensitivity.append(
             run_threshold_sensitivity(
                 status_flora,
