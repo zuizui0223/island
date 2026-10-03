@@ -750,6 +750,167 @@ def run_h2(
     return out
 
 
+
+def run_threshold_sensitivity(
+    status_flora: pd.DataFrame,
+    species_scores: pd.DataFrame,
+    covariates: pd.DataFrame,
+    config: dict[str, Any],
+    *,
+    evidence_scope: str,
+) -> pd.DataFrame:
+    parts: list[pd.DataFrame] = []
+    for threshold in [
+        int(x)
+        for x in config[
+            "minimum_species_per_island_score_sensitivity"
+        ]
+    ]:
+        island = build_island_scores(
+            status_flora,
+            species_scores,
+            config,
+            flora_scope="all_observed",
+            support_mode="trait_specific",
+            minimum_species=threshold,
+        )
+        _, synthesis = run_h1(
+            island,
+            covariates,
+            config,
+            evidence_scope=evidence_scope,
+            flora_scope="all_observed",
+            support_mode="trait_specific",
+            analysis_layer="minimum_species_threshold_sensitivity",
+        )
+        if synthesis.empty:
+            continue
+        synthesis = synthesis.copy()
+        synthesis["minimum_species_per_island_score"] = threshold
+        parts.append(synthesis)
+    return (
+        pd.concat(parts, ignore_index=True)
+        if parts
+        else pd.DataFrame()
+    )
+
+
+def build_trait_coverage_table(
+    status_flora: pd.DataFrame,
+    species_scores: pd.DataFrame,
+) -> pd.DataFrame:
+    flora = status_flora[
+        ["island_id", "accepted_species"]
+    ].copy()
+    flora["island_id"] = flora["island_id"].astype(str)
+    flora["accepted_species"] = flora["accepted_species"].astype(str)
+    flora = flora.drop_duplicates(["island_id", "accepted_species"])
+    totals = (
+        flora.groupby("island_id", as_index=False)
+        .agg(n_flora_species=("accepted_species", "nunique"))
+    )
+    responses = sorted(
+        species_scores["response"].astype(str).unique()
+    )
+    expanded = totals.assign(_key=1).merge(
+        pd.DataFrame({"response": responses, "_key": 1}),
+        on="_key",
+        how="inner",
+    ).drop(columns="_key")
+    scored = flora.merge(
+        species_scores[
+            ["accepted_species", "response"]
+        ].drop_duplicates(),
+        on="accepted_species",
+        how="inner",
+        validate="many_to_many",
+    )
+    counts = (
+        scored.groupby(["island_id", "response"], as_index=False)
+        .agg(n_scored_species=("accepted_species", "nunique"))
+    )
+    out = expanded.merge(
+        counts,
+        on=["island_id", "response"],
+        how="left",
+        validate="one_to_one",
+    )
+    out["n_scored_species"] = (
+        out["n_scored_species"].fillna(0).astype(int)
+    )
+    out["coverage_fraction"] = (
+        out["n_scored_species"]
+        / out["n_flora_species"].clip(lower=1)
+    )
+    return out
+
+
+def run_trait_coverage_gradient(
+    status_flora: pd.DataFrame,
+    species_scores: pd.DataFrame,
+    covariates: pd.DataFrame,
+    config: dict[str, Any],
+    *,
+    evidence_scope: str,
+) -> pd.DataFrame:
+    coverage = build_trait_coverage_table(
+        status_flora,
+        species_scores,
+    )
+    geography = str(config["geography_column"])
+    context_col = str(config["context_column"])
+    cluster_col = str(config["cluster_column"])
+    baseline = [str(x) for x in config["baseline_covariates"]]
+    cov_cols = [
+        "island_id",
+        geography,
+        context_col,
+        cluster_col,
+        *baseline,
+    ]
+    work = coverage.merge(
+        covariates[cov_cols].drop_duplicates("island_id"),
+        on="island_id",
+        how="left",
+        validate="many_to_one",
+    )
+    rows: list[dict[str, Any]] = []
+    counter = 0
+    for response in sorted(work["response"].unique()):
+        for context in [str(x) for x in config["contexts"]]:
+            part = work.loc[
+                work["response"].eq(response)
+                & work[context_col].astype(str).eq(context)
+            ].copy()
+            result = fit_clustered_score(
+                part,
+                response_column="coverage_fraction",
+                predictors=[geography, *baseline],
+                target_predictor=geography,
+                cluster_column=cluster_col,
+                replications=int(config["wild_cluster_replications"]),
+                seed=int(config["wild_cluster_seed"]) + 9000 + counter,
+            )
+            rows.append(
+                {
+                    "evidence_scope": evidence_scope,
+                    "response": response,
+                    "context": context,
+                    "analysis_role":
+                        "response_specific_trait_coverage_gradient",
+                    **result,
+                }
+            )
+            counter += 1
+    out = pd.DataFrame(rows)
+    if not out.empty:
+        fit = out["status"].eq("fit")
+        out["q_two_sided_within_scope"] = np.nan
+        out.loc[fit, "q_two_sided_within_scope"] = _bh(
+            out.loc[fit, "p_two_sided"]
+        )
+    return out
+
 def prepare_glopl_rows(
     glopl_csv: Path,
     corrected_site_distances: Path,
