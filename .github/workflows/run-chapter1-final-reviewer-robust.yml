@@ -8,6 +8,7 @@ on:
       - "src/island_v2/chapter1_final_reviewer_robust.py"
       - "config/chapter1_final_reviewer_robust.yml"
       - "tests/test_chapter1_final_reviewer_robust.py"
+      - "config/chapter1_h1_final_directional.yml"
       - ".github/workflows/run-chapter1-final-reviewer-robust.yml"
   pull_request:
     branches:
