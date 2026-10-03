@@ -214,6 +214,54 @@ Reproducibility surface:
 - results/tropical_status_depth_20261003/
 - validation workflow run 37096771148; artifact 11264951254
 
+## S3.4 Frozen source-matched genus entry versus within-genus loading
+
+A separately frozen historical lineage-representation bridge was replayed after the
+24 September geography correction to refine the strict tropical native-nonendemic
+assembly interpretation. This bridge is not the current seven-response H1 estimand. It
+uses the previously frozen floral functional position
+`(-large_bee_like + generalized_accessible) / 2` and asks whether source-matched change
+is expressed through representation of genera or through extra species weighting within
+genera that are already represented.
+
+All historical design choices were retained: tropical context, source-backed
+`native_nonendemic` flora, broad and Direct evidence scopes, four source modes,
+`prevalence_richness` source matching, a minimum of five represented genera, equal-island
+OLS, island area and climate PC1–PC4 controls, and spatial-block cluster-robust
+covariance. Only geographic distance was replaced.
+
+Before the replacement, all 24 frozen slopes were reproduced to numerical precision
+(maximum absolute slope and SE differences 1.15 × 10^-16; maximum P-value difference
+2.17 × 10^-15).
+
+On corrected geography, genus-entry enrichment was negative and FDR-supported in all
+four source modes in both evidence scopes:
+
+| Evidence | Entry β range | Maximum entry q | Loading β range | Maximum loading q |
+| --- | ---: | ---: | ---: | ---: |
+| Broad | -0.06861 to -0.05552 | 0.02925 | -0.02046 to -0.01657 | 0.15221 |
+| Direct | -0.06713 to -0.06269 | 0.02059 | -0.02122 to -0.01617 | 0.17060 |
+
+Species-weighted enrichment was also FDR-supported in all four source modes
+(maximum q = 0.02860 broad; 0.02606 Direct), whereas the loading increment was not
+FDR-supported in any source mode. The supported species-weighted shift is therefore
+already expressed at genus entry, with no supported additional signal from weighting
+species within represented genera.
+
+This result is concordant with S3.3, where the current seven-response strict
+native-nonendemic tropical H1 becomes unsupported after genus residualization. However,
+the estimands differ: the entry/loading bridge uses an older frozen floral functional
+position. It therefore provides supplementary assembly concordance rather than a direct
+mechanistic decomposition of current H1. Genus entry can reflect arrival, establishment,
+persistence, habitat filtering or biotic interactions and does not identify any one of
+those processes.
+
+Reproducibility surface:
+
+- results/corrected_lineage_entry_loading_20261003/
+- scripts/geography_correction/replay_corrected_lineage_entry_loading.py
+- validation workflow run 37097462474; artifact 11264653941; digest sha256:afc980240819a0ce11fe8269fb7ec71d89e001184481dd1f0970e55de37625fb
+
 ---
 
 # Appendix S4. H2 conditional decomposition and raw floral patterns
