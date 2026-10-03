@@ -306,21 +306,42 @@ def build_island_scores(
     flora = flora.drop_duplicates(["island_id", "accepted_species"])
 
     scores = species_scores.copy()
-    if support_mode == "common_species":
-        required = [str(x) for x in config["common_support_responses"]]
+    if support_mode == "trait_specific":
+        pass
+    else:
+        support_sets = {
+            "common_species": [
+                str(x)
+                for x in config["common_support_responses"]
+            ],
+            **{
+                str(label): [str(x) for x in responses]
+                for label, responses in config.get(
+                    "common_support_sets", {}
+                ).items()
+            },
+        }
+        if support_mode not in support_sets:
+            raise ValueError(f"unknown support mode {support_mode}")
+        required = support_sets[support_mode]
         wide = scores.pivot_table(
             index="accepted_species",
             columns="response",
             values="score",
             aggfunc="first",
         )
-        common_species = wide.dropna(subset=required).index.astype(str)
-        scores = scores.loc[
-            scores["accepted_species"].astype(str).isin(common_species)
-            & scores["response"].astype(str).isin(required)
-        ].copy()
-    elif support_mode != "trait_specific":
-        raise ValueError(f"unknown support mode {support_mode}")
+        if any(name not in wide.columns for name in required):
+            scores = scores.iloc[0:0].copy()
+        else:
+            common_species = (
+                wide.dropna(subset=required).index.astype(str)
+            )
+            scores = scores.loc[
+                scores["accepted_species"].astype(str).isin(
+                    common_species
+                )
+                & scores["response"].astype(str).isin(required)
+            ].copy()
 
     joined = flora.merge(
         scores[
@@ -2256,24 +2277,35 @@ def run(
             all_regional.append(regional)
             all_synthesis.append(synthesis)
 
-        common = build_island_scores(
-            status_flora,
-            species_scores,
-            config,
-            flora_scope="all_observed",
-            support_mode="common_species",
-        )
-        regional, synthesis = run_h1(
-            common,
-            covariates,
-            config,
-            evidence_scope=str(evidence_scope),
-            flora_scope="all_observed",
-            support_mode="common_species",
-            analysis_layer="observed",
-        )
-        all_regional.append(regional)
-        all_synthesis.append(synthesis)
+        common_sets: dict[str, pd.DataFrame] = {}
+        for support_mode in [
+            *[
+                str(x)
+                for x in config.get(
+                    "common_support_sets", {}
+                )
+            ],
+            "common_species",
+        ]:
+            common_scores = build_island_scores(
+                status_flora,
+                species_scores,
+                config,
+                flora_scope="all_observed",
+                support_mode=support_mode,
+            )
+            common_sets[support_mode] = common_scores
+            regional, synthesis = run_h1(
+                common_scores,
+                covariates,
+                config,
+                evidence_scope=str(evidence_scope),
+                flora_scope="all_observed",
+                support_mode=support_mode,
+                analysis_layer="observed",
+            )
+            all_regional.append(regional)
+            all_synthesis.append(synthesis)
 
         residual_species = build_genus_residual_species_scores(
             species_scores
@@ -2313,15 +2345,16 @@ def run(
                 support_mode="trait_specific",
             )
         )
-        all_h2.append(
-            run_h2(
-                common,
-                covariates,
-                config,
-                evidence_scope=str(evidence_scope),
-                support_mode="common_species",
+        for support_mode, common_scores in common_sets.items():
+            all_h2.append(
+                run_h2(
+                    common_scores,
+                    covariates,
+                    config,
+                    evidence_scope=str(evidence_scope),
+                    support_mode=support_mode,
+                )
             )
-        )
 
     regional = pd.concat(all_regional, ignore_index=True)
     synthesis = pd.concat(all_synthesis, ignore_index=True)
