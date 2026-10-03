@@ -1,0 +1,100 @@
+contract: chapter1_current_h1_source_lineage_decomposition_v2
+status: frozen_before_v2_result_inspection
+inferential_role: literal_additive_decomposition_of_current_H1_on_source_evaluable_support
+
+supersedes_for_current_H1_interpretation:
+  contract: chapter1_current_h1_source_lineage_entry_v1
+  reason: >-
+    V1 inherited historical all-island-species genus weighting. That weighting is valid
+    for the historical lineage-representation bridge but is not algebraically identical
+    to the current H1 estimand, whose denominator is trait-resolved species for each
+    atomic outcome. V2 changes only this alignment and adds exact additive closure gates.
+
+scope:
+  context: tropical
+  floristic_status: native_nonendemic
+  evidence_scopes: [all_analysis_eligible, direct_only]
+
+source_pool:
+  source_modes: [geo_k5, geo_k10, geo_k20, geo50_climate10]
+  matching: prevalence_richness
+  minimum_represented_genera: 5
+  source_genus_position: mean_current_H1_binary_state_among_GIFT_mainland_native_scored_species
+  source_availability: raw_GIFT_genus_occurrence_and_species_richness
+  minimum_scored_source_species_per_genus: 1
+
+atomic_outcomes:
+  - self_compatibility
+  - selfing_mating_system
+  - autonomous_selfing
+  - plain_colour
+  - generalized_form
+  - actinomorphic_symmetry
+  - shallow_open_tube
+
+island_support:
+  species_count: trait_resolved_species_for_the_focal_atomic_outcome_only
+  genus_represented: at_least_one_trait_resolved_island_species_for_the_focal_outcome
+  source_candidate: genus_occurs_in_at_least_one_assigned_GIFT_source_entity
+  rule: >-
+    Each island/outcome/source-mode row is built only from trait-resolved native
+    non-endemic species whose genera are source-available and have a scored source-genus
+    position.
+
+additive_decomposition:
+  raw_h1_mean: mean_binary_H1_state_across_source_candidate_trait_resolved_island_species
+  source_expectation: source_availability_matched_species_weighted_expected_genus_position
+  genus_entry_enrichment: represented_genus_mean_minus_matched_entry_expectation
+  within_genus_loading: species_weighted_genus_position_minus_genus_entry_position
+  within_genus_trait_residual: raw_h1_mean_minus_species_weighted_source_genus_position
+  identity: >-
+    raw_h1_mean = source_expectation + genus_entry_enrichment +
+    within_genus_loading + within_genus_trait_residual
+  identity_tolerance: 1.0e-12
+
+model:
+  family: equal_island_OLS
+  predictors:
+    - log_distance_to_continent_km
+    - log_island_area_km2
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+  covariance: spatial_block_cluster_robust
+  geography: corrected_20260924_spherical_coastline
+  minimum_islands_per_outcome: 50
+  minimum_outcomes_per_vector: 2
+
+common_support_gate:
+  parent_response: raw_h1_mean
+  rule: >-
+    The seven-response joint isolation vector must be supported on the exact additive
+    decomposition rows before component slopes are interpreted.
+  alpha: 0.05
+
+multiplicity:
+  component_source_modes: BH_FDR_across_four_source_modes
+  alpha: 0.05
+
+interpretation:
+  source_expectation_positive: source_pool_composition_points_in_current_H1_direction
+  genus_entry_positive: source_available_genus_representation_adds_current_H1_direction
+  loading_positive: species_weighting_within_represented_genera_adds_current_H1_direction
+  within_genus_trait_residual_positive: >-
+    trait-resolved island species are shifted in the current H1 direction relative to
+    their source-genus mean after source availability and genus representation are fixed
+
+claim_ceiling:
+  within_genus_trait_residual_is_within_lineage_evolution: false
+  genus_entry_identifies_arrival_or_establishment: false
+  source_expectation_is_historical_ancestry: false
+  pollinator_loss_identified: false
+
+rules:
+  - no_new_trait_recoding
+  - source_assignments_and_source_modes_reused_without_change
+  - no_threshold_relaxation_after_result_inspection
+  - exact_additive_identity_must_pass_before_any_component_interpretation
+  - slope_additive_identity_must_pass_before_any_component_interpretation
+  - all_component_results_reported_even_if_opposite_prediction

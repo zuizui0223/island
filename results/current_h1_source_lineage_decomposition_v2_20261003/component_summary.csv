@@ -1,0 +1,13 @@
+evidence_scope,component,all_four_modes_testable,all_four_modes_fdr_supported,all_four_modes_positive_mean,all_four_modes_negative_mean,min_mean_slope,max_mean_slope,max_q,min_positive_atomic_slopes,max_positive_atomic_slopes
+all_analysis_eligible,raw_h1_mean,True,True,False,True,-0.0035805700834790613,-0.0018024012170110694,0.00021935765983105673,3,5
+all_analysis_eligible,source_expectation,True,False,True,False,0.006367404776181511,0.010188563403776421,0.7994031321707189,6,7
+all_analysis_eligible,genus_entry_enrichment,True,True,False,True,-0.013920920486456944,-0.010132243015384438,0.012868395019191415,2,2
+all_analysis_eligible,within_genus_loading,True,True,False,False,-0.0002448014720827169,0.0016998243017348372,0.014703002084334216,2,3
+all_analysis_eligible,within_genus_trait_residual,True,False,False,False,-2.4902990753291423e-05,0.0011564523599999577,0.05726214854284371,4,4
+all_analysis_eligible,species_enrichment,True,True,False,True,-0.013744230496502195,-0.009566395600628901,0.00014491787211531805,2,3
+direct_only,raw_h1_mean,True,True,False,True,-0.007241270461172987,-0.005585071077498279,0.0007976737358622529,1,2
+direct_only,source_expectation,True,False,True,False,0.0070212214979297125,0.007983921728925005,0.49491118841554516,5,6
+direct_only,genus_entry_enrichment,True,False,False,True,-0.01648872705900762,-0.014672919272653706,0.07950805285615967,2,2
+direct_only,within_genus_loading,True,False,False,True,-0.0006634552346669306,-2.8189633514100344e-05,0.34019372544009613,3,3
+direct_only,within_genus_trait_residual,True,True,True,False,0.0013197986902787429,0.0028593815587230863,0.0204772872446649,3,3
+direct_only,species_enrichment,True,False,False,True,-0.01651691669252172,-0.015212467928470115,0.11681104730858266,2,2

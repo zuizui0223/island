@@ -1,0 +1,89 @@
+contract: chapter1_current_h1_source_lineage_entry_v1
+status: superseded_for_current_H1_interpretation_by_v2_alignment_repair
+inferential_role: historical_v1_alignment_audit_not_current_scientific_result
+
+purpose: >-
+  Decompose the current seven-response tropical H1 in strict source-backed native
+  non-endemics into source-matched genus entry, species-weighted enrichment, and
+  additional within-represented-genus species loading. This directly aligns the
+  historical lineage-representation framework with the current H1 response definition.
+
+scope:
+  context: tropical
+  floristic_status: native_nonendemic
+  evidence_scopes: [all_analysis_eligible, direct_only]
+
+source_pool:
+  source_modes: [geo_k5, geo_k10, geo_k20, geo50_climate10]
+  matching: prevalence_richness
+  minimum_represented_genera: 5
+  source_genus_position: mean_current_H1_binary_state_among_GIFT_mainland_native_scored_species
+  minimum_scored_source_species_per_genus: 1
+  source_availability: raw_GIFT_genus_occurrence_and_species_richness
+
+responses:
+  - self_compatibility
+  - selfing_mating_system
+  - autonomous_selfing
+  - plain_colour
+  - generalized_form
+  - actinomorphic_symmetry
+  - shallow_open_tube
+
+decomposition:
+  entry_enrichment: >-
+    Observed mean source-genus H1 position among represented genera minus the matched
+    source-availability expectation, holding the represented genus count within each
+    source-prevalence and source-richness class fixed.
+  species_enrichment: >-
+    Species-weighted represented-genus H1 position minus the matched expectation,
+    holding represented species count within each source-availability class fixed.
+  loading_increment: species_enrichment_minus_entry_enrichment
+
+model:
+  family: equal_island_OLS
+  predictors:
+    - log_distance_to_continent_km
+    - log_island_area_km2
+    - climate_pc1
+    - climate_pc2
+    - climate_pc3
+    - climate_pc4
+  covariance: spatial_block_cluster_robust
+  geography: corrected_20260924_spherical_coastline
+
+common_support_gate:
+  model: current_seven_response_beta_binomial_H1
+  rule: >-
+    Refit H1 on the exact island-by-outcome pairs that are source-match evaluable for
+    each evidence scope and source mode. Do not interpret lineage decomposition if
+    this parent H1 gate is unsupported.
+  alpha: 0.05
+
+multiplicity:
+  source_mode_family: BH_FDR_across_four_source_modes
+  alpha: 0.05
+
+promotion:
+  entry_route: >-
+    Promote genus entry only if the parent H1 gate is supported in all four source
+    modes, the joint entry vector is FDR-supported in all four source modes, and the
+    arithmetic mean of the seven oriented entry slopes is positive in all four modes.
+  loading_route: >-
+    Promote additional within-genus loading only if its joint vector is FDR-supported
+    in all four source modes and its arithmetic mean oriented slope is positive in all
+    four modes.
+  species_weighted_route: >-
+    Report species-weighted enrichment as the combined entry-plus-loading response.
+
+rules:
+  - no_new_trait_recoding
+  - current_H1_positive_orientation_is_preserved
+  - exact_source_assignments_are_reused
+  - no_source_mode_selection_after_outcomes
+  - no_threshold_relaxation_after_support
+  - source_matching_is_fixed_to_prevalence_richness
+  - taxonomy_and_source_pool_never_impute_missing_trait_states
+  - genus_entry_does_not_identify_arrival_establishment_persistence_or_extinction
+  - loading_does_not_identify_within_lineage_evolution
+  - no_pollinator_identity_or_pollinator_loss_claim
