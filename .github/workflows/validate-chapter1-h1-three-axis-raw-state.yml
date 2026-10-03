@@ -191,6 +191,19 @@ jobs:
           support.to_csv(out/"axis_support_summary.csv",index=False)
           print("\n=== support summary ===")
           print(support.to_string(index=False))
+
+          status=pd.read_csv(out/"status_contrast_omnibus.csv")
+          status_cols=[
+              "evidence_scope","axis","context","status","n_retained_outcomes",
+              "p_value","q_value","status_vectors_differ",
+              "all_optimizers_converged",
+          ]
+          print("\n=== native-compatible vs incompatible/introduced slope-vector test ===")
+          print(status[status_cols].to_string(index=False))
+
+          similarity=pd.read_csv(out/"status_vector_similarity.csv")
+          print("\n=== descriptive status-vector similarity ===")
+          print(similarity.to_string(index=False))
           PY
 
           {
@@ -200,6 +213,9 @@ jobs:
             echo
             echo "### Support summary"
             cat /tmp/axis3/results/axis_support_summary.csv
+            echo
+            echo "### Native-compatible vs incompatible/introduced vector test"
+            cat /tmp/axis3/results/status_contrast_omnibus.csv
           } >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
