@@ -685,6 +685,17 @@ def run_three_axis_analysis(
     all_cell_audits: list[pd.DataFrame] = []
     all_flora_coverage: list[pd.DataFrame] = []
     count_parts: list[pd.DataFrame] = []
+    status_slopes: list[pd.DataFrame] = []
+    status_omnibus: list[dict[str, Any]] = []
+    status_support: list[pd.DataFrame] = []
+
+    model = config["model"]
+    fit_cfg = {
+        "geography_column": str(model["geography_column"]),
+        "context_column": str(model["context_column"]),
+        "cluster_column": str(model["cluster_column"]),
+        "baseline_covariates": [str(x) for x in model["baseline_covariates"]],
+    }
 
     for evidence_scope in config["evidence_scopes"]:
         ledger, cell_audit = build_valid_state_ledger(
@@ -694,6 +705,8 @@ def run_three_axis_analysis(
             evidence_scope=evidence_scope,
         )
         all_cell_audits.append(cell_audit)
+        scope_counts: list[pd.DataFrame] = []
+
         for flora_scope in config["flora_scopes"]:
             flora = scopes[flora_scope]
             counts, coverage = build_axis_state_counts(
@@ -707,13 +720,8 @@ def run_three_axis_analysis(
                 continue
             counts.insert(0, "evidence_scope", evidence_scope)
             count_parts.append(counts)
-            model = config["model"]
-            fit_cfg = {
-                "geography_column": str(model["geography_column"]),
-                "context_column": str(model["context_column"]),
-                "cluster_column": str(model["cluster_column"]),
-                "baseline_covariates": [str(x) for x in model["baseline_covariates"]],
-            }
+            scope_counts.append(counts)
+
             prepared = _prepare(
                 counts.drop(columns="evidence_scope"),
                 covariates,
@@ -736,6 +744,36 @@ def run_three_axis_analysis(
                     if not support.empty:
                         all_support.append(support)
 
+        if scope_counts:
+            combined_counts = pd.concat(scope_counts, ignore_index=True)
+            contrast_names = {
+                str(config["status_contrast"]["reference"]),
+                str(config["status_contrast"]["comparison"]),
+            }
+            contrast_counts = combined_counts.loc[
+                combined_counts["stratum"].isin(contrast_names)
+            ].copy()
+            prepared_contrast = _prepare(
+                contrast_counts.drop(columns="evidence_scope"),
+                covariates,
+                fit_cfg,
+            )
+            for axis in config["axes"]:
+                for context_value in model["contexts"]:
+                    slopes, omnibus, support = _fit_status_contrast(
+                        prepared_contrast,
+                        contrast_counts,
+                        config,
+                        evidence_scope=evidence_scope,
+                        axis=str(axis),
+                        context_value=str(context_value),
+                    )
+                    if not slopes.empty:
+                        status_slopes.append(slopes)
+                    status_omnibus.append(omnibus)
+                    if not support.empty:
+                        status_support.append(support)
+
     omnibus = pd.DataFrame(all_omnibus)
     if not omnibus.empty and "p_value" in omnibus.columns:
         omnibus["q_value"] = (
@@ -746,21 +784,55 @@ def run_three_axis_analysis(
             .transform(_bh)
         )
         omnibus["axis_supported"] = (
-            omnibus["q_value"].le(float(config["model"]["alpha"])).fillna(False)
+            omnibus["q_value"].le(float(model["alpha"])).fillna(False)
         )
 
+    status_omnibus_frame = pd.DataFrame(status_omnibus)
+    if not status_omnibus_frame.empty and "p_value" in status_omnibus_frame.columns:
+        status_omnibus_frame["q_value"] = (
+            status_omnibus_frame.groupby(
+                ["evidence_scope"],
+                group_keys=False,
+            )["p_value"]
+            .transform(_bh)
+        )
+        status_omnibus_frame["status_vectors_differ"] = (
+            status_omnibus_frame["q_value"]
+            .le(float(model["alpha"]))
+            .fillna(False)
+        )
+
+    axis_slopes = (
+        pd.concat(all_slopes, ignore_index=True)
+        if all_slopes
+        else pd.DataFrame()
+    )
+    similarity = (
+        _status_vector_similarity(axis_slopes, config)
+        if not axis_slopes.empty
+        else pd.DataFrame()
+    )
+
     return {
-        "axis_slopes": (
-            pd.concat(all_slopes, ignore_index=True)
-            if all_slopes
-            else pd.DataFrame()
-        ),
+        "axis_slopes": axis_slopes,
         "axis_omnibus": omnibus,
         "state_support": (
             pd.concat(all_support, ignore_index=True)
             if all_support
             else pd.DataFrame()
         ),
+        "status_contrast_slopes": (
+            pd.concat(status_slopes, ignore_index=True)
+            if status_slopes
+            else pd.DataFrame()
+        ),
+        "status_contrast_omnibus": status_omnibus_frame,
+        "status_contrast_support": (
+            pd.concat(status_support, ignore_index=True)
+            if status_support
+            else pd.DataFrame()
+        ),
+        "status_vector_similarity": similarity,
         "cell_coverage_audit": pd.concat(all_cell_audits, ignore_index=True),
         "flora_coverage": pd.concat(all_flora_coverage, ignore_index=True),
         "counts": (
