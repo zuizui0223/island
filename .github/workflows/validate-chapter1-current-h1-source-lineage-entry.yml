@@ -1,0 +1,73 @@
+name: Validate direct current H1 source-lineage decomposition
+
+on:
+  push:
+    branches:
+      - analysis/current-h1-source-lineage-entry
+    paths:
+      - "src/island_v2/chapter1_current_h1_source_lineage_entry.py"
+      - "config/chapter1_current_h1_source_lineage_entry.yml"
+      - ".github/workflows/validate-chapter1-current-h1-source-lineage-entry.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -e ".[dev]"
+
+      - name: Validate implementation
+        run: |
+          python -m py_compile src/island_v2/chapter1_current_h1_source_lineage_entry.py
+          ruff check src/island_v2/chapter1_current_h1_source_lineage_entry.py
+
+      - name: Download frozen source-pool inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/current_h1_entry/source /tmp/current_h1_entry/result
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/current_h1_entry/source
+          test -s /tmp/current_h1_entry/source/fixed/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/current_h1_entry/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+          test -s /tmp/current_h1_entry/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+          test -s /tmp/current_h1_entry/source/fixed/source/source/gift_native_mainland_flora.csv.gz
+          test -s /tmp/current_h1_entry/source/fixed/source/result/island_source_assignments.csv.gz
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+
+      - name: Run direct current H1 source-lineage decomposition
+        run: |
+          python -m island_v2.chapter1_current_h1_source_lineage_entry             --state-audit-all-csv /tmp/current_h1_entry/source/snapshot/chapter1_trait_state_audit_all.csv.gz             --state-audit-direct-csv /tmp/current_h1_entry/source/snapshot/chapter1_trait_state_audit_direct.csv.gz             --status-flora-csv /tmp/current_h1_entry/source/fixed/canonical/input/chapter1_status_flora.csv.gz             --gift-flora-csv /tmp/current_h1_entry/source/fixed/source/source/gift_native_mainland_flora.csv.gz             --source-assignments-csv /tmp/current_h1_entry/source/fixed/source/result/island_source_assignments.csv.gz             --corrected-covariates-csv results/geography_20260924/corrected_geography_covariates.csv             --probability-config-path config/chapter1_v14_all_data_probability.yml             --analysis-config-path config/chapter1_current_h1_source_lineage_entry.yml             --output-dir /tmp/current_h1_entry/result
+
+      - name: Show route summary
+        run: |
+          cat /tmp/current_h1_entry/result/route_summary.csv
+          echo "### Parent H1 gates" >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/current_h1_entry/result/all_analysis_eligible/parent_gate.csv >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/current_h1_entry/result/direct_only/parent_gate.csv >> "$GITHUB_STEP_SUMMARY"
+          echo "### Source-lineage joint vectors" >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/current_h1_entry/result/all_analysis_eligible/omnibus.csv >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/current_h1_entry/result/direct_only/omnibus.csv >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/current_h1_entry/result/RESULT.json >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-current-h1-source-lineage-entry-${{ github.run_id }}
+          path: /tmp/current_h1_entry/result
+          if-no-files-found: error
+          retention-days: 30
