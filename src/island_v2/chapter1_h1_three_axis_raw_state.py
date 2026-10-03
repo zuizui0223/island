@@ -136,11 +136,18 @@ def _parse_composition(
         strict=True,
     ):
         if not assigned_trait:
+            # If a malformed state set mixes valid and invalid values and cannot
+            # be uniquely reassigned, preserve only states valid for the reported
+            # trait rather than discarding valid information or guessing a target.
+            for state in states:
+                if state in allowed.get(reported_trait, set()):
+                    rows.append((expected_axis, reported_trait, state))
             continue
         if assigned_trait != reported_trait:
             reassigned_state_memberships += len(states)
         for state in states:
-            rows.append((expected_axis, assigned_trait, state))
+            if state in allowed.get(assigned_trait, set()):
+                rows.append((expected_axis, assigned_trait, state))
     return sorted(set(rows)), status, reassigned_state_memberships
 
 def build_valid_state_ledger(
