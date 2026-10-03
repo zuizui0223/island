@@ -98,6 +98,7 @@ jobs:
           h1=pd.read_csv(root/"H1_global_synthesis.csv")
           h1r=pd.read_csv(root/"H1_regional.csv")
           h2=pd.read_csv(root/"H2_conditional.csv")
+          h2g=pd.read_csv(root/"H2_global_synthesis.csv")
           h4=pd.read_csv(root/"H4_exact_species.csv")
           signal=pd.read_csv(root/"signal_display_state_regional.csv")
           threshold=pd.read_csv(root/"H1_minimum_species_threshold_sensitivity.csv")
@@ -153,6 +154,7 @@ jobs:
               "H1_minimum_species_threshold_sensitivity": threshold.to_dict(orient="records"),
               "trait_coverage_gradient": coverage.to_dict(orient="records"),
               "H2_primary": h2_primary.to_dict(orient="records"),
+              "H2_global": h2g.to_dict(orient="records"),
               "H2_supported_q_le_0_05": h2_primary.loc[
                   h2_primary["q_two_sided_posthoc_family"].le(0.05)
               ].to_dict(orient="records"),
@@ -182,6 +184,8 @@ jobs:
           print(coverage.to_string(index=False))
           print("\n=== H2 PRIMARY CONDITIONAL ===")
           print(h2_primary.to_string(index=False))
+          print("\n=== H2 GLOBAL CONDITIONAL SYNTHESIS ===")
+          print(h2g.to_string(index=False))
           print("\n=== H3 ===")
           print(json.dumps(h3,indent=2))
           print("\n=== H4 BENCHMARK ===")
@@ -198,6 +202,9 @@ jobs:
             echo
             echo "### H2 conditional"
             cat /tmp/domain/out/H2_conditional.csv
+            echo
+            echo "### H2 global synthesis"
+            cat /tmp/domain/out/H2_global_synthesis.csv
             echo
             echo "### H3"
             cat /tmp/domain/out/H3_summary.json
