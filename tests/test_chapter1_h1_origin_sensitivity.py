@@ -1,9 +1,6 @@
 from pathlib import Path
 
-import pandas as pd
 import yaml
-
-from island_v2.chapter1_all_data_probability import _stratum_mask
 
 
 def _load(path: str):
@@ -26,38 +23,9 @@ def test_origin_sensitivity_keeps_frozen_seven_trait_h1_unchanged():
     assert "flower_size_reduction" not in sens["model_outcomes"]
 
 
-def test_introduced_stratum_uses_source_backed_origin_status_only():
-    frame = pd.DataFrame(
-        {
-            "origin_status": [
-                "native",
-                "introduced",
-                "unresolved",
-                "introduced_or_uncertain",
-            ],
-            "floristic_status": [
-                "native_nonendemic",
-                "introduced",
-                "unresolved",
-                "introduced",
-            ],
-        }
-    )
-    assert _stratum_mask(frame, "all_introduced").tolist() == [
-        False,
-        True,
-        False,
-        False,
-    ]
-
-
-def test_origin_sensitivity_only_swaps_status_strata():
-    parent = _load("config/chapter1_h1_final_directional.yml")
+def test_origin_sensitivity_is_source_native_only():
     sens = _load("config/chapter1_h1_origin_sensitivity.yml")
-    assert parent["flora_roles"]["broad_primary"] == "all_observed"
     assert sens["flora_roles"]["broad_primary"] == "all_observed"
-    assert sens["strata"] == [
-        "all_observed",
-        "all_native",
-        "all_introduced",
-    ]
+    assert sens["strata"] == ["all_observed", "all_native"]
+    assert sens["flora_roles"]["status_sensitivities"] == ["all_native"]
+    assert "all_introduced" not in sens["strata"]
