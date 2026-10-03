@@ -16,9 +16,9 @@ Formal inference fits trait-specific state prevalences with their own denominato
 
 ## Frozen inputs and validation
 
-- workflow run: **37116501377**
-- artifact: **11272445221**
-- artifact digest: `sha256:2e68727fb9e91f77683b21f835bfddefec188deeda9616b1c81e71c96c2a4f10`
+- workflow run: **37117607718**
+- artifact: **11272053673**
+- artifact digest: `sha256:b40721ca0f20b3c1af3e92782c3466d50bb687e9dea17dbe8b9613e9aad574ed`
 - trait database: **222,688 / 318,885 resolved species×axis cells**
 - minimum formal raw-state support: **30 unique species**
 - formal raw states retained across evidence scopes: **97**
@@ -34,7 +34,7 @@ After this audit:
 - all-analysis reproductive cells: **48,497 / 48,497 ontology-valid**, including 40 uniquely repaired cells;
 - Direct-only cells required **no repairs**.
 
-Thus all **222,688 resolved species×axis cells** remain usable.
+Thus all **222,688 resolved species×axis cells** remain ontology-valid. After the 30-species raw-state support gate, **222,687 / 222,688 all-analysis cells** still contribute at least one state to the formal H1 tests (99.9996%). Direct-only retains 102,924 / 102,932 resolved cells (99.9922%).
 
 ## Primary all-observed result
 
@@ -42,19 +42,19 @@ Thus all **222,688 resolved species×axis cells** remain usable.
 
 | Axis | Northern mid-latitude | Northern high latitude | Tropical | Southern extratropical |
 | --- | ---: | ---: | ---: | ---: |
-| Reproductive assurance | q=1.10e-20 | q=7.81e-18 | q=2.16e-7 | q=2.15e-6 |
-| Floral structural complexity | q=3.21e-95 | q=1.25e-82* | q=2.02e-34 | q<1e-300 |
+| Reproductive assurance | q=1.09e-20 | q=7.81e-18 | q=2.16e-7 | q=2.15e-6 |
+| Floral structural complexity | q=3.21e-95 | q=1.26e-82 | q=2.02e-34 | q<1e-300* |
 | Flower colour | q=4.57e-4 | **q=0.155** | q=5.45e-8 | q=9.57e-7 |
 
 ### Direct-only
 
 | Axis | Northern mid-latitude | Northern high latitude | Tropical | Southern extratropical |
 | --- | ---: | ---: | ---: | ---: |
-| Reproductive assurance | q=1.81e-16 | q=4.68e-53 | q=5.43e-7 | q=4.37e-15 |
-| Floral structural complexity | q=8.05e-55* | q=6.36e-176 | q=1.14e-27 | q<1e-300 |
+| Reproductive assurance | q=1.81e-16 | q=4.65e-53* | q=5.43e-7 | q=4.37e-15 |
+| Floral structural complexity | q=8.77e-55 | q=6.46e-176 | q=1.17e-27 | q<1e-300 |
 | Flower colour | q=2.94e-9 | **q=0.189** | q=2.06e-6 | q=1.63e-12 |
 
-*A retry at 5,000 iterations retained the same fitted slope vector to recorded precision; the persistent warning is numerical provenance, not a changed biological result.
+*One raw-state optimizer flag persists in each marked primary axis test. Removing the failed state entirely yields a fully converged axis test with the same decision: southern all-analysis structure remains supported (drop-failed q < 1e-300) and northern-high Direct reproductive assurance remains supported (drop-failed q = 2.41e-28).
 
 **Primary conclusion:** reproductive assurance and floral structure are recurrent isolation-associated response domains in all four regions and both evidence scopes. Colour composition is geographically contingent, with no supported broad northern-high-latitude axis response.
 
@@ -107,12 +107,12 @@ Source-backed native versus source-backed introduced records are jointly testabl
 
 All-analysis:
 - colour vector difference: q=**0.441**, unsupported;
-- structure: q=**1.46e-57**, strongly different;
+- structure: q=**1.45e-57**, strongly different;
 - reproductive assurance: q=**2.36e-11**, strongly different.
 
 Direct-only:
 - colour: q=**0.0231**;
-- structure: q=**6.96e-28**;
+- structure: q=**6.98e-28**;
 - reproductive assurance: q=**1.53e-10**.
 
 The reproductive-assurance response is especially distinct: cosine similarity between native and introduced vectors is **-0.758** in all-analysis and **-0.853** in Direct-only. Known introduced tropical flora therefore do not mimic the native reproductive-assurance isolation response; their response is approximately opposed in multivariate direction.
