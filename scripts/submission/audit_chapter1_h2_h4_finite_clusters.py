@@ -17,10 +17,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import typer
+import argparse
 from scipy.stats import t as student_t
-
-app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 
 def _bh(values: pd.Series) -> pd.Series:
@@ -176,14 +174,12 @@ def audit_h4(path: Path) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-@app.command("run")
 def run(
-    h2_all_csv: Path = typer.Option(..., exists=True),
-    h2_direct_csv: Path = typer.Option(..., exists=True),
-    h3_json: Path = typer.Option(..., exists=True),
-    h3_offshore_json: Path = typer.Option(..., exists=True),
-    h4_csv: Path = typer.Option(..., exists=True),
-    output_dir: Path = typer.Option(...),
+    h2_all_csv: Path,
+    h2_direct_csv: Path,
+    h3_json: Path,
+    h4_csv: Path,
+    output_dir: Path,
 ) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     h2 = pd.concat(
@@ -194,14 +190,9 @@ def run(
         ignore_index=True,
     )
     h3 = audit_h3(h3_json)
-    h3_offshore = audit_h3_offshore(h3_offshore_json)
     h4 = audit_h4(h4_csv)
     h2.to_csv(output_dir / "h2_finite_cluster_audit.csv", index=False)
     h3.to_csv(output_dir / "h3_finite_cluster_audit.csv", index=False)
-    h3_offshore.to_csv(
-        output_dir / "h3_offshore_finite_cluster_audit.csv",
-        index=False,
-    )
     h4.to_csv(output_dir / "h4_finite_cluster_audit.csv", index=False)
 
     h2b = h2.loc[
@@ -228,18 +219,6 @@ def run(
         "H3_primary_directional_p_t": float(
             h3.loc[h3["analysis"].eq("primary"), "directional_p_t"].iloc[0]
         ),
-        "H3_offshore_two_sided_p_t": float(
-            h3_offshore.loc[
-                h3_offshore["analysis"].eq("offshore_continuous_gradient"),
-                "two_sided_p_t",
-            ].iloc[0]
-        ),
-        "H3_offshore_directional_p_t": float(
-            h3_offshore.loc[
-                h3_offshore["analysis"].eq("offshore_continuous_gradient"),
-                "directional_p_t",
-            ].iloc[0]
-        ),
         "H4_primary_two_sided_p_t": {
             str(row.family): float(row.two_sided_p_t)
             for row in h4.loc[h4["analysis"].eq("primary")].itertuples(
@@ -258,8 +237,25 @@ def run(
         json.dumps(summary, indent=2) + "\n",
         encoding="utf-8",
     )
-    typer.echo(json.dumps(summary, indent=2))
+    print(json.dumps(summary, indent=2))
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--h2-all-csv", type=Path, required=True)
+    parser.add_argument("--h2-direct-csv", type=Path, required=True)
+    parser.add_argument("--h3-json", type=Path, required=True)
+    parser.add_argument("--h4-csv", type=Path, required=True)
+    parser.add_argument("--output-dir", type=Path, required=True)
+    args = parser.parse_args()
+    run(
+        h2_all_csv=args.h2_all_csv,
+        h2_direct_csv=args.h2_direct_csv,
+        h3_json=args.h3_json,
+        h4_csv=args.h4_csv,
+        output_dir=args.output_dir,
+    )
 
 
 if __name__ == "__main__":
-    app()
+    main()
