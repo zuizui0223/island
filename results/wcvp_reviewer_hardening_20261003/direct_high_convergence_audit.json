@@ -1,0 +1,12 @@
+{
+  "status": "numerically_stable_with_persistent_optimizer_flag",
+  "max_abs_slope_difference_1000_vs_5000": 0.0,
+  "q_1000": 0.0021016470291145,
+  "q_5000": 0.0021016470291145,
+  "q_difference": 0.0,
+  "all_optimizers_converged_1000": false,
+  "all_optimizers_converged_5000": false,
+  "failed_outcomes_1000": ["actinomorphic_symmetry"],
+  "failed_outcomes_5000": ["actinomorphic_symmetry"],
+  "interpretation": "Joint Direct-only northern-high partition inference is numerically stable but retains an optimizer termination warning; use with caveat."
+}
