@@ -86,9 +86,71 @@ Supporting documentation:
 
 ---
 
-# Appendix S3. H1 recurrent multivariate island response
+# Appendix S3. H1 three-axis raw-state island response
 
-H1 is interpreted across three biological domains: reproductive assurance, colour composition and floral accessibility/generalization. Formal inference uses seven atomic indicators spanning those domains, each coded so that a positive isolation coefficient is in the predicted island-syndrome direction:
+The primary H1 analysis uses the **three original species×axis measurement domains** rather than treating seven binary contrasts as seven complete traits. The frozen database contains 106,295 accepted angiosperm species and 318,885 possible species×axis cells; 222,688 cells (69.83%) are resolved: 82,556 flower-colour cells, 91,635 floral-structural-complexity cells and 48,497 reproductive-assurance cells.
+
+A resolved cell may contain one or several component traits. The analysis therefore retains partial cells. For each axis, every ontology-valid reported raw state contributes to its own island prevalence model with the denominator defined by species informative for that component trait. Missing component traits are never coded as zero, multistate reports are retained, and species need not have all components of an axis.
+
+Formal axis tests use beta-binomial logit models with standardized corrected log isolation, island area and climate PC1–PC4, with spatial-block cluster-robust covariance. States represented by fewer than 30 species globally or lacking minimum island/state support are excluded before fitting. Within each geographic stratum, all estimable isolation slopes belonging to one measurement axis are tested jointly by a multivariate Wald test. H1 therefore has three formal response blocks:
+
+1. **reproductive assurance** — self-incompatibility, mating system, autonomous-selfing capacity and cleistogamy;
+2. **floral structural complexity** — floral form, symmetry, tube depth, flower size and inflorescence display;
+3. **flower-colour composition** — the full reported colour-state composition.
+
+### Table S2f. Primary raw three-axis H1
+
+Machine-readable table:
+
+- submission/chapter1_current/supplement/Table_S2f_H1_three_axis_primary.csv
+
+In the all-observed flora, reproductive assurance and structural composition are supported in all four regions under both evidence scopes. Colour composition is supported in three of four regions and is unsupported in northern high latitudes in both all-analysis (q = 0.155) and Direct-only (q = 0.189).
+
+| Axis | Northern mid-latitude | Northern high latitude | Tropical | Southern extratropical |
+| --- | ---: | ---: | ---: | ---: |
+| Reproductive assurance, all-analysis | 1.09 × 10^-20 | 7.81 × 10^-18 | 2.16 × 10^-7 | 2.15 × 10^-6 |
+| Structural complexity, all-analysis | 3.21 × 10^-95 | 1.26 × 10^-82 | 2.02 × 10^-34 | <10^-300* |
+| Colour composition, all-analysis | 4.57 × 10^-4 | **0.155** | 5.45 × 10^-8 | 9.57 × 10^-7 |
+| Reproductive assurance, Direct-only | 1.81 × 10^-16 | 4.65 × 10^-53* | 5.43 × 10^-7 | 4.37 × 10^-15 |
+| Structural complexity, Direct-only | 8.77 × 10^-55 | 6.46 × 10^-176 | 1.17 × 10^-27 | <10^-300 |
+| Colour composition, Direct-only | 2.94 × 10^-9 | **0.189** | 2.06 × 10^-6 | 1.63 × 10^-12 |
+
+*One state-level optimizer flag persists in each marked primary axis test. Removing the failed state entirely yields fully converged tests with the same decision: southern all-analysis structure retains q < 10^-300, and northern-high Direct reproductive assurance retains q = 2.41 × 10^-28.
+
+Raw reproductive states establish biological direction rather than merely an unspecified multivariate change. Across regions, self-compatible, selfing or autonomous states increase in several comparisons, while self-incompatibility, predominantly outcrossing or absence of autonomous selfing decrease in others. Structural fingerprints vary more strongly by region: northern-high and tropical floras shift toward open/radial and actinomorphic states, whereas southern extratropical floras combine increasing open-radial form with increasing deep tube and decreasing shallow tube. Thus structural reorganization recurs without universal simplification.
+
+### Table S2h. Species×axis ontology audit
+
+Machine-readable table:
+
+- submission/chapter1_current/supplement/Table_S2h_H1_axis_cell_audit.csv
+
+Direct analysis of the species×axis cells exposed 900 historical validated-low cells with within-axis trait-label permutations. All 900 were uniquely recoverable using only the trait slots already declared in the same cell and the frozen trait ontology; no species identity, geography or fitted outcome was used. The audit reassigned 5,102 structural and 240 reproductive state memberships. No Direct-only cell required repair. After this deterministic repair, all **222,688 / 222,688 resolved cells** contain at least one ontology-valid component state. The ≥30-species formal-state gate still retains at least one formal state for **222,687 / 222,688 all-analysis cells (99.9996%)** and **102,924 / 102,932 Direct-only cells (99.9922%)**.
+
+### Table S2g. Floristic-origin response-vector contrasts
+
+Machine-readable table:
+
+- submission/chapter1_current/supplement/Table_S2g_H1_floristic_origin.csv
+
+Strict source-backed native records are support-testable in northern mid-latitudes and the tropics. Reproductive assurance and structural composition remain supported in both. In tropical native records, all-analysis q = 5.46 × 10^-4 for reproductive assurance and 1.29 × 10^-213 for structure; colour is borderline at q = 0.0508. Direct-only tropical native tests support all three axes.
+
+The WCVP regional-native-compatible flora retains reproductive-assurance and structural responses in all four regions in both evidence scopes. Colour is supported in three of four all-analysis regions and four of four Direct-only regions. Restricting to the same Level-3-area-complete island support and adding log TDWG Level-3 area does not remove the recurrent reproductive or structural response.
+
+The complementary incompatible/introduced partition also responds to isolation, but formal status-by-isolation interactions show that it generally follows a **different raw-state vector**. Reproductive-assurance and structural vectors differ between regional-native-compatible and complementary floras in all four regions under both evidence scopes. In the strict known-origin tropical comparison, source-native and source-introduced reproductive-assurance vectors differ strongly (all-analysis q = 2.36 × 10^-11; Direct-only q = 1.53 × 10^-10) and have cosine similarities of -0.758 and -0.853. Structural vectors also differ strongly. These results reject the simple explanation that introduced plants reproduce the same isolation-associated reproductive/structural response seen in native-compatible floras.
+
+The status analyses remain assemblage comparisons. They do not identify whether the native-associated response arose through colonization filtering, persistence/extinction, species sorting or within-lineage evolution.
+
+Three-axis raw-state validation provenance:
+
+- workflow run **37117607718**;
+- artifact **11272053673**;
+- artifact digest `sha256:b40721ca0f20b3c1af3e92782c3466d50bb687e9dea17dbe8b9613e9aad574ed`.
+
+
+### Secondary seven-indicator directional decomposition
+
+The previous H1 reduction retains seven pre-oriented atomic indicators. It is now used to summarize **directional components** of the raw three-axis result rather than as the primary measurement model:
 
 1. self-compatibility;
 2. predominantly or obligately selfing mating system;
@@ -98,7 +160,7 @@ H1 is interpreted across three biological domains: reproductive assurance, colou
 6. actinomorphic symmetry;
 7. shallow or open floral tube.
 
-Within each geographic stratum, the seven-dimensional isolation vector is tested by a joint Wald test after beta-binomial models with standardized log isolation, island area and climate PC1–PC4. Spatial-block cluster-robust covariance is used.
+The seven-dimensional joint Wald results are retained below for continuity and for the downstream taxonomic-depth diagnostics that were built on this reduction.
 
 ### Table S2a. Complete H1 atomic coefficients
 
@@ -123,7 +185,7 @@ Broad all-observed results:
 | Tropical | 3.498 × 10^-7 | 3.528 × 10^-5 |
 | Southern extratropical | 2.504 × 10^-18 | 3.155 × 10^-31 |
 
-All four regions support the seven-indicator joint vector spanning the three domains in both evidence scopes. This is a domain-level recurrence claim supported by atomic indicators, not a claim that every component is positive or individually supported.
+All four regions support the reduced seven-indicator vector in both evidence scopes. This secondary result is a directional decomposition and should not be read as the primary three-axis measurement test or as uniform support for every component.
 
 In the primary all-analysis scope, 26 of 28 regional atomic coefficients are positive. The southern shallow/open-tube coefficient is negative (β = -0.21660, SE = 0.06083, nominal P = 0.000370). Northern-high generalized form is positive but weak (P = 0.1018), and southern selfing mating system is positive but weak (P = 0.0540).
 
@@ -135,7 +197,7 @@ Machine-readable table:
 
 The table averages fitted standardized isolation coefficients within reproductive assurance (three atomic indicators) and accessibility/generalization (three indicators); colour composition is represented by the single predeclared plain-colour contrast. These arithmetic means are **descriptive orientation summaries only**. No domain-level P value is assigned because the atomic fits use different trait-resolved species sets. In the primary all-analysis scope, reproductive-assurance means are positive in all four regions (+0.025, +0.084, +0.179, +0.139), colour means are +0.002, +0.036, +0.035 and +0.074, and accessibility/generalization means are +0.021, +0.222, +0.080 and -0.004 from northern mid-latitudes through southern extratropics.
 
-### WCVP status-partition and Level-3 resolution diagnostics
+### Secondary seven-indicator WCVP status-partition and Level-3 diagnostics
 
 The WCVP regional-native compatibility sensitivity is not interpreted as a native-specific analysis. In northern mid-latitudes, the all-analysis regional-native joint result is disproportionately concentrated in self-compatibility (β = 0.07865, P = 0.00451); the other six atomic P values exceed 0.10 and four slopes are negative. In Direct-only evidence, the individually supported component changes to selfing mating system (β = 0.06729, P = 0.000888), while self-compatibility is unsupported. The joint test therefore captures multivariate departure rather than uniform support of seven atomic responses.
 
@@ -208,7 +270,7 @@ Results:
 
 An independent Python 3.11 multistart confirmation also passed. All multistart fits succeeded, the seven-response test gave P = 1.898 × 10^-8, the six-response sensitivity gave P = 7.154 × 10^-9, and the maximum slope deviation from the frozen solution was 2.85 × 10^-6.
 
-The six-response result is a sensitivity only and does not replace the predeclared seven-response H1 estimand.
+The six-response result is a sensitivity to the historical seven-indicator decomposition; it does not replace the primary raw three-axis H1.
 
 ## S3.2 Current seven-response taxonomic representation depth
 

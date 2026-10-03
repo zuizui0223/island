@@ -1,0 +1,7 @@
+evidence_scope,axis,resolved_axis_cells,ontology_valid_axis_cells,ontology_invalid_only_axis_cells,ontology_repaired_axis_cells,n_reassigned_state_memberships,n_valid_state_memberships,n_valid_component_trait_records,formal_axis_cells,formal_cell_retention_fraction
+all_analysis_eligible,floral_structural_complexity,91635,91635,0,860,5102,149277,137737,91635,1.0
+all_analysis_eligible,flower_colour,82556,82556,0,0,0,145800,82556,82556,1.0
+all_analysis_eligible,reproductive_assurance,48497,48497,0,40,240,82887,67918,48496,0.9999793801678456
+direct_only,floral_structural_complexity,52288,52288,0,0,0,80874,76902,52281,0.9998661260709916
+direct_only,flower_colour,40721,40721,0,0,0,59448,40721,40721,1.0
+direct_only,reproductive_assurance,9923,9923,0,0,0,15973,15798,9922,0.9998992240249924

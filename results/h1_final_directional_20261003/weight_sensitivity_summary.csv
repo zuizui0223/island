@@ -1,0 +1,5 @@
+scope,evidence_scope,weight_scheme,strict_recurrence_supported,strict_iut_p_t,strict_iut_p_wild,global_average_estimate,global_average_p_one_sided,global_average_supported,heterogeneity_p,regional_heterogeneity_supported,i2,global_average_p_one_sided_meta_view
+all,all_analysis_eligible,equal_indicator,False,0.0806456881539897,0.0828,0.0783712462718429,0.0288419528909056,True,0.0003640258197476,True,0.8369407283487263,0.0288419528909056
+all,all_analysis_eligible,core_two_domain,False,0.0577660686296591,0.0537,0.0851590449161761,0.0316228239403013,True,0.0005114297475459,True,0.8303394250551905,0.0316228239403013
+direct,direct_only,equal_indicator,False,0.0553298075354181,0.0552,0.0702226453958816,0.0277045807916137,True,0.0124916591776364,True,0.7238268763918806,0.0277045807916137
+direct,direct_only,core_two_domain,True,0.042310345958134,0.0385,0.0754437808564822,0.0316656490655755,True,0.0099362509611713,True,0.7358853535758497,0.0316656490655755

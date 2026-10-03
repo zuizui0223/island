@@ -1,0 +1,97 @@
+contract: chapter1_h1_three_axis_raw_state_v1
+
+purpose: >-
+  Reanalyse H1 at the three original species-by-axis measurement domains rather than
+  treating seven binary contrasts as seven complete traits. Every resolved species-axis
+  cell contributes through whichever ontology-valid component states are actually
+  observed. Missing component traits are not zero and complete cases are not required.
+
+snapshot:
+  denominator_species: 106295
+  possible_species_axis_cells: 318885
+  resolved_species_axis_cells: 222688
+  sha256: a6eef8d731b2730a99e388ddd0683d7ac9b2af30d43f1f9569c857f89f664b2a
+
+axes:
+  flower_colour:
+    traits: [flower_primary_color]
+  floral_structural_complexity:
+    traits:
+      [floral_form, floral_symmetry, tube_depth_class, flower_size_class, inflorescence_display]
+  reproductive_assurance:
+    traits:
+      [self_incompatibility, autonomous_selfing_capacity, mating_system, cleistogamy]
+
+evidence_scopes:
+  all_analysis_eligible: [high, medium, low]
+  direct_only: [high, medium]
+
+flora_scopes:
+  - all_observed
+  - source_native
+  - regional_native_compatible
+  - regionally_incompatible_or_introduced
+  - wcvp_unclassifiable_unresolved
+  - source_introduced
+
+model:
+  family: beta_binomial_logit
+  geography_column: log_distance_to_continent_km
+  context_column: analysis_regime
+  cluster_column: spatial_block
+  baseline_covariates:
+    [log_island_area_km2, climate_pc1, climate_pc2, climate_pc3, climate_pc4]
+  contexts:
+    [northern_midlatitude, northern_high_latitude, tropical, southern_extratropical]
+  minimum_islands_per_state: 50
+  minimum_positive_islands_per_state: 10
+  minimum_negative_islands_per_state: 10
+  minimum_states_per_axis_test: 2
+  minimum_unique_species_per_state: 30
+  alpha: 0.05
+  max_iter: 1500
+  retry_max_iter: 5000
+
+status_contrasts:
+  - contrast: regional_compatibility
+    reference: regional_native_compatible
+    comparison: regionally_incompatible_or_introduced
+    interpretation: >-
+      Test whether the isolation-associated raw-state response vector differs between
+      regional-native-compatible and complementary incompatible/introduced flora within
+      the same geographic region. This is a provenance-specificity test, not a causal
+      introduction effect.
+  - contrast: strict_known_origin
+    reference: source_native
+    comparison: source_introduced
+    interpretation: >-
+      Directly compare source-backed native and source-backed introduced records using
+      the identical raw-state axis model wherever both partitions meet the frozen
+      support gates. This is expected to be support-limited outside the tropics.
+
+multiple_testing:
+  primary_family: axis_by_region_within_each_evidence_and_flora_scope
+  correction: BH
+
+rules:
+  - ontology_invalid_cross_field_states_are_excluded_not_recoded
+  - unresolved_states_are_excluded
+  - every_axis_cell_with_at_least_one_valid_component_state_is_retained
+  - missing_component_traits_are_not_zero
+  - no_complete_case_requirement
+  - no_species_level_pre_averaging
+  - raw_multistate_membership_is_retained
+  - state_prevalence_models_keep_trait_specific_denominators
+  - inferential_states_require_at_least_30_unique_species_with_that_state
+  - three_axes_are_primary_response_blocks
+  - state_models_are_measurement_components_not_separate_headline_traits
+  - all_observed_is_contemporary_flora_not_native_evolution
+  - source_native_is_strict_but_may_be_support_limited
+  - regional_native_compatible_is_not_exact_island_nativeness
+  - incompatible_or_introduced_is_not_equivalent_to_known_introduced
+
+claim_ceiling: >-
+  Supported axis tests show isolation-associated changes in contemporary flora
+  composition within the original measurement domains. Status-partition comparisons can
+  test whether the pattern is confined to known introductions, but cannot by themselves
+  identify colonization, persistence, extinction, or within-lineage evolution.

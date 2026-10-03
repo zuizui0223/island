@@ -53,8 +53,8 @@ A pre-submission inquiry is drafted in `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md`.
 - Main figures: **6**
 - Tables: **0**
 - Text boxes: **0**
-- Main text: **4,955 / 5,000 words** (45-word margin)
-- Abstract: **148 / 150 words**
+- Main text: **4,977 / 5,000 words** (23-word margin)
+- Abstract: **140 / 150 words**
 - Running-title candidate: **Island floral syndrome beyond selfing**
 - Keywords: island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; flower colour; pollination
 
