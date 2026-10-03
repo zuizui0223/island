@@ -199,12 +199,18 @@ jobs:
           part.to_csv(out/"incompatible_or_introduced_H1.csv",index=False)
 
           rows=[]
+          matched_rows=[]
           for scope in ("all","direct"):
               om=pd.read_csv(out/f"resolution_{scope}/resolution_adjusted_within_omnibus.csv")
               om.insert(0,"analysis",scope)
               rows.append(om)
+              base=pd.read_csv(out/f"resolution_{scope}/resolution_matched_baseline_within_omnibus.csv")
+              base.insert(0,"analysis",scope)
+              matched_rows.append(base)
           res=pd.concat(rows,ignore_index=True)
+          matched=pd.concat(matched_rows,ignore_index=True)
           res.to_csv(out/"resolution_adjusted_H1.csv",index=False)
+          matched.to_csv(out/"resolution_matched_baseline_H1.csv",index=False)
 
           rows=[]
           for scope in ("all","direct"):
@@ -216,6 +222,8 @@ jobs:
 
           print("\n=== regionally incompatible or introduced H1 ===")
           print(part[["analysis","context","n_unique_islands","p_value","q_value","vector_supported"]].to_string(index=False))
+          print("\n=== Same-support regional-native H1 before L3-area adjustment ===")
+          print(matched[["analysis","context","n_unique_islands","p_value","q_value","vector_supported"]].to_string(index=False))
           print("\n=== L3-area-adjusted regional-native H1 ===")
           print(res[["analysis","context","n_unique_islands","p_value","q_value","vector_supported"]].to_string(index=False))
           print("\n=== distance vs L3 scale ===")
@@ -227,6 +235,9 @@ jobs:
             echo
             echo "### Regionally incompatible / introduced partition: within-region H1"
             cat /tmp/wcvp-review/results/incompatible_or_introduced_H1.csv
+            echo
+            echo "### Same-support regional-native H1 before TDWG-L3 area adjustment"
+            cat /tmp/wcvp-review/results/resolution_matched_baseline_H1.csv
             echo
             echo "### TDWG-L3 area adjusted regional-native H1"
             cat /tmp/wcvp-review/results/resolution_adjusted_H1.csv
