@@ -173,13 +173,16 @@ def test_ambiguous_invalid_state_is_not_silently_reassigned():
         config,
         evidence_scope="all_analysis_eligible",
     )
-    # Two target assignments are possible, so no cross-field guess is made.
-    assert ledger.empty
+    # The invalid cross-field state is dropped; the already-valid current-trait
+    # state is retained. No cross-field guess is made.
+    assert set(zip(ledger["trait_name"], ledger["state"], strict=False)) == {
+        ("autonomous_selfing_capacity", "mixed_or_variable")
+    }
     row = audit.loc[
         audit["axis"].eq("reproductive_assurance")
     ].iloc[0]
     assert int(row["ontology_repaired_axis_cells"]) == 0
-    assert int(row["ontology_invalid_only_axis_cells"]) == 1
+    assert int(row["ontology_invalid_only_axis_cells"]) == 0
 
 
 def test_axis_state_counts_use_trait_specific_denominators():
