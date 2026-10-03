@@ -223,6 +223,10 @@ def build_axis_state_counts(
         .drop_duplicates()
         .sort_values(["axis", "trait_name", "state"])
     )
+    global_state_species = (
+        state_ledger.groupby(["axis", "trait_name", "state"], as_index=False)
+        .agg(state_unique_species_global=("accepted_species", "nunique"))
+    )
 
     parts: list[pd.DataFrame] = []
     for (axis, trait), denom in denominators.groupby(["axis", "trait_name"], sort=False):
@@ -248,6 +252,16 @@ def build_axis_state_counts(
             how="left",
             validate="one_to_one",
         )
+        expanded = expanded.merge(
+            global_state_species.loc[
+                global_state_species["axis"].eq(axis)
+                & global_state_species["trait_name"].eq(trait),
+                ["state", "state_unique_species_global"],
+            ],
+            on="state",
+            how="left",
+            validate="many_to_one",
+        )
         expanded["successes"] = expanded["successes"].fillna(0).astype(int)
         expanded["outcome"] = (
             expanded["trait_name"].astype(str)
@@ -266,6 +280,7 @@ def build_axis_state_counts(
                     "axis",
                     "trait_name",
                     "state",
+                    "state_unique_species_global",
                 ]
             ]
         )
