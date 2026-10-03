@@ -108,9 +108,11 @@ jobs:
           rows=[]
           iuts=[]
           metas=[]
+          syntheses=[]
           leaveouts=[]
           leaveout_iuts=[]
           leaveout_metas=[]
+          leaveout_syntheses=[]
           weight_summaries=[]
           for scope in ("all","direct"):
               d=pd.read_csv(root/scope/"directional_score_results.csv")
@@ -123,6 +125,9 @@ jobs:
               meta=json.loads((root/scope/"directional_score_meta.json").read_text())
               meta["scope"]=scope
               metas.append(meta)
+              syn=json.loads((root/scope/"directional_score_synthesis.json").read_text())
+              syn["scope"]=scope
+              syntheses.append(syn)
               lo=pd.read_csv(root/scope/"top_cluster_leaveout_results.csv")
               lo.insert(0,"scope",scope)
               leaveouts.append(lo)
@@ -132,6 +137,9 @@ jobs:
               lom=json.loads((root/scope/"top_cluster_leaveout_meta.json").read_text())
               lom["scope"]=scope
               leaveout_metas.append(lom)
+              los=json.loads((root/scope/"top_cluster_leaveout_synthesis.json").read_text())
+              los["scope"]=scope
+              leaveout_syntheses.append(los)
               ws=pd.read_csv(root/scope/"weight_sensitivity_summary.csv")
               ws.insert(0,"scope",scope)
               weight_summaries.append(ws)
@@ -140,6 +148,7 @@ jobs:
           score.to_csv(root/"primary_directional_score_results.csv",index=False)
           pd.DataFrame(iuts).to_csv(root/"global_recurrence_iut.csv",index=False)
           pd.DataFrame(metas).to_csv(root/"global_directional_meta.csv",index=False)
+          pd.DataFrame(syntheses).to_csv(root/"global_region_synthesis.csv",index=False)
           leaveout=pd.concat(leaveouts,ignore_index=True)
           leaveout.to_csv(root/"top_cluster_leaveout_results.csv",index=False)
           pd.DataFrame(leaveout_iuts).to_csv(
@@ -147,6 +156,9 @@ jobs:
           )
           pd.DataFrame(leaveout_metas).to_csv(
               root/"top_cluster_leaveout_meta.csv",index=False
+          )
+          pd.DataFrame(leaveout_syntheses).to_csv(
+              root/"top_cluster_leaveout_synthesis.csv",index=False
           )
           weight_summary=pd.concat(weight_summaries,ignore_index=True)
           weight_summary.to_csv(
@@ -184,6 +196,8 @@ jobs:
           print(pd.DataFrame(iuts).to_string(index=False))
           print("\n=== GLOBAL DIRECTIONAL META ===")
           print(pd.DataFrame(metas).to_string(index=False))
+          print("\n=== H1A/H1B REGION SYNTHESIS ===")
+          print(pd.DataFrame(syntheses).to_string(index=False))
           print("\n=== DROP TOP VARIANCE CLUSTER ===")
           print(leaveout[[
               "scope","context","excluded_cluster",
@@ -195,6 +209,8 @@ jobs:
           print(pd.DataFrame(leaveout_iuts).to_string(index=False))
           print("\n=== DROP TOP VARIANCE CLUSTER META ===")
           print(pd.DataFrame(leaveout_metas).to_string(index=False))
+          print("\n=== DROP TOP VARIANCE CLUSTER H1A/H1B ===")
+          print(pd.DataFrame(leaveout_syntheses).to_string(index=False))
           print("\n=== WEIGHTING SENSITIVITY ===")
           print(weight_summary.to_string(index=False))
           print("\n=== H2-H4 FINITE-CLUSTER DECISION AUDIT ===")
@@ -219,6 +235,9 @@ jobs:
             echo "## Global directional random-effects summary"
             cat /tmp/h1-final/results/global_directional_meta.csv
             echo
+            echo "## H1a/H1b region synthesis"
+            cat /tmp/h1-final/results/global_region_synthesis.csv
+            echo
             echo "## Top variance-cluster leaveout"
             cat /tmp/h1-final/results/top_cluster_leaveout_results.csv
             echo
@@ -227,6 +246,9 @@ jobs:
             echo
             echo "## Top variance-cluster leaveout meta"
             cat /tmp/h1-final/results/top_cluster_leaveout_meta.csv
+            echo
+            echo "## Top variance-cluster leaveout H1a/H1b"
+            cat /tmp/h1-final/results/top_cluster_leaveout_synthesis.csv
             echo
             echo "## Weighting sensitivity"
             cat /tmp/h1-final/results/weight_sensitivity_summary.csv
