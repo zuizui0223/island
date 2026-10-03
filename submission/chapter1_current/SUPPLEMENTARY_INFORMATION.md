@@ -153,7 +153,16 @@ We also audited whether WGSRPD Level-3 spatial resolution changes systematically
 | Tropical | -0.621 |
 | Southern extratropical | -0.737 |
 
-Because island area is already a baseline covariate, adding `log_tdwg_l3_area_km2` directly adjusts the geographic scale of the WCVP native-compatibility unit. All four regional-native H1 vectors remain supported:
+Because island area is already a baseline covariate, adding `log_tdwg_l3_area_km2` directly adjusts the geographic scale of the WCVP native-compatibility unit. We first re-fitted the unadjusted model on exactly the same Level-3-area-complete island support, separating complete-case restriction from covariate adjustment:
+
+| Region | Matched-support all-analysis q | Matched-support Direct-only q |
+| --- | ---: | ---: |
+| Northern mid-latitude | 0.00138 | 0.00226 |
+| Northern high latitude | 0.04396 | 0.00195 |
+| Tropical | 0.00166 | 0.00142 |
+| Southern extratropical | 6.20 × 10^-11 | 8.48 × 10^-9 |
+
+All four regional-native H1 vectors were therefore already supported on the matched support. Adding Level-3 area retained all four:
 
 | Region | L3-adjusted all-analysis q | L3-adjusted Direct-only q |
 | --- | ---: | ---: |
@@ -162,14 +171,14 @@ Because island area is already a baseline covariate, adding `log_tdwg_l3_area_km
 | Tropical | 3.36 × 10^-6 | 1.14 × 10^-5 |
 | Southern extratropical | 0.000388 | 0.00634 |
 
-Unequal TDWG spatial resolution therefore exists but does not explain the regional-native four-region H1 result. The combined interpretation is narrower than a native-process claim: the recurrent pattern is reproducible in a large regional-native-compatible flora and is robust to Level-3 scale adjustment, but status partitioning alone does not identify whether the underlying process is native assembly, introductions, unresolved provenance, or a mixture.
+Unequal TDWG spatial resolution therefore exists but does not explain the regional-native four-region H1 result; this conclusion is not an artefact of changing island support. The combined interpretation is narrower than a native-process claim: the recurrent pattern is reproducible in a large regional-native-compatible flora and is robust to Level-3 scale adjustment, but status partitioning alone does not identify whether the underlying process is native assembly, introductions, unresolved provenance, or a mixture.
 
 Reproducibility surface:
 
 - results/wcvp_reviewer_hardening_20261003/
 - src/island_v2/chapter1_wcvp_partition_within_h1.py
 - src/island_v2/chapter1_wcvp_resolution_sensitivity.py
-- validation workflow run 37103299826; artifact 11266169216; digest sha256:3e86d90cc47ff3c0af0a5df0e9a96a8c172d37b58dc568c3384765b141b6fec4
+- validation workflow run 37103668310; artifact 11266114760; digest sha256:33e63c2e018425b79ed8bf01ef432c84487dd4dfba95de31705db73fa29a33f2
 
 ## S3.1 Direct-only northern-high optimizer audit
 
