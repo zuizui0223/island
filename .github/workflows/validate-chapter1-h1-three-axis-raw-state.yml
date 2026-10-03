@@ -128,7 +128,8 @@ jobs:
           cols=[
               "evidence_scope","flora_scope","axis","context","status",
               "n_retained_outcomes","n_unique_islands","p_value","q_value",
-              "axis_supported","all_optimizers_converged"
+              "axis_supported","all_optimizers_converged",
+              "retry_used","max_abs_retry_slope_delta"
           ]
           print("\n=== axis omnibus ===")
           print(wanted[cols].to_string(index=False))
@@ -162,6 +163,15 @@ jobs:
           similarity=pd.read_csv(out/"status_vector_similarity.csv")
           print("\n=== descriptive status-vector similarity ===")
           print(similarity.to_string(index=False))
+
+          resolution=pd.read_csv(out/"tdwg_resolution_axis_omnibus.csv")
+          resolution_cols=[
+              "evidence_scope","resolution_variant","axis","context",
+              "n_retained_outcomes","n_unique_islands","p_value","q_value",
+              "axis_supported","all_optimizers_converged",
+          ]
+          print("\n=== TDWG Level-3 matched-support and adjusted axis tests ===")
+          print(resolution[resolution_cols].to_string(index=False))
           PY
 
           {
@@ -174,6 +184,9 @@ jobs:
             echo
             echo "### Native-compatible vs incompatible/introduced vector test"
             cat /tmp/axis3/results/status_contrast_omnibus.csv
+            echo
+            echo "### TDWG Level-3 resolution sensitivity"
+            cat /tmp/axis3/results/tdwg_resolution_axis_omnibus.csv
           } >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
