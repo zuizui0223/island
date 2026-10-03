@@ -12,6 +12,7 @@ on:
   pull_request:
     branches:
       - main
+      - analysis/h1-three-axis-raw-state
     paths:
       - "config/chapter1_h1_final_directional.yml"
       - "src/island_v2/chapter1_h1_final_directional.py"
