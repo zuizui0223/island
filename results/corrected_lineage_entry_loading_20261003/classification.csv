@@ -1,0 +1,7 @@
+evidence_scope,outcome,all_four_source_modes_same_sign,direction,all_four_source_modes_fdr_supported,source_mode_robust,min_estimate,max_estimate,max_q
+broad,entry_enrichment,True,negative,True,True,-0.06861436258555742,-0.055523489882843,0.029251770296159794
+broad,species_enrichment,True,negative,True,True,-0.08541202113017857,-0.07379794694840203,0.028598595162972078
+broad,loading_increment,True,negative,False,False,-0.020457840681559508,-0.01656816503353804,0.15221128542288934
+broad_direct,entry_enrichment,True,negative,True,True,-0.06713140634018852,-0.06269282022527171,0.020588395646310317
+broad_direct,species_enrichment,True,negative,True,True,-0.0854114518173275,-0.08152753037610769,0.026061879386265616
+broad_direct,loading_increment,True,negative,False,False,-0.02122128483908782,-0.016167291631020056,0.17060294218564198
