@@ -838,13 +838,21 @@ def run_three_axis_analysis(
             evidence_scope=evidence_scope,
         )
         all_cell_audits.append(cell_audit)
+        formal_ledger, global_state_support = formal_state_support(
+            ledger,
+            minimum_unique_species=int(
+                model["minimum_unique_species_per_state"]
+            ),
+            evidence_scope=evidence_scope,
+        )
+        all_global_state_support.append(global_state_support)
         scope_counts: list[pd.DataFrame] = []
 
         for flora_scope in config["flora_scopes"]:
             flora = scopes[flora_scope]
             counts, coverage = build_axis_state_counts(
                 flora,
-                ledger,
+                formal_ledger,
                 stratum=flora_scope,
             )
             coverage.insert(0, "evidence_scope", evidence_scope)
@@ -967,6 +975,11 @@ def run_three_axis_analysis(
         ),
         "status_vector_similarity": similarity,
         "cell_coverage_audit": pd.concat(all_cell_audits, ignore_index=True),
+        "global_state_support": (
+            pd.concat(all_global_state_support, ignore_index=True)
+            if all_global_state_support
+            else pd.DataFrame()
+        ),
         "flora_coverage": pd.concat(all_flora_coverage, ignore_index=True),
         "global_state_support": pd.concat(
             all_global_state_support, ignore_index=True
@@ -1046,6 +1059,9 @@ def run(
     areas.to_csv(output_dir / "tdwg_l3_area.csv", index=False)
     out["cell_coverage_audit"].to_csv(
         output_dir / "cell_coverage_audit.csv", index=False
+    )
+    out["global_state_support"].to_csv(
+        output_dir / "global_state_support.csv", index=False
     )
     out["flora_coverage"].to_csv(output_dir / "flora_coverage.csv", index=False)
     out["global_state_support"].to_csv(
