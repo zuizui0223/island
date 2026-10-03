@@ -113,6 +113,37 @@ directional_score:
       actinomorphic_symmetry: 0.16666666666666666
       shallow_open_tube: 0.16666666666666666
 
+
+global_synthesis:
+  provenance: >-
+    The pre-result v13 approved design defined H1 as a positive global common
+    component and explicitly allowed regional coefficients to differ in magnitude.
+    The later v14 configuration froze the seven positive orientations and the
+    equal-domain orientation rule. H1a/H1b therefore reuse frozen biological
+    definitions; they are not chosen from the raw-state results.
+  H1a_global_average:
+    question: >-
+      Is the average directional response positive across the four predeclared
+      geographic replication strata while allowing between-region heterogeneity?
+    between_region_variance: paule_mandel
+    inference: modified_hartung_knapp
+    df: 3
+    alternative: positive
+    report_two_sided_p_also: true
+  H1b_regional_heterogeneity:
+    test: cochran_q
+    report:
+      - p_value
+      - I2
+      - tau2
+  strict_four_region_recurrence:
+    role: stronger_sensitivity_not_definition_of_H1a
+    method: intersection_union_max_regional_one_sided_p
+  interpretation_rule: >-
+    A supported H1a with supported H1b is a positive global-average tendency with
+    regional modulation. It must not be described as independent syndrome support
+    in every region when the intersection-union test fails.
+
 broad_outcomes:
   self_compatibility:
     trait_name: self_incompatibility
