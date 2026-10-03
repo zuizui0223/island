@@ -41,15 +41,11 @@ domains:
       flower_size_reduction:
         source_trait: flower_size_class
         role: strict_directional_proxy
-        values: {very_small: 1.0, very_large: 0.0}
-      plain_colour_proxy:
-        source_trait: flower_primary_color
-        role: legacy_compositional_proxy_not_attraction_intensity
-        values: {white: 1.0, red_pink: 0.0}
-      inflorescence_display_reduction_proxy:
-        source_trait: inflorescence_display
-        role: exploratory_aggregation_proxy
-        values: {solitary: 1.0, composite_display: 0.0}
+        values: {very_small: 1.0, small: 1.0, large: 0.0, very_large: 0.0}
+    descriptive_state_traits:
+      - flower_primary_color
+      - flower_size_class
+      - inflorescence_display
 """
     )
 
@@ -58,14 +54,8 @@ def test_signal_display_is_not_one_confirmatory_response():
     specs = response_specs(_config())
     assert "signal_display" not in specs
     assert specs["flower_size_reduction"]["role"] == "strict_directional_proxy"
-    assert (
-        specs["plain_colour_proxy"]["role"]
-        == "legacy_compositional_proxy_not_attraction_intensity"
-    )
-    assert (
-        specs["inflorescence_display_reduction_proxy"]["role"]
-        == "exploratory_aggregation_proxy"
-    )
+    assert "plain_colour_proxy" not in specs
+    assert "inflorescence_display_reduction_proxy" not in specs
 
 
 def test_common_support_uses_only_species_with_all_three_strict_scores():
