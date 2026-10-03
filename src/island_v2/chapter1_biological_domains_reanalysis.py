@@ -1113,28 +1113,53 @@ def run_signal_state_models(
     return regional
 
 
-def h3_summary(h3_json: Path) -> dict[str, Any]:
+def h3_summary(
+    h3_json: Path,
+    h3_offshore_json: Path,
+) -> dict[str, Any]:
     payload = json.loads(h3_json.read_text(encoding="utf-8"))
+    offshore_payload = json.loads(
+        h3_offshore_json.read_text(encoding="utf-8")
+    )
     item = payload["corrected"]["global_gradient"]
     estimate = float(item["distance_slope"])
     se = float(item["distance_slope_se"])
     n_publications = int(item["n_publications"])
+
+    offshore = offshore_payload["offshore_continuous_gradient"]
+    offshore_estimate = float(offshore["estimate"])
+    offshore_se = float(offshore["se"])
+    offshore_publications = int(offshore["n_publications"])
     return {
-        "estimate": estimate,
-        "se": se,
-        "n_publications": n_publications,
-        "finite_publication_two_sided_p": finite_cluster_two_sided_p(
-            estimate,
-            se,
-            n_publications,
-        ),
+        "corrected_global": {
+            "estimate": estimate,
+            "se": se,
+            "n_publications": n_publications,
+            "finite_publication_two_sided_p":
+                finite_cluster_two_sided_p(
+                    estimate,
+                    se,
+                    n_publications,
+                ),
+        },
+        "offshore_only_sensitivity": {
+            "estimate": offshore_estimate,
+            "se": offshore_se,
+            "n_publications": offshore_publications,
+            "finite_publication_two_sided_p":
+                finite_cluster_two_sided_p(
+                    offshore_estimate,
+                    offshore_se,
+                    offshore_publications,
+                ),
+        },
         "classification_dependency": False,
         "interpretation": (
-            "H3 is unchanged by trait-domain reclassification and remains an "
-            "independent isolation-associated pollen-limitation gradient."
+            "H3 is unchanged by trait-domain reclassification. The global "
+            "corrected isolation gradient and the post-hoc offshore-only "
+            "sensitivity are replayed with finite-publication t references."
         ),
     }
-
 
 def summarize(
     h1_synthesis: pd.DataFrame,
@@ -1187,6 +1212,7 @@ def run(
     raw_axis_config_path: Path = typer.Option(..., exists=True),
     config_path: Path = typer.Option(..., exists=True),
     h3_json: Path = typer.Option(..., exists=True),
+    h3_offshore_json: Path = typer.Option(..., exists=True),
     output_dir: Path = typer.Option(...),
 ) -> None:
     config = load_config(config_path)
@@ -1340,7 +1366,7 @@ def run(
         config,
     )
     validate_h4_benchmarks(h4, config)
-    h3 = h3_summary(h3_json)
+    h3 = h3_summary(h3_json, h3_offshore_json)
     summary = summarize(synthesis, h2, h3, h4)
 
     support.to_csv(output_dir / "species_score_support.csv", index=False)
