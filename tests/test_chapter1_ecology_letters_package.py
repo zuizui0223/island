@@ -82,7 +82,7 @@ def test_title_page_word_counts_match_manuscript() -> None:
     main_words = _words(manuscript[intro_start:refs_start])
 
     assert f"**Abstract word count:** {abstract_words} " in title_page
-    assert f"**Main-text word count:** {main_words} " in title_page
+    assert f"**Main-text word count:** {main_words:,} " in title_page
 
 
 def test_ecology_letters_title_page_metadata() -> None:
