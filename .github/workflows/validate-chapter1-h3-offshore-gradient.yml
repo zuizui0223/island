@@ -6,12 +6,12 @@ on:
     branches:
       - analysis/wcvp-native-corrected
     paths:
-      - ".github/workflows/run-chapter1-h3-offshore-gradient.yml"
+      - ".github/workflows/validate-chapter1-h3-offshore-gradient.yml"
       - "src/island_v2/chapter1_h3_offshore_gradient_sensitivity.py"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   analyse:
@@ -36,20 +36,6 @@ jobs:
             --measurement-cells-csv results/geography_20260924/h3_corrected_measurement_cells.csv.gz \
             --output-dir /tmp/h3
 
-      - name: Persist results
-        run: |
-          set -euo pipefail
-          target=results/h3_offshore_gradient_20261003
-          rm -rf "$target"
-          mkdir -p "$target"
-          cp /tmp/h3/* "$target/"
-          printf "%s\n" "# H3 offshore-gradient robustness" "" "Post-hoc robustness checks using corrected GloPL measurement cells." "Continuous offshore-only gradient, binary mainland/offshore contrast, and leave-one-publication jackknife are retained." > "$target/README.md"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$target"
-          git commit -m "Persist H3 offshore-gradient robustness results"
-          git pull --rebase origin "$GITHUB_REF_NAME"
-          git push origin "HEAD:$GITHUB_REF_NAME"
 
       - uses: actions/upload-artifact@v4
         if: always()
