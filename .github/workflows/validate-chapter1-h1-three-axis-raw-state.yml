@@ -84,6 +84,68 @@ jobs:
         run: |
           python -m island_v2.chapter1_h1_three_axis_raw_state             --species-axis-csv /tmp/axis3/source/snapshot/chapter1_trait_snapshot_species_axis.csv.gz             --status-flora-csv /tmp/axis3/source/fixed/canonical/input/chapter1_status_flora.csv.gz             --covariates-csv results/geography_20260924/corrected_geography_covariates.csv             --wcvp-ranges-csv /tmp/axis3/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz             --island-tdwg-csv /tmp/axis3/status/resolved/island_tdwg_l3_mapping.csv             --ontology-path config/trait_ontology.yml             --config-path config/chapter1_h1_three_axis_raw_state.yml             --output-dir /tmp/axis3/results
 
+      - name: Audit optimizer stability at 5000 iterations
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+          p=Path("config/chapter1_h1_three_axis_raw_state.yml")
+          cfg=yaml.safe_load(p.read_text())
+          cfg["model"]["max_iter"]=5000
+          Path("/tmp/axis3/config5000.yml").write_text(
+              yaml.safe_dump(cfg, sort_keys=False)
+          )
+          PY
+
+          python -m island_v2.chapter1_h1_three_axis_raw_state             --species-axis-csv /tmp/axis3/source/snapshot/chapter1_trait_snapshot_species_axis.csv.gz             --status-flora-csv /tmp/axis3/source/fixed/canonical/input/chapter1_status_flora.csv.gz             --covariates-csv results/geography_20260924/corrected_geography_covariates.csv             --wcvp-ranges-csv /tmp/axis3/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz             --island-tdwg-csv /tmp/axis3/status/resolved/island_tdwg_l3_mapping.csv             --ontology-path config/trait_ontology.yml             --config-path /tmp/axis3/config5000.yml             --output-dir /tmp/axis3/results5000
+
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+
+          a=Path("/tmp/axis3/results")
+          b=Path("/tmp/axis3/results5000")
+          om1=pd.read_csv(a/"axis_omnibus.csv")
+          om5=pd.read_csv(b/"axis_omnibus.csv")
+          keys=["evidence_scope","flora_scope","axis","context"]
+          m=om1.merge(om5,on=keys,suffixes=("_1500","_5000"),validate="one_to_one")
+          m["q_abs_diff"]=(m["q_value_1500"]-m["q_value_5000"]).abs()
+          m["support_same"]=m["axis_supported_1500"].astype(str).eq(
+              m["axis_supported_5000"].astype(str)
+          )
+          m["convergence_improved"]=(
+              ~m["all_optimizers_converged_1500"].fillna(False).astype(bool)
+              & m["all_optimizers_converged_5000"].fillna(False).astype(bool)
+          )
+          m.to_csv(a/"optimizer_omnibus_stability.csv",index=False)
+
+          s1=pd.read_csv(a/"axis_state_slopes.csv")
+          s5=pd.read_csv(b/"axis_state_slopes.csv")
+          skeys=keys+["outcome"]
+          s=s1.merge(s5,on=skeys,suffixes=("_1500","_5000"),validate="one_to_one")
+          s["slope_abs_diff"]=(
+              s["geography_slope_log_odds_1500"]
+              - s["geography_slope_log_odds_5000"]
+          ).abs()
+          s.to_csv(a/"optimizer_state_stability.csv",index=False)
+
+          finite=m["q_abs_diff"].dropna()
+          print("max q diff",float(finite.max()) if len(finite) else None)
+          print("support changes",int((~m["support_same"]).sum()))
+          print("max slope diff",float(s["slope_abs_diff"].max()))
+          print("persistent omnibus warnings")
+          cols=keys+[
+              "q_value_1500","q_value_5000",
+              "all_optimizers_converged_1500","all_optimizers_converged_5000",
+          ]
+          print(
+              m.loc[
+                  ~m["all_optimizers_converged_5000"].fillna(False).astype(bool),
+                  cols,
+              ].to_string(index=False)
+          )
+          PY
+
       - name: Summarize three-axis result
         run: |
           python - <<'PY'
