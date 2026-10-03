@@ -160,6 +160,9 @@ def test_ambiguous_invalid_state_is_not_silently_reassigned():
         ]
     )
     config = _config()
+    config["axes"]["reproductive_assurance"]["traits"].append(
+        "autonomous_selfing_capacity"
+    )
     ontology = _ontology()
     ontology["traits"]["self_incompatibility"]["allowed_values"].append(
         "mixed_or_variable"
