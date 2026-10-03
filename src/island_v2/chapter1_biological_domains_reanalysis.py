@@ -889,6 +889,131 @@ def run_h4(
     return out
 
 
+def build_signal_state_species_scores(
+    species_axis: pd.DataFrame,
+    ontology: dict[str, Any],
+    raw_axis_config: dict[str, Any],
+    config: dict[str, Any],
+    *,
+    evidence_scope: str,
+) -> pd.DataFrame:
+    """Build binary species memberships for descriptive signal/display states.
+
+    Every state is analysed separately.  No hue or inflorescence ordering is imposed.
+    Species resolved for a focal trait but not carrying a given state contribute zero
+    for that state, so island means are trait-specific state prevalences.
+    """
+    ledger, _ = build_valid_state_ledger(
+        species_axis,
+        ontology,
+        raw_axis_config,
+        evidence_scope=evidence_scope,
+    )
+    traits = {
+        str(x)
+        for x in config["domains"]["signal_display"]["descriptive_state_traits"]
+    }
+    ledger = ledger.loc[
+        ledger["trait_name"].astype(str).isin(traits)
+    ].copy()
+    parts: list[pd.DataFrame] = []
+    for trait, part in ledger.groupby("trait_name", sort=False):
+        species = sorted(part["accepted_species"].astype(str).unique())
+        states = sorted(part["state"].astype(str).unique())
+        if not species or not states:
+            continue
+        membership = {
+            (str(row.accepted_species), str(row.state))
+            for row in part[["accepted_species", "state"]]
+            .drop_duplicates()
+            .itertuples(index=False)
+        }
+        rows: list[dict[str, Any]] = []
+        for accepted_species in species:
+            for state in states:
+                rows.append(
+                    {
+                        "accepted_species": accepted_species,
+                        "response": f"{trait}::{state}",
+                        "domain": "signal_display",
+                        "role": "descriptive_state_prevalence",
+                        "score": 1.0
+                        if (accepted_species, state) in membership
+                        else 0.0,
+                        "trait_name": str(trait),
+                        "state": str(state),
+                    }
+                )
+        parts.append(pd.DataFrame(rows))
+    if not parts:
+        return pd.DataFrame(
+            columns=[
+                "accepted_species",
+                "response",
+                "domain",
+                "role",
+                "score",
+                "trait_name",
+                "state",
+            ]
+        )
+    return pd.concat(parts, ignore_index=True)
+
+
+def run_signal_state_models(
+    species_axis: pd.DataFrame,
+    status_flora: pd.DataFrame,
+    covariates: pd.DataFrame,
+    ontology: dict[str, Any],
+    raw_axis_config: dict[str, Any],
+    config: dict[str, Any],
+    *,
+    evidence_scope: str,
+) -> pd.DataFrame:
+    species_scores = build_signal_state_species_scores(
+        species_axis,
+        ontology,
+        raw_axis_config,
+        config,
+        evidence_scope=evidence_scope,
+    )
+    if species_scores.empty:
+        return pd.DataFrame()
+    island = build_island_scores(
+        status_flora,
+        species_scores[
+            ["accepted_species", "response", "domain", "role", "score"]
+        ],
+        config,
+        flora_scope="all_observed",
+        support_mode="trait_specific",
+    )
+    regional, _ = run_h1(
+        island,
+        covariates,
+        config,
+        evidence_scope=evidence_scope,
+        flora_scope="all_observed",
+        support_mode="trait_specific",
+        analysis_layer="descriptive_signal_state",
+    )
+    if regional.empty:
+        return regional
+    split = regional["response"].astype(str).str.split("::", n=1, expand=True)
+    regional["trait_name"] = split[0]
+    regional["state"] = split[1]
+    regional["q_two_sided_within_trait_region"] = np.nan
+    fit = regional["status"].eq("fit")
+    groups = regional.loc[fit].groupby(
+        ["evidence_scope", "context", "trait_name"]
+    ).groups
+    for idx in groups.values():
+        regional.loc[idx, "q_two_sided_within_trait_region"] = _bh(
+            regional.loc[idx, "p_two_sided"]
+        )
+    return regional
+
+
 def h3_summary(h3_json: Path) -> dict[str, Any]:
     payload = json.loads(h3_json.read_text(encoding="utf-8"))
     item = payload["corrected"]["global_gradient"]
@@ -979,6 +1104,7 @@ def run(
     all_regional: list[pd.DataFrame] = []
     all_synthesis: list[pd.DataFrame] = []
     all_h2: list[pd.DataFrame] = []
+    all_signal_states: list[pd.DataFrame] = []
     support_parts: list[pd.DataFrame] = []
     species_scores_by_scope: dict[str, pd.DataFrame] = {}
 
@@ -992,6 +1118,17 @@ def run(
         )
         species_scores_by_scope[str(evidence_scope)] = species_scores
         support_parts.append(support)
+        all_signal_states.append(
+            run_signal_state_models(
+                species_axis,
+                status_flora,
+                covariates,
+                ontology,
+                raw_config,
+                config,
+                evidence_scope=str(evidence_scope),
+            )
+        )
 
         for flora_scope in (
             "all_observed",
@@ -1087,6 +1224,10 @@ def run(
     regional = pd.concat(all_regional, ignore_index=True)
     synthesis = pd.concat(all_synthesis, ignore_index=True)
     h2 = pd.concat(all_h2, ignore_index=True)
+    signal_states = pd.concat(
+        [x for x in all_signal_states if not x.empty],
+        ignore_index=True,
+    ) if any(not x.empty for x in all_signal_states) else pd.DataFrame()
     support = pd.concat(support_parts, ignore_index=True)
 
     glopl_rows = prepare_glopl_rows(
@@ -1106,6 +1247,10 @@ def run(
     regional.to_csv(output_dir / "H1_regional.csv", index=False)
     synthesis.to_csv(output_dir / "H1_global_synthesis.csv", index=False)
     h2.to_csv(output_dir / "H2_conditional.csv", index=False)
+    signal_states.to_csv(
+        output_dir / "signal_display_state_regional.csv",
+        index=False,
+    )
     h4.to_csv(output_dir / "H4_exact_species.csv", index=False)
     (output_dir / "H3_summary.json").write_text(
         json.dumps(h3, indent=2) + "\n",
