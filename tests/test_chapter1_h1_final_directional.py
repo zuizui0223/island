@@ -6,6 +6,7 @@ import pandas as pd
 from island_v2.chapter1_h1_final_directional import (
     _wild_signflip_p,
     intersection_union_summary,
+    meta_directional_summary,
     validate_score_weights,
 )
 
@@ -126,3 +127,31 @@ def test_wild_signflip_is_deterministic_and_directional():
     assert p1 == p2
     assert p1 < 0.05
     assert p_negative > 0.5
+
+
+def test_meta_summary_can_support_global_average_when_strict_recurrence_fails():
+    contexts = ["north_mid", "north_high", "tropical", "south"]
+    frame = pd.DataFrame(
+        {
+            "status": ["fit"] * 4,
+            "context": contexts,
+            "estimate": [0.016, 0.114, 0.098, 0.070],
+            "cluster_robust_se": [0.0144, 0.0383, 0.0165, 0.0268],
+            "positive_direction": [True] * 4,
+            "p_one_sided_t": [0.13, 0.002, 1e-7, 0.006],
+            "p_one_sided_wild": [0.14, 0.001, 0.001, 0.002],
+        }
+    )
+    strict = intersection_union_summary(
+        frame,
+        contexts=contexts,
+        alpha=0.05,
+    )
+    pooled = meta_directional_summary(
+        frame,
+        contexts=contexts,
+        alpha=0.05,
+    )
+    assert strict["recurrent_robust_supported"] is False
+    assert pooled["positive_global_average_supported"] is True
+    assert pooled["i2"] > 0.5
