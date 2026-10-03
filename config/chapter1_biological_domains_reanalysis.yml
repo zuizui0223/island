@@ -1,0 +1,193 @@
+contract: chapter1_biological_domains_reanalysis_v1
+date: 2026-10-03
+inferential_role: posthoc_biological_reclassification_stress_test
+
+purpose: >-
+  Re-express the frozen component-trait database in biologically interpretable domains
+  without replacing the final confirmatory H1. Test whether reproductive assurance,
+  accessibility/specialization, and signal/display evidence tell a coherent story when
+  small-cluster inference, common-support denominators, taxonomic dependence,
+  floristic provenance, multiplicity and the existing GloPL functional bridge are
+  handled explicitly.
+
+source_axis_config: config/chapter1_h1_three_axis_raw_state.yml
+ontology: config/trait_ontology.yml
+
+geography_column: log_distance_to_continent_km
+context_column: analysis_regime
+cluster_column: spatial_block
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+minimum_islands: 50
+minimum_species_per_island_score: 3
+wild_cluster_replications: 9999
+wild_cluster_seed: 20261003
+alpha: 0.05
+
+evidence_scopes:
+  all_analysis_eligible: [high, medium, low]
+  direct_only: [high, medium]
+
+domains:
+  reproductive_assurance:
+    role: primary_directional
+    minimum_components_per_species: 2
+    components:
+      self_incompatibility:
+        SI: 0.0
+        SC: 1.0
+        mixed_or_variable: 0.5
+      mating_system:
+        predominantly_outcrossing: 0.0
+        mixed_mating: 0.5
+        predominantly_selfing: 1.0
+        obligate_selfing: 1.0
+      autonomous_selfing_capacity:
+        absent: 0.0
+        facilitated: 0.5
+        delayed: 1.0
+        autonomous: 1.0
+        mixed_or_variable: 0.5
+      cleistogamy:
+        absent: 0.0
+        facultative: 1.0
+        obligate: 1.0
+
+  accessibility_specialization:
+    role: primary_directional
+    minimum_components_per_species: 2
+    components:
+      floral_form:
+        open_radial: 1.0
+        brush_puff: 1.0
+        composite_head: 1.0
+        bell_campanulate: 0.0
+        tubular: 0.0
+        salverform: 0.0
+        funnel_trumpet: 0.0
+        urn_urceolate: 0.0
+        papilionaceous: 0.0
+        bilabiate: 0.0
+        spurred: 0.0
+      floral_symmetry:
+        actinomorphic: 1.0
+        zygomorphic: 0.0
+      tube_depth_class:
+        absent_or_open: 1.0
+        shallow: 1.0
+        intermediate: 0.5
+        deep: 0.0
+
+  signal_display:
+    role: exploratory_domain
+    directional_identification: partial_only
+    note: >-
+      Current colour data are hue categories rather than measured visual contrast, and
+      inflorescence_display is an architecture class rather than total display area.
+      Therefore the domain is not assigned one confirmatory direction.
+    components:
+      flower_size_reduction:
+        source_trait: flower_size_class
+        role: strict_directional_proxy
+        values:
+          very_small: 1.0
+          small: 0.75
+          medium: 0.5
+          large: 0.25
+          very_large: 0.0
+      plain_colour_proxy:
+        source_trait: flower_primary_color
+        role: legacy_compositional_proxy_not_attraction_intensity
+        values:
+          white: 1.0
+          green_brown_inconspicuous: 1.0
+          yellow_orange: 0.0
+          red_pink: 0.0
+          blue_purple: 0.0
+      inflorescence_display_reduction_proxy:
+        source_trait: inflorescence_display
+        role: exploratory_aggregation_proxy
+        values:
+          solitary: 1.0
+          few_flowered: 0.75
+          raceme_spike_panicle: 0.25
+          umbel_corymb: 0.25
+          composite_display: 0.0
+          brush_puff_display: 0.0
+
+primary_responses:
+  - reproductive_assurance
+  - accessibility_specialization
+secondary_signal_display_responses:
+  - flower_size_reduction
+  - plain_colour_proxy
+  - inflorescence_display_reduction_proxy
+
+common_support_responses:
+  - reproductive_assurance
+  - accessibility_specialization
+  - flower_size_reduction
+
+H2_models:
+  - response: accessibility_specialization
+    condition_on: [reproductive_assurance]
+    role: accessibility_beyond_assurance
+  - response: flower_size_reduction
+    condition_on: [reproductive_assurance]
+    role: size_reduction_beyond_assurance
+  - response: flower_size_reduction
+    condition_on: [reproductive_assurance, accessibility_specialization]
+    role: size_reduction_beyond_assurance_and_accessibility
+  - response: plain_colour_proxy
+    condition_on: [reproductive_assurance, accessibility_specialization]
+    role: colour_proxy_beyond_core
+  - response: inflorescence_display_reduction_proxy
+    condition_on: [reproductive_assurance, accessibility_specialization]
+    role: display_proxy_beyond_core
+
+H3_source:
+  file: results/geography_20260924/h3_original_corrected_comparison.json
+  use: corrected
+
+GloPL:
+  raw_url: https://raw.githubusercontent.com/idiv-biodiversity/pollen-limitation-data-descriptor/abbe193770981b2c61713e75a0f01e004bdded8e/Output/GloPL.csv
+  sha256: 264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de
+  corrected_site_distances: results/geography_20260924/glopl_corrected_site_distances.csv
+  distance_mean: 1.0336192482458344
+  distance_sd: 2.3354963860020934
+  publication_total_weight: 1.0
+  minimum_matched_species: 30
+  exact_species_match_only: true
+  h4_primary_responses:
+    - reproductive_assurance
+    - accessibility_specialization
+    - flower_size_reduction
+  h4_exploratory_responses:
+    - plain_colour_proxy
+    - inflorescence_display_reduction_proxy
+
+reviewer_guards:
+  - posthoc_reclassification_never_replaces_final_confirmatory_H1
+  - colour_hue_is_not_equated_with_visual_attraction_intensity
+  - inflorescence_architecture_is_not_equated_with_total_display_area
+  - signal_display_domain_has_no_single_confirmatory_direction
+  - missing_component_is_not_zero
+  - trait_specific_and_common_species_support_are_both_reported
+  - finite_cluster_t_and_cluster_signflip_for_island_models
+  - BH_multiplicity_within_declared_posthoc_families
+  - genus_LOO_residual_sensitivity_for_taxonomic_dependence
+  - all_observed_is_assemblage_composition_not_within_lineage_evolution
+  - strict_native_and_introduced_subsets_are_support_diagnostics
+  - H2_is_conditional_decomposition_not_mediation
+  - H3_does_not_identify_pollinator_decline
+  - H4_uses_exact_species_matching_and_is_posthoc_functional_triangulation
+  - no_favorable_result_promotes_named_pollinator_mechanism
