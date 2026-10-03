@@ -473,14 +473,15 @@ def _fit_status_contrast(
     counts: pd.DataFrame,
     config: dict[str, Any],
     *,
+    contrast_config: dict[str, Any],
     evidence_scope: str,
     axis: str,
     context_value: str,
 ) -> tuple[pd.DataFrame, dict[str, Any], pd.DataFrame]:
     model = config["model"]
-    status_cfg = config["status_contrast"]
-    reference = str(status_cfg["reference"])
-    comparison = str(status_cfg["comparison"])
+    contrast = str(contrast_config["contrast"])
+    reference = str(contrast_config["reference"])
+    comparison = str(contrast_config["comparison"])
     context = str(model["context_column"])
     geography = str(model["geography_column"])
     cluster = str(model["cluster_column"])
@@ -499,6 +500,7 @@ def _fit_status_contrast(
         ok = True
         row: dict[str, Any] = {
             "evidence_scope": evidence_scope,
+            "contrast": contrast,
             "axis": axis,
             "context": context_value,
             "outcome": str(outcome),
@@ -542,6 +544,7 @@ def _fit_status_contrast(
     if len(eligible) < int(model["minimum_states_per_axis_test"]):
         return pd.DataFrame(), {
             "evidence_scope": evidence_scope,
+            "contrast": contrast,
             "axis": axis,
             "context": context_value,
             "reference": reference,
@@ -589,6 +592,7 @@ def _fit_status_contrast(
         rows.append(
             {
                 "evidence_scope": evidence_scope,
+                "contrast": contrast,
                 "axis": axis,
                 "context": context_value,
                 "reference": reference,
@@ -632,6 +636,7 @@ def _fit_status_contrast(
     )
     omnibus = {
         "evidence_scope": evidence_scope,
+        "contrast": contrast,
         "axis": axis,
         "context": context_value,
         "reference": reference,
@@ -649,61 +654,69 @@ def _fit_status_contrast(
     return pd.DataFrame(rows), omnibus, support
 
 
-def _status_vector_similarity(slopes: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
-    status_cfg = config["status_contrast"]
-    reference = str(status_cfg["reference"])
-    comparison = str(status_cfg["comparison"])
+def _status_vector_similarity(
+    slopes: pd.DataFrame,
+    config: dict[str, Any],
+) -> pd.DataFrame:
     rows: list[dict[str, Any]] = []
-    for evidence_scope in config["evidence_scopes"]:
-        for axis in config["axes"]:
-            for context_value in config["model"]["contexts"]:
-                ref = slopes.loc[
-                    slopes["evidence_scope"].eq(evidence_scope)
-                    & slopes["flora_scope"].eq(reference)
-                    & slopes["axis"].eq(axis)
-                    & slopes["context"].eq(context_value),
-                    ["outcome", "geography_slope_log_odds"],
-                ]
-                comp = slopes.loc[
-                    slopes["evidence_scope"].eq(evidence_scope)
-                    & slopes["flora_scope"].eq(comparison)
-                    & slopes["axis"].eq(axis)
-                    & slopes["context"].eq(context_value),
-                    ["outcome", "geography_slope_log_odds"],
-                ]
-                paired = ref.merge(
-                    comp,
-                    on="outcome",
-                    suffixes=("_reference", "_comparison"),
-                    validate="one_to_one",
-                )
-                if len(paired) < 2:
-                    continue
-                x = paired["geography_slope_log_odds_reference"].to_numpy(float)
-                y = paired["geography_slope_log_odds_comparison"].to_numpy(float)
-                norm = float(np.linalg.norm(x) * np.linalg.norm(y))
-                cosine = float(np.dot(x, y) / norm) if norm > 0 else float("nan")
-                correlation = (
-                    float(np.corrcoef(x, y)[0, 1])
-                    if len(paired) >= 3
-                    else float("nan")
-                )
-                sign_concordance = float(np.mean(np.sign(x) == np.sign(y)))
-                rows.append(
-                    {
-                        "evidence_scope": evidence_scope,
-                        "axis": axis,
-                        "context": context_value,
-                        "reference": reference,
-                        "comparison": comparison,
-                        "n_common_states": int(len(paired)),
-                        "cosine_similarity": cosine,
-                        "pearson_correlation": correlation,
-                        "sign_concordance": sign_concordance,
-                    }
-                )
+    for contrast_config in config["status_contrasts"]:
+        contrast = str(contrast_config["contrast"])
+        reference = str(contrast_config["reference"])
+        comparison = str(contrast_config["comparison"])
+        for evidence_scope in config["evidence_scopes"]:
+            for axis in config["axes"]:
+                for context_value in config["model"]["contexts"]:
+                    ref = slopes.loc[
+                        slopes["evidence_scope"].eq(evidence_scope)
+                        & slopes["flora_scope"].eq(reference)
+                        & slopes["axis"].eq(axis)
+                        & slopes["context"].eq(context_value),
+                        ["outcome", "geography_slope_log_odds"],
+                    ]
+                    comp = slopes.loc[
+                        slopes["evidence_scope"].eq(evidence_scope)
+                        & slopes["flora_scope"].eq(comparison)
+                        & slopes["axis"].eq(axis)
+                        & slopes["context"].eq(context_value),
+                        ["outcome", "geography_slope_log_odds"],
+                    ]
+                    paired = ref.merge(
+                        comp,
+                        on="outcome",
+                        suffixes=("_reference", "_comparison"),
+                        validate="one_to_one",
+                    )
+                    if len(paired) < 2:
+                        continue
+                    x = paired["geography_slope_log_odds_reference"].to_numpy(float)
+                    y = paired["geography_slope_log_odds_comparison"].to_numpy(float)
+                    norm = float(np.linalg.norm(x) * np.linalg.norm(y))
+                    cosine = (
+                        float(np.dot(x, y) / norm)
+                        if norm > 0
+                        else float("nan")
+                    )
+                    correlation = (
+                        float(np.corrcoef(x, y)[0, 1])
+                        if len(paired) >= 3
+                        else float("nan")
+                    )
+                    sign_concordance = float(np.mean(np.sign(x) == np.sign(y)))
+                    rows.append(
+                        {
+                            "contrast": contrast,
+                            "evidence_scope": evidence_scope,
+                            "axis": axis,
+                            "context": context_value,
+                            "reference": reference,
+                            "comparison": comparison,
+                            "n_common_states": int(len(paired)),
+                            "cosine_similarity": cosine,
+                            "pearson_correlation": correlation,
+                            "sign_concordance": sign_concordance,
+                        }
+                    )
     return pd.DataFrame(rows)
-
 
 def run_tdwg_resolution_sensitivity(
     counts: pd.DataFrame,
@@ -890,33 +903,37 @@ def run_three_axis_analysis(
 
         if scope_counts:
             combined_counts = pd.concat(scope_counts, ignore_index=True)
-            contrast_names = {
-                str(config["status_contrast"]["reference"]),
-                str(config["status_contrast"]["comparison"]),
-            }
-            contrast_counts = combined_counts.loc[
-                combined_counts["stratum"].isin(contrast_names)
-            ].copy()
-            prepared_contrast = _prepare(
-                contrast_counts.drop(columns="evidence_scope"),
-                covariates,
-                fit_cfg,
-            )
-            for axis in config["axes"]:
-                for context_value in model["contexts"]:
-                    slopes, omnibus, support = _fit_status_contrast(
-                        prepared_contrast,
-                        contrast_counts,
-                        config,
-                        evidence_scope=evidence_scope,
-                        axis=str(axis),
-                        context_value=str(context_value),
-                    )
-                    if not slopes.empty:
-                        status_slopes.append(slopes)
-                    status_omnibus.append(omnibus)
-                    if not support.empty:
-                        status_support.append(support)
+            for contrast_config in config["status_contrasts"]:
+                contrast_names = {
+                    str(contrast_config["reference"]),
+                    str(contrast_config["comparison"]),
+                }
+                contrast_counts = combined_counts.loc[
+                    combined_counts["stratum"].isin(contrast_names)
+                ].copy()
+                if contrast_counts.empty:
+                    continue
+                prepared_contrast = _prepare(
+                    contrast_counts.drop(columns="evidence_scope"),
+                    covariates,
+                    fit_cfg,
+                )
+                for axis in config["axes"]:
+                    for context_value in model["contexts"]:
+                        slopes, omnibus, support = _fit_status_contrast(
+                            prepared_contrast,
+                            contrast_counts,
+                            config,
+                            contrast_config=contrast_config,
+                            evidence_scope=evidence_scope,
+                            axis=str(axis),
+                            context_value=str(context_value),
+                        )
+                        if not slopes.empty:
+                            status_slopes.append(slopes)
+                        status_omnibus.append(omnibus)
+                        if not support.empty:
+                            status_support.append(support)
 
     omnibus = pd.DataFrame(all_omnibus)
     if not omnibus.empty and "p_value" in omnibus.columns:
@@ -935,7 +952,7 @@ def run_three_axis_analysis(
     if not status_omnibus_frame.empty and "p_value" in status_omnibus_frame.columns:
         status_omnibus_frame["q_value"] = (
             status_omnibus_frame.groupby(
-                ["evidence_scope"],
+                ["evidence_scope", "contrast"],
                 group_keys=False,
             )["p_value"]
             .transform(_bh)
