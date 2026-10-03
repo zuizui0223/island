@@ -5,7 +5,7 @@ on:
     branches:
       - analysis/wcvp-native-corrected
     paths:
-      - ".github/workflows/run-chapter1-h2-complete-selfing.yml"
+      - ".github/workflows/run-chapter1-h2-complete-selfing.yml"\n      - "src/island_v2/chapter1_h2_complete_selfing_sensitivity.py"
   workflow_dispatch:
 
 permissions:
