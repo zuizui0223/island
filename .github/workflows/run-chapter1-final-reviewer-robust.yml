@@ -83,7 +83,7 @@ jobs:
               evidence=direct_only
             fi
             mkdir -p "/tmp/final/results/$scope"
-            python -m island_v2.chapter1_final_reviewer_robust run               --status-flora-csv /tmp/final/source/fixed/canonical/input/chapter1_status_flora.csv.gz               --state-audit-csv "$audit"               --syndrome-scores-csv "/tmp/final/all-data/syndrome/$scope/island_syndrome_scores.csv.gz"               --covariates-csv results/geography_20260924/corrected_geography_covariates.csv               --v14-h1-config-path config/chapter1_v14_all_data_probability.yml               --config-path config/chapter1_final_reviewer_robust.yml               --evidence-scope "$evidence"               --output-dir "/tmp/final/results/$scope"
+            python -m island_v2.chapter1_final_reviewer_robust               --status-flora-csv /tmp/final/source/fixed/canonical/input/chapter1_status_flora.csv.gz               --state-audit-csv "$audit"               --syndrome-scores-csv "/tmp/final/all-data/syndrome/$scope/island_syndrome_scores.csv.gz"               --covariates-csv results/geography_20260924/corrected_geography_covariates.csv               --v14-h1-config-path config/chapter1_v14_all_data_probability.yml               --config-path config/chapter1_final_reviewer_robust.yml               --evidence-scope "$evidence"               --output-dir "/tmp/final/results/$scope"
           done
 
       - name: Assemble compact reviewer report
