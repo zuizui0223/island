@@ -8,7 +8,6 @@ on:
       - "config/chapter1_h1_final_directional.yml"
       - "src/island_v2/chapter1_h1_final_directional.py"
       - "tests/test_chapter1_h1_final_directional.py"
-      - "scripts/submission/audit_chapter1_h2_h4_finite_clusters.py"
       - ".github/workflows/validate-chapter1-h1-final-directional.yml"
   pull_request:
     branches:
@@ -18,7 +17,6 @@ on:
       - "config/chapter1_h1_final_directional.yml"
       - "src/island_v2/chapter1_h1_final_directional.py"
       - "tests/test_chapter1_h1_final_directional.py"
-      - "scripts/submission/audit_chapter1_h2_h4_finite_clusters.py"
       - ".github/workflows/validate-chapter1-h1-final-directional.yml"
   workflow_dispatch:
 
@@ -245,9 +243,6 @@ jobs:
             echo
             echo "## Weighting sensitivity"
             cat /tmp/h1-final/results/weight_sensitivity_summary.csv
-            echo
-            echo "## H1a global average and H1b heterogeneity"
-            cat /tmp/h1-final/results/global_directional_synthesis.csv
             echo
             echo "## H2-H4 finite-cluster decision audit"
             cat /tmp/h1-final/results/inference-audit/h2_h4_final_decision_summary.json
