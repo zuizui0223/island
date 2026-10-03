@@ -19,41 +19,63 @@ common_support_responses:
   - reproductive_assurance
   - accessibility_specialization
   - flower_size_reduction
-primary_responses:
-  - reproductive_assurance
-  - accessibility_specialization
 domains:
+  reproductive_assurance_core:
+    domain: reproductive_assurance
+    role: frozen_PR138_benchmark
+    minimum_components_per_species: 2
+    components:
+      self_incompatibility:
+        weight: 1.0
+        values: {SI: 0.0, SC: 1.0}
+      mating_system:
+        weight: 1.0
+        values: {predominantly_outcrossing: 0.0, predominantly_selfing: 1.0}
   reproductive_assurance:
-    role: primary_directional
+    domain: reproductive_assurance
+    role: posthoc_extended_domain
     minimum_components_per_species: 2
     components:
-      self_incompatibility: {SI: 0.0, SC: 1.0}
-      mating_system: {predominantly_outcrossing: 0.0, predominantly_selfing: 1.0}
+      self_incompatibility:
+        weight: 1.0
+        values: {SI: 0.0, SC: 1.0}
+      mating_system:
+        weight: 1.0
+        values: {predominantly_outcrossing: 0.0, predominantly_selfing: 1.0}
   accessibility_specialization:
-    role: primary_directional
+    domain: accessibility_specialization
+    role: frozen_PR138_benchmark_and_posthoc_domain
     minimum_components_per_species: 2
     components:
-      floral_form: {open_radial: 1.0, tubular: 0.0}
-      floral_symmetry: {actinomorphic: 1.0, zygomorphic: 0.0}
+      floral_form:
+        weight: 1.0
+        values: {open_radial: 1.0, tubular: 0.0}
+      floral_symmetry:
+        weight: 0.75
+        values: {actinomorphic: 1.0, zygomorphic: 0.0}
   signal_display:
     role: exploratory_domain
-    components:
+    directional_component:
       flower_size_reduction:
         source_trait: flower_size_class
-        role: strict_directional_proxy
+        role: frozen_selfing_syndrome_size_recode
+        minimum_components_per_species: 1
+        weight: 1.0
         values: {very_small: 1.0, small: 1.0, large: 0.0, very_large: 0.0}
-    descriptive_state_traits:
+    raw_state_traits:
       - flower_primary_color
       - flower_size_class
       - inflorescence_display
 """
     )
 
-
 def test_signal_display_is_not_one_confirmatory_response():
     specs = response_specs(_config())
     assert "signal_display" not in specs
-    assert specs["flower_size_reduction"]["role"] == "strict_directional_proxy"
+    assert (
+        specs["flower_size_reduction"]["role"]
+        == "frozen_selfing_syndrome_size_recode"
+    )
     assert "plain_colour_proxy" not in specs
     assert "inflorescence_display_reduction_proxy" not in specs
 
