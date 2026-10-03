@@ -29,6 +29,7 @@ contexts:
   - southern_extratropical
 minimum_islands: 50
 minimum_species_per_island_score: 10
+minimum_species_per_island_score_sensitivity: [3, 10, 20]
 wild_cluster_replications: 9999
 wild_cluster_seed: 20261003
 alpha: 0.05
@@ -226,6 +227,8 @@ reviewer_guards:
   - mixed_or_ambiguous_states_are_not_forced_to_midpoint_scores
   - missing_component_is_not_zero
   - trait_specific_and_common_species_support_are_both_reported
+  - island_score_minimum_species_3_10_20_sensitivity_is_reported
+  - response_specific_trait_coverage_gradient_is_reported
   - finite_cluster_t_and_cluster_signflip_for_island_models
   - BH_multiplicity_within_declared_posthoc_families
   - genus_LOO_residual_sensitivity_for_taxonomic_dependence
