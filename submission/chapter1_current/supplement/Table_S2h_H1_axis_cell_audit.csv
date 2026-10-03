@@ -1,0 +1,7 @@
+evidence_scope,axis,resolved_axis_cells,ontology_valid_axis_cells,ontology_repaired_axis_cells,n_reassigned_state_memberships
+all_analysis_eligible,floral_structural_complexity,91635,91635,860,5102
+all_analysis_eligible,flower_colour,82556,82556,0,0
+all_analysis_eligible,reproductive_assurance,48497,48497,40,240
+direct_only,floral_structural_complexity,52288,52288,0,0
+direct_only,flower_colour,40721,40721,0,0
+direct_only,reproductive_assurance,9923,9923,0,0
