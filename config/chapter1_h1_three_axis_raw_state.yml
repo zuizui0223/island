@@ -52,14 +52,22 @@ model:
   max_iter: 1500
   retry_max_iter: 5000
 
-status_contrast:
-  reference: regional_native_compatible
-  comparison: regionally_incompatible_or_introduced
-  interpretation: >-
-    Test whether the isolation-associated raw-state response vector differs between
-    regional-native-compatible and complementary incompatible/introduced flora within
-    the same geographic region. This is a provenance-specificity test, not a causal
-    introduction effect.
+status_contrasts:
+  - contrast: regional_compatibility
+    reference: regional_native_compatible
+    comparison: regionally_incompatible_or_introduced
+    interpretation: >-
+      Test whether the isolation-associated raw-state response vector differs between
+      regional-native-compatible and complementary incompatible/introduced flora within
+      the same geographic region. This is a provenance-specificity test, not a causal
+      introduction effect.
+  - contrast: strict_known_origin
+    reference: source_native
+    comparison: source_introduced
+    interpretation: >-
+      Directly compare source-backed native and source-backed introduced records using
+      the identical raw-state axis model wherever both partitions meet the frozen
+      support gates. This is expected to be support-limited outside the tropics.
 
 multiple_testing:
   primary_family: axis_by_region_within_each_evidence_and_flora_scope
