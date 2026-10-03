@@ -17,8 +17,8 @@ design_provenance:
 
 purpose: >-
   Floristic-origin sensitivity replay of the frozen seven-trait H1. The all-observed
-  result remains the confirmatory reference; source-backed native and source-backed
-  introduced records are compared only as sensitivity strata.
+  result remains the confirmatory reference; source-backed native records are used as
+  the sole status sensitivity.
 
 parent_confirmatory_config: config/chapter1_h1_final_directional.yml
 origin_sensitivity_only: true
@@ -56,11 +56,10 @@ contexts:
 strata:
   - all_observed
   - all_native
-  - all_introduced
 
 flora_roles:
   broad_primary: all_observed
-  status_sensitivities: [all_native, all_introduced]
+  status_sensitivities: [all_native]
 
 evidence_roles:
   primary: all_analysis_eligible
@@ -192,8 +191,6 @@ rules:
   - global_recurrence_is_an_intersection_union_claim_across_four_regions
   - all_observed_is_contemporary_flora_not_native_evolution
   - native_status_results_are_sensitivities_not_four_region_confirmatory_replication
-  - introduced_status_results_are_sensitivities_not_four_region_confirmatory_replication
-  - source_backed_introduced_is_not_equivalent_to_all_non_native_or_unresolved_records
   - raw_state_three_axis_results_are_descriptive_reorganization_evidence
   - equal_indicator_and_core_two_domain_weights_are_predeclared_sensitivities
   - no_pollinator_identity_is_inferred_from_H1
