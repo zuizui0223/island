@@ -22,8 +22,8 @@ GSHHG 2.3.7 geography + GBIF island floras + trait evidence
               |                     |
               v                     v
         H1 pattern              H2 pathway
-  beta-binomial GLM       assurance-adjusted models
-  + multivariate Wald      + raw colour/architecture
+  directional 1-df score  assurance-adjusted models
+  + H1a/H1b synthesis      + raw colour/architecture
               |                     |
               +----------+----------+
                          |
@@ -85,13 +85,13 @@ Models:
 - `reproductive assurance ~ isolation + area + climate`;
 - `floral response ~ isolation + reproductive assurance + area + climate`.
 
-Primary selfing-adjusted accessibility q-values:
-- N mid: `0.1703`;
-- N high: `0.000847`;
-- Tropical: `0.01616`;
-- S extra: `0.2873`.
+Primary selfing-adjusted accessibility finite-cluster q-values:
+- N mid: `0.1764`;
+- N high: `0.00243`;
+- Tropical: `0.01913`;
+- S extra: `0.2977`.
 
-Tropical Direct-only accessibility is not FDR-supported after correction (`q=0.1196`).
+Tropical Direct-only accessibility is not FDR-supported after finite-cluster correction (`q=0.1267`).
 
 ## H3 — Ecological pressure
 
