@@ -986,19 +986,33 @@ def run(
     covariates_csv: Path = typer.Option(..., exists=True),
     wcvp_ranges_csv: Path = typer.Option(..., exists=True),
     island_tdwg_csv: Path = typer.Option(..., exists=True),
+    tdwg_level3_geojson: Path = typer.Option(..., exists=True),
     ontology_path: Path = typer.Option(..., exists=True),
     config_path: Path = typer.Option(..., exists=True),
     output_dir: Path = typer.Option(...),
 ) -> None:
     config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
     ontology = yaml.safe_load(ontology_path.read_text(encoding="utf-8"))
+    covariates = pd.read_csv(covariates_csv)
+    island_tdwg = pd.read_csv(island_tdwg_csv, dtype=str).fillna("")
     out = run_three_axis_analysis(
         pd.read_csv(species_axis_csv, dtype=str).fillna(""),
         pd.read_csv(status_flora_csv, dtype=str).fillna(""),
-        pd.read_csv(covariates_csv),
+        covariates,
         pd.read_csv(wcvp_ranges_csv, dtype=str).fillna(""),
-        pd.read_csv(island_tdwg_csv, dtype=str).fillna(""),
+        island_tdwg,
         ontology,
+        config,
+    )
+    areas = tdwg_l3_areas(tdwg_level3_geojson)
+    resolution_covariates, resolution_distance = build_resolution_covariates(
+        covariates,
+        island_tdwg,
+        areas,
+    )
+    resolution = run_tdwg_resolution_sensitivity(
+        out["counts"],
+        resolution_covariates,
         config,
     )
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1017,6 +1031,19 @@ def run(
     out["status_vector_similarity"].to_csv(
         output_dir / "status_vector_similarity.csv", index=False
     )
+    resolution["slopes"].to_csv(
+        output_dir / "tdwg_resolution_axis_state_slopes.csv", index=False
+    )
+    resolution["omnibus"].to_csv(
+        output_dir / "tdwg_resolution_axis_omnibus.csv", index=False
+    )
+    resolution["support"].to_csv(
+        output_dir / "tdwg_resolution_state_support.csv", index=False
+    )
+    resolution_distance.to_csv(
+        output_dir / "tdwg_resolution_distance_audit.csv", index=False
+    )
+    areas.to_csv(output_dir / "tdwg_l3_area.csv", index=False)
     out["cell_coverage_audit"].to_csv(
         output_dir / "cell_coverage_audit.csv", index=False
     )
