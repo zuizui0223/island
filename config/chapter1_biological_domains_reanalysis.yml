@@ -239,4 +239,5 @@ reviewer_guards:
   - H2_is_conditional_decomposition_not_mediation
   - H3_does_not_identify_pollinator_decline
   - H4_uses_exact_species_matching_and_is_posthoc_functional_triangulation
+  - H4_pairwise_and_three_domain_conditional_models_are_reported
   - no_favorable_result_promotes_named_pollinator_mechanism
