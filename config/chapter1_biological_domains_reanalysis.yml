@@ -4,14 +4,14 @@ inferential_role: posthoc_biological_reclassification_stress_test
 
 purpose: >-
   Re-express the frozen component-trait database in biologically interpretable domains
-  without replacing the final confirmatory H1. Test whether reproductive assurance,
-  accessibility/specialization, and signal/display evidence tell a coherent story when
-  small-cluster inference, common-support denominators, taxonomic dependence,
-  floristic provenance, multiplicity and the existing GloPL functional bridge are
-  handled explicitly.
+  without replacing the final confirmatory H1. The new classification is tested as a
+  labelled post-hoc stress test. Existing PR138 reproductive-assurance and accessibility
+  definitions are reproduced exactly as benchmarks before any extended-domain result is
+  interpreted.
 
 source_axis_config: config/chapter1_h1_three_axis_raw_state.yml
 ontology: config/trait_ontology.yml
+frozen_syndrome_reference: config/chapter1_pr138_pollination_syndromes.yml
 
 geography_column: log_distance_to_continent_km
 context_column: analysis_regime
@@ -28,7 +28,7 @@ contexts:
   - tropical
   - southern_extratropical
 minimum_islands: 50
-minimum_species_per_island_score: 3
+minimum_species_per_island_score: 10
 wild_cluster_replications: 9999
 wild_cluster_seed: 20261003
 alpha: 0.05
@@ -38,78 +38,114 @@ evidence_scopes:
   direct_only: [high, medium]
 
 domains:
-  reproductive_assurance:
-    role: primary_directional
-    source_definition: config/chapter1_pr138_pollination_syndromes.yml::selfing_core
+  reproductive_assurance_core:
+    domain: reproductive_assurance
+    role: frozen_PR138_benchmark
     minimum_components_per_species: 2
     components:
       self_incompatibility:
-        SI: 0.0
-        SC: 1.0
+        weight: 1.0
+        values: {SI: 0.0, SC: 1.0}
       mating_system:
-        predominantly_outcrossing: 0.0
-        predominantly_selfing: 1.0
-        obligate_selfing: 1.0
+        weight: 1.0
+        values:
+          predominantly_outcrossing: 0.0
+          predominantly_selfing: 1.0
+          obligate_selfing: 1.0
       autonomous_selfing_capacity:
-        absent: 0.0
-        delayed: 1.0
-        autonomous: 1.0
-    excluded_but_related:
-      cleistogamy: >-
-        Biologically relevant to assurance but excluded from the primary directional
-        score because it was not part of the frozen PR138 selfing_core. It may be
-        described separately but cannot improve the primary score post hoc.
+        weight: 1.0
+        values:
+          absent: 0.0
+          delayed: 1.0
+          autonomous: 1.0
+
+  reproductive_assurance:
+    domain: reproductive_assurance
+    role: posthoc_extended_domain
+    minimum_components_per_species: 2
+    components:
+      self_incompatibility:
+        weight: 1.0
+        values: {SI: 0.0, SC: 1.0}
+      mating_system:
+        weight: 1.0
+        values:
+          predominantly_outcrossing: 0.0
+          predominantly_selfing: 1.0
+          obligate_selfing: 1.0
+      autonomous_selfing_capacity:
+        weight: 1.0
+        values:
+          absent: 0.0
+          delayed: 1.0
+          autonomous: 1.0
+      cleistogamy:
+        weight: 1.0
+        values:
+          absent: 0.0
+          facultative: 1.0
+          obligate: 1.0
 
   accessibility_specialization:
-    role: primary_directional
-    source_definition: config/chapter1_pr138_pollination_syndromes.yml::generalized_accessible
+    domain: accessibility_specialization
+    role: frozen_PR138_benchmark_and_posthoc_domain
     minimum_components_per_species: 2
     components:
       floral_form:
-        open_radial: 1.0
-        brush_puff: 1.0
-        composite_head: 1.0
-        salverform: 0.0
-        tubular: 0.0
-        spurred: 0.0
-        papilionaceous: 0.0
-        bilabiate: 0.0
-        urn_urceolate: 0.0
+        weight: 1.0
+        values:
+          open_radial: 1.0
+          brush_puff: 1.0
+          composite_head: 1.0
+          tubular: 0.0
+          salverform: 0.0
+          urn_urceolate: 0.0
+          papilionaceous: 0.0
+          bilabiate: 0.0
+          spurred: 0.0
       floral_symmetry:
-        actinomorphic: 1.0
-        zygomorphic: 0.0
+        weight: 0.75
+        values:
+          actinomorphic: 1.0
+          zygomorphic: 0.0
       tube_depth_class:
-        absent_or_open: 1.0
-        shallow: 1.0
-        deep: 0.0
+        weight: 1.0
+        values:
+          absent_or_open: 1.0
+          shallow: 1.0
+          deep: 0.0
 
   signal_display:
+    domain: signal_display
     role: exploratory_domain
     directional_identification: partial_only
     note: >-
-      Current colour data are hue categories rather than measured visual contrast, and
-      inflorescence_display is an architecture class rather than total display area.
-      Therefore the domain is not assigned one confirmatory direction.
-    components:
+      Colour is hue rather than measured visual contrast and inflorescence_display is
+      architecture rather than total display area. Therefore signal/display is not
+      collapsed into one ordinal score.
+    directional_component:
       flower_size_reduction:
+        role: frozen_selfing_syndrome_size_recode
+        minimum_components_per_species: 1
         source_trait: flower_size_class
-        source_definition: config/chapter1_pr138_pollination_syndromes.yml::selfing_syndrome.flower_size_class
-        role: strict_directional_proxy
+        weight: 1.0
         values:
           very_small: 1.0
           small: 1.0
           large: 0.0
           very_large: 0.0
-    descriptive_state_traits:
+    raw_state_traits:
       - flower_primary_color
       - flower_size_class
       - inflorescence_display
 
-primary_responses:
+primary_posthoc_H1_responses:
   - reproductive_assurance
   - accessibility_specialization
-secondary_signal_display_responses:
+secondary_directional_H1_response:
   - flower_size_reduction
+benchmark_H1_response:
+  - reproductive_assurance_core
 
 common_support_responses:
   - reproductive_assurance
@@ -120,19 +156,35 @@ H2_models:
   - response: accessibility_specialization
     condition_on: [reproductive_assurance]
     role: accessibility_beyond_assurance
+    primary_posthoc: true
   - response: flower_size_reduction
     condition_on: [reproductive_assurance]
     role: size_reduction_beyond_assurance
+    primary_posthoc: true
   - response: accessibility_specialization
     condition_on: [reproductive_assurance, flower_size_reduction]
     role: accessibility_beyond_assurance_and_size
+    primary_posthoc: false
   - response: flower_size_reduction
     condition_on: [reproductive_assurance, accessibility_specialization]
     role: size_reduction_beyond_assurance_and_accessibility
+    primary_posthoc: false
+
+signal_display_state_analysis:
+  traits:
+    - flower_primary_color
+    - flower_size_class
+    - inflorescence_display
+  minimum_positive_islands: 10
+  minimum_negative_islands: 10
+  multiplicity: BH_within_trait_region_evidence_scope
+  role: descriptive_statewise_reorganization_no_domain_omnibus
 
 H3_source:
   file: results/geography_20260924/h3_original_corrected_comparison.json
+  offshore_file: results/h3_offshore_gradient_20261003/h3_offshore_gradient_summary.json
   use: corrected
+  classification_dependency: false
 
 GloPL:
   raw_url: https://raw.githubusercontent.com/idiv-biodiversity/pollen-limitation-data-descriptor/abbe193770981b2c61713e75a0f01e004bdded8e/Output/GloPL.csv
@@ -143,17 +195,35 @@ GloPL:
   publication_total_weight: 1.0
   minimum_matched_species: 30
   exact_species_match_only: true
-  h4_primary_responses:
+  benchmark_responses:
+    - reproductive_assurance_core
+    - accessibility_specialization
+  h4_primary_posthoc_responses:
     - reproductive_assurance
     - accessibility_specialization
     - flower_size_reduction
-  h4_exploratory_responses: []
+  multiplicity: BH_across_three_primary_posthoc_responses
+  benchmark_expected_corrected_results:
+    reproductive_assurance_core:
+      estimate: -0.2983005681547416
+      se: 0.10352118588969686
+      n_species: 455
+      n_publications: 409
+    accessibility_specialization:
+      estimate: -0.295659590051078
+      se: 0.12896495999825042
+      n_species: 143
+      n_publications: 143
+    tolerance: 0.000001
 
 reviewer_guards:
   - posthoc_reclassification_never_replaces_final_confirmatory_H1
+  - frozen_A_B_benchmarks_must_reproduce_before_new_domain_interpretation
   - colour_hue_is_not_equated_with_visual_attraction_intensity
   - inflorescence_architecture_is_not_equated_with_total_display_area
   - signal_display_domain_has_no_single_confirmatory_direction
+  - flower_size_direction_reuses_preexisting_PR138_selfing_syndrome_recode
+  - mixed_or_ambiguous_states_are_not_forced_to_midpoint_scores
   - missing_component_is_not_zero
   - trait_specific_and_common_species_support_are_both_reported
   - finite_cluster_t_and_cluster_signflip_for_island_models
