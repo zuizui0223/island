@@ -2,7 +2,7 @@
 
 ## Current decision
 
-The corrected Chapter 1 scientific package is **analysis-complete and figure-complete**.
+The corrected Chapter 1 scientific package is **analysis-complete; main-figure regeneration is in progress after the final inference audit**.
 
 First-shot journal: **Ecology Letters**, conditional on closing the journal's data-policy gate.
 
@@ -13,11 +13,12 @@ Fallback: **Global Ecology and Biogeography** if the third-party trait-data rest
 ### Science
 
 - corrected 8,264-island geographic baseline;
-- H1 raw three-axis result: reproductive assurance and floral structure recur in 4/4 regions; colour is geographically contingent;
-- H1 Direct-only northern-high optimizer warning independently closed;
-- H2 reproductive-assurance / accessibility conditional decomposition;
-- H3 independent GloPL pollen-limitation gradient;
-- H4 exact-species functional triangulation;
+- H1a positive global-average predeclared island-syndrome direction supported in all-analysis and Direct-only random-effects synthesis;
+- H1b regional heterogeneity supported; strict four-region recurrence explicitly fails because northern mid-latitudes are weak;
+- raw three-axis/state models retained as descriptive reorganization and floristic-origin diagnostics, not confirmatory H1 tests;
+- H2 reproductive-assurance / accessibility conditional decomposition re-audited with finite-cluster inference;
+- H3 independent GloPL pollen-limitation gradient retained under finite-publication inference, including offshore-only robustness;
+- H4 exact-species functional triangulation retained under finite-publication inference;
 - causal/claim boundaries fixed in manuscript and SI.
 
 ### Manuscript package
@@ -33,8 +34,8 @@ Fallback: **Global Ecology and Biogeography** if the third-party trait-data rest
 
 ### Figures and Supplementary Information
 
-- Main Figures 1–6 committed in SVG/PDF;
-- main-figure manifest and deterministic renderer;
+- deterministic Main Figure 1–6 renderer updated to the final directional H1 and finite-cluster H2–H4 result surface;
+- committed SVG/PDF figures must be regenerated once from that updated renderer before submission;
 - Supplementary Information S1–S7 assembled;
 - deterministic Tables S1, S2a–S2h, S3, S5, S6a and S6b;
 - Supplementary Figures S1–S7 committed in SVG/PDF;
@@ -115,4 +116,4 @@ After metadata and DOI freeze:
 
 ## Current scientific claim in one sentence
 
-**Geographic isolation repeatedly reorganizes reproductive assurance and floral structure across island floras while colour remains more contingent; these recurrent domains persist in regional-native-compatible floras, are not reproduced as the same vector by introduced/incompatible floras, and occur along a gradient of increasing experimental pollen limitation.**
+**Geographic isolation is associated with a positive global-average floral/reproductive island-syndrome direction whose strength differs strongly among regions; reproductive assurance and accessibility are the most consistent functional components, and the same isolation axis is independently associated with increasing pollen limitation.**
