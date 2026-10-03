@@ -1,6 +1,6 @@
 # Ecology Letters first-shot target — conditional on data-policy clearance
 
-Checked: 27 September 2026.
+Checked: 3 October 2026.
 
 ## Why this paper is being aimed here
 
@@ -20,7 +20,7 @@ The historical causal edge from pollen limitation to contemporary trait composit
 
 For a **Letter**:
 
-- main text: maximum 5,000 words;
+- main text: maximum 5,000 words, excluding title page, abstract, acknowledgements, references and figure/table/box legends;
 - figures + tables + text boxes: maximum 6 display items;
 - abstract: maximum 150 words;
 - title page requires:
@@ -53,8 +53,8 @@ A pre-submission inquiry is drafted in `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md`.
 - Main figures: **6**
 - Tables: **0**
 - Text boxes: **0**
-- Main text: comfortably below 5,000 words
-- Abstract: <150 words
+- Main text: **4,958 / 5,000 words** (42-word margin)
+- Abstract: **141 / 150 words**
 - Running-title candidate: **Island floral syndrome beyond selfing**
 - Keywords: island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; flower colour; pollination
 

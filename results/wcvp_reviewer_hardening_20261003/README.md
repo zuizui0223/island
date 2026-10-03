@@ -58,16 +58,25 @@ The ratio of Level-3 area to focal-island area shows the same qualitative struct
 
 The WCVP regional-native H1 models were re-fitted with `log_tdwg_l3_area_km2` as an additional covariate, on top of the existing island-area and climate controls.
 
-All four regional vectors remain supported:
+To separate covariate adjustment from the loss of islands lacking usable Level-3 area, the unadjusted H1 was first re-fitted on the **same Level-3-area-complete island support**. All four vectors were already supported on that matched support:
 
-| Region | All-analysis q | Direct-only q |
+| Region | Matched-support all-analysis q | Matched-support Direct-only q |
+| --- | ---: | ---: |
+| Northern mid-latitude | 0.00138 | 0.00226 |
+| Northern high latitude | 0.04396 | 0.00195 |
+| Tropical | 0.00166 | 0.00142 |
+| Southern extratropical | 6.20e-11 | 8.48e-9 |
+
+After adding Level-3 area, all four regional vectors remained supported:
+
+| Region | L3-adjusted all-analysis q | L3-adjusted Direct-only q |
 | --- | ---: | ---: |
 | Northern mid-latitude | 0.00259 | 0.00257 |
 | Northern high latitude | 0.00917 | 1.83e-5 |
 | Tropical | 3.36e-6 | 1.14e-5 |
 | Southern extratropical | 0.000388 | 0.00634 |
 
-Thus unequal TDWG Level-3 spatial resolution is a real property of the sensitivity design, but it does not explain away the four-region regional-native result.
+Thus unequal TDWG Level-3 spatial resolution is a real property of the sensitivity design, but neither complete-case support restriction nor explicit Level-3-area adjustment explains away the four-region regional-native result.
 
 ## Claim boundary
 
@@ -77,15 +86,16 @@ After this audit the WCVP result should be written as:
 
 ## Provenance
 
-- validation workflow run: **37103299826**
-- artifact: **11266169216**
-- artifact digest: `sha256:3e86d90cc47ff3c0af0a5df0e9a96a8c172d37b58dc568c3384765b141b6fec4`
+- validation workflow run: **37103668310**
+- artifact: **11266114760**
+- artifact digest: `sha256:33e63c2e018425b79ed8bf01ef432c84487dd4dfba95de31705db73fa29a33f2`
 - WCVP native ranges: frozen run **37089905542**
 - TDWG WGSRPD geometry commit: `52da7828aba9d461dd133c27b3bd7a4407161f54`
 
 Compact committed outputs:
 
 - `incompatible_or_introduced_H1.csv`
+- `resolution_matched_baseline_H1.csv`
 - `resolution_adjusted_H1.csv`
 - `tdwg_resolution_distance_audit.csv`
 - `direct_high_convergence_audit.json`
