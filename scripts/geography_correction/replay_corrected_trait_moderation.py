@@ -1,3 +1,4 @@
+# ruff: noqa: B008
 """Replay frozen GloPL trait-moderation tests on corrected geography.
 
 This is a measurement-repair replay, not a new trait-interaction search. It reuses
