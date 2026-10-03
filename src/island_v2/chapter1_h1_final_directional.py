@@ -373,6 +373,108 @@ def _fit_directional_score(
     }, pd.DataFrame(rows)
 
 
+def meta_directional_summary(
+    results: pd.DataFrame,
+    *,
+    contexts: list[str],
+    alpha: float,
+) -> dict[str, Any]:
+    """Random-effects summary of the four predeclared regional directional scores.
+
+    The regional estimates are based on disjoint geographic strata. A
+    DerSimonian-Laird tau-squared estimate is paired with a modified
+    Knapp-Hartung variance inflation (never below the conventional random-effects
+    variance) and a t reference with k-1 degrees of freedom. This summary asks
+    whether there is a positive global average directional component while
+    explicitly quantifying between-region heterogeneity. It is not a substitute
+    for the stricter intersection-union recurrence test.
+    """
+    fit = results.loc[
+        results["status"].eq("fit")
+        & results["context"].isin(contexts)
+    ].copy()
+    if len(fit) != len(contexts) or set(fit["context"]) != set(contexts):
+        return {
+            "status": "not_testable",
+            "n_required_contexts": len(contexts),
+            "n_fitted_contexts": int(len(fit)),
+        }
+    y = pd.to_numeric(fit["estimate"], errors="coerce").to_numpy(float)
+    se = pd.to_numeric(
+        fit["cluster_robust_se"], errors="coerce"
+    ).to_numpy(float)
+    if (
+        not np.isfinite(y).all()
+        or not np.isfinite(se).all()
+        or np.any(se <= 0)
+    ):
+        return {
+            "status": "not_testable",
+            "reason": "nonfinite_regional_estimate_or_se",
+        }
+    k = len(y)
+    w = 1.0 / np.square(se)
+    fixed = float(np.sum(w * y) / np.sum(w))
+    fixed_se = float(math.sqrt(1.0 / np.sum(w)))
+    q = float(np.sum(w * np.square(y - fixed)))
+    q_df = int(k - 1)
+    c_value = float(np.sum(w) - np.sum(np.square(w)) / np.sum(w))
+    tau2 = float(max(0.0, (q - q_df) / c_value)) if c_value > 0 else 0.0
+    wr = 1.0 / (np.square(se) + tau2)
+    random_estimate = float(np.sum(wr * y) / np.sum(wr))
+    hk_scale = float(
+        np.sum(wr * np.square(y - random_estimate)) / q_df
+    ) if q_df > 0 else float("nan")
+    modified_hk_scale = float(max(1.0, hk_scale))
+    random_se = float(
+        math.sqrt(modified_hk_scale / np.sum(wr))
+    )
+    t_value = (
+        float(random_estimate / random_se)
+        if random_se > 0
+        else float("nan")
+    )
+    p_one = (
+        float(student_t.sf(t_value, df=q_df))
+        if q_df > 0 and math.isfinite(t_value)
+        else float("nan")
+    )
+    p_two = (
+        float(2.0 * student_t.sf(abs(t_value), df=q_df))
+        if q_df > 0 and math.isfinite(t_value)
+        else float("nan")
+    )
+    i2 = (
+        float(max(0.0, (q - q_df) / q))
+        if q > 0
+        else 0.0
+    )
+    return {
+        "status": "fit",
+        "n_contexts": int(k),
+        "all_context_estimates_positive": bool(np.all(y > 0)),
+        "fixed_effect_estimate": fixed,
+        "fixed_effect_se": fixed_se,
+        "cochran_q": q,
+        "heterogeneity_df": q_df,
+        "i2": i2,
+        "tau2_dl": tau2,
+        "random_effects_estimate": random_estimate,
+        "modified_knapp_hartung_se": random_se,
+        "modified_knapp_hartung_scale": modified_hk_scale,
+        "random_effects_t": t_value,
+        "random_effects_p_one_sided": p_one,
+        "random_effects_p_two_sided": p_two,
+        "positive_global_average_supported": bool(
+            random_estimate > 0 and p_one <= alpha
+        ),
+        "interpretation": (
+            "positive global average component with explicit regional heterogeneity; "
+            "not evidence that every region independently supports the syndrome"
+        ),
+    }
+
+
 def intersection_union_summary(
     results: pd.DataFrame,
     *,
@@ -458,6 +560,13 @@ def run_final_directional_h1(
     )
     iut["evidence_scope"] = evidence_scope
     iut["stratum"] = primary_stratum
+    meta = meta_directional_summary(
+        primary,
+        contexts=contexts,
+        alpha=float(config["alpha"]),
+    )
+    meta["evidence_scope"] = evidence_scope
+    meta["stratum"] = primary_stratum
 
     cluster_column = str(config["cluster_column"])
     context_column = str(config["context_column"])
@@ -499,6 +608,14 @@ def run_final_directional_h1(
     leaveout_iut["evidence_scope"] = evidence_scope
     leaveout_iut["stratum"] = primary_stratum
     leaveout_iut["sensitivity"] = "drop_top_variance_cluster"
+    leaveout_meta = meta_directional_summary(
+        leaveout,
+        contexts=contexts,
+        alpha=float(config["alpha"]),
+    )
+    leaveout_meta["evidence_scope"] = evidence_scope
+    leaveout_meta["stratum"] = primary_stratum
+    leaveout_meta["sensitivity"] = "drop_top_variance_cluster"
 
     return {
         "results": results,
@@ -509,8 +626,10 @@ def run_final_directional_h1(
         ),
         "counts": counts,
         "iut": iut,
+        "meta": meta,
         "top_cluster_sensitivity": leaveout,
         "top_cluster_iut": leaveout_iut,
+        "top_cluster_meta": leaveout_meta,
     }
 
 
@@ -555,15 +674,25 @@ def run(
         json.dumps(result["iut"], indent=2) + "\n",
         encoding="utf-8",
     )
+    (output_dir / "directional_score_meta.json").write_text(
+        json.dumps(result["meta"], indent=2) + "\n",
+        encoding="utf-8",
+    )
     (output_dir / "top_cluster_leaveout_iut.json").write_text(
         json.dumps(result["top_cluster_iut"], indent=2) + "\n",
+        encoding="utf-8",
+    )
+    (output_dir / "top_cluster_leaveout_meta.json").write_text(
+        json.dumps(result["top_cluster_meta"], indent=2) + "\n",
         encoding="utf-8",
     )
     typer.echo(
         json.dumps(
             {
-                "primary": result["iut"],
-                "top_cluster_leaveout": result["top_cluster_iut"],
+                "primary_iut": result["iut"],
+                "primary_meta": result["meta"],
+                "top_cluster_leaveout_iut": result["top_cluster_iut"],
+                "top_cluster_leaveout_meta": result["top_cluster_meta"],
             },
             indent=2,
         )
