@@ -954,6 +954,20 @@ def run_three_axis_analysis(
             evidence_scope=evidence_scope,
         )
         all_global_state_support.append(global_state_support)
+        formal_cells = (
+            formal_ledger[["accepted_species", "axis"]]
+            .drop_duplicates()
+            .groupby("axis")
+            .size()
+            .to_dict()
+        )
+        cell_audit["formal_axis_cells"] = cell_audit["axis"].map(
+            lambda axis: int(formal_cells.get(str(axis), 0))
+        )
+        cell_audit["formal_cell_retention_fraction"] = (
+            cell_audit["formal_axis_cells"]
+            / cell_audit["resolved_axis_cells"]
+        )
         scope_counts: list[pd.DataFrame] = []
 
         for flora_scope in config["flora_scopes"]:
