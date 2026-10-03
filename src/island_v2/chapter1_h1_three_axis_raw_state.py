@@ -198,6 +198,9 @@ def flora_scopes(
         "regionally_incompatible_or_introduced": classified["wcvp_partition"].isin(
             {"source_introduced", "wcvp_incompatible_unresolved"}
         ),
+        "wcvp_unclassifiable_unresolved": classified["wcvp_partition"].eq(
+            "wcvp_unclassifiable_unresolved"
+        ),
     }
     return {
         label: classified.loc[
