@@ -326,10 +326,16 @@ def _axis_fit(
         n_islands = int(out["island_id"].nunique())
         positive = int(out.loc[out["successes"].gt(0), "island_id"].nunique())
         negative = int(out.loc[out["successes"].lt(out["trials"]), "island_id"].nunique())
+        state_species = int(
+            pd.to_numeric(
+                out["state_unique_species_global"], errors="coerce"
+            ).max()
+        )
         ok = (
             n_islands >= int(model["minimum_islands_per_state"])
             and positive >= int(model["minimum_positive_islands_per_state"])
             and negative >= int(model["minimum_negative_islands_per_state"])
+            and state_species >= int(model["minimum_unique_species_per_state"])
         )
         support_rows.append(
             {
@@ -341,6 +347,7 @@ def _axis_fit(
                 "n_islands": n_islands,
                 "positive_islands": positive,
                 "negative_islands": negative,
+                "state_unique_species_global": state_species,
                 "eligible": ok,
             }
         )
@@ -375,6 +382,40 @@ def _axis_fit(
         threshold=int(model["minimum_islands_per_state"]),
         config=base_cfg,
     )
+    retry_used = False
+    max_abs_retry_delta = 0.0
+    initial_converged = bool(omnibus.get("all_optimizers_converged", False))
+    if (
+        not initial_converged
+        and int(model.get("retry_max_iter", model["max_iter"]))
+        > int(model["max_iter"])
+    ):
+        retry_cfg = dict(base_cfg)
+        retry_cfg["max_iter"] = int(model["retry_max_iter"])
+        retry_slopes, retry_omnibus = _fit_within(
+            prepared,
+            stratum=flora_scope,
+            context_value=context_value,
+            threshold=int(model["minimum_islands_per_state"]),
+            config=retry_cfg,
+        )
+        retry_used = True
+        if not slopes.empty and not retry_slopes.empty:
+            paired = slopes[["outcome", "geography_slope_log_odds"]].merge(
+                retry_slopes[["outcome", "geography_slope_log_odds"]],
+                on="outcome",
+                suffixes=("_initial", "_retry"),
+                validate="one_to_one",
+            )
+            max_abs_retry_delta = float(
+                (
+                    paired["geography_slope_log_odds_initial"]
+                    - paired["geography_slope_log_odds_retry"]
+                )
+                .abs()
+                .max()
+            )
+        slopes, omnibus = retry_slopes, retry_omnibus
     if not slopes.empty:
         slopes.insert(0, "axis", axis)
         slopes.insert(0, "flora_scope", flora_scope)
@@ -383,6 +424,9 @@ def _axis_fit(
         "evidence_scope": evidence_scope,
         "flora_scope": flora_scope,
         "axis": axis,
+        "initial_all_optimizers_converged": initial_converged,
+        "retry_used": retry_used,
+        "max_abs_retry_slope_delta": max_abs_retry_delta,
         **omnibus,
     }
     return slopes, omnibus, support
