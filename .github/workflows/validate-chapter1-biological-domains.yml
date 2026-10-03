@@ -1,0 +1,262 @@
+name: Validate Chapter 1 biological domains
+
+on:
+  push:
+    branches:
+      - analysis/h1-h4-biological-domains
+    paths:
+      - "config/chapter1_biological_domains_reanalysis.yml"
+      - "src/island_v2/chapter1_biological_domains_reanalysis.py"
+      - "tests/test_chapter1_biological_domains_reanalysis.py"
+      - ".github/workflows/validate-chapter1-biological-domains.yml"
+  pull_request:
+    branches:
+      - analysis/h1-final-sync-resolved
+      - analysis/h1-three-axis-raw-state
+      - main
+    paths:
+      - "config/chapter1_biological_domains_reanalysis.yml"
+      - "src/island_v2/chapter1_biological_domains_reanalysis.py"
+      - "tests/test_chapter1_biological_domains_reanalysis.py"
+      - ".github/workflows/validate-chapter1-biological-domains.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: chapter1-biological-domains-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+      GLOPL_URL: "https://raw.githubusercontent.com/idiv-biodiversity/pollen-limitation-data-descriptor/abbe193770981b2c61713e75a0f01e004bdded8e/Output/GloPL.csv"
+      GLOPL_SHA256: "264ca8c2237f126b3c209fcba039e19b291324ddf6e7a96992dc8235a55984de"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install and validate code
+        run: |
+          pip install -e ".[dev]"
+          pytest -q tests/test_chapter1_biological_domains_reanalysis.py
+          ruff check \
+            src/island_v2/chapter1_biological_domains_reanalysis.py \
+            tests/test_chapter1_biological_domains_reanalysis.py
+
+      - name: Download frozen trait and flora inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/domain/source /tmp/domain/out
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/domain/source
+          test -s /tmp/domain/source/snapshot/chapter1_trait_snapshot_species_axis.csv.gz
+          test -s /tmp/domain/source/fixed/canonical/input/chapter1_status_flora.csv.gz
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+          test -s results/geography_20260924/glopl_corrected_site_distances.csv
+          test -s results/geography_20260924/h3_original_corrected_comparison.json
+          test -s results/h3_offshore_gradient_20261003/h3_offshore_gradient_summary.json
+          test -s results/h3_offshore_gradient_20261003/h3_offshore_gradient_summary.json
+
+      - name: Download pinned GloPL
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 "$GLOPL_URL" -o /tmp/domain/GloPL.csv
+          observed=$(sha256sum /tmp/domain/GloPL.csv | cut -d' ' -f1)
+          test "$observed" = "$GLOPL_SHA256"
+
+      - name: Run H1-H4 biological-domain reanalysis
+        run: |
+          python -m island_v2.chapter1_biological_domains_reanalysis \
+            --species-axis-csv /tmp/domain/source/snapshot/chapter1_trait_snapshot_species_axis.csv.gz \
+            --status-flora-csv /tmp/domain/source/fixed/canonical/input/chapter1_status_flora.csv.gz \
+            --covariates-csv results/geography_20260924/corrected_geography_covariates.csv \
+            --glopl-csv /tmp/domain/GloPL.csv \
+            --ontology-path config/trait_ontology.yml \
+            --raw-axis-config-path config/chapter1_h1_three_axis_raw_state.yml \
+            --config-path config/chapter1_biological_domains_reanalysis.yml \
+            --h3-json results/geography_20260924/h3_original_corrected_comparison.json \
+            --h3-offshore-json results/h3_offshore_gradient_20261003/h3_offshore_gradient_summary.json \
+            --output-dir /tmp/domain/out
+
+      - name: Assemble reviewer-facing summary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root=Path("/tmp/domain/out")
+          support=pd.read_csv(root/"species_score_support.csv")
+          h1=pd.read_csv(root/"H1_global_synthesis.csv")
+          h1r=pd.read_csv(root/"H1_regional.csv")
+          h2=pd.read_csv(root/"H2_conditional.csv")
+          h2g=pd.read_csv(root/"H2_global_synthesis.csv")
+          h4=pd.read_csv(root/"H4_exact_species.csv")
+          h4_conditional=pd.read_csv(root/"H4_conditional_exact_species.csv")
+          signal=pd.read_csv(root/"signal_display_state_regional.csv")
+          threshold=pd.read_csv(root/"H1_minimum_species_threshold_sensitivity.csv")
+          coverage=pd.read_csv(root/"trait_coverage_gradient.csv")
+          h3=json.loads((root/"H3_summary.json").read_text())
+
+          primary=h1.loc[
+              h1["flora_scope"].eq("all_observed")
+              & h1["support_mode"].eq("trait_specific")
+              & h1["analysis_layer"].eq("observed")
+          ].copy()
+          common=h1.loc[
+              h1["flora_scope"].eq("all_observed")
+              & h1["support_mode"].astype(str).str.startswith("common_")
+              & h1["analysis_layer"].eq("observed")
+          ].copy()
+          genus=h1.loc[
+              h1["flora_scope"].eq("all_observed")
+              & h1["analysis_layer"].eq("genus_LOO_residual")
+          ].copy()
+          provenance=h1r.loc[
+              h1r["flora_scope"].isin(["source_native","source_introduced"])
+              & h1r["support_mode"].eq("trait_specific")
+              & h1r["analysis_layer"].eq("observed")
+          ].copy()
+          h2_primary=h2.loc[h2["primary_posthoc"].astype(bool)].copy()
+          h4_primary=h4.loc[
+              h4["analysis"].eq("primary")
+              & h4["response"].isin([
+                  "reproductive_assurance",
+                  "accessibility_specialization",
+                  "flower_size_reduction",
+              ])
+          ].copy()
+          h4_benchmark=h4.loc[
+              h4["analysis"].eq("primary")
+              & h4["response"].isin([
+                  "reproductive_assurance_core",
+                  "accessibility_specialization",
+              ])
+          ].copy()
+          signal_supported=signal.loc[
+              signal["q_two_sided_within_trait_region"].le(0.05)
+          ].copy()
+          signal_global_supported=signal.loc[
+              signal["q_two_sided_global_signal_family"].le(0.05)
+          ].copy()
+          coverage_supported=coverage.loc[
+              coverage["q_two_sided_within_scope"].le(0.05)
+          ].copy()
+
+          reviewer={
+              "support": support.to_dict(orient="records"),
+              "H1_primary": primary.to_dict(orient="records"),
+              "H1_common_species": common.to_dict(orient="records"),
+              "H1_genus_LOO": genus.to_dict(orient="records"),
+              "strict_provenance_regional": provenance.to_dict(orient="records"),
+              "signal_display_supported_states": signal_supported.to_dict(orient="records"),
+              "signal_display_global_FDR_supported_states": signal_global_supported.to_dict(orient="records"),
+              "H1_minimum_species_threshold_sensitivity": threshold.to_dict(orient="records"),
+              "trait_coverage_gradient": coverage.to_dict(orient="records"),
+              "H2_primary": h2_primary.to_dict(orient="records"),
+              "H2_global": h2g.to_dict(orient="records"),
+              "H2_supported_q_le_0_05": h2_primary.loc[
+                  h2_primary["q_two_sided_posthoc_family"].le(0.05)
+              ].to_dict(orient="records"),
+              "H3": h3,
+              "H4_benchmark_reproduction": h4_benchmark.to_dict(orient="records"),
+              "H4_primary_posthoc": h4_primary.to_dict(orient="records"),
+              "H4_conditional_exact_species":
+                  h4_conditional.to_dict(orient="records"),
+          }
+          (root/"REVIEWER_SUMMARY.json").write_text(
+              json.dumps(reviewer,indent=2,default=str)+"\n"
+          )
+
+          print("=== SPECIES SCORE SUPPORT ===")
+          print(support.to_string(index=False))
+          print("\n=== H1 PRIMARY GLOBAL SYNTHESIS ===")
+          print(primary.to_string(index=False))
+          print("\n=== H1 COMMON-SPECIES SUPPORT ===")
+          print(common.to_string(index=False))
+          print("\n=== H1 GENUS-LOO RESIDUAL ===")
+          print(genus.to_string(index=False))
+          print("\n=== STRICT PROVENANCE REGIONAL DIAGNOSTICS ===")
+          print(provenance.to_string(index=False))
+          print("\n=== SIGNAL/DISPLAY SUPPORTED RAW STATES ===")
+          print(signal_supported.to_string(index=False))
+          print("\n=== H1 3/10/20 SPECIES THRESHOLD SENSITIVITY ===")
+          print(threshold.to_string(index=False))
+          print("\n=== TRAIT COVERAGE GRADIENT ===")
+          print(coverage.to_string(index=False))
+          print("\n=== H2 PRIMARY CONDITIONAL ===")
+          print(h2_primary.to_string(index=False))
+          print("\n=== H2 GLOBAL CONDITIONAL SYNTHESIS ===")
+          print(h2g.to_string(index=False))
+          print("\n=== H3 ===")
+          print(json.dumps(h3,indent=2))
+          print("\n=== H4 BENCHMARK ===")
+          print(h4_benchmark.to_string(index=False))
+          print("\n=== H4 PRIMARY POSTHOC ===")
+          print(h4_primary.to_string(index=False))
+          print("\n=== H4 CONDITIONAL EXACT-SPECIES ===")
+          print(h4_conditional.to_string(index=False))
+          PY
+
+          {
+            echo "## Biological-domain reanalysis"
+            echo
+            echo "### H1 primary"
+            cat /tmp/domain/out/H1_global_synthesis.csv
+            echo
+            echo "### H1 coverage-adjusted sensitivity"
+            cat /tmp/domain/out/H1_coverage_adjusted_global.csv
+            echo
+            echo "### H1 minimum-species threshold sensitivity"
+            cat /tmp/domain/out/H1_minimum_species_threshold_sensitivity.csv
+            echo
+            echo "### Trait coverage gradients"
+            cat /tmp/domain/out/trait_coverage_gradient.csv
+            echo
+            echo "### H2 conditional"
+            cat /tmp/domain/out/H2_conditional.csv
+            echo
+            echo "### H2 global synthesis"
+            cat /tmp/domain/out/H2_global_synthesis.csv
+            echo
+            echo "### H3"
+            cat /tmp/domain/out/H3_summary.json
+            echo
+            echo "### H4 exact species"
+            cat /tmp/domain/out/H4_exact_species.csv
+            echo
+            echo "### H4 conditional exact species"
+            cat /tmp/domain/out/H4_conditional_exact_species.csv
+            echo
+            echo "### Signal/display statewise results"
+            cat /tmp/domain/out/signal_display_state_regional.csv
+            echo
+            echo "### H1 minimum-species threshold sensitivity"
+            cat /tmp/domain/out/H1_minimum_species_threshold_sensitivity.csv
+            echo
+            echo "### Trait coverage gradient"
+            cat /tmp/domain/out/trait_coverage_gradient.csv
+            echo
+            echo "### Reviewer summary"
+            cat /tmp/domain/out/REVIEWER_SUMMARY.json
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-biological-domains-${{ github.run_id }}
+          path: /tmp/domain/out
+          if-no-files-found: error
+          retention-days: 30
