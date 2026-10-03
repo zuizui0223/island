@@ -96,8 +96,10 @@ jobs:
           root=Path("/tmp/h1-final/results")
           rows=[]
           iuts=[]
+          metas=[]
           leaveouts=[]
           leaveout_iuts=[]
+          leaveout_metas=[]
           for scope in ("all","direct"):
               d=pd.read_csv(root/scope/"directional_score_results.csv")
               d=d.loc[d["stratum"].eq("all_observed")].copy()
@@ -106,20 +108,30 @@ jobs:
               iut=json.loads((root/scope/"directional_score_iut.json").read_text())
               iut["scope"]=scope
               iuts.append(iut)
+              meta=json.loads((root/scope/"directional_score_meta.json").read_text())
+              meta["scope"]=scope
+              metas.append(meta)
               lo=pd.read_csv(root/scope/"top_cluster_leaveout_results.csv")
               lo.insert(0,"scope",scope)
               leaveouts.append(lo)
               loi=json.loads((root/scope/"top_cluster_leaveout_iut.json").read_text())
               loi["scope"]=scope
               leaveout_iuts.append(loi)
+              lom=json.loads((root/scope/"top_cluster_leaveout_meta.json").read_text())
+              lom["scope"]=scope
+              leaveout_metas.append(lom)
 
           score=pd.concat(rows,ignore_index=True)
           score.to_csv(root/"primary_directional_score_results.csv",index=False)
           pd.DataFrame(iuts).to_csv(root/"global_recurrence_iut.csv",index=False)
+          pd.DataFrame(metas).to_csv(root/"global_directional_meta.csv",index=False)
           leaveout=pd.concat(leaveouts,ignore_index=True)
           leaveout.to_csv(root/"top_cluster_leaveout_results.csv",index=False)
           pd.DataFrame(leaveout_iuts).to_csv(
               root/"top_cluster_leaveout_iut.csv",index=False
+          )
+          pd.DataFrame(leaveout_metas).to_csv(
+              root/"top_cluster_leaveout_meta.csv",index=False
           )
 
           legacy_all=pd.read_csv(
@@ -151,6 +163,8 @@ jobs:
           ]].to_string(index=False))
           print("\n=== GLOBAL RECURRENCE IUT ===")
           print(pd.DataFrame(iuts).to_string(index=False))
+          print("\n=== GLOBAL DIRECTIONAL META ===")
+          print(pd.DataFrame(metas).to_string(index=False))
           print("\n=== DROP TOP VARIANCE CLUSTER ===")
           print(leaveout[[
               "scope","context","excluded_cluster",
@@ -160,6 +174,8 @@ jobs:
           ]].to_string(index=False))
           print("\n=== DROP TOP VARIANCE CLUSTER IUT ===")
           print(pd.DataFrame(leaveout_iuts).to_string(index=False))
+          print("\n=== DROP TOP VARIANCE CLUSTER META ===")
+          print(pd.DataFrame(leaveout_metas).to_string(index=False))
           print("\n=== LEGACY HIGH-DIMENSIONAL WALD (REFERENCE ONLY) ===")
           print(legacy[[
               "scope","context","n_clusters","joint_df","p_value","q_value"
@@ -174,11 +190,17 @@ jobs:
             echo "## Four-region intersection-union gate"
             cat /tmp/h1-final/results/global_recurrence_iut.csv
             echo
+            echo "## Global directional random-effects summary"
+            cat /tmp/h1-final/results/global_directional_meta.csv
+            echo
             echo "## Top variance-cluster leaveout"
             cat /tmp/h1-final/results/top_cluster_leaveout_results.csv
             echo
             echo "## Top variance-cluster leaveout IUT"
             cat /tmp/h1-final/results/top_cluster_leaveout_iut.csv
+            echo
+            echo "## Top variance-cluster leaveout meta"
+            cat /tmp/h1-final/results/top_cluster_leaveout_meta.csv
             echo
             echo "## H2-H4 finite-cluster audit"
             cat /tmp/h1-final/results/finite-cluster-audit/h2_h4_finite_cluster_summary.json
