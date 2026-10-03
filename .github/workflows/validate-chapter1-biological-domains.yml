@@ -63,6 +63,7 @@ jobs:
           test -s results/geography_20260924/glopl_corrected_site_distances.csv
           test -s results/geography_20260924/h3_original_corrected_comparison.json
           test -s results/h3_offshore_gradient_20261003/h3_offshore_gradient_summary.json
+          test -s results/h3_offshore_gradient_20261003/h3_offshore_gradient_summary.json
 
       - name: Download pinned GloPL
         run: |
