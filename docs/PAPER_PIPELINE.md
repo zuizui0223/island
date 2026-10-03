@@ -63,7 +63,7 @@ Data: island trait prevalences.
 Method:
 `trait prevalence ~ isolation + island area + climate PC1-PC4`
 
-Model: beta-binomial GLM with spatial-block cluster-robust covariance; seven-response multivariate Wald test within four predeclared regions.
+Model: beta-binomial GLMs with spatial-block cluster-robust covariance. H1 is interpreted across reproductive assurance, colour composition and accessibility/generalization; formal inference is a seven-indicator joint Wald test spanning those three domains within four predeclared regions.
 
 Corrected joint q-values:
 - N mid: `3.216e-10`;
@@ -71,7 +71,7 @@ Corrected joint q-values:
 - Tropical: `3.498e-7`;
 - S extra: `2.504e-18`.
 
-Joint support does not imply that every atomic trait is positive.
+Joint support establishes recurrence across the three-domain response system; atomic indicators diagnose regional realization and do not imply that every component is positive.
 
 ## H2 — Conditional decomposition
 

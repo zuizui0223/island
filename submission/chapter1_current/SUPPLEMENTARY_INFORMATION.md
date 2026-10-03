@@ -88,7 +88,7 @@ Supporting documentation:
 
 # Appendix S3. H1 recurrent multivariate island response
 
-H1 models seven atomic responses, each coded so that a positive isolation coefficient is in the predicted island-syndrome direction:
+H1 is interpreted across three biological domains: reproductive assurance, colour composition and floral accessibility/generalization. Formal inference uses seven atomic indicators spanning those domains, each coded so that a positive isolation coefficient is in the predicted island-syndrome direction:
 
 1. self-compatibility;
 2. predominantly or obligately selfing mating system;
@@ -123,9 +123,17 @@ Broad all-observed results:
 | Tropical | 3.498 × 10^-7 | 3.528 × 10^-5 |
 | Southern extratropical | 2.504 × 10^-18 | 3.155 × 10^-31 |
 
-All four regions support the seven-response vector in both evidence scopes. This is a multivariate recurrence claim, not a claim that every atomic coefficient is positive or individually supported.
+All four regions support the seven-indicator joint vector spanning the three domains in both evidence scopes. This is a domain-level recurrence claim supported by atomic indicators, not a claim that every component is positive or individually supported.
 
 In the primary all-analysis scope, 26 of 28 regional atomic coefficients are positive. The southern shallow/open-tube coefficient is negative (β = -0.21660, SE = 0.06083, nominal P = 0.000370). Northern-high generalized form is positive but weak (P = 0.1018), and southern selfing mating system is positive but weak (P = 0.0540).
+
+### Table S2e. Descriptive orientation of the three H1 domains
+
+Machine-readable table:
+
+- submission/chapter1_current/supplement/Table_S2e_H1_domain_descriptive.csv
+
+The table averages fitted standardized isolation coefficients within reproductive assurance (three atomic indicators) and accessibility/generalization (three indicators); colour composition is represented by the single predeclared plain-colour contrast. These arithmetic means are **descriptive orientation summaries only**. No domain-level P value is assigned because the atomic fits use different trait-resolved species sets. In the primary all-analysis scope, reproductive-assurance means are positive in all four regions (+0.025, +0.084, +0.179, +0.139), colour means are +0.002, +0.036, +0.035 and +0.074, and accessibility/generalization means are +0.021, +0.222, +0.080 and -0.004 from northern mid-latitudes through southern extratropics.
 
 ### WCVP status-partition and Level-3 resolution diagnostics
 
