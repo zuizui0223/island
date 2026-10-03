@@ -192,6 +192,135 @@ def fit_within_stage(
     return pd.DataFrame(rows), omnibus, vector
 
 
+
+def _fit_stage_vector_point(
+    data: pd.DataFrame,
+    *,
+    context_value: str,
+    stage: str,
+    retained: list[str],
+    cfg: dict[str, Any],
+) -> np.ndarray:
+    context = str(cfg["context_column"])
+    distance = str(cfg["distance_column"])
+    controls = [str(x) for x in cfg["controls"]]
+    work = data.loc[data[context].eq(context_value)].copy()
+    values: list[float] = []
+    for outcome in retained:
+        part = work.loc[work["outcome"].eq(outcome)].copy()
+        if part.empty:
+            return np.array([], dtype=float)
+        columns = [np.ones(len(part), dtype=float)]
+        try:
+            for predictor in controls:
+                columns.append(_z(part[predictor]))
+            columns.append(_z(part[distance]))
+        except ValueError:
+            return np.array([], dtype=float)
+        X = np.column_stack(columns)
+        y = part[stage].to_numpy(float)
+        beta = np.linalg.pinv(X.T @ X) @ (X.T @ y)
+        values.append(float(beta[-1]))
+    return np.asarray(values, dtype=float)
+
+
+def _bootstrap_attenuation(
+    data: pd.DataFrame,
+    stage_omnibus: pd.DataFrame,
+    cfg: dict[str, Any],
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    spec = cfg.get("attenuation_bootstrap", {})
+    if not bool(spec.get("enabled", False)):
+        return pd.DataFrame(), pd.DataFrame()
+    context_col = str(cfg["context_column"])
+    cluster_col = str(cfg["cluster_column"])
+    draws = int(spec["draws"])
+    seed = int(spec["seed"])
+    rows: list[dict[str, Any]] = []
+    summaries: list[dict[str, Any]] = []
+
+    for context_index, context_value in enumerate([str(x) for x in cfg["contexts"]]):
+        observed_row = stage_omnibus.loc[
+            stage_omnibus["context"].eq(context_value)
+            & stage_omnibus["stage"].eq("observed_score")
+            & stage_omnibus["status"].eq("fit")
+        ]
+        if observed_row.empty:
+            continue
+        retained = [
+            x for x in str(observed_row.iloc[0]["retained_outcomes"]).split("|") if x
+        ]
+        part = data.loc[data[context_col].eq(context_value)].copy()
+        labels = sorted(part[cluster_col].astype(str).unique())
+        if len(labels) < 2:
+            continue
+        by_cluster = {
+            label: part.loc[part[cluster_col].astype(str).eq(label)].copy()
+            for label in labels
+        }
+        rng = np.random.default_rng(seed + context_index)
+        for draw in range(draws):
+            sampled = rng.choice(labels, size=len(labels), replace=True)
+            pieces: list[pd.DataFrame] = []
+            for replicate, label in enumerate(sampled):
+                frame = by_cluster[str(label)].copy()
+                frame[cluster_col] = f"{label}__boot{replicate}"
+                pieces.append(frame)
+            boot = pd.concat(pieces, ignore_index=True)
+            vectors: dict[str, np.ndarray] = {}
+            valid = True
+            for stage in STAGES:
+                vector = _fit_stage_vector_point(
+                    boot,
+                    context_value=context_value,
+                    stage=stage,
+                    retained=retained,
+                    cfg=cfg,
+                )
+                if len(vector) != len(retained):
+                    valid = False
+                    break
+                vectors[stage] = vector
+            if not valid:
+                continue
+            observed_norm = float(np.linalg.norm(vectors["observed_score"]))
+            family_norm = float(np.linalg.norm(vectors["after_family_residual"]))
+            genus_norm = float(np.linalg.norm(vectors["after_genus_residual"]))
+            if observed_norm <= 0 or family_norm <= 0:
+                continue
+            rows.append(
+                {
+                    "context": context_value,
+                    "draw": draw,
+                    "observed_norm": observed_norm,
+                    "family_norm": family_norm,
+                    "genus_norm": genus_norm,
+                    "family_total_attenuation": 1.0 - family_norm / observed_norm,
+                    "genus_total_attenuation": 1.0 - genus_norm / observed_norm,
+                    "incremental_genus_attenuation": 1.0 - genus_norm / family_norm,
+                }
+            )
+
+    draws_frame = pd.DataFrame(rows)
+    if draws_frame.empty:
+        return draws_frame, pd.DataFrame()
+    for context_value, part in draws_frame.groupby("context", sort=False):
+        item: dict[str, Any] = {
+            "context": context_value,
+            "valid_draws": int(len(part)),
+        }
+        for column in (
+            "family_total_attenuation",
+            "genus_total_attenuation",
+            "incremental_genus_attenuation",
+        ):
+            item[f"{column}_median"] = float(part[column].median())
+            item[f"{column}_ci_low"] = float(part[column].quantile(0.025))
+            item[f"{column}_ci_high"] = float(part[column].quantile(0.975))
+        summaries.append(item)
+    return draws_frame, pd.DataFrame(summaries)
+
+
 def _run_common_support_h1(
     flora: pd.DataFrame,
     common_audit: pd.DataFrame,
@@ -286,6 +415,10 @@ def run_analysis(
             .fillna(False)
         )
 
+    bootstrap_draws, bootstrap_summary = _bootstrap_attenuation(
+        data, stage_omnibus, depth_config
+    )
+
     attenuation_rows: list[dict[str, Any]] = []
     classifications: list[dict[str, Any]] = []
     gate_index = gate.set_index("context") if not gate.empty and "context" in gate.columns else None
@@ -353,7 +486,9 @@ def run_analysis(
         "claim_boundary": (
             "Persistence below genus does not prove within-lineage evolution; attenuation at "
             "genus does not prove dispersal or colonization filtering. The audit localizes "
-            "taxonomic representation depth only."
+            "taxonomic representation depth only. Paired spatial-block bootstrap "
+            "quantifies attenuation uncertainty but does not convert the audit into a "
+            "causal assembly test."
         ),
     }
     return {
@@ -362,6 +497,8 @@ def run_analysis(
         "stage_slopes": stage_slopes,
         "stage_omnibus": stage_omnibus,
         "attenuation": pd.DataFrame(attenuation_rows),
+        "attenuation_bootstrap": bootstrap_draws,
+        "attenuation_bootstrap_summary": bootstrap_summary,
         "classification": pd.DataFrame(classifications),
         "support": support,
         "manifest": manifest,
