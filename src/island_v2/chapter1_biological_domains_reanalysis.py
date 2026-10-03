@@ -1575,6 +1575,8 @@ def run(
     all_synthesis: list[pd.DataFrame] = []
     all_h2: list[pd.DataFrame] = []
     all_signal_states: list[pd.DataFrame] = []
+    all_threshold_sensitivity: list[pd.DataFrame] = []
+    all_coverage_gradients: list[pd.DataFrame] = []
     support_parts: list[pd.DataFrame] = []
     species_scores_by_scope: dict[str, pd.DataFrame] = {}
 
@@ -1588,6 +1590,24 @@ def run(
         )
         species_scores_by_scope[str(evidence_scope)] = species_scores
         support_parts.append(support)
+        all_threshold_sensitivity.append(
+            run_threshold_sensitivity(
+                status_flora,
+                species_scores,
+                covariates,
+                config,
+                evidence_scope=str(evidence_scope),
+            )
+        )
+        all_coverage_gradients.append(
+            run_trait_coverage_gradient(
+                status_flora,
+                species_scores,
+                covariates,
+                config,
+                evidence_scope=str(evidence_scope),
+            )
+        )
         all_signal_states.append(
             run_signal_state_models(
                 species_axis,
@@ -1699,6 +1719,14 @@ def run(
         ignore_index=True,
     ) if any(not x.empty for x in all_signal_states) else pd.DataFrame()
     support = pd.concat(support_parts, ignore_index=True)
+    threshold_sensitivity = pd.concat(
+        [x for x in all_threshold_sensitivity if not x.empty],
+        ignore_index=True,
+    ) if any(not x.empty for x in all_threshold_sensitivity) else pd.DataFrame()
+    coverage_gradients = pd.concat(
+        [x for x in all_coverage_gradients if not x.empty],
+        ignore_index=True,
+    ) if any(not x.empty for x in all_coverage_gradients) else pd.DataFrame()
 
     glopl_rows = prepare_glopl_rows(
         glopl_csv,
@@ -1720,6 +1748,14 @@ def run(
     h2.to_csv(output_dir / "H2_conditional.csv", index=False)
     signal_states.to_csv(
         output_dir / "signal_display_state_regional.csv",
+        index=False,
+    )
+    threshold_sensitivity.to_csv(
+        output_dir / "H1_minimum_species_threshold_sensitivity.csv",
+        index=False,
+    )
+    coverage_gradients.to_csv(
+        output_dir / "trait_coverage_gradient.csv",
         index=False,
     )
     h4.to_csv(output_dir / "H4_exact_species.csv", index=False)
