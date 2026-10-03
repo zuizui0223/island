@@ -333,7 +333,7 @@ jobs:
 
       - name: Run H1-H4 biological-domain stress test
         run: |
-          python -m island_v2.chapter1_biological_domains_reanalysis run \
+          python -m island_v2.chapter1_biological_domains_reanalysis \
             --species-axis-csv /tmp/domain/source/snapshot/chapter1_trait_snapshot_species_axis.csv.gz \
             --status-flora-csv /tmp/domain/source/fixed/canonical/input/chapter1_status_flora.csv.gz \
             --covariates-csv results/geography_20260924/corrected_geography_covariates.csv \
