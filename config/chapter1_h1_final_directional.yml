@@ -1,0 +1,134 @@
+contract: chapter1_h1_final_directional_v1
+
+purpose: >-
+  Final confirmatory H1 inference for the classic floral/reproductive island-syndrome
+  direction. Keep the frozen v14 seven pre-oriented indicators, average indicators
+  within the three biological domains, and weight the three domain means equally.
+  This is a one-degree-of-freedom directional estimand. The later three-axis raw-state
+  analysis remains a descriptive measurement-domain reorganization audit and does not
+  replace this confirmatory estimand.
+
+model_family: beta_binomial_logit
+alpha: 0.05
+max_iter: 1500
+retry_max_iter: 5000
+minimum_islands_per_outcome: 50
+
+geography_column: log_distance_to_continent_km
+context_column: analysis_regime
+cluster_column: spatial_block
+baseline_covariates:
+  - log_island_area_km2
+  - climate_pc1
+  - climate_pc2
+  - climate_pc3
+  - climate_pc4
+
+contexts:
+  - northern_midlatitude
+  - northern_high_latitude
+  - tropical
+  - southern_extratropical
+
+strata:
+  - all_observed
+  - all_native
+  - native_nonendemic
+
+flora_roles:
+  broad_primary: all_observed
+  status_sensitivities: [all_native, native_nonendemic]
+
+evidence_roles:
+  primary: all_analysis_eligible
+  direct_sensitivity: direct_only
+
+model_outcomes:
+  - self_compatibility
+  - selfing_mating_system
+  - autonomous_selfing
+  - plain_colour
+  - generalized_form
+  - actinomorphic_symmetry
+  - shallow_open_tube
+
+response_families:
+  reproductive_assurance:
+    - self_compatibility
+    - selfing_mating_system
+    - autonomous_selfing
+  colour_dulling:
+    - plain_colour
+  accessibility_generalization:
+    - generalized_form
+    - actinomorphic_symmetry
+    - shallow_open_tube
+
+directional_score:
+  definition: equal_weight_domain_mean_of_preoriented_v14_indicators
+  outcome_weights:
+    self_compatibility: 0.1111111111111111
+    selfing_mating_system: 0.1111111111111111
+    autonomous_selfing: 0.1111111111111111
+    plain_colour: 0.3333333333333333
+    generalized_form: 0.1111111111111111
+    actinomorphic_symmetry: 0.1111111111111111
+    shallow_open_tube: 0.1111111111111111
+  alternative: positive
+  wild_cluster_method: linearized_rademacher_sign_flip
+  wild_cluster_replications: 9999
+  wild_cluster_seed: 20261003
+  global_recurrence_test: intersection_union_max_regional_p
+
+broad_outcomes:
+  self_compatibility:
+    trait_name: self_incompatibility
+    positive_states: [SC]
+    negative_states: [SI]
+  selfing_mating_system:
+    trait_name: mating_system
+    positive_states: [predominantly_selfing, obligate_selfing]
+    negative_states: [predominantly_outcrossing]
+  autonomous_selfing:
+    trait_name: autonomous_selfing_capacity
+    positive_states: [autonomous, delayed]
+    negative_states: [absent]
+  plain_colour:
+    trait_name: flower_primary_color
+    positive_states: [white, green_brown_inconspicuous]
+    negative_states: [yellow_orange, red_pink, blue_purple]
+  generalized_form:
+    trait_name: floral_form
+    positive_states: [open_radial, brush_puff, composite_head]
+    negative_states:
+      [tubular, bell_campanulate, funnel_trumpet, urn_urceolate, bilabiate,
+       salverform, papilionaceous, spurred]
+  actinomorphic_symmetry:
+    trait_name: floral_symmetry
+    positive_states: [actinomorphic]
+    negative_states: [zygomorphic]
+  shallow_open_tube:
+    trait_name: tube_depth_class
+    positive_states: [absent_or_open, shallow]
+    negative_states: [deep]
+
+rules:
+  - confirmatory_H1_estimand_is_frozen_v14_direction_not_raw_state_omnibus
+  - three_biological_domains_receive_equal_total_weight
+  - no_posthoc_addition_of_flower_size_or_inflorescence_display_to_confirmatory_score
+  - all_seven_preoriented_indicators_required_for_a_testable_score
+  - one_sided_positive_test_matches_predeclared_classic_direction
+  - finite_cluster_t_uses_G_minus_1_degrees_of_freedom
+  - wild_cluster_sign_flip_is_reported_as_small_cluster_sensitivity
+  - global_recurrence_is_an_intersection_union_claim_across_four_regions
+  - all_observed_is_contemporary_flora_not_native_evolution
+  - native_status_results_are_sensitivities_not_four_region_confirmatory_replication
+  - raw_state_three_axis_results_are_descriptive_reorganization_evidence
+  - no_pollinator_identity_is_inferred_from_H1
+
+claim_ceiling: >-
+  A positive recurrent directional score supports a repeated assemblage shift toward the
+  predeclared classic island-syndrome direction across the three biological domains. It
+  does not imply that every component moves positively, that the full raw-state
+  composition is simplified, that pollinator loss is the causal driver, or that the
+  observed pattern reflects within-lineage evolution rather than assembly and persistence.
