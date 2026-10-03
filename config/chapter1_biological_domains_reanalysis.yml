@@ -151,7 +151,6 @@ benchmark_H1_response:
 common_support_responses:
   - reproductive_assurance
   - accessibility_specialization
-  - flower_size_reduction
 
 common_support_sets:
   common_assurance_accessibility:
@@ -241,7 +240,7 @@ reviewer_guards:
   - flower_size_direction_reuses_preexisting_PR138_selfing_syndrome_recode
   - mixed_or_ambiguous_states_are_not_forced_to_midpoint_scores
   - missing_component_is_not_zero
-  - trait_specific_and_common_species_support_are_both_reported
+  - trait_specific_and_assurance_accessibility_common_species_support_are_both_reported
   - pairwise_common_species_support_is_reported_before_three_domain_complete_case_interpretation
   - island_score_minimum_species_3_10_20_sensitivity_is_reported
   - response_specific_trait_coverage_gradient_is_reported
