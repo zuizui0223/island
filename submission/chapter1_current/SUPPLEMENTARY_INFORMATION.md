@@ -127,6 +127,50 @@ All four regions support the seven-response vector in both evidence scopes. This
 
 In the primary all-analysis scope, 26 of 28 regional atomic coefficients are positive. The southern shallow/open-tube coefficient is negative (β = -0.21660, SE = 0.06083, nominal P = 0.000370). Northern-high generalized form is positive but weak (P = 0.1018), and southern selfing mating system is positive but weak (P = 0.0540).
 
+### WCVP status-partition and Level-3 resolution diagnostics
+
+The WCVP regional-native compatibility sensitivity is not interpreted as a native-specific analysis. In northern mid-latitudes, the all-analysis regional-native joint result is disproportionately concentrated in self-compatibility (β = 0.07865, P = 0.00451); the other six atomic P values exceed 0.10 and four slopes are negative. In Direct-only evidence, the individually supported component changes to selfing mating system (β = 0.06729, P = 0.000888), while self-compatibility is unsupported. The joint test therefore captures multivariate departure rather than uniform support of seven atomic responses.
+
+We next fitted the current within-region H1 directly to the complementary `regionally_incompatible_or_introduced` partition (source-backed introduced records plus unresolved records whose mapped TDWG Level-3 unit is not in the WCVP native range). Joint H1 remained supported in all four regions:
+
+| Region | All-analysis q | Direct-only q |
+| --- | ---: | ---: |
+| Northern mid-latitude | 3.46 × 10^-6 | 1.28 × 10^-4 |
+| Northern high latitude | 0.0205 | 0.00210* |
+| Tropical | 0.0110 | 0.0336 |
+| Southern extratropical | 0.0118 | 0.0430 |
+
+*The Direct-only northern-high vector is numerically stable but retains an optimizer termination warning for actinomorphic symmetry. Increasing the optimizer limit from 1,000 to 5,000 iterations left every fitted slope and q = 0.00210165 unchanged, while the optimizer flag remained false.
+
+Atomic direction within this complementary partition is not identical among regions. Tropical slopes are positive for all seven outcomes in both evidence scopes; northern mid-latitude and northern-high partitions each contain five positive and two negative slopes; southern extratropical responses are mixed. The strict source-backed introduced partition is testable only in the tropics, where its joint vector is supported but its atomic directions are mixed. Thus WCVP partitioning does not isolate a native-specific syndrome. It shows instead that regional-native-compatible records reproduce H1 independently of known introduced records while the complementary flora also contains substantial isolation-associated trait structure.
+
+We also audited whether WGSRPD Level-3 spatial resolution changes systematically with isolation. Level-3 polygon geometry was pinned to official TDWG WGSRPD commit `52da7828aba9d461dd133c27b3bd7a4407161f54` (Level-3 GeoJSON git-blob SHA1 `91104e5159e31f88154833a51d3b0d1c9271083f`) and area was calculated in equal-area EPSG:6933. The concern is real in the two southern strata:
+
+| Region | Spearman ρ: distance vs log L3 area |
+| --- | ---: |
+| Northern mid-latitude | +0.040 |
+| Northern high latitude | +0.028 |
+| Tropical | -0.621 |
+| Southern extratropical | -0.737 |
+
+Because island area is already a baseline covariate, adding `log_tdwg_l3_area_km2` directly adjusts the geographic scale of the WCVP native-compatibility unit. All four regional-native H1 vectors remain supported:
+
+| Region | L3-adjusted all-analysis q | L3-adjusted Direct-only q |
+| --- | ---: | ---: |
+| Northern mid-latitude | 0.00259 | 0.00257 |
+| Northern high latitude | 0.00917 | 1.83 × 10^-5 |
+| Tropical | 3.36 × 10^-6 | 1.14 × 10^-5 |
+| Southern extratropical | 0.000388 | 0.00634 |
+
+Unequal TDWG spatial resolution therefore exists but does not explain the regional-native four-region H1 result. The combined interpretation is narrower than a native-process claim: the recurrent pattern is reproducible in a large regional-native-compatible flora and is robust to Level-3 scale adjustment, but status partitioning alone does not identify whether the underlying process is native assembly, introductions, unresolved provenance, or a mixture.
+
+Reproducibility surface:
+
+- results/wcvp_reviewer_hardening_20261003/
+- src/island_v2/chapter1_wcvp_partition_within_h1.py
+- src/island_v2/chapter1_wcvp_resolution_sensitivity.py
+- validation workflow run 37103299826; artifact 11266169216; digest sha256:3e86d90cc47ff3c0af0a5df0e9a96a8c172d37b58dc568c3384765b141b6fec4
+
 ## S3.1 Direct-only northern-high optimizer audit
 
 The frozen corrected Direct-only northern-high table marked shallow/open tube as optimizer_success=false even though the seven-response vector was FDR-supported. Because the historical vector_supported flag was based on q-value and did not itself require every optimizer flag to be true, we performed a dedicated numerical audit.
