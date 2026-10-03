@@ -46,11 +46,14 @@ jobs:
       - name: Install and validate final H1 code
         run: |
           pip install -e ".[dev]"
-          pytest -q tests/test_chapter1_h1_final_directional.py
+          pytest -q \
+            tests/test_chapter1_h1_final_directional.py \
+            tests/test_chapter1_final_inference_audit.py
           ruff check \
             src/island_v2/chapter1_h1_final_directional.py \
+            src/island_v2/chapter1_final_inference_audit.py \
             tests/test_chapter1_h1_final_directional.py \
-            scripts/submission/audit_chapter1_h2_h4_finite_clusters.py
+            tests/test_chapter1_final_inference_audit.py
 
       - name: Download frozen Chapter 1 inputs
         run: |
@@ -86,16 +89,6 @@ jobs:
             --h3-json results/geography_20260924/h3_original_corrected_comparison.json \
             --h4-csv results/geography_20260924/h4_exact_corrected.csv \
             --output-dir /tmp/h1-final/results/inference-audit
-
-      - name: Audit H2-H4 with finite-cluster t references
-        run: |
-          python scripts/submission/audit_chapter1_h2_h4_finite_clusters.py \
-            --h2-all-csv results/geography_20260924/all/h2_decomposition_models.csv \
-            --h2-direct-csv results/geography_20260924/direct/h2_decomposition_models.csv \
-            --h3-json results/geography_20260924/h3_original_corrected_comparison.json \
-            --h3-offshore-json results/h3_offshore_gradient_20261003/h3_offshore_gradient_summary.json \
-            --h4-csv results/geography_20260924/h4_exact_corrected.csv \
-            --output-dir /tmp/h1-final/results/finite-cluster-audit
 
       - name: Assemble reviewer-facing inference audit
         run: |
@@ -252,9 +245,6 @@ jobs:
             echo
             echo "## Weighting sensitivity"
             cat /tmp/h1-final/results/weight_sensitivity_summary.csv
-            echo
-            echo "## H2-H4 finite-cluster audit"
-            cat /tmp/h1-final/results/finite-cluster-audit/h2_h4_finite_cluster_summary.json
             echo
             echo "## H1a global average and H1b heterogeneity"
             cat /tmp/h1-final/results/global_directional_synthesis.csv
