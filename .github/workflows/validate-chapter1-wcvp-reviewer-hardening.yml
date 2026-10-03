@@ -1,0 +1,161 @@
+name: Validate WCVP reviewer hardening
+
+on:
+  push:
+    branches:
+      - analysis/wcvp-reviewer-hardening
+    paths:
+      - "src/island_v2/chapter1_wcvp_partition_within_h1.py"
+      - "src/island_v2/chapter1_wcvp_resolution_sensitivity.py"
+      - ".github/workflows/validate-chapter1-wcvp-reviewer-hardening.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+      STATUS_RUN_ID: "32559322028"
+      STATUS_ARTIFACT: "official-wcvp-corroborated-status-32559322028"
+      WCVP_RUN_ID: "37089905542"
+      WCVP_ARTIFACT: "chapter1-wcvp-native-corrected-37089905542"
+      TDWG_COMMIT: "52da7828aba9d461dd133c27b3bd7a4407161f54"
+      TDWG_LEVEL3_BLOB_SHA1: "91104e5159e31f88154833a51d3b0d1c9271083f"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -e ".[dev]"
+
+      - name: Validate implementation
+        run: |
+          python -m py_compile             src/island_v2/chapter1_wcvp_partition_within_h1.py             src/island_v2/chapter1_wcvp_resolution_sensitivity.py
+          ruff check             src/island_v2/chapter1_wcvp_partition_within_h1.py             src/island_v2/chapter1_wcvp_resolution_sensitivity.py
+
+      - name: Download frozen analysis inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wcvp-review/source /tmp/wcvp-review/status /tmp/wcvp-review/wcvp /tmp/wcvp-review/results
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/wcvp-review/source
+          gh run download "$STATUS_RUN_ID" -n "$STATUS_ARTIFACT" -D /tmp/wcvp-review/status
+          gh run download "$WCVP_RUN_ID" -n "$WCVP_ARTIFACT" -D /tmp/wcvp-review/wcvp
+
+          test -s /tmp/wcvp-review/source/fixed/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/wcvp-review/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+          test -s /tmp/wcvp-review/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+          test -s /tmp/wcvp-review/status/resolved/island_tdwg_l3_mapping.csv
+          test -s /tmp/wcvp-review/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+
+      - name: Pin official TDWG Level-3 geometry
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3             "https://raw.githubusercontent.com/tdwg/wgsrpd/$TDWG_COMMIT/geojson/level3.geojson"             -o /tmp/wcvp-review/tdwg_level3.geojson
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          data=Path("/tmp/wcvp-review/tdwg_level3.geojson").read_bytes()
+          blob=hashlib.sha1(b"blob "+str(len(data)).encode()+b"\0"+data).hexdigest()
+          expected="91104e5159e31f88154833a51d3b0d1c9271083f"
+          print("TDWG level3 git blob SHA1:", blob)
+          assert blob == expected, (blob, expected)
+          PY
+
+      - name: Run within-region H1 on WCVP partitions
+        run: |
+          for scope in all direct; do
+            if [ "$scope" = "all" ]; then
+              AUDIT=/tmp/wcvp-review/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+              LABEL=all_analysis_eligible
+            else
+              AUDIT=/tmp/wcvp-review/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+              LABEL=direct_only
+            fi
+            python -m island_v2.chapter1_wcvp_partition_within_h1               --status-flora-csv /tmp/wcvp-review/source/fixed/canonical/input/chapter1_status_flora.csv.gz               --state-audit-csv "$AUDIT"               --covariates-csv results/geography_20260924/corrected_geography_covariates.csv               --wcvp-ranges-csv /tmp/wcvp-review/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz               --island-tdwg-csv /tmp/wcvp-review/status/resolved/island_tdwg_l3_mapping.csv               --config-path config/chapter1_v14_all_data_probability.yml               --evidence-scope "$LABEL"               --output-dir "/tmp/wcvp-review/results/partition_$scope"
+          done
+
+      - name: Run TDWG-L3 resolution-adjusted WCVP H1
+        run: |
+          for scope in all direct; do
+            if [ "$scope" = "all" ]; then
+              AUDIT=/tmp/wcvp-review/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+              LABEL=all_analysis_eligible
+            else
+              AUDIT=/tmp/wcvp-review/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+              LABEL=direct_only
+            fi
+            python -m island_v2.chapter1_wcvp_resolution_sensitivity               --status-flora-csv /tmp/wcvp-review/source/fixed/canonical/input/chapter1_status_flora.csv.gz               --state-audit-csv "$AUDIT"               --covariates-csv results/geography_20260924/corrected_geography_covariates.csv               --wcvp-ranges-csv /tmp/wcvp-review/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz               --island-tdwg-csv /tmp/wcvp-review/status/resolved/island_tdwg_l3_mapping.csv               --tdwg-level3-geojson /tmp/wcvp-review/tdwg_level3.geojson               --config-path config/chapter1_v14_all_data_probability.yml               --evidence-scope "$LABEL"               --output-dir "/tmp/wcvp-review/results/resolution_$scope"
+          done
+
+      - name: Summarize reviewer diagnostics
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+
+          out=Path("/tmp/wcvp-review/results")
+          rows=[]
+          for scope in ("all","direct"):
+              om=pd.read_csv(out/f"partition_{scope}/within_omnibus.csv")
+              hit=om.loc[om["partition"].eq("regionally_incompatible_or_introduced")].copy()
+              hit.insert(0,"analysis",scope)
+              rows.append(hit)
+          part=pd.concat(rows,ignore_index=True)
+          part.to_csv(out/"incompatible_or_introduced_H1.csv",index=False)
+
+          rows=[]
+          for scope in ("all","direct"):
+              om=pd.read_csv(out/f"resolution_{scope}/resolution_adjusted_within_omnibus.csv")
+              om.insert(0,"analysis",scope)
+              rows.append(om)
+          res=pd.concat(rows,ignore_index=True)
+          res.to_csv(out/"resolution_adjusted_H1.csv",index=False)
+
+          rows=[]
+          for scope in ("all","direct"):
+              x=pd.read_csv(out/f"resolution_{scope}/resolution_distance_audit.csv")
+              x.insert(0,"analysis",scope)
+              rows.append(x)
+          corr=pd.concat(rows,ignore_index=True)
+          corr.to_csv(out/"tdwg_resolution_distance_audit.csv",index=False)
+
+          print("\n=== regionally incompatible or introduced H1 ===")
+          print(part[["analysis","context","n_unique_islands","p_value","q_value","vector_supported"]].to_string(index=False))
+          print("\n=== L3-area-adjusted regional-native H1 ===")
+          print(res[["analysis","context","n_unique_islands","p_value","q_value","vector_supported"]].to_string(index=False))
+          print("\n=== distance vs L3 scale ===")
+          print(corr.to_string(index=False))
+          PY
+
+          {
+            echo "## WCVP reviewer hardening"
+            echo
+            echo "### Regionally incompatible / introduced partition: within-region H1"
+            cat /tmp/wcvp-review/results/incompatible_or_introduced_H1.csv
+            echo
+            echo "### TDWG-L3 area adjusted regional-native H1"
+            cat /tmp/wcvp-review/results/resolution_adjusted_H1.csv
+            echo
+            echo "### TDWG-L3 scale vs distance audit"
+            cat /tmp/wcvp-review/results/tdwg_resolution_distance_audit.csv
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-wcvp-reviewer-hardening-${{ github.run_id }}
+          path: /tmp/wcvp-review/results
+          if-no-files-found: error
+          retention-days: 30
