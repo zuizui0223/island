@@ -1,5 +1,6 @@
 name: Validate Chapter 1 H2 complete-selfing sensitivity
 # trigger-after-source-fix
+# trigger-after-source-repair
 
 on:
   push:
@@ -90,7 +91,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$target"
           git commit -m "Persist H2 complete-selfing sensitivity"
-          git push
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
 
       - uses: actions/upload-artifact@v4
         if: always()
