@@ -768,6 +768,12 @@ def fit_h4_domains(
         scores = species_scores[domain][
             ["accepted_species", domain]
         ].dropna(subset=[domain]).copy()
+        # Existing Chapter 1 H4 uses H2 soft membership on [0, 1], whereas
+        # plant-side syndrome scores are stored as raw concordance on [-1, 1].
+        # Reuse the frozen transform so reproductive-assurance and accessibility
+        # must reproduce the existing exact-score bridge before interpreting
+        # the newly added reduced-flower-size bridge.
+        scores[domain] = (pd.to_numeric(scores[domain], errors="coerce") + 1.0) / 2.0
         scores["species_key"] = scores["accepted_species"].map(_name_key)
         scores = scores[
             ["species_key", domain]
