@@ -229,6 +229,8 @@ reviewer_guards:
   - trait_specific_and_common_species_support_are_both_reported
   - island_score_minimum_species_3_10_20_sensitivity_is_reported
   - response_specific_trait_coverage_gradient_is_reported
+  - coverage_fraction_adjusted_H1_sensitivity_is_reported
+  - signal_display_global_exploratory_FDR_is_reported
   - finite_cluster_t_and_cluster_signflip_for_island_models
   - BH_multiplicity_within_declared_posthoc_families
   - genus_LOO_residual_sensitivity_for_taxonomic_dependence
