@@ -4,7 +4,7 @@ The **only active Chapter 1 submission selector** is
 `config/chapter1_submission_current.json`.
 
 Submission-facing prose lives in `submission/chapter1_current/`.
-Corrected tables live in `results/geography_20260924/`.
+Corrected H2-H4 tables live in `results/geography_20260924/`; final H1 inference lives in `results/h1_final_directional_20261003/`.
 The replay entry point is `scripts/geography_correction/README.md`.
 
 ## Pipeline at a glance
@@ -22,8 +22,8 @@ GSHHG 2.3.7 geography + GBIF island floras + trait evidence
               |                     |
               v                     v
         H1 pattern              H2 pathway
-  beta-binomial GLM       assurance-adjusted models
-  + multivariate Wald      + raw colour/architecture
+  directional 1-df score  assurance-adjusted models
+  + H1a/H1b synthesis      + raw colour/architecture
               |                     |
               +----------+----------+
                          |
@@ -56,22 +56,27 @@ Source of truth:
 - `docs/chapter1_corrected_submission_20260924.md`;
 - `results/geography_20260924/`.
 
-## H1 — Pattern
+## H1 — Directional tendency + heterogeneity
 
-Data: the original 222,688 resolved species×axis cells.
+Confirmatory data: the seven frozen v14 indicators, all oriented so positive means the classic island-syndrome direction.
 
-Method:
-`raw state prevalence ~ isolation + island area + climate PC1-PC4`
+Primary score gives equal total weight to reproductive assurance, colour dulling and accessibility/generalization.
 
-Model: beta-binomial GLMs with spatial-block cluster-robust covariance. Raw reported states are fitted with trait-specific denominators and tested jointly within each of the three original measurement axes. Missing component traits are not zeros and complete cases are not required.
+Regional models retain the corrected beta-binomial specification and spatial-block cluster-robust covariance, but final inference is one-dimensional:
+- finite-cluster t with G−1 df;
+- Rademacher wild-cluster sign-flip sensitivity;
+- strict four-region recurrence by intersection-union test.
+
+Paper-level synthesis separates:
+- **H1a:** positive global-average direction using Paule-Mandel random effects and modified Hartung-Knapp inference;
+- **H1b:** regional heterogeneity using Cochran Q / I2.
 
 Current result:
-- reproductive assurance: supported in **4/4 regions** in all-analysis and Direct-only;
-- floral structural complexity: supported in **4/4 regions** in both evidence scopes;
-- flower colour: supported in **3/4 broad regions** in both evidence scopes; northern high latitude is unsupported.
+- H1a supported: all-analysis mean 0.0691, one-sided p=0.0256; Direct-only mean 0.0635, p=0.0238;
+- H1b supported: I2=0.819 / 0.685;
+- strict four-region recurrence unsupported because northern mid-latitudes are weak (IUT p=0.134 / 0.106).
 
-Regional-native-compatible floras retain reproductive and structural responses in 4/4 regions. Status-by-isolation tests show that incompatible/introduced floras generally follow different raw-state vectors. The seven binary indicators are secondary directional decomposition only.
-
+The three raw measurement axes remain a descriptive phenotype/provenance audit. Their high-dimensional direction-free omnibus tests are not confirmatory evidence for the classic island-syndrome direction and cannot rescue a failed H1 directional endpoint.
 ## H2 — Conditional decomposition
 
 Data: reproductive assurance + floral responses.
@@ -80,13 +85,13 @@ Models:
 - `reproductive assurance ~ isolation + area + climate`;
 - `floral response ~ isolation + reproductive assurance + area + climate`.
 
-Primary selfing-adjusted accessibility q-values:
-- N mid: `0.1703`;
-- N high: `0.000847`;
-- Tropical: `0.01616`;
-- S extra: `0.2873`.
+Primary selfing-adjusted accessibility finite-cluster q-values:
+- N mid: `0.1764`;
+- N high: `0.00243`;
+- Tropical: `0.01913`;
+- S extra: `0.2977`.
 
-Tropical Direct-only accessibility is not FDR-supported after correction (`q=0.1196`).
+Tropical Direct-only accessibility is not FDR-supported after finite-cluster correction (`q=0.1267`).
 
 ## H3 — Ecological pressure
 
@@ -98,7 +103,7 @@ Model:
 Weighted regression with publication-total weight one and SE clustered by publication.
 
 Corrected primary estimate:
-`beta=0.09191`, `SE=0.03806`, `p=0.01575`.
+`beta=0.09191`, `SE=0.03806`, finite-publication `p=0.01594`.
 
 ## H4 — Functional compatibility
 
@@ -108,8 +113,8 @@ Model:
 `pollen limitation ~ trait score + isolation + geographic context + experimental design`
 
 Corrected primary estimates:
-- reproductive assurance: `beta=-0.29830`, `p=0.00396`;
-- generalized accessibility: `beta=-0.29566`, `p=0.02187`.
+- reproductive assurance: `beta=-0.29830`, finite-publication `p=0.00417`;
+- generalized accessibility: `beta=-0.29566`, finite-publication `p=0.02334`.
 
 H4 is explicitly post-hoc functional triangulation.
 
