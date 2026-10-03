@@ -157,6 +157,7 @@ jobs:
               "H1_genus_LOO": genus.to_dict(orient="records"),
               "strict_provenance_regional": provenance.to_dict(orient="records"),
               "signal_display_supported_states": signal_supported.to_dict(orient="records"),
+              "signal_display_global_FDR_supported_states": signal_global_supported.to_dict(orient="records"),
               "H1_minimum_species_threshold_sensitivity": threshold.to_dict(orient="records"),
               "trait_coverage_gradient": coverage.to_dict(orient="records"),
               "H2_primary": h2_primary.to_dict(orient="records"),
@@ -217,9 +218,6 @@ jobs:
             echo
             echo "### H2 conditional"
             cat /tmp/domain/out/H2_conditional.csv
-            echo
-            echo "### H2 global synthesis"
-            cat /tmp/domain/out/H2_global_synthesis.csv
             echo
             echo "### H2 global synthesis"
             cat /tmp/domain/out/H2_global_synthesis.csv
