@@ -3,6 +3,7 @@ import pandas as pd
 from island_v2.chapter1_h1_three_axis_raw_state import (
     build_axis_state_counts,
     build_valid_state_ledger,
+    formal_state_support,
 )
 
 
@@ -138,3 +139,27 @@ def test_axis_state_counts_use_trait_specific_denominators():
     assert int(sc["trials"]) == 2 and int(sc["successes"]) == 1
     assert int(si["trials"]) == 2 and int(si["successes"]) == 1
     assert int(mating["trials"]) == 1 and int(mating["successes"]) == 1
+
+
+def test_formal_state_support_excludes_single_species_state_without_dropping_other_states():
+    ledger = pd.DataFrame(
+        [
+            {"accepted_species": "A one", "axis": "reproductive_assurance", "trait_name": "cleistogamy", "state": "obligate"},
+            {"accepted_species": "A one", "axis": "reproductive_assurance", "trait_name": "self_incompatibility", "state": "SC"},
+            {"accepted_species": "B two", "axis": "reproductive_assurance", "trait_name": "self_incompatibility", "state": "SC"},
+            {"accepted_species": "C three", "axis": "reproductive_assurance", "trait_name": "self_incompatibility", "state": "SI"},
+        ]
+    )
+    filtered, support = formal_state_support(
+        ledger,
+        minimum_unique_species=2,
+        evidence_scope="all_analysis_eligible",
+    )
+    assert "cleistogamy" not in set(filtered["trait_name"])
+    assert set(filtered["trait_name"]) == {"self_incompatibility"}
+    obligate = support.loc[
+        support["trait_name"].eq("cleistogamy")
+        & support["state"].eq("obligate")
+    ].iloc[0]
+    assert int(obligate["n_unique_species"]) == 1
+    assert bool(obligate["eligible_for_formal_axis_test"]) is False
