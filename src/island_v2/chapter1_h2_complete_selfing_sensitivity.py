@@ -96,7 +96,7 @@ def build_species_score(
                 n += 1
         informative.append(n)
         eligible = n == len(traits) if require_all else n >= minimum_informative_traits
-        values.append((num / den + 1.0) / 2.0 if eligible and den > 0 else float("nan"))
+        values.append(num / den if eligible and den > 0 else float("nan"))
 
     wide["n_informative_traits"] = informative
     wide["score"] = values
@@ -226,7 +226,7 @@ def fit_models(
         "n_direct_species_selfing_complete3": int(self_complete_species["score"].notna().sum()),
         "n_direct_species_accessibility_min2": int(access_species["score"].notna().sum()),
         "n_islands_selfing_complete3": int(self_complete["island_id"].nunique()),
-        "n_islands_accessibility": int(access["island_id"].nunique()),
+        "n_islands_accessibility": int(access["island_id"].nunique()),\n        "score_scale": "raw weighted concordance [-1, 1], matching official island_syndrome_scores",
     }
     return results, summary
 
