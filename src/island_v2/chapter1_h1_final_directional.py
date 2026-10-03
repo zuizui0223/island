@@ -731,6 +731,13 @@ def run_final_directional_h1(
     )
     meta["evidence_scope"] = evidence_scope
     meta["stratum"] = primary_stratum
+    synthesis = synthesize_regions(
+        primary,
+        contexts=contexts,
+        alpha=float(config["alpha"]),
+    )
+    synthesis["evidence_scope"] = evidence_scope
+    synthesis["stratum"] = primary_stratum
 
     cluster_column = str(config["cluster_column"])
     context_column = str(config["context_column"])
@@ -780,6 +787,14 @@ def run_final_directional_h1(
     leaveout_meta["evidence_scope"] = evidence_scope
     leaveout_meta["stratum"] = primary_stratum
     leaveout_meta["sensitivity"] = "drop_top_variance_cluster"
+    leaveout_synthesis = synthesize_regions(
+        leaveout,
+        contexts=contexts,
+        alpha=float(config["alpha"]),
+    )
+    leaveout_synthesis["evidence_scope"] = evidence_scope
+    leaveout_synthesis["stratum"] = primary_stratum
+    leaveout_synthesis["sensitivity"] = "drop_top_variance_cluster"
 
     weight_parts: list[pd.DataFrame] = []
     weight_summaries: list[dict[str, Any]] = []
@@ -811,6 +826,11 @@ def run_final_directional_h1(
             contexts=contexts,
             alpha=float(config["alpha"]),
         )
+        scheme_synthesis = synthesize_regions(
+            scheme_frame,
+            contexts=contexts,
+            alpha=float(config["alpha"]),
+        )
         weight_summaries.append(
             {
                 "evidence_scope": evidence_scope,
@@ -826,18 +846,29 @@ def run_final_directional_h1(
                 "strict_iut_p_wild": scheme_iut.get(
                     "iut_p_one_sided_wild", float("nan")
                 ),
-                "global_average_estimate": scheme_meta.get(
-                    "random_effects_estimate", float("nan")
+                "global_average_estimate": scheme_synthesis.get(
+                    "random_effects_mean", float("nan")
                 ),
-                "global_average_p_one_sided": scheme_meta.get(
-                    "random_effects_p_one_sided", float("nan")
+                "global_average_p_one_sided": scheme_synthesis.get(
+                    "H1a_one_sided_p", float("nan")
                 ),
                 "global_average_supported": bool(
-                    scheme_meta.get(
-                        "positive_global_average_supported", False
+                    scheme_synthesis.get(
+                        "H1a_global_average_supported", False
                     )
                 ),
-                "i2": scheme_meta.get("i2", float("nan")),
+                "heterogeneity_p": scheme_synthesis.get(
+                    "heterogeneity_p", float("nan")
+                ),
+                "regional_heterogeneity_supported": bool(
+                    scheme_synthesis.get(
+                        "H1b_regional_heterogeneity_supported", False
+                    )
+                ),
+                "i2": scheme_synthesis.get("I2", float("nan")),
+                "legacy_dl_global_average_p_one_sided": scheme_meta.get(
+                    "random_effects_p_one_sided", float("nan")
+                ),
             }
         )
     weight_sensitivity = (
@@ -856,9 +887,11 @@ def run_final_directional_h1(
         "counts": counts,
         "iut": iut,
         "meta": meta,
+        "synthesis": synthesis,
         "top_cluster_sensitivity": leaveout,
         "top_cluster_iut": leaveout_iut,
         "top_cluster_meta": leaveout_meta,
+        "top_cluster_synthesis": leaveout_synthesis,
         "weight_sensitivity": weight_sensitivity,
         "weight_sensitivity_summary": pd.DataFrame(
             weight_summaries
@@ -919,6 +952,10 @@ def run(
         json.dumps(result["meta"], indent=2) + "\n",
         encoding="utf-8",
     )
+    (output_dir / "directional_score_synthesis.json").write_text(
+        json.dumps(result["synthesis"], indent=2) + "\n",
+        encoding="utf-8",
+    )
     (output_dir / "top_cluster_leaveout_iut.json").write_text(
         json.dumps(result["top_cluster_iut"], indent=2) + "\n",
         encoding="utf-8",
@@ -927,13 +964,21 @@ def run(
         json.dumps(result["top_cluster_meta"], indent=2) + "\n",
         encoding="utf-8",
     )
+    (output_dir / "top_cluster_leaveout_synthesis.json").write_text(
+        json.dumps(result["top_cluster_synthesis"], indent=2) + "\n",
+        encoding="utf-8",
+    )
     typer.echo(
         json.dumps(
             {
                 "primary_iut": result["iut"],
                 "primary_meta": result["meta"],
+                "primary_synthesis": result["synthesis"],
                 "top_cluster_leaveout_iut": result["top_cluster_iut"],
                 "top_cluster_leaveout_meta": result["top_cluster_meta"],
+                "top_cluster_leaveout_synthesis": (
+                    result["top_cluster_synthesis"]
+                ),
                 "weight_sensitivity_summary": (
                     result["weight_sensitivity_summary"]
                     .to_dict(orient="records")
