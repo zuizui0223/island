@@ -1,0 +1,37 @@
+{
+  "H2": {
+    "n_primary_H2b_tests": 16,
+    "n_finite_cluster_FDR_supported": 5,
+    "supported_cells": [
+      "all_analysis_eligible|northern_high_latitude|generalized_accessible",
+      "all_analysis_eligible|southern_extratropical|plain_colour",
+      "all_analysis_eligible|tropical|generalized_accessible",
+      "direct_only|northern_high_latitude|generalized_accessible",
+      "direct_only|southern_extratropical|plain_colour"
+    ],
+    "claim_boundary": "conditional decomposition, not causal mediation"
+  },
+  "H3": {
+    "estimate": 0.09191043596699681,
+    "finite_publication_t_two_sided_p": 0.01594350716910782,
+    "supported": true
+  },
+  "H3_offshore_sensitivity": {
+    "estimate": 0.22031466445594622,
+    "finite_publication_t_two_sided_p": 0.02459200453249381,
+    "supported": true
+  },
+  "H4": {
+    "reproductive_assurance": {
+      "estimate": -0.2983005681547416,
+      "finite_publication_t_two_sided_p": 0.004166318114023793,
+      "supported": true
+    },
+    "accessibility_generalization": {
+      "estimate": -0.295659590051078,
+      "finite_publication_t_two_sided_p": 0.0233429161772711,
+      "supported": true
+    },
+    "claim_boundary": "post-hoc exact-species functional triangulation only"
+  }
+}
