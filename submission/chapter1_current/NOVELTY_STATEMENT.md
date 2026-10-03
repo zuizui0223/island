@@ -19,7 +19,7 @@ The three independent associations form a **constraint–response triangle**: is
 ## What this study adds
 
 1. **A different biogeographic question from island occurrence.**  
-   Prior global work asks which species successfully occur on islands. Here, among already assembled island floras, increasing source isolation repeatedly reorganizes a seven-trait floral–reproductive response across four predeclared geographic regions and both trait-evidence scopes, despite non-uniform atomic responses.
+   Prior global work asks which species successfully occur on islands. Here, among already assembled island floras, increasing source isolation repeatedly reorganizes three biological domains—reproductive assurance, colour composition and floral accessibility/generalization—across four predeclared geographic regions and both trait-evidence scopes. Seven atomic indicators show how those domains are realized regionally rather than defining seven separate complete trait axes.
 
 2. **A competing model is rejected.**  
    The data do not support an obligatory serial model in which floral change is only a downstream consequence of reproductive assurance. Selfing-adjusted accessibility remains positive in all four regions and is FDR-supported in northern high latitudes and the tropics.
