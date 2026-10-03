@@ -75,7 +75,8 @@ directional_score:
     actinomorphic_symmetry: 0.1111111111111111
     shallow_open_tube: 0.1111111111111111
   alternative: positive
-  wild_cluster_method: linearized_rademacher_sign_flip
+  primary_inference: finite_cluster_t_G_minus_1
+  small_cluster_sensitivity: linearized_rademacher_sign_flip
   wild_cluster_replications: 9999
   wild_cluster_seed: 20261003
   global_recurrence_test: intersection_union_max_regional_p
