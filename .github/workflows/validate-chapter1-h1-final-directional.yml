@@ -19,6 +19,8 @@ on:
       - "config/chapter1_h1_final_directional.yml"
       - "src/island_v2/chapter1_h1_final_directional.py"
       - "tests/test_chapter1_h1_final_directional.py"
+      - "src/island_v2/chapter1_final_inference_audit.py"
+      - "tests/test_chapter1_final_inference_audit.py"
       - ".github/workflows/validate-chapter1-h1-final-directional.yml"
   workflow_dispatch:
 
