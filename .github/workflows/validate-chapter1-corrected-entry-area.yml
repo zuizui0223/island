@@ -1,0 +1,65 @@
+name: Validate corrected genus-entry area moderation replay
+
+on:
+  push:
+    branches:
+      - analysis/corrected-entry-area
+    paths:
+      - "scripts/geography_correction/replay_corrected_entry_area.py"
+      - ".github/workflows/validate-chapter1-corrected-entry-area.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -e ".[dev]"
+
+      - name: Validate replay implementation
+        run: |
+          python -m py_compile scripts/geography_correction/replay_corrected_entry_area.py
+          ruff check scripts/geography_correction/replay_corrected_entry_area.py
+
+      - name: Download frozen Chapter 1 artifact
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/entry_area/source /tmp/entry_area/result
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/entry_area/source
+          test -s /tmp/entry_area/source/lineage/lineage_representation_island_scores.csv.gz
+          test -s /tmp/entry_area/source/area/area_moderation_coefficients.csv
+          test -s /tmp/entry_area/source/area/area_moderation_within_context.csv
+          test -s /tmp/entry_area/source/fixed/source/isolation/results/purpose_shortest_island_data.csv
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+
+      - name: Replay frozen area model and replace only geography
+        run: |
+          python scripts/geography_correction/replay_corrected_entry_area.py             --lineage-scores-csv /tmp/entry_area/source/lineage/lineage_representation_island_scores.csv.gz             --frozen-coefficients-csv /tmp/entry_area/source/area/area_moderation_coefficients.csv             --frozen-omnibus-csv /tmp/entry_area/source/area/area_moderation_within_context.csv             --original-covariates-csv /tmp/entry_area/source/fixed/source/isolation/results/purpose_shortest_island_data.csv             --corrected-covariates-csv results/geography_20260924/corrected_geography_covariates.csv             --output-dir /tmp/entry_area/result
+
+      - name: Show result
+        run: |
+          cat /tmp/entry_area/result/tropical_entry_area_summary.csv
+          cat /tmp/entry_area/result/RESULT.json >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: corrected-entry-area-${{ github.run_id }}
+          path: /tmp/entry_area/result
+          if-no-files-found: error
+          retention-days: 30
