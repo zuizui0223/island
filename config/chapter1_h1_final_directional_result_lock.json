@@ -245,5 +245,50 @@
     "no_historical_causal_mediation": true,
     "no_within_lineage_evolution_claim": true,
     "corrected_geography_is_posthoc_measurement_repair": true
+  },
+  "analysis_freeze": {
+    "frozen_at": "2026-10-03_WCVP_regional_native_compatibility",
+    "canonical_submission_surface": [
+      "frozen seven-indicator H1 directional score with H1a/H1b and strict four-region IUT",
+      "existing H2 conditional decomposition",
+      "existing H3 corrected global pollen-limitation gradient and offshore sensitivity",
+      "existing H4 exact-species functional triangulation",
+      "WCVP regional-native-compatible floristic-origin sensitivity"
+    ],
+    "wcvp_regional_native_compatible": {
+      "role": "provenance_sensitivity_not_confirmatory_H1",
+      "source_results": "results/wcvp_native_corrected_20261003",
+      "coverage": {
+        "total_flora_rows": 1039757,
+        "original_source_native_rows": 150531,
+        "unresolved_rows_upgraded_by_WCVP_native_range": 362789,
+        "regional_native_compatible_rows": 513320,
+        "regional_native_compatible_islands": 2372
+      },
+      "regional_joint_vector_q": {
+        "all_analysis_eligible": {
+          "northern_midlatitude": 0.0006644381494015181,
+          "northern_high_latitude": 0.04395900553286053,
+          "tropical": 0.006355625573037584,
+          "southern_extratropical": 1.0489743133579148e-11
+        },
+        "direct_only": {
+          "northern_midlatitude": 0.007288431002030329,
+          "northern_high_latitude": 0.002868750092737149,
+          "tropical": 0.002868750092737149,
+          "southern_extratropical": 2.46915410662282e-10
+        }
+      },
+      "interpretation_ceiling": "This sensitivity shows that substantial isolation-associated seven-indicator response structure remains in a large flora compatible with WCVP regional native ranges. It is not a native-only replication of the final one-dimensional H1 and does not identify assembly versus within-lineage evolution."
+    },
+    "post_freeze_exploration_excluded_from_submission_decisions": [
+      "post-hoc biological-domain reclassification PR #286",
+      "three-domain complete-case/common-support experiments",
+      "genus-LOO experiments added after the WCVP sensitivity",
+      "eight-trait H1 flower-size extension",
+      "strict source-native-only H1 rerun PR #287",
+      "introduced-only H1 reruns"
+    ],
+    "rule": "Do not promote, replace, or revise the frozen Chapter 1 claims on the basis of post-freeze exploratory analyses unless an explicit new preregistered analysis phase is opened."
   }
 }
