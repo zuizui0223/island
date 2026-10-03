@@ -86,6 +86,49 @@ jobs:
             python -m island_v2.chapter1_wcvp_partition_within_h1               --status-flora-csv /tmp/wcvp-review/source/fixed/canonical/input/chapter1_status_flora.csv.gz               --state-audit-csv "$AUDIT"               --covariates-csv results/geography_20260924/corrected_geography_covariates.csv               --wcvp-ranges-csv /tmp/wcvp-review/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz               --island-tdwg-csv /tmp/wcvp-review/status/resolved/island_tdwg_l3_mapping.csv               --config-path config/chapter1_v14_all_data_probability.yml               --evidence-scope "$LABEL"               --output-dir "/tmp/wcvp-review/results/partition_$scope"
           done
 
+      - name: Audit Direct northern-high incompatible/introduced convergence
+        run: |
+          python - <<'PY'
+          import yaml
+          from pathlib import Path
+          p=Path("config/chapter1_v14_all_data_probability.yml")
+          cfg=yaml.safe_load(p.read_text())
+          cfg["max_iter"]=5000
+          Path("/tmp/wcvp-review/config5000.yml").write_text(yaml.safe_dump(cfg, sort_keys=False))
+          PY
+
+          python -m island_v2.chapter1_wcvp_partition_within_h1 \
+            --status-flora-csv /tmp/wcvp-review/source/fixed/canonical/input/chapter1_status_flora.csv.gz \
+            --state-audit-csv /tmp/wcvp-review/source/snapshot/chapter1_trait_state_audit_direct.csv.gz \
+            --covariates-csv results/geography_20260924/corrected_geography_covariates.csv \
+            --wcvp-ranges-csv /tmp/wcvp-review/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz \
+            --island-tdwg-csv /tmp/wcvp-review/status/resolved/island_tdwg_l3_mapping.csv \
+            --config-path /tmp/wcvp-review/config5000.yml \
+            --evidence-scope direct_only_retry5000 \
+            --output-dir /tmp/wcvp-review/results/partition_direct_retry5000
+
+          python - <<'PY'
+          import pandas as pd
+          old=pd.read_csv("/tmp/wcvp-review/results/partition_direct/within_slopes.csv")
+          new=pd.read_csv("/tmp/wcvp-review/results/partition_direct_retry5000/within_slopes.csv")
+          key=(old["partition"].eq("regionally_incompatible_or_introduced") &
+               old["context"].eq("northern_high_latitude") &
+               old["outcome"].eq("actinomorphic_symmetry"))
+          k2=(new["partition"].eq("regionally_incompatible_or_introduced") &
+              new["context"].eq("northern_high_latitude") &
+              new["outcome"].eq("actinomorphic_symmetry"))
+          a=old.loc[key].iloc[0]; b=new.loc[k2].iloc[0]
+          diff=abs(float(a.geography_slope_log_odds)-float(b.geography_slope_log_odds))
+          print("old optimizer",a.optimizer_success,"new optimizer",b.optimizer_success,"slope diff",diff)
+          assert bool(b.optimizer_success), b.to_dict()
+          assert diff < 1e-4, diff
+          om=pd.read_csv("/tmp/wcvp-review/results/partition_direct_retry5000/within_omnibus.csv")
+          row=om[(om["partition"].eq("regionally_incompatible_or_introduced")) &
+                 (om["context"].eq("northern_high_latitude"))].iloc[0]
+          assert bool(row.all_optimizers_converged), row.to_dict()
+          row.to_frame().T.to_csv("/tmp/wcvp-review/results/direct_high_retry5000.csv",index=False)
+          PY
+
       - name: Run TDWG-L3 resolution-adjusted WCVP H1
         run: |
           for scope in all direct; do
