@@ -593,61 +593,6 @@ def synthesize_regions(
     }
 
 
-def synthesize_regions(
-    results: pd.DataFrame,
-    *,
-    contexts: list[str],
-    alpha: float,
-) -> dict[str, Any]:
-    """Separate the global-average H1a claim from H1b regional heterogeneity.
-
-    H1a asks whether the four predeclared regional directional estimates have a
-    positive global average after allowing for between-region heterogeneity.
-    H1b asks whether the regional effects are detectably heterogeneous. Neither
-    claim requires every region to be individually significant; that stricter
-    property is tested separately by intersection_union_summary().
-    """
-    meta = meta_directional_summary(
-        results,
-        contexts=contexts,
-        alpha=alpha,
-    )
-    if meta.get("status") != "fit":
-        return {
-            "status": "not_testable",
-            "reason": meta.get("reason", "regional_meta_not_testable"),
-        }
-    heterogeneity_p = float(meta["heterogeneity_p"])
-    return {
-        "status": "fit",
-        "n_regions": int(meta["n_contexts"]),
-        "all_region_estimates_positive": bool(
-            meta["all_context_estimates_positive"]
-        ),
-        "H1a_global_average_estimate": float(
-            meta["random_effects_estimate"]
-        ),
-        "H1a_global_average_se": float(
-            meta["modified_knapp_hartung_se"]
-        ),
-        "H1a_one_sided_p": float(
-            meta["random_effects_p_one_sided"]
-        ),
-        "H1a_global_average_supported": bool(
-            meta["positive_global_average_supported"]
-        ),
-        "H1b_cochran_q": float(meta["cochran_q"]),
-        "H1b_df": int(meta["heterogeneity_df"]),
-        "heterogeneity_p": heterogeneity_p,
-        "H1b_regional_heterogeneity_supported": bool(
-            heterogeneity_p <= alpha
-        ),
-        "i2": float(meta["i2"]),
-        "tau2_dl": float(meta["tau2_dl"]),
-        "strict_four_region_recurrence_is_separate": True,
-    }
-
-
 def intersection_union_summary(
     results: pd.DataFrame,
     *,
