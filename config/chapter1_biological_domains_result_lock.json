@@ -1,0 +1,249 @@
+{
+  "contract": "chapter1_biological_domains_result_lock_v1",
+  "date": "2026-10-04",
+  "inferential_role": "posthoc_biological_reclassification_stress_test",
+  "reference_run": {
+    "workflow_run_id": 37131064862,
+    "artifact_id": 11276723405,
+    "artifact_name": "chapter1-biological-domains-37131064862",
+    "artifact_sha256": "e3748bf9e11fe95f7aed472958cd770e1b35805b91e64e46977b0b36c360c2a7",
+    "head_sha": "29f25f5105d1140ecf76ec14a41b2d9ba99d9fcb"
+  },
+  "domain_definitions": {
+    "reproductive_assurance": {
+      "role": "core_candidate",
+      "components": [
+        "self_incompatibility",
+        "mating_system",
+        "autonomous_selfing_capacity",
+        "cleistogamy"
+      ],
+      "benchmark_without_cleistogamy": "reproductive_assurance_core"
+    },
+    "accessibility_specialization": {
+      "role": "companion_candidate",
+      "components": [
+        "floral_form",
+        "floral_symmetry",
+        "tube_depth_class"
+      ]
+    },
+    "signal_display": {
+      "role": "context_dependent_reorganization",
+      "directional_component": "flower_size_reduction_only",
+      "raw_state_traits": [
+        "flower_primary_color",
+        "flower_size_class",
+        "inflorescence_display"
+      ]
+    }
+  },
+  "support": {
+    "all_analysis_eligible": {
+      "reproductive_assurance_species": 10088,
+      "accessibility_species": 8464,
+      "flower_size_species": 10957,
+      "assurance_accessibility_overlap": 3022,
+      "assurance_size_overlap": 1003,
+      "accessibility_size_overlap": 1479,
+      "all_three_overlap": 490
+    },
+    "direct_only": {
+      "reproductive_assurance_species": 3032,
+      "accessibility_species": 3389,
+      "flower_size_species": 5819,
+      "assurance_accessibility_overlap": 1038,
+      "assurance_size_overlap": 477,
+      "accessibility_size_overlap": 771,
+      "all_three_overlap": 226
+    }
+  },
+  "H1": {
+    "trait_specific_global_average": {
+      "all_analysis": {
+        "reproductive_assurance": {
+          "estimate": 0.009541,
+          "one_sided_p": 0.053068
+        },
+        "accessibility_specialization": {
+          "estimate": 0.012108,
+          "one_sided_p": 0.030451,
+          "two_domain_BH_q": 0.053068
+        },
+        "flower_size_reduction": {
+          "estimate": 0.001516,
+          "one_sided_p": 0.402922
+        }
+      },
+      "direct_only": {
+        "reproductive_assurance": {
+          "estimate": 0.014682,
+          "one_sided_p": 0.042292,
+          "two_domain_BH_q": 0.042292
+        },
+        "accessibility_specialization": {
+          "estimate": 0.013784,
+          "one_sided_p": 0.040312,
+          "two_domain_BH_q": 0.042292
+        },
+        "flower_size_reduction": {
+          "estimate": 0.000425,
+          "one_sided_p": 0.471887
+        }
+      }
+    },
+    "coverage_adjusted_global_average": {
+      "all_analysis": {
+        "reproductive_assurance": {
+          "estimate": 0.007083,
+          "one_sided_p": 0.034417,
+          "two_domain_BH_q": 0.034417
+        },
+        "accessibility_specialization": {
+          "estimate": 0.008514,
+          "one_sided_p": 0.025283,
+          "two_domain_BH_q": 0.034417
+        },
+        "flower_size_reduction": {
+          "estimate": 0.002304,
+          "one_sided_p": 0.338166
+        }
+      },
+      "direct_only": {
+        "reproductive_assurance": {
+          "estimate": 0.014626,
+          "one_sided_p": 0.097743,
+          "two_domain_BH_q": 0.097743
+        },
+        "accessibility_specialization": {
+          "estimate": 0.014226,
+          "one_sided_p": 0.041431,
+          "two_domain_BH_q": 0.082861
+        },
+        "flower_size_reduction": {
+          "estimate": 0.001143,
+          "one_sided_p": 0.414044
+        }
+      }
+    },
+    "common_species_global_average": {
+      "all_analysis": {
+        "reproductive_assurance": {
+          "estimate": 0.013349,
+          "one_sided_p": 0.007181
+        },
+        "accessibility_specialization": {
+          "estimate": -0.00141,
+          "one_sided_p": 0.56186
+        },
+        "flower_size_reduction": {
+          "estimate": -0.002912,
+          "one_sided_p": 0.632923
+        }
+      },
+      "direct_only": {
+        "reproductive_assurance": {
+          "estimate": 0.003851,
+          "one_sided_p": 0.336611
+        },
+        "accessibility_specialization": {
+          "estimate": -0.000898,
+          "one_sided_p": 0.527736
+        },
+        "flower_size_reduction": {
+          "estimate": -0.001516,
+          "one_sided_p": 0.55677
+        }
+      }
+    },
+    "genus_LOO_global_average": {
+      "interpretation": "positive macro gradients do not persist after leave-one-species-out genus residualization; observed pattern is primarily assemblage/lineage composition, not repeated within-genus evolution"
+    },
+    "minimum_species_thresholds": {
+      "thresholds": [
+        3,
+        10,
+        20
+      ],
+      "interpretation": "accessibility and assurance remain directionally positive in trait-specific fits but inferential strength changes; flower-size reduction remains near zero globally"
+    },
+    "signal_display_statewise": {
+      "n_states_surviving_global_signal_family_BH": 19,
+      "interpretation": "strong statewise reorganization exists but directions differ among regions; no global attraction-loss axis is supported"
+    }
+  },
+  "H2": {
+    "trait_specific_global": {
+      "all_analysis_accessibility_given_assurance": {
+        "estimate": 0.012057,
+        "one_sided_p": 0.032651,
+        "BH_q": 0.065302
+      },
+      "direct_accessibility_given_assurance": {
+        "estimate": 0.011378,
+        "one_sided_p": 0.06599,
+        "BH_q": 0.131981
+      },
+      "flower_size_given_assurance": "unsupported_globally_and_regionally_heterogeneous"
+    },
+    "common_species_global": {
+      "interpretation": "accessibility and size-reduction conditional effects are unsupported; southern common-support effects can be negative"
+    },
+    "conclusion": "regional_partial_separability_not_universal_independent_pathways"
+  },
+  "H3": {
+    "corrected_global": {
+      "estimate": 0.09191043596699681,
+      "finite_publication_two_sided_p": 0.01594350716910782
+    },
+    "offshore_only": {
+      "estimate": 0.22031466445594622,
+      "finite_publication_two_sided_p": 0.02459200453249381
+    },
+    "classification_dependency": false
+  },
+  "H4": {
+    "marginal_exact_species": {
+      "reproductive_assurance": {
+        "estimate": -0.305267,
+        "finite_publication_p": 0.005336
+      },
+      "accessibility_specialization": {
+        "estimate": -0.29566,
+        "finite_publication_p": 0.023343
+      },
+      "flower_size_reduction": {
+        "estimate": -0.401336,
+        "finite_publication_p": 0.025227
+      },
+      "all_three_BH_q_max": 0.025227
+    },
+    "conditional_exact_species": {
+      "accessibility_given_assurance": {
+        "estimate": -0.294399,
+        "finite_publication_p": 0.028444,
+        "conditional_family_BH_q": 0.056887
+      },
+      "size_given_assurance": {
+        "estimate": -0.391141,
+        "finite_publication_p": 0.171072
+      },
+      "all_three_model": {
+        "status": "not_testable",
+        "n_species": 23,
+        "minimum_required": 30
+      }
+    },
+    "conclusion": "functional_alignment_not_three_independent_historical_pathways"
+  },
+  "claim_ceiling": {
+    "replaces_confirmatory_H1": false,
+    "universal_three_domain_island_syndrome": false,
+    "signal_display_global_reduction_axis": false,
+    "causal_mediation_identified": false,
+    "named_pollinator_mechanism_identified": false,
+    "within_lineage_evolution_identified": false,
+    "historical_selection_identified": false
+  },
+  "preferred_interpretation": "Reproductive assurance is the most stable biological core. Accessibility/generalization is a recurrent but region- and support-dependent companion response. Signal/display shows geographically contingent reorganization rather than a global reduction axis. Isolation is independently associated with stronger pollen limitation, and all three trait families align with lower present-day pollen limitation in marginal exact-species tests, but conditional models do not support three independent pathways."
+}
