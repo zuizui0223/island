@@ -61,6 +61,35 @@ region preserves H1a in all-analysis (mean = 0.09291, P = **0.04383**) but weake
 Direct-only slightly beyond 0.05 (mean = 0.08786, P = **0.05326**). H1a should therefore
 be described as positive but leverage-sensitive.
 
+
+### Exact delete-one-spatial-cluster jackknife stress test
+
+A separate reviewer-robust workflow re-fitted the underlying models after deleting each
+spatial cluster rather than relying only on the sandwich linearization. Some
+northern-high leave-one-cluster fits failed numerically (56/63 all-analysis and 58/63
+Direct-only successful), so this is retained as a conservative stress test rather than
+the sole primary estimator.
+
+Using the successful exact jackknife regional SEs in the same Paule-Mandel +
+modified-Hartung-Knapp four-region synthesis:
+
+- all-analysis: mean = **0.06352**, SE = 0.02243, one-sided P = **0.03305**,
+  two-sided P = 0.06610;
+- Direct-only: mean = **0.05481**, SE = 0.01862, one-sided P = **0.03018**,
+  two-sided P = 0.06036.
+
+Thus H1a remains supported under the predeclared directional alternative even when
+regional uncertainty is estimated by exact cluster deletion.
+
+H1b is less invariant to the uncertainty estimator:
+
+- all-analysis: Q = 11.86, P = **0.00789**, I2 = 0.747;
+- Direct-only: Q = 5.63, P = **0.131**, I2 = 0.467.
+
+The paper should therefore describe regional heterogeneity as clear in the primary
+all-analysis evidence and visible in effect magnitudes, but not as independently
+significant under every evidence scope and uncertainty estimator.
+
 ## Raw-state role
 
 The three-axis raw-state analysis remains useful for describing floral/reproductive
@@ -86,7 +115,7 @@ The submission may claim:
 
 > Geographic isolation is associated with a positive average shift toward reproductive
 > assurance and accessible/generalized floral architecture, but the magnitude and
-> phenotypic realization of that tendency are strongly region dependent. The same
+> phenotypic realization of that tendency vary among regions. The same
 > geographic gradient is independently associated with greater pollen limitation, and
 > the island-associated reproductive-assurance and accessibility states are associated
 > with lower current pollen limitation.
@@ -107,3 +136,11 @@ It may not claim:
 - artifact: **11274313934**
 - artifact digest:
   `sha256:05389ffe438876c11527ecb8b6be7c43ac3f45b14fa343970826e142e36dab5b`
+
+
+### Additional jackknife provenance
+
+- workflow: Final reviewer-robust H1-H2 inference
+- run: **37122292456**
+- artifact: **11273547268**
+- artifact digest: `sha256:52329a2fbe68520417693d2572510958adf1a93d02fc06cafd39768ed0b2ad34`
