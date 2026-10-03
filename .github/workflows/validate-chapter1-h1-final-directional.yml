@@ -9,6 +9,14 @@ on:
       - "src/island_v2/chapter1_h1_final_directional.py"
       - "tests/test_chapter1_h1_final_directional.py"
       - ".github/workflows/validate-chapter1-h1-final-directional.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "config/chapter1_h1_final_directional.yml"
+      - "src/island_v2/chapter1_h1_final_directional.py"
+      - "tests/test_chapter1_h1_final_directional.py"
+      - ".github/workflows/validate-chapter1-h1-final-directional.yml"
   workflow_dispatch:
 
 permissions:
