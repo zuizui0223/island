@@ -108,14 +108,14 @@ In the all-observed flora, reproductive assurance and structural composition are
 
 | Axis | Northern mid-latitude | Northern high latitude | Tropical | Southern extratropical |
 | --- | ---: | ---: | ---: | ---: |
-| Reproductive assurance, all-analysis | 1.10 × 10^-20 | 7.81 × 10^-18 | 2.16 × 10^-7 | 2.15 × 10^-6 |
-| Structural complexity, all-analysis | 3.21 × 10^-95 | 1.25 × 10^-82* | 2.02 × 10^-34 | <10^-300 |
+| Reproductive assurance, all-analysis | 1.09 × 10^-20 | 7.81 × 10^-18 | 2.16 × 10^-7 | 2.15 × 10^-6 |
+| Structural complexity, all-analysis | 3.21 × 10^-95 | 1.26 × 10^-82 | 2.02 × 10^-34 | <10^-300* |
 | Colour composition, all-analysis | 4.57 × 10^-4 | **0.155** | 5.45 × 10^-8 | 9.57 × 10^-7 |
-| Reproductive assurance, Direct-only | 1.81 × 10^-16 | 4.68 × 10^-53 | 5.43 × 10^-7 | 4.37 × 10^-15 |
-| Structural complexity, Direct-only | 8.05 × 10^-55* | 6.36 × 10^-176 | 1.14 × 10^-27 | <10^-300 |
+| Reproductive assurance, Direct-only | 1.81 × 10^-16 | 4.65 × 10^-53* | 5.43 × 10^-7 | 4.37 × 10^-15 |
+| Structural complexity, Direct-only | 8.77 × 10^-55 | 6.46 × 10^-176 | 1.17 × 10^-27 | <10^-300 |
 | Colour composition, Direct-only | 2.94 × 10^-9 | **0.189** | 2.06 × 10^-6 | 1.63 × 10^-12 |
 
-*The 5,000-iteration retry retained the fitted slope vector to recorded precision but one optimizer termination flag persisted. The inferential result is reported with that numerical provenance.
+*One state-level optimizer flag persists in each marked primary axis test. Removing the failed state entirely yields fully converged tests with the same decision: southern all-analysis structure retains q < 10^-300, and northern-high Direct reproductive assurance retains q = 2.41 × 10^-28.
 
 Raw reproductive states establish biological direction rather than merely an unspecified multivariate change. Across regions, self-compatible, selfing or autonomous states increase in several comparisons, while self-incompatibility, predominantly outcrossing or absence of autonomous selfing decrease in others. Structural fingerprints vary more strongly by region: northern-high and tropical floras shift toward open/radial and actinomorphic states, whereas southern extratropical floras combine increasing open-radial form with increasing deep tube and decreasing shallow tube. Thus structural reorganization recurs without universal simplification.
 
@@ -125,7 +125,7 @@ Machine-readable table:
 
 - submission/chapter1_current/supplement/Table_S2h_H1_axis_cell_audit.csv
 
-Direct analysis of the species×axis cells exposed 900 historical validated-low cells with within-axis trait-label permutations. All 900 were uniquely recoverable using only the trait slots already declared in the same cell and the frozen trait ontology; no species identity, geography or fitted outcome was used. The audit reassigned 5,102 structural and 240 reproductive state memberships. No Direct-only cell required repair. After this deterministic repair, all **222,688 / 222,688 resolved cells** contain at least one ontology-valid component state.
+Direct analysis of the species×axis cells exposed 900 historical validated-low cells with within-axis trait-label permutations. All 900 were uniquely recoverable using only the trait slots already declared in the same cell and the frozen trait ontology; no species identity, geography or fitted outcome was used. The audit reassigned 5,102 structural and 240 reproductive state memberships. No Direct-only cell required repair. After this deterministic repair, all **222,688 / 222,688 resolved cells** contain at least one ontology-valid component state. The ≥30-species formal-state gate still retains at least one formal state for **222,687 / 222,688 all-analysis cells (99.9996%)** and **102,924 / 102,932 Direct-only cells (99.9922%)**.
 
 ### Table S2g. Floristic-origin response-vector contrasts
 
@@ -140,6 +140,13 @@ The WCVP regional-native-compatible flora retains reproductive-assurance and str
 The complementary incompatible/introduced partition also responds to isolation, but formal status-by-isolation interactions show that it generally follows a **different raw-state vector**. Reproductive-assurance and structural vectors differ between regional-native-compatible and complementary floras in all four regions under both evidence scopes. In the strict known-origin tropical comparison, source-native and source-introduced reproductive-assurance vectors differ strongly (all-analysis q = 2.36 × 10^-11; Direct-only q = 1.53 × 10^-10) and have cosine similarities of -0.758 and -0.853. Structural vectors also differ strongly. These results reject the simple explanation that introduced plants reproduce the same isolation-associated reproductive/structural response seen in native-compatible floras.
 
 The status analyses remain assemblage comparisons. They do not identify whether the native-associated response arose through colonization filtering, persistence/extinction, species sorting or within-lineage evolution.
+
+Three-axis raw-state validation provenance:
+
+- workflow run **37117607718**;
+- artifact **11272053673**;
+- artifact digest `sha256:b40721ca0f20b3c1af3e92782c3466d50bb687e9dea17dbe8b9613e9aad574ed`.
+
 
 ### Secondary seven-indicator directional decomposition
 
