@@ -226,7 +226,8 @@ def fit_models(
         "n_direct_species_selfing_complete3": int(self_complete_species["score"].notna().sum()),
         "n_direct_species_accessibility_min2": int(access_species["score"].notna().sum()),
         "n_islands_selfing_complete3": int(self_complete["island_id"].nunique()),
-        "n_islands_accessibility": int(access["island_id"].nunique()),\n        "score_scale": "raw weighted concordance [-1, 1], matching official island_syndrome_scores",
+        "n_islands_accessibility": int(access["island_id"].nunique()),
+        "score_scale": "raw weighted concordance [-1, 1], matching official island_syndrome_scores",
     }
     return results, summary
 
