@@ -1,13 +1,17 @@
-name: Validate three-axis raw-state H1
+name: Validate three-axis raw-state and final directional H1
 
 on:
   push:
     branches:
       - analysis/h1-three-axis-raw-state
+      - analysis/h1-final-directional-inference
     paths:
       - "config/chapter1_h1_three_axis_raw_state.yml"
+      - "config/chapter1_h1_final_directional.yml"
       - "src/island_v2/chapter1_h1_three_axis_raw_state.py"
+      - "src/island_v2/chapter1_h1_final_directional.py"
       - "tests/test_chapter1_h1_three_axis_raw_state.py"
+      - "tests/test_chapter1_h1_final_directional.py"
       - ".github/workflows/validate-chapter1-h1-three-axis-raw-state.yml"
   workflow_dispatch:
 
@@ -43,31 +47,30 @@ jobs:
 
       - name: Validate implementation
         run: |
-          pytest -q tests/test_chapter1_h1_three_axis_raw_state.py
-          ruff check src/island_v2/chapter1_h1_three_axis_raw_state.py tests/test_chapter1_h1_three_axis_raw_state.py
+          pytest -q             tests/test_chapter1_h1_three_axis_raw_state.py             tests/test_chapter1_h1_final_directional.py
+          ruff check             src/island_v2/chapter1_h1_three_axis_raw_state.py             src/island_v2/chapter1_h1_final_directional.py             tests/test_chapter1_h1_three_axis_raw_state.py             tests/test_chapter1_h1_final_directional.py
 
       - name: Download frozen inputs
         run: |
           set -euo pipefail
-          mkdir -p /tmp/axis3/source /tmp/axis3/status /tmp/axis3/wcvp /tmp/axis3/results
+          mkdir -p /tmp/axis3/source /tmp/axis3/status /tmp/axis3/wcvp /tmp/axis3/results /tmp/axis3/final
           gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/axis3/source
           gh run download "$STATUS_RUN_ID" -n "$STATUS_ARTIFACT" -D /tmp/axis3/status
           gh run download "$WCVP_RUN_ID" -n "$WCVP_ARTIFACT" -D /tmp/axis3/wcvp
 
           test -s /tmp/axis3/source/snapshot/chapter1_trait_snapshot_species_axis.csv.gz
+          test -s /tmp/axis3/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+          test -s /tmp/axis3/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
           test -s /tmp/axis3/source/fixed/canonical/input/chapter1_status_flora.csv.gz
           test -s /tmp/axis3/status/resolved/island_tdwg_l3_mapping.csv
           test -s /tmp/axis3/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz
           test -s results/geography_20260924/corrected_geography_covariates.csv
 
           python - <<'PY'
-          import hashlib
           import pandas as pd
           from pathlib import Path
 
           p=Path("/tmp/axis3/source/snapshot/chapter1_trait_snapshot_species_axis.csv.gz")
-          # scientific database hash is defined on the uncompressed source coverage ledger,
-          # so verify the frozen dimensions/content identity exposed in the snapshot instead.
           d=pd.read_csv(p,dtype=str).fillna("")
           assert len(d)==318885
           assert d["accepted_species"].nunique()==106295
@@ -85,9 +88,7 @@ jobs:
       - name: Pin official TDWG Level-3 geometry
         run: |
           set -euo pipefail
-          curl --fail --location --retry 3 \
-            "https://raw.githubusercontent.com/tdwg/wgsrpd/$TDWG_COMMIT/geojson/level3.geojson" \
-            -o /tmp/axis3/tdwg_level3.geojson
+          curl --fail --location --retry 3             "https://raw.githubusercontent.com/tdwg/wgsrpd/$TDWG_COMMIT/geojson/level3.geojson"             -o /tmp/axis3/tdwg_level3.geojson
           python - <<'PY'
           import hashlib
           from pathlib import Path
@@ -104,15 +105,31 @@ jobs:
         run: |
           python -m island_v2.chapter1_h1_three_axis_raw_state             --species-axis-csv /tmp/axis3/source/snapshot/chapter1_trait_snapshot_species_axis.csv.gz             --status-flora-csv /tmp/axis3/source/fixed/canonical/input/chapter1_status_flora.csv.gz             --covariates-csv results/geography_20260924/corrected_geography_covariates.csv             --wcvp-ranges-csv /tmp/axis3/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz             --island-tdwg-csv /tmp/axis3/status/resolved/island_tdwg_l3_mapping.csv             --tdwg-level3-geojson /tmp/axis3/tdwg_level3.geojson             --ontology-path config/trait_ontology.yml             --config-path config/chapter1_h1_three_axis_raw_state.yml             --output-dir /tmp/axis3/results
 
-      - name: Summarize three-axis result
+      - name: Run final directional H1 with finite-cluster inference
+        run: |
+          set -euo pipefail
+          for scope in all direct; do
+            if [ "$scope" = "all" ]; then
+              audit=/tmp/axis3/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+              evidence=all_analysis_eligible
+            else
+              audit=/tmp/axis3/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+              evidence=direct_only
+            fi
+            mkdir -p /tmp/axis3/final/$scope
+            python -m island_v2.chapter1_h1_final_directional               --status-flora-csv /tmp/axis3/source/fixed/canonical/input/chapter1_status_flora.csv.gz               --state-audit-csv "$audit"               --covariates-csv results/geography_20260924/corrected_geography_covariates.csv               --config-path config/chapter1_h1_final_directional.yml               --evidence-scope "$evidence"               --output-dir /tmp/axis3/final/$scope
+          done
+
+      - name: Summarize raw-state and final H1 result
         run: |
           python - <<'PY'
+          import json
           from pathlib import Path
           import pandas as pd
-          out=Path("/tmp/axis3/results")
-          cov=pd.read_csv(out/"cell_coverage_audit.csv")
-          om=pd.read_csv(out/"axis_omnibus.csv")
 
+          raw=Path("/tmp/axis3/results")
+          cov=pd.read_csv(raw/"cell_coverage_audit.csv")
+          om=pd.read_csv(raw/"axis_omnibus.csv")
           print("=== cell coverage ===")
           print(cov.to_string(index=False))
 
@@ -132,68 +149,52 @@ jobs:
               "axis_supported","all_optimizers_converged",
               "retry_used","max_abs_retry_slope_delta"
           ]
-          print("\n=== axis omnibus ===")
-          print(wanted[cols].to_string(index=False))
+          wanted[cols].to_csv(raw/"axis_omnibus_compact.csv",index=False)
 
-          compact=wanted[cols]
-          compact.to_csv(out/"axis_omnibus_compact.csv",index=False)
+          final=Path("/tmp/axis3/final")
+          primary=[]
+          iuts=[]
+          for scope in ("all","direct"):
+              d=pd.read_csv(final/scope/"directional_score_results.csv")
+              d=d.loc[d["stratum"].eq("all_observed")].copy()
+              d.insert(0,"scope",scope)
+              primary.append(d)
+              j=json.loads((final/scope/"directional_score_iut.json").read_text())
+              j["scope"]=scope
+              iuts.append(j)
+          score=pd.concat(primary,ignore_index=True)
+          score.to_csv(final/"primary_directional_score_results.csv",index=False)
+          pd.DataFrame(iuts).to_csv(final/"global_recurrence_iut.csv",index=False)
 
-          support=(
-              wanted.groupby(["evidence_scope","flora_scope","axis"],dropna=False)
-              .agg(
-                  n_contexts=("context","size"),
-                  n_supported=("axis_supported","sum"),
-                  max_q=("q_value","max"),
-                  all_converged=("all_optimizers_converged","all"),
-              )
-              .reset_index()
-          )
-          support.to_csv(out/"axis_support_summary.csv",index=False)
-          print("\n=== support summary ===")
-          print(support.to_string(index=False))
-
-          status=pd.read_csv(out/"status_contrast_omnibus.csv")
-          status_cols=[
-              "contrast","evidence_scope","axis","context","status",
-              "n_retained_outcomes","p_value","q_value",
-              "status_vectors_differ","all_optimizers_converged",
-          ]
-          print("\n=== floristic-status slope-vector tests ===")
-          print(status[status_cols].to_string(index=False))
-
-          similarity=pd.read_csv(out/"status_vector_similarity.csv")
-          print("\n=== descriptive status-vector similarity ===")
-          print(similarity.to_string(index=False))
-
-          resolution=pd.read_csv(out/"tdwg_resolution_axis_omnibus.csv")
-          resolution_cols=[
-              "evidence_scope","resolution_variant","axis","context",
-              "n_retained_outcomes","n_unique_islands","p_value","q_value",
-              "axis_supported","all_optimizers_converged",
-          ]
-          print("\n=== TDWG Level-3 matched-support and adjusted axis tests ===")
-          print(resolution[resolution_cols].to_string(index=False))
+          print("\n=== FINAL DIRECTIONAL H1 ===")
+          print(score[[
+              "scope","context","estimate","cluster_robust_se",
+              "finite_cluster_df","p_one_sided_t","p_one_sided_wild",
+              "n_clusters","effective_clusters","max_cluster_variance_share",
+              "robust_supported"
+          ]].to_string(index=False))
+          print("\n=== FOUR-REGION IUT ===")
+          print(pd.DataFrame(iuts).to_string(index=False))
           PY
 
           {
-            echo "## Three-axis raw-state H1"
+            echo "## Final directional H1"
             echo
-            cat /tmp/axis3/results/cell_coverage_audit.csv
+            cat /tmp/axis3/final/primary_directional_score_results.csv
             echo
-            echo "### Support summary"
-            cat /tmp/axis3/results/axis_support_summary.csv
+            echo "## Four-region intersection-union gate"
+            cat /tmp/axis3/final/global_recurrence_iut.csv
             echo
-            echo "### Floristic-status vector tests"
-            cat /tmp/axis3/results/status_contrast_omnibus.csv
-            echo
-            echo "### TDWG Level-3 resolution sensitivity"
-            cat /tmp/axis3/results/tdwg_resolution_axis_omnibus.csv
+            echo "## Three-axis raw-state audit"
+            cat /tmp/axis3/results/axis_omnibus_compact.csv
           } >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: chapter1-h1-three-axis-raw-state-${{ github.run_id }}
-          path: /tmp/axis3/results
+          name: chapter1-h1-final-and-raw-${{ github.run_id }}
+          path:
+            /tmp/axis3/results
+            /tmp/axis3/final
           if-no-files-found: error
           retention-days: 30
