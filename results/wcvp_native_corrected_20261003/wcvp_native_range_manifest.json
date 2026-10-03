@@ -1,0 +1,17 @@
+{
+  "contract": "official_wcvp_bulk_exact_name_native_range_v1",
+  "n_target_species": 115328,
+  "n_exact_accepted_species": 101101,
+  "n_species_with_native_range": 100887,
+  "n_single_native_l3_species": 47537,
+  "source_files": [
+    "wcvp_names.csv",
+    "wcvp_distribution.csv"
+  ],
+  "distribution_filters": {
+    "introduced": 0,
+    "extinct": 0,
+    "location_doubtful": 0
+  },
+  "policy": "Exact accepted species only. A single native TDWG-L3 range is corroboration only; final endemic status also requires an independent GIFT endemic claim and focal-island membership in the same TDWG region."
+}
