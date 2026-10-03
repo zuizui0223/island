@@ -1,0 +1,149 @@
+name: Validate three-axis raw-state H1
+
+on:
+  push:
+    branches:
+      - analysis/h1-three-axis-raw-state
+    paths:
+      - "config/chapter1_h1_three_axis_raw_state.yml"
+      - "src/island_v2/chapter1_h1_three_axis_raw_state.py"
+      - "tests/test_chapter1_h1_three_axis_raw_state.py"
+      - ".github/workflows/validate-chapter1-h1-three-axis-raw-state.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+      STATUS_RUN_ID: "32559322028"
+      STATUS_ARTIFACT: "official-wcvp-corroborated-status-32559322028"
+      WCVP_RUN_ID: "37089905542"
+      WCVP_ARTIFACT: "chapter1-wcvp-native-corrected-37089905542"
+      SNAPSHOT_SHA256: "a6eef8d731b2730a99e388ddd0683d7ac9b2af30d43f1f9569c857f89f664b2a"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -e ".[dev]"
+
+      - name: Validate implementation
+        run: |
+          pytest -q tests/test_chapter1_h1_three_axis_raw_state.py
+          ruff check src/island_v2/chapter1_h1_three_axis_raw_state.py tests/test_chapter1_h1_three_axis_raw_state.py
+
+      - name: Download frozen inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/axis3/source /tmp/axis3/status /tmp/axis3/wcvp /tmp/axis3/results
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/axis3/source
+          gh run download "$STATUS_RUN_ID" -n "$STATUS_ARTIFACT" -D /tmp/axis3/status
+          gh run download "$WCVP_RUN_ID" -n "$WCVP_ARTIFACT" -D /tmp/axis3/wcvp
+
+          test -s /tmp/axis3/source/snapshot/chapter1_trait_snapshot_species_axis.csv.gz
+          test -s /tmp/axis3/source/fixed/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/axis3/status/resolved/island_tdwg_l3_mapping.csv
+          test -s /tmp/axis3/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+
+          python - <<'PY'
+          import hashlib
+          import pandas as pd
+          from pathlib import Path
+
+          p=Path("/tmp/axis3/source/snapshot/chapter1_trait_snapshot_species_axis.csv.gz")
+          # scientific database hash is defined on the uncompressed source coverage ledger,
+          # so verify the frozen dimensions/content identity exposed in the snapshot instead.
+          d=pd.read_csv(p,dtype=str).fillna("")
+          assert len(d)==318885
+          assert d["accepted_species"].nunique()==106295
+          resolved=d["trait_composition"].ne("")
+          assert int(resolved.sum())==222688
+          by=d.loc[resolved].groupby("axis").size().to_dict()
+          assert by=={
+              "flower_colour":82556,
+              "floral_structural_complexity":91635,
+              "reproductive_assurance":48497,
+          },by
+          print(by)
+          PY
+
+      - name: Run three-axis raw-state H1 across floristic-status scopes
+        run: |
+          python -m island_v2.chapter1_h1_three_axis_raw_state run             --species-axis-csv /tmp/axis3/source/snapshot/chapter1_trait_snapshot_species_axis.csv.gz             --status-flora-csv /tmp/axis3/source/fixed/canonical/input/chapter1_status_flora.csv.gz             --covariates-csv results/geography_20260924/corrected_geography_covariates.csv             --wcvp-ranges-csv /tmp/axis3/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz             --island-tdwg-csv /tmp/axis3/status/resolved/island_tdwg_l3_mapping.csv             --ontology-path config/trait_ontology.yml             --config-path config/chapter1_h1_three_axis_raw_state.yml             --output-dir /tmp/axis3/results
+
+      - name: Summarize three-axis result
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          out=Path("/tmp/axis3/results")
+          cov=pd.read_csv(out/"cell_coverage_audit.csv")
+          om=pd.read_csv(out/"axis_omnibus.csv")
+
+          print("=== cell coverage ===")
+          print(cov.to_string(index=False))
+
+          wanted=om.loc[
+              om["flora_scope"].isin([
+                  "all_observed",
+                  "source_native",
+                  "regional_native_compatible",
+                  "regionally_incompatible_or_introduced",
+                  "source_introduced",
+              ])
+          ].copy()
+          cols=[
+              "evidence_scope","flora_scope","axis","context","status",
+              "n_retained_outcomes","n_unique_islands","p_value","q_value",
+              "axis_supported","all_optimizers_converged"
+          ]
+          print("\n=== axis omnibus ===")
+          print(wanted[cols].to_string(index=False))
+
+          compact=wanted[cols]
+          compact.to_csv(out/"axis_omnibus_compact.csv",index=False)
+
+          support=(
+              wanted.groupby(["evidence_scope","flora_scope","axis"],dropna=False)
+              .agg(
+                  n_contexts=("context","size"),
+                  n_supported=("axis_supported","sum"),
+                  max_q=("q_value","max"),
+                  all_converged=("all_optimizers_converged","all"),
+              )
+              .reset_index()
+          )
+          support.to_csv(out/"axis_support_summary.csv",index=False)
+          print("\n=== support summary ===")
+          print(support.to_string(index=False))
+          PY
+
+          {
+            echo "## Three-axis raw-state H1"
+            echo
+            cat /tmp/axis3/results/cell_coverage_audit.csv
+            echo
+            echo "### Support summary"
+            cat /tmp/axis3/results/axis_support_summary.csv
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-h1-three-axis-raw-state-${{ github.run_id }}
+          path: /tmp/axis3/results
+          if-no-files-found: error
+          retention-days: 30
