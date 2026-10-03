@@ -82,7 +82,7 @@ jobs:
 
       - name: Run three-axis raw-state H1 across floristic-status scopes
         run: |
-          python -m island_v2.chapter1_h1_three_axis_raw_state run             --species-axis-csv /tmp/axis3/source/snapshot/chapter1_trait_snapshot_species_axis.csv.gz             --status-flora-csv /tmp/axis3/source/fixed/canonical/input/chapter1_status_flora.csv.gz             --covariates-csv results/geography_20260924/corrected_geography_covariates.csv             --wcvp-ranges-csv /tmp/axis3/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz             --island-tdwg-csv /tmp/axis3/status/resolved/island_tdwg_l3_mapping.csv             --ontology-path config/trait_ontology.yml             --config-path config/chapter1_h1_three_axis_raw_state.yml             --output-dir /tmp/axis3/results
+          python -m island_v2.chapter1_h1_three_axis_raw_state             --species-axis-csv /tmp/axis3/source/snapshot/chapter1_trait_snapshot_species_axis.csv.gz             --status-flora-csv /tmp/axis3/source/fixed/canonical/input/chapter1_status_flora.csv.gz             --covariates-csv results/geography_20260924/corrected_geography_covariates.csv             --wcvp-ranges-csv /tmp/axis3/wcvp/ch1-wcvp/ranges/wcvp_native_range_summary.csv.gz             --island-tdwg-csv /tmp/axis3/status/resolved/island_tdwg_l3_mapping.csv             --ontology-path config/trait_ontology.yml             --config-path config/chapter1_h1_three_axis_raw_state.yml             --output-dir /tmp/axis3/results
 
       - name: Summarize three-axis result
         run: |
