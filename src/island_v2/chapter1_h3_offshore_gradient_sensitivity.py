@@ -7,7 +7,6 @@ and whether the positive-distance result is robust to deleting one publication a
 from __future__ import annotations
 
 import json
-import math
 from pathlib import Path
 from typing import Any
 
