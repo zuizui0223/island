@@ -1,3 +1,4 @@
+# ruff: noqa: B008
 """Replay the frozen tropical native-nonendemic lineage entry/loading bridge on corrected geography.
 
 This is a geography measurement-repair replay, not a new model search. It reuses the
@@ -224,7 +225,7 @@ def _validate_original(
         pd.to_numeric(merged["n_islands_frozen"], errors="raise").to_numpy(int),
     ):
         raise AssertionError("frozen replay island counts differ")
-    return {"status": "pass", "n_rows": int(len(merged)), **checks}
+    return {"status": "pass", "n_rows": len(merged), **checks}
 
 
 def _classify(corrected: pd.DataFrame) -> pd.DataFrame:
