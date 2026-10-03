@@ -43,6 +43,12 @@ island_model:
 multiplicity:
   within_stage_contexts: BH_FDR
   alpha: 0.05
+attenuation_bootstrap:
+  enabled: true
+  unit: spatial_block
+  paired_across_stages: true
+  draws: 300
+  seed: 20261003
 rules:
   - common_support_beta_binomial_H1_gate_precedes_taxonomic_interpretation
   - same_species_support_used_for_observed_family_and_genus_stages
