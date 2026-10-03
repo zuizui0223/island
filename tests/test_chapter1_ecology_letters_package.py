@@ -19,6 +19,7 @@ GRAPHICAL_SHORT = PACKAGE / "GRAPHICAL_ABSTRACT_SHORT_TEXT.md"
 GEB_FALLBACK = PACKAGE / "GEB_FALLBACK.md"
 SI_DRAFT = PACKAGE / "SUPPLEMENTARY_INFORMATION_DRAFT.md"
 H1_CONVERGENCE_AUDIT = ROOT / "results" / "geography_20260924" / "h1_direct_northern_high_convergence_audit.json"
+H1_DOMAIN_TABLE = PACKAGE / "supplement" / "Table_S2e_H1_domain_descriptive.csv"
 
 
 def _words(text: str) -> int:
@@ -42,6 +43,46 @@ def test_ecology_letters_letter_limits_and_title_sync() -> None:
 
     assert title in COVER.read_text(encoding="utf-8")
     assert title in TITLE_PAGE.read_text(encoding="utf-8")
+
+
+def test_h1_is_framed_as_three_domains_with_atomic_indicators() -> None:
+    manuscript = MANUSCRIPT.read_text(encoding="utf-8")
+    captions = CAPTIONS.read_text(encoding="utf-8")
+    novelty = NOVELTY.read_text(encoding="utf-8")
+
+    for text in (manuscript, captions, novelty):
+        assert "reproductive assurance" in text
+        assert "colour composition" in text
+        assert "accessibility/generalization" in text
+
+    assert "seven-trait floral–reproductive response" not in manuscript
+    assert "H1 is therefore not a complete 106,295 × 7 matrix" in manuscript
+    assert H1_DOMAIN_TABLE.is_file()
+
+    import pandas as pd
+
+    table = pd.read_csv(H1_DOMAIN_TABLE)
+    assert set(table["domain"]) == {
+        "reproductive_assurance",
+        "colour_composition",
+        "accessibility_generalization",
+    }
+    assert set(table["evidence_scope"]) == {"all_analysis_eligible", "direct_only"}
+    assert table["inferential_status"].eq("descriptive_only_no_domain_p_value").all()
+
+
+def test_title_page_word_counts_match_manuscript() -> None:
+    manuscript = MANUSCRIPT.read_text(encoding="utf-8")
+    title_page = TITLE_PAGE.read_text(encoding="utf-8")
+    abstract_start = manuscript.index("## Abstract") + len("## Abstract")
+    abstract_end = manuscript.index("**Keywords:**")
+    intro_start = manuscript.index("## Introduction")
+    refs_start = manuscript.index("## References")
+    abstract_words = _words(manuscript[abstract_start:abstract_end])
+    main_words = _words(manuscript[intro_start:refs_start])
+
+    assert f"**Abstract word count:** {abstract_words} " in title_page
+    assert f"**Main-text word count:** {main_words} " in title_page
 
 
 def test_ecology_letters_title_page_metadata() -> None:
