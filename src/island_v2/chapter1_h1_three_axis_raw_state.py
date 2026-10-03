@@ -25,11 +25,9 @@ import numpy as np
 import pandas as pd
 import typer
 import yaml
-from scipy.optimize import minimize
 
 from island_v2.chapter1_all_data_probability import (
     _assemble_cluster_covariance,
-    _beta_binomial_value_score,
     _bh,
     _chi_square_sf_integer_df,
     _fit_single_beta_binomial,
@@ -45,91 +43,6 @@ from island_v2.chapter1_wcvp_resolution_sensitivity import (
 )
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
-
-def _enhanced_beta_binomial_retry(
-    first: dict[str, Any],
-    y: np.ndarray,
-    n: np.ndarray,
-    design: np.ndarray,
-    names: list[str],
-    *,
-    max_iter: int,
-) -> dict[str, Any]:
-    """Retry a numerically stable beta-binomial fit from the first solution."""
-    p = design.shape[1]
-
-    def value_grad(theta: np.ndarray) -> tuple[float, np.ndarray]:
-        ll, score = _beta_binomial_value_score(theta, y, n, design)
-        return -float(np.sum(ll)), -np.sum(score, axis=0)
-
-    result = minimize(
-        lambda theta: value_grad(theta)[0],
-        np.asarray(first["theta"], dtype=float),
-        jac=lambda theta: value_grad(theta)[1],
-        method="L-BFGS-B",
-        bounds=[(None, None)] * p + [(-6.0, 12.0)],
-        options={
-            "maxiter": int(max_iter),
-            "maxls": 200,
-            "ftol": 1e-12,
-            "gtol": 1e-7,
-        },
-    )
-    theta = np.asarray(result.x, dtype=float)
-    dimension = len(theta)
-    hessian = np.zeros((dimension, dimension), dtype=float)
-    for j in range(dimension):
-        step = 1e-5 * (1.0 + abs(theta[j]))
-        plus = theta.copy()
-        minus = theta.copy()
-        plus[j] += step
-        minus[j] -= step
-        grad_plus = value_grad(plus)[1]
-        grad_minus = value_grad(minus)[1]
-        hessian[:, j] = (grad_plus - grad_minus) / (2.0 * step)
-    hessian = (hessian + hessian.T) / 2.0
-    bread = np.linalg.pinv(hessian, rcond=1e-10)
-    loglik, score = _beta_binomial_value_score(theta, y, n, design)
-    return {
-        "success": bool(result.success),
-        "message": str(result.message),
-        "theta": theta,
-        "bread": bread,
-        "score": score,
-        "names": [*names, "log_kappa"],
-        "log_likelihood": float(np.sum(loglik)),
-        "kappa": float(np.exp(np.clip(theta[-1], -6.0, 12.0))),
-    }
-
-
-def _robust_beta_binomial_fit(
-    y: np.ndarray,
-    n: np.ndarray,
-    design: np.ndarray,
-    names: list[str],
-    *,
-    max_iter: int,
-    retry_max_iter: int,
-) -> tuple[dict[str, Any], bool]:
-    first = _fit_single_beta_binomial(
-        y,
-        n,
-        design,
-        names,
-        max_iter=max_iter,
-    )
-    if bool(first["success"]):
-        return first, False
-    retry = _enhanced_beta_binomial_retry(
-        first,
-        y,
-        n,
-        design,
-        names,
-        max_iter=retry_max_iter,
-    )
-    return retry, True
-
 
 
 def _parse_composition(
@@ -605,39 +518,15 @@ def _axis_fit(
         and int(model.get("retry_max_iter", model["max_iter"]))
         > int(model["max_iter"])
     ):
-        import island_v2.chapter1_all_data_probability as h1_probability
-
-        original_fitter = h1_probability._fit_single_beta_binomial
-
-        def robust_fitter(
-            y: np.ndarray,
-            n: np.ndarray,
-            design: np.ndarray,
-            names: list[str],
-            *,
-            max_iter: int,
-        ) -> dict[str, Any]:
-            fit, _ = _robust_beta_binomial_fit(
-                y,
-                n,
-                design,
-                names,
-                max_iter=max_iter,
-                retry_max_iter=int(model["retry_max_iter"]),
-            )
-            return fit
-
-        h1_probability._fit_single_beta_binomial = robust_fitter
-        try:
-            retry_slopes, retry_omnibus = _fit_within(
-                prepared,
-                stratum=flora_scope,
-                context_value=context_value,
-                threshold=int(model["minimum_islands_per_state"]),
-                config=base_cfg,
-            )
-        finally:
-            h1_probability._fit_single_beta_binomial = original_fitter
+        retry_cfg = dict(base_cfg)
+        retry_cfg["max_iter"] = int(model["retry_max_iter"])
+        retry_slopes, retry_omnibus = _fit_within(
+            prepared,
+            stratum=flora_scope,
+            context_value=context_value,
+            threshold=int(model["minimum_islands_per_state"]),
+            config=retry_cfg,
+        )
         retry_used = True
         if not slopes.empty and not retry_slopes.empty:
             paired = slopes[["outcome", "geography_slope_log_odds"]].merge(
@@ -826,15 +715,12 @@ def _fit_status_contrast(
         )
         columns.extend([z_geo, z_geo * comparison_indicator])
         names.extend([f"{outcome}:z_{geography}", interaction_name])
-        fit, enhanced_retry_used = _robust_beta_binomial_fit(
+        fit = _fit_single_beta_binomial(
             part["successes"].to_numpy(float),
             part["trials"].to_numpy(float),
             np.column_stack(columns),
             names,
-            max_iter=int(model["max_iter"]),
-            retry_max_iter=int(
-                model.get("retry_max_iter", model["max_iter"])
-            ),
+            max_iter=int(model.get("retry_max_iter", model["max_iter"])),
         )
         fits.append(fit)
         cluster_parts.append(part[cluster].astype(str).to_numpy())
@@ -860,7 +746,6 @@ def _fit_status_contrast(
                 ),
                 "kappa": float(fit["kappa"]),
                 "optimizer_success": bool(fit["success"]),
-                "enhanced_retry_used": bool(enhanced_retry_used),
             }
         )
         offset += len(fit["names"])
