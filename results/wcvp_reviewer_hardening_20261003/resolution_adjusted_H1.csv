@@ -1,0 +1,9 @@
+evidence_scope,context,n_islands,q_value,vector_supported
+all_analysis_eligible,northern_midlatitude,926,0.0025932767750282957,true
+all_analysis_eligible,northern_high_latitude,279,0.009168978906833112,true
+all_analysis_eligible,tropical,848,3.3603072228023604e-06,true
+all_analysis_eligible,southern_extratropical,164,0.0003884006339747668,true
+direct_only,northern_midlatitude,924,0.002572289769093418,true
+direct_only,northern_high_latitude,277,1.834869675092507e-05,true
+direct_only,tropical,835,1.1449070960768162e-05,true
+direct_only,southern_extratropical,163,0.0063363234245571946,true
