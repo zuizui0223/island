@@ -78,7 +78,7 @@ def _stack_cluster_influences(
     clusters: list[np.ndarray],
     slope_global_indices: list[int],
     slope_weights: np.ndarray,
-) -> tuple[np.ndarray, float, int, int]:
+) -> tuple[np.ndarray, float, int, int, list[str]]:
     offsets: list[int] = []
     total_size = 0
     for fit in fits:
@@ -108,10 +108,11 @@ def _stack_cluster_influences(
     ):
         contrast[index] = float(weight)
 
+    cluster_labels = list(cluster_scores)
     influences = np.asarray(
         [
-            float(contrast @ bread @ score)
-            for score in cluster_scores.values()
+            float(contrast @ bread @ cluster_scores[label])
+            for label in cluster_labels
         ],
         dtype=float,
     )
@@ -121,7 +122,13 @@ def _stack_cluster_influences(
         correction = (g / (g - 1.0)) * (
             (total_rows - 1.0) / (total_rows - total_size)
         )
-    return influences, float(correction), g, int(total_size)
+    return (
+        influences,
+        float(correction),
+        g,
+        int(total_size),
+        cluster_labels,
+    )
 
 
 def _wild_signflip_p(
@@ -277,13 +284,17 @@ def _fit_directional_score(
         dtype=float,
     )
     estimate = float(weight_vector @ slopes)
-    influences, correction, g, parameter_dimension = (
-        _stack_cluster_influences(
-            fits,
-            cluster_parts,
-            slope_indices,
-            weight_vector,
-        )
+    (
+        influences,
+        correction,
+        g,
+        parameter_dimension,
+        cluster_labels,
+    ) = _stack_cluster_influences(
+        fits,
+        cluster_parts,
+        slope_indices,
+        weight_vector,
     )
     variance = float(correction * np.sum(np.square(influences)))
     se = float(math.sqrt(max(variance, 0.0)))
@@ -311,6 +322,11 @@ def _fit_directional_score(
         float(np.max(squared) / total_sq)
         if total_sq > 0
         else float("nan")
+    )
+    top_cluster = (
+        str(cluster_labels[int(np.argmax(squared))])
+        if total_sq > 0 and cluster_labels
+        else ""
     )
     p_wild = _wild_signflip_p(
         estimate,
@@ -342,6 +358,7 @@ def _fit_directional_score(
         "n_clusters": g,
         "effective_clusters": effective_clusters,
         "max_cluster_variance_share": max_cluster_variance_share,
+        "top_influence_cluster": top_cluster,
         "sandwich_finite_sample_correction": correction,
         "stacked_parameter_dimension": parameter_dimension,
         "all_optimizers_converged": True,
@@ -430,18 +447,59 @@ def run_final_directional_h1(
                 component_parts.append(components)
             counter += 1
     results = pd.DataFrame(rows)
+    primary_stratum = str(config["flora_roles"]["broad_primary"])
     primary = results.loc[
-        results["stratum"].eq(
-            str(config["flora_roles"]["broad_primary"])
-        )
-    ]
+        results["stratum"].eq(primary_stratum)
+    ].copy()
     iut = intersection_union_summary(
         primary,
         contexts=contexts,
         alpha=float(config["alpha"]),
     )
     iut["evidence_scope"] = evidence_scope
-    iut["stratum"] = str(config["flora_roles"]["broad_primary"])
+    iut["stratum"] = primary_stratum
+
+    cluster_column = str(config["cluster_column"])
+    context_column = str(config["context_column"])
+    leaveout_rows: list[dict[str, Any]] = []
+    for index, parent in primary.reset_index(drop=True).iterrows():
+        if parent.get("status") != "fit":
+            continue
+        top_cluster = str(parent.get("top_influence_cluster", ""))
+        context_value = str(parent["context"])
+        if not top_cluster:
+            continue
+        filtered = prepared.loc[
+            ~(
+                prepared[context_column].astype(str).eq(context_value)
+                & prepared[cluster_column].astype(str).eq(top_cluster)
+            )
+        ].copy()
+        row, _ = _fit_directional_score(
+            filtered,
+            stratum=primary_stratum,
+            context_value=context_value,
+            config=config,
+            weights=weights,
+            seed=base_seed + 1000 + index,
+        )
+        row["evidence_scope"] = evidence_scope
+        row["sensitivity"] = "drop_top_variance_cluster"
+        row["excluded_cluster"] = top_cluster
+        row["parent_max_cluster_variance_share"] = float(
+            parent.get("max_cluster_variance_share", float("nan"))
+        )
+        leaveout_rows.append(row)
+    leaveout = pd.DataFrame(leaveout_rows)
+    leaveout_iut = intersection_union_summary(
+        leaveout,
+        contexts=contexts,
+        alpha=float(config["alpha"]),
+    )
+    leaveout_iut["evidence_scope"] = evidence_scope
+    leaveout_iut["stratum"] = primary_stratum
+    leaveout_iut["sensitivity"] = "drop_top_variance_cluster"
+
     return {
         "results": results,
         "components": (
@@ -451,6 +509,8 @@ def run_final_directional_h1(
         ),
         "counts": counts,
         "iut": iut,
+        "top_cluster_sensitivity": leaveout,
+        "top_cluster_iut": leaveout_iut,
     }
 
 
@@ -487,11 +547,27 @@ def run(
         index=False,
         compression={"method": "gzip", "mtime": 0},
     )
+    result["top_cluster_sensitivity"].to_csv(
+        output_dir / "top_cluster_leaveout_results.csv",
+        index=False,
+    )
     (output_dir / "directional_score_iut.json").write_text(
         json.dumps(result["iut"], indent=2) + "\n",
         encoding="utf-8",
     )
-    typer.echo(json.dumps(result["iut"], indent=2))
+    (output_dir / "top_cluster_leaveout_iut.json").write_text(
+        json.dumps(result["top_cluster_iut"], indent=2) + "\n",
+        encoding="utf-8",
+    )
+    typer.echo(
+        json.dumps(
+            {
+                "primary": result["iut"],
+                "top_cluster_leaveout": result["top_cluster_iut"],
+            },
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":
