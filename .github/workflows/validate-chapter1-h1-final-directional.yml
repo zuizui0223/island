@@ -8,6 +8,7 @@ on:
       - "config/chapter1_h1_final_directional.yml"
       - "src/island_v2/chapter1_h1_final_directional.py"
       - "tests/test_chapter1_h1_final_directional.py"
+      - "scripts/submission/audit_chapter1_h2_h4_finite_clusters.py"
       - ".github/workflows/validate-chapter1-h1-final-directional.yml"
   pull_request:
     branches:
@@ -17,6 +18,7 @@ on:
       - "config/chapter1_h1_final_directional.yml"
       - "src/island_v2/chapter1_h1_final_directional.py"
       - "tests/test_chapter1_h1_final_directional.py"
+      - "scripts/submission/audit_chapter1_h2_h4_finite_clusters.py"
       - ".github/workflows/validate-chapter1-h1-final-directional.yml"
   workflow_dispatch:
 
@@ -45,7 +47,10 @@ jobs:
         run: |
           pip install -e ".[dev]"
           pytest -q tests/test_chapter1_h1_final_directional.py
-          ruff check             src/island_v2/chapter1_h1_final_directional.py             tests/test_chapter1_h1_final_directional.py
+          ruff check \
+            src/island_v2/chapter1_h1_final_directional.py \
+            tests/test_chapter1_h1_final_directional.py \
+            scripts/submission/audit_chapter1_h2_h4_finite_clusters.py
 
       - name: Download frozen Chapter 1 inputs
         run: |
@@ -71,6 +76,15 @@ jobs:
             mkdir -p /tmp/h1-final/results/$scope
             python -m island_v2.chapter1_h1_final_directional               --status-flora-csv /tmp/h1-final/source/fixed/canonical/input/chapter1_status_flora.csv.gz               --state-audit-csv "$audit"               --covariates-csv results/geography_20260924/corrected_geography_covariates.csv               --config-path config/chapter1_h1_final_directional.yml               --evidence-scope "$evidence"               --output-dir /tmp/h1-final/results/$scope
           done
+
+      - name: Audit H2-H4 with finite-cluster t references
+        run: |
+          python scripts/submission/audit_chapter1_h2_h4_finite_clusters.py \
+            --h2-all-csv results/geography_20260924/all/h2_decomposition_models.csv \
+            --h2-direct-csv results/geography_20260924/direct/h2_decomposition_models.csv \
+            --h3-json results/geography_20260924/h3_original_corrected_comparison.json \
+            --h4-csv results/geography_20260924/h4_exact_corrected.csv \
+            --output-dir /tmp/h1-final/results/finite-cluster-audit
 
       - name: Assemble reviewer-facing inference audit
         run: |
@@ -165,6 +179,9 @@ jobs:
             echo
             echo "## Top variance-cluster leaveout IUT"
             cat /tmp/h1-final/results/top_cluster_leaveout_iut.csv
+            echo
+            echo "## H2-H4 finite-cluster audit"
+            cat /tmp/h1-final/results/finite-cluster-audit/h2_h4_finite_cluster_summary.json
             echo
             echo "## Legacy joint Wald retained as reference only"
             cat /tmp/h1-final/results/legacy_joint_wald_reference.csv
