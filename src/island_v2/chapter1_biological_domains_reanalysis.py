@@ -104,33 +104,57 @@ def load_config(path: Path) -> dict[str, Any]:
 
 def response_specs(config: dict[str, Any]) -> dict[str, dict[str, Any]]:
     specs: dict[str, dict[str, Any]] = {}
-    for domain in ("reproductive_assurance", "accessibility_specialization"):
-        item = config["domains"][domain]
-        specs[domain] = {
-            "domain": domain,
-            "role": str(item["role"]),
-            "minimum_components": int(item["minimum_components_per_species"]),
-            "components": {
-                str(trait): {str(k): float(v) for k, v in mapping.items()}
-                for trait, mapping in item["components"].items()
-            },
-        }
-    signal = config["domains"]["signal_display"]
-    for response, item in signal["directional_component"].items():
-        specs[str(response)] = {
-            "domain": "signal_display",
+    for response in (
+        "reproductive_assurance_core",
+        "reproductive_assurance",
+        "accessibility_specialization",
+    ):
+        item = config["domains"][response]
+        specs[response] = {
+            "domain": str(item["domain"]),
             "role": str(item["role"]),
             "minimum_components": int(
-                item.get("minimum_components_per_species", 1)
+                item["minimum_components_per_species"]
             ),
             "components": {
-                str(item["source_trait"]): {
-                    str(k): float(v)
-                    for k, v in item["values"].items()
+                str(trait): {
+                    "weight": float(component["weight"]),
+                    "values": {
+                        str(k): float(v)
+                        for k, v in component["values"].items()
+                    },
                 }
+                for trait, component in item["components"].items()
             },
         }
+
+    size = config["domains"]["signal_display"][
+        "directional_component"
+    ]["flower_size_reduction"]
+    specs["flower_size_reduction"] = {
+        "domain": "signal_display",
+        "role": str(size["role"]),
+        "minimum_components": int(
+            size["minimum_components_per_species"]
+        ),
+        "components": {
+            str(size["source_trait"]): {
+                "weight": float(size["weight"]),
+                "values": {
+                    str(k): float(v)
+                    for k, v in size["values"].items()
+                },
+            }
+        },
+    }
     return specs
+
+
+def _unambiguous_trait_score(values: pd.Series) -> float:
+    finite = pd.to_numeric(values, errors="coerce").dropna().unique()
+    if len(finite) != 1:
+        return float("nan")
+    return float(finite[0])
 
 
 def build_species_response_scores(
@@ -148,9 +172,10 @@ def build_species_response_scores(
         evidence_scope=evidence_scope,
     )
     specs = response_specs(config)
-    rows: list[dict[str, Any]] = []
+    rows: list[pd.DataFrame] = []
     for response, spec in specs.items():
-        for trait, mapping in spec["components"].items():
+        for trait, component in spec["components"].items():
+            mapping = component["values"]
             part = ledger.loc[
                 ledger["trait_name"].astype(str).eq(trait),
                 ["accepted_species", "trait_name", "state"],
@@ -166,27 +191,34 @@ def build_species_response_scores(
                     ["accepted_species", "trait_name"],
                     as_index=False,
                 )
-                .agg(trait_score=("state_score", "mean"))
+                .agg(trait_score=("state_score", _unambiguous_trait_score))
+                .dropna(subset=["trait_score"])
             )
+            trait_score["trait_weight"] = float(component["weight"])
             trait_score["response"] = response
             trait_score["domain"] = spec["domain"]
             trait_score["role"] = spec["role"]
-            rows.extend(trait_score.to_dict(orient="records"))
+            rows.append(trait_score)
 
-    trait_scores = pd.DataFrame(rows)
-    if trait_scores.empty:
+    if not rows:
         raise typer.BadParameter("no species response scores could be built")
+    trait_scores = pd.concat(rows, ignore_index=True)
 
+    trait_scores["weighted_score"] = (
+        trait_scores["trait_score"] * trait_scores["trait_weight"]
+    )
     grouped = (
         trait_scores.groupby(
             ["accepted_species", "response", "domain", "role"],
             as_index=False,
         )
         .agg(
-            score=("trait_score", "mean"),
+            weighted_sum=("weighted_score", "sum"),
+            total_weight=("trait_weight", "sum"),
             n_components=("trait_name", "nunique"),
         )
     )
+    grouped["score"] = grouped["weighted_sum"] / grouped["total_weight"]
     minima = {
         response: int(spec["minimum_components"])
         for response, spec in specs.items()
@@ -196,6 +228,7 @@ def build_species_response_scores(
         grouped["n_components"].ge(grouped["minimum_components"])
     ].copy()
     grouped["evidence_scope"] = evidence_scope
+    grouped = grouped.drop(columns=["weighted_sum", "total_weight"])
 
     support = (
         grouped.groupby(["response", "domain", "role"], as_index=False)
@@ -207,9 +240,9 @@ def build_species_response_scores(
         )
     )
     support.insert(0, "evidence_scope", evidence_scope)
+    coverage = coverage.copy()
+    coverage["evidence_scope"] = evidence_scope
     return grouped, support
-
-
 def _flora_scope_mask(status_flora: pd.DataFrame, scope: str) -> pd.Series:
     if scope == "all_observed":
         return pd.Series(True, index=status_flora.index)
