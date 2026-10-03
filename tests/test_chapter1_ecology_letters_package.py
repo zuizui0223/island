@@ -56,7 +56,7 @@ def test_h1_is_framed_as_three_domains_with_atomic_indicators() -> None:
         assert "accessibility/generalization" in text
 
     assert "seven-trait floral–reproductive response" not in manuscript
-    assert "H1 is therefore not a complete 106,295 × 7 matrix" in manuscript
+    assert "H1 is not a complete 106,295 × 7 matrix" in manuscript
     assert H1_DOMAIN_TABLE.is_file()
 
     import pandas as pd
