@@ -49,7 +49,7 @@ jobs:
 
       - name: Replay frozen moderation on corrected geography
         run: |
-          python scripts/geography_correction/replay_corrected_trait_moderation.py run \
+          python scripts/geography_correction/replay_corrected_trait_moderation.py \
             --ra-rows-csv /tmp/replay/ra/out/MATCHED_EFFECT_ROWS.csv.gz \
             --fa-rows-csv /tmp/replay/fa/out/MATCHED_EFFECT_ROWS.csv.gz \
             --corrected-site-distances-csv results/geography_20260924/glopl_corrected_site_distances.csv \
