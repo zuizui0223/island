@@ -235,7 +235,6 @@ def test_ecology_letters_reference_list_and_glopl_data_citation() -> None:
 
 
 def test_h1_direct_northern_high_convergence_audit_closes_warning() -> None:
-    import json
     import pandas as pd
 
     final_h1 = pd.read_csv(
