@@ -11,16 +11,17 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RESULTS = ROOT / "results" / "geography_20260924"
 FINAL_H1 = ROOT / "results" / "h1_final_traitwise_t_20261004" / "traitwise_results.csv"
+FINAL_AUDIT_DIR = ROOT / "results" / "h1_final_directional_20261003"
+FINAL_H2_ALL = FINAL_AUDIT_DIR / "h2_all_finite_cluster_audit.csv"
+FINAL_H2_DIRECT = FINAL_AUDIT_DIR / "h2_direct_finite_cluster_audit.csv"
+FINAL_H3 = FINAL_AUDIT_DIR / "h3_finite_publication_audit.csv"
+FINAL_H4 = FINAL_AUDIT_DIR / "h4_finite_publication_audit.csv"
 DEFAULT_OUTPUT = ROOT / "submission" / "chapter1_current" / "supplement"
 
 SOURCE_FILES = [
-    "all/h2_decomposition_models.csv",
-    "direct/h2_decomposition_models.csv",
     "h3_original_corrected_comparison.json",
     "h3_corrected_effect_rows.csv.gz",
     "h3_corrected_measurement_cells.csv.gz",
-    "h4_exact_corrected.csv",
-    "h4_atomic_corrected.csv",
 ]
 
 
@@ -89,116 +90,10 @@ def build_s1_summary(results: Path) -> pd.DataFrame:
     return pd.DataFrame(rows, columns=["section", "metric", "value", "unit", "source"])
 
 
-def build_h2(results: Path) -> pd.DataFrame:
-    out = pd.concat(
-        [
-            pd.read_csv(results / "all/h2_decomposition_models.csv"),
-            pd.read_csv(results / "direct/h2_decomposition_models.csv"),
-        ],
-        ignore_index=True,
-    )
-    return out[
-        [
-            "evidence_scope",
-            "context",
-            "response",
-            "analysis_role",
-            "model_family",
-            "status",
-            "n_islands",
-            "n_clusters",
-            "distance_estimate",
-            "distance_se",
-            "distance_p",
-            "primary_H2b_q",
-            "selfing_core_estimate",
-            "selfing_core_se",
-            "selfing_core_p",
-            "kappa",
-            "optimizer_success",
-        ]
-    ]
-
-
-def build_h3(results: Path) -> pd.DataFrame:
-    payload = json.loads(
-        (results / "h3_original_corrected_comparison.json").read_text(encoding="utf-8")
-    )
-    corrected = payload["corrected"]
-    rows = []
-    for analysis, result in [
-        ("primary", corrected["global_gradient"]),
-        ("supplemental_only", corrected["sensitivities"]["supplemental_only"]),
-        ("no_zero_constant", corrected["sensitivities"]["no_zero_constant"]),
-    ]:
-        rows.append(
-            {
-                "analysis": analysis,
-                "estimate": result["distance_slope"],
-                "se": result["distance_slope_se"],
-                "two_sided_p": result["two_sided_p"],
-                "one_sided_positive_p": result["one_sided_positive_p"],
-                "n_measurement_cells": result["n_cells"],
-                "n_publications": result["n_publications"],
-                "n_sites": result["n_sites"],
-            }
-        )
-    return pd.DataFrame(rows)
-
-
-def build_h4_scores(results: Path) -> pd.DataFrame:
-    return pd.read_csv(results / "h4_exact_corrected.csv")[
-        [
-            "family",
-            "H2_syndrome",
-            "score_name",
-            "analysis",
-            "inferential_role",
-            "evaluable",
-            "estimate",
-            "se",
-            "z",
-            "two_sided_p",
-            "one_sided_negative_p",
-            "n_cells",
-            "n_publications",
-            "n_sites",
-            "n_species",
-        ]
-    ]
-
-
-def build_h4_atomic(results: Path) -> pd.DataFrame:
-    frame = pd.read_csv(results / "h4_atomic_corrected.csv")
-    return frame[
-        [
-            "family",
-            "trait",
-            "analysis",
-            "inferential_role",
-            "evaluable",
-            "trait_state_estimate",
-            "trait_state_se",
-            "trait_state_z",
-            "trait_state_two_sided_p",
-            "trait_state_one_sided_negative_p",
-            "n_cells",
-            "n_publications",
-            "n_sites",
-            "n_species",
-            "reason",
-        ]
-    ]
-
-
 def write_tables(results: Path, output: Path) -> dict[str, object]:
     output.mkdir(parents=True, exist_ok=True)
     tables = {
         "Table_S1_data_summary.csv": build_s1_summary(results),
-        "Table_S3_H2_decomposition.csv": build_h2(results),
-        "Table_S5_H3_pollen_limitation.csv": build_h3(results),
-        "Table_S6a_H4_scores.csv": build_h4_scores(results),
-        "Table_S6b_H4_atomic.csv": build_h4_atomic(results),
     }
     output_meta = {}
     for name, frame in tables.items():
@@ -210,18 +105,29 @@ def write_tables(results: Path, output: Path) -> dict[str, object]:
             "sha256": _sha256(path),
         }
 
-    h1_name = "Table_S2_H1_traitwise.csv"
-    h1_target = output / h1_name
-    h1_target.write_bytes(FINAL_H1.read_bytes())
-    h1_frame = pd.read_csv(FINAL_H1)
-    output_meta[h1_name] = {
-        "rows": len(h1_frame),
-        "columns": list(h1_frame.columns),
-        "sha256": _sha256(h1_target),
+    copied = {
+        "Table_S2_H1_traitwise.csv": FINAL_H1,
+        "Table_S3a_H2_all_finite_cluster.csv": FINAL_H2_ALL,
+        "Table_S3b_H2_direct_finite_cluster.csv": FINAL_H2_DIRECT,
+        "Table_S5_H3_pollen_limitation.csv": FINAL_H3,
+        "Table_S6a_H4_scores.csv": FINAL_H4,
     }
+    for name, source in copied.items():
+        target = output / name
+        target.write_bytes(source.read_bytes())
+        frame = pd.read_csv(source)
+        output_meta[name] = {
+            "rows": len(frame),
+            "columns": list(frame.columns),
+            "sha256": _sha256(target),
+        }
 
     source_meta = {rel: _sha256(results / rel) for rel in SOURCE_FILES}
     source_meta["results/h1_final_traitwise_t_20261004/traitwise_results.csv"] = _sha256(FINAL_H1)
+    source_meta["results/h1_final_directional_20261003/h2_all_finite_cluster_audit.csv"] = _sha256(FINAL_H2_ALL)
+    source_meta["results/h1_final_directional_20261003/h2_direct_finite_cluster_audit.csv"] = _sha256(FINAL_H2_DIRECT)
+    source_meta["results/h1_final_directional_20261003/h3_finite_publication_audit.csv"] = _sha256(FINAL_H3)
+    source_meta["results/h1_final_directional_20261003/h4_finite_publication_audit.csv"] = _sha256(FINAL_H4)
     repo_root = results.parents[1]
     rel = "config/chapter1_database_versions/v1.0.0.yml"
     source_meta[rel] = _sha256(repo_root / rel)
@@ -234,6 +140,14 @@ def write_tables(results: Path, output: Path) -> dict[str, object]:
             "Table_S2": (
                 "Final active H1: seven separate traits in four regions, with broad All "
                 "primary plus WCVP and Direct-only sensitivities. No pooled/domain score."
+            ),
+            "Table_S3": (
+                "Active H2 tables are copied from the final finite-cluster t audits, "
+                "separately for All and Direct-only evidence."
+            ),
+            "Table_S5_S6": (
+                "Active H3 and exact-score H4 tables are copied from the final "
+                "finite-publication t audits."
             ),
             "Table_S4": (
                 "Full raw colour and colour-by-architecture results remain in "
