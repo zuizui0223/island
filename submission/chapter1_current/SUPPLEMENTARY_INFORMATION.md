@@ -94,6 +94,14 @@ The primary analysis is broad contemporary island flora with All evidence. Each 
 
 WCVP regional-native-compatible flora is the sole active origin sensitivity; Direct-only is a separate evidence-quality sensitivity. Both use the identical model and inference rule. WCVP compatibility retains existing source-native records and upgrades unresolved records only under accepted TDWG-L3 native-range compatibility; introduced records are not overwritten. This establishes regional compatibility rather than exact focal-island nativity. H2–H4 and their previously defined functional covariates are unchanged.
 
+### Table S2. Final traitwise H1 results
+
+The active machine-readable H1 table is:
+
+- submission/chapter1_current/supplement/Table_S2_H1_traitwise.csv
+
+It contains all 112 final fits (All/Direct-only × broad/WCVP × four regions × seven traits), their finite-cluster t intervals and pointwise two-sided P values. All 112 fits converged. Earlier joint/vector H1 tables are retained only as historical provenance and are not active submission inference.
+
 ### H1: recurrent reproductive responses with regional floral differences
 
 All 112 fits converged. Primary All evidence supports 17 of 28 individual associations at nominal two-sided P < 0.05, the same set of significant traits as the original poster's normal approximation. Self-compatibility increases with isolation in all four regions (P = 0.00569, 0.00671, 0.01812 and 0.01123 in northern mid-latitude, northern high-latitude, tropical and southern extratropical floras, respectively). Selfing mating system increases in the first three regions. Autonomous selfing increases in northern high latitudes and the tropics. Generalized form increases in northern mid-latitudes, the tropics and southern extratropics; actinomorphy increases in northern high latitudes and the tropics. Shallow/open tubes increase in northern high latitudes but decrease in southern extratropics. Plain colour increases in southern extratropics.
