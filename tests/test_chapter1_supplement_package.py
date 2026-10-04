@@ -35,7 +35,7 @@ def test_supplement_has_complete_s1_s7_structure() -> None:
 
 def test_supplement_references_live_corrected_paths_and_generated_tables() -> None:
     text = SI.read_text(encoding="utf-8")
-    refs = sorted(set(re.findall(r"((?:results/geography_20260924|submission/chapter1_current/supplement)/[^\s,;]+)", text)))
+    refs = sorted(set(re.findall(r"((?:results/geography_20260924|results/h1_final_traitwise_t_20261004|submission/chapter1_current/supplement)/[^\s,;]+)", text)))
     assert refs
     for ref in refs:
         clean = ref.rstrip(".:)")
@@ -44,8 +44,7 @@ def test_supplement_references_live_corrected_paths_and_generated_tables() -> No
 
     for name in (
         "Table_S1_data_summary.csv",
-        "Table_S2a_H1_atomic.csv",
-        "Table_S2b_H1_joint.csv",
+        "Table_S2_H1_traitwise.csv",
         "Table_S3_H2_decomposition.csv",
         "Table_S5_H3_pollen_limitation.csv",
         "Table_S6a_H4_scores.csv",
