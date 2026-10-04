@@ -40,4 +40,4 @@ GEB is a strong fallback because the paper tests broad-scale geographic variatio
 
 ## Data-policy advantage
 
-If needed, the Data and Code Availability Statement should identify the public code/results archive and rights-filtered trait subset, explain that some third-party source-backed trait records cannot legally be redistributed, document provenance and access routes, and request any required editorial exception without identifying authors in blinded materials.
+If needed, the Data and Code Availability Statement should identify the public code/results archive and rights-filtered trait subset, explain that some third-party source-backed trait records cannot legally be redistributed because of legal requirements, document provenance and access routes, and request any required editorial exception without identifying authors in blinded materials.
