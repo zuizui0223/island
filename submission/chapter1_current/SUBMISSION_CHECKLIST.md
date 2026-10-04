@@ -1,70 +1,48 @@
 # Submission checklist
 
 ## Scientific package
-- [x] Corrected geography baseline merged in PR #242
-- [x] Clean manuscript updated to the corrected 8,264-unit analysis universe
-- [x] H1 corrected joint and atomic results integrated
-- [x] H1 Direct-only northern-high optimizer audit closed by converged re-fit + six-response sensitivity
-- [x] H2 corrected decomposition and tropical Direct-only FDR boundary integrated
-- [x] H3 corrected GloPL estimate integrated
-- [x] H4 corrected exact-score and atomic estimates integrated
-- [x] Main figure captions updated
-- [x] Ecology Letters-targeted cover-letter draft updated
-- [x] Regenerate final Main Figures 1–6 from the PR #242 corrected baseline
-- [x] Replace poster panels/slides that showed uncorrected v14 values with corrected H1–H4 panels and the 8,264-unit / 1,248-site maps
 
-## Still journal-specific
-- [x] Choose target journal — Ecology Letters first shot; GEB fallback
-- [x] Apply Ecology Letters structural limits — abstract <150 words; main text <5,000 words; 6 figures
+- [x] Corrected 8,264-island geography baseline fixed
+- [x] Final H1 uses seven separate traits; no pooled/domain score
+- [x] All 112 H1 fits converged
+- [x] Broad All primary, Direct-only evidence sensitivity and WCVP regional-native-compatible origin sensitivity synchronized
+- [x] H2 conditional decomposition synchronized
+- [x] H3 corrected GloPL estimate and offshore-gradient robustness integrated
+- [x] H4 exact-score and atomic estimates integrated
+- [x] Manuscript rewritten around recurrent reproductive function and regionally contingent floral phenotype
+- [x] Figure captions synchronized to traitwise H1
+- [x] Ecology Letters cover letter and novelty statement synchronized
+- [x] Thesis positioning synchronized
+
+## Journal-specific items
+
+- [x] Ecology Letters selected as first shot; GEB fallback
+- [x] Abstract <150 words
+- [x] Main text <5,000 words by repository Markdown count
+- [x] Six main display items
 - [ ] Complete author order and affiliations
 - [ ] Add corresponding-author details
 - [ ] Add funding and acknowledgements
-- [ ] Add conflict-of-interest statement
-- [ ] Add author-contribution statement
-- [ ] **Close Ecology Letters data-policy gate**: rights closure or explicit editorial exception
-- [ ] Send/resolve pre-submission data-policy inquiry before EL submission
-- [ ] Finalize Data Accessibility with archive DOI(s); rights-aware draft prepared
+- [ ] Confirm conflict-of-interest statement
+- [ ] Confirm author-contribution statement
 - [ ] Add ORCID identifiers
-- [x] Reformat references to Ecology Letters style (18 references)
-- [x] Assemble submission-facing Supplementary Information S1–S7
-- [x] Generate deterministic Tables S1–S6 from corrected outputs
-- [x] Render SI Figures S1–S7 in SVG/PDF
-- [ ] Compile final journal-ready manuscript/SI submission files
-- [x] Check graphical-abstract requirement; brief and <=500-character short text prepared
-- [x] Prepare GEB structured-abstract/double-anonymous fallback conversion
+- [ ] Close Ecology Letters data-policy gate: rights closure or explicit editorial exception
+- [ ] Resolve pre-submission data-policy inquiry
+- [ ] Freeze final submission commit/tag and mint software/results DOI
+- [ ] Compile final journal-ready manuscript and SI files
 
 ## Claim boundary to preserve
+
 The submission must not state or imply that:
-- historical pollen limitation is proven to have caused the observed trait shifts;
+
+- historical pollen limitation is proven to have caused the observed trait distributions;
 - H2 is a causal mediation analysis;
-- a global decline in pollinator abundance or visitation has been demonstrated;
-- raw flower colour uniquely identifies a realized pollinator guild;
-- the seven H1 traits all change positively in every region;
-- tropical Direct-only H2 accessibility is FDR-supported after geography correction;
-- current assemblage patterns distinguish species sorting from within-lineage evolution;
-- the corrected coastline-distance analysis is a new prospective confirmation;
+- global pollinator abundance or visitation has declined;
+- flower colour or architecture uniquely identifies a realized pollinator guild;
+- all seven H1 traits change in one common direction in every region;
+- the 28 H1 pointwise tests constitute family-wise proof of a universal syndrome;
+- tropical Direct-only H2 accessibility is FDR-supported;
+- contemporary assemblage patterns distinguish species sorting from within-lineage evolution;
+- WCVP regional compatibility establishes exact focal-island nativeness;
+- the corrected coastline-distance analysis is a prospective confirmation;
 - support-limited prospective H4 validation audits are biological null results.
-
-
-## Ecology Letters first-shot readiness
-
-- [x] Conceptual title shortened around the non-serial selfing-syndrome result
-- [x] Abstract reduced below 150 words
-- [x] Main text remains below 5,000 words
-- [x] Main display items remain at 6
-- [x] Main Figures 1–6 committed in SVG/PDF with manifest + CI guard
-- [x] Reference base expanded beyond the original six-paper skeleton
-- [x] Cover letter rewritten around novelty/general ecology rather than database size
-- [x] Novelty statement prepared
-- [x] Running-title candidate prepared (<45 characters)
-- [x] Constraint–response triangle defined for Figure 3 / graphical abstract
-- [x] Publication-facing Figure 3 SVG/PDF source added
-- [ ] Fill author order, affiliations, author emails and corresponding-author postal details
-- [ ] Confirm authorship-contribution wording
-- [ ] Add funding, acknowledgements and conflict-of-interest declaration
-- [x] Public rights-filtered trait subset DOI fixed — `10.5281/zenodo.22704973`
-- [x] Prepare submission code + corrected derived-results archive metadata and inclusion boundary
-- [ ] Freeze final submission commit/tag and mint software/results DOI
-- [x] Final reference-style pass
-- [x] Render SI Figures S1–S7 in SVG/PDF
-- [ ] Compile final supplementary PDF after submission metadata freeze
