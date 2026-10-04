@@ -78,6 +78,30 @@
         "p": 0.023211,
         "I2": 0.684586,
         "tau2_paule_mandel": 0.000932
+      },
+      "cluster_jackknife_refit_sensitivity": {
+        "inferential_role": "reviewer_robustness_sensitivity_using_existing_exact_delete_one_spatial_cluster_refits",
+        "workflow_run_id": 37122292456,
+        "artifact_id": 11273547268,
+        "artifact_sha256": "52329a2fbe68520417693d2572510958adf1a93d02fc06cafd39768ed0b2ad34",
+        "method": "replace regional cluster-robust SE inputs to H1a/H1b with exact delete-one-spatial-cluster jackknife SEs from the same frozen seven-indicator equal-domain contrast",
+        "all_analysis": {
+          "H1a_estimate": 0.06351927285974782,
+          "H1a_se_modified_hk": 0.02243206275380169,
+          "H1a_p_one_sided": 0.033050418435394344,
+          "H1b_Q": 11.857253618494452,
+          "H1b_p": 0.007888493987922634,
+          "H1b_I2": 0.746990315251356
+        },
+        "direct_only": {
+          "H1a_estimate": 0.05480789228639852,
+          "H1a_se_modified_hk": 0.018622690061892527,
+          "H1a_p_one_sided": 0.03018029138151679,
+          "H1b_Q": 5.627847932759616,
+          "H1b_p": 0.13118874893224,
+          "H1b_I2": 0.4669365562390117
+        },
+        "interpretation": "The positive H1a global-average direction survives exact cluster-jackknife uncertainty in both evidence scopes. Formal H1b heterogeneity remains supported in the primary all-analysis scope but not in Direct-only, so heterogeneity strength is treated as evidence-scope/small-cluster sensitive rather than uniformly robust."
       }
     },
     "top_variance_cluster_leaveout": {
@@ -115,7 +139,7 @@
         "supported": true
       }
     },
-    "interpretation": "A positive global-average classic-island direction is supported under the predeclared positive alternative, but strict four-region individual support is not. Regional heterogeneity is substantial. The all-analysis global average survives deletion of the single largest variance-contributing block; the Direct-only version becomes borderline.",
+    "interpretation": "A positive global-average classic-island direction is supported under the predeclared positive alternative and survives exact delete-one-spatial-cluster jackknife uncertainty in both evidence scopes. Strict four-region individual support is not met. Regional variation is evident, but formal H1b heterogeneity is strongest in the primary all-analysis and is not supported in the Direct-only cluster-jackknife sensitivity.",
     "obsolete_for_headline_inference": [
       "seven-response high-dimensional cluster-Wald p-values",
       "three-axis raw-state high-dimensional omnibus p-values"
@@ -279,7 +303,7 @@
           "southern_extratropical": 2.46915410662282e-10
         }
       },
-      "interpretation_ceiling": "The large WCVP regional-native-compatible flora reproduces the final H1's global-average directional tendency and regional heterogeneity under the same finite-cluster one-dimensional inference, while strict four-region recurrence remains unsupported. This is a provenance sensitivity, not a native-only historical or within-lineage causal analysis.",
+      "interpretation_ceiling": "The large WCVP regional-native-compatible flora reproduces the final H1's global-average directional tendency and regional modulation under the same finite-cluster one-dimensional inference, while strict four-region recurrence remains unsupported. This is a provenance sensitivity, not a native-only historical or within-lineage causal analysis.",
       "directional_finite_cluster_replay": {
         "workflow_run_id": 37157566167,
         "artifact_id": 11286910115,
@@ -363,7 +387,7 @@
             "iut_p_wild": 0.2684
           }
         },
-        "interpretation": "The WCVP regional-native-compatible provenance sensitivity reproduces the same inferential pattern as the all-observed final H1: all four regional point estimates are positive, the global-average directional tendency is supported, regional heterogeneity is substantial, and strict four-region recurrence fails because northern mid-latitudes are weak."
+        "interpretation": "The WCVP regional-native-compatible provenance sensitivity reproduces the same central pattern as the all-observed final H1: all four regional point estimates are positive, the global-average directional tendency is supported, and strict four-region recurrence fails because northern mid-latitudes are weak. The primary-synthesis regional effects are heterogeneous, but formal heterogeneity strength is not promoted beyond the primary H1 cluster-jackknife sensitivity."
       }
     },
     "post_freeze_exploration_excluded_from_submission_decisions": [
@@ -374,6 +398,12 @@
       "strict source-native-only H1 rerun PR #287",
       "introduced-only H1 reruns"
     ],
-    "rule": "Do not promote, replace, or revise the frozen Chapter 1 claims on the basis of post-freeze exploratory analyses unless an explicit new preregistered analysis phase is opened."
+    "rule": "Do not promote, replace, or revise the frozen Chapter 1 claims on the basis of post-freeze exploratory analyses unless an explicit new preregistered analysis phase is opened.",
+    "post_freeze_reviewer_diagnostics": {
+      "allowed_role": "claim_narrowing_and_robustness_only",
+      "cluster_jackknife_H1a_H1b": "completed; H1a survives in both scopes, H1b is supported in all-analysis but not Direct-only",
+      "regional_isolation_support": "in_progress",
+      "rule": "These diagnostics may narrow or qualify the frozen claim but may not add traits, redefine H1, or promote a new mechanism."
+    }
   }
 }
