@@ -59,7 +59,8 @@ def test_h1_uses_final_directional_score_and_retains_three_axis_audit() -> None:
     assert "one-dimensional score" in manuscript
     assert "seven v14 indicators" in manuscript
     assert "seven-trait floral–reproductive response" not in manuscript
-    assert "secondary seven-indicator" in captions.lower()
+    assert "global-average classic-island direction" in captions.lower()
+    assert "regional heterogeneity" in captions.lower()
     assert "reproductive assurance" in novelty
     assert "floral structure" in novelty
 
