@@ -56,48 +56,35 @@ def test_h1_uses_final_directional_score_and_retains_three_axis_audit() -> None:
     novelty = NOVELTY.read_text(encoding="utf-8")
 
     assert "222,688 resolved cells" in manuscript
-    assert "one-dimensional score" in manuscript
-    assert "seven v14 indicators" in manuscript
-    assert "seven-trait floral–reproductive response" not in manuscript
-    assert "global-average classic-island direction" in captions.lower()
-    assert "regional heterogeneity" in captions.lower()
-    assert "reproductive assurance" in novelty
-    assert "floral accessibility" in novelty
+    assert "seven binary traits is fitted separately" in manuscript
+    assert "no pooled floral-syndrome score" in manuscript
+    assert "Seven traits under final finite-cluster inference" in captions
+    assert "reproductive function" in novelty.lower()
+    assert "phenotype" in novelty.lower()
 
-    for path in (H1_RAW_AXIS_TABLE, H1_ORIGIN_TABLE, H1_AXIS_AUDIT):
-        assert path.is_file(), path
+    final_h1 = pd.read_csv(
+        ROOT / "results/h1_final_traitwise_t_20261004/traitwise_results.csv"
+    )
+    assert len(final_h1) == 112
+    assert final_h1["optimizer_success"].all()
 
-    primary = pd.read_csv(H1_RAW_AXIS_TABLE)
-    assert set(primary["axis"]) == {
-        "reproductive_assurance",
-        "floral_structural_complexity",
-        "flower_colour",
-    }
-    broad = primary.loc[primary["flora_scope"].eq("all_observed")]
-    recurrent = broad.loc[
-        broad["axis"].isin(
-            ["reproductive_assurance", "floral_structural_complexity"]
-        )
+    primary = final_h1.loc[
+        final_h1["evidence_scope"].eq("all")
+        & final_h1["flora_scope"].eq("broad")
+        & final_h1["outcome"].eq("self_compatibility")
     ]
-    assert recurrent["axis_supported"].all()
-    colour = broad.loc[broad["axis"].eq("flower_colour")]
-    assert int(colour["axis_supported"].sum()) == 6
+    assert len(primary) == 4
+    assert (primary["estimate"] > 0).all()
+    assert (primary["p_two_sided"] < 0.05).all()
 
-    origin = pd.read_csv(H1_ORIGIN_TABLE)
-    strict = origin.loc[
-        origin["contrast"].eq("strict_known_origin")
-        & origin["axis"].eq("reproductive_assurance")
+    wcvp = final_h1.loc[
+        final_h1["evidence_scope"].eq("all")
+        & final_h1["flora_scope"].eq("wcvp")
+        & final_h1["outcome"].eq("self_compatibility")
     ]
-    assert strict["status_vectors_differ"].all()
-    assert (strict["cosine_similarity"] < 0).all()
-
-    audit = pd.read_csv(H1_AXIS_AUDIT)
-    all_analysis = audit.loc[
-        audit["evidence_scope"].eq("all_analysis_eligible")
-    ]
-    assert int(all_analysis["resolved_axis_cells"].sum()) == 222688
-    assert int(all_analysis["ontology_valid_axis_cells"].sum()) == 222688
-
+    assert len(wcvp) == 4
+    assert (wcvp["estimate"] > 0).all()
+    assert (wcvp["p_two_sided"] < 0.05).all()
 
 def test_title_page_word_counts_match_manuscript() -> None:
     manuscript = MANUSCRIPT.read_text(encoding="utf-8")
