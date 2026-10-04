@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
@@ -234,7 +235,7 @@ def figure2(root: Path, out: Path) -> None:
     _box(ax, 0.04, 0.68, 0.25, 0.18, "Island geography", "GSHHG 2.3.7\ncorrected isolation")
     _box(ax, 0.375, 0.68, 0.25, 0.18, "Island floras", "GBIF incidence\n106,295 angiosperms")
     _box(ax, 0.71, 0.68, 0.25, 0.18, "Trait evidence", "colour · architecture\nreproductive assurance")
-    _box(ax, 0.12, 0.36, 0.30, 0.20, "H1–H2 | Plant response", "multivariate recurrence\nconditional decomposition")
+    _box(ax, 0.12, 0.36, 0.30, 0.20, "H1–H2 | Plant response", "traitwise recurrence\nconditional decomposition")
     _box(ax, 0.58, 0.36, 0.30, 0.20, "H3 | Ecological pressure", "independent GloPL\npollen-supplementation data")
     _box(ax, 0.35, 0.08, 0.30, 0.18, "H4 | Functional bridge", "exact-species H2 scores × GloPL\npost-hoc triangulation")
 
@@ -366,185 +367,18 @@ def _q_label(value: float) -> str:
 
 
 def figure4(root: Path, out: Path) -> None:
-    lock = json.loads(
-        (root / "config/chapter1_h1_final_directional_result_lock.json").read_text(
-            encoding="utf-8"
-        )
+    """Promote the frozen final traitwise H1 figure without re-deriving H1."""
+    source = root / "results/h1_final_traitwise_t_20261004"
+    out.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(
+        source / "traitwise_H1.svg",
+        out / "Figure4_H1_recurrent_multivariate_response.svg",
     )
-    origin = pd.read_csv(
-        root
-        / "submission/chapter1_current/supplement/Table_S2g_H1_floristic_origin.csv"
-    )
-
-    fig, axes = plt.subplots(
-        1,
-        4,
-        figsize=(14.8, 5.3),
-        gridspec_kw={"width_ratios": [1.45, 1.0, 1.2, 1.25]},
+    shutil.copyfile(
+        source / "traitwise_H1.pdf",
+        out / "Figure4_H1_recurrent_multivariate_response.pdf",
     )
 
-    # A | Regional directional score
-    ax = axes[0]
-    y = np.arange(len(REGIONS))
-    offsets = {
-        "all_analysis_eligible": -0.10,
-        "direct_only": 0.10,
-    }
-    markers = {
-        "all_analysis_eligible": "o",
-        "direct_only": "s",
-    }
-    labels = {
-        "all_analysis_eligible": "All",
-        "direct_only": "Direct",
-    }
-    for scope in ("all_analysis_eligible", "direct_only"):
-        rows = {
-            row["context"]: row
-            for row in lock["H1"]["regional_results"][scope]
-        }
-        for yi, region in enumerate(REGIONS):
-            row = rows[region]
-            estimate = float(row["estimate"])
-            se = float(row["cluster_robust_se"])
-            df = int(row["n_clusters"]) - 1
-            critical = float(student_t.ppf(0.975, df=df))
-            supported = float(row["p_one_sided_t"]) <= 0.05
-            yy = yi + offsets[scope]
-            ax.errorbar(
-                estimate,
-                yy,
-                xerr=critical * se,
-                fmt=markers[scope],
-                capsize=3,
-                label=labels[scope] if yi == 0 else None,
-            )
-            if not supported:
-                ax.scatter(
-                    estimate,
-                    yy,
-                    s=55,
-                    marker=markers[scope],
-                    facecolors="none",
-                )
-    ax.axvline(0, linewidth=0.8)
-    ax.set_yticks(y, [REGION_LABELS[r] for r in REGIONS])
-    ax.invert_yaxis()
-    ax.set_xlabel("Classic-island directional score")
-    ax.set_title("A | Regional direction")
-    ax.legend(frameon=False)
-    ax.grid(axis="x", linewidth=0.3, alpha=0.4)
-
-    # B | Global-average H1a + H1b heterogeneity
-    ax = axes[1]
-    h1a = lock["H1"]["H1a_global_average"]
-    h1b = lock["H1"]["H1b_regional_heterogeneity"]
-    rows = [
-        ("All", h1a["all_analysis"], h1b["all_analysis"]),
-        ("Direct", h1a["direct_only"], h1b["direct_only"]),
-    ]
-    yy = np.arange(2)
-    for yi, (label, mean, het) in enumerate(rows):
-        estimate = float(mean["estimate"])
-        se = float(mean["se_modified_hk"])
-        critical = float(student_t.ppf(0.975, df=3))
-        ax.errorbar(estimate, yi, xerr=critical * se, fmt="o", capsize=3)
-        ax.annotate(
-            f"p+={float(mean['p_one_sided']):.3f}\nI²={float(het['I2']):.2f}",
-            (estimate, yi),
-            xytext=(6, 0),
-            textcoords="offset points",
-            ha="left",
-            va="center",
-            fontsize=7.5,
-        )
-    ax.axvline(0, linewidth=0.8)
-    ax.set_yticks(yy, ["All", "Direct"])
-    ax.invert_yaxis()
-    ax.set_xlabel("Random-effects mean")
-    ax.set_title("B | H1a mean + H1b heterogeneity")
-    ax.grid(axis="x", linewidth=0.3, alpha=0.4)
-
-    # C | Sensitivity of global-average directional P
-    ax = axes[2]
-    sens = lock["H1"]["weighting_sensitivity"]
-    top = lock["H1"]["top_variance_cluster_leaveout"]
-    categories = [
-        "Primary",
-        "Drop top block",
-        "Equal indicator",
-        "Two-domain core",
-    ]
-    all_p = [
-        float(h1a["all_analysis"]["p_one_sided"]),
-        float(top["all_analysis"]["p_one_sided"]),
-        float(sens["all_analysis_equal_indicator"]["p_one_sided"]),
-        float(sens["all_analysis_core_two_domain"]["p_one_sided"]),
-    ]
-    direct_p = [
-        float(h1a["direct_only"]["p_one_sided"]),
-        float(top["direct_only"]["p_one_sided"]),
-        float(sens["direct_only_equal_indicator"]["p_one_sided"]),
-        float(sens["direct_only_core_two_domain"]["p_one_sided"]),
-    ]
-    yy = np.arange(len(categories))
-    ax.scatter(all_p, yy - 0.08, marker="o", label="All")
-    ax.scatter(direct_p, yy + 0.08, marker="s", label="Direct")
-    ax.axvline(0.05, linewidth=0.8, linestyle="--")
-    ax.set_yticks(yy, categories)
-    ax.invert_yaxis()
-    ax.set_xlim(0, max(0.06, max(all_p + direct_p) * 1.12))
-    ax.set_xlabel("One-sided global-average P")
-    ax.set_title("C | Inference sensitivity")
-    ax.legend(frameon=False)
-    ax.grid(axis="x", linewidth=0.3, alpha=0.4)
-
-    # D | Descriptive tropical native-introduced vector similarity
-    ax = axes[3]
-    axes_order = [
-        "reproductive_assurance",
-        "floral_structural_complexity",
-        "flower_colour",
-    ]
-    axis_labels = {
-        "reproductive_assurance": "Reproductive assurance",
-        "floral_structural_complexity": "Floral structure",
-        "flower_colour": "Flower colour",
-    }
-    strict = origin.loc[
-        origin["contrast"].eq("strict_known_origin")
-        & origin["context"].eq("tropical")
-    ].copy()
-    y = np.arange(len(axes_order))
-    for scope, marker, label, offset in (
-        ("all_analysis_eligible", "o", "All", -0.08),
-        ("direct_only", "s", "Direct", 0.08),
-    ):
-        scoped = strict.loc[strict["evidence_scope"].eq(scope)].set_index("axis")
-        for yi, axis_name in enumerate(axes_order):
-            cosine = float(scoped.loc[axis_name, "cosine_similarity"])
-            ax.scatter(
-                cosine,
-                yi + offset,
-                s=60,
-                marker=marker,
-                label=label if yi == 0 else None,
-            )
-    ax.axvline(0, linewidth=0.8)
-    ax.set_xlim(-1.05, 1.05)
-    ax.set_yticks(y, [axis_labels[a] for a in axes_order])
-    ax.invert_yaxis()
-    ax.set_xlabel("Native-introduced cosine")
-    ax.set_title("D | Tropical provenance divergence")
-    ax.legend(frameon=False)
-    ax.grid(axis="x", linewidth=0.3, alpha=0.4)
-
-    fig.suptitle(
-        "Figure 4 | H1: global island-syndrome tendency and regional heterogeneity",
-        y=1.02,
-    )
-    fig.tight_layout()
-    _save(fig, out, "Figure4_H1_recurrent_multivariate_response")
 
 def figure5(root: Path, out: Path) -> None:
     h2 = pd.read_csv(
@@ -626,7 +460,9 @@ def figure6(root: Path, out: Path) -> None:
     h3 = pd.read_csv(
         root / "submission/chapter1_current/supplement/Table_S5_H3_pollen_limitation.csv"
     )
-    h4 = pd.read_csv(root / "results/geography_20260924/h4_exact_corrected.csv")
+    h4 = pd.read_csv(
+        root / "submission/chapter1_current/supplement/Table_S6a_H4_scores.csv"
+    )
     atomic = pd.read_csv(root / "results/geography_20260924/h4_atomic_corrected.csv")
 
     fig, axes = plt.subplots(1, 3, figsize=(12.6, 4.6))
@@ -724,7 +560,7 @@ def build_manifest(out: Path) -> None:
         json.dumps(
             {
                 "contract": "chapter1_main_figures_corrected_v1",
-                "source_surface": "corrected_geography_20260924",
+                "source_surface": "corrected_geography_20260924_plus_final_traitwise_H1_20261004",
                 "figures": records,
             },
             indent=2,
