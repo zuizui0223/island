@@ -1,12 +1,6 @@
-name: Render three-axis Figure 4
+name: Historical replay — Render three-axis Figure 4
 
 on:
-  push:
-    branches:
-      - analysis/h1-three-axis-raw-state
-    paths:
-      - "scripts/submission/render_chapter1_main_figures.py"
-      - ".github/workflows/render-chapter1-three-axis-figure4.yml"
   workflow_dispatch:
 
 permissions:
