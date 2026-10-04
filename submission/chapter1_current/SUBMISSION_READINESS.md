@@ -1,12 +1,14 @@
-# Chapter 1 submission readiness — 2026-09-28
+# Chapter 1 submission readiness — 2026-10-04
 
 ## Current decision
 
-The corrected Chapter 1 analysis is **complete under the final finite-cluster H1 inference**; submission prose and Figure 4 are being synchronized to that result.
+The Chapter 1 scientific analysis and submission-facing inference are **frozen and synchronized on main**.
 
 First-shot journal: **Ecology Letters**, conditional on closing the journal's data-policy gate.
 
 Fallback: **Global Ecology and Biogeography** if the third-party trait-data restriction cannot be accepted by Ecology Letters.
+
+No further exploratory analysis should alter the frozen H1–H4 claims unless a new analysis phase is explicitly opened.
 
 ## Complete
 
@@ -14,18 +16,22 @@ Fallback: **Global Ecology and Biogeography** if the third-party trait-data rest
 
 - corrected 8,264-island geographic baseline;
 - H1a: positive global-average classic-island direction under Paule-Mandel + modified Hartung-Knapp inference;
-- H1b: strong regional heterogeneity; strict four-region recurrence is unsupported;
-- raw three-axis result retained as descriptive phenotype/provenance audit, not confirmatory H1;
+- strict four-region recurrence is unsupported because northern mid-latitudes are weak;
+- H1b: regional heterogeneity is supported in the primary all-analysis; the Direct-only exact cluster-jackknife sensitivity is weaker and does not support formal heterogeneity;
+- exact delete-one-spatial-cluster jackknife sensitivity retains H1a in both evidence scopes;
+- WCVP regional-native-compatible replay applies the same final one-dimensional seven-indicator finite-cluster H1 to 513,320 island×species rows on 2,372 islands and reproduces the positive global-average tendency plus weak northern mid-latitudes;
+- northern-midlatitude isolation-support diagnostic is complete: the region is much more mainland-proximate, but adjusted residual isolation variation is not depleted, so the weak slope is not explained by a simple lack of distance range or island-count power;
+- raw three-axis and floristic-origin results are retained as descriptive phenotype/provenance audits, not confirmatory substitutes for H1;
 - H1 Direct-only northern-high optimizer warning independently closed;
 - H2 reproductive-assurance / accessibility conditional decomposition;
 - H3 independent GloPL pollen-limitation gradient;
 - H4 exact-species functional triangulation;
-- causal/claim boundaries fixed in manuscript and SI.
+- causal/claim boundaries fixed in manuscript, SI and result locks.
 
 ### Manuscript package
 
-- title and 128-word abstract revised for the final H1a/H1b claim;
-- main text ~4,672 words by repository Markdown count; final formatted recount pending;
+- final title and **137-word abstract** synchronized to H1a/H1b;
+- main text **4,996 words** by repository Markdown count; final formatted journal recount still required;
 - 18 references in Ecology Letters style;
 - novelty positioned against recent island-colonization and range-edge literature;
 - Ecology Letters cover letter;
@@ -35,13 +41,14 @@ Fallback: **Global Ecology and Biogeography** if the third-party trait-data rest
 
 ### Figures and Supplementary Information
 
-- Main Figures 1–6 are committed; Figure 4 requires final H1a/H1b visual synchronization;
-- main-figure manifest and deterministic renderer;
+- Main Figures 1–6 are committed and synchronized;
+- Figure 4 is generated directly from the final H1 result lock and shows regional directional scores, H1a/H1b, weighting/leverage sensitivities and provenance divergence;
+- main-figure manifest and deterministic renderer are current;
 - Supplementary Information S1–S7 assembled;
 - deterministic Tables S1, S2a–S2h, S3, S5, S6a and S6b;
 - Supplementary Figures S1–S7 committed in SVG/PDF;
 - SI figure manifest and deterministic renderer;
-- CI verifies figure files, manifests, current corrected values and inferential boundaries.
+- main submission CI passes at commit `4e8ce8f40210f00c7e64d5aba53dc91122591df0`.
 
 ### Data/reproducibility preparation
 
