@@ -1,6 +1,6 @@
 # Thesis positioning — Chapter 1
 
-> **Current scientific surface: final corrected geography + finite-cluster directional H1 (4 October 2026).**
+> **Current scientific surface: corrected geography baseline + final finite-cluster directional H1 (4 October 2026).**
 > Machine-readable selectors: `config/chapter1_submission_current.json` and `config/chapter1_h1_final_directional_result_lock.json`.
 > Older WHEN/WHERE, raw-three-axis-primary, lineage-first and Bombus-centered Chapter 1 designs are historical provenance, not the current paper claim.
 
