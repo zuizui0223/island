@@ -142,7 +142,7 @@ Thus the same two response families enriched along the island-isolation gradient
 
 ### A global tendency, not a universal trait checklist
 
-The plant-side result is a positive average tendency, not a universal floral rule. All regional point estimates face the classic direction, but northern mid-latitudes are weak, regional variation is strongest in the primary all-analysis and less decisive under the Direct-only cluster-jackknife sensitivity, and one influential-block sensitivity makes the Direct-only global mean borderline. Island syndrome is therefore best treated here as a probabilistic multicomponent tendency whose magnitude and phenotype vary geographically.
+The plant-side result is a positive average tendency, not a universal floral rule. All regional point estimates face the classic direction, but northern mid-latitudes are weak; H1b is supported in the primary all-analysis but not the Direct-only cluster-jackknife sensitivity. Northern-midlatitude islands are strongly near-mainland weighted (median isolation 12.2 km), yet covariate-residual isolation variance matches the other regions, arguing against simple range restriction. Island syndrome is therefore best treated here as a probabilistic multicomponent tendency whose magnitude and phenotype vary geographically.
 
 Reproductive assurance and accessibility/generalization are the clearest recurring functional components, while colour and specific structural states are more contingent. Colour remains in the primary score because it belonged to the frozen classic direction; the two-domain sensitivity shows that the average result does not depend on it, but we do not redefine H1 after seeing the data.
 
