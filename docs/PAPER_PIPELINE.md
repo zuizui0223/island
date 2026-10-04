@@ -1,13 +1,11 @@
-> **Superseded inference draft:** the t/Holm interpretation below is no longer primary. The user restored original seven-trait poster inference on 4 October 2026: see `results/h1_poster_original_wcvp_20261004/README.md` and the current selector. This draft must not be submitted or used to replace the original poster conclusions.
-
 # Current submission pipeline — corrected geography
 
 The **only active Chapter 1 submission selector** is
 `config/chapter1_submission_current.json`.
 
 Submission-facing prose lives in `submission/chapter1_current/`.
-Corrected H2-H4 tables live in `results/geography_20260924/`; final H1 inference lives in `results/h1_traitwise_20261004/`.
-The H1 replay entry point is `docs/REPLAY_H1_TRAITWISE_20261004.md`; geography/H2–H4 replay remains documented in `scripts/geography_correction/README.md`.
+Corrected H2-H4 tables live in `results/geography_20260924/`; final H1 inference lives in `results/h1_final_traitwise_t_20261004/`.
+The H1 replay entry point is `docs/REPLAY_H1_FINAL_TRAITWISE_T_20261004.md`; geography/H2–H4 replay remains documented in `scripts/geography_correction/README.md`.
 
 ## Pipeline at a glance
 
@@ -58,17 +56,19 @@ Source of truth:
 - `docs/chapter1_corrected_submission_20260924.md`;
 - `results/geography_20260924/`.
 
-## H1 — Individual trait responses
+## H1 — Final separate-trait inference
 
-H1 now tests seven previously defined binary outcomes separately: self-compatibility, selfing mating system, autonomous/delayed selfing, plain colour, generalized form, actinomorphy and shallow/open tubes. Reproduction, colour and structure are organizational domains only; neither domain scores nor an omnibus directional score are calculated. This user-requested revision on 4 October 2026 follows inspection of earlier results and is explicitly retrospective.
+### H1: seven separate trait responses
 
-For each trait and region, counts of species expressing the state are modelled against their informative species denominator using a beta-binomial logit regression. Predictors are standardized corrected log isolation, log area and climate PC1–4. Spatial-block sandwich uncertainty uses a t reference with G−1 degrees of freedom; pointwise 95% intervals accompany every slope. Two-sided Holm adjustment covers all 28 region-by-trait tests within each flora/evidence scope, retaining failed tests in the family. Positive slopes indicate increasing prevalence, not an imposed direction of evolution. Cross-region differences in significance do not constitute a formal interaction test.
+The primary analysis is broad contemporary island flora with All evidence. Each of seven binary traits is fitted separately in each of four regions by beta-binomial logit regression, adjusting for standardized corrected log isolation, log island area and climate PC1–4. Reproduction, colour and structure are labels, not aggregate scores. Spatial-block sandwich standard errors use a finite-cluster t reference with G−1 degrees of freedom and pointwise 95% intervals. All individual p values are two-sided and unadjusted; no Holm correction is applied. The final rule was user-approved after comparison of alternatives on 4 October 2026 and is retrospective, not preregistered. Individual significance does not establish family-wise significance or formal differences between regional slopes.
 
-Broad contemporary flora is primary. The sole active floristic-origin sensitivity is WCVP regional-native compatibility; Direct-only is separately retained as an evidence-quality sensitivity. Historical pooled-score, strict-native, complementary-origin and high-dimensional omnibus analyses remain archived, not active evidence for H1. H2–H4 retain their distinct estimands and existing functional covariates.
+WCVP regional-native-compatible flora is the sole active origin sensitivity; Direct-only is a separate evidence-quality sensitivity. Both use the identical model and inference rule. WCVP compatibility retains existing source-native records and upgrades unresolved records only under accepted TDWG-L3 native-range compatibility; introduced records are not overwritten. This establishes regional compatibility rather than exact focal-island nativity. H2–H4 and their previously defined functional covariates are unchanged.
 
-All 112 individual-trait models converged. In broad all-analysis, three of 28 associations survived two-sided Holm correction: selfing mating system increased in northern mid-latitudes (slope 0.04634, adjusted P = 0.04201); plain colour increased in southern extratropical floras (0.07419, P = 0.00559); and shallow/open tubes decreased in the latter region (−0.21660, P = 0.03026). These are associations of assemblage composition with isolation.
+### H1: recurrent reproductive responses with regional floral differences
 
-The southern plain-colour increase was supported in every evidence/flora scope. Northern-midlatitude selfing was also supported in both Direct-only flora scopes. Other results were scope-specific: broad Direct-only supported tropical autonomous selfing and generalized form; WCVP all-analysis supported tropical plain colour and southern self-compatibility. The southern shallow/open-tube decrease did not survive correction in Direct-only or WCVP analyses. No northern-high-latitude individual contrast passed this 28-test correction. All coefficients and pointwise intervals, including unsupported and opposing estimates, are reported in results/h1_traitwise_20261004/traitwise_results.csv. These tests replace, rather than supplement, the historical omnibus directional score.
+All 112 fits converged. Primary All evidence supports 17 of 28 individual associations at nominal two-sided P < 0.05, the same set of significant traits as the original poster's normal approximation. Self-compatibility increases with isolation in all four regions (P = 0.00569, 0.00671, 0.01812 and 0.01123 in northern mid-latitude, northern high-latitude, tropical and southern extratropical floras, respectively). Selfing mating system increases in the first three regions. Autonomous selfing increases in northern high latitudes and the tropics. Generalized form increases in northern mid-latitudes, the tropics and southern extratropics; actinomorphy increases in northern high latitudes and the tropics. Shallow/open tubes increase in northern high latitudes but decrease in southern extratropics. Plain colour increases in southern extratropics.
+
+In WCVP All, 10 of 28 individual associations meet the same nominal threshold. Increasing self-compatibility remains supported in all four regions. Northern-high autonomous selfing, actinomorphy and shallow/open tubes remain positive and supported; tropical actinomorphy remains supported. Plain colour increases in both tropical and southern extratropical WCVP floras. Several broad-flora associations, including the southern shallow/open-tube decrease, no longer meet the threshold. This can reflect changed composition, precision and coverage, rather than proving an introduced-species mechanism. Direct-only yields 15/28 supported associations in broad flora and 11/28 in WCVP flora. Complete coefficients, intervals and unadjusted p values are reported in results/h1_final_traitwise_t_20261004/traitwise_results.csv.
 
 ## H2 — Conditional decomposition
 

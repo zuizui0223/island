@@ -1,10 +1,8 @@
-> **Superseded inference draft:** the t/Holm interpretation below is no longer primary. The user restored original seven-trait poster inference on 4 October 2026: see `results/h1_poster_original_wcvp_20261004/README.md` and the current selector. This draft must not be submitted or used to replace the original poster conclusions.
-
 # Traitwise floral responses to island isolation and their functional alignment with pollen limitation
 
 ## Abstract
 
-Across a corrected universe of 8,264 island units and a database of 106,295 angiosperms, we examine seven individual reproductive and floral responses to isolation. Broad-flora traitwise inference supports increasing selfing in northern mid-latitudes, increasing plain colour in southern extratropical floras and decreasing shallow/open tubes in the latter region after correction for 28 comparisons. Only the southern colour response is supported in every evidence and WCVP sensitivity scope. Independently, pollen limitation increases with isolation (P = 0.0159), while reproductive assurance and accessibility are associated with lower current pollen limitation (P = 0.00417 and 0.0233). These assemblage and functional associations reveal components of an island syndrome without establishing universal floral simplification or historical causation.
+Across a corrected universe of 8,264 island units and a database of 106,295 angiosperms, we examine seven reproductive and floral responses to isolation without a composite score. Self-compatibility increases in all four regions in both broad All and WCVP regional-native-compatible All analyses at nominal unadjusted significance. Other reproductive, colour and structural responses vary by region and evidence scope. Pollen limitation independently increases with isolation (P = 0.0159), while reproductive assurance and accessibility are associated with lower current limitation (P = 0.00417 and 0.0233). These associations reveal recurrent components and regional exceptions without establishing uniform floral simplification or historical causation.
 
 **Keywords:** island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; flower colour; pollination
 
@@ -46,13 +44,11 @@ Four predeclared geographic replication strata were analysed separately: norther
 
 For GloPL, geographic exposure was recomputed from each site's coordinates against the same continental geometry. Sites lying on seeded continental land were assigned zero distance; 996 of 1,248 sites are true continental zeros and remain zero in the corrected baseline.
 
-### H1: individual trait responses across four regions
+### H1: seven separate trait responses
 
-H1 now tests seven previously defined binary outcomes separately: self-compatibility, selfing mating system, autonomous/delayed selfing, plain colour, generalized form, actinomorphy and shallow/open tubes. Reproduction, colour and structure are organizational domains only; neither domain scores nor an omnibus directional score are calculated. This user-requested revision on 4 October 2026 follows inspection of earlier results and is explicitly retrospective.
+The primary analysis is broad contemporary island flora with All evidence. Each of seven binary traits is fitted separately in each of four regions by beta-binomial logit regression, adjusting for standardized corrected log isolation, log island area and climate PC1–4. Reproduction, colour and structure are labels, not aggregate scores. Spatial-block sandwich standard errors use a finite-cluster t reference with G−1 degrees of freedom and pointwise 95% intervals. All individual p values are two-sided and unadjusted; no Holm correction is applied. The final rule was user-approved after comparison of alternatives on 4 October 2026 and is retrospective, not preregistered. Individual significance does not establish family-wise significance or formal differences between regional slopes.
 
-For each trait and region, counts of species expressing the state are modelled against their informative species denominator using a beta-binomial logit regression. Predictors are standardized corrected log isolation, log area and climate PC1–4. Spatial-block sandwich uncertainty uses a t reference with G−1 degrees of freedom; pointwise 95% intervals accompany every slope. Two-sided Holm adjustment covers all 28 region-by-trait tests within each flora/evidence scope, retaining failed tests in the family. Positive slopes indicate increasing prevalence, not an imposed direction of evolution. Cross-region differences in significance do not constitute a formal interaction test.
-
-Broad contemporary flora is primary. The sole active floristic-origin sensitivity is WCVP regional-native compatibility; Direct-only is separately retained as an evidence-quality sensitivity. Historical pooled-score, strict-native, complementary-origin and high-dimensional omnibus analyses remain archived, not active evidence for H1. H2–H4 retain their distinct estimands and existing functional covariates.
+WCVP regional-native-compatible flora is the sole active origin sensitivity; Direct-only is a separate evidence-quality sensitivity. Both use the identical model and inference rule. WCVP compatibility retains existing source-native records and upgrades unresolved records only under accepted TDWG-L3 native-range compatibility; introduced records are not overwritten. This establishes regional compatibility rather than exact focal-island nativity. H2–H4 and their previously defined functional covariates are unchanged.
 
 ### H2: separating reproductive assurance from additional floral change
 
@@ -100,11 +96,11 @@ We also retained atomic-trait sensitivities. Because the global colour response 
 
 ## Results
 
-### H1: region- and trait-specific isolation responses
+### H1: recurrent reproductive responses with regional floral differences
 
-All 112 individual-trait models converged. In broad all-analysis, three of 28 associations survived two-sided Holm correction: selfing mating system increased in northern mid-latitudes (slope 0.04634, adjusted P = 0.04201); plain colour increased in southern extratropical floras (0.07419, P = 0.00559); and shallow/open tubes decreased in the latter region (−0.21660, P = 0.03026). These are associations of assemblage composition with isolation.
+All 112 fits converged. Primary All evidence supports 17 of 28 individual associations at nominal two-sided P < 0.05, the same set of significant traits as the original poster's normal approximation. Self-compatibility increases with isolation in all four regions (P = 0.00569, 0.00671, 0.01812 and 0.01123 in northern mid-latitude, northern high-latitude, tropical and southern extratropical floras, respectively). Selfing mating system increases in the first three regions. Autonomous selfing increases in northern high latitudes and the tropics. Generalized form increases in northern mid-latitudes, the tropics and southern extratropics; actinomorphy increases in northern high latitudes and the tropics. Shallow/open tubes increase in northern high latitudes but decrease in southern extratropics. Plain colour increases in southern extratropics.
 
-The southern plain-colour increase was supported in every evidence/flora scope. Northern-midlatitude selfing was also supported in both Direct-only flora scopes. Other results were scope-specific: broad Direct-only supported tropical autonomous selfing and generalized form; WCVP all-analysis supported tropical plain colour and southern self-compatibility. The southern shallow/open-tube decrease did not survive correction in Direct-only or WCVP analyses. No northern-high-latitude individual contrast passed this 28-test correction. All coefficients and pointwise intervals, including unsupported and opposing estimates, are reported in results/h1_traitwise_20261004/traitwise_results.csv. These tests replace, rather than supplement, the historical omnibus directional score.
+In WCVP All, 10 of 28 individual associations meet the same nominal threshold. Increasing self-compatibility remains supported in all four regions. Northern-high autonomous selfing, actinomorphy and shallow/open tubes remain positive and supported; tropical actinomorphy remains supported. Plain colour increases in both tropical and southern extratropical WCVP floras. Several broad-flora associations, including the southern shallow/open-tube decrease, no longer meet the threshold. This can reflect changed composition, precision and coverage, rather than proving an introduced-species mechanism. Direct-only yields 15/28 supported associations in broad flora and 11/28 in WCVP flora. Complete coefficients, intervals and unadjusted p values are reported in results/h1_final_traitwise_t_20261004/traitwise_results.csv.
 
 ### H2: floral accessibility is not reducible to reproductive assurance
 
@@ -140,9 +136,9 @@ Thus the same two response families enriched along the island-isolation gradient
 
 ### Recurrent components without a universal floral checklist
 
-The traitwise analysis makes both recurring and opposing components visible without allowing a positive colour effect to cancel a negative structural effect. Increasing plain colour in southern extratropical floras is the most consistent association across evidence and provenance scopes. The broad-flora decrease in shallow/open tubes in that same region cautions against equating subdued colour with generalized access. Other positive reproductive and structural responses depend on region and evidence scope. These patterns are compatible with regional assembly and interaction environments, but do not identify the visitors responsible or distinguish selection from colonization and persistence.
+Increasing self-compatibility is the clearest recurrent All-evidence association: its positive isolation slope is nominally supported in every region in both broad and WCVP-compatible floras. Other selfing indicators are less uniform, so self-compatibility must not be equated with realized selfing rate. Floral structure and colour add regional detail: shallow/open tubes increase in northern high latitudes but decrease in southern broad floras, whereas subdued colour increases in southern floras and also in tropical WCVP floras. Subdued colour therefore does not necessarily imply increasingly open floral architecture.
 
-Removing the aggregate changes the question and its multiplicity burden: a supported average score does not guarantee that individual components survive 28 two-sided tests. We therefore do not carry the old global-average P value forward or claim that all regions independently express one syndrome. The biological domains remain a framework for comparing traits rather than three quantitative indices.
+These individual associations make syndrome components visible without averaging opposing traits. They remain assemblage-level patterns, compatible with colonization filtering, species sorting and evolution but not identifying their relative contributions. The unadjusted tests are interpreted with effect sizes and uncertainty, not as a family-wise declaration that a universal syndrome is proven. WCVP sensitivity helps describe provenance dependence without determining exact island nativity.
 
 ### Floral reorganization extends beyond the selfing syndrome
 
@@ -180,7 +176,7 @@ H2 is a conditional decomposition, not causal mediation. A floral association th
 
 ## Conclusion
 
-Traitwise analysis reveals components of the classic island syndrome while preserving regional exceptions: plain colour increases consistently in southern extratropical floras, whereas structural accessibility does not uniformly increase. Reproductive responses depend on region and evidence scope. H2 separates some floral responses from measured reproductive assurance; H3 and H4 independently align isolation-associated pollen limitation with traits associated with lower contemporary limitation. These results make the syndrome empirically specific without constructing an aggregate index or identifying historical selection as its cause.
+Isolation is associated with recurrent self-compatibility enrichment in All-evidence island floras, including the WCVP sensitivity, while other selfing, colour and structural responses vary geographically. H2 separates some floral responses from measured reproductive assurance; H3 and H4 align geographic pollen limitation with traits associated with lower contemporary limitation. The findings specify components of island syndrome without an aggregate index, family-wise significance claim or identification of historical selection as the cause.
 
 ## References
 

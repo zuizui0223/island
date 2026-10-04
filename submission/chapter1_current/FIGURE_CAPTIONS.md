@@ -1,5 +1,3 @@
-> **Superseded inference draft:** the t/Holm interpretation below is no longer primary. The user restored original seven-trait poster inference on 4 October 2026: see `results/h1_poster_original_wcvp_20261004/README.md` and the current selector. This draft must not be submitted or used to replace the original poster conclusions.
-
 # Main figure captions
 
 ## Figure 1 | Global scope and corrected geographic exposure
@@ -11,8 +9,8 @@ GSHHG geography, GBIF island floras and source-audited trait evidence were integ
 ## Figure 3 | Constraint–response triangle and inferential boundary
 H1 estimates seven individual traits in four regions without a pooled or domain score. H2 decomposes reproductive assurance from additional floral accessibility/colour responses. Independently, H3 tests experimental pollen limitation against isolation, and H4 tests whether the H2 reproductive-assurance and accessibility states are associated with lower current pollen limitation in exact-species overlap. The dashed historical edge from past pollen limitation through selection, sorting or persistence to present-day trait composition is not directly identified.
 
-## Figure 4 | Seven individual isolation responses across four regions
-Each panel shows one region. Individual trait slopes and pointwise 95% t intervals are shown separately for broad flora and WCVP-compatible flora, with all-analysis and Direct-only evidence distinguished. Filled symbols indicate two-sided Holm-adjusted P < 0.05 within each 28-test scope; open symbols do not meet that criterion. Zero is the no-association reference. Domain labels organize traits, not scores. Exact values are in results/h1_traitwise_20261004/traitwise_results.csv. Historical score figures are superseded and must not be used with this caption.
+## Figure 4 | Seven traits under final finite-cluster inference
+Individual isolation slopes with pointwise 95% t(G−1) intervals for broad and WCVP-compatible flora, in All and Direct-only evidence. Filled symbols indicate nominal two-sided unadjusted P < 0.05; no Holm correction or pooled score is used. Coefficients are standardized within trait, region and scope. The source figure is results/h1_final_traitwise_t_20261004/traitwise_H1.pdf.
 
 ## Figure 5 | H2: reproductive assurance and additional floral response
 Regional isolation coefficients for reproductive assurance (`selfing_core`), generalized accessibility after conditioning on reproductive assurance, and plain colour after the same adjustment. Error bars use finite-cluster t critical values. Panel titles report the finite-cluster BH-adjusted q value for generalized accessibility in the primary all-analysis scope: support is concentrated in northern high latitudes (q = 0.00243) and the tropics (q = 0.01913), not uniformly across regions. H2 is conditional decomposition, not causal mediation or proof of a named pollinator pathway.

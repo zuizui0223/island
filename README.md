@@ -9,9 +9,9 @@
 1. [Current submission manuscript](submission/chapter1_current/MANUSCRIPT.md)
 2. [Current submission contract](config/chapter1_submission_current.json)
 3. [Corrected methods and results](docs/chapter1_corrected_submission_20260924.md)
-4. [Original H1 + WCVP results](results/h1_poster_original_wcvp_20261004/)
+4. [Final H1 + WCVP results](results/h1_final_traitwise_t_20261004/)
 5. [Corrected H2-H4 result tables](results/geography_20260924/)
-6. [H1 traitwise replay instructions](docs/REPLAY_H1_TRAITWISE_20261004.md)
+6. [H1 traitwise replay instructions](docs/REPLAY_H1_FINAL_TRAITWISE_T_20261004.md)
 7. [Compact paper pipeline](docs/PAPER_PIPELINE.md)
 8. [Historical / superseded surface index](docs/CHAPTER1_HISTORY.md)
 
@@ -30,9 +30,11 @@ The geography repair is a post-hoc measurement correction selected as the primar
 
 ## Current H1–H4 result spine
 
-### H1 — Original seven traits, with WCVP sensitivity
+### H1 — Final seven-trait finite-cluster analysis
 
-Primary All coefficients, standard errors and individual p values are restored exactly from the original corrected poster tables. Individual tests use two-sided normal p < .05 without multiplicity correction, and intervals use +/- 1.96 SE. There is no directional/domain score. WCVP is the only active origin sensitivity, using the same model/inference. See [restored results and support](results/h1_poster_original_wcvp_20261004/README.md). The t/Holm draft is archived and not the primary interpretation. Main/SI prose currently carries supersession notices pending editorial regeneration.
+All 112 fits converged. Primary All evidence supports 17 of 28 individual associations at nominal two-sided P < 0.05, the same set of significant traits as the original poster's normal approximation. Self-compatibility increases with isolation in all four regions (P = 0.00569, 0.00671, 0.01812 and 0.01123 in northern mid-latitude, northern high-latitude, tropical and southern extratropical floras, respectively). Selfing mating system increases in the first three regions. Autonomous selfing increases in northern high latitudes and the tropics. Generalized form increases in northern mid-latitudes, the tropics and southern extratropics; actinomorphy increases in northern high latitudes and the tropics. Shallow/open tubes increase in northern high latitudes but decrease in southern extratropics. Plain colour increases in southern extratropics.
+
+In WCVP All, 10 of 28 individual associations meet the same nominal threshold. Increasing self-compatibility remains supported in all four regions. Northern-high autonomous selfing, actinomorphy and shallow/open tubes remain positive and supported; tropical actinomorphy remains supported. Plain colour increases in both tropical and southern extratropical WCVP floras. Several broad-flora associations, including the southern shallow/open-tube decrease, no longer meet the threshold. This can reflect changed composition, precision and coverage, rather than proving an introduced-species mechanism. Direct-only yields 15/28 supported associations in broad flora and 11/28 in WCVP flora. Complete coefficients, intervals and unadjusted p values are reported in results/h1_final_traitwise_t_20261004/traitwise_results.csv.
 
 ### H2 — Conditional decomposition
 Reproductive assurance is separated from additional floral responses. With finite-cluster t references and the same frozen BH family, selfing-adjusted accessibility is FDR-supported in northern high latitudes (q = **0.00243**) and tropical all-analysis (q = **0.01913**). Tropical Direct-only accessibility remains positive but is **not** FDR-supported (q = **0.1267**). Colour and colour × architecture responses remain region dependent.

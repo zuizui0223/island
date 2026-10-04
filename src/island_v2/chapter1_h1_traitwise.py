@@ -128,9 +128,13 @@ def run_scope(flora, audit, covariates, cfg, stratum):
     result = pd.DataFrame(rows)
     if "p_two_sided" not in result:
         result["p_two_sided"] = np.nan
-    result["p_holm_28"] = holm_fixed(result.p_two_sided)
+    if cfg.get("multiplicity", "holm") == "none":
+        selected_p = result.p_two_sided
+    else:
+        result["p_holm_28"] = holm_fixed(result.p_two_sided)
+        selected_p = result.p_holm_28
     result["interpretation"] = "uncertain_or_not_testable"
-    supported = result.p_holm_28.lt(cfg["alpha"])
+    supported = selected_p.lt(cfg["alpha"])
     if "estimate" in result:
         result.loc[supported & result.estimate.gt(0), "interpretation"] = "classic_direction"
         result.loc[supported & result.estimate.lt(0), "interpretation"] = "opposite_direction"
@@ -156,6 +160,8 @@ def main():
     paths = {k: v for k, v in vars(args).items() if k != "output"}
     manifest = {
         "design": "retrospective_traitwise_no_scores",
+        "inference": cfg["inference"],
+        "multiplicity": cfg.get("multiplicity", "holm"),
         "python": platform.python_version(),
         "numpy": np.__version__,
         "scipy": scipy.__version__,
@@ -187,7 +193,7 @@ def main():
     manifest["status_counts"] = combined.status.value_counts().to_dict()
     manifest["complete"] = bool(combined.status.eq("ok").all() and len(combined) == 112)
     manifest["claim_ceiling"] = (
-        "Assemblage associations, not causal within-lineage evolution. WCVP is regional native compatibility, not exact island nativity. Pointwise CIs; Holm family is 28 tests per scope."
+        "Assemblage associations, not causal within-lineage evolution. WCVP is regional native compatibility, not exact island nativity. Pointwise CIs. See inference field for multiplicity policy; nominal tests do not establish family-wise support."
     )
     (args.output / "manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"

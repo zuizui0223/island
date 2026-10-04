@@ -1,0 +1,53 @@
+{
+  "design": "retrospective_traitwise_no_scores",
+  "inference": "Two-sided spatial-cluster t(G-1), pointwise 95% intervals, nominal unadjusted p < 0.05. No Holm correction or pooled scores.",
+  "multiplicity": "none",
+  "python": "3.12.14",
+  "numpy": "2.3.5",
+  "scipy": "1.18.1",
+  "inputs": {
+    "flora": {
+      "name": "chapter1_status_flora.csv.gz",
+      "sha256": "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a"
+    },
+    "all_audit": {
+      "name": "chapter1_trait_state_audit_all.csv.gz",
+      "sha256": "c0e5e4b14911caeaeb36ba9243b55ebb7f1b288445ba571c7ddced016ea4f510"
+    },
+    "direct_audit": {
+      "name": "chapter1_trait_state_audit_direct.csv.gz",
+      "sha256": "4890da7df53b2e240c4b1493ef93c0814a68435a5e1670e3c0e7c3e6717b90e7"
+    },
+    "covariates": {
+      "name": "corrected_geography_covariates.csv",
+      "sha256": "08218617b5880153986012e79817de65a74dd4e44b5a65e8a537dab8cb2cd0a7"
+    },
+    "wcvp": {
+      "name": "wcvp_native_range_summary.csv.gz",
+      "sha256": "271441009365279780e5c2e3e220a9bc176e98fcfeceaa2a474a6ae55b706f3f"
+    },
+    "mapping": {
+      "name": "island_tdwg_l3_mapping.csv",
+      "sha256": "e28351c297ab1ca7416b50b55a99fafd2c5d4ab6c8b984761fe987e0a57953b3"
+    },
+    "config": {
+      "name": "chapter1_h1_final_traitwise_t_20261004.yml",
+      "sha256": "b20a672f9a23463f21d1be6d713c5550ced69cc303d620f49fb1f54871d1e9a7"
+    }
+  },
+  "wcvp_coverage": {
+    "n_rows": 1039757,
+    "n_original_native": 150531,
+    "n_original_introduced": 19442,
+    "n_original_unresolved": 869784,
+    "n_wcvp_compatible_upgrades": 362789,
+    "n_islands_with_upgrade": 2281,
+    "n_regional_native_rows": 513320,
+    "n_regional_native_islands": 2372
+  },
+  "status_counts": {
+    "ok": 112
+  },
+  "complete": true,
+  "claim_ceiling": "Assemblage associations, not causal within-lineage evolution. WCVP is regional native compatibility, not exact island nativity. Pointwise CIs. See inference field for multiplicity policy; nominal tests do not establish family-wise support."
+}
