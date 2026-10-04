@@ -103,8 +103,8 @@ def test_historical_surfaces_are_explicitly_marked_and_not_current():
 def test_current_scientific_guidance_matches_corrected_h1_h4_surface():
     thesis = THESIS.read_text(encoding="utf-8")
     assert "Current scientific surface: corrected geography baseline" in thesis
-    assert "### H1 — recurrent raw-axis island response" in thesis
-    assert "### H2 — two partially separable plant-response components" in thesis
+    assert "### H1 — positive global-average tendency with regional modulation" in thesis
+    assert "### H2 — partially separable reproductive-assurance and accessibility responses" in thesis
     assert "### H3 — independent ecological-pressure correlate" in thesis
     assert "### H4 — functional compatibility" in thesis
     assert "What Chapter 1 no longer claims" in thesis
