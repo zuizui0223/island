@@ -2,7 +2,9 @@
   "contract": "chapter1_submission_supplement_tables_v1",
   "notes": {
     "Table_S2": "Final active H1: seven separate traits in four regions, with broad All primary plus WCVP and Direct-only sensitivities. No pooled/domain score.",
-    "Table_S4": "Full raw colour and colour-by-architecture results remain in results/geography_20260924/{all,direct}/raw_patterns/ rather than being duplicated into one very large submission CSV."
+    "Table_S3": "Active H2 tables are copied from the final finite-cluster t audits, separately for All and Direct-only evidence.",
+    "Table_S4": "Full raw colour and colour-by-architecture results remain in results/geography_20260924/{all,direct}/raw_patterns/ rather than being duplicated into one very large submission CSV.",
+    "Table_S5_S6": "Active H3 and exact-score H4 tables are copied from the final finite-publication t audits."
   },
   "outputs": {
     "Table_S1_data_summary.csv": {
@@ -41,9 +43,9 @@
         "interpretation"
       ],
       "rows": 112,
-      "sha256": "bbbf5ccddb15c7a7c2ecf1014b83832fd047c0b248a6e2e75b51d4ac08630b49"
+      "sha256": "1968bb0f097ac98b3361819ccd7898a760d74a2094ee10f540f87246ae8034c6"
     },
-    "Table_S3_H2_decomposition.csv": {
+    "Table_S3a_H2_all_finite_cluster.csv": {
       "columns": [
         "evidence_scope",
         "context",
@@ -56,29 +58,57 @@
         "distance_estimate",
         "distance_se",
         "distance_p",
-        "primary_H2b_q",
         "selfing_core_estimate",
         "selfing_core_se",
         "selfing_core_p",
         "kappa",
-        "optimizer_success"
+        "optimizer_success",
+        "primary_H2b_q",
+        "distance_p_finite_cluster_t",
+        "primary_H2b_q_finite_cluster_t",
+        "finite_cluster_H2b_supported"
       ],
-      "rows": 24,
-      "sha256": "407bae97c0bcf49b1051cb67338f7885cab49cf57ac8b358c8d1906ff0141165"
+      "rows": 12,
+      "sha256": "9fa305e79dadd03c5a3de452d12e9603a6c311f852e3c37b89f5fe22436b9f37"
+    },
+    "Table_S3b_H2_direct_finite_cluster.csv": {
+      "columns": [
+        "evidence_scope",
+        "context",
+        "response",
+        "analysis_role",
+        "model_family",
+        "status",
+        "n_islands",
+        "n_clusters",
+        "distance_estimate",
+        "distance_se",
+        "distance_p",
+        "selfing_core_estimate",
+        "selfing_core_se",
+        "selfing_core_p",
+        "kappa",
+        "optimizer_success",
+        "primary_H2b_q",
+        "distance_p_finite_cluster_t",
+        "primary_H2b_q_finite_cluster_t",
+        "finite_cluster_H2b_supported"
+      ],
+      "rows": 12,
+      "sha256": "a1367c130926a1ef64dd47a1bfd09d68d33a15b83f3675336be56e2419061116"
     },
     "Table_S5_H3_pollen_limitation.csv": {
       "columns": [
         "analysis",
         "estimate",
         "se",
-        "two_sided_p",
-        "one_sided_positive_p",
-        "n_measurement_cells",
         "n_publications",
-        "n_sites"
+        "asymptotic_two_sided_p",
+        "finite_publication_t_two_sided_p",
+        "finite_publication_t_one_sided_positive_p"
       ],
       "rows": 3,
-      "sha256": "9c2e03cb438998c0732b4d6a4720f87682e509229caec70aacd8db9bf263d3c6"
+      "sha256": "b8abf9a2802ddc86d41e29debfd65bd96c1bcdf0a34d1773317f23ba36b67cc5"
     },
     "Table_S6a_H4_scores.csv": {
       "columns": [
@@ -96,43 +126,24 @@
         "n_cells",
         "n_publications",
         "n_sites",
-        "n_species"
+        "n_species",
+        "finite_publication_t_two_sided_p",
+        "finite_publication_t_one_sided_negative_p"
       ],
       "rows": 6,
-      "sha256": "b06e2c41fadeaf8c36e6af3f9bbd194ddd380f90ee7e56d941e288fe2744204b"
-    },
-    "Table_S6b_H4_atomic.csv": {
-      "columns": [
-        "family",
-        "trait",
-        "analysis",
-        "inferential_role",
-        "evaluable",
-        "trait_state_estimate",
-        "trait_state_se",
-        "trait_state_z",
-        "trait_state_two_sided_p",
-        "trait_state_one_sided_negative_p",
-        "n_cells",
-        "n_publications",
-        "n_sites",
-        "n_species",
-        "reason"
-      ],
-      "rows": 22,
-      "sha256": "80a50651b4fc6a08cd5e7b60d5bb4dd0706297e15ae34939f52b0bb6f1208476"
+      "sha256": "f8609febce6c57e4fc40c7b25ce3b732cfebbf56c00382ac68399395aed6b5e2"
     }
   },
   "scientific_surface": "corrected_geography_20260924_plus_final_traitwise_H1_20261004",
   "sources": {
-    "all/h2_decomposition_models.csv": "d0400df3cf0a5711e996798b31356ad1aaf3da3aebd9003ece6cc0450faf32e2",
     "config/chapter1_database_versions/v1.0.0.yml": "7371b1b76ee8781298fbd8170befc47b59c6fa7270a8cc47afca783254140763",
-    "direct/h2_decomposition_models.csv": "3bb3a40a45d9505a43da312210b895766c60374c16c00e510b127542e9ec13d9",
     "h3_corrected_effect_rows.csv.gz": "f375b0c394cb2de8df991a6ef6107fde33a8cef909a379520f1c820ecb465d1c",
     "h3_corrected_measurement_cells.csv.gz": "84cc86c98fe72ea458a71517379c8933be53338809ff034883fcc5d4c2af41cb",
     "h3_original_corrected_comparison.json": "e92a3bbdc7d095bca9cfb6d0592f0612a61175c0b189e734696205fe6b2f816c",
-    "h4_atomic_corrected.csv": "dda900d6a6691d2ae5196111a0f6102be0bc2cdade1cb9ad79369d5c649effa9",
-    "h4_exact_corrected.csv": "ed0b7dda5a7c58d6eb018f23dcdcc7fd32b268f99a990eb2deeaac5fb7057252",
-    "results/h1_final_traitwise_t_20261004/traitwise_results.csv": "bbbf5ccddb15c7a7c2ecf1014b83832fd047c0b248a6e2e75b51d4ac08630b49"
+    "results/h1_final_directional_20261003/h2_all_finite_cluster_audit.csv": "9fa305e79dadd03c5a3de452d12e9603a6c311f852e3c37b89f5fe22436b9f37",
+    "results/h1_final_directional_20261003/h2_direct_finite_cluster_audit.csv": "a1367c130926a1ef64dd47a1bfd09d68d33a15b83f3675336be56e2419061116",
+    "results/h1_final_directional_20261003/h3_finite_publication_audit.csv": "b8abf9a2802ddc86d41e29debfd65bd96c1bcdf0a34d1773317f23ba36b67cc5",
+    "results/h1_final_directional_20261003/h4_finite_publication_audit.csv": "f8609febce6c57e4fc40c7b25ce3b732cfebbf56c00382ac68399395aed6b5e2",
+    "results/h1_final_traitwise_t_20261004/traitwise_results.csv": "1968bb0f097ac98b3361819ccd7898a760d74a2094ee10f540f87246ae8034c6"
   }
 }
