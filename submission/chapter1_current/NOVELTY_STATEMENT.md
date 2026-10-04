@@ -32,4 +32,4 @@ The paper replaces the idea of a universal floral checklist with **functional re
 
 ## Claim boundary
 
-The study does not identify historical causal mediation from pollen limitation to present-day island assemblages, realized pollinator identity from floral traits, or within-lineage evolution rather than species sorting and colonization filtering.
+The study does not identify historical pollen limitation as a causal mediator of to present-day island assemblages, realized pollinator identity from floral traits, or within-lineage evolution rather than species sorting and colonization filtering.
