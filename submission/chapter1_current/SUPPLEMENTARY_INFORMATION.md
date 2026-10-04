@@ -1,6 +1,6 @@
 # Supplementary Information
 
-## Traitwise floral responses to island isolation and their functional alignment with pollen limitation
+## Island isolation is associated with recurrent reproductive assurance but regionally contingent floral change
 
 This Supplementary Information accompanies the corrected Chapter 1 submission selected by config/chapter1_submission_current.json. All numerical results below are bound to results/geography_20260924/ and to the deterministic supplementary tables under submission/chapter1_current/supplement/.
 
