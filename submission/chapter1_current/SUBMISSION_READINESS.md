@@ -1,3 +1,5 @@
+> **4 October 2026 H1 supersession:** use `config/chapter1_submission_current.json`, the revised MANUSCRIPT and `results/h1_traitwise_20261004/`. Any pooled-score statistics, figure assets or readiness statements below describe the archived pre-traitwise package and are not current submission evidence. Administrative packaging must be regenerated before submission.
+
 # Chapter 1 submission readiness — 2026-10-04
 
 ## Current decision

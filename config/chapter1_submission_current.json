@@ -29,9 +29,9 @@
     "H3 supplemental-only result remains unsupported",
     "H4 remains post-hoc association, not causal mediation",
     "shoreline positional accuracy is not numerical distance precision",
-    "strict four-region classic-syndrome recurrence is unsupported",
-    "final H1 claim is a positive global-average tendency with regional heterogeneity, not a universal trait checklist",
-    "high-dimensional direction-free Wald tests are reference/descriptive only for final H1 inference"
+    "high-dimensional direction-free Wald tests are reference/descriptive only for final H1 inference",
+    "H1 traitwise support is region- and evidence-scope specific; no pooled global syndrome test",
+    "WCVP regional compatibility does not establish exact island nativity"
   ],
   "files": {
     "results/geography_20260924/all/beta_binomial_between_omnibus.csv": "e9366885d36ad12ab78c4bc49f38b32e9dd6722bb7121a428c9011045ab0dfb4",
@@ -95,13 +95,35 @@
     "results/geography_20260924/README.md": "e2bfa9d4364915ce82d6a1e2ef2fe3a70b87e18d77ef84ac20a53517376b9107",
     "results/geography_20260924/refit_completion.json": "6a229222ec42ecb0fa97f97131ddd1351d5c5d97444d29cf5df37152b6c1a4fe",
     "results/geography_20260924/repository_replay_verification.json": "6ddc17a04c9e609bc38b8ab29520468e77ac56b992c0fc0c91df62eb6e03e38e",
-    "results/geography_20260924/spherical_geometry_validation.json": "320b77fe3432e3ac01df34fcff897ea1be29f6b0f583d0aaa6edb23e8ddccdaf"
+    "results/geography_20260924/spherical_geometry_validation.json": "320b77fe3432e3ac01df34fcff897ea1be29f6b0f583d0aaa6edb23e8ddccdaf",
+    "results/h1_traitwise_20261004/all_broad.csv": "2db25dfefbacdfffb43a47eda04341cc656dc1b8efcebb4f5e37218d85f95a2c",
+    "results/h1_traitwise_20261004/all_wcvp.csv": "8530173dd8199cdf8de3423c58f07e3e1244f3913fd02a49d4d7c1b4a12ef4d4",
+    "results/h1_traitwise_20261004/direct_broad.csv": "1b9bc421673f6dc983a64dad1358ce59169f50c3453eb923a64c12ffb9671df8",
+    "results/h1_traitwise_20261004/direct_wcvp.csv": "51230e5d6d155b62bd9efd72c8b091235469b5cabb7b5d3f91c1fd164065fee2",
+    "results/h1_traitwise_20261004/manifest.json": "42751da696e7d4b129c62cb94e4895aec582ef18aa3fe80c6a54b7a997813b41",
+    "results/h1_traitwise_20261004/README.md": "847b71af4b36ca6e59d6e833e25b8a1738a0c7d9e40603eff30164bd72f7a867",
+    "results/h1_traitwise_20261004/traitwise_results.csv": "61916b40ae1817e9ecd4be9c97643437f4ea5c264cce3d55ba1ab399f352adb2",
+    "results/h1_traitwise_20261004/traitwise_H1.pdf": "03fc7cccc1074c6397c9f8382af1889b98da21bd2cc4fe987a5fb1e633be6981",
+    "results/h1_traitwise_20261004/traitwise_H1.png": "2414c553188fc079a50d0398f9419e7654f75f12ab3f8177dcb79cbd7dd34504",
+    "results/h1_traitwise_20261004/traitwise_H1.svg": "998db04e47e9007ba9d5c9137de63a3d3aa54474ac65b62fd0b5b2cb6e1e2618"
   },
   "submission_package": "submission/chapter1_current",
   "manuscript": "submission/chapter1_current/MANUSCRIPT.md",
   "figure_captions": "submission/chapter1_current/FIGURE_CAPTIONS.md",
   "history_index": "docs/CHAPTER1_HISTORY.md",
   "final_H1_inference": {
+    "date": "2026-10-04",
+    "results_directory": "results/h1_traitwise_20261004",
+    "config": "config/chapter1_h1_traitwise_20261004.yml",
+    "formal_estimand": "Seven separate trait slopes in four regions; no pooled or domain score",
+    "regional_inference": "two-sided cluster t(G-1), pointwise 95% CI, Holm 28 tests per scope",
+    "origin_sensitivity": "WCVP regional-native compatible only",
+    "design_status": "post-result redesign",
+    "validation": "local replay, 112 of 112 converged",
+    "figure": "results/h1_traitwise_20261004/traitwise_H1.pdf",
+    "replay_instructions": "docs/REPLAY_H1_TRAITWISE_20261004.md"
+  },
+  "historical_H1_inference": {
     "date": "2026-10-03",
     "results_directory": "results/h1_final_directional_20261003",
     "validation_run_id": 37124405765,

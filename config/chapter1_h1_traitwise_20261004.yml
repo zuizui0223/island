@@ -1,0 +1,110 @@
+contract: chapter1_h1_traitwise_20261004
+model_family: beta_binomial_logit
+alpha: 0.05
+max_iter: 1500
+retry_max_iter: 5000
+minimum_islands_per_outcome: 50
+geography_column: log_distance_to_continent_km
+context_column: analysis_regime
+cluster_column: spatial_block
+baseline_covariates:
+- log_island_area_km2
+- climate_pc1
+- climate_pc2
+- climate_pc3
+- climate_pc4
+contexts:
+- northern_midlatitude
+- northern_high_latitude
+- tropical
+- southern_extratropical
+strata:
+- all_observed
+evidence_roles:
+  primary: all_analysis_eligible
+  direct_sensitivity: direct_only
+model_outcomes:
+- self_compatibility
+- selfing_mating_system
+- autonomous_selfing
+- plain_colour
+- generalized_form
+- actinomorphic_symmetry
+- shallow_open_tube
+response_families:
+  reproductive_assurance:
+  - self_compatibility
+  - selfing_mating_system
+  - autonomous_selfing
+  colour_dulling:
+  - plain_colour
+  accessibility_generalization:
+  - generalized_form
+  - actinomorphic_symmetry
+  - shallow_open_tube
+broad_outcomes:
+  self_compatibility:
+    trait_name: self_incompatibility
+    positive_states:
+    - SC
+    negative_states:
+    - SI
+  selfing_mating_system:
+    trait_name: mating_system
+    positive_states:
+    - predominantly_selfing
+    - obligate_selfing
+    negative_states:
+    - predominantly_outcrossing
+  autonomous_selfing:
+    trait_name: autonomous_selfing_capacity
+    positive_states:
+    - autonomous
+    - delayed
+    negative_states:
+    - absent
+  plain_colour:
+    trait_name: flower_primary_color
+    positive_states:
+    - white
+    - green_brown_inconspicuous
+    negative_states:
+    - yellow_orange
+    - red_pink
+    - blue_purple
+  generalized_form:
+    trait_name: floral_form
+    positive_states:
+    - open_radial
+    - brush_puff
+    - composite_head
+    negative_states:
+    - tubular
+    - bell_campanulate
+    - funnel_trumpet
+    - urn_urceolate
+    - bilabiate
+    - salverform
+    - papilionaceous
+    - spurred
+  actinomorphic_symmetry:
+    trait_name: floral_symmetry
+    positive_states:
+    - actinomorphic
+    negative_states:
+    - zygomorphic
+  shallow_open_tube:
+    trait_name: tube_depth_class
+    positive_states:
+    - absent_or_open
+    - shallow
+    negative_states:
+    - deep
+purpose: Individual trait isolation associations; no pooled or domain scores.
+design_provenance: User-approved post-result redesign, 2026-10-04; historical seven
+  outcomes and covariates retained.
+inference: Two-sided cluster robust t, G-1 df; pointwise 95% CI; Holm over 28 tests
+  per flora/evidence scope.
+flora_roles:
+  primary: all_observed
+  sole_origin_sensitivity: wcvp_regional_native_compatible

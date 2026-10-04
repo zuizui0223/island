@@ -1,3 +1,5 @@
+> **4 October 2026 H1 supersession:** use `config/chapter1_submission_current.json`, the revised MANUSCRIPT and `results/h1_traitwise_20261004/`. Any pooled-score statistics, figure assets or readiness statements below describe the archived pre-traitwise package and are not current submission evidence. Administrative packaging must be regenerated before submission.
+
 > **Implementation status:** Submission-facing S1–S7 text is assembled in `SUPPLEMENTARY_INFORMATION.md`. Deterministic Tables S1, S2a–S2h, S3, S5, S6a and S6b are generated under `supplement/`. Table S4 is intentionally the complete raw-pattern CSV family. Remaining work is final journal packaging.
 
 # Supplementary Information plan — Ecology Letters first shot

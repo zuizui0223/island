@@ -1,3 +1,5 @@
+> **H1 updated 4 October 2026:** the geometry audit below remains valid; H1 score/omnibus conclusions are superseded by [traitwise replay](../results/h1_traitwise_20261004/README.md). Only WCVP remains an active origin sensitivity.
+
 # Chapter 1 corrected submission baseline — 24 September 2026
 
 This is the **primary submission baseline**, replacing the uncorrected v14 geographic exposure. The user explicitly selected this role after the geometry audit; the correction is not relegated to a sensitivity analysis. The frozen v14 locks remain unchanged as superseded provenance. This measurement repair does not create a new prospective confirmation and does not change the post-hoc role of H4.

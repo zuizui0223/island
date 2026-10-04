@@ -1,6 +1,6 @@
 # Island — Chapter 1 corrected submission baseline
 
-> **Current scientific surface: corrected geography + final finite-cluster H1 inference (3 October 2026).**
+> **Current scientific surface: corrected geography + traitwise H1, no composite score (4 October 2026).**
 > Use `config/chapter1_submission_current.json` as the machine-readable selector.
 > The uncorrected v14 and v13 surfaces are preserved only as provenance.
 
@@ -9,9 +9,9 @@
 1. [Current submission manuscript](submission/chapter1_current/MANUSCRIPT.md)
 2. [Current submission contract](config/chapter1_submission_current.json)
 3. [Corrected methods and results](docs/chapter1_corrected_submission_20260924.md)
-4. [Final H1 directional results](results/h1_final_directional_20261003/)
+4. [Traitwise H1 results](results/h1_traitwise_20261004/)
 5. [Corrected H2-H4 result tables](results/geography_20260924/)
-6. [Replay instructions](scripts/geography_correction/README.md)
+6. [H1 traitwise replay instructions](docs/REPLAY_H1_TRAITWISE_20261004.md)
 7. [Compact paper pipeline](docs/PAPER_PIPELINE.md)
 8. [Historical / superseded surface index](docs/CHAPTER1_HISTORY.md)
 
@@ -30,11 +30,11 @@ The geography repair is a post-hoc measurement correction selected as the primar
 
 ## Current H1–H4 result spine
 
-### H1a — global-average directional tendency
-The final confirmatory H1 uses the seven frozen pre-oriented v14 indicators collapsed to a one-dimensional equal-domain contrast with finite-cluster inference. All four regional point estimates are positive. A Paule-Mandel random-effects synthesis with modified Hartung-Knapp uncertainty supports a positive average direction (all-analysis mean = **0.0691**, one-sided p = **0.0256**; Direct-only mean = **0.0635**, p = **0.0238**). The all-analysis two-sided p value is 0.0512, so the evidence is described as a directional tendency rather than a universal law.
+### H1 — region- and trait-specific isolation responses
 
-### H1b — regional heterogeneity
-Regional magnitude is strongly heterogeneous (I² = **0.819** all-analysis; **0.685** Direct-only). The stricter four-region recurrence claim fails because northern mid-latitudes are weak (intersection-union p = **0.134 / 0.106**). Raw three-axis and floristic-origin analyses are descriptive phenotype/provenance audits and cannot rescue a failed directional endpoint.
+All 112 individual-trait models converged. In broad all-analysis, three of 28 associations survived two-sided Holm correction: selfing mating system increased in northern mid-latitudes (slope 0.04634, adjusted P = 0.04201); plain colour increased in southern extratropical floras (0.07419, P = 0.00559); and shallow/open tubes decreased in the latter region (−0.21660, P = 0.03026). These are associations of assemblage composition with isolation.
+
+The southern plain-colour increase was supported in every evidence/flora scope. Northern-midlatitude selfing was also supported in both Direct-only flora scopes. Other results were scope-specific: broad Direct-only supported tropical autonomous selfing and generalized form; WCVP all-analysis supported tropical plain colour and southern self-compatibility. The southern shallow/open-tube decrease did not survive correction in Direct-only or WCVP analyses. No northern-high-latitude individual contrast passed this 28-test correction. All coefficients and pointwise intervals, including unsupported and opposing estimates, are reported in results/h1_traitwise_20261004/traitwise_results.csv. These tests replace, rather than supplement, the historical omnibus directional score.
 
 ### H2 — Conditional decomposition
 Reproductive assurance is separated from additional floral responses. With finite-cluster t references and the same frozen BH family, selfing-adjusted accessibility is FDR-supported in northern high latitudes (q = **0.00243**) and tropical all-analysis (q = **0.01913**). Tropical Direct-only accessibility remains positive but is **not** FDR-supported (q = **0.1267**). Colour and colour × architecture responses remain region dependent.

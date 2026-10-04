@@ -4,8 +4,8 @@ The **only active Chapter 1 submission selector** is
 `config/chapter1_submission_current.json`.
 
 Submission-facing prose lives in `submission/chapter1_current/`.
-Corrected H2-H4 tables live in `results/geography_20260924/`; final H1 inference lives in `results/h1_final_directional_20261003/`.
-The replay entry point is `scripts/geography_correction/README.md`.
+Corrected H2-H4 tables live in `results/geography_20260924/`; final H1 inference lives in `results/h1_traitwise_20261004/`.
+The H1 replay entry point is `docs/REPLAY_H1_TRAITWISE_20261004.md`; geography/H2–H4 replay remains documented in `scripts/geography_correction/README.md`.
 
 ## Pipeline at a glance
 
@@ -22,8 +22,8 @@ GSHHG 2.3.7 geography + GBIF island floras + trait evidence
               |                     |
               v                     v
         H1 pattern              H2 pathway
-  directional 1-df score  assurance-adjusted models
-  + H1a/H1b synthesis      + raw colour/architecture
+  seven separate traits  assurance-adjusted models
+  + WCVP sensitivity      + raw colour/architecture
               |                     |
               +----------+----------+
                          |
@@ -56,27 +56,18 @@ Source of truth:
 - `docs/chapter1_corrected_submission_20260924.md`;
 - `results/geography_20260924/`.
 
-## H1 — Directional tendency + heterogeneity
+## H1 — Individual trait responses
 
-Confirmatory data: the seven frozen v14 indicators, all oriented so positive means the classic island-syndrome direction.
+H1 now tests seven previously defined binary outcomes separately: self-compatibility, selfing mating system, autonomous/delayed selfing, plain colour, generalized form, actinomorphy and shallow/open tubes. Reproduction, colour and structure are organizational domains only; neither domain scores nor an omnibus directional score are calculated. This user-requested revision on 4 October 2026 follows inspection of earlier results and is explicitly retrospective.
 
-Primary score gives equal total weight to reproductive assurance, colour dulling and accessibility/generalization.
+For each trait and region, counts of species expressing the state are modelled against their informative species denominator using a beta-binomial logit regression. Predictors are standardized corrected log isolation, log area and climate PC1–4. Spatial-block sandwich uncertainty uses a t reference with G−1 degrees of freedom; pointwise 95% intervals accompany every slope. Two-sided Holm adjustment covers all 28 region-by-trait tests within each flora/evidence scope, retaining failed tests in the family. Positive slopes indicate increasing prevalence, not an imposed direction of evolution. Cross-region differences in significance do not constitute a formal interaction test.
 
-Regional models retain the corrected beta-binomial specification and spatial-block cluster-robust covariance, but final inference is one-dimensional:
-- finite-cluster t with G−1 df;
-- Rademacher wild-cluster sign-flip sensitivity;
-- strict four-region recurrence by intersection-union test.
+Broad contemporary flora is primary. The sole active floristic-origin sensitivity is WCVP regional-native compatibility; Direct-only is separately retained as an evidence-quality sensitivity. Historical pooled-score, strict-native, complementary-origin and high-dimensional omnibus analyses remain archived, not active evidence for H1. H2–H4 retain their distinct estimands and existing functional covariates.
 
-Paper-level synthesis separates:
-- **H1a:** positive global-average direction using Paule-Mandel random effects and modified Hartung-Knapp inference;
-- **H1b:** regional heterogeneity using Cochran Q / I2.
+All 112 individual-trait models converged. In broad all-analysis, three of 28 associations survived two-sided Holm correction: selfing mating system increased in northern mid-latitudes (slope 0.04634, adjusted P = 0.04201); plain colour increased in southern extratropical floras (0.07419, P = 0.00559); and shallow/open tubes decreased in the latter region (−0.21660, P = 0.03026). These are associations of assemblage composition with isolation.
 
-Current result:
-- H1a supported: all-analysis mean 0.0691, one-sided p=0.0256; Direct-only mean 0.0635, p=0.0238;
-- H1b supported: I2=0.819 / 0.685;
-- strict four-region recurrence unsupported because northern mid-latitudes are weak (IUT p=0.134 / 0.106).
+The southern plain-colour increase was supported in every evidence/flora scope. Northern-midlatitude selfing was also supported in both Direct-only flora scopes. Other results were scope-specific: broad Direct-only supported tropical autonomous selfing and generalized form; WCVP all-analysis supported tropical plain colour and southern self-compatibility. The southern shallow/open-tube decrease did not survive correction in Direct-only or WCVP analyses. No northern-high-latitude individual contrast passed this 28-test correction. All coefficients and pointwise intervals, including unsupported and opposing estimates, are reported in results/h1_traitwise_20261004/traitwise_results.csv. These tests replace, rather than supplement, the historical omnibus directional score.
 
-The three raw measurement axes remain a descriptive phenotype/provenance audit. Their high-dimensional direction-free omnibus tests are not confirmatory evidence for the classic island-syndrome direction and cannot rescue a failed H1 directional endpoint.
 ## H2 — Conditional decomposition
 
 Data: reproductive assurance + floral responses.
