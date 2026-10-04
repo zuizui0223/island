@@ -1,8 +1,8 @@
 # Thesis positioning — Chapter 1
 
-> **Current scientific surface: corrected geography baseline (24 September 2026).**
-> Machine-readable selector: `config/chapter1_submission_current.json`.
-> Older WHEN/WHERE, branching, lineage-first and Bombus-centered Chapter 1 designs are historical provenance, not the current paper claim.
+> **Current scientific surface: final corrected geography + finite-cluster directional H1 (4 October 2026).**
+> Machine-readable selectors: `config/chapter1_submission_current.json` and `config/chapter1_h1_final_directional_result_lock.json`.
+> Older WHEN/WHERE, raw-three-axis-primary, lineage-first and Bombus-centered Chapter 1 designs are historical provenance, not the current paper claim.
 
 ## Role in the dissertation
 
@@ -10,9 +10,9 @@ This repository is the **Chapter 1 macroecological evidence layer** of the disse
 
 Chapter 1 now asks:
 
-> **Does geographic isolation repeatedly reorganize floral/reproductive function across island floras, is that response separable into reproductive-assurance and pollinator-facing accessibility components, and is the same geographic gradient independently associated with stronger pollen limitation?**
+> **Is geographic isolation associated with a positive average shift toward the predeclared floral/reproductive island-syndrome direction, how strongly does that response vary among regions, and is the same geographic gradient independently associated with stronger pollen limitation?**
 
-The chapter establishes a global pattern, an independent ecological-pressure correlate, and post-hoc functional compatibility. It does **not** identify the historical causal mechanism that generated the contemporary assemblages.
+The chapter establishes a global-average pattern, regional modulation, an independent ecological-pressure correlate and post-hoc functional compatibility. It does **not** identify the historical causal mechanism that generated contemporary assemblages.
 
 ## Current corrected baseline
 
@@ -27,25 +27,32 @@ The 24 September 2026 geography correction repaired 1,113 spurious island zero d
 
 ## Current H1–H4 scientific spine
 
-### H1 — recurrent raw-axis island response
+### H1 — positive global-average tendency with regional modulation
 
-The current H1 uses the original species×axis cells directly. **Reproductive assurance** and **floral structural complexity** are isolation-associated in all four predeclared geographic strata and both evidence scopes; **flower-colour composition** is supported in three of four broad regions and is therefore geographically contingent.
+The confirmatory H1 uses the **seven frozen pre-oriented v14 indicators** collapsed to one equal-domain directional score: reproductive assurance, colour dulling and accessibility/generalization each receive one-third total weight.
 
-The former seven binary indicators are now a secondary directional decomposition, not the primary response definition. Floristic-origin analyses show that regional-native-compatible floras retain the recurrent reproductive and structural responses, whereas incompatible/introduced floras generally follow different raw-state response vectors.
+All four regional point estimates are positive, but the stronger four-region recurrence criterion fails because northern mid-latitudes are weak.
 
-### H2 — two partially separable plant-response components
+H1a, which allows regional effects to differ, supports a positive global-average direction:
+
+- all-analysis: mean **0.0691**, modified-Hartung-Knapp one-sided **P = 0.0256**;
+- Direct-only: mean **0.0635**, **P = 0.0238**.
+
+Using the primary cluster-robust regional standard errors, H1b indicates regional heterogeneity. Exact delete-one-spatial-cluster jackknife uncertainty retains H1a in both evidence scopes but qualifies H1b: heterogeneity remains supported in all-analysis (**P = 0.00789, I² = 0.747**) and is not supported in Direct-only (**P = 0.131, I² = 0.467**). Regional variation is therefore real enough to shape interpretation, but the formal strength of H1b is small-cluster/evidence-scope sensitive.
+
+The raw three-axis analyses are retained as **descriptive phenotype and provenance audits**, not as the confirmatory H1 test.
+
+The WCVP regional-native-compatible replay applies the same final directional H1 to **513,320 island×species rows on 2,372 islands**. It reproduces the same inferential pattern: all four point estimates are positive, northern mid-latitudes remain weak, strict recurrence fails, and the global-average H1a remains positive.
+
+A regional support diagnostic shows that northern mid-latitudes are much more mainland-proximate (median isolation **12.2 km**; **47.7%** of H1-support islands <10 km), but residualized log-isolation variation after island area and climate adjustment is not depleted. Their weak H1 slope therefore is not explained by a simple lack of adjusted distance range or island-count power.
+
+### H2 — partially separable reproductive-assurance and accessibility responses
 
 Reproductive assurance is separated from additional floral responses.
 
-After conditioning on measured reproductive assurance, generalized/accessibility responses remain positive in all four primary strata and are FDR-supported in northern high latitudes and the tropics. Tropical Direct-only accessibility is nominally positive but not FDR-supported (`q=0.1196`).
+After conditioning on measured reproductive assurance, generalized/accessibility responses remain positive in the relevant fitted regions and are FDR-supported in northern high latitudes and tropical all-analysis. Tropical Direct-only accessibility remains positive but is not FDR-supported (**q = 0.1267**).
 
-Therefore floral reorganization is not reducible to a compulsory serial pathway of:
-
-```text
-isolation -> selfing -> floral simplification
-```
-
-The supported interpretation is a **partially separable reproductive-assurance route plus an additional pollinator-facing accessibility route**. H2 is conditional decomposition, not causal mediation.
+The supported interpretation is a **partially separable reproductive-assurance route plus an additional accessibility/generalization response**. H2 is conditional decomposition, not causal mediation.
 
 ### H3 — independent ecological-pressure correlate
 
@@ -54,17 +61,19 @@ Independent GloPL pollen-supplementation experiments show increasing pollen limi
 ```text
 beta = 0.09191
 SE   = 0.03806
-p    = 0.01575
+finite-publication two-sided p = 0.01594
 ```
 
-This is evidence for an isolation-associated **pollination-service constraint**, not proof of a global decline in pollinator abundance or visitation.
+The offshore-only continuous-gradient sensitivity is also positive (**p = 0.02459**).
+
+This is evidence for an isolation-associated **pollen-limitation gradient**, not proof of a global decline in pollinator abundance or visitation.
 
 ### H4 — functional compatibility
 
 In exact-species post-hoc triangulation, the two H2 trait families are associated with lower current pollen limitation:
 
-- reproductive assurance: `beta=-0.29830`, `p=0.00396`;
-- generalized accessibility: `beta=-0.29566`, `p=0.02187`.
+- reproductive assurance: `beta=-0.29830`, finite-publication `p=0.00417`;
+- generalized accessibility: `beta=-0.29566`, finite-publication `p=0.02334`.
 
 These associations are functionally compatible with reduced dependence on external pollen delivery. They do not establish that historical pollen limitation mediated the contemporary island trait pattern.
 
@@ -72,7 +81,9 @@ These associations are functionally compatible with reduced dependence on extern
 
 The current paper is **not** organized around:
 
-- rejection of a universal syndrome in favour of North-vs-Tropical branching;
+- four-region independent confirmation of one universal syndrome;
+- raw three-axis omnibus significance as the confirmatory H1;
+- rejection of a universal syndrome in favour of a simple North-vs-Tropical branching story;
 - a Palearctic-only floral architecture result;
 - source/lineage decomposition as the main paper spine;
 - Bombus loss as a global or primary Chapter 1 mechanism;
@@ -86,11 +97,11 @@ Those analyses remain useful provenance and sensitivity history, but they are no
 ```text
 geographic isolation
       |
-      +--> recurrent reproductive + structural reorganization (H1)
-      |        +--> colour response is geographically contingent
+      +--> positive global-average classic-island direction (H1a)
       |        |
+      |        +--> regional modulation / heterogeneity (H1b)
+      |        +--> strict four-region recurrence NOT supported
       |        +--> reproductive assurance
-      |        |
       |        +--> additional accessibility/generalization response (H2)
       |
       +--> stronger experimental pollen limitation (H3)
@@ -114,7 +125,7 @@ Chapter 1 does not claim this sequence has been directly identified.
 
 Chapter 1 ends at the macroecological claim ceiling:
 
-> **Isolation is repeatedly associated with a functional shift toward reproductive assurance and floral accessibility, and with stronger pollen limitation, but the causal route from interaction change to plant response remains unresolved.**
+> **Isolation is associated on average with a functional shift toward reproductive assurance and floral accessibility, but the magnitude and phenotype are region dependent; isolation is also associated with stronger pollen limitation, while the causal route from interaction change to plant response remains unresolved.**
 
 Chapter 2 asks the mechanism question directly:
 
@@ -123,7 +134,8 @@ Chapter 2 asks the mechanism question directly:
 The dissertation handoff is therefore:
 
 ```text
-Chapter 1 — GLOBAL PATTERN + ECOLOGICAL PRESSURE + FUNCTIONAL COMPATIBILITY
+Chapter 1 — GLOBAL-AVERAGE PATTERN + REGIONAL MODULATION
+            + ECOLOGICAL PRESSURE + FUNCTIONAL COMPATIBILITY
                 |
                 v
 Chapter 2 — REALIZED CHANNELS + EFFECTIVE SERVICE + PLANT-SPECIFIC MECHANISM
@@ -135,29 +147,35 @@ Bombus can remain a concrete local interaction mechanism in Chapter 2 where inde
 
 Chapter 1 may claim:
 
-- recurrent multivariate floral/reproductive response to geographic isolation;
+- a positive global-average directional island-syndrome tendency;
+- strong regional modulation, with formal H1b strength qualified by the cluster-jackknife sensitivity;
 - partially separable reproductive-assurance and accessibility components;
 - increasing experimental pollen limitation with geographic isolation;
-- exact-species functional compatibility between the two response families and lower current pollen limitation.
+- exact-species functional compatibility between the two response families and lower current pollen limitation;
+- WCVP regional-native-compatible provenance sensitivity consistent with the same global-average/regionally modulated H1 pattern.
 
 Chapter 1 must not claim:
 
+- strict independent H1 support in all four regions;
 - historical causal mediation from pollen limitation to trait evolution;
 - global pollinator abundance or visitation decline;
 - one universal named pollinator mechanism;
 - uniform positive change in every floral trait;
 - realized pollinator identity from flower colour or syndrome templates;
 - species sorting versus within-lineage evolution as already identified;
+- WCVP regional-native compatibility as exact focal-island nativeness;
 - the corrected geography analysis as prospective confirmation.
 
 ## Sources of truth
 
 Use, in order:
 
-1. `config/chapter1_submission_current.json`
-2. `submission/chapter1_current/MANUSCRIPT.md`
-3. `docs/chapter1_corrected_submission_20260924.md`
-4. `results/geography_20260924/`
-5. `docs/PAPER_PIPELINE.md`
+1. `config/chapter1_h1_final_directional_result_lock.json`
+2. `config/chapter1_submission_current.json`
+3. `submission/chapter1_current/MANUSCRIPT.md`
+4. `submission/chapter1_current/SUPPLEMENTARY_INFORMATION.md`
+5. `results/h1_final_directional_20261003/`
+6. `results/wcvp_native_corrected_20261003/`
+7. `docs/PAPER_PIPELINE.md`
 
 Historical design documents are indexed in `docs/CHAPTER1_HISTORY.md`.
