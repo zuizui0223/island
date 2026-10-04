@@ -1,0 +1,3 @@
+status,n_required_contexts,n_fitted_contexts,all_context_estimates_positive,iut_p_one_sided_t,iut_p_one_sided_wild,recurrent_supported_t,recurrent_supported_wild,recurrent_robust_supported,evidence_scope,stratum,scope
+fit,4,4,True,0.13446581457533494,0.1452,False,False,False,all_analysis_eligible,all_observed,all
+fit,4,4,True,0.10624624956421005,0.119,False,False,False,direct_only,all_observed,direct

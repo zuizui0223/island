@@ -1,6 +1,6 @@
 # Island — Chapter 1 corrected submission baseline
 
-> **Current scientific surface: corrected geography baseline (24 September 2026).**
+> **Current scientific surface: corrected geography + final finite-cluster H1 inference (3 October 2026).**
 > Use `config/chapter1_submission_current.json` as the machine-readable selector.
 > The uncorrected v14 and v13 surfaces are preserved only as provenance.
 
@@ -9,10 +9,11 @@
 1. [Current submission manuscript](submission/chapter1_current/MANUSCRIPT.md)
 2. [Current submission contract](config/chapter1_submission_current.json)
 3. [Corrected methods and results](docs/chapter1_corrected_submission_20260924.md)
-4. [Corrected result tables](results/geography_20260924/)
-5. [Replay instructions](scripts/geography_correction/README.md)
-6. [Compact paper pipeline](docs/PAPER_PIPELINE.md)
-7. [Historical / superseded surface index](docs/CHAPTER1_HISTORY.md)
+4. [Final H1 directional results](results/h1_final_directional_20261003/)
+5. [Corrected H2-H4 result tables](results/geography_20260924/)
+6. [Replay instructions](scripts/geography_correction/README.md)
+7. [Compact paper pipeline](docs/PAPER_PIPELINE.md)
+8. [Historical / superseded surface index](docs/CHAPTER1_HISTORY.md)
 
 ## Current baseline
 
@@ -29,21 +30,24 @@ The geography repair is a post-hoc measurement correction selected as the primar
 
 ## Current H1–H4 result spine
 
-### H1 — Pattern
-A response spanning reproductive assurance, colour composition and floral accessibility/generalization is recurrent across all four geographic strata in both evidence scopes. Formal H1 inference uses seven pre-oriented atomic indicators spanning those three domains; the indicators diagnose regional realization rather than seven complete trait axes. Southern shallow/open tube is negative in the corrected analysis.
+### H1a — global-average directional tendency
+The final confirmatory H1 uses the seven frozen pre-oriented v14 indicators collapsed to a one-dimensional equal-domain contrast with finite-cluster inference. All four regional point estimates are positive. A Paule-Mandel random-effects synthesis with modified Hartung-Knapp uncertainty supports a positive average direction (all-analysis mean = **0.0691**, one-sided p = **0.0256**; Direct-only mean = **0.0635**, p = **0.0238**). The all-analysis two-sided p value is 0.0512, so the evidence is described as a directional tendency rather than a universal law.
+
+### H1b — regional heterogeneity
+Regional magnitude is strongly heterogeneous (I² = **0.819** all-analysis; **0.685** Direct-only). The stricter four-region recurrence claim fails because northern mid-latitudes are weak (intersection-union p = **0.134 / 0.106**). Raw three-axis and floristic-origin analyses are descriptive phenotype/provenance audits and cannot rescue a failed directional endpoint.
 
 ### H2 — Conditional decomposition
-Reproductive assurance is separated from additional floral responses. Primary selfing-adjusted accessibility is FDR-supported in northern high latitudes and the tropics. Tropical Direct-only accessibility is nominally positive but **not** FDR-supported (`q=0.1196`). Colour and colour × architecture responses remain region dependent.
+Reproductive assurance is separated from additional floral responses. With finite-cluster t references and the same frozen BH family, selfing-adjusted accessibility is FDR-supported in northern high latitudes (q = **0.00243**) and tropical all-analysis (q = **0.01913**). Tropical Direct-only accessibility remains positive but is **not** FDR-supported (q = **0.1267**). Colour and colour × architecture responses remain region dependent.
 
 ### H3 — Ecological pressure
 Experimental pollen limitation increases with corrected geographic isolation:
-`beta=0.09191`, `SE=0.03806`, two-sided `p=0.01575`.
+`beta=0.09191`, `SE=0.03806`, finite-publication two-sided `p=0.01594`. The post-hoc offshore-only continuous gradient also remains positive (`p=0.02459`).
 
 ### H4 — Functional compatibility
 Exact-species post-hoc functional triangulation links both H2 trait families to lower current pollen limitation:
 
-- reproductive assurance: `beta=-0.29830`, `p=0.00396`;
-- generalized accessibility: `beta=-0.29566`, `p=0.02187`.
+- reproductive assurance: `beta=-0.29830`, finite-publication `p=0.00417`;
+- generalized accessibility: `beta=-0.29566`, finite-publication `p=0.02334`.
 
 H4 remains an association, not causal mediation.
 
@@ -99,14 +103,14 @@ v13 remains immutable parent provenance beneath v14. Pre-v13 publication branche
 
 ## Claim ceiling
 
-The current submission may claim recurrent multivariate response, conditional decomposition, an independent pollen-limitation gradient, and post-hoc functional compatibility.
+The current submission may claim a positive but regionally heterogeneous global-average island-syndrome direction, conditional decomposition, an independent pollen-limitation gradient, and post-hoc functional compatibility.
 
 It must not claim:
 
 - historical causal mediation from pollen limitation to trait evolution;
 - global pollinator abundance or visitation decline;
 - a universal named pollinator mechanism;
-- uniform positive change in every H1 trait;
+- universal four-region support or uniform positive change in every H1 trait;
 - tropical Direct-only H2 accessibility as FDR-supported after correction;
 - within-lineage evolution rather than assemblage composition;
 - corrected geography as prospective confirmation.

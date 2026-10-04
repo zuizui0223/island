@@ -2,7 +2,7 @@
 
 ## One-sentence novelty
 
-**Island reproductive change is globally recurrent but not a single serial selfing syndrome: geographic isolation is associated with stronger pollen limitation and with partially separable reproductive-assurance and floral-accessibility responses.**
+**Island floras show a positive average shift toward reproductive assurance and floral accessibility with isolation, but that shift is strongly region dependent and is functionally aligned with independently measured pollen limitation.**
 
 ## What was known
 
@@ -14,12 +14,12 @@
 
 ## Conceptual synthesis
 
-The three independent associations form a **constraint–response triangle**: isolation tracks both a recurrent plant response and stronger pollen limitation, while the island-associated response traits themselves track lower current pollen limitation. The missing historical edge—past pollen limitation to selection/sorting to present trait composition—remains explicitly unresolved.
+The three independent associations form a **constraint–response triangle**: isolation tracks a positive but heterogeneous plant response and stronger pollen limitation, while the island-associated response traits themselves track lower current pollen limitation. The missing historical edge—past pollen limitation to selection/sorting to present trait composition—remains explicitly unresolved.
 
 ## What this study adds
 
 1. **A different biogeographic question from island occurrence.**  
-   Prior global work asks which species successfully occur on islands. Here, among already assembled island floras, increasing source isolation repeatedly reorganizes three biological domains—reproductive assurance, colour composition and floral accessibility/generalization—across four predeclared geographic regions and both trait-evidence scopes. Seven atomic indicators show how those domains are realized regionally rather than defining seven separate complete trait axes.
+   Prior global work asks which species successfully occur on islands. Here, among already assembled island floras, a frozen directional score has positive point estimates in all four regions and a positive random-effects global mean, while the strict four-region recurrence test fails and heterogeneity is strong. Raw-state analyses then show how reproductive, structural and colour components realize that average tendency differently among regions and provenance classes.
 
 2. **A competing model is rejected.**  
    The data do not support an obligatory serial model in which floral change is only a downstream consequence of reproductive assurance. Selfing-adjusted accessibility remains positive in all four regions and is FDR-supported in northern high latitudes and the tropics.

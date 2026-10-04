@@ -1,6 +1,6 @@
 # Supplementary Information
 
-## A recurrent global floral island syndrome extends beyond the selfing syndrome
+## A global floral island-syndrome tendency is regionally heterogeneous and functionally aligned with pollen limitation
 
 This Supplementary Information accompanies the corrected Chapter 1 submission selected by config/chapter1_submission_current.json. All numerical results below are bound to results/geography_20260924/ and to the deterministic supplementary tables under submission/chapter1_current/supplement/.
 
@@ -86,9 +86,91 @@ Supporting documentation:
 
 ---
 
-# Appendix S3. H1 recurrent multivariate island response
+# Appendix S3. H1 directional tendency, heterogeneity and phenotype decomposition
 
-H1 is interpreted across three biological domains: reproductive assurance, colour composition and floral accessibility/generalization. Formal inference uses seven atomic indicators spanning those domains, each coded so that a positive isolation coefficient is in the predicted island-syndrome direction:
+The confirmatory H1 is the frozen **directional classic-island score**, not the later high-dimensional raw-state omnibus. Seven pre-oriented v14 indicators are retained: self-compatibility, selfing mating system, autonomous/delayed selfing, plain colour, generalized floral form, actinomorphic symmetry and shallow/open tube. Indicators are averaged within reproductive assurance, colour dulling and accessibility/generalization, and the three domain means receive equal total weight.
+
+Regional uncertainty uses spatial-block cluster-robust covariance with finite-cluster Student-t reference distributions (G−1 degrees of freedom) plus a deterministic Rademacher sign-flip sensitivity. The strict four-region recurrence statement is an intersection-union test: all four regional directional contrasts must be positive and individually supported.
+
+At paper level, H1 is split into two quantities. **H1a** asks whether the four predeclared regional effects have a positive global average while allowing between-region heterogeneity; synthesis uses Paule-Mandel heterogeneity and modified Hartung-Knapp uncertainty. **H1b** tests regional heterogeneity with Cochran's Q and I². Because the Q statistic inherits the regional standard errors, we repeated both H1a and H1b using exact delete-one-spatial-cluster jackknife standard errors from the same frozen seven-indicator models. This separation preserves the pre-result v13 question of a positive global common component. The v13 design allowed regional coefficients to differ but did not assign heterogeneity equal interpretive weight, so the explicit H1b framing is reported as a final inferential refinement rather than a newly preregistered biological prediction.
+
+Machine-readable final H1 outputs are frozen under:
+
+- results/h1_final_directional_20261003/primary_directional_score_results.csv
+- results/h1_final_directional_20261003/global_recurrence_iut.csv
+- results/h1_final_directional_20261003/global_region_synthesis.csv
+- results/h1_final_directional_20261003/top_cluster_leaveout_synthesis.csv
+- results/h1_final_directional_20261003/weight_sensitivity_summary.csv
+
+All four regional point estimates are positive. However, northern mid-latitudes are individually weak, so strict four-region recurrence is unsupported (all-analysis IUT p = 0.1345; Direct-only p = 0.1062). H1a is positive after regional heterogeneity is admitted: all-analysis random-effects mean = 0.0691, modified-Hartung-Knapp SE = 0.0219, one-sided p = 0.0256; Direct-only mean = 0.0635, SE = 0.0196, p = 0.0238. The corresponding two-sided values are 0.0512 and 0.0477.
+
+Using the primary cluster-robust regional standard errors, H1b indicates regional heterogeneity: all-analysis Q = 16.57, df = 3, p = 0.000867, I² = 0.819; Direct-only Q = 9.51, p = 0.0232, I² = 0.685. The exact delete-one-cluster jackknife sensitivity gives larger regional standard errors but retains H1a in both scopes (all-analysis random-effects mean = 0.06352, modified-Hartung-Knapp SE = 0.02243, one-sided p = 0.03305; Direct-only mean = 0.05481, SE = 0.01862, p = 0.03018). Under those jackknife standard errors, H1b remains supported in all-analysis (Q = 11.86, p = 0.00789, I² = 0.747) but not in Direct-only (Q = 5.63, p = 0.131, I² = 0.467). Thus the positive average direction is more robust than the strength of the formal heterogeneity claim. Equal-indicator weighting and a reproductive-assurance + accessibility two-domain sensitivity retain the positive H1a conclusion. Removing the highest-variance spatial block from each region retains all-analysis H1a (p = 0.0438) but moves Direct-only H1a just above the nominal threshold (p = 0.0533), so the global-average tendency is treated as moderate and leverage-sensitive evidence rather than a universal law.
+
+Cluster-jackknife provenance: workflow run **37122292456**, artifact **11273547268**, artifact digest `sha256:52329a2fbe68520417693d2572510958adf1a93d02fc06cafd39768ed0b2ad34`.
+
+We also tested whether the weak northern-midlatitude H1 simply reflected limited isolation range. Among islands contributing to the frozen H1 support, northern mid-latitudes were much more mainland-proximate (all-analysis n = 2,173; median distance = **12.2 km**; **47.7%** <10 km) than northern high latitudes (median 79.9 km), tropical islands (449.8 km) or southern extratropics (63.0 km). Raw log-distance variation was narrower in northern mid-latitudes (SD = **2.23** versus 2.63–2.72 elsewhere). However, after residualizing log distance against log island area and climate PC1–PC4 within each region, northern-midlatitude residual SD was **2.116**, essentially the same as the other regions (2.093–2.226). The same conclusion held for each of the seven frozen indicators and in Direct-only evidence. Thus the weak northern-midlatitude slope is not explained by a simple shortage of adjusted isolation variation or island-count power, although the strong concentration of near-mainland islands could still matter through an unmodelled nonlinear response. Regional-distance diagnostic provenance: workflow run **37165554570**, artifact **11288958926**, artifact digest `sha256:24823166ea9c590f73f34fed1c7d0d7113f17391e735e3297542cc14b56e4ac1`.
+
+## S3.1 Raw three-axis phenotype audit
+
+The original species×axis measurement domains are retained to describe **how** the directional tendency is phenotypically realized. The frozen database contains 106,295 accepted angiosperm species and 318,885 possible species×axis cells; 222,688 cells (69.83%) are resolved: 82,556 flower-colour cells, 91,635 floral-structural-complexity cells and 48,497 reproductive-assurance cells.
+
+A resolved cell may contain one or several component traits. For each axis, every ontology-valid reported raw state contributes to its own island prevalence model with the denominator defined by species informative for that component trait. Missing component traits are never coded as zero, multistate reports are retained, and species need not have all components of an axis.
+
+Raw-state axis audits use beta-binomial logit models with standardized corrected log isolation, island area and climate PC1–PC4 and spatial-block cluster-robust covariance. States represented by fewer than 30 species globally or lacking minimum island/state support are excluded before fitting. Within each geographic stratum, estimable isolation slopes within one measurement axis are summarized by a multivariate Wald test. These are **direction-free compositional-reorganization diagnostics**, not confirmatory tests of the classic island-syndrome direction: an omnibus can be significant when one or more raw states change in the opposite direction.
+
+### Table S2f. Descriptive raw three-axis audit
+
+Machine-readable table:
+
+- submission/chapter1_current/supplement/Table_S2f_H1_three_axis_primary.csv
+
+In the all-observed flora, reproductive-assurance and structural composition show extensive isolation-associated reorganization across regions. Colour composition is more contingent and is unsupported in northern high latitudes in both all-analysis (q = 0.155) and Direct-only (q = 0.189).
+
+| Axis | Northern mid-latitude | Northern high latitude | Tropical | Southern extratropical |
+| --- | ---: | ---: | ---: | ---: |
+| Reproductive assurance, all-analysis | 1.09 × 10^-20 | 7.81 × 10^-18 | 2.16 × 10^-7 | 2.15 × 10^-6 |
+| Structural complexity, all-analysis | 3.21 × 10^-95 | 1.26 × 10^-82 | 2.02 × 10^-34 | <10^-300* |
+| Colour composition, all-analysis | 4.57 × 10^-4 | **0.155** | 5.45 × 10^-8 | 9.57 × 10^-7 |
+| Reproductive assurance, Direct-only | 1.81 × 10^-16 | 4.65 × 10^-53* | 5.43 × 10^-7 | 4.37 × 10^-15 |
+| Structural complexity, Direct-only | 8.77 × 10^-55 | 6.46 × 10^-176 | 1.17 × 10^-27 | <10^-300 |
+| Colour composition, Direct-only | 2.94 × 10^-9 | **0.189** | 2.06 × 10^-6 | 1.63 × 10^-12 |
+
+*One state-level optimizer flag persists in each marked raw-axis audit. Removing the failed state gives the same descriptive decision.
+
+Raw states establish why a global-average directional score must not be interpreted as universal simplification. Southern extratropical floras, for example, combine increasing open-radial form with increasing deep tube and decreasing shallow tube. Strict source-backed tropical native raw reproductive and structural compositions also reorganize, but the final native directional score remains unsupported (all-analysis one-sided p = 0.499; Direct-only p = 0.398). Raw-state reorganization therefore cannot rescue a failed directional endpoint.
+
+### Table S2h. Species×axis ontology audit
+
+Machine-readable table:
+
+- submission/chapter1_current/supplement/Table_S2h_H1_axis_cell_audit.csv
+
+Direct analysis of the species×axis cells exposed 900 historical validated-low cells with within-axis trait-label permutations. All 900 were uniquely recoverable using only the trait slots already declared in the same cell and the frozen trait ontology; no species identity, geography or fitted outcome was used. The audit reassigned 5,102 structural and 240 reproductive state memberships. No Direct-only cell required repair. After this deterministic repair, all **222,688 / 222,688 resolved cells** contain at least one ontology-valid component state. The ≥30-species formal-state gate still retains at least one formal state for **222,687 / 222,688 all-analysis cells (99.9996%)** and **102,924 / 102,932 Direct-only cells (99.9922%)**.
+
+### Table S2g. Floristic-origin response-vector contrasts
+
+Machine-readable table:
+
+- submission/chapter1_current/supplement/Table_S2g_H1_floristic_origin.csv
+
+Strict source-backed native records are support-testable in northern mid-latitudes and the tropics. Reproductive assurance and structural composition remain supported in both. In tropical native records, all-analysis q = 5.46 × 10^-4 for reproductive assurance and 1.29 × 10^-213 for structure; colour is borderline at q = 0.0508. Direct-only tropical native tests support all three axes.
+
+The WCVP regional-native-compatible flora retains reproductive-assurance and structural responses in all four regions in both evidence scopes. Colour is supported in three of four all-analysis regions and four of four Direct-only regions. Restricting to the same Level-3-area-complete island support and adding log TDWG Level-3 area does not remove the recurrent reproductive or structural response. More importantly for the final H1, we replayed the frozen seven-indicator one-dimensional directional score with the same spatial-block cluster-robust covariance, finite-cluster t(G−1) reference, Rademacher sign-flip sensitivity and four-region Paule-Mandel/modified Hartung-Knapp synthesis. All four WCVP regional-native-compatible point estimates were positive, but northern mid-latitudes remained weak (all-analysis β = 0.00910, one-sided finite-cluster P = 0.355, wild P = 0.352; Direct-only β = 0.01646, P = 0.267, wild P = 0.268), so strict four-region recurrence failed in both evidence scopes. The global-average tendency remained supported (all-analysis mean = 0.07636, modified Hartung-Knapp SE = 0.03023, one-sided P = 0.04287; Direct-only mean = 0.08710, SE = 0.02844, P = 0.02743), with substantial heterogeneity (I² = 0.698 and 0.682). Thus the WCVP provenance sensitivity reproduces the final H1 inferential pattern—positive global average plus regional modulation—rather than universal regional recurrence.
+
+The complementary incompatible/introduced partition also responds to isolation, but formal status-by-isolation interactions show that it generally follows a **different raw-state vector**. Reproductive-assurance and structural vectors differ between regional-native-compatible and complementary floras in all four regions under both evidence scopes. In the strict known-origin tropical comparison, source-native and source-introduced reproductive-assurance vectors differ strongly (all-analysis q = 2.36 × 10^-11; Direct-only q = 1.53 × 10^-10) and have cosine similarities of -0.758 and -0.853. Structural vectors also differ strongly. These results reject the simple explanation that introduced plants reproduce the same isolation-associated reproductive/structural response seen in native-compatible floras.
+
+The status analyses remain assemblage comparisons. They do not identify whether the native-associated response arose through colonization filtering, persistence/extinction, species sorting or within-lineage evolution.
+
+Three-axis raw-state validation provenance:
+
+- workflow run **37117607718**;
+- artifact **11272053673**;
+- artifact digest `sha256:b40721ca0f20b3c1af3e92782c3466d50bb687e9dea17dbe8b9613e9aad574ed`.
+
+
+### Historical seven-dimensional Wald reference and atomic decomposition
+
+The same seven pre-oriented atomic indicators are retained below so that individual component coefficients and earlier taxonomic-depth analyses remain auditable:
 
 1. self-compatibility;
 2. predominantly or obligately selfing mating system;
@@ -98,7 +180,7 @@ H1 is interpreted across three biological domains: reproductive assurance, colou
 6. actinomorphic symmetry;
 7. shallow or open floral tube.
 
-Within each geographic stratum, the seven-dimensional isolation vector is tested by a joint Wald test after beta-binomial models with standardized log isolation, island area and climate PC1–PC4. Spatial-block cluster-robust covariance is used.
+The historical seven-dimensional joint Wald results are retained only for continuity and for downstream taxonomic-depth diagnostics that were built on that reduction. They are not the current confirmatory H1 test; the current H1 is the one-dimensional directional contrast and H1a/H1b synthesis described above.
 
 ### Table S2a. Complete H1 atomic coefficients
 
@@ -123,7 +205,7 @@ Broad all-observed results:
 | Tropical | 3.498 × 10^-7 | 3.528 × 10^-5 |
 | Southern extratropical | 2.504 × 10^-18 | 3.155 × 10^-31 |
 
-All four regions support the seven-indicator joint vector spanning the three domains in both evidence scopes. This is a domain-level recurrence claim supported by atomic indicators, not a claim that every component is positive or individually supported.
+All four regions support the reduced seven-indicator vector in both evidence scopes. This secondary result is a directional decomposition and should not be read as the primary three-axis measurement test or as uniform support for every component.
 
 In the primary all-analysis scope, 26 of 28 regional atomic coefficients are positive. The southern shallow/open-tube coefficient is negative (β = -0.21660, SE = 0.06083, nominal P = 0.000370). Northern-high generalized form is positive but weak (P = 0.1018), and southern selfing mating system is positive but weak (P = 0.0540).
 
@@ -135,9 +217,9 @@ Machine-readable table:
 
 The table averages fitted standardized isolation coefficients within reproductive assurance (three atomic indicators) and accessibility/generalization (three indicators); colour composition is represented by the single predeclared plain-colour contrast. These arithmetic means are **descriptive orientation summaries only**. No domain-level P value is assigned because the atomic fits use different trait-resolved species sets. In the primary all-analysis scope, reproductive-assurance means are positive in all four regions (+0.025, +0.084, +0.179, +0.139), colour means are +0.002, +0.036, +0.035 and +0.074, and accessibility/generalization means are +0.021, +0.222, +0.080 and -0.004 from northern mid-latitudes through southern extratropics.
 
-### WCVP status-partition and Level-3 resolution diagnostics
+### Secondary seven-indicator WCVP status-partition and Level-3 diagnostics
 
-The WCVP regional-native compatibility sensitivity is not interpreted as a native-specific analysis. In northern mid-latitudes, the all-analysis regional-native joint result is disproportionately concentrated in self-compatibility (β = 0.07865, P = 0.00451); the other six atomic P values exceed 0.10 and four slopes are negative. In Direct-only evidence, the individually supported component changes to selfing mating system (β = 0.06729, P = 0.000888), while self-compatibility is unsupported. The joint test therefore captures multivariate departure rather than uniform support of seven atomic responses.
+The WCVP regional-native compatibility sensitivity is not interpreted as a native-specific analysis. The one-dimensional finite-cluster directional replay above is the inferentially aligned sensitivity to the final H1. The older seven-dimensional joint Wald results are retained only as descriptive multivariate diagnostics. In northern mid-latitudes, for example, the all-analysis regional-native joint result is disproportionately concentrated in self-compatibility (β = 0.07865, P = 0.00451); the other six atomic P values exceed 0.10 and four slopes are negative. In Direct-only evidence, the individually supported component changes to selfing mating system (β = 0.06729, P = 0.000888), while self-compatibility is unsupported. The joint test therefore captures multivariate departure rather than uniform support of seven atomic responses.
 
 We next fitted the current within-region H1 directly to the complementary `regionally_incompatible_or_introduced` partition (source-backed introduced records plus unresolved records whose mapped TDWG Level-3 unit is not in the WCVP native range). Joint H1 remained supported in all four regions:
 
@@ -150,7 +232,7 @@ We next fitted the current within-region H1 directly to the complementary `regio
 
 *The Direct-only northern-high vector is numerically stable but retains an optimizer termination warning for actinomorphic symmetry. Increasing the optimizer limit from 1,000 to 5,000 iterations left every fitted slope and q = 0.00210165 unchanged, while the optimizer flag remained false.
 
-Atomic direction within this complementary partition is not identical among regions. Tropical slopes are positive for all seven outcomes in both evidence scopes; northern mid-latitude and northern-high partitions each contain five positive and two negative slopes; southern extratropical responses are mixed. The strict source-backed introduced partition is testable only in the tropics, where its joint vector is supported but its atomic directions are mixed. Thus WCVP partitioning does not isolate a native-specific syndrome. It shows instead that regional-native-compatible records reproduce H1 independently of known introduced records while the complementary flora also contains substantial isolation-associated trait structure.
+Atomic direction within this complementary partition is not identical among regions. Tropical slopes are positive for all seven outcomes in both evidence scopes; northern mid-latitude and northern-high partitions each contain five positive and two negative slopes; southern extratropical responses are mixed. The strict source-backed introduced partition is testable only in the tropics, where its joint vector is supported but its atomic directions are mixed. Thus WCVP partitioning does not isolate a native-specific syndrome. It shows instead that regional-native-compatible records retain substantial isolation-associated structure while complementary and known-introduced floras can follow different compositional trajectories. The finite-cluster directional replay is a provenance sensitivity on an overlapping reconstructed flora, not an independent-data replication or evidence for a native-specific historical mechanism.
 
 We also audited whether WGSRPD Level-3 spatial resolution changes systematically with isolation. Level-3 polygon geometry was pinned to official TDWG WGSRPD commit `52da7828aba9d461dd133c27b3bd7a4407161f54` (Level-3 GeoJSON git-blob SHA1 `91104e5159e31f88154833a51d3b0d1c9271083f`) and area was calculated in equal-area EPSG:6933. The concern is real in the two southern strata:
 
@@ -208,7 +290,7 @@ Results:
 
 An independent Python 3.11 multistart confirmation also passed. All multistart fits succeeded, the seven-response test gave P = 1.898 × 10^-8, the six-response sensitivity gave P = 7.154 × 10^-9, and the maximum slope deviation from the frozen solution was 2.85 × 10^-6.
 
-The six-response result is a sensitivity only and does not replace the predeclared seven-response H1 estimand.
+The six-response result is a sensitivity to the historical seven-indicator decomposition; it does not replace the primary raw three-axis H1.
 
 ## S3.2 Current seven-response taxonomic representation depth
 

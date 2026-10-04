@@ -6,11 +6,11 @@ Checked: 3 October 2026.
 
 The manuscript is not being sold as a larger version of an island-trait survey. The first-shot argument is:
 
-> **Geographic isolation is associated with stronger pollen limitation and a recurrent floral/reproductive response that is not reducible to a serial selfing syndrome.**
+> **Geographic isolation is associated with stronger pollen limitation and a positive average floral/reproductive island-syndrome direction whose magnitude and realization differ strongly among regions.**
 
 The conceptual advance is the **constraint–response triangle**:
 
-1. isolation is associated with recurrent reproductive-assurance and accessibility responses;
+1. isolation is associated with a positive global-average reproductive/floral direction but strong regional heterogeneity;
 2. isolation is independently associated with stronger experimental pollen limitation;
 3. the same response families enriched with isolation are associated with lower current pollen limitation in exact-species overlap.
 
@@ -53,9 +53,9 @@ A pre-submission inquiry is drafted in `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md`.
 - Main figures: **6**
 - Tables: **0**
 - Text boxes: **0**
-- Main text: **4,955 / 5,000 words** (45-word margin)
-- Abstract: **148 / 150 words**
-- Running-title candidate: **Island floral syndrome beyond selfing**
+- Main text: **~4,672 / 5,000 words** by repository Markdown count
+- Abstract: **128 / 150 words**
+- Running-title candidate: **Heterogeneous floral island syndrome**
 - Keywords: island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; flower colour; pollination
 
 ## Editorial positioning
@@ -68,7 +68,7 @@ Lead with the problem:
 
 Then show the empirical closure:
 
-> the same isolation gradient carries a recurrent multivariate plant response and stronger experimental pollen limitation, while reproductive-assurance and accessibility traits are each associated with lower current pollen limitation.
+> the same isolation gradient carries a positive average but regionally heterogeneous plant response and stronger experimental pollen limitation, while reproductive-assurance and accessibility traits are each associated with lower current pollen limitation.
 
 ## Likely editorial vulnerability
 

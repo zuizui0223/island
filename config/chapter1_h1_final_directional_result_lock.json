@@ -1,0 +1,446 @@
+{
+  "contract": "chapter1_h1_final_directional_result_lock_v1",
+  "date": "2026-10-03",
+  "status": "completed_reviewer_robust_inference_audit",
+  "branch": "analysis/h1-final-directional-inference",
+  "head_sha": "973253c4f533cf18416caf8039121d6c8be54fa0",
+  "workflow_run_id": 37124478924,
+  "artifact_id": 11273709274,
+  "artifact_name": "chapter1-h1-final-directional-37124478924",
+  "artifact_sha256": "1bc919e4ea007635d480b99db7015309d38c964680ef133cc7d1b879ad2e6abb",
+  "H1": {
+    "primary_estimand": "equal-weight mean of three frozen v14 biological-domain means from seven pre-oriented indicators",
+    "regional_all_analysis": [
+      {
+        "context": "northern_midlatitude",
+        "estimate": 0.016066,
+        "p_one_sided_t": 0.1344658,
+        "p_one_sided_wild": 0.1452
+      },
+      {
+        "context": "northern_high_latitude",
+        "estimate": 0.113687,
+        "p_one_sided_t": 0.00210538,
+        "p_one_sided_wild": 0.0001
+      },
+      {
+        "context": "tropical",
+        "estimate": 0.097847,
+        "p_one_sided_t": 1.825112e-8,
+        "p_one_sided_wild": 0.0001
+      },
+      {
+        "context": "southern_extratropical",
+        "estimate": 0.069754,
+        "p_one_sided_t": 0.00649388,
+        "p_one_sided_wild": 0.0013
+      }
+    ],
+    "strict_four_region_recurrence": {
+      "all_analysis": {
+        "supported": false,
+        "iut_p_t": 0.1344658,
+        "iut_p_wild": 0.1452
+      },
+      "direct_only": {
+        "supported": false,
+        "iut_p_t": 0.1062462,
+        "iut_p_wild": 0.119
+      }
+    },
+    "H1a_global_average": {
+      "all_analysis": {
+        "estimate": 0.069056,
+        "se_modified_hk": 0.021913,
+        "p_one_sided": 0.025604,
+        "p_two_sided": 0.051209,
+        "supported_directional": true
+      },
+      "direct_only": {
+        "estimate": 0.063489,
+        "se_modified_hk": 0.019567,
+        "p_one_sided": 0.023841,
+        "p_two_sided": 0.047682,
+        "supported_directional": true
+      }
+    },
+    "H1b_regional_heterogeneity": {
+      "all_analysis": {
+        "Q": 16.567993,
+        "df": 3,
+        "p": 0.000867,
+        "I2": 0.818928,
+        "tau2_paule_mandel": 0.001362
+      },
+      "direct_only": {
+        "Q": 9.511318,
+        "df": 3,
+        "p": 0.023211,
+        "I2": 0.684586,
+        "tau2_paule_mandel": 0.000932
+      },
+      "cluster_jackknife_refit_sensitivity": {
+        "inferential_role": "reviewer_robustness_sensitivity_using_existing_exact_delete_one_spatial_cluster_refits",
+        "workflow_run_id": 37122292456,
+        "artifact_id": 11273547268,
+        "artifact_sha256": "52329a2fbe68520417693d2572510958adf1a93d02fc06cafd39768ed0b2ad34",
+        "method": "replace regional cluster-robust SE inputs to H1a/H1b with exact delete-one-spatial-cluster jackknife SEs from the same frozen seven-indicator equal-domain contrast",
+        "all_analysis": {
+          "H1a_estimate": 0.06351927285974782,
+          "H1a_se_modified_hk": 0.02243206275380169,
+          "H1a_p_one_sided": 0.033050418435394344,
+          "H1b_Q": 11.857253618494452,
+          "H1b_p": 0.007888493987922634,
+          "H1b_I2": 0.746990315251356
+        },
+        "direct_only": {
+          "H1a_estimate": 0.05480789228639852,
+          "H1a_se_modified_hk": 0.018622690061892527,
+          "H1a_p_one_sided": 0.03018029138151679,
+          "H1b_Q": 5.627847932759616,
+          "H1b_p": 0.13118874893224,
+          "H1b_I2": 0.4669365562390117
+        },
+        "interpretation": "The positive H1a global-average direction survives exact cluster-jackknife uncertainty in both evidence scopes. Formal H1b heterogeneity remains supported in the primary all-analysis scope but not in Direct-only, so heterogeneity strength is treated as evidence-scope/small-cluster sensitive rather than uniformly robust."
+      }
+    },
+    "top_variance_cluster_leaveout": {
+      "all_analysis": {
+        "H1a_estimate": 0.092912,
+        "p_one_sided": 0.043827,
+        "supported": true
+      },
+      "direct_only": {
+        "H1a_estimate": 0.087862,
+        "p_one_sided": 0.053259,
+        "supported": false
+      },
+      "regional_note": "All four leaveout regional point estimates remain positive; northern mid-latitude remains unsupported. Direct-only H1a becomes borderline at one-sided p=0.0533."
+    },
+    "weighting_sensitivity": {
+      "all_analysis_equal_indicator": {
+        "estimate": 0.078371,
+        "p_one_sided": 0.028842,
+        "supported": true
+      },
+      "all_analysis_core_two_domain": {
+        "estimate": 0.085159,
+        "p_one_sided": 0.031623,
+        "supported": true
+      },
+      "direct_only_equal_indicator": {
+        "estimate": 0.070223,
+        "p_one_sided": 0.027705,
+        "supported": true
+      },
+      "direct_only_core_two_domain": {
+        "estimate": 0.075444,
+        "p_one_sided": 0.031666,
+        "supported": true
+      }
+    },
+    "interpretation": "A positive global-average classic-island direction is supported under the predeclared positive alternative and survives exact delete-one-spatial-cluster jackknife uncertainty in both evidence scopes. Strict four-region individual support is not met. Regional variation is evident, but formal H1b heterogeneity is strongest in the primary all-analysis and is not supported in the Direct-only cluster-jackknife sensitivity.",
+    "obsolete_for_headline_inference": [
+      "seven-response high-dimensional cluster-Wald p-values",
+      "three-axis raw-state high-dimensional omnibus p-values"
+    ],
+    "regional_results": {
+      "all_analysis_eligible": [
+        {
+          "context": "northern_midlatitude",
+          "estimate": 0.016066,
+          "cluster_robust_se": 0.014437,
+          "p_one_sided_t": 0.1344658,
+          "p_one_sided_wild": 0.1452,
+          "n_clusters": 86,
+          "effective_clusters": 6.59424,
+          "max_cluster_variance_share": 0.243855
+        },
+        {
+          "context": "northern_high_latitude",
+          "estimate": 0.113687,
+          "cluster_robust_se": 0.038256,
+          "p_one_sided_t": 0.002105384,
+          "p_one_sided_wild": 0.0001,
+          "n_clusters": 63,
+          "effective_clusters": 1.504335,
+          "max_cluster_variance_share": 0.808881
+        },
+        {
+          "context": "tropical",
+          "estimate": 0.097847,
+          "cluster_robust_se": 0.016516,
+          "p_one_sided_t": 1.825112e-8,
+          "p_one_sided_wild": 0.0001,
+          "n_clusters": 111,
+          "effective_clusters": 10.661218,
+          "max_cluster_variance_share": 0.248443
+        },
+        {
+          "context": "southern_extratropical",
+          "estimate": 0.069754,
+          "cluster_robust_se": 0.026825,
+          "p_one_sided_t": 0.006493882,
+          "p_one_sided_wild": 0.0013,
+          "n_clusters": 41,
+          "effective_clusters": 4.270923,
+          "max_cluster_variance_share": 0.423186
+        }
+      ],
+      "direct_only": [
+        {
+          "context": "northern_midlatitude",
+          "estimate": 0.019347,
+          "cluster_robust_se": 0.015402,
+          "p_one_sided_t": 0.1062462,
+          "p_one_sided_wild": 0.119,
+          "n_clusters": 86,
+          "effective_clusters": 6.1047,
+          "max_cluster_variance_share": 0.305356
+        },
+        {
+          "context": "northern_high_latitude",
+          "estimate": 0.115299,
+          "cluster_robust_se": 0.039681,
+          "p_one_sided_t": 0.002537594,
+          "p_one_sided_wild": 0.0001,
+          "n_clusters": 63,
+          "effective_clusters": 1.394527,
+          "max_cluster_variance_share": 0.842582
+        },
+        {
+          "context": "tropical",
+          "estimate": 0.081605,
+          "cluster_robust_se": 0.02092,
+          "p_one_sided_t": 0.00008308933,
+          "p_one_sided_wild": 0.0001,
+          "n_clusters": 110,
+          "effective_clusters": 8.460178,
+          "max_cluster_variance_share": 0.294286
+        },
+        {
+          "context": "southern_extratropical",
+          "estimate": 0.069625,
+          "cluster_robust_se": 0.025697,
+          "p_one_sided_t": 0.004936352,
+          "p_one_sided_wild": 0.0019,
+          "n_clusters": 41,
+          "effective_clusters": 7.250471,
+          "max_cluster_variance_share": 0.27753
+        }
+      ]
+    }
+  },
+  "H2": {
+    "finite_cluster_reference": "spatial-block cluster robust SE with t(G-1), same frozen BH family",
+    "supported_primary_cells": [
+      "all_analysis_eligible|northern_high_latitude|generalized_accessible",
+      "all_analysis_eligible|tropical|generalized_accessible",
+      "all_analysis_eligible|southern_extratropical|plain_colour",
+      "direct_only|northern_high_latitude|generalized_accessible",
+      "direct_only|southern_extratropical|plain_colour"
+    ],
+    "interpretation": "Conditional decomposition only; accessibility is not universally supported after reproductive-assurance adjustment."
+  },
+  "H3": {
+    "estimate": 0.09191043596699681,
+    "finite_publication_t_two_sided_p": 0.01594350716910782,
+    "offshore_sensitivity": {
+      "estimate": 0.22031466445594622,
+      "p_two_sided": 0.02459200453249381
+    },
+    "interpretation": "Independent isolation-associated pollen-limitation correlate; not historical mediation."
+  },
+  "H4": {
+    "reproductive_assurance": {
+      "estimate": -0.2983005681547416,
+      "p_two_sided": 0.004166318114023793
+    },
+    "accessibility_generalization": {
+      "estimate": -0.295659590051078,
+      "p_two_sided": 0.0233429161772711
+    },
+    "interpretation": "Post-hoc exact-species functional triangulation only."
+  },
+  "claim_boundary": {
+    "no_universal_checklist": true,
+    "no_strict_four_region_recurrence_claim": true,
+    "no_named_pollinator_mechanism": true,
+    "no_historical_causal_mediation": true,
+    "no_within_lineage_evolution_claim": true,
+    "corrected_geography_is_posthoc_measurement_repair": true
+  },
+  "analysis_freeze": {
+    "frozen_at": "2026-10-03_WCVP_regional_native_compatibility",
+    "canonical_submission_surface": [
+      "frozen seven-indicator H1 directional score with H1a/H1b and strict four-region IUT",
+      "existing H2 conditional decomposition",
+      "existing H3 corrected global pollen-limitation gradient and offshore sensitivity",
+      "existing H4 exact-species functional triangulation",
+      "WCVP regional-native-compatible floristic-origin sensitivity"
+    ],
+    "wcvp_regional_native_compatible": {
+      "role": "provenance_sensitivity_not_confirmatory_H1",
+      "source_results": "results/wcvp_native_corrected_20261003",
+      "coverage": {
+        "total_flora_rows": 1039757,
+        "original_source_native_rows": 150531,
+        "unresolved_rows_upgraded_by_WCVP_native_range": 362789,
+        "regional_native_compatible_rows": 513320,
+        "regional_native_compatible_islands": 2372
+      },
+      "regional_joint_vector_q": {
+        "all_analysis_eligible": {
+          "northern_midlatitude": 0.0006644381494015181,
+          "northern_high_latitude": 0.04395900553286053,
+          "tropical": 0.006355625573037584,
+          "southern_extratropical": 1.0489743133579148e-11
+        },
+        "direct_only": {
+          "northern_midlatitude": 0.007288431002030329,
+          "northern_high_latitude": 0.002868750092737149,
+          "tropical": 0.002868750092737149,
+          "southern_extratropical": 2.46915410662282e-10
+        }
+      },
+      "interpretation_ceiling": "The large WCVP regional-native-compatible flora reproduces the final H1's global-average directional tendency and regional modulation under the same finite-cluster one-dimensional inference, while strict four-region recurrence remains unsupported. This is a provenance sensitivity, not a native-only historical or within-lineage causal analysis.",
+      "directional_finite_cluster_replay": {
+        "workflow_run_id": 37157566167,
+        "artifact_id": 11286910115,
+        "artifact_sha256": "ee7fc98fbc1db65f5e3677565d45bc83df6800002d9c11f3fa268719cbedbbd6",
+        "method": "same frozen seven-indicator one-dimensional H1 score, finite-cluster t(G-1), Rademacher sign-flip, Paule-Mandel plus modified Hartung-Knapp synthesis",
+        "all_analysis_eligible": {
+          "regional": {
+            "northern_midlatitude": {
+              "estimate": 0.009103,
+              "finite_cluster_p_one_sided": 0.354991,
+              "wild_p_one_sided": 0.3517
+            },
+            "northern_high_latitude": {
+              "estimate": 0.129121,
+              "finite_cluster_p_one_sided": 0.006973,
+              "wild_p_one_sided": 0.0001
+            },
+            "tropical": {
+              "estimate": 0.065593,
+              "finite_cluster_p_one_sided": 0.000868,
+              "wild_p_one_sided": 0.0004
+            },
+            "southern_extratropical": {
+              "estimate": 0.140281,
+              "finite_cluster_p_one_sided": 0.000919,
+              "wild_p_one_sided": 0.0001
+            }
+          },
+          "H1a": {
+            "estimate": 0.07635682584522287,
+            "se_modified_hk": 0.030230392588890244,
+            "p_one_sided": 0.04286850314870501,
+            "supported": true
+          },
+          "H1b": {
+            "heterogeneity_p": 0.01901694905849237,
+            "I2": 0.6984193625833636
+          },
+          "strict_four_region": {
+            "supported": false,
+            "iut_p_t": 0.35499086873971797,
+            "iut_p_wild": 0.3517
+          }
+        },
+        "direct_only": {
+          "regional": {
+            "northern_midlatitude": {
+              "estimate": 0.016456,
+              "finite_cluster_p_one_sided": 0.266744,
+              "wild_p_one_sided": 0.2684
+            },
+            "northern_high_latitude": {
+              "estimate": 0.132334,
+              "finite_cluster_p_one_sided": 0.005592,
+              "wild_p_one_sided": 0.0001
+            },
+            "tropical": {
+              "estimate": 0.089893,
+              "finite_cluster_p_one_sided": 0.000172,
+              "wild_p_one_sided": 0.0001
+            },
+            "southern_extratropical": {
+              "estimate": 0.13856,
+              "finite_cluster_p_one_sided": 0.000377,
+              "wild_p_one_sided": 0.0001
+            }
+          },
+          "H1a": {
+            "estimate": 0.08710224274253325,
+            "se_modified_hk": 0.028437291692158206,
+            "p_one_sided": 0.027432594437225743,
+            "supported": true
+          },
+          "H1b": {
+            "heterogeneity_p": 0.024114825820096157,
+            "I2": 0.6817834129140727
+          },
+          "strict_four_region": {
+            "supported": false,
+            "iut_p_t": 0.26674360001784503,
+            "iut_p_wild": 0.2684
+          }
+        },
+        "interpretation": "The WCVP regional-native-compatible provenance sensitivity reproduces the same central pattern as the all-observed final H1: all four regional point estimates are positive, the global-average directional tendency is supported, and strict four-region recurrence fails because northern mid-latitudes are weak. The primary-synthesis regional effects are heterogeneous, but formal heterogeneity strength is not promoted beyond the primary H1 cluster-jackknife sensitivity."
+      }
+    },
+    "post_freeze_exploration_excluded_from_submission_decisions": [
+      "post-hoc biological-domain reclassification PR #286",
+      "three-domain complete-case/common-support experiments",
+      "genus-LOO experiments added after the WCVP sensitivity",
+      "eight-trait H1 flower-size extension",
+      "strict source-native-only H1 rerun PR #287",
+      "introduced-only H1 reruns"
+    ],
+    "rule": "Do not promote, replace, or revise the frozen Chapter 1 claims on the basis of post-freeze exploratory analyses unless an explicit new preregistered analysis phase is opened.",
+    "post_freeze_reviewer_diagnostics": {
+      "allowed_role": "claim_narrowing_and_robustness_only",
+      "cluster_jackknife_H1a_H1b": "completed; H1a survives in both scopes, H1b is supported in all-analysis but not Direct-only",
+      "regional_isolation_support": {
+        "status": "completed",
+        "workflow_run_id": 37165554570,
+        "artifact_id": 11288958926,
+        "artifact_sha256": "24823166ea9c590f73f34fed1c7d0d7113f17391e735e3297542cc14b56e4ac1",
+        "method": "compare corrected isolation distributions among exact frozen H1 count-support islands by region; also residualize log distance against log island area and climate PC1-PC4 within region",
+        "all_analysis_eligible": {
+          "northern_midlatitude": {
+            "n_h1_union_islands": 2173,
+            "median_distance_km": 12.2135137964696,
+            "share_lt_10km": 0.4772204325816843,
+            "raw_log_distance_sd": 2.2285642612171306,
+            "residual_log_distance_sd_after_area_climate": 2.1163889082187137,
+            "area_climate_R2_for_log_distance": 0.09813687434227714
+          },
+          "northern_high_latitude": {
+            "n_h1_union_islands": 411,
+            "median_distance_km": 79.85277508347222,
+            "raw_log_distance_sd": 2.628689002058229,
+            "residual_log_distance_sd_after_area_climate": 2.19128754697166
+          },
+          "tropical": {
+            "n_h1_union_islands": 1493,
+            "median_distance_km": 449.7872959324012,
+            "raw_log_distance_sd": 2.6974687570828246,
+            "residual_log_distance_sd_after_area_climate": 2.0931448286141694
+          },
+          "southern_extratropical": {
+            "n_h1_union_islands": 302,
+            "median_distance_km": 62.97973651975075,
+            "raw_log_distance_sd": 2.7234024807679935,
+            "residual_log_distance_sd_after_area_climate": 2.2258656790677294
+          }
+        },
+        "direct_only_note": "Nearly identical to all-analysis: northern-midlatitude n=2161, median distance 12.21 km, raw log-distance SD 2.227, residual SD 2.114.",
+        "outcome_level_note": "Across all seven frozen outcomes, northern-midlatitude raw log-distance SD is 2.181-2.225 (all-analysis) and 2.182-2.225 (Direct-only); residual SD after area/climate adjustment is 2.047-2.111 and 2.048-2.109, overlapping the corresponding ranges in the other regions.",
+        "interpretation": "Northern mid-latitudes are much more mainland-proximate and have a narrower raw isolation distribution, but adjusted isolation variation is not depleted. The weak northern-midlatitude H1 slope is therefore not explained by a simple lack of residual distance range or island-count power."
+      },
+      "rule": "These diagnostics may narrow or qualify the frozen claim but may not add traits, redefine H1, or promote a new mechanism."
+    }
+  }
+}

@@ -1,0 +1,290 @@
+name: Validate final directional H1
+
+on:
+  push:
+    branches:
+      - analysis/h1-final-directional-inference
+      - analysis/h1-final-sync-resolved
+    paths:
+      - "config/chapter1_h1_final_directional.yml"
+      - "src/island_v2/chapter1_h1_final_directional.py"
+      - "tests/test_chapter1_h1_final_directional.py"
+      - "src/island_v2/chapter1_final_inference_audit.py"
+      - "tests/test_chapter1_final_inference_audit.py"
+      - "config/chapter1_h1_final_directional_result_lock.json"
+      - "scripts/submission/render_chapter1_main_figures.py"
+      - "submission/chapter1_current/FIGURE_CAPTIONS.md"
+      - "submission/chapter1_current/MANUSCRIPT.md"
+      - ".github/workflows/validate-chapter1-h1-final-directional.yml"
+  pull_request:
+    branches:
+      - main
+      - analysis/h1-three-axis-raw-state
+    paths:
+      - "config/chapter1_h1_final_directional.yml"
+      - "src/island_v2/chapter1_h1_final_directional.py"
+      - "tests/test_chapter1_h1_final_directional.py"
+      - "src/island_v2/chapter1_final_inference_audit.py"
+      - "tests/test_chapter1_final_inference_audit.py"
+      - "config/chapter1_h1_final_directional_result_lock.json"
+      - "scripts/submission/render_chapter1_main_figures.py"
+      - "submission/chapter1_current/FIGURE_CAPTIONS.md"
+      - "submission/chapter1_current/MANUSCRIPT.md"
+      - "submission/chapter1_current/SUBMISSION_READINESS.md"
+      - "results/h1_three_axis_raw_state_20261003/README.md"
+      - ".github/workflows/validate-chapter1-h1-final-directional.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install and validate final H1 code
+        run: |
+          pip install -e ".[dev]"
+          pytest -q \
+            tests/test_chapter1_h1_final_directional.py \
+            tests/test_chapter1_final_inference_audit.py
+          ruff check \
+            src/island_v2/chapter1_h1_final_directional.py \
+            src/island_v2/chapter1_final_inference_audit.py \
+            tests/test_chapter1_h1_final_directional.py \
+            tests/test_chapter1_final_inference_audit.py
+
+      - name: Download frozen Chapter 1 inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/h1-final/source /tmp/h1-final/results
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/h1-final/source
+          test -s /tmp/h1-final/source/fixed/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/h1-final/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+          test -s /tmp/h1-final/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+
+      - name: Run final directional H1
+        run: |
+          set -euo pipefail
+          for scope in all direct; do
+            if [ "$scope" = "all" ]; then
+              audit=/tmp/h1-final/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+              evidence=all_analysis_eligible
+            else
+              audit=/tmp/h1-final/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+              evidence=direct_only
+            fi
+            mkdir -p /tmp/h1-final/results/$scope
+            python -m island_v2.chapter1_h1_final_directional               --status-flora-csv /tmp/h1-final/source/fixed/canonical/input/chapter1_status_flora.csv.gz               --state-audit-csv "$audit"               --covariates-csv results/geography_20260924/corrected_geography_covariates.csv               --config-path config/chapter1_h1_final_directional.yml               --evidence-scope "$evidence"               --output-dir /tmp/h1-final/results/$scope
+          done
+
+      - name: Audit H2-H4 with finite-cluster reference distributions
+        run: |
+          mkdir -p /tmp/h1-final/results/inference-audit
+          python -m island_v2.chapter1_final_inference_audit \
+            --h2-all-csv results/geography_20260924/all/h2_decomposition_models.csv \
+            --h2-direct-csv results/geography_20260924/direct/h2_decomposition_models.csv \
+            --h3-json results/geography_20260924/h3_original_corrected_comparison.json \
+            --h3-offshore-json results/h3_offshore_gradient_20261003/h3_offshore_gradient_summary.json \
+            --h4-csv results/geography_20260924/h4_exact_corrected.csv \
+            --output-dir /tmp/h1-final/results/inference-audit
+
+
+      - name: Render final main figures
+        run: |
+          pip install matplotlib
+          mkdir -p /tmp/h1-final/rendered-main
+          python scripts/submission/render_chapter1_main_figures.py \
+            --root . \
+            --output-dir /tmp/h1-final/rendered-main
+          test -s /tmp/h1-final/rendered-main/Figure4_H1_recurrent_multivariate_response.svg
+          test -s /tmp/h1-final/rendered-main/Figure4_H1_recurrent_multivariate_response.pdf
+          test -s /tmp/h1-final/rendered-main/Figure5_H2_conditional_decomposition.svg
+          test -s /tmp/h1-final/rendered-main/Figure5_H2_conditional_decomposition.pdf
+          cp -r /tmp/h1-final/rendered-main /tmp/h1-final/results/rendered-main
+
+      - name: Assemble reviewer-facing inference audit
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root=Path("/tmp/h1-final/results")
+          rows=[]
+          iuts=[]
+          metas=[]
+          syntheses=[]
+          leaveouts=[]
+          leaveout_iuts=[]
+          leaveout_metas=[]
+          leaveout_syntheses=[]
+          weight_summaries=[]
+          for scope in ("all","direct"):
+              d=pd.read_csv(root/scope/"directional_score_results.csv")
+              d=d.loc[d["stratum"].eq("all_observed")].copy()
+              d.insert(0,"scope",scope)
+              rows.append(d)
+              iut=json.loads((root/scope/"directional_score_iut.json").read_text())
+              iut["scope"]=scope
+              iuts.append(iut)
+              meta=json.loads((root/scope/"directional_score_meta.json").read_text())
+              meta["scope"]=scope
+              metas.append(meta)
+              syn=json.loads((root/scope/"directional_score_synthesis.json").read_text())
+              syn["scope"]=scope
+              syntheses.append(syn)
+              lo=pd.read_csv(root/scope/"top_cluster_leaveout_results.csv")
+              lo.insert(0,"scope",scope)
+              leaveouts.append(lo)
+              loi=json.loads((root/scope/"top_cluster_leaveout_iut.json").read_text())
+              loi["scope"]=scope
+              leaveout_iuts.append(loi)
+              lom=json.loads((root/scope/"top_cluster_leaveout_meta.json").read_text())
+              lom["scope"]=scope
+              leaveout_metas.append(lom)
+              los=json.loads((root/scope/"top_cluster_leaveout_synthesis.json").read_text())
+              los["scope"]=scope
+              leaveout_syntheses.append(los)
+              ws=pd.read_csv(root/scope/"weight_sensitivity_summary.csv")
+              ws.insert(0,"scope",scope)
+              weight_summaries.append(ws)
+
+          score=pd.concat(rows,ignore_index=True)
+          score.to_csv(root/"primary_directional_score_results.csv",index=False)
+          pd.DataFrame(iuts).to_csv(root/"global_recurrence_iut.csv",index=False)
+          pd.DataFrame(metas).to_csv(root/"global_directional_meta.csv",index=False)
+          pd.DataFrame(syntheses).to_csv(root/"global_region_synthesis.csv",index=False)
+          leaveout=pd.concat(leaveouts,ignore_index=True)
+          leaveout.to_csv(root/"top_cluster_leaveout_results.csv",index=False)
+          pd.DataFrame(leaveout_iuts).to_csv(
+              root/"top_cluster_leaveout_iut.csv",index=False
+          )
+          pd.DataFrame(leaveout_metas).to_csv(
+              root/"top_cluster_leaveout_meta.csv",index=False
+          )
+          pd.DataFrame(leaveout_syntheses).to_csv(
+              root/"top_cluster_leaveout_synthesis.csv",index=False
+          )
+          weight_summary=pd.concat(weight_summaries,ignore_index=True)
+          weight_summary.to_csv(
+              root/"weight_sensitivity_summary.csv",index=False
+          )
+
+          legacy_all=pd.read_csv(
+              "results/geography_20260924/all/beta_binomial_within_omnibus.csv"
+          )
+          legacy_direct=pd.read_csv(
+              "results/geography_20260924/direct/beta_binomial_within_omnibus.csv"
+          )
+          legacy=pd.concat([
+              legacy_all.loc[legacy_all.stratum.eq("all_observed")].assign(scope="all"),
+              legacy_direct.loc[legacy_direct.stratum.eq("all_observed")].assign(scope="direct"),
+          ],ignore_index=True)
+          legacy[[
+              "scope","context","n_clusters","joint_df","p_value","q_value"
+          ]].to_csv(root/"legacy_joint_wald_reference.csv",index=False)
+
+          raw=Path("submission/chapter1_current/supplement/Table_S2f_H1_three_axis_primary.csv")
+          if raw.exists():
+              pd.read_csv(raw).to_csv(
+                  root/"raw_state_axis_omnibus_reference.csv",
+                  index=False,
+              )
+
+          print("=== FINAL DIRECTIONAL H1 ===")
+          print(score[[
+              "scope","context","estimate","cluster_robust_se","finite_cluster_df",
+              "p_one_sided_t","p_one_sided_wild","n_clusters",
+              "effective_clusters","max_cluster_variance_share","robust_supported"
+          ]].to_string(index=False))
+          print("\n=== GLOBAL RECURRENCE IUT ===")
+          print(pd.DataFrame(iuts).to_string(index=False))
+          print("\n=== GLOBAL DIRECTIONAL META ===")
+          print(pd.DataFrame(metas).to_string(index=False))
+          print("\n=== H1A/H1B REGION SYNTHESIS ===")
+          print(pd.DataFrame(syntheses).to_string(index=False))
+          print("\n=== DROP TOP VARIANCE CLUSTER ===")
+          print(leaveout[[
+              "scope","context","excluded_cluster",
+              "parent_max_cluster_variance_share","estimate",
+              "p_one_sided_t","p_one_sided_wild","n_clusters",
+              "robust_supported"
+          ]].to_string(index=False))
+          print("\n=== DROP TOP VARIANCE CLUSTER IUT ===")
+          print(pd.DataFrame(leaveout_iuts).to_string(index=False))
+          print("\n=== DROP TOP VARIANCE CLUSTER META ===")
+          print(pd.DataFrame(leaveout_metas).to_string(index=False))
+          print("\n=== DROP TOP VARIANCE CLUSTER H1A/H1B ===")
+          print(pd.DataFrame(leaveout_syntheses).to_string(index=False))
+          print("\n=== WEIGHTING SENSITIVITY ===")
+          print(weight_summary.to_string(index=False))
+          print("\n=== H2-H4 FINITE-CLUSTER DECISION AUDIT ===")
+          decision=json.loads(
+              (root/"inference-audit"/"h2_h4_final_decision_summary.json").read_text()
+          )
+          print(json.dumps(decision,indent=2))
+          print("\n=== LEGACY HIGH-DIMENSIONAL WALD (REFERENCE ONLY) ===")
+          print(legacy[[
+              "scope","context","n_clusters","joint_df","p_value","q_value"
+          ]].to_string(index=False))
+          PY
+
+          {
+            echo "## Final directional H1"
+            echo
+            cat /tmp/h1-final/results/primary_directional_score_results.csv
+            echo
+            echo "## Four-region intersection-union gate"
+            cat /tmp/h1-final/results/global_recurrence_iut.csv
+            echo
+            echo "## Global directional random-effects summary"
+            cat /tmp/h1-final/results/global_directional_meta.csv
+            echo
+            echo "## H1a/H1b region synthesis"
+            cat /tmp/h1-final/results/global_region_synthesis.csv
+            echo
+            echo "## Top variance-cluster leaveout"
+            cat /tmp/h1-final/results/top_cluster_leaveout_results.csv
+            echo
+            echo "## Top variance-cluster leaveout IUT"
+            cat /tmp/h1-final/results/top_cluster_leaveout_iut.csv
+            echo
+            echo "## Top variance-cluster leaveout meta"
+            cat /tmp/h1-final/results/top_cluster_leaveout_meta.csv
+            echo
+            echo "## Top variance-cluster leaveout H1a/H1b"
+            cat /tmp/h1-final/results/top_cluster_leaveout_synthesis.csv
+            echo
+            echo "## Weighting sensitivity"
+            cat /tmp/h1-final/results/weight_sensitivity_summary.csv
+            echo
+            echo "## H2-H4 finite-cluster decision audit"
+            cat /tmp/h1-final/results/inference-audit/h2_h4_final_decision_summary.json
+            echo
+            echo "## Legacy joint Wald retained as reference only"
+            cat /tmp/h1-final/results/legacy_joint_wald_reference.csv
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-h1-final-directional-${{ github.run_id }}
+          path: /tmp/h1-final/results
+          if-no-files-found: error
+          retention-days: 30

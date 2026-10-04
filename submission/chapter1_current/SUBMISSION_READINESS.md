@@ -2,7 +2,7 @@
 
 ## Current decision
 
-The corrected Chapter 1 scientific package is **analysis-complete and figure-complete**.
+The corrected Chapter 1 analysis is **complete under the final finite-cluster H1 inference**; submission prose and Figure 4 are being synchronized to that result.
 
 First-shot journal: **Ecology Letters**, conditional on closing the journal's data-policy gate.
 
@@ -13,7 +13,9 @@ Fallback: **Global Ecology and Biogeography** if the third-party trait-data rest
 ### Science
 
 - corrected 8,264-island geographic baseline;
-- H1 recurrent three-domain floral/reproductive result, formally tested by seven atomic indicators;
+- H1a: positive global-average classic-island direction under Paule-Mandel + modified Hartung-Knapp inference;
+- H1b: strong regional heterogeneity; strict four-region recurrence is unsupported;
+- raw three-axis result retained as descriptive phenotype/provenance audit, not confirmatory H1;
 - H1 Direct-only northern-high optimizer warning independently closed;
 - H2 reproductive-assurance / accessibility conditional decomposition;
 - H3 independent GloPL pollen-limitation gradient;
@@ -22,8 +24,8 @@ Fallback: **Global Ecology and Biogeography** if the third-party trait-data rest
 
 ### Manuscript package
 
-- title and 138-word abstract;
-- main text ~3,803 words;
+- title and 128-word abstract revised for the final H1a/H1b claim;
+- main text ~4,672 words by repository Markdown count; final formatted recount pending;
 - 18 references in Ecology Letters style;
 - novelty positioned against recent island-colonization and range-edge literature;
 - Ecology Letters cover letter;
@@ -33,10 +35,10 @@ Fallback: **Global Ecology and Biogeography** if the third-party trait-data rest
 
 ### Figures and Supplementary Information
 
-- Main Figures 1–6 committed in SVG/PDF;
+- Main Figures 1–6 are committed; Figure 4 requires final H1a/H1b visual synchronization;
 - main-figure manifest and deterministic renderer;
 - Supplementary Information S1–S7 assembled;
-- deterministic Tables S1, S2a, S2b, S3, S5, S6a, S6b;
+- deterministic Tables S1, S2a–S2h, S3, S5, S6a and S6b;
 - Supplementary Figures S1–S7 committed in SVG/PDF;
 - SI figure manifest and deterministic renderer;
 - CI verifies figure files, manifests, current corrected values and inferential boundaries.
@@ -115,4 +117,4 @@ After metadata and DOI freeze:
 
 ## Current scientific claim in one sentence
 
-**Geographic isolation is associated with stronger pollen limitation and with a recurrent floral–reproductive response that is not reducible to a serial selfing syndrome: reproductive assurance and pollinator-facing accessibility form partially separable components, while detailed floral trajectories remain geographically contingent.**
+**Geographic isolation is associated with a positive average shift toward reproductive assurance and accessible floral architecture, but the magnitude and phenotype are strongly region dependent; the same gradient is independently associated with increasing pollen limitation.**
