@@ -48,7 +48,7 @@ def test_ecology_letters_letter_limits_and_title_sync() -> None:
     assert title in TITLE_PAGE.read_text(encoding="utf-8")
 
 
-def test_h1_uses_original_three_axis_cells_as_primary_response() -> None:
+def test_h1_uses_final_directional_score_and_retains_three_axis_audit() -> None:
     import pandas as pd
 
     manuscript = MANUSCRIPT.read_text(encoding="utf-8")
@@ -56,7 +56,8 @@ def test_h1_uses_original_three_axis_cells_as_primary_response() -> None:
     novelty = NOVELTY.read_text(encoding="utf-8")
 
     assert "222,688 resolved cells" in manuscript
-    assert "three formal response blocks" in manuscript
+    assert "one-dimensional score" in manuscript
+    assert "seven v14 indicators" in manuscript
     assert "seven-trait floral–reproductive response" not in manuscript
     assert "secondary seven-indicator" in captions.lower()
     assert "reproductive assurance" in novelty
@@ -272,5 +273,7 @@ def test_h1_direct_northern_high_convergence_audit_closes_warning() -> None:
     assert independent["artifact_id"] == 10930986676
 
     manuscript = MANUSCRIPT.read_text(encoding="utf-8")
-    assert "2.93 × 10^-6" in manuscript
-    assert "1.43 × 10^-8" in manuscript
+    assert "finite-cluster" in manuscript
+    assert "one-dimensional score" in manuscript
+    assert "2.93 × 10^-6" not in manuscript
+    assert "1.43 × 10^-8" not in manuscript
