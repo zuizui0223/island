@@ -402,7 +402,44 @@
     "post_freeze_reviewer_diagnostics": {
       "allowed_role": "claim_narrowing_and_robustness_only",
       "cluster_jackknife_H1a_H1b": "completed; H1a survives in both scopes, H1b is supported in all-analysis but not Direct-only",
-      "regional_isolation_support": "in_progress",
+      "regional_isolation_support": {
+        "status": "completed",
+        "workflow_run_id": 37165554570,
+        "artifact_id": 11288958926,
+        "artifact_sha256": "24823166ea9c590f73f34fed1c7d0d7113f17391e735e3297542cc14b56e4ac1",
+        "method": "compare corrected isolation distributions among exact frozen H1 count-support islands by region; also residualize log distance against log island area and climate PC1-PC4 within region",
+        "all_analysis_eligible": {
+          "northern_midlatitude": {
+            "n_h1_union_islands": 2173,
+            "median_distance_km": 12.2135137964696,
+            "share_lt_10km": 0.4772204325816843,
+            "raw_log_distance_sd": 2.2285642612171306,
+            "residual_log_distance_sd_after_area_climate": 2.1163889082187137,
+            "area_climate_R2_for_log_distance": 0.09813687434227714
+          },
+          "northern_high_latitude": {
+            "n_h1_union_islands": 411,
+            "median_distance_km": 79.85277508347222,
+            "raw_log_distance_sd": 2.628689002058229,
+            "residual_log_distance_sd_after_area_climate": 2.19128754697166
+          },
+          "tropical": {
+            "n_h1_union_islands": 1493,
+            "median_distance_km": 449.7872959324012,
+            "raw_log_distance_sd": 2.6974687570828246,
+            "residual_log_distance_sd_after_area_climate": 2.0931448286141694
+          },
+          "southern_extratropical": {
+            "n_h1_union_islands": 302,
+            "median_distance_km": 62.97973651975075,
+            "raw_log_distance_sd": 2.7234024807679935,
+            "residual_log_distance_sd_after_area_climate": 2.2258656790677294
+          }
+        },
+        "direct_only_note": "Nearly identical to all-analysis: northern-midlatitude n=2161, median distance 12.21 km, raw log-distance SD 2.227, residual SD 2.114.",
+        "outcome_level_note": "Across all seven frozen outcomes, northern-midlatitude raw log-distance SD is 2.181-2.225 (all-analysis) and 2.182-2.225 (Direct-only); residual SD after area/climate adjustment is 2.047-2.111 and 2.048-2.109, overlapping the corresponding ranges in the other regions.",
+        "interpretation": "Northern mid-latitudes are much more mainland-proximate and have a narrower raw isolation distribution, but adjusted isolation variation is not depleted. The weak northern-midlatitude H1 slope is therefore not explained by a simple lack of residual distance range or island-count power."
+      },
       "rule": "These diagnostics may narrow or qualify the frozen claim but may not add traits, redefine H1, or promote a new mechanism."
     }
   }
