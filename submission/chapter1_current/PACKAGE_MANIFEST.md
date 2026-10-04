@@ -1,51 +1,55 @@
-> **4 October 2026 H1 supersession:** use `config/chapter1_submission_current.json`, the revised MANUSCRIPT and `results/h1_traitwise_20261004/`. Any pooled-score statistics, figure assets or readiness statements below describe the archived pre-traitwise package and are not current submission evidence. Administrative packaging must be regenerated before submission.
-
 # Chapter 1 submission package — Ecology Letters first shot
 
-Current package:
-- `MANUSCRIPT.md` — clean submission-facing article draft synchronized to the final finite-cluster H1 and corrected geography.
-- `FIGURE_CAPTIONS.md` — captions for Main Figures 1–6 using corrected estimates.
-- `COVER_LETTER_DRAFT.md` — Ecology Letters first-shot cover letter.
-- `ECOLOGY_LETTERS_TARGET.md` — target-journal scope, constraints and fallback logic.
-- `NOVELTY_STATEMENT.md` — editorial novelty statement.
-- `TITLE_PAGE_TEMPLATE.md` — required title-page fields and current counts.
-- `DATA_ACCESSIBILITY_DRAFT.md` — rights-aware data-accessibility language.
-- `ECOLOGY_LETTERS_DATA_GATE.md` — EL submission-policy gate for incomplete trait-ledger redistribution rights.
-- `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md` — draft pre-submission editorial inquiry.
-- `figures/FIGURE_MANIFEST.json` — complete Main Figures 1–6 package manifest.
-- `figures/Figure1_global_scope_corrected.*` through `Figure6_H3_H4_functional_bridge.*` — Main Figures 1–6 in SVG/PDF.
-- `SUPPLEMENT_PLAN.md` — Supplementary Information structure.
-- `SUPPLEMENTARY_INFORMATION_DRAFT.md` — internal SI source map.
-- `SUPPLEMENTARY_INFORMATION.md` — submission-facing S1–S7 text.
-- `supplement/SUPPLEMENT_TABLES_MANIFEST.json` — deterministic table/source hash manifest.
-- `supplement/Table_S1_data_summary.csv` through `Table_S6b_H4_atomic.csv` — generated SI tables.
-- `supplement/figures/FIGURE_MANIFEST.json` — Supplementary Figure S1–S7 package manifest.
-- `supplement/figures/Figure_S1_*` through `Figure_S7_*` — Supplementary Figures S1–S7 in SVG/PDF.
-- `GRAPHICAL_ABSTRACT_BRIEF.md` — graphical-abstract concept.
-- `GRAPHICAL_ABSTRACT_SHORT_TEXT.md` — graphical-abstract short text.
-- `GEB_FALLBACK.md` — structured-abstract and double-anonymous fallback conversion.
-- `SUBMISSION_CHECKLIST.md` — completion checklist and claim boundary.
-- `SUBMISSION_READINESS.md` — final current-state gate for submission.
+> **Active scientific surface: corrected geography + final traitwise H1 (4 October 2026).**  
+> Pooled/domain H1 scores are superseded provenance.
 
-Primary scientific source of truth:
-- `config/chapter1_h1_final_directional_result_lock.json`
-- `config/chapter1_submission_current.json`
-- `submission/chapter1_current/MANUSCRIPT.md`
-- `results/h1_final_directional_20261003/`
-- `results/geography_20260924/`
+## Active files
 
-Superseded provenance:
-- `config/chapter1_v14_canonical_result_lock.json`
-- the uncorrected v14 manuscript/results are retained for audit only and must not be submitted unchanged.
+- submission/chapter1_current/MANUSCRIPT.md
+- submission/chapter1_current/FIGURE_CAPTIONS.md
+- submission/chapter1_current/COVER_LETTER_DRAFT.md
+- submission/chapter1_current/ECOLOGY_LETTERS_TARGET.md
+- submission/chapter1_current/NOVELTY_STATEMENT.md
+- submission/chapter1_current/TITLE_PAGE_TEMPLATE.md
+- submission/chapter1_current/DATA_ACCESSIBILITY_DRAFT.md
+- submission/chapter1_current/ECOLOGY_LETTERS_DATA_GATE.md
+- submission/chapter1_current/ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md
+- submission/chapter1_current/SUPPLEMENTARY_INFORMATION.md
+- submission/chapter1_current/SUBMISSION_CHECKLIST.md
+- submission/chapter1_current/SUBMISSION_READINESS.md
 
-Main figure sequence:
+## Primary scientific sources of truth
+
+1. config/chapter1_submission_current.json
+2. config/chapter1_h1_final_traitwise_t_20261004.yml
+3. results/h1_final_traitwise_t_20261004/
+4. results/geography_20260924/
+5. submission/chapter1_current/MANUSCRIPT.md
+6. submission/chapter1_current/FIGURE_CAPTIONS.md
+
+Historical directional/composite H1 files remain replay provenance only.
+
+## Main figure sequence
+
 1. Global geographic and data scope
 2. Database construction and analytical workflow
 3. Constraint–response triangle / inferential boundary
-4. H1 global-average directional tendency and regional modulation
-5. H2 conditional pathway decomposition
-6. H3 pollen-limitation pressure and H4 functional bridge
+4. Seven separate H1 trait responses across regions and evidence/provenance sensitivities
+5. H2 reproductive-assurance / additional floral-response decomposition
+6. H3 pollen-limitation gradient and H4 functional bridge
 
-Main Figures 1–6 are committed in SVG/PDF and bound to the final H1 result lock plus corrected H2–H4 tables by deterministic renderer + CI. Supplementary Figures S1–S7 are likewise committed and guarded. The committed corrected tables remain the inferential source of truth.
+## Current narrative
 
-The first-shot target is Ecology Letters **conditional on closing the data-policy gate**. SI text, deterministic tables and Supplementary Figures S1–S7 are assembled; only final journal-file compilation remains after metadata freeze. The manuscript is within the Letter limits (main text <5,000 words; 6 display items; abstract <150 words). If third-party redistribution restrictions cannot be cleared or accepted by the EL editors, switch before submission to Global Ecology and Biogeography, whose policy explicitly permits editorial exceptions for legal data-sharing restrictions.
+The paper is organized around **functional recurrence without phenotypic uniformity**:
+
+- self-compatibility is the most recurrent traitwise response to isolation;
+- other reproductive, structural and colour responses vary among regions;
+- generalized accessibility is only partly explained by measured reproductive assurance;
+- pollen limitation independently increases with isolation;
+- reproductive-assurance and accessibility states are associated with lower current pollen limitation.
+
+No historical causal mediation is claimed.
+
+## Submission state
+
+The manuscript remains within the Ecology Letters Letter limits by repository count (abstract 148 words; main text ~4,907 words; six display items). Submission is blocked only by the external data-policy gate and final author/release metadata.
