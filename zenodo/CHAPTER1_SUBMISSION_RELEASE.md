@@ -19,7 +19,8 @@ Include:
 - `config/chapter1_submission_current.json`;
 - corrected geography code and replay instructions under `scripts/geography_correction/`;
 - submission builders under `scripts/submission/`;
-- aggregate corrected H1/H2/H3/H4 result tables under `results/geography_20260924/`;
+- frozen final H1 directional result lock and replay code/results, including the WCVP regional-native-compatible provenance sensitivity;
+- aggregate corrected H2/H3/H4 result tables under `results/geography_20260924/`;
 - geometry validation/audit receipts;
 - H1 optimizer/convergence audit;
 - deterministic supplementary tables and manifests;
