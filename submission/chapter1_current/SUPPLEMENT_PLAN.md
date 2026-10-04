@@ -27,16 +27,22 @@ The main paper should remain conceptual and compact. Technical audit detail, exh
 - 222,688 / 318,885 resolved cells;
 - provenance and redistribution-rights boundary.
 
-## Appendix S3 — H1 full results
+## Appendix S3 — H1 directional tendency, heterogeneity and provenance sensitivity
 
-- primary three-axis raw-state models using the original species×axis cells;
+- primary frozen seven-indicator one-dimensional directional score;
+- finite-cluster t and Rademacher sign-flip regional inference;
+- H1a Paule-Mandel / modified Hartung-Knapp global-average synthesis;
+- H1b Cochran Q / I² with exact delete-one-spatial-cluster jackknife sensitivity;
+- strict four-region intersection-union recurrence test;
+- WCVP regional-native-compatible replay of the same final directional H1;
+- northern-midlatitude isolation-support diagnostic;
+- descriptive raw three-axis models using the original species×axis cells;
 - formal cell-retention and ontology-repair audit;
-- all four geographic strata and both evidence scopes;
 - source-native, WCVP regional-native-compatible and complementary status partitions;
-- native-compatible versus incompatible/introduced status-by-isolation vector tests;
+- native-compatible versus incompatible/introduced status-by-isolation vector diagnostics;
 - strict source-native versus source-introduced tropical comparison;
 - TDWG Level-3 resolution sensitivity;
-- secondary seven-indicator directional decomposition and taxonomic-depth diagnostics.
+- historical seven-dimensional joint-Wald and taxonomic-depth diagnostics retained only for provenance.
 
 ## Appendix S4 — H2 full decomposition
 
@@ -48,7 +54,7 @@ The main paper should remain conceptual and compact. Technical audit detail, exh
 - colour × architecture joint prevalence;
 - architecture conditional on colour;
 - complete FDR families;
-- tropical Direct-only q = 0.1196 boundary.
+- tropical Direct-only accessibility remains positive but is not FDR-supported (q = 0.1267).
 
 ## Appendix S5 — H3 pollen-limitation analysis
 
@@ -81,10 +87,10 @@ The main paper should remain conceptual and compact. Technical audit detail, exh
 ## Supplementary tables
 
 - Table S1: deterministic data/geography summary;
-- Table S2a: secondary seven-indicator H1 atomic coefficients;
-- Table S2b: secondary seven-indicator joint tests;
+- Table S2a: historical seven-indicator H1 atomic coefficients;
+- Table S2b: historical seven-dimensional joint-Wald diagnostics;
 - Table S2e: descriptive seven-indicator domain orientation;
-- Table S2f: primary raw three-axis H1;
+- Table S2f: descriptive raw three-axis audit;
 - Table S2g: floristic-origin response-vector contrasts;
 - Table S2h: species×axis ontology and formal-cell audit;
 - Table S3: complete H2 conditional decomposition;
