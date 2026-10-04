@@ -15,8 +15,7 @@ COMMITTED = ROOT / "submission" / "chapter1_current" / "supplement"
 
 OUTPUTS = [
     "Table_S1_data_summary.csv",
-    "Table_S2a_H1_atomic.csv",
-    "Table_S2b_H1_joint.csv",
+    "Table_S2_H1_traitwise.csv",
     "Table_S3_H2_decomposition.csv",
     "Table_S5_H3_pollen_limitation.csv",
     "Table_S6a_H4_scores.csv",
@@ -46,12 +45,11 @@ def test_supplement_table_shapes_and_primary_values() -> None:
         (COMMITTED / "SUPPLEMENT_TABLES_MANIFEST.json").read_text(encoding="utf-8")
     )
     assert manifest["contract"] == "chapter1_submission_supplement_tables_v1"
-    assert manifest["scientific_surface"] == "corrected_geography_20260924"
+    assert manifest["scientific_surface"] == "corrected_geography_20260924_plus_final_traitwise_H1_20261004"
 
     expected_rows = {
         "Table_S1_data_summary.csv": 13,
-        "Table_S2a_H1_atomic.csv": 112,
-        "Table_S2b_H1_joint.csv": 24,
+        "Table_S2_H1_traitwise.csv": 112,
         "Table_S3_H2_decomposition.csv": 24,
         "Table_S5_H3_pollen_limitation.csv": 3,
         "Table_S6a_H4_scores.csv": 6,
