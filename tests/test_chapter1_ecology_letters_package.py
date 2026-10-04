@@ -203,7 +203,7 @@ def test_supplementary_information_draft_is_bound_to_corrected_outputs() -> None
     text = SI_DRAFT.read_text(encoding="utf-8")
     required = [
         "corrected 8,264-unit",
-        "results/geography_20260924/all/beta_binomial_within_slopes.csv",
+        "results/h1_final_traitwise_t_20261004/traitwise_results.csv",
         "results/geography_20260924/direct/h2_decomposition_models.csv",
         "results/geography_20260924/h3_original_corrected_comparison.json",
         "results/geography_20260924/h4_exact_corrected.csv",
