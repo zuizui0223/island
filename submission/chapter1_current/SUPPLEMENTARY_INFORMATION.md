@@ -318,15 +318,16 @@ It records source and output SHA-256 hashes and supports byte-for-byte table reb
 
 - scripts/submission/build_chapter1_supplement_tables.py
 
-Generated tables:
+Generated active tables:
 
 - Table_S1_data_summary.csv
-- Table_S2a_H1_atomic.csv
-- Table_S2b_H1_joint.csv
-- Table_S3_H2_decomposition.csv
+- Table_S2_H1_traitwise.csv
+- Table_S3a_H2_all_finite_cluster.csv
+- Table_S3b_H2_direct_finite_cluster.csv
 - Table_S5_H3_pollen_limitation.csv
 - Table_S6a_H4_scores.csv
-- Table_S6b_H4_atomic.csv
+
+Atomic H4 sensitivities are reported in the SI text from the corrected atomic source table; earlier H1 joint/vector and domain tables remain historical provenance only.
 
 Table S4 is intentionally represented by the complete corrected raw-pattern file family rather than by one oversized duplicated table.
 
