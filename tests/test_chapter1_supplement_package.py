@@ -21,8 +21,7 @@ def test_supplement_has_complete_s1_s7_structure() -> None:
 
     required_tables = (
         "Table S1.",
-        "Table S2a.",
-        "Table S2b.",
+        "Table S2.",
         "Table S3.",
         "Table S5.",
         "Table S6a.",
@@ -33,7 +32,6 @@ def test_supplement_has_complete_s1_s7_structure() -> None:
 
     assert "Table S4" in text
     assert "raw-pattern" in text.lower()
-
 
 def test_supplement_references_live_corrected_paths_and_generated_tables() -> None:
     text = SI.read_text(encoding="utf-8")
