@@ -235,7 +235,7 @@ def figure2(root: Path, out: Path) -> None:
     _box(ax, 0.04, 0.68, 0.25, 0.18, "Island geography", "GSHHG 2.3.7\ncorrected isolation")
     _box(ax, 0.375, 0.68, 0.25, 0.18, "Island floras", "GBIF incidence\n106,295 angiosperms")
     _box(ax, 0.71, 0.68, 0.25, 0.18, "Trait evidence", "colour · architecture\nreproductive assurance")
-    _box(ax, 0.12, 0.36, 0.30, 0.20, "H1–H2 | Plant response", "traitwise recurrence\nconditional decomposition")
+    _box(ax, 0.12, 0.36, 0.30, 0.20, "H1–H2 | Plant response", "multivariate recurrence\nconditional decomposition")
     _box(ax, 0.58, 0.36, 0.30, 0.20, "H3 | Ecological pressure", "independent GloPL\npollen-supplementation data")
     _box(ax, 0.35, 0.08, 0.30, 0.18, "H4 | Functional bridge", "exact-species H2 scores × GloPL\npost-hoc triangulation")
 
