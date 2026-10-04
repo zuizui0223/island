@@ -104,9 +104,6 @@ jobs:
                       "share_gt_500km":float(np.mean(part["distance_to_continent_km"].to_numpy(float)>500)),
                   })
 
-              for (context,outcome),grp in counts.groupby(["outcome"],dropna=False):
-                  pass
-
               for outcome in sorted(counts["outcome"].unique()):
                   ids_by_outcome=counts.loc[counts["outcome"].eq(outcome),"island_id"].drop_duplicates()
                   for context in contexts:
