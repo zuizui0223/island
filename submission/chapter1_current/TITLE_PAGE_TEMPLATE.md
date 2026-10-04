@@ -2,9 +2,9 @@
 
 **Article type:** Letter
 
-**Title:** A global floral island-syndrome tendency is regionally heterogeneous and functionally aligned with pollen limitation
+**Title:** Island isolation is associated with recurrent reproductive assurance but regionally contingent floral change
 
-**Running title:** Heterogeneous floral island syndrome
+**Running title:** Recurrent function, contingent flowers
 
 **Authors:**  
 [AUTHOR 1]  
@@ -24,11 +24,11 @@
 [EMAIL]  
 [TELEPHONE]
 
-**Keywords:** island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; flower colour; pollination
+**Keywords:** island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; functional island biogeography; pollination
 
-**Abstract word count:** 137 [final journal count to verify; must remain <=150]
+**Abstract word count:** 148 [final journal count to verify; must remain <=150]
 
-**Main-text word count:** 4,996 [repository Markdown count; final journal count to verify; must remain <=5,000]
+**Main-text word count:** ~4,907 [repository Markdown count; final journal count to verify; must remain <=5,000]
 
 **References:** 18
 
@@ -44,7 +44,7 @@
 
 ## Data accessibility statement
 
-**EL submission blocker:** replace this section only after `ECOLOGY_LETTERS_DATA_GATE.md` is closed. The rights-filtered trait subset is already published at Zenodo (DOI `10.5281/zenodo.22704973`), but it contains only 46,274 redistribution-authorized cells and is not the complete 222,688-cell scientific analysis ledger. The exact submission code and corrected derived result tables still require a permanent submission archive, and the remaining third-party trait-data restrictions require rights closure or an explicit editorial exception.
+**EL submission blocker:** replace this section only after ECOLOGY_LETTERS_DATA_GATE.md is closed. The rights-filtered trait subset is already published at Zenodo (DOI 10.5281/zenodo.22704973), but it contains only 46,274 redistribution-authorized cells and is not the complete 222,688-cell scientific analysis ledger. The exact submission code and corrected derived result tables still require a permanent submission archive, and the remaining third-party trait-data restrictions require rights closure or an explicit editorial exception.
 
 ## Conflict of interest
 
