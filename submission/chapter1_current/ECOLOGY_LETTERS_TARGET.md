@@ -1,20 +1,22 @@
 # Ecology Letters first-shot target — conditional on data-policy clearance
 
-Checked: 3 October 2026.
+Checked: 4 October 2026.
 
-## Why this paper is being aimed here
+## First-shot argument
 
-The manuscript is not being sold as a larger version of an island-trait survey. The first-shot argument is:
+The paper is not presented as a larger island-trait survey and no longer relies on a pooled floral-syndrome score. The central argument is:
 
-> **Geographic isolation is associated with stronger pollen limitation and a positive average floral/reproductive island-syndrome direction whose magnitude and realization differ strongly among regions.**
+> **Island isolation is associated with recurrent reproductive assurance but not a universal floral phenotype; the same geographic gradient is independently associated with stronger pollen limitation.**
 
-The conceptual advance is the **constraint–response triangle**:
+The conceptual advance is **functional recurrence without phenotypic uniformity**:
 
-1. isolation is associated with a positive global-average reproductive/floral direction but strong regional heterogeneity;
-2. isolation is independently associated with stronger experimental pollen limitation;
-3. the same response families enriched with isolation are associated with lower current pollen limitation in exact-species overlap.
+1. self-compatibility is the most geographically recurrent individual response to isolation;
+2. other reproductive, colour and structural traits vary among regions;
+3. generalized accessibility is only partly explained by measured reproductive assurance;
+4. independent pollen-supplementation experiments show stronger pollen limitation with isolation;
+5. the island-associated reproductive-assurance and accessibility states are associated with lower current pollen limitation in exact-species overlap.
 
-The historical causal edge from pollen limitation to contemporary trait composition remains unresolved.
+The historical causal edge from pollen limitation through selection/sorting to contemporary trait composition remains unresolved.
 
 ## Current Ecology Letters constraints
 
@@ -23,29 +25,10 @@ For a **Letter**:
 - main text: maximum 5,000 words, excluding title page, abstract, acknowledgements, references and figure/table/box legends;
 - figures + tables + text boxes: maximum 6 display items;
 - abstract: maximum 150 words;
-- title page requires:
-  - article title;
-  - full author names, affiliations and email addresses;
-  - running title <45 characters including spaces;
-  - up to 10 keywords;
-  - article type;
-  - abstract word count;
-  - main-text word count;
-  - number of references;
-  - number of figures, tables and text boxes;
-  - corresponding-author mailing/contact details;
-  - authorship statement;
-  - data accessibility statement.
-- a graphical abstract is required at revision stage and should be simple, minimally textual and legible at small size.
+- title page requires article title, full author metadata, running title, keywords, counts, authorship statement and data-accessibility statement;
+- a graphical abstract is required at revision stage.
 
-Official source:
-- https://onlinelibrary.wiley.com/page/journal/14610248/homepage/forauthors.html
-
-## Data-policy submission gate
-
-Ecology Letters requires the analysed raw data (or exact subset used), metadata, code and derived products to be accessible to editors/reviewers at submission and permanently archived before publication. The full Chapter 1 trait ledger is not presently wholly redistributable. Therefore EL submission is conditional on closing `ECOLOGY_LETTERS_DATA_GATE.md`; the rights-filtered 46,274-cell public subset must not be represented as the complete 222,688-cell analysis input.
-
-A pre-submission inquiry is drafted in `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md`.
+Official journal instructions remain the authority at submission.
 
 ## Current package fit
 
@@ -53,36 +36,37 @@ A pre-submission inquiry is drafted in `ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md`.
 - Main figures: **6**
 - Tables: **0**
 - Text boxes: **0**
-- Main text: **~4,672 / 5,000 words** by repository Markdown count
-- Abstract: **128 / 150 words**
-- Running-title candidate: **Heterogeneous floral island syndrome**
-- Keywords: island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; flower colour; pollination
+- Main text: **~4,907 / 5,000 words** by repository Markdown count
+- Abstract: **148 / 150 words**
+- Running-title candidate: **Recurrent function, contingent flowers**
+- Keywords: island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; functional island biogeography; pollination
+
+## Data-policy submission gate
+
+Ecology Letters requires analysed data, metadata, code and derived products to be accessible to editors/reviewers at submission and permanently archived before publication. The full Chapter 1 trait ledger is not presently wholly redistributable. The rights-filtered public subset must not be represented as the complete analysis input.
+
+A pre-submission inquiry is drafted in ECOLOGY_LETTERS_DATA_POLICY_INQUIRY.md. Do not submit to Ecology Letters until the gate is closed or the editors explicitly accept the proposed restricted-data arrangement.
 
 ## Editorial positioning
 
-Do not lead with database size alone.
+Lead with the ecological problem, not database size:
 
-Lead with the problem:
-
-> Baker-type reproductive assurance predicts one route to island reproductive independence, but it does not explain whether pollinator-facing floral reorganization is merely a consequence of selfing.
+> Repeated island constraints need not produce a single phenotype. The question is which reproductive functions recur with isolation and whether that same gradient carries an independently measured reproductive constraint.
 
 Then show the empirical closure:
 
-> the same isolation gradient carries a positive average but regionally heterogeneous plant response and stronger experimental pollen limitation, while reproductive-assurance and accessibility traits are each associated with lower current pollen limitation.
+> self-compatibility recurs across all four regions; floral morphology is region contingent; pollen limitation increases with isolation; and the island-associated reproductive and accessibility states are functionally aligned with lower current pollen limitation.
 
 ## Likely editorial vulnerability
 
-The main desk-rejection risk is being read as a descriptive global correlation study.
+The desk-rejection risk is being read as a descriptive global correlation study. Counter this by keeping the manuscript centred on:
 
-Counter this by keeping the manuscript centred on:
-
-- explicit competing ecological models: serial selfing-only vs partially separable response components;
+- recurrent function versus phenotypic contingency;
+- the serial selfing-only versus partially separable-response comparison;
 - independent experimental H3 evidence;
 - exact-species H4 functional triangulation;
-- explicit causal boundary.
-
-Do not spend cover-letter space on the history of the repository or old H1–H5 branches.
+- an explicit causal ceiling.
 
 ## Fallback
 
-If the EL data-policy gate cannot be closed, switch to *Global Ecology and Biogeography* before submission rather than submitting a non-compliant EL archive. GEB is also scientifically well aligned with the paper and explicitly allows editorial exceptions where data sharing conflicts with legal requirements, provided the restrictions are justified.
+If the Ecology Letters data-policy gate cannot be closed, switch to *Global Ecology and Biogeography* before submission and regenerate the fallback material from the same traitwise H1 surface.
