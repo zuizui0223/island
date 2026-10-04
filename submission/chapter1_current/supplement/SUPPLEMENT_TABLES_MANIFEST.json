@@ -16,6 +16,33 @@
       "rows": 13,
       "sha256": "ca1970e97598a5d0948d1bda2bca97589f18e74c200f7560e00f1f77b9ce6bdf"
     },
+    "Table_S2_H1_traitwise.csv": {
+      "columns": [
+        "evidence_scope",
+        "flora_scope",
+        "context",
+        "outcome",
+        "domain",
+        "n_islands",
+        "n_species_trials",
+        "optimizer_success",
+        "retry_used",
+        "optimizer_message",
+        "status",
+        "estimate",
+        "se",
+        "df",
+        "ci_low",
+        "ci_high",
+        "p_two_sided",
+        "n_clusters",
+        "effective_clusters",
+        "maximum_cluster_variance_share",
+        "interpretation"
+      ],
+      "rows": 112,
+      "sha256": "bbbf5ccddb15c7a7c2ecf1014b83832fd047c0b248a6e2e75b51d4ac08630b49"
+    },
     "Table_S3_H2_decomposition.csv": {
       "columns": [
         "evidence_scope",
@@ -94,33 +121,6 @@
       ],
       "rows": 22,
       "sha256": "80a50651b4fc6a08cd5e7b60d5bb4dd0706297e15ae34939f52b0bb6f1208476"
-    },
-    "Table_S2_H1_traitwise.csv": {
-      "rows": 112,
-      "columns": [
-        "evidence_scope",
-        "flora_scope",
-        "context",
-        "outcome",
-        "domain",
-        "n_islands",
-        "n_species_trials",
-        "optimizer_success",
-        "retry_used",
-        "optimizer_message",
-        "status",
-        "estimate",
-        "se",
-        "df",
-        "ci_low",
-        "ci_high",
-        "p_two_sided",
-        "n_clusters",
-        "effective_clusters",
-        "maximum_cluster_variance_share",
-        "interpretation"
-      ],
-      "sha256": "bbbf5ccddb15c7a7c2ecf1014b83832fd047c0b248a6e2e75b51d4ac08630b49"
     }
   },
   "scientific_surface": "corrected_geography_20260924_plus_final_traitwise_H1_20261004",
