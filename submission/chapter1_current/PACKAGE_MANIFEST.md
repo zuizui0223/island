@@ -1,7 +1,7 @@
 # Chapter 1 submission package — Ecology Letters first shot
 
 Current package:
-- `MANUSCRIPT.md` — clean submission-facing article draft updated to PR #242 corrected geography.
+- `MANUSCRIPT.md` — clean submission-facing article draft synchronized to the final finite-cluster H1 and corrected geography.
 - `FIGURE_CAPTIONS.md` — captions for Main Figures 1–6 using corrected estimates.
 - `COVER_LETTER_DRAFT.md` — Ecology Letters first-shot cover letter.
 - `ECOLOGY_LETTERS_TARGET.md` — target-journal scope, constraints and fallback logic.
@@ -26,8 +26,10 @@ Current package:
 - `SUBMISSION_READINESS.md` — final current-state gate for submission.
 
 Primary scientific source of truth:
+- `config/chapter1_h1_final_directional_result_lock.json`
 - `config/chapter1_submission_current.json`
-- `docs/chapter1_corrected_submission_20260924.md`
+- `submission/chapter1_current/MANUSCRIPT.md`
+- `results/h1_final_directional_20261003/`
 - `results/geography_20260924/`
 
 Superseded provenance:
@@ -38,10 +40,10 @@ Main figure sequence:
 1. Global geographic and data scope
 2. Database construction and analytical workflow
 3. Constraint–response triangle / inferential boundary
-4. H1 recurrent multivariate response
+4. H1 global-average directional tendency and regional modulation
 5. H2 conditional pathway decomposition
 6. H3 pollen-limitation pressure and H4 functional bridge
 
-Main Figures 1–6 are committed in SVG/PDF and bound to the corrected tables under `results/geography_20260924/` by deterministic renderer + CI. Supplementary Figures S1–S7 are likewise committed and guarded. The committed corrected tables remain the inferential source of truth.
+Main Figures 1–6 are committed in SVG/PDF and bound to the final H1 result lock plus corrected H2–H4 tables by deterministic renderer + CI. Supplementary Figures S1–S7 are likewise committed and guarded. The committed corrected tables remain the inferential source of truth.
 
 The first-shot target is Ecology Letters **conditional on closing the data-policy gate**. SI text, deterministic tables and Supplementary Figures S1–S7 are assembled; only final journal-file compilation remains after metadata freeze. The manuscript is within the Letter limits (main text <5,000 words; 6 display items; abstract <150 words). If third-party redistribution restrictions cannot be cleared or accepted by the EL editors, switch before submission to Global Ecology and Biogeography, whose policy explicitly permits editorial exceptions for legal data-sharing restrictions.
