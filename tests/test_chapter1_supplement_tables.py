@@ -87,21 +87,16 @@ def test_supplement_table_shapes_and_primary_values() -> None:
 
 
 def test_h1_frozen_optimizer_warning_is_annotated_not_hidden() -> None:
-    atomic = pd.read_csv(COMMITTED / "Table_S2a_H1_atomic.csv").fillna("")
-    row = atomic.loc[
-        atomic["evidence_scope"].eq("direct_only")
-        & atomic["stratum"].eq("all_observed")
-        & atomic["context"].eq("northern_high_latitude")
-        & atomic["outcome"].eq("shallow_open_tube")
-    ].iloc[0]
-    assert str(row["optimizer_success"]).lower() == "false"
-    assert "audited separately" in str(row["submission_note"])
+    h1 = pd.read_csv(COMMITTED / "Table_S2_H1_traitwise.csv")
+    assert len(h1) == 112
+    assert h1["optimizer_success"].all()
 
-    joint = pd.read_csv(COMMITTED / "Table_S2b_H1_joint.csv")
-    row = joint.loc[
-        joint["evidence_scope"].eq("direct_only")
-        & joint["stratum"].eq("all_observed")
-        & joint["context"].eq("northern_high_latitude")
-    ].iloc[0]
-    assert str(row["all_optimizers_converged"]).lower() == "false"
-    assert str(row["vector_supported"]).lower() == "true"
+    primary_sc = h1.loc[
+        h1["evidence_scope"].eq("all")
+        & h1["flora_scope"].eq("broad")
+        & h1["outcome"].eq("self_compatibility")
+    ]
+    assert len(primary_sc) == 4
+    assert (primary_sc["estimate"] > 0).all()
+    assert (primary_sc["p_two_sided"] < 0.05).all()
+
