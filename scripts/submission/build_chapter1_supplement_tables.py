@@ -10,13 +10,10 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RESULTS = ROOT / "results" / "geography_20260924"
+FINAL_H1 = ROOT / "results" / "h1_final_traitwise_t_20261004" / "traitwise_results.csv"
 DEFAULT_OUTPUT = ROOT / "submission" / "chapter1_current" / "supplement"
 
 SOURCE_FILES = [
-    "all/beta_binomial_within_slopes.csv",
-    "direct/beta_binomial_within_slopes.csv",
-    "all/beta_binomial_within_omnibus.csv",
-    "direct/beta_binomial_within_omnibus.csv",
     "all/h2_decomposition_models.csv",
     "direct/h2_decomposition_models.csv",
     "h3_original_corrected_comparison.json",
@@ -90,75 +87,6 @@ def build_s1_summary(results: Path) -> pd.DataFrame:
         ]
     )
     return pd.DataFrame(rows, columns=["section", "metric", "value", "unit", "source"])
-
-
-def build_h1_atomic(results: Path) -> pd.DataFrame:
-    pieces = []
-    for scope, rel in (
-        ("all_analysis_eligible", "all/beta_binomial_within_slopes.csv"),
-        ("direct_only", "direct/beta_binomial_within_slopes.csv"),
-    ):
-        frame = pd.read_csv(results / rel)
-        frame.insert(0, "evidence_scope", scope)
-        pieces.append(frame)
-    out = pd.concat(pieces, ignore_index=True)
-    out = out[
-        [
-            "evidence_scope",
-            "stratum",
-            "context",
-            "outcome",
-            "n_islands",
-            "n_species_trials",
-            "geography_slope_log_odds",
-            "cluster_robust_se",
-            "p_value",
-            "kappa",
-            "optimizer_success",
-        ]
-    ]
-    out["submission_note"] = ""
-    mask = (
-        out["evidence_scope"].eq("direct_only")
-        & out["stratum"].eq("all_observed")
-        & out["context"].eq("northern_high_latitude")
-        & out["outcome"].eq("shallow_open_tube")
-    )
-    out.loc[mask, "submission_note"] = (
-        "Frozen optimizer flag audited separately; converged retry changed slope "
-        "by 2.93e-06 and the six-response sensitivity remained supported."
-    )
-    return out
-
-
-def build_h1_joint(results: Path) -> pd.DataFrame:
-    pieces = []
-    for scope, rel in (
-        ("all_analysis_eligible", "all/beta_binomial_within_omnibus.csv"),
-        ("direct_only", "direct/beta_binomial_within_omnibus.csv"),
-    ):
-        frame = pd.read_csv(results / rel)
-        frame.insert(0, "evidence_scope", scope)
-        pieces.append(frame)
-    out = pd.concat(pieces, ignore_index=True)
-    return out[
-        [
-            "evidence_scope",
-            "stratum",
-            "context",
-            "status",
-            "n_retained_outcomes",
-            "retained_outcomes",
-            "n_unique_islands",
-            "n_clusters",
-            "joint_wald_chisq",
-            "joint_df",
-            "p_value",
-            "q_value",
-            "all_optimizers_converged",
-            "vector_supported",
-        ]
-    ]
 
 
 def build_h2(results: Path) -> pd.DataFrame:
@@ -267,8 +195,6 @@ def write_tables(results: Path, output: Path) -> dict[str, object]:
     output.mkdir(parents=True, exist_ok=True)
     tables = {
         "Table_S1_data_summary.csv": build_s1_summary(results),
-        "Table_S2a_H1_atomic.csv": build_h1_atomic(results),
-        "Table_S2b_H1_joint.csv": build_h1_joint(results),
         "Table_S3_H2_decomposition.csv": build_h2(results),
         "Table_S5_H3_pollen_limitation.csv": build_h3(results),
         "Table_S6a_H4_scores.csv": build_h4_scores(results),
@@ -284,23 +210,30 @@ def write_tables(results: Path, output: Path) -> dict[str, object]:
             "sha256": _sha256(path),
         }
 
+    h1_name = "Table_S2_H1_traitwise.csv"
+    h1_target = output / h1_name
+    h1_target.write_bytes(FINAL_H1.read_bytes())
+    h1_frame = pd.read_csv(FINAL_H1)
+    output_meta[h1_name] = {
+        "rows": len(h1_frame),
+        "columns": list(h1_frame.columns),
+        "sha256": _sha256(h1_target),
+    }
+
     source_meta = {rel: _sha256(results / rel) for rel in SOURCE_FILES}
+    source_meta["results/h1_final_traitwise_t_20261004/traitwise_results.csv"] = _sha256(FINAL_H1)
     repo_root = results.parents[1]
-    for rel in (
-        "config/chapter1_database_versions/v1.0.0.yml",
-        "config/chapter1_submission_current.json",
-    ):
-        source_meta[rel] = _sha256(repo_root / rel)
+    rel = "config/chapter1_database_versions/v1.0.0.yml"
+    source_meta[rel] = _sha256(repo_root / rel)
     manifest = {
         "contract": "chapter1_submission_supplement_tables_v1",
-        "scientific_surface": "corrected_geography_20260924",
+        "scientific_surface": "corrected_geography_20260924_plus_final_traitwise_H1_20261004",
         "sources": source_meta,
         "outputs": output_meta,
         "notes": {
-            "Table_S2a": (
-                "The frozen Direct-only northern-high-latitude shallow/open-tube "
-                "optimizer flag is preserved and annotated; the separate convergence "
-                "audit closes that numerical warning without rewriting frozen results."
+            "Table_S2": (
+                "Final active H1: seven separate traits in four regions, with broad All "
+                "primary plus WCVP and Direct-only sensitivities. No pooled/domain score."
             ),
             "Table_S4": (
                 "Full raw colour and colour-by-architecture results remain in "
@@ -308,6 +241,7 @@ def write_tables(results: Path, output: Path) -> dict[str, object]:
                 "being duplicated into one very large submission CSV."
             ),
         },
+
     }
     manifest_path = output / "SUPPLEMENT_TABLES_MANIFEST.json"
     manifest_path.write_text(
