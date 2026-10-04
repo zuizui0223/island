@@ -21,7 +21,7 @@ GEB explicitly prioritizes broad-scale spatial/taxonomic ecological patterns and
 ## Format conversion
 
 - Article type: Research Article.
-- Main text: current ~3,500 words, already within the typical ~5,000-word scale.
+- Main text: current repository Markdown count is 4,996 words, within the ~5,000-word target but leaving minimal margin.
 - Display pieces: six figures, within the typical six-to-eight range.
 - Abstract: convert to the required structured format:
   - Aim
@@ -40,7 +40,7 @@ GEB explicitly prioritizes broad-scale spatial/taxonomic ecological patterns and
 
 ## GEB structured abstract draft
 
-**Aim:** To test whether floral responses to island isolation form a single serial selfing syndrome or a recurrent functional response with partially separable reproductive-assurance and pollinator-facing components, and whether the same isolation gradient is associated with experimental pollen limitation.
+**Aim:** To test whether increasing island isolation is associated with a positive average floral/reproductive island-syndrome direction, how strongly that response varies among regions, whether reproductive assurance and floral accessibility are partially separable, and whether the same isolation gradient is associated with experimental pollen limitation.
 
 **Location:** Global islands and global pollen-supplementation sites.
 
@@ -50,9 +50,9 @@ GEB explicitly prioritizes broad-scale spatial/taxonomic ecological patterns and
 
 **Methods:** We analysed 106,295 angiosperm species across a corrected universe of 8,264 island units using seven floral/reproductive responses, conditional reproductive-assurance adjustments and four geographic replication strata. We independently analysed 2,969 pollen-supplementation experiments and exact-matched island-response trait scores to GloPL species.
 
-**Results:** The multivariate floral–reproductive isolation response recurred in all four regions despite non-uniform atomic traits. Floral accessibility remained positively associated with isolation after reproductive-assurance adjustment, with strongest FDR support in northern high latitudes and the tropics. Experimental pollen limitation increased with isolation (β = 0.0919, P = 0.0157). In exact-species post-hoc comparisons, reproductive-assurance and accessibility scores enriched with isolation were each associated with lower current pollen limitation.
+**Results:** The frozen seven-indicator directional score was positive in all four regional point estimates, but strict four-region recurrence failed because northern mid-latitudes were weak. Random-effects synthesis supported a positive global-average direction (all-analysis one-sided P = 0.0256; Direct-only P = 0.0238), while the strength of formal regional heterogeneity was sensitivity-dependent under exact cluster-jackknife uncertainty. Replaying the same final H1 on WCVP regional-native-compatible floras reproduced the positive global-average tendency and weak northern mid-latitudes. Floral accessibility remained partly separable from measured reproductive assurance. Experimental pollen limitation increased with isolation (β = 0.0919, finite-publication P = 0.01594), and exact-species post-hoc comparisons linked stronger reproductive-assurance and accessibility scores to lower current pollen limitation.
 
-**Main conclusions:** Island isolation is associated with a recurrent functional reproductive response that extends beyond a serial selfing syndrome. Reproductive assurance and floral accessibility are partially separable, while regional phenotype trajectories remain contingent. The convergence of trait composition, isolation-associated pollen limitation and trait–pollen-limitation associations supports functional compatibility but does not identify historical causal mediation.
+**Main conclusions:** Island isolation is associated with a positive average functional reproductive tendency rather than a uniform trait checklist. Reproductive assurance and floral accessibility are partially separable, while the magnitude and phenotype of the response are strongly region dependent. The convergence of trait composition, isolation-associated pollen limitation and trait–pollen-limitation associations supports functional compatibility but does not identify historical causal mediation.
 
 ## Data-policy advantage
 
