@@ -1,8 +1,10 @@
 # Supplementary Information draft
 
+> **Internal source map only — do not submit.** The submission-facing SI is `SUPPLEMENTARY_INFORMATION.md`. Final H1 inference is the frozen seven-indicator one-dimensional directional score; raw three-axis and seven-dimensional Wald results below are descriptive/historical diagnostics.
+
 ## Article
 
-**A recurrent global floral island syndrome extends beyond the selfing syndrome**
+**A global floral island-syndrome tendency is regionally heterogeneous and functionally aligned with pollen limitation**
 
 This Supplementary Information draft is tied to the corrected 8,264-unit Chapter 1 submission surface selected by `config/chapter1_submission_current.json`. It does not use superseded v13/v14 geography or historical WHEN/WHERE branches.
 
@@ -78,7 +80,7 @@ Supporting provenance:
 
 ---
 
-## Appendix S3 — H1 recurrent multivariate island response
+## Appendix S3 — H1 directional tendency, heterogeneity and diagnostic decomposition
 
 ### S3.1 Primary all-analysis models
 
@@ -102,7 +104,7 @@ Original-versus-corrected comparisons:
 - `results/geography_20260924/direct/comparison_beta_binomial_within_slopes.csv`
 - `results/geography_20260924/direct/comparison_beta_binomial_within_omnibus.csv`
 
-The main claim is multivariate recurrence across four geographic strata. Individual atomic coefficients are retained to show that recurrence does not imply uniform positivity.
+The main H1 claim is a positive global-average one-dimensional directional tendency with regional modulation; strict four-region recurrence is unsupported. The seven-dimensional joint tests and individual atomic coefficients are retained here only as historical/diagnostic decomposition.
 
 ### S3.3 Northern-high-latitude Direct-only optimizer audit
 
@@ -149,7 +151,7 @@ Corrected-versus-parent comparisons:
 - `results/geography_20260924/all/comparison_h2_decomposition_models.csv`
 - `results/geography_20260924/direct/comparison_h2_decomposition_models.csv`
 
-The tropical Direct-only accessibility estimate is nominally positive but not FDR-supported after correction (q = 0.1196).
+The tropical Direct-only accessibility estimate remains positive but is not FDR-supported under the final finite-cluster correction (q = 0.1267).
 
 ### S4.2 Raw colour states
 
@@ -206,7 +208,7 @@ Primary corrected estimate:
 
 - beta = 0.09191;
 - SE = 0.03806;
-- two-sided P = 0.01575.
+- finite-publication two-sided P = 0.01594.
 
 The no-zero-constant sensitivity remains supported; the supplemental-only sensitivity remains positive but unsupported.
 
@@ -231,8 +233,8 @@ Model-ready effect rows:
 
 Primary corrected estimates:
 
-- selfing_core: beta = -0.29830, P = 0.00396;
-- generalized_accessible: beta = -0.29566, P = 0.02187.
+- selfing_core: beta = -0.29830, finite-publication P = 0.00417;
+- generalized_accessible: beta = -0.29566, finite-publication P = 0.02334.
 
 ### S6.2 Atomic-trait sensitivities
 
@@ -255,10 +257,11 @@ Autonomous selfing is the strongest atomic functional association; actinomorphy 
 
 The current paper permits:
 
-1. recurrent multivariate floral/reproductive response to isolation;
-2. partial separation of reproductive assurance and floral accessibility;
-3. an independent isolation-associated pollen-limitation gradient;
-4. post-hoc functional compatibility of response trait states with lower current pollen limitation.
+1. a positive global-average directional floral/reproductive island-syndrome tendency;
+2. regional modulation, while strict four-region recurrence remains unsupported;
+3. partial separation of reproductive assurance and floral accessibility;
+4. an independent isolation-associated pollen-limitation gradient;
+5. post-hoc functional compatibility of response trait states with lower current pollen limitation.
 
 It does not establish:
 
