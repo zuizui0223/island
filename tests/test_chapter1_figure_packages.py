@@ -43,11 +43,14 @@ def test_main_figure_package_is_complete() -> None:
     assert "Historical causal edge not identified" in figure3
     assert "not a mediation model" in figure3
 
-    figure4 = (MAIN / "Figure4_H1_recurrent_multivariate_response.svg").read_text(
-        encoding="utf-8"
+    assert (
+        (MAIN / "Figure4_H1_recurrent_multivariate_response.svg").read_bytes()
+        == (ROOT / "results/h1_final_traitwise_t_20261004/traitwise_H1.svg").read_bytes()
     )
-    assert "Self-compatibility" in figure4
-    assert "Northern mid-latitude" in figure4
+    assert (
+        (MAIN / "Figure4_H1_recurrent_multivariate_response.pdf").read_bytes()
+        == (ROOT / "results/h1_final_traitwise_t_20261004/traitwise_H1.pdf").read_bytes()
+    )
 
 
 def test_supplement_figure_package_is_complete() -> None:
