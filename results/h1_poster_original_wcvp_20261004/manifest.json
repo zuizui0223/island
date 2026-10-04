@@ -1,0 +1,26 @@
+{
+  "rule": "Original poster: cluster sandwich covariance from original seven-trait stack; two-sided normal p; estimate +/- 1.96 SE; unadjusted individual p<.05. No Holm or t substitution.",
+  "primary": "Original corrected tables copied without refitting or changing their p/SE/coefficients.",
+  "wcvp_coverage": {
+    "n_rows": 1039757,
+    "n_original_native": 150531,
+    "n_original_introduced": 19442,
+    "n_original_unresolved": 869784,
+    "n_wcvp_compatible_upgrades": 362789,
+    "n_islands_with_upgrade": 2281,
+    "n_regional_native_rows": 513320,
+    "n_regional_native_islands": 2372
+  },
+  "unique_native_species_before_trait_filter": 90693,
+  "all_optimizers_converged": false,
+  "inputs": {
+    "..\\sources\\progressive-input\\fixed\\canonical\\input\\chapter1_status_flora.csv.gz": "6b5006322d15dd87aa3aad3b4dd050d4c6420485521be314ae511f39e05b859a",
+    "..\\traitwise-inputs\\status\\resolved\\island_tdwg_l3_mapping.csv": "e28351c297ab1ca7416b50b55a99fafd2c5d4ab6c8b984761fe987e0a57953b3",
+    "..\\traitwise-inputs\\wcvp\\ch1-wcvp\\ranges\\wcvp_native_range_summary.csv.gz": "271441009365279780e5c2e3e220a9bc176e98fcfeceaa2a474a6ae55b706f3f",
+    "C:\\Users\\zuizui\\Documents\\Codex\\2026-09-24\\https-github-com-zuizui0223-izu-core\\work\\island-traitwise-20261004\\results\\geography_20260924\\corrected_geography_covariates.csv": "08218617b5880153986012e79817de65a74dd4e44b5a65e8a537dab8cb2cd0a7",
+    "C:\\Users\\zuizui\\Documents\\Codex\\2026-09-24\\https-github-com-zuizui0223-izu-core\\work\\island-traitwise-20261004\\results\\geography_20260924\\all\\beta_binomial_within_slopes.csv": "23a46ddfec97c19d92b6fa69f4b9de0dc48edf742927a4bf0ed5306a0bad3100",
+    "..\\sources\\progressive-input\\snapshot\\chapter1_trait_state_audit_all.csv.gz": "c0e5e4b14911caeaeb36ba9243b55ebb7f1b288445ba571c7ddced016ea4f510",
+    "C:\\Users\\zuizui\\Documents\\Codex\\2026-09-24\\https-github-com-zuizui0223-izu-core\\work\\island-traitwise-20261004\\results\\geography_20260924\\direct\\beta_binomial_within_slopes.csv": "220771cfce21dfcdf2ec6eed481a0758e3e8fcaa7b0014530e082bc42e2a27b8",
+    "..\\sources\\progressive-input\\snapshot\\chapter1_trait_state_audit_direct.csv.gz": "4890da7df53b2e240c4b1493ef93c0814a68435a5e1670e3c0e7c3e6717b90e7"
+  }
+}

@@ -105,7 +105,11 @@
     "results/h1_traitwise_20261004/traitwise_results.csv": "61916b40ae1817e9ecd4be9c97643437f4ea5c264cce3d55ba1ab399f352adb2",
     "results/h1_traitwise_20261004/traitwise_H1.pdf": "03fc7cccc1074c6397c9f8382af1889b98da21bd2cc4fe987a5fb1e633be6981",
     "results/h1_traitwise_20261004/traitwise_H1.png": "2414c553188fc079a50d0398f9419e7654f75f12ab3f8177dcb79cbd7dd34504",
-    "results/h1_traitwise_20261004/traitwise_H1.svg": "998db04e47e9007ba9d5c9137de63a3d3aa54474ac65b62fd0b5b2cb6e1e2618"
+    "results/h1_traitwise_20261004/traitwise_H1.svg": "998db04e47e9007ba9d5c9137de63a3d3aa54474ac65b62fd0b5b2cb6e1e2618",
+    "results/h1_poster_original_wcvp_20261004/manifest.json": "b87d26670598203f4c530f07aa9eab26772fdcce389ab0c790f09727fb343689",
+    "results/h1_poster_original_wcvp_20261004/README.md": "bca49a4b9206b48ff2a57fd35cebe2164f9b1f56974a2488c6f56cec01c383ea",
+    "results/h1_poster_original_wcvp_20261004/traitwise_results.csv": "8f8da487886d9a08cdcf856ac96b6c6e2dd6c07dad0b2461025f0ece431e25cd",
+    "results/h1_poster_original_wcvp_20261004/wcvp_support.csv": "510951aeb7b7286cc612dcd59e30bb2f362ae024e630ce8fc8b69b28402a40d5"
   },
   "submission_package": "submission/chapter1_current",
   "manuscript": "submission/chapter1_current/MANUSCRIPT.md",
@@ -113,15 +117,11 @@
   "history_index": "docs/CHAPTER1_HISTORY.md",
   "final_H1_inference": {
     "date": "2026-10-04",
-    "results_directory": "results/h1_traitwise_20261004",
-    "config": "config/chapter1_h1_traitwise_20261004.yml",
-    "formal_estimand": "Seven separate trait slopes in four regions; no pooled or domain score",
-    "regional_inference": "two-sided cluster t(G-1), pointwise 95% CI, Holm 28 tests per scope",
-    "origin_sensitivity": "WCVP regional-native compatible only",
-    "design_status": "post-result redesign",
-    "validation": "local replay, 112 of 112 converged",
-    "figure": "results/h1_traitwise_20261004/traitwise_H1.pdf",
-    "replay_instructions": "docs/REPLAY_H1_TRAITWISE_20261004.md"
+    "results_directory": "results/h1_poster_original_wcvp_20261004",
+    "formal_estimand": "Original seven individual traits; broad All primary, WCVP sole origin sensitivity",
+    "regional_inference": "Original stacked cluster covariance; two-sided normal unadjusted p; estimate +/- 1.96 SE",
+    "restoration": "Broad source rows unchanged, including disclosed historical Direct-only failure flag",
+    "report": "results/h1_poster_original_wcvp_20261004/README.md"
   },
   "historical_H1_inference": {
     "date": "2026-10-03",
@@ -134,5 +134,17 @@
     "H1a_global_synthesis": "Paule-Mandel random effects with modified Hartung-Knapp inference",
     "H1b_heterogeneity": "Cochran Q and I2",
     "strict_four_region_recurrence_supported": false
+  },
+  "superseded_traitwise_t_holm": {
+    "date": "2026-10-04",
+    "results_directory": "results/h1_traitwise_20261004",
+    "config": "config/chapter1_h1_traitwise_20261004.yml",
+    "formal_estimand": "Seven separate trait slopes in four regions; no pooled or domain score",
+    "regional_inference": "two-sided cluster t(G-1), pointwise 95% CI, Holm 28 tests per scope",
+    "origin_sensitivity": "WCVP regional-native compatible only",
+    "design_status": "post-result redesign",
+    "validation": "local replay, 112 of 112 converged",
+    "figure": "results/h1_traitwise_20261004/traitwise_H1.pdf",
+    "replay_instructions": "docs/REPLAY_H1_TRAITWISE_20261004.md"
   }
 }

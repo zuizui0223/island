@@ -1,3 +1,5 @@
+> **Superseded inference draft:** the t/Holm interpretation below is no longer primary. The user restored original seven-trait poster inference on 4 October 2026: see `results/h1_poster_original_wcvp_20261004/README.md` and the current selector. This draft must not be submitted or used to replace the original poster conclusions.
+
 # Main figure captions
 
 ## Figure 1 | Global scope and corrected geographic exposure
