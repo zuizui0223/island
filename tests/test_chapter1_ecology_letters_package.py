@@ -62,7 +62,7 @@ def test_h1_uses_final_directional_score_and_retains_three_axis_audit() -> None:
     assert "global-average classic-island direction" in captions.lower()
     assert "regional heterogeneity" in captions.lower()
     assert "reproductive assurance" in novelty
-    assert "floral structure" in novelty
+    assert "floral accessibility" in novelty
 
     for path in (H1_RAW_AXIS_TABLE, H1_ORIGIN_TABLE, H1_AXIS_AUDIT):
         assert path.is_file(), path
