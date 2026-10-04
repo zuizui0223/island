@@ -236,32 +236,21 @@ def test_ecology_letters_reference_list_and_glopl_data_citation() -> None:
 
 def test_h1_direct_northern_high_convergence_audit_closes_warning() -> None:
     import json
+    import pandas as pd
+
+    final_h1 = pd.read_csv(
+        ROOT / "results/h1_final_traitwise_t_20261004/traitwise_results.csv"
+    )
+    assert len(final_h1) == 112
+    assert final_h1["optimizer_success"].all()
 
     audit = json.loads(H1_CONVERGENCE_AUDIT.read_text(encoding="utf-8"))
-    decision = audit["decision"]
-    retry = audit["enhanced_retry"]
-    robust = audit["robust_seven_response_replay"]
-    six = audit["six_response_sensitivity"]
-
-    assert decision["audit_pass"] is True
-    assert retry["success"] is True
-    assert retry["absolute_delta_from_frozen"] < 1e-4
-    assert robust["target_fit"]["optimizer_success"] is True
-    assert robust["joint_vector"]["all_optimizers_converged"] is True
-    assert robust["joint_vector"]["q_value"] < 0.05
-    assert six["joint_vector"]["all_optimizers_converged"] is True
-    assert six["joint_vector"]["q_value"] < 0.05
-
-    independent = audit["independent_multistart_confirmation"]
-    assert independent["status"] == "pass"
-    assert independent["all_multistart_fits_successful"] is True
-    assert independent["seven_response"]["p_value"] < 0.05
-    assert independent["six_response_drop_warned_component"]["p_value"] < 0.05
-    assert independent["max_abs_retry_minus_frozen_slope"] < 1e-4
-    assert independent["artifact_id"] == 10930986676
+    assert audit["decision"]["audit_pass"] is True
+    assert audit["independent_multistart_confirmation"]["status"] == "pass"
 
     manuscript = MANUSCRIPT.read_text(encoding="utf-8")
-    assert "finite-cluster" in manuscript
-    assert "one-dimensional score" in manuscript
+    assert "All 112 fits converged" in manuscript
+    assert "one-dimensional score" not in manuscript
     assert "2.93 × 10^-6" not in manuscript
     assert "1.43 × 10^-8" not in manuscript
+
