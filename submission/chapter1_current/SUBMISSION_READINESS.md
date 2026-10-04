@@ -2,7 +2,7 @@
 
 ## Current decision
 
-The corrected Chapter 1 scientific package is **analysis-complete; main-figure regeneration is in progress after the final inference audit**.
+The corrected Chapter 1 analysis is **complete under the final finite-cluster H1 inference**; submission prose and Figure 4 are being synchronized to that result.
 
 First-shot journal: **Ecology Letters**, conditional on closing the journal's data-policy gate.
 
@@ -13,18 +13,19 @@ Fallback: **Global Ecology and Biogeography** if the third-party trait-data rest
 ### Science
 
 - corrected 8,264-island geographic baseline;
-- H1a positive global-average predeclared island-syndrome direction supported in all-analysis and Direct-only random-effects synthesis;
-- H1b regional heterogeneity supported; strict four-region recurrence explicitly fails because northern mid-latitudes are weak;
-- raw three-axis/state models retained as descriptive reorganization and floristic-origin diagnostics, not confirmatory H1 tests;
-- H2 reproductive-assurance / accessibility conditional decomposition re-audited with finite-cluster inference;
-- H3 independent GloPL pollen-limitation gradient retained under finite-publication inference, including offshore-only robustness;
-- H4 exact-species functional triangulation retained under finite-publication inference;
+- H1a: positive global-average classic-island direction under Paule-Mandel + modified Hartung-Knapp inference;
+- H1b: strong regional heterogeneity; strict four-region recurrence is unsupported;
+- raw three-axis result retained as descriptive phenotype/provenance audit, not confirmatory H1;
+- H1 Direct-only northern-high optimizer warning independently closed;
+- H2 reproductive-assurance / accessibility conditional decomposition;
+- H3 independent GloPL pollen-limitation gradient;
+- H4 exact-species functional triangulation;
 - causal/claim boundaries fixed in manuscript and SI.
 
 ### Manuscript package
 
-- title and 140-word abstract;
-- main text 4,977 words;
+- title and 128-word abstract revised for the final H1a/H1b claim;
+- main text ~4,672 words by repository Markdown count; final formatted recount pending;
 - 18 references in Ecology Letters style;
 - novelty positioned against recent island-colonization and range-edge literature;
 - Ecology Letters cover letter;
@@ -34,8 +35,8 @@ Fallback: **Global Ecology and Biogeography** if the third-party trait-data rest
 
 ### Figures and Supplementary Information
 
-- deterministic Main Figure 1–6 renderer updated to the final directional H1 and finite-cluster H2–H4 result surface;
-- committed SVG/PDF figures must be regenerated once from that updated renderer before submission;
+- Main Figures 1–6 are committed; Figure 4 requires final H1a/H1b visual synchronization;
+- main-figure manifest and deterministic renderer;
 - Supplementary Information S1–S7 assembled;
 - deterministic Tables S1, S2a–S2h, S3, S5, S6a and S6b;
 - Supplementary Figures S1–S7 committed in SVG/PDF;
@@ -116,4 +117,4 @@ After metadata and DOI freeze:
 
 ## Current scientific claim in one sentence
 
-**Geographic isolation is associated with a positive global-average floral/reproductive island-syndrome direction whose strength differs strongly among regions; reproductive assurance and accessibility are the most consistent functional components, and the same isolation axis is independently associated with increasing pollen limitation.**
+**Geographic isolation is associated with a positive average shift toward reproductive assurance and accessible floral architecture, but the magnitude and phenotype are strongly region dependent; the same gradient is independently associated with increasing pollen limitation.**

@@ -2,9 +2,9 @@
 
 **Article type:** Letter
 
-**Title:** A recurrent global floral island syndrome extends beyond the selfing syndrome
+**Title:** A global floral island-syndrome tendency is regionally heterogeneous and functionally aligned with pollen limitation
 
-**Running title:** Island floral syndrome beyond selfing
+**Running title:** Heterogeneous floral island syndrome
 
 **Authors:**  
 [AUTHOR 1]  
@@ -26,9 +26,9 @@
 
 **Keywords:** island biogeography; pollen limitation; reproductive assurance; selfing; floral accessibility; flower colour; pollination
 
-**Abstract word count:** 140 [recount after final copy-edit; must remain <=150]
+**Abstract word count:** 128 [final journal count to verify; must remain <=150]
 
-**Main-text word count:** 4,977 [Introduction through Conclusion; excludes abstract, acknowledgements, references and figure/table legends; must remain <=5,000]
+**Main-text word count:** 4,839 [repository Markdown count; final journal count to verify; must remain <=5,000]
 
 **References:** 18
 
