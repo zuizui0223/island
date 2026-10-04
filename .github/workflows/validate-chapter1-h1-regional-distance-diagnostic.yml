@@ -1,0 +1,187 @@
+name: Validate H1 regional isolation support
+
+on:
+  push:
+    branches:
+      - analysis/h1-three-axis-raw-state
+    paths:
+      - ".github/workflows/validate-chapter1-h1-regional-distance-diagnostic.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ROBUST_RUN_ID: "37122292456"
+      ROBUST_ARTIFACT: "chapter1-final-reviewer-robust-37122292456"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install analysis dependencies
+        run: pip install pandas numpy
+
+      - name: Download frozen H1 count support
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/h1-distance/robust
+          gh run download "$ROBUST_RUN_ID" -n "$ROBUST_ARTIFACT" -D /tmp/h1-distance/robust
+          test -s /tmp/h1-distance/robust/all/h1_counts.csv.gz
+          test -s /tmp/h1-distance/robust/direct/h1_counts.csv.gz
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+
+      - name: Quantify regional isolation support
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import numpy as np
+          import pandas as pd
+
+          root=Path("/tmp/h1-distance")
+          cov=pd.read_csv("results/geography_20260924/corrected_geography_covariates.csv")
+          keep=[
+              "island_id","analysis_regime","spatial_block",
+              "distance_to_continent_km","log_distance_to_continent_km",
+              "log_island_area_km2","climate_pc1","climate_pc2","climate_pc3","climate_pc4",
+          ]
+          cov=cov[keep].drop_duplicates("island_id").copy()
+          contexts=[
+              "northern_midlatitude","northern_high_latitude",
+              "tropical","southern_extratropical",
+          ]
+          baselines=["log_island_area_km2","climate_pc1","climate_pc2","climate_pc3","climate_pc4"]
+
+          def q(x,p):
+              return float(np.quantile(np.asarray(x,float),p))
+
+          rows=[]
+          union_rows=[]
+          for scope in ("all","direct"):
+              counts=pd.read_csv(root/"robust"/scope/"h1_counts.csv.gz")
+              counts=counts.loc[counts["stratum"].eq("all_observed")].copy()
+              for context in contexts:
+                  ids=counts["island_id"].drop_duplicates()
+                  part=cov.loc[
+                      cov["island_id"].isin(ids)
+                      & cov["analysis_regime"].eq(context)
+                  ].dropna(
+                      subset=["log_distance_to_continent_km",*baselines]
+                  ).copy()
+                  x=part["log_distance_to_continent_km"].to_numpy(float)
+                  X=np.column_stack(
+                      [np.ones(len(part)), *[part[c].to_numpy(float) for c in baselines]]
+                  )
+                  beta=np.linalg.pinv(X.T@X)@X.T@x
+                  residual=x-X@beta
+                  sst=float(np.sum((x-x.mean())**2))
+                  ssr=float(np.sum(residual**2))
+                  union_rows.append({
+                      "scope":scope,
+                      "context":context,
+                      "n_h1_union_islands":int(len(part)),
+                      "n_spatial_blocks":int(part["spatial_block"].nunique()),
+                      "distance_km_p05":q(part["distance_to_continent_km"],.05),
+                      "distance_km_p25":q(part["distance_to_continent_km"],.25),
+                      "distance_km_median":q(part["distance_to_continent_km"],.50),
+                      "distance_km_p75":q(part["distance_to_continent_km"],.75),
+                      "distance_km_p95":q(part["distance_to_continent_km"],.95),
+                      "log_distance_sd":float(np.std(x,ddof=0)),
+                      "log_distance_iqr":q(x,.75)-q(x,.25),
+                      "residual_log_distance_sd_after_area_climate":float(np.std(residual,ddof=0)),
+                      "area_climate_R2_for_log_distance":float(1-ssr/sst) if sst>0 else np.nan,
+                      "share_lt_10km":float(np.mean(part["distance_to_continent_km"].to_numpy(float)<10)),
+                      "share_gt_500km":float(np.mean(part["distance_to_continent_km"].to_numpy(float)>500)),
+                  })
+
+              for (context,outcome),grp in counts.groupby(["outcome"],dropna=False):
+                  pass
+
+              for outcome in sorted(counts["outcome"].unique()):
+                  ids_by_outcome=counts.loc[counts["outcome"].eq(outcome),"island_id"].drop_duplicates()
+                  for context in contexts:
+                      part=cov.loc[
+                          cov["island_id"].isin(ids_by_outcome)
+                          & cov["analysis_regime"].eq(context)
+                      ].dropna(
+                          subset=["log_distance_to_continent_km",*baselines]
+                      ).copy()
+                      if len(part)<2:
+                          continue
+                      x=part["log_distance_to_continent_km"].to_numpy(float)
+                      X=np.column_stack(
+                          [np.ones(len(part)), *[part[c].to_numpy(float) for c in baselines]]
+                      )
+                      beta=np.linalg.pinv(X.T@X)@X.T@x
+                      residual=x-X@beta
+                      sst=float(np.sum((x-x.mean())**2))
+                      ssr=float(np.sum(residual**2))
+                      rows.append({
+                          "scope":scope,
+                          "context":context,
+                          "outcome":outcome,
+                          "n_islands":int(len(part)),
+                          "log_distance_sd":float(np.std(x,ddof=0)),
+                          "log_distance_iqr":q(x,.75)-q(x,.25),
+                          "residual_log_distance_sd_after_area_climate":float(np.std(residual,ddof=0)),
+                          "area_climate_R2_for_log_distance":float(1-ssr/sst) if sst>0 else np.nan,
+                      })
+
+          union=pd.DataFrame(union_rows)
+          outcome=pd.DataFrame(rows)
+          union.to_csv(root/"regional_distance_union.csv",index=False)
+          outcome.to_csv(root/"regional_distance_by_outcome.csv",index=False)
+
+          # Compact diagnostic: compare north-mid with the other regions.
+          compact=[]
+          for scope,grp in union.groupby("scope"):
+              nm=grp.loc[grp["context"].eq("northern_midlatitude")].iloc[0]
+              others=grp.loc[~grp["context"].eq("northern_midlatitude")]
+              compact.append({
+                  "scope":scope,
+                  "north_mid_n":int(nm["n_h1_union_islands"]),
+                  "north_mid_distance_median_km":float(nm["distance_km_median"]),
+                  "north_mid_log_distance_sd":float(nm["log_distance_sd"]),
+                  "north_mid_residual_sd":float(nm["residual_log_distance_sd_after_area_climate"]),
+                  "north_mid_area_climate_R2":float(nm["area_climate_R2_for_log_distance"]),
+                  "min_other_log_distance_sd":float(others["log_distance_sd"].min()),
+                  "max_other_log_distance_sd":float(others["log_distance_sd"].max()),
+                  "min_other_residual_sd":float(others["residual_log_distance_sd_after_area_climate"].min()),
+                  "max_other_residual_sd":float(others["residual_log_distance_sd_after_area_climate"].max()),
+              })
+          compact=pd.DataFrame(compact)
+          compact.to_csv(root/"north_mid_distance_diagnostic.csv",index=False)
+          print("=== union support ===")
+          print(union.to_string(index=False))
+          print("\n=== north-mid diagnostic ===")
+          print(compact.to_string(index=False))
+          PY
+
+          {
+            echo "## H1 regional isolation-support diagnostic"
+            echo
+            cat /tmp/h1-distance/regional_distance_union.csv
+            echo
+            cat /tmp/h1-distance/north_mid_distance_diagnostic.csv
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-h1-regional-distance-${{ github.run_id }}
+          path: |
+            /tmp/h1-distance/regional_distance_union.csv
+            /tmp/h1-distance/regional_distance_by_outcome.csv
+            /tmp/h1-distance/north_mid_distance_diagnostic.csv
+          if-no-files-found: error
+          retention-days: 30
