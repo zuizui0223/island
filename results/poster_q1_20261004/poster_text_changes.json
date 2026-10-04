@@ -1,0 +1,30 @@
+[
+  {
+    "before": "Supplemental-only: selfing p=.290; accessibility p=.0397. Post-hoc.",
+    "after": "Supplemental-only: selfing p=.291; accessibility p=.0424. Post-hoc."
+  },
+  {
+    "before": "(p=.00037).",
+    "after": "(p=.00112)."
+  },
+  {
+    "before": "H2 selfing-core score: positive in 4 regions (2 p<.05). South: generalized form ↑, shallow tubes ↓. Tropical Direct access: q=.120.",
+    "after": "H2 selfing-core score: positive in 4 regions (2 p<.05). South: generalized form ↑, shallow tubes ↓. Tropical Direct access: q=.127."
+  },
+  {
+    "before": "H4 atomic traits: autonomous selfing p=2.9×10⁻⁸; radial symmetry p=1.2×10⁻⁵; generalized form p=.0443; self-compatibility p=.150.",
+    "after": "H4 atomic traits: autonomous selfing p=4.85×10⁻⁸; radial symmetry p=1.47×10⁻⁵; generalized form p=.0454; self-compatibility p=.150."
+  },
+  {
+    "before": "Joint Wald test of distance slopes.",
+    "after": "Spatial-block t tests (G−1 df)."
+  },
+  {
+    "before": "Spatial-block robust CIs. Joint q<.005 in all regions. Dots = islands.",
+    "after": "Spatial-block 95% t CIs. Dots = islands. No pooled syndrome test."
+  },
+  {
+    "before": "Publication-clustered SE.",
+    "after": "Publication-clustered SE; t inference."
+  }
+]

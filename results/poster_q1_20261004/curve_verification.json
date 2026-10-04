@@ -1,0 +1,170 @@
+[
+  {
+    "context": "northern_midlatitude",
+    "trait": "self_compatibility",
+    "slope_delta": 2.4272250875867485e-14,
+    "se_delta": 2.182659608607196e-11
+  },
+  {
+    "context": "northern_midlatitude",
+    "trait": "selfing_mating_system",
+    "slope_delta": -2.38073449843057e-14,
+    "se_delta": 2.0928935667852144e-12
+  },
+  {
+    "context": "northern_midlatitude",
+    "trait": "autonomous_selfing",
+    "slope_delta": -8.040651477969618e-13,
+    "se_delta": 3.3458652515250265e-13
+  },
+  {
+    "context": "northern_midlatitude",
+    "trait": "plain_colour",
+    "slope_delta": 5.705722352922216e-15,
+    "se_delta": 6.529846108271897e-14
+  },
+  {
+    "context": "northern_midlatitude",
+    "trait": "generalized_form",
+    "slope_delta": 3.662348202482235e-14,
+    "se_delta": -4.91913888095441e-11
+  },
+  {
+    "context": "northern_midlatitude",
+    "trait": "actinomorphic_symmetry",
+    "slope_delta": -2.8352320491364935e-14,
+    "se_delta": 3.4303115903355774e-13
+  },
+  {
+    "context": "northern_midlatitude",
+    "trait": "shallow_open_tube",
+    "slope_delta": 1.5664552988070568e-14,
+    "se_delta": -1.26246027520871e-11
+  },
+  {
+    "context": "northern_high_latitude",
+    "trait": "self_compatibility",
+    "slope_delta": -5.505680633621779e-11,
+    "se_delta": 2.7506598537785365e-07
+  },
+  {
+    "context": "northern_high_latitude",
+    "trait": "selfing_mating_system",
+    "slope_delta": 6.712336242387096e-11,
+    "se_delta": -3.1255348399705785e-07
+  },
+  {
+    "context": "northern_high_latitude",
+    "trait": "autonomous_selfing",
+    "slope_delta": 5.7838886458050354e-11,
+    "se_delta": 3.4191662459659433e-07
+  },
+  {
+    "context": "northern_high_latitude",
+    "trait": "plain_colour",
+    "slope_delta": 1.0686590501407522e-13,
+    "se_delta": -1.1550666673132426e-11
+  },
+  {
+    "context": "northern_high_latitude",
+    "trait": "generalized_form",
+    "slope_delta": -2.256488130375489e-07,
+    "se_delta": 2.3087115087749854e-08
+  },
+  {
+    "context": "northern_high_latitude",
+    "trait": "actinomorphic_symmetry",
+    "slope_delta": 7.827072323607354e-15,
+    "se_delta": 2.7491576376492688e-09
+  },
+  {
+    "context": "northern_high_latitude",
+    "trait": "shallow_open_tube",
+    "slope_delta": 1.1338662786464226e-09,
+    "se_delta": -1.170155492363767e-06
+  },
+  {
+    "context": "tropical",
+    "trait": "self_compatibility",
+    "slope_delta": -1.096345236817342e-15,
+    "se_delta": -4.3721970488519446e-14
+  },
+  {
+    "context": "tropical",
+    "trait": "selfing_mating_system",
+    "slope_delta": -5.329070518200751e-15,
+    "se_delta": 2.2852691961006144e-12
+  },
+  {
+    "context": "tropical",
+    "trait": "autonomous_selfing",
+    "slope_delta": -8.604228440844963e-16,
+    "se_delta": -3.52884388377106e-13
+  },
+  {
+    "context": "tropical",
+    "trait": "plain_colour",
+    "slope_delta": -5.065541389126516e-10,
+    "se_delta": 4.4753242778305946e-11
+  },
+  {
+    "context": "tropical",
+    "trait": "generalized_form",
+    "slope_delta": 3.4111602431607935e-14,
+    "se_delta": -3.195499420627357e-13
+  },
+  {
+    "context": "tropical",
+    "trait": "actinomorphic_symmetry",
+    "slope_delta": -8.289077757517305e-12,
+    "se_delta": 3.039166140972327e-13
+  },
+  {
+    "context": "tropical",
+    "trait": "shallow_open_tube",
+    "slope_delta": -1.7295193055488767e-15,
+    "se_delta": 2.9148211622143094e-13
+  },
+  {
+    "context": "southern_extratropical",
+    "trait": "self_compatibility",
+    "slope_delta": 5.203615316418109e-13,
+    "se_delta": -5.72886182936827e-12
+  },
+  {
+    "context": "southern_extratropical",
+    "trait": "selfing_mating_system",
+    "slope_delta": -1.3877787807814457e-17,
+    "se_delta": 2.273917165673822e-12
+  },
+  {
+    "context": "southern_extratropical",
+    "trait": "autonomous_selfing",
+    "slope_delta": -6.800116025829084e-16,
+    "se_delta": -4.5976542017989175e-11
+  },
+  {
+    "context": "southern_extratropical",
+    "trait": "plain_colour",
+    "slope_delta": -3.046174423815273e-14,
+    "se_delta": 7.522906256274275e-11
+  },
+  {
+    "context": "southern_extratropical",
+    "trait": "generalized_form",
+    "slope_delta": -4.158604016701872e-12,
+    "se_delta": -6.260292423343472e-10
+  },
+  {
+    "context": "southern_extratropical",
+    "trait": "actinomorphic_symmetry",
+    "slope_delta": 9.672818102046676e-15,
+    "se_delta": -8.035447307541688e-13
+  },
+  {
+    "context": "southern_extratropical",
+    "trait": "shallow_open_tube",
+    "slope_delta": 7.959188863537747e-13,
+    "se_delta": 2.7452533302163573e-11
+  }
+]
