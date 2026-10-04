@@ -56,28 +56,25 @@ def test_supplement_references_live_corrected_paths_and_generated_tables() -> No
 
 def test_supplement_h1_values_and_convergence_audit() -> None:
     text = SI.read_text(encoding="utf-8")
-    joint = _read_csv(TABLE_DIR / "Table_S2b_H1_joint.csv")
-    broad = {
-        (row["evidence_scope"], row["context"]): row
-        for row in joint
-        if row["stratum"] == "all_observed"
-    }
-    assert len(broad) == 8
-    assert all(row["vector_supported"] == "True" for row in broad.values())
+    h1 = _read_csv(TABLE_DIR / "Table_S2_H1_traitwise.csv")
+    assert len(h1) == 112
+    assert all(row["optimizer_success"] == "True" for row in h1)
 
-    assert "3.216 × 10^-10" in text
-    assert "3.794 × 10^-8" in text
-    assert "2.93 × 10^-6" in text
-    assert "1.430 × 10^-8" in text
+    primary_sc = [
+        row for row in h1
+        if row["evidence_scope"] == "all"
+        and row["flora_scope"] == "broad"
+        and row["outcome"] == "self_compatibility"
+    ]
+    assert len(primary_sc) == 4
+    assert all(float(row["estimate"]) > 0 for row in primary_sc)
+    assert all(float(row["p_two_sided"]) < 0.05 for row in primary_sc)
 
-    audit = json.loads(
-        (ROOT / "results/geography_20260924/h1_direct_northern_high_convergence_audit.json")
-        .read_text(encoding="utf-8")
-    )
-    assert audit["decision"]["audit_pass"] is True
-    assert audit["robust_seven_response_replay"]["joint_vector"]["all_optimizers_converged"] is True
-    assert audit["six_response_sensitivity"]["joint_vector"]["q_value"] < 0.05
-
+    assert "0.00569" in text
+    assert "0.00671" in text
+    assert "0.01812" in text
+    assert "0.01123" in text
+    assert "All 112 fits converged" in text
 
 def test_supplement_h2_h3_h4_values_match_generated_tables() -> None:
     text = SI.read_text(encoding="utf-8")
