@@ -1,3 +1,4 @@
+import json
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -56,48 +57,35 @@ def test_h1_uses_final_directional_score_and_retains_three_axis_audit() -> None:
     novelty = NOVELTY.read_text(encoding="utf-8")
 
     assert "222,688 resolved cells" in manuscript
-    assert "one-dimensional score" in manuscript
-    assert "seven v14 indicators" in manuscript
-    assert "seven-trait floral–reproductive response" not in manuscript
-    assert "global-average classic-island direction" in captions.lower()
-    assert "regional heterogeneity" in captions.lower()
-    assert "reproductive assurance" in novelty
-    assert "floral accessibility" in novelty
+    assert "seven binary traits is fitted separately" in manuscript
+    assert "no pooled floral-syndrome score" in manuscript
+    assert "Seven traits under final finite-cluster inference" in captions
+    assert "reproductive function" in novelty.lower()
+    assert "phenotype" in novelty.lower()
 
-    for path in (H1_RAW_AXIS_TABLE, H1_ORIGIN_TABLE, H1_AXIS_AUDIT):
-        assert path.is_file(), path
+    final_h1 = pd.read_csv(
+        ROOT / "results/h1_final_traitwise_t_20261004/traitwise_results.csv"
+    )
+    assert len(final_h1) == 112
+    assert final_h1["optimizer_success"].all()
 
-    primary = pd.read_csv(H1_RAW_AXIS_TABLE)
-    assert set(primary["axis"]) == {
-        "reproductive_assurance",
-        "floral_structural_complexity",
-        "flower_colour",
-    }
-    broad = primary.loc[primary["flora_scope"].eq("all_observed")]
-    recurrent = broad.loc[
-        broad["axis"].isin(
-            ["reproductive_assurance", "floral_structural_complexity"]
-        )
+    primary = final_h1.loc[
+        final_h1["evidence_scope"].eq("all")
+        & final_h1["flora_scope"].eq("broad")
+        & final_h1["outcome"].eq("self_compatibility")
     ]
-    assert recurrent["axis_supported"].all()
-    colour = broad.loc[broad["axis"].eq("flower_colour")]
-    assert int(colour["axis_supported"].sum()) == 6
+    assert len(primary) == 4
+    assert (primary["estimate"] > 0).all()
+    assert (primary["p_two_sided"] < 0.05).all()
 
-    origin = pd.read_csv(H1_ORIGIN_TABLE)
-    strict = origin.loc[
-        origin["contrast"].eq("strict_known_origin")
-        & origin["axis"].eq("reproductive_assurance")
+    wcvp = final_h1.loc[
+        final_h1["evidence_scope"].eq("all")
+        & final_h1["flora_scope"].eq("wcvp")
+        & final_h1["outcome"].eq("self_compatibility")
     ]
-    assert strict["status_vectors_differ"].all()
-    assert (strict["cosine_similarity"] < 0).all()
-
-    audit = pd.read_csv(H1_AXIS_AUDIT)
-    all_analysis = audit.loc[
-        audit["evidence_scope"].eq("all_analysis_eligible")
-    ]
-    assert int(all_analysis["resolved_axis_cells"].sum()) == 222688
-    assert int(all_analysis["ontology_valid_axis_cells"].sum()) == 222688
-
+    assert len(wcvp) == 4
+    assert (wcvp["estimate"] > 0).all()
+    assert (wcvp["p_two_sided"] < 0.05).all()
 
 def test_title_page_word_counts_match_manuscript() -> None:
     manuscript = MANUSCRIPT.read_text(encoding="utf-8")
@@ -215,7 +203,7 @@ def test_supplementary_information_draft_is_bound_to_corrected_outputs() -> None
     text = SI_DRAFT.read_text(encoding="utf-8")
     required = [
         "corrected 8,264-unit",
-        "results/geography_20260924/all/beta_binomial_within_slopes.csv",
+        "results/h1_final_traitwise_t_20261004/traitwise_results.csv",
         "results/geography_20260924/direct/h2_decomposition_models.csv",
         "results/geography_20260924/h3_original_corrected_comparison.json",
         "results/geography_20260924/h4_exact_corrected.csv",
@@ -248,33 +236,21 @@ def test_ecology_letters_reference_list_and_glopl_data_citation() -> None:
 
 
 def test_h1_direct_northern_high_convergence_audit_closes_warning() -> None:
-    import json
+    import pandas as pd
+
+    final_h1 = pd.read_csv(
+        ROOT / "results/h1_final_traitwise_t_20261004/traitwise_results.csv"
+    )
+    assert len(final_h1) == 112
+    assert final_h1["optimizer_success"].all()
 
     audit = json.loads(H1_CONVERGENCE_AUDIT.read_text(encoding="utf-8"))
-    decision = audit["decision"]
-    retry = audit["enhanced_retry"]
-    robust = audit["robust_seven_response_replay"]
-    six = audit["six_response_sensitivity"]
-
-    assert decision["audit_pass"] is True
-    assert retry["success"] is True
-    assert retry["absolute_delta_from_frozen"] < 1e-4
-    assert robust["target_fit"]["optimizer_success"] is True
-    assert robust["joint_vector"]["all_optimizers_converged"] is True
-    assert robust["joint_vector"]["q_value"] < 0.05
-    assert six["joint_vector"]["all_optimizers_converged"] is True
-    assert six["joint_vector"]["q_value"] < 0.05
-
-    independent = audit["independent_multistart_confirmation"]
-    assert independent["status"] == "pass"
-    assert independent["all_multistart_fits_successful"] is True
-    assert independent["seven_response"]["p_value"] < 0.05
-    assert independent["six_response_drop_warned_component"]["p_value"] < 0.05
-    assert independent["max_abs_retry_minus_frozen_slope"] < 1e-4
-    assert independent["artifact_id"] == 10930986676
+    assert audit["decision"]["audit_pass"] is True
+    assert audit["independent_multistart_confirmation"]["status"] == "pass"
 
     manuscript = MANUSCRIPT.read_text(encoding="utf-8")
-    assert "finite-cluster" in manuscript
-    assert "one-dimensional score" in manuscript
+    assert "All 112 fits converged" in manuscript
+    assert "one-dimensional score" not in manuscript
     assert "2.93 × 10^-6" not in manuscript
     assert "1.43 × 10^-8" not in manuscript
+

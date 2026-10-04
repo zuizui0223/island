@@ -8,7 +8,7 @@ Checked against the current author guidelines on 28 September 2026. The Data and
 
 Dear Ecology Letters Editorial Office,
 
-We are preparing a Letter that combines a global island plant-trait database with independent pollen-supplementation data to test whether geographic isolation is associated with a positive average floral/reproductive island-syndrome tendency, how strongly that response varies among regions, and whether the same geographic gradient is associated with pollen limitation.
+We are preparing a Letter that combines a global island plant-trait database with independent pollen-supplementation data to test which reproductive functions recur with island isolation, which floral phenotypes remain region dependent, and whether the same geographic gradient is associated with pollen limitation.
 
 Before submission, we would like to confirm whether our data-archiving plan can meet the journal's Data and Code Availability requirements.
 

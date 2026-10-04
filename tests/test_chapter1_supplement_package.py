@@ -1,5 +1,4 @@
 import csv
-import json
 import re
 from pathlib import Path
 
@@ -21,8 +20,7 @@ def test_supplement_has_complete_s1_s7_structure() -> None:
 
     required_tables = (
         "Table S1.",
-        "Table S2a.",
-        "Table S2b.",
+        "Table S2.",
         "Table S3.",
         "Table S5.",
         "Table S6a.",
@@ -37,7 +35,14 @@ def test_supplement_has_complete_s1_s7_structure() -> None:
 
 def test_supplement_references_live_corrected_paths_and_generated_tables() -> None:
     text = SI.read_text(encoding="utf-8")
-    refs = sorted(set(re.findall(r"((?:results/geography_20260924|submission/chapter1_current/supplement)/[^\s,;]+)", text)))
+    refs = sorted(
+        set(
+            re.findall(
+                r"((?:results/(?:geography_20260924|h1_final_traitwise_t_20261004|h1_final_directional_20261003|h2_complete_selfing_corrected_20261003|h3_offshore_gradient_20261003)|submission/chapter1_current/supplement)/[^\s,;]+)",
+                text,
+            )
+        )
+    )
     assert refs
     for ref in refs:
         clean = ref.rstrip(".:)")
@@ -46,61 +51,72 @@ def test_supplement_references_live_corrected_paths_and_generated_tables() -> No
 
     for name in (
         "Table_S1_data_summary.csv",
-        "Table_S2a_H1_atomic.csv",
-        "Table_S2b_H1_joint.csv",
-        "Table_S3_H2_decomposition.csv",
+        "Table_S2_H1_traitwise.csv",
+        "Table_S3a_H2_all_finite_cluster.csv",
+        "Table_S3b_H2_direct_finite_cluster.csv",
         "Table_S5_H3_pollen_limitation.csv",
         "Table_S6a_H4_scores.csv",
-        "Table_S6b_H4_atomic.csv",
         "SUPPLEMENT_TABLES_MANIFEST.json",
     ):
         assert (TABLE_DIR / name).is_file(), name
 
 
-def test_supplement_h1_values_and_convergence_audit() -> None:
+def test_supplement_h1_values_match_final_traitwise_table() -> None:
     text = SI.read_text(encoding="utf-8")
-    joint = _read_csv(TABLE_DIR / "Table_S2b_H1_joint.csv")
-    broad = {
-        (row["evidence_scope"], row["context"]): row
-        for row in joint
-        if row["stratum"] == "all_observed"
-    }
-    assert len(broad) == 8
-    assert all(row["vector_supported"] == "True" for row in broad.values())
+    h1 = _read_csv(TABLE_DIR / "Table_S2_H1_traitwise.csv")
+    assert len(h1) == 112
+    assert all(row["optimizer_success"] == "True" for row in h1)
 
-    assert "3.216 × 10^-10" in text
-    assert "3.794 × 10^-8" in text
-    assert "2.93 × 10^-6" in text
-    assert "1.430 × 10^-8" in text
+    primary_sc = [
+        row
+        for row in h1
+        if row["evidence_scope"] == "all"
+        and row["flora_scope"] == "broad"
+        and row["outcome"] == "self_compatibility"
+    ]
+    assert len(primary_sc) == 4
+    assert all(float(row["estimate"]) > 0 for row in primary_sc)
+    assert all(float(row["p_two_sided"]) < 0.05 for row in primary_sc)
 
-    audit = json.loads(
-        (ROOT / "results/geography_20260924/h1_direct_northern_high_convergence_audit.json")
-        .read_text(encoding="utf-8")
-    )
-    assert audit["decision"]["audit_pass"] is True
-    assert audit["robust_seven_response_replay"]["joint_vector"]["all_optimizers_converged"] is True
-    assert audit["six_response_sensitivity"]["joint_vector"]["q_value"] < 0.05
+    assert "0.00569" in text
+    assert "0.00671" in text
+    assert "0.01812" in text
+    assert "0.01123" in text
+    assert "Earlier joint/vector H1 tables" in text
 
 
 def test_supplement_h2_h3_h4_values_match_generated_tables() -> None:
     text = SI.read_text(encoding="utf-8")
 
-    h2 = _read_csv(TABLE_DIR / "Table_S3_H2_decomposition.csv")
-    access = [row for row in h2 if row["response"] == "generalized_accessible"]
+    h2_all = _read_csv(TABLE_DIR / "Table_S3a_H2_all_finite_cluster.csv")
+    h2_direct = _read_csv(TABLE_DIR / "Table_S3b_H2_direct_finite_cluster.csv")
+    access = [
+        row for row in h2_all + h2_direct if row["response"] == "generalized_accessible"
+    ]
     assert len(access) == 8
     assert all(float(row["distance_estimate"]) > 0 for row in access)
-    assert "0.1196" in text
+    assert "0.01913" in text
+    assert "0.1267" in text
 
     h3 = _read_csv(TABLE_DIR / "Table_S5_H3_pollen_limitation.csv")
     primary_h3 = next(row for row in h3 if row["analysis"] == "primary")
     assert round(float(primary_h3["estimate"]), 5) == 0.09191
+    assert round(float(primary_h3["finite_publication_t_two_sided_p"]), 5) == 0.01594
     assert "0.09191" in text
-    assert "0.01575" in text
+    assert "0.01594" in text
 
     h4 = _read_csv(TABLE_DIR / "Table_S6a_H4_scores.csv")
     primary = {row["family"]: row for row in h4 if row["analysis"] == "primary"}
     assert round(float(primary["reproductive_assurance"]["estimate"]), 5) == -0.29830
+    assert round(
+        float(primary["reproductive_assurance"]["finite_publication_t_two_sided_p"]),
+        5,
+    ) == 0.00417
     assert round(float(primary["accessibility_generalization"]["estimate"]), 5) == -0.29566
+    assert round(
+        float(primary["accessibility_generalization"]["finite_publication_t_two_sided_p"]),
+        5,
+    ) == 0.02334
     assert "-0.29830" in text
     assert "-0.29566" in text
 

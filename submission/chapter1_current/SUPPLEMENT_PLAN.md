@@ -1,6 +1,6 @@
-> **4 October 2026 H1 supersession:** use `config/chapter1_submission_current.json`, the revised MANUSCRIPT and `results/h1_traitwise_20261004/`. Any pooled-score statistics, figure assets or readiness statements below describe the archived pre-traitwise package and are not current submission evidence. Administrative packaging must be regenerated before submission.
+> **Current H1 surface:** final separate-trait finite-cluster inference in `results/h1_final_traitwise_t_20261004/`; no pooled/domain H1 score is active.
 
-> **Implementation status:** Submission-facing S1–S7 text is assembled in `SUPPLEMENTARY_INFORMATION.md`. Deterministic Tables S1, S2a–S2h, S3, S5, S6a and S6b are generated under `supplement/`. Table S4 is intentionally the complete raw-pattern CSV family. Remaining work is final journal packaging.
+> **Implementation status:** Submission-facing S1–S7 text is assembled in `SUPPLEMENTARY_INFORMATION.md`. Active deterministic tables are S1, traitwise H1 S2, finite-cluster H2 S3a/S3b, H3 S5 and H4 score S6a. Table S4 remains the complete raw-pattern file family.
 
 # Supplementary Information plan — Ecology Letters first shot
 
@@ -29,22 +29,16 @@ The main paper should remain conceptual and compact. Technical audit detail, exh
 - 222,688 / 318,885 resolved cells;
 - provenance and redistribution-rights boundary.
 
-## Appendix S3 — H1 directional tendency, heterogeneity and provenance sensitivity
+## Appendix S3 — H1 traitwise recurrence and provenance sensitivity
 
-- primary frozen seven-indicator one-dimensional directional score;
-- finite-cluster t and Rademacher sign-flip regional inference;
-- H1a Paule-Mandel / modified Hartung-Knapp global-average synthesis;
-- H1b Cochran Q / I² with exact delete-one-spatial-cluster jackknife sensitivity;
-- strict four-region intersection-union recurrence test;
-- WCVP regional-native-compatible replay of the same final directional H1;
-- northern-midlatitude isolation-support diagnostic;
-- descriptive raw three-axis models using the original species×axis cells;
-- formal cell-retention and ontology-repair audit;
-- source-native, WCVP regional-native-compatible and complementary status partitions;
-- native-compatible versus incompatible/introduced status-by-isolation vector diagnostics;
-- strict source-native versus source-introduced tropical comparison;
-- TDWG Level-3 resolution sensitivity;
-- historical seven-dimensional joint-Wald and taxonomic-depth diagnostics retained only for provenance.
+- seven individual reproductive, colour and structural traits;
+- broad contemporary flora as primary scope;
+- WCVP regional-native-compatible origin sensitivity;
+- Direct-only evidence-quality sensitivity;
+- spatial-cluster finite-sample t inference;
+- pointwise intervals and two-sided P values;
+- explicit statement that the 28 individual tests do not provide a family-wise syndrome test;
+- historical composite/joint/domain analyses retained only as provenance.
 
 ## Appendix S4 — H2 full decomposition
 
@@ -89,17 +83,12 @@ The main paper should remain conceptual and compact. Technical audit detail, exh
 ## Supplementary tables
 
 - Table S1: deterministic data/geography summary;
-- Table S2a: historical seven-indicator H1 atomic coefficients;
-- Table S2b: historical seven-dimensional joint-Wald diagnostics;
-- Table S2e: descriptive seven-indicator domain orientation;
-- Table S2f: descriptive raw three-axis audit;
-- Table S2g: floristic-origin response-vector contrasts;
-- Table S2h: species×axis ontology and formal-cell audit;
-- Table S3: complete H2 conditional decomposition;
-- Table S4: complete corrected raw-colour/architecture CSV family (not duplicated into one oversized table);
-- Table S5: H3 primary and sensitivity models;
-- Table S6a: H4 exact H2-score bridge;
-- Table S6b: H4 atomic sensitivities.
+- Table S2: final 112-row traitwise H1 table;
+- Table S3a/S3b: All and Direct-only H2 finite-cluster audits;
+- Table S4: complete corrected raw-colour/architecture CSV family;
+- Table S5: finite-publication H3 primary and sensitivity models;
+- Table S6a: finite-publication H4 exact H2-score bridge;
+- atomic H4 sensitivities remain reported in SI text from the corrected atomic source.
 
 ## Supplementary figures
 

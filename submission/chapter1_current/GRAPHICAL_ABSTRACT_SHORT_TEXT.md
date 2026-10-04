@@ -1,3 +1,3 @@
 # Graphical abstract short text
 
-Geographic isolation is associated with stronger pollen limitation and a positive average floral–reproductive island-syndrome tendency whose magnitude varies among regions. Reproductive assurance and floral accessibility are partially separable, and both are associated with lower current pollen limitation, while the historical causal pathway remains unresolved.
+Island isolation is associated most consistently with reproductive-assurance traits, while floral colour and structure vary among regions. The same isolation gradient carries stronger experimental pollen limitation, and reproductive-assurance and accessibility states are associated with lower current limitation. The historical causal pathway remains unresolved.

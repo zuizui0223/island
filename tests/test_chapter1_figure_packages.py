@@ -23,7 +23,10 @@ def _assert_pdf(path: Path) -> None:
 def test_main_figure_package_is_complete() -> None:
     manifest = json.loads((MAIN / "FIGURE_MANIFEST.json").read_text(encoding="utf-8"))
     assert manifest["contract"] == "chapter1_main_figures_corrected_v1"
-    assert manifest["source_surface"] == "corrected_geography_20260924"
+    assert (
+        manifest["source_surface"]
+        == "corrected_geography_20260924_plus_final_traitwise_H1_20261004"
+    )
     assert [item["figure"] for item in manifest["figures"]] == [1, 2, 3, 4, 5, 6]
 
     for item in manifest["figures"]:
@@ -39,6 +42,15 @@ def test_main_figure_package_is_complete() -> None:
     )
     assert "Historical causal edge not identified" in figure3
     assert "not a mediation model" in figure3
+
+    assert (
+        (MAIN / "Figure4_H1_recurrent_multivariate_response.svg").read_bytes()
+        == (ROOT / "results/h1_final_traitwise_t_20261004/traitwise_H1.svg").read_bytes()
+    )
+    assert (
+        (MAIN / "Figure4_H1_recurrent_multivariate_response.pdf").read_bytes()
+        == (ROOT / "results/h1_final_traitwise_t_20261004/traitwise_H1.pdf").read_bytes()
+    )
 
 
 def test_supplement_figure_package_is_complete() -> None:

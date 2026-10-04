@@ -1,10 +1,10 @@
 # Supplementary Information draft
 
-> **Internal source map only — do not submit.** The submission-facing SI is `SUPPLEMENTARY_INFORMATION.md`. Final H1 inference is the frozen seven-indicator one-dimensional directional score; raw three-axis and seven-dimensional Wald results below are descriptive/historical diagnostics.
+> **Internal source map only — do not submit.** The submission-facing SI is `SUPPLEMENTARY_INFORMATION.md`. Final H1 inference is the seven separate-trait finite-cluster analysis in `results/h1_final_traitwise_t_20261004/`; composite, joint-Wald and domain-score H1 analyses are historical diagnostics.
 
 ## Article
 
-**A global floral island-syndrome tendency is regionally heterogeneous and functionally aligned with pollen limitation**
+**Island isolation is associated with recurrent reproductive assurance but regionally contingent floral change**
 
 This Supplementary Information draft is tied to the corrected 8,264-unit Chapter 1 submission surface selected by `config/chapter1_submission_current.json`. It does not use superseded v13/v14 geography or historical WHEN/WHERE branches.
 
@@ -80,55 +80,19 @@ Supporting provenance:
 
 ---
 
-## Appendix S3 — H1 directional tendency, heterogeneity and diagnostic decomposition
+## Appendix S3 — Final H1 traitwise analysis
 
-### S3.1 Primary all-analysis models
+Primary source:
 
-Atomic isolation slopes:
+- `results/h1_final_traitwise_t_20261004/traitwise_results.csv`
 
-- `results/geography_20260924/all/beta_binomial_within_slopes.csv`
+The active H1 contains 112 fits (All/Direct-only × broad/WCVP × four regions × seven traits). All fits converged. The primary interpretation emphasizes recurrent self-compatibility and region-dependent expression of the other reproductive, colour and structural traits. No pooled/domain H1 score is active.
 
-Joint seven-response tests:
+**Table S2:** complete final traitwise H1 coefficients, finite-cluster intervals and pointwise two-sided P values.
 
-- `results/geography_20260924/all/beta_binomial_within_omnibus.csv`
+**Figure S3:** Direct-only and/or WCVP comparison against the primary broad All traitwise result.
 
-Original-versus-corrected comparisons:
-
-- `results/geography_20260924/all/comparison_beta_binomial_within_slopes.csv`
-- `results/geography_20260924/all/comparison_beta_binomial_within_omnibus.csv`
-
-### S3.2 Direct-only sensitivity
-
-- `results/geography_20260924/direct/beta_binomial_within_slopes.csv`
-- `results/geography_20260924/direct/beta_binomial_within_omnibus.csv`
-- `results/geography_20260924/direct/comparison_beta_binomial_within_slopes.csv`
-- `results/geography_20260924/direct/comparison_beta_binomial_within_omnibus.csv`
-
-The main H1 claim is a positive global-average one-dimensional directional tendency with regional modulation; strict four-region recurrence is unsupported. The seven-dimensional joint tests and individual atomic coefficients are retained here only as historical/diagnostic decomposition.
-
-### S3.3 Northern-high-latitude Direct-only optimizer audit
-
-The frozen corrected Direct-only northern-high-latitude table marked the shallow/open-tube component as `optimizer_success=false`, while the seven-response joint test remained FDR-supported. Because `vector_supported` in the historical runner was based on q-value and did not itself require every optimizer flag to be true, we performed a dedicated numerical audit rather than treating the flag as cosmetic.
-
-Audit source:
-
-- `results/geography_20260924/h1_direct_northern_high_convergence_audit.json`
-- `scripts/geography_correction/audit_h1_direct_convergence.py`
-
-Results:
-
-- frozen shallow/open-tube estimate: 0.3544814;
-- enhanced re-fit estimate: 0.3544784;
-- absolute change: 2.93 × 10^-6;
-- enhanced re-fit: converged;
-- fully converged seven-response replay: q = 3.793 × 10^-8;
-- fully converged six-response sensitivity excluding shallow/open tube: q = 1.430 × 10^-8.
-
-Thus the Direct-only northern-high-latitude H1 conclusion is numerically stable and does not depend on the warned component. An independent Python 3.11 multistart audit (workflow run `36316367290`, artifact `10930986676`) reached the same conclusion: all multistart fits succeeded, the seven-response test gave P = 1.898 × 10^-8, the six-response sensitivity gave P = 7.154 × 10^-9, and the maximum slope deviation from the frozen solution was 2.85 × 10^-6.
-
-**Table S2:** complete H1 coefficient, SE, P and FDR-adjusted q table.
-
-**Figure S3:** Direct-only H1 coefficient forest plot beside the primary all-analysis result.
+Historical joint-Wald, directional-score, taxonomic-depth and floristic-origin decompositions remain provenance only and are not the active H1 inference.
 
 ---
 
@@ -257,8 +221,8 @@ Autonomous selfing is the strongest atomic functional association; actinomorphy 
 
 The current paper permits:
 
-1. a positive global-average directional floral/reproductive island-syndrome tendency;
-2. regional modulation, while strict four-region recurrence remains unsupported;
+1. recurrent self-compatibility enrichment with island isolation;
+2. regionally contingent expression of other reproductive, colour and structural traits;
 3. partial separation of reproductive assurance and floral accessibility;
 4. an independent isolation-associated pollen-limitation gradient;
 5. post-hoc functional compatibility of response trait states with lower current pollen limitation.

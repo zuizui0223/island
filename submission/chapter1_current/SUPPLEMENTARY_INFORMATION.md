@@ -1,6 +1,6 @@
 # Supplementary Information
 
-## Traitwise floral responses to island isolation and their functional alignment with pollen limitation
+## Island isolation is associated with recurrent reproductive assurance but regionally contingent floral change
 
 This Supplementary Information accompanies the corrected Chapter 1 submission selected by config/chapter1_submission_current.json. All numerical results below are bound to results/geography_20260924/ and to the deterministic supplementary tables under submission/chapter1_current/supplement/.
 
@@ -94,6 +94,14 @@ The primary analysis is broad contemporary island flora with All evidence. Each 
 
 WCVP regional-native-compatible flora is the sole active origin sensitivity; Direct-only is a separate evidence-quality sensitivity. Both use the identical model and inference rule. WCVP compatibility retains existing source-native records and upgrades unresolved records only under accepted TDWG-L3 native-range compatibility; introduced records are not overwritten. This establishes regional compatibility rather than exact focal-island nativity. H2–H4 and their previously defined functional covariates are unchanged.
 
+### Table S2. Final traitwise H1 results
+
+The active machine-readable H1 table is:
+
+- submission/chapter1_current/supplement/Table_S2_H1_traitwise.csv
+
+It contains all 112 final fits (All/Direct-only × broad/WCVP × four regions × seven traits), their finite-cluster t intervals and pointwise two-sided P values. All 112 fits converged. Earlier joint/vector H1 tables are retained only as historical provenance and are not active submission inference.
+
 ### H1: recurrent reproductive responses with regional floral differences
 
 All 112 fits converged. Primary All evidence supports 17 of 28 individual associations at nominal two-sided P < 0.05, the same set of significant traits as the original poster's normal approximation. Self-compatibility increases with isolation in all four regions (P = 0.00569, 0.00671, 0.01812 and 0.01123 in northern mid-latitude, northern high-latitude, tropical and southern extratropical floras, respectively). Selfing mating system increases in the first three regions. Autonomous selfing increases in northern high latitudes and the tropics. Generalized form increases in northern mid-latitudes, the tropics and southern extratropics; actinomorphy increases in northern high latitudes and the tropics. Shallow/open tubes increase in northern high latitudes but decrease in southern extratropics. Plain colour increases in southern extratropics.
@@ -118,18 +126,19 @@ Persistence of an isolation coefficient after adjustment for selfing_core is con
 
 ### Table S3. Complete H2 conditional decomposition
 
-Machine-readable table:
+Active machine-readable finite-cluster tables:
 
-- submission/chapter1_current/supplement/Table_S3_H2_decomposition.csv
+- submission/chapter1_current/supplement/Table_S3a_H2_all_finite_cluster.csv
+- submission/chapter1_current/supplement/Table_S3b_H2_direct_finite_cluster.csv
 
-Selfing-adjusted accessibility estimates:
+Selfing-adjusted accessibility estimates use t(G−1) P values and BH q values from the final finite-cluster audit:
 
 | Region | All-analysis β | SE | P | q | Direct-only β | SE | P | q |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Northern mid-latitude | 0.02068 | 0.01281 | 0.1065 | 0.1703 | 0.01715 | 0.01144 | 0.1340 | 0.2143 |
-| Northern high latitude | 0.12557 | 0.03390 | 0.000212 | 0.000847 | 0.11657 | 0.03716 | 0.001709 | 0.006835 |
-| Tropical | 0.06846 | 0.02494 | 0.006061 | 0.01616 | 0.05249 | 0.02616 | 0.04483 | 0.1196 |
-| Southern extratropical | 0.04929 | 0.03979 | 0.2154 | 0.2873 | 0.05779 | 0.03473 | 0.09611 | 0.1922 |
+| Northern mid-latitude | 0.02068 | 0.01281 | 0.1103 | 0.1764 | 0.01715 | 0.01144 | 0.1378 | 0.2205 |
+| Northern high latitude | 0.12557 | 0.03390 | 0.000474 | 0.00243 | 0.11657 | 0.03716 | 0.002744 | 0.01097 |
+| Tropical | 0.06846 | 0.02494 | 0.007174 | 0.01913 | 0.05249 | 0.02616 | 0.04751 | 0.1267 |
+| Southern extratropical | 0.04929 | 0.03979 | 0.2232 | 0.2977 | 0.05779 | 0.03473 | 0.1046 | 0.2091 |
 
 All eight estimates are positive. FDR support is region dependent. In the primary scope it is strongest in northern high latitudes and the tropics. Tropical Direct-only remains nominally positive but is not FDR-supported.
 
@@ -190,9 +199,9 @@ Machine-readable table:
 
 | Analysis | β distance | SE | Two-sided P | Cells | Publications | Sites |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Primary | 0.09191 | 0.03806 | 0.01575 | 1,408 | 919 | 1,248 |
-| Supplemental-only | 0.04410 | 0.04351 | 0.31082 | 828 | 470 | 736 |
-| No-zero-constant | 0.09089 | 0.03865 | 0.01869 | 1,375 | 912 | 1,238 |
+| Primary | 0.09191 | 0.03806 | 0.01594 | 1,408 | 919 | 1,248 |
+| Supplemental-only | 0.04410 | 0.04351 | 0.31134 | 828 | 470 | 736 |
+| No-zero-constant | 0.09089 | 0.03865 | 0.01891 | 1,375 | 912 | 1,238 |
 
 The primary and no-zero-constant models support a positive isolation association. Supplemental-only remains positive but unsupported. H3 is an isolation-associated pollen-delivery constraint, not direct evidence of declining pollinator abundance or visitation.
 
@@ -240,29 +249,25 @@ Machine-readable table:
 
 | Trait family / score | Analysis | β trait score | SE | Two-sided P | Species | Publications |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Reproductive assurance / selfing_core | Primary | -0.29830 | 0.10352 | 0.00396 | 455 | 409 |
-| Reproductive assurance / selfing_core | No-zero-constant | -0.30078 | 0.10419 | 0.00389 | 453 | 408 |
-| Reproductive assurance / selfing_core | Supplemental-only | -0.09953 | 0.09398 | 0.28962 | 283 | 241 |
-| Accessibility / generalized_accessible | Primary | -0.29566 | 0.12896 | 0.02187 | 143 | 143 |
-| Accessibility / generalized_accessible | No-zero-constant | -0.30366 | 0.12991 | 0.01942 | 142 | 142 |
-| Accessibility / generalized_accessible | Supplemental-only | -0.29950 | 0.14562 | 0.03971 | 101 | 98 |
+| Reproductive assurance / selfing_core | Primary | -0.29830 | 0.10352 | 0.00417 | 455 | 409 |
+| Reproductive assurance / selfing_core | No-zero-constant | -0.30078 | 0.10419 | 0.00410 | 453 | 408 |
+| Reproductive assurance / selfing_core | Supplemental-only | -0.09953 | 0.09398 | 0.29068 | 283 | 241 |
+| Accessibility / generalized_accessible | Primary | -0.29566 | 0.12896 | 0.02334 | 143 | 143 |
+| Accessibility / generalized_accessible | No-zero-constant | -0.30366 | 0.12991 | 0.02082 | 142 | 142 |
+| Accessibility / generalized_accessible | Supplemental-only | -0.29950 | 0.14562 | 0.04239 | 101 | 98 |
 
 Negative coefficients indicate that stronger expression of the island-associated H2 score is associated with lower current experimental pollen limitation.
 
 ### Table S6b. Atomic-trait H4 sensitivities
 
-Machine-readable table:
-
-- submission/chapter1_current/supplement/Table_S6b_H4_atomic.csv
-
-Primary atomic estimates:
+Primary atomic estimates are reported with finite-publication t inference:
 
 | Trait | β trait state | SE | Two-sided P | Species | Publications |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Self-compatibility | -0.11885 | 0.08246 | 0.1495 | 499 | 429 |
-| Autonomous selfing | -0.44492 | 0.08020 | 2.89 × 10^-8 | 558 | 469 |
-| Generalized form | -0.18448 | 0.09174 | 0.04434 | 246 | 246 |
-| Actinomorphic symmetry | -0.38076 | 0.08697 | 1.20 × 10^-5 | 582 | 479 |
+| Self-compatibility | -0.11885 | 0.08246 | 0.1502 | 499 | 429 |
+| Autonomous selfing | -0.44492 | 0.08020 | 4.85 × 10^-8 | 558 | 469 |
+| Generalized form | -0.18448 | 0.09174 | 0.04543 | 246 | 246 |
+| Actinomorphic symmetry | -0.38076 | 0.08697 | 1.47 × 10^-5 | 582 | 479 |
 
 Selfing mating system and shallow/open tube did not pass their parent support gates for atomic H4 promotion.
 
@@ -313,15 +318,16 @@ It records source and output SHA-256 hashes and supports byte-for-byte table reb
 
 - scripts/submission/build_chapter1_supplement_tables.py
 
-Generated tables:
+Generated active tables:
 
 - Table_S1_data_summary.csv
-- Table_S2a_H1_atomic.csv
-- Table_S2b_H1_joint.csv
-- Table_S3_H2_decomposition.csv
+- Table_S2_H1_traitwise.csv
+- Table_S3a_H2_all_finite_cluster.csv
+- Table_S3b_H2_direct_finite_cluster.csv
 - Table_S5_H3_pollen_limitation.csv
 - Table_S6a_H4_scores.csv
-- Table_S6b_H4_atomic.csv
+
+Atomic H4 sensitivities are reported in the SI text from the corrected atomic source table; earlier H1 joint/vector and domain tables remain historical provenance only.
 
 Table S4 is intentionally represented by the complete corrected raw-pattern file family rather than by one oversized duplicated table.
 

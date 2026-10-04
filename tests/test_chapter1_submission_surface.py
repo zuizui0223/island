@@ -102,18 +102,17 @@ def test_historical_surfaces_are_explicitly_marked_and_not_current():
 
 def test_current_scientific_guidance_matches_corrected_h1_h4_surface():
     thesis = THESIS.read_text(encoding="utf-8")
-    assert "Current scientific surface: corrected geography baseline" in thesis
-    assert "### H1 — positive global-average tendency with regional modulation" in thesis
-    assert "### H2 — partially separable reproductive-assurance and accessibility responses" in thesis
-    assert "### H3 — independent ecological-pressure correlate" in thesis
+    assert "Current scientific surface: corrected geography + final traitwise H1" in thesis
+    assert "### H1 — recurrent reproductive function, contingent floral phenotype" in thesis
+    assert "### H2 — reproductive assurance does not absorb all floral response" in thesis
+    assert "### H3 — independent reproductive constraint" in thesis
     assert "### H4 — functional compatibility" in thesis
-    assert "What Chapter 1 no longer claims" in thesis
+    assert "functional recurrence with phenotypic contingency" in thesis
 
     for path in [ANALYSIS_V2, PROGRESSIVE_CONFIG, ALL_DATA_PROGRESSIVE_CONFIG, DATABASE_RELEASE, DATABASE_VERSIONS]:
         prefix = path.read_text(encoding="utf-8")[:600].lower()
         assert "historical" in prefix, path
         assert "chapter1_submission_current.json" in prefix, path
-
 
 def test_historical_execution_docs_do_not_present_stale_canonical_routes():
     analysis = ANALYSIS_V2.read_text(encoding="utf-8")

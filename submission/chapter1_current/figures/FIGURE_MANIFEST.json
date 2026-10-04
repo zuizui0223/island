@@ -1,6 +1,6 @@
 {
   "contract": "chapter1_main_figures_corrected_v1",
-  "source_surface": "corrected_geography_20260924",
+  "source_surface": "corrected_geography_20260924_plus_final_traitwise_H1_20261004",
   "figures": [
     {
       "figure": 1,
@@ -30,9 +30,9 @@
       "figure": 4,
       "stem": "Figure4_H1_recurrent_multivariate_response",
       "svg": "Figure4_H1_recurrent_multivariate_response.svg",
-      "svg_bytes": 89499,
+      "svg_bytes": 137015,
       "pdf": "Figure4_H1_recurrent_multivariate_response.pdf",
-      "pdf_bytes": 25175
+      "pdf_bytes": 32905
     },
     {
       "figure": 5,
