@@ -1,0 +1,100 @@
+name: Chapter 1 genus allocation null
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/chapter1_genus_allocation_null_20261005.yml"
+      - "src/island_v2/chapter1_genus_allocation_null.py"
+      - "tests/test_chapter1_genus_allocation_null.py"
+      - ".github/workflows/chapter1-genus-allocation-null.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: chapter1-genus-allocation-null-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install and test
+        run: |
+          pip install -e ".[dev]"
+          pytest -q tests/test_chapter1_genus_allocation_null.py
+          ruff check src/island_v2/chapter1_genus_allocation_null.py tests/test_chapter1_genus_allocation_null.py
+
+      - name: Download frozen Chapter 1 inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/genus-null/source /tmp/genus-null/result
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/genus-null/source
+          test -s /tmp/genus-null/source/fixed/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/genus-null/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+          test -s /tmp/genus-null/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+          test -s /tmp/genus-null/source/fixed/source/source/gift_native_mainland_flora.csv.gz
+          test -s /tmp/genus-null/source/fixed/source/result/island_source_assignments.csv.gz
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+
+      - name: Run mechanical genus-allocation null
+        run: |
+          python -m island_v2.chapter1_genus_allocation_null \
+            --state-audit-all-csv /tmp/genus-null/source/snapshot/chapter1_trait_state_audit_all.csv.gz \
+            --state-audit-direct-csv /tmp/genus-null/source/snapshot/chapter1_trait_state_audit_direct.csv.gz \
+            --status-flora-csv /tmp/genus-null/source/fixed/canonical/input/chapter1_status_flora.csv.gz \
+            --gift-flora-csv /tmp/genus-null/source/fixed/source/source/gift_native_mainland_flora.csv.gz \
+            --source-assignments-csv /tmp/genus-null/source/fixed/source/result/island_source_assignments.csv.gz \
+            --corrected-covariates-csv results/geography_20260924/corrected_geography_covariates.csv \
+            --probability-config-path config/chapter1_v14_all_data_probability.yml \
+            --null-config-path config/chapter1_genus_allocation_null_20261005.yml \
+            --output-dir /tmp/genus-null/result
+
+      - name: Validate and summarize
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path("/tmp/genus-null/result")
+          result = json.loads((root / "RESULT.json").read_text())
+          table = pd.read_csv(root / "genus_allocation_null_results.csv")
+          estimability = pd.read_csv(root / "within_genus_estimability.csv")
+          summary = pd.read_csv(root / "genus_allocation_null_summary.csv")
+
+          assert result["submission_inference"] is False
+          assert result["n_permutations"] == 499
+          fit = table.loc[table['status'].eq('fit')]
+          assert len(fit) > 0
+          assert (fit['slope_closure_error'].abs() <= 1e-10).all()
+          assert len(estimability) > 0
+
+          print("=== NULL SUMMARY ===")
+          print(summary.to_string(index=False))
+          print("\n=== ESTIMABILITY ===")
+          print(estimability.to_string(index=False))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-genus-allocation-null-${{ github.run_id }}
+          path: /tmp/genus-null/result
+          if-no-files-found: error
+          retention-days: 30
