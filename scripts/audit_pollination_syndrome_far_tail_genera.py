@@ -285,10 +285,14 @@ def main() -> None:
         print(f"\n=== direct top genera: {context} ===")
         print(top[["genus", "n_deep_occurrences", "n_trial_occurrences", "n_deep_islands", "n_deep_species", "share_of_all_deep_occurrences"]].to_string(index=False))
         if not logo.empty:
-            l = logo.loc[(logo["evidence_scope"].eq("direct")) & (logo["context"].eq(context))].copy()
-            l = l.sort_values("delta_post_hinge_slope_removed_minus_baseline")
+            logo_context = logo.loc[
+                logo["evidence_scope"].eq("direct") & logo["context"].eq(context)
+            ].copy()
+            logo_context = logo_context.sort_values(
+                "delta_post_hinge_slope_removed_minus_baseline"
+            )
             print("\nLeave-one-genus-out (most slope-reducing removals):")
-            print(l.head(15).to_string(index=False))
+            print(logo_context.head(15).to_string(index=False))
 
 
 if __name__ == "__main__":
