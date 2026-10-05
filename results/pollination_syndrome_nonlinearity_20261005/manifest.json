@@ -1,0 +1,13 @@
+{
+  "contract": "chapter1_pollination_syndrome_hinge_diagnostic_v1",
+  "role": "post_hoc_diagnostic_not_submission_inference",
+  "lower_bound_km": 0.2514927916276341,
+  "first_knot_iqr_upper_km": 127.55590917234709,
+  "hinge_knot_km": 783.0170567911987,
+  "knot_definition": "support-derived knots: upper bound of four-region common IQR and upper bound of four-region common 5-95% isolation support",
+  "full_corrected_replay_verified": true,
+  "model": "grouped-binomial logit with cluster-robust covariance; selfing_core + area + climate adjusted; raw log(1+distance) slopes with support-derived hinge terms",
+  "interpretation": "post-hoc exposure-nonlinearity diagnostic; not a causal pollinator test or submission inference",
+  "workflow_run": 37288340871,
+  "artifact_id": 11335466621
+}
