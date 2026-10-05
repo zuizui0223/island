@@ -13,10 +13,12 @@ For each island/outcome/source-mode row the exact identity is
 
 raw_h1_mean
 = source_species_expectation
-+ species_sorting_enrichment
++ genus_species_structure_enrichment
++ within_genus_species_sorting_enrichment
 
-where the expectation preserves the observed number of island species in each
-source-prevalence class. A within-species term is deliberately NOT inserted unless
+The first expectation preserves source-prevalence classes. A second expectation
+also preserves the represented genus of each observed species slot, allowing the
+residual to be identified specifically as species sorting within represented genera. A within-species term is deliberately NOT inserted unless
 population/locality-specific trait values exist.
 """
 from __future__ import annotations
@@ -34,6 +36,7 @@ from scipy import sparse
 from island_v2.chapter1_all_data_probability import _bh
 from island_v2.chapter1_current_h1_source_lineage_entry import (
     SOURCE_MODES,
+    _genus,
     build_outcome_states,
     fit_joint_source_vector,
     match_gift_species,
@@ -44,7 +47,10 @@ app = typer.Typer(add_completion=False, no_args_is_help=True)
 COMPONENTS = (
     "raw_h1_mean",
     "source_species_expectation",
-    "species_sorting_enrichment",
+    "represented_genus_species_expectation",
+    "genus_species_structure_enrichment",
+    "within_genus_species_sorting_enrichment",
+    "total_species_sorting_enrichment",
 )
 
 
