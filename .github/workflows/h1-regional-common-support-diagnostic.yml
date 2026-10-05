@@ -1,0 +1,84 @@
+name: H1 regional common-support diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/audit_h1_regional_common_support.py"
+      - ".github/workflows/h1-regional-common-support-diagnostic.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "34232450884"
+      SOURCE_ARTIFACT: "chapter1-progressive-analysis-34232450884"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install analysis dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Download frozen H1 inputs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/h1-common/source /tmp/h1-common/results
+          gh run download "$SOURCE_RUN_ID" -n "$SOURCE_ARTIFACT" -D /tmp/h1-common/source
+          test -s /tmp/h1-common/source/fixed/canonical/input/chapter1_status_flora.csv.gz
+          test -s /tmp/h1-common/source/snapshot/chapter1_trait_state_audit_all.csv.gz
+          test -s /tmp/h1-common/source/snapshot/chapter1_trait_state_audit_direct.csv.gz
+          test -s results/geography_20260924/corrected_geography_covariates.csv
+
+      - name: Validate diagnostic script
+        run: |
+          ruff check scripts/audit_h1_regional_common_support.py
+          python -m py_compile scripts/audit_h1_regional_common_support.py
+
+      - name: Run common-support diagnostic
+        env:
+          OPENBLAS_NUM_THREADS: "1"
+          OMP_NUM_THREADS: "1"
+        run: |
+          python scripts/audit_h1_regional_common_support.py             --flora /tmp/h1-common/source/fixed/canonical/input/chapter1_status_flora.csv.gz             --all-audit /tmp/h1-common/source/snapshot/chapter1_trait_state_audit_all.csv.gz             --direct-audit /tmp/h1-common/source/snapshot/chapter1_trait_state_audit_direct.csv.gz             --covariates results/geography_20260924/corrected_geography_covariates.csv             --config config/chapter1_h1_final_traitwise_t_20261004.yml             --output /tmp/h1-common/results
+
+      - name: Write summary
+        run: |
+          {
+            echo "## Regional distance quantiles"
+            cat /tmp/h1-common/results/regional_distance_quantiles.csv
+            echo
+            echo "## Common-support windows"
+            cat /tmp/h1-common/results/common_support_windows.csv
+            echo
+            echo "## Support retention"
+            cat /tmp/h1-common/results/regional_support_retention.csv
+            echo
+            echo "## Trait refits"
+            cat /tmp/h1-common/results/trait_common_support_refits.csv
+            echo
+            echo "## Regional summary"
+            cat /tmp/h1-common/results/regional_common_support_summary.csv
+            echo
+            echo "## Regional vector distances"
+            cat /tmp/h1-common/results/regional_vector_distance.csv
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chapter1-h1-regional-common-support-${{ github.run_id }}
+          path: /tmp/h1-common/results
+          if-no-files-found: error
+          retention-days: 30
