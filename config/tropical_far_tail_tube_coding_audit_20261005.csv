@@ -1,0 +1,5 @@
+accepted_species,trait_name,ledger_state,audit_action,audit_basis,external_check
+Thespesia populnea,tube_depth_class,deep,exclude_in_coding_sensitivity,"ledger source points to Flora of China treatment, but treatment gives campanulate corolla ca. 5 cm without a corolla-tube depth; ontology defines tube depth as corolla_tube_depth_mm","Flora of China treatment 200013771"
+Hibiscus tiliaceus,tube_depth_class,deep,exclude_in_coding_sensitivity,"Flora of China gives campanulate corolla 6-7.5 cm diameter and petals 4-4.5 cm, not corolla-tube depth; deep >15 mm is not directly supported by that description","Flora of China treatment 200013733"
+Physalis angulata,tube_depth_class,deep,exclude_in_coding_sensitivity,"external taxonomic description gives total corolla only 4-10 mm, inconsistent with deep tube >15 mm under the locked measurement rule","Plants of the World Online Physalis angulata"
+Crescentia cujete,tube_depth_class,deep,retain,"independent description gives actual corolla tube 2.8-4.5 cm, which is deep under the locked >15 mm rule","Flora Neotropica / POWO"
