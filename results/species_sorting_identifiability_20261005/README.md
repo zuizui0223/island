@@ -112,29 +112,39 @@ within-lineage change occurred.
 
 A recoverable route exists for mating system. Whitehead et al. (2018) compiled
 population-level multilocus outcrossing rates (tm), whereas the Chapter 1 ledger retained
-only species-level mating states. The hash-pinned Whitehead source is therefore being
-audited against the 10,751 repeated-lineage candidates.
+only species-level mating states. The hash-pinned Whitehead source was audited against the 10,751 repeated-lineage
+candidates. It contains **743 population rows across 105 species with numeric species
+means**; **36 Chapter 1 candidate species overlap, contributing 255 population rows with
+numeric tm**. This is a real recoverable within-lineage data bridge.
+
+However, the Whitehead population table contains no explicit latitude, longitude,
+locality, site name or island/source label. Therefore the island-versus-source contrast
+is **not yet directly estimable** from that table alone. The missing object is geography,
+not the mating-system measurement.
 
 The required next gate is strict:
-1. population-specific tm;
-2. explicit population locality;
-3. at least one island and one mainland/source population for the same species;
-4. preferably both sampled in the same underlying study;
-5. no claim of heritable evolution unless the source also supplies genetic/common-garden
-   evidence separating evolutionary divergence from environmental plasticity.
+1. recover study-specific locality metadata for the 36 overlapping species;
+2. retain population-specific tm;
+3. require at least one island and one mainland/source population for the same species;
+4. preferably require both to come from the same underlying study;
+5. fit the island/source or isolation contrast within species before pooling lineages;
+6. make no claim of heritable evolution unless genetic/common-garden evidence separates
+   evolutionary divergence from environmental plasticity.
 
 ## Provenance
 
-Refined estimate validation:
+Final validated implementation:
 - workflow: Chapter 1 species sorting identifiability
-- run: 37252128001
-- commit: 1899495823ebe9800576c8c4700b21a7ca310e2d
-- artifact: 11321766886
+- run: **37254767442**
+- commit: **a5a76ed0052c71eee1f719af3601e4af7b387efd**
+- artifact: **11322366778**
 
-Subsequent implementation repairs retain all trait-resolved observed species when
-reporting the source-overlap fraction, instead of defining the observation universe from
-source-matched species only. The modeled decomposition itself continues to use the same
-explicit source-evaluable species and therefore has the same estimand.
+The final implementation retains all trait-resolved observed species when reporting the
+source-overlap fraction while keeping the modeled decomposition explicitly
+source-evaluable. A sparse-matrix optimization temporarily broke source membership
+matching because CSR product column indices were not guaranteed sorted; the final code
+sorts those indices before binary search and includes a regression guard. The validated
+results above match the pre-optimization refined estimates.
 
 Claim boundary:
 - assemblage composition localized: yes, on testable source-matched contexts;
