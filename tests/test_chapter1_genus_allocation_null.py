@@ -206,16 +206,19 @@ def test_model_weights_equal_full_ols_distance_coefficient() -> None:
     assert n == 12
 
     response = 0.3 * x + np.sin(x / 2.0)
-    z = lambda a: (a - np.mean(a)) / np.std(a, ddof=0)
+
+    def standardize(a: np.ndarray) -> np.ndarray:
+        return (a - np.mean(a)) / np.std(a, ddof=0)
+
     design = np.column_stack(
         [
             np.ones(12),
-            z(covariates["log_island_area_km2"].to_numpy()),
-            z(covariates["climate_pc1"].to_numpy()),
-            z(covariates["climate_pc2"].to_numpy()),
-            z(covariates["climate_pc3"].to_numpy()),
-            z(covariates["climate_pc4"].to_numpy()),
-            z(covariates["log_distance_to_continent_km"].to_numpy()),
+            standardize(covariates["log_island_area_km2"].to_numpy()),
+            standardize(covariates["climate_pc1"].to_numpy()),
+            standardize(covariates["climate_pc2"].to_numpy()),
+            standardize(covariates["climate_pc3"].to_numpy()),
+            standardize(covariates["climate_pc4"].to_numpy()),
+            standardize(covariates["log_distance_to_continent_km"].to_numpy()),
         ]
     )
     expected = float(np.linalg.lstsq(design, response, rcond=None)[0][-1])
